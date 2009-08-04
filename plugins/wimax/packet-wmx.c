@@ -32,8 +32,6 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
@@ -833,9 +831,9 @@ void proto_register_wimax(void)
 
 	/* Register the WiMax protocols here */
 	proto_wimax = proto_register_protocol (
-		"WiMax Protocol", /* name */
-		"WiMax (wmx)", /* short name */
-		"wmx" /* abbrev */
+		"WiMax Protocol", /* name       */
+		"WiMax (wmx)",    /* short name */
+		"wmx"             /* abbrev     */
 		);
 
 #if 0  /* XXX: not used ?? */

@@ -32,8 +32,6 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "crc.h"
@@ -70,19 +68,15 @@ extern gint N_layer;
 extern gint RCID_Type;
 extern gint RCID_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb, gint RCID_Type);
 
-
-/* forward reference */
-void dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint proto_mac_mgmt_msg_ulmap_decoder = -1;
 
 static gint ett_ulmap = -1;
 static gint ett_ulmap_ie = -1;
 static gint ett_ulmap_ffb = -1;
-static gint ett_ulmap_c = -1;
-static gint ett_ulmap_c_ie = -1;
-static gint ett_ulmap_s = -1;
-static gint ett_ulmap_s_ie = -1;
+/* static gint ett_ulmap_c = -1;    */
+/* static gint ett_ulmap_c_ie = -1; */
+/* static gint ett_ulmap_s = -1;    */
+/* static gint ett_ulmap_s_ie = -1; */
 static gint ett_287_1 = -1;
 static gint ett_287_2 = -1;
 static gint ett_289 = -1;
@@ -122,57 +116,6 @@ static gint ett_306 = -1;
 static gint ett_306_ul = -1;
 static gint ett_308b = -1;
 static gint ett_315d = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-    &ett_ulmap,
-    &ett_ulmap_ie,
-    &ett_ulmap_ffb,
-    &ett_ulmap_c,
-    &ett_ulmap_c_ie,
-    &ett_ulmap_s,
-    &ett_ulmap_s_ie,
-    &ett_287_1,
-    &ett_287_2,
-    &ett_289,
-    &ett_290,
-    &ett_290b,
-    &ett_291,
-    &ett_292,
-    &ett_293,
-    &ett_294,
-    &ett_295,
-    &ett_299,
-    &ett_300,
-    &ett_302,
-    &ett_302a,
-    &ett_302b,
-    &ett_302c,
-    &ett_302d,
-    &ett_302e,
-    &ett_302f,
-    &ett_302h,
-    &ett_302g,
-    &ett_302i,
-    &ett_302j,
-    &ett_302k,
-    &ett_302l,
-    &ett_302m,
-    &ett_302n,
-    &ett_302o,
-    &ett_302p,
-    &ett_302q,
-    &ett_302r,
-    &ett_302s,
-    &ett_302t,
-    &ett_302u,
-    &ett_302v,
-    &ett_306,
-    &ett_306_ul,
-    &ett_308b,
-    &ett_315d,
-};
 
 #define DCD_DOWNLINK_BURST_PROFILE        1
 #define DCD_BS_EIRP                       2
@@ -1656,323 +1599,6 @@ void lshift_bits(guint8 *buffer, gint bytes, gint bits)
     }
 }
 
-/* Register Wimax Mac Payload Protocol and Dissector */
-void proto_register_mac_mgmt_msg_ulmap(void)
-{
-	/* UL-MAP fields display */
-	static hf_register_info hf[] =
-	{
-		{
-			&hf_ulmap_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.ulmap",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_fch_expected,
-			{
-				"FCH Expected", "wmx.ulmap.fch.expected",
-				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_ie,
-			{
-				"UL-MAP IE", "wmx.ulmap.ie",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_ie_cid,
-			{
-				"CID", "wmx.ulmap.ie.cid",
-				FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_ie_uiuc,
-			{
-				"UIUC", "wmx.ulmap.ie.uiuc",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_ofdma_sym,
-			{
-				"Num OFDMA Symbols", "wmx.ulmap.ofdma.sym",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_reserved,
-			{
-				"Reserved", "wmx.ulmap.rsv",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_alloc_start_time,
-			{
-				"Uplink Channel ID", "wmx.ulmap.start",
-				FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_ucd_count,
-			{
-				"UCD Count", "wmx.ulmap.ucd",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc0_numsub,
-			{
-				"No. subchannels", "wmx.ulmap.uiuc0.numsub",
-				FT_UINT32,	BASE_DEC, NULL, 0x000003f8, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc0_numsym,
-			{
-				"No. OFDMA symbols", "wmx.ulmap.uiuc0.numsym",
-				FT_UINT32,	BASE_DEC, NULL, 0x0001fc00, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc0_rsv,
-			{
-				"Reserved", "wmx.ulmap.uiuc0.rsv",
-				FT_UINT32,	BASE_DEC, NULL, 0x00000007, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc0_subofs,
-			{
-				"Subchannel offset", "wmx.ulmap.uiuc0.subofs",
-				FT_UINT32,	BASE_DEC, NULL, 0x00fe0000, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc0_symofs,
-			{
-				"OFDMA symbol offset", "wmx.ulmap.uiuc0.symofs",
-				FT_UINT32,	BASE_DEC, NULL, 0xff000000, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc11_data,
-			{
-				"Data", "wmx.ulmap.uiuc11.data",
-				FT_BYTES,  BASE_NONE, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc11_ext,
-			{
-				"Extended 2 UIUC", "wmx.ulmap.uiuc11.ext",
-				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc11_len,
-			{
-				"Length", "wmx.ulmap.uiuc11.len",
-				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc12_dri,
-			{
-				"Dedicated ranging indicator", "wmx.ulmap.uiuc12.dri",
-				FT_UINT32, BASE_DEC, NULL, 0x00000001, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc10_dur,
-			{
-				"Duration", "wmx.ulmap.uiuc12.dur",
-				FT_UINT16, BASE_DEC, NULL, 0xFFc0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc12_method,
-			{
-				"Ranging Method", "wmx.ulmap.uiuc12.method",
-				FT_UINT32, BASE_DEC, NULL, 0x00000006, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc12_numsub,
-			{
-				"No. Subchannels", "wmx.ulmap.uiuc12.numsub",
-				FT_UINT32, BASE_DEC, NULL, 0x000003F8, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc12_numsym,
-			{
-				"No. OFDMA Symbols", "wmx.ulmap.uiuc12.numsym",
-				FT_UINT32, BASE_DEC, NULL, 0x0001Fc00, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc10_rep,
-			{
-				"Repetition Coding indication", "wmx.ulmap.uiuc12.rep",
-				FT_UINT16, BASE_DEC, NULL, 0x0030, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc12_subofs,
-			{
-				"Subchannel Offset", "wmx.ulmap.uiuc12.subofs",
-				FT_UINT32, BASE_DEC, NULL, 0x00Fe0000, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc12_symofs,
-			{
-				"OFDMA Symbol Offset", "wmx.ulmap.uiuc12.symofs",
-				FT_UINT32, BASE_DEC, NULL, 0xFF000000, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc13_numsub,
-			{
-				"No. Subchannels/SZ Shift Value", "wmx.ulmap.uiuc13.numsub",
-				FT_UINT32,	BASE_DEC, NULL, 0x000003f8, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc13_numsym,
-			{
-				"No. OFDMA symbols", "wmx.ulmap.uiuc13.numsym",
-				FT_UINT32,	BASE_DEC, NULL, 0x0001fc00, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc13_papr,
-			{
-				"PAPR Reduction/Safety Zone", "wmx.ulmap.uiuc13.papr",
-				FT_UINT32,	BASE_DEC, NULL, 0x00000004, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc13_rsv,
-			{
-				"Reserved", "wmx.ulmap.uiuc13.rsv",
-				FT_UINT32,	BASE_DEC, NULL, 0x00000001, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc13_subofs,
-			{
-				"Subchannel offset", "wmx.ulmap.uiuc13.subofs",
-				FT_UINT32,	BASE_DEC, NULL, 0x00fe0000, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc13_symofs,
-			{
-				"OFDMA symbol offset", "wmx.ulmap.uiuc13.symofs",
-				FT_UINT32,	BASE_DEC, NULL, 0xff000000, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc13_zone,
-			{
-				"Sounding Zone", "wmx.ulmap.uiuc13.zone",
-				FT_UINT32,	BASE_DEC, NULL, 0x00000002, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc14_bwr,
-			{
-				"BW request mandatory", "wmx.ulmap.uiuc14.bwr",
-				FT_UINT8,  BASE_DEC, NULL, 0x01, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc14_code,
-			{
-				"Ranging code", "wmx.ulmap.uiuc14.code",
-				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc14_dur,
-			{
-				"Duration", "wmx.ulmap.uiuc14.dur",
-				FT_UINT16, BASE_DEC, NULL, 0xfc00, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc14_idx,
-			{
-				"Frame Number Index", "wmx.ulmap.uiuc14.idx",
-				FT_UINT16, BASE_DEC, NULL, 0x000F, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc14_rep,
-			{
-				"Repetition Coding Indication", "wmx.ulmap.uiuc14.rep",
-				FT_UINT16, BASE_DEC, NULL, 0x0030, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc14_sub,
-			{
-				"Ranging subchannel", "wmx.ulmap.uiuc14.sub",
-				FT_UINT8,  BASE_DEC, NULL, 0xfe, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc14_sym,
-			{
-				"Ranging symbol", "wmx.ulmap.uiuc14.sym",
-				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc14_uiuc,
-			{
-				"UIUC", "wmx.ulmap.uiuc14.uiuc",
-				FT_UINT16, BASE_DEC, NULL, 0x03c0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc15_data,
-			{
-				"Data", "wmx.ulmap.uiuc15.data",
-				FT_BYTES,  BASE_NONE, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc15_ext,
-			{
-				"Extended UIUC", "wmx.ulmap.uiuc15.ext",
-				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_ulmap_uiuc15_len,
-			{
-				"Length", "wmx.ulmap.uiuc15.len",
-				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		}
-	};
-
-    if (proto_mac_mgmt_msg_ulmap_decoder == -1)
-    {
-	proto_mac_mgmt_msg_ulmap_decoder = proto_mac_mgmt_msg_dlmap_decoder;
-
-        proto_register_field_array(proto_mac_mgmt_msg_ulmap_decoder, hf, array_length(hf));
-        proto_register_subtree_array(ett, array_length(ett));
-    }
-}
 
 
 gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, gint length, tvbuff_t *tvb)
@@ -2441,3 +2067,369 @@ gint wimax_decode_ulmap_reduced_aas(proto_tree *base_tree, const guint8 *bufptr,
     return (bit - offset); /* length in bits */
 }
 
+
+/* Register Wimax Mac Payload Protocol and Dissector */
+void proto_register_mac_mgmt_msg_ulmap(void)
+{
+	/* UL-MAP fields display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_ulmap_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.ulmap",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_fch_expected,
+			{
+				"FCH Expected", "wmx.ulmap.fch.expected",
+				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_ie,
+			{
+				"UL-MAP IE", "wmx.ulmap.ie",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_ie_cid,
+			{
+				"CID", "wmx.ulmap.ie.cid",
+				FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_ie_uiuc,
+			{
+				"UIUC", "wmx.ulmap.ie.uiuc",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_ofdma_sym,
+			{
+				"Num OFDMA Symbols", "wmx.ulmap.ofdma.sym",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_reserved,
+			{
+				"Reserved", "wmx.ulmap.rsv",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_alloc_start_time,
+			{
+				"Uplink Channel ID", "wmx.ulmap.start",
+				FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_ucd_count,
+			{
+				"UCD Count", "wmx.ulmap.ucd",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc0_numsub,
+			{
+				"No. subchannels", "wmx.ulmap.uiuc0.numsub",
+				FT_UINT32,	BASE_DEC, NULL, 0x000003f8, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc0_numsym,
+			{
+				"No. OFDMA symbols", "wmx.ulmap.uiuc0.numsym",
+				FT_UINT32,	BASE_DEC, NULL, 0x0001fc00, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc0_rsv,
+			{
+				"Reserved", "wmx.ulmap.uiuc0.rsv",
+				FT_UINT32,	BASE_DEC, NULL, 0x00000007, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc0_subofs,
+			{
+				"Subchannel offset", "wmx.ulmap.uiuc0.subofs",
+				FT_UINT32,	BASE_DEC, NULL, 0x00fe0000, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc0_symofs,
+			{
+				"OFDMA symbol offset", "wmx.ulmap.uiuc0.symofs",
+				FT_UINT32,	BASE_DEC, NULL, 0xff000000, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc11_data,
+			{
+				"Data", "wmx.ulmap.uiuc11.data",
+				FT_BYTES,  BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc11_ext,
+			{
+				"Extended 2 UIUC", "wmx.ulmap.uiuc11.ext",
+				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc11_len,
+			{
+				"Length", "wmx.ulmap.uiuc11.len",
+				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc12_dri,
+			{
+				"Dedicated ranging indicator", "wmx.ulmap.uiuc12.dri",
+				FT_UINT32, BASE_DEC, NULL, 0x00000001, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc10_dur,
+			{
+				"Duration", "wmx.ulmap.uiuc12.dur",
+				FT_UINT16, BASE_DEC, NULL, 0xFFc0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc12_method,
+			{
+				"Ranging Method", "wmx.ulmap.uiuc12.method",
+				FT_UINT32, BASE_DEC, NULL, 0x00000006, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc12_numsub,
+			{
+				"No. Subchannels", "wmx.ulmap.uiuc12.numsub",
+				FT_UINT32, BASE_DEC, NULL, 0x000003F8, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc12_numsym,
+			{
+				"No. OFDMA Symbols", "wmx.ulmap.uiuc12.numsym",
+				FT_UINT32, BASE_DEC, NULL, 0x0001Fc00, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc10_rep,
+			{
+				"Repetition Coding indication", "wmx.ulmap.uiuc12.rep",
+				FT_UINT16, BASE_DEC, NULL, 0x0030, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc12_subofs,
+			{
+				"Subchannel Offset", "wmx.ulmap.uiuc12.subofs",
+				FT_UINT32, BASE_DEC, NULL, 0x00Fe0000, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc12_symofs,
+			{
+				"OFDMA Symbol Offset", "wmx.ulmap.uiuc12.symofs",
+				FT_UINT32, BASE_DEC, NULL, 0xFF000000, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc13_numsub,
+			{
+				"No. Subchannels/SZ Shift Value", "wmx.ulmap.uiuc13.numsub",
+				FT_UINT32,	BASE_DEC, NULL, 0x000003f8, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc13_numsym,
+			{
+				"No. OFDMA symbols", "wmx.ulmap.uiuc13.numsym",
+				FT_UINT32,	BASE_DEC, NULL, 0x0001fc00, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc13_papr,
+			{
+				"PAPR Reduction/Safety Zone", "wmx.ulmap.uiuc13.papr",
+				FT_UINT32,	BASE_DEC, NULL, 0x00000004, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc13_rsv,
+			{
+				"Reserved", "wmx.ulmap.uiuc13.rsv",
+				FT_UINT32,	BASE_DEC, NULL, 0x00000001, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc13_subofs,
+			{
+				"Subchannel offset", "wmx.ulmap.uiuc13.subofs",
+				FT_UINT32,	BASE_DEC, NULL, 0x00fe0000, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc13_symofs,
+			{
+				"OFDMA symbol offset", "wmx.ulmap.uiuc13.symofs",
+				FT_UINT32,	BASE_DEC, NULL, 0xff000000, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc13_zone,
+			{
+				"Sounding Zone", "wmx.ulmap.uiuc13.zone",
+				FT_UINT32,	BASE_DEC, NULL, 0x00000002, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc14_bwr,
+			{
+				"BW request mandatory", "wmx.ulmap.uiuc14.bwr",
+				FT_UINT8,  BASE_DEC, NULL, 0x01, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc14_code,
+			{
+				"Ranging code", "wmx.ulmap.uiuc14.code",
+				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc14_dur,
+			{
+				"Duration", "wmx.ulmap.uiuc14.dur",
+				FT_UINT16, BASE_DEC, NULL, 0xfc00, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc14_idx,
+			{
+				"Frame Number Index", "wmx.ulmap.uiuc14.idx",
+				FT_UINT16, BASE_DEC, NULL, 0x000F, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc14_rep,
+			{
+				"Repetition Coding Indication", "wmx.ulmap.uiuc14.rep",
+				FT_UINT16, BASE_DEC, NULL, 0x0030, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc14_sub,
+			{
+				"Ranging subchannel", "wmx.ulmap.uiuc14.sub",
+				FT_UINT8,  BASE_DEC, NULL, 0xfe, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc14_sym,
+			{
+				"Ranging symbol", "wmx.ulmap.uiuc14.sym",
+				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc14_uiuc,
+			{
+				"UIUC", "wmx.ulmap.uiuc14.uiuc",
+				FT_UINT16, BASE_DEC, NULL, 0x03c0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc15_data,
+			{
+				"Data", "wmx.ulmap.uiuc15.data",
+				FT_BYTES,  BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc15_ext,
+			{
+				"Extended UIUC", "wmx.ulmap.uiuc15.ext",
+				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ulmap_uiuc15_len,
+			{
+				"Length", "wmx.ulmap.uiuc15.len",
+				FT_UINT8,  BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		}
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_ulmap,
+			&ett_ulmap_ie,
+			&ett_ulmap_ffb,
+			/* &ett_ulmap_c,    */
+			/* &ett_ulmap_c_ie, */
+			/* &ett_ulmap_s,    */
+			/* &ett_ulmap_s_ie, */
+			&ett_287_1,
+			&ett_287_2,
+			&ett_289,
+			&ett_290,
+			&ett_290b,
+			&ett_291,
+			&ett_292,
+			&ett_293,
+			&ett_294,
+			&ett_295,
+			&ett_299,
+			&ett_300,
+			&ett_302,
+			&ett_302a,
+			&ett_302b,
+			&ett_302c,
+			&ett_302d,
+			&ett_302e,
+			&ett_302f,
+			&ett_302h,
+			&ett_302g,
+			&ett_302i,
+			&ett_302j,
+			&ett_302k,
+			&ett_302l,
+			&ett_302m,
+			&ett_302n,
+			&ett_302o,
+			&ett_302p,
+			&ett_302q,
+			&ett_302r,
+			&ett_302s,
+			&ett_302t,
+			&ett_302u,
+			&ett_302v,
+			&ett_306,
+			&ett_306_ul,
+			&ett_308b,
+			&ett_315d,
+		};
+
+	proto_mac_mgmt_msg_ulmap_decoder = proto_mac_mgmt_msg_dlmap_decoder;
+
+	proto_register_field_array(proto_mac_mgmt_msg_ulmap_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}

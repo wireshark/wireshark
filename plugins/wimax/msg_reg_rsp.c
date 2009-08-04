@@ -36,8 +36,6 @@
 
 #define         FRAG_LAST                       0x1
 
-#include "moduleinfo.h"
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "wimax_tlv.h"
@@ -52,20 +50,9 @@ extern gint man_ofdma;
 extern void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, packet_info *pinfo, guint offset, gint proto_registry);
 extern void dissect_mac_mgmt_msg_dsc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/* forward reference */
-void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-
 static gint proto_mac_mgmt_msg_reg_rsp_decoder = -1;
 static gint ett_mac_mgmt_msg_reg_rsp_decoder   = -1;
 static gint ett_reg_rsp_message_tree           = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_mac_mgmt_msg_reg_rsp_decoder,
-        &ett_reg_rsp_message_tree
-};
 
 /* NCT messages */
 
@@ -90,92 +77,6 @@ static const value_string vals_reg_rsp_status [] = {
 };
 
 
-/* Register Wimax Mac Payload Protocol and Dissector */
-void proto_register_mac_mgmt_msg_reg_rsp(void)
-{
-	/* REG-RSP fields display */
-	static hf_register_info hf[] =
-	{
-		{
-			&hf_reg_rsp_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.reg_rsp",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_reg_invalid_tlv,
-			{
-				"Invalid TLV", "wmx.reg_rsp.invalid_tlv", 
-				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
-			}
-		},
-		{
-			&hf_reg_rsp_new_cid_after_ho,
-			{
-				"New CID after handover to new BS", "wmx.reg_rsp.new_cid_after_ho",
-				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_reg_rsp_status,
-			{
-				"Response", "wmx.reg_rsp.response", 
-				FT_UINT8, BASE_HEX, VALS(vals_reg_rsp_status), 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_reg_rsp_secondary_mgmt_cid,
-			{
-				"Secondary Management CID", "wmx.reg_rsp.secondary_mgmt_cid",
-				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_reg_total_provisioned_sf,
-			{
-				"Total Number of Provisional Service Flow", "wmx.reg_rsp.total_provisional_sf",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_reg_rsp_service_flow_id,
-			{
-				"Service flow ID", "wmx.reg_rsp.service_flow_id",
-				FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_reg_rsp_system_resource_retain_time,
-			{
-				"System Resource Retain Time", "wmx.reg_rsp.system_resource_retain_time",
-				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_tlv_type,
-			{
-				"Unknown TLV Type", "wmx.reg_rsp.unknown_tlv_type", 
-				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
-			}
-		},
-		{
-			&hf_tlv_value,
-			{
-				"Value", "wmx.reg_rsp.tlv_value", 
-				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
-			}
-		}
-	};
-
-	if (proto_mac_mgmt_msg_reg_rsp_decoder == -1)
-	{
-		proto_mac_mgmt_msg_reg_rsp_decoder = proto_mac_mgmt_msg_reg_req_decoder;
-
-		proto_register_field_array(proto_mac_mgmt_msg_reg_rsp_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
-}
 
 /* Decode REG-RSP messages. */
 void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -392,3 +293,93 @@ void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	}
 }
 
+/* Register Wimax Mac Payload Protocol and Dissector */
+void proto_register_mac_mgmt_msg_reg_rsp(void)
+{
+	/* REG-RSP fields display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_reg_rsp_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.reg_rsp",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_reg_invalid_tlv,
+			{
+				"Invalid TLV", "wmx.reg_rsp.invalid_tlv", 
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+			}
+		},
+		{
+			&hf_reg_rsp_new_cid_after_ho,
+			{
+				"New CID after handover to new BS", "wmx.reg_rsp.new_cid_after_ho",
+				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_reg_rsp_status,
+			{
+				"Response", "wmx.reg_rsp.response", 
+				FT_UINT8, BASE_HEX, VALS(vals_reg_rsp_status), 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_reg_rsp_secondary_mgmt_cid,
+			{
+				"Secondary Management CID", "wmx.reg_rsp.secondary_mgmt_cid",
+				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_reg_total_provisioned_sf,
+			{
+				"Total Number of Provisional Service Flow", "wmx.reg_rsp.total_provisional_sf",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_reg_rsp_service_flow_id,
+			{
+				"Service flow ID", "wmx.reg_rsp.service_flow_id",
+				FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_reg_rsp_system_resource_retain_time,
+			{
+				"System Resource Retain Time", "wmx.reg_rsp.system_resource_retain_time",
+				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_tlv_type,
+			{
+				"Unknown TLV Type", "wmx.reg_rsp.unknown_tlv_type", 
+				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{
+			&hf_tlv_value,
+			{
+				"Value", "wmx.reg_rsp.tlv_value", 
+				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL
+			}
+		}
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_mac_mgmt_msg_reg_rsp_decoder,
+			&ett_reg_rsp_message_tree
+		};
+
+	proto_mac_mgmt_msg_reg_rsp_decoder = proto_mac_mgmt_msg_reg_req_decoder;
+
+	proto_register_field_array(proto_mac_mgmt_msg_reg_rsp_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}

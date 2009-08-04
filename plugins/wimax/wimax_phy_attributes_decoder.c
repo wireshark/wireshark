@@ -37,17 +37,8 @@
 
 extern gint proto_wimax;
 
-/* forward reference */
-static void dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint proto_wimax_phy_attributes_decoder = -1;
 static gint ett_wimax_phy_attributes_decoder = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_wimax_phy_attributes_decoder
-};
 
 static const value_string vals_subchannel_types[] =
 {
@@ -87,56 +78,6 @@ static gint hf_phy_attributes_symbol_offset = -1;
 static gint hf_phy_attributes_num_of_slots = -1;
 static gint hf_phy_attributes_subchannel = -1;
 
-/* Register Wimax PDU Burst Physical Attributes Protocol */
-void proto_register_wimax_phy_attributes(void)
-{
-	/* Physical Attributes display */
-	static hf_register_info hf[] =
-	{
-		{
-			&hf_phy_attributes_subchannelization_type,
-			{"Subchannelization Type", "wmx.phy_attributes.subchannelization_type", FT_UINT8, BASE_DEC, VALS(vals_subchannel_types), 0x0, NULL, HFILL}
-		},
-		{
-			&hf_phy_attributes_permbase,
-			{"Permbase", "wmx.phy_attributes.permbase", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-		},
-		{
-			&hf_phy_attributes_modulation_rate,
-			{"Modulation Rate", "wmx.phy_attributes.modulation_rate", FT_UINT8, BASE_DEC, VALS(vals_modulation_rates), 0x0, NULL, HFILL}
-		},
-		{
-			&hf_phy_attributes_encoding_type,
-			{"Encoding Type", "wmx.phy_attributes.encoding_type", FT_UINT8, BASE_DEC, VALS(vals_encoding_types), 0x0, NULL, HFILL}
-		},
-		{
-			&hf_phy_attributes_num_repeat,
-			{"numRepeat", "wmx.phy_attributes.num_repeat", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		},
-		{
-			&hf_phy_attributes_symbol_offset,
-			{"Symbol Offset", "wmx.phy_attributes.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		},
-		{
-			&hf_phy_attributes_num_of_slots,
-			{"Number Of Slots", "wmx.phy_attributes.num_of_slots", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		},
-		{
-			&hf_phy_attributes_subchannel,
-			{"Subchannel", "wmx.phy_attributes.subchannel", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-		}
-	};
-
-	if (proto_wimax_phy_attributes_decoder == -1)
-	{
-		proto_wimax_phy_attributes_decoder = proto_wimax;
-
-		register_dissector("wimax_phy_attributes_burst_handler", dissect_wimax_phy_attributes_decoder, -1);
-
-		proto_register_field_array(proto_wimax_phy_attributes_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
-}
 
 
 static void dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -185,4 +126,58 @@ static void dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pin
 			proto_tree_add_item(phy_tree, hf_phy_attributes_subchannel, tvb, offset++, 1, FALSE);
 		}
 	}
+}
+
+/* Register Wimax PDU Burst Physical Attributes Protocol */
+void proto_register_wimax_phy_attributes(void)
+{
+	/* Physical Attributes display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_phy_attributes_subchannelization_type,
+			{"Subchannelization Type", "wmx.phy_attributes.subchannelization_type", FT_UINT8, BASE_DEC, VALS(vals_subchannel_types), 0x0, NULL, HFILL}
+		},
+		{
+			&hf_phy_attributes_permbase,
+			{"Permbase", "wmx.phy_attributes.permbase", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+		},
+		{
+			&hf_phy_attributes_modulation_rate,
+			{"Modulation Rate", "wmx.phy_attributes.modulation_rate", FT_UINT8, BASE_DEC, VALS(vals_modulation_rates), 0x0, NULL, HFILL}
+		},
+		{
+			&hf_phy_attributes_encoding_type,
+			{"Encoding Type", "wmx.phy_attributes.encoding_type", FT_UINT8, BASE_DEC, VALS(vals_encoding_types), 0x0, NULL, HFILL}
+		},
+		{
+			&hf_phy_attributes_num_repeat,
+			{"numRepeat", "wmx.phy_attributes.num_repeat", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+		},
+		{
+			&hf_phy_attributes_symbol_offset,
+			{"Symbol Offset", "wmx.phy_attributes.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+		},
+		{
+			&hf_phy_attributes_num_of_slots,
+			{"Number Of Slots", "wmx.phy_attributes.num_of_slots", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+		},
+		{
+			&hf_phy_attributes_subchannel,
+			{"Subchannel", "wmx.phy_attributes.subchannel", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+		}
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_wimax_phy_attributes_decoder
+		};
+
+	proto_wimax_phy_attributes_decoder = proto_wimax;
+
+	register_dissector("wimax_phy_attributes_burst_handler", dissect_wimax_phy_attributes_decoder, -1);
+
+	proto_register_field_array(proto_wimax_phy_attributes_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

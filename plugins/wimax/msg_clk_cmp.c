@@ -36,18 +36,9 @@
 #include <epan/packet.h>
 #include "wimax_mac.h"
 
-/* Forward reference */
-void dissect_mac_mgmt_msg_clk_cmp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint proto_mac_mgmt_msg_clk_cmp_decoder = -1;
 
 static gint ett_mac_mgmt_msg_clk_cmp_decoder = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_mac_mgmt_msg_clk_cmp_decoder,
-};
 
 /* CLK_CMP fields */
 static gint hf_clk_cmp_message_type = -1;
@@ -56,6 +47,53 @@ static gint hf_clk_cmp_clock_id = -1;
 static gint hf_clk_cmp_seq_number = -1;
 static gint hf_clk_cmp_comparison_value = -1;
 static gint hf_clk_cmp_invalid_tlv = -1;
+
+
+/* Decode CLK_CMP messages. */
+void dissect_mac_mgmt_msg_clk_cmp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint offset = 0;
+	guint i;
+	guint clock_count;
+	guint tvb_len, payload_type;
+	proto_item *clk_cmp_item = NULL;
+	proto_tree *clk_cmp_tree = NULL;
+
+	/* Ensure the right payload type */
+	payload_type = tvb_get_guint8(tvb, 0);
+	if(payload_type != MAC_MGMT_MSG_CLK_CMP)
+	{
+		return;
+	}
+
+	if (tree)
+	{	/* we are being asked for details */
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
+		/* display MAC payload type CLK_CMP */
+		clk_cmp_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_clk_cmp_decoder, tvb, offset, tvb_len, "Clock Comparison (CLK-CMP) (%u bytes)", tvb_len);
+		/* add MAC CLK_CMP subtree */
+		clk_cmp_tree = proto_item_add_subtree(clk_cmp_item, ett_mac_mgmt_msg_clk_cmp_decoder);
+		/* display the Message Type */
+		proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_message_type, tvb, offset, 1, FALSE);
+		/* set the offset for clock count */
+		offset ++;
+		/* get the clock count */
+		clock_count = tvb_get_guint8(tvb, offset);
+		/* display the clock count */
+		proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_clock_count, tvb, offset, 1, FALSE);
+		/* set the offset for clock comparison */
+		offset++;
+		for (i = 0; i < clock_count; i++ )
+		{	/* display the Clock ID */
+			proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_clock_id, tvb, offset++, 1, FALSE);
+			/* display the sequence number */
+			proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_seq_number, tvb, offset++, 1, FALSE);
+			/* display the comparison value */
+			proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_comparison_value, tvb, offset++, 1, FALSE);
+		}
+	}
+}
 
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_clk_cmp(void)
@@ -107,61 +145,18 @@ void proto_register_mac_mgmt_msg_clk_cmp(void)
 		}
 	};
 
-	if (proto_mac_mgmt_msg_clk_cmp_decoder == -1) {
-		proto_mac_mgmt_msg_clk_cmp_decoder = proto_register_protocol (
-							"WiMax CLK-CMP Message", /* name */
-							"WiMax CLK-CMP (clk)", /* short name */
-							"wmx.clk" /* abbrev */
-							);
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_mac_mgmt_msg_clk_cmp_decoder,
+		};
 
-		proto_register_field_array(proto_mac_mgmt_msg_clk_cmp_decoder, hf_clk_cmp, array_length(hf_clk_cmp));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_mac_mgmt_msg_clk_cmp_decoder = proto_register_protocol (
+		"WiMax CLK-CMP Message", /* name       */
+		"WiMax CLK-CMP (clk)",   /* short name */
+		"wmx.clk"                /* abbrev     */
+		);
+
+	proto_register_field_array(proto_mac_mgmt_msg_clk_cmp_decoder, hf_clk_cmp, array_length(hf_clk_cmp));
+	proto_register_subtree_array(ett, array_length(ett));
 }
-
-/* Decode CLK_CMP messages. */
-void dissect_mac_mgmt_msg_clk_cmp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
-{
-	guint offset = 0;
-	guint i;
-	guint clock_count;
-	guint tvb_len, payload_type;
-	proto_item *clk_cmp_item = NULL;
-	proto_tree *clk_cmp_tree = NULL;
-
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, 0);
-	if(payload_type != MAC_MGMT_MSG_CLK_CMP)
-	{
-		return;
-	}
-
-	if (tree)
-	{	/* we are being asked for details */
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC payload type CLK_CMP */
-		clk_cmp_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_clk_cmp_decoder, tvb, offset, tvb_len, "Clock Comparison (CLK-CMP) (%u bytes)", tvb_len);
-		/* add MAC CLK_CMP subtree */
-		clk_cmp_tree = proto_item_add_subtree(clk_cmp_item, ett_mac_mgmt_msg_clk_cmp_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_message_type, tvb, offset, 1, FALSE);
-		/* set the offset for clock count */
-		offset ++;
-		/* get the clock count */
-		clock_count = tvb_get_guint8(tvb, offset);
-		/* display the clock count */
-		proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_clock_count, tvb, offset, 1, FALSE);
-		/* set the offset for clock comparison */
-		offset++;
-		for (i = 0; i < clock_count; i++ )
-		{	/* display the Clock ID */
-			proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_clock_id, tvb, offset++, 1, FALSE);
-			/* display the sequence number */
-			proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_seq_number, tvb, offset++, 1, FALSE);
-			/* display the comparison value */
-			proto_tree_add_item(clk_cmp_tree, hf_clk_cmp_comparison_value, tvb, offset++, 1, FALSE);
-		}
-	}
-}
-

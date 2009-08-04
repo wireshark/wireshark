@@ -47,21 +47,9 @@
 #define OFDMA_AAS_FBCK_REQ_FB_RSP_COUNTER_MASK	0x1C
 #define OFDMA_AAS_FBCK_REQ_FB_RSP_RESOLUTION_MASK	0x03
 
-/* forward reference */
-void proto_register_mac_mgmt_msg_aas_fbck(void);
-void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 gint proto_mac_mgmt_msg_aas_fbck_decoder = -1;
 static gint ett_mac_mgmt_msg_aas_fbck_req_decoder = -1;
-static gint ett_mac_mgmt_msg_aas_fbck_rsp_decoder = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_mac_mgmt_msg_aas_fbck_req_decoder,
-	&ett_mac_mgmt_msg_aas_fbck_rsp_decoder,
-};
+/* static gint ett_mac_mgmt_msg_aas_fbck_rsp_decoder = -1; */
 
 static const value_string vals_data_types[] =
 {
@@ -107,6 +95,116 @@ static int hf_aas_fbck_freq_value_re = -1;
 static int hf_aas_fbck_freq_value_im = -1;
 static int hf_aas_fbck_rssi_value = -1;
 static int hf_aas_fbck_cinr_value = -1;
+
+
+void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint offset = 0;
+	guint tvb_len, payload_type, data_type;
+	proto_item *aas_fbck_item = NULL;
+	proto_tree *aas_fbck_tree = NULL;
+
+	if(tree)
+	{	/* we are being asked for details */
+		/* get the message type */
+		payload_type = tvb_get_guint8(tvb, offset);
+		/* ensure the message type is AAS-FBCK-REQ */
+		if(payload_type != MAC_MGMT_MSG_AAS_FBCK_REQ)
+			return;
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
+		/* display MAC message type */
+		aas_fbck_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_fbck_decoder, tvb, offset, tvb_len, "AAS Channel Feedback Request (AAS-FBCK-REQ) (%u bytes)", tvb_len);
+		/* add subtree */
+		aas_fbck_tree = proto_item_add_subtree(aas_fbck_item, ett_mac_mgmt_msg_aas_fbck_req_decoder);
+		/* Display the AAS-FBCK-REQ message type */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_message_type, tvb, offset, 1, FALSE);
+		/* move to next field */
+		offset++;
+		/* Decode and display the AAS-FBCK-REQ message body */
+		/* display the Frame Number */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_frame_number, tvb, offset, 1, FALSE);
+		/* move to next field */
+		offset++;
+		/* get the data type */
+		data_type = tvb_get_guint8(tvb, offset);
+		/* display the number of Frames */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_number_of_frames, tvb, offset, 1, FALSE);
+		/* display the Data Type */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_data_type, tvb, offset, 1, FALSE);
+		/* move to next field */
+		offset++;
+		/* display the Feedback Request Counter */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_counter, tvb, offset, 1, FALSE);
+		/* display the Frequency Measurement Resolution */
+		if(data_type & OFDMA_AAS_FBCK_REQ_DATA_TYPE_MASK)
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_resolution_1, tvb, offset, 1, FALSE);
+		else
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_resolution_0, tvb, offset, 1, FALSE);
+		/* display the reserved fields */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_reserved, tvb, offset, 1, FALSE);
+	}
+}
+
+void dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint offset = 0;
+	guint tvb_len, payload_type, data_type;
+	proto_item *aas_fbck_item = NULL;
+	proto_tree *aas_fbck_tree = NULL;
+
+	if(tree)
+	{	/* we are being asked for details */
+		/* get the message type */
+		payload_type = tvb_get_guint8(tvb, offset);
+		/* ensure the message type is AAS-FBCK-RSP */
+		if(payload_type != MAC_MGMT_MSG_AAS_FBCK_RSP)
+			return;
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
+		/* display MAC message type */
+		aas_fbck_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_fbck_decoder, tvb, offset, tvb_len, "AAS Channel Feedback Response (AAS-FBCK-RSP) (%u bytes)", tvb_len);
+		/* add subtree */
+		aas_fbck_tree = proto_item_add_subtree(aas_fbck_item, ett_mac_mgmt_msg_aas_fbck_req_decoder);
+		/* Display the AAS-FBCK-RSP message type */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_message_type, tvb, offset, 1, FALSE);
+		/* move to next field */
+		offset++;
+		/* get the data type */
+		data_type = tvb_get_guint8(tvb, offset);
+		/* Decode and display the AAS-FBCK-RSP message body */
+		/* display the reserved fields */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_reserved, tvb, offset, 1, FALSE);
+		/* display the Data Type */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_data_type, tvb, offset, 1, FALSE);
+		/* display the Feedback Request Counter */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_counter, tvb, offset, 1, FALSE);
+		/* display the Frequency Measurement Resolution */
+		if(data_type & OFDMA_AAS_FBCK_RSP_DATA_TYPE_MASK)
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_resolution_1, tvb, offset, 1, FALSE);
+		else
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_resolution_0, tvb, offset, 1, FALSE);
+		/* move to next field */
+		offset++;
+		for(; offset < (tvb_len - 2); )
+		{
+			/* display the Frequency Value (real part) */
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_freq_value_re, tvb, offset, 1, FALSE);
+			/* move to next field */
+			offset++;
+			/* display the Frequency Value (imaginary part) */
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_freq_value_im, tvb, offset, 1, FALSE);
+			/* move to next field */
+			offset++;
+		}
+		/* display the RSSI Mean Value */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rssi_value, tvb, offset, 1, FALSE);
+		/* move to next field */
+		offset++;
+		/* display the CINR Mean Value */
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_cinr_value, tvb, offset, 1, FALSE);
+	}
+}
 
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_aas_fbck(void)
@@ -242,124 +340,19 @@ void proto_register_mac_mgmt_msg_aas_fbck(void)
 		}
 	};
 
-	if (proto_mac_mgmt_msg_aas_fbck_decoder == -1)
-	{
-		proto_mac_mgmt_msg_aas_fbck_decoder = proto_register_protocol (
-							"WiMax AAS-FEEDBACK/BEAM Messages", /* name */
-							"WiMax AAS-FEEDBACK/BEAM (aas)", /* short name */
-							"wmx.aas" /* abbrev */
-							);
-
-		proto_register_field_array(proto_mac_mgmt_msg_aas_fbck_decoder, hf_aas_fbck, array_length(hf_aas_fbck));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
-}
-
-void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
-{
-	guint offset = 0;
-	guint tvb_len, payload_type, data_type;
-	proto_item *aas_fbck_item = NULL;
-	proto_tree *aas_fbck_tree = NULL;
-
-	if(tree)
-	{	/* we are being asked for details */
-		/* get the message type */
-		payload_type = tvb_get_guint8(tvb, offset);
-		/* ensure the message type is AAS-FBCK-REQ */
-		if(payload_type != MAC_MGMT_MSG_AAS_FBCK_REQ)
-			return;
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC message type */
-		aas_fbck_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_fbck_decoder, tvb, offset, tvb_len, "AAS Channel Feedback Request (AAS-FBCK-REQ) (%u bytes)", tvb_len);
-		/* add subtree */
-		aas_fbck_tree = proto_item_add_subtree(aas_fbck_item, ett_mac_mgmt_msg_aas_fbck_req_decoder);
-		/* Display the AAS-FBCK-REQ message type */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_message_type, tvb, offset, 1, FALSE);
-		/* move to next field */
-		offset++;
-		/* Decode and display the AAS-FBCK-REQ message body */
-		/* display the Frame Number */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_frame_number, tvb, offset, 1, FALSE);
-		/* move to next field */
-		offset++;
-		/* get the data type */
-		data_type = tvb_get_guint8(tvb, offset);
-		/* display the number of Frames */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_number_of_frames, tvb, offset, 1, FALSE);
-		/* display the Data Type */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_data_type, tvb, offset, 1, FALSE);
-		/* move to next field */
-		offset++;
-		/* display the Feedback Request Counter */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_counter, tvb, offset, 1, FALSE);
-		/* display the Frequency Measurement Resolution */
-		if(data_type & OFDMA_AAS_FBCK_REQ_DATA_TYPE_MASK)
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_resolution_1, tvb, offset, 1, FALSE);
-		else
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_resolution_0, tvb, offset, 1, FALSE);
-		/* display the reserved fields */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_reserved, tvb, offset, 1, FALSE);
-	}
-}
-
-void dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
-{
-	guint offset = 0;
-	guint tvb_len, payload_type, data_type;
-	proto_item *aas_fbck_item = NULL;
-	proto_tree *aas_fbck_tree = NULL;
-
-	if(tree)
-	{	/* we are being asked for details */
-		/* get the message type */
-		payload_type = tvb_get_guint8(tvb, offset);
-		/* ensure the message type is AAS-FBCK-RSP */
-		if(payload_type != MAC_MGMT_MSG_AAS_FBCK_RSP)
-			return;
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC message type */
-		aas_fbck_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_aas_fbck_decoder, tvb, offset, tvb_len, "AAS Channel Feedback Response (AAS-FBCK-RSP) (%u bytes)", tvb_len);
-		/* add subtree */
-		aas_fbck_tree = proto_item_add_subtree(aas_fbck_item, ett_mac_mgmt_msg_aas_fbck_req_decoder);
-		/* Display the AAS-FBCK-RSP message type */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_message_type, tvb, offset, 1, FALSE);
-		/* move to next field */
-		offset++;
-		/* get the data type */
-		data_type = tvb_get_guint8(tvb, offset);
-		/* Decode and display the AAS-FBCK-RSP message body */
-		/* display the reserved fields */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_reserved, tvb, offset, 1, FALSE);
-		/* display the Data Type */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_data_type, tvb, offset, 1, FALSE);
-		/* display the Feedback Request Counter */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_counter, tvb, offset, 1, FALSE);
-		/* display the Frequency Measurement Resolution */
-		if(data_type & OFDMA_AAS_FBCK_RSP_DATA_TYPE_MASK)
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_resolution_1, tvb, offset, 1, FALSE);
-		else
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_resolution_0, tvb, offset, 1, FALSE);
-		/* move to next field */
-		offset++;
-		for(; offset < (tvb_len - 2); )
+	/* Setup protocol subtree array */
+	static gint *ett[] =
 		{
-			/* display the Frequency Value (real part) */
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_freq_value_re, tvb, offset, 1, FALSE);
-			/* move to next field */
-			offset++;
-			/* display the Frequency Value (imaginary part) */
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_freq_value_im, tvb, offset, 1, FALSE);
-			/* move to next field */
-			offset++;
-		}
-		/* display the RSSI Mean Value */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rssi_value, tvb, offset, 1, FALSE);
-		/* move to next field */
-		offset++;
-		/* display the CINR Mean Value */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_cinr_value, tvb, offset, 1, FALSE);
-	}
+			&ett_mac_mgmt_msg_aas_fbck_req_decoder,
+			/* &ett_mac_mgmt_msg_aas_fbck_rsp_decoder, */
+		};
+
+	proto_mac_mgmt_msg_aas_fbck_decoder = proto_register_protocol (
+		"WiMax AAS-FEEDBACK/BEAM Messages", /* name       */
+		"WiMax AAS-FEEDBACK/BEAM (aas)",    /* short name */
+		"wmx.aas"                           /* abbrev     */
+		);
+
+	proto_register_field_array(proto_mac_mgmt_msg_aas_fbck_decoder, hf_aas_fbck, array_length(hf_aas_fbck));
+	proto_register_subtree_array(ett, array_length(ett));
 }

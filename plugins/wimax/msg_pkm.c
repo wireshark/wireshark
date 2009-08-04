@@ -36,29 +36,15 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 #include "wimax_utils.h"
 
-/* forward reference */
-void proto_register_mac_mgmt_msg_pkm(void);
-void dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void dissect_mac_mgmt_msg_pkm_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint proto_mac_mgmt_msg_pkm_decoder = -1;
 static gint ett_mac_mgmt_msg_pkm_req_decoder = -1;
 static gint ett_mac_mgmt_msg_pkm_rsp_decoder = -1;
-
-/* Setup protocol subtree array */
-static gint *ett_pkm[] =
-{
-	&ett_mac_mgmt_msg_pkm_req_decoder,
-	&ett_mac_mgmt_msg_pkm_rsp_decoder,
-};
 
 static const value_string vals_pkm_msg_code[] =
 {
@@ -99,42 +85,6 @@ static gint hf_pkm_rsp_message_type = -1;
 static gint hf_pkm_msg_code = -1;
 static gint hf_pkm_msg_pkm_id = -1;
 
-/* Register Wimax Mac PKM-REQ/RSP Messages Dissectors */
-void proto_register_mac_mgmt_msg_pkm(void)
-{
-	/* PKM display */
-	static hf_register_info hf_pkm[] =
-	{
-		{
-			&hf_pkm_msg_code,
-			{"Code", "wmx.pkm.msg_code",FT_UINT8, BASE_DEC, VALS(vals_pkm_msg_code),0x0, NULL, HFILL}
-		},
-		{
-			&hf_pkm_msg_pkm_id,
-			{"PKM Identifier", "wmx.pkm.msg_pkm_identifier",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		},
-		{
-			&hf_pkm_req_message_type,
-			{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_req", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		},
-		{
-			&hf_pkm_rsp_message_type,
-			{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_rsp", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		}
-	};
-
-	if (proto_mac_mgmt_msg_pkm_decoder == -1)
-	{
-		proto_mac_mgmt_msg_pkm_decoder = proto_register_protocol (
-							"WiMax PKM-REQ/RSP Messages", /* name */
-							"WiMax PKM-REQ/RSP (pkm)", /* short name */
-							"wmx.pkm" /* abbrev */
-							);
-
-		proto_register_field_array(proto_mac_mgmt_msg_pkm_decoder, hf_pkm, array_length(hf_pkm));
-		proto_register_subtree_array(ett_pkm, array_length(ett_pkm));
-	}
-}
 
 /* Wimax Mac PKM-REQ Message Dissector */
 void dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -218,4 +168,45 @@ void dissect_mac_mgmt_msg_pkm_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		length = tvb_len - offset;
 		wimax_pkm_tlv_encoded_attributes_decoder(tvb_new_subset(tvb, offset, length, length), pinfo, pkm_tree);
 	}
+}
+
+/* Register Wimax Mac PKM-REQ/RSP Messages Dissectors */
+void proto_register_mac_mgmt_msg_pkm(void)
+{
+	/* PKM display */
+	static hf_register_info hf_pkm[] =
+	{
+		{
+			&hf_pkm_msg_code,
+			{"Code", "wmx.pkm.msg_code",FT_UINT8, BASE_DEC, VALS(vals_pkm_msg_code),0x0, NULL, HFILL}
+		},
+		{
+			&hf_pkm_msg_pkm_id,
+			{"PKM Identifier", "wmx.pkm.msg_pkm_identifier",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+		},
+		{
+			&hf_pkm_req_message_type,
+			{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_req", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+		},
+		{
+			&hf_pkm_rsp_message_type,
+			{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_rsp", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+		}
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett_pkm[] =
+		{
+			&ett_mac_mgmt_msg_pkm_req_decoder,
+			&ett_mac_mgmt_msg_pkm_rsp_decoder,
+		};
+
+	proto_mac_mgmt_msg_pkm_decoder = proto_register_protocol (
+		"WiMax PKM-REQ/RSP Messages", /* name       */
+		"WiMax PKM-REQ/RSP (pkm)",    /* short name */
+		"wmx.pkm"                     /* abbrev     */
+		);
+
+	proto_register_field_array(proto_mac_mgmt_msg_pkm_decoder, hf_pkm, array_length(hf_pkm));
+	proto_register_subtree_array(ett_pkm, array_length(ett_pkm));
 }

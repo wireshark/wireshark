@@ -69,49 +69,10 @@ extern gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 /* Global Variables. */
 gboolean first_gmh;
 
-/* forward reference */
-static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint proto_wimax_pdu_decoder = -1;
 static gint ett_wimax_pdu_decoder = -1;
 
 static int hf_wimax_value_bytes = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_wimax_pdu_decoder,
-};
-
-/* Register Wimax PDU Burst Protocol */
-void proto_register_wimax_pdu(void)
-{
-	/* PDU display */
-	static hf_register_info hf[] =
-	{
-		{
-			&hf_wimax_value_bytes,
-			{
-				"Values", "wmx.pdu.value",
-				FT_BYTES, BASE_NONE, NULL, 0x0,
-				NULL, HFILL
-			}
-		},
-	};
-
-	if (proto_wimax_pdu_decoder == -1)
-	{
-		proto_wimax_pdu_decoder = proto_wimax;
-
-		register_dissector("wimax_pdu_burst_handler", dissect_wimax_pdu_decoder, -1);
-		proto_register_field_array(proto_wimax_pdu_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-
-		proto_register_mac_header_generic();
-		proto_register_mac_header_type_1();
-		proto_register_mac_header_type_2();
-	}
-}
 
 static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -267,4 +228,37 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		}
 		offset += length;
 	}
+}
+
+/* Register Wimax PDU Burst Protocol */
+void proto_register_wimax_pdu(void)
+{
+	/* PDU display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_wimax_value_bytes,
+			{
+				"Values", "wmx.pdu.value",
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_wimax_pdu_decoder,
+		};
+
+	proto_wimax_pdu_decoder = proto_wimax;
+
+	register_dissector("wimax_pdu_burst_handler", dissect_wimax_pdu_decoder, -1);
+	proto_register_field_array(proto_wimax_pdu_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+	proto_register_mac_header_generic();
+	proto_register_mac_header_type_1();
+	proto_register_mac_header_type_2();
 }

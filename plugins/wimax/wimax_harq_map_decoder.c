@@ -48,12 +48,6 @@ void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static gint proto_wimax_harq_map_decoder = -1;
 static gint ett_wimax_harq_map_decoder = -1;
 
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_wimax_harq_map_decoder,
-};
-
 /* MASKs */
 #define LSB_NIBBLE_MASK      0x0F
 
@@ -74,46 +68,6 @@ static gint hf_harq_map_msg_length = -1;
 static gint hf_harq_dl_ie_count = -1;
 static gint hf_harq_map_msg_crc = -1;
 
-/* Register Wimax HARQ MAP Protocol */
-void proto_register_wimax_harq_map(void)
-{
-	/* HARQ MAP display */
-	static hf_register_info hf_harq_map[] =
-	{
-		{
-			&hf_harq_map_indicator,
-			{"HARQ MAP Indicator", "wmx.harq_map.indicator", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_MAP_INDICATOR_MASK, NULL, HFILL}
-		},
-		{
-			&hf_harq_ul_map_appended,
-			{"HARQ UL-MAP Appended", "wmx.harq_map.ul_map_appended", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_UL_MAP_APPENDED_MASK, NULL, HFILL}
-		},
-		{
-			&hf_harq_map_reserved,
-			{"Reserved", "wmx.harq_map.reserved", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_MAP_RESERVED_MASK, NULL, HFILL}
-		},
-		{
-			&hf_harq_map_msg_length,
-			{"Map Message Length", "wmx.harq_map.msg_length", FT_UINT24, BASE_DEC, NULL, WIMAX_HARQ_MAP_MSG_LENGTH_MASK, NULL, HFILL}
-		},
-		{
-			&hf_harq_dl_ie_count,
-			{"DL IE Count", "wmx.harq_map.dl_ie_count", FT_UINT24, BASE_DEC, NULL, WIMAX_HARQ_MAP_DL_IE_COUNT_MASK, NULL, HFILL}
-		},
-		{
-			&hf_harq_map_msg_crc,
-			{"HARQ MAP Message CRC", "wmx.harq_map.msg_crc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
-		}
-	};
-
-	if (proto_wimax_harq_map_decoder == -1)
-	{
-		proto_wimax_harq_map_decoder = proto_wimax;
-
-		proto_register_subtree_array(ett, array_length(ett));
-		proto_register_field_array(proto_wimax_harq_map_decoder, hf_harq_map, array_length(hf_harq_map));
-	}
-}
 
 /* HARQ MAP message decoder */
 void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -222,4 +176,48 @@ void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			proto_item_append_text(it, " - incorrect! (should be: 0x%x)", calculated_crc);
 		}
 	}
+}
+
+/* Register Wimax HARQ MAP Protocol */
+void proto_register_wimax_harq_map(void)
+{
+	/* HARQ MAP display */
+	static hf_register_info hf_harq_map[] =
+	{
+		{
+			&hf_harq_map_indicator,
+			{"HARQ MAP Indicator", "wmx.harq_map.indicator", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_MAP_INDICATOR_MASK, NULL, HFILL}
+		},
+		{
+			&hf_harq_ul_map_appended,
+			{"HARQ UL-MAP Appended", "wmx.harq_map.ul_map_appended", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_UL_MAP_APPENDED_MASK, NULL, HFILL}
+		},
+		{
+			&hf_harq_map_reserved,
+			{"Reserved", "wmx.harq_map.reserved", FT_UINT24, BASE_HEX, NULL, WIMAX_HARQ_MAP_RESERVED_MASK, NULL, HFILL}
+		},
+		{
+			&hf_harq_map_msg_length,
+			{"Map Message Length", "wmx.harq_map.msg_length", FT_UINT24, BASE_DEC, NULL, WIMAX_HARQ_MAP_MSG_LENGTH_MASK, NULL, HFILL}
+		},
+		{
+			&hf_harq_dl_ie_count,
+			{"DL IE Count", "wmx.harq_map.dl_ie_count", FT_UINT24, BASE_DEC, NULL, WIMAX_HARQ_MAP_DL_IE_COUNT_MASK, NULL, HFILL}
+		},
+		{
+			&hf_harq_map_msg_crc,
+			{"HARQ MAP Message CRC", "wmx.harq_map.msg_crc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+		}
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_wimax_harq_map_decoder,
+		};
+
+	proto_wimax_harq_map_decoder = proto_wimax;
+
+	proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_wimax_harq_map_decoder, hf_harq_map, array_length(hf_harq_map));
 }

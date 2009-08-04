@@ -41,16 +41,10 @@
 #define DEBUG
 */
 
-#include "moduleinfo.h"
-
 #include <glib.h>
 #include <epan/packet.h>
 
 extern gint proto_mac_header_generic_decoder;
-
-/* forward reference */
-void proto_register_mac_header_type_1(void);
-void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static gint proto_mac_header_type_1_decoder = -1;
 static gint ett_mac_header_type_1_decoder = -1;
@@ -215,11 +209,132 @@ static const value_string last_msgs[] =
 	{ 0,				NULL}
 };
 
-/* Setup protocol subtree array */
-static gint *ett[] =
+void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	&ett_mac_header_type_1_decoder,
-};
+	gint tvb_len, offset = 0;
+	guint first_byte, sub_type;
+	proto_item *parent_item = NULL;
+	proto_item *ti = NULL;
+	proto_tree *ti_tree = NULL;
+
+	if (tree)
+	{	/* we are being asked for details */
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
+		/* display the MAC Type I Header message */
+		ti = proto_tree_add_protocol_format(tree, proto_mac_header_type_1_decoder, tvb, offset, tvb_len, "Mac Type I Header (%u bytes)", WIMAX_MAC_HEADER_SIZE);
+		/* add subtree */
+		ti_tree = proto_item_add_subtree(ti, ett_mac_header_type_1_decoder);
+		if(tvb_len < WIMAX_MAC_HEADER_SIZE)
+		{
+			/* display the MAC Type I Header in Hex */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_value_bytes, tvb, offset, tvb_len, FALSE);
+			return;
+		}
+#ifdef DEBUG
+		/* update the info column */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		{
+			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, type1_subtype_abbrv[]);
+		}
+#endif
+		/* get the parent */
+		parent_item = proto_tree_get_parent(tree);
+		/* Decode and display the first 3 bytes of the header */
+		proto_tree_add_item(ti_tree, hf_mac_header_type_1_ht, tvb, offset, 3, FALSE);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_1_ec, tvb, offset, 3, FALSE);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_1_type, tvb, offset, 3, FALSE);
+		/* Get the first byte */
+		first_byte = tvb_get_guint8(tvb, offset);
+		/* get the sub Type */
+		sub_type = ((first_byte & WIMAX_MAC_HEADER_TYPE_1_SUB_TYPE_MASK)>>3);
+		if(sub_type < TYPE_I_SUBTYPE_MAX)
+		{
+			/* update the info column */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, type1_subtype_abbrv[sub_type]);
+		}
+		else
+		{
+			/* update the info column */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Unknown type 1 subtype");
+			/* display MAC Header Type I Subtype */
+			proto_tree_add_protocol_format(ti_tree, proto_mac_header_type_1_decoder, tvb, offset, tvb_len, "Unknown type 1 subtype: %u", sub_type);
+			/* display the MAC Type I Header in Hex */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_value_bytes, tvb, offset, tvb_len, FALSE);
+			return;
+		}
+		/* add the MAC header info */
+		proto_item_append_text(parent_item, "%s", type1_subtype_abbrv[sub_type]);
+		switch (sub_type)
+		{
+		case BR_INCREMENTAL:
+		case BR_AGGREGATE:
+			/* Decode and display the Bandwidth Request */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br, tvb, offset, 3, FALSE);
+		break;
+		case PHY_CHANNEL_REPORT:
+			/* Decode and display the Preferred-DIUC */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_diuc, tvb, offset, 3, FALSE);
+			/* Decode and display the UL TX Power */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ultxpwr, tvb, offset, 3, FALSE);
+			/* Decode and display the UL Headroom */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ulhdrm, tvb, offset, 3, FALSE);
+			/* Decode and display the reserved filed */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_2, tvb, offset, 3, FALSE);
+		break;
+		case BR_WITH_UL_TX_POWER_REPORT:
+			/* Decode and display the Bandwidth Request */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, FALSE);
+			/* Decode and display the UL TX Power */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ultxpwr_3, tvb, offset, 3, FALSE);
+		break;
+		case BR_AND_CINR_REPORT:
+			/* Decode and display the Bandwidth Request */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, FALSE);
+			/* Decode and display the CINR */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_cinr, tvb, offset, 3, FALSE);
+			/* Decode and display the DCD Change Indication */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_dci, tvb, offset, 3, FALSE);
+		break;
+		case BR_WITH_UL_SLEEP_CONTROL:
+			/* Decode and display the Bandwidth Request */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, FALSE);
+			/* Decode and display the Power Saving Class ID */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_pscid, tvb, offset, 3, FALSE);
+			/* Decode and display the Operation */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_op, tvb, offset, 3, FALSE);
+			/* Decode and display the reserved filed */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_5, tvb, offset, 3, FALSE);
+		break;
+		case SN_REPORT:
+			/* Decode and display the Last field */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_last, tvb, offset, 3, FALSE);
+			/* Decode and display the SDU SN1 */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn1, tvb, offset, 3, FALSE);
+			/* Decode and display the SDU SN2 */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn2, tvb, offset, 3, FALSE);
+			/* Decode and display the SDU SN3 */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn3, tvb, offset, 3, FALSE);
+		break;
+		case CQICH_ALLOCATION_REQUEST:
+			/* Decode and display the Feedback Type */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_fb_type, tvb, offset, 3, FALSE);
+			/* Decode and display the FBSSI */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_fbssi, tvb, offset, 3, FALSE);
+			/* Decode and display the Prreferred-period */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_period, tvb, offset, 3, FALSE);
+			/* Decode and display the reserved filed */
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_7, tvb, offset, 3, FALSE);
+		break;
+		}
+		/* Decode and display the CID */
+		proto_tree_add_item(ti_tree, hf_mac_header_type_1_cid, tvb, (offset+3), 2, FALSE);
+		/* Decode and display the HCS */
+		proto_tree_add_item(ti_tree, hf_mac_header_type_1_hcs, tvb, (offset+5), 1, FALSE);
+	}
+}
 
 /* Register Wimax Mac Header Type II Protocol and Dissector */
 void proto_register_mac_header_type_1(void)
@@ -437,139 +552,16 @@ void proto_register_mac_header_type_1(void)
 		}
 	};
 
-	if (proto_mac_header_type_1_decoder == -1)
-	{
-		proto_mac_header_type_1_decoder = proto_mac_header_generic_decoder;
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_mac_header_type_1_decoder,
+		};
 
-		proto_register_field_array(proto_mac_header_type_1_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_mac_header_type_1_decoder = proto_mac_header_generic_decoder;
+
+	proto_register_field_array(proto_mac_header_type_1_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
 	register_dissector("mac_header_type_1_handler", dissect_mac_header_type_1_decoder, -1);
-}
-
-void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	gint tvb_len, offset = 0;
-	guint first_byte, sub_type;
-	proto_item *parent_item = NULL;
-	proto_item *ti = NULL;
-	proto_tree *ti_tree = NULL;
-
-	if (tree)
-	{	/* we are being asked for details */
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display the MAC Type I Header message */
-		ti = proto_tree_add_protocol_format(tree, proto_mac_header_type_1_decoder, tvb, offset, tvb_len, "Mac Type I Header (%u bytes)", WIMAX_MAC_HEADER_SIZE);
-		/* add subtree */
-		ti_tree = proto_item_add_subtree(ti, ett_mac_header_type_1_decoder);
-		if(tvb_len < WIMAX_MAC_HEADER_SIZE)
-		{
-			/* display the MAC Type I Header in Hex */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_value_bytes, tvb, offset, tvb_len, FALSE);
-			return;
-		}
-#ifdef DEBUG
-		/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, type1_subtype_abbrv[]);
-		}
-#endif
-		/* get the parent */
-		parent_item = proto_tree_get_parent(tree);
-		/* Decode and display the first 3 bytes of the header */
-		proto_tree_add_item(ti_tree, hf_mac_header_type_1_ht, tvb, offset, 3, FALSE);
-		proto_tree_add_item(ti_tree, hf_mac_header_type_1_ec, tvb, offset, 3, FALSE);
-		proto_tree_add_item(ti_tree, hf_mac_header_type_1_type, tvb, offset, 3, FALSE);
-		/* Get the first byte */
-		first_byte = tvb_get_guint8(tvb, offset);
-		/* get the sub Type */
-		sub_type = ((first_byte & WIMAX_MAC_HEADER_TYPE_1_SUB_TYPE_MASK)>>3);
-		if(sub_type < TYPE_I_SUBTYPE_MAX)
-		{
-			/* update the info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, type1_subtype_abbrv[sub_type]);
-		}
-		else
-		{
-			/* update the info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Unknown type 1 subtype");
-			/* display MAC Header Type I Subtype */
-			proto_tree_add_protocol_format(ti_tree, proto_mac_header_type_1_decoder, tvb, offset, tvb_len, "Unknown type 1 subtype: %u", sub_type);
-			/* display the MAC Type I Header in Hex */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_value_bytes, tvb, offset, tvb_len, FALSE);
-			return;
-		}
-		/* add the MAC header info */
-		proto_item_append_text(parent_item, "%s", type1_subtype_abbrv[sub_type]);
-		switch (sub_type)
-		{
-		case BR_INCREMENTAL:
-		case BR_AGGREGATE:
-			/* Decode and display the Bandwidth Request */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br, tvb, offset, 3, FALSE);
-		break;
-		case PHY_CHANNEL_REPORT:
-			/* Decode and display the Preferred-DIUC */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_diuc, tvb, offset, 3, FALSE);
-			/* Decode and display the UL TX Power */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ultxpwr, tvb, offset, 3, FALSE);
-			/* Decode and display the UL Headroom */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ulhdrm, tvb, offset, 3, FALSE);
-			/* Decode and display the reserved filed */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_2, tvb, offset, 3, FALSE);
-		break;
-		case BR_WITH_UL_TX_POWER_REPORT:
-			/* Decode and display the Bandwidth Request */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, FALSE);
-			/* Decode and display the UL TX Power */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ultxpwr_3, tvb, offset, 3, FALSE);
-		break;
-		case BR_AND_CINR_REPORT:
-			/* Decode and display the Bandwidth Request */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, FALSE);
-			/* Decode and display the CINR */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_cinr, tvb, offset, 3, FALSE);
-			/* Decode and display the DCD Change Indication */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_dci, tvb, offset, 3, FALSE);
-		break;
-		case BR_WITH_UL_SLEEP_CONTROL:
-			/* Decode and display the Bandwidth Request */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, FALSE);
-			/* Decode and display the Power Saving Class ID */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_pscid, tvb, offset, 3, FALSE);
-			/* Decode and display the Operation */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_op, tvb, offset, 3, FALSE);
-			/* Decode and display the reserved filed */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_5, tvb, offset, 3, FALSE);
-		break;
-		case SN_REPORT:
-			/* Decode and display the Last field */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_last, tvb, offset, 3, FALSE);
-			/* Decode and display the SDU SN1 */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn1, tvb, offset, 3, FALSE);
-			/* Decode and display the SDU SN2 */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn2, tvb, offset, 3, FALSE);
-			/* Decode and display the SDU SN3 */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn3, tvb, offset, 3, FALSE);
-		break;
-		case CQICH_ALLOCATION_REQUEST:
-			/* Decode and display the Feedback Type */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_fb_type, tvb, offset, 3, FALSE);
-			/* Decode and display the FBSSI */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_fbssi, tvb, offset, 3, FALSE);
-			/* Decode and display the Prreferred-period */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_period, tvb, offset, 3, FALSE);
-			/* Decode and display the reserved filed */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_7, tvb, offset, 3, FALSE);
-		break;
-		}
-		/* Decode and display the CID */
-		proto_tree_add_item(ti_tree, hf_mac_header_type_1_cid, tvb, (offset+3), 2, FALSE);
-		/* Decode and display the HCS */
-		proto_tree_add_item(ti_tree, hf_mac_header_type_1_hcs, tvb, (offset+5), 1, FALSE);
-	}
 }

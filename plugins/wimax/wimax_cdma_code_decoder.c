@@ -37,10 +37,6 @@
 
 extern gint proto_wimax;
 
-/* forward reference */
-void proto_register_wimax_cdma(void);
-static void dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static int proto_wimax_cdma_code_decoder = -1;
 static gint ett_wimax_cdma_code_decoder = -1;
 
@@ -48,11 +44,35 @@ static int hf_wimax_ranging_code = -1;
 static int hf_wimax_ranging_symbol_offset = -1;
 static int hf_wimax_ranging_subchannel_offset = -1;
 
-/* Setup protocol subtree array */
-static gint *ett[] =
+static void dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	&ett_wimax_cdma_code_decoder,
-};
+	gint offset = 0;
+	guint length;
+	proto_item *cdma_item = NULL;
+
+	proto_tree *cdma_tree = NULL;
+
+	/* update the info column */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CDMA Code Attribute");
+	}
+	if (tree)
+	{	/* we are being asked for details */
+		/* get the tvb reported length */
+		length = tvb_reported_length(tvb);
+		/* display CDMA dissector info */
+		cdma_item = proto_tree_add_protocol_format(tree, proto_wimax_cdma_code_decoder, tvb, offset, length, "CDMA Code Attribute (%u bytes)", length);
+		/* add CDMA Code subtree */
+		cdma_tree = proto_item_add_subtree(cdma_item, ett_wimax_cdma_code_decoder);
+		/* display the first CDMA Code */
+		proto_tree_add_item(cdma_tree, hf_wimax_ranging_code, tvb, offset, 1, FALSE);
+		/* display the 2nd CDMA Code */
+		proto_tree_add_item(cdma_tree, hf_wimax_ranging_symbol_offset, tvb, offset+1, 1, FALSE);
+		/* display the 3rd CDMA Code */
+		proto_tree_add_item(cdma_tree, hf_wimax_ranging_subchannel_offset, tvb, offset+2, 1, FALSE);
+	}
+}
 
 /* Register Wimax CDMA Protocol */
 void proto_register_wimax_cdma(void)
@@ -86,42 +106,18 @@ void proto_register_wimax_cdma(void)
 		}
 	};
 
-	if (proto_wimax_cdma_code_decoder == -1)
-	{
-		proto_wimax_cdma_code_decoder = proto_wimax;
+        /* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_wimax_cdma_code_decoder,
+		};
 
-		/* register the field display messages */
-		proto_register_field_array(proto_wimax_cdma_code_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_wimax_cdma_code_decoder = proto_wimax;
+
+	/* register the field display messages */
+	proto_register_field_array(proto_wimax_cdma_code_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
 	register_dissector("wimax_cdma_code_burst_handler", dissect_wimax_cdma_code_decoder, -1);
 }
 
-static void dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	gint offset = 0;
-	guint length;
-	proto_item *cdma_item = NULL;
-	proto_tree *cdma_tree = NULL;
-
-	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CDMA Code Attribute");
-	}
-	if (tree)
-	{	/* we are being asked for details */
-		/* get the tvb reported length */
-		length = tvb_reported_length(tvb);
-		/* display CDMA dissector info */
-		cdma_item = proto_tree_add_protocol_format(tree, proto_wimax_cdma_code_decoder, tvb, offset, length, "CDMA Code Attribute (%u bytes)", length);
-		/* add CDMA Code subtree */
-		cdma_tree = proto_item_add_subtree(cdma_item, ett_wimax_cdma_code_decoder);
-		/* display the first CDMA Code */
-		proto_tree_add_item(cdma_tree, hf_wimax_ranging_code, tvb, offset, 1, FALSE);
-		/* display the 2nd CDMA Code */
-		proto_tree_add_item(cdma_tree, hf_wimax_ranging_symbol_offset, tvb, offset+1, 1, FALSE);
-		/* display the 3rd CDMA Code */
-		proto_tree_add_item(cdma_tree, hf_wimax_ranging_subchannel_offset, tvb, offset+2, 1, FALSE);
-	}
-}

@@ -36,8 +36,6 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "wimax_tlv.h"
@@ -48,23 +46,10 @@
  *    or not cor2 changes are included */
 extern guint include_cor2_changes;
 
-/* forward reference */
-void proto_register_mac_mgmt_msg_sbc(void);
-void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint proto_mac_mgmt_msg_sbc_decoder = -1;
 static gint ett_mac_mgmt_msg_sbc_decoder = -1;
 static gint ett_sbc_req_tlv_subtree = -1;
 static gint ett_sbc_rsp_tlv_subtree = -1;
-
-/* Setup protocol subtree array */
-static gint *ett_sbc[] =
-{
-	&ett_mac_mgmt_msg_sbc_decoder,
-	&ett_sbc_req_tlv_subtree,
-	&ett_sbc_rsp_tlv_subtree,
-};
 
 /* fix fields */
 static gint hf_sbc_req_message_type = -1;
@@ -346,7 +331,7 @@ static const value_string diuc_msgs[] =
     { 13, "Reserved" },
     { 14, "Gap" },
     { 15, "End of DL-MAP" },
-    {0,  NULL}
+    {0,   NULL}
 };
 
 static const value_string vals_sbc_type[] =
@@ -548,6 +533,1082 @@ static const value_string vals_sbc_sdma_str[ ] =
     {3, "reserved"},
     {0,  NULL}
 };
+
+
+/* Wimax Mac SBC-REQ Message Dissector */
+void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint offset = 0;
+	guint tvb_len, payload_type, value;
+	gint  tlv_type, tlv_len, tlv_value_offset;
+	guint num_dl_harq_chans;
+	proto_item *sbc_item = NULL;
+	proto_tree *sbc_tree = NULL;
+	proto_item *tlv_item = NULL;
+	proto_tree *tlv_tree = NULL;
+	proto_item *ti = NULL;
+	tlv_info_t tlv_info;
+	gfloat power_bpsk;
+	gfloat power_qpsk;
+	gfloat power_qam16;
+	gfloat power_qam64;
+	gfloat current_power;
+
+	/* Ensure the right payload type */
+	payload_type = tvb_get_guint8(tvb, offset);
+	if (payload_type != MAC_MGMT_MSG_SBC_REQ)
+	{
+		return;
+	}
+
+	if (tree)
+	{	/* we are being asked for details */
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
+		/* display MAC payload type SBC-REQ */
+		sbc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tvb_len, "SS Basic Capability Request (SBC-REQ) (%u bytes)", tvb_len);
+		/* add MAC SBC subtree */
+		sbc_tree = proto_item_add_subtree(sbc_item, ett_mac_mgmt_msg_sbc_decoder);
+		/* Decode and display the SS Basic Capability Request (SBC-REQ) */
+		/* display the Message Type */
+		proto_tree_add_item(sbc_tree, hf_sbc_req_message_type, tvb, offset, 1, FALSE);
+		/* set the offset for the TLV Encoded info */
+		offset++;
+		/* process the SBC TLVs */
+		while(offset < tvb_len)
+		{
+			/* get the TLV information */
+			init_tlv_info(&tlv_info, tvb, offset);
+			/* get the TLV type */
+			tlv_type = get_tlv_type(&tlv_info);
+			/* get the TLV length */
+			tlv_len = get_tlv_length(&tlv_info);
+			if (tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
+			{	/* invalid tlv info */
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SBC-REQ TLV error");
+				}
+				proto_tree_add_item(sbc_tree, hf_sbc_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				break;
+			}
+			if (tlv_type == 0)
+			{	/* invalid tlv type */
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SBC TLV type");
+				}
+				proto_tree_add_item(sbc_tree, hf_sbc_unknown_type, tvb, offset, 1, FALSE);
+				offset++;
+				continue;
+			}
+			/* get the TLV value offset */
+			tlv_value_offset = get_tlv_value_offset(&tlv_info);
+#ifdef DEBUG /* for debug only */
+			proto_tree_add_protocol_format(sbc_tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, (tlv_len + tlv_value_offset), "SBC-REQ Type: %u (%u bytes, offset=%u, tlv_len=%u, tvb_len=%u)", tlv_type, (tlv_len + tlv_value_offset), offset, tlv_len, tvb_len);
+#endif
+			/* update the offset for the TLV value */
+			offset += tlv_value_offset;
+			/* process SBC TLV Encoded information */
+			switch (tlv_type)
+			{
+				case SBC_BW_ALLOC_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_bw_alloc_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_duplex, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd1, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TRANSITION_GAPS:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_transition_gaps, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssttg, tvb, offset, 1, FALSE);
+					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
+					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssrtg, tvb, (offset + 1), 1, FALSE);
+					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
+				break;
+				case SBC_MAC_PDU:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_mac_pdu, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_piggybacked, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_fsn, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_rsvd, tvb, offset, 1, FALSE);
+				break;
+				case SBC_REQ_MAX_TRANSMIT_POWER: /* TODO: This TLV comes up as INVALID in wireshark... why? */
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_max_transmit_power, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					power_bpsk = (gfloat)(tvb_get_guint8(tvb, offset) - 128) / 2;
+					power_qpsk = (gfloat)(tvb_get_guint8(tvb, (offset + 1)) - 128) / 2;
+					power_qam16 = (gfloat)(tvb_get_guint8(tvb, (offset + 2)) - 128) / 2;
+					power_qam64 = (gfloat)(tvb_get_guint8(tvb, (offset + 3)) - 128) / 2;
+					proto_tree_add_text(tlv_tree, tvb, offset, 1, "BPSK: %.2f dBm", (gdouble)power_bpsk);
+					proto_tree_add_text(tlv_tree, tvb, (offset + 1), 1, "QPSK: %.2f dBm", (gdouble)power_qpsk);
+					proto_tree_add_text(tlv_tree, tvb, (offset + 2), 1, "QAM16: %.2f dBm", (gdouble)power_qam16);
+					proto_tree_add_text(tlv_tree, tvb, (offset + 3), 1, "QAM64: %.2f dBm", (gdouble)power_qam64);
+				break;
+				case SBC_REQ_CURR_TRANSMITTED_POWER:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_curr_transmit_power, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					value = tvb_get_guint8(tvb, offset);
+					current_power = (gfloat)(value - 128) / 2;
+					proto_tree_add_text(tlv_tree, tvb, offset, 1, "Current Transmitted Power: %.2f dBm (Value: 0x%x)", (gdouble)current_power, value);
+				break;
+				case SBC_SS_FFT_SIZES:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_fft_sizes, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					if (include_cor2_changes)
+					{
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd1, tvb, offset, 1, FALSE);
+					} else {
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_256, tvb, offset, 1, FALSE);
+					}
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_2048, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_128, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_512, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_1024, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd2, tvb, offset, 1, FALSE);
+				break;
+				case SBC_SS_DEMODULATOR:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_demodulator, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					if (tlv_len == 1) /* && (num_dl_harq_chans < 8)) */
+					{
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_64qam, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_btc, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ctc, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_stc, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved, tvb, offset, 1, FALSE);
+					}
+					else
+					{
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_64qam_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_btc_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ctc_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_stc_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved_2, tvb, offset, 2, FALSE);
+#if 0
+						if (tlv_len == 1)
+						{
+							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved1, tvb, offset, 2, FALSE);
+						}
+						else
+#endif
+						{
+							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_cc_ir_2, tvb, offset , 2, FALSE);
+							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ldpc_2, tvb, offset, 2, FALSE);
+							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_dedicated_pilots_2, tvb, offset, 2, FALSE);
+							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved1_2, tvb, offset, 2, FALSE);
+						}
+					}
+				break;
+				case SBC_SS_MODULATOR:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_modulator, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_64qam, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_btc, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ctc, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_stc, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_harq_chase, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ctc_ir, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_cc_ir, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ldpc, tvb, offset, 1, FALSE);
+				break;
+				case SBC_SS_NUM_UL_ARQ_ACK_CHANNEL:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_number_ul_arq_ack_channel, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_number_ul_arq_ack_channel, tvb, offset, tlv_len, FALSE);
+				break;
+				case SBC_SS_NUM_DL_ARQ_ACK_CHANNEL:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					/* get and save the value */
+					num_dl_harq_chans = tvb_get_guint8(tvb, offset);
+					proto_tree_add_item(tlv_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
+				break;
+				case SBC_SS_PERMUTATION_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_permutation_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_optimal_pusc, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_optimal_fusc, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_1x6, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_2x3, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_3x2, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_with_harq_map, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_tusc1_support, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_tusc2_support, tvb, offset, 1, FALSE);
+				break;
+				case SBC_SS_DEMODULATOR_MIMO_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_demodulator_mimo_support, tvb, offset, 2, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_a, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_b_vertical, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_b_horizontal, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_a, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_b_vertical, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_b_horizontal, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_vertical, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_horizontal, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_rsvd, tvb, offset, 2, FALSE);
+				break;
+				case SBC_SS_MIMO_UPLINK_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_mimo_uplink_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sttd, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sm_vertical, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_1_ann_coop_sm, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_rsvd, tvb, offset, 1, FALSE);
+				break;
+				case SBC_SS_OFDMA_AAS_PRIVATE_MAP_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_ofdma_aas_private, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_harq_map_capability, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_support, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_reduced_private_map_support, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_chain_enable, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_dl_frame_offset, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_ul_frame_offset, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_concurrency, tvb, offset, 1, FALSE);
+				break;
+				case SBC_SS_OFDMA_AAS_CAPABILITIES:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ofdma_aas_capabilities, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_zone, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_diversity_map_scan, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_fbck_rsp_support, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_downlink_aas_preamble, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_uplink_aas_preamble, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_capabilities_rsvd, tvb, offset, 2, FALSE);
+				break;
+				case SBC_SS_CINR_MEASUREMENT_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_cinr_measure_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_preamble, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_permutation_zone_from_pilot_subcarriers, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_permutation_zone_from_data_subcarriers, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_preamble, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_permutation_zone_from_pilot_subcarriers, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_permutation_zone_from_data_subcarriers, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_support_2_concurrent_cqi_channels,tvb,offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_frequency_selectivity_characterization_report,tvb,offset, 1, FALSE);
+				break;
+				case SBC_PKM_FLOW_CONTROL:
+					if (!include_cor2_changes)
+					{
+						/* add TLV subtree */
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_pkm_flow_control, tvb, offset, tlv_len, FALSE);
+						/* display the detail meanings of the TLV value */
+						tlv_item = proto_tree_add_item(tlv_tree, hf_sbc_pkm_flow_control, tvb, offset, tlv_len, FALSE);
+						if(tvb_get_guint8(tvb, offset) == 0)
+							proto_item_append_text(tlv_item, " (default - no limit)");
+					}
+					else
+					{
+						/* add TLV subtree */
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
+						/* display the detail meanings of the TLV value */
+						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
+					}
+				break;
+				case SBC_AUTH_POLICY_SUPPORT:
+					/* display the TLV name and display the value in hex */
+					tlv_item = proto_tree_add_item(sbc_tree, hf_sbc_auth_policy, tvb, offset, tlv_len, FALSE);
+					/* add TLV subtree */
+					tlv_tree = proto_item_add_subtree(tlv_item, ett_sbc_req_tlv_subtree);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_auth_policy, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
+					if (!include_cor2_changes)
+					{
+						/* add TLV subtree */
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_auth_policy, tvb, offset, tlv_len, FALSE);
+						/* display the detail meanings of the TLV value */
+						proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
+					}
+					else
+					{
+						/* add TLV subtree */
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
+						/* display the detail meanings of the TLV value */
+						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
+					}
+				break;
+				case SBC_MAX_SECURITY_ASSOCIATIONS:
+					if (!include_cor2_changes)
+					{
+						/* add TLV subtree */
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_max_security_associations, tvb, offset, tlv_len, FALSE);
+						/* display the detail meanings of the TLV value */
+						proto_tree_add_item(tlv_tree, hf_sbc_max_security_associations, tvb, offset, tlv_len, FALSE);
+					}
+					else
+					{
+						/* add TLV subtree */
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
+						/* display the detail meanings of the TLV value */
+						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
+					}
+				break;
+				case SBC_TLV_T_27_EXTENSION_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_27_extension_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_bit0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_28_HO_TRIGGER_METRIC_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit1, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit2, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit3, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_167_ASSOCIATION_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_167_association_type_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit1, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit2, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit3, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit4, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_170_UPLINK_POWER_CONTROL_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ofdma_ss_uplink_power_control_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_open_loop, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_aas_preamble, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_rsvd, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_171_MINIMUM_NUM_OF_FRAMES:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_171_minimum_num_of_frames, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_171_minimum_num_of_frames, tvb, offset, tlv_len, FALSE);
+				break;
+				case SBC_TLV_T_172:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_172, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_harq_map_capability, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_extended_harq_ie_capability, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_first_zone, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_other_zones, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_dl_region_definition_support, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_173_UL_CONTROL_CHANNEL_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_173_ul_ctl_channel_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_3_bit_mimo_fast_feedback, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_enhanced_fast_feedback, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_ul_ack, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_uep_fast_feedback, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_measurement_report, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_primary_secondary_fast_feedback, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_diuc_cqi_fast_feedback, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_174_OFDMA_MS_CSIT_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_174_ofdma_ms_csit_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_a, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_b, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_power_assignment_capability, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_sounding_rsp_time_capability, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_max_num_simultanous_sounding_instructions, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_type_a_support, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_reserved, tvb, offset, 2, FALSE);
+				break;
+				case SBC_TLV_T_175_MAX_NUM_BST_PER_FRM_CAPABILITY_HARQ:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_175_max_num_bst_per_frm_capability_harq, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_ul_harq_bst, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_ul_harq_per_frm_include_one_non_harq_bst, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_dl_harq_bst_per_harq_per_frm, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_176: /* TODO: Get an invalid TLV whenever this TLV is used. Could it be
+						       that lengths above 2 cause this problem? */
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_176, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit0, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit1, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit2, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit3, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit4, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit5, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit6, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit7, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit8, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit9, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit10, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit11, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit12, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit13, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit14, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit15, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit16, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit17, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit18, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit19, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_reserved, tvb, offset, 3, FALSE);
+				break;
+				case SBC_TLV_T_177_OFDMA_SS_MODULATOR_FOR_MIMO_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_177_ofdma_ss_modulator_for_mimo_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					if (include_cor2_changes)
+					{
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_a, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_b_vertical, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_b_horizontal, tvb, offset, 1, FALSE);
+					} else {
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_two_transmit_antennas, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_transmit_diversity, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_spacial_multiplexing, tvb, offset, 1, FALSE);
+					}
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_beamforming, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_adaptive_rate_ctl, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_single_antenna, tvb, offset, 1, FALSE);
+					if (include_cor2_changes)
+					{
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_one_antenna, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_two_antennas, tvb, offset, 1, FALSE);
+					} else {
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_two_antenna, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_rsvd, tvb, offset, 1, FALSE);
+					}
+				break;
+				case SBC_TLV_T_178_SDMA_PILOT_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_178_sdma_pilot_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_sdma_pilot_pattern_support_for_amc_zone, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_179_OFDMA_MULTIPLE_DL_BURST_PROFILE_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_179_ofdma_multiple_dl_burst_profile_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_dl_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_ul_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_204_OFDMA_PARAMETERS_SETS:
+					if (include_cor2_changes)
+					{
+						/* add TLV subtree */
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets, tvb, offset, tlv_len, FALSE);
+						/* display the detail meanings of the TLV value */
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_a, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_b, tvb, offset, 1, FALSE);
+						tlv_item = proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_a, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_b, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_reserved, tvb, offset, 1, FALSE);
+					}
+					break;
+				case SBC_TLV_T_162_HARQ_INCREMENTAL_REDUNDANCY_BUFFER_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_dl, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_ul_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_ul, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved2, tvb, offset, 2, FALSE);
+				break;
+				case SBC_TLV_T_163_HARQ_CHASE_COMBINING_AND_CC_IR_BUFFER_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_dl_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_dl, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_ul_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_ul, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved2, tvb, offset, 2, FALSE);
+				break;
+				case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETERS:
+					/* display Security Negotiation Parameters Title */
+					/* add Security Negotiation Parameters subtree */
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tlv_len, "Security Negotiation Parameters (%u bytes)", tlv_len);
+					/* call the Security Negotiation Parameters decoder */
+					wimax_security_negotiation_parameters_decoder(tvb_new_subset(tvb, offset, tlv_len, tlv_len), pinfo, tlv_tree);
+				break;
+				case SBC_TLV_T_26_POWER_SAVE_CLASS_TYPES_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit1, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit2, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits34, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits567, tvb, offset, 1, FALSE);
+				break;
+				default:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
+				break;
+			}
+			offset += tlv_len;
+		}	/* end of TLV process while loop */
+	}
+}
+
+/* Wimax Mac SBC-RSP Message Dissector */
+void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint offset = 0;
+	guint tvb_len, payload_type, value;
+	gint  tlv_type, tlv_len, tlv_value_offset;
+/*	guint ssttg, ssrtg;*/
+	guint num_dl_harq_chans; /*, num_ul_harq_chans;*/
+	proto_item *sbc_item = NULL;
+	proto_tree *sbc_tree = NULL;
+	proto_item *tlv_item = NULL;
+	proto_tree *tlv_tree = NULL;
+	proto_item *ti = NULL;
+	tlv_info_t tlv_info;
+	gfloat power_bpsk;
+	gfloat power_qpsk;
+	gfloat power_qam16;
+	gfloat power_qam64;
+	gfloat current_power;
+
+	/* Ensure the right payload type */
+	payload_type = tvb_get_guint8(tvb, offset);
+	if (payload_type != MAC_MGMT_MSG_SBC_RSP)
+	{
+		return;
+	}
+
+	if (tree)
+	{	/* we are being asked for details */
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
+		/* display MAC payload type SBC-RSP */
+		sbc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tvb_len, "SS Basic Capability Response (SBC-RSP) (%u bytes)", tvb_len);
+		/* add MAC SBC subtree */
+		sbc_tree = proto_item_add_subtree(sbc_item, ett_mac_mgmt_msg_sbc_decoder);
+		/* Decode and display the SS Basic Capability Response (SBC-RSP) */
+		/* display the Message Type */
+		proto_tree_add_item(sbc_tree, hf_sbc_rsp_message_type, tvb, offset, 1, FALSE);
+		/* set the offset for the TLV Encoded info */
+		offset++;
+		/* process the SBC TLVs */
+		while(offset < tvb_len)
+		{
+			/* get the TLV information */
+			init_tlv_info(&tlv_info, tvb, offset);
+			/* get the TLV type */
+			tlv_type = get_tlv_type(&tlv_info);
+			/* get the TLV length */
+			tlv_len = get_tlv_length(&tlv_info);
+			if (tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
+			{	/* invalid tlv info */
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SBC-RSP TLV error");
+				}
+				proto_tree_add_item(sbc_tree, hf_sbc_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				break;
+			}
+			if (tlv_type == 0)
+			{	/* invalid tlv type */
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SBC TLV type");
+				}
+				proto_tree_add_item(sbc_tree, hf_sbc_unknown_type, tvb, offset, 1, FALSE);
+				offset++;
+				continue;
+			}
+			/* get the TLV value offset */
+			tlv_value_offset = get_tlv_value_offset(&tlv_info);
+#ifdef DEBUG /* for debug only */
+			proto_tree_add_protocol_format(sbc_tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, (tlv_len + tlv_value_offset), "SBC-RSP Type: %u (%u bytes, offset=%u, tlv_len=%u, tvb_len=%u)", tlv_type, (tlv_len + tlv_value_offset), offset, tlv_len, tvb_len);
+#endif
+			/* update the offset for the TLV value */
+			offset += tlv_value_offset;
+			/* process SBC TLV Encoded information */
+			switch (tlv_type)
+			{
+				case SBC_BW_ALLOC_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_bw_alloc_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_duplex, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd1, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TRANSITION_GAPS:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_transition_gaps, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssttg, tvb, offset, 1, FALSE);
+					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
+					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssrtg, tvb, (offset + 1), 1, FALSE);
+					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
+				break;
+				case SBC_MAC_PDU:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_mac_pdu, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_piggybacked, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_fsn, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_rsvd, tvb, offset, 1, FALSE);
+				break;
+				case SBC_REQ_MAX_TRANSMIT_POWER:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_max_transmit_power, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					power_bpsk = (gfloat)(tvb_get_guint8(tvb, offset) - 128) / 2;
+					power_qpsk = (gfloat)(tvb_get_guint8(tvb, (offset + 1)) - 128) / 2;
+					power_qam16 = (gfloat)(tvb_get_guint8(tvb, (offset + 2)) - 128) / 2;
+					power_qam64 = (gfloat)(tvb_get_guint8(tvb, (offset + 3)) - 128) / 2;
+					proto_tree_add_text(tlv_tree, tvb, offset, 1, "BPSK: %.2f dBm", (gdouble)power_bpsk);
+					proto_tree_add_text(tlv_tree, tvb, (offset + 1), 1, "QPSK: %.2f dBm", (gdouble)power_qpsk);
+					proto_tree_add_text(tlv_tree, tvb, (offset + 2), 1, "QAM16: %.2f dBm", (gdouble)power_qam16);
+					proto_tree_add_text(tlv_tree, tvb, (offset + 3), 1, "QAM64: %.2f dBm", (gdouble)power_qam64);
+				break;
+				case SBC_REQ_CURR_TRANSMITTED_POWER:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_curr_transmit_power, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					value = tvb_get_guint8(tvb, offset);
+					current_power = (gfloat)(value - 128) / 2;
+					proto_tree_add_text(tlv_tree, tvb, offset, 1, "Current Transmitted Power: %.2f dBm (Value: 0x%x)", (gdouble)current_power, value);
+				break;
+				case SBC_SS_FFT_SIZES:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_fft_sizes, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					if (include_cor2_changes)
+					{
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd1, tvb, offset, 1, FALSE);
+					} else {
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_256, tvb, offset, 1, FALSE);
+					}
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_2048, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_128, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_512, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_1024, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd2, tvb, offset, 1, FALSE);
+				break;
+				case SBC_SS_DEMODULATOR:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_demodulator, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					if (tlv_len == 1) /* && (num_dl_harq_chans < 8)) */
+					{
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_64qam, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_btc, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ctc, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_stc, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved, tvb, offset, 1, FALSE);
+					}
+					else
+					{
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_64qam_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_btc_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ctc_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_stc_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_cc_ir_2, tvb, offset , 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ldpc_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_dedicated_pilots_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved1_2, tvb, offset, 2, FALSE);
+					}
+				break;
+				case SBC_SS_MODULATOR:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_modulator, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_64qam, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_btc, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ctc, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_stc, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_harq_chase, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ctc_ir, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_cc_ir, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ldpc, tvb, offset, 1, FALSE);
+				break;
+				case SBC_SS_NUM_UL_ARQ_ACK_CHANNEL:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_number_ul_arq_ack_channel, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_number_ul_arq_ack_channel, tvb, offset, tlv_len, FALSE);
+				break;
+				case SBC_SS_NUM_DL_ARQ_ACK_CHANNEL:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					/* get and save the value */
+					num_dl_harq_chans = tvb_get_guint8(tvb, offset);
+					proto_tree_add_item(tlv_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
+				break;
+				case SBC_SS_PERMUTATION_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_permutation_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_optimal_pusc, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_optimal_fusc, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_1x6, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_2x3, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_3x2, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_with_harq_map, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_tusc1_support, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_tusc2_support, tvb, offset, 1, FALSE);
+				break;
+				case SBC_SS_DEMODULATOR_MIMO_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_demodulator_mimo_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_a, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_b_vertical, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_b_horizontal, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_a, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_b_vertical, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_b_horizontal, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_vertical, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_horizontal, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_rsvd, tvb, offset, 2, FALSE);
+				break;
+				case SBC_SS_MIMO_UPLINK_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_mimo_uplink_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sttd, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sm_vertical, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_1_ann_coop_sm, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_rsvd, tvb, offset, 1, FALSE);
+				break;
+				case SBC_SS_OFDMA_AAS_PRIVATE_MAP_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_ofdma_aas_private, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_harq_map_capability, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_support, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_reduced_private_map_support, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_chain_enable, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_dl_frame_offset, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_ul_frame_offset, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_concurrency, tvb, offset, 1, FALSE);
+				break;
+				case SBC_SS_OFDMA_AAS_CAPABILITIES:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ofdma_aas_capabilities, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_zone, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_diversity_map_scan, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_fbck_rsp_support, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_downlink_aas_preamble, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_uplink_aas_preamble, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_capabilities_rsvd, tvb, offset, 2, FALSE);
+				break;
+				case SBC_SS_CINR_MEASUREMENT_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_cinr_measure_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_preamble, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_permutation_zone_from_pilot_subcarriers, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_permutation_zone_from_data_subcarriers, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_preamble, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_permutation_zone_from_pilot_subcarriers, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_permutation_zone_from_data_subcarriers, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_support_2_concurrent_cqi_channels,tvb,offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_frequency_selectivity_characterization_report,tvb,offset, 1, FALSE);
+				break;
+				case SBC_PKM_FLOW_CONTROL:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_pkm_flow_control, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					tlv_item = proto_tree_add_item(tlv_tree, hf_sbc_pkm_flow_control, tvb, offset, tlv_len, FALSE);
+					if (tvb_get_guint8(tvb, offset) == 0)
+					{
+						proto_item_append_text(tlv_item, " (default - no limit)");
+					}
+				break;
+				case SBC_AUTH_POLICY_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_auth_policy, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
+				break;
+				case SBC_MAX_SECURITY_ASSOCIATIONS:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_max_security_associations, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_max_security_associations, tvb, offset, tlv_len, FALSE);
+				break;
+				case SBC_TLV_T_27_EXTENSION_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_27_extension_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_bit0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_28_HO_TRIGGER_METRIC_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit1, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit2, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit3, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_167_ASSOCIATION_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_167_association_type_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit1, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit2, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit3, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit4, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_170_UPLINK_POWER_CONTROL_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ofdma_ss_uplink_power_control_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_open_loop, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_aas_preamble, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_rsvd, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_171_MINIMUM_NUM_OF_FRAMES:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_171_minimum_num_of_frames, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_171_minimum_num_of_frames, tvb, offset, tlv_len, FALSE);
+				break;
+				case SBC_TLV_T_172:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_172, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_harq_map_capability, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_extended_harq_ie_capability, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_first_zone, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_other_zones, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_dl_region_definition_support, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_173_UL_CONTROL_CHANNEL_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_173_ul_ctl_channel_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_3_bit_mimo_fast_feedback, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_enhanced_fast_feedback, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_ul_ack, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_uep_fast_feedback, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_measurement_report, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_primary_secondary_fast_feedback, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_diuc_cqi_fast_feedback, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_174_OFDMA_MS_CSIT_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_174_ofdma_ms_csit_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_a, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_b, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_power_assignment_capability, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_sounding_rsp_time_capability, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_max_num_simultanous_sounding_instructions, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_type_a_support, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_reserved, tvb, offset, 2, FALSE);
+				break;
+				case SBC_TLV_T_175_MAX_NUM_BST_PER_FRM_CAPABILITY_HARQ:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_175_max_num_bst_per_frm_capability_harq, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_ul_harq_bst, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_ul_harq_per_frm_include_one_non_harq_bst, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_dl_harq_bst_per_harq_per_frm, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_176:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_176, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit0, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit1, tvb, offset, 3, FALSE);
+					if (include_cor2_changes)
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit2_cor2, tvb, offset, 3, FALSE);
+					else
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit2, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit3, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit4, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit5, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit6, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit7, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit8, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit9, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit10, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit11, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit12, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit13, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit14, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit15, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit16, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit17, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit18, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit19, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_reserved, tvb, offset, 3, FALSE);
+				break;
+				case SBC_TLV_T_177_OFDMA_SS_MODULATOR_FOR_MIMO_SUPPORT:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_177_ofdma_ss_modulator_for_mimo_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					if (include_cor2_changes)
+					{
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_a, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_b_vertical, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_b_horizontal, tvb, offset, 1, FALSE);
+					} else {
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_two_transmit_antennas, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_transmit_diversity, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_spacial_multiplexing, tvb, offset, 1, FALSE);
+					}
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_beamforming, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_adaptive_rate_ctl, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_single_antenna, tvb, offset, 1, FALSE);
+					if (include_cor2_changes)
+					{
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_one_antenna, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_two_antennas, tvb, offset, 1, FALSE);
+					} else {
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_two_antenna, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_rsvd, tvb, offset, 1, FALSE);
+					}
+				break;
+				case SBC_TLV_T_178_SDMA_PILOT_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_178_sdma_pilot_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_sdma_pilot_pattern_support_for_amc_zone, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_179_OFDMA_MULTIPLE_DL_BURST_PROFILE_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_179_ofdma_multiple_dl_burst_profile_support, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_dl_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_ul_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_reserved, tvb, offset, 1, FALSE);
+				break;
+				case SBC_TLV_T_204_OFDMA_PARAMETERS_SETS:
+					if (include_cor2_changes)
+					{
+						/* add TLV subtree */
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets, tvb, offset, tlv_len, FALSE);
+						/* display the detail meanings of the TLV value */
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_a, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_b, tvb, offset, 1, FALSE);
+						tlv_item = proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_a, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_b, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_reserved, tvb, offset, 1, FALSE);
+					}
+					break;
+				case SBC_TLV_T_162_HARQ_INCREMENTAL_REDUNDANCY_BUFFER_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_dl, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_ul_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_ul, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved2, tvb, offset, 2, FALSE);
+				break;
+				case SBC_TLV_T_163_HARQ_CHASE_COMBINING_AND_CC_IR_BUFFER_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_dl_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_dl, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_ul_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_ul, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved2, tvb, offset, 2, FALSE);
+				break;
+				case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETERS:
+					/* display Security Negotiation Parameters Title */
+					tlv_item = proto_tree_add_protocol_format(sbc_tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tvb_len, "Security Negotiation Parameters (%u bytes)", tvb_len);
+					/* add Security Negotiation Parameters subtree */
+					tlv_tree = proto_item_add_subtree(tlv_item, ett_sbc_rsp_tlv_subtree);
+					/* call the Security Negotiation Parameters decoder */
+					wimax_security_negotiation_parameters_decoder(tvb_new_subset(tvb, offset, tlv_len, tlv_len), pinfo, tlv_tree);
+				break;
+				case SBC_TLV_T_26_POWER_SAVE_CLASS_TYPES_CAPABILITY:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit1, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit2, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits34, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits567, tvb, offset, 1, FALSE);
+				break;
+				default:
+					/* add TLV subtree */
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
+					/* display the detail meanings of the TLV value */
+					proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
+				break;
+			}
+			offset += tlv_len;
+		}	/* end of TLV process while loop */
+	}
+}
 
 /* Register Wimax Mac SBC-REQ/RSP Messages Dissectors */
 void proto_register_mac_mgmt_msg_sbc(void)
@@ -2185,1090 +3246,20 @@ void proto_register_mac_mgmt_msg_sbc(void)
 		}
 	};
 
-	if (proto_mac_mgmt_msg_sbc_decoder == -1)
-	{
-		proto_mac_mgmt_msg_sbc_decoder = proto_register_protocol (
-							"WiMax SBC-REQ/RSP Messages", /* name */
-							"WiMax SBC-REQ/RSP (sbc)", /* short name */
-							"wmx.sbc" /* abbrev */
-							);
-
-		proto_register_field_array(proto_mac_mgmt_msg_sbc_decoder, hf_sbc, array_length(hf_sbc));
-		proto_register_subtree_array(ett_sbc, array_length(ett_sbc));
-	}
-}
-
-/* Wimax Mac SBC-REQ Message Dissector */
-void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	guint offset = 0;
-	guint tvb_len, payload_type, value;
-	gint  tlv_type, tlv_len, tlv_value_offset;
-	guint num_dl_harq_chans;
-	proto_item *sbc_item = NULL;
-	proto_tree *sbc_tree = NULL;
-	proto_item *tlv_item = NULL;
-	proto_tree *tlv_tree = NULL;
-	proto_item *ti = NULL;
-	tlv_info_t tlv_info;
-	gfloat power_bpsk;
-	gfloat power_qpsk;
-	gfloat power_qam16;
-	gfloat power_qam64;
-	gfloat current_power;
-
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if (payload_type != MAC_MGMT_MSG_SBC_REQ)
-	{
-		return;
-	}
-
-	if (tree)
-	{	/* we are being asked for details */
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC payload type SBC-REQ */
-		sbc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tvb_len, "SS Basic Capability Request (SBC-REQ) (%u bytes)", tvb_len);
-		/* add MAC SBC subtree */
-		sbc_tree = proto_item_add_subtree(sbc_item, ett_mac_mgmt_msg_sbc_decoder);
-		/* Decode and display the SS Basic Capability Request (SBC-REQ) */
-		/* display the Message Type */
-		proto_tree_add_item(sbc_tree, hf_sbc_req_message_type, tvb, offset, 1, FALSE);
-		/* set the offset for the TLV Encoded info */
-		offset++;
-		/* process the SBC TLVs */
-		while(offset < tvb_len)
+	/* Setup protocol subtree array */
+	static gint *ett_sbc[] =
 		{
-			/* get the TLV information */
-			init_tlv_info(&tlv_info, tvb, offset);
-			/* get the TLV type */
-			tlv_type = get_tlv_type(&tlv_info);
-			/* get the TLV length */
-			tlv_len = get_tlv_length(&tlv_info);
-			if (tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
-			{	/* invalid tlv info */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SBC-REQ TLV error");
-				}
-				proto_tree_add_item(sbc_tree, hf_sbc_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
-				break;
-			}
-			if (tlv_type == 0)
-			{	/* invalid tlv type */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SBC TLV type");
-				}
-				proto_tree_add_item(sbc_tree, hf_sbc_unknown_type, tvb, offset, 1, FALSE);
-				offset++;
-				continue;
-			}
-			/* get the TLV value offset */
-			tlv_value_offset = get_tlv_value_offset(&tlv_info);
-#ifdef DEBUG /* for debug only */
-			proto_tree_add_protocol_format(sbc_tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, (tlv_len + tlv_value_offset), "SBC-REQ Type: %u (%u bytes, offset=%u, tlv_len=%u, tvb_len=%u)", tlv_type, (tlv_len + tlv_value_offset), offset, tlv_len, tvb_len);
-#endif
-			/* update the offset for the TLV value */
-			offset += tlv_value_offset;
-			/* process SBC TLV Encoded information */
-			switch (tlv_type)
-			{
-				case SBC_BW_ALLOC_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_bw_alloc_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_duplex, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd1, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TRANSITION_GAPS:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_transition_gaps, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssttg, tvb, offset, 1, FALSE);
-					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
-					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssrtg, tvb, (offset + 1), 1, FALSE);
-					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
-				break;
-				case SBC_MAC_PDU:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_mac_pdu, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_piggybacked, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_fsn, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_rsvd, tvb, offset, 1, FALSE);
-				break;
-				case SBC_REQ_MAX_TRANSMIT_POWER: /* TODO: This TLV comes up as INVALID in wireshark... why? */
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_max_transmit_power, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					power_bpsk = (gfloat)(tvb_get_guint8(tvb, offset) - 128) / 2;
-					power_qpsk = (gfloat)(tvb_get_guint8(tvb, (offset + 1)) - 128) / 2;
-					power_qam16 = (gfloat)(tvb_get_guint8(tvb, (offset + 2)) - 128) / 2;
-					power_qam64 = (gfloat)(tvb_get_guint8(tvb, (offset + 3)) - 128) / 2;
-					proto_tree_add_text(tlv_tree, tvb, offset, 1, "BPSK: %.2f dBm", (gdouble)power_bpsk);
-					proto_tree_add_text(tlv_tree, tvb, (offset + 1), 1, "QPSK: %.2f dBm", (gdouble)power_qpsk);
-					proto_tree_add_text(tlv_tree, tvb, (offset + 2), 1, "QAM16: %.2f dBm", (gdouble)power_qam16);
-					proto_tree_add_text(tlv_tree, tvb, (offset + 3), 1, "QAM64: %.2f dBm", (gdouble)power_qam64);
-				break;
-				case SBC_REQ_CURR_TRANSMITTED_POWER:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_curr_transmit_power, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					value = tvb_get_guint8(tvb, offset);
-					current_power = (gfloat)(value - 128) / 2;
-					proto_tree_add_text(tlv_tree, tvb, offset, 1, "Current Transmitted Power: %.2f dBm (Value: 0x%x)", (gdouble)current_power, value);
-				break;
-				case SBC_SS_FFT_SIZES:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_fft_sizes, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					if (include_cor2_changes)
-					{
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd1, tvb, offset, 1, FALSE);
-					} else {
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_256, tvb, offset, 1, FALSE);
-					}
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_2048, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_128, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_512, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_1024, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd2, tvb, offset, 1, FALSE);
-				break;
-				case SBC_SS_DEMODULATOR:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_demodulator, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					if (tlv_len == 1) /* && (num_dl_harq_chans < 8)) */
-					{
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_64qam, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_btc, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ctc, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_stc, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved, tvb, offset, 1, FALSE);
-					}
-					else
-					{
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_64qam_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_btc_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ctc_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_stc_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved_2, tvb, offset, 2, FALSE);
-#if 0
-						if (tlv_len == 1)
-						{
-							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved1, tvb, offset, 2, FALSE);
-						}
-						else
-#endif
-						{
-							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_cc_ir_2, tvb, offset , 2, FALSE);
-							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ldpc_2, tvb, offset, 2, FALSE);
-							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_dedicated_pilots_2, tvb, offset, 2, FALSE);
-							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved1_2, tvb, offset, 2, FALSE);
-						}
-					}
-				break;
-				case SBC_SS_MODULATOR:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_modulator, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_64qam, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_btc, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ctc, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_stc, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_harq_chase, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ctc_ir, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_cc_ir, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ldpc, tvb, offset, 1, FALSE);
-				break;
-				case SBC_SS_NUM_UL_ARQ_ACK_CHANNEL:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_number_ul_arq_ack_channel, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_number_ul_arq_ack_channel, tvb, offset, tlv_len, FALSE);
-				break;
-				case SBC_SS_NUM_DL_ARQ_ACK_CHANNEL:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					/* get and save the value */
-					num_dl_harq_chans = tvb_get_guint8(tvb, offset);
-					proto_tree_add_item(tlv_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
-				break;
-				case SBC_SS_PERMUTATION_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_permutation_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_optimal_pusc, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_optimal_fusc, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_1x6, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_2x3, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_3x2, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_with_harq_map, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_tusc1_support, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_tusc2_support, tvb, offset, 1, FALSE);
-				break;
-				case SBC_SS_DEMODULATOR_MIMO_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_demodulator_mimo_support, tvb, offset, 2, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_a, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_b_vertical, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_b_horizontal, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_a, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_b_vertical, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_b_horizontal, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_vertical, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_horizontal, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_rsvd, tvb, offset, 2, FALSE);
-				break;
-				case SBC_SS_MIMO_UPLINK_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_mimo_uplink_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sttd, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sm_vertical, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_1_ann_coop_sm, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_rsvd, tvb, offset, 1, FALSE);
-				break;
-				case SBC_SS_OFDMA_AAS_PRIVATE_MAP_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_ofdma_aas_private, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_harq_map_capability, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_support, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_reduced_private_map_support, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_chain_enable, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_dl_frame_offset, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_ul_frame_offset, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_concurrency, tvb, offset, 1, FALSE);
-				break;
-				case SBC_SS_OFDMA_AAS_CAPABILITIES:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ofdma_aas_capabilities, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_zone, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_diversity_map_scan, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_fbck_rsp_support, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_downlink_aas_preamble, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_uplink_aas_preamble, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_capabilities_rsvd, tvb, offset, 2, FALSE);
-				break;
-				case SBC_SS_CINR_MEASUREMENT_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_cinr_measure_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_preamble, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_permutation_zone_from_pilot_subcarriers, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_permutation_zone_from_data_subcarriers, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_preamble, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_permutation_zone_from_pilot_subcarriers, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_permutation_zone_from_data_subcarriers, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_support_2_concurrent_cqi_channels,tvb,offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_frequency_selectivity_characterization_report,tvb,offset, 1, FALSE);
-				break;
-				case SBC_PKM_FLOW_CONTROL:
-					if (!include_cor2_changes)
-					{
-						/* add TLV subtree */
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_pkm_flow_control, tvb, offset, tlv_len, FALSE);
-						/* display the detail meanings of the TLV value */
-						tlv_item = proto_tree_add_item(tlv_tree, hf_sbc_pkm_flow_control, tvb, offset, tlv_len, FALSE);
-						if(tvb_get_guint8(tvb, offset) == 0)
-							proto_item_append_text(tlv_item, " (default - no limit)");
-					}
-					else
-					{
-						/* add TLV subtree */
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
-						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
-					}
-				break;
-				case SBC_AUTH_POLICY_SUPPORT:
-					/* display the TLV name and display the value in hex */
-					tlv_item = proto_tree_add_item(sbc_tree, hf_sbc_auth_policy, tvb, offset, tlv_len, FALSE);
-					/* add TLV subtree */
-					tlv_tree = proto_item_add_subtree(tlv_item, ett_sbc_req_tlv_subtree);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_auth_policy, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
-					if (!include_cor2_changes)
-					{
-						/* add TLV subtree */
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_auth_policy, tvb, offset, tlv_len, FALSE);
-						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
-					}
-					else
-					{
-						/* add TLV subtree */
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
-						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
-					}
-				break;
-				case SBC_MAX_SECURITY_ASSOCIATIONS:
-					if (!include_cor2_changes)
-					{
-						/* add TLV subtree */
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_max_security_associations, tvb, offset, tlv_len, FALSE);
-						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_max_security_associations, tvb, offset, tlv_len, FALSE);
-					}
-					else
-					{
-						/* add TLV subtree */
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
-						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
-					}
-				break;
-				case SBC_TLV_T_27_EXTENSION_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_27_extension_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_bit0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_28_HO_TRIGGER_METRIC_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit1, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit2, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit3, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_167_ASSOCIATION_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_167_association_type_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit1, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit2, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit3, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit4, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_170_UPLINK_POWER_CONTROL_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ofdma_ss_uplink_power_control_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_open_loop, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_aas_preamble, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_rsvd, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_171_MINIMUM_NUM_OF_FRAMES:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_171_minimum_num_of_frames, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_171_minimum_num_of_frames, tvb, offset, tlv_len, FALSE);
-				break;
-				case SBC_TLV_T_172:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_172, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_harq_map_capability, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_extended_harq_ie_capability, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_first_zone, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_other_zones, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_dl_region_definition_support, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_173_UL_CONTROL_CHANNEL_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_173_ul_ctl_channel_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_3_bit_mimo_fast_feedback, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_enhanced_fast_feedback, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_ul_ack, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_reserved, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_uep_fast_feedback, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_measurement_report, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_primary_secondary_fast_feedback, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_diuc_cqi_fast_feedback, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_174_OFDMA_MS_CSIT_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_174_ofdma_ms_csit_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_a, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_b, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_power_assignment_capability, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_sounding_rsp_time_capability, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_max_num_simultanous_sounding_instructions, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_type_a_support, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_reserved, tvb, offset, 2, FALSE);
-				break;
-				case SBC_TLV_T_175_MAX_NUM_BST_PER_FRM_CAPABILITY_HARQ:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_175_max_num_bst_per_frm_capability_harq, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_ul_harq_bst, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_ul_harq_per_frm_include_one_non_harq_bst, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_dl_harq_bst_per_harq_per_frm, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_176: /* TODO: Get an invalid TLV whenever this TLV is used. Could it be
-						       that lengths above 2 cause this problem? */
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_176, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit0, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit1, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit2, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit3, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit4, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit5, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit6, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit7, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit8, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit9, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit10, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit11, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit12, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit13, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit14, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit15, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit16, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit17, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit18, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit19, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_reserved, tvb, offset, 3, FALSE);
-				break;
-				case SBC_TLV_T_177_OFDMA_SS_MODULATOR_FOR_MIMO_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_177_ofdma_ss_modulator_for_mimo_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					if (include_cor2_changes)
-					{
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_a, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_b_vertical, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_b_horizontal, tvb, offset, 1, FALSE);
-					} else {
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_two_transmit_antennas, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_transmit_diversity, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_spacial_multiplexing, tvb, offset, 1, FALSE);
-					}
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_beamforming, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_adaptive_rate_ctl, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_single_antenna, tvb, offset, 1, FALSE);
-					if (include_cor2_changes)
-					{
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_one_antenna, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_two_antennas, tvb, offset, 1, FALSE);
-					} else {
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_two_antenna, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_rsvd, tvb, offset, 1, FALSE);
-					}
-				break;
-				case SBC_TLV_T_178_SDMA_PILOT_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_178_sdma_pilot_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_sdma_pilot_pattern_support_for_amc_zone, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_179_OFDMA_MULTIPLE_DL_BURST_PROFILE_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_179_ofdma_multiple_dl_burst_profile_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_dl_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_ul_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_204_OFDMA_PARAMETERS_SETS:
-					if (include_cor2_changes)
-					{
-						/* add TLV subtree */
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets, tvb, offset, tlv_len, FALSE);
-						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_a, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_b, tvb, offset, 1, FALSE);
-						tlv_item = proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_a, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_b, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_reserved, tvb, offset, 1, FALSE);
-					}
-					break;
-				case SBC_TLV_T_162_HARQ_INCREMENTAL_REDUNDANCY_BUFFER_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_dl, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved1, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_ul_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_ul, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved2, tvb, offset, 2, FALSE);
-				break;
-				case SBC_TLV_T_163_HARQ_CHASE_COMBINING_AND_CC_IR_BUFFER_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_dl_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_dl, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved1, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_ul_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_ul, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved2, tvb, offset, 2, FALSE);
-				break;
-				case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETERS:
-					/* display Security Negotiation Parameters Title */
-					/* add Security Negotiation Parameters subtree */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tlv_len, "Security Negotiation Parameters (%u bytes)", tlv_len);
-					/* call the Security Negotiation Parameters decoder */
-					wimax_security_negotiation_parameters_decoder(tvb_new_subset(tvb, offset, tlv_len, tlv_len), pinfo, tlv_tree);
-				break;
-				case SBC_TLV_T_26_POWER_SAVE_CLASS_TYPES_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit1, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit2, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits34, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits567, tvb, offset, 1, FALSE);
-				break;
-				default:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
-				break;
-			}
-			offset += tlv_len;
-		}	/* end of TLV process while loop */
-	}
-}
+			&ett_mac_mgmt_msg_sbc_decoder,
+			&ett_sbc_req_tlv_subtree,
+			&ett_sbc_rsp_tlv_subtree,
+		};
 
-/* Wimax Mac SBC-RSP Message Dissector */
-void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	guint offset = 0;
-	guint tvb_len, payload_type, value;
-	gint  tlv_type, tlv_len, tlv_value_offset;
-/*	guint ssttg, ssrtg;*/
-	guint num_dl_harq_chans; /*, num_ul_harq_chans;*/
-	proto_item *sbc_item = NULL;
-	proto_tree *sbc_tree = NULL;
-	proto_item *tlv_item = NULL;
-	proto_tree *tlv_tree = NULL;
-	proto_item *ti = NULL;
-	tlv_info_t tlv_info;
-	gfloat power_bpsk;
-	gfloat power_qpsk;
-	gfloat power_qam16;
-	gfloat power_qam64;
-	gfloat current_power;
+	proto_mac_mgmt_msg_sbc_decoder = proto_register_protocol (
+		"WiMax SBC-REQ/RSP Messages", /* name       */
+		"WiMax SBC-REQ/RSP (sbc)",    /* short name */
+		"wmx.sbc"                     /* abbrev     */
+		);
 
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if (payload_type != MAC_MGMT_MSG_SBC_RSP)
-	{
-		return;
-	}
-
-	if (tree)
-	{	/* we are being asked for details */
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC payload type SBC-RSP */
-		sbc_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tvb_len, "SS Basic Capability Response (SBC-RSP) (%u bytes)", tvb_len);
-		/* add MAC SBC subtree */
-		sbc_tree = proto_item_add_subtree(sbc_item, ett_mac_mgmt_msg_sbc_decoder);
-		/* Decode and display the SS Basic Capability Response (SBC-RSP) */
-		/* display the Message Type */
-		proto_tree_add_item(sbc_tree, hf_sbc_rsp_message_type, tvb, offset, 1, FALSE);
-		/* set the offset for the TLV Encoded info */
-		offset++;
-		/* process the SBC TLVs */
-		while(offset < tvb_len)
-		{
-			/* get the TLV information */
-			init_tlv_info(&tlv_info, tvb, offset);
-			/* get the TLV type */
-			tlv_type = get_tlv_type(&tlv_info);
-			/* get the TLV length */
-			tlv_len = get_tlv_length(&tlv_info);
-			if (tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
-			{	/* invalid tlv info */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SBC-RSP TLV error");
-				}
-				proto_tree_add_item(sbc_tree, hf_sbc_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
-				break;
-			}
-			if (tlv_type == 0)
-			{	/* invalid tlv type */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SBC TLV type");
-				}
-				proto_tree_add_item(sbc_tree, hf_sbc_unknown_type, tvb, offset, 1, FALSE);
-				offset++;
-				continue;
-			}
-			/* get the TLV value offset */
-			tlv_value_offset = get_tlv_value_offset(&tlv_info);
-#ifdef DEBUG /* for debug only */
-			proto_tree_add_protocol_format(sbc_tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, (tlv_len + tlv_value_offset), "SBC-RSP Type: %u (%u bytes, offset=%u, tlv_len=%u, tvb_len=%u)", tlv_type, (tlv_len + tlv_value_offset), offset, tlv_len, tvb_len);
-#endif
-			/* update the offset for the TLV value */
-			offset += tlv_value_offset;
-			/* process SBC TLV Encoded information */
-			switch (tlv_type)
-			{
-				case SBC_BW_ALLOC_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_bw_alloc_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_duplex, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd1, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TRANSITION_GAPS:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_transition_gaps, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssttg, tvb, offset, 1, FALSE);
-					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
-					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssrtg, tvb, (offset + 1), 1, FALSE);
-					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
-				break;
-				case SBC_MAC_PDU:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_mac_pdu, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_piggybacked, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_fsn, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_rsvd, tvb, offset, 1, FALSE);
-				break;
-				case SBC_REQ_MAX_TRANSMIT_POWER:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_max_transmit_power, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					power_bpsk = (gfloat)(tvb_get_guint8(tvb, offset) - 128) / 2;
-					power_qpsk = (gfloat)(tvb_get_guint8(tvb, (offset + 1)) - 128) / 2;
-					power_qam16 = (gfloat)(tvb_get_guint8(tvb, (offset + 2)) - 128) / 2;
-					power_qam64 = (gfloat)(tvb_get_guint8(tvb, (offset + 3)) - 128) / 2;
-					proto_tree_add_text(tlv_tree, tvb, offset, 1, "BPSK: %.2f dBm", (gdouble)power_bpsk);
-					proto_tree_add_text(tlv_tree, tvb, (offset + 1), 1, "QPSK: %.2f dBm", (gdouble)power_qpsk);
-					proto_tree_add_text(tlv_tree, tvb, (offset + 2), 1, "QAM16: %.2f dBm", (gdouble)power_qam16);
-					proto_tree_add_text(tlv_tree, tvb, (offset + 3), 1, "QAM64: %.2f dBm", (gdouble)power_qam64);
-				break;
-				case SBC_REQ_CURR_TRANSMITTED_POWER:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_curr_transmit_power, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					value = tvb_get_guint8(tvb, offset);
-					current_power = (gfloat)(value - 128) / 2;
-					proto_tree_add_text(tlv_tree, tvb, offset, 1, "Current Transmitted Power: %.2f dBm (Value: 0x%x)", (gdouble)current_power, value);
-				break;
-				case SBC_SS_FFT_SIZES:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_fft_sizes, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					if (include_cor2_changes)
-					{
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd1, tvb, offset, 1, FALSE);
-					} else {
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_256, tvb, offset, 1, FALSE);
-					}
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_2048, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_128, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_512, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_1024, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd2, tvb, offset, 1, FALSE);
-				break;
-				case SBC_SS_DEMODULATOR:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_demodulator, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					if (tlv_len == 1) /* && (num_dl_harq_chans < 8)) */
-					{
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_64qam, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_btc, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ctc, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_stc, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved, tvb, offset, 1, FALSE);
-					}
-					else
-					{
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_64qam_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_btc_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ctc_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_stc_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_cc_ir_2, tvb, offset , 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ldpc_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_dedicated_pilots_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved1_2, tvb, offset, 2, FALSE);
-					}
-				break;
-				case SBC_SS_MODULATOR:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_modulator, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_64qam, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_btc, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ctc, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_stc, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_harq_chase, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ctc_ir, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_cc_ir, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_modulator_ldpc, tvb, offset, 1, FALSE);
-				break;
-				case SBC_SS_NUM_UL_ARQ_ACK_CHANNEL:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_number_ul_arq_ack_channel, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_number_ul_arq_ack_channel, tvb, offset, tlv_len, FALSE);
-				break;
-				case SBC_SS_NUM_DL_ARQ_ACK_CHANNEL:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					/* get and save the value */
-					num_dl_harq_chans = tvb_get_guint8(tvb, offset);
-					proto_tree_add_item(tlv_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
-				break;
-				case SBC_SS_PERMUTATION_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_permutation_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_optimal_pusc, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_optimal_fusc, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_1x6, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_2x3, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_3x2, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_amc_with_harq_map, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_tusc1_support, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_tusc2_support, tvb, offset, 1, FALSE);
-				break;
-				case SBC_SS_DEMODULATOR_MIMO_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_demodulator_mimo_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_a, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_b_vertical, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_2_ann_stc_matrix_b_horizontal, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_a, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_b_vertical, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_b_horizontal, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_vertical, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_horizontal, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_rsvd, tvb, offset, 2, FALSE);
-				break;
-				case SBC_SS_MIMO_UPLINK_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_mimo_uplink_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sttd, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sm_vertical, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_1_ann_coop_sm, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_rsvd, tvb, offset, 1, FALSE);
-				break;
-				case SBC_SS_OFDMA_AAS_PRIVATE_MAP_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_ofdma_aas_private, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_harq_map_capability, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_support, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_reduced_private_map_support, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_chain_enable, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_dl_frame_offset, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_ul_frame_offset, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_concurrency, tvb, offset, 1, FALSE);
-				break;
-				case SBC_SS_OFDMA_AAS_CAPABILITIES:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ofdma_aas_capabilities, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_zone, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_diversity_map_scan, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_fbck_rsp_support, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_downlink_aas_preamble, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_uplink_aas_preamble, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_capabilities_rsvd, tvb, offset, 2, FALSE);
-				break;
-				case SBC_SS_CINR_MEASUREMENT_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_cinr_measure_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_preamble, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_permutation_zone_from_pilot_subcarriers, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_phy_cinr_measurement_permutation_zone_from_data_subcarriers, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_preamble, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_permutation_zone_from_pilot_subcarriers, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_effective_cinr_measurement_permutation_zone_from_data_subcarriers, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_support_2_concurrent_cqi_channels,tvb,offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_frequency_selectivity_characterization_report,tvb,offset, 1, FALSE);
-				break;
-				case SBC_PKM_FLOW_CONTROL:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_pkm_flow_control, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					tlv_item = proto_tree_add_item(tlv_tree, hf_sbc_pkm_flow_control, tvb, offset, tlv_len, FALSE);
-					if (tvb_get_guint8(tvb, offset) == 0)
-					{
-						proto_item_append_text(tlv_item, " (default - no limit)");
-					}
-				break;
-				case SBC_AUTH_POLICY_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_auth_policy, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
-				break;
-				case SBC_MAX_SECURITY_ASSOCIATIONS:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_max_security_associations, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_max_security_associations, tvb, offset, tlv_len, FALSE);
-				break;
-				case SBC_TLV_T_27_EXTENSION_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_27_extension_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_bit0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_28_HO_TRIGGER_METRIC_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit1, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit2, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit3, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_167_ASSOCIATION_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_167_association_type_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit1, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit2, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit3, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit4, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_170_UPLINK_POWER_CONTROL_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ofdma_ss_uplink_power_control_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_open_loop, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_aas_preamble, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_rsvd, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_171_MINIMUM_NUM_OF_FRAMES:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_171_minimum_num_of_frames, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_171_minimum_num_of_frames, tvb, offset, tlv_len, FALSE);
-				break;
-				case SBC_TLV_T_172:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_172, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_harq_map_capability, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_extended_harq_ie_capability, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_first_zone, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_other_zones, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_dl_region_definition_support, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_173_UL_CONTROL_CHANNEL_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_173_ul_ctl_channel_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_3_bit_mimo_fast_feedback, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_enhanced_fast_feedback, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_ul_ack, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_reserved, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_uep_fast_feedback, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_measurement_report, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_primary_secondary_fast_feedback, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_diuc_cqi_fast_feedback, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_174_OFDMA_MS_CSIT_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_174_ofdma_ms_csit_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_a, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_b, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_power_assignment_capability, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_sounding_rsp_time_capability, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_max_num_simultanous_sounding_instructions, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_type_a_support, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_reserved, tvb, offset, 2, FALSE);
-				break;
-				case SBC_TLV_T_175_MAX_NUM_BST_PER_FRM_CAPABILITY_HARQ:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_175_max_num_bst_per_frm_capability_harq, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_ul_harq_bst, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_ul_harq_per_frm_include_one_non_harq_bst, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_175_max_num_dl_harq_bst_per_harq_per_frm, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_176:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_176, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit0, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit1, tvb, offset, 3, FALSE);
-					if (include_cor2_changes)
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit2_cor2, tvb, offset, 3, FALSE);
-					else
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit2, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit3, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit4, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit5, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit6, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit7, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit8, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit9, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit10, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit11, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit12, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit13, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit14, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit15, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit16, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit17, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit18, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit19, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_reserved, tvb, offset, 3, FALSE);
-				break;
-				case SBC_TLV_T_177_OFDMA_SS_MODULATOR_FOR_MIMO_SUPPORT:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_177_ofdma_ss_modulator_for_mimo_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					if (include_cor2_changes)
-					{
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_a, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_b_vertical, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_stc_matrix_b_horizontal, tvb, offset, 1, FALSE);
-					} else {
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_two_transmit_antennas, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_transmit_diversity, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_spacial_multiplexing, tvb, offset, 1, FALSE);
-					}
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_beamforming, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_adaptive_rate_ctl, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_single_antenna, tvb, offset, 1, FALSE);
-					if (include_cor2_changes)
-					{
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_one_antenna, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_two_antennas, tvb, offset, 1, FALSE);
-					} else {
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_two_antenna, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_rsvd, tvb, offset, 1, FALSE);
-					}
-				break;
-				case SBC_TLV_T_178_SDMA_PILOT_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_178_sdma_pilot_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_sdma_pilot_pattern_support_for_amc_zone, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_179_OFDMA_MULTIPLE_DL_BURST_PROFILE_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_179_ofdma_multiple_dl_burst_profile_support, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_dl_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_ul_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_reserved, tvb, offset, 1, FALSE);
-				break;
-				case SBC_TLV_T_204_OFDMA_PARAMETERS_SETS:
-					if (include_cor2_changes)
-					{
-						/* add TLV subtree */
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets, tvb, offset, tlv_len, FALSE);
-						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_a, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_b, tvb, offset, 1, FALSE);
-						tlv_item = proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_a, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_b, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_reserved, tvb, offset, 1, FALSE);
-					}
-					break;
-				case SBC_TLV_T_162_HARQ_INCREMENTAL_REDUNDANCY_BUFFER_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_dl, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved1, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_ul_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_ul, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved2, tvb, offset, 2, FALSE);
-				break;
-				case SBC_TLV_T_163_HARQ_CHASE_COMBINING_AND_CC_IR_BUFFER_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_dl_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_dl, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved1, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_ul_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_ul, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved2, tvb, offset, 2, FALSE);
-				break;
-				case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETERS:
-					/* display Security Negotiation Parameters Title */
-					tlv_item = proto_tree_add_protocol_format(sbc_tree, proto_mac_mgmt_msg_sbc_decoder, tvb, offset, tvb_len, "Security Negotiation Parameters (%u bytes)", tvb_len);
-					/* add Security Negotiation Parameters subtree */
-					tlv_tree = proto_item_add_subtree(tlv_item, ett_sbc_rsp_tlv_subtree);
-					/* call the Security Negotiation Parameters decoder */
-					wimax_security_negotiation_parameters_decoder(tvb_new_subset(tvb, offset, tlv_len, tlv_len), pinfo, tlv_tree);
-				break;
-				case SBC_TLV_T_26_POWER_SAVE_CLASS_TYPES_CAPABILITY:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit1, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit2, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits34, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits567, tvb, offset, 1, FALSE);
-				break;
-				default:
-					/* add TLV subtree */
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
-					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
-				break;
-			}
-			offset += tlv_len;
-		}	/* end of TLV process while loop */
-	}
+	proto_register_field_array(proto_mac_mgmt_msg_sbc_decoder, hf_sbc, array_length(hf_sbc));
+	proto_register_subtree_array(ett_sbc, array_length(ett_sbc));
 }

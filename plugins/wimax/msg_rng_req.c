@@ -32,8 +32,6 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "crc.h"
@@ -46,17 +44,8 @@ extern gboolean include_cor2_changes;
 
 extern gint man_ofdma;
 
-/* Forward reference */
-void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 gint proto_mac_mgmt_msg_rng_req_decoder = -1;
 static gint ett_mac_mgmt_msg_rng_req_decoder = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_mac_mgmt_msg_rng_req_decoder,
-};
 
 /* RNG-REQ fields */
 static gint hf_rng_req_message_type                          = -1;
@@ -229,6 +218,151 @@ void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_
 		/* update the offset */
 		offset = tlv_len + tlv_offset;
 	}	/* end of TLV process while loop */
+}
+
+
+/* Decode RNG-REQ messages. */
+void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint offset = 0;
+	guint tlv_offset;
+	guint tvb_len, payload_type;
+	proto_item *rng_req_item = NULL;
+	proto_tree *rng_req_tree = NULL;
+	proto_tree *tlv_tree = NULL;
+	tlv_info_t tlv_info;
+	gint tlv_type;
+	gint tlv_len;
+
+	/* Ensure the right payload type */
+	payload_type = tvb_get_guint8(tvb, offset);
+	if(payload_type != MAC_MGMT_MSG_RNG_REQ)
+	{
+		return;
+	}
+
+	if (tree)
+	{	/* we are being asked for details */
+
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
+		/* display MAC payload type RNG-REQ */
+		rng_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, offset, tvb_len, "MAC Management Message, RNG-REQ (4)");
+		/* add MAC RNG-REQ subtree */
+		rng_req_tree = proto_item_add_subtree(rng_req_item, ett_mac_mgmt_msg_rng_req_decoder);
+		/* display the Message Type */
+		proto_tree_add_item(rng_req_tree, hf_rng_req_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(rng_req_tree, hf_rng_req_reserved, tvb, 1, 1, FALSE);
+		offset += 2;
+
+		while(offset < tvb_len)
+		{
+			/* Get the TLV data. */
+			init_tlv_info(&tlv_info, tvb, offset);
+			/* get the TLV type */
+			tlv_type = get_tlv_type(&tlv_info);
+			/* get the TLV length */
+			tlv_len = get_tlv_length(&tlv_info);
+			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
+			{	/* invalid tlv info */
+				if(check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RNG-REQ TLV error");
+				}
+				proto_tree_add_item(rng_req_tree, hf_rng_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				break;
+			}
+			/* get the offset to the TLV data */
+			tlv_offset = offset + get_tlv_value_offset(&tlv_info);
+
+			switch (tlv_type) {
+				case RNG_REQ_DL_BURST_PROFILE:
+					/* add TLV subtree */
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Requested Downlink Burst Profile 0x%02x", tvb_get_guint8(tvb, tlv_offset));
+					proto_tree_add_item(tlv_tree, hf_rng_req_dl_burst_profile_diuc, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_dl_burst_profile_lsb_ccc, tvb, tlv_offset, 1, FALSE);
+					break;
+				case RNG_REQ_SS_MAC_ADDRESS:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_ss_mac_address, tvb, tlv_offset, 6, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ss_mac_address, tvb, tlv_offset, 6, FALSE);
+					break;
+				case RNG_REQ_RANGING_ANOMALIES:
+					/* add TLV subtree */
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Ranging Anomalies %d", tvb_get_guint8(tvb, tlv_offset));
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_max_power, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_min_power, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_timing_adj, tvb, tlv_offset, 1, FALSE);
+					break;
+				case RNG_REQ_AAS_BROADCAST:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_aas_broadcast, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_aas_broadcast, tvb, tlv_offset, 1, FALSE);
+					break;
+				case RNG_REQ_SERVING_BS_ID:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_serving_bs_id, tvb, tlv_offset, 6, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_serving_bs_id, tvb, tlv_offset, 6, FALSE);
+					break;
+				case RNG_REQ_RANGING_PURPOSE_INDICATION:
+					/* display the Ranging Purpose Flags */
+					/* add subtree */
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Ranging Purpose Flags (%u byte(s))", tlv_len);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_ho_indication, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_location_update_request, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_reserved, tvb, tlv_offset, 1, FALSE);
+					break;
+				case RNG_REQ_HO_ID:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_ho_id, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ho_id, tvb, tlv_offset, 1, FALSE);
+					break;
+				case RNG_REQ_POWER_DOWN_INDICATOR:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_power_down_indicator, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_power_down_indicator, tvb, tlv_offset, 1, FALSE);
+					break;
+				case RNG_REQ_REQUESTED_DNLK_REP_CODING_LEVEL:
+					/* add subtree */
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Requested downlink repetition coding level (%u byte(s))", tlv_len);
+					proto_tree_add_item(tlv_tree, hf_rng_req_repetition_coding_level, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_requested_downlink_repetition_coding_level_reserved, tvb, tlv_offset, 1, FALSE);
+					break;
+				case RNG_REQ_CMAC_KEY_COUNT:
+					if (include_cor2_changes) {
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_cmac_key_count, tvb, tlv_offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_rng_req_cmac_key_count, tvb, tlv_offset, 2, FALSE);
+					} else {
+						/* Unknown TLV type */
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
+					}
+					break;
+				case SHORT_HMAC_TUPLE:
+				case SHORT_HMAC_TUPLE_COR2:
+					if ((!include_cor2_changes && (tlv_type == SHORT_HMAC_TUPLE)) ||
+						(include_cor2_changes && (tlv_type == SHORT_HMAC_TUPLE_COR2))) {
+						/* decode and display the Short HMAC Tuple */
+						tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Short HMAC Tuple (%u byte(s))", tlv_len);
+						wimax_short_hmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tvb_len - offset);
+					} else {
+						/* Unknown TLV Type */
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
+					}
+					break;
+				case MAC_VERSION_ENCODING:
+					offset += wimax_common_tlv_encoding_decoder(tvb_new_subset(tvb, offset, (tvb_len - offset), (tvb_len - offset)), pinfo, rng_req_tree);
+					continue;
+					break;
+				case RNG_REQ_POWER_SAVING_CLASS_PARAMETERS:
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Power Saving Class Parameters (%u byte(s))", tlv_len);
+					dissect_power_saving_class(tlv_tree, tlv_type, tvb, tlv_len, pinfo, tlv_offset);
+					break;
+				default:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
+					break;
+			}
+			/* update the offset */
+			offset = tlv_len + tlv_offset;
+		}	/* end of TLV process while loop */
+	}
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
@@ -477,159 +611,18 @@ void proto_register_mac_mgmt_msg_rng_req(void)
 		}
 	};
 
-	if (proto_mac_mgmt_msg_rng_req_decoder == -1)
-	{
-		proto_mac_mgmt_msg_rng_req_decoder = proto_register_protocol (
-							"WiMax RNG-REQ/RSP Messages", /* name */
-							"WiMax RNG-REQ/RSP (rng)", /* short name */
-							"wmx.rng" /* abbrev */
-							);
-
-		proto_register_field_array(proto_mac_mgmt_msg_rng_req_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
-}
-
-/* Decode RNG-REQ messages. */
-void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	guint offset = 0;
-	guint tlv_offset;
-	guint tvb_len, payload_type;
-	proto_item *rng_req_item = NULL;
-	proto_tree *rng_req_tree = NULL;
-	proto_tree *tlv_tree = NULL;
-	tlv_info_t tlv_info;
-	gint tlv_type;
-	gint tlv_len;
-
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if(payload_type != MAC_MGMT_MSG_RNG_REQ)
-	{
-		return;
-	}
-
-	if (tree)
-	{	/* we are being asked for details */
-
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC payload type RNG-REQ */
-		rng_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, offset, tvb_len, "MAC Management Message, RNG-REQ (4)");
-		/* add MAC RNG-REQ subtree */
-		rng_req_tree = proto_item_add_subtree(rng_req_item, ett_mac_mgmt_msg_rng_req_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(rng_req_tree, hf_rng_req_message_type, tvb, offset, 1, FALSE);
-		proto_tree_add_item(rng_req_tree, hf_rng_req_reserved, tvb, 1, 1, FALSE);
-		offset += 2;
-
-		while(offset < tvb_len)
+	/* Setup protocol subtree array */
+	static gint *ett[] =
 		{
-			/* Get the TLV data. */
-			init_tlv_info(&tlv_info, tvb, offset);
-			/* get the TLV type */
-			tlv_type = get_tlv_type(&tlv_info);
-			/* get the TLV length */
-			tlv_len = get_tlv_length(&tlv_info);
-			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
-			{	/* invalid tlv info */
-				if(check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RNG-REQ TLV error");
-				}
-				proto_tree_add_item(rng_req_tree, hf_rng_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
-				break;
-			}
-			/* get the offset to the TLV data */
-			tlv_offset = offset + get_tlv_value_offset(&tlv_info);
+			&ett_mac_mgmt_msg_rng_req_decoder,
+		};
 
-			switch (tlv_type) {
-				case RNG_REQ_DL_BURST_PROFILE:
-					/* add TLV subtree */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Requested Downlink Burst Profile 0x%02x", tvb_get_guint8(tvb, tlv_offset));
-					proto_tree_add_item(tlv_tree, hf_rng_req_dl_burst_profile_diuc, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_dl_burst_profile_lsb_ccc, tvb, tlv_offset, 1, FALSE);
-					break;
-				case RNG_REQ_SS_MAC_ADDRESS:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_ss_mac_address, tvb, tlv_offset, 6, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ss_mac_address, tvb, tlv_offset, 6, FALSE);
-					break;
-				case RNG_REQ_RANGING_ANOMALIES:
-					/* add TLV subtree */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Ranging Anomalies %d", tvb_get_guint8(tvb, tlv_offset));
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_max_power, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_min_power, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_timing_adj, tvb, tlv_offset, 1, FALSE);
-					break;
-				case RNG_REQ_AAS_BROADCAST:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_aas_broadcast, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_aas_broadcast, tvb, tlv_offset, 1, FALSE);
-					break;
-				case RNG_REQ_SERVING_BS_ID:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_serving_bs_id, tvb, tlv_offset, 6, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_serving_bs_id, tvb, tlv_offset, 6, FALSE);
-					break;
-				case RNG_REQ_RANGING_PURPOSE_INDICATION:
-					/* display the Ranging Purpose Flags */
-					/* add subtree */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Ranging Purpose Flags (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_ho_indication, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_location_update_request, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_reserved, tvb, tlv_offset, 1, FALSE);
-					break;
-				case RNG_REQ_HO_ID:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_ho_id, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ho_id, tvb, tlv_offset, 1, FALSE);
-					break;
-				case RNG_REQ_POWER_DOWN_INDICATOR:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_power_down_indicator, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_power_down_indicator, tvb, tlv_offset, 1, FALSE);
-					break;
-				case RNG_REQ_REQUESTED_DNLK_REP_CODING_LEVEL:
-					/* add subtree */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Requested downlink repetition coding level (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_rng_req_repetition_coding_level, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_requested_downlink_repetition_coding_level_reserved, tvb, tlv_offset, 1, FALSE);
-					break;
-				case RNG_REQ_CMAC_KEY_COUNT:
-					if (include_cor2_changes) {
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_cmac_key_count, tvb, tlv_offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_rng_req_cmac_key_count, tvb, tlv_offset, 2, FALSE);
-					} else {
-						/* Unknown TLV type */
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
-					}
-					break;
-				case SHORT_HMAC_TUPLE:
-				case SHORT_HMAC_TUPLE_COR2:
-					if ((!include_cor2_changes && (tlv_type == SHORT_HMAC_TUPLE)) ||
-						(include_cor2_changes && (tlv_type == SHORT_HMAC_TUPLE_COR2))) {
-						/* decode and display the Short HMAC Tuple */
-						tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Short HMAC Tuple (%u byte(s))", tlv_len);
-						wimax_short_hmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tvb_len - offset);
-					} else {
-						/* Unknown TLV Type */
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
-					}
-					break;
-				case MAC_VERSION_ENCODING:
-					offset += wimax_common_tlv_encoding_decoder(tvb_new_subset(tvb, offset, (tvb_len - offset), (tvb_len - offset)), pinfo, rng_req_tree);
-					continue;
-					break;
-				case RNG_REQ_POWER_SAVING_CLASS_PARAMETERS:
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Power Saving Class Parameters (%u byte(s))", tlv_len);
-					dissect_power_saving_class(tlv_tree, tlv_type, tvb, tlv_len, pinfo, tlv_offset);
-					break;
-				default:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
-					break;
-			}
-			/* update the offset */
-			offset = tlv_len + tlv_offset;
-		}	/* end of TLV process while loop */
-	}
+	proto_mac_mgmt_msg_rng_req_decoder = proto_register_protocol (
+		"WiMax RNG-REQ/RSP Messages", /* name       */
+		"WiMax RNG-REQ/RSP (rng)",    /* short name */
+		"wmx.rng"                     /* abbrev     */
+		);
+
+	proto_register_field_array(proto_mac_mgmt_msg_rng_req_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

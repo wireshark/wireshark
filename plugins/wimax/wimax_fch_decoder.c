@@ -40,10 +40,6 @@ extern gint proto_wimax;
 
 extern address bs_address;	/* declared in packet-wmx.c */
 
-/* forward reference */
-void proto_register_wimax_fch(void);
-static void dissect_wimax_fch_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static int proto_wimax_fch_decoder = -1;
 static gint ett_wimax_fch_decoder = -1;
 
@@ -104,11 +100,43 @@ static const value_string coding_indications[] =
 	{ 0,  NULL }
 };
 
-/* Setup protocol subtree array */
-static gint *ett[] =
+static void dissect_wimax_fch_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	&ett_wimax_fch_decoder,
-};
+	gint offset = 0;
+	proto_item *fch_item = NULL;
+	proto_tree *fch_tree = NULL;
+
+	/* save the base station address (once) */
+	if(!bs_address.len)
+		COPY_ADDRESS(&bs_address, &(pinfo->src));
+	/* update the info column */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	{
+		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "FCH");
+	}
+	if (tree)
+	{	/* we are being asked for details */
+		/* display FCH dissector info */
+		fch_item = proto_tree_add_protocol_format(tree, proto_wimax_fch_decoder, tvb, offset, 3, "DL Frame Prefix (24 bits)");
+		/* add FCH subtree */
+		fch_tree = proto_item_add_subtree(fch_item, ett_wimax_fch_decoder);
+		/* Decode and display the used sub-channel groups */
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group0, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group1, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group2, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group3, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group4, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group5, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		proto_tree_add_item(fch_tree, hf_fch_reserved_1, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		/* Decode and display the repetition coding indication */
+		proto_tree_add_item(fch_tree, hf_fch_repetition_coding_indication, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		/* Decode and display the coding indication */
+		proto_tree_add_item(fch_tree, hf_fch_coding_indication, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		/* Decode and display the DL MAP length */
+		proto_tree_add_item(fch_tree, hf_fch_dlmap_length, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		proto_tree_add_item(fch_tree, hf_fch_reserved_2, tvb, offset, FCH_BURST_LENGTH, FALSE);
+	}
+}
 
 /* Register Wimax FCH Protocol */
 void proto_register_wimax_fch(void)
@@ -206,51 +234,17 @@ void proto_register_wimax_fch(void)
 		}
 	};
 
-	if (proto_wimax_fch_decoder == -1)
-	{
-		proto_wimax_fch_decoder = proto_wimax;
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_wimax_fch_decoder,
+		};
 
-		/* register the field display messages */
-		proto_register_field_array(proto_wimax_fch_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_wimax_fch_decoder = proto_wimax;
+
+	/* register the field display messages */
+	proto_register_field_array(proto_wimax_fch_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
 	register_dissector("wimax_fch_burst_handler", dissect_wimax_fch_decoder, -1);
-}
-
-static void dissect_wimax_fch_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	gint offset = 0;
-	proto_item *fch_item = NULL;
-	proto_tree *fch_tree = NULL;
-
-	/* save the base station address (once) */
-	if(!bs_address.len)
-		COPY_ADDRESS(&bs_address, &(pinfo->src));
-	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "FCH");
-	}
-	if (tree)
-	{	/* we are being asked for details */
-		/* display FCH dissector info */
-		fch_item = proto_tree_add_protocol_format(tree, proto_wimax_fch_decoder, tvb, offset, 3, "DL Frame Prefix (24 bits)");
-		/* add FCH subtree */
-		fch_tree = proto_item_add_subtree(fch_item, ett_wimax_fch_decoder);
-		/* Decode and display the used sub-channel groups */
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group0, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group1, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group2, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group3, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group4, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group5, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_reserved_1, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		/* Decode and display the repetition coding indication */
-		proto_tree_add_item(fch_tree, hf_fch_repetition_coding_indication, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		/* Decode and display the coding indication */
-		proto_tree_add_item(fch_tree, hf_fch_coding_indication, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		/* Decode and display the DL MAP length */
-		proto_tree_add_item(fch_tree, hf_fch_dlmap_length, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_reserved_2, tvb, offset, FCH_BURST_LENGTH, FALSE);
-	}
 }

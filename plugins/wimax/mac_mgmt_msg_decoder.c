@@ -32,8 +32,6 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "wimax_mac.h"
@@ -108,10 +106,6 @@ extern void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pin
 extern void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_mac_mgmt_msg_clk_cmp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_mac_mgmt_msg_dsx_rvd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-/* forward reference */
-void proto_register_mac_mgmt_msg(void);
-void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static gint proto_mac_mgmt_msg_decoder = -1;
 static gint ett_mac_mgmt_msg_decoder = -1;
@@ -188,89 +182,9 @@ char *mgt_msg_abbrv[MAC_MGMT_MSG_TYPE_MAX] =
 	"MOB-ASC-REP"
 };
 
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_mac_mgmt_msg_decoder,
-};
-
 static gint hf_mac_mgmt_msg_values = -1;
 static gint hf_mac_mgmt_msg_unknown_type = -1;
 
-/* Register Wimax Mac Payload Protocol and Dissector */
-void proto_register_mac_mgmt_msg(void)
-{
-	/* Payload display */
-	static hf_register_info hf[] =
-	{
-		{
-			&hf_mac_mgmt_msg_values,
-			{
-				"Values", "wmx.values",
-				FT_BYTES, BASE_NONE, NULL, 0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_mac_mgmt_msg_unknown_type,
-			{
-				"Unknown MAC Message Type", "wmx.unknown_type",
-				FT_BYTES, BASE_NONE, NULL, 0x0,
-				NULL, HFILL
-			}
-		}
-	};
-
-	if (proto_mac_mgmt_msg_decoder == -1)
-	{
-		proto_mac_mgmt_msg_decoder = proto_wimax;
-#if 0
-		proto_mac_mgmt_msg_decoder = proto_register_protocol (
-							"WiMax MAC Management Message", /* name */
-							"MGMT MSG", /* short name */
-							"wmx.mgmtmsg" /* abbrev */
-							);
-#endif
-
-		proto_register_field_array(proto_mac_mgmt_msg_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
-
-	/* Register dissector by name */
-	register_dissector("wmx_mac_mgmt_msg_decoder", dissect_mac_mgmt_msg_decoder,
-	                   proto_mac_mgmt_msg_decoder);
-
-	proto_register_mac_mgmt_msg_dcd();
-	proto_register_mac_mgmt_msg_ucd();
-	proto_register_mac_mgmt_msg_dlmap();
-	proto_register_mac_mgmt_msg_ulmap();
-	proto_register_mac_mgmt_msg_rng_req();
-	proto_register_mac_mgmt_msg_rng_rsp();
-	proto_register_mac_mgmt_msg_reg_req();
-	proto_register_mac_mgmt_msg_reg_rsp();
-	proto_register_mac_mgmt_msg_dsa();
-	proto_register_mac_mgmt_msg_dsc();
-	proto_register_mac_mgmt_msg_dsd();
-	proto_register_mac_mgmt_msg_arq_feedback();
-	proto_register_mac_mgmt_msg_arq_discard();
-	proto_register_mac_mgmt_msg_arq_reset();
-	proto_register_mac_mgmt_msg_dreg_req();
-	proto_register_mac_mgmt_msg_dreg_cmd();
-	proto_register_mac_mgmt_msg_fpc();
-	proto_register_mac_mgmt_msg_sbc();
-	proto_register_mac_mgmt_msg_pkm();
-	proto_register_mac_mgmt_msg_pmc_req();
-	proto_register_mac_mgmt_msg_pmc_rsp();
-	proto_register_mac_mgmt_msg_prc_lt_ctrl();
-	proto_register_mac_mgmt_msg_aas_fbck();
-	proto_register_mac_mgmt_msg_aas_beam();
-	proto_register_mac_mgmt_msg_res_cmd();
-	proto_register_mac_mgmt_msg_rep();
-	proto_register_mac_mgmt_msg_clk_cmp();
-	proto_register_mac_mgmt_msg_dsx_rvd();
-
-	proto_register_wimax_utility_decoders();
-}
 
 void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -878,4 +792,82 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		break;
 		}
 	}
+}
+
+/* Register Wimax Mac Payload Protocol and Dissector */
+void proto_register_mac_mgmt_msg(void)
+{
+	/* Payload display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_mac_mgmt_msg_values,
+			{
+				"Values", "wmx.values",
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_mac_mgmt_msg_unknown_type,
+			{
+				"Unknown MAC Message Type", "wmx.unknown_type",
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
+			}
+		}
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_mac_mgmt_msg_decoder,
+		};
+
+	proto_mac_mgmt_msg_decoder = proto_wimax;
+#if 0
+	proto_mac_mgmt_msg_decoder = proto_register_protocol (
+		"WiMax MAC Management Message", /* name       */
+		"MGMT MSG",                     /* short name */
+		"wmx.mgmtmsg"                   /* abbrev     */
+		);
+#endif
+
+	proto_register_field_array(proto_mac_mgmt_msg_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register dissector by name */
+	register_dissector("wmx_mac_mgmt_msg_decoder", dissect_mac_mgmt_msg_decoder,
+	                   proto_mac_mgmt_msg_decoder);
+
+	proto_register_mac_mgmt_msg_dcd();
+	proto_register_mac_mgmt_msg_ucd();
+	proto_register_mac_mgmt_msg_dlmap();
+	proto_register_mac_mgmt_msg_ulmap();
+	proto_register_mac_mgmt_msg_rng_req();
+	proto_register_mac_mgmt_msg_rng_rsp();
+	proto_register_mac_mgmt_msg_reg_req();
+	proto_register_mac_mgmt_msg_reg_rsp();
+	proto_register_mac_mgmt_msg_dsa();
+	proto_register_mac_mgmt_msg_dsc();
+	proto_register_mac_mgmt_msg_dsd();
+	proto_register_mac_mgmt_msg_arq_feedback();
+	proto_register_mac_mgmt_msg_arq_discard();
+	proto_register_mac_mgmt_msg_arq_reset();
+	proto_register_mac_mgmt_msg_dreg_req();
+	proto_register_mac_mgmt_msg_dreg_cmd();
+	proto_register_mac_mgmt_msg_fpc();
+	proto_register_mac_mgmt_msg_sbc();
+	proto_register_mac_mgmt_msg_pkm();
+	proto_register_mac_mgmt_msg_pmc_req();
+	proto_register_mac_mgmt_msg_pmc_rsp();
+	proto_register_mac_mgmt_msg_prc_lt_ctrl();
+	proto_register_mac_mgmt_msg_aas_fbck();
+	proto_register_mac_mgmt_msg_aas_beam();
+	proto_register_mac_mgmt_msg_res_cmd();
+	proto_register_mac_mgmt_msg_rep();
+	proto_register_mac_mgmt_msg_clk_cmp();
+	proto_register_mac_mgmt_msg_dsx_rvd();
+
+	proto_register_wimax_utility_decoders();
 }

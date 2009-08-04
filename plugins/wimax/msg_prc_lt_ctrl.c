@@ -32,8 +32,6 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "crc.h"
@@ -42,18 +40,9 @@
 
 extern gint man_ofdma;
 
-/* Forward reference */
-void dissect_mac_mgmt_msg_prc_lt_ctrl_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint proto_mac_mgmt_msg_prc_lt_ctrl_decoder = -1;
 
 static gint ett_mac_mgmt_msg_prc_lt_ctrl_decoder = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_mac_mgmt_msg_prc_lt_ctrl_decoder,
-};
 
 /* PRC-LT-CTRL fields */
 static gint hf_prc_lt_ctrl_message_type = -1;
@@ -67,55 +56,6 @@ static const value_string vals_turn_on[] = {
     {0,					NULL}
 };
 
-/* Register Wimax Mac Payload Protocol and Dissector */
-void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
-{
-	/* PRC-LT-CTRL fields display */
-	static hf_register_info hf[] =
-	{
-		{
-			&hf_prc_lt_ctrl_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.prc_lt_ctrl",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_prc_lt_ctrl_invalid_tlv,
-			{
-				"Invalid TLV", "wmx.prc_lt_ctrl.invalid_tlv",
-				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
-			}
-		},
-		{
-			&hf_prc_lt_ctrl_precoding,
-			{
-				"Setup/Tear-down long-term precoding with feedback",
-				"wimax.prc_lt_ctrl.precoding",
-				FT_UINT8, BASE_DEC, VALS(&vals_turn_on), 0x80, NULL, HFILL
-			}
-		},
-		{
-			&hf_prc_lt_ctrl_precoding_delay,
-			{
-				"BS precoding application delay",
-				"wimax.prc_lt_ctrl.precoding_delay",
-				FT_UINT8, BASE_DEC, NULL, 0x60, NULL, HFILL
-			}
-		}
-	};
-
-	if (proto_mac_mgmt_msg_prc_lt_ctrl_decoder == -1) {
-		proto_mac_mgmt_msg_prc_lt_ctrl_decoder = proto_register_protocol (
-							"WiMax PRC-LT-CTRL Message", /* name */
-							"WiMax PRC-LT-CTRL (prc)", /* short name */
-							"wmx.prc" /* abbrev */
-							);
-
-		proto_register_field_array(proto_mac_mgmt_msg_prc_lt_ctrl_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
-}
 
 /* Decode PRC-LT-CTRL messages. */
 void dissect_mac_mgmt_msg_prc_lt_ctrl_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -156,3 +96,56 @@ void dissect_mac_mgmt_msg_prc_lt_ctrl_decoder(tvbuff_t *tvb, packet_info *pinfo 
 	}
 }
 
+/* Register Wimax Mac Payload Protocol and Dissector */
+void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
+{
+	/* PRC-LT-CTRL fields display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_prc_lt_ctrl_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.prc_lt_ctrl",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_prc_lt_ctrl_invalid_tlv,
+			{
+				"Invalid TLV", "wmx.prc_lt_ctrl.invalid_tlv",
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+			}
+		},
+		{
+			&hf_prc_lt_ctrl_precoding,
+			{
+				"Setup/Tear-down long-term precoding with feedback",
+				"wimax.prc_lt_ctrl.precoding",
+				FT_UINT8, BASE_DEC, VALS(&vals_turn_on), 0x80, NULL, HFILL
+			}
+		},
+		{
+			&hf_prc_lt_ctrl_precoding_delay,
+			{
+				"BS precoding application delay",
+				"wimax.prc_lt_ctrl.precoding_delay",
+				FT_UINT8, BASE_DEC, NULL, 0x60, NULL, HFILL
+			}
+		}
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_mac_mgmt_msg_prc_lt_ctrl_decoder,
+		};
+
+	proto_mac_mgmt_msg_prc_lt_ctrl_decoder = proto_register_protocol (
+		"WiMax PRC-LT-CTRL Message", /* name       */
+		"WiMax PRC-LT-CTRL (prc)",   /* short name */
+		"wmx.prc"                    /* abbrev     */
+		);
+
+	proto_register_field_array(proto_mac_mgmt_msg_prc_lt_ctrl_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}

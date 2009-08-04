@@ -34,8 +34,6 @@
 
 #define WIMAX_16E_2005
 
-#include "moduleinfo.h"
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "crc.h"
@@ -46,18 +44,8 @@
 extern gint proto_wimax;
 extern gboolean include_cor2_changes;
 
-/* Forward reference */
-void dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-
 gint proto_mac_mgmt_msg_reg_req_decoder = -1;
 static gint ett_mac_mgmt_msg_reg_req_decoder = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_mac_mgmt_msg_reg_req_decoder
-};
 
 /* REG-REQ fields */
 static gint hf_reg_ss_mgmt_support                   = -1;
@@ -522,6 +510,164 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 			break;
 	}
 #endif
+}
+
+
+/* Decode REG-REQ messages. */
+void dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint offset = 0;
+	guint tlv_offset;
+	guint tvb_len, payload_type;
+	proto_item *reg_req_item = NULL;
+	proto_tree *reg_req_tree = NULL;
+	proto_tree *tlv_tree = NULL;
+	gboolean hmac_found = FALSE;
+	tlv_info_t tlv_info;
+	gint tlv_type;
+	gint tlv_len;
+
+	/* Ensure the right payload type */
+	payload_type = tvb_get_guint8(tvb, offset);
+	if (payload_type != MAC_MGMT_MSG_REG_REQ)
+	{
+		return;
+	}
+
+	if (tree)
+	{	/* we are being asked for details */
+
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
+		/* display MAC payload type REG-REQ */
+		reg_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, offset, tvb_len, "MAC Management Message, REG-REQ (6)");
+		/* add MAC REG-REQ subtree */
+		reg_req_tree = proto_item_add_subtree(reg_req_item, ett_mac_mgmt_msg_reg_req_decoder);
+		/* display the Message Type */
+		proto_tree_add_item(reg_req_tree, hf_reg_req_message_type, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		while(offset < tvb_len)
+		{
+			/* Get the TLV data. */
+			init_tlv_info(&tlv_info, tvb, offset);
+			/* get the TLV type */
+			tlv_type = get_tlv_type(&tlv_info);
+			/* get the TLV length */
+			tlv_len = get_tlv_length(&tlv_info);
+			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
+			{	/* invalid tlv info */
+				if (check_col(pinfo->cinfo, COL_INFO))
+				{
+					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REG-REQ TLV error");
+				}
+				proto_tree_add_item(reg_req_tree, hf_reg_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				break;
+			}
+			/* get the offset to the TLV data */
+			tlv_offset = offset + get_tlv_value_offset(&tlv_info);
+
+			switch (tlv_type) {
+				case REG_ARQ_PARAMETERS:
+				case REG_SS_MGMT_SUPPORT:
+				case REG_IP_MGMT_MODE:
+				case REG_IP_VERSION:
+				case REG_UL_TRANSPORT_CIDS_SUPPORTED:
+				case REG_IP_PHS_SDU_ENCAP:
+				case REG_MAX_CLASSIFIERS_SUPPORTED:
+				case REG_PHS_SUPPORT:
+				case REG_ARQ_SUPPORT:
+				case REG_DSX_FLOW_CONTROL:
+				case REG_MAC_CRC_SUPPORT:
+				case REG_MCA_FLOW_CONTROL:
+				case REG_MCAST_POLLING_CIDS:
+				case REG_NUM_DL_TRANS_CID:
+				case REG_MAC_ADDRESS:
+#ifdef WIMAX_16E_2005
+				case REG_TLV_T_20_MAX_MAC_DATA_PER_FRAME_SUPPORT:
+				case REG_TLV_T_21_PACKING_SUPPORT:
+				case REG_TLV_T_22_MAC_EXTENDED_RTPS_SUPPORT:
+				case REG_TLV_T_23_MAX_NUM_BURSTS_TRANSMITTED_CONCURRENTLY_TO_THE_MS:
+				case REG_TLV_T_26_METHOD_FOR_ALLOCATING_IP_ADDR_SECONDARY_MGMNT_CONNECTION:
+				case REG_TLV_T_27_HANDOVER_SUPPORTED:
+				case REG_TLV_T_29_HO_PROCESS_OPTIMIZATION_MS_TIMER:
+				case REG_TLV_T_31_MOBILITY_FEATURES_SUPPORTED:
+				case REG_TLV_T_40_ARQ_ACK_TYPE:
+				case REG_TLV_T_41_MS_HO_CONNECTIONS_PARAM_PROCESSING_TIME:
+				case REG_TLV_T_42_MS_HO_TEK_PROCESSING_TIME:
+				case REG_TLV_T_43_MAC_HEADER_AND_EXTENDED_SUBHEADER_SUPPORT:
+				case REG_REQ_BS_SWITCHING_TIMER:
+				case REG_POWER_SAVING_CLASS_CAPABILITY:
+#endif
+					/* Decode REG-REQ sub-TLV's. */
+					dissect_extended_tlv(reg_req_tree, tlv_type, tvb, tlv_offset, tlv_len, pinfo, offset, proto_mac_mgmt_msg_reg_req_decoder);
+					break;
+				case REG_REQ_SECONDARY_MGMT_CID:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_req_secondary_mgmt_cid, tvb, tlv_offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_reg_req_secondary_mgmt_cid, tvb, tlv_offset, 2, FALSE);
+					break;
+				case REG_REQ_TLV_T_32_SLEEP_MODE_RECOVERY_TIME:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_req_tlv_t_32_sleep_mode_recovery_time, tvb, tlv_offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_reg_req_tlv_t_32_sleep_mode_recovery_time, tvb, tlv_offset, 1, FALSE);
+					break;
+				case REG_REQ_TLV_T_33_MS_PREV_IP_ADDR:
+					if ( tlv_len == 4 ) {
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_ms_previous_ip_address_v4, tvb, tlv_offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_ms_previous_ip_address_v4, tvb, tlv_offset, tlv_len, FALSE);
+					} else if ( tlv_len == 16 ) {
+						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_ms_previous_ip_address_v6, tvb, tlv_offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_ms_previous_ip_address_v6, tvb, tlv_offset, tlv_len, FALSE);
+					}
+					break;
+				case REG_TLV_T_37_IDLE_MODE_TIMEOUT:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_idle_mode_timeout, tvb, tlv_offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_idle_mode_timeout, tvb, tlv_offset, tlv_len, FALSE);
+					break;
+				case REG_REQ_TLV_T_45_MS_PERIODIC_RANGING_TIMER_INFO:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_req_tlv_t_45_ms_periodic_ranging_timer, tvb, tlv_offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_reg_req_tlv_t_45_ms_periodic_ranging_timer, tvb, tlv_offset, tlv_len, FALSE);
+					break;
+				case REG_HANDOVER_INDICATION_READINESS_TIMER:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_tlv_t_46_handover_indication_readiness_timer, tvb, tlv_offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_reg_tlv_t_46_handover_indication_readiness_timer, tvb, tlv_offset, tlv_len, FALSE);
+					break;
+
+				case DSx_UPLINK_FLOW:
+					/* display Uplink Service Flow Encodings info */
+					/* add subtree */
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, tlv_offset, tlv_len, "Uplink Service Flow Encodings (%u byte(s))", tlv_len);
+					/* decode and display the DL Service Flow Encodings */
+					wimax_service_flow_encodings_decoder(tvb_new_subset(tvb, tlv_offset, tlv_len, tlv_len), pinfo, tlv_tree);
+					break;
+				case DSx_DOWNLINK_FLOW:
+					/* display Downlink Service Flow Encodings info */
+					/* add subtree */
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, tlv_offset, tlv_len, "Downlink Service Flow Encodings (%u byte(s))", tlv_len);
+					/* decode and display the DL Service Flow Encodings */
+					wimax_service_flow_encodings_decoder(tvb_new_subset(tvb, tlv_offset, tlv_len, tlv_len), pinfo, tlv_tree);
+					break;
+				case HMAC_TUPLE:	/* Table 348d */
+					/* decode and display the HMAC Tuple */
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, tlv_offset, tlv_len, "HMAC Tuple (%u byte(s))", tlv_len);
+					wimax_hmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
+					hmac_found = TRUE;
+					break;
+				case CMAC_TUPLE:	/* Table 348b */
+					/* decode and display the CMAC Tuple */
+					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, tlv_offset, tlv_len, "CMAC Tuple (%u byte(s))", tlv_len);
+					wimax_cmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
+					break;
+				default:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
+					break;
+			}
+			/* update the offset */
+			offset = tlv_len + tlv_offset;
+		} /* End while() looping through the tvb. */
+		if (!hmac_found)
+			proto_item_append_text(reg_req_tree, " (HMAC Tuple is missing !)");
+	}
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
@@ -1263,173 +1409,19 @@ void proto_register_mac_mgmt_msg_reg_req(void)
 		}
 	};
 
-
-	if (proto_mac_mgmt_msg_reg_req_decoder == -1)
-	{
-		proto_mac_mgmt_msg_reg_req_decoder = proto_register_protocol (
-							"WiMax REG-REQ/RSP Messages", /* name */
-							"WiMax REG-REQ/RSP (reg)", /* short name */
-							"wmx.reg" /* abbrev */
-							);
-
-		proto_register_field_array(proto_mac_mgmt_msg_reg_req_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
-}
-
-/* Decode REG-REQ messages. */
-void dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	guint offset = 0;
-	guint tlv_offset;
-	guint tvb_len, payload_type;
-	proto_item *reg_req_item = NULL;
-	proto_tree *reg_req_tree = NULL;
-	proto_tree *tlv_tree = NULL;
-	gboolean hmac_found = FALSE;
-	tlv_info_t tlv_info;
-	gint tlv_type;
-	gint tlv_len;
-
-	/* Ensure the right payload type */
-	payload_type = tvb_get_guint8(tvb, offset);
-	if (payload_type != MAC_MGMT_MSG_REG_REQ)
-	{
-		return;
-	}
-
-	if (tree)
-	{	/* we are being asked for details */
-
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC payload type REG-REQ */
-		reg_req_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, offset, tvb_len, "MAC Management Message, REG-REQ (6)");
-		/* add MAC REG-REQ subtree */
-		reg_req_tree = proto_item_add_subtree(reg_req_item, ett_mac_mgmt_msg_reg_req_decoder);
-		/* display the Message Type */
-		proto_tree_add_item(reg_req_tree, hf_reg_req_message_type, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		while(offset < tvb_len)
+	/* Setup protocol subtree array */
+	static gint *ett[] =
 		{
-			/* Get the TLV data. */
-			init_tlv_info(&tlv_info, tvb, offset);
-			/* get the TLV type */
-			tlv_type = get_tlv_type(&tlv_info);
-			/* get the TLV length */
-			tlv_len = get_tlv_length(&tlv_info);
-			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
-			{	/* invalid tlv info */
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REG-REQ TLV error");
-				}
-				proto_tree_add_item(reg_req_tree, hf_reg_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
-				break;
-			}
-			/* get the offset to the TLV data */
-			tlv_offset = offset + get_tlv_value_offset(&tlv_info);
+			&ett_mac_mgmt_msg_reg_req_decoder
+		};
 
-			switch (tlv_type) {
-				case REG_ARQ_PARAMETERS:
-				case REG_SS_MGMT_SUPPORT:
-				case REG_IP_MGMT_MODE:
-				case REG_IP_VERSION:
-				case REG_UL_TRANSPORT_CIDS_SUPPORTED:
-				case REG_IP_PHS_SDU_ENCAP:
-				case REG_MAX_CLASSIFIERS_SUPPORTED:
-				case REG_PHS_SUPPORT:
-				case REG_ARQ_SUPPORT:
-				case REG_DSX_FLOW_CONTROL:
-				case REG_MAC_CRC_SUPPORT:
-				case REG_MCA_FLOW_CONTROL:
-				case REG_MCAST_POLLING_CIDS:
-				case REG_NUM_DL_TRANS_CID:
-				case REG_MAC_ADDRESS:
-#ifdef WIMAX_16E_2005
-				case REG_TLV_T_20_MAX_MAC_DATA_PER_FRAME_SUPPORT:
-				case REG_TLV_T_21_PACKING_SUPPORT:
-				case REG_TLV_T_22_MAC_EXTENDED_RTPS_SUPPORT:
-				case REG_TLV_T_23_MAX_NUM_BURSTS_TRANSMITTED_CONCURRENTLY_TO_THE_MS:
-				case REG_TLV_T_26_METHOD_FOR_ALLOCATING_IP_ADDR_SECONDARY_MGMNT_CONNECTION:
-				case REG_TLV_T_27_HANDOVER_SUPPORTED:
-				case REG_TLV_T_29_HO_PROCESS_OPTIMIZATION_MS_TIMER:
-				case REG_TLV_T_31_MOBILITY_FEATURES_SUPPORTED:
-				case REG_TLV_T_40_ARQ_ACK_TYPE:
-				case REG_TLV_T_41_MS_HO_CONNECTIONS_PARAM_PROCESSING_TIME:
-				case REG_TLV_T_42_MS_HO_TEK_PROCESSING_TIME:
-				case REG_TLV_T_43_MAC_HEADER_AND_EXTENDED_SUBHEADER_SUPPORT:
-				case REG_REQ_BS_SWITCHING_TIMER:
-				case REG_POWER_SAVING_CLASS_CAPABILITY:
-#endif
-					/* Decode REG-REQ sub-TLV's. */
-					dissect_extended_tlv(reg_req_tree, tlv_type, tvb, tlv_offset, tlv_len, pinfo, offset, proto_mac_mgmt_msg_reg_req_decoder);
-					break;
-				case REG_REQ_SECONDARY_MGMT_CID:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_req_secondary_mgmt_cid, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_reg_req_secondary_mgmt_cid, tvb, tlv_offset, 2, FALSE);
-					break;
-				case REG_REQ_TLV_T_32_SLEEP_MODE_RECOVERY_TIME:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_req_tlv_t_32_sleep_mode_recovery_time, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_reg_req_tlv_t_32_sleep_mode_recovery_time, tvb, tlv_offset, 1, FALSE);
-					break;
-				case REG_REQ_TLV_T_33_MS_PREV_IP_ADDR:
-					if ( tlv_len == 4 ) {
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_ms_previous_ip_address_v4, tvb, tlv_offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_ms_previous_ip_address_v4, tvb, tlv_offset, tlv_len, FALSE);
-					} else if ( tlv_len == 16 ) {
-						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_ms_previous_ip_address_v6, tvb, tlv_offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_ms_previous_ip_address_v6, tvb, tlv_offset, tlv_len, FALSE);
-					}
-					break;
-				case REG_TLV_T_37_IDLE_MODE_TIMEOUT:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_idle_mode_timeout, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_idle_mode_timeout, tvb, tlv_offset, tlv_len, FALSE);
-					break;
-				case REG_REQ_TLV_T_45_MS_PERIODIC_RANGING_TIMER_INFO:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_req_tlv_t_45_ms_periodic_ranging_timer, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_reg_req_tlv_t_45_ms_periodic_ranging_timer, tvb, tlv_offset, tlv_len, FALSE);
-					break;
-				case REG_HANDOVER_INDICATION_READINESS_TIMER:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_tlv_t_46_handover_indication_readiness_timer, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_reg_tlv_t_46_handover_indication_readiness_timer, tvb, tlv_offset, tlv_len, FALSE);
-					break;
 
-				case DSx_UPLINK_FLOW:
-					/* display Uplink Service Flow Encodings info */
-					/* add subtree */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, tlv_offset, tlv_len, "Uplink Service Flow Encodings (%u byte(s))", tlv_len);
-					/* decode and display the DL Service Flow Encodings */
-					wimax_service_flow_encodings_decoder(tvb_new_subset(tvb, tlv_offset, tlv_len, tlv_len), pinfo, tlv_tree);
-					break;
-				case DSx_DOWNLINK_FLOW:
-					/* display Downlink Service Flow Encodings info */
-					/* add subtree */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, tlv_offset, tlv_len, "Downlink Service Flow Encodings (%u byte(s))", tlv_len);
-					/* decode and display the DL Service Flow Encodings */
-					wimax_service_flow_encodings_decoder(tvb_new_subset(tvb, tlv_offset, tlv_len, tlv_len), pinfo, tlv_tree);
-					break;
-				case HMAC_TUPLE:	/* Table 348d */
-					/* decode and display the HMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, tlv_offset, tlv_len, "HMAC Tuple (%u byte(s))", tlv_len);
-					wimax_hmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
-					hmac_found = TRUE;
-					break;
-				case CMAC_TUPLE:	/* Table 348b */
-					/* decode and display the CMAC Tuple */
-					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_mac_mgmt_msg_reg_req_decoder, tvb, tlv_offset, tlv_len, "CMAC Tuple (%u byte(s))", tlv_len);
-					wimax_cmac_tuple_decoder(tlv_tree, tvb, tlv_offset, tlv_len);
-					break;
-				default:
-					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
-					break;
-			}
-			/* update the offset */
-			offset = tlv_len + tlv_offset;
-		} /* End while() looping through the tvb. */
-		if (!hmac_found)
-			proto_item_append_text(reg_req_tree, " (HMAC Tuple is missing !)");
-	}
+	proto_mac_mgmt_msg_reg_req_decoder = proto_register_protocol (
+		"WiMax REG-REQ/RSP Messages", /* name       */
+		"WiMax REG-REQ/RSP (reg)",    /* short name */
+		"wmx.reg"                     /* abbrev     */
+		);
+
+	proto_register_field_array(proto_mac_mgmt_msg_reg_req_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -37,17 +37,8 @@
 
 extern gint proto_wimax;
 
-/* forward reference */
-static void dissect_wimax_hack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint proto_wimax_hack_decoder = -1;
 static gint ett_wimax_hack_decoder = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_wimax_hack_decoder,
-};
 
 static const value_string vals_flags[] =
 {
@@ -70,47 +61,6 @@ static gint hf_hack_subchannel = -1;
 static gint hf_hack_symboloffset = -1;
 static gint hf_hack_value = -1;
 
-/* Register Wimax HARQ ACK Protocol */
-void proto_register_wimax_hack(void)
-{
-	/* HARQ ACK display */
-	static hf_register_info hf[] =
-	{
-		{
-			&hf_hack_burst,
-			{"HARQ ACK Burst", "wmx.hack.burst", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
-		},
-		{
-			&hf_hack_num_of_hacks,
-			{"Number Of HARQ ACKs/NACKs", "wmx.hack.num_of_hacks", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		},
-		{
-			&hf_hack_subchannel,
-			{"Physical Subchannel", "wmx.hack.subchannel", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		},
-		{
-			&hf_hack_symboloffset,
-			{"Symbol Offset", "wmx.hack.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-		},
-		{
-			&hf_hack_half_slot_flag,
-			{"Half-Slot Flag", "wmx.hack.half_slot_flag", FT_UINT8, BASE_DEC, VALS(vals_flags), 0x0, NULL, HFILL}
-		},
-		{
-			&hf_hack_value,
-			{"ACK Value", "wmx.hack.hack_value", FT_UINT8, BASE_DEC, VALS(vals_values), 0x0, NULL, HFILL}
-		}
-	};
-
-	if (proto_wimax_hack_decoder == -1)
-	{
-		proto_wimax_hack_decoder = proto_wimax;
-
-		register_dissector("wimax_hack_burst_handler", dissect_wimax_hack_decoder, -1);
-		proto_register_field_array(proto_wimax_hack_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
-}
 
 static void dissect_wimax_hack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -145,4 +95,50 @@ static void dissect_wimax_hack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 			proto_tree_add_item(hack_tree, hf_hack_value, tvb, offset++, 1, FALSE);
 		}
 	}
+}
+
+/* Register Wimax HARQ ACK Protocol */
+void proto_register_wimax_hack(void)
+{
+	/* HARQ ACK display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_hack_burst,
+			{"HARQ ACK Burst", "wmx.hack.burst", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+		},
+		{
+			&hf_hack_num_of_hacks,
+			{"Number Of HARQ ACKs/NACKs", "wmx.hack.num_of_hacks", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+		},
+		{
+			&hf_hack_subchannel,
+			{"Physical Subchannel", "wmx.hack.subchannel", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+		},
+		{
+			&hf_hack_symboloffset,
+			{"Symbol Offset", "wmx.hack.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+		},
+		{
+			&hf_hack_half_slot_flag,
+			{"Half-Slot Flag", "wmx.hack.half_slot_flag", FT_UINT8, BASE_DEC, VALS(vals_flags), 0x0, NULL, HFILL}
+		},
+		{
+			&hf_hack_value,
+			{"ACK Value", "wmx.hack.hack_value", FT_UINT8, BASE_DEC, VALS(vals_values), 0x0, NULL, HFILL}
+		}
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_wimax_hack_decoder,
+		};
+
+	proto_wimax_hack_decoder = proto_wimax;
+
+	register_dissector("wimax_hack_burst_handler", dissect_wimax_hack_decoder, -1);
+	proto_register_field_array(proto_wimax_hack_decoder, hf, array_length(hf));
+
+	proto_register_subtree_array(ett, array_length(ett));
 }

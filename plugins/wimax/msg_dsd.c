@@ -44,34 +44,19 @@
 
 extern gint proto_mac_mgmt_msg_dsa_decoder;
 
-/* forward reference */
-void proto_register_mac_mgmt_msg_dsd(void);
-void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 gint proto_mac_mgmt_msg_dsd_decoder = -1;
 static gint ett_mac_mgmt_msg_dsd_req_decoder = -1;
 static gint ett_mac_mgmt_msg_dsd_rsp_decoder = -1;
-static gint ett_dsd_ul_sfe_decoder = -1;
-static gint ett_dsd_dl_sfe_decoder = -1;
-static gint ett_dsd_hmac_tuple = -1;
-static gint ett_dsd_cmac_tuple = -1;
+/* static gint ett_dsd_ul_sfe_decoder = -1; */
+/* static gint ett_dsd_dl_sfe_decoder = -1; */
+/* static gint ett_dsd_hmac_tuple = -1;     */
+/* static gint ett_dsd_cmac_tuple = -1;     */
 
-/* Setup protocol subtree array */
-static gint *ett[] =
+static const value_string vals_dsd_msgs[] =
 {
-	&ett_mac_mgmt_msg_dsd_req_decoder,
-	&ett_mac_mgmt_msg_dsd_rsp_decoder,
-	&ett_dsd_ul_sfe_decoder,
-	&ett_dsd_dl_sfe_decoder,
-	&ett_dsd_hmac_tuple,
-	&ett_dsd_cmac_tuple,
-};
-
-static gchar *dsd_msgs[] =
-{
-	"Dynamic Service Deletion Request (DSD-REQ)",
-	"Dynamic Service Deletion Response (DSD-RSP)"
+	MAC_MGMT_MSG_DSD_REQ, "Dynamic Service Deletion Request (DSD-REQ)",
+	MAC_MGMT_MSG_DSD_RSP, "Dynamic Service Deletion Response (DSD-RSP)",
+	0,                    NULL
 };
 
 /* fix fields */
@@ -83,57 +68,6 @@ static gint hf_dsd_confirmation_code = -1;
 static gint hf_dsd_invalid_tlv = -1;
 static gint hf_dsd_unknown_type = -1;
 
-/* Register Wimax Mac Payload Protocol and Dissector */
-void proto_register_mac_mgmt_msg_dsd(void)
-{
-	/* DSx display */
-	static hf_register_info hf[] =
-	{
-		{
-			&hf_dsd_req_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.dsd_req", 
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_dsd_rsp_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.dsd_rsp", 
-				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
-			}
-		},
-		{
-			&hf_dsd_confirmation_code,
-			{
-				"Confirmation code", "wmx.dsd.confirmation_code", 
-				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_dsd_service_flow_id,
-			{
-				"Service Flow ID", "wmx.dsd.service_flow_id", 
-				FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_dsd_transaction_id,
-			{
-				"Transaction ID", "wmx.dsd.transaction_id", 
-				FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
-			}
-		}
-	};
-
-	if (proto_mac_mgmt_msg_dsd_decoder == -1)
-	{
-		proto_mac_mgmt_msg_dsd_decoder = proto_mac_mgmt_msg_dsa_decoder;
-
-		proto_register_field_array(proto_mac_mgmt_msg_dsd_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
-}
 
 void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -155,7 +89,8 @@ void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
-		dsd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tvb_len, "%s (%u bytes)", dsd_msgs[payload_type - MAC_MGMT_MSG_DSD_REQ], tvb_len);
+		dsd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tvb_len,
+							  "%s (%u bytes)", val_to_str(payload_type, vals_dsd_msgs, "Unknown"), tvb_len);
 		/* add MAC DSx subtree */
 		dsd_tree = proto_item_add_subtree(dsd_item, ett_mac_mgmt_msg_dsd_req_decoder);
 		/* Decode and display the DSD message */
@@ -239,7 +174,8 @@ void dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC message type */
-		dsd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tvb_len, "%s (%u bytes)", dsd_msgs[payload_type - MAC_MGMT_MSG_DSD_REQ], tvb_len);
+		dsd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tvb_len,
+							  "%s (%u bytes)", val_to_str(payload_type, vals_dsd_msgs, "Unknown"), tvb_len);
 		/* add MAC DSx subtree */
 		dsd_tree = proto_item_add_subtree(dsd_item, ett_mac_mgmt_msg_dsd_rsp_decoder);
 		/* Decode and display the DSD message */
@@ -305,4 +241,64 @@ void dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			offset += tlv_len;
 		}	/* end of while loop */
 	}
+}
+
+/* Register Wimax Mac Payload Protocol and Dissector */
+void proto_register_mac_mgmt_msg_dsd(void)
+{
+	/* DSx display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_dsd_req_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.dsd_req", 
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_dsd_rsp_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.dsd_rsp", 
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+			}
+		},
+		{
+			&hf_dsd_confirmation_code,
+			{
+				"Confirmation code", "wmx.dsd.confirmation_code", 
+				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_dsd_service_flow_id,
+			{
+				"Service Flow ID", "wmx.dsd.service_flow_id", 
+				FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_dsd_transaction_id,
+			{
+				"Transaction ID", "wmx.dsd.transaction_id", 
+				FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
+			}
+		}
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_mac_mgmt_msg_dsd_req_decoder,
+			&ett_mac_mgmt_msg_dsd_rsp_decoder,
+			/* &ett_dsd_ul_sfe_decoder, */
+			/* &ett_dsd_dl_sfe_decoder, */
+			/* &ett_dsd_hmac_tuple,     */
+			/* &ett_dsd_cmac_tuple,     */
+		};
+
+	proto_mac_mgmt_msg_dsd_decoder = proto_mac_mgmt_msg_dsa_decoder;
+
+	proto_register_field_array(proto_mac_mgmt_msg_dsd_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

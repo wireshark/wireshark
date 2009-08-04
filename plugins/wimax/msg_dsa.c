@@ -44,30 +44,16 @@
 
 extern gint proto_wimax;
 
-/* forward reference */
-void proto_register_mac_mgmt_msg_dsa(void);
-void dissect_mac_mgmt_msg_dsa_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void dissect_mac_mgmt_msg_dsa_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-void dissect_mac_mgmt_msg_dsa_ack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 gint proto_mac_mgmt_msg_dsa_decoder = -1;
 static gint ett_mac_mgmt_msg_dsa_req_decoder = -1;
 static gint ett_mac_mgmt_msg_dsa_rsp_decoder = -1;
 static gint ett_mac_mgmt_msg_dsa_ack_decoder = -1;
 
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_mac_mgmt_msg_dsa_req_decoder,
-	&ett_mac_mgmt_msg_dsa_rsp_decoder,
-	&ett_mac_mgmt_msg_dsa_ack_decoder,
-};
-
-static gchar *dsa_msgs[] =
-{
-	"Dynamic Service Addition Request (DSA-REQ)",
-	"Dynamic Service Addition Response (DSA-RSP)",
-	"Dynamic Service Addition Acknowledge (DSA-ACK)"
+static const value_string vals_dsa_msgs[] = {
+	MAC_MGMT_MSG_DSA_REQ, "Dynamic Service Addition Request (DSA-REQ)",
+	MAC_MGMT_MSG_DSA_RSP, "Dynamic Service Addition Response (DSA-RSP)",
+	MAC_MGMT_MSG_DSA_ACK, "Dynamic Service Addition Acknowledge (DSA-ACK)",
+	0,                    NULL
 };
 
 /* fix fields */
@@ -76,6 +62,120 @@ static gint hf_dsa_transaction_id = -1;
 static gint hf_dsa_rsp_message_type = -1;
 static gint hf_dsa_confirmation_code = -1;
 static gint hf_dsa_ack_message_type = -1;
+
+
+void dissect_mac_mgmt_msg_dsa_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint offset = 0;
+	guint tvb_len, payload_type;
+	proto_item *dsa_item = NULL;
+	proto_tree *dsa_tree = NULL;
+
+	if(tree)
+	{	/* we are being asked for details */
+		/* get the message type */
+		payload_type = tvb_get_guint8(tvb, offset);
+		/* ensure the message type is DSA REQ */
+		if(payload_type != MAC_MGMT_MSG_DSA_REQ)
+			return;
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
+		/* display MAC message type */
+		dsa_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsa_decoder, tvb, offset, tvb_len, 
+							  "%s (%u bytes)", val_to_str(payload_type, vals_dsa_msgs, "Unknown"), tvb_len);
+		/* add MAC DSx subtree */
+		dsa_tree = proto_item_add_subtree(dsa_item, ett_mac_mgmt_msg_dsa_req_decoder);
+		/* Decode and display the Uplink Channel Descriptor (UCD) */
+		/* display the Message Type */
+		proto_tree_add_item(dsa_tree, hf_dsa_req_message_type, tvb, offset, 1, FALSE);
+		/* move to next field */
+		offset++;
+		/* display the Transaction ID */
+		proto_tree_add_item(dsa_tree, hf_dsa_transaction_id, tvb, offset, 2, FALSE);
+		/* move to next field */
+		offset += 2;
+		/* process DSA-REQ message TLV Encode Information */
+		wimax_common_tlv_encoding_decoder(tvb_new_subset(tvb, offset, (tvb_len - offset), (tvb_len - offset)), pinfo, dsa_tree);
+	}
+}
+
+void dissect_mac_mgmt_msg_dsa_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint offset = 0;
+	guint tvb_len, payload_type;
+	proto_item *dsa_item = NULL;
+	proto_tree *dsa_tree = NULL;
+
+	if(tree)
+	{	/* we are being asked for details */
+		/* get the message type */
+		payload_type = tvb_get_guint8(tvb, offset);
+		/* ensure the message type is DSA RSP */
+		if(payload_type != MAC_MGMT_MSG_DSA_RSP)
+			return;
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
+		/* display MAC message type */
+		dsa_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsa_decoder, tvb, offset, tvb_len,
+							  "%s (%u bytes)", val_to_str(payload_type, vals_dsa_msgs, "Unknown"), tvb_len);
+		/* add MAC DSx subtree */
+		dsa_tree = proto_item_add_subtree(dsa_item, ett_mac_mgmt_msg_dsa_rsp_decoder);
+		/* Decode and display the Uplink Channel Descriptor (UCD) */
+		/* display the Message Type */
+		proto_tree_add_item(dsa_tree, hf_dsa_rsp_message_type, tvb, offset, 1, FALSE);
+		/* move to next field */
+		offset++;
+		/* display the Transaction ID */
+		proto_tree_add_item(dsa_tree, hf_dsa_transaction_id, tvb, offset, 2, FALSE);
+		/* move to next field */
+		offset += 2;
+		/* display the Confirmation Code */
+		proto_tree_add_item(dsa_tree, hf_dsa_confirmation_code, tvb, offset, 1, FALSE);
+		/* move to next field */
+		offset++;
+		/* process DSA RSP message TLV Encode Information */
+		wimax_common_tlv_encoding_decoder(tvb_new_subset(tvb, offset, (tvb_len - offset), (tvb_len - offset)), pinfo, dsa_tree);
+	}
+}
+
+void dissect_mac_mgmt_msg_dsa_ack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint offset = 0;
+	guint tvb_len, payload_type;
+	proto_item *dsa_item = NULL;
+	proto_tree *dsa_tree = NULL;
+
+	if(tree)
+	{	/* we are being asked for details */
+		/* get the message type */
+		payload_type = tvb_get_guint8(tvb, offset);
+		/* ensure the message type is DSA ACK */
+		if(payload_type != MAC_MGMT_MSG_DSA_ACK)
+			return;
+		/* Get the tvb reported length */
+		tvb_len =  tvb_reported_length(tvb);
+		/* display MAC message type */
+		dsa_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsa_decoder, tvb, offset, tvb_len,
+							  "%s (%u bytes)", val_to_str(payload_type, vals_dsa_msgs, "Unknown"), tvb_len);
+		/* add MAC DSx subtree */
+		dsa_tree = proto_item_add_subtree(dsa_item, ett_mac_mgmt_msg_dsa_ack_decoder);
+		/* Decode and display the Uplink Channel Descriptor (UCD) */
+		/* display the Message Type */
+		proto_tree_add_item(dsa_tree, hf_dsa_ack_message_type, tvb, offset, 1, FALSE);
+		/* move to next field */
+		offset++;
+		/* display the Transaction ID */
+		proto_tree_add_item(dsa_tree, hf_dsa_transaction_id, tvb, offset, 2, FALSE);
+		/* move to next field */
+		offset += 2;
+		/* display the Confirmation Code */
+		proto_tree_add_item(dsa_tree, hf_dsa_confirmation_code, tvb, offset, 1, FALSE);
+		/* move to next field */
+		offset++;
+		/* process DSA-REQ message TLV Encode Information */
+		wimax_common_tlv_encoding_decoder(tvb_new_subset(tvb, offset, (tvb_len - offset), (tvb_len - offset)), pinfo, dsa_tree);
+	}
+}
 
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_dsa(void)
@@ -120,127 +220,20 @@ void proto_register_mac_mgmt_msg_dsa(void)
 		}
 	};
 
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_mac_mgmt_msg_dsa_req_decoder,
+			&ett_mac_mgmt_msg_dsa_rsp_decoder,
+			&ett_mac_mgmt_msg_dsa_ack_decoder,
+		};
 
-	if (proto_mac_mgmt_msg_dsa_decoder == -1)
-	{
-		proto_mac_mgmt_msg_dsa_decoder = proto_register_protocol (
-							"WiMax DSA/C/D Messages", /* name */
-							"WiMax DSA/C/D (ds)", /* short name */
-							"wmx.ds" /* abbrev */
-							);
+	proto_mac_mgmt_msg_dsa_decoder = proto_register_protocol (
+		"WiMax DSA/C/D Messages", /* name       */
+		"WiMax DSA/C/D (ds)",     /* short name */
+		"wmx.ds"                  /* abbrev     */
+		);
 
-		proto_register_field_array(proto_mac_mgmt_msg_dsa_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_register_field_array(proto_mac_mgmt_msg_dsa_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
-
-void dissect_mac_mgmt_msg_dsa_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	guint offset = 0;
-	guint tvb_len, payload_type;
-	proto_item *dsa_item = NULL;
-	proto_tree *dsa_tree = NULL;
-
-	if(tree)
-	{	/* we are being asked for details */
-		/* get the message type */
-		payload_type = tvb_get_guint8(tvb, offset);
-		/* ensure the message type is DSA REQ */
-		if(payload_type != MAC_MGMT_MSG_DSA_REQ)
-			return;
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC message type */
-		dsa_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsa_decoder, tvb, offset, tvb_len, "%s (%u bytes)", dsa_msgs[payload_type - MAC_MGMT_MSG_DSA_REQ], tvb_len);
-		/* add MAC DSx subtree */
-		dsa_tree = proto_item_add_subtree(dsa_item, ett_mac_mgmt_msg_dsa_req_decoder);
-		/* Decode and display the Uplink Channel Descriptor (UCD) */
-		/* display the Message Type */
-		proto_tree_add_item(dsa_tree, hf_dsa_req_message_type, tvb, offset, 1, FALSE);
-		/* move to next field */
-		offset++;
-		/* display the Transaction ID */
-		proto_tree_add_item(dsa_tree, hf_dsa_transaction_id, tvb, offset, 2, FALSE);
-		/* move to next field */
-		offset += 2;
-		/* process DSA-REQ message TLV Encode Information */
-		wimax_common_tlv_encoding_decoder(tvb_new_subset(tvb, offset, (tvb_len - offset), (tvb_len - offset)), pinfo, dsa_tree);
-	}
-}
-
-void dissect_mac_mgmt_msg_dsa_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	guint offset = 0;
-	guint tvb_len, payload_type;
-	proto_item *dsa_item = NULL;
-	proto_tree *dsa_tree = NULL;
-
-	if(tree)
-	{	/* we are being asked for details */
-		/* get the message type */
-		payload_type = tvb_get_guint8(tvb, offset);
-		/* ensure the message type is DSA RSP */
-		if(payload_type != MAC_MGMT_MSG_DSA_RSP)
-			return;
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC message type */
-		dsa_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsa_decoder, tvb, offset, tvb_len, "%s (%u bytes)", dsa_msgs[payload_type - MAC_MGMT_MSG_DSA_REQ], tvb_len);
-		/* add MAC DSx subtree */
-		dsa_tree = proto_item_add_subtree(dsa_item, ett_mac_mgmt_msg_dsa_rsp_decoder);
-		/* Decode and display the Uplink Channel Descriptor (UCD) */
-		/* display the Message Type */
-		proto_tree_add_item(dsa_tree, hf_dsa_rsp_message_type, tvb, offset, 1, FALSE);
-		/* move to next field */
-		offset++;
-		/* display the Transaction ID */
-		proto_tree_add_item(dsa_tree, hf_dsa_transaction_id, tvb, offset, 2, FALSE);
-		/* move to next field */
-		offset += 2;
-		/* display the Confirmation Code */
-		proto_tree_add_item(dsa_tree, hf_dsa_confirmation_code, tvb, offset, 1, FALSE);
-		/* move to next field */
-		offset++;
-		/* process DSA RSP message TLV Encode Information */
-		wimax_common_tlv_encoding_decoder(tvb_new_subset(tvb, offset, (tvb_len - offset), (tvb_len - offset)), pinfo, dsa_tree);
-	}
-}
-
-void dissect_mac_mgmt_msg_dsa_ack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	guint offset = 0;
-	guint tvb_len, payload_type;
-	proto_item *dsa_item = NULL;
-	proto_tree *dsa_tree = NULL;
-
-	if(tree)
-	{	/* we are being asked for details */
-		/* get the message type */
-		payload_type = tvb_get_guint8(tvb, offset);
-		/* ensure the message type is DSA ACK */
-		if(payload_type != MAC_MGMT_MSG_DSA_ACK)
-			return;
-		/* Get the tvb reported length */
-		tvb_len =  tvb_reported_length(tvb);
-		/* display MAC message type */
-		dsa_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsa_decoder, tvb, offset, tvb_len, "%s (%u bytes)", dsa_msgs[payload_type - MAC_MGMT_MSG_DSA_REQ], tvb_len);
-		/* add MAC DSx subtree */
-		dsa_tree = proto_item_add_subtree(dsa_item, ett_mac_mgmt_msg_dsa_ack_decoder);
-		/* Decode and display the Uplink Channel Descriptor (UCD) */
-		/* display the Message Type */
-		proto_tree_add_item(dsa_tree, hf_dsa_ack_message_type, tvb, offset, 1, FALSE);
-		/* move to next field */
-		offset++;
-		/* display the Transaction ID */
-		proto_tree_add_item(dsa_tree, hf_dsa_transaction_id, tvb, offset, 2, FALSE);
-		/* move to next field */
-		offset += 2;
-		/* display the Confirmation Code */
-		proto_tree_add_item(dsa_tree, hf_dsa_confirmation_code, tvb, offset, 1, FALSE);
-		/* move to next field */
-		offset++;
-		/* process DSA-REQ message TLV Encode Information */
-		wimax_common_tlv_encoding_decoder(tvb_new_subset(tvb, offset, (tvb_len - offset), (tvb_len - offset)), pinfo, dsa_tree);
-	}
-}
-

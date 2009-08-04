@@ -32,8 +32,6 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "crc.h"
@@ -42,18 +40,9 @@
 
 extern gint man_ofdma;
 
-/* Forward reference */
-void dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static gint proto_mac_mgmt_msg_fpc_decoder = -1;
 
 static gint ett_mac_mgmt_msg_fpc_decoder = -1;
-
-/* Setup protocol subtree array */
-static gint *ett[] =
-{
-	&ett_mac_mgmt_msg_fpc_decoder,
-};
 
 /* FPC fields */
 static gint hf_fpc_message_type = -1;
@@ -63,68 +52,6 @@ static gint hf_fpc_power_adjust = -1;
 static gint hf_fpc_power_measurement_frame = -1;
 static gint hf_fpc_invalid_tlv = -1;
 
-/* Register Wimax Mac Payload Protocol and Dissector */
-void proto_register_mac_mgmt_msg_fpc(void)
-{
-	/* FPC fields display */
-	static hf_register_info hf[] =
-	{
-		{
-			&hf_fpc_message_type,
-			{
-				"MAC Management Message Type", "wmx.macmgtmsgtype.fpc",
-				FT_UINT8, BASE_DEC, NULL, 0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_fpc_basic_cid,
-			{
-				"Basic CID", "wmx.fpc.basic_cid",
-				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_fpc_invalid_tlv,
-			{
-				"Invalid TLV", "wmx.fpc.invalid_tlv",
-				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
-			}
-		},
-		{
-			&hf_fpc_number_of_stations,
-			{
-				"Number of stations", "wmx.fpc.number_stations",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_fpc_power_adjust,
-			{
-				"Power Adjust.	Signed change in power level (incr of 0.25dB) that the SS shall apply to its current power setting", "wmx.fpc.power_adjust",
-				FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL
-			}
-		},
-		{
-			&hf_fpc_power_measurement_frame,
-			{
-				"Power measurement frame.  The 8 LSB of the frame number in which the BS measured the power corrections referred to in the message", "wmx.fpc.power_measurement_frame",
-				FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL
-			}
-		}
-	};
-
-	if (proto_mac_mgmt_msg_fpc_decoder == -1) {
-		proto_mac_mgmt_msg_fpc_decoder = proto_register_protocol (
-							"WiMax FPC Message", /* name */
-							"WiMax FPC (fpc)", /* short name */
-							"wmx.fpc" /* abbrev */
-							);
-
-		proto_register_field_array(proto_mac_mgmt_msg_fpc_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
-}
 
 /* Decode FPC messages. */
 void dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -186,3 +113,69 @@ void dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	}
 }
 
+/* Register Wimax Mac Payload Protocol and Dissector */
+void proto_register_mac_mgmt_msg_fpc(void)
+{
+	/* FPC fields display */
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_fpc_message_type,
+			{
+				"MAC Management Message Type", "wmx.macmgtmsgtype.fpc",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_fpc_basic_cid,
+			{
+				"Basic CID", "wmx.fpc.basic_cid",
+				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_fpc_invalid_tlv,
+			{
+				"Invalid TLV", "wmx.fpc.invalid_tlv",
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+			}
+		},
+		{
+			&hf_fpc_number_of_stations,
+			{
+				"Number of stations", "wmx.fpc.number_stations",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_fpc_power_adjust,
+			{
+				"Power Adjust.	Signed change in power level (incr of 0.25dB) that the SS shall apply to its current power setting", "wmx.fpc.power_adjust",
+				FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_fpc_power_measurement_frame,
+			{
+				"Power measurement frame.  The 8 LSB of the frame number in which the BS measured the power corrections referred to in the message", "wmx.fpc.power_measurement_frame",
+				FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		}
+	};
+
+	/* Setup protocol subtree array */
+	static gint *ett[] =
+		{
+			&ett_mac_mgmt_msg_fpc_decoder,
+		};
+
+	proto_mac_mgmt_msg_fpc_decoder = proto_register_protocol (
+		"WiMax FPC Message", /* name       */
+		"WiMax FPC (fpc)",   /* short name */
+		"wmx.fpc"            /* abbrev     */
+		);
+
+	proto_register_field_array(proto_mac_mgmt_msg_fpc_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
