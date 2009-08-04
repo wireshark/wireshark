@@ -2548,21 +2548,25 @@ proto_register_ansi_801(void)
 
     for (i=0; i < NUM_FOR_REQ_TYPE; i++, last_offset++)
     {
+        ett_for_req_type[i] = -1;
 	ett[last_offset] = &ett_for_req_type[i];
     }
 
     for (i=0; i < NUM_FOR_RSP_TYPE; i++, last_offset++)
     {
+        ett_for_rsp_type[i] = -1;
 	ett[last_offset] = &ett_for_rsp_type[i];
     }
 
     for (i=0; i < NUM_REV_REQ_TYPE; i++, last_offset++)
     {
+        ett_rev_req_type[i] = -1;
 	ett[last_offset] = &ett_rev_req_type[i];
     }
 
     for (i=0; i < NUM_REV_RSP_TYPE; i++, last_offset++)
     {
+        ett_rev_rsp_type[i] = -1;
 	ett[last_offset] = &ett_rev_rsp_type[i];
     }
 

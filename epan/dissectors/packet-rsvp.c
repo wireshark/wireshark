@@ -5918,9 +5918,10 @@ proto_register_rsvp(void)
 	};
 
     /* Build the tree array */
-    for (i=0; i<TT_MAX; i++)
+    for (i=0; i<TT_MAX; i++) {
+        ett_treelist[i] = -1;
 	ett_tree[i] = &(ett_treelist[i]);
-
+    }
     proto_rsvp = proto_register_protocol("Resource ReserVation Protocol (RSVP)",
 					 "RSVP", "rsvp");
     proto_register_field_array(proto_rsvp, rsvpf_info, array_length(rsvpf_info));

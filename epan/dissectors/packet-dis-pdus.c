@@ -148,6 +148,7 @@ DIS_ParserNode *createSubtree(DIS_ParserNode parserNodes[], gint *ettVar)
 
     initializeParser(newSubtree);
 
+    *ettVar = -1;
     ett[0] = ettVar;
     proto_register_subtree_array(ett, array_length(ett));
 

@@ -849,10 +849,11 @@ proto_register_cimd(void)
 
   for(i=0;i<MAXPARAMSCOUNT;i++)
   {
-     ett[i + 1]           = &(ett_index[i]);
-     vals_hdr_PC[i].ett_p = &(ett_index[i]);
-     vals_hdr_PC[i].hf_p  = &(hf_index[i]);
-     vals_hdr_PC[i].diss  = cimd_pc_handles[i];
+    ett_index[i]         = -1;
+    ett[i + 1]           = &(ett_index[i]);
+    vals_hdr_PC[i].ett_p = &(ett_index[i]);
+    vals_hdr_PC[i].hf_p  = &(hf_index[i]);
+    vals_hdr_PC[i].diss  = cimd_pc_handles[i];
   };
 
   /* Register the protocol name and description */

@@ -487,7 +487,7 @@ dissect_spoolss_buffer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  * SYSTEM_TIME
  */
 
-static gint ett_SYSTEM_TIME;
+static gint ett_SYSTEM_TIME = -1;
 
 static int hf_time_year = -1;
 static int hf_time_month = -1;
@@ -1328,7 +1328,7 @@ static const value_string devmode_dithertype_vals[] =
 	{ 0, NULL }
 };
 
-static gint ett_DEVMODE_fields;
+static gint ett_DEVMODE_fields = -1;
 
 static int
 dissect_DEVMODE_fields(tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -4443,7 +4443,7 @@ static int SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * JOB_INFO_1
  */
 
-static gint ett_JOB_INFO_1;
+static gint ett_JOB_INFO_1 = -1;
 
 static int
 dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -4515,7 +4515,7 @@ dissect_spoolss_JOB_INFO_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * JOB_INFO_2
  */
 
-static gint ett_JOB_INFO_2;
+static gint ett_JOB_INFO_2 = -1;
 
 static int
 dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -6164,7 +6164,7 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-static gint ett_NOTIFY_INFO_DATA;
+static gint ett_NOTIFY_INFO_DATA = -1;
 
 static int
 dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -6732,7 +6732,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static gint ett_PRINTER_DATA_CTR;
+static gint ett_PRINTER_DATA_CTR = -1;
 
 static int SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset, 
 				   packet_info *pinfo, proto_tree *tree, 

@@ -299,7 +299,7 @@ class PTVCBitfield(PTVC):
 
 	def Code(self):
 		ett_name = self.ETTName()
-		x = "static gint %s;\n" % (ett_name,)
+		x = "static gint %s = -1;\n" % (ett_name,)
 
 		x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.Name())
 		for ptvc_rec in self.list:
@@ -815,7 +815,7 @@ class struct(PTVC, Type):
 
 	def Code(self):
 		ett_name = self.ETTName()
-		x = "static gint %s;\n" % (ett_name,)
+		x = "static gint %s = -1;\n" % (ett_name,)
 		x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.name,)
 		for ptvc_rec in self.list:
 			x = x +  "\t%s,\n" % (ptvc_rec.Code())
