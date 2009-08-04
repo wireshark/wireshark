@@ -4649,7 +4649,7 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP, "");
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP, NULL);
 
 	/* Included in attach type
 
@@ -4662,19 +4662,19 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_DRX_PARAM );
 
-	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID , "" );
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID , NULL);
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI );
 
-	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , "" );
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , NULL);
 
 	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, " - Old P-TMSI Signature");
 
 	ELEM_OPT_TV( 0x17 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER , " - Ready Timer" );
 
-	ELEM_OPT_TV_SHORT( 0x90 , GSM_A_PDU_TYPE_GM, DE_TMSI_STAT , "" );
+	ELEM_OPT_TV_SHORT( 0x90 , GSM_A_PDU_TYPE_GM, DE_TMSI_STAT , NULL);
 
-	ELEM_OPT_TLV( 0x33 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , "" );
+	ELEM_OPT_TLV( 0x33 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -4710,25 +4710,25 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI );
 
-	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, "" );
+	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG, NULL);
 
 	ELEM_OPT_TV( 0x17 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER , " - Negotiated Ready Timer" );
 
 	ELEM_OPT_TLV( 0x18 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - Allocated P-TMSI" );
 
-	ELEM_OPT_TLV( 0x23 , GSM_A_PDU_TYPE_COMMON, DE_MID , "" );
+	ELEM_OPT_TLV( 0x23 , GSM_A_PDU_TYPE_COMMON, DE_MID , NULL);
 
-	ELEM_OPT_TV( 0x25 , GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE , "" );
+	ELEM_OPT_TV( 0x25 , GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE , NULL);
 
 	ELEM_OPT_TLV( 0x2A , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3302" );
 
-	ELEM_OPT_T( 0x8C , GSM_A_PDU_TYPE_GM, DE_CELL_NOT , "" );
+	ELEM_OPT_T( 0x8C , GSM_A_PDU_TYPE_GM, DE_CELL_NOT , NULL);
 
-	ELEM_OPT_TLV( 0x4A , GSM_A_PDU_TYPE_COMMON, DE_PLMN_LIST , "" );
+	ELEM_OPT_TLV( 0x4A , GSM_A_PDU_TYPE_COMMON, DE_PLMN_LIST , NULL);
 
-	ELEM_OPT_TV_SHORT( 0xB0 , GSM_A_PDU_TYPE_GM, DE_NET_FEAT_SUP , "" );
+	ELEM_OPT_TV_SHORT( 0xB0 , GSM_A_PDU_TYPE_GM, DE_NET_FEAT_SUP , NULL);
 
-	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , "" );
+	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -4796,11 +4796,11 @@ dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_DETACH_TYPE );
 
-	ELEM_OPT_TV( 0x25 , GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE , "" );
+	ELEM_OPT_TV( 0x25 , GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE , NULL);
 
 	ELEM_OPT_TLV( 0x18 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - P-TMSI" );
 
-	ELEM_OPT_TLV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG , "" );
+	ELEM_OPT_TLV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -4908,10 +4908,10 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_FORCE_TO_STAND );
 
-	ELEM_OPT_TV( 0x21 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND , "" );
+	ELEM_OPT_TV( 0x21 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND , NULL);
 
 #if 0
-	ELEM_OPT_TV_SHORT( 0x08 , GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM , "" );
+	ELEM_OPT_TV_SHORT( 0x08 , GSM_A_PDU_TYPE_COMMON, DE_CIPH_KEY_SEQ_NUM , NULL);
 #else
 	if ( curr_len > 0 )
 	{
@@ -4936,7 +4936,7 @@ dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	return;
 	}
 	
-	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN , "" );
+	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -4962,11 +4962,11 @@ dtap_gmm_auth_ciph_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_AC_REF_NUM );
 
-	ELEM_OPT_TV( 0x22 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM , "" );
+	ELEM_OPT_TV( 0x22 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM , NULL);
 
 	ELEM_OPT_TLV( 0x23 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - IMEISV" );
 
-	ELEM_OPT_TLV( 0x29 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM_EXT , "" );
+	ELEM_OPT_TLV( 0x29 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM_EXT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5005,7 +5005,7 @@ dtap_gmm_auth_ciph_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE );
 
-	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM , "" );
+	ELEM_OPT_TLV( 0x30 , GSM_A_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5056,7 +5056,7 @@ dtap_gmm_ident_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
 
-	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID , "" );
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5086,23 +5086,23 @@ dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI );
 
-	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , "" );
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , NULL);
 
 	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG , " - Old P-TMSI Signature" );
 
 	ELEM_OPT_TV( 0x17 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER , " - Requested Ready Timer" );
 
-	ELEM_OPT_TV( 0x27 , GSM_A_PDU_TYPE_GM, DE_DRX_PARAM , "" );
+	ELEM_OPT_TV( 0x27 , GSM_A_PDU_TYPE_GM, DE_DRX_PARAM , NULL);
 
-	ELEM_OPT_TV_SHORT( 0x90 , GSM_A_PDU_TYPE_GM, DE_TMSI_STAT , "" );
+	ELEM_OPT_TV_SHORT( 0x90 , GSM_A_PDU_TYPE_GM, DE_TMSI_STAT , NULL);
 
 	ELEM_OPT_TLV( 0x18 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - P-TMSI" );
 
-	ELEM_OPT_TLV( 0x31 , GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP , "" );
+	ELEM_OPT_TLV( 0x31 , GSM_A_PDU_TYPE_GM, DE_MS_NET_CAP , NULL);
 
-	ELEM_OPT_TLV( 0x32 , GSM_A_PDU_TYPE_GM, DE_PDP_CONTEXT_STAT , "" );
+	ELEM_OPT_TLV( 0x32 , GSM_A_PDU_TYPE_GM, DE_PDP_CONTEXT_STAT , NULL);
 
-	ELEM_OPT_TLV( 0x33 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , "" );
+	ELEM_OPT_TLV( 0x33 , GSM_A_PDU_TYPE_GM, DE_PS_LCS_CAP , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5132,29 +5132,29 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAI );
 
-	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG , "" );
+	ELEM_OPT_TV( 0x19 , GSM_A_PDU_TYPE_GM, DE_P_TMSI_SIG , NULL);
 
 	ELEM_OPT_TLV( 0x18 , GSM_A_PDU_TYPE_COMMON, DE_MID , " - Allocated P-TMSI");
 
-	ELEM_OPT_TLV( 0x23 , GSM_A_PDU_TYPE_COMMON, DE_MID , "" );
+	ELEM_OPT_TLV( 0x23 , GSM_A_PDU_TYPE_COMMON, DE_MID , NULL);
 
-	ELEM_OPT_TLV( 0x26 , GSM_A_PDU_TYPE_GM, DE_REC_N_PDU_NUM_LIST , "" );
+	ELEM_OPT_TLV( 0x26 , GSM_A_PDU_TYPE_GM, DE_REC_N_PDU_NUM_LIST , NULL);
 
 	ELEM_OPT_TV( 0x17 , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER , " - Negotiated Ready Timer" );
 
-	ELEM_OPT_TV( 0x25 , GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE , "" );
+	ELEM_OPT_TV( 0x25 , GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE , NULL);
 
 	ELEM_OPT_TLV( 0x2A , GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2 , " - T3302" );
 
-	ELEM_OPT_T( 0x8C , GSM_A_PDU_TYPE_GM, DE_CELL_NOT , "" );
+	ELEM_OPT_T( 0x8C , GSM_A_PDU_TYPE_GM, DE_CELL_NOT , NULL);
 
-	ELEM_OPT_TLV( 0x4A , GSM_A_PDU_TYPE_COMMON, DE_PLMN_LIST , "" );
+	ELEM_OPT_TLV( 0x4A , GSM_A_PDU_TYPE_COMMON, DE_PLMN_LIST , NULL);
 
-	ELEM_OPT_TLV( 0x32 , GSM_A_PDU_TYPE_GM, DE_PDP_CONTEXT_STAT , "" );
+	ELEM_OPT_TLV( 0x32 , GSM_A_PDU_TYPE_GM, DE_PDP_CONTEXT_STAT , NULL);
 
-	ELEM_OPT_TV_SHORT ( 0xB0 , GSM_A_PDU_TYPE_GM, DE_NET_FEAT_SUP , "" );
+	ELEM_OPT_TV_SHORT ( 0xB0 , GSM_A_PDU_TYPE_GM, DE_NET_FEAT_SUP , NULL);
 
-	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , "" );
+	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5174,10 +5174,10 @@ dtap_gmm_rau_com(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_RECV;
 	/* [7] 10.5.5.11 */
-	ELEM_OPT_TLV( 0x26 , GSM_A_PDU_TYPE_GM, DE_REC_N_PDU_NUM_LIST , "" );
+	ELEM_OPT_TLV( 0x26 , GSM_A_PDU_TYPE_GM, DE_REC_N_PDU_NUM_LIST , NULL);
 	/* Inter RAT information container 10.5.5.24 TS 24.008 version 6.8.0 Release 6 */
 	/*TO DO: Implement */
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_RAT_INFO_CONTAINER , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_RAT_INFO_CONTAINER , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5249,13 +5249,13 @@ dtap_gmm_information(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_TLV( 0x45 , GSM_A_PDU_TYPE_DTAP, DE_NETWORK_NAME , " - Short Name" );
 
-	ELEM_OPT_TV( 0x46 , GSM_A_PDU_TYPE_DTAP, DE_TIME_ZONE , "" );
+	ELEM_OPT_TV( 0x46 , GSM_A_PDU_TYPE_DTAP, DE_TIME_ZONE , NULL);
 
-	ELEM_OPT_TV( 0x47 , GSM_A_PDU_TYPE_DTAP, DE_TIME_ZONE_TIME , "" );
+	ELEM_OPT_TV( 0x47 , GSM_A_PDU_TYPE_DTAP, DE_TIME_ZONE_TIME , NULL);
 
-	ELEM_OPT_TLV( 0x48 , GSM_A_PDU_TYPE_DTAP, DE_LSA_ID , "" );
+	ELEM_OPT_TLV( 0x48 , GSM_A_PDU_TYPE_DTAP, DE_LSA_ID , NULL);
 
-	ELEM_OPT_TLV( 0x49 , GSM_A_PDU_TYPE_DTAP, DE_DAY_SAVING_TIME , "" );
+	ELEM_OPT_TLV( 0x49 , GSM_A_PDU_TYPE_DTAP, DE_DAY_SAVING_TIME , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5284,12 +5284,12 @@ dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SRVC_TYPE );
 
 	/* P-TMSI Mobile station identity 10.5.1.4 M LV 6 */
-	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, "");
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
 
-	ELEM_OPT_TLV( 0x32 , GSM_A_PDU_TYPE_GM, DE_PDP_CONTEXT_STAT , "" );
+	ELEM_OPT_TLV( 0x32 , GSM_A_PDU_TYPE_GM, DE_PDP_CONTEXT_STAT , NULL);
 
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
-	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , "" );
+	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5309,10 +5309,10 @@ dtap_gmm_service_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_SENT;
 
-	ELEM_OPT_TLV( 0x32 , GSM_A_PDU_TYPE_GM, DE_PDP_CONTEXT_STAT , "" );
+	ELEM_OPT_TLV( 0x32 , GSM_A_PDU_TYPE_GM, DE_PDP_CONTEXT_STAT , NULL);
 
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
-	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , "" );
+	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5360,9 +5360,9 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , " - Requested PDP address" );
 
-	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , "" );
+	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , NULL);
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5395,11 +5395,11 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_RAD_PRIO );
 
-	ELEM_OPT_TLV( 0x2B , GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , "" );
+	ELEM_OPT_TLV( 0x2B , GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , NULL);
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
-	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , "" );
+	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5421,7 +5421,7 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5447,12 +5447,12 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_QOS , " - Requested QoS" );
 
-	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_LINKED_TI , "" );
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_LINKED_TI , NULL);
 
 	/* 3GPP TS 24.008 version 6.8.0 Release 6, 36 TFT Traffic Flow Template 10.5.6.12 O TLV 3-257 */
-	ELEM_OPT_TLV( 0x36 , GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , "" );
+	ELEM_OPT_TLV( 0x36 , GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , NULL);
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5485,9 +5485,9 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	curr_len++;
 #endif
 
-	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , "" );
+	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5509,7 +5509,7 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5531,9 +5531,9 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , " - Offered PDP address" );
 
-	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , "" );
+	ELEM_OPT_TLV( 0x28 , GSM_A_PDU_TYPE_GM, DE_ACC_POINT_NAME , NULL);
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5555,7 +5555,7 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5587,11 +5587,11 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_QOS , " - New QoS" );
 
-	ELEM_OPT_TLV( 0x2B , GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , "" );
+	ELEM_OPT_TLV( 0x2B , GSM_A_PDU_TYPE_GM, DE_PD_PRO_ADDR , NULL);
 
-	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , "" );
+	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5617,7 +5617,7 @@ dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	ELEM_OPT_TLV( 0x31 , GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE , " - New TFT" );
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5637,7 +5637,7 @@ dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5663,9 +5663,9 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 	ELEM_OPT_TV_SHORT ( 0x80 , GSM_A_PDU_TYPE_GM , DE_RAD_PRIO , " - New radio priority" );
 
-	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , "" );
+	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5687,7 +5687,7 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5709,12 +5709,12 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE );
 
-	ELEM_OPT_TV_SHORT( 0x90 , GSM_A_PDU_TYPE_GM , DE_TEAR_DOWN_IND , "" );
+	ELEM_OPT_TV_SHORT( 0x90 , GSM_A_PDU_TYPE_GM , DE_TEAR_DOWN_IND , NULL);
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
-	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , "" );
+	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5734,10 +5734,10 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
 	gsm_a_dtap_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 
-	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , "" );
+	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	/* MBMS context status 10.5.7.6 TLV 2 - 18 */
-	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , "" );
+	ELEM_OPT_TLV( 0x35 , GSM_A_PDU_TYPE_GM, DE_MBMS_CTX_STATUS , NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }

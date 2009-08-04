@@ -6517,10 +6517,10 @@ dtap_rr_add_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
 
     /* Mobile Allocation  10.5.2.21  C TLV 3-10 */
-    ELEM_OPT_TLV(0x72, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, "");
+    ELEM_OPT_TLV(0x72, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
 
     /* Starting Time  10.5.2.38  O TV 3 */
-    ELEM_OPT_TV(0x7c, GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "");
+    ELEM_OPT_TV(0x7c, GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6548,7 +6548,7 @@ dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TLV(0x05, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, " - Frequency List, after time");
 
     /* 62 Cell Channel Description	10.5.2.1b	O TV 17 */
-    ELEM_OPT_TV(0x62, GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, "");
+    ELEM_OPT_TV(0x62, GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, NULL);
 
     /* 10 Multislot Allocation		10.5.2.21b	C TLV 3-12 */
     ELEM_OPT_TLV(0x10,GSM_A_PDU_TYPE_RR, DE_RR_MULT_ALL, " - Description of the multislot configuration");
@@ -6587,7 +6587,7 @@ dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TLV(0x72,GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - Mobile Allocation, after time");
 
     /* 7C Starting Time				10.5.2.38	O TV 3 */
-    ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "");
+    ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
 
     /* 19 Frequency List			10.5.2.13	C TLV 4-132 */
     ELEM_OPT_TLV(0x19, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, " - Frequency List, before time");
@@ -6605,15 +6605,15 @@ dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TLV(0x21,GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - Mobile Allocation, before time");
 
     /* 9- Cipher Mode Setting		10.5.2.9	O TV 1 */
-    ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, "");
+    ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, NULL);
     /* 01 VGCS target mode Indication VGCS target mode Indication 10.5.2.42a O TLV 3 */
-    ELEM_OPT_TLV(0x01,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_TAR_MODE_IND, "");
+    ELEM_OPT_TLV(0x01,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_TAR_MODE_IND, NULL);
 
     /* 03 Multi-Rate configuration,	MultiRate configuration 10.5.2.21aa	O TLV 4-8 */
-    ELEM_OPT_TLV(0x03,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, "");
+    ELEM_OPT_TLV(0x03,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, NULL);
 
     /* 04 VGCS Ciphering Parameters VGCS Ciphering Parameters 10.5.2.42b O TLV 3-15	*/
-    ELEM_OPT_TLV(0x04,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_CIP_PAR, "");
+    ELEM_OPT_TLV(0x04,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_CIP_PAR, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -6679,10 +6679,10 @@ dtap_rr_ch_mode_mod(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE);
 
     /* 01 VGCS target mode Indication VGCS target mode Indication 10.5.2.42a O TLV 3 */
-    ELEM_OPT_TLV(0x01,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_TAR_MODE_IND, "");
+    ELEM_OPT_TLV(0x01,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_TAR_MODE_IND, NULL);
 
     /* 03 Multi-Rate configuration,	MultiRate configuration 10.5.2.21aa	O TLV 4-8 */
-    ELEM_OPT_TLV(0x03,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, "");
+    ELEM_OPT_TLV(0x03,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -6728,28 +6728,28 @@ dtap_rr_ch_rel(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE);
 
     /* 73 BA Range BA Range 10.5.2.1a O TLV 6-7 */
-    ELEM_OPT_TLV(0x73, GSM_A_PDU_TYPE_RR, DE_RR_BA_RANGE, "");
+    ELEM_OPT_TLV(0x73, GSM_A_PDU_TYPE_RR, DE_RR_BA_RANGE, NULL);
 
     /* 74 Group Channel Description Group Channel Description 10.5.2.14b O TLV 5-13 */
-    /* ELEM_OPT_TLV(0x74, GSM_A_PDU_TYPE_RR, DE_GRP_CH_DESC, ""); */
+    /* ELEM_OPT_TLV(0x74, GSM_A_PDU_TYPE_RR, DE_GRP_CH_DESC, NULL); */
 
     /* 8x Group Cipher Key Number Group Cipher Key Number 10.5.1.10 C TV 1 */
-    /* ELEM_OPT_TV_SHORT(0x80, GSM_A_PDU_TYPE_RR, DE_GRP_CIP_KEY_NUM, ""); */
+    /* ELEM_OPT_TV_SHORT(0x80, GSM_A_PDU_TYPE_RR, DE_GRP_CIP_KEY_NUM, NULL); */
 
     /* Cx GPRS Resumption GPRS Resumption 10.5.2.14c O TV 1 */
-    ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_RR, DE_RR_GPRS_RESUMPTION, "");
+    ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_RR, DE_RR_GPRS_RESUMPTION, NULL);
 
     /* 75 BA List Pref BA List Pref 10.5.2.1c O TLV 3-? */
-    ELEM_OPT_TLV(0x75, GSM_A_PDU_TYPE_RR, DE_RR_BA_LIST_PREF, "");
+    ELEM_OPT_TLV(0x75, GSM_A_PDU_TYPE_RR, DE_RR_BA_LIST_PREF, NULL);
 
     /* 76 UTRAN Freq List 10.5.2.1d O TLV 3-? */
-    ELEM_OPT_TLV(0x76, GSM_A_PDU_TYPE_RR, DE_RR_UTRAN_FREQ_LIST, "");
+    ELEM_OPT_TLV(0x76, GSM_A_PDU_TYPE_RR, DE_RR_UTRAN_FREQ_LIST, NULL);
 
     /* 62 Cell Channel Description Cell Channel Description 10.5.2.1b O TV 17 */
-    ELEM_OPT_TV(0x62, GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, "");
+    ELEM_OPT_TV(0x62, GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, NULL);
 
     /* 62 Cell selection indicator after release of all TCH and SDCCH 10.5.2.1e O TLV 4-? */
-    ELEM_OPT_TLV(0x77, GSM_A_PDU_TYPE_RR, DE_RR_CELL_SELECT_INDIC, "");
+    ELEM_OPT_TLV(0x77, GSM_A_PDU_TYPE_RR, DE_RR_CELL_SELECT_INDIC, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -6817,9 +6817,9 @@ dtap_rr_mm_cm_change(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* Mobile Station Classmark 2		10.5.1.6	M LV 4 */
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, "");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
     /* 20 Mobile Station Classmark 3	10.5.1.7	C TLV 3-34 */
-    ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_3, "");
+    ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_3, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -6839,7 +6839,7 @@ dtap_rr_utran_classmark_change(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
     curr_len = len;
 
     /* UTRAN Classmark		10.5.2.7a	M LV 2-? */
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_UTRAN_CM, "");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_UTRAN_CM, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6858,7 +6858,7 @@ dtap_rr_cm_enq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     /* 10 Classmark Enquiry Mask 	10.5.2.7c	O TLV 3 */
-    ELEM_OPT_TLV(0x10, GSM_A_PDU_TYPE_RR, DE_RR_CM_ENQ_MASK, "");
+    ELEM_OPT_TLV(0x10, GSM_A_PDU_TYPE_RR, DE_RR_CM_ENQ_MASK, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -6878,7 +6878,7 @@ dtap_rr_conf_change_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     curr_len = len;
 
     /* Multislot Allocation  10.5.2.21b  M LV 2-11 */
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MULT_ALL, "");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MULT_ALL, NULL);
 
     /* Channel Mode  10.5.2.6  O TV 2 */
     ELEM_OPT_TV(0x63,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 1");
@@ -6949,16 +6949,16 @@ dtap_rr_freq_redef(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC);
 
     /* Mobile Allocation  10.5.2.21  M LV 1-9 */
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, "");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
 
     /* Starting Time  10.5.2.38  M V 2 */
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
 
     /* Cell Channel Description  10.5.2.1b  O TV 17 */
-    ELEM_OPT_TV(0x62,GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, "");
+    ELEM_OPT_TV(0x62,GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, NULL);
 
     /* Carrier Indication  10.5.2.69  O TV 1 */
-    ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CARRIER_IND,"");
+    ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CARRIER_IND,NULL);
 
     /* Mobile Allocation  10.5.2.21  O TLV 1-9 */
     ELEM_OPT_TLV(0x11, GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - Mobile Allocation C2");
@@ -6990,7 +6990,7 @@ dtap_rr_gprs_sus_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_SUS_CAU);
 
     /* 01 Service Support					10.5.2.57	O TV 2 */
-    ELEM_OPT_TV_SHORT(0x01,GSM_A_PDU_TYPE_RR, DE_RR_SERV_SUP,"");
+    ELEM_OPT_TV_SHORT(0x01,GSM_A_PDU_TYPE_RR, DE_RR_SERV_SUP,NULL);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -7032,7 +7032,7 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     /* optional elements */
 
     /* Synchronization Indication 10.5.2.39 */
-    ELEM_OPT_TV_SHORT(0xD0,GSM_A_PDU_TYPE_RR, DE_RR_SYNC_IND,"");
+    ELEM_OPT_TV_SHORT(0xD0,GSM_A_PDU_TYPE_RR, DE_RR_SYNC_IND,NULL);
 
     /* Frequency Short List 10.5.2.14 */
     ELEM_OPT_TV(0x02,GSM_A_PDU_TYPE_RR, DE_RR_FREQ_SHORT_LIST," - Frequency Short List, after time");
@@ -7041,10 +7041,10 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TLV(0x05, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, " - Frequency List, after time");
 
     /* Cell Channel Description 10.5.2.1b */
-    ELEM_OPT_TV(0x62,GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, "");
+    ELEM_OPT_TV(0x62,GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, NULL);
 
     /* Multislot Allocation 10.5.2.21b */
-    ELEM_OPT_TLV(0x10,GSM_A_PDU_TYPE_RR, DE_RR_MULT_ALL, "");
+    ELEM_OPT_TLV(0x10,GSM_A_PDU_TYPE_RR, DE_RR_MULT_ALL, NULL);
 
     /* Mode of the First Channel(Channel Set 1)) Channel Mode 10.5.2.6*/
     ELEM_OPT_TV(0x63,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of the First Channel(Channel Set 1))");
@@ -7083,13 +7083,13 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TLV(0x72,GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - Mobile Allocation, after time");
 
     /* Starting Time 10.5.2.38 */
-    ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "");
+    ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
 
     /* Real Time Difference, Time Difference 10.5.2.41 */
     ELEM_OPT_TV(0x7B,GSM_A_PDU_TYPE_RR, DE_RR_TIME_DIFF, " - Real Time Difference");
 
     /* Timing Advance, Timing Advance 10.5.2.40 */
-    ELEM_OPT_TV(0x7D,GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV, "");
+    ELEM_OPT_TV(0x7D,GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV, NULL);
 
     /* Frequency Short List, before time, Frequency Short List 10.5.2.14 */
     ELEM_OPT_TV(0x12,GSM_A_PDU_TYPE_RR, DE_RR_FREQ_SHORT_LIST, " - Frequency Short List, before time");
@@ -7110,22 +7110,22 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TLV(0x21,GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, " - Mobile Allocation, before time");
 
     /* Cipher Mode Setting,	Cipher Mode Setting 10.5.2.9 */
-    ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, "");
+    ELEM_OPT_TV_SHORT(0x90,GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, NULL);
 
     /* VGCS target mode Indication,	VGCS target mode Indication 10.5.2.42a */
-    ELEM_OPT_TLV(0x01,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_TAR_MODE_IND, "");
+    ELEM_OPT_TLV(0x01,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_TAR_MODE_IND, NULL);
 
     /* Multi-Rate configuration,	MultiRate configuration 10.5.2.21a */
-    ELEM_OPT_TLV(0x03,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, "");
+    ELEM_OPT_TLV(0x03,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, NULL);
 
     /* Dynamic ARFCN Mapping,	Dynamic ARFCN Mapping 10.5.2.11b */
-    ELEM_OPT_TLV(0x76,GSM_A_PDU_TYPE_RR, DE_RR_DYN_ARFCN_MAP, "");
+    ELEM_OPT_TLV(0x76,GSM_A_PDU_TYPE_RR, DE_RR_DYN_ARFCN_MAP, NULL);
 
     /* VGCS Ciphering Parameters,	VGCS Ciphering Parameters 10.5.2.42b */
-    ELEM_OPT_TLV(0x04,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_CIP_PAR, "");
+    ELEM_OPT_TLV(0x04,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_CIP_PAR, NULL);
 
     /* Dedicated Service Information,	Dedicated Service Information 10.5.2.59 */
-    ELEM_OPT_TV(0x51,GSM_A_PDU_TYPE_RR, DE_RR_DED_SERV_INF, "");
+    ELEM_OPT_TV(0x51,GSM_A_PDU_TYPE_RR, DE_RR_DED_SERV_INF, NULL);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -7145,7 +7145,7 @@ dtap_rr_inter_syst_to_utran_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offs
     curr_len = len;
 
     /* UTRAN Classmark		10.5.2.51	M LV 2-? */
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_HO_TO_UTRAN_CMD, "");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_HO_TO_UTRAN_CMD, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7243,9 +7243,9 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     /* Timing Advance				10.5.2.40	M V 1	*/
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV);
     /* Mobile Allocation			10.5.2.21	M LV 1-9 */
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, "");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
     /* 7C Starting Time				10.5.2.38	O TV 3	*/
-    ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "");
+    ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
     /* IA Rest Octets				10.5.2.16	M V 0-11 */
     if(tvb_length_remaining(tvb,curr_offset) > 0)
         ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IA_REST_OCT);
@@ -7284,9 +7284,9 @@ dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     /* Timing Advance 2	Timing Advance				10.5.2.40	M V 1	*/
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV);
     /* Mobile Allocation					10.5.2.21	M LV 1-9 */
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, "");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_MOB_ALL, NULL);
     /* 7C Starting Time						10.5.2.38	O TV 3	*/
-    ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, "");
+    ELEM_OPT_TV(0x7C,GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
     /* IAX Rest Octets						10.5.2.18	M V 0-4 */
     if(tvb_length_remaining(tvb,curr_offset) > 0)
         ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IAX_REST_OCT);
@@ -7524,9 +7524,9 @@ dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     if (curr_len <= 0) return;
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, "");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
 
-    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, "");
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
