@@ -133,8 +133,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct pop_data_val *data_val = NULL;
 	gint         length_remaining;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "POP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "POP");
 
 	/*
 	 * Find the end of the first line.
@@ -241,7 +240,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    if(next_tvb) {
 
 		      if(imf_handle)
-			call_dissector(imf_handle, next_tvb, pinfo, tree);
+                call_dissector(imf_handle, next_tvb, pinfo, tree);
 
 		      if(data_val) {
 			      /* we have read everything - reset */
@@ -292,12 +291,12 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if(is_request) {
 			  /* see if this is RETR or TOP command */
-			  if((g_ascii_strncasecmp(line, "RETR", 4) == 0) ||
-			     (g_ascii_strncasecmp(line, "TOP", 3) == 0))
+			  if(data_val && ((g_ascii_strncasecmp(line, "RETR", 4) == 0) ||
+			     (g_ascii_strncasecmp(line, "TOP", 3) == 0)))
 			    /* the next response will tell us how many bytes */
 			    data_val->msg_request = TRUE;
 			} else {
-			  if(data_val->msg_request) {
+			  if(data_val && data_val->msg_request) {
 			    /* this is a response to a RETR or TOP command */
 
 			    if(g_ascii_strncasecmp(line, "+OK ", 4) == 0) {
@@ -311,8 +310,6 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			offset += (gint) (next_token - line);
 			linelen -= (int) (next_token - line);
-			line = next_token;
-
 		}
 
 		/*
@@ -336,8 +333,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * Find the end of the line.
 			 */
-			linelen = tvb_find_line_end(tvb, offset, -1,
-			    &next_offset, FALSE);
+			tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
 			/*
 			 * Put this line.
@@ -352,7 +348,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			                             tvb_format_text(tvb, offset, next_offset - offset));
 			offset = next_offset;
 		}
-		} 
+	} 
 }
 
 static gboolean response_is_continuation(const guchar *data)
