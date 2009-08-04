@@ -359,7 +359,6 @@ proto_register_slarp(void)
         NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
-    &ett_chdlc,
     &ett_slarp,
   };
 
