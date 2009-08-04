@@ -54,9 +54,9 @@ static gint ett_mac_mgmt_msg_dsd_rsp_decoder = -1;
 
 static const value_string vals_dsd_msgs[] =
 {
-	MAC_MGMT_MSG_DSD_REQ, "Dynamic Service Deletion Request (DSD-REQ)",
-	MAC_MGMT_MSG_DSD_RSP, "Dynamic Service Deletion Response (DSD-RSP)",
-	0,                    NULL
+	{ MAC_MGMT_MSG_DSD_REQ, "Dynamic Service Deletion Request (DSD-REQ)" },
+	{ MAC_MGMT_MSG_DSD_RSP, "Dynamic Service Deletion Response (DSD-RSP)" },
+	{ 0,                    NULL }
 };
 
 /* fix fields */

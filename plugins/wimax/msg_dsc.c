@@ -50,10 +50,10 @@ static gint ett_mac_mgmt_msg_dsc_rsp_decoder = -1;
 static gint ett_mac_mgmt_msg_dsc_ack_decoder = -1;
 
 static const value_string vals_dsc_msgs[] = {
-	MAC_MGMT_MSG_DSC_REQ, "Dynamic Service Change Request (DSC-REQ)",
-	MAC_MGMT_MSG_DSC_RSP, "Dynamic Service Change Response (DSC-RSP)",
-	MAC_MGMT_MSG_DSC_ACK, "Dynamic Service Change Acknowledge (DSC-ACK)",
-	0,                    NULL
+	{ MAC_MGMT_MSG_DSC_REQ, "Dynamic Service Change Request (DSC-REQ) }",
+	{ MAC_MGMT_MSG_DSC_RSP, "Dynamic Service Change Response (DSC-RSP)" },
+	{ MAC_MGMT_MSG_DSC_ACK, "Dynamic Service Change Acknowledge (DSC-ACK)" },
+	{ 0,                    NULL }
 };
 
 /* fix fields */

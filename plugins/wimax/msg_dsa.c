@@ -50,10 +50,10 @@ static gint ett_mac_mgmt_msg_dsa_rsp_decoder = -1;
 static gint ett_mac_mgmt_msg_dsa_ack_decoder = -1;
 
 static const value_string vals_dsa_msgs[] = {
-	MAC_MGMT_MSG_DSA_REQ, "Dynamic Service Addition Request (DSA-REQ)",
-	MAC_MGMT_MSG_DSA_RSP, "Dynamic Service Addition Response (DSA-RSP)",
-	MAC_MGMT_MSG_DSA_ACK, "Dynamic Service Addition Acknowledge (DSA-ACK)",
-	0,                    NULL
+	{ MAC_MGMT_MSG_DSA_REQ, "Dynamic Service Addition Request (DSA-REQ)" },
+	{ MAC_MGMT_MSG_DSA_RSP, "Dynamic Service Addition Response (DSA-RSP)" },
+	{ MAC_MGMT_MSG_DSA_ACK, "Dynamic Service Addition Acknowledge (DSA-ACK)" },
+	{ 0,                    NULL }
 };
 
 /* fix fields */
