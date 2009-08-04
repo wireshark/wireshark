@@ -89,8 +89,8 @@ gboolean saw_mechanism = FALSE;
 
 
 /* Initialize the subtree pointers */
-static gint ett_spnego;
-static gint ett_spnego_wraptoken;
+static gint ett_spnego = -1;
+static gint ett_spnego_wraptoken = -1;
 static gint ett_spnego_krb5 = -1;
 static gint ett_spnego_krb5_cfx_flags = -1;
 

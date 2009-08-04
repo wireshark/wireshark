@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-spnego.c                                                            */
-/* ../../tools/asn2wrs.py -b -p spnego -c ./spnego.cnf -s ./packet-spnego-template -D . spnego.asn */
+/* ../../tools/asn2wrs.py -b -p spnego -c spnego.cnf -s packet-spnego-template spnego.asn */
 
 /* Input file: packet-spnego-template.c */
 
@@ -124,8 +124,8 @@ gboolean saw_mechanism = FALSE;
 
 
 /* Initialize the subtree pointers */
-static gint ett_spnego;
-static gint ett_spnego_wraptoken;
+static gint ett_spnego = -1;
+static gint ett_spnego_wraptoken = -1;
 static gint ett_spnego_krb5 = -1;
 static gint ett_spnego_krb5_cfx_flags = -1;
 
