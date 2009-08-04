@@ -3927,7 +3927,6 @@ void proto_register_rsl(void)
 		&ett_ie_cmd_ind,
 		&ett_ie_emlpp_prio,
 		&ett_ie_uic,
-		&ett_ie_uic,
 		&ett_ie_main_ch_ref,
 		&ett_ie_multirate_conf,
 		&ett_ie_multirate_cntrl,

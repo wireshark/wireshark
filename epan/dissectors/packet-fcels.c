@@ -2545,7 +2545,6 @@ proto_register_fcels (void)
 
     static gint *ett[] = {
         &ett_fcels,
-        &ett_fcels,
         &ett_fcels_lsrjt,
         &ett_fcels_acc,
         &ett_fcels_logi,
