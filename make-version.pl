@@ -104,21 +104,21 @@ sub read_svn_info {
 			use warnings "all";
 			no warnings "all";
 			$line = qx{svn info $srcdir};
-			if (!defined($line)) {
-				exit 1;
+			if (defined($line)) {
+				if ($line =~ /Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
+					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
+				}
+				if ($line =~ /Last Changed Rev: (\d+)/) {
+					$revision = $1;
+				}
+				if ($line =~ /URL: (\S+)/) {
+					$repo_url = $1;
+				}
+				if ($line =~ /Repository Root: (\S+)/) {
+					$repo_root = $1;
+				}
 			}
-			if ($line =~ /Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
-				$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
-			}
-			if ($line =~ /Last Changed Rev: (\d+)/) {
-				$revision = $1;
-			}
-			if ($line =~ /URL: (\S+)/) {
-				$repo_url = $1;
-			}
-			if ($line =~ /Repository Root: (\S+)/) {
-				$repo_root = $1;
-			}
+			1;
 		};
 
 		if ($last_change && $revision && $repo_url && $repo_root) {
