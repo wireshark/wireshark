@@ -162,7 +162,7 @@ typedef enum {
 typedef enum {
     HF_REF_TYPE_NONE,       /**< Field is not referenced */
     HF_REF_TYPE_INDIRECT,   /**< Field is indirectly referenced (only applicable for FT_PROTOCOL) via. its child */
-    HF_REF_TYPE_DIRECT,     /**< Field is directly referenced */
+    HF_REF_TYPE_DIRECT      /**< Field is directly referenced */
 } hf_ref_type;
 
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)
