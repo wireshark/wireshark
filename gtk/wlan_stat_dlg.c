@@ -237,8 +237,7 @@ alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
 	if (!si)
 		return NULL;
 
-	if (!(ep = g_malloc (sizeof(wlan_ep_t))))
-		return NULL;
+	ep = g_malloc (sizeof(wlan_ep_t));
 
 	SE_COPY_ADDRESS (&ep->bssid, &si->bssid);
 	ep->stats.channel = si->stats.channel;
@@ -387,10 +386,9 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 		}
 
 		if (!te) {
-			if ((te = alloc_wlan_ep (si, pinfo))) {
-				te->next = hs->ep_list;
-				hs->ep_list = te;
-			}
+			te = alloc_wlan_ep (si, pinfo);
+			te->next = hs->ep_list;
+			hs->ep_list = te;
 		}
 
 		if (!te->probe_req_searched && (si->type != 0x04) && (te->type[0x04] == 0) &&

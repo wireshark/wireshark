@@ -530,7 +530,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 			break;
 		}
 	}
-	if(io->items[i].calc_type!=CALC_TYPE_BYTES){
+	if(hfi && io->items[i].calc_type!=CALC_TYPE_BYTES){
 		/* check that the type is compatible */
 		switch(hfi->type){
 		case FT_UINT8:
