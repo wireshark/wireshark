@@ -788,7 +788,6 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *p_mul_tree = NULL, *field_tree = NULL, *checksum_tree = NULL;
   proto_item *ti = NULL, *en = NULL, *len_en = NULL;
-  p_mul_seq_val *pkg_data = NULL;
   gboolean    save_fragmented;
   fragment_data *frag_msg = NULL;
   guint32     message_id = 0, ip;
@@ -797,7 +796,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8      pdu_type = 0, *value = NULL, map = 0, fec_len;
   gint        i, tot_no_missing = 0, no_missing = 0, offset = 0;
   address     src, dst;
-  GString     *message_id_list = NULL;
+  emem_strbuf_t *message_id_list = NULL;
   nstime_t    ts;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "P_MUL");
@@ -1063,7 +1062,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case Ack_PDU:
     if (check_col (pinfo->cinfo, COL_INFO)) {
-      message_id_list = g_string_new ("");
+      message_id_list = ep_strbuf_new_label("");
     }
     for (i = 0; i < count; i++) {
       /* Ack Info Entry */
@@ -1109,9 +1108,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (check_col (pinfo->cinfo, COL_INFO)) {
         if (i == 0) {
-          g_string_printf (message_id_list, "%u", message_id);
+          ep_strbuf_printf (message_id_list, "%u", message_id);
         } else {
-          g_string_append_printf (message_id_list, ",%u", message_id);
+          ep_strbuf_append_printf (message_id_list, ",%u", message_id);
         }
       }
 
@@ -1235,7 +1234,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (use_seq_ack_analysis && (pdu_type <= Discard_Message_PDU) &&
       (pdu_type != Ack_PDU) && (pdu_type != Address_PDU || no_dest != 0)) 
   {
-    pkg_data = add_seq_analysis (tvb, pinfo, p_mul_tree, &src, offset, pdu_type, 
+    add_seq_analysis (tvb, pinfo, p_mul_tree, &src, offset, pdu_type, 
                                  message_id, seq_no, tot_no_missing);
   }
   
@@ -1267,10 +1266,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (pdu_type != Ack_PDU) {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %u", message_id);
     } else {
-      if (count > 0) {
+      if (message_id_list && message_id_list->len > 0) {
         col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %s", message_id_list->str);
       }
-      g_string_free (message_id_list, TRUE);
     }
   }
 
