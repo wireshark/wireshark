@@ -290,6 +290,7 @@ static int hf_gsm_a_mobile_identity_type = -1;
 static int hf_gsm_a_tmgi_mcc_mnc_ind = -1;
 static int hf_gsm_a_mbs_ses_id_ind = -1;
 static int hf_gsm_a_mbs_service_id = -1;
+static int hf_gsm_a_mbs_session_id = -1;
 int hf_gsm_a_L3_protocol_discriminator = -1;
 int hf_gsm_a_call_prio = -1;
 int hf_gsm_a_skip_ind = -1;
@@ -1607,27 +1608,32 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 		break;
 
 	case 5: /* TMGI and optional MBMS Session Identity */
+		/* Spare bits (octet 3) Bits 8-7 */
+		proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 2, FALSE);
 		/* MBMS Session Identity indication (octet 3) Bit 6 */
-		proto_tree_add_item(tree, hf_gsm_a_mbs_ses_id_ind, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mbs_ses_id_ind, tvb, curr_offset, 1, FALSE);
 		/* MCC/MNC indication (octet 3) Bit 5 */
-		proto_tree_add_item(tree, hf_gsm_a_tmgi_mcc_mnc_ind, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_tmgi_mcc_mnc_ind, tvb, curr_offset, 1, FALSE);
 		/* Odd/even indication (octet 3) Bit 4 */
 		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+		/* Type of identity (octet 3) Bits 3-1 */
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
 		curr_offset++;
 		/* MBMS Service ID (octet 4, 5 and 6) */
-		proto_tree_add_item(tree, hf_gsm_a_mbs_service_id, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mbs_service_id, tvb, curr_offset, 3, FALSE);
 		curr_offset += 3;
 		if((oct&0x10)==0x10){
 			/* MCC/MNC*/
 			/* MCC, Mobile country code (octet 6a, octet 6b bits 1 to 4)*/
 			/* MNC, Mobile network code (octet 6b bits 5 to 8, octet 6c) */
-			curr_offset += 3;
+			curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
 		}
 		if((oct&0x20)==0x20){
 			/* MBMS Session Identity (octet 7)
 			 * The MBMS Session Identity field is encoded as the value part
 			 * of the MBMS Session Identity IE as specified in 3GPP TS 48.018 [86].
 			 */
+			proto_tree_add_item(tree, hf_gsm_a_mbs_session_id, tvb, curr_offset, 1, FALSE);
 			curr_offset++;
 		}
 		break;
@@ -2335,13 +2341,18 @@ proto_register_gsm_a_common(void)
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_mbs_ses_id_ind,
-		{ "MBMS Session Identity indication", "gsm_a.tmgi_mcc_mnc_ind",
+		{ "MBMS Session Identity indication", "gsm_a.mbs_session_id_ind",
 		FT_BOOLEAN, 8, TFS(&gsm_a_present_vals), 0x20,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_mbs_service_id,
 		{ "MBMS Service ID", "gsm_a.mbs_service_id",
-		FT_BYTES, BASE_NONE, NULL, 0x0,
+		FT_UINT24, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_mbs_session_id,
+		{ "MBMS Session ID", "gsm_a.mbs_session_id",
+		FT_UINT8, BASE_HEX, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_L3_protocol_discriminator,
