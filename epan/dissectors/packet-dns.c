@@ -108,6 +108,7 @@ static int hf_dns_time = -1;
 static int hf_dns_sshfp_fingerprint = -1;
 static int hf_dns_hip_hit = -1;
 static int hf_dns_hip_pk = -1;
+static int hf_dns_dhcid_rdata = -1; 
 
 static gint ett_dns = -1;
 static gint ett_dns_qd = -1;
@@ -208,6 +209,7 @@ typedef struct _dns_conv_info_t {
 #define T_RRSIG         46              /* future RFC 2535bis */
 #define T_NSEC          47              /* future RFC 2535bis */
 #define T_DNSKEY        48              /* future RFC 2535bis */
+#define T_DHCID         49              /* DHCID RR (RFC 4701) */
 #define T_NSEC3         50              /* Next secure hash (RFC 5155) */
 #define T_NSEC3PARAM    51              /* NSEC3 parameters (RFC 5155) */
 #define T_HIP           55              /* Host Identity Protocol (HIP) RR (RFC 5205) */
@@ -459,7 +461,7 @@ static const value_string dns_types[] = {
 	{ T_RRSIG,	"RRSIG" }, /* future RFC 2535bis */
 	{ T_NSEC,	"NSEC" }, /* future RFC 2535bis */
 	{ T_DNSKEY,	"DNSKEY" }, /* future RFC 2535bis */
-
+	{ T_DHCID,	"DHCID" }, /* DHCID RR (RFC 4701) */
 	{ T_NSEC3,	"NSEC3" }, /* Next secure hash (RFC 5155) */
 	{ T_NSEC3PARAM,	"NSEC3PARAM" }, /* Next secure hash (RFC 5155) */
 	{ T_HIP,        "HIP" }, /* Host Identity Protocol (HIP) RR (RFC 5205) */
@@ -2659,6 +2661,20 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+    case T_DHCID:
+    {
+      if (cinfo != NULL)
+         col_append_fstr(cinfo, COL_INFO, " %s", name);
+
+      if (dns_tree != NULL) {
+	if (data_len < 1)
+           goto bad_rr;
+	proto_tree_add_item(rr_tree, hf_dns_dhcid_rdata, tvb, cur_offset, data_len, FALSE);
+        
+      }
+    }
+    break;
+
     /* TODO: parse more record types */
 
   default:
@@ -3313,6 +3329,10 @@ proto_register_dns(void)
         NULL, HFILL }},
     { &hf_dns_hip_pk,
       { "HIP Public Key", "dns.hip.pk",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_dns_dhcid_rdata,
+      { "DHCID Data", "dns.dhcid.rdata",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }}
   };
