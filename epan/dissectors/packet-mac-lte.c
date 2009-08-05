@@ -122,8 +122,9 @@ static int hf_mac_lte_control_ue_contention_resolution = -1;
 static int hf_mac_lte_control_ue_contention_resolution_identity = -1;
 static int hf_mac_lte_control_ue_contention_resolution_msg3 = -1;
 static int hf_mac_lte_control_ue_contention_resolution_msg3_matched = -1;
-static int hf_mac_lte_control_power_headroom_reserved = -1;
 static int hf_mac_lte_control_power_headroom = -1;
+static int hf_mac_lte_control_power_headroom_reserved = -1;
+static int hf_mac_lte_control_power_headroom_level = -1;
 static int hf_mac_lte_control_padding = -1;
 
 
@@ -141,6 +142,7 @@ static int ett_mac_lte_bsr = -1;
 static int ett_mac_lte_bch = -1;
 static int ett_mac_lte_pch = -1;
 static int ett_mac_lte_contention_resolution = -1;
+static int ett_mac_lte_power_headroom = -1;
 
 
 
@@ -1391,22 +1393,40 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 switch (lcids[n]) {
                     case POWER_HEADROOM_REPORT_LCID:
                         {
+                            proto_item *phr_ti;
+                            proto_tree *phr_tree;
                             proto_item *ti;
                             guint8 reserved;
+                            guint8 level;
+
+                            /* Create PHR root */
+                            phr_ti = proto_tree_add_string_format(tree,
+                                                                  hf_mac_lte_control_power_headroom,
+                                                                  tvb, offset, 1,
+                                                                  "",
+                                                                  "Power Headroom");
+                            phr_tree = proto_item_add_subtree(phr_ti, ett_mac_lte_power_headroom);
 
                             /* Check 2 Reserved bits */
                             reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
-                            ti = proto_tree_add_item(tree, hf_mac_lte_control_power_headroom_reserved,
+                            ti = proto_tree_add_item(phr_tree, hf_mac_lte_control_power_headroom_reserved,
                                                      tvb, offset, 1, FALSE);
                             if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
                                 expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                                        "Power Headroom Reserved bits not zero (found 0x%x)", reserved);
                             }
+
+                            /* Level */
+                            level = tvb_get_guint8(tvb, offset) & 0x3f;
+                            proto_tree_add_item(phr_tree, hf_mac_lte_control_power_headroom_level,
+                                                tvb, offset, 1, FALSE);
+
+                            /* Show value in root label */
+                            proto_item_append_text(phr_ti, " (POWER_HEADROOM_%u)", level);
+                            offset++;
                         }
 
-                        proto_tree_add_item(tree, hf_mac_lte_control_power_headroom,
-                                            tvb, offset, 1, FALSE);
-                        offset++;
+
                         break;
                     case CRNTI_LCID:
                         proto_tree_add_item(tree, hf_mac_lte_control_crnti,
@@ -2096,18 +2116,25 @@ void proto_register_mac_lte(void)
             }
         },
 
+        { &hf_mac_lte_control_power_headroom,
+            { "Power Headroom",
+              "mac-lte.control.power-headroom", FT_STRING, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
         { &hf_mac_lte_control_power_headroom_reserved,
             { "Reserved",
               "mac-lte.control.power-headroom.reserved", FT_UINT8, BASE_DEC, 0, 0xc0,
               "Reserved bits, should be 0", HFILL
             }
         },
-        { &hf_mac_lte_control_power_headroom,
-            { "Power Headroom",
-              "mac-lte.control.power-headroom", FT_UINT8, BASE_DEC, 0, 0x3f,
+        { &hf_mac_lte_control_power_headroom_level,
+            { "Power Headroom Level",
+              "mac-lte.control.power-headroom.level", FT_UINT8, BASE_DEC, 0, 0x3f,
               NULL, HFILL
             }
         },
+
         { &hf_mac_lte_control_padding,
             { "Padding",
               "mac-lte.control.padding", FT_NONE, BASE_NONE, 0, 0x0,
@@ -2130,7 +2157,8 @@ void proto_register_mac_lte(void)
         &ett_mac_lte_bch,
         &ett_mac_lte_bsr,
         &ett_mac_lte_pch,
-        &ett_mac_lte_contention_resolution
+        &ett_mac_lte_contention_resolution,
+        &ett_mac_lte_power_headroom
     };
 
     module_t *mac_lte_module;
