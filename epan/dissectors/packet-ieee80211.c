@@ -1170,6 +1170,7 @@ static int hf_block_ack_request_type = -1;
 static int hf_block_ack_multi_tid_reserved = -1;
 static int hf_block_ack_multi_tid_value = -1;
 static int hf_block_ack_type = -1;
+static int hf_block_ack_bitmap = -1;
 /*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
 
 static int ht_cap = -1;
@@ -6469,7 +6470,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                 offset += 2;
 
                 offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
-                proto_tree_add_text(hdr_tree, tvb, offset, 128, "Block Ack Bitmap");
+                proto_tree_add_item(hdr_tree, hf_block_ack_bitmap, tvb, offset, 128, FALSE);
                 offset += 128;
                 break;
               }
@@ -6479,7 +6480,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                 offset += 2;
 
                 offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
-                proto_tree_add_text(hdr_tree, tvb, offset, 8, "Block Ack Bitmap");
+                proto_tree_add_item(hdr_tree, hf_block_ack_bitmap, tvb, offset, 8, FALSE);
                 offset += 8;
                 break;
               }
@@ -6507,7 +6508,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                   offset += 2;
 
                   offset += add_fixed_field(ba_mtid_sub_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
-                  proto_tree_add_text(ba_mtid_sub_tree, tvb, offset, 8, "Block Ack Bitmap");
+                  proto_tree_add_item(ba_mtid_sub_tree, hf_block_ack_bitmap, tvb, offset, 8, FALSE);
                   offset += 8;
                 }
                 break;
@@ -9383,8 +9384,12 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, VALS(&hf_block_ack_request_type_flags), 0, "Block Ack Request (BAR) Type", HFILL }},
 
     {&hf_block_ack_type,
-     {"Block Ack Request Type", "wlan.ba.type",
-      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, NULL, HFILL }}
+     {"Block Ack Type", "wlan.ba.type",
+      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, NULL, HFILL }},
+
+    {&hf_block_ack_bitmap,
+     {"Block Ack Bitmap", "wlan.ba.bm",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }}
     /*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
   };
 
