@@ -164,15 +164,15 @@ extern int hf_gsm_a_rr_chnl_needed_ch1;
 #define GSM_BSSMAP_APDU_IE	0x49
 
 /* flags for the packet-gsm_a_common routines */
-#define GSM_A_PDU_TYPE_BSSMAP	0 /* BSSAP_PDU_TYPE_BSSMAP i.e. 0 - until split complete at least! */
-#define GSM_A_PDU_TYPE_DTAP		1  /*BSSAP_PDU_TYPE_DTAP i.e. 1 - until split complete at least! */
+#define GSM_A_PDU_TYPE_BSSMAP		0  /* BSSAP_PDU_TYPE_BSSMAP i.e. 0 - until split complete at least! */
+#define GSM_A_PDU_TYPE_DTAP		1  /* BSSAP_PDU_TYPE_DTAP i.e. 1   - until split complete at least! */
 #define GSM_A_PDU_TYPE_RP		2
 #define GSM_A_PDU_TYPE_RR		3
-#define GSM_A_PDU_TYPE_COMMON	4
+#define GSM_A_PDU_TYPE_COMMON		4
 #define GSM_A_PDU_TYPE_GM		5
-#define GSM_A_PDU_TYPE_BSSLAP	6
-#define GSM_A_PDU_TYPE_SACCH	7
-#define GSM_PDU_TYPE_BSSMAP_LE	8
+#define GSM_A_PDU_TYPE_BSSLAP		6
+#define GSM_A_PDU_TYPE_SACCH		7
+#define GSM_PDU_TYPE_BSSMAP_LE		8
 #define NAS_PDU_TYPE_COMMON		9
 #define NAS_PDU_TYPE_EMM		10
 #define NAS_PDU_TYPE_ESM		11
@@ -187,9 +187,9 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 #define	IS_UPLINK_UNKNOWN	2
 
 /* Defines and nasty static for handling half octet mandatory V IEs 
- * TODO: Note origimally UPPER_NIBBLE was -2 and LOWER_NIBBLE was -1
+ * TODO: Note originally UPPER_NIBBLE was -2 and LOWER_NIBBLE was -1
  * changed here to unsigned integer as it wouldn't compile (Warnings on Ubuntu)
- * uggly hack...
+ * ugly hack...
  */
 #define UPPER_NIBBLE	(2)
 #define LOWER_NIBBLE	(1)
@@ -353,6 +353,14 @@ extern guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, g
 extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset);
 
 
+/* XXX: Most (if not all) the functions which make use of the following macros have the variables 'consumed',
+ *      'curr_offset', and 'cur_len' declared as *unsigned*.  This means that the 'if (curr_len <= 0)' statement
+ *      originally at the end of each of the macros would always be FALSE since an unsigned cannot be less than 0.
+ *      I've chosen to change the statement to 'if ((signed)curr_len <= 0)'. (Although this may be a bit of a
+ *      hack, it seems simpler than changing declarations to signed in all the places these macros are used).
+ *      Is there a better approach ?
+ */
+
 #define ELEM_MAND_TLV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition) \
 {\
 	if ((consumed = elem_tlv(tvb, tree, (guint8) EMT_iei, EMT_pdu_type, EMT_elem_idx, curr_offset, curr_len, EMT_elem_name_addition)) > 0) \
@@ -370,7 +378,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 			(EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
 			); \
 	} \
-	if (curr_len <= 0) return; \
+	if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_TLV_E(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition) \
@@ -390,7 +398,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 			(EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
 			); \
 	} \
-	if (curr_len <= 0) return; \
+	if ((signed)curr_len <= 0) return;      \
 }
 #define ELEM_OPT_TLV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
 {\
@@ -399,7 +407,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 		curr_offset += consumed; \
 		curr_len -= consumed; \
 	} \
-	if (curr_len <= 0) return; \
+        if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_OPT_TLV_E(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
@@ -409,7 +417,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 		curr_offset += consumed; \
 		curr_len -= consumed; \
 	} \
-	if (curr_len <= 0) return; \
+	if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_TV(EMT_iei, EMT_pdu_type, EMT_elem_idx, EMT_elem_name_addition) \
@@ -429,7 +437,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 			(EMT_elem_name_addition == NULL) ? "" : EMT_elem_name_addition \
 		); \
 	} \
-	if (curr_len <= 0) return; \
+	if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_OPT_TV(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
@@ -439,7 +447,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 		curr_offset += consumed; \
 		curr_len -= consumed; \
 	} \
-	if (curr_len <= 0) return; \
+        if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_OPT_TV_SHORT(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
@@ -449,7 +457,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 		curr_offset += consumed; \
 		curr_len -= consumed; \
 	} \
-	if (curr_len <= 0) return; \
+	if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_OPT_T(EOT_iei, EOT_pdu_type, EOT_elem_idx, EOT_elem_name_addition) \
@@ -459,7 +467,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 		curr_offset += consumed; \
 		curr_len -= consumed; \
 	} \
-	if (curr_len <= 0) return; \
+	if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_LV(EML_pdu_type, EML_elem_idx, EML_elem_name_addition) \
@@ -473,7 +481,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 	{ \
 		/* Mandatory, but nothing we can do */ \
 	} \
-	if (curr_len <= 0) return; \
+	if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_LV_E(EML_pdu_type, EML_elem_idx, EML_elem_name_addition) \
@@ -487,7 +495,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 	{ \
 		/* Mandatory, but nothing we can do */ \
 	} \
-	if (curr_len <= 0) return; \
+	if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_V(EMV_pdu_type, EMV_elem_idx) \
@@ -501,7 +509,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 	{ \
 		/* Mandatory, but nothing we can do */ \
 	} \
-	if (curr_len <= 0) return; \
+	if ((signed)curr_len <= 0) return;      \
 }
 
 #define ELEM_MAND_V_SHORT(EMV_pdu_type, EMV_elem_idx) \
@@ -515,7 +523,7 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int 
 	{ \
 		/* Mandatory, but nothing we can do */ \
 	} \
-	if (curr_len <= 0) return; \
+	if ((signed)curr_len <= 0) return;      \
 }
 
 /*
