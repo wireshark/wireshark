@@ -2643,8 +2643,23 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 }
 
 static void
-dissect_enc(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo, int isakmp_version _U_, int unused _U_, guint8 inner_payload)
+dissect_enc(tvbuff_t *tvb,
+            int offset,
+            int length,
+            proto_tree *tree,
+            proto_tree *p _U_,
+#ifdef HAVE_LIBGCRYPT
+            packet_info *pinfo,
+#else
+            packet_info *pinfo _U_,
+#endif
+            int isakmp_version _U_,
+            int unused _U_,
+#ifdef HAVE_LIBGCRYPT
+            guint8 inner_payload)
+#else
+            guint8 inner_payload _U_)
+#endif
 {
 #ifdef HAVE_LIBGCRYPT
   ikev2_decrypt_data_t *key_info = NULL;
