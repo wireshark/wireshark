@@ -560,41 +560,41 @@ const char* get_gsm_a_msg_string(int pdu_type, int idx)
 	const char *msg_string=NULL;
 
 	switch (pdu_type) {
-		case GSM_A_PDU_TYPE_BSSMAP:
-			msg_string = gsm_bssmap_elem_strings[idx].strptr;
-			break;
-		case GSM_A_PDU_TYPE_DTAP:
-			msg_string = gsm_dtap_elem_strings[idx].strptr;
-			break;
-		case GSM_A_PDU_TYPE_RP:
-			msg_string = gsm_rp_elem_strings[idx].strptr;
-			break;
-		case GSM_A_PDU_TYPE_RR:
-			msg_string = gsm_rr_elem_strings[idx].strptr;
-			break;
-		case GSM_A_PDU_TYPE_COMMON:
-			msg_string = gsm_common_elem_strings[idx].strptr;
-			break;
-		case GSM_A_PDU_TYPE_GM:
-			msg_string = gsm_gm_elem_strings[idx].strptr;
-			break;
-		case GSM_A_PDU_TYPE_BSSLAP:
-			msg_string = gsm_bsslap_elem_strings[idx].strptr;
-			break;
-		case GSM_PDU_TYPE_BSSMAP_LE:
-			msg_string = gsm_bssmap_le_elem_strings[idx].strptr;
-			break;
-		case NAS_PDU_TYPE_COMMON:
-			msg_string = nas_eps_common_elem_strings[idx].strptr;
-			break;
-		case NAS_PDU_TYPE_EMM:
-			msg_string = nas_emm_elem_strings[idx].strptr;
-			break;
-		case NAS_PDU_TYPE_ESM:
-			msg_string = nas_esm_elem_strings[idx].strptr;
-			break;
-		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+	case GSM_A_PDU_TYPE_BSSMAP:
+		msg_string = gsm_bssmap_elem_strings[idx].strptr;
+		break;
+	case GSM_A_PDU_TYPE_DTAP:
+		msg_string = gsm_dtap_elem_strings[idx].strptr;
+		break;
+	case GSM_A_PDU_TYPE_RP:
+		msg_string = gsm_rp_elem_strings[idx].strptr;
+		break;
+	case GSM_A_PDU_TYPE_RR:
+		msg_string = gsm_rr_elem_strings[idx].strptr;
+		break;
+	case GSM_A_PDU_TYPE_COMMON:
+		msg_string = gsm_common_elem_strings[idx].strptr;
+		break;
+	case GSM_A_PDU_TYPE_GM:
+		msg_string = gsm_gm_elem_strings[idx].strptr;
+		break;
+	case GSM_A_PDU_TYPE_BSSLAP:
+		msg_string = gsm_bsslap_elem_strings[idx].strptr;
+		break;
+	case GSM_PDU_TYPE_BSSMAP_LE:
+		msg_string = gsm_bssmap_le_elem_strings[idx].strptr;
+		break;
+	case NAS_PDU_TYPE_COMMON:
+		msg_string = nas_eps_common_elem_strings[idx].strptr;
+		break;
+	case NAS_PDU_TYPE_EMM:
+		msg_string = nas_emm_elem_strings[idx].strptr;
+		break;
+	case NAS_PDU_TYPE_ESM:
+		msg_string = nas_esm_elem_strings[idx].strptr;
+		break;
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	return msg_string;
@@ -605,41 +605,41 @@ static int get_hf_elem_id(int pdu_type)
 	int			hf_elem_id = 0;
 
 	switch (pdu_type) {
-		case GSM_A_PDU_TYPE_BSSMAP:
-			hf_elem_id = hf_gsm_a_bssmap_elem_id;
-			break;
-		case GSM_A_PDU_TYPE_DTAP:
-			hf_elem_id = hf_gsm_a_dtap_elem_id;
-			break;
-		case GSM_A_PDU_TYPE_RP:
-			hf_elem_id = hf_gsm_a_rp_elem_id;
-			break;
-		case GSM_A_PDU_TYPE_RR:
-			hf_elem_id = hf_gsm_a_rr_elem_id;
-			break;
-		case GSM_A_PDU_TYPE_COMMON:
-			hf_elem_id = hf_gsm_a_common_elem_id;
-			break;
-		case GSM_A_PDU_TYPE_GM:
-			hf_elem_id = hf_gsm_a_gm_elem_id;
-			break;
-		case GSM_A_PDU_TYPE_BSSLAP:
-			hf_elem_id = hf_gsm_a_bsslap_elem_id;
-			break;
-		case GSM_PDU_TYPE_BSSMAP_LE:
-			hf_elem_id = hf_gsm_bssmap_le_elem_id;
-			break;
-		case NAS_PDU_TYPE_COMMON:
-			hf_elem_id = hf_nas_eps_common_elem_id;
-			break;
-		case NAS_PDU_TYPE_EMM:
-			hf_elem_id = hf_nas_eps_emm_elem_id;
-			break;
-		case NAS_PDU_TYPE_ESM:
-			hf_elem_id = hf_nas_eps_esm_elem_id;
-			break;
-		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+	case GSM_A_PDU_TYPE_BSSMAP:
+		hf_elem_id = hf_gsm_a_bssmap_elem_id;
+		break;
+	case GSM_A_PDU_TYPE_DTAP:
+		hf_elem_id = hf_gsm_a_dtap_elem_id;
+		break;
+	case GSM_A_PDU_TYPE_RP:
+		hf_elem_id = hf_gsm_a_rp_elem_id;
+		break;
+	case GSM_A_PDU_TYPE_RR:
+		hf_elem_id = hf_gsm_a_rr_elem_id;
+		break;
+	case GSM_A_PDU_TYPE_COMMON:
+		hf_elem_id = hf_gsm_a_common_elem_id;
+		break;
+	case GSM_A_PDU_TYPE_GM:
+		hf_elem_id = hf_gsm_a_gm_elem_id;
+		break;
+	case GSM_A_PDU_TYPE_BSSLAP:
+		hf_elem_id = hf_gsm_a_bsslap_elem_id;
+		break;
+	case GSM_PDU_TYPE_BSSMAP_LE:
+		hf_elem_id = hf_gsm_bssmap_le_elem_id;
+		break;
+	case NAS_PDU_TYPE_COMMON:
+		hf_elem_id = hf_nas_eps_common_elem_id;
+		break;
+	case NAS_PDU_TYPE_EMM:
+		hf_elem_id = hf_nas_eps_emm_elem_id;
+		break;
+	case NAS_PDU_TYPE_ESM:
+		hf_elem_id = hf_nas_eps_esm_elem_id;
+		break;
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	return hf_elem_id;
@@ -1780,10 +1780,10 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	bit_offset = curr_offset << 3;
 
 	/* Spare bit */
-    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
-    bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
 
-    /* Multiband supported field 
+	/* Multiband supported field 
 	 * { < Multiband supported : { 000 } >
 	 * < A5 bits >
 	 * | < Multiband supported : { 101 | 110 } >
@@ -1799,24 +1799,24 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	item = proto_tree_add_bits_ret_val(tree, hf_gsm_a_multi_bnd_sup_fields, tvb, bit_offset, 3, &multi_bnd_sup_fields, FALSE);
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
 
-    proto_tree_add_bits_item(subtree, hf_gsm_a_gsm1800_supported, tvb, bit_offset, 1, FALSE);
-    bit_offset++;
+	proto_tree_add_bits_item(subtree, hf_gsm_a_gsm1800_supported, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
 
-    proto_tree_add_bits_item(subtree, hf_gsm_a_egsm_supported, tvb, bit_offset, 1, FALSE);
-    bit_offset++;
+	proto_tree_add_bits_item(subtree, hf_gsm_a_egsm_supported, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
 
-    proto_tree_add_bits_item(subtree, hf_gsm_a_pgsm_supported, tvb, bit_offset, 1, FALSE);
-    bit_offset++;
+	proto_tree_add_bits_item(subtree, hf_gsm_a_pgsm_supported, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
 
 	/* < A5 bits > */
-    proto_tree_add_bits_item(tree, hf_gsm_a_A5_7_algorithm_sup, tvb, bit_offset, 1, FALSE);
-    bit_offset++;
-    proto_tree_add_bits_item(tree, hf_gsm_a_A5_6_algorithm_sup, tvb, bit_offset, 1, FALSE);
-    bit_offset++;
-    proto_tree_add_bits_item(tree, hf_gsm_a_A5_5_algorithm_sup, tvb, bit_offset, 1, FALSE);
-    bit_offset++;
-    proto_tree_add_bits_item(tree, hf_gsm_a_A5_4_algorithm_sup, tvb, bit_offset, 1, FALSE);
-    bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_A5_7_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_A5_6_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_A5_5_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_A5_4_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	bit_offset++;
 
 	switch(multi_bnd_sup_fields){
 		case 0:
@@ -1849,58 +1849,58 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 		default:
 			break;
 	}
-    /* Extract R Support */
-    proto_tree_add_bits_ret_val(tree, hf_gsm_a_rsupport, tvb, bit_offset, 1, &rsupport, FALSE);
-    bit_offset++;
+	/* Extract R Support */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_rsupport, tvb, bit_offset, 1, &rsupport, FALSE);
+	bit_offset++;
 
-    if(rsupport == 1)
-    {
-        /* 
+	if(rsupport == 1)
+	{
+		/* 
 		 * { 0 | 1 < R Support > }
 		 * Extract R Capabilities 
 		 */
-        proto_tree_add_bits_item(tree, hf_gsm_a_r_capabilities, tvb, bit_offset, 3, FALSE);
-        bit_offset = bit_offset + 3;
-    }
+		proto_tree_add_bits_item(tree, hf_gsm_a_r_capabilities, tvb, bit_offset, 3, FALSE);
+		bit_offset = bit_offset + 3;
+	}
 
-    /* 
+	/* 
 	 * { 0 | 1 < HSCSD Multi Slot Capability > }
 	 * Extract Multislot capability
 	 */
-    proto_tree_add_bits_ret_val(tree, hf_gsm_a_multislot_capabilities, tvb, bit_offset, 1, &multislotCapability, FALSE);
-    bit_offset++;
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_multislot_capabilities, tvb, bit_offset, 1, &multislotCapability, FALSE);
+	bit_offset++;
 
-    if(multislotCapability == 1)
-    {
-        /* Extract Multislot Class */
-        proto_tree_add_bits_item(tree, hf_gsm_a_multislot_class, tvb, bit_offset, 5, FALSE);
-        bit_offset = bit_offset + 5;
-    }
+	if(multislotCapability == 1)
+	{
+		/* Extract Multislot Class */
+		proto_tree_add_bits_item(tree, hf_gsm_a_multislot_class, tvb, bit_offset, 5, FALSE);
+		bit_offset = bit_offset + 5;
+	}
 
-    /* < UCS2 treatment: bit > */
-    proto_tree_add_bits_item(tree, hf_gsm_a_ucs2_treatment, tvb, bit_offset, 1, FALSE);
-    bit_offset = bit_offset + 1;
+	/* < UCS2 treatment: bit > */
+	proto_tree_add_bits_item(tree, hf_gsm_a_ucs2_treatment, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
 
-    /* < Extended Measurement Capability : bit > */
-    proto_tree_add_bits_item(tree, hf_gsm_a_extended_measurement_cap, tvb, bit_offset, 1, FALSE);
-    bit_offset = bit_offset + 1;
+	/* < Extended Measurement Capability : bit > */
+	proto_tree_add_bits_item(tree, hf_gsm_a_extended_measurement_cap, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
 
-    /* { 0 | 1 < MS measurement capability > } 
+	/* { 0 | 1 < MS measurement capability > } 
 	 * Extract MS Measurement capability
 	 */
-    proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_measurement_capability, tvb, bit_offset, 1, &msMeasurementCapability, FALSE);
-    bit_offset = bit_offset + 1;
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_measurement_capability, tvb, bit_offset, 1, &msMeasurementCapability, FALSE);
+	bit_offset = bit_offset + 1;
 
-    if(msMeasurementCapability == 1)
-    {
-        /* Extract SMS Value n/4 */
-        proto_tree_add_bits_item(tree, hf_gsm_a_sms_value, tvb, bit_offset, 4, FALSE);
-        bit_offset = bit_offset + 4;
+	if(msMeasurementCapability == 1)
+	{
+		/* Extract SMS Value n/4 */
+		proto_tree_add_bits_item(tree, hf_gsm_a_sms_value, tvb, bit_offset, 4, FALSE);
+		bit_offset = bit_offset + 4;
 
-        /* Extract SM Value n/4 */
-        proto_tree_add_bits_item(tree, hf_gsm_a_sm_value, tvb, bit_offset, 4, FALSE);
-        bit_offset = bit_offset + 4;
-    }
+		/* Extract SM Value n/4 */
+		proto_tree_add_bits_item(tree, hf_gsm_a_sm_value, tvb, bit_offset, 4, FALSE);
+		bit_offset = bit_offset + 4;
+	}
 
 /*
 { 0 | 1 < MS Positioning Method Capability > }
@@ -2169,19 +2169,19 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 guint16 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* Common Information Elements 10.5.1 */
 	de_cell_id,			/* Cell Identity */
-	de_ciph_key_seq_num,/* Ciphering Key Sequence Number */
+	de_ciph_key_seq_num,		/* Ciphering Key Sequence Number */
 	de_lai,				/* Location Area Identification */
 	de_mid,				/* Mobile Identity */
 	de_ms_cm_1,			/* Mobile Station Classmark 1 */
 	de_ms_cm_2,			/* Mobile Station Classmark 2 */
 	de_ms_cm_3,			/* Mobile Station Classmark 3 */
-	de_spare_nibble,	/* Spare Half Octet */
-	de_d_gb_call_ref,	/* Descriptive group or broadcast call reference */
+	de_spare_nibble,		/* Spare Half Octet */
+	de_d_gb_call_ref,		/* Descriptive group or broadcast call reference */
 	NULL				/* handled inline */,	/* Group Cipher Key Number */
 	de_pd_sapi,			/* PD and SAPI $(CCBS)$ */
 	/* Pos 10 */
 	de_prio				/* handled inline */,	/* Priority Level */
-	de_plmn_list,		/* PLMN List */
+	de_plmn_list,			/* PLMN List */
 	NULL,				/* NONE */
 };
 
