@@ -1606,8 +1606,8 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 ssn = INVALID_SSN;
     guint8 other_ssn = INVALID_SSN;
-    const mtp3_addr_pc_t* dpc;
-    const mtp3_addr_pc_t* opc;
+    const mtp3_addr_pc_t* dpc = NULL;
+    const mtp3_addr_pc_t* opc = NULL;
 
     if (trace_sccp && assoc && assoc != &no_assoc) {
         pinfo->sccp_info = assoc->curr_msg;
@@ -1647,13 +1647,13 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	for (i=0; i < num_sccp_users; i++) {
 		sccp_user_t* u = &(sccp_users[i]);
 
-		if (dpc->ni != u->ni) continue;
+		if (!dpc || dpc->ni != u->ni) continue;
 
-		 if (value_is_in_range(u->called_ssn, ssn)  && value_is_in_range(u->called_pc, dpc->pc) ) {
+		if (value_is_in_range(u->called_ssn, ssn)  && value_is_in_range(u->called_pc, dpc->pc) ) {
 			handle = *(u->handlep);
 			uses_tcap = u->uses_tcap;
 			break;
-		} else if (value_is_in_range(u->called_ssn, other_ssn) && value_is_in_range(u->called_pc, opc->pc) ) {
+		} else if (value_is_in_range(u->called_ssn, other_ssn) && opc && value_is_in_range(u->called_pc, opc->pc) ) {
 			handle = *(u->handlep);
 			uses_tcap = u->uses_tcap;
 			break;
@@ -3235,7 +3235,7 @@ proto_register_sccp(void)
 	sizeof(sccp_user_t),
 	"sccp_users",
 	TRUE,
-	(void**) &sccp_users,
+	(void*) &sccp_users,
 	&num_sccp_users,
 	UAT_CAT_PORTS,
 	"ChSccpUsers",

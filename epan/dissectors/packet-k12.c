@@ -455,7 +455,7 @@ proto_register_k12(void)
 		    sizeof(k12_handles_t),
 		    "k12_protos",             /* filename */
 		    TRUE,                     /* from_profile */
-		    (void**) &k12_handles,    /* data_ptr */
+		    (void*) &k12_handles,    /* data_ptr */
 		    &nk12_handles,            /* numitems_ptr */
 		    UAT_CAT_FFMT,             /* category */
 		    "ChK12ProtocolsSection",  /* help */

@@ -3897,7 +3897,7 @@ proto_register_isakmp(void)
       sizeof(ikev2_uat_data_t),
       "ikev2_decryption_table",
       TRUE,
-      (void**)&ikev2_uat_data,
+      (void*)&ikev2_uat_data,
       &num_ikev2_uat_data,
       UAT_CAT_CRYPTO,
       "ChIKEv2DecryptionSection",

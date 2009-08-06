@@ -551,6 +551,7 @@ DISSECTOR_SRC = \
 	packet-ipx.c		\
 	packet-ipxwan.c		\
 	packet-irc.c		\
+	packet-isakmp.c		\
 	packet-iscsi.c		\
 	packet-isdn.c		\
 	packet-isis-clv.c	\
@@ -572,6 +573,7 @@ DISSECTOR_SRC = \
 	packet-jpeg.c 		\
 	packet-juniper.c 	\
 	packet-jxta.c		\
+	packet-k12.c 		\
 	packet-kadm5.c		\
 	packet-kdp.c		\
 	packet-kerberos.c	\
@@ -775,6 +777,7 @@ DISSECTOR_SRC = \
 	packet-sadmind.c	\
 	packet-sap.c		\
 	packet-sbus.c 		\
+	packet-sccp.c		\
 	packet-sccpmg.c		\
 	packet-scsi.c		\
 	packet-scsi-mmc.c	\
@@ -871,6 +874,7 @@ DISSECTOR_SRC = \
 	packet-usb-masstorage.c	\
 	packet-usb-hid.c	\
 	packet-umts_fp.c	\
+	packet-user_encap.c	\
 	packet-uts.c		\
 	packet-v120.c		\
 	packet-v5ua.c		\
@@ -932,13 +936,9 @@ DISSECTOR_SRC = \
 # Dissectors with warnings.
 #
 DIRTY_DISSECTOR_SRC =	\
-	packet-isakmp.c		\
-	packet-k12.c 		\
 	packet-nbd.c		\
-	packet-sccp.c		\
 	packet-scsi-osd.c	\
-	packet-sctp.c		\
-	packet-user_encap.c
+	packet-sctp.c
 
 #
 # Headers for dissectors.

@@ -191,7 +191,7 @@ void proto_register_user_encap(void)
 						 sizeof(user_encap_t),
 						 "user_dlts",
 						 TRUE,
-						 (void**) &encaps,
+						 (void*) &encaps,
 						 &num_encaps,
 						 UAT_CAT_FFMT,
 						 "ChUserDLTsSection",
