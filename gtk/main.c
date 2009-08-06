@@ -2565,7 +2565,6 @@ main(int argc, char *argv[])
   menu_auto_scroll_live_changed(auto_scroll_live);
 #endif
 
-#ifndef NEW_PACKET_LIST
   switch (user_font_apply()) {
   case FA_SUCCESS:
       break;
@@ -2584,7 +2583,6 @@ main(int argc, char *argv[])
       recent.gui_zoom_level = 0;
       /* XXX: would it be a good idea to disable zooming (insensitive GUI)? */
   }
-#endif /* NEW_PACKET_LIST */
 
   dnd_init(top_level);
 

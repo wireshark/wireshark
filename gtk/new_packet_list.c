@@ -151,8 +151,8 @@ create_view_and_model(void)
 	renderer = gtk_cell_renderer_text_new();
 	g_object_set(renderer,
 		     "ypad", 0,
-		     "font-desc", user_font_get_regular(),
 		     NULL);		   
+	gtk_widget_modify_font(packetlist->view, user_font_get_regular());
 
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
 		col = gtk_tree_view_column_new();
@@ -524,6 +524,12 @@ set_frame_mark(gboolean set, frame_data *frame)
   } else {
     cf_unmark_frame(&cfile, frame);
   }
+}
+
+void
+new_packet_list_set_font(PangoFontDescription *font)
+{
+	gtk_widget_modify_font(packetlist->view, font);
 }
 
 void new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) 

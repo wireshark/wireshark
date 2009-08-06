@@ -32,6 +32,12 @@ GtkWidget *new_packet_list_create(void);
 void new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
 gboolean new_packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button, gint *row, gint *column);
 
+/** Set the font of the packet list window.
+ *
+ * @param font new font
+ */
+extern void new_packet_list_set_font(PangoFontDescription *font);
+
 /** Mark the currently selected packet.
  *
  * @param widget parent widget (unused)

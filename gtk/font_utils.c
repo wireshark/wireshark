@@ -50,6 +50,9 @@
 #include "gtk/main_proto_draw.h"
 #include "gtk/follow_tcp.h"
 
+#ifdef NEW_PACKET_LIST
+#include "gtk/new_packet_list.h"
+#endif
 
 
 PangoFontDescription *m_r_font, *m_b_font;
@@ -274,7 +277,9 @@ user_font_apply(void) {
     }
 
     /* the font(s) seem to be ok */
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+    new_packet_list_set_font(new_r_font);
+#else
     packet_list_set_font(new_r_font);
 #endif
     set_ptree_font_all(new_r_font);
