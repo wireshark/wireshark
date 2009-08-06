@@ -548,8 +548,8 @@ make_address_key(guint32 spt, guint32 dpt, address *addr)
 
 	k[0].length = 1;    k[0].key = ep_memdup(&spt,sizeof(spt));
 	k[1].length = 1;    k[1].key = ep_memdup(&dpt,sizeof(dpt));
-	k[2].length = 1;    k[2].key = (guint32*)&(addr->type);
-	k[3].length = 1;    k[3].key = (guint32*)&(addr->len);
+	k[2].length = 1;    k[2].key = (guint32*)(void *)&(addr->type);
+	k[3].length = 1;    k[3].key = (guint32*)(void *)&(addr->len);
 
 	k[4].length = ((addr->len/4)+1);
 	k[4].key = ep_alloc0(((addr->len/4)+1)*4);
