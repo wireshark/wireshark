@@ -784,6 +784,7 @@ DISSECTOR_SRC = \
 	packet-scsi-sbc.c	\
 	packet-scsi-smc.c	\
 	packet-scsi-ssc.c	\
+	packet-sctp.c		\
 	packet-sdlc.c		\
 	packet-sdp.c		\
 	packet-sebek.c		\
@@ -937,8 +938,7 @@ DISSECTOR_SRC = \
 #
 DIRTY_DISSECTOR_SRC =	\
 	packet-nbd.c		\
-	packet-scsi-osd.c	\
-	packet-sctp.c
+	packet-scsi-osd.c
 
 #
 # Headers for dissectors.
