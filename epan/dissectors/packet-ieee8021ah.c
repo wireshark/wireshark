@@ -410,12 +410,12 @@ proto_register_ieee8021ah(void)
     proto_ieee8021ah = proto_register_protocol("IEEE 802.1ah", "IEEE 802.1AH",
 					       "ieee8021ah");
     proto_register_field_array(proto_ieee8021ah, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
-
 
     proto_ieee8021ad = proto_register_protocol("IEEE 802.1ad", "IEEE 802.1AD",
 					       "ieee8021ad");
     proto_register_field_array(proto_ieee8021ad, hf_1ad, array_length(hf_1ad));
+
+    /* register subtree array for both */
     proto_register_subtree_array(ett, array_length(ett));
 
     /* add a user preference to set the 802.1ah ethertype */
