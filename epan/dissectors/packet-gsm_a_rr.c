@@ -8398,9 +8398,11 @@ void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
     gint			idx;
 
     *msg_str = match_strval_idx((guint32) (oct & DTAP_RR_IEI_MASK), gsm_a_dtap_msg_rr_strings, &idx);
-    *ett_tree = ett_gsm_dtap_msg_rr[idx];
     *hf_idx = hf_gsm_a_dtap_msg_rr_type;
-    *msg_fcn = dtap_msg_rr_fcn[idx];
+    if (*msg_str != NULL) {
+        *ett_tree = ett_gsm_dtap_msg_rr[idx];
+        *msg_fcn  = dtap_msg_rr_fcn[idx];
+    }
 
     return;
 }
@@ -8656,9 +8658,11 @@ void get_rr_short_pd_msg_params(guint8 mess_type, const gchar **msg_str, int *et
     gint			idx;
 
     *msg_str = match_strval_idx((guint32) mess_type, gsm_a_sacch_msg_rr_strings, &idx);
-    *ett_tree = ett_gsm_sacch_msg_rr[idx];
     *hf_idx = hf_gsm_a_sacch_msg_rr_type;
-    *msg_fcn = sacch_msg_rr_fcn[idx];
+    if (*msg_str != NULL) {
+        *ett_tree = ett_gsm_sacch_msg_rr[idx];
+        *msg_fcn = sacch_msg_rr_fcn[idx];
+    }
 }
 
 const value_string short_protocol_discriminator_vals[] = {
