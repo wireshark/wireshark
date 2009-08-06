@@ -7522,7 +7522,7 @@ dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset++;
     curr_len--;
 
-    if (curr_len <= 0) return;
+    if ((signed)curr_len <= 0) return;
 
     ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
 
@@ -8611,7 +8611,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (msg_str == NULL)
         return;
 
-    if ((len - offset) <= 0)
+    if (offset >= len)
         return;
 
     /*

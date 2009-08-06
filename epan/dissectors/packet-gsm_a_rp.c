@@ -515,7 +515,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (str == NULL) return;
 
-	if ((len - offset) <= 0) return;
+	if (offset >=len) return;
 
 	/*
 	 * decode elements

@@ -3800,7 +3800,7 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset++;
 	curr_len--;
 
-	if (curr_len <= 0) return;
+	if ((signed)curr_len <= 0) return;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND);
 
@@ -3910,7 +3910,7 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	curr_offset++;
 	curr_len--;
 
-	if (curr_len <= 0) return;
+	if ((signed)curr_len <= 0) return;
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
 
@@ -4065,7 +4065,7 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset++;
 	curr_len--;
 
-	if (curr_len <= 0) return;
+	if ((signed)curr_len <= 0) return;
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
 
@@ -4320,7 +4320,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset++;
 	curr_len--;
 
-	if (curr_len <= 0) return;
+	if ((signed)curr_len <= 0) return;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_COMMON, DE_LAI);
 
@@ -4559,7 +4559,7 @@ dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	curr_offset++;
 	curr_len--;
 
-	if (curr_len <= 0) return;
+	if ((signed)curr_len <= 0) return;
 
 	ELEM_OPT_TLV(0x08, GSM_A_PDU_TYPE_DTAP, DE_CAUSE, NULL);
 
@@ -5839,7 +5839,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (msg_str == NULL) return;
 
-	if ((len - offset) <= 0) return;
+	if (offset >= len) return;
 
 	/*
 	 * decode elements
