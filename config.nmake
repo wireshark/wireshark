@@ -597,7 +597,7 @@ GETTEXT_DLL=libintl-8.dll
 CYGWIN_PATH=c:\cygwin\bin
 
 # command for a shell (cygwin's bash package recommended)
-SH_PROG=bash
+SH_PROG=$(CYGWIN_PATH)\bash
 
 # bash versions after 3.1.6 need the 'igncr' shell option to be able to
 #  process scripts in windows 'native format' (dos crlf format).
