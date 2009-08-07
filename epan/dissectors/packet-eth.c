@@ -179,7 +179,7 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
   }
 }
 
-static gboolean check_is_802_2(tvbuff_t *tvb);
+static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len);
 
 static void
 dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
@@ -262,7 +262,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
    */
   if (ehdr->type <= IEEE_802_3_MAX_LEN && ehdr->type != ETHERTYPE_UNK) {
 
-    is_802_2 = check_is_802_2(tvb);
+    is_802_2 = check_is_802_2(tvb, fcs_len);
 
      col_add_fstr(pinfo->cinfo, COL_INFO, "IEEE 802.3 Ethernet %s",
 		(is_802_2 ? "" : "Raw "));
@@ -344,9 +344,11 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 /* -------------- */
-static gboolean check_is_802_2(tvbuff_t *tvb)
+static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len)
 {
   volatile gboolean	is_802_2;
+  volatile int length;
+  gint captured_length, reported_length;
   
   is_802_2 = TRUE;
 
@@ -371,25 +373,39 @@ static gboolean check_is_802_2(tvbuff_t *tvb)
 	  /* See if the reported payload size matches the
 	     size contained in the CCSDS header. */
 	  if (ccsds_heuristic_length) {
-	    /* Get payload length */
-	    gint size = tvb_reported_length(tvb) - 14;
-	    /* Check if payload is large enough to contain CCSDS header with
-	       packet length info. */
-	    if (size >= 6) {
-	      /* Get CCSDS packet length contained in CCSDS header. */
-	      gint size2 = 7 + tvb_get_ntohs(tvb, 14 + 4);
-	      if (size != size2)
+	    /* The following technique to account for FCS
+	       is copied from packet-ieee8023.c dissect_802_3() */
+	    length = tvb_get_ntohs(tvb, 12);
+	    reported_length = tvb_reported_length_remaining(tvb, ETH_HEADER_SIZE);
+	    if (fcs_len > 0) {
+		  if (reported_length >= fcs_len)
+		    reported_length -= fcs_len;
+		}
+		/* Make sure the length in the 802.3 header doesn't go past the end of
+		   the payload. */
+		if (length > reported_length) {
+		  length = reported_length;
+		}
+		/* Only allow inspection of 'length' number of bytes. */
+		captured_length = tvb_length_remaining(tvb, ETH_HEADER_SIZE);
+		if (captured_length > length)
+		  captured_length = length;
+		  
+	    /* Check if payload is large enough to contain a CCSDS header */
+	    if (captured_length >= 6) {
+	      /* Compare length to packet length contained in CCSDS header. */
+	      if (length != 7 + tvb_get_ntohs(tvb, ETH_HEADER_SIZE + 4))
 	        CCSDS_len = FALSE;
 	    }
 	  }
 	  /* Check if CCSDS Version number (first 3 bits of payload) is zero */
-	  if ((ccsds_heuristic_version) && (tvb_get_bits8(tvb, 8*14, 3)!=0))
+	  if ((ccsds_heuristic_version) && (tvb_get_bits8(tvb, 8*ETH_HEADER_SIZE, 3)!=0))
 	    CCSDS_ver = FALSE;
 	  /* Check if Secondary Header Flag (4th bit of payload) is set to one. */
-	  if ((ccsds_heuristic_header) && (tvb_get_bits8(tvb, 8*14 + 4, 1)!=1))
+	  if ((ccsds_heuristic_header) && (tvb_get_bits8(tvb, 8*ETH_HEADER_SIZE + 4, 1)!=1))
 	    CCSDS_head = FALSE;
 	  /* Check if spare bit (1st bit of 7th word of payload) is zero. */
-	  if ((ccsds_heuristic_bit) && (tvb_get_bits8(tvb, 8*14 + 16*6, 1)!=0))
+	  if ((ccsds_heuristic_bit) && (tvb_get_bits8(tvb, 8*ETH_HEADER_SIZE + 16*6, 1)!=0))
 	    CCSDS_bit = FALSE;
 	  /* If all the conditions are true, don't interpret payload as an 802.2 (LLC).
 	   * Additional check in packet-802.3.c will distinguish between
