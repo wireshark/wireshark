@@ -663,9 +663,29 @@ add_decode_as(const gchar *cl_param)
 }
 
 static void
-log_func_ignore (const gchar *log_domain _U_, GLogLevelFlags log_level _U_,
-    const gchar *message _U_, gpointer user_data _U_)
+tshark_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
+    const gchar *message, gpointer user_data)
 {
+  /* ignore log message, if log_level isn't interesting based
+     upon the console log preferences.
+     If the preferences haven't been loaded loaded yet, display the 
+     message anyway.
+
+     The default console_log_level preference value is such that only 
+       ERROR, CRITICAL and WARNING level messages are processed;
+       MESSAGE, INFO and DEBUG level messages are ignored.
+       
+     XXX: Aug 07, 2009: Prior tshark g_log code was hardwired to process only
+           ERROR and CRITICAL level messages so the current code is a behavioral
+           change.
+  */
+  if((log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0 &&
+     prefs.console_log_level != 0) {
+    return;
+  }
+
+  g_log_default_handler(log_domain, log_level, message, user_data);
+
 }
 
 static char *
@@ -808,19 +828,34 @@ main(int argc, char *argv[])
   optind = optind_initial;
   opterr = 1;
 
-  /* nothing more than the standard GLib handler, but without a warning */
+
+
+/** Send All g_log messages to our own handler **/
+
   log_flags =
+		    G_LOG_LEVEL_ERROR|
+		    G_LOG_LEVEL_CRITICAL|
 		    G_LOG_LEVEL_WARNING|
 		    G_LOG_LEVEL_MESSAGE|
 		    G_LOG_LEVEL_INFO|
-		    G_LOG_LEVEL_DEBUG;
+		    G_LOG_LEVEL_DEBUG|
+		    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
 
   g_log_set_handler(NULL,
 		    log_flags,
-		    log_func_ignore, NULL /* user_data */);
+		    tshark_log_handler, NULL /* user_data */);
+  g_log_set_handler(LOG_DOMAIN_MAIN,
+		    log_flags,
+		    tshark_log_handler, NULL /* user_data */);
+
+#ifdef HAVE_LIBPCAP
   g_log_set_handler(LOG_DOMAIN_CAPTURE,
 		    log_flags,
-		    log_func_ignore, NULL /* user_data */);
+		    tshark_log_handler, NULL /* user_data */);
+  g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
+		    log_flags,
+		    tshark_log_handler, NULL /* user_data */);
+#endif
 
   initialize_funnel_ops();
 
