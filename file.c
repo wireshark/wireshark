@@ -337,6 +337,8 @@ cf_reset_state(capture_file *cf)
   cf->user_saved = FALSE;
 
 #if GLIB_CHECK_VERSION(2,10,0)
+  if (cf->plist != NULL)
+    g_slice_free_chain(frame_data, cf->plist, next);
 #else
   /* memory chunks have been deprecated in favor of the slice allocator, 
    * which has been added in 2.10
