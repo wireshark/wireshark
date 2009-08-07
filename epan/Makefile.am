@@ -141,6 +141,7 @@ libwireshark_la_LIBADD = \
 	dissectors/libdirtydissectors.la $(wslua_lib) $(wspython_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
 	@C_ARES_LIBS@ @ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ \
 	@KRB5_LIBS@ @SSL_LIBS@ @LIBSMI_LDFLAGS@ @GEOIP_LIBS@ \
+	${top_builddir}/wiretap/libwiretap.la @GLIB_LIBS@ \
 	${top_builddir}/wsutil/libwsutil.la -lm
 
 libwireshark_la_DEPENDENCIES = \
@@ -148,7 +149,8 @@ libwireshark_la_DEPENDENCIES = \
 	libwireshark_asmopt.la crc/libcrc.la crypt/libairpdcap.la \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
 	dissectors/libdirtydissectors.la $(wslua_lib) $(wspython_lib) \
-	${top_builddir}/wsutil/libwsutil.la
+	${top_builddir}/wsutil/libwsutil.la \
+	${top_builddir}/wiretap/libwiretap.la
 
 #EXTRA_PROGRAMS = reassemble_test
 #reassemble_test_LDADD = $(GLIB_LIBS)
