@@ -36,8 +36,11 @@ MAX_VMEM=500000
 # Insert z times an error into the capture file (0.02 seems to be a good value to find errors)
 ERR_PROB=0.02
 # Trigger an abort if a dissector finds a bug.
-# Uncomment to disable
-WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
+# Uncomment to enable
+# Note that if ABORT is enabled there will be no info
+#  output to stderr about the DISSECTOR_BUG.
+#  (There'll just be a core-dump).
+###export WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
 
 
 # To do: add options for file names and limits
