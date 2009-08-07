@@ -649,6 +649,7 @@ DISSECTOR_SRC = \
 	packet-nas_eps.c	\
 	packet-nasdaq-itch.c	\
 	packet-nat-pmp.c	\
+	packet-nbd.c		\
 	packet-nbipx.c		\
 	packet-nbns.c		\
 	packet-ncp.c		\
@@ -781,6 +782,7 @@ DISSECTOR_SRC = \
 	packet-sccpmg.c		\
 	packet-scsi.c		\
 	packet-scsi-mmc.c	\
+	packet-scsi-osd.c	\
 	packet-scsi-sbc.c	\
 	packet-scsi-smc.c	\
 	packet-scsi-ssc.c	\
@@ -932,13 +934,6 @@ DISSECTOR_SRC = \
 	packet-zep.c		\
 	packet-ziop.c		\
 	packet-zrtp.c
-
-#
-# Dissectors with warnings.
-#
-DIRTY_DISSECTOR_SRC =	\
-	packet-nbd.c		\
-	packet-scsi-osd.c
 
 #
 # Headers for dissectors.
@@ -1296,7 +1291,6 @@ noinst_HEADERS =	\
 
 ALL_DISSECTORS_SRC = \
 	$(DISSECTOR_SRC) \
-	$(DIRTY_DISSECTOR_SRC) \
 	$(PIDL_DISSECTOR_SRC) \
 	$(DIRTY_PIDL_DISSECTOR_SRC) \
 	$(ASN1_DISSECTOR_SRC) \

@@ -873,12 +873,13 @@ static void
 dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, int hf_index, scsi_osd_lun_info_t *lun_info, gboolean is_created, gboolean is_removed)
 {
 	proto_item *item=NULL;
-	guint64 partition_id;
+	guint32 partition_id[2];
 
 	/* partition id */
 	item=proto_tree_add_item(tree, hf_index, tvb, offset, 8, 0);
-	partition_id=tvb_get_ntoh64(tvb, offset);
-	if(!partition_id){
+	partition_id[0]=tvb_get_ntohl(tvb, offset);
+	partition_id[1]=tvb_get_ntohl(tvb, offset+4);
+	if(!partition_id[0] && !partition_id[1]){
 		proto_item_append_text(item, " (ROOT partition)");
 	} else {
 		partition_info_t *part_info;
@@ -886,7 +887,7 @@ dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tr
 		proto_tree *partition_tree=NULL;
 
 		pikey[0].length=2;
-		pikey[0].key=(guint32 *)&partition_id;
+		pikey[0].key=partition_id;
 		pikey[1].length=0;
 		part_info=se_tree_lookup32_array(lun_info->partitions, &pikey[0]);
 		if(!part_info){
@@ -895,7 +896,7 @@ dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tr
 			part_info->removed_in=0;
 
 			pikey[0].length=2;
-			pikey[0].key=(guint32 *)&partition_id;
+			pikey[0].key=partition_id;
 			pikey[1].length=0;
 			se_tree_insert32_array(lun_info->partitions, &pikey[0], part_info);
 		}

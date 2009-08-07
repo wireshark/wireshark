@@ -96,7 +96,7 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	nbd_conv_info_t *nbd_info;
 	nbd_transaction_t *nbd_trans=NULL;
 	emem_tree_key_t hkey[3];
-	guint64 handle;
+	guint32 handle[2];
 
 	magic=tvb_get_ntohl(tvb, offset);
 
@@ -133,9 +133,10 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 			/*
 			 * Do we have a state structure for this transaction
 			 */
-			handle=tvb_get_ntoh64(tvb, offset+8);
+			handle[0]=tvb_get_ntohl(tvb, offset+8);
+			handle[1]=tvb_get_ntohl(tvb, offset+12);
 			hkey[0].length=2;
-			hkey[0].key=(guint32 *)&handle;
+			hkey[0].key=handle;
 			hkey[1].length=0;
 			nbd_trans=se_tree_lookup32_array(nbd_info->unacked_pdus, hkey);
 			if(!nbd_trans){
@@ -146,12 +147,13 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 			/*
 			 * Do we have a state structure for this transaction
 			 */
-			handle=tvb_get_ntoh64(tvb, offset+8);
+			handle[0]=tvb_get_ntohl(tvb, offset+8);
+			handle[1]=tvb_get_ntohl(tvb, offset+12);
 			packet=pinfo->fd->num;
 			hkey[0].length=1;
 			hkey[0].key=&packet;
 			hkey[1].length=2;
-			hkey[1].key=(guint32 *)&handle;
+			hkey[1].key=handle;
 			hkey[2].length=0;
 			nbd_trans=se_tree_lookup32_array(nbd_info->acked_pdus, hkey);
 			if(!nbd_trans){
@@ -179,7 +181,8 @@ static void
 dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	guint32 magic, error, packet;
-	guint64 handle=0, from;
+	guint32 handle[2];
+	guint64 from;
 	int offset=0;
 	proto_tree *tree=NULL;
 	proto_item *item=NULL;
@@ -208,10 +211,9 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* grab what we need to do the request/response matching */
 	switch(magic){
 	case NBD_REQUEST_MAGIC:
-		handle=tvb_get_ntoh64(tvb, offset+4);
-		break;
 	case NBD_RESPONSE_MAGIC:
-		handle=tvb_get_ntoh64(tvb, offset+4);
+		handle[0]=tvb_get_ntohl(tvb, offset+4);
+		handle[1]=tvb_get_ntohl(tvb, offset+8);
 		break;
 	default:
 		return;
@@ -256,13 +258,13 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			nbd_trans->datalen=tvb_get_ntohl(tvb, offset+20);
 
 			hkey[0].length=2;
-			hkey[0].key=(guint32 *)&handle;
+			hkey[0].key=handle;
 			hkey[1].length=0;
 
 			se_tree_insert32_array(nbd_info->unacked_pdus, hkey, (void *)nbd_trans);
 		} else if(magic==NBD_RESPONSE_MAGIC){
 			hkey[0].length=2;
-			hkey[0].key=(guint32 *)&handle;
+			hkey[0].key=handle;
 			hkey[1].length=0;
 
 			nbd_trans=se_tree_lookup32_array(nbd_info->unacked_pdus, hkey);
@@ -272,13 +274,13 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				hkey[0].length=1;
 				hkey[0].key=&nbd_trans->rep_frame;
 				hkey[1].length=2;
-				hkey[1].key=(guint32 *)&handle;
+				hkey[1].key=handle;
 				hkey[2].length=0;
 				se_tree_insert32_array(nbd_info->acked_pdus, hkey, (void *)nbd_trans);
 				hkey[0].length=1;
 				hkey[0].key=&nbd_trans->req_frame;
 				hkey[1].length=2;
-				hkey[1].key=(guint32 *)&handle;
+				hkey[1].key=handle;
 				hkey[2].length=0;
 				se_tree_insert32_array(nbd_info->acked_pdus, hkey, (void *)nbd_trans);
 			}
@@ -288,7 +290,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		hkey[0].length=1;
 		hkey[0].key=&packet;
 		hkey[1].length=2;
-		hkey[1].key=(guint32 *)&handle;
+		hkey[1].key=handle;
 		hkey[2].length=0;
 
 		nbd_trans=se_tree_lookup32_array(nbd_info->acked_pdus, hkey);
@@ -343,7 +345,6 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		proto_tree_add_item(tree, hf_nbd_type, tvb, offset, 4, FALSE);
 		offset+=4;
 
-		handle=tvb_get_ntoh64(tvb, offset);
 		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, FALSE);
 		offset+=8;
 
@@ -380,7 +381,6 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		proto_tree_add_item(tree, hf_nbd_error, tvb, offset, 4, FALSE);
 		offset+=4;
 
-		handle=tvb_get_ntoh64(tvb, offset);
 		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, FALSE);
 		offset+=8;
 
@@ -401,7 +401,6 @@ static gboolean
 dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 magic, type;
-	guint64 handle, from;
 
 	/* We need at least this much to tell whether this is NBD or not */
 	if(tvb_length(tvb)<4){
@@ -426,9 +425,6 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		default:
 			return FALSE;
 		}
-		
-		handle=tvb_get_ntoh64(tvb, 8);
-		from=tvb_get_ntoh64(tvb, 16);
 
 		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 28, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu);
 		return TRUE;
