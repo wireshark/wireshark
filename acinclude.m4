@@ -1642,6 +1642,36 @@ AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
 	fi
 ])
 
+#AC_WIRESHARK_GCC_LDFLAGS_CHECK
+#
+# $1 : ldflag(s) to test
+#
+# The macro first determines if the compiler is GCC. Then compile with the
+# defined ldflags. The defined flags are added to LDFLAGS only if the
+# compilation succeeds.
+#
+AC_DEFUN([AC_WIRESHARK_GCC_LDFLAGS_CHECK],
+[GCC_OPTION="$1"
+AC_MSG_CHECKING(whether we can add $GCC_OPTION to LDFLAGS)
+if test "x$GCC" != "x"; then
+  LDFLAGS_saved="$CFLAGS"
+  LDFLAGS="$LDFLAGS $GCC_OPTION"
+  AC_LINK_IFELSE([
+    AC_LANG_SOURCE([[
+		main() { return; }
+                  ]])],
+                  [
+                    AC_MSG_RESULT(yes)
+                  ],
+                  [
+                    AC_MSG_RESULT(no)
+                    LDFLAGS="$LDFLAGS_saved"
+                  ])
+else
+  AC_MSG_RESULT(no)
+fi
+])
+
 #
 # AC_WIRESHARK_GCC_CFLAGS_CHECK
 #
