@@ -622,6 +622,10 @@ build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *
 
   protocol_name_len = (unsigned int) strlen(protocol_name);
 
+  /* Force load protocol fields, if not already done */
+  if(protocol_name[protocol_name_len-1] == '.')
+    proto_registrar_get_byname(protocol_name);
+
   /* Walk protocols list */
   for (i = proto_get_first_protocol(&cookie); i != -1; i = proto_get_next_protocol(&cookie)) {
 
@@ -643,7 +647,6 @@ build_autocompletion_list(GtkWidget *filter_te, GtkWidget *treeview, GtkWidget *
           first = name;
       }
     } else {
-      hfinfo = proto_registrar_get_nth(i);
 
       for (hfinfo = proto_get_first_protocol_field(i, &cookie2); 
            hfinfo != NULL;
