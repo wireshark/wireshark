@@ -1459,6 +1459,9 @@ again:
       plen -= advance;
       goto again;
 
+    case IP_PROTO_NONE:
+      break;
+
     default:
       /* Since we did not recognize this IPv6 option, check
        * whether it is a known protocol. If not, then it
