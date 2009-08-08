@@ -2791,6 +2791,18 @@ WinMain (struct HINSTANCE__ *hInstance,
   return main (__argc, __argv);
 }
 
+/* The code to create and desstroy console windows should not be necessary,
+   at least as I read the GLib source code, as it looks as if GLib is, on
+   Win32, *supposed* to create a console window into which to display its
+   output.
+
+   That doesn't happen, however.  I suspect there's something completely
+   broken about that code in GLib-for-Win32, and that it may be related
+   to the breakage that forces us to just call "printf()" on the message
+   rather than passing the message on to "g_log_default_handler()"
+   (which is the routine that does the aforementioned non-functional
+   console window creation).  */
+
 /*
  * If this application has no console window to which its standard output
  * would go, create one.
@@ -2839,16 +2851,6 @@ destroy_console(void)
 #endif /* _WIN32 */
 
 
-/* This routine should not be necessary, at least as I read the GLib
-   source code, as it looks as if GLib is, on Win32, *supposed* to
-   create a console window into which to display its output.
-
-   That doesn't happen, however.  I suspect there's something completely
-   broken about that code in GLib-for-Win32, and that it may be related
-   to the breakage that forces us to just call "printf()" on the message
-   rather than passing the message on to "g_log_default_handler()"
-   (which is the routine that does the aforementioned non-functional
-   console window creation). */
 static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 		    const char *message, gpointer user_data _U_)
@@ -2858,16 +2860,18 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
   const char *level;
 
 
-  /* ignore log message, if log_level isn't interesting.
-     If preferences aren't loaded yet, display message anyway */
+  /* ignore log message, if log_level isn't interesting based
+     upon the console log preferences.
+     If the preferences haven't been loaded loaded yet, display the 
+     message anyway.
+
+     The default console_log_level preference value is such that only 
+       ERROR, CRITICAL and WARNING level messages are processed;
+       MESSAGE, INFO and DEBUG level messages are ignored.  */
   if((log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0 &&
      prefs.console_log_level != 0) {
     return;
   }
-
-  /* create a "timestamp" */
-  time(&curr);
-  today = localtime(&curr);
 
 #ifdef _WIN32
   if (prefs.gui_console_open != console_open_never || log_level & G_LOG_LEVEL_ERROR) {
@@ -2904,6 +2908,10 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         g_assert_not_reached();
     }
 
+    /* create a "timestamp" */
+    time(&curr);
+    today = localtime(&curr);
+
     fprintf(stderr, "%02u:%02u:%02u %8s %s %s\n",
             today->tm_hour, today->tm_min, today->tm_sec,
             log_domain != NULL ? log_domain : "",
@@ -2916,6 +2924,16 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         _getch();
     }
   } else {
+    /* XXX - on UN*X, should we just use g_log_default_handler()?
+       We want the error messages to go to the standard output;
+       on Mac OS X, that will cause them to show up in various
+       per-user logs accessible through Console (details depend
+       on whether you're running 10.0 through 10.4 or running
+       10.5 and later), and, on other UN*X desktop environments,
+       if they don't show up in some form of console log, that's
+       a deficiency in that desktop environment.  (Too bad
+       Windows doesn't set the standard output and error for
+       GUI apps to something that shows up in such a log.) */
     g_log_default_handler(log_domain, log_level, message, user_data);
   }
 #endif
