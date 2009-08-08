@@ -102,8 +102,6 @@ WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/
 	$(MAKENSIS) \
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
-	/DDEFAULTWINPCAP=WinPcap_$(PCAP_VERSION).exe \
-	/DDEFAULTMSVCREDIST=vcredist_$(TARGET_MACHINE).exe \
 	/DEXTRA_PLUGINS="$(WIRESHARK_LIBS)\$(NSIS_PLUGINS)" \
 	Installer.nsi
 
@@ -112,6 +110,8 @@ Files/WiresharkPortable.exe : WiresharkPortable.nsi findprocdll
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
 	/DEXTRA_PLUGINS="$(WIRESHARK_LIBS)\$(NSIS_PLUGINS)" \
+	/DDEFAULTWINPCAP=WinPcap_$(PCAP_VERSION).exe \
+	/DDEFAULTMSVCREDIST=vcredist_$(TARGET_MACHINE).exe \
 	WiresharkPortable.nsi
 
 clean:
