@@ -811,10 +811,11 @@ indexing_done:
 			max_len = oid_info->value_type->max_len == -1 ? 0xffffff : oid_info->value_type->max_len;
 			min_len  = oid_info->value_type->min_len;
 
-			if ((int)value_len < min_len || (int)value_len > max_len)
+			if ((int)value_len < min_len || (int)value_len > max_len) {
 				format_error = BER_WRONG_LENGTH;
-
-			pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,FALSE);
+			} else {
+				pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,FALSE);
+			}
 		}
 	} else {
 		switch(ber_class|(tag<<4)) {
@@ -869,8 +870,10 @@ indexing_done:
 				break;
 		}
 
-		pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
-		expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");
+		if (format_error != BER_NO_ERROR) {
+			pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
+			expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");
+		}
 		oid_info_is_ok = FALSE;
 	}
 
@@ -2595,7 +2598,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1407 "packet-snmp-template.c"
+#line 1410 "packet-snmp-template.c"
 
 
 guint
@@ -3394,7 +3397,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1941 "packet-snmp-template.c"
+#line 1944 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3434,7 +3437,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1957 "packet-snmp-template.c"
+#line 1960 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {

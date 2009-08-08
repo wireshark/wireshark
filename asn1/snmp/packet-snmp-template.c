@@ -709,10 +709,11 @@ indexing_done:
 			max_len = oid_info->value_type->max_len == -1 ? 0xffffff : oid_info->value_type->max_len;
 			min_len  = oid_info->value_type->min_len;
 
-			if ((int)value_len < min_len || (int)value_len > max_len)
+			if ((int)value_len < min_len || (int)value_len > max_len) {
 				format_error = BER_WRONG_LENGTH;
-
-			pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,FALSE);
+			} else {
+				pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,FALSE);
+			}
 		}
 	} else {
 		switch(ber_class|(tag<<4)) {
@@ -767,8 +768,10 @@ indexing_done:
 				break;
 		}
 
-		pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
-		expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");
+		if (format_error != BER_NO_ERROR) {
+			pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
+			expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");
+		}
 		oid_info_is_ok = FALSE;
 	}
 
