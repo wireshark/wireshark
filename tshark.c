@@ -677,7 +677,7 @@ tshark_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
        
      XXX: Aug 07, 2009: Prior tshark g_log code was hardwired to process only
            ERROR and CRITICAL level messages so the current code is a behavioral
-           change.
+           change.  The current behavior is the same as in Wireshark.
   */
   if((log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0 &&
      prefs.console_log_level != 0) {
