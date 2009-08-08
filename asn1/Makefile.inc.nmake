@@ -24,7 +24,6 @@
 
 UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
-
 generate_dissector: $(DISSECTOR_FILES)
 
 generate_export: $(EXPORT_FILES)
@@ -38,8 +37,9 @@ $(DISSECTOR_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 	$(PYTHON) "../../tools/asn2wrs.py" \
 		$(A2W_FLAGS) \
 		$(PROTO_OPT) \
-		-c $(PROTOCOL_NAME).cnf \
-		-s packet-$(PROTOCOL_NAME)-template \
+		-c ./$(PROTOCOL_NAME).cnf \
+		-s ./packet-$(PROTOCOL_NAME)-template \
+		-D . \
 		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
@@ -52,7 +52,8 @@ $(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES)
 	$(PYTHON) "../../tools/asn2wrs.py" \
 		-E $(A2W_FLAGS) \
 		$(PROTO_OPT) \
-		-c $(PROTOCOL_NAME).cnf \
+		-c ./$(PROTOCOL_NAME).cnf \
+		-D . \
 		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
@@ -82,7 +83,7 @@ fix_eol: generate_dissector
 IF "%1"=="" EXIT
 move %1 %1.tmp
 $(UNIX2DOS) < %1.tmp > %1
-	del /f %1.tmp 
+	del /f %1.tmp
 <<
    <<fix_eol.bat
 FOR %%A IN ($(DISSECTOR_FILES)) DO CALL fix_file.bat %%A
@@ -90,5 +91,5 @@ FOR %%A IN ($(DISSECTOR_FILES)) DO CALL fix_file.bat %%A
 
 copy_files: generate_dissector
    <<copy_files.bat
-FOR %%A IN ($(DISSECTOR_FILES)) DO xcopy %%A ..\..\epan\dissectors/d /y
+FOR %%A IN ($(DISSECTOR_FILES)) DO xcopy %%A ..\..\epan\dissectors /d /y
 <<
