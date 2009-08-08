@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 #include <plugins/wimax/wimax_tlv.h>
 
 /* forward reference */
@@ -177,8 +178,9 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint tlv_frag_type = 0;
 	gint tlv_frag_number = 0;
 	tlv_info_t m2m_tlv_info;
-	gint hf = 0;
+	gint hf;
 	guint frame_number;
+	int expected_len;
 
 	/* display the M2M protocol name */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -238,6 +240,8 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += tlv_offset;
 			/* add the size info */
 			/* decode TLV content (TLV value) */
+			expected_len = 0;
+			hf = 0;
 			switch (tlv_type)
 			{
 				case TLV_PROTO_VER:
@@ -246,6 +250,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* add the description */
 					proto_item_append_text(ti, ": %d", tlv_value);
 					hf = hf_m2m_value_protocol_vers_uint8;
+					expected_len = 1;
 				break;
 
 				case TLV_BURST_NUM:
@@ -254,6 +259,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* add the description */
 					proto_item_append_text(ti, ": %d", burst_number);
 					hf = hf_m2m_value_burst_num_uint8;
+					expected_len = 1;
 				break;
 
 				case TLV_FRAG_TYPE:
@@ -261,6 +267,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tlv_frag_type = tvb_get_guint8( tvb, offset );
 					proto_item_append_text(ti, ": %s", val_to_str(tlv_frag_type, tlv_frag_type_name, "Unknown"));
 					hf = hf_m2m_value_frag_type_uint8;
+					expected_len = 1;
 				break;
 
 				case TLV_FRAG_NUM:
@@ -269,6 +276,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* add the description */
 					proto_item_append_text(ti, ": %d", tlv_frag_number);
 					hf = hf_m2m_value_frag_num_uint8;
+					expected_len = 1;
 				break;
 
 				case TLV_PDU_BURST:
@@ -299,9 +307,10 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* add the description */
 					tlv_value = tvb_get_ntoh24( tvb, offset );
 					proto_item_append_text(ti, ": 0x%X", tlv_value);
-					/* decode and display the TLV FCH bust */
+					/* decode and display the TLV FCH burst */
 					fch_burst_decoder(tree, tvb, offset, tlv_len, pinfo);
 					hf = hf_m2m_value_fch_burst_uint24;
+					expected_len = 3;
 				break;
 
 				case TLV_CDMA_CODE:
@@ -311,6 +320,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* decode and display the CDMA Code */
 					cdma_code_decoder(tree, tvb, offset, tlv_len, pinfo);
 					hf = hf_m2m_value_cdma_code_uint24;
+					expected_len = 3;
 				break;
 
 				case TLV_CRC16_STATUS:
@@ -318,6 +328,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tlv_value = tvb_get_guint8( tvb, offset );
 					proto_item_append_text(ti, ": %s", val_to_str(tlv_value, tlv_crc16_status, "Unknown"));
 					hf = hf_m2m_value_crc16_status_uint8;
+					expected_len = 1;
 				break;
 
 				case TLV_BURST_POWER:
@@ -325,6 +336,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tlv_value = tvb_get_ntohs( tvb, offset );
 					proto_item_append_text(ti, ": %d", tlv_value);
 					hf = hf_m2m_value_burst_power_uint16;
+					expected_len = 2;
 				break;
 
 				case TLV_BURST_CINR:
@@ -332,6 +344,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tlv_value = tvb_get_ntohs( tvb, offset );
 					proto_item_append_text(ti, ": 0x%X", tlv_value);
 					hf = hf_m2m_value_burst_cinr_uint16;
+					expected_len = 2;
 				break;
 
 				case TLV_PREAMBLE:
@@ -339,6 +352,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tlv_value = tvb_get_ntohs( tvb, offset );
 					proto_item_append_text(ti, ": 0x%X", tlv_value);
 					hf = hf_m2m_value_preamble_uint16;
+					expected_len = 2;
 				break;
 
 				case TLV_HARQ_ACK_BURST:
@@ -366,14 +380,17 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				default:
 					/* update the info column */
-					if (check_col(pinfo->cinfo, COL_INFO))
-					{
-						col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Unknown TLV Type");
-					}
+					col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Unknown TLV Type");
 				break;
 			}
 			/* expand the TLV detail */
-			proto_tree_add_tlv(&m2m_tlv_info, tvb, offset - tlv_offset, pinfo, tlv_tree, hf);
+			if (hf) {
+				if (offset - tlv_offset == expected_len) {
+					proto_tree_add_tlv(&m2m_tlv_info, tvb, offset - tlv_offset, pinfo, tlv_tree, hf);
+				} else {
+					expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Expected length %d, got %d.", expected_len, offset - tlv_offset);
+				}
+			}
 			offset += tlv_len;
 			/* update tlv_count */
 			tlv_count--;
@@ -544,10 +561,7 @@ void proto_tree_add_tlv(tlv_info_t *this, tvbuff_t *tvb, guint offset, packet_in
 	/* make sure the TLV information is valid */
 	if(!this->valid)
 	{	/* invalid TLV info */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Invalid TLV");
-		}
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Invalid TLV");
 		return;
 	}
 	tlv_offset = offset;
