@@ -910,9 +910,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IGMP");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 
 	type = tvb_get_guint8(tvb, offset);

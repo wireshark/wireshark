@@ -419,9 +419,7 @@ dissect_basicxid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		format, types, wsize;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "XID");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	format = tvb_get_guint8(tvb, 0);
 	if (tree) {
@@ -469,9 +467,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t	*next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLC");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	dsap = tvb_get_guint8(tvb, 0);
 	if (tree) {

@@ -1039,10 +1039,7 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
     /* Clear out stuff in the info column */
-    if(check_col(pinfo->cinfo,COL_INFO))
-    {
-        col_clear(pinfo->cinfo,COL_INFO);
-    }
+    col_clear(pinfo->cinfo, COL_INFO);
 
     if(check_col(pinfo->cinfo,COL_INFO))
     {

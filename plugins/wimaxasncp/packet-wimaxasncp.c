@@ -2004,10 +2004,7 @@ dissect_wimaxasncp(
     /* We'll fill in the "Info" column after fetch data, so we clear the
        column first in case calls to fetch data from the packet throw an
        exception. */
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_clear(pinfo->cinfo, COL_INFO);
-    }
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* ========================================================================
      * Disesction starts here

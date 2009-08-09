@@ -3232,9 +3232,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_writable(pinfo->cinfo, TRUE);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 	if (tree) {
 		ndmp_item = proto_tree_add_item(tree, proto_ndmp, tvb, 0, -1, FALSE);
 		ndmp_tree = proto_item_add_subtree(ndmp_item, ett_ndmp);

@@ -428,9 +428,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if (!(check_col(pinfo->cinfo, COL_INFO) || tree))   return; /* Be sure that the function is only called twice */
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "104asdu");
-	if (check_col(pinfo->cinfo, COL_INFO))  {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	asduh = ep_alloc(sizeof(struct asduheader));
 	res = ep_strbuf_new_label(NULL);
@@ -521,9 +519,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if (!(check_col(pinfo->cinfo, COL_INFO) || tree))   return; /* Be sure that the function is only called twice */
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "104apci");
-	if (check_col(pinfo->cinfo, COL_INFO))  {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	apcih = ep_alloc(sizeof(struct apciheader));
 

@@ -1424,9 +1424,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AFS (RX)");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	reply = (rxinfo->flags & RX_CLIENT_INITIATED) == 0;
 	port = ((reply == 0) ? pinfo->destport : pinfo->srcport );

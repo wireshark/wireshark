@@ -572,9 +572,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint32 uptime;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BROWSER");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	cmd = tvb_get_guint8(tvb, offset);
 
@@ -815,9 +813,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint namelen;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BROWSER");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	cmd = tvb_get_guint8(tvb, offset);
 

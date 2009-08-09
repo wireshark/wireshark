@@ -1474,9 +1474,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CFM");
 
 	/* Clear out stuff in the info column */
-	if (check_col(pinfo->cinfo,COL_INFO)) {
-		col_clear(pinfo->cinfo,COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* provide info column with CFM packet type (opcode)*/
 	cfm_pdu_type = tvb_get_guint8(tvb, 1);

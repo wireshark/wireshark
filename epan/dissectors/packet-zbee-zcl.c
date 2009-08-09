@@ -558,9 +558,7 @@ static void dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Clear info column */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_clear(pinfo->cinfo, COL_INFO);
-    }
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* Get the FCF */
     fcf = tvb_get_guint8(tvb, offset);

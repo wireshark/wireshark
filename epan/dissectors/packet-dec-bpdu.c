@@ -119,9 +119,7 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       const char *sep;
 
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "DEC_STP");
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_clear(pinfo->cinfo, COL_INFO);
-      }
+      col_clear(pinfo->cinfo, COL_INFO);
 
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
 

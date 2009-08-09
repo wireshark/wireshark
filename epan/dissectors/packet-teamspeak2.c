@@ -708,9 +708,7 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_data = ts2_get_conversation(pinfo);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TS2");
 	/* Clear out stuff in the info column */
-	if (check_col(pinfo->cinfo,COL_INFO)) {
-		col_clear(pinfo->cinfo,COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 	{
 		if(class==TS2C_ACK)

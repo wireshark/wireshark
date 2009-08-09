@@ -642,9 +642,7 @@ dissect_winsrepl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	enum wrepl_mess_type mess_type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WINS-Replication");
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (parent_tree) {
 		winsrepl_item = proto_tree_add_item(parent_tree, proto_winsrepl, tvb, offset, -1, FALSE);

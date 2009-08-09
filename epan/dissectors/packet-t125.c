@@ -2135,9 +2135,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   gint32 tag;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.125");
-  if (check_col(pinfo->cinfo, COL_INFO)){
-    col_clear(pinfo->cinfo, COL_INFO);
-  }
+  col_clear(pinfo->cinfo, COL_INFO);
 
   item = proto_tree_add_item(parent_tree, proto_t125, tvb, 0, tvb_length(tvb), FALSE);
   tree = proto_item_add_subtree(item, ett_t125);

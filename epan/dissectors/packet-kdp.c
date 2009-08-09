@@ -84,9 +84,7 @@ static void dissect_kdp(tvbuff_t *tvb,
   int offset;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDP");
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_clear(pinfo->cinfo, COL_INFO);
-  }
+  col_clear(pinfo->cinfo, COL_INFO);
   if (tree) {
     proto_item *ti;
     proto_tree *kdp_tree, *flags_tree;

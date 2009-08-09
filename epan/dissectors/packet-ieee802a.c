@@ -92,9 +92,7 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		hf;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE802a");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ieee802a, tvb, 0, -1, FALSE);

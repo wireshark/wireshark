@@ -5469,10 +5469,7 @@ dissect_wsp_fromwap_cl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * XXX - what about WTLS->WSP?
 	 */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 	dissect_wsp_common(tvb, pinfo, tree, wtp_fromudp_handle, TRUE);
 }
 

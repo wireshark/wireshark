@@ -378,13 +378,9 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     char *addr;
 
     offset = 0;
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_clear(pinfo->cinfo, COL_PROTOCOL);
-    }
+    col_clear(pinfo->cinfo, COL_PROTOCOL);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DEC DNA");
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_clear(pinfo->cinfo, COL_INFO);
-    }
+    col_clear(pinfo->cinfo, COL_INFO);
 
     set_dnet_address(&pinfo->dl_src, &pinfo->net_src);
     set_dnet_address(&pinfo->dl_src, &pinfo->src);

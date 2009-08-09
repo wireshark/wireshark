@@ -1729,9 +1729,7 @@ dissect_icq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return 0;	/* This is not a (recognized) ICQ packet */
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQ");
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_clear(pinfo->cinfo, COL_INFO);
-  }
+  col_clear(pinfo->cinfo, COL_INFO);
 
   version = tvb_get_letohs(tvb, ICQ_VERSION);
   switch (version) {

@@ -368,9 +368,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Add ourself to the protocol column, clear the info column, and create the protocol tree. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee");
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_clear(pinfo->cinfo, COL_INFO);
-    }
+    col_clear(pinfo->cinfo, COL_INFO);
     if (tree) {
         proto_root = proto_tree_add_protocol_format(tree, proto_zbee_nwk, tvb, offset, tvb_length(tvb), "ZigBee Network Layer");
         nwk_tree = proto_item_add_subtree(proto_root, ett_zbee_nwk);

@@ -426,10 +426,7 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item  *ti;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPPoED");
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Start Decoding Here. */
 	pppoe_code = tvb_get_guint8(tvb, 1);
@@ -677,10 +674,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t    *next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPPoES");
-	if (check_col(pinfo->cinfo,COL_INFO))
-	{
-		col_clear(pinfo->cinfo,COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Start Decoding Here. */
 	pppoe_code = tvb_get_guint8(tvb, 1);

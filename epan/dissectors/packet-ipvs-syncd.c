@@ -108,9 +108,7 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPVS");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	cnt = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_conn_count, tvb, offset, 1, FALSE);

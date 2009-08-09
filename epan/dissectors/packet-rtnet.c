@@ -679,9 +679,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTcfg");
 
   /* Clear out stuff in the info column */
-  if(check_col(pinfo->cinfo,COL_INFO)){
-    col_clear(pinfo->cinfo,COL_INFO);
-  }
+  col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_rtcfg, tvb, offset, -1, FALSE);

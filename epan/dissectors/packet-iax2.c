@@ -1013,10 +1013,7 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     {
       col_set_str (pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_IAX2);
     }
-  if (check_col (pinfo->cinfo, COL_INFO))
-    {
-      col_clear (pinfo->cinfo, COL_INFO);
-    }
+  col_clear(pinfo->cinfo, COL_INFO);
 
   /* add the 'iax2' tree to the main tree */
   if (tree)

@@ -8182,9 +8182,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
   /* --- Make entries in Protocol column ---*/
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPS2");
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_clear(pinfo->cinfo, COL_INFO);
-  }
+  col_clear(pinfo->cinfo, COL_INFO);
 
   /* Check if is NDDSPING */
   {

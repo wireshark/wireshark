@@ -84,10 +84,7 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ECATF");
 
-   if (check_col(pinfo->cinfo, COL_INFO))
-   {
-      col_clear(pinfo->cinfo, COL_INFO);
-   }
+   col_clear(pinfo->cinfo, COL_INFO);
 
    if (tree)
    {

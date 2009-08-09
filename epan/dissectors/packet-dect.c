@@ -1886,10 +1886,7 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT");
 
 	/* Clear out stuff in the info column */
-	if(check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 	if(tree)
 	{
 		proto_item *ti		=NULL;

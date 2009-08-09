@@ -841,9 +841,7 @@ void dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	oui_info_t *oui_info;
 		
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NHRP");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 	
 	memset(&hdr, 0, sizeof(e_nhrp_hdr));
 	

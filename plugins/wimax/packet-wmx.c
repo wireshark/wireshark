@@ -794,10 +794,7 @@ static void dissect_wimax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* display the WiMax protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMax");
 	/* Clear out stuff in the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	col_clear(pinfo->cinfo, COL_INFO);
 }
 
 gboolean is_down_link(address *src_address)
