@@ -1289,8 +1289,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    guint8      dlr_frametype;
 
    /* Make entries in Protocol column and Info column on summary display */
-   if( check_col( pinfo->cinfo, COL_PROTOCOL ) )
-      col_set_str( pinfo->cinfo, COL_PROTOCOL, "DLR" );
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DLR");
 
    if (check_col( pinfo->cinfo, COL_INFO ) )
       col_clear( pinfo->cinfo, COL_INFO );

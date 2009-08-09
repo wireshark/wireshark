@@ -566,8 +566,7 @@ dissect_sqloracle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	pinfo->current_proto = "SQLORACLE";
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ))
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "SQL" );
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SQL");
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 

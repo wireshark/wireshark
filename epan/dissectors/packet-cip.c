@@ -1490,8 +1490,7 @@ typedef struct mr_mult_req_info {
    cip_req_info_t *mr_single_req_info;
    cip_req_info_t *cip_req_info;
 
-   if( check_col( pinfo->cinfo, COL_PROTOCOL ) )
-      col_set_str( pinfo->cinfo, COL_PROTOCOL, "CIP MR" );
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP MR");
 
    /* Add Service code & Request/Response tree */
    rrsc_item = proto_tree_add_text( item_tree, tvb, offset, 1, "Service: " );
@@ -1849,8 +1848,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       }
    }
 
-   if( check_col( pinfo->cinfo, COL_PROTOCOL ) )
-      col_set_str( pinfo->cinfo, COL_PROTOCOL, "CIP CM" );
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP CM");
 
    /* Add Service code & Request/Response tree */
    rrsc_item = proto_tree_add_text( item_tree, tvb, offset, 1, "Service: " );
@@ -2377,8 +2375,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
    unsigned char add_stat_size;
    unsigned char i;
 
-   if( check_col( pinfo->cinfo, COL_PROTOCOL ) )
-      col_set_str( pinfo->cinfo, COL_PROTOCOL, "CIP CCO" );
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP CCO");
 
    /* Add Service code & Request/Response tree */
    rrsc_item = proto_tree_add_text( item_tree, tvb, offset, 1, "Service: " );
@@ -2758,8 +2755,7 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    cip_req_info_t *preq_info;
 
    /* Make entries in Protocol column and Info column on summary display */
-   if( check_col( pinfo->cinfo, COL_PROTOCOL ) )
-      col_set_str( pinfo->cinfo, COL_PROTOCOL, "CIP" );
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP");
 
    if (check_col( pinfo->cinfo, COL_INFO ) )
       col_clear( pinfo->cinfo, COL_INFO );

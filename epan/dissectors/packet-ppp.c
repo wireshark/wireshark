@@ -3729,8 +3729,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   tvbuff_t   *ppp_tvb;
   gboolean    first = TRUE;
 
-  if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP" );
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP");
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ppp_hdlc, tvb, 0, -1, FALSE);
