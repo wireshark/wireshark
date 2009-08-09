@@ -50,6 +50,7 @@
 #include <epan/emem.h>
 #include <epan/conversation.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 #include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-fcels.h"
@@ -1922,7 +1923,13 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             const guint8 *srcfc;
 
             /* Check that the source address is, in fact, an FC address */
-            DISSECTOR_ASSERT(pinfo->src.type == AT_FC);
+            if (pinfo->src.type != AT_FC) {
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+                                       "Unknown source address type: %u",
+                                       pinfo->src.type);
+                return;
+            }
+
             srcfc = pinfo->src.data;
             if (srcfc[2]) {
                 /* If it is a loop port, we'll need to remember the ALPA */
@@ -1980,7 +1987,13 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             const guint8 *dstfc;
 
             /* Check that the source address is, in fact, an FC address */
-            DISSECTOR_ASSERT(pinfo->dst.type == AT_FC);
+            if (pinfo->dst.type != AT_FC) {
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+                                       "Unknown destination address type: %u",
+                                       pinfo->dst.type);
+                return;
+            }
+
             dstfc = pinfo->dst.data;
 
             addrdata[0] = addrdata[1] = 0;
