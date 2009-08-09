@@ -664,7 +664,7 @@ gchar* se_strdup_printf(const gchar* fmt, ...) {
 
 /* release all allocated memory back to the pool. */
 static void
-emem_free_all(gboolean debug_free, emem_header_t *mem, guint8 *canary, emem_tree_t *trees, const char *error_msg)
+emem_free_all(gboolean debug_free, emem_header_t *mem, guint8 *canary, emem_tree_t *trees)
 {
 	emem_chunk_t *npc;
 	emem_tree_t *tree_list;
@@ -687,7 +687,7 @@ emem_free_all(gboolean debug_free, emem_header_t *mem, guint8 *canary, emem_tree
 #ifdef DEBUG_USE_CANARIES
 			for (i = 0; i < npc->c_count; i++) {
 				if (memcmp(npc->canary[i], canary, npc->cmp_len[i]) != 0)
-					g_error(error_msg);
+					g_error("Memory corrupted");
 			}
 			npc->c_count = 0;
 #endif /* DEBUG_USE_CANARIES */
@@ -714,9 +714,9 @@ void
 ep_free_all(void)
 {
 #ifdef EP_DEBUG_FREE
-    emem_free_all(TRUE, &ep_packet_mem, ep_canary, NULL, "Per-packet memory corrupted.");
+    emem_free_all(TRUE, &ep_packet_mem, ep_canary, NULL);
 #else
-    emem_free_all(FALSE, &ep_packet_mem, ep_canary, NULL, "Per-packet memory corrupted.");
+    emem_free_all(FALSE, &ep_packet_mem, ep_canary, NULL);
 #endif
 
 #ifdef EP_DEBUG_FREE
@@ -729,9 +729,9 @@ void
 se_free_all(void)
 {
 #ifdef SE_DEBUG_FREE
-    emem_free_all(TRUE, &se_packet_mem, se_canary, se_trees, "Per-session memory corrupted.");
+    emem_free_all(TRUE, &se_packet_mem, se_canary, se_trees);
 #else
-    emem_free_all(FALSE, &se_packet_mem, se_canary, se_trees, "Per-session memory corrupted.");
+    emem_free_all(FALSE, &se_packet_mem, se_canary, se_trees);
 #endif
 
 #ifdef SE_DEBUG_FREE
