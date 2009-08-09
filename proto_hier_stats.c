@@ -110,7 +110,7 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 		 * not a normal protocol in the top-level tree.  It was instead
 		 * added as a normal tree such as IPv6's Hop-by-hop Option Header and
 		 * should be skipped when creating the protocol hierarchy display. */
-		if(strlen(proto_sibling_node->finfo->hfinfo->name) == 0 && ptree_node->next)
+		if(strlen(PNODE_FINFO(proto_sibling_node)->hfinfo->name) == 0 && ptree_node->next)
 			proto_sibling_node = proto_sibling_node->next;
 
 		process_node(proto_sibling_node, stat_node, ps, pkt_len);

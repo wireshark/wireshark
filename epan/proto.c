@@ -91,14 +91,14 @@ wrs_count_bitshift(guint32 bitmask)
 	   will still have somewhere to attach to			\
 	   or else filtering will not work (they would be ignored since tree\
 	   would be NULL).						\
-	   DONT try to fake a node where PITEM_FINFO(pi) is NULL	\
+	   DONT try to fake a node where PTREE_FINFO(tree) is NULL	\
 	   since dissectors that want to do proto_item_set_len() or	\
 	   other operations that dereference this would crash.		\
 	   We dont fake FT_PROTOCOL either since these are cheap and    \
 	   some stuff (proto hier stat) assumes they always exist.	\
 	*/								\
 	if(!(PTREE_DATA(tree)->visible)){				\
-		if(PITEM_FINFO(tree)){					\
+		if(PTREE_FINFO(tree)){					\
 			register header_field_info *hfinfo;		\
 			PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);	\
 			if((hfinfo->ref_count == HF_REF_TYPE_NONE)	\
@@ -2832,13 +2832,13 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	 * Make sure "tree" is ready to have subtrees under it, by
 	 * checking whether it's been given an ett_ value.
 	 *
-	 * "tnode->finfo" may be null; that's the case for the root
+	 * "PNODE_FINFO(tnode)" may be null; that's the case for the root
 	 * node of the protocol tree.  That node is not displayed,
 	 * so it doesn't need an ett_ value to remember whether it
 	 * was expanded.
 	 */
 	tnode = tree;
-	tfi = tnode->finfo;
+	tfi = PNODE_FINFO(tnode);
 	if (tfi != NULL && (tfi->tree_type < 0 || tfi->tree_type >= num_tree_types)) {
 		REPORT_DISSECTOR_BUG(ep_strdup_printf("\"%s\" - \"%s\" tfi->tree_type: %u invalid (%s:%u)",
 			fi->hfinfo->name, fi->hfinfo->abbrev, tfi->tree_type, __FILE__, __LINE__));
@@ -2858,7 +2858,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 
 	PROTO_NODE_NEW(pnode);
 	pnode->parent = tnode;
-	pnode->finfo = fi;
+	PNODE_FINFO(pnode) = fi;
 	pnode->tree_data = PTREE_DATA(tree);
 
 	if (tnode->last_child != NULL) {
@@ -3277,13 +3277,13 @@ proto_item_get_len(proto_item *pi)
 gboolean
 proto_item_set_expert_flags(proto_item *pi, int group, guint severity)
 {
-	if(pi == NULL || pi->finfo == NULL)
+	if(pi == NULL || PITEM_FINFO(pi) == NULL)
 		return FALSE;
 
 	/* only change things if severity is worse or at least equal than before */
-	if(severity >= FI_GET_FLAG(pi->finfo, PI_SEVERITY_MASK)) {
-		FI_REPLACE_FLAGS(pi->finfo, PI_GROUP_MASK, group);
-		FI_REPLACE_FLAGS(pi->finfo, PI_SEVERITY_MASK, severity);
+	if(severity >= FI_GET_FLAG(PITEM_FINFO(pi), PI_SEVERITY_MASK)) {
+		FI_REPLACE_FLAGS(PITEM_FINFO(pi), PI_GROUP_MASK, group);
+		FI_REPLACE_FLAGS(PITEM_FINFO(pi), PI_SEVERITY_MASK, severity);
 
 		return TRUE;
 	}
@@ -3301,7 +3301,7 @@ proto_tree_create_root(void)
 	/* Initialize the proto_node */
 	PROTO_NODE_NEW(pnode);
 	pnode->parent = NULL;
-	pnode->finfo = NULL;
+	PNODE_FINFO(pnode) = NULL;
 	pnode->tree_data = g_new(tree_data_t, 1);
 
 	/* Don't initialize the tree_data_t. Wait until we know we need it */
@@ -3460,7 +3460,7 @@ proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start, gint length
 	if (tree == NULL)
 		return;
 
-	fi = tree->finfo;
+	fi = PTREE_FINFO(tree);
 	start += TVB_RAW_OFFSET(tvb);
 	DISSECTOR_ASSERT(start >= 0);
 	DISSECTOR_ASSERT(length >= 0);

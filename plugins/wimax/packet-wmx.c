@@ -643,8 +643,8 @@ proto_tree *add_tlv_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hf
 	/* display the TLV name and display the value in hex. Highlight type, length, and value. */
 	tlv_item = proto_tree_add_item(tree, hfindex, tvb, start, tlv_value_length, little_endian);
 	/* Correct the highlighting. */
-	tlv_item->finfo->start -= tlv_val_offset;
-	tlv_item->finfo->length += tlv_val_offset;
+	PITEM_FINFO(tlv_item)->start -= tlv_val_offset;
+	PITEM_FINFO(tlv_item)->length += tlv_val_offset;
 	/* add TLV subtree to contain the type, length, and value */
 	tlv_tree = proto_item_add_subtree(tlv_item, *ett_tlv[tlv_type]);
 	/* display the TLV type */
@@ -685,7 +685,7 @@ proto_tree *add_tlv_subtree(tlv_info_t *this, gint idx, proto_tree *tree, int hf
 			break;
 	}
 	/* Show "TLV value: " */
-	tlv_item = proto_tree_add_text(tlv_tree, tvb, start, tlv_value_length, hex_fmt, tlv_item->finfo->hfinfo->name, tlv_value);
+	tlv_item = proto_tree_add_text(tlv_tree, tvb, start, tlv_value_length, hex_fmt, PITEM_FINFO(tlv_item)->hfinfo->name, tlv_value);
 	tlv_tree = proto_item_add_subtree(tlv_item, idx);
 
 	/* Return a pointer to the value level */
@@ -734,8 +734,8 @@ proto_tree *add_protocol_subtree(tlv_info_t *this, gint idx, proto_tree *tree, i
 	va_end(ap);
 	tlv_item = proto_tree_add_protocol_format(tree, hfindex, tvb, start, length, "%s", message);
 	/* Correct the highlighting. */
-	tlv_item->finfo->start -= tlv_val_offset;
-	tlv_item->finfo->length += tlv_val_offset;
+	PITEM_FINFO(tlv_item)->start -= tlv_val_offset;
+	PITEM_FINFO(tlv_item)->length += tlv_val_offset;
 	/* add TLV subtree to contain the type, length, and value */
 	tlv_tree = proto_item_add_subtree(tlv_item, *ett_tlv[tlv_type]);
 	/* display the TLV type */

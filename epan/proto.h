@@ -351,6 +351,9 @@ extern void proto_tree_children_foreach(proto_tree *tree,
 /** Retrieve the field_info from a proto_item */
 #define PITEM_FINFO(proto_item)  PNODE_FINFO(proto_item)
 
+/** Retrieve the field_info from a proto_tree */
+#define PTREE_FINFO(proto_tree)  PNODE_FINFO(proto_tree)
+
 /** Retrieve the tree_data_t from a proto_tree */
 #define PTREE_DATA(proto_tree)   ((proto_tree)->tree_data)
 

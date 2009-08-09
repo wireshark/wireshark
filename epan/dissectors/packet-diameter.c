@@ -500,7 +500,7 @@ address_rfc_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 			break;
 	}
 
-	proto_item_fill_label(pi->finfo, label);
+	proto_item_fill_label(PITEM_FINFO(pi), label);
 	label = strstr(label,": ")+2;
 	return label;
 }
@@ -570,7 +570,7 @@ address_v16_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 			break;
 	}
 
-	proto_item_fill_label(pi->finfo, label);
+	proto_item_fill_label(PITEM_FINFO(pi), label);
 	label = strstr(label,": ")+2;
 	return label;
 }
@@ -580,7 +580,7 @@ simple_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
 	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
 	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),FALSE);
-	proto_item_fill_label(pi->finfo, label);
+	proto_item_fill_label(PITEM_FINFO(pi), label);
 	label = strstr(label,": ")+2;
 	return label;
 }
@@ -595,7 +595,7 @@ unsigned32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
 		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
-		proto_item_fill_label(pi->finfo, label);
+		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
 	}
 	else {

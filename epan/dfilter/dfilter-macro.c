@@ -67,7 +67,7 @@ static gboolean free_value(gpointer k _U_, gpointer v, gpointer u _U_) {
 }
 
 static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
-	field_info* finfo = node->finfo;
+	field_info* finfo = PNODE_FINFO(node);
 	fvt_cache_entry_t* e;
 
 	if (!finfo) return FALSE;

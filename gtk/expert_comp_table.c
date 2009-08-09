@@ -562,7 +562,7 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
         if (expert_data->pitem) {
             char *filter;
 
-            filter = proto_construct_match_selected_string(expert_data->pitem->finfo, NULL);
+            filter = proto_construct_match_selected_string(PITEM_FINFO(expert_data->pitem), NULL);
             if (filter != NULL)
                 err->procedures[row].fvalue_value = g_strdup(filter);
         }

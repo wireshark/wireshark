@@ -186,7 +186,7 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	/* if we have a proto_item (not a faked item), set expert attributes to it */
-	if(pi != NULL && pi->finfo != NULL) {	
+	if(pi != NULL && PITEM_FINFO(pi) != NULL) {
         ei->pitem       = pi;
 		expert_set_item_flags(pi, group, severity);
 	}
