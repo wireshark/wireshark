@@ -630,8 +630,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Make entries in Protocol column and Info column on summary display */
        col_set_str(pinfo->cinfo, COL_PROTOCOL, "S-Bus");
 
-       if (check_col(pinfo->cinfo, COL_INFO)) 
-              col_clear(pinfo->cinfo, COL_INFO);
+       col_clear(pinfo->cinfo, COL_INFO);
        offset = 0;
 
        if (check_col(pinfo->cinfo, COL_INFO)) {

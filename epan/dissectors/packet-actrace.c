@@ -468,8 +468,7 @@ static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * an exception.  We can set them later as well....
 		 */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_TRACE");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_clear(pinfo->cinfo, COL_INFO);
+		col_clear(pinfo->cinfo, COL_INFO);
 
 		if (tree)
 		{

@@ -737,8 +737,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "ASN.1 %s", current_pduname);
   }
 
-  if(check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
 
   offstr[0] = 0;

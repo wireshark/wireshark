@@ -3818,8 +3818,7 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_tn3270, tvb, offset, -1, FALSE);
     tn3270_tree = proto_item_add_subtree(ti, ett_tn3270);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     if (tn3270_info->extended) {
         offset += dissect_tn3270e_header(tn3270_tree, tvb, offset);

@@ -101,8 +101,7 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Summary information */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WHO");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	ts.nsecs = 0;
 

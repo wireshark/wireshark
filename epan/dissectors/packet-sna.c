@@ -2564,8 +2564,7 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*sna_ti = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SNA");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* SNA data should be printed in EBCDIC, not ASCII */
 	pinfo->fd->flags.encoding = CHAR_EBCDIC;
@@ -2600,8 +2599,7 @@ dissect_sna_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*sna_ti = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SNA");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* SNA data should be printed in EBCDIC, not ASCII */
 	pinfo->fd->flags.encoding = CHAR_EBCDIC;

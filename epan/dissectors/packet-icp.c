@@ -153,8 +153,7 @@ static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 option_data;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   opcode=tvb_get_guint8(tvb, 0);
   message_length=tvb_get_ntohs(tvb, 2);

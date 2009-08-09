@@ -1028,8 +1028,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    /* Make entries in Protocol column and Info column on summary display */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENIP");
-   if (check_col(pinfo->cinfo, COL_INFO))
-      col_clear(pinfo->cinfo, COL_INFO);
+   col_clear(pinfo->cinfo, COL_INFO);
 
    encap_cmd = tvb_get_letohs( tvb, 0 );
 
@@ -1291,8 +1290,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    /* Make entries in Protocol column and Info column on summary display */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DLR");
 
-   if (check_col( pinfo->cinfo, COL_INFO ) )
-      col_clear( pinfo->cinfo, COL_INFO );
+   col_clear(pinfo->cinfo, COL_INFO);
 
    if( tree )
    {

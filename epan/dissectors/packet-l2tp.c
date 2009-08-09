@@ -1721,8 +1721,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))	/* build output for closed L2tp frame displayed  */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	switch (L2TP_VERSION(control)) {
 
@@ -1910,8 +1909,7 @@ dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))	/* Only L2TPv3 runs directly over IP */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TPv3");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	sid = tvb_get_ntohl(tvb, index);
 	if (sid == 0) {

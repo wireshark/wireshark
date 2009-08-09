@@ -117,8 +117,7 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCPENCAP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* If the first 4 bytes are 0x01f401f4 (udp src and dst port = 500)
 	   we most likely have UDP (isakmp) traffic */

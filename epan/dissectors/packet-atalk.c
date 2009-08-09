@@ -580,8 +580,7 @@ dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint8 function;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   function = tvb_get_guint8(tvb, 0);
 
@@ -608,8 +607,7 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int i;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   net = tvb_get_ntohs(tvb, offset);
   nodelen_bits = tvb_get_guint8(tvb, offset+2);
@@ -694,8 +692,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint i;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   info = tvb_get_guint8(tvb, offset);
   op = info >> 4;
@@ -1196,8 +1193,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PAP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_pap, tvb, offset, -1, FALSE);
@@ -1329,8 +1325,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   aspinfo = get_transaction(tvb, pinfo);
   if (!aspinfo)
@@ -1476,8 +1471,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   aspinfo = get_transaction(tvb, pinfo);
   if (!aspinfo)
@@ -1556,8 +1550,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint count;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   fn = tvb_get_guint8(tvb, 0);
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1683,8 +1676,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   tvbuff_t   *new_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_SHORT_HEADER_SIZE,
@@ -1745,8 +1737,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t   *new_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   tvb_memcpy(tvb, (guint8 *)&ddp, 0, sizeof(e_ddp));
   ddp.dnet=g_ntohs(ddp.dnet);
@@ -1839,8 +1830,7 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t   *new_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLAP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_llap, tvb, 0, 3, FALSE);

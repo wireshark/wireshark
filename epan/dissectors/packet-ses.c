@@ -1109,8 +1109,7 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SES");
-  	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_clear(pinfo->cinfo, COL_INFO);
+  	col_clear(pinfo->cinfo, COL_INFO);
 
 	/*
 	 * Do we have a category 0 SPDU (GIVE_TOKENS/PLEASE_TOKENS) as

@@ -231,8 +231,7 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	teredoh = &teredohstruct[teredoh_count];
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_teredo, tvb, 0, -1, FALSE);

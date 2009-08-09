@@ -50,8 +50,7 @@ dissect_lapbether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t		*next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPBETHER");
-    if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     len = tvb_get_guint8(tvb, 0) + tvb_get_guint8(tvb, 1) * 256;
 

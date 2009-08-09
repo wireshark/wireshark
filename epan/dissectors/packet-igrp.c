@@ -66,8 +66,7 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t   *next_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IGRP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   ver_and_opcode = tvb_get_guint8(tvb,0);
 

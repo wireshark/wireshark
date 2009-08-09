@@ -2830,8 +2830,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *volatile next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BGP");
-    if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /*
      * Scan through the TCP payload looking for a BGP marker.

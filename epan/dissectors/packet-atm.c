@@ -1675,8 +1675,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case AAL_1:
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL1");
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
     ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, FALSE);
     aal_tree = proto_item_add_subtree(ti, ett_aal1);
     octet = tvb_get_guint8(tvb, offset);
@@ -1701,8 +1700,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * XXX - or should this be the CS PDU?
      */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL3/4");
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
     ti = proto_tree_add_item(tree, proto_aal3_4, tvb, offset, -1, FALSE);
     aal_tree = proto_item_add_subtree(ti, ett_aal3_4);
     aal3_4_hdr = tvb_get_ntohs(tvb, offset);
@@ -1737,8 +1735,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (NULL == pwpd || pwpd->enable_fill_columns_by_atm_dissector)
     {
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM AAL");
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+      col_clear(pinfo->cinfo, COL_INFO);
     }
     ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, FALSE);
     aal_tree = proto_item_add_subtree(ti, ett_oamaal);

@@ -474,8 +474,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RX");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	item = proto_tree_add_protocol_format(parent_tree, proto_rx, tvb,
 		offset,	28, "RX Protocol");

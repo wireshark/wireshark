@@ -2757,8 +2757,7 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    /* Make entries in Protocol column and Info column on summary display */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP");
 
-   if (check_col( pinfo->cinfo, COL_INFO ) )
-      col_clear( pinfo->cinfo, COL_INFO );
+   col_clear(pinfo->cinfo, COL_INFO);
 
    /* Each CIP request received by ENIP gets a unique ID */
    enip_info = (enip_request_info_t*)p_get_proto_data(pinfo->fd, proto_enip);

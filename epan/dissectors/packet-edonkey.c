@@ -3101,8 +3101,7 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 static void dissect_edonkey_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     tcp_dissect_pdus(tvb, pinfo, tree, edonkey_desegment,
                      EDONKEY_TCP_HEADER_LENGTH, get_edonkey_tcp_pdu_len,

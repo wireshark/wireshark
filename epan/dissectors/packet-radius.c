@@ -1328,8 +1328,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RADIUS");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	rh.rh_code=tvb_get_guint8(tvb,0);
 	rh.rh_ident=tvb_get_guint8(tvb,1);

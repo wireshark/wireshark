@@ -923,8 +923,7 @@ dissect_smb_logon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *item = NULL;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB_NETLOGON");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* get the Command field */
    	cmd = tvb_get_guint8(tvb, offset);

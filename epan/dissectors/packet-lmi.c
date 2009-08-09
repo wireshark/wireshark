@@ -146,8 +146,7 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		ele_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LMI");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_lmi, tvb, 0, 3, FALSE);

@@ -261,8 +261,7 @@ dissect_gprs_ns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t *next_tvb;
   
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS NS");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	nspdu = tvb_get_guint8(tvb,offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {

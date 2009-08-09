@@ -148,8 +148,7 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint32 ack, size, offset = EIGRP_HEADER_LENGTH;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EIGRP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   opcode_tmp=opcode=tvb_get_guint8(tvb,1);
   ack = tvb_get_ntohl(tvb,12);

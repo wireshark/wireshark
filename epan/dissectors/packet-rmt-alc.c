@@ -131,8 +131,7 @@ static void dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ALC");
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 	
 	/* ALC header dissection */
 	/* --------------------- */

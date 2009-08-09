@@ -1423,8 +1423,7 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 packet_type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NLSP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	nlsp_major_version = tvb_get_guint8(tvb, 5);
 	if (nlsp_major_version != 1){

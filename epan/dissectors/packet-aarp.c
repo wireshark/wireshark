@@ -156,8 +156,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AARP");
-  if(check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
   ar_pro = tvb_get_ntohs(tvb, AR_PRO);

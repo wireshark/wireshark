@@ -360,8 +360,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_add_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_clear(pinfo->cinfo, COL_INFO);
+		col_clear(pinfo->cinfo, COL_INFO);
 
 		/*
 		 * Loop through however many mgcp messages may be stuck in

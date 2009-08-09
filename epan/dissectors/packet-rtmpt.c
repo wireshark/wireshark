@@ -371,8 +371,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		col_set_writable(pinfo->cinfo, TRUE);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_clear(pinfo->cinfo, COL_INFO);
+		col_clear(pinfo->cinfo, COL_INFO);
 
 		conversation_data->previous_frame_number = pinfo->fd->num;
 		if (tvb_length_remaining(tvb, offset) >= 1)

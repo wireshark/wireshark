@@ -659,8 +659,7 @@ dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (match_strval(command_id, vals_command_Id) == NULL)
 		return 0;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	tcp_dissect_pdus(tvb, pinfo, tree, cmpp_desegment, CMPP_FIX_HEADER_LENGTH,
 			 get_cmpp_pdu_len, dissect_cmpp_tcp_pdu);

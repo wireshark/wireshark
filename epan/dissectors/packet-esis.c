@@ -283,8 +283,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    const char *cksum_status;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIS");
-   if (check_col(pinfo->cinfo, COL_INFO))
-     col_clear(pinfo->cinfo, COL_INFO);
+   col_clear(pinfo->cinfo, COL_INFO);
 
    tvb_memcpy(tvb, (guint8 *)&ehdr, 0, sizeof ehdr);
 

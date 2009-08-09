@@ -260,8 +260,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Calculate here for use in pinfo and in tree */
 	ipxh->ipx_dsocket = tvb_get_ntohs(tvb, 16);
@@ -845,8 +844,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		conn_number, sig_char;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX MSG");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	conn_number = tvb_get_guint8(tvb, 0);
 	sig_char = tvb_get_guint8(tvb, 1);
@@ -883,8 +881,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	static const char	*rip_type[3] = { "Request", "Response", "Unknown" };
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX RIP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	operation = tvb_get_ntohs(tvb, 0) - 1;
 
@@ -952,8 +949,7 @@ dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NW_SERIAL");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_serialization, tvb, 0, -1,
@@ -1224,8 +1220,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		"Nearest Query", "Nearest Response" };
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX SAP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	query.query_type = tvb_get_ntohs(tvb, 0);
 	query.server_type = tvb_get_ntohs(tvb, 2);

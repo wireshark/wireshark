@@ -220,8 +220,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	nstime_t tv;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "9P");
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	ninesz = tvb_get_letohl(tvb, offset);
 	ninemsg = tvb_get_guint8(tvb, offset + 4);

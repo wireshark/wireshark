@@ -158,8 +158,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
   const char *saved_proto;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISL");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   type = (tvb_get_guint8(tvb, 5) >> 4)&0x0F;
 

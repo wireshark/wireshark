@@ -4298,8 +4298,7 @@ dissect_ndps_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, FALSE);
@@ -4492,8 +4491,7 @@ dissect_ndps_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDPS");
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, FALSE);

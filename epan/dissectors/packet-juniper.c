@@ -699,8 +699,7 @@ dissect_juniper_mlfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint      proto,cookie_len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper MLFR");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   offset = 0;
 
@@ -804,8 +803,7 @@ dissect_juniper_mlppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint      proto,cookie_len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper MLPPP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   offset = 0;
 
@@ -872,8 +870,7 @@ dissect_juniper_pppoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     flags;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper PPPoE");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   offset = 0;
 
@@ -901,8 +898,7 @@ dissect_juniper_ether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     flags;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper Ethernet");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   offset = 0;
 
@@ -930,8 +926,7 @@ dissect_juniper_ppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     flags;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper PPP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   offset = 0;
 
@@ -959,8 +954,7 @@ dissect_juniper_frelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     flags;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper Frame-Relay");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   offset = 0;
 
@@ -988,8 +982,7 @@ dissect_juniper_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     flags;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper C-HDLC");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper C-HDLC");
 
@@ -1046,8 +1039,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
 
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   switch (atm_pictype) {
   case JUNIPER_PIC_ATM1:
@@ -1183,8 +1175,7 @@ static void dissect_juniper_ggsn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
   guint16    proto;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper GGSN");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
     
   ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper GGSN");
 
@@ -1214,8 +1205,7 @@ static void dissect_juniper_vp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
   guint8     flags;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper Voice PIC");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
     
   ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper Voice PIC");
 

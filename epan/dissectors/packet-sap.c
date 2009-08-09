@@ -130,8 +130,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *sap_tree, *sap_flags_tree;
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAP");
-        if (check_col(pinfo->cinfo, COL_INFO))
-                col_clear(pinfo->cinfo, COL_INFO);
+        col_clear(pinfo->cinfo, COL_INFO);
 
 	vers_flags = tvb_get_guint8(tvb, offset);
         is_ipv6 = vers_flags&MCAST_SAP_BIT_A;

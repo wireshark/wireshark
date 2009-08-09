@@ -235,8 +235,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t *mtp3_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Syslog");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   if (tvb_get_guint8(tvb, msg_off) == '<') {
     /* A facility and level follow. */

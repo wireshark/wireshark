@@ -412,8 +412,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   tvbuff_t *next_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
-  if (check_col(pinfo->cinfo, COL_INFO))
-      col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   if (has_direction) {
     if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
@@ -670,8 +669,7 @@ static void dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *fr_tree = NULL;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
-  if (check_col(pinfo->cinfo, COL_INFO))
-      col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_fr, tvb, 0, -1, "Frame Relay");

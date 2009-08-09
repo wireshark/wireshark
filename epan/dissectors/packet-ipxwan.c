@@ -136,8 +136,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 compression_type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX WAN");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ipxwan, tvb, 0, -1,

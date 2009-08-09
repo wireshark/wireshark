@@ -324,8 +324,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item            *expert_item;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCP");
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     hdr_offset = 0;
     ncp_hdr = &header;

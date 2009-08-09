@@ -77,8 +77,7 @@ dissect_teimanagement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 message;
     
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TEI");
-    if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
     
     if (tree) {
 	tei_ti = proto_tree_add_item(tree, proto_tei, tvb, 0, 5, FALSE);

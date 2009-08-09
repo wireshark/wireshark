@@ -622,8 +622,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *eap_tree = NULL;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   eap_code = tvb_get_guint8(tvb, 0);
 

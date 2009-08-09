@@ -2098,8 +2098,7 @@ dissect_pcep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCEP");
 
 	/* Clear out stuff in the info column */
-	if (check_col(pinfo->cinfo,COL_INFO))
-		col_clear(pinfo->cinfo,COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	dissect_pcep_msg_tree(tvb, tree, ett_pcep, pinfo);
 }

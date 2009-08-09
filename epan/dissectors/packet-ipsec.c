@@ -1405,8 +1405,7 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int advance;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AH");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   tvb_memcpy(tvb, (guint8 *)&ah, 0, sizeof(ah));
   advance = sizeof(ah) + ((ah.ah_len - 1) << 2);
@@ -1590,8 +1589,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   tvb_memcpy(tvb, (guint8 *)&esp, 0, sizeof(esp));
 
@@ -2612,8 +2610,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * the next protocol in the stack
    */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPComp");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   tvb_memcpy(tvb, (guint8 *)&ipcomp, 0, sizeof(ipcomp));
 

@@ -288,8 +288,7 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		mv_val;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TR MAC");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	mv_val = tvb_get_guint8(tvb, 3);
 

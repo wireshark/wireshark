@@ -65,8 +65,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 	eom_msg = ep_alloc(MAX_EOM_MSG_SIZE);
 	eom_msg[0] = 0;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))												/* set the protocol column on summary display */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPARS");

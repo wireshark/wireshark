@@ -118,8 +118,8 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const gchar	*signals_str[]		= {"DSR",			"DTR",		"CTS",			"RTS",			"DCD",			"",			"",		""				};
 	const gchar	*flags_str[]		= {"",				"",			"",				"",				"",				"",			"",		"No-buffers"	};
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))	col_clear(pinfo->cinfo, COL_PROTOCOL);		/* erase the protocol */
-	if (check_col(pinfo->cinfo, COL_INFO))		col_clear(pinfo->cinfo, COL_INFO);			/* and info columns so that the next decoder can fill them in */
+	col_clear(pinfo->cinfo, COL_PROTOCOL);		/* erase the protocol */
+	col_clear(pinfo->cinfo, COL_INFO);			/* and info columns so that the next decoder can fill them in */
 
 	flags	= pinfo->pseudo_header->sita.flags;
 	signals	= pinfo->pseudo_header->sita.signals;

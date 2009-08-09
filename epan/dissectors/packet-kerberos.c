@@ -4645,8 +4645,7 @@ static void
 dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     tcp_dissect_pdus(tvb, pinfo, tree, krb_desegment, 4, get_krb_pdu_len,
 	dissect_kerberos_tcp_pdu);
@@ -4755,8 +4754,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 	}
 	if (do_col_info) {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_clear(pinfo->cinfo, COL_INFO);
+            col_clear(pinfo->cinfo, COL_INFO);
         }
         if (tree) {
             item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, FALSE);

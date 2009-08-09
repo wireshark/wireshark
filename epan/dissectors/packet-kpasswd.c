@@ -203,8 +203,7 @@ dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboo
         gint krb_rm_size = 0;    /* bytes consumed by record mark: 0 or 4 */
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "KPASSWD");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
         /* can't pass have_rm to dissect_kerberos_main, so strip rm first */
         if (have_rm) {
@@ -287,8 +286,7 @@ static void
 dissect_kpasswd_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "KPASSWD");
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     tcp_dissect_pdus(tvb, pinfo, tree, kpasswd_desegment, 4, get_krb_pdu_len,
 	dissect_kpasswd_tcp_pdu);

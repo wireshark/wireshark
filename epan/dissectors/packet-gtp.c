@@ -6294,8 +6294,7 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
-    if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /*
      * Do we have a conversation for this connection?

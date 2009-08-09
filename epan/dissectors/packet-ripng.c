@@ -60,8 +60,7 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RIPng");
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* avoid alignment problem */
     tvb_memcpy(tvb, (guint8 *)&rip6, offset, sizeof(rip6));

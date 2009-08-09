@@ -70,8 +70,7 @@ dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOFL");
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_bofl, tvb, 0, -1, FALSE);

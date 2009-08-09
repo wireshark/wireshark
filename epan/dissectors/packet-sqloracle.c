@@ -493,8 +493,7 @@ static gboolean ParseCommand(proto_tree *tree,tvbuff_t *tvb, int offset, packet_
 		if (tree)
 			proto_tree_add_text(tree, tvb, offset+dataLen-SQLDataLen, SQLDataLen,
 			    "SQL statement = %s",m_pCurQuery);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 	    if (check_col(pinfo->cinfo, COL_INFO))
 		   col_add_str(pinfo->cinfo, COL_INFO, m_pCurQuery );
 		return TRUE;
@@ -540,8 +539,7 @@ static gboolean ParseNewCommand( proto_tree *tree,tvbuff_t *tvb, int offset, pac
 	if (FindBeginningSQLString((UI8_P*)&pAddr, (UI16_P)&sqlamount, 13) == TRUE)
 	{
 		ParseSqlStatement( pAddr, amount);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 	    if (check_col(pinfo->cinfo, COL_INFO))
 		   col_add_str(pinfo->cinfo, COL_INFO, m_pCurQuery );
 		proto_tree_add_text(tree, tvb, offset+amount-sqlamount, sqlamount,
@@ -567,8 +565,7 @@ dissect_sqloracle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pinfo->current_proto = "SQLORACLE";
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SQL");
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
 	header_operation = tvb_get_guint8(tvb, offset);
 	dataLen = tvb_reported_length_remaining(tvb, offset);

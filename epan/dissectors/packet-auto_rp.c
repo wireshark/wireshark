@@ -116,8 +116,7 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint8 ver_type, rp_count;
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "Auto-RP");
-        if (check_col(pinfo->cinfo, COL_INFO))
-                col_clear(pinfo->cinfo, COL_INFO);
+        col_clear(pinfo->cinfo, COL_INFO);
 
         ver_type = tvb_get_guint8(tvb, 0);
         rp_count = tvb_get_guint8(tvb, 1);

@@ -209,8 +209,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBMS");
 
-    if(check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
 
     if(parent_tree){

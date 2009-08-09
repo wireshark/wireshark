@@ -311,8 +311,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (prefix != PES_PREFIX)
 		return FALSE;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG PES");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	stream = tvb_get_guint8(tvb, 3);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -466,8 +465,7 @@ dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG");
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 	if (tree)
 	    proto_tree_add_item(tree, proto_mpeg, tvb, 0, -1, FALSE);
     }

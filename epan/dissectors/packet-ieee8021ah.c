@@ -120,8 +120,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 
     /* add info to column display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "802.1ad");
-    if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     tci = tvb_get_ntohs( tvb, 0 );
 
@@ -313,8 +312,7 @@ dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
 
     /* add info to column display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "802.1ah");
-    if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     tci = tvb_get_ntohl( tvb, 0 );
 

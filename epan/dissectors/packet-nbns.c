@@ -1042,8 +1042,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nbns_data_offset = offset;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBNS");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* To do: check for runts, errs, etc. */
 	id    = tvb_get_ntohs(tvb, offset + NBNS_ID);
@@ -1210,8 +1209,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	name=ep_alloc(MAX_NAME_LEN);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBDS");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	header.msg_type = tvb_get_guint8(tvb, offset);
 
@@ -1635,8 +1633,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBSS");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	max_data = tvb_length(tvb);
 

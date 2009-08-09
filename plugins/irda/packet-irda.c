@@ -1726,8 +1726,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrLAP");
 
     /* Clear Info column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* set direction column */
     if (check_col(pinfo->cinfo, COL_IF_DIR))

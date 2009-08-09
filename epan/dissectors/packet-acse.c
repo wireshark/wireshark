@@ -1726,8 +1726,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_acse);
 	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACSE");
-  	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_clear(pinfo->cinfo, COL_INFO);
+  	col_clear(pinfo->cinfo, COL_INFO);
 
 
 	/*  we can't make any additional checking here   */

@@ -464,8 +464,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ECAT");
 
-   if (check_col(pinfo->cinfo, COL_INFO))
-      col_clear(pinfo->cinfo, COL_INFO);
+   col_clear(pinfo->cinfo, COL_INFO);
 
    /* If the data portion of an EtherCAT datagram is less than 44 bytes, then
       it must have been padded with an additional n number of bytes to reach a

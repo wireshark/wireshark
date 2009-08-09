@@ -941,8 +941,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSIP");
     
-  if (check_col(pinfo->cinfo, COL_INFO)) 
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   pdu_type = tvb_get_guint8(tvb, 0);
   bi.offset++;

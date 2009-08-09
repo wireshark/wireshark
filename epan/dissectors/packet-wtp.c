@@ -786,8 +786,7 @@ static void
 dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTP+WSP");
-    if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     dissect_wtp_common(tvb, pinfo, tree);
 }
@@ -805,8 +804,7 @@ static void
 dissect_wtp_fromwtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WTP+WSP");
-    if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     dissect_wtp_common(tvb, pinfo, tree);
 }

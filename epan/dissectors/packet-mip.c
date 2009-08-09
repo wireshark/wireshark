@@ -573,8 +573,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Make entries in Protocol column and Info column on summary display */
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MobileIP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   type = tvb_get_guint8(tvb, offset);
   switch (type) {

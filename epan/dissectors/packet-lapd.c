@@ -394,8 +394,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char	*dstname = "?";
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPD");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	address = tvb_get_ntohs(tvb, 0);
 	cr = address & LAPD_CR;

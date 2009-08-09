@@ -564,8 +564,7 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
   /*-------------Setting the Protocol and Info Columns in the Wireshark Display----------*/
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "OLSR v1");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   if ((pinfo->src.type != AT_IPv4) && (pinfo->src.type != AT_IPv6)) {
     if (check_col(pinfo->cinfo, COL_INFO)) {

@@ -1394,8 +1394,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Make entries in Protocol column and Info column on summary display */
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "3GPP2 A11");
-  if (check_col(pinfo->cinfo, COL_INFO))
-	col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   switch (type) {
   case REGISTRATION_REQUEST:

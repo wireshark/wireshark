@@ -117,8 +117,7 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		tsp_type;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TSP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	tsp_type = tvb_get_guint8(tvb, 0);
 	if (check_col(pinfo->cinfo, COL_INFO))

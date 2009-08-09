@@ -57,8 +57,7 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* setup columns */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SERCOS III V1.1");
-  if(check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   /* check what we got on our hand */
   type = tvb_get_guint8(tvb, 0);

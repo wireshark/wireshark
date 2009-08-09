@@ -3499,8 +3499,7 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSL");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	msg_type = tvb_get_guint8(tvb,offset+1)&0x7f;
 

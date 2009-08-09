@@ -123,8 +123,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 isis_system_id_len;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	isis_version = tvb_get_guint8(tvb, 2);
 	if (isis_version != ISIS_REQUIRED_VERSION){

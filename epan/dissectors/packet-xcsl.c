@@ -132,8 +132,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
    /* color support */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Xcsl");
-   if (check_col(pinfo->cinfo, COL_INFO))
-      col_clear(pinfo->cinfo, COL_INFO);
+   col_clear(pinfo->cinfo, COL_INFO);
 
    /* Create display tree for the xcsl protocol */
    if (tree) {

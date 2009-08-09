@@ -6121,8 +6121,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   whdr= &whdrs[0];
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11");
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_clear (pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   fcf = FETCH_FCF(0);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
@@ -7553,8 +7552,7 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_tree *radio_tree = NULL;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Radio");
-  if (check_col(pinfo->cinfo, COL_INFO))
-      col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   /* Add the radio information to the column information */
   if (check_col(pinfo->cinfo, COL_TX_RATE)) {
@@ -7766,8 +7764,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Prism");
-    if(check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     if(check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "Device: %.16s  "
@@ -8116,8 +8113,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 antnoise;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
-    if(check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
     offset = 0;
 
     version = tvb_get_ntohl(tvb, offset) - WLANCAP_MAGIC_COOKIE_BASE;

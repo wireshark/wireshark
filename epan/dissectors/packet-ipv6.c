@@ -1273,8 +1273,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct ip6_hdr ipv6;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv6");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   offset = 0;
   tvb_memcpy(tvb, (guint8 *)&ipv6, offset, sizeof(ipv6));

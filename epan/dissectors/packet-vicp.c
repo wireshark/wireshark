@@ -60,8 +60,7 @@ static void dissect_vicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "VICP");
 
-   if (check_col(pinfo->cinfo, COL_INFO)) 
-      col_clear(pinfo->cinfo, COL_INFO);
+   col_clear(pinfo->cinfo, COL_INFO);
 
    ti = proto_tree_add_item(tree, proto_vicp, tvb, 0, -1, FALSE);
    vicp_tree = proto_item_add_subtree(ti, ett_vicp);

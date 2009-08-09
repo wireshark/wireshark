@@ -2466,8 +2466,7 @@ dissect_ldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDP");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if( tree ){
 		ti=proto_tree_add_item(tree, proto_ldp, tvb, 0, -1, FALSE);

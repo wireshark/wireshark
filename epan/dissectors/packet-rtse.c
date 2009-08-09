@@ -727,8 +727,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSE");
-  	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_clear(pinfo->cinfo, COL_INFO);
+  	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (rtse_reassemble && 
 	    ((session->spdu_type == SES_DATA_TRANSFER) ||

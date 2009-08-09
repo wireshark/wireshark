@@ -73,8 +73,7 @@ dissect_ap1394(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t *next_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP/IEEE1394");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   src_addr=tvb_get_ptr(tvb, 8, 8);
   SET_ADDRESS(&pinfo->dl_src,	AT_EUI64, 8, src_addr);

@@ -86,8 +86,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(pinfo->cinfo)
     {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand");
-        if(check_col(pinfo->cinfo, COL_INFO))
-            col_clear(pinfo->cinfo, COL_INFO);
+        col_clear(pinfo->cinfo, COL_INFO);
     }
 
     /* Get the parent tree from the ERF dissector.  We don't want to nest under ERF */

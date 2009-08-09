@@ -1937,8 +1937,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	/* Currently we get called from the GTP dissector no need to check the version */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTPv2");
-    if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
 	/* message type is in octet 2 */
 	message_type = tvb_get_guint8(tvb,1);

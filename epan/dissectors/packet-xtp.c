@@ -812,8 +812,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "XTP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/** parse header **/
 	offset = 0;

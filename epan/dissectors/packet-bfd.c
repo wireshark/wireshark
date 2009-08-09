@@ -366,8 +366,7 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     const char *sep;
     
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFD Control");
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     bfd_version = ((tvb_get_guint8(tvb, 0) & 0xe0) >> 5);
     bfd_diag = (tvb_get_guint8(tvb, 0) & 0x1f);

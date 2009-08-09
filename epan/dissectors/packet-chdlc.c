@@ -164,8 +164,7 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16    proto;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CHDLC");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   switch (pinfo->p2p_dir) {
 
@@ -272,8 +271,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 yoursequence;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SLARP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   code = tvb_get_ntohl(tvb, 0);
 

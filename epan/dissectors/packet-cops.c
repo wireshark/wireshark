@@ -897,8 +897,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int object_len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "COPS");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   op_code = tvb_get_guint8(tvb, 1);
   if (check_col(pinfo->cinfo, COL_INFO))

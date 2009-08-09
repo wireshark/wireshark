@@ -2769,8 +2769,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   dns_data_offset = offset;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
 #define MAX_BUF_SIZE (128+1)
   buf=ep_alloc(MAX_BUF_SIZE);

@@ -107,8 +107,7 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 	hlen = tvb_get_guint8(tvb, 1);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RUDP");
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rudp, tvb, 0, hlen, FALSE);

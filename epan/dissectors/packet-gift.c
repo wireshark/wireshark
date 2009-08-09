@@ -71,8 +71,7 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	line = tvb_get_ptr(tvb, offset, linelen);
 
 	/* clear the "Info" column */
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* set "Info" column text */
 	if (check_col(pinfo->cinfo, COL_INFO)) 

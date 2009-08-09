@@ -78,8 +78,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	};
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LPD");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* rfc1179 states that all responses are 1 byte long */
 	code = tvb_get_guint8(tvb, 0);

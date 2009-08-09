@@ -93,8 +93,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 phdr[2];
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "VRRP");
-        if (check_col(pinfo->cinfo, COL_INFO))
-                col_clear(pinfo->cinfo, COL_INFO);
+        col_clear(pinfo->cinfo, COL_INFO);
 
 	ver_type = tvb_get_guint8(tvb, 0);
         if (check_col(pinfo->cinfo, COL_INFO)) {

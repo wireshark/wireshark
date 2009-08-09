@@ -2047,8 +2047,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Make entry in Protocol column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TIPC");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	top_tree = tree;
 	dword = tvb_get_ntohl(tvb, offset);

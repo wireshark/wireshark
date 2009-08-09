@@ -3117,8 +3117,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PVFS");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (parent_tree) 
 	{

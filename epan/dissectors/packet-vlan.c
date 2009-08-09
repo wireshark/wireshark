@@ -80,8 +80,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *volatile vlan_tree;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "VLAN");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   tci = tvb_get_ntohs( tvb, 0 );
 

@@ -620,8 +620,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
     }
     /* clear the the info column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* TCP packets and SSL records are orthogonal.
      * A tcp packet may contain multiple ssl records and an ssl

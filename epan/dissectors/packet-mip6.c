@@ -846,8 +846,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIPv6");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	len = (tvb_get_guint8(tvb, MIP6_HLEN_OFF) + 1) * 8;
 	pproto = tvb_get_guint8(tvb, MIP6_PROTO_OFF);
@@ -947,8 +946,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Call the IPv6 dissector */
 		dissector_try_port(ip_dissector_table, pproto, ipv6_tvb, pinfo, tree);
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_clear(pinfo->cinfo, COL_INFO);
+		col_clear(pinfo->cinfo, COL_INFO);
 		col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement[Fast Binding Update]");
 	}
 }

@@ -151,8 +151,7 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Protocol is LSC, packet summary is not yet known */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LSC");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   /* Too little data? */
   if (tvb->length < LSC_MIN_LEN)

@@ -92,8 +92,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int linelen;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.29");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_x29, tvb, offset, -1,

@@ -2317,8 +2317,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Make entries in Protocol column and Info column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNP 3.0");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   /* Skip "0x0564" header bytes */
   temp_offset += 2;
@@ -2575,8 +2574,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* No reassembly required */
         next_tvb = al_tvb;
         add_new_data_source(pinfo, next_tvb, "DNP 3.0 Application Layer message");
-        if (check_col (pinfo->cinfo, COL_INFO))
-          col_clear (pinfo->cinfo, COL_INFO);
+        col_clear(pinfo->cinfo, COL_INFO);
       }
       pinfo->fragmented = save_fragmented;
     }

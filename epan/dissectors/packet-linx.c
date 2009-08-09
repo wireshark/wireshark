@@ -238,8 +238,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Show name in protocol column */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LINX");
 	/* Clear out stuff in the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	{ /* Work out the details */
 		proto_item *ti        = NULL;

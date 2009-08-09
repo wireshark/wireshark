@@ -129,8 +129,7 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMIP");
-  	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_clear(pinfo->cinfo, COL_INFO);
+  	col_clear(pinfo->cinfo, COL_INFO);
 	switch(session->spdu_type){
 		case SES_CONNECTION_REQUEST:
 		case SES_CONNECTION_ACCEPT:

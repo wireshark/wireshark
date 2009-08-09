@@ -135,8 +135,7 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint8 type;
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "DOCSIS MGMT");
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_clear (pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
 
   src = tvb_get_ptr (tvb, 6, 6);

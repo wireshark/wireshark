@@ -3008,8 +3008,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
 
   /* Clear out the Info column. */
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  col_clear(pinfo->cinfo, COL_INFO);
 
   tcph->th_sport = tvb_get_ntohs(tvb, offset);
   tcph->th_dport = tvb_get_ntohs(tvb, offset + 2);
