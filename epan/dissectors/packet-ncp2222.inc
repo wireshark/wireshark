@@ -2760,24 +2760,24 @@ build_expert_data(proto_tree *ncp_tree, const char *hf_name, char *buffer,
             tree_pointer = tree_pointer->first_child;
             in_struct=TRUE;
         }
-        if (strcmp(tree_pointer->finfo->hfinfo->abbrev, hf_name)==0)
+        if (strcmp(PTREE_FINFO(tree_pointer)->hfinfo->abbrev, hf_name)==0)
         {
-            switch (tree_pointer->finfo->hfinfo->type)
+            switch (PTREE_FINFO(tree_pointer)->hfinfo->type)
             {
             case 3:                /* uint8 */
             case 4:                /* uint16 */
-                g_snprintf(buffer, (gulong) buffer_size, "%u", get_finfo_value_integer(tree_pointer->finfo));
+                g_snprintf(buffer, (gulong) buffer_size, "%u", get_finfo_value_integer(PTREE_FINFO(tree_pointer)));
                 break;
 
             case 6:             /* uint32 */
-                g_snprintf(buffer, (gulong) buffer_size, "%08x", get_finfo_value_integer(tree_pointer->finfo));
+                g_snprintf(buffer, (gulong) buffer_size, "%08x", get_finfo_value_integer(PTREE_FINFO(tree_pointer)));
                 break;
             case 17:
             case 18:
             case 19:
             case 20:            /* string */
                 /* XXX: Should we verify: buffer_size is as large as value returned by get_finfo_length(...)  ???      */
-                uni_to_string(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo), buffer);
+                uni_to_string(get_finfo_value_string(PTREE_FINFO(tree_pointer)), get_finfo_length(PTREE_FINFO(tree_pointer)), buffer);
                 if (repeat_lookup > 0) {
                     if (strlen(temp_buffer) + strlen(buffer) < 250) {
                         g_strlcat(temp_buffer, buffer, 256);
@@ -2803,7 +2803,7 @@ build_expert_data(proto_tree *ncp_tree, const char *hf_name, char *buffer,
                 }
             case 21:
             case 22:             /* Bytes */
-                g_snprintf(buffer, (gulong) buffer_size, "%s", bytes_to_str(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo)));
+                g_snprintf(buffer, (gulong) buffer_size, "%s", bytes_to_str(get_finfo_value_string(PTREE_FINFO(tree_pointer)), get_finfo_length(PTREE_FINFO(tree_pointer))));
                 break;
             default:             /* Dont currently handle. Only need string, integers, and bytes */
                 g_snprintf(buffer, (gulong) buffer_size, "Unsupported Expert Type");
