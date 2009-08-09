@@ -4018,8 +4018,16 @@ proto_register_subtree_array(gint *const *indices, int num_indices)
 	 * first element is pointed to by "indices", and update
 	 * "num_tree_types" appropriately.
 	 */
-	for (i = 0; i < num_indices; i++, ptr++, num_tree_types++)
+	for (i = 0; i < num_indices; i++, ptr++, num_tree_types++) {
+		if (**ptr != -1) {
+			/* g_error will terminate the program */
+			g_error("register_subtree_array: subtree item type (ett_...) not -1 !"
+				" This is a development error:"
+				" Either the subtree item type has already been assigned or"
+				" was not initialized to -1.");
+		}
 		**ptr = num_tree_types;
+	}
 }
 
 void
