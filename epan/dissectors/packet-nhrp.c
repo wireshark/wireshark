@@ -840,9 +840,7 @@ void dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *nhrp_tree = NULL;
 	oui_info_t *oui_info;
 		
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NHRP");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NHRP");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 	}

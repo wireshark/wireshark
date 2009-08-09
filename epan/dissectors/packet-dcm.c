@@ -6263,9 +6263,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 
     /* Mark it. This is a DICOM packet */
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DICOM");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DICOM");
 
      /* Process all PDUs in the buffer */
     while (pdu_start < tlen) {

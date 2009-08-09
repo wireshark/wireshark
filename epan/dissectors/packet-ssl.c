@@ -615,10 +615,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Initialize the protocol column; we'll set it later when we
      * figure out what flavor of SSL it is (assuming we don't
      * throw an exception before we get the chance to do so). */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
     /* clear the the info column */
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1171,12 +1168,8 @@ again:
 			 * of the payload, and that's 0).
 			 * Just mark this as SSL.
 			 */
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
-			}
-			if (check_col(pinfo->cinfo, COL_INFO)){
-				col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
-			}
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
+			col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
 		}
 
 		/*

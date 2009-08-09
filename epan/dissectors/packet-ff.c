@@ -13448,9 +13448,7 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint32 trailer_len = 0;
 
-	if(check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FF");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FF");
 
 	Options	= tvb_get_guint8(tvb, 1);
 	ProtocolAndType	= tvb_get_guint8(tvb, 2);

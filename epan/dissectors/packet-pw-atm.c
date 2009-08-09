@@ -488,11 +488,7 @@ gboolean too_small_packet_or_notpw(tvbuff_t * tvb
 		{
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 		}
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_set_str(pinfo->cinfo, COL_INFO,
-				"Malformed: PW packet is too small");
-		}
+		col_set_str(pinfo->cinfo, COL_INFO, "Malformed: PW packet is too small");
 		return TRUE;
 	}
 	if (dissect_try_cw_first_nibble(tvb, pinfo, tree))

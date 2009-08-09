@@ -201,10 +201,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     tcap_top_tree = parent_tree;
     tcap_stat_tree = NULL;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCAP");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCAP");
 
     /* create display subtree for the protocol */
     if(parent_tree){

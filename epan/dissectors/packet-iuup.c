@@ -609,10 +609,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
     guint16  crccheck;
     tvbuff_t* tvb = tvb_in;
     
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IuUP");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IuUP");
 
     if (two_byte_pseudoheader) {
         int len = tvb_length(tvb_in) - 2;

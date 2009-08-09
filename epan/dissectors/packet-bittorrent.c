@@ -555,9 +555,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
 	} */
       if (msgtype == NULL) {
          proto_tree_add_text(tree, tvb, offset, -1, "Continuation data");
-         if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_set_str(pinfo->cinfo, COL_INFO, "Continuation data");
-         }
+         col_set_str(pinfo->cinfo, COL_INFO, "Continuation data");
          return;
       }
    } else {
@@ -575,9 +573,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
    /* Keepalive message */
    if (length == 0) {
       proto_tree_add_item(mtree, hf_bittorrent_msg_len, tvb, offset, BITTORRENT_HEADER_LENGTH, FALSE);
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-         col_set_str(pinfo->cinfo, COL_INFO, "KeepAlive");
-      }
+      col_set_str(pinfo->cinfo, COL_INFO, "KeepAlive");
       return;
    }
 
@@ -686,9 +682,7 @@ static void dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, p
    int i;
    char *version;
 
-   if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_set_str(pinfo->cinfo, COL_INFO, "Handshake");
-   }
+   col_set_str(pinfo->cinfo, COL_INFO, "Handshake");
 
    proto_tree_add_item(tree, hf_bittorrent_prot_name_len, tvb, offset, 1, FALSE); offset+=1;
    proto_tree_add_item(tree, hf_bittorrent_prot_name, tvb, offset, 19, FALSE); offset += 19;
@@ -721,13 +715,9 @@ static void dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto
 {
    proto_item *ti;
 
-   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "BitTorrent");
-   }
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "BitTorrent");
 
-   if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent ");
-   }
+   col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent ");
 
    ti = proto_tree_add_item (tree, proto_bittorrent, tvb, 0, -1, FALSE);
    tree = proto_item_add_subtree(ti, ett_bittorrent);

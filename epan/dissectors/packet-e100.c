@@ -80,14 +80,8 @@ dissect_e100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb_get_ntohl(tvb, e100_bytes_cap.offset) == tvb_length(tvb)-e100_encap_len)
         {
             guint32 bytes_captured=0;
-            if (check_col(pinfo->cinfo, COL_PROTOCOL))
-            {
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "e100");
-            }
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                col_set_str(pinfo->cinfo, COL_INFO, "E100 Encapsulated Packet");
-            }
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "e100");
+            col_set_str(pinfo->cinfo, COL_INFO, "E100 Encapsulated Packet");
             if (tree)
             {
                 /* pick apart protocol for display */

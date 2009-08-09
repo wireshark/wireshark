@@ -102,11 +102,7 @@ static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto
 		{
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
 		}
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_set_str(pinfo->cinfo, COL_INFO,
-				"Malformed: PW packet is too small");
-		}
+		col_set_str(pinfo->cinfo, COL_INFO, "Malformed: PW packet is too small");
 		return;
 	}
 

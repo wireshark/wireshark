@@ -3735,9 +3735,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	   * None found - this is presumably continued from an earlier
 	   * packet and continued in a later packet.
 	   */
-	  if (check_col(pinfo->cinfo, COL_INFO)){
-		  col_set_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
-	  }
+	  col_set_str(pinfo->cinfo, COL_INFO, "PPP Fragment");
 	  if (tree)
 		  proto_tree_add_text(bs_tree, tvb, offset, -1, "PPP Fragment");
 	  offset++;
@@ -3754,9 +3752,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   	   * We have some data preceding the first PPP packet;
   	   * mark it as a PPP fragment.
   	   */
-	  if(check_col(pinfo->cinfo, COL_INFO)){
-		  col_set_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
-	  }
+	  col_set_str(pinfo->cinfo, COL_INFO, "PPP Fragment");
 	  length = offset;
 	  if (tree)
 		  proto_tree_add_text(bs_tree, tvb, 0, length, "PPP Fragment");
@@ -3779,9 +3775,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	  	   * a later packet.
 	  	   */
 		  if (first) {
-			  if(check_col(pinfo->cinfo, COL_INFO)){
-				  col_set_str(pinfo->cinfo, COL_INFO,"PPP Fragment");
-			  }
+			  col_set_str(pinfo->cinfo, COL_INFO, "PPP Fragment");
 		  }
 		  if (tree)
 			  proto_tree_add_text(bs_tree, tvb, offset, -1, "PPP Fragment");

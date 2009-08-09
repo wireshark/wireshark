@@ -2532,9 +2532,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     guint32 srtcp_offset = 0;
     guint32 srtcp_index  = 0;
 
-    if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-        col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTCP" );
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTCP");
 
     /* first see if this conversation is encrypted SRTP, and if so do not try to dissect the payload(s) */
     p_conv = find_conversation(pinfo->fd->num, &pinfo->net_src, &pinfo->net_dst,

@@ -1864,10 +1864,7 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(pkt_len<13)
 	{
-		if(check_col(pinfo->cinfo, COL_PROTOCOL))
-		{
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "No Data");
-		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "No Data");
 		return;
 	}
 
@@ -1928,26 +1925,17 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		switch(type) {
 		case 0x1675:
-			if(check_col(pinfo->cinfo, COL_PROTOCOL))
-			{
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT PP");
-			}
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT PP");
 			proto_item_append_text(typeti, " Phone Packet");
 			dissect_decttype(DECT_PACKET_PP, &pkt_afield, &pkt_bfield, pinfo, pkt_ptr, tvb, ti, DectTree);
 			break;
 		case 0xe98a:
-			if(check_col(pinfo->cinfo, COL_PROTOCOL))
-			{
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT RFP");
-			}
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT RFP");
 			proto_item_append_text(typeti, " Station Packet");
 			dissect_decttype(DECT_PACKET_FP, &pkt_afield, &pkt_bfield, pinfo, pkt_ptr, tvb, ti, DectTree);
 			break;
 		default:
-			if(check_col(pinfo->cinfo, COL_PROTOCOL))
-			{
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT Unk");
-			}
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "DECT Unk");
 			proto_item_append_text(typeti, " Unknown Packet");
 			break;
 		}

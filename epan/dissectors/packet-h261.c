@@ -68,13 +68,9 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	proto_tree *h261_tree     = NULL;
 	unsigned int offset       = 0;
 
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "H.261" );
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.261");
 
-	if ( check_col( pinfo->cinfo, COL_INFO) ) {
-		col_set_str( pinfo->cinfo, COL_INFO, "H.261 message");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "H.261 message");
 
 	if ( tree ) {
 		ti = proto_tree_add_item( tree, proto_h261, tvb, offset, -1, FALSE );

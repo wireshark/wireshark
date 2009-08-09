@@ -93,15 +93,8 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 				"PW packet (%d) is smaller than PW encapsulation header (%d)"
 				,(int)packet_size,(int)encaps_size);
 		}
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))   
-		{
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR PW");
-		}
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_set_str(pinfo->cinfo, COL_INFO, 
-				"Malformed: PW packet < PW encapsulation header");
-		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR PW");
+		col_set_str(pinfo->cinfo, COL_INFO, "Malformed: PW packet < PW encapsulation header");
 		return;
 	}
 
@@ -171,10 +164,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		packet_quality |= PQ_PAYLOAD_SIZE_ZERO;
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))   
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR PW");
-	}  
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR PW");  
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_clear(pinfo->cinfo, COL_INFO);

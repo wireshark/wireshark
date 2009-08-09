@@ -764,10 +764,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case SECURITY_TYPES :
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "Authentication type selected by client");
-		}
+		col_set_str(pinfo->cinfo, COL_INFO, "Authentication type selected by client");
 		proto_tree_add_item(tree, hf_vnc_client_security_type, tvb,
 							offset, 1, FALSE);
 		per_conversation_info->security_type_selected =

@@ -450,9 +450,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint16 rsk=0, rsz=0;
 
   pinfo->current_proto = "DCP-PFT";
-  if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCP-PFT");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-PFT");
 
   if (tree) {                   /* we are being asked for details */
     ti = proto_tree_add_item (tree, proto_pft, tvb, 0, -1, FALSE);
@@ -555,9 +553,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   tvbuff_t *next_tvb = NULL;
 
   pinfo->current_proto = "DCP-AF";
-  if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCP-AF");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-AF");
 
   if (tree) {                   /* we are being asked for details */
     ti = proto_tree_add_item (tree, proto_af, tvb, 0, -1, FALSE);
@@ -630,9 +626,7 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint16 maj, min;
 
   pinfo->current_proto = "DCP-TPL";
-  if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCP-TPL");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-TPL");
 
   if(tree) {
     proto_item *ti = NULL;

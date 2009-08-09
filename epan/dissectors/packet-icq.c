@@ -451,12 +451,8 @@ dissect_icqv4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti = NULL;
 
     /* Not really implemented yet */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv4 (UDP)");
-    }
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 4 protocol");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv4 (UDP)");
+    col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 4 protocol");
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_icq, tvb, 0, -1,
 					    "ICQv4");
@@ -474,12 +470,8 @@ dissect_icqv3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti = NULL;
 
     /* Not really implemented yet */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv3 (UDP)");
-    }
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 3 protocol");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv3 (UDP)");
+    col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 3 protocol");
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_icq, tvb, 0, -1,
 					    "ICQv3");
@@ -497,12 +489,8 @@ dissect_icqv2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti = NULL;
 
     /* Not really implemented yet */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv2 (UDP)");
-    }
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 2 protocol");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv2 (UDP)");
+    col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 2 protocol");
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_icq, tvb, 0, -1,
 					    "ICQv2");
@@ -1740,9 +1728,7 @@ dissect_icq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (version < 2 || version > 5)
     return 0;	/* This is not a (recognized) ICQ packet */
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQ");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQ");
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_clear(pinfo->cinfo, COL_INFO);
   }

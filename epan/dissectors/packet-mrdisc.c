@@ -203,9 +203,7 @@ dissect_mrdisc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int o
 	tree = proto_item_add_subtree(item, ett_mrdisc);
 
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRDISC");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRDISC");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 	}

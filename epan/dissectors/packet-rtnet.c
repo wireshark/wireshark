@@ -400,9 +400,7 @@ dissect_rtnet_tdma_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
   msg = tvb_get_ntohl(tvb, offset);
 
   /* Set the protocol column */
-  if (check_col(pinfo->cinfo,COL_PROTOCOL)){
-    col_set_str(pinfo->cinfo,COL_PROTOCOL,"TDMA-V1");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDMA-V1");
 
   /* set the info column */
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -519,9 +517,7 @@ dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
   msg = tvb_get_ntohs(tvb, 2);
 
   /* Set the protocol column */
-  if (check_col(pinfo->cinfo,COL_PROTOCOL)){
-    col_set_str(pinfo->cinfo,COL_PROTOCOL,"TDMA");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDMA");
 
   /* Set the info column */
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -596,9 +592,7 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   /* Set the protocol column */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTmac");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTmac");
 
   /* set the info column */
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -682,9 +676,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   const guint8 *haddr;
 
   /* Set the protocol column */
-  if(check_col(pinfo->cinfo,COL_PROTOCOL)){
-    col_set_str(pinfo->cinfo,COL_PROTOCOL,"RTcfg");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTcfg");
 
   /* Clear out stuff in the info column */
   if(check_col(pinfo->cinfo,COL_INFO)){

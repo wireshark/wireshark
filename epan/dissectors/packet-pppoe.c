@@ -425,10 +425,7 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree  *pppoe_tree = NULL;
 	proto_item  *ti;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPPoED");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPPoED");
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_clear(pinfo->cinfo, COL_INFO);
@@ -679,10 +676,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item  *ti = NULL;
 	tvbuff_t    *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPPoES");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPPoES");
 	if (check_col(pinfo->cinfo,COL_INFO))
 	{
 		col_clear(pinfo->cinfo,COL_INFO);

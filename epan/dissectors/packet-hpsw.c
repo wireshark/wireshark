@@ -85,13 +85,9 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti = NULL;
 	guint8		version;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HP");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HP");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "HP Switch Protocol");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "HP Switch Protocol");
 
 	version = tvb_get_guint8(tvb, 0);
 

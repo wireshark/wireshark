@@ -390,14 +390,8 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
     /* Set columns */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSMMS");
-    }
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_set_str(pinfo->cinfo, COL_INFO, "Command: ");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSMMS");
+    col_set_str(pinfo->cinfo, COL_INFO, "Command: ");
 
     /* Add hidden filter for "msmms.command" */
     ti = proto_tree_add_item(tree, hf_msmms_command, tvb, 0, 0, FALSE);
@@ -586,10 +580,7 @@ static gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, pr
     gint offset = 0;
 
     /* Set protocol column */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSMMS");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSMMS");
 
     /* Create MSMMS data protocol tree */
     if (tree)
@@ -610,10 +601,7 @@ static gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, pr
     proto_tree_add_item(msmms_tree, hf_msmms_data_command_id, tvb, offset, 2, TRUE);
     offset += 4;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_set_str(pinfo->cinfo, COL_INFO, "Request to resend packet(s):");
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, "Request to resend packet(s):");
 
     /* Show list of packets to resend */
     while (tvb_reported_length_remaining(tvb, offset) >= 4)
@@ -678,10 +666,7 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         }
     }
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSMMS");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSMMS");
 
     /* Add hidden filter for "msmms.data" */
     proto_tree_add_item(tree, hf_msmms_data, tvb, 0, 0, FALSE);

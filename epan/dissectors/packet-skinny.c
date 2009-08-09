@@ -2677,13 +2677,9 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Make entries in Protocol column and Info column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SKINNY");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SKINNY");
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "Skinny Client Control Protocol");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "Skinny Client Control Protocol");
 
   tcp_dissect_pdus(tvb, pinfo, tree, skinny_desegment, 4,
 	get_skinny_pdu_len, dissect_skinny_pdu);

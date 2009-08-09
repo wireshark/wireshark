@@ -578,9 +578,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
     foffset += 1;
 
     /* Fill in the PROTOCOL & INFO  columns. */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-       col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSSS");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSSS");
     if (check_col(pinfo->cinfo, COL_INFO)) {
        col_add_fstr(pinfo->cinfo, COL_INFO, "C SecretStore - %s", val_to_str(subfunc, sss_func_enum, "Unknown (%d)"));
     }
@@ -728,9 +726,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
         subverb = request_value->req_nds_flags;
         msgverb = request_value->nds_request_verb;
     }
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-       col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSSS");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSSS");
     if (tvb_length_remaining(tvb, foffset)<4) {
         return;
     }

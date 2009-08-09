@@ -212,10 +212,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
     guint8                      speech_data_len[0x20];
 
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "EVRC");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "EVRC");
 
     if (!tree) return;
 

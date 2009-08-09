@@ -256,9 +256,7 @@ dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	info_str[0] = 0;
 
 	/* make entries in Protocol column and Info column on summary display */
-	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPL_V1");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPL_V1");
 
 
 	/* get service type */

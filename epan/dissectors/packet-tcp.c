@@ -1890,12 +1890,8 @@ again:
 			 * of the payload, and that's 0).
 			 * Just mark this as TCP.
 			 */
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
-			}
-			if (check_col(pinfo->cinfo, COL_INFO)){
-				col_set_str(pinfo->cinfo, COL_INFO, "[TCP segment of a reassembled PDU]");
-			}
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
+			col_set_str(pinfo->cinfo, COL_INFO, "[TCP segment of a reassembled PDU]");
 		}
 
 		/*

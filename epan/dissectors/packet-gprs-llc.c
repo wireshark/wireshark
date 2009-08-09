@@ -484,20 +484,14 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *uinfo_tree = NULL;
 	/* END MLT CHANGES */
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS-LLC");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS-LLC");
 
 	addr_fld = tvb_get_guint8(tvb,offset);
 	offset++;
 
 	if (addr_fld > 128 )
 	{
-		if (check_col(pinfo->cinfo,COL_INFO))
-		{
-		       col_set_str(pinfo->cinfo,COL_INFO,"Invalid packet - Protocol Discriminator bit is set to 1");
-		}
+		col_set_str(pinfo->cinfo, COL_INFO, "Invalid packet - Protocol Discriminator bit is set to 1");
 		return;
 	}
 

@@ -210,9 +210,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (match_strval(wccp_message_type, wccp_type_vals) == NULL)
 		return 0;
 
-	if(check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WCCP");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WCCP");
 	if(check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 	}

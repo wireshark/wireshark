@@ -2629,9 +2629,7 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIGI");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIGI");
 
     /* If we have the start of frame or IG Control packet set the version
      * XXX - If another version of cigi is added to this dissector be sure to

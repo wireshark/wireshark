@@ -92,10 +92,7 @@ static gint ett_status_item = -1;
 static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* replace UDP with EGD in display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-  {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "EGD");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "EGD");
 
   /* Clear out stuff in the info column */
   if (check_col(pinfo->cinfo,COL_INFO))

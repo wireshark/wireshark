@@ -88,9 +88,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	tvbuff_t *next_tvb;
 	*/
 
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "H.263 RFC4629 " );
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.263 RFC4629 ");
 
 	if ( tree ) {
 	  ti = proto_tree_add_item( tree, proto_h263P, tvb, offset, -1, FALSE );

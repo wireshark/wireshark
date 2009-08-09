@@ -106,9 +106,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti = NULL;
 	guint8		type, len;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMP");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMP");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);

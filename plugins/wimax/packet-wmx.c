@@ -792,10 +792,7 @@ static void dissect_wimax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	UNREFERENCED_PARAMETER(tree);
 
 	/* display the WiMax protocol name */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMax");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMax");
 	/* Clear out stuff in the info column */
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{

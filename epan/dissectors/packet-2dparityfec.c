@@ -118,10 +118,7 @@ static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    OffsetField    = tvb_get_guint8(tvb, 13);
    NAField        = tvb_get_guint8(tvb, 14);
 
-   if(check_col(pinfo->cinfo, COL_PROTOCOL))
-   {
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "2dFEC");
-   }
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "2dFEC");
 
    /* Configure the info column */
    if(check_col(pinfo->cinfo, COL_INFO))

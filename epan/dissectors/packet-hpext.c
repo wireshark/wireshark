@@ -61,9 +61,7 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		dxsap, sxsap;
 	tvbuff_t	*next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HPEXT");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HPEXT");
 
 	dxsap = tvb_get_ntohs(tvb, 3);
 	sxsap = tvb_get_ntohs(tvb, 5);

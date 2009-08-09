@@ -191,9 +191,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	nbd_transaction_t *nbd_trans=NULL;
 	emem_tree_key_t hkey[3];
 
-	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBD");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBD");
 
 	if(check_col(pinfo->cinfo, COL_INFO)){
 		col_clear(pinfo->cinfo, COL_INFO);

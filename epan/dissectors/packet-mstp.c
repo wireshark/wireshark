@@ -163,9 +163,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "BACnet MS/TP");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "BACnet MS/TP");
 	mstp_frame_type = tvb_get_guint8(tvb, offset);
 	mstp_frame_destination = tvb_get_guint8(tvb, offset+1);
 	mstp_frame_source = tvb_get_guint8(tvb, offset+2);

@@ -427,9 +427,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	if (!(check_col(pinfo->cinfo, COL_INFO) || tree))   return; /* Be sure that the function is only called twice */
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))  {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "104asdu");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "104asdu");
 	if (check_col(pinfo->cinfo, COL_INFO))  {
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
@@ -522,9 +520,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	if (!(check_col(pinfo->cinfo, COL_INFO) || tree))   return; /* Be sure that the function is only called twice */
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))  {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "104apci");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "104apci");
 	if (check_col(pinfo->cinfo, COL_INFO))  {
 		col_clear(pinfo->cinfo, COL_INFO);
 	}

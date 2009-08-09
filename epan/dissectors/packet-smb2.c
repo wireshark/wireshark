@@ -5263,9 +5263,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	}
 
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB2");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB2");
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		if (first_in_chain) {
 			/* first packet */

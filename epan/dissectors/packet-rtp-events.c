@@ -92,10 +92,7 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint8      rtp_evt;
 	guint8      octet;
 
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )
-	{
-	    col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP EVENT" );
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTP EVENT");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 

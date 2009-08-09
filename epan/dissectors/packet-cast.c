@@ -1078,13 +1078,9 @@ static void dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Make entries in Protocol column and Info column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAST");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAST");
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "Cast Client Control Protocol");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "Cast Client Control Protocol");
   tcp_dissect_pdus(tvb, pinfo, tree, cast_desegment, 4, get_cast_pdu_len, dissect_cast_pdu);
 }
 

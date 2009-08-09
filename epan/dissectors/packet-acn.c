@@ -2587,9 +2587,7 @@ dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*   }                   */
 
   /* Set the protocol column */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACN");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACN");
 
   /* Clear out stuff in the info column */
   if(check_col(pinfo->cinfo,COL_INFO)){

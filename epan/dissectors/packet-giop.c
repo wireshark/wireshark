@@ -3846,10 +3846,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
   tvb_memcpy (giop_header_tvb, (guint8 *)&header, 0, GIOP_HEADER_SIZE );
 
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    {
-      col_set_str (pinfo->cinfo, COL_PROTOCOL, "GIOP");
-    }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "GIOP");
 
   if (header.GIOP_version.major != GIOP_MAJOR ||
       ((minor_version = header.GIOP_version.minor) > GIOP_MINOR))

@@ -512,9 +512,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
@@ -561,9 +559,7 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *next_tvb;
 	guint16 ifp_packet_number=1;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_clear(pinfo->cinfo, COL_INFO);
 	}

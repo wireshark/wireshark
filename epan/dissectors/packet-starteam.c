@@ -486,9 +486,7 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint offset = 0;
 	static gint iPreviousFrameNumber = -1;
 
-	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "StarTeam");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "StarTeam");
 
 	if(check_col(pinfo->cinfo, COL_INFO)){
 		/* This is a trick to know whether this is the first PDU in this packet or not */

@@ -82,10 +82,7 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    gint offset = 0;
    EtherCATFrameParserHDR hdr;
 
-   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-   {
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ECATF");
-   }
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ECATF");
 
    if (check_col(pinfo->cinfo, COL_INFO))
    {

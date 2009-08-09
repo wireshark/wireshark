@@ -91,9 +91,7 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
     rfc2190_version = (tvb_get_guint8( tvb, offset ) & 0xc0 ) >> 6;
 
-    if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-        col_set_str( pinfo->cinfo, COL_PROTOCOL, "H.263 " );
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.263 ");
 
     if( rfc2190_version == 0x00) {
         if ( check_col( pinfo->cinfo, COL_INFO) ) {

@@ -4333,10 +4333,7 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * Make entry in the Protocol column on summary display
      */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI MAP");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI MAP");
 
     /* Data from the TCAP dissector */
     if (pinfo->private_data == NULL){

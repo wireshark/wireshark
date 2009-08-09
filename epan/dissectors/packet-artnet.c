@@ -1364,9 +1364,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree *ti,*hi,*si,*artnet_tree=NULL,*artnet_header_tree=NULL;
 
   /* Set the protocol column */
-  if(check_col(pinfo->cinfo,COL_PROTOCOL)){
-    col_set_str(pinfo->cinfo,COL_PROTOCOL,"ARTNET");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARTNET");
 
   /* Clear out stuff in the info column */
   if(check_col(pinfo->cinfo,COL_INFO)){

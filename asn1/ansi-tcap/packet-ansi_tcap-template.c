@@ -332,10 +332,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         ansi_tcap_ctx_init(&ansi_tcap_private);
 
     tcap_top_tree = parent_tree;
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI TCAP");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI TCAP");
 
     /* create display subtree for the protocol */
     if(parent_tree){

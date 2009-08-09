@@ -107,9 +107,7 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	tree = proto_item_add_subtree(item, ett_ipvs_syncd);
 
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPVS");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPVS");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 	}

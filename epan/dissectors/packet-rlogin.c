@@ -424,10 +424,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Set protocol column text */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Rlogin");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Rlogin");
 
 	/* Set info column */
 	if (check_col(pinfo->cinfo, COL_INFO))

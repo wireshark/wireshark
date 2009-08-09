@@ -335,9 +335,7 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return;
 	}
 
-	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "iFCP");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "iFCP");
 
 	frame_len = (tvb_get_ntohs (tvb, offset+12) & 0x03FF)*4;
 

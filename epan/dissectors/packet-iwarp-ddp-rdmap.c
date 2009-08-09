@@ -265,9 +265,7 @@ ddp_rdma_packetlist(packet_info *pinfo, gboolean ddp_last_flag,
 {
 	const gchar *ddp_fragment_state;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP/RDMA");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP/RDMA");
 
 	if (ddp_last_flag) {
 		ddp_fragment_state = "[last DDP segment]";

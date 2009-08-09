@@ -2317,9 +2317,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset++;
 
 
-	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_EVT");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_EVT");
 
 	if((check_col(pinfo->cinfo, COL_INFO))){
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(evt_code, evt_code_vals, "Unknown 0x%08x"));

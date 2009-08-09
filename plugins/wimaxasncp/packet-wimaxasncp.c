@@ -1999,10 +1999,7 @@ dissect_wimaxasncp(
      */
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMAX");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMAX");
 
     /* We'll fill in the "Info" column after fetch data, so we clear the
        column first in case calls to fetch data from the packet throw an

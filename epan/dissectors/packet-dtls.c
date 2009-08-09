@@ -398,10 +398,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Initialize the protocol column; we'll set it later when we
    * figure out what flavor of DTLS it is (actually only one
    version exists). */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
-    }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
 
   /* clear the the info column */
   col_clear(pinfo->cinfo, COL_INFO);
@@ -457,10 +454,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			     "Continuation Data");
 
 	    /* Set the protocol column */
-	    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	      {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL,"DTLS");
-	      }
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
 	  }
 	break;
       }
@@ -614,10 +608,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
 
     /* Set the protocol column */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL,"DTLS");
-      }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
     return offset + 13 + record_length;
   }
 

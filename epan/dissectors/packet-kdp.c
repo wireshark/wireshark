@@ -83,9 +83,7 @@ static void dissect_kdp(tvbuff_t *tvb,
   guint32 src_flowid = G_MAXUINT32; 
   int offset;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDP");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDP");
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_clear(pinfo->cinfo, COL_INFO);
   }

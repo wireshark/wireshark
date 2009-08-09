@@ -367,9 +367,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     memset(&packet, 0, sizeof(packet));
 
     /* Add ourself to the protocol column, clear the info column, and create the protocol tree. */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_clear(pinfo->cinfo, COL_INFO);
     }

@@ -654,10 +654,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         } else {
             if (tvb_get_guint8(tvb, commhdr + 2) & 0x10) {
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_set_str(pinfo->cinfo, COL_INFO,
-                        "End of Burst");
-                }
+                col_set_str(pinfo->cinfo, COL_INFO, "End of Burst");
             }
         }
         break;

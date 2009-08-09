@@ -709,13 +709,9 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item  *ti;
     tvbuff_t *next_tvb;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	col_set_str(pinfo->cinfo,COL_PROTOCOL, "MPLS");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS");
 
-    if (check_col(pinfo->cinfo,COL_INFO)) {
-	col_set_str(pinfo->cinfo,COL_INFO,"MPLS Label Switched Packet");
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, "MPLS Label Switched Packet");
 
     /* Start Decoding Here. */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {

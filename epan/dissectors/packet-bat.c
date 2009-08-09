@@ -132,9 +132,7 @@ static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	guint8 version;
 
 	/* set protocol name */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_BATMAN");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_BATMAN");
 
 	version = tvb_get_guint8(tvb, 0);
 	switch (version) {
@@ -336,9 +334,7 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ip_addr = tvb_get_ptr(tvb, ip_pos, 4);
 
 	/* set protocol name */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_GW");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_GW");
 
 	/* Set info column */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -396,9 +392,7 @@ static void dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 version;
 
 	/* set protocol name */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
 	version = tvb_get_guint8(tvb, 4);
 	switch (version) {
@@ -439,9 +433,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	vis_packeth->tq_max = tvb_get_ntohs(tvb, 6);
 
 	/* set protocol name */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
 	/* Set info column */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -574,9 +566,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	vis_packeth->tq_max = tvb_get_guint8(tvb, 6);
 
 	/* set protocol name */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
 	/* Set info column */
 	if (check_col(pinfo->cinfo, COL_INFO)) {

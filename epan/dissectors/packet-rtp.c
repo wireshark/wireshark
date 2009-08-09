@@ -883,14 +883,8 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if( pinfo->desegment_offset == 0 )
 		{
-			if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			{
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTP");
-			}
-			if (check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_set_str(pinfo->cinfo, COL_INFO, "[RTP segment of a reassembled PDU]");
-			}
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTP");
+			col_set_str(pinfo->cinfo, COL_INFO, "[RTP segment of a reassembled PDU]");
 		}
 	}
 
@@ -1064,9 +1058,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		/*
 		 * Unknown or unsupported version.
 		 */
-		if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-			col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
-		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTP");
 
 		if ( check_col( pinfo->cinfo, COL_INFO) ) {
 			col_add_fstr( pinfo->cinfo, COL_INFO,

@@ -118,9 +118,7 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_item *ti;
       const char *sep;
 
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DEC_STP");
-      }
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "DEC_STP");
       if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_clear(pinfo->cinfo, COL_INFO);
       }

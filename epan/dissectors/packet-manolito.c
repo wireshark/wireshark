@@ -107,10 +107,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tvb_reported_length(tvb) <= 20)      /* no payload, just headers */
 	{
-		if (check_col(pinfo->cinfo, COL_INFO)) 
-		{
-			col_set_str(pinfo->cinfo, COL_INFO, "Ping");
-		}
+		col_set_str(pinfo->cinfo, COL_INFO, "Ping");
 	} else {
 		offset = 20;            /* fields start here */
 

@@ -339,9 +339,7 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Develop the string to put in the Info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "WTLS" );
-	};
+	col_set_str(pinfo->cinfo, COL_INFO, "WTLS");
 
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
 	necessary to generate protocol tree items. */

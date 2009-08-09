@@ -1652,10 +1652,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	/*
 	 * Make entry in the Protocol column on summary display
 	 */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BSSAP+");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BSSAP+");
     
 	if (pinfo->sccp_info && pinfo->sccp_info->data.co.assoc)
 		pinfo->sccp_info->data.co.assoc->payload = SCCP_PLOAD_BSSAP;

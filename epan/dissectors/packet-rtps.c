@@ -5591,9 +5591,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
   if (tvb_get_guint8(tvb,offset+4) != 1) return FALSE;
 
   /* --- Make entries in Protocol column ---*/
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPS");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPS");
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_clear(pinfo->cinfo, COL_INFO);

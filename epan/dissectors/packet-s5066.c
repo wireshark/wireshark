@@ -1299,9 +1299,7 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Determine PDU type to display in INFO column */
 	guint8 pdu_type = tvb_get_guint8(tvb, s5066_header_size);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "S5066");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "S5066");
 	/* Clear out stuff in the info column, the add PDU type */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);

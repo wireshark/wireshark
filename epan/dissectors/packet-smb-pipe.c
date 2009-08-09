@@ -2651,9 +2651,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	}
 	pinfo->current_proto = "LANMAN";
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LANMAN");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LANMAN");
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb_lanman,
@@ -3539,9 +3537,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	/*
 	 * Set the columns.
 	 */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB Pipe");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB Pipe");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_set_str(pinfo->cinfo, COL_INFO,
 		    smb_info->request ? "Request" : "Response");

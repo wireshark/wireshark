@@ -197,9 +197,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
   
   type = tvb_get_guint8(tvb,offset);
 
-  if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "KINK");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "KINK");
     
   /* It shows kink type by the type value. */
   if(check_col(pinfo->cinfo, COL_INFO)){

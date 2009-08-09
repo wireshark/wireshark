@@ -567,9 +567,7 @@ dissect_zbee_aps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         aps_tree = proto_item_add_subtree(proto_root, ett_zbee_aps);
     }
     /* Set the protocol column, if the NWK layer hasn't already done so. */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee");
 
     /*  Get the FCF */
     fcf = tvb_get_guint8(tvb, offset);

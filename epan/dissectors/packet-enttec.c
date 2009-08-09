@@ -349,9 +349,7 @@ dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *ti,*enttec_tree=NULL;
 
 	/* Set the protocol column */
-	if (check_col(pinfo->cinfo,COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo,COL_PROTOCOL,"ENTTEC");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENTTEC");
 
 	head = tvb_get_ntohl(tvb, offset);
 

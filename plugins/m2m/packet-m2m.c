@@ -183,10 +183,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int expected_len;
 
 	/* display the M2M protocol name */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMax");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMax");
 
 	/* Clear out stuff in the info column */
 	if (check_col(pinfo->cinfo, COL_INFO))

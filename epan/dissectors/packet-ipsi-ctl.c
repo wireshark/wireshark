@@ -185,9 +185,7 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPSICTL");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPSICTL");
 
   if (haspdus)
   {

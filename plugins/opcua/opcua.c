@@ -164,10 +164,7 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     FctParse pfctParse = NULL;
     enum MessageType msgtype = MSG_INVALID;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpcUa");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpcUa");
 
     /* parse message type */
     if (tvb->real_data[0] == 'H' && tvb->real_data[1] == 'E' && tvb->real_data[2] == 'L')

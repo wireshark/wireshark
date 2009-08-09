@@ -573,72 +573,56 @@ dissect_winsrepl_replication(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 	switch (command) {
 		case WREPL_REPL_TABLE_QUERY:
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_TABLE_QUERY");
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_TABLE_QUERY");
 			proto_item_append_text(winsrepl_item, ", WREPL_REPL_TABLE_QUERY");
 			proto_item_append_text(repl_item, ", WREPL_REPL_TABLE_QUERY");
 			winsrepl_offset = dissect_winsrepl_table_query(winsrepl_tvb, pinfo,
 								       winsrepl_offset, repl_tree);
 			break;
 		case WREPL_REPL_TABLE_REPLY:
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_TABLE_REPLY");
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_TABLE_REPLY");
 			proto_item_append_text(winsrepl_item, ", WREPL_REPL_TABLE_REPLY");
 			proto_item_append_text(repl_item, ", WREPL_REPL_TABLE_REPLY");
 			winsrepl_offset = dissect_winsrepl_table_reply(winsrepl_tvb, pinfo,
 								       winsrepl_offset, repl_tree);
 			break;
 		case WREPL_REPL_SEND_REQUEST:
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_SEND_REQUEST");
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_SEND_REQUEST");
 			proto_item_append_text(winsrepl_item, ", WREPL_REPL_SEND_REQUEST");
 			proto_item_append_text(repl_item, ", WREPL_REPL_SEND_REQUEST");
 			winsrepl_offset = dissect_winsrepl_send_request(winsrepl_tvb, pinfo,
 									winsrepl_offset, repl_tree);
 			break;
 		case WREPL_REPL_SEND_REPLY:
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_SEND_REPLY");
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_SEND_REPLY");
 			proto_item_append_text(winsrepl_item, ", WREPL_REPL_SEND_REPLY");
 			proto_item_append_text(repl_item, ", WREPL_REPL_SEND_REPLY");
 			winsrepl_offset = dissect_winsrepl_send_reply(winsrepl_tvb, pinfo,
 								      winsrepl_offset, repl_tree);
 			break;
 		case WREPL_REPL_UPDATE:
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_UPDATE");
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_UPDATE");
 			proto_item_append_text(winsrepl_item, ", WREPL_REPL_UPDATE");
 			proto_item_append_text(repl_item, ", WREPL_REPL_UPDATE");
 			winsrepl_offset = dissect_winsrepl_update(winsrepl_tvb, pinfo,
 								  winsrepl_offset, repl_tree);
 			break;
 		case WREPL_REPL_UPDATE2:
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_UPDATE2");
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_UPDATE2");
 			proto_item_append_text(winsrepl_item, ",WREPL_REPL_UPDATE2");
 			proto_item_append_text(repl_item, ",WREPL_REPL_UPDATE2");
 			winsrepl_offset = dissect_winsrepl_update2(winsrepl_tvb, pinfo,
 								   winsrepl_offset, repl_tree);
 			break;
 		case WREPL_REPL_INFORM:
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_INFORM");
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_INFORM");
 			proto_item_append_text(winsrepl_item, ", WREPL_REPL_INFORM");
 			proto_item_append_text(repl_item, ", WREPL_REPL_INFORM");
 			winsrepl_offset = dissect_winsrepl_inform(winsrepl_tvb, pinfo,
 								  winsrepl_offset, repl_tree);
 			break;
 		case WREPL_REPL_INFORM2:
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_INFORM2");
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, "WREPL_REPL_INFORM2");
 			proto_item_append_text(winsrepl_item, ", WREPL_REPL_INFORM2");
 			proto_item_append_text(repl_item, ", WREPL_REPL_INFORM2");
 			winsrepl_offset = dissect_winsrepl_inform2(winsrepl_tvb, pinfo,
@@ -657,9 +641,7 @@ dissect_winsrepl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *winsrepl_tree = NULL;
 	enum wrepl_mess_type mess_type;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WINS-Replication");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WINS-Replication");
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
@@ -688,25 +670,19 @@ dissect_winsrepl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	switch (mess_type) {
 		case WREPL_START_ASSOCIATION:
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "WREPL_START_ASSOCIATION");
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, "WREPL_START_ASSOCIATION");
 			proto_item_append_text(winsrepl_item, ", WREPL_START_ASSOCIATION");
 			dissect_winsrepl_start(tvb, pinfo,
 							offset, winsrepl_tree);
 			break;
 		case WREPL_START_ASSOCIATION_REPLY:
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "WREPL_START_ASSOCIATION_REPLY");
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, "WREPL_START_ASSOCIATION_REPLY");
 			proto_item_append_text(winsrepl_item, ", WREPL_START_ASSOCIATION_REPLY");
 			dissect_winsrepl_start(tvb, pinfo,
 							offset, winsrepl_tree);
 			break;
 		case WREPL_STOP_ASSOCIATION:
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_set_str(pinfo->cinfo, COL_INFO, "WREPL_STOP_ASSOCIATION");
-			}
+			col_set_str(pinfo->cinfo, COL_INFO, "WREPL_STOP_ASSOCIATION");
 			proto_item_append_text(winsrepl_item, ", WREPL_STOP_ASSOCIATION");
 			dissect_winsrepl_stop(tvb, pinfo,
 						       offset, winsrepl_tree);

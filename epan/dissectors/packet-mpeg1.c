@@ -125,15 +125,9 @@ dissect_mpeg1( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint16     mpg_ffv;
 	guint16     mpg_ffc;
 
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )
-	  {
-	    col_set_str( pinfo->cinfo, COL_PROTOCOL, "MPEG-1" );
-	  }
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG-1");
 
-	if ( check_col( pinfo->cinfo, COL_INFO) )
-	  {
-	    col_set_str( pinfo->cinfo, COL_INFO, "MPEG-1 message");
-	  }
+	col_set_str(pinfo->cinfo, COL_INFO, "MPEG-1 message");
 
 	/* Get MPEG-1  fields */
 

@@ -108,10 +108,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 objlength;
 
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-  {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OMAPI");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "OMAPI");
 
   if (check_col(pinfo->cinfo, COL_INFO)) 
   {
@@ -133,10 +130,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ptvcursor_add(cursor, hf_omapi_version, 4, FALSE);
     ptvcursor_add(cursor, hf_omapi_hlength, 4, FALSE);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) 
-    {
-      col_set_str(pinfo->cinfo, COL_INFO, "Status message");
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, "Status message");
     proto_item_append_text(ti, ", Status message"); 
 
     return;

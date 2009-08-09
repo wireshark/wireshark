@@ -4635,9 +4635,7 @@ dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * The dissector failed to recognize this as a valid
 	 * Kerberos message.  Mark it as a continuation packet.
 	 */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
     }
 }
 

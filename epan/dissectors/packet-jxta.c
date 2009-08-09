@@ -475,9 +475,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         return -needed;
     }
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "JXTA");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "JXTA");
 
     if (tree) {
         guint tree_offset = 0;
@@ -821,13 +819,9 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
     /* Dissect the Welcome Message */
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "JXTA");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "JXTA");
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, "Welcome");
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, "Welcome");
 
     {
 	gchar *welcomeline = tvb_get_ephemeral_string(tvb, offset, first_linelen);
@@ -1321,9 +1315,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         ep_strbuf_append_printf(dst_addr, ":%d", pinfo->destport);
     }
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "JXTA");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "JXTA");
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         if( complete_messages > 1 ) {

@@ -1173,12 +1173,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         } else if ((fchdr.r_ctl & 0x0F) == FC_BLS_BARJT) {
             dissect_fc_ba_rjt (next_tvb, pinfo, tree);
         } else if ((fchdr.r_ctl & 0x0F) == FC_BLS_ABTS) {
-            if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLS");
-            }
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_set_str(pinfo->cinfo, COL_INFO, "ABTS");
-            }
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLS");
+            col_set_str(pinfo->cinfo, COL_INFO, "ABTS");
         }
     }
     tap_queue_packet(fc_tap, pinfo, &fchdr);

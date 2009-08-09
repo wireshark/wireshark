@@ -2619,9 +2619,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * protocol and info fields to indicate that this is
 		 * an RPC auth level message, then process the args.
 		 */
-		if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
-		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_clear(pinfo->cinfo, COL_INFO);
 			col_append_fstr(pinfo->cinfo, COL_INFO,

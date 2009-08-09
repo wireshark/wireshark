@@ -234,9 +234,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int check_sum = 0;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIX");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIX");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_clear(pinfo->cinfo, COL_INFO);
     }
@@ -244,9 +242,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* get at least the fix version: 8=FIX.x.x */
     if (fix_marker(tvb, 0) != 0) {
         /* not a fix packet start but it's a fix packet */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_set_str(pinfo->cinfo, COL_INFO, "[FIX continuation]");
-        }
+        col_set_str(pinfo->cinfo, COL_INFO, "[FIX continuation]");
         ti = proto_tree_add_item(tree, proto_fix, tvb, 0, -1, FALSE);
         fix_tree = proto_item_add_subtree(ti, ett_fix);
         proto_tree_add_item(fix_tree, hf_fix_data, tvb, 0, -1, FALSE);

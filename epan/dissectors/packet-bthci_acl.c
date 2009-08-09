@@ -102,9 +102,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	chandle_data_t *chandle_data;
 	void* pd_save;
 
-	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_ACL");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_ACL");
 
 	if(tree){
 		ti=proto_tree_add_item(tree, proto_btacl, tvb, offset, -1, FALSE);

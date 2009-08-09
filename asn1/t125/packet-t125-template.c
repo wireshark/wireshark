@@ -61,9 +61,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   gboolean pc;
   gint32 tag;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.125");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.125");
   if (check_col(pinfo->cinfo, COL_INFO)){
     col_clear(pinfo->cinfo, COL_INFO);
   }
@@ -76,9 +74,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   if ( (class==BER_CLASS_APP) && (tag>=101) && (tag<=104) ){
     dissect_ConnectMCSPDU_PDU(tvb, pinfo, tree);
   } else {
-    if (check_col(pinfo->cinfo, COL_INFO)){
-      col_set_str(pinfo->cinfo, COL_INFO, "T.125 payload");
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, "T.125 payload");
     proto_tree_add_text(tree, tvb, 0, -1, "T.125 payload");
   }
 

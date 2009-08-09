@@ -706,9 +706,7 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 class = tvb_get_letohs(tvb, 0);
 
 	conversation_data = ts2_get_conversation(pinfo);
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TS2");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TS2");
 	/* Clear out stuff in the info column */
 	if (check_col(pinfo->cinfo,COL_INFO)) {
 		col_clear(pinfo->cinfo,COL_INFO);

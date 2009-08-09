@@ -179,9 +179,7 @@ dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	conversation_t *conversation;
 	x224_conv_info_t *x224_info;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.224");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.224");
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_clear(pinfo->cinfo, COL_INFO);
 	}

@@ -99,15 +99,11 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 	}
 	pinfo->current_proto = "SMB Mailslot";
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB Mailslot");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB Mailslot");
 
 	if ((tvb==NULL) || (tvb_reported_length(tvb)==0)) {
 		/* Interim reply */
-		if (check_col (pinfo->cinfo, COL_INFO)) {
-			col_set_str(pinfo->cinfo, COL_INFO, "Interim reply");
-		}
+		col_set_str(pinfo->cinfo, COL_INFO, "Interim reply");
 		return TRUE;
 	}
 

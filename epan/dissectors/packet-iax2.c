@@ -2000,12 +2000,8 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       }
 
     if( pinfo->desegment_offset == 0 ) {
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAX2");
-      }
-      if (check_col(pinfo->cinfo, COL_INFO)){
-	col_set_str(pinfo->cinfo, COL_INFO, "[IAX2 segment of a reassembled PDU]");
-      }
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAX2");
+      col_set_str(pinfo->cinfo, COL_INFO, "[IAX2 segment of a reassembled PDU]");
     }
   }
 

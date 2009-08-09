@@ -1471,9 +1471,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *cfm_tlv_tree = NULL;
 
         /* display the CFM protol name */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CFM");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CFM");
 
 	/* Clear out stuff in the info column */
 	if (check_col(pinfo->cinfo,COL_INFO)) {

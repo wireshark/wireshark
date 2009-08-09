@@ -423,9 +423,7 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     /* Add the protocol name. */
-    if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4 non-ASK PHY");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4 non-ASK PHY");
     /* Add the packet length. */
     if(check_col(pinfo->cinfo, COL_PACKET_LENGTH)){
         col_clear(pinfo->cinfo, COL_PACKET_LENGTH);
@@ -585,9 +583,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         ieee802154_tree = proto_item_add_subtree(proto_root, ett_ieee802154);
     }
     /* Add the protocol name. */
-    if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4");
     /* Add the packet length. */
     if(check_col(pinfo->cinfo, COL_PACKET_LENGTH)){
         col_clear(pinfo->cinfo, COL_PACKET_LENGTH);

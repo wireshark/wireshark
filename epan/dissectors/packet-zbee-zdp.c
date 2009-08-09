@@ -1098,9 +1098,7 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 #if 0   
     /* Overwrite the protocol column */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee ZDP");
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee ZDP");
 #endif
     /* Get and display the sequence number. */
     seqno = tvb_get_guint8(tvb, offset);

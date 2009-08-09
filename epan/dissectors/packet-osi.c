@@ -264,21 +264,15 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* ESIS (X.25) is not currently decoded */
 
     case NLPID_ISO9542X25_ESIS:
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIS (X.25)");
-      }
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIS (X.25)");
       call_dissector(data_handle,tvb, pinfo, tree);
       break;
     case NLPID_ISO10747_IDRP:
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IDRP");
-      }
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "IDRP");
       call_dissector(data_handle,tvb, pinfo, tree);
       break;
     default:
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO");
-      }
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO");
       if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ISO protocol (%02x)", nlpid);
       }

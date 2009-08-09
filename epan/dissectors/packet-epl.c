@@ -253,18 +253,12 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Make entries in Protocol column and Info column on summary display */
     if (pinfo->ethertype == ETHERTYPE_EPL_V2)
     {
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        {
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPL");
-        }
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPL");
         udpencap = FALSE;
     }
     else
     {   /* guess that this is an EPL frame encapsulated into an UDP datagram */
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        {
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPL/UDP");
-        }
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPL/UDP");
         udpencap = TRUE;
     }
 

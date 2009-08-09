@@ -1365,9 +1365,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	ipmi_dissect_format_t dfmt;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPMI/ATCA");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPMI/ATCA");
 
 	current_pinfo = pinfo;
 

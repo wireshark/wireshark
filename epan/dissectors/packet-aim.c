@@ -881,9 +881,7 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_aim_flap_err(tvbuff_t *tvb, packet_info *pinfo, 
 				 int offset, proto_tree *tree)
 {
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "FLAP error");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "FLAP error");
 
   /* Show the undissected payload */
   if (tvb_length_remaining(tvb, offset) > 0)
@@ -893,9 +891,7 @@ static void dissect_aim_flap_err(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_aim_keep_alive(tvbuff_t *tvb, packet_info *pinfo, 
 				   int offset, proto_tree *tree)
 {
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "Keep Alive");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "Keep Alive");
 
   /* Show the undissected payload */
   if (tvb_length_remaining(tvb, offset) > 0)
@@ -905,9 +901,7 @@ static void dissect_aim_keep_alive(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo, 
 				   int offset, proto_tree *tree)
 {
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "Close Connection");
-  }	  
+  col_set_str(pinfo->cinfo, COL_INFO, "Close Connection");	  
   
   offset = dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, client_tlvs);
 }
@@ -915,9 +909,7 @@ static void dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_aim_unknown_channel(tvbuff_t *tvb, packet_info *pinfo, 
 					int offset, proto_tree *tree)
 {
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "Unknown Channel");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "Unknown Channel");
 
   /* Show the undissected payload */
   if (tvb_length_remaining(tvb, offset) > 0)

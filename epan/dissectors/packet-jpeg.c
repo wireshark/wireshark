@@ -86,13 +86,9 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	unsigned int offset       = 0;
 
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) ) {
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "JPEG" );
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "JPEG");
 
-	if ( check_col( pinfo->cinfo, COL_INFO) ) {
-		col_set_str( pinfo->cinfo, COL_INFO, "JPEG message");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "JPEG message");
 
 	if ( tree ) {
 		ti = proto_tree_add_item( tree, proto_jpeg, tvb, offset, -1, FALSE );

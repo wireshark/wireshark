@@ -1889,9 +1889,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_item_append_text(ti_cmd," - %s", val_to_str(opcode, bthci_cmd_opcode_vals, "Unknown 0x%04x"));
 
-	if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_CMD");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_CMD");
 
 	if((check_col(pinfo->cinfo, COL_INFO))){
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str(opcode, bthci_cmd_opcode_vals, "Unknown 0x%04x"));
