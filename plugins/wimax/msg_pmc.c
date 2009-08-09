@@ -172,26 +172,20 @@ void proto_register_mac_mgmt_msg_pmc_req(void)
 		}
 	};
 
-	if (proto_mac_mgmt_msg_pmc_req_decoder == -1) {
-		proto_mac_mgmt_msg_pmc_req_decoder = proto_register_protocol (
-							"WiMax PMC-REQ/RSP Messages", /* name */
-							"WiMax PMC-REQ/RSP (pmc)", /* short name */
-							"wmx.pmc" /* abbrev */
-							);
+	proto_mac_mgmt_msg_pmc_req_decoder = proto_register_protocol (
+		"WiMax PMC-REQ/RSP Messages", /* name */
+		"WiMax PMC-REQ/RSP (pmc)", /* short name */
+		"wmx.pmc" /* abbrev */
+		);
 
-		proto_register_field_array(proto_mac_mgmt_msg_pmc_req_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_register_field_array(proto_mac_mgmt_msg_pmc_req_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_pmc_rsp(void)
 {
-	if (proto_mac_mgmt_msg_pmc_rsp_decoder == -1) {
-		proto_mac_mgmt_msg_pmc_rsp_decoder = proto_mac_mgmt_msg_pmc_req_decoder;
-
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_mac_mgmt_msg_pmc_rsp_decoder = proto_mac_mgmt_msg_pmc_req_decoder;
 }
 
 /* Decode PMC-REQ messages. */

@@ -307,39 +307,26 @@ void proto_register_mac_mgmt_msg_arq_feedback(void)
 		}
 	};
 
-	if (proto_mac_mgmt_msg_arq_feedback_decoder == -1)
-	{
-		proto_mac_mgmt_msg_arq_feedback_decoder = proto_register_protocol (
-							"WiMax ARQ Feedback/Discard/Reset Messages", /* name */
-							"WiMax ARQ Feedback/Discard/Reset (arq)", /* short name */
-							"wmx.arq" /* abbrev */
-							);
+	proto_mac_mgmt_msg_arq_feedback_decoder = proto_register_protocol (
+		"WiMax ARQ Feedback/Discard/Reset Messages", /* name */
+		"WiMax ARQ Feedback/Discard/Reset (arq)", /* short name */
+		"wmx.arq" /* abbrev */
+		);
 
-		proto_register_field_array(proto_mac_mgmt_msg_arq_feedback_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_register_field_array(proto_mac_mgmt_msg_arq_feedback_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_arq_discard(void)
 {
-	if (proto_mac_mgmt_msg_arq_discard_decoder == -1)
-	{
-		proto_mac_mgmt_msg_arq_discard_decoder = proto_mac_mgmt_msg_arq_feedback_decoder;
-
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_mac_mgmt_msg_arq_discard_decoder = proto_mac_mgmt_msg_arq_feedback_decoder;
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
 void proto_register_mac_mgmt_msg_arq_reset(void)
 {
-	if (proto_mac_mgmt_msg_arq_reset_decoder == -1)
-	{
-		proto_mac_mgmt_msg_arq_reset_decoder = proto_mac_mgmt_msg_arq_feedback_decoder;
-
-		proto_register_subtree_array(ett, array_length(ett));
-	}
+	proto_mac_mgmt_msg_arq_reset_decoder = proto_mac_mgmt_msg_arq_feedback_decoder;
 }
 
 /* Decode ARQ-Feedback messages. */
