@@ -651,8 +651,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSCSI");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSCSI");
 
     /* XXX we need a way to handle replayed iscsi itt here */
     cdata=(iscsi_conv_data_t *)se_tree_lookup32(iscsi_session->itlq, tvb_get_ntohl(tvb, offset+16));

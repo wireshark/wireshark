@@ -60,8 +60,7 @@ dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		linelen;
 	tvbuff_t *xmltvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Jabber");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Jabber");
 
 	/*
 	 * Find the end of the first line.

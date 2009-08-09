@@ -893,8 +893,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BEEP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "BEEP");
 
   if (check_col(pinfo->cinfo, COL_INFO)) {  /* Check the type ... */
 

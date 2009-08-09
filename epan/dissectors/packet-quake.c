@@ -441,8 +441,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint		rest_length;
 	tvbuff_t	*next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

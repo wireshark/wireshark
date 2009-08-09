@@ -152,8 +152,7 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
 /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "WOL");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "WOL");
 
 /* This field shows up as the "Info" column in the display; you should use
    it, if possible, to summarize what's in the packet, so that a user looking

@@ -920,8 +920,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 areaid;
     guint8  address_family = OSPF_AF_6;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OSPF");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OSPF");
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 

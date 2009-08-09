@@ -1041,8 +1041,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	nbns_data_offset = offset;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBNS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBNS");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1210,8 +1209,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	name=ep_alloc(MAX_NAME_LEN);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBDS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBDS");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1636,8 +1634,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*nbss_tree;
 	proto_item	*ti;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBSS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBSS");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

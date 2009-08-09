@@ -49,8 +49,7 @@ dissect_lapbether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int			len;
     tvbuff_t		*next_tvb;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPBETHER");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPBETHER");
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 

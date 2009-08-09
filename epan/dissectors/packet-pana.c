@@ -533,8 +533,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        avp_length = msg_length-16;
 
        /* Make entries in Protocol column and Info column on summary display */
-       if (check_col(pinfo->cinfo, COL_PROTOCOL))
-               col_set_str(pinfo->cinfo, COL_PROTOCOL, "PANA");
+       col_set_str(pinfo->cinfo, COL_PROTOCOL, "PANA");
 
        if (check_col(pinfo->cinfo, COL_INFO)) {
                col_clear(pinfo->cinfo, COL_INFO);

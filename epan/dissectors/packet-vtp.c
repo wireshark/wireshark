@@ -97,8 +97,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guint8 *upd_timestamp;
 	int vlan_info_len;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "VTP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VTP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "Virtual Trunking Protocol");
 

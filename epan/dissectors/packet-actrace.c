@@ -467,8 +467,7 @@ static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Set the columns now, so that they'll be set correctly if we throw
 		 * an exception.  We can set them later as well....
 		 */
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_TRACE");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_TRACE");
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_clear(pinfo->cinfo, COL_INFO);
 
@@ -512,8 +511,7 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	sectionlen = 0;
 	value = 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_CAS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_CAS");
 
 	value = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_int(actrace_tree, hf_actrace_cas_time, tvb, offset, 4, value);
@@ -709,8 +707,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	next_tvb = tvb_new_subset(tvb, offset, len, len);
 	call_dissector(lapd_handle, next_tvb, pinfo, tree);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_ISDN");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_ISDN");
 	if (check_col(pinfo->cinfo, COL_INFO))
 			col_prepend_fstr(pinfo->cinfo, COL_INFO, "Trunk:%d  Blade %s PSTN "
 			, trunk, value==PSTN_TO_BLADE?"<--":"-->");

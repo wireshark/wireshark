@@ -905,8 +905,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 length;
 	guint16 type;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TNS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TNS");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{

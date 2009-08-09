@@ -432,8 +432,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		flags;
 	void (*dissector)(tvbuff_t *, proto_item *, guint8);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTP");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);

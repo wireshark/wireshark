@@ -109,8 +109,7 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gchar	*frp_flags_str="";
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines FRP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines FRP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -208,8 +207,7 @@ dissect_vines_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines LLC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines LLC");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -297,8 +295,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int  hops = 0;
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -443,8 +440,7 @@ dissect_vines_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *vines_echo_tree = NULL;
 	proto_item *ti;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines Echo");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines Echo");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -521,8 +517,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "VIPC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VIPC");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -539,8 +534,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	viph.vipc_ack = g_ntohs(viph.vipc_ack);
 	viph.vipc_err_len = g_ntohs(viph.vipc_err_len);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IPC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IPC");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		switch (viph.vipc_pkttype) {
 
@@ -722,8 +716,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item  *ti;
 	tvbuff_t    *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -740,8 +733,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	viph.vspp_ack = g_ntohs(viph.vspp_ack);
 	viph.vspp_win = g_ntohs(viph.vspp_win);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SPP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SPP");
 	if (check_col(pinfo->cinfo, COL_INFO))
  		col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "%s NS=%u NR=%u Window=%u RID=%04x LID=%04x D=%04x S=%04x",
@@ -872,8 +864,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16  packet_type;
 	guint16  metric;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ARP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ARP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -895,8 +886,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Sequenced ARP.
 		 */
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SARP");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SARP");
 		packet_type = tvb_get_guint8(tvb, 1);
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_str(pinfo->cinfo, COL_INFO,
@@ -1053,8 +1043,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8   control_flags;
 	guint16  metric;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines RTP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines RTP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1152,8 +1141,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	} else {
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SRTP");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SRTP");
 		if (tree) {
 			version = tvb_get_ntohs(tvb, offset);
 			proto_tree_add_text(vines_rtp_tree, tvb, offset, 2,
@@ -1561,8 +1549,7 @@ dissect_vines_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean save_in_error_pkt;
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ICP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ICP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

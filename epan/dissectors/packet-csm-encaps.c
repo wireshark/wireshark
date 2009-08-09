@@ -244,8 +244,7 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CSM_ENCAPS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CSM_ENCAPS");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);

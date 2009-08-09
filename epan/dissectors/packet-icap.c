@@ -72,8 +72,7 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	icap_type_t     icap_type;
 	int		datalen;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICAP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICAP");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*

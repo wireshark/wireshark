@@ -3115,8 +3115,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	guint32 server_op;
 	pvfs2_io_tracking_value_t *val = NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PVFS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PVFS");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);

@@ -704,8 +704,7 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char *pdu_name;
 	int offset=0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDP");
 
 	ti = proto_tree_add_item(tree, proto_btsdp, tvb, 0, -1, FALSE);
 	st = proto_item_add_subtree(ti, ett_btsdp);

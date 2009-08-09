@@ -128,8 +128,7 @@ dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     (match_strval(tvb_get_ntohs(tvb, 3),  oicq_command_vals) == NULL) )
 		return 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "OICQ");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OICQ");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{

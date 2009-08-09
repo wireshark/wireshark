@@ -322,8 +322,7 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   unsigned int msg_offset = 12;
   guint32      sent_crc, calc_crc;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZRTP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZRTP");
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ZRTP Packet");

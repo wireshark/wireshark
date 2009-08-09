@@ -224,8 +224,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  proto_tree      *dlsw_tree = NULL, *ti,*ti2, *dlsw_header_tree = NULL;
  proto_tree      *dlsw_flags_tree,*dlsw_data_tree;
 
- if (check_col(pinfo->cinfo, COL_PROTOCOL))
-   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DLSw");
+ col_set_str(pinfo->cinfo, COL_PROTOCOL, "DLSw");
 
  version=tvb_get_guint8(tvb,0);
 

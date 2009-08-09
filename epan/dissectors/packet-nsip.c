@@ -939,8 +939,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   pinfo->current_proto = "NSIP";
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSIP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSIP");
     
   if (check_col(pinfo->cinfo, COL_INFO)) 
     col_clear(pinfo->cinfo, COL_INFO);

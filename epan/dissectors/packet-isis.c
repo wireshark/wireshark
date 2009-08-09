@@ -122,8 +122,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 isis_type;
 	guint8 isis_system_id_len;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

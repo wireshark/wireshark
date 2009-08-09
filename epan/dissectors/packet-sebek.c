@@ -132,8 +132,7 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int sebek_type = 0;
 	int cmd_len = 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SEBEK");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SEBEK");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{

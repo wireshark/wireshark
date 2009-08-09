@@ -155,15 +155,13 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item      *ti;
 	guint8		txt_buff[255+1],version,type,userlen,passlen;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TACACS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TACACS");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	version = tvb_get_guint8(tvb,0);
 	if (version != 0) {
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "XTACACS");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "XTACACS");
 	}
 
 	type = tvb_get_guint8(tvb,1);
@@ -940,8 +938,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 		key=find_key(  &pinfo->src, &pinfo->dst );
 	}
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TACACS+");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TACACS+");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{

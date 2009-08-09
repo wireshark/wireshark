@@ -147,8 +147,7 @@ static void
 dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
- if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "synergy");
+ col_set_str(pinfo->cinfo, COL_PROTOCOL, "synergy");
 
 	if (tree) {
 		gint offset=0;

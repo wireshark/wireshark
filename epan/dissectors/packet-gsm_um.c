@@ -117,8 +117,7 @@ dissect_gsm_um(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *gsm_um_tree = NULL;
 	proto_item *ti;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM Um");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM Um");
 
 	if (pinfo->pseudo_header->gsm_um.uplink) {
 		if (check_col(pinfo->cinfo, COL_RES_DL_DST))

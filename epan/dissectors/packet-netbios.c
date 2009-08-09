@@ -1099,8 +1099,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 
 					/* load the display labels 	*/
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetBIOS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetBIOS");
 
 
 /* Find NetBIOS marker EFFF, this is done because I have seen an extra LLC */

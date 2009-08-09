@@ -1672,8 +1672,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8 spi;
     int is_x_264;
     guint8 prt_id;
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.25");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.25");
 
     bytes0_1 = tvb_get_ntohs(tvb, 0);
 

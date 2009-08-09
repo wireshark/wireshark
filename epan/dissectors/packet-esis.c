@@ -282,8 +282,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    guint       tmp_uint     = 0;
    const char *cksum_status;
 
-   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIS");
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIS");
    if (check_col(pinfo->cinfo, COL_INFO))
      col_clear(pinfo->cinfo, COL_INFO);
 

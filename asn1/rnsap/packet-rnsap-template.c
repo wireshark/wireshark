@@ -123,8 +123,7 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*rnsap_tree = NULL;
 
 	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RNSAP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RNSAP");
 
 	/* create the rnsap protocol tree */
 	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, FALSE);

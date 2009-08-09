@@ -230,8 +230,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return FALSE;
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCC");
 
 	offset = 0;
 	is_response = pinfo->srcport == DCC_PORT;

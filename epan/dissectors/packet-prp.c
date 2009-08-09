@@ -134,8 +134,7 @@ dissect_prp_supervision_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree *prp_tree;
     guint16 tlv2;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PRP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PRP");
 
     if (check_col(pinfo->cinfo, COL_INFO))
         col_set_str(pinfo->cinfo, COL_INFO, "Supervision Frame");

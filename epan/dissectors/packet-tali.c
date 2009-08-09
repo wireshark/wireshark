@@ -105,8 +105,7 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   length = tvb_get_letohs(tvb, TALI_SYNC_LENGTH + TALI_OPCODE_LENGTH);
 
   /* Make entries in Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TALI");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "TALI");
   
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_set_str(pinfo->cinfo, COL_INFO, "");

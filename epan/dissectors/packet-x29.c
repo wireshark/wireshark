@@ -91,8 +91,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint next_offset;
 	int linelen;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.29");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.29");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

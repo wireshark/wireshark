@@ -77,8 +77,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		next_offset;
 	int		linelen;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IRC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IRC");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{

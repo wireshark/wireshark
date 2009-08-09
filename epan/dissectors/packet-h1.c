@@ -122,8 +122,7 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       return FALSE;
     }
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "H1");
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "H1");
   if (check_col (pinfo->cinfo, COL_INFO))
     col_set_str (pinfo->cinfo, COL_INFO, "S5: ");
   if (tree)

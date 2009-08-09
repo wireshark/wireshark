@@ -1333,8 +1333,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Make entry in the Protocol column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.248");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.248");
 
     if (tree) {
         h248_item = proto_tree_add_item(tree, proto_h248, tvb, 0, -1, FALSE);

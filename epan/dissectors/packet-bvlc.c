@@ -139,8 +139,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (match_strval(bvlc_type, bvlc_types) == NULL)
 		return 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BVLC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BVLC");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "BACnet Virtual Link Control");

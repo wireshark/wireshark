@@ -823,8 +823,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item  *expert_item;
     guint16     expert_status;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SRVLOC");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SRVLOC");
 
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
@@ -1420,8 +1419,7 @@ dissect_srvloc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree	    *srvloc_tree = NULL;
     proto_item	    *ti;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SRVLOC");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SRVLOC");
 
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);

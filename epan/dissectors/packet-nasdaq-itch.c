@@ -334,8 +334,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_info = PINFO_COL(pinfo);
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nasdaq-ITCH");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nasdaq-ITCH");
 
     nasdaq_itch_type = tvb_get_guint8(tvb, offset);
     if (nasdaq_itch_type >= '0' && nasdaq_itch_type <= '9') {

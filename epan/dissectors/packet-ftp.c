@@ -324,8 +324,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else
 		is_request = FALSE;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTP");
 
 	/*
 	 * Find the end of the first line.
@@ -633,8 +632,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree      *ti, *ftp_data_tree;
         int		data_length;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTP-DATA");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTP-DATA");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "FTP Data: %u bytes",

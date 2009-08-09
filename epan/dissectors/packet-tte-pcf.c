@@ -83,8 +83,7 @@ dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         TTE_PCF_RES0_LENGTH+TTE_PCF_SP_LENGTH);
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCF");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCF");
 
     if (check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO,

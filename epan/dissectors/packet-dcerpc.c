@@ -3928,8 +3928,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         return TRUE;
     }
 
-    if (check_col (pinfo->cinfo, COL_PROTOCOL))
-        col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
+    col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         if(pinfo->dcectxid != 0) {
@@ -4773,8 +4772,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return FALSE;
 
 
-    if (check_col (pinfo->cinfo, COL_PROTOCOL))
-        col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
+    col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
     if (check_col (pinfo->cinfo, COL_INFO))
         col_add_str (pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
 

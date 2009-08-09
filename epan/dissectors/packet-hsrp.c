@@ -346,8 +346,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* HSRPv1 */
                 guint8 opcode, state = 0;
 
-                if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                        col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRP");
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRP");
 
                 opcode = tvb_get_guint8(tvb, 1);
                 if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -441,8 +440,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree *hsrp_tree = NULL;
                 guint8 type,len;
 
-                if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                        col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRPv2");
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRPv2");
 
                 if (tree) {
                         ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, FALSE);

@@ -108,7 +108,7 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 magic;
 	guint32 opcode;
 	
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, "TUXEDO");	  	
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TUXEDO");	  	
 	
 	if (tvb_length(tvb) >= 8)
 	{

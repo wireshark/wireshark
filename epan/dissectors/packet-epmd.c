@@ -229,8 +229,7 @@ dissect_epmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!check_epmd(tvb))
 	return(0);
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPMD");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPMD");
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_epmd, tvb, 0, -1, FALSE);

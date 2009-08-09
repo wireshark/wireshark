@@ -79,8 +79,7 @@ dissect_g723(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *g723_tree;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "G.723.1");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "G.723.1");
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_g723, tvb, 0, -1, FALSE);
 

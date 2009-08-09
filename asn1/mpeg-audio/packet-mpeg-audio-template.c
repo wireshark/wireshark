@@ -120,8 +120,7 @@ dissect_id3v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	asn1_ctx_t asn1_ctx;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v1");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v1");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 	if (tree == NULL)
@@ -134,8 +133,7 @@ dissect_id3v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v2");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v2");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 	proto_tree_add_item(tree, hf_id3v2, tvb,

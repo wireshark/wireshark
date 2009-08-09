@@ -91,8 +91,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Summary information */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QLLC");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "QLLC");
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 

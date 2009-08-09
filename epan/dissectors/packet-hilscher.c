@@ -100,8 +100,7 @@ dissect_hilscher_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	szInfo=ep_alloc(MAX_BUFFER);
 	szInfo[0]=0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
 
 	if (tree)
 		ti = proto_tree_add_item(tree, hf_information_type, tvb, offset, 1, FALSE);

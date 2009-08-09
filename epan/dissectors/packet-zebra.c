@@ -437,8 +437,7 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	request;
 	int		left, offset;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZEBRA");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZEBRA");
 
 	request = (pinfo->destport == pinfo->match_port);
 	left = tvb_reported_length(tvb);

@@ -2551,8 +2551,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	reset_q931_packet_info(q931_pi);
 	have_valid_q931_pi=TRUE;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
 
 	prot_discr = tvb_get_guint8(tvb, offset);
 	if (tree) {

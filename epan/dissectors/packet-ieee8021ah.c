@@ -119,8 +119,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_index = proto_ieee8021ad;
 
     /* add info to column display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "802.1ad");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "802.1ad");
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -313,8 +312,7 @@ dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_index = proto_ieee8021ah;
 
     /* add info to column display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "802.1ah");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "802.1ah");
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 

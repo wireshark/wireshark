@@ -141,8 +141,7 @@ void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint t_phase;
   guint telno;
 
-  if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIII MDT");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIII MDT");
 
   t_phase = (tvb_get_guint8(tvb, 1)&0x8F); /* read communication phase out of SERCOS III header */
   telno = (tvb_get_guint8(tvb, 0) & 0xF); /* read number of MDT out of SERCOS III header */

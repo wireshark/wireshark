@@ -1056,8 +1056,7 @@ dissect_m2ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *m2ua_tree;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2UA");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2UA");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */

@@ -365,8 +365,7 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     const char *sep;
     
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFD Control");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFD Control");
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 

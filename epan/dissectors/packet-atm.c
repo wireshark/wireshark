@@ -661,8 +661,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t	*next_tvb;
   tvbuff_t	*next_tvb_le_client;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM LANE");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM LANE");
 
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
   switch (pinfo->pseudo_header->atm.subtype) {
@@ -1679,8 +1678,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   switch (aal) {
 
   case AAL_1:
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL1");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL1");
     if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);
     ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, FALSE);
@@ -1706,8 +1704,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /*
      * XXX - or should this be the CS PDU?
      */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL3/4");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL3/4");
     if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);
     ti = proto_tree_add_item(tree, proto_aal3_4, tvb, offset, -1, FALSE);
@@ -1743,8 +1740,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case AAL_OAMCELL:
     if (NULL == pwpd || pwpd->enable_fill_columns_by_atm_dissector)
     {
-      if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM AAL");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM AAL");
       if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
     }
@@ -1816,8 +1812,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   	pinfo->pseudo_header->atm.aal = AAL_SIGNALLING;
   }
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
   if (!pseudowire_mode) {
     switch (pinfo->pseudo_header->atm.channel) {
@@ -1913,8 +1908,7 @@ dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item   *atm_ti = NULL;
   gboolean     pseudowire_mode = (NULL != pinfo->private_data);
   
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
   if (!pseudowire_mode) {
     if (tree) {

@@ -459,8 +459,7 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	queryset_size = tvb_get_letohl(tvb, offset + 4);
 	if (queryset_size != 60) return 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTPT");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTPT");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "QuerySet");
 
@@ -729,8 +728,7 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return 0;
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTPT");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTPT");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, names_message_type, "Unknown (%d)"));
 

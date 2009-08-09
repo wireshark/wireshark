@@ -134,8 +134,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*pcap_tree = NULL;
 
 	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCAP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCAP");
 
 	/* create the pcap protocol tree */
 	pcap_item = proto_tree_add_item(tree, proto_pcap, tvb, 0, -1, FALSE);

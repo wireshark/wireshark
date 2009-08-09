@@ -260,8 +260,7 @@ dissect_gprs_ns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 bvc;
 	tvbuff_t *next_tvb;
   
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS NS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS NS");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

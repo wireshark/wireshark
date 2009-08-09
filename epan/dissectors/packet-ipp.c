@@ -189,8 +189,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 status_code;
 	const gchar *status_fmt;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPP");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (is_request)
 			col_set_str(pinfo->cinfo, COL_INFO, "IPP request");

@@ -628,8 +628,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* End of attaching data to hash table*/
        
 /* Make entries in Protocol column and Info column on summary display */
-       if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-              col_set_str(pinfo->cinfo, COL_PROTOCOL, "S-Bus");
+       col_set_str(pinfo->cinfo, COL_PROTOCOL, "S-Bus");
 
        if (check_col(pinfo->cinfo, COL_INFO)) 
               col_clear(pinfo->cinfo, COL_INFO);

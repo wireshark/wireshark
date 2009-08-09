@@ -1487,8 +1487,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *ptp_tree, *ptp_flags_tree, *ptp_time_tree, *ptp_time2_tree;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv1");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv1");
 
 
 /* Get control field (what kind of message is this? (Sync, DelayReq, ...) */
@@ -2231,8 +2230,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				*ptp_clockType_tree, *ptp_protocolAddress_tree;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv2");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv2");
 
     /* Get control field (what kind of message is this? (Sync, DelayReq, ...) */
 

@@ -215,8 +215,7 @@ dissect_sonmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *sonmp_tree = NULL;
 	proto_item *ti;
 	
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SONMP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SONMP");
 	
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		hello_type = "";

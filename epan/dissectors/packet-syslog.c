@@ -234,8 +234,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const char *msg_str;
   tvbuff_t *mtp3_tvb;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Syslog");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "Syslog");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

@@ -134,23 +134,19 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (!(packet_type & 0x0F)){
         if (check_col(pinfo->cinfo, COL_INFO))
             col_set_str(pinfo->cinfo, COL_INFO, "Turbocell Packet (Beacon)");
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Turbocell");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Turbocell");
     }  else if ( packet_type == TURBOCELL_TYPE_MANAGEMENT ) {
         if (check_col(pinfo->cinfo, COL_INFO))
             col_set_str(pinfo->cinfo, COL_INFO, "Turbocell Packet (Management)");
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Turbocell");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Turbocell");
     } else if ( packet_type == TURBOCELL_TYPE_DATA ) {
         if (check_col(pinfo->cinfo, COL_INFO))
             col_set_str(pinfo->cinfo, COL_INFO, "Turbocell Packet (Data)");
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Turbocell");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Turbocell");
     } else {
         if (check_col(pinfo->cinfo, COL_INFO))
             col_set_str(pinfo->cinfo, COL_INFO, "Turbocell Packet (Unknown)");
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Turbocell");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Turbocell");
     }
 
     if (tree) {

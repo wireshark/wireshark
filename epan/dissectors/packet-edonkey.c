@@ -2995,8 +2995,7 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     void  (*dissector)(guint8, tvbuff_t*, packet_info*, int, int, proto_tree*);
     tvbuff_t *tvbraw = NULL;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_edonkey, tvb, 0, -1, FALSE);
@@ -3119,8 +3118,7 @@ static void dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint8 protocol, msg_type;
     const gchar *protocol_name, *message_name;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
 
     if (check_col(pinfo->cinfo, COL_INFO))
         col_set_str(pinfo->cinfo, COL_INFO, "eDonkey UDP Message");

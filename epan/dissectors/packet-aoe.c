@@ -399,8 +399,7 @@ dissect_aoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   proto_tree *tree=NULL;
   guint8 version;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AoE");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "AoE");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

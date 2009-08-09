@@ -1806,8 +1806,7 @@ dissect_fcswils (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *next_tvb;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SW_ILS");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SW_ILS");
 
     /* decoding of this is done by each individual opcode handler */
     opcode = tvb_get_guint8 (tvb, 0);

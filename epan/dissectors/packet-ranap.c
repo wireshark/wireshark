@@ -11634,8 +11634,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pdu_type = 0;
 
 	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RANAP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RANAP");
 
 	/* create the ranap protocol tree */
 	ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);

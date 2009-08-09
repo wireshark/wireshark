@@ -5325,8 +5325,7 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "X11");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X11");
 
 	if (pinfo->match_port == pinfo->srcport)
 		dissect_x11_replies(tvb, pinfo, tree);

@@ -59,8 +59,7 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int				tokenlen;
 	const guchar	*next_token;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACAP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACAP");
 
 	/*
 	 * Find the end of the first line.

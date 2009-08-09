@@ -65,8 +65,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean    more_function;
   tvbuff_t    *next_tvb;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LOOP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LOOP");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

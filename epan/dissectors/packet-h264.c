@@ -1778,8 +1778,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H264");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "H264");
 	if (tree) {
 
 		item = proto_tree_add_item(tree, proto_h264, tvb, 0, -1, FALSE);

@@ -2045,8 +2045,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8   msg_type = 0;
 
 	/* Make entry in Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TIPC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TIPC");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);

@@ -548,8 +548,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSRP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSRP");
 	if (is_msrp_response){
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Response: %s ",

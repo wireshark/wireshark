@@ -51,8 +51,7 @@ dissect_snaeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		len;
 	tvbuff_t	*next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SNAETH");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SNAETH");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SNA over Ethernet");
 

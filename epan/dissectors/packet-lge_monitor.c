@@ -84,8 +84,7 @@ dissect_lge_monitor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *lge_monitor_tree;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LGE Monitor");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LGE Monitor");
 
 	ti = proto_tree_add_item(tree, proto_lge_monitor, tvb, 0, LGEMON_PROTO_HEADER_LENGTH, FALSE);
 	lge_monitor_tree = proto_item_add_subtree(ti, ett_lge_monitor);

@@ -659,8 +659,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 	proto_item *it;
 	nstime_t ns;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
 
 	pi = proto_tree_add_item(tree,proto_diameter,tvb,0,-1,FALSE);
 	diam_tree = proto_item_add_subtree(pi,ett_diameter);

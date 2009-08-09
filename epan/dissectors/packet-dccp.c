@@ -597,8 +597,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&dccph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
 	SET_ADDRESS(&dccph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCCP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCCP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

@@ -394,8 +394,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    char szText[200];
    int nMax = sizeof(szText)-1;
 
-   if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMS");
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMS");
 
    if (check_col(pinfo->cinfo, COL_INFO)) 
       col_clear(pinfo->cinfo, COL_INFO);

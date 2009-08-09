@@ -162,8 +162,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree *checksum_tree;
 #endif
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_set_str(pinfo->cinfo, COL_INFO, "BACnet MS/TP");
 	}

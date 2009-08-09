@@ -1878,8 +1878,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	stat_info->tap_from_addr = NULL;
 	stat_info->tap_to_addr = NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
 
 	switch (line_type) {
 

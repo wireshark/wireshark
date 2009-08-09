@@ -75,8 +75,7 @@ dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *next_tvb;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP/FC");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP/FC");
 
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_ipfc, tvb, offset, 16,

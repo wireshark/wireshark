@@ -145,8 +145,7 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		msg_type;
 	guint8		ele_id;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LMI");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LMI");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

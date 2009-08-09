@@ -1419,8 +1419,7 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*  we can't make any additional checking here   */
 	/*  postpone it before dissector will have more information */
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PRES");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PRES");
   	if (check_col(pinfo->cinfo, COL_INFO))
   		col_clear(pinfo->cinfo, COL_INFO);
 	/* save pointers for calling the acse dissector  */

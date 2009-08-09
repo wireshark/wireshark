@@ -857,8 +857,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint      len, offset = 0, start_offset = offset;
 
 	/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIPv6");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIPv6");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -915,15 +914,13 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case BU:
 		offset = dissect_mip6_bu(tvb, mip6_tree, pinfo);
 		if (proto_nemo == 1) {
-			if (check_col(pinfo->cinfo, COL_PROTOCOL))
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "NEMO");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "NEMO");
 		}
 		break;
 	case BA:
 		offset = dissect_mip6_ba(tvb, mip6_tree, pinfo);
 		if (proto_nemo == 1) {
-			if (check_col(pinfo->cinfo, COL_PROTOCOL))
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "NEMO");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "NEMO");
 		}
 		break;
 	case BE:

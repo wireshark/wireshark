@@ -90,8 +90,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	/* Seems to be a decent TURN channel message */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TURN CHANNEL");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TURN CHANNEL");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	  col_add_fstr(pinfo->cinfo, COL_INFO, "Channel Id 0x%x", channel_id);

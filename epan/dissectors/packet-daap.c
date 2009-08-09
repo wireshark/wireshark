@@ -147,8 +147,7 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    int offset = 0;
    gboolean is_request = (pinfo->destport == TCP_PORT_DAAP);
 
-   if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAAP");
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAAP");
 
    /*
     * XXX - what if the body is gzipped?  This isn't the only protocol

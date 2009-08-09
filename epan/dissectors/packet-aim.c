@@ -525,8 +525,7 @@ static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *aim_tree = NULL;
 
 /* Make entries in Protocol column and Info column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AIM");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "AIM");
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "AOL Instant Messenger");

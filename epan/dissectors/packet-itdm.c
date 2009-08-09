@@ -186,8 +186,7 @@ dissect_itdm_125usec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 ackbit;
 
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ITDM");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ITDM");
 
   flowid = tvb_get_ntoh24(tvb, ITDM_FLOWID_OFFSET);
   chanid = tvb_get_ntoh24(tvb, ITDM_CHANID_OFFSET);
@@ -284,8 +283,7 @@ dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 paired_trans_id;
   guint32 allocd_flowid;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ITDM-Control");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ITDM-Control");
 
   flowid = tvb_get_ntoh24(tvb, ITDM_FLOWID_OFFSET);
   command = tvb_get_guint8(tvb, ITDM_CTL_CMD_OFFSET);

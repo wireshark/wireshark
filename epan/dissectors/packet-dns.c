@@ -3043,8 +3043,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_dns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
   dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE, FALSE);
 }
@@ -3052,8 +3051,7 @@ dissect_dns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_mdns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDNS");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDNS");
 
   dissect_dns_common(tvb, pinfo, tree, FALSE, TRUE, FALSE);
 }
@@ -3061,8 +3059,7 @@ dissect_mdns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_llmnr_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLMNR");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLMNR");
 
   dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE, TRUE);
 }
@@ -3086,8 +3083,7 @@ get_dns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static void
 dissect_dns_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
   dissect_dns_common(tvb, pinfo, tree, TRUE, FALSE, FALSE);
 }

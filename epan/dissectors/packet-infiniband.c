@@ -85,8 +85,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Clear other columns */
     if(pinfo->cinfo)
     {
-        if(check_col(pinfo->cinfo, COL_PROTOCOL))
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "InfiniBand");
         if(check_col(pinfo->cinfo, COL_INFO))
             col_clear(pinfo->cinfo, COL_INFO);
     }

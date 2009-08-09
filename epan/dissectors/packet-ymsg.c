@@ -385,8 +385,7 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	int content_len = 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "YMSG");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "YMSG");
 
 	offset = 0;
 	if (check_col(pinfo->cinfo, COL_INFO)) {

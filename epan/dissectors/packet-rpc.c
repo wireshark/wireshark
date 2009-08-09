@@ -1626,8 +1626,7 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *rpc_item;
 	proto_tree *rpc_tree;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 
@@ -1929,8 +1928,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
 
 	if (tree) {
 		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0, -1,

@@ -270,8 +270,7 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *rpl_tree;
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPL");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPL");
 
 	rpl_len  = tvb_get_ntohs(tvb, 0);
 	rpl_type = tvb_get_ntohs(tvb, 2);

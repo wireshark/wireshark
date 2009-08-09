@@ -159,8 +159,7 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fc_ct_preamble cthdr;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC_CT");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC_CT");
 
     /*
       cthdr.revision = tvb_get_guint8 (tvb, offset++);

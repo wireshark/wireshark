@@ -2286,8 +2286,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * Update the protocol column.
      */
     if (first == TRUE) {
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMPP");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMPP");
     }
 
     /*

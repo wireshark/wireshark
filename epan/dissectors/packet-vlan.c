@@ -79,8 +79,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   volatile gboolean is_802_2;
   proto_tree *volatile vlan_tree;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "VLAN");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "VLAN");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

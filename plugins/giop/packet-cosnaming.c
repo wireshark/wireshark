@@ -1552,8 +1552,7 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_item *ti = NULL;
     proto_tree *tree = NULL;            /* init later, inside if(tree) */
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "COSNAMING");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "COSNAMING");
 
     /*
      * Do not clear COL_INFO, as nothing is being written there by

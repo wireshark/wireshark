@@ -496,8 +496,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint            col_info;
 	
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSI");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSI");
 	col_info = check_col(pinfo->cinfo, COL_INFO);
 	if (col_info)
 		col_clear(pinfo->cinfo, COL_INFO);

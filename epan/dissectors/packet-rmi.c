@@ -132,8 +132,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     rmitype    = 0;
 
 /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMI");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMI");
 
     datalen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
     data = tvb_get_ptr(tvb, offset, datalen);

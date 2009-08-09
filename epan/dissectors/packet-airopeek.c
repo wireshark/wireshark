@@ -63,8 +63,7 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *airopeek_tree = NULL;
   proto_item *ti = NULL;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AIROPEEK");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "AIROPEEK");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

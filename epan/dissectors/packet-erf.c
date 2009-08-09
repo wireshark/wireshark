@@ -805,8 +805,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   erf_type=pinfo->pseudo_header->erf.phdr.type & 0x7F;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ERF");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ERF");
   
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s",

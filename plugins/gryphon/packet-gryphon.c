@@ -210,8 +210,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8	    flags;
 
     if (!is_msgresp_add) {
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gryphon");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gryphon");
 	if (check_col(pinfo->cinfo, COL_INFO))
 	    col_clear(pinfo->cinfo, COL_INFO);
     }

@@ -293,8 +293,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint32 parameter;
 	
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DISTCC ");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DISTCC ");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);

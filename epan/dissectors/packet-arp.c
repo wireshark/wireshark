@@ -873,8 +873,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
      Clear the Info column so that, if we throw an exception, it
      shows up as a short or malformed ARP frame. */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

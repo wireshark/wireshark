@@ -3772,8 +3772,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		offset_delta;
 	guint8		overload = 0; /* DHCP option overload */
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOOTP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOOTP");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * In case we throw an exception fetching the opcode, etc.
@@ -3846,8 +3845,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Yes, this is a DHCP packet, and "dhcp_type" is the
 		 * packet type.
 		 */
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCP");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCP");
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_fstr(pinfo->cinfo, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
 			    dhcp_type, tvb_get_ntohl(tvb, 4));

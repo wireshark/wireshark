@@ -1730,8 +1730,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	case 3:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TPv3");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TPv3");
 		if (CONTROL_BIT(control)) {
 			/* Call to process l2tp v3 control message */
 			process_l2tpv3_control(tvb, pinfo, tree, 0);

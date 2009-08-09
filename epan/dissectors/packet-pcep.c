@@ -2095,8 +2095,7 @@ dissect_pcep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures needed to add the protocol subtree and manage it */
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCEP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCEP");
 
 	/* Clear out stuff in the info column */
 	if (check_col(pinfo->cinfo,COL_INFO))

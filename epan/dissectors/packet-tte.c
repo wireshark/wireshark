@@ -93,8 +93,7 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "TTE ");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TTE ");
 
     if (check_col(pinfo->cinfo, COL_INFO))
         col_set_str(pinfo->cinfo, COL_INFO, "Bogus TTEthernet Frame");

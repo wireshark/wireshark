@@ -68,8 +68,7 @@ dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint        len;
     guint32     pdu, sequence;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOFL");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOFL");
 
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);

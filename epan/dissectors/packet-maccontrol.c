@@ -50,8 +50,7 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pause = tvb_get_ntohs(tvb, 0);
 	pause_quanta = tvb_get_ntohs(tvb, 2);
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CTRL");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "CTRL");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

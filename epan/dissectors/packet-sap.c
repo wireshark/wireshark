@@ -129,8 +129,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item *si, *sif;
         proto_tree *sap_tree, *sap_flags_tree;
 
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAP");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAP");
         if (check_col(pinfo->cinfo, COL_INFO))
                 col_clear(pinfo->cinfo, COL_INFO);
 

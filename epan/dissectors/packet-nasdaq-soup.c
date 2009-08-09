@@ -181,8 +181,7 @@ dissect_nasdaq_soup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       nasdaq_soup_type = tvb_get_guint8(tvb, offset);
       if (counter == 0) {
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nasdaq-SOUP");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nasdaq-SOUP");
         if (col_info)
             col_clear(pinfo->cinfo, COL_INFO);
       }

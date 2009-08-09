@@ -127,8 +127,7 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char	*spp_msg_string;
 	guint16		low_socket, high_socket;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SPP");
 

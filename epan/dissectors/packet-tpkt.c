@@ -245,8 +245,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * so don't get the length and don't try to
              * do reassembly.
              */
-            if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
             if (check_col(pinfo->cinfo, COL_INFO))
                 col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
             if (tree) {
@@ -282,8 +281,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         saved_proto = pinfo->current_proto;
         pinfo->current_proto = "TPKT";
 
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
         /*
          * Don't add the TPKT header information if we're
          * reassembling segmented TPKT PDUs or if this
@@ -400,8 +398,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * so don't get the length and don't try to
 			 * do reassembly.
 			 */
-			if (check_col(pinfo->cinfo, COL_PROTOCOL))
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
 			if (check_col(pinfo->cinfo, COL_INFO))
 				col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 			if (tree) {
@@ -473,8 +470,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		saved_proto = pinfo->current_proto;
 		pinfo->current_proto = "TPKT";
 
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
 		/*
 		 * Don't add the TPKT header information if we're
 		 * reassembling segmented TPKT PDUs or if this

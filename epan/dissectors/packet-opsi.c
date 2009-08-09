@@ -459,8 +459,7 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (opsi_first == TRUE) {
 		opsi_first = FALSE;
 		
-		if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "OPSI");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "OPSI");
     
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_clear(pinfo->cinfo, COL_INFO);

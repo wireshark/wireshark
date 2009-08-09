@@ -70,8 +70,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char* packet_type = 0;
 
 	/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MANOLITO");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MANOLITO");
     
 	ti = proto_tree_add_item(tree, proto_manolito, tvb, 0, -1, FALSE);
 

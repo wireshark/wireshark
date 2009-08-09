@@ -151,8 +151,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	sm_message_type = tvb_get_ntohl(tvb,offset);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SM");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SM");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Cisco SM Packet (%s)",

@@ -391,8 +391,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	hash_info = conversation_get_proto_data(conversation, proto_socks);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Socks");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Socks");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Version: 5, UDP Associated packet");
@@ -1084,8 +1083,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /* display summary window information  */
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Socks");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Socks");
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		if (( hash_info->version == 4) || ( hash_info->version == 5)){

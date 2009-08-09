@@ -405,8 +405,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	/* Display MEGACO in protocol column */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MEGACO");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MEGACO");
 
 	/* Build the info tree if we've been given a root */
 	/* Create megaco subtree */

@@ -152,8 +152,7 @@ static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 options;
   guint32 option_data;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICP");
   if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 

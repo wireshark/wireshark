@@ -190,8 +190,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 j;
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-NPDU");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-NPDU");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "Building Automation and Control Network NPDU");

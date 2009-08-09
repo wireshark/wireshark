@@ -8371,8 +8371,7 @@ dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 		tree = proto_item_add_subtree(item, ett_x411);
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
   	if (check_col(pinfo->cinfo, COL_INFO))
   		col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
 
@@ -8413,8 +8412,7 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		item = proto_tree_add_item(parent_tree, proto_x411, tvb, 0, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_x411);
 	}
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
   	if (check_col(pinfo->cinfo, COL_INFO))
   		col_clear(pinfo->cinfo, COL_INFO);
 

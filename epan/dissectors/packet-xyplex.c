@@ -72,8 +72,7 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		reserved;
 	guint16		reply;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "XYPLEX");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "XYPLEX");
 
 	if (tree) {
 	  ti = proto_tree_add_item(tree, proto_xyplex, tvb, offset, -1, FALSE);

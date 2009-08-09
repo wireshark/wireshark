@@ -563,8 +563,7 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     return 0;
   }
   /*-------------Setting the Protocol and Info Columns in the Wireshark Display----------*/
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OLSR v1");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "OLSR v1");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

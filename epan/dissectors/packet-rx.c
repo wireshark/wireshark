@@ -473,8 +473,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (type == 0 || type == 10 || type == 11 || type == 12 || type > 13)
 		return 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RX");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RX");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

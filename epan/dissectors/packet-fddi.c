@@ -283,8 +283,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   fddihdr=&fddihdrs[fddihdr_num];
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FDDI");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "FDDI");
 
   fddihdr->fc = tvb_get_guint8(tvb, FDDI_P_FC + FDDI_PADDING);
   fc_str = fddifc_to_str(fddihdr->fc);

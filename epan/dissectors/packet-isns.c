@@ -612,8 +612,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *isns_tree = NULL;
     
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSNS");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSNS");
     if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_clear(pinfo->cinfo, COL_INFO);
 

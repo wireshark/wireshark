@@ -217,8 +217,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean    update_col_info = TRUE;
   gboolean    save_fragmented;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CLNP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "CLNP");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

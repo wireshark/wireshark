@@ -55,8 +55,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   guint8 type = 0; /* Blatent assumption of name and size */
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS NLB");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS NLB");
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_clear(pinfo->cinfo, COL_INFO);

@@ -290,8 +290,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char *info;
 	guint8 type;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TZSP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TZSP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -345,8 +344,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			|| !dissector_try_port(encap_dissector_table, wtap_encap,
 				next_tvb, pinfo, tree))) {
 
-			if (check_col(pinfo->cinfo, COL_PROTOCOL))
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 			if (check_col(pinfo->cinfo, COL_INFO))
 				col_add_fstr(pinfo->cinfo, COL_INFO, "TZSP_ENCAP = %u",
 				    encapsulation);

@@ -690,8 +690,7 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 dword;
 
 	/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MP4V-ES");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MP4V-ES");
 	if (tree) {
 		item = proto_tree_add_item(tree, proto_mp4ves, tvb, 0, -1, FALSE);
 		mp4ves_tree = proto_item_add_subtree(item, ett_mp4ves);

@@ -1027,8 +1027,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_tree *enip_tree, *header_tree = NULL, *csftree;
 
    /* Make entries in Protocol column and Info column on summary display */
-   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENIP");
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENIP");
    if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1263,8 +1262,7 @@ dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    g_tree = tree;
 
    /* Make entries in Protocol column and Info column on summary display */
-   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENIP");
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENIP");
 
    /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */

@@ -2901,8 +2901,7 @@ dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint captured_length, reported_length, pad_length;
   tvbuff_t *next_tvb;
 
-  if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP BCP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP BCP");
 
   if(check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
@@ -3043,8 +3042,7 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   id = tvb_get_guint8(tvb, 1);
   length = tvb_get_ntohs(tvb, 2);
 
-  if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP BAP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP BAP");
 
   if(check_col(pinfo->cinfo, COL_INFO))
 	col_add_str(pinfo->cinfo, COL_INFO,
@@ -3089,8 +3087,7 @@ dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   proto_tree *comp_data_tree;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP Comp");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP Comp");
 
   if(check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "Compressed data");
@@ -3128,8 +3125,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int offset = 0, length_remaining;
   int length_field = 0, pid_field = 0,hdr_length = 0;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPP PPPMux");
+  col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPP PPPMux");
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "PPP Multiplexing");
@@ -3265,8 +3261,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   length = tvb_reported_length(tvb);
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
+  col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "Full Header");
@@ -3364,8 +3359,7 @@ dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint hdr_length;
   int offset = 0;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
+  col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "Compressed UDP 16");
@@ -3401,8 +3395,7 @@ dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint hdr_length;
   int offset = 0;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
+  col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "Compressed UDP 8");
@@ -3439,8 +3432,7 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint length, cid_size;
   guint offset = 2, hf;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
+  col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "Context State");
@@ -3529,8 +3521,7 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint        hdrlen;
   tvbuff_t    *next_tvb;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP MP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP MP");
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "PPP Multilink");
@@ -3653,8 +3644,7 @@ dissect_ppp_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
    * XXX - should we have an exported dissector that always dissects PPP,
    * for use when we know the packets are PPP, not CHDLC?
    */
-  if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP");
   switch (pinfo->p2p_dir) {
 
   case P2P_DIR_SENT:
@@ -3907,8 +3897,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   id = tvb_get_guint8(tvb, 1);
   length = tvb_get_ntohs(tvb, 2);
 
-  if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP PAP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP PAP");
 
   if(check_col(pinfo->cinfo, COL_INFO))
 	col_add_str(pinfo->cinfo, COL_INFO,
@@ -4000,8 +3989,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   int offset;
 
   code = tvb_get_guint8(tvb, 0);
-  if(check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP CHAP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP CHAP");
 
   if(check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,

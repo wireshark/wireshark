@@ -668,8 +668,7 @@ dissect_mmse_standalone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_type = val_to_str(pdut, vals_message_type, "Unknown type %u");
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMSE");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMSE");
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_clear(pinfo->cinfo, COL_INFO);

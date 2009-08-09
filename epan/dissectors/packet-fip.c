@@ -264,8 +264,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const char *info;
     char *text;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIP");
 
     if (!tvb_bytes_exist(tvb, 0, FIP_HEADER_LEN)) {
         if (check_col(pinfo->cinfo, COL_INFO))

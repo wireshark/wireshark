@@ -628,8 +628,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fchdr=(fc_hdr *)pinfo->private_data;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCP");
 
     r_ctl = pinfo->r_ctl;
 

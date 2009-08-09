@@ -135,8 +135,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 delta_time;
 	guint8 compression_type;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX WAN");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX WAN");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

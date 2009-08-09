@@ -85,8 +85,7 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	static const guint8 ppp[2] = { 0xFF, 0x03 };
 	circuit_t *circuit;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISDN");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISDN");
 
 	if (pinfo->pseudo_header->isdn.uton) {
 		if (check_col(pinfo->cinfo, COL_RES_DL_DST))

@@ -207,8 +207,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         case 0x01:
         case 0x80:
         case 0x81:
-            if(check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "Kingfisher");
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Kingfisher");
             if(check_col(pinfo->cinfo, COL_INFO)){
                 func_string = val_to_str(tvb_get_guint8(tvb, 0), function_code_vals, "Unknown function");
                 col_clear(pinfo->cinfo, COL_INFO);
@@ -278,8 +277,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     /* Ok  this does look like Kingfisher, so lets dissect it */
     func_string = val_to_str(kfp->function, function_code_vals, "Unknown function");
 
-    if(check_col(pinfo->cinfo, COL_PROTOCOL) )
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Kingfisher");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Kingfisher");
     if(check_col(pinfo->cinfo, COL_INFO ))
     {
         col_clear(pinfo->cinfo, COL_INFO);

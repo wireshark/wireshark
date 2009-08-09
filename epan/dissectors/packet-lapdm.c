@@ -223,8 +223,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_length(tvb) < LAPDM_HEADER_LEN)
         return;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPDm");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPDm");
 
     address = tvb_get_guint8(tvb, 0);
     length = tvb_get_guint8(tvb, 2);

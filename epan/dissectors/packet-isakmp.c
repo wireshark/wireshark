@@ -1004,8 +1004,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean             pd_changed = FALSE;
 #endif /* HAVE_LIBGCRYPT */
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISAKMP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISAKMP");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

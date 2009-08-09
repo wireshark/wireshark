@@ -104,8 +104,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint16 offset;
 
         /* display IPDC protocol ID */
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPDC");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPDC");
 
 	/* short frame... */
 	if (payload_len < 4)

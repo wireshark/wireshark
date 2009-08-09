@@ -341,8 +341,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *secondary_header_tree;
         const char* time_string;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CCSDS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CCSDS");
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_set_str(pinfo->cinfo, COL_INFO, "CCSDS Packet");
 

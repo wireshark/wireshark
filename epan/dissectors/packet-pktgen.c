@@ -83,8 +83,7 @@ static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         
     /* Make entries in Protocol column and Info column on summary display */
     
-    if(check_col(pinfo->cinfo, COL_PROTOCOL)) 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTGEN");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTGEN");
     
     if(check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq: %u", tvb_get_ntohl(tvb, 4));

@@ -63,8 +63,7 @@ dissect_ax4000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 ax_timestamp;
 
 	/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AX4000");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AX4000");
     
 	ax_port = tvb_get_guint8(tvb, 0);
 	ax_chassis = tvb_get_guint8(tvb, 1);

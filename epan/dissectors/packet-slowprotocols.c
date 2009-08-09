@@ -1060,8 +1060,7 @@ dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         default:
         {
-            if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "Slow Protocols");
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Slow Protocols");
 
             if (check_col(pinfo->cinfo, COL_INFO))
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown Subtype = %u.", subtype);
@@ -1120,8 +1119,7 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const char *sep;
 
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "LACP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LACP");
 
     if (check_col(pinfo->cinfo, COL_INFO)) 
         col_set_str(pinfo->cinfo, COL_INFO, "Link Aggregation Control Protocol");
@@ -1468,8 +1466,7 @@ dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *marker_item;
 
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MARKER");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MARKER");
 
     if (check_col(pinfo->cinfo, COL_INFO)) 
         col_set_str(pinfo->cinfo, COL_INFO, "Marker Protocol");
@@ -1865,8 +1862,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     const char *sep = initial_sep;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM");
 
     oampdu_code = tvb_get_guint8(tvb, OAMPDU_CODE);
 

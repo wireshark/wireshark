@@ -60,8 +60,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		tokenlen;
 	const guchar	*next_token;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IMAP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IMAP");
 
 
 	if (pinfo->match_port == pinfo->destport)

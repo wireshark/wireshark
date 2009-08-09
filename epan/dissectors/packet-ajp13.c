@@ -707,8 +707,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   mag = tvb_get_ntohs(tvb, 0);
   len = tvb_get_ntohs(tvb, 2);
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AJP13");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "AJP13");
   if (check_col(pinfo->cinfo, COL_INFO)) {
     if (mag == 0x1234 && !fd->is_request_body)
       col_append_fstr(pinfo->cinfo, COL_INFO, "%d:REQ:", conv->index);

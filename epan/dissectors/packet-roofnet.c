@@ -209,8 +209,7 @@ static void dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 roofnet_nlinks= 0;
   guint8 nlink= 1;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Roofnet");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "Roofnet");
 
   roofnet_msg_type = tvb_get_guint8(tvb, ROOFNET_OFFSET_TYPE);
   /* Clear out stuff in the info column */

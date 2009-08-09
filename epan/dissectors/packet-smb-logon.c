@@ -922,8 +922,7 @@ dissect_smb_logon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *smb_logon_tree = NULL;
 	proto_item *item = NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB_NETLOGON");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB_NETLOGON");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

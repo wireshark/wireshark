@@ -1166,8 +1166,7 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item* lwres_item;
 	proto_tree* lwres_tree;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "lw_res");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "lw_res");
 	length = tvb_get_ntohl(tvb, LW_LENGTH_OFFSET);
 	version = tvb_get_ntohs(tvb, LW_VERSION_OFFSET);
 	flags = tvb_get_ntohs(tvb, LW_PKTFLASG_OFFSET);

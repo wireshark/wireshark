@@ -104,8 +104,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8        octet;
     int           msg_index, attr_index, offset = 0, length = tvb_reported_length(tvb);
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GVRP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GVRP");
 
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_set_str(pinfo->cinfo, COL_INFO, "GVRP");

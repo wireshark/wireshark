@@ -114,8 +114,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset+tvb_length_remaining(tvb, offset);
     }
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIMv1");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIMv1");
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -610,8 +609,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree *pimopt_tree = NULL;
     proto_item *tiopt;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIM");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIM");
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 

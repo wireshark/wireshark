@@ -1809,8 +1809,7 @@ dissect_tds_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		if (first_time) {
-			if (check_col(pinfo->cinfo, COL_PROTOCOL))
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDS");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDS");
 
 			/*
 			 * Set the packet description based on its TDS packet

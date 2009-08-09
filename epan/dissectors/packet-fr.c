@@ -411,8 +411,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint16 fr_type;
   tvbuff_t *next_tvb;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
   if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);
 
@@ -674,8 +673,7 @@ static void dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti = NULL;
   proto_tree *fr_tree = NULL;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
   if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);
 

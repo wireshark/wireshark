@@ -1024,8 +1024,7 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(memcmp(play_id, (guint8 *)&dplay_id, 4) != 0)
     {
-        if(check_col(pinfo->cinfo, COL_PROTOCOL))
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
         /* Clear out stuff in the info column */
         if(check_col(pinfo->cinfo,COL_INFO))
             col_clear(pinfo->cinfo,COL_INFO);
@@ -1039,8 +1038,7 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         second_message_type = tvb_get_letohs(tvb, 72);
     }
 
-    if(check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
     /* Clear out stuff in the info column */
     if(check_col(pinfo->cinfo,COL_INFO))
     {
@@ -1143,8 +1141,7 @@ static void dissect_dplay_player_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 {
     guint32 mixed, size, token;
 
-    if(check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
     /* Clear out stuff in the info column */
     if(check_col(pinfo->cinfo,COL_INFO))
         col_clear(pinfo->cinfo,COL_INFO);

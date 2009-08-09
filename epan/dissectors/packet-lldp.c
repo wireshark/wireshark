@@ -2465,8 +2465,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 tempType;
 	gboolean reachedEnd = FALSE;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLDP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLDP");
 
 	/* Clear the information column on summary display */
 	if (check_col(pinfo->cinfo, COL_INFO)) {

@@ -4298,8 +4298,7 @@ dissect_x420(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_x420);
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "P22");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P22");
 	if (check_col(pinfo->cinfo, COL_INFO))
 	  col_set_str(pinfo->cinfo, COL_INFO, "InterPersonal");
 

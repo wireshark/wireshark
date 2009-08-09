@@ -1258,8 +1258,7 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(!gdsdb_handle_opcode[opcode](tvb, &nopi, NULL))
 		return 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GDS DB");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GDS DB");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO,

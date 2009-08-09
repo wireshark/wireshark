@@ -4202,8 +4202,7 @@ dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   const char *name;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BER");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "BER");
 
   if (check_col(pinfo->cinfo, COL_DEF_SRC))
     col_set_str(pinfo->cinfo, COL_DEF_SRC, "BER encoded file");

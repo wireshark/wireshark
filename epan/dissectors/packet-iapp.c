@@ -417,8 +417,7 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int ia_type;
 	const gchar *codestrval;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAPP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAPP");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);

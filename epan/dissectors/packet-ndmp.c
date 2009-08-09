@@ -3161,8 +3161,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 *  Update the column info.
 			 */
-			if (check_col(pinfo->cinfo, COL_PROTOCOL))
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
 			
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_clear(pinfo->cinfo, COL_INFO);
@@ -3232,8 +3231,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	save_writable = col_get_writable(pinfo->cinfo);
 	col_set_writable(pinfo->cinfo, TRUE);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 	}

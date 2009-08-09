@@ -57,8 +57,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else
         	type = "Response";
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NNTP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NNTP");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*

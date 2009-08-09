@@ -142,8 +142,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *key_index_tree, *keydes_tree;
   tvbuff_t   *next_tvb;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPOL");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPOL");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

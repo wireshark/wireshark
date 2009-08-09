@@ -202,8 +202,7 @@ dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboo
         gint krb_reclen = 0;
         gint krb_rm_size = 0;    /* bytes consumed by record mark: 0 or 4 */
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "KPASSWD");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "KPASSWD");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -287,8 +286,7 @@ dissect_kpasswd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_kpasswd_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "KPASSWD");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "KPASSWD");
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 

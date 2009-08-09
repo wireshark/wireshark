@@ -554,8 +554,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "VNC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VNC");
 
 	/* First, clear the info column */
 	if(check_col(pinfo->cinfo, COL_INFO))

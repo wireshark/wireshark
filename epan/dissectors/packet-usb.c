@@ -1671,8 +1671,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     conversation_t *conversation;
     usb_tap_data_t *tap_data=NULL;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
 
     /* add usb hdr*/
     if (parent) {

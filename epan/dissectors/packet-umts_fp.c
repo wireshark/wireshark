@@ -2914,8 +2914,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct fp_info   *p_fp_info;
 
     /* Append this protocol name rather than replace. */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FP");
 
     /* Create fp tree. */
     ti = proto_tree_add_item(tree, proto_fp, tvb, offset, -1, FALSE);

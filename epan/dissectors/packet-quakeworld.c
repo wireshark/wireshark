@@ -719,8 +719,7 @@ dissect_quakeworld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	direction = (pinfo->destport == gbl_quakeworldServerPort) ?
 			DIR_C2S : DIR_S2C;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKEWORLD");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKEWORLD");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(direction,
 			names_direction, "%u"));

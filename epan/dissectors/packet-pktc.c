@@ -551,8 +551,7 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *item = NULL;
     tvbuff_t *pktc_mtafqdn_tvb;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
 
     if (tree) {
         item = proto_tree_add_item(tree, proto_pktc, tvb, 0, 0, FALSE);
@@ -585,8 +584,7 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *pktc_tree = NULL;
     proto_item *item = NULL, *hidden_item;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
 
     if (tree) {
         item = proto_tree_add_item(tree, proto_pktc, tvb, 0, 3, FALSE);

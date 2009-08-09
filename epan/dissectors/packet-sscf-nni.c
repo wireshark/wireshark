@@ -95,8 +95,7 @@ dissect_sscf_nni(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     sscf_status = tvb_get_guint8(tvb, SSCF_STATUS_OFFSET);
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSCF-NNI");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSCF-NNI");
     if (check_col(pinfo->cinfo, COL_INFO))
       col_add_fstr(pinfo->cinfo, COL_INFO, "STATUS (%s) ",
 		   val_to_str(sscf_status, sscf_status_vals, "Unknown"));

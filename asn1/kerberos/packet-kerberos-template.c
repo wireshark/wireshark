@@ -1367,8 +1367,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    return (-1);
 	}
 	if (do_col_protocol) {
-            if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 	}
         if (tree) {
             item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, FALSE);
@@ -1416,8 +1415,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 return 0;
         }
 	if (do_col_protocol) {
-            if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 	}
 	if (do_col_info) {
             if (check_col(pinfo->cinfo, COL_INFO))

@@ -125,8 +125,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   int hdrlen;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFLOG");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFLOG");
 
   /* Copy out the pflog header to insure alignment */
   tvb_memcpy(tvb, (guint8 *)&pflogh, 0, sizeof(pflogh));
@@ -282,8 +281,7 @@ dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *pflog_tree;
   proto_item *ti;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFLOG-OLD");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFLOG-OLD");
 
   /* Copy out the pflog header to insure alignment */
   tvb_memcpy(tvb, (guint8 *)&pflogh, 0, sizeof(pflogh));

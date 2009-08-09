@@ -317,8 +317,7 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	item = proto_tree_add_item(parent_tree, proto_krb4, tvb, offset, -1, FALSE);
 	tree = proto_item_add_subtree(item, ett_krb4);
 	
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB4");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB4");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

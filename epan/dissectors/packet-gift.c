@@ -59,8 +59,7 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guchar    *next_token;
 
 	/* set "Protocol" column text */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "giFT");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "giFT");
 
 	/* determine whether it is a request to or response from the server */
 	if (pinfo->match_port == pinfo->destport)

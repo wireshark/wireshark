@@ -97,8 +97,7 @@ dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti = NULL;
 	proto_tree *pt_tree = NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Paltalk");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Paltalk");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

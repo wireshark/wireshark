@@ -1406,8 +1406,7 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_tree * homeplug_tree= NULL;
   ptvcursor_t * cursor= NULL;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HomePlug");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "HomePlug");
   /* Clear out stuff in the info column */
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_clear(pinfo->cinfo, COL_INFO);

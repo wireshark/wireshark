@@ -78,8 +78,7 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ((etypev2 == 0) == (etypev3 == 0))
 		return;
 		
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Symantec");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Symantec");
 		
 	if (etypev3 == 0) {	/* SEF and SGS v2 processing */
 		if (check_col(pinfo->cinfo, COL_INFO))

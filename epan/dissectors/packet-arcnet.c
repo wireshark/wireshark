@@ -142,8 +142,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   proto_item *ti = NULL;
   proto_tree *arcnet_tree = NULL;
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "ARCNET");
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "ARCNET");
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_set_str (pinfo->cinfo, COL_INFO, "ARCNET");

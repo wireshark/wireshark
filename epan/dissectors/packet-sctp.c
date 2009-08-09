@@ -3852,8 +3852,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->destport = destination_port;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCTP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCTP");
 
   /* Clear entries in Info column on summary display */
   if (check_col(pinfo->cinfo, COL_INFO))

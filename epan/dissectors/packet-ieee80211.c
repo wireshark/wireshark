@@ -6120,8 +6120,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
   whdr= &whdrs[0];
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11");
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11");
   if (check_col (pinfo->cinfo, COL_INFO))
     col_clear (pinfo->cinfo, COL_INFO);
 
@@ -7554,8 +7553,7 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_item *ti = NULL;
   proto_tree *radio_tree = NULL;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Radio");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "Radio");
   if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);
 
@@ -7768,8 +7766,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
 
-    if(check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Prism");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Prism");
     if(check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 
@@ -8119,8 +8116,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 ssi_type;
     guint32 antnoise;
 
-    if(check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
     if(check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
     offset = 0;

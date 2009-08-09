@@ -346,8 +346,7 @@ dissect_mtp2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   else
     use_extended_sequence_numbers = (pinfo->annex_a_used == MTP2_ANNEX_A_USED);
     
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
   
   if (tree) {
     mtp2_item = proto_tree_add_item(tree, proto_mtp2, tvb, 0, -1, FALSE);

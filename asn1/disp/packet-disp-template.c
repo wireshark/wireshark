@@ -107,8 +107,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		item = proto_tree_add_item(parent_tree, proto_disp, tvb, 0, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_disp);
 	}
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DISP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DISP");
   	if (check_col(pinfo->cinfo, COL_INFO))
   		col_clear(pinfo->cinfo, COL_INFO);
 

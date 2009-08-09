@@ -3498,8 +3498,7 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	int offset = 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSL");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSL");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

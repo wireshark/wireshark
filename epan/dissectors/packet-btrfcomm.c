@@ -623,8 +623,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, TRUE);
 	rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RFCOMM");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RFCOMM");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 		col_set_str(pinfo->cinfo, COL_INFO, pinfo->p2p_dir == P2P_DIR_SENT ? "Sent " : "Rcvd ");

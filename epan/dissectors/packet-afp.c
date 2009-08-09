@@ -4101,8 +4101,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int     len =  tvb_reported_length(tvb);
 	gint col_info = check_col(pinfo->cinfo, COL_INFO);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AFP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AFP");
 	if (col_info)
 		col_clear(pinfo->cinfo, COL_INFO);
 

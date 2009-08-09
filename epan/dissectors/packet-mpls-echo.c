@@ -986,8 +986,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 return; /* Not version 1. */
         }
 
-        if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS ECHO");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS ECHO");
     
         rem = tvb_reported_length_remaining(tvb, offset);
 

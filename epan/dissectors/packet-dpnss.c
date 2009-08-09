@@ -1459,8 +1459,7 @@ dissect_dpnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 octet;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPNSS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPNSS");
 
 	item = proto_tree_add_item(tree, proto_dpnss, tvb, 0, -1, FALSE);
 	dpnss_tree = proto_item_add_subtree(item, ett_dpnss);

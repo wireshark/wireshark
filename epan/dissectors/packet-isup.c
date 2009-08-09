@@ -7082,12 +7082,10 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Make entries in Protocol column and Info column on summary display */
 	switch (isup_standard){
 	case ITU_STANDARD:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ITU)");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ITU)");
 		break;
 	case ANSI_STANDARD:
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ANSI)");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ANSI)");
 		break;
 	}
 
@@ -7156,8 +7154,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*circuit_t *circuit;*/
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC");
 
 /* Extract message type field */
 	message_type = tvb_get_guint8(tvb, BICC_CIC_OFFSET + BICC_CIC_LENGTH);

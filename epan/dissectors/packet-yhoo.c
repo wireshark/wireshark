@@ -198,8 +198,7 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return FALSE;
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "YHOO");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "YHOO");
 
 	offset = 0;
 	if (check_col(pinfo->cinfo, COL_INFO)) {

@@ -749,8 +749,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint last_frame = 0;
     gboolean is_ht = FALSE;
 
-    if(check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPI");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPI");
     if(check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 
@@ -941,8 +940,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             pinfo->fragmented=FALSE;
         } else {
             next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-            if(check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11n");
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11n");
             if(check_col(pinfo->cinfo, COL_INFO))
                 col_set_str(pinfo->cinfo, COL_INFO, "Unreassembled A-MPDU data");
             call_dissector(data_handle, next_tvb, pinfo, tree);

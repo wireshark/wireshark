@@ -527,8 +527,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * fields ...
      */
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMTP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMTP");
 
     if (check_col(pinfo->cinfo, COL_INFO)) {  /* Add the appropriate type here */
       col_clear(pinfo->cinfo, COL_INFO);

@@ -1743,8 +1743,7 @@ static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, 
     } /* protocol_is_enabled */
   } /* loop */
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-      col_set_str (pinfo->cinfo, COL_PROTOCOL, "GIOP");
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "GIOP");
 
   pinfo->current_proto = saved_proto;
   return res;			/* result */

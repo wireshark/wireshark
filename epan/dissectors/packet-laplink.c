@@ -97,8 +97,7 @@ dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return 0;	/* unknown */
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Laplink");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Laplink");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, udp_ident_string);
@@ -126,8 +125,7 @@ dissect_laplink_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 tcp_ident;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Laplink");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Laplink");
 
 	tcp_ident = tvb_get_ntohl(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {

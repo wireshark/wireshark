@@ -201,8 +201,7 @@ static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * Dissect the X.25-over-TCP packet.
    */
-     if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "XOT");
+     col_set_str(pinfo->cinfo, COL_PROTOCOL, "XOT");
      version = tvb_get_ntohs(tvb, offset + 0);
      plen = tvb_get_ntohs(tvb, offset + 2);
      if (check_col(pinfo->cinfo, COL_INFO))

@@ -70,8 +70,7 @@ dissect_3com_xns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 type;
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "3Com XNS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "3Com XNS");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

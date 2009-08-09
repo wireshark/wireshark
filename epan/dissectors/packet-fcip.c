@@ -400,8 +400,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         start = offset;
-        if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCIP");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCIP");
 
         frame_len = (tvb_get_ntohs (tvb, offset+12) & 0x03FF)*4;
 

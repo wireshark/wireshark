@@ -72,8 +72,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8		byte0;
     tvbuff_t		*next_tvb;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPB");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPB");
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 

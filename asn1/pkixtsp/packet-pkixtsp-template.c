@@ -64,8 +64,7 @@ dissect_timestamp_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIXTSP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIXTSP");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
@@ -90,8 +89,7 @@ dissect_timestamp_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIXTSP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIXTSP");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);

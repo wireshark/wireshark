@@ -163,8 +163,7 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     addr;
   guint16    proto;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CHDLC");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "CHDLC");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -278,8 +277,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 mysequence;
   guint32 yoursequence;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SLARP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SLARP");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

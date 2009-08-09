@@ -109,8 +109,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *enc_tree;
   proto_item *ti;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENC");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENC");
 
   /* Copy out the enc header to insure alignment */
   tvb_memcpy(tvb, (guint8 *)&ench, 0, sizeof(ench));

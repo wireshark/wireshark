@@ -102,8 +102,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	/*
 	 * If it is Kismet traffic set COL_PROTOCOL.
 	 */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "kismet");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "kismet");
 
 	/*
 	 * Check if it is request, reply or continuation.

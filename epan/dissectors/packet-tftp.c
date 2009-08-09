@@ -176,8 +176,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	guint            i1;
 	guint16	         error;
 
-  	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
+  	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
 	opcode = tvb_get_ntohs(tvb, offset);
 

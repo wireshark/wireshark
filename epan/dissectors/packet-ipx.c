@@ -259,8 +259,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ipxh=&ipxh_arr[ipx_current];
 
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -596,8 +595,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	spx_rexmit_info	*spx_rexmit_info;
 	spx_info	spx_info;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "SPX");
 
@@ -847,8 +845,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	guint8		conn_number, sig_char;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX MSG");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX MSG");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -886,8 +883,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	static const char	*rip_type[3] = { "Request", "Response", "Unknown" };
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX RIP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX RIP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -956,8 +952,7 @@ dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*ser_tree = NULL;
 	proto_item	*ti;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NW_SERIAL");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NW_SERIAL");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1229,8 +1224,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	static const char	*sap_type[4] = { "General Query", "General Response",
 		"Nearest Query", "Nearest Response" };
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX SAP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX SAP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

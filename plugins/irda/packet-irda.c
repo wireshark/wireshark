@@ -469,8 +469,7 @@ static unsigned dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root,
         return 0;
 
     /* Make entries in Protocol column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "TTP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TTP");
 
     head = tvb_get_guint8(tvb, offset);
 
@@ -530,8 +529,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
         return;
 
     /* Make entries in Protocol column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAP");
 
     op = tvb_get_guint8(tvb, offset) & IAP_OP;
 
@@ -696,8 +694,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
         return;
 
     /* Make entries in Protocol column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAP");
 
     op      = tvb_get_guint8(tvb, offset) & IAP_OP;
     retcode = tvb_get_guint8(tvb, offset + 1);
@@ -1058,8 +1055,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 
 
     /* Make entries in Protocol column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrLMP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrLMP");
 
     dlsap = tvb_get_guint8(tvb, offset);
     cbit  = dlsap & CONTROL_BIT;
@@ -1672,8 +1668,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 {
     /* Make entries in Protocol column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Log");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Log");
 
     /* missed messages? */
     if (pinfo->pseudo_header->irda.pkttype == IRDA_MISSED_MSG)
@@ -1730,8 +1725,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     guint8   ca;
 
     /* Make entries in Protocol column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrLAP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrLAP");
 
     /* Clear Info column */
     if (check_col(pinfo->cinfo, COL_INFO))

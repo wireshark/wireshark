@@ -156,8 +156,7 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint        offset = 0;
     guint8      msgtype = 0;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSRP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSRP");
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {

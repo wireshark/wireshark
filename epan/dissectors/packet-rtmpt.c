@@ -357,12 +357,12 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (conversation_data->is_rtmpe == 1)
 		{
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMPE");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMPE");
 			return;
 		}
 		else
 		{
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
 		}
 
 		if (conversation_data->previous_frame_number != (guint) pinfo->fd->num)

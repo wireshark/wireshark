@@ -264,8 +264,7 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK) /* Event */
         cid = tvb_get_ntohl(tvb, 12 );
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPNCP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPNCP");
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK) {

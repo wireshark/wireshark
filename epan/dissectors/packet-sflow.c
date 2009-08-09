@@ -1376,8 +1376,7 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} agent_address;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "sFlow");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "sFlow");
 
 
 	/* create display subtree for the protocol */

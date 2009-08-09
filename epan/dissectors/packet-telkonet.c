@@ -63,8 +63,7 @@ dissect_telkonet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	telkonet_type_t type;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	  col_set_str(pinfo->cinfo, COL_PROTOCOL, "TELKONET");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TELKONET");
 	if (check_col(pinfo->cinfo, COL_INFO))
 	  col_clear(pinfo->cinfo, COL_INFO);
 

@@ -651,8 +651,7 @@ dissect_fcfzs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 isreq = 1;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Zone Server");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Zone Server");
 
 
     tvb_memcpy (tvb, (guint8 *)&cthdr, offset, FCCT_PRMBL_SIZE);

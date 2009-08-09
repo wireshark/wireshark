@@ -815,8 +815,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean isdata = FALSE;
 	guint pgmlen, reportedlen;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGM");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGM");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);

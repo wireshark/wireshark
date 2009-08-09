@@ -177,8 +177,7 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
         return;
 
     /* Make entries in Protocol column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrCOMM");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrCOMM");
 
     clen = tvb_get_guint8(tvb, offset);
 
@@ -232,8 +231,7 @@ static void dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
         return;
 
     /* Make entries in Protocol column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrCOMM");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrCOMM");
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {

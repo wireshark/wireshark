@@ -101,8 +101,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gchar				magic_string[14];
     gchar				*version_out;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSYNC");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSYNC");
 
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);

@@ -485,8 +485,7 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	direction = DIR_UNKNOWN;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE3");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE3");
 
 	if (tree) {
 		quake3_item = proto_tree_add_item(tree, proto_quake3,

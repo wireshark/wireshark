@@ -157,8 +157,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
   tvbuff_t *volatile trailer_tvb = NULL;
   const char *saved_proto;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISL");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISL");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

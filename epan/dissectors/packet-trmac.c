@@ -287,8 +287,7 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		mv_length, sv_offset, sv_additional;
 	guint8		mv_val;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TR MAC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TR MAC");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

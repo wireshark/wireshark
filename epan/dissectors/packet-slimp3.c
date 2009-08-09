@@ -250,8 +250,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (opcode_str == NULL)
 	return 0;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SliMP3");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SliMP3");
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 

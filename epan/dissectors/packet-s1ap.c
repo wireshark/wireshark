@@ -6842,8 +6842,7 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*s1ap_tree = NULL;
 
 	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "S1AP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "S1AP");
 
 	/* create the s1ap protocol tree */
 	s1ap_item = proto_tree_add_item(tree, proto_s1ap, tvb, 0, -1, FALSE);

@@ -113,8 +113,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti, *tf;
 	guint8 length = TPCP_VER_1_LENGTH;
 	
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPCP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPCP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 	

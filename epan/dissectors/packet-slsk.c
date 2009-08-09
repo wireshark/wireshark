@@ -329,8 +329,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	message_type =  get_message_type(tvb);
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "slsk");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "slsk");
 
 /* This field shows up as the "Info" column in the display  */
 

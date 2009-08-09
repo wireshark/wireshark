@@ -202,8 +202,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 	redirect_info = conversation_get_proto_data(conversation,
 		proto_msproxy);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS Proxy");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS Proxy");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO,
@@ -1085,8 +1084,7 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hash_entry_t *hash_info;
 	conversation_t *conversation;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSproxy");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSproxy");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 

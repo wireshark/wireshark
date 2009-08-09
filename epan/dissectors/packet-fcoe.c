@@ -164,8 +164,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (version != 0)
             ver = ep_strdup_printf(ver, "ver %d ", version);
     }
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCoE");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCoE");
     crc_offset = header_len + frame_len;
     eof_offset = crc_offset + 4;
     bytes_remaining = tvb_length_remaining(tvb, header_len);

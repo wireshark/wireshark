@@ -1019,8 +1019,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     void* pd_save;
         
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC-SB3");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC-SB3");
 
     /* Decode the basic SB3 and IU header and determine type of frame */
     type = get_fc_sbccs_iu_type (tvb, offset);

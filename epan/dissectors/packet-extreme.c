@@ -678,8 +678,7 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 		FALSE);
 	offset += 2;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESRP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESRP");
 }
 
 static void
@@ -746,8 +745,7 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 		FALSE);
 	offset += 38;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPS");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " ID: %d, MAC: %s",
 			ctrlvlanid, ether_to_str(sysmac));
@@ -863,8 +861,7 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	offset += length;
 	length = 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESL");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESL");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " ID: %d, MAC: %s",
 			ctrlvlanid, ether_to_str(sysmac));

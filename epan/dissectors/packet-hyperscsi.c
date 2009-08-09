@@ -93,8 +93,7 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   guint8     hs_cmd, hs_ver;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HyperSCSI");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "HyperSCSI");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

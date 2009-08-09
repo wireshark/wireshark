@@ -130,8 +130,7 @@ static void dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "ALC";
 	
 	/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ALC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ALC");
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_clear(pinfo->cinfo, COL_INFO);
 	

@@ -692,8 +692,7 @@ dissect_dua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *dua_tree;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DUA");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DUA");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */

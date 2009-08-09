@@ -437,8 +437,7 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* The message seems to be a valid STUN2 message! */
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN2");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN2");
 
 	/* BEGIN of CHANNEL-DATA specific section */
 	if (msg_type & 0xC000)

@@ -289,8 +289,7 @@ dissect_fc_ba_acc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset = 0;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLS");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLS");
 
     if (check_col(pinfo->cinfo, COL_INFO)) 
         col_set_str(pinfo->cinfo, COL_INFO, "BA_ACC");
@@ -321,8 +320,7 @@ dissect_fc_ba_rjt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset = 0;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLS");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLS");
 
     if (check_col(pinfo->cinfo, COL_INFO)) 
         col_set_str(pinfo->cinfo, COL_INFO, "BA_RJT");
@@ -653,8 +651,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     fchdr.itlq=NULL;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
 
     fchdr.r_ctl = tvb_get_guint8 (tvb, offset);
 

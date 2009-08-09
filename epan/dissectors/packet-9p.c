@@ -219,8 +219,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	proto_tree *ninep_tree,*tmp_tree;
 	nstime_t tv;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "9P");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "9P");
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_clear(pinfo->cinfo, COL_INFO);
 

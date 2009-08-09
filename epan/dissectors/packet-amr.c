@@ -441,8 +441,7 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *amr_tree, *toc_tree;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR");
 	if (tree) {
 
 		ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, FALSE);

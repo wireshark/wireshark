@@ -199,8 +199,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return;
   }
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "XDMCP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "XDMCP");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 

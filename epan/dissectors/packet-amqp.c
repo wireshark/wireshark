@@ -1092,8 +1092,7 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint length;
     int offset;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMQP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMQP");
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_clear(pinfo->cinfo, COL_INFO);
     }

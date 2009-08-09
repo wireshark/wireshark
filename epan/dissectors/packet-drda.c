@@ -677,7 +677,7 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*drda_tree_sub;
 	gint iLengthParam;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDA");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDA");
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		/* This is a trick to know whether this is the first PDU in this packet or not */

@@ -106,8 +106,7 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ayiya_len = 8+idlen+siglen;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AYIYA");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AYIYA");
 
 	if (tree) {
 		proto_item *ti;

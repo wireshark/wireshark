@@ -356,8 +356,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	trh=&trh_arr[trh_current];
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TR");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TR");
 
 	if (fix_linux_botches)
 		x = check_for_old_linux_tvb((tvbuff_t*) tvb);

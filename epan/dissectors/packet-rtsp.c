@@ -615,8 +615,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	else
 		body_requires_content_len = FALSE;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSP");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary

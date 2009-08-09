@@ -67,8 +67,7 @@ dissect_etherip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *etherip_tree;
   proto_item *ti;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ETHERIP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ETHERIP");
 
   /* Copy out the etherip header to insure alignment */
   tvb_memcpy(tvb, (guint8 *)&etheriph, 0, sizeof(etheriph));

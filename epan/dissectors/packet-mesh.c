@@ -55,8 +55,7 @@ dissect_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 mesh_e2eseq; 
   
   /* Make entries in Protocol column and Info column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Mesh");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "Mesh");
   
   if (tree) {
     ti = proto_tree_add_item(tree, proto_mesh, tvb, 0, 5, FALSE);

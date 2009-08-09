@@ -87,8 +87,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     string = (gchar*)tvb_get_ephemeral_string(tvb, 0, length);
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "TiVoConnect");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TiVoConnect");
     
     /* make a distinction between UDP and TCP packets */
     proto_name = pinfo->ipproto == IP_PROTO_TCP ?

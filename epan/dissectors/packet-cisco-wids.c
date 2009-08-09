@@ -79,8 +79,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 capturelen;
 	guint remain;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	  col_set_str(pinfo->cinfo, COL_PROTOCOL, "CWIDS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CWIDS");
 	if (check_col(pinfo->cinfo, COL_INFO))
 	  col_clear(pinfo->cinfo, COL_INFO);
 

@@ -133,8 +133,7 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_tree *mgt_hdr_tree;
   tvbuff_t *payload_tvb;
   guint8 type;
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "DOCSIS MGMT");
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "DOCSIS MGMT");
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_clear (pinfo->cinfo, COL_INFO);

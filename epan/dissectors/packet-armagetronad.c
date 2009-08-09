@@ -242,8 +242,7 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	info = check_col(pinfo->cinfo, COL_INFO) ? g_string_new("") : NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Armagetronad");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Armagetronad");
 
 	if (info)
 		col_clear(pinfo->cinfo, COL_INFO);

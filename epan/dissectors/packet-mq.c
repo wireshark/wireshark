@@ -1245,7 +1245,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct mq_msg_properties tMsgProps;
 	static gint iPreviousFrameNumber = -1;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		/* This is a trick to know whether this is the first PDU in this packet or not */
@@ -2362,7 +2362,7 @@ reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					else
 					{
 						/* Reassembly in progress */
-						if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
+						col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
 						if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "%s [Reassembled MQ]", val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
 						if (tree)
 						{

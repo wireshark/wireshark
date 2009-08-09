@@ -69,8 +69,7 @@ static void dissect_ioraw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    guint ioraw_length = tvb_reported_length(tvb);
    
-   if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "IO-RAW");
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IO-RAW");
 
    if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);

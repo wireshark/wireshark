@@ -74,8 +74,7 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Layer1");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Layer1");
 	if (check_col(pinfo->cinfo, COL_DEF_SRC))
 		col_set_str(pinfo->cinfo, COL_DEF_SRC, 
 			    pinfo->pseudo_header->l1event.uton? "TE" : "NT");

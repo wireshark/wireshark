@@ -205,8 +205,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 offset = 0;
 	gint len, i;
 
-	if(check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WOW");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WOW");
 
 	if(check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);

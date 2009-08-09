@@ -1781,8 +1781,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t	*tmp_tvb;
 
     /* Make entries in Protocol column */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UCP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UCP");
 
     /* This runs atop TCP, so we are guaranteed that there is at least one
        byte in the tvbuff. */
@@ -1807,8 +1806,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_rec->operation = OT;
 
      /* Make entries in  Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UCP");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UCP");
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_clear(pinfo->cinfo, COL_INFO);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
