@@ -427,7 +427,7 @@ emem_alloc(size_t size, gboolean debug_free, emem_header_t *mem, guint8 *canary)
 
 		npc=g_malloc(sizeof(emem_chunk_t));
 		npc->next=mem->used_list;
-		npc->amount_free=size;
+		npc->amount_free=(unsigned int) size;
 		npc->free_offset=0;
 		npc->buf=g_malloc(size);
 		buf = npc->buf;
