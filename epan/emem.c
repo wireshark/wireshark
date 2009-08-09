@@ -662,108 +662,82 @@ gchar* se_strdup_printf(const gchar* fmt, ...) {
 	return dst;
 }
 
-
-/* release all allocated memory back to the pool.
- */
-void
-ep_free_all(void)
+/* release all allocated memory back to the pool. */
+static void
+emem_free_all(gboolean debug_free, emem_header_t *mem, guint8 *canary, emem_tree_t *trees, const char *error_msg)
 {
 	emem_chunk_t *npc;
-#ifndef EP_DEBUG_FREE
+	emem_tree_t *tree_list;
 #ifdef DEBUG_USE_CANARIES
 	guint i;
 #endif /* DEBUG_USE_CANARIES */
-#endif
 
 	/* move all used chunks over to the free list */
-	while(ep_packet_mem.used_list){
-		npc=ep_packet_mem.used_list;
-		ep_packet_mem.used_list=ep_packet_mem.used_list->next;
-		npc->next=ep_packet_mem.free_list;
-		ep_packet_mem.free_list=npc;
+	while(mem->used_list){
+		npc=mem->used_list;
+		mem->used_list=mem->used_list->next;
+		npc->next=mem->free_list;
+		mem->free_list=npc;
 	}
 
 	/* clear them all out */
-	npc = ep_packet_mem.free_list;
+	npc = mem->free_list;
 	while (npc != NULL) {
-#ifndef EP_DEBUG_FREE
+		if (!debug_free) {
 #ifdef DEBUG_USE_CANARIES
-		for (i = 0; i < npc->c_count; i++) {
-			if (memcmp(npc->canary[i], &ep_canary, npc->cmp_len[i]) != 0)
-				g_error("Per-packet memory corrupted.");
-		}
-		npc->c_count = 0;
+			for (i = 0; i < npc->c_count; i++) {
+				if (memcmp(npc->canary[i], canary, npc->cmp_len[i]) != 0)
+					g_error(error_msg);
+			}
+			npc->c_count = 0;
 #endif /* DEBUG_USE_CANARIES */
-		npc->amount_free = npc->amount_free_init;
-		npc->free_offset = npc->free_offset_init;
-		npc = npc->next;
-#else /* EP_DEBUG_FREE */
-		emem_chunk_t *next = npc->next;
+			npc->amount_free = npc->amount_free_init;
+			npc->free_offset = npc->free_offset_init;
+			npc = npc->next;
+		} else {
+			emem_chunk_t *next = npc->next;
 
-		g_free(npc->buf);
-		g_free(npc);
-		npc = next;
-#endif /* EP_DEBUG_FREE */
+			g_free(npc->buf);
+			g_free(npc);
+			npc = next;
+		}
 	}
+
+	/* release/reset all allocated trees */
+	for(tree_list=trees;tree_list;tree_list=tree_list->next){
+		tree_list->tree=NULL;
+	}
+}
+
+/* release all allocated memory back to the pool. */
+void
+ep_free_all(void)
+{
+#ifdef EP_DEBUG_FREE
+    emem_free_all(TRUE, &ep_packet_mem, ep_canary, NULL, "Per-packet memory corrupted.");
+#else
+    emem_free_all(FALSE, &ep_packet_mem, ep_canary, NULL, "Per-packet memory corrupted.");
+#endif
 
 #ifdef EP_DEBUG_FREE
 	ep_init_chunk();
 #endif
 }
-/* release all allocated memory back to the pool.
- */
+
+/* release all allocated memory back to the pool. */
 void
 se_free_all(void)
 {
-	emem_chunk_t *npc;
-	emem_tree_t *se_tree_list;
-#ifndef SE_DEBUG_FREE
-#ifdef DEBUG_USE_CANARIES
-	guint i;
-#endif /* DEBUG_USE_CANARIES */
+#ifdef SE_DEBUG_FREE
+    emem_free_all(TRUE, &se_packet_mem, se_canary, se_trees, "Per-session memory corrupted.");
+#else
+    emem_free_all(FALSE, &se_packet_mem, se_canary, se_trees, "Per-session memory corrupted.");
 #endif
-
-	/* move all used chunks over to the free list */
-	while(se_packet_mem.used_list){
-		npc=se_packet_mem.used_list;
-		se_packet_mem.used_list=se_packet_mem.used_list->next;
-		npc->next=se_packet_mem.free_list;
-		se_packet_mem.free_list=npc;
-	}
-
-	/* clear them all out */
-	npc = se_packet_mem.free_list;
-	while (npc != NULL) {
-#ifndef SE_DEBUG_FREE
-#ifdef DEBUG_USE_CANARIES
-		for (i = 0; i < npc->c_count; i++) {
-			if (memcmp(npc->canary[i], &se_canary, npc->cmp_len[i]) != 0)
-				g_error("Per-session memory corrupted.");
-		}
-		npc->c_count = 0;
-#endif /* DEBUG_USE_CANARIES */
-		npc->amount_free = npc->amount_free_init;
-		npc->free_offset = npc->free_offset_init;
-		npc = npc->next;
-#else /* SE_DEBUG_FREE */
-		emem_chunk_t *next = npc->next;
-
-		g_free(npc->buf);
-		g_free(npc);
-		npc = next;
-#endif /* SE_DEBUG_FREE */
-	}
 
 #ifdef SE_DEBUG_FREE
-		se_init_chunk();
+	se_init_chunk();
 #endif
-
-	/* release/reset all se allocated trees */
-	for(se_tree_list=se_trees;se_tree_list;se_tree_list=se_tree_list->next){
-		se_tree_list->tree=NULL;
-	}
 }
-
 
 ep_stack_t ep_stack_new(void) {
 	ep_stack_t s = ep_new(struct _ep_stack_frame_t*);
