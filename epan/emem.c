@@ -158,7 +158,6 @@ emem_canary(guint8 *canary) {
 	return;
 }
 
-#if !defined(SE_DEBUG_FREE)
 /*
  * Given an allocation size, return the amount of padding needed for
  * the canary value.
@@ -173,7 +172,6 @@ emem_canary_pad (size_t allocation) {
 
 	return pad;
 }
-#endif
 #endif /* DEBUG_USE_CANARIES */
 
 /* used for debugging canaries, will block */
@@ -369,155 +367,101 @@ emem_create_chunk(emem_chunk_t **free_list) {
 }
 #endif
 
+/* allocate 'size' amount of memory. */
+static void *
+emem_alloc(size_t size, gboolean debug_free, emem_header_t *mem, guint8 *canary)
+{
+	void *buf;
+#ifdef DEBUG_USE_CANARIES
+	void *cptr;
+	guint8 pad = emem_canary_pad(size);
+#else
+	static guint8 pad = 8;
+#endif /* DEBUG_USE_CANARIES */
+	emem_chunk_t *free_list;
+
+	if (!debug_free) {
+		/* Round up to an 8 byte boundary.	Make sure we have at least
+		 * 8 pad bytes for our canary.
+		 */
+		size += pad;
+
+		/* make sure we dont try to allocate too much (arbitrary limit) */
+		DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
+
+		emem_create_chunk(&mem->free_list);
+
+		/* oops, we need to allocate more memory to serve this request
+		 * than we have free. move this node to the used list and try again
+		 */
+		if(size>mem->free_list->amount_free
+#ifdef DEBUG_USE_CANARIES
+		   || mem->free_list->c_count >= EMEM_ALLOCS_PER_CHUNK
+#endif /* DEBUG_USE_CANARIES */
+			) {
+			emem_chunk_t *npc;
+			npc=mem->free_list;
+			mem->free_list=mem->free_list->next;
+			npc->next=mem->used_list;
+			mem->used_list=npc;
+		}
+
+		emem_create_chunk(&mem->free_list);
+
+		free_list = mem->free_list;
+
+		buf = free_list->buf + free_list->free_offset;
+
+		free_list->amount_free -= (unsigned int) size;
+		free_list->free_offset += (unsigned int) size;
+
+#ifdef DEBUG_USE_CANARIES
+		cptr = (char *)buf + size - pad;
+		memcpy(cptr, canary, pad);
+		free_list->canary[free_list->c_count] = cptr;
+		free_list->cmp_len[free_list->c_count] = pad;
+		free_list->c_count++;
+#endif /* DEBUG_USE_CANARIES */
+	} else {
+		emem_chunk_t *npc;
+
+		npc=g_malloc(sizeof(emem_chunk_t));
+		npc->next=mem->used_list;
+		npc->amount_free=size;
+		npc->free_offset=0;
+		npc->buf=g_malloc(size);
+		buf = npc->buf;
+		mem->used_list=npc;
+	}
+
+	return buf;
+}
+
 /* allocate 'size' amount of memory with an allocation lifetime until the
  * next packet.
  */
 void *
 ep_alloc(size_t size)
 {
-	void *buf;
-#ifndef EP_DEBUG_FREE
-#ifdef DEBUG_USE_CANARIES
-	void *cptr;
-	guint8 pad = emem_canary_pad(size);
+#ifdef EP_DEBUG_FREE
+	return emem_alloc(size, TRUE, &ep_packet_mem, ep_canary);
 #else
-	static guint8 pad=8;
-#endif /* DEBUG_USE_CANARIES */
-	emem_chunk_t *free_list;
+	return emem_alloc(size, FALSE, &ep_packet_mem, ep_canary);
 #endif
-
-#ifndef EP_DEBUG_FREE
-	/* Round up to an 8 byte boundary.  Make sure we have at least
-	 * 8 pad bytes for our canary.
-	 */
-	size += pad;
-
-	/* make sure we dont try to allocate too much (arbitrary limit) */
-	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
-
-	emem_create_chunk(&ep_packet_mem.free_list);
-
-	/* oops, we need to allocate more memory to serve this request
-	 * than we have free. move this node to the used list and try again
-	 */
-	if(size>ep_packet_mem.free_list->amount_free
-#ifdef DEBUG_USE_CANARIES
-	   || ep_packet_mem.free_list->c_count >= EMEM_ALLOCS_PER_CHUNK
-#endif /* DEBUG_USE_CANARIES */
-		) {
-		emem_chunk_t *npc;
-		npc=ep_packet_mem.free_list;
-		ep_packet_mem.free_list=ep_packet_mem.free_list->next;
-		npc->next=ep_packet_mem.used_list;
-		ep_packet_mem.used_list=npc;
-	}
-
-	emem_create_chunk(&ep_packet_mem.free_list);
-
-	free_list = ep_packet_mem.free_list;
-
-	buf = free_list->buf + free_list->free_offset;
-
-	free_list->amount_free -= (unsigned int) size;
-	free_list->free_offset += (unsigned int) size;
-
-#ifdef DEBUG_USE_CANARIES
-	cptr = (char *)buf + size - pad;
-	memcpy(cptr, &ep_canary, pad);
-	free_list->canary[free_list->c_count] = cptr;
-	free_list->cmp_len[free_list->c_count] = pad;
-	free_list->c_count++;
-#endif /* DEBUG_USE_CANARIES */
-
-#else /* EP_DEBUG_FREE */
-	emem_chunk_t *npc;
-
-	npc=g_malloc(sizeof(emem_chunk_t));
-	npc->next=ep_packet_mem.used_list;
-	npc->amount_free=size;
-	npc->free_offset=0;
-	npc->buf=g_malloc(size);
-	buf = npc->buf;
-	ep_packet_mem.used_list=npc;
-#endif /* EP_DEBUG_FREE */
-
-	return buf;
 }
+
 /* allocate 'size' amount of memory with an allocation lifetime until the
  * next capture.
  */
 void *
 se_alloc(size_t size)
 {
-	void *buf;
-#ifndef SE_DEBUG_FREE
-#ifdef DEBUG_USE_CANARIES
-	void *cptr;
-	guint8 pad = emem_canary_pad(size);
+#ifdef SE_DEBUG_FREE
+	return emem_alloc(size, TRUE, &se_packet_mem, se_canary);
 #else
-	static guint8 pad=8;
-#endif /* DEBUG_USE_CANARIES */
-	emem_chunk_t *free_list;
+	return emem_alloc(size, FALSE, &se_packet_mem, se_canary);
 #endif
-
-#ifndef SE_DEBUG_FREE
-	/* Round up to an 8 byte boundary.  Make sure we have at least
-	 * 8 pad bytes for our canary.
-	 */
-	size += pad;
-
-	/* make sure we dont try to allocate too much (arbitrary limit) */
-	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
-
-	emem_create_chunk(&se_packet_mem.free_list);
-
-	/* oops, we need to allocate more memory to serve this request
-	 * than we have free. move this node to the used list and try again
-	 */
-	if(size>se_packet_mem.free_list->amount_free
-#ifdef DEBUG_USE_CANARIES
-	   || se_packet_mem.free_list->c_count >= EMEM_ALLOCS_PER_CHUNK
-#endif /* DEBUG_USE_CANARIES */
-		) {
-		emem_chunk_t *npc;
-		npc=se_packet_mem.free_list;
-		se_packet_mem.free_list=se_packet_mem.free_list->next;
-		npc->next=se_packet_mem.used_list;
-		se_packet_mem.used_list=npc;
-	}
-
-	emem_create_chunk(&se_packet_mem.free_list);
-
-	free_list = se_packet_mem.free_list;
-
-	buf = free_list->buf + free_list->free_offset;
-
-	free_list->amount_free -= (unsigned int) size;
-	free_list->free_offset += (unsigned int) size;
-
-#ifdef DEBUG_USE_CANARIES
-	cptr = (char *)buf + size - pad;
-	memcpy(cptr, &se_canary, pad);
-	free_list->canary[free_list->c_count] = cptr;
-	free_list->cmp_len[free_list->c_count] = pad;
-	free_list->c_count++;
-#endif /* DEBUG_USE_CANARIES */
-
-#else /* SE_DEBUG_FREE */
-	emem_chunk_t *npc;
-
-	npc=g_malloc(sizeof(emem_chunk_t));
-	npc->next=se_packet_mem.used_list;
-	npc->amount_free=size;
-	npc->free_offset=0;
-	npc->buf=g_malloc(size);
-	buf = npc->buf;
-	se_packet_mem.used_list=npc;
-#endif /* SE_DEBUG_FREE */
-
-	return buf;
 }
-
 
 void* ep_alloc0(size_t size) {
 	return memset(ep_alloc(size),'\0',size);
