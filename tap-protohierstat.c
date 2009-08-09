@@ -76,7 +76,7 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const v
 {
 	phs_t *rs=prs;
 	phs_t *tmprs;
-	proto_tree *tree;
+	proto_node *node;
 	field_info *fi;
 
 	if(!edt){
@@ -89,8 +89,8 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const v
 		return 0;
 	}
 
-	for(tree=edt->tree->first_child;tree;tree=tree->next){
-		fi=PITEM_FINFO(tree);
+	for(node=edt->tree->first_child;node;node=node->next){
+		fi=PNODE_FINFO(node);
 
 		/* first time we saw a protocol at this leaf */
 		if(rs->protocol==-1){

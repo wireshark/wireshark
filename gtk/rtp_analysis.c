@@ -3503,7 +3503,7 @@ static gboolean process_node(proto_node *ptree_node, header_field_info *hfinform
 	header_field_info     *hfssrc;
 	ipv4_addr             *ipv4;
 
-	finfo = PITEM_FINFO(ptree_node);
+	finfo = PNODE_FINFO(ptree_node);
 
 	if (hfinformation==(finfo->hfinfo)) {
 		hfssrc = proto_registrar_get_byname(proto_field);
@@ -3511,7 +3511,7 @@ static gboolean process_node(proto_node *ptree_node, header_field_info *hfinform
 			return FALSE;
 		for(ptree_node=ptree_node->first_child; ptree_node!=NULL;
 					ptree_node=ptree_node->next) {
-			finfo=PITEM_FINFO(ptree_node);
+			finfo=PNODE_FINFO(ptree_node);
 			if (hfssrc==finfo->hfinfo) {
 				if (hfinformation->type==FT_IPv4) {
 					ipv4 = fvalue_get(&finfo->value);

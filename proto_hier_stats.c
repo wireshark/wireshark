@@ -85,7 +85,7 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 	proto_node		*proto_sibling_node;
 	GNode			*stat_node;
 
-	finfo = PITEM_FINFO(ptree_node);
+	finfo = PNODE_FINFO(ptree_node);
 	g_assert(finfo);
 
 	/* If the field info isn't related to a protocol but to a field,

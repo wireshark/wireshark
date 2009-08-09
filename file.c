@@ -2967,7 +2967,7 @@ match_subtree_text(proto_node *node, gpointer data)
   const gchar	*string = mdata->string;
   size_t	string_len = mdata->string_len;
   capture_file	*cf = mdata->cf;
-  field_info	*fi = PITEM_FINFO(node);
+  field_info	*fi = PNODE_FINFO(node);
   gchar		label_str[ITEM_LABEL_LENGTH];
   gchar		*label_ptr;
   size_t	label_len;

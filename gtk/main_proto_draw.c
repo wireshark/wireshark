@@ -1684,7 +1684,7 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     struct proto_tree_draw_info	info;
     struct proto_tree_draw_info	*parent_info = (struct proto_tree_draw_info*) data;
 
-    field_info   *fi = PITEM_FINFO(node);
+    field_info   *fi = PNODE_FINFO(node);
     gchar         label_str[ITEM_LABEL_LENGTH];
     gchar        *label_ptr;
     gboolean      is_leaf, is_expanded;

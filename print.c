@@ -151,7 +151,7 @@ proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
 static
 void proto_tree_print_node(proto_node *node, gpointer data)
 {
-	field_info	*fi = PITEM_FINFO(node);
+	field_info	*fi = PNODE_FINFO(node);
 	print_data	*pdata = (print_data*) data;
 	const guint8	*pd;
 	gchar		label_str[ITEM_LABEL_LENGTH];
@@ -255,7 +255,7 @@ proto_tree_write_pdml(epan_dissect_t *edt, FILE *fh)
 static void
 proto_tree_write_node_pdml(proto_node *node, gpointer data)
 {
-	field_info	*fi = PITEM_FINFO(node);
+	field_info	*fi = PNODE_FINFO(node);
 	write_pdml_data	*pdata = (write_pdml_data*) data;
 	const gchar	*label_ptr;
 	gchar		label_str[ITEM_LABEL_LENGTH];
@@ -1407,7 +1407,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     gpointer field_index;
 
     call_data = data;
-    fi = PITEM_FINFO(node);
+    fi = PNODE_FINFO(node);
 
     field_index = g_hash_table_lookup(call_data->fields->field_indicies, fi->hfinfo->abbrev);
     if(NULL != field_index) {

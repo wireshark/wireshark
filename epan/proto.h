@@ -345,8 +345,11 @@ extern gboolean proto_tree_traverse_post_order(proto_tree *tree,
 extern void proto_tree_children_foreach(proto_tree *tree,
     proto_tree_foreach_func func, gpointer data);
 
+/** Retrieve the field_info from a proto_node */
+#define PNODE_FINFO(proto_node)  ((proto_node)->finfo)
+
 /** Retrieve the field_info from a proto_item */
-#define PITEM_FINFO(proto_item)  ((proto_item)->finfo)
+#define PITEM_FINFO(proto_item)  PNODE_FINFO(proto_item)
 
 /** Retrieve the tree_data_t from a proto_tree */
 #define PTREE_DATA(proto_tree)   ((proto_tree)->tree_data)

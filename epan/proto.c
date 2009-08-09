@@ -549,7 +549,7 @@ free_node_tree_data(tree_data_t *tree_data)
 static gboolean
 proto_tree_free_node(proto_node *node, gpointer data _U_)
 {
-	field_info *finfo = PITEM_FINFO(node);
+	field_info *finfo = PNODE_FINFO(node);
 #if 0
 	proto_node *parent = node->parent;
 #endif
@@ -5063,7 +5063,7 @@ typedef struct {
 static gboolean
 find_finfo(proto_node *node, gpointer data)
 {
-	field_info *fi = PITEM_FINFO(node);
+	field_info *fi = PNODE_FINFO(node);
 	if (fi && fi->hfinfo) {
 		if (fi->hfinfo->id == ((ffdata_t*)data)->id) {
 			g_ptr_array_add(((ffdata_t*)data)->array, fi);
@@ -5097,7 +5097,7 @@ proto_find_finfo(proto_tree *tree, int id)
 static gboolean
 every_finfo(proto_node *node, gpointer data)
 {
-	field_info *fi = PITEM_FINFO(node);
+	field_info *fi = PNODE_FINFO(node);
 	if (fi && fi->hfinfo) {
 		g_ptr_array_add(((ffdata_t*)data)->array, fi);
 	}
@@ -5130,7 +5130,7 @@ typedef struct {
 static gboolean
 check_for_offset(proto_node *node, gpointer data)
 {
-	field_info          *fi = PITEM_FINFO(node);
+	field_info          *fi = PNODE_FINFO(node);
 	offset_search_t		*offsearch = data;
 
 	/* !fi == the top most container node which holds nothing */
