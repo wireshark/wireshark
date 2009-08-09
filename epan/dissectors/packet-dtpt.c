@@ -460,8 +460,7 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (queryset_size != 60) return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTPT");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "QuerySet");
+	col_set_str(pinfo->cinfo, COL_INFO, "QuerySet");
 
 	if (tree) {
 		dtpt_item = proto_tree_add_item(tree, proto_dtpt,

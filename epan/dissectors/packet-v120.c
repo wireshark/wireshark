@@ -113,8 +113,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if ( ((byte0 & 0x01) != 0x00) && ((byte1 & 0x01) != 0x01) )
     {
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, "Invalid V.120 frame");
+	col_set_str(pinfo->cinfo, COL_INFO, "Invalid V.120 frame");
 	if (tree)
 	    ti = proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, -1,
 			                    "Invalid V.120 frame");

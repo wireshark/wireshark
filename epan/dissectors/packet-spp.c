@@ -128,8 +128,7 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		low_socket, high_socket;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SPP");
+	col_set_str(pinfo->cinfo, COL_INFO, "SPP");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_spp, tvb, 0, SPP_HEADER_LEN, FALSE);

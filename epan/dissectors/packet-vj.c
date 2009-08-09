@@ -248,8 +248,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
      * as we don't know which connection this is.  Mark them all as
      * non-decompressable.
      */
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
+    col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
     if(tree != NULL)
       call_dissector(data_handle, tvb, pinfo, tree);
     if(comp != NULL) {
@@ -290,8 +289,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
 
   /* Make sure we have the full IP header */
   if(isize < ihl) {
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
+    col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
     if(tree != NULL)
       call_dissector(data_handle, tvb, pinfo, tree);
     if(cs != NULL)
@@ -299,8 +297,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
     return;
   }
 
-  if(check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP");
+  col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP");
 
   /*
    * Copy packet data to a buffer, and replace the connection index with
@@ -322,8 +319,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
     /* Do we have the TCP header length in the tvbuff? */
     if(!tvb_bytes_exist(tvb, ihl + TCP_FIELD_HDR_LEN, 1)) {
       /* We don't, so we can't provide enough data for decompression */
-      if(check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
+      col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
       if(cs != NULL)
         cs->flags |= SLF_TOSS;
       cs = NULL;  /* disable state updates */
@@ -344,8 +340,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
       } else {
         /* Make sure we have the full TCP header */
         if(isize < thl) {
-          if(check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
+          col_set_str(pinfo->cinfo, COL_INFO, "VJ uncompressed TCP (not enough data available)");
           if(cs != NULL)
             cs->flags |= SLF_TOSS;
           cs = NULL;  /* disable state updates */
@@ -489,13 +484,11 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   /* Get decompressed header stored in fd protocol area */
   hdr_buf = p_get_proto_data(pinfo->fd, proto_vj);
   if(hdr_buf == NULL) {
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (previous data bad or missing)");
+    col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (previous data bad or missing)");
     return VJ_ERROR;
   }
 
-  if(check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP");
+  col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP");
 
   /* Get the data offset in the tvbuff */
   offset  = hdr_buf->offset;
@@ -548,8 +541,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
      * determine which connection this is; mark all connections as
      * non-decompressible.
      */
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (not enough data available)");
+    col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (not enough data available)");
     if(tree != NULL)
       call_dissector(data_handle, src_tvb, pinfo, tree);
     if(comp != NULL) {
@@ -700,8 +692,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
      * This shouldn't happen, as we *were* able to fetch stuff right before
      * offset.
      */
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (not enough data available)");
+    col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (not enough data available)");
     if(cs != NULL)
       cs->flags |= SLF_TOSS;
     return VJ_ERROR;
@@ -714,8 +705,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
   /* Nothing more to do if we don't have any compression state */
   if(comp == NULL) {
     /* Direction of the traffic unknown - can't decompress */
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (direction unknown)");
+    col_set_str(pinfo->cinfo, COL_INFO, "VJ compressed TCP (direction unknown)");
     return VJ_ERROR;
   }
 

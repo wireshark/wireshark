@@ -356,8 +356,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* We haven't seen all of the fields yet */
 	if(hash_info->state < WAIT_FOR_DATA){
-		if(check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Session Establishment");
+		col_set_str(pinfo->cinfo, COL_INFO, "Session Establishment");
 	}
 }
 

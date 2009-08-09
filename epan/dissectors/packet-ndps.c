@@ -4180,8 +4180,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
 
     ndps_packet_type = tvb_get_ntohl(tvb, 8);
     if (ndps_packet_type != 0 && ndps_packet_type != 1) {     /* Packet Type */
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO, "(Continuation Data)");
+        col_set_str(pinfo->cinfo, COL_INFO, "(Continuation Data)");
         proto_tree_add_text(ndps_tree, tvb, 0, tvb_length(tvb), "Data - (%d Bytes)", tvb_length(tvb));
         return;
     }
@@ -4201,8 +4200,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
     foffset += 4;
     if(ndps_packet_type == 0x00000001)          /* Reply packet */
     {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO, "R NDPS ");
+        col_set_str(pinfo->cinfo, COL_INFO, "R NDPS ");
         proto_tree_add_item(ndps_tree, hf_ndps_rpc_accept, tvb, foffset, 4, FALSE);
         if (tvb_get_ntohl(tvb, foffset)==0) {
             foffset += 4;
@@ -4219,8 +4217,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
     }
     else
     {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO, "C NDPS ");
+        col_set_str(pinfo->cinfo, COL_INFO, "C NDPS ");
         ndps_rpc_version = tvb_get_ntohl(tvb, foffset);
         proto_tree_add_item(ndps_tree, hf_ndps_rpc_version, tvb, foffset, 4, FALSE);
         foffset += 4;
@@ -6735,8 +6732,7 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
     proto_item  *expert_item;
 
     ndps_problem_type = tvb_get_ntohl(tvb, foffset);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "R NDPS - Error");
+    col_set_str(pinfo->cinfo, COL_INFO, "R NDPS - Error");
     expert_item = proto_tree_add_uint(ndps_tree, hf_ndps_problem_type, tvb, foffset, 4, ndps_problem_type);
     expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Fault: %s", val_to_str(ndps_problem_type, error_type_enum, "Unknown NDPS Error (0x%08x)"));
     foffset += 4;

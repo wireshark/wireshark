@@ -1064,8 +1064,7 @@ dissect_ehs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         int year, jday, hour, minute, second, tenths;
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "EHS");
-        if ( check_col(pinfo->cinfo, COL_INFO) ) 
-          col_set_str ( pinfo->cinfo, COL_INFO, "EHS" );
+        col_set_str(pinfo->cinfo, COL_INFO, "EHS");
 
 	if ( tree )
         {

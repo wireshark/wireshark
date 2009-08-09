@@ -104,8 +104,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (byte0 != 0x01 && byte0 != 0x03 && byte0 != 0x07 && byte0 != 0x0f) /* invalid LAPB frame */
     {
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, "Invalid LAPB frame");
+	col_set_str(pinfo->cinfo, COL_INFO, "Invalid LAPB frame");
 	if (tree)
 	    ti = proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0, -1,
 			    "Invalid LAPB frame");

@@ -134,8 +134,7 @@ dissect_mip6_brr(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_tree *data_tree = NULL;
 	proto_item *ti;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Binding Refresh Request");
+	col_set_str(pinfo->cinfo, COL_INFO, "Binding Refresh Request");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -152,8 +151,7 @@ dissect_mip6_hoti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_tree *data_tree = NULL;
 	proto_item *ti;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Home Test Init");
+	col_set_str(pinfo->cinfo, COL_INFO, "Home Test Init");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -173,8 +171,7 @@ dissect_mip6_coti(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_tree *data_tree = NULL;
 	proto_item *ti;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Care-of Test Init");
+	col_set_str(pinfo->cinfo, COL_INFO, "Care-of Test Init");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -194,8 +191,7 @@ dissect_mip6_hot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_tree *data_tree = NULL;
 	proto_item *ti;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Home Test");
+	col_set_str(pinfo->cinfo, COL_INFO, "Home Test");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -219,8 +215,7 @@ dissect_mip6_cot(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_tree *data_tree = NULL;
 	proto_item *ti;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Care-of Test");
+	col_set_str(pinfo->cinfo, COL_INFO, "Care-of Test");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -245,8 +240,7 @@ dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_item *ti;
 	int lifetime;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Binding Update");
+	col_set_str(pinfo->cinfo, COL_INFO, "Binding Update");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -292,8 +286,7 @@ dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_item *ti;
 	int lifetime;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Binding Acknowledgement");
+	col_set_str(pinfo->cinfo, COL_INFO, "Binding Acknowledgement");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -332,8 +325,7 @@ dissect_mip6_be(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_tree *data_tree = NULL;
 	proto_item *ti;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Binding Error");
+	col_set_str(pinfo->cinfo, COL_INFO, "Binding Error");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -355,8 +347,7 @@ dissect_mip6_unknown(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_tree *data_tree = NULL;
 	proto_item *ti;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Unknown MH Type");
+	col_set_str(pinfo->cinfo, COL_INFO, "Unknown MH Type");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -374,8 +365,7 @@ dissect_fmip6_fbu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_item *ti;
 	int lifetime;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Update");
+	col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Update");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -412,8 +402,7 @@ dissect_fmip6_fback(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_item *ti;
 	int lifetime;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Acknowledgement");
+	col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Acknowledgement");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -443,8 +432,7 @@ dissect_fmip6_fna(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
 	proto_tree *data_tree = NULL;
 	proto_item *ti;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement");
+	col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement");
 
 	if (mip6_tree) {
 		ti = proto_tree_add_text(mip6_tree, tvb, MIP6_DATA_OFF, 
@@ -961,9 +949,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_clear(pinfo->cinfo, COL_INFO);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-					"Fast Neighbor Advertisement[Fast Binding Update]");
+		col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement[Fast Binding Update]");
 	}
 }
 

@@ -106,8 +106,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GVRP");
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-	col_set_str(pinfo->cinfo, COL_INFO, "GVRP");
+    col_set_str(pinfo->cinfo, COL_INFO, "GVRP");
 
     if (tree)
     {

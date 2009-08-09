@@ -98,8 +98,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int vlan_info_len;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VTP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Virtual Trunking Protocol");
+	col_set_str(pinfo->cinfo, COL_INFO, "Virtual Trunking Protocol");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vtp, tvb, offset, -1,

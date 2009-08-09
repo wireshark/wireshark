@@ -2913,8 +2913,7 @@ dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   flags = tvb_get_guint8(tvb, offset);
   if (flags & BCP_IS_BCONTROL) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "Bridge control");
+    col_set_str(pinfo->cinfo, COL_INFO, "Bridge control");
   }
   if (tree) {
     flags_item = proto_tree_add_uint(bcp_tree, hf_bcp_flags, tvb, offset, 1, flags);
@@ -3089,8 +3088,7 @@ dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP Comp");
 
-  if(check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "Compressed data");
+  col_set_str(pinfo->cinfo, COL_INFO, "Compressed data");
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_comp_data, tvb, 0, -1, FALSE);
@@ -3127,8 +3125,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPP PPPMux");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "PPP Multiplexing");
+  col_set_str(pinfo->cinfo, COL_INFO, "PPP Multiplexing");
 
   length_remaining = tvb_reported_length(tvb);
 
@@ -3263,8 +3260,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "Full Header");
+  col_set_str(pinfo->cinfo, COL_INFO, "Full Header");
 
   /* only dissect IPv4 and UDP */
   ip_version = tvb_get_guint8(tvb, 0) >> 4;
@@ -3361,8 +3357,7 @@ dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "Compressed UDP 16");
+  col_set_str(pinfo->cinfo, COL_INFO, "Compressed UDP 16");
 
   length = tvb_reported_length(tvb);
 
@@ -3397,8 +3392,7 @@ dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "Compressed UDP 8");
+  col_set_str(pinfo->cinfo, COL_INFO, "Compressed UDP 8");
 
   length = tvb_reported_length(tvb);
 
@@ -3434,8 +3428,7 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "Context State");
+  col_set_str(pinfo->cinfo, COL_INFO, "Context State");
 
   if (tree) {
 
@@ -3523,8 +3516,7 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP MP");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "PPP Multilink");
+  col_set_str(pinfo->cinfo, COL_INFO, "PPP Multilink");
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_mp, tvb, 0, mp_short_seqno ? 2 : 4, FALSE);

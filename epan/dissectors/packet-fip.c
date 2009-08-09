@@ -267,8 +267,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIP");
 
     if (!tvb_bytes_exist(tvb, 0, FIP_HEADER_LEN)) {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO, "[packet too short]");
+        col_set_str(pinfo->cinfo, COL_INFO, "[packet too short]");
         if (tree)
             proto_tree_add_protocol_format(tree, proto_fip, tvb, 0,
                                             -1, "FIP [packet too short]");

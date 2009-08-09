@@ -1121,8 +1121,7 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LACP");
 
-    if (check_col(pinfo->cinfo, COL_INFO)) 
-        col_set_str(pinfo->cinfo, COL_INFO, "Link Aggregation Control Protocol");
+    col_set_str(pinfo->cinfo, COL_INFO, "Link Aggregation Control Protocol");
 
     if (tree)
     {
@@ -1468,8 +1467,7 @@ dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MARKER");
 
-    if (check_col(pinfo->cinfo, COL_INFO)) 
-        col_set_str(pinfo->cinfo, COL_INFO, "Marker Protocol");
+    col_set_str(pinfo->cinfo, COL_INFO, "Marker Protocol");
 
     if (tree)
     {
@@ -1869,32 +1867,25 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (oampdu_code)
     {
         case OAMPDU_INFORMATION:
-            if (check_col(pinfo->cinfo, COL_INFO)) 
-                col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Information");
+            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Information");
             break;
         case OAMPDU_EVENT_NOTIFICATION:
-            if (check_col(pinfo->cinfo, COL_INFO)) 
-                col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Event Notification");
+            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Event Notification");
             break;
         case OAMPDU_VAR_REQUEST:
-            if (check_col(pinfo->cinfo, COL_INFO)) 
-                col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Variable Request");
+            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Variable Request");
             break;
         case OAMPDU_VAR_RESPONSE:
-            if (check_col(pinfo->cinfo, COL_INFO)) 
-                col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Variable Response");
+            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Variable Response");
             break;
         case OAMPDU_LOOPBACK_CTRL:
-            if (check_col(pinfo->cinfo, COL_INFO)) 
-                col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Loopback Control");
+            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Loopback Control");
             break;
         case OAMPDU_VENDOR_SPECIFIC:
-            if (check_col(pinfo->cinfo, COL_INFO)) 
-                col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Organization Specific");
+            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Organization Specific");
             break;
         default:
-            if (check_col(pinfo->cinfo, COL_INFO)) 
-                col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU reserved");
+            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU reserved");
             break;
     }
 

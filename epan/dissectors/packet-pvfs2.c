@@ -3187,8 +3187,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	if (val && (val->flow_frame_num == pinfo->fd->num))
 	{
 		/* This frame is marked as being flow data */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "PVFS flow data");
+		col_set_str(pinfo->cinfo, COL_INFO, "PVFS flow data");
 
 		proto_tree_add_text(pvfs_tree, tvb, offset, -1, "<data>");
 
@@ -3225,8 +3224,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 			 * responses
 			 */
 
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "PVFS2 DATA (request)");
+			col_set_str(pinfo->cinfo, COL_INFO, "PVFS2 DATA (request)");
 		}
 		else
 #endif

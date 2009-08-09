@@ -596,8 +596,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	spx_info	spx_info;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SPX");
+	col_set_str(pinfo->cinfo, COL_INFO, "SPX");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_spx, tvb, 0, SPX_HEADER_LEN, FALSE);

@@ -660,8 +660,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 		/*
 		 * Message format 1
 		 */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Msg format 1");
+		col_set_str(pinfo->cinfo, COL_INFO, "Msg format 1");
 
 		if ( tbit == 1 ) {
 			/*
@@ -803,8 +802,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 		/*
 		 * Message format 2
 		 */
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Msg format 2");
+	col_set_str(pinfo->cinfo, COL_INFO, "Msg format 2");
 		if ( tbit == 1 ) {
 			/*
 			 * Returned feedback item exists

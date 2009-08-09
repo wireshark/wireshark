@@ -333,8 +333,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 /* This field shows up as the "Info" column in the display  */
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SoulSeek Message");
+	col_set_str(pinfo->cinfo, COL_INFO, "SoulSeek Message");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", message_type);

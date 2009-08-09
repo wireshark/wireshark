@@ -52,8 +52,7 @@ dissect_snaeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t	*next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SNAETH");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "SNA over Ethernet");
+	col_set_str(pinfo->cinfo, COL_INFO, "SNA over Ethernet");
 
 	/* length */
 	len = tvb_get_ntohs(tvb, 0);

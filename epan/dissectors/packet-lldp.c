@@ -2482,8 +2482,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rtnValue = dissect_lldp_chassis_id(tvb, pinfo, lldp_tree, offset);
 	if (rtnValue < 0)
 	{
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Invalid Chassis ID TLV");
+		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Chassis ID TLV");
 
 		return;
 	}
@@ -2494,8 +2493,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rtnValue = dissect_lldp_port_id(tvb, pinfo, lldp_tree, offset);
 	if (rtnValue < 0)
 	{
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Invalid Port ID TLV");
+		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Port ID TLV");
 
 		return;
 	}
@@ -2506,8 +2504,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rtnValue = dissect_lldp_time_to_live(tvb, pinfo, lldp_tree, offset);
 	if (rtnValue < 0)
 	{
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Invalid Time-to-Live TLV");
+		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Time-to-Live TLV");
 
 		return;
 	}
@@ -2525,20 +2522,17 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case CHASSIS_ID_TLV_TYPE:
 			rtnValue = dissect_lldp_chassis_id(tvb, pinfo, lldp_tree, offset);
 			rtnValue = -1;	/* Duplicate chassis id tlv */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Chassis ID TLV");
+			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Chassis ID TLV");
 			break;
 		case PORT_ID_TLV_TYPE:
 			rtnValue = dissect_lldp_port_id(tvb, pinfo, lldp_tree, offset);
 			rtnValue = -1;	/* Duplicate port id tlv */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Port ID TLV");
+			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Port ID TLV");
 			break;
 		case TIME_TO_LIVE_TLV_TYPE:
 			rtnValue = dissect_lldp_time_to_live(tvb, pinfo, lldp_tree, offset);
 			rtnValue = -1;	/* Duplicate time-to-live tlv */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Time-To-Live TLV");
+			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Time-To-Live TLV");
 			break;
 		case END_OF_LLDPDU_TLV_TYPE:
 			rtnValue = dissect_lldp_end_of_lldpdu(tvb, pinfo, lldp_tree, offset);

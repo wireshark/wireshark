@@ -1408,13 +1408,11 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 
 	if((tailtype==0)||(tailtype==1))		/* Ct */
 	{
-		if(check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "[Ct]");
+		col_set_str(pinfo->cinfo, COL_INFO, "[Ct]");
 	}
 	else if((tailtype==2)||(tailtype==3))		/* Nt, Nt connectionless bearer */
 	{
-		if(check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "[Nt]");
+		col_set_str(pinfo->cinfo, COL_INFO, "[Nt]");
 		if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
 			col_append_fstr(pinfo->cinfo, COL_INFO /*Type2*/, "RFPI: %s",
 				tvb_bytes_to_str(tvb, offset, 5));
@@ -1423,8 +1421,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 	}
 	else if(tailtype==4)				/* Qt */
 	{
-		if(check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "[Qt]");
+		col_set_str(pinfo->cinfo, COL_INFO, "[Qt]");
 
 		proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_Qh, tvb, offset, 1, FALSE);
 
@@ -1629,8 +1626,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 	}
 	else if((tailtype==6)||((tailtype==7)&&(dect_packet_type==DECT_PACKET_PP)))	/* Mt */
 	{
-		if(check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "[Mt]");
+		col_set_str(pinfo->cinfo, COL_INFO, "[Mt]");
 
 		proto_tree_add_uint(ATail, hf_dect_A_Tail_Mt_Mh, tvb, offset, 1, tail_0);
 
@@ -1721,8 +1717,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 	}
 	else if((tailtype==7)&&(dect_packet_type==DECT_PACKET_FP))	/* Pt */
 	{
-		if(check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "[Pt]");
+		col_set_str(pinfo->cinfo, COL_INFO, "[Pt]");
 
 		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_ExtFlag, tvb, offset, 1, FALSE);
 		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_SDU, tvb, offset, 1, FALSE);

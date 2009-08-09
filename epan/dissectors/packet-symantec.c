@@ -81,8 +81,7 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Symantec");
 		
 	if (etypev3 == 0) {	/* SEF and SGS v2 processing */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Symantec Enterprise Firewall");
+		col_set_str(pinfo->cinfo, COL_INFO, "Symantec Enterprise Firewall");
 		if (tree) {
 			ti = proto_tree_add_protocol_format(tree, proto_symantec, tvb,
 				0, 44, "Symantec firewall");
@@ -100,8 +99,7 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (etypev2 == 0) {	/* SGS v3 processing */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Symantec SGS v3");
+		col_set_str(pinfo->cinfo, COL_INFO, "Symantec SGS v3");
 		if (tree) {
 			ti = proto_tree_add_protocol_format(tree, proto_symantec, tvb,
 				0, 56, "Symantec SGSv3");

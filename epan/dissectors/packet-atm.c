@@ -487,8 +487,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 opcode;
   guint16 flags;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "LE Control");
+  col_set_str(pinfo->cinfo, COL_INFO, "LE Control");
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_atm_lane, tvb, offset, 108, "ATM LANE");
@@ -672,8 +671,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case TRAF_ST_LANE_802_3:
   case TRAF_ST_LANE_802_3_MC:
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "LE Client - Ethernet/802.3");
+    col_set_str(pinfo->cinfo, COL_INFO, "LE Client - Ethernet/802.3");
     dissect_le_client(tvb, tree);
 
     /* Dissect as Ethernet */
@@ -683,8 +681,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case TRAF_ST_LANE_802_5:
   case TRAF_ST_LANE_802_5_MC:
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "LE Client - 802.5");
+    col_set_str(pinfo->cinfo, COL_INFO, "LE Client - 802.5");
     dissect_le_client(tvb, tree);
 
     /* Dissect as Token-Ring */
@@ -694,8 +691,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   default:
     /* Dump it as raw data. */
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "Unknown LANE traffic type");
+    col_set_str(pinfo->cinfo, COL_INFO, "Unknown LANE traffic type");
     next_tvb		= tvb_new_subset(tvb, 0, -1, -1);
     call_dissector(data_handle,next_tvb, pinfo, tree);
     break;

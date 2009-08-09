@@ -1108,8 +1108,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	    default:
-		if (check_col(pinfo->cinfo, COL_INFO))
-		    col_set_str(pinfo->cinfo, COL_INFO, "Unknown ");
+		col_set_str(pinfo->cinfo, COL_INFO, "Unknown ");
 
 		dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
 	    } /* switch */
@@ -1202,8 +1201,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 
 	default:
-	    if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Unknown ");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Unknown ");
 
 	    dissect_mtp3mg_unknown_message(tvb, mtp3mg_tree);
 	} /* switch */

@@ -123,12 +123,10 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(ddtp_tree, hf_ddtp_msgtype, tvb, 12, 4, FALSE);
 	switch (tvb_get_ntohl(tvb, 12)) {
 	case DDTP_MESSAGE_ERROR :
-	    if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str (pinfo->cinfo, COL_INFO, "Message Error");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Message Error");
 	    break;
 	case DDTP_UPDATE_QUERY :
-	    if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str (pinfo->cinfo, COL_INFO, "Update Query");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Update Query");
 	    if (tree) {
 		proto_tree_add_item(ddtp_tree, hf_ddtp_opcode, tvb, 16, 4,
 			FALSE);
@@ -137,40 +135,35 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	    break;
 	case DDTP_UPDATE_REPLY :
-	    if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str (pinfo->cinfo, COL_INFO, "Update Reply");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Update Reply");
 	    if (tree) {
 		proto_tree_add_item(ddtp_tree, hf_ddtp_status, tvb, 16, 4,
 			FALSE);
 	    }
 	    break;
 	case DDTP_ALIVE_QUERY :
-	    if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str (pinfo->cinfo, COL_INFO, "Alive Query");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Alive Query");
 	    if (tree) {
 		proto_tree_add_text(ddtp_tree, tvb, 16, 4, "Dummy : %u",
 			tvb_get_ntohl(tvb, 16));
 	    }
 	    break;
 	case DDTP_ALIVE_REPLY :
-	    if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str (pinfo->cinfo, COL_INFO, "Alive Reply");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Alive Reply");
 	    if (tree) {
 		proto_tree_add_text(ddtp_tree, tvb, 16, 4, "Dummy : %u",
 			tvb_get_ntohl(tvb, 16));
 	    }
 	    break;
 	default :
-	    if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str (pinfo->cinfo, COL_INFO, "Unknown type");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Unknown type");
 	    if (tree) {
 		proto_tree_add_text(ddtp_tree, tvb, 12, 4, "Unknown type : %u",
 			tvb_get_ntohl(tvb, 12));
 	    }
 	}
     } else {
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str (pinfo->cinfo, COL_INFO, "Encrypted payload");
+	col_set_str(pinfo->cinfo, COL_INFO, "Encrypted payload");
     }
     return tvb_length(tvb);
 }

@@ -1811,8 +1811,7 @@ continuation:
 	/*
 	 * It looks like a continuation.
 	 */
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "NBSS Continuation Message");
+	col_set_str(pinfo->cinfo, COL_INFO, "NBSS Continuation Message");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbss, tvb, 0, -1, FALSE);

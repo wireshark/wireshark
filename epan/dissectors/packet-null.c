@@ -372,8 +372,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(check_col(pinfo->cinfo, COL_RES_DL_DST))
       col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A" );
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "N/A");
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "Null/Loopback" );
+    col_set_str(pinfo->cinfo, COL_INFO, "Null/Loopback");
 
     /*
      * Treat it as a normal DLT_NULL header.

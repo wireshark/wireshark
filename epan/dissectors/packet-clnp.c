@@ -223,8 +223,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   cnf_proto_id = tvb_get_guint8(tvb, P_CLNP_PROTO_ID);
   if (cnf_proto_id == NLPID_NULL) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "Inactive subset");
+    col_set_str(pinfo->cinfo, COL_INFO, "Inactive subset");
     if (tree) {
       ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, FALSE);
       clnp_tree = proto_item_add_subtree(ti, ett_clnp);

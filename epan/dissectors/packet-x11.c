@@ -4300,16 +4300,13 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
 	     * Set the column appropriately.
 	     */
 	    if (is_initial_creq) {
-		  if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-			"Initial connection request");
+		  col_set_str(pinfo->cinfo, COL_INFO, "Initial connection request");
 	    } else {
 		  if (sep == NULL) {
 			/*
 			 * We haven't set the column yet; set it.
 			 */
-			if (check_col(pinfo->cinfo, COL_INFO))
-			      col_set_str(pinfo->cinfo, COL_INFO, "Requests");
+			col_set_str(pinfo->cinfo, COL_INFO, "Requests");
 
 			/*
 			 * Initialize the separator.

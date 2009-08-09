@@ -66,8 +66,7 @@ dissect_newmail(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NEWMAIL");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_set_str(pinfo->cinfo, COL_INFO, "Microsoft Exchange new mail notification");
+	col_set_str(pinfo->cinfo, COL_INFO, "Microsoft Exchange new mail notification");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_newmail, tvb, 0, -1, FALSE);

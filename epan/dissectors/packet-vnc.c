@@ -734,9 +734,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case SECURITY :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "Security types supported");
+		col_set_str(pinfo->cinfo, COL_INFO, "Security types supported");
 		
 		/* We're checking against the client protocol version because
 		 * the client is the final decider on which version to use
@@ -805,9 +803,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case TIGHT_TUNNELING_CAPABILITIES :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "TightVNC tunneling capabilities supported");
+		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC tunneling capabilities supported");
 
 		proto_tree_add_item(tree, hf_vnc_tight_num_tunnel_types, tvb, offset, 4, FALSE);
 		num_tunnel_types = tvb_get_ntohl(tvb, offset);
@@ -840,9 +836,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case TIGHT_AUTH_CAPABILITIES:
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "TightVNC authentication capabilities supported");
+		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC authentication capabilities supported");
 
 		proto_tree_add_item(tree, hf_vnc_tight_num_auth_types, tvb, offset, 4, FALSE);
 		num_auth_types = tvb_get_ntohl(tvb, offset);
@@ -872,9 +866,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;		
 
 	case TIGHT_AUTH_TYPE_AND_VENDOR_CODE :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "Authentication type / vendor code");
+		col_set_str(pinfo->cinfo, COL_INFO, "Authentication type / vendor code");
 
 		proto_tree_add_item(tree, hf_vnc_server_security_type, tvb,
 				    offset, 4, FALSE);		
@@ -893,9 +885,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 		
 	case TIGHT_UNKNOWN_PACKET3 :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "Unknown packet (TightVNC)");
+		col_set_str(pinfo->cinfo, COL_INFO, "Unknown packet (TightVNC)");
 		
 		proto_tree_add_text(tree, tvb, offset, -1,
 				    "Unknown packet (TightVNC)");
@@ -906,9 +896,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case VNC_AUTHENTICATION_CHALLENGE :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "Authentication challenge from server");
+		col_set_str(pinfo->cinfo, COL_INFO, "Authentication challenge from server");
 		
 		proto_tree_add_item(tree, hf_vnc_auth_challenge, tvb,
 				    offset, 16, FALSE);
@@ -918,9 +906,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case VNC_AUTHENTICATION_RESPONSE :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "Authentication response from client");
+		col_set_str(pinfo->cinfo, COL_INFO, "Authentication response from client");
 		
 		proto_tree_add_item(tree, hf_vnc_auth_response, tvb,
 				    offset, 16, FALSE);
@@ -929,9 +915,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case SECURITY_RESULT :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "Authentication result");
+		col_set_str(pinfo->cinfo, COL_INFO, "Authentication result");
 		
 		proto_tree_add_item(tree, hf_vnc_auth_result, tvb, offset,
 				    4, FALSE);
@@ -965,9 +949,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case CLIENT_INIT :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "Share desktop flag");
+		col_set_str(pinfo->cinfo, COL_INFO, "Share desktop flag");
 
 		proto_tree_add_item(tree, hf_vnc_share_desktop_flag, tvb,
 				    offset, 1, FALSE);
@@ -977,9 +959,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 		
 	case SERVER_INIT :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "Server framebuffer parameters");
+		col_set_str(pinfo->cinfo, COL_INFO, "Server framebuffer parameters");
 	       
 		proto_tree_add_item(tree, hf_vnc_width, tvb, offset, 2,
 				    FALSE);
@@ -1055,9 +1035,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 		
 	case TIGHT_INTERACTION_CAPS :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "TightVNC Interaction Capabilities");
+		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC Interaction Capabilities");
 
 		proto_tree_add_item(tree, hf_vnc_num_server_message_types,
 				    tvb, offset, 2, FALSE);
@@ -1082,9 +1060,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case TIGHT_INTERACTION_CAPS_LIST:
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO,
-				    "TightVNC Interaction Capabilities list");
+		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC Interaction Capabilities list");
 
 		offset = process_tight_capabilities(tree,
 						    hf_vnc_tight_server_message_type,
@@ -1239,8 +1215,7 @@ static void
 vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			    proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Client set pixel format");
+	col_set_str(pinfo->cinfo, COL_INFO, "Client set pixel format");
 	
 	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset,
 			    3, FALSE);
@@ -1306,8 +1281,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Client set encodings");
+	col_set_str(pinfo->cinfo, COL_INFO, "Client set encodings");
 
 	proto_tree_add_item(tree, hf_vnc_padding,
 			    tvb, *offset, 1, FALSE);
@@ -1359,9 +1333,7 @@ static void
 vnc_client_framebuffer_update_request(tvbuff_t *tvb, packet_info *pinfo,
 				      gint *offset, proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO,
-			    "Client framebuffer update request");
+	col_set_str(pinfo->cinfo, COL_INFO, "Client framebuffer update request");
 
 	proto_tree_add_item(tree, hf_vnc_update_req_incremental,
 			    tvb, *offset, 1, FALSE);
@@ -1389,8 +1361,7 @@ static void
 vnc_client_key_event(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		     proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Client key event");
+	col_set_str(pinfo->cinfo, COL_INFO, "Client key event");
 	
 	proto_tree_add_item(tree, hf_vnc_key_down, tvb, *offset, 1, FALSE);
 	*offset += 1;
@@ -1407,8 +1378,7 @@ static void
 vnc_client_pointer_event(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			 proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Client pointer event");
+	col_set_str(pinfo->cinfo, COL_INFO, "Client pointer event");
 	
 	proto_tree_add_item(tree, hf_vnc_button_1_pos, tvb, *offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_vnc_button_2_pos, tvb, *offset, 1, FALSE);
@@ -1434,8 +1404,7 @@ vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 {
 	guint32 text_len;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Client cut text");
+	col_set_str(pinfo->cinfo, COL_INFO, "Client cut text");
 
 	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, FALSE);
 	*offset += 3; /* Skip over 3 bytes of padding */
@@ -1463,9 +1432,7 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	proto_item *ti, *ti_x, *ti_y, *ti_width, *ti_height;
 	proto_tree *vnc_rect_tree, *vnc_encoding_type_tree;
 	
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO,
-			    "Server framebuffer update");	
+	col_set_str(pinfo->cinfo, COL_INFO, "Server framebuffer update");	
 
 	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 1, FALSE);
 	*offset += 1;
@@ -2182,9 +2149,7 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	proto_item *ti;
 	proto_tree *vnc_colormap_num_groups, *vnc_colormap_color_group;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO,
-			    "Server set colormap entries");
+	col_set_str(pinfo->cinfo, COL_INFO, "Server set colormap entries");
 
 	number_of_colors = tvb_get_ntohs(tvb, 4);
 
@@ -2243,8 +2208,7 @@ static void
 vnc_server_ring_bell(tvbuff_t *tvb _U_, packet_info *pinfo, gint *offset _U_,
 		     proto_tree *tree _U_)
 {
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Server ring bell on client");
+	col_set_str(pinfo->cinfo, COL_INFO, "Server ring bell on client");
 	/* This message type has no payload... */
 }
 
@@ -2255,9 +2219,7 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 {
 	guint32 text_len;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO,
-			    "Server cut text");
+	col_set_str(pinfo->cinfo, COL_INFO, "Server cut text");
 
 	text_len = tvb_get_ntohl(tvb, *offset);
 	proto_tree_add_item(tree,

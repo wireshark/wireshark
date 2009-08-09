@@ -3827,12 +3827,10 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     while (tvb_offset_exists(tvb, offset)) {
       tn3270_cmd = tvb_get_guint8(tvb, offset);
       if (pinfo->srcport == tn3270_info->outbound_port) {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO, "TN3270 Data from Mainframe");
+        col_set_str(pinfo->cinfo, COL_INFO, "TN3270 Data from Mainframe");
         offset += dissect_outbound_stream(tn3270_tree, tvb, offset);
       }else{
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO, "TN3270 Data to Mainframe");
+        col_set_str(pinfo->cinfo, COL_INFO, "TN3270 Data to Mainframe");
         offset += dissect_inbound_stream(tn3270_tree, tvb, offset);
       }
     }

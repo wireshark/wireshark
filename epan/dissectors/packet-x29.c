@@ -217,8 +217,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Q bit not set - this is data.
 		 */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Data ...");
+		col_set_str(pinfo->cinfo, COL_INFO, "Data ...");
 
 		if (tree) {
 			while (tvb_offset_exists(tvb, offset)) {

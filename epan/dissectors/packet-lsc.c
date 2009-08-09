@@ -157,8 +157,7 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Too little data? */
   if (tvb->length < LSC_MIN_LEN)
   {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "[Too short]");
+    col_set_str(pinfo->cinfo, COL_INFO, "[Too short]");
     return;
   }
 

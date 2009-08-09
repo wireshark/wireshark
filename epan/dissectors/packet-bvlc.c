@@ -141,8 +141,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BVLC");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "BACnet Virtual Link Control");
+	col_set_str(pinfo->cinfo, COL_INFO, "BACnet Virtual Link Control");
 
 	bvlc_function = tvb_get_guint8(tvb, offset+1);
 	packet_length = tvb_get_ntohs(tvb, offset+2);

@@ -1502,23 +1502,19 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Create and set the string for "Info" column */
 	switch(ptp_control){
 		case PTP_SYNC_MESSAGE:{
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "Sync Message");
+			col_set_str(pinfo->cinfo, COL_INFO, "Sync Message");
 			break;
 		}
 		case PTP_DELAY_REQ_MESSAGE:{
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "Delay_Request Message");
+			col_set_str(pinfo->cinfo, COL_INFO, "Delay_Request Message");
 			break;
 		}
 		case PTP_FOLLOWUP_MESSAGE:{
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "Follow_Up Message");
+			col_set_str(pinfo->cinfo, COL_INFO, "Follow_Up Message");
 			break;
 		}
 		case PTP_DELAY_RESP_MESSAGE:{
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "Delay_Response Message");
+			col_set_str(pinfo->cinfo, COL_INFO, "Delay_Response Message");
 			break;
 		}
 		case PTP_MANAGEMENT_MESSAGE:{
@@ -1531,8 +1527,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 		default:{
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "Unknown Message");
+			col_set_str(pinfo->cinfo, COL_INFO, "Unknown Message");
 			break;
 		}
 	}

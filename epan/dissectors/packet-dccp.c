@@ -585,8 +585,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hidden_item = proto_tree_add_boolean(dccp_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		}
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Packet too short");
+		col_set_str(pinfo->cinfo, COL_INFO, "Packet too short");
 		THROW(ReportedBoundsError);
         }
 

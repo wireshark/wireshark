@@ -626,8 +626,7 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     DISSECTOR_ASSERT_NOT_REACHED();
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "DATA ");
+  col_set_str(pinfo->cinfo, COL_INFO, "DATA ");
 
   if (!dissector_try_port(mtp3_sio_dissector_table, service_indicator, payload_tvb, pinfo, tree))
     call_dissector(data_handle, payload_tvb, pinfo, tree);

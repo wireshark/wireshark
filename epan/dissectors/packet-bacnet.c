@@ -192,8 +192,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-NPDU");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Building Automation and Control Network NPDU");
+	col_set_str(pinfo->cinfo, COL_INFO, "Building Automation and Control Network NPDU");
 
 	offset = 0;
 	bacnet_version = tvb_get_guint8(tvb, offset);

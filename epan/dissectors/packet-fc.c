@@ -291,8 +291,7 @@ dissect_fc_ba_acc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLS");
 
-    if (check_col(pinfo->cinfo, COL_INFO)) 
-        col_set_str(pinfo->cinfo, COL_INFO, "BA_ACC");
+    col_set_str(pinfo->cinfo, COL_INFO, "BA_ACC");
 
     if (tree) {
         ti = proto_tree_add_text (tree, tvb, 0, tvb_length (tvb), "Basic Link Svc");
@@ -322,8 +321,7 @@ dissect_fc_ba_rjt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLS");
 
-    if (check_col(pinfo->cinfo, COL_INFO)) 
-        col_set_str(pinfo->cinfo, COL_INFO, "BA_RJT");
+    col_set_str(pinfo->cinfo, COL_INFO, "BA_RJT");
 
     if (tree) {
         ti = proto_tree_add_text (tree, tvb, 0, tvb_length (tvb), "Basic Link Svc");

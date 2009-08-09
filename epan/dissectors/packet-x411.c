@@ -8372,8 +8372,7 @@ dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
-  	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
+  	col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
 
 	dissect_x411_MTS_APDU (FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_MTS_APDU_PDU);
 }

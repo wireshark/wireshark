@@ -144,8 +144,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "ARCNET");
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_set_str (pinfo->cinfo, COL_INFO, "ARCNET");
+  col_set_str(pinfo->cinfo, COL_INFO, "ARCNET");
 
   src = tvb_get_guint8 (tvb, 0);
   dst = tvb_get_guint8 (tvb, 1);

@@ -941,8 +941,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         } else {
             next_tvb = tvb_new_subset(tvb, offset, -1, -1);
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11n");
-            if(check_col(pinfo->cinfo, COL_INFO))
-                col_set_str(pinfo->cinfo, COL_INFO, "Unreassembled A-MPDU data");
+            col_set_str(pinfo->cinfo, COL_INFO, "Unreassembled A-MPDU data");
             call_dissector(data_handle, next_tvb, pinfo, tree);
         }
         return;

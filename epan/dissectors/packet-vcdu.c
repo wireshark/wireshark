@@ -297,8 +297,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 	
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VCDU");
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_set_str(pinfo->cinfo, COL_INFO, "Virtual Channel Data Unit");
+	col_set_str(pinfo->cinfo, COL_INFO, "Virtual Channel Data Unit");
 
 	if (tree) {
                 /* build the smex header tree */

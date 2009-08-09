@@ -996,8 +996,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* The minimum fixed part of the packet is 16 Bytes or 32 Bytes depending on Msg Type */
         if( ((!MSGTYPE_MPLS_ECHO(msgtype)) && (rem < 16)) ||
 		((MSGTYPE_MPLS_ECHO(msgtype)) && (rem < 32)) ) {
-                if( check_col(pinfo->cinfo, COL_INFO) )
-                        col_set_str(pinfo->cinfo, COL_INFO, "Malformed Message");
+                col_set_str(pinfo->cinfo, COL_INFO, "Malformed Message");
                 if(tree) {
 			ti = proto_tree_add_item(tree, proto_mpls_echo, tvb, 0, -1, FALSE);
 			mpls_echo_tree = proto_item_add_subtree(ti, ett_mpls_echo);

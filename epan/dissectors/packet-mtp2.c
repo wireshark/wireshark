@@ -212,8 +212,7 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
 static void
 dissect_mtp2_fisu(packet_info *pinfo)
 {
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "FISU ");
+  col_set_str(pinfo->cinfo, COL_INFO, "FISU ");
 }
 
 static const value_string status_field_vals[] = {
@@ -279,8 +278,7 @@ dissect_mtp2_msu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item, pr
   gint sif_sio_length;
   tvbuff_t *sif_sio_tvb;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "MSU ");
+  col_set_str(pinfo->cinfo, COL_INFO, "MSU ");
 
   if (use_extended_sequence_numbers) {
     sif_sio_length = tvb_length(su_tvb) - EXTENDED_HEADER_LENGTH;

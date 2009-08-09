@@ -527,7 +527,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch ( token_index ){
 		/* errorDescriptor */
 		case ERRORTOKEN:
-			if (check_col(pinfo->cinfo, COL_INFO) )
 			col_set_str(pinfo->cinfo, COL_INFO, "Error  ");
 
 			tvb_current_offset = tvb_find_guint8(tvb, tvb_offset+1, tvb_len, '}');

@@ -60,16 +60,14 @@ dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* First byte of 0 iindicates NAT-keepalive */
   if (tvb_get_guint8(tvb, 0) == 0xff) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "NAT-keepalive");
+    col_set_str(pinfo->cinfo, COL_INFO, "NAT-keepalive");
     if (tree)
       proto_tree_add_text(udpencap_tree, tvb, 0, 1, "NAT-keepalive packet");
   } else {
     /* SPI of zero indicates IKE traffic, otherwise it's ESP */
     tvb_memcpy(tvb, (guint8 *)&spi, 0, sizeof(spi));
     if (spi == 0) {
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "ISAKMP");
+      col_set_str(pinfo->cinfo, COL_INFO, "ISAKMP");
       if (tree) {
 	proto_tree_add_text(udpencap_tree, tvb, 0, sizeof(spi),
 		"Non-ESP Marker");
@@ -78,8 +76,7 @@ dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       next_tvb = tvb_new_subset(tvb, sizeof(spi), -1, -1);
       call_dissector(isakmp_handle, next_tvb, pinfo, tree);
     } else {
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "ESP");
+      col_set_str(pinfo->cinfo, COL_INFO, "ESP");
       if (tree)
 	proto_item_set_len(ti, 0);
       call_dissector(esp_handle, tvb, pinfo, tree);

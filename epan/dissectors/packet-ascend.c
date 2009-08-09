@@ -62,8 +62,7 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if(check_col(pinfo->cinfo, COL_RES_DL_DST))
     col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A" );
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "N/A");
-  if(check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "Lucent/Ascend packet trace" );
+  col_set_str(pinfo->cinfo, COL_INFO, "Lucent/Ascend packet trace");
 
   /* If this is a transmitted or received PPP frame, set the PPP direction. */
   switch (pseudo_header->ascend.type) {

@@ -563,8 +563,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    }
 	  concatlen = 0;
 	  concatpos = 0;
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_set_str (pinfo->cinfo, COL_INFO, "Concatenated Frame");
+	  col_set_str(pinfo->cinfo, COL_INFO, "Concatenated Frame");
 	  break;
 	}
       break;

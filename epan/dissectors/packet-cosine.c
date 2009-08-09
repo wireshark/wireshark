@@ -67,8 +67,7 @@ dissect_cosine(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if(check_col(pinfo->cinfo, COL_RES_DL_DST))
     col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A" );
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "N/A");
-  if(check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "CoSine IPNOS L2 debug output" );
+  col_set_str(pinfo->cinfo, COL_INFO, "CoSine IPNOS L2 debug output");
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */

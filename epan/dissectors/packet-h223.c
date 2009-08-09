@@ -1312,8 +1312,7 @@ static void dissect_h223 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 	    }
 
 	    if(offset == 0) {
-		if(check_col (pinfo->cinfo, COL_INFO))
-		    col_set_str (pinfo->cinfo, COL_INFO, "(No complete PDUs)");
+		col_set_str(pinfo->cinfo, COL_INFO, "(No complete PDUs)");
 	    }
 	    return;
 	}

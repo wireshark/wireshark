@@ -1904,8 +1904,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	case OTHER_LINE:
 	default: /* Squelch compiler complaints */
 		descr = "Continuation";
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 		break;
 	}
 

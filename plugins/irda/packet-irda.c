@@ -1673,9 +1673,7 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     /* missed messages? */
     if (pinfo->pseudo_header->irda.pkttype == IRDA_MISSED_MSG)
     {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO,
-                "WARNING: Missed one or more messages while capturing!");
+        col_set_str(pinfo->cinfo, COL_INFO, "WARNING: Missed one or more messages while capturing!");
     }
     else if (check_col(pinfo->cinfo, COL_INFO))
     {

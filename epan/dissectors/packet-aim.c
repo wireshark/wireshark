@@ -527,8 +527,7 @@ static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Make entries in Protocol column and Info column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AIM");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "AOL Instant Messenger");
+  col_set_str(pinfo->cinfo, COL_INFO, "AOL Instant Messenger");
 
   /* get relevant header information */
   offset += 1;          /* XXX - put the identifier into the tree? */	
@@ -710,8 +709,7 @@ void aim_init_family(int proto, int ett, guint16 family, const aim_subtype *subt
 static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo, 
 				int offset, proto_tree *tree)
 {
-  if (check_col(pinfo->cinfo, COL_INFO)) 
-    col_set_str(pinfo->cinfo, COL_INFO, "New Connection");
+  col_set_str(pinfo->cinfo, COL_INFO, "New Connection");
 
   if (tvb_length_remaining(tvb, offset) > 0) {
 	  proto_tree_add_item(tree, hf_aim_version, tvb, offset, 4, FALSE);

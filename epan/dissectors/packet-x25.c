@@ -1688,8 +1688,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     x25_pkt_len = get_x25_pkt_len(tvb);
     if (x25_pkt_len < 3) /* packet too short */
     {
-	if (check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, "Invalid/short X.25 packet");
+	col_set_str(pinfo->cinfo, COL_INFO, "Invalid/short X.25 packet");
 	if (tree)
 	    proto_tree_add_protocol_format(tree, proto_x25, tvb, 0, -1,
 		    "Invalid/short X.25 packet");
@@ -2228,16 +2227,14 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	localoffset = x25_pkt_len;
 	break;
     case X25_RESTART_CONFIRMATION:
-	if(check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, "Restart conf.");
+	col_set_str(pinfo->cinfo, COL_INFO, "Restart conf.");
 	if (x25_tree)
 	    proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
 		    X25_RESTART_CONFIRMATION);
 	localoffset = x25_pkt_len;
 	break;
     case X25_REGISTRATION_REQUEST:
-	if(check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, "Registration req.");
+	col_set_str(pinfo->cinfo, COL_INFO, "Registration req.");
 	if (x25_tree)
 	    proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
 		    X25_REGISTRATION_REQUEST);
@@ -2258,8 +2255,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	localoffset = tvb_reported_length(tvb);
 	break;
     case X25_REGISTRATION_CONFIRMATION:
-	if(check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, "Registration conf.");
+	col_set_str(pinfo->cinfo, COL_INFO, "Registration conf.");
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
 		    X25_REGISTRATION_CONFIRMATION);

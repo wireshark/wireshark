@@ -69,8 +69,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Make entries in Protocol column and Info column on summary display */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "WSMP");
 
-        if (check_col(pinfo->cinfo, COL_INFO)) 
-                col_set_str(pinfo->cinfo, COL_INFO, "WAVE Short Message Protocol IEEE P1609.3");
+        col_set_str(pinfo->cinfo, COL_INFO, "WAVE Short Message Protocol IEEE P1609.3");
 
         if (tree) {
 

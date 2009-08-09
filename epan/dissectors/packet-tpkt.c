@@ -246,8 +246,7 @@ dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * do reassembly.
              */
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+            col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
             if (tree) {
                 ti = proto_tree_add_item(tree, proto_tpkt, tvb,
                     offset, -1, FALSE);
@@ -399,8 +398,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * do reassembly.
 			 */
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 			if (tree) {
 				ti = proto_tree_add_item(tree, proto_tpkt, tvb,
 				    offset, -1, FALSE);

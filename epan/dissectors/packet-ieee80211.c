@@ -7389,8 +7389,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
   if (next_tvb == NULL) {
     /* Just show this as an incomplete fragment. */
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "Fragmented IEEE 802.11 frame");
+    col_set_str(pinfo->cinfo, COL_INFO, "Fragmented IEEE 802.11 frame");
     next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
     call_dissector(data_handle, next_tvb, pinfo, tree);
     pinfo->fragmented = save_fragmented;

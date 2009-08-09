@@ -1847,8 +1847,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TELNET");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "Telnet Data ...");
+	col_set_str(pinfo->cinfo, COL_INFO, "Telnet Data ...");
 
 	is_tn3270 = find_tn3270_conversation(pinfo);
 
