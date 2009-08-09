@@ -3275,8 +3275,6 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ip_version = tvb_get_guint8(tvb, 0) >> 4;
   next_protocol = tvb_get_guint8(tvb, 9);
 
-  DISSECTOR_ASSERT((ip_version == 4) && (next_protocol == IP_PROTO_UDP));
-
   if (tree) {
 
     ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1,
@@ -3285,17 +3283,31 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     flags = (tvb_get_guint8(tvb, 2) & IPHC_CRTP_FH_FLAG_MASK) >> IPHC_CRTP_FH_FLAG_POS;
 
+    /* flags field */
+    ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_fh_flags, tvb, 2, 1, FALSE);
+
+    /* generation field */
+    ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_gen, tvb, 2, 1, FALSE);
+
     /* calculate length of IP header, assume IPv4 */
     ip_hdr_len = (tvb_get_guint8(tvb, 0) & 0x0f) * 4;
 
     /* calculate total hdr length, assume UDP */
     hdr_len = ip_hdr_len + 8;
 
-    /* flags field */
-    ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_fh_flags, tvb, 2, 1, FALSE);
+    if (ip_version != 4) {
+        proto_tree_add_text(fh_tree, tvb, 3, -1,
+                            "IP version is %u: the only supported version is 4",
+                            ip_version);
+        return;
+    }
 
-    /* generation field */
-    ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_gen, tvb, 2, 1, FALSE);
+    if (next_protocol != IP_PROTO_UDP) {
+        proto_tree_add_text(fh_tree, tvb, 3, -1,
+                            "Next protocol is %s (%u): the only supported protocol is UDP",
+                            ipprotostr(next_protocol), next_protocol);
+        return;
+    }
 
     /* context id and sequence fields */
     switch (flags) {
