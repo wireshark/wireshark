@@ -26,10 +26,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -62,7 +58,7 @@ static gint ett_siii_mdt_version = -1;
 static gint ett_siii_mdt_svc_channel[MAX_SERCOS_DEVICES];
 static gint ett_siii_mdt_dev_control[MAX_SERCOS_DEVICES];
 
-void dissect_siii_mdt_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_siii_mdt_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item* ti;
   proto_tree* subtree;
@@ -75,7 +71,7 @@ void dissect_siii_mdt_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 }
 
-void dissect_siii_mdt_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
+static void dissect_siii_mdt_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
 {
   guint devstart = telno * 128; /* MDT0: slaves 0-127; MDT1: slaves 128-255; ... */
   tvbuff_t* tvb_n;
@@ -110,7 +106,7 @@ void dissect_siii_mdt_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
-void dissect_siii_mdt_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
+static void dissect_siii_mdt_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
 {
   guint devstart _U_ = telno * 128;
 

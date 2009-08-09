@@ -26,10 +26,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -43,7 +39,7 @@ static gint ett_siii_at_devstats = -1;
 static gint ett_siii_at_svc_channel[MAX_SERCOS_DEVICES];
 static gint ett_siii_at_dev_status[MAX_SERCOS_DEVICES];
 
-void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   guint16 seqcnt; /* sequence counter */
   guint16 tfield; /* topology field for sercos addresses */
@@ -79,7 +75,7 @@ void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   }
 }
 
-void dissect_siii_at_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
+static void dissect_siii_at_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
 {
   guint devstart = telno * 128; /* AT0: slaves 0-127; AT1: slaves 128-255; ... */
   tvbuff_t* tvb_n;
@@ -113,7 +109,7 @@ void dissect_siii_at_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   }
 }
 
-void dissect_siii_at_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
+static void dissect_siii_at_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
 {
   proto_item* ti;
   proto_tree* subtree_svc;
