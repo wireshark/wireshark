@@ -10025,6 +10025,12 @@
 00:27:1A	GeenovoTec             # Geenovo Technology Ltd.
 00:27:1B	AlecSicher             # Alec Sicherheitssysteme GmbH
 00:27:1C	Mercury                # MERCURY CORPORATION
+00:27:1D	CombaTelec             # Comba Telecom Systems (China) Ltd.
+00:27:1E	XagylCommu             # Xagyl Communications
+00:27:1F	MiproElect             # MIPRO Electronics Co., Ltd
+00:27:20	New-SolCom             # NEW-SOL COM
+00:27:21	ShenzhenBa             # Shenzhen Baoan Fenda Industrial Co., Ltd
+00:27:22	UbiquitiNe             # Ubiquiti Networks
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
 00:30:02	ExpandNetw             # Expand Networks
@@ -13540,6 +13546,9 @@
 00:50:C2:B0:B0:00/36	Honeywell
 00:50:C2:B0:C0:00/36	SmartbTech             # SMARTB TECHNOLOGIES
 00:50:C2:B0:D0:00/36	JapanElect             # Japan Electronics System, Inc
+00:50:C2:B0:E0:00/36	KyabLulea              # KYAB Lulea AB
+00:50:C2:B0:F0:00/36	NaraContro             # NARA Controls Inc.
+00:50:C2:B1:00:00/36	MarineEnte             # Marine Entertainment Systems Ltd
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
