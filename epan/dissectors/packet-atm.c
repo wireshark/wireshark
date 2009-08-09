@@ -1815,18 +1815,14 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     case 0:
       /* Traffic from DTE to DCE. */
-      if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-        col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
-      if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-        col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
       break;
 
     case 1:
       /* Traffic from DCE to DTE. */
-      if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-        col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
-      if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-        col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
       break;
     }
   }

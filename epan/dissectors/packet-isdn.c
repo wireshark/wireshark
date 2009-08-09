@@ -88,15 +88,11 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISDN");
 
 	if (pinfo->pseudo_header->isdn.uton) {
-		if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-			col_set_str(pinfo->cinfo, COL_RES_DL_DST, "Network");
-		if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-			col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "User");
+		col_set_str(pinfo->cinfo, COL_RES_DL_DST, "Network");
+		col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "User");
 	} else {
-		if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-		    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "User");
-		if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-		    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "Network");
+		col_set_str(pinfo->cinfo, COL_RES_DL_DST, "User");
+		col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "Network");
 	}
 
 	pinfo->ctype = CT_ISDN;

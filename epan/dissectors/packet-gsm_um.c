@@ -120,10 +120,8 @@ dissect_gsm_um(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM Um");
 
 	if (pinfo->pseudo_header->gsm_um.uplink) {
-		if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-			col_set_str(pinfo->cinfo, COL_RES_DL_DST, "BTS");
-		if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-			col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "MS");
+		col_set_str(pinfo->cinfo, COL_RES_DL_DST, "BTS");
+		col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "MS");
 	}
 	else {
 		switch (pinfo->pseudo_header->gsm_um.channel) {
@@ -131,16 +129,13 @@ dissect_gsm_um(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case GSM_UM_CHANNEL_CCCH:
 			case GSM_UM_CHANNEL_PCH:
 			case GSM_UM_CHANNEL_AGCH:
-				if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-				    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "Broadcast");
+				col_set_str(pinfo->cinfo, COL_RES_DL_DST, "Broadcast");
 				break;
 			default:
-				if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-				    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "MS");
+				col_set_str(pinfo->cinfo, COL_RES_DL_DST, "MS");
 				break;
 		}
-		if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-		    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "BTS");
+		col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "BTS");
 	}
 
 	if (tree) {

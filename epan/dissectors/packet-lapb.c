@@ -79,24 +79,18 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (pinfo->p2p_dir) {
 
     case P2P_DIR_SENT:
-	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
-	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+	col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
+	col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
 	break;
 
     case P2P_DIR_RECV:
-	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
-	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+	col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
+	col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
 	break;
 
     default:
-	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
-	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
+	col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
+	col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
 	break;
     }
 

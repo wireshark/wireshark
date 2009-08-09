@@ -56,10 +56,8 @@ dissect_wfleet_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     addr;
   guint8     cmd;
 
-  if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
-  if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
+  col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
+  col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "WHDLC");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);

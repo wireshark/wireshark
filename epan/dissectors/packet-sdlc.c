@@ -94,18 +94,14 @@ dissect_sdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (pinfo->p2p_dir == P2P_DIR_SENT) {
 		is_response = FALSE;
-		if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-			col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
-		if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-			col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
+		col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+		col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
 	}
 	else {
 		/* XXX - what if the direction is unknown? */
 		is_response = TRUE;
-		if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-		    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
-		if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-		    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
+		col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+		col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
 	}
 
 	if (tree) {
