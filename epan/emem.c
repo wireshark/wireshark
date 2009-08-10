@@ -60,11 +60,13 @@
 /* #define EP_DEBUG_FREE 1 */
 /* #define SE_DEBUG_FREE 1 */
 
+/* Do we want to use canaries ? */
+#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
+#define DEBUG_USE_CANARIES 1
+#endif
+
 /* Do we want to use guardpages? if available */
 #define WANT_GUARD_PAGES 1
-
-/* Do we want to use canaries ? */
-#define DEBUG_USE_CANARIES 1
 
 #ifdef WANT_GUARD_PAGES
 /* Add guard pages at each end of our allocated memory */
@@ -130,7 +132,7 @@ typedef struct _emem_header_t {
 static emem_header_t ep_packet_mem;
 static emem_header_t se_packet_mem;
 
-#if !defined(SE_DEBUG_FREE)
+#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 #if defined (_WIN32)
 static SYSTEM_INFO sysinfo;
 static OSVERSIONINFO versinfo;
@@ -138,7 +140,7 @@ static int pagesize;
 #elif defined(USE_GUARD_PAGES)
 static intptr_t pagesize;
 #endif /* _WIN32 / USE_GUARD_PAGES */
-#endif /* SE_DEBUG_FREE */
+#endif /* ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE) */
 
 #ifdef DEBUG_USE_CANARIES
 /*
@@ -237,7 +239,7 @@ ep_init_chunk(void)
 	emem_canary(ep_canary);
 #endif /* DEBUG_USE_CANARIES */
 
-#if !defined(SE_DEBUG_FREE)
+#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 #if defined (_WIN32)
 	/* Set up our guard page info for Win32 */
 	GetSystemInfo(&sysinfo);
@@ -261,7 +263,7 @@ ep_init_chunk(void)
 	g_assert(dev_zero_fd != -1);
 #endif
 #endif /* _WIN32 / USE_GUARD_PAGES */
-#endif /* SE_DEBUG_FREE */
+#endif /* ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE) */
 
 
 }
@@ -280,7 +282,7 @@ se_init_chunk(void)
 #endif /* DEBUG_USE_CANARIES */
 }
 
-#if !defined(SE_DEBUG_FREE)
+#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 static void
 emem_create_chunk(emem_chunk_t **free_list) {
 #if defined (_WIN32)
@@ -389,7 +391,9 @@ emem_alloc(size_t size, gboolean debug_free, emem_header_t *mem, guint8 *canary)
 		/* make sure we dont try to allocate too much (arbitrary limit) */
 		DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
+#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 		emem_create_chunk(&mem->free_list);
+#endif
 
 		/* oops, we need to allocate more memory to serve this request
 		 * than we have free. move this node to the used list and try again
@@ -406,7 +410,9 @@ emem_alloc(size_t size, gboolean debug_free, emem_header_t *mem, guint8 *canary)
 			mem->used_list=npc;
 		}
 
+#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 		emem_create_chunk(&mem->free_list);
+#endif
 
 		free_list = mem->free_list;
 
@@ -444,7 +450,7 @@ void *
 ep_alloc(size_t size)
 {
 #ifdef EP_DEBUG_FREE
-	return emem_alloc(size, TRUE, &ep_packet_mem, ep_canary);
+	return emem_alloc(size, TRUE, &ep_packet_mem, NULL);
 #else
 	return emem_alloc(size, FALSE, &ep_packet_mem, ep_canary);
 #endif
@@ -457,7 +463,7 @@ void *
 se_alloc(size_t size)
 {
 #ifdef SE_DEBUG_FREE
-	return emem_alloc(size, TRUE, &se_packet_mem, se_canary);
+	return emem_alloc(size, TRUE, &se_packet_mem, NULL);
 #else
 	return emem_alloc(size, FALSE, &se_packet_mem, se_canary);
 #endif
@@ -714,7 +720,7 @@ void
 ep_free_all(void)
 {
 #ifdef EP_DEBUG_FREE
-    emem_free_all(TRUE, &ep_packet_mem, ep_canary, NULL);
+    emem_free_all(TRUE, &ep_packet_mem, NULL, NULL);
 #else
     emem_free_all(FALSE, &ep_packet_mem, ep_canary, NULL);
 #endif
@@ -729,7 +735,7 @@ void
 se_free_all(void)
 {
 #ifdef SE_DEBUG_FREE
-    emem_free_all(TRUE, &se_packet_mem, se_canary, se_trees);
+    emem_free_all(TRUE, &se_packet_mem, NULL, se_trees);
 #else
     emem_free_all(FALSE, &se_packet_mem, se_canary, se_trees);
 #endif
