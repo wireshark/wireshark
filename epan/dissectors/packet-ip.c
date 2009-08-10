@@ -1201,7 +1201,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
 
 /* Returns the valid ttl for the group address */
 guint8
-local_network_control_block_addr_valid_ttl(addr)
+local_network_control_block_addr_valid_ttl(guint32 addr)
 {
    /* An exception list, as Some protocols seem to insist on
    *   doing differently:
