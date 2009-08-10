@@ -91,6 +91,12 @@ redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset,
 	if (!avplen)
 		return;
 
+        /* XXX: ToDo: Validate the length (avplen) of the fixed length fields
+                before calling proto_tree_add_item().
+                Note that the field lengths have been validated when 
+                dissect_avp() is called from redbackli_dissect_heur().
+         */
+                 
 	switch(avptype) {
 		case(RB_AVP_SEQNO):
 			proto_tree_add_item(st, hf_redbackli_seqno, tvb,
@@ -150,11 +156,11 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	len=tvb_length(tvb);
 	offset=0;
 	eoh=FALSE;
-	while(!eoh && len > 2) {
+	while(!eoh && (len > 2)) {
 		avptype = tvb_get_guint8(tvb, offset+0);
 		avplen = tvb_get_guint8(tvb, offset+1);
 
-		if (len < avplen+2)		/* AVP Complete ? */
+		if ((len-2) < avplen)		/* AVP Complete ? */
 			break;
 
 		if (tree)
@@ -194,7 +200,7 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * long .. Unknown AVPs also mean not for us ...
 	 *
 	 */
-	while(len > 2 && !eoh) {
+	while((len > 2) && !eoh) {
 		avptype = tvb_get_guint8(tvb, offset+0);
 		avplen = tvb_get_guint8(tvb, offset+1);
 
@@ -212,7 +218,7 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				eoh=TRUE;
 				break;
 			case(RB_AVP_LABEL):
-			case(RB_AVP_DIR):
+			case(RB_AVP_DIR):   /* Is this correct? the hf_ originally had FT_UINT8 for DIR */
 			case(RB_AVP_ACCTID):
 				break;
 			default:
@@ -245,7 +251,12 @@ void proto_register_redbackli(void) {
 			{ "Session Id", "redbackli.sessid", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Session Identifier", HFILL }},
 		{ &hf_redbackli_dir,
+#if 0 /* XXX: If one goes by the heuristic then this field can be variable length ??
+         In the absence of any documentation We'll assume that's the case 
+         (even though 'direction' sounds like a fixed length field */
 			{ "Direction", "redbackli.dir", FT_UINT8, BASE_DEC, NULL, 0x0,
+#endif
+			{ "Direction", "redbackli.dir", FT_BYTES, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_redbackli_label,
 			{ "Label", "redbackli.label", FT_STRING, BASE_NONE, NULL, 0x0,
