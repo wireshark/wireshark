@@ -497,6 +497,7 @@ static const value_string profile_id_vals[] = {
 	{ 0x0, "TAG_INTERNET_IOP" },
 	{ 0x1, "TAG_MULTIPLE_COMPONENTS"},
 	{ 0x2, "TAG_SCCP_IOP"},
+	{ 0x3, "TAG_UIPMC"},
 	{ 0, NULL}
 };
 
@@ -2804,13 +2805,21 @@ dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tr
    gchar *p_object_key;
    guint32 len = 0;
    guint32 u_octet4;
+   const char * name;
 
    object_key = NULL;
    discriminant = get_CDR_ushort(tvb, offset, stream_is_big_endian,GIOP_HEADER_SIZE);
    if(tree)
    {
-     proto_tree_add_text (tree, tvb, *offset -2, 2,
-                 "TargetAddress Discriminant: %u", discriminant);
+      switch (discriminant)
+      {
+         case 0: name = "KeyAddr"; break;
+         case 1: name = "ProfileAddr"; break;
+         case 2: name = "ReferenceAddr"; break;
+         default: name = "Unknown"; break;
+      }
+
+      proto_tree_add_text (tree, tvb, *offset -2, 2, "TargetAddress: %s", name);
    }
 
    switch (discriminant)
