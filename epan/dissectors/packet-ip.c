@@ -312,6 +312,12 @@ static dissector_handle_t tapa_handle;
 #define	IPOPT_TS_TSANDADDR	1		/* timestamps and addresses */
 #define	IPOPT_TS_PRESPEC	3		/* specified modules only */
 
+#define IPLOCAL_NETWRK_CTRL_BLK_VRRP_ADDR       0xE0000012
+#define IPLOCAL_NETWRK_CTRL_BLK_VRRP_TTL        0xFF
+#define IPLOCAL_NETWRK_CTRL_BLK_GLPB_ADDR       0xE0000066
+#define IPLOCAL_NETWRK_CTRL_BLK_GLPB_TTL        0XFF
+#define IPLOCAL_NETWRK_CTRL_BLK_DEFAULT_TTL     0X01
+
 /* Return true if the address is in the 224.0.0.0/24 network block */
 #define is_a_local_network_control_block_addr(addr) \
   ((addr & 0xffffff00) == 0xe0000000)
@@ -1193,6 +1199,25 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   }
 }
 
+/* Returns the valid ttl for the group address */
+guint8
+local_network_control_block_addr_valid_ttl(addr)
+{
+   /* An exception list, as Some protocols seem to insist on
+   *   doing differently:
+   *   - IETF's VRRP (rfc3768) always uses 224.0.0.18 with 255
+   *   - Cisco's GLPB always uses 224.0.0.102 with 255
+   *   Even more, VRRP and GLBP should probably be flagged as an error, if
+   *   seen with any TTL except 255.
+   */
+
+  if (IPLOCAL_NETWRK_CTRL_BLK_VRRP_ADDR == addr)
+	return IPLOCAL_NETWRK_CTRL_BLK_VRRP_TTL;
+  if (IPLOCAL_NETWRK_CTRL_BLK_GLPB_ADDR == addr)
+	return IPLOCAL_NETWRK_CTRL_BLK_GLPB_TTL;
+  return IPLOCAL_NETWRK_CTRL_BLK_DEFAULT_TTL;
+}
+
 const value_string dscp_vals[] = {
 		  { IPDSFIELD_DSCP_DEFAULT, "Default"               },
 		  { IPDSFIELD_DSCP_CS1,     "Class Selector 1"      },
@@ -1278,6 +1303,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   proto_tree *tree;
   proto_item *item, *ttl_item;
   proto_tree *checksum_tree;
+  guint8 ttl;
 
   tree=parent_tree;
 
@@ -1501,18 +1527,12 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
    *
    * Flag a low TTL if the packet is not destined for a multicast address
    * (e.g. 224.0.0.0/4).
-   *
-   * FIXME: Add an exception list, as Some protocols seem to insist on
-   *   doing differently:
-   *   - IETF's VRRP (rfc3768) always uses 224.0.0.18 with 255
-   *   - Cisco's GLPB always uses 224.0.0.102 with 255
-   *   Even more, VRRP and GLBP should probably be flagged as an error, if
-   *   seen with any TTL except 255.
    */
   if (is_a_local_network_control_block_addr(dst32)) {
-    if (iph->ip_ttl != 1) {
+    ttl = local_network_control_block_addr_valid_ttl(dst32);
+    if (ttl != iph->ip_ttl) {
       expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE,
-        "\"Time To Live\" > 1 for a packet sent to the Local Network Control Block (see RFC 3171)");
+        "\"Time To Live\" != %d for a packet sent to the Local Network Control Block (see RFC 3171)", ttl);
     }
   } else if (!is_a_multicast_addr(dst32) && iph->ip_ttl < 5) {
     expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE, "\"Time To Live\" only %u", iph->ip_ttl);
