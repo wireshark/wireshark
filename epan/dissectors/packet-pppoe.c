@@ -208,7 +208,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
-	proto_item  *pppoe_tree_tag_length_item;
+	proto_item  *pppoe_tree_tag_length_item = NULL;
 
 	/* Start Decoding Here. */
 	if (tree)
