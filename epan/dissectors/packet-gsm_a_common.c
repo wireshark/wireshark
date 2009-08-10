@@ -252,6 +252,89 @@ static const value_string gsm_a_sms_vals[] = {
     { 0, NULL}
 };
 
+static const value_string ms_assisted_e_otd_vals[] = {
+	{ 0, "MS assisted E-OTD not supported" },
+	{ 1, "MS assisted E-OTD supported" },
+	{ 0, NULL}
+};
+
+static const value_string ms_based_e_otd_vals[] = {
+	{ 0, "MS based E-OTD not supported" },
+	{ 1, "MS based E-OTD supported" },
+	{ 0, NULL}
+};
+
+static const value_string ms_assisted_gps_vals[] = {
+	{ 0, "MS assisted GPS not supported" },
+	{ 1, "MS assisted GPS supported" },
+	{ 0, NULL}
+};
+
+static const value_string ms_based_gps_vals[] = {
+	{ 0, "MS based GPS not supported" },
+	{ 1, "MS based GPS supported" },
+	{ 0, NULL}
+};
+
+static const value_string ms_conventional_gps_vals[] = {
+	{ 0, "Conventional GPS not supported" },
+	{ 1, "Conventional GPS supported" },
+	{ 0, NULL}
+};
+
+static const value_string modulation_capability_vals[] = {
+	{ 0, "8-PSK supported for downlink reception only" },
+	{ 1, "8-PSK supported for uplink transmission and downlink reception" },
+	{ 0, NULL}
+};
+
+static const value_string eight_psk_rf_power_capability_vals[] = {
+	{ 0, "Reserved" },
+	{ 1, "Power class E1" },
+	{ 2, "Power class E2" },
+	{ 3, "Power class E3" },
+	{ 0, NULL}
+};
+
+static const value_string gsm_400_bands_supported_vals[] = {
+    { 1, "GSM 480 supported, GSM 450 not supported" },
+    { 2, "GSM 450 supported, GSM 480 not supported" },
+    { 3, "GSM 450 supported, GSM 480 supported" },
+    { 0, NULL}
+};
+
+static const value_string umts_fdd_rat_cap_vals[] = {
+	{ 0, "UMTS FDD not supported" },
+	{ 1, "UMTS FDD supported" },
+	{ 0, NULL}
+};
+
+static const value_string umts_384_mcps_tdd_rat_cap_vals[] = {
+	{ 0, "UMTS 3.84 Mcps TDD not supported" },
+	{ 1, "UMTS 3.84 Mcps TDD supported" },
+	{ 0, NULL}
+};
+
+static const value_string cdma_2000_rat_cap_vals[] = {
+	{ 0, "CDMA 2000 not supported" },
+	{ 1, "CDMA 2000 supported" },
+	{ 0, NULL}
+};
+
+static const value_string dtm_gprs_multi_slot_class_vals[] = {
+	{ 0, "Unused. If received, the network shall interpret this as 1" },
+	{ 1, "Multislot class 5 supported" },
+	{ 2, "Multislot class 9 supported" },
+	{ 3, "Multislot class 11 supported" },
+	{ 0, NULL}
+};
+
+static const value_string single_slot_dtm_vals[] = {
+	{ 0, "Single Slot DTM not supported" },
+	{ 1, "Single Slot DTM supported" },
+	{ 0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_a_common = -1;
 
@@ -314,6 +397,36 @@ static int hf_gsm_a_ms_measurement_capability = -1;
 static int hf_gsm_a_sms_value =-1;
 static int hf_gsm_a_sm_value =-1;
 static int hf_gsm_a_key_seq = -1;
+static int hf_gsm_a_ms_pos_method_cap_present	= -1;
+static int hf_gsm_a_ms_pos_method				= -1;
+static int hf_gsm_a_ms_assisted_e_otd			= -1;
+static int hf_gsm_a_ms_based_e_otd				= -1;
+static int hf_gsm_a_ms_assisted_gps				= -1;
+static int hf_gsm_a_ms_based_gps				= -1;
+static int hf_gsm_a_ms_conventional_gps			= -1;
+static int hf_gsm_a_ecsd_multi_slot_capability	= -1;
+static int hf_gsm_a_ecsd_multi_slot_class		= -1;
+static int hf_gsm_a_8_psk_struct_present		= -1;
+static int hf_gsm_a_8_psk_struct				= -1;
+static int hf_gsm_a_modulation_capability		= -1;
+static int hf_gsm_a_8_psk_rf_power_capability_1	= -1;
+static int hf_gsm_a_8_psk_rf_power_capability_2	= -1;
+static int hf_gsm_a_gsm_400_band_info_present	= -1;
+static int hf_gsm_a_gsm_400_bands_supported		= -1;
+static int hf_gsm_a_gsm_400_assoc_radio_cap	= -1;
+static int hf_gsm_a_gsm_850_assoc_radio_cap_present	= -1;
+static int hf_gsm_a_gsm_850_assoc_radio_cap	= -1;
+static int hf_gsm_a_gsm_1900_assoc_radio_cap_present	= -1;
+static int hf_gsm_a_gsm_1900_assoc_radio_cap	= -1;
+static int hf_gsm_a_cm3_A5_bits					= -1;
+static int hf_gsm_a_umts_fdd_rat_cap			= -1;
+static int hf_gsm_a_umts_384_mcps_tdd_rat_cap	= -1;
+static int hf_gsm_a_cdma_2000_rat_cap			= -1;
+static int hf_gsm_a_dtm_e_gprs_info_present		= -1;
+static int hf_gsm_a_dtm_gprs_multi_slot_class	= -1;
+static int hf_gsm_a_single_slot_dtm				= -1;
+static int hf_gsm_a_dtm_egprs_multi_slot_class_present		= -1;
+static int hf_gsm_a_dtm_egprs_multi_slot_class	= -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat	= -1;
@@ -1773,7 +1886,9 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	guint32 bit_offset; /* Offset in bits */
 	proto_tree	*subtree;
 	proto_item	*item;
-	guint64 multi_bnd_sup_fields, rsupport, multislotCapability, msMeasurementCapability; 
+	guint64 multi_bnd_sup_fields, rsupport, multislotCapability, msMeasurementCapability, msPosMethodCapPresent; 
+	guint64 ecsdMultiSlotCapability, eightPskStructPresent, gsm400BandInfoPresent, gsm850AssocRadioCapabilityPresent;
+	guint64 gsm1900AssocRadioCapabilityPresent, dtmEGprsInfoPresent, dtmEgprsMultiSlotClassPresent;
 
 	curr_offset = offset;
 
@@ -1808,14 +1923,17 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	proto_tree_add_bits_item(subtree, hf_gsm_a_pgsm_supported, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
 
+	item = proto_tree_add_bits_item(tree, hf_gsm_a_cm3_A5_bits, tvb, bit_offset, 4, FALSE);
+	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
+
 	/* < A5 bits > */
-	proto_tree_add_bits_item(tree, hf_gsm_a_A5_7_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_7_algorithm_sup, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
-	proto_tree_add_bits_item(tree, hf_gsm_a_A5_6_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_6_algorithm_sup, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
-	proto_tree_add_bits_item(tree, hf_gsm_a_A5_5_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_5_algorithm_sup, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
-	proto_tree_add_bits_item(tree, hf_gsm_a_A5_4_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_4_algorithm_sup, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
 
 	switch(multi_bnd_sup_fields){
@@ -1902,20 +2020,164 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 		bit_offset = bit_offset + 4;
 	}
 
+	/* { 0 | 1 < MS Positioning Method Capability > }
+	 * Extract MS Positioning Method Capability
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_pos_method_cap_present, tvb, bit_offset, 1, &msPosMethodCapPresent, FALSE);
+	bit_offset = bit_offset + 1;
+	
+	if(msPosMethodCapPresent == 1)
+	{
+		/* Extract MS Positioning Method */
+		item = proto_tree_add_bits_item(tree, hf_gsm_a_ms_pos_method, tvb, bit_offset, 5, FALSE);
+		subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
+
+		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_assisted_e_otd, tvb, bit_offset, 1, FALSE);
+		bit_offset++;
+
+		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_based_e_otd, tvb, bit_offset, 1, FALSE);
+		bit_offset++;
+
+		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_assisted_gps, tvb, bit_offset, 1, FALSE);
+		bit_offset++;
+
+		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_based_gps, tvb, bit_offset, 1, FALSE);
+		bit_offset++;
+
+		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_conventional_gps, tvb, bit_offset, 1, FALSE);
+		bit_offset++;
+	}
+
+	/* { 0 | 1 < ECSD Multi Slot Capability > }
+	 * Extract ECSD Multi Slot Capability
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ecsd_multi_slot_capability, tvb, bit_offset, 1, &ecsdMultiSlotCapability, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(ecsdMultiSlotCapability == 1)
+	{
+		/* Extract ECSD Multi Slot Class */
+		proto_tree_add_bits_item(tree, hf_gsm_a_ecsd_multi_slot_class, tvb, bit_offset, 5, FALSE);
+	}
+
+	/* { 0 | 1 < 8-PSK Struct > }
+	 * Extract 8-PSK struct presence
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_8_psk_struct_present, tvb, bit_offset, 1, &eightPskStructPresent, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(eightPskStructPresent == 1)
+	{
+		/* Extract 8-PSK struct */
+		item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, 5, FALSE);
+		subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
+
+		/* Extract Modulation Capability */
+		proto_tree_add_bits_item(subtree, hf_gsm_a_modulation_capability, tvb, bit_offset, 1, FALSE);
+		bit_offset = bit_offset + 1;
+
+		/* Extract 8_PSK RF Power Capability 1 */
+		proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_1, tvb, bit_offset, 2, FALSE);
+		bit_offset = bit_offset + 2;
+
+		/* Extract 8_PSK RF Power Capability 2 */
+		proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_2, tvb, bit_offset, 2, FALSE);
+		bit_offset = bit_offset + 2;
+	}
+
+	/* { 0 | 1 < GSM 400 Bands Supported : { 01 | 10 | 11 } >
+	 *   < GSM 400 Associated Radio Capability: bit(4) > }
+	 * Extract GSM 400 Band Information presence
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_400_band_info_present, tvb, bit_offset, 1, &gsm400BandInfoPresent, FALSE);
+	bit_offset = bit_offset + 1;
+	
+	if(gsm400BandInfoPresent == 1)
+	{
+		/* Extract GSM 400 Bands Supported */
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_400_bands_supported, tvb, bit_offset, 2, FALSE);
+		bit_offset = bit_offset + 2;
+
+		/* Extract GSM 400 Associated Radio Capability */
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_400_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		bit_offset = bit_offset + 4;
+	}
+
+	/* { 0 | 1 <GSM 850 Associated Radio Capability : bit(4) > }
+	 * Extract GSM 850 Associated Radio Capability presence
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_850_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm850AssocRadioCapabilityPresent, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(gsm850AssocRadioCapabilityPresent == 1)
+	{
+		/* Extract GSM 850 Associated Radio Capability */
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_850_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		bit_offset = bit_offset + 4;
+	}
+
+	/* { 0 | 1 <GSM 1900 Associated Radio Capability : bit(4) > }
+	 * Extract GSM 1900 Associated Radio Capability presence
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_1900_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm1900AssocRadioCapabilityPresent, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(gsm1900AssocRadioCapabilityPresent == 1)
+	{
+		/* Extract GSM 1900 Associated Radio Capability */
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_1900_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		bit_offset = bit_offset + 4;
+	}
+
+	/* < UMTS FDD Radio Access Technology Capability : bit >
+	 * Extract UMTS FDD Radio Access Technology Capability
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_umts_fdd_rat_cap, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/* < UMTS 3.84 Mcps TDD Radio Access Technology Capability : bit >
+	 * Extract UMTS 3.84 Mcps TDD Radio Access Technology Capability
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_umts_384_mcps_tdd_rat_cap, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/* < CDMA 2000 Radio Access Technology Capability : bit >
+	 * Extract CDMA 2000 Radio Access Technology Capability
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_cdma_2000_rat_cap, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/* { 0 | 1 < DTM GPRS Multi Slot Class : bit(2) >
+	 *   < Single Slot DTM : bit >
+	 *   {0 | 1< DTM EGPRS Multi Slot Class : bit(2) > } }
+	 * Extract DTM E/GPRS Information presence
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_e_gprs_info_present, tvb, bit_offset, 1, &dtmEGprsInfoPresent, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(dtmEGprsInfoPresent == 1)
+	{
+		/* Extract DTM GPRS Multi Slot Class */
+		proto_tree_add_bits_item(tree, hf_gsm_a_dtm_gprs_multi_slot_class, tvb, bit_offset, 2, FALSE);
+		bit_offset = bit_offset + 2;
+
+		/* Extract Single Slot DTM */
+		proto_tree_add_bits_item(tree, hf_gsm_a_single_slot_dtm, tvb, bit_offset, 1, FALSE);
+		bit_offset = bit_offset + 1;
+
+		/* Extract DTM EGPRS Multi Slot Class Presence */
+		proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_egprs_multi_slot_class_present, tvb, bit_offset, 1, &dtmEgprsMultiSlotClassPresent, FALSE);
+		bit_offset = bit_offset + 1;
+
+		/* Extract DTM EGPRS Multi Slot Class */
+		if (dtmEgprsMultiSlotClassPresent == 1)
+		{
+			proto_tree_add_bits_item(tree, hf_gsm_a_dtm_egprs_multi_slot_class, tvb, bit_offset, 2, FALSE);
+			bit_offset = bit_offset + 2;
+		}
+	}
+
 /*
-{ 0 | 1 < MS Positioning Method Capability > }
-{ 0 | 1 < ECSD Multi Slot Capability > }
-{ 0 | 1 < 8-PSK Struct > }
-{ 0 | 1 < GSM 400 Bands Supported : { 01 | 10 | 11 } >
-< GSM 400 Associated Radio Capability: bit(4) > }
-{ 0 | 1 <GSM 850 Associated Radio Capability : bit(4) > }
-{ 0 | 1 <GSM 1900 Associated Radio Capability : bit(4) > }
-< UMTS FDD Radio Access Technology Capability : bit >
-< UMTS 3.84 Mcps TDD Radio Access Technology Capability : bit >
-< CDMA 2000 Radio Access Technology Capability : bit >
-{ 0 | 1 < DTM GPRS Multi Slot Class : bit(2) >
-< Single Slot DTM : bit >
-{0 | 1< DTM EGPRS Multi Slot Class : bit(2) > } }
 { 0 | 1 < Single Band Support > } -- Release 4 starts here:
 { 0 | 1 <GSM 750 Associated Radio Capability : bit(4)>}
 < UMTS 1.28 Mcps TDD Radio Access Technology Capability : bit >
@@ -2415,6 +2677,11 @@ proto_register_gsm_a_common(void)
 		FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL}
 	},
+	{ &hf_gsm_a_cm3_A5_bits,
+		{ "A5 bits", "gsm_a.classmark3.a5_bits",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
 	{ &hf_gsm_a_rsupport,
 		{ "R Support", "gsm_a.classmark3.rsupport",
 		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
@@ -2458,6 +2725,151 @@ proto_register_gsm_a_common(void)
 	{ &hf_gsm_a_sm_value,
 		{ "SM_VALUE (Switch-Measure)", "gsm_a.classmark3.sm_value",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ms_pos_method_cap_present,
+		{ "MS Positioning Method Capability present", "gsm_a.classmark3.ms_pos_method_cap_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ms_pos_method,
+		{ "MS Positioning Method", "gsm_a.classmark3.ms_pos_method",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ms_assisted_e_otd,
+		{ "MS assisted E-OTD", "gsm_a.classmark3.ms_assisted_e_otd", 
+		FT_UINT8, BASE_DEC, VALS(ms_assisted_e_otd_vals), 0x0,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ms_based_e_otd,
+		{ "MS based E-OTD", "gsm_a.classmark3.ms_based_e_otd", 
+		FT_UINT8, BASE_DEC, VALS(ms_based_e_otd_vals), 0x0,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ms_assisted_gps,
+		{ "MS assisted GPS", "gsm_a.classmark3.ms_assisted_gps", 
+		FT_UINT8, BASE_DEC, VALS(ms_assisted_gps_vals), 0x0,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ms_based_gps,
+		{ "MS based GPS", "gsm_a.classmark3.ms_based_gps", 
+		FT_UINT8, BASE_DEC, VALS(ms_based_gps_vals), 0x0,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ms_conventional_gps,
+		{ "MS Conventional GPS", "gsm_a.classmark3.ms_conventional_gps", 
+		FT_UINT8, BASE_DEC, VALS(ms_conventional_gps_vals), 0x0,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ecsd_multi_slot_capability,
+		{ "ECSD Multi Slot Capability present", "gsm_a.classmark3.ecsd_multi_slot_capability",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ecsd_multi_slot_class,
+		{ "ECSD Multi Slot Class", "gsm_a.classmark3.ecsd_multi_slot_class",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_8_psk_struct_present,
+		{ "8-PSK Struct present", "gsm_a.classmark3.8_psk_struct_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_8_psk_struct,
+		{ "8-PSK Struct", "gsm_a.classmark3.8_psk_struct",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_modulation_capability,
+		{ "Modulation Capability", "gsm_a.classmark3.modulation_capability",
+		FT_UINT8, BASE_DEC, VALS(modulation_capability_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_8_psk_rf_power_capability_1,
+		{ "8-PSK RF Power Capability 1", "gsm_a.classmark3.8_psk_rf_power_capability_1",
+		FT_UINT8, BASE_HEX, VALS(eight_psk_rf_power_capability_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_8_psk_rf_power_capability_2,
+		{ "8-PSK RF Power Capability 2", "gsm_a.classmark3.8_psk_rf_power_capability_2",
+		FT_UINT8, BASE_HEX, VALS(eight_psk_rf_power_capability_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_400_band_info_present,
+		{ "GSM 400 Band Information present", "gsm_a.classmark3.gsm_400_band_info_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_400_bands_supported,
+		{ "GSM 400 Bands Supported", "gsm_a.classmark3.gsm_400_bands_supported",
+		FT_UINT8, BASE_HEX, VALS(gsm_400_bands_supported_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_400_assoc_radio_cap,
+		{ "GSM 400 Associated Radio Capability", "gsm_a.classmark3.gsm_400_assoc_radio_cap",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_850_assoc_radio_cap_present,
+		{ "GSM 850 Associated Radio Capability present", "gsm_a.classmark3.gsm_850_assoc_radio_cap_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_850_assoc_radio_cap,
+		{ "GSM 850 Associated Radio Capability", "gsm_a.classmark3.gsm_850_assoc_radio_cap",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_1900_assoc_radio_cap_present,
+		{ "GSM 1900 Associated Radio Capability present", "gsm_a.classmark3.gsm_1900_assoc_radio_cap_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_1900_assoc_radio_cap,
+		{ "GSM 1900 Associated Radio Capability", "gsm_a.classmark3.gsm_1900_assoc_radio_cap",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_umts_fdd_rat_cap,
+		{ "UMTS FDD Radio Access Technology Capability", "gsm_a.classmark3.umts_fdd_rat_cap",
+		FT_UINT8, BASE_DEC, VALS(umts_fdd_rat_cap_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_umts_384_mcps_tdd_rat_cap,
+		{ "UMTS 3.84 Mcps TDD Radio Access Technology Capability", "gsm_a.classmark3.umts_384_mcps_tdd_rat_cap",
+		FT_UINT8, BASE_DEC, VALS(umts_384_mcps_tdd_rat_cap_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_cdma_2000_rat_cap,
+		{ "CDMA 2000 Radio Access Technology Capability", "gsm_a.classmark3.cdma_2000_rat_cap",
+		FT_UINT8, BASE_DEC, VALS(cdma_2000_rat_cap_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_dtm_e_gprs_info_present,
+		{ "DTM E/GPRS Information present", "gsm_a.classmark3.dtm_e_gprs_info_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_dtm_gprs_multi_slot_class,
+		{ "DTM GPRS Multi Slot Class", "gsm_a.classmark3.dtm_gprs_multi_slot_class",
+		FT_UINT8, BASE_DEC, VALS(dtm_gprs_multi_slot_class_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_single_slot_dtm,
+		{ "Single Slot DTM", "gsm_a.classmark3.single_slot_dtm_supported", 
+		FT_UINT8, BASE_DEC, VALS(single_slot_dtm_vals), 0x0,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_dtm_egprs_multi_slot_class_present,
+		{ "DTM EGPRS Multi Slot Class present", "gsm_a.classmark3.dtm_egprs_multi_slot_class_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_dtm_egprs_multi_slot_class,
+		{ "DTM EGPRS Multi Slot Class", "gsm_a.classmark3.dtm_egprs_multi_slot_class",
+		FT_UINT8, BASE_DEC, VALS(dtm_gprs_multi_slot_class_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_geo_loc_type_of_shape,
