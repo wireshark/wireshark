@@ -43,6 +43,7 @@
 #include "epan/prefs.h"
 #include <epan/packet.h>
 #include "../ui_util.h"
+#include "../simple_dialog.h"
 #include "epan/emem.h"
 #include "globals.h"
 #include "gtk/gtkglobals.h"
@@ -104,18 +105,22 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 	gint i;
 	row_data_t row_data;
 
-	/* Allocate the array holding column data, the size is the current number of columns
-
-	 * XXX - only allocate storage for columns _not_ based on values from frame_data? */
-	row_data.col_text = se_alloc(sizeof(row_data.col_text)*cinfo->num_cols);
-
-	for(i = 0; i < cinfo->num_cols; i++) {
-		if (col_based_on_frame_data(cinfo, i))
-			/* We already store the value in frame_data, so don't duplicate this. */
-			row_data.col_text[i] = NULL;
-		else
-			row_data.col_text[i] = se_strdup(cinfo->col_data[i]);
+	if (cinfo) {
+		/* Allocate the array holding column data, the size is the current number of columns */
+		row_data.col_text = se_alloc(sizeof(row_data.col_text)*packetlist->n_columns);
+		g_assert(packetlist->n_columns == cinfo->num_cols);
+		for(i = 0; i < cinfo->num_cols; i++) {
+			if (col_based_on_frame_data(cinfo, i) ||
+				/* We handle custom columns lazily */
+				cinfo->col_fmt[i] == COL_CUSTOM)
+				/* We already store the value in frame_data, so don't duplicate this. */
+				row_data.col_text[i] = NULL;
+			else
+				row_data.col_text[i] = se_strdup(cinfo->col_data[i]);
+		}
 	}
+	else
+		row_data.col_text = NULL;
 
 	row_data.fdata = fdata;
 
@@ -435,6 +440,36 @@ row_from_iter(GtkTreeIter *iter)
 	return record->pos;
 }
 
+static gboolean
+get_dissected_flag_from_iter(GtkTreeIter *iter)
+{
+	PacketListRecord *record;
+
+	record = iter->user_data;
+
+	return record->dissected;
+}
+
+static gboolean
+col_text_present_from_iter(GtkTreeIter *iter)
+{
+	PacketListRecord *record;
+
+	record = iter->user_data;
+
+	return record->col_text != NULL;
+}
+
+static void
+set_dissected_flag_from_iter(GtkTreeIter *iter, gboolean dissected)
+{
+	PacketListRecord *record;
+
+	record = iter->user_data;
+
+	record->dissected = dissected;
+}
+
 /* XXX: will this work with display filters? */
 static gboolean
 iter_from_row(GtkTreeIter *iter, guint row)
@@ -442,6 +477,65 @@ iter_from_row(GtkTreeIter *iter, guint row)
 	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
 
 	return gtk_tree_model_iter_nth_child(model, iter, NULL, row);
+}
+
+static void
+new_packet_list_dissect(frame_data *fdata, gboolean col_text_present)
+{
+	epan_dissect_t *edt;
+	int err;
+	gchar *err_info;
+	column_info *cinfo;
+
+	/* We need to construct the columns if we skipped the columns entirely
+	 * when reading the file or if we have custom columns enabled */
+	if (have_custom_cols(&cfile.cinfo) || !col_text_present)
+		cinfo = &cfile.cinfo;
+	else
+		cinfo = NULL;
+
+	if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
+		cfile.pd, fdata->cap_len, &err, &err_info)) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			cf_read_error_message(err, err_info), cfile.filename);
+			return;
+	}
+
+	edt = epan_dissect_new(TRUE /* create_proto_tree */, FALSE /* proto_tree_visible */);
+	color_filters_prime_edt(edt);
+	col_custom_prime_edt(edt, &cfile.cinfo);
+	epan_dissect_run(edt, &cfile.pseudo_header, cfile.pd, fdata, cinfo);
+	fdata->color_filter = color_filters_colorize_packet(0 /* row - unused */, edt);
+
+	/* "Stringify" non frame_data vals */
+	if (!col_text_present)
+		epan_dissect_fill_in_columns(edt, FALSE /* fill_fd_colums */);
+
+	epan_dissect_free(edt);
+}
+
+static void
+cache_columns(frame_data *fdata, guint row, gboolean col_text_present)
+{
+	int col;
+
+	/* None of the columns are present. Fill them out in the record */
+	if (!col_text_present) {
+		for(col = 0; col < cfile.cinfo.num_cols; ++col) {
+			/* Skip columns based om frame_data because we  already store those. */
+			if (!col_based_on_frame_data(&cfile.cinfo, col))
+				packet_list_change_record(packetlist, row, col, &cfile.cinfo);
+		}
+		return;
+	}
+
+	/* Custom columns are present. Fill them out in the record */
+	if (have_custom_cols(&cfile.cinfo))
+		for (col = cfile.cinfo.col_first[COL_CUSTOM];
+			 col <= cfile.cinfo.col_last[COL_CUSTOM];
+			 ++col)
+			if (cfile.cinfo.col_fmt[col] == COL_CUSTOM)
+				packet_list_change_record(packetlist, row, col, &cfile.cinfo);
 }
 
 static void
@@ -457,6 +551,16 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	GdkColor fg_gdk;
 	GdkColor bg_gdk;
 	gchar *cell_text;
+
+	if (get_dissected_flag_from_iter(iter))
+		color_filter = fdata->color_filter;
+	else {
+		gboolean col_text_present = col_text_present_from_iter(iter);
+		new_packet_list_dissect(fdata, col_text_present);
+		set_dissected_flag_from_iter(iter, TRUE);
+		cache_columns(fdata, row, col_text_present);
+		color_filter = fdata->color_filter;
+	}
 
 	if (col_based_on_frame_data(&cfile.cinfo, col_num)) {
 		col_fill_in_frame_data(fdata, &cfile.cinfo, col_num);

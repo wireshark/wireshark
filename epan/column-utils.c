@@ -1409,6 +1409,9 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
 {
   int i;
 
+  if (!pinfo->cinfo)
+    return;
+
   for (i = 0; i < pinfo->cinfo->num_cols; i++) {
     switch (pinfo->cinfo->col_fmt[i]) {
 

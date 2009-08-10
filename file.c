@@ -1003,6 +1003,13 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   gint          row;
   gboolean	create_proto_tree = FALSE;
   epan_dissect_t *edt;
+  column_info *cinfo;
+
+#ifdef NEW_PACKET_LIST
+  cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
+#else
+  cinfo = &cf->cinfo;
+#endif
 
   /* just add some value here until we know if it is being displayed or not */
   fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
@@ -1057,9 +1064,12 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      allocate a protocol tree root node, so that we'll construct
      a protocol tree against which a filter expression can be
      evaluated. */
-  if ((dfcode != NULL && refilter) || color_filters_used() ||
-      filtering_tap_listeners || (tap_flags & TL_REQUIRES_PROTO_TREE) ||
-      have_custom_cols(&cf->cinfo))
+  if ((dfcode != NULL && refilter) ||
+#ifndef NEW_PACKET_LIST
+      color_filters_used() ||
+      have_custom_cols(cinfo) ||
+#endif
+      filtering_tap_listeners || (tap_flags & TL_REQUIRES_PROTO_TREE))
 	  create_proto_tree = TRUE;
 
   /* Dissect the frame. */
@@ -1068,15 +1078,15 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (dfcode != NULL && refilter) {
       epan_dissect_prime_dfilter(edt, dfcode);
   }
-  /* prepare color filters */
-  if (color_filters_used()) {
-      color_filters_prime_edt(edt);
-  }
 
-  col_custom_prime_edt(edt, &cf->cinfo);
+  /* prepare color filters */
+#ifndef NEW_PACKET_LIST
+  color_filters_prime_edt(edt);
+  col_custom_prime_edt(edt, cinfo);
+#endif
 
   tap_queue_init(edt);
-  epan_dissect_run(edt, pseudo_header, buf, fdata, &cf->cinfo);
+  epan_dissect_run(edt, pseudo_header, buf, fdata, cinfo);
   tap_push_tapped_queue(edt);
 
   /* If we have a display filter, apply it if we're refiltering, otherwise
@@ -1129,14 +1139,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     cf->last_displayed = fdata;
 
 #ifdef NEW_PACKET_LIST
-    /* This function returns the color_t that was applied to the packet (in
-     * the old packet list).  Applying the color to the packet is only done
-     * in the following function when not using the new packet list. */
-    fdata->color_filter = color_filters_colorize_packet(0, edt); 
-
-    row = new_packet_list_append(&cf->cinfo, fdata, &edt->pi);
+    row = new_packet_list_append(cinfo, fdata, &edt->pi);
 #else
-    row = packet_list_append(cf->cinfo.col_data, fdata);
+    row = packet_list_append(cinfo->col_data, fdata);
 
     /* colorize packet: first apply color filters
      * then if packet is marked, use preferences to overwrite color

@@ -27,7 +27,9 @@
 #ifndef __UI_UTIL_H__
 #define __UI_UTIL_H__
 
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+#include "epan/packet_info.h"
+#else
 #include "color.h"
 #endif
 

@@ -432,7 +432,8 @@ prime_edt(gpointer data, gpointer user_data)
 void
 color_filters_prime_edt(epan_dissect_t *edt)
 {
-	g_slist_foreach(color_filter_list, prime_edt, edt);
+	if (color_filters_used())
+		g_slist_foreach(color_filter_list, prime_edt, edt);
 }
 
 /* Colorize a single packet of the packet list (old packet list)

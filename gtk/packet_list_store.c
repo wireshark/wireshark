@@ -591,6 +591,7 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 				    packet_list->num_rows);
 
 	newrecord = se_alloc(sizeof(PacketListRecord));
+	newrecord->dissected = FALSE;
 	newrecord->col_text = row_data->col_text;
 	newrecord->fdata = row_data->fdata;
 	newrecord->pos = pos;
@@ -605,6 +606,23 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 	/* Don't resort the list for every row, the list will be in packet order any way.
 	 * packet_list_resort(packet_list);
 	 */
+}
+
+void
+packet_list_change_record(PacketList *packet_list, guint row, gint col, column_info *cinfo)
+{
+	PacketListRecord *record;
+
+	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
+
+	g_assert(row < packet_list->num_rows);
+	record = packet_list->rows[row];
+	g_assert(record->pos == row);
+	g_assert(!record->col_text || (record->col_text[col] == NULL));
+	if (!record->col_text)
+		record->col_text = se_alloc0(sizeof(record->col_text)*packet_list->n_columns);
+
+	record->col_text[col] = se_strdup(cinfo->col_data[col]);
 }
 
 static gboolean
