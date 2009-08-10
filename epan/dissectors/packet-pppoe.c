@@ -208,6 +208,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
+	proto_item  *pppoe_tree_tag_length_item;
 
 	/* Start Decoding Here. */
 	if (tree)
@@ -228,7 +229,8 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 			if (global_pppoe_show_tags_and_lengths)
 			{
 				proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, FALSE);
-				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, FALSE);
+				pppoe_tree_tag_length_item = 
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, FALSE);
 			}
 
 			/* Show tag data */
@@ -347,12 +349,30 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					}
 					break;
 				case PPPOE_TAG_SEQ_NUM:
-					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_seq_num, tvb,
-					                    tagstart+4, poe_tag_length, FALSE);
+					if (poe_tag_length == 2) {
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_seq_num, tvb,
+								    tagstart+4, poe_tag_length, FALSE);
+					} else {
+						if (global_pppoe_show_tags_and_lengths)
+							proto_item_append_text(pppoe_tree_tag_length_item, " [Wrong: should be 2]");
+						expert_add_info_format(pinfo, pppoe_tree, PI_MALFORMED, PI_WARN, 
+								       "Sequence Number tag: Wrong length: %d (expected 2)",
+								       poe_tag_length);
+						return; /* we can do no more */
+					}
 					break;
                                 case PPPOE_TAG_CRED_SCALE:
-                                        proto_tree_add_item(pppoe_tree, hf_pppoed_tag_cred_scale, tvb,
-                                                            tagstart+4, poe_tag_length, FALSE);
+					if (poe_tag_length == 2) {
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_cred_scale, tvb,
+								    tagstart+4, poe_tag_length, FALSE);
+					} else {
+						if (global_pppoe_show_tags_and_lengths)
+							proto_item_append_text(pppoe_tree_tag_length_item, " [Wrong: should be 2]");
+						expert_add_info_format(pinfo, pppoe_tree, PI_MALFORMED, PI_WARN, 
+								       "Credit Scale Factor tag: Wrong length: %d (expected 2)",
+								       poe_tag_length);
+						return; /* we can do no more */
+					}
                                         break;
 				case PPPOE_TAG_RELAY_ID:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_relay_session_id, tvb,
