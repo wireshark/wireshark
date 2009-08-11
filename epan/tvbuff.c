@@ -870,14 +870,15 @@ fast_ensure_contiguous(tvbuff_t *tvb, gint offset, guint length)
 	guint	u_offset;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
+	/* We don't check for overflow in this fast path so we only handle simple types */
+	DISSECTOR_ASSERT(length <= 8);
+
 	if (offset < 0 || !tvb->real_data) {
 	    return ensure_contiguous(tvb, offset, length);
 	}
 
 	u_offset = offset;
 	end_offset = u_offset + length;
-
-	/* don't need to check for overflow  because length <= 8 */
 
 	if (end_offset <= tvb->length) {
 		return tvb->real_data + u_offset;
@@ -888,7 +889,7 @@ fast_ensure_contiguous(tvbuff_t *tvb, gint offset, guint length)
 	}
 	THROW(BoundsError);
 	/* not reached */
-	return 0;
+	return NULL;
 }
 
 
