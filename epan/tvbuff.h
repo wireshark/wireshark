@@ -44,9 +44,9 @@
  * "testy, virtual(-izable) buffer".  They are testy in that they get mad when
  * an attempt is made to access data beyond the bounds of their array. In that
  * case, they throw an exception.
- * 
- * They are virtualizable in that new tvbuff's can be made from other tvbuffs, 
- * while only the original tvbuff may have data. That is, the new tvbuff has 
+ *
+ * They are virtualizable in that new tvbuff's can be made from other tvbuffs,
+ * while only the original tvbuff may have data. That is, the new tvbuff has
  * virtual data.
  */
 
@@ -368,6 +368,13 @@ extern void* ep_tvb_memdup(tvbuff_t *tvb, gint offset, size_t length);
  * this pointer is given to the user, there's no guarantee that the user will
  * honor the 'length' and not overstep the boundaries of the buffer.
  *
+ * If you're thinking of using tvb_get_ptr, STOP WHAT YOU ARE DOING
+ * IMMEDIATELY. Go take a break. Consider that tvb_get_ptr hands you
+ * a raw, unprotected pointer that you can easily use to create a
+ * security vulnerability or otherwise crash Wireshark. Then consider
+ * that you can probably find a function elsewhere in this file that
+ * does exactly what you want in a much more safe and robust manner.
+ *
  * The returned pointer is data that is internal to the tvbuff, so do not
  * attempt to free it. Don't modify the data, either, because another tvbuff
  * that might be using this tvbuff may have already copied that portion of
@@ -415,8 +422,8 @@ extern guint tvb_strsize(tvbuff_t *tvb, gint offset);
 extern gint tvb_strnlen(tvbuff_t*, gint offset, guint maxlength);
 
 /** Convert a string from Unicode to ASCII.  At the moment we fake it by
- * assuming all characters are ASCII  )-:  The len parameter is the number 
- * of guint16's to convert from Unicode. 
+ * assuming all characters are ASCII  )-:  The len parameter is the number
+ * of guint16's to convert from Unicode.
  *
  * tvb_fake_unicode() returns a buffer allocated by g_malloc() and must
  *                    be g_free() by the caller.
