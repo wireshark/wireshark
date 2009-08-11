@@ -862,7 +862,20 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 	return NULL;
 }
 
-/* ----------------------------- */
+static const guint8*
+ensure_contiguous(tvbuff_t *tvb, gint offset, gint length)
+{
+	int exception;
+	const guint8 *p;
+
+	p = ensure_contiguous_no_exception(tvb, offset, length, &exception);
+	if (p == NULL) {
+		DISSECTOR_ASSERT(exception > 0);
+		THROW(exception);
+	}
+	return p;
+}
+
 static const guint8*
 fast_ensure_contiguous(tvbuff_t *tvb, gint offset, guint length)
 {
@@ -890,21 +903,6 @@ fast_ensure_contiguous(tvbuff_t *tvb, gint offset, guint length)
 	THROW(BoundsError);
 	/* not reached */
 	return NULL;
-}
-
-
-static const guint8*
-ensure_contiguous(tvbuff_t *tvb, gint offset, gint length)
-{
-	int exception;
-	const guint8 *p;
-
-	p = ensure_contiguous_no_exception(tvb, offset, length, &exception);
-	if (p == NULL) {
-		DISSECTOR_ASSERT(exception > 0);
-		THROW(exception);
-	}
-	return p;
 }
 
 static const guint8*
