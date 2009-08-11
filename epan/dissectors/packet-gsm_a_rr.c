@@ -1518,9 +1518,8 @@ de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
             str = "SDCCH/8 + SACCH/C8 or CBCH (SDCCH/8), Subchannel";
             subchannel = ((oct8 % 0x38)>>3);
         } else {
-            str = "";
-            subchannel = 0;
-            DISSECTOR_ASSERT_NOT_REACHED();
+            str = "Unknown channel information";
+            subchannel = oct8;
         }
 	
         other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
@@ -1634,8 +1633,8 @@ de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
             str = "TCH/F + FACCH/F and SACCH/M + unidirectional channels at timeslot";
             subchannel = ((oct8 % 0x38)>>3);
         } else {
-            str = "Unknown subchannel";
-            subchannel = 0;
+            str = "Unknown channel information";
+            subchannel = oct8;
         }
         other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
         proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s %d",a_bigbuf,str,subchannel);
