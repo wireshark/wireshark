@@ -553,7 +553,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       }
       item_added = TRUE;
     } else {
-      dstIp = *((guint32*) dst->data);
+      memcpy((guint8 *)&dstIp, dst->data, 4);
       if (pkg_data->ack_data) {
         ack_data = g_hash_table_lookup (pkg_data->ack_data, GUINT_TO_POINTER(dstIp));
       }
@@ -588,7 +588,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
     analysis_tree = proto_item_add_subtree (sa, ett_seq_ack_analysis);
     
     /* Fetch package data */
-    dstIp = *((guint32*) dst->data);
+    memcpy((guint8 *)&dstIp, dst->data, 4);
     if ((pkg_data = register_p_mul_id (pinfo, src, dstIp, pdu_type, message_id, 0, no_missing)) == NULL) {
       /* No need for seq/ack analysis yet */
       return;
