@@ -474,7 +474,7 @@ emem_strbuf_t *ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len);
 
 /* #define DEBUG_INTENSE_CANARY_CHECKS */
 /* Helper to troubleshoot ep memory corruption
- * if compiled and the environment variable WIRESHARK_DEBUG_EP_CANARY exists
+ * if compiled and the environment variable WIRESHARK_DEBUG_EP_INTENSE_CANARY exists
  * it will check the canaries and when found corrupt stop there in the hope
  * the corruptor is still there in the stack.
  * Some checkpoints are already set in packet.c in strategic points 

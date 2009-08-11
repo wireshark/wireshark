@@ -51,19 +51,25 @@
 #include <process.h>    /* getpid */
 #endif
 
-
 /*
  * Tools like Valgrind and ElectricFence don't work well with memchunks.
- * Uncomment the defines below to make {ep|se}_alloc() allocate each
+ * Export the following environment variables to make {ep|se}_alloc() allocate each
  * object individually.
+ *
+ * WIRESHARK_DEBUG_EP_NO_CHUNKS
+ * WIRESHARK_DEBUG_SE_NO_CHUNKS
  */
-/* #define EP_DEBUG_FREE 1 */
-/* #define SE_DEBUG_FREE 1 */
+static gboolean ep_debug_use_chunks;
+static gboolean se_debug_use_chunks;
 
-/* Do we want to use canaries ? */
-#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
-#define DEBUG_USE_CANARIES 1
-#endif
+/* Do we want to use canaries?
+ * Export the following environment variables to disable canaries
+ *
+ * WIRESHARK_DEBUG_EP_NO_CANARY
+ * WIRESHARK_DEBUG_SE_NO_CANARY
+ */
+static gboolean ep_debug_use_canary;
+static gboolean se_debug_use_canary;
 
 /* Do we want to use guardpages? if available */
 #define WANT_GUARD_PAGES 1
@@ -99,29 +105,27 @@ static int dev_zero_fd;
 /* The maximum number of allocations per chunk */
 #define EMEM_ALLOCS_PER_CHUNK (EMEM_PACKET_CHUNK_SIZE / 512)
 
-
-#ifdef DEBUG_USE_CANARIES
 #define EMEM_CANARY_SIZE 8
 #define EMEM_CANARY_DATA_SIZE (EMEM_CANARY_SIZE * 2 - 1)
 
 /* this should be static, but if it were gdb would had problems finding it */
-guint8  ep_canary[EMEM_CANARY_DATA_SIZE], se_canary[EMEM_CANARY_DATA_SIZE];
-#endif /* DEBUG_USE_CANARIES */
+guint8 ep_canary[EMEM_CANARY_DATA_SIZE];
+guint8 se_canary[EMEM_CANARY_DATA_SIZE];
+
+typedef struct _emem_no_chunk_t {
+	unsigned int	c_count;
+	void		*canary[EMEM_ALLOCS_PER_CHUNK];
+	guint8		cmp_len[EMEM_ALLOCS_PER_CHUNK];
+} emem_canary_t;
 
 typedef struct _emem_chunk_t {
 	struct _emem_chunk_t *next;
+	char			*buf;
 	unsigned int	amount_free_init;
 	unsigned int	amount_free;
 	unsigned int	free_offset_init;
 	unsigned int	free_offset;
-	char *buf;
-#ifdef DEBUG_USE_CANARIES
-#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
-	unsigned int	c_count;
-	void		*canary[EMEM_ALLOCS_PER_CHUNK];
-	guint8		cmp_len[EMEM_ALLOCS_PER_CHUNK];
-#endif
-#endif /* DEBUG_USE_CANARIES */
+	emem_canary_t	*canary_info;
 } emem_chunk_t;
 
 typedef struct _emem_header_t {
@@ -132,7 +136,6 @@ typedef struct _emem_header_t {
 static emem_header_t ep_packet_mem;
 static emem_header_t se_packet_mem;
 
-#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 #if defined (_WIN32)
 static SYSTEM_INFO sysinfo;
 static OSVERSIONINFO versinfo;
@@ -140,9 +143,7 @@ static int pagesize;
 #elif defined(USE_GUARD_PAGES)
 static intptr_t pagesize;
 #endif /* _WIN32 / USE_GUARD_PAGES */
-#endif /* ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE) */
 
-#ifdef DEBUG_USE_CANARIES
 /*
  * Set a canary value to be placed between memchunks.
  */
@@ -174,7 +175,6 @@ emem_canary_pad (size_t allocation) {
 
 	return pad;
 }
-#endif /* DEBUG_USE_CANARIES */
 
 /* used for debugging canaries, will block */
 #ifdef DEBUG_INTENSE_CANARY_CHECKS
@@ -204,12 +204,12 @@ void ep_check_canary_integrity(const char* fmt, ...) {
 	for (npc = ep_packet_mem.free_list; npc != NULL; npc = npc->next) {
 		static unsigned i_ctr;
 
-		if (npc->c_count > 0x00ffffff) {
+		if (npc->canary_info->c_count > 0x00ffffff) {
 			g_error("ep_packet_mem.free_list was corrupted\nbetween: %s\nand: %s",there, here);
 		}
 
-		for (i_ctr = 0; i_ctr < npc->c_count; i_ctr++) {
-			if (memcmp(npc->canary[i_ctr], &ep_canary, npc->cmp_len[i_ctr]) != 0) {
+		for (i_ctr = 0; i_ctr < npc->canary_info->c_count; i_ctr++) {
+			if (memcmp(npc->canary_info->canary[i_ctr], &ep_canary, npc->canary_info->cmp_len[i_ctr]) != 0) {
 				g_error("Per-packet memory corrupted\nbetween: %s\nand: %s",there, here);
 			}
 		}
@@ -231,15 +231,16 @@ ep_init_chunk(void)
 	ep_packet_mem.free_list=NULL;
 	ep_packet_mem.used_list=NULL;
 
+	ep_debug_use_chunks = (gboolean) (!getenv("WIRESHARK_DEBUG_EP_NO_CHUNKS"));
+	ep_debug_use_canary = (gboolean) (!getenv("WIRESHARK_DEBUG_EP_NO_CANARY"));
+
 #ifdef DEBUG_INTENSE_CANARY_CHECKS
-	intense_canary_checking = (gboolean)getenv("WIRESHARK_DEBUG_EP_CANARY");
+	intense_canary_checking = (gboolean)getenv("WIRESHARK_DEBUG_EP_INTENSE_CANARY");
 #endif
 
-#ifdef DEBUG_USE_CANARIES
-	emem_canary(ep_canary);
-#endif /* DEBUG_USE_CANARIES */
+	if (ep_debug_use_canary)
+		emem_canary(ep_canary);
 
-#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 #if defined (_WIN32)
 	/* Set up our guard page info for Win32 */
 	GetSystemInfo(&sysinfo);
@@ -263,10 +264,8 @@ ep_init_chunk(void)
 	g_assert(dev_zero_fd != -1);
 #endif
 #endif /* _WIN32 / USE_GUARD_PAGES */
-#endif /* ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE) */
-
-
 }
+
 /* Initialize the capture-lifetime memory allocation pool.
  * This function should be called only once when Wireshark or TShark starts
  * up.
@@ -277,14 +276,15 @@ se_init_chunk(void)
 	se_packet_mem.free_list=NULL;
 	se_packet_mem.used_list=NULL;
 
-#ifdef DEBUG_USE_CANARIES
-	emem_canary(se_canary);
-#endif /* DEBUG_USE_CANARIES */
+	se_debug_use_chunks = (gboolean) (!getenv("WIRESHARK_DEBUG_SE_NO_CHUNKS"));
+	se_debug_use_canary = (gboolean) (!getenv("WIRESHARK_DEBUG_SE_NO_CANARY"));
+
+	if (se_debug_use_canary)
+		emem_canary(se_canary);
 }
 
-#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
 static void
-emem_create_chunk(emem_chunk_t **free_list) {
+emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 #if defined (_WIN32)
 	BOOL ret;
 	char *buf_end, *prot1, *prot2;
@@ -298,11 +298,12 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		emem_chunk_t *npc;
 		npc = g_malloc(sizeof(emem_chunk_t));
 		npc->next = NULL;
-#ifdef DEBUG_USE_CANARIES
-#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
-		npc->c_count = 0;
-#endif
-#endif /* DEBUG_USE_CANARIES */
+		if (use_canary) {
+			npc->canary_info = g_new(emem_canary_t, 1);
+			npc->canary_info->c_count = 0;
+		}
+		else
+			npc->canary_info = NULL;
 
 		*free_list = npc;
 #if defined (_WIN32)
@@ -367,42 +368,39 @@ emem_create_chunk(emem_chunk_t **free_list) {
 #endif /* USE_GUARD_PAGES */
 	}
 }
-#endif
 
 /* allocate 'size' amount of memory. */
 static void *
-emem_alloc(size_t size, gboolean debug_free, emem_header_t *mem, guint8 *canary)
+emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 {
 	void *buf;
-#ifdef DEBUG_USE_CANARIES
 	void *cptr;
-	guint8 pad = emem_canary_pad(size);
-#else
-	static guint8 pad = 8;
-#endif /* DEBUG_USE_CANARIES */
+	guint8 pad;
 	emem_chunk_t *free_list;
 
-	if (!debug_free) {
-		/* Round up to an 8 byte boundary.	Make sure we have at least
+	if (use_chunks) {
+		gboolean use_canary = canary != NULL;
+		/* Round up to an 8 byte boundary. Make sure we have at least
 		 * 8 pad bytes for our canary.
 		 */
+		 if (use_canary)
+			pad = emem_canary_pad(size);
+		 else
+			pad = 8;
+
 		size += pad;
 
 		/* make sure we dont try to allocate too much (arbitrary limit) */
 		DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
-#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
-		emem_create_chunk(&mem->free_list);
-#endif
+		emem_create_chunk(&mem->free_list, use_canary);
 
 		/* oops, we need to allocate more memory to serve this request
 		 * than we have free. move this node to the used list and try again
 		 */
-		if(size>mem->free_list->amount_free
-#ifdef DEBUG_USE_CANARIES
-		   || mem->free_list->c_count >= EMEM_ALLOCS_PER_CHUNK
-#endif /* DEBUG_USE_CANARIES */
-			) {
+		if(size>mem->free_list->amount_free || 
+		   (use_canary &&
+			mem->free_list->canary_info->c_count >= EMEM_ALLOCS_PER_CHUNK)) {
 			emem_chunk_t *npc;
 			npc=mem->free_list;
 			mem->free_list=mem->free_list->next;
@@ -410,9 +408,7 @@ emem_alloc(size_t size, gboolean debug_free, emem_header_t *mem, guint8 *canary)
 			mem->used_list=npc;
 		}
 
-#if ! defined(EP_DEBUG_FREE) && ! defined(SE_DEBUG_FREE)
-		emem_create_chunk(&mem->free_list);
-#endif
+		emem_create_chunk(&mem->free_list, use_canary);
 
 		free_list = mem->free_list;
 
@@ -421,21 +417,20 @@ emem_alloc(size_t size, gboolean debug_free, emem_header_t *mem, guint8 *canary)
 		free_list->amount_free -= (unsigned int) size;
 		free_list->free_offset += (unsigned int) size;
 
-#ifdef DEBUG_USE_CANARIES
-		cptr = (char *)buf + size - pad;
-		memcpy(cptr, canary, pad);
-		free_list->canary[free_list->c_count] = cptr;
-		free_list->cmp_len[free_list->c_count] = pad;
-		free_list->c_count++;
-#endif /* DEBUG_USE_CANARIES */
+		if (use_canary) {
+			cptr = (char *)buf + size - pad;
+			memcpy(cptr, canary, pad);
+			free_list->canary_info->canary[free_list->canary_info->c_count] = cptr;
+			free_list->canary_info->cmp_len[free_list->canary_info->c_count] = pad;
+			free_list->canary_info->c_count++;
+		}
 	} else {
 		emem_chunk_t *npc;
 
 		npc=g_malloc(sizeof(emem_chunk_t));
 		npc->next=mem->used_list;
-		npc->amount_free=(unsigned int) size;
-		npc->free_offset=0;
 		npc->buf=g_malloc(size);
+		npc->canary_info = NULL;
 		buf = npc->buf;
 		mem->used_list=npc;
 	}
@@ -449,11 +444,13 @@ emem_alloc(size_t size, gboolean debug_free, emem_header_t *mem, guint8 *canary)
 void *
 ep_alloc(size_t size)
 {
-#ifdef EP_DEBUG_FREE
-	return emem_alloc(size, TRUE, &ep_packet_mem, NULL);
-#else
-	return emem_alloc(size, FALSE, &ep_packet_mem, ep_canary);
-#endif
+	if (ep_debug_use_chunks)
+		if (ep_debug_use_canary)
+			return emem_alloc(size, &ep_packet_mem, TRUE, ep_canary);
+		else
+			return emem_alloc(size, &ep_packet_mem, TRUE, NULL);
+	else
+		return emem_alloc(size, &ep_packet_mem, FALSE, NULL);
 }
 
 /* allocate 'size' amount of memory with an allocation lifetime until the
@@ -462,11 +459,13 @@ ep_alloc(size_t size)
 void *
 se_alloc(size_t size)
 {
-#ifdef SE_DEBUG_FREE
-	return emem_alloc(size, TRUE, &se_packet_mem, NULL);
-#else
-	return emem_alloc(size, FALSE, &se_packet_mem, se_canary);
-#endif
+	if (se_debug_use_chunks)
+		if (se_debug_use_canary)
+			return emem_alloc(size, &se_packet_mem, TRUE, se_canary);
+		else
+			return emem_alloc(size, &se_packet_mem, TRUE, NULL);
+	else
+		return emem_alloc(size, &se_packet_mem, FALSE, NULL);
 }
 
 void* ep_alloc0(size_t size) {
@@ -670,13 +669,11 @@ gchar* se_strdup_printf(const gchar* fmt, ...) {
 
 /* release all allocated memory back to the pool. */
 static void
-emem_free_all(gboolean debug_free, emem_header_t *mem, guint8 *canary, emem_tree_t *trees)
+emem_free_all(emem_header_t *mem, gboolean use_chunks, guint8 *canary, emem_tree_t *trees)
 {
 	emem_chunk_t *npc;
 	emem_tree_t *tree_list;
-#ifdef DEBUG_USE_CANARIES
 	guint i;
-#endif /* DEBUG_USE_CANARIES */
 
 	/* move all used chunks over to the free list */
 	while(mem->used_list){
@@ -689,14 +686,14 @@ emem_free_all(gboolean debug_free, emem_header_t *mem, guint8 *canary, emem_tree
 	/* clear them all out */
 	npc = mem->free_list;
 	while (npc != NULL) {
-		if (!debug_free) {
-#ifdef DEBUG_USE_CANARIES
-			for (i = 0; i < npc->c_count; i++) {
-				if (memcmp(npc->canary[i], canary, npc->cmp_len[i]) != 0)
-					g_error("Memory corrupted");
+		if (use_chunks) {
+			if (canary) {
+				for (i = 0; i < npc->canary_info->c_count; i++) {
+					if (memcmp(npc->canary_info->canary[i], canary, npc->canary_info->cmp_len[i]) != 0)
+						g_error("Memory corrupted");
+				}
+				npc->canary_info->c_count = 0;
 			}
-			npc->c_count = 0;
-#endif /* DEBUG_USE_CANARIES */
 			npc->amount_free = npc->amount_free_init;
 			npc->free_offset = npc->free_offset_init;
 			npc = npc->next;
@@ -719,30 +716,32 @@ emem_free_all(gboolean debug_free, emem_header_t *mem, guint8 *canary, emem_tree
 void
 ep_free_all(void)
 {
-#ifdef EP_DEBUG_FREE
-    emem_free_all(TRUE, &ep_packet_mem, NULL, NULL);
-#else
-    emem_free_all(FALSE, &ep_packet_mem, ep_canary, NULL);
-#endif
+	if (ep_debug_use_chunks)
+		if (ep_debug_use_canary)
+			emem_free_all(&ep_packet_mem, TRUE, ep_canary, NULL /* trees */);
+		else
+			emem_free_all(&ep_packet_mem, TRUE, NULL, NULL /* trees */);
+	else
+		emem_free_all(&ep_packet_mem, FALSE, NULL, NULL /* trees */);
 
-#ifdef EP_DEBUG_FREE
-	ep_init_chunk();
-#endif
+	if (!ep_debug_use_chunks)
+		ep_init_chunk();
 }
 
 /* release all allocated memory back to the pool. */
 void
 se_free_all(void)
 {
-#ifdef SE_DEBUG_FREE
-    emem_free_all(TRUE, &se_packet_mem, NULL, se_trees);
-#else
-    emem_free_all(FALSE, &se_packet_mem, se_canary, se_trees);
-#endif
+	if (se_debug_use_chunks)
+		if (se_debug_use_canary)
+			emem_free_all(&se_packet_mem, TRUE, se_canary, se_trees);
+		else
+			emem_free_all(&se_packet_mem, TRUE, NULL, se_trees);
+	else
+		emem_free_all(&se_packet_mem, FALSE, NULL, se_trees);
 
-#ifdef SE_DEBUG_FREE
-	se_init_chunk();
-#endif
+	if (!se_debug_use_chunks)
+		se_init_chunk();
 }
 
 ep_stack_t ep_stack_new(void) {
