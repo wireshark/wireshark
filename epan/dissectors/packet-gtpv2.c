@@ -1236,7 +1236,7 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 	/* 8.22.1 CGI field  */
 	if (flags&0x01)
 	{
-		dissect_e212_mcc_mnc(tvb, tree, 0);
+		dissect_e212_mcc_mnc(tvb, tree, offset);
 		offset+=3;
 		proto_tree_add_item(tree, hf_gtpv2_uli_cgi_lac, tvb, offset, 2, FALSE);
 		proto_tree_add_item(tree, hf_gtpv2_uli_cgi_ci, tvb, offset, 2, FALSE);
@@ -1248,7 +1248,7 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 	/* 8.22.2 SAI field  */
 	if (flags&0x02)
 	{
-		dissect_e212_mcc_mnc(tvb, tree, 0);
+		dissect_e212_mcc_mnc(tvb, tree, offset);
 		offset+=3;
 		proto_tree_add_item(tree, hf_gtpv2_uli_sai_lac, tvb, offset, 2, FALSE);
 		proto_tree_add_item(tree, hf_gtpv2_uli_sai_sac, tvb, offset, 2, FALSE);
@@ -1259,7 +1259,7 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 	/* 8.22.3 RAI field  */
 	if (flags&0x04)
 	{
-		dissect_e212_mcc_mnc(tvb, tree, 0);
+		dissect_e212_mcc_mnc(tvb, tree, offset);
 		offset+=3;
 		proto_tree_add_item(tree, hf_gtpv2_uli_rai_lac, tvb, offset, 2, FALSE);
 		proto_tree_add_item(tree, hf_gtpv2_uli_rai_rac, tvb, offset, 2, FALSE);
@@ -1270,7 +1270,7 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 	/* 8.22.4 TAI field  */
 	if (flags&0x08)
 	{
-		dissect_e212_mcc_mnc(tvb, tree, 0);
+		dissect_e212_mcc_mnc(tvb, tree, offset);
 		offset+=3;
 		proto_tree_add_item(tree, hf_gtpv2_uli_tai_tac, tvb, offset, 2, FALSE);
 		offset+=2;
@@ -1280,11 +1280,15 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 	/* 8.22.5 ECGI field */
 	if (flags&0x10)
 	{
+		dissect_e212_mcc_mnc(tvb, tree, offset);
+		offset+=3;
 		/* The bits 8 through 5, of octet e+3 (Fig 8.21.5-1 in TS 29.274 V8.2.0) are spare
 		and hence they would not make any difference to the hex string following it, thus we directly read 4 bytes from tvb */
 
 		proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, FALSE);
 		offset+=4;
+		if(offset==length)
+			return;
 
 	}
 }
