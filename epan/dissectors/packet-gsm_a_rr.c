@@ -1634,9 +1634,8 @@ de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
             str = "TCH/F + FACCH/F and SACCH/M + unidirectional channels at timeslot";
             subchannel = ((oct8 % 0x38)>>3);
         } else {
-            str = "";
+            str = "Unknown subchannel";
             subchannel = 0;
-            DISSECTOR_ASSERT_NOT_REACHED();
         }
         other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
         proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s %d",a_bigbuf,str,subchannel);
