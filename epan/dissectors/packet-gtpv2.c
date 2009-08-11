@@ -2433,7 +2433,7 @@ void proto_register_gtpv2(void)
 		},
 		{&hf_gtpv2_uli_ecgi_eci,
 		{"ECI (E-UTRAN Cell Identifier)", "gtpv2.uli_ecgi_eci",
-		FT_DOUBLE, BASE_DEC, NULL, 0,
+		FT_UINT32, BASE_DEC, NULL, 0,
 		NULL, HFILL}
 		},
 		{&hf_gtpv2_f_teid_v4,
