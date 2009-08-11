@@ -335,6 +335,60 @@ static const value_string single_slot_dtm_vals[] = {
 	{ 0, NULL}
 };
 
+static const value_string gsm_band_vals[] = {
+	{ 0, "E-GSM is supported" },
+	{ 1, "P-GSM is supported" },
+	{ 2, "GSM 1800 is supported" },
+	{ 3, "GSM 450 is supported" },
+	{ 4, "GSM 480 is supported" },
+	{ 5, "GSM 850 is supported" },
+	{ 6, "GSM 1900 is supported" },
+	{ 7, "GSM 750 is supported" },
+	{ 8, "GSM 710 is supported" },
+	{ 9, "T-GSM 810 is supported" },
+	{ 0, NULL}
+};
+
+static const value_string umts_128_mcps_tdd_rat_cap_vals[] = {
+	{ 0, "UMTS 1.28 Mcps TDD not supported" },
+	{ 1, "UMTS 1.28 Mcps TDD supported" },
+	{ 0, NULL}
+};
+
+static const value_string geran_feature_package_1_vals[] = {
+	{ 0, "GERAN feature package 1 not supported" },
+	{ 1, "GERAN feature package 1 supported" },
+	{ 0, NULL}
+};
+
+static const value_string flo_iu_cap_vals[] = {
+	{ 0, "FLO in GERAN Iu Mode not supported" },
+	{ 1, "FLO in GERAN Iu Mode supported" },
+	{ 0, NULL}
+};
+
+static const value_string geran_feature_package_2_vals[] = {
+	{ 0, "GERAN feature package 2 not supported" },
+	{ 1, "GERAN feature package 2 supported" },
+	{ 0, NULL}
+};
+
+static const value_string gmsk_multislot_power_prof_vals[] = {
+	{ 0, "GMSK_MULTISLOT_POWER_PROFILE 0" },
+	{ 1, "GMSK_MULTISLOT_POWER_PROFILE 1" },
+	{ 2, "GMSK_MULTISLOT_POWER_PROFILE 2" },
+	{ 3, "GMSK_MULTISLOT_POWER_PROFILE 3" },
+	{ 0, NULL}
+};
+
+static const value_string eight_psk_multislot_power_prof_vals[] = {
+	{ 0, "8-PSK_MULTISLOT_POWER_PROFILE 0" },
+	{ 1, "8-PSK_MULTISLOT_POWER_PROFILE 1" },
+	{ 2, "8-PSK_MULTISLOT_POWER_PROFILE 2" },
+	{ 3, "8-PSK_MULTISLOT_POWER_PROFILE 3" },
+	{ 0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_a_common = -1;
 
@@ -427,6 +481,24 @@ static int hf_gsm_a_dtm_gprs_multi_slot_class	= -1;
 static int hf_gsm_a_single_slot_dtm				= -1;
 static int hf_gsm_a_dtm_egprs_multi_slot_class_present		= -1;
 static int hf_gsm_a_dtm_egprs_multi_slot_class	= -1;
+static int hf_gsm_a_single_band_support			= -1;
+static int hf_gsm_a_gsm_band					= -1;
+static int hf_gsm_a_gsm_750_assoc_radio_cap_present	= -1;
+static int hf_gsm_a_gsm_750_assoc_radio_cap	= -1;
+static int hf_gsm_a_umts_128_mcps_tdd_rat_cap	= -1;
+static int hf_gsm_a_geran_feature_package_1		= -1;
+static int hf_gsm_a_ext_dtm_e_gprs_info_present	= -1;
+static int hf_gsm_a_ext_dtm_gprs_multi_slot_class	= -1;
+static int hf_gsm_a_ext_dtm_egprs_multi_slot_class	= -1;
+static int hf_gsm_a_high_multislot_cap_present	= -1;
+static int hf_gsm_a_high_multislot_cap			= -1;
+static int hf_gsm_a_geran_iu_mode_support		= -1;
+static int hf_gsm_a_geran_iu_mode_cap			= -1;
+static int hf_gsm_a_geran_iu_mode_cap_length	= -1;
+static int hf_gsm_a_flo_iu_cap					= -1;
+static int hf_gsm_a_geran_feature_package_2		= -1;
+static int hf_gsm_a_gmsk_multislot_power_prof	= -1;
+static int hf_gsm_a_8_psk_multislot_power_prof	= -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat	= -1;
@@ -1884,11 +1956,14 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 {
 	guint32	curr_offset;
 	guint32 bit_offset; /* Offset in bits */
+	guint8	length;
 	proto_tree	*subtree;
 	proto_item	*item;
+	guint32 bits_left, target_bit_offset;
 	guint64 multi_bnd_sup_fields, rsupport, multislotCapability, msMeasurementCapability, msPosMethodCapPresent; 
 	guint64 ecsdMultiSlotCapability, eightPskStructPresent, gsm400BandInfoPresent, gsm850AssocRadioCapabilityPresent;
-	guint64 gsm1900AssocRadioCapabilityPresent, dtmEGprsInfoPresent, dtmEgprsMultiSlotClassPresent;
+	guint64 gsm1900AssocRadioCapabilityPresent, dtmEGprsInfoPresent, dtmEgprsMultiSlotClassPresent, singleBandSupport;
+	guint64 gsm750AssocRadioCapabilityPresent, extDtmEGprsInfoPresent, highMultislotCapPresent, geranIuModeSupport;
 
 	curr_offset = offset;
 
@@ -2058,6 +2133,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	{
 		/* Extract ECSD Multi Slot Class */
 		proto_tree_add_bits_item(tree, hf_gsm_a_ecsd_multi_slot_class, tvb, bit_offset, 5, FALSE);
+		bit_offset = bit_offset + 5;
 	}
 
 	/* { 0 | 1 < 8-PSK Struct > }
@@ -2177,18 +2253,187 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 		}
 	}
 
+	/*
+	 * Data in bit stream for this release end here
+	 * Do not proceed to next release data if all that is
+	 * left is < 8 all zero bits
+	 */
+	bits_left = ((len + offset) << 3) - bit_offset;
+	if (bits_left == 0)
+		return(len);
+
+	if (bits_left < 8)
+	{	
+		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
+		{
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
+			return(len);
+		}
+	}
+
+	/*
+	 * Release 4 starts here
+	 *
+	 * { 0 | 1 < Single Band Support > } -- Release 4 starts here:
+	 * Extract Single Band Support
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_single_band_support, tvb, bit_offset, 1, &singleBandSupport, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(singleBandSupport == 1)
+	{
+		/* Extract Single Band Support */
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_band, tvb, bit_offset, 4, FALSE);
+		bit_offset = bit_offset + 4;
+	}	
+
+	/* { 0 | 1 <GSM 750 Associated Radio Capability : bit(4) > }
+	 * Extract GSM 750 Associated Radio Capability presence
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_750_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm750AssocRadioCapabilityPresent, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(gsm750AssocRadioCapabilityPresent == 1)
+	{
+		/* Extract GSM 750 Associated Radio Capability */
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_750_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		bit_offset = bit_offset + 4;
+	}
+
+	/* < UMTS 1.28 Mcps TDD Radio Access Technology Capability : bit >
+	 * Extract UMTS 1.28 Mcps TDD Radio Access Technology Capability
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_umts_128_mcps_tdd_rat_cap, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/* < GERAN Feature Package 1 : bit >
+	 * Extract GERAN Feature Package 1
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_geran_feature_package_1, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/* { 0 | 1 < Extended DTM GPRS Multi Slot Class : bit(2) >
+	 *   < Extended DTM EGPRS Multi Slot Class : bit(2) > }
+	 * Extract Extended DTM E/GPRS Information presence
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ext_dtm_e_gprs_info_present, tvb, bit_offset, 1, &extDtmEGprsInfoPresent, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(extDtmEGprsInfoPresent == 1)
+	{
+		/* Extract Extended DTM GPRS Multi Slot Class */
+		proto_tree_add_bits_item(tree, hf_gsm_a_ext_dtm_gprs_multi_slot_class, tvb, bit_offset, 2, FALSE);
+		bit_offset = bit_offset + 2;
+
+		/* Extract Extended DTM EGPRS Multi Slot Class */
+		proto_tree_add_bits_item(tree, hf_gsm_a_ext_dtm_egprs_multi_slot_class, tvb, bit_offset, 2, FALSE);
+		bit_offset = bit_offset + 2;
+	}
+
+	/*
+	 * Data in bit stream for this release end here
+	 * Do not proceed to next release data if all that is
+	 * left is < 8 all zero bits
+	 */
+	bits_left = ((len + offset) << 3) - bit_offset;
+	if (bits_left == 0)
+		return(len);
+
+	if (bits_left < 8)
+	{	
+		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
+		{
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
+			return(len);
+		}
+	}
+
+	/*
+	 * Release 5 starts here
+	 *
+	 * { 0 | 1 < High Multislot Capability : bit(2) > } ---Release 5 starts here.
+	 * Extract High Multislot Capability presence
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_high_multislot_cap_present, tvb, bit_offset, 1, &highMultislotCapPresent, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(highMultislotCapPresent == 1)
+	{
+		/* Extract High Multislot Capability */
+		proto_tree_add_bits_item(tree, hf_gsm_a_high_multislot_cap, tvb, bit_offset, 2, FALSE);
+		bit_offset = bit_offset + 2;
+	}
+
+	/*
+	 * { 0 | 1 < GERAN Iu Mode Capabilities > } -- "1" also means support of GERAN Iu mode
+	 * Extract GERAN Iu Mode Capabilities presence
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_geran_iu_mode_support, tvb, bit_offset, 1, &geranIuModeSupport, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(geranIuModeSupport == 1)
+	{
+		/* Extract GERAN Iu Mode Capabilities Length */
+		length = tvb_get_bits8(tvb, bit_offset, 4);
+
+		/* Extract GERAN Iu Mode Capabilities */
+		item = proto_tree_add_bits_item(tree, hf_gsm_a_geran_iu_mode_cap, tvb, bit_offset, length + 4, FALSE);
+		subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
+
+		/* Add GERAN Iu Mode Capabilities Length in subtree */
+		proto_tree_add_bits_item(subtree, hf_gsm_a_geran_iu_mode_cap_length, tvb, bit_offset, 4, FALSE);
+		bit_offset += 4;
+		target_bit_offset = bit_offset + length;
+
+		/* Extract FLO Iu Capability */
+		proto_tree_add_bits_item(subtree, hf_gsm_a_flo_iu_cap, tvb, bit_offset, 1, FALSE);
+		bit_offset += 1;
+
+		/* If needed, add spare bits */
+		if (target_bit_offset > bit_offset)
+		{
+			proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, bit_offset, target_bit_offset - bit_offset, FALSE);
+			bit_offset = target_bit_offset;
+		}
+	}
+
+	/* < GERAN Feature Package 2 : bit >
+	 * Extract GERAN Feature Package 2
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_geran_feature_package_2, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/* < GMSK Multislot Power Profile : bit (2) >
+	 * Extract GMSK Multislot Power Profile
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_gmsk_multislot_power_prof, tvb, bit_offset, 2, FALSE);
+	bit_offset = bit_offset + 2;
+
+	/* < 8-PSK Multislot Power Profile : bit (2) >
+	 * Extract GMSK Multislot Power Profile
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_multislot_power_prof, tvb, bit_offset, 2, FALSE);
+	bit_offset = bit_offset + 2;
+
+	/*
+	 * Data in bit stream for this release end here
+	 * Do not proceed to next release data if all that is
+	 * left is < 8 all zero bits
+	 */
+	bits_left = ((len + offset) << 3) - bit_offset;
+	if (bits_left == 0)
+		return(len);
+
+	if (bits_left < 8)
+	{	
+		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
+		{
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
+			return(len);
+		}
+	}
+
 /*
-{ 0 | 1 < Single Band Support > } -- Release 4 starts here:
-{ 0 | 1 <GSM 750 Associated Radio Capability : bit(4)>}
-< UMTS 1.28 Mcps TDD Radio Access Technology Capability : bit >
-< GERAN Feature Package 1 : bit >
-{ 0 | 1 < Extended DTM GPRS Multi Slot Class : bit(2) >
-< Extended DTM EGPRS Multi Slot Class : bit(2) > }
-{ 0 | 1 < High Multislot Capability : bit(2) > } ---Release 5 starts here.
-{ 0 | 1 < GERAN Iu Mode Capabilities > } -- "1" also means support of GERAN Iu mode
-< GERAN Feature Package 2 : bit >
-< GMSK Multislot Power Profile : bit (2) >
-< 8-PSK Multislot Power Profile : bit (2) >
 { 0 | 1 < T-GSM 400 Bands Supported : { 01 | 10 | 11 } > -- Release 6 starts here.
 < T-GSM 400 Associated Radio Capability: bit(4) > }
 { 0 | 1 < T-GSM 900 Associated Radio Capability: bit(4) > }
@@ -2870,6 +3115,96 @@ proto_register_gsm_a_common(void)
 	{ &hf_gsm_a_dtm_egprs_multi_slot_class,
 		{ "DTM EGPRS Multi Slot Class", "gsm_a.classmark3.dtm_egprs_multi_slot_class",
 		FT_UINT8, BASE_DEC, VALS(dtm_gprs_multi_slot_class_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_single_band_support,
+		{ "Single Band Support", "gsm_a.classmark3.single_band_support",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_band,
+		{ "GSM Band", "gsm_a.classmark3.gsm_band",
+		FT_UINT8, BASE_DEC, VALS(gsm_band_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_750_assoc_radio_cap_present,
+		{ "GSM 750 Associated Radio Capability present", "gsm_a.classmark3.gsm_750_assoc_radio_cap_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_750_assoc_radio_cap,
+		{ "GSM 750 Associated Radio Capability", "gsm_a.classmark3.gsm_750_assoc_radio_cap",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_umts_128_mcps_tdd_rat_cap,
+		{ "UMTS 1.28 Mcps TDD Radio Access Technology Capability", "gsm_a.classmark3.umts_128_mcps_tdd_rat_cap",
+		FT_UINT8, BASE_DEC, VALS(umts_128_mcps_tdd_rat_cap_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_geran_feature_package_1,
+		{ "GERAN Feature Package 1", "gsm_a.classmark3.geran_feature_package_1",
+		FT_UINT8, BASE_DEC, VALS(geran_feature_package_1_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ext_dtm_e_gprs_info_present,
+		{ "Extended DTM E/GPRS Information present", "gsm_a.classmark3.ext_dtm_e_gprs_info_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ext_dtm_gprs_multi_slot_class,
+		{ "Extended DTM GPRS Multi Slot Class", "gsm_a.classmark3.ext_dtm_gprs_multi_slot_class",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ext_dtm_egprs_multi_slot_class,
+		{ "Extended DTM EGPRS Multi Slot Class", "gsm_a.classmark3.ext_dtm_egprs_multi_slot_class",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_high_multislot_cap_present,
+		{ "High Multislot Capability present", "gsm_a.classmark3.high_multislot_cap_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_high_multislot_cap,
+		{ "High Multislot Capability", "gsm_a.classmark3.high_multislot_cap",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_geran_iu_mode_support,
+		{ "GERAN Iu Mode Support", "gsm_a.classmark3.geran_iu_mode_support",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_geran_iu_mode_cap,
+		{ "GERAN Iu Mode Capabilities", "gsm_a.classmark3.geran_iu_mode_cap",
+		FT_UINT24, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_geran_iu_mode_cap_length,
+		{ "Length", "gsm_a.classmark3.geran_iu_mode_cap.length",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_flo_iu_cap,
+		{ "FLO Iu Capability", "gsm_a.classmark3.geran_iu_mode_cap.flo_iu_cap",
+		FT_UINT8, BASE_DEC, VALS(flo_iu_cap_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_geran_feature_package_2,
+		{ "GERAN Feature Package 2", "gsm_a.classmark3.geran_feature_package_2",
+		FT_UINT8, BASE_DEC, VALS(geran_feature_package_2_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gmsk_multislot_power_prof,
+		{ "GMSK Multislot Power Profile", "gsm_a.classmark3.gmsk_multislot_power_prof",
+		FT_UINT8, BASE_DEC, VALS(gmsk_multislot_power_prof_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_8_psk_multislot_power_prof,
+		{ "8-PSK Multislot Power Profile", "gsm_a.classmark3.8_psk_multislot_power_prof",
+		FT_UINT8, BASE_DEC, VALS(eight_psk_multislot_power_prof_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_geo_loc_type_of_shape,
