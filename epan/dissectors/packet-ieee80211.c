@@ -2225,7 +2225,7 @@ get_tagged_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size
   tagged_fields = proto_tree_add_uint_format (tree, hf_tagged_parameters,
     tvb,
     start,
-    size,
+    2,
     size,
     "Tagged parameters (%d bytes)",
     size);
