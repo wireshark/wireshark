@@ -94,15 +94,16 @@ wrs_count_bitshift(guint32 bitmask)
 	   DONT try to fake a node where PTREE_FINFO(tree) is NULL	\
 	   since dissectors that want to do proto_item_set_len() or	\
 	   other operations that dereference this would crash.		\
-	   We dont fake FT_PROTOCOL either since these are cheap and    \
-	   some stuff (proto hier stat) assumes they always exist.	\
+	   We fake FT_PROTOCOL unless some clients have requested us    \
+	   not to do so. \
 	*/								\
 	if(!(PTREE_DATA(tree)->visible)){				\
 		if(PTREE_FINFO(tree)){					\
 			register header_field_info *hfinfo;		\
 			PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);	\
 			if((hfinfo->ref_count == HF_REF_TYPE_NONE)	\
-			&& (hfinfo->type!=FT_PROTOCOL)){		\
+			&& (hfinfo->type!=FT_PROTOCOL ||	\
+				PTREE_DATA(tree)->fake_protocols)){	\
 				/* just return tree back to the caller */\
 				return tree;				\
 			}						\
@@ -608,6 +609,12 @@ proto_tree_set_visible(proto_tree *tree, gboolean visible)
 	PTREE_DATA(tree)->visible = visible;
 }
 
+void
+proto_tree_set_fake_protocols(proto_tree *tree, gboolean fake_protocols)
+{
+	PTREE_DATA(tree)->fake_protocols = fake_protocols;
+}
+
 /* Assume dissector set only its protocol fields.
    This function is called by dissectors and allowes to speed up filtering
    in wireshark, if this function returns FALSE it is safe to reset tree to NULL
@@ -938,6 +945,11 @@ static proto_item *
 proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint length)
 {
 	proto_item	*pi;
+
+	if (!tree)
+		return(NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only);
 
 	pi = proto_tree_add_pi(tree, hf_text_only, tvb, start, &length, NULL);
 	if (pi == NULL)
@@ -1420,6 +1432,8 @@ proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	if (!tree)
 		return (NULL);
 
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
+
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_NONE);
 
@@ -1474,6 +1488,8 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gin
 
 	if (!tree)
 		return (NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	DISSECTOR_ASSERT(hfinfo->type == FT_PROTOCOL);
@@ -3312,6 +3328,9 @@ proto_tree_create_root(void)
 	 * but for some reason the default 'visible' is not
 	 * changed, then we'll find out very quickly. */
 	pnode->tree_data->visible = FALSE;
+
+	/* Make sure that we fake protocols (if possible) */
+	pnode->tree_data->fake_protocols = TRUE;
 
 	/* Keep track of the number of children */
 	pnode->tree_data->count = 0;

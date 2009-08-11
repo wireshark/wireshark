@@ -353,6 +353,7 @@ ep_strsplit
 ep_tvb_memdup
 epan_base64_decode
 epan_cleanup
+epan_dissect_fake_protocols
 epan_dissect_fill_in_columns
 epan_dissect_free
 epan_dissect_new

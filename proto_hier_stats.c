@@ -155,6 +155,8 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 
 	/* Dissect the frame   tree  not visible */
 	edt = epan_dissect_new(TRUE, FALSE);
+	/* Don't fake protocols. We need them for the protocol hierarchy */
+	epan_dissect_fake_protocols(edt, FALSE);
 	epan_dissect_run(edt, &phdr, pd, frame, cinfo);
 
 	/* Get stats from this protocol tree */

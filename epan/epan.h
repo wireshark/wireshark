@@ -90,6 +90,10 @@ epan_get_version(void);
 epan_dissect_t*
 epan_dissect_new(gboolean create_proto_tree, gboolean proto_tree_visible);
 
+/* Indicate whether we should fake protocols or not */
+void
+epan_dissect_fake_protocols(epan_dissect_t *edt, gboolean fake_protocols);
+
 /* run a single packet dissection */
 void
 epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,

@@ -256,6 +256,7 @@ typedef struct field_info {
 typedef struct {
     GHashTable  *interesting_hfids;
     gboolean    visible;
+    gboolean    fake_protocols;
     gint        count;
 } tree_data_t;
 
@@ -470,6 +471,12 @@ extern void proto_tree_free(proto_tree *tree);
  @param visible ... or not  */
 extern void
 proto_tree_set_visible(proto_tree *tree, gboolean visible);
+
+/** Indicate whether we should fake protocols during dissection (default = TRUE)
+ @param tree the tree to be set
+ @param fake_protocols TRUE if we should fake protocols */
+extern void
+proto_tree_set_fake_protocols(proto_tree *tree, gboolean fake_protocols);
 
 /** Mark a field/protocol ID as "interesting".
  @param tree the tree to be set

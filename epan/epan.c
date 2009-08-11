@@ -163,6 +163,13 @@ epan_dissect_new(gboolean create_proto_tree, gboolean proto_tree_visible)
 }
 
 void
+epan_dissect_fake_protocols(epan_dissect_t *edt, gboolean fake_protocols)
+{
+	if (edt)
+		proto_tree_set_fake_protocols(edt->tree, fake_protocols);
+}
+
+void
 epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
         const guint8* data, frame_data *fd, column_info *cinfo)
 {
