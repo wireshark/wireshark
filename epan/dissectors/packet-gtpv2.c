@@ -37,6 +37,7 @@
 
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
@@ -1681,6 +1682,14 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 {
 
 	int offset = 0;
+
+	if (length != 1) {
+		proto_item *expert_item;
+		expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+		expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+		PROTO_ITEM_SET_GENERATED(expert_item);
+		return;
+	}
 
 	proto_tree_add_item(tree, hf_gtpv2_pdn_type, tvb, offset, length, FALSE);
 

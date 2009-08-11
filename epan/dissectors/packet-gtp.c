@@ -4990,6 +4990,14 @@ static int decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo _U
     offset = offset + 2;
 
     /* Restriction Type value */
+    if (length != 1) {
+	proto_item *expert_item;
+	expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+	expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+	PROTO_ITEM_SET_GENERATED(expert_item);
+	return 3 + length;
+    }
+
     proto_tree_add_item(ext_tree_apn_res, hf_gtp_ext_apn_res, tvb, offset, length, FALSE);
     return 3 + length;
 }
@@ -5016,7 +5024,15 @@ static int decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo _
     offset = offset + 2;
 
     /* RAT Type value */
-    proto_tree_add_item(ext_tree_rat_type, hf_gtp_ext_rat_type, tvb, offset, length, FALSE);
+    if (length != 1) {
+	proto_item *expert_item;
+	expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+	expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+	PROTO_ITEM_SET_GENERATED(expert_item);
+	return 3 + length;
+    }
+
+   proto_tree_add_item(ext_tree_rat_type, hf_gtp_ext_rat_type, tvb, offset, length, FALSE);
 
     return 3 + length;
 }
@@ -7107,3 +7123,16 @@ void proto_reg_handoff_gtp(void)
 	dissector_add("tcp.port", g_gtpv1u_port, gtp_handle);
     }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 noexpandtab
+ * :indentSize=4:tabSize=8:noTabs=false:
+ */
