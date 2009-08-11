@@ -1717,7 +1717,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 #define ICMP6_DATA_OFFSET 4
-#define ICMP6_SEQ_OFFSET 4
+#define ICMP6_SEQ_OFFSET 6
 	/* decode... */
 	switch (dp->icmp6_type) {
 	case ICMP6_DST_UNREACH:
@@ -1745,10 +1745,21 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset + ICMP6_DATA_OFFSET, 2,
 		"ID: 0x%04x", (guint16)g_ntohs(dp->icmp6_id));
 	    proto_tree_add_text(icmp6_tree, tvb,
-		offset + ICMP6_SEQ_OFFSET, 2,
+	        offset + ICMP6_SEQ_OFFSET, 2,
 		"Sequence: 0x%04x", (guint16)g_ntohs(dp->icmp6_seq));
-	    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
-	    call_dissector(data_handle,next_tvb, pinfo, icmp6_tree);
+
+	    if (pinfo->destport == 0x0dd8 && dp->icmp6_type == ICMP6_ECHO_REQUEST) {
+                /* RFC 4380 
+                 * 5.2.9. Direct IPv6 Connectivity Test 
+                 */
+                col_add_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
+                col_add_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
+	        proto_tree_add_text(icmp6_tree, tvb, offset + ICMP6_SEQ_OFFSET + 2, 4,
+		    "Nonce: 0x%08x", tvb_get_ntohl(tvb, offset + ICMP6_SEQ_OFFSET + 2));
+            } else {
+	      next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
+	      call_dissector(data_handle,next_tvb, pinfo, icmp6_tree);
+            }
 	    break;
 	case ICMP6_MEMBERSHIP_QUERY:
 	case ICMP6_MEMBERSHIP_REPORT:
