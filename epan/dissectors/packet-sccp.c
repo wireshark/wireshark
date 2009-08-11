@@ -995,9 +995,16 @@ dissect_sccp_unknown_param(tvbuff_t *tvb, proto_tree *tree, guint8 type, guint l
 }
 
 static void
-dissect_sccp_dlr_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_info *pinfo)
+dissect_sccp_dlr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  proto_item* lr_item;
+  proto_item *lr_item, *expert_item;
+
+  if (length != 3) {
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 3, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 3, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
 
   dlr = tvb_get_letoh24(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_dlr, tvb, 0, length, dlr);
@@ -1009,9 +1016,16 @@ dissect_sccp_dlr_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_inf
 }
 
 static void
-dissect_sccp_slr_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_info *pinfo)
+dissect_sccp_slr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  proto_item* lr_item;
+  proto_item *lr_item, *expert_item;
+
+  if (length != 3) {
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 3, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 3, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
 
   slr = tvb_get_letoh24(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_slr, tvb, 0, length, slr);
@@ -1463,21 +1477,29 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
 }
 
 static void
-dissect_sccp_called_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint length)
+dissect_sccp_called_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   dissect_sccp_called_calling_param(tvb, tree, pinfo, length, TRUE);
 }
 
 static void
-dissect_sccp_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint length)
+dissect_sccp_calling_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   dissect_sccp_called_calling_param(tvb, tree, pinfo, length, FALSE);
 }
 
 static void
-dissect_sccp_class_param(tvbuff_t *tvb, proto_tree *tree, guint length)
+dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   guint8 class, handling;
+
+  if (length != 1) {
+    proto_item *expert_item;
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
 
   class = tvb_get_guint8(tvb, 0) & CLASS_CLASS_MASK;
   handling = tvb_get_guint8(tvb, 0) & CLASS_SPARE_HANDLING_MASK;
@@ -1489,15 +1511,31 @@ dissect_sccp_class_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 }
 
 static void
-dissect_sccp_segmenting_reassembling_param(tvbuff_t *tvb, proto_tree *tree, guint length)
+dissect_sccp_segmenting_reassembling_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
+  if (length != 1) {
+    proto_item *expert_item;
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
+
   proto_tree_add_item(tree, hf_sccp_more, tvb, 0, length, FALSE);
 }
 
 static void
-dissect_sccp_receive_sequence_number_param(tvbuff_t *tvb, proto_tree *tree, guint length)
+dissect_sccp_receive_sequence_number_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   guint8 rsn;
+
+  if (length != 1) {
+    proto_item *expert_item;
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
 
   rsn = tvb_get_guint8(tvb, 0) >> 1;
   proto_tree_add_uint(tree, hf_sccp_rsn, tvb, 0, length, rsn);
@@ -1531,18 +1569,34 @@ dissect_sccp_sequencing_segmenting_param(tvbuff_t *tvb, proto_tree *tree, guint 
 }
 
 static void
-dissect_sccp_credit_param(tvbuff_t *tvb, proto_tree *tree, guint length)
+dissect_sccp_credit_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   guint8 credit;
+
+  if (length != 1) {
+    proto_item *expert_item;
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
 
   credit = tvb_get_guint8(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_credit, tvb, 0, length, credit);
 }
 
 static void
-dissect_sccp_release_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_info *pinfo)
+dissect_sccp_release_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   guint8 cause;
+
+  if (length != 1) {
+    proto_item *expert_item;
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
 
   cause = tvb_get_guint8(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_release_cause, tvb, 0, length, cause);
@@ -1552,9 +1606,17 @@ dissect_sccp_release_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length, 
 }
 
 static void
-dissect_sccp_return_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_info *pinfo)
+dissect_sccp_return_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   guint8 cause;
+
+  if (length != 1) {
+    proto_item *expert_item;
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
 
   cause = tvb_get_guint8(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_return_cause, tvb, 0, length, cause);
@@ -1564,9 +1626,17 @@ dissect_sccp_return_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length, p
 }
 
 static void
-dissect_sccp_reset_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_info *pinfo)
+dissect_sccp_reset_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   guint8 cause;
+
+  if (length != 1) {
+    proto_item *expert_item;
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
 
   cause = tvb_get_guint8(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_reset_cause, tvb, 0, length, cause);
@@ -1576,9 +1646,17 @@ dissect_sccp_reset_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length, pa
 }
 
 static void
-dissect_sccp_error_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_info *pinfo)
+dissect_sccp_error_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   guint8 cause;
+
+  if (length != 1) {
+    proto_item *expert_item;
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
 
   cause = tvb_get_guint8(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_error_cause, tvb, 0, length, cause);
@@ -1588,9 +1666,17 @@ dissect_sccp_error_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length, pa
 }
 
 static void
-dissect_sccp_refusal_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_info *pinfo)
+dissect_sccp_refusal_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   guint8 cause;
+
+  if (length != 1) {
+    proto_item *expert_item;
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
 
   cause = tvb_get_guint8(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_refusal_cause, tvb, 0, length, cause);
@@ -1690,7 +1776,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_sccp_segmentation_param(tvbuff_t *tvb, proto_tree *tree, guint length)
+dissect_sccp_segmentation_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   guint8 first, class, remaining;
   guint32 slrx;
@@ -1712,6 +1798,15 @@ dissect_sccp_segmentation_param(tvbuff_t *tvb, proto_tree *tree, guint length)
   proto_tree_add_uint(param_tree, hf_sccp_segmentation_class, tvb, 0, 1, class);
   proto_tree_add_uint(param_tree, hf_sccp_segmentation_remaining, tvb, 0, 1,
 		      remaining);
+
+  if (length-1 != 3) {
+    proto_item *expert_item;
+    expert_item = proto_tree_add_text(tree, tvb, 0, length-1, "Wrong length indicated. Expected 3, got %u", length-1);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 3, got %u", length-1);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
+
   proto_tree_add_uint(param_tree, hf_sccp_segmentation_slr, tvb, 1, length-1,
 		      slrx);
 }
@@ -1726,9 +1821,17 @@ dissect_sccp_hop_counter_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 }
 
 static void
-dissect_sccp_importance_param(tvbuff_t *tvb, proto_tree *tree, guint length)
+dissect_sccp_importance_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
   guint8 importance;
+
+  if (length != 1) {
+    proto_item *expert_item;
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "Wrong length indicated. Expected 1, got %u", length);
+    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated. Expected 1, got %u", length);
+    PROTO_ITEM_SET_GENERATED(expert_item);
+    return;
+  }
 
   importance = tvb_get_guint8(tvb, 0) & IMPORTANCE_IMPORTANCE_MASK;
   proto_tree_add_uint(tree, hf_sccp_importance, tvb, 0, length, importance);
@@ -1829,32 +1932,32 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_DESTINATION_LOCAL_REFERENCE:
-      dissect_sccp_dlr_param(parameter_tvb, sccp_tree, parameter_length, pinfo);
+      dissect_sccp_dlr_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_SOURCE_LOCAL_REFERENCE:
-      dissect_sccp_slr_param(parameter_tvb, sccp_tree, parameter_length, pinfo);
+      dissect_sccp_slr_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_CALLED_PARTY_ADDRESS:
-      dissect_sccp_called_param(parameter_tvb, sccp_tree, pinfo, parameter_length);
+      dissect_sccp_called_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_CALLING_PARTY_ADDRESS:
-      dissect_sccp_calling_param(parameter_tvb, sccp_tree, pinfo, parameter_length);
+      dissect_sccp_calling_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_CLASS:
-      dissect_sccp_class_param(parameter_tvb, sccp_tree, parameter_length);
+      dissect_sccp_class_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_SEGMENTING_REASSEMBLING:
-      dissect_sccp_segmenting_reassembling_param(parameter_tvb, sccp_tree,
+      dissect_sccp_segmenting_reassembling_param(parameter_tvb, pinfo, sccp_tree,
 						   parameter_length);
       break;
 
     case PARAMETER_RECEIVE_SEQUENCE_NUMBER:
-      dissect_sccp_receive_sequence_number_param(parameter_tvb, sccp_tree,
+      dissect_sccp_receive_sequence_number_param(parameter_tvb, pinfo, sccp_tree,
 						 parameter_length);
       break;
 
@@ -1864,27 +1967,27 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_CREDIT:
-      dissect_sccp_credit_param(parameter_tvb, sccp_tree, parameter_length);
+      dissect_sccp_credit_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_RELEASE_CAUSE:
-      dissect_sccp_release_cause_param(parameter_tvb, sccp_tree, parameter_length, pinfo);
+      dissect_sccp_release_cause_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_RETURN_CAUSE:
-      dissect_sccp_return_cause_param(parameter_tvb, sccp_tree, parameter_length, pinfo);
+      dissect_sccp_return_cause_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_RESET_CAUSE:
-      dissect_sccp_reset_cause_param(parameter_tvb, sccp_tree, parameter_length, pinfo);
+      dissect_sccp_reset_cause_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_ERROR_CAUSE:
-      dissect_sccp_error_cause_param(parameter_tvb, sccp_tree, parameter_length, pinfo);
+      dissect_sccp_error_cause_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_REFUSAL_CAUSE:
-      dissect_sccp_refusal_cause_param(parameter_tvb, sccp_tree, parameter_length, pinfo);
+      dissect_sccp_refusal_cause_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_DATA:
@@ -1898,7 +2001,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_SEGMENTATION:
-		dissect_sccp_segmentation_param(parameter_tvb, sccp_tree, parameter_length);
+		dissect_sccp_segmentation_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_HOP_COUNTER:
@@ -1907,7 +2010,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
     case PARAMETER_IMPORTANCE:
       if (decode_mtp3_standard != ANSI_STANDARD)
-		  dissect_sccp_importance_param(parameter_tvb, sccp_tree, parameter_length);
+		  dissect_sccp_importance_param(parameter_tvb, pinfo, sccp_tree, parameter_length);
       else
 		  dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
 				   parameter_length);
