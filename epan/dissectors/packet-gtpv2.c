@@ -2096,7 +2096,7 @@ void proto_register_gtpv2(void)
 		NULL, HFILL}
 		},
 		{&hf_gtpv2_apn,
-		{"APN (Access Point Name)", "gtp.apn",
+		{"APN (Access Point Name)", "gtpv2.apn",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		NULL, HFILL}
 		},
@@ -2148,7 +2148,7 @@ void proto_register_gtpv2(void)
 		FT_BOOLEAN, 8, NULL, 0x10, "DFI", HFILL}
 		},
 		{&hf_gtpv2_oi,
-		{"OI (Operation Indication)","gtp.oi",
+		{"OI (Operation Indication)","gtpv2.oi",
 		FT_BOOLEAN, 8, NULL, 0x08, "OI", HFILL}
 		},
 		{&hf_gtpv2_isrsi,
