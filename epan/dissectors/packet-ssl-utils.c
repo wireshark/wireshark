@@ -807,11 +807,20 @@ static gint ver_major, ver_minor, ver_patch;
 /* hmac abstraction layer */
 #define SSL_HMAC gcry_md_hd_t
 
-static inline void
+static inline gint
 ssl_hmac_init(SSL_HMAC* md, const void * key, gint len, gint algo)
 {
-    gcry_md_open(md,algo, GCRY_MD_FLAG_HMAC);
+	gcry_error_t err;
+	const char *err_str, *err_src;
+    err = gcry_md_open(md,algo, GCRY_MD_FLAG_HMAC);
+	if (err != 0) {
+		err_str = gcry_strerror(err);
+		err_src = gcry_strsource(err);
+		ssl_debug_printf("ssl_hmac_init(): gcry_md_open failed %s/%s", err_str, err_src);
+		return -1;
+	}
     gcry_md_setkey (*(md), key, len);
+	return 0;
 }
 static inline void
 ssl_hmac_update(SSL_HMAC* md, const void* data, gint len)
@@ -837,10 +846,19 @@ ssl_hmac_cleanup(SSL_HMAC* md)
 /* memory digest abstraction layer*/
 #define SSL_MD gcry_md_hd_t
 
-static inline void
+static inline gint
 ssl_md_init(SSL_MD* md, gint algo)
 {
-    gcry_md_open(md,algo, 0);
+	gcry_error_t err;
+	const char *err_str, *err_src;
+    err = gcry_md_open(md,algo, 0);
+	if (err != 0) {
+		err_str = gcry_strerror(err);
+		err_src = gcry_strsource(err);
+		ssl_debug_printf("ssl_md_init(): gcry_md_open failed %s/%s", err_str, err_src);
+		return -1;
+	}
+    return 0;
 }
 static inline void
 ssl_md_update(SSL_MD* md, guchar* data, gint len)
@@ -1837,7 +1855,8 @@ tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
     ssl_debug_printf("tls_check_mac mac type:%s md %d\n",
         digests[decoder->cipher_suite->dig-0x40], md);
 
-    ssl_hmac_init(&hm,decoder->mac_key.data,decoder->mac_key.data_len,md);
+    if (ssl_hmac_init(&hm,decoder->mac_key.data,decoder->mac_key.data_len,md) != 0)
+		return -1;;
 
     /* hash sequence number */
     fmt_seq(decoder->seq,buf);
@@ -1860,12 +1879,12 @@ tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
 
     /* get digest and digest len*/
     ssl_hmac_final(&hm,buf,&len);
-    ssl_print_data("Mac", buf, len);
-    if(memcmp(mac,buf,len))
-        return -1;
-
     ssl_hmac_cleanup(&hm);
-    return(0);
+    ssl_print_data("Mac", buf, len);
+	if(memcmp(mac,buf,len))
+		return -1;
+
+    return 0;
 }
 
 int
@@ -1882,7 +1901,8 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
 
     /* get cipher used for digest comptuation */
     md=ssl_get_digest_by_name(digests[decoder->cipher_suite->dig-0x40]);
-    ssl_md_init(&mc,md);
+    if (ssl_md_init(&mc,md) !=0)
+		return -1;
 
     /* do hash computation on data && padding */
     ssl_md_update(&mc,decoder->mac_key.data,decoder->mac_key.data_len);
@@ -1942,7 +1962,8 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
     ssl_debug_printf("dtls_check_mac mac type:%s md %d\n",
         digests[decoder->cipher_suite->dig-0x40], md);
 
-    ssl_hmac_init(&hm,decoder->mac_key.data,decoder->mac_key.data_len,md);
+    if (ssl_hmac_init(&hm,decoder->mac_key.data,decoder->mac_key.data_len,md) != 0)
+		return -1;
     ssl_debug_printf("dtls_check_mac seq: %d epoch: %d\n",decoder->seq,decoder->epoch);
     /* hash sequence number */
     fmt_seq(decoder->seq,buf);
@@ -1964,11 +1985,11 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
     ssl_hmac_update(&hm,data,datalen);
     /* get digest and digest len */
     ssl_hmac_final(&hm,buf,&len);
+    ssl_hmac_cleanup(&hm);
     ssl_print_data("Mac", buf, len);
     if(memcmp(mac,buf,len))
         return -1;
 
-    ssl_hmac_cleanup(&hm);
     return(0);
 }
 #endif
