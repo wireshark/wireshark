@@ -1634,22 +1634,34 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	char typebuf[256], codebuf[256];
-
-	if (coltypename && strcmp(coltypename, "Unknown") == 0) {
-	    g_snprintf(typebuf, sizeof(typebuf), "Unknown (0x%02x)",
-		dp->icmp6_type);
-	    coltypename = typebuf;
-	}
-	if (colcodename && strcmp(colcodename, "Unknown") == 0) {
-	    g_snprintf(codebuf, sizeof(codebuf), "Unknown (0x%02x)",
-		dp->icmp6_code);
-	    colcodename = codebuf;
-	}
-	if (colcodename) {
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)", coltypename, colcodename);
-	} else {
-	    col_add_str(pinfo->cinfo, COL_INFO, coltypename);
-	}
+	
+	
+        if (pinfo->destport == 0x0dd8 && dp->icmp6_type == ICMP6_ECHO_REQUEST) {
+            /* RFC 4380 
+             * 5.2.9. Direct IPv6 Connectivity Test 
+             */
+            if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+                col_clear(pinfo->cinfo, COL_PROTOCOL);
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
+            }    
+                col_add_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
+        } else {   
+        	if (coltypename && strcmp(coltypename, "Unknown") == 0) {
+                    g_snprintf(typebuf, sizeof(typebuf), "Unknown (0x%02x)",
+                    dp->icmp6_type);
+                    coltypename = typebuf;
+                }
+                if (colcodename && strcmp(colcodename, "Unknown") == 0) {
+                    g_snprintf(codebuf, sizeof(codebuf), "Unknown (0x%02x)",
+                    dp->icmp6_code);
+                    colcodename = codebuf;
+                }
+                if (colcodename) {
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)", coltypename, colcodename);
+                } else {
+                    col_add_str(pinfo->cinfo, COL_INFO, coltypename);
+                }
+         }
     }
 
     if (tree) {
@@ -1752,8 +1764,6 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* RFC 4380 
                  * 5.2.9. Direct IPv6 Connectivity Test 
                  */
-                col_add_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
-                col_add_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
 	        proto_tree_add_text(icmp6_tree, tvb, offset + ICMP6_SEQ_OFFSET + 2, 4,
 		    "Nonce: 0x%08x", tvb_get_ntohl(tvb, offset + ICMP6_SEQ_OFFSET + 2));
             } else {
