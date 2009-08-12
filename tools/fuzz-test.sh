@@ -163,8 +163,10 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 	"$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
 		> /dev/null 2> $TMP_DIR/$ERR_FILE
 	RETVAL=$?
-	grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
-	    > /dev/null 2>&1 && DISSECTOR_BUG=1
+        # Uncomment the next two lines to enable dissector bug
+        # checking.
+	#grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
+	#    > /dev/null 2>&1 && DISSECTOR_BUG=1
 	if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
             echo ""
 	    echo " ERROR"
