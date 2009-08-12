@@ -5729,7 +5729,6 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 			break;
 
 		case FT_NONE:
-		case FT_PCRE:
 			/*
 			 * If the length is 0, just match the name of the
 			 * field.
@@ -5798,6 +5797,12 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 					}
 				}
 			}
+			break;
+
+		case FT_PCRE:
+			/* FT_PCRE never appears as a type for a registered field. It is 
+			 * only used internally. */
+			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
 
 		/* By default, use the fvalue's "to_string_repr" method. */
