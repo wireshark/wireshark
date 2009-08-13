@@ -2584,6 +2584,7 @@ ssl_free_key(Ssl_private_key_t* key _U_)
 gint
 ssl_find_private_key(SslDecryptSession *ssl_session _U_, GHashTable *key_hash _U_, GTree* associations _U_, packet_info *pinfo _U_)
 {
+    return 0;
 }
 
 int
