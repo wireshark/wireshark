@@ -3524,7 +3524,7 @@ static void iax2_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	gchar filter_text[256];
 	dfilter_t *sfcode;
 	capture_file *cf;
-	epan_dissect_t *edt;
+	epan_dissect_t edt;
 	gint err;
 	gchar *err_info;
 	gboolean frame_matched;
@@ -3555,15 +3555,15 @@ static void iax2_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 			cf_read_error_message(err, err_info), cf->filename);
 		return;
 	}
-	edt = epan_dissect_new(TRUE, FALSE);
-	epan_dissect_prime_dfilter(edt, sfcode);
-	epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
-	frame_matched = dfilter_apply_edt(sfcode, edt);
+	epan_dissect_init(&edt, TRUE, FALSE);
+	epan_dissect_prime_dfilter(&edt, sfcode);
+	epan_dissect_run(&edt, &cf->pseudo_header, cf->pd, fdata, NULL);
+	frame_matched = dfilter_apply_edt(sfcode, &edt);
 
 	/* if it is not an iax2 frame, show an error dialog */
-	frame_matched = dfilter_apply_edt(sfcode, edt);
+	frame_matched = dfilter_apply_edt(sfcode, &edt);
 	if (frame_matched != 1) {
-		epan_dissect_free(edt);
+		epan_dissect_cleanup(&edt);
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "You didn't choose a IAX2 packet!");
 		return;
@@ -3576,23 +3576,23 @@ static void iax2_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	} */
 	
 	/* check if it is part of a Call */
-	if (edt->pi.circuit_id == 0) {
+	if (edt.pi.circuit_id == 0) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Please select a Call packet!");
 		return;
 	}
 
 	/* ok, it is a IAX2 frame, so let's get the ip and port values */
-	COPY_ADDRESS(&(ip_src_fwd), &(edt->pi.src))
-	COPY_ADDRESS(&(ip_dst_fwd), &(edt->pi.dst))
-	port_src_fwd = edt->pi.srcport;
-	port_dst_fwd = edt->pi.destport;
+	COPY_ADDRESS(&(ip_src_fwd), &(edt.pi.src))
+	COPY_ADDRESS(&(ip_dst_fwd), &(edt.pi.dst))
+	port_src_fwd = edt.pi.srcport;
+	port_dst_fwd = edt.pi.destport;
 
 	/* assume the inverse ip/port combination for the reverse direction */
-	COPY_ADDRESS(&(ip_src_rev), &(edt->pi.dst))
-	COPY_ADDRESS(&(ip_dst_rev), &(edt->pi.src))
-	port_src_rev = edt->pi.destport;
-	port_dst_rev = edt->pi.srcport;
+	COPY_ADDRESS(&(ip_src_rev), &(edt.pi.dst))
+	COPY_ADDRESS(&(ip_dst_rev), &(edt.pi.src))
+	port_src_rev = edt.pi.destport;
+	port_dst_rev = edt.pi.srcport;
 
 	/* Scan for rtpstream */
 	rtpstream_scan();

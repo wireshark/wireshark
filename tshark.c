@@ -2461,7 +2461,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   frame_data fdata;
   gboolean create_proto_tree;
   column_info *cinfo;
-  epan_dissect_t *edt;
+  epan_dissect_t edt;
   gboolean passed;
 
   /* Count this packet. */
@@ -2491,16 +2491,16 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
        printing packet details, which is true if we're printing stuff
        ("print_packet_info" is true) and we're in verbose mode ("verbose"
        is true). */
-    edt = epan_dissect_new(create_proto_tree, print_packet_info && verbose);
+    epan_dissect_init(&edt, create_proto_tree, print_packet_info && verbose);
 
     /* If we're running a read filter, prime the epan_dissect_t with that
        filter. */
     if (cf->rfcode)
-      epan_dissect_prime_dfilter(edt, cf->rfcode);
+      epan_dissect_prime_dfilter(&edt, cf->rfcode);
 
-    col_custom_prime_edt(edt, &cf->cinfo);
+    col_custom_prime_edt(&edt, &cf->cinfo);
 
-    tap_queue_init(edt);
+    tap_queue_init(&edt);
 
     /* We only need the columns if either
 
@@ -2514,20 +2514,19 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
       cinfo = &cf->cinfo;
     else
       cinfo = NULL;
-    epan_dissect_run(edt, pseudo_header, pd, &fdata, cinfo);
+    epan_dissect_run(&edt, pseudo_header, pd, &fdata, cinfo);
 
-    tap_push_tapped_queue(edt);
+    tap_push_tapped_queue(&edt);
 
     /* Run the read filter if we have one. */
     if (cf->rfcode)
-      passed = dfilter_apply_edt(cf->rfcode, edt);
+      passed = dfilter_apply_edt(cf->rfcode, &edt);
     else
       passed = TRUE;
   } else {
     /* We're not running a display filter and we're not printing any
        packet information, so we don't need to do a dissection, and all
        packets are processed. */
-    edt = NULL;
     passed = TRUE;
   }
 
@@ -2541,7 +2540,10 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
     if (print_packet_info) {
       /* We're printing packet information; print the information for
          this packet. */
-      print_packet(cf, edt);
+      if (do_dissection)
+        print_packet(cf, &edt);
+      else
+        print_packet(cf, NULL);
 
       /* The ANSI C standard does not appear to *require* that a line-buffered
          stream be flushed to the host environment whenever a newline is
@@ -2574,7 +2576,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   }
 
   if (do_dissection) {
-    epan_dissect_free(edt);
+    epan_dissect_cleanup(&edt);
     clear_fdata(&fdata);
   }
   return passed;

@@ -1086,7 +1086,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
 {
   frame_data fdata;
   gboolean create_proto_tree;
-  epan_dissect_t *edt;
+  epan_dissect_t edt;
   gboolean passed;
   union wtap_pseudo_header pseudo_header;
   int i;
@@ -1121,31 +1121,31 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   /* The protocol tree will be "visible", i.e., printed, only if we're
      printing packet details, which is true if we're in verbose mode ("verbose"
      is true). */
-  edt = epan_dissect_new(create_proto_tree, FALSE);
+  epan_dissect_init(&edt, create_proto_tree, FALSE);
 
   /* If we're running a read filter, prime the epan_dissect_t with that
      filter. */
   if (n_rfilters > 0) {
     for(i = 0; i < n_rfcodes; i++) {
-      epan_dissect_prime_dfilter(edt, rfcodes[i]);
+      epan_dissect_prime_dfilter(&edt, rfcodes[i]);
     }
   }
 
-  tap_queue_init(edt);
+  tap_queue_init(&edt);
 
   printf("%lu", (unsigned long int)cf->count);
 
   /* We only need the columns if we're printing packet info but we're
      *not* verbose; in verbose mode, we print the protocol tree, not
      the protocol summary. */
-  epan_dissect_run(edt, &pseudo_header, pd, &fdata, &cf->cinfo);
+  epan_dissect_run(&edt, &pseudo_header, pd, &fdata, &cf->cinfo);
 
-  tap_push_tapped_queue(edt);
+  tap_push_tapped_queue(&edt);
 
   for(i = 0; i < n_rfilters; i++) {
     /* Run the read filter if we have one. */
     if (rfcodes[i])
-      passed = dfilter_apply_edt(rfcodes[i], edt);
+      passed = dfilter_apply_edt(rfcodes[i], &edt);
     else
       passed = TRUE;
 
@@ -1183,7 +1183,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
     exit(2);
   }
 
-  epan_dissect_free(edt);
+  epan_dissect_cleanup(&edt);
   clear_fdata(&fdata);
 
   return passed;

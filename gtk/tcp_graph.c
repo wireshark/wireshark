@@ -1794,7 +1794,7 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 	frame_data *fdata;
 	gint err;
 	gchar *err_info;
-	epan_dissect_t *edt;
+	epan_dissect_t edt;
 	dfilter_t *sfcode;
 	GString *error_string;
 	th_t th = {0, NULL};
@@ -1824,12 +1824,12 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 		exit(1);
 	}
 
-	edt = epan_dissect_new(TRUE, FALSE);
-	epan_dissect_prime_dfilter(edt, sfcode);
-	tap_queue_init(edt);
-	epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
-	tap_push_tapped_queue(edt);
-	epan_dissect_free(edt);
+	epan_dissect_init(&edt, TRUE, FALSE);
+	epan_dissect_prime_dfilter(&edt, sfcode);
+	tap_queue_init(&edt);
+	epan_dissect_run(&edt, &cf->pseudo_header, cf->pd, fdata, NULL);
+	tap_push_tapped_queue(&edt);
+	epan_dissect_cleanup(&edt);
 	remove_tap_listener(&th);
 
 	if(th.num_hdrs==0){

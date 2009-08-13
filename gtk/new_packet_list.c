@@ -482,7 +482,7 @@ iter_from_row(GtkTreeIter *iter, guint row)
 static void
 new_packet_list_dissect(frame_data *fdata, gboolean col_text_present)
 {
-	epan_dissect_t *edt;
+	epan_dissect_t edt;
 	int err;
 	gchar *err_info;
 	column_info *cinfo;
@@ -501,17 +501,17 @@ new_packet_list_dissect(frame_data *fdata, gboolean col_text_present)
 			return;
 	}
 
-	edt = epan_dissect_new(TRUE /* create_proto_tree */, FALSE /* proto_tree_visible */);
-	color_filters_prime_edt(edt);
-	col_custom_prime_edt(edt, &cfile.cinfo);
-	epan_dissect_run(edt, &cfile.pseudo_header, cfile.pd, fdata, cinfo);
-	fdata->color_filter = color_filters_colorize_packet(0 /* row - unused */, edt);
+	epan_dissect_init(&edt, TRUE /* create_proto_tree */, FALSE /* proto_tree_visible */);
+	color_filters_prime_edt(&edt);
+	col_custom_prime_edt(&edt, &cfile.cinfo);
+	epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata, cinfo);
+	fdata->color_filter = color_filters_colorize_packet(0 /* row - unused */, &edt);
 
 	/* "Stringify" non frame_data vals */
 	if (!col_text_present)
-		epan_dissect_fill_in_columns(edt, FALSE /* fill_fd_colums */);
+		epan_dissect_fill_in_columns(&edt, FALSE /* fill_fd_colums */);
 
-	epan_dissect_free(edt);
+	epan_dissect_cleanup(&edt);
 }
 
 static void

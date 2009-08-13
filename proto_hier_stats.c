@@ -138,7 +138,7 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps, guint pkt_len)
 static gboolean
 process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 {
-	epan_dissect_t			*edt;
+	epan_dissect_t			edt;
 	union wtap_pseudo_header	phdr;
 	guint8				pd[WTAP_MAX_PACKET_SIZE];
 	int				err;
@@ -154,13 +154,13 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	}
 
 	/* Dissect the frame   tree  not visible */
-	edt = epan_dissect_new(TRUE, FALSE);
+	epan_dissect_init(&edt, TRUE, FALSE);
 	/* Don't fake protocols. We need them for the protocol hierarchy */
-	epan_dissect_fake_protocols(edt, FALSE);
-	epan_dissect_run(edt, &phdr, pd, frame, cinfo);
+	epan_dissect_fake_protocols(&edt, FALSE);
+	epan_dissect_run(&edt, &phdr, pd, frame, cinfo);
 
 	/* Get stats from this protocol tree */
-	process_tree(edt->tree, ps, frame->pkt_len);
+	process_tree(edt.tree, ps, frame->pkt_len);
 
 	/* Update times */
 	cur_time = nstime_to_sec(&frame->abs_ts);
@@ -172,7 +172,7 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	}
 
 	/* Free our memory. */
-	epan_dissect_free(edt);
+	epan_dissect_cleanup(&edt);
 
 	return TRUE;	/* success */
 }

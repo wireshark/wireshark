@@ -145,11 +145,9 @@ epan_circuit_init(void)
 }
 
 epan_dissect_t*
-epan_dissect_new(gboolean create_proto_tree, gboolean proto_tree_visible)
+epan_dissect_init(epan_dissect_t	*edt, gboolean create_proto_tree, gboolean proto_tree_visible)
 {
-	epan_dissect_t	*edt;
-
-	edt = g_new(epan_dissect_t, 1);
+	g_assert(edt);
 
 	if (create_proto_tree) {
 		edt->tree = proto_tree_create_root();
@@ -160,6 +158,16 @@ epan_dissect_new(gboolean create_proto_tree, gboolean proto_tree_visible)
 	}
 
 	return edt;
+}
+
+epan_dissect_t*
+epan_dissect_new(gboolean create_proto_tree, gboolean proto_tree_visible)
+{
+	epan_dissect_t	*edt;
+
+	edt = g_new(epan_dissect_t, 1);
+
+	return epan_dissect_init(edt, create_proto_tree, proto_tree_visible);
 }
 
 void
@@ -179,10 +187,11 @@ epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
 	dissect_packet(edt, pseudo_header, data, fd, cinfo);
 }
 
-
 void
-epan_dissect_free(epan_dissect_t* edt)
+epan_dissect_cleanup(epan_dissect_t* edt)
 {
+	g_assert(edt);
+
 	/* Free the data sources list. */
 	free_data_sources(&edt->pi);
 
@@ -194,7 +203,12 @@ epan_dissect_free(epan_dissect_t* edt)
 	if (edt->tree) {
 		proto_tree_free(edt->tree);
 	}
+}
 
+void
+epan_dissect_free(epan_dissect_t* edt)
+{
+	epan_dissect_cleanup(edt);
 	g_free(edt);
 }
 

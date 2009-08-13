@@ -1002,7 +1002,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 {
   gint          row;
   gboolean	create_proto_tree = FALSE;
-  epan_dissect_t *edt;
+  epan_dissect_t edt;
   column_info *cinfo;
 
 #ifdef NEW_PACKET_LIST
@@ -1073,21 +1073,21 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 	  create_proto_tree = TRUE;
 
   /* Dissect the frame. */
-  edt = epan_dissect_new(create_proto_tree, FALSE);
+  epan_dissect_init(&edt, create_proto_tree, FALSE);
 
   if (dfcode != NULL && refilter) {
-      epan_dissect_prime_dfilter(edt, dfcode);
+      epan_dissect_prime_dfilter(&edt, dfcode);
   }
 
   /* prepare color filters */
 #ifndef NEW_PACKET_LIST
-  color_filters_prime_edt(edt);
-  col_custom_prime_edt(edt, cinfo);
+  color_filters_prime_edt(&edt);
+  col_custom_prime_edt(&edt, cinfo);
 #endif
 
-  tap_queue_init(edt);
-  epan_dissect_run(edt, pseudo_header, buf, fdata, cinfo);
-  tap_push_tapped_queue(edt);
+  tap_queue_init(&edt);
+  epan_dissect_run(&edt, pseudo_header, buf, fdata, cinfo);
+  tap_push_tapped_queue(&edt);
 
   /* If we have a display filter, apply it if we're refiltering, otherwise
      leave the "passed_dfilter" flag alone.
@@ -1095,16 +1095,16 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      If we don't have a display filter, set "passed_dfilter" to 1. */
   if (dfcode != NULL) {
     if (refilter) {
-      fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, edt) ? 1 : 0;
+      fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, &edt) ? 1 : 0;
     }
   } else
     fdata->flags.passed_dfilter = 1;
 
-  if( (fdata->flags.passed_dfilter) || (edt->pi.fd->flags.ref_time) ){
+  if( (fdata->flags.passed_dfilter) || (edt.pi.fd->flags.ref_time) ){
     /* This frame either passed the display filter list or is marked as
        a time reference frame.  All time reference frames are displayed
        even if they dont pass the display filter */
-    if(edt->pi.fd->flags.ref_time){
+    if(edt.pi.fd->flags.ref_time){
       /* if this was a TIME REF frame we should reset the cul bytes field */
       cum_bytes = fdata->pkt_len;
       fdata->cum_bytes =  cum_bytes;
@@ -1114,9 +1114,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     }
 
 #ifdef NEW_PACKET_LIST
-    epan_dissect_fill_in_columns(edt, FALSE);
+    epan_dissect_fill_in_columns(&edt, FALSE);
 #else
-    epan_dissect_fill_in_columns(edt, TRUE);
+    epan_dissect_fill_in_columns(&edt, TRUE);
 #endif
 
     /* If we haven't yet seen the first frame, this is it.
@@ -1139,7 +1139,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     cf->last_displayed = fdata;
 
 #ifdef NEW_PACKET_LIST
-    row = new_packet_list_append(cinfo, fdata, &edt->pi);
+    row = new_packet_list_append(cinfo, fdata, &edt.pi);
 #else
     row = packet_list_append(cinfo->col_data, fdata);
 
@@ -1148,7 +1148,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      * we do both to make sure that when a packet gets un-marked, the
      * color will be correctly set (fixes bug 2038)
      */
-     fdata->color_filter = color_filters_colorize_packet(row, edt);
+     fdata->color_filter = color_filters_colorize_packet(row, &edt);
      if (fdata->flags.marked) {
        packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
      }
@@ -1164,7 +1164,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
        to the clist, and thus has no row. */
     row = -1;
   }
-  epan_dissect_free(edt);
+  epan_dissect_cleanup(&edt);
   return row;
 }
 
@@ -1180,7 +1180,6 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   frame_data   *fdata;
   int           passed;
   frame_data   *plist_end;
-  epan_dissect_t *edt;
   int row = -1;
 
   /* Allocate the next list entry, and add it to the list. 
@@ -1216,11 +1215,12 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
 
   passed = TRUE;
   if (cf->rfcode) {
-    edt = epan_dissect_new(TRUE, FALSE);
-    epan_dissect_prime_dfilter(edt, cf->rfcode);
-    epan_dissect_run(edt, pseudo_header, buf, fdata, NULL);
-    passed = dfilter_apply_edt(cf->rfcode, edt);
-    epan_dissect_free(edt);
+    epan_dissect_t edt;
+    epan_dissect_init(&edt, TRUE, FALSE);
+    epan_dissect_prime_dfilter(&edt, cf->rfcode);
+    epan_dissect_run(&edt, pseudo_header, buf, fdata, NULL);
+    passed = dfilter_apply_edt(cf->rfcode, &edt);
+    epan_dissect_cleanup(&edt);
   }
   if (passed) {
     plist_end = cf->plist_end;
@@ -2113,13 +2113,13 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
              void *argsp)
 {
   retap_callback_args_t *args = argsp;
-  epan_dissect_t *edt;
+  epan_dissect_t edt;
 
-  edt = epan_dissect_new(args->construct_protocol_tree, FALSE);
-  tap_queue_init(edt);
-  epan_dissect_run(edt, pseudo_header, pd, fdata, args->cinfo);
-  tap_push_tapped_queue(edt);
-  epan_dissect_free(edt);
+  epan_dissect_init(&edt, args->construct_protocol_tree, FALSE);
+  tap_queue_init(&edt);
+  epan_dissect_run(&edt, pseudo_header, pd, fdata, args->cinfo);
+  tap_push_tapped_queue(&edt);
+  epan_dissect_cleanup(&edt);
 
   return TRUE;
 }
@@ -2191,7 +2191,7 @@ print_packet(capture_file *cf, frame_data *fdata,
              void *argsp)
 {
   print_callback_args_t *args = argsp;
-  epan_dissect_t *edt;
+  epan_dissect_t edt;
   int             i;
   char           *cp;
   int             line_len;
@@ -2206,15 +2206,15 @@ print_packet(capture_file *cf, frame_data *fdata,
      XXX - do we need it if we're just printing the hex data? */
   proto_tree_needed =
       args->print_args->print_dissections != print_dissections_none || args->print_args->print_hex || have_custom_cols(&cf->cinfo);
-  edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
+  epan_dissect_init(&edt, proto_tree_needed, proto_tree_needed);
 
   /* Fill in the column information if we're printing the summary
      information. */
   if (args->print_args->print_summary) {
-    epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
-    epan_dissect_fill_in_columns(edt, TRUE);
+    epan_dissect_run(&edt, pseudo_header, pd, fdata, &cf->cinfo);
+    epan_dissect_fill_in_columns(&edt, TRUE);
   } else
-    epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
+    epan_dissect_run(&edt, pseudo_header, pd, fdata, NULL);
 
   if (args->print_formfeed) {
     if (!new_page(args->print_args->stream))
@@ -2295,7 +2295,7 @@ print_packet(capture_file *cf, frame_data *fdata,
     }
 
     /* Print the information in that tree. */
-    if (!proto_tree_print(args->print_args, edt, args->print_args->stream))
+    if (!proto_tree_print(args->print_args, &edt, args->print_args->stream))
       goto fail;
 
     /* Print a blank line if we print anything after this (aka more than one packet). */
@@ -2307,7 +2307,7 @@ print_packet(capture_file *cf, frame_data *fdata,
 
   if (args->print_args->print_hex) {
     /* Print the full packet data as hex. */
-    if (!print_hex_data(args->print_args->stream, edt))
+    if (!print_hex_data(args->print_args->stream, &edt))
       goto fail;
 
     /* Print a blank line if we print anything after this (aka more than one packet). */
@@ -2317,7 +2317,7 @@ print_packet(capture_file *cf, frame_data *fdata,
     args->print_header_line = TRUE;
   } /* if (args->print_args->print_dissections != print_dissections_none) */
 
-  epan_dissect_free(edt);
+  epan_dissect_cleanup(&edt);
 
   /* do we want to have a formfeed between each packet from now on? */
   if(args->print_args->print_formfeed) {
@@ -2327,7 +2327,7 @@ print_packet(capture_file *cf, frame_data *fdata,
   return TRUE;
 
 fail:
-  epan_dissect_free(edt);
+  epan_dissect_cleanup(&edt);
   return FALSE;
 }
 
@@ -2466,16 +2466,16 @@ write_pdml_packet(capture_file *cf _U_, frame_data *fdata,
 		  void *argsp)
 {
   FILE *fh = argsp;
-  epan_dissect_t *edt;
+  epan_dissect_t edt;
 
   /* Create the protocol tree, but don't fill in the column information. */
-  edt = epan_dissect_new(TRUE, TRUE);
-  epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
+  epan_dissect_init(&edt, TRUE, TRUE);
+  epan_dissect_run(&edt, pseudo_header, pd, fdata, NULL);
 
   /* Write out the information in that tree. */
-  proto_tree_write_pdml(edt, fh);
+  proto_tree_write_pdml(&edt, fh);
 
-  epan_dissect_free(edt);
+  epan_dissect_cleanup(&edt);
 
   return !ferror(fh);
 }
@@ -2536,20 +2536,20 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
 		  void *argsp)
 {
   FILE *fh = argsp;
-  epan_dissect_t *edt;
+  epan_dissect_t edt;
   gboolean proto_tree_needed;
 
   /* Fill in the column information, only create the protocol tree
      if having custom columns. */
   proto_tree_needed = have_custom_cols(&cf->cinfo);
-  edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
-  epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
-  epan_dissect_fill_in_columns(edt, TRUE);
+  epan_dissect_init(&edt, proto_tree_needed, proto_tree_needed);
+  epan_dissect_run(&edt, pseudo_header, pd, fdata, &cf->cinfo);
+  epan_dissect_fill_in_columns(&edt, TRUE);
 
   /* Write out the information in that tree. */
-  proto_tree_write_psml(edt, fh);
+  proto_tree_write_psml(&edt, fh);
 
-  epan_dissect_free(edt);
+  epan_dissect_cleanup(&edt);
 
   return !ferror(fh);
 }
@@ -2610,20 +2610,20 @@ write_csv_packet(capture_file *cf, frame_data *fdata,
                  void *argsp)
 {
   FILE *fh = argsp;
-  epan_dissect_t *edt;
+  epan_dissect_t edt;
   gboolean proto_tree_needed;
 
   /* Fill in the column information, only create the protocol tree
      if having custom columns. */
   proto_tree_needed = have_custom_cols(&cf->cinfo);
-  edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
-  epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
-  epan_dissect_fill_in_columns(edt, TRUE);
+  epan_dissect_init(&edt, proto_tree_needed, proto_tree_needed);
+  epan_dissect_run(&edt, pseudo_header, pd, fdata, &cf->cinfo);
+  epan_dissect_fill_in_columns(&edt, TRUE);
 
   /* Write out the information in that tree. */
-  proto_tree_write_csv(edt, fh);
+  proto_tree_write_csv(&edt, fh);
 
-  epan_dissect_free(edt);
+  epan_dissect_cleanup(&edt);
 
   return !ferror(fh);
 }
@@ -2950,18 +2950,18 @@ static gboolean
 match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
 {
   match_data		*mdata = criterion;
-  epan_dissect_t	*edt;
+  epan_dissect_t	edt;
 
   /* Construct the protocol tree, including the displayed text */
-  edt = epan_dissect_new(TRUE, TRUE);
+  epan_dissect_init(&edt, TRUE, TRUE);
   /* We don't need the column information */
-  epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
+  epan_dissect_run(&edt, &cf->pseudo_header, cf->pd, fdata, NULL);
 
   /* Iterate through all the nodes, seeing if they have text that matches. */
   mdata->cf = cf;
   mdata->frame_matched = FALSE;
-  proto_tree_children_foreach(edt->tree, match_subtree_text, mdata);
-  epan_dissect_free(edt);
+  proto_tree_children_foreach(edt.tree, match_subtree_text, mdata);
+  epan_dissect_cleanup(&edt);
   return mdata->frame_matched;
 }
 
@@ -3036,7 +3036,7 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
   match_data		*mdata = criterion;
   const gchar		*string = mdata->string;
   size_t		string_len = mdata->string_len;
-  epan_dissect_t	*edt;
+  epan_dissect_t	edt;
   const char		*info_column;
   size_t		info_column_len;
   gboolean		frame_matched = FALSE;
@@ -3046,15 +3046,15 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
   size_t		c_match = 0;
 
   /* Don't bother constructing the protocol tree */
-  edt = epan_dissect_new(FALSE, FALSE);
+  epan_dissect_init(&edt, FALSE, FALSE);
   /* Get the column information */
-  epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, &cf->cinfo);
+  epan_dissect_run(&edt, &cf->pseudo_header, cf->pd, fdata, &cf->cinfo);
 
   /* Find the Info column */
   for (colx = 0; colx < cf->cinfo.num_cols; colx++) {
     if (cf->cinfo.fmt_matx[colx][COL_INFO]) {
       /* Found it.  See if we match. */
-      info_column = edt->pi.cinfo->col_data[colx];
+      info_column = edt.pi.cinfo->col_data[colx];
       info_column_len = strlen(info_column);
       for (i = 0; i < info_column_len; i++) {
 	c_char = info_column[i];
@@ -3072,7 +3072,7 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
       break;
     }
   }
-  epan_dissect_free(edt);
+  epan_dissect_cleanup(&edt);
   return frame_matched;
 }
 
@@ -3248,14 +3248,14 @@ static gboolean
 match_dfilter(capture_file *cf, frame_data *fdata, void *criterion)
 {
   dfilter_t		*sfcode = criterion;
-  epan_dissect_t	*edt;
+  epan_dissect_t	edt;
   gboolean		frame_matched;
 
-  edt = epan_dissect_new(TRUE, FALSE);
-  epan_dissect_prime_dfilter(edt, sfcode);
-  epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
-  frame_matched = dfilter_apply_edt(sfcode, edt);
-  epan_dissect_free(edt);
+  epan_dissect_init(&edt, TRUE, FALSE);
+  epan_dissect_prime_dfilter(&edt, sfcode);
+  epan_dissect_run(&edt, &cf->pseudo_header, cf->pd, fdata, NULL);
+  frame_matched = dfilter_apply_edt(sfcode, &edt);
+  epan_dissect_cleanup(&edt);
   return frame_matched;
 }
 

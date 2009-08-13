@@ -85,6 +85,10 @@ epan_free(epan_t*);
 extern gchar*
 epan_get_version(void);
 
+/* initialize an existing single packet dissection */
+epan_dissect_t*
+epan_dissect_init(epan_dissect_t	*edt, gboolean create_proto_tree, gboolean proto_tree_visible);
+
 /* get a new single packet dissection */
 /* should be freed using epan_dissect_free() after packet dissection completed */
 epan_dissect_t*
@@ -106,6 +110,10 @@ epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t *dfcode);
 /* fill the dissect run output into the packet list columns */
 void
 epan_dissect_fill_in_columns(epan_dissect_t *edt, gboolean fill_fd_colums);
+
+/* releases resources attached to the packet dissection. DOES NOT free the actual pointer */
+void
+epan_dissect_cleanup(epan_dissect_t* edt);
 
 /* free a single packet dissection */
 void

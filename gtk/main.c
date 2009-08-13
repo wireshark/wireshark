@@ -501,7 +501,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
     gint	row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
     gint	column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
     frame_data *fdata = (frame_data *)packet_list_get_row_data(row);
-    epan_dissect_t *edt;
+    epan_dissect_t edt;
     gchar      *buf=NULL;
     int         err;
     gchar       *err_info;
@@ -514,12 +514,12 @@ get_filter_from_packet_list_row_and_column(gpointer data)
 	    return NULL;
 	}
 	/* proto tree, visible. We need a proto tree if there's custom columns */
-	edt = epan_dissect_new(have_custom_cols(&cfile.cinfo), FALSE);
-	col_custom_prime_edt(edt, &cfile.cinfo);
+	epan_dissect_init(&edt, have_custom_cols(&cfile.cinfo), FALSE);
+	col_custom_prime_edt(&edt, &cfile.cinfo);
 	    
-	epan_dissect_run(edt, &cfile.pseudo_header, cfile.pd, fdata,
+	epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata,
 			 &cfile.cinfo);
-	epan_dissect_fill_in_columns(edt, TRUE);
+	epan_dissect_fill_in_columns(&edt, TRUE);
 
 	if (strlen(cfile.cinfo.col_expr.col_expr[column]) != 0 &&
 	    strlen(cfile.cinfo.col_expr.col_expr_val[column]) != 0) {
@@ -528,7 +528,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
 		     cfile.cinfo.col_expr.col_expr_val[column]);
     	}
 
-	epan_dissect_free(edt);
+	epan_dissect_cleanup(&edt);
     }
 
     return buf;

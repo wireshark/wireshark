@@ -823,7 +823,7 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 	GList *list, *framelist;
 	dfilter_t *sfcode;
 	capture_file *cf;
-	epan_dissect_t *edt;
+	epan_dissect_t edt;
 	gint err;
 	gchar *err_info;
 	gboolean frame_matched, frame_found = FALSE;
@@ -854,26 +854,26 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 		return;
 	}
 
-	edt = epan_dissect_new(TRUE, FALSE);
-	epan_dissect_prime_dfilter(edt, sfcode);
-	epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
-	frame_matched = dfilter_apply_edt(sfcode, edt);
+	epan_dissect_init(&edt, TRUE, FALSE);
+	epan_dissect_prime_dfilter(&edt, sfcode);
+	epan_dissect_run(&edt, &cf->pseudo_header, cf->pd, fdata, NULL);
+	frame_matched = dfilter_apply_edt(sfcode, &edt);
 
 	/* if it is not an sctp frame, show the dialog */
 
 	if (frame_matched != 1) {
-		epan_dissect_free(edt);
+		epan_dissect_cleanup(&edt);
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Please choose an SCTP packet!");
 		return;
 	}
 
-	ip_src = g_malloc(edt->pi.net_src.len);
-	memcpy(ip_src, edt->pi.net_src.data, edt->pi.net_src.len);
-	ip_dst = g_malloc(edt->pi.net_dst.len);
-	memcpy(ip_dst, edt->pi.net_dst.data, edt->pi.net_dst.len);
-	srcport = edt->pi.srcport;
-	dstport = edt->pi.destport;
+	ip_src = g_malloc(edt.pi.net_src.len);
+	memcpy(ip_src, edt.pi.net_src.data, edt.pi.net_src.len);
+	ip_dst = g_malloc(edt.pi.net_dst.len);
+	memcpy(ip_dst, edt.pi.net_dst.data, edt.pi.net_dst.len);
+	srcport = edt.pi.srcport;
+	dstport = edt.pi.destport;
 	list = g_list_first(sctp_stat_get_info()->assoc_info_list);
 
 	while (list)
