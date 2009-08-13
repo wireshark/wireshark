@@ -10154,6 +10154,7 @@ proto_register_gsm_a_rr(void)
 void
 proto_reg_handoff_gsm_a_rr(void)
 {
+    data_handle = find_dissector("data");
     rrc_irat_ho_info_handle = find_dissector("rrc.irat.irat_ho_info");
     rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
 }
