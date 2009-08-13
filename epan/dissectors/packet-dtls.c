@@ -368,7 +368,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_add_proto_data(conversation, proto_dtls, ssl_session);
 
     /* we need to know witch side of conversation is speaking */
-    if (ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) {
+    if (ssl_packet_from_server(ssl_session, dtls_associations, pinfo)) {
       dummy.addr = pinfo->src;
       dummy.port = pinfo->srcport;
     }
@@ -486,7 +486,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   }
 
   /* retrive decoder for this packet direction */
-  if ((direction = ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) != 0) {
+  if ((direction = ssl_packet_from_server(ssl, dtls_associations, pinfo)) != 0) {
     ssl_debug_printf("decrypt_dtls_record: using server decoder\n");
     decoder = ssl->server;
   }
@@ -586,7 +586,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   record_length = tvb_get_ntohs(tvb, offset + 11);
 
   if(ssl){
-    if(ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)){
+    if(ssl_packet_from_server(ssl, dtls_associations, pinfo)){
      if (ssl->server) {
       ssl->server->seq=(guint32)sequence_number;
       ssl->server->epoch=epoch;

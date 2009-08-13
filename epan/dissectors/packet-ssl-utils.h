@@ -307,6 +307,10 @@ typedef struct _SslDecryptSession {
     guint16 version_netorder;
     StringInfo app_data_segment;
 
+    address srv_addr;
+    port_type srv_ptype;
+    guint srv_port;
+
 } SslDecryptSession;
 
 typedef struct _SslAssociation {
@@ -339,6 +343,10 @@ ssl_lib_init(void);
 extern void
 ssl_session_init(SslDecryptSession* ssl);
 
+/** Set server address and port */
+extern void
+ssl_set_server(SslDecryptSession* ssl, address *addr, port_type ptype, guint32 port);
+
 /** set the data and len for the stringInfo buffer. buf should be big enough to
  * contain the provided data
  @param buf the buffer to update
@@ -363,6 +371,10 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd);
  @param pointer to the key to be freed */
 extern void
 ssl_free_key(Ssl_private_key_t* key);
+
+/* Find private key in associations */
+extern gint
+ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree* associations, packet_info *pinfo);
 
 /* Search for the specified cipher souite id
  @param num the id of the cipher suite to be searched
@@ -440,7 +452,7 @@ extern gint
 ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data);
 
 extern gint
-ssl_packet_from_server(GTree* associations, guint port, gboolean tcp);
+ssl_packet_from_server(SslDecryptSession* ssl, GTree* associations, packet_info *pinfo);
 
 /* add to packet data a newly allocated tvb with the specified real data*/
 extern void

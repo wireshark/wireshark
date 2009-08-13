@@ -1112,7 +1112,7 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
         }
     }
 
-    ssl_debug_printf("pcry_private_decrypt: stripping %d bytes, decr_len %zd\n",
+    ssl_debug_printf("pcry_private_decrypt: stripping %d bytes, decr_len %d\n",
         rc, decr_len);
     ssl_print_data("decrypted_unstrip_pre_master", decr_data_ptr, decr_len);
     g_memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len - rc);
@@ -1574,6 +1574,9 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     /* if master_key is not yet generate, create it now*/
     if (!(ssl_session->state & SSL_MASTER_SECRET)) {
         ssl_debug_printf("ssl_generate_keyring_material:PRF(pre_master_secret)\n");
+        ssl_print_string("pre master secret",&ssl_session->pre_master_secret);
+        ssl_print_string("client random",&ssl_session->client_random);
+        ssl_print_string("server random",&ssl_session->server_random);
         if (PRF(ssl_session,&ssl_session->pre_master_secret,"master secret",
                 &ssl_session->client_random,
                 &ssl_session->server_random, &ssl_session->master_secret)) {
@@ -2487,6 +2490,60 @@ void ssl_free_key(Ssl_private_key_t* key)
   g_free((Ssl_private_key_t*)key);
 }
 
+gint
+ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree* associations, packet_info *pinfo) {
+  SslService dummy;
+  char ip_addr_any[] = {0,0,0,0};
+  guint32 port = 0;
+  Ssl_private_key_t * private_key;
+
+  /* we need to know which side of the conversation is speaking */
+  if (ssl_packet_from_server(ssl_session, associations, pinfo)) {
+      dummy.addr = pinfo->src;
+      dummy.port = port = pinfo->srcport;
+  } else {
+      dummy.addr = pinfo->dst;
+      dummy.port = port = pinfo->destport;
+  }
+  ssl_debug_printf("ssl_find_private_key server %s:%u\n",
+      address_to_str(&dummy.addr),dummy.port);
+
+  /* try to retrieve private key for this service. Do it now 'cause pinfo
+   * is not always available
+   * Note that with HAVE_LIBGNUTLS undefined private_key is allways 0
+   * and thus decryption never engaged*/
+
+
+  ssl_session->private_key = 0;
+  private_key = g_hash_table_lookup(key_hash, &dummy);
+
+  if (!private_key) {
+      ssl_debug_printf("ssl_find_private_key can't find private key for this server! Try it again with universal port 0\n");
+
+      dummy.port = 0;
+      private_key = g_hash_table_lookup(key_hash, &dummy);
+  }
+
+  if (!private_key) {
+      ssl_debug_printf("ssl_find_private_key can't find private key for this server (universal port)! Try it again with universal address 0.0.0.0\n");
+
+      dummy.addr.type = AT_IPv4;
+      dummy.addr.len = 4;
+      dummy.addr.data = ip_addr_any;
+
+      dummy.port = port;
+      private_key = g_hash_table_lookup(key_hash, &dummy);
+  }
+
+  if (!private_key) {
+      ssl_debug_printf("ssl_find_private_key can't find any private key!\n");
+  } else {
+      ssl_session->private_key = private_key->sexp_pkey;
+  }
+
+  return 0;
+}
+
 void
 ssl_lib_init(void)
 {
@@ -2521,6 +2578,11 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd _U_) {
 
 void
 ssl_free_key(Ssl_private_key_t* key _U_)
+{
+}
+
+gint
+ssl_find_private_key(SslDecryptSession *ssl_session _U_, GHashTable *key_hash _U_, GTree* associations _U_, packet_info *pinfo _U_)
 {
 }
 
@@ -2592,6 +2654,17 @@ ssl_session_init(SslDecryptSession* ssl_session)
     ssl_session->client_data_for_iv.data = ssl_session->_client_data_for_iv;
     ssl_session->app_data_segment.data=NULL;
     ssl_session->app_data_segment.data_len=0;
+    SET_ADDRESS(&ssl_session->srv_addr, AT_NONE, 0, NULL);
+    ssl_session->srv_ptype = PT_NONE;
+    ssl_session->srv_port = 0;
+}
+
+void
+ssl_set_server(SslDecryptSession* ssl, address *addr, port_type ptype, guint32 port)
+{
+    SE_COPY_ADDRESS(&ssl->srv_addr, addr);
+    ssl->srv_ptype = ptype;
+    ssl->srv_port = port;
 }
 
 /* Hash Functions for TLS/DTLS sessions table and private keys table*/
@@ -2754,10 +2827,14 @@ ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data)
 }
 
 int
-ssl_packet_from_server(GTree* associations, guint port, gboolean tcp)
+ssl_packet_from_server(SslDecryptSession* ssl, GTree* associations, packet_info *pinfo)
 {
-  register gint ret;
-  ret = ssl_association_find(associations, port, tcp) != 0;
+  gint ret;
+  if (ssl && (ssl->srv_ptype != PT_NONE)) {
+    ret = (ssl->srv_ptype == pinfo->ptype) && (ssl->srv_port == pinfo->srcport) && ADDRESSES_EQUAL(&ssl->srv_addr, &pinfo->src);
+  } else {
+    ret = ssl_association_find(associations, pinfo->srcport, pinfo->ptype == PT_TCP) != 0;
+  }
 
   ssl_debug_printf("packet_from_server: is from server - %s\n", (ret)?"TRUE":"FALSE");
   return ret;
