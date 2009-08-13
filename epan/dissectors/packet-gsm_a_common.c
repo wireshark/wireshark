@@ -433,6 +433,36 @@ static const value_string repeated_acch_cap_vals[] = {
 	{ 0, NULL}
 };
 
+static const value_string ciphering_mode_setting_cap_vals[] = {
+	{ 0, "The mobile station does not support the Ciphering Mode Setting IE in the DTM ASSIGNMENT COMMAND message" },
+	{ 1, "The mobile station supports the Ciphering Mode Setting IE in the DTM ASSIGNMENT COMMAND message" },
+	{ 0, NULL}
+};
+
+static const value_string additional_positioning_caps_vals[] = {
+	{ 0, "The mobile station does not support additional positioning capabilities which can be retrieved using RRLP" },
+	{ 1, "The mobile station supports additional positioning capabilities which can be retrieved using RRLP" },
+	{ 0, NULL}
+};
+
+static const value_string e_utra_fdd_support_vals[] = {
+	{ 0, "E-UTRA FDD not supported" },
+	{ 1, "E-UTRA FDD supported" },
+	{ 0, NULL}
+};
+
+static const value_string e_utra_tdd_support_vals[] = {
+	{ 0, "E-UTRA TDD not supported" },
+	{ 1, "E-UTRA TDD supported" },
+	{ 0, NULL}
+};
+
+static const value_string e_utra_meas_and_report_support_vals[] = {
+	{ 0, "E-UTRAN Neighbour Cell measurements and measurement reporting while having an RR connection not supported" },
+	{ 1, "E-UTRAN Neighbour Cell measurements and measurement reporting while having an RR connection supported" },
+	{ 0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_a_common = -1;
 
@@ -556,6 +586,15 @@ static int hf_gsm_a_offset_required				= -1;
 static int hf_gsm_a_dtm_egprs_high_multi_slot_class_present	= -1;
 static int hf_gsm_a_dtm_egprs_high_multi_slot_class	= -1;
 static int hf_gsm_a_repeated_acch_cap			= -1;
+static int hf_gsm_a_gsm_710_assoc_radio_cap_present	= -1;
+static int hf_gsm_a_gsm_710_assoc_radio_cap		= -1;
+static int hf_gsm_a_t_gsm_810_assoc_radio_cap_present	= -1;
+static int hf_gsm_a_t_gsm_810_assoc_radio_cap	= -1;
+static int hf_gsm_a_ciphering_mode_setting_cap	= -1;
+static int hf_gsm_a_additional_positioning_caps	= -1;
+static int hf_gsm_a_e_utra_fdd_support			= -1;
+static int hf_gsm_a_e_utra_tdd_support			= -1;
+static int hf_gsm_a_e_utra_meas_and_report_support	= -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat	= -1;
@@ -2006,7 +2045,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
 /*
  * [3] 10.5.1.7 Mobile Station Classmark 3
- * 3GPP TS 24.008 version 7.8.0 Release 7
+ * 3GPP TS 24.008 version 8.6.0 Release 8
  */
 guint16
 de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -2022,7 +2061,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	guint64 gsm1900AssocRadioCapabilityPresent, dtmEGprsMultiSlotInfoPresent, dtmEgprsMultiSlotClassPresent, singleBandSupport;
 	guint64 gsm750AssocRadioCapabilityPresent, extDtmEGprsMultiSlotInfoPresent, highMultislotCapPresent, geranIuModeSupport;
 	guint64 tGsm400BandInfoPresent, tGsm900AssocRadioCapabilityPresent, dtmEGprsHighMultiSlotInfoPresent;
-	guint64 dtmEgprsHighMultiSlotClassPresent;
+	guint64 dtmEgprsHighMultiSlotClassPresent, gsm710AssocRadioCapabilityPresent, tGsm810AssocRadioCapabilityPresent;
 
 	curr_offset = offset;
 
@@ -2410,7 +2449,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/*
 	 * Release 5 starts here
 	 *
-	 * { 0 | 1 < High Multislot Capability : bit(2) > } ---Release 5 starts here.
+	 * { 0 | 1 < High Multislot Capability : bit(2) > } -- Release 5 starts here.
 	 * Extract High Multislot Capability presence
 	 */
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_high_multislot_cap_present, tvb, bit_offset, 1, &highMultislotCapPresent, FALSE);
@@ -2591,16 +2630,100 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 		}
 	}
 
-/*
-{ 0 | 1 <GSM 710 Associated Radio Capability : bit(4)>} -- Release 7 starts here.
-{ 0 | 1 <T-GSM 810 Associated Radio Capability : bit(4)>}
-< Ciphering Mode Setting Capability : bit >
-0 | 1 < Multislot Capability Reduction for Downlink Dual Carrier : bit (3) > } -- "1" also means that
-the mobile station supports dual carrier in the downlink during DTM
-< spare bits > ;
-*/
-	/* translate to byte offset */
-	curr_offset = (bit_offset+7)>>3;
+	/*
+	 * Release 7 starts here
+	 *
+	 * { 0 | 1 <GSM 710 Associated Radio Capability : bit(4) > } -- Release 7 starts here.
+	 * Extract GSM 710 Associated Radio Capability presence
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_710_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm710AssocRadioCapabilityPresent, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(gsm710AssocRadioCapabilityPresent == 1)
+	{
+		/* Extract GSM 710 Associated Radio Capability */
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_710_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		bit_offset = bit_offset + 4;
+	}
+
+	/* { 0 | 1 < T-GSM 810 Associated Radio Capability: bit(4) > }
+	 * Extract T-GSM 810 Associated Radio Capability presence
+	 */
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_t_gsm_810_assoc_radio_cap_present, tvb, bit_offset, 1, &tGsm810AssocRadioCapabilityPresent, FALSE);
+	bit_offset = bit_offset + 1;
+
+	if(tGsm810AssocRadioCapabilityPresent == 1)
+	{
+		/* Extract T-GSM 810 Associated Radio Capability */
+		proto_tree_add_bits_item(tree, hf_gsm_a_t_gsm_810_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		bit_offset = bit_offset + 4;
+	}
+
+	/* < Ciphering Mode Setting Capability : bit >
+	 * Extract Ciphering Mode Setting Capability
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_ciphering_mode_setting_cap, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/* < Additional Positioning Capabilities : bit >
+	 * Extract Additional Positioning Capabilities
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_additional_positioning_caps, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;	
+
+	/*
+	 * Data in bit stream for this release end here
+	 * Do not proceed to next release data if all that is
+	 * left is < 8 all zero bits
+	 */
+	bits_left = ((len + offset) << 3) - bit_offset;
+	if (bits_left == 0)
+		return(len);
+
+	if (bits_left < 8)
+	{	
+		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
+		{
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
+			return(len);
+		}
+	}
+
+	/*
+	 * Release 8 starts here
+	 *
+	 * { 0 | 1 <E-UTRA FDD support : bit > } -- Release 8 starts here.
+	 * Extract E-UTRA FDD support
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_fdd_support, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/*
+	 * { 0 | 1 <E-UTRA TDD support : bit > }
+	 * Extract E-UTRA TDD support
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_tdd_support, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/*
+	 * { 0 | 1 <E-UTRA Measurement and Reporting support : bit > }
+	 * Extract E-UTRA Measurement and Reporting support
+	 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_meas_and_report_support, tvb, bit_offset, 1, FALSE);
+	bit_offset = bit_offset + 1;
+
+	/*
+	 * Add spare bits until we reach an octet boundary
+	 */
+	bits_left = (((len + offset) << 3) - bit_offset) & 0x07;
+	if (bits_left != 0)
+	{	
+		proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
+		bit_offset += bits_left;
+	}
+
+	/* translate to byte offset (we already know that we are on an octet boundary) */
+	curr_offset = bit_offset >> 3;
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(len);
@@ -3391,8 +3514,6 @@ proto_register_gsm_a_common(void)
 		FT_UINT8, BASE_DEC, VALS(dtm_enhancements_cap_vals), 0x00,
 		NULL, HFILL}
 	},
-
-
 	{ &hf_gsm_a_dtm_e_gprs_high_multi_slot_info_present,
 		{ "DTM E/GPRS High Multi Slot Information present", "gsm_a.classmark3.dtm_e_gprs_high_mutli_slot_info_present",
 		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
@@ -3421,6 +3542,51 @@ proto_register_gsm_a_common(void)
 	{ &hf_gsm_a_repeated_acch_cap,
 		{ "Repeated ACCH Capability", "gsm_a.classmark3.repeated_acch_cap",
 		FT_UINT8, BASE_DEC, VALS(repeated_acch_cap_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_710_assoc_radio_cap_present,
+		{ "GSM 710 Associated Radio Capability present", "gsm_a.classmark3.gsm_710_assoc_radio_cap_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_gsm_710_assoc_radio_cap,
+		{ "GSM 710 Associated Radio Capability", "gsm_a.classmark3.gsm_710_assoc_radio_cap",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_t_gsm_810_assoc_radio_cap_present,
+		{ "T-GSM 810 Associated Radio Capability present", "gsm_a.classmark3.t_gsm_810_assoc_radio_cap_present",
+		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_t_gsm_810_assoc_radio_cap,
+		{ "T-GSM 810 Associated Radio Capability", "gsm_a.classmark3.t_gsm_810_assoc_radio_cap",
+		FT_UINT8, BASE_HEX, NULL, 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_ciphering_mode_setting_cap,
+		{ "Ciphering Mode Setting Capability", "gsm_a.classmark3.ciphering_mode_setting_cap",
+		FT_UINT8, BASE_DEC, VALS(ciphering_mode_setting_cap_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_additional_positioning_caps,
+		{ "Additional Positioning Capabilities", "gsm_a.classmark3.additional_positioning_caps",
+		FT_UINT8, BASE_DEC, VALS(additional_positioning_caps_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_e_utra_fdd_support,
+		{ "E-UTRA FDD support", "gsm_a.classmark3.e_utra_fdd_support",
+		FT_UINT8, BASE_DEC, VALS(e_utra_fdd_support_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_e_utra_tdd_support,
+		{ "E-UTRA TDD support", "gsm_a.classmark3.e_utra_tdd_support",
+		FT_UINT8, BASE_DEC, VALS(e_utra_tdd_support_vals), 0x00,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_e_utra_meas_and_report_support,
+		{ "E-UTRA Measurement and Reporting support", "gsm_a.classmark3.e_utra_meas_and_report_support",
+		FT_UINT8, BASE_DEC, VALS(e_utra_meas_and_report_support_vals), 0x00,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_geo_loc_type_of_shape,
