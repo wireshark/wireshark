@@ -42,6 +42,7 @@
 #include "epan/column_info.h"
 #include "epan/prefs.h"
 #include <epan/packet.h>
+#include <epan/epan_dissect.h>
 #include "../ui_util.h"
 #include "../simple_dialog.h"
 #include "epan/emem.h"
