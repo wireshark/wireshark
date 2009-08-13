@@ -1087,7 +1087,7 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
 
     /* sanity check on out buffer */
     if (decr_len > len) {
-        ssl_debug_printf("pcry_private_decrypt: decrypted data is too long ?!? (%zd max %d)\n",
+        ssl_debug_printf("pcry_private_decrypt: decrypted data is too long ?!? (%" G_GSIZE_MODIFIER "u max %d)\n",
             decr_len, len);
         return 0;
     }
@@ -1096,7 +1096,7 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
     decr_data_ptr = encr_data;
     if (gcry_mpi_print( GCRYMPI_FMT_USG, decr_data_ptr, decr_len, &decr_len,
             text) != 0) {
-        ssl_debug_printf("pcry_private_decrypt: can't print decr data to mpi (size %zd):%s\n",
+        ssl_debug_printf("pcry_private_decrypt: can't print decr data to mpi (size %" G_GSIZE_MODIFIER "u):%s\n",
             decr_len, gcry_strerror(rc));
         g_free(decr_data_ptr);
         decr_len = 0;
@@ -1112,7 +1112,7 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
         }
     }
 
-    ssl_debug_printf("pcry_private_decrypt: stripping %d bytes, decr_len %d\n",
+    ssl_debug_printf("pcry_private_decrypt: stripping %d bytes, decr_len %" G_GSIZE_MODIFIER "u\n",
         rc, decr_len);
     ssl_print_data("decrypted_unstrip_pre_master", decr_data_ptr, decr_len);
     g_memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len - rc);
