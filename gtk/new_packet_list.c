@@ -441,36 +441,6 @@ row_from_iter(GtkTreeIter *iter)
 	return record->pos;
 }
 
-static gboolean
-get_dissected_flag_from_iter(GtkTreeIter *iter)
-{
-	PacketListRecord *record;
-
-	record = iter->user_data;
-
-	return record->dissected;
-}
-
-static gboolean
-col_text_present_from_iter(GtkTreeIter *iter)
-{
-	PacketListRecord *record;
-
-	record = iter->user_data;
-
-	return record->col_text != NULL;
-}
-
-static void
-set_dissected_flag_from_iter(GtkTreeIter *iter, gboolean dissected)
-{
-	PacketListRecord *record;
-
-	record = iter->user_data;
-
-	record->dissected = dissected;
-}
-
 /* XXX: will this work with display filters? */
 static gboolean
 iter_from_row(GtkTreeIter *iter, guint row)
@@ -543,22 +513,37 @@ static void
 show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 		    GtkTreeModel *model, GtkTreeIter *iter, gpointer data)
 {
-	guint row = row_from_iter(iter);
+	guint row;
 	guint col_num = GPOINTER_TO_INT(data);
-	frame_data *fdata = new_packet_list_get_row_data(row);
+	frame_data *fdata;
 	color_filter_t *color_filter;
 	color_t fg_color_t;
 	color_t bg_color_t;
 	GdkColor fg_gdk;
 	GdkColor bg_gdk;
 	gchar *cell_text;
+	PacketListRecord *record;
 
-	if (get_dissected_flag_from_iter(iter))
+	/* XXX column zero is a temp hack 
+	 * Get the pointer to the record that makes the data for all columns
+	 * avalable.
+	 */
+	gtk_tree_model_get(model, iter,
+			   0, (PacketListRecord*) &record,
+			   -1);
+
+	fdata = record->fdata;
+	row = record->pos;
+
+	if (record->dissected)
 		color_filter = fdata->color_filter;
 	else {
-		gboolean col_text_present = col_text_present_from_iter(iter);
+		gboolean col_text_present = FALSE;
+		if(record->col_text != NULL)
+			col_text_present = TRUE;
+
 		new_packet_list_dissect(fdata, col_text_present);
-		set_dissected_flag_from_iter(iter, TRUE);
+		record->dissected = TRUE;
 		cache_columns(fdata, row, col_text_present);
 		color_filter = fdata->color_filter;
 	}
@@ -567,9 +552,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 		col_fill_in_frame_data(fdata, &cfile.cinfo, col_num);
 		cell_text = g_strdup(cfile.cinfo.col_data[col_num]);
 	}else{
-		gtk_tree_model_get(model, iter,
-				   col_num, &cell_text,
-				   -1);
+		cell_text = g_strdup(record->col_text[col_num]);
 	}
 
 	if((fdata->color_filter)||(fdata->flags.marked)){

@@ -225,6 +225,8 @@ packet_list_init(PacketList *packet_list)
 			 * colum types add case statements to the switch.
 			 */
 			case COL_NUMBER:
+				packet_list->column_types[i] = G_TYPE_POINTER;
+				break;
 			default:
 				packet_list->column_types[i] = G_TYPE_STRING;
 				break;
@@ -370,7 +372,7 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 	 */ 
 	switch(type){
 		case G_TYPE_POINTER:
-			g_value_set_pointer(value, record);
+			g_value_set_pointer(value, iter->user_data);
 			break;
 		case G_TYPE_STRING:
 			g_value_set_string(value, record->col_text[column]);
