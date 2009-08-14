@@ -65,8 +65,6 @@ static PacketList *packetlist;
 static gboolean enable_color;
 
 static GtkWidget *create_view_and_model(void);
-static guint row_from_iter(GtkTreeIter *iter);
-static gboolean iter_from_row(GtkTreeIter *iter, guint row);
 static void scroll_to_and_select_iter(GtkTreeIter *iter);
 static void new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_);
 static void show_cell_data_func(GtkTreeViewColumn *col,
@@ -484,15 +482,6 @@ row_from_iter(GtkTreeIter *iter)
 	g_assert(record->pos + 1 == record->fdata->num);
 
 	return record->fdata->num;
-}
-
-/* XXX: will this work with display filters? */
-static gboolean
-iter_from_row(GtkTreeIter *iter, guint row)
-{
-	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
-
-	return gtk_tree_model_iter_nth_child(model, iter, NULL, row);
 }
 
 static void
