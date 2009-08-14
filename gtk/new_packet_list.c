@@ -376,18 +376,19 @@ new_packet_list_find_row_from_data(gpointer data, gboolean select)
 void
 new_packet_list_set_selected_row(gint row)
 {
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
-	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
 	GtkTreeSelection *selection;
 	GtkTreePath *path;
 
-	if (!iter_from_row(&iter, row))
+	path = gtk_tree_path_new_from_indices(row-1, -1);
+
+	if (!gtk_tree_model_get_iter(model, &iter, path))
 		return;
 
 	/* Select the row */
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	gtk_tree_selection_select_iter (selection, &iter);
-	path = gtk_tree_model_get_path(model, &iter);
 	gtk_tree_view_set_cursor(GTK_TREE_VIEW(packetlist->view),
 			path,
 			NULL,
@@ -395,6 +396,8 @@ new_packet_list_set_selected_row(gint row)
 
 	/* Needed to get the middle and bottom panes updated */
 	new_packet_list_select_cb(GTK_TREE_VIEW(packetlist->view), NULL);
+
+	gtk_tree_path_free(path);
 }
 
 static void
@@ -427,32 +430,38 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 
 gboolean
 new_packet_list_get_event_row_column(GtkWidget *w _U_, GdkEventButton *event_button,
-                                 gint *row, gint *column)
+								 gint *row, gint *column)
 {
-    GtkTreePath *path;
-    GtkTreeViewColumn *view_column;
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
+	GtkTreePath *path;
+	GtkTreeViewColumn *view_column;
 
-    if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(packetlist->view),
-                                      (gint) event_button->x,
-                                      (gint) event_button->y,
-                                      &path, &view_column, NULL, NULL)) {
-        GtkTreeIter iter;
-        GList *cols;
+	if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(packetlist->view),
+									  (gint) event_button->x,
+									  (gint) event_button->y,
+									  &path, &view_column, NULL, NULL)) {
+		GtkTreeIter iter;
+		GList *cols;
+		gint *indices;
 
-        /* Fetch row */
-        gtk_tree_model_get_iter (GTK_TREE_MODEL(packetlist), &iter, path);
-        *row = row_from_iter(&iter);
-        gtk_tree_path_free(path);
+		/* Fetch indices */
+		gtk_tree_model_get_iter(model, &iter, path);
+		indices = gtk_tree_path_get_indices(path);
+		g_assert(indices);
+		/* Indices start from 0. Hence +1 */
+		*row = indices[0] + 1;
+		gtk_tree_path_free(path);
 
-        /* Fetch column */
-        cols = gtk_tree_view_get_columns(GTK_TREE_VIEW(packetlist->view));
-        *column = g_list_index(cols, (gpointer) view_column);
-        g_list_free(cols);
+		/* Fetch column */
+		/* XXX -doesn't work if columns are re-arranged? */
+		cols = gtk_tree_view_get_columns(GTK_TREE_VIEW(packetlist->view));
+		*column = g_list_index(cols, (gpointer) view_column);
+		g_list_free(cols);
 
-        return TRUE;
-    }
-    else
-        return FALSE;
+		return TRUE;
+	}
+	else
+		return FALSE;
 }
 
 frame_data *

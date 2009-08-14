@@ -500,7 +500,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
 {
     gint	row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
     gint	column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
-    frame_data *fdata = (frame_data *)packet_list_get_row_data(row);
+    frame_data *fdata = (frame_data *) packet_list_get_row_data(row);
     epan_dissect_t edt;
     gchar      *buf=NULL;
     int         err;
