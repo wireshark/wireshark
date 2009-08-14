@@ -494,41 +494,47 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
     }
 }
 
-#ifndef NEW_PACKET_LIST
 static gchar *
 get_filter_from_packet_list_row_and_column(gpointer data)
 {
-    gint	row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
-    gint	column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
-    frame_data *fdata = (frame_data *) packet_list_get_row_data(row);
-    epan_dissect_t edt;
+    gint    row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
+    gint    column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
+    frame_data *fdata;
     gchar      *buf=NULL;
     int         err;
     gchar       *err_info;
 
+#ifdef NEW_PACKET_LIST
+    fdata = (frame_data *) new_packet_list_get_row_data(row);
+#else
+    fdata = (frame_data *) packet_list_get_row_data(row);
+#endif
+
     if (fdata != NULL) {
-	if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
-		       cfile.pd, fdata->cap_len, &err, &err_info)) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		          cf_read_error_message(err, err_info), cfile.filename);
-	    return NULL;
-	}
-	/* proto tree, visible. We need a proto tree if there's custom columns */
-	epan_dissect_init(&edt, have_custom_cols(&cfile.cinfo), FALSE);
-	col_custom_prime_edt(&edt, &cfile.cinfo);
-	    
-	epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata,
-			 &cfile.cinfo);
-	epan_dissect_fill_in_columns(&edt, TRUE);
+        epan_dissect_t edt;
 
-	if (strlen(cfile.cinfo.col_expr.col_expr[column]) != 0 &&
-	    strlen(cfile.cinfo.col_expr.col_expr_val[column]) != 0) {
-	    /* leak a little but safer than ep_ here*/
-	    buf = se_strdup_printf("%s == %s", cfile.cinfo.col_expr.col_expr[column],
-		     cfile.cinfo.col_expr.col_expr_val[column]);
-    	}
+        if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
+                   cfile.pd, fdata->cap_len, &err, &err_info)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      cf_read_error_message(err, err_info), cfile.filename);
+            return NULL;
+        }
+        /* proto tree, visible. We need a proto tree if there's custom columns */
+        epan_dissect_init(&edt, have_custom_cols(&cfile.cinfo), FALSE);
+        col_custom_prime_edt(&edt, &cfile.cinfo);
 
-	epan_dissect_cleanup(&edt);
+        epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata,
+                 &cfile.cinfo);
+        epan_dissect_fill_in_columns(&edt, TRUE);
+
+        if (strlen(cfile.cinfo.col_expr.col_expr[column]) != 0 &&
+            strlen(cfile.cinfo.col_expr.col_expr_val[column]) != 0) {
+            /* leak a little but safer than ep_ here*/
+            buf = se_strdup_printf("%s == %s", cfile.cinfo.col_expr.col_expr[column],
+                 cfile.cinfo.col_expr.col_expr_val[column]);
+        }
+
+        epan_dissect_cleanup(&edt);
     }
 
     return buf;
@@ -541,7 +547,6 @@ match_selected_plist_cb(GtkWidget *w _U_, gpointer data, MATCH_SELECTED_E action
         action,
         get_filter_from_packet_list_row_and_column(data));
 }
-#endif /* NEW_PACKET_LIST */
 
 /* This function allows users to right click in the details window and copy the text
  * information to the operating systems clipboard.

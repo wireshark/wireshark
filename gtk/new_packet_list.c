@@ -427,8 +427,8 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 }
 
 gboolean
-new_packet_list_get_event_row_column(GtkWidget *w _U_, GdkEventButton *event_button,
-								 gint *row, gint *column)
+new_packet_list_get_event_row_column(GdkEventButton *event_button,
+								 gint *physical_row, gint *row, gint *column)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreePath *path;
@@ -441,6 +441,7 @@ new_packet_list_get_event_row_column(GtkWidget *w _U_, GdkEventButton *event_but
 		GtkTreeIter iter;
 		GList *cols;
 		gint *indices;
+		PacketListRecord *record;
 
 		/* Fetch indices */
 		gtk_tree_model_get_iter(model, &iter, path);
@@ -449,6 +450,10 @@ new_packet_list_get_event_row_column(GtkWidget *w _U_, GdkEventButton *event_but
 		/* Indices start from 0. Hence +1 */
 		*row = indices[0] + 1;
 		gtk_tree_path_free(path);
+
+		/* Fetch physical row */
+		record = new_packet_list_get_record(model, &iter);
+		*physical_row = record->fdata->num;
 
 		/* Fetch column */
 		/* XXX -doesn't work if columns are re-arranged? */

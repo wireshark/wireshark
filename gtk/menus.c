@@ -754,7 +754,6 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
     {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-#ifndef NEW_PACKET_LIST
     {"/Apply as Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
     {"/Apply as Filter/_Not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
@@ -780,7 +779,6 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
                        MATCH_SELECTED_AND_NOT, NULL, NULL,},
     {"/Prepare a Filter/... o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
                        MATCH_SELECTED_OR_NOT, NULL, NULL,},
-#endif /* NEW_PACKET_LIST */
     {"/Conversation Filter", NULL, NULL, 0, "<Branch>",NULL,},
     {"/Conversation Filter/Ethernet", NULL, GTK_MENU_FUNC(conversation_cb),
                        CONV_ETHER, NULL, NULL,},
@@ -2306,12 +2304,17 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
     if (widget == g_object_get_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY) &&
         ((GdkEventButton *)event)->button != 1) {
 #ifdef NEW_PACKET_LIST
-        if (new_packet_list_get_event_row_column(widget, (GdkEventButton *)event, &row, &column)) {
+        gint physical_row;
+        if (new_packet_list_get_event_row_column((GdkEventButton *)event, &physical_row, &row, &column)) {
 #else
         if (packet_list_get_event_row_column(widget, (GdkEventButton *)event, &row, &column)) {
 #endif
             g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_ROW_KEY,
+#ifdef NEW_PACKET_LIST
+                            GINT_TO_POINTER(physical_row));
+#else
                             GINT_TO_POINTER(row));
+#endif
             g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_COL_KEY,
                             GINT_TO_POINTER(column));
 #ifdef NEW_PACKET_LIST

@@ -28,9 +28,10 @@
 #ifdef NEW_PACKET_LIST
 
 #include <gtk/gtk.h>
+
 GtkWidget *new_packet_list_create(void);
 void new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
-gboolean new_packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button, gint *row, gint *column);
+gboolean new_packet_list_get_event_row_column(GdkEventButton *event_button, gint *physical_row, gint *row, gint *column);
 
 /** Set the font of the packet list window.
  *
