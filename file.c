@@ -998,7 +998,12 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 	dfilter_t *dfcode, gboolean filtering_tap_listeners,
 	guint tap_flags,
 	union wtap_pseudo_header *pseudo_header, const guchar *buf,
-	gboolean refilter)
+	gboolean refilter,
+#ifdef NEW_PACKET_LIST
+	gboolean add_to_packet_list)
+#else
+	gboolean add_to_packet_list _U_)
+#endif
 {
   gboolean	create_proto_tree = FALSE;
   epan_dissect_t edt;
@@ -1101,10 +1106,10 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     fdata->flags.passed_dfilter = 1;
 
 #ifdef NEW_PACKET_LIST
-    epan_dissect_fill_in_columns(&edt, FALSE);
-  /* We always add the packet to the packet list store and do the filtering 
-   * there instead. */
-    row = new_packet_list_append(cinfo, fdata, &edt.pi);
+    if (add_to_packet_list) {
+        epan_dissect_fill_in_columns(&edt, FALSE);
+        row = new_packet_list_append(cinfo, fdata, &edt.pi);
+    }
 #endif
 
   if( (fdata->flags.passed_dfilter) || (edt.pi.fd->flags.ref_time) )
@@ -1238,7 +1243,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
     if (!cf->redissecting) {
       row = add_packet_to_packet_list(fdata, cf, dfcode,
                                       filtering_tap_listeners, tap_flags,
-                                      pseudo_header, buf, TRUE);
+                                      pseudo_header, buf, TRUE, TRUE);
     }
   } else {
     /* XXX - if we didn't have read filters, or if we could avoid
@@ -1615,6 +1620,11 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   dfilter_t   *dfcode;
   gboolean    filtering_tap_listeners;
   guint       tap_flags;
+#ifdef NEW_PACKET_LIST
+  gboolean    add_to_packet_list = FALSE;
+#else
+  gboolean    add_to_packet_list = TRUE;
+#endif
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -1671,6 +1681,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     /* We need to redissect the packets so we have to discard our old
      * packet list store. */
     new_packet_list_clear();
+    add_to_packet_list = TRUE;
 #endif
   }
 
@@ -1789,7 +1800,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     }
     row = add_packet_to_packet_list(fdata, cf, dfcode, filtering_tap_listeners,
                                     tap_flags, &cf->pseudo_header, cf->pd,
-                                    refilter);
+                                    refilter,
+                                    add_to_packet_list);
 
     /* If this frame is displayed, and this is the first frame we've
        seen displayed after the selected frame, remember this frame -
