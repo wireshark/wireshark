@@ -664,31 +664,19 @@ static void filter_function (GtkTreeView *treeview)
 	g_object_unref( filter_model );
 }
 
-static guint
-row_from_iter(GtkTreeIter *iter)
-{
-	PacketListRecord *record;
-
-	record = iter->user_data;
-
-	g_assert(record->pos + 1 == record->fdata->num);
-
-	return record->fdata->num;
-}
-
 /* This function is called on every model row. We check whether the packet 
  * should be visible or not. 
  */
 static gboolean 
 filter_visible_func (GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_) 
 { 
+	PacketListRecord *record;
 	frame_data *fdata;
-	gint row;
-    
-	row = row_from_iter(iter);
-	fdata = new_packet_list_get_row_data(row);
 
-	if((!fdata)||(fdata->flags.passed_dfilter==1))
+	record = new_packet_list_get_record(model, iter);
+	fdata = record->fdata;
+
+	if(!fdata || (fdata->flags.passed_dfilter == 1))
 		return TRUE;
 
 	return FALSE;
