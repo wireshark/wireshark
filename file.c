@@ -1000,10 +1000,10 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 	union wtap_pseudo_header *pseudo_header, const guchar *buf,
 	gboolean refilter)
 {
-  gint          row;
   gboolean	create_proto_tree = FALSE;
   epan_dissect_t edt;
   column_info *cinfo;
+  gint row = -1;
 
 #ifdef NEW_PACKET_LIST
   cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
@@ -1100,7 +1100,15 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   } else
     fdata->flags.passed_dfilter = 1;
 
-  if( (fdata->flags.passed_dfilter) || (edt.pi.fd->flags.ref_time) ){
+#ifdef NEW_PACKET_LIST
+    epan_dissect_fill_in_columns(&edt, FALSE);
+  /* We always add the packet to the packet list store and do the filtering 
+   * there instead. */
+    row = new_packet_list_append(cinfo, fdata, &edt.pi);
+#endif
+
+  if( (fdata->flags.passed_dfilter) || (edt.pi.fd->flags.ref_time) )
+  {
     /* This frame either passed the display filter list or is marked as
        a time reference frame.  All time reference frames are displayed
        even if they dont pass the display filter */
@@ -1113,9 +1121,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       cum_bytes += fdata->pkt_len;
     }
 
-#ifdef NEW_PACKET_LIST
-    epan_dissect_fill_in_columns(&edt, FALSE);
-#else
+#ifndef NEW_PACKET_LIST
     epan_dissect_fill_in_columns(&edt, TRUE);
 #endif
 
@@ -1138,9 +1144,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     /* This is the last frame we've seen so far. */
     cf->last_displayed = fdata;
 
-#ifdef NEW_PACKET_LIST
-    row = new_packet_list_append(cinfo, fdata, &edt.pi);
-#else
+#ifndef NEW_PACKET_LIST
     row = packet_list_append(cinfo->col_data, fdata);
 
     /* colorize packet: first apply color filters
@@ -1159,11 +1163,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     prev_dis_ts = fdata->abs_ts;
 
     cf->displayed_count++;
-  } else {
-    /* This frame didn't pass the display filter, so it's not being added
-       to the clist, and thus has no row. */
-    row = -1;
   }
+
   epan_dissect_cleanup(&edt);
   return row;
 }
