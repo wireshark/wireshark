@@ -190,6 +190,22 @@ create_view_and_model(void)
 	return packetlist->view;
 }
 
+static PacketListRecord *
+new_packet_list_get_record(GtkTreeModel *model, GtkTreeIter *iter)
+{
+	PacketListRecord *record;
+
+	/* XXX column zero is a temp hack
+	 * Get the pointer to the record that makes the data for all columns
+	 * avalable.
+	 */
+	gtk_tree_model_get(model, iter,
+			   0, (PacketListRecord*) &record,
+			   -1);
+
+	return record;
+}
+
 void
 new_packet_list_clear(void)
 {
@@ -229,14 +245,14 @@ new_packet_list_next(void)
 {
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
-	guint row;
+	GtkTreeModel *model;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
 		return;
 
-	row = row_from_iter(&iter);
-	if (!iter_from_row(&iter, row+1))
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
+	if (!gtk_tree_model_iter_next(model, &iter))
 		return;
 
 	scroll_to_and_select_iter(&iter);
@@ -247,25 +263,35 @@ new_packet_list_prev(void)
 {
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
-	guint row;
+	GtkTreeModel *model;
+	GtkTreePath *path;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
 		return;
 
-	row = row_from_iter(&iter);
-	if (!iter_from_row(&iter, row-1))
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
+	path = gtk_tree_model_get_path(model, &iter);
+
+	if (!gtk_tree_path_prev(path))
+		return;
+
+	if (!gtk_tree_model_get_iter(model, &iter, path))
 		return;
 
 	scroll_to_and_select_iter(&iter);
+
+	gtk_tree_path_free(path);
 }
 
 static void
 scroll_to_and_select_iter(GtkTreeIter *iter)
 {
-	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeSelection *selection;
 	GtkTreePath *path;
+
+	g_assert(model);
 
 	/* Select the row */
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
@@ -317,10 +343,9 @@ new_packet_list_select_last_row(void)
 gint
 new_packet_list_find_row_from_data(gpointer data, gboolean select)
 {
-	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
-	frame_data *fdata;
-	gint row;
+	frame_data *fdata_needle = data;
 
 	/* Initializes iter with the first iterator in the tree (the one at the path "0") 
 	 * and returns TRUE. Returns FALSE if the tree is empty
@@ -329,16 +354,19 @@ new_packet_list_find_row_from_data(gpointer data, gboolean select)
 		return -1;
 
 	do {
-		row = row_from_iter(&iter);
-		fdata = new_packet_list_get_row_data(row);
+		PacketListRecord *record;
+		frame_data *fdata;
 
-		if(fdata == (frame_data*)data){
+		record = new_packet_list_get_record(model, &iter);
+		fdata = record->fdata;
+
+		if(fdata == fdata_needle) {
 			if(select)
 				scroll_to_and_select_iter(&iter);
 
-			return row;
+			return fdata->num;
 		}
-	} while (gtk_tree_model_iter_next (model,&iter));
+	} while (gtk_tree_model_iter_next(model, &iter));
 
     return -1;
 }
@@ -371,25 +399,28 @@ static void
 new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 {
 	GtkTreeSelection *selection;
+	GtkTreeModel *model;
 	GtkTreeIter iter;
 	guint row;
-	frame_data *fdata;
+	PacketListRecord *record;
 
 	selection = gtk_tree_view_get_selection(tree_view);
-	gtk_tree_selection_get_selected(selection, NULL, &iter);
+	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
+		return;
 
 	/* Remove the hex display tab pages */
 	while(gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr), 0))
 		gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 
-	row = row_from_iter(&iter);
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
+	record = new_packet_list_get_record(model, &iter);
+	g_assert(record);
+	row = record->fdata->num;
 
 	cf_select_packet(&cfile, row);
 
 	/* Add newly selected frame to packet history (breadcrumbs) */
-	fdata = new_packet_list_get_row_data(row);
-	if (fdata != NULL)
-		packet_history_add(fdata->num);
+	packet_history_add(row);
 }
 
 gboolean
@@ -427,7 +458,7 @@ new_packet_list_get_row_data(gint row)
 {
 	PacketListRecord *record;
 
-	record = packetlist->rows[row];
+	record = packetlist->rows[row-1];
 
 	return record->fdata;
 }
@@ -439,7 +470,9 @@ row_from_iter(GtkTreeIter *iter)
 
 	record = iter->user_data;
 
-	return record->pos;
+	g_assert(record->pos + 1 == record->fdata->num);
+
+	return record->fdata->num;
 }
 
 /* XXX: will this work with display filters? */
@@ -525,13 +558,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	gchar *cell_text;
 	PacketListRecord *record;
 
-	/* XXX column zero is a temp hack 
-	 * Get the pointer to the record that makes the data for all columns
-	 * avalable.
-	 */
-	gtk_tree_model_get(model, iter,
-			   0, (PacketListRecord*) &record,
-			   -1);
+	record = new_packet_list_get_record(model, iter);
 
 	fdata = record->fdata;
 	row = record->pos;
@@ -665,7 +692,6 @@ filter_visible_func (GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_)
     
 	row = row_from_iter(iter);
 	fdata = new_packet_list_get_row_data(row);
-	g_warning("filter_visible_func Row %u fdata %u",row,fdata);
 
 	if((!fdata)||(fdata->flags.passed_dfilter==1))
 		return TRUE;
