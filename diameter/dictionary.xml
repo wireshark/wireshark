@@ -67,7 +67,7 @@
 		<vendor vendor-id="Merit" code="61" name="Merit Networks"/>
 		<vendor vendor-id="Sun" code="42" name="Sun Microsystems, Inc."/>
 		<vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
-		<vendor vendor-id="3GPP2" code="5535" name="3GPP2"/>
+		<vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
 		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
 		<vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
 		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
@@ -551,7 +551,7 @@
 			<enum name="X25" code="259"/>
 			<enum name="Xylogics" code="5"/>
 		</avp>
-		<avp name="Framed-IP-Address" code="8" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot"">
+		<avp name="Framed-IP-Address" code="8" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Framed-IP-Netmask" code="9" mandatory="may">
@@ -881,7 +881,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Diameter Common Messages" code="0"/>
 			<enum name="Residual Session Context Removed" code="201"/>
 			<enum name="Invalid EAP Packet (Ignored)" code="202"/>
-			<enum name="Unsupported Attribute"" code="401/>
+			<enum name="Unsupported Attribute" code="401"/>
 			<enum name="Missing Attribute" code="402"/>
 			<enum name="NAS Identification Mismatch" code="403"/>
 			<enum name="Invalid Request" code="404"/>
@@ -1002,7 +1002,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Vodafone Gx+" code="16777234"/>
 			<enum name="ITU-T Rs" code="16777235"/>
 			<enum name="3GPP Rx" code="16777236"/>
-			<enum name="3GPP2 Ty" code="16777237"/>
+			<enum name="TGPP2 Ty" code="16777237"/>
 			<enum name="3GPP Gx" code="16777238"/>
 			<enum name="Juniper Cluster" code="16777239"/>
 			<enum name="Juniper Policy-Control-AAA" code="16777240"/>
@@ -1012,9 +1012,9 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Juniper Policy-Control-JSRC" code="16777244"/>   
 			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 -->
       <enum name="NSN Unified Charging Trigger Function (UCTF)" code="16777246"/>
-      <enum name="3GPP2 CAN Access Authentication and Authorization" code="16777247"/>
-      <enum name="3GPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
-      <enum name="3GPP2 WLAN Interworking Accounting" code="16777249"/>
+      <enum name="TGPP2 CAN Access Authentication and Authorization" code="16777247"/>
+      <enum name="TGPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
+      <enum name="TGPP2 WLAN Interworking Accounting" code="16777249"/>
       <enum name="3GPP STaMIP" code="16777250"/>
       <enum name="3GPP S6a" code="16777251"/>
       <enum name="3GPP S13" code="16777252"/>
@@ -1051,7 +1051,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Vodafone Gx+" code="16777234"/>
 			<enum name="ITU-T Rs" code="16777235"/>
 			<enum name="3GPP Rx" code="16777236"/>
-			<enum name="3GPP2 Ty" code="16777237"/>
+			<enum name="TGPP2 Ty" code="16777237"/>
 			<enum name="3GPP Gx" code="16777238"/>
 			<enum name="Juniper Cluster" code="16777239"/>
 			<enum name="Juniper Policy-Control-AAA" code="16777240"/>
@@ -1062,9 +1062,9 @@ http://www.iana.org/assignments/radius-types
 			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 --> 
 			<enum name="Relay" code="4294967295"/>
       <enum name="NSN Unified Charging Trigger Function (UCTF)" code="16777246"/>
-      <enum name="3GPP2 CAN Access Authentication and Authorization" code="16777247"/>
-      <enum name="3GPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
-      <enum name="3GPP2 WLAN Interworking Accounting" code="16777249"/>
+      <enum name="TGPP2 CAN Access Authentication and Authorization" code="16777247"/>
+      <enum name="TGPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
+      <enum name="TGPP2 WLAN Interworking Accounting" code="16777249"/>
       <enum name="3GPP STaMIP" code="16777250"/>
       <enum name="3GPP S6a" code="16777251"/>
       <enum name="3GPP S13" code="16777252"/>
@@ -2324,7 +2324,7 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
       <enum name="DOCSIS" 	code="1"/>
       <enum name="xDSL" 	code="2"/>
       <enum name="WiMAX" 	code="3"/>
-      <enum name="3GPP2" 	code="4"/>
+      <enum name="TGPP2" 	code="4"/>
       <enum name="3GPP-EPS" 	code="5"/>
     </avp>
 		<avp name="QoS-Class-Identifier" code="1028" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -3176,7 +3176,7 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 		<avp name="Terminal-Information" code="1401" vendor-bit="must" vendor-id="TGPP">
       <grouped>
 					<gavp name="IMEI"/> 
-					<gavp name="3GPP2-MEID"/>
+					<gavp name="TGPP2-MEID"/>
 					<gavp name="Software-Version"/>
        </grouped>
 		</avp>
@@ -3490,7 +3490,7 @@ Note: The AVP codes from 1289 to 1399 are reserved for TS 32.299
 		<avp name="PDP-Type" code="1470" vendor-bit="must" vendor-id="TGPP">
      <type type-name="OctetString"/>	
 		</avp>
-		<avp name="3GPP2-MEID" code="1471" vendor-bit="must" vendor-id="TGPP"> 
+		<avp name="TGPP2-MEID" code="1471" vendor-bit="must" vendor-id="TGPP"> 
       <type type-name="OctetString"/>
 		</avp>
     <avp name="Specific-APN-Info" code="1472" vendor-bit="must" vendor-id="TGPP">
@@ -3663,7 +3663,8 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
       <gavp name="Interface-Port"/>
       <gavp name="Interface-Type"/>
      </grouped>
-		<avp name="Recipient-SCCP-Address" code="2010" vendor-bit="must" vendor-id="TGPP"> 
+    </avp>
+    <avp name="Recipient-SCCP-Address" code="2010" vendor-bit="must" vendor-id="TGPP"> 
       <type type-name="Address"/>
 		</avp>
 		<avp name="Reply-Path-Requested" code="2011" vendor-bit="must" vendor-id="TGPP">
@@ -3709,7 +3710,8 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
       <gavp name="Unit-Value"/>
       <gavp name="Currency-Code"/>
      </grouped>
-		<avp name="Refund-Information" code="2022" vendor-bit="must" vendor-id="TGPP"> 
+    </avp>
+    <avp name="Refund-Information" code="2022" vendor-bit="must" vendor-id="TGPP"> 
       <type type-name="OctetString"/>
 		</avp>
 
@@ -3731,19 +3733,22 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
      <grouped>
       <gavp name="Recipient-Address"/>
      </grouped>
-		<avp name="Destination-Interface" code="2027" vendor-bit="must" vendor-id="TGPP"> 
+    </avp>
+    <avp name="Destination-Interface" code="2027" vendor-bit="must" vendor-id="TGPP"> 
      <grouped>
       <gavp name="Address-Type"/>
       <gavp name="Address-Data"/>
       <gavp name="Address-Domain"/>
      </grouped>
-		<avp name="Recipient-Received-Address" code="2028" vendor-bit="must" vendor-id="TGPP"> 
+    </avp>
+    <avp name="Recipient-Received-Address" code="2028" vendor-bit="must" vendor-id="TGPP"> 
      <grouped>
       <gavp name="Address-Type"/>
       <gavp name="Address-Data"/>
       <gavp name="Address-Domain"/>
      </grouped>
-		<avp name="SM-Service-Type" code="2029" vendor-bit="must" vendor-id="TGPP">
+    </avp>
+    <avp name="SM-Service-Type" code="2029" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Enumerated"/>
       <enum name="VAS4SMS Short Message content processing" code="0"/>
       <enum name="VAS4SMS Short Message forwarding" code="1"/>
@@ -3765,7 +3770,8 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
       <gavp name="Number-Of-Diversions"/>
       <gavp name="Associated-Party-Address"/>
      </grouped>
-		<avp name="Service-type" code="2031" vendor-bit="must" vendor-id="TGPP"> 
+    </avp>
+    <avp name="Service-type" code="2031" vendor-bit="must" vendor-id="TGPP"> 
        <type type-name="Enumerated"/>
 		</avp>
 		<avp name="Service-Mode" code="2032" vendor-bit="must" vendor-id="TGPP"> 
@@ -3860,28 +3866,28 @@ Note: The AVP codes from 2118 to 2199 are reserved for TS 32.2992200 Subsession-
 Note: The AVP codes from 2204 to 2299 are reserved for TS 29.215
 
 -->
-<!--- 3GPP2 AVP's X.S0013-014-0 
-http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S0013-014%20v0.3.0%20SBBC%20Ty%20Stage-3.doc
+<!--- TGPP2 AVP's X.S0013-014-0 
+http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S0013-014%20v0.3.0%20SBBC%20Ty%20Stage-3.doc
 -->
-		<avp name="Bearer-Usage" code="1000" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Bearer-Usage" code="1000" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="Enumerated"/>
 			<enum name="GENERAL" code="0"/>
 			<enum name="IMS_SIGNALLING" code="1"/>
 		</avp>
-		<avp name="Charging-Rule-Install" code="1001" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Charging-Rule-Install" code="1001" vendor-bit="must" vendor-id="TGPP2">
 			<grouped>
 				<gavp name="Charging-Rule-Definition"/>
 				<gavp name="Charging-Rule-Name"/>
 				<gavp name="Charging-Rule-Base-Name"/>
 			</grouped>
 		</avp>
-		<avp name="Charging-Rule-Remove" code="1002" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Charging-Rule-Remove" code="1002" vendor-bit="must" vendor-id="TGPP2">
 			<grouped>
 				<gavp name="Charging-Rule-Name"/>
 				<gavp name="Charging-Rule-Base-Name"/>
 			</grouped>
 		</avp>
-		<avp name="Charging-Rule-Definition" code="1003" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Charging-Rule-Definition" code="1003" vendor-bit="must" vendor-id="TGPP2">
 			<grouped>
 				<gavp name="Charging-Rule-Name"/>
 				<gavp name="Service-Identifier"/>
@@ -3896,66 +3902,66 @@ http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 				<gavp name="Flows"/>
 			</grouped>
 		</avp>
-		<avp name="Charging-Rule-Base-Name" code="1004" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Charging-Rule-Base-Name" code="1004" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Charging-Rule-Name" code="1005" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Charging-Rule-Name" code="1005" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Event-Trigger" code="1006" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Event-Trigger" code="1006" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="Enumerated"/>
 			<enum name="SGSN_CHANGE" code="0"/>
 			<enum name="QOS_CHANGE" code="1"/>
 			<enum name="RAT_CHANGE" code="2"/>
 			<enum name="TFT_CHANGE" code="3"/>
 		</avp>
-		<avp name="Metering-Method" code="1007" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Metering-Method" code="1007" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="Enumerated"/>
 			<enum name="DURATION" code="0"/>
 			<enum name="VOLUME" code="1"/>
 			<enum name="DURATION_VOLUME" code="2"/>
 		</avp>
-		<avp name="Offline" code="1008" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Offline" code="1008" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="Enumerated"/>
 			<enum name="DISABLE_OFFLINE" code="0"/>
 			<enum name="ENABLE_OFFLINE" code="1"/>
 		</avp>
-		<avp name="Online" code="1009" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Online" code="1009" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="Enumerated"/>
 			<enum name="DISABLE_ONLINE" code="0"/>
 			<enum name="ENABLE_ONLINE" code="1"/>
 		</avp>
-		<avp name="Precedence" code="1010" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Precedence" code="1010" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Primary-CCF-Address" code="1011" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Primary-CCF-Address" code="1011" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="DiameterURI"/>
 		</avp>
-		<avp name="Primary-OCS-Address" code="1012" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Primary-OCS-Address" code="1012" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="DiameterURI"/>
 		</avp>
-		<avp name="Reporting-Level" code="1014" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Reporting-Level" code="1014" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="Enumerated"/>
 			<enum name="CHARGING_RULE_LEVEL" code="0"/>
 			<enum name="RATING_GROUP_LEVEL" code="1"/>
 		</avp>
-		<avp name="Secondary-CCF-Address" code="1015" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Secondary-CCF-Address" code="1015" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="DiameterURI"/>
 		</avp>
-		<avp name="Secondary-OCS-Address" code="1016" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="Secondary-OCS-Address" code="1016" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="DiameterURI"/>
 		</avp>
-		<avp name="TFT-Filter" code="1017" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="TFT-Filter" code="1017" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="IPFilterRule"/>
 		</avp>
-		<avp name="TFT-Packet-Filter-Information" code="1018" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="TFT-Packet-Filter-Information" code="1018" vendor-bit="must" vendor-id="TGPP2">
 			<grouped>
 				<gavp name="Precedence"/>
 				<gavp name="TFT-Filter"/>
 				<gavp name="ToS-Traffic-Class"/>
 			</grouped>
 		</avp>
-		<avp name="ToS-Traffic-Class" code="1019" vendor-bit="must" vendor-id="3GPP2">
+		<avp name="ToS-Traffic-Class" code="1019" vendor-bit="must" vendor-id="TGPP2">
 			<type type-name="OctetString"/>
 		</avp>
 
@@ -3970,7 +3976,7 @@ http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	</application>
   <application id="16777224" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
   </application>
-  <application id="16777251" name="3GPP S6a/S6d" uri="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
+  <application id="16777251" name="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
     <!-- http://www.3gpp.org/ftp/Specs/html-info/29272.htm -->
     <command name="3GPP-Update-Location" code="316" vendor-id="None"/>
     <command name="3GPP-Cancel-Location" code="317" vendor-id="None"/> <!-- [3GPP TS 29.272][RFC5516] -->
