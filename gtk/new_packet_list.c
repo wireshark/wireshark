@@ -212,14 +212,10 @@ new_packet_list_freeze(void)
 void
 new_packet_list_thaw(void)
 {
+	filter_function(GTK_TREE_VIEW(packetlist->view));
+
 	/* Remove extra reference added by new_packet_list_freeze() */
 	g_object_unref(packetlist);
-
-	/* Re-attach view to the model */
-	gtk_tree_view_set_model(GTK_TREE_VIEW(packetlist->view),
-				GTK_TREE_MODEL(packetlist));
-
-	filter_function(GTK_TREE_VIEW(packetlist->view));
 }
 
 void
@@ -645,11 +641,9 @@ void new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 
 static void filter_function (GtkTreeView *treeview) 
 { 
-    GtkTreeModel *initial_model; 
     GtkTreeModel *filter_model; 
 
-    initial_model= gtk_tree_view_get_model(GTK_TREE_VIEW( treeview )); 
-    filter_model = gtk_tree_model_filter_new( initial_model, NULL ); 
+    filter_model = gtk_tree_model_filter_new(GTK_TREE_MODEL(packetlist), NULL ); 
 
     gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER ( filter_model ),(GtkTreeModelFilterVisibleFunc) filter_visible_func, NULL , NULL); 
 
@@ -657,8 +651,7 @@ static void filter_function (GtkTreeView *treeview)
     gtk_tree_view_set_model( GTK_TREE_VIEW( treeview ),filter_model); 
 
     g_object_unref( filter_model ); 
-    return; 
-}/* filter_function */ 
+}
 
 /* This function is called on every model row. We check whether the packet 
  * should be visible or not. 
@@ -670,8 +663,8 @@ filter_visible_func (GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_)
 	frame_data *fdata;
 	gint row;
     
-    row = row_from_iter(iter); 
-    fdata = new_packet_list_get_row_data(row);
+	row = row_from_iter(iter);
+	fdata = new_packet_list_get_row_data(row);
 	g_warning("filter_visible_func Row %u fdata %u",row,fdata);
 
 	if((!fdata)||(fdata->flags.passed_dfilter==1))
@@ -680,5 +673,5 @@ filter_visible_func (GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_)
 	return FALSE;
 } 
 
-
 #endif /* NEW_PACKET_LIST */
+
