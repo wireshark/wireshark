@@ -315,7 +315,7 @@ scroll_to_and_select_iter(GtkTreeIter *iter)
 void
 new_packet_list_select_first_row(void)
 {
-	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
 
 	if(!gtk_tree_model_get_iter_first(model, &iter))
@@ -327,14 +327,16 @@ new_packet_list_select_first_row(void)
 void
 new_packet_list_select_last_row(void)
 {
-	GtkTreeModel *model = GTK_TREE_MODEL(packetlist);
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
 	gint children;
+	guint last_row;
 
 	if((children = gtk_tree_model_iter_n_children(model, NULL)) == 0)
 		return;
 
-	if(!iter_from_row(&iter, children-1))
+	last_row = children-1;
+	if(!gtk_tree_model_iter_nth_child(model, &iter, NULL, last_row))
 		return;
 
 	scroll_to_and_select_iter(&iter);
