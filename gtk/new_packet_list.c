@@ -472,18 +472,6 @@ new_packet_list_get_row_data(gint row)
 	return record->fdata;
 }
 
-static guint
-row_from_iter(GtkTreeIter *iter)
-{
-	PacketListRecord *record;
-
-	record = iter->user_data;
-
-	g_assert(record->pos + 1 == record->fdata->num);
-
-	return record->fdata->num;
-}
-
 static void
 new_packet_list_dissect(frame_data *fdata, gboolean col_text_present)
 {
@@ -635,11 +623,10 @@ static void mark_frames_ready(void)
 static void
 set_frame_mark(gboolean set, frame_data *frame)
 {
-  if (set) {
-    cf_mark_frame(&cfile, frame);
-  } else {
-    cf_unmark_frame(&cfile, frame);
-  }
+	if (set)
+		cf_mark_frame(&cfile, frame);
+	else
+		cf_unmark_frame(&cfile, frame);
 }
 
 void
@@ -650,40 +637,48 @@ new_packet_list_set_font(PangoFontDescription *font)
 
 void new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) 
 {
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
-	guint row;
-	frame_data *fdata;
+	PacketListRecord *record;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	gtk_tree_selection_get_selected(selection, NULL, &iter);
-	row = row_from_iter(&iter);
-	
-	fdata = new_packet_list_get_row_data(row);
-	if (fdata != NULL){
-		set_frame_mark(!fdata->flags.marked, fdata);
-	}
+	record = new_packet_list_get_record(model, &iter);
+
+	set_frame_mark(!record->fdata->flags.marked, record->fdata);
     mark_frames_ready();
 }
 
 static void filter_function (GtkTreeView *treeview) 
 { 
-    GtkTreeModel *filter_model; 
+	GtkTreeModel *filter_model;
 
-    filter_model = gtk_tree_model_filter_new(GTK_TREE_MODEL(packetlist), NULL ); 
+	filter_model = gtk_tree_model_filter_new(GTK_TREE_MODEL(packetlist), NULL );
 
-    gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER ( filter_model ),(GtkTreeModelFilterVisibleFunc) filter_visible_func, NULL , NULL); 
+	gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER ( filter_model ),(GtkTreeModelFilterVisibleFunc) filter_visible_func, NULL , NULL);
 
-    /* Apply model */ 
-    gtk_tree_view_set_model( GTK_TREE_VIEW( treeview ),filter_model); 
+	/* Apply model */
+	gtk_tree_view_set_model( GTK_TREE_VIEW( treeview ),filter_model);
 
-    g_object_unref( filter_model ); 
+	g_object_unref( filter_model );
+}
+
+static guint
+row_from_iter(GtkTreeIter *iter)
+{
+	PacketListRecord *record;
+
+	record = iter->user_data;
+
+	g_assert(record->pos + 1 == record->fdata->num);
+
+	return record->fdata->num;
 }
 
 /* This function is called on every model row. We check whether the packet 
  * should be visible or not. 
  */
-
 static gboolean 
 filter_visible_func (GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_) 
 { 
