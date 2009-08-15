@@ -638,6 +638,9 @@ proto_field_is_referenced(proto_tree *tree, int proto_id)
 	if (hfinfo->ref_count != HF_REF_TYPE_NONE)
 		return TRUE;
 
+	if (hfinfo->type == FT_PROTOCOL && !PTREE_DATA(tree)->fake_protocols)
+		return TRUE;
+
 	return FALSE;
 }
 
