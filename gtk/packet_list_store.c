@@ -277,11 +277,13 @@ packet_list_get_n_columns(GtkTreeModel *tree_model)
 static GType
 packet_list_get_column_type(GtkTreeModel *tree_model, gint index)
 {
+	PacketList *packet_list;
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), G_TYPE_INVALID);
-	g_return_val_if_fail(index < PACKET_LIST(tree_model)->n_columns &&
+	packet_list = PACKET_LIST(tree_model);
+	g_return_val_if_fail(index < packet_list->n_columns &&
 			     index >= 0, G_TYPE_INVALID);
 
-	return PACKET_LIST(tree_model)->column_types[index];
+	return packet_list->column_types[index];
 }
 
 static gboolean
@@ -354,17 +356,15 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 
 	g_return_if_fail(PACKETLIST_IS_LIST(tree_model));
 	g_return_if_fail(iter != NULL);
-	g_return_if_fail(column < PACKET_LIST(tree_model)->n_columns);
-
-	type = PACKET_LIST(tree_model)->column_types[column];
-	g_value_init(value, type);
-
 	packet_list = PACKET_LIST(tree_model);
+	g_return_if_fail(column < packet_list->n_columns);
+
+	type = packet_list->column_types[column];
+	g_value_init(value, type);
 
 	record = (PacketListRecord*) iter->user_data;
 
-	if(record->pos >= packet_list->num_rows)
-		g_return_if_reached();
+	g_return_if_fail(record->pos < packet_list->num_rows);
 
 	/* XXX Probably the switch should be on column or 
 	 * should we allways return the pointer and read the data as required??
