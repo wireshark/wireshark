@@ -502,10 +502,12 @@ static GtkItemFactoryEntry menu_items[] =
 #else
     {"/Edit/_Mark Packet (toggle)", "<control>M", GTK_MENU_FUNC(packet_list_mark_frame_cb),
                        0, NULL, NULL,},
+#endif /* NEW_PACKET_LIST */
     {"/Edit/Find Next Mark", "<shift><control>N", GTK_MENU_FUNC(find_next_mark_cb),
                        0, NULL, NULL,},
     {"/Edit/Find Previous Mark", "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb),
                        0, NULL, NULL,},
+#ifndef NEW_PACKET_LIST
     {"/Edit/Mark _All Packets", "<control>A", GTK_MENU_FUNC(packet_list_mark_all_frames_cb),
                        0, NULL, NULL,},
     {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb),
