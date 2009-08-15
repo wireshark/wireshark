@@ -112,6 +112,10 @@ tvb_init(tvbuff_t *tvb, tvbuff_type type)
 			composite->start_offsets	= NULL;
 			composite->end_offsets		= NULL;
 			break;
+
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			break;
 	}
 }
 
