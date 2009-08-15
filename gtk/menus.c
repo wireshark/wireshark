@@ -749,7 +749,9 @@ static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 /* packet list popup */
 static GtkItemFactoryEntry packet_list_menu_items[] =
 {
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+    {"/Mark Packet (toggle)", NULL, GTK_MENU_FUNC(new_packet_list_mark_frame_cb), 0, NULL, NULL,},
+#else
     {"/Mark Packet (toggle)", NULL, GTK_MENU_FUNC(packet_list_mark_frame_cb), 0, NULL, NULL,},
 #endif /* NEW_PACKET_LIST */
     {"/Set Time Reference (toggle)", NULL, GTK_MENU_FUNC(reftime_frame_cb), REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
