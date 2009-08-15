@@ -548,7 +548,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	color_t bg_color_t;
 	GdkColor fg_gdk;
 	GdkColor bg_gdk;
-	gchar *cell_text;
+	const gchar *cell_text;
 	PacketListRecord *record;
 
 	record = new_packet_list_get_record(model, iter);
@@ -571,10 +571,9 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 
 	if (col_based_on_frame_data(&cfile.cinfo, col_num)) {
 		col_fill_in_frame_data(fdata, &cfile.cinfo, col_num);
-		cell_text = g_strdup(cfile.cinfo.col_data[col_num]);
-	}else{
-		cell_text = g_strdup(record->col_text[col_num]);
-	}
+		cell_text = cfile.cinfo.col_data[col_num];
+	}else
+		cell_text = record->col_text[col_num];
 
 	if((fdata->color_filter)||(fdata->flags.marked)){
 		gboolean color_on = enable_color;
@@ -601,8 +600,6 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 		     "text", cell_text,
 		     NULL);
 	}
-
-	g_free(cell_text);
 }
 
 void
