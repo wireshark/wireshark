@@ -932,14 +932,14 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
                        0, NULL, NULL,},
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-#ifndef NEW_PACKET_LIST
     {"/Copy", NULL, NULL, 0, "<Branch>", NULL,},
+#ifndef NEW_PACKET_LIST
     {"/Copy/Summary (Text)", NULL, GTK_MENU_FUNC(packet_list_copy_summary_cb), CS_TEXT, NULL, NULL,},
     {"/Copy/Summary (CSV)", NULL, GTK_MENU_FUNC(packet_list_copy_summary_cb), CS_CSV, NULL, NULL,},
     {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+#endif /* NEW_PACKET_LIST */
     {"/Copy/As Filter", NULL, GTK_MENU_FUNC(match_selected_plist_cb),
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL,},
-#endif /* NEW_PACKET_LIST */
     {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Copy/Bytes (Offset Hex Text)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_ALLINFO, NULL, NULL,},
     {"/Copy/Bytes (Offset Hex)", NULL, GTK_MENU_FUNC(copy_hex_cb), CD_HEXCOLUMNS, NULL, NULL,},
