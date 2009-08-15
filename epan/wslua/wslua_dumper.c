@@ -351,22 +351,27 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     Dumper d = checkDumper(L,1);
     struct wtap_pkthdr pkthdr;
     const guchar* data;
-    tvbuff_t* data_src;
+    tvbuff_t* tvb;
+    data_source *data_src;
     int err = 0;
     
     if (!d) return 0;
     
 	if (! lua_pinfo ) WSLUA_ERROR(Dumper_new_for_current,"Cannot be used outside a tap or a dissector");
 
-    data_src = ((data_source*)(lua_pinfo->data_src->data))->tvb;
+    data_src = (data_source*) (lua_pinfo->data_src->data);
+    if (!data_src)
+        return 0;
+
+    tvb = data_src->tvb;
 
     pkthdr.ts.secs = lua_pinfo->fd->abs_ts.secs;
     pkthdr.ts.nsecs = lua_pinfo->fd->abs_ts.nsecs;
-    pkthdr.len  = tvb_reported_length(data_src);
-    pkthdr.caplen  = tvb_length(data_src);    
+    pkthdr.len  = tvb_reported_length(tvb);
+    pkthdr.caplen  = tvb_length(tvb);
     pkthdr.pkt_encap = lua_pinfo->fd->lnk_t;
 
-    data = ep_tvb_memdup(data_src,0,pkthdr.caplen);
+    data = ep_tvb_memdup(tvb,0,pkthdr.caplen);
     
     if (! wtap_dump(d, &pkthdr, lua_pinfo->pseudo_header, data, &err)) {
         luaL_error(L,"error while dumping: %s",

@@ -202,6 +202,13 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
 }
 
+void
+packet_add_new_data_source(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, const char *name)
+{
+	if (tree && PTREE_DATA(tree)->visible)
+		add_new_data_source(pinfo, tvb, name);
+}
+
 const char*
 get_data_source_name(data_source *src)
 {
@@ -219,8 +226,10 @@ get_data_source_name(data_source *src)
 void
 free_data_sources(packet_info *pinfo)
 {
-	g_slist_free(pinfo->data_src);
-	pinfo->data_src = NULL;
+	if (pinfo->data_src) {
+		g_slist_free(pinfo->data_src);
+		pinfo->data_src = NULL;
+	}
 }
 
 /* Allow dissectors to register a "final_registration" routine
@@ -288,7 +297,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
-		add_new_data_source(&edt->pi, edt->tvb, "Frame");
+		packet_add_new_data_source(&edt->pi, edt->tree, edt->tvb, "Frame");
 
 		/* Even though dissect_frame() catches all the exceptions a
 		 * sub-dissector can throw, dissect_frame() itself may throw

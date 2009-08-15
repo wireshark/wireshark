@@ -377,11 +377,22 @@ extern void
 final_registration_all_protocols(void);
 
 /*
+ * DEPRECATED: Use packet_add_new_data_source() instead.
+ */
+extern void
+add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name);
+
+/*
  * Add a new data source to the list of data sources for a frame, given
  * the tvbuff for the data source and its name.
+ *
+ *   @param  tree The protocol tree.
+ *   @param  pinfo Packet Info.
+ *   @param  tvb The buffer to store.
+ *   @param  name The name of the data source
  */
-extern void add_new_data_source(packet_info *pinfo, tvbuff_t *tvb,
-    const char *name);
+extern void
+packet_add_new_data_source(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, const char *name);
 
 /*
  * Return the data source name.

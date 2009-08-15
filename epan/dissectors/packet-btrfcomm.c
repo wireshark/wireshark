@@ -760,7 +760,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			for (p = rps->ppp_first; p; p = p->next) {
 				next_tvb = tvb_new_child_real_data(tvb, (guint8 *) (p + 1), p->len, p->len);
-				add_new_data_source(pinfo, next_tvb, "Reassembled PPP frame");
+				packet_add_new_data_source(pinfo, rfcomm_tree, next_tvb, "Reassembled PPP frame");
 				call_dissector(ppp_handle, next_tvb, pinfo, tree);
 			}
 		} else {

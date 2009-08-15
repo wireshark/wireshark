@@ -240,6 +240,10 @@ proto_tree_write_pdml(epan_dissect_t *edt, FILE *fh)
 	data.src_list = edt->pi.data_src;
 	data.edt = edt;
 
+	/* We shouldn't be called with a NULL pointer here because we've
+	 * created a visible protocol tree */
+	g_assert(data.src_list);
+
 	fprintf(fh, "<packet>\n");
 
 	/* Print a "geninfo" protocol as required by PDML */
@@ -775,6 +779,10 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 	char *line;
 	const guchar *cp;
 	guint length;
+
+	/* We shouldn't be called with a NULL pointer here because we've
+	 * created a visible protocol tree */
+	g_assert(edt->pi.data_src);
 
 	/*
 	 * Set "multiple_sources" iff this frame has more than one
