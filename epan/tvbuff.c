@@ -59,7 +59,7 @@ static const guint8*
 ensure_contiguous(tvbuff_t *tvb, gint offset, gint length);
 
 /* We dole out tvbuff's from this memchunk. */
-GMemChunk *tvbuff_mem_chunk = NULL;
+static GMemChunk *tvbuff_mem_chunk = NULL;
 
 void
 tvbuff_init(void)
@@ -76,9 +76,6 @@ tvbuff_cleanup(void)
 
 	tvbuff_mem_chunk = NULL;
 }
-
-
-
 
 static void
 tvb_init(tvbuff_t *tvb, tvbuff_type type)
