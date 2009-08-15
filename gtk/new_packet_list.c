@@ -101,7 +101,7 @@ new_packet_list_create(void)
 	return scrollwin;
 }
 #if 0
-/* from column_info.h
+ from column_info.h
 
   COL_8021Q_VLAN_ID,  /* 0) 802.1Q vlan ID */
   COL_CIRCUIT_ID,     /* 3) Circuit ID */
@@ -153,7 +153,7 @@ new_packet_list_create(void)
   COL_UNRES_SRC_PORT, /* 56) Unresolved source port */
   COL_TEI,            /* 57) Q.921 TEI */
   NUM_COL_FMTS        /* 59) Should always be last */
-  */
+
 #endif
 guint
 new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo _U_)
