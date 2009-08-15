@@ -1090,9 +1090,13 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   col_custom_prime_edt(&edt, cinfo);
 #endif
 
-  tap_queue_init(&edt);
+  if (filtering_tap_listeners)
+    tap_queue_init(&edt);
+
   epan_dissect_run(&edt, pseudo_header, buf, fdata, cinfo);
-  tap_push_tapped_queue(&edt);
+
+  if (filtering_tap_listeners)
+    tap_push_tapped_queue(&edt);
 
   /* If we have a display filter, apply it if we're refiltering, otherwise
      leave the "passed_dfilter" flag alone.
@@ -1107,7 +1111,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
 #ifdef NEW_PACKET_LIST
     if (add_to_packet_list) {
-        epan_dissect_fill_in_columns(&edt, FALSE);
+        if (cinfo)
+            epan_dissect_fill_in_columns(&edt, FALSE);
         row = new_packet_list_append(cinfo, fdata, &edt.pi);
     }
 #endif
