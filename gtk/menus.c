@@ -507,13 +507,14 @@ static GtkItemFactoryEntry menu_items[] =
                        0, NULL, NULL,},
     {"/Edit/Find Previous Mark", "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb),
                        0, NULL, NULL,},
-#ifndef NEW_PACKET_LIST
-    {"/Edit/Mark _All Packets", "<control>A", GTK_MENU_FUNC(packet_list_mark_all_frames_cb),
-                       0, NULL, NULL,},
-    {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb),
-                       0, NULL, NULL,},
-    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+#ifdef NEW_PACKET_LIST
+    {"/Edit/Mark _All Packets", "<control>A", GTK_MENU_FUNC(new_packet_list_mark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(new_packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
+#else
+    {"/Edit/Mark _All Packets", "<control>A", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
 #endif /* NEW_PACKET_LIST */
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/Set Time Reference (toggle)", "<control>T", GTK_MENU_FUNC(reftime_frame_cb),
                         REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
     {"/Edit/Find Next Reference", "<alt><shift><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},

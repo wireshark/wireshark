@@ -621,17 +621,39 @@ new_packet_list_queue_draw(void)
 /* call this after last set_frame_mark is done */
 static void mark_frames_ready(void) 
 {
-  file_save_update_dynamics();
-  packets_bar_update();
+	file_save_update_dynamics();
+	packets_bar_update();
 }
 
 static void
-set_frame_mark(gboolean set, frame_data *frame)
+set_frame_mark(gboolean set, frame_data *fdata)
 {
 	if (set)
-		cf_mark_frame(&cfile, frame);
+		cf_mark_frame(&cfile, fdata);
 	else
-		cf_unmark_frame(&cfile, frame);
+		cf_unmark_frame(&cfile, fdata);
+}
+
+static void mark_all_frames(gboolean set)
+{
+	frame_data *fdata;
+
+	/* XXX: we might need a progressbar here */
+	for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
+		set_frame_mark(set, fdata);
+	}
+	mark_frames_ready();
+	new_packet_list_queue_draw();
+}
+
+void new_packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+	mark_all_frames(TRUE);
+}
+
+void new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+	mark_all_frames(FALSE);
 }
 
 void

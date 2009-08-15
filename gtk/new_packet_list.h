@@ -46,6 +46,9 @@ extern void new_packet_list_set_font(PangoFontDescription *font);
  */
 extern void new_packet_list_mark_frame_cb(GtkWidget *widget, gpointer data);
 
+void new_packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+void new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+
 #endif /* NEW_PACKET_LIST */
 
 #endif /* __NEW_PACKET_LIST_H__ */
