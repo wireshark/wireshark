@@ -114,7 +114,6 @@ call_frame_end_routine(gpointer routine, gpointer dummy _U_)
 static void
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	proto_tree	*fh_tree=NULL;
 	proto_item	*volatile ti = NULL;
 	nstime_t	ts;
 	int		cap_len = 0, frame_len = 0;
@@ -180,8 +179,17 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 	}
 
-	/* Put in frame header information. */
-	if (tree) {
+	/* if FRAME is not referenced from any filters we dont need to worry about
+	   generating any tree items.  */
+	if(!proto_field_is_referenced(tree, proto_frame)) {
+        tree=NULL;
+        if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000)
+            expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN,
+                "Arrival Time: Fractional second out of range (0-1000000000)");
+    } else {
+	    proto_tree	*fh_tree;
+
+	  /* Put in frame header information. */
 	  cap_len = tvb_length(tvb);
 	  frame_len = tvb_reported_length(tvb);
 
@@ -189,19 +197,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    "Frame %u (%u bytes on wire, %u bytes captured)", pinfo->fd->num, frame_len, cap_len);
 
 	  fh_tree = proto_item_add_subtree(ti, ett_frame);
-	}
 
-	/* if FRAME is not referenced from any filters we dont need to worry about
-	   generating any tree items.  We must do this after we created the actual
-	   protocol above so that proto hier stat still works though.
-	*/
-	if(!proto_field_is_referenced(tree, proto_frame)){
-		tree=NULL;
-		fh_tree = NULL;
-	}
-
-
-	if (fh_tree) {
 	  ts = pinfo->fd->abs_ts;
 
 	  proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
@@ -309,11 +305,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		    0, 0, color_filter->filter_text);
 	      PROTO_ITEM_SET_GENERATED(item);
 	  }
-	} else {
-	  if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
-		expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
-	  }
-	}
+    }
 
     /* Portable Exception Handling to trap Wireshark specific exceptions like BoundsError exceptions */
 	TRY {
