@@ -1521,15 +1521,15 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_eoe_macfilter_macfiltercount,
       { "Mac Filter Count", "ecat_mailbox.eoe.macfilter.macfiltercount",
-      FT_UINT8, 16, NULL, 0x0, NULL, 0x0000000F, 0, 0, 0, NULL, NULL }
+      FT_UINT8, 16, NULL, 0x0, NULL, HFILL }
       },
       { &hf_ecat_mailbox_eoe_macfilter_maskcount,
       { "Mac Filter Mask Count", "ecat_mailbox.eoe.macfilter.maskcount",
-      FT_UINT8, 16, NULL, 0x0, NULL, 0x00000030, 0, 0, 0, NULL, NULL }
+      FT_UINT8, 16, NULL, 0x0, NULL, HFILL }
       },
       { &hf_ecat_mailbox_eoe_macfilter_nobroadcasts,
       { "No Broadcasts", "ecat_mailbox.eoe.macfilter.nobroadcasts",
-      FT_BOOLEAN, BASE_NONE,  TFS(&flags_set_truth), 0x0, NULL, 0x00000080, 0, 0, 0, NULL, NULL }
+      FT_BOOLEAN, BASE_NONE,  TFS(&flags_set_truth), 0x0, NULL, HFILL }
       },
       { &hf_ecat_mailbox_eoe_macfilter_filter,
       { "Filter", "ecat_mailbox.eoe.macfilter.filter",
@@ -1681,7 +1681,7 @@ void proto_register_ecat_mailbox(void)
       { &hf_ecat_mailbox_coe_sdoccsds_size,
       { "Size", "ecat_mailbox.coe.sdoccsds.size",
       FT_UINT8, BASE_DEC, NULL, 0x0000000E,
-      NULL, 0x0000000E, 0, 0, 0, NULL, NULL }
+      NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoccsds_toggle,
       { "Toggle Bit", "ecat_mailbox.coe.sdoccsds.toggle",
@@ -1807,7 +1807,7 @@ void proto_register_ecat_mailbox(void)
       { &hf_ecat_mailbox_coe_sdoscsus_bytes,
       { "Bytes", "ecat_mailbox.coe.sdoscsus_bytes",
       FT_UINT8, BASE_DEC, NULL, 0x0000000E,
-      NULL, 0x0000000E, 0, 0, 0, NULL, NULL }
+      NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdoscsus_toggle,
       { "Toggle Bit", "ecat_mailbox.coe.sdoscsus_toggle",
@@ -1965,7 +1965,7 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_soe_header_opcode,
       { "SoE OpCode", "ecat_mailbox.soe_opcode",
-      FT_UINT16, BASE_DEC, VALS(SoeOpcode), 0x00000007, NULL, 0x00000007, 0, 0, 0, NULL, NULL }
+      FT_UINT16, BASE_DEC, VALS(SoeOpcode), 0x00000007, NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_incomplete,
       { "More Follows...", "ecat_mailbox.soe_header_incomplete",
@@ -1978,7 +1978,7 @@ void proto_register_ecat_mailbox(void)
       },
       { &hf_ecat_mailbox_soe_header_driveno,
       { "Drive No", "ecat_mailbox.soe_header_driveno",
-      FT_UINT16, BASE_DEC, NULL, 0x000000e0, NULL, 0x000000e0, 0, 0, 0, NULL, NULL}
+      FT_UINT16, BASE_DEC, NULL, 0x000000e0, NULL, HFILL }
       },
       { &hf_ecat_mailbox_soe_header_datastate,
       { "Datastate", "ecat_mailbox.soe_header_datastate",

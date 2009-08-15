@@ -235,7 +235,7 @@ proto_register_esl(void) {
 	{ &hf_esl_port, 
 		{ "Port", "esl.port",
 			FT_UINT16, BASE_DEC, NULL, 0x00,          
-			NULL, 0xC0FF, 0, 0, 0, NULL, NULL }
+			NULL, HFILL }
 	},		
 	{ &hf_esl_crcerror,
 		{ "Crc Error", "esl.crcerror",
