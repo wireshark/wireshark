@@ -98,6 +98,7 @@ static int hf_catapult_dct2000_lte_rlc_discard_req = -1;
 static gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
 static gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
 static gboolean catapult_dct2000_dissect_lte_rrc = TRUE;
+static gboolean catapult_dct2000_dissect_lte_s1ap = TRUE;
 
 /* Protocol subtree. */
 static int ett_catapult_dct2000 = -1;
@@ -1023,7 +1024,10 @@ static dissector_handle_t look_for_dissector(char *protocol_name)
         return find_dissector("wtp-udp");
     }
     else
-    if (strncmp(protocol_name, "s1ap", strlen("s1ap")) == 0) {
+    /* Only match with s1ap if preference turned on */
+    if (catapult_dct2000_dissect_lte_s1ap &&
+        strncmp(protocol_name, "s1ap", strlen("s1ap")) == 0) {
+
         return find_dissector("s1ap");
     }
     else
@@ -2351,5 +2355,13 @@ void proto_register_catapult_dct2000(void)
                                    "Note that this won't affect other protocols "
                                    "that also call the LTE RRC dissector",
                                    &catapult_dct2000_dissect_lte_rrc);
+
+    /* Determines whether LTE S1AP messages should be dissected */
+    prefs_register_bool_preference(catapult_dct2000_module, "decode_lte_s1ap",
+                                   "Attempt to decode LTE S1AP frames",
+                                   "When set, attempt to decode LTE S1AP frames. "
+                                   "Note that this won't affect other protocols "
+                                   "that also call the LTE S1AP dissector",
+                                   &catapult_dct2000_dissect_lte_s1ap);
 }
 
