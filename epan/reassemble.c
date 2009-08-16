@@ -49,9 +49,12 @@ typedef struct _dcerpc_fragment_key {
 	e_uuid_t act_id;
 } dcerpc_fragment_key;
 
+#if GLIB_CHECK_VERSION(2,10,0)
+#else
 static GMemChunk *fragment_key_chunk = NULL;
 static GMemChunk *fragment_data_chunk = NULL;
 static int fragment_init_count = 200;
+#endif
 
 static void LINK_FRAG(fragment_data *fd_head,fragment_data *fd)
 {
@@ -70,7 +73,11 @@ static void LINK_FRAG(fragment_data *fd_head,fragment_data *fd)
 static void *fragment_key_copy(const void *k)
 {
 	const fragment_key* key = (const fragment_key*) k;
+#if GLIB_CHECK_VERSION(2,10,0)
+	fragment_key *new_key = g_slice_new(fragment_key);
+#else
 	fragment_key *new_key = g_mem_chunk_alloc(fragment_key_chunk);
+#endif
 
 	COPY_ADDRESS(&new_key->src, &key->src);
 	COPY_ADDRESS(&new_key->dst, &key->dst);
@@ -240,8 +247,11 @@ static fragment_data *new_head(guint32 flags)
 	* 'datalen' then we don't have to change the head of the list
 	* even if we want to keep it sorted
 	*/
-	fd_head=g_mem_chunk_alloc(fragment_data_chunk);
-	memset(fd_head, 0, sizeof(fragment_data));
+#if GLIB_CHECK_VERSION(2,10,0)
+	fd_head=g_slice_new0(fragment_data);
+#else
+	fd_head=g_mem_chunk_alloc0(fragment_data_chunk);
+#endif
 
 	fd_head->flags=flags;
 	return fd_head;
@@ -349,10 +359,13 @@ reassembled_table_init(GHashTable **reassembled_table)
 void
 reassemble_init(void)
 {
+#if GLIB_CHECK_VERSION(2,10,0)
+#else
 	if (fragment_key_chunk != NULL)
 		g_mem_chunk_destroy(fragment_key_chunk);
 	if (fragment_data_chunk != NULL)
 		g_mem_chunk_destroy(fragment_data_chunk);
+
 	fragment_key_chunk = g_mem_chunk_new("fragment_key_chunk",
 		sizeof(fragment_key),
 		fragment_init_count * sizeof(fragment_key),
@@ -361,6 +374,7 @@ reassemble_init(void)
 		sizeof(fragment_data),
 		fragment_init_count * sizeof(fragment_data),
 		G_ALLOC_ONLY);
+#endif
 }
 
 /* This function cleans up the stored state and removes the reassembly data and
@@ -402,10 +416,18 @@ fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
 
 		if( !(fd->flags&FD_NOT_MALLOCED) )
 			g_free(fd->data);
+#if GLIB_CHECK_VERSION(2,10,0)
+		g_slice_free(fragment_data, fd);
+#else
 		g_mem_chunk_free(fragment_data_chunk, fd);
+#endif
 		fd=tmp_fd;
 	}
+#if GLIB_CHECK_VERSION(2,10,0)
+	g_slice_free(fragment_data, fd_head);
+#else
 	g_mem_chunk_free(fragment_data_chunk, fd_head);
+#endif
 	g_hash_table_remove(fragment_table, &key);
 
 	return data;
@@ -575,7 +597,11 @@ fragment_unhash(GHashTable *fragment_table, fragment_key *key)
 	/*
 	 * Free the key itself.
 	 */
+#if GLIB_CHECK_VERSION(2,10,0)
+	g_slice_free(fragment_key, key);
+#else
 	g_mem_chunk_free(fragment_key_chunk, key);
+#endif
 }
 
 /*
@@ -648,7 +674,11 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	unsigned char *old_data;
 
 	/* create new fd describing this fragment */
+#if GLIB_CHECK_VERSION(2,10,0)
+	fd = g_slice_new(fragment_data);
+#else
 	fd = g_mem_chunk_alloc(fragment_data_chunk);
+#endif
 	fd->next = NULL;
 	fd->flags = 0;
 	fd->frame = pinfo->fd->num;
@@ -949,7 +979,11 @@ fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 		 * addresses, allocating new buffers for the address
 		 * data.
 		 */
+#if GLIB_CHECK_VERSION(2,10,0)
+		new_key = g_slice_new(fragment_key);
+#else
 		new_key = g_mem_chunk_alloc(fragment_key_chunk);
+#endif
 		COPY_ADDRESS(&new_key->src, &key.src);
 		COPY_ADDRESS(&new_key->dst, &key.dst);
 		new_key->id = key.id;
@@ -1032,7 +1066,11 @@ fragment_add_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * addresses, allocating new buffers for the address
 		 * data.
 		 */
+#if GLIB_CHECK_VERSION(2,10,0)
+		new_key = g_slice_new(fragment_key);
+#else
 		new_key = g_mem_chunk_alloc(fragment_key_chunk);
+#endif
 		COPY_ADDRESS(&new_key->src, &key.src);
 		COPY_ADDRESS(&new_key->dst, &key.dst);
 		new_key->id = key.id;
@@ -1195,7 +1233,11 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 
 
 	/* create new fd describing this fragment */
+#if GLIB_CHECK_VERSION(2,10,0)
+	fd = g_slice_new(fragment_data);
+#else
 	fd = g_mem_chunk_alloc(fragment_data_chunk);
+#endif
 	fd->next = NULL;
 	fd->flags = 0;
 	fd->frame = pinfo->fd->num;
@@ -1702,7 +1744,11 @@ fragment_start_seq_check(packet_info *pinfo, guint32 id, GHashTable *fragment_ta
 
 	if (fd_head == NULL) {
 		/* Create list-head. */
+#if GLIB_CHECK_VERSION(2,10,0)
+		fd_head = g_slice_new(fragment_data);
+#else
 		fd_head = g_mem_chunk_alloc(fragment_data_chunk);
+#endif
 
 		fd_head->next = NULL;
 		fd_head->datalen = tot_len;
