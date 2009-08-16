@@ -243,6 +243,11 @@
 #define THROW(x) \
 	except_throw(XCEPT_GROUP_WIRESHARK, (x), NULL)
 
+#define THROW_ON(cond, x) G_STMT_START { \
+	if ((cond)) \
+		except_throw(XCEPT_GROUP_WIRESHARK, (x), NULL); \
+} G_STMT_END
+
 #define THROW_MESSAGE(x, y) \
 	except_throw(XCEPT_GROUP_WIRESHARK, (x), (y))
 

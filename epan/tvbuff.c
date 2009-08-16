@@ -270,6 +270,15 @@ tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child)
 	add_to_used_in_list(parent, child);
 }
 
+static void
+tvb_set_real_data_no_exceptions(tvbuff_t* tvb, const guint8* data, guint length, gint reported_length)
+{
+	tvb->real_data = data;
+	tvb->length = length;
+	tvb->reported_length = reported_length;
+	tvb->initialized = TRUE;
+}
+
 void
 tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported_length)
 {
@@ -277,42 +286,27 @@ tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_REAL_DATA);
 	DISSECTOR_ASSERT(!tvb->initialized);
 
-	if (reported_length < -1) {
-		THROW(ReportedBoundsError);
-	}
+	THROW_ON(reported_length < -1, ReportedBoundsError);
 
-	tvb->real_data		= data;
-	tvb->length		= length;
-	tvb->reported_length	= reported_length;
-	tvb->initialized	= TRUE;
+	tvb_set_real_data_no_exceptions(tvb, data, length, reported_length);
 }
 
 tvbuff_t*
 tvb_new_real_data(const guint8* data, guint length, gint reported_length)
 {
-	static tvbuff_t	*last_tvb=NULL;
 	tvbuff_t	*tvb;
+
+	THROW_ON(reported_length < -1, ReportedBoundsError);
 
 	tvb = tvb_new(TVBUFF_REAL_DATA);
 
-	if(last_tvb){
-		tvb_free(last_tvb);
-	}
-	/* remember this tvb in case we throw an exception and
-	 * lose the pointer to it.
-	 */
-	last_tvb=tvb;
-
-	tvb_set_real_data(tvb, data, length, reported_length);
+	tvb_set_real_data_no_exceptions(tvb, data, length, reported_length);
 
 	/*
 	 * This is the top-level real tvbuff for this data source,
 	 * so its data source tvbuff is itself.
 	 */
 	tvb->ds_tvb = tvb;
-
-	/* ok no exception so we dont need to remember it any longer */
-	last_tvb=NULL;
 
 	return tvb;
 }
@@ -467,9 +461,7 @@ check_offset_length(tvbuff_t *tvb, gint offset, gint length,
 		DISSECTOR_ASSERT(exception > 0);
 		THROW(exception);
 	}
-	return;
 }
-
 
 void
 tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
