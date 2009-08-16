@@ -461,22 +461,10 @@ check_offset_length(guint tvb_length, guint tvb_reported_length, gint offset, gi
 	}
 }
 
-void
-tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
+static void
+tvb_set_subset_no_exceptions(tvbuff_t *tvb, tvbuff_t *backing,
 		gint backing_offset, gint backing_length, gint reported_length)
 {
-	DISSECTOR_ASSERT(tvb);
-	DISSECTOR_ASSERT(tvb->type == TVBUFF_SUBSET);
-	DISSECTOR_ASSERT(!tvb->initialized);
-
-	if (reported_length < -1) {
-		THROW(ReportedBoundsError);
-	}
-
-	check_offset_length(backing->length, backing->reported_length, backing_offset, backing_length,
-			&tvb->tvbuffs.subset.offset,
-			&tvb->tvbuffs.subset.length);
-
 	tvb->tvbuffs.subset.tvb		= backing;
 	tvb->length			= tvb->tvbuffs.subset.length;
 
@@ -496,33 +484,47 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 	}
 }
 
+void
+tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
+		gint backing_offset, gint backing_length, gint reported_length)
+{
+	DISSECTOR_ASSERT(tvb);
+	DISSECTOR_ASSERT(tvb->type == TVBUFF_SUBSET);
+	DISSECTOR_ASSERT(!tvb->initialized);
+
+	THROW_ON(reported_length < -1, ReportedBoundsError);
+
+	check_offset_length(backing->length, backing->reported_length, backing_offset, backing_length,
+			&tvb->tvbuffs.subset.offset,
+			&tvb->tvbuffs.subset.length);
+
+	tvb_set_subset_no_exceptions(tvb, backing, backing_offset, backing_length, reported_length);
+}
 
 tvbuff_t*
 tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint reported_length)
 {
-	static tvbuff_t	*last_tvb=NULL;
 	tvbuff_t	*tvb;
+	guint		subset_tvb_offset;
+	guint		subset_tvb_length;
+
+	THROW_ON(reported_length < -1, ReportedBoundsError);
+
+	check_offset_length(backing->length, backing->reported_length, backing_offset, backing_length,
+			&subset_tvb_offset,
+			&subset_tvb_length);
 
 	tvb = tvb_new(TVBUFF_SUBSET);
+	tvb->tvbuffs.subset.offset = subset_tvb_offset;
+	tvb->tvbuffs.subset.length = subset_tvb_length;
 
-	if(last_tvb){
-		tvb_free(last_tvb);
-	}
-	/* remember this tvb in case we throw an exception and
-	 * lose the pointer to it.
-	 */
-	last_tvb=tvb;
-
-	tvb_set_subset(tvb, backing, backing_offset, backing_length, reported_length);
+	tvb_set_subset_no_exceptions(tvb, backing, backing_offset, backing_length, reported_length);
 
 	/*
 	 * The top-level data source of this tvbuff is the top-level
 	 * data source of its parent.
 	 */
 	tvb->ds_tvb = backing->ds_tvb;
-
-	/* ok no exception so we dont need to remember it any longer */
-	last_tvb=NULL;
 
 	return tvb;
 }
