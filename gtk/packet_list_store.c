@@ -234,8 +234,7 @@ packet_list_init(PacketList *packet_list)
 	}
 	
 	packet_list->n_columns = (guint)cfile.cinfo.num_cols;
-	packet_list->num_rows = 0;
-	packet_list->rows = NULL;
+	packet_list->rows = g_ptr_array_new();
 
 	packet_list->sort_id = 0; /* defaults to first column for now */
 	packet_list->sort_order = GTK_SORT_ASCENDING;
@@ -298,8 +297,6 @@ packet_list_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
 	g_assert(PACKETLIST_IS_LIST(tree_model));
 	g_assert(path != NULL);
 
-	packet_list = PACKET_LIST(tree_model);
-
 	indices = gtk_tree_path_get_indices(path);
 	depth = gtk_tree_path_get_depth(path);
 
@@ -308,10 +305,11 @@ packet_list_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
 
 	n = indices[0]; /* the n-th top level row */
 
-	if(n >= packet_list->num_rows)
+	packet_list = PACKET_LIST(tree_model);
+	if(n >= PACKET_LIST_RECORD_COUNT(packet_list->rows))
 		return FALSE;
 
-	record = packet_list->rows[n];
+	record = PACKET_LIST_RECORD_GET(packet_list->rows, n);
 
 	g_assert(record != NULL);
 	g_assert(record->pos == n);
@@ -364,7 +362,7 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 
 	record = (PacketListRecord*) iter->user_data;
 
-	g_return_if_fail(record->pos < packet_list->num_rows);
+	g_return_if_fail(record->pos < PACKET_LIST_RECORD_COUNT(packet_list->rows));
 
 	/* XXX Probably the switch should be on column or 
 	 * should we allways return the pointer and read the data as required??
@@ -400,10 +398,10 @@ packet_list_iter_next(GtkTreeModel *tree_model, GtkTreeIter *iter)
 	record = (PacketListRecord*) iter->user_data;
 
 	/* Is this the last record in the list? */
-	if((record->pos + 1) >= packet_list->num_rows)
+	if((record->pos + 1) >= PACKET_LIST_RECORD_COUNT(packet_list->rows))
 		return FALSE;
 
-	nextrecord = packet_list->rows[(record->pos + 1)];
+	nextrecord = PACKET_LIST_RECORD_GET(packet_list->rows, (record->pos + 1));
 
 	g_assert(nextrecord != NULL);
 	g_assert(nextrecord->pos == (record->pos + 1));
@@ -435,12 +433,12 @@ packet_list_iter_children(GtkTreeModel *tree_model, GtkTreeIter *iter,
 	packet_list = PACKET_LIST(tree_model);
 
 	/* No rows => no first row */
-	if(packet_list->num_rows == 0)
+	if(PACKET_LIST_RECORD_COUNT(packet_list->rows) == 0)
 		return FALSE;
 
 	/* Set iter to first item in list */
 	iter->stamp = packet_list->stamp;
-	iter->user_data = packet_list->rows[0];
+	iter->user_data = PACKET_LIST_RECORD_GET(packet_list->rows, 0);
 
 	return TRUE;
 }
@@ -463,7 +461,7 @@ packet_list_iter_n_children(GtkTreeModel *tree_model, GtkTreeIter *iter)
 
 	/* special case: if iter == NULL, return number of top-level rows */
 	if(!iter)
-		return packet_list->num_rows;
+		return PACKET_LIST_RECORD_COUNT(packet_list->rows);
 
 	return 0; /* Lists have zero children */
 }
@@ -485,10 +483,10 @@ packet_list_iter_nth_child(GtkTreeModel *tree_model, GtkTreeIter *iter,
 
 	/* Special case: if parent == NULL, set iter to n-th
 	 * top-level row. */
-	if((guint)n >= packet_list->num_rows)
+	if((guint)n >= PACKET_LIST_RECORD_COUNT(packet_list->rows))
 		return FALSE;
 
-	record = packet_list->rows[n];
+	record = PACKET_LIST_RECORD_GET(packet_list->rows, n);
 
 	g_assert(record != NULL);
 	g_assert(record->pos == (guint)n);
@@ -541,7 +539,7 @@ new_packet_list_store_clear(PacketList *packet_list)
 	g_return_if_fail(packet_list != NULL);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
 
-	if(packet_list->num_rows == 0)
+	if(PACKET_LIST_RECORD_COUNT(packet_list->rows) == 0)
 		return;
 
 	/* Don't issue a row_deleted signal. We rely on our caller to have disconnected
@@ -551,9 +549,8 @@ new_packet_list_store_clear(PacketList *packet_list)
 	*/
 
 	/* XXX - hold on to these rows and reuse them instead */
-	g_free(packet_list->rows);
-	packet_list->rows = NULL;
-	packet_list->num_rows = 0;
+	g_ptr_array_free(packet_list->rows, FALSE);
+	packet_list->rows = g_ptr_array_new();
 }
 
 #if 0
@@ -585,12 +582,7 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
 
-	pos = packet_list->num_rows;
-
-	packet_list->num_rows++;
-
- 	packet_list->rows = g_renew(PacketListRecord*, packet_list->rows,
-				    packet_list->num_rows);
+	pos = PACKET_LIST_RECORD_COUNT(packet_list->rows);
 
 	newrecord = se_alloc(sizeof(PacketListRecord));
 	newrecord->dissected = FALSE;
@@ -598,7 +590,7 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 	newrecord->fdata = row_data->fdata;
 	newrecord->pos = pos;
 
-	packet_list->rows[pos] = newrecord;
+	PACKET_LIST_RECORD_APPEND(packet_list->rows, newrecord);
 
 	/* Don't issue a row_inserted signal. We rely on our caller to have disconnected
 	 * the model from the view.
@@ -617,8 +609,8 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
 
-	g_assert(row < packet_list->num_rows);
-	record = packet_list->rows[row];
+	g_assert(row < PACKET_LIST_RECORD_COUNT(packet_list->rows));
+	record = PACKET_LIST_RECORD_GET(packet_list->rows, row);
 	g_assert(record->pos == row);
 	g_assert(!record->col_text || (record->col_text[col] == NULL));
 	if (!record->col_text)
@@ -752,21 +744,22 @@ packet_list_resort(PacketList *packet_list)
 	g_return_if_fail(packet_list != NULL);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
 
-	if(packet_list->num_rows == 0)
+	if(PACKET_LIST_RECORD_COUNT(packet_list->rows) == 0)
 		return;
 
 	/* resort */
-	g_qsort_with_data(packet_list->rows, packet_list->num_rows,
+	g_qsort_with_data(packet_list->rows->pdata, 
+			  PACKET_LIST_RECORD_COUNT(packet_list->rows),
 			  sizeof(PacketListRecord*),
 			  (GCompareDataFunc) packet_list_qsort_compare_func,
 			  packet_list);
 
 	/* let other objects know about the new order */
-	neworder = g_new0(gint, packet_list->num_rows);
+	neworder = g_new0(gint, PACKET_LIST_RECORD_COUNT(packet_list->rows));
 
-	for(i = 0; i < packet_list->num_rows; ++i) {
-		neworder[i] = (packet_list->rows[i])->pos;
-		(packet_list->rows[i])->pos = i;
+	for(i = 0; i < PACKET_LIST_RECORD_COUNT(packet_list->rows); ++i) {
+		neworder[i] = PACKET_LIST_RECORD_GET(packet_list->rows, i)->pos;
+		PACKET_LIST_RECORD_GET(packet_list->rows, i)->pos = i;
 	}
 
 	path = gtk_tree_path_new();
@@ -779,3 +772,4 @@ packet_list_resort(PacketList *packet_list)
 }
 
 #endif /* NEW_PACKET_LIST */
+

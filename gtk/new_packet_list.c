@@ -194,7 +194,8 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 
 	packet_list_append_record(packetlist, &row_data);
 
-	return packetlist->num_rows; /* XXX - Check that this is the right # */
+	/* XXX - Check that this is the right # */
+	return PACKET_LIST_RECORD_COUNT(packetlist->rows);
 }
 
 static GtkWidget *
@@ -538,7 +539,7 @@ new_packet_list_get_row_data(gint row)
 {
 	PacketListRecord *record;
 
-	record = packetlist->rows[row-1];
+	record = PACKET_LIST_RECORD_GET(packetlist->rows, row-1);
 
 	return record->fdata;
 }

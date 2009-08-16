@@ -46,6 +46,11 @@ typedef struct _PacketListRecord PacketListRecord;
 typedef struct _PacketList PacketList;
 typedef struct _PacketListClass PacketListClass;
 
+#define PACKET_LIST_RECORD_GET(rows, pos)   ((PacketListRecord*) g_ptr_array_index((rows), (pos)))
+#define PACKET_LIST_RECORD_SET(rows, pos, item) PACKET_LIST_RECORD_GET((rows), (pos)) = (item)
+#define PACKET_LIST_RECORD_APPEND(rows, item) g_ptr_array_add((rows), (item))
+#define PACKET_LIST_RECORD_COUNT(rows) ((rows)->len)
+
 /* PacketListRecord: represents a row */
 struct _PacketListRecord
 {
@@ -62,8 +67,7 @@ struct _PacketList
 {
 	GObject parent; /* MUST be first */
 
-	guint num_rows;
-	PacketListRecord **rows; /* Dynamically allocated array of pointers to
+	GPtrArray *rows; /* Dynamically allocated array of pointers to
 				  * the PacketListRecord structure for each
 				  * row. */
 
@@ -77,7 +81,6 @@ struct _PacketList
 	gint stamp; /* Random integer to check whether an iter belongs to our
 		     * model. */
 };
-
 
 /* PacketListClass: more boilerplate GObject stuff */
 struct _PacketListClass
