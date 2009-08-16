@@ -297,6 +297,8 @@ new_packet_list_thaw(void)
 
 	/* Remove extra reference added by new_packet_list_freeze() */
 	g_object_unref(packetlist);
+
+	packets_bar_update();
 }
 
 void
