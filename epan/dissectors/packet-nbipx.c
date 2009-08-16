@@ -460,7 +460,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_set_len(ti, offset);
 
 	if (has_payload && tvb_offset_exists(tvb, offset)) {
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		dissect_netbios_payload(next_tvb, pinfo, tree);
 	}
 }
@@ -762,7 +762,7 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 1 + 1 + 2 + NETBIOS_NAME_LEN + NETBIOS_NAME_LEN;
 
 	if (opcode == IMSLOT_SEND && tvb_offset_exists(tvb, offset)) {
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		dissect_netbios_payload(next_tvb, pinfo, tree);
 	}
 }

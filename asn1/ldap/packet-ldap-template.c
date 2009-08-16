@@ -1034,7 +1034,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	   */
 	  if (!decr_tvb) {
 	    if(!pinfo->gssapi_data_encrypted){
-	      plain_tvb = tvb_new_subset(gssapi_tvb,  ver_len, -1, -1);
+	      plain_tvb = tvb_new_subset_remaining(gssapi_tvb,  ver_len);
 	    }
 	  }
 

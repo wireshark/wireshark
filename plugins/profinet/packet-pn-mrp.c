@@ -326,7 +326,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
 
     /* the rest of the packet has 4byte alignment regarding to the beginning of the next TLV block! */
     /* XXX - do we have to free this new tvb below? */
-    tvb_new = tvb_new_subset(tvb, offset, -1, -1);
+    tvb_new = tvb_new_subset_remaining(tvb, offset);
     offset = 0;
 
     for(i=0; tvb_length_remaining(tvb, offset) > 0; i++) {

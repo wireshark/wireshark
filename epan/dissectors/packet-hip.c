@@ -553,7 +553,7 @@ dissect_hip_in_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nullbytes = tvb_get_ntohl(tvb, 0);
 	if (nullbytes == 0)
 	{
-		tvbuff_t *newtvb = tvb_new_subset(tvb, 4, -1, -1);
+		tvbuff_t *newtvb = tvb_new_subset_remaining(tvb, 4);
 		dissect_hip(newtvb, pinfo, tree);
 	}
 }

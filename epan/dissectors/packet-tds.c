@@ -1677,7 +1677,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (status == STATUS_NOT_LAST_BUFFER)
 			next_tvb = NULL;
 		else {
-			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
 		}
 	}
 
@@ -1711,7 +1711,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	} else {
-		next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining (tvb, offset);
 		call_dissector(data_handle, next_tvb, pinfo, tds_tree);
 	}
 }

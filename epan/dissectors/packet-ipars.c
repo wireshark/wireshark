@@ -160,7 +160,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				ia = tvb_get_guint8(tvb, 5) & 0x3f;
 				proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 5, 1, "Good BCC");
 			} else {
-				next_tvb = tvb_new_subset(tvb, 3, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, 3);
 				proto_tree_add_protocol_format(ipars_tree, proto_ipars, next_tvb,
 					0,
 					bytes, "Data (%d byte%s)", bytes,

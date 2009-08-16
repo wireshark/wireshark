@@ -164,7 +164,7 @@ mtp2_decode_crc16(tvbuff_t *tvb, proto_tree *fh_tree, packet_info *pinfo)
      * or we're already past the end of the captured data.
      * Don't slice anything off.
      */
-    next_tvb = tvb_new_subset(tvb, proto_offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, proto_offset);
   } else if (len < reported_len) {
     /*
      * The packet is claimed to have enough data for a 2-byte FCS, but

@@ -2485,7 +2485,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       return;
 
     if (!next_tvb)
-      next_tvb = tvb_new_subset(tvb, localoffset, -1, -1);
+      next_tvb = tvb_new_subset_remaining(tvb, localoffset);
 
     saved_private_data = pinfo->private_data;
     pinfo->private_data = &q_bit_set;

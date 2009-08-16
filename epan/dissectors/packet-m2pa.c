@@ -243,7 +243,7 @@ dissect_v2_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
      }
   }
 
-  payload_tvb = tvb_new_subset(message_data_tvb, MTP3_OFFSET, -1, -1);
+  payload_tvb = tvb_new_subset_remaining(message_data_tvb, MTP3_OFFSET);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
 }
 
@@ -268,7 +268,7 @@ dissect_v8_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
       proto_item_set_len(m2pa_item, V8_HEADER_LENGTH + LI_LENGTH);
     }
 
-    payload_tvb = tvb_new_subset(message_data_tvb, MTP3_OFFSET, -1, -1);
+    payload_tvb = tvb_new_subset_remaining(message_data_tvb, MTP3_OFFSET);
     call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
   }
 }
@@ -297,7 +297,7 @@ dissect_v12_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pr
       proto_item_set_len(m2pa_item, V12_HEADER_LENGTH + PRI_LENGTH);
     }
 
-    payload_tvb = tvb_new_subset(message_data_tvb, MTP3_OFFSET, -1, -1);
+    payload_tvb = tvb_new_subset_remaining(message_data_tvb, MTP3_OFFSET);
     call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
   }
 }

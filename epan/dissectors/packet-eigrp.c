@@ -178,7 +178,7 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
      if (opcode==EIGRP_SAP)
      	{
-	call_dissector(ipxsap_handle, tvb_new_subset(tvb, EIGRP_HEADER_LENGTH, -1, -1), pinfo, eigrp_tree);
+	call_dissector(ipxsap_handle, tvb_new_subset_remaining(tvb, EIGRP_HEADER_LENGTH), pinfo, eigrp_tree);
 	return;
 	}
 

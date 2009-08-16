@@ -367,7 +367,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 2;
 			/* attention: doesnt work here because of if(tree) */
 			call_dissector(data_handle,
-				tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+				tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		}
 		/* Performance Index (in I-Could-Be-Router-To-Network) */
 		if (bacnet_mesgtyp == BAC_NET_ICB_R) {
@@ -449,7 +449,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_set_len(ti, offset);
 	}
 	/* dissect BACnet APDU */
-	next_tvb = tvb_new_subset(tvb,offset,-1,-1);
+	next_tvb = tvb_new_subset_remaining(tvb,offset);
 	if (bacnet_control & BAC_CONTROL_NET) {
 		/* Unknown function - dissect the payload as data */
 		call_dissector(data_handle, next_tvb, pinfo, tree);

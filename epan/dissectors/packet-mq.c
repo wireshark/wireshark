@@ -2268,7 +2268,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								tvb_memcpy(tvb, mqinfo.format, tMsgProps.iOffsetFormat, 8);
 								pd_save = pinfo->private_data;
 								pinfo->private_data = &mqinfo;
-								next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+								next_tvb = tvb_new_subset_remaining(tvb, offset);
 								if (!dissector_try_heuristic(mq_heur_subdissector_list, next_tvb, pinfo, tree))
 									call_dissector(data_handle, next_tvb, pinfo, tree);
 								pinfo->private_data = pd_save;
@@ -2290,7 +2290,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				{
 					/* This is a MQ segment continuation (if MQ reassembly is not enabled) */
 					if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
-					call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+					call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 				}
 			}
 		}
@@ -2302,7 +2302,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			{
 				proto_tree_add_item(tree, proto_mq, tvb, offset, -1, FALSE);
 			}
-			call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+			call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		}
 	}
 }

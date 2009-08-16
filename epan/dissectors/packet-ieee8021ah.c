@@ -157,7 +157,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
 	    proto_item_set_text(ieee8021ad_tag_tree, "B-Tag, B-VID: %d", tci & 0x0FFF);
 	}
 
-	next_tvb = tvb_new_subset(tvb, IEEE8021AD_LEN, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, IEEE8021AD_LEN);
 
 	if (ptree) {
 	    /* add bvid to label */

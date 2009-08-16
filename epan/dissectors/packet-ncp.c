@@ -697,20 +697,20 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 /*break;*/
             }
         }
-        next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, commhdr);
         dissect_ncp_request(next_tvb, pinfo, nw_connection,
             header.sequence, header.type, ncp_tree);
         break;
 
     case NCP_DEALLOCATE_SLOT:    /* Deallocate Slot Request */
-        next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, commhdr);
         dissect_ncp_request(next_tvb, pinfo, nw_connection,
             header.sequence, header.type, ncp_tree);
         break;
 
     case NCP_SERVICE_REQUEST:    /* Server NCP Request */
     case NCP_BROADCAST_SLOT:    /* Server Broadcast Packet */
-        next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, commhdr);
         if (tvb_get_guint8(tvb, commhdr+6) == 0x68) {
             subfunction = tvb_get_guint8(tvb, commhdr+7);
             switch (subfunction) {
@@ -740,7 +740,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case NCP_SERVICE_REPLY:        /* Server NCP Reply */
-        next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, commhdr);
         nds_defrag(next_tvb, pinfo, nw_connection, header.sequence,
             header.type, ncp_tree, &ncp_tap);
         break;
@@ -751,7 +751,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * clear out "frags".  Was that the right thing to
          * do?
          */
-        next_tvb = tvb_new_subset(tvb, commhdr, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, commhdr);
         dissect_ncp_reply(next_tvb, pinfo, nw_connection,
             header.sequence, header.type, ncp_tree, &ncp_tap);
         break;
@@ -775,7 +775,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         if (tvb_offset_exists(tvb, commhdr + 10)) {
             call_dissector(data_handle,
-                tvb_new_subset(tvb, commhdr + 10, -1, -1),
+                tvb_new_subset_remaining(tvb, commhdr + 10),
                 pinfo, ncp_tree);
         }
         break;

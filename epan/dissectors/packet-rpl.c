@@ -253,13 +253,13 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		default:
 			call_dissector(data_handle, 
-				tvb_new_subset(tvb, 4, -1, -1), pinfo,
+				tvb_new_subset_remaining(tvb, 4), pinfo,
 				tree);
 			break;
 	}
 	if (tvb_reported_length(tvb) > offset)
 		call_dissector(data_handle, 
-			tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+			tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 }
 
 static void
@@ -286,13 +286,13 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		hidden_item = proto_tree_add_uint(rpl_tree, hf_rpl_type, tvb, 2, 2,
 			rpl_type);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
-		next_tvb = tvb_new_subset(tvb, 0, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, 0);
 		set_actual_length(next_tvb, rpl_len);
 		dissect_rpl_container(next_tvb, pinfo, rpl_tree);
 	
 		if (tvb_reported_length(tvb) > rpl_len)
 			call_dissector(data_handle, 
-				tvb_new_subset(tvb, rpl_len, -1, -1), pinfo,
+				tvb_new_subset_remaining(tvb, rpl_len), pinfo,
 				    tree);
 	}
 }

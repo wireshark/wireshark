@@ -1523,7 +1523,7 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
   switch (fcs_decode) {
 
   case NO_FCS:
-    next_tvb = tvb_new_subset(tvb, proto_offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, proto_offset);
     break;
 
   case FCS_16:
@@ -1538,7 +1538,7 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
        * or we're already past the end of the captured data.
        * Don't slice anything off.
        */
-      next_tvb = tvb_new_subset(tvb, proto_offset, -1, -1);
+      next_tvb = tvb_new_subset_remaining(tvb, proto_offset);
     } else if (len < reported_len) {
       /*
        * The packet is claimed to have enough data for a 2-byte FCS, but
@@ -1590,7 +1590,7 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
        * The packet is claimed not to even have enough data for a 4-byte FCS.
        * Just pass on the tvbuff as is.
        */
-      next_tvb = tvb_new_subset(tvb, proto_offset, -1, -1);
+      next_tvb = tvb_new_subset_remaining(tvb, proto_offset);
     } else if (len < reported_len) {
       /*
        * The packet is claimed to have enough data for a 4-byte FCS, but
@@ -2825,7 +2825,7 @@ dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (tree)
     proto_tree_add_uint(fh_tree, hf_ppp_protocol, tvb, 0, proto_len, ppp_prot);
 
-  next_tvb = tvb_new_subset(tvb, proto_len, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, proto_len);
 
   /* do lookup with the subdissector table */
   if (!dissector_try_port(ppp_subdissector_table, ppp_prot, next_tvb, pinfo, tree)) {
@@ -3559,7 +3559,7 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   hdrlen = mp_short_seqno ? 2 : 4;
   if (tvb_reported_length_remaining(tvb, hdrlen) > 0) {
-    next_tvb = tvb_new_subset(tvb, hdrlen, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, hdrlen);
     dissect_ppp(next_tvb, pinfo, tree);
   }
 }

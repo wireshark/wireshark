@@ -832,7 +832,7 @@ static void find_iuup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int offset = 0;
 	
     while (len > 3) {
-        if ( dissect_iuup_heur(tvb_new_subset(tvb,offset,-1,-1), pinfo, tree) )
+        if ( dissect_iuup_heur(tvb_new_subset_remaining(tvb,offset), pinfo, tree) )
             return;
 
         offset++;

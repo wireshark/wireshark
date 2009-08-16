@@ -387,7 +387,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    val_to_str(channel_type, mpls_pwac_types, "Unknown"),
                                               channel_type);
     }
-    next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, 4);
 
     if (0x21 == channel_type /*IPv4, RFC4385 clause 6.*/) 
     {
@@ -485,7 +485,7 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    tvb, 2, 2, sequence_number,
                                    "Sequence Number: %d", sequence_number);
     }
-    next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, 4);
     call_dissector( dissector_data, next_tvb, pinfo, tree );
 }
 
@@ -762,7 +762,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (bos) break;
     }
 
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     if ( !dissector_try_port(mpls_subdissector_table, label, next_tvb, pinfo, tree))
     {

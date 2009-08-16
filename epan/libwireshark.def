@@ -1005,6 +1005,7 @@ tvb_memeql
 tvb_new_real_data
 tvb_new_child_real_data
 tvb_new_subset
+tvb_new_subset_remaining
 tvb_offset_exists
 tvb_pbrk_guint8
 tvb_reported_length

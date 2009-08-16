@@ -108,7 +108,7 @@ dissect_pcli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   /*
    * Hand off to the IP dissector.
    */
-  next_tvb = tvb_new_subset(tvb,4,-1,-1);
+  next_tvb = tvb_new_subset_remaining(tvb,4);
   call_dissector(ip_handle,next_tvb,pinfo,tree);
 }
 

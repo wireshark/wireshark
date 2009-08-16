@@ -1125,7 +1125,7 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Create a new tvb for the zdp message. */
-    zdp_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    zdp_tvb = tvb_new_subset_remaining(tvb, offset);
 
     switch (cluster) {
         case ZBEE_ZDP_REQ_NWK_ADDR:

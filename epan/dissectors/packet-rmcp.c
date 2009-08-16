@@ -137,7 +137,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (!type){ /* do not expect a data block for an ACK */
 
-		next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, 4);
 
 		if (!dissector_try_port(rmcp_dissector_table, class, next_tvb, pinfo,
 			tree))
@@ -170,7 +170,7 @@ dissect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * be done according to 3.2.3.3.3 of the specification.
 	 * This is only valid for session ID equals 0
 	 */
-	next_tvb = tvb_new_subset(tvb, 8, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, 8);
 	dissect_rmcp(next_tvb, pinfo, tree);
 
 	return tvb_length(tvb);

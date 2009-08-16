@@ -270,7 +270,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
         /* Done with SAP */
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector(sdp_handle, next_tvb, pinfo, tree);
 
         return;

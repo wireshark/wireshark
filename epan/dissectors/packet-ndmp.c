@@ -3111,7 +3111,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			else
 			{
 				do_frag = FALSE;
-				new_tvb = tvb_new_subset(tvb, 4, -1, -1);
+				new_tvb = tvb_new_subset_remaining(tvb, 4);
 			}
 		}
 		else
@@ -3195,7 +3195,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else
 	{
-		new_tvb = tvb_new_subset(tvb, 4, -1, -1);
+		new_tvb = tvb_new_subset_remaining(tvb, 4);
 	}
 
 

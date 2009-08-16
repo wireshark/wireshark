@@ -680,7 +680,7 @@ dissect_dua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree,
   tvbuff_t *common_header_tvb, *parameters_tvb;
 
   common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
-  parameters_tvb    = tvb_new_subset(message_tvb, PARAMETERS_OFFSET, -1, -1);
+  parameters_tvb    = tvb_new_subset_remaining(message_tvb, PARAMETERS_OFFSET);
   dissect_common_header(common_header_tvb, pinfo, dua_tree);
   dissect_parameters(parameters_tvb, pinfo, tree, dua_tree);
 }

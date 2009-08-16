@@ -528,7 +528,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_subset(tvb, lapd_header_len, tvb_length_remaining(tvb,lapd_header_len) - 2, -1);
 		
 	} else 
-		next_tvb = tvb_new_subset(tvb, lapd_header_len, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, lapd_header_len);
 
 	if (XDLC_IS_INFORMATION(control)) {
 		/* call next protocol */

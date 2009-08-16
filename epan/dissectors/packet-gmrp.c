@@ -180,7 +180,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				else
 				{
 					call_dissector(data_handle,
-					    tvb_new_subset(tvb, offset, -1, -1),
+					    tvb_new_subset_remaining(tvb, offset),
 					    pinfo, tree);
 					return;
 				}
@@ -199,7 +199,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if ( (octet != GMRP_ATTRIBUTE_TYPE_GROUP_MEMBERSHIP) && (octet != GMRP_ATTRIBUTE_TYPE_SERVICE_REQUIREMENT) )
 			{
 				call_dissector(data_handle,
-				    tvb_new_subset(tvb, offset, -1, -1), pinfo,
+				    tvb_new_subset_remaining(tvb, offset), pinfo,
 				    tree);
 				return;
 			}
@@ -234,7 +234,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					else
 					{
 						call_dissector(data_handle,
-						    tvb_new_subset(tvb, offset, -1, -1),
+						    tvb_new_subset_remaining(tvb, offset),
 						    pinfo, tree);
 						return;
 					}
@@ -267,7 +267,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						if (octet != GMRP_LENGTH_LEAVEALL)
 						{
 							call_dissector(data_handle,
-							    tvb_new_subset(tvb, offset, -1, -1),
+							    tvb_new_subset_remaining(tvb, offset),
 							    pinfo, tree);
 							return;
 						}
@@ -281,7 +281,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						if ( (octet != GMRP_GROUP_MEMBERSHIP_NON_LEAVEALL) && (octet != GMRP_SERVICE_REQUIREMENT_NON_LEAVEALL) )
 						{
 							call_dissector(data_handle,
-							    tvb_new_subset(tvb, offset, -1, -1),
+							    tvb_new_subset_remaining(tvb, offset),
 							    pinfo, tree);
 							return;
 						}
@@ -310,7 +310,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					else
 					{
 						call_dissector(data_handle,
-						    tvb_new_subset(tvb, offset, -1, -1),
+						    tvb_new_subset_remaining(tvb, offset),
 						    pinfo, tree);
 						return;
 					}
@@ -319,7 +319,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					 default:
 					call_dissector(data_handle,
-					    tvb_new_subset(tvb, offset, -1, -1),
+					    tvb_new_subset_remaining(tvb, offset),
 					    pinfo, tree);
 					return;
 					}

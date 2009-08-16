@@ -195,7 +195,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Set the tvbuff for the payload after the header */
-  next_tvb = tvb_new_subset(tvb, hdrlen, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, hdrlen);
 
   switch (pflogh.af) {
 
@@ -324,7 +324,7 @@ dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Set the tvbuff for the payload after the header */
-  next_tvb = tvb_new_subset(tvb, OLD_PFLOG_HDRLEN, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, OLD_PFLOG_HDRLEN);
 
   switch (pflogh.af) {
 

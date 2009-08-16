@@ -13164,7 +13164,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * A tvbuff containing the parameters and the
 				 * data.
 				 */
-				pd_tvb = tvb_new_subset(tvb, po, -1, -1);
+				pd_tvb = tvb_new_subset_remaining(tvb, po);
 
 				dissected_trans = dissect_pipe_smb(sp_tvb,
 				    s_tvb, pd_tvb, p_tvb, d_tvb, an+6, pinfo,
@@ -15099,7 +15099,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		} else {
 			s_tvb = tvb_new_subset(tvb, offset, 2*sc, 2*sc);
 		}
-		sp_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		sp_tvb = tvb_new_subset_remaining(tvb, offset);
 	} else {
 		s_tvb = NULL;
 		sp_tvb=NULL;
@@ -15181,7 +15181,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			 * XXX - check pc and dc as well?
 			 */
 			if (tvb_length_remaining(tvb, po)){
-				pd_tvb = tvb_new_subset(tvb, po, -1, -1);
+				pd_tvb = tvb_new_subset_remaining(tvb, po);
 			}
 		}
 	}

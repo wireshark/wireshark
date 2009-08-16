@@ -129,7 +129,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			FALSE);
 		offset += 4;
 
-		eth_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		eth_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(ethnofcs_handle, eth_tvb, pinfo, tree);
 	}
 }

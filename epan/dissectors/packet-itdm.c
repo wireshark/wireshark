@@ -266,7 +266,7 @@ dissect_itdm_125usec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
   }
 
-  next_tvb = tvb_new_subset(tvb, offset, -1 , -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
   call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
@@ -360,7 +360,7 @@ dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 2;
   }
 
-  next_tvb = tvb_new_subset(tvb, offset, -1 , -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
   call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 

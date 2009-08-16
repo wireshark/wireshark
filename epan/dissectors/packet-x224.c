@@ -163,7 +163,7 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	offset+=1;
 
 
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	call_dissector(t125_handle, next_tvb, pinfo, parent_tree);
 
 	return offset;

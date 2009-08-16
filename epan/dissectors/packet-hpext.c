@@ -83,7 +83,7 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    val_to_str(sxsap, xsap_vals, "%04x"));
 
 	if (tvb_length_remaining(tvb, 7) > 0) {
-		next_tvb = tvb_new_subset(tvb, 7, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, 7);
 		if (!dissector_try_port(subdissector_table,
 		    dxsap, next_tvb, pinfo, tree)) {
 			call_dissector(data_handle, next_tvb, pinfo, tree);

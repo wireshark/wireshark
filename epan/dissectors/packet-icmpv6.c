@@ -337,7 +337,7 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     save_in_error_pkt = pinfo->in_error_pkt;
     pinfo->in_error_pkt = TRUE;
 
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     /* tiny sanity check */
     if ((tvb_get_guint8(tvb, offset) & 0xf0) == 0x60) {
@@ -1251,7 +1251,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 nodata:;
 
     /* the rest of data */
-    call_dissector(data_handle,tvb_new_subset(tvb, offset + off, -1, -1), pinfo, tree);
+    call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset + off), pinfo, tree);
 }
 
 #define RR_SIZE 16
@@ -1306,7 +1306,7 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct icmp6_router_renum, rr_maxdelay), 2,
 	"Max delay: 0x%04x", pntohs(&rr->rr_maxdelay));
-    call_dissector(data_handle,tvb_new_subset(tvb, offset + RR_SIZE, -1, -1), pinfo, tree);	/*XXX*/
+    call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset + RR_SIZE), pinfo, tree);	/*XXX*/
 
     if (rr->rr_code == ICMP6_ROUTER_RENUMBERING_COMMAND) {
 	off = offset + RR_SIZE;

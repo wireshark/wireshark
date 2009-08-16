@@ -941,7 +941,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (type == FNA && pproto == IP_PROTO_IPV6) {
 		tvbuff_t *ipv6_tvb;
 
-		ipv6_tvb = tvb_new_subset(tvb, len + 8, -1, -1);
+		ipv6_tvb = tvb_new_subset_remaining(tvb, len + 8);
 
 		/* Call the IPv6 dissector */
 		dissector_try_port(ip_dissector_table, pproto, ipv6_tvb, pinfo, tree);

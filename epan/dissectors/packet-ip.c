@@ -1618,7 +1618,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       /* First fragment, or not fragmented.  Dissect what we have here. */
 
       /* Get a tvbuff for the payload. */
-      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+      next_tvb = tvb_new_subset_remaining(tvb, offset);
 
       /*
        * If this is the first fragment, but not the only fragment,
@@ -1641,7 +1641,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
           ipfd_head->reassembled_in);
     }
 
-    call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
+    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
                    parent_tree);
     pinfo->fragmented = save_fragmented;
     return;

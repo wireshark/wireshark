@@ -759,7 +759,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else if ( ((pdut == INVOKE) || (pdut == RESULT)) && (fTTR) )
 		{
 			/* Non-fragmented payload */
-			wsp_tvb = tvb_new_subset(tvb, dataOffset, -1, -1);
+			wsp_tvb = tvb_new_subset_remaining(tvb, dataOffset);
 			/* We can safely hand the tvb to the WSP dissector */
 			call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
 		}

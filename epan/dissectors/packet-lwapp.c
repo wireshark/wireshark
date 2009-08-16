@@ -312,7 +312,7 @@ static void dissect_control(tvbuff_t *tvb, packet_info *pinfo,
         offset += 2;
 
         /* Dissect rest of packet as data */
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector(data_handle,next_tvb, pinfo, tree);
     }
 
@@ -347,7 +347,7 @@ static void dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Dissect as Ethernet */
-    next_client	= tvb_new_subset(tvb, 0, -1, -1);
+    next_client	= tvb_new_subset_remaining(tvb, 0);
     call_dissector(eth_withoutfcs_handle, next_client, pinfo, tree);
     return;
 

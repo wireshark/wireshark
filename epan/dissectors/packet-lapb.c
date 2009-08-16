@@ -147,7 +147,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* not end of frame ==> X.25 */
     if (tvb_reported_length(tvb) > 2) {
-	next_tvb = tvb_new_subset(tvb, 2, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, 2);
 	switch (pinfo->p2p_dir) {
 
 	case P2P_DIR_SENT:

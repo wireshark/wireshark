@@ -76,7 +76,7 @@ dissect_802_3(volatile int length, gboolean is_802_2, tvbuff_t *tvb,
     captured_length = length;
   next_tvb = tvb_new_subset(tvb, offset_after_length, captured_length, length);
   TRY {
-    trailer_tvb = tvb_new_subset(tvb, offset_after_length + length, -1, -1);
+    trailer_tvb = tvb_new_subset_remaining(tvb, offset_after_length + length);
   }
   CATCH2(BoundsError, ReportedBoundsError) {
     /* The packet has exactly "length" bytes worth of captured data

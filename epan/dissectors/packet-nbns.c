@@ -1320,7 +1320,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * XXX - take the datagram length into account?
 		 */
 		proto_item_set_len(ti, offset);
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		dissect_netbios_payload(next_tvb, pinfo, tree);
 		break;
 

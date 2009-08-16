@@ -81,7 +81,7 @@ dissect_telkonet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 8;
 
 	if (type == TELKONET_TYPE_TUNNEL)
-		call_dissector(eth_withoutfcs_handle, tvb_new_subset(tvb, offset, -1, -1),
+		call_dissector(eth_withoutfcs_handle, tvb_new_subset_remaining(tvb, offset),
 			pinfo, tree);
 }
 

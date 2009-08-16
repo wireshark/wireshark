@@ -442,11 +442,11 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		if (new_tvb)
 			next_tvb = new_tvb;
 		else
-			next_tvb = tvb_new_subset(tvb, 24, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, 24);
 		pinfo->fragmented = save_fragmented;
 	}
 	else
-		next_tvb = tvb_new_subset(tvb, 24, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, 24);
 		
 	/* If we have a full packet now dissect it */
 	if((new_tvb || !frag->fragmented) && !frag->outoforder)

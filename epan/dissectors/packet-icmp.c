@@ -833,7 +833,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Decode the IP header and first 64 bits of data from the
 	   original datagram. */
-	next_tvb = tvb_new_subset(tvb, 8, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, 8);
 
 	/* There is a collision between RFC 1812 and draft-ietf-mpls-icmp-02.
 	We don't know how to decode the 128th and following bytes of the ICMP payload.
@@ -863,7 +863,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       case ICMP_ECHOREPLY:
       case ICMP_ECHO:
-	call_dissector(data_handle, tvb_new_subset(tvb, 8, -1, -1), pinfo,
+	call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8), pinfo,
 	               icmp_tree);
 	break;
 
@@ -881,7 +881,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_mip_extensions(tvb, 8 + i*8, icmp_tree);
 	  }
 	} else
-	  call_dissector(data_handle, tvb_new_subset(tvb, 8, -1, -1), pinfo,
+	  call_dissector(data_handle, tvb_new_subset_remaining(tvb, 8), pinfo,
 	                 icmp_tree);
 	break;
 

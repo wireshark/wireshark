@@ -76,7 +76,7 @@ dissect_regreqmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			proto_tree_add_item (regreqmp_tree, hf_docsis_regreqmp_fragment_sequence_number, tvb, 3, 1, FALSE);
 
 			/* Call Dissector for Appendix C TLV's */
-			next_tvb = tvb_new_subset (tvb, 4, -1, -1);
+			next_tvb = tvb_new_subset_remaining (tvb, 4);
 			call_dissector (docsis_tlv_handle, next_tvb, pinfo, regreqmp_tree);
 		}
 	}

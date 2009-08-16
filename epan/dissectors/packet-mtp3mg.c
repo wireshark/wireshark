@@ -1097,7 +1097,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    h0 = tvb_get_guint8(tvb, 0) & H0_MASK;
 	    h1 = (tvb_get_guint8(tvb, 0) & H1_MASK) >> H1_SHIFT;
 
-	    payload_tvb = tvb_new_subset(tvb, H0H1_LENGTH, -1, -1);
+	    payload_tvb = tvb_new_subset_remaining(tvb, H0H1_LENGTH);
 
 	    switch (h0)
 	    {
@@ -1124,7 +1124,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				JAPAN_SPARE_LENGTH, TRUE);
 
 	    /*  Get a tvb w/o the spare byte--it makes for less code below */
-	    tvb = tvb_new_subset(tvb, JAPAN_SPARE_LENGTH, -1, -1);
+	    tvb = tvb_new_subset_remaining(tvb, JAPAN_SPARE_LENGTH);
 	}
 
 	proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_h0, tvb, 0, H0H1_LENGTH,
@@ -1134,7 +1134,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	h0 = tvb_get_guint8(tvb, 0) & H0_MASK;
 	h1 = (tvb_get_guint8(tvb, 0) & H1_MASK) >> H1_SHIFT;
 
-	payload_tvb = tvb_new_subset(tvb, H0H1_LENGTH, -1, -1);
+	payload_tvb = tvb_new_subset_remaining(tvb, H0H1_LENGTH);
 
 	switch (h0)
 	{

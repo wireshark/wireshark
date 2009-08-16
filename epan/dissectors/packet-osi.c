@@ -255,7 +255,7 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (dissector_try_port(osinl_subdissector_table, nlpid, tvb, pinfo, tree))
     return;
   /* try lookup with the subdissector tables that excludes the nlpid */
-  new_tvb = tvb_new_subset(tvb, 1, -1, -1);
+  new_tvb = tvb_new_subset_remaining(tvb, 1);
   if (dissector_try_port(osinl_excl_subdissector_table, nlpid, new_tvb, pinfo, tree))
     return;
 

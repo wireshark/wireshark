@@ -94,7 +94,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * IP on Ethernet - Incoming data points to an ethernet header
 			 * outgoing we have a pure IPv4 Packet
 			 */
-			next_tvb = tvb_new_subset(tvb, dataoff, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, dataoff);
 			if (dataoff == l3off)
 				call_dissector(ipv4_handle, next_tvb, pinfo, tree);
 			else if (dataoff+2 == l3off)
@@ -112,17 +112,17 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * the ethernet and CLNP headers ...
 			 *
 			 */
-			next_tvb = tvb_new_subset(tvb, dataoff, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, dataoff);
 			if (l3off > dataoff) {
 				call_dissector(ethnofcs_handle, next_tvb, pinfo, tree);
 			} else {
 				guint8 nlpid = tvb_get_guint8(tvb, dataoff);
 				if(dissector_try_port(osinl_subdissector_table, nlpid, next_tvb, pinfo, tree))
 					break;
-				next_tvb = tvb_new_subset(tvb, dataoff+1, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, dataoff+1);
 				if(dissector_try_port(osinl_excl_subdissector_table, nlpid, next_tvb, pinfo, tree))
 					break;
-				next_tvb = tvb_new_subset(tvb, dataoff, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, dataoff);
 				call_dissector(data_handle, next_tvb, pinfo, tree);
 			}
 			break;
@@ -135,11 +135,11 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			flags = tvb_get_ntohl(tvb, 4);
 
 			if (flags & 0x00400000) {
-				next_tvb = tvb_new_subset(tvb, dataoff, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, dataoff);
 			} else {
 				if (tree)
 					proto_tree_add_item(rbtree, hf_redback_unknown, tvb, dataoff, 4, FALSE);
-				next_tvb = tvb_new_subset(tvb, dataoff+4, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, dataoff+4);
 			}
 
 			if (l3off == dataoff) {
@@ -152,7 +152,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x03: /* Unicast Ethernet tx - Seen with PPPoE PADO */
 		case 0x04: /* Unicast Ethernet rx - Seen with ARP  */
 		case 0x08: /* Broadcast Ethernet rx - Seen with PPPoE PADI */
-			next_tvb = tvb_new_subset(tvb, dataoff, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, dataoff);
 			call_dissector(ethnofcs_handle, next_tvb, pinfo, tree);
 			break;
 		default:

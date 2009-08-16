@@ -308,7 +308,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* handle N-PDU data, reassemble if necessary 
    */
   if (first && !more_frags) {
-    next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining (tvb, offset);
     
     if (!dcomp && !pcomp) {
       call_dissector(ip_handle, next_tvb, pinfo, tree);

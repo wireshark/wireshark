@@ -4422,7 +4422,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 else
                 {
                     /* This is either a beggining or middle fragment on second dissection */
-                    next_tvb = tvb_new_subset(tvb, 0, -1, -1);
+                    next_tvb = tvb_new_subset_remaining(tvb, 0);
                     if (check_col(pinfo->cinfo, COL_INFO))
                     {
                       if (!spx_info->eom)
@@ -4450,12 +4450,12 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*
              * There are no bytes so Dissect this
              */
-            next_tvb = tvb_new_subset(tvb, 0, -1, -1);
+            next_tvb = tvb_new_subset_remaining(tvb, 0);
         }
         if (next_tvb == NULL)
         {
             /* This is a fragment packet */
-            next_tvb = tvb_new_subset (tvb, 0, -1, -1);
+            next_tvb = tvb_new_subset_remaining (tvb, 0);
             call_dissector(ndps_data_handle, next_tvb, pinfo, tree);
         }
         else

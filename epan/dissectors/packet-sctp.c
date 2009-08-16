@@ -1006,7 +1006,7 @@ static void
 dissect_unrecognized_parameters_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   /* FIXME: Does it contain one or more parameters? */
-  dissect_parameter(tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1), pinfo, parameter_tree, NULL, FALSE);
+  dissect_parameter(tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET), pinfo, parameter_tree, NULL, FALSE);
 }
 
 #define COOKIE_PRESERVATIVE_PARAMETER_INCR_LENGTH 4

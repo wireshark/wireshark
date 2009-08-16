@@ -513,7 +513,7 @@ static int dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _
 	if (is_uuid_null(plugin_uuid))
 	{
 	        /* a message follows */
-	        tvbuff_t *subtvb = tvb_new_subset(tvb, offset, -1, -1);
+	        tvbuff_t *subtvb = tvb_new_subset_remaining(tvb, offset);
 	        offset += dissect_aim_rendezvous_extended_message(subtvb, entry);
 	}
 	else
@@ -555,7 +555,7 @@ static int dissect_aim_msg_clientautoresp(tvbuff_t *tvb, packet_info *pinfo, pro
 	case 0x0003:
 		{
 		    proto_item *ti_extended_data = proto_tree_add_text(msg_tree, tvb, offset, -1, "Extended Data");
-		    tvbuff_t *subtvb = tvb_new_subset(tvb, offset, -1, -1);
+		    tvbuff_t *subtvb = tvb_new_subset_remaining(tvb, offset);
 		    dissect_aim_tlv_value_extended_data(ti_extended_data, 0, subtvb, pinfo);
 		}
 		break;

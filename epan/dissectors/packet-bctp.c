@@ -72,7 +72,7 @@ static const value_string bvei_vals[] = {
 static void dissect_bctp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	proto_item* pi = proto_tree_add_item(tree, proto_bctp, tvb,0,2, FALSE);
 	proto_tree* pt = proto_item_add_subtree(pi,ett_bctp);
-	tvbuff_t* sub_tvb = tvb_new_subset(tvb, 2, -1, -1);
+	tvbuff_t* sub_tvb = tvb_new_subset_remaining(tvb, 2);
 	guint8 tpi = tvb_get_guint8(tvb,1) & 0x3f;
 	
 	proto_tree_add_item(pt, hf_bctp_bvei, tvb,0,2, FALSE);

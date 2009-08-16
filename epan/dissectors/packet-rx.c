@@ -580,7 +580,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		void* pd_save;
 		pd_save = pinfo->private_data;
 		pinfo->private_data = &rxinfo;
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(afs_handle, next_tvb, pinfo, parent_tree);
 		pinfo->private_data = pd_save;
 		};

@@ -190,7 +190,7 @@ static int dissect_aim_tlv_value_icq(proto_item *ti _U_, guint16 subtype _U_, tv
 		proto_item_append_text(subtype_item, " (%s)", icq_calls[i].name?icq_calls[i].name:"Unknown");
 
 		if(icq_calls[i].dissector) 
-			return icq_calls[i].dissector(tvb_new_subset(tvb, offset, -1, -1), pinfo, t);
+			return icq_calls[i].dissector(tvb_new_subset_remaining(tvb, offset), pinfo, t);
 
 	default:
 		break;

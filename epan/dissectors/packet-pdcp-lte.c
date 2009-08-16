@@ -1577,7 +1577,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (!p_pdcp_info->rohc_compression) {
 
         if (global_pdcp_dissect_user_plane_as_ip && (ip_handle != 0)) {
-            tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset, -1, -1);
+            tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree);
         }
         else {

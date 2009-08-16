@@ -262,7 +262,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         next_tvb = tvb_new_subset (tvb, MDSHDR_HEADER_SIZE, pktlen, pktlen);
     }
     else {
-        next_tvb = tvb_new_subset (tvb, MDSHDR_HEADER_SIZE, -1, -1);
+        next_tvb = tvb_new_subset_remaining (tvb, MDSHDR_HEADER_SIZE);
     }
 
     /* Call the Fibre Channel dissector */

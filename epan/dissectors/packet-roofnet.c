@@ -192,7 +192,7 @@ static void dissect_roofnet_data(proto_tree *tree, tvbuff_t *tvb, packet_info * 
     return;
 
   /* dissect ip payload */
-  call_dissector(ip_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+  call_dissector(ip_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 
 }
 

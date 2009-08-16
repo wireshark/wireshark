@@ -428,7 +428,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved2, tvb, offset, 4, FALSE);
         			offset += 4;
         		} else {
-        			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        			next_tvb = tvb_new_subset_remaining(tvb, offset);
         			call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
         		}
                 }
@@ -516,7 +516,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                 proto_tree_add_item(group_state_tlv, hf_hsrp2_virt_ip_addr_v6, tvb, offset, 16, FALSE);
                                         } else {
                                                 /* Unknown protocol */
-                        			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+                        			next_tvb = tvb_new_subset_remaining(tvb, offset);
                         			call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
                                                 break;
 					}
@@ -593,7 +593,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         } else {
                                 /* Undefined TLV */
 				if (tree) {
-        				next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        				next_tvb = tvb_new_subset_remaining(tvb, offset);
         				call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
 				}
                                 break;

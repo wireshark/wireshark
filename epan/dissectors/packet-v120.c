@@ -166,7 +166,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_bytes_exist(tvb, v120len, 1))
 		v120len += dissect_v120_header(tvb, v120len, v120_tree);
 	proto_item_set_len(ti, v120len);
-	next_tvb = tvb_new_subset(tvb, v120len, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, v120len);
 	call_dissector(data_handle,next_tvb, pinfo, v120_tree);
     }
 }

@@ -698,7 +698,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 
 		save_in_error_pkt = pinfo->in_error_pkt;
 		pinfo->in_error_pkt = TRUE;
-		sub_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		sub_tvb = tvb_new_subset_remaining(tvb, offset);
 		if (isErr) {
 			dissect_nhrp(sub_tvb, pinfo, ind_tree);
 		}

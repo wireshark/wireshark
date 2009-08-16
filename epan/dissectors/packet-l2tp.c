@@ -1395,7 +1395,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
 						index + l2tpv3_cookie + 1, 3, FALSE);
 		}
-		next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie + 4, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, index + l2tpv3_cookie + 4);
 		break;
 	case L2TPv3_L2_SPECIFIC_ATM:
 		if (tree) {
@@ -1421,16 +1421,16 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
 						index + l2tpv3_cookie + 1, 3, FALSE);
 		}
-		next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie + 4, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, index + l2tpv3_cookie + 4);
 		break;
 	case L2TPv3_L2_SPECIFIC_LAPD:
 		if (tree)
 			proto_tree_add_text(tree, tvb, index + l2tpv3_cookie + 4, 3,"LAPD info");
-		next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie+4+3, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, index + l2tpv3_cookie+4+3);
 		break;
 	case L2TPv3_L2_SPECIFIC_NONE:
 	default:
-		next_tvb = tvb_new_subset(tvb, index + l2tpv3_cookie, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, index + l2tpv3_cookie);
 		break;
 	}
 
@@ -1881,7 +1881,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item_set_len(l2tp_item, index);
 		/* If we have data, signified by having a length bit, dissect it */
 		if (tvb_offset_exists(tvb, index)) {
-			next_tvb = tvb_new_subset(tvb, index, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, index);
 			call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
 		}
 		return tvb_length(tvb);

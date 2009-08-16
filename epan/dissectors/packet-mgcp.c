@@ -560,7 +560,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		/* Dissect sdp payload */
 		if (tvb_sectionend < tvb_len)
 		{
-			next_tvb = tvb_new_subset(tvb, tvb_sectionend, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, tvb_sectionend);
 			call_dissector(sdp_handle, next_tvb, pinfo, tree);
 		}
 	}

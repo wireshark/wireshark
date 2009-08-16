@@ -123,7 +123,7 @@ dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    pinfo->srcport);
 
 	/* Make the next tvbuff */
-	next_tvb = tvb_new_subset(tvb, IDP_HEADER_LEN, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, IDP_HEADER_LEN);
 
 	/*
 	 * Hand off to the dissector for the packet type.

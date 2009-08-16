@@ -142,7 +142,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    hf_rmp_filename, tvb, 30, 1, FALSE);
 				if(tvb_offset_exists(tvb, len+31))
 					call_dissector(data_handle,
-					    tvb_new_subset(tvb, len+31, -1, -1),
+					    tvb_new_subset_remaining(tvb, len+31),
 					    pinfo, tree);
 				break;
 
@@ -160,7 +160,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    hf_rmp_filename, tvb, 10, 1, FALSE);
 				if(tvb_offset_exists(tvb, len+11))
 					call_dissector(data_handle,
-					    tvb_new_subset(tvb, len+11, -1, -1),
+					    tvb_new_subset_remaining(tvb, len+11),
 					    pinfo, tree);
 				break;
 
@@ -175,7 +175,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    hf_rmp_size, tvb, 8, 2, FALSE);
 				if(tvb_offset_exists(tvb, 10))
 					call_dissector(data_handle,
-					    tvb_new_subset(tvb, 10, -1, -1),
+					    tvb_new_subset_remaining(tvb, 10),
 					    pinfo, tree);
 				break;
 
@@ -186,8 +186,8 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    hf_rmp_offset, tvb, 2, 4, FALSE);
 				proto_tree_add_item(rmp_tree, 
 				    hf_rmp_sessionid, tvb, 6, 2, FALSE);
-				call_dissector(data_handle, tvb_new_subset(tvb,
-				    8, -1, -1), pinfo, rmp_tree);
+				call_dissector(data_handle, tvb_new_subset_remaining(tvb,
+				    8), pinfo, rmp_tree);
 				break;
 
 			case RMP_BOOT_DONE:
@@ -199,12 +199,12 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    hf_rmp_sessionid, tvb, 6, 2, FALSE);
 				if(tvb_offset_exists(tvb, 8))
 					call_dissector(data_handle,
-					    tvb_new_subset(tvb, 6, -1, -1),
+					    tvb_new_subset_remaining(tvb, 6),
 					    pinfo, tree);
 				break;
 			default:
-				call_dissector(data_handle, tvb_new_subset(tvb,
-				    1, -1, -1), pinfo, tree);
+				call_dissector(data_handle, tvb_new_subset_remaining(tvb,
+				    1), pinfo, tree);
 		}
 	}
 }

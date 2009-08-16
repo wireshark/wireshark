@@ -227,7 +227,7 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	protocol = tvb_get_ntohs(tvb, 14);
-	next_tvb = tvb_new_subset(tvb, SLL_HEADER_SIZE, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, SLL_HEADER_SIZE);
 	if (protocol <= 1536) {	/* yes, 1536 - that's how Linux does it */
 		/*
 		 * "proto" is *not* a length field, it's a Linux internal

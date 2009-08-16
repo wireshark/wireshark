@@ -173,7 +173,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (eapol_type) {
 
   case EAP_PACKET:
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(eap_handle, next_tvb, pinfo, eapol_tree);
     break;
 
@@ -281,7 +281,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case EAPOL_ENCAP_ASF_ALERT:	/* XXX - is this an SNMP trap? */
   default:
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, eapol_tree);
     break;
   }

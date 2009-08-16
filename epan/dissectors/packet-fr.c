@@ -600,7 +600,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				     hf_fr_control, ett_fr_control,
 				     &fr_cf_items, &fr_cf_items_ext,
 				     NULL, NULL, is_response, TRUE, TRUE);
-		dissect_lapf(tvb_new_subset(tvb,offset,-1,-1),pinfo,tree);
+		dissect_lapf(tvb_new_subset_remaining(tvb,offset),pinfo,tree);
 		return;
       }
       if (fr_ctrl == (XDLC_U|XDLC_XID)) {
@@ -608,7 +608,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				     hf_fr_control, ett_fr_control,
 				     &fr_cf_items, &fr_cf_items_ext,
 				     NULL, NULL, is_response, TRUE, TRUE);
-		dissect_fr_xid(tvb_new_subset(tvb,offset,-1,-1),pinfo,tree);
+		dissect_fr_xid(tvb_new_subset_remaining(tvb,offset),pinfo,tree);
 		return;
       }
 
@@ -627,7 +627,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
 
   case GPRS_NS:
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (addr != 0)
       call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
     else
@@ -635,7 +635,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
 
   case RAW_ETHER:
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (addr != 0)
       call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
     else
@@ -738,7 +738,7 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
    *
    * Either that, or it's Q.933 iff the DLCI is 0.
    */
-  next_tvb = tvb_new_subset(tvb,offset,-1,-1);
+  next_tvb = tvb_new_subset_remaining(tvb,offset);
   if (dissector_try_port(osinl_subdissector_table, fr_nlpid, next_tvb,
 			 pinfo, tree) ||
       dissector_try_port(fr_osinl_subdissector_table, fr_nlpid, next_tvb,
@@ -783,7 +783,7 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/* Include the NLPID in the top-level protocol tree item. */
 		proto_item_set_end(ti, tvb, offset);
 	}
-	next_tvb = tvb_new_subset(tvb,offset,-1,-1);
+	next_tvb = tvb_new_subset_remaining(tvb,offset);
 	if (!dissector_try_port(fr_subdissector_table,fr_nlpid,
 				next_tvb, pinfo, tree))
 		call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -794,12 +794,12 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void dissect_lapf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree_add_text(tree, tvb, 0, 0, "Frame relay lapf not yet implemented");
-	call_dissector(data_handle,tvb_new_subset(tvb,0,-1,-1),pinfo,tree);
+	call_dissector(data_handle,tvb_new_subset_remaining(tvb,0),pinfo,tree);
 }
 static void dissect_fr_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree_add_text(tree, tvb, 0, 0, "Frame relay xid not yet implemented");
-	call_dissector(data_handle,tvb_new_subset(tvb,0,-1,-1),pinfo,tree);
+	call_dissector(data_handle,tvb_new_subset_remaining(tvb,0),pinfo,tree);
 }
 
 /* Register the protocol with Wireshark */

@@ -1261,7 +1261,7 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
   col_set_writable(pinfo->cinfo, FALSE);
 
   if (!next_tvb)
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
  
   call_dissector(rdm_handle, next_tvb, pinfo, tree);
 

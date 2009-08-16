@@ -252,7 +252,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
         tvbuff_t *payload_tvb;
       
         offset += unique_id_len;
-        payload_tvb = tvb_new_subset (tvb, offset, -1, -1);
+        payload_tvb = tvb_new_subset_remaining (tvb, offset);
         dissect_giop(payload_tvb, pinfo, tree);
       }
     }

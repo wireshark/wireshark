@@ -582,7 +582,7 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	while(tvb_length_remaining(tvb,offset)>0)
 	{
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		offset += dissect_IFPPacket_PDU(next_tvb, pinfo, tr);
 		ifp_packet_number++;
 

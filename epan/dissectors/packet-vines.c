@@ -157,7 +157,7 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Decode the "real" Vines now */
-	next_tvb = tvb_new_subset(tvb, 2, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, 2);
 	call_dissector(vines_ip_handle, next_tvb, pinfo, tree);
 }
 
@@ -226,7 +226,7 @@ dissect_vines_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    ptype);
 	}
 
-	next_tvb = tvb_new_subset(tvb, 1, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, 1);
 	if (!dissector_try_port(vines_llc_dissector_table, ptype,
 	    next_tvb, pinfo, tree))
 		call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -386,7 +386,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	offset += 18;
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if (!dissector_try_port(vines_ip_dissector_table, viph.vip_proto,
 	    next_tvb, pinfo, tree))
 		call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -667,7 +667,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * if none of them accept the packet, or if it's not a data packet,
 	 * dissect it as data.
 	 */
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if (viph.vipc_pkttype != PKTTYPE_DATA ||
 	    !dissector_try_heuristic(vines_ipc_heur_subdissector_list,
 	      next_tvb, pinfo, tree))
@@ -794,7 +794,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * if none of them accept the packet, or if it's not a data packet,
 	 * dissect it as data.
 	 */
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if (viph.vspp_pkttype != PKTTYPE_DATA ||
 	    !dissector_try_heuristic(vines_spp_heur_subdissector_list,
 	      next_tvb, pinfo, tree))
@@ -1609,7 +1609,7 @@ dissect_vines_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->in_error_pkt = TRUE;
 
 	/* Decode the first 40 bytes of the original VIP datagram. */
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	call_dissector(vines_ip_handle, next_tvb, pinfo, vines_icp_tree);
 
 	/* Restore the "we're inside an error packet" flag. */

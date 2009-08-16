@@ -938,7 +938,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(seg_tree, hf_ampdu_count, tvb, 0, 0, mpdu_count);
             pinfo->fragmented=FALSE;
         } else {
-            next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11n");
             col_set_str(pinfo->cinfo, COL_INFO, "Unreassembled A-MPDU data");
             call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -946,7 +946,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (is_ht) { /* We didn't hit the reassembly code */
         call_dissector(ieee80211_ht_handle, next_tvb, pinfo, tree);
     } else {

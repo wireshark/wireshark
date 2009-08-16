@@ -207,7 +207,7 @@ decode_teredo_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,proto_tree *tr
 {
 	tvbuff_t *next_tvb;
 
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	if (dissector_try_port(teredo_dissector_table, th_header, next_tvb, pinfo, tree))
 		return;

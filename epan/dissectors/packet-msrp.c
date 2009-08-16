@@ -711,7 +711,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_item_set_end(msrp_headers_item, tvb, next_offset);
 
 			/* Create new tree & tvb for data */
-			next_tvb = tvb_new_subset(tvb, next_offset, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, next_offset);
 			ti = proto_tree_add_item(msrp_tree, hf_msrp_data, tvb,
 			                         next_offset, -1, FALSE);
 			msrp_data_tree = proto_item_add_subtree(ti, ett_msrp_data);

@@ -133,7 +133,7 @@ dissect_sdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * XXX - is there an FCS at the end, at least in Sniffer
 	 * captures?  (There doesn't appear to be.)
 	 */
-	next_tvb = tvb_new_subset(tvb, sdlc_header_len, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, sdlc_header_len);
 	if (XDLC_IS_INFORMATION(control)) {
 		/* call the SNA dissector */
 		call_dissector(sna_handle, next_tvb, pinfo, tree);

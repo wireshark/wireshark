@@ -310,7 +310,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( data_tree )
 	{
 		call_dissector(data_handle,
-		    tvb_new_subset(tvb, offset, -1, -1), pinfo, data_tree);
+		    tvb_new_subset_remaining(tvb, offset), pinfo, data_tree);
 	}
 
 	return;
@@ -1005,7 +1005,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		default:
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, offset, -1, -1), pinfo,
+			    tvb_new_subset_remaining(tvb, offset), pinfo,
 			    tns_tree);
 			break;
 	}

@@ -863,7 +863,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += dissect_capwap_preamble(tvb, capwap_control_tree, offset, &type_header);
 
 	if (type_header == 1) {
-		next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining (tvb, offset);
 		call_dissector(dtls_handle, next_tvb, pinfo, tree);
 		return;
 	}
@@ -908,7 +908,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += dissect_capwap_preamble(tvb, capwap_data_tree, offset, &type_header);
 
 	if (type_header == 1) {
-		next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining (tvb, offset);
 		call_dissector(dtls_handle, next_tvb, pinfo, tree);
 		return;
 	}
@@ -919,7 +919,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* CAPWAP Data Payload */
 
-	next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining (tvb, offset);
 
 	if (payload_type == 0) {
 		/* IEEE 802.3 Frame */

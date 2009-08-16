@@ -675,7 +675,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_le_client(tvb, tree);
 
     /* Dissect as Ethernet */
-    next_tvb_le_client	= tvb_new_subset(tvb, 2, -1, -1);
+    next_tvb_le_client	= tvb_new_subset_remaining(tvb, 2);
     call_dissector(eth_withoutfcs_handle, next_tvb_le_client, pinfo, tree);
     break;
 
@@ -685,14 +685,14 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_le_client(tvb, tree);
 
     /* Dissect as Token-Ring */
-    next_tvb_le_client	= tvb_new_subset(tvb, 2, -1, -1);
+    next_tvb_le_client	= tvb_new_subset_remaining(tvb, 2);
     call_dissector(tr_handle, next_tvb_le_client, pinfo, tree);
     break;
 
   default:
     /* Dump it as raw data. */
     col_set_str(pinfo->cinfo, COL_INFO, "Unknown LANE traffic type");
-    next_tvb		= tvb_new_subset(tvb, 0, -1, -1);
+    next_tvb		= tvb_new_subset_remaining(tvb, 0);
     call_dissector(data_handle,next_tvb, pinfo, tree);
     break;
   }
@@ -1137,7 +1137,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             {
                 /* assume vc muxed bridged ethernet */
                 proto_tree_add_text(tree, tvb, 0, 2, "Pad: 0x0000");
-                next_tvb = tvb_new_subset(tvb, 2, -1, -1);
+                next_tvb = tvb_new_subset_remaining(tvb, 2);
                 call_dissector(eth_handle, next_tvb, pinfo, tree);
             }
             else if (octet[2] == 0x03    && /* NLPID */
@@ -1193,7 +1193,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                pinfo->pseudo_header->atm.vci,
                                pinfo->pseudo_header->atm.aal2_cid);
 
-        next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, 4);
         call_dissector(fp_handle, next_tvb, pinfo, tree);
         break;
 
@@ -1785,7 +1785,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
 
   default:
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, tree);
     break;
   }

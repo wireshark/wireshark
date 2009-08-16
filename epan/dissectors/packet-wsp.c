@@ -5148,7 +5148,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			add_uri (wsp_tree, pinfo, tvb, offset, nextOffset, proto_ti);
 			if (tree) {
 				offset += value + count; /* VERIFY */
-				tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
+				tmp_tvb = tvb_new_subset_remaining (tvb, offset);
 				add_headers (wsp_tree, tmp_tvb, hf_wsp_headers_section, pinfo);
 			}
 			break;
@@ -5207,9 +5207,8 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tvb_reported_length_remaining(tvb,
 						headerStart + count + uriLength + headersLength) > 0)
 			{
-				tmp_tvb = tvb_new_subset (tvb,
-						headerStart + count + uriLength + headersLength,
-						-1, -1);
+				tmp_tvb = tvb_new_subset_remaining (tvb,
+						headerStart + count + uriLength + headersLength);
 				/*
 				 * Try finding a dissector for the content
 				 * first, then fallback.
@@ -5304,8 +5303,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength)
 					> 0)
 			{
-				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength,
-						-1, -1);
+				tmp_tvb = tvb_new_subset_remaining (tvb, headerStart + headersLength);
 				/*
 				 * Try finding a dissector for the content
 				 * first, then fallback.
@@ -5384,8 +5382,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength)
 					> 0)
 			{
-				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength,
-						-1, -1);
+				tmp_tvb = tvb_new_subset_remaining (tvb, headerStart + headersLength);
 				/*
 				 * Try finding a dissector for the content
 				 * first, then fallback.

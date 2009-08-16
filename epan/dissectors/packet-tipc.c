@@ -1340,7 +1340,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			}
 			/* W10 */
 			/* dissect the (one or more) Publications */
-			data_tvb = tvb_new_subset(tipc_tvb, offset, -1, -1);
+			data_tvb = tvb_new_subset_remaining(tipc_tvb, offset);
 			dissect_tipc_name_dist_data(data_tvb, tipc_tree, item_size);
 			break;
 		case TIPCv2_MSG_FRAGMENTER:
@@ -1919,7 +1919,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 				case 1: /* ORIGINAL_MSG */
 					proto_tree_add_text(tipc_tree, tvb, offset, -1, "TIPC_CHANGEOVER_PROTOCOL %s (%u)",
 							val_to_str(msg_type, tipc_cng_prot_msg_type_values, "unknown"), msg_type);
-					data_tvb = tvb_new_subset(tvb, offset, -1, -1);
+					data_tvb = tvb_new_subset_remaining(tvb, offset);
 					if (check_col(pinfo->cinfo, COL_INFO))
 						col_set_fence(pinfo->cinfo, COL_INFO);
 					dissect_tipc(data_tvb, pinfo, tipc_tree);
@@ -1978,7 +1978,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 			if (new_tvb) { /* take it all */
 				next_tvb = new_tvb;
 			} else { /* make a new subset */
-				next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, offset);
 			}
 			pinfo->fragmented = save_fragmented;
 			if (new_tvb) {
@@ -2273,7 +2273,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = offset + 8;
 				tipc_data_item = proto_tree_add_text(tipc_tree, tvb, offset, -1, "TIPC_NAME_DISTRIBUTOR %u bytes User Data", (msg_size - hdr_size*4));
 				tipc_data_tree = proto_item_add_subtree(tipc_data_item , ett_tipc_data);
-				data_tvb = tvb_new_subset(tipc_tvb, offset, -1, -1);
+				data_tvb = tvb_new_subset_remaining(tipc_tvb, offset);
 				dissect_tipc_name_dist_data(data_tvb, tipc_data_tree, 0);
 				return;
 			} else {
@@ -2295,7 +2295,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1, "%u bytes Data", (msg_size - hdr_size*4));
 					break;
 				case TIPC_NAMED_MSG:
-					data_tvb = tvb_new_subset(tipc_tvb, offset+14, -1, -1);
+					data_tvb = tvb_new_subset_remaining(tipc_tvb, offset+14);
 					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 14, "TIPC_NAMED_MSG Hdr");
 					proto_tree_add_text(tipc_tree, data_tvb, 0, -1, "%u bytes Data", (msg_size - hdr_size*4));
 					break;
@@ -2307,7 +2307,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 			}
 			/* tipc data type user doesn't change format, reuse v2 function */
-			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
 			call_tipc_v2_data_subdissectors(next_tvb, pinfo, name_type_p, user);				
 		}
 	} /*if (hdr_size <= 5) */

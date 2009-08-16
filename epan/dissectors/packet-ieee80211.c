@@ -7487,7 +7487,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             encap_type = ENCAP_IPX;
           else if (octet1 == 0x00 && octet2 == 0x00) {
             proto_tree_add_text(tree, next_tvb, 0, 2, "Mysterious OLPC stuff");
-            next_tvb = tvb_new_subset (next_tvb, 2, -1, -1);
+            next_tvb = tvb_new_subset_remaining (next_tvb, 2);
           }
         }
       }
@@ -7840,7 +7840,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     VALFIELD_PRISM(frmlen, "Frame Length");
 
     /* dissect the 802.11 header next */
-    next_tvb = tvb_new_subset(tvb, sizeof hdr, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, sizeof hdr);
     call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 }
 
@@ -8285,7 +8285,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = length;
 
     /* dissect the 802.11 header next */
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 }
 

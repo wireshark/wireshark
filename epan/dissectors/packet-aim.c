@@ -840,7 +840,7 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
 	}
   }
 
-  subtvb = tvb_new_subset(tvb, offset, -1, -1);
+  subtvb = tvb_new_subset_remaining(tvb, offset);
   aiminfo.tcpinfo = pinfo->private_data;
   aiminfo.family = family_id;
   aiminfo.subtype = subtype_id;

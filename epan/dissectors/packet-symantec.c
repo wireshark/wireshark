@@ -93,7 +93,7 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(symantec_tree, hf_symantec_etype, tvb,
 				6, 2, etypev2);
 		}
-		next_tvb = tvb_new_subset(tvb, 44, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, 44);
 		dissector_try_port(ethertype_dissector_table, etypev2, next_tvb, pinfo,
 			tree);
 	}
@@ -116,7 +116,7 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * availability of a capture file from an SGSv3 box using VLAN
 		 * tagging.
 		 */
-		next_tvb = tvb_new_subset(tvb, 56, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, 56);
 		dissector_try_port(ethertype_dissector_table, etypev3, next_tvb, pinfo,
 			tree);
 	}

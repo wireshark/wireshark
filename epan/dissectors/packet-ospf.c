@@ -1172,7 +1172,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	default:
 	    call_dissector(data_handle,
-	        tvb_new_subset(tvb, ospf_header_length, -1, -1), pinfo, tree);
+	        tvb_new_subset_remaining(tvb, ospf_header_length), pinfo, tree);
 	    break;
 	}
 

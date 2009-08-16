@@ -194,7 +194,7 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			high_socket = pinfo->destport;
 		}
 
-		next_tvb = tvb_new_subset(tvb, SPP_HEADER_LEN, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, SPP_HEADER_LEN);
 		if (dissector_try_port(spp_socket_dissector_table, low_socket,
 		    next_tvb, pinfo, tree))
 			return;

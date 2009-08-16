@@ -4425,7 +4425,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 	if (offset < len) {
-		call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
+		call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
 		    pinfo, afp_tree);
 	}
 }

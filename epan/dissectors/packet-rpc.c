@@ -2476,7 +2476,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * whatever's left as data.
 		 */
 		call_dissector(data_handle,
-		    tvb_new_subset(tvb, offset, -1, -1), pinfo, rpc_tree);
+		    tvb_new_subset_remaining(tvb, offset), pinfo, rpc_tree);
 		return TRUE;
 	}
 
@@ -2673,7 +2673,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            */
 
           call_dissector(data_handle,
-              tvb_new_subset(tvb, offset, -1, -1), pinfo, ptree);
+              tvb_new_subset_remaining(tvb, offset), pinfo, ptree);
         }
 
 	/* XXX this should really loop over all fhandles registred for the frame */

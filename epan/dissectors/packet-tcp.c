@@ -2771,7 +2771,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
   }
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */

@@ -197,7 +197,7 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_esl_header(tvb, pinfo, tree);
 			if ( eth_withoutfcs_handle != NULL )
 			{
-				next_tvb = tvb_new_subset(tvb, SIZEOF_ESLHEADER, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, SIZEOF_ESLHEADER);
 				call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);      
 			}
 			modify_times(tvb, 0, pinfo);		

@@ -197,7 +197,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 
     TRY {
       payload_tvb = tvb_new_subset(tvb, 14, length, length);
-      trailer_tvb = tvb_new_subset(tvb, 14 + length, -1, -1);
+      trailer_tvb = tvb_new_subset_remaining(tvb, 14 + length);
     }
     CATCH2(BoundsError, ReportedBoundsError) {
       /* Either:
@@ -225,7 +225,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
     /* The length field is 0; make it the length remaining in the packet
        after the first 14 bytes. */
     length = tvb_reported_length_remaining(tvb, 14);
-    payload_tvb = tvb_new_subset(tvb, 14, -1, -1);
+    payload_tvb = tvb_new_subset_remaining(tvb, 14);
     trailer_tvb = NULL;
   }
 
@@ -314,12 +314,12 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
       proto_tree_add_item(fh_tree, hf_isl_fcs_not_incl, payload_tvb, 16, 1, FALSE);
       proto_tree_add_item(fh_tree, hf_isl_esize, payload_tvb, 16, 1, FALSE);
     }
-    next_tvb = tvb_new_subset(payload_tvb, 17, -1, -1);
+    next_tvb = tvb_new_subset_remaining(payload_tvb, 17);
     call_dissector(tr_handle, next_tvb, pinfo, tree);
     break;
 
   default:
-    next_tvb = tvb_new_subset(payload_tvb, 12, -1, -1);
+    next_tvb = tvb_new_subset_remaining(payload_tvb, 12);
     call_dissector(data_handle, next_tvb, pinfo, tree);
     break;
   }

@@ -492,7 +492,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
             
             /* Special frame bit is not set */
-            next_tvb = tvb_new_subset (tvb, FCIP_ENCAP_HEADER_LEN+4, -1, -1);
+            next_tvb = tvb_new_subset_remaining (tvb, FCIP_ENCAP_HEADER_LEN+4);
             if (fc_handle) {
                 call_dissector (fc_handle, next_tvb, pinfo, tree);
             }

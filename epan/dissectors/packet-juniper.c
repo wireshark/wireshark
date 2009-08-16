@@ -609,7 +609,7 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 
   if ((*flags & JUNIPER_FLAG_NO_L2) == JUNIPER_FLAG_NO_L2) { /* no link header present ? */
     proto = tvb_get_letohl(tvb,hdr_len); /* proto is stored in host-order */
-    next_tvb = tvb_new_subset(tvb, hdr_len + 4, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, hdr_len + 4);
     dissect_juniper_payload_proto(tvb, pinfo, tree, ti, proto, hdr_len + 4);
     return -1;
   }
@@ -630,7 +630,7 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   ti = proto_tree_add_text (juniper_subtree, tvb, offset, 0, "[Payload Type: %s]",
                             val_to_str(proto,juniper_proto_vals,"Unknown"));
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);  
+  next_tvb = tvb_new_subset_remaining(tvb, offset);  
   
   switch (proto) {
   case PROTO_IP:
@@ -663,7 +663,7 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     nlpid = tvb_get_guint8(tvb, offset);
     if(dissector_try_port(osinl_subdissector_table, nlpid, next_tvb, pinfo, tree))
       return 0;
-    next_tvb = tvb_new_subset(tvb, offset+1, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset+1);
     if(dissector_try_port(osinl_excl_subdissector_table, nlpid, next_tvb, pinfo, tree))
       return 0;
     break;
@@ -1089,7 +1089,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
     return;  
   }
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);  
+  next_tvb = tvb_new_subset_remaining(tvb, offset);  
 
   if (next_proto == PROTO_OAM) {
     dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_OAM, offset);

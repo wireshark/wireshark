@@ -79,7 +79,7 @@ dissect_3com_xns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	type = tvb_get_ntohs(tvb, 0);
-	next_tvb = tvb_new_subset(tvb, 2, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, 2);
 	if (type == 0x0004) {
 		proto_tree_add_uint(subtree, hf_3com_xns_type_retix_bpdu,
 		    tvb, 0, 2, type);

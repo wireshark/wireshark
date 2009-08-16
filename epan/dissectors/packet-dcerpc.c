@@ -2969,7 +2969,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     */
     if(tvb_length(tvb)==tvb_reported_length(tvb)){
 	if(tvb_length_remaining(tvb, offset+length)>8){
-	    auth_tvb = tvb_new_subset(tvb, offset+length+8, -1, -1);
+	    auth_tvb = tvb_new_subset_remaining(tvb, offset+length+8);
 	}
     }
 

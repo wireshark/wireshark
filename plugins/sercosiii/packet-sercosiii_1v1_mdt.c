@@ -176,7 +176,7 @@ void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case COMMUNICATION_PHASE_3: /* CP3 */
   case COMMUNICATION_PHASE_4: /* CP4 */
-    tvb_n = tvb_new_subset(tvb, 6, -1, -1);
+    tvb_n = tvb_new_subset_remaining(tvb, 6);
     dissect_siii_mdt_cp3_4(tvb_n, pinfo, subtree, telno);
   break;
 

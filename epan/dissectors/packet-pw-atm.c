@@ -398,10 +398,10 @@ void dissect_payload_and_padding(
 		payload_size > dissected;
 		++(pd->pw_cell_number))
 	{
-		tvb_2 = tvb_new_subset(tvb,dissected,-1,-1);
+		tvb_2 = tvb_new_subset_remaining(tvb,dissected);
 		dissected += call_dissector(dh_cell_header, tvb_2, pinfo, tree);
 			
-		tvb_2 = tvb_new_subset(tvb,dissected,-1,-1);
+		tvb_2 = tvb_new_subset_remaining(tvb,dissected);
 		
 		/*dissect as oam for specific vci/pti, just like atm dissector does*/
 		if (pd->vci >= 0 && pd->pti >=0)
@@ -681,7 +681,7 @@ void dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 				union wtap_pseudo_header* pseudo_header_save;
 				union wtap_pseudo_header ph;
 				
-				tvb_3 = tvb_new_subset(tvb_2, 1, -1, -1);
+				tvb_3 = tvb_new_subset_remaining(tvb_2, 1);
 				/* prepare pseudo header for atm aal5 decoding */
 				pseudo_header_save = pinfo->pseudo_header;
 				pinfo->pseudo_header = &ph;
@@ -892,7 +892,7 @@ void dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		tvb_2 = tvb_new_subset(tvb, 0, PWC_SIZEOF_CW, PWC_SIZEOF_CW);
 		call_dissector(dh_control_word, tvb_2, pinfo, tree);
 		
-		tvb_2 = tvb_new_subset(tvb, PWC_SIZEOF_CW, -1, -1);
+		tvb_2 = tvb_new_subset_remaining(tvb, PWC_SIZEOF_CW);
 		if (PWATM_SUBMODE_ADMIN_CELL == pd.submode)
 		{
 			dissect_payload_and_padding(tvb_2,pinfo,tree,payload_size,padding_size);
@@ -1075,7 +1075,7 @@ void dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		tvb_2 = tvb_new_subset(tvb, 0, PWC_SIZEOF_CW, PWC_SIZEOF_CW);
 		call_dissector(dh_control_word, tvb_2, pinfo, tree);
 		
-		tvb_2 = tvb_new_subset(tvb, PWC_SIZEOF_CW, -1, -1);
+		tvb_2 = tvb_new_subset_remaining(tvb, PWC_SIZEOF_CW);
 		dissect_payload_and_padding(tvb_2,pinfo,tree,payload_size,padding_size);
 	}
 

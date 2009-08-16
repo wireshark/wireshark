@@ -579,7 +579,7 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		{
 			if(tab_ecm_inter[i].ecmg_port==pinfo->srcport) /* ECMG source port */
 			{ /* recognise port & ca_system_id and hence protocol name for ECM datagram */
-				next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, offset);
 				simulcrypt_ecm_datagram_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_ecm_datagram);
 				if(tab_ecm_inter[i].protocol_handle != NULL)
 				{

@@ -702,7 +702,7 @@ decode_pdu_ns_unitdata(build_info_t *bi) {
   decode_iei_control_bits(ies, bi, bi->offset);
   decode_pdu_general(&ies[1], 1, bi);
 
-  next_tvb = tvb_new_subset(bi->tvb, bi->offset, -1, -1);
+  next_tvb = tvb_new_subset_remaining(bi->tvb, bi->offset);
   if (bssgp_handle) {
     call_dissector(bssgp_handle, next_tvb, bi->pinfo, bi->parent_tree);
   } 

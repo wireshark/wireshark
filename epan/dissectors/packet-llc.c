@@ -527,7 +527,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		if (tvb_length_remaining(tvb, llc_header_len) > 0) {
-			next_tvb = tvb_new_subset(tvb, llc_header_len, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, llc_header_len);
 			if (XDLC_IS_INFORMATION(control)) {
 				/*
 				 * Non-SNAP I or UI frame.
@@ -606,7 +606,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		hf = *oui_info->field_info->p_id;
 		subdissector_table = oui_info->table;
 		proto_tree_add_uint(snap_tree, hf, tvb, offset+3, 2, etype);
-		next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 
 		if(!dissector_try_port(hpteam_subdissector_table,etype, next_tvb, pinfo, tree))
 	 		call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -627,13 +627,13 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 				proto_tree_add_uint(snap_tree, hf_type,
 				    tvb, offset+3, 2, etype);
 			}
-			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 			if (!dissector_try_port(ethertype_subdissector_table,
 			    etype, next_tvb, pinfo, tree))
 				call_dissector(data_handle, next_tvb, pinfo,
 				    tree);
 		} else {
-			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 		}
 		break;
@@ -657,15 +657,13 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		switch (etype) {
 
 		case BPID_ETH_WITH_FCS:
-			next_tvb = tvb_new_subset(tvb, offset+5+bridge_pad,
-			    -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset+5+bridge_pad);
 			call_dissector(eth_withfcs_handle, next_tvb, pinfo,
 			    tree);
 			break;
 
 		case BPID_ETH_WITHOUT_FCS:
-			next_tvb = tvb_new_subset(tvb, offset+5+bridge_pad,
-			    -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset+5+bridge_pad);
 			call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
 			break;
 
@@ -677,25 +675,23 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			 * Ring dissector expects the first byte to
 			 * be.
 			 */
-			next_tvb = tvb_new_subset(tvb, offset+5+bridge_pad,
-			    -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset+5+bridge_pad);
 			call_dissector(tr_handle, next_tvb, pinfo, tree);
 			break;
 
 		case BPID_FDDI_WITH_FCS:
 		case BPID_FDDI_WITHOUT_FCS:
-			next_tvb = tvb_new_subset(tvb, offset+5+1+bridge_pad,
-			    -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset+5+1+bridge_pad);
 			call_dissector(fddi_handle, next_tvb, pinfo, tree);
 			break;
 
 		case BPID_BPDU:
-			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 			call_dissector(bpdu_handle, next_tvb, pinfo, tree);
 			break;
 
 		default:
-			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 			break;
 		}
@@ -706,12 +702,12 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_uint(snap_tree, hf_pid, tvb, offset+3, 2,
 			    etype);
 		}
-		next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 		call_dissector(bpdu_handle, next_tvb, pinfo, tree);
 		break;
 
 	case OUI_TURBOCELL:
-		next_tvb = tvb_new_subset(tvb, offset+3, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset+3);
 		call_dissector(turbo_handle, next_tvb, pinfo, tree);
 		break;
 
@@ -726,17 +722,16 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 				proto_tree_add_uint(snap_tree, hf_type,
 				    tvb, offset+3, 2, etype);
 			}
-			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 			mesh_header_len = call_dissector(mesh_handle,
 			    next_tvb, pinfo, tree);
-			next_tvb = tvb_new_subset(tvb, offset+5+mesh_header_len,
-			    -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset+5+mesh_header_len);
 			if (!dissector_try_port(ethertype_subdissector_table,
 			    etype, next_tvb, pinfo, tree))
 				call_dissector(data_handle, next_tvb, pinfo,
 				    tree);
 		} else {
-			next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 		}
 		break;
@@ -764,7 +759,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_uint(snap_tree, hf, tvb, offset+3, 2,
 			    etype);
 		}
-		next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 		if (XDLC_IS_INFORMATION(control)) {
 			if (subdissector_table != NULL) {
 				/* do lookup with the subdissector table */

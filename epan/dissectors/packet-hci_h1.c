@@ -104,7 +104,7 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti=proto_tree_add_int(hci_h1_tree, hf_hci_h1_direction, tvb, 0, 0, pinfo->p2p_dir);
 	PROTO_ITEM_SET_GENERATED(ti);
 
-	next_tvb = tvb_new_subset(tvb, 0, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, 0);
 	if(!dissector_try_port(hci_h1_table, type, next_tvb, pinfo, tree)) {
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}

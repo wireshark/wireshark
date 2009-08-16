@@ -1383,7 +1383,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int advance;
 
   advance = dissect_ah_header(tvb, pinfo, tree, &nxt, &next_tree);
-  next_tvb = tvb_new_subset(tvb, advance, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, advance);
 
   if (g_ah_payload_in_subtree) {
     col_set_writable(pinfo->cinfo, FALSE);

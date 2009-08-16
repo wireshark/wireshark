@@ -145,7 +145,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Set the tvbuff for the payload after the header */
-  next_tvb = tvb_new_subset(tvb, ENC_HDRLEN, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, ENC_HDRLEN);
 
   switch (ench.af) {
 

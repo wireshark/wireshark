@@ -1913,7 +1913,7 @@ dissect_fcswils (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               call_dissector (fcsp_handle, tvb, pinfo, swils_tree);
     } else {
          /* data dissector */
-         next_tvb = tvb_new_subset (tvb, offset+4, -1, -1);
+         next_tvb = tvb_new_subset_remaining (tvb, offset+4);
          call_dissector (data_handle, next_tvb, pinfo, tree);
     }
 

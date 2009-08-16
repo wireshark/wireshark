@@ -590,7 +590,7 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 {
 	tvbuff_t *next_tvb;
 
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if(oid == NULL ||
 	    !dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
 		proto_item *item=NULL;
@@ -645,7 +645,7 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
 {
 	tvbuff_t *next_tvb;
 
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if(syntax == NULL ||
 	    !dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree)){
 	  proto_item *item=NULL;
@@ -1557,7 +1557,7 @@ ber_sequence_try_again:
 			 * length) of if the tvb is short, then just
 			 * give it all of the tvb and hope for the best.
 			 */
-			/*next_tvb = tvb_new_subset(tvb, hoffset, -1, -1);*/
+			/*next_tvb = tvb_new_subset_remaining(tvb, hoffset);*/
 		/*} else {*/
 
 		/*}*/
@@ -1887,7 +1887,7 @@ ber_old_sequence_try_again:
 			 * length) of if the tvb is short, then just
 			 * give it all of the tvb and hope for the best.
 			 */
-			/*next_tvb = tvb_new_subset(tvb, hoffset, -1, -1);*/
+			/*next_tvb = tvb_new_subset_remaining(tvb, hoffset);*/
 		/*} else {*/
 
 		/*}*/
@@ -2126,7 +2126,7 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 				 * length) of if the tvb is short, then just
 				 * give it all of the tvb and hope for the best.
 				 */
-				/*next_tvb = tvb_new_subset(tvb, hoffset, -1, -1);*/
+				/*next_tvb = tvb_new_subset_remaining(tvb, hoffset);*/
 			/*} else {*/
 
 			/*}*/
@@ -2390,7 +2390,7 @@ printf("SET dissect_old_ber_set(%s) entered\n",name);
 				 * length) of if the tvb is short, then just
 				 * give it all of the tvb and hope for the best.
 				 */
-				/*next_tvb = tvb_new_subset(tvb, hoffset, -1, -1);*/
+				/*next_tvb = tvb_new_subset_remaining(tvb, hoffset);*/
 			/*} else {*/
 
 			/*}*/
@@ -3954,7 +3954,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *p
 			if(len<=(guint32)tvb_length_remaining(tvb, offset)){
 				*out_tvb = tvb_new_subset(tvb, offset, len, len);
 			} else {
-				*out_tvb = tvb_new_subset(tvb, offset, -1, -1);
+				*out_tvb = tvb_new_subset_remaining(tvb, offset);
 			}
 		}
 	}

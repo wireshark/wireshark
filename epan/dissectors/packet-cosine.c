@@ -108,30 +108,30 @@ dissect_cosine(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (pseudo_header->cosine.encap) {
   case COSINE_ENCAP_ETH:
-    	  call_dissector(eth_withoutfcs_handle, tvb_new_subset(tvb, 0, -1, -1),
+    	  call_dissector(eth_withoutfcs_handle, tvb_new_subset_remaining(tvb, 0),
 			 pinfo, tree);
 	  break;
   case COSINE_ENCAP_ATM:
   case COSINE_ENCAP_PPoATM:
-    	  call_dissector(llc_handle, tvb_new_subset(tvb, 16, -1, -1),
+    	  call_dissector(llc_handle, tvb_new_subset_remaining(tvb, 16),
 			 pinfo, tree);
 	  break;
   case COSINE_ENCAP_PPP:
-	  call_dissector(ppp_hdlc_handle, tvb_new_subset(tvb, 4, -1, -1),
+	  call_dissector(ppp_hdlc_handle, tvb_new_subset_remaining(tvb, 4),
 			 pinfo, tree);
 	  break;
   case COSINE_ENCAP_HDLC:
 	  if (pseudo_header->cosine.direction == COSINE_DIR_TX) {
-		  call_dissector(chdlc_handle, tvb_new_subset(tvb, 2, -1, -1),
+		  call_dissector(chdlc_handle, tvb_new_subset_remaining(tvb, 2),
 				 pinfo, tree);
 	  } else if (pseudo_header->cosine.direction == COSINE_DIR_RX) {
-		  call_dissector(chdlc_handle, tvb_new_subset(tvb, 4, -1, -1),
+		  call_dissector(chdlc_handle, tvb_new_subset_remaining(tvb, 4),
 			 pinfo, tree);
 	  }
 	  break;
   case COSINE_ENCAP_FR:
   case COSINE_ENCAP_PPoFR:
-	  call_dissector(fr_handle, tvb_new_subset(tvb, 4, -1, -1),
+	  call_dissector(fr_handle, tvb_new_subset_remaining(tvb, 4),
 			 pinfo, tree);
 	  break;
   case COSINE_ENCAP_TEST:

@@ -443,7 +443,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                  * message with Error Code set to Notification to be
                  * sent back.
                  */
-                next_tvb = tvb_new_subset(tvb, *offset, -1, -1);
+                next_tvb = tvb_new_subset_remaining(tvb, *offset);
                 dissect_msdp(next_tvb, pinfo, tree);
                 break;
         case FSM_ERROR:

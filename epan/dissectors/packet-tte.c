@@ -126,7 +126,7 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             TTE_MACDEST_CTID_LENGTH, FALSE);
     }
 
-    tvb_next = tvb_new_subset(tvb, TTE_HEADER_LENGTH, -1, -1);
+    tvb_next = tvb_new_subset_remaining(tvb, TTE_HEADER_LENGTH);
 
     /* prevent the Columns to be cleared...appending cannot be prevented */
     col_set_fence(pinfo->cinfo, COL_PROTOCOL);

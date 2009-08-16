@@ -79,7 +79,7 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(airopeek_tree, hf_airopeek_channel, tvb, 17, 1, FALSE);
     proto_tree_add_item(airopeek_tree, hf_airopeek_unknown6, tvb, 18, 2, FALSE);
   }
-  next_tvb = tvb_new_subset(tvb, 20, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, 20);
   pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
   call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 }

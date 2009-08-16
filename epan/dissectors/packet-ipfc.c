@@ -88,7 +88,7 @@ dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                fcwwn_to_str (tvb_get_ptr (tvb, offset+8, 8)));
     }
 
-    next_tvb = tvb_new_subset (tvb, 16, -1, -1);
+    next_tvb = tvb_new_subset_remaining (tvb, 16);
     call_dissector(llc_handle, next_tvb, pinfo, tree);
 }
 

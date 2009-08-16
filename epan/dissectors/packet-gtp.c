@@ -5975,7 +5975,7 @@ static int decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * 
     offset++;
 
     if (sndcpxid_handle) {
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	call_dissector(sndcpxid_handle, next_tvb, pinfo, tree);
     } else
 	proto_tree_add_text(tree, tvb, offset, 0, "Data");
@@ -6159,7 +6159,7 @@ static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_tree_add_text(ext_tree, tvb, offset + 5, 2, "Data record format version: %u", format_ver);
 
     if (gtpcdr_handle) {
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	call_dissector(gtpcdr_handle, next_tvb, pinfo, tree);
     } else
 	proto_tree_add_text(tree, tvb, offset, 0, "Data");
@@ -6563,12 +6563,12 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	     * 0x4f is excluded because PPP protocol type "IPv6 header compression"
 	     * with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */
 
-	    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	    next_tvb = tvb_new_subset_remaining(tvb, offset);
 	    call_dissector(ip_handle, next_tvb, pinfo, tree);
 
 	} else if ((sub_proto & 0xf0) == 0x60) {
 	    /* this is most likely an IPv6 packet */
-	    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	    next_tvb = tvb_new_subset_remaining(tvb, offset);
 	    call_dissector(ipv6_handle, next_tvb, pinfo, tree);
 	} else {
 	    /* this seems to be a PPP packet */
@@ -6581,7 +6581,7 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		    acfield_len = 2;
 	    }
 
-	    next_tvb = tvb_new_subset(tvb, offset + acfield_len, -1, -1);
+	    next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
 	    call_dissector(ppp_handle, next_tvb, pinfo, tree);
 	}
 

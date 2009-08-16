@@ -2029,7 +2029,7 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
     return;
   }
 
-  sub_tvb = tvb_new_subset(tvb, offset, -1, -1 );
+  sub_tvb = tvb_new_subset_remaining(tvb, offset);
 
   /* XXX shouldn't pass through out-of-order packets. */
 

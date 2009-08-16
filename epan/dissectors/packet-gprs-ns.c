@@ -304,7 +304,7 @@ dissect_gprs_ns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree)
 			proto_tree_add_uint(gprs_ns_tree, hf_gprs_ns_bvci, tvb, offset, 2, bvc);
 		offset=offset+2;
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(bssgp_handle, next_tvb, pinfo, tree);
 		break;
 

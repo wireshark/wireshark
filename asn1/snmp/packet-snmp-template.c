@@ -1569,7 +1569,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * data which needs to be dissected in case of UDP as UDP is PDU oriented.
  	 */
 	if((!is_tcp) && (length_remaining > (guint)offset)) {
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 	else{

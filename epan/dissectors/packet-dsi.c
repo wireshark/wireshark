@@ -587,7 +587,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   	default:
 		if (tree) {
  			call_dissector(data_handle,
- 			    tvb_new_subset(tvb, DSI_BLOCKSIZ, -1, -1),
+ 			    tvb_new_subset_remaining(tvb, DSI_BLOCKSIZ),
  			    pinfo, dsi_tree);
 		}
 		break;

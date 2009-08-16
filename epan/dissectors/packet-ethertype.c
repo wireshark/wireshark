@@ -325,8 +325,8 @@ add_dix_trailer(packet_info *pinfo, proto_tree *fh_tree, int trailer_id,
 			/*
 			 * Yes - create a tvbuff for the padding.
 			 */
-			trailer_tvb = tvb_new_subset(tvb,
-			    offset_after_etype + length, -1, -1);
+			trailer_tvb = tvb_new_subset_remaining(tvb,
+			    offset_after_etype + length);
 		} else {
 			/*
 			 * No - don't bother showing the trailer.

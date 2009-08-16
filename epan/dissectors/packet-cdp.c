@@ -966,7 +966,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += length;
       }
     }
-    call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
+    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
 		   cdp_tree);
 }
 

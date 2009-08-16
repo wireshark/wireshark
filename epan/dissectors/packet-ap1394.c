@@ -93,7 +93,7 @@ dissect_ap1394(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   etype = tvb_get_ntohs(tvb, 16);
   if (tree)
     proto_tree_add_uint(fh_tree, hf_ap1394_type, tvb, 16, 2, etype);
-  next_tvb = tvb_new_subset(tvb, 18, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, 18);
   if (!dissector_try_port(ethertype_subdissector_table, etype, next_tvb,
 		pinfo, tree))
     call_dissector(data_handle, next_tvb, pinfo, tree);

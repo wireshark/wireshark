@@ -77,7 +77,7 @@ dissect_dscreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   FALSE);
 
       /* Call dissector for Appendix C TLV's */
-      next_tvb = tvb_new_subset (tvb, 2, -1, -1);
+      next_tvb = tvb_new_subset_remaining (tvb, 2);
       call_dissector (docsis_tlv_handle, next_tvb, pinfo, dscreq_tree);
     }
 

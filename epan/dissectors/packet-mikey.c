@@ -694,7 +694,7 @@ dissect_payload_hdr(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		tvbuff_t *sub_tvb;
 		int len;
 
-		sub_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		sub_tvb = tvb_new_subset_remaining(tvb, offset);
 		len = dissect_payload_cs_id(cs_id_map_type, mikey, sub_tvb, pinfo, tree);
 
 		if (len < 0)

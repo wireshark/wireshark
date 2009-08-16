@@ -218,7 +218,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if(message == RMI_INPUTSTREAM_MESSAGE_RETURNDATA) {
 		proto_tree_add_text(rmi_tree, tvb, offset + 1, -1,
 				    "Serialization Data");
-		next_tvb = tvb_new_subset(tvb, offset + 1, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset + 1);
 		dissect_ser(next_tvb, tree);
 	    }
 	    break;
@@ -230,7 +230,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(rmi_tree, tvb, offset + 1, -1,
 				    "Serialization Data");
 		/* XXX */
-		next_tvb = tvb_new_subset(tvb, offset + 1, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset + 1);
 		dissect_ser(next_tvb, tree);
 	    }
 	    if(message == RMI_OUTPUTSTREAM_MESSAGE_DGCACK) {

@@ -895,7 +895,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
     pinfo->pseudo_header->atm.channel = (flags & 0x03);
 
-    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, -1, -1);
+    new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
     /* Work around to have decoding working */
     if (erf_rawcell_first) {
       /* Treat this as a (short) ATM AAL5 PDU */
@@ -938,7 +938,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
     pinfo->pseudo_header->atm.channel = (flags & 0x03);
 
-    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, -1, -1);
+    new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
     /* Work around to have decoding working */
     pinfo->pseudo_header->atm.aal = AAL_5;
     switch (erf_aal5_type) {
@@ -976,7 +976,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
     pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 
-    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, -1, -1);
+    new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
     call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
     break;
 

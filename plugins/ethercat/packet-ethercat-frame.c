@@ -100,7 +100,7 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
    /* The EtherCAT frame header has now been processed, allow sub dissectors to
       handle the rest of the PDU. */
-   next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+   next_tvb = tvb_new_subset_remaining (tvb, offset);
 
    if (!dissector_try_port(ethercat_frame_dissector_table, hdr.v.protocol,
        next_tvb, pinfo, tree))

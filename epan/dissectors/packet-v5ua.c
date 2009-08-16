@@ -1389,7 +1389,7 @@ dissect_v5ua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
   common_header_tvb = tvb_new_subset(tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   dissect_common_header(common_header_tvb, pinfo, v5ua_tree);
 
-  parameters_tvb    = tvb_new_subset(tvb, COMMON_HEADER_LENGTH, -1, -1);
+  parameters_tvb    = tvb_new_subset_remaining(tvb, COMMON_HEADER_LENGTH);
   dissect_parameters(parameters_tvb, pinfo, tree, v5ua_tree);
     if (dlci_efa >= 0 && dlci_efa <= 8175) {
 	  if ((messageclassCopy == 0) || (messageclassCopy == 3) || (messageclassCopy == 4)) {

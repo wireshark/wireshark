@@ -123,7 +123,7 @@ static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				tvb_length_remaining(tvb, offset));
 #else
 	if(tvb_length_remaining(tvb, offset)) /* random data */
-	    call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
+	    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
 		pktgen_tree);
 #endif
     }

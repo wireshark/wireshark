@@ -3228,7 +3228,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 
 				if(sdp_length > tvb_length_remaining(parameter_tvb,offset)){
 					/* If this is a segmented message we may not have all the data */
-					next_tvb = tvb_new_subset(parameter_tvb, offset, -1, -1);
+					next_tvb = tvb_new_subset_remaining(parameter_tvb, offset);
 				}else{
 					next_tvb = tvb_new_subset(parameter_tvb, offset, sdp_length, sdp_length);
 				}
@@ -3489,7 +3489,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 	if (new_tvb) { /* take it all */
 		next_tvb = new_tvb;
 	} else { /* make a new subset */
-	 	next_tvb = tvb_new_subset(parameter_tvb, offset, -1, -1);
+	 	next_tvb = tvb_new_subset_remaining(parameter_tvb, offset);
 	}
 
 	proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1,
@@ -6618,7 +6618,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
    tap_rec.calling_number = NULL;
    tap_rec.called_number = NULL;
 
-   parameter_tvb = tvb_new_subset(message_tvb, offset, -1, -1);
+   parameter_tvb = tvb_new_subset_remaining(message_tvb, offset);
 
    /* distinguish between message types:*/
 	switch (isup_standard){
@@ -7036,7 +7036,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
      if (opt_parameter_pointer > 0){
        proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "Pointer to start of optional part: %u", opt_parameter_pointer);
        offset += opt_parameter_pointer;
-       optional_parameter_tvb = tvb_new_subset(message_tvb, offset, -1, -1 );
+       optional_parameter_tvb = tvb_new_subset_remaining(message_tvb, offset);
 	   switch(isup_standard){
 	   case ITU_STANDARD:
 		   dissect_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree);
@@ -7135,7 +7135,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint_format(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic, "CIC: %u", cic);
 	}
 
-	message_tvb = tvb_new_subset(tvb, CIC_LENGTH, -1, -1);
+	message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
 	dissect_isup_message(message_tvb, pinfo, isup_tree);
 }
 
@@ -7181,7 +7181,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint_format(bicc_tree, hf_bicc_cic, tvb, BICC_CIC_OFFSET, BICC_CIC_LENGTH, bicc_cic, "CIC: %u", bicc_cic);
 	}
 
-	message_tvb = tvb_new_subset(tvb, BICC_CIC_LENGTH, -1, -1);
+	message_tvb = tvb_new_subset_remaining(tvb, BICC_CIC_LENGTH);
 	dissect_isup_message(message_tvb, pinfo, bicc_tree);
 }
 
@@ -7211,7 +7211,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		isup_tree = proto_item_add_subtree(ti, ett_isup);
 	}
 
-	message_tvb = tvb_new_subset(tvb, 0, -1, -1);
+	message_tvb = tvb_new_subset_remaining(tvb, 0);
 	dissect_isup_message(message_tvb, pinfo, isup_tree);
 }
 /* ---------------------------------------------------- stats tree

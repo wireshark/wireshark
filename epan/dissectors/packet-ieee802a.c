@@ -134,7 +134,7 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if (tree)
 		proto_tree_add_uint(ieee802a_tree, hf, tvb, offset+3, 2, etype);
-	next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset+5);
 	if (subdissector_table != NULL) {
 		/* do lookup with the subdissector table */
 		if (dissector_try_port(subdissector_table, etype, next_tvb,

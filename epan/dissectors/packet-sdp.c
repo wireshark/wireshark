@@ -1017,7 +1017,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
     tvbuff_t *key_tvb;
     proto_item *key_ti;
 
-    key_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    key_tvb = tvb_new_subset_remaining(tvb, offset);
     key_ti = proto_tree_add_item(sdp_session_attribute_tree, hf_key_mgmt_att_value, key_tvb, 0, -1, FALSE);
 
     dissect_key_mgmt(key_tvb, pinfo, key_ti);

@@ -367,7 +367,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       PROTO_ITEM_SET_HIDDEN(hidden_item);
   }
 
-  next_tvb = tvb_new_subset(tvb, FDDI_HEADER_SIZE + FDDI_PADDING, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, FDDI_HEADER_SIZE + FDDI_PADDING);
 
 
   tap_queue_packet(fddi_tap, pinfo, fddihdr);

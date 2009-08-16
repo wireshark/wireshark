@@ -442,7 +442,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
         offset += sizeof(JXTA_UDP_SIG);
 
-        jxta_message_framing_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        jxta_message_framing_tvb = tvb_new_subset_remaining(tvb, offset);
         processed = dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, NULL, &content_length, &content_type);
 
         if ((0 == processed) || (NULL == content_type) || (content_length <= 0) || (content_length > UINT_MAX)) {
@@ -493,7 +493,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         proto_tree_add_item(jxta_udp_tree, hf_jxta_udpsig, tvb, tree_offset, sizeof(JXTA_UDP_SIG), FALSE);
         tree_offset += sizeof(JXTA_UDP_SIG);
 
-        jxta_message_framing_tvb = tvb_new_subset(tvb, tree_offset, -1, -1);
+        jxta_message_framing_tvb = tvb_new_subset_remaining(tvb, tree_offset);
 
         tree_offset += dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, jxta_tree, &content_length, &content_type);
 
@@ -1257,7 +1257,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
             /* parse elements */
             for (each_elem = 0; each_elem < elem_count; each_elem++) {
-                tvbuff_t *jxta_message_element_tvb = tvb_new_subset(tvb, offset, -1, -1);
+                tvbuff_t *jxta_message_element_tvb = tvb_new_subset_remaining(tvb, offset);
                 int processed;
 
                 if(JXTA_MSG_VERSION_1 == message_version) {
@@ -1417,7 +1417,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
         /* parse elements */
         for (each_elem = 0; each_elem < elem_count; each_elem++) {
-            tvbuff_t *jxta_message_element_tvb = tvb_new_subset(tvb, tree_offset, -1, -1);
+            tvbuff_t *jxta_message_element_tvb = tvb_new_subset_remaining(tvb, tree_offset);
 
             if(JXTA_MSG_VERSION_1 == message_version) {
                 tree_offset +=
@@ -1582,7 +1582,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
             tvbuff_t *jxta_signature_element_tvb;
             int processed;
 
-            jxta_signature_element_tvb = tvb_new_subset(tvb, offset, -1, -1);
+            jxta_signature_element_tvb = tvb_new_subset_remaining(tvb, offset);
 
             processed = dissect_jxta_message_element_1(jxta_signature_element_tvb, pinfo, NULL, 0, NULL);
 
@@ -1678,7 +1678,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
 
         /* process the signature element */
         if ((flags & JXTAMSG1_ELMFLAG_SIGNATURE) != 0) {
-            tvbuff_t *jxta_message_element_tvb = tvb_new_subset(tvb, tree_offset, -1, -1);
+            tvbuff_t *jxta_message_element_tvb = tvb_new_subset_remaining(tvb, tree_offset);
 
             tree_offset += dissect_jxta_message_element_1(jxta_message_element_tvb, pinfo, jxta_elem_tree, ns_count, names_table);
         }
@@ -1840,7 +1840,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             tvbuff_t *jxta_signature_element_tvb;
             int processed;
 
-            jxta_signature_element_tvb = tvb_new_subset(tvb, offset, -1, -1);
+            jxta_signature_element_tvb = tvb_new_subset_remaining(tvb, offset);
 
             processed = dissect_jxta_message_element_2(jxta_signature_element_tvb, pinfo, NULL, 0, NULL);
 
@@ -1977,7 +1977,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
 
         /* process the signature element */
         if ((flags & JXTAMSG2_ELMFLAG_SIGNATURE) != 0) {
-            tvbuff_t *jxta_message_element_tvb = tvb_new_subset(tvb, tree_offset, -1, -1);
+            tvbuff_t *jxta_message_element_tvb = tvb_new_subset_remaining(tvb, tree_offset);
 
             tree_offset += dissect_jxta_message_element_1(jxta_message_element_tvb, pinfo, jxta_elem_tree, names_count, names_table);
         }

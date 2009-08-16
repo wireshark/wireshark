@@ -1067,7 +1067,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	/* Dissect user information, if present */
 	if (has_user_information) {
 		if (tvb_reported_length_remaining(tvb, offset) > 0 || type == SES_MAJOR_SYNC_POINT) {
-			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 			/* do we have OSI presentation packet dissector ? */
 			if(!pres_handle)

@@ -1179,7 +1179,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * No fragmentation here.
 			 */
-			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
 			dissect_netbios_payload(next_tvb, pinfo, tree);
 			break;
 
@@ -1213,8 +1213,8 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							    next_tvb, &frag_tree_item);
 						}
 					} else {
-						next_tvb = tvb_new_subset(tvb,
-						    offset, -1, -1);
+						next_tvb = tvb_new_subset_remaining(tvb,
+						    offset);
 					}
 				} else {
 					next_tvb = NULL;
@@ -1235,12 +1235,12 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * we'd have to do reassembly to
 				 * be able to determine that.
 				 */
-				next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, offset);
 			}
 			if (next_tvb != NULL)
 				dissect_netbios_payload(next_tvb, pinfo, tree);
 			else {
-				next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+				next_tvb = tvb_new_subset_remaining (tvb, offset);
 				call_dissector(data_handle, next_tvb, pinfo,
 				    tree);
 			}

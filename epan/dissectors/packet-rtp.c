@@ -1298,7 +1298,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			if ( tree ) proto_tree_add_text(rtp_tree, tvb, 0, 0,
 			    "Frame has padding, but not all the frame data was captured");
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, offset, -1, -1),
+			    tvb_new_subset_remaining(tvb, offset),
 			    pinfo, rtp_tree);
 			return;
 		}

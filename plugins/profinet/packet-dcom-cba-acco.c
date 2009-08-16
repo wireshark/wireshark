@@ -3266,7 +3266,7 @@ dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
 
 	/*** the data below is NOT ndr encoded (especially NOT aligned)!!! ***/
 	/* dissect PROFINET component data (without header) */
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	offset += dissect_CBA_Connection_Data(next_tvb, pinfo, tree, cons_ldev, NULL /* frame */);
 
@@ -3424,7 +3424,7 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
 
 	    /*** the data below is NOT ndr encoded (especially NOT aligned)!!! ***/
 	    /* dissect PROFINET component data (without header) */
-	    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	    next_tvb = tvb_new_subset_remaining(tvb, offset);
 
         offset += dissect_CBA_Connection_Data(next_tvb, pinfo, tree, (call != NULL) ? *call : NULL, NULL /* frame */);
 

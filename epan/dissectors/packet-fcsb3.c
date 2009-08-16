@@ -882,8 +882,7 @@ static void dissect_fc_sbccs_dib_status_hdr (tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item (tree, hf_sbccs_lrc, tvb, offset+12, 4, 0);
 
         if (supp_status_cnt) {
-            next_tvb = tvb_new_subset (tvb, offset+FC_SBCCS_DIB_LRC_HDR_SIZE,
-                                       -1, -1);
+            next_tvb = tvb_new_subset_remaining (tvb, offset+FC_SBCCS_DIB_LRC_HDR_SIZE);
             call_dissector (data_handle, next_tvb, pinfo, tree);
         }
     }
@@ -1087,15 +1086,14 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
         dissect_fc_sbccs_dib_link_hdr (tvb, pinfo, dib_tree, offset);
         break;
     default:
-        next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+        next_tvb = tvb_new_subset_remaining (tvb, offset);
         call_dissector (data_handle, next_tvb, pinfo, dib_tree);
         break;
     }
 
     if ((get_fc_sbccs_iu_type (tvb, 0) != FC_SBCCS_IU_CTL) &&
         (get_fc_sbccs_iu_type (tvb, 0) != FC_SBCCS_IU_CMD_LINK_CTL))  {
-        next_tvb = tvb_new_subset (tvb, offset+FC_SBCCS_DIB_LRC_HDR_SIZE,
-                                   -1, -1);
+        next_tvb = tvb_new_subset_remaining (tvb, offset+FC_SBCCS_DIB_LRC_HDR_SIZE);
         call_dissector (data_handle, next_tvb, pinfo, tree);
     }
     pinfo->private_data = pd_save;

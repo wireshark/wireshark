@@ -1429,7 +1429,7 @@ again:
 
     case IP_PROTO_AH:
       ah = TRUE;
-      advance = dissect_ah_header(tvb_new_subset(tvb, offset, -1, -1),
+      advance = dissect_ah_header(tvb_new_subset_remaining(tvb, offset),
                                   pinfo, ipv6_tree, NULL, NULL);
       nxt = tvb_get_guint8(tvb, offset);
       poffset = offset;
@@ -1489,13 +1489,13 @@ again:
     /* Not the first fragment, or the first when we are reassembling and there are more. */
     /* Don't dissect it; just show this as a fragment. */
     /* COL_INFO was filled in by "dissect_frag6()" */
-    call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     return;
   } else {
     /* First fragment, not fragmented, or already reassembled.  Dissect what we have here. */
 
     /* Get a tvbuff for the payload. */
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
 
     /*
      * If this is the first fragment, but not the only fragment,

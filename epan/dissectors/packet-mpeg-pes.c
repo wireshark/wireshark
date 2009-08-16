@@ -794,7 +794,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset / 8, 64, FALSE);
 		offset += 64 * 8;
 
-		es = tvb_new_subset(tvb, offset / 8, -1, -1);
+		es = tvb_new_subset_remaining(tvb, offset / 8);
 		dissect_mpeg_pes(es, pinfo, tree);
 	} else if (stream == STREAM_SEQUENCE_EXTENSION) {
 		tvbuff_t *es;
@@ -802,7 +802,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = dissect_mpeg_pes_Sequence_extension(tvb, offset, &asn1_ctx,
 				tree, hf_mpeg_video_sequence_extension);
 
-		es = tvb_new_subset(tvb, offset / 8, -1, -1);
+		es = tvb_new_subset_remaining(tvb, offset / 8);
 		dissect_mpeg_pes(es, pinfo, tree);
 	} else if (stream == STREAM_GOP) {
 		tvbuff_t *es;
@@ -810,7 +810,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = dissect_mpeg_pes_Group_of_pictures(tvb, offset, &asn1_ctx,
 				tree, hf_mpeg_video_group_of_pictures);
 
-		es = tvb_new_subset(tvb, offset / 8, -1, -1);
+		es = tvb_new_subset_remaining(tvb, offset / 8);
 		dissect_mpeg_pes(es, pinfo, tree);
 	} else if (stream == STREAM_PACK) {
 		if (tvb_get_guint8(tvb, offset / 8) >> 6 == 1) {

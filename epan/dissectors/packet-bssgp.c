@@ -1241,7 +1241,7 @@ bssgp_proto_handoff(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset, disse
   tvbuff_t *next_tvb=NULL;
 
   if(ie->value_length > 0)
-    next_tvb = tvb_new_subset(bi->tvb, bi->offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(bi->tvb, bi->offset);
 
   if (bi->bssgp_tree) {
     bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);

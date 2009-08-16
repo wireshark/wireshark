@@ -134,18 +134,18 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* The Linux ISDN driver sends a fake MAC address before the PPP header
    * on its ippp interfaces... */
   else if (tvb_get_ntohs(tvb, 6) == 0xff03) {
-	next_tvb = tvb_new_subset(tvb, 6, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, 6);
 	call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
   }
   /* ...except when it just puts out one byte before the PPP header... */
   else if (tvb_get_ntohs(tvb, 1) == 0xff03) {
-	next_tvb = tvb_new_subset(tvb, 1, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, 1);
 	call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
   }
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
    * instead of a fake MAC address and PPP header. */
   else if (memcmp(tvb_get_ptr(tvb, 0, 10), zeroes, 10) == 0) {
-	next_tvb = tvb_new_subset(tvb, 10, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, 10);
 	call_dissector(ip_handle, next_tvb, pinfo, tree);
   }
   else {

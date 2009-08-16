@@ -753,7 +753,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 	  "Disconnect Request(DR): 0x%x -> 0x%x", src_ref, dst_ref);
 
   /* User data */
-  call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+  call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -911,7 +911,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     ositp_decode_var_part(tvb, offset, li, 4, cotp_tree);
   offset += li;
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
   fragment_length = tvb_length(next_tvb);
   if (check_col(pinfo->cinfo, COL_INFO)) {
       if(fragment) {
@@ -1089,7 +1089,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     ositp_decode_var_part(tvb, offset, li, 4, cotp_tree);
   offset += li;
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
   call_dissector(data_handle,next_tvb, pinfo, tree);
 
   offset += tvb_length_remaining(tvb, offset);
@@ -1232,7 +1232,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     ositp_decode_var_part(tvb, offset, li, class_option, cotp_tree);
   offset += li;
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
   if (!uses_inactive_subset){
     if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb,
 				pinfo, tree)) {
@@ -1581,7 +1581,7 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     ositp_decode_var_part(tvb, offset, li, 0, cltp_tree);
   offset += li;
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
   call_dissector(data_handle,next_tvb, pinfo, tree);
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
@@ -1630,7 +1630,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
       if (check_col(pinfo->cinfo, COL_INFO))
         col_append_str(pinfo->cinfo, COL_INFO, "Length indicator is zero");
       if (!first_tpdu)
-        call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
+        call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
                        pinfo, tree);
       return found_ositp;
     }
@@ -1684,7 +1684,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
 
     if (new_offset == -1) { /* incorrect TPDU */
       if (!first_tpdu)
-        call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
+        call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
                        pinfo, tree);
       break;
     }

@@ -82,7 +82,7 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, FALSE);
 	
 			/* Call Dissector for Appendix C TLV's */
-			next_tvb = tvb_new_subset (tvb, 5, -1, -1);
+			next_tvb = tvb_new_subset_remaining (tvb, 5);
 			call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrspmp_tree);
 		}
 }

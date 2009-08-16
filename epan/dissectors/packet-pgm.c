@@ -771,7 +771,7 @@ decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   tvbuff_t *next_tvb;
   int found = 0;
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
 
   /* do lookup with the subdissector table */
   found = dissector_try_port(subdissector_table, pgmhdr_sport,

@@ -252,7 +252,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (tvb_offset_exists(tvb, offset)) {
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, offset, -1, -1), pinfo,
+			    tvb_new_subset_remaining(tvb, offset), pinfo,
 			    ipp_tree);
 		}
 	}

@@ -949,7 +949,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
   else {
     /* Just show this as a fragment. */
-    new_tvb = tvb_new_subset (tvb, ATP_HDRSIZE -1, -1, -1);
+    new_tvb = tvb_new_subset_remaining (tvb, ATP_HDRSIZE -1);
     call_dissector(data_handle, new_tvb, pinfo, tree);
   }
   pinfo->fragmented = save_fragmented;
@@ -1721,7 +1721,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
 
     proto_tree_add_uint(ddp_tree, hf_ddp_type, tvb, 4, 1, type);
   }
-  new_tvb = tvb_new_subset(tvb, DDP_SHORT_HEADER_SIZE, -1, -1);
+  new_tvb = tvb_new_subset_remaining(tvb, DDP_SHORT_HEADER_SIZE);
 
   if (!dissector_try_port(ddp_dissector_table, type, new_tvb, pinfo, tree))
     call_dissector(data_handle,new_tvb, pinfo, tree);
@@ -1797,7 +1797,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ddp.type);
   }
 
-  new_tvb = tvb_new_subset(tvb, DDP_HEADER_SIZE, -1, -1);
+  new_tvb = tvb_new_subset_remaining(tvb, DDP_HEADER_SIZE);
 
   if (!dissector_try_port(ddp_dissector_table, ddp.type, new_tvb, pinfo, tree))
     call_dissector(data_handle,new_tvb, pinfo, tree);
@@ -1851,7 +1851,7 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree)
     proto_tree_add_uint(llap_tree, hf_llap_type, tvb, 2, 1, type);
 
-  new_tvb = tvb_new_subset(tvb, 3, -1, -1);
+  new_tvb = tvb_new_subset_remaining(tvb, 3);
 
   switch (type) {
 

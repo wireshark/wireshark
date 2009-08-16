@@ -374,7 +374,7 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
 	} /* Else: not fragmented */
 
 	if (! sm_tvb) /* One single Short Message, or not reassembled */
-		sm_tvb = tvb_new_subset (tvb, i, -1, -1);
+		sm_tvb = tvb_new_subset_remaining (tvb, i);
 	/* Try calling a subdissector */
 	if (sm_tvb) {
 		if ((reassembled && pinfo->fd->num == reassembled_in)

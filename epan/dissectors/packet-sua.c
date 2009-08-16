@@ -617,7 +617,7 @@ dissect_registration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 {
   tvbuff_t *parameters_tvb;
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
 }
 
@@ -626,7 +626,7 @@ dissect_deregistration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 {
   tvbuff_t *parameters_tvb;
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
 }
 
@@ -738,7 +738,7 @@ dissect_source_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
     proto_tree_add_item(address_indicator_tree, hf_source_address_ssn_bit,       parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
   }
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, ADDRESS_PARAMETERS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, ADDRESS_PARAMETERS_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree, NULL, ssn, NULL);
 }
 
@@ -759,7 +759,7 @@ dissect_destination_address_parameter(tvbuff_t *parameter_tvb, proto_tree *param
     proto_tree_add_item(address_indicator_tree, hf_destination_address_ssn_bit,       parameter_tvb, ADDRESS_INDICATOR_OFFSET, ADDRESS_INDICATOR_LENGTH, NETWORK_BYTE_ORDER);
   }
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, ADDRESS_PARAMETERS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, ADDRESS_PARAMETERS_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, ssn);
 }
 
@@ -991,7 +991,7 @@ dissect_routing_key_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 {
   tvbuff_t *parameters_tvb;
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
 }
 #define DRN_START_LENGTH 1
@@ -1033,7 +1033,7 @@ dissect_address_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 {
   tvbuff_t *parameters_tvb;
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
 }
 
@@ -1904,7 +1904,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   dissect_common_header(common_header_tvb, pinfo, sua_tree);
 
-  parameters_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_LENGTH, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(message_tvb, COMMON_HEADER_LENGTH);
   dissect_parameters(parameters_tvb, sua_tree, &data_tvb, &source_ssn, &dest_ssn);
 
   if ( message_class == MESSAGE_CLASS_CO_MESSAGE) {

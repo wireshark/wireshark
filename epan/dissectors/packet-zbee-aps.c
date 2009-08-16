@@ -828,7 +828,7 @@ dissect_zbee_aps_no_endpt:
     }
     /* If the payload exists, create a tvb subset. */
     else if (offset < tvb_length(tvb)) {
-        payload_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        payload_tvb = tvb_new_subset_remaining(tvb, offset);
     }
 
     /* If the payload exists, and the packet is fragmented, attempt reassembly. */
@@ -1635,7 +1635,7 @@ static void dissect_zbee_apf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 dissect_app_end:
     if (offset < tvb_length(tvb)) {
         /* There are bytes remaining! */
-        app_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        app_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector(data_handle, app_tvb, pinfo, tree);
     }
 } /* dissect_zbee_apf */

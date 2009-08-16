@@ -98,7 +98,7 @@ dissect_lge_monitor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(lge_monitor_tree, hf_lge_monitor_length, tvb, offset, 4, FALSE);
 	offset = offset +4;
 
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	switch (lge_monitor_proto_id){
 	case 0: /* MTP3 */

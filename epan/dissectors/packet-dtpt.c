@@ -426,7 +426,7 @@ dissect_dtpt_conversation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tvbuff_t	*next_tvb;
 		/* ... as data. */
 		call_dissector(data_handle,
-			tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+			tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		next_tvb = tvb_new_subset(tvb, offset, rest_length, rest_length);
 	}
 	return tvb_reported_length(tvb);

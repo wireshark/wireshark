@@ -2645,7 +2645,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     show_fragment_seq_tree(fd_head, &q931_frag_items, q931_tree, pinfo, next_tvb, &frag_tree_item);
                 }
 			} else {  /* only 1 segment */
-				next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, offset);
 			}
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s [reassembled]",

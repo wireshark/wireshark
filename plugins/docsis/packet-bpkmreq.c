@@ -104,7 +104,7 @@ dissect_bpkmreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
 
   /* Code to Call subdissector */
-  attrs_tvb = tvb_new_subset (tvb, 4, -1, -1);
+  attrs_tvb = tvb_new_subset_remaining (tvb, 4);
   call_dissector (attrs_handle, attrs_tvb, pinfo, tree);
 
 

@@ -370,7 +370,7 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		if ( !pinfo->fd->flags.visited){	/* if first pass */
 			wcp_save_data( tvb, pinfo);
 		}
-		next_tvb = tvb_new_subset(tvb, wcp_header_len, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, wcp_header_len);
 	}
 	else { 		/* cmd == 0 || (cmd == 0xf && ext_cmd == 0) */
 

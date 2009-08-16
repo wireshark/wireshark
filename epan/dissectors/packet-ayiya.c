@@ -134,7 +134,7 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = ayiya_len;
 	switch (opcode) {
 	case OPCODE_FORWARD:
-		payload = tvb_new_subset(tvb, offset, -1, -1);
+		payload = tvb_new_subset_remaining(tvb, offset);
 		dissector_try_port(ip_dissector_table, next_header, payload, pinfo, tree);
 		break;
 	}

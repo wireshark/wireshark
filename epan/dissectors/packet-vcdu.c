@@ -438,7 +438,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   apid=apid & 0x07ff;
 			   /* printf ( "new_ptr=%d new_offset=%d apid=%d ccsds_len=%d\n", new_ptr, new_offset, apid, ccsds_len );  fflush(stdout); */
 
-			   new_tvb = tvb_new_subset(tvb, new_offset, -1, -1);
+			   new_tvb = tvb_new_subset_remaining(tvb, new_offset);
 			   call_dissector(ccsds_handle, new_tvb, pinfo, vcdu_tree);
 		
 			   new_offset=new_offset+ccsds_len+7;

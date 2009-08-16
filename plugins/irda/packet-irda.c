@@ -662,7 +662,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
     }
 
     /* If any bytes remain, send it to the generic data dissector */
-    tvb = tvb_new_subset(tvb, offset, -1, -1);
+    tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, tvb, pinfo, root);
 }
 
@@ -919,7 +919,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     }
 
     /* If any bytes remain, send it to the generic data dissector */
-    tvb = tvb_new_subset(tvb, offset, -1, -1);
+    tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, tvb, pinfo, root);
 }
 
@@ -1030,7 +1030,7 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
         {
             offset += dissect_ttp(tvb, pinfo, root, (pdu_type == DATA_PDU));
 
-            tvb = tvb_new_subset(tvb, offset, -1, -1);
+            tvb = tvb_new_subset_remaining(tvb, offset);
         }
 
         pinfo->private_data = (void *)pdu_type;
@@ -1150,7 +1150,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
             }
         }
 
-        tvb = tvb_new_subset(tvb, offset, -1, -1);
+        tvb = tvb_new_subset_remaining(tvb, offset);
         proto_item_set_len(tree, offset);
     }
     else
@@ -1179,7 +1179,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
             }
         }
 
-        tvb = tvb_new_subset(tvb, offset, -1, -1);
+        tvb = tvb_new_subset_remaining(tvb, offset);
     }
 
     if (cbit == 0)
@@ -1792,7 +1792,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     if ((c & XDLC_I_MASK) == XDLC_I) {
         /* I frame */
         proto_item_set_len(tree, offset);
-        tvb = tvb_new_subset(tvb, offset, -1, -1);
+        tvb = tvb_new_subset_remaining(tvb, offset);
         dissect_irlmp(tvb, pinfo, root);
         return;
     }
@@ -1845,7 +1845,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
                 break;
 
             case IRDA_XID_CMD:
-                tvb = tvb_new_subset(tvb, offset, -1, -1);
+                tvb = tvb_new_subset_remaining(tvb, offset);
                 dissect_xid(tvb, pinfo, root, tree, TRUE);
                 return;
 
@@ -1879,7 +1879,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
                 break;
 
             case XDLC_XID:
-                tvb = tvb_new_subset(tvb, offset, -1, -1);
+                tvb = tvb_new_subset_remaining(tvb, offset);
                 dissect_xid(tvb, pinfo, root, tree, FALSE);
                 return;
          }
@@ -1888,7 +1888,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     /* If any bytes remain, send it to the generic data dissector */
     if (tvb_reported_length_remaining(tvb, offset) > 0)
     {
-        tvb = tvb_new_subset(tvb, offset, -1, -1);
+        tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector(data_handle, tvb, pinfo, root);
     }
 }

@@ -894,7 +894,7 @@ dissect_optional_0e(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (tvb_offset_exists(tvb, offset))
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, 4, -1, -1), pinfo, tree);
+			    tvb_new_subset_remaining(tvb, 4), pinfo, tree);
 	}
 	if (bits & 0x40) {
 		col_set_str(pinfo->cinfo, COL_INFO, "HPR Idle Message");
@@ -912,7 +912,7 @@ dissect_optional_0f(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(tree, hf_sna_nlp_opti_0f_bits, tvb, 2, 2, FALSE);
 	if (tvb_offset_exists(tvb, 4))
 		call_dissector(data_handle,
-		    tvb_new_subset(tvb, 4, -1, -1), pinfo, tree);
+		    tvb_new_subset_remaining(tvb, 4), pinfo, tree);
 }
 
 static void
@@ -925,7 +925,7 @@ dissect_optional_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(tree, hf_sna_nlp_opti_10_tcid, tvb, 4, 8, FALSE);
 	if (tvb_offset_exists(tvb, 12))
 		call_dissector(data_handle,
-		    tvb_new_subset(tvb, 12, -1, -1), pinfo, tree);
+		    tvb_new_subset_remaining(tvb, 12), pinfo, tree);
 }
 
 static void
@@ -958,7 +958,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ((type != 0x83) || (len <= 16)) {
 		/* Invalid */
 		call_dissector(data_handle,
-		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+		    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		return;
 	}
 	sub_item = proto_tree_add_text(tree, tvb, offset, len,
@@ -1010,7 +1010,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ((type != 0x85) || ( len < 4))  {
 		/* Invalid */
 		call_dissector(data_handle,
-		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+		    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		return;
 	}
 	sub_item = proto_tree_add_text(tree, tvb, offset, len,
@@ -1044,7 +1044,7 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		} else {
 			/* Invalid */
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+			    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 			return;
 		}
 		/* No padding here */
@@ -1103,11 +1103,11 @@ dissect_optional_22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (tvb_offset_exists(tvb, 20))
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, 20, -1, -1), pinfo, tree);
+			    tvb_new_subset_remaining(tvb, 20), pinfo, tree);
 	} else {
 		if (tvb_offset_exists(tvb, 12))
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, 12, -1, -1), pinfo, tree);
+			    tvb_new_subset_remaining(tvb, 12), pinfo, tree);
 	}
 }
 
@@ -1131,8 +1131,7 @@ dissect_optional(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (len == 0) {
 			if (tree)
 				call_dissector(data_handle,
-				    tvb_new_subset(tvb, offset,
-				    -1, -1), pinfo, tree);
+				    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 			return;
 		}
 
@@ -1273,7 +1272,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			if (tvb_offset_exists(tvb, index))
 				call_dissector(data_handle,
-					tvb_new_subset(tvb, index, -1, -1),
+					tvb_new_subset_remaining(tvb, index),
 					pinfo, parent_tree);
 			return;
 		}
@@ -1368,7 +1367,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		col_set_str(pinfo->cinfo, COL_INFO, "HPR Fragment");
 		if (tvb_offset_exists(tvb, index)) {
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, index, -1, -1), pinfo,
+			    tvb_new_subset_remaining(tvb, index), pinfo,
 			    parent_tree);
 		}
 		return;
@@ -1377,17 +1376,17 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Transmission Header Format Identifier */
 		fid = hi_nibble(tvb_get_guint8(tvb, index));
 		if (fid == 5) /* Only FID5 allowed for HPR */
-			dissect_fid(tvb_new_subset(tvb, index, -1, -1), pinfo,
+			dissect_fid(tvb_new_subset_remaining(tvb, index), pinfo,
 			    tree, parent_tree);
 		else {
 			if (tvb_get_ntohs(tvb, index+2) == 0x12ce) {
 				/* Route Setup */
 				col_set_str(pinfo->cinfo, COL_INFO, "HPR Route Setup");
-				dissect_gds(tvb_new_subset(tvb, index, -1, -1),
+				dissect_gds(tvb_new_subset_remaining(tvb, index),
 				    pinfo, tree, parent_tree);
 			} else
 				call_dissector(data_handle,
-				    tvb_new_subset(tvb, index, -1, -1),
+				    tvb_new_subset_remaining(tvb, index),
 				    pinfo, parent_tree);
 		}
 	}
@@ -1599,7 +1598,7 @@ dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (tvb_offset_exists(tvb, len))
 		call_dissector(data_handle,
-		    tvb_new_subset(tvb, len, -1, -1), pinfo, parent_tree);
+		    tvb_new_subset_remaining(tvb, len), pinfo, parent_tree);
 }
 
 /* --------------------------------------------------------------------
@@ -2194,7 +2193,7 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 		default:
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, 1, -1, -1), pinfo, parent_tree);
+			    tvb_new_subset_remaining(tvb, 1), pinfo, parent_tree);
 			return;
 	}
 
@@ -2212,7 +2211,7 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* If the FID dissector function didn't create an rh_tvb, then we just
 	 * use the rest of our tvbuff as the rh_tvb. */
 	if (!rh_tvb)
-		rh_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		rh_tvb = tvb_new_subset_remaining(tvb, offset);
 	rh_offset = 0;
 
 	/* Process the rest of the SNA packet, starting with RH */
@@ -2238,7 +2237,7 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         	}
 
 		call_dissector(data_handle,
-		    tvb_new_subset(rh_tvb, rh_offset, -1, -1),
+		    tvb_new_subset_remaining(rh_tvb, rh_offset),
 		    pinfo, parent_tree);
 	}
 }
@@ -2548,7 +2547,7 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	if (tvb_offset_exists(tvb, offset))
 		call_dissector(data_handle,
-		    tvb_new_subset(tvb, offset, -1, -1), pinfo, parent_tree);
+		    tvb_new_subset_remaining(tvb, offset), pinfo, parent_tree);
 }
 
 /* --------------------------------------------------------------------

@@ -433,7 +433,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_reported_length_remaining(tvb, offset) <= 0)
       return;	/* no payload */
   }
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
   if (!dissector_try_port(gre_dissector_table, type, next_tvb, pinfo, tree))
     call_dissector(data_handle,next_tvb, pinfo, gre_tree);
 }

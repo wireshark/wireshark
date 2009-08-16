@@ -84,7 +84,7 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(hci_h4_tree, hf_hci_h4_type,
 		tvb, 0, 1, TRUE);
 
-	next_tvb = tvb_new_subset(tvb, 1, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, 1);
 	if(!dissector_try_port(hci_h4_table, type, next_tvb, pinfo, tree)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 						pinfo->p2p_dir==P2P_DIR_SENT ? "Sent" : "Rcvd",

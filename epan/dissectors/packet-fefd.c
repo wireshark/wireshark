@@ -234,7 +234,7 @@ dissect_fefd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	}
 
-    call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, fefd_tree);
+    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, fefd_tree);
 }
 
 void

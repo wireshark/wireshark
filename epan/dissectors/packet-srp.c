@@ -96,7 +96,7 @@ static void dissect_ccsrl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
     /* XXX currently, we always dissect as H245. It's not necessarily
         that though.
     */
-    next_tvb = tvb_new_subset(tvb, 1, -1, -1 );
+    next_tvb = tvb_new_subset_remaining(tvb, 1);
     call_dissector( h245dg_handle, next_tvb, pinfo, ccsrl_tree );
 }
 

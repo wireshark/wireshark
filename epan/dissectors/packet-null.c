@@ -429,7 +429,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           (guint16) null_header);
       }
 
-      next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+      next_tvb = tvb_new_subset_remaining(tvb, 4);
       if (!dissector_try_port(ethertype_dissector_table,
             (guint16) null_header, next_tvb, pinfo, tree))
 	call_dissector(data_handle, next_tvb, pinfo, tree);
@@ -442,7 +442,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(fh_tree, hf_null_family, tvb, 0, 4, null_header);
       }
 
-      next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+      next_tvb = tvb_new_subset_remaining(tvb, 4);
       if (!dissector_try_port(null_dissector_table, null_header,
 	    next_tvb, pinfo, tree)) {
         /* No sub-dissector found.  Label rest of packet as "Data" */

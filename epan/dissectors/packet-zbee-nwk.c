@@ -587,7 +587,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     /* Plaintext payload. */
     else {
-        payload_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        payload_tvb = tvb_new_subset_remaining(tvb, offset);
     }
 
     if (packet.type == ZBEE_NWK_FCF_CMD) {

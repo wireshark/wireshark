@@ -604,7 +604,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					|| rdma_msg_opcode == RDMA_WRITE) {
 				
 				/* display the payload */
-				next_tvb = tvb_new_subset(tvb, DDP_TAGGED_HEADER_LEN, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, DDP_TAGGED_HEADER_LEN);
 				call_dissector(data_handle, next_tvb, pinfo, tree);
 			}
 			
@@ -633,7 +633,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					|| rdma_msg_opcode == RDMA_SEND_SE_INVALIDATE) {
 
 				/* display the payload */
-				next_tvb = tvb_new_subset(tvb, DDP_UNTAGGED_HEADER_LEN, -1, -1);
+				next_tvb = tvb_new_subset_remaining(tvb, DDP_UNTAGGED_HEADER_LEN);
 				call_dissector(data_handle, next_tvb, pinfo, tree);
 			}
 		}

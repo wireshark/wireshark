@@ -223,7 +223,7 @@ dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboo
 	if(tvb_get_guint8(tvb, offset)==0x7e){
                 /* TCP record mark, if any, not displayed.  But hopefully
                    KRB-ERROR dissection will proceed correctly. */
-		next_tvb=tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb=tvb_new_subset_remaining(tvb, offset);
 		return dissect_kerberos_main(next_tvb, pinfo, tree, FALSE, NULL);
 	}
 
@@ -251,7 +251,7 @@ dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboo
 	offset+=ap_req_len;
 
 	/* KRB-PRIV message */
-	next_tvb=tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	offset += dissect_kpasswd_krb_priv_message(pinfo, next_tvb, kpasswd_tree, (version==0xff80));
 
         proto_item_set_len(kpasswd_item, offset);

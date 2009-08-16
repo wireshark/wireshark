@@ -250,7 +250,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    /*
 	     * The rest of the packet is a multicast data packet.
 	     */
-	    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	    next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	    /*
 	     * It's an IP packet - determine whether it's IPv4 or IPv6.
@@ -856,7 +856,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    /*
 	     * The rest of the packet is a multicast data packet.
 	     */
-	    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	    next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	    /*
 	     * It's an IP packet - determine whether it's IPv4 or IPv6.

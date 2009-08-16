@@ -140,9 +140,9 @@ chdlctype(guint16 chdlc_type, tvbuff_t *tvb, int offset_after_chdlctype,
     /* There is a Padding Byte for CLNS protocols over Cisco HDLC */
     proto_tree_add_text(fh_tree, tvb, offset_after_chdlctype, 1, "CLNS Padding: 0x%02x",
         padbyte);
-    next_tvb = tvb_new_subset(tvb, offset_after_chdlctype + 1, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset_after_chdlctype + 1);
   } else {
-    next_tvb = tvb_new_subset(tvb, offset_after_chdlctype, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset_after_chdlctype);
   }
 
   /* do lookup with the subdissector table */
@@ -322,7 +322,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown packet type 0x%08X", code);
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
-      call_dissector(data_handle, tvb_new_subset(tvb, 4, -1, -1), pinfo,
+      call_dissector(data_handle, tvb_new_subset_remaining(tvb, 4), pinfo,
 		     slarp_tree);
     }
     break;

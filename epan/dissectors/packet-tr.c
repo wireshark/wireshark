@@ -565,7 +565,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	next_tvb = tvb_new_subset(tr_tvb, TR_MIN_HEADER_LEN + actual_rif_bytes + fixoffset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tr_tvb, TR_MIN_HEADER_LEN + actual_rif_bytes + fixoffset);
 
 	/* The package is either MAC or LLC */
 	switch (frame_type) {

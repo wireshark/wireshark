@@ -1159,7 +1159,7 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 {
   tvbuff_t *next_tvb;
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
 
   if (association && association->handle) {
     ssl_debug_printf("dissect_ssl3_record found association %p\n", (void *)association);

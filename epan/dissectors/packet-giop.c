@@ -3845,7 +3845,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
   header.exception_id = NULL;
 
   giop_header_tvb = tvb_new_subset (tvb, 0, GIOP_HEADER_SIZE, -1);
-  payload_tvb = tvb_new_subset (tvb, GIOP_HEADER_SIZE, -1, -1);
+  payload_tvb = tvb_new_subset_remaining (tvb, GIOP_HEADER_SIZE);
 
   /*
    * because I have added extra elements in MessageHeader struct

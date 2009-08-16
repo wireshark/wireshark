@@ -337,7 +337,7 @@ dissect_pktc_ap_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
     guint32 snonce;
 
     /* AP Request  kerberos blob */
-    pktc_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    pktc_tvb = tvb_new_subset_remaining(tvb, offset);
     offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
 
     /* Server Nonce */
@@ -368,7 +368,7 @@ dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
     tvbuff_t *pktc_tvb;
 
     /* AP Reply  kerberos blob */
-    pktc_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    pktc_tvb = tvb_new_subset_remaining(tvb, offset);
     offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
 
     /* app specific data */
@@ -470,7 +470,7 @@ dissect_pktc_error_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
     tvbuff_t *pktc_tvb;
 
     /* KRB_ERROR */
-    pktc_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    pktc_tvb = tvb_new_subset_remaining(tvb, offset);
     offset += dissect_kerberos_main(pktc_tvb, pinfo, tree, FALSE, NULL);
 
     return offset;
@@ -565,11 +565,11 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* KRB_AP_RE[QP] */
-    pktc_mtafqdn_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    pktc_mtafqdn_tvb = tvb_new_subset_remaining(tvb, offset);
     offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, NULL);
 
     /* KRB_SAFE */
-    pktc_mtafqdn_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    pktc_mtafqdn_tvb = tvb_new_subset_remaining(tvb, offset);
     offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, cb);
 
     proto_item_set_len(item, offset);

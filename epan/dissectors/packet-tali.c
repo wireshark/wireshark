@@ -122,7 +122,7 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (length > 0) {
-    payload_tvb = tvb_new_subset(tvb, TALI_HEADER_LENGTH, -1, -1);
+    payload_tvb = tvb_new_subset_remaining(tvb, TALI_HEADER_LENGTH);
     if (payload_tvb != NULL && !dissector_try_string(tali_dissector_table, opcode, payload_tvb, pinfo, tree)) {
       call_dissector(data_handle, payload_tvb, pinfo, tree);
     }

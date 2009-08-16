@@ -561,7 +561,7 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
    * token it dissected, so we can return the length of the part
    * we (and it) dissected.
    */
-  token_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  token_tvb = tvb_new_subset_remaining(tvb, offset);
   if (next_level_value && next_level_value->wrap_handle) {
     len = call_dissector(next_level_value->wrap_handle, token_tvb, actx->pinfo,
                          subtree);
@@ -782,7 +782,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case KRB_TOKEN_AP_REQ:
 	case KRB_TOKEN_AP_REP:
 	case KRB_TOKEN_AP_ERR:
-	  krb5_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	  krb5_tvb = tvb_new_subset_remaining(tvb, offset);
 	  offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE, NULL);
 	  break;
 
@@ -1562,7 +1562,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	}
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-	pinfo->gssapi_encrypted_tvb = tvb_new_subset(tvb, 16, -1, -1);
+	pinfo->gssapi_encrypted_tvb = tvb_new_subset_remaining(tvb, 16);
 
 	if (flags & 0x0002) {
 		if(pinfo->gssapi_encrypted_tvb){

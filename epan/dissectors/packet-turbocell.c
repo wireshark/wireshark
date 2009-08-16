@@ -195,7 +195,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
                 /*Couldn't make sense of the apparently random data in the end*/
 
-                next_tvb = tvb_new_subset(tvb, 0x34 + 8*i, -1, -1);
+                next_tvb = tvb_new_subset_remaining(tvb, 0x34 + 8*i);
                 call_dissector(data_handle, next_tvb, pinfo, tree);
 
             } else {
@@ -240,7 +240,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 } while (remaining_length > 6);
 
                 if (remaining_length > 2) {
-                    next_tvb = tvb_new_subset(next_tvb, msdu_offset, -1, -1);
+                    next_tvb = tvb_new_subset_remaining(next_tvb, msdu_offset);
                     call_dissector(data_handle, next_tvb, pinfo, tree);
                 }
             }

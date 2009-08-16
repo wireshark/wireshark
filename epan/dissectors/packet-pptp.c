@@ -280,7 +280,7 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (cntrl_type < NUM_CNTRL_TYPES)
       ( *(strfuncs[cntrl_type].func))(tvb, offset, pinfo, pptp_tree);
     else
-      call_dissector(data_handle,tvb_new_subset(tvb, offset, -1, -1), pinfo, pptp_tree);
+      call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset), pinfo, pptp_tree);
   }
 }
 
@@ -288,7 +288,7 @@ static void
 dissect_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree)
 {
-  call_dissector(data_handle,tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+  call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 }
 
 static void

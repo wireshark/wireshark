@@ -188,27 +188,27 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
 
   switch(code) {
   case UNRECOGNIZED_PARAMETER_CAUSE_CODE:
-    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    parameter_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
     dissect_parameter(parameter_tvb, cause_tree);
     break;
   case UNRECONGNIZED_MESSAGE_CAUSE_CODE:
-    message_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    message_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
     dissect_enrp(message_tvb, NULL, cause_tree);
     break;
   case INVALID_VALUES:
-    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    parameter_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
     dissect_parameter(parameter_tvb, cause_tree);
     break;
   case NON_UNIQUE_PE_IDENTIFIER:
     break;
   case POOLING_POLICY_INCONSISTENT_CAUSE_CODE:
-    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    parameter_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
     dissect_parameter(parameter_tvb, cause_tree);
     break;
   case LACK_OF_RESOURCES_CAUSE_CODE:
     break;
   case INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE:
-    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    parameter_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
     dissect_parameter(parameter_tvb, cause_tree);
     break;
   case INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE:
@@ -290,7 +290,7 @@ dissect_dccp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   proto_tree_add_item(parameter_tree, hf_dccp_reserved,     parameter_tvb, DCCP_RESERVED_OFFSET,     DCCP_RESERVED_LENGTH,     NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_dccp_service_code, parameter_tvb, DCCP_SERVICE_CODE_OFFSET, DCCP_SERVICE_CODE_LENGTH, NETWORK_BYTE_ORDER);
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, DCCP_ADDRESS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, DCCP_ADDRESS_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree);
 }
 
@@ -316,7 +316,7 @@ dissect_sctp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   proto_tree_add_item(parameter_tree, hf_sctp_port,     parameter_tvb, SCTP_PORT_OFFSET,          SCTP_PORT_LENGTH,          NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_transport_use, parameter_tvb, SCTP_TRANSPORT_USE_OFFSET, SCTP_TRANSPORT_USE_LENGTH, NETWORK_BYTE_ORDER);
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, SCTP_ADDRESS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, SCTP_ADDRESS_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree);
 }
 
@@ -334,7 +334,7 @@ dissect_tcp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   proto_tree_add_item(parameter_tree, hf_tcp_port,      parameter_tvb, TCP_PORT_OFFSET,          TCP_PORT_LENGTH,          NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_transport_use, parameter_tvb, TCP_TRANSPORT_USE_OFFSET, TCP_TRANSPORT_USE_LENGTH, NETWORK_BYTE_ORDER);
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, TCP_ADDRESS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, TCP_ADDRESS_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree);
 }
 
@@ -352,7 +352,7 @@ dissect_udp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   proto_tree_add_item(parameter_tree, hf_udp_port,     parameter_tvb, UDP_PORT_OFFSET,     UDP_PORT_LENGTH,     NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_udp_reserved, parameter_tvb, UDP_RESERVED_OFFSET, UDP_RESERVED_LENGTH, NETWORK_BYTE_ORDER);
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, UDP_ADDRESS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, UDP_ADDRESS_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree);
 }
 
@@ -370,7 +370,7 @@ dissect_udp_lite_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
   proto_tree_add_item(parameter_tree, hf_udp_lite_port,     parameter_tvb, UDP_LITE_PORT_OFFSET,     UDP_LITE_PORT_LENGTH,     NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_udp_lite_reserved, parameter_tvb, UDP_LITE_RESERVED_OFFSET, UDP_LITE_RESERVED_LENGTH, NETWORK_BYTE_ORDER);
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, UDP_LITE_ADDRESS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, UDP_LITE_ADDRESS_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree);
 }
 
@@ -522,7 +522,7 @@ dissect_pool_element_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
   pi = proto_tree_add_item(parameter_tree, hf_reg_life,    parameter_tvb, REGISTRATION_LIFE_OFFSET,     REGISTRATION_LIFE_LENGTH,     NETWORK_BYTE_ORDER);
   proto_item_append_text(pi, "ms");
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, USER_TRANSPORT_PARAMETER_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, USER_TRANSPORT_PARAMETER_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree);
 }
 
@@ -537,7 +537,7 @@ dissect_server_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 
   proto_tree_add_item(parameter_tree, hf_server_identifier, parameter_tvb, SERVER_ID_OFFSET, SERVER_ID_LENGTH, NETWORK_BYTE_ORDER);
 
-  parameters_tvb = tvb_new_subset(parameter_tvb, SERVER_TRANSPORT_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(parameter_tvb, SERVER_TRANSPORT_OFFSET);
   dissect_parameters(parameters_tvb, parameter_tree);
 }
 
@@ -548,7 +548,7 @@ dissect_operation_error_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
 {
   tvbuff_t *error_causes_tvb;
 
-  error_causes_tvb = tvb_new_subset(parameter_tvb, ERROR_CAUSES_OFFSET, -1,-1);
+  error_causes_tvb = tvb_new_subset_remaining(parameter_tvb, ERROR_CAUSES_OFFSET);
   dissect_error_causes(error_causes_tvb, parameter_tree);
 }
 
@@ -764,7 +764,7 @@ dissect_enrp_presence_message(tvbuff_t *message_tvb, proto_tree *message_tree, p
   proto_tree_add_item(flags_tree,   hf_reply_required_bit,  message_tvb, MESSAGE_FLAGS_OFFSET,       MESSAGE_FLAGS_LENGTH,       NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
-  parameters_tvb = tvb_new_subset(message_tvb, MESSAGE_PARAMETERS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(message_tvb, MESSAGE_PARAMETERS_OFFSET);
   dissect_parameters(parameters_tvb, message_tree);
 }
 
@@ -807,7 +807,7 @@ dissect_enrp_handle_table_response_message(tvbuff_t *message_tvb, proto_tree *me
   proto_tree_add_item(flags_tree,   hf_reject_bit,          message_tvb, MESSAGE_FLAGS_OFFSET,       MESSAGE_FLAGS_LENGTH,       NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
-  parameters_tvb = tvb_new_subset(message_tvb, MESSAGE_PARAMETERS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(message_tvb, MESSAGE_PARAMETERS_OFFSET);
   dissect_parameters(parameters_tvb, message_tree);
 }
 
@@ -840,7 +840,7 @@ dissect_enrp_handle_update_message(tvbuff_t *message_tvb, proto_tree *message_tr
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_update_action,       message_tvb, UPDATE_ACTION_OFFSET,       UPDATE_ACTION_LENGTH,       NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_pmu_reserved,        message_tvb, PNU_RESERVED_OFFSET,        PNU_RESERVED_LENGTH,        NETWORK_BYTE_ORDER);
-  parameters_tvb = tvb_new_subset(message_tvb, PNU_MESSAGE_PARAMETERS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(message_tvb, PNU_MESSAGE_PARAMETERS_OFFSET);
   dissect_parameters(parameters_tvb, message_tree);
 }
 
@@ -860,7 +860,7 @@ dissect_enrp_list_response_message(tvbuff_t *message_tvb, proto_tree *message_tr
   proto_tree_add_item(flags_tree,   hf_reject_bit,          message_tvb, MESSAGE_FLAGS_OFFSET,       MESSAGE_FLAGS_LENGTH,       NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
-  parameters_tvb = tvb_new_subset(message_tvb, MESSAGE_PARAMETERS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(message_tvb, MESSAGE_PARAMETERS_OFFSET);
   dissect_parameters(parameters_tvb, message_tree);
 }
 
@@ -901,7 +901,7 @@ dissect_enrp_error_message(tvbuff_t *message_tvb, proto_tree *message_tree, prot
 
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
-  parameters_tvb = tvb_new_subset(message_tvb, MESSAGE_PARAMETERS_OFFSET, -1, -1);
+  parameters_tvb = tvb_new_subset_remaining(message_tvb, MESSAGE_PARAMETERS_OFFSET);
   dissect_parameters(parameters_tvb, message_tree);
 }
 

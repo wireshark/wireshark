@@ -1294,7 +1294,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->pseudo_header->ieee_802_11.fcs_len = 0;
 
     /* Grab the rest of the frame. */
-    next_tvb = tvb_new_subset(tvb, length, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, length);
 
     /* If we had an in-header FCS, check it.
      * This can only happen if the backward-compat configuration option

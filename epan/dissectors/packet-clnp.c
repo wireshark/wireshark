@@ -230,7 +230,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 cnf_proto_id,
 				 "Inactive subset");
     }
-    next_tvb = tvb_new_subset(tvb, 1, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, 1);
     if (call_dissector(ositp_inactive_handle, next_tvb, pinfo, tree) == 0)
       call_dissector(data_handle,tvb, pinfo, tree);
     return;
@@ -459,7 +459,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* First segment, or not segmented.  Dissect what we have here. */
 
       /* Get a tvbuff for the payload. */
-      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+      next_tvb = tvb_new_subset_remaining(tvb, offset);
 
       /*
        * If this is the first segment, but not the only segment,
@@ -480,7 +480,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* As we haven't reassembled anything, we haven't changed "pi", so
        we don't have to restore it. */
-    call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
+    call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
                    tree);
     pinfo->fragmented = save_fragmented;
     return;

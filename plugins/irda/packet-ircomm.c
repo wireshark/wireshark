@@ -213,7 +213,7 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
             offset += clen;
         }
 
-        tvb = tvb_new_subset(tvb, offset, -1, -1);
+        tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector(data_handle, tvb, pinfo, tree);
     }
 }

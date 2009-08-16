@@ -101,7 +101,7 @@ dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-		xmltvb = tvb_new_subset(tvb, offset, -1, -1);
+		xmltvb = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(xml_handle, xmltvb, pinfo, jabber_tree);
 	}
 }

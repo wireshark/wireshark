@@ -121,7 +121,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tvb_length_remaining(tvb, offset) > 0)
   {
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, tree);
   }
 }

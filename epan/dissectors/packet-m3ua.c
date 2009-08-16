@@ -1903,7 +1903,7 @@ dissect_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, pro
   tvbuff_t *common_header_tvb, *parameters_tvb;
 
   common_header_tvb = tvb_new_subset(message_tvb, 0, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
-  parameters_tvb    = tvb_new_subset(message_tvb, COMMON_HEADER_LENGTH, -1, -1);
+  parameters_tvb    = tvb_new_subset_remaining(message_tvb, COMMON_HEADER_LENGTH);
   if (version == M3UA_V5)
   	dissect_v5_common_header(common_header_tvb, pinfo, m3ua_tree);
   else

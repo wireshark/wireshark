@@ -309,7 +309,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
 		  if ((tvb_length_remaining(gss_tvb, start_offset)>7) && (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0)) {
 		    return_offset = call_dissector(ntlmssp_handle,
-						   tvb_new_subset(gss_tvb, start_offset, -1, -1),
+						   tvb_new_subset_remaining(gss_tvb, start_offset),
 						   pinfo, subtree);
 		    goto done;
 		  }
@@ -319,7 +319,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		      ((tvb_memeql(gss_tvb, start_offset, "\04\x04", 2) == 0) ||
 		       (tvb_memeql(gss_tvb, start_offset, "\05\x04", 2) == 0))) {
 		    return_offset = call_dissector(spnego_krb5_wrap_handle,
-						   tvb_new_subset(gss_tvb, start_offset, -1, -1),
+						   tvb_new_subset_remaining(gss_tvb, start_offset),
 						   pinfo, subtree);
 		    goto done;
 		  }
@@ -362,7 +362,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  } else {
 		    tvbuff_t *oid_tvb_local;
 
-		    oid_tvb_local = tvb_new_subset(gss_tvb, start_offset, -1, -1);
+		    oid_tvb_local = tvb_new_subset_remaining(gss_tvb, start_offset);
 		    if (is_verifier)
 			handle = oidvalue->wrap_handle;
 		    else
@@ -444,7 +444,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (is_verifier) {
 			handle = oidvalue->wrap_handle;
 			if (handle != NULL) {
-				oid_tvb = tvb_new_subset(gss_tvb, offset, -1, -1);
+				oid_tvb = tvb_new_subset_remaining(gss_tvb, offset);
 				len = call_dissector(handle, oid_tvb, pinfo,
 				    subtree);
 				if (len == 0)
@@ -459,7 +459,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		} else {
 			handle = oidvalue->handle;
 			if (handle != NULL) {
-				oid_tvb = tvb_new_subset(gss_tvb, offset, -1, -1);
+				oid_tvb = tvb_new_subset_remaining(gss_tvb, offset);
 				len = call_dissector(handle, oid_tvb, pinfo,
 				    subtree);
 				if (len == 0)
@@ -563,7 +563,7 @@ static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset,
 {
 	tvbuff_t *auth_tvb;
 
-	auth_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	auth_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	dissect_gssapi(auth_tvb, pinfo, tree);
 
@@ -576,7 +576,7 @@ int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset,
 {
 	tvbuff_t *auth_tvb;
 
-	auth_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	auth_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	return dissect_gssapi_verf(auth_tvb, pinfo, tree);
 }

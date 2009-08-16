@@ -210,7 +210,7 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	tvbuff_t *next_tvb;
 	int low_port, high_port;
 
-	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	/* determine if this packet is part of a conversation and call dissector */
 	/* for the conversation if available */

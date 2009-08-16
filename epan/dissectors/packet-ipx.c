@@ -353,7 +353,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Make the next tvbuff */
-	next_tvb = tvb_new_subset(tvb, IPX_HEADER_LEN, -1, -1);
+	next_tvb = tvb_new_subset_remaining(tvb, IPX_HEADER_LEN);
 
 	/*
 	 * Let the subdissector know what type of IPX packet this is.
@@ -815,7 +815,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		pd_save = pinfo->private_data;
 		pinfo->private_data = &spx_info;
 
-		next_tvb = tvb_new_subset(tvb, SPX_HEADER_LEN, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, SPX_HEADER_LEN);
 		if (dissector_try_port(spx_socket_dissector_table, low_socket,
 		    next_tvb, pinfo, tree))
 		{

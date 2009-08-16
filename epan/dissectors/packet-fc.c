@@ -1103,7 +1103,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
               * sequence, is not the first frame, but has a seqcnt that is
               * 0. This is a bogus frame, don't attempt to reassemble it.
               */
-             next_tvb = tvb_new_subset (tvb, next_offset, -1, -1);
+             next_tvb = tvb_new_subset_remaining (tvb, next_offset);
              if (check_col (pinfo->cinfo, COL_INFO)) {
                   col_append_str (pinfo->cinfo, COL_INFO, " (Bogus Fragment)");
              }
@@ -1138,7 +1138,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                                              tvb, offset+9, 1, 0);
                        PROTO_ITEM_SET_HIDDEN(hidden_item);
             }
-                  next_tvb = tvb_new_subset (tvb, next_offset, -1, -1);
+                  next_tvb = tvb_new_subset_remaining (tvb, next_offset);
                   call_dissector (data_handle, next_tvb, pinfo, tree);
                   return;
              }
@@ -1149,7 +1149,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                                   tvb, offset+9, 1, 0);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
         }
-        next_tvb = tvb_new_subset (tvb, next_offset, -1, -1);
+        next_tvb = tvb_new_subset_remaining (tvb, next_offset);
     }
 
     if ((ftype != FC_FTYPE_LINKCTL) && (ftype != FC_FTYPE_BLS)) {

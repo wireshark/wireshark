@@ -180,7 +180,7 @@ static void dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, 
 			proto_tree_add_text( tr, tvb, 1, 1, "I frame" );
 		}
 	}
-	call_dissector( ppp_handle, tvb_new_subset(tvb, 2, -1, -1), pinfo, tree );
+	call_dissector( ppp_handle, tvb_new_subset_remaining(tvb, 2), pinfo, tree );
 }
 
 void proto_register_pw_hdlc(void)

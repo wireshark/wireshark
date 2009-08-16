@@ -2630,7 +2630,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		}
 	} /* Else: not fragmented */
 	if (! sm_tvb) /* One single Short Message, or not reassembled */
-		sm_tvb = tvb_new_subset (tvb, offset, -1, -1);
+		sm_tvb = tvb_new_subset_remaining (tvb, offset);
 	
     if (compressed)
     {

@@ -5461,7 +5461,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		}
 		proto_item_set_len(item, chain_offset);
 
-		next_tvb = tvb_new_subset(tvb, chain_offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, chain_offset);
 		offset = dissect_smb2(next_tvb, pinfo, parent_tree, FALSE);
 	}
 

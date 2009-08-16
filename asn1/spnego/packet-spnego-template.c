@@ -283,7 +283,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case KRB_TOKEN_AP_REQ:
 	case KRB_TOKEN_AP_REP:
 	case KRB_TOKEN_AP_ERR:
-	  krb5_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	  krb5_tvb = tvb_new_subset_remaining(tvb, offset);
 	  offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE, NULL);
 	  break;
 
@@ -1063,7 +1063,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	}
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-	pinfo->gssapi_encrypted_tvb = tvb_new_subset(tvb, 16, -1, -1);
+	pinfo->gssapi_encrypted_tvb = tvb_new_subset_remaining(tvb, 16);
 
 	if (flags & 0x0002) {
 		if(pinfo->gssapi_encrypted_tvb){

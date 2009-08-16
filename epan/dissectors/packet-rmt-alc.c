@@ -185,7 +185,7 @@ static void dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Add the Payload item */
 		if (tvb_length(tvb) > offset){
 			if(is_flute){
-				new_tvb = tvb_new_subset(tvb,offset,-1,-1);
+				new_tvb = tvb_new_subset_remaining(tvb,offset);
 				call_dissector(xml_handle, new_tvb, pinfo, alc_tree);
 			}else{
 				proto_tree_add_none_format(alc_tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_length(tvb) - offset);

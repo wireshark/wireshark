@@ -222,7 +222,7 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* We do not change the starting offset for the next protocol in the
      * chain since the fc_ct header is common to the sub-protocols.
      */
-    next_tvb = tvb_new_subset (tvb, 0, -1, -1);
+    next_tvb = tvb_new_subset_remaining (tvb, 0);
     if (!dissector_try_port (fcct_gserver_table, server, next_tvb, pinfo,
                              tree)) {
         call_dissector (data_handle, next_tvb, pinfo, tree);

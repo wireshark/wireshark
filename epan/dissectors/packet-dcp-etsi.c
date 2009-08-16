@@ -523,7 +523,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                       );
     pinfo->fragmented = save_fragmented;
   } else {
-    next_tvb = tvb_new_subset (tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining (tvb, offset);
   }
   if(next_tvb) {
     dissect_af(next_tvb, pinfo, tree);

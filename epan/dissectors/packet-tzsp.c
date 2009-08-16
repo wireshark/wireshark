@@ -337,7 +337,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (tree)
 			proto_item_set_end(ti, tvb, pos);
-		next_tvb = tvb_new_subset(tvb, pos, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, pos);
 		if (encapsulation != 0
 		    && (wtap_encap == -1
 			|| !dissector_try_port(encap_dissector_table, wtap_encap,

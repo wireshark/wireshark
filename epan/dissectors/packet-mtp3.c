@@ -613,14 +613,14 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (mtp3_standard) {
   case ITU_STANDARD:
-    payload_tvb = tvb_new_subset(tvb, ITU_MTP_PAYLOAD_OFFSET, -1, -1);
+    payload_tvb = tvb_new_subset_remaining(tvb, ITU_MTP_PAYLOAD_OFFSET);
     break;
   case ANSI_STANDARD:
   case CHINESE_ITU_STANDARD:
-    payload_tvb = tvb_new_subset(tvb, ANSI_MTP_PAYLOAD_OFFSET, -1, -1);
+    payload_tvb = tvb_new_subset_remaining(tvb, ANSI_MTP_PAYLOAD_OFFSET);
     break;
   case JAPAN_STANDARD:
-    payload_tvb = tvb_new_subset(tvb, JAPAN_MTP_PAYLOAD_OFFSET, -1, -1);
+    payload_tvb = tvb_new_subset_remaining(tvb, JAPAN_MTP_PAYLOAD_OFFSET);
     break;
   default:
     DISSECTOR_ASSERT_NOT_REACHED();

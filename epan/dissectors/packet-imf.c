@@ -601,7 +601,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pd_save = pinfo->private_data;
     pinfo->private_data = parameters; 
 
-    next_tvb = tvb_new_subset(tvb, end_offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, end_offset);
 
     dissected = dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree);
 

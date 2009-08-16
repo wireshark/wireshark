@@ -164,7 +164,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else
 		{
 		    call_dissector(data_handle,
-		        tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+		        tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 		    return;
 		}
 	    }
@@ -181,7 +181,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* GVRP only supports one attribute type. */
 	    if (octet != GVRP_ATTRIBUTE_TYPE)
 	    {
-		call_dissector(data_handle, tvb_new_subset(tvb, offset,-1, -1),
+		call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
 		    pinfo, tree);
 		return;
 	    }
@@ -216,7 +216,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    else
 		    {
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+			    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 			return;
 		    }
 		}
@@ -248,7 +248,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (octet != GVRP_LENGTH_LEAVEALL)
 			{
 			    call_dissector(data_handle,
-			        tvb_new_subset(tvb, offset, -1, -1), pinfo,
+			        tvb_new_subset_remaining(tvb, offset), pinfo,
 			        tree);
 			    return;
 			}
@@ -262,7 +262,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (octet != GVRP_LENGTH_NON_LEAVEALL)
 			{
 			    call_dissector(data_handle,
-			        tvb_new_subset(tvb, offset, -1, -1),pinfo,
+			        tvb_new_subset_remaining(tvb, offset),pinfo,
 			        tree);
 			    return;
 			}
@@ -277,7 +277,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		     default:
 			call_dissector(data_handle,
-			    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+			    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 			return;
 		    }
 		}

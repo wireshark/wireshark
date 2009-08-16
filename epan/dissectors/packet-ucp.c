@@ -1862,7 +1862,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (result == UCP_SHORTENED)
 	    return;
-	tmp_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	tmp_tvb = tvb_new_subset_remaining(tvb, offset);
 	sub_ti = proto_tree_add_item(ucp_tree, hf_ucp_oper_section, tvb,
 				     offset, endpkt - offset, FALSE);
 	sub_tree = proto_item_add_subtree(sub_ti, ett_sub);

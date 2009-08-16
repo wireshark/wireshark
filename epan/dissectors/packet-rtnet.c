@@ -638,7 +638,7 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   else
     offset += 4;
 
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
 
   if (ver == 1)
     switch (type) {

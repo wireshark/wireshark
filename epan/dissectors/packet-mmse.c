@@ -1312,7 +1312,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 	    DebugLog(("Calling add_content_type() in WSP dissector\n"));
 	    offset = add_content_type(mmse_tree, tvb, offset, &type, &type_str);
 	    DebugLog(("Generating new TVB subset (offset = %u)\n", offset));
-	    tmp_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	    tmp_tvb = tvb_new_subset_remaining(tvb, offset);
 	    DebugLog(("Add POST data\n"));
 	    add_post_data(mmse_tree, tmp_tvb, type, type_str, pinfo);
 	    DebugLog(("Done!\n"));

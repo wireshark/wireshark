@@ -1154,7 +1154,7 @@ dissect_ehs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case EHS_PROTOCOL__PDSS_PAYLOAD_CCSDS_PACKET:
                 case EHS_PROTOCOL__PDSS_CORE_CCSDS_PACKET:
                 case EHS_PROTOCOL__PDSS_UDSM:
-                        new_tvb = tvb_new_subset ( tvb, offset, -1, -1 );
+                        new_tvb = tvb_new_subset_remaining ( tvb, offset);
                         call_dissector ( ccsds_handle, new_tvb, pinfo, ehs_tree );
 
                         /* bump the offset to the data zone area */

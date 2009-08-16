@@ -1802,7 +1802,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             tvbuff_t *next_tvb;
 
             pinfo->usb_conv_info=usb_conv_info;
-            next_tvb=tvb_new_subset(tvb, offset, -1, -1);
+            next_tvb=tvb_new_subset_remaining(tvb, offset);
             if(dissector_try_port(usb_bulk_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
                 return;
             }
@@ -1894,7 +1894,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
                 case RQT_SETUP_TYPE_CLASS:
                     /* Try to find a class specific dissector */
-                    next_tvb=tvb_new_subset(tvb, offset, -1, -1);
+                    next_tvb=tvb_new_subset_remaining(tvb, offset);
                     if(dissector_try_port(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                         return;
                     }
@@ -1953,7 +1953,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             if(usb_trans_info){
                 /* Try to find a class specific dissector */
-                next_tvb=tvb_new_subset(tvb, offset, -1, -1);
+                next_tvb=tvb_new_subset_remaining(tvb, offset);
                 if(dissector_try_port(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                     return;
                 }

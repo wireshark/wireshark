@@ -87,7 +87,7 @@ dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            "Sequence Number: %d", 
                                            sequence_number);
         }
-        next_tvb = tvb_new_subset(tvb, 4, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, 4);
         {
                 /*
                  * When Ethernet frames being decoded, pinfo->ethertype is extracted 
@@ -119,7 +119,7 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ti = proto_tree_add_boolean(tree, hf_pw_eth, tvb, 0, 0, TRUE);
                 PROTO_ITEM_SET_HIDDEN(ti);
         }
-        next_tvb = tvb_new_subset(tvb, 0, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, 0);
         {
                 guint32 etype_save = pinfo->ethertype;
                 call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);

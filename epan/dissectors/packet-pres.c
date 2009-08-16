@@ -338,7 +338,7 @@ pres_try_users_table(guint32 ctx_id, tvbuff_t *tvb, int offset, packet_info *pin
 		if (u->ctx_id == ctx_id) {
 			/* Register oid so other dissectors can find this connection */
 			register_ctx_id_and_oid(pinfo, u->ctx_id, u->oid);
-			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
 			call_ber_oid_callback(u->oid, next_tvb, offset, pinfo, global_tree);
 			return TRUE;
 		}
@@ -634,7 +634,7 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
 		if (!pres_try_users_table(presentation_context_identifier, tvb, offset, actx->pinfo)) {
@@ -661,7 +661,7 @@ dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
 		if (!pres_try_users_table(presentation_context_identifier, tvb, offset, actx->pinfo)) {
