@@ -579,7 +579,7 @@ new_packet_list_dissect(frame_data *fdata, gboolean col_text_present)
 }
 
 static void
-cache_columns(frame_data *fdata, guint row, gboolean col_text_present)
+cache_columns(frame_data *fdata _U_, guint row, gboolean col_text_present)
 {
 	int col;
 
