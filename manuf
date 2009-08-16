@@ -1896,7 +1896,7 @@
 00:07:36	DataVideoT             # Data Video Technologies Co., Ltd.
 00:07:37	Soriya                 # Soriya Co. Ltd.
 00:07:38	YoungTechn             # Young Technology Co., Ltd.
-00:07:39	MotionMedi             # Motion Media Technology Ltd.
+00:07:39	ScottGroup             # Scott Group Austria Gmbh
 00:07:3A	InventelSy             # Inventel Systemes
 00:07:3B	Tenovis                # Tenovis GmbH & Co KG
 00:07:3C	TelecomDes             # Telecom Design
@@ -7755,7 +7755,7 @@
 00:1E:3C	LyngboxMed             # Lyngbox Media AB
 00:1E:3D	AlpsElectr             # Alps Electric Co., Ltd
 00:1E:3E	Kmw                    # KMW Inc.
-00:1E:3F	Private
+00:1E:3F	Trelliswar             # TrellisWare Technologies, Inc.
 00:1E:40	ShanghaiDa             # Shanghai DareGlobal Technologies  Co.,Ltd.
 00:1E:41	MicrowaveC             # Microwave Communication & Component, Inc.
 00:1E:42	Teltonika
@@ -13549,6 +13549,17 @@
 00:50:C2:B0:E0:00/36	KyabLulea              # KYAB Lulea AB
 00:50:C2:B0:F0:00/36	NaraContro             # NARA Controls Inc.
 00:50:C2:B1:00:00/36	MarineEnte             # Marine Entertainment Systems Ltd
+00:50:C2:B1:10:00/36	ExelSRL                # EXEL s.r.l
+00:50:C2:B1:20:00/36	CmElektron             # CM Elektronik GmbH
+00:50:C2:B1:30:00/36	MeasyElect             # Measy Electronics Co., Ltd.
+00:50:C2:B1:40:00/36	KeithKoep              # Keith & Koep GmbH
+00:50:C2:B1:50:00/36	Phototeles             # PhotoTelesis LP
+00:50:C2:B1:60:00/36	Neothings              # Neothings, Inc.
+00:50:C2:B1:70:00/36	ElcoteqDes             # Elcoteq Design Center Oy
+00:50:C2:B1:80:00/36	RosslareEn             # Rosslare Enterprises Limited
+00:50:C2:B1:90:00/36	Polytron               # Polytron Corporation
+00:50:C2:B1:A0:00/36	Elcus
+00:50:C2:B1:B0:00/36	Integrated             # Integrated  Control Corp.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -15483,7 +15494,9 @@
 02:E0:3B	ProminetCo             # Prominet Corporation		Gigabit Ethernet Switch
 02:E6:D3	NixdorfCom             # NIXDORF COMPUTER CORPORATION
 04:0A:E0	XmitComput             # XMIT AG COMPUTER NETWORKS
+04:1E:64	Apple                  # Apple, Inc
 04:88:45	BayNetwork             # Bay Networks			token ring line card
+04:B4:66	Bsp                    # BSP Co., Ltd.
 04:E0:C4	Triumph-Ad             # TRIUMPH-ADLER AG
 08:00:01	Computervi             # COMPUTERVISION CORPORATION
 08:00:02	3Com
@@ -15630,6 +15643,9 @@
 08:14:43	UnibrainSA             # UNIBRAIN S.A.
 08:BB:CC	Ak-NordEdv             # AK-NORD EDV VERTRIEBSGES. mbH
 09:00:6A	AT&T
+0C:60:76	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd.
+0C:E7:09	FoxCryptoB             # Fox Crypto B.V.
+0C:EE:E6	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd.
 10:00:00	Private
 10:00:5A	Ibm                    # IBM CORPORATION
 10:00:90	HP
@@ -15637,11 +15653,19 @@
 10:00:E0	AppleA/UxM             # Apple A/UX			(modified addresses for licensing)
 10:00:E8	NationalSe             # NATIONAL SEMICONDUCTOR
 11:00:AA	Private
+14:6E:0A	Private
+18:86:AC	NokiaDanma             # Nokia Danmark A/S
+1C:4B:D6	Azurewave
+20:2C:B7	KongYueEle             # Kong Yue Electronics & Information Industry (Xinhui) Ltd.
+24:82:8A	ProwaveTec             # Prowave Technologies Ltd.
 2E:2E:2E	LaaLocally             # LAA (Locally Administered Address) for Meditech Systems
 3C:00:00	3Com
 40:00:03	NetWare?               # Net Ware (?)
+40:61:86	Micro-Star             # MICRO-STAR INT'L CO.,LTD
 44:45:53	Microsoft
 44:46:49	DfiDiamond             # DFI (Diamond Flower Industries)
+44:56:B7	SpawnLabs              # Spawn Labs, Inc
+44:C9:A2	GreenwaldI             # Greenwald Industries
 47:54:43	GtcNotRegi             # GTC (Not registered!)		(This number is a multicast!)
 48:44:53	Hds???                 # HDS ???
 48:4C:00	NetworkSol             # Network Solutions
@@ -15651,9 +15675,22 @@
 52:54:4C	Novell2000             # Novell 2000
 52:54:AB	RealtekARe             # REALTEK (a Realtek 8029 based PCI Card)
 56:58:57	AculabPlcA             # Aculab plc			audio bridges
+58:F6:7B	XiaMenUnio             # Xia Men UnionCore Technology LTD.
+64:16:F0	ShehzhenHu             # Shehzhen Huawei Communication Technologies Co., Ltd.
+64:4B:C3	ShanghaiWo             # Shanghai WOASiS Telecommunications Ltd., Co.
+68:CC:9C	MineSiteTe             # Mine Site Technologies
+6C:0F:6A	JdcTech                # JDC Tech Co., Ltd.
+6C:F0:49	Giga-ByteT             # GIGA-BYTE TECHNOLOGY CO.,LTD.
+70:1A:04	LiteonTech             # Liteon Tech Corp.
+74:E5:37	Radspin
 80:00:10	AttBellLab             # ATT BELL LABORATORIES
 80:AD:00	CnetTechno             # CNET Technology Inc. (Probably an error, see instead 0080AD)
+90:E6:BA	AsustekCom             # ASUSTek COMPUTER INC.
+9C:18:74	NokiaDanma             # Nokia Danmark A/S
+A0:2E:F3	UnitedInte             # United Integrated Services Co., Led.
 A0:6A:00	Verilink               # Verilink Corporation
+A0:98:05	OpenvoxCom             # OpenVox Communication Co Ltd
+A8:CE:90	Cvc
 AA:00:00	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:01	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:02	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
@@ -15661,8 +15698,14 @@ AA:00:03	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:04	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AC:DE:48	Private
 C0:00:00	WesternDig             # Western Digital (may be reversed 00 00 C0?)
+CC:00:80	TrustSyste             # TRUST SYSTEM Co.,
+D4:C7:66	Acentic                # Acentic GmbH
+E0:91:53	XaviTechno             # XAVi Technologies Corp.
 E2:0C:0F	KingstonTe             # Kingston Technologies
+E4:1F:13	Ibm
+E8:0B:13	AkibTaiwan             # Akib Systems Taiwan, INC
 EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
+F0:BC:C8	MaxidPty               # MaxID (Pty) Ltd
 
 #
 # Well-known addresses.
