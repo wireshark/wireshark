@@ -241,6 +241,10 @@ extern void tvb_set_subset(tvbuff_t* tvb, tvbuff_t* backing,
 extern tvbuff_t* tvb_new_subset(tvbuff_t* backing,
 		gint backing_offset, gint backing_length, gint reported_length);
 
+/** Similar to tvb_new_subset() but with backing_length and reported_length set to -1.
+ * Can throw ReportedBoundsError. */
+extern tvbuff_t* tvb_new_subset_remaining(tvbuff_t* backing,
+		gint backing_offset);
 
 /** Both tvb_composite_append and tvb_composite_prepend can throw
  * BoundsError if member_offset/member_length goes beyond bounds of

@@ -145,6 +145,16 @@ tvb_new(tvbuff_type type)
 	return tvb;
 }
 
+static tvbuff_t*
+tvb_new_with_subset(tvbuff_type type, guint subset_tvb_offset, guint subset_tvb_length)
+{
+	tvbuff_t *tvb = tvb_new(type);
+	tvb->tvbuffs.subset.offset = subset_tvb_offset;
+	tvb->tvbuffs.subset.length = subset_tvb_length;
+
+	return tvb;
+}
+
 void
 tvb_free(tvbuff_t* tvb)
 {
@@ -513,11 +523,33 @@ tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint
 			&subset_tvb_offset,
 			&subset_tvb_length);
 
-	tvb = tvb_new(TVBUFF_SUBSET);
-	tvb->tvbuffs.subset.offset = subset_tvb_offset;
-	tvb->tvbuffs.subset.length = subset_tvb_length;
+	tvb = tvb_new_with_subset(TVBUFF_SUBSET, subset_tvb_offset, subset_tvb_length);
 
 	tvb_set_subset_no_exceptions(tvb, backing, reported_length);
+
+	/*
+	 * The top-level data source of this tvbuff is the top-level
+	 * data source of its parent.
+	 */
+	tvb->ds_tvb = backing->ds_tvb;
+
+	return tvb;
+}
+
+tvbuff_t*
+tvb_new_subset_remaining(tvbuff_t *backing, gint backing_offset)
+{
+	tvbuff_t	*tvb;
+	guint		subset_tvb_offset;
+	guint		subset_tvb_length;
+
+	check_offset_length(backing->length, backing->reported_length, backing_offset, -1 /* backing_length */,
+			&subset_tvb_offset,
+			&subset_tvb_length);
+
+	tvb = tvb_new_with_subset(TVBUFF_SUBSET, subset_tvb_offset, subset_tvb_length);
+
+	tvb_set_subset_no_exceptions(tvb, backing, -1 /* reported_length */);
 
 	/*
 	 * The top-level data source of this tvbuff is the top-level
