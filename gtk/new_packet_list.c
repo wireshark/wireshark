@@ -100,12 +100,6 @@ new_packet_list_create(void)
 
 	return scrollwin;
 }
-#if 0
- from column_info.h
-
-  NUM_COL_FMTS        /* 59) Should always be last */
-
-#endif
 
 guint
 new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo _U_)
@@ -178,6 +172,8 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 				case COL_RES_SRC_PORT:		/* 55) Resolved source port */
 				case COL_UNRES_SRC_PORT:	/* 56) Unresolved source port */
 					/* pinfo->srcport */
+					row_data.col_text[i] = se_strdup(cinfo->col_data[i]);
+					break;
 				/* currently done by dissectors XXX change to custom col instead??*/
 				case COL_IF_DIR:			/* 21) FW-1 monitor interface/direction */
 				case COL_PROTOCOL:			/* 48) Protocol */
