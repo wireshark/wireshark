@@ -215,22 +215,10 @@ static void
 packet_list_init(PacketList *packet_list)
 {
 	guint i;
-	gint fmt;
 
 	for(i = 0; i < (guint)cfile.cinfo.num_cols; i++) {
-		/* Get the format of the column, see column_info.h */
-		fmt = get_column_format(i);
-		switch(fmt){
-			/* if we wish to store data rater than strings for some
-			 * colum types add case statements to the switch.
-			 */
-			case COL_NUMBER:
-				packet_list->column_types[i] = G_TYPE_POINTER;
-				break;
-			default:
-				packet_list->column_types[i] = G_TYPE_STRING;
-				break;
-		}
+		/* We get the packetlist record for all columns */
+		packet_list->column_types[i] = G_TYPE_POINTER;
 	}
 	
 	packet_list->n_columns = (guint)cfile.cinfo.num_cols;

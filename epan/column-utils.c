@@ -1558,7 +1558,7 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
     case COL_DCE_CTX:	/* done by dcerpc */
       break;
 
-    case COL_8021Q_VLAN_ID:
+    case COL_8021Q_VLAN_ID: /* done by packet-nstrace.c and packet-vlan.c */
         break;
 
     case COL_DSCP_VALUE:	/* done by packet-ip.c */
