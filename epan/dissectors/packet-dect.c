@@ -1098,7 +1098,7 @@ static const value_string PTRFPPower_vals[]=
 };
 
 static unsigned char
-getbit(guint8 *data, int bit)
+dect_getbit(guint8 *data, int bit)
 {
 	guint8 c;
 	guint8 byte=data[bit/8];
@@ -1110,7 +1110,7 @@ getbit(guint8 *data, int bit)
 }
 
 static void
-setbit(guint8 *data, int bit, guint8 value)
+dect_setbit(guint8 *data, int bit, guint8 value)
 {
 	if(!value)
 		data[bit/8]&=~(1<<(bit%8));
@@ -1129,7 +1129,7 @@ calc_xcrc(guint8* data, guint8 length)
 
 	for(y=0;y<80;y++)
 	{
-		setbit(bits, y, getbit(data, y+48*(1+(int)(y/16))));
+		dect_setbit(bits, y, dect_getbit(data, y+48*(1+(int)(y/16))));
 	}
 	length=10;
 	crc=bits[0];
