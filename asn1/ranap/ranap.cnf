@@ -256,11 +256,11 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 	subtree = proto_item_add_subtree(actx->created_item, ett_ranap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
-		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv4, tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, FALSE);
 	}
 	if (tvb_len==16){
 		/* IPv6 */
-		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv6, tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, FALSE);
 	}
 	
 #.FN_BODY GTP-TEI VAL_PTR = &parameter_tvb

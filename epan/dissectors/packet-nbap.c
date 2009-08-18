@@ -8957,11 +8957,11 @@ dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 	subtree = proto_item_add_subtree(actx->created_item, ett_nbap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
-		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv4, tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, FALSE);
 	}
 	if (tvb_len==16){
 		/* IPv6 */
-		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv6, tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, FALSE);
 	}
 
 
@@ -59867,7 +59867,7 @@ void proto_register_nbap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 148 "packet-nbap-template.c"
+#line 147 "packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -61368,7 +61368,7 @@ void proto_register_nbap(void) {
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 155 "packet-nbap-template.c"
+#line 154 "packet-nbap-template.c"
   };
 
 
@@ -62392,7 +62392,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 188 "packet-nbap-template.c"
+#line 187 "packet-nbap-template.c"
 }
 
 

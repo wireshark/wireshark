@@ -6570,11 +6570,11 @@ dissect_ranap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 	subtree = proto_item_add_subtree(actx->created_item, ett_ranap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
-		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv4, tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, FALSE);
 	}
 	if (tvb_len==16){
 		/* IPv6 */
-		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv6, tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, FALSE);
 	}
 	
 
@@ -14206,7 +14206,7 @@ void proto_register_ranap(void) {
         "ranap.T_value", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 294 "packet-ranap-template.c"
+#line 293 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -14510,7 +14510,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 301 "packet-ranap-template.c"
+#line 300 "packet-ranap-template.c"
   };
 
 
@@ -14863,7 +14863,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 345 "packet-ranap-template.c"
+#line 344 "packet-ranap-template.c"
 	} else {
 		dissector_delete("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
 	}
