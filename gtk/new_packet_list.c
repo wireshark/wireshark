@@ -39,6 +39,7 @@
 
 #include "gui_utils.h"
 #include "packet_list_store.h"
+#include "gtk/new_packet_list.h"
 #include "epan/column_info.h"
 #include "epan/prefs.h"
 #include <epan/packet.h>
@@ -793,6 +794,62 @@ filter_visible_func (GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_)
 
 	return FALSE;
 } 
+static gboolean
+get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_text){
 
+	if (col_based_on_frame_data(&cfile.cinfo, col_num)) {
+		col_fill_in_frame_data(record->fdata, &cfile.cinfo, col_num);
+		*cell_text = g_strdup(cfile.cinfo.col_data[col_num]);
+	}else
+		*cell_text = g_strdup(record->col_text[col_num]);
+
+	return TRUE;
+}
+/* XXX fore some reason this does not work in th .h file XXX*/
+/* Different modes of copying summary data */
+typedef enum {
+    CS_TEXT, /* Packet summary data (tab separated) */
+    CS_CSV   /* Packet summary data (comma separated) */
+} copy_summary_type;
+
+void 
+new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, gint copy_type)
+{
+    gint col;
+    gchar *celltext;
+    GString* text;
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	PacketListRecord *record;
+
+    if(CS_CSV == copy_type) {
+        text = g_string_new("\"");
+    } else {
+        text = g_string_new("");
+    }
+
+    if (cfile.current_frame) {
+		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+		gtk_tree_selection_get_selected(selection, NULL, &iter);
+		record = new_packet_list_get_record(model, &iter);
+        for(col = 0; col < cfile.cinfo.num_cols; ++col) {
+            if(col != 0) {
+                if(CS_CSV == copy_type) {
+                    g_string_append(text,"\",\"");
+                } else {
+                    g_string_append_c(text, '\t');
+                }
+            }
+			if(get_col_text_from_record( record, col, &celltext))
+				g_string_append(text,celltext);
+        }
+        if(CS_CSV == copy_type) {
+            g_string_append_c(text,'"');
+        }
+        copy_to_clipboard(text);
+    }
+    g_string_free(text,TRUE);
+}
 #endif /* NEW_PACKET_LIST */
 

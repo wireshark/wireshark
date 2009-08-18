@@ -26,7 +26,6 @@
 #define __NEW_PACKET_LIST_H__
 
 #ifdef NEW_PACKET_LIST
-
 #include <gtk/gtk.h>
 
 GtkWidget *new_packet_list_create(void);
@@ -48,6 +47,20 @@ extern void new_packet_list_mark_frame_cb(GtkWidget *widget, gpointer data);
 
 void new_packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
 void new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+
+/* Different modes of copying summary data */
+typedef enum {
+    CS_TEXT, /* Packet summary data (tab separated) */
+    CS_CSV   /* Packet summary data (comma separated) */
+} copy_summary_type;
+
+/** Called when user clicks on menu item to copy summary data.
+ *
+ *  @param w Not used.
+ *  @param data Not used.
+ *  @param copy_type Mode in which to copy data (e.g. tab-separated, CSV)
+ */
+void new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summary_type copy_type);
 
 #endif /* NEW_PACKET_LIST */
 

@@ -88,7 +88,6 @@
 #include "gtk/gui_stat_menu.h"
 #include "gtk/main.h"
 #include "gtk/menus.h"
-#include "gtk/main_packet_list.h"
 #include "gtk/main_toolbar.h"
 #include "gtk/main_welcome.h"
 #include "gtk/uat_gui.h"
@@ -96,6 +95,8 @@
 
 #ifdef NEW_PACKET_LIST
 #include "gtk/new_packet_list.h"
+#else
+#include "gtk/main_packet_list.h"
 #endif
 
 #ifdef HAVE_IGE_MAC_INTEGRATION
@@ -938,7 +939,11 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Copy", NULL, NULL, 0, "<Branch>", NULL,},
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+    {"/Copy/Summary (Text)", NULL, GTK_MENU_FUNC(new_packet_list_copy_summary_cb), CS_TEXT, NULL, NULL,},
+    {"/Copy/Summary (CSV)", NULL, GTK_MENU_FUNC(new_packet_list_copy_summary_cb), CS_CSV, NULL, NULL,},
+    {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+#else
     {"/Copy/Summary (Text)", NULL, GTK_MENU_FUNC(packet_list_copy_summary_cb), CS_TEXT, NULL, NULL,},
     {"/Copy/Summary (CSV)", NULL, GTK_MENU_FUNC(packet_list_copy_summary_cb), CS_CSV, NULL, NULL,},
     {"/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
