@@ -176,23 +176,6 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 		return offset;
 	dissect_e212_mcc_mnc(parameter_tvb, tree, 0);
 #.END
-#.FN_BODY MME-UE-S1AP-ID  VAL_PTR = mme_ue_s1ap_id
-
-guint32 mme_ue_s1ap_id
-
-%(DEFAULT_BODY)s
-
-#.FN_BODY MME-UE-S1AP-ID  VAL_PTR = mme_ue_s1ap_id
-
-guint32 mme_ue_s1ap_id
-
-%(DEFAULT_BODY)s
-#.FN_BODY ENB-UE-S1AP-ID  VAL_PTR = enb_ue_s1ap_id
-
-guint32 enb_ue_s1ap_id
-
-%(DEFAULT_BODY)s
-
 #.FN_BODY ENBname VAL_PTR = parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   int length;

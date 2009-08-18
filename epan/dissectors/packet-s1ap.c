@@ -2408,15 +2408,8 @@ dissect_s1ap_ENB_StatusTransfer_TransparentContainer(tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_s1ap_ENB_UE_S1AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 191 "s1ap.cnf"
-
-guint32 enb_ue_s1ap_id
-
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 16777215U, enb_ue_s1ap_id, FALSE);
-
-
-
+                                                            0U, 16777215U, NULL, FALSE);
 
   return offset;
 }
@@ -2425,7 +2418,7 @@ guint32 enb_ue_s1ap_id
 
 static int
 dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 197 "s1ap.cnf"
+#line 180 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   int length;
   int p_offset;
@@ -2458,7 +2451,7 @@ dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_s1ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 232 "s1ap.cnf"
+#line 215 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
@@ -2976,21 +2969,8 @@ dissect_s1ap_MMEname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_s1ap_MME_UE_S1AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 180 "s1ap.cnf"
-
-guint32 mme_ue_s1ap_id
-
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4294967295U, mme_ue_s1ap_id, FALSE);
-
-
-
-guint32 mme_ue_s1ap_id
-
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4294967295U, mme_ue_s1ap_id, FALSE);
-
-
+                                                            0U, 4294967295U, NULL, FALSE);
 
   return offset;
 }
@@ -3029,7 +3009,7 @@ dissect_s1ap_MSClassmark3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_s1ap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 223 "s1ap.cnf"
+#line 206 "s1ap.cnf"
 
   tvbuff_t *parameter_tvb=NULL;
   
@@ -4742,7 +4722,7 @@ static const per_sequence_t DownlinkNASTransport_sequence[] = {
 
 static int
 dissect_s1ap_DownlinkNASTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 259 "s1ap.cnf"
+#line 242 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_DL;
 
@@ -4761,7 +4741,7 @@ static const per_sequence_t InitialUEMessage_sequence[] = {
 
 static int
 dissect_s1ap_InitialUEMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 255 "s1ap.cnf"
+#line 238 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_UL;
 
@@ -4780,7 +4760,7 @@ static const per_sequence_t UplinkNASTransport_sequence[] = {
 
 static int
 dissect_s1ap_UplinkNASTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 263 "s1ap.cnf"
+#line 246 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_UL;
 	
