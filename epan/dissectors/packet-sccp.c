@@ -1275,9 +1275,13 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
   if (decode_mtp3_standard == ANSI_STANDARD)
   {
     national = tvb_get_guint8(tvb, 0) & ANSI_NATIONAL_MASK;
-    proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_national_indicator
-					     : hf_sccp_calling_national_indicator,
-			tvb, 0, ADDRESS_INDICATOR_LENGTH, national);
+    expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_national_indicator
+							   : hf_sccp_calling_national_indicator,
+				      tvb, 0, ADDRESS_INDICATOR_LENGTH, national);
+    if (national == 0)
+          expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_NOTE, "Address is coded to "
+				 "international standards.  This doesn't normally happen in ANSI "
+				 "networks.");
   }
 
   routing_ind = tvb_get_guint8(tvb, 0) & ROUTING_INDICATOR_MASK;
