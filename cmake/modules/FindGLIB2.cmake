@@ -34,6 +34,7 @@ else (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS)
       /opt/lib/glib-2.0/include
       /usr/lib64/glib-2.0/include
       /usr/lib/glib-2.0/include
+      /opt/local/lib/glib-2.0/include
       /sw/lib/glib-2.0/include
   )
   ##

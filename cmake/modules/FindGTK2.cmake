@@ -80,6 +80,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       /usr/local/include/gtk-2.0
       /opt/include/gtk-2.0
       /opt/gnome/include/gtk-2.0
+      /opt/local/include/gtk-2.0
       /sw/include/gtk-2.0
     )
 
@@ -98,6 +99,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       /opt/lib/glib-2.0/include
       /usr/lib64/glib-2.0/include
       /usr/lib/glib-2.0/include
+      /opt/local/lib/glib-2.0/include
       /sw/lib/glib-2.0/include
     )
     #MESSAGE(STATUS "DEBUG: GTK2_GLIBCONFIG_INCLUDE_PATH = ${GTK2_GLIBCONFIG_INCLUDE_PATH}")
@@ -107,6 +109,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       /opt/include/glib-2.0
       /opt/gnome/include/glib-2.0
       /usr/include/glib-2.0
+      /opt/local/include/glib-2.0
       /sw/include/glib-2.0
     )
     #MESSAGE(STATUS "DEBUG: GTK2_GLIBCONFIG_INCLUDE_PATH = ${GTK2_GLIBCONFIG_INCLUDE_PATH}")
@@ -118,6 +121,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       /usr/openwin/share/include
       /opt/gnome/include
       /opt/include
+      /opt/local/include
       /sw/include
     )
 
@@ -128,6 +132,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       /opt/gnome/include/pango-1.0
       /opt/include/pango-1.0
       /usr/include/pango-1.0
+      /opt/local/include/pango-1.0
       /sw/include/pango-1.0
     )
 
@@ -140,6 +145,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       /opt/lib/gtk-2.0/include
       /usr/lib/gtk-2.0/include
       /usr/lib64/gtk-2.0/include
+      /opt/local/lib/gtk-2.0/include
       /sw/lib/gtk-2.0/include
     )
 
@@ -152,6 +158,8 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       /usr/include/cairo
       /opt/include
       /opt/include/cairo
+      /opt/local/include
+      /opt/local/include/cairo
       /sw/include
       /sw/include/cairo
     )
@@ -164,6 +172,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
       /opt/gnome/include/atk-1.0
       /usr/include/atk-1.0
       /opt/include/atk-1.0
+      /opt/local/include/atk-1.0
       /sw/include/atk-1.0
     )
     #MESSAGE(STATUS "DEBUG: GTK2_ATK_INCLUDE_PATH = ${GTK2_ATK_INCLUDE_PATH}")
@@ -179,6 +188,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/X11R6/lib
         /opt/gnome/lib
         /opt/lib
+        /opt/local/lib
         /sw/lib
     )
 
@@ -193,6 +203,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/X11R6/lib
         /opt/gnome/lib
         /opt/lib
+        /opt/local/lib
         /sw/lib
     )
 
@@ -207,6 +218,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/X11R6/lib
         /opt/gnome/lib
         /opt/lib
+        /opt/local/lib
         /sw/lib
     )
 
@@ -221,6 +233,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/X11R6/lib
         /opt/gnome/lib
         /opt/lib
+        /opt/local/lib
         /sw/lib
     )
 
@@ -235,6 +248,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/X11R6/lib
         /opt/gnome/lib
         /opt/lib
+        /opt/local/lib
         /sw/lib
     )
 
@@ -248,6 +262,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/X11R6/lib
         /opt/gnome/lib
         /opt/lib
+        /opt/local/lib
         /sw/lib
     )
 
@@ -261,6 +276,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/X11R6/lib
         /opt/gnome/lib
         /opt/lib
+        /opt/local/lib
         /sw/lib
     )
 
@@ -275,6 +291,7 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /usr/X11R6/lib
         /opt/gnome/lib
         /opt/lib
+        /opt/local/lib
         /sw/lib
     )
 
