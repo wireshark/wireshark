@@ -43,6 +43,7 @@ static int hf_x224_code			= -1;
 static int hf_x224_src_ref		= -1;
 static int hf_x224_dst_ref		= -1;
 static int hf_x224_class		= -1;
+static int hf_x224_rdp_rt		= -1;
 static int hf_x224_nr			= -1;
 static int hf_x224_eot			= -1;
 
@@ -99,6 +100,7 @@ static int
 dissect_x224_cr(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, x224_conv_info_t *x224_info _U_)
 {
 	guint8 class;
+	gint len, next_offset;
 
 	/*DST-REF is always 0 */
 	offset+=2;
@@ -111,6 +113,13 @@ dissect_x224_cr(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	class = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_x224_class, tvb, offset, 1, FALSE);
 	offset+=1;
+
+	if(tvb_length_remaining(tvb, offset) > 0) {
+		len = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
+		proto_tree_add_item(tree, hf_x224_rdp_rt, tvb, offset, len,
+				    FALSE);
+		offset = next_offset;
+	}
 
 	return offset;
 }
@@ -296,6 +305,10 @@ proto_register_x224(void)
 	{ &hf_x224_class, {
 	"Class", "x224.class", FT_UINT8, BASE_HEX,
 	VALS(class_option_vals), 0xf0, NULL, HFILL }},
+
+	{ &hf_x224_rdp_rt, {
+	"RDP Routing Token", "x224.rdp_rt", FT_STRING, BASE_NONE, NULL, 0,
+	"Used for Remote Desktop Protocol (RDP) load balancing", HFILL }},
 
 	{ &hf_x224_nr, {
 	"NR", "x224.nr", FT_UINT8, BASE_HEX,
