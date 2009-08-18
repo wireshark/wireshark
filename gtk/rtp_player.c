@@ -2058,8 +2058,9 @@ rtp_player_dlg_create(void)
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
+	window_set_cancel_button(rtp_player_dlg_w, bt_close, window_cancel_button_cb);
 
-	g_signal_connect(bt_close, "clicked", G_CALLBACK(rtp_player_on_destroy), NULL);
+	g_signal_connect(rtp_player_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(rtp_player_dlg_w, "destroy", G_CALLBACK(rtp_player_on_destroy), NULL);
 
 	/* button row */
