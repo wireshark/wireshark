@@ -56,8 +56,9 @@
 
         <avp name="Flows" code="510" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
             <grouped>
-                    <gavp name="Media-Component-Number"/>
-                    <gavp name="Flow-Number"/>
+              <gavp name="Media-Component-Number"/>
+              <gavp name="Flow-Number"/>
+              <gavp name="Final-Unit-Action"/>
             </grouped>
         </avp>
 
@@ -74,18 +75,21 @@
             <type type-name="Enumerated"/>
                 <enum name="NO_INFORMATION" code="0"/>
                 <enum name="RTCP" code="1"/>
+                <enum name="AF_SIGNALLING" code="2"/>
         </avp>
 
         <avp name="Specific-Action" code="513" mandatory="must" protected="may" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
             <type type-name="Enumerated"/>
-                <enum name="SERVICE_INFORMATION_REQUEST" code="0"/>
+                <enum name="Void" code="0"/>
                 <enum name="CHARGING_CORRELATION_EXCHANGE" code="1"/>
                 <enum name="INDICATION_OF_LOSS_OF_BEARER" code="2"/>
                 <enum name="INDICATION_OF_RECOVERY_OF_BEARER" code="3"/>
                 <enum name="INDICATION_OF_RELEASE_OF_BEARER" code="4"/>
-                <enum name="INDICATION_OF_ESTABLISHMENT_OF_BEARER" code="5"/>
-                <enum name="INDICATION_OF_SUBSCRIBER_DETACHMENT" code="6"/>
-                <enum name="INDICATION_OF_RESERVATION_EXPIRATION" code="7"/>
+                <enum name="Void" code="5"/>
+                <enum name="IP-CAN_CHANGE" code="6"/>
+                <enum name="INDICATION_OF_OUT_OF_CREDIT" code="7"/>
+                <enum name="INDICATION_OF_SUCCESSFUL_RESOURCES_ALLOCATION" code="8"/>
+                <enum name="INDICATION_OF_FAILED_RESOURCES_ALLOCATION" code="9"/>
         </avp>
 
         <avp name="Max-Requested-Bandwidth-DL" code="515" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -107,6 +111,7 @@
                     <gavp name="Flow-Status"/>
                     <gavp name="RS-Bandwidth"/>
                     <gavp name="RR-Bandwidth"/>
+                    <gavp name="Codec-Data"/>
 					<!-- ETSI ES 283 026 V1.6.0 (2008-02) -->
                     <gavp name="Reservation-Priority"/>
                     <gavp name="Reservation-Class"/>
