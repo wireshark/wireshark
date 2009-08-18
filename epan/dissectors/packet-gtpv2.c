@@ -1615,12 +1615,12 @@ dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 					break;
 				case 94:
 					/* Charging Id */
-					proto_tree_add_item(ie_tree, hf_gtpv2_charging_id, tvb, offset, length, FALSE);
+					proto_tree_add_item(ie_tree, hf_gtpv2_charging_id, tvb, offset, lengths, FALSE);
 					offset+=lengths;
 					break;
 				case 97:
 					/* Bearer flags */
-					proto_tree_add_item(ie_tree, hf_gtpv2_bearer_flag, tvb, offset, length, FALSE);
+					proto_tree_add_item(ie_tree, hf_gtpv2_bearer_flag, tvb, offset, lengths, FALSE);
 					offset+=lengths;
 					break;
 				case 122:
