@@ -221,6 +221,7 @@ static int hf_gsm_a_gm_acc_tech_type = -1;
 static int hf_gsm_a_gm_acc_cap_struct_len = -1;
 static int hf_gsm_a_gm_sms_value = -1;
 static int hf_gsm_a_gm_sm_value = -1;
+static int hf_gsm_a_gm_sm_ext = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -3251,6 +3252,34 @@ de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 /*
  * [7] 10.5.6.3 Protocol configuration options
  */
+#if 0
+static const value_string gsm_a_sm_pco_ms2net_prot_vals[] = {
+	{ 0x01, "P-CSCF Address Request" },
+	{ 0x02, "IM CN Subsystem Signaling Flag" },
+	{ 0x03, "DNS Server Address Request" },
+	{ 0x04, "Not Supported" },
+	{ 0x05, "MS Support of Network Requested Bearer Control indicator" },
+	{ 0x06,	"Reserved" },
+	{ 0x07,	"DSMIPv6 Home Agent Address Request" },
+	{ 0x08,	"DSMIPv6 Home Network Prefix Request" },
+	{ 0x09,	"DSMIPv6 IPv4 Home Agent Address Request" },
+	{ 0x0a,	"IP address allocation via NAS signalling" },
+	{ 0x0b,	"IPv4 address allocation via DHCPv4" },
+	{ 0, NULL }
+};
+static const value_string gsm_a_sm_pco_net2ms_prot_vals[] = {
+	{ 0x01, "P-CSCF Address" },
+	{ 0x02, "IM CN Subsystem Signaling Flag" },
+	{ 0x03, "DNS Server Address" },
+	{ 0x04, "Policy Control rejection code" },
+	{ 0x05, "Selected Bearer Control Mode" },
+	{ 0x06,	"Reserved" },
+	{ 0x07,	"DSMIPv6 Home Agent Address" },
+	{ 0x08,	"DSMIPv6 Home Network Prefix" },
+	{ 0x09,	"DSMIPv6 IPv4 Home Agent Address" },
+	{ 0, NULL }
+};
+#endif
 guint16
 de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -3263,11 +3292,11 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
+
+	proto_tree_add_item(tree, hf_gsm_a_gm_sm_ext, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_text(tree,tvb, curr_offset, 1, "Configuration Protocol: PPP (%u)",oct&0x0f);
 	curr_len--;
 	curr_offset++;
-
-	proto_tree_add_text(tree,tvb, curr_offset, 1, "Ext: 0x%02x (%u)",oct>>7,oct>>7);
-	proto_tree_add_text(tree,tvb, curr_offset, 1, "Configuration Protocol: PPP (%u)",oct&0x0f);
 
 	while ( curr_len > 0 )
 	{
@@ -3277,9 +3306,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		dissector_handle_t handle = NULL;
 		static packet_info p_info;
 
-		prot = tvb_get_guint8(tvb, curr_offset);
-		prot <<= 8;
-		prot |= tvb_get_guint8(tvb, curr_offset+1);
+		prot = tvb_get_ntohs(tvb,curr_offset);
 		e_len = tvb_get_guint8(tvb, curr_offset+2);
 		curr_len-=3;
 		curr_offset+=3;
@@ -6048,6 +6075,11 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_sm_value,
 		{ "(SM_VALUE) Switch-Measure", "gsm_a.gm.sm",
 		  FT_UINT8, BASE_DEC, VALS(gsm_a_gm_sm_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_sm_ext,
+		{ "Ext", "gsm_a.gm.sm.ext",
+		  FT_UINT8, BASE_HEX, NULL, 0x80,
 		NULL, HFILL }
 	},
 	};
