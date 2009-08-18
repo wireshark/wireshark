@@ -28,6 +28,8 @@
 #ifdef NEW_PACKET_LIST
 #include <gtk/gtk.h>
 
+#define RECENT_KEY_COL_WIDTH                "column.width"
+
 GtkWidget *new_packet_list_create(void);
 void new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
 gboolean new_packet_list_get_event_row_column(GdkEventButton *event_button, gint *physical_row, gint *row, gint *column);
@@ -61,6 +63,12 @@ typedef enum {
  *  @param copy_type Mode in which to copy data (e.g. tab-separated, CSV)
  */
 void new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summary_type copy_type);
+
+/** Write all packet list geometry values to the recent file.
+ *
+ *  @param rf recent file handle from caller
+ */
+extern void new_packet_list_recent_write_all(FILE *rf);
 
 #endif /* NEW_PACKET_LIST */
 

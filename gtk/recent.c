@@ -46,7 +46,11 @@
 #include "gtk/main.h"
 #include "gtk/menus.h"
 #include "gtk/gui_utils.h"
+#ifdef NEW_PACKET_LIST
+#include "gtk/new_packet_list.h"
+#else
 #include "gtk/main_packet_list.h"
+#endif /*NEW_PACKET_LIST */
 #include "gtk/file_dlg.h"
 #include "gtk/cfilter_combo_utils.h"
 #include "gtk/u3.h"
@@ -373,7 +377,9 @@ write_profile_recent(void)
 
   fprintf(rf, "\n# Packet list column pixel widths.\n");
   fprintf(rf, "# Each pair of strings consists of a column format and its pixel width.\n");
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+  new_packet_list_recent_write_all(rf);
+#else
   packet_list_recent_write_all(rf);
 #endif
 

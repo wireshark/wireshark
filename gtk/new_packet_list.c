@@ -851,5 +851,31 @@ new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, gint copy_
     }
     g_string_free(text,TRUE);
 }
+
+/* XXX fore some reason this does not work in th .h file XXX*/
+#define RECENT_KEY_COL_WIDTH                "column.width"
+
+void
+new_packet_list_recent_write_all(FILE *rf)
+{
+  gint col;
+  GtkTreeViewColumn *tree_column;
+
+  fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
+  for (col = 0; col < cfile.cinfo.num_cols; col++) {
+     if (cfile.cinfo.col_fmt[col] == COL_CUSTOM) {
+       fprintf (rf, " %%Cus:%s,", get_column_custom_field(col));
+     } else {
+       fprintf (rf, " %s,", col_format_to_string(cfile.cinfo.col_fmt[col]));
+     }
+	 tree_column = gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col);
+     fprintf (rf, " %d", gtk_tree_view_column_get_width(tree_column));
+     if (col != cfile.cinfo.num_cols-1) {
+       fprintf (rf, ",");
+     }
+   }
+   fprintf (rf, "\n");
+}
+
 #endif /* NEW_PACKET_LIST */
 
