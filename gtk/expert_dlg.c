@@ -479,7 +479,9 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	proto_draw_colors_init();
 
 	etd = expert_dlg_new_table();
-	etd->win=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Expert Info");
+	etd->win=dlg_window_new("Wireshark: Expert Info");	/* transient_for top_level */
+	gtk_window_set_destroy_with_parent (GTK_WINDOW(etd->win), TRUE);
+
 	gtk_window_set_default_size(GTK_WINDOW(etd->win), 650, 600);
 
 	vbox=gtk_vbox_new(FALSE, 3);
@@ -556,6 +558,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	 * Put our window back in front
 	 */
 	gdk_window_raise(etd->win->window);
+	expert_dlg_draw(etd);
 
 }
 
