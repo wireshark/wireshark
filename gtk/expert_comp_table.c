@@ -37,6 +37,8 @@
 #include <gtk/gtk.h>
 
 #include "epan/packet_info.h"
+#include "epan/strutil.h"
+
 #include <epan/expert.h>
 
 #include "../simple_dialog.h"
@@ -101,15 +103,17 @@ enum
 
 static gint find_summary_data(error_equiv_table *err, const expert_info_t *expert_data)
 {
-    gint i;
+    guint i;
+    error_procedure_t *procedure;
     
     /* First time thru values will be 0 */
     if (err->num_procs==0) {
         return -1;
     }
     for (i=0;i<err->num_procs;i++) {
-        if (strcmp(err->procedures[i].entries[1], expert_data->protocol) == 0 &&
-            strcmp(err->procedures[i].entries[2], expert_data->summary) == 0) {
+        procedure = &g_array_index(err->procs_array, error_procedure_t, i);
+        if (strcmp(procedure->entries[1], expert_data->protocol) == 0 &&
+            strcmp(procedure->entries[2], expert_data->summary) == 0) {
             return i;
         }
     }
@@ -121,8 +125,9 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 {
     int action, type, selection;
     error_equiv_table *err = (error_equiv_table *)callback_data;
-    char str[256];
+    char str[512];
     const char *current_filter;
+    error_procedure_t *procedure;
 
     GtkTreeIter iter;
     GtkTreeModel *model;
@@ -144,7 +149,6 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     if (strcmp(grp, "Packet:")==0) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You cannot filter or search for packet number. Click on a valid item header.");
         g_free(grp);
-        g_free(expert_data.protocol);
         g_free(expert_data.summary);
         return;
     }
@@ -157,7 +161,6 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     /*       will also need to be stored in the TreeModel).                      */
     selection = find_summary_data(err, &expert_data);
 
-    g_free(expert_data.protocol);
     g_free(expert_data.summary);
 
     if(selection>=(int)err->num_procs){
@@ -168,64 +171,72 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 
     /* Some expert data doesn't pass an expert item. Without this we cannot create a filter */
     /* But allow for searching of internet for error string */
-    if (action != 6 && action != 7) {
-        if (err->procedures[selection].fvalue_value==NULL) {
-            if (action != 2 && action != 3 && action != 4) {
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Wireshark cannot create a filter on this item - %s, try using find instead.", err->procedures[selection].entries[2]);
+    procedure = &g_array_index(err->procs_array, error_procedure_t, selection);
+
+    /* FIXME what is 7 ?*/
+    if (action != ACTION_WEB_LOOKUP && action != 7) {
+        char *msg;
+        if (0 /*procedure->fvalue_value==NULL*/) {
+            if (action != ACTION_FIND_FRAME && action != ACTION_FIND_NEXT && action != ACTION_FIND_PREVIOUS) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Wireshark cannot create a filter on this item - %s, try using find instead.", 
+                              procedure->entries[2]);
                 return;
             }
         }
+        msg = g_malloc(escape_string_len(procedure->entries[2]));
+        escape_string(msg, procedure->entries[2]);
         switch(type){
         case ACTYPE_SELECTED:
             /* if no expert item was passed */
-            if (err->procedures[selection].fvalue_value==NULL) {
-                g_strlcpy(str, err->procedures[selection].entries[2], sizeof(str));
+            if (procedure->fvalue_value==NULL) {
+                g_snprintf(str, sizeof(str), "expert.message==%s", msg);
             }
             else
             {
                 /* expert item exists. Use it. */
-                g_strlcpy(str, err->procedures[selection].fvalue_value, sizeof(str));
+                g_strlcpy(str, procedure->fvalue_value, sizeof(str));
             }
             break;
         case ACTYPE_NOT_SELECTED:
             /* if no expert item was passed */
-            if (err->procedures[selection].fvalue_value==NULL) {
-                g_snprintf(str, sizeof(str), "!%s", err->procedures[selection].entries[2]);
+            if (procedure->fvalue_value==NULL) {
+                g_snprintf(str, sizeof(str), "!(expert.message==%s)", msg);
             }
             else
             {
                 /* expert item exists. Use it. */
-                g_snprintf(str, sizeof(str), "!(%s)", err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "!(%s)", procedure->fvalue_value);
             }
             break;
             /* the remaining cases will only exist if the expert item exists so no need to check */
         case ACTYPE_AND_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_strlcpy(str, err->procedures[selection].fvalue_value, sizeof(str));
+                g_snprintf(str, sizeof(str), "expert.message==%s", msg);
             else
-                g_snprintf(str, sizeof(str), "(%s) && (%s)", current_filter, err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "(%s) && (expert.message==%s)", current_filter, msg);
             break;
         case ACTYPE_OR_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_strlcpy(str, err->procedures[selection].fvalue_value, sizeof(str));
+                g_snprintf(str, sizeof(str), "expert.message==%s", msg);
             else
-                g_snprintf(str, sizeof(str), "(%s) || (%s)", current_filter, err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "(%s) || (expert.message==%s)", current_filter, msg);
             break;
         case ACTYPE_AND_NOT_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_snprintf(str, sizeof(str), "!(%s)", err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "!(expert.message==%s)", msg);
             else
-                g_snprintf(str, sizeof(str), "(%s) && !(%s)", current_filter, err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "(%s) && !(expert.message==%s)", current_filter, msg);
             break;
         case ACTYPE_OR_NOT_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_snprintf(str, sizeof(str), "!(%s)", err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "!(expert.message==%s)", msg);
             else
-                g_snprintf(str, sizeof(str), "(%s) || !(%s)", current_filter, err->procedures[selection].fvalue_value);
+                g_snprintf(str, sizeof(str), "(%s) || !(expert.message==%s)", current_filter, msg);
             break;
         default:
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't find menu type - %u", type);
         }
+        g_free(msg);
     }
 
     switch(action){
@@ -253,7 +264,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
          * A better aproach would be to attempt in capturing the last find string and utilize this 
          * with a find next/previous. Also a better approach might be to just send a <Ctl-N> keystroke.
          */
-        if (err->procedures[selection].fvalue_value==NULL) {
+        if (procedure->fvalue_value==NULL) {
             find_frame_with_filter(str);
         }
         else
@@ -271,7 +282,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
          * A better aproach would be to attempt in capturing the last find string and utilize this 
          * with a find next/previous. Also a better approach might be to just send a <Ctl-B> keystroke.
          */
-        if (err->procedures[selection].fvalue_value==NULL) {
+        if (procedure->fvalue_value==NULL) {
             find_frame_with_filter(str);
         }
         else
@@ -285,7 +296,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         break;
     case ACTION_WEB_LOOKUP:
         /* Lookup expert string on internet. Default search via www.google.com */
-        g_snprintf(str, sizeof(str), "http://www.google.com/search?hl=en&q=%s+'%s'", err->procedures[selection].entries[1], err->procedures[selection].entries[2]);
+        g_snprintf(str, sizeof(str), "http://www.google.com/search?hl=en&q=%s+'%s'", procedure->entries[1], procedure->entries[2]);
         browser_open_url(str);
         break;
     default:
@@ -434,9 +445,8 @@ error_create_popup_menu(error_equiv_table *err)
 }
 
 void
-init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
+init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
 {
-    guint16 i, j;
     GtkTreeStore *store;
     GtkWidget *tree;
     GtkTreeViewColumn *column;
@@ -445,9 +455,15 @@ init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
 
     /* Create the store */
     store = gtk_tree_store_new (4,       /* Total number of columns */
+#if 0
+                               G_TYPE_POINTER,   /* Group              */
+                               G_TYPE_POINTER,   /* Protocol           */
+                               G_TYPE_POINTER,   /* Summary            */
+#else
                                G_TYPE_STRING,   /* Group              */
                                G_TYPE_STRING,   /* Protocol           */
                                G_TYPE_STRING,   /* Summary            */
+#endif
                                G_TYPE_INT);     /* Count              */
 
     /* Create a view */
@@ -510,12 +526,9 @@ init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
     gtk_widget_show(err->scrolled_window);
 
     err->num_procs=num_procs;
-    err->procedures=g_malloc(sizeof(error_procedure_t)*(num_procs+1));
-    for(i=0;i<num_procs;i++){
-        for(j=0;j<3;j++){
-            err->procedures[i].entries[j]=NULL; /* reset all values */
-        }
-    }
+
+    err->text = g_string_chunk_new(100);
+    err->procs_array = g_array_sized_new(FALSE, FALSE, sizeof(error_procedure_t), num_procs);
 
     /* create popup menu for this table */
     error_create_popup_menu(err);
@@ -524,90 +537,71 @@ init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
 void
 init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
 {
-    guint16 old_num_procs=err->num_procs;
-    guint16 j;
+    guint old_num_procs=err->num_procs;
+    guint j;
     gint row=0;
-
+    error_procedure_t *procedure;
     GtkTreeStore *store;
+    GtkTreeIter   new_iter;
 
     /* we have discovered a new procedure. Extend the table accordingly */
     row = find_summary_data(err, expert_data);
     if(row==-1){
+        error_procedure_t new_procedure;
         /* First time we have seen this event so initialize memory table */
         row = old_num_procs; /* Number of expert events since this is a new event */
-        err->procedures=g_realloc(err->procedures, (sizeof(error_procedure_t)*(old_num_procs+1)));
-        err->procedures[row].count=0; /* count of events for this item */
-        err->procedures[row].fvalue_value = NULL; /* Filter string value */
+
+        new_procedure.count=0; /* count of events for this item */
+        new_procedure.fvalue_value = NULL; /* Filter string value */
         for(j=0;j<4;j++){
-            err->procedures[row].entries[j]=NULL;
+            new_procedure.entries[j]=NULL;
         }
+        g_array_append_val(err->procs_array, new_procedure);
+        procedure = &g_array_index(err->procs_array, error_procedure_t, row);
         
         /* Create the item in our memory table */
-        err->procedures[row].entries[0]=(char *)g_strdup(val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"));  /* Group */
-        err->procedures[row].entries[1]=(char *)g_strdup(expert_data->protocol);    /* Protocol */
-        err->procedures[row].entries[2]=(char *)g_strdup(expert_data->summary);     /* Summary */
+        procedure->entries[0]=(char *)g_string_chunk_insert(err->text, 
+                val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"));  /* Group */
+        procedure->entries[1]=(char *)g_string_chunk_insert(err->text, expert_data->protocol);    /* Protocol */
+        procedure->entries[2]=(char *)g_string_chunk_insert(err->text, expert_data->summary);     /* Summary */
 
         /* Create a new item in our tree view */
         store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view)); /* Get store */
-        gtk_tree_store_append (store, &err->procedures[row].iter, NULL);  /* Acquire an iterator */
+        gtk_tree_store_append (store, &procedure->iter, NULL);  /* Acquire an iterator */
         
-        /* (Note: gtk_tree_store_set *copies* the input strings) */
-        gtk_tree_store_set (store, &err->procedures[row].iter,
-                            GROUP_COLUMN,    val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"),
-                            PROTOCOL_COLUMN, expert_data->protocol,
-                            SUMMARY_COLUMN,  expert_data->summary,
-                            -1);
-
+        gtk_tree_store_set (store, &procedure->iter,
+                    GROUP_COLUMN, procedure->entries[0],
+                    PROTOCOL_COLUMN, procedure->entries[1],
+                    SUMMARY_COLUMN,  procedure->entries[2], -1);
+        
         /* If an expert item was passed then build the filter string */
         if (expert_data->pitem) {
             char *filter;
 
             filter = proto_construct_match_selected_string(PITEM_FINFO(expert_data->pitem), NULL);
             if (filter != NULL)
-                err->procedures[row].fvalue_value = g_strdup(filter);
+                procedure->fvalue_value = g_string_chunk_insert(err->text, filter);
         }
         /* Store the updated count of events */
         err->num_procs = ++old_num_procs;
     }
 
     /* Update our memory table with event data */
-    err->procedures[row].count++; /* increment the count of events for this item */
+    procedure = &g_array_index(err->procs_array, error_procedure_t, row);
+    procedure->count++; /* increment the count of events for this item */
 
+#if 0
     /* Store the updated count for this event item */
     err->procedures[row].entries[3]=(char *)g_strdup_printf("%d", err->procedures[row].count);     /* Count */
+#endif
 
     /* Update the tree with new count for this event */
     store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
-    gtk_tree_store_set(store, &err->procedures[row].iter, COUNT_COLUMN, err->procedures[row].count, -1);
-}
-
-void
-add_error_table_data(error_equiv_table *err, const expert_info_t *expert_data)
-{
-    error_procedure_t *errp;
-    gint index;
-    GtkTreeStore    *store;
-    GtkTreeIter      new_iter;
-    gchar            str[16];
-
-    index = find_summary_data(err, expert_data);
-
-    /* We should never encounter a condition where we cannot find the expert data. If
-     * we do then we will just abort.
-     */
-    if (index == -1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find expert data. Aborting");
-        return;
-    }
-    errp=&err->procedures[index];
-
-    store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
-
-    g_snprintf(str, sizeof(str), "%d", expert_data->packet_num);
-    gtk_tree_store_append(store, &new_iter, &errp->iter);
+    gtk_tree_store_set(store, &procedure->iter, COUNT_COLUMN, procedure->count, -1);
+    gtk_tree_store_append(store, &new_iter, &procedure->iter);
     gtk_tree_store_set(store, &new_iter,
                        GROUP_COLUMN,    "Packet:",
-                       PROTOCOL_COLUMN, str,
+                       PROTOCOL_COLUMN, (char *)g_strdup_printf("%d", expert_data->packet_num),
                        COUNT_COLUMN,    1,
                        -1);
 }
@@ -615,36 +609,20 @@ add_error_table_data(error_equiv_table *err, const expert_info_t *expert_data)
 void
 reset_error_table_data(error_equiv_table *err)
 {
-    guint16 i;
     GtkTreeStore    *store;
-
-    for(i=0;i<err->num_procs;i++){
-        err->procedures[i].entries[0] = NULL;
-        err->procedures[i].entries[1] = NULL;
-        err->procedures[i].entries[2] = NULL;
-        err->procedures[i].entries[3] = NULL;
-        err->procedures[i].count=0;
-    }
 
     store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
     gtk_tree_store_clear(store);
     err->num_procs = 0;
+    g_string_chunk_clear(err->text);
+    g_array_set_size(err->procs_array, 0);
 }
 
 void
 free_error_table_data(error_equiv_table *err)
 {
-    guint16 i,j;
 
-    for(i=0;i<err->num_procs;i++){
-        for(j=0;j<4;j++){
-            if(err->procedures[i].entries[j]){
-                err->procedures[i].entries[j]=NULL;
-            }
-            err->procedures[i].fvalue_value=NULL;
-            err->procedures[i].count=0;
-        }
-    }
-    err->procedures=NULL;
     err->num_procs=0;
+    g_string_chunk_free(err->text);
+    g_array_free(err->procs_array, TRUE);
 }

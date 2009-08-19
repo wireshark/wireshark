@@ -60,7 +60,7 @@
 #include "gtk/color_utils.h"
 #include "gtk/main_proto_draw.h"
 #include "gtk/help_dlg.h"
-
+#include "gtk/expert_dlg.h"
 
 static const value_string expert_severity_om_vals[] = {
 	{ PI_ERROR,		"Errors only" },
@@ -69,21 +69,6 @@ static const value_string expert_severity_om_vals[] = {
 	{ PI_CHAT,		"Error+Warn+Note+Chat" },
 	{ 0, NULL }
 };
-
-typedef struct expert_tapdata_s {
-	GtkWidget	*win;
-	GtkWidget	*scrolled_window;
-	GtkCList	*table;
-	GtkWidget	*label;
-	GList		*all_events;
-	GList		*new_events;
-	guint32		disp_events;
-	guint32		chat_events;
-	guint32		note_events;
-	guint32		warn_events;
-	guint32		error_events;
-	int			severity_report_level;
-} expert_tapdata_t;
 
 
 /* reset of display only, e.g. for filtering */
@@ -105,25 +90,28 @@ void expert_dlg_reset(void *tapdata)
 {
 	expert_tapdata_t * etd = tapdata;
 
-	g_list_free(etd->all_events);
-	etd->all_events = NULL;
-	g_list_free(etd->new_events);
-	etd->new_events = NULL;
 	etd->chat_events = 0;
 	etd->note_events = 0;
 	etd->warn_events = 0;
 	etd->error_events = 0;
+	etd->last = 0;
+	etd->first = 0;
+	g_string_chunk_clear(etd->text);
+	g_array_set_size(etd->ei_array, 0);
 
 	expert_dlg_display_reset(etd);
 }
 
 int expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer)
 {
-    expert_info_t	*ei = se_memdup(pointer,sizeof(expert_info_t));
-	expert_tapdata_t * etd = tapdata;
+    expert_info_t	*ei;
+    expert_tapdata_t * etd = tapdata;
 
-    ei->protocol = se_strdup(ei->protocol);
-    ei->summary = se_strdup(ei->summary);
+    g_array_append_val(etd->ei_array, *(expert_info_t *)pointer);
+    etd->last = etd->ei_array->len;
+    ei = &g_array_index(etd->ei_array, expert_info_t, etd->last -1); /* ugly */
+    ei->protocol = ei->protocol;
+    ei->summary = g_string_chunk_insert_const(etd->text, ei->summary);
 
 	switch(ei->severity) {
 	case(PI_CHAT):
@@ -141,10 +129,6 @@ int expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt
 	default:
 		g_assert_not_reached();
 	}
-
-	/* insert(0) is a *lot* faster than append! */
-	etd->new_events = g_list_insert(etd->new_events, ei, 0);
-
 	if(ei->severity < etd->severity_report_level) {
 		return 0; /* draw not required */
 	} else {
@@ -158,7 +142,6 @@ expert_dlg_draw(void *data)
 	expert_tapdata_t *etd = data;
 	int row;
 	int displayed;
-	char *strp;
 	expert_info_t *ei;
 	gchar *title;
 	const char *entries[5];   /**< column entries */
@@ -167,9 +150,8 @@ expert_dlg_draw(void *data)
 	displayed = etd->disp_events;
 
 	if(etd->label) {
-		if(etd->new_events != NULL) {
-			title = g_strdup_printf("Adding: %u new messages",
-				g_list_length(etd->new_events));
+		if(etd->last - etd->first) {
+			title = g_strdup_printf("Adding: %u new messages",etd->last - etd->first);
 			gtk_label_set_text(GTK_LABEL(etd->label), title);
 			g_free(title);
 		}
@@ -178,12 +160,9 @@ expert_dlg_draw(void *data)
 	gtk_clist_freeze(etd->table);
 
 	/* append new events (remove from new list, append to displayed list and clist) */
-	while(etd->new_events != NULL){
-		ei = etd->new_events->data;
-
-		etd->new_events = g_list_remove(etd->new_events, ei);
-		/* insert(0) is a *lot* faster than append! */
-		etd->all_events = g_list_insert(etd->all_events, ei, 0);
+	while(etd->first < etd->last){
+		ei = &g_array_index(etd->ei_array, expert_info_t, etd->first);
+		etd->first++;
 
 		if(ei->severity < etd->severity_report_level) {
 			continue;
@@ -195,10 +174,10 @@ expert_dlg_draw(void *data)
 
 		/* packet number */
 		if(ei->packet_num) {
-			/* XXX */
-			strp= se_strdup_printf("%u", ei->packet_num);
-			entries[0] = strp;
-			/*entries[0] = itoa(ei->packet_num, str, 10);*/
+            char str_buf[10];
+
+			g_snprintf(str_buf, sizeof(str_buf), "%u", ei->packet_num);
+			entries[0] = str_buf;
 		} else {
 			entries[0] = "-";
 		}
@@ -222,7 +201,7 @@ expert_dlg_draw(void *data)
 		/*gtk_clist_set_pixmap(etd->table, row, 5, ascend_pm, ascend_bm);*/
 
 		row=gtk_clist_append(etd->table, (gchar **) entries);
-		gtk_clist_set_row_data(etd->table, row, ei);
+		gtk_clist_set_row_data(etd->table, row, GUINT_TO_POINTER(ei->packet_num));
 
 		/* set rows background color depending on severity */
 		switch(ei->severity) {
@@ -243,8 +222,10 @@ expert_dlg_draw(void *data)
 		}
 		gtk_clist_set_foreground(etd->table, row, &expert_color_foreground);
 	}
+	
+	if (etd->table->sort_column || etd->table->sort_type != GTK_SORT_ASCENDING)
+        gtk_clist_sort(etd->table);
 
-	gtk_clist_sort(etd->table);
 	/* column autosizing is very slow for large number of entries,
 	 * so do it only for the first 1000 of it
 	 * (there might be no large changes behind this amount) */
@@ -340,12 +321,9 @@ srt_click_column_cb(GtkCList *clist, gint column, gpointer data)
 static void
 select_row_cb(GtkCList *clist, gint row, gint column _U_, GdkEventButton *event _U_, gpointer user_data _U_)
 {
-	expert_info_t	*ei;
+	guint num = GPOINTER_TO_UINT(gtk_clist_get_row_data(clist, row));
 
-
-	ei = (expert_info_t *) gtk_clist_get_row_data(clist, row);
-
-	cf_goto_frame(&cfile, ei->packet_num);
+	cf_goto_frame(&cfile, num);
 }
 
 
@@ -424,7 +402,7 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 	}*/
 }
 
-static void
+void
 expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	expert_tapdata_t *etd=(expert_tapdata_t *)data;
@@ -434,6 +412,8 @@ expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
 	unprotect_thread_critical_region();
 
 	/*free_srt_table_data(&etd->afp_srt_table);*/
+	g_array_free(etd->ei_array, TRUE);
+	g_string_chunk_free(etd->text);
 	g_free(etd);
 }
 
@@ -451,8 +431,7 @@ expert_dlg_severity_cb(GtkWidget *w, gpointer data)
 
 	/* "move" all events from "all" back to "new" lists */
 	protect_thread_critical_region();
-	etd->new_events = g_list_concat(etd->new_events, etd->all_events);
-	etd->all_events = NULL;
+	etd->first = 0;
 	unprotect_thread_critical_region();
 
 	/* redraw table */
@@ -460,6 +439,16 @@ expert_dlg_severity_cb(GtkWidget *w, gpointer data)
 	expert_dlg_draw(etd);
 }
 
+expert_tapdata_t * expert_dlg_new_table(void)
+{
+	expert_tapdata_t * etd;
+	etd=g_malloc0(sizeof(expert_tapdata_t));
+	
+	etd->ei_array = g_array_sized_new(FALSE, FALSE, sizeof(expert_info_t), 1000);
+	etd->text = g_string_chunk_new(100);
+	etd->severity_report_level = PI_CHAT;
+	return etd;
+}
 
 static void
 expert_dlg_init(const char *optarg, void* userdata _U_)
@@ -489,18 +478,8 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 
 	proto_draw_colors_init();
 
-	etd=g_malloc(sizeof(expert_tapdata_t));
-	etd->all_events = NULL;
-	etd->new_events = NULL;
-	etd->disp_events = 0;
-	etd->chat_events = 0;
-	etd->note_events = 0;
-	etd->warn_events = 0;
-	etd->error_events = 0;
-	etd->severity_report_level = PI_CHAT;
-
-	etd->win=dlg_window_new("Wireshark: Expert Info");  /* transient_for top_level */
-	gtk_window_set_destroy_with_parent (GTK_WINDOW(etd->win), TRUE);
+	etd = expert_dlg_new_table();
+	etd->win=window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Expert Info");
 	gtk_window_set_default_size(GTK_WINDOW(etd->win), 650, 600);
 
 	vbox=gtk_vbox_new(FALSE, 3);

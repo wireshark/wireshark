@@ -959,3 +959,68 @@ string_or_null(const char *string)
     return string;
   return "[NULL]";
 }
+
+int 
+escape_string_len(const char *string)
+{
+	const char *p;
+	gchar c;
+	int repr_len;
+
+	repr_len = 0;
+	for (p = string; (c = *p) != '\0'; p++) {
+		/* Backslashes and double-quotes must
+		 * be escaped */
+		if (c == '\\' || c == '"') {
+			repr_len += 2;
+		}
+		/* Values that can't nicely be represented
+		 * in ASCII need to be escaped. */
+		else if (!isprint((unsigned char)c)) {
+			/* c --> \xNN */
+			repr_len += 4;
+		}
+		/* Other characters are just passed through. */
+		else {
+			repr_len++;
+		}
+	}
+	return repr_len + 2;	/* string plus leading and trailing quotes */
+}
+
+char * 
+escape_string(char *buf, const char *string)
+{
+  const gchar *p;
+  gchar c;
+  char *bufp;
+  char hex[3];
+
+  bufp = buf;
+  *bufp++ = '"';
+  for (p = string; (c = *p) != '\0'; p++) {
+	/* Backslashes and double-quotes must
+	 * be escaped. */
+	if (c == '\\' || c == '"') {
+		*bufp++ = '\\';
+		*bufp++ = c;
+	}
+	/* Values that can't nicely be represented
+	 * in ASCII need to be escaped. */
+	else if (!isprint((unsigned char)c)) {
+		/* c --> \xNN */
+		g_snprintf(hex,sizeof(hex), "%02x", (unsigned char) c);
+		*bufp++ = '\\';
+		*bufp++ = 'x';
+		*bufp++ = hex[0];
+		*bufp++ = hex[1];
+	}
+	/* Other characters are just passed through. */
+	else {
+		*bufp++ = c;
+	}
+  }
+  *bufp++ = '"';
+  *bufp = '\0';
+  return buf;
+}

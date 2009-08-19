@@ -230,6 +230,7 @@ noinst_HEADERS = \
 	drag_and_drop.h	\
 	expert_comp_dlg.h	\
 	expert_comp_table.h	\
+	expert_dlg.h	\
 	export_object.h	\
 	file_dlg.h	\
 	fileset_dlg.h	\

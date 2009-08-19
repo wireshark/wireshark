@@ -71,6 +71,8 @@ typedef struct _expert_comp_dlg_t {
     guint32 error_events;
 } expert_comp_dlg_t;
 
+static GtkWidget  *expert_comp_dlg_w = NULL;
+
 static void
 error_set_title(expert_comp_dlg_t *ss)
 {
@@ -123,7 +125,6 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
 {
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)pss;
     const expert_info_t *error_pkt=prv;
-    gchar *buf = NULL;	/* set to NULL to prevent warnings */
 
     /* if return value is 0 then no error */
     if(error_pkt==NULL){
@@ -135,56 +136,64 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
         ss->disp_events++;
         ss->error_events++;
         init_error_table_row(&ss->error_table, error_pkt);
-        add_error_table_data(&ss->error_table, error_pkt);
-        buf = g_strdup_printf("Errors: %u (%u)", ss->error_table.num_procs, ss->error_events);
-        gtk_label_set_text( GTK_LABEL(ss->error_label), buf);
         break;
     case PI_WARN:
         ss->disp_events++;
         ss->warn_events++;
         init_error_table_row(&ss->warn_table, error_pkt);
-        add_error_table_data(&ss->warn_table, error_pkt);
-        buf = g_strdup_printf("Warnings: %u (%u)", ss->warn_table.num_procs, ss->warn_events);
-        gtk_label_set_text( GTK_LABEL(ss->warn_label), buf);
         break;
     case PI_NOTE:
         ss->disp_events++;
         ss->note_events++;
         init_error_table_row(&ss->note_table, error_pkt);
-        add_error_table_data(&ss->note_table, error_pkt);
-        buf = g_strdup_printf("Notes: %u (%u)", ss->note_table.num_procs, ss->note_events);
-        gtk_label_set_text( GTK_LABEL(ss->note_label), buf);
         break;
     case PI_CHAT:
         ss->disp_events++;
         ss->chat_events++;
         init_error_table_row(&ss->chat_table, error_pkt);
-        add_error_table_data(&ss->chat_table, error_pkt);
-        buf = g_strdup_printf("Chats: %u (%u)", ss->chat_table.num_procs, ss->chat_events);
-        gtk_label_set_text( GTK_LABEL(ss->chat_label), buf);
         break;
     default:
         return 0; /* Don't draw */
     }
+    return 1; /* Draw */
+}
+
+static void
+expert_comp_draw(void *data)
+{
+    gchar *buf = NULL;
+
+    expert_comp_dlg_t *ss=(expert_comp_dlg_t *)data;
+
+    buf = g_strdup_printf("Errors: %u (%u)", ss->error_table.num_procs, ss->error_events);
+    gtk_label_set_text( GTK_LABEL(ss->error_label), buf);
+    g_free(buf);
+
+    buf = g_strdup_printf("Warnings: %u (%u)", ss->warn_table.num_procs, ss->warn_events);
+    gtk_label_set_text( GTK_LABEL(ss->warn_label), buf);
+    g_free(buf);
+
+    buf = g_strdup_printf("Notes: %u (%u)", ss->note_table.num_procs, ss->note_events);
+    gtk_label_set_text( GTK_LABEL(ss->note_label), buf);
+    g_free(buf);
+
+    buf = g_strdup_printf("Chats: %u (%u)", ss->chat_table.num_procs, ss->chat_events);
+    gtk_label_set_text( GTK_LABEL(ss->chat_label), buf);
     g_free(buf);
 
     buf = g_strdup_printf("Details: %u", ss->disp_events);
     gtk_label_set_text( GTK_LABEL(ss->all_label), buf);
     g_free(buf);
-
-    return 1; /* Draw */
+    
 }
-
 
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
     expert_comp_dlg_t *ss=(expert_comp_dlg_t *)data;
-	expert_tapdata_t * etd=(expert_tapdata_t *)data;
 
     protect_thread_critical_region();
     remove_tap_listener(ss);
-    remove_tap_listener(etd);
     unprotect_thread_critical_region();
 
     free_error_table_data(&ss->error_table);
@@ -193,19 +202,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
     free_error_table_data(&ss->chat_table);
     g_free(ss);
 
-}
-
-
-static void
-expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
-{
-	expert_tapdata_t *etd=(expert_tapdata_t *)data;
-
-	protect_thread_critical_region();
-	remove_tap_listener(etd);
-	unprotect_thread_critical_region();
-
-	g_free(etd);
 }
 
 static void
@@ -226,24 +222,13 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     ss=g_malloc(sizeof(expert_comp_dlg_t));
 
-    etd=g_malloc(sizeof(expert_tapdata_t));
-    etd->table = NULL;
-    etd->all_events = NULL;
-    etd->new_events = NULL;
-    etd->disp_events = 0;
-    etd->chat_events = 0;
-    etd->note_events = 0;
-    etd->warn_events = 0;
-    etd->error_events = 0;
-    etd->severity_report_level = PI_CHAT;
-
     ss->disp_events = 0;
     ss->chat_events = 0;
     ss->note_events = 0;
     ss->warn_events = 0;
     ss->error_events = 0;
 
-	ss->win=dlg_window_new("err");  /* transient_for top_level */
+	expert_comp_dlg_w = ss->win=dlg_window_new("err");  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
     gtk_window_set_default_size(GTK_WINDOW(ss->win), 700, 300);
 
@@ -300,15 +285,14 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->all_label = gtk_label_new("Details: 0");
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->all_label);
 
+    etd = expert_dlg_new_table();
     etd->label=gtk_label_new("Please wait ...");
     gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0f, 0.5f);
 
     etd->win=ss->win;
     expert_dlg_init_table(etd, temp_page);
 
-
     /* Add tap listener functions for expert details, From expert_dlg.c*/
-
     error_string=register_tap_listener("expert", etd, NULL /* fstring */,
                                        0,
                                        expert_dlg_reset,
@@ -326,7 +310,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     /* Register the tap listener */
 
-    error_string=register_tap_listener("expert", ss, filter, 0, error_reset, error_packet, NULL);
+    error_string=register_tap_listener("expert", ss, filter, 0, error_reset, error_packet, expert_comp_draw);
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_string_free(error_string, TRUE);
@@ -369,12 +353,18 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
      * Put our window back in front
      */
     gdk_window_raise(ss->win->window);
+	/* Set the lable text */
+	expert_comp_draw(ss);
 }
 
 void
 expert_comp_dlg_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    expert_comp_init("", NULL);
+    if (expert_comp_dlg_w) {
+          reactivate_window(expert_comp_dlg_w);
+    } else {
+          expert_comp_init("", NULL);
+    }
 }
 
 void

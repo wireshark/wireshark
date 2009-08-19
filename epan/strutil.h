@@ -222,4 +222,7 @@ char * epan_strcasestr(const char *haystack, const char *needle);
  */
 const char * string_or_null(const char *string);
 
+int escape_string_len(const char *string);
+char * escape_string(char *dst, const char *string);
+
 #endif /* __STRUTIL_H__ */

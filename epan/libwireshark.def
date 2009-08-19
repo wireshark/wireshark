@@ -364,6 +364,8 @@ epan_dissect_run
 epan_get_version
 epan_init
 epan_strcasestr
+escape_string
+escape_string_len
 ethertype
 ether_to_str
 ex_opt_add
