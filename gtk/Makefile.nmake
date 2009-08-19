@@ -162,10 +162,17 @@ doxygen.chm:
 
 doxygen: doxygen.cfg doxygen-run doxygen.chm
 
-checkapi:
+checkapi: checkapi-base checkapi-todo
+
+checkapi-base:
 	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk \
 	$(WIRESHARK_GTK_SRC) \
-	$(WIRESHARK_TAP_SRC) \
+	$(WIRESHARK_TAP_SRC) 
+
+checkapi-todo:
+	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk-todo \
 	capture_if_details_dlg_win32.c	\
 	file_dlg_win32.c \
-	print_win32.c
+	print_win32.c 
+	
+	
