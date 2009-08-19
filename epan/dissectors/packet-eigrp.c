@@ -1,4 +1,8 @@
 /* packet-eigrp.c
+ * Routines for EIGRP Stub Routing, Authentication and IPv6 TLV dissection
+ *
+ * Copyright 2009, Jochen Bartl <jochen.bartl@gmail.com>
+ *
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
@@ -48,6 +52,8 @@
 #define EIGRP_REPLY     0x04
 #define EIGRP_HELLO     0x05
 #define EIGRP_SAP	0x06
+#define EIGRP_SIA_QUERY	0x0a
+#define EIGRP_SIA_REPLY 0x0b
 #define EIGRP_HI	0x20  /* This value is for my own need to make a difference between Hello and Ack */
 #define EIGRP_ACK	0x40  /* This value is for my own need to make a difference between Hello and Ack */
 
@@ -56,6 +62,7 @@
 #define TLV_SEQ		0x0003
 #define TLV_SV		0x0004
 #define TLV_NMS		0x0005
+#define TLV_STUB	0x0006
 #define TLV_IP_INT	0x0102
 #define TLV_IP_EXT	0x0103
 #define TLV_AT_INT	0x0202
@@ -63,17 +70,208 @@
 #define TLV_AT_CBL	0x0204
 #define TLV_IPX_INT	0x0302
 #define TLV_IPX_EXT	0x0303
+#define TLV_IP6_INT 	0x0402
+#define TLV_IP6_EXT 	0x0403
 
-#define EIGRP_HEADER_LENGTH	20
+#define EIGRP_FLAGS_INIT 	0x00000001
+#define EIGRP_FLAGS_CONDRECV 	0x00000002
+
+#define EIGRP_STUB_FLAGS_CONNECTED 	0x0001
+#define EIGRP_STUB_FLAGS_STATIC 	0x0002
+#define EIGRP_STUB_FLAGS_SUMMARY 	0x0004
+#define EIGRP_STUB_FLAGS_RECVONLY 	0x0008
+#define EIGRP_STUB_FLAGS_REDIST 	0x0010
+#define EIGRP_STUB_FLAGS_LEAKMAP 	0x0020
+
+#define EIGRP_IP_EXT_FLAGS_EXT 		0x01
+#define EIGRP_IP_EXT_FLAGS_DEFAULT	0x02
+
+#define EIGRP_HEADER_LENGTH 		20
 
 static gint proto_eigrp = -1;
 
+static gint hf_eigrp_version = -1;
 static gint hf_eigrp_opcode = -1;
+static gint hf_eigrp_checksum = -1;
+
+static gint hf_eigrp_flags = -1; /* Flags Tree */
+static gint hf_eigrp_flags_init = -1;
+static gint hf_eigrp_flags_condrecv = -1;
+
+static gint hf_eigrp_sequence = -1;
+static gint hf_eigrp_acknowledge = -1;
 static gint hf_eigrp_as = -1;
 static gint hf_eigrp_tlv = -1;
+static gint hf_eigrp_tlv_size = -1;
+
+/* EIGRP Parameters TLV */
+static gint hf_eigrp_par_k1 = -1;
+static gint hf_eigrp_par_k2 = -1;
+static gint hf_eigrp_par_k3 = -1;
+static gint hf_eigrp_par_k4 = -1;
+static gint hf_eigrp_par_k5 = -1;
+static gint hf_eigrp_par_reserved = -1;
+static gint hf_eigrp_par_holdtime = -1;
+
+/* Authentication TLV */
+static gint hf_eigrp_auth_type = -1;
+static gint hf_eigrp_auth_keysize = -1;
+static gint hf_eigrp_auth_keyid = -1;
+static gint hf_eigrp_auth_nullpad = -1;
+static gint hf_eigrp_auth_data = -1;
+
+/* Sequence TLV */
+static gint hf_eigrp_seq_addrlen = -1;
+static gint hf_eigrp_seq_ipaddr = -1;
+static gint hf_eigrp_seq_ip6addr = -1;
+
+/* Software Version TLV */
+static gint hf_eigrp_sv_ios = -1;
+static gint hf_eigrp_sv_eigrp = -1;
+
+/* Next multicast sequence TLV */
+static gint hf_eigrp_nms = -1;
+
+/* Stub routing TLV */
+static gint hf_eigrp_stub_flags = -1; /* Stub Flags Tree */
+static gint hf_eigrp_stub_flags_connected = -1;
+static gint hf_eigrp_stub_flags_static = -1;
+static gint hf_eigrp_stub_flags_summary = -1;
+static gint hf_eigrp_stub_flags_recvonly = -1;
+static gint hf_eigrp_stub_flags_redist = -1;
+static gint hf_eigrp_stub_flags_leakmap = -1;
+
+/* IP internal route TLV */
+static gint hf_eigrp_ip_int_nexthop = -1;
+static gint hf_eigrp_ip_int_delay = -1;
+static gint hf_eigrp_ip_int_bandwidth = -1;
+static gint hf_eigrp_ip_int_mtu = -1;
+static gint hf_eigrp_ip_int_hopcount = -1;
+static gint hf_eigrp_ip_int_reliability = -1;
+static gint hf_eigrp_ip_int_load = -1;
+static gint hf_eigrp_ip_int_reserved = -1;
+static gint hf_eigrp_ip_int_prefixlen = -1;
+static gint hf_eigrp_ip_int_dst = -1;
+
+/* IP external route TLV */
+static gint hf_eigrp_ip_ext_nexthop = -1;
+static gint hf_eigrp_ip_ext_origrouter = -1;
+static gint hf_eigrp_ip_ext_as = -1;
+static gint hf_eigrp_ip_ext_tag = -1;
+static gint hf_eigrp_ip_ext_metric = -1;
+static gint hf_eigrp_ip_ext_reserved = -1;
+static gint hf_eigrp_ip_ext_proto = -1;
+
+static gint hf_eigrp_ip_ext_flags = -1; /* IP external route Flags Tree */
+static gint hf_eigrp_ip_ext_flags_ext = -1;
+static gint hf_eigrp_ip_ext_flags_default = -1;
+
+static gint hf_eigrp_ip_ext_delay = -1;
+static gint hf_eigrp_ip_ext_bandwidth = -1;
+static gint hf_eigrp_ip_ext_mtu = -1;
+static gint hf_eigrp_ip_ext_hopcount = -1;
+static gint hf_eigrp_ip_ext_reliability = -1;
+static gint hf_eigrp_ip_ext_load = -1;
+static gint hf_eigrp_ip_ext_reserved2 = -1;
+static gint hf_eigrp_ip_ext_prefixlen = -1;
+
+/* IPX internal route TLV */
+static gint hf_eigrp_ipx_int_delay = -1;
+static gint hf_eigrp_ipx_int_bandwidth = -1;
+static gint hf_eigrp_ipx_int_mtu = -1;
+static gint hf_eigrp_ipx_int_hopcount = -1;
+static gint hf_eigrp_ipx_int_reliability = -1;
+static gint hf_eigrp_ipx_int_load = -1;
+static gint hf_eigrp_ipx_int_reserved = -1;
+
+/* IPX external route TLV */
+static gint hf_eigrp_ipx_ext_as = -1;
+static gint hf_eigrp_ipx_ext_tag = -1;
+static gint hf_eigrp_ipx_ext_proto = -1;
+static gint hf_eigrp_ipx_ext_reserved = -1;
+static gint hf_eigrp_ipx_ext_metric = -1;
+static gint hf_eigrp_ipx_ext_extdelay = -1;
+static gint hf_eigrp_ipx_ext_delay = -1;
+static gint hf_eigrp_ipx_ext_bandwidth = -1;
+static gint hf_eigrp_ipx_ext_mtu = -1;
+static gint hf_eigrp_ipx_ext_hopcount = -1;
+static gint hf_eigrp_ipx_ext_reliability = -1;
+static gint hf_eigrp_ipx_ext_load = -1;
+static gint hf_eigrp_ipx_ext_reserved2 = -1;
+
+
+/* AppleTalk cable configuration TLV */
+static gint hf_eigrp_at_cbl_routerid = -1;
+
+/* AppleTalk internal route TLV */
+static gint hf_eigrp_at_int_delay = -1;
+static gint hf_eigrp_at_int_bandwidth = -1;
+static gint hf_eigrp_at_int_mtu = -1;
+static gint hf_eigrp_at_int_hopcount = -1;
+static gint hf_eigrp_at_int_reliability = -1;
+static gint hf_eigrp_at_int_load = -1;
+static gint hf_eigrp_at_int_reserved = -1;
+
+/* AppleTalk external route TLV */
+static gint hf_eigrp_at_ext_origrouter = -1;
+static gint hf_eigrp_at_ext_as = -1;
+static gint hf_eigrp_at_ext_tag = -1;
+static gint hf_eigrp_at_ext_proto = -1;
+
+static gint hf_eigrp_at_ext_flags = -1; /* AppleTalk external route Flags Tree */
+static gint hf_eigrp_at_ext_flags_ext = -1;
+static gint hf_eigrp_at_ext_flags_default = -1;
+
+static gint hf_eigrp_at_ext_metric = -1;
+
+static gint hf_eigrp_at_ext_delay = -1;
+static gint hf_eigrp_at_ext_bandwidth = -1;
+static gint hf_eigrp_at_ext_mtu = -1;
+static gint hf_eigrp_at_ext_hopcount = -1;
+static gint hf_eigrp_at_ext_reliability = -1;
+static gint hf_eigrp_at_ext_load = -1;
+static gint hf_eigrp_at_ext_reserved = -1;
+
+/* IPv6 internal route TLV */
+static gint hf_eigrp_ip6_int_nexthop = -1;
+static gint hf_eigrp_ip6_int_delay = -1;
+static gint hf_eigrp_ip6_int_bandwidth = -1;
+static gint hf_eigrp_ip6_int_mtu = -1;
+static gint hf_eigrp_ip6_int_hopcount = -1;
+static gint hf_eigrp_ip6_int_reliability = -1;
+static gint hf_eigrp_ip6_int_load = -1;
+static gint hf_eigrp_ip6_int_reserved = -1;
+static gint hf_eigrp_ip6_int_prefixlen = -1;
+
+/* IPv6 external route TLV */
+static gint hf_eigrp_ip6_ext_nexthop = -1;
+static gint hf_eigrp_ip6_ext_origrouter = -1;
+static gint hf_eigrp_ip6_ext_as = -1;
+static gint hf_eigrp_ip6_ext_tag = -1;
+static gint hf_eigrp_ip6_ext_metric = -1;
+static gint hf_eigrp_ip6_ext_reserved = -1;
+static gint hf_eigrp_ip6_ext_proto = -1;
+
+static gint hf_eigrp_ip6_ext_flags = -1; /* IPv6 external route Flags Tree */
+static gint hf_eigrp_ip6_ext_flags_ext = -1;
+static gint hf_eigrp_ip6_ext_flags_default = -1;
+
+static gint hf_eigrp_ip6_ext_delay = -1;
+static gint hf_eigrp_ip6_ext_bandwidth = -1;
+static gint hf_eigrp_ip6_ext_mtu = -1;
+static gint hf_eigrp_ip6_ext_hopcount = -1;
+static gint hf_eigrp_ip6_ext_reliability = -1;
+static gint hf_eigrp_ip6_ext_load = -1;
+static gint hf_eigrp_ip6_ext_reserved2 = -1;
+static gint hf_eigrp_ip6_ext_prefixlen = -1;
 
 static gint ett_eigrp = -1;
+static gint ett_eigrp_flags = -1;
 static gint ett_tlv = -1;
+static gint ett_eigrp_stub_flags = -1;
+static gint ett_eigrp_ip_ext_flags = -1;
+static gint ett_eigrp_ip6_ext_flags = -1;
+static gint ett_eigrp_at_ext_flags = -1;
 
 static dissector_handle_t ipxsap_handle;
 
@@ -85,6 +283,8 @@ static const value_string eigrp_opcode_vals[] = {
    	{ EIGRP_QUERY, 		"Query" },
 	{ EIGRP_REQUEST,	"Request" },
 	{ EIGRP_SAP,		"IPX/SAP Update" },
+	{ EIGRP_SIA_QUERY, 	"SIA-Query" },
+	{ EIGRP_SIA_REPLY, 	"SIA-Reply" },
 	{ EIGRP_HI,		"Hello" },
 	{ EIGRP_ACK,		"Acknowledge" },
 	{ 0,				NULL }
@@ -96,6 +296,7 @@ static const value_string eigrp_tlv_vals[] = {
 	{ TLV_SEQ ,    "Sequence"},
 	{ TLV_SV,      "Software Version"},
 	{ TLV_NMS   ,  "Next multicast sequence"},
+	{ TLV_STUB  ,  "Stub routing"},
 	{ TLV_IP_INT,  "IP internal route"},
 	{ TLV_IP_EXT,  "IP external route"},
 	{ TLV_AT_INT,  "AppleTalk internal route"},
@@ -103,6 +304,8 @@ static const value_string eigrp_tlv_vals[] = {
 	{ TLV_AT_CBL,  "AppleTalk cable configuration"},
 	{ TLV_IPX_INT, "IPX internal route"},
 	{ TLV_IPX_EXT, "IPX external route"},
+	{ TLV_IP6_INT,  "IPv6 internal route"},
+	{ TLV_IP6_EXT,  "IPv6 external route"},
 	{ 0,		NULL}
 };
 
@@ -121,393 +324,1379 @@ static const value_string eigrp_pid_vals[] = {
 	{ 0,	NULL}
 };
 
+static const value_string eigrp_auth_type_vals[] = {
+	{ 2,	"MD5"},
+	{ 0,	NULL}
+};
 
-static void dissect_eigrp_par (tvbuff_t *tvb, proto_tree *tree);
-static void dissect_eigrp_seq (tvbuff_t *tvb, proto_tree *tree);
-static void dissect_eigrp_sv  (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
-static void dissect_eigrp_nms (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_par(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_auth(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_seq(tvbuff_t *tvb, proto_tree *tree);
+static void dissect_eigrp_sv(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_nms(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_stub(tvbuff_t *tvb, proto_tree *tree);
 
-static void dissect_eigrp_ip_int (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
-static void dissect_eigrp_ip_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_ip_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_ip_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
 
-static void dissect_eigrp_ipx_int (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
-static void dissect_eigrp_ipx_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_ipx_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
 
-static void dissect_eigrp_at_cbl (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
-static void dissect_eigrp_at_int (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
-static void dissect_eigrp_at_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_at_cbl(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_at_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_at_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
 
-static void
-dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-
-  proto_tree *eigrp_tree,*tlv_tree;
-  proto_item *ti;
-
-  guint opcode,opcode_tmp;
-  guint16 tlv;
-  guint32 ack, size, offset = EIGRP_HEADER_LENGTH;
-
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "EIGRP");
-  col_clear(pinfo->cinfo, COL_INFO);
-
-  opcode_tmp=opcode=tvb_get_guint8(tvb,1);
-  ack = tvb_get_ntohl(tvb,12);
-  if (opcode==EIGRP_HELLO) { if (ack == 0) opcode_tmp=EIGRP_HI; else opcode_tmp=EIGRP_ACK; }
-
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO,
-	val_to_str(opcode_tmp , eigrp_opcode_vals, "Unknown (0x%04x)"));
+static void dissect_eigrp_ip6_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
+static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti);
 
 
+static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
+	proto_tree *eigrp_tree, *tlv_tree, *eigrp_flags_tree;
+	proto_item *ti;
 
-  if (tree) {
+	guint opcode, opcode_tmp;
+	guint16 tlv;
+	guint32 ack, size, offset = EIGRP_HEADER_LENGTH;
 
-     ti = proto_tree_add_protocol_format(tree, proto_eigrp, tvb, 0, -1,
-              "Cisco EIGRP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EIGRP");
+	col_clear(pinfo->cinfo, COL_INFO);
 
-     eigrp_tree = proto_item_add_subtree(ti, ett_eigrp);
+	opcode_tmp = opcode = tvb_get_guint8(tvb, 1);
+	ack = tvb_get_ntohl(tvb, 12);
+	if (opcode == EIGRP_HELLO) { if (ack == 0) opcode_tmp = EIGRP_HI; else opcode_tmp = EIGRP_ACK; }
 
-     proto_tree_add_text (eigrp_tree, tvb, 0,1,"Version    = %u",tvb_get_guint8(tvb,0)) ;
-     proto_tree_add_uint_format (eigrp_tree, hf_eigrp_opcode, tvb, 1,1,opcode,"Opcode = %u (%s)",opcode,val_to_str(opcode_tmp,eigrp_opcode_vals, "Unknown")) ;
-     proto_tree_add_text (eigrp_tree, tvb, 2,2,"Checksum   = 0x%04x",tvb_get_ntohs(tvb,2)) ;
-     proto_tree_add_text (eigrp_tree, tvb, 4,4,"Flags      = 0x%08x",tvb_get_ntohl(tvb,4)) ;
-     proto_tree_add_text (eigrp_tree, tvb, 8,4,"Sequence   = %u",tvb_get_ntohl(tvb,8)) ;
-     proto_tree_add_text (eigrp_tree, tvb, 12,4,"Acknowledge  = %u",tvb_get_ntohl(tvb,12)) ;
-     proto_tree_add_uint (eigrp_tree, hf_eigrp_as, tvb, 16,4,tvb_get_ntohl(tvb,16)) ;
+	col_add_str(pinfo->cinfo, COL_INFO,
+			val_to_str(opcode_tmp, eigrp_opcode_vals, "Unknown (0x%04x)"));
 
-     if (opcode==EIGRP_SAP)
-     	{
-	call_dissector(ipxsap_handle, tvb_new_subset_remaining(tvb, EIGRP_HEADER_LENGTH), pinfo, eigrp_tree);
-	return;
-	}
+	if (tree) {
 
-     while ( tvb_reported_length_remaining(tvb,offset)>0 ) {
+		ti = proto_tree_add_protocol_format(tree, proto_eigrp, tvb, 0, -1, "Cisco EIGRP");
 
-	     tlv = tvb_get_ntohs(tvb,offset);
-	     size =  tvb_get_ntohs(tvb,offset+2);
-	     if ( size == 0 )
-		{
-		proto_tree_add_text(eigrp_tree,tvb,offset,-1,"Unknown data (maybe authentication)");
-		return;
+		eigrp_tree = proto_item_add_subtree(ti, ett_eigrp);
+
+		proto_tree_add_item(eigrp_tree, hf_eigrp_version, tvb, 0, 1, FALSE);
+		proto_tree_add_item(eigrp_tree, hf_eigrp_opcode, tvb, 1, 1, FALSE);
+		proto_tree_add_item(eigrp_tree, hf_eigrp_checksum, tvb, 2, 2, FALSE);
+
+/* Decode the EIGRP Flags Field */
+
+		ti = proto_tree_add_item(eigrp_tree, hf_eigrp_flags, tvb, 4, 4, FALSE);
+		eigrp_flags_tree = proto_item_add_subtree(ti, ett_eigrp_flags);
+
+		proto_tree_add_item(eigrp_flags_tree, hf_eigrp_flags_init, tvb, 4, 4, FALSE);
+		proto_tree_add_item (eigrp_flags_tree, hf_eigrp_flags_condrecv, tvb, 4, 4, FALSE);
+
+/* End Decode the EIGRP Flags Field */
+
+		proto_tree_add_item(eigrp_tree, hf_eigrp_sequence, tvb, 8, 4, FALSE);
+		proto_tree_add_item(eigrp_tree, hf_eigrp_acknowledge, tvb, 12, 4, FALSE);
+		proto_tree_add_item(eigrp_tree, hf_eigrp_as, tvb, 16, 4, FALSE);
+
+		if (opcode == EIGRP_SAP) {
+			call_dissector(ipxsap_handle, tvb_new_subset(tvb, EIGRP_HEADER_LENGTH, -1, -1), pinfo, eigrp_tree);
+			return;
 		}
 
-	     ti = proto_tree_add_text (eigrp_tree, tvb, offset,size,
-	         "%s",val_to_str(tlv, eigrp_tlv_vals, "Unknown (0x%04x)"));
+		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
-	     tlv_tree = proto_item_add_subtree (ti, ett_tlv);
-	     proto_tree_add_uint_format (tlv_tree,hf_eigrp_tlv, tvb,offset,2,tlv,"Type = 0x%04x (%s)",tlv,val_to_str(tlv,eigrp_tlv_vals, "Unknown")) ;
-	     proto_tree_add_text (tlv_tree,tvb,offset+2,2,"Size = %u bytes",size) ;
+			tlv = tvb_get_ntohs(tvb, offset);
+			size =  tvb_get_ntohs(tvb, offset + 2);
+
+			if (size == 0) {
+				proto_tree_add_text(eigrp_tree, tvb, offset, -1, "Unknown data (maybe authentication)");
+				return;
+			}
+
+			ti = proto_tree_add_text(eigrp_tree, tvb, offset,size,
+				"%s", val_to_str(tlv, eigrp_tlv_vals, "Unknown (0x%04x)"));
+
+			tlv_tree = proto_item_add_subtree(ti, ett_tlv);
+			proto_tree_add_item(tlv_tree, hf_eigrp_tlv, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tlv_tree, hf_eigrp_tlv_size, tvb, offset + 2, 2, FALSE);
 
 
-	     switch (tlv){
-	     	case TLV_PAR:
-	     		dissect_eigrp_par(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree);
-	     		break;
-	     	case TLV_SEQ:
-	     		dissect_eigrp_seq(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree);
-	     		break;
-	     	case TLV_SV:
-	     		dissect_eigrp_sv(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;
-	     	case TLV_NMS:
-     			dissect_eigrp_nms(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;
+			switch (tlv) {
+				case TLV_PAR:
+					dissect_eigrp_par(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
+				case TLV_AUTH:
+					dissect_eigrp_auth(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
+				case TLV_SEQ:
+					dissect_eigrp_seq(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree);
+					break;
+				case TLV_SV:
+					dissect_eigrp_sv(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
+				case TLV_NMS:
+					dissect_eigrp_nms(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
+				case TLV_STUB:
+					dissect_eigrp_stub(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree);
+					break;
 
-	     	case TLV_IP_INT:
-     			dissect_eigrp_ip_int(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;
-	     	case TLV_IP_EXT:
-     			dissect_eigrp_ip_ext(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;
+				case TLV_IP_INT:
+					dissect_eigrp_ip_int(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
+				case TLV_IP_EXT:
+					dissect_eigrp_ip_ext(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
 
-	     	case TLV_IPX_INT:
-     			dissect_eigrp_ipx_int(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;
-	     	case TLV_IPX_EXT:
-     			dissect_eigrp_ipx_ext(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;
+				case TLV_IPX_INT:
+					dissect_eigrp_ipx_int(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
+				case TLV_IPX_EXT:
+					dissect_eigrp_ipx_ext(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
 
-	     	case TLV_AT_CBL:
-     			dissect_eigrp_at_cbl(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;
-	     	case TLV_AT_INT:
-     			dissect_eigrp_at_int(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;
-	     	case TLV_AT_EXT:
-     			dissect_eigrp_at_ext(tvb_new_subset(tvb, offset+4, size-4, -1), tlv_tree, ti);
-     			break;
-		case TLV_AUTH:
-			proto_tree_add_text(tlv_tree,tvb,offset+4,size-4,"Authentication data");
+				case TLV_AT_CBL:
+					dissect_eigrp_at_cbl(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
+				case TLV_AT_INT:
+					dissect_eigrp_at_int(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
+				case TLV_AT_EXT:
+					dissect_eigrp_at_ext(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;			
+
+				case TLV_IP6_INT:
+					dissect_eigrp_ip6_int(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
+				case TLV_IP6_EXT:
+					dissect_eigrp_ip6_ext(tvb_new_subset(tvb, offset + 4, size - 4, -1), tlv_tree, ti);
+					break;
+			}
+
+			offset += size;
+		}
+	}
+}
+
+
+
+static void dissect_eigrp_par(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+
+	int offset = 0;
+	guint8 k1, k2, k3, k4, k5;
+
+	k1 = tvb_get_guint8(tvb, 1);
+	proto_tree_add_item(tree, hf_eigrp_par_k1, tvb, offset, 1, FALSE);
+	offset += 1;
+	k2 = tvb_get_guint8(tvb, 1);
+	proto_tree_add_item(tree, hf_eigrp_par_k2, tvb, offset, 1, FALSE);
+	offset += 1;
+	k3 = tvb_get_guint8(tvb, 1);
+	proto_tree_add_item(tree, hf_eigrp_par_k3, tvb, offset, 1, FALSE);
+	offset += 1;
+	k4 = tvb_get_guint8(tvb, 1);
+	proto_tree_add_item(tree, hf_eigrp_par_k4, tvb, offset, 1, FALSE);
+	offset += 1;
+	k5 = tvb_get_guint8(tvb, 1);
+	proto_tree_add_item(tree, hf_eigrp_par_k5, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_par_reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_par_holdtime, tvb, offset, 2, FALSE);
+
+	if (k1 == 255 && k2 == 255 && k3 == 255 && k4 == 255 && k5 == 255) {
+		proto_item_append_text(ti, ": Goodbye Message");
+	}
+}
+
+static void dissect_eigrp_auth(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+
+	int offset = 0;
+	guint16 keysize;
+
+	keysize = tvb_get_ntohs(tvb, 2);
+
+	proto_tree_add_item(tree, hf_eigrp_auth_type, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_item(tree, hf_eigrp_auth_keysize, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_item(tree, hf_eigrp_auth_keyid, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_auth_nullpad, tvb, offset, 12, FALSE);
+	offset += 12;
+
+	switch (keysize) {
+		/* Only MD5 is supported at the moment */
+		case 16:
+			proto_tree_add_item(tree, hf_eigrp_auth_data, tvb, offset, keysize, FALSE);
 			break;
-	     }
-
-	     offset+=size;
-     }
-
-   }
+		default:
+			/* nothing */
+			proto_item_append_text(ti, "  [Invalid key size %u] Only 16/MD5 supported at the moment", keysize);
+			;
+	}
 }
 
+static void dissect_eigrp_seq(tvbuff_t *tvb, proto_tree *tree) {
 
+	int offset = 0;
+	guint8 addr_len;
 
-static void dissect_eigrp_par (tvbuff_t *tvb, proto_tree *tree)	{
-	proto_tree_add_text (tree,tvb,0,1,"K1 = %u",tvb_get_guint8(tvb,0));
-	proto_tree_add_text (tree,tvb,1,1,"K2 = %u",tvb_get_guint8(tvb,1));
-	proto_tree_add_text (tree,tvb,2,1,"K3 = %u",tvb_get_guint8(tvb,2));
-	proto_tree_add_text (tree,tvb,3,1,"K4 = %u",tvb_get_guint8(tvb,3));
-	proto_tree_add_text (tree,tvb,4,1,"K5 = %u",tvb_get_guint8(tvb,4));
-	proto_tree_add_text (tree,tvb,5,1,"Reserved");
-	proto_tree_add_text (tree,tvb,6,2,"Hold Time = %u",tvb_get_ntohs(tvb,6));
-}
+	addr_len = tvb_get_guint8(tvb, 0);
 
-static void dissect_eigrp_seq (tvbuff_t *tvb, proto_tree *tree)
-{	guint8 addr_len;
-	addr_len=tvb_get_guint8(tvb,0);
-        proto_tree_add_text (tree,tvb,0,1,"Address length = %u",addr_len);
-	switch (addr_len){
+	proto_tree_add_item(tree, hf_eigrp_seq_addrlen, tvb, offset, 1, FALSE);
+	offset += 1;
+
+	switch (addr_len) {
+		/* IPv4 */
 		case 4:
-		        proto_tree_add_text (tree,tvb,1,addr_len,"IP Address = %u.%u.%u.%u",tvb_get_guint8(tvb,1),tvb_get_guint8(tvb,2),tvb_get_guint8(tvb,3),tvb_get_guint8(tvb,4));
+			proto_tree_add_item(tree, hf_eigrp_seq_ipaddr, tvb, offset, addr_len, FALSE);
 			break;
+		/* IPX */
 		case 10:
-			proto_tree_add_text (tree,tvb,1,addr_len,"IPX Address = %08x.%04x.%04x.%04x",tvb_get_ntohl(tvb,1),tvb_get_ntohs(tvb,5),tvb_get_ntohs(tvb,7),tvb_get_ntohs(tvb,9));
+			proto_tree_add_text(tree, tvb, offset, addr_len, "IPX Address = %08x.%04x.%04x.%04x",
+					tvb_get_ntohl(tvb, 1), tvb_get_ntohs(tvb, 5),
+					tvb_get_ntohs(tvb, 7), tvb_get_ntohs(tvb, 9));
+			break;
+		/* IPv6 */
+		case 16:
+			proto_tree_add_item(tree, hf_eigrp_seq_ip6addr, tvb, offset, addr_len, FALSE);
 			break;
 		default:
 			/* nothing */
 			;
-		}
+	}
 }
 
-static void dissect_eigrp_sv (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
-{
+static void dissect_eigrp_sv(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+
+	int offset = 0;
         guint8 ios_rel_major, ios_rel_minor;
         guint8 eigrp_rel_major, eigrp_rel_minor;
 
-        ios_rel_major = tvb_get_guint8(tvb,0);
-        ios_rel_minor = tvb_get_guint8(tvb,1);
-        proto_tree_add_text (tree,tvb,0,2," IOS  release version = %u.%u",
+        ios_rel_major = tvb_get_guint8(tvb, 0);
+        ios_rel_minor = tvb_get_guint8(tvb, 1);
+        proto_tree_add_text(tree, tvb, offset, 2, "IOS release version: %u.%u",
                              ios_rel_major, ios_rel_minor);
-        proto_item_append_text (ti,": IOS=%u.%u", ios_rel_major, ios_rel_minor);
+	offset += 2;
+        proto_item_append_text(ti, ": IOS=%u.%u", ios_rel_major, ios_rel_minor);
 
-        eigrp_rel_major = tvb_get_guint8(tvb,2);
-        eigrp_rel_minor = tvb_get_guint8(tvb,3);
-        proto_tree_add_text (tree,tvb,2,2,"EIGRP release version = %u.%u",
+        eigrp_rel_major = tvb_get_guint8(tvb, 2);
+        eigrp_rel_minor = tvb_get_guint8(tvb, 3);
+        proto_tree_add_text(tree,tvb,offset, 2, "EIGRP release version: %u.%u",
                              eigrp_rel_major, eigrp_rel_minor);
-        proto_item_append_text (ti,", EIGRP=%u.%u",
+        proto_item_append_text(ti, ", EIGRP=%u.%u",
                                 eigrp_rel_major, eigrp_rel_minor);
 }
 
-static void dissect_eigrp_nms (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
-{
-        proto_tree_add_text (tree,tvb,0,4,"Next Multicast Sequence = %u",tvb_get_ntohl(tvb,0));
-	proto_item_append_text (ti,": %u",tvb_get_ntohl(tvb,0));
+static void dissect_eigrp_nms(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+
+	proto_tree_add_item(tree, hf_eigrp_nms, tvb, 0, 4, FALSE);
+	proto_item_append_text(ti, ": %u", tvb_get_ntohl(tvb, 0));
 }
 
+static void dissect_eigrp_stub(tvbuff_t *tvb, proto_tree *tree) {
 
+	proto_tree *eigrp_stub_flags_tree;
+	proto_item *ti;
 
-static void dissect_eigrp_ip_int (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
-{
-	guint8 ip_addr[4],length;
-	int addr_len,offset;
+	ti = proto_tree_add_item(tree, hf_eigrp_stub_flags, tvb, 0, 2, FALSE);
+	eigrp_stub_flags_tree = proto_item_add_subtree(ti, ett_eigrp_stub_flags);
 
-	tvb_memcpy(tvb,ip_addr,0,4);
-	proto_tree_add_text (tree,tvb,0,4, "Next Hop    = %s",ip_to_str(ip_addr));
-	proto_tree_add_text (tree,tvb,4,4, "Delay       = %u",tvb_get_ntohl(tvb,4));
-	proto_tree_add_text (tree,tvb,8,4, "Bandwidth   = %u",tvb_get_ntohl(tvb,8));
-	proto_tree_add_text (tree,tvb,12,3,"MTU         = %u",tvb_get_ntoh24(tvb,12));
-	proto_tree_add_text (tree,tvb,15,1,"Hop Count   = %u",tvb_get_guint8(tvb,15));
-	proto_tree_add_text (tree,tvb,16,1,"Reliability = %u",tvb_get_guint8(tvb,16));
-	proto_tree_add_text (tree,tvb,17,1,"Load        = %u",tvb_get_guint8(tvb,17));
-	proto_tree_add_text (tree,tvb,18,2,"Reserved ");
+	proto_tree_add_item(eigrp_stub_flags_tree, hf_eigrp_stub_flags_connected, tvb, 0, 2, FALSE);
+	proto_tree_add_item(eigrp_stub_flags_tree, hf_eigrp_stub_flags_static, tvb, 0, 2, FALSE);
+	proto_tree_add_item(eigrp_stub_flags_tree, hf_eigrp_stub_flags_summary, tvb, 0, 2, FALSE);
+	proto_tree_add_item(eigrp_stub_flags_tree, hf_eigrp_stub_flags_recvonly, tvb, 0, 2, FALSE);
+	proto_tree_add_item(eigrp_stub_flags_tree, hf_eigrp_stub_flags_redist, tvb, 0, 2, FALSE);
+	proto_tree_add_item(eigrp_stub_flags_tree, hf_eigrp_stub_flags_leakmap, tvb, 0, 2, FALSE);
+}
 
-	for (offset = 20; tvb_length_remaining(tvb, offset) > 0; offset += (1+addr_len))
-	{
-		length=tvb_get_guint8(tvb,offset);
-		addr_len=ipv4_addr_and_mask (tvb,offset+1,ip_addr,length);
+static void dissect_eigrp_ip_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+
+	guint8 ip_addr[4], length;
+	int addr_len, offset = 0;
+	proto_item *prefixlenti;
+
+	tvb_memcpy(tvb, ip_addr, 0, 4);
+
+	proto_tree_add_item(tree, hf_eigrp_ip_int_nexthop, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip_int_delay, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip_int_bandwidth, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip_int_mtu, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(tree, hf_eigrp_ip_int_hopcount, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip_int_reliability, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip_int_load, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip_int_reserved, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	for (offset = 20; tvb_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
+		length = tvb_get_guint8(tvb, offset);
+		addr_len = ipv4_addr_and_mask(tvb, offset + 1, ip_addr, length);
+
 		if (addr_len < 0) {
-		    proto_tree_add_text (tree,tvb,offset,1,"Prefix length = %u (invalid, must be <= 32)",length);
-		    proto_item_append_text (ti,"  [Invalid prefix length %u > 32]",length);
-		    addr_len = 4; /* assure we can exit the loop */
+			prefixlenti = proto_tree_add_item(tree, hf_eigrp_ip_int_prefixlen, tvb, offset, 1, FALSE);
+			proto_item_append_text(prefixlenti, " (invalid, must be <= 32)");
+			proto_item_append_text(ti, "  [Invalid prefix length %u > 32]", length);
+			addr_len = 4; /* assure we can exit the loop */
 		} else {
-		    proto_tree_add_text (tree,tvb,offset,1,"Prefix Length = %u",length);
-		    proto_tree_add_text (tree,tvb,offset+1,addr_len,"Destination = %s",ip_to_str(ip_addr));
-		    proto_item_append_text (ti,"  %c   %s/%u%s",offset==20?'=':',',ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,4)==0xffffffff)?" - Destination unreachable":""));
+			proto_tree_add_item(tree, hf_eigrp_ip_int_prefixlen, tvb, offset, 1, FALSE);
+			offset += 1;
+			proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip_to_str(ip_addr));
+			proto_item_append_text (ti,"  %c   %s/%u%s", offset == 21 ? '=':',',
+				ip_to_str(ip_addr), length, ((tvb_get_ntohl(tvb, 4 )== 0xffffffff) ? " - Destination unreachable":""));
 		}
 	}
 }
 
-static void dissect_eigrp_ip_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
-{
-	guint8 ip_addr[4],length;
-	int addr_len,offset;
+static void dissect_eigrp_ip_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
 
-	tvb_memcpy(tvb,ip_addr,0,4);
-	proto_tree_add_text (tree,tvb,0,4,"Next Hop = %s",ip_to_str(ip_addr));
-	tvb_memcpy(tvb,ip_addr,4,4);
-	proto_tree_add_text (tree,tvb,4,4,"Originating router = %s",ip_to_str(ip_addr));
-	proto_tree_add_text (tree,tvb,8,4,"Originating A.S. = %u",tvb_get_ntohl(tvb,8));
-	proto_tree_add_text (tree,tvb,12,4,"Arbitrary tag = %u",tvb_get_ntohl(tvb,12));
-	proto_tree_add_text (tree,tvb,16,4,"External protocol metric = %u",tvb_get_ntohl(tvb,16));
-	proto_tree_add_text (tree,tvb,20,2,"Reserved");
-	proto_tree_add_text (tree,tvb,22,1,"External protocol ID = %u (%s)",tvb_get_guint8(tvb,22),val_to_str(tvb_get_guint8(tvb,22),eigrp_pid_vals, "Unknown"));
-	proto_tree_add_text (tree,tvb,23,1,"Flags = 0x%0x",tvb_get_guint8(tvb,23));
+	guint8 ip_addr[4], length;
+	int addr_len, offset = 0;
+	proto_tree *eigrp_ip_ext_flags_tree;
+	proto_item *eigrp_ip_ext_ti, *prefixlenti;
 
-	proto_tree_add_text (tree,tvb,24,4,"Delay     = %u",tvb_get_ntohl(tvb,24));
-	proto_tree_add_text (tree,tvb,28,4,"Bandwidth = %u",tvb_get_ntohl(tvb,28));
-	proto_tree_add_text (tree,tvb,32,3,"MTU    = %u",tvb_get_ntoh24(tvb,32));
-	proto_tree_add_text (tree,tvb,35,1,"Hop Count = %u",tvb_get_guint8(tvb,35));
-	proto_tree_add_text (tree,tvb,36,1,"Reliability = %u",tvb_get_guint8(tvb,36));
-	proto_tree_add_text (tree,tvb,37,1,"Load = %u",tvb_get_guint8(tvb,37));
-	proto_tree_add_text (tree,tvb,38,2,"Reserved ");
+	eigrp_ip_ext_ti = ti;
 
-	for (offset = 40; tvb_length_remaining(tvb, offset) > 0; offset += (1+addr_len))
-	{
-		length=tvb_get_guint8(tvb,offset);
-		addr_len=ipv4_addr_and_mask (tvb,offset+1,ip_addr,length);
+	tvb_memcpy(tvb, ip_addr, 0, 4);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_nexthop, tvb, offset, 4, FALSE);
+	offset += 4;
+	tvb_memcpy(tvb,ip_addr, 4, 4);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_origrouter, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_as, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_tag, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_metric, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_reserved, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_proto, tvb, offset, 1, FALSE);
+	offset += 1;
+
+/* Decode the IP external route Flags Field */
+	ti = proto_tree_add_item(tree, hf_eigrp_ip_ext_flags, tvb, offset, 1, FALSE);
+	eigrp_ip_ext_flags_tree = proto_item_add_subtree(ti, ett_eigrp_ip_ext_flags);
+
+	proto_tree_add_item(eigrp_ip_ext_flags_tree, hf_eigrp_ip_ext_flags_ext, tvb, 0, 1, FALSE);
+	proto_tree_add_item(eigrp_ip_ext_flags_tree, hf_eigrp_ip_ext_flags_default, tvb, 0, 1, FALSE);
+	offset += 1;
+/* End Decode the IP external route Flags Field */
+
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_delay, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_bandwidth, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_mtu, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_hopcount, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_reliability, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_load, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_reserved2, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	for (offset = 40; tvb_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
+		length = tvb_get_guint8(tvb, offset);
+		addr_len = ipv4_addr_and_mask(tvb, offset + 1, ip_addr, length);
+
 		if (addr_len < 0) {
-		    proto_tree_add_text (tree,tvb,offset,1,"Prefix length = %u (invalid, must be <= 32)",length);
-		    proto_item_append_text (ti,"  [Invalid prefix length %u > 32]",length);
-		    addr_len = 4; /* assure we can exit the loop */
+			prefixlenti = proto_tree_add_item(tree, hf_eigrp_ip_ext_prefixlen, tvb, offset, 1, FALSE);
+			proto_item_append_text(prefixlenti, " (invalid, must be <= 32)");
+			proto_item_append_text(ti,"  [Invalid prefix length %u > 32]", length);
+			addr_len = 4; /* assure we can exit the loop */
 		} else {
-		    proto_tree_add_text (tree,tvb,offset,1,"Prefix Length = %u",length);
-		    proto_tree_add_text (tree,tvb,offset+1,addr_len,"Destination = %s",ip_to_str(ip_addr));
-		    proto_item_append_text (ti,"  %c   %s/%u%s",offset==40?'=':',',ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,24)==0xffffffff)?" - Destination unreachable":""));
+			proto_tree_add_item(tree, hf_eigrp_ip_ext_prefixlen, tvb, offset, 1, FALSE);
+			offset += 1;
+			proto_tree_add_text(tree, tvb, offset, addr_len, "Destination = %s", ip_to_str(ip_addr));
+			proto_item_append_text(eigrp_ip_ext_ti, "  %c   %s/%u%s", offset == 41 ? '=':',',
+				ip_to_str(ip_addr), length, ((tvb_get_ntohl(tvb, 24) == 0xffffffff) ? " - Destination unreachable":""));
 		}
 	}
 }
 
 
 
-static void dissect_eigrp_ipx_int (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
-{
-	proto_tree_add_text (tree,tvb,0,4,"Next Hop Address = %08x",tvb_get_ntohl(tvb,4));
-	proto_tree_add_text (tree,tvb,4,6,"Next Hop ID      = %04x:%04x:%04x",tvb_get_ntohs(tvb,4),tvb_get_ntohs(tvb,6),tvb_get_ntohs(tvb,8));
-	proto_tree_add_text (tree,tvb,10,4,"Delay     = %u",tvb_get_ntohl(tvb,10));
-	proto_tree_add_text (tree,tvb,14,4,"Bandwidth = %u",tvb_get_ntohl(tvb,14));
-	proto_tree_add_text (tree,tvb,18,3,"MTU    = %u",tvb_get_ntoh24(tvb,18));
-	proto_tree_add_text (tree,tvb,21,1,"Hop Count = %u",tvb_get_guint8(tvb,21));
-	proto_tree_add_text (tree,tvb,22,1,"Reliability = %u",tvb_get_guint8(tvb,22));
-	proto_tree_add_text (tree,tvb,23,1,"Load = %u",tvb_get_guint8(tvb,23));
-	proto_tree_add_text (tree,tvb,24,2,"Reserved ");
-        proto_tree_add_text (tree,tvb,26,4,"Destination Address =  %08x",tvb_get_ntohl(tvb,26));
-        proto_item_append_text (ti,"  =   %08x%s",tvb_get_ntohl(tvb,26),((tvb_get_ntohl(tvb,10)==0xffffffff)?" - Destination unreachable":""));
+static void dissect_eigrp_ipx_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+
+	int offset = 0;
+
+	proto_tree_add_text(tree, tvb, offset, 4, "Next Hop Address = %08x", tvb_get_ntohl(tvb, 4));
+	offset += 4;
+	proto_tree_add_text(tree, tvb, offset, 6, "Next Hop ID      = %04x:%04x:%04x", tvb_get_ntohs(tvb, 4), tvb_get_ntohs(tvb, 6), tvb_get_ntohs(tvb, 8));
+	offset += 6;
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_delay, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_bandwidth, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_mtu, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_hopcount, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_reliability, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_load, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_reserved, tvb, offset, 2, FALSE);
+	offset += 2;
+        proto_tree_add_text(tree, tvb, offset, 4, "Destination Address =  %08x", tvb_get_ntohl(tvb, 26));
+        proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 26), ((tvb_get_ntohl(tvb, 10) == 0xffffffff) ? " - Destination unreachable":""));
 }
 
-static void dissect_eigrp_ipx_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
-{
-	proto_tree_add_text (tree,tvb,0,4,"Next Hop Address = %08x",tvb_get_ntohl(tvb,4));
-	proto_tree_add_text (tree,tvb,4,6,"Next Hop ID      = %04x:%04x:%04x",tvb_get_ntohs(tvb,4),tvb_get_ntohs(tvb,6),tvb_get_ntohs(tvb,8));
+static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
 
-        proto_tree_add_text (tree,tvb,10,6,"Originating router ID = %04x:%04x:%04x",tvb_get_ntohs(tvb,10),tvb_get_ntohs(tvb,12),tvb_get_ntohs(tvb,14));
-        proto_tree_add_text (tree,tvb,16,4,"Originating A.S. = %u",tvb_get_ntohl(tvb,16));
-        proto_tree_add_text (tree,tvb,20,4,"Arbitrary tag = %u",tvb_get_ntohl(tvb,20));
-        proto_tree_add_text (tree,tvb,24,1,"External protocol  = %u",tvb_get_guint8(tvb,24));
-        proto_tree_add_text (tree,tvb,25,1,"Reserved");
-        proto_tree_add_text (tree,tvb,26,2,"External metric = %u ",tvb_get_ntohs(tvb,26));
-        proto_tree_add_text (tree,tvb,28,2,"External delay  = %u ",tvb_get_ntohs(tvb,28));
+	int offset = 0;
 
-	proto_tree_add_text (tree,tvb,30,4,"Delay     = %u",tvb_get_ntohl(tvb,30));
-	proto_tree_add_text (tree,tvb,34,4,"Bandwidth = %u",tvb_get_ntohl(tvb,34));
-	proto_tree_add_text (tree,tvb,38,3,"MTU    = %u",tvb_get_ntoh24(tvb,38));
-	proto_tree_add_text (tree,tvb,41,1,"Hop Count = %u",tvb_get_guint8(tvb,41));
-	proto_tree_add_text (tree,tvb,42,1,"Reliability = %u",tvb_get_guint8(tvb,42));
-	proto_tree_add_text (tree,tvb,43,1,"Load = %u",tvb_get_guint8(tvb,43));
-	proto_tree_add_text (tree,tvb,44,2,"Reserved ");
-        proto_tree_add_text (tree,tvb,46,4,"Destination Address =  %08x",tvb_get_ntohl(tvb,46));
-        proto_item_append_text (ti,"  =   %08x%s",tvb_get_ntohl(tvb,46),((tvb_get_ntohl(tvb,30)==0xffffffff)?" - Destination unreachable":""));
+	proto_tree_add_text(tree, tvb, offset, 4, "Next Hop Address = %08x", tvb_get_ntohl(tvb, 4));
+	offset += 4;
+	proto_tree_add_text(tree, tvb, offset, 6, "Next Hop ID      = %04x:%04x:%04x", tvb_get_ntohs(tvb, 4), tvb_get_ntohs(tvb, 6), tvb_get_ntohs(tvb, 8));
+	offset += 6;
 
-}
+        proto_tree_add_text(tree, tvb, offset, 6, "Originating router ID = %04x:%04x:%04x", tvb_get_ntohs(tvb, 10), tvb_get_ntohs(tvb, 12), tvb_get_ntohs(tvb, 14));
+	offset += 6;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_as, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_tag, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_proto, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reserved, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_metric, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_extdelay, tvb, offset, 2, FALSE);
+	offset += 2;
 
-
-
-static void dissect_eigrp_at_cbl (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
-{
-        proto_tree_add_text (tree,tvb,0,4,"AppleTalk Cable Range = %u-%u",tvb_get_ntohs(tvb,0),tvb_get_ntohs(tvb,2));
-        proto_tree_add_text (tree,tvb,4,4,"AppleTalk Router ID   = %u",tvb_get_ntohl(tvb,4));
-        proto_item_append_text (ti,": Cable range= %u-%u, Router ID= %u",tvb_get_ntohs(tvb,0),tvb_get_ntohs(tvb,2),tvb_get_ntohl(tvb,4));
-
-}
-
-static void dissect_eigrp_at_int (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
-{
-	proto_tree_add_text (tree,tvb,0,4,"Next Hop Address = %u.%u",tvb_get_ntohs(tvb,0),tvb_get_ntohs(tvb,2));
-
-	proto_tree_add_text (tree,tvb,4,4,"Delay     = %u",tvb_get_ntohl(tvb,4));
-	proto_tree_add_text (tree,tvb,8,4,"Bandwidth = %u",tvb_get_ntohl(tvb,8));
-	proto_tree_add_text (tree,tvb,12,3,"MTU    = %u",tvb_get_ntoh24(tvb,12));
-	proto_tree_add_text (tree,tvb,15,1,"Hop Count = %u",tvb_get_guint8(tvb,15));
-	proto_tree_add_text (tree,tvb,16,1,"Reliability = %u",tvb_get_guint8(tvb,16));
-	proto_tree_add_text (tree,tvb,17,1,"Load = %u",tvb_get_guint8(tvb,17));
-	proto_tree_add_text (tree,tvb,18,2,"Reserved ");
-	proto_tree_add_text (tree,tvb,20,4,"Cable range = %u-%u",tvb_get_ntohs(tvb,20),tvb_get_ntohs(tvb,22));
-
-        proto_item_append_text (ti,": %u-%u",tvb_get_ntohs(tvb,20),tvb_get_ntohs(tvb,22));
-
-}
-
-static void dissect_eigrp_at_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
-{
-	proto_tree_add_text (tree,tvb,0,4,"Next Hop Address = %u.%u",tvb_get_ntohs(tvb,0),tvb_get_ntohs(tvb,2));
-	proto_tree_add_text (tree,tvb,4,4,"Originating router ID = %u",tvb_get_ntohl(tvb,4));
-	proto_tree_add_text (tree,tvb,8,4,"Originating A.S. = %u",tvb_get_ntohl(tvb,8));
-	proto_tree_add_text (tree,tvb,12,4,"Arbitrary tag = %u",tvb_get_ntohl(tvb,12));
-	proto_tree_add_text (tree,tvb,16,1,"External protocol ID = %u ",tvb_get_guint8(tvb,16));
-	proto_tree_add_text (tree,tvb,17,1,"Flags = 0x%0x",tvb_get_guint8(tvb,17));
-	proto_tree_add_text (tree,tvb,18,2,"External protocol metric = %u",tvb_get_ntohs(tvb,18));
-
-	proto_tree_add_text (tree,tvb,20,4,"Delay     = %u",tvb_get_ntohl(tvb,20));
-	proto_tree_add_text (tree,tvb,24,4,"Bandwidth = %u",tvb_get_ntohl(tvb,24));
-	proto_tree_add_text (tree,tvb,28,3,"MTU    = %u",tvb_get_ntoh24(tvb,28));
-	proto_tree_add_text (tree,tvb,31,1,"Hop Count = %u",tvb_get_guint8(tvb,31));
-	proto_tree_add_text (tree,tvb,32,1,"Reliability = %u",tvb_get_guint8(tvb,32));
-	proto_tree_add_text (tree,tvb,33,1,"Load = %u",tvb_get_guint8(tvb,33));
-	proto_tree_add_text (tree,tvb,34,2,"Reserved ");
-	proto_tree_add_text (tree,tvb,36,4,"Cable range = %u-%u",tvb_get_ntohs(tvb,36),tvb_get_ntohs(tvb,38));
-
-        proto_item_append_text (ti,": %u-%u",tvb_get_ntohs(tvb,36),tvb_get_ntohs(tvb,38));
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_delay, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_bandwidth, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_mtu, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_hopcount, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reliability, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_load, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reserved2, tvb, offset, 2, FALSE);
+	offset += 2;
+        proto_tree_add_text(tree, tvb, offset, 4, "Destination Address =  %08x", tvb_get_ntohl(tvb, 46));
+        proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 46), ((tvb_get_ntohl(tvb, 30) == 0xffffffff) ? " - Destination unreachable":""));
 }
 
 
 
+static void dissect_eigrp_at_cbl(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
 
-void
-proto_register_eigrp(void)
-{
+        proto_tree_add_text(tree, tvb, 0, 4, "AppleTalk Cable Range = %u-%u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2));
+	proto_tree_add_item(tree, hf_eigrp_at_cbl_routerid, tvb, 4, 4, FALSE);
+        proto_item_append_text(ti, ": Cable range= %u-%u, Router ID= %u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2), tvb_get_ntohl(tvb, 4));
+
+}
+
+static void dissect_eigrp_at_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+
+	int offset = 0;
+
+	proto_tree_add_text(tree, tvb, offset, 4, "Next Hop Address = %u.%u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2));
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_eigrp_at_int_delay, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_at_int_bandwidth, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_at_int_mtu, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(tree, hf_eigrp_at_int_hopcount, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_at_int_reliability, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_at_int_load, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_at_int_reserved, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_text(tree,tvb,offset,4,"Cable range = %u-%u",tvb_get_ntohs(tvb,20),tvb_get_ntohs(tvb,22));
+
+        proto_item_append_text(ti, ": %u-%u", tvb_get_ntohs(tvb, 20), tvb_get_ntohs(tvb, 22));
+}
+
+static void dissect_eigrp_at_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+
+	int offset = 0;
+	proto_tree *eigrp_at_ext_flags_tree;
+
+	proto_tree_add_text(tree, tvb, offset, 4, "Next Hop Address = %u.%u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2));
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_at_ext_origrouter, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_at_ext_as, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_at_ext_tag, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_at_ext_proto, tvb, offset, 1, FALSE);
+	offset += 1;
+
+/* Decode the AppleTalk external route Flags Field */
+	ti = proto_tree_add_item(tree, hf_eigrp_at_ext_flags, tvb, offset, 1, FALSE);
+	eigrp_at_ext_flags_tree = proto_item_add_subtree(ti, ett_eigrp_at_ext_flags);
+
+	proto_tree_add_item(eigrp_at_ext_flags_tree, hf_eigrp_at_ext_flags_ext, tvb, 0, 1, FALSE);
+	proto_tree_add_item(eigrp_at_ext_flags_tree, hf_eigrp_at_ext_flags_default, tvb, 0, 1, FALSE);
+	offset += 1;
+/* End Decode the AppleTalk external route Flags Field */
+
+	proto_tree_add_item(tree, hf_eigrp_at_ext_metric, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_eigrp_at_ext_delay, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_at_ext_bandwidth, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_at_ext_mtu, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(tree, hf_eigrp_at_ext_hopcount, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_at_ext_reliability, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_at_ext_load, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_at_ext_reserved, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_text(tree, tvb, offset, 4, "Cable range = %u-%u", tvb_get_ntohs(tvb, 36), tvb_get_ntohs(tvb, 38));
+
+        proto_item_append_text(ti, ": %u-%u", tvb_get_ntohs(tvb, 36), tvb_get_ntohs(tvb, 38));
+}
+
+static void dissect_eigrp_ip6_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+
+	guint8 length;
+	int addr_len, offset = 0;
+	struct e_in6_addr addr;
+	proto_item *prefixlenti;
+
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_nexthop, tvb, offset, 16, FALSE);
+	offset += 16;
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_delay, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_bandwidth, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_mtu, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_hopcount, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_reliability, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_load, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_reserved, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	for (offset = 32; tvb_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
+		length = tvb_get_guint8(tvb, offset);
+		addr_len = ipv6_addr_and_mask(tvb, offset + 1, &addr, length);
+
+		if (addr_len < 0) {
+			prefixlenti = proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
+			proto_item_append_text(prefixlenti, " (invalid, must be <= 128)");
+			proto_item_append_text(ti, "  [Invalid prefix length %u > 128]", length);
+			addr_len = 16; /* assure we can exit the loop */
+		} else {
+			proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
+			offset += 1;
+			proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip6_to_str(&addr));
+			proto_item_append_text(ti, "  %c   %s/%u%s", offset == 33 ? '=':',',
+				ip6_to_str(&addr), length, ((tvb_get_ntohl(tvb, 16) == 0xffffffff) ? " - Destination unreachable":""));
+		}
+	}
+}
+
+static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
+
+	guint8 length;
+	int addr_len, offset = 0;
+	struct e_in6_addr addr;
+	proto_tree *eigrp_ip6_ext_flags_tree;
+	proto_item *eigrp_ip6_ext_ti, *prefixlenti;
+
+	eigrp_ip6_ext_ti = ti;
+
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_nexthop, tvb, offset, 16, FALSE);
+	offset += 16;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_origrouter, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_as, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_tag, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_metric, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_reserved, tvb, offset, 2, FALSE);
+	offset += 2;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_proto, tvb, offset, 1, FALSE);
+	offset += 1;
+
+/* Decode the IPv6 external route Flags Field */
+	ti = proto_tree_add_item(tree, hf_eigrp_ip6_ext_flags, tvb, offset, 1, FALSE);
+	eigrp_ip6_ext_flags_tree = proto_item_add_subtree(ti, ett_eigrp_ip6_ext_flags);
+
+	proto_tree_add_item(eigrp_ip6_ext_flags_tree, hf_eigrp_ip6_ext_flags_ext, tvb, 0, 1, FALSE);
+	proto_tree_add_item(eigrp_ip6_ext_flags_tree, hf_eigrp_ip6_ext_flags_default, tvb, 0, 1, FALSE);
+	offset += 1;
+/* End Decode the IPv6 external route Flags Field */
+
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_delay, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_bandwidth, tvb, offset, 4, FALSE);
+	offset += 4;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_mtu, tvb, offset, 3, FALSE);
+	offset += 3;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_hopcount, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_reliability, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_load, tvb, offset, 1, FALSE);
+	offset += 1;
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_reserved2, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	for (offset = 52; tvb_length_remaining(tvb, offset) > 0; offset += (1 + addr_len))
+	{
+		length = tvb_get_guint8(tvb, offset);
+		addr_len = ipv6_addr_and_mask(tvb, offset + 1, &addr, length);
+
+		if (addr_len < 0) {
+			prefixlenti = proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
+			proto_item_append_text(prefixlenti, " (invalid, must be <= 128)");
+			proto_item_append_text(ti, "  [Invalid prefix length %u > 128]", length);
+			addr_len = 16; /* assure we can exit the loop */
+		} else {
+			proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
+			offset += 1;
+			proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip6_to_str(&addr));
+			proto_item_append_text(eigrp_ip6_ext_ti, "  %c   %s/%u%s", offset == 53 ? '=':',',
+				ip6_to_str(&addr), length, ((tvb_get_ntohl(tvb, 36) == 0xffffffff) ? " - Destination unreachable":""));
+		}
+	}
+}
+
+
+void proto_register_eigrp(void) {
+
   static hf_register_info hf[] = {
+   { &hf_eigrp_version,
+    { "Version", "eigrp.version",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+     }, 
    { &hf_eigrp_opcode,
     { "Opcode", "eigrp.opcode",
-     FT_UINT8, BASE_DEC, NULL, 0x0 ,
+     FT_UINT8, BASE_DEC, VALS(eigrp_opcode_vals), 0x0,
      "Opcode number", HFILL }
+     },
+   { &hf_eigrp_checksum,
+    { "Checksum", "eigrp.checksum",
+     FT_UINT16, BASE_HEX, NULL, 0x0,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_flags,
+    { "Flags", "eigrp.flags",
+     FT_UINT32, BASE_HEX, NULL, 0x0,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_flags_init,
+    { "Init", "eigrp.flags.init",
+     FT_BOOLEAN, 32, NULL, EIGRP_FLAGS_INIT,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_flags_condrecv,
+    { "Conditional Receive", "eigrp.flags.condrecv",
+     FT_BOOLEAN, 32, NULL, EIGRP_FLAGS_CONDRECV,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_sequence,
+    { "Sequence", "eigrp.seq",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_acknowledge,
+    { "Acknowledge", "eigrp.ack",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
      },
    { &hf_eigrp_as,
     { "Autonomous System", "eigrp.as",
-      FT_UINT16, BASE_DEC, NULL, 0x0 ,
+      FT_UINT16, BASE_DEC, NULL, 0x0,
      "Autonomous System number", HFILL }
     },
    { &hf_eigrp_tlv,
-    { "Entry",           "eigrp.tlv",
-      FT_UINT16, BASE_DEC, NULL, 0x0 ,
+    { "Type",           "eigrp.tlv",
+      FT_UINT16, BASE_DEC, VALS(eigrp_tlv_vals), 0x0,
      "Type/Length/Value", HFILL }
     },
-   };
+   { &hf_eigrp_tlv_size,
+    { "Size", "eigrp.tlv.size",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+     "TLV size", HFILL }
+    },
+/* EIGRP Parameters TLV */
+   { &hf_eigrp_par_k1,
+    { "K1", "eigrp.par.k1",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_par_k2,
+    { "K2", "eigrp.par.k2",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_par_k3,
+    { "K3", "eigrp.par.k3",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_par_k4,
+    { "K4", "eigrp.par.k4",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_par_k5,
+    { "K5", "eigrp.par.k5",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_par_reserved,
+    { "Reserved", "eigrp.par.reserved",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_par_holdtime,
+    { "Hold Time", "eigrp.par.holdtime",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+     },
+/* Authentication TLV */
+   { &hf_eigrp_auth_type,
+    { "Authentication Type", "eigrp.auth.type",
+     FT_UINT16, BASE_DEC, VALS(eigrp_auth_type_vals), 0x0,
+     NULL, HFILL }
+    },
+   { &hf_eigrp_auth_keysize,
+    { "Key size", "eigrp.auth.keysize",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    },
+   { &hf_eigrp_auth_keyid,
+    { "Key ID", "eigrp.auth.keyid",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    },
+   { &hf_eigrp_auth_nullpad,
+    { "Nullpad", "eigrp.auth.nullapd",
+     FT_STRING, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    },
+   { &hf_eigrp_auth_data,
+    { "Data", "eigrp.auth.data",
+     FT_STRING, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    },
+/* Sequence TLV */
+   { &hf_eigrp_seq_addrlen,
+    { "Address length", "eigrp.seq.addrlen",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_seq_ipaddr,
+    { "IP Address", "eigrp.seq.ipaddr",
+     FT_IPv4, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_seq_ip6addr,
+    { "IPv6 Address", "eigrp.seq.ip6addr",
+     FT_IPv6, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+/* Software Version TLV */
+   { &hf_eigrp_sv_ios,
+    { "IOS release version", "eigrp.sv.ios",
+     FT_STRING, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_sv_eigrp,
+    { "EIGRP release version", "eigrp.sv.eigrp",
+     FT_STRING, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+/* Next multicast sequence TLV */
+   { &hf_eigrp_nms,
+    { "Next Multicast Sequence", "eigrp.nms",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+     },
+/* Stub routing TLV */
+   { &hf_eigrp_stub_flags,
+    { "Stub Flags", "eigrp.stub_flags",
+     FT_UINT16, BASE_HEX, NULL, 0x0,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_stub_flags_connected,
+    { "Connected", "eigrp.stub_flags.connected",
+     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_CONNECTED,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_stub_flags_static,
+    { "Static", "eigrp.stub_flags.static",
+     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_STATIC,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_stub_flags_summary,
+    { "Summary", "eigrp.stub_flags.summary",
+     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_SUMMARY,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_stub_flags_recvonly,
+    { "Receive-Only", "eigrp.stub_flags.recvonly",
+     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_RECVONLY,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_stub_flags_redist,
+    { "Redistributed", "eigrp.stub_flags.redist",
+     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_REDIST,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_stub_flags_leakmap,
+    { "Leak-Map", "eigrp.stub_flags.leakmap",
+     FT_BOOLEAN, 16, NULL, EIGRP_STUB_FLAGS_LEAKMAP,
+     NULL, HFILL }
+     },
+/* IP internal route TLV */
+   { &hf_eigrp_ip_int_nexthop,
+    { "Next Hop", "eigrp.ip_int.nexthop",
+     FT_IPv4, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_int_delay,
+    { "Delay", "eigrp.ip_int.delay",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_int_bandwidth,
+    { "Bandwidth", "eigrp.ip_int.bandwidth",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_int_mtu,
+    { "MTU", "eigrp.ip_int.mtu",
+     FT_UINT24, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_int_hopcount,
+    { "Hop Count", "eigrp.ip_int.hopcount",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_int_reliability,
+    { "Reliability", "eigrp.ip_int.reliability",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_int_load,
+    { "Load", "eigrp.ip_int.load",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_int_reserved,
+    { "Reserved", "eigrp.ip_int.reserved",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_int_prefixlen,
+    { "Prefix Length", "eigrp.ip_int.prefixlen",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_int_dst,
+    { "Destination", "eigrp.ip_int.dst",
+     FT_STRING, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+/* IP external route TLV */
+   { &hf_eigrp_ip_ext_nexthop,
+    { "Next Hop", "eigrp.ip_ext.nexthop",
+     FT_IPv4, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    },
+   { &hf_eigrp_ip_ext_origrouter,
+    { "Originating router", "eigrp.ip_ext.origrouter",
+     FT_IPv4, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    },
+   { &hf_eigrp_ip_ext_as,
+    { "Originating A.S.", "eigrp.ip_ext.as",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_tag,
+    { "Arbitrary tag", "eigrp.ip_ext.tag",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_metric,
+    { "External protocol metric", "eigrp.ip_ext.metric",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_reserved,
+    { "Reserved", "eigrp.ip_ext.reserved",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_proto,
+    { "External protocol ID", "eigrp.ip_ext.proto",
+     FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_flags,
+    { "Flags", "eigrp.ip_ext.flags",
+     FT_UINT8, BASE_HEX, NULL, 0x0,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_ip_ext_flags_ext,
+    { "External Route", "eigrp.ip_ext.flags.ext",
+     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_EXT,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_ip_ext_flags_default,
+    { "Candidate Default Route", "eigrp.ip_ext.flags.default",
+     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_DEFAULT,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_ip_ext_delay,
+    { "Delay", "eigrp.ip_ext.delay",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_bandwidth,
+    { "Bandwidth", "eigrp.ip_ext.bandwidth",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_mtu,
+    { "MTU", "eigrp.ip_ext.mtu",
+     FT_UINT24, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_hopcount,
+    { "Hop Count", "eigrp.ip_ext.hopcount",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_reliability,
+    { "Reliability", "eigrp.ip_ext.reliability",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_load,
+    { "Load", "eigrp.ip_ext.load",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_reserved2,
+    { "Reserved", "eigrp.ip_ext.reserved2",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip_ext_prefixlen,
+    { "Prefix Length", "eigrp.ip_ext.prefixlen",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+/* IPX internal route TLV */
+   { &hf_eigrp_ipx_int_delay,
+    { "Delay", "eigrp.ipx_int.delay",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_int_bandwidth,
+    { "Bandwidth", "eigrp.ipx_int.bandwidth",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_int_mtu,
+    { "MTU", "eigrp.ipx_int.mtu",
+     FT_UINT24, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_int_hopcount,
+    { "Hop Count", "eigrp.ipx_int.hopcount",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_int_reliability,
+    { "Reliability", "eigrp.ipx_int.reliability",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_int_load,
+    { "Load", "eigrp.ipx_int.load",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_int_reserved,
+    { "Reserved", "eigrp.ipx_int.reserved",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+/* IPX external route TLV */
+   { &hf_eigrp_ipx_ext_as,
+    { "Originating A.S.", "eigrp.ipx_ext.as",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_tag,
+    { "Arbitrary tag", "eigrp.ipx_ext.tag",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_proto,
+    { "External protocol ID", "eigrp.ipx_ext.proto",
+     FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_reserved,
+    { "Reserved", "eigrp.ipx_ext.reserved",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_metric,
+    { "External protocol metric", "eigrp.ipx_ext.metric",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_extdelay,
+    { "External protocol delay", "eigrp.ipx_ext.extdelay",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_delay,
+    { "Delay", "eigrp.ipx_ext.delay",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_bandwidth,
+    { "Bandwidth", "eigrp.ipx_ext.bandwidth",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_mtu,
+    { "MTU", "eigrp.ipx_ext.mtu",
+     FT_UINT24, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_hopcount,
+    { "Hop Count", "eigrp.ipx_ext.hopcount",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_reliability,
+    { "Reliability", "eigrp.ipx_ext.reliability",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_load,
+    { "Load", "eigrp.ipx_ext.load",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ipx_ext_reserved2,
+    { "Reserved", "eigrp.ipx_ext.reserved2",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+/* AppleTalk cable configuration TLV */
+   { &hf_eigrp_at_cbl_routerid,
+    { "AppleTalk Router ID", "eigrp.at_cbl.routerid",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    },
+/* AppleTalk internal route TLV */
+   { &hf_eigrp_at_int_delay,
+    { "Delay", "eigrp.at_int.delay",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_int_bandwidth,
+    { "Bandwidth", "eigrp.at_int.bandwidth",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_int_mtu,
+    { "MTU", "eigrp.at_int.mtu",
+     FT_UINT24, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_int_hopcount,
+    { "Hop Count", "eigrp.at_int.hopcount",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_int_reliability,
+    { "Reliability", "eigrp.at_int.reliability",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_int_load,
+    { "Load", "eigrp.at_int.load",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_int_reserved,
+    { "Reserved", "eigrp.at_int.reserved",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+/* AppleTalk external route TLV */
+   { &hf_eigrp_at_ext_origrouter,
+    { "Originating router", "eigrp.at_ext.origrouter",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    },
+   { &hf_eigrp_at_ext_as,
+    { "Originating A.S.", "eigrp.at_ext.as",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_ext_tag,
+    { "Arbitrary tag", "eigrp.at_ext.tag",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_ext_proto,
+    { "External protocol ID", "eigrp.at_ext.proto",
+     FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_ext_flags,
+    { "Flags", "eigrp.at_ext.flags",
+     FT_UINT8, BASE_HEX, NULL, 0x0,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_at_ext_flags_ext,
+    { "External Route", "eigrp.at_ext.flags.ext",
+     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_EXT,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_at_ext_flags_default,
+    { "Candidate Default Route", "eigrp.at_ext.flags.default",
+     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_DEFAULT,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_at_ext_metric,
+    { "External protocol metric", "eigrp.at_ext.metric",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_ext_delay,
+    { "Delay", "eigrp.at_ext.delay",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_ext_bandwidth,
+    { "Bandwidth", "eigrp.at_ext.bandwidth",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_ext_mtu,
+    { "MTU", "eigrp.at_ext.mtu",
+     FT_UINT24, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_ext_hopcount,
+    { "Hop Count", "eigrp.at_ext.hopcount",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_ext_reliability,
+    { "Reliability", "eigrp.at_ext.reliability",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_ext_load,
+    { "Load", "eigrp.at_ext.load",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_at_ext_reserved,
+    { "Reserved", "eigrp.at_ext.reserved",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+/* IPv6 internal route TLV */
+   { &hf_eigrp_ip6_int_nexthop,
+    { "Next Hop", "eigrp.ip6_int.nexthop",
+     FT_IPv6, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    },
+   { &hf_eigrp_ip6_int_delay,
+    { "Delay", "eigrp.ip6_int.delay",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_int_bandwidth,
+    { "Bandwidth", "eigrp.ip6_int.bandwidth",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_int_mtu,
+    { "MTU", "eigrp.ip6_int.mtu",
+     FT_UINT24, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_int_hopcount,
+    { "Hop Count", "eigrp.ip6_int.hopcount",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_int_reliability,
+    { "Reliability", "eigrp.ip6_int.reliability",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_int_load,
+    { "Load", "eigrp.ip6_int.load",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_int_reserved,
+    { "Reserved", "eigrp.ip6_int.reserved",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_int_prefixlen,
+    { "Prefix Length", "eigrp.ip6_int.prefixlen",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+/* IPv6 external route TLV */
+   { &hf_eigrp_ip6_ext_nexthop,
+    { "Next Hop", "eigrp.ip6_ext.nexthop",
+     FT_IPv6, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    },
+   { &hf_eigrp_ip6_ext_origrouter,
+    { "Originating router", "eigrp.ip6_ext.origrouter",
+     FT_IPv4, BASE_NONE, NULL, 0x0,
+     NULL, HFILL }
+    },
+   { &hf_eigrp_ip6_ext_as,
+    { "Originating A.S.", "eigrp.ip6_ext.as",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_tag,
+    { "Arbitrary tag", "eigrp.ip6_ext.tag",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_metric,
+    { "External protocol metric", "eigrp.ip6_ext.metric",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_reserved,
+    { "Reserved", "eigrp.ip6_ext.reserved",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_proto,
+    { "External protocol ID", "eigrp.ip6_ext.proto",
+     FT_UINT8, BASE_DEC, VALS(eigrp_pid_vals), 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_flags,
+    { "Flags", "eigrp.ip6_ext.flags",
+     FT_UINT8, BASE_HEX, NULL, 0x0,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_ip6_ext_flags_ext,
+    { "External Route", "eigrp.ip6_ext.flags.ext",
+     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_EXT,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_ip6_ext_flags_default,
+    { "Candidate Default Route", "eigrp.ip6_ext.flags.default",
+     FT_BOOLEAN, 8, NULL, EIGRP_IP_EXT_FLAGS_DEFAULT,
+     NULL, HFILL }
+     },
+   { &hf_eigrp_ip6_ext_delay,
+    { "Delay", "eigrp.ip6_ext.delay",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_bandwidth,
+    { "Bandwidth", "eigrp.ip6_ext.bandwidth",
+     FT_UINT32, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_mtu,
+    { "MTU", "eigrp.ip6_ext.mtu",
+     FT_UINT24, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_hopcount,
+    { "Hop Count", "eigrp.ip6_ext.hopcount",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_reliability,
+    { "Reliability", "eigrp.ip6_ext.reliability",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_load,
+    { "Load", "eigrp.ip6_ext.load",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_reserved2,
+    { "Reserved", "eigrp.ip6_ext.reserved2",
+     FT_UINT16, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    }, 
+   { &hf_eigrp_ip6_ext_prefixlen,
+    { "Prefix Length", "eigrp.ip6_ext.prefixlen",
+     FT_UINT8, BASE_DEC, NULL, 0x0,
+     NULL, HFILL }
+    } 
+	};
 
-   static gint *ett[] = {
-     &ett_eigrp,
-     &ett_tlv,
-   };
-   proto_eigrp = proto_register_protocol("Enhanced Interior Gateway Routing Protocol",
-					 "EIGRP", "eigrp");
-   proto_register_field_array(proto_eigrp, hf, array_length(hf));
-   proto_register_subtree_array(ett, array_length(ett));
+	static gint *ett[] = {
+		&ett_eigrp,
+		&ett_eigrp_flags,
+		&ett_tlv,
+		&ett_eigrp_stub_flags,
+		&ett_eigrp_ip_ext_flags,
+		&ett_eigrp_ip6_ext_flags,
+		&ett_eigrp_at_ext_flags
+	};
+
+	proto_eigrp = proto_register_protocol("Enhanced Interior Gateway Routing Protocol", "EIGRP", "eigrp");
+	proto_register_field_array(proto_eigrp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
-void
-proto_reg_handoff_eigrp(void)
-{
-    dissector_handle_t eigrp_handle;
+void proto_reg_handoff_eigrp(void) {
 
-    ipxsap_handle = find_dissector("ipxsap");
-    eigrp_handle = create_dissector_handle(dissect_eigrp, proto_eigrp);
-    dissector_add("ip.proto", IP_PROTO_EIGRP, eigrp_handle);
-    dissector_add("ddp.type", DDP_EIGRP, eigrp_handle);
-    dissector_add("ipx.socket", IPX_SOCKET_EIGRP, eigrp_handle);
+	dissector_handle_t eigrp_handle;
+
+	ipxsap_handle = find_dissector("ipxsap");
+	eigrp_handle = create_dissector_handle(dissect_eigrp, proto_eigrp);
+	dissector_add("ip.proto", IP_PROTO_EIGRP, eigrp_handle);
+	dissector_add("ddp.type", DDP_EIGRP, eigrp_handle);
+	dissector_add("ipx.socket", IPX_SOCKET_EIGRP, eigrp_handle);
 }
