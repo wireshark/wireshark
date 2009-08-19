@@ -841,8 +841,10 @@ new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, gint copy_
                     g_string_append_c(text, '\t');
                 }
             }
-			if(get_col_text_from_record( record, col, &celltext))
+			if(get_col_text_from_record( record, col, &celltext)){
 				g_string_append(text,celltext);
+				g_free(celltext);
+			}
         }
         if(CS_CSV == copy_type) {
             g_string_append_c(text,'"');
