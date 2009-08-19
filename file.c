@@ -1090,13 +1090,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   col_custom_prime_edt(&edt, cinfo);
 #endif
 
-  if (filtering_tap_listeners)
-    tap_queue_init(&edt);
-
+  tap_queue_init(&edt);
   epan_dissect_run(&edt, pseudo_header, buf, fdata, cinfo);
-
-  if (filtering_tap_listeners)
-    tap_push_tapped_queue(&edt);
+  tap_push_tapped_queue(&edt);
 
   /* If we have a display filter, apply it if we're refiltering, otherwise
      leave the "passed_dfilter" flag alone.
