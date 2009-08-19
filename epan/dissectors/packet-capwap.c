@@ -45,7 +45,7 @@ static guint global_capwap_data_udp_port = UDP_PORT_CAPWAP_DATA;
 
 
 /* TODO LIST !
-* add support of optional Header (Radio Mac/Wireless Specific Information : Section 4.3)
+* do proper alginment handling for Radio Mac/Wireless Specific Information : Section 4.3
 * add decryption of DLTS Message
 * add support of all Messages Element Type
 */
@@ -78,6 +78,12 @@ static int hf_capwap_header_flags_r = -1;
 static int hf_capwap_header_fragment_id = -1;
 static int hf_capwap_header_fragment_offset = -1;
 static int hf_capwap_header_reserved = -1;
+
+static int hf_capwap_header_mac_length = -1;
+static int hf_capwap_header_mac_data = -1;
+
+static int hf_capwap_header_wireless_length = -1;
+static int hf_capwap_header_wireless_data = -1;
 
 static int hf_capwap_control_header = -1;
 static int hf_capwap_control_header_msg_type = -1;
@@ -770,6 +776,7 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 	proto_tree *capwap_header_tree;
 	proto_tree *capwap_header_flags_tree;
 	guint flags = 0;
+	guint8 maclength, wirelesslength;
 
 	ti = proto_tree_add_item(capwap_control_tree, hf_capwap_header, tvb, offset+plen, tvb_get_bits8(tvb, (offset+plen)*8, 5), FALSE);
 	capwap_header_tree = proto_item_add_subtree(ti, ett_capwap);
@@ -806,11 +813,28 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 	plen += 2;
 
 	/* Fragment offset : 13 Bits */
+	/* FIXME: Use _item and mask in hf element */
 	proto_tree_add_uint(capwap_header_tree, hf_capwap_header_fragment_offset, tvb, offset+plen, 2, tvb_get_bits16(tvb, (offset+plen)*8, 13, 0));
 
 	/* Reserved 3 Bits */
+	/* FIXME: Use _item and mask in hf element */
 	proto_tree_add_uint(capwap_header_tree, hf_capwap_header_reserved, tvb, offset+plen+1, 1, tvb_get_bits8(tvb, (offset+plen)*8+13, 3));
 	plen += 2;
+	/* FIXME: Add proper handling of the alignment stuff from the RFC */
+	if (flags & 0x10 /* Radio MAC address */) {
+		maclength=tvb_get_guint8(tvb, offset+plen);
+		proto_tree_add_item(capwap_header_tree, hf_capwap_header_mac_length, tvb, offset+plen, 1, FALSE);
+		plen += 1;
+		proto_tree_add_item(capwap_header_tree, hf_capwap_header_mac_data, tvb, offset+plen, maclength, FALSE);
+		plen += maclength;
+	}
+	if (flags & 0x20 /* Wireless specific information */) {
+		wirelesslength=tvb_get_guint8(tvb, offset+plen);
+		proto_tree_add_item(capwap_header_tree, hf_capwap_header_wireless_length, tvb, offset+plen, 1, FALSE);
+		plen += 1;
+		proto_tree_add_item(capwap_header_tree, hf_capwap_header_wireless_data, tvb, offset+plen, wirelesslength, FALSE);
+		plen += wirelesslength;
+	}
 	return plen;
 }
 
@@ -926,6 +950,14 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(ieee8023_handle, next_tvb, pinfo, tree);
 	} else {
 		switch (payload_wbid) {
+		case 0: /* Reserved - Cisco seems to use this instead of 1 */
+			/* It seems that just calling ieee80211_handle is not
+			 * quite enough to get this right, so call data_handle
+			 * for now:
+			call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
+			 */
+			call_dissector(data_handle, next_tvb, pinfo, tree);
+			break;
 		case 1: /* IEEE 802.11 */
 			call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 			break;
@@ -1019,6 +1051,22 @@ proto_register_capwap_control(void)
 			NULL, HFILL }},
 		{ &hf_capwap_header_reserved,
 		{ "Reserved",	"capwap.header.fragment.reserved",
+			FT_UINT8, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }},
+		{ &hf_capwap_header_mac_length,
+		{ "MAC length",	"capwap.header.mac.length",
+			FT_UINT8, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }},
+		{ &hf_capwap_header_mac_data,
+		{ "MAC address",	"capwap.header.mac.addr",
+			FT_BYTES, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }},
+		{ &hf_capwap_header_wireless_length,
+		{ "Wireless length",	"capwap.header.wireless.length",
+			FT_UINT8, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }},
+		{ &hf_capwap_header_wireless_data,
+		{ "Wireless data",	"capwap.header.wireless.data",
 			FT_UINT8, BASE_DEC, NULL, 0x00,
 			NULL, HFILL }},
 		/* CAPWAP Control Header Message */
