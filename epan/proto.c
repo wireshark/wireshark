@@ -929,6 +929,9 @@ ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
 {
 	proto_item *	it;
 	va_list	ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(ptvcursor_tree(ptvc), hf_text_only, hfinfo);
 
 	it = proto_tree_add_text_node(ptvcursor_tree(ptvc), ptvcursor_tvbuff(ptvc),
 				      ptvcursor_current_offset(ptvc), length);
@@ -948,9 +951,6 @@ static proto_item *
 proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint length)
 {
 	proto_item	*pi;
-	header_field_info	*hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
 
 	pi = proto_tree_add_pi(tree, hf_text_only, tvb, start, &length, NULL);
 	if (pi == NULL)
@@ -966,6 +966,9 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 {
 	proto_item	*pi;
 	va_list		ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
 
 	pi = proto_tree_add_text_node(tree, tvb, start, length);
 	if (pi == NULL)
@@ -984,6 +987,9 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 			   gint length, const char *format, va_list ap)
 {
 	proto_item	*pi;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
 
 	pi = proto_tree_add_text_node(tree, tvb, start, length);
 	if (pi == NULL)
@@ -1525,6 +1531,9 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
 	if (pi == NULL)
@@ -1543,6 +1552,9 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_bytes(tree, hfindex, tvb, start, length, start_ptr);
 	if (pi == NULL)
@@ -1603,6 +1615,9 @@ proto_tree_add_time_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_time(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
@@ -1621,6 +1636,9 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_time(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
@@ -1675,6 +1693,9 @@ proto_tree_add_ipxnet_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipxnet(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -1693,6 +1714,9 @@ proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipxnet(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -1737,6 +1761,9 @@ proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv4(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -1755,6 +1782,9 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv4(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -1802,6 +1832,9 @@ proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv6(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
@@ -1820,6 +1853,9 @@ proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv6(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
@@ -1872,6 +1908,9 @@ proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_guid(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
@@ -1890,6 +1929,9 @@ proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_guid(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
@@ -1947,6 +1989,9 @@ proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_oid(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
@@ -1965,6 +2010,9 @@ proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_oid(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
@@ -2074,6 +2122,9 @@ proto_tree_add_string_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2092,6 +2143,9 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2211,6 +2265,9 @@ proto_tree_add_ether_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ether(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2229,6 +2286,9 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ether(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2281,6 +2341,9 @@ proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_boolean(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2299,6 +2362,9 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_boolean(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2343,6 +2409,9 @@ proto_tree_add_float_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2361,6 +2430,9 @@ proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2407,6 +2479,9 @@ proto_tree_add_double_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_double(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2425,6 +2500,9 @@ proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_double(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2481,6 +2559,9 @@ proto_tree_add_uint_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2499,6 +2580,9 @@ proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2576,6 +2660,9 @@ proto_tree_add_uint64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint64(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2594,6 +2681,9 @@ proto_tree_add_uint64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint64(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2640,6 +2730,9 @@ proto_tree_add_int_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi = NULL;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2658,6 +2751,9 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
 {
 	proto_item		*pi = NULL;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2729,6 +2825,9 @@ proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int64(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -2747,6 +2846,9 @@ proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 {
 	proto_item		*pi;
 	va_list			ap;
+	header_field_info	*hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int64(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
@@ -5968,8 +6070,11 @@ proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb, guint offset
 proto_item *
 proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian)
 {
-	return proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, NULL, little_endian);
+	header_field_info	*hfinfo;
 
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hfinfo);
+
+	return proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, NULL, little_endian);
 }
 /*
  * This function will dissect a sequence of bits that does not need to be byte aligned; the bits
@@ -5992,7 +6097,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	int bit;
 	int i;
 
-	hf_field = proto_registrar_get_nth(hf_index);
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
 	if(hf_field -> bitmask != 0) {
 		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val with field '%s' (%s) with bitmask != 0",
