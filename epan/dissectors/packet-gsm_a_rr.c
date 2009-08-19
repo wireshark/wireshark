@@ -2614,8 +2614,8 @@ static const value_string gsm_a_rr_rxlev_vals [] = {
 };
 
 static const true_false_string gsm_a_rr_mv_vals  = {
-    "The measurement results are valid",
-    "The measurement results are not valid"
+    "The measurement results are not valid",
+    "The measurement results are valid"
 };
 
 static const value_string gsm_a_rr_rxqual_vals [] = {
