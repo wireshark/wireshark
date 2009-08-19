@@ -35,7 +35,7 @@ extern "C" {
 #define COL_MAX_INFO_LEN 4096
 
 typedef struct {
-  gchar      **col_expr;     /* Filter expression */
+  const gchar **col_expr;     /* Filter expression */
   gchar      **col_expr_val; /* Value for filter expression */
 } col_expr_t;
 
