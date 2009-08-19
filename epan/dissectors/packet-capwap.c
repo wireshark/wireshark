@@ -80,6 +80,8 @@ static int hf_capwap_header_fragment_offset = -1;
 static int hf_capwap_header_reserved = -1;
 
 static int hf_capwap_header_mac_length = -1;
+static int hf_capwap_header_mac_eui48 = -1;
+static int hf_capwap_header_mac_eui64 = -1;
 static int hf_capwap_header_mac_data = -1;
 
 static int hf_capwap_header_wireless_length = -1;
@@ -825,7 +827,13 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 		maclength=tvb_get_guint8(tvb, offset+plen);
 		proto_tree_add_item(capwap_header_tree, hf_capwap_header_mac_length, tvb, offset+plen, 1, FALSE);
 		plen += 1;
+		if (maclength == 6) {
+			proto_tree_add_item(capwap_header_tree, hf_capwap_header_mac_eui48, tvb, offset+plen, maclength, FALSE);
+		} else if (maclength == 8) {
+		proto_tree_add_item(capwap_header_tree, hf_capwap_header_mac_eui64, tvb, offset+plen, maclength, FALSE);
+		} else {
 		proto_tree_add_item(capwap_header_tree, hf_capwap_header_mac_data, tvb, offset+plen, maclength, FALSE);
+		}
 		plen += maclength;
 	}
 	if (flags & 0x20 /* Wireless specific information */) {
@@ -1057,8 +1065,16 @@ proto_register_capwap_control(void)
 		{ "MAC length",	"capwap.header.mac.length",
 			FT_UINT8, BASE_DEC, NULL, 0x00,
 			NULL, HFILL }},
+		{ &hf_capwap_header_mac_eui48,
+		{ "MAC address",	"capwap.header.mac.eui48",
+			FT_ETHER, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }},
+		{ &hf_capwap_header_mac_eui64,
+		{ "MAC address",	"capwap.header.mac.eui64",
+			FT_BYTES, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }},
 		{ &hf_capwap_header_mac_data,
-		{ "MAC address",	"capwap.header.mac.addr",
+		{ "MAC address",	"capwap.header.mac.data",
 			FT_BYTES, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }},
 		{ &hf_capwap_header_wireless_length,
