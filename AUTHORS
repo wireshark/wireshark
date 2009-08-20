@@ -2113,8 +2113,14 @@ Martin Mathieson        <martin.r.mathieson [AT] googlemail.com> {
 	SIP statistics tap
 	Show setupframe in RTP and RTCP
 	H.225.0 updates
+	MGCP updates
+	RDT (RealPlayer) support
 	MMS support (MS Media Server protocol)
 	PPP Chap updates
+	Catapult DCT2000 file support
+	UMTS FP support
+	LTE: MAC, RLC and PDCP support
+	LTE MAC Stats
 }
 
 Christian Wagner        <Christian.Wagner [AT] stud.uni-karlsruhe.de> {
