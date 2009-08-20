@@ -44,11 +44,6 @@ typedef struct _frame_data {
   guint32      pkt_len;     /* Packet length */
   guint32      cap_len;     /* Amount actually captured */
   guint32      cum_bytes;   /* Cumulative bytes into the capture */
-  nstime_t     abs_ts;      /* Absolute timestamp */
-  nstime_t     rel_ts;      /* Relative timestamp (yes, it can be negative) */
-  nstime_t     del_dis_ts;  /* Delta timestamp to previous displayed frame (yes, it can be negative) */
-  nstime_t     del_cap_ts;  /* Delta timestamp to previous captured frame (yes, it can be negative) */
-  gint64       file_off;    /* File offset */
   int          lnk_t;       /* Per-packet encapsulation/data-link type */
   struct {
 	unsigned int passed_dfilter	: 1; /* 1 = display, 0 = no display */
@@ -58,6 +53,12 @@ typedef struct _frame_data {
 	unsigned int ref_time		: 1; /* 1 = marked as a reference time frame, 0 = normal */
   } flags;
   void *color_filter;       /* Per-packet matching color_filter_t object */
+  nstime_t     abs_ts;      /* Absolute timestamp */
+  nstime_t     rel_ts;      /* Relative timestamp (yes, it can be negative) */
+  nstime_t     del_dis_ts;  /* Delta timestamp to previous displayed frame (yes, it can be negative) */
+  nstime_t     del_cap_ts;  /* Delta timestamp to previous captured frame (yes, it can be negative) */
+  gint64       file_off;    /* File offset */
+  gchar        **col_text;  /* The column text for some columns, see colum_utils */
 } frame_data;
 
 /*
