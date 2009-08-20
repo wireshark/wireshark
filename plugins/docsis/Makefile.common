@@ -28,6 +28,7 @@ PLUGIN_NAME = docsis
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC = \
+	packet-bintrngreq.c \
 	packet-bpkmattr.c \
 	packet-bpkmreq.c \
 	packet-bpkmrsp.c \

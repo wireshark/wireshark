@@ -66,6 +66,8 @@
 #define MGT_DCI_RSP 27
 #define MGT_UP_DIS 28
 #define MGT_TYPE29UCD 29
+#define MGT_INIT_RNG_REQ 30
+#define MGT_B_INIT_RNG_REQ 34
 
 
 /* Initialize the protocol and registered fields */
@@ -119,6 +121,8 @@ static const value_string mgmt_type_vals[] = {
   {MGT_DCI_REQ, "Device Class Identification Request"},
   {MGT_DCI_RSP, "Device Class Identification Response"},
   {MGT_UP_DIS, "Upstream Channel Disable"},
+  {MGT_INIT_RNG_REQ, "Initial Ranging Request"},
+  {MGT_B_INIT_RNG_REQ, "Bonded Initial Ranging Request"},
   {0, NULL}
 };
 

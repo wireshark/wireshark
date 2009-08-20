@@ -24,6 +24,7 @@
 #ifndef __PACKET_DOCSIS_H__
 #define __PACKET_DOCSIS_H__
 
+void proto_reg_handoff_docsis_bintrngreq (void);
 void proto_reg_handoff_docsis_bpkmattr (void);
 void proto_reg_handoff_docsis_bpkmreq (void);
 void proto_reg_handoff_docsis_bpkmrsp (void);
@@ -56,6 +57,7 @@ void proto_reg_handoff_docsis_vsif (void);
 void proto_reg_handoff_docsis_intrngreq (void);
   
 
+void proto_register_docsis_bintrngreq (void);
 void proto_register_docsis_bpkmattr (void);
 void proto_register_docsis_bpkmreq (void);
 void proto_register_docsis_bpkmrsp (void);
