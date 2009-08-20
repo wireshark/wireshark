@@ -44,12 +44,13 @@ ERR_PROB=0.02
 
 
 # To do: add options for file names and limits
-while getopts ":b:d:p:" OPTCHAR ; do
-	case $OPTCHAR in
-		b) BIN_DIR=$OPTARG ;;
-		d) TMP_DIR=$OPTARG ;;
-		p) MAX_PASSES=$OPTARG ;;
-	esac
+while getopts ":b:d:e:p:" OPTCHAR ; do
+    case $OPTCHAR in
+        b) BIN_DIR=$OPTARG ;;
+        d) TMP_DIR=$OPTARG ;;
+        e) ERR_PROB=$OPTARG ;;
+        p) MAX_PASSES=$OPTARG ;;
+    esac
 done
 shift $(($OPTIND - 1))
 
@@ -74,13 +75,13 @@ TSHARK_ARGS="-nVxr"
 
 NOTFOUND=0
 for i in "$TSHARK" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR" ; do
-	if [ ! -x $i ]; then
-		echo "Couldn't find $i"
-		NOTFOUND=1
-	fi
+    if [ ! -x $i ]; then
+        echo "Couldn't find $i"
+        NOTFOUND=1
+    fi
 done
 if [ $NOTFOUND -eq 1 ]; then
-	exit 1
+    exit 1
 fi
 
 # Make sure we have a valid test set
@@ -97,7 +98,7 @@ if [ $FOUND -eq 0 ] ; then
     cat <<FIN
 Error: No valid capture files found.
 
-Usage: `basename $0` [-p passes] [-d work_dir] capture file 1 [capture file 2]...
+Usage: `basename $0` [-p passes] [-d work_dir] [-e error probability] capture file 1 [capture file 2]...
 FIN
     exit 1
 fi
@@ -127,58 +128,58 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
         if [ "$OSTYPE" == "cygwin" ] ; then
             CF=`cygpath --windows "$CF"`
         fi
-	echo -n "    $CF: "
+    echo -n "    $CF: "
 
-	"$CAPINFOS" "$CF" > /dev/null 2> $TMP_DIR/$ERR_FILE
-	RETVAL=$?
-	if [ $RETVAL -eq 0 ] ; then
-	    # have a valid file
-	    rm -f $TMP_DIR/$ERR_FILE
-	elif [ $RETVAL -eq 1 ] ; then
-	    echo "Not a valid capture file"
-	    rm -f $TMP_DIR/$ERR_FILE
-	    continue
-	else
+    "$CAPINFOS" "$CF" > /dev/null 2> $TMP_DIR/$ERR_FILE
+    RETVAL=$?
+    if [ $RETVAL -eq 0 ] ; then
+        # have a valid file
+        rm -f $TMP_DIR/$ERR_FILE
+    elif [ $RETVAL -eq 1 ] ; then
+        echo "Not a valid capture file"
+        rm -f $TMP_DIR/$ERR_FILE
+        continue
+    else
+        echo ""
+        echo " ERROR"
+        echo -e "Processing failed.  Capture info follows:\n"
+        echo "  Input file: $CF"
+        echo -e "stderr follows:\n"
+        cat $TMP_DIR/$ERR_FILE
+        exit 1
+    fi
+
+    DISSECTOR_BUG=0
+
+    "$EDITCAP" -E $ERR_PROB "$CF" $TMP_DIR/$TMP_FILE > /dev/null 2>&1
+    if [ $? -ne 0 ] ; then
+        "$EDITCAP" -E $ERR_PROB -T ether "$CF" $TMP_DIR/$TMP_FILE \
+        > /dev/null 2>&1
+        if [ $? -ne 0 ] ; then
+        echo "Invalid format for editcap"
+        continue
+        fi
+    fi
+
+    "$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
+        > /dev/null 2> $TMP_DIR/$ERR_FILE
+    RETVAL=$?
+    # Uncomment the next two lines to enable dissector bug
+    # checking.
+    #grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
+    #    > /dev/null 2>&1 && DISSECTOR_BUG=1
+    if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
             echo ""
-	    echo " ERROR"
-	    echo -e "Processing failed.  Capture info follows:\n"
-	    echo "  Input file: $CF"
-	    echo -e "stderr follows:\n"
-	    cat $TMP_DIR/$ERR_FILE
-	    exit 1
-	fi
-
-	DISSECTOR_BUG=0
-
-	"$EDITCAP" -E $ERR_PROB "$CF" $TMP_DIR/$TMP_FILE > /dev/null 2>&1
-	if [ $? -ne 0 ] ; then
-	    "$EDITCAP" -E $ERR_PROB -T ether "$CF" $TMP_DIR/$TMP_FILE \
-		> /dev/null 2>&1
-	    if [ $? -ne 0 ] ; then
-		echo "Invalid format for editcap"
-		continue
-	    fi
-	fi
-
-	"$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
-		> /dev/null 2> $TMP_DIR/$ERR_FILE
-	RETVAL=$?
-        # Uncomment the next two lines to enable dissector bug
-        # checking.
-	#grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
-	#    > /dev/null 2>&1 && DISSECTOR_BUG=1
-	if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
-            echo ""
-	    echo " ERROR"
-	    echo -e "Processing failed.  Capture info follows:\n"
-	    echo "  Output file: $TMP_DIR/$TMP_FILE"
-	    if [ $DISSECTOR_BUG -ne 0 ] ; then
-		echo -e "stderr follows:\n"
-		cat $TMP_DIR/$ERR_FILE
-	    fi
-	    exit 1
-	fi
-	echo " OK"
+        echo " ERROR"
+        echo -e "Processing failed.  Capture info follows:\n"
+        echo "  Output file: $TMP_DIR/$TMP_FILE"
+        if [ $DISSECTOR_BUG -ne 0 ] ; then
+        echo -e "stderr follows:\n"
+        cat $TMP_DIR/$ERR_FILE
+        fi
+        exit 1
+    fi
+    echo " OK"
         rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE
     done
 done
