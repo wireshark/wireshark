@@ -25,8 +25,8 @@
 
 
 /* TODO:
-   - limit by display filter
-   - Help button and documentation
+   - limit by display filter?
+   - Break down traffic by cell?
    - CSV export?
 */
 
@@ -274,7 +274,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     struct mac_lte_tap_info *si = (struct mac_lte_tap_info *)phi;
 
     if (!hs) {
-        return (0);
+        return 0;
     }
 
     common_stats.all_frames++;
@@ -407,15 +407,15 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep)
 
     /* UL SDUs */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
-        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep ? mac_stat_ep->stats.UL_sdus_for_lcid[n] : 0);
+        g_snprintf(buff, sizeof(buff), "%u",
+                   mac_stat_ep ? mac_stat_ep->stats.UL_sdus_for_lcid[n] : 0);
          gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][1]), buff);
     }
 
     /* Predefined */
     if (mac_stat_ep) {
-        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
-                                                 mac_stat_ep->stats.UL_frames :
-                                                 0);
+        g_snprintf(buff, sizeof(buff), "%u",
+                   mac_stat_ep->stats.is_predefined_data ? mac_stat_ep->stats.UL_frames : 0);
     }
     else {
         g_snprintf(buff, sizeof(buff), "%u", 0);
@@ -426,15 +426,14 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep)
     /* UL Bytes */
     for (n=0; n < PREDEFINED_COLUMN-1; n++) {
         g_snprintf(buff, sizeof(buff), "%u",
-            (mac_stat_ep) ? mac_stat_ep->stats.UL_bytes_for_lcid[n] : 0);
+                   (mac_stat_ep) ? mac_stat_ep->stats.UL_bytes_for_lcid[n] : 0);
         gtk_label_set_text(GTK_LABEL(selected_ue_column_entry[n+1][2]), buff);
     }
 
     /* Predefined */
     if (mac_stat_ep) {
-        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
-                                                 mac_stat_ep->stats.UL_total_bytes :
-                                                 0);
+        g_snprintf(buff, sizeof(buff), "%u",
+                   mac_stat_ep->stats.is_predefined_data ? mac_stat_ep->stats.UL_total_bytes : 0);
     }
     else {
         g_snprintf(buff, sizeof(buff), "%u", 0);
@@ -450,9 +449,8 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep)
     }
     /* Predefined */
     if (mac_stat_ep) {
-        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
-                                                 mac_stat_ep->stats.DL_frames :
-                                                 0);
+        g_snprintf(buff, sizeof(buff), "%u",
+                   mac_stat_ep->stats.is_predefined_data ? mac_stat_ep->stats.DL_frames : 0);
     }
     else {
         g_snprintf(buff, sizeof(buff), "%u", 0);
@@ -468,9 +466,8 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep)
     }
     /* Predefined */
     if (mac_stat_ep) {
-        g_snprintf(buff, sizeof(buff), "%u", mac_stat_ep->stats.is_predefined_data ?
-                                                 mac_stat_ep->stats.DL_total_bytes :
-                                                 0);
+        g_snprintf(buff, sizeof(buff), "%u",
+                   mac_stat_ep->stats.is_predefined_data ? mac_stat_ep->stats.DL_total_bytes : 0);
     }
     else {
         g_snprintf(buff, sizeof(buff), "%u", 0);
@@ -805,9 +802,9 @@ static void mac_lte_stat_dlg_create(void)
                                          mac_lte_stat_packet,
                                          mac_lte_stat_draw);
     if (error_string) {
-        simple_dialog (ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
-        g_string_free (error_string, TRUE);
-        g_free (hs);
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+        g_free(hs);
         return;
     }
 
