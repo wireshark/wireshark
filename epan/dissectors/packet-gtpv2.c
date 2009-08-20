@@ -660,11 +660,13 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 /*
  * 8.13 Protocol Configuration Options (PCO)
  * Editor's note: PCO will be defined in 3GPP TS 23.003 and its coding in TS 24.301
- * Dissected in packey-gsm_a_gm.c
+ * Dissected in packet-gsm_a_gm.c
  */
 static void
 dissect_gtpv2_pco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
+	/* pinfo needed */
+	gsm_a_dtap_pinfo = pinfo;
 	de_sm_pco(tvb, tree, 0, length, NULL, 0);
 }
 

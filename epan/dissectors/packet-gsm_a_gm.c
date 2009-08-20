@@ -2930,7 +2930,6 @@ de_gmm_rat_info_container(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 {
 	guint32	curr_offset;
 	tvbuff_t *rrc_irat_ho_info_tvb;
-	static packet_info p_info;
 
 	curr_offset = offset;
 
@@ -2938,7 +2937,7 @@ de_gmm_rat_info_container(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 defined in 3GPP TS 25.331 [23c]. If this field includes padding bits, they are defined in 3GPP TS 25.331 [23c].*/
 	rrc_irat_ho_info_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 	if (rrc_irat_ho_info_handle)
-		call_dissector(rrc_irat_ho_info_handle, rrc_irat_ho_info_tvb, &p_info , tree);
+		call_dissector(rrc_irat_ho_info_handle, rrc_irat_ho_info_tvb, gsm_a_dtap_pinfo , tree);
 	else
 		proto_tree_add_text(tree, tvb, curr_offset, len,"INTER RAT HANDOVER INFO - Not decoded");
 
@@ -3304,7 +3303,6 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 		guint16 prot;
 		tvbuff_t *l3_tvb;
 		dissector_handle_t handle = NULL;
-		static packet_info p_info;
 
 		prot = tvb_get_ntohs(tvb,curr_offset);
 		e_len = tvb_get_guint8(tvb, curr_offset+2);
@@ -3369,7 +3367,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 					 * dissect the embedded message
 					 */
 					l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
-					call_dissector(handle, l3_tvb ,  &p_info  , tree );
+					call_dissector(handle, l3_tvb ,  gsm_a_dtap_pinfo  , tree );
 				}
 				else
 				{
@@ -3379,7 +3377,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 					* dissect the embedded DATA message
 					*/
 					l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
-					call_dissector(data_handle, l3_tvb, &p_info , tree);
+					call_dissector(data_handle, l3_tvb, gsm_a_dtap_pinfo , tree);
 				}
 			}
 		}

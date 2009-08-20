@@ -301,9 +301,9 @@ const value_string gsm_rr_elem_strings[] = {
     { 0x00, "Extended Measurement Results" },					/* [3] 10.5.2.45 Extended Measurement Results */
     { 0x00, "Extended Measurement Frequency List" },				/* [3] 10.5.2.46 Extended Measurement Frequency List */
     { 0x00, "Suspension Cause" },						/* [3] 10.5.2.47								*/
-/* [3] 10.5.2.48 APDU ID
- * [3] 10.5.2.49 APDU Flags
- * [3] 10.5.2.50 APDU Data */
+    { 0x00, "APDU ID" },							/* [3] 10.5.2.48 APDU ID */
+    { 0x00, "APDU Flags" },							/* [3] 10.5.2.49 APDU Flags */
+    { 0x00, "APDU Data" },							/* [3] 10.5.2.50 APDU Data */
     { 0x00, "Handover to UTRAN Command" },					/* [3] 10.5.2.51 Handover To UTRAN Command */
 /* [3] 10.5.2.52 Handover To cdma2000 Command
  * [3] 10.5.2.53 (void)
@@ -497,6 +497,9 @@ static int hf_gsm_a_rr_chnl_needed_ch2 = -1;
 static int hf_gsm_a_rr_chnl_needed_ch3 = -1;
 static int hf_gsm_a_rr_chnl_needed_ch4 = -1;
 static int hf_gsm_a_rr_suspension_cause = -1;
+static int hf_gsm_a_rr_apdu_id = -1;
+static int hf_gsm_a_rr_apdu_flags = -1;
+static int hf_gsm_a_rr_apdu_data = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b7 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b6 = -1;
@@ -691,7 +694,7 @@ static gint ett_sacch_msg = -1;
 static char a_bigbuf[1024];
 
 static dissector_handle_t data_handle;
-
+static dissector_handle_t rrlp_dissector;
 
 
 #define	NUM_GSM_RR_ELEM (sizeof(gsm_rr_elem_strings)/sizeof(value_string))
@@ -1812,14 +1815,14 @@ de_rr_utran_cm(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 {
     guint32 curr_offset;
     tvbuff_t *rrc_irat_ho_info_tvb;
-    static packet_info p_info;
 
     curr_offset = offset;
     if (len)
     {
         rrc_irat_ho_info_tvb = tvb_new_subset(tvb, curr_offset, len, len);
         if (rrc_irat_ho_info_handle)
-            call_dissector(rrc_irat_ho_info_handle, rrc_irat_ho_info_tvb, &p_info, tree);
+			/* gsm_a_dtap_pinfo MUST be set by any dissector calling de_rr_utran_cm */
+            call_dissector(rrc_irat_ho_info_handle, rrc_irat_ho_info_tvb, gsm_a_dtap_pinfo, tree);
     }
 
     curr_offset += len;
@@ -6224,9 +6227,49 @@ de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 }
 /*
  * [3] 10.5.2.48 APDU ID
+ */
+static const value_string gsm_a_rr_apdu_id_vals[] = {
+	{ 0, "RRLP (GSM 04.31) LCS" },
+	{ 0, NULL },
+};
+static guint16
+de_rr_apdu_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_item(tree, hf_gsm_a_rr_apdu_id, tvb, offset, 1, FALSE);
+
+    return 0;
+}
+
+/*
  * [3] 10.5.2.49 APDU Flags
+ */
+static const value_string gsm_a_rr_apdu_flags_vals[] = {
+	{ 1, "Last or only segment" },
+	{ 2, "First or only segment" },
+	{ 0, NULL },
+};
+static guint16
+de_rr_apdu_flags(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_item(tree, hf_gsm_a_rr_apdu_flags, tvb, offset, 1, FALSE);
+
+    return 1;
+}
+
+/*
  * [3] 10.5.2.50 APDU Data
  */
+static guint16
+de_rr_apdu_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    tvbuff_t *sub_tvb;
+
+    sub_tvb = tvb_new_subset(tvb, offset, len, len);
+
+    call_dissector(rrlp_dissector, sub_tvb, gsm_a_dtap_pinfo, tree);
+
+    return len;
+}
 
 /*
  * [3] 10.5.2.51 Handover To UTRAN Command
@@ -6236,14 +6279,14 @@ de_rr_ho_to_utran_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 {
     guint32 curr_offset;
     tvbuff_t *rrc_irat_ho_to_utran_cmd_tvb;
-    static packet_info p_info;
 
     curr_offset = offset;
     if (len)
     {
         rrc_irat_ho_to_utran_cmd_tvb = tvb_new_subset(tvb, curr_offset, len, len);
         if (rrc_irat_ho_to_utran_cmd_handle)
-            call_dissector(rrc_irat_ho_to_utran_cmd_handle, rrc_irat_ho_to_utran_cmd_tvb, &p_info, tree);
+			/* gsm_a_dtap_pinfo MUST be set by any dissector calling de_rr_ho_to_utran_cmd */
+            call_dissector(rrc_irat_ho_to_utran_cmd_handle, rrc_irat_ho_to_utran_cmd_tvb, gsm_a_dtap_pinfo, tree);
     }
 
     curr_offset += len;
@@ -6466,9 +6509,9 @@ guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     de_rr_ext_meas_result,			/* [3] 10.5.2.45 Extended Measurement Results 		*/
     de_rr_ext_meas_freq_list,			/* [3] 10.5.2.46 Extended Measurement Frequency List 	*/
     de_rr_sus_cau,				/* [3] 10.5.2.47 Suspension Cause			*/
-/* [3] 10.5.2.48 APDU ID
- * [3] 10.5.2.49 APDU Flags
- * [3] 10.5.2.50 APDU Data */
+    de_rr_apdu_id,				/* [3] 10.5.2.48 APDU ID				*/
+    de_rr_apdu_flags,				/* [3] 10.5.2.49 APDU Flags				*/
+    de_rr_apdu_data,				/* [3] 10.5.2.50 APDU Data */
     de_rr_ho_to_utran_cmd,			/* [3] 10.5.2.51 Handover To UTRAN Command 		*/
 /* [3] 10.5.2.52 Handover To cdma2000 Command
  * [3] 10.5.2.53 (void)
@@ -7864,6 +7907,24 @@ dtap_rr_ext_meas_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 /*
+ * 9.1.53 Application Information
+ */
+static void
+dtap_rr_app_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_APDU_ID);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_APDU_FLAGS);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_APDU_DATA, NULL);
+}
+
+/*
  * [4] 9.1.54 Measurement Information
  */
 static const value_string gsm_a_rr_3g_wait_vals[] = {
@@ -8386,7 +8447,7 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 
     NULL,			/* UTRAN Classmark Change/Handover To UTRAN Command */	/* spec conflict */
 
-    NULL,			/* Application Information */
+    dtap_rr_app_inf,		/* Application Information */
 
     NULL,			/* NONE */
 };
@@ -9153,6 +9214,21 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_suspension_cause,
               { "Suspension cause value","gsm_a.rr.suspension_cause",
 		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_suspension_cause_vals), 0x0,
+		NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_apdu_id,
+              { "APDU ID","gsm_a.rr.apdu_id",
+		FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_apdu_id_vals), 0x0f,
+		NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_apdu_flags,
+              { "APDU Flags","gsm_a.rr.apdu_flags",
+		FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_apdu_flags_vals), 0xf0,
+		NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_apdu_data,
+              { "APDU Data","gsm_a.rr.apdu_data",
+		FT_BYTES,BASE_HEX,  NULL, 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8,
@@ -10157,4 +10233,5 @@ proto_reg_handoff_gsm_a_rr(void)
     data_handle = find_dissector("data");
     rrc_irat_ho_info_handle = find_dissector("rrc.irat.irat_ho_info");
     rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
+    rrlp_dissector = find_dissector("rrlp");
 }
