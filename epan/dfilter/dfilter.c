@@ -211,7 +211,14 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	gboolean failure = FALSE;
 	const char	*depr_test;
 	guint		i;
-	GPtrArray	*deprecated = g_ptr_array_new();
+	GPtrArray	*deprecated;
+
+	g_assert(dfp);
+
+	if (!text) {
+		*dfp = NULL;
+		return FALSE;
+	}
 
 	dfilter_error_msg = NULL;
 
@@ -222,6 +229,8 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	dfw = dfwork_new();
 
 	df_scanner_text(text);
+
+	deprecated = g_ptr_array_new();
 
 	while (1) {
 		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL);
