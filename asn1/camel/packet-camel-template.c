@@ -43,7 +43,7 @@
 #include <epan/oids.h>
 #include <epan/tap.h>
 #include <epan/asn1.h>
-#include "epan/expert.h"
+#include <epan/expert.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -56,8 +56,8 @@
 #include "packet-gsm_map.h"
 #include "packet-inap.h"
 #include "packet-tcap.h"
-#include "epan/camel-persistentdata.h"
-#include "epan/tcap-persistentdata.h"
+#include <epan/camel-persistentdata.h>
+#include <epan/tcap-persistentdata.h>
 
 #define PNAME  "Camel"
 #define PSNAME "CAMEL"

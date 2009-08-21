@@ -48,7 +48,7 @@
 #include <epan/emem.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
-#include "tap.h"
+#include <epan/tap.h>
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h323.h"

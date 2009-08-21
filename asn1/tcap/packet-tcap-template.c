@@ -40,7 +40,7 @@
 #include <string.h>
 #include "packet-ber.h"
 #include "packet-tcap.h"
-#include "epan/tcap-persistentdata.h"
+#include <epan/tcap-persistentdata.h>
 
 #define PNAME  "Transaction Capabilities Application Part"
 #define PSNAME "TCAP"

@@ -26,7 +26,7 @@
  */
 
 #include "packet-h248.h"
-#include "tap.h"
+#include <epan/tap.h>
 #include "packet-tpkt.h"
 
 #define PNAME  "H.248 MEGACO"

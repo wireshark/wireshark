@@ -59,7 +59,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
