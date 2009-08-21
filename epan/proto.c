@@ -1374,6 +1374,9 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 	guint32			n;
 	int			offset;
 
+	/* We can't fake it just yet. We have to advance the cursor
+	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfindex, hfinfo); */
+
 	offset = ptvc->offset;
 	hfinfo = get_hfi_and_length(hfindex, ptvc->tvb, offset, &length,
 	    &item_length);
@@ -1387,6 +1390,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 		ptvc->offset += n;
 	}
 
+	/* Coast clear. Try and fake it */
 	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfindex, hfinfo);
 
 	new_fi = new_field_info(ptvc->tree, hfinfo, ptvc->tvb, offset,
@@ -6127,7 +6131,8 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	int bit;
 	int i;
 
-    PROTO_REGISTRAR_GET_NTH(hf_index, hf_field);
+	/* We can't fake it just yet. We have to fill in the 'return_value' parameter */
+	PROTO_REGISTRAR_GET_NTH(hf_index, hf_field);
 
 	if(hf_field -> bitmask != 0) {
 		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val with field '%s' (%s) with bitmask != 0",
@@ -6165,6 +6170,9 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	if(return_value){
 		*return_value=value;
 	}
+
+	/* Coast clear. Try and fake it */
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
 	mask = 1;
 	mask = mask << (no_of_bits-1);
