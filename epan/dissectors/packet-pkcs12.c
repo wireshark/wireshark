@@ -59,7 +59,7 @@
 #ifdef _WIN32  
 #include <winposixtype.h>
 #endif
-#include "gcrypt.h"
+#include <gcrypt.h>
 #endif 
 
 #define PNAME  "PKCS#12: Personal Information Exchange"
