@@ -1332,7 +1332,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	
 	/* if the representation of the item has already been set, use that;
 	   else we have to allocate a block to put the text into */
-	if( ie_finfo -> rep != NULL ) 
+	if( ie_finfo && ie_finfo->rep != NULL )
 	  proto_item_set_text(ti, "Information Element: %s",
 			      ie_finfo->rep->representation);
 	else {

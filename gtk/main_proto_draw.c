@@ -1692,6 +1692,8 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     GtkTreeIter   iter;
     GtkTreePath  *path;
 
+    g_assert(fi && "dissection with an invisible proto tree?");
+
     if (PROTO_ITEM_IS_HIDDEN(node) && !prefs.display_hidden_proto_items)
         return;
 

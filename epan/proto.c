@@ -93,9 +93,6 @@ wrs_count_bitshift(guint32 bitmask)
 	   will still have somewhere to attach to			\
 	   or else filtering will not work (they would be ignored since tree\
 	   would be NULL).						\
-	   DONT try to fake a node where PTREE_FINFO(tree) is NULL	\
-	   since dissectors that want to do proto_item_set_len() or	\
-	   other operations that dereference this would crash.		\
 	   We fake FT_PROTOCOL unless some clients have requested us    \
 	   not to do so. \
 	*/								\
@@ -103,14 +100,12 @@ wrs_count_bitshift(guint32 bitmask)
 		return(NULL); \
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);	\
 	if(!(PTREE_DATA(tree)->visible)){				\
-		if(PTREE_FINFO(tree)){					\
 			if((hfinfo->ref_count == HF_REF_TYPE_NONE)	\
 			&& (hfinfo->type!=FT_PROTOCOL ||	\
 				PTREE_DATA(tree)->fake_protocols)){	\
 				/* just return tree back to the caller */\
 				return tree;				\
 			}						\
-		}							\
 	}
 
 static gboolean
@@ -2187,6 +2182,8 @@ proto_item_append_string(proto_item *pi, const char *str)
 		return;
 
 	fi = PITEM_FINFO(pi);
+	DISSECTOR_ASSERT(fi && "proto_tree_set_visible(tree, TRUE) should have been called previously");
+
 	hfinfo = fi->hfinfo;
 	if (hfinfo->type == FT_PROTOCOL) {
 		/* TRY_TO_FAKE_THIS_ITEM() speed optimization: silently skip */
@@ -3130,7 +3127,11 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 {
 	int	ret;	/*tmp return value */
 	field_info *fi = PITEM_FINFO(pi);
-	header_field_info *hf = fi->hfinfo;
+	header_field_info *hf;
+
+	DISSECTOR_ASSERT(fi);
+
+	hf = fi->hfinfo;
 
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
 		ITEM_LABEL_NEW(fi->rep);
@@ -3186,6 +3187,8 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 	int					ret;	/*tmp return value */
 	field_info *fi = PITEM_FINFO(pi);
 
+	DISSECTOR_ASSERT(fi);
+
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
 		ITEM_LABEL_NEW(fi->rep);
 		ret = g_vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
@@ -3220,6 +3223,8 @@ proto_item_set_text(proto_item *pi, const char *format, ...)
 	}
 
 	fi = PITEM_FINFO(pi);
+	if (fi==NULL)
+		return;
 
 	if(fi->rep){
 		ITEM_LABEL_FREE(fi->rep);
@@ -3275,7 +3280,11 @@ proto_item_set_len(proto_item *pi, gint length)
 
 	if (pi == NULL)
 		return;
+
 	fi = PITEM_FINFO(pi);
+	if (fi == NULL)
+		return;
+
 	DISSECTOR_ASSERT(length >= 0);
 	fi->length = length;
 
@@ -3297,7 +3306,11 @@ proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
 
 	if (pi == NULL)
 		return;
+
 	fi = PITEM_FINFO(pi);
+	if (fi == NULL)
+		return;
+
 	end += TVB_RAW_OFFSET(tvb);
 	DISSECTOR_ASSERT(end >= fi->start);
 	fi->length = end - fi->start;
@@ -3307,7 +3320,7 @@ int
 proto_item_get_len(proto_item *pi)
 {
 	field_info *fi = PITEM_FINFO(pi);
-	return fi->length;
+	return fi ? fi->length : -1;
 }
 
 
@@ -3333,8 +3346,6 @@ proto_item_set_expert_flags(proto_item *pi, int group, guint severity)
 
 	return FALSE;
 }
-
-
 
 proto_tree*
 proto_tree_create_root(void)
@@ -3401,8 +3412,12 @@ proto_item_add_subtree(proto_item *pi,  gint idx) {
 	if (!pi)
 		return(NULL);
 
-	fi = PITEM_FINFO(pi);
 	DISSECTOR_ASSERT(idx >= 0 && idx < num_tree_types);
+
+	fi = PITEM_FINFO(pi);
+	if (!fi)
+		return (proto_tree*) pi;
+
 	fi->tree_type = idx;
 
 	return (proto_tree*) pi;
@@ -3460,6 +3475,11 @@ proto_tree_get_root(proto_tree *tree) {
 void
 proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_to_move)
 {
+	/* This function doesn't generate any values. It only reorganizes the prococol tree
+	 * so we can bail out immediately if it isn't visible. */
+	if (!tree || !PTREE_DATA(tree)->visible)
+		return;
+
     DISSECTOR_ASSERT(item_to_move->parent == tree);
     DISSECTOR_ASSERT(fixed_item->parent == tree);
 
@@ -3507,6 +3527,9 @@ proto_tree_set_appendix(proto_tree *tree, tvbuff_t *tvb, gint start, gint length
 		return;
 
 	fi = PTREE_FINFO(tree);
+	if (fi == NULL)
+		return;
+
 	start += TVB_RAW_OFFSET(tvb);
 	DISSECTOR_ASSERT(start >= 0);
 	DISSECTOR_ASSERT(length >= 0);
@@ -4088,6 +4111,13 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	guint32				n_addr; /* network-order IPv4 address */
 	const gchar			*name;
 	int					ret;	/*tmp return value */
+
+	if (!fi) {
+		if (label_str)
+			label_str[0]= '\0';
+		/* XXX: Check validity of hfinfo->type */
+		return;
+	}
 
 	switch(hfinfo->type) {
 		case FT_NONE:

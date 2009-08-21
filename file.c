@@ -2994,6 +2994,8 @@ match_subtree_text(proto_node *node, gpointer data)
   guint8	c_char;
   size_t	c_match = 0;
 
+  g_assert(fi && "dissection with an invisible proto tree?");
+
   if (mdata->frame_matched) {
     /* We already had a match; don't bother doing any more work. */
     return;

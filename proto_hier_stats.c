@@ -86,7 +86,8 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 	GNode			*stat_node;
 
 	finfo = PNODE_FINFO(ptree_node);
-	g_assert(finfo);
+	/* We don't fake protocol nodes we expect them to have a field_info */
+	g_assert(finfo && "dissection with faked proto tree?");
 
 	/* If the field info isn't related to a protocol but to a field,
 	 * don't count them, as they don't belong to any protocol.

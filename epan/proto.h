@@ -245,11 +245,10 @@ typedef struct field_info {
 /** The protocol field is actually a URL */
 #define FI_URL                  0x00000004
 
-
 /** convenience macro to get field_info.flags */
-#define FI_GET_FLAG(fi, flag) (fi->flags & flag)
+#define FI_GET_FLAG(fi, flag) ((fi) ? (fi->flags & flag) : 0)
 /** convenience macro to set field_info.flags */
-#define FI_SET_FLAG(fi, flag) (fi->flags = fi->flags | flag)
+#define FI_SET_FLAG(fi, flag) ((fi) ? (fi->flags = fi->flags | flag) : 0)
 
 /** One of these exists for the entire protocol tree. Each proto_node
  * in the protocol tree points to the same copy. */

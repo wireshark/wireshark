@@ -577,7 +577,8 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
         /* If an expert item was passed then build the filter string */
         if (expert_data->pitem) {
             char *filter;
-
+            
+            g_assert(PITEM_FINFO(expert_data->pitem));
             filter = proto_construct_match_selected_string(PITEM_FINFO(expert_data->pitem), NULL);
             if (filter != NULL)
                 procedure->fvalue_value = g_string_chunk_insert(err->text, filter);
