@@ -63,22 +63,17 @@
 #include "config.h"
 #endif
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <errno.h>
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
-#include <time.h>
 #include <string.h>
 
 #include <glib.h>
 #include <glib/gprintf.h>
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
 #include <epan/dissectors/packet-tcp.h>

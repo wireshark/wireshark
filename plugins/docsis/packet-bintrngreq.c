@@ -27,16 +27,7 @@
 #include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <gmodule.h>
-
 #include <epan/packet.h>
-
 
 /* Initialize the protocol and registered fields */
 static int proto_docsis_bintrngreq = -1;

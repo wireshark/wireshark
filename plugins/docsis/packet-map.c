@@ -1,6 +1,4 @@
-/* packet-map.c
- * Routines for MAP Message dissection
- * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
+/* Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
  * $Id$
  *
@@ -26,14 +24,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include "moduleinfo.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <gmodule.h>
 
 #include <epan/packet.h>
 

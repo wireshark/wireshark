@@ -30,17 +30,11 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
 #include <string.h>
 
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
-#include <epan/strutil.h>
 
 #include "packet-ecatmb.h"
 

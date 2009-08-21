@@ -60,10 +60,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-
-#include <limits.h>
-
 #include <glib.h>
 
 #define subid_t guint32 /* ugly hack to get it to compile this symbol should be suppressed! */
