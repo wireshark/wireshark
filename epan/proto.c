@@ -6127,7 +6127,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	int bit;
 	int i;
 
-	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+    PROTO_REGISTRAR_GET_NTH(hf_index, hf_field);
 
 	if(hf_field -> bitmask != 0) {
 		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val with field '%s' (%s) with bitmask != 0",
