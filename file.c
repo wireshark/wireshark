@@ -1107,18 +1107,17 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
 #ifdef NEW_PACKET_LIST
     if (add_to_packet_list) {
-        if (cinfo)
-            epan_dissect_fill_in_columns(&edt, FALSE);
+		/* We fill the needed columns from new_packet_list */
         row = new_packet_list_append(cinfo, fdata, &edt.pi);
     }
 #endif
 
-  if( (fdata->flags.passed_dfilter) || (edt.pi.fd->flags.ref_time) )
+  if( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) )
   {
     /* This frame either passed the display filter list or is marked as
        a time reference frame.  All time reference frames are displayed
        even if they dont pass the display filter */
-    if(edt.pi.fd->flags.ref_time){
+    if(fdata->flags.ref_time){
       /* if this was a TIME REF frame we should reset the cul bytes field */
       cum_bytes = fdata->pkt_len;
       fdata->cum_bytes =  cum_bytes;
@@ -1211,6 +1210,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   fdata->flags.marked = 0;
   fdata->flags.ref_time = 0;
   fdata->color_filter = NULL;
+  fdata->col_text = NULL;
 
   fdata->abs_ts.secs = phdr->ts.secs;
   fdata->abs_ts.nsecs = phdr->ts.nsecs;

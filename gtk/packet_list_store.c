@@ -361,7 +361,7 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 			g_value_set_pointer(value, iter->user_data);
 			break;
 		case G_TYPE_STRING:
-			g_value_set_string(value, record->col_text[column]);
+			g_value_set_string(value, record->fdata->col_text[column]);
 			break;
 		default:
 			g_warning ("%s: Unsupported type (%s) retrieved.", G_STRLOC, g_type_name (value->g_type));
@@ -574,7 +574,6 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 
 	newrecord = se_alloc(sizeof(PacketListRecord));
 	newrecord->dissected = FALSE;
-	newrecord->col_text = row_data->col_text;
 	newrecord->fdata = row_data->fdata;
 	newrecord->pos = pos;
 
@@ -600,11 +599,11 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 	g_assert(row < PACKET_LIST_RECORD_COUNT(packet_list->rows));
 	record = PACKET_LIST_RECORD_GET(packet_list->rows, row);
 	g_assert(record->pos == row);
-	g_assert(!record->col_text || (record->col_text[col] == NULL));
-	if (!record->col_text)
-		record->col_text = se_alloc0(sizeof(record->col_text)*packet_list->n_columns);
+	g_assert(!record->fdata->col_text || (record->fdata->col_text[col] == NULL));
+	if (!record->fdata->col_text)
+		record->fdata->col_text = se_alloc0(sizeof(record->fdata->col_text)*packet_list->n_columns);
 
-	record->col_text[col] = se_strdup(cinfo->col_data[col]);
+	record->fdata->col_text[col] = se_strdup(cinfo->col_data[col]);
 }
 
 static gboolean
@@ -695,13 +694,13 @@ packet_list_compare_records(gint sort_id, PacketListRecord *a,
 	if (col_based_on_frame_data(&cfile.cinfo, sort_id))
 		return frame_data_compare(a->fdata, b->fdata, cfile.cinfo.col_fmt[sort_id]);
 
-	if((a->col_text[sort_id]) && (b->col_text[sort_id]))
-		return strcmp(a->col_text[sort_id], b->col_text[sort_id]);
+	if((a->fdata->col_text[sort_id]) && (b->fdata->col_text[sort_id]))
+		return strcmp(a->fdata->col_text[sort_id], b->fdata->col_text[sort_id]);
 
-	if(a->col_text[sort_id] == b->col_text[sort_id])
+	if(a->fdata->col_text[sort_id] == b->fdata->col_text[sort_id])
 		return 0; /* both are NULL */
 	else
-		return (a->col_text[sort_id] == NULL) ? -1 : 1;
+		return (a->fdata->col_text[sort_id] == NULL) ? -1 : 1;
 
 	g_return_val_if_reached(0);
 }		

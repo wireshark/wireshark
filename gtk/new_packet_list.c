@@ -110,8 +110,9 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 
 	if (cinfo) {
 		/* Allocate the array holding column text, the size is the current number of columns */
-		row_data.col_text = se_alloc(sizeof(row_data.col_text)*packetlist->n_columns);
+		fdata->col_text = se_alloc(sizeof(fdata->col_text)*packetlist->n_columns);
 		g_assert(packetlist->n_columns == cinfo->num_cols);
+		col_fill_in(pinfo, FALSE);
 		for(i = 0; i < cinfo->num_cols; i++) {
 			switch (cinfo->col_fmt[i]){
 				/* We already store the value in frame_data, so don't duplicate this. */
@@ -124,11 +125,11 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 				case COL_PACKET_LENGTH:		/* 47) Packet length in bytes */
 				case COL_REL_TIME:			/* 49) Relative time */
 				case COL_CLS_TIME:			/* 58) Command line-specified time (default relative) */
-					row_data.col_text[i] = NULL;
+					fdata->col_text[i] = NULL;
 					break;
 				/* We handle custom columns lazily */
 				case COL_CUSTOM:			/* 8) Custom column (any filter name's contents) */
-					row_data.col_text[i] = NULL;
+					fdata->col_text[i] = NULL;
 					break;
 				/* String in pinfo */
 				case COL_OXID:				/* 22) Fibre Channel OXID */
@@ -136,7 +137,7 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 				case COL_SRCIDX:			/* 5) Src port idx - Cisco MDS-specific */
 				case COL_DSTIDX:			/* 4) Dst port idx - Cisco MDS-specific */
 				case COL_VSAN:				/* 6) VSAN - Cisco MDS-specific */
-					row_data.col_text[i] = se_strdup(pinfo->cinfo->col_buf[i]);
+					fdata->col_text[i] = se_strdup(pinfo->cinfo->col_buf[i]);
 					break;
 				/* Columns based on (binary)data in pinfo */
 				case COL_CIRCUIT_ID:		/* 3) Circuit ID */
@@ -173,7 +174,7 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 				case COL_RES_SRC_PORT:		/* 55) Resolved source port */
 				case COL_UNRES_SRC_PORT:	/* 56) Unresolved source port */
 					/* pinfo->srcport */
-					row_data.col_text[i] = se_strdup(cinfo->col_data[i]);
+					fdata->col_text[i] = se_strdup(cinfo->col_data[i]);
 					break;
 				/* currently done by dissectors XXX change to custom col instead??*/
 				case COL_IF_DIR:			/* 21) FW-1 monitor interface/direction */
@@ -199,7 +200,7 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 				/* Will be set by various dissectors */
 				case COL_DELTA_CONV_TIME:	/* 12) Delta time to last frame in conversation */
 				case COL_REL_CONV_TIME:		/* 50) Relative time to beginning of conversation */
-					row_data.col_text[i] = se_strdup(cinfo->col_data[i]);
+					fdata->col_text[i] = se_strdup(cinfo->col_data[i]);
 					break;
 				default:
 					/* We should have a case statement for all columns */
@@ -207,8 +208,6 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 			}
 		}
 	}
-	else
-		row_data.col_text = NULL;
 
 	row_data.fdata = fdata;
 
@@ -662,7 +661,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 		col_fill_in_frame_data(fdata, &cfile.cinfo, col_num);
 		cell_text = cfile.cinfo.col_data[col_num];
 	}else
-		cell_text = record->col_text[col_num];
+		cell_text = fdata->col_text[col_num];
 
 	if((fdata->color_filter)||(fdata->flags.marked)){
 		gboolean color_on = enable_color;
@@ -801,7 +800,7 @@ get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_t
 		col_fill_in_frame_data(record->fdata, &cfile.cinfo, col_num);
 		*cell_text = g_strdup(cfile.cinfo.col_data[col_num]);
 	}else
-		*cell_text = g_strdup(record->col_text[col_num]);
+		*cell_text = g_strdup(record->fdata->col_text[col_num]);
 
 	return TRUE;
 }

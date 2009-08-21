@@ -1421,6 +1421,31 @@ col_set_circuit_id(packet_info *pinfo, int col)
   pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
 }
 
+#if 0
+/* ------------- */
+static gchar *
+set_circuit_id(packet_info *pinfo)
+{
+  char *ret = "";
+  switch (pinfo->ctype) {
+
+  case CT_DLCI:
+  case CT_X25:
+  case CT_ISUP:
+    ret = se_strdup_printf("%u", pinfo->circuit_id);
+    break;
+
+  case CT_ISDN:
+    ret  = se_strdup_printf("%s", val_to_str(pinfo->circuit_id, channel_vals, "Unknown (%u)"));
+    break;
+
+  default:
+    break;
+  }
+  return ret;
+}
+#endif
+
 gboolean
 col_based_on_frame_data(column_info *cinfo, gint col)
 {
@@ -1660,4 +1685,271 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
     }
   }
 }
+#if 0
+XXX this needs more rework?
+/* --------------------------- */
 
+static  gchar *
+set_addr(address *addr, gboolean is_res)
+{
+  if (addr->type == AT_NONE)
+    return "";	/* no address, nothing to do */
+  
+  if (is_res) {
+    return se_get_addr_name(addr /*, COL_MAX_LEN*/);
+  } 
+  return se_address_to_str(addr);
+}
+
+/* Fills col_text in the frame data structure */
+void
+col_fill_fdata(packet_info *pinfo)
+{
+  int i;
+  frame_data *fdata;
+  gboolean res;
+  
+  if (!pinfo->cinfo)
+    return;
+  
+  fdata = pinfo->fd;
+
+  res =FALSE;
+ 
+  for (i = 0; i < pinfo->cinfo->num_cols; i++) {
+
+    switch (pinfo->cinfo->col_fmt[i]) {
+    case COL_NUMBER:           /* frame number */
+    case COL_PACKET_LENGTH:    /* fd->pkt_len */
+    case COL_CUMULATIVE_BYTES: /* fd->cum_bytes */
+    case COL_CLS_TIME:
+    case COL_ABS_TIME:
+    case COL_ABS_DATE_TIME:    /* from fd structures */
+    case COL_REL_TIME:
+    case COL_DELTA_TIME:
+    case COL_DELTA_TIME_DIS:
+      break;
+
+    case COL_DEF_SRC:
+    case COL_RES_SRC:	/* COL_DEF_SRC is currently just like COL_RES_SRC */
+      res = TRUE;
+    case COL_UNRES_SRC:
+      fdata->col_text[i] = set_addr(&pinfo->src, res);
+      break;
+
+    case COL_DEF_DL_SRC:
+    case COL_RES_DL_SRC:
+      res = TRUE;
+    case COL_UNRES_DL_SRC:
+      fdata->col_text[i] = set_addr (&pinfo->dl_src, res);
+      break;
+
+    case COL_DEF_NET_SRC:
+    case COL_RES_NET_SRC:
+      res = TRUE;
+    case COL_UNRES_NET_SRC:
+      fdata->col_text[i] = set_addr (&pinfo->net_src, res);
+      break;
+
+    case COL_DEF_DST:
+    case COL_RES_DST:	/* COL_DEF_DST is currently just like COL_RES_DST */
+      res = TRUE;
+    case COL_UNRES_DST:
+      fdata->col_text[i] = set_addr (&pinfo->dst, res);
+      break;
+
+    case COL_DEF_DL_DST:
+    case COL_RES_DL_DST:
+      res = TRUE;
+    case COL_UNRES_DL_DST:
+      fdata->col_text[i] = set_addr (&pinfo->dl_dst, res);
+      break;
+
+    case COL_DEF_NET_DST:
+    case COL_RES_NET_DST:
+      res = TRUE;
+    case COL_UNRES_NET_DST:
+      fdata->col_text[i] = set_addr (&pinfo->net_dst, res);
+      break;
+
+    case COL_DEF_SRC_PORT:
+    case COL_RES_SRC_PORT:	/* COL_DEF_SRC_PORT is currently just like COL_RES_SRC_PORT */
+      fdata->col_text[i] = set_port(pinfo, TRUE, pinfo->srcport);
+      break;
+    case COL_UNRES_SRC_PORT:
+      fdata->col_text[i] = set_port(pinfo, FALSE, pinfo->srcport);
+      break;
+
+    case COL_DEF_DST_PORT:
+    case COL_RES_DST_PORT:	/* COL_DEF_DST_PORT is currently just like COL_RES_DST_PORT */
+      fdata->col_text[i] = set_port(pinfo, TRUE, pinfo->destport);
+      break;
+
+    case COL_UNRES_DST_PORT:
+      fdata->col_text[i] = set_port(pinfo, FALSE, pinfo->destport);
+      break;
+
+    case COL_IF_DIR:	/* currently done by dissectors */
+    case COL_PROTOCOL:	
+    case COL_INFO:	
+    case COL_HPUX_SUBSYS:
+    case COL_HPUX_DEVID: 
+    case COL_DCE_CALL:	
+    case COL_8021Q_VLAN_ID:
+    case COL_DSCP_VALUE:
+    case COL_COS_VALUE:	
+    case COL_FR_DLCI:
+    case COL_BSSGP_TLLI:
+    case COL_EXPERT:
+    case COL_CUSTOM:
+    case COL_FREQ_CHAN: 
+      if (pinfo->cinfo->col_data[i] != pinfo->cinfo->col_buf[i]) {
+         /* XXX assume it's a constant */
+         fdata->col_text[i] = (gchar *)pinfo->cinfo->col_data[i];
+      }
+      else {
+         /* copy */
+         fdata->col_text[i] = se_strdup(pinfo->cinfo->col_data[i]);
+      }
+      break;
+    case COL_OXID:
+      fdata->col_text[i] = (gchar *)(GUINT_TO_POINTER((guint)pinfo->oxid));
+      break;
+    case COL_RXID:
+      fdata->col_text[i] = (gchar *)(GUINT_TO_POINTER((guint)pinfo->rxid));
+      break;
+    case COL_CIRCUIT_ID:
+      set_circuit_id(pinfo);
+      break;
+    case COL_SRCIDX:
+      fdata->col_text[i] = (gchar *)(GUINT_TO_POINTER((guint)pinfo->src_idx));
+      break;
+    case COL_DSTIDX:
+      fdata->col_text[i] = (gchar *)(GUINT_TO_POINTER((guint)pinfo->dst_idx));
+      break;
+    case COL_VSAN:
+      fdata->col_text[i] = (gchar *)(GUINT_TO_POINTER((guint)pinfo->vsan));      
+      break;
+
+    case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
+      g_assert_not_reached();
+      break;
+    }
+  }      
+}
+
+/* XXX Gets/creates the text fro col_text in frame data */
+/* --------------------- */
+gchar *
+col_get_text(frame_data *fd, column_info *cinfo, gint col)
+{
+static gchar fmtbuf[3][COL_MAX_LEN];
+static int idx;
+gchar  *buf;
+gchar  *ptr;
+    
+    idx = (idx + 1) % 3;
+    buf = fmtbuf[idx];
+    *buf = 0;
+    ptr = buf;
+
+    switch (cinfo->col_fmt[col]) {
+    case COL_NUMBER: /* frame number */
+      g_snprintf(buf, COL_MAX_LEN, "%u", fd->num);
+      break;
+
+    case COL_CLS_TIME:
+      set_cls_time(fd, buf);
+      break;
+    case COL_ABS_TIME:
+      set_abs_time(fd, buf);
+      break;
+    case COL_ABS_DATE_TIME:
+      set_abs_date_time(fd, buf);
+      break;
+    case COL_REL_TIME:
+      set_rel_time(fd, buf);
+      break;
+    case COL_DELTA_TIME:
+      set_delta_time(fd, buf);
+      break;
+    case COL_DELTA_TIME_DIS:
+      set_delta_time_dis(fd, buf);
+      break;
+
+    case COL_PACKET_LENGTH: /* fd->pkt_len */
+      g_snprintf(buf, COL_MAX_LEN, "%u", fd->pkt_len);
+      break;
+
+    case COL_CUMULATIVE_BYTES: /* fd->cum_bytes */
+      g_snprintf(buf, COL_MAX_LEN, "%u", fd->cum_bytes);
+      break;
+
+    case COL_DEF_SRC:
+    case COL_RES_SRC:	/* network address */
+    case COL_UNRES_SRC:
+    case COL_DEF_DL_SRC:
+    case COL_RES_DL_SRC:
+    case COL_UNRES_DL_SRC:
+    case COL_DEF_NET_SRC:
+    case COL_RES_NET_SRC:
+    case COL_UNRES_NET_SRC:
+    case COL_DEF_DST:
+    case COL_RES_DST:	
+    case COL_UNRES_DST:
+    case COL_DEF_DL_DST:
+    case COL_RES_DL_DST:
+    case COL_UNRES_DL_DST:
+    case COL_DEF_NET_DST:
+    case COL_RES_NET_DST:
+    case COL_UNRES_NET_DST:
+
+    case COL_IF_DIR:	
+    case COL_CIRCUIT_ID:  
+    case COL_PROTOCOL:	
+    case COL_INFO:	
+    case COL_HPUX_SUBSYS:
+    case COL_HPUX_DEVID: 
+    case COL_DCE_CALL:	
+    case COL_8021Q_VLAN_ID:
+    case COL_DSCP_VALUE:
+    case COL_COS_VALUE:	
+    case COL_FR_DLCI:
+    case COL_BSSGP_TLLI:
+    case COL_EXPERT:
+    case COL_CUSTOM:
+    case COL_FREQ_CHAN: 
+      ptr = fd->col_text[col];
+      break;
+
+    case COL_DEF_SRC_PORT:
+    case COL_RES_SRC_PORT:
+    case COL_UNRES_SRC_PORT:
+    case COL_DEF_DST_PORT:
+    case COL_RES_DST_PORT:
+    case COL_UNRES_DST_PORT:
+      /* hack */
+      if (GPOINTER_TO_UINT(fd->col_text[col]) <= 65536)
+          g_snprintf(buf, COL_MAX_LEN, "%u", GPOINTER_TO_UINT(fd->col_text[col]));
+      else
+          ptr = fd->col_text[col];
+      break;
+
+    case COL_OXID:
+    case COL_RXID:
+    case COL_SRCIDX:
+    case COL_DSTIDX:
+      g_snprintf(buf, COL_MAX_LEN, "0x%x", GPOINTER_TO_UINT(fd->col_text[col]));
+      break;
+
+    case COL_VSAN:
+      g_snprintf(buf, COL_MAX_LEN, "%u", GPOINTER_TO_UINT(fd->col_text[col]));
+      break;
+
+    case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
+      g_assert_not_reached();
+      break;
+    }
+    return ptr;
+}
+#endif

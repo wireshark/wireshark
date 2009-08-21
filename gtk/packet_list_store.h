@@ -38,7 +38,6 @@
 #define PACKETLIST_LIST_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS((obj), PACKETLIST_TYPE_LIST, PacketListClass))
 
 typedef struct {
-	gchar **col_text;
 	frame_data *fdata;
 } row_data_t;
 
