@@ -25,7 +25,7 @@
 #ifndef _TAP_H_
 #define _TAP_H_
 
-#include "epan/epan.h"
+#include <epan/epan.h>
 
 typedef void (*tap_reset_cb)(void *tapdata);
 typedef gboolean (*tap_packet_cb)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data);

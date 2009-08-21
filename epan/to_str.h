@@ -28,7 +28,7 @@
 #include <glib.h>
 
 #include "nstime.h"
-#include "epan/packet_info.h"
+#include <epan/packet_info.h>
 
 #define GUID_STR_LEN 37
 #define MAX_IP_STR_LEN 16

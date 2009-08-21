@@ -34,12 +34,12 @@
 #include <string.h>
 
 #include <epan/emem.h>
-#include "epan/packet.h"
-#include "epan/tap.h"
+#include <epan/packet.h>
+#include <epan/tap.h>
 #include <epan/asn1.h>
-#include "epan/camel-persistentdata.h"
-#include "epan/dissectors/packet-tcap.h"
-#include "epan/dissectors/packet-mtp3.h"
+#include <epan/camel-persistentdata.h>
+#include <epan/dissectors/packet-tcap.h>
+#include <epan/dissectors/packet-mtp3.h>
 
 const value_string  camelSRTtype_naming[]= {
   { CAMELSRT_SESSION,         "TCAP_Session" },

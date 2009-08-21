@@ -25,7 +25,7 @@
 #ifndef __RTP_PT_H__
 #define __RTP_PT_H__
 
-#include "epan/value_string.h"
+#include <epan/value_string.h>
 
 /*
  * RTP Payload types

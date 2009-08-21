@@ -28,9 +28,9 @@
 #ifndef __tcapsrt_HASH__
 #define __tcapsrt_HASH__
 
-#include "epan/packet.h"
-#include "epan/conversation.h"
-#include "epan/dissectors/packet-tcap.h"
+#include <epan/packet.h>
+#include <epan/conversation.h>
+#include <epan/dissectors/packet-tcap.h>
 
 #define LENGTH_OID 16
 struct tcaphash_context_t {

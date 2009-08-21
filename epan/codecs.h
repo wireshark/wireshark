@@ -25,7 +25,7 @@
 #ifndef _CODECS_H_
 #define _CODECS_H_
 
-#include "epan/epan.h"
+#include <epan/epan.h>
 
 struct codec_handle;
 typedef struct codec_handle *codec_handle_t;
