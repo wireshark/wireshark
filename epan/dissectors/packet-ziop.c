@@ -39,9 +39,6 @@
 #include <ctype.h>
 #include <glib.h>
 #include <math.h>
-#ifdef NEED_STRERROR_H
-#include "strerror.h"
-#endif
 
 #include "isprint.h"
 
@@ -51,10 +48,6 @@
 #include "packet-ziop.h"
 #include "packet-giop.h"
 #include "packet-tcp.h"
-
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
 
 /*
  * Set to 1 for DEBUG output - TODO make this a runtime option
