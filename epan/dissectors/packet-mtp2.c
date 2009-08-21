@@ -34,9 +34,9 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "epan/prefs.h"
-#include "epan/crc16.h"
-#include "epan/expert.h"
+#include <epan/prefs.h>
+#include <epan/crc16.h>
+#include <epan/expert.h>
 
 #define LITTLE_ENDIAN_BYTE_ORDER TRUE
 

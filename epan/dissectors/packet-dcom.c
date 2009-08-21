@@ -91,13 +91,12 @@
 #include <epan/emem.h>
 #include <epan/addr_resolv.h>
 #include <epan/inet_aton.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 #include <ctype.h>
 #include <isprint.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
-#include "prefs.h"
-#include "expert.h"
-
 
 static int proto_dcom = -1;
 

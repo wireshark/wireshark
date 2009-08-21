@@ -47,7 +47,7 @@
 #include <epan/sctpppids.h>
 #include <epan/emem.h>
 #include "packet-mtp3.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 #define SCTP_PORT_M3UA         2905
 #define NETWORK_BYTE_ORDER     FALSE

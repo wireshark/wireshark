@@ -38,7 +38,7 @@
 #include <epan/packet.h>
 #include <epan/proto.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 
 /* Initialize the protocol and registered fields */

@@ -31,7 +31,7 @@
 #include <string.h>
 #include <glib.h>
 
-#include "epan/ipv4.h"
+#include <epan/ipv4.h>
 #include <epan/packet.h>
 #include "packet-osi.h"
 #include "packet-ipv6.h"

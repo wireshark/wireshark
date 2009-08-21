@@ -55,7 +55,7 @@
 #include <epan/oids.h>
 #include <epan/next_tvb.h>
 #include <epan/asn1.h>
-#include "tap.h"
+#include <epan/tap.h>
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h225.h"

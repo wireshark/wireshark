@@ -45,8 +45,8 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 
-#include "ipproto.h"
-#include "in_cksum.h"
+#include <epan/ipproto.h>
+#include <epan/in_cksum.h>
 
 #define HI_ALG_DSA 3
 #define HI_ALG_RSA 5

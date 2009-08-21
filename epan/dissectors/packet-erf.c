@@ -37,7 +37,7 @@
 #include "wiretap/atm.h"
 */
 #include "wiretap/erf.h"
-#include "epan/prefs.h"
+#include <epan/prefs.h>
 #include "packet-erf.h"
 
 /* Initialize the protocol and registered fields */

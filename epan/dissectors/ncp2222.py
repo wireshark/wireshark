@@ -5729,12 +5729,12 @@ def produce_code():
 #include <epan/conversation.h>
 #include <epan/ptvcursor.h>
 #include <epan/emem.h>
+#include <epan/strutil.h>
+#include <epan/reassemble.h>
+#include <epan/tap.h>
 #include "packet-ncp-int.h"
 #include "packet-ncp-nmas.h"
 #include "packet-ncp-sss.h"
-#include <epan/strutil.h>
-#include "reassemble.h"
-#include <epan/tap.h>
 
 /* Function declarations for functions used in proto_register_ncp2222() */
 static void ncp_init_protocol(void);

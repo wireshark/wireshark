@@ -51,7 +51,7 @@
 
 #include <string.h>
 
-#include "epan/packet.h"
+#include <epan/packet.h>
 
 
 static const char *ansi_proto_name = "ANSI IS-801 (Location Services (PLD))";

@@ -24,7 +24,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "epan/value_string.h"
+#include <epan/value_string.h>
 #include "packet-dcerpc-dce122.h"
 
 const value_string dce_error_vals[] = {

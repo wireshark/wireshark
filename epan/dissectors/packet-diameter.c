@@ -59,10 +59,10 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/diam_dict.h>
 #include "packet-tcp.h"
 #include "packet-ntp.h"
 #include "packet-diameter.h"
-#include "diam_dict.h"
 
 #define SCTP_PORT_DIAMETER	3868
 

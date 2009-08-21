@@ -42,7 +42,7 @@
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 
 /* Initialize the protocol and registered fields */

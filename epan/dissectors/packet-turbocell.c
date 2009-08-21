@@ -48,7 +48,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
-#include "oui.h"
+#include <epan/oui.h>
 
 #define TURBOCELL_TYPE_BEACON_NON_POLLING  0x00
 #define TURBOCELL_TYPE_BEACON_NORMAL	   0x40

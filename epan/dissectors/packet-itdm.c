@@ -31,7 +31,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "epan/prefs.h"
+#include <epan/prefs.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_itdm        = -1;

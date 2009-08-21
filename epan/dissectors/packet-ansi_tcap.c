@@ -48,7 +48,7 @@
 #include "packet-ber.h"
 #include "packet-tcap.h"
 #include "packet-ansi_tcap.h"
-#include "epan/tcap-persistentdata.h"
+#include <epan/tcap-persistentdata.h>
 
 #define PNAME  "ANSI Transaction Capabilities Application Part"
 #define PSNAME "ANSI_TCAP"

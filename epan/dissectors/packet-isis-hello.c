@@ -35,7 +35,7 @@
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include "packet-isis-hello.h"
-#include "epan/addr_resolv.h"
+#include <epan/addr_resolv.h>
 
 
 #define APPEND_BOOLEAN_FLAG(flag, item, string) \

@@ -43,7 +43,7 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #define AMR_NB_SID 8
 #define AMR_WB_SID 9

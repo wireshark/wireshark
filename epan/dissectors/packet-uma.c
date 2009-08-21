@@ -67,7 +67,7 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-bssap.h"
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"

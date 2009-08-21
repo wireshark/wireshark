@@ -59,7 +59,7 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-frame.h"
-#include "tap.h"
+#include <epan/tap.h>
 
 static Standard_Type decode_mtp3_standard;
 #define SCCP_SI 3

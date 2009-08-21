@@ -48,8 +48,8 @@
 
 #include <string.h>
 
-#include "epan/packet.h"
-#include "epan/emem.h"
+#include <epan/packet.h>
+#include <epan/emem.h>
 
 
 static const char *ansi_proto_name_tele = "ANSI IS-637-A (SMS) Teleservice Layer";

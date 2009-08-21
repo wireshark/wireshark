@@ -53,7 +53,7 @@
 
 #include <string.h>
 
-#include "epan/packet.h"
+#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <glib.h>

@@ -43,7 +43,7 @@
 #include <epan/strutil.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #include "packet-msrp.h"
 

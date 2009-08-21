@@ -34,7 +34,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-/* #include "strutil.h" */
 #include <epan/nlpid.h>
 
 /* Although this protocol is propietary it is documented in the SynOptics MIB's

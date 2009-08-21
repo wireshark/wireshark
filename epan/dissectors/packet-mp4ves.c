@@ -41,7 +41,7 @@
 #include <epan/proto.h>
 #include <epan/asn1.h>
 
-#include "prefs.h"
+#include <epan/prefs.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_mp4ves								= -1;

@@ -25,7 +25,7 @@
 #define __PACKET_TCP_H__
 
 #ifndef __CONVERSATION_H__
-#include "epan/conversation.h"
+#include <epan/conversation.h>
 #endif
 
 /* TCP flags */

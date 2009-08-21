@@ -41,13 +41,13 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-gssapi.h>
 #include <epan/dissectors/packet-frame.h>
-#include "epan/conversation.h"
-#include "epan/emem.h"
-#include "epan/prefs.h"
-#include "epan/reassemble.h"
+#include <epan/conversation.h>
+#include <epan/emem.h>
+#include <epan/prefs.h>
+#include <epan/reassemble.h>
 #include <epan/asn1.h>
 #include "packet-ber.h"
-#include "to_str.h"
+#include <epan/to_str.h>
 
 static int proto_gssapi = -1;
 

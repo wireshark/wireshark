@@ -54,9 +54,9 @@
 #include <glib.h>
 #include <gmodule.h>
 
-#include "epan/packet.h"
-#include "epan/prefs.h"
-#include "epan/dissectors/packet-ntp.h"
+#include <epan/packet.h>
+#include <epan/prefs.h>
+#include "packet-ntp.h"
 
 #include "packet-zep.h"
 

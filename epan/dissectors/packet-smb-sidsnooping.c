@@ -29,9 +29,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "epan/packet_info.h"
-#include "epan/epan_dissect.h"
-#include "epan/proto.h"
+#include <epan/packet_info.h>
+#include <epan/epan_dissect.h>
+#include <epan/proto.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/strutil.h>

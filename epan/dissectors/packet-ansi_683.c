@@ -48,7 +48,7 @@
 
 #include <string.h>
 
-#include "epan/packet.h"
+#include <epan/packet.h>
 
 
 static const char *ansi_proto_name = "ANSI IS-683 (OTA (Mobile))";

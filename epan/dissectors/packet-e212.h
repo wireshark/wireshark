@@ -26,7 +26,7 @@
 #ifndef __PACKET_E212_H__
 #define __PACKET_E212_H__
 
-#include "epan/value_string.h"
+#include <epan/value_string.h>
 
 extern const value_string E212_codes[];
 

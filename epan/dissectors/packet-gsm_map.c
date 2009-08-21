@@ -62,7 +62,7 @@
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/oids.h>
-#include "epan/expert.h"
+#include <epan/expert.h>
 
 #include <stdio.h>
 #include <string.h>

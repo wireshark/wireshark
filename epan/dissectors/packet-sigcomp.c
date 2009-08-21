@@ -41,8 +41,8 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "prefs.h"
-#include "strutil.h"
+#include <epan/prefs.h>
+#include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/sigcomp-udvm.h>
 #include <epan/sigcomp_state_hdlr.h>

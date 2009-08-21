@@ -38,7 +38,7 @@
 #include "packet-eth.h"
 #include "packet-tr.h"
 #include "packet-llc.h"
-#include "prefs.h"
+#include <epan/prefs.h>
 #include "packet-pw-atm.h"
 
 static int proto_atm = -1;

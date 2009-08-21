@@ -34,7 +34,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 
 #define I_FORMAT	1
 #define S_FORMAT	2

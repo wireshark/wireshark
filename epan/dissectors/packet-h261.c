@@ -43,7 +43,7 @@
 #include <string.h>
 
 #include <epan/rtp_pt.h>
-#include "iax2_codec_type.h"
+#include <epan/iax2_codec_type.h>
 
 /* H.261 header fields             */
 static int proto_h261          = -1;

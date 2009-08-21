@@ -57,7 +57,7 @@
 #include <epan/base64.h>
 #include <epan/asn1.h>
 
-#include "tap.h"
+#include <epan/tap.h>
 #include "packet-sdp.h"
 
 #include "packet-rtp.h"
