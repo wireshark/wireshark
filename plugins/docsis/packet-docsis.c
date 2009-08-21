@@ -51,8 +51,6 @@
 
 #include <epan/packet.h>
 
-#include "packet-docsis.h"
-
 #define FCTYPE_PACKET 0x00
 #define FCTYPE_ATMPDU 0x01
 #define FCTYPE_RESRVD 0x02
