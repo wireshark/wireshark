@@ -4106,7 +4106,7 @@ proto_register_subtree_array(gint *const *indices, int num_indices)
 void
 proto_item_fill_label(field_info *fi, gchar *label_str)
 {
-	header_field_info		*hfinfo = fi->hfinfo;
+	header_field_info		*hfinfo;
 
 	guint8				*bytes;
 	guint32				integer;
@@ -4122,6 +4122,8 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		/* XXX: Check validity of hfinfo->type */
 		return;
 	}
+
+	hfinfo = fi->hfinfo;
 
 	switch(hfinfo->type) {
 		case FT_NONE:
