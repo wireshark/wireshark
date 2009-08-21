@@ -66,5 +66,4 @@ DISSECTOR_SRC = \
 
 # corresponding headers
 DISSECTOR_INCLUDES =	\
-	packet-docsis.h \
 	packet-tlv.h
