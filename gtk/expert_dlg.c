@@ -419,12 +419,12 @@ expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-expert_dlg_severity_cb(GtkWidget *w, gpointer data)
+expert_dlg_severity_cb(GtkWidget *w, gpointer data _U_)
 {
-	int i = GPOINTER_TO_INT(data);
+	int i;
 	expert_tapdata_t * etd;
 
-
+	i = gtk_combo_box_get_active (GTK_COMBO_BOX(w));
 	etd = g_object_get_data(G_OBJECT(w), "tapdata");
 
 	etd->severity_report_level = expert_severity_om_vals[i].value;
@@ -463,9 +463,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	GtkWidget *help_bt;
 
 	GtkWidget *severity_box;
-	GtkWidget *severity_om;
-	GtkWidget *menu;
-	GtkWidget *menu_item;
+	GtkWidget *severity_combo_box;
 	GtkWidget *label;
 	GtkTooltips *tooltips = gtk_tooltips_new();
 	int i;
@@ -501,19 +499,18 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	label=gtk_label_new("Severity filter: ");
 	gtk_box_pack_start(GTK_BOX(severity_box), label, FALSE, FALSE, 0);
 
-	menu=gtk_menu_new();
+	severity_combo_box = gtk_combo_box_new_text ();
 	for(i=0; expert_severity_om_vals[i].strptr != NULL;i++){
-		menu_item=gtk_menu_item_new_with_label(expert_severity_om_vals[i].strptr);
-		g_object_set_data(G_OBJECT(menu_item), "tapdata", etd);
-		g_signal_connect(menu_item, "activate", G_CALLBACK(expert_dlg_severity_cb), (gpointer)(long) i);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+		gtk_combo_box_append_text (GTK_COMBO_BOX (severity_combo_box), expert_severity_om_vals[i].strptr);
 		if(expert_severity_om_vals[i].value == (guint) etd->severity_report_level) {
-			gtk_menu_set_active(GTK_MENU(menu), i);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(severity_combo_box), i);
 		}
 	}
-	severity_om=gtk_option_menu_new();
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(severity_om), menu);
-	gtk_box_pack_start(GTK_BOX(severity_box), severity_om, FALSE, FALSE, 0);
+
+	g_object_set_data(G_OBJECT(severity_combo_box), "tapdata", etd);
+	g_signal_connect(severity_combo_box, "changed", G_CALLBACK(expert_dlg_severity_cb), etd->win);
+	gtk_box_pack_start(GTK_BOX(severity_box), severity_combo_box, FALSE, FALSE, 0);
+
 
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
 	gtk_widget_show_all(etd->win);

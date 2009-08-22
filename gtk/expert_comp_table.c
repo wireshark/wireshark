@@ -54,7 +54,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/webbrowser.h"
 
-
+#if 0
 #define SORT_ALPHABETICAL 0
 
 static gint
@@ -91,7 +91,7 @@ sort_iter_compare_func (GtkTreeModel *model,
     }
     return ret;
 }
-
+#endif
 enum
 {
    GROUP_COLUMN,
@@ -472,8 +472,10 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     sortable = GTK_TREE_SORTABLE(store);
 
     /* Setup the sortable columns */
+#if 0
     gtk_tree_sortable_set_sort_func(sortable, SORT_ALPHABETICAL, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
     gtk_tree_sortable_set_sort_column_id(sortable, SORT_ALPHABETICAL, GTK_SORT_ASCENDING);
+#endif
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW (tree), FALSE);
 
     /* The view now holds a reference.  We can get rid of our own reference */
@@ -485,7 +487,7 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     /* Create the first column, associating the "text" attribute of the
      * cell_renderer to the first column of the model */
     column = gtk_tree_view_column_new_with_attributes ("Group", renderer, "text", GROUP_COLUMN, NULL);
-    gtk_tree_view_column_set_sort_column_id(column, 0);
+    gtk_tree_view_column_set_sort_column_id(column, GROUP_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     /* Add the column to the view. */
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
@@ -493,20 +495,20 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     /* Second column.. Protocol. */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("Protocol", renderer, "text", PROTOCOL_COLUMN, NULL);
-    gtk_tree_view_column_set_sort_column_id(column, 1);
+    gtk_tree_view_column_set_sort_column_id(column, PROTOCOL_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
  
     /* Third column.. Summary. */
     renderer = gtk_cell_renderer_text_new ();
     column = gtk_tree_view_column_new_with_attributes ("Summary", renderer, "text", SUMMARY_COLUMN, NULL);
-    gtk_tree_view_column_set_sort_column_id(column, 2);
+    gtk_tree_view_column_set_sort_column_id(column, SUMMARY_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
  
     /* Last column.. Count. */
     column = gtk_tree_view_column_new_with_attributes ("Count", renderer, "text", COUNT_COLUMN, NULL);
-    gtk_tree_view_column_set_sort_column_id(column, 3);
+    gtk_tree_view_column_set_sort_column_id(column, COUNT_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
  
