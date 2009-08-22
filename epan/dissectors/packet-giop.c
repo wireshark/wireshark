@@ -1716,7 +1716,7 @@ static void giop_dump_collection(collection_data_t collection_type) {
  * But skip a subdissector if it has been disabled in GUI "edit protocols".
  */
 
-static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
+static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 *offset,
 		MessageHeader *header, gchar *operation  ) {
 
   int i,len;
@@ -1728,6 +1728,19 @@ static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, 
 
   if (len == 0)
     return FALSE;
+  
+  {
+    guint32 message_size;
+    gboolean stream_is_big_endian = is_big_endian (header);
+
+    if (stream_is_big_endian)
+      message_size = pntohl (header->message_size);
+    else
+      message_size = pletohl (header->message_size);
+
+    if (*offset > header->message_size)
+      return FALSE;
+  }
 
   saved_proto = pinfo->current_proto;
   for (i=0; i<len; i++) {
