@@ -1615,7 +1615,10 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
         inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb,
                                (u_char *)ld);
         if (inpkts < 0) {
-          ld->pcap_err = TRUE;
+            if (inpkts == -1) {
+                /* Error, rather than pcap_breakloop(). */
+                ld->pcap_err = TRUE;
+            }
           ld->go = FALSE; /* error or pcap_breakloop() - stop capturing */
         }
       } else {
