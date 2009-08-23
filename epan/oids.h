@@ -162,8 +162,6 @@ extern void oid_add_from_string(const char* name, const gchar *oid_str);
  */
 extern gchar *oid_get_default_mib_path(void);
 
-extern void oid_add_from_string(const char* name, const gchar *oid_str);
-
 /* macros for legacy oid functions */
 #define oid_resolv_cleanup() ((void)0)
 #define subid_t guint32

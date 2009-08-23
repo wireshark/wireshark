@@ -39,8 +39,26 @@
 
 #include "packet-rpc.h"
 #include "packet-fmp.h"
-#include "packet-fmp_notify.h"
 
+#define FMP_NOTIFY_PROG 	1001912
+#define FMP_NOTIFY_VERSION_2 	2
+
+/*
+ * FMP/NOTIFY Procedures
+ */
+#define FMP_NOTIFY_DownGrade		1
+#define FMP_NOTIFY_RevokeList		2
+#define FMP_NOTIFY_RevokeAll 		3
+#define FMP_NOTIFY_FileSetEof 		4
+#define FMP_NOTIFY_RequestDone 		5
+#define FMP_NOTIFY_volFreeze 		6
+#define FMP_NOTIFY_revokeHandleList	7
+
+typedef enum {
+	FMP_LIST_USER_QUOTA_EXCEEDED = 0,
+	FMP_LIST_GROUP_QUOTA_EXCEEDED = 1,
+	FMP_LIST_SERVER_RESOURCE_LOW = 2
+} revokeHandleListReason;
 
 static int proto_fmp_notify = -1;
 static int hf_fmp_handleListLen = -1;

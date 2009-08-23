@@ -145,12 +145,6 @@ void
 update_decryption_mode(GtkWidget *w);
 
 /*
- * Reset configuration
- */
-void
-on_reset_configuration_bt_clicked(GtkWidget *button, gpointer data _U_);
-
-/*
  * Callback for the select row event in the key list widget
  */
 void

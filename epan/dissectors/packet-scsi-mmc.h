@@ -27,6 +27,5 @@
 
 extern int hf_scsi_mmc_opcode;
 extern scsi_cdb_table_t scsi_mmc_table[256];
-extern const value_string scsi_mmc_vals[];
 
 #endif
