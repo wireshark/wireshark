@@ -213,12 +213,6 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       pinfo->current_proto = "nettl";
 
-      if (check_col(pinfo->cinfo, COL_HPUX_DEVID)) {
-            col_clear(pinfo->cinfo, COL_HPUX_DEVID);
-            col_add_fstr(pinfo->cinfo, COL_HPUX_DEVID, "%4d",
-		pinfo->pseudo_header->nettl.devid);
-      }
-
       if (tree) {
 	    nettl_item = proto_tree_add_protocol_format(tree, proto_nettl, tvb,
 		0, -1, "HP-UX Network Tracing and Logging (nettl) header");

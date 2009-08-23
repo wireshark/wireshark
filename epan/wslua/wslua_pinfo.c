@@ -336,7 +336,6 @@ static const struct col_names_t colnames[] = {
     {"vsan",COL_VSAN},
     {"tx_rate",COL_TX_RATE},
     {"rssi",COL_RSSI},
-    {"hpux_devid",COL_HPUX_DEVID},
     {"dce_call",COL_DCE_CALL},
     {NULL,0}
 };

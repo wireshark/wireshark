@@ -1637,9 +1637,6 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
 
-    case COL_HPUX_DEVID:  /* done by nettl disector */
-      break;
-
     case COL_DCE_CALL:  /* done by dcerpc */
       break;
 
