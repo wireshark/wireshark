@@ -55,6 +55,8 @@
 #include "packet-fcbls.h"
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/crc32.h>
+#include <epan/expert.h>
 
 #define FC_HEADER_SIZE         24
 #define FC_RCTL_VFT            0x50
@@ -133,6 +135,17 @@ static int hf_fc_bls_rjtcode = -1;
 static int hf_fc_bls_rjtdetail = -1;
 static int hf_fc_bls_vendor = -1;
 
+/* For FC SOF */
+static int proto_fcsof = -1;
+
+static int hf_fcsof = -1;
+static int hf_fceof = -1;
+static int hf_fccrc = -1;
+
+static int ett_fcsof = -1;
+static int ett_fceof = -1;
+static int ett_fccrc = -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_fc = -1;
@@ -141,7 +154,7 @@ static gint ett_fcbls = -1;
 static gint ett_fc_vft = -1;
 
 static dissector_table_t fcftype_dissector_table;
-static dissector_handle_t data_handle;
+static dissector_handle_t data_handle, fc_handle;
 
 static int fc_tap = -1;
 
@@ -265,6 +278,72 @@ static const value_string fc_iu_val[] = {
     {FC_IU_DATA_DESCRIPTOR , "Data Descriptor"},
     {FC_IU_UNSOLICITED_CMD , "Unsolicited Command"},
     {FC_IU_CMD_STATUS      , "Command Status"},
+    {0, NULL}
+};
+
+
+/* For FC SOF */
+typedef enum {
+    FC_SOFC1 = 0xBCB51717,
+    FC_SOFI1 = 0xBCB55757,
+    FC_SOFN1 = 0xBCB53737,
+    FC_SOFI2 = 0xBCB55555,
+    FC_SOFN2 = 0xBCB53535,
+    FC_SOFI3 = 0xBCB55656,
+    FC_SOFN3 = 0xBCB53636,
+    FC_SOFC4 = 0xBCB51919,
+    FC_SOFI4 = 0xBCB55959,
+    FC_SOFN4 = 0xBCB53939,
+    FC_SOFF  = 0xBCB55858    
+} fc_sof_t;
+
+typedef enum {
+    EOFT_NEG   = 0xBC957575,
+    EOFT_POS   = 0xBCB57575,
+    EOFDT_NEG  = 0xBC959595,
+    EOFDT_POS  = 0xBCB59595,
+    EOFA_NEG   = 0xBC95F5F5,
+    EOFA_POS   = 0xBCB5F5F5,
+    EOFNI_NEG  = 0xBC8AD5D5,
+    EOFNI_POS  = 0xBCAAD5D5,
+    EOFDTI_NEG = 0xBC8A9595,
+    EOFDTI_POS = 0xBCAA9595,
+    EOFRI_NEG  = 0xBC959999,
+    EOFRI_POS  = 0xBCB59999,
+    EOFRTI_NEG = 0xBC8A9999,
+    EOFRTI_POS = 0xBCAA9999
+} fc_eof_t;
+
+static const value_string fc_sof_vals[] = {
+    {FC_SOFC1, "SOFc1 - SOF Connect Class 1 (Obsolete)" },
+    {FC_SOFI1, "SOFi1 - SOF Initiate Class 1 (Obsolete)" },
+    {FC_SOFN1, "SOFn1 - SOF Normal Class 1 (Obsolete)" },
+    {FC_SOFI2, "SOFi2 - SOF Initiate Class 2" },
+    {FC_SOFN2, "SOFn2 - SOF Normal Class 2" },
+    {FC_SOFI3, "SOFi3 - SOF Initiate Class 3" },
+    {FC_SOFN3, "SOFn3 - SOF Normal Class 3" },
+    {FC_SOFC4, "SOFc4 - SOF Activate Class 4 (Obsolete)" },
+    {FC_SOFI4, "SOFi4 - SOF Initiate Class 4 (Obsolete)" },
+    {FC_SOFN4, "SOFn4 - SOF Normal Class 4 (Obsolete)" },
+    {FC_SOFF,  "SOFf - SOF Fabric" },
+    {0, NULL}
+};
+
+static const value_string fc_eof_vals[] = {
+    {EOFT_NEG,  "EOFt- - EOF Terminate" },
+    {EOFT_POS,  "EOFT+ - EOF Terminate" },
+    {EOFDT_NEG,  "EOFdt- - EOF Disconnect-Terminate-Class 1 (Obsolete)" },
+    {EOFDT_POS,  "EOFdt+ - EOF Disconnect-Terminate-Class 1 (Obsolete)" },
+    {EOFA_NEG,  "EOFa- - EOF Abort" },
+    {EOFA_POS,  "EOFa+ - EOF Abort" },
+    {EOFNI_NEG,  "EOFn- - EOF Normal" },
+    {EOFNI_POS,  "EOFn+ - EOF Normal" },
+    {EOFDTI_NEG,  "EOFni- - EOF Normal Invalid" },
+    {EOFDTI_POS,  "EOFni+ - EOF Normal Invalid" },
+    {EOFRI_NEG,  "EOFdti- - EOF Disconnect-Terminate-Invalid Class 1 (Obsolete)" },
+    {EOFRI_POS,  "EOFdti+ - EOF Disconnect-Terminate-Invalid Class 1 (Obsolete)" },
+    {EOFRTI_NEG,  "EOFrti- - EOF Remove-Terminate Invalid Class 4 (Obsolete)" },
+    {EOFRTI_POS,  "EOFrti+ - EOF Remove-Terminate Invalid Class 4 (Obsolete)" },
     {0, NULL}
 };
 
@@ -1191,6 +1270,87 @@ dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_fc_helper (tvb, pinfo, tree, TRUE);
 }
 
+static void
+dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+
+    proto_item *it = NULL;
+    proto_tree *fcsof_tree = NULL;
+    gint bytes_remaining;
+    tvbuff_t *next_tvb;
+    guint32 sof = 0;
+    guint32 crc = 0;
+    guint32 crc_computed = 0;
+    guint32 eof = 0;
+    gint crc_offset = 0;
+    gint eof_offset = 0;
+    gint sof_offset = 0;
+    const gint FCSOF_TRAILER_LEN = 8;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
+
+    crc_offset = tvb_reported_length_remaining(tvb, 0) - FCSOF_TRAILER_LEN;
+    eof_offset = crc_offset + 4;
+    sof_offset = 0;
+
+    /* Get SOF */
+    sof = tvb_get_ntohl(tvb, 0);
+
+    /* GET CRC */
+    crc = tvb_get_ntohl(tvb, crc_offset);
+
+    /* GET Computed CRC */
+    crc_computed = crc32_802_tvb(tvb, tvb_length(tvb) - 4);
+
+    /* Get EOF */
+    eof = tvb_get_ntohl(tvb, eof_offset);
+
+    it = proto_tree_add_protocol_format(tree, proto_fcsof, tvb, 0,
+                                        4, "Fibre Channel Delimiter: SOF: %s EOF: %s",
+                                        val_to_str(sof, fc_sof_vals, "0x%x"),
+                                        val_to_str(eof, fc_eof_vals, "0x%x"));
+
+    fcsof_tree = proto_item_add_subtree(it, ett_fcsof);
+
+    proto_tree_add_uint(fcsof_tree, hf_fcsof, tvb, sof_offset, 4, sof);
+
+    if (crc == crc_computed) {
+        proto_tree_add_uint_format(fcsof_tree, hf_fccrc, tvb,
+                                       crc_offset, 4, crc,
+                                       "CRC: %8.8x [valid]", crc);
+    } else {
+        it = proto_tree_add_uint_format(fcsof_tree, hf_fccrc, tvb,
+                                       crc_offset, 4, crc,
+                                       "CRC: %8.8x "
+                                       "[error: should be %8.8x]",
+                                       crc, crc_computed);
+
+        expert_add_info_format(pinfo, it, PI_CHECKSUM, PI_ERROR,
+                                   "Bad FC CRC %8.8x %8.x",
+                                   crc, crc_computed);
+    }
+
+    proto_tree_add_uint(fcsof_tree, hf_fceof, tvb, eof_offset, 4, eof);
+
+    bytes_remaining = tvb_length_remaining(tvb, 4);
+    next_tvb = tvb_new_subset(tvb, 4, bytes_remaining, -1);
+
+    pinfo->sof_eof = 0;
+    if (sof == FC_SOFI2 || sof == FC_SOFI3) {
+        pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
+    } else if (sof == FC_SOFF) {
+        pinfo->sof_eof = PINFO_SOF_SOFF;
+    }
+
+    if (eof == EOFT_POS || eof == EOFT_NEG) {
+        pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
+    } else if (eof == EOFDTI_NEG || eof == EOFDTI_POS) {
+        pinfo->sof_eof |= PINFO_EOF_INVALID;
+    }
+
+    /* Call FC dissector */
+    call_dissector(fc_handle, next_tvb, pinfo, tree);
+}
+
 /* Register the protocol with Wireshark */
 
 /* this format is require because a script is used to build the C function
@@ -1364,6 +1524,26 @@ proto_register_fc(void)
 
     module_t *fc_module;
 
+    /* FC SOF */
+
+    static hf_register_info sof_hf[] = {
+        { &hf_fcsof,
+          { "SOF", "fc.sof", FT_UINT32, BASE_HEX, VALS(fc_sof_vals), 0,
+            NULL, HFILL }},
+        { &hf_fceof,
+          { "EOF", "fc.eof", FT_UINT32, BASE_HEX, VALS(fc_eof_vals), 0,
+            NULL, HFILL }},
+        { &hf_fccrc,
+          { "CRC", "fc.crc", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+    };
+
+    static gint *sof_ett[] = {
+        &ett_fcsof,
+        &ett_fceof,
+        &ett_fccrc
+    };
+
+
     /* Register the protocol name and description */
     proto_fc = proto_register_protocol ("Fibre Channel", "FC", "fc");
     register_dissector ("fc", dissect_fc, proto_fc);
@@ -1397,6 +1577,15 @@ proto_register_fc(void)
     
     register_init_routine(fc_defragment_init);
     register_init_routine (fc_exchange_init_protocol);
+
+
+    /* Register FC SOF/EOF */
+    proto_fcsof = proto_register_protocol("Fibre Channel Delimiters", "FCSoF", "fcsof");
+
+    proto_register_field_array(proto_fcsof, sof_hf, array_length(sof_hf));
+    proto_register_subtree_array(sof_ett, array_length(sof_ett));
+
+    register_dissector("fcsof", dissect_fcsof, proto_fcsof);
 }
 
 
@@ -1407,10 +1596,13 @@ proto_register_fc(void)
 void
 proto_reg_handoff_fc (void)
 {
-    dissector_handle_t fc_handle;
+    dissector_handle_t fcsof_handle;
 
     fc_handle = find_dissector("fc");
     dissector_add("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2, fc_handle);
+
+    fcsof_handle = find_dissector("fcsof");
+    dissector_add("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS, fcsof_handle);
 
     data_handle = find_dissector("data");
 }

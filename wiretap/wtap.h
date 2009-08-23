@@ -212,6 +212,7 @@ extern "C" {
 #define WTAP_ENCAP_NSTRACE_1_0                  119
 #define WTAP_ENCAP_NSTRACE_2_0                  120
 #define WTAP_ENCAP_FIBRE_CHANNEL_FC2            121
+#define WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS 122
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 

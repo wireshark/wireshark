@@ -351,6 +351,8 @@ static const struct {
 	{ 220, 		WTAP_ENCAP_USB_LINUX_MMAPPED },
 	/* Fibre Channel FC-2 frame */
 	{ 224,          WTAP_ENCAP_FIBRE_CHANNEL_FC2 },
+	/* Fibre Channel FC-2 frame with Delimiter */
+	{ 225,          WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS },
 
 	/*
 	 * To repeat:

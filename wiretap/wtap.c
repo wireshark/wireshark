@@ -447,8 +447,11 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_NSTRACE_2_0 */
 	{ "NetScaler Encapsulation 2.0 of Ethernet", "nstrace20" },
 
-       /* WTAP_ENCAP_FIBRE_CHANNEL_FC2 */
-       { "Fibre Channel FC-2", "fc2" },
+	/* WTAP_ENCAP_FIBRE_CHANNEL_FC2 */
+	{ "Fibre Channel FC-2", "fc2" },
+
+	/* WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS */
+	{ "Fibre Channel FC-2 With Frame Delimiter", "fc2sof"}
 
 };
 
