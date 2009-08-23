@@ -1506,7 +1506,6 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *icmp6_tree, *field_tree;
     proto_item *ti, *hidden_item, *tf = NULL;
     struct icmp6_hdr icmp6_hdr, *dp;
-    struct icmp6_nodeinfo *ni = NULL;
     const char *codename, *typename;
     const char *colcodename, *coltypename;
     int len;
@@ -1558,7 +1557,12 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     case ICMP6_NI_QUERY:
     case ICMP6_NI_REPLY:
-	ni = (struct icmp6_nodeinfo *)dp;
+      {
+        struct icmp6_nodeinfo icmp6_nodeinfo, *ni;
+
+        ni = &icmp6_nodeinfo;
+	tvb_memcpy(tvb, (guint8 *)ni, offset, sizeof *ni);
+
 	if (ni->ni_type == ICMP6_NI_QUERY) {
 	    switch (ni->ni_code) {
 	    case ICMP6_NI_SUBJ_IPV6:
@@ -1596,6 +1600,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	colcodename = val_to_str(pntohs(&ni->ni_qtype), names_nodeinfo_qtype, "Unknown");
 	len = sizeof(struct icmp6_nodeinfo);
 	break;
+      }
     case ICMP6_MIP6_DHAAD_REQUEST:
     case ICMP6_MIP6_DHAAD_REPLY:
     case ICMP6_MIP6_MPS:
@@ -1899,7 +1904,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 	  }
 	case ND_NEIGHBOR_SOLICIT:
-	  {
+          {
 	    struct nd_neighbor_solicit nd_neighbor_solicit, *ns;
 
 	    ns = &nd_neighbor_solicit;
@@ -1988,7 +1993,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #define NI_QTYPE_OFFSET 4
 	case ICMP6_NI_QUERY:
 	case ICMP6_NI_REPLY:
-	    ni = (struct icmp6_nodeinfo *)dp;
+          {
+	    struct icmp6_nodeinfo *ni = (struct icmp6_nodeinfo *)dp;
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + NI_QTYPE_OFFSET,
 		sizeof(ni->ni_qtype),
@@ -1997,6 +2003,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		"Unknown"));
 	    dissect_nodeinfo(tvb, offset, pinfo, icmp6_tree);
 	    break;
+          }
 	case ICMP6_MIP6_DHAAD_REQUEST:
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + 4, 2, "Identifier: %d (0x%02x)",
