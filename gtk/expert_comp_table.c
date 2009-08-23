@@ -617,14 +617,16 @@ reset_error_table_data(error_equiv_table *err)
     store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
     gtk_tree_store_clear(store);
     err->num_procs = 0;
-    g_string_chunk_clear(err->text);
+    /* g_string_chunk_clear() is introduced in glib 2.14 */
+    g_string_chunk_free(err->text);
+    err->text = g_string_chunk_new(100);
+
     g_array_set_size(err->procs_array, 0);
 }
 
 void
 free_error_table_data(error_equiv_table *err)
 {
-
     err->num_procs=0;
     g_string_chunk_free(err->text);
     g_array_free(err->procs_array, TRUE);

@@ -96,7 +96,9 @@ void expert_dlg_reset(void *tapdata)
 	etd->error_events = 0;
 	etd->last = 0;
 	etd->first = 0;
-	g_string_chunk_clear(etd->text);
+	/* g_string_chunk_clear() is introduced in glib 2.14 */
+	g_string_chunk_free(etd->text);
+	etd->text = g_string_chunk_new(100);
 	g_array_set_size(etd->ei_array, 0);
 
 	expert_dlg_display_reset(etd);
@@ -110,7 +112,7 @@ int expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt
     g_array_append_val(etd->ei_array, *(expert_info_t *)pointer);
     etd->last = etd->ei_array->len;
     ei = &g_array_index(etd->ei_array, expert_info_t, etd->last -1); /* ugly */
-    ei->protocol = ei->protocol;
+    ei->protocol = g_string_chunk_insert_const(etd->text, ei->protocol);
     ei->summary = g_string_chunk_insert_const(etd->text, ei->summary);
 
 	switch(ei->severity) {
