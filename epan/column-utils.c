@@ -1382,6 +1382,7 @@ static const value_string channel_vals[] = {
     { 0,    NULL }
 };
 
+#if 0
 static void
 col_set_circuit_id(packet_info *pinfo, int col)
 {
@@ -1415,7 +1416,6 @@ col_set_circuit_id(packet_info *pinfo, int col)
   pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
 }
 
-#if 0
 /* ------------- */
 static gchar *
 set_circuit_id(packet_info *pinfo)
