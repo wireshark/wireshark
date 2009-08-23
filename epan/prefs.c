@@ -1743,6 +1743,37 @@ string_to_name_resolve(char *string, guint32 *name_resolve)
   return '\0';
 }
 
+static void
+try_convert_to_custom_column(gpointer *el_data)
+{
+    /* Array of columns that have been migrated to custom columns */
+    struct {
+        gint el;
+        gchar *col_expr;
+    } migrated_columns[] = {
+        { COL_COS_VALUE, "vlan.priority" }
+    };
+
+    gint haystack_idx;
+    const gchar *haystack_fmt;
+
+    gchar **fmt = (gchar **) el_data;
+
+    for (haystack_idx = 0;
+         haystack_idx < G_N_ELEMENTS(migrated_columns);
+         ++haystack_idx) {
+
+        haystack_fmt = col_format_to_string(migrated_columns[haystack_idx].el);
+        if (strcmp(haystack_fmt, *fmt) == 0) {
+            gchar *cust_col = g_strdup_printf("%%Cus:%s",
+                                migrated_columns[haystack_idx].col_expr);
+
+            g_free(*fmt);
+            *fmt = cust_col;
+        }
+    }
+}
+
 static prefs_set_pref_e
 set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
 {
@@ -1812,6 +1843,10 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
           prefs_clear_string_list(col_l);
           return PREFS_SET_SYNTAX_ERR;
         }
+
+        /* Some predefined columns have been migrated to use custom colums.
+         * We'll convert these silently here */
+        try_convert_to_custom_column(&col_l_elt->data);
       }
 
       /* Go past the format.  */
