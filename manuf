@@ -13560,6 +13560,15 @@
 00:50:C2:B1:90:00/36	Polytron               # Polytron Corporation
 00:50:C2:B1:A0:00/36	Elcus
 00:50:C2:B1:B0:00/36	Integrated             # Integrated  Control Corp.
+00:50:C2:B1:C0:00/36	PhytecMess             # Phytec Messtechnik GmbH
+00:50:C2:B1:D0:00/36	Telegenix
+00:50:C2:B1:E0:00/36	AbbottMedi             # Abbott Medical Optics
+00:50:C2:B1:F0:00/36	ScaSchucke             # SCA Schucker GmbH &amp; Co.
+00:50:C2:B2:00:00/36	Five9Netwo             # FIVE9 NETWORK SYSTEMS LLC
+00:50:C2:B2:10:00/36	Phytron-El             # Phytron-Elektronik GmbH
+00:50:C2:B2:20:00/36	FarsiteCom             # FarSite Communications Limited
+00:50:C2:B2:30:00/36	7MarsyasDe             # 7 Marsyas Development a.s.
+00:50:C2:B2:40:00/36	TeledyneDe             # Teledyne Defence Limited
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -15495,7 +15504,9 @@
 02:E6:D3	NixdorfCom             # NIXDORF COMPUTER CORPORATION
 04:0A:E0	XmitComput             # XMIT AG COMPUTER NETWORKS
 04:1E:64	Apple                  # Apple, Inc
+04:4F:AA	RuckusWire             # Ruckus Wireless
 04:88:45	BayNetwork             # Bay Networks			token ring line card
+04:B3:B6	SeamapUk               # Seamap (UK) Ltd
 04:B4:66	Bsp                    # BSP Co., Ltd.
 04:E0:C4	Triumph-Ad             # TRIUMPH-ADLER AG
 08:00:01	Computervi             # COMPUTERVISION CORPORATION
@@ -15652,18 +15663,24 @@
 10:00:D4	DEC
 10:00:E0	AppleA/UxM             # Apple A/UX			(modified addresses for licensing)
 10:00:E8	NationalSe             # NATIONAL SEMICONDUCTOR
+10:BA:A5	GanaI&C                # GANA I&C CO., LTD
 11:00:AA	Private
 14:6E:0A	Private
 18:86:AC	NokiaDanma             # Nokia Danmark A/S
+18:A9:05	HewlettPac             # Hewlett Packard
 1C:4B:D6	Azurewave
 20:2C:B7	KongYueEle             # Kong Yue Electronics & Information Industry (Xinhui) Ltd.
 24:82:8A	ProwaveTec             # Prowave Technologies Ltd.
+24:CF:21	ShenzhenSt             # Shenzhen State Micro Technology Co., Ltd
+28:FB:D3	ShanghaiRa             # Shanghai RagenTek Communication Technology Co.,Ltd.
 2E:2E:2E	LaaLocally             # LAA (Locally Administered Address) for Meditech Systems
 3C:00:00	3Com
 40:00:03	NetWare?               # Net Ware (?)
 40:61:86	Micro-Star             # MICRO-STAR INT'L CO.,LTD
+40:EF:4C	FihonestCo             # Fihonest communication co.,Ltd
 44:45:53	Microsoft
 44:46:49	DfiDiamond             # DFI (Diamond Flower Industries)
+44:56:8D	PncTechnol             # PNC Technologies  Co., Ltd.
 44:56:B7	SpawnLabs              # Spawn Labs, Inc
 44:C9:A2	GreenwaldI             # Greenwald Industries
 47:54:43	GtcNotRegi             # GTC (Not registered!)		(This number is a multicast!)
@@ -15675,37 +15692,60 @@
 52:54:4C	Novell2000             # Novell 2000
 52:54:AB	RealtekARe             # REALTEK (a Realtek 8029 based PCI Card)
 56:58:57	AculabPlcA             # Aculab plc			audio bridges
+58:6E:D6	Private
 58:F6:7B	XiaMenUnio             # Xia Men UnionCore Technology LTD.
+60:D0:A9	SamsungEle             # Samsung Electronics Co.,Ltd
+60:D3:0A	Quatius                # Quatius Limited
 64:16:F0	ShehzhenHu             # Shehzhen Huawei Communication Technologies Co., Ltd.
 64:4B:C3	ShanghaiWo             # Shanghai WOASiS Telecommunications Ltd., Co.
+64:65:C0	Nuvon                  # Nuvon, Inc
+64:A8:37	JuniKorea              # Juni Korea Co., Ltd
+64:C6:AF	AxerraNetw             # AXERRA Networks Ltd
+64:ED:57	MotorolaMd             # Motorola MDb/Broadband
 68:CC:9C	MineSiteTe             # Mine Site Technologies
 6C:0F:6A	JdcTech                # JDC Tech Co., Ltd.
 6C:F0:49	Giga-ByteT             # GIGA-BYTE TECHNOLOGY CO.,LTD.
 70:1A:04	LiteonTech             # Liteon Tech Corp.
+70:1A:ED	Advas                  # ADVAS CO., LTD.
 74:E5:37	Radspin
+7C:1E:B3	2nTelekomu             # 2N TELEKOMUNIKACE a.s.
+7C:7B:E4	Z&#39;Seda             # Z&#39;SEDAI KENKYUSHO CORPORATION
 80:00:10	AttBellLab             # ATT BELL LABORATORIES
 80:AD:00	CnetTechno             # CNET Technology Inc. (Probably an error, see instead 0080AD)
 90:E6:BA	AsustekCom             # ASUSTek COMPUTER INC.
+94:2E:63	Finsécur
 9C:18:74	NokiaDanma             # Nokia Danmark A/S
+A0:07:98	SamsungEle             # Samsung Electronics
 A0:2E:F3	UnitedInte             # United Integrated Services Co., Led.
 A0:6A:00	Verilink               # Verilink Corporation
+A0:73:32	Cashmaster             # Cashmaster International Limited
 A0:98:05	OpenvoxCom             # OpenVox Communication Co Ltd
+A0:9A:5A	TimeDomain             # Time Domain
+A4:E7:E4	Connex                 # Connex GmbH
 A8:CE:90	Cvc
 AA:00:00	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:01	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:02	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:03	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:04	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
+AC:83:17	ShenzhenMo             # Shenzhen Morlab Communications Technology Co., Ltd
+AC:D1:80	CrexendoBu             # Crexendo Business Solutions, Inc.
 AC:DE:48	Private
+B4:B5:AF	MinsungEle             # Minsung Electronics
+BC:9D:A5	DascomEuro             # DASCOM Europe GmbH
 C0:00:00	WesternDig             # Western Digital (may be reversed 00 00 C0?)
+C8:D2:C1	JetlunShen             # Jetlun (Shenzhen) Corporation
 CC:00:80	TrustSyste             # TRUST SYSTEM Co.,
 D4:C7:66	Acentic                # Acentic GmbH
+D8:D6:7E	GskCncEqui             # GSK CNC EQUIPMENT CO.,LTD
 E0:91:53	XaviTechno             # XAVi Technologies Corp.
 E2:0C:0F	KingstonTe             # Kingston Technologies
 E4:1F:13	Ibm
 E8:0B:13	AkibTaiwan             # Akib Systems Taiwan, INC
+E8:A4:C1	DeepSeaEle             # Deep Sea Electronics PLC
 EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 F0:BC:C8	MaxidPty               # MaxID (Pty) Ltd
+F0:DE:71	ShanghaiEd             # Shanghai EDO Technologies Co.,Ltd.
 
 #
 # Well-known addresses.
