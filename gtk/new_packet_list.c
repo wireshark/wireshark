@@ -140,8 +140,6 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 					fdata->col_text[i] = se_strdup(pinfo->cinfo->col_buf[i]);
 					break;
 				/* Columns based on (binary)data in pinfo */
-				case COL_CIRCUIT_ID:		/* 3) Circuit ID */
-					/* pinfo->circuit_id */
 				case COL_RES_DST:			/* 14) Resolved dest */
 				case COL_UNRES_DST:			/* 15) Unresolved dest */
 				case COL_DEF_DST:			/* 18) Destination address */

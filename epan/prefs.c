@@ -1751,7 +1751,8 @@ try_convert_to_custom_column(gpointer *el_data)
         gint el;
         gchar *col_expr;
     } migrated_columns[] = {
-        { COL_COS_VALUE, "vlan.priority" }
+        { COL_COS_VALUE, "vlan.priority" },
+        { COL_CIRCUIT_ID, "iax2.call" }
     };
 
     gint haystack_idx;

@@ -1622,10 +1622,6 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
     case COL_IF_DIR:    /* currently done by dissectors */
       break;
 
-    case COL_CIRCUIT_ID:
-      col_set_circuit_id(pinfo, i);
-      break;
-
     case COL_SRCIDX:
       g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->src_idx);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];

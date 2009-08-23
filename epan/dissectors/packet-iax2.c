@@ -948,10 +948,6 @@ static void  iax2_populate_pinfo_from_packet_data(packet_info *pinfo, const iax_
     pinfo -> circuit_id = (guint32)p->call_data->forward_circuit_ids[0];
     pinfo -> p2p_dir = p->reversed?P2P_DIR_RECV:P2P_DIR_SENT;
 
-    if (check_col (pinfo->cinfo, COL_CIRCUIT_ID)) {
-      col_set_str (pinfo->cinfo, COL_CIRCUIT_ID, "" );
-      col_add_fstr(pinfo->cinfo, COL_CIRCUIT_ID, "%u", pinfo->circuit_id);
-    }
     if (check_col (pinfo->cinfo, COL_IF_DIR))
       col_set_str (pinfo->cinfo, COL_IF_DIR, p->reversed ? "rev" : "fwd" );
   }

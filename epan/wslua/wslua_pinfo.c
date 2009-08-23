@@ -331,7 +331,6 @@ static const struct col_names_t colnames[] = {
     {"oxid",COL_OXID},
     {"rxid",COL_RXID},
     {"direction",COL_IF_DIR},
-    {"circuit_id",COL_CIRCUIT_ID},
     {"src_idx",COL_SRCIDX},
     {"dst_idx",COL_DSTIDX},
     {"vsan",COL_VSAN},
