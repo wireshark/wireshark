@@ -116,7 +116,7 @@ enum {
   COL_PACKET_LENGTH,  /* 47) Packet length in bytes */
   COL_PROTOCOL,       /* 48) Protocol */
   COL_REL_TIME,       /* 49) Relative time */
-  COL_REL_CONV_TIME,  /* 50) Relative time to beginning of conversation */
+  COL_REL_CONV_TIME,  /* 50) !! DEPRECATED !! - Relative time to beginning of conversation */
   COL_DEF_SRC,        /* 51) Source address */
   COL_DEF_SRC_PORT,   /* 52) Source port */
   COL_RES_SRC,        /* 53) Resolved source */

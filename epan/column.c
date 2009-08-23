@@ -97,7 +97,7 @@ col_format_to_string(gint fmt) {
     "%L",                                       /* 47) COL_PACKET_LENGTH */
     "%p",                                       /* 48) COL_PROTOCOL */
     "%Rt",                                      /* 49) COL_REL_TIME */
-    "%rct",                                     /* 50) COL_REL_CONV_TIME */
+    "%rct",                                     /* 50) !! DEPRECATED !! - COL_REL_CONV_TIME */
     "%s",                                       /* 51) COL_DEF_SRC */
     "%S",                                       /* 52) COL_DEF_SRC_PORT */
     "%rs",                                      /* 53) COL_RES_SRC */
@@ -167,7 +167,7 @@ static const gchar *dlist[NUM_COL_FMTS] = {
     "Packet length (bytes)" ,                   /* 47) COL_PACKET_LENGTH */
     "Protocol",                                 /* 48) COL_PROTOCOL */
     "Relative time",                            /* 49) COL_REL_TIME */
-    "Relative time (conversation)",             /* 50) COL_REL_CONV_TIME */
+    "Relative time (conversation)",             /* 50) !! DEPRECATED !! - COL_REL_CONV_TIME */
     "Source address",                           /* 51) COL_DEF_SRC */
     "Source port",                              /* 52) COL_DEF_SRC_PORT */
     "Src addr (resolved)",                      /* 53) COL_RES_SRC */

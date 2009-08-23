@@ -2994,8 +2994,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct tcp_per_packet_data_t *tcppd=NULL;
   proto_item *item;
   proto_tree *checksum_tree;
-  nstime_t	ts;
-
 
   tcph=ep_alloc(sizeof(struct tcpheader));
   SET_ADDRESS(&tcph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -3105,11 +3103,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tcp_calculate_timestamps(pinfo, tcpd, tcppd);
 
     /* Fill the conversation timestamp columns */
-    if (tcpd) {
-      nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
-      col_set_time(pinfo->cinfo, COL_REL_CONV_TIME, &ts, "tcp.time_relative");
-    }
-
     if(tcppd)
       col_set_time(pinfo->cinfo, COL_DELTA_CONV_TIME, &tcppd->ts_del, "tcp.time_delta");
   }

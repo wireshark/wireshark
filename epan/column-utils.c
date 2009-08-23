@@ -1120,7 +1120,6 @@ col_set_fmt_time(frame_data *fd, column_info *cinfo, gint fmt, gint col)
       col_set_delta_time_dis(fd, cinfo, col);
       break;
 
-    case COL_REL_CONV_TIME:
     case COL_DELTA_CONV_TIME:
       /* Will be set by various dissectors */
       break;
@@ -1523,7 +1522,6 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
         col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
       break;
 
-    case COL_REL_CONV_TIME:
     case COL_DELTA_CONV_TIME:
       break;        /* Will be set by various dissectors */
 

@@ -192,7 +192,6 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 				case COL_EXPERT:			/* 20) Expert Info */
 				/* Will be set by various dissectors */
 				case COL_DELTA_CONV_TIME:	/* 12) Delta time to last frame in conversation */
-				case COL_REL_CONV_TIME:		/* 50) Relative time to beginning of conversation */
 					fdata->col_text[i] = se_strdup(cinfo->col_data[i]);
 					break;
 				default:
