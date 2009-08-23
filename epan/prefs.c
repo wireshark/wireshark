@@ -1758,7 +1758,7 @@ try_convert_to_custom_column(gpointer *el_data)
         { COL_DSCP_VALUE, "ip.dsfield" }
     };
 
-    gint haystack_idx;
+    guint haystack_idx;
     const gchar *haystack_fmt;
 
     gchar **fmt = (gchar **) el_data;
