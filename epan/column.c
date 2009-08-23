@@ -86,7 +86,7 @@ col_format_to_string(gint fmt) {
     "%x",                                       /* 36) COL_TX_RATE */
     "%f",                                       /* 37) COL_DSCP_VALUE */
     "%i",                                       /* 38) COL_INFO */
-    "%U",                                       /* 39) COL_COS_VALUE */
+    "%U",                                       /* 39) !! DEPRECATED !! - COL_COS_VALUE */
     "%rnd",                                     /* 40) COL_RES_NET_DST */
     "%und",                                     /* 41) COL_UNRES_NET_DST */
     "%rns",                                     /* 42) COL_RES_NET_SRC */
@@ -156,7 +156,7 @@ static const gchar *dlist[NUM_COL_FMTS] = {
     "IEEE 802.11 TX rate",                      /* 36) COL_TX_RATE */
     "IP DSCP Value",                            /* 37) COL_DSCP_VALUE */
     "Information",                              /* 38) COL_INFO */
-    "L2 COS Value (802.1p)",                    /* 39) COL_COS_VALUE */
+    "L2 COS Value (802.1p)",                    /* 39) !! DEPRECATED !! - COL_COS_VALUE */
     "Net dest addr (resolved)",                 /* 40) COL_RES_NET_DST */
     "Net dest addr (unresolved)",               /* 41) COL_UNRES_NET_DST */
     "Net src addr (resolved)",                  /* 42) COL_RES_NET_SRC */

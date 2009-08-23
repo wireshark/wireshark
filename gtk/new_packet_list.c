@@ -186,7 +186,6 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 				case COL_DCE_CTX:			/* 10) DCE/RPC connection oriented context id */
 				case COL_8021Q_VLAN_ID:		/* 0) 802.1Q vlan ID */
 				case COL_DSCP_VALUE:		/* 37) IP DSCP Value */
-				case COL_COS_VALUE:			/* 39) L2 COS Value */
 				case COL_FR_DLCI:			/* 24) Frame Relay DLCI */
 				case COL_BSSGP_TLLI:		/* 26) GPRS BSSGP IE TLLI */
 				case COL_FREQ_CHAN:			/* 25) IEEE 802.11 (and WiMax?) - Channel */

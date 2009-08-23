@@ -1657,9 +1657,6 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
     case COL_DSCP_VALUE:    /* done by packet-ip.c */
         break;
 
-    case COL_COS_VALUE:     /* done by packet-vlan.c */
-        break;
-
     case COL_FR_DLCI:   /* done by packet-fr.c */
     case COL_BSSGP_TLLI: /* done by packet-bssgp.c */
         break;

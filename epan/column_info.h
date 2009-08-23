@@ -105,7 +105,7 @@ enum {
   COL_TX_RATE,        /* 36) IEEE 802.11 - TX rate in Mbps */
   COL_DSCP_VALUE,     /* 37) IP DSCP Value */
   COL_INFO,           /* 38) Description */
-  COL_COS_VALUE,      /* 39) L2 COS Value */
+  COL_COS_VALUE,      /* 39) !! DEPRECATED !! - L2 COS Value */
   COL_RES_NET_DST,    /* 40) Resolved net dest */
   COL_UNRES_NET_DST,  /* 41) Unresolved net dest */
   COL_RES_NET_SRC,    /* 42) Resolved net source */
