@@ -1469,9 +1469,10 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree )
 			      );
     sub_tree = proto_item_add_subtree(tf, ett_multicastRR);
 
-    proto_tree_add_text( sub_tree, tvb, offset,   1, "Mode: %s",
-			 val_to_str(recordType, mldrv2ModesNames,"Unknown mode") );
+    proto_tree_add_text( sub_tree, tvb, offset,   1, "Mode: %s (%u)",
+			 val_to_str(recordType, mldrv2ModesNames,"Unknown mode"), recordType );
     proto_tree_add_text( sub_tree, tvb, offset+1, 1, "Aux data len: %u", auxDataLen * 4);
+    proto_tree_add_text( sub_tree, tvb, offset+2, 2, "Number of Sources: %u", sourceNb);
     proto_tree_add_text( sub_tree, tvb, localOffset, 16, "Multicast Address: %s", ip6_to_str(&addr) );
     localOffset += 16;
 
@@ -1838,6 +1839,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  guint16 nbRecords;
 
 	  nbRecords = tvb_get_ntohs( tvb, offset+4+2 );
+	  proto_tree_add_text( icmp6_tree, tvb, offset+4+2, 2, "Number of records: %u", nbRecords );
 	  dissect_mldrv2( tvb, offset+4+2+2, nbRecords, icmp6_tree );
 	  break;
 	}
