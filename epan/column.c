@@ -71,7 +71,7 @@ col_format_to_string(gint fmt) {
     "%I",                                       /* 21) COL_IF_DIR */
     "%XO",                                      /* 22) COL_OXID */
     "%XR",                                      /* 23) COL_RXID */
-    "%C",                                       /* 24) COL_FR_DLCI */
+    "%C",                                       /* 24) !! DEPRECATED !! - COL_FR_DLCI */
     "%F",                                       /* 25) COL_FREQ_CHAN */
     "%l",                                       /* 26) COL_BSSGP_TLLI */
     "%P",                                       /* 27) !! DEPRECATED !! - COL_HPUX_DEVID */
@@ -141,7 +141,7 @@ static const gchar *dlist[NUM_COL_FMTS] = {
     "FW-1 monitor if/direction",                /* 21) COL_IF_DIR */
     "Fibre Channel OXID",                       /* 22) COL_OXID */
     "Fibre Channel RXID",                       /* 23) COL_RXID */
-    "Frame Relay DLCI",                         /* 24) COL_FR_DLCI */
+    "Frame Relay DLCI",                         /* 24) !! DEPRECATED !! - COL_FR_DLCI */
     "Frequency/Channel",                        /* 25) COL_FREQ_CHAN */
     "GPRS BSSGP TLLI",                          /* 26) COL_BSSGP_TLLI */
     "HP-UX Device ID",                          /* 27) !! DEPRECATED !! - COL_HPUX_DEVID */

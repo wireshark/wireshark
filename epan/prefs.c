@@ -1755,7 +1755,8 @@ try_convert_to_custom_column(gpointer *el_data)
         { COL_CIRCUIT_ID, "iax2.call" },
         { COL_HPUX_SUBSYS, "nettl.subsys" },
         { COL_HPUX_DEVID, "nettl.devid" },
-        { COL_DSCP_VALUE, "ip.dsfield" }
+        { COL_DSCP_VALUE, "ip.dsfield" },
+        { COL_FR_DLCI, "fr.dlci" }
     };
 
     guint haystack_idx;

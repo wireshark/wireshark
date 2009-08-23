@@ -90,7 +90,7 @@ enum {
   COL_IF_DIR,         /* 21) FW-1 monitor interface/direction */
   COL_OXID,           /* 22) Fibre Channel OXID */
   COL_RXID,           /* 23) Fibre Channel RXID */
-  COL_FR_DLCI,        /* 24) Frame Relay DLCI */
+  COL_FR_DLCI,        /* 24) !! DEPRECATED !! - Frame Relay DLCI */
   COL_FREQ_CHAN,      /* 25) IEEE 802.11 (and WiMax?) - Channel */
   COL_BSSGP_TLLI,     /* 26) GPRS BSSGP IE TLLI */
   COL_HPUX_DEVID,     /* 27) !! DEPRECATED !! - HP-UX Nettl Device ID */
