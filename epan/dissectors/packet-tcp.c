@@ -3101,12 +3101,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (!(pinfo->fd->flags.visited))
       tcp_calculate_timestamps(pinfo, tcpd, tcppd);
-
-    /* Fill the conversation timestamp columns */
-    if(tcppd)
-      col_set_time(pinfo->cinfo, COL_DELTA_CONV_TIME, &tcppd->ts_del, "tcp.time_delta");
   }
-
 
   /*
    * If we've been handed an IP fragment, we don't know how big the TCP

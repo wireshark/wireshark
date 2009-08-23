@@ -1120,10 +1120,6 @@ col_set_fmt_time(frame_data *fd, column_info *cinfo, gint fmt, gint col)
       col_set_delta_time_dis(fd, cinfo, col);
       break;
 
-    case COL_DELTA_CONV_TIME:
-      /* Will be set by various dissectors */
-      break;
-
     default:
       g_assert_not_reached();
       break;
@@ -1521,9 +1517,6 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
       if (fill_fd_colums)
         col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
       break;
-
-    case COL_DELTA_CONV_TIME:
-      break;        /* Will be set by various dissectors */
 
     case COL_DEF_SRC:
     case COL_RES_SRC:   /* COL_DEF_SRC is currently just like COL_RES_SRC */
