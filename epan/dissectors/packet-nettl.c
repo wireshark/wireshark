@@ -213,9 +213,6 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       pinfo->current_proto = "nettl";
 
-      if (check_col(pinfo->cinfo, COL_HPUX_SUBSYS))
-            col_add_str(pinfo->cinfo, COL_HPUX_SUBSYS,
-		val_to_str(pinfo->pseudo_header->nettl.subsys, subsystem, "Unknown"));
       if (check_col(pinfo->cinfo, COL_HPUX_DEVID)) {
             col_clear(pinfo->cinfo, COL_HPUX_DEVID);
             col_add_fstr(pinfo->cinfo, COL_HPUX_DEVID, "%4d",

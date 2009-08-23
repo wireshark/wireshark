@@ -75,7 +75,7 @@ col_format_to_string(gint fmt) {
     "%F",                                       /* 25) COL_FREQ_CHAN */
     "%l",                                       /* 26) COL_BSSGP_TLLI */
     "%P",                                       /* 27) COL_HPUX_DEVID */
-    "%H",                                       /* 28) COL_HPUX_SUBSYS */
+    "%H",                                       /* 28) !! DEPRECATED !! - COL_HPUX_SUBSYS */
     "%hd",                                      /* 29) COL_DEF_DL_DST */
     "%hs",                                      /* 30) COL_DEF_DL_SRC */
     "%rhd",                                     /* 31) COL_RES_DL_DST */
@@ -145,7 +145,7 @@ static const gchar *dlist[NUM_COL_FMTS] = {
     "Frequency/Channel",                        /* 25) COL_FREQ_CHAN */
     "GPRS BSSGP TLLI",                          /* 26) COL_BSSGP_TLLI */
     "HP-UX Device ID",                          /* 27) COL_HPUX_DEVID */
-    "HP-UX Subsystem",                          /* 28) COL_HPUX_SUBSYS */
+    "HP-UX Subsystem",                          /* 28) !! DEPRECATED !! - COL_HPUX_SUBSYS */
     "Hardware dest addr",                       /* 29) COL_DEF_DL_DST */
     "Hardware src addr",                        /* 30) COL_DEF_DL_SRC */
     "Hw dest addr (resolved)",                  /* 31) COL_RES_DL_DST */

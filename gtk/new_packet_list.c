@@ -179,7 +179,6 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
 				case COL_PROTOCOL:			/* 48) Protocol */
 				case COL_INFO:				/* 38) Description */
 				case COL_HPUX_DEVID:		/* 27) HP-UX Nettl Device ID */
-				case COL_HPUX_SUBSYS:		/* 28) HP-UX Nettl Subsystem */
 				case COL_DCE_CALL:			/* 9) DCE/RPC connection oriented call id OR datagram sequence number */
 				case COL_DCE_CTX:			/* 10) DCE/RPC connection oriented context id */
 				case COL_8021Q_VLAN_ID:		/* 0) 802.1Q vlan ID */

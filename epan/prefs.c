@@ -1752,7 +1752,8 @@ try_convert_to_custom_column(gpointer *el_data)
         gchar *col_expr;
     } migrated_columns[] = {
         { COL_COS_VALUE, "vlan.priority" },
-        { COL_CIRCUIT_ID, "iax2.call" }
+        { COL_CIRCUIT_ID, "iax2.call" },
+        { COL_HPUX_SUBSYS, "nettl.subsys" }
     };
 
     gint haystack_idx;
