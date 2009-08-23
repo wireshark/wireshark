@@ -523,7 +523,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	}*/
 
 	error_string=register_tap_listener("expert", etd, NULL /* fstring */,
-		0,
+		TL_REQUIRES_PROTO_TREE,
 		expert_dlg_reset,
 		expert_dlg_packet,
 		expert_dlg_draw);

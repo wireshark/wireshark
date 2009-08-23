@@ -294,7 +294,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     /* Add tap listener functions for expert details, From expert_dlg.c*/
     error_string=register_tap_listener("expert", etd, NULL /* fstring */,
-                                       0,
+                                       TL_REQUIRES_PROTO_TREE,
                                        expert_dlg_reset,
                                        expert_dlg_packet,
                                        expert_dlg_draw);

@@ -3853,13 +3853,6 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/*
-	 * If we're not building the protocol tree, we don't need to
-	 * make a second pass.
-	 */
-	if (tree == NULL)
-		return;
-
-	/*
 	 * OK, now build the protocol tree.
 	 */
 
@@ -3896,6 +3889,14 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
 			    8, 2, FALSE);
 	}
+
+	/*
+	 * If we're not building the protocol tree, we don't need to
+	 * make a second pass.
+	 */
+	if (tree == NULL)
+		return;
+
 	flags = tvb_get_ntohs(tvb, 10);
 	fi = proto_tree_add_uint(bp_tree, hf_bootp_flags, tvb,
 			    10, 2, flags);
