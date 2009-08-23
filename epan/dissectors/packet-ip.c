@@ -1353,7 +1353,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   }
 
   iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
-  col_add_fstr(pinfo->cinfo, COL_DSCP_VALUE, "%u", IPDSFIELD_DSCP(iph->ip_tos));
 
   if (tree) {
     if (g_ip_dscp_actif) {
