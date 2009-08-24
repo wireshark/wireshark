@@ -128,3 +128,30 @@ gdkcolor_to_color_t(color_t *target, GdkColor *source)
 	target->green = source->green;
 	target->blue  = source->blue;
 }
+
+#if GTK_CHECK_VERSION(2,12,0)
+#else
+/** Copied from GTK sources
+ * gdk_color_to_string:
+ * @color: a #GdkColor
+ *
+ * Returns a textual specification of @color in the hexadecimal form
+ * <literal>&num;rrrrggggbbbb</literal>, where <literal>r</literal>,
+ * <literal>g</literal> and <literal>b</literal> are hex digits
+ * representing the red, green and blue components respectively.
+ *
+ * Return value: a newly-allocated text string
+ *
+ * Since: 2.12
+ **/
+gchar *
+gdk_color_to_string (const GdkColor *color)
+{
+
+  g_return_val_if_fail (color != NULL, NULL);
+
+  return return g_strdup_printf ("#%04x%04x%04x", color->red, color->green, color->blue);
+
+}
+#endif /* GTK_CHECK_VERSION(2,12,0) */
+

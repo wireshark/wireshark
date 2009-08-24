@@ -61,4 +61,8 @@ void color_t_to_gdkcolor(GdkColor *target, color_t *source);
  */
 void gdkcolor_to_color_t(color_t *target, GdkColor *source);
 
-#endif
+#if GTK_CHECK_VERSION(2,12,0)
+#else
+gchar * gdk_color_to_string (const GdkColor *color)
+#endif /* GTK_CHECK_VERSION(2,12,0) */
+#endif /* __COLORS_H__ */
