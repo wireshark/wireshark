@@ -505,7 +505,8 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     gtk_tree_view_column_set_sort_column_id(column, PROTOCOL_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_column_set_min_width(column, 40);
+	gtk_tree_view_column_set_fixed_width(column, 100);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
  
     /* Third column.. Summary. */
@@ -514,7 +515,8 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     gtk_tree_view_column_set_sort_column_id(column, SUMMARY_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 90);
+    gtk_tree_view_column_set_min_width(column, 80);
+	gtk_tree_view_column_set_fixed_width(column, 230);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
  
     /* Last column.. Count. */
@@ -613,9 +615,35 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
 
     /* Update the tree with new count for this event */
     store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
-    gtk_tree_store_set(store, &procedure->iter, COUNT_COLUMN, procedure->count, -1);
-    gtk_tree_store_append(store, &new_iter, &procedure->iter);
+    gtk_tree_store_set(store, &procedure->iter, 
+                       COUNT_COLUMN, procedure->count, 
+					   -1);
+#if 0
+	This does not have a big performance improvment :(
+if GTK_CHECK_VERSION(2,10,0)
+	gtk_tree_store_insert_with_values   (store,
+                       &new_iter,   /* *iter */
+                       &procedure->iter, /* *parent*/
+                       G_MAXINT,    /* position */
+
+#else
+
+    /* FIXME gtk is plagued with slow algorithms 
+       gtk_tree_store_append call new_path and its nice recursive linear search....
+    */
+    if (procedure->count > 1000) {
+        /* If there's more than 1000 sub rows give up and prepend new rows, at least 
+           it will end in a reasonable time. Anyway with so many rows it's not
+           very useful. Too bad sorting doesn't work well on num packet, use alpha sort
+        */
+        gtk_tree_store_prepend(store, &new_iter, &procedure->iter);
+    }
+    else {
+        gtk_tree_store_append(store, &new_iter, &procedure->iter);
+    }
+
     gtk_tree_store_set(store, &new_iter,
+#endif
                        GROUP_COLUMN,    "Packet:",
                        PROTOCOL_COLUMN, (char *)g_strdup_printf("%d", expert_data->packet_num),
                        COUNT_COLUMN,    1,
