@@ -1548,6 +1548,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	gint nbytes;
 	proto_item *item;
 	struct tcp_multisegment_pdu *msp;
+	gboolean cleared_writable;
 
 again:
 	ipfd_head=NULL;
@@ -1918,12 +1919,21 @@ again:
 		 *  <Protocol>   to <TCP>
 		 * XXX There is no good way to block the PROTOCOL column
 		 * from being changed yet so we set the entire row unwritable.
+		 * The flag cleared_writable stores the initial state.
 		 */
 		col_set_fence(pinfo->cinfo, COL_INFO);
+		cleared_writable |= col_get_writable(pinfo->cinfo);
 		col_set_writable(pinfo->cinfo, FALSE);
 		offset += another_pdu_follows;
 		seq += another_pdu_follows;
 		goto again;
+	} else {
+		/* remove any blocking set above otherwise the
+		 * proto,colinfo tap will break
+		 */
+		if(cleared_writable){
+			col_set_writable(pinfo->cinfo, TRUE);
+		}
 	}
 }
 
