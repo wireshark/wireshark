@@ -300,14 +300,21 @@ static sctp_assoc_info_t *calc_checksum(struct _sctp_info *check_data, sctp_asso
 }
 
 
+/* XXX: Some versions of gcc warn about "breaking strict aliasing rules" 
+        for 'a' in the following (given the way this function is called).
+        As a workaround we'll define the function parameters to match 
+        how this function is actually called.  */
+/*******
 static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 {
-
 	const struct _sctp_assoc_info* a = aa;
 	const struct _sctp_assoc_info* b = bb;
-
 	if (a == b)
 		return(FORWARD_STREAM);
+********/
+
+static gint sctp_assoc_vtag_cmp(const sctp_tmp_info_t *a, const sctp_assoc_info_t *b)
+{
 
 	if (a == NULL || b == NULL)
 		return(ASSOC_NOT_FOUND);
