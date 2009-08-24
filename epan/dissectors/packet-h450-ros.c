@@ -40,6 +40,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include "packet-per.h"
 
@@ -74,7 +75,7 @@ static int hf_h450_ros_returnResultProblem = -1;  /* ReturnResultProblem */
 static int hf_h450_ros_returnErrorProblem = -1;   /* ReturnErrorProblem */
 
 /*--- End of included file: packet-h450-ros-hf.c ---*/
-#line 45 "packet-h450-ros-template.c"
+#line 46 "packet-h450-ros-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -90,7 +91,7 @@ static gint ett_h450_ros_Reject = -1;
 static gint ett_h450_ros_T_problem = -1;
 
 /*--- End of included file: packet-h450-ros-ett.c ---*/
-#line 48 "packet-h450-ros-template.c"
+#line 49 "packet-h450-ros-template.c"
 
 /* Preferences */
 
@@ -246,6 +247,9 @@ dissect_h450_ros_Invoke(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   }
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
+  if (!arg_handle) {
+    expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+  }
 
   return offset;
 }
@@ -325,6 +329,9 @@ dissect_h450_ros_ReturnResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   }
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
+  if (!res_handle) {
+    expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+  }
 
   return offset;
 }
@@ -390,6 +397,9 @@ dissect_h450_ros_ReturnError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   }
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
+  if (!err_handle) {
+    expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+  }
 
   return offset;
 }
@@ -569,7 +579,7 @@ dissect_h450_ros_ROS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 /*--- End of included file: packet-h450-ros-fn.c ---*/
-#line 75 "packet-h450-ros-template.c"
+#line 76 "packet-h450-ros-template.c"
 
 /*--- proto_register_h450_ros -----------------------------------------------*/
 void proto_register_h450_ros(void) {
@@ -661,7 +671,7 @@ void proto_register_h450_ros(void) {
         "h450_ros.ReturnErrorProblem", HFILL }},
 
 /*--- End of included file: packet-h450-ros-hfarr.c ---*/
-#line 82 "packet-h450-ros-template.c"
+#line 83 "packet-h450-ros-template.c"
   };
 
   /* List of subtrees */
@@ -679,7 +689,7 @@ void proto_register_h450_ros(void) {
     &ett_h450_ros_T_problem,
 
 /*--- End of included file: packet-h450-ros-ettarr.c ---*/
-#line 87 "packet-h450-ros-template.c"
+#line 88 "packet-h450-ros-template.c"
   };
 
   /* Register protocol and dissector */

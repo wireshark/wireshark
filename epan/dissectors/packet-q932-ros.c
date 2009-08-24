@@ -40,6 +40,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 
 #include "packet-ber.h"
 
@@ -78,7 +79,7 @@ static int hf_q932_ros_present = -1;              /* INTEGER */
 static int hf_q932_ros_InvokeId_present = -1;     /* InvokeId_present */
 
 /*--- End of included file: packet-q932-ros-hf.c ---*/
-#line 45 "packet-q932-ros-template.c"
+#line 46 "packet-q932-ros-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -96,7 +97,7 @@ static gint ett_q932_ros_T_problem = -1;
 static gint ett_q932_ros_InvokeId = -1;
 
 /*--- End of included file: packet-q932-ros-ett.c ---*/
-#line 48 "packet-q932-ros-template.c"
+#line 49 "packet-q932-ros-template.c"
 
 /* Preferences */
 
@@ -311,6 +312,9 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   }
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, actx->pinfo, tree);
+  if (!arg_handle) {
+    expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+  }
 
   return offset;
 }
@@ -400,6 +404,9 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   }
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, actx->pinfo, tree); 
+  if (!res_handle) {
+    expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+  }
 
   return offset;
 }
@@ -475,6 +482,9 @@ dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   }
   actx->pinfo->private_data = actx->rose_ctx;
   call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, actx->pinfo, tree); 
+  if (!err_handle) {
+    expert_add_info_format(actx->pinfo, tree, PI_UNDECODED, PI_WARN, "Undecoded %s", descr);
+  }
 
   return offset;
 }
@@ -665,7 +675,7 @@ static int dissect_ROS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 
 /*--- End of included file: packet-q932-ros-fn.c ---*/
-#line 63 "packet-q932-ros-template.c"
+#line 64 "packet-q932-ros-template.c"
 
 /*--- dissect_q932_ros -----------------------------------------------------*/
 static int dissect_q932_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -780,7 +790,7 @@ void proto_register_q932_ros(void) {
         "q932_ros.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-q932-ros-hfarr.c ---*/
-#line 77 "packet-q932-ros-template.c"
+#line 78 "packet-q932-ros-template.c"
   };
 
   /* List of subtrees */
@@ -800,7 +810,7 @@ void proto_register_q932_ros(void) {
     &ett_q932_ros_InvokeId,
 
 /*--- End of included file: packet-q932-ros-ettarr.c ---*/
-#line 82 "packet-q932-ros-template.c"
+#line 83 "packet-q932-ros-template.c"
   };
 
   /* Register protocol and dissector */
