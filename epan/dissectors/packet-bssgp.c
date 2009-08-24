@@ -1271,9 +1271,7 @@ decode_nri(proto_tree *tf, build_info_t *bi, guint32 tmsi_tlli) {
       hidden_item = proto_tree_add_uint(tf, hf_bssgp_nri, bi->tvb, bi->offset, 4, nri);
       PROTO_ITEM_SET_HIDDEN(hidden_item);
     }
-    if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, "NRI %u", nri);
-    }
+    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, "NRI %u", nri);
   }
 }
 
@@ -1378,19 +1376,15 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
         proto_tree_add_string(tf, hf_id, bi->tvb, ie_start_offset + 2, ((num_digits/2)+1), digits_str);
 
     }
-    if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, "%s %s",
+    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, "%s %s",
 			  val_to_str(type, tab_type_of_identity,
 				     "Mobile identity unknown"),
 			  digits_str);
-    }
     break;
   case BSSGP_MOBILE_IDENTITY_TYPE_TMSI_PTMSI:
     tmsi = tvb_get_ntohl(bi->tvb, bi->offset);
-    if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-      col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
+    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
 			  "TMSI/P-TMSI %0x04x", tmsi);
-    }
     if (bi->bssgp_tree) {
       proto_tree_add_item(tf, hf_bssgp_tmsi_ptmsi, bi->tvb, bi->offset, 4,
 			  BSSGP_LITTLE_ENDIAN);
@@ -1714,10 +1708,8 @@ decode_iei_bvci(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
   bi->offset += ie->value_length;
 
-  if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
+  col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
 			"BVCI %u", bvci);
-  }
 }
 
 const value_string tab_cause[] = {
@@ -2873,10 +2865,9 @@ decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint32 tlli;
   tlli = tvb_get_ntohl(bi->tvb, bi->offset);
 
-  if (bi->bssgp_tree) {
-    ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
-    proto_item_append_text(ti, ": %#04x", tlli);
-    /* By Stefan Boman LN/Ericsson 2006-07-14 --
+	ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
+	proto_item_append_text(ti, ": %#04x", tlli);
+	/* By Stefan Boman LN/Ericsson 2006-07-14 --
 	 * Commented the following four lines. Preventing redundant data
 	 */
 	/*
@@ -2885,22 +2876,15 @@ decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 	/* If we want to keep the posibillity to filter on ie:s without a Tag and the ie "content"
 	 * this is how it has to be done.
 	 */
-    tf = proto_item_add_subtree(ti, ett_bssgp_tlli);
+	tf = proto_item_add_subtree(ti, ett_bssgp_tlli);
 
-    proto_tree_add_item(tf, hf_bssgp_tlli,
-			       bi->tvb, bi->offset, 4, BSSGP_LITTLE_ENDIAN);
+	proto_tree_add_item(tf, hf_bssgp_tlli,
+				   bi->tvb, bi->offset, 4, BSSGP_LITTLE_ENDIAN);
 
-  }
   bi->offset += 4;
 
-  if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
+ col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
 			"TLLI %#4x", tlli);
-  }
-
-  if (check_col(bi->pinfo->cinfo, COL_BSSGP_TLLI)) {
-    col_add_fstr(bi->pinfo->cinfo, COL_BSSGP_TLLI, "%#04x", tlli);
-  }
 
   decode_nri(bi->bssgp_tree, bi, tlli);
 }
@@ -2925,10 +2909,9 @@ decode_iei_tmsi(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
   bi->offset += 4;
 
-  if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
+  col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
 			"(P)TMSI %#4x", tmsi);
-  }
+
   decode_nri(bi->bssgp_tree, bi, tmsi);
 }
 
@@ -3428,10 +3411,8 @@ decode_iei_nsei(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   }
   bi->offset += ie->value_length;
 
-  if (check_col(bi->pinfo->cinfo, COL_INFO)) {
-    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
+  col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
 			"NSEI %u", nsei);
-  }
 }
 
 static void
@@ -6013,11 +5994,9 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     bi.bssgp_tree = bssgp_tree;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(bi.pdutype,
+  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(bi.pdutype,
 						   tab_bssgp_pdu_types,
 						   "Unknown PDU type"));
-  }
   decode_pdu(&bi);
 }
 
