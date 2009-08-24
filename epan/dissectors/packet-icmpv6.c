@@ -1884,6 +1884,10 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
 		decode_enumerated_bitfield(ra_flags, ND_RA_FLAG_RTPREF_MASK, 8,
 		names_router_pref, "Router preference: %s"));
+	    proto_tree_add_text(field_tree, tvb, flagoff, 1, "%s",
+		decode_boolean_bitfield(ra_flags,
+			ND_RA_FLAG_ND_PROXY, 8,
+			"Proxied", "Not Proxied"));
 
 	    /* Router lifetime */
 	    proto_tree_add_uint(icmp6_tree, hf_icmpv6_ra_router_lifetime, tvb,
