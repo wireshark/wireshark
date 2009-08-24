@@ -1548,7 +1548,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	gint nbytes;
 	proto_item *item;
 	struct tcp_multisegment_pdu *msp;
-	gboolean cleared_writable;
+	gboolean cleared_writable = col_get_writable(pinfo->cinfo);
 
 again:
 	ipfd_head=NULL;
