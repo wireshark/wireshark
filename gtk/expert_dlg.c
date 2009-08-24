@@ -70,13 +70,23 @@ static const value_string expert_severity_om_vals[] = {
 	{ 0, NULL }
 };
 
+enum
+{
+   NO_COLUMN,
+   SEVERITY_COLUMN,
+   GROUP_COLUMN,
+   PROTOCOL_COLUMN,
+   SUMMARY_COLUMN,
+   FOREGROUND_COLOR_COL,
+   BACKGROUND_COLOR_COL,
+   N_COLUMNS
+};
 
 /* reset of display only, e.g. for filtering */
 static void expert_dlg_display_reset(expert_tapdata_t * etd)
 {
 	etd->disp_events = 0;
-	gtk_clist_clear(etd->table);
-	gtk_clist_columns_autosize(etd->table);
+	gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(etd->tree_view))));
 
 	gtk_window_set_title(GTK_WINDOW(etd->win), "Wireshark: ? Expert Infos");
 	if(etd->label) {
@@ -142,14 +152,14 @@ void
 expert_dlg_draw(void *data)
 {
 	expert_tapdata_t *etd = data;
-	int row;
-	int displayed;
 	expert_info_t *ei;
 	gchar *title;
-	const char *entries[5];   /**< column entries */
+	const char *entries[4];   /**< column entries */
+    GtkListStore *list_store;
+	GtkTreeIter       iter;
+	const gchar *color_str;
+	guint packet_no = 0;
 
-
-	displayed = etd->disp_events;
 
 	if(etd->label) {
 		if(etd->last - etd->first) {
@@ -158,8 +168,6 @@ expert_dlg_draw(void *data)
 			g_free(title);
 		}
 	}
-
-	gtk_clist_freeze(etd->table);
 
 	/* append new events (remove from new list, append to displayed list and clist) */
 	while(etd->first < etd->last){
@@ -171,72 +179,69 @@ expert_dlg_draw(void *data)
 		}
 		etd->disp_events++;
 
-		if(etd->disp_events == 1000)
-			gtk_clist_columns_autosize(etd->table);
-
 		/* packet number */
 		if(ei->packet_num) {
-            char str_buf[10];
-
-			g_snprintf(str_buf, sizeof(str_buf), "%u", ei->packet_num);
-			entries[0] = str_buf;
-		} else {
-			entries[0] = "-";
+            packet_no = ei->packet_num;
 		}
 
 		/* severity */
-		entries[1] = val_to_str(ei->severity, expert_severity_vals, "Unknown severity (%u)");
+		entries[0] = val_to_str(ei->severity, expert_severity_vals, "Unknown severity (%u)");
 
 		/* group */
-		entries[2] = val_to_str(ei->group, expert_group_vals, "Unknown group (%u)");
+		entries[1] = val_to_str(ei->group, expert_group_vals, "Unknown group (%u)");
 
 		/* protocol */
 		if(ei->protocol) {
-			entries[3] = ei->protocol;
+			entries[2] = ei->protocol;
 		} else {
-			entries[3] = "-";
+			entries[2] = "-";
 		}
 
 		/* summary */
-		entries[4] = ei->summary;
-
-		/*gtk_clist_set_pixmap(etd->table, row, 5, ascend_pm, ascend_bm);*/
-
-		row=gtk_clist_append(etd->table, (gchar **) entries);
-		gtk_clist_set_row_data(etd->table, row, GUINT_TO_POINTER(ei->packet_num));
+		entries[3] = ei->summary;
 
 		/* set rows background color depending on severity */
 		switch(ei->severity) {
 		case(PI_CHAT):
-			gtk_clist_set_background(etd->table, row, &expert_color_chat);
+			color_str = gdk_color_to_string(&expert_color_chat);
 			break;
 		case(PI_NOTE):
-			gtk_clist_set_background(etd->table, row, &expert_color_note);
+			color_str = gdk_color_to_string(&expert_color_note);
 			break;
 		case(PI_WARN):
-			gtk_clist_set_background(etd->table, row, &expert_color_warn);
+			color_str = gdk_color_to_string(&expert_color_warn);
 			break;
 		case(PI_ERROR):
-			gtk_clist_set_background(etd->table, row, &expert_color_error);
+			color_str = gdk_color_to_string(&expert_color_error);
 			break;
 		default:
 			g_assert_not_reached();
 		}
-		gtk_clist_set_foreground(etd->table, row, &expert_color_foreground);
+
+		list_store = GTK_LIST_STORE(gtk_tree_view_get_model(etd->tree_view)); /* Get store */
+ 
+		/* Creates a new row at position. iter will be changed to point to this new row. 
+		 * If position is larger than the number of rows on the list, then the new row will be appended to the list.
+		 * The row will be filled with the values given to this function.
+		 * :
+		 * should generally be preferred when inserting rows in a sorted list store.
+		 */
+#if GTK_CHECK_VERSION(2,6,0)
+		gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+#else
+		gtk_list_store_append  (list_store, &iter);
+		gtk_list_store_set  (list_store, &iter,
+#endif
+					NO_COLUMN, packet_no,
+					SEVERITY_COLUMN, entries[0],
+					GROUP_COLUMN, entries[1],
+					PROTOCOL_COLUMN, entries[2],
+					SUMMARY_COLUMN, entries[3],
+					FOREGROUND_COLOR_COL, gdk_color_to_string(&expert_color_foreground),
+					BACKGROUND_COLOR_COL, color_str,
+					-1);
 	}
 	
-	if (etd->table->sort_column || etd->table->sort_type != GTK_SORT_ASCENDING)
-        gtk_clist_sort(etd->table);
-
-	/* column autosizing is very slow for large number of entries,
-	 * so do it only for the first 1000 of it
-	 * (there might be no large changes behind this amount) */
-	if(etd->disp_events < 1000)
-		gtk_clist_columns_autosize(etd->table);
-	gtk_clist_moveto(etd->table,
-                     etd->disp_events - 1, -1, 1.0f, 1.0f);
-	gtk_clist_thaw(etd->table);
-
 	if(etd->label) {
 		title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u",
 			etd->error_events, etd->warn_events, etd->note_events, etd->chat_events);
@@ -251,158 +256,159 @@ expert_dlg_draw(void *data)
 	g_free(title);
 }
 
-
-typedef struct column_arrows {
-	GtkWidget *table;
-	GtkWidget *ascend_pm;
-	GtkWidget *descend_pm;
-} column_arrows;
-
-
-static gint
-srt_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
-{
-	char *text1 = NULL;
-	char *text2 = NULL;
-	int i1, i2;
-
-	const GtkCListRow *row1 = ptr1;
-	const GtkCListRow *row2 = ptr2;
-
-	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
-	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
-
-	switch(clist->sort_column){
-	case 0:
-		i1=atoi(text1);
-		i2=atoi(text2);
-		return i1-i2;
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-		return strcmp (text1, text2);
-	}
-	g_assert_not_reached();
-	return 0;
-}
-
-
 static void
-srt_click_column_cb(GtkCList *clist, gint column, gpointer data)
+select_row_cb(GtkTreeSelection *selection, gpointer *user_data _U_)
 {
-	column_arrows *col_arrows = (column_arrows *) data;
-	int i;
+	//guint num = GPOINTER_TO_UINT(gtk_clist_get_row_data(clist, row));
 
-	gtk_clist_freeze(clist);
+	//cf_goto_frame(&cfile, num);
 
-	for (i = 0; i < 5; i++) {
-		gtk_widget_hide(col_arrows[i].ascend_pm);
-		gtk_widget_hide(col_arrows[i].descend_pm);
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	guint fnumber;
+
+
+	if (selection==NULL)
+		return;
+	
+	if (gtk_tree_selection_get_selected (selection, &model, &iter)){
+		gtk_tree_model_get (model, &iter, NO_COLUMN, &fnumber, -1);
+		cf_goto_frame(&cfile, fnumber);
 	}
 
-	if (column == clist->sort_column) {
-		if (clist->sort_type == GTK_SORT_ASCENDING) {
-			clist->sort_type = GTK_SORT_DESCENDING;
-			gtk_widget_show(col_arrows[column].descend_pm);
-		} else {
-			clist->sort_type = GTK_SORT_ASCENDING;
-			gtk_widget_show(col_arrows[column].ascend_pm);
-		}
-	} else {
-		clist->sort_type = GTK_SORT_ASCENDING;
-		gtk_widget_show(col_arrows[column].ascend_pm);
-		gtk_clist_set_sort_column(clist, column);
-	}
-	gtk_clist_sort(clist);
-
-	gtk_clist_thaw(clist);
 }
 
-
-static void
-select_row_cb(GtkCList *clist, gint row, gint column _U_, GdkEventButton *event _U_, gpointer user_data _U_)
-{
-	guint num = GPOINTER_TO_UINT(gtk_clist_get_row_data(clist, row));
-
-	cf_goto_frame(&cfile, num);
-}
-
-
-void
+ void
 expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 {
-	int i;
-	column_arrows *col_arrows;
-	GtkStyle *win_style;
-	GtkWidget *column_lb;
-	GdkBitmap *ascend_bm, *descend_bm;
-	GdkPixmap *ascend_pm, *descend_pm;
-	const char *default_titles[] = { "No.", "Sever.", "Group", "Protocol", "Summary" };
+    GtkListStore *store;
+    GtkWidget *tree;
+    GtkTreeViewColumn *column;
+    GtkCellRenderer *renderer;
+    GtkTreeSortable *sortable;
+	GtkTreeSelection  *selection;
 
+    /* Create the store */
+    store = gtk_list_store_new (N_COLUMNS,       /* Total number of columns */
+                               G_TYPE_UINT,      /* No				   */
+                               G_TYPE_STRING,    /* Severity           */
+                               G_TYPE_STRING,    /* Group              */
+                               G_TYPE_STRING,    /* Protocol           */
+                               G_TYPE_STRING,    /* Summary            */
+                               G_TYPE_STRING,    /* forground          */
+                               G_TYPE_STRING);   /* Background         */
+
+    /* Create a view */
+    tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+    etd->tree_view = GTK_TREE_VIEW(tree);
+    sortable = GTK_TREE_SORTABLE(store);
+
+#if GTK_CHECK_VERSION(2,6,0)
+	/* Speed up the list display */
+	gtk_tree_view_set_fixed_height_mode(etd->tree_view, TRUE);
+#endif
+
+    /* Setup the sortable columns */
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW (tree), FALSE);
+
+    /* The view now holds a reference.  We can get rid of our own reference */
+    g_object_unref (G_OBJECT (store));
+
+    /* Create a cell renderer */
+    renderer = gtk_cell_renderer_text_new ();
+
+    /* Create the first column, associating the "text" attribute of the
+     * cell_renderer to the first column of the model */
+     /* No */
+    column = gtk_tree_view_column_new_with_attributes ("No", renderer,
+		"text", NO_COLUMN,
+		"foreground", FOREGROUND_COLOR_COL,
+		"background", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, NO_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_append_column (etd->tree_view, column);
+
+	/* Severity */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Severity", renderer,
+		"text", SEVERITY_COLUMN,
+		"foreground", FOREGROUND_COLOR_COL,
+		"background", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, SEVERITY_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    /* Add the column to the view. */
+    gtk_tree_view_append_column (etd->tree_view, column);
+
+	/* Group */
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes ("Group", renderer,
+		"text", GROUP_COLUMN,
+		"foreground", FOREGROUND_COLOR_COL,
+		"background", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, GROUP_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    /* Add the column to the view. */
+    gtk_tree_view_append_column (etd->tree_view, column);
+
+
+	/* Protocol. */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Protocol", renderer,
+		"text", PROTOCOL_COLUMN,
+		"foreground", FOREGROUND_COLOR_COL,
+		"background", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, PROTOCOL_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_append_column (etd->tree_view, column);
+ 
+    /* Summary. */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Summary", renderer,
+		"text", SUMMARY_COLUMN,
+		"foreground", FOREGROUND_COLOR_COL,
+		"background", BACKGROUND_COLOR_COL,
+		NULL);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 90);
+    gtk_tree_view_column_set_sort_column_id(column, SUMMARY_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_append_column (etd->tree_view, column);
+ 
+
+    gtk_tree_view_set_search_column (etd->tree_view, SUMMARY_COLUMN); /* Allow searching the summary */
+    gtk_tree_view_set_reorderable (etd->tree_view, TRUE);   /* Allow user to reorder data with drag n drop */
+    
+    /* Now enable the sorting of each column */
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(etd->tree_view), TRUE);
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(etd->tree_view), TRUE);
+
+	/* Setup the selection handler */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(etd->tree_view));
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+
+	g_signal_connect (G_OBJECT (selection), "changed", /* select_row */
+                  G_CALLBACK (select_row_cb),
+                  NULL);
 
 	etd->scrolled_window=scrolled_window_new(NULL, NULL);
+	gtk_container_add(GTK_CONTAINER(etd->scrolled_window), GTK_WIDGET (etd->tree_view));
+
 	gtk_box_pack_start(GTK_BOX(vbox), etd->scrolled_window, TRUE, TRUE, 0);
 
-	etd->table=(GtkCList *)gtk_clist_new(5);
-	g_signal_connect(etd->table, "select-row", G_CALLBACK(select_row_cb), etd);
-
-	gtk_widget_show(GTK_WIDGET(etd->table));
-	gtk_widget_show(etd->scrolled_window);
-
-	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * 5);
-	win_style = gtk_widget_get_style(etd->scrolled_window);
-	ascend_pm = gdk_pixmap_create_from_xpm_d(etd->scrolled_window->window,
-			&ascend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_ascend_xpm);
-	descend_pm = gdk_pixmap_create_from_xpm_d(etd->scrolled_window->window,
-			&descend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_descend_xpm);
-	for (i = 0; i < 5; i++) {
-		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-		column_lb = gtk_label_new(default_titles[i]);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		gtk_widget_show(column_lb);
-
-		col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		if (i == 0) {
-			gtk_widget_show(col_arrows[i].ascend_pm);
-		}
-		gtk_clist_set_column_widget(GTK_CLIST(etd->table), i, col_arrows[i].table);
-		gtk_widget_show(col_arrows[i].table);
-	}
-	gtk_clist_column_titles_show(GTK_CLIST(etd->table));
-
-	gtk_clist_set_compare_func(etd->table, srt_sort_column);
-	gtk_clist_set_sort_column(etd->table, 0);
-	gtk_clist_set_sort_type(etd->table, GTK_SORT_ASCENDING);
-
-	gtk_clist_set_column_justification(etd->table, 0, GTK_JUSTIFY_RIGHT);
-	gtk_clist_set_column_justification(etd->table, 3, GTK_JUSTIFY_RIGHT);
-	gtk_clist_set_shadow_type(etd->table, GTK_SHADOW_IN);
-	gtk_clist_column_titles_show(etd->table);
-	gtk_clist_columns_autosize(etd->table);
-/*	gtk_clist_set_selection_mode(etd->table, GTK_SELECTION_SINGLE);*/
-/*    gtk_list_set_selection_mode(GTK_LIST(etd->table), GTK_SELECTION_BROWSE);*/
-/*    gtk_list_select_item(GTK_LIST(value_list), 0);*/
-	gtk_container_add(GTK_CONTAINER(etd->scrolled_window), (GtkWidget *)etd->table);
-
-	g_signal_connect(etd->table, "click-column", G_CALLBACK(srt_click_column_cb), col_arrows);
-
-	gtk_widget_show(GTK_WIDGET(etd->table));
-	gtk_widget_show(etd->scrolled_window);
-
-	/* create popup menu for this table */
-	/*if(etd->filter_string){
-		srt_create_popup_menu(etd);
-	}*/
 }
+
 
 void
 expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)

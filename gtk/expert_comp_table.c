@@ -471,6 +471,11 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     err->tree_view = GTK_TREE_VIEW(tree);
     sortable = GTK_TREE_SORTABLE(store);
 
+#if GTK_CHECK_VERSION(2,6,0)
+	/* Speed up the list display */
+	gtk_tree_view_set_fixed_height_mode(err->tree_view, TRUE);
+#endif
+
     /* Setup the sortable columns */
 #if 0
     gtk_tree_sortable_set_sort_func(sortable, SORT_ALPHABETICAL, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
@@ -489,6 +494,8 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     column = gtk_tree_view_column_new_with_attributes ("Group", renderer, "text", GROUP_COLUMN, NULL);
     gtk_tree_view_column_set_sort_column_id(column, GROUP_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
     /* Add the column to the view. */
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
  
@@ -497,6 +504,8 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     column = gtk_tree_view_column_new_with_attributes ("Protocol", renderer, "text", PROTOCOL_COLUMN, NULL);
     gtk_tree_view_column_set_sort_column_id(column, PROTOCOL_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
  
     /* Third column.. Summary. */
@@ -504,12 +513,16 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     column = gtk_tree_view_column_new_with_attributes ("Summary", renderer, "text", SUMMARY_COLUMN, NULL);
     gtk_tree_view_column_set_sort_column_id(column, SUMMARY_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 90);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
  
     /* Last column.. Count. */
     column = gtk_tree_view_column_new_with_attributes ("Count", renderer, "text", COUNT_COLUMN, NULL);
     gtk_tree_view_column_set_sort_column_id(column, COUNT_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
  
     err->scrolled_window=scrolled_window_new(NULL, NULL);

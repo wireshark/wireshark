@@ -33,7 +33,7 @@
 typedef struct expert_tapdata_s {
 	GtkWidget	*win;
 	GtkWidget	*scrolled_window;
-	GtkCList	*table;
+	GtkTreeView *tree_view;
 	GtkWidget	*label;
 	guint32		disp_events;
 	guint32		chat_events;
