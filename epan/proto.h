@@ -1643,6 +1643,17 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 extern guchar
 proto_check_field_name(const gchar *field_name);
 
+
+/** Check if given string is a valid field name
+ @param field the field name used for custom column
+ @param result the buffer to fill with the field string
+ @param expr the filter expression
+ @param aize the size of the string buffer */
+const gchar *
+proto_custom_set(proto_tree* tree, const gchar *field,
+                             gchar *result,
+                             gchar *expr, int size )
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

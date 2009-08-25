@@ -1575,8 +1575,6 @@ proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length)
 	if (length > 0) {
 		g_byte_array_append(bytes, start_ptr, length);
 	}
-	col_custom_set_fstr(fi->hfinfo, "%s", bytes_to_str(bytes->data,
-								   length));
 	fvalue_set(&fi->value, bytes, TRUE);
 }
 
@@ -1659,11 +1657,6 @@ proto_tree_set_time(field_info *fi, nstime_t *value_ptr)
 	DISSECTOR_ASSERT(value_ptr != NULL);
 	hfinfo = fi->hfinfo;
 
-	if (hfinfo->type == FT_ABSOLUTE_TIME) {
-		col_custom_set_fstr(fi->hfinfo, "%s", abs_time_to_str(value_ptr));
-	} else if (hfinfo->type == FT_RELATIVE_TIME) {
-		col_custom_set_fstr(fi->hfinfo, "%s", rel_time_to_secs_str(value_ptr));
-	}
 	fvalue_set(&fi->value, value_ptr, FALSE);
 }
 
@@ -1800,8 +1793,6 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 static void
 proto_tree_set_ipv4(field_info *fi, guint32 value)
 {
-	col_custom_set_fstr(fi->hfinfo, "%s",
-			    ip_to_str((guint8 *)&value));
 	fvalue_set_uinteger(&fi->value, value);
 }
 
@@ -1948,8 +1939,6 @@ static void
 proto_tree_set_guid(field_info *fi, const e_guid_t *value_ptr)
 {
 	DISSECTOR_ASSERT(value_ptr != NULL);
-	col_custom_set_fstr(fi->hfinfo, "%s",
-			    guid_to_str(value_ptr));
 	fvalue_set(&fi->value, (gpointer) value_ptr, FALSE);
 }
 
@@ -2036,8 +2025,6 @@ proto_tree_set_oid(field_info *fi, const guint8* value_ptr, gint length)
 	if (length > 0) {
 		g_byte_array_append(bytes, value_ptr, length);
 	}
-	col_custom_set_fstr(fi->hfinfo, "%s",
-			    oid_resolved_from_encoded(value_ptr, length));
 	fvalue_set(&fi->value, bytes, TRUE);
 }
 
@@ -2050,8 +2037,6 @@ proto_tree_set_oid_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length)
 static void
 proto_tree_set_uint64(field_info *fi, guint64 value)
 {
-	col_custom_set_fstr(fi->hfinfo, "%" G_GINT64_MODIFIER "u",
-			    value);
 	fvalue_set_integer64(&fi->value, value);
 }
 
@@ -2204,11 +2189,8 @@ static void
 proto_tree_set_string(field_info *fi, const char* value)
 {
 	if (value) {
-		col_custom_set_fstr(fi->hfinfo, "%s",
-				    format_text(value, strlen(value)));
 		fvalue_set(&fi->value, (gpointer) value, FALSE);
 	} else {
-		col_custom_set_fstr(fi->hfinfo, "[ Null ]");
 		fvalue_set(&fi->value, (gpointer) "[ Null ]", FALSE);
 	}
 }
@@ -2306,7 +2288,6 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 static void
 proto_tree_set_ether(field_info *fi, const guint8* value)
 {
-	col_custom_set_fstr(fi->hfinfo, "%s", bytes_to_str_punct(value, 6, ':'));
 	fvalue_set(&fi->value, (gpointer) value, FALSE);
 }
 
@@ -2450,8 +2431,6 @@ proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 static void
 proto_tree_set_float(field_info *fi, float value)
 {
-	col_custom_set_fstr(fi->hfinfo, "%." STRINGIFY(FLT_DIG) "f",
-			    value);
 	fvalue_set_floating(&fi->value, value);
 }
 
@@ -2520,8 +2499,6 @@ proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 static void
 proto_tree_set_double(field_info *fi, double value)
 {
-	col_custom_set_fstr(fi->hfinfo, "%." STRINGIFY(DBL_DIG) "g",
-			    value);
 	fvalue_set_floating(&fi->value, value);
 }
 
@@ -2616,23 +2593,6 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 		}
 	}
 
-	if (hfinfo->type == FT_BOOLEAN) {
-		const true_false_string  *tfstring = (const true_false_string *)&tfs_true_false;
-		if (hfinfo->strings) {
-			tfstring = (const struct true_false_string*) hfinfo->strings;
-		}
-		col_custom_set_fstr(fi->hfinfo, "%s", integer ? tfstring->true_string : tfstring->false_string);
-	} else if (hfinfo->strings) {
-		if (hfinfo->display & BASE_RANGE_STRING) {
-			col_custom_set_fstr(fi->hfinfo, "%s", rval_to_str(integer, hfinfo->strings, "%u"));
-		} else {
-			col_custom_set_fstr(fi->hfinfo, "%s", val_to_str(integer, cVALS(hfinfo->strings), "%u"));
-		}
-	} else if (IS_BASE_DUAL(hfinfo->display)) {
-		col_custom_set_fstr(fi->hfinfo, hfinfo_uint_value_format(hfinfo), integer, integer);
-	} else {
-		col_custom_set_fstr(fi->hfinfo, hfinfo_uint_value_format(hfinfo), integer);
-	}
 	fvalue_set_uinteger(&fi->value, integer);
 }
 
@@ -2787,17 +2747,6 @@ proto_tree_set_int(field_info *fi, gint32 value)
 		}
 	}
 
-	if (hfinfo->strings) {
-		if (hfinfo->display & BASE_RANGE_STRING) {
-			col_custom_set_fstr(fi->hfinfo, "%s", rval_to_str(integer, hfinfo->strings, "%d"));
-		} else {
-			col_custom_set_fstr(fi->hfinfo, "%s", val_to_str(integer, cVALS(hfinfo->strings), "%d"));
-		}
-	} else if (IS_BASE_DUAL(hfinfo->display)) {
-		col_custom_set_fstr(fi->hfinfo, hfinfo_int_value_format(hfinfo), integer, integer);
-	} else {
-		col_custom_set_fstr(fi->hfinfo, hfinfo_int_value_format(hfinfo), integer);
-	}
 	fvalue_set_sinteger(&fi->value, integer);
 }
 
@@ -3214,6 +3163,175 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 		}
 	}
 }
+
+/* -------------------------- */
+const gchar *
+proto_custom_set(proto_tree* tree, const gchar *field,
+                             gchar *result,
+                             gchar *expr, int size )
+{
+	guint32		u_integer;
+	gint32		integer;
+	guint8		*bytes;
+	ipv4_addr	*ipv4;
+	guint32		n_addr; /* network-order IPv4 address */
+
+	const true_false_string  *tfstring;
+	int		len;
+	GPtrArray	*finfos;
+	field_info	*finfo;
+	header_field_info* hfinfo;
+	
+	if (!field)
+		return "";
+
+        /* speed up by storing field id in column info ? they
+           are already in the filter.
+        */
+	hfinfo = g_tree_lookup(gpa_name_tree, field);
+
+	/* do we need to rewind ? */
+	if (!hfinfo) 
+		return "";
+
+	while (hfinfo) {
+		finfos = proto_get_finfo_ptr_array(tree, hfinfo->id);
+
+		if (!finfos || !(len = g_ptr_array_len(finfos))) {
+			hfinfo = hfinfo->same_name_next;
+			continue;
+		}
+		/* get the last one  */
+		finfo = g_ptr_array_index(finfos, len -1);
+
+		switch(hfinfo->type) {
+
+		case FT_UINT_BYTES:
+		case FT_BYTES:
+			bytes = fvalue_get(&finfo->value);
+			g_snprintf(result, size, "%s", bytes_to_str(bytes, fvalue_length(&finfo->value)));
+			break;
+
+		case FT_ABSOLUTE_TIME:
+			g_snprintf(result, size, "%s", abs_time_to_str(fvalue_get(&finfo->value)));
+			break;
+
+		case FT_RELATIVE_TIME:
+			g_snprintf(result, size, "%s", rel_time_to_secs_str(fvalue_get(&finfo->value)));
+			break;
+
+		case FT_BOOLEAN:
+			u_integer = fvalue_get_uinteger(&finfo->value);
+			tfstring = (const true_false_string *)&tfs_true_false;
+			if (hfinfo->strings) {
+				tfstring = (const struct true_false_string*) hfinfo->strings;
+			}
+			g_snprintf(result, size, "%s", u_integer ? tfstring->true_string : tfstring->false_string);
+			break;
+
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_FRAMENUM:
+			u_integer = fvalue_get_uinteger(&finfo->value);
+			if (hfinfo->strings) {
+				if (hfinfo->display & BASE_RANGE_STRING) {
+					g_snprintf(result, size, "%s", rval_to_str(u_integer, hfinfo->strings, "%u"));
+				} else {
+					g_snprintf(result, size, "%s", val_to_str(u_integer, cVALS(hfinfo->strings), "%u"));
+				}
+			} else if (IS_BASE_DUAL(hfinfo->display)) {
+				g_snprintf(result, size, hfinfo_uint_value_format(hfinfo), u_integer, u_integer);
+			} else {
+				g_snprintf(result, size, hfinfo_uint_value_format(hfinfo), u_integer);
+			}
+			break;
+
+		case FT_INT64:
+		case FT_UINT64:
+			g_snprintf(result, size, "%" G_GINT64_MODIFIER "u", fvalue_get_integer64(&finfo->value));
+			break;
+
+		/* XXX - make these just FT_INT? */
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			integer = fvalue_get_sinteger(&finfo->value);
+			if (hfinfo->strings) {
+				if (hfinfo->display & BASE_RANGE_STRING) {
+					g_snprintf(result, size, "%s", rval_to_str(integer, hfinfo->strings, "%d"));
+				} else {
+					g_snprintf(result, size, "%s", val_to_str(integer, cVALS(hfinfo->strings), "%d"));
+			}
+			} else if (IS_BASE_DUAL(hfinfo->display)) {
+				g_snprintf(result, size, hfinfo_int_value_format(hfinfo), integer, integer);
+			} else {
+				g_snprintf(result, size, hfinfo_int_value_format(hfinfo), integer);
+			}
+			break;
+
+		case FT_IPv4:
+			ipv4 = fvalue_get(&finfo->value);
+			n_addr = ipv4_get_net_order_addr(ipv4);
+			g_snprintf(result, size, "%s", ip_to_str((guint8 *)&n_addr));
+			break;
+
+		case FT_ETHER:
+			g_snprintf(result, size, "%s", bytes_to_str_punct(fvalue_get(&finfo->value), 6, ':'));
+			break;
+
+		case FT_GUID:
+			g_snprintf(result, size, "%s", guid_to_str((e_guid_t *)fvalue_get(&finfo->value)));
+			break;
+
+		case FT_OID:
+			bytes = fvalue_get(&finfo->value);
+			g_snprintf(result, size, "%s", oid_resolved_from_encoded(bytes, fvalue_length(&finfo->value)));
+			break;
+
+		case FT_FLOAT:
+			g_snprintf(result, size, "%." STRINGIFY(FLT_DIG) "f", fvalue_get_floating(&finfo->value));
+			break;
+
+		case FT_DOUBLE:
+			g_snprintf(result, size, "%." STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
+			break;
+
+	        case FT_EBCDIC:
+		case FT_STRING:
+		case FT_STRINGZ:
+		case FT_UINT_STRING:
+			bytes = fvalue_get(&finfo->value);
+			g_snprintf(result, size,  "%s", format_text(bytes, strlen(bytes)));
+			break;
+
+		case FT_IPXNET: /*XXX really No column custom ?*/
+		case FT_IPv6:
+		default:
+			g_error("hfinfo->type %d (%s) not handled\n",
+					hfinfo->type,
+					ftype_name(hfinfo->type));
+			DISSECTOR_ASSERT_NOT_REACHED();
+			break;
+		}
+
+		switch(hfinfo->type) {
+	        case FT_EBCDIC:
+		case FT_STRING:
+		case FT_STRINGZ:
+		case FT_UINT_STRING:
+        		g_snprintf(expr, size, "\"%s\"",result);
+		default:
+			g_strlcpy(expr, result, size);
+			break;
+		}
+		return hfinfo->abbrev;
+	}
+	return "";
+}
+
 
 /* Set text of proto_item after having already been created. */
 void

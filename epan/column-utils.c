@@ -271,12 +271,12 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
         cinfo->col_data[i] = cinfo->col_buf[i];
       }
       g_vsnprintf(&cinfo->col_buf[i][fence], max_len - fence, format, ap);
-      cinfo->col_buf[i][max_len - 1] = '\0';
     }
   }
   va_end(ap);
 }
 
+/* XXX not used */
 void
 col_custom_set_fstr(header_field_info *hfinfo, const gchar *format, ...)
 {
@@ -310,6 +310,27 @@ col_custom_set_fstr(header_field_info *hfinfo, const gchar *format, ...)
     }
   }
   va_end(ap);
+}
+
+/* search in edt tree custom fields */
+void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo)
+{
+  int i;
+
+  if(!have_custom_cols(cinfo))
+      return;
+
+  for (i = cinfo->col_first[COL_CUSTOM];
+       i <= cinfo->col_last[COL_CUSTOM]; i++) {
+    if (cinfo->fmt_matx[i][COL_CUSTOM] && cinfo->col_custom_field[i]) {
+      cinfo->col_data[i] = cinfo->col_buf[i];
+      
+      cinfo->col_expr.col_expr[i] = epan_custom_set(edt, cinfo->col_custom_field[i],
+                                     cinfo->col_buf[i],
+                                     cinfo->col_expr.col_expr_val[i], 
+                                     COL_MAX_LEN);
+    }
+  }
 }
 
 void

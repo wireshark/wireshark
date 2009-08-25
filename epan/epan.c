@@ -215,11 +215,22 @@ epan_dissect_free(epan_dissect_t* edt)
 void
 epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t* dfcode)
 {
-	dfilter_prime_proto_tree(dfcode, edt->tree);
+    dfilter_prime_proto_tree(dfcode, edt->tree);
+}
+
+/* ----------------------- */
+const gchar *
+epan_custom_set(epan_dissect_t *edt, const gchar *field,
+                             gchar *result,
+                             gchar *expr, int size )
+{
+    return proto_custom_set(edt->tree, field, result, expr, size);
 }
 
 void
 epan_dissect_fill_in_columns(epan_dissect_t *edt, gboolean fill_fd_colums)
 {
+    col_custom_set_edt(edt, edt->pi.cinfo);
     col_fill_in(&edt->pi, fill_fd_colums);
 }
+
