@@ -35,10 +35,29 @@ if registertype == "plugin" or registertype == "plugin_wtap":
 	tmp_filename = "plugin.c-tmp"
 	final_filename = "plugin.c"
 	cache_filename = None
+	preamble = """\
+/*
+ * Do not modify this file.
+ *
+ * It is created automatically by Makefile or Makefile.nmake.
+ */
+"""
 elif registertype == "dissectors":
 	tmp_filename = "register.c-tmp"
 	final_filename = "register.c"
 	cache_filename = "register-cache.pkl"
+	preamble = """\
+/*
+ * Do not modify this file.
+ *
+ * It is created automatically by the "register.c" target in
+ * epan/dissectors/Makefile or Makefile.nmake using information in
+ * epan/dissectors/register-cache.pkl.
+ *
+ * You can force this file to be regenerated completely by deleting
+ * it along with epan/dissectors/register-cache.pkl.
+ */
+"""
 else:
 	print "Unknown output type '%s'" % registertype
 	sys.exit(1)
@@ -156,8 +175,7 @@ regs['wtap_register'].sort()
 
 reg_code = open(tmp_filename, "w")
 
-reg_code.write("/* Do not modify this file.  */\n")
-reg_code.write("/* It is created automatically by the Makefile.  */\n")
+reg_code.write(preamble)
 
 # Make the routine to register all protocols
 if registertype == "plugin" or registertype == "plugin_wtap":
