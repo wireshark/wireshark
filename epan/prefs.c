@@ -1753,6 +1753,7 @@ try_convert_to_custom_column(gpointer *el_data)
     } migrated_columns[] = {
         { COL_COS_VALUE, "vlan.priority" },
         { COL_CIRCUIT_ID, "iax2.call" },
+		{ COL_BSSGP_TLLI, "bssgp.tlli" },
         { COL_HPUX_SUBSYS, "nettl.subsys" },
         { COL_HPUX_DEVID, "nettl.devid" },
         { COL_DSCP_VALUE, "ip.dsfield" },

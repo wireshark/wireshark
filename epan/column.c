@@ -73,7 +73,7 @@ col_format_to_string(gint fmt) {
     "%XR",                                      /* 23) COL_RXID */
     "%C",                                       /* 24) !! DEPRECATED !! - COL_FR_DLCI */
     "%F",                                       /* 25) COL_FREQ_CHAN */
-    "%l",                                       /* 26) COL_BSSGP_TLLI */
+    "%l",                                       /* 26) !! DEPRECATED !! - COL_BSSGP_TLLI */
     "%P",                                       /* 27) !! DEPRECATED !! - COL_HPUX_DEVID */
     "%H",                                       /* 28) !! DEPRECATED !! - COL_HPUX_SUBSYS */
     "%hd",                                      /* 29) COL_DEF_DL_DST */
