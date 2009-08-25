@@ -143,7 +143,7 @@ static const gchar *dlist[NUM_COL_FMTS] = {
     "Fibre Channel RXID",                       /* 23) COL_RXID */
     "Frame Relay DLCI",                         /* 24) !! DEPRECATED !! - COL_FR_DLCI */
     "Frequency/Channel",                        /* 25) COL_FREQ_CHAN */
-    "GPRS BSSGP TLLI",                          /* 26) COL_BSSGP_TLLI */
+    "GPRS BSSGP TLLI",                          /* 26) !! DEPRECATED !! - COL_BSSGP_TLLI */
     "HP-UX Device ID",                          /* 27) !! DEPRECATED !! - COL_HPUX_DEVID */
     "HP-UX Subsystem",                          /* 28) !! DEPRECATED !! - COL_HPUX_SUBSYS */
     "Hardware dest addr",                       /* 29) COL_DEF_DL_DST */
