@@ -1652,7 +1652,7 @@ proto_check_field_name(const gchar *field_name);
 const gchar *
 proto_custom_set(proto_tree* tree, const gchar *field,
                              gchar *result,
-                             gchar *expr, int size )
+                             gchar *expr, int size );
 
 #ifdef __cplusplus
 }
