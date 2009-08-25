@@ -1281,12 +1281,8 @@ static void attach_mac_lte_info(packet_info *pinfo)
         p_mac_lte_info->reTxCount = outhdr_values[i++];
     }
     if (outhdr_values_found > 9) {
-        /* CRC only valid for DL-SCH */
-        if ((p_mac_lte_info->direction == DIRECTION_DOWNLINK) &&
-            ((p_mac_lte_info->rntiType == C_RNTI) ||
-             (p_mac_lte_info->rntiType == SI_RNTI) ||
-             (p_mac_lte_info->rntiType == P_RNTI))) {
-
+        /* CRC only valid for Downlink */
+        if (p_mac_lte_info->direction == DIRECTION_DOWNLINK) {
             p_mac_lte_info->crcStatusValid = TRUE;
             p_mac_lte_info->crcStatus = outhdr_values[i++];
         }

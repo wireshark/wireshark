@@ -1619,7 +1619,10 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (p_mac_lte_info->crcStatus != TRUE) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                    "Frame has CRC error");
-            col_append_fstr(pinfo->cinfo, COL_INFO, "<CRC FAILURE> ");
+            col_append_fstr(pinfo->cinfo, COL_INFO, "<CRC FAILURE> on %s %u ",
+                            val_to_str(p_mac_lte_info->rntiType, rnti_type_vals,
+                                       "Unknown RNTI type"),
+                            p_mac_lte_info->rnti);
         }
     }
 
