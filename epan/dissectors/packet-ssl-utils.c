@@ -1853,6 +1853,7 @@ tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
     gint md;
     guint32 len;
     guint8 buf[20];
+    gint16 temp;
 
     md=ssl_get_digest_by_name(digests[decoder->cipher_suite->dig-0x40]);
     ssl_debug_printf("tls_check_mac mac type:%s md %d\n",
@@ -1873,10 +1874,14 @@ tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
     ssl_hmac_update(&hm,buf,1);
 
     /* hash version,data length and data*/
-    *((gint16*)buf) = g_htons(ver);
+    /* *((gint16*)buf) = g_htons(ver); */
+    temp = g_htons(ver);
+    memcpy(buf, &temp, 2);
     ssl_hmac_update(&hm,buf,2);
 
-    *((gint16*)buf) = g_htons(datalen);
+    /* *((gint16*)buf) = g_htons(datalen); */
+    temp = g_htons(datalen);
+    memcpy(buf, &temp, 2);
     ssl_hmac_update(&hm,buf,2);
     ssl_hmac_update(&hm,data,datalen);
 
@@ -1899,6 +1904,7 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
     guint32 len;
     guint8 buf[64],dgst[20];
     gint pad_ct;
+    gint16 temp;
 
     pad_ct=(decoder->cipher_suite->dig==DIG_SHA)?40:48;
 
@@ -1924,7 +1930,9 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
     ssl_md_update(&mc,buf,1);
 
     /* hash data length in network byte order and data*/
-    *((gint16* )buf) = g_htons(datalen);
+    /* *((gint16* )buf) = g_htons(datalen); */
+    temp = g_htons(datalen);
+    memcpy(buf, &temp, 2);
     ssl_md_update(&mc,buf,2);
     ssl_md_update(&mc,data,datalen);
 
