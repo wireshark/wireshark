@@ -440,7 +440,7 @@ static gint get_enum_name_val(gchar *enum_name) {
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file) {
-    static gint was_registered = 0;
+    static gboolean was_registered = FALSE;
     gchar *tpncp_db_entry = NULL, *tpncp_data_field_name = NULL, *tmp = NULL;
     gint enum_val, data_id, current_data_id = -1,
          tpncp_data_field_sign, tpncp_data_field_size,
@@ -564,11 +564,13 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
     tpncp_db_entry[0] = 0;
 
     /* Register common fields of hf_register_info struture. */
+    hf_entr.hfinfo.type           = 0;
     hf_entr.hfinfo.strings        = NULL;
     hf_entr.hfinfo.bitmask        = 0x0;
     hf_entr.hfinfo.blurb          = NULL;
     hf_entr.hfinfo.id             = 0;
     hf_entr.hfinfo.parent         = 0;
+    hf_entr.hfinfo.ref_count      = 0;
     hf_entr.hfinfo.bitshift       = 0;
     hf_entr.hfinfo.same_name_next = NULL;
     hf_entr.hfinfo.same_name_prev = NULL;
@@ -582,7 +584,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
             memcpy(hf + (hf_size - 1), hf_tpncp + index, sizeof(hf_register_info));
             hf_size++;
         }
-        was_registered = 1;
+        was_registered = TRUE;
     }
     else
         hf_size++;
