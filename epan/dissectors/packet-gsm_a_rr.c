@@ -1021,8 +1021,7 @@ de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
     guint8 value;
 
     curr_offset = offset;
-    proto_tree_add_item(tree, hf_gsm_a_rr_ba_list_pref_length, tvb, curr_offset, 1, FALSE);
-    curr_offset += 1;
+	proto_tree_add_item(tree, hf_gsm_a_rr_ba_list_pref_length, tvb, curr_offset, 1, FALSE);
     bit_offset = curr_offset << 3;
     value = tvb_get_bits8(tvb,bit_offset,1);
     bit_offset += 1;
@@ -1045,7 +1044,7 @@ de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
         bit_offset += 1;
     }
 
-    curr_offset += len - 1;
+    curr_offset += len;
     return (curr_offset - offset);
 }
 
@@ -1060,8 +1059,7 @@ de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
     guint8 value;
 
     curr_offset = offset;
-    proto_tree_add_item(tree, hf_gsm_a_rr_utran_freq_list_length, tvb, curr_offset, 1, FALSE);
-    curr_offset += 1;
+	proto_tree_add_item(tree, hf_gsm_a_rr_utran_freq_list_length, tvb, curr_offset, 1, FALSE);
     bit_offset = curr_offset << 3;
     value = tvb_get_bits8(tvb,bit_offset,1);
     bit_offset += 1;
@@ -1082,7 +1080,7 @@ de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
         bit_offset += 1;
     }
 
-    curr_offset += len - 1;
+    curr_offset += len;
     return (curr_offset - offset);
 }
 
@@ -8906,7 +8904,7 @@ proto_register_gsm_a_rr(void)
 		"ARFCN indicating a single frequency to be used by the mobile station in cell selection and reselection (BA Freq)", HFILL }
             },
             { &hf_gsm_a_rr_utran_freq_list_length,
-              { "Length of BA List Pref","gsm_a.rr.ba_list_pref_length",
+              { "Length of UTRAN freq list","gsm_a.rr.utran_freq_length",
 		FT_UINT8, BASE_DEC,  NULL, 0xff,
 		NULL, HFILL }
             },
