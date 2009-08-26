@@ -978,11 +978,13 @@ proto_register_PROTOABBREV(void)
 	     "Display numbers in Hex",
 	     "Enable to display numerical values in hexadecimal.",
 	     &gPREF_HEX);
-}
+
 /* Register a sample port preference   */
 	prefs_register_uint_preference(PROTOABBREV_module, "tcp.port", "PROTOABBREV TCP Port",
 	     " PROTOABBREV TCP port if other than the default",
 	     10, &gPORT_PREF);
+}
+
 
 /* If this dissector uses sub-dissector registration add a registration routine.
    This exact format is required because a script is used to find these
