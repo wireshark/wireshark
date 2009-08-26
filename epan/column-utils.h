@@ -154,6 +154,9 @@ void col_custom_set_fstr(header_field_info *hfinfo, const gchar *format, ...)
     GNUC_FORMAT_CHECK(printf, 2, 3);
 
 /* For internal Wireshark use only.  Not to be called from dissectors. */
+void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo);
+
+/* For internal Wireshark use only.  Not to be called from dissectors. */
 void col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo);
 
 /* For internal Wireshark use only.  Not to be called from dissectors. */
