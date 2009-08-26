@@ -884,7 +884,7 @@ set_delta_time_dis(frame_data *fd, gchar *buf)
 static void
 col_set_delta_time_dis(frame_data *fd, column_info *cinfo, int col)
 {
-  if (set_delta_time(fd, cinfo->col_buf[col])) {
+  if (set_delta_time_dis(fd, cinfo->col_buf[col])) {
     cinfo->col_expr.col_expr[col] = "frame.time_delta_displayed";
     g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
   }
