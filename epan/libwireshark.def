@@ -923,6 +923,7 @@ t30_facsimile_control_field_vals_short  DATA
 t30_facsimile_control_field_vals        DATA
 t38_T30_data_vals                   DATA
 t38_T30_indicator_vals		DATA
+t38_add_address
 T_h323_message_body_vals	DATA
 tap_push_tapped_queue
 tap_queue_init

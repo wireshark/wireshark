@@ -1009,9 +1009,9 @@ init_t38_info_conv(packet_info *pinfo)
 
 
 	/* find the conversation used for Reassemble and Setup Info */
-	p_conv = find_conversation(pinfo->fd->num, &pinfo->net_src, &pinfo->net_dst,
+	p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
                                    pinfo->ptype,
-                                   pinfo->srcport, pinfo->destport, NO_ADDR_B | NO_PORT_B);
+                                   pinfo->destport, pinfo->srcport, NO_ADDR_B | NO_PORT_B);
 
 	/* create a conv if it doen't exist */
 	if (!p_conv) {
@@ -1333,7 +1333,7 @@ proto_register_t38(void)
         "t38.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 687 "packet-t38-template.c"
+#line 679 "packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1388,7 +1388,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 728 "packet-t38-template.c"
+#line 720 "packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments
