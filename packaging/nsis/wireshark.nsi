@@ -368,6 +368,7 @@ File "${GLIB_DIR}\bin\libgio-2.0-0.dll"
 File "${GLIB_DIR}\bin\libglib-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgobject-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
+File "${GLIB_DIR}\bin\libgthread-2.0-0.dll"
 !ifdef ICONV_DIR
 File "${ICONV_DIR}\bin\iconv.dll"
 !endif

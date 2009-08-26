@@ -907,6 +907,7 @@ GCC_GLIB_CFLAGS=-I$(GLIB_DIR)\include\glib-$(GLIB_VERSION) \
 GLIB_LIBS=$(GLIB_DIR)\lib\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\lib\gmodule-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\lib\gobject-$(GLIB_VERSION).lib
+GTHREAD_LIBS=$(GLIB_DIR)\lib\gthread-$(GLIB_VERSION).lib \
 
 # GTK+
 GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-2.0 \
