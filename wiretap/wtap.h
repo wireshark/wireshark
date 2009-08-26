@@ -28,7 +28,6 @@
 #endif
 
 #include <glib.h>
-#include <stdio.h>
 #include <time.h>
 
 #ifdef __cplusplus
