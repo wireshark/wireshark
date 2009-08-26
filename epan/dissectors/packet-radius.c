@@ -138,6 +138,7 @@ static dissector_handle_t eap_handle;
 static const gchar* shared_secret = "";
 static gboolean show_length = FALSE;
 static guint alt_port_pref = 0;
+static guint request_ttl = 5;
 
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
 
@@ -250,7 +251,7 @@ static gint radius_call_equal(gconstpointer k1, gconstpointer k2)
 		nstime_t delta;
 
 		nstime_delta(&delta, &key1->req_time, &key2->req_time);
-		if (abs( (int) nstime_to_sec(&delta)) > (double) 5) return 0;
+		if (abs( (int) nstime_to_sec(&delta)) > (double) request_ttl) return 0;
 
 		if (key1->code == key2->code)
 			return 1;
@@ -1997,6 +1998,8 @@ proto_register_radius(void)
                                      &show_length);
 	prefs_register_uint_preference(radius_module, "alternate_port","Alternate Port",
                                    "An alternate UDP port to decode as RADIUS", 10, &alt_port_pref);
+	prefs_register_uint_preference(radius_module, "request_ttl", "Request TimeToLive",
+                     "Time to live for a radius request used for matching it with a response", 10, &request_ttl);
 	radius_tap = register_tap("radius");
 	proto_register_prefix("radius",register_radius_fields);
 	
