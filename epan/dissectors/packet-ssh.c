@@ -35,9 +35,7 @@
 # include "config.h"
 #endif
 
-#if HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>

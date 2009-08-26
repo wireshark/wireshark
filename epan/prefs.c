@@ -37,6 +37,7 @@
 
 #include <glib.h>
 
+#include <stdio.h>
 #include <epan/filesystem.h>
 #include <epan/address.h>
 #include <epan/addr_resolv.h>

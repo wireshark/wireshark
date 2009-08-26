@@ -37,6 +37,7 @@
 #include "config.h"
 #endif
 
+#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include <epan/packet.h>

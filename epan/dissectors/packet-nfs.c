@@ -30,9 +30,8 @@
 #include "config.h"
 #endif
 
-
+#include <stdlib.h>
 #include <string.h>
-
 
 #include "packet-rpc.h"
 #include "packet-nfs.h"

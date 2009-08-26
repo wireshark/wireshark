@@ -26,6 +26,8 @@
 # include "config.h"
 #endif
 
+#include <stdio.h>
+
 #include "globals.h"
 #include "proto_hier_stats.h"
 #include "progress_dlg.h"

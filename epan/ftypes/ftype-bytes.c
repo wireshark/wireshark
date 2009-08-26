@@ -24,6 +24,7 @@
 #include "config.h"
 #endif
 
+#include <stdio.h>
 #include <ftypes-int.h>
 #include <string.h>
 #include <ctype.h>

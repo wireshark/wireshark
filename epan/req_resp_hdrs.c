@@ -28,9 +28,11 @@
 #endif
 
 #include <glib.h>
+#include <stdio.h>
+#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <string.h>
 
 #include <epan/req_resp_hdrs.h>
 

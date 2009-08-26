@@ -24,8 +24,8 @@
 #include "config.h"
 #endif
 
+#include <stdio.h>
 #include <ftypes-int.h>
-#include <stdlib.h>
 #include <math.h>
 #include <errno.h>
 #include <float.h>
