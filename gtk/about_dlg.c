@@ -29,7 +29,6 @@
 
 #include <gtk/gtk.h>
 
-#include <stdio.h>
 #include <string.h>
 
 #include <epan/filesystem.h>

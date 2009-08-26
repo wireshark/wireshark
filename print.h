@@ -27,6 +27,8 @@
 #ifndef __PRINT_H__
 #define __PRINT_H__
 
+#include <stdio.h>
+
 #include <epan/packet.h>
 
 #include "packet-range.h"
