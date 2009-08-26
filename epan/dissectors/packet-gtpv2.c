@@ -975,236 +975,145 @@ static void
 dissect_gtpv2_tad(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
 	int offset= 0,i=0,newoffset2;
-	guint8 number, opcode, ebit, comptype, length1;
-	proto_tree *ie_tree;
-	proto_item *ti;
-	number = tvb_get_guint8(tvb,offset)& 0x0f;
-	opcode = tvb_get_guint8(tvb,offset)& 0xe0;
-	ebit = tvb_get_guint8(tvb,offset)& 0x10;
-	proto_tree_add_item(tree, hf_gtpv2_b_tft_opcode, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gtpv2_b_tft_number, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gtpv2_b_tft_ebit, tvb, offset, 1, FALSE);
-	offset++;
-	switch(opcode)
-		{
-			case SPARE:
-				/* Spare */
-				break;
-			case CREATE_NEW_TFT:
-				/* Create New TFT */
-			case REPLACE_PACKET_FILTERS_TFT:
-				/*Replace Packet filters in existing TFT */
-				while (i<number)
-				{
-					i++;newoffset2=0;
-					length1 =tvb_get_guint8(tvb,offset+2);
-					ti = proto_tree_add_text(tree, tvb, offset, 3+length1, "Packet Filter %d",i);
-					ie_tree = proto_item_add_subtree(ti, ett_gtpv2_ie);
-					proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_id, tvb, offset, 1, FALSE);
-					proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_direction, tvb, offset, 1, FALSE);
-					offset++;
-					proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_eval, tvb, offset, 1, FALSE);
-					offset++;
-					proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_length, tvb, offset, 1, FALSE);
-					offset++;
+		guint8 number, opcode, ebit, comptype, length1;
+		proto_tree *ie_tree;
+		proto_item *ti;
+		number = tvb_get_guint8(tvb,offset)& 0x0f;
+		opcode = tvb_get_guint8(tvb,offset)& 0xe0;
+		ebit = tvb_get_guint8(tvb,offset)& 0x10;
+		proto_tree_add_item(tree, hf_gtpv2_b_tft_opcode, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gtpv2_b_tft_number, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gtpv2_b_tft_ebit, tvb, offset, 1, FALSE);
+		offset++;
+		switch(opcode)
+			{
+				case SPARE:
+					/* Spare */
+					break;
+				case CREATE_NEW_TFT:
+					/* Create New TFT */
+				case ADD_PACKET_FILTERS_TFT:
+					/* Add packet filters to existing TFT */
+				case REPLACE_PACKET_FILTERS_TFT:
+					/*Replace Packet filters in existing TFT */
+					while (i<number)
+					{
+						i++;newoffset2=0;
+						length1 =tvb_get_guint8(tvb,offset+2);
+						ti = proto_tree_add_text(tree, tvb, offset, 3+length1, "Packet Filter %d",i);
+						ie_tree = proto_item_add_subtree(ti, ett_gtpv2_ie);
+						proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_id, tvb, offset, 1, FALSE);
+						proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_direction, tvb, offset, 1, FALSE);
+						offset++;
+						proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_eval, tvb, offset, 1, FALSE);
+						offset++;
+						proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_length, tvb, offset, 1, FALSE);
+						offset++;
 
-					while (newoffset2<length1)
-				  	{
+						while (newoffset2<length1)
+					  	{
 						proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_comp_type, tvb, offset, 1, FALSE);
 						comptype = tvb_get_guint8(tvb,offset);
 						offset++;
 						newoffset2++;
-						if (comptype==16)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4, tvb, offset, 4, FALSE);
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4_mask, tvb, offset, 4, FALSE);
-							offset+=8;
-							newoffset2+=8;
-						}
-						if (comptype==32)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6, tvb, offset, 16, FALSE);
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6_mask, tvb, offset, 16, FALSE);
-							offset+=32;
-							newoffset2+=32;
-						}
-						if (comptype==48)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_prot_id, tvb, offset, 1, FALSE);
-							offset+=1;
-							newoffset2+=1;
-						}
-						if (comptype==64)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_local, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-						}
-						if (comptype==65)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_low, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_high, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-						}
-						if (comptype==80)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_remote, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-						}
-						if (comptype==81)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_low, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_high, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-						}
-						if (comptype==96)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_security, tvb, offset, 4, FALSE);
-							offset+=4;
-							newoffset2+=4;
-						}
-						if (comptype==112)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type, tvb, offset, 1, FALSE);
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type_mask, tvb, offset, 1, FALSE);
-							offset+=2;
-							newoffset2+=2;
-						}
-						if (comptype==128)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_flow_label, tvb, offset, 3, FALSE);
-							offset+=3;
-							newoffset2+=3;
-						}
-				  }
-				}
+							if (comptype==16)
+							{
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4, tvb, offset, 4, FALSE);
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4_mask, tvb, offset, 4, FALSE);
+								offset+=8;
+								newoffset2+=8;
+							}
+							if (comptype==32)
+							{
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6, tvb, offset, 16, FALSE);
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6_mask, tvb, offset, 16, FALSE);
+								offset+=32;
+								newoffset2+=32;
+							}
+							if (comptype==48)
+							{
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_prot_id, tvb, offset, 1, FALSE);
+								offset+=1;
+								newoffset2+=1;
+							}
+							if (comptype==64)
+							{
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_local, tvb, offset, 2, FALSE);
+								offset+=2;
+								newoffset2+=2;
+							}
+							if (comptype==65)
+							{
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_low, tvb, offset, 2, FALSE);
+								offset+=2;
+								newoffset2+=2;
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_high, tvb, offset, 2, FALSE);
+								offset+=2;
+								newoffset2+=2;
+							}
+							if (comptype==80)
+							{
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_remote, tvb, offset, 2, FALSE);
+								offset+=2;
+								newoffset2+=2;
+							}
+							if (comptype==81)
+							{
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_low, tvb, offset, 2, FALSE);
+								offset+=2;
+								newoffset2+=2;
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_high, tvb, offset, 2, FALSE);
+								offset+=2;
+								newoffset2+=2;
+							}
+							if (comptype==96)
+							{
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_security, tvb, offset, 4, FALSE);
+								offset+=4;
+								newoffset2+=4;
+							}
+							if (comptype==112)
+							{
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type, tvb, offset, 1, FALSE);
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type_mask, tvb, offset, 1, FALSE);
+								offset+=2;
+								newoffset2+=2;
+							}
+							if (comptype==128)
+							{
+								proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_flow_label, tvb, offset, 3, FALSE);
+								offset+=3;
+								newoffset2+=3;
+							}
+					  }
+					}
 
-				break;
-			case ADD_PACKET_FILTERS_TFT:
-				/* Add packet filters to existing TFT */
-				while (i<number)
-				{
-					i++;newoffset2=0;
-					length1 =tvb_get_guint8(tvb,offset+1);
-					ti = proto_tree_add_text(tree, tvb, offset, 2+length1, "Packet Filter %d",i);
-					ie_tree = proto_item_add_subtree(ti, ett_gtpv2_ie);
-					proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_eval, tvb, offset, 1, FALSE);
-					offset++;
-					proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_length, tvb, offset, 1, FALSE);
-					offset++;
+					break;
+				case DELETE_TFT:
+					/* Delete Existing TFT */
+					break;
 
-					while (newoffset2<length1)
-				  	{
-						proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_comp_type, tvb, offset, 1, FALSE);
-						comptype = tvb_get_guint8(tvb,offset);
+				case DELETE_PACKET_FILTERS_TFT:
+					/* Delete Packet filters from existing TFT */
+					while (i<number)
+					{
+						i++;
+						ti = proto_tree_add_text(tree, tvb, offset, 1, "Packet Filter %d",i);
+						ie_tree = proto_item_add_subtree(ti, ett_gtpv2_ie);
+						proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_id, tvb, offset, 1, FALSE);
+						proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_direction, tvb, offset, 1, FALSE);
 						offset++;
-						newoffset2++;
-						if (comptype==16)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4, tvb, offset, 4, FALSE);
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4_mask, tvb, offset, 4, FALSE);
-							offset+=8;
-							newoffset2+=8;
-						}
-						if (comptype==32)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6, tvb, offset, 16, FALSE);
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6_mask, tvb, offset, 16, FALSE);
-							offset+=32;
-							newoffset2+=32;
-						}
-						if (comptype==48)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_prot_id, tvb, offset, 1, FALSE);
-							offset+=1;
-							newoffset2+=1;
-						}
-						if (comptype==64)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_local, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-						}
-						if (comptype==65)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_low, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_high, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-						}
-						if (comptype==80)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_remote, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-						}
-						if (comptype==81)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_low, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_high, tvb, offset, 2, FALSE);
-							offset+=2;
-							newoffset2+=2;
-						}
-						if (comptype==96)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_security, tvb, offset, 4, FALSE);
-							offset+=4;
-							newoffset2+=4;
-						}
-						if (comptype==112)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type, tvb, offset, 1, FALSE);
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type_mask, tvb, offset, 1, FALSE);
-							offset+=2;
-							newoffset2+=2;
-						}
-						if (comptype==128)
-						{
-							proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_flow_label, tvb, offset, 3, FALSE);
-							offset+=3;
-							newoffset2+=3;
-						}
-				  }
-				}
-
-				break;
-			case DELETE_TFT:
-				/* Delete Existing TFT */
-				break;
-
-			case DELETE_PACKET_FILTERS_TFT:
-				/* Delete Packet filters from existing TFT */
-				while (i<number)
-				{
-					i++;
-					ti = proto_tree_add_text(tree, tvb, offset, 1, "Packet Filter %d",i);
-					ie_tree = proto_item_add_subtree(ti, ett_gtpv2_ie);
-					proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_id, tvb, offset, 1, FALSE);
-					proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_direction, tvb, offset, 1, FALSE);
-					offset++;
-				}
-				break;
-			case NO_TFT_OPERATION:
-				/* No TFT operation */
-				break;
-			case RESERVED:
-				/* Reserved */
-				break;
-			default:
-				break;
-		}
-
+					}
+					break;
+				case NO_TFT_OPERATION:
+					/* No TFT operation */
+					break;
+				case RESERVED:
+					/* Reserved */
+					break;
+				default:
+					break;
+			}
 }
 /*
  * 8.21 User Location Info (ULI)
