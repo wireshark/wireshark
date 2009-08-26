@@ -75,6 +75,10 @@ const value_string etype_vals[] = {
     {ETHERTYPE_ISMP,					"Cabletron Interswitch Message Protocol" },
     {ETHERTYPE_ISMP_TBFLOOD,			"Cabletron SFVLAN 1.8 Tag-Based Flood" },
     				/* for ISMP, see RFC 2641, RFC 2642, RFC 2643 */
+    {ETHERTYPE_QNX_QNET6,				"QNX 6 QNET protocol"		},
+    				/* In www.iana.org/assignments/ethernet-numbers, 8203-8205 description is Quantum Software. 
+				 * Now the company is called QNX Software Systems.
+				 */ 
     {ETHERTYPE_PPPOED,					"PPPoE Discovery"		},
     {ETHERTYPE_PPPOES,					"PPPoE Session"			},
     {ETHERTYPE_INTEL_ANS,				"Intel ANS probe"		},

@@ -210,6 +210,10 @@
 #define ETHERTYPE_ISMP_TBFLOOD	0x81ff	/* Cabletron Interswitch Message Protocol */
 #endif
 
+#ifndef ETHERTYPE_QNX_QNET6
+#define ETHERTYPE_QNX_QNET6	0x8204	/* 0x8204 QNX QNET/LWL4 for QNX6 OS; 0x8203 for QNX4 OS QNET */
+#endif
+
 #ifndef ETHERTYPE_IPv6
 #define ETHERTYPE_IPv6		0x86dd
 #endif
