@@ -35,7 +35,7 @@
 
 /** Procedure data */
 typedef struct _error_procedure_t {
-	char    *entries[4];       /**< column entries */
+	char    *entries[2];       /**< column entries */
     char    *fvalue_value;     /**< filter value */
     GtkTreeIter      iter;
     guint count;             /**< number of expert items encountered

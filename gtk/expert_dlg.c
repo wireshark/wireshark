@@ -59,6 +59,7 @@
 #include "gtk/main_proto_draw.h"
 #include "gtk/help_dlg.h"
 #include "gtk/expert_dlg.h"
+#include "gtk/font_utils.h"
 
 static const value_string expert_severity_om_vals[] = {
     { PI_ERROR, "Errors only" },
@@ -155,7 +156,7 @@ expert_dlg_draw(void *data)
     const char *entries[4];   /**< column entries */
     GtkListStore *list_store;
     GtkTreeIter iter;
-    const gchar *color_str;
+    gchar *color_str;
     guint packet_no = 0;
 
 
@@ -201,16 +202,16 @@ expert_dlg_draw(void *data)
         /* set rows background color depending on severity */
         switch(ei->severity) {
         case(PI_CHAT):
-            color_str = gdk_color_to_string(&expert_color_chat);
+            color_str = expert_color_chat_str;
             break;
         case(PI_NOTE):
-            color_str = gdk_color_to_string(&expert_color_note);
+            color_str = expert_color_note_str;
             break;
         case(PI_WARN):
-            color_str = gdk_color_to_string(&expert_color_warn);
+            color_str = expert_color_warn_str;
             break;
         case(PI_ERROR):
-            color_str = gdk_color_to_string(&expert_color_error);
+            color_str = expert_color_error_str;
             break;
         default:
             g_assert_not_reached();
@@ -235,7 +236,7 @@ expert_dlg_draw(void *data)
                     GROUP_COLUMN, entries[1],
                     PROTOCOL_COLUMN, entries[2],
                     SUMMARY_COLUMN, entries[3],
-                    FOREGROUND_COLOR_COL, gdk_color_to_string(&expert_color_foreground),
+                    FOREGROUND_COLOR_COL, expert_color_foreground_str,
                     BACKGROUND_COLOR_COL, color_str,
                     -1);
     }

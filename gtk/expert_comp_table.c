@@ -54,7 +54,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/webbrowser.h"
 
-#if 0
+
 #define SORT_ALPHABETICAL 0
 
 static gint
@@ -91,7 +91,7 @@ sort_iter_compare_func (GtkTreeModel *model,
     }
     return ret;
 }
-#endif
+
 enum
 {
    GROUP_COLUMN,
@@ -112,8 +112,8 @@ static gint find_summary_data(error_equiv_table *err, const expert_info_t *exper
     }
     for (i=0;i<err->num_procs;i++) {
         procedure = &g_array_index(err->procs_array, error_procedure_t, i);
-        if (strcmp(procedure->entries[1], expert_data->protocol) == 0 &&
-            strcmp(procedure->entries[2], expert_data->summary) == 0) {
+        if (strcmp(procedure->entries[0], expert_data->protocol) == 0 &&
+            strcmp(procedure->entries[1], expert_data->summary) == 0) {
             return i;
         }
     }
@@ -160,7 +160,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     /*       to be translated to the group number (or the actual group number    */
     /*       will also need to be stored in the TreeModel).                      */
     selection = find_summary_data(err, &expert_data);
-
+    g_free(expert_data.protocol);
     g_free(expert_data.summary);
 
     if(selection>=(int)err->num_procs){
@@ -179,12 +179,12 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         if (0 /*procedure->fvalue_value==NULL*/) {
             if (action != ACTION_FIND_FRAME && action != ACTION_FIND_NEXT && action != ACTION_FIND_PREVIOUS) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Wireshark cannot create a filter on this item - %s, try using find instead.", 
-                              procedure->entries[2]);
+                              procedure->entries[1]);
                 return;
             }
         }
-        msg = g_malloc(escape_string_len(procedure->entries[2]));
-        escape_string(msg, procedure->entries[2]);
+        msg = g_malloc(escape_string_len(procedure->entries[1]));
+        escape_string(msg, procedure->entries[1]);
         switch(type){
         case ACTYPE_SELECTED:
             /* if no expert item was passed */
@@ -296,7 +296,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         break;
     case ACTION_WEB_LOOKUP:
         /* Lookup expert string on internet. Default search via www.google.com */
-        g_snprintf(str, sizeof(str), "http://www.google.com/search?hl=en&q=%s+'%s'", procedure->entries[1], procedure->entries[2]);
+        g_snprintf(str, sizeof(str), "http://www.google.com/search?hl=en&q=%s+'%s'", procedure->entries[0], procedure->entries[1]);
         browser_open_url(str);
         break;
     default:
@@ -477,10 +477,10 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
 #endif
 
     /* Setup the sortable columns */
-#if 0
-    gtk_tree_sortable_set_sort_func(sortable, SORT_ALPHABETICAL, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
-    gtk_tree_sortable_set_sort_column_id(sortable, SORT_ALPHABETICAL, GTK_SORT_ASCENDING);
-#endif
+    gtk_tree_sortable_set_default_sort_func(sortable, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
+
+gtk_tree_sortable_set_sort_column_id(sortable, GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW (tree), FALSE);
 
     /* The view now holds a reference.  We can get rid of our own reference */
@@ -555,11 +555,11 @@ void
 init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
 {
     guint old_num_procs=err->num_procs;
-    guint j;
     gint row=0;
     error_procedure_t *procedure;
     GtkTreeStore *store;
     GtkTreeIter   new_iter;
+    gchar num[10];
 
     /* we have discovered a new procedure. Extend the table accordingly */
     row = find_summary_data(err, expert_data);
@@ -570,26 +570,22 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
 
         new_procedure.count=0; /* count of events for this item */
         new_procedure.fvalue_value = NULL; /* Filter string value */
-        for(j=0;j<4;j++){
-            new_procedure.entries[j]=NULL;
-        }
+
         g_array_append_val(err->procs_array, new_procedure);
         procedure = &g_array_index(err->procs_array, error_procedure_t, row);
         
         /* Create the item in our memory table */
-        procedure->entries[0]=(char *)g_string_chunk_insert(err->text, 
-                val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"));  /* Group */
-        procedure->entries[1]=(char *)g_string_chunk_insert(err->text, expert_data->protocol);    /* Protocol */
-        procedure->entries[2]=(char *)g_string_chunk_insert(err->text, expert_data->summary);     /* Summary */
+        procedure->entries[0]=(char *)g_string_chunk_insert(err->text, expert_data->protocol);    /* Protocol */
+        procedure->entries[1]=(char *)g_string_chunk_insert(err->text, expert_data->summary);     /* Summary */
 
         /* Create a new item in our tree view */
         store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view)); /* Get store */
         gtk_tree_store_append (store, &procedure->iter, NULL);  /* Acquire an iterator */
         
         gtk_tree_store_set (store, &procedure->iter,
-                    GROUP_COLUMN, procedure->entries[0],
-                    PROTOCOL_COLUMN, procedure->entries[1],
-                    SUMMARY_COLUMN,  procedure->entries[2], -1);
+                    GROUP_COLUMN, val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"), 
+                    PROTOCOL_COLUMN, procedure->entries[0],
+                    SUMMARY_COLUMN,  procedure->entries[1], -1);
         
         /* If an expert item was passed then build the filter string */
         if (expert_data->pitem) {
@@ -608,16 +604,13 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
     procedure = &g_array_index(err->procs_array, error_procedure_t, row);
     procedure->count++; /* increment the count of events for this item */
 
-#if 0
-    /* Store the updated count for this event item */
-    err->procedures[row].entries[3]=(char *)g_strdup_printf("%d", err->procedures[row].count);     /* Count */
-#endif
-
     /* Update the tree with new count for this event */
     store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
     gtk_tree_store_set(store, &procedure->iter, 
                        COUNT_COLUMN, procedure->count, 
 					   -1);
+
+    g_snprintf(num, sizeof(num), "%d", expert_data->packet_num);
 #if 0
 	This does not have a big performance improvment :(
 if GTK_CHECK_VERSION(2,10,0)
@@ -641,11 +634,10 @@ if GTK_CHECK_VERSION(2,10,0)
     else {
         gtk_tree_store_append(store, &new_iter, &procedure->iter);
     }
-
     gtk_tree_store_set(store, &new_iter,
 #endif
                        GROUP_COLUMN,    "Packet:",
-                       PROTOCOL_COLUMN, (char *)g_strdup_printf("%d", expert_data->packet_num),
+                       PROTOCOL_COLUMN, num,
                        COUNT_COLUMN,    1,
                        -1);
 }

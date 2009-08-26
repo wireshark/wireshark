@@ -232,4 +232,11 @@ extern GdkColor	expert_color_warn;
 extern GdkColor	expert_color_error;
 extern GdkColor	expert_color_foreground;
 
+/* string representation of expert colors */
+extern gchar *expert_color_chat_str;
+extern gchar *expert_color_note_str;
+extern gchar *expert_color_warn_str;
+extern gchar *expert_color_error_str;
+extern gchar *expert_color_foreground_str;
+
 #endif

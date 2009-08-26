@@ -1412,6 +1412,12 @@ GdkColor	expert_color_error	= { 0, 0xff00, 0x5c00, 0x5c00 };	/* pale red */
 GdkColor	expert_color_foreground	= { 0, 0x0000, 0x0000, 0x0000 };	/* black */
 GdkColor	hidden_proto_item	= { 0, 0x4400, 0x4400, 0x4400 };	/* gray */
 
+gchar *expert_color_chat_str;
+gchar *expert_color_note_str;
+gchar *expert_color_warn_str;
+gchar *expert_color_error_str;
+gchar *expert_color_foreground_str;
+
 void proto_draw_colors_init(void)
 {
 	if(colors_ok) {
@@ -1423,6 +1429,12 @@ void proto_draw_colors_init(void)
 	get_color(&expert_color_warn);
 	get_color(&expert_color_error);
 	get_color(&expert_color_foreground);
+	expert_color_chat_str = gdk_color_to_string(&expert_color_chat);
+	expert_color_note_str = gdk_color_to_string(&expert_color_note);
+	expert_color_warn_str = gdk_color_to_string(&expert_color_warn);
+	expert_color_error_str = gdk_color_to_string(&expert_color_error);
+	expert_color_foreground_str = gdk_color_to_string(&expert_color_foreground);
+
 	get_color(&hidden_proto_item);
 
 	colors_ok = TRUE;
