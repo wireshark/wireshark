@@ -69,8 +69,8 @@ typedef struct _rtp_stream_info {
 	guint32 first_frame_num; /* frame number of first frame */
 	guint32 setup_frame_number; /* frame number of setup message */
 	/* start of recording (GMT) of this stream */
-    guint32 start_sec;         /* seconds */
-    guint32 start_usec;        /* microseconds */
+	guint32 start_sec;         /* seconds */
+	guint32 start_usec;        /* microseconds */
 	gboolean tag_vlan_error;
 	guint32 start_rel_sec;         /* start stream rel seconds */
 	guint32 start_rel_usec;        /* start stream rel microseconds */
@@ -87,9 +87,9 @@ typedef struct _rtp_stream_info {
 /* tapping modes */
 typedef enum
 {
-  TAP_ANALYSE,
-  TAP_SAVE,
-  TAP_MARK
+	TAP_ANALYSE,
+	TAP_SAVE,
+	TAP_MARK
 } tap_mode_t;
 
 
