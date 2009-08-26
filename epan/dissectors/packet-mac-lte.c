@@ -58,9 +58,11 @@ static int hf_mac_lte_context_ueid = -1;
 static int hf_mac_lte_context_subframe_number = -1;
 static int hf_mac_lte_context_predefined_frame = -1;
 static int hf_mac_lte_context_length = -1;
+static int hf_mac_lte_context_ul_grant_size = -1;
 static int hf_mac_lte_context_bch_transport_channel = -1;
 static int hf_mac_lte_context_retx_count = -1;
 static int hf_mac_lte_context_crc_status = -1;
+
 
 /* MAC SCH header fields */
 static int hf_mac_lte_ulsch_header = -1;
@@ -1599,6 +1601,13 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_length,
                              tvb, 0, 0, p_mac_lte_info->length);
     PROTO_ITEM_SET_GENERATED(ti);
+    /* Infer uplink grant size */
+    if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
+        ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_ul_grant_size,
+                                 tvb, 0, 0, p_mac_lte_info->length);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
 
     if (p_mac_lte_info->reTxCount) {
         ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_retx_count,
@@ -1619,7 +1628,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (p_mac_lte_info->crcStatus != TRUE) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                    "Frame has CRC error");
-            col_append_fstr(pinfo->cinfo, COL_INFO, "<CRC FAILURE> on %s %u ",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s: <CRC FAILURE> on %s %u ",
+                            (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL",
                             val_to_str(p_mac_lte_info->rntiType, rnti_type_vals,
                                        "Unknown RNTI type"),
                             p_mac_lte_info->rnti);
@@ -1782,6 +1792,12 @@ void proto_register_mac_lte(void)
             { "Length of frame",
               "mac-lte.length", FT_UINT8, BASE_DEC, 0, 0x0,
               "Original length of frame (including SDUs and padding)", HFILL
+            }
+        },
+        { &hf_mac_lte_context_ul_grant_size,
+            { "Uplink grant size",
+              "mac-lte.ul-grant-size", FT_UINT8, BASE_DEC, 0, 0x0,
+              "Uplink grant size (in bytes)", HFILL
             }
         },
         { &hf_mac_lte_context_bch_transport_channel,
