@@ -196,6 +196,11 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
     remove_tap_listener(ss);
     unprotect_thread_critical_region();
 
+    if (expert_comp_dlg_w != NULL) {
+        window_destroy(expert_comp_dlg_w);
+        expert_comp_dlg_w = NULL;
+    }
+
     free_error_table_data(&ss->error_table);
     free_error_table_data(&ss->warn_table);
     free_error_table_data(&ss->note_table);
