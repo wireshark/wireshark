@@ -310,14 +310,6 @@ PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v19_2
 PORTAUDIO_VERSION=19
 
 #
-# Iconv: Mandatory for Glib >= 2 and <= 2.14.4
-# [win-iconv statically linked as part of Glib >= 2.14.5]
-# Set ICONV_DIR to the directory in which the
-# ICONV include files and library resides.
-#
-##ICONV_DIR=$(WIRESHARK_LIBS)\libiconv-1.9.1.bin.woe32
-
-#
 # Mandatory for GTK >= 2: Gettext
 #
 # Set GETTEXT_DIR to the directory in which the
@@ -536,14 +528,6 @@ PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v19_2
 #
 #PORTAUDIO_VERSION=18
 PORTAUDIO_VERSION=19
-
-#
-# Iconv: Mandatory for Glib >= 2 and <= 2.14.4
-# [win-iconv statically linked as part of Glib >= 2.14.5]
-# Set ICONV_DIR to the directory in which the
-# ICONV include files and library resides.
-#
-##ICONV_DIR=$(WIRESHARK_LIBS)\libiconv-1.9.1.bin.woe32
 
 #
 # Mandatory for GTK >= 2: Gettext
