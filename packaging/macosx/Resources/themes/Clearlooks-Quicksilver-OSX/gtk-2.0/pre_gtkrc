@@ -5,6 +5,26 @@
 # 
 # Heavily based on Clearlooks-Quicksilver
 # Scrollbars from OSX-theme by Lauri Taimila (lauri@taimila.com)
+#
+# XXX - hopefully not *too* heavily based on Clearlooks; Clearlooks
+# might be the right theme for Ubuntu/Fedora/RHEL/Solaris/other
+# OSes with GNOME-based desktops, but something that looks a bit
+# more OS Xish might be better here.
+#
+# Also, note bugs 3944 and 3945, where some color and size choices
+# aren't necessarily right.
+#
+# Googling for
+#
+#	gtk theme mac os x
+#
+# (as Google Suggest suggested) found
+#
+#	http://www.gnome-look.org/content/show.php?content=13548
+#	http://www.gnome-look.org/content/show.php/OSX-Tiger+theme?content=56577
+#	http://xanana.ucsc.edu/~wgscott/wordpress_new/wordpress/?p=5
+#	http://linux.softpedia.com/get/Desktop-Environment/Themes/OSX-mod-41416.shtml
+#	http://www.gnome-look.org/content/show.php/OSX-X.5?content=61583
 # 
 # (c) 2007 JiHO <jo.irisson@gmail.com>. 
 # GNU General Public License http://www.gnu.org/copyleft/gpl.html
