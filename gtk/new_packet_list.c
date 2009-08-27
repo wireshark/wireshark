@@ -34,6 +34,7 @@
 #include "string.h"
 #endif
 
+#include <stdio.h>
 #include <gtk/gtk.h>
 #include <glib.h>
 
@@ -842,7 +843,7 @@ new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, gint copy_
     g_string_free(text,TRUE);
 }
 
-/* XXX fore some reason this does not work in th .h file XXX*/
+/* XXX for some reason this does not work in the .h file XXX*/
 #define RECENT_KEY_COL_WIDTH                "column.width"
 
 void

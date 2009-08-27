@@ -29,6 +29,8 @@
 #ifndef NEW_PACKET_LIST
 
 #include <gtk/gtk.h>
+
+#include <stdio.h>
 #include <string.h>
 
 #include <epan/epan.h>

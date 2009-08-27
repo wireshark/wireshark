@@ -33,13 +33,8 @@
 #endif
 
 #include <string.h>
-#if 0
-/*
- * menus.h uses FILE, but I guess <stdio.h> is included by
- * something else before menus.h is included.
- */
+
 #include <stdio.h>
-#endif
 
 #include <gtk/gtk.h>
 
