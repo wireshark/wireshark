@@ -56,7 +56,7 @@ include_directories(
 if(NOT LIBRARY_OUTPUT_PATH)
   set(LIBRARY_OUTPUT_PATH ${wireshark_BINARY_DIR}/lib CACHE INTERNAL
        "Single output directory for building all libraries.")
-endif(NOT LIBRARY_OUTPUT_PATH)
+endif()
 
 option(BUILD_WIRESHARK   "Build the GUI version of Wireshark" ON)
 option(BUILD_TSHARK      "Build tshark" ON)
@@ -74,7 +74,7 @@ option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC" OFF)
 if(ENABLE_EXTRA_GCC_CHECKS)
   set(WIRESHARK_EXTRA_GCC_FLAGS -Wcast-qual -Wcast-align -Wbad-function-cast
       -pedantic -Wstrict-prototypes -Wmissing-declarations -Wwrite-strings)
-endif(ENABLE_EXTRA_GCC_CHECKS)
+endif()
 
 if(CMAKE_COMPILER_IS_GNUCC)
   add_definitions(
@@ -83,9 +83,9 @@ if(CMAKE_COMPILER_IS_GNUCC)
     -Wall -Wpointer-arith -W
     ${WIRESHARK_EXTRA_GCC_FLAGS}
   )
-else(CMAKE_COMPILER_IS_GNUCC)
+else()
   add_definitions(-DHAVE_CONFIG_H -D_U_=\"\")
-endif(CMAKE_COMPILER_IS_GNUCC)
+endif()
 
 #The minimum package list
 set(PACKAGELIST GLIB2 PCAP LEX YACC Perl ${PACKAGELIST})
@@ -93,13 +93,13 @@ set(PACKAGELIST GLIB2 PCAP LEX YACC Perl ${PACKAGELIST})
 #build the gui ?
 if(BUILD_WIRESHARK)
   set(PACKAGELIST GTK2 ${PACKAGELIST})
-endif(BUILD_WIRESHARK)
+endif()
 
 #Gnu asynchronous dns
 if(ENABLE_ADNS)
   set(PACKAGELIST ADNS ${PACKAGELIST})
   set(HAVE_GNU_ADNS 1)
-endif(ENABLE_ADNS)
+endif()
 
 set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
 
@@ -113,10 +113,10 @@ foreach(PACKAGE ${PACKAGELIST})
     message(STATUS "${PACKAGE} include ${${PACKAGE}_INCLUDE_DIRS}")
     foreach(PROG ${PROGLIST})
 #      set(${PROG}_LIBS ${${PROG}_LIBS} ${${PACKAGE}_LIBRARIES})
-    endforeach(PROG)
+    endforeach()
     message(STATUS "${PACKAGE} lib ${${PACKAGE}_LIBRARIES}")
-  endif (${PACKAGE}_FOUND)
-endforeach(PACKAGE)
+  endif()
+endforeach()
 
 #packaging
 set(CPACK_PACKAGE_NAME wireshark)
@@ -152,7 +152,7 @@ check_64bit_format(I64 FORMAT_64BIT)
 
 if(NOT FORMAT_64BIT)
   message(FATAL " 64 bit format missing")
-endif(NOT FORMAT_64BIT)
+endif()
 
 set(PRIX64 "${FORMAT_64BIT}X")
 set(PRIx64 "${FORMAT_64BIT}x")
@@ -163,17 +163,17 @@ set(PRIu64 "${FORMAT_64BIT}u")
 #Platform specific
 if(UNIX)
   set(WS_VAR_IMPORT "extern")
-endif(UNIX)
+endif()
 
 if(APPLE)
 #TODO verify that APPLE implies HAVE_OS_X_FRAMEWORKS
   set(HAVE_OS_X_FRAMEWORKS 1)
-endif(APPLE)
+endif()
 
 if(WIN32)
   add_definitions(-DHAVE_WIN32_LIBWIRESHARK_LIB -D_NEED_VAR_IMPORT_)
   set(WS_VAR_IMPORT "__declspec(dllimport) extern")
-endif(WIN32)
+endif()
 
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
@@ -195,19 +195,19 @@ if(UNIX)
   set(PLATFORM_SRC 
     capture-pcap-util-unix.c
   )
-endif(UNIX)
+endif()
 
 if(BUILD_WIRESHARK)
 # todo
-endif(BUILD_WIRESHARK)
+endif()
 
 if(BUILD_TSHARK)
 # todo
-endif(BUILD_TSHARK)
+endif()
 
 if(BUILD_RAWSHARK)
 # todo
-endif(BUILD_RAWSHARK)
+endif()
 
 if(BUILD_text2pcap)
   set(text2pcap_LIBS
@@ -224,7 +224,7 @@ if(BUILD_text2pcap)
   add_executable(text2pcap ${text2pcap_FILES})
   target_link_libraries(text2pcap ${text2pcap_LIBS})
   install(TARGETS text2pcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif(BUILD_text2pcap)
+endif()
 
 if(BUILD_mergecap)
   set(mergecap_LIBS
@@ -240,7 +240,7 @@ if(BUILD_mergecap)
   add_executable(mergecap ${mergecap_FILES})
   target_link_libraries(mergecap ${mergecap_LIBS})
   install(TARGETS mergecap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif(BUILD_mergecap)
+endif()
 
 if(BUILD_capinfos)
   set(capinfos_LIBS
@@ -254,7 +254,7 @@ if(BUILD_capinfos)
   add_executable(capinfos ${capinfos_FILES})
   target_link_libraries(capinfos ${capinfos_LIBS})
   install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif(BUILD_capinfos)
+endif()
 
 if(BUILD_editcap)
   set(editcap_LIBS
@@ -270,15 +270,15 @@ if(BUILD_editcap)
   add_executable(editcap ${editcap_FILES})
   target_link_libraries(editcap ${editcap_LIBS})
   install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif(BUILD_editcap)
+endif()
 
 if(BUILD_RANDPKT)
 # todo
-endif(BUILD_RANDPKT)
+endif()
 
 if(BUILD_DFTEST)
 # todo
-endif(BUILD_DFTEST)
+endif()
 
 if(BUILD_dumpcap)
   set(dumpcap_LIBS
@@ -305,4 +305,4 @@ if(BUILD_dumpcap)
   add_executable(dumpcap ${dumpcap_FILES})
   target_link_libraries(dumpcap ${dumpcap_LIBS})
   install(TARGETS dumpcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif(BUILD_dumpcap)
+endif()
