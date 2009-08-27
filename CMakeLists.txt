@@ -68,7 +68,7 @@ option(BUILD_editcap     "Build editcap" ON)
 option(BUILD_capinfos    "Build capinfos" ON)
 option(BUILD_dftest      "Build dftest" ON)
 option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
-option(ENABLE_ADNS	 "Build with adns support" ON)
+option(ENABLE_ADNS       "Build with adns support" ON)
 option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC" OFF)
 
 if(ENABLE_EXTRA_GCC_CHECKS)
@@ -88,7 +88,7 @@ else(CMAKE_COMPILER_IS_GNUCC)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 #The minimum package list
-set(PACKAGELIST GLIB2 ZLIB PCAP LEX YACC Perl ${PACKAGELIST})
+set(PACKAGELIST GLIB2 PCAP LEX YACC Perl ${PACKAGELIST})
 
 #build the gui ?
 if(BUILD_WIRESHARK)
@@ -117,8 +117,6 @@ foreach(PACKAGE ${PACKAGELIST})
     message(STATUS "${PACKAGE} lib ${${PACKAGE}_LIBRARIES}")
   endif (${PACKAGE}_FOUND)
 endforeach(PACKAGE)
-
-#subdirs(dbus)
 
 #packaging
 set(CPACK_PACKAGE_NAME wireshark)
