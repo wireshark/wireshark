@@ -1176,11 +1176,7 @@ LIBWIRESHARK_CONFIG=
 !ENDIF
 
 # Construct the path
-!IFDEF ICONV_DIR
-PATH=$(PATH);$(CYGWIN_PATH);$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
-!ELSE
 PATH=$(PATH);$(CYGWIN_PATH);$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
-!ENDIF
 
 # We can't use a lot of IPv6 code with plain Visual C++ 6.0
 !IF "$(MSVC_VARIANT)" == "MSVC6" && !DEFINED(MSSDK)

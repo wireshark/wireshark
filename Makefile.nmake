@@ -746,10 +746,6 @@ process_libs:
 !ELSE
 !ERROR ? Unknown or invalid GTK_INST_VERSION
 !ENDIF
-!IFDEF ICONV_DIR
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		libiconv-1.9.1.bin.woe32 libiconv-1.9.1.bin.woe32.zip
-!ENDIF
 !IF "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gettext-runtime-0.17-1 gettext-runtime-0.17-1.zip
@@ -1045,9 +1041,6 @@ install-all: install-generated-files
 	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libgthread-2.0-0.dll $(INSTALL_DIR) /d
-!IFDEF ICONV_DIR
-	xcopy $(ICONV_DIR)\bin\iconv.dll $(INSTALL_DIR) /d
-!ENDIF
 	xcopy $(GETTEXT_DIR)\bin\$(GETTEXT_DLL) $(INSTALL_DIR) /d
 !IFDEF ZLIB_DIR
 	xcopy $(ZLIB_DLL) $(INSTALL_DIR) /d

@@ -43,9 +43,6 @@ libwireshark_LIBS = \
 	$(GEOIP_LIBS) \
 	..\wsutil\libwsutil.lib \
 	..\wiretap\wiretap-$(WTAP_VERSION).lib \
-!IFDEF ICONV_DIR
-	$(ICONV_DIR)\lib\iconv.lib \
-!ENDIF
 	crc\crc.lib \
 	crypt\airpdcap.lib \
 	ftypes\ftypes.lib \
