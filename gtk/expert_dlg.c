@@ -303,6 +303,7 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
     etd->tree_view = GTK_TREE_VIEW(tree);
     sortable = GTK_TREE_SORTABLE(store);
 
+
 #if GTK_CHECK_VERSION(2,6,0)
     /* Speed up the list display */
     gtk_tree_view_set_fixed_height_mode(etd->tree_view, TRUE);
@@ -342,6 +343,9 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
 		GINT_TO_POINTER(SEVERITY_COLUMN), NULL);
 
+	gtk_tree_sortable_set_sort_func(sortable, SEVERITY_COLUMN, str_ptr_sort_func,
+		GINT_TO_POINTER(SEVERITY_COLUMN), NULL);
+
     gtk_tree_view_column_set_sort_column_id(column, SEVERITY_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
@@ -358,6 +362,9 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
         NULL);
 
 	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
+		GINT_TO_POINTER(GROUP_COLUMN), NULL);
+	
+	gtk_tree_sortable_set_sort_func(sortable, GROUP_COLUMN, str_ptr_sort_func,
 		GINT_TO_POINTER(GROUP_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, GROUP_COLUMN);

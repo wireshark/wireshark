@@ -337,4 +337,20 @@ void present_as_hex_func (GtkTreeViewColumn *column, GtkCellRenderer *renderer, 
  */
 void str_ptr_data_func(GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 
+/** This function can be called from gtk_tree_sortable_set_sort_func()
+ * the user data must be the colum number.
+ * Used together with str_ptr_data_func to sort the corresponding column.
+ * @param model The GtkTreeModel the comparison is within  
+ * @param a A GtkTreeIter in model  
+ * @param b Another GtkTreeIter in model  
+ * @param user_data must be the colum number to fetch the data from
+ */
+
+gint str_ptr_sort_func(GtkTreeModel *model,
+							GtkTreeIter *a,
+							GtkTreeIter *b,
+							gpointer user_data);
+
+
+
 #endif /* __GTKGUIUI_UTIL_H__ */

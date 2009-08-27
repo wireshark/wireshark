@@ -1221,3 +1221,28 @@ str_ptr_data_func (GtkTreeViewColumn *column _U_,
      g_object_set(renderer, "text", str, NULL);
  }
 
+gint
+str_ptr_sort_func(GtkTreeModel *model,
+							GtkTreeIter *a,
+							GtkTreeIter *b,
+							gpointer user_data)
+{
+	 const gchar *str_a = NULL;
+	 const gchar *str_b = NULL;
+	 gint ret = 0;
+
+	 /* The col to get data from is in userdata */
+	 gint data_column = GPOINTER_TO_INT(user_data);
+
+     gtk_tree_model_get(model, a, data_column, &str_a, -1);
+     gtk_tree_model_get(model, b, data_column, &str_b, -1);
+
+	if (str_a == NULL || str_b == NULL){
+		if (str_a == NULL && str_b == NULL)
+			return 0;
+		ret = (str_a == NULL) ? -1 : 1;
+	}else{
+		ret = g_ascii_strcasecmp(str_a,str_b);
+	}
+	return ret;
+}
