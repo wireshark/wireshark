@@ -153,11 +153,13 @@ expert_dlg_draw(void *data)
     expert_tapdata_t *etd = data;
     expert_info_t *ei;
     gchar *title;
-    const char *entries[4];   /**< column entries */
+    const char *entries[2];   /**< column entries */
     GtkListStore *list_store;
     GtkTreeIter iter;
     gchar *color_str;
     guint packet_no = 0;
+	const gchar *group_str;
+	const gchar *severity_str;
 
 
     if(etd->label) {
@@ -184,20 +186,19 @@ expert_dlg_draw(void *data)
         }
 
         /* severity */
-        entries[0] = val_to_str(ei->severity, expert_severity_vals, "Unknown severity (%u)");
-
+		severity_str = match_strval(ei->severity, expert_severity_vals);
         /* group */
-        entries[1] = val_to_str(ei->group, expert_group_vals, "Unknown group (%u)");
+		group_str = match_strval(ei->group, expert_group_vals);
 
         /* protocol */
         if(ei->protocol) {
-            entries[2] = ei->protocol;
+            entries[0] = ei->protocol;
         } else {
-            entries[2] = "-";
+            entries[0] = "-";
         }
 
         /* summary */
-        entries[3] = ei->summary;
+        entries[1] = ei->summary;
 
         /* set rows background color depending on severity */
         switch(ei->severity) {
@@ -232,10 +233,10 @@ expert_dlg_draw(void *data)
         gtk_list_store_set  (list_store, &iter,
 #endif
                     NO_COLUMN, packet_no,
-                    SEVERITY_COLUMN, entries[0],
-                    GROUP_COLUMN, entries[1],
-                    PROTOCOL_COLUMN, entries[2],
-                    SUMMARY_COLUMN, entries[3],
+                    SEVERITY_COLUMN, severity_str,
+                    GROUP_COLUMN, group_str,
+                    PROTOCOL_COLUMN, entries[0],
+                    SUMMARY_COLUMN, entries[1],
                     FOREGROUND_COLOR_COL, expert_color_foreground_str,
                     BACKGROUND_COLOR_COL, color_str,
                     -1);
@@ -290,8 +291,8 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
     /* Create the store */
     store = gtk_list_store_new(N_COLUMNS,        /* Total number of columns */
                                G_TYPE_UINT,      /* No                   */
-                               G_TYPE_STRING,    /* Severity           */
-                               G_TYPE_STRING,    /* Group              */
+                               G_TYPE_POINTER,   /* Severity           */
+                               G_TYPE_POINTER,   /* Group              */
                                G_TYPE_STRING,    /* Protocol           */
                                G_TYPE_STRING,    /* Summary            */
                                G_TYPE_STRING,    /* forground          */
@@ -337,6 +338,10 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
         NULL);
+
+	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
+		GINT_TO_POINTER(SEVERITY_COLUMN), NULL);
+
     gtk_tree_view_column_set_sort_column_id(column, SEVERITY_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
@@ -351,6 +356,10 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
         NULL);
+
+	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
+		GINT_TO_POINTER(GROUP_COLUMN), NULL);
+
     gtk_tree_view_column_set_sort_column_id(column, GROUP_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);

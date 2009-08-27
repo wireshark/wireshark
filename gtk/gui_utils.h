@@ -303,18 +303,38 @@ extern void copy_binary_to_clipboard(const guint8* data_p, int len);
  */
 extern gchar *create_user_window_title(const gchar *caption);
 
-/* 
- * This function can be called from gtk_tree_view_column_set_cell_data_func()
+/** Renders a float with two decimals precission, called from gtk_tree_view_column_set_cell_data_func().
  * the user data must be the colum number.
  * Present floats with two decimals 
+ *
+ * @param column A GtkTreeColumn 
+ * @param renderer The GtkCellRenderer that is being rendered by tree_column 
+ * @param model The GtkTreeModel being rendered 
+ * @param iter A GtkTreeIter of the current row rendered 
+ * @param user_data must be the colum number to fetch the data from
  */
 void float_data_func (GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 
-/* 
- * This function can be called from gtk_tree_view_column_set_cell_data_func()
- * the user data must be the colum number.
+/** Renders a unsinged integer as a hexadecimal value, called from gtk_tree_view_column_set_cell_data_func()
+ * The user data must be the colum number.
  * Present value as hexadecimal. 
+ * @param column A GtkTreeColumn 
+ * @param renderer The GtkCellRenderer that is being rendered by tree_column 
+ * @param model The GtkTreeModel being rendered 
+ * @param iter A GtkTreeIter of the current row rendered 
+ * @param user_data must be the colum number to fetch the data from
  */
 void present_as_hex_func (GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
+
+/** This function can be called from gtk_tree_view_column_set_cell_data_func()
+ * the user data must be the colum number.
+ * Present value as hexadecimal. 
+ * @param column A GtkTreeColumn 
+ * @param renderer The GtkCellRenderer that is being rendered by tree_column 
+ * @param model The GtkTreeModel being rendered 
+ * @param iter A GtkTreeIter of the current row rendered 
+ * @param user_data must be the colum number to fetch the data from
+ */
+void str_ptr_data_func(GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 
 #endif /* __GTKGUIUI_UTIL_H__ */

@@ -1193,8 +1193,31 @@ present_as_hex_func (GtkTreeViewColumn *column _U_,
      gtk_tree_model_get(model, iter, col, &val, -1);
 
      g_snprintf(buf, sizeof(buf), "0x%02x", val);
-	 /* restore previous locale setting */
 
      g_object_set(renderer, "text", buf, NULL);
    }
+
+/* 
+ * This function can be called from gtk_tree_view_column_set_cell_data_func()
+ * the user data must be the colum number.
+ * Renders the const static string whos pointer is stored 
+ */
+
+void
+str_ptr_data_func (GtkTreeViewColumn *column _U_,
+                           GtkCellRenderer   *renderer,
+                           GtkTreeModel      *model,
+                           GtkTreeIter       *iter,
+                           gpointer           user_data)
+   {
+	 const gchar *str = NULL;
+
+	 /* The col to get data from is in userdata */
+	 gint data_column = GPOINTER_TO_INT(user_data);
+
+     gtk_tree_model_get(model, iter, data_column, &str, -1);
+	 /* XXX should we check that str is non NULL and print a warning or do assert? */
+
+     g_object_set(renderer, "text", str, NULL);
+ }
 
