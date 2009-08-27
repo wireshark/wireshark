@@ -26,6 +26,8 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
+#include <stdio.h>
 #include <string.h>
 
 #include <gtk/gtk.h>
@@ -185,7 +187,7 @@ static void insert_text(GtkWidget *w, const char *buffer, int nchars)
     gtk_text_buffer_get_end_iter(buf, &iter);
     gtk_widget_modify_font(w, user_font_get_regular());
     if (!g_utf8_validate(buffer, -1, NULL))
-        printf("Invalid utf8 encoding: %s\n", buffer);
+        printf("Invalid utf8 encoding: %s\n", buffer);  /* ToDo: Don't use printf ?? */
     gtk_text_buffer_insert(buf, &iter, buffer, nchars);
 }
 
