@@ -40,6 +40,7 @@
 # include <sys/types.h>
 #endif
 
+#include <stdio.h>
 #include <time.h>
 #include <string.h>
 

@@ -33,6 +33,7 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
+#include <stdio.h>
 #include <string.h>
 
 #include <epan/filesystem.h>

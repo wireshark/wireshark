@@ -30,6 +30,8 @@
 # include "config.h"
 #endif
 
+#include <stdio.h>
+
 #include <gtk/gtk.h>
 
 #include <epan/packet_info.h>

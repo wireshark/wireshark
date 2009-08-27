@@ -36,8 +36,10 @@
 # include "config.h"
 #endif
 
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
+
 #include <glib.h>
 #include <gtk/gtk.h>
 
