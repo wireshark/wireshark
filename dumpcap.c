@@ -25,6 +25,7 @@
 # include "config.h"
 #endif
 
+#include <stdio.h>
 #include <stdlib.h> /* for exit() */
 #include <glib.h>
 
@@ -61,7 +62,6 @@
 #ifdef HAVE_LIBCAP
 # include <sys/prctl.h>
 # include <sys/capability.h>
-# include <stdio.h>
 #endif
 
 #include "ringbuffer.h"

@@ -26,6 +26,8 @@
 #ifndef __PREFS_INT_H__
 #define __PREFS_INT_H__
 
+#include <stdio.h>
+
 struct pref_module {
 	const char *name;	/* name of module */
 	const char *title;	/* title of module (displayed in preferences list) */

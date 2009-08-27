@@ -33,6 +33,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
+#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
