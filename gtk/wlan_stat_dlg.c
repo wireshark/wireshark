@@ -1329,6 +1329,6 @@ wlanstat_launch (GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_wlanstat (void)
 {
-	register_stat_menu_item ("WLAN Traffic...", REGISTER_STAT_GROUP_UNSORTED,
+	register_stat_menu_item ("WLAN Traffic", REGISTER_STAT_GROUP_UNSORTED,
 				 wlanstat_launch, NULL, NULL, NULL);
 }
