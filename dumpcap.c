@@ -829,7 +829,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 #ifndef _WIN32
   ld->cap_pipe_fd = -1;
 #else
-  ld->cap_pipe_h = NULL;
+  ld->cap_pipe_h = INVALID_HANDLE_VALUE;
 #endif
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: %s", pipename);
 
@@ -913,8 +913,8 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
           NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
         g_snprintf(errmsg, errmsgl,
-            "The capture session on \"%s\" could not be initiated "
-            "due to error on pipe open: pipe busy: %s (error %d)",
+            "The capture session on \"%s\" could not be started "
+            "due to error on pipe open: %s (error %d)",
             pipename, utf_16to8(err_str), GetLastError());
         LocalFree(err_str);
         ld->cap_pipe_err = PIPERR;
@@ -925,9 +925,9 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
           NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
         g_snprintf(errmsg, errmsgl,
-            "The capture session could not be initiated "
-            "due to error on named pipe open: %s (error %d)",
-            utf_16to8(err_str), GetLastError());
+            "The capture session on \"%s\" timed out during "
+            "pipe open: %s (error %d)",
+            pipename, utf_16to8(err_str), GetLastError());
         LocalFree(err_str);
         ld->cap_pipe_err = PIPERR;
         return;
@@ -1454,7 +1454,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #ifndef _WIN32
     if (ld->cap_pipe_fd == -1) {
 #else
-    if (ld->cap_pipe_h == NULL) {
+    if (ld->cap_pipe_h == INVALID_HANDLE_VALUE) {
 #endif
 
       if (ld->cap_pipe_err == PIPNEXIST) {
@@ -1545,10 +1545,9 @@ static void capture_loop_close_input(loop_data *ld) {
     ld->cap_pipe_fd = 0;
   }
 #else
-  if (ld->cap_pipe_h) {
-    g_assert(ld->from_cap_pipe);
+  if (ld->cap_pipe_h != INVALID_HANDLE_VALUE) {
     CloseHandle(ld->cap_pipe_h);
-    ld->cap_pipe_h = NULL;
+    ld->cap_pipe_h = INVALID_HANDLE_VALUE;
   }
 #endif
 
@@ -2037,7 +2036,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #ifndef _WIN32
   global_ld.cap_pipe_fd        = -1;
 #else
-  global_ld.cap_pipe_h         = NULL;
+  global_ld.cap_pipe_h         = INVALID_HANDLE_VALUE;
 #endif
 #ifdef MUST_DO_SELECT
   global_ld.pcap_fd            = 0;
