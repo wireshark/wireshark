@@ -2855,18 +2855,20 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, TRUE, &auth_info);
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        if (num_results != 0 && result == 0) {
-            /* XXX - only checks the last result */
-            col_append_fstr (pinfo->cinfo, COL_INFO,
-                             " accept max_xmit: %u max_recv: %u",
-                             max_xmit, max_recv);
-        } else {
-            /* XXX - only shows the last result and reason */
-            col_append_fstr (pinfo->cinfo, COL_INFO, " %s, reason: %s",
-                             val_to_str(result, p_cont_result_vals,
-                                        "Unknown result (%u)"),
-                             val_to_str(reason, p_provider_reason_vals,
-                                        "Unknown (%u)"));
+        if (num_results != 0) {
+            if (result == 0) {
+                /* XXX - only checks the last result */
+                col_append_fstr (pinfo->cinfo, COL_INFO,
+                                 " accept max_xmit: %u max_recv: %u",
+                                 max_xmit, max_recv);
+            } else {
+                /* XXX - only shows the last result and reason */
+                col_append_fstr (pinfo->cinfo, COL_INFO, " %s, reason: %s",
+                                 val_to_str(result, p_cont_result_vals,
+                                            "Unknown result (%u)"),
+                                 val_to_str(reason, p_provider_reason_vals,
+                                            "Unknown (%u)"));
+            }
         }
     }
 }
