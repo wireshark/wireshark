@@ -279,6 +279,17 @@ static const value_string rtcp_app_poc1_qsresp_priority_vals[] =
 	{  3,	"Pre-emptive priority"},
 	{  0,	NULL }
 };
+
+/* 3GPP 29.414 RTP Multiplexing */
+static const value_string rtcp_app_mux_selection_vals[] =
+{
+    {  0,   "No multiplexing applied"},
+    {  1,   "Multiplexing without RTP header compression applied"},
+    {  2,   "Multiplexing with RTP header compression applied"},
+    {  3,   "Reserved"},
+    {  0,   NULL}
+};
+
 /* RFC 4585 */
 static const value_string rtcp_rtpfb_fmt_vals[] =
 {
@@ -362,6 +373,11 @@ static int hf_rtcp_app_poc1_conn_content[5] = { -1, -1, -1, -1, -1 };
 static int hf_rtcp_app_poc1_conn_session_type	= -1;
 static int hf_rtcp_app_poc1_conn_add_ind_mao	= -1;
 static int hf_rtcp_app_poc1_conn_sdes_items[5] = { -1, -1, -1, -1, -1 };
+static int hf_rtcp_app_mux           = -1;
+static int hf_rtcp_app_mux_mux       = -1;
+static int hf_rtcp_app_mux_cp        = -1;
+static int hf_rtcp_app_mux_selection = -1;
+static int hf_rtcp_app_mux_localmuxport = -1;
 static int hf_rtcp_xr_block_type     = -1;
 static int hf_rtcp_xr_block_specific = -1;
 static int hf_rtcp_xr_block_length   = -1;
@@ -458,6 +474,7 @@ static gint ett_ssrc_ext_high		= -1;
 static gint ett_sdes			= -1;
 static gint ett_sdes_item		= -1;
 static gint ett_PoC1			= -1;
+static gint ett_mux 			= -1;
 static gint ett_rtcp_setup		= -1;
 static gint ett_rtcp_roundtrip_delay	= -1;
 static gint ett_xr_block                = -1;
@@ -833,6 +850,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 	/* XXX If more application types are to be dissected it may be useful to use a table like in packet-sip.c */
 	static const char poc1_app_name_str[] = "PoC1";
+	static const char mux_app_name_str[] = "3GPP";
 
 
 	/* SSRC / CSRC */
@@ -856,9 +874,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		proto_item *item;
 		item = proto_tree_add_uint( tree, hf_rtcp_app_poc1_subtype, tvb, offset - 8, 1, rtcp_subtype );
 		PROTO_ITEM_SET_GENERATED(item);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO,"(%s) %s",ascii_name,
-			             val_to_str(rtcp_subtype,rtcp_app_poc1_floor_cnt_type_vals,"unknown (%u)") );
+		col_add_fstr(pinfo->cinfo, COL_INFO,"(%s) %s",ascii_name,
+		             val_to_str(rtcp_subtype,rtcp_app_poc1_floor_cnt_type_vals,"unknown (%u)") );
 		offset += 4;
 		packet_len -= 4;
 		app_length = app_length -8;
@@ -912,14 +929,11 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					offset += 2;
 					packet_len -= 2;
 
-					if (check_col(pinfo->cinfo, COL_INFO))
-					{
-						col_append_fstr(pinfo->cinfo, COL_INFO,
-						               " \"%s\"",
-						               val_to_str(priority,
-						                          rtcp_app_poc1_qsresp_priority_vals,
-						                          "Unknown"));
-					}
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+					               " \"%s\"",
+					               val_to_str(priority,
+					                          rtcp_app_poc1_qsresp_priority_vals,
+					                          "Unknown"));
 
 					/* Look for (optional) next code */
 					if (tvb_reported_length_remaining( tvb, offset) == 0)
@@ -949,10 +963,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					offset += 8;
 					packet_len -=8;
 
-					if (check_col(pinfo->cinfo, COL_INFO))
-					{
-						col_append_fstr(pinfo->cinfo, COL_INFO, " ts=\"%s\"", buff);
-					}
+					col_append_fstr(pinfo->cinfo, COL_INFO, " ts=\"%s\"", buff);
 				}
 				}
 				break;
@@ -995,11 +1006,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				offset += item_len;
 				packet_len -= item_len;
 
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " stop-talking-time=%u",
-					                stop_talking_time);
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " stop-talking-time=%u",
+				                stop_talking_time);
 
 				/* Participants (optional) */
 				if (tvb_reported_length_remaining( tvb, offset) == 0)
@@ -1036,12 +1044,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				offset += item_len;
 				packet_len -= item_len;
 
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " participants=%u",
-					                participants);
-				}
-
+				col_append_fstr(pinfo->cinfo, COL_INFO, " participants=%u",
+				                participants);
 				}
 				break;
 
@@ -1073,10 +1077,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				                    tvb, offset, 1, FALSE );
 				offset++;
 
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
-					                tvb_get_ephemeral_string(tvb, offset, item_len));
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
+				                tvb_get_ephemeral_string(tvb, offset, item_len));
 				
 				offset += item_len;
 				packet_len = packet_len - item_len - 1;
@@ -1106,10 +1108,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					                    tvb, offset, 1, FALSE);
 					offset++;
 
-					if (check_col(pinfo->cinfo, COL_INFO)) {
-						col_append_fstr(pinfo->cinfo, COL_INFO, " DISPLAY-NAME=\"%s\"",
-						                tvb_get_ephemeral_string(tvb, offset, item_len));
-					}
+					col_append_fstr(pinfo->cinfo, COL_INFO, " DISPLAY-NAME=\"%s\"",
+					                tvb_get_ephemeral_string(tvb, offset, item_len));
 
 					offset += item_len;
 					packet_len = packet_len - item_len - 1;
@@ -1158,11 +1158,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 						break;
 				}
 
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO, " Participants=%u",
-					                participants);
-				}
-
+				col_append_fstr(pinfo->cinfo, COL_INFO, " Participants=%u",
+				                participants);
 				offset += item_len;
 				packet_len -= item_len;
 				}
@@ -1178,13 +1175,10 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				offset++;
 				packet_len--;
 
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " reason-code=\"%s\"",
-					                val_to_str(reason_code,
-					                           rtcp_app_poc1_reason_code1_vals,
-					                           "Unknown"));
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " reason-code=\"%s\"",
+				                val_to_str(reason_code,
+				                           rtcp_app_poc1_reason_code1_vals,
+				                           "Unknown"));
 
 				/* Reason phrase */
 				item_len = tvb_get_guint8( tvb, offset );
@@ -1210,11 +1204,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_ignore_seq_no, tvb, offset, 2, FALSE );
 				ignore_last_seq_no = (tvb_get_ntohs(tvb, offset) & 0x8000);
 
-				if (!ignore_last_seq_no && check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " last_rtp_seq_no=%u",
-					                last_seq_no);
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " last_rtp_seq_no=%u",
+				                last_seq_no);
 
 				/* 15 bits of padding follows */
 
@@ -1250,13 +1241,10 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 							break;
 					}
 
-					if (check_col(pinfo->cinfo, COL_INFO))
-					{
-						col_append_fstr(pinfo->cinfo, COL_INFO, " reason-code=\"%s\"",
-						                val_to_str(reason_code,
-						                           rtcp_app_poc1_reason_code2_vals,
-						                           "Unknown"));
-					}
+					col_append_fstr(pinfo->cinfo, COL_INFO, " reason-code=\"%s\"",
+					                val_to_str(reason_code,
+					                           rtcp_app_poc1_reason_code2_vals,
+					                           "Unknown"));
 					offset += 4;
 					packet_len-=4;
 				}
@@ -1270,13 +1258,10 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				subtype = (tvb_get_guint8(tvb, offset) & 0xf8) >> 3;
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_ack_subtype, tvb, offset, 1, FALSE );
 
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " (for %s)",
-					                val_to_str(subtype,
-					                           rtcp_app_poc1_floor_cnt_type_vals,
-					                           "Unknown"));
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " (for %s)",
+				                val_to_str(subtype,
+				                           rtcp_app_poc1_floor_cnt_type_vals,
+				                           "Unknown"));
 
 				/* Reason code only seen if subtype was Connect */
 				if (subtype == TBCP_CONNECT)
@@ -1313,10 +1298,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					proto_item_append_text(ti, " (position not available)");
 				}
 
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
-					col_append_fstr(pinfo->cinfo, COL_INFO, " position=%u", position);
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " position=%u", position);
 
 				/* 1 bytes of padding  follows */
 
@@ -1390,11 +1372,44 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		offset += packet_len;
 		return offset;
 	}
+    else if ( g_ascii_strncasecmp(ascii_name, mux_app_name_str,4 ) == 0 )
+    {
+		/* 3GPP Nb protocol extension (3GPP 29.414) for RTP Multiplexing */
+		col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
+		offset += 4;
+		packet_len -= 4;
+		/* Applications specific data */
+		if ( padding ) {
+			/* If there's padding present, we have to remove that from the data part
+			* The last octet of the packet contains the length of the padding
+			*/
+			packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
+		}
+        if (packet_len == 4)
+        {
+            guint16 local_port = 0;
+
+			proto_item* mux_item = proto_tree_add_item(tree, hf_rtcp_app_mux, tvb, offset, packet_len, FALSE);
+		    proto_tree* mux_tree = proto_item_add_subtree( mux_item, ett_mux );
+            proto_tree_add_item( mux_tree, hf_rtcp_app_mux_mux, tvb, offset, 1, FALSE );
+            proto_tree_add_item( mux_tree, hf_rtcp_app_mux_cp, tvb, offset, 1, FALSE );
+            proto_tree_add_item( mux_tree, hf_rtcp_app_mux_selection, tvb, offset, 1, FALSE );
+			local_port = tvb_get_ntohs( tvb, offset+2 );
+            proto_tree_add_uint( mux_tree, hf_rtcp_app_mux_localmuxport, tvb, offset+2, 2, local_port*2 );
+        }
+        else
+        {
+            /* fall back to just showing the data if it's the wrong length */
+    		proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
+        }
+		offset += packet_len;
+
+		return offset;
+    }
 	else
 	{
 		/* Unhandled application type, just show app name and raw data */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
+		col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
 		offset += 4;
 		packet_len -= 4;
 		/* Applications specific data */
@@ -2478,12 +2493,9 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	}
 
 	/* Report delay in INFO column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-		                " (roundtrip delay <-> %s = %dms, using frame %u)  ",
-		                address_to_str(&pinfo->net_src), delay, frame);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO,
+	                " (roundtrip delay <-> %s = %dms, using frame %u)  ",
+	                address_to_str(&pinfo->net_src), delay, frame);
 }
 
 static int
@@ -2578,11 +2590,8 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         if ( ( packet_type < 192 ) || ( packet_type >  207 ) )
             break;
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s   ",
-                         val_to_str(packet_type, rtcp_packet_type_vals, "Unknown"));
-        }
+         col_add_fstr(pinfo->cinfo, COL_INFO, "%s   ",
+                      val_to_str(packet_type, rtcp_packet_type_vals, "Unknown"));
 
         /*
          * get the packet-length for the complete RTCP packet
@@ -3522,6 +3531,66 @@ proto_register_rtcp(void)
 				NULL, HFILL
 			}
 		},
+		{
+			&hf_rtcp_app_mux,
+			{
+				"RtpMux Application specific data",
+				"rtcp.app.mux",
+				FT_NONE,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+        {
+            &hf_rtcp_app_mux_mux,
+			{
+				"Multiplexing supported",
+				"rtcp.app.mux.mux",
+				FT_BOOLEAN,
+				BASE_NONE,
+				NULL,
+				0x80,
+				"", HFILL
+			}
+        },
+        {
+            &hf_rtcp_app_mux_cp,
+			{
+				"Header compression supported",
+				"rtcp.app.mux.cp",
+				FT_BOOLEAN,
+				BASE_NONE,
+				NULL,
+				0x40,
+				"", HFILL
+			}
+        },
+        {
+            &hf_rtcp_app_mux_selection,
+            {
+				"Multiplexing selection",
+				"rtcp.app.mux.selection",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_app_mux_selection_vals),
+				0x30,
+				"", HFILL
+			}
+        },
+        {
+            &hf_rtcp_app_mux_localmuxport,
+            {
+				"Local Mux Port",
+				"rtcp.app.mux.muxport",
+				FT_UINT16,
+				BASE_DEC,
+                NULL,
+				0x0,
+				"", HFILL
+			}
+        },
 		{
 			&hf_rtcp_fsn,
 			{
@@ -4469,6 +4538,7 @@ proto_register_rtcp(void)
 		&ett_sdes,
 		&ett_sdes_item,
 		&ett_PoC1,
+        &ett_mux,
 		&ett_rtcp_setup,
 		&ett_rtcp_roundtrip_delay,
 		&ett_xr_block,

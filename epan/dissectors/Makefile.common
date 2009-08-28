@@ -649,6 +649,7 @@ DISSECTOR_SRC = \
 	packet-nas_eps.c	\
 	packet-nasdaq-itch.c	\
 	packet-nat-pmp.c	\
+	packet-nb_rtpmux.c	\
 	packet-nbd.c		\
 	packet-nbipx.c		\
 	packet-nbns.c		\
