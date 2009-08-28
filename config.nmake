@@ -137,8 +137,9 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 # Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
-GLIB_PKG=2.20.4-1
 GLIB_DIR=$(WIRESHARK_LIBS)\glib
+# This macro is used by the setup target.
+GLIB_PKG=2.20.4-1
 
 ##### To Use new packet list uncomment this line ####
 ### Warning Experimental - work in progress
@@ -153,14 +154,16 @@ GLIB_DIR=$(WIRESHARK_LIBS)\glib
 # directory in which the "include" and "lib" directories reside.
 #
 GTK_DIR=$(WIRESHARK_LIBS)\gtk2
+# These macros are used by the nsis installer script and by the install target.
+TIFF_DLL=libtiff3.dll
+JPEG_DLL=jpeg62.dll
+# These macros are used by the setup target.
 GTK_PKG=2.16.5-1
 CAIRO_PKG=1.8.8-1
 ATK_PKG=1.26.0-1
 LIBPNG_PKG=1.2.37-1
 TIFF_PKG=libtiff-3.8.2
-TIFF_DLL=libtiff3.dll
 JPEG_PKG=jpeg-6b-4-bin
-JPEG_DLL=jpeg62.dll
 PANGO_PKG=1.24.5-1
 
 #
@@ -179,10 +182,11 @@ PANGO_INST_VERSION=1.24
 # Set GETTEXT_DIR to the directory in which the
 # GETTEXT include files and library resides.
 #
-#GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
-GETTEXT_PKG=-runtime-0.17-1
 GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.17-1
+# This macro is used by the nsis installer script and by the install target.
 GETTEXT_DLL=intl.dll
+# This macro is used by the setup target.
+GETTEXT_PKG=-runtime-0.17-1
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -193,8 +197,9 @@ GETTEXT_DLL=intl.dll
 # If you don't have the WPdpack, comment this line out, so that
 # PCAP_DIR isn't defined.
 #
-PCAP_VERSION=4_1_beta5
 PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
+# This macro is used by the nsis installer script, by the u3/portable apps and by the setup target.
+PCAP_VERSION=4_1_beta5
 
 #
 # Optional: WinPcap remote capture support and new API
@@ -359,8 +364,9 @@ GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
 # Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
-GLIB_PKG=2.20.3-1
 GLIB_DIR=$(WIRESHARK_LIBS)\glib
+# This macro is used by the setup target.
+GLIB_PKG=2.20.3-1
 
 ##### To Use new packet list uncomment this line ####
 ### Warning Experimental - work in progress
@@ -375,14 +381,16 @@ GLIB_DIR=$(WIRESHARK_LIBS)\glib
 # directory in which the "include" and "lib" directories reside.
 #
 GTK_DIR=$(WIRESHARK_LIBS)\gtk2
+# These macros are used by the nsis installer script and by the install target.
+TIFF_DLL=libtiff.dll
+JPEG_DLL=libjpeg-62.dll
+# These macros are used by the setup target.
 GTK_PKG=2.16.2-1
 CAIRO_PKG=1.8.6-2
 ATK_PKG=1.26.0-1
 LIBPNG_PKG=1.2.37-1
 TIFF_PKG=libtiff_3.8.2-1_win64
-TIFF_DLL=libtiff.dll
 JPEG_PKG=jpeg_6b-2_win64
-JPEG_DLL=libjpeg-62.dll
 PANGO_PKG=1.24.2-1
 
 #
@@ -400,10 +408,11 @@ PANGO_INST_VERSION=1.24
 # Set GETTEXT_DIR to the directory in which the
 # GETTEXT include files and library resides.
 #
-#GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
-GETTEXT_PKG=_0.17-1_win64
 GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.17-1
+# This macro is used by the nsis installer script and by the install target.
 GETTEXT_DLL=libintl-8.dll
+# This macro is used by the setup target.
+GETTEXT_PKG=_0.17-1_win64
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -414,8 +423,9 @@ GETTEXT_DLL=libintl-8.dll
 # If you don't have the WPdpack, comment this line out, so that
 # PCAP_DIR isn't defined.
 #
-PCAP_VERSION=4_1_beta5
 PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
+# This macro is used by the nsis installer script, by the u3/portable apps and by the setup target.
+PCAP_VERSION=4_1_beta5
 
 #
 # Optional: WinPcap remote capture support and new API
