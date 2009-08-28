@@ -177,7 +177,7 @@ proto_tree_set_ipv4(field_info *fi, guint32 value);
 static void
 proto_tree_set_ipv6(field_info *fi, const guint8* value_ptr);
 static void
-proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start);
+proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
 static void
 proto_tree_set_guid(field_info *fi, const e_guid_t *value_ptr);
 static void
@@ -1216,8 +1216,8 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_IPv6:
-			DISSECTOR_ASSERT(length == 16);
-			proto_tree_set_ipv6_tvb(new_fi, tvb, start);
+			DISSECTOR_ASSERT(length >=0 && length <= 16);
+			proto_tree_set_ipv6_tvb(new_fi, tvb, start, length);
 			break;
 
 		case FT_ETHER:
@@ -1867,9 +1867,9 @@ proto_tree_set_ipv6(field_info *fi, const guint8* value_ptr)
 }
 
 static void
-proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start)
+proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length)
 {
-	proto_tree_set_ipv6(fi, tvb_get_ptr(tvb, start, 16));
+	proto_tree_set_ipv6(fi, tvb_get_ptr(tvb, start, length));
 }
 
 /* Add a FT_GUID to a proto_tree */
