@@ -456,7 +456,13 @@ multi-line view of the details of each of the packets, depending on
 whether the B<-V> flag was specified.  This is the default.
 
 B<fields> The values of fields specified with the B<-e> option, in a
-form specified by the B<-E> option.
+form specified by the B<-E> option. For example,
+
+  -T fields -E separator=, -E quote=d
+
+would generate comma-separated values (CSV) output suitable for importing
+into your favorite spreadsheet program.
+
 
 =item -v
 
