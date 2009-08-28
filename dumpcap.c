@@ -1068,7 +1068,9 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 
   ld->cap_pipe_state = STATE_EXPECT_REC_HDR;
   ld->cap_pipe_err = PIPOK;
+#ifndef _WIN32
   ld->cap_pipe_fd = fd;
+#endif
   return;
 
 error:
