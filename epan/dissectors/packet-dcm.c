@@ -4478,8 +4478,10 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 
 	pdv_combined_curr = pdv_combined;
 
-	memmove(pdv_combined, dcm_header, dcm_header_len);
-	pdv_combined_curr += dcm_header_len;
+	if (dcm_header_len != 0) {  /* XXX: Can be 0 if global_dcm_export_header is FALSE ? */
+		memmove(pdv_combined, dcm_header, dcm_header_len);
+		pdv_combined_curr += dcm_header_len;
+	}
 
 	/* Copy PDV per PDV to target buffer */
 	while (!pdv_curr->is_last_fragment) {
