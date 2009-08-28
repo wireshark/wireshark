@@ -1888,6 +1888,8 @@ static guint64 tvb_get_letohi(tvbuff_t *tvb, guint offset, guint length, gboolea
         guint64 result;
         guint shift;
         
+        DISSECTOR_ASSERT((length>=1) && (length<=8));
+
         result = 0;
         shift = 0;
         /* build big int of length bytes */
