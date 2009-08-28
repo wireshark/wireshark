@@ -81,6 +81,7 @@ gboolean auto_scroll_live;
 static nstime_t first_ts;
 static nstime_t prev_dis_ts;
 static guint32 cum_bytes = 0;
+static gulong computed_elapsed;
 
 static void cf_reset_state(capture_file *cf);
 
@@ -410,6 +411,23 @@ void outofmemory_cb(gpointer dialog _U_, gint btn _U_, gpointer data _U_)
     main_window_exit();
 }
 
+gulong
+cf_get_computed_elapsed(void){
+	return computed_elapsed;
+}
+static void  compute_elapsed(GTimeVal *start_time)
+{
+      gdouble    delta_time;
+      GTimeVal   time_now;
+
+      g_get_current_time(&time_now);
+      
+      delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
+		time_now.tv_usec - start_time->tv_usec;
+
+	  computed_elapsed = (gulong) (delta_time / 1000); /* ms*/
+}
+
 cf_read_status_t
 cf_read(capture_file *cf)
 {
@@ -595,6 +613,9 @@ cf_read(capture_file *cf)
   /* Allow the protocol dissectors to free up memory that they
    * don't need after the sequential run-through of the packets. */
   postseq_cleanup_all_protocols();
+
+  /* compute the time it took to load the file */	
+  compute_elapsed(&start_time);
 
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether
