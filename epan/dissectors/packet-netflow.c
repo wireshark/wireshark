@@ -3178,19 +3178,36 @@ static int
 v9_template_hash(guint16 id, const address * net_src, guint32 src_id)
 {
 	guint32 val = 0;
-	const guint32 *p;
-	int i;
+	const guint8 *p;
+	guint32 temp;
+	int cnt, i;
 
-	p = (guint32 *)net_src->data;
+	p = (guint8 *)(net_src->data);
 
 	val += id;
 
-	if (net_src->type == AT_IPv4) {
-		val += *p;
-	} else if (net_src->type == AT_IPv6) {
-		for (i=0; i < 4; i++) {
-			val += *p++;
-		}
+	switch (net_src->type) {
+	case AT_IPv4:
+		cnt = 1;
+		break;
+	case AT_IPv6:
+		cnt = 4;
+		break;
+	default:
+		cnt = 0;
+		break;
+	}
+
+	for (i=0; i < cnt; i++) {
+		memcpy((guint8 *)&temp, p, 4);
+		val += GUINT32_TO_LE(temp);	/* Use *reverse* of each 4 bytes of IP address when  */
+						/*  calculating the hash on both BE and LE machines. */
+						/* EG: hash of IP address 1.2.3.4 will be 0x04030201 */
+						/* (Note that we'll get the right result on a LE     */
+						/*  machine since the IP  address is stored in       */
+						/*  network order and GUINT32_TO_LE is a no-op. On   */
+						/*  a BE machine GUINT32_TO_LE will swap the bytes.  */ 
+		p += 4;
 	}
 
 	val += src_id;
