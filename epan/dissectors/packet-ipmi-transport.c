@@ -1853,7 +1853,7 @@ rs11(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_trn_11_rev, byte1, TRUE, 0);
 
-	if (!ipmi_getsaveddata(0, &pno) && !ipmi_getsaveddata(1, &req)) {
+	if (!ipmi_getsaveddata(0, &pno) || !ipmi_getsaveddata(1, &req)) {
 		/* No request found - cannot parse further */
 		if (tvb_length(tvb) > 1) {
 			proto_tree_add_item(tree, hf_ipmi_trn_11_param_data, tvb, 1, tvb_length(tvb) - 1, TRUE);
