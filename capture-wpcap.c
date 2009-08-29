@@ -64,15 +64,9 @@ static int     (*p_pcap_setfilter) (pcap_t *, struct bpf_program *);
 static char*   (*p_pcap_geterr) (pcap_t *);
 static int     (*p_pcap_compile) (pcap_t *, struct bpf_program *, const char *, int,
 			bpf_u_int32);
-#ifdef WPCAP_CONSTIFIED
 static int     (*p_pcap_lookupnet) (const char *, bpf_u_int32 *, bpf_u_int32 *,
 			char *);
 static pcap_t* (*p_pcap_open_live) (const char *, int, int, int, char *);
-#else
-static int     (*p_pcap_lookupnet) (char *, bpf_u_int32 *, bpf_u_int32 *,
-			char *);
-static pcap_t* (*p_pcap_open_live) (char *, int, int, int, char *);
-#endif
 static int     (*p_pcap_loop) (pcap_t *, int, pcap_handler, guchar *);
 static void    (*p_pcap_freecode) (struct bpf_program *);
 #ifdef HAVE_PCAP_FINDALLDEVS
@@ -290,22 +284,14 @@ pcap_compile(pcap_t *a, struct bpf_program *b, const char *c, int d,
 }
 
 int
-#ifdef WPCAP_CONSTIFIED
 pcap_lookupnet(const char *a, bpf_u_int32 *b, bpf_u_int32 *c, char *d)
-#else
-pcap_lookupnet(char *a, bpf_u_int32 *b, bpf_u_int32 *c, char *d)
-#endif
 {
 	g_assert(has_wpcap);
 	return p_pcap_lookupnet(a, b, c, d);
 }
 
 pcap_t*
-#ifdef WPCAP_CONSTIFIED
 pcap_open_live(const char *a, int b, int c, int d, char *e)
-#else
-pcap_open_live(char *a, int b, int c, int d, char *e)
-#endif
 {
 	g_assert(has_wpcap);
 	return p_pcap_open_live(a, b, c, d, e);
