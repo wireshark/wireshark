@@ -36,9 +36,6 @@
 
 #include <pcap.h>
 
-/* XXX - yes, I know, I should move cppmagic.h to a generic location. */
-#include "tools/lemon/cppmagic.h"
-
 #include <epan/value_string.h>
 
 #include <winsock2.h>    /* Needed here to force a definition of WINVER           */
@@ -139,7 +136,7 @@ typedef struct {
 	gboolean	optional;
 } symbol_table_t;
 
-#define SYM(x, y)	{ STRINGIFY(x) , (gpointer) &CONCAT(p_,x), y }
+#define SYM(x, y)	{ G_STRINGIFY(x) , (gpointer) &G_PASTE(p_,x), y }
 
 void
 wpcap_packet_load(void)

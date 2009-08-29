@@ -95,7 +95,7 @@ float_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 float_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	sprintf(buf, "%." STRINGIFY(FLT_DIG) "g", fv->value.floating);
+	sprintf(buf, "%." G_STRINGIFY(FLT_DIG) "g", fv->value.floating);
 }
 
 static int
@@ -113,7 +113,7 @@ double_val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 double_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	sprintf(buf, "%." STRINGIFY(DBL_DIG) "g", fv->value.floating);
+	sprintf(buf, "%." G_STRINGIFY(DBL_DIG) "g", fv->value.floating);
 }
 
 static gboolean
