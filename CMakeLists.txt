@@ -41,7 +41,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(BUILD_SHARED_LIBS ON)
 
-#Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ... 
+#Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
 include(CMakeInstallDirs)
 
 include_directories(
@@ -58,14 +58,15 @@ if(NOT LIBRARY_OUTPUT_PATH)
        "Single output directory for building all libraries.")
 endif()
 
-option(BUILD_WIRESHARK   "Build the GUI version of Wireshark" ON)
-option(BUILD_TSHARK      "Build tshark" ON)
-option(BUILD_RAWSHARK    "Build rawshark" ON)
+option(BUILD_wireshark   "Build the GUI version of Wireshark" ON)
+option(BUILD_tshark      "Build tshark" ON)
+option(BUILD_rawshark    "Build rawshark" ON)
 option(BUILD_dumpcap     "Build dumpcap" ON)
 option(BUILD_text2pcap   "Build text2pcap" ON)
 option(BUILD_mergecap    "Build mergecap" ON)
 option(BUILD_editcap     "Build editcap" ON)
 option(BUILD_capinfos    "Build capinfos" ON)
+option(BUILD_randpkt     "Build randpkt" ON)
 option(BUILD_dftest      "Build dftest" ON)
 option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
 option(ENABLE_ADNS       "Build with adns support" ON)
@@ -91,7 +92,7 @@ endif()
 set(PACKAGELIST GLIB2 PCAP LEX YACC Perl ${PACKAGELIST})
 
 #build the gui ?
-if(BUILD_WIRESHARK)
+if(BUILD_wireshark)
   set(PACKAGELIST GTK2 ${PACKAGELIST})
 endif()
 
@@ -103,7 +104,7 @@ endif()
 
 set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
 
-#Let's loop the package list 
+#Let's loop the package list
 foreach(PACKAGE ${PACKAGELIST})
   find_package(${PACKAGE} REQUIRED)
   message(${PACKAGE}_FOUND)
@@ -192,20 +193,28 @@ ADD_CUSTOM_COMMAND(
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/svnversion.h GENERATED)
 
 if(UNIX)
-  set(PLATFORM_SRC 
+  set(PLATFORM_SRC
     capture-pcap-util-unix.c
   )
 endif()
 
-if(BUILD_WIRESHARK)
+if(BUILD_wireshark)
 # todo
 endif()
 
-if(BUILD_TSHARK)
+if(BUILD_tshark)
 # todo
 endif()
 
-if(BUILD_RAWSHARK)
+if(BUILD_rawshark)
+# todo
+endif()
+
+if(BUILD_randpkt)
+# todo
+endif()
+
+if(BUILD_dftest)
 # todo
 endif()
 
@@ -270,14 +279,6 @@ if(BUILD_editcap)
   add_executable(editcap ${editcap_FILES})
   target_link_libraries(editcap ${editcap_LIBS})
   install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif()
-
-if(BUILD_RANDPKT)
-# todo
-endif()
-
-if(BUILD_DFTEST)
-# todo
 endif()
 
 if(BUILD_dumpcap)
