@@ -79,7 +79,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return 0;
 
     /* Make entries in Protocol column and Info column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nb_RTPmux");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NB_RTPMUX");
 
     /* NOTE: The offset and length values in the call to
        "proto_tree_add_item()" define what data bytes to highlight in the hex
@@ -183,7 +183,7 @@ proto_register_nb_rtpmux(void)
 
     /* Register the protocol name and description */
     proto_nb_rtpmux = proto_register_protocol("3GPP Nb Interface RTP Multiplex",
-        "nb_rtpmux", "nb_rtpmux");
+        "NB_RTPMUX", "nb_rtpmux");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_nb_rtpmux, hf, array_length(hf));
