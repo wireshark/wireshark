@@ -57,8 +57,8 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-	proto_item *ti;
-	proto_tree *nb_rtpmux_tree;
+    proto_item *ti;
+    proto_tree *nb_rtpmux_tree;
 
 /*  First, if at all possible, do some heuristics to check if the packet cannot
  *  possibly belong to your protocol.  This is especially important for
@@ -68,14 +68,24 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  if someone analyzed that web server's traffic in Wireshark, would result
  *  in Wireshark handing an HTTP packet to your dissector).  For example:
  */
-	/* Check that there's enough data */
-	if (tvb_length(tvb) < 6)
-		return 0;
+
+    /*
+     * XXX - this is *FAR* too weak a heuristic; it could cause all sorts
+     * of stuff to be incorrectly identified as Nb_RTPmux.  Either this
+     * needs a stronger heuristic, or it needs to have a preference to
+     * set the port on which to dissect it, or it needs to be a non-heuristic
+     * dissector and *require* that a user use "Decode As..." to decode
+     * traffic as Nb_RTPmux.
+     */
+
+    /* Check that there's enough data */
+    if (tvb_length(tvb) < 6)
+        return 0;
 
 /* Make entries in Protocol column and Info column on summary display */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nb_RTPmux");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nb_RTPmux");
 
-	if (tree) {
+    if (tree) {
         unsigned int offset = 0;
 /* NOTE: The offset and length values in the call to
    "proto_tree_add_item()" define what data bytes to highlight in the hex
@@ -87,47 +97,58 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* create display subtree for the protocol */
 
-        while (offset < tvb_length(tvb)-5)
+        while (offset < tvb_reported_length(tvb)-5)
         {
             guint16 dstport, srcport;
             unsigned int length;
+            gint captured_length;
             tvbuff_t* next_tvb;
             
             length = tvb_get_guint8(tvb, offset+2);
-		    ti = proto_tree_add_item(tree, proto_nb_rtpmux, tvb, offset, length == 0 ? -1:length+5, FALSE);
-    		nb_rtpmux_tree = proto_item_add_subtree(ti, ett_nb_rtpmux);
+            ti = proto_tree_add_item(tree, proto_nb_rtpmux, tvb, offset,
+	        length+5, FALSE);
+            nb_rtpmux_tree = proto_item_add_subtree(ti, ett_nb_rtpmux);
 
-	    	proto_tree_add_item(nb_rtpmux_tree,
-		        hf_nb_rtpmux_compressed, tvb, offset, 1, FALSE);
+            proto_tree_add_item(nb_rtpmux_tree,
+                hf_nb_rtpmux_compressed, tvb, offset, 1, FALSE);
             dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
             proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
-	    	proto_tree_add_item(nb_rtpmux_tree,
-		        hf_nb_rtpmux_length, tvb, offset+2, 1, FALSE);
+            proto_tree_add_item(nb_rtpmux_tree,
+                hf_nb_rtpmux_length, tvb, offset+2, 1, FALSE);
             srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
             proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
 
+            if (length == 0)
+            {
+                /* XXX - is an item with a zero-length payload always
+                   an end marker? */
+                break;
+            }
+
+            /* We have an RTP payload. */
             if (rtpdissector)
             {
-                next_tvb = tvb_new_subset(tvb, offset+5,
-                        MIN(tvb_length(tvb)-5-offset, length), length);
+                captured_length = tvb_length_remaining(tvb, offset + 5);
+                if (captured_length > (gint)length)
+                    captured_length = length;
+                next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
+		    length);
 
-    	        call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
+                call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
             }
             else
             {
-    	    	proto_tree_add_item(nb_rtpmux_tree,
-		            hf_nb_rtpmux_data, tvb, offset+5, length == 0 ? -1:length, FALSE);
+                proto_tree_add_item(nb_rtpmux_tree,
+                    hf_nb_rtpmux_data, tvb, offset+5, length, FALSE);
             }
-            if (length == 0)
-                break;
             offset += 5+length;
         }
-	}
+    }
 
 /* If this protocol has a sub-dissector call it here, see section 1.8 */
 
 /* Return the amount of data this dissector was able to dissect */
-	return tvb_length(tvb);
+    return tvb_length(tvb);
 }
 
 
@@ -141,46 +162,46 @@ void
 proto_register_nb_rtpmux(void)
 {
 
-	static hf_register_info hf[] = {
-		{ &hf_nb_rtpmux_compressed,
-			{ "Compressed headers", "nb_rtpmux.compressed",
-			 FT_BOOLEAN, BASE_NONE, NULL, 0x80,
-			"", HFILL }
-		},
-		{ &hf_nb_rtpmux_dstport,
-			{ "Dst port", "nb_rtpmux.dstport",
-			 FT_UINT16, BASE_DEC, NULL, 0x00,
-			"", HFILL }
-		},
-		{ &hf_nb_rtpmux_length,
-			{ "Length", "nb_rtpmux.length",
-			 FT_UINT8, BASE_DEC, NULL, 0x00,
-			"", HFILL }
-		},
-		{ &hf_nb_rtpmux_srcport,
-			{ "Src port", "nb_rtpmux.srcport",
-			 FT_UINT16, BASE_DEC, NULL, 0x00,
-			"", HFILL }
-		},
-		{ &hf_nb_rtpmux_data,
-			{ "RTP Packet", "nb_rtpmux.data",
-			 FT_BYTES, BASE_HEX, NULL, 0x00,
-			"", HFILL }
-		}
-	};
+    static hf_register_info hf[] = {
+        { &hf_nb_rtpmux_compressed,
+            { "Compressed headers", "nb_rtpmux.compressed",
+             FT_BOOLEAN, BASE_NONE, NULL, 0x80,
+            "", HFILL }
+        },
+        { &hf_nb_rtpmux_dstport,
+            { "Dst port", "nb_rtpmux.dstport",
+             FT_UINT16, BASE_DEC, NULL, 0x00,
+            "", HFILL }
+        },
+        { &hf_nb_rtpmux_length,
+            { "Length", "nb_rtpmux.length",
+             FT_UINT8, BASE_DEC, NULL, 0x00,
+            "", HFILL }
+        },
+        { &hf_nb_rtpmux_srcport,
+            { "Src port", "nb_rtpmux.srcport",
+             FT_UINT16, BASE_DEC, NULL, 0x00,
+            "", HFILL }
+        },
+        { &hf_nb_rtpmux_data,
+            { "RTP Packet", "nb_rtpmux.data",
+             FT_BYTES, BASE_HEX, NULL, 0x00,
+            "", HFILL }
+        }
+    };
 
 /* Setup protocol subtree array */
-	static gint *ett[] = {
-		&ett_nb_rtpmux
-	};
+    static gint *ett[] = {
+        &ett_nb_rtpmux
+    };
 
 /* Register the protocol name and description */
-	proto_nb_rtpmux = proto_register_protocol("3GPP Nb Interface RTP Multiplex",
-	    "nb_rtpmux", "nb_rtpmux");
+    proto_nb_rtpmux = proto_register_protocol("3GPP Nb Interface RTP Multiplex",
+        "nb_rtpmux", "nb_rtpmux");
 
 /* Required function calls to register the header fields and subtrees used */
-	proto_register_field_array(proto_nb_rtpmux, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_register_field_array(proto_nb_rtpmux, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
 }
 
@@ -196,23 +217,21 @@ proto_register_nb_rtpmux(void)
 void
 proto_reg_handoff_nb_rtpmux(void)
 {
-	static gboolean inited = FALSE;
+    static gboolean inited = FALSE;
 
-	if (!inited) {
+    if (!inited) {
 
-	    dissector_handle_t nb_rtpmux_handle;
+        dissector_handle_t nb_rtpmux_handle;
 
 /*  Use new_create_dissector_handle() to indicate that dissect_nb_rtpmux()
  *  returns the number of bytes it dissected (or 0 if it thinks the packet
  *  does not belong to PROTONAME).
  */
-	    nb_rtpmux_handle = new_create_dissector_handle(dissect_nb_rtpmux,
-	        proto_nb_rtpmux);
+        nb_rtpmux_handle = new_create_dissector_handle(dissect_nb_rtpmux,
+            proto_nb_rtpmux);
 
-	    dissector_add_handle("udp.port", nb_rtpmux_handle);
+        dissector_add_handle("udp.port", nb_rtpmux_handle);
         rtpdissector = find_dissector("rtp");
-	    inited = TRUE;
-	}
-
+        inited = TRUE;
+    }
 }
-
