@@ -1,5 +1,5 @@
 /* packet-nb_rtpmux.c
- * Routines for 3GPP RTP Multiplex dissection
+ * Routines for 3GPP RTP Multiplex dissection, 3GPP TS 29.414
  * Copyright 2009, ip.access ltd <amp@ipaccess.com>
  *
  * $Id$
@@ -69,6 +69,9 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * set the port on which to dissect it, or it needs to be a non-heuristic
      * dissector and *require* that a user use "Decode As..." to decode
      * traffic as Nb_RTPmux.
+     *
+     * Look for a payload that looks like an RTP packet, using the
+     * same (weakish) heuristics as RTP uses?
      */
 
     /* Check that there's enough data */
@@ -102,6 +105,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        length+5, FALSE);
             nb_rtpmux_tree = proto_item_add_subtree(ti, ett_nb_rtpmux);
 
+            /* XXX - what if the T bit is set? */
             proto_tree_add_item(nb_rtpmux_tree,
                 hf_nb_rtpmux_compressed, tvb, offset, 1, FALSE);
             dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
@@ -111,28 +115,24 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
             proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
 
-            if (length == 0)
+            if (length != 0)
             {
-                /* XXX - is an item with a zero-length payload always
-                   an end marker? */
-                break;
-            }
+                /* We have an RTP payload. */
+                if (rtpdissector)
+                {
+                    captured_length = tvb_length_remaining(tvb, offset + 5);
+                    if (captured_length > (gint)length)
+                        captured_length = length;
+                    next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
+                                              length);
 
-            /* We have an RTP payload. */
-            if (rtpdissector)
-            {
-                captured_length = tvb_length_remaining(tvb, offset + 5);
-                if (captured_length > (gint)length)
-                    captured_length = length;
-                next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
-		    length);
-
-                call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
-            }
-            else
-            {
-                proto_tree_add_item(nb_rtpmux_tree,
-                    hf_nb_rtpmux_data, tvb, offset+5, length, FALSE);
+                    call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
+                }
+                else
+                {
+                    proto_tree_add_item(nb_rtpmux_tree,
+                        hf_nb_rtpmux_data, tvb, offset+5, length, FALSE);
+                }
             }
             offset += 5+length;
         }
@@ -163,7 +163,7 @@ proto_register_nb_rtpmux(void)
         },
         { &hf_nb_rtpmux_dstport,
             { "Dst port", "nb_rtpmux.dstport",
-             FT_UINT16, BASE_DEC, NULL, 0x00,
+             FT_UINT16, BASE_DEC, NULL, 0x0000,
             NULL, HFILL }
         },
         { &hf_nb_rtpmux_length,
