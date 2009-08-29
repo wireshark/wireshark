@@ -49,18 +49,18 @@ static int
 dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-/* Set up structures needed to add the protocol subtree and manage it */
+    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *nb_rtpmux_tree;
 
-/*  First, if at all possible, do some heuristics to check if the packet cannot
- *  possibly belong to your protocol.  This is especially important for
- *  protocols directly on top of TCP or UDP where port collisions are
- *  common place (e.g., even though your protocol uses a well known port,
- *  someone else may set up, for example, a web server on that port which,
- *  if someone analyzed that web server's traffic in Wireshark, would result
- *  in Wireshark handing an HTTP packet to your dissector).  For example:
- */
+    /*  First, if at all possible, do some heuristics to check if the packet cannot
+     *  possibly belong to your protocol.  This is especially important for
+     *  protocols directly on top of TCP or UDP where port collisions are
+     *  common place (e.g., even though your protocol uses a well known port,
+     *  someone else may set up, for example, a web server on that port which,
+     *  if someone analyzed that web server's traffic in Wireshark, would result
+     *  in Wireshark handing an HTTP packet to your dissector).  For example:
+     */
 
     /*
      * XXX - this is *FAR* too weak a heuristic; it could cause all sorts
@@ -78,21 +78,20 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_length(tvb) < 6)
         return 0;
 
-/* Make entries in Protocol column and Info column on summary display */
+    /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nb_RTPmux");
 
     if (tree) {
         unsigned int offset = 0;
-/* NOTE: The offset and length values in the call to
-   "proto_tree_add_item()" define what data bytes to highlight in the hex
-   display window when the line in the protocol tree display
-   corresponding to that item is selected.
+        /* NOTE: The offset and length values in the call to
+           "proto_tree_add_item()" define what data bytes to highlight in the hex
+           display window when the line in the protocol tree display
+           corresponding to that item is selected.
 
-   Supplying a length of -1 is the way to highlight all data from the
-   offset to the end of the packet. */
+           Supplying a length of -1 is the way to highlight all data from the
+           offset to the end of the packet. */
 
-/* create display subtree for the protocol */
-
+        /* create display subtree for the protocol */
         while (offset < tvb_reported_length(tvb)-5)
         {
             guint16 dstport, srcport;
@@ -102,7 +101,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             
             length = tvb_get_guint8(tvb, offset+2);
             ti = proto_tree_add_item(tree, proto_nb_rtpmux, tvb, offset,
-	        length+5, FALSE);
+                length+5, FALSE);
             nb_rtpmux_tree = proto_item_add_subtree(ti, ett_nb_rtpmux);
 
             /* XXX - what if the T bit is set? */
@@ -138,9 +137,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-/* If this protocol has a sub-dissector call it here, see section 1.8 */
-
-/* Return the amount of data this dissector was able to dissect */
+    /* Return the amount of data this dissector was able to dissect */
     return tvb_length(tvb);
 }
 
@@ -150,7 +147,6 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.
 */
-
 void
 proto_register_nb_rtpmux(void)
 {
@@ -183,16 +179,16 @@ proto_register_nb_rtpmux(void)
         }
     };
 
-/* Setup protocol subtree array */
+    /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_nb_rtpmux
     };
 
-/* Register the protocol name and description */
+    /* Register the protocol name and description */
     proto_nb_rtpmux = proto_register_protocol("3GPP Nb Interface RTP Multiplex",
         "nb_rtpmux", "nb_rtpmux");
 
-/* Required function calls to register the header fields and subtrees used */
+    /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_nb_rtpmux, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -212,13 +208,14 @@ proto_reg_handoff_nb_rtpmux(void)
 {
     dissector_handle_t nb_rtpmux_handle;
 
-/*  Use new_create_dissector_handle() to indicate that dissect_nb_rtpmux()
- *  returns the number of bytes it dissected (or 0 if it thinks the packet
- *  does not belong to PROTONAME).
- */
+    /*  Use new_create_dissector_handle() to indicate that dissect_nb_rtpmux()
+     *  returns the number of bytes it dissected (or 0 if it thinks the packet
+     *  does not belong to PROTONAME).
+     */
     nb_rtpmux_handle = new_create_dissector_handle(dissect_nb_rtpmux,
                                                    proto_nb_rtpmux);
 
     dissector_add_handle("udp.port", nb_rtpmux_handle);
     rtpdissector = find_dissector("rtp");
 }
+
