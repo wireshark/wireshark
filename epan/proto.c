@@ -3292,11 +3292,11 @@ proto_custom_set(proto_tree* tree, const gchar *field,
 			break;
 
 		case FT_FLOAT:
-			g_snprintf(result, size, "%." G_STRINGIFY(FLT_DIG) "f", fvalue_get_floating(&finfo->value));
+			g_snprintf(result, size, "%." STRINGIFY(FLT_DIG) "f", fvalue_get_floating(&finfo->value));
 			break;
 
 		case FT_DOUBLE:
-			g_snprintf(result, size, "%." G_STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
+			g_snprintf(result, size, "%." STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
 			break;
 
 	        case FT_EBCDIC:
@@ -4314,13 +4314,13 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_FLOAT:
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %." G_STRINGIFY(FLT_DIG) "f",
+				"%s: %." STRINGIFY(FLT_DIG) "f",
 				hfinfo->name, fvalue_get_floating(&fi->value));
 			break;
 
 		case FT_DOUBLE:
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %." G_STRINGIFY(DBL_DIG) "g",
+				"%s: %." STRINGIFY(DBL_DIG) "g",
 				hfinfo->name, fvalue_get_floating(&fi->value));
 			break;
 

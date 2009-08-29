@@ -24,6 +24,7 @@
 #define SYNTAX_TREE_H
 
 #include <glib.h>
+#include "cppmagic.h"
 
 typedef enum {
 	STTYPE_UNINITIALIZED,
@@ -119,9 +120,9 @@ stnode_deprecated(stnode_t *node);
 
 #define STTYPE_ACCESSOR(ret,type,attr,magicnum) \
 	ret \
-	G_PASTE(G_PASTE(G_PASTE(sttype_,type),_),attr) (stnode_t *node) \
+	CONCAT(CONCAT(CONCAT(sttype_,type),_),attr) (stnode_t *node) \
 {\
-	G_PASTE(type,_t)	*value; \
+	CONCAT(type,_t)	*value; \
 	value = stnode_data(node);\
 	assert_magic(value, magicnum); \
 	return value->attr; \
@@ -129,7 +130,7 @@ stnode_deprecated(stnode_t *node);
 
 #define STTYPE_ACCESSOR_PROTOTYPE(ret,type,attr) \
 	ret \
-	G_PASTE(G_PASTE(G_PASTE(sttype_,type),_),attr) (stnode_t *node);
+	CONCAT(CONCAT(CONCAT(sttype_,type),_),attr) (stnode_t *node);
 
 
 #endif
