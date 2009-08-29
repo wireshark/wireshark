@@ -283,11 +283,11 @@ static const value_string rtcp_app_poc1_qsresp_priority_vals[] =
 /* 3GPP 29.414 RTP Multiplexing */
 static const value_string rtcp_app_mux_selection_vals[] =
 {
-    {  0,   "No multiplexing applied"},
-    {  1,   "Multiplexing without RTP header compression applied"},
-    {  2,   "Multiplexing with RTP header compression applied"},
-    {  3,   "Reserved"},
-    {  0,   NULL}
+	{  0,   "No multiplexing applied"},
+	{  1,   "Multiplexing without RTP header compression applied"},
+	{  2,   "Multiplexing with RTP header compression applied"},
+	{  3,   "Reserved"},
+	{  0,   NULL}
 };
 
 /* RFC 4585 */
@@ -1372,8 +1372,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		offset += packet_len;
 		return offset;
 	}
-    else if ( g_ascii_strncasecmp(ascii_name, mux_app_name_str,4 ) == 0 )
-    {
+	else if ( g_ascii_strncasecmp(ascii_name, mux_app_name_str,4 ) == 0 )
+	{
 		/* 3GPP Nb protocol extension (3GPP 29.414) for RTP Multiplexing */
 		col_append_fstr(pinfo->cinfo, COL_INFO,"( %s ) subtype=%u",ascii_name, rtcp_subtype);
 		offset += 4;
@@ -1385,27 +1385,27 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 			*/
 			packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
 		}
-        if (packet_len == 4)
-        {
-            guint16 local_port = 0;
+		if (packet_len == 4)
+		{
+			guint16 local_port = 0;
 
 			proto_item* mux_item = proto_tree_add_item(tree, hf_rtcp_app_mux, tvb, offset, packet_len, FALSE);
-		    proto_tree* mux_tree = proto_item_add_subtree( mux_item, ett_mux );
-            proto_tree_add_item( mux_tree, hf_rtcp_app_mux_mux, tvb, offset, 1, FALSE );
-            proto_tree_add_item( mux_tree, hf_rtcp_app_mux_cp, tvb, offset, 1, FALSE );
-            proto_tree_add_item( mux_tree, hf_rtcp_app_mux_selection, tvb, offset, 1, FALSE );
+			proto_tree* mux_tree = proto_item_add_subtree( mux_item, ett_mux );
+			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_mux, tvb, offset, 1, FALSE );
+			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_cp, tvb, offset, 1, FALSE );
+			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_selection, tvb, offset, 1, FALSE );
 			local_port = tvb_get_ntohs( tvb, offset+2 );
-            proto_tree_add_uint( mux_tree, hf_rtcp_app_mux_localmuxport, tvb, offset+2, 2, local_port*2 );
-        }
-        else
-        {
-            /* fall back to just showing the data if it's the wrong length */
-    		proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
-        }
+			proto_tree_add_uint( mux_tree, hf_rtcp_app_mux_localmuxport, tvb, offset+2, 2, local_port*2 );
+		}
+		else
+		{
+			/* fall back to just showing the data if it's the wrong length */
+			proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
+		}
 		offset += packet_len;
 
 		return offset;
-    }
+	}
 	else
 	{
 		/* Unhandled application type, just show app name and raw data */
@@ -3540,11 +3540,11 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
 		},
-        {
-            &hf_rtcp_app_mux_mux,
+		{
+			&hf_rtcp_app_mux_mux,
 			{
 				"Multiplexing supported",
 				"rtcp.app.mux.mux",
@@ -3552,11 +3552,11 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x80,
-				"", HFILL
+				NULL, HFILL
 			}
-        },
-        {
-            &hf_rtcp_app_mux_cp,
+                },
+		{
+			&hf_rtcp_app_mux_cp,
 			{
 				"Header compression supported",
 				"rtcp.app.mux.cp",
@@ -3564,33 +3564,33 @@ proto_register_rtcp(void)
 				BASE_NONE,
 				NULL,
 				0x40,
-				"", HFILL
+				NULL, HFILL
 			}
-        },
-        {
-            &hf_rtcp_app_mux_selection,
-            {
+		},
+		{
+			&hf_rtcp_app_mux_selection,
+			{
 				"Multiplexing selection",
 				"rtcp.app.mux.selection",
 				FT_UINT8,
 				BASE_DEC,
 				VALS(rtcp_app_mux_selection_vals),
 				0x30,
-				"", HFILL
+				NULL, HFILL
 			}
-        },
-        {
-            &hf_rtcp_app_mux_localmuxport,
-            {
+		},
+                {
+            		&hf_rtcp_app_mux_localmuxport,
+			{
 				"Local Mux Port",
 				"rtcp.app.mux.muxport",
 				FT_UINT16,
 				BASE_DEC,
-                NULL,
+				NULL,
 				0x0,
-				"", HFILL
+				NULL, HFILL
 			}
-        },
+		},
 		{
 			&hf_rtcp_fsn,
 			{
@@ -4538,7 +4538,7 @@ proto_register_rtcp(void)
 		&ett_sdes,
 		&ett_sdes_item,
 		&ett_PoC1,
-        &ett_mux,
+                &ett_mux,
 		&ett_rtcp_setup,
 		&ett_rtcp_roundtrip_delay,
 		&ett_xr_block,
@@ -4552,7 +4552,7 @@ proto_register_rtcp(void)
 	module_t *rtcp_module;
 
 	proto_rtcp = proto_register_protocol("Real-time Transport Control Protocol",
-	    "RTCP", "rtcp");
+                                             "RTCP", "rtcp");
 	proto_register_field_array(proto_rtcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
