@@ -433,7 +433,7 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 
 	if (selected_stream_rev)
 	{
-		if (selected_stream_fwd->src_addr.type==AT_IPv6){
+		if (selected_stream_rev->src_addr.type==AT_IPv6){
 			g_strlcpy(ip_version,"v6",sizeof(ip_version));
 		}		
 		else{
@@ -451,16 +451,16 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 
 		filter_string = filter_string_rev;
 
-	    if (selected_stream_fwd)
-	    {
-            filter_string = g_strdup_printf("%s || %s", filter_string, filter_string_rev);
-            g_free(filter_string_fwd);
-            g_free(filter_string_rev);
-        }
-    }
+		if (selected_stream_fwd)
+		{
+			filter_string = g_strdup_printf("%s || %s", filter_string, filter_string_rev);
+			g_free(filter_string_fwd);
+			g_free(filter_string_rev);
+		}
+	}
 
-    gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
-    g_free(filter_string);
+	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string);
+	g_free(filter_string);
 
 /*
 	main_filter_packets(&cfile, filter_string, FALSE);
