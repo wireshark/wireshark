@@ -48,10 +48,10 @@ static dissector_handle_t rtpdissector;
 static int
 dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
     proto_tree *nb_rtpmux_tree;
+    unsigned int offset = 0;
 
     /*  First, if at all possible, do some heuristics to check if the packet cannot
      *  possibly belong to your protocol.  This is especially important for
@@ -81,60 +81,57 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nb_RTPmux");
 
-    if (tree) {
-        unsigned int offset = 0;
-        /* NOTE: The offset and length values in the call to
-           "proto_tree_add_item()" define what data bytes to highlight in the hex
-           display window when the line in the protocol tree display
-           corresponding to that item is selected.
+    /* NOTE: The offset and length values in the call to
+       "proto_tree_add_item()" define what data bytes to highlight in the hex
+       display window when the line in the protocol tree display
+       corresponding to that item is selected.
 
-           Supplying a length of -1 is the way to highlight all data from the
-           offset to the end of the packet. */
+       Supplying a length of -1 is the way to highlight all data from the
+       offset to the end of the packet. */
 
-        /* create display subtree for the protocol */
-        while (offset < tvb_reported_length(tvb)-5)
+    /* create display subtree for the protocol */
+    while (offset < tvb_reported_length(tvb)-5)
+    {
+        guint16 dstport, srcport;
+        unsigned int length;
+        gint captured_length;
+        tvbuff_t* next_tvb;
+
+        length = tvb_get_guint8(tvb, offset+2);
+        ti = proto_tree_add_item(tree, proto_nb_rtpmux, tvb, offset,
+            length+5, FALSE);
+        nb_rtpmux_tree = proto_item_add_subtree(ti, ett_nb_rtpmux);
+
+        /* XXX - what if the T bit is set? */
+        proto_tree_add_item(nb_rtpmux_tree,
+            hf_nb_rtpmux_compressed, tvb, offset, 1, FALSE);
+        dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
+        proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
+        proto_tree_add_item(nb_rtpmux_tree,
+            hf_nb_rtpmux_length, tvb, offset+2, 1, FALSE);
+        srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
+        proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
+
+        if (length != 0)
         {
-            guint16 dstport, srcport;
-            unsigned int length;
-            gint captured_length;
-            tvbuff_t* next_tvb;
-            
-            length = tvb_get_guint8(tvb, offset+2);
-            ti = proto_tree_add_item(tree, proto_nb_rtpmux, tvb, offset,
-                length+5, FALSE);
-            nb_rtpmux_tree = proto_item_add_subtree(ti, ett_nb_rtpmux);
-
-            /* XXX - what if the T bit is set? */
-            proto_tree_add_item(nb_rtpmux_tree,
-                hf_nb_rtpmux_compressed, tvb, offset, 1, FALSE);
-            dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
-            proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
-            proto_tree_add_item(nb_rtpmux_tree,
-                hf_nb_rtpmux_length, tvb, offset+2, 1, FALSE);
-            srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
-            proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
-
-            if (length != 0)
+            /* We have an RTP payload. */
+            if (rtpdissector)
             {
-                /* We have an RTP payload. */
-                if (rtpdissector)
-                {
-                    captured_length = tvb_length_remaining(tvb, offset + 5);
-                    if (captured_length > (gint)length)
-                        captured_length = length;
-                    next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
-                                              length);
+                captured_length = tvb_length_remaining(tvb, offset + 5);
+                if (captured_length > (gint)length)
+                    captured_length = length;
+                next_tvb = tvb_new_subset(tvb, offset+5, captured_length,
+                                          length);
 
-                    call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
-                }
-                else
-                {
-                    proto_tree_add_item(nb_rtpmux_tree,
-                        hf_nb_rtpmux_data, tvb, offset+5, length, FALSE);
-                }
+                call_dissector(rtpdissector, next_tvb, pinfo, nb_rtpmux_tree);
             }
-            offset += 5+length;
+            else
+            {
+                proto_tree_add_item(nb_rtpmux_tree,
+                    hf_nb_rtpmux_data, tvb, offset+5, length, FALSE);
+            }
         }
+        offset += 5+length;
     }
 
     /* Return the amount of data this dissector was able to dissect */
