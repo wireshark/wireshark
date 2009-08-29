@@ -27,16 +27,9 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
-
-/* Forward declaration we need below */
-void proto_reg_handoff_nb_rtpmux(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_nb_rtpmux = -1;
@@ -166,27 +159,27 @@ proto_register_nb_rtpmux(void)
         { &hf_nb_rtpmux_compressed,
             { "Compressed headers", "nb_rtpmux.compressed",
              FT_BOOLEAN, BASE_NONE, NULL, 0x80,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_nb_rtpmux_dstport,
             { "Dst port", "nb_rtpmux.dstport",
              FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_nb_rtpmux_length,
             { "Length", "nb_rtpmux.length",
              FT_UINT8, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_nb_rtpmux_srcport,
             { "Src port", "nb_rtpmux.srcport",
              FT_UINT16, BASE_DEC, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         },
         { &hf_nb_rtpmux_data,
             { "RTP Packet", "nb_rtpmux.data",
              FT_BYTES, BASE_HEX, NULL, 0x00,
-            "", HFILL }
+            NULL, HFILL }
         }
     };
 
@@ -217,21 +210,15 @@ proto_register_nb_rtpmux(void)
 void
 proto_reg_handoff_nb_rtpmux(void)
 {
-    static gboolean inited = FALSE;
-
-    if (!inited) {
-
-        dissector_handle_t nb_rtpmux_handle;
+    dissector_handle_t nb_rtpmux_handle;
 
 /*  Use new_create_dissector_handle() to indicate that dissect_nb_rtpmux()
  *  returns the number of bytes it dissected (or 0 if it thinks the packet
  *  does not belong to PROTONAME).
  */
-        nb_rtpmux_handle = new_create_dissector_handle(dissect_nb_rtpmux,
-            proto_nb_rtpmux);
+    nb_rtpmux_handle = new_create_dissector_handle(dissect_nb_rtpmux,
+                                                   proto_nb_rtpmux);
 
-        dissector_add_handle("udp.port", nb_rtpmux_handle);
-        rtpdissector = find_dissector("rtp");
-        inited = TRUE;
-    }
+    dissector_add_handle("udp.port", nb_rtpmux_handle);
+    rtpdissector = find_dissector("rtp");
 }
