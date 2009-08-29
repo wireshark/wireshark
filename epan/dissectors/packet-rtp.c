@@ -1861,7 +1861,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				NULL,
 				0xFFFC,
-				"Timestamp Offset", HFILL
+				NULL, HFILL
 			}
 		},
 		{
@@ -1873,7 +1873,7 @@ proto_register_rtp(void)
 				BASE_DEC,
 				NULL,
 				0x03FF,
-				"Block Length", HFILL
+				NULL, HFILL
 			}
 		},
 
@@ -1995,7 +1995,8 @@ proto_register_rtp(void)
 
 	prefs_register_enum_preference(rtp_module, "version0_type",
 	                               "Treat RTP version 0 packets as",
-	                               "If an RTP version 0 packet is encountered, it can be treated as an invalid or ZRTP packet, a STUN packet, or a T.38 packet",
+	                               "If an RTP version 0 packet is encountered, it can be treated as "
+				       "an invalid or ZRTP packet, a STUN packet, or a T.38 packet",
 	                               &global_rtp_version0_type,
 	                               rtp_version0_types, FALSE);
 	prefs_register_uint_preference(rtp_module,
