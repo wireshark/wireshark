@@ -4,19 +4,18 @@
 INCLUDE(FindCygwin)
 
 FIND_PROGRAM(LEX_EXECUTABLE
-  NAMES 
-  flex
-  lex
-  PATH
-  ${CYGWIN_INSTALL_PATH}/bin
-  /bin
-  /usr/bin 
-  /usr/local/bin
-  /sbin
+  NAMES
+    flex
+    lex
+  PATHS
+    ${CYGWIN_INSTALL_PATH}/bin
+    /bin
+    /usr/bin
+    /usr/local/bin
+    /sbin
 )
-MARK_AS_ADVANCED(
-  LEX_EXECUTABLE
-)
+
+MARK_AS_ADVANCED(LEX_EXECUTABLE)
 
 # flex a .l file
 

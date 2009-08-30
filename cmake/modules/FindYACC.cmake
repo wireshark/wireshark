@@ -5,20 +5,18 @@
 INCLUDE(FindCygwin)
 
 FIND_PROGRAM(YACC_EXECUTABLE
-  NAMES 
-  bison
-  yacc
-  PATH
-  ${CYGWIN_INSTALL_PATH}/bin
-  /bin
-  /usr/bin 
-  /usr/local/bin
-  /sbin
-)
-MARK_AS_ADVANCED(
-  YACC_EXECUTABLE
+  NAMES
+    bison
+    yacc
+  PATHS
+    ${CYGWIN_INSTALL_PATH}/bin
+    /bin
+    /usr/bin
+    /usr/local/bin
+    /sbin
 )
 
+MARK_AS_ADVANCED(YACC_EXECUTABLE)
 
 # search bison/yacc
 MACRO(FIND_YACC)

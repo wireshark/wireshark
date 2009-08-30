@@ -5,19 +5,17 @@
 INCLUDE(FindCygwin)
 
 FIND_PROGRAM(SED_EXECUTABLE
-  NAMES 
-  sed
-  PATH
-  ${CYGWIN_INSTALL_PATH}/bin
-  /bin
-  /usr/bin 
-  /usr/local/bin
-  /sbin
-)
-MARK_AS_ADVANCED(
-  SED_EXECUTABLE
+  NAMES
+    sed
+  PATHS
+    ${CYGWIN_INSTALL_PATH}/bin
+    /bin
+    /usr/bin
+    /usr/local/bin
+    /sbin
 )
 
+MARK_AS_ADVANCED(SED_EXECUTABLE)
 
 # search sed
 MACRO(FIND_SED)
