@@ -256,9 +256,13 @@ cf_status_t cf_filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
  */
 void cf_reftime_packets(capture_file *cf);
 
-gulong cf_get_computed_elapsed(void);
 /**
- * At least one "Refence Time" flag has changed, rescan all packets.
+ * Return the time it took to load the file
+ */
+gulong cf_get_computed_elapsed(void);
+
+/**
+ * The coloring rules have changed, redo coloring
  * 
  * @param cf the capture file
  */
