@@ -21,7 +21,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-
 project(wireshark C)
 
 cmake_minimum_required(VERSION 2.6)
@@ -89,7 +88,11 @@ else()
 endif()
 
 #The minimum package list
-set(PACKAGELIST GLIB2 PCAP LEX YACC Perl ${PACKAGELIST})
+if(WIN32)
+  set(PACKAGELIST WSWIN32 LEX YACC Perl ${PACKAGELIST})
+else()
+  set(PACKAGELIST GLIB2 PCAP LEX YACC Perl ${PACKAGELIST})
+endif()
 
 #build the gui ?
 if(BUILD_wireshark)
