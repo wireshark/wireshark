@@ -25,11 +25,12 @@
 #ifndef __PCAP_UTIL_INT_H__
 #define __PCAP_UTIL_INT_H__
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #ifdef HAVE_LIBPCAP
 #ifdef HAVE_PCAP_REMOTE
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
 #include <pcap.h>
 #endif /* HAVE_PCAP_REMOTE */
 
