@@ -177,6 +177,11 @@ endif()
 if(WIN32)
   add_definitions(-DHAVE_WIN32_LIBWIRESHARK_LIB -D_NEED_VAR_IMPORT_)
   set(WS_VAR_IMPORT "__declspec(dllimport) extern")
+
+  # Disable deprecation
+  if(MSVC80 OR MSVC90)
+    add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
+  endif()
 endif()
 
 
