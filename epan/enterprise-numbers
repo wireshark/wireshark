@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-08-23)
+(last updated 2009-08-29)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -23786,7 +23786,7 @@ Decimal
     Andreas Wolff
       awolff&ascona.de
 5956
-  Worldspan
+  Travelport (previous was 'Worldspan')
     Larry Hedrick
       larry.hedrick&travelport.com
 5957
@@ -44884,7 +44884,7 @@ Decimal
 11232
   Apocalypse Computing Services
     David Lim
-      relm256&hotmail.com
+      oc.cloud.labs&gmail.com
 11233
   Harald Gliebe
     Harald Gliebe
@@ -100434,8 +100434,8 @@ de Bruxelles, asbl
       Paul.Brotherton&novacellsolutions.com
 25216
   ADI Video Technologies
-    Michael Grinshpun
-      michael.g&adi-vt.com
+    Nahum Aharon
+      nahum&adi-vt.com
 25217
   Nautilus Hyosung
     Chang, bo-ick
@@ -127880,8 +127880,8 @@ Decentralization / Helenic Public Administra
       rcp&mesavida.com
 32074
   Prorail BV
-    Jeroen Vriesman
-      JVriesman&tribase.nl
+    Chris Verhoef
+      chris.verhoef&prorail.nl
 32075
   XS Networks BV
     Eric Veraart
@@ -136155,6 +136155,214 @@ Decentralization / Helenic Public Administra
   Bank of Thailand
     Ed Yampratoom
       edy&bot.or.th
+34143
+  Absilion AB
+    Norbert Vegh
+      norbert.vegh&absilion.com
+34144
+  Böhler Edelstahl GmbH & CoKG
+    Josef Scheiber
+      josef.scheiber&bohler-edelstahl.at
+34145
+  Károly Róbert College, Gyöngyös, Hungary
+    Kalcsó Gábor
+      mofli&karolyrobert.hu
+34146
+  Telogic Ltd.
+    Low Kim Seng
+      telogicsnmp&gmail.com
+34147
+  MANGO
+    Eduard Hernandez Vilanova
+      eduard.hernandez&mango.com
+34148
+  PRESENSE Technologies GmbH
+    Friedrich Delgado Friedrichs
+      iana&pre-sense.de
+34149
+  IMATRIX Corp.
+    Toshiyuki Hamasaki
+      tech&imatrix.co.jp
+34150
+  Syndicat.com
+    Niels Dettenbach
+      nd&syndicat.com
+34151
+  Peppe-Certification
+    Giuseppe Tumino
+      peppe.tumino&gmail.com
+34152
+  esd electronic system design gmbh
+    Oliver Thimm
+      oliver.thimm&esd.eu
+34153
+  Päivölän Kansanopisto
+    Asko Aulanko
+      tech&paivola.fi
+34154
+  Texprezzo Group BV
+    Ferenc Holzhauser
+      ferenc.holzhauser&textendo.com
+34155
+  Tendril Networks
+    Ben Hoyt
+      bhoyt&tendrilinc.com
+34156
+  Orel Analytics
+    Greg Sterijevski
+      gsteri1&hotmail.com
+34157
+  Instituto Nacional de Matemática Pura e Aplicada
+    Manoel Prazeres
+      prazeres&impa.br
+34158
+  Gouvernement de la Polynésie Française
+    Leonard TAVAE
+      leonard.tavae&informatique.gov.pf
+34159
+  Pelican Engineering, Inc.
+    Larry White
+      lwhite&pelicaneng.com
+34160
+  Certichron Inc
+    Todd Glassey
+      tglassey&certichron.com
+34161
+  CUSI(China unicom system integration limited corporation)
+    Wanchun Ye
+      yewc1&chinaunicom.cn
+34162
+  Symplified Inc.
+    Harout Hedeshian
+      hhedeshian&symplified.com
+34163
+  LogPatrol
+    David Aldridge
+      support&logpatrol.com
+34164
+  Fubra Limited
+    Mark Sutton
+      servers&fubra.com
+34165
+  Convergence CT, Inc.
+    Donn Mukensnable
+      dmuk&convergencect.com
+34166
+  Stellar Switches, Inc.
+    Donald Eastlake 3
+      donald.eastlake&stellarswitches.com
+34167
+  Power Admin LLC
+    Doug Nebeker
+      support&poweradmin.com
+34168
+  Richer link co.ltd
+    Bill Chen
+      william&richerlink.com
+34169
+  Northsun.net
+    Karl Stevens
+      iana-reg&northsun.net
+34170
+  TTK S.A.S.
+    Stefan Balatchev
+      sbalatchev&ttk.fr
+34171
+  Wingpath Ltd.
+    Frank O'Gorman
+      frank.ogorman&wingpath.co.uk
+34172
+  Fixme Internet-käyttäjät ry
+    Santtu Pajukanta
+      santtu.pajukanta&fixme.fi
+34173
+  PD Software s.r.o.
+    Pavel Dedík
+      pavel.dedik&pd.sk
+34174
+  FastOnlinePM
+    W. Greg Youree
+      wgyouree&gmail.com
+34175
+  Advanced Navigation & Positioning Corporation
+    Rob Hoeye
+      rhoeye&anpc.com
+34176
+  Hedgehog Oy Ltd
+    Kalle Rönkkö
+      kalle.ronkko&hedgehog.fi
+34177
+  Bond Technical Management
+    Michal Werner
+      michal&bondtm.com
+34178
+  Paragon Electronic Design Limited
+    Shane Harrison
+      shane.harrison&paragon.co.nz
+34179
+  Inland Revenue Department of Sri Lanka
+    Lal Silva
+      lal&photolk.com
+34180
+  Photop Technologies, Inc.
+    qiaozong lee
+      qiaozong.li&photoptech.com
+34181
+  DARSHAN DUDHORIA
+    DARSHAN DUDHORIA
+      DARSHAN&DUDHORIA.COM
+34182
+  Area SX
+    Massimo Battisti
+      info&areasx.com
+34183
+  Global Data Logistix (Pty) Ltd
+    Michael Karakashian
+      michael.karakashian&globaldatalogistix.com
+34184
+  Universität Hohenheim
+    Bjoern Breiner
+      bjoern.breiner&uni-hohenheim.de
+34185
+  EBANK ONLINE (BEIJING) TECHNOLOGY Co., LTD
+    chenzhe
+      chenzhe&chinabank.com.cn
+34186
+  TEAMCAST
+    Sebastien MAHEUT
+      support&teamcast.com
+34187
+  WAGNER Group GmbH
+    Claus-Peter Reinecke
+      claus-peter.reinecke&wagner.de
+34188
+  Klocktornet AB
+    Patrik Lindahl
+      patrik&klocktornet.com
+34189
+  Max Planck Institute for the science of light
+    Benjamin Klier
+      benjamin.klier&mpl.mpg.de
+34190
+  SSCANRFK54425
+    charles sauerbier
+      charles.sauerbier&navy.mil
+34191
+  Human Factors International
+    Michael Adams
+      hostmaster&humanfactors.com
+34192
+  Sikjur
+    Christoph Kiechle
+      iana&sikjur.de
+34193
+  McKinney Identity Management Solutions, LLC
+    Shawn McKinney
+      shawn.mckinney&sbcglobal.net
+34194
+  Jerusalem College of Technology
+    avraham shir-el
+      avraham&jct.ac.il
 
 
 End of Document
