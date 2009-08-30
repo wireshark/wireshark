@@ -81,8 +81,11 @@ add_yacc_files(WIRETAP_FILES
 
 # add_dependency(ascend.c ascend_scanner_lex.h)
 
-add_library(wiretap SHARED 
+add_library(wiretap SHARED
 	${WIRETAP_FILES}
 )
 
-install(TARGETS wiretap LIBRARY DESTINATION lib)
+install(TARGETS wiretap
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION lib
+    ARCHIVE DESTINATION lib)

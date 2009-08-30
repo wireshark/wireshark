@@ -36,8 +36,11 @@ set(WSUTIL_FILES
   ${WSUTIL_PLATFORM_FILES}
 )
 
-add_library(wsutil SHARED 
+add_library(wsutil SHARED
   ${WSUTIL_FILES}
 )
 
-install(TARGETS wsutil LIBRARY DESTINATION lib)
+install(TARGETS wsutil
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION lib
+    ARCHIVE DESTINATION lib)
