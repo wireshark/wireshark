@@ -15,6 +15,8 @@ check_include_file("lauxlib.h"           HAVE_LAUXLIB_H)
 check_include_file("memory.h"            HAVE_MEMORY_H)
 check_include_file("netinet/in.h"        HAVE_NETINET_IN_H)
 check_include_file("netdb.h"             HAVE_NETDB_H)
+# XXX: We need to set the path to Wpdpack in order to find Ntddndis.h
+check_include_file("Ntddndis.h"          HAVE_NTDDNDIS_H)
 check_include_file("portaudio.h"         HAVE_PORTAUDIO_H)
 check_include_file("pwd.h"               HAVE_PWD_H)
 check_include_file("stdarg.h"            HAVE_STDARG_H)
@@ -34,6 +36,8 @@ check_include_file("sys/types.h"         HAVE_SYS_TYPES_H)
 check_include_file("sys/utsname.h"       HAVE_SYS_UTSNAME_H)
 check_include_file("sys/wait.h"          HAVE_SYS_WAIT_H)
 check_include_file("unistd.h"            HAVE_UNISTD_H)
+check_include_file("windows.h"           HAVE_WINDOWS_H)
+check_include_file("winsock2.h"          HAVE_WINSOCK2_H)
 
 #Functions
 include(CheckFunctionExists)
