@@ -198,6 +198,12 @@ if(UNIX)
   )
 endif()
 
+if(WIN32)
+  set(PLATFORM_SRC
+    capture-wpcap.c capture_wpcap_packet.c
+  )
+endif()
+
 if(BUILD_wireshark)
 # todo
 endif()
