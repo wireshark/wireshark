@@ -282,10 +282,6 @@
 #define popen			_popen
 #define pclose			_pclose
 
-/* Needed for zlib, according to http://www.winimage.com/zLibDll/ */
-/*#define ZLIB_DLL                1
-#define _WINDOWS                1*/
-
 /* Name of package */
 #define PACKAGE "wireshark"
 
