@@ -316,6 +316,11 @@ static dissector_handle_t tapa_handle;
 #define IPLOCAL_NETWRK_CTRL_BLK_VRRP_TTL        0xFF
 #define IPLOCAL_NETWRK_CTRL_BLK_GLPB_ADDR       0xE0000066
 #define IPLOCAL_NETWRK_CTRL_BLK_GLPB_TTL        0XFF
+#define IPLOCAL_NETWRK_CTRL_BLK_MDNS_ADDR       0xE00000FB
+#define IPLOCAL_NETWRK_CTRL_BLK_MDNS_TTL        0XFF
+#define IPLOCAL_NETWRK_CTRL_BLK_LLMNR_ADDR      0xE00000FC
+
+#define IPLOCAL_NETWRK_CTRL_BLK_ANY_TTL         0x1000 /* larger than max ttl */
 #define IPLOCAL_NETWRK_CTRL_BLK_DEFAULT_TTL     0X01
 
 /* Return true if the address is in the 224.0.0.0/24 network block */
@@ -853,7 +858,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     addr = tvb_get_ipv4(tvb, offset + optoffset);
     proto_tree_add_text(field_tree, tvb, offset + optoffset, 4,
               "%s%s",
-              ((addr == 0) ? "-" : (char *)get_hostname(addr)),
+              ((addr == 0) ? "-" : (const char *)get_hostname(addr)),
               ((optoffset == ptr) ? " <- (current)" : ""));
     optoffset += 4;
     optlen -= 4;
@@ -923,7 +928,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
       optlen -= 8;
       proto_tree_add_text(field_tree, tvb, offset + optoffset,      8,
           "Address = %s, time stamp = %u",
-          ((addr == 0) ? "-" :  (char *)get_hostname(addr)),
+          ((addr == 0) ? "-" :  (const char *)get_hostname(addr)),
           ts);
       optoffset += 8;
     } else {
@@ -1200,21 +1205,25 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
 }
 
 /* Returns the valid ttl for the group address */
-guint8
+static guint16
 local_network_control_block_addr_valid_ttl(guint32 addr)
 {
-   /* An exception list, as Some protocols seem to insist on
-   *   doing differently:
-   *   - IETF's VRRP (rfc3768) always uses 224.0.0.18 with 255
-   *   - Cisco's GLPB always uses 224.0.0.102 with 255
-   *   Even more, VRRP and GLBP should probably be flagged as an error, if
-   *   seen with any TTL except 255.
+  /* An exception list, as some protocols seem to insist on
+   * doing differently:
    */
 
+  /* IETF's VRRP (rfc3768) */
   if (IPLOCAL_NETWRK_CTRL_BLK_VRRP_ADDR == addr)
 	return IPLOCAL_NETWRK_CTRL_BLK_VRRP_TTL;
+  /* Cisco's GLPB */
   if (IPLOCAL_NETWRK_CTRL_BLK_GLPB_ADDR == addr)
 	return IPLOCAL_NETWRK_CTRL_BLK_GLPB_TTL;
+  /* mDNS (draft-cheshire-dnsext-multicastdns-07) */
+  if (IPLOCAL_NETWRK_CTRL_BLK_MDNS_ADDR == addr)
+	return IPLOCAL_NETWRK_CTRL_BLK_MDNS_TTL;
+  /* LLMNR (rfc4795) */
+  if (IPLOCAL_NETWRK_CTRL_BLK_LLMNR_ADDR == addr)
+	return IPLOCAL_NETWRK_CTRL_BLK_ANY_TTL;
   return IPLOCAL_NETWRK_CTRL_BLK_DEFAULT_TTL;
 }
 
@@ -1303,7 +1312,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   proto_tree *tree;
   proto_item *item, *ttl_item;
   proto_tree *checksum_tree;
-  guint8 ttl;
+  guint16 ttl;
 
   tree=parent_tree;
 
@@ -1529,7 +1538,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
    */
   if (is_a_local_network_control_block_addr(dst32)) {
     ttl = local_network_control_block_addr_valid_ttl(dst32);
-    if (ttl != iph->ip_ttl) {
+    if (ttl != iph->ip_ttl && ttl != IPLOCAL_NETWRK_CTRL_BLK_ANY_TTL) {
       expert_add_info_format(pinfo, ttl_item, PI_SEQUENCE, PI_NOTE,
         "\"Time To Live\" != %d for a packet sent to the Local Network Control Block (see RFC 3171)", ttl);
     }
