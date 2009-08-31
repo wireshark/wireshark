@@ -250,7 +250,11 @@ static loop_data   global_ld;
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.
  */
+#if defined(__APPLE__) && defined(__LP64__)
+#define	CAP_READ_TIMEOUT	1000
+#else
 #define	CAP_READ_TIMEOUT	250
+#endif
 /*
  * Timeout, in microseconds, for threaded reads from a pipe.
  */
