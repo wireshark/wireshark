@@ -26,12 +26,7 @@
 #error "This is only for Windows"
 #endif
 
-#include <glib.h>
 #include "unicode-utils.h"
-
-#include <windows.h>
-#include <tchar.h>
-#include <wchar.h>
 
 /** @file
  * Unicode utilities (internal interface)
@@ -87,6 +82,19 @@ wchar_t * utf_8to16(const char *utf8str) {
     return NULL;
 
   return utf16buf[idx];
+}
+
+void utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ...) {
+    va_list ap;
+    gchar* dst;
+
+    va_start(ap,fmt);
+    dst = g_strdup_vprintf(fmt, ap);
+    va_end(ap);
+
+    _snwprintf(utf16buf, utf16buf_len, _T("%s"), utf_8to16(dst));
+
+    g_free(dst);
 }
 
 /* Convert from UTF-16 to UTF-8. */

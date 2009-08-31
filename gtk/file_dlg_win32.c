@@ -947,7 +947,7 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
     TCHAR       string_buff[PREVIEW_STR_MAX];
     gint64      data_offset;
     guint       packet = 0;
-    guint64     filesize;
+    gint64      filesize;
     time_t      ti_time;
     struct tm  *ti_tm;
     guint       elapsed_time;
@@ -993,7 +993,7 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
 
         /* size */
         filesize = wtap_file_size(wth, &err);
-        _snwprintf(string_buff, PREVIEW_STR_MAX, _T("%") _T(PRIu64) _T(" bytes"), filesize);
+        utf_8to16_snprintf(string_buff, PREVIEW_STR_MAX, "%" G_GINT64_FORMAT " bytes", filesize);
         cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
         SetWindowText(cur_ctrl, string_buff);
 
