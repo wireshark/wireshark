@@ -380,6 +380,7 @@ int hf_gsm_a_dtap_elem_id = -1;
 static int hf_gsm_a_cld_party_bcd_num = -1;
 static int hf_gsm_a_clg_party_bcd_num = -1;
 static int hf_gsm_a_dtap_cause = -1;
+static int hf_gsm_a_dtap_cause_ss_diagnostics	= -1;
 
 int hf_gsm_a_extension = -1;
 static int hf_gsm_a_type_of_number = -1;
@@ -2469,12 +2470,27 @@ de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 /*
  * [3] 10.5.4.11 Cause
  */
+static const value_string gsm_a_dtap_cause_ss_diagnostics_vals[] = {
+	{ 0x01, "Outgoing calls barred within CUG" },
+	{ 0x02, "No CUG selected" },
+	{ 0x03, "Unknown CUG index" },
+	{ 0x04, "CUG index incompatible with requested basic service" },
+	{ 0x05, "CUG call failure, unspecified" },
+	{ 0x06, "CLIR not subscribed" },
+	{ 0x07, "CCBS possible" },
+	{ 0x08, "CCBS not possible" },
+	{ 0, NULL }
+};
+
 static guint16
 de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
 	guint8	oct;
 	guint8	cause;
 	guint32	curr_offset;
+	guint32 diag_length;
+	proto_tree	*subtree;
+	proto_item	*item;
 	const gchar *str;
 
 	curr_offset = offset;
@@ -2628,11 +2644,34 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	NO_MORE_DATA_CHECK(len);
 
-	proto_tree_add_text(tree,
-		tvb, curr_offset, len - (curr_offset - offset),
-		"Diagnostics");
+	item = proto_tree_add_text(tree, tvb, curr_offset, len - (curr_offset - offset), "Diagnostics");
+	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_CAUSE]);
 
-	curr_offset += len - (curr_offset - offset);
+	/*
+	 * Diagnostics for supplementary services may be included in the case of
+	 * the following cause codes:
+	 *   17 - User busy
+	 *   29 - Facility rejected
+	 *   34 - No circuit/channel available
+	 *   50 - Requested facility not subscribed
+	 *   55 - Incoming calls barred within the CUG
+	 *   69 - Requested facility not implemented
+	 *   87 - User not member of CUG
+	 */
+	if ((cause == 17) || (cause == 29) || (cause == 34) || (cause == 50) || 
+		(cause == 55) || (cause == 69) || (cause == 87))
+	{
+		proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_cause_ss_diagnostics, tvb, curr_offset, 1, FALSE);
+		curr_offset++;
+	}
+	else
+	{
+		diag_length = len - (curr_offset - offset);
+		proto_tree_add_text(subtree, tvb, curr_offset, diag_length, 
+			"Data: %s", tvb_bytes_to_str(tvb, curr_offset, diag_length));
+		curr_offset += diag_length;
+	}
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -6016,6 +6055,11 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_cause_of_no_cli,
 		{ "Cause of no CLI", "gsm_a.dtap.cause_of_no_cli",
 		FT_UINT8, BASE_HEX, 0, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_cause_ss_diagnostics,
+		{ "Supplementary Services Diagnostics", "gsm_a.dtap.cause_ss_diagnostics",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_cause_ss_diagnostics_vals), 0x7f,
 		NULL, HFILL }
 	},
 	};
