@@ -227,7 +227,6 @@
 #define _WIN32_WINNT _WIN32_WINNT_WIN2K
 #endif
 
-#define strcasecmp		stricmp
 #define strncasecmp		strnicmp
 #define popen			_popen
 #define pclose			_pclose

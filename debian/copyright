@@ -68,7 +68,6 @@ LGPL
 
 mkstemp.c: LGPL, from GNU C Library
 mkstemp.h: idem
-strcasecmp.c: idem
 strncasecmp.c: idem
 strptime.c: idem
 ps.c: idem

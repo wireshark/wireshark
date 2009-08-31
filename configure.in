@@ -1443,15 +1443,6 @@ fi
 AC_SUBST(STRERROR_C)
 AC_SUBST(STRERROR_O)
 
-AC_CHECK_FUNC(strcasecmp, STRCASECMP_O="",
-  STRCASECMP_O="strcasecmp.o")
-if test "$ac_cv_func_strcasecmp" = no ; then
-  STRCASECMP_C="strcasecmp.c"
-  STRCASECMP_O="strcasecmp.o"
-fi
-AC_SUBST(STRCASECMP_C)
-AC_SUBST(STRCASECMP_O)
-
 AC_CHECK_FUNC(strncasecmp, STRNCASECMP_O="",
   STRNCASECMP_O="strncasecmp.o")
 if test "$ac_cv_func_strncasecmp" = no ; then

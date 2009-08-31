@@ -292,9 +292,6 @@
 /* Define to 1 if you have the `stpcpy' function. */
 #define HAVE_STPCPY 1
 
-/* Define to 1 if you have the `strcasecmp' function. */
-#define HAVE_STRCASECMP 1
-
 /* Define to 1 if you have the `strerror' function. */
 #define HAVE_STRERROR 1
 

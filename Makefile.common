@@ -126,7 +126,6 @@ EXTRA_wireshark_SOURCES =	\
 	inet_ntop.c	\
 	inet_pton.c	\
 	strerror.c	\
-	strcasecmp.c	\
 	strncasecmp.c	\
 	strptime.c
 
