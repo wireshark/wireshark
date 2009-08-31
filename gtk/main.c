@@ -3226,12 +3226,16 @@ static int
 top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_data _U_)
 {
     if (event->keyval == GDK_F8) {
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+	new_packet_list_next();
+#else
 	packet_list_next();
 #endif
 	return TRUE;
     } else if (event->keyval == GDK_F7) {
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+	new_packet_list_prev();
+#else
 	packet_list_prev();
 #endif
 	return TRUE;
