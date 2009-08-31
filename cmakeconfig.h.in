@@ -276,21 +276,6 @@
 /* Define to 1 if you have the <grp.h> header file. */
 #cmakedefine HAVE_GRP_H 1
 
-/* Format for printing 64-bit unsigned hexadecimal numbers (upper-case) */
-#cmakedefine PRIX64 @PRIX64@
-
-/* Format for printing 64-bit signed decimal numbers */
-#cmakedefine PRId64 @PRId64@
-
-/* Format for printing 64-bit unsigned octal numbers */
-#cmakedefine PRIo64 @PRIo64@
-
-/* Format for printing 64-bit unsigned decimal numbers */
-#cmakedefine PRIu64 @PRIu64@
-
-/* Format for printing 64-bit unsigned hexadecimal numbers (lower-case) */
-#cmakedefine PRIx64 @PRIx64@
-
 /* Define to 1 if you have the ANSI C header files. */
 /* Note: not use in the code */
 #cmakedefine STDC_HEADERS 1

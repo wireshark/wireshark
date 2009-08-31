@@ -146,24 +146,6 @@ test_big_endian(WORDS_BIGENDIAN)
 
 set(DATAFILE_DIR "${CMAKE_INSTALL_PREFIX}/share/${CPACK_PACKAGE_NAME}")
 
-#64 Bit format
-include(Check64BitFormat)
-
-check_64bit_format(ll FORMAT_64BIT)
-check_64bit_format(L FORMAT_64BIT)
-check_64bit_format(q FORMAT_64BIT)
-check_64bit_format(I64 FORMAT_64BIT)
-
-if(NOT FORMAT_64BIT)
-  message(FATAL " 64 bit format missing")
-endif()
-
-set(PRIX64 "${FORMAT_64BIT}X")
-set(PRIx64 "${FORMAT_64BIT}x")
-set(PRId64 "${FORMAT_64BIT}d")
-set(PRIo64 "${FORMAT_64BIT}o")
-set(PRIu64 "${FORMAT_64BIT}u")
-
 #Platform specific
 if(UNIX)
   set(WS_VAR_IMPORT "extern")
