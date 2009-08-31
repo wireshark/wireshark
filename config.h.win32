@@ -206,25 +206,27 @@
 /* Define to have GeoIP */
 @HAVE_GEOIP@
 
-#ifndef WIN32
-#define WIN32			1
-#endif
-
 /* Define for IPv6 */
 @INET6@
 
 /* Define to have ntddndis.h */
 @HAVE_NTDDNDIS_H@
 
-#define NEED_INET_ATON_H	1
-#define NEED_INET_V6DEFS_H	1
+#define NEED_INET_ATON_H    1
+#define NEED_INET_V6DEFS_H  1
+#define NEED_GETOPT_H       1
+#define NEED_STRPTIME_H     1
+
+#ifndef WIN32
+#define WIN32			1
+#endif
+
 /* Visual C 9 (2008) now needs these prototypes */
 #if _MSC_VER == 1500
 #define NTDDI_VERSION NTDDI_WIN2K
 #define _WIN32_WINNT _WIN32_WINNT_WIN2K
 #endif
-#define NEED_GETOPT_H		1
-#define NEED_STRPTIME_H		1
+
 #define strcasecmp		stricmp
 #define strncasecmp		strnicmp
 #define popen			_popen
