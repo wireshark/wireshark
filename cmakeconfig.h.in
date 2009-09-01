@@ -102,6 +102,9 @@
 /* Define to use MIT kerberos */
 #cmakedefine HAVE_MIT_KERBEROS 1
 
+/* Define to 1 if you have the `mkdtemp' function. */
+#cmakedefine HAVE_MKDTEMP 1
+
 /* Define to 1 if you have the `mkstemp' function. */
 #cmakedefine HAVE_MKSTEMP 1
 
