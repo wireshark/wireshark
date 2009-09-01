@@ -367,7 +367,7 @@ static int fgetline(char **buf, int *size, FILE *fp)
   }
 
   g_assert(*buf);
-  g_assert(size > 0);
+  g_assert(*size > 0);
 
   if (feof(fp))
     return -1;
