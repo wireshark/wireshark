@@ -121,6 +121,9 @@ static void ref_time_packets(capture_file *cf);
 #endif
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
+/* We read around 200k/100ms domt update the progress bar more often than that */
+#define MIN_QUANTUM			200000
+#define MIN_NUMBER_OF_PACKET 1500
 
 /* Number of "frame_data" structures per memory chunk.
    XXX - is this the right number? */
@@ -428,6 +431,27 @@ static void  compute_elapsed(GTimeVal *start_time)
 	  computed_elapsed = (gulong) (delta_time / 1000); /* ms*/
 }
 
+static float calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos){
+ 
+	float   progbar_val;
+
+	progbar_val = (gfloat) file_pos / (gfloat) size;
+	if (progbar_val > 1.0) {
+	/* The file probably grew while we were reading it.
+	   Update file size, and try again. */
+	  size = wtap_file_size(cf->wth, NULL);
+	  if (size >= 0)
+	    progbar_val = (gfloat) file_pos / (gfloat) size;
+	   /* If it's still > 1, either "wtap_file_size()" failed (in which
+	      case there's not much we can do about it), or the file
+	      *shrank* (in which case there's not much we can do about
+	      it); just clip the progress value at 1.0. */
+	  if (progbar_val > 1.0f)
+	    progbar_val = 1.0f;
+	}
+	return progbar_val;
+}
+
 cf_read_status_t
 cf_read(capture_file *cf)
 {
@@ -440,7 +464,6 @@ cf_read(capture_file *cf)
   progdlg_t *volatile progbar = NULL;
   gboolean     stop_flag;
   volatile gint64 size;
-  gint64       file_pos;
   volatile float progbar_val;
   GTimeVal     start_time;
   gchar        status_str[100];
@@ -449,6 +472,7 @@ cf_read(capture_file *cf)
   dfilter_t   *dfcode;
   gboolean    filtering_tap_listeners;
   guint       tap_flags;
+  int count = 0;
 #ifdef HAVE_LIBPCAP
   volatile int displayed_once = 0;
 #endif
@@ -483,9 +507,11 @@ cf_read(capture_file *cf)
   progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  if (size >= 0)
+  if (size >= 0){
     progbar_quantum = size/N_PROGBAR_UPDATES;
-  else
+	if (progbar_quantum < MIN_QUANTUM)
+		progbar_quantum = MIN_QUANTUM;
+  }else
     progbar_quantum = 0;
   /* Progress so far. */
   progbar_val = 0.0f;
@@ -501,12 +527,12 @@ cf_read(capture_file *cf)
 
   while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
     if (size >= 0) {
+		count++;
       /* Create the progress bar if necessary.
-         We check on every iteration of the loop, so that it takes no
-         longer than the standard time to create it (otherwise, for a
-         large file, we might take considerably longer than that standard
-         time in order to get to the next progress bar step). */
-      if (progbar == NULL) {
+	   * Check wether it should be created or not every MIN_NUMBER_OF_PACKET
+	   */
+      if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)){
+		progbar_val = calc_progbar_val( cf, size, data_offset);
         progbar = delayed_create_progress_dlg("Loading", name_ptr,
           TRUE, &stop_flag, &start_time, progbar_val);
       }
@@ -517,22 +543,8 @@ cf_read(capture_file *cf)
          to see if there's any pending input from an X server, and doing
          that for every packet can be costly, especially on a big file. */
       if (data_offset >= progbar_nextstep) {
-          file_pos = wtap_read_so_far(cf->wth, NULL);
-          progbar_val = (gfloat) file_pos / (gfloat) size;
-          if (progbar_val > 1.0) {
-            /* The file probably grew while we were reading it.
-               Update file size, and try again. */
-            size = wtap_file_size(cf->wth, NULL);
-            if (size >= 0)
-              progbar_val = (gfloat) file_pos / (gfloat) size;
-            /* If it's still > 1, either "wtap_file_size()" failed (in which
-               case there's not much we can do about it), or the file
-               *shrank* (in which case there's not much we can do about
-               it); just clip the progress value at 1.0. */
-            if (progbar_val > 1.0f)
-              progbar_val = 1.0f;
-          }
           if (progbar != NULL) {
+			  progbar_val = calc_progbar_val( cf, size, data_offset);
               /* update the packet lists content on the first run or frequently on very large files */
               /* (on smaller files the display update takes longer than reading the file) */
 #ifdef HAVE_LIBPCAP
@@ -553,7 +565,7 @@ cf_read(capture_file *cf)
 #endif /* HAVE_LIBPCAP */
             g_snprintf(status_str, sizeof(status_str),
                        "%" G_GINT64_MODIFIER "dKB of %" G_GINT64_MODIFIER "dKB",
-                       file_pos / 1024, size / 1024);
+                       data_offset / 1024, size / 1024);
             update_progress_dlg(progbar, progbar_val, status_str);
           }
          progbar_nextstep += progbar_quantum;
