@@ -55,7 +55,6 @@ struct _PacketListRecord
 {
 	gboolean dissected;
 	frame_data *fdata;
-	gchar **col_text;
 
 	/* admin stuff used by the custom list model */
 	guint pos; /* position within the array */
