@@ -194,17 +194,20 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 	gchar label_txt[50];
 	gchar *data[1];
 	gchar field[1][MAX_ADDRESS_LEN];
-	gint added_row;
 	GList *list;
 	address *store = NULL;
-
+	GtkListStore *list_store = NULL;
+	GtkTreeIter  iter;
+	
 	if (u_data->assoc == NULL)
 		return;
 
 	if (u_data->window != NULL)
 	{
-		gtk_clist_clear(GTK_CLIST(u_data->analyse_nb->page2->clist));
-		gtk_clist_clear(GTK_CLIST(u_data->analyse_nb->page3->clist));
+		gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW 
+				(u_data->analyse_nb->page2->clist))));
+		gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW
+			(u_data->analyse_nb->page3->clist))));
 	}
 
 
@@ -253,8 +256,15 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 			{		
 				g_snprintf(field[0], 40, "%s", ip6_to_str((const struct e_in6_addr *)(store->data)));
 			}
-			added_row = gtk_clist_append(GTK_CLIST(u_data->analyse_nb->page2->clist), data);
-			gtk_clist_set_row_data(GTK_CLIST(u_data->analyse_nb->page2->clist), added_row, u_data->assoc);
+			list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (u_data->analyse_nb->page2->clist))); /* Get store */
+
+#if GTK_CHECK_VERSION(2,6,0)
+    		gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+#else
+    		gtk_list_store_append  (list_store, &iter);
+    		gtk_list_store_set  (list_store, &iter,
+#endif
+			0,	field[0], -1);
 			list = g_list_next(list);
 		}
 	}
@@ -310,8 +320,15 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 			{
 				g_snprintf(field[0], 40, "%s", ip6_to_str((const struct e_in6_addr *)(store->data)));
 			}
-			added_row = gtk_clist_append(GTK_CLIST(u_data->analyse_nb->page3->clist), data);
-			gtk_clist_set_row_data(GTK_CLIST(u_data->analyse_nb->page3->clist), added_row, u_data->assoc);
+			list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (u_data->analyse_nb->page3->clist))); /* Get store */
+
+#if GTK_CHECK_VERSION(2,6,0)
+    		gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+#else
+    		gtk_list_store_append  (list_store, &iter);
+    		gtk_list_store_set  (list_store, &iter,
+#endif
+			0,	field[0], -1);
 			list = g_list_next(list);
 		}
 	}
@@ -371,13 +388,11 @@ sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
 		selected_stream->port1,
 		selected_stream->port2,
 		selected_stream->verification_tag1,
-		/*selected_stream->verification_tag2,*/
 		selected_stream->initiate_tag,
 		selected_stream->verification_tag2,
 		selected_stream->port2,
 		selected_stream->port1,
 		selected_stream->verification_tag2,
-		/*selected_stream->verification_tag1,*/
 		selected_stream->initiate_tag,
 		selected_stream->verification_tag1);
 		filter_string = f_string;
@@ -461,6 +476,51 @@ static void analyse_window_set_title(struct sctp_analyse *u_data)
 	title = g_strdup_printf("SCTP Analyse Association: %s Port1 %u  Port2 %u", cf_get_display_name(&cfile), u_data->assoc->port1, u_data->assoc->port2);
 	gtk_window_set_title(GTK_WINDOW(u_data->window), title);
 	g_free(title);
+}
+
+static
+GtkWidget *create_list()
+{
+	GtkListStore *list_store;
+	GtkWidget * list;
+	GtkTreeViewColumn *column;
+	GtkCellRenderer *renderer;
+	GtkTreeView *list_view;
+	list_store = gtk_list_store_new(1,
+		G_TYPE_STRING /* IP address */
+			); 
+		
+    /* Create a view */
+    list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
+
+	list_view = GTK_TREE_VIEW(list);
+
+#if GTK_CHECK_VERSION(2,6,0)
+	/* Speed up the list display */
+	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
+#endif
+
+    /* The view now holds a reference.  We can get rid of our own reference */
+    g_object_unref (G_OBJECT (list_store));
+
+    /* 
+     * Create the first column packet, associating the "text" attribute of the
+     * cell_renderer to the first column of the model 
+     */
+   	renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Address", renderer, 
+		"text",	0, 
+		NULL);
+
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 300);
+
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+    
+	gtk_tree_view_set_headers_visible(list_view, FALSE);
+	return list;
 }
 
 static void create_analyse_window(struct sctp_analyse* u_data)
@@ -573,11 +633,9 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	u_data->analyse_nb->page2->scrolled_window = scrolled_window_new(NULL, NULL);
 	gtk_widget_set_size_request(u_data->analyse_nb->page2->scrolled_window, 560, 100);
 
-	u_data->analyse_nb->page2->clist = gtk_clist_new(1);
+	u_data->analyse_nb->page2->clist = create_list();
+	printf("u_data->analyse_nb->page2->clist returned\n");
 	gtk_widget_show(u_data->analyse_nb->page2->clist);
-
-	gtk_clist_set_column_width(GTK_CLIST(u_data->analyse_nb->page2->clist), 0, 200);
-	gtk_clist_set_column_justification(GTK_CLIST(u_data->analyse_nb->page2->clist), 0, GTK_JUSTIFY_LEFT);
 
 	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page2->scrolled_window), u_data->analyse_nb->page2->clist);
 
@@ -683,11 +741,8 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	u_data->analyse_nb->page3->scrolled_window = scrolled_window_new(NULL, NULL);
 	gtk_widget_set_size_request(u_data->analyse_nb->page3->scrolled_window, 560, 100);
 
-	u_data->analyse_nb->page3->clist = gtk_clist_new(1);
+	u_data->analyse_nb->page3->clist = create_list();
 	gtk_widget_show(u_data->analyse_nb->page3->clist);		
-
-	gtk_clist_set_column_width(GTK_CLIST(u_data->analyse_nb->page3->clist), 0, 200);
-	gtk_clist_set_column_justification(GTK_CLIST(u_data->analyse_nb->page3->clist), 0, GTK_JUSTIFY_LEFT);
 
 	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page3->scrolled_window),
 	u_data->analyse_nb->page3->clist);

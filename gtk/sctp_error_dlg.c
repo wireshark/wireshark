@@ -37,22 +37,20 @@
 #include "gtk/gui_utils.h"
 #include "gtk/main.h"
 #include "gtk/sctp_stat.h"
-/*#include "gtk/sctp_assoc_analyse.h"*/
 
 
 static GtkWidget *sctp_error_dlg=NULL;
 static GtkWidget *clist = NULL;
 static GList *last_list = NULL;
 static sctp_error_info_t* selected_packet = NULL;/* current selection */
-/*static sctp_assoc_info_t* selected_assoc = NULL; */
 
-#define NUM_COLS 3
-
-typedef struct column_arrows {
-	GtkWidget *table;
-	GtkWidget *ascend_pm;
-	GtkWidget *descend_pm;
-} column_arrows;
+enum
+{
+	FRAME_COLUMN,
+	INFO_COLUMN,
+	TEXT_COLUMN,
+	N_COLUMN
+};
 
 
 static void
@@ -61,31 +59,128 @@ dlg_destroy(void)
 	sctp_error_dlg=NULL;
 }
 
+static void
+sctp_error_on_select_row(GtkTreeSelection *sel, gpointer user_data _U_)
+{
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	if (gtk_tree_selection_get_selected (sel, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 
+			FRAME_COLUMN, &(selected_packet->frame_number),
+			TEXT_COLUMN, &(selected_packet->chunk_info),
+			INFO_COLUMN, &(selected_packet->info_text),
+			-1);
+		}
+}
+
+static
+GtkWidget *create_list()
+{
+	GtkListStore *list_store;
+	GtkWidget * list;
+	GtkTreeViewColumn *column;
+	GtkCellRenderer *renderer;
+	GtkTreeSortable *sortable;
+	GtkTreeView *list_view;
+	GtkTreeSelection *selection;
+	
+	list_store = gtk_list_store_new(N_COLUMN,
+		G_TYPE_UINT, /* Frame number*/
+		G_TYPE_STRING, /* Chunk type*/
+		G_TYPE_STRING );/* Info */
+		
+    /* Create a view */
+    list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
+
+	list_view = GTK_TREE_VIEW(list);
+	sortable = GTK_TREE_SORTABLE(list_store);
+
+#if GTK_CHECK_VERSION(2,6,0)
+	/* Speed up the list display */
+	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
+#endif
+
+    gtk_tree_view_set_headers_clickable(list_view, TRUE);
+
+    /* The view now holds a reference.  We can get rid of our own reference */
+    g_object_unref (G_OBJECT (list_store));
+
+    /* 
+     * Create the first column packet, associating the "text" attribute of the
+     * cell_renderer to the first column of the model 
+     */
+    /* 1:st column */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Framenumber", renderer, 
+		"text",	FRAME_COLUMN, 
+		NULL);
+
+	gtk_tree_view_column_set_sort_column_id(column, FRAME_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 2:nd column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Chunk Types", renderer, 
+		"text", TEXT_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, INFO_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 200);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 3:d column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Info", renderer, 
+		"text", INFO_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, TEXT_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 200);
+    gtk_tree_view_append_column (list_view, column);
+
+
+    /* Now enable the sorting of each column */
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
+
+	/* Setup the selection handler */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+	g_signal_connect(selection, "changed", G_CALLBACK(sctp_error_on_select_row), NULL);
+	return list;
+}
+
+
 static void add_to_clist(sctp_error_info_t* errinfo)
 {
-	gint added_row, i;
-	gchar *data[NUM_COLS];
-	gchar field[NUM_COLS][30];
+    GtkListStore *list_store = NULL;
+    GtkTreeIter  iter;
 
-	for (i=0; i<NUM_COLS; i++)
-		data[i]=&field[i][0];
+    list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (clist))); /* Get store */
 
-		/*printf("errinfo=%s\n",errinfo->chunk_info);*/
-
-	g_snprintf(field[0], 20, "%u", errinfo->frame_number);
-	g_snprintf(field[1], 20, "%s", errinfo->chunk_info);
-	g_snprintf(field[2], 20, "%s", errinfo->info_text);
-
-	added_row = gtk_clist_append(GTK_CLIST(clist), data);
-
-	/* set data pointer of last row to point to user data for that row */
-	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, errinfo);
+#if GTK_CHECK_VERSION(2,6,0)
+    gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+#else
+    gtk_list_store_append  (list_store, &iter);
+    gtk_list_store_set  (list_store, &iter,
+#endif
+		FRAME_COLUMN,			errinfo->frame_number,
+		TEXT_COLUMN,			errinfo->chunk_info,
+		INFO_COLUMN,			errinfo->info_text,
+         -1);	
 }
 
 static void
 sctp_error_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 {
-	gtk_clist_unselect_all(GTK_CLIST(clist));
+	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(clist)));
 }
 
 static void sctp_error_dlg_update(GList *list)
@@ -94,7 +189,7 @@ static void sctp_error_dlg_update(GList *list)
 
 	if (sctp_error_dlg != NULL) 
 	{
-		gtk_clist_clear(GTK_CLIST(clist));
+		gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(clist))));
 		ilist=list;
 
 		while (ilist)
@@ -106,12 +201,6 @@ static void sctp_error_dlg_update(GList *list)
 		sctp_error_on_unselect(NULL, NULL);
 	}
 	last_list = ilist;
-}
-
-static void
-sctp_error_on_select_row(GtkCList *clist, gint row,gint column _U_, GdkEventButton *event _U_, gpointer user_data _U_)
-{
-	selected_packet = gtk_clist_get_row_data(GTK_CLIST(clist), row);
 }
 
 
@@ -146,12 +235,6 @@ gtk_sctperror_dlg(void)
 	GtkWidget *bt_frame;
 	GtkWidget *bt_close;
 
-	const gchar *titles[NUM_COLS] =  {"Framenumber","Chunk Types", "Info"};
-	column_arrows *col_arrows;
-	GtkStyle *win_style;
-	GtkWidget *column_lb;
-	int i;
-
 	sctp_error_dlg_w = window_new (GTK_WINDOW_TOPLEVEL, "Wireshark: SCTP Associations");
 	gtk_window_set_position (GTK_WINDOW (sctp_error_dlg_w), GTK_WIN_POS_CENTER);
 	g_signal_connect(sctp_error_dlg_w, "destroy", G_CALLBACK(dlg_destroy), NULL);
@@ -166,39 +249,12 @@ gtk_sctperror_dlg(void)
 	gtk_widget_show (scrolledwindow1);
 	gtk_box_pack_start (GTK_BOX (vbox1), scrolledwindow1, TRUE, TRUE, 0);
 
-	clist = gtk_clist_new (NUM_COLS);
+	clist = create_list();
 	gtk_widget_show (clist);
 	gtk_container_add (GTK_CONTAINER (scrolledwindow1), clist);
 	gtk_widget_set_size_request(clist, 500, 200);
 
-	gtk_clist_set_column_width (GTK_CLIST (clist), 0, 100);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 1, 200);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 2, 200);
-
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 0, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 1, GTK_JUSTIFY_LEFT);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 2, GTK_JUSTIFY_LEFT);
-
-	gtk_clist_column_titles_show (GTK_CLIST (clist));
-
-	gtk_clist_set_sort_column(GTK_CLIST(clist), 0);
-	gtk_clist_set_sort_type(GTK_CLIST(clist), GTK_SORT_ASCENDING);
-
 	gtk_widget_show(sctp_error_dlg_w);
-
-	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
-	win_style = gtk_widget_get_style(scrolledwindow1);
-
-	for (i=0; i<NUM_COLS; i++) {
-		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-		column_lb = gtk_label_new(titles[i]);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		gtk_widget_show(column_lb);
-
-		gtk_clist_set_column_widget(GTK_CLIST(clist), i, col_arrows[i].table);
-		gtk_widget_show(col_arrows[i].table);
-	}
 
 
 	hbuttonbox2 = gtk_hbutton_box_new ();
@@ -221,14 +277,12 @@ gtk_sctperror_dlg(void)
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
 
 	g_signal_connect(sctp_error_dlg_w, "destroy", G_CALLBACK(dlg_destroy), NULL);
-	g_signal_connect(clist, "select_row", G_CALLBACK(sctp_error_on_select_row), NULL);
 	g_signal_connect(bt_unselect, "clicked", G_CALLBACK(sctp_error_on_unselect), NULL);
 	g_signal_connect(bt_frame, "clicked", G_CALLBACK(sctp_error_on_frame), NULL);
 	g_signal_connect(bt_close, "clicked", G_CALLBACK(sctp_error_on_close), NULL);
 
 	sctp_error_dlg = sctp_error_dlg_w;
 
-	g_free(col_arrows);
 }
 
 

@@ -25,8 +25,6 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-
-#include <stdio.h>
 #include <string.h>
 
 #include <gtk/gtk.h>
@@ -43,10 +41,6 @@
 #include "gtk/sctp_stat.h"
 #include "gtk/gtkglobals.h"
 
-#include "image/clist_ascend.xpm"
-#include "image/clist_descend.xpm"
-
-
 static GtkWidget *sctp_stat_dlg=NULL;
 static GtkWidget *clist = NULL;
 static GList *last_list = NULL;
@@ -57,14 +51,224 @@ static guint16 n_children=0;
 static GtkWidget *bt_afilter = NULL, *bt_unselect=NULL, *bt_analyse=NULL, *bt_filter=NULL;
 static gboolean prevent_update = FALSE, filter_applied = FALSE;
 
-#define NUM_COLS    9
+enum
+{
+	PORT1_COLUMN,
+	PORT2_COLUMN,
+	PACKETS_COLUMN,
+	CHECKSUM_TYPE_COLUMN,
+	CHECKSUM_ERRORS_COLUMN,
+	DATA_CHUNKS_COLUMN,
+	DATA_BYTES_COLUMN,
+	VTAG1_COLUMN,
+	VTAG2_COLUMN,
+	N_COLUMN
+};
 
-typedef struct column_arrows {
-	GtkWidget *table;
-	GtkWidget *ascend_pm;
-	GtkWidget *descend_pm;
-} column_arrows;
 
+static void
+sctp_stat_on_select_row(GtkTreeSelection *sel, gpointer user_data _U_)
+{
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	GList *list;
+	sctp_assoc_info_t* assoc;
+	gboolean stream_found=FALSE;
+	guint32 port2, port1;
+	guint32 checksum, data_chunks, data_bytes, packets, vtag1, vtag2;
+	
+	if (gtk_tree_selection_get_selected (sel, &model, &iter)) {
+		gtk_tree_model_get(model, &iter, 
+			PORT1_COLUMN, &port1,
+			PORT2_COLUMN, &port2,
+			PACKETS_COLUMN, &packets,
+			CHECKSUM_ERRORS_COLUMN, &checksum,
+			DATA_CHUNKS_COLUMN, &data_chunks,
+			DATA_BYTES_COLUMN, &data_bytes, 
+			VTAG1_COLUMN, &vtag1,
+			VTAG2_COLUMN, &vtag2,
+			-1);
+		}
+
+	list = g_list_first(sctp_assocs->assoc_info_list);
+
+	while (list)
+	{
+		assoc = (sctp_assoc_info_t*)(list->data);
+		if (assoc->port1==port1 && assoc->port2==port2 
+		&& assoc->n_packets==packets && assoc->n_data_chunks==data_chunks && assoc->n_data_bytes==data_bytes 
+		&& assoc->verification_tag1==vtag1 && assoc->verification_tag2==vtag2)
+		{
+			selected_stream=assoc;
+			stream_found=TRUE;
+			break;
+		}
+		list=g_list_next(list);
+	}
+
+	if (!stream_found)
+		selected_stream = NULL;
+
+	gtk_widget_set_sensitive(bt_unselect,TRUE);
+	gtk_widget_set_sensitive(bt_analyse,TRUE);
+	gtk_widget_set_sensitive(bt_filter,TRUE);
+}
+
+static
+GtkWidget *create_list()
+{
+	GtkListStore *list_store;
+	GtkWidget * list;
+	GtkTreeViewColumn *column;
+	GtkCellRenderer *renderer;
+	GtkTreeSortable *sortable;
+	GtkTreeView *list_view;
+	GtkTreeSelection *selection;
+	
+	list_store = gtk_list_store_new(N_COLUMN,
+		G_TYPE_UINT, /* Port1*/
+		G_TYPE_UINT, /* Port2*/
+		G_TYPE_UINT, /* number of packets */
+		G_TYPE_STRING, /* checksum type */
+		G_TYPE_UINT, /* number of checksum errors */
+		G_TYPE_UINT, /* number of data chunks */
+		G_TYPE_UINT, /* number of data bytes */
+		G_TYPE_UINT, /* vtag1 */
+		G_TYPE_UINT); /* vtag2 */
+		
+    /* Create a view */
+    list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
+
+	list_view = GTK_TREE_VIEW(list);
+	sortable = GTK_TREE_SORTABLE(list_store);
+
+#if GTK_CHECK_VERSION(2,6,0)
+	/* Speed up the list display */
+	gtk_tree_view_set_fixed_height_mode(list_view, TRUE);
+#endif
+
+    gtk_tree_view_set_headers_clickable(list_view, TRUE);
+
+    /* The view now holds a reference.  We can get rid of our own reference */
+    g_object_unref (G_OBJECT (list_store));
+
+    /* 
+     * Create the first column packet, associating the "text" attribute of the
+     * cell_renderer to the first column of the model 
+     */
+    /* 1:st column */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Port 1", renderer, 
+		"text",	PORT1_COLUMN, 
+		NULL);
+
+	gtk_tree_view_column_set_sort_column_id(column, PORT1_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+
+	/* Add the column to the view. */
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 2:nd column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Port 2", renderer, 
+		"text", PORT2_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, PORT2_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 3:d column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("No of Packets", renderer, 
+		"text", PACKETS_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, PACKETS_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 120);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 4:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Checksum", renderer, 
+		"text", CHECKSUM_TYPE_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CHECKSUM_TYPE_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 120);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 5:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("No of Errors", renderer, 
+		"text", CHECKSUM_ERRORS_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, CHECKSUM_ERRORS_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 120);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 6:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Data Chunks", renderer, 
+		"text", DATA_CHUNKS_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, DATA_CHUNKS_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 120);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 7:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("Data Bytes", renderer, 
+		"text", DATA_BYTES_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, DATA_BYTES_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 120);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* 8:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("VTag 1", renderer, 
+		"text", VTAG1_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, VTAG1_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 120);
+    gtk_tree_view_append_column (list_view, column);
+
+
+    /* 9:th column... */
+    renderer = gtk_cell_renderer_text_new ();
+    column = gtk_tree_view_column_new_with_attributes ("VTag 2", renderer, 
+		"text", VTAG2_COLUMN,
+		NULL);
+    gtk_tree_view_column_set_sort_column_id(column, VTAG2_COLUMN);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 120);
+    gtk_tree_view_append_column (list_view, column);
+
+    /* Now enable the sorting of each column */
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list_view), TRUE);
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list_view), TRUE);
+
+	/* Setup the selection handler */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+	g_signal_connect(selection, "changed", G_CALLBACK(sctp_stat_on_select_row), NULL);
+	return list;
+}
 
 static void
 dlg_destroy(void)
@@ -114,27 +318,30 @@ remove_analyse_child(struct sctp_analyse *child)
 }
 
 
+
 static void add_to_clist(sctp_assoc_info_t* assinfo)
-{
-	gint added_row, i;
-	gchar *data[NUM_COLS];
-	gchar field[NUM_COLS][30];
+{	
+    GtkListStore *list_store = NULL;
+    GtkTreeIter  iter;
 
-	for (i=0; i<NUM_COLS; i++)
-		data[i]=&field[i][0];
+    list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (clist))); /* Get store */
 
-	g_snprintf(field[0], 20, "%u", assinfo->port1);
-	g_snprintf(field[1], 20, "%u", assinfo->port2);
-	g_snprintf(field[2], 20, "%u", assinfo->n_packets);
-	g_snprintf(field[3], 20, "%s", assinfo->checksum_type);
-	g_snprintf(field[4], 20, "%u", assinfo->n_checksum_errors);
-	g_snprintf(field[5], 20, "%u", assinfo->n_data_chunks);
-	g_snprintf(field[6], 20, "%u", assinfo->n_data_bytes);
-	g_snprintf(field[7], 20, "0x%x", assinfo->verification_tag1);
-	g_snprintf(field[8], 20, "0x%x", assinfo->verification_tag2);
-
-	added_row = gtk_clist_append(GTK_CLIST(clist), data);
-	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, assinfo);
+#if GTK_CHECK_VERSION(2,6,0)
+    gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
+#else
+    gtk_list_store_append  (list_store, &iter);
+    gtk_list_store_set  (list_store, &iter,
+#endif
+		PORT1_COLUMN,			(guint32)assinfo->port1,
+		PORT2_COLUMN,			(guint32)assinfo->port2,
+		PACKETS_COLUMN,			assinfo->n_packets,
+		CHECKSUM_TYPE_COLUMN,	assinfo->checksum_type,
+		CHECKSUM_ERRORS_COLUMN,	assinfo->n_checksum_errors,
+		DATA_CHUNKS_COLUMN,		assinfo->n_data_chunks,
+		DATA_BYTES_COLUMN,		assinfo->n_data_bytes,
+		VTAG1_COLUMN,			assinfo->verification_tag1,
+		VTAG2_COLUMN,			assinfo->verification_tag2,
+         -1);	
 }
 
 static void
@@ -148,7 +355,7 @@ sctp_stat_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 	selected_stream = NULL;
 	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), "");
 	main_filter_packets(&cfile, "", FALSE);
-	gtk_clist_unselect_all(GTK_CLIST(clist));
+	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(clist)));
 	gtk_widget_set_sensitive(bt_unselect,FALSE);
 	gtk_widget_set_sensitive(bt_filter,FALSE);
 	gtk_widget_set_sensitive(bt_analyse,FALSE);
@@ -164,7 +371,7 @@ void sctp_stat_dlg_update(void)
 	list=(sctp_stat_get_info()->assoc_info_list);
 	if (sctp_stat_dlg != NULL && !prevent_update)
 	{
-		gtk_clist_clear(GTK_CLIST(clist));
+		gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(clist))));
 		list = g_list_first(sctp_stat_get_info()->assoc_info_list);
 
 		while (list)
@@ -177,58 +384,6 @@ void sctp_stat_dlg_update(void)
 }
 
 
-static void
-sctp_stat_on_select_row(GtkCList *clist, gint row, gint column _U_,
-                        GdkEventButton *event _U_, gpointer user_data _U_)
-{
-	gchar *text[1];
-	guint16 port1, port2;
-	guint32 checksum, data_chunks, data_bytes, packets, vtag1, vtag2;
-	GList *list;
-	sctp_assoc_info_t* assoc;
-	gboolean stream_found=FALSE;
-
-	gtk_clist_get_row_data(GTK_CLIST(clist), row);
-	gtk_clist_get_text(GTK_CLIST(clist), row, 0, text);
-	port1=atoi(text[0]);
-	gtk_clist_get_text(GTK_CLIST(clist), row, 1, text);
-	port2=atoi(text[0]);
-	gtk_clist_get_text(GTK_CLIST(clist), row, 7, text);
-	sscanf(text[0],"0x%x",&vtag1);
-	gtk_clist_get_text(GTK_CLIST(clist), row, 8, text);
-	sscanf(text[0],"0x%x",&vtag2);
-	gtk_clist_get_text(GTK_CLIST(clist), row, 2, text);
-	packets=atoi(text[0]);
-	gtk_clist_get_text(GTK_CLIST(clist), row, 4, text);
-	checksum=atoi(text[0]);
-	gtk_clist_get_text(GTK_CLIST(clist), row, 5, text);
-	data_chunks=atoi(text[0]);
-	gtk_clist_get_text(GTK_CLIST(clist), row, 6, text);
-	data_bytes=atoi(text[0]);
-
-	list = g_list_first(sctp_assocs->assoc_info_list);
-
-	while (list)
-	{
-		assoc = (sctp_assoc_info_t*)(list->data);
-		if (assoc->port1==port1 && assoc->port2==port2 
-		&& assoc->n_packets==packets && assoc->n_data_chunks==data_chunks && assoc->n_data_bytes==data_bytes 
-		&& assoc->verification_tag1==vtag1 && assoc->verification_tag2==vtag2)
-		{
-			selected_stream=assoc;
-			stream_found=TRUE;
-			break;
-		}
-		list=g_list_next(list);
-	}
-
-	if (!stream_found)
-		selected_stream = NULL;
-
-	gtk_widget_set_sensitive(bt_unselect,TRUE);
-	gtk_widget_set_sensitive(bt_analyse,TRUE);
-	gtk_widget_set_sensitive(bt_filter,TRUE);
-}
 
 static void
 sctp_stat_on_apply_filter (GtkButton *button _U_, gpointer user_data _U_)
@@ -403,68 +558,6 @@ sctp_stat_on_analyse (GtkButton *button _U_, gpointer user_data _U_)
 	prevent_update = TRUE;
 }
 
-static gint
-clist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
-{
-	char *text1 = NULL;
-	char *text2 = NULL;
-	int i1, i2;
-
-	GtkCListRow *row1 = (GtkCListRow *) ptr1;
-	GtkCListRow *row2 = (GtkCListRow *) ptr2;
-	prevent_update = FALSE;
-	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
-	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
-
-	switch(clist->sort_column){
-	case 0:
-	case 2:
-		return strcmp (text1, text2);
-	case 1:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-		i1=atoi(text1);
-		i2=atoi(text2);
-		return i1-i2;
-	}
-	g_assert_not_reached();
-	return 0;
-}
-
-static void
-clist_click_column_cb(GtkCList *list, gint column, gpointer data)
-{
-	column_arrows *col_arrows = (column_arrows *) data;
-	int i;
-
-	prevent_update = FALSE;
-	gtk_clist_freeze(list);
-
-	for (i = 0; i < NUM_COLS; i++) {
-		gtk_widget_hide(col_arrows[i].ascend_pm);
-		gtk_widget_hide(col_arrows[i].descend_pm);
-	}
-
-	if (column == list->sort_column) {
-		if (list->sort_type == GTK_SORT_ASCENDING) {
-			list->sort_type = GTK_SORT_DESCENDING;
-			gtk_widget_show(col_arrows[column].descend_pm);
-		} else {
-			list->sort_type = GTK_SORT_ASCENDING;
-			gtk_widget_show(col_arrows[column].ascend_pm);
-		}
-	} else {
-		list->sort_type = GTK_SORT_DESCENDING;
-		gtk_widget_show(col_arrows[column].descend_pm);
-		gtk_clist_set_sort_column(list, column);
-	}
-	gtk_clist_thaw(list);
-
-	gtk_clist_sort(list);
-}
 
 static void
 gtk_sctpstat_dlg(void)
@@ -474,14 +567,6 @@ gtk_sctpstat_dlg(void)
 	GtkWidget *scrolledwindow1;
 	GtkWidget *hbuttonbox2;
 	GtkWidget *bt_close;
-
-	const gchar *titles[NUM_COLS] =  {"Port 1","Port 2","No of Packets", "Checksum", "No of Errors", "Data Chunks", "Data Bytes", "VTag 1","VTag 2"};
-	column_arrows *col_arrows;
-	GdkBitmap *ascend_bm, *descend_bm;
-	GdkPixmap *ascend_pm, *descend_pm;
-	GtkStyle *win_style;
-	GtkWidget *column_lb;
-	gint i;
 
 	sctp_stat_dlg_w = window_new (GTK_WINDOW_TOPLEVEL, "Wireshark: SCTP Associations");
 	gtk_window_set_position (GTK_WINDOW (sctp_stat_dlg_w), GTK_WIN_POS_CENTER);
@@ -497,71 +582,12 @@ gtk_sctpstat_dlg(void)
 	gtk_widget_show (scrolledwindow1);
 	gtk_box_pack_start (GTK_BOX (vbox1), scrolledwindow1, TRUE, TRUE, 0);
 
-	clist = gtk_clist_new (NUM_COLS);
+	clist = create_list();
 	gtk_widget_show (clist);
 	gtk_container_add (GTK_CONTAINER (scrolledwindow1), clist);
-	gtk_widget_set_size_request(clist, 650, 200);
-
-	gtk_clist_set_column_width (GTK_CLIST (clist), 0, 50);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 1, 50);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 2, 100);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 3, 100);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 4, 100);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 5, 100);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 6, 100);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 7, 100);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 8, 100);
-
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 0, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 1, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 2, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 3, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 4, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 5, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 6, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 7, GTK_JUSTIFY_CENTER);
-	gtk_clist_set_column_justification(GTK_CLIST(clist), 8, GTK_JUSTIFY_CENTER);
-	gtk_clist_column_titles_show (GTK_CLIST (clist));
-
-	gtk_clist_set_compare_func(GTK_CLIST(clist), clist_sort_column);
-	gtk_clist_set_sort_column(GTK_CLIST(clist), 0);
-	gtk_clist_set_sort_type(GTK_CLIST(clist), GTK_SORT_ASCENDING);
+	gtk_widget_set_size_request(clist, 1050, 200);
 
 	gtk_widget_show(sctp_stat_dlg_w);
-
-	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
-	win_style = gtk_widget_get_style(scrolledwindow1);
-
-	ascend_pm = gdk_pixmap_create_from_xpm_d(scrolledwindow1->window,
-	                                         &ascend_bm,
-	                                         &win_style->bg[GTK_STATE_NORMAL],
-	                                         (gchar **)clist_ascend_xpm);
-	descend_pm = gdk_pixmap_create_from_xpm_d(scrolledwindow1->window,
-	                                          &descend_bm,
-	                                          &win_style->bg[GTK_STATE_NORMAL],
-	                                          (gchar **)clist_descend_xpm);
-	for (i=0; i<NUM_COLS; i++)
-	{
-		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-		column_lb = gtk_label_new(titles[i]);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		gtk_widget_show(column_lb);
-		col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		/* make src-ip be the default sort order */
-		if (i == 0)
-		{
-			gtk_widget_show(col_arrows[i].ascend_pm);
-		}
-
-		gtk_clist_set_column_widget(GTK_CLIST(clist), i, col_arrows[i].table);
-		gtk_widget_show(col_arrows[i].table);
-	}
-
-	g_signal_connect(clist, "click-column", G_CALLBACK(clist_click_column_cb), col_arrows);
 
 	hbuttonbox2 = gtk_hbutton_box_new();
 	gtk_box_pack_start(GTK_BOX(vbox1), hbuttonbox2, FALSE, FALSE, 0);
@@ -598,7 +624,6 @@ gtk_sctpstat_dlg(void)
 	gtk_widget_show (bt_close);
 
 	g_signal_connect(sctp_stat_dlg_w, "destroy", G_CALLBACK(dlg_destroy), NULL);
-	g_signal_connect(clist, "select_row", G_CALLBACK(sctp_stat_on_select_row), NULL);
 	g_signal_connect(bt_unselect, "clicked", G_CALLBACK(sctp_stat_on_unselect), NULL);
 	g_signal_connect(bt_filter, "clicked", G_CALLBACK(sctp_stat_on_filter), NULL);
 	g_signal_connect(bt_afilter, "clicked", G_CALLBACK(sctp_stat_on_apply_filter), NULL);
@@ -642,7 +667,6 @@ static void sctp_stat_start(GtkWidget *w _U_, gpointer data _U_)
 	sctp_stat_scan();
 
 	/* Show the dialog box with the list of streams */
-	/* sctp_stat_dlg_show(sctp_stat_get_info()->assoc_info_list); */
 	sctp_stat_dlg_show();
 }
 
