@@ -52,13 +52,13 @@ static GtkTreeModelFlags packet_list_get_flags(GtkTreeModel *tree_model);
 static gint packet_list_get_n_columns(GtkTreeModel *tree_model);
 static GType packet_list_get_column_type(GtkTreeModel *tree_model, gint index);
 static gboolean packet_list_get_iter(GtkTreeModel *tree_model,
-				     GtkTreeIter *iter, GtkTreePath *path);
+					 GtkTreeIter *iter, GtkTreePath *path);
 static GtkTreePath *packet_list_get_path(GtkTreeModel *tree_model,
 					 GtkTreeIter *iter);
 static void packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter,
 				  gint column, GValue *value);
 static gboolean packet_list_iter_next(GtkTreeModel *tree_model,
-				      GtkTreeIter *iter);
+					  GtkTreeIter *iter);
 static gboolean packet_list_iter_children(GtkTreeModel *tree_model,
 					  GtkTreeIter *iter,
 					  GtkTreeIter *parent);
@@ -79,20 +79,20 @@ static gboolean packet_list_sortable_get_sort_column_id(GtkTreeSortable
 							gint *sort_col_id,
 							GtkSortType *order);
 static void packet_list_sortable_set_sort_column_id(GtkTreeSortable *sortable,
-						    gint sort_col_id,
-						    GtkSortType order);
+							gint sort_col_id,
+							GtkSortType order);
 static void packet_list_sortable_set_sort_func(GtkTreeSortable *sortable,
-					       gint sort_col_id,
-					       GtkTreeIterCompareFunc sort_func,
-					       gpointer user_data,
-					       GtkDestroyNotify destroy_func);
+						   gint sort_col_id,
+						   GtkTreeIterCompareFunc sort_func,
+						   gpointer user_data,
+						   GtkDestroyNotify destroy_func);
 static void packet_list_sortable_set_default_sort_func(GtkTreeSortable
-						       *sortable,
-						       GtkTreeIterCompareFunc
-						       sort_func,
-						       gpointer user_data,
-						       GtkDestroyNotify
-						       destroy_func);
+							   *sortable,
+							   GtkTreeIterCompareFunc
+							   sort_func,
+							   gpointer user_data,
+							   GtkDestroyNotify
+							   destroy_func);
 static gboolean packet_list_sortable_has_default_sort_func(GtkTreeSortable
 							   *sortable);
 static void packet_list_sortable_init(GtkTreeSortableIface *iface);
@@ -144,14 +144,14 @@ packet_list_get_type(void)
 							  (GTypeFlags)0);
 
 		g_type_add_interface_static(packet_list_type,
-					    GTK_TYPE_TREE_MODEL,
-					    &tree_model_info);
+						GTK_TYPE_TREE_MODEL,
+						&tree_model_info);
 							  
 
 		/* Register our GtkTreeModel interface with the type system */
 		g_type_add_interface_static(packet_list_type,
-					    GTK_TYPE_TREE_SORTABLE,
-					    &tree_sortable_info);
+						GTK_TYPE_TREE_SORTABLE,
+						&tree_sortable_info);
 	}
 
 	return packet_list_type;
@@ -228,10 +228,10 @@ packet_list_init(PacketList *packet_list)
 	packet_list->sort_order = GTK_SORT_ASCENDING;
 
 	packet_list->stamp = g_random_int(); /* To check whether an iter belongs
-					      * to our model. */
+						  * to our model. */
 }
 
-/* This function is called just before a packet list is destroyed.  Free
+/* This function is called just before a packet list is destroyed.	Free
  * dynamically allocated memory here. */
 static void
 packet_list_finalize(GObject *object)
@@ -248,7 +248,7 @@ static GtkTreeModelFlags
 packet_list_get_flags(GtkTreeModel *tree_model)
 {
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model),
-			     (GtkTreeModelFlags)0);
+				 (GtkTreeModelFlags)0);
 
 	return (GTK_TREE_MODEL_LIST_ONLY | GTK_TREE_MODEL_ITERS_PERSIST);
 }
@@ -268,14 +268,14 @@ packet_list_get_column_type(GtkTreeModel *tree_model, gint index)
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), G_TYPE_INVALID);
 	packet_list = PACKET_LIST(tree_model);
 	g_return_val_if_fail(index < packet_list->n_columns &&
-			     index >= 0, G_TYPE_INVALID);
+				 index >= 0, G_TYPE_INVALID);
 
 	return packet_list->column_types[index];
 }
 
 static gboolean
 packet_list_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
-		     GtkTreePath *path)
+			 GtkTreePath *path)
 {
 	PacketList *packet_list;
 	PacketListRecord *record;
@@ -334,7 +334,7 @@ packet_list_get_path(GtkTreeModel *tree_model, GtkTreeIter *iter)
 
 static void
 packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
-		      GValue *value)
+			  GValue *value)
 {
 	PacketListRecord *record;
 	PacketList *packet_list;
@@ -407,7 +407,7 @@ packet_list_iter_children(GtkTreeModel *tree_model, GtkTreeIter *iter,
 	PacketList *packet_list;
 
 	g_return_val_if_fail(parent == NULL || parent->user_data != NULL,
-			     FALSE);
+				 FALSE);
 
 	/* This is a list, nodes have no children. */
 	if(parent)
@@ -537,7 +537,7 @@ new_packet_list_store_clear(PacketList *packet_list)
 	*/
 
 	/* XXX - hold on to these rows and reuse them instead */
-	g_ptr_array_free(packet_list->rows, FALSE);
+	g_ptr_array_free(packet_list->rows, TRUE);
 	packet_list->rows = g_ptr_array_new();
 }
 
@@ -686,7 +686,7 @@ packet_list_sortable_has_default_sort_func(GtkTreeSortable *sortable _U_)
 
 static gint
 packet_list_compare_records(gint sort_id, PacketListRecord *a,
-			    PacketListRecord *b)
+				PacketListRecord *b)
 {
 
 	/* XXX If we want to store other things than text, we need other sort functions */ 
@@ -706,7 +706,7 @@ packet_list_compare_records(gint sort_id, PacketListRecord *a,
 }		
 static gint
 packet_list_qsort_compare_func(PacketListRecord **a, PacketListRecord **b,
-			       PacketList *packet_list)
+				   PacketList *packet_list)
 {
 	gint ret;
 
@@ -752,7 +752,7 @@ packet_list_resort(PacketList *packet_list)
 	path = gtk_tree_path_new();
 
 	gtk_tree_model_rows_reordered(GTK_TREE_MODEL(packet_list), path, NULL,
-				      neworder);
+					  neworder);
 
 	gtk_tree_path_free(path);
 	g_free(neworder);
