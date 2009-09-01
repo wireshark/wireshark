@@ -2628,7 +2628,7 @@ packet_is_ssl(epan_dissect_t* edt)
         return FALSE;
     array = proto_find_finfo(edt->tree, ssl_id);
     is_ssl = (array->len > 0) ? TRUE : FALSE;
-    g_ptr_array_free(array, FALSE);
+    g_ptr_array_free(array, TRUE);
     return is_ssl;
 }
 

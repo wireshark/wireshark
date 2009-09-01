@@ -5278,7 +5278,7 @@ find_finfo(proto_node *node, gpointer data)
 * This works on any proto_tree, primed or unprimed, but actually searches
 * the tree, so it is slower than using proto_get_finfo_ptr_array on a primed tree.
 * The caller does need to free the returned GPtrArray with
-* g_ptr_array_free(<array>, FALSE).
+* g_ptr_array_free(<array>, TRUE).
 */
 GPtrArray*
 proto_find_finfo(proto_tree *tree, int id)
