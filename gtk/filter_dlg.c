@@ -1326,7 +1326,6 @@ filter_te_syntax_check_cb(GtkWidget *w)
     } else if (strval && dfilter_compile(strval, &dfp)) {
         if (dfp != NULL) {
             depr = dfilter_deprecated_tokens(dfp);
-            dfilter_free(dfp);
         }
         if (strlen(strval) == 0) {
             colorize_filter_te_as_empty(w);
@@ -1346,6 +1345,7 @@ filter_te_syntax_check_cb(GtkWidget *w)
         } else {
             colorize_filter_te_as_valid(w);
         }
+        dfilter_free(dfp);
     } else {
         colorize_filter_te_as_invalid(w);
         if (use_statusbar) {

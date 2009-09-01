@@ -159,6 +159,16 @@ dfilter_free(dfilter_t *df)
 		}
 	}
 
+	if (df->deprecated) {
+		guint i;
+
+		for (i = 0; i < df->deprecated->len; ++i) {
+			gchar *depr = g_ptr_array_index(df->deprecated, i);
+			g_free(depr);
+		}
+		g_ptr_array_free(df->deprecated, TRUE);
+	}
+
 	g_free(df->registers);
 	g_free(df->attempted_load);
 	g_free(df);

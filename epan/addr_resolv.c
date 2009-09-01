@@ -505,8 +505,8 @@ add_serv_port_cb(guint32 port)
 static void parse_services_file(const char * path)
 {
   FILE *serv_p;
-  static int     size = 0;
-  static char   *buf = NULL;
+  char *buf = NULL;
+  int size = 0;
 
   /* services hash table initialization */
   serv_p = ws_fopen(path, "r");
@@ -517,7 +517,7 @@ static void parse_services_file(const char * path)
   while (fgetline(&buf, &size, serv_p) >= 0) {
     parse_service_line (buf);
   }
-
+  g_free(buf);
   fclose(serv_p);
 }
 
