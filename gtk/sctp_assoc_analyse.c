@@ -634,7 +634,6 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_widget_set_size_request(u_data->analyse_nb->page2->scrolled_window, 560, 100);
 
 	u_data->analyse_nb->page2->clist = create_list();
-	printf("u_data->analyse_nb->page2->clist returned\n");
 	gtk_widget_show(u_data->analyse_nb->page2->clist);
 
 	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page2->scrolled_window), u_data->analyse_nb->page2->clist);
