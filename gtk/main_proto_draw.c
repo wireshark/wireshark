@@ -1010,7 +1010,8 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
-
+/* The minimum packet length required to check if a progres bar is needed or not */
+#define MIN_PACKET_LENGTH	1024
 
 /*
  * XXX - at least in GTK+ 2.x, this is not fast - in one capture with a
@@ -1076,7 +1077,15 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY, GUINT_TO_POINTER(use_digits));
 
   /* Update the progress bar when it gets to this value. */
-  progbar_nextstep = 0;
+  if (len > MIN_PACKET_LENGTH){
+	  progbar_nextstep = 0;
+  }else{
+	  /* If length =< MIN_PACKET_LENGTH
+	   * there is no need to calculate the progress
+	   */
+	  progbar_nextstep = len+1;
+  }
+
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
   progbar_quantum = len/N_PROGBAR_UPDATES;
@@ -1093,7 +1102,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
        longer than the standard time to create it (otherwise, for a
        large packet, we might take considerably longer than that standard
        time in order to get to the next progress bar step). */
-    if (progbar == NULL)
+    if ((progbar == NULL) && (len < MIN_PACKET_LENGTH))
       progbar = delayed_create_progress_dlg("Processing", "Packet Details",
                                             TRUE,
                                             &progbar_stop_flag,
@@ -1106,13 +1115,13 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
        to see if there's any pending input from an X server, and doing
        that for every packet can be costly, especially on a big file. */
     if (i >= progbar_nextstep) {
-      /* let's not divide by zero. I should never be started
-       * with count == 0, so let's assert that
-       */
-      g_assert(len > 0);
-      progbar_val = (gfloat) i / len;
 
       if (progbar != NULL) {
+        /* let's not divide by zero. I should never be started
+         * with count == 0, so let's assert that
+         */
+        g_assert(len > 0);
+        progbar_val = (gfloat) i / len;
         g_snprintf(progbar_status_str, sizeof(progbar_status_str),
                    "%4u of %u bytes", i, len);
         update_progress_dlg(progbar, progbar_val, progbar_status_str);
@@ -1179,7 +1188,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       }
       /* Have we gone from plain to reversed? */
       if (!reverse && (reverse != newreverse)) {
-	gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+	    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
                                                  "plain", NULL);
         mark = gtk_text_buffer_create_mark(buf, NULL, &iter, TRUE);
         cur = 0;
