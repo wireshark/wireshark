@@ -126,7 +126,6 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 
     rlen=g_ntohs(header.rlen);
     wlen=g_ntohs(header.wlen);
-    packet_size = rlen - (guint32)sizeof(header);
 
     /* fail on invalid record type, invalid rlen, timestamps decreasing, or incrementing too far */
     
@@ -135,9 +134,11 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
       return 0;
     }
     
+    packet_size = rlen - (guint32)sizeof(header);
     if (packet_size > WTAP_MAX_PACKET_SIZE) {
       /*
-       * Probably a corrupt capture file; don't blow up trying
+       * Probably a corrupt capture file or a file that's not an ERF file
+       * but that passed earlier tests; don't blow up trying
        * to allocate space for an immensely-large packet.
        */
       return 0;
@@ -218,6 +219,13 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 
     /* The file_seek function do not return an error if the end of file
        is reached whereas the record is truncated */
+    if (packet_size > WTAP_MAX_PACKET_SIZE) {
+      /*
+       * Probably a corrupt capture file; don't blow up trying
+       * to allocate space for an immensely-large packet.
+       */
+      return 0;
+    }
     buffer=g_malloc(packet_size);
     r = file_read(buffer, 1, packet_size, wth->fh);
     g_free(buffer);

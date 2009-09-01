@@ -1615,26 +1615,28 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		pinfo->sccp_info = NULL;
     }
 
+	if (assoc) {
     switch (pinfo->p2p_dir) {
-	case P2P_DIR_SENT:
-		ssn = assoc->calling_ssn;
-		other_ssn = assoc->called_ssn;
-		dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
-		opc = (const mtp3_addr_pc_t*)pinfo->src.data;
-		break;
-	case P2P_DIR_RECV:
-		ssn = assoc->called_ssn;
-		other_ssn = assoc->calling_ssn;
-		dpc = (const mtp3_addr_pc_t*)pinfo->src.data;
-		opc = (const mtp3_addr_pc_t*)pinfo->dst.data;
-		break;
-	default:
-		ssn = assoc->called_ssn;
-		other_ssn = assoc->calling_ssn;
-		dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
-		opc = (const mtp3_addr_pc_t*)pinfo->src.data;
-		break;
-    }
+		case P2P_DIR_SENT:
+			ssn = assoc->calling_ssn;
+			other_ssn = assoc->called_ssn;
+			dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+			opc = (const mtp3_addr_pc_t*)pinfo->src.data;
+			break;
+		case P2P_DIR_RECV:
+			ssn = assoc->called_ssn;
+			other_ssn = assoc->calling_ssn;
+			dpc = (const mtp3_addr_pc_t*)pinfo->src.data;
+			opc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+			break;
+		default:
+			ssn = assoc->called_ssn;
+			other_ssn = assoc->calling_ssn;
+			dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+			opc = (const mtp3_addr_pc_t*)pinfo->src.data;
+			break;
+		}
+	}
 
 
     if (num_sccp_users && pinfo->src.type == AT_SS7PC) {
@@ -1735,7 +1737,7 @@ dissect_sccp_importance_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 static void
 dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
-  guint8 mi, iri, ti, network, netspec;
+  guint8 mi, iri, ti, network;
   guint offset = 0;
   proto_item *param_item;
   proto_tree *param_tree;
@@ -1764,7 +1766,6 @@ dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, guint length)
   offset += ANSI_ISNI_ROUTING_CONTROL_LENGTH;
 
   if ((ti >> ANSI_ISNI_TI_SHIFT) == ANSI_ISNI_TYPE_1) {
-    netspec = tvb_get_guint8(tvb, offset) & ANSI_ISNI_NETSPEC_MASK;
     proto_tree_add_uint(param_tree, hf_sccp_ansi_isni_netspec, tvb, offset,
 			ANSI_ISNI_ROUTING_CONTROL_LENGTH, ti);
     offset += ANSI_ISNI_ROUTING_CONTROL_LENGTH;
@@ -2021,7 +2022,6 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   guint16 variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
   guint16 optional_pointer = 0, orig_opt_ptr = 0;
   guint16 offset = 0;
-  guint8 parameter_type;
   gboolean   save_fragmented;
   tvbuff_t *new_tvb = NULL;
   fragment_data *frag_msg = NULL;
@@ -2423,7 +2423,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				    PARAMETER_CALLING_PARTY_ADDRESS,
 				    variable_pointer2);
 
-    if ((parameter_type = tvb_get_guint8(tvb, optional_pointer)) == PARAMETER_SEGMENTATION){
+    if (tvb_get_guint8(tvb, optional_pointer) == PARAMETER_SEGMENTATION){
 		if (!sccp_xudt_desegment){
 			proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data");
 		} else {
@@ -2507,7 +2507,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				    PARAMETER_CALLING_PARTY_ADDRESS,
 				    variable_pointer2);
 
-    if ((parameter_type = tvb_get_guint8(tvb, optional_pointer)) == PARAMETER_SEGMENTATION){
+    if (tvb_get_guint8(tvb, optional_pointer) == PARAMETER_SEGMENTATION){
 	if (!sccp_xudt_desegment){
 	    proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data");
 

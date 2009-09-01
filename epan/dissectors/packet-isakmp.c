@@ -1952,6 +1952,7 @@ dissect_certreq_v2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   /* this is a list of 20 byte SHA-1 hashes */
   while (length > 0) {
     proto_tree_add_item(tree, hf_isakmp_v2_certificate_authority, tvb, offset, 20, FALSE);
+    offset+=20;
     length-=20;
   }
 }

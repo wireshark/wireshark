@@ -2228,8 +2228,16 @@ define_constraint(GNode *p, GNode *q)
 
 	p = g_node_first_child(p);
 
+	if (!p) {
+		return;
+	}
+
 	range->from = get_asn1_int(0, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
+
+	if (!p) {
+		return;
+	}
 
 	range->to = get_asn1_int(1, GPOINTER_TO_UINT(p->data));
 
@@ -2246,9 +2254,17 @@ define_namednumber(GNode *p, GNode *q)
 	/* g_message("define_namednumber %p, %p", p, q); */
 
 	p = g_node_first_child(p);
+	
+	if (!p) {
+		return;
+	}
 
 	num->name = get_asn1_string(0, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
+
+	if (!p) {
+		return;
+	}
 
 	num->value = get_asn1_int(1, GPOINTER_TO_UINT(p->data));
 }
@@ -2265,8 +2281,16 @@ define_typeref(GNode *p, GNode *q)
 
 	p = g_node_first_child(p);
 
+	if (!p) {
+		return;
+	}
+
 	ref->typeDefId = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
+
+	if (!p) {
+		return;
+	}
 
 	ref->implicit = get_asn1_int(BER_UNI_TAG_BOOLEAN, GPOINTER_TO_UINT(p->data));
 }
@@ -2283,8 +2307,16 @@ define_tag(GNode *p, GNode *q)
 
 	p = g_node_first_child(p);
 
+	if (!p) {
+		return;
+	}
+
 	type->tclass = get_asn1_int(BER_UNI_TAG_ENUMERATED, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
+
+	if (!p) {
+		return;
+	}
 
 	type->code = get_asn1_int(BER_UNI_TAG_INTEGER, GPOINTER_TO_UINT(p->data));
 
@@ -2383,11 +2415,23 @@ define_typedef(GNode *p, GNode *q)
 
 	p = g_node_first_child(p);
 
+	if (!p) {
+		return;
+	}
+
 	type_def->typeDefId = get_asn1_uint(GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
 
+	if (!p) {
+		return;
+	}
+
 	type_def->typeName = get_asn1_string(BER_UNI_TAG_PrintableString, GPOINTER_TO_UINT(p->data));
 	p = g_node_next_sibling(p);
+
+	if (!p) {
+		return;
+	}
 
 	define_type(g_node_first_child(p), t);
 	p = g_node_next_sibling(p);
@@ -4071,7 +4115,7 @@ getinfo(GNode *node) {
 
 #define NEXT	      {pos.node = g_node_next_sibling(pos.node);pos.type=0;}
 #define CHILD	      {pos.node = g_node_first_child(pos.node);pos.type=0;}
-#define MATCH	      ((class == info->tclass) && (tag == info->tag))
+#define MATCH	      (info && (class == info->tclass) && (tag == info->tag))
 #define ISOPTIONAL    (info && (info->flags & PDU_OPTIONAL))
 #define ISIMPLICIT    (info && (info->flags & PDU_IMPLICIT))
 #define ISREFERENCE   (info && (info->flags & PDU_REFERENCE))

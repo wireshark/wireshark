@@ -463,6 +463,7 @@ SetOutPath $INSTDIR\diameter
 File "..\..\diameter\chargecontrol.xml"
 File "..\..\diameter\dictionary.dtd"
 File "..\..\diameter\dictionary.xml"
+File "..\..\diameter\eap.xml"
 File "..\..\diameter\Ericsson.xml"
 File "..\..\diameter\etsie2e4.xml"
 File "..\..\diameter\gqpolicy.xml"

@@ -6523,6 +6523,10 @@ static const wbxml_literal_list content_type_list[] = {
 		NULL,
 		&decode_mssync_10
 	},
+	{	"application/vnd.ms-sync",
+		NULL,
+		&decode_mssync_10
+	},
 	{	NULL, NULL, NULL }
 };
 
@@ -8378,6 +8382,8 @@ proto_reg_handoff_wbxml(void)
 			     "application/vnd.wv.csp.wbxml", wbxml_handle);
 	dissector_add_string("media_type",
 			     "application/vnd.ms-sync.wbxml", wbxml_handle);
+	dissector_add_string("media_type",
+			     "application/vnd.ms-sync", wbxml_handle);
 
 	/**** Registered WBXML WSP Content-Type values ****/
 

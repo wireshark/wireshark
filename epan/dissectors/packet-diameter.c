@@ -190,6 +190,7 @@ static diam_dictionary_t dictionary = { NULL, NULL, NULL, NULL };
 static struct _build_dict build_dict;
 static const value_string* vnd_short_vs;
 static dissector_handle_t data_handle;
+static dissector_handle_t eap_handle;
 
 static const value_string diameter_avp_data_addrfamily_vals[]= {
 	{1,"IPv4"},
@@ -309,6 +310,19 @@ dissect_diameter_vedor_id(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
 
 }
 
+static int
+dissect_diameter_eap_payload(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+	gboolean save_writable;
+
+	/* Ensure the packet is displayed as Diameter, not EAP */
+	save_writable = col_get_writable(pinfo->cinfo);
+	col_set_writable(pinfo->cinfo, FALSE);
+
+	call_dissector(eap_handle, tvb, pinfo, tree);
+
+	col_set_writable(pinfo->cinfo, save_writable);
+	return tvb_length(tvb);
+}
 
 /* Dissect an AVP at offset */
 static int
@@ -1357,10 +1371,18 @@ proto_reg_handoff_diameter(void)
 		diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
 							      proto_diameter);
 		data_handle = find_dissector("data");
+		eap_handle = find_dissector("eap");
 		/* Register special decoding for some AVP:s */
 		/* AVP Code: 266 Vendor-Id */
 		dissector_add("diameter.base", 266, 
 				new_create_dissector_handle(dissect_diameter_vedor_id, proto_diameter));
+		/* AVP Code: 462 EAP-Payload */
+		dissector_add("diameter.base", 462, 
+			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
+		/* AVP Code: 463 EAP-Reissued-Payload */
+		dissector_add("diameter.base", 463, 
+			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
+
 		Initialized=TRUE;
 	} else {
 		range_foreach(diameter_tcp_port_range, range_delete_callback);

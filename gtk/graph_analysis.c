@@ -421,7 +421,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 
 		/* write the frame label */
 
-		g_string_append(tmp_str, empty_line->str);
+		g_string_printf(tmp_str, "%s", empty_line->str);
 		overwrite(tmp_str,user_data->dlg.items[current_item].frame_label,
 			start_position,
 			end_position
@@ -434,7 +434,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 		/* write the arrow and frame label*/
 		fprintf(of, "%s", empty_header);
 
-		g_string_append(tmp_str, empty_line->str);
+		g_string_printf(tmp_str, "%s", empty_line->str);
 
 		g_string_truncate(tmp_str2, 0);
 

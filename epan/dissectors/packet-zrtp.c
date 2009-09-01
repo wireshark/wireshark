@@ -1,6 +1,6 @@
 /* packet-zrtp.c
  * Routines for zrtp packet dissection
- * IETF draft draft-zimmermann-avt-zrtp-15
+ * IETF draft draft-zimmermann-avt-zrtp-15x
  * Copyright 2007, Sagar Pai <sagar@gmail.com>
  *
  * $Id$
@@ -192,6 +192,12 @@ const value_string_keyval zrtp_cipher_type_vals[] =
     { "AES1",	"AES-CM with 128 bit keys"},
     { "AES2",	"AES-CM with 192 bit keys"},
     { "AES3",	"AES-CM with 256 bit keys"},
+    { "2FS1",   "TwoFish with 128 bit keys"},
+    { "2FS2",   "TwoFish with 192 bit keys"},
+    { "2FS3",   "TwoFish with 256 bit keys"},
+    { "CAM1",   "Camellia with 128 bit keys"},
+    { "CAM2",   "Camellia with 192 bit keys"},
+    { "CAM3",   "Camellia with 256 bit keys"},
     { NULL,		NULL }
   };
 

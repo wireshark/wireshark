@@ -453,7 +453,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			}
 
 			/* add link to response frame, if available */
-			if(h225ras_call->rsp_num != 0){
+			if(h225ras_call && h225ras_call->rsp_num != 0){
 				proto_item *ti =
 				proto_tree_add_uint_format(tree, hf_h225_ras_rsp_frame, tvb, 0, 0, h225ras_call->rsp_num,
 					                           "The response to this request is in frame %u",
@@ -487,6 +487,10 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 						}
 						h225ras_call = h225ras_call->next_call;
 					} while (h225ras_call != NULL) ;
+					
+					if (!h225ras_call) {
+						return;
+					}
 
 					/* if this is an ACF, ARJ or DCF, DRJ, give guid to tap and make it filterable */
 					if (msg_category == 3 || msg_category == 5) {

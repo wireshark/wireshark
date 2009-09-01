@@ -405,7 +405,7 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 		if(fInfoTemp==NULL){
 			fprintf(stderr,"ERROR: start number not set correctly\n");
 		}
-		if(fmod(fInfoTemp->zebra_time.nsecs, 2)){
+		if(fInfoTemp && fmod(fInfoTemp->zebra_time.nsecs, 2)){
 			/*first file*/
 			cs->stop_packet_nr_first=cs->start_packet_nr_first+abs(cs->second_file_amount-(cs->start_packet_nr_second-cs->first_file_amount));
 			if(cs->stop_packet_nr_first>(tot_packet_amount-cs->second_file_amount)){

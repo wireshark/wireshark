@@ -343,43 +343,7 @@ int dissect_x509if_AttributeCombination(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_x509if_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 190 "x509if.cnf"
-  const char *fmt; 
-  const char *name;
-
-    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509if_object_identifier_id, &object_identifier_id);
-
-
-  if(object_identifier_id) {
-    /* see if we can find a nice name */
-    name = oid_resolved_from_string(object_identifier_id);
-    if(!name) name = object_identifier_id;    
-
-    if(doing_dn) { /* append it to the RDN */
-      g_strlcat(last_rdn, name, MAX_RDN_STR_LEN);
-      g_strlcat(last_rdn, "=", MAX_RDN_STR_LEN);
-
-     /* append it to the tree */
-     proto_item_append_text(tree, " (%s=", name);
-    }
-
-    if(doing_attr) {
-      /* append it to the parent item */
-      proto_item_append_text(tree, " (%s)", name);
-    }
-
-    if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
-      /* we have a format */
-      last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
-
-      g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s", name, fmt);
-
-      proto_item_append_text(tree, " %s", last_ava);
-
-    }
-  }
-
-
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509if_object_identifier_id, &object_identifier_id);
 
   return offset;
 }
@@ -388,48 +352,8 @@ dissect_x509if_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_x509if_T_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "x509if.cnf"
-  int old_offset = offset;
-  tvbuff_t	*out_tvb;
-  char  	*value = NULL;
-  const char 	*fmt; 
-  const char	*name = NULL;
-  const char    *orig_oid = object_identifier_id;
-
+#line 310 "x509if.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
-  /* in dissecting the value we may have overridden the OID of the value - which is
-     a problem if there are multiple values */
-  object_identifier_id = orig_oid;
-
-  /* try and dissect as a string */
-  dissect_ber_octet_string(FALSE, actx, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
-  
-  /* should also try and dissect as an OID and integer */
-  /* of course, if I can look up the syntax .... */
-
-  if(out_tvb) {
-    /* it was a string - format it */
-    value = tvb_format_text(out_tvb, 0, tvb_length(out_tvb));
-
-    if(doing_dn) {
-      g_strlcat(last_rdn, value, MAX_RDN_STR_LEN);
-
-      /* append it to the tree*/
-      proto_item_append_text(tree, "%s)", value);
-    }
-
-    if((fmt = val_to_str(ava_hf_index, fmt_vals, "")) && *fmt) {
-      /* we have a format */
-
-    if(!(name = oid_resolved_from_string(object_identifier_id)))
-      name = object_identifier_id;
-    g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s %s", name, fmt, value);
-
-    proto_item_append_text(tree, " %s", last_ava);
-
-    }
-  }
 
 
 
@@ -786,7 +710,43 @@ dissect_x509if_AttributeTypeAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static int
 dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509if_object_identifier_id, &object_identifier_id);
+#line 190 "x509if.cnf"
+  const char *fmt; 
+  const char *name;
+
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509if_object_identifier_id, &object_identifier_id);
+
+
+  if(object_identifier_id) {
+    /* see if we can find a nice name */
+    name = oid_resolved_from_string(object_identifier_id);
+    if(!name) name = object_identifier_id;    
+
+    if(doing_dn) { /* append it to the RDN */
+      g_strlcat(last_rdn, name, MAX_RDN_STR_LEN);
+      g_strlcat(last_rdn, "=", MAX_RDN_STR_LEN);
+
+     /* append it to the tree */
+     proto_item_append_text(tree, " (%s=", name);
+    }
+
+    if(doing_attr) {
+      /* append it to the parent item */
+      proto_item_append_text(tree, " (%s)", name);
+    }
+
+    if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
+      /* we have a format */
+      last_ava = ep_alloc(MAX_AVA_STR_LEN); *last_ava = '\0';
+
+      g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s", name, fmt);
+
+      proto_item_append_text(tree, " %s", last_ava);
+
+    }
+  }
+
+
 
   return offset;
 }
@@ -795,8 +755,48 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 310 "x509if.cnf"
+#line 225 "x509if.cnf"
+  int old_offset = offset;
+  tvbuff_t	*out_tvb;
+  char  	*value = NULL;
+  const char 	*fmt; 
+  const char	*name = NULL;
+  const char    *orig_oid = object_identifier_id;
+
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+
+  /* in dissecting the value we may have overridden the OID of the value - which is
+     a problem if there are multiple values */
+  object_identifier_id = orig_oid;
+
+  /* try and dissect as a string */
+  dissect_ber_octet_string(FALSE, actx, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
+  
+  /* should also try and dissect as an OID and integer */
+  /* of course, if I can look up the syntax .... */
+
+  if(out_tvb) {
+    /* it was a string - format it */
+    value = tvb_format_text(out_tvb, 0, tvb_length(out_tvb));
+
+    if(doing_dn) {
+      g_strlcat(last_rdn, value, MAX_RDN_STR_LEN);
+
+      /* append it to the tree*/
+      proto_item_append_text(tree, "%s)", value);
+    }
+
+    if((fmt = val_to_str(ava_hf_index, fmt_vals, "")) && *fmt) {
+      /* we have a format */
+
+    if(!(name = oid_resolved_from_string(object_identifier_id)))
+      name = object_identifier_id;
+    g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s %s", name, fmt, value);
+
+    proto_item_append_text(tree, " %s", last_ava);
+
+    }
+  }
 
 
 
