@@ -1102,7 +1102,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
        longer than the standard time to create it (otherwise, for a
        large packet, we might take considerably longer than that standard
        time in order to get to the next progress bar step). */
-    if ((progbar == NULL) && (len < MIN_PACKET_LENGTH))
+    if ((progbar == NULL) && (len > MIN_PACKET_LENGTH))
       progbar = delayed_create_progress_dlg("Processing", "Packet Details",
                                             TRUE,
                                             &progbar_stop_flag,
