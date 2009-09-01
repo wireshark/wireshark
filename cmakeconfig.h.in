@@ -130,6 +130,9 @@
 /* Define to 1 if you have the <net-snmp/net-snmp-config.h> header file. */
 #cmakedefine HAVE_NET_SNMP_NET_SNMP_CONFIG_H 1
 
+/* Define to 1 if you have the <Ntddndis.h> header file. */
+#cmakedefine HAVE_NTDDNDIS_H 1
+
 /* Define to 1 if you have OS X frameworks */
 #cmakedefine HAVE_OS_X_FRAMEWORKS 1
 
@@ -226,6 +229,12 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1
+
+/* Define to 1 if you have the <windows.h> header file. */
+#cmakedefine HAVE_WINDOWS_H 1
+
+/* Define to 1 if you have the <winsock2.h> header file. */
+#cmakedefine HAVE_WINSOCK2_H 1
 
 /* HTML viewer, e.g. mozilla */
 #cmakedefine HTML_VIEWER
