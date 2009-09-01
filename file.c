@@ -472,7 +472,7 @@ cf_read(capture_file *cf)
   dfilter_t   *dfcode;
   gboolean    filtering_tap_listeners;
   guint       tap_flags;
-  int count = 0;
+  volatile int count = 0;
 #ifdef HAVE_LIBPCAP
   volatile int displayed_once = 0;
 #endif
