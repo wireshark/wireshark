@@ -106,98 +106,11 @@ new_packet_list_create(void)
 guint
 new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo _U_)
 {
-	gint i;
 	row_data_t row_data;
 
-	if (cinfo) {
-		/* Allocate the array holding column text, the size is the current number of columns */
-		fdata->col_text = se_alloc(sizeof(fdata->col_text)*packetlist->n_columns);
-		g_assert(packetlist->n_columns == cinfo->num_cols);
-		col_fill_in(pinfo, FALSE);
-		for(i = 0; i < cinfo->num_cols; i++) {
-			switch (cinfo->col_fmt[i]){
-				/* We already store the value in frame_data, so don't duplicate this. */
-				case COL_ABS_DATE_TIME:		/* 1) Absolute date and time */
-				case COL_ABS_TIME:			/* 2) Absolute time */
-				case COL_CUMULATIVE_BYTES:	/* 7) Cumulative number of bytes */
-				case COL_DELTA_TIME:		/* 11) Delta time */
-				case COL_DELTA_TIME_DIS:	/* 13) Delta time displayed */
-				case COL_NUMBER:			/* 46) Packet list item number */
-				case COL_PACKET_LENGTH:		/* 47) Packet length in bytes */
-				case COL_REL_TIME:			/* 49) Relative time */
-				case COL_CLS_TIME:			/* 58) Command line-specified time (default relative) */
-					fdata->col_text[i] = NULL;
-					break;
-				/* We handle custom columns lazily */
-				case COL_CUSTOM:			/* 8) Custom column (any filter name's contents) */
-					fdata->col_text[i] = NULL;
-					break;
-				/* String in pinfo */
-				case COL_OXID:				/* 22) Fibre Channel OXID */
-				case COL_RXID:				/* 23) Fibre Channel RXID */
-				case COL_SRCIDX:			/* 5) Src port idx - Cisco MDS-specific */
-				case COL_DSTIDX:			/* 4) Dst port idx - Cisco MDS-specific */
-				case COL_VSAN:				/* 6) VSAN - Cisco MDS-specific */
-					fdata->col_text[i] = se_strdup(pinfo->cinfo->col_buf[i]);
-					break;
-				/* Columns based on (binary)data in pinfo */
-				case COL_RES_DST:			/* 14) Resolved dest */
-				case COL_UNRES_DST:			/* 15) Unresolved dest */
-				case COL_DEF_DST:			/* 18) Destination address */
-					/* pinfo->dst */
-				case COL_RES_DST_PORT:		/* 16) Resolved dest port */
-				case COL_UNRES_DST_PORT:	/* 17) Unresolved dest port */
-				case COL_DEF_DST_PORT:		/* 19) Destination port */
-					/* pinfo->dstcport */
-				case COL_DEF_DL_DST:		/* 29) Data link layer dest address */
-				case COL_RES_DL_DST:		/* 31) Resolved DL dest */
-				case COL_UNRES_DL_DST:		/* 32) Unresolved DL dest */
-					/* pinfo->dl_dst */
-				case COL_DEF_DL_SRC:		/* 30) Data link layer source address */
-				case COL_RES_DL_SRC:		/* 33) Resolved DL source */
-				case COL_UNRES_DL_SRC:		/* 34) Unresolved DL source */
-					/* pinfo->dl_src */
-				case COL_RES_NET_SRC:		/* 42) Resolved net source */
-				case COL_UNRES_NET_SRC:		/* 43) Unresolved net source */
-				case COL_DEF_NET_SRC:		/* 45) Network layer source address */
-					/* pinfo->net_src */
-				case COL_RES_NET_DST:		/* 40) Resolved net dest */
-				case COL_UNRES_NET_DST:		/* 41) Unresolved net dest */
-				case COL_DEF_NET_DST:		/* 44) Network layer dest address */
-					/* pinfo->net_dst */
-				case COL_DEF_SRC:			/* 51) Source address */
-				case COL_RES_SRC:			/* 53) Resolved source */
-				case COL_UNRES_SRC:			/* 54) Unresolved source */
-					/* pinfo->src */
-				case COL_DEF_SRC_PORT:		/* 52) Source port */
-				case COL_RES_SRC_PORT:		/* 55) Resolved source port */
-				case COL_UNRES_SRC_PORT:	/* 56) Unresolved source port */
-					/* pinfo->srcport */
-					fdata->col_text[i] = se_strdup(cinfo->col_data[i]);
-					break;
-				/* currently done by dissectors XXX change to custom col instead??*/
-				case COL_IF_DIR:			/* 21) FW-1 monitor interface/direction */
-				case COL_PROTOCOL:			/* 48) Protocol */
-				case COL_INFO:				/* 38) Description */
-				case COL_DCE_CALL:			/* 9) DCE/RPC connection oriented call id OR datagram sequence number */
-				case COL_DCE_CTX:			/* 10) DCE/RPC connection oriented context id */
-				case COL_8021Q_VLAN_ID:		/* 0) 802.1Q vlan ID */
-				case COL_FREQ_CHAN:			/* 25) IEEE 802.11 (and WiMax?) - Channel */
-				/* These too ? */
-				case COL_RSSI:				/* 35) IEEE 802.11 - received signal strength */
-				case COL_TX_RATE:			/* 36) IEEE 802.11 - TX rate in Mbps */
-				case COL_TEI:				/* 57) Q.921 TEI */
-
-				/* done by expert.c */
-				case COL_EXPERT:			/* 20) Expert Info */
-					fdata->col_text[i] = se_strdup(cinfo->col_data[i]);
-					break;
-				default:
-					/* We should have a case statement for all columns */
-					g_assert_not_reached();
-			}
-		}
-	}
+	/* fdata should be filled with the stuff we need
+	 * strings are built at display time.
+	 */
 
 	row_data.fdata = fdata;
 
