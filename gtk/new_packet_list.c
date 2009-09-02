@@ -783,5 +783,13 @@ new_packet_list_recent_write_all(FILE *rf)
   fprintf (rf, "\n");
 }
 
+GtkWidget * 
+new_packet_list_get_widget(void) 
+{ 
+       g_assert(packetlist); 
+       g_assert(packetlist->view); 
+       return packetlist->view; 
+} 
+
 #endif /* NEW_PACKET_LIST */
 

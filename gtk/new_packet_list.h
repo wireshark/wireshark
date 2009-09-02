@@ -70,6 +70,8 @@ void new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_
  */
 extern void new_packet_list_recent_write_all(FILE *rf);
 
+GtkWidget * new_packet_list_get_widget(void); 
+ 
 #endif /* NEW_PACKET_LIST */
 
 #endif /* __NEW_PACKET_LIST_H__ */
