@@ -552,13 +552,15 @@ cf_read(capture_file *cf)
                   if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->plist_end != NULL) {
                       displayed_once = 1;
 #ifdef NEW_PACKET_LIST
-		      /* XXX - Add move to end function call.  Freeze/thaw if
-		      * necessary. */
+                  new_packet_list_thaw();
+                  if (auto_scroll_live)
+                      new_packet_list_select_last_row();
+                  new_packet_list_freeze();
 #else
-                      packet_list_thaw();
-                      if (auto_scroll_live)
-                          packet_list_moveto_end();
-                      packet_list_freeze();
+                  packet_list_thaw();
+                  if (auto_scroll_live)
+                      packet_list_moveto_end();
+                  packet_list_freeze();
 #endif /* NEW_PACKET_LIST */
                   }
 	      }
@@ -819,14 +821,16 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   packet_list_thaw();
 #endif
 
-#ifndef NEW_PACKET_LIST
   /* moving to the end of the packet list - if the user requested so and
-     we have some new packets.
-     this doesn't seem to work well with a frozen GTK_Clist, so do this after
-     packet_list_thaw() is done, see bugzilla 1188 */
-  /* XXX - this cheats and looks inside the packet list to find the final
-     row number. */
+     we have some new packets. */
   if (newly_displayed_packets && auto_scroll_live && cf->plist_end != NULL)
+#ifdef NEW_PACKET_LIST
+    new_packet_list_select_last_row();
+#else
+    /* this doesn't seem to work well with a frozen GTK_Clist, so do this after
+       packet_list_thaw() is done, see bugzilla 1188 */
+    /* XXX - this cheats and looks inside the packet list to find the final
+       row number. */
     packet_list_moveto_end();
 #endif /* NEW_PACKET_LIST */
 
@@ -915,8 +919,10 @@ cf_finish_tail(capture_file *cf, int *err)
     return CF_READ_ABORTED;
   }
 
-#ifndef NEW_PACKET_LIST
   if (auto_scroll_live && cf->plist_end != NULL)
+#ifdef NEW_PACKET_LIST
+    new_packet_list_select_last_row();
+#else
     /* XXX - this cheats and looks inside the packet list to find the final
        row number. */
     packet_list_moveto_end();

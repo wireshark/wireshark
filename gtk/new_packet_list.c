@@ -410,6 +410,7 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 	record = new_packet_list_get_record(model, &iter);
 	g_assert(record);
 	row = record->fdata->num;
+	g_assert(row > 0);
 
 	cf_select_packet(&cfile, row);
 
