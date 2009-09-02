@@ -1029,7 +1029,11 @@ color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
   color_filters_apply(color_filter_tmp_list, color_filter_edit_list);
 
   /* colorize list */
+#ifdef NEW_PACKET_LIST
+  new_packet_list_colorize_packets();
+#else
   cf_colorize_packets(&cfile);
+#endif /* NEW_PACKET_LIST */
 }
 
 /* User pressed the "Save" button: save the color filters to the
