@@ -104,7 +104,7 @@ new_packet_list_create(void)
 }
 
 guint
-new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo _U_)
+new_packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *pinfo _U_)
 {
 	row_data_t row_data;
 
