@@ -2210,45 +2210,35 @@ menu_recent_read_finished(void) {
     case(TS_ABSOLUTE_WITH_DATE):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456");
-        /* set_active will not trigger the callback when activating an active item! */
-        recent.gui_time_format = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_ABSOLUTE):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Time of Day:   01:02:03.123456");
-        /* set_active will not trigger the callback when activating an active item! */
-        recent.gui_time_format = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_RELATIVE):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Seconds Since Beginning of Capture:   123.123456");
-        recent.gui_time_format = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_DELTA):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Seconds Since Previous Captured Packet:   1.123456");
-        recent.gui_time_format = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_DELTA_DIS):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Seconds Since Previous Displayed Packet:   1.123456");
-        recent.gui_time_format = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_EPOCH):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Seconds Since Epoch (1970-01-01):   1234567890.123456");
-        recent.gui_time_format = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     default:
         g_assert_not_reached();
     }
+
+    /* set_active will not trigger the callback when activating an active item! */
+    recent.gui_time_format = -1;
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
 
     switch(recent.gui_time_precision) {
     case(TS_PREC_AUTO):
