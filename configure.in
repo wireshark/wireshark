@@ -1613,6 +1613,18 @@ then
 fi
 AC_SUBST(ENABLE_STATIC)
 
+AC_ARG_ENABLE(new-packet-list,
+  AC_HELP_STRING( [--enable-new-packet-list],
+                  [use new packet list feature.  @<:@default=no@:>@]),
+                  new_packet_list=$enableval,new_packet_list=no)
+AC_MSG_CHECKING(if new packet list is used);
+if test "x$enable_new_packet_list" = "xyes" ; then
+	AC_MSG_RESULT(yes)
+	CFLAGS=" -DNEW_PACKET_LIST $CFLAGS"
+else
+	AC_MSG_RESULT(no)
+fi
+
 dnl Save the cacheable configure results to config.cache before recursing
 AC_CACHE_SAVE
 
