@@ -622,6 +622,8 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	}else{
 		g_object_set(renderer,
 			 "text", cell_text,
+			 "foreground-set", FALSE,
+			 "background-set", FALSE,
 			 NULL);
 	}
 }
