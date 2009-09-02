@@ -73,6 +73,7 @@ void new_packet_list_enable_color(gboolean enable);
 void new_packet_list_queue_draw(void);
 void new_packet_list_select_first_row(void);
 void new_packet_list_select_last_row(void);
+void new_packet_list_moveto_end(void);
 gint new_packet_list_find_row_from_data(gpointer data, gboolean select);
 #else
 /* packet list related functions */

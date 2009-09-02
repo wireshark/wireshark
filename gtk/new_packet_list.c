@@ -299,6 +299,8 @@ scroll_to_and_select_iter(GtkTreeIter *iter)
 
 	/* Needed to get the middle and bottom panes updated */
 	new_packet_list_select_cb(GTK_TREE_VIEW(packetlist->view), NULL);
+
+	gtk_tree_path_free(path);
 }
 
 void
@@ -329,6 +331,36 @@ new_packet_list_select_last_row(void)
 		return;
 
 	scroll_to_and_select_iter(&iter);
+}
+
+void
+new_packet_list_moveto_end(void)
+{
+	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
+	GtkTreeIter iter;
+	GtkTreeSelection *selection;
+	GtkTreePath *path;
+	gint children;
+	guint last_row;
+
+	if((children = gtk_tree_model_iter_n_children(model, NULL)) == 0)
+		return;
+
+	last_row = children-1;
+	if(!gtk_tree_model_iter_nth_child(model, &iter, NULL, last_row))
+		return;
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	gtk_tree_selection_select_iter (selection, &iter);
+	path = gtk_tree_model_get_path(model, &iter);
+	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(packetlist->view),
+			path,
+			NULL,
+			TRUE,	/* use_align */
+			0.5,	/* row_align determines where the row is placed, 0.5 means center */
+			0);		/* The horizontal alignment of the column */
+
+	gtk_tree_path_free(path);
 }
 
 gint

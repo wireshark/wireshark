@@ -554,7 +554,7 @@ cf_read(capture_file *cf)
 #ifdef NEW_PACKET_LIST
                   new_packet_list_thaw();
                   if (auto_scroll_live)
-                      new_packet_list_select_last_row();
+                      new_packet_list_moveto_end();
                   new_packet_list_freeze();
 #else
                   packet_list_thaw();
@@ -825,7 +825,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
      we have some new packets. */
   if (newly_displayed_packets && auto_scroll_live && cf->plist_end != NULL)
 #ifdef NEW_PACKET_LIST
-    new_packet_list_select_last_row();
+    new_packet_list_moveto_end();
 #else
     /* this doesn't seem to work well with a frozen GTK_Clist, so do this after
        packet_list_thaw() is done, see bugzilla 1188 */
@@ -921,7 +921,7 @@ cf_finish_tail(capture_file *cf, int *err)
 
   if (auto_scroll_live && cf->plist_end != NULL)
 #ifdef NEW_PACKET_LIST
-    new_packet_list_select_last_row();
+    new_packet_list_moveto_end();
 #else
     /* XXX - this cheats and looks inside the packet list to find the final
        row number. */
