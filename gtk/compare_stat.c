@@ -80,7 +80,9 @@
 #include "color.h"
 #include "color_filters.h"
 #include "color_dlg.h"
-
+#ifdef NEW_PACKET_LIST
+#include "new_packet_list.h"
+#endif
 /* From colorize convertion */
 #define COLOR_N	1
 
@@ -607,8 +609,11 @@ comparestat_draw(void *arg)
 		g_string_printf(filter_str, "%s %s %s %s", "eth.dst==", address_to_str(&cs->eth_dst), "|| eth.dst==", address_to_str(&cs->eth_src));
 	}
 	color_filters_set_tmp(COLOR_N, filter_str->str, FALSE);
+#ifdef NEW_PACKET_LIST
+	new_packet_list_colorize_packets();
+#else
 	cf_colorize_packets(&cfile);
-
+#endif
 	/* Variance */
 	cs->stats.variance=compare_variance;
 

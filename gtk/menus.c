@@ -387,7 +387,11 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
 
     if( (action>>8) == 255 ) {
         color_filters_reset_tmp();
+#ifdef NEW_PACKET_LIST
+		new_packet_list_colorize_packets();
+#else
         cf_colorize_packets(&cfile);
+#endif
     } else if (cfile.current_frame) {
         if( (action&0xff) == 0 ) {
             /* colorize_conversation_cb was called from the window-menu
@@ -416,7 +420,11 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
         } else {
             /* Set one of the temporary coloring filters */
             color_filters_set_tmp((guint8)(action>>8),filter,FALSE);
-            cf_colorize_packets(&cfile);
+#ifdef NEW_PACKET_LIST
+			new_packet_list_colorize_packets();
+#else
+			cf_colorize_packets(&cfile);
+#endif
         }
 
         g_free(filter);
@@ -2138,7 +2146,9 @@ menu_colorize_changed(gboolean packet_list_colorize) {
     if(packet_list_colorize != recent.packet_list_colorize) {
         recent.packet_list_colorize = packet_list_colorize;
         color_filters_enable(packet_list_colorize);
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+		new_packet_list_colorize_packets();
+#else
         cf_colorize_packets(&cfile);
 #endif
     }
