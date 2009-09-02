@@ -2244,50 +2244,39 @@ menu_recent_read_finished(void) {
     case(TS_PREC_AUTO):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Automatic (File Format Precision)");
-        /* set_active will not trigger the callback when activating an active item! */
-        recent.gui_time_precision = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_SEC):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Seconds:   0");
-        recent.gui_time_precision = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_DSEC):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Deciseconds:   0.1");
-        recent.gui_time_precision = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_CSEC):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Centiseconds:   0.12");
-        recent.gui_time_precision = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_MSEC):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Milliseconds:   0.123");
-        recent.gui_time_precision = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_USEC):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Microseconds:   0.123456");
-        recent.gui_time_precision = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_PREC_FIXED_NSEC):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Nanoseconds:   0.123456789");
-        recent.gui_time_precision = -1;
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     default:
         g_assert_not_reached();
     }
+
+    /* set_active will not trigger the callback when activating an active item! */
+    recent.gui_time_precision = -1;
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
 
     menu_colorize_changed(recent.packet_list_colorize);
 }
