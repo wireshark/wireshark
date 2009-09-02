@@ -54,43 +54,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/webbrowser.h"
 
-
-#define SORT_ALPHABETICAL 0
-
-static gint
-sort_iter_compare_func (GtkTreeModel *model,
-                        GtkTreeIter *a,
-                        GtkTreeIter *b,
-                        gpointer userdata)
-{
-    gint sortcol = GPOINTER_TO_INT(userdata);
-    gint ret = 0;
-    switch (sortcol)
-    {
-        case SORT_ALPHABETICAL:
-        {
-            gchar *name1, *name2;
-            gtk_tree_model_get(model, a, 0, &name1, -1);
-            gtk_tree_model_get(model, b, 0, &name2, -1);
-            if (name1 == NULL || name2 == NULL)
-            {
-                if (name1 == NULL && name2 == NULL)
-                    break; /* both equal => ret = 0 */
-                ret = (name1 == NULL) ? -1 : 1;
-            }
-            else
-            {
-                ret = g_ascii_strcasecmp(name1,name2);
-            }
-            g_free(name1);
-            g_free(name2);
-        }
-        break;
-        default:
-            g_return_val_if_reached(0);
-    }
-    return ret;
-}
+const char  *packet = "Packet:";
 
 enum
 {
@@ -100,6 +64,77 @@ enum
    COUNT_COLUMN,
    N_COLUMNS
 };
+
+static void
+proto_data_func (GtkTreeViewColumn *column _U_,
+                           GtkCellRenderer   *renderer,
+                           GtkTreeModel      *model,
+                           GtkTreeIter       *iter,
+                           gpointer           user_data)
+{	
+	 gchar *str = NULL;
+	 gchar *grp = NULL; /* type pointer, don't free */
+
+     /* The col to get data from is in userdata */
+     gint data_column = GPOINTER_TO_INT(user_data);
+
+     gtk_tree_model_get(model, iter, data_column, &str, -1);
+     gtk_tree_model_get(model, iter, GROUP_COLUMN, &grp, -1);
+	 /* XXX should we check that str is non NULL and print a warning or do assert? */
+
+     g_object_set(renderer, "text", str, NULL);
+     if (grp == packet) {
+         /* it's a number right align */
+         g_object_set(renderer, "xalign", 1.0, NULL);
+     }
+     else {
+         g_object_set(renderer, "xalign", 0.0, NULL);
+     }
+     g_free(str);
+}
+
+static gint
+proto_sort_func(GtkTreeModel *model,
+							GtkTreeIter *a,
+							GtkTreeIter *b,
+							gpointer user_data)
+{
+	 gchar *str_a = NULL;
+	 gchar *str_b = NULL;
+	 gchar *grp = NULL; /* type pointer, don't free */
+	 gint ret = 0;
+
+	 /* The col to get data from is in userdata */
+	 gint data_column = GPOINTER_TO_INT(user_data);
+
+     gtk_tree_model_get(model, a, data_column, &str_a, -1);
+     gtk_tree_model_get(model, b, data_column, &str_b, -1);
+     gtk_tree_model_get(model, a, GROUP_COLUMN, &grp, -1);
+
+	if (str_a == str_b) {
+		ret = 0;
+	} 
+	else if (str_a == NULL || str_b == NULL) {
+		ret = (str_a == NULL) ? -1 : 1;
+	} 
+	else {
+        if (grp == packet) {
+          gint a = atoi(str_a);
+          gint b = atoi(str_b);
+          if (a == b)
+              ret = 0;
+          else if (a < b)
+              ret = -1;
+          else 
+              ret = 1;
+        }
+        else
+		    ret = g_ascii_strcasecmp(str_a,str_b);
+	}
+	g_free(str_a);
+	g_free(str_b);
+	return ret;
+}
 
 static gint find_summary_data(error_equiv_table *err, const expert_info_t *expert_data)
 {
@@ -146,14 +181,11 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
                         SUMMARY_COLUMN,  &expert_data.summary,
                         -1);
     
-    if (strcmp(grp, "Packet:")==0) {
+    if (strcmp(grp, packet)==0) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You cannot filter or search for packet number. Click on a valid item header.");
-        g_free(grp);
         g_free(expert_data.summary);
         return;
     }
-
-    g_free(grp);
 
     /* XXX: find_summary_data doesn't (currently) reference expert_data.group.   */
     /*      If "group" is required, then the message from GROUP_COLUMN will need */
@@ -417,11 +449,10 @@ expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
                                     GROUP_COLUMN,    &grp,
                                     -1);
 
-                if (strcmp(grp, "Packet:")==0) {
+                if (strcmp(grp, packet)==0) {
                     cf_goto_frame(&cfile, atoi(pkt));
                 }
                 g_free (pkt);
-                g_free (grp);
         }
 }
 
@@ -455,15 +486,9 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
 
     /* Create the store */
     store = gtk_tree_store_new (4,       /* Total number of columns */
-#if 0
                                G_TYPE_POINTER,   /* Group              */
-                               G_TYPE_POINTER,   /* Protocol           */
-                               G_TYPE_POINTER,   /* Summary            */
-#else
-                               G_TYPE_STRING,   /* Group              */
                                G_TYPE_STRING,   /* Protocol           */
                                G_TYPE_STRING,   /* Summary            */
-#endif
                                G_TYPE_INT);     /* Count              */
 
     /* Create a view */
@@ -473,13 +498,8 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
 
 #if GTK_CHECK_VERSION(2,6,0)
 	/* Speed up the list display */
-	gtk_tree_view_set_fixed_height_mode(err->tree_view, TRUE);
+  	gtk_tree_view_set_fixed_height_mode(err->tree_view, TRUE);
 #endif
-
-    /* Setup the sortable columns */
-    gtk_tree_sortable_set_default_sort_func(sortable, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
-
-gtk_tree_sortable_set_sort_column_id(sortable, GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
 
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW (tree), FALSE);
 
@@ -491,9 +511,15 @@ gtk_tree_sortable_set_sort_column_id(sortable, GTK_TREE_SORTABLE_DEFAULT_SORT_CO
 
     /* Create the first column, associating the "text" attribute of the
      * cell_renderer to the first column of the model */
-    column = gtk_tree_view_column_new_with_attributes ("Group", renderer, "text", GROUP_COLUMN, NULL);
+    column = gtk_tree_view_column_new_with_attributes ("Group", renderer, NULL);
     gtk_tree_view_column_set_sort_column_id(column, GROUP_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
+		GINT_TO_POINTER(GROUP_COLUMN), NULL);
+
+	gtk_tree_sortable_set_sort_func(sortable, GROUP_COLUMN, str_ptr_sort_func,
+		GINT_TO_POINTER(GROUP_COLUMN), NULL);
+
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 80);
     /* Add the column to the view. */
@@ -504,6 +530,12 @@ gtk_tree_sortable_set_sort_column_id(sortable, GTK_TREE_SORTABLE_DEFAULT_SORT_CO
     column = gtk_tree_view_column_new_with_attributes ("Protocol", renderer, "text", PROTOCOL_COLUMN, NULL);
     gtk_tree_view_column_set_sort_column_id(column, PROTOCOL_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, proto_data_func, 
+		GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
+
+	gtk_tree_sortable_set_sort_func(sortable, PROTOCOL_COLUMN, proto_sort_func,
+		GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
+
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 40);
 	gtk_tree_view_column_set_fixed_width(column, 100);
@@ -520,6 +552,9 @@ gtk_tree_sortable_set_sort_column_id(sortable, GTK_TREE_SORTABLE_DEFAULT_SORT_CO
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
  
     /* Last column.. Count. */
+    renderer = gtk_cell_renderer_text_new ();
+    /* right align */
+    g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
     column = gtk_tree_view_column_new_with_attributes ("Count", renderer, "text", COUNT_COLUMN, NULL);
     gtk_tree_view_column_set_sort_column_id(column, COUNT_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -582,8 +617,9 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
         store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view)); /* Get store */
         gtk_tree_store_append (store, &procedure->iter, NULL);  /* Acquire an iterator */
         
+        /* match_strval return a static constant  or null */        
         gtk_tree_store_set (store, &procedure->iter,
-                    GROUP_COLUMN, val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"), 
+                    GROUP_COLUMN, match_strval(expert_data->group, expert_group_vals), 
                     PROTOCOL_COLUMN, procedure->entries[0],
                     SUMMARY_COLUMN,  procedure->entries[1], -1);
         
@@ -627,7 +663,7 @@ if GTK_CHECK_VERSION(2,10,0)
     if (procedure->count > 1000) {
         /* If there's more than 1000 sub rows give up and prepend new rows, at least 
            it will end in a reasonable time. Anyway with so many rows it's not
-           very useful. Too bad sorting doesn't work well on num packet, use alpha sort
+           very useful and if sorted the right order is restored. 
         */
         gtk_tree_store_prepend(store, &new_iter, &procedure->iter);
     }
@@ -636,7 +672,7 @@ if GTK_CHECK_VERSION(2,10,0)
     }
     gtk_tree_store_set(store, &new_iter,
 #endif
-                       GROUP_COLUMN,    "Packet:",
+                       GROUP_COLUMN,    packet,
                        PROTOCOL_COLUMN, num,
                        COUNT_COLUMN,    1,
                        -1);

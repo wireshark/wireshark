@@ -185,7 +185,8 @@ expert_dlg_draw(void *data)
             packet_no = ei->packet_num;
         }
 
-        /* severity */
+        /*  match_strval return a static string or NULL
+            severity */
 		severity_str = match_strval(ei->severity, expert_severity_vals);
         /* group */
 		group_str = match_strval(ei->group, expert_group_vals);
@@ -293,8 +294,8 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
                                G_TYPE_UINT,      /* No                   */
                                G_TYPE_POINTER,   /* Severity           */
                                G_TYPE_POINTER,   /* Group              */
-                               G_TYPE_STRING,    /* Protocol           */
-                               G_TYPE_STRING,    /* Summary            */
+                               G_TYPE_POINTER,    /* Protocol           */
+                               G_TYPE_POINTER,    /* Summary            */
                                G_TYPE_STRING,    /* forground          */
                                G_TYPE_STRING);   /* Background         */
 
@@ -302,7 +303,6 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
     tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
     etd->tree_view = GTK_TREE_VIEW(tree);
     sortable = GTK_TREE_SORTABLE(store);
-
 
 #if GTK_CHECK_VERSION(2,6,0)
     /* Speed up the list display */
@@ -315,8 +315,12 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
     /* The view now holds a reference.  We can get rid of our own reference */
     g_object_unref (G_OBJECT (store));
 
+    gtk_widget_modify_font(GTK_WIDGET (etd->tree_view), user_font_get_regular());
+
     /* Create a cell renderer */
     renderer = gtk_cell_renderer_text_new ();
+    g_object_set(renderer, "ypad", 0, NULL);
+    g_object_set(renderer, "xalign", 1.0, NULL);
 
     /* Create the first column, associating the "text" attribute of the
      * cell_renderer to the first column of the model */
@@ -334,8 +338,9 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 
     /* Severity */
     renderer = gtk_cell_renderer_text_new ();
+    g_object_set(renderer, "ypad", 0, NULL);
+
     column = gtk_tree_view_column_new_with_attributes ("Severity", renderer,
-        "text", SEVERITY_COLUMN,
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
         NULL);
@@ -355,8 +360,8 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 
     /* Group */
     renderer = gtk_cell_renderer_text_new ();
+    g_object_set(renderer, "ypad", 0, NULL);
     column = gtk_tree_view_column_new_with_attributes ("Group", renderer,
-        "text", GROUP_COLUMN,
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
         NULL);
@@ -376,11 +381,17 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 
     /* Protocol. */
     renderer = gtk_cell_renderer_text_new ();
+    g_object_set(renderer, "ypad", 0, NULL);
     column = gtk_tree_view_column_new_with_attributes ("Protocol", renderer,
-        "text", PROTOCOL_COLUMN,
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
         NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
+		GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
+
+	gtk_tree_sortable_set_sort_func(sortable, PROTOCOL_COLUMN, str_ptr_sort_func,
+		GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
+
     gtk_tree_view_column_set_sort_column_id(column, PROTOCOL_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
@@ -389,11 +400,17 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
  
     /* Summary. */
     renderer = gtk_cell_renderer_text_new ();
+    g_object_set(renderer, "ypad", 0, NULL);
     column = gtk_tree_view_column_new_with_attributes ("Summary", renderer,
-        "text", SUMMARY_COLUMN,
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
         NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func, 
+		GINT_TO_POINTER(SUMMARY_COLUMN), NULL);
+
+	gtk_tree_sortable_set_sort_func(sortable, SUMMARY_COLUMN, str_ptr_sort_func,
+		GINT_TO_POINTER(SUMMARY_COLUMN), NULL);
+
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 90);
     gtk_tree_view_column_set_sort_column_id(column, SUMMARY_COLUMN);
