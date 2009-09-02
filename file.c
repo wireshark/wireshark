@@ -798,7 +798,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 #ifdef NEW_PACKET_LIST
         new_packet_list_thaw();
 #else
-	packet_list_thaw();
+        packet_list_thaw();
 #endif
         return CF_READ_ABORTED;
     }

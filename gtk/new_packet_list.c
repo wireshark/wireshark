@@ -350,15 +350,19 @@ new_packet_list_moveto_end(void)
 	if(!gtk_tree_model_iter_nth_child(model, &iter, NULL, last_row))
 		return;
 
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
-	gtk_tree_selection_select_iter (selection, &iter);
 	path = gtk_tree_model_get_path(model, &iter);
-	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(packetlist->view),
-			path,
-			NULL,
-			TRUE,	/* use_align */
-			0.5,	/* row_align determines where the row is placed, 0.5 means center */
-			0);		/* The horizontal alignment of the column */
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+
+	if (!gtk_tree_selection_path_is_selected(selection, path)) {
+		/* XXX - this doesn't seem to work, i.e. gtk_tree_selection_path_is_selected() is always false? */
+		gtk_tree_selection_select_path(selection, path);
+		gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(packetlist->view),
+				path,
+				NULL,
+				TRUE,	/* use_align */
+				0.5,	/* row_align determines where the row is placed, 0.5 means center */
+				0);		/* The horizontal alignment of the column */
+	}
 
 	gtk_tree_path_free(path);
 }
