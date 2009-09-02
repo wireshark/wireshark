@@ -160,15 +160,119 @@ static int hf_scsi_mmc_synccache_reladr = -1;
 static int hf_scsi_mmc_num_blocks      = -1;
 static int hf_scsi_mmc_next_writable_address = -1;
 static int hf_scsi_mmc_free_blocks = -1;
+static int hf_scsi_mmc_read_dvd_format = -1;
+static int hf_scsi_mmc_disc_book_type = -1;
+static int hf_scsi_mmc_disc_book_version = -1;
+static int hf_scsi_mmc_disc_size_size = -1;
+static int hf_scsi_mmc_disc_size_rate = -1;
+static int hf_scsi_mmc_disc_num_layers = -1;
+static int hf_scsi_mmc_disc_track_path = -1;
+static int hf_scsi_mmc_disc_structure_layer = -1;
+static int hf_scsi_mmc_disc_density_length = -1;
+static int hf_scsi_mmc_disc_density_pitch = -1;
+static int hf_scsi_mmc_disc_first_physical = -1;
+static int hf_scsi_mmc_disc_last_physical = -1;
+static int hf_scsi_mmc_disc_last_physical_layer0 = -1;
+static int hf_scsi_mmc_disc_extended_format_info = -1;
+static int hf_scsi_mmc_disc_application_code = -1;
+static int hf_scsi_mmc_adip_eib0 = -1;
+static int hf_scsi_mmc_adip_eib1 = -1;
+static int hf_scsi_mmc_adip_eib2 = -1;
+static int hf_scsi_mmc_adip_eib3 = -1;
+static int hf_scsi_mmc_adip_eib4 = -1;
+static int hf_scsi_mmc_adip_eib5 = -1;
+static int hf_scsi_mmc_adip_device_manuf_id = -1;
+static int hf_scsi_mmc_adip_media_type_id = -1;
+static int hf_scsi_mmc_adip_product_revision_number = -1;
+static int hf_scsi_mmc_adip_number_of_physical_info = -1;
+
 
 
 static gint ett_scsi_mmc_profile = -1;
 
 
+static const true_false_string scsi_track_path = {
+    "Opposite Track Path",
+    "Parallel Track Path"
+};
+static const true_false_string scsi_adip_extended_format_info = {
+    "Data zone contains extended format info for VPCS",
+    "Data zone does NOT contain extended format info"
+};
+static const value_string scsi_disk_application_code[] = {
+    {0x0, "General Purpose Use"},
+    {0,NULL}
+};
+static const value_string scsi_density_length[] = {
+    {0x0, "0.133um"},
+    {0,NULL}
+};
+static const value_string scsi_density_pitch[] = {
+    {0x0, "0.74um"},
+    {0x1, "0.80um"},
+    {0x2, "0.615um"},
+    {0,NULL}
+};
+static const value_string scsi_disc_structure[] = {
+    {0x0, "Embossed layer"},
+    {0x2, "Write-once recording layer"},
+    {0x4, "Rewriteable recording layer"},
+    {0,NULL}
+};
+static const value_string scsi_num_layers[] = {
+    {0x0, "1 layer"},
+    {0x1, "2 layers"},
+    {0x2, "3 layers"},
+    {0x3, "4 layers"},
+    {0,NULL}
+};
+static const value_string scsi_disc_size[] = {
+    {0x0, "120mm"},
+    {0x1, "80mm"},
+    {0,NULL}
+};
+static const value_string scsi_disc_rate[] = {
+    {0x0, "2.52Mbps"},
+    {0x1, "5.04Mbps"},
+    {0x2, "10.08Mbps"},
+    {0xf, "No maximum transfer rate specified"},
+    {0,NULL}
+};
+static const value_string scsi_disc_category_type[] = {
+    {0x0, "DVD-ROM"},
+    {0x1, "DVD-RAM"},
+    {0x2, "DVD-R"},
+    {0x3, "DVD-RW"},
+    {0x9, "DVD+RW"},
+    {0xa, "DVD+R"},
+    {0,NULL}
+};
 
-
-
-
+static const value_string scsi_read_dvd_formats[] = {
+    {0x00, "Physical Information"},
+    {0x01, "Copyright Information"},
+    {0x02, "Disk Key obfuscated by a Bus Key"},
+    {0x03, "Burst Cutting Area information"},
+    {0x04, "Disk Manufacturing Information"},
+    {0x05, "copyright Management Information"},
+    {0x06, "Media Identifier protected by a Bus Key"},
+    {0x07, "Media Key block protected by a Bus Key"},
+    {0x08, "DDS information"},
+    {0x09, "DVD-RAM Medium status"},
+    {0x0a, "DVD-RAM Spare Area infomraiton"},
+    {0x0b, "DVD-RAM Recording Type information"},
+    {0x0c, "DVD-R/-RW RMD"},
+    {0x0d, "Specified RMD"},
+    {0x0e, "Pre-recorded information"},
+    {0x0f, "DVD-R/-RW Media Identifier"},
+    {0x10, "DVD-R/-RW Physical Format Information"},
+    {0x11, "ADIP information"},
+    {0x30, "Disc Control Block"},
+    {0x31, "Read MTA ECC Block"},
+    {0xc0, "Write Protection Status"},
+    {0xff, "READ/SEND DVD STRUCTURE capability"},
+    {0,NULL}
+};
 
 static const value_string scsi_getconf_rt_val[] = {
     {0x00,	"Return all features"},
@@ -586,7 +690,7 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static void
 dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+                     guint payload_len _U_, scsi_task_data_t *cdata)
 
 {
     guint8 flags;
@@ -600,12 +704,10 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
                              "Layer Number: %u",
                              tvb_get_guint8 (tvb, offset+5));
 
-        proto_tree_add_text (tree, tvb, offset+6, 1,
-                             "Format Code: %u",
-                             tvb_get_guint8 (tvb, offset+6));
+        cdata->itlq->flags=tvb_get_guint8 (tvb, offset+6);
+        proto_tree_add_uint (tree, hf_scsi_mmc_read_dvd_format, tvb, offset+6, 1, cdata->itlq->flags);
 
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+7, 2, 0);
-
         flags = tvb_get_guint8 (tvb, offset+9);
         proto_tree_add_text (tree, tvb, offset+9, 1,
                              "AGID: %u",
@@ -617,10 +719,92 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
+    if(tree && (!isreq)) {
+        proto_item *ti;
+
+        ti = proto_tree_add_uint (tree, hf_scsi_mmc_read_dvd_format, tvb, 0, 0, cdata->itlq->flags);
+        PROTO_ITEM_SET_GENERATED(ti);
+
+        proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb, offset, 2, 0);
+	offset += 4;
+
+
+        switch(cdata->itlq->flags) {
+	case 0x00: /* Physical Format information */
+        case 0x11: /* ADIP Information */
+
+	    /* disc category */
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_book_type, tvb, offset, 1, 0);
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_book_version, tvb, offset, 1, 0);
+
+	    /* disc size */
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_size_size, tvb, offset+1, 1, 0);
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_size_rate, tvb, offset+1, 1, 0);
+
+	    /* number of layers */
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_num_layers, tvb, offset+2, 1, 0);
+
+	    /* track path */
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_track_path, tvb, offset+2, 1, 0);
+
+	    /* disc structure */
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_structure_layer, tvb, offset+2, 1, 0);
+
+	    /* recording density */
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_density_length, tvb, offset+3, 1, 0);
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_density_pitch, tvb, offset+3, 1, 0);
+
+	    /* first physical sector of data zone */
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_first_physical, tvb, offset+5, 3, 0);
+
+	    /* last physical sector of data zone */
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_last_physical, tvb, offset+9, 3, 0);
+
+	    if (cdata->itlq->flags == 0x00) {
+	    	    /* last physical sector of layer 0 */
+	    	    proto_tree_add_item (tree, hf_scsi_mmc_disc_last_physical_layer0, tvb, offset+13, 3, 0);
+	    }
+
+	    /* extended format info */
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_extended_format_info, tvb, offset+16, 1, 0);
+
+	    /* disk application code */
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_application_code, tvb, offset+17, 1, 0);
+
+	    /* extended information blocks */
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib5, tvb, offset+18, 1, 0);
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib4, tvb, offset+18, 1, 0);
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib3, tvb, offset+18, 1, 0);
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib2, tvb, offset+18, 1, 0);
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib1, tvb, offset+18, 1, 0);
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib0, tvb, offset+18, 1, 0);
+
+	    /* disk manufacturer id */
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_device_manuf_id, tvb, offset+19, 8, 0);
+
+	    /* media type id */
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_media_type_id, tvb, offset+27, 3, 0);
+
+	    /* product revision number */
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_product_revision_number, tvb, offset+30, 1, 0);
+
+	    /* number of bytes of physical info */
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_number_of_physical_info, tvb, offset+31, 1, 0);
+
+
+	    break;
+	default:
+	    ti = proto_tree_add_text (tree, tvb, 0, 0,
+		"SCSI/MMC Unknown Read DVD Format:0x%02x",
+		cdata->itlq->flags);
+	    PROTO_ITEM_SET_GENERATED(ti);
+        }
+    }
 }
 
 static void
-dissect_mmc4_getperformance (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_mmc4_getperformance (tvbuff_t *tvb, packet_info *pinfo _U_, 
+proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
@@ -1733,6 +1917,82 @@ proto_register_scsi_mmc(void)
         { &hf_scsi_mmc_free_blocks,
           {"Free Blocks", "scsi.mmc.free_blocks", FT_UINT32, BASE_DEC,
            NULL, 0, NULL, HFILL}},
+        { &hf_scsi_mmc_read_dvd_format,
+          { "Format Code", "scsi.mmc.read_dvd.format", FT_UINT8, BASE_HEX,
+           VALS(scsi_read_dvd_formats), 0x0, NULL, HFILL}},
+        { &hf_scsi_mmc_disc_book_type,
+          { "Type", "scsi.mmc.book.type", FT_UINT8, BASE_HEX,
+           VALS(scsi_disc_category_type), 0xf0, NULL, HFILL}},
+        { &hf_scsi_mmc_disc_book_version,
+          { "Version", "scsi.mmc.book.version", FT_UINT8, BASE_HEX,
+           NULL, 0x0f, NULL, HFILL}},
+        { &hf_scsi_mmc_disc_size_size,
+          { "Size", "scsi.mmc.disc.size", FT_UINT8, BASE_HEX,
+           VALS(scsi_disc_size), 0xf0, NULL, HFILL}},
+        { &hf_scsi_mmc_disc_size_rate,
+          { "Rate", "scsi.mmc.disc.rate", FT_UINT8, BASE_HEX,
+           VALS(scsi_disc_rate), 0x0f, NULL, HFILL}},
+        { &hf_scsi_mmc_disc_structure_layer,
+          { "Structure", "scsi.mmc.disc.structure", FT_UINT8, BASE_HEX,
+           VALS(scsi_disc_structure), 0x0f, NULL, HFILL}},
+	{ &hf_scsi_mmc_disc_density_length,
+          { "Channel bith length", "scsi.mmc.density.channel_bit_length", FT_UINT8, BASE_HEX,
+           VALS(scsi_density_length), 0xf0, NULL, HFILL}},
+	{ &hf_scsi_mmc_disc_density_pitch,
+          { "Average Track Pitch", "scsi.mmc.density.average_track_pitch", FT_UINT8, BASE_HEX,
+           VALS(scsi_density_pitch), 0x0f, NULL, HFILL}},
+	{ &hf_scsi_mmc_disc_first_physical,
+          { "First physical sector of data zone", "scsi.mmc.first_physical", FT_UINT24, BASE_HEX,
+	  NULL, 0, NULL, HFILL}},
+	{ &hf_scsi_mmc_disc_last_physical,
+          { "Last physical sector of data zone", "scsi.mmc.last_physical", FT_UINT24, BASE_HEX,
+	  NULL, 0, NULL, HFILL}},
+	{ &hf_scsi_mmc_disc_last_physical_layer0,
+          { "Last physical sector of layer 0", "scsi.mmc.last_physical_layer0", FT_UINT24, BASE_HEX,
+	  NULL, 0, NULL, HFILL}},
+        { &hf_scsi_mmc_disc_extended_format_info,
+          { "Extended Format Info", "scsi.mmc.adip.extended_format_info", FT_BOOLEAN, 8,
+           TFS(&scsi_adip_extended_format_info), 0x40, NULL, HFILL}},
+        { &hf_scsi_mmc_disc_application_code,
+          { "Disk Application Code", "scsi.mmc.disk_application_code", FT_UINT8, BASE_HEX,
+           VALS(scsi_disk_application_code), 0x0, NULL, HFILL}},
+        { &hf_scsi_mmc_adip_eib0,
+          { "Extended Format Block 0", "scsi.mmc.adip.extended_format_block.0", FT_BOOLEAN, 8,
+           NULL, 0x01, NULL, HFILL}},
+        { &hf_scsi_mmc_adip_eib1,
+          { "Extended Format Block 1", "scsi.mmc.adip.extended_format_block.1", FT_BOOLEAN, 8,
+           NULL, 0x02, NULL, HFILL}},
+        { &hf_scsi_mmc_adip_eib2,
+          { "Extended Format Block 2", "scsi.mmc.adip.extended_format_block.2", FT_BOOLEAN, 8,
+           NULL, 0x04, NULL, HFILL}},
+        { &hf_scsi_mmc_adip_eib3,
+          { "Extended Format Block 3", "scsi.mmc.adip.extended_format_block.3", FT_BOOLEAN, 8,
+           NULL, 0x08, NULL, HFILL}},
+        { &hf_scsi_mmc_adip_eib4,
+          { "Extended Format Block 4", "scsi.mmc.adip.extended_format_block.4", FT_BOOLEAN, 8,
+           NULL, 0x10, NULL, HFILL}},
+        { &hf_scsi_mmc_adip_eib5,
+          { "Extended Format Block 5", "scsi.mmc.adip.extended_format_block.5", FT_BOOLEAN, 8,
+           NULL, 0x20, NULL, HFILL}},
+        { &hf_scsi_mmc_adip_device_manuf_id,
+          { "Device Manufacturer Id", "scsi.mmc.adip.device_manufacturer_id", FT_STRING, BASE_NONE,
+           NULL, 0x0, NULL, HFILL}},
+        { &hf_scsi_mmc_adip_media_type_id,
+          { "Media Type Id", "scsi.mmc.adip.media_type_id", FT_STRING, BASE_NONE,
+           NULL, 0x0, NULL, HFILL}},
+        { &hf_scsi_mmc_adip_product_revision_number,
+          { "Product Revision Number", "scsi.mmc.adip.product_revision_number", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL}},
+        { &hf_scsi_mmc_adip_number_of_physical_info,
+          { "Number of bytes of physical info", "scsi.mmc.adip.number_of_physical_info", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL}},
+        { &hf_scsi_mmc_disc_num_layers,
+          { "Number of Layers", "scsi.mmc.disk.num_layers", FT_UINT8, BASE_DEC,
+           VALS(scsi_num_layers), 0x60, NULL, HFILL}},
+        { &hf_scsi_mmc_disc_track_path,
+          { "Track Path", "scsi.mmc.disk.track_path", FT_BOOLEAN, 8,
+           TFS(&scsi_track_path), 0x10, NULL, HFILL}},
+
 	};
 
 	/* Setup protocol subtree array */
