@@ -62,6 +62,7 @@
 
 enum {
     RNTI_COLUMN,
+    RNTI_TYPE_COLUMN,
     UL_FRAMES_COLUMN,
     UL_BYTES_COLUMN,
     UL_CRC_ERRORS_COLUMN,
@@ -90,7 +91,7 @@ enum {
     NUM_CHANNEL_COLUMNS
 };
 
-static const gchar *ue_titles[] = { "RNTI",
+static const gchar *ue_titles[] = { "RNTI", "Type",
                                  "UL Frames", "UL Bytes", "UL CRC Errors", "UL ReTX Frames",
                                  "DL Frames", "DL Bytes", "DL CRC Errors", "DL ReTX Frames"};
 
@@ -104,6 +105,7 @@ static const gchar *channel_titles[] = { "CCCH",
 typedef struct mac_lte_row_data {
     /* Key for matching this row */
     guint16 rnti;
+    guint8  rnti_type;
 
     gboolean is_predefined_data;
 
@@ -230,6 +232,7 @@ static mac_lte_ep_t* alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *
 
     /* Copy SI data into ep->stats */
     ep->stats.rnti = si->rnti;
+    ep->stats.rnti_type = si->rntiType;
 
     /* Counts for new UE are all 0 */
     ep->stats.UL_frames = 0;
@@ -295,6 +298,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             common_stats.rar_entries += si->number_of_rars;
             return 1;
         case C_RNTI:
+        case SPS_RNTI:
             /* Drop through for per-UE update */
             break;
 
@@ -537,6 +541,8 @@ mac_lte_stat_draw(void *phs)
         /* Set each column for this row */
         gtk_list_store_set(ues_store, &tmp->iter,
                            RNTI_COLUMN, tmp->stats.rnti,
+                           RNTI_TYPE_COLUMN, 
+                               (tmp->stats.rnti_type == C_RNTI) ? "C-RNTI" : "SPS-RNTI",
                            UL_FRAMES_COLUMN, tmp->stats.UL_frames,
                            UL_BYTES_COLUMN, tmp->stats.UL_total_bytes,
                            UL_CRC_ERRORS_COLUMN, tmp->stats.UL_CRC_errors,
@@ -703,7 +709,7 @@ static void mac_lte_stat_dlg_create(void)
                                         GTK_SHADOW_IN);
 
     /* Create the table of UE data */
-    store = gtk_list_store_new(NUM_UE_COLUMNS, G_TYPE_INT,
+    store = gtk_list_store_new(NUM_UE_COLUMNS, G_TYPE_INT, G_TYPE_STRING,
                                G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  /* UL */
                                G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  /* DL */
                                G_TYPE_POINTER);

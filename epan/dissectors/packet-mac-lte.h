@@ -57,11 +57,12 @@
 #define DIRECTION_DOWNLINK 1
 
 /* rntiType */
-#define NO_RNTI 0
-#define P_RNTI  1
-#define RA_RNTI 2
-#define C_RNTI  3
-#define SI_RNTI 4
+#define NO_RNTI  0
+#define P_RNTI   1
+#define RA_RNTI  2
+#define C_RNTI   3
+#define SI_RNTI  4
+#define SPS_RNTI 5
 
 
 /* Context info attached to each LTE MAC frame */

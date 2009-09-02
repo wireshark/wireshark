@@ -173,6 +173,7 @@ static const value_string rnti_type_vals[] =
     { RA_RNTI,     "RA-RNTI"},
     { C_RNTI,      "C-RNTI"},
     { SI_RNTI,     "SI-RNTI"},
+    { SPS_RNTI,    "SPS-RNTI"},
     { 0, NULL }
 };
 
@@ -1693,6 +1694,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case C_RNTI:
+        case SPS_RNTI:
             /* Can be UL-SCH or DL-SCH */
             dissect_ulsch_or_dlsch(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info->direction,
                                    p_mac_lte_info, &tap_info);
