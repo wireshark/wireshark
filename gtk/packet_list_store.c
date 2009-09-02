@@ -758,5 +758,17 @@ packet_list_resort(PacketList *packet_list)
 	g_free(neworder);
 }
 
+void
+new_packet_list_reset_dissected(PacketList *packet_list)
+{
+	PacketListRecord *record;
+	guint i;
+
+	for(i = 0; i < PACKET_LIST_RECORD_COUNT(packet_list->rows); ++i) {
+		record = PACKET_LIST_RECORD_GET(packet_list->rows, i);
+		record->dissected = FALSE;
+	}
+}
+
 #endif /* NEW_PACKET_LIST */
 

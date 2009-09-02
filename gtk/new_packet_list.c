@@ -824,5 +824,10 @@ new_packet_list_get_widget(void)
        return packetlist->view; 
 } 
 
+void new_packet_list_colorize_packets(void)
+{
+	new_packet_list_reset_dissected(packetlist);
+	gtk_widget_queue_draw (packetlist->view);
+}
 #endif /* NEW_PACKET_LIST */
 
