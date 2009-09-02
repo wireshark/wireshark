@@ -106,7 +106,6 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/asn1.h>
 
-#include "packet-frame.h"
 #include "packet-ldap.h"
 #include "packet-ntlmssp.h"
 #include "packet-ssl.h"
