@@ -753,6 +753,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   *err = 0;
 
 #ifdef NEW_PACKET_LIST
+  new_packet_list_check_end();
   new_packet_list_freeze();
 #else
   packet_list_check_end();
@@ -882,6 +883,7 @@ cf_finish_tail(capture_file *cf, int *err)
   }
 
 #ifdef NEW_PACKET_LIST
+  new_packet_list_check_end();
   new_packet_list_freeze();
 #else
   packet_list_check_end();

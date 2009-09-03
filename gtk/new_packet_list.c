@@ -63,7 +63,7 @@
 #include "gtk/main_statusbar.h"
 
 static PacketList *packetlist;
-
+static gboolean last_at_end = FALSE;
 static gboolean enable_color;
 
 static GtkWidget *create_view_and_model(void);
@@ -412,6 +412,27 @@ new_packet_list_moveto_end(void)
 	}
 
 	gtk_tree_path_free(path);
+}
+
+gboolean
+new_packet_list_check_end(void)
+{
+	gboolean at_end = FALSE;
+	GtkAdjustment *adj;
+
+	adj = gtk_tree_view_get_vadjustment(GTK_TREE_VIEW(packetlist->view));
+	g_return_val_if_fail(adj != NULL, FALSE);
+
+	if (adj->value >= adj->upper - adj->page_size) {
+		at_end = TRUE;
+	}
+#ifdef HAVE_LIBPCAP
+	if (adj->value > 0 && at_end != last_at_end && at_end != auto_scroll_live) {
+		menu_auto_scroll_live_changed(at_end);
+	}
+#endif
+	last_at_end = at_end;
+	return at_end;
 }
 
 gint
