@@ -136,13 +136,12 @@ right_justify_column (gint col)
 
 	case COL_CUSTOM:
 		hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[col]);
-		/* Check if this is a valid field and we have no strings conversations */
+		/* Check if this is a valid field and we have no strings lookup table */
 		if ((hfi != NULL) && (hfi->strings == NULL)) {
 			/* Check for bool, framenum and decimal/octal integer types */
 			if ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
 			    (((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
-			     (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  || 
-			      (hfi->type == FT_INT64) || (hfi->type == FT_UINT64)))) {
+			     (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))) {
 				right_justify = TRUE;
 			}
 		}
