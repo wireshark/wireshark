@@ -565,6 +565,24 @@ packet_list_row_inserted(PacketList *packet_list, guint pos)
 }
 #endif
 
+gboolean
+packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter)
+{
+	PacketListRecord *record;
+
+	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), FALSE);
+
+	if(iter == NULL || iter->user_data == NULL)
+		return FALSE;
+
+	record = (PacketListRecord*) iter->user_data;
+
+	g_return_val_if_fail(record, FALSE);
+	g_return_val_if_fail(record->fdata, FALSE);
+
+	return record->fdata->flags.passed_dfilter;
+}
+
 void
 packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 {

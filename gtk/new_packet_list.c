@@ -789,20 +789,9 @@ static void filter_function (GtkTreeView *treeview)
  * should be visible or not. 
  */
 static gboolean 
-filter_visible_func (GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_) 
+filter_visible_func (GtkTreeModel *model _U_, GtkTreeIter *iter, gpointer data _U_)
 { 
-	PacketListRecord *record;
-	frame_data *fdata;
-
-	record = new_packet_list_get_record(model, iter);
-	g_assert(record);
-	fdata = record->fdata;
-	g_assert(fdata);
-
-	if(fdata->flags.passed_dfilter == 1)
-		return TRUE;
-	else
-		return FALSE;
+	return packet_list_visible_record(packetlist, iter);
 } 
 static gboolean
 get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_text){
