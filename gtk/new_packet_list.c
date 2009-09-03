@@ -163,12 +163,20 @@ create_view_and_model(void)
 		gtk_tree_view_column_set_sizing(col,GTK_TREE_VIEW_COLUMN_FIXED);
 		gtk_tree_view_column_set_reorderable(col, TRUE); /* XXX - Should this be saved in the prefs? */
 
+		/* The column can't be adjusted to a size smaller than this 
+		 * XXX Should we use a different value for different column formats?
+		 */
+		gtk_tree_view_column_set_min_width(col, 40);
+
+		/* Set the size the column will be displayed with */
 		col_width = recent_get_column_width(i);
 		if(col_width == -1) {
 			layout = gtk_widget_create_pango_layout(packetlist->view, get_column_width_string(get_column_format(i), i));
 			pango_layout_get_pixel_size(layout, &col_width, NULL);
-			gtk_tree_view_column_set_min_width(col, col_width);
+			gtk_tree_view_column_set_fixed_width(col, col_width);
 			g_object_unref(G_OBJECT(layout));
+		}else{
+			gtk_tree_view_column_set_fixed_width(col, col_width);
 		}
 
 		gtk_tree_view_append_column(GTK_TREE_VIEW(packetlist->view), col);
