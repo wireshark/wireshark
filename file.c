@@ -3701,10 +3701,9 @@ cf_select_packet(capture_file *cf, int row)
   cf->current_row = row;
 
   /* Create the logical protocol tree. */
-  if (cf->edt != NULL) {
+  if (cf->edt != NULL)
     epan_dissect_free(cf->edt);
-    cf->edt = NULL;
-  }
+
   /* We don't need the columns here. */
   cf->edt = epan_dissect_new(TRUE, TRUE);
 
