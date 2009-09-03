@@ -963,9 +963,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     gboolean   have_seen_bsr = FALSE;
     gboolean   expecting_body_data = FALSE;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s: (SF=%u) ",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s: (SF=%u) UEId=%u ",
                     (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
-                    p_mac_lte_info->subframeNumber);
+                    p_mac_lte_info->subframeNumber,
+                    p_mac_lte_info->ueid);
 
     /* Add PDU block header subtree */
     pdu_header_ti = proto_tree_add_string_format(tree,
