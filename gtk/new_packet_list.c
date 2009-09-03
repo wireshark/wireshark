@@ -144,13 +144,19 @@ create_view_and_model(void)
 
 	/*		g_object_unref(packetlist); */ /* Destroy automatically with view for now */ /* XXX - Messes up freezing & thawing */
 
-	renderer = gtk_cell_renderer_text_new();
-	g_object_set(renderer,
-			 "ypad", 0,
-			 NULL);		   
 	gtk_widget_modify_font(packetlist->view, user_font_get_regular());
 
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
+		renderer = gtk_cell_renderer_text_new();
+		if (cfile.cinfo.col_fmt[i] == COL_NUMBER){
+			g_object_set(G_OBJECT(renderer), 
+				"xalign", 
+				1.0, 
+				NULL);
+		}
+		g_object_set(renderer,
+				 "ypad", 0,
+				 NULL);		   
 		col = gtk_tree_view_column_new();
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
 		gtk_tree_view_column_set_cell_data_func(col, renderer,
@@ -178,7 +184,6 @@ create_view_and_model(void)
 		}else{
 			gtk_tree_view_column_set_fixed_width(col, col_width);
 		}
-
 		gtk_tree_view_append_column(GTK_TREE_VIEW(packetlist->view), col);
 	}
 
