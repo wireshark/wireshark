@@ -180,6 +180,7 @@ create_view_and_model(void)
 
 	gtk_widget_modify_font(packetlist->view, user_font_get_regular());
 
+	/* We need one extra column to store the entire PacketListRecord */
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
 		renderer = gtk_cell_renderer_text_new();
 		if (right_justify_column (i)) {
@@ -229,7 +230,7 @@ new_packet_list_get_record(GtkTreeModel *model, GtkTreeIter *iter)
 {
 	PacketListRecord *record;
 	/* The last column is reserved for the entire PacketListRecord */
-	gint record_column = gtk_tree_model_get_n_columns(model) - 1;
+	gint record_column = gtk_tree_model_get_n_columns(model)-1;
 
 	gtk_tree_model_get(model, iter,
 			   record_column,

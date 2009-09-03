@@ -216,13 +216,14 @@ packet_list_init(PacketList *packet_list)
 {
 	guint i;
 
-	/* Note: We need one extra column to store the entire PacketListRecord */
-	for(i = 0; i < (guint)cfile.cinfo.num_cols+1; i++) {
+	for(i = 0; i < (guint)cfile.cinfo.num_cols; i++) {
 		/* We get the packetlist record for all columns */
-		packet_list->column_types[i] = G_TYPE_POINTER;
+		packet_list->column_types[i] = G_TYPE_STRING;
 	}
 
-	packet_list->n_columns = (guint)cfile.cinfo.num_cols;
+	/* Note: We need one extra column to store the entire PacketListRecord */
+	packet_list->column_types[i] = G_TYPE_POINTER;
+	packet_list->n_columns = (guint)cfile.cinfo.num_cols+1;
 	packet_list->rows = g_ptr_array_new();
 
 	packet_list->sort_id = 0; /* defaults to first column for now */
@@ -269,7 +270,7 @@ packet_list_get_column_type(GtkTreeModel *tree_model, gint index)
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), G_TYPE_INVALID);
 	packet_list = PACKET_LIST(tree_model);
 	/* Note: We use one extra column to store the entire PacketListRecord */
-	g_return_val_if_fail(index < packet_list->n_columns+1 &&
+	g_return_val_if_fail(index < packet_list->n_columns &&
 				 index >= 0, G_TYPE_INVALID);
 
 	return packet_list->column_types[index];
@@ -346,7 +347,7 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 	g_return_if_fail(iter != NULL);
 	packet_list = PACKET_LIST(tree_model);
 	/* Note: We use one extra column to store the entire PacketListRecord */
-	g_return_if_fail(column < packet_list->n_columns+1);
+	g_return_if_fail(column < packet_list->n_columns);
 
 	type = packet_list->column_types[column];
 	g_value_init(value, type);
@@ -361,9 +362,10 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 	 */ 
 	switch(type){
 		case G_TYPE_POINTER:
-			g_value_set_pointer(value, iter->user_data);
+			g_value_set_pointer(value, record);
 			break;
 		case G_TYPE_STRING:
+			g_return_if_fail(record->fdata->col_text);
 			g_value_set_string(value, record->fdata->col_text[column]);
 			break;
 		default:
@@ -622,7 +624,8 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 	g_assert(record->pos == row);
 	g_assert(!record->fdata->col_text || (record->fdata->col_text[col] == NULL));
 	if (!record->fdata->col_text)
-		record->fdata->col_text = se_alloc0(sizeof(record->fdata->col_text)*packet_list->n_columns);
+		record->fdata->col_text = se_alloc0(sizeof(record->fdata->col_text) *
+											(packet_list->n_columns-1));
 
 	record->fdata->col_text[col] = se_strdup(cinfo->col_data[col]);
 }
