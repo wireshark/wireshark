@@ -523,12 +523,10 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
 {
   long num;
   char *p;
-#ifndef NEW_PACKET_LIST
   GList *col_l, *col_l_elt;
   col_width_data *cfmt;
   const gchar *cust_format = col_format_to_string(COL_CUSTOM);
   int cust_format_len = (int) strlen(cust_format);
-#endif
 
   if (strcmp(key, RECENT_KEY_MAIN_TOOLBAR_SHOW) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
@@ -629,7 +627,6 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
     recent.gui_geometry_main_lower_pane = num;
     recent.has_gui_geometry_main_lower_pane = TRUE;
   }
-#ifndef NEW_PACKET_LIST
   else if (strcmp(key, RECENT_KEY_COL_WIDTH) == 0) {
     col_l = prefs_get_string_list(value);
     if (col_l == NULL)
@@ -691,7 +688,6 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
     }
     prefs_clear_string_list(col_l);
   }
-#endif /* NEW_PACKET_LIST */
 
   return PREFS_SET_OK;
 }
