@@ -228,13 +228,12 @@ static PacketListRecord *
 new_packet_list_get_record(GtkTreeModel *model, GtkTreeIter *iter)
 {
 	PacketListRecord *record;
+	/* The last column is reserved for the entire PacketListRecord */
+	gint record_column = gtk_tree_model_get_n_columns(model) - 1;
 
-	/* XXX column zero is a temp hack
-	 * Get the pointer to the record that makes the data for all columns
-	 * avalable.
-	 */
 	gtk_tree_model_get(model, iter,
-			   0, (PacketListRecord*) &record,
+			   record_column,
+			   (PacketListRecord*) &record,
 			   -1);
 
 	return record;

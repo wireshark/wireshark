@@ -70,7 +70,8 @@ struct _PacketList
 				  * row. */
 
 	gint n_columns;
-	GType column_types[NUM_COL_FMTS];
+	/* Note: We need one extra column to store the entire PacketListRecord */
+	GType column_types[NUM_COL_FMTS+1];
 	GtkWidget *view; /* XXX - Does this really belong here?? */
 
 	gint sort_id;

@@ -216,11 +216,12 @@ packet_list_init(PacketList *packet_list)
 {
 	guint i;
 
-	for(i = 0; i < (guint)cfile.cinfo.num_cols; i++) {
+	/* Note: We need one extra column to store the entire PacketListRecord */
+	for(i = 0; i < (guint)cfile.cinfo.num_cols+1; i++) {
 		/* We get the packetlist record for all columns */
 		packet_list->column_types[i] = G_TYPE_POINTER;
 	}
-	
+
 	packet_list->n_columns = (guint)cfile.cinfo.num_cols;
 	packet_list->rows = g_ptr_array_new();
 
@@ -267,7 +268,8 @@ packet_list_get_column_type(GtkTreeModel *tree_model, gint index)
 	PacketList *packet_list;
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), G_TYPE_INVALID);
 	packet_list = PACKET_LIST(tree_model);
-	g_return_val_if_fail(index < packet_list->n_columns &&
+	/* Note: We use one extra column to store the entire PacketListRecord */
+	g_return_val_if_fail(index < packet_list->n_columns+1 &&
 				 index >= 0, G_TYPE_INVALID);
 
 	return packet_list->column_types[index];
@@ -343,7 +345,8 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 	g_return_if_fail(PACKETLIST_IS_LIST(tree_model));
 	g_return_if_fail(iter != NULL);
 	packet_list = PACKET_LIST(tree_model);
-	g_return_if_fail(column < packet_list->n_columns);
+	/* Note: We use one extra column to store the entire PacketListRecord */
+	g_return_if_fail(column < packet_list->n_columns+1);
 
 	type = packet_list->column_types[column];
 	g_value_init(value, type);
