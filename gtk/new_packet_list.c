@@ -120,6 +120,41 @@ new_packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *p
 	return PACKET_LIST_RECORD_COUNT(packetlist->rows);
 }
 
+static gboolean
+right_justify_column (gint col)
+{
+	header_field_info *hfi;
+	gboolean right_justify = FALSE;
+
+	switch (cfile.cinfo.col_fmt[col]) {
+
+	case COL_NUMBER:
+	case COL_PACKET_LENGTH:
+	case COL_CUMULATIVE_BYTES:
+		right_justify = TRUE;
+		break;
+
+	case COL_CUSTOM:
+		hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[col]);
+		/* Check if this is a valid field and we have no strings conversations */
+		if ((hfi != NULL) && (hfi->strings == NULL)) {
+			/* Check for bool, framenum and decimal/octal integer types */
+			if ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
+			    (((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
+			     (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  || 
+			      (hfi->type == FT_INT64) || (hfi->type == FT_UINT64)))) {
+				right_justify = TRUE;
+			}
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	return right_justify;
+}
+
 static GtkWidget *
 create_view_and_model(void)
 {
@@ -148,7 +183,7 @@ create_view_and_model(void)
 
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
 		renderer = gtk_cell_renderer_text_new();
-		if (cfile.cinfo.col_fmt[i] == COL_NUMBER){
+		if (right_justify_column (i)) {
 			g_object_set(G_OBJECT(renderer), 
 				"xalign", 
 				1.0, 
