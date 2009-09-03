@@ -77,110 +77,14 @@ Wireshark Info
 
         <listitem>
           <para>
-            Wireshark has a spiffy new start page.
+            The packet list internals have been rewritten and are now more
+            efficient.
           </para>
         </listitem>
 
         <listitem>
           <para>
-            Display filters now autocomplete.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Support for the c-ares resolver library has been added. It
-            has many advantages over ADNS.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Many new protocol dissectors and capture file formats have been
-            added (see below for a complete list).
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Macintosh OS X support has been improved.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.maxmind.com/app/ip-location">GeoIP database
-            lookups.</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://openstreetmap.org/">OpenStreetMap</ulink> + GeoIP
-            integration.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Improved <trademark class="registered">Postscript</trademark> print
-            output.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The preference handling code is now much smarter about changes.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Support for <ulink url="http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html">Pcap-ng</ulink>,
-            the next-generation capture file format.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Support for process information correlation via IPFIX.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Column widths are now saved.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The last used configuration profile is now saved.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Protocol preferences are changeable from the packet details context menu.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Support for IP packet comparison.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            GTK1 is no longer supported. (Yes, this is a feature.)
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Official Windows packages are now built using Microsoft Visual C++
-            2008 SP1.
+            Capturing from pipes on Windows has been improved.
           </para>
         </listitem>
 
