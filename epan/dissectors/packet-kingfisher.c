@@ -53,20 +53,20 @@ static int hf_kingfisher_message = -1;
 static int hf_kingfisher_function = -1;
 static int hf_kingfisher_checksum = -1;
 
-dissector_handle_t kingfisher_conv_handle=NULL;
+static dissector_handle_t kingfisher_conv_handle;
 
 
 typedef struct _kingfisher_packet_t
 {
-        guint8      version;
-        guint8      system;
-        guint16     from;
-        guint16     target;
-        guint16     via;
-        guint8      length;
-        guint8      message;
-        guint8      function;
-        guint16     checksum;
+    guint8      version;
+    guint8      system;
+    guint16     from;
+    guint16     target;
+    guint16     via;
+    guint8      length;
+    guint8      message;
+    guint8      function;
+    guint16     checksum;
 } kingfisher_packet_t;
 
 static gint ett_kingfisher = -1;
@@ -188,7 +188,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     proto_item *item=NULL;
     const char *func_string = NULL;
     unsigned short checksum;
-    int i, message;
+    int message;
 
 
     /* There can be one byte reply packets. we only test for these when we
@@ -208,11 +208,9 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         case 0x80:
         case 0x81:
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "Kingfisher");
-            if(check_col(pinfo->cinfo, COL_INFO)){
-                func_string = val_to_str(tvb_get_guint8(tvb, 0), function_code_vals, "Unknown function");
-                col_clear(pinfo->cinfo, COL_INFO);
-                col_add_fstr(pinfo->cinfo, COL_INFO, "(%s)", func_string);
-            }
+            func_string = val_to_str(tvb_get_guint8(tvb, 0), function_code_vals, "Unknown function");
+            col_clear(pinfo->cinfo, COL_INFO);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "(%s)", func_string);
             proto_tree_add_protocol_format(tree, proto_kingfisher, tvb, 0, -1, "Kingfisher Protocol, %s", func_string);
             return TRUE;
         }
@@ -235,15 +233,11 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     /* the function code must be known */
     kfp->function = tvb_get_guint8( tvb, 6 );
-    for(i=0;1;i++){
-        if(!function_code_vals[i].strptr){
-            /* This appears not to be a kingfisher packet */
-            return FALSE;
-        }
-        if(function_code_vals[i].value==kfp->function){
-            break;
-        }
+    if (match_strval(kfp->function, function_code_vals) == NULL) {
+        /* This appears not to be a kingfisher packet */
+        return FALSE;
     }
+
     /* verify the length */
     kfp->length = tvb_get_guint8(tvb, 2);
     if((kfp->length+1) != (guint8)tvb_length(tvb)){
@@ -278,11 +272,8 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     func_string = val_to_str(kfp->function, function_code_vals, "Unknown function");
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Kingfisher");
-    if(check_col(pinfo->cinfo, COL_INFO ))
-    {
-        col_clear(pinfo->cinfo, COL_INFO);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%u > %u (%s)", kfp->from, kfp->target, func_string);
-    }
+    col_clear(pinfo->cinfo, COL_INFO);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%u > %u (%s)", kfp->from, kfp->target, func_string);
 
 
     message = (kfp->message & 0x0f) | ((kfp->message & 0xf0) >> 4);
@@ -356,7 +347,7 @@ dissect_kingfisher_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* We don't yet have a conversation, so create one. */
             conversation = conversation_new(pinfo->fd->num,
                                    &pinfo->src, &pinfo->dst,
-    	                    	   pinfo->ptype,
+                                   pinfo->ptype,
                                    pinfo->srcport, pinfo->destport, 0);
         }
         conversation_set_dissector(conversation, kingfisher_conv_handle);
@@ -368,7 +359,7 @@ dissect_kingfisher_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_kingfisher_conv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	return dissect_kingfisher(tvb, pinfo, tree, TRUE);
+    return dissect_kingfisher(tvb, pinfo, tree, TRUE);
 }
 
 void
@@ -406,9 +397,10 @@ proto_reg_handoff_kingfisher( void )
     dissector_add("tcp.port", TCP_PORT_KINGFISHER, kingfisher_handle);
     dissector_add("udp.port", UDP_PORT_KINGFISHER, kingfisher_handle);
 
+#ifdef SUPPORT_KINGFISHER_SERIES_2
     dissector_add("tcp.port", TCP_PORT_KINGFISHER_OLD, kingfisher_handle);
     dissector_add("udp.port", UDP_PORT_KINGFISHER_OLD, kingfisher_handle);
-
+#endif
     kingfisher_conv_handle = new_create_dissector_handle(dissect_kingfisher_conv, proto_kingfisher);
 
 }
