@@ -3756,6 +3756,8 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	}
 	else
 	{
+		/* If calling any "gsm" ie dissectors needing pinfo */
+		gsm_a_dtap_pinfo = pinfo;
 		(*msg_fcn)(tvb, tree, offset, len - offset);
 	}
 
@@ -3831,6 +3833,8 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	}
 	else
 	{
+		/* If calling any "gsm" ie dissectors needing pinfo */
+		gsm_a_dtap_pinfo = pinfo;
 		(*msg_fcn)(tvb, tree, offset, len - offset);
 	}
 

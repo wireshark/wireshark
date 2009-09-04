@@ -159,6 +159,16 @@ dfilter_free(dfilter_t *df)
 		}
 	}
 
+	if (df->deprecated) {
+		guint i;
+
+		for (i = 0; i < df->deprecated->len; ++i) {
+			gchar *depr = g_ptr_array_index(df->deprecated, i);
+			g_free(depr);
+		}
+		g_ptr_array_free(df->deprecated, TRUE);
+	}
+
 	g_free(df->registers);
 	g_free(df->attempted_load);
 	g_free(df);
@@ -221,7 +231,14 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	gboolean failure = FALSE;
 	const char	*depr_test;
 	guint		i;
-	GPtrArray	*deprecated = g_ptr_array_new();
+	GPtrArray	*deprecated;
+
+	g_assert(dfp);
+
+	if (!text) {
+		*dfp = NULL;
+		return FALSE;
+	}
 
 	dfilter_error_msg = NULL;
 
@@ -232,6 +249,8 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	dfw = dfwork_new();
 
 	df_scanner_text(text);
+
+	deprecated = g_ptr_array_new();
 
 	while (1) {
 		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL);

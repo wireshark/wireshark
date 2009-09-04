@@ -1101,9 +1101,9 @@ typedef enum
 	DE_RR_EXT_MEAS_RESULT,     	/* [3] 10.5.2.45 Extended Measurement Results */
 	DE_RR_EXT_MEAS_FREQ_LIST,		/* [3] 10.5.2.46 Extended Measurement Frequency List */
 	DE_RR_SUS_CAU,					/* [3] 10.5.2.47 Suspension Cause				*/
-/* [3] 10.5.2.48 APDU ID
- * [3] 10.5.2.49 APDU Flags
- * [3] 10.5.2.50 APDU Data */
+	DE_RR_APDU_ID,					/* [3] 10.5.2.48 APDU ID */
+	DE_RR_APDU_FLAGS,				/* [3] 10.5.2.49 APDU Flags */
+	DE_RR_APDU_DATA,				/* [3] 10.5.2.50 APDU Data */
 	DE_RR_HO_TO_UTRAN_CMD,			/* [3] 10.5.2.51 Handover To UTRAN Command */
 /* [3] 10.5.2.52 Handover To cdma2000 Command
  * [3] 10.5.2.53 (void)

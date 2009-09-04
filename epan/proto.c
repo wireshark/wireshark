@@ -327,12 +327,11 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 			NULL, HFILL }},
 	};
 
+	proto_cleanup();
 
-	proto_names = g_hash_table_new(g_int_hash, g_int_equal);
+	proto_names = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
 	proto_short_names = g_hash_table_new(wrs_str_hash, g_str_equal);
 	proto_filter_names = g_hash_table_new(wrs_str_hash, g_str_equal);
-
-	proto_cleanup();
 
 	gmc_hfinfo = g_mem_chunk_new("gmc_hfinfo",
 		sizeof(header_field_info),
@@ -398,8 +397,33 @@ proto_cleanup(void)
 		gpa_name_tree = NULL;
 	}
 
-	if (gmc_hfinfo)
+	while (protocols) {
+		protocol_t *protocol = protocols->data;
+
+		g_list_free(protocol->fields);
+		protocols = g_list_remove(protocols, protocol);
+		g_free(protocol);
+	}
+
+	if (proto_names) {
+		g_hash_table_destroy(proto_names);
+		proto_names = NULL;
+	}
+	
+	if (proto_short_names) {
+		g_hash_table_destroy(proto_short_names);
+		proto_short_names = NULL;
+	}
+
+	if (proto_filter_names) {
+		g_hash_table_destroy(proto_filter_names);
+		proto_filter_names = NULL;
+	}
+
+	if (gmc_hfinfo) {
 		g_mem_chunk_destroy(gmc_hfinfo);
+		gmc_hfinfo = NULL;
+	}
 
 	if(gpa_hfinfo.allocated_len){
 		gpa_hfinfo.len=0;
@@ -5029,7 +5053,7 @@ find_finfo(proto_node *node, gpointer data)
 * This works on any proto_tree, primed or unprimed, but actually searches
 * the tree, so it is slower than using proto_get_finfo_ptr_array on a primed tree.
 * The caller does need to free the returned GPtrArray with
-* g_ptr_array_free(<array>, FALSE).
+* g_ptr_array_free(<array>, TRUE).
 */
 GPtrArray*
 proto_find_finfo(proto_tree *tree, int id)

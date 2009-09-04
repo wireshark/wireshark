@@ -321,6 +321,10 @@ static const value_string chunk_type_values[] = {
   { SCTP_IETF_EXT,                   "IETF_EXTENSION" },
   { 0,                               NULL } };
 
+/* 
+ * Based on http://www.iana.org/assignments/sctp-parameters
+ * as of August 23rd, 2009
+ */
 static const value_string sctp_payload_proto_id_values[] = {
   { NOT_SPECIFIED_PROTOCOL_ID,           "not specified" },
   { IUA_PAYLOAD_PROTOCOL_ID,             "IUA" },
@@ -338,9 +342,15 @@ static const value_string sctp_payload_proto_id_values[] = {
   { H323_PAYLOAD_PROTOCOL_ID,            "H.323" },
   { QIPC_PAYLOAD_PROTOCOL_ID,            "Q.IPC/Q.2150.3" },
   { SIMCO_PAYLOAD_PROTOCOL_ID,           "SIMCO" },
-  { DDP_SEG_CHUNK_PROTOCOL_ID,			 "DDP Segment Chunk" }, /*  [RFC-ietf-rddp-sctp-07.txt] */
-  { DDP_STREAM_SES_CTRL_PROTOCOL_ID,	 "DDP Stream Session Control" }, /* [RFC-ietf-rddp-sctp-07.txt] */
-  { S1AP_PAYLOAD_PROTOCOL_ID,			 "S1 Application Protocol (S1AP)" }, /* [TS 23.401][TS 36.413][Koodli] */
+  { DDP_SEG_CHUNK_PROTOCOL_ID,           "DDP Segment Chunk" },
+  { DDP_STREAM_SES_CTRL_PROTOCOL_ID,     "DDP Stream Session Control" },
+  { S1AP_PAYLOAD_PROTOCOL_ID,            "S1 Application Protocol (S1AP)" },
+  { RUA_PAYLOAD_PROTOCOL_ID,             "RUA" },
+  { HNBAP_PAYLOAD_PROTOCOL_ID,           "HNBAP" },
+  { FORCES_HP_PAYLOAD_PROTOCOL_ID,       "ForCES-HP" },
+  { FORCES_MP_PAYLOAD_PROTOCOL_ID,       "ForCES-MP" },
+  { FORCES_LP_PAYLOAD_PROTOCOL_ID,       "ForCES-LP" },
+  { SBC_AP_PAYLOAD_PROTOCOL_ID,          "SBc-AP" },
   { 0,                                   NULL } };
 
 

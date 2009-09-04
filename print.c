@@ -485,7 +485,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 		return;
 	}
 	frame_finfo = finfo_array->pdata[0];
-	g_ptr_array_free(finfo_array, FALSE);
+	g_ptr_array_free(finfo_array, TRUE);
 
 	/* frame.number --> geninfo.num */
 	finfo_array = proto_find_finfo(tree, hf_frame_number);
@@ -493,7 +493,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 		return;
 	}
 	num = fvalue_get_uinteger(&((field_info*)finfo_array->pdata[0])->value);
-	g_ptr_array_free(finfo_array, FALSE);
+	g_ptr_array_free(finfo_array, TRUE);
 
 	/* frame.frame_len --> geninfo.len */
 	finfo_array = proto_find_finfo(tree, hf_frame_len);
@@ -501,7 +501,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 		return;
 	}
 	len = fvalue_get_uinteger(&((field_info*)finfo_array->pdata[0])->value);
-	g_ptr_array_free(finfo_array, FALSE);
+	g_ptr_array_free(finfo_array, TRUE);
 
 	/* frame.cap_len --> geninfo.caplen */
 	finfo_array = proto_find_finfo(tree, hf_frame_capture_len);
@@ -509,7 +509,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 		return;
 	}
 	caplen = fvalue_get_uinteger(&((field_info*)finfo_array->pdata[0])->value);
-	g_ptr_array_free(finfo_array, FALSE);
+	g_ptr_array_free(finfo_array, TRUE);
 
 	/* frame.time --> geninfo.timestamp */
 	finfo_array = proto_find_finfo(tree, hf_frame_arrival_time);
@@ -517,7 +517,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 		return;
 	}
 	timestamp = fvalue_get(&((field_info*)finfo_array->pdata[0])->value);
-	g_ptr_array_free(finfo_array, FALSE);
+	g_ptr_array_free(finfo_array, TRUE);
 
 	/* Print geninfo start */
 	fprintf(fh,

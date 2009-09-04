@@ -37,13 +37,13 @@ Wireshark Info
 
         <listitem>
           <para>
-            The XXXXXXXXX dissector could overrun a buffer.
-            <!-- Fixed in trunk: r28801 -->
+            The GSM A RR dissector could crash.
+            <!-- Fixed in trunk: r29403 -->
             <!-- Fixed in trunk-1.2: r29099 -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3559">Bug
-            3559</ulink>) -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3893">Bug
+            3893</ulink>) -->
           </para>
-          <para>Versions affected: 1.2.1</para>
+          <para>Versions affected: 1.2.0 to 1.2.1</para>
           <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
@@ -69,6 +69,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Memory leak fixes.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3330">Bug
+          3330</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Display filter autocompletion doesn't work for some RADIUS and WiMAX ASNCP fields.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3538">Bug
           3538</ulink>)
@@ -81,6 +87,18 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Crash when loading a profile.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3640">Bug
+          3640</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The proto,colinfo tap doesn't work if the INFO column isn't being printed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3675">Bug
+          3675</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Flow Graph adds too much unnecessary garbage.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3693">Bug
           3693</ulink>)
@@ -90,6 +108,12 @@ Wireshark Info
           The EAP Diameter dictionary file was missing in the distribution.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3761">Bug
           3761</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Graph analysis window is behind other window.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3773">Bug
+          3773</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -135,7 +159,30 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Minor errors in gsm rr dissectors.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3889">Bug
+          3889</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          GSM A RR inverts MEAS-VALID values.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3915">Bug
+          3915</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          PDML output leaks ~300 bytes / packet.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3913">Bug
+          3913</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark could leak memory while analyzing SSL.
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark could crash while updating menu items after reading a file
+          in some cases.
         </para></listitem>
 
       </itemizedlist>
@@ -162,13 +209,19 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
+DCERPC,
 DNS,
 E.212,
+GSM A RR,
+GTPv2,
 IEEE 802.11,
+IPMI,
 ISAKMP/IKE,
 LDAP,
 RTCP,
+SCTP,
 SIP,
+TCP,
 WBXML,
 ZRTP
 

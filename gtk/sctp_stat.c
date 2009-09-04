@@ -840,11 +840,26 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						datachunk = TRUE;
 						tsn_s = g_malloc(sizeof(struct tsn_sort));
 						tsn_s->tsnumber = tsnumber;
-						tsn_s->secs     = tsn->secs;
-						tsn_s->usecs    = tsn->usecs;
+						tsn_s->secs     = tsn->secs = (guint32)pinfo->fd->rel_ts.secs;
+						tsn_s->usecs    = tsn->usecs = (guint32)pinfo->fd->rel_ts.nsecs/1000;
 						tsn_s->offset   = 0;
 						tsn_s->framenumber = framenumber;
 						tsn_s->length   = length-DATA_CHUNK_HEADER_LENGTH;
+						if (tsn->secs < info->min_secs)
+						{
+							info->min_secs  = tsn->secs;
+							info->min_usecs = tsn->usecs;
+						}
+						else if (tsn->secs == info->min_secs && tsn->usecs < info->min_usecs)
+							info->min_usecs = tsn->usecs;
+
+						if (tsn->secs > info->max_secs)
+						{
+							info->max_secs  = tsn->secs;
+							info->max_usecs = tsn->usecs;
+						}
+						else if (tsn->secs == info->max_secs && tsn->usecs > info->max_usecs)
+							info->max_usecs = tsn->usecs;
 						g_ptr_array_add(info->sort_tsn1, tsn_s);
 						info->n_array_tsn1++;
 					}
@@ -866,13 +881,28 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						sackchunk = TRUE;
 						tsn_s = g_malloc(sizeof(struct tsn_sort));
 						tsn_s->tsnumber = tsnumber;
-						tsn_s->secs     = tsn->secs;
-						tsn_s->usecs    = tsn->usecs;
+						tsn_s->secs     = tsn->secs = (guint32)pinfo->fd->rel_ts.secs;
+						tsn_s->usecs    = tsn->usecs = (guint32)pinfo->fd->rel_ts.nsecs/1000;
 						tsn_s->offset   = 0;
 						tsn_s->framenumber = framenumber;
 						tsn_s->length   =  tvb_get_ntohl(sctp_info->tvb[chunk_number], SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
 						if (tsn_s->length > info->max_window1)
 							info->max_window1 = tsn_s->length;
+						if (tsn->secs < info->min_secs)
+						{
+							info->min_secs  = tsn->secs;
+							info->min_usecs = tsn->usecs;
+						}
+						else if (tsn->secs == info->min_secs && tsn->usecs < info->min_usecs)
+							info->min_usecs = tsn->usecs;
+
+						if (tsn->secs > info->max_secs)
+						{
+							info->max_secs  = tsn->secs;
+							info->max_usecs = tsn->usecs;
+						}
+						else if (tsn->secs == info->max_secs && tsn->usecs > info->max_usecs)
+							info->max_usecs = tsn->usecs;
 						g_ptr_array_add(info->sort_sack2, tsn_s);
 						info->n_sack_chunks_ep2++;
 					}
@@ -1109,11 +1139,27 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					info->n_data_bytes+=length;
 					tsn_s = g_malloc(sizeof(struct tsn_sort));
 					tsn_s->tsnumber = tsnumber;
-					tsn_s->secs  = tsn->secs;
-					tsn_s->usecs = tsn->usecs;
+					tsn_s->secs  = tsn->secs = (guint32)pinfo->fd->rel_ts.secs;
+					tsn_s->usecs = tsn->usecs = (guint32)pinfo->fd->rel_ts.nsecs/1000;
 					tsn_s->offset = 0;
 					tsn_s->framenumber = framenumber;
 					tsn_s->length = length;
+					
+					if (tsn->secs < info->min_secs)
+					{
+						info->min_secs  = tsn->secs;
+						info->min_usecs = tsn->usecs;
+					}
+					else if (tsn->secs == info->min_secs && tsn->usecs < info->min_usecs)
+						info->min_usecs = tsn->usecs;
+
+					if (tsn->secs > info->max_secs)
+					{
+						info->max_secs  = tsn->secs;
+						info->max_usecs = tsn->usecs;
+					}
+					else if (tsn->secs == info->max_secs && tsn->usecs > info->max_usecs)
+						info->max_usecs = tsn->usecs;
 
 					if (info->direction == 1)
 					{
@@ -1181,11 +1227,27 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					sackchunk = TRUE;
 					tsn_s = g_malloc(sizeof(struct tsn_sort));
 					tsn_s->tsnumber = tsnumber;
-					tsn_s->secs   = tsn->secs;
-					tsn_s->usecs  = tsn->usecs;
+					tsn_s->secs   = tsn->secs = (guint32)pinfo->fd->rel_ts.secs;
+					tsn_s->usecs  = tsn->usecs = (guint32)pinfo->fd->rel_ts.nsecs/1000;
 					tsn_s->offset = 0;
 					tsn_s->framenumber = framenumber;
 					tsn_s->length = tvb_get_ntohl(sctp_info->tvb[chunk_number], SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
+
+					if (tsn->secs < info->min_secs)
+					{
+						info->min_secs  = tsn->secs;
+						info->min_usecs = tsn->usecs;
+					}
+					else if (tsn->secs == info->min_secs && tsn->usecs < info->min_usecs)
+						info->min_usecs = tsn->usecs;
+
+					if (tsn->secs > info->max_secs)
+					{
+						info->max_secs  = tsn->secs;
+						info->max_usecs = tsn->usecs;
+					}
+					else if (tsn->secs == info->max_secs && tsn->usecs > info->max_usecs)
+						info->max_usecs = tsn->usecs;
 
 
 					if (info->direction == 2)

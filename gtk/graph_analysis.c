@@ -56,6 +56,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/file_dlg.h"
 #include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
 #include "gtk/main.h"
 #include "gtk/graph_analysis.h"
 
@@ -1494,11 +1495,8 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 	win_name = g_strdup_printf("%s - Graph Analysis", title_name_ptr);
 
 	/* create the main window */
-	if (user_data->dlg.title)
-		user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, user_data->dlg.title);
-	else
-		user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, win_name);
-
+	user_data->dlg.window=dlg_window_new((user_data->dlg.title)?user_data->dlg.title:win_name);
+	gtk_window_set_destroy_with_parent(GTK_WINDOW(user_data->dlg.window), TRUE);
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(user_data->dlg.window), vbox);
