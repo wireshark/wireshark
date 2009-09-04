@@ -31,6 +31,12 @@
  *  GList of available capture interfaces.
  */
 
+/**
+ * Find user-specified capture device description that matches interface
+ * name, if any.
+ */
+char *capture_dev_user_descr_find(const gchar *if_name);
+
 /** Return as descriptive a name for an interface as we can get.
  * If the user has specified a comment, use that.  Otherwise,
  * if get_interface_list() supplies a description, use that,

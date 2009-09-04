@@ -1,5 +1,6 @@
 /* 
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
+ * Copyright 2009, Varun Notibala <nbvarun [AT] gmail.com>
  *
  * $Id$
  *

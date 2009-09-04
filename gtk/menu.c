@@ -645,9 +645,9 @@ static GtkItemFactoryEntry menu_items[] =
                              packet_list_prev, 0, GTK_STOCK_GO_UP),
     ITEM_FACTORY_STOCK_ENTRY("/Go/Next Packet", "<control>Down",
                              packet_list_next, 0, GTK_STOCK_GO_DOWN),
-    ITEM_FACTORY_STOCK_ENTRY("/Go/F_irst Packet", NULL,
+    ITEM_FACTORY_STOCK_ENTRY("/Go/F_irst Packet", "<control>Home",
                              goto_top_frame_cb, 0, GTK_STOCK_GOTO_TOP),
-    ITEM_FACTORY_STOCK_ENTRY("/Go/_Last Packet", NULL,
+    ITEM_FACTORY_STOCK_ENTRY("/Go/_Last Packet", "<control>End",
                              goto_bottom_frame_cb, 0, GTK_STOCK_GOTO_BOTTOM),
 #ifdef HAVE_LIBPCAP
     ITEM_FACTORY_ENTRY("/_Capture", NULL, NULL, 0, "<Branch>", NULL),

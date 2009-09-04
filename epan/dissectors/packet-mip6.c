@@ -668,7 +668,7 @@ static const ip_tcp_opt mip6_opts[] = {
 	dissect_mip6_opt_ni
 },
 {
-	BAD,
+	MBAD,
 	"Binding Authorization Data",
 	&ett_mip6_opt_bad,
 	VARIABLE_LENGTH,

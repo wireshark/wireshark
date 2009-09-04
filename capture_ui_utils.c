@@ -40,7 +40,7 @@
  * Find user-specified capture device description that matches interface
  * name, if any.
  */
-static char *
+char *
 capture_dev_user_descr_find(const gchar *if_name)
 {
 	char	*p;

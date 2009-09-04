@@ -2323,6 +2323,9 @@ main(int argc, char *argv[])
   extern char         *optarg;
   gboolean             arg_error = FALSE;
 
+  extern int           splash_register_freq;  /* Found in about_dlg.c */
+  const gchar         *filter;
+
 #ifdef _WIN32
   WSADATA 	       wsaData;
 #endif  /* _WIN32 */
@@ -2613,6 +2616,11 @@ main(int argc, char *argv[])
   capture_opts->snaplen             = MIN_PACKET_SIZE;
   capture_opts->has_ring_num_files  = TRUE;
 #endif
+
+  /* Non-blank filter means we're remote. Throttle splash screen updates. */
+  filter = get_conn_cfilter();
+  if ( *filter != '\0' )
+    splash_register_freq = 1000;  /* Milliseconds */
 
   /* We won't come till here, if we had a "console only" command line parameter. */
   splash_win = splash_new("Loading Wireshark ...");

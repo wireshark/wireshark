@@ -56,6 +56,9 @@
 static void
 semcheck(stnode_t *st_node);
 
+static stnode_t*
+check_param_entity(stnode_t *st_node);
+
 typedef gboolean (*FtypeCanFunc)(enum ftenum);
 
 /* Compares to ftenum_t's and decides if they're
@@ -152,7 +155,6 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 {
 	static const true_false_string  default_tf = { "True", "False" };
 	const true_false_string		*tf = &default_tf;
-	const value_string		*vals;
 
 	/* Early return? */
 	switch(hfinfo->type) {
@@ -177,7 +179,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_PCRE:
 		case FT_GUID:
 		case FT_OID:
-			return FALSE;
+			return NULL;
 
 		case FT_BOOLEAN:
 		case FT_FRAMENUM:
@@ -223,19 +225,26 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 	if (!hfinfo->strings) {
 		dfilter_fail("%s cannot accept strings as values.",
 				hfinfo->abbrev);
-		return FALSE;
+		return NULL;
 	}
 
-	vals = hfinfo->strings;
-	while (vals->strptr != NULL) {
-		if (g_ascii_strcasecmp(s, vals->strptr) == 0) {
-			return mk_uint32_fvalue(vals->value);
-		}
-		vals++;
+	if (hfinfo->display & BASE_RANGE_STRING) {
+		dfilter_fail("\"%s\" cannot accept [range] strings as values.",
+				hfinfo->abbrev);
+		return NULL;
 	}
-	dfilter_fail("\"%s\" cannot be found among the possible values for %s.",
-			s, hfinfo->abbrev);
-	return FALSE;
+	else {
+		const value_string *vals = hfinfo->strings;
+		while (vals->strptr != NULL) {
+			if (g_ascii_strcasecmp(s, vals->strptr) == 0) {
+				return mk_uint32_fvalue(vals->value);
+			}
+			vals++;
+		}
+		dfilter_fail("\"%s\" cannot be found among the possible values for %s.",
+				s, hfinfo->abbrev);
+	}
+	return NULL;
 }
 
 static gboolean
@@ -424,6 +433,37 @@ check_drange_sanity(stnode_t *st)
 	}
 }
 
+static void
+check_function(stnode_t *st_node)
+{
+	df_func_def_t *funcdef;
+	GSList        *params;
+	guint          iparam;
+	guint          nparams; 
+
+	funcdef  = sttype_function_funcdef(st_node);
+	params   = sttype_function_params(st_node);
+	nparams  = g_slist_length(params);
+
+	if (nparams < funcdef->min_nargs) {
+		dfilter_fail("Function %s needs at least %u arguments.",
+			funcdef->name, funcdef->min_nargs);
+		THROW(TypeError);
+	} else if (nparams > funcdef->max_nargs) {
+		dfilter_fail("Function %s can only accept %u arguments.",
+			funcdef->name, funcdef->max_nargs);
+		THROW(TypeError);
+	}
+
+	iparam = 0;
+	while (params) {
+		params->data = check_param_entity(params->data);
+		funcdef->semcheck_param_function(iparam, params->data);
+		params = params->next;
+		iparam++;
+	}
+}
+
 /* If the LHS of a relation test is a FIELD, run some checks
  * and possibly some modifications of syntax tree nodes. */
 static void
@@ -434,6 +474,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 	stnode_t		*new_st;
 	sttype_id_t		type1, type2;
 	header_field_info	*hfinfo1, *hfinfo2;
+	df_func_def_t		*funcdef;
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
@@ -533,6 +574,25 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 			sttype_test_set2_args(st_node, new_st, st_arg2);
 		}
 	}
+        else if (type2 == STTYPE_FUNCTION) {
+		funcdef = sttype_function_funcdef(st_arg2);
+		ftype2 = funcdef->retval_ftype;
+
+		if (!compatible_ftypes(ftype1, ftype2)) {
+			dfilter_fail("%s (type=%s) and return value of %s() (type=%s) are not of compatible types.",
+					hfinfo1->abbrev, ftype_pretty_name(ftype1), 
+					funcdef->name, ftype_pretty_name(ftype2));
+			THROW(TypeError);
+		}
+
+		if (!can_func(ftype2)) {
+			dfilter_fail("return value of %s() (type=%s) cannot participate in specified comparison.",
+					funcdef->name, ftype_pretty_name(ftype2));
+			THROW(TypeError);
+		}
+
+		check_function(st_arg2);
+        }
 	else {
 		g_assert_not_reached();
 	}
@@ -547,6 +607,7 @@ check_relation_LHS_STRING(const char* relation_string,
 	stnode_t		*new_st;
 	sttype_id_t		type1, type2;
 	header_field_info	*hfinfo2;
+	df_func_def_t		*funcdef;
 	ftenum_t		ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
@@ -599,6 +660,29 @@ check_relation_LHS_STRING(const char* relation_string,
 		sttype_test_set2_args(st_node, new_st, st_arg2);
 		stnode_free(st_arg1);
 	}
+	else if (type2 == STTYPE_FUNCTION) {
+		funcdef = sttype_function_funcdef(st_arg2);
+		ftype2  = funcdef->retval_ftype;
+
+		if (!can_func(ftype2)) {
+			dfilter_fail("Return value of function %s (type=%s) cannot participate in '%s' comparison.",
+				funcdef->name, ftype_pretty_name(ftype2), 
+				relation_string);
+			THROW(TypeError);
+		}
+
+		s = stnode_data(st_arg1);
+		fvalue = fvalue_from_string(ftype2, s, dfilter_fail);
+		if (!fvalue) {
+			THROW(TypeError);
+		}
+
+		check_function(st_arg2);
+
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, new_st, st_arg2);
+		stnode_free(st_arg1);
+	}
 	else {
 		g_assert_not_reached();
 	}
@@ -613,6 +697,7 @@ check_relation_LHS_UNPARSED(const char* relation_string,
 	stnode_t		*new_st;
 	sttype_id_t		type1, type2;
 	header_field_info	*hfinfo2;
+	df_func_def_t		*funcdef;
 	ftenum_t		ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
@@ -665,6 +750,29 @@ check_relation_LHS_UNPARSED(const char* relation_string,
 		sttype_test_set2_args(st_node, new_st, st_arg2);
 		stnode_free(st_arg1);
 	}
+	else if (type2 == STTYPE_FUNCTION) {
+		funcdef = sttype_function_funcdef(st_arg2);
+		ftype2  = funcdef->retval_ftype;
+
+		if (!can_func(ftype2)) {
+			dfilter_fail("return value of function %s() (type=%s) cannot participate in '%s' comparison.",
+					funcdef->name, ftype_pretty_name(ftype2), relation_string);
+			THROW(TypeError);
+		}
+
+		s =  stnode_data(st_arg1);
+		fvalue = fvalue_from_unparsed(ftype2, s, allow_partial_value, dfilter_fail);
+		
+		if (!fvalue) {
+			THROW(TypeError);
+		}
+
+		check_function(st_arg2);
+
+		new_st = stnode_new(STTYPE_FVALUE, fvalue);
+		sttype_test_set2_args(st_node, new_st, st_arg2);
+		stnode_free(st_arg1);
+	}
 	else {
 		g_assert_not_reached();
 	}
@@ -679,6 +787,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	stnode_t		*new_st;
 	sttype_id_t		type1, type2;
 	header_field_info	*hfinfo1, *hfinfo2;
+	df_func_def_t		*funcdef;
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
@@ -762,6 +871,23 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_RANGE)\n"));
 		check_drange_sanity(st_arg2);
 	}
+	else if (type2 == STTYPE_FUNCTION) {
+		funcdef = sttype_function_funcdef(st_arg2);
+		ftype2  = funcdef->retval_ftype;
+		
+		if (!is_bytes_type(ftype2)) {
+			if (!ftype_can_slice(ftype2)) {
+				dfilter_fail("Return value of function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
+					funcdef->name,
+					ftype_pretty_name(ftype2));
+				THROW(TypeError);
+			}
+
+			/* XXX should I add a new drange node? */
+		}
+
+		check_function(st_arg2);
+	}
 	else {
 		g_assert_not_reached();
 	}
@@ -806,36 +932,18 @@ check_relation_LHS_FUNCTION(const char *relation_string, FtypeCanFunc can_func,
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
-    int             param_i;
 	drange_node		*rn;
-    df_func_def_t   *funcdef;
-    guint             num_params;
-    GSList          *params;
+	df_func_def_t   *funcdef;
+	df_func_def_t   *funcdef2;
+	GSList          *params;
 
+	check_function(st_arg1);
 	type2 = stnode_type_id(st_arg2);
 
-    funcdef = sttype_function_funcdef(st_arg1);
+	funcdef = sttype_function_funcdef(st_arg1);
 	ftype1 = funcdef->retval_ftype;
 
-    params = sttype_function_params(st_arg1);
-    num_params = g_slist_length(params);
-    if (num_params < funcdef->min_nargs) {
-        dfilter_fail("Function %s needs at least %u arguments.",
-                funcdef->name, funcdef->min_nargs);
-        THROW(TypeError);
-    }
-    else if (num_params > funcdef->max_nargs) {
-        dfilter_fail("Function %s can only accept %u arguments.",
-                funcdef->name, funcdef->max_nargs);
-        THROW(TypeError);
-    }
-
-    param_i = 0;
-    while (params) {
-        params->data = check_param_entity(params->data);
-        funcdef->semcheck_param_function(param_i, params->data);
-        params = params->next;
-    }
+	params = sttype_function_params(st_arg1);
 
 	DebugLog(("    5 check_relation_LHS_FUNCTION(%s)\n", relation_string));
 
@@ -916,6 +1024,26 @@ check_relation_LHS_FUNCTION(const char *relation_string, FtypeCanFunc can_func,
 
 			sttype_test_set2_args(st_node, new_st, st_arg2);
 		}
+	}
+	else if (type2 == STTYPE_FUNCTION) {
+		funcdef2 = sttype_function_funcdef(st_arg2);
+		ftype2 = funcdef2->retval_ftype;
+
+		if (!compatible_ftypes(ftype1, ftype2)) {
+			dfilter_fail("Return values of function %s (type=%s) and function %s (type=%s) are not of compatible types.",
+				     funcdef->name, ftype_pretty_name(ftype1), funcdef2->name, ftype_pretty_name(ftype2));
+			THROW(TypeError);
+		}
+
+		/* Do this check even though you'd think that if
+		 * they're compatible, then can_func() would pass. */
+		if (!can_func(ftype2)) {
+			dfilter_fail("Return value of %s (type=%s) cannot participate in specified comparison.",
+				     funcdef2->name, ftype_pretty_name(ftype2));
+			THROW(TypeError);
+		}
+
+		check_function(st_arg2);
 	}
 	else {
 		g_assert_not_reached();

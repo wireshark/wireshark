@@ -2344,6 +2344,7 @@ main(int argc, char *argv[])
   sigemptyset(&action.sa_mask);
   sigaction(SIGTERM, &action, NULL);
   sigaction(SIGINT, &action, NULL);
+  sigaction(SIGPIPE, &action, NULL);
   sigaction(SIGHUP, NULL, &oldaction);
   if (oldaction.sa_handler == SIG_DFL)
     sigaction(SIGHUP, &action, NULL);

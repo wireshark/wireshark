@@ -31,22 +31,28 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-02.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-05.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            The IPFIX dissector could make silverfish appear in your bedroom.
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.0: r????? -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>) -->
+            The AFS dissector could crash.
+            <!-- Fixed in trunk: r28815 -->
+            <!-- Fixed in trunk-1.0: r29702 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=564">Bug
+            3564</ulink>)
           </para>
-          <para>Versions affected: 0.8.20 to 1.0.8</para>
+          <para>Versions affected: 0.9.2 to 1.0.8 and 1.2.0</para>
+        </listitem>
+
+        <listitem>
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+            The Infiniband dissector could crash on some platforms.
+            <!-- Fixed in trunk: r28839 -->
+            <!-- Fixed in trunk-1.0: r29702 -->
           </para>
+          <para>Versions affected: 0.9.2 to 1.0.8 and 1.2.0</para>
         </listitem>
 
       </itemizedlist>
@@ -60,9 +66,87 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-          ????</ulink>)
+          Window "capture->Interfaces" cannot be closed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1740">Bug
+          1740</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Slow response when using Expert Info Composite.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2504">Bug
+          2504</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Crash when applying a display filter.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3361">Bug
+          3361</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Propagate interface Comment field to the Capture... Interfaces dialogue box.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3414">Bug
+          3414</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Crash when searching for Time Reference.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3429">Bug
+          3429</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark doesn't interpret "adsl" interface in snoop output of Juniper ScreenOS.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3469">Bug
+          3469</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark start-up very slow when X forwarding over ssh.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3483">Bug
+          3483</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes while reading capture file.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3489">Bug
+          3489</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Windows build with ADNS fails because some ADNS files are missing.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3499">Bug
+          3499</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Field wlan_mgt.fixed.delba.param.initiator is indicated by wrong bit of wlan_mgt.fixed.delba.param.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3505">Bug
+          3505</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Edonkey bug in dissecting UDP Get Gerver Info packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3509">Bug
+          3509</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The Lucent/Ascend file parser could go into an infinite loop.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3535">Bug
+          3535</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes when range_string is the data type.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3536">Bug
+          3536</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          FF Protocol "FMS Initiate - Version OD Calling" field packet data not unpacked properly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3694">Bug
+          3694</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -89,7 +173,12 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
-.
+AFS,
+eDonkey,
+FTP,
+IEEE 802.11,
+Infiniband
+
 
     </para>
     </section>
@@ -97,7 +186,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-There are no new or updated capture file formats in this release.
+NetScreen snoop.
 
     </para>
     </section>
