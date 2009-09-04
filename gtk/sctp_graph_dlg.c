@@ -266,10 +266,10 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 					}
 					if (dup_nr > 0)
 					{
-						dup_list = (guint32 *)(&(sack_header->nr_of_dups)+sizeof(guint16)+(nr*sizeof(struct gaps)));
-						dup = g_ntohl(dup_list[0]);
+						dup_list = (guint32 *)(((char *)&sack_header->nr_of_dups)+sizeof(guint16)+(nr*sizeof(struct gaps)));
 						for(i = 0; i < dup_nr; i++)
 						{
+							dup = g_ntohl(dup_list[i]);
 							if (dup >= min_tsn)
 							{
 								if (u_data->io->uoff)
@@ -287,8 +287,6 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 								     	yvalue,
 								     	POINT_SIZE, POINT_SIZE,0, (64*360) );
 							}
-							if (i < dup_nr-1)
-								dup++;
 						}
 					}
 				}
