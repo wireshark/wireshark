@@ -266,7 +266,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 					}
 					if (dup_nr > 0)
 					{
-						dup_list = (char *)&(sack_header->nr_of_dups)+sizeof(guint16)+(nr*sizeof(struct gaps));
+						dup_list = (guint32 *)(&(sack_header->nr_of_dups)+sizeof(guint16)+(nr*sizeof(struct gaps)));
 						dup = g_ntohl(dup_list[0]);
 						for(i = 0; i < dup_nr; i++)
 						{
@@ -279,9 +279,9 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 								xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
 								yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE -u_data->io->offset-((SUB_32(dup,min_tsn))*u_data->io->y_interval));
 								if (xvalue >= LEFT_BORDER+u_data->io->offset && 
-						    		xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
-						    		yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
-						    		yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
+								xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
+								yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
+								yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
 									gdk_draw_arc(u_data->io->pixmap,cyan_gc,TRUE,
 								     	xvalue,
 								     	yvalue,
