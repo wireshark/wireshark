@@ -152,7 +152,7 @@
 
 /* hash table used for IPv4 lookup */
 
-#define HASH_IPV4_ADDRESS(addr)	((addr) & (HASHHOSTSIZE - 1))
+#define HASH_IPV4_ADDRESS(addr) (g_htonl(addr) & (HASHHOSTSIZE - 1))
 
 typedef struct hashipv4 {
   guint			addr;
