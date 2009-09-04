@@ -144,22 +144,27 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 {
 	tsn_t	*sack;
 	GList *list=NULL, *tlist;
-	guint16 gap_start=0, gap_end=0, i, j, nr;
+	guint16 gap_start=0, gap_end=0, i, j, nr, dup_nr;
 	guint8 type;
-	guint32 tsnumber;
+	guint32 tsnumber, dup;
 	gint xvalue, yvalue;
 	GdkColor red_color = {0, 65535, 0, 0};
 	GdkColor green_color = {0, 0, 65535, 0};
-	GdkGC *red_gc, *green_gc;
+	GdkColor cyan_color = {0, 0, 65535, 65535};
+	GdkGC *red_gc, *green_gc, *cyan_gc;
 	struct sack_chunk_header *sack_header;
 	struct gaps *gap;
 	guint32 max_num, diff;
+	guint32 *dup_list;
 
 	red_gc = gdk_gc_new(u_data->io->draw_area->window);
 	gdk_gc_set_rgb_fg_color(red_gc, &red_color);
 
 	green_gc = gdk_gc_new(u_data->io->draw_area->window);
 	gdk_gc_set_rgb_fg_color(green_gc, &green_color);
+	
+	cyan_gc = gdk_gc_new(u_data->io->draw_area->window);
+	gdk_gc_set_rgb_fg_color(cyan_gc, &cyan_color);
 
 	if (u_data->dir==2)
 	{
@@ -205,6 +210,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 				sack_header =(struct sack_chunk_header *)tlist->data;
 				nr=g_ntohs(sack_header->nr_of_gaps);
 				tsnumber = g_ntohl(sack_header->cum_tsn_ack);
+				dup_nr=g_ntohs(sack_header->nr_of_dups);
 
 				if (sack->secs>=u_data->io->x1_tmp_sec)
 				{
@@ -226,7 +232,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 								yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE-u_data->io->offset-((SUB_32(j+tsnumber,min_tsn))*u_data->io->y_interval));
 								if (xvalue >= LEFT_BORDER+u_data->io->offset &&
 								    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
-								    yvalue >= TOP_BORDER-u_data->io->offset-5 &&
+								    yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
 								    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
 									gdk_draw_arc(u_data->io->pixmap,green_gc,TRUE,
 								             	    xvalue,
@@ -249,12 +255,41 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 						yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE -u_data->io->offset-((SUB_32(tsnumber,min_tsn))*u_data->io->y_interval));
 						if (xvalue >= LEFT_BORDER+u_data->io->offset && 
 						    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
-						    yvalue >= TOP_BORDER-u_data->io->offset-5 &&
+						    yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
 						    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
+						    {
 							gdk_draw_arc(u_data->io->pixmap,red_gc,TRUE,
 								     xvalue,
 								     yvalue,
 								     POINT_SIZE, POINT_SIZE,0, (64*360) );
+							}
+					}
+					if (dup_nr > 0)
+					{
+						dup_list = (char *)&(sack_header->nr_of_dups)+sizeof(guint16)+(nr*sizeof(struct gaps));
+						dup = g_ntohl(dup_list[0]);
+						for(i = 0; i < dup_nr; i++)
+						{
+							if (dup >= min_tsn)
+							{
+								if (u_data->io->uoff)
+									diff = sack->secs - u_data->io->min_x;
+								else
+									diff=sack->secs*1000000+sack->usecs-u_data->io->min_x;
+								xvalue = (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff);
+								yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE -u_data->io->offset-((SUB_32(dup,min_tsn))*u_data->io->y_interval));
+								if (xvalue >= LEFT_BORDER+u_data->io->offset && 
+						    		xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
+						    		yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
+						    		yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
+									gdk_draw_arc(u_data->io->pixmap,cyan_gc,TRUE,
+								     	xvalue,
+								     	yvalue,
+								     	POINT_SIZE, POINT_SIZE,0, (64*360) );
+							}
+							if (i < dup_nr-1)
+								dup++;
+						}
 					}
 				}
 			}
@@ -368,7 +403,7 @@ static void draw_nr_sack_graph(struct sctp_udata *u_data)
 								yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE-u_data->io->offset-((SUB_32(j+tsnumber,min_tsn))*u_data->io->y_interval));
 								if (xvalue >= LEFT_BORDER+u_data->io->offset &&
 								    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
-								    yvalue >= TOP_BORDER-u_data->io->offset-5 &&
+								    yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
 								    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
 								{
 									/* Check if this is an GAP ACK or NR GAP ACK */
@@ -418,7 +453,7 @@ static void draw_nr_sack_graph(struct sctp_udata *u_data)
 						yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE -u_data->io->offset-((SUB_32(tsnumber,min_tsn))*u_data->io->y_interval));
 						if (xvalue >= LEFT_BORDER+u_data->io->offset && 
 						    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
-						    yvalue >= TOP_BORDER-u_data->io->offset-5 &&
+						    yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
 						    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
 							gdk_draw_arc(u_data->io->pixmap,red_gc,TRUE,
 								     xvalue,
@@ -493,7 +528,7 @@ static void draw_tsn_graph(struct sctp_udata *u_data)
 					yvalue = (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-POINT_SIZE-u_data->io->offset-((SUB_32(tsnumber,min_tsn))*u_data->io->y_interval));
 					if (xvalue >= LEFT_BORDER+u_data->io->offset && 
 					    xvalue <= u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset &&
-					    yvalue >= TOP_BORDER-u_data->io->offset-5 &&
+					    yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
 					    yvalue <= u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
 						gdk_draw_arc(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,TRUE,
 							     xvalue,
