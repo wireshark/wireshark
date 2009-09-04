@@ -43,7 +43,7 @@
 
 #include <glib.h>
 
-#include <proto.h>
+#include "proto.h"
 #include "emem.h"
 
 #ifdef _WIN32
