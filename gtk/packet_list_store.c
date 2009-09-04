@@ -783,7 +783,7 @@ packet_list_resort(PacketList *packet_list)
 }
 
 void
-new_packet_list_reset_dissected(PacketList *packet_list)
+packet_list_reset_dissected(PacketList *packet_list)
 {
 	PacketListRecord *record;
 	guint i;

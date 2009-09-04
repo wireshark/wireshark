@@ -140,8 +140,8 @@ right_justify_column (gint col)
 		if ((hfi != NULL) && (hfi->strings == NULL)) {
 			/* Check for bool, framenum and decimal/octal integer types */
 			if ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
-			    (((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
-			     (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))) {
+				(((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
+				 (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))) {
 				right_justify = TRUE;
 			}
 		}
@@ -860,36 +860,36 @@ new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, gint copy_
 void
 new_packet_list_recent_write_all(FILE *rf)
 {
-  gint col;
-  GtkTreeViewColumn *tree_column;
+	gint col;
+	GtkTreeViewColumn *tree_column;
 
-  fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
-  for (col = 0; col < cfile.cinfo.num_cols; col++) {
-	 if (cfile.cinfo.col_fmt[col] == COL_CUSTOM) {
-	   fprintf (rf, " %%Cus:%s,", get_column_custom_field(col));
-	 } else {
-	   fprintf (rf, " %s,", col_format_to_string(cfile.cinfo.col_fmt[col]));
-	 }
-	 tree_column = gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col);
-	 fprintf (rf, " %d", gtk_tree_view_column_get_width(tree_column));
-	 if (col != cfile.cinfo.num_cols-1) {
-	   fprintf (rf, ",");
-	 }
-  }
-  fprintf (rf, "\n");
+	fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
+	for (col = 0; col < cfile.cinfo.num_cols; col++) {
+		if (cfile.cinfo.col_fmt[col] == COL_CUSTOM) {
+			fprintf (rf, " %%Cus:%s,", get_column_custom_field(col));
+		} else {
+			fprintf (rf, " %s,", col_format_to_string(cfile.cinfo.col_fmt[col]));
+		}
+		tree_column = gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col);
+		fprintf (rf, " %d", gtk_tree_view_column_get_width(tree_column));
+		if (col != cfile.cinfo.num_cols-1) {
+			fprintf (rf, ",");
+		}
+	}
+	fprintf (rf, "\n");
 }
 
 GtkWidget * 
 new_packet_list_get_widget(void) 
 { 
-       g_assert(packetlist); 
-       g_assert(packetlist->view); 
-       return packetlist->view; 
+	g_assert(packetlist); 
+	g_assert(packetlist->view); 
+	return packetlist->view; 
 } 
 
 void new_packet_list_colorize_packets(void)
 {
-	new_packet_list_reset_dissected(packetlist);
+	packet_list_reset_dissected(packetlist);
 	gtk_widget_queue_draw (packetlist->view);
 }
 #endif /* NEW_PACKET_LIST */

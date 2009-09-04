@@ -93,7 +93,7 @@ void new_packet_list_store_clear(PacketList *packet_list);
 gboolean packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter);
 void packet_list_append_record(PacketList *packet_list, row_data_t *row_data);
 void packet_list_change_record(PacketList *packet_list, guint row, gint col, column_info *cinfo);
-void new_packet_list_reset_dissected(PacketList *packet_list);
+void packet_list_reset_dissected(PacketList *packet_list);
 #endif /* NEW_PACKET_LIST */
 
 #endif /* __NEW_PACKET_LIST_H__ */
