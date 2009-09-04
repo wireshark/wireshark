@@ -7232,7 +7232,7 @@ dtap_rr_ho_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * 9.1.18 Immediate assignment
+ * 9.1.18 Immediate assignment See 3GPP TS 44.018
  */
 static void
 dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -8507,9 +8507,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO)){
-        col_append_str(pinfo->cinfo, COL_INFO, "(CCCH) ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "(CCCH) ");
     /*
      * set tap record pointer
      */
@@ -8549,9 +8547,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     hf_idx = -1;
     msg_fcn = NULL;
     nsd = FALSE;
-    if (check_col(pinfo->cinfo, COL_INFO)){
-        col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",val_to_str(pd,gsm_a_pd_short_str_vals,"Unknown (%u)"));
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",val_to_str(pd,gsm_a_pd_short_str_vals,"Unknown (%u)"));
 
     /*
      * octet 1
@@ -8582,9 +8578,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ccch_tree = proto_item_add_subtree(ccch_item, ett_tree);
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO)){
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
 
     /* back to the begining */
     saved_offset = offset;
@@ -8602,6 +8596,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_L2_PSEUDO_LEN);
     tree = saved_tree;
     offset = saved_offset;
+	len = curr_len;
 
     oct_1_item =
 	proto_tree_add_text(ccch_tree,
@@ -8746,8 +8741,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     len = tvb_length(tvb);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, "(SACCH) ");
+    col_append_str(pinfo->cinfo, COL_INFO, "(SACCH) ");
 
     /*
      * set tap record pointer
@@ -8773,14 +8767,12 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (short_pd == 0)
     {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(RR) ");
+        col_append_fstr(pinfo->cinfo, COL_INFO, "(RR) ");
         get_rr_short_pd_msg_params(mess_type, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
     }
     else
     {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(Unknown) ");
+        col_append_fstr(pinfo->cinfo, COL_INFO, "(Unknown) ");
     }
 
     /*
@@ -8797,9 +8789,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         sacch_tree = proto_item_add_subtree(sacch_item, ett_tree);
 
-   	if (check_col(pinfo->cinfo, COL_INFO)){
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
     }
 
     if (short_pd == 0)
