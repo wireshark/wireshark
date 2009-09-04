@@ -259,18 +259,18 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
 
     kfp->version = (kfp->function & 0x80)?3:2;
-    kfp->system = tvb_get_guint8(tvb, 0);
-    kfp->message = tvb_get_guint8(tvb, 5);
+    kfp->system = tvb_get_guint8( tvb, 0 );
+    kfp->message = tvb_get_guint8( tvb, 5 );
 
+    kfp->target = tvb_get_guint8( tvb, 1 );
+    kfp->from = tvb_get_guint8( tvb, 3 );
+    kfp->via = tvb_get_guint8( tvb, 4 );
 
-    if(kfp->version == 2){
-        kfp->target = tvb_get_guint8(tvb, 1);
-        kfp->from = tvb_get_guint8(tvb, 3);
-        kfp->via = tvb_get_guint8(tvb, 4);
-    } else {
-        kfp->target |= (tvb_get_guint8(tvb, 7) << 8);
-        kfp->from   |= (tvb_get_guint8(tvb, 8) << 8);
-        kfp->via    |= (tvb_get_guint8(tvb, 9) << 8);
+    if( kfp->version == 3 )
+    {
+        kfp->target |= ( tvb_get_guint8( tvb, 7 ) << 8 );
+        kfp->from   |= ( tvb_get_guint8( tvb, 8 ) << 8 );
+        kfp->via    |= ( tvb_get_guint8( tvb, 9 ) << 8 );
     }
 
 
