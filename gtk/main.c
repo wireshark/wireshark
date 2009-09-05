@@ -3470,8 +3470,8 @@ void change_configuration_profile (const gchar *profile_name)
    /* Recreate the packet list according to new preferences */
    packet_list_recreate ();
    cfile.cinfo.columns_changed = FALSE; /* Reset value */
-   user_font_apply();
 #endif
+   user_font_apply();
 
    /* Update menus with new recent values */
    menu_recent_read_finished();
