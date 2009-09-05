@@ -1083,7 +1083,7 @@ proto_register_capwap_control(void)
 			NULL, HFILL }},
 		{ &hf_capwap_header_wireless_data,
 		{ "Wireless data",	"capwap.header.wireless.data",
-			FT_UINT8, BASE_DEC, NULL, 0x00,
+			FT_BYTES, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }},
 		/* CAPWAP Control Header Message */
 
