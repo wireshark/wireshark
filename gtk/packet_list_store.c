@@ -821,7 +821,9 @@ packet_list_resort(PacketList *packet_list)
 	for(phy_idx = 0, vis_idx = 0; phy_idx < PACKET_LIST_RECORD_COUNT(packet_list->physical_rows); ++phy_idx) {
 		record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, phy_idx);
 		record->physical_pos = phy_idx;
+		g_assert(record->visible_pos >= -1);
 		if (record->visible_pos >= 0) {
+			g_assert(record->fdata->flags.passed_dfilter);
 			neworder[vis_idx] = record->visible_pos;
 			record->visible_pos = vis_idx;
 			++vis_idx;
@@ -846,18 +848,18 @@ packet_list_resort(PacketList *packet_list)
 	g_free(neworder);
 }
 
-void
+guint
 packet_list_recreate_visible_rows(PacketList *packet_list)
 {
 	guint phy_idx;
 	guint vis_idx;
 	PacketListRecord *record;
 
-	g_return_if_fail(packet_list != NULL);
-	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
+	g_return_val_if_fail(packet_list != NULL, 0);
+	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), 0);
 
 	if(PACKET_LIST_RECORD_COUNT(packet_list->physical_rows) == 0)
-		return;
+		return 0;
 
 	if(packet_list->visible_rows)
 		g_ptr_array_free(packet_list->visible_rows, TRUE);
@@ -870,7 +872,11 @@ packet_list_recreate_visible_rows(PacketList *packet_list)
 			record->visible_pos = vis_idx++;
 			PACKET_LIST_RECORD_APPEND(packet_list->visible_rows, record);
 		}
+		else
+			record->visible_pos = -1;
 	}
+
+	return vis_idx;
 }
 
 void
