@@ -666,7 +666,26 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 		record->fdata->col_text = se_alloc0(sizeof(record->fdata->col_text) *
 											(packet_list->n_columns-1));
 
-	record->fdata->col_text[col] = se_strdup(cinfo->col_data[col]);
+	switch (cfile.cinfo.col_fmt[col]) {
+		case COL_PROTOCOL:
+		case COL_INFO:
+		case COL_IF_DIR:
+		case COL_DCE_CALL:
+		case COL_DCE_CTX:
+		case COL_8021Q_VLAN_ID:
+		case COL_EXPERT:
+		case COL_FREQ_CHAN:
+			if (cinfo->col_data[col] != cinfo->col_buf[col]) {
+				/* This is a constant string, so we don't have to copy it */
+				record->fdata->col_text[col] = (gchar *) cinfo->col_data[col];
+				break;
+			}
+		/* !! FALL-THROUGH!! */
+
+		default:
+			record->fdata->col_text[col] = se_strdup(cinfo->col_data[col]);
+			break;
+	}
 }
 
 static gboolean
