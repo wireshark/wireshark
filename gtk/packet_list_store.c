@@ -104,6 +104,7 @@ static void packet_list_sortable_init(GtkTreeSortableIface *iface);
 static gint packet_list_compare_records(gint sort_id _U_, PacketListRecord *a,
 					PacketListRecord *b);
 static void packet_list_resort(PacketList *packet_list);
+static void packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecord *record);
 
 static GObjectClass *parent_class = NULL;
 
@@ -232,6 +233,7 @@ packet_list_init(PacketList *packet_list)
 	packet_list->physical_rows = g_ptr_array_new();
 	packet_list->visible_rows = g_ptr_array_new();
 
+	packet_list->dissected = FALSE;
 	packet_list->sort_id = 0; /* defaults to first column for now */
 	packet_list->sort_order = GTK_SORT_ASCENDING;
 }
@@ -567,6 +569,7 @@ new_packet_list_store_clear(PacketList *packet_list)
 		g_ptr_array_free(packet_list->visible_rows, TRUE);
 	packet_list->physical_rows = g_ptr_array_new();
 	packet_list->visible_rows = g_ptr_array_new();
+	packet_list->dissected = FALSE;
 }
 
 #if 0
@@ -646,6 +649,7 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 {
 	PacketListRecord *record;
 
+	g_return_if_fail(packet_list);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
 
 	g_assert(row < PACKET_LIST_RECORD_COUNT(packet_list->physical_rows));
@@ -653,7 +657,10 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 	record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, row);
 
 	g_assert(record->physical_pos == row);
-	g_assert(!record->fdata->col_text || (record->fdata->col_text[col] == NULL));
+
+	if (record->fdata->col_text && record->fdata->col_text[col] != NULL)
+		/* Column already contains a value. Bail out */
+		return;
 
 	if (!record->fdata->col_text)
 		record->fdata->col_text = se_alloc0(sizeof(record->fdata->col_text) *
@@ -683,6 +690,33 @@ packet_list_sortable_get_sort_column_id(GtkTreeSortable *sortable,
 	return TRUE;
 }
 
+static gboolean
+packet_list_column_contains_values(PacketList *packet_list, gint sort_col_id)
+{
+	if (packet_list->dissected || col_based_on_frame_data(&cfile.cinfo, sort_col_id))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+static void
+packet_list_dissect_and_cache_all(PacketList *packet_list)
+{
+	PacketListRecord *record;
+	guint i;
+
+	g_assert(packet_list->dissected == FALSE);
+
+	g_warning(G_STRLOC " - TODO: Insert progress bar");
+
+	for(i = 0; i < PACKET_LIST_RECORD_COUNT(packet_list->physical_rows); ++i) {
+		record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, i);
+		packet_list_dissect_and_cache_by_record(packet_list, record);
+	}
+
+	packet_list->dissected = TRUE;
+}
+
 static void
 packet_list_sortable_set_sort_column_id(GtkTreeSortable *sortable,
 					gint sort_col_id,
@@ -699,13 +733,14 @@ packet_list_sortable_set_sort_column_id(GtkTreeSortable *sortable,
 	   packet_list->sort_order == order)
 		return;
 
-	if (!col_based_on_frame_data(&cfile.cinfo, sort_col_id)) {
-		g_warning("Sorting on column %u not supported", sort_col_id);
-		return;
-	}
-
 	packet_list->sort_id = sort_col_id;
 	packet_list->sort_order = order;
+
+	if(PACKET_LIST_RECORD_COUNT(packet_list->physical_rows) == 0)
+		return;
+
+	if (!packet_list_column_contains_values(packet_list, sort_col_id))
+		packet_list_dissect_and_cache_all(packet_list);
 
 	packet_list_resort(packet_list);
 
@@ -749,11 +784,13 @@ static gint
 packet_list_compare_records(gint sort_id, PacketListRecord *a,
 				PacketListRecord *b)
 {
-
-	/* XXX If we want to store other things than text, we need other sort functions */ 
-
 	if (col_based_on_frame_data(&cfile.cinfo, sort_id))
 		return frame_data_compare(a->fdata, b->fdata, cfile.cinfo.col_fmt[sort_id]);
+
+	g_assert(a->fdata->col_text);
+	g_assert(b->fdata->col_text);
+	g_assert(a->fdata->col_text[sort_id]);
+	g_assert(b->fdata->col_text[sort_id]);
 
 	if((a->fdata->col_text[sort_id]) && (b->fdata->col_text[sort_id]))
 		return strcmp(a->fdata->col_text[sort_id], b->fdata->col_text[sort_id]);
@@ -886,12 +923,6 @@ packet_list_recreate_visible_rows(PacketList *packet_list)
 void
 packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter)
 {
-	epan_dissect_t edt;
-	int err;
-	gchar *err_info;
-	frame_data *fdata;
-	column_info *cinfo;
-	gint col;
 	PacketListRecord *record;
 
 	g_return_if_fail(packet_list != NULL);
@@ -900,6 +931,19 @@ packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter)
 	g_return_if_fail(iter->user_data != NULL);
 
 	record = iter->user_data;
+
+	packet_list_dissect_and_cache_by_record(packet_list, record);
+}
+
+static void
+packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecord *record)
+{
+	epan_dissect_t edt;
+	int err;
+	gchar *err_info;
+	frame_data *fdata;
+	column_info *cinfo;
+	gint col;
 
 	fdata = record->fdata;
 	cinfo = &cfile.cinfo;

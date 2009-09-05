@@ -50,6 +50,7 @@ typedef struct _PacketListClass PacketListClass;
 /* PacketListRecord: represents a row */
 struct _PacketListRecord
 {
+	/* Has this record been dissected? */
 	gboolean dissected;
 	frame_data *fdata;
 
@@ -68,6 +69,9 @@ struct _PacketList
 	GPtrArray *visible_rows;
 	/* Array of pointers to the PacketListRecord structure for each row. */
 	GPtrArray *physical_rows; 
+
+	/* Has the entire file been dissected? */
+	gboolean dissected;
 
 	gint n_columns;
 	/* Note: We need one extra column to store the entire PacketListRecord */
