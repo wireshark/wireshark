@@ -186,7 +186,7 @@ create_view_and_model(void)
 		}
 		g_object_set(renderer,
 				 "ypad", 0,
-				 NULL);		   
+				 NULL); 	   
 		col = gtk_tree_view_column_new();
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
 		gtk_tree_view_column_set_cell_data_func(col, renderer,
@@ -269,7 +269,7 @@ new_packet_list_thaw(void)
 void
 new_packet_list_recreate_visible_rows(void)
 {
-    packet_list_recreate_visible_rows(packetlist);
+	packet_list_recreate_visible_rows(packetlist);
 }
 
 void
@@ -340,7 +340,7 @@ scroll_to_and_select_iter(GtkTreeIter *iter)
 			NULL,
 			TRUE,	/* use_align */
 			0.5,	/* row_align determines where the row is placed, 0.5 means center */
-			0);		/* The horizontal alignment of the column */
+			0); 	/* The horizontal alignment of the column */
 	gtk_tree_view_set_cursor(GTK_TREE_VIEW(packetlist->view),
 			path,
 			NULL,
@@ -410,7 +410,7 @@ new_packet_list_moveto_end(void)
 				NULL,
 				TRUE,	/* use_align */
 				0.5,	/* row_align determines where the row is placed, 0.5 means center */
-				0);		/* The horizontal alignment of the column */
+				0); 	/* The horizontal alignment of the column */
 	}
 
 	gtk_tree_path_free(path);
@@ -495,14 +495,32 @@ new_packet_list_set_selected_row(gint row)
 	gtk_tree_path_free(path);
 }
 
+static guint
+row_number_from_iter(GtkTreeIter *iter)
+{
+	guint row;
+	gint *indices;
+	GtkTreePath *path;
+	GtkTreeModel *model;
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
+	path = gtk_tree_model_get_path(model, iter);
+	indices = gtk_tree_path_get_indices(path);
+	g_assert(indices);
+	/* Indices start from 0, but rows start from 1. Hence +1 */
+	row = indices[0] + 1;
+
+	gtk_tree_path_free(path);	 
+
+	return row;
+}
+
 static void
 new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 {
 	GtkTreeSelection *selection;
-	GtkTreeModel *model;
 	GtkTreeIter iter;
 	guint row;
-	PacketListRecord *record;
 
 	selection = gtk_tree_view_get_selection(tree_view);
 	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
@@ -512,11 +530,7 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 	while(gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr), 0))
 		gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
-	record = new_packet_list_get_record(model, &iter);
-	g_assert(record);
-	row = record->fdata->num;
-	g_assert(row > 0);
+	row = row_number_from_iter(&iter);
 
 	cf_select_packet(&cfile, row);
 
@@ -568,9 +582,16 @@ new_packet_list_get_event_row_column(GdkEventButton *event_button,
 frame_data *
 new_packet_list_get_row_data(gint row)
 {
+	GtkTreePath *path = gtk_tree_path_new();
+	GtkTreeIter iter;
 	PacketListRecord *record;
 
-	record = PACKET_LIST_RECORD_GET(packetlist->physical_rows, row-1);
+	gtk_tree_path_append_index(path, row-1);
+	gtk_tree_model_get_iter(GTK_TREE_MODEL(packetlist), &iter, path);
+
+	record = new_packet_list_get_record(GTK_TREE_MODEL(packetlist), &iter);
+
+	gtk_tree_path_free(path);
 
 	return record->fdata;
 }
