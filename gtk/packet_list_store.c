@@ -695,6 +695,11 @@ packet_list_sortable_set_sort_column_id(GtkTreeSortable *sortable,
 	   packet_list->sort_order == order)
 		return;
 
+	if (!col_based_on_frame_data(&cfile.cinfo, sort_col_id)) {
+		g_warning("Sorting on column %u not supported", sort_col_id);
+		return;
+	}
+
 	packet_list->sort_id = sort_col_id;
 	packet_list->sort_order = order;
 
