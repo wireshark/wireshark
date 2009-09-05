@@ -3444,7 +3444,6 @@ void change_configuration_profile (const gchar *profile_name)
    }
    timestamp_set_type (recent.gui_time_format);
    color_filters_enable(recent.packet_list_colorize);
-   recent.gui_time_format = timestamp_get_type ();
 
    prefs_to_capture_opts();
    prefs_apply_all();
