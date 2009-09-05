@@ -593,12 +593,19 @@ new_packet_list_get_row_data(gint row)
 }
 
 static void
-new_packet_list_dissect(frame_data *fdata)
+new_packet_list_dissect(PacketListRecord *record)
 {
 	epan_dissect_t edt;
 	int err;
 	gchar *err_info;
-	column_info *cinfo = &cfile.cinfo;
+	frame_data *fdata;
+	column_info *cinfo;
+	gint col;
+	guint row;
+
+	fdata = record->fdata;
+	row = record->physical_pos;
+	cinfo = &cfile.cinfo;
 
 	if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
 		cfile.pd, fdata->cap_len, &err, &err_info)) {
@@ -609,33 +616,28 @@ new_packet_list_dissect(frame_data *fdata)
 
 	epan_dissect_init(&edt, TRUE /* create_proto_tree */, FALSE /* proto_tree_visible */);
 	color_filters_prime_edt(&edt);
-	col_custom_prime_edt(&edt, &cfile.cinfo);
+	col_custom_prime_edt(&edt, cinfo);
 	epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata, cinfo);
 	fdata->color_filter = color_filters_colorize_packet(0 /* row - unused */, &edt);
 
 	/* "Stringify" non frame_data vals */
 	epan_dissect_fill_in_columns(&edt, FALSE /* fill_fd_colums */);
 
-	epan_dissect_cleanup(&edt);
-}
-
-static void
-cache_columns(frame_data *fdata, guint row)
-{
-	int col;
-
-	for(col = 0; col < cfile.cinfo.num_cols; ++col) {
+	for(col = 0; col < cinfo->num_cols; ++col) {
 		/* Skip columns based om frame_data because we already store those. */
-		if (!col_based_on_frame_data(&cfile.cinfo, col))
-			packet_list_change_record(packetlist, row, col, &cfile.cinfo);
+		if (!col_based_on_frame_data(cinfo, col))
+			packet_list_change_record(packetlist, row, col, cinfo);
 	}
+
+	record->dissected = TRUE;
+
+	epan_dissect_cleanup(&edt);
 }
 
 static void
 show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 			GtkTreeModel *model, GtkTreeIter *iter, gpointer data)
 {
-	guint row;
 	guint col_num = GPOINTER_TO_INT(data);
 	frame_data *fdata;
 	color_filter_t *color_filter;
@@ -647,17 +649,13 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	PacketListRecord *record;
 
 	record = new_packet_list_get_record(model, iter);
-
-	fdata = record->fdata;
-	row = record->physical_pos;
+    fdata = record->fdata;
 
 	if (record->dissected)
 		color_filter = fdata->color_filter;
 	else {
 		g_assert(fdata->col_text == NULL);
-		new_packet_list_dissect(fdata);
-		cache_columns(fdata, row);
-		record->dissected = TRUE;
+		new_packet_list_dissect(record);
 		color_filter = fdata->color_filter;
 	}
 
