@@ -857,7 +857,7 @@ new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, gint copy_
 void
 new_packet_list_recent_write_all(FILE *rf)
 {
-	gint col;
+	gint col, width;
 	GtkTreeViewColumn *tree_column;
 
 	fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
@@ -868,7 +868,12 @@ new_packet_list_recent_write_all(FILE *rf)
 			fprintf (rf, " %s,", col_format_to_string(cfile.cinfo.col_fmt[col]));
 		}
 		tree_column = gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col);
-		fprintf (rf, " %d", gtk_tree_view_column_get_width(tree_column));
+		width = gtk_tree_view_column_get_width(tree_column);
+		if (width == 0) {
+			/* We have not initialized the packet list yet, use old values */
+			width = recent_get_column_width (col);
+		}
+		fprintf (rf, " %d", width);
 		if (col != cfile.cinfo.num_cols-1) {
 			fprintf (rf, ",");
 		}
