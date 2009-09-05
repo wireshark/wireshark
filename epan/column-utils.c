@@ -1525,16 +1525,14 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
     switch (pinfo->cinfo->col_fmt[i]) {
 
     case COL_NUMBER:
-      if (fill_fd_colums)
-        col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
-      break;
-
     case COL_CLS_TIME:
     case COL_ABS_TIME:
     case COL_ABS_DATE_TIME:
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
+    case COL_PACKET_LENGTH:
+    case COL_CUMULATIVE_BYTES:
       if (fill_fd_colums)
         col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
       break;
@@ -1611,16 +1609,6 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
       col_set_port(pinfo, i, FALSE, FALSE);
       break;
 
-    case COL_PROTOCOL:  /* currently done by dissectors */
-    case COL_INFO:  /* currently done by dissectors */
-      break;
-
-    case COL_PACKET_LENGTH:
-    case COL_CUMULATIVE_BYTES:
-      if (fill_fd_colums)
-        col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
-      break;
-
     case COL_OXID:
       g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->oxid);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
@@ -1629,9 +1617,6 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
     case COL_RXID:
       g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->rxid);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      break;
-
-    case COL_IF_DIR:    /* currently done by dissectors */
       break;
 
     case COL_SRCIDX:
@@ -1647,6 +1632,13 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
     case COL_VSAN:
       g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->vsan);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      break;
+
+    case COL_PROTOCOL:  /* currently done by dissectors */
+    case COL_INFO:  /* currently done by dissectors */
+      break;
+
+    case COL_IF_DIR:    /* currently done by dissectors */
       break;
 
     case COL_DCE_CALL:  /* done by dcerpc */
