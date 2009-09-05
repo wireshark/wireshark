@@ -281,7 +281,7 @@ packet_list_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
 	PacketList *packet_list;
 	PacketListRecord *record;
 	gint *indices, depth;
-	guint n;
+	gint n;
 
 	g_assert(PACKETLIST_IS_LIST(tree_model));
 	g_assert(path != NULL);
@@ -496,7 +496,7 @@ packet_list_iter_nth_child(GtkTreeModel *tree_model, GtkTreeIter *iter,
 
 	/* Special case: if parent == NULL, set iter to n-th top-level row. */
 	if(!PACKET_LIST_RECORD_INDEX_VALID(packet_list->visible_rows, n))
-		return NULL;
+		return FALSE;
 
 	record = PACKET_LIST_RECORD_GET(packet_list->visible_rows, n);
 
