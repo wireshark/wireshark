@@ -464,8 +464,7 @@ packet_list_iter_n_children(GtkTreeModel *tree_model, GtkTreeIter *iter)
 	PacketList *packet_list;
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), 0);
-	g_return_val_if_fail(iter, 0);
-	g_return_val_if_fail(iter->user_data, 0);
+	g_return_val_if_fail(iter == NULL || iter->user_data != NULL, 0);
 
 	packet_list = PACKET_LIST(tree_model);
 
