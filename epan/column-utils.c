@@ -276,42 +276,6 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   va_end(ap);
 }
 
-/* XXX not used */
-void
-col_custom_set_fstr(header_field_info *hfinfo, const gchar *format, ...)
-{
-  va_list ap;
-  int     i;
-
-  if (!have_custom_cols(ci))
-    return;
-
-  va_start(ap, format);
-  for (i = ci->col_first[COL_CUSTOM];
-       i <= ci->col_last[COL_CUSTOM]; i++) {
-    if (ci->fmt_matx[i][COL_CUSTOM] &&
-        ci->col_custom_field[i] &&
-        strcmp(ci->col_custom_field[i], hfinfo->abbrev) == 0) {
-      ci->col_data[i] = ci->col_buf[i];
-      g_vsnprintf(ci->col_buf[i], COL_MAX_LEN, format, ap);
-
-      ci->col_expr.col_expr[i] = hfinfo->abbrev;
-
-      switch(hfinfo->type) {
-      case FT_STRING:
-      case FT_STRINGZ:
-        g_snprintf(ci->col_expr.col_expr_val[i], COL_MAX_LEN, "\"%s\"", ci->col_buf[i]);
-        break;
-
-      default:
-        g_strlcpy(ci->col_expr.col_expr_val[i], ci->col_buf[i], COL_MAX_LEN);
-        break;
-      }
-    }
-  }
-  va_end(ap);
-}
-
 /* search in edt tree custom fields */
 void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo)
 {
@@ -1634,8 +1598,11 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
 
+    case COL_CUSTOM:    /* done by col_custom_set_edt() */
+      break;
+
     case COL_PROTOCOL:  /* currently done by dissectors */
-    case COL_INFO:  /* currently done by dissectors */
+    case COL_INFO:      /* currently done by dissectors */
       break;
 
     case COL_IF_DIR:    /* currently done by dissectors */
@@ -1648,18 +1615,16 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
       break;
 
     case COL_8021Q_VLAN_ID: /* done by packet-nstrace.c and packet-vlan.c */
-        break;
+      break;
 
     case COL_EXPERT:    /* done by expert.c */
-        break;
+      break;
 
-    case COL_FREQ_CHAN:    /* done by radio dissectors */
-        break;
-
-    case COL_CUSTOM:     /* done by col_custom_set_fstr() called from proto.c */
-    break;
+    case COL_FREQ_CHAN: /* done by radio dissectors */
+      break;
 
     case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
+    default:
       g_assert_not_reached();
       break;
     }
