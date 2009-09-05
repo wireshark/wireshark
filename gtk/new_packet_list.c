@@ -103,16 +103,12 @@ new_packet_list_create(void)
 guint
 new_packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *pinfo _U_)
 {
-	row_data_t row_data;
-
 	/* fdata should be filled with the stuff we need
 	 * strings are built at display time.
 	 */
 
-	row_data.fdata = fdata;
-
 	/* Return the _visible_ position */
-	return packet_list_append_record(packetlist, &row_data);
+	return packet_list_append_record(packetlist, fdata);
 }
 
 static gboolean

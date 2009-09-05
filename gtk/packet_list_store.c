@@ -605,7 +605,7 @@ packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter)
 }
 
 gint
-packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
+packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 {
 	PacketListRecord *newrecord;
 
@@ -613,7 +613,7 @@ packet_list_append_record(PacketList *packet_list, row_data_t *row_data)
 
 	newrecord = se_alloc(sizeof(PacketListRecord));
 	newrecord->dissected = FALSE;
-	newrecord->fdata = row_data->fdata;
+	newrecord->fdata = fdata;
 	newrecord->physical_pos = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);
 
 	if (newrecord->fdata->flags.passed_dfilter) {

@@ -37,10 +37,6 @@
 #define PACKETLIST_IS_LIST_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE(klass), PACKETLIST_TYPE_LIST)
 #define PACKETLIST_LIST_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS((obj), PACKETLIST_TYPE_LIST, PacketListClass))
 
-typedef struct {
-	frame_data *fdata;
-} row_data_t;
-
 typedef struct _PacketListRecord PacketListRecord;
 typedef struct _PacketList PacketList;
 typedef struct _PacketListClass PacketListClass;
@@ -96,7 +92,7 @@ PacketList *new_packet_list_new(void);
 void new_packet_list_store_clear(PacketList *packet_list);
 guint packet_list_recreate_visible_rows(PacketList *packet_list);
 gboolean packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter);
-gint packet_list_append_record(PacketList *packet_list, row_data_t *row_data);
+gint packet_list_append_record(PacketList *packet_list, frame_data *fdata);
 void packet_list_change_record(PacketList *packet_list, guint row, gint col, column_info *cinfo);
 void packet_list_reset_dissected(PacketList *packet_list);
 #endif /* NEW_PACKET_LIST */
