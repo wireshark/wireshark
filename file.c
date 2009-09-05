@@ -1898,6 +1898,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   /* Unfreeze the packet list. */
 #ifdef NEW_PACKET_LIST
+  if (!add_to_packet_list)
+    new_packet_list_recreate_visible_rows();
   new_packet_list_thaw();
 #else
   packet_list_thaw();

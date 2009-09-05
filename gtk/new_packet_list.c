@@ -74,9 +74,6 @@ static void show_cell_data_func(GtkTreeViewColumn *col,
 				GtkTreeModel *model,
 				GtkTreeIter *iter,
 				gpointer data);
-static void filter_function (GtkTreeView *treeview);
-static gboolean filter_visible_func (GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_);
-
 
 GtkWidget *
 new_packet_list_create(void)
@@ -114,10 +111,8 @@ new_packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *p
 
 	row_data.fdata = fdata;
 
-	packet_list_append_record(packetlist, &row_data);
-
-	/* XXX - Check that this is the right # */
-	return PACKET_LIST_RECORD_COUNT(packetlist->rows);
+	/* Return the _visible_ position */
+	return packet_list_append_record(packetlist, &row_data);
 }
 
 static gboolean
@@ -262,12 +257,19 @@ new_packet_list_freeze(void)
 void
 new_packet_list_thaw(void)
 {
-	filter_function(GTK_TREE_VIEW(packetlist->view));
+	/* Apply model */
+	gtk_tree_view_set_model( GTK_TREE_VIEW(packetlist->view), GTK_TREE_MODEL(packetlist));
 
 	/* Remove extra reference added by new_packet_list_freeze() */
 	g_object_unref(packetlist);
 
 	packets_bar_update();
+}
+
+void
+new_packet_list_recreate_visible_rows(void)
+{
+    packet_list_recreate_visible_rows(packetlist);
 }
 
 void
@@ -568,7 +570,7 @@ new_packet_list_get_row_data(gint row)
 {
 	PacketListRecord *record;
 
-	record = PACKET_LIST_RECORD_GET(packetlist->rows, row-1);
+	record = PACKET_LIST_RECORD_GET(packetlist->physical_rows, row-1);
 
 	return record->fdata;
 }
@@ -650,7 +652,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	record = new_packet_list_get_record(model, iter);
 
 	fdata = record->fdata;
-	row = record->pos;
+	row = record->physical_pos;
 
 	if (record->dissected)
 		color_filter = fdata->color_filter;
@@ -772,28 +774,6 @@ void new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 	mark_frames_ready();
 }
 
-static void filter_function (GtkTreeView *treeview) 
-{ 
-	GtkTreeModel *filter_model;
-
-	filter_model = gtk_tree_model_filter_new(GTK_TREE_MODEL(packetlist), NULL );
-
-	gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER ( filter_model ),(GtkTreeModelFilterVisibleFunc) filter_visible_func, NULL , NULL);
-
-	/* Apply model */
-	gtk_tree_view_set_model( GTK_TREE_VIEW( treeview ),filter_model);
-
-	g_object_unref( filter_model );
-}
-
-/* This function is called on every model row. We check whether the packet 
- * should be visible or not. 
- */
-static gboolean 
-filter_visible_func (GtkTreeModel *model _U_, GtkTreeIter *iter, gpointer data _U_)
-{ 
-	return packet_list_visible_record(packetlist, iter);
-} 
 static gboolean
 get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_text){
 

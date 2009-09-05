@@ -63,6 +63,7 @@ extern void pipe_input_set_handler(gint source, gpointer user_data, int *child_p
 #ifdef NEW_PACKET_LIST
 void new_packet_list_clear(void);
 void new_packet_list_freeze(void);
+void new_packet_list_recreate_visible_rows(void);
 void new_packet_list_thaw(void);
 void new_packet_list_next(void);
 void new_packet_list_prev(void);

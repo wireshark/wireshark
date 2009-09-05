@@ -45,10 +45,11 @@ typedef struct _PacketListRecord PacketListRecord;
 typedef struct _PacketList PacketList;
 typedef struct _PacketListClass PacketListClass;
 
-#define PACKET_LIST_RECORD_GET(rows, pos)   ((PacketListRecord*) g_ptr_array_index((rows), (pos)))
+#define PACKET_LIST_RECORD_GET(rows, pos)	((PacketListRecord*) g_ptr_array_index((rows), (pos)))
 #define PACKET_LIST_RECORD_SET(rows, pos, item) PACKET_LIST_RECORD_GET((rows), (pos)) = (item)
 #define PACKET_LIST_RECORD_APPEND(rows, item) g_ptr_array_add((rows), (item))
-#define PACKET_LIST_RECORD_COUNT(rows) ((rows)->len)
+#define PACKET_LIST_RECORD_COUNT(rows) ((rows) ? (rows)->len : 0)
+#define PACKET_LIST_RECORD_INDEX_VALID(rows, idx) ((rows) ? (((guint) (idx)) < (rows)->len) : FALSE)
 
 /* PacketListRecord: represents a row */
 struct _PacketListRecord
@@ -57,7 +58,10 @@ struct _PacketListRecord
 	frame_data *fdata;
 
 	/* admin stuff used by the custom list model */
-	guint pos; /* position within the array */
+	/* position within the physical array */
+	guint physical_pos; 
+	/* position within the visible array */
+	gint visible_pos; 
 };
 
 /* PacketListRecord: Everything for our model implementation. */
@@ -65,9 +69,9 @@ struct _PacketList
 {
 	GObject parent; /* MUST be first */
 
-	GPtrArray *rows; /* Dynamically allocated array of pointers to
-				  * the PacketListRecord structure for each
-				  * row. */
+	GPtrArray *visible_rows;
+	/* Array of pointers to the PacketListRecord structure for each row. */
+	GPtrArray *physical_rows; 
 
 	gint n_columns;
 	/* Note: We need one extra column to store the entire PacketListRecord */
@@ -77,8 +81,8 @@ struct _PacketList
 	gint sort_id;
 	GtkSortType sort_order;
 
-	gint stamp; /* Random integer to check whether an iter belongs to our
-		     * model. */
+	/* Random integer to check whether an iter belongs to our model. */
+	gint stamp;
 };
 
 /* PacketListClass: more boilerplate GObject stuff */
@@ -90,8 +94,9 @@ struct _PacketListClass
 GType packet_list_list_get_type(void);
 PacketList *new_packet_list_new(void);
 void new_packet_list_store_clear(PacketList *packet_list);
+void packet_list_recreate_visible_rows(PacketList *packet_list);
 gboolean packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter);
-void packet_list_append_record(PacketList *packet_list, row_data_t *row_data);
+gint packet_list_append_record(PacketList *packet_list, row_data_t *row_data);
 void packet_list_change_record(PacketList *packet_list, guint row, gint col, column_info *cinfo);
 void packet_list_reset_dissected(PacketList *packet_list);
 #endif /* NEW_PACKET_LIST */
