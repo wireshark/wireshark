@@ -593,48 +593,6 @@ new_packet_list_get_row_data(gint row)
 }
 
 static void
-new_packet_list_dissect(PacketListRecord *record)
-{
-	epan_dissect_t edt;
-	int err;
-	gchar *err_info;
-	frame_data *fdata;
-	column_info *cinfo;
-	gint col;
-	guint row;
-
-	fdata = record->fdata;
-	row = record->physical_pos;
-	cinfo = &cfile.cinfo;
-
-	if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
-		cfile.pd, fdata->cap_len, &err, &err_info)) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			cf_read_error_message(err, err_info), cfile.filename);
-			return;
-	}
-
-	epan_dissect_init(&edt, TRUE /* create_proto_tree */, FALSE /* proto_tree_visible */);
-	color_filters_prime_edt(&edt);
-	col_custom_prime_edt(&edt, cinfo);
-	epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata, cinfo);
-	fdata->color_filter = color_filters_colorize_packet(0 /* row - unused */, &edt);
-
-	/* "Stringify" non frame_data vals */
-	epan_dissect_fill_in_columns(&edt, FALSE /* fill_fd_colums */);
-
-	for(col = 0; col < cinfo->num_cols; ++col) {
-		/* Skip columns based om frame_data because we already store those. */
-		if (!col_based_on_frame_data(cinfo, col))
-			packet_list_change_record(packetlist, row, col, cinfo);
-	}
-
-	record->dissected = TRUE;
-
-	epan_dissect_cleanup(&edt);
-}
-
-static void
 show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 			GtkTreeModel *model, GtkTreeIter *iter, gpointer data)
 {
@@ -655,7 +613,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 		color_filter = fdata->color_filter;
 	else {
 		g_assert(fdata->col_text == NULL);
-		new_packet_list_dissect(record);
+		packet_list_dissect_and_cache(packetlist, iter);
 		color_filter = fdata->color_filter;
 	}
 

@@ -38,11 +38,16 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
+#include <epan/epan_dissect.h>
 #include "epan/column_info.h"
 #include "epan/column.h"
 
+#include "color.h"
+#include "color_filters.h"
+
 #include "packet_list_store.h"
 #include "globals.h"
+#include "../simple_dialog.h"
 
 static void packet_list_init(PacketList *pkg_tree);
 static void packet_list_class_init(PacketListClass *klass);
@@ -876,6 +881,54 @@ packet_list_recreate_visible_rows(PacketList *packet_list)
 	}
 
 	return vis_idx;
+}
+
+void
+packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter)
+{
+	epan_dissect_t edt;
+	int err;
+	gchar *err_info;
+	frame_data *fdata;
+	column_info *cinfo;
+	gint col;
+	PacketListRecord *record;
+
+	g_return_if_fail(packet_list != NULL);
+	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
+	g_return_if_fail(iter != NULL);
+	g_return_if_fail(iter->user_data != NULL);
+
+	record = iter->user_data;
+
+	fdata = record->fdata;
+	cinfo = &cfile.cinfo;
+
+	if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
+		cfile.pd, fdata->cap_len, &err, &err_info)) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			cf_read_error_message(err, err_info), cfile.filename);
+			return;
+	}
+
+	epan_dissect_init(&edt, TRUE /* create_proto_tree */, FALSE /* proto_tree_visible */);
+	color_filters_prime_edt(&edt);
+	col_custom_prime_edt(&edt, cinfo);
+	epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata, cinfo);
+	fdata->color_filter = color_filters_colorize_packet(0 /* row - unused */, &edt);
+
+	/* "Stringify" non frame_data vals */
+	epan_dissect_fill_in_columns(&edt, FALSE /* fill_fd_colums */);
+
+	for(col = 0; col < cinfo->num_cols; ++col) {
+		/* Skip columns based om frame_data because we already store those. */
+		if (!col_based_on_frame_data(cinfo, col))
+			packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
+	}
+
+	record->dissected = TRUE;
+
+	epan_dissect_cleanup(&edt);
 }
 
 void

@@ -94,6 +94,7 @@ guint packet_list_recreate_visible_rows(PacketList *packet_list);
 gboolean packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter);
 gint packet_list_append_record(PacketList *packet_list, frame_data *fdata);
 void packet_list_change_record(PacketList *packet_list, guint row, gint col, column_info *cinfo);
+void packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter);
 void packet_list_reset_dissected(PacketList *packet_list);
 #endif /* NEW_PACKET_LIST */
 
