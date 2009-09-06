@@ -944,6 +944,7 @@ packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecor
 	frame_data *fdata;
 	column_info *cinfo;
 	gint col;
+	gboolean create_proto_tree;
 
 	fdata = record->fdata;
 
@@ -959,7 +960,12 @@ packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecor
 			return;
 	}
 
-	epan_dissect_init(&edt, TRUE /* create_proto_tree */, FALSE /* proto_tree_visible */);
+	create_proto_tree = (color_filters_used() && dissect_color) ||
+						(have_custom_cols(cinfo) && dissect_columns);
+
+	epan_dissect_init(&edt,
+					  create_proto_tree,
+					  FALSE /* proto_tree_visible */);
 
 	if (dissect_color)
 		color_filters_prime_edt(&edt);
