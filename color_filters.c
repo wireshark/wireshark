@@ -439,10 +439,14 @@ color_filters_prime_edt(epan_dissect_t *edt)
 }
 
 /* Colorize a single packet of the packet list (old packet list)
- * (row is only _U_ for the NEW_PACKET_LIST case
+ *
  * Return the color_t for later use (new packet list) */
 color_filter_t *
-color_filters_colorize_packet(gint row _U_, epan_dissect_t *edt)
+#ifdef NEW_PACKET_LIST
+color_filters_colorize_packet(epan_dissect_t *edt)
+#else
+color_filters_colorize_packet(gint row, epan_dissect_t *edt)
+#endif
 {
     GSList *curr;
     color_filter_t *colorf;

@@ -989,7 +989,7 @@ packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecor
 	epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata, cinfo);
 
 	if (dissect_color)
-		fdata->color_filter = color_filters_colorize_packet(0 /* row - unused */, &edt);
+		fdata->color_filter = color_filters_colorize_packet(&edt);
 
 	if (dissect_columns) {
 		/* "Stringify" non frame_data vals */

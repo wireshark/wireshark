@@ -31,19 +31,19 @@
 
 /* Data for a color filter. */
 typedef struct _color_filter {
-        gchar     *filter_name;   /* name of the filter */
-        gchar     *filter_text;   /* text of the filter expression */
-        color_t    bg_color;      /* background color for packets that match */
-        color_t    fg_color;      /* foreground color for packets that match */
-	gboolean   disabled;      /* set if the filter is disabled */
-	gboolean   selected;      /* set if the filter is selected in the color dialog box */
+    gchar     *filter_name;   /* name of the filter */
+    gchar     *filter_text;   /* text of the filter expression */
+    color_t    bg_color;      /* background color for packets that match */
+    color_t    fg_color;      /* foreground color for packets that match */
+    gboolean   disabled;      /* set if the filter is disabled */
+    gboolean   selected;      /* set if the filter is selected in the color dialog box */
 
-        /* only used inside of color_filters.c */
-        dfilter_t *c_colorfilter; /* compiled filter expression */
+    /* only used inside of color_filters.c */
+    dfilter_t *c_colorfilter; /* compiled filter expression */
 
-        /* only used outside of color_filters.c (beside init) */
-        void      *edit_dialog;   /* if filter is being edited, dialog
-                                   * box for it */
+    /* only used outside of color_filters.c (beside init) */
+    void      *edit_dialog;   /* if filter is being edited, dialog
+                               * box for it */
 } color_filter_t;
 
 
@@ -91,7 +91,7 @@ void
 color_filters_reset_tmp(void);
 
 /* Prime the epan_dissect_t with all the compiler
- * color filters of the current filter list. 
+ * color filters of the current filter list.
  *
  * @param the epan dissector details
  */
@@ -104,9 +104,11 @@ void color_filters_prime_edt(epan_dissect_t *edt);
  * @return the matching color filter or NULL
  */
 color_filter_t *
+#ifdef NEW_PACKET_LIST
+color_filters_colorize_packet(epan_dissect_t *edt);
+#else
 color_filters_colorize_packet(gint row, epan_dissect_t *edt);
-
-
+#endif
 
 /** Clone the currently active filter list.
  *
