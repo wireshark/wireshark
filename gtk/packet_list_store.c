@@ -872,7 +872,7 @@ packet_list_resort(PacketList *packet_list)
 		if (record->visible_pos >= 0) {
 			g_assert(record->fdata->flags.passed_dfilter);
 			neworder[vis_idx] = record->visible_pos;
-			PACKET_LIST_RECORD_GET(packet_list->visible_rows, vis_idx) = record;
+			PACKET_LIST_RECORD_SET(packet_list->visible_rows, vis_idx, record);
 			record->visible_pos = vis_idx;
 			++vis_idx;
 		}

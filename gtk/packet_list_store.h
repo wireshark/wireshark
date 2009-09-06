@@ -41,8 +41,8 @@ typedef struct _PacketListRecord PacketListRecord;
 typedef struct _PacketList PacketList;
 typedef struct _PacketListClass PacketListClass;
 
-#define PACKET_LIST_RECORD_GET(rows, pos)	((PacketListRecord*) g_ptr_array_index((rows), (pos)))
-#define PACKET_LIST_RECORD_SET(rows, pos, item) PACKET_LIST_RECORD_GET((rows), (pos)) = (item)
+#define PACKET_LIST_RECORD_GET(rows, pos) ((PacketListRecord*) g_ptr_array_index((rows), (pos)))
+#define PACKET_LIST_RECORD_SET(rows, pos, item) g_ptr_array_index((rows), (pos)) = (item)
 #define PACKET_LIST_RECORD_APPEND(rows, item) g_ptr_array_add((rows), (item))
 #define PACKET_LIST_RECORD_COUNT(rows) ((rows) ? (rows)->len : 0)
 #define PACKET_LIST_RECORD_INDEX_VALID(rows, idx) ((rows) ? (((guint) (idx)) < (rows)->len) : FALSE)
