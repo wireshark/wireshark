@@ -41,6 +41,7 @@
 #include "epan/value_string.h"
 #include "register.h"
 #include <epan/dissectors/packet-sctp.h>
+#include <epan/to_str.h>
 
 typedef struct sctp_ep {
 	struct sctp_ep* next;
@@ -85,10 +86,6 @@ typedef struct _sctpstat_t {
 #define CHUNK_TYPE_OFFSET 0
 #define CHUNK_TYPE(x)(tvb_get_guint8((x), CHUNK_TYPE_OFFSET))
 
-
-extern gchar* address_to_str(const address *);
-
-
 static void
 sctpstat_reset(void *phs)
 {
@@ -96,7 +93,7 @@ sctpstat_reset(void *phs)
 	sctp_ep_t* list = (sctp_ep_t*)sctp_stat->ep_list;
 	sctp_ep_t* tmp = NULL;
 	guint16 chunk_type;
-	
+
 	if(!list)
 		return;
 
@@ -118,7 +115,7 @@ sctp_ep_t* alloc_sctp_ep(struct _sctp_info *si)
 
 	if (!(ep = g_malloc(sizeof(sctp_ep_t))))
 		return NULL;
-	
+
 	COPY_ADDRESS(&ep->src,&si->ip_src);
 	COPY_ADDRESS(&ep->dst,&si->ip_dst);
 	ep->sport = si->sport;
@@ -130,7 +127,7 @@ sctp_ep_t* alloc_sctp_ep(struct _sctp_info *si)
 }
 
 
-	
+
 
 static int
 sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *phi)
@@ -141,12 +138,12 @@ sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 	struct _sctp_info *si = (struct _sctp_info *) phi;
 	guint32 tvb_number;
 	guint8 chunk_type;
-	
+
 	if (!hs)
 		return (0);
-		
+
 	hs->number_of_packets++;
-	
+
 	if(!hs->ep_list) {
 		hs->ep_list = alloc_sctp_ep(si);
 		te = hs->ep_list;
@@ -173,7 +170,7 @@ sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 	if(!te)
 		return (0);
 
-	
+
 	if (si->number_of_tvbs > 0) {
 		chunk_type = CHUNK_TYPE(si->tvb[0]);
 		if ((chunk_type == SCTP_INIT_CHUNK_ID) ||
@@ -199,7 +196,7 @@ sctpstat_draw(void *phs)
 	printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
 	printf("|   Source IP   |PortA|    Dest. IP   |PortB|  DATA  |  SACK  |  HBEAT |HBEATACK|  INIT  | INITACK| COOKIE |COOKIACK| ABORT  |  ERROR |\n");
 	printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
-	
+
 	for(tmp = list ; tmp ; tmp=tmp->next) {
 		printf("|%15s|%5u|%15s|%5u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|\n",
 		       address_to_str(&tmp->src),tmp->sport,
