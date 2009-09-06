@@ -1839,7 +1839,7 @@
 00:06:FB	HitachiPri             # Hitachi Printing Solutions, Ltd.
 00:06:FC	Fnet                   # Fnet Co., Ltd.
 00:06:FD	ComjetInfo             # Comjet Information Systems Corp.
-00:06:FE	CelionNetw             # Celion Networks, Inc.
+00:06:FE	Ambrado                # Ambrado, Inc
 00:06:FF	Sheba                  # Sheba Systems Co., Ltd.
 00:07:00	Zettamedia             # Zettamedia Korea
 00:07:01	Cisco		# RACAL-DATACOM
@@ -6929,7 +6929,7 @@
 00:1B:02	Ed                     # ED Co.Ltd
 00:1B:03	ActionTech             # Action Technology (SZ) Co., Ltd
 00:1B:04	AffinityIn             # Affinity International S.p.a
-00:1B:05	YoungMedia             # Young Media Concepts GmbH
+00:1B:05	Ymc                    # YMC AG
 00:1B:06	AteliersRL             # Ateliers R. LAUMONIER
 00:1B:07	MendocinoS             # Mendocino Software
 00:1B:08	DanfossDri             # Danfoss Drives A/S
@@ -13576,6 +13576,17 @@
 00:50:C2:B2:90:00/36	IntegraLif             # Integra LifeSciences (Ireland) Ltd
 00:50:C2:B2:A0:00/36	TrenchAust             # Trench Austria GmbH
 00:50:C2:B2:B0:00/36	CosmodataI             # CosmoData Informatica Ltda.
+00:50:C2:B2:C0:00/36	Concepteer             # Concepteers, LLC
+00:50:C2:B2:D0:00/36	DatasatDig             # Datasat Digital Entertainment
+00:50:C2:B2:E0:00/36	Act
+00:50:C2:B2:F0:00/36	Intellivis             # IntelliVision Technologies, Corp
+00:50:C2:B3:00:00/36	AppliedMic             # Applied Micro Electronics "AME" BV
+00:50:C2:B3:10:00/36	ShopSafe               # Shop Safe AG
+00:50:C2:B3:20:00/36	ByresSecur             # Byres Security Inc
+00:50:C2:B3:30:00/36	Numcore                # Numcore Ltd
+00:50:C2:B3:40:00/36	Meisol                 # Meisol co.,ltd
+00:50:C2:B3:50:00/36	Haneron
+00:50:C2:B3:60:00/36	Crde
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -15662,6 +15673,7 @@
 08:BB:CC	Ak-NordEdv             # AK-NORD EDV VERTRIEBSGES. mbH
 09:00:6A	AT&T
 0C:60:76	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd.
+0C:D7:C2	AxiumTechn             # Axium Technologies, Inc.
 0C:E7:09	FoxCryptoB             # Fox Crypto B.V.
 0C:E9:36	ElimosSrl              # ELIMOS srl
 0C:EE:E6	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd.
@@ -15671,6 +15683,7 @@
 10:00:D4	DEC
 10:00:E0	AppleA/UxM             # Apple A/UX			(modified addresses for licensing)
 10:00:E8	NationalSe             # NATIONAL SEMICONDUCTOR
+10:45:F8	Lnt-Automa             # LNT-Automation GmbH
 10:BA:A5	GanaI&C                # GANA I&C CO., LTD
 11:00:AA	Private
 14:6E:0A	Private
@@ -15718,13 +15731,16 @@
 60:FB:42	Apple                  # Apple, Inc
 64:16:F0	ShehzhenHu             # Shehzhen Huawei Communication Technologies Co., Ltd.
 64:4B:C3	ShanghaiWo             # Shanghai WOASiS Telecommunications Ltd., Co.
+64:4F:74	Lenus                  # LENUS Co., Ltd.
 64:65:C0	Nuvon                  # Nuvon, Inc
 64:68:0C	Comtrend
+64:7D:81	YokotaIndu             # YOKOTA INDUSTRIAL CO,.LTD
 64:A8:37	JuniKorea              # Juni Korea Co., Ltd
 64:BC:11	Combiq                 # CombiQ AB
 64:C6:AF	AxerraNetw             # AXERRA Networks Ltd
 64:ED:57	MotorolaMd             # Motorola MDb/Broadband
 68:85:40	IgiMobile              # IGI Mobile, Inc.
+68:A1:B7	HonghaoMin             # Honghao Mingchuan Technology (Beijing) CO.,Ltd.
 68:AA:D2	Datecs                 # DATECS LTD.,
 68:CC:9C	MineSiteTe             # Mine Site Technologies
 6C:0E:0D	SonyEricss             # Sony Ericsson Mobile Communications AB
@@ -15734,13 +15750,19 @@
 70:1A:04	LiteonTech             # Liteon Tech Corp.
 70:1A:ED	Advas                  # ADVAS CO., LTD.
 74:E5:37	Radspin
+78:7F:62	GikMbh                 # GiK mbH
 7C:1E:B3	2nTelekomu             # 2N TELEKOMUNIKACE a.s.
 7C:7B:E4	Z&#39;Seda             # Z&#39;SEDAI KENKYUSHO CORPORATION
+7C:CF:CF	ShanghaiSe             # Shanghai SEARI Intelligent System Co., Ltd
 80:00:10	AttBellLab             # ATT BELL LABORATORIES
+80:17:7D	NortelNetw             # Nortel Networks
 80:AD:00	CnetTechno             # CNET Technology Inc. (Probably an error, see instead 0080AD)
+88:91:DD	Racktivity
+88:A5:BD	Qpcom                  # QPCOM INC.
 90:6D:C8	DlgAutomaç             # DLG Automação Industrial Ltda
 90:E6:BA	AsustekCom             # ASUSTek COMPUTER INC.
 94:2E:63	Finsécur
+94:44:52	BelkinInte             # Belkin International, Inc.
 9C:18:74	NokiaDanma             # Nokia Danmark A/S
 A0:07:98	SamsungEle             # Samsung Electronics
 A0:2E:F3	UnitedInte             # United Integrated Services Co., Led.
@@ -15750,6 +15772,7 @@ A0:98:05	OpenvoxCom             # OpenVox Communication Co Ltd
 A0:9A:5A	TimeDomain             # Time Domain
 A4:DE:50	TotalWalth             # Total Walther GmbH
 A4:E7:E4	Connex                 # Connex GmbH
+A8:70:A5	Unicomm                # UniComm Inc.
 A8:CE:90	Cvc
 AA:00:00	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:01	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
@@ -15759,24 +15782,33 @@ AA:00:04	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AC:83:17	ShenzhenFu             # Shenzhen Furtunetel Communication Co., Ltd
 AC:D1:80	CrexendoBu             # Crexendo Business Solutions, Inc.
 AC:DE:48	Private
+B0:C6:9A	JuniperNet             # Juniper Networks
 B4:41:7A	ShenzhenGo             # ShenZhen Gongjin Electronics Co.,Ltd
 B4:B5:AF	MinsungEle             # Minsung Electronics
+B8:94:D2	RetailInno             # Retail Innovation HTT AB
 BC:9D:A5	DascomEuro             # DASCOM Europe GmbH
 C0:00:00	WesternDig             # Western Digital (may be reversed 00 00 C0?)
 C0:22:50	Private
+C4:19:8B	DominionVo             # Dominion Voting Systems Corporation
+C4:FC:E4	DishtvNz               # DishTV NZ Ltd
 C8:3A:35	TendaTechn             # Tenda Technology Co., Ltd.
 C8:C1:3C	RuggedtekH             # RuggedTek Hangzhou Co., Ltd
 C8:D2:C1	JetlunShen             # Jetlun (Shenzhen) Corporation
 CC:00:80	TrustSyste             # TRUST SYSTEM Co.,
 CC:CC:4E	SunFountai             # Sun Fountainhead USA. Corp 
+D4:AA:FF	MicroWorld             # MICRO WORLD 
 D4:C7:66	Acentic                # Acentic GmbH
 D8:D6:7E	GskCncEqui             # GSK CNC EQUIPMENT CO.,LTD
+DC:33:50	Techsat                # TechSAT GmbH
+DC:E7:1C	AugElektro             # AUG Elektronik GmbH
 E0:64:BB	DigiviewSR             # DigiView S.r.l.
 E0:91:53	XaviTechno             # XAVi Technologies Corp.
 E2:0C:0F	KingstonTe             # Kingston Technologies
 E4:1F:13	Ibm
+E4:FF:DD	ElectronIn             # ELECTRON INDIA
 E8:0B:13	AkibTaiwan             # Akib Systems Taiwan, INC
 E8:A4:C1	DeepSeaEle             # Deep Sea Electronics PLC
+E8:DA:AA	VideohomeT             # VideoHome Technology Corp.
 EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 EC:30:91	Cisco                  # Cisco Systems
 EC:6C:9F	ChengduVol             # Chengdu Volans Technology CO.,LTD
