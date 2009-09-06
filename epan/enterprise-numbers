@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-08-29)
+(last updated 2009-09-06)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -11823,8 +11823,8 @@ Decimal
       snmp&imedia.com
 2954
   Universitaet Bielefeld, Technische Fakultaet
-    Rainer Orth
-      ro&TechFak.Uni-Bielefeld.DE
+    Sascha Frey, TechFak Support
+      support&TechFak.Uni-Bielefeld.DE
 2955
   PSINet UK Ltd.
     Ben Rogers
@@ -50862,9 +50862,9 @@ Decimal
     Steve Jepps
       stevej&axl.co.uk
 12827
-  BarcoView LLC
-    Roger Goehring
-      roger.goehring&barco.com
+  Barco, Inc.
+    Elias Chibli
+      elias.chibli&barco.com
 12828
   Blue Heron Biotechnology Inc
     IT Systems
@@ -86217,8 +86217,8 @@ Information Security of Pr
       miancris&sapec.es
 21665
   VSB - Technical University of Ostrava
-    Ivan Dolezal
-      ivan.dolezal&vsb.cz
+    Jan Vavricek
+      oidmaster&vsb.cz
 21666
   ToutProgrammer.com
     Stéphane Vanpoperynghe
@@ -105881,7 +105881,7 @@ Authority
 26576
   Ian Cairns
     Ian Cairns
-      ic&iancairns.org
+      ian&iancairns.org
 26577
   Kaufcom GmbH
     Donati Roberto
@@ -129476,7 +129476,7 @@ Decentralization / Helenic Public Administra
       tarun.kumar&tikona.in
 32473
   Example Enterprise Number for Documentation Use
-    See [RFC-eronen-enterprise-number-documentation-01]
+    See [RFC5612]
       iana&iana.org
 32474
   Kialco Group
@@ -136363,6 +136363,194 @@ Decentralization / Helenic Public Administra
   Jerusalem College of Technology
     avraham shir-el
       avraham&jct.ac.il
+34195
+  ZID, Vienna University of Technology
+    Jan Zabloudil
+      jan.zabloudil&tuwien.ac.at
+34196
+  Catchy.net BV
+    Berend van der Laan
+      berend&catchy.net
+34197
+  EXANE
+    ALIBELLI TONY
+      tony.alibelli&exane.com
+34198
+  Pragmatic Source SARL
+    Farzad FARID
+      ffarid&pragmatic-source.com
+34199
+  West Virginia University
+    Christopher Boyer
+      ckboyer&mail.wvu.edu
+34200
+  Planet-Work
+    Frédéric VANNIÈRE
+      tech&planet-work.com
+34201
+  Neuberger Berman
+    Timothy Warren
+      tim.warren&nb.com
+34202
+  Thing in the Corner Enterprises, LLC
+    Wesley F. Arnold
+      wesley.arnold&dwwtc.com
+34203
+  TrustAlert
+    Arie Kanarie
+      penholder&trustalert.com
+34204
+  Netweb Technologies
+    Hemant Agrawal
+      hemant&netwebindia.com
+34205
+  Altrusoft AB
+    Hans Höök
+      hans.hook&altrusoft.se
+34206
+  Penguin Solutions
+    Florian Tischler
+      admin&penguin-solutions.at
+34207
+  tmira solutions
+    Miguel Angel Nieto Jimenez
+      manieto&tmira.com
+34208
+  Telefin S.p.A.
+    Luigi Ferrarini
+      ferrarini&telefin.it
+34209
+  Vamed Management und Service GmbH & CO KG
+    Thomas Gallistl
+      domainadmin&vamed.com
+34210
+  Evangelische Kirche von Kurhessen-Waldeck
+    Torben Busse
+      edv.lka&ekkw.de
+34211
+  Hanil Display
+    Youngje Lee
+      yj0000&dreamwiz.com
+34212
+  Function International
+    John Hughes
+      jjhii&functioninternational.com
+34213
+  ooVoo, LLC
+    Michael Nordberg
+      michael.nordberg&oovoo.com
+34214
+  ACEnet
+    Craig Squires
+      csquires&mun.ca
+34215
+  Acksen Ltd
+    Richard Phillips
+      richard.phillips&acksen.com
+34216
+  Izmir University Of Economics
+    Aydin MUTLU
+      aydin.mutlu&ieu.edu.tr
+34217
+  SKY Network Television Ltd
+    Murray Knox
+      mknox&skytv.co.nz
+34218
+  DEW Industrial Electronics (Pty) Ltd, t/a SOS Industrial Electronics
+    Ron Edge
+      info&sos-ind.co.za
+34219
+  wer-kennt-wen.de
+    Frederik Padjen
+      frederik.padjen&wer-kennt-wen.de
+34220
+  CreAim B.V.
+    Rogier Pafort
+      pafort.rogier&creaim.nl
+34221
+  TELEFRANG AB
+    ROBERT WIIK
+      ROBERT.WIIK&TELEFRANG.SE
+34222
+  SOLTENLAR, S. L.
+    JUAN CARLOS FERNANDEZ GARACHANA
+      juancarlos&soltenlar.com
+34223
+  chaos Studio
+    Paul Adams
+      paul&chaos-studio.com
+34224
+  OpenSpirit S.A.
+    Pedro Morris
+      pmorris&openspirit.com.ar
+34225
+  S30LABS IT ADVANCED SYSTEMS
+    Fernando Marin
+      fmarin&s30labs.com
+34226
+  EION Inc
+    jaganbabu Rajamanickam
+      jagan&eion.com
+34227
+  Software Machine S.r.l.
+    Andrea Bertolotto
+      info&softwaremachine.eu
+34228
+  Radialpoint SafeCare General Partnership
+    Sebastien Coutu
+      sebastien.coutu&radialpoint.com
+34229
+  Codewalker Solutions
+    Gustavo Neto
+      gustavo.neto&codewalker.com.br
+34230
+  GCI Science & Technology Co. ,Ltd.
+    Xiaojun Guo
+      guoxiaojun&chinagci.com
+34231
+  Open Cobalt Project
+    John Dougan
+      jdougan&acm.org
+34232
+  Lucian-Alexandru Stanescu
+    Lucian-Alexandru Stanescu
+      luci&cnix.ro
+34233
+  Kruger
+    Fábio Ricardo Krüger Sartori
+      fabio&krugerconsultoria.com.br
+34234
+  Land Srl
+    Claudio Dosio
+      dosio&land.it
+34235
+  Cork IT
+    Alberto Reis
+      contato&corkit.com.br
+34236
+  Pixie
+    Kiall Mac Innes
+      info&pix.ie
+34237
+  AssureTec Systems, Inc.
+    Erich Weihrauch
+      IT&AssureTec.com
+34238
+  NewsWatch, Inc.
+    Masahiro Kajiura
+      penadmin&newswatch.co.jp
+34239
+  Innovating Distributed Systems S.L.
+    Miguel Angel Jimenez
+      info&idsystems.es
+34240
+  DARS d.d.
+    Matjaz Vidic
+      matjaz.vidic&dars.si
+34241
+  Competella AB
+    Lennart Bauer
+      lennart.bauer&competella.com
 
 
 End of Document
