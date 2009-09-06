@@ -1421,12 +1421,15 @@ set_circuit_id(packet_info *pinfo)
 gboolean
 col_based_on_frame_data(column_info *cinfo, gint col)
 {
-    if (col_has_time_fmt(cinfo, col))
-        return TRUE;
-
     switch (cinfo->col_fmt[col]) {
 
     case COL_NUMBER:
+    case COL_CLS_TIME:
+    case COL_ABS_TIME:
+    case COL_ABS_DATE_TIME:
+    case COL_REL_TIME:
+    case COL_DELTA_TIME:
+    case COL_DELTA_TIME_DIS:
     case COL_PACKET_LENGTH:
     case COL_CUMULATIVE_BYTES:
       return TRUE;
