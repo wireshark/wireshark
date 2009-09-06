@@ -622,10 +622,14 @@ proto_tree_free_node(proto_node *node, gpointer data _U_)
  * By setting this correctly, the proto_tree creation is sped up by not
  * having to call g_vsnprintf and copy strings around.
  */
-void
+gboolean
 proto_tree_set_visible(proto_tree *tree, gboolean visible)
 {
+	gboolean old_visible = PTREE_DATA(tree)->visible;
+
 	PTREE_DATA(tree)->visible = visible;
+
+	return old_visible;
 }
 
 void

@@ -467,8 +467,9 @@ extern void proto_tree_free(proto_tree *tree);
  By setting this correctly, the proto_tree creation is sped up by not
  having to call g_vsnprintf and copy strings around.
  @param tree the tree to be set
- @param visible ... or not  */
-extern void
+ @param visible ... or not
+ @return the old value */
+extern gboolean
 proto_tree_set_visible(proto_tree *tree, gboolean visible);
 
 /** Indicate whether we should fake protocols during dissection (default = TRUE)

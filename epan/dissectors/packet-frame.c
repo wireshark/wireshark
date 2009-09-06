@@ -187,7 +187,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
             expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN,
                 "Arrival Time: Fractional second out of range (0-1000000000)");
     } else {
-	    proto_tree	*fh_tree;
+	  proto_tree	*fh_tree;
+      gboolean old_visible;
 
 	  /* Put in frame header information. */
 	  cap_len = tvb_length(tvb);
@@ -270,11 +271,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	   *
 	   * See proto.h for details.
 	   */
-	  proto_tree_set_visible(fh_tree, TRUE);
-
-	  ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb,
-	  	0, 0, "");
+	  old_visible = proto_tree_set_visible(fh_tree, TRUE);
+	  ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, "");
 	  PROTO_ITEM_SET_GENERATED(ti);
+	  proto_tree_set_visible(fh_tree, old_visible);
+
 	  pinfo->layer_names = g_string_new("");
 
 	  /* Check for existences of P2P pseudo header */
