@@ -296,7 +296,7 @@ static void h223_lc_init( void )
 	h223_fw_lc_num = 0;
 }
 
-static void h245_init(void) 
+static void h245_init(void)
 {
 	if ( h245_pending_olc_reqs)
 		g_hash_table_destroy(h245_pending_olc_reqs);
@@ -312,7 +312,7 @@ void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
 
 static const gchar *gen_olc_key(guint16 lc_num, address *dst_addr, address *src_addr)
 {
-  return ep_strdup_printf("%s/%s/%u", address_to_str(dst_addr), address_to_str(src_addr), lc_num);
+  return ep_strdup_printf("%s/%s/%u", ep_address_to_str(dst_addr), ep_address_to_str(src_addr), lc_num);
 }
 
 static void update_unicast_addr(unicast_addr_t *req_addr, unicast_addr_t *ack_addr)
@@ -335,8 +335,8 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 	/* T.38 */
 	if (!strcmp(upcoming_channel->data_type_str, "t38fax")) {
 		if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && t38_handle) {
-			t38_add_address(pinfo, &upcoming_channel->media_addr.addr, 
-							upcoming_channel->media_addr.port, 0, 
+			t38_add_address(pinfo, &upcoming_channel->media_addr.addr,
+							upcoming_channel->media_addr.port, 0,
 							"H245", pinfo->fd->num);
 		}
 		return;
@@ -357,13 +357,13 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 	/* DEBUG 	g_warning("h245_setup_channels media_addr.addr.type %u port %u",upcoming_channel->media_addr.addr.type, upcoming_channel->media_addr.port );
 	*/
 	if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle) {
-		srtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
-						upcoming_channel->media_addr.port, 0, 
+		srtp_add_address(pinfo, &upcoming_channel->media_addr.addr,
+						upcoming_channel->media_addr.port, 0,
 						"H245", pinfo->fd->num, upcoming_channel->is_video , rtp_dyn_payload, dummy_srtp_info);
 	}
 	if (upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle) {
-		srtcp_add_address(pinfo, &upcoming_channel->media_control_addr.addr, 
-						upcoming_channel->media_control_addr.port, 0, 
+		srtcp_add_address(pinfo, &upcoming_channel->media_control_addr.addr,
+						upcoming_channel->media_control_addr.port, 0,
 						"H245", pinfo->fd->num, dummy_srtp_info);
 	}
 }
@@ -442,7 +442,7 @@ dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
   dissect_OpenLogicalChannel_PDU(tvb, pinfo, tree);
 
-  if (h245_pi != NULL) 
+  if (h245_pi != NULL)
 	  h245_pi->msg_type = H245_OpenLogChn;
 
   if (codec_str && codec_type){
@@ -521,7 +521,7 @@ void proto_register_h245(void) {
   oid_add_from_string("ISO/IEC 14496-2 MPEG-4 video","0.0.8.245.1.0.0");
   /* This capability is defined in Annex H. */
   oid_add_from_string("ISO/IEC 14496-3 MPEG-4 audio","0.0.8.245.1.1.0");
-  /* This capability is defined in Annex I. */	
+  /* This capability is defined in Annex I. */
   oid_add_from_string("AMR","0.0.8.245.1.1.1");
   /* This capability is defined in Annex J. */
   oid_add_from_string("acelp","0.0.8.245.1.1.2");
@@ -543,7 +543,7 @@ void proto_register_h245(void) {
   oid_add_from_string("AMR-WB","0.0.8.245.1.1.10");
   /* This capability is defined in Annex S. */
   oid_add_from_string("ilbc","0.0.8.245.1.1.11");
-  
+
   oid_add_from_string("ISO/IEC 14496-1","0.0.8.245.1.2.0");
   oid_add_from_string("Nx64","0.0.8.245.1.2.1");
   oid_add_from_string("logical-channel-bit-ratemanagement","0.0.8.245.1.3.0");

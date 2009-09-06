@@ -295,12 +295,12 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ipx_tree = proto_item_add_subtree(ti, ett_ipx);
 	}
 
-	str=address_to_str(&pinfo->net_src);
+	str=ep_address_to_str(&pinfo->net_src);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_src, tvb, 0, 0, str);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
-	str=address_to_str(&pinfo->net_dst);
+	str=ep_address_to_str(&pinfo->net_dst);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_dst, tvb, 0, 0, str);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);

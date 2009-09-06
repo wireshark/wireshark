@@ -32,7 +32,7 @@
  * Title                3GPP2                   Other
  *
  *   Cellular Radiotelecommunications Intersystem Operations
- *                      3GPP2 N.S0005-0 v 1.0           ANSI/TIA/EIA-41-D 
+ *                      3GPP2 N.S0005-0 v 1.0           ANSI/TIA/EIA-41-D
  *
  *   Network Support for MDN-Based Message Centers
  *                      3GPP2 N.S0024-0 v1.0    IS-841
@@ -62,8 +62,8 @@
  *   WIN Phase 1
  *                      3GPP2 N.S0013-0 v1.0    IS-771
  *
- *       DCCH (Clarification of Audit Order with Forced 
- *         Re-Registration in pre-TIA/EIA-136-A Implementation 
+ *       DCCH (Clarification of Audit Order with Forced
+ *         Re-Registration in pre-TIA/EIA-136-A Implementation
  *                      3GPP2 A.S0017-B                 IS-730
  *
  *   UIM
@@ -82,7 +82,7 @@
  *   Answer Hold
  *                      3GPP2 N.S0022-0 v1.0    IS-837
  *
- */ 
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -244,7 +244,7 @@ static int hf_ansi_map_cdmachanneldata_lc_mask_b1 = -1;
 static int hf_ansi_map_cdmachanneldata_np_ext = -1;
 static int hf_ansi_map_cdmachanneldata_nominal_pwr = -1;
 static int hf_ansi_map_cdmachanneldata_nr_preamble = -1;
- 
+
 static int hf_ansi_map_cdmastationclassmark_pc = -1;
 static int hf_ansi_map_cdmastationclassmark_dtx = -1;
 static int hf_ansi_map_cdmastationclassmark_smi = -1;
@@ -407,7 +407,7 @@ static void
 ansi_map_init_protocol(void)
 {
     ansi_map_init_transaction_table();
-} 
+}
 
 /* Store Invoke information needed for the corresponding reply */
 static void
@@ -422,8 +422,8 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
 
     buf=ep_alloc(1024);
 
-    src_str = address_to_str(src);
-    dst_str = address_to_str(dst);
+    src_str = ep_address_to_str(src);
+    dst_str = ep_address_to_str(dst);
 
     /* Data from the TCAP dissector */
     if (pinfo->private_data != NULL){
@@ -441,7 +441,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
             ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
             ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 
-            g_hash_table_insert(TransactionId_table, 
+            g_hash_table_insert(TransactionId_table,
                                 g_strdup(buf),
                                 ansi_map_saved_invokedata);
             /*
@@ -583,7 +583,7 @@ static dgt_set_t Dgt1_9_bcd = {
      '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
     }
 };
-/* Assumes the rest of the tvb contains the digits to be turned into a string 
+/* Assumes the rest of the tvb contains the digits to be turned into a string
  */
 static char*
 unpack_digits2(tvbuff_t *tvb, int offset,dgt_set_t *dgt){
@@ -601,7 +601,7 @@ unpack_digits2(tvbuff_t *tvb, int offset,dgt_set_t *dgt){
     while ( offset < length ){
 
         octet = tvb_get_guint8(tvb,offset);
-        digit_str[i] = dgt->out[octet & 0x0f]; 
+        digit_str[i] = dgt->out[octet & 0x0f];
         i++;
 
         /*
@@ -612,7 +612,7 @@ unpack_digits2(tvbuff_t *tvb, int offset,dgt_set_t *dgt){
         if (octet == 0x0f)      /* odd number bytes - hit filler */
             break;
 
-        digit_str[i] = dgt->out[octet & 0x0f]; 
+        digit_str[i] = dgt->out[octet & 0x0f];
         i++;
         offset++;
 
@@ -684,7 +684,7 @@ static const value_string ansi_map_np_vals[]  = {
     {   0, NULL }
 };
 
-static void 
+static void
 dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
     char *digit_str;
     int   offset = 0;
@@ -699,7 +699,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_item_append_text(actx->created_item, " - %s", digit_str);
 }
 
-static void 
+static void
 dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
 
     guint8 octet , octet_len;
@@ -843,7 +843,7 @@ static const value_string ansi_map_sub_addr_type_vals[]  = {
     {   0, NULL }
 };
 
-static void 
+static void
 dissect_ansi_map_subaddress(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
     int offset = 0;
 
@@ -1147,7 +1147,7 @@ static const value_string ansi_map_authorizationperiod_period_vals[]  = {
 Number of minutes hours, days, weeks, or
 number of calls (as per Period). If Period
 indicates anything else the Value is set to zero
-on sending and ignored on receipt. 
+on sending and ignored on receipt.
 */
 static void
 dissect_ansi_map_authorizationperiod(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
@@ -1206,11 +1206,11 @@ static const value_string ansi_map_FeatureActivity_vals[]  = {
 static void
 dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
     int offset = 0;
-    int length; 
+    int length;
 
     proto_tree *subtree;
 
-    length = tvb_length_remaining(tvb,offset); 
+    length = tvb_length_remaining(tvb,offset);
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mscid);
 
@@ -1363,11 +1363,11 @@ static const true_false_string ansi_map_CDMACallMode_cls10_bool_val  = {
 static void
 dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
     int offset = 0;
-    int length; 
+    int length;
 
     proto_tree *subtree;
 
-    length = tvb_length_remaining(tvb,offset); 
+    length = tvb_length_remaining(tvb,offset);
 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mscid);
@@ -1388,7 +1388,7 @@ dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     /* Call Mode (octet 1, bit A) */
     proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cdma, tvb, offset, 1, FALSE);
 
-    length--; 
+    length--;
     if ( length == 0)
         return;
     offset++;
@@ -1417,7 +1417,7 @@ static void
 dissect_ansi_map_cdmachanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
 
     int offset = 0;
-    int length; 
+    int length;
 
     proto_tree *subtree;
 
@@ -1612,7 +1612,7 @@ static const value_string ansi_map_CountUpdateReport_vals[]  = {
 };
 
 /* 6.5.2.53 DeniedAuthorizationPeriod */
-/* Period (octet 1) */ 
+/* Period (octet 1) */
 static const value_string ansi_map_deniedauthorizationperiod_period_vals[]  = {
     {   0, "Not used"},
     {   1, "Per Call. Re-authorization should be attempted on the next call attempt"},
@@ -1629,7 +1629,7 @@ static const value_string ansi_map_deniedauthorizationperiod_period_vals[]  = {
 Number of minutes hours, days, weeks, or
 number of calls (as per Period). If Period
 indicates anything else the Value is set to zero
-on sending and ignored on receipt. 
+on sending and ignored on receipt.
 */
 
 static void
@@ -2787,90 +2787,90 @@ static const value_string ansi_map_UniqueChallengeReport_vals[]  = {
 
 /* values copied from old ANSI map dissector */
 static const range_string cdmaserviceoption_vals[] = {
-    { 1, 1, "Basic Variable Rate Voice Service (8 kbps)" }, 
-    { 2, 2, "Mobile Station Loopback (8 kbps)" }, 
-    { 3, 3, "Enhanced Variable Rate Voice Service (8 kbps)" }, 
-    { 4, 4, "Asynchronous Data Service (9.6 kbps)" }, 
+    { 1, 1, "Basic Variable Rate Voice Service (8 kbps)" },
+    { 2, 2, "Mobile Station Loopback (8 kbps)" },
+    { 3, 3, "Enhanced Variable Rate Voice Service (8 kbps)" },
+    { 4, 4, "Asynchronous Data Service (9.6 kbps)" },
     { 5, 5, "Group 3 Facsimile (9.6 kbps)" },
-    { 6, 6, "Short Message Services (Rate Set 1)" }, 
-    { 7, 7, "Packet Data Service: Internet or ISO Protocol Stack (9.6 kbps)" }, 
-    { 8, 8, "Packet Data Service: CDPD Protocol Stack (9.6 kbps)" }, 
-    { 9, 9, "Mobile Station Loopback (13 kbps)" }, 
-    { 10, 10, "STU-III Transparent Service" }, 
-    { 11, 11, "STU-III Non-Transparent Service" }, 
-    { 12, 12, "Asynchronous Data Service (14.4 or 9.6 kbps)" }, 
-    { 13, 13, "Group 3 Facsimile (14.4 or 9.6 kbps)" }, 
-    { 14, 14, "Short Message Services (Rate Set 2)" }, 
-    { 15, 15, "Packet Data Service: Internet or ISO Protocol Stack (14.4 kbps)" }, 
-    { 16, 16, "Packet Data Service: CDPD Protocol Stack (14.4 kbps)" }, 
-    { 17, 17, "High Rate Voice Service (13 kbps)" }, 
-    { 18, 18, "Over-the-Air Parameter Administration (Rate Set 1)" }, 
-    { 19, 19, "Over-the-Air Parameter Administration (Rate Set 2)" }, 
-    { 20, 20, "Group 3 Analog Facsimile (Rate Set 1)" }, 
-    { 21, 21, "Group 3 Analog Facsimile (Rate Set 2)" }, 
-    { 22, 22, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS1 reverse)" }, 
-    { 23, 23, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS2 reverse)" }, 
-    { 24, 24, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS1 reverse)" }, 
+    { 6, 6, "Short Message Services (Rate Set 1)" },
+    { 7, 7, "Packet Data Service: Internet or ISO Protocol Stack (9.6 kbps)" },
+    { 8, 8, "Packet Data Service: CDPD Protocol Stack (9.6 kbps)" },
+    { 9, 9, "Mobile Station Loopback (13 kbps)" },
+    { 10, 10, "STU-III Transparent Service" },
+    { 11, 11, "STU-III Non-Transparent Service" },
+    { 12, 12, "Asynchronous Data Service (14.4 or 9.6 kbps)" },
+    { 13, 13, "Group 3 Facsimile (14.4 or 9.6 kbps)" },
+    { 14, 14, "Short Message Services (Rate Set 2)" },
+    { 15, 15, "Packet Data Service: Internet or ISO Protocol Stack (14.4 kbps)" },
+    { 16, 16, "Packet Data Service: CDPD Protocol Stack (14.4 kbps)" },
+    { 17, 17, "High Rate Voice Service (13 kbps)" },
+    { 18, 18, "Over-the-Air Parameter Administration (Rate Set 1)" },
+    { 19, 19, "Over-the-Air Parameter Administration (Rate Set 2)" },
+    { 20, 20, "Group 3 Analog Facsimile (Rate Set 1)" },
+    { 21, 21, "Group 3 Analog Facsimile (Rate Set 2)" },
+    { 22, 22, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS1 reverse)" },
+    { 23, 23, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS2 reverse)" },
+    { 24, 24, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS1 reverse)" },
     { 25, 25, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS2 reverse)" },
-    { 26, 26, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS1 reverse)" }, 
-    { 27, 27, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS2 reverse)" }, 
-    { 28, 28, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS1 reverse)" }, 
-    { 29, 29, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS2 reverse)" }, 
-    { 30, 30, "Supplemental Channel Loopback Test for Rate Set 1" }, 
-    { 31, 31, "Supplemental Channel Loopback Test for Rate Set 2" }, 
-    { 32, 32, "Test Data Service Option (TDSO)" }, 
-    { 33, 33, "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack" }, 
-    { 34, 34, "cdma2000 High Speed Packet Data Service, CDPD Protocol Stack" }, 
+    { 26, 26, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS1 reverse)" },
+    { 27, 27, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS2 reverse)" },
+    { 28, 28, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS1 reverse)" },
+    { 29, 29, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS2 reverse)" },
+    { 30, 30, "Supplemental Channel Loopback Test for Rate Set 1" },
+    { 31, 31, "Supplemental Channel Loopback Test for Rate Set 2" },
+    { 32, 32, "Test Data Service Option (TDSO)" },
+    { 33, 33, "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack" },
+    { 34, 34, "cdma2000 High Speed Packet Data Service, CDPD Protocol Stack" },
     { 35, 35, "Location Services, Rate Set 1 (9.6 kbps)" },
-    { 36, 36, "Location Services, Rate Set 2 (14.4 kbps)" }, 
-    { 37, 37, "ISDN Interworking Service (64 kbps)" }, 
-    { 38, 38, "GSM Voice" }, 
-    { 39, 39, "GSM Circuit Data" }, 
-    { 40, 40, "GSM Packet Data" }, 
-    { 41, 41, "GSM Short Message Service" }, 
-    { 42, 42, "None Reserved for MC-MAP standard service options" }, 
-    { 54, 54, "Markov Service Option (MSO)" }, 
+    { 36, 36, "Location Services, Rate Set 2 (14.4 kbps)" },
+    { 37, 37, "ISDN Interworking Service (64 kbps)" },
+    { 38, 38, "GSM Voice" },
+    { 39, 39, "GSM Circuit Data" },
+    { 40, 40, "GSM Packet Data" },
+    { 41, 41, "GSM Short Message Service" },
+    { 42, 42, "None Reserved for MC-MAP standard service options" },
+    { 54, 54, "Markov Service Option (MSO)" },
     { 55, 55, "Loopback Service Option (LSO)" },
-    { 56, 56, "Selectable Mode Vocoder" }, 
-    { 57, 57, "32 kbps Circuit Video Conferencing" }, 
-    { 58, 58, "64 kbps Circuit Video Conferencing" }, 
-    { 59, 59, "HRPD Accounting Records Identifier" }, 
-    { 60, 60, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal" }, 
-    { 61, 61, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression" }, 
+    { 56, 56, "Selectable Mode Vocoder" },
+    { 57, 57, "32 kbps Circuit Video Conferencing" },
+    { 58, 58, "64 kbps Circuit Video Conferencing" },
+    { 59, 59, "HRPD Accounting Records Identifier" },
+    { 60, 60, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal" },
+    { 61, 61, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression" },
     { 62, 62, "Source-Controlled Variable-Rate Multimode Wideband Speech Codec (VMR-WB) Rate Set 2" },
     { 63, 63, "Source-Controlled Variable-Rate Multimode Wideband Speech Codec (VMR-WB) Rate Set 1" },
     { 64, 64, "HRPD auxiliary Packet Data Service instance" },
     { 65, 65, "cdma2000/GPRS Inter-working" },
     { 66, 66, "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack" },
     { 67, 67, "HRPD Packet Data IP Service where Higher Layer Protocol is IP or ROHC" },
-    { 68, 68, "Enhanced Variable Rate Voice Service (EVRC-B)" }, 
+    { 68, 68, "Enhanced Variable Rate Voice Service (EVRC-B)" },
     { 69, 69, "HRPD Packet Data Service, which when used in paging over the 1x air interface, a page response is required" },
-    { 70, 70, "Enhanced Variable Rate Voice Service (EVRC-WB)" }, 
-    { 71, 4099, "None Reserved for standard service options" }, 
-    { 4100, 4100, "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)" }, 
-    { 4101, 4101, "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)" }, 
+    { 70, 70, "Enhanced Variable Rate Voice Service (EVRC-WB)" },
+    { 71, 4099, "None Reserved for standard service options" },
+    { 4100, 4100, "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)" },
+    { 4101, 4101, "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)" },
     { 4102, 4102, "Reserved for standard service option" },
-    { 4103, 4103, "Packet Data Service: Internet or ISO Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" }, 
-    { 4104, 4104, "Packet Data Service: CDPD Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" }, 
-    { 4105, 32767, "Reserved for standard service options" }, 
-    { 32768, 32768, "QCELP (13 kbps)" }, 
-    { 32769, 32771, "Proprietary QUALCOMM Incorporated" }, 
-    { 32772, 32775, "Proprietary OKI Telecom" }, 
-    { 32776, 32779, "Proprietary Lucent Technologies" }, 
-    { 32780, 32783, "Nokia" }, 
-    { 32784, 32787, "NORTEL NETWORKS" }, 
-    { 32788, 32791, "Sony Electronics Inc" }, 
-    { 32792, 32795, "Motorola" }, 
-    { 32796, 32799, "QUALCOMM Incorporated" }, 
-    { 32800, 32803, "QUALCOMM Incorporated" }, 
-    { 32804, 32807, "QUALCOMM Incorporated" }, 
-    { 32808, 32811, "QUALCOMM Incorporated" }, 
-    { 32812, 32815, "Lucent Technologies" }, 
-    { 32816, 32819, "Denso International" }, 
-    { 32820, 32823, "Motorola" }, 
-    { 32824, 32827, "Denso International" }, 
-    { 32828, 32831, "Denso International" }, 
-    { 32832, 32835, "Denso International" }, 
+    { 4103, 4103, "Packet Data Service: Internet or ISO Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" },
+    { 4104, 4104, "Packet Data Service: CDPD Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" },
+    { 4105, 32767, "Reserved for standard service options" },
+    { 32768, 32768, "QCELP (13 kbps)" },
+    { 32769, 32771, "Proprietary QUALCOMM Incorporated" },
+    { 32772, 32775, "Proprietary OKI Telecom" },
+    { 32776, 32779, "Proprietary Lucent Technologies" },
+    { 32780, 32783, "Nokia" },
+    { 32784, 32787, "NORTEL NETWORKS" },
+    { 32788, 32791, "Sony Electronics Inc" },
+    { 32792, 32795, "Motorola" },
+    { 32796, 32799, "QUALCOMM Incorporated" },
+    { 32800, 32803, "QUALCOMM Incorporated" },
+    { 32804, 32807, "QUALCOMM Incorporated" },
+    { 32808, 32811, "QUALCOMM Incorporated" },
+    { 32812, 32815, "Lucent Technologies" },
+    { 32816, 32819, "Denso International" },
+    { 32820, 32823, "Motorola" },
+    { 32824, 32827, "Denso International" },
+    { 32828, 32831, "Denso International" },
+    { 32832, 32835, "Denso International" },
     { 32836, 32839, "NEC America" },
     { 32840, 32843, "Samsung Electronics" },
     { 32844, 32847, "Texas Instruments Incorporated" },
@@ -3036,7 +3036,7 @@ static const value_string ansi_map_TDMABandwidth_vals[]  = {
 };
 
 /* 6.5.2.az TDMADataFeaturesIndicator N.S0008-0 v 1.0 */
-/* TDMADataFeaturesIndicator 
+/* TDMADataFeaturesIndicator
    ansi_map_FeatureActivity_vals
 
    ADS FeatureActivity ADS-FA ( octet 1 bit A and B )
@@ -3862,7 +3862,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     case  59: /*Change Service*/
         offset = dissect_ansi_map_ChangeService(TRUE, tvb, offset, actx, tree, hf_ansi_map_changeService);
         break;
-        /* End N.S0008-0 v 1.0 */       
+        /* End N.S0008-0 v 1.0 */
     case  60: /*Parameter Request*/
         offset = dissect_ansi_map_ParameterRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_parameterRequest);
         break;
@@ -4010,7 +4010,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         /* CheckMEID X.S0008-0 v1.0*/
     case 104:
         offset = dissect_ansi_map_CheckMEID(TRUE, tvb, offset, actx, tree, hf_ansi_map_checkMEID);
-        break;  
+        break;
         /* PositionEventNotification */
     case 106:
         offset = dissect_ansi_map_PositionEventNotification(TRUE, tvb, offset, actx, tree, hf_ansi_map_positionEventNotification);
@@ -4251,7 +4251,7 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         /* CheckMEID X.S0008-0 v1.0*/
     case 104:
         offset = dissect_ansi_map_CheckMEIDRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_checkMEIDRes);
-        break;  
+        break;
         /* PositionEventNotification *
            case 106:
            offset = dissect_ansi_map_PositionEventNotification(TRUE, tvb, offset, actx, tree, hf_ansi_map_positionEventNotificationRes);
@@ -4289,15 +4289,15 @@ find_saved_invokedata(asn1_ctx_t *actx){
     char *buf;
 
     buf=ep_alloc(1024);
-    src_str = address_to_str(src);
-    dst_str = address_to_str(dst);
+    src_str = ep_address_to_str(src);
+    dst_str = ep_address_to_str(dst);
 
     /* Data from the TCAP dissector */
     if (actx->pinfo->private_data != NULL){
         p_private_tcap=actx->pinfo->private_data;
         /* The hash string needs to contain src and dest to distiguish differnt flows */
-        src_str = address_to_str(src);
-        dst_str = address_to_str(dst);
+        src_str = ep_address_to_str(src);
+        dst_str = ep_address_to_str(dst);
         /* Reverse order to invoke */
         g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
         /*
@@ -4354,9 +4354,9 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     p_private_tcap=pinfo->private_data;
 
     switch(p_private_tcap->d.pdu){
-        /* 
-           1 : invoke, 
-           2 : returnResult, 
+        /*
+           1 : invoke,
+           2 : returnResult,
            3 : returnError,
            4 : reject
         */
@@ -4624,7 +4624,7 @@ void proto_register_ansi_map(void) {
         { &hf_ansi_map_trans_cap_ndss,
           { "NDSS Capability (NDSS)", "ansi_map.trans_cap_ndss",
             FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_ndss_bool_val),0x40,
-            NULL, HFILL }},         
+            NULL, HFILL }},
         { &hf_ansi_map_trans_cap_nami,
           { "NAME Capability Indicator (NAMI)", "ansi_map.trans_cap_nami",
             FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_nami_bool_val),0x80,
@@ -4776,7 +4776,7 @@ void proto_register_ansi_map(void) {
           { "Priority Call Waiting FeatureActivity PCW-FA", "ansi_map.callingfeaturesindicator.pcwfa",
             FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x03,
             NULL, HFILL }},
-          
+
         { &hf_ansi_map_callingfeaturesindicator_dpfa,
           { "Data Privacy Feature Activity DP-FA", "ansi_map.callingfeaturesindicator.dpfa",
             FT_UINT8, BASE_DEC, VALS(ansi_map_FeatureActivity_vals), 0x0c,
@@ -5239,7 +5239,7 @@ void proto_register_ansi_map(void) {
           { "PACA Level", "ansi_map.PACA_Level",
             FT_UINT8, BASE_DEC, VALS(ansi_map_PACA_Level_vals), 0x1e,
             NULL, HFILL }},
-                
+
 #include "packet-ansi_map-hfarr.c"
     };
 
@@ -5282,7 +5282,7 @@ void proto_register_ansi_map(void) {
     /* Register fields and subtrees */
     proto_register_field_array(proto_ansi_map, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
- 
+
     register_dissector("ansi_map", dissect_ansi_map, proto_ansi_map);
 
     is637_tele_id_dissector_table =
@@ -5303,7 +5303,7 @@ void proto_register_ansi_map(void) {
     range_convert_str(&global_ssn_range, "5-14", MAX_SSN);
 
     ansi_map_module = prefs_register_protocol(proto_ansi_map, proto_reg_handoff_ansi_map);
-    
+
 
     prefs_register_range_preference(ansi_map_module, "map.ssn", "ANSI MAP SSNs",
                                     "ANSI MAP SSNs to decode as ANSI MAP",

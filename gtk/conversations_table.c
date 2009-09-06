@@ -507,13 +507,13 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
         /* A <-> B */
         str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
                               ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
-                              address_to_str(&ct->conversations[selection].src_address),
+                              ep_address_to_str(&ct->conversations[selection].src_address),
                               sport?" && ":"",
                               sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
                               sport?"==":"",
                               sport?sport:"",
                               ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
-                              address_to_str(&ct->conversations[selection].dst_address),
+                              ep_address_to_str(&ct->conversations[selection].dst_address),
                               dport?" && ":"",
                               dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
                               dport?"==":"",
@@ -524,13 +524,13 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
         /* A --> B */
         str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
                               ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
-                              address_to_str(&ct->conversations[selection].src_address),
+                              ep_address_to_str(&ct->conversations[selection].src_address),
                               sport?" && ":"",
                               sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
                               sport?"==":"",
                               sport?sport:"",
                               ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
-                              address_to_str(&ct->conversations[selection].dst_address),
+                              ep_address_to_str(&ct->conversations[selection].dst_address),
                               dport?" && ":"",
                               dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
                               dport?"==":"",
@@ -541,13 +541,13 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
         /* A <-- B */
         str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
                               ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
-                              address_to_str(&ct->conversations[selection].src_address),
+                              ep_address_to_str(&ct->conversations[selection].src_address),
                               sport?" && ":"",
                               sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
                               sport?"==":"",
                               sport?sport:"",
                               ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
-                              address_to_str(&ct->conversations[selection].dst_address),
+                              ep_address_to_str(&ct->conversations[selection].dst_address),
                               dport?" && ":"",
                               dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
                               dport?"==":"",
@@ -558,7 +558,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
         /* A <-> ANY */
         str = g_strdup_printf("%s==%s%s%s%s%s",
                               ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
-                              address_to_str(&ct->conversations[selection].src_address),
+                              ep_address_to_str(&ct->conversations[selection].src_address),
                               sport?" && ":"",
                               sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
                               sport?"==":"",
@@ -569,7 +569,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
         /* A --> ANY */
         str = g_strdup_printf("%s==%s%s%s%s%s",
                               ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
-                              address_to_str(&ct->conversations[selection].src_address),
+                              ep_address_to_str(&ct->conversations[selection].src_address),
                               sport?" && ":"",
                               sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
                               sport?"==":"",
@@ -580,7 +580,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
         /* A <-- ANY */
         str = g_strdup_printf("%s==%s%s%s%s%s",
                               ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
-                              address_to_str(&ct->conversations[selection].src_address),
+                              ep_address_to_str(&ct->conversations[selection].src_address),
                               sport?" && ":"",
                               sport?ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
                               sport?"==":"",
@@ -591,7 +591,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
         /* ANY <-> B */
         str = g_strdup_printf("%s==%s%s%s%s%s",
                               ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
-                              address_to_str(&ct->conversations[selection].dst_address),
+                              ep_address_to_str(&ct->conversations[selection].dst_address),
                               dport?" && ":"",
                               dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_PORT):"",
                               dport?"==":"",
@@ -602,7 +602,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
         /* ANY <-- B */
         str = g_strdup_printf("%s==%s%s%s%s%s",
                               ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
-                              address_to_str(&ct->conversations[selection].dst_address),
+                              ep_address_to_str(&ct->conversations[selection].dst_address),
                               dport?" && ":"",
                               dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_PORT):"",
                               dport?"==":"",
@@ -613,7 +613,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
         /* ANY --> B */
         str = g_strdup_printf("%s==%s%s%s%s%s",
                               ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
-                              address_to_str(&ct->conversations[selection].dst_address),
+                              ep_address_to_str(&ct->conversations[selection].dst_address),
                               dport?" && ":"",
                               dport?ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_PORT):"",
                               dport?"==":"",
@@ -1012,7 +1012,7 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
     rownum=gtk_clist_find_row_from_data(ct->table, (gpointer)(long)conversation_idx);
 
     if(!ct->resolve_names)
-        entry=address_to_str(&ct->conversations[conversation_idx].src_address);
+        entry=ep_address_to_str(&ct->conversations[conversation_idx].src_address);
     else {
         entry=get_addr_name(&ct->conversations[conversation_idx].src_address);
     }
@@ -1037,7 +1037,7 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
     gtk_clist_set_text(ct->table, rownum, 1, entry);
 
     if(!ct->resolve_names)
-        entry=address_to_str(&ct->conversations[conversation_idx].dst_address);
+        entry=ep_address_to_str(&ct->conversations[conversation_idx].dst_address);
     else {
         entry=get_addr_name(&ct->conversations[conversation_idx].dst_address);
     }

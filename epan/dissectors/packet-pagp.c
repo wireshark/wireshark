@@ -210,7 +210,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    pagp_tree = proto_item_add_subtree(pagp_item, ett_pagp);
 	    proto_tree_add_uint(pagp_tree, hf_pagp_version_number, tvb,
 				PAGP_VERSION_NUMBER, 1, raw_octet);
-      } 
+      }
       if (check_col(pinfo->cinfo, COL_INFO)) {
          col_append_str(pinfo->cinfo, COL_INFO,
   	       val_to_str(raw_octet, pdu_vers, "Unknown PDU version"));
@@ -221,7 +221,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          device_id.data = tvb_get_ptr(tvb, PAGP_FLUSH_LOCAL_DEVICE_ID, 6);
          if (check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "; Local DevID: %s",
-               address_to_str(&device_id));
+               ep_address_to_str(&device_id));
          }
          if (tree) {
 	       proto_tree_add_ether(pagp_tree, hf_pagp_flush_local_device_id, tvb,
@@ -231,7 +231,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          device_id.data = tvb_get_ptr(tvb, PAGP_FLUSH_PARTNER_DEVICE_ID, 6);
          if (check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Partner DevID: %s",
-               address_to_str(&device_id));
+               ep_address_to_str(&device_id));
          }
          if (tree) {
 	    proto_tree_add_ether(pagp_tree, hf_pagp_flush_partner_device_id, tvb,
@@ -287,7 +287,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       device_id.data = tvb_get_ptr(tvb, PAGP_LOCAL_DEVICE_ID, 6);
       if (check_col(pinfo->cinfo, COL_INFO)) {
          col_append_fstr(pinfo->cinfo, COL_INFO, "; Local DevID: %s",
-            address_to_str(&device_id));
+            ep_address_to_str(&device_id));
       }
       if (tree) {
 	    proto_tree_add_ether(pagp_tree, hf_pagp_local_device_id, tvb,
@@ -319,7 +319,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       device_id.data = tvb_get_ptr(tvb, PAGP_PARTNER_DEVICE_ID, 6);
       if (check_col(pinfo->cinfo, COL_INFO)) {
          col_append_fstr(pinfo->cinfo, COL_INFO, ", Partner DevID: %s",
-  	       address_to_str(&device_id));
+  	       ep_address_to_str(&device_id));
       }
       if (tree) {
 	    proto_tree_add_ether(pagp_tree, hf_pagp_partner_device_id, tvb,
@@ -369,7 +369,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		tlv_item = proto_tree_add_text (pagp_tree, tvb, offset, len,
 			   "TLV Entry #%d", i);
-                                                                                
+
 		tlv_tree = proto_item_add_subtree (tlv_item, ett_pagp_tlvs);
 		proto_tree_add_uint_format (tlv_tree, hf_pagp_tlv, tvb,
 			offset,2,tlv,"Type = %d (%s)", tlv,
@@ -381,7 +381,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			               "TLV length too large");
 		   return;
 		}
-                                                                                
+
 		switch (tlv) {
 		   case PAGP_TLV_DEVICE_NAME:
 			ch = tvb_get_ephemeral_string(tvb, offset+4, len-4);

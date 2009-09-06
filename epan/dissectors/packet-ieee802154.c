@@ -281,7 +281,7 @@ print_eui64(guint64 addr)
     eui64addr.len = sizeof(guint64);
     eui64addr.data = &addr;
     /* Print the address. */
-    return address_to_str(&eui64addr);
+    return ep_address_to_str(&eui64addr);
 } /* print_eui64 */
 
 /*FUNCTION:------------------------------------------------------
@@ -313,7 +313,7 @@ print_eui64_oui(guint64 addr)
     manuf_name = get_manuf_name_if_known(eui64addr.data);
     if (manuf_name == NULL) {
         /* Could not find an OUI. */
-        return address_to_str(&eui64addr);
+        return ep_address_to_str(&eui64addr);
     }
     else {
         /* Found an address string. */
@@ -1778,7 +1778,7 @@ void proto_register_ieee802154(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* add a user preference to set the 802.15.4 ethertype */
-    ieee802154_module = prefs_register_protocol(proto_ieee802154, 
+    ieee802154_module = prefs_register_protocol(proto_ieee802154,
 						proto_reg_handoff_ieee802154);
     prefs_register_uint_preference(ieee802154_module, "802154_ethertype",
 				   "802.15.4 Ethertype (in hex)",
@@ -1826,11 +1826,11 @@ void proto_reg_handoff_ieee802154(void)
 
         prefs_initialized = TRUE;
     } else {
-        dissector_delete("ethertype", old_ieee802154_ethertype, ieee802154_handle);	
+        dissector_delete("ethertype", old_ieee802154_ethertype, ieee802154_handle);
     }
 
     old_ieee802154_ethertype = ieee802154_ethertype;
-	
+
     /* Register dissector handles. */
     dissector_add("ethertype", ieee802154_ethertype, ieee802154_handle);
 

@@ -203,7 +203,7 @@ dtls_init(void)
 {
   ssl_common_init(&dtls_session_hash, &dtls_decrypted_data, &dtls_compressed_data);
   fragment_table_init (&dtls_fragment_table);
-  reassembled_table_init(&dtls_reassembled_table);  
+  reassembled_table_init(&dtls_reassembled_table);
 }
 
 /* parse dtls related preferences (private keys and ports association strings) */
@@ -377,7 +377,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dummy.port = pinfo->destport;
     }
     ssl_debug_printf("dissect_dtls server %s:%d\n",
-		     address_to_str(&dummy.addr),dummy.port);
+		     ep_address_to_str(&dummy.addr),dummy.port);
 
     /* try to retrive private key for this service. Do it now 'cause pinfo
      * is not always available
@@ -2209,7 +2209,7 @@ proto_register_dtls(void)
     },
     { &hf_dtls_fragment_multiple_tails,
       { "Message has multiple tail fragments",
-	"dtls.fragment.multiple_tails", 
+	"dtls.fragment.multiple_tails",
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_too_long_fragment,

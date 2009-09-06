@@ -335,7 +335,7 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
     str = g_strdup_printf("%s==%s%s%s%s%s",
                           hostlist_get_filter_name(&hl->hosts[selection].address,
                                                    hl->hosts[selection].sat, hl->hosts[selection].port_type,  FN_ANY_ADDRESS),
-                          address_to_str(&hl->hosts[selection].address),
+                          ep_address_to_str(&hl->hosts[selection].address),
                           sport?" && ":"",
                           sport?hostlist_get_filter_name(&hl->hosts[selection].address, hl->hosts[selection].sat, hl->hosts[selection].port_type,  FN_ANY_PORT):"",
                           sport?"==":"",
@@ -446,7 +446,7 @@ draw_hostlist_table_address(hostlist_table *hl, int hostlist_idx)
     rownum=gtk_clist_find_row_from_data(hl->table, (gpointer)(long)hostlist_idx);
 
     if (!hl->resolve_names)
-        entry=address_to_str(&hl->hosts[hostlist_idx].address);
+        entry=ep_address_to_str(&hl->hosts[hostlist_idx].address);
     else
         entry=get_addr_name(&hl->hosts[hostlist_idx].address);
 
@@ -633,7 +633,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
             col_bytes = i;
         }
     }
-   
+
     /* check for the minimum required data */
     if(col_lat == -1 || col_lon == -1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Latitude/Longitude data not available (GeoIP installed?)");
@@ -726,7 +726,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
     /* copy ipmap.html to temp dir */
     src_file_path = get_datafile_path("ipmap.html");
     dst_file_path = g_strdup_printf("%s%cipmap.html", map_path, G_DIR_SEPARATOR);
-    
+
     if (!copy_file_binary_mode(src_file_path, dst_file_path)) {
         g_free(src_file_path);
         g_free(dst_file_path);
@@ -910,7 +910,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     } else {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
     }
-#else    
+#else
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
 #endif
 
@@ -934,7 +934,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
         g_signal_connect(map_bt, "clicked", G_CALLBACK(open_as_map_cb), NULL);
     }
 #endif /* HAVE_GEOIP */
-    
+
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_ENDPOINTS_DIALOG);
 
@@ -1196,7 +1196,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     /* Button row. */
 #ifdef HAVE_GEOIP
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, WIRESHARK_STOCK_MAP, GTK_STOCK_HELP, NULL);
-#else    
+#else
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
 #endif
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
@@ -1219,7 +1219,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_map_switch_page_cb), map_bt);
     gtk_widget_set_sensitive(map_bt, FALSE);
 #endif /* HAVE_GEOIP */
-    
+
     g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_switch_page_cb), copy_bt);
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);

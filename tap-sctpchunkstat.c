@@ -199,8 +199,8 @@ sctpstat_draw(void *phs)
 
 	for(tmp = list ; tmp ; tmp=tmp->next) {
 		printf("|%15s|%5u|%15s|%5u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|\n",
-		       address_to_str(&tmp->src),tmp->sport,
-		       address_to_str(&tmp->dst),tmp->dport,
+		       ep_address_to_str(&tmp->src),tmp->sport,
+		       ep_address_to_str(&tmp->dst),tmp->dport,
 		       tmp->chunk_count[SCTP_DATA_CHUNK_ID],
 		       tmp->chunk_count[SCTP_SACK_CHUNK_ID],
 		       tmp->chunk_count[SCTP_HEARTBEAT_CHUNK_ID],

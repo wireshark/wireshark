@@ -669,7 +669,7 @@ const value_string ssl_31_ciphersuite[] = {
     { 0xC036, "TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA" },
     { 0xC037, "TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256" },
     { 0xC038, "TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384" },
-    { 0xC039, "TLS_ECDHE_PSK_WITH_NULL_SHA" }, 	
+    { 0xC039, "TLS_ECDHE_PSK_WITH_NULL_SHA" },
     { 0xC03A, "TLS_ECDHE_PSK_WITH_NULL_SHA256" },
     { 0xC03B, "TLS_ECDHE_PSK_WITH_NULL_SHA384" },
 
@@ -2514,7 +2514,7 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
       dummy.port = port = pinfo->destport;
   }
   ssl_debug_printf("ssl_find_private_key server %s:%u\n",
-      address_to_str(&dummy.addr),dummy.port);
+      ep_address_to_str(&dummy.addr),dummy.port);
 
   /* try to retrieve private key for this service. Do it now 'cause pinfo
    * is not always available

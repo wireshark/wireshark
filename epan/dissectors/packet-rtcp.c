@@ -155,7 +155,7 @@ static const value_string rtcp_sdes_type_vals[] =
 #define RTCP_XR_VOIP_METRCS 7
 #define RTCP_XR_BT_XNQ      8
 
-static const value_string rtcp_xr_type_vals[] = 
+static const value_string rtcp_xr_type_vals[] =
 {
 	{ RTCP_XR_LOSS_RLE,     "Loss Run Length Encoding Report Block" },
 	{ RTCP_XR_DUP_RLE,      "Duplicate Run Length Encoding Report Block" },
@@ -169,7 +169,7 @@ static const value_string rtcp_xr_type_vals[] =
 };
 
 /* XR VoIP Metrics Block - PLC Algorithms */
-static const value_string rtcp_xr_plc_algo_vals[] = 
+static const value_string rtcp_xr_plc_algo_vals[] =
 {
 	{ 0, "Unspecified" },
 	{ 1, "Disabled" },
@@ -179,7 +179,7 @@ static const value_string rtcp_xr_plc_algo_vals[] =
 };
 
 /* XR VoIP Metrics Block - JB Adaptive */
-static const value_string rtcp_xr_jb_adaptive_vals[] = 
+static const value_string rtcp_xr_jb_adaptive_vals[] =
 {
 	{ 0, "Unknown" },
 	{ 1, "Reserved" },
@@ -189,7 +189,7 @@ static const value_string rtcp_xr_jb_adaptive_vals[] =
 };
 
 /* XR Stats Summary Block - IP TTL or Hop Limit */
-static const value_string rtcp_xr_ip_ttl_vals[] = 
+static const value_string rtcp_xr_ip_ttl_vals[] =
 {
 	{ 0, "No TTL Values" },
 	{ 1, "IPv4" },
@@ -198,10 +198,10 @@ static const value_string rtcp_xr_ip_ttl_vals[] =
 	{ 0, NULL }
 };
 
-/* RTCP Application PoC1 Value strings 
+/* RTCP Application PoC1 Value strings
  * OMA-TS-PoC-UserPlane-V1_0-20060609-A
  */
- 
+
 #define TBCP_BURST_REQUEST                 0
 #define TBCP_BURST_GRANTED                 1
 #define TBCP_BURST_TAKEN_EXPECT_NO_REPLY   2
@@ -535,7 +535,7 @@ void srtcp_add_address( packet_info *pinfo,
 	}
 
 #ifdef DEBUG
-	printf("#%u: %srtcp_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, (srtcp_info)?"s":"", address_to_str(addr), port, other_port, setup_method, setup_frame_number);
+	printf("#%u: %srtcp_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, (srtcp_info)?"s":"", ep_address_to_str(addr), port, other_port, setup_method, setup_frame_number);
 #endif
 
 	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
@@ -731,7 +731,7 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
 
     /* Transport-Layer Feedback Message Elements */
     switch (rtcp_rtpfb_fmt) {
-    	case 1: 
+    	case 1:
 			/* NACK */
 			while ((offset - start_offset) < packet_length) {
 				proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_pid,
@@ -1079,16 +1079,16 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 				col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
 				                tvb_get_ephemeral_string(tvb, offset, item_len));
-				
+
 				offset += item_len;
 				packet_len = packet_len - item_len - 1;
-				
+
 				/* In the application dependent data, the TBCP Talk Burst Taken message SHALL carry
 				 * a SSRC field and SDES items, CNAME and MAY carry SDES item NAME to identify the
 				 * PoC Client that has been granted permission to send a Talk Burst.
 				 *
-				 * The SDES item NAME SHALL be included if it is known by the PoC Server. 
-				 * Therefore the length of the packet will vary depending on number of SDES items 
+				 * The SDES item NAME SHALL be included if it is known by the PoC Server.
+				 * Therefore the length of the packet will vary depending on number of SDES items
 				 * and the size of the SDES items.
 				 */
 				if ( packet_len == 0 )
@@ -1269,7 +1269,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_ack_reason_code, tvb, offset, 2, FALSE );
 				}
 
-				/* 16 bits of padding follow */ 
+				/* 16 bits of padding follow */
 				offset += 4;
 				packet_len -= 4;
 				}
@@ -1599,7 +1599,7 @@ static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block
     case RTCP_XR_PKT_RXTIMES:
         proto_tree_add_item(tree, hf_rtcp_xr_thinning, tvb, offset, 1, FALSE);
         break;
-        
+
     case RTCP_XR_STATS_SUMRY:
         proto_tree_add_boolean(tree, hf_rtcp_xr_stats_loss_flag, tvb, offset, 1, flags);
         proto_tree_add_boolean(tree, hf_rtcp_xr_stats_dup_flag, tvb, offset, 1, flags);
@@ -1644,23 +1644,23 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
 {
     guint block_num = 1;
     guint temp_value = 0;                          /* used when checking spare bits in block type 8 */
-    
+
     /* Packet length should at least be 4 */
     if (packet_len < 4) {
         proto_tree_add_text(tree, tvb, offset, packet_len, "Missing Sender SSRC");
         return offset + packet_len;
     }
-	
+
     /* SSRC */
     proto_tree_add_item( tree, hf_rtcp_ssrc_sender, tvb, offset, 4, FALSE );
     offset += 4;
     packet_len -= 4;
-    
+
     for(;packet_len > 0; block_num++) {
         guint block_type = tvb_get_guint8(tvb, offset), block_length = 0;
         gint content_length = 0;
         gboolean valid = TRUE;
-        
+
         /* Create a subtree for this block, dont know the length yet*/
         proto_item *block = proto_tree_add_text(tree, tvb, offset, -1, "Block %u", block_num);
         proto_tree *xr_block_tree = proto_item_add_subtree(block, ett_xr_block);
@@ -1668,7 +1668,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
         proto_item *content_tree = NULL;
 
         proto_tree_add_item(xr_block_tree, hf_rtcp_xr_block_type, tvb, offset, 1, FALSE);
-        
+
         if (packet_len >= 2) {
             parse_xr_type_specific_field(tvb, offset + 1, block_type, xr_block_tree);
             if (packet_len >= 4) {
@@ -1679,119 +1679,119 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             proto_tree_add_text(xr_block_tree, tvb, offset + 1, packet_len, "Missing Required Block Headers");
             return offset + packet_len;
         }
-		
+
         content_length = block_length * 4;
         proto_item_set_len(block, content_length + 4);
-        
+
         if (content_length > packet_len) {
             proto_tree_add_text(xr_block_tree, tvb, offset + 2, 2, "Block length is greater than packet length");
         }
-		
+
         offset += 4;
         packet_len -= 4;
 
         contents = proto_tree_add_text(xr_block_tree, tvb, offset, content_length, "Contents");
         content_tree = proto_item_add_subtree(contents, ett_xr_block_contents);
-            
+
         switch (block_type) {
         case RTCP_XR_VOIP_METRCS: {
             guint fraction_rate;
-            
+
             /* Identifier */
             proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
             offset += 4;
-            
+
             /* Loss Rate */
             fraction_rate = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(content_tree, hf_rtcp_ssrc_fraction, tvb, offset, 1, 
+            proto_tree_add_uint_format(content_tree, hf_rtcp_ssrc_fraction, tvb, offset, 1,
                                        fraction_rate, "Fraction lost: %u / 256", fraction_rate);
             offset++;
-            
+
             /* Discard Rate */
             fraction_rate = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(content_tree, hf_rtcp_ssrc_discarded, tvb, offset, 1, 
+            proto_tree_add_uint_format(content_tree, hf_rtcp_ssrc_discarded, tvb, offset, 1,
                                        fraction_rate, "Fraction Discarded: %u / 256", fraction_rate);
             offset++;
-            
+
             /* Burst Density */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_burst_density, tvb, offset, 1, FALSE);
             offset++;
-            
+
             /* Gap Density */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gap_density, tvb, offset, 1, FALSE);
             offset++;
-            
+
             /* Burst Duration */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_burst_duration, tvb, offset, 2, FALSE);
             offset += 2;
-            
+
             /* Gap Duration */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gap_duration, tvb, offset, 2, FALSE);
             offset += 2;
-            
+
             /* Round Trip Delay */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rtdelay, tvb, offset, 2, FALSE);
             offset += 2;
-            
+
             /* End System Delay */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_esdelay, tvb, offset, 2, FALSE);
             offset += 2;
-            
+
             /* Signal Level */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_siglevel, tvb, offset, 1, FALSE);
             offset++;
-            
+
             /* Noise Level */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_noiselevel, tvb, offset, 1, FALSE);
             offset++;
-            
+
             /* RERL */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rerl, tvb, offset, 1, FALSE);
             offset++;
-            
+
             /* GMin */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gmin, tvb, offset, 1, FALSE);
             offset++;
-            
+
             /* R factor */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rfactor, tvb, offset, 1, FALSE);
             offset++;
-            
+
             /* external R Factor */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_extrfactor, tvb, offset, 1, FALSE);
             offset++;
-            
+
             /* MOS LQ */
-            proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moslq, tvb, offset, 1, 
+            proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moslq, tvb, offset, 1,
                                  (float) (tvb_get_guint8(tvb, offset) / 10.0));
             offset++;
-            
+
             /* MOS CQ */
-            proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moscq, tvb, offset, 1, 
+            proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moscq, tvb, offset, 1,
                                  (float) (tvb_get_guint8(tvb, offset) / 10.0));
             offset++;
-            
+
             /* PLC, JB Adaptive, JB Rate */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_plc, tvb, offset, 1, FALSE);
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbadaptive, tvb, offset, 1, FALSE);
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbrate, tvb, offset, 1, FALSE);
             offset += 2; /* skip over reseved bit */
-            
+
             /* JB Nominal */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbnominal, tvb, offset, 2, FALSE);
             offset += 2;
-            
+
             /* JB Max */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbmax, tvb, offset, 2, FALSE);
             offset += 2;
-            
+
             /* JB Abs max */
             proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbabsmax, tvb, offset, 2, FALSE);
             offset += 2;
 
             break;
         }
-            
+
         case RTCP_XR_STATS_SUMRY: {
             /* Identifier */
             proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
@@ -1857,7 +1857,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             ts_lsw = tvb_get_ntohl(tvb, offset);
             proto_tree_add_text(content_tree, tvb, offset, 4, "Timestamp, LSW: %u", ts_lsw);
             offset += 4;
-            
+
             break;
         }
 
@@ -1869,20 +1869,20 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
                 /* Create a new subtree for a length of 12 bytes */
                 proto_tree *ti = proto_tree_add_text(content_tree, tvb, offset, 12, "Source %u", counter + 1);
                 proto_tree *ssrc_tree = proto_item_add_subtree(ti, ett_xr_ssrc);
-                
+
                 /* SSRC_n source identifier, 32 bits */
                 proto_tree_add_item(ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
                 offset += 4;
-                
+
                 /* Last RR timestamp */
                 proto_tree_add_item(ssrc_tree, hf_rtcp_xr_lrr, tvb, offset, 4, FALSE);
                 offset += 4;
-                
+
                 /* Delay since last RR timestamp */
                 proto_tree_add_item(ssrc_tree, hf_rtcp_xr_dlrr, tvb, offset, 4, FALSE);
                 offset += 4;
             }
-            
+
             if (content_length % 12 != 0)
                 offset += content_length % 12;
             break;
@@ -1906,8 +1906,8 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             proto_tree_add_item(content_tree, hf_rtcp_xr_endseq, tvb, offset, 2, FALSE);
             offset += 2;
 
-            for(count = 0; skip < content_length; skip += 4, count++) { 
-                proto_tree_add_text(content_tree, tvb, offset, 4, "Seq: %u, Timestamp: %u", 
+            for(count = 0; skip < content_length; skip += 4, count++) {
+                proto_tree_add_text(content_tree, tvb, offset, 4, "Seq: %u, Timestamp: %u",
                                     (begin + count) % 65536, FALSE);
                 offset += 4;
             }
@@ -1921,7 +1921,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             guint16 begin = 0;
             proto_item *chunks_item;
             proto_tree *chunks_tree;
-            
+
             /* Identifier */
             proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
             offset += 4;
@@ -1941,7 +1941,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
 
             for(count = 1; skip < content_length; skip += 2, count++) {
                 guint value = tvb_get_ntohs(tvb, offset);
-                
+
                 if (value == 0) {
                     proto_tree_add_text(chunks_tree, tvb, offset, 2,
                                         "Chunk: %u -- Null Terminator ",
@@ -1961,7 +1961,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
                 }
                 offset += 2;
             }
-            
+
             break;
         }
         case RTCP_XR_BT_XNQ: {										/* BT XNQ block as defined in RFC5093 */
@@ -2027,7 +2027,7 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	proto_tree *high_sec_tree = (proto_tree*) NULL;
 	proto_item *ti = (proto_item*) NULL;
 	guint8 rr_flt;
-	int rr_offset = offset; 
+	int rr_offset = offset;
 
 	while ( counter <= count ) {
 		guint32 lsr, dlsr;
@@ -2495,7 +2495,7 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	/* Report delay in INFO column */
 	col_append_fstr(pinfo->cinfo, COL_INFO,
 	                " (roundtrip delay <-> %s = %dms, using frame %u)  ",
-	                address_to_str(&pinfo->net_src), delay, frame);
+	                ep_address_to_str(&pinfo->net_src), delay, frame);
 }
 
 static int

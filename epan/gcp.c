@@ -75,7 +75,7 @@ void gcp_init(void) {
 
   if (gcp_initialized)
     return;
-	  
+
   msgs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_msgs");
   trxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_trxs");
   ctxs_by_trx = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gcp_ctxs_by_trx");
@@ -142,8 +142,8 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
 			break;
 		default:
 			/* XXX: heuristic and error prone */
-			m->hi_addr = g_str_hash(address_to_str(hi_addr));
-			m->lo_addr = g_str_hash(address_to_str(lo_addr));
+			m->hi_addr = g_str_hash(ep_address_to_str(hi_addr));
+			m->lo_addr = g_str_hash(ep_address_to_str(lo_addr));
 			break;
 	}
 
@@ -228,11 +228,11 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
 gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent) {
     gcp_ctx_t* context = NULL;
     gcp_ctx_t** context_p = NULL;
-	
+
     if ( !m || !t ) return NULL;
-		
+
     if (persistent) {
-		
+
 		emem_tree_key_t ctx_key[] = {
 		{1,&(m->hi_addr)},
 		{1,&(m->lo_addr)},
@@ -271,7 +271,7 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
                     context->terms.last = &(context->terms);
                     context->terms.next = NULL;
                     context->terms.term = NULL;
-					
+
                     se_tree_insert32_array(ctxs_by_trx,trx_key,context);
                 }
             } else {
@@ -388,7 +388,7 @@ gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type
         c->cmds = cmdctx;
         c->cmds->last = cmdctx;
     }
-	
+
     return cmd;
 }
 
@@ -594,7 +594,7 @@ gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
         case GCP_CMD_OTHER_REQ:
             s = "Request {";
             break;
-			
+
     }
 
     for (term = c->terms.next; term; term = term->next) {

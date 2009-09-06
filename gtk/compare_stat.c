@@ -354,7 +354,7 @@ call_foreach_new_order(gpointer value, gpointer arg)
 				fInfo->zebra_time=cs->zebra_time;
 				cs->zebra_time.nsecs=cs->zebra_time.nsecs++;
 			}
-			
+
 		}
 	} else {
 		if(TTL_method==FALSE){
@@ -369,9 +369,9 @@ call_foreach_new_order(gpointer value, gpointer arg)
 			} else {
 				fInfo->zebra_time.nsecs=fInfoTemp->zebra_time.nsecs+1;
 			}
-		}	
+		}
 	}
-	
+
 	/* count packets of file */
 	if(fmod(fInfo->zebra_time.nsecs, MERGED_FILES)){
 		cs->first_file_amount++;
@@ -485,12 +485,12 @@ call_foreach_print_ip_tree(gpointer value, gpointer user_data)
 	if(show_it){
 		if((fInfo->fg->count<MERGED_FILES)){
 			gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
-			gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Packet lost", COUNT, fInfo->fg->count, DELTA, 0.0, -1); 
+			gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Packet lost", COUNT, fInfo->fg->count, DELTA, 0.0, -1);
 		}
-			
+
 		if(fInfo->fg->count > MERGED_FILES){
 			gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
-			gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "More than two packets", COUNT, fInfo->fg->count, DELTA, 0.0, -1); 
+			gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "More than two packets", COUNT, fInfo->fg->count, DELTA, 0.0, -1);
 			if(fInfo->fg->cksum == WRONG_CHKSUM) {
 				gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, &cs->iter);
 				gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Checksum error over IP header", COUNT, fInfo->fg->count, DELTA, 0.0, -1);
@@ -506,14 +506,14 @@ call_foreach_print_ip_tree(gpointer value, gpointer user_data)
 				}
 				if((nstime_cmp(&fInfo->fg->predecessor_time, &fInfo->zebra_time)>0||nstime_cmp(&fInfo->fg->partner->fg->predecessor_time, &fInfo->fg->partner->zebra_time)>0) && (fInfo->zebra_time.nsecs!=MERGED_FILES) && ON_method){
 					gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, &cs->iter);
-					gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Not correct order", COUNT, fInfo->fg->count, DELTA, delta, -1); 
+					gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Not correct order", COUNT, fInfo->fg->count, DELTA, delta, -1);
 				}
 			} else if(((delta < (average-cs->stats.variance)) || (delta > (average+cs->stats.variance))) && (delta > 0.0) && (cs->stats.variance!=0)) {
 				gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
 				gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Not arrived in time", COUNT, fInfo->fg->count, DELTA, delta, -1);
 				if((nstime_cmp(&fInfo->fg->predecessor_time, &fInfo->zebra_time)>0||nstime_cmp(&fInfo->fg->partner->fg->predecessor_time, &fInfo->fg->partner->zebra_time)>0) && fInfo->zebra_time.nsecs != MERGED_FILES && ON_method){
 					gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, &cs->iter);
-					gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Not correct order", COUNT, fInfo->fg->count, DELTA, delta, -1); 
+					gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->child, IP_ID, fInfo->id, PROBLEM, "Not correct order", COUNT, fInfo->fg->count, DELTA, delta, -1);
 				}
 			} else if((nstime_cmp(&fInfo->fg->predecessor_time, &fInfo->zebra_time)>0||nstime_cmp(&fInfo->fg->partner->fg->predecessor_time, &fInfo->fg->partner->zebra_time)>0) && fInfo->zebra_time.nsecs != MERGED_FILES && ON_method){
 				gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
@@ -601,12 +601,12 @@ comparestat_draw(void *arg)
 	timestamp_set_precision(TS_PREC_AUTO_NSEC);
 	/* reset ordering */
 	nstime_set_unset(&cs->current_time);
-	
+
 	/* set color filter, in Routing environment */
 	if(TTL_method&&cs->ip_ttl_list->len!=0){
 		g_string_printf(filter_str, "%s %i %s %i", "ip.ttl ==", g_array_index(cs->ip_ttl_list, guint8, 0), "|| ip.ttl ==", g_array_index(cs->ip_ttl_list, guint8, 1));
 	} else if(cs->eth_dst.len!=0&&cs->eth_src.len!=0){
-		g_string_printf(filter_str, "%s %s %s %s", "eth.dst==", address_to_str(&cs->eth_dst), "|| eth.dst==", address_to_str(&cs->eth_src));
+		g_string_printf(filter_str, "%s %s %s %s", "eth.dst==", ep_address_to_str(&cs->eth_dst), "|| eth.dst==", ep_address_to_str(&cs->eth_src));
 	}
 	color_filters_set_tmp(COLOR_N, filter_str->str, FALSE);
 #ifdef NEW_PACKET_LIST
@@ -755,7 +755,7 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	timestamp_set_precision(TS_PREC_AUTO_NSEC);
 
 	/* transient_for top_level */
-	cs->win=dlg_window_new("compare-stat");  
+	cs->win=dlg_window_new("compare-stat");
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(cs->win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(cs->win), 550, 400);
 	comparestat_set_title(cs);
@@ -763,7 +763,7 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(cs->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
-	
+
 	title_string = g_strdup_printf("Compare two capture files: %s", cf_get_display_name(&cfile));
 	stat_label=gtk_label_new(title_string);
 	g_free(title_string);
@@ -797,7 +797,7 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	/* call this method when row is chosen*/
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(cs->treeview)),GTK_SELECTION_SINGLE);
 	g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(cs->treeview)), "changed", G_CALLBACK(new_tree_view_selection_changed), cs);
-	
+
 	/* list with scrollbar's */
 	cs->scrolled_win=gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(cs->scrolled_win), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -871,7 +871,7 @@ comparestat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	} else {
 		report_failure("cannot open more than one compare of the same type at once");
 	}
-	
+
 	g_string_free(str, TRUE);
 }
 

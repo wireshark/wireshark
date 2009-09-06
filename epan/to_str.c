@@ -127,7 +127,7 @@ bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
  * for a string using a colon as the hex-digit separator.
  */
 /* XXX FIXME
-remove this one later when every call has been converted to address_to_str()
+remove this one later when every call has been converted to ep_address_to_str()
 */
 gchar *
 ether_to_str(const guint8 *ad)
@@ -137,7 +137,7 @@ ether_to_str(const guint8 *ad)
 
 /*
  This function is very fast and this function is called a lot.
- XXX update the address_to_str stuff to use this function.
+ XXX update the ep_address_to_str stuff to use this function.
 */
 const gchar *
 ip_to_str(const guint8 *ad) {
@@ -150,7 +150,7 @@ ip_to_str(const guint8 *ad) {
 
 /*
  This function is very fast and this function is called a lot.
- XXX update the address_to_str stuff to use this function.
+ XXX update the ep_address_to_str stuff to use this function.
 */
 static const char * const fast_strings[] = {
 "0", "1", "2", "3", "4", "5", "6", "7",
@@ -228,7 +228,7 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, int buf_len)
 
 
 /* XXX FIXME
-remove this one later when every call has been converted to address_to_str()
+remove this one later when every call has been converted to ep_address_to_str()
 */
 gchar *
 ip6_to_str(const struct e_in6_addr *ad) {
@@ -739,7 +739,7 @@ rel_time_to_secs_str(nstime_t *rel_time)
 
 
 /* XXX FIXME
-remove this one later when every call has been converted to address_to_str()
+remove this one later when every call has been converted to ep_address_to_str()
 */
 gchar *
 fc_to_str(const guint8 *ad)
@@ -956,7 +956,7 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
 /* convert an address struct into a printable string */
 
 gchar*
-address_to_str(const address *addr)
+ep_address_to_str(const address *addr)
 {
   gchar *str;
 
@@ -965,13 +965,13 @@ address_to_str(const address *addr)
   return str;
 }
 
-/* The called routines use ep_alloc:ed memory */
+/* The called routines use se_alloc'ed memory */
 gchar*
 se_address_to_str(const address *addr)
 {
   gchar *str;
 
-  str = address_to_str(addr);
+  str = ep_address_to_str(addr);
   return se_strdup(str);
 }
 

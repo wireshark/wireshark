@@ -648,9 +648,9 @@ static void create_drawing_area (struct graph *g)
 	g_snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d -> %s:%d",
 			refnum,
 			cf_get_display_name(&cfile),
-			address_to_str(&(thdr->ip_src)),
+			ep_address_to_str(&(thdr->ip_src)),
 			thdr->th_sport,
-			address_to_str(&(thdr->ip_dst)),
+			ep_address_to_str(&(thdr->ip_dst)),
 			thdr->th_dport
 	);
 	g->toplevel = dlg_window_new ("Tcp Graph");

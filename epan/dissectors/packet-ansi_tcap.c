@@ -274,8 +274,8 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
           buf = ep_alloc(MAX_TID_STR_LEN);
           buf[0] = '\0';
           g_snprintf(buf, MAX_TID_STR_LEN, "%s%s%s",
-                ansi_tcap_private.TransactionID_str, address_to_str(src),
-                address_to_str(dst));
+                ansi_tcap_private.TransactionID_str, ep_address_to_str(src),
+                ep_address_to_str(dst));
 
           /* If the entry allready exists don't owervrite it */
           ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
@@ -312,8 +312,8 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
   buf[0] = '\0';
   /* Reverse order to invoke */
   g_snprintf(buf, MAX_TID_STR_LEN, "%s%s%s",
-        ansi_tcap_private.TransactionID_str, address_to_str(dst),
-        address_to_str(src));
+        ansi_tcap_private.TransactionID_str, ep_address_to_str(dst),
+        ep_address_to_str(src));
 
   ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
   if(ansi_tcap_saved_invokedata){
@@ -757,7 +757,7 @@ tvbuff_t	*parameter_tvb;
                                        &parameter_tvb);
   if(!parameter_tvb)
     return offset;
-  
+
   find_tcap_subdissector(parameter_tvb, actx, tree);
 
 
@@ -808,7 +808,7 @@ tvbuff_t	*parameter_tvb;
                                        &parameter_tvb);
   if(!parameter_tvb)
     return offset;
-  
+
   find_tcap_subdissector(parameter_tvb, actx, tree);
 
 
@@ -858,7 +858,7 @@ tvbuff_t	*parameter_tvb;
                                        &parameter_tvb);
   if(!parameter_tvb)
     return offset;
-  
+
   find_tcap_subdissector(parameter_tvb, actx, tree);
 
 

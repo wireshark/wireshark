@@ -491,7 +491,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
     /* Append port and address to tree item */
     IPv4 = tvb_get_ipv4(tvb, offset);
     SET_ADDRESS(&addr, AT_IPv4, sizeof(IPv4), &IPv4);
-    proto_item_append_text(pi, " %s, Port %d", address_to_str(&addr), port);
+    proto_item_append_text(pi, " %s, Port %d", ep_address_to_str(&addr), port);
     offset += 4;
     break;
   case ACN_ADDR_IPV6:
@@ -509,7 +509,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
     /* Append port and address to tree item */
     tvb_get_ipv6(tvb, offset, &IPv6);
     SET_ADDRESS(&addr, AT_IPv6, sizeof(struct e_in6_addr), &IPv6);
-    proto_item_append_text(pi, " %s, Port %d", address_to_str(&addr), port);
+    proto_item_append_text(pi, " %s, Port %d", ep_address_to_str(&addr), port);
     offset += 16;
     break;
   case ACN_ADDR_IPPORT:
@@ -522,7 +522,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
     port = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(addr_tree, hf_acn_port, tvb, offset, 2, FALSE);
     /* Append port to tree item */
-    proto_item_append_text(pi, " %s Port %d", address_to_str(&addr), port);
+    proto_item_append_text(pi, " %s Port %d", ep_address_to_str(&addr), port);
     offset += 2;
     break;
   }
@@ -3028,7 +3028,7 @@ void proto_register_acn(void)
     "ACN",                               /* short name */
     "acn"                                /* abbrev */
     );
-  
+
   proto_register_field_array(proto_acn, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 

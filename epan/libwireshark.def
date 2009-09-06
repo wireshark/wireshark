@@ -12,7 +12,7 @@ EXPORTS
 abs_time_secs_to_str
 abs_time_to_str
 add_new_data_source
-address_to_str
+ep_address_to_str
 address_to_str_buf
 AdmissionRejectReason_vals      DATA
 airpdcap_ctx                    DATA
@@ -544,8 +544,8 @@ h225_RasMessage_vals                 DATA
 h225_ReleaseCompleteReason_vals      DATA
 h245_set_h223_add_lc_handle
 h245_set_h223_set_mc_handle
-h248_param_ber_integer 
-h248_register_package 
+h248_param_ber_integer
+h248_register_package
 have_custom_cols
 have_filtering_tap_listeners
 have_tap_listeners

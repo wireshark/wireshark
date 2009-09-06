@@ -788,11 +788,11 @@ tacplus_print_key_entry( gpointer data, gpointer user_data )
 {
 	tacplus_key_entry *tacplus_data=(tacplus_key_entry *)data;
 	if( user_data ) {
-		printf("%s:%s=%s\n", address_to_str( tacplus_data->s ),
-				address_to_str( tacplus_data->c ), tacplus_data->k );
+		printf("%s:%s=%s\n", ep_address_to_str( tacplus_data->s ),
+				ep_address_to_str( tacplus_data->c ), tacplus_data->k );
 	} else {
-		printf("%s:%s\n", address_to_str( tacplus_data->s ),
-				address_to_str( tacplus_data->c ) );
+		printf("%s:%s\n", ep_address_to_str( tacplus_data->s ),
+				ep_address_to_str( tacplus_data->c ) );
 	}
 }
 #endif
@@ -924,14 +924,14 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char	*key=NULL;
 
 	len = tvb_get_ntohl(tvb, 8);
-	
+
 	if(len > (guint)tvb_length_remaining(tvb, 12) &&
 	   pinfo->can_desegment && tacplus_preference_desegment) {
 		pinfo->desegment_offset = 0;
 		pinfo->desegment_len = len;
 		return;
 	}
-	
+
 	if( request ) {
 		key=find_key( &pinfo->dst, &pinfo->src );
 	} else {

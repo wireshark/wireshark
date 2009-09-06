@@ -17,17 +17,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -194,7 +194,7 @@ static const value_string iax_frame_types[] = {
   {AST_FRAME_IMAGE, "Image"},
   {AST_FRAME_HTML, "HTML"},
   {AST_FRAME_CNG, "Comfort Noise"},
-  {AST_FRAME_MODEM, "Modem"}, 
+  {AST_FRAME_MODEM, "Modem"},
   {AST_FRAME_DTMF_BEGIN, "DTMF Begin"},
   {0,NULL}
 };
@@ -267,7 +267,7 @@ static const voip_call_state tap_cmd_voip_state[] = {
         VOIP_UNKNOWN, /*TKOFFHK*/
         VOIP_UNKNOWN /*OFFHOOK*/
 };
-	
+
 
 /* Subclassess for Modem packets */
 static const value_string iax_modem_subclasses[] = {
@@ -368,7 +368,7 @@ static const value_string iax_packet_types[] = {
   {IAX2_META_PACKET, "Meta packet"},
   {0,NULL}
 };
-  
+
 static const value_string iax_causecodes[] = {
   {AST_CAUSE_UNALLOCATED, "Unallocated"},
   {AST_CAUSE_NO_ROUTE_TRANSIT_NET, "No route transit net"},
@@ -475,12 +475,12 @@ static gchar *key_to_str( const iax_circuit_key *key )
   }
   strp=str[i];
 
-  /* why doesn't address_to_str take a const pointer?
+  /* why doesn't ep_address_to_str take a const pointer?
      cast the warnings into oblivion. */
 
   /* XXX - is this a case for ep_alloc? */
   g_snprintf(strp, 80, "{%s:%i,%i}",
-	  address_to_str((address *)&key->addr),
+	  ep_address_to_str((address *)&key->addr),
 	  key->port,
 	  key->callno);
   return strp;
@@ -519,7 +519,7 @@ static guint iax_circuit_hash (gconstpointer v)
 #ifdef DEBUG_HASHING
   g_debug( "+++ Hashing key: %s, result %#x", key_to_str(key), hash_val );
 #endif
-  
+
   return (guint) hash_val;
 }
 
@@ -639,19 +639,19 @@ static circuit_t *iax2_new_circuit_for_call(guint circuit_id, guint framenum, ia
 					    gboolean reversed)
 {
   circuit_t *res;
-  
+
   if(( reversed && iax_call->n_reverse_circuit_ids >= IAX_MAX_TRANSFERS) ||
      ( !reversed && iax_call->n_forward_circuit_ids >= IAX_MAX_TRANSFERS)) {
     g_warning("Too many transfers for iax_call");
     return NULL;
   }
-  
+
   res = circuit_new(CT_IAX2,
                     circuit_id,
                     framenum );
 
   circuit_add_proto_data(res, proto_iax2, iax_call);
-	
+
   if( reversed )
     iax_call -> reverse_circuit_ids[iax_call->n_reverse_circuit_ids++] = circuit_id;
   else
@@ -698,7 +698,7 @@ static iax_call_data *iax_lookup_call_from_dest( guint src_circuit_id,
   circuit_t *dst_circuit;
   iax_call_data * iax_call;
   gboolean reversed = FALSE;
-  
+
   dst_circuit = find_circuit( CT_IAX2,
 			      dst_circuit_id,
 			      framenum );
@@ -715,7 +715,7 @@ static iax_call_data *iax_lookup_call_from_dest( guint src_circuit_id,
 #ifdef DEBUG_HASHING
   g_debug( "++ found destination circuit" );
 #endif
-      
+
   iax_call = (iax_call_data *)circuit_get_proto_data(dst_circuit,proto_iax2);
 
   /* there's no way we can create a CT_IAX2 circuit without adding
@@ -780,9 +780,9 @@ static iax_call_data *iax_lookup_call_from_dest( guint src_circuit_id,
   return iax_call;
 }
 
-  
+
 /* looks up an iax_call for this packet */
-static iax_call_data *iax_lookup_call( packet_info *pinfo, 
+static iax_call_data *iax_lookup_call( packet_info *pinfo,
                                        guint32 scallno,
                                        guint32 dcallno,
                                        gboolean *reversed_p)
@@ -794,8 +794,8 @@ static iax_call_data *iax_lookup_call( packet_info *pinfo,
 #ifdef DEBUG_HASHING
   g_debug( "++ iax_lookup_circuit_details: Looking up circuit for frame %u, "
 	     "from {%s:%u:%u} to {%s:%u:%u}", pinfo->fd->num,
-	     address_to_str(&pinfo->src),pinfo->srcport,scallno,
-	     address_to_str(&pinfo->dst),pinfo->destport,dcallno);
+	     ep_address_to_str(&pinfo->src),pinfo->srcport,scallno,
+	     ep_address_to_str(&pinfo->dst),pinfo->destport,dcallno);
 #endif
 
 
@@ -859,7 +859,7 @@ static iax_call_data *iax_lookup_call( packet_info *pinfo,
     g_debug( "++ Call not found. Must have missed the NEW packet?" );
   }
 #endif
-  
+
   return iax_call;
 }
 
@@ -874,20 +874,20 @@ static void init_dir_data(iax_call_dirdata *dirdata)
 /* handles a NEW packet by creating a new iax call and forward circuit.
    the reverse circuit is not created until the ACK is received and
    is created by iax_lookup_circuit_details. */
-static iax_call_data *iax_new_call( packet_info *pinfo, 
+static iax_call_data *iax_new_call( packet_info *pinfo,
                                     guint32 scallno)
 {
   iax_call_data *call;
   guint circuit_id;
   static const nstime_t millisecond = {0, 1000000};
-    
+
 #ifdef DEBUG_HASHING
   g_debug( "+ new_circuit: Handling NEW packet, frame %u", pinfo->fd->num );
 #endif
-  
+
   circuit_id = iax_circuit_lookup(&pinfo->src,pinfo->ptype,
                                   pinfo->srcport,scallno);
-    
+
   call = se_alloc(sizeof(iax_call_data));
   call -> dataformat = 0;
   call -> src_codec = 0;
@@ -907,7 +907,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
 
   return call;
 }
-    
+
 
 /* ************************************************************************* */
 
@@ -974,13 +974,13 @@ static guint32 dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 				proto_tree * main_tree);
 
 
-static guint32 dissect_minipacket (tvbuff_t * tvb, guint32 offset, 
+static guint32 dissect_minipacket (tvbuff_t * tvb, guint32 offset,
 				guint16 scallno,
 				packet_info * pinfo,
 				proto_tree * iax2_tree,
 				proto_tree * main_tree);
 
-static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset, 
+static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
 					guint16 scallno,
 					packet_info * pinfo,
 					proto_tree * iax2_tree,
@@ -1067,7 +1067,7 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   iax2_info->callingParty = NULL;
   iax2_info->calledParty = NULL;
   iax2_info->payload_data = NULL;
-  
+
   switch( type ) {
     case IAX2_FULL_PACKET:
       len = dissect_fullpacket( tvb, offset, scallno, pinfo, full_mini_subtree, tree );
@@ -1100,7 +1100,7 @@ static proto_item *dissect_datetime_ie(tvbuff_t *tvb, guint32 offset, proto_tree
   struct tm tm;
   guint32 ie_val;
   nstime_t datetime;
-    
+
   proto_tree_add_item (ies_tree, hf_iax2_ies[IAX_IE_DATETIME], tvb, offset + 2, 4, FALSE);
   ie_val = tvb_get_ntohl(tvb, offset+2);
 
@@ -1118,7 +1118,7 @@ static proto_item *dissect_datetime_ie(tvbuff_t *tvb, guint32 offset, proto_tree
   datetime.nsecs = 0;
   return proto_tree_add_time (ies_tree, hf_iax2_ie_datetime, tvb, offset+2, 4, &datetime);
 }
-  
+
 
 /* dissect the information elements in an IAX frame. Returns the updated offset */
 static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
@@ -1126,7 +1126,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 			    iax2_ie_data *ie_data)
 {
   DISSECTOR_ASSERT(ie_data);
-  
+
   while (offset < tvb_reported_length (tvb)) {
 
     int ies_type = tvb_get_guint8(tvb, offset);
@@ -1139,7 +1139,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
         if (ies_len != 4) THROW(ReportedBoundsError);
         ie_data -> dataformat = tvb_get_ntohl(tvb, offset+2);
         break;
-      
+
       case IAX_IE_CALLED_NUMBER:
         iax2_info->calledParty = g_strdup(tvb_format_text(tvb, offset+2, ies_len));
         break;
@@ -1154,7 +1154,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
            *host* byte order in that structure (the I-D seems to be
            assuming that "everything is a Vax^Wx86 or x86-64" with
            the address family field being little-endian).
-          
+
            This means the address family values are the Linux
            address family values. */
         apparent_addr_family = tvb_get_letohs(tvb, offset+2);
@@ -1177,7 +1177,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 
 
     /* the rest of this stuff only needs doing if we have an iax_tree */
-    
+
     if( iax_tree ) {
       proto_item *ti, *ie_item = NULL;
       proto_tree *ies_tree;
@@ -1186,7 +1186,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
       ti = proto_tree_add_text(iax_tree, tvb, offset, ies_len+2, " " );
 
       ies_tree = proto_item_add_subtree(ti, ett_iax2_ie);
-      
+
       proto_tree_add_text(ies_tree, tvb, offset, 1, "IE id: %s (0x%02X)",
 			  val_to_str(ies_type, iax_ies_type, "Unknown"),
 			  ies_type);
@@ -1199,13 +1199,13 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	 complex decoding, we can just look up an entry from the array, and add
 	 the relevant item.
       */
-	 
+
       switch (ies_type) {
         case IAX_IE_DATETIME:
           ie_item = dissect_datetime_ie(tvb,offset,ies_tree);
           break;
 
-        
+
 	case IAX_IE_CAPABILITY:
 	{
 	  proto_tree *codec_tree;
@@ -1217,7 +1217,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 				 tvb, offset + 2, ies_len, FALSE);
 	  codec_tree =
 	    proto_item_add_subtree (ie_item, ett_iax2_codecs);
-	      
+
 	  proto_tree_add_item(codec_tree, hf_iax2_cap_g723_1, tvb, offset + 2, ies_len, FALSE );
 	  proto_tree_add_item(codec_tree, hf_iax2_cap_gsm, tvb, offset + 2, ies_len, FALSE );
 	  proto_tree_add_item(codec_tree, hf_iax2_cap_ulaw, tvb, offset + 2, ies_len, FALSE );
@@ -1249,12 +1249,12 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
              *host* byte order in that structure (the I-D seems to be
              assuming that "everything is a Vax^Wx86 or x86-64" with
              the address family field being little-endian).
-            
+
              This means the address family values are the Linux
              address family values. */
 	  apparent_addr_family = tvb_get_letohs(tvb, offset+2);
 	  proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINFAMILY, tvb, offset + 2, 2, apparent_addr_family);
-	      
+
 	  switch(  apparent_addr_family ) {
 	    case LINUX_AF_INET:
 	    {
@@ -1267,7 +1267,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	  }
 	  break;
 	}
-	      
+
 	default:
 	  if( ie_hf != -1 ) {
             /* throw an error if the IE isn't the expected length */
@@ -1280,7 +1280,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
             guint32 value;
             const guint8 *ptr;
             const gchar *ie_name = val_to_str(ies_type, iax_ies_type, "Unknown");
-	  
+
             switch(ies_len) {
               case 1:
                 value = tvb_get_guint8(tvb, offset + 2);
@@ -1289,7 +1289,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
                                              tvb, offset+2, 1, value,
                                              "%s: %#02x", ie_name, value );
                 break;
-	  
+
               case 2:
                 value = tvb_get_ntohs(tvb, offset + 2);
                 ie_item =
@@ -1297,7 +1297,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
                                              tvb, offset+2, 2, value,
                                              "%s: %#04x", ie_name, value );
                 break;
-	
+
               case 4:
                 value = tvb_get_ntohl(tvb, offset + 2);
                 ie_item =
@@ -1325,7 +1325,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
        * item */
       if(!PROTO_ITEM_IS_HIDDEN(ti)) {
 	field_info *ie_finfo = PITEM_FINFO(ie_item);
-	
+
 	/* if the representation of the item has already been set, use that;
 	   else we have to allocate a block to put the text into */
 	if( ie_finfo && ie_finfo->rep != NULL )
@@ -1379,18 +1379,18 @@ static guint32 dissect_iax2_command(tvbuff_t * tvb, guint32 offset,
   ie_data.peer_callno = 0;
   ie_data.dataformat = (guint32)-1;
   iax_call = iax_packet -> call_data;
-  
+
   /* add the subclass */
   proto_tree_add_uint (tree, hf_iax2_iax_csub, tvb, offset, 1, csub);
   offset++;
 
   if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " %s", 
+    col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
 		     val_to_str (csub, iax_iax_subclasses, "unknown (0x%02x)"));
 
   if (offset >= tvb_reported_length (tvb))
     return offset;
-  
+
   offset += dissect_ies(tvb, offset, tree, &ie_data);
 
   /* if this is a data call, set up a subdissector for the circuit */
@@ -1413,11 +1413,11 @@ static guint32 dissect_iax2_command(tvbuff_t * tvb, guint32 offset,
 		iax_call->reverse_circuit_ids[0],
 		tx_circuit);
 #endif
-      
+
       iax2_new_circuit_for_call(tx_circuit,pinfo->fd->num,iax_call,iax_packet->reversed);
     }
   }
-  
+
   return offset;
 }
 
@@ -1426,7 +1426,7 @@ static void iax2_add_ts_fields(packet_info * pinfo, proto_tree * iax2_tree, iax_
   guint32 longts = shortts;
   nstime_t ts;
   proto_item *item;
-    
+
   if(iax_packet->call_data == NULL) {
     /* no call info for this frame; perhaps we missed the NEW packet */
     return;
@@ -1451,14 +1451,14 @@ static void iax2_add_ts_fields(packet_info * pinfo, proto_tree * iax2_tree, iax_
     }
   }
   iax2_info->timestamp = longts;
-  
+
   if (iax2_tree) {
     item = proto_tree_add_time(iax2_tree, hf_iax2_absts, NULL, 0, 0, &iax_packet->abstime);
     PROTO_ITEM_SET_GENERATED(item);
 
     ts  = pinfo->fd->abs_ts;
     nstime_delta(&ts, &ts, &iax_packet->abstime);
-  
+
     item = proto_tree_add_time(iax2_tree, hf_iax2_lateness, NULL, 0, 0, &ts);
     PROTO_ITEM_SET_GENERATED(item);
   }
@@ -1466,7 +1466,7 @@ static void iax2_add_ts_fields(packet_info * pinfo, proto_tree * iax2_tree, iax_
 
 /* returns the new offset */
 static guint32
-dissect_fullpacket (tvbuff_t * tvb, guint32 offset, 
+dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 		    guint16 scallno,
 		    packet_info * pinfo, proto_tree * iax2_tree,
 		    proto_tree * main_tree)
@@ -1485,7 +1485,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
   gboolean rtp_marker;
 
   /*
-   * remove the top bit for retransmission detection 
+   * remove the top bit for retransmission detection
    */
   dcallno = tvb_get_ntohs(tvb, offset);
   retransmission = dcallno & 0x8000;
@@ -1520,7 +1520,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
   }
 
   iax2_populate_pinfo_from_packet_data(pinfo, iax_packet);
-  
+
   if( iax2_tree ) {
       proto_item *packet_type_base;
 
@@ -1529,7 +1529,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
       proto_tree_add_item(iax2_tree, hf_iax2_retransmission, tvb, offset, 2, FALSE );
 
       if( iax_call ) {
-        proto_item *item = 
+        proto_item *item =
           proto_tree_add_uint (iax2_tree, hf_iax2_callno, tvb, 0, 4,
                              iax_call->forward_circuit_ids[0] );
         PROTO_ITEM_SET_GENERATED(item);
@@ -1567,7 +1567,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
     iax2_info->messageName = val_to_str (csub, iax_iax_subclasses, "unknown (0x%02x)");
     iax2_info->callState = csub;
     break;
-    
+
   case AST_FRAME_DTMF_BEGIN:
   case AST_FRAME_DTMF_END:
     proto_tree_add_item (packet_type_tree, hf_iax2_dtmf_csub, tvb, offset+9, 1, FALSE);
@@ -1668,7 +1668,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
   /* next time we come to parse this packet, don't propogate the codec into the
    * call_data */
   iax_packet->first_time = FALSE;
-  
+
   return offset;
 }
 
@@ -1691,9 +1691,9 @@ static iax_packet_data *iax2_get_packet_data_for_minipacket(packet_info * pinfo,
 
     /* set the codec for this frame to be whatever the last full frame used */
     if( iax_call ) {
-     if( video ) 
+     if( video )
         p->codec = reversed ? iax_call -> dst_vformat : iax_call -> src_vformat;
-      else 
+      else
         p->codec = reversed ? iax_call -> dst_codec : iax_call -> src_codec;
     }
   }
@@ -1722,7 +1722,7 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
 
   if( iax2_tree ) {
     if( iax_packet->call_data ) {
-      item = 
+      item =
         proto_tree_add_uint (iax2_tree, hf_iax2_callno, tvb, 0, 4,
 				    iax_packet->call_data->forward_circuit_ids[0] );
       PROTO_ITEM_SET_GENERATED(item);
@@ -1736,9 +1736,9 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
   }
 
   offset += 2;
-  
+
   if (check_col (pinfo->cinfo, COL_INFO))
-      col_add_fstr (pinfo->cinfo, COL_INFO, 
+      col_add_fstr (pinfo->cinfo, COL_INFO,
 		    "Mini video packet, source call# %d, timestamp %ums%s",
 		    scallno, ts, rtp_marker?", Mark":"");
 
@@ -1748,7 +1748,7 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
   /* next time we come to parse this packet, don't propogate the codec into the
    * call_data */
   iax_packet->first_time = FALSE;
-  
+
   return offset;
 }
 
@@ -1777,11 +1777,11 @@ dissect_minipacket (tvbuff_t * tvb, guint32 offset, guint16 scallno, packet_info
     iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
   }
 
-  
+
   offset += 2;
-  
+
   if (check_col (pinfo->cinfo, COL_INFO))
-      col_add_fstr (pinfo->cinfo, COL_INFO, 
+      col_add_fstr (pinfo->cinfo, COL_INFO,
 		    "Mini packet, source call# %d, timestamp %ums",
 		    scallno, ts);
 
@@ -1793,7 +1793,7 @@ dissect_minipacket (tvbuff_t * tvb, guint32 offset, guint16 scallno, packet_info
   /* next time we come to parse this packet, don't propogate the codec into the
    * call_data */
   iax_packet->first_time = FALSE;
-  
+
   return offset;
 }
 
@@ -1834,7 +1834,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
   gboolean must_desegment = FALSE;
 
   DISSECTOR_ASSERT(iax_call);
-  
+
   pinfo->can_desegment = 2;
   pinfo->desegment_offset = 0;
   pinfo->desegment_len = 0;
@@ -1842,7 +1842,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 #ifdef DEBUG_DESEGMENT
   g_debug("dissecting packet %u", pinfo->fd->num);
 #endif
-  
+
   dirdata = &(iax_call->dirdata[!!(iax_packet->reversed)]);
 
   if((!pinfo->fd->flags.visited && dirdata->current_frag_bytes > 0) ||
@@ -1882,7 +1882,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 			    iax_call->fragment_table,
 			    frag_offset,
 			    frag_len, !complete );
-    
+
     if(fd_head && (pinfo->fd->num == fd_head->reassembled_in)) {
       gint32 old_len;
       tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, fd_head->data, fd_head->datalen, fd_head->datalen);
@@ -1938,7 +1938,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
     */
 
     process_iax_pdu(tvb,pinfo,tree,video,iax_packet);
-    
+
     if(pinfo->desegment_len) {
       /* the higher-level dissector has asked for some more data - ie,
          the end of this segment does not coincide with the end of a
@@ -2032,7 +2032,7 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
   if (check_col (pinfo->cinfo, COL_INFO)) {
     if( !video && iax_call && iax_call -> dataformat != 0 ) {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", data, format %s",
-		       val_to_str (iax_call -> dataformat, 
+		       val_to_str (iax_call -> dataformat,
 				   iax_dataformats, "unknown (0x%02x)"));
 #if 0
       if( out_of_order )
@@ -2048,8 +2048,8 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
   proto_tree_add_text( iax2_tree, sub_tvb, 0, -1,
       "IAX2 payload (%u byte%s)", nbytes,
       plurality( nbytes, "", "s" ));
-      
-  iax2_info->payload_len = nbytes;      
+
+  iax2_info->payload_len = nbytes;
   iax2_info->payload_data = tvb_get_ptr(sub_tvb, 0, -1);
 
   /* pass the rest of the block to a subdissector */
@@ -2079,12 +2079,12 @@ void
 proto_register_iax2 (void)
 {
   /* A header field is something you can search/filter on.
-   * 
+   *
    * We create a structure to register our fields. It consists of an
    * array of hf_register_info structures, each of which are of the format
    * {&(field id), {name, abbrev, type, display, strings, bitmask, blurb, HFILL}}.
    */
-   
+
   static hf_register_info hf[] = {
 
     {&hf_iax2_packet_type,
@@ -2144,7 +2144,7 @@ proto_register_iax2 (void)
 
     {&hf_iax2_oseqno,
      {"Outbound seq.no.", "iax2.oseqno", FT_UINT16, BASE_DEC, NULL,
-      0x0, 
+      0x0,
       "oseqno is the sequence no of this packet. The first packet has oseqno==0, and subsequent packets increment the oseqno by 1",
       HFILL}},
 
@@ -2160,7 +2160,7 @@ proto_register_iax2 (void)
       HFILL}},
 
     {&hf_iax2_csub,
-     {"Unknown subclass", "iax2.subclass", FT_UINT8, BASE_DEC, NULL, 0x0, 
+     {"Unknown subclass", "iax2.subclass", FT_UINT8, BASE_DEC, NULL, 0x0,
       "Subclass of unknown type of full IAX2 frame",
       HFILL}},
 
@@ -2171,45 +2171,45 @@ proto_register_iax2 (void)
 
     {&hf_iax2_cmd_csub,
      {"Control subclass", "iax2.control.subclass", FT_UINT8, BASE_DEC,
-      VALS (iax_cmd_subclasses), 0x0, 
+      VALS (iax_cmd_subclasses), 0x0,
       "This gives the command number for a Control packet.", HFILL}},
 
     {&hf_iax2_iax_csub,
      {"IAX subclass", "iax2.iax.subclass", FT_UINT8, BASE_DEC,
       VALS (iax_iax_subclasses),
-      0x0, 
+      0x0,
       "IAX subclass gives the command number for IAX signalling packets", HFILL}},
 
     {&hf_iax2_voice_csub,
-     {"Voice Subclass (compressed codec no)", "iax2.voice.subclass", FT_UINT8, BASE_DEC, NULL, 0x0, 
+     {"Voice Subclass (compressed codec no)", "iax2.voice.subclass", FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL,
       HFILL}},
 
     {&hf_iax2_voice_codec,
      {"CODEC", "iax2.voice.codec", FT_UINT32, BASE_HEX, VALS (codec_types),
-      0x0, 
+      0x0,
       "CODEC gives the codec used to encode audio data", HFILL}},
 
     {&hf_iax2_video_csub,
-     {"Video Subclass (compressed codec no)", "iax2.video.subclass", FT_UINT8, BASE_DEC, NULL, 0xBF, 
+     {"Video Subclass (compressed codec no)", "iax2.video.subclass", FT_UINT8, BASE_DEC, NULL, 0xBF,
       NULL,
       HFILL}},
-    
+
     {&hf_iax2_marker,
      {"Marker", "iax2.video.marker", FT_BOOLEAN, 8, NULL, 0x40,
       "RTP end-of-frame marker",
       HFILL}},
 
     {&hf_iax2_video_codec,
-     {"CODEC", "iax2.video.codec", FT_UINT32, BASE_HEX, VALS (codec_types), 0, 
+     {"CODEC", "iax2.video.codec", FT_UINT32, BASE_HEX, VALS (codec_types), 0,
       "The codec used to encode video data", HFILL}},
 
     {&hf_iax2_modem_csub,
      {"Modem subclass", "iax2.modem.subclass", FT_UINT8, BASE_DEC,
       VALS (iax_modem_subclasses),
-      0x0, 
+      0x0,
       "Modem subclass gives the type of modem", HFILL}},
-    
+
     /*
      * Decoding for the ies
      */
@@ -2220,7 +2220,7 @@ proto_register_iax2 (void)
      {"Port", "iax2.iax.app_addr.sinport", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
     {&hf_IAX_IE_APPARENTADDR_SINADDR,
      {"Address", "iax2.iax.app_addr.sinaddr", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-    
+
     {&hf_iax2_ies[IAX_IE_CALLED_NUMBER],
      {"Number/extension being called", "iax2.iax.called_number",
       FT_STRING,
@@ -2457,7 +2457,7 @@ proto_register_iax2 (void)
 
     {&hf_iax2_cap_gsm,
      {"GSM compression", "iax2.cap.gsm", FT_BOOLEAN, 32,
-       TFS(&tfs_supported_not_supported), AST_FORMAT_GSM, 
+       TFS(&tfs_supported_not_supported), AST_FORMAT_GSM,
       NULL, HFILL }},
 
     {&hf_iax2_cap_ulaw,
@@ -2479,10 +2479,10 @@ proto_register_iax2 (void)
      {"ADPCM", "iax2.cap.adpcm", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_ADPCM,
       NULL, HFILL }},
-    
+
     {&hf_iax2_cap_slinear,
-     {"Raw 16-bit Signed Linear (8000 Hz) PCM", "iax2.cap.slinear", 
-      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_SLINEAR, 
+     {"Raw 16-bit Signed Linear (8000 Hz) PCM", "iax2.cap.slinear",
+      FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), AST_FORMAT_SLINEAR,
       NULL, HFILL }},
 
     {&hf_iax2_cap_lpc10,
@@ -2589,7 +2589,7 @@ proto_register_iax2 (void)
     "iax2.codec","IAX codec number", FT_UINT32, BASE_HEX);
   iax2_dataformat_dissector_table = register_dissector_table(
     "iax2.dataformat","IAX dataformat number", FT_UINT32, BASE_HEX);
-  
+
   /* register our init routine to be called at the start of a capture,
      to clear out our hash tables etc */
   register_init_routine(&iax_init_protocol);
@@ -2605,7 +2605,7 @@ proto_reg_handoff_iax2 (void)
 }
 
 
-/* 
+/*
  * This sets up the indentation style for this file in emacs.
  *
  * Local Variables:

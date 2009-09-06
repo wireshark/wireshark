@@ -197,7 +197,7 @@ static gboolean save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer fs)
 	/*  Dialog box needs to be always destroyed. Return TRUE      */
 	/*  so that caller will destroy the dialog box.               */
 	/*  See comment under rtpstream_on_save.                      */
-	rtpstream_save(selected_stream_fwd, g_dest);    
+	rtpstream_save(selected_stream_fwd, g_dest);
 	g_free(g_dest);
 	return TRUE;
 #endif
@@ -415,17 +415,17 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 	{
 		if (selected_stream_fwd->src_addr.type==AT_IPv6){
 			g_strlcpy(ip_version,"v6",sizeof(ip_version));
-		}		
+		}
 		else{
 			ip_version[0] = '\0';
 		}
 		filter_string_fwd = g_strdup_printf(
 			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",
 			ip_version,
-			address_to_str(&(selected_stream_fwd->src_addr)),
+			ep_address_to_str(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
 			ip_version,
-			address_to_str(&(selected_stream_fwd->dest_addr)),
+			ep_address_to_str(&(selected_stream_fwd->dest_addr)),
 			selected_stream_fwd->dest_port,
 			selected_stream_fwd->ssrc);
         filter_string = filter_string_fwd;
@@ -435,17 +435,17 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 	{
 		if (selected_stream_rev->src_addr.type==AT_IPv6){
 			g_strlcpy(ip_version,"v6",sizeof(ip_version));
-		}		
+		}
 		else{
 			ip_version[0] = '\0';
 		}
 		filter_string_rev = g_strdup_printf(
 			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",
 			ip_version,
-			address_to_str(&(selected_stream_rev->src_addr)),
+			ep_address_to_str(&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
 			ip_version,
-			address_to_str(&(selected_stream_rev->dest_addr)),
+			ep_address_to_str(&(selected_stream_rev->dest_addr)),
 			selected_stream_rev->dest_port,
 			selected_stream_rev->ssrc);
 
@@ -492,7 +492,7 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 			gtk_clist_get_text(GTK_CLIST(clist),i,j,&table_entry);
 			g_string_append(CSV_str,table_entry);
 			g_string_append(CSV_str,",");
-		} 
+		}
 		g_string_append(CSV_str,"\n");
 	}
 
@@ -506,7 +506,7 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 static void
 rtpstream_on_analyse                   (GtkButton       *button _U_,
                                         gpointer         user_data _U_)
-{ 
+{
 	address ip_src_fwd;
 	guint16 port_src_fwd = 0;
 	address ip_dst_fwd;
@@ -522,12 +522,12 @@ rtpstream_on_analyse                   (GtkButton       *button _U_,
 	{
 		return;
 	}
-	
+
 	SET_ADDRESS(&ip_src_fwd,AT_NONE,0,NULL);
 	SET_ADDRESS(&ip_dst_fwd,AT_NONE,0,NULL);
 	SET_ADDRESS(&ip_src_rev,AT_NONE,0,NULL);
 	SET_ADDRESS(&ip_dst_rev,AT_NONE,0,NULL);
-	
+
 	if (selected_stream_fwd) {
 		COPY_ADDRESS(&(ip_src_fwd), &(selected_stream_fwd->src_addr));
 		port_src_fwd = selected_stream_fwd->src_port;
@@ -820,7 +820,7 @@ static void rtpstream_dlg_create (void)
     /*bt_copy = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
     bt_copy = gtk_button_new_from_stock(GTK_STOCK_COPY);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_copy);
-    gtk_tooltips_set_tip(tooltips, bt_copy, 
+    gtk_tooltips_set_tip(tooltips, bt_copy,
         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
 
     bt_analyze = gtk_button_new_with_label ("Analyze");

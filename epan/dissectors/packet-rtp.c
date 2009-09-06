@@ -304,7 +304,7 @@ const value_string rtp_payload_type_vals[] =
 	{ PT_MPV,	"MPEG-I/II Video"},
 	{ PT_MP2T,	"MPEG-II transport streams"},
 	{ PT_H263,	"ITU-T H.263" },
- 
+
  	/* Alex Lindberg - Added to support addtional RTP payload types
  	See epan/rtp_pt.h */
 	{ PT_UNDF_96,	"DynamicRTP-Type-96" },
@@ -339,7 +339,7 @@ const value_string rtp_payload_type_vals[] =
 	{ PT_UNDF_125,	"DynamicRTP-Type-125" },
 	{ PT_UNDF_126,	"DynamicRTP-Type-126" },
 	{ PT_UNDF_127,	"DynamicRTP-Type-127" },
- 
+
 	{ 0,		NULL },
 };
 
@@ -372,7 +372,7 @@ const value_string rtp_payload_type_short_vals[] =
 	{ PT_MPV,       "MPEG-I/II Video"},
 	{ PT_MP2T,      "MPEG-II streams"},
 	{ PT_H263,      "h263" },
- 
+
  	/* Alex Lindberg - Short RTP types */
 	{ PT_UNDF_96,	"RTPType-96" },
 	{ PT_UNDF_97,	"RTPType-97" },
@@ -463,7 +463,7 @@ void srtp_add_address(packet_info *pinfo,
 	}
 
 #ifdef DEBUG
-	printf("#%u: %srtp_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, (srtp_info)?"s":"", address_to_str(addr), port, other_port, setup_method, setup_frame_number);
+	printf("#%u: %srtp_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, (srtp_info)?"s":"", ep_address_to_str(addr), port, other_port, setup_method, setup_frame_number);
 #endif
 
 	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
@@ -560,14 +560,14 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			switch (global_rtp_version0_type) {
 			case RTP0_STUN:
 				return call_dissector_only(stun_heur_handle, tvb, pinfo, tree);
-				
+
 			case RTP0_T38:
 				/* XXX: Should really be calling a heuristic dissector for T38 ??? */
 				call_dissector_only(t38_handle, tvb, pinfo, tree);
 				return TRUE;
-				
+
 			case RTP0_INVALID:
-				
+
 			default:
 				return FALSE; /* Unknown or unsupported version */
 			}
@@ -946,8 +946,8 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		    offset, 1, octet1, "Payload type: %s (%u)",
 			payload_type_str ? payload_type_str : val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown"),
 			hdr_new->pt);
-		proto_item_append_text(ti, ": PT=%s", 
-				       payload_type_str ? payload_type_str : 
+		proto_item_append_text(ti, ": PT=%s",
+				       payload_type_str ? payload_type_str :
 				                          val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown (%u)"));
 		offset += 1;
 
@@ -1152,7 +1152,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	/* check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */
 	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
 
-		
+
 	if (p_conv_data && p_conv_data->srtp_info) {
 		srtp_info = p_conv_data->srtp_info;
 		if (rtp_info->info_all_data_present) {

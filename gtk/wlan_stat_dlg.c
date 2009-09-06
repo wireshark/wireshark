@@ -493,7 +493,7 @@ wlanstat_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
 		if (hs->resolve_names) {
 			g_strlcpy (address, get_addr_name(&tmp->address), sizeof(address));
 		} else {
-			g_strlcpy (address, address_to_str(&tmp->address), sizeof(address));
+			g_strlcpy (address, ep_address_to_str(&tmp->address), sizeof(address));
 		}
 		if (basestation) {
 			g_strlcpy (comment, "Base station", sizeof(comment));
@@ -562,7 +562,7 @@ wlanstat_draw(void *phs)
 		if (hs->resolve_names) {
 			g_strlcpy (bssid, get_addr_name(&tmp->bssid), sizeof(bssid));
 		} else {
-			g_strlcpy (bssid, address_to_str(&tmp->bssid), sizeof(bssid));
+			g_strlcpy (bssid, ep_address_to_str(&tmp->bssid), sizeof(bssid));
 		}
 		if (tmp->stats.channel) {
 			g_snprintf (channel, sizeof(channel), "%u", tmp->stats.channel);
@@ -757,18 +757,18 @@ wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callb
 
 	switch (value) {
 	case VALUE_BSSID_ONLY:
-		str = g_strdup_printf("wlan.bssid==%s", address_to_str(&ep->bssid));
+		str = g_strdup_printf("wlan.bssid==%s", ep_address_to_str(&ep->bssid));
 		break;
 	case VALUE_SSID_ONLY:
 		str = g_strdup_printf("wlan_mgt.ssid==\"%s\"", format_text(ep->stats.ssid, ep->stats.ssid_len));
 		break;
 	case VALUE_BSSID_AND_SSID:
 		str = g_strdup_printf("wlan.bssid==%s && wlan_mgt.ssid==\"%s\"",
-				      address_to_str(&ep->bssid), format_text(ep->stats.ssid, ep->stats.ssid_len));
+				      ep_address_to_str(&ep->bssid), format_text(ep->stats.ssid, ep->stats.ssid_len));
 		break;
 	case VALUE_BSSID_OR_SSID:
 		str = g_strdup_printf("wlan.bssid==%s || wlan_mgt.ssid==\"%s\"",
-				      address_to_str(&ep->bssid), format_text(ep->stats.ssid, ep->stats.ssid_len));
+				      ep_address_to_str(&ep->bssid), format_text(ep->stats.ssid, ep->stats.ssid_len));
 		break;
 	}
 
@@ -791,7 +791,7 @@ wlan_details_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, gui
 	gtk_tree_selection_get_selected (sel, &model, &iter);
 	gtk_tree_model_get (model, &iter, DETAILS_COLUMN, &ep, -1);
 
-	str = g_strdup_printf("wlan.addr==%s", address_to_str(&ep->address));
+	str = g_strdup_printf("wlan.addr==%s", ep_address_to_str(&ep->address));
 
 	apply_selected_filter (callback_action, str);
 
