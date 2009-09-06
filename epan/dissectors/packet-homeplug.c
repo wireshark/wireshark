@@ -65,6 +65,8 @@ static int hf_homeplug_cer_vt11	= -1;
 static int hf_homeplug_cer_rsvd2	= -1;
 static int hf_homeplug_cer_nbdas	= -1;
 static int hf_homeplug_cer_bda	= -1;
+  /* Replace Bridge Address */
+static int hf_homeplug_rba = -1;
   /* Vendor Specific */
 static int hf_homeplug_vs		= -1;
 static int hf_homeplug_vs_oui	= -1;
@@ -74,6 +76,12 @@ static int hf_homeplug_vs_mid	= -1;
 static int hf_homeplug_snk		= -1;
 static int hf_homeplug_snk_eks	= -1;
 static int hf_homeplug_snk_nek	= -1;
+  /* Multicast With Response */
+static int hf_homeplug_mwr = -1;
+  /* Confirm Network Encryption Key */
+static int hf_homeplug_cnk = -1;
+  /* Host Tag */
+static int hf_homeplug_htag = -1;
   /* Request Parameters and Statistics */
 static int hf_homeplug_rps		= -1;
   /* Parameters and Statistics Response */
@@ -538,7 +546,7 @@ static void dissect_homeplug_cer(ptvcursor_t * cursor)
   if (!ptvcursor_tree(cursor)) 
     return;
 
-  it = ptvcursor_add_no_advance(cursor, hf_homeplug_cer_cerv, homeplug_melen, FALSE);
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_cer, homeplug_melen, FALSE);
 
   ptvcursor_push_subtree(cursor, it, ett_homeplug_cer);
     ptvcursor_add_no_advance(cursor, hf_homeplug_cer_cerv, 1, FALSE);
@@ -607,7 +615,7 @@ static void dissect_homeplug_rba(ptvcursor_t * cursor)
   if (!ptvcursor_tree(cursor))
     return;
 
-  it = ptvcursor_add_no_advance(cursor, hf_homeplug_cer_cerv, homeplug_melen, FALSE);
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_rba, homeplug_melen, FALSE);
 }
 
 /* Dissection of Request Parameters and Statistics MME */
@@ -644,7 +652,7 @@ static void dissect_homeplug_mwr(ptvcursor_t * cursor)
   if (!ptvcursor_tree(cursor))
     return;
 
-  it = ptvcursor_add_no_advance(cursor, hf_homeplug_cer_cerv, homeplug_melen, FALSE);
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_mwr, homeplug_melen, FALSE);
 }
 
 /* Dissection of Confirm Network Encryption Key MME */
@@ -655,7 +663,7 @@ static void dissect_homeplug_cnk(ptvcursor_t * cursor)
   if (!ptvcursor_tree(cursor))
     return;
 
-  it = ptvcursor_add_no_advance(cursor, hf_homeplug_cer_cerv, homeplug_melen, FALSE);
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_cnk, homeplug_melen, FALSE);
 }
 
 /* Dissection of Parameters and Statistics Response MME */
@@ -1080,7 +1088,7 @@ static void dissect_homeplug_htag(ptvcursor_t * cursor)
   if (!ptvcursor_tree(cursor))
     return;
 
-  it = ptvcursor_add_no_advance(cursor, hf_homeplug_cer_cerv, homeplug_melen, FALSE);
+  it = ptvcursor_add_no_advance(cursor, hf_homeplug_htag, homeplug_melen, FALSE);
 }
 
 /* Dissection of the Network Statistics MME */
@@ -1591,6 +1599,12 @@ proto_register_homeplug(void)
       FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
+    /* Replace Bridge Address */
+    { &hf_homeplug_rba,
+      { "Replace Bridge Address", "homeplug.rba",
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+
     /* Vendor Specific */
     { &hf_homeplug_vs,
       { "Vendor Specific", "homeplug.vs",
@@ -1626,6 +1640,24 @@ proto_register_homeplug(void)
     { &hf_homeplug_snk_nek,
       { "Network Encryption Key", "homeplug.snk.nek",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+
+  /* Multicast With Response */
+    { &hf_homeplug_mwr,
+      { "Multicast With Response", "homeplug.mwr",
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+
+    /* Confirm Network Encryption Key */
+    { &hf_homeplug_cnk,
+      { "Confirm Network Encryption Key", "homeplug.cnk",
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+
+    /* Host Tag */
+    { &hf_homeplug_htag,
+      { "Host Tag", "homeplug.htag",
+      FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
 
     /* Request Parameters and Statistics */
