@@ -1316,103 +1316,6 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
   pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
 }
 
-/*
- * XXX - this should be in some common code in the epan directory, shared
- * by this code and packet-isdn.c.
- */
-static const value_string channel_vals[] = {
-    { 0,    "D" },
-    { 1,    "B1" },
-    { 2,    "B2" },
-    { 3,    "B3" },
-    { 4,    "B4" },
-    { 5,    "B5" },
-    { 6,    "B6" },
-    { 7,    "B7" },
-    { 8,    "B8" },
-    { 9,    "B9" },
-    { 10,   "B10" },
-    { 11,   "B11" },
-    { 12,   "B12" },
-    { 13,   "B13" },
-    { 14,   "B14" },
-    { 15,   "B15" },
-    { 16,   "B16" },
-    { 17,   "B17" },
-    { 18,   "B19" },
-    { 19,   "B19" },
-    { 20,   "B20" },
-    { 21,   "B21" },
-    { 22,   "B22" },
-    { 23,   "B23" },
-    { 24,   "B24" },
-    { 25,   "B25" },
-    { 26,   "B26" },
-    { 27,   "B27" },
-    { 28,   "B29" },
-    { 29,   "B29" },
-    { 30,   "B30" },
-    { 0,    NULL }
-};
-
-#if 0
-static void
-col_set_circuit_id(packet_info *pinfo, int col)
-{
-  switch (pinfo->ctype) {
-  case CT_DLCI:
-    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
-    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], pinfo->cinfo->col_buf[col],COL_MAX_LEN);
-    pinfo->cinfo->col_expr.col_expr[col] = "fr.dlci";
-    break;
-
-  case CT_ISDN:
-    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%s",
-         val_to_str(pinfo->circuit_id, channel_vals, "Unknown (%u)"));
-    pinfo->cinfo->col_expr.col_expr[col] =  "isdn.channel";
-    g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
-    break;
-
-  case CT_X25:
-    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
-    break;
-
-  case CT_ISUP:
-    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
-    pinfo->cinfo->col_expr.col_expr[col] = "isup.cic";
-    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col],pinfo->cinfo->col_buf[col],COL_MAX_LEN);
-    break;
-
-  default:
-    break;
-  }
-  pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
-}
-
-/* ------------- */
-static gchar *
-set_circuit_id(packet_info *pinfo)
-{
-  char *ret = "";
-  switch (pinfo->ctype) {
-
-  case CT_DLCI:
-  case CT_X25:
-  case CT_ISUP:
-    ret = se_strdup_printf("%u", pinfo->circuit_id);
-    break;
-
-  case CT_ISDN:
-    ret  = se_strdup_printf("%s", val_to_str(pinfo->circuit_id, channel_vals, "Unknown (%u)"));
-    break;
-
-  default:
-    break;
-  }
-  return ret;
-}
-#endif
-
 gboolean
 col_based_on_frame_data(column_info *cinfo, gint col)
 {
@@ -1472,7 +1375,6 @@ col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col)
     }
 }
 
-/* -------------------------- */
 void
 col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
 {
@@ -1626,6 +1528,7 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
     }
   }
 }
+
 #if 0
 XXX this needs more rework?
 /* --------------------------- */
