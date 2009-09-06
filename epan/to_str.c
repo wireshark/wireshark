@@ -971,8 +971,9 @@ se_address_to_str(const address *addr)
 {
   gchar *str;
 
-  str = ep_address_to_str(addr);
-  return se_strdup(str);
+  str=se_alloc(MAX_ADDR_STR_LEN);
+  address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
+  return str;
 }
 
 void
