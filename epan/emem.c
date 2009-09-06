@@ -293,80 +293,81 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 	int ret;
 	char *buf_end, *prot1, *prot2;
 #endif /* _WIN32 / USE_GUARD_PAGES */
+	emem_chunk_t *npc;
+
 	/* we dont have any free data, so we must allocate a new one */
-	if(!*free_list){
-		emem_chunk_t *npc;
-		npc = g_malloc(sizeof(emem_chunk_t));
-		npc->next = NULL;
-		if (use_canary) {
-			npc->canary_info = g_new(emem_canary_t, 1);
-			npc->canary_info->c_count = 0;
-		}
-		else
-			npc->canary_info = NULL;
+    DISSECTOR_ASSERT(!*free_list);
 
-		*free_list = npc;
+	npc = g_malloc(sizeof(emem_chunk_t));
+	npc->next = NULL;
+	if (use_canary) {
+		npc->canary_info = g_new(emem_canary_t, 1);
+		npc->canary_info->c_count = 0;
+	}
+	else
+		npc->canary_info = NULL;
+
+	*free_list = npc;
 #if defined (_WIN32)
-		/*
-		 * MSDN documents VirtualAlloc/VirtualProtect at
-		 * http://msdn.microsoft.com/library/en-us/memory/base/creating_guard_pages.asp
-		 */
+	/*
+	 * MSDN documents VirtualAlloc/VirtualProtect at
+	 * http://msdn.microsoft.com/library/en-us/memory/base/creating_guard_pages.asp
+	 */
 
-		/* XXX - is MEM_COMMIT|MEM_RESERVE correct? */
-		npc->buf = VirtualAlloc(NULL, EMEM_PACKET_CHUNK_SIZE,
-			MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-		if(npc->buf == NULL) {
-			THROW(OutOfMemoryError);
-		}
-		buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
+	/* XXX - is MEM_COMMIT|MEM_RESERVE correct? */
+	npc->buf = VirtualAlloc(NULL, EMEM_PACKET_CHUNK_SIZE,
+		MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+	if(npc->buf == NULL) {
+		THROW(OutOfMemoryError);
+	}
+	buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
 
-		/* Align our guard pages on page-sized boundaries */
-		prot1 = (char *) ((((int) npc->buf + pagesize - 1) / pagesize) * pagesize);
-		prot2 = (char *) ((((int) buf_end - (1 * pagesize)) / pagesize) * pagesize);
+	/* Align our guard pages on page-sized boundaries */
+	prot1 = (char *) ((((int) npc->buf + pagesize - 1) / pagesize) * pagesize);
+	prot2 = (char *) ((((int) buf_end - (1 * pagesize)) / pagesize) * pagesize);
 
-		ret = VirtualProtect(prot1, pagesize, PAGE_NOACCESS, &oldprot);
-		g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
-		ret = VirtualProtect(prot2, pagesize, PAGE_NOACCESS, &oldprot);
-		g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+	ret = VirtualProtect(prot1, pagesize, PAGE_NOACCESS, &oldprot);
+	g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+	ret = VirtualProtect(prot2, pagesize, PAGE_NOACCESS, &oldprot);
+	g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
 
-		npc->amount_free_init = (unsigned int) (prot2 - prot1 - pagesize);
-		npc->amount_free = npc->amount_free_init;
-		npc->free_offset_init = (unsigned int) (prot1 - npc->buf) + pagesize;
-		npc->free_offset = npc->free_offset_init;
+	npc->amount_free_init = (unsigned int) (prot2 - prot1 - pagesize);
+	npc->amount_free = npc->amount_free_init;
+	npc->free_offset_init = (unsigned int) (prot1 - npc->buf) + pagesize;
+	npc->free_offset = npc->free_offset_init;
 
 #elif defined(USE_GUARD_PAGES)
-		npc->buf = mmap(NULL, EMEM_PACKET_CHUNK_SIZE,
-			PROT_READ|PROT_WRITE, ANON_PAGE_MODE, ANON_FD, 0);
-		if(npc->buf == MAP_FAILED) {
-			/* XXX - what do we have to cleanup here? */
-			THROW(OutOfMemoryError);
-		}
-		buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
+	npc->buf = mmap(NULL, EMEM_PACKET_CHUNK_SIZE,
+		PROT_READ|PROT_WRITE, ANON_PAGE_MODE, ANON_FD, 0);
+	if(npc->buf == MAP_FAILED) {
+		/* XXX - what do we have to cleanup here? */
+		THROW(OutOfMemoryError);
+	}
+	buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
 
-		/* Align our guard pages on page-sized boundaries */
-		prot1 = (char *) ((((intptr_t) npc->buf + pagesize - 1) / pagesize) * pagesize);
-		prot2 = (char *) ((((intptr_t) buf_end - (1 * pagesize)) / pagesize) * pagesize);
-		ret = mprotect(prot1, pagesize, PROT_NONE);
-		g_assert(ret != -1);
-		ret = mprotect(prot2, pagesize, PROT_NONE);
-		g_assert(ret != -1);
+	/* Align our guard pages on page-sized boundaries */
+	prot1 = (char *) ((((intptr_t) npc->buf + pagesize - 1) / pagesize) * pagesize);
+	prot2 = (char *) ((((intptr_t) buf_end - (1 * pagesize)) / pagesize) * pagesize);
+	ret = mprotect(prot1, pagesize, PROT_NONE);
+	g_assert(ret != -1);
+	ret = mprotect(prot2, pagesize, PROT_NONE);
+	g_assert(ret != -1);
 
-		npc->amount_free_init = prot2 - prot1 - pagesize;
-		npc->amount_free = npc->amount_free_init;
-		npc->free_offset_init = (prot1 - npc->buf) + pagesize;
-		npc->free_offset = npc->free_offset_init;
+	npc->amount_free_init = prot2 - prot1 - pagesize;
+	npc->amount_free = npc->amount_free_init;
+	npc->free_offset_init = (prot1 - npc->buf) + pagesize;
+	npc->free_offset = npc->free_offset_init;
 
 #else /* Is there a draft in here? */
-		npc->buf = malloc(EMEM_PACKET_CHUNK_SIZE);
-		if(npc->buf == NULL) {
-			THROW(OutOfMemoryError);
-		}
-		npc->amount_free_init = EMEM_PACKET_CHUNK_SIZE;
-		npc->amount_free = npc->amount_free_init;
-		npc->free_offset_init = 0;
-		npc->free_offset = npc->free_offset_init;
-#endif /* USE_GUARD_PAGES */
+	npc->buf = malloc(EMEM_PACKET_CHUNK_SIZE);
+	if(npc->buf == NULL) {
+		THROW(OutOfMemoryError);
 	}
+	npc->amount_free_init = EMEM_PACKET_CHUNK_SIZE;
+	npc->amount_free = npc->amount_free_init;
+	npc->free_offset_init = 0;
+	npc->free_offset = npc->free_offset_init;
+#endif /* USE_GUARD_PAGES */
 }
 
 /* allocate 'size' amount of memory. */
@@ -393,12 +394,13 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 		/* make sure we dont try to allocate too much (arbitrary limit) */
 		DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
-		emem_create_chunk(&mem->free_list, use_canary);
+		if (!mem->free_list)
+			emem_create_chunk(&mem->free_list, use_canary);
 
 		/* oops, we need to allocate more memory to serve this request
 		 * than we have free. move this node to the used list and try again
 		 */
-		if(size>mem->free_list->amount_free || 
+		if(size > mem->free_list->amount_free ||
 		   (use_canary &&
 			mem->free_list->canary_info->c_count >= EMEM_ALLOCS_PER_CHUNK)) {
 			emem_chunk_t *npc;
@@ -408,7 +410,8 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 			mem->used_list=npc;
 		}
 
-		emem_create_chunk(&mem->free_list, use_canary);
+		if (!mem->free_list)
+			emem_create_chunk(&mem->free_list, use_canary);
 
 		free_list = mem->free_list;
 
@@ -1696,7 +1699,7 @@ ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str) {
 	}
 
 	/* Be optimistic; try the g_strlcpy first & see if enough room.                 */
-	/* Note: full_len doesn't count the trailing '\0'; add_len does allow for same  */ 
+	/* Note: full_len doesn't count the trailing '\0'; add_len does allow for same  */
 	add_len = strbuf->alloc_len - strbuf->len;
 	full_len = g_strlcpy(&strbuf->str[strbuf->len], str, add_len);
 	if (full_len < add_len) {
@@ -1720,7 +1723,7 @@ ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap)
 	G_VA_COPY(ap2, ap);
 
 	/* Be optimistic; try the g_vsnprintf first & see if enough room.               */
-	/* Note: full_len doesn't count the trailing '\0'; add_len does allow for same. */ 
+	/* Note: full_len doesn't count the trailing '\0'; add_len does allow for same. */
 	add_len = strbuf->alloc_len - strbuf->len;
 	full_len = g_vsnprintf(&strbuf->str[strbuf->len], (gulong) add_len, format, ap);
 	if (full_len < add_len) {
