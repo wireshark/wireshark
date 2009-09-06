@@ -74,16 +74,24 @@ circuit_match(gconstpointer v, gconstpointer w)
 }
 
 /*
- * Initialize some variables every time a file is loaded or re-loaded.
- * Destroy all existing circuits, and create a new hash table
- * for the circuits in the new file.
+ * Destroy all existing circuits.
  */
 void
-circuit_init(void)
+circuit_cleanup(void)
 {
 	if (circuit_hashtable != NULL)
 		g_hash_table_destroy(circuit_hashtable);
 
+	circuit_hashtable = NULL;
+}
+
+/*
+ * Initialize some variables every time a file is loaded or re-loaded.
+ * Create a new hash table for the circuits in the new file.
+ */
+void
+circuit_init(void)
+{
 	/*
 	 * Free up any space allocated for circuit protocol data
 	 * areas.

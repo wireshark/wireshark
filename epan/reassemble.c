@@ -205,7 +205,7 @@ reassembled_hash(gconstpointer k)
 /*
  * For a fragment hash table entry, free the address data to which the key
  * refers and the fragment data to which the value refers.
- * (The actual key and value structures get freed by "reassemble_init()".)
+ * (The actual key and value structures get freed by "reassemble_cleanup()".)
  */
 static gboolean
 free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
@@ -260,7 +260,7 @@ static fragment_data *new_head(guint32 flags)
 /*
  * For a reassembled-packet hash table entry, free the fragment data
  * to which the value refers.
- * (The actual value structures get freed by "reassemble_init()".)
+ * (The actual value structures get freed by "reassemble_cleanup()".)
  */
 static gboolean
 free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
@@ -298,7 +298,7 @@ fragment_table_init(GHashTable **fragment_table)
 		 *
 		 * Remove all entries and free fragment data for
 		 * each entry.	(The key and value data is freed
-		 * by "reassemble_init()".)
+		 * by "reassemble_cleanup()".)
 		 */
 		g_hash_table_foreach_remove(*fragment_table,
 				free_all_fragments, NULL);
@@ -318,7 +318,7 @@ dcerpc_fragment_table_init(GHashTable **fragment_table)
 			*
 			* Remove all entries and free fragment data for
 			* each entry.  (The key and value data is freed
-			* by "reassemble_init()".)
+			* by "reassemble_cleanup()".)
 			*/
 		   g_hash_table_foreach_remove(*fragment_table,
 						   free_all_fragments, NULL);
@@ -341,7 +341,7 @@ reassembled_table_init(GHashTable **reassembled_table)
 		 *
 		 * Remove all entries and free reassembled packet
 		 * data for each entry.  (The key data is freed
-		 * by "reassemble_init()".)
+		 * by "reassemble_cleanup()".)
 		 */
 		g_hash_table_foreach_remove(*reassembled_table,
 				free_all_reassembled_fragments, NULL);
@@ -357,7 +357,7 @@ reassembled_table_init(GHashTable **reassembled_table)
  * reassembled keys.
  */
 void
-reassemble_init(void)
+reassemble_cleanup(void)
 {
 #if GLIB_CHECK_VERSION(2,10,0)
 #else
@@ -366,6 +366,16 @@ reassemble_init(void)
 	if (fragment_data_chunk != NULL)
 		g_mem_chunk_destroy(fragment_data_chunk);
 
+	fragment_key_chunk = NULL;
+	fragment_data_chunk = NULL;
+#endif
+}
+
+void
+reassemble_init(void)
+{
+#if GLIB_CHECK_VERSION(2,10,0)
+#else
 	fragment_key_chunk = g_mem_chunk_new("fragment_key_chunk",
 		sizeof(fragment_key),
 		fragment_init_count * sizeof(fragment_key),

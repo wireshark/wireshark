@@ -51,6 +51,7 @@ typedef struct circuit {
 	circuit_key *key_ptr;		/* pointer to the key for this circuit */
 } circuit_t;
 
+extern void circuit_cleanup(void);
 extern void circuit_init(void);
 
 extern circuit_t *circuit_new(circuit_type ctype, guint32 circuit_id,

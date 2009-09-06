@@ -117,8 +117,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 void
 epan_cleanup(void)
 {
-	se_free_all();
-	expert_cleanup();
+	cleanup_dissection();
 	dfilter_cleanup();
 	proto_cleanup();
 	prefs_cleanup();
@@ -139,9 +138,21 @@ epan_conversation_init(void)
 }
 
 void
+epan_conversation_cleanup(void)
+{
+	conversation_cleanup();
+}
+
+void
 epan_circuit_init(void)
 {
 	circuit_init();
+}
+
+void
+epan_circuit_cleanup(void)
+{
+	circuit_cleanup();
 }
 
 epan_dissect_t*

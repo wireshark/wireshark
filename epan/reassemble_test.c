@@ -58,7 +58,7 @@ int failure = 0;
 void do_test(int condition, char *format, ...)
 {
     va_list ap;
-    
+
     if(condition)
         return;
     va_start(ap, format);
@@ -266,7 +266,7 @@ static void test_fragment_add_seq_partial_reassembly(void)
 
     fd_head=fragment_get(&pinfo,12,fragment_table);
     ASSERT_NE(NULL,fd_head);
-    
+
     /* check the contents of the structure */
     ASSERT_EQ(0,fd_head->frame);   /* unused */
     ASSERT_EQ(0,fd_head->offset);  /* unused */
@@ -298,7 +298,7 @@ static void test_fragment_add_seq_partial_reassembly(void)
     pinfo.fd->num = 3;
     fd_head=fragment_add_seq(tvb, 0, &pinfo, 12, fragment_table,
                              1, 40, TRUE);
-    
+
     ASSERT_EQ(1,g_hash_table_size(fragment_table));
     ASSERT_EQ(NULL,fd_head);
     fd_head=fragment_get(&pinfo,12,fragment_table);
@@ -336,16 +336,16 @@ static void test_fragment_add_seq_partial_reassembly(void)
     ASSERT_NE(NULL,fd->data);
     ASSERT_EQ(NULL,fd->next);
 
-    
+
 
     /* have another go at wrapping things up */
     pinfo.fd->num = 4;
     fd_head=fragment_add_seq(tvb, 20, &pinfo, 12, fragment_table,
                              2, 100, FALSE);
-    
+
     ASSERT_EQ(1,g_hash_table_size(fragment_table));
     ASSERT_NE(NULL,fd_head);
-    
+
     /* check the contents of the structure */
     ASSERT_EQ(0,fd_head->frame);  /* unused */
     ASSERT_EQ(0,fd_head->offset); /* unused */
@@ -371,7 +371,7 @@ static void test_fragment_add_seq_partial_reassembly(void)
     ASSERT_EQ(0,fd->flags);
     ASSERT_EQ(NULL,fd->data);
     ASSERT_NE(NULL,fd->next);
-    
+
     fd=fd->next;
     ASSERT_EQ(3,fd->frame);
     ASSERT_EQ(1,fd->offset);  /* seqno */
@@ -473,12 +473,12 @@ static void test_fragment_add_seq_partial_reassembly(void)
 static void test_fragment_add_dcerpc_dg(void)
 {
     e_uuid_t act_id = {1,2,3,{4,5,6,7,8,9,10,11}};
-    
+
     fragment_data *fd_head, *fdh0;
     GHashTable *fragment_table = NULL;
 
     printf("Starting test test_fragment_add_dcerpc_dg\n");
-    
+
     /* we need our own fragment table */
     dcerpc_fragment_table_init(&fragment_table);
     fd_head=fragment_add_dcerpc_dg(tvb, 10, &pinfo, 12, &act_id, fragment_table,
@@ -573,7 +573,7 @@ static void test_fragment_add_seq_check_work(
     ASSERT_EQ(2,g_hash_table_size(fragment_table));
     ASSERT_EQ(0,g_hash_table_size(reassembled_table));
     ASSERT_EQ(NULL,fd_head);
-    
+
     /* add the terminal fragment of the first datagram */
     pinfo.fd->num = 3;
     fd_head=fn(tvb, 5, &pinfo, 12, fragment_table,
@@ -779,8 +779,8 @@ static void test_simple_fragment_add_seq_next(void)
     ASSERT_EQ(2,g_hash_table_size(fragment_table));
     ASSERT_EQ(0,g_hash_table_size(reassembled_table));
     ASSERT_EQ(NULL,fd_head);
-    
-    
+
+
     /* now we add the terminal fragment of the first datagram */
     pinfo.fd->num = 3;
     fd_head=fragment_add_seq_next(tvb, 5, &pinfo, 12, fragment_table,
@@ -1015,15 +1015,15 @@ int main(int argc, char **argv)
         test_missing_data_fragment_add_seq_next_2,
         test_missing_data_fragment_add_seq_next_3
     };
-    
+
     /* we don't use our params */
     argc=argc; argv=argv;
-    
+
     /* initialise stuff */
     ep_init_chunk();
     tvbuff_init();
     reassemble_init();
-        
+
     /* a tvbuff for testing with */
     data = g_malloc(DATA_LEN);
     /* make sure it's full of stuff */
@@ -1043,12 +1043,12 @@ int main(int argc, char **argv)
         /* re-init the fragment tables */
         fragment_table_init(&fragment_table);
         ASSERT(fragment_table != NULL);
-    
+
         reassembled_table_init(&reassembled_table);
         ASSERT(reassembled_table != NULL);
 
         pinfo.fd->flags.visited = FALSE;
-        
+
         tests[i]();
     }
 
@@ -1100,7 +1100,7 @@ void col_add_fstr(column_info *cinfo _U_, gint col _U_, const gchar *format _U_,
                        ...)
 {}
 
-    
+
 
 
 

@@ -80,7 +80,7 @@ extern stream_t *find_stream_conv ( const struct conversation *conv, int p2p_dir
 
 
 /* see if we've seen this fragment before.
-   
+
    The framenum and offset are just hash keys, so can be any values unique
    to this frame, but the idea is that you use the number of the frame being
    disassembled, and the byte-offset within that frame.
@@ -134,5 +134,6 @@ extern guint32 stream_get_pdu_no( const stream_pdu_fragment_t *frag);
 
 /* initialise the stream routines */
 void stream_init( void );
+void stream_cleanup( void );
 
 #endif /* STREAM_H */

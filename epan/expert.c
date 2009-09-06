@@ -68,8 +68,6 @@ const value_string expert_severity_vals[] = {
 	{ 0, NULL }
 };
 
-
-
 void
 expert_init(void)
 {
@@ -77,10 +75,10 @@ expert_init(void)
 		{ &hf_expert_msg,
 			{ "Message", "expert.message", FT_STRING, BASE_NONE, NULL, 0, "Wireshark expert information", HFILL }
 		},
-		{ &hf_expert_group, 
+		{ &hf_expert_group,
 			{ "Group", "expert.group", FT_UINT32, BASE_NONE, VALS(expert_group_vals), 0, "Wireshark expert group", HFILL }
 		},
-		{ &hf_expert_severity, 
+		{ &hf_expert_severity,
 			{ "Severity level", "expert.severity", FT_UINT32, BASE_NONE, VALS(expert_severity_vals), 0, "Wireshark expert severity level", HFILL }
 		}
 	};
@@ -118,7 +116,7 @@ expert_get_highest_severity(void)
 }
 
 
-/* set's the PI_ flags to a protocol item 
+/* set's the PI_ flags to a protocol item
  * (and it's parent items till the toplevel) */
 static void
 expert_set_item_flags(proto_item *pi, int group, int severity)
@@ -138,7 +136,7 @@ expert_create_tree(proto_item *pi, int group, int severity, const char *msg)
 	proto_item *ti;
 
 	tree = proto_item_add_subtree(pi, ett_expert);
-	ti = proto_tree_add_protocol_format(tree, proto_expert, NULL, 0, 0, "Expert Info (%s/%s): %s", 
+	ti = proto_tree_add_protocol_format(tree, proto_expert, NULL, 0, 0, "Expert Info (%s/%s): %s",
 		val_to_str(severity, expert_severity_vals, "?%u?"),
 		val_to_str(group, expert_group_vals, "?%u?"),
 		msg);

@@ -246,6 +246,8 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
      and fill in the information for this file. */
   cf_reset_state(cf);
 
+  /* Cleanup all data structures used for dissection. */
+  cleanup_dissection();
   /* Initialize all data structures used for dissection. */
   init_dissection();
 
@@ -285,7 +287,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
 #if GLIB_CHECK_VERSION(2,10,0)
 #else
-  /* memory chunks have been deprecated in favor of the slice allocator, 
+  /* memory chunks have been deprecated in favor of the slice allocator,
    * which has been added in 2.10
    */
   cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
@@ -344,7 +346,7 @@ cf_reset_state(capture_file *cf)
   if (cf->plist != NULL)
     g_slice_free_chain(frame_data, cf->plist, next);
 #else
-  /* memory chunks have been deprecated in favor of the slice allocator, 
+  /* memory chunks have been deprecated in favor of the slice allocator,
    * which has been added in 2.10
    */
   if (cf->plist_chunk != NULL) {
@@ -424,7 +426,7 @@ static void  compute_elapsed(GTimeVal *start_time)
       GTimeVal   time_now;
 
       g_get_current_time(&time_now);
-      
+
       delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
 		time_now.tv_usec - start_time->tv_usec;
 
@@ -432,7 +434,7 @@ static void  compute_elapsed(GTimeVal *start_time)
 }
 
 static float calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos){
- 
+
 	float   progbar_val;
 
 	progbar_val = (gfloat) file_pos / (gfloat) size;
@@ -628,7 +630,7 @@ cf_read(capture_file *cf)
    * don't need after the sequential run-through of the packets. */
   postseq_cleanup_all_protocols();
 
-  /* compute the time it took to load the file */	
+  /* compute the time it took to load the file */
   compute_elapsed(&start_time);
 
   /* Set the file encapsulation type now; we don't know what it is until
@@ -1229,8 +1231,8 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   frame_data   *plist_end;
   int row = -1;
 
-  /* Allocate the next list entry, and add it to the list. 
-   * memory chunks have been deprecated in favor of the slice allocator, 
+  /* Allocate the next list entry, and add it to the list.
+   * memory chunks have been deprecated in favor of the slice allocator,
    * which has been added in 2.10
    */
 #if GLIB_CHECK_VERSION(2,10,0)
@@ -1297,7 +1299,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
        a G_ALLOC_ONLY chunk and read in a huge capture file, it didn't
        seem to save a noticeable amount of time or space. */
 #if GLIB_CHECK_VERSION(2,10,0)
-  /* memory chunks have been deprecated in favor of the slice allocator, 
+  /* memory chunks have been deprecated in favor of the slice allocator,
    * which has been added in 2.10
    */
    	g_slice_free(frame_data,fdata);
@@ -1716,6 +1718,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        want to dissect those before their time. */
     cf->redissecting = TRUE;
 
+    /* Cleanup all data structures used for dissection. */
+    cleanup_dissection();
     /* Initialize all data structures used for dissection. */
     init_dissection();
 

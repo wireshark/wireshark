@@ -668,13 +668,13 @@ tshark_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
 {
   /* ignore log message, if log_level isn't interesting based
      upon the console log preferences.
-     If the preferences haven't been loaded loaded yet, display the 
+     If the preferences haven't been loaded loaded yet, display the
      message anyway.
 
-     The default console_log_level preference value is such that only 
+     The default console_log_level preference value is such that only
        ERROR, CRITICAL and WARNING level messages are processed;
        MESSAGE, INFO and DEBUG level messages are ignored.
-       
+
      XXX: Aug 07, 2009: Prior tshark g_log code was hardwired to process only
            ERROR and CRITICAL level messages so the current code is a behavioral
            change.  The current behavior is the same as in Wireshark.
@@ -1832,6 +1832,8 @@ capture(void)
   relinquish_special_privs_perm();
   print_current_user();
 
+  /* Cleanup all data structures used for dissection. */
+  cleanup_dissection();
   /* Initialize all data structures used for dissection. */
   init_dissection();
 
@@ -3144,6 +3146,8 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   /* The open succeeded.  Fill in the information for this file. */
 
+  /* Cleanup all data structures used for dissection. */
+  cleanup_dissection();
   /* Initialize all data structures used for dissection. */
   init_dissection();
 

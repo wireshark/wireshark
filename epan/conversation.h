@@ -77,6 +77,7 @@ typedef struct conversation {
 	conversation_key *key_ptr;	/* pointer to the key for this conversation */
 } conversation_t;
 
+extern void conversation_cleanup(void);
 extern void conversation_init(void);
 
 extern conversation_t *conversation_new(guint32 setup_frame, address *addr1, address *addr2,

@@ -1599,6 +1599,8 @@ raw_cf_open(capture_file *cf, const char *fname)
 
   /* The open succeeded.  Fill in the information for this file. */
 
+  /* Cleanup all data structures used for dissection. */
+  cleanup_dissection();
   /* Initialize all data structures used for dissection. */
   init_dissection();
 

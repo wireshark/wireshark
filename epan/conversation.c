@@ -409,12 +409,10 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 }
 
 /*
- * Initialize some variables every time a file is loaded or re-loaded.
- * Destroy all existing conversations, and create a new hash table
- * for the conversations in the new file.
+ * Destroy all existing conversations
  */
 void
-conversation_init(void)
+conversation_cleanup(void)
 {
 	/* The conversation keys are se_ allocated so they are already gone */
 	conversation_keys = NULL;
@@ -427,6 +425,19 @@ conversation_init(void)
 	if (conversation_hashtable_no_addr2_or_port2 != NULL)
 		g_hash_table_destroy(conversation_hashtable_no_addr2_or_port2);
 
+	conversation_hashtable_exact = NULL;
+	conversation_hashtable_no_addr2 = NULL;
+	conversation_hashtable_no_port2 = NULL;
+	conversation_hashtable_no_addr2_or_port2 = NULL;
+}
+
+/*
+ * Initialize some variables every time a file is loaded or re-loaded.
+ * Create a new hash table for the conversations in the new file.
+ */
+void
+conversation_init(void)
+{
 	/*
 	 * Free up any space allocated for conversation protocol data
 	 * areas.

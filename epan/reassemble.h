@@ -114,6 +114,11 @@ extern void reassembled_table_init(GHashTable **reassembled_table);
 /*
  * Free up all space allocated for fragment keys and data.
  */
+void reassemble_cleanup(void);
+
+/*
+ * Initialise fragment keys and data.
+ */
 void reassemble_init(void);
 
 /*
@@ -226,7 +231,7 @@ fragment_add_seq_next(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	     guint32 frag_data_len, gboolean more_frags);
 
 extern void
-fragment_start_seq_check(packet_info *pinfo, guint32 id, GHashTable *fragment_table, 
+fragment_start_seq_check(packet_info *pinfo, guint32 id, GHashTable *fragment_table,
 			 guint32 tot_len);
 
 extern fragment_data *

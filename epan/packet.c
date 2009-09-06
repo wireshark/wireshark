@@ -142,7 +142,7 @@ init_dissection(void)
 	/* Initialize the common data structures for fragment reassembly.
 	   Must be done *after* calling init routines, as those routines
 	   may free up space for fragments, which they find by using the
-	   data structures that "reassemble_init()" frees. */
+	   data structures that "reassemble_cleanup()" frees. */
 	reassemble_init();
 
 	/* Initialize the stream-handling tables */
@@ -155,7 +155,30 @@ init_dissection(void)
 void
 cleanup_dissection(void)
 {
-	init_dissection();
+	/* Reclaim all memory of seasonal scope */
+	se_free_all();
+
+	/* Cleanup the table of conversations. */
+	epan_conversation_cleanup();
+
+	/* Cleanup the table of circuits. */
+    epan_circuit_cleanup();
+
+	/* TODO: Introduce cleanup_routines */
+	/* Cleanup protocol-specific variables. */
+	g_slist_foreach(init_routines, &call_init_routine, NULL);
+
+	/* Cleanup the common data structures for fragment reassembly.
+	   Must be done *after* calling init routines, as those routines
+	   may free up space for fragments, which they find by using the
+	   data structures that "reassemble_cleanup()" frees. */
+	reassemble_cleanup();
+
+	/* Cleanup the stream-handling tables */
+	stream_cleanup();
+
+	/* Initialize the expert infos */
+	expert_cleanup();
 }
 
 /* Allow protocols to register a "cleanup" routine to be
