@@ -840,20 +840,6 @@ packet_list_qsort_physical_compare_func(PacketListRecord **a, PacketListRecord *
 	return ret;
 }
 
-static gint
-packet_list_qsort_visible_compare_func(PacketListRecord **a, PacketListRecord **b,
-				   PacketList *packet_list)
-{
-	gint ret;
-
-	g_assert((a) && (b) && (packet_list));
-
-	ret = ((*a)->visible_pos) <  ((*b)->visible_pos) ? -1 :
-		  ((*a)->visible_pos) >  ((*b)->visible_pos) ? 1  : 0;
-
-	return ret;
-}
-
 static void
 packet_list_resort(PacketList *packet_list)
 {
@@ -886,19 +872,13 @@ packet_list_resort(PacketList *packet_list)
 		if (record->visible_pos >= 0) {
 			g_assert(record->fdata->flags.passed_dfilter);
 			neworder[vis_idx] = record->visible_pos;
+			PACKET_LIST_RECORD_GET(packet_list->visible_rows, vis_idx) = record;
 			record->visible_pos = vis_idx;
 			++vis_idx;
 		}
 	}
 
 	g_assert(vis_idx == PACKET_LIST_RECORD_COUNT(packet_list->visible_rows));
-
-	/* resort visible rows according to new physical order */
-	g_qsort_with_data(packet_list->visible_rows->pdata,
-			  PACKET_LIST_RECORD_COUNT(packet_list->visible_rows),
-			  sizeof(PacketListRecord*),
-			  (GCompareDataFunc) packet_list_qsort_visible_compare_func,
-			  packet_list);
 
 	path = gtk_tree_path_new();
 
