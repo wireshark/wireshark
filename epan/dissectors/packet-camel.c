@@ -7102,7 +7102,7 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
 
   if (check_col(actx->pinfo->cinfo, COL_INFO)){
     /* Populate the info column with PDU type*/
-    col_add_fstr(actx->pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camel_Component_vals, "Unknown Camel (%u)"));
+    col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camel_Component_vals, "Unknown Camel (%u)"));
     col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
   }
 

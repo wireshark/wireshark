@@ -105,7 +105,7 @@ static void dissect_nat_pmp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   op_ti = proto_tree_add_item (nat_pmp_tree, hf_opcode, tvb, offset, 1, FALSE);
   offset++;
 
-  col_add_fstr (pinfo->cinfo, COL_INFO, val_to_str (opcode, opcode_vals, "Unknown opcode: %d"));
+  col_add_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, opcode_vals, "Unknown opcode: %d"));
 
   switch (opcode) {
 
