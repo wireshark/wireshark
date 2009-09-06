@@ -965,7 +965,7 @@ static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     /* Add the command name to the info column. */
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd_id, zbee_aps_cmd_names, "Unknown Command"));
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmd_id, zbee_aps_cmd_names, "Unknown Command"));
     }
 
     /* Handle the contents of the command frame. */

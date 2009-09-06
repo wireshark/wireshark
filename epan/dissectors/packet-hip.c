@@ -435,7 +435,7 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	control_h = tvb_get_ntohs(tvb, newoffset);
 	newoffset += 2;
 
-	col_set_str(pinfo->cinfo, COL_INFO, val_to_str(hiph_packet_type, pinfo_vals, "Unknown"));
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(hiph_packet_type, pinfo_vals, "Unknown"));
 
 	/* populate a tree in the second pane with the status of the link layer (i.e. none) */
 	if(tree) {

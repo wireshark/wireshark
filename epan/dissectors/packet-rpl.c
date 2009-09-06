@@ -277,7 +277,7 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_set_str(pinfo->cinfo, COL_INFO,
-		    val_to_str(rpl_type, rpl_type_vals, "Unknown Type"));
+		    val_to_str_const(rpl_type, rpl_type_vals, "Unknown Type"));
 	}
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rpl, tvb, 0, 

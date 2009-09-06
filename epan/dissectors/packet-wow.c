@@ -213,7 +213,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(check_col(pinfo->cinfo, COL_INFO)) {
 		col_set_str(pinfo->cinfo, COL_INFO,
-			    val_to_str(cmd, cmd_vs,
+			    val_to_str_const(cmd, cmd_vs,
 				       "Unrecognized packet type"));
 	}
 	

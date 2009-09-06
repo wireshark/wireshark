@@ -1750,7 +1750,7 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   gsm_map_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
 
   if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_set_str(actx->pinfo->cinfo, COL_INFO, val_to_str(gsmmap_pdu_type, gsm_old_Component_vals, "Unknown GSM-MAP PDU (%u)"));
+    col_add_fstr(actx->pinfo->cinfo, COL_INFO, val_to_str(gsmmap_pdu_type, gsm_old_Component_vals, "Unknown GSM-MAP PDU (%u)"));
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
   }
   offset = dissect_gsm_old_Component(FALSE, tvb, 0, actx, tree, hf_gsm_map_old_Component_PDU);

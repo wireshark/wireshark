@@ -100,7 +100,7 @@ dissect_smrse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMRSE");
   	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_set_str(pinfo->cinfo, COL_INFO, val_to_str(tag, tag_vals,"Unknown Tag:0x%02x"));
+  		col_add_fstr(pinfo->cinfo, COL_INFO, val_to_str(tag, tag_vals,"Unknown Tag:0x%02x"));
 
 	proto_tree_add_item(tree, hf_smrse_reserved, tvb, 0, 1, FALSE);
 	proto_tree_add_item(tree, hf_smrse_length, tvb, 1, 2, FALSE);

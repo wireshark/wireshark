@@ -414,7 +414,7 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item_append_text(proto_root, " %s", val_to_str(packet.type, zbee_nwk_frame_types, "Unknown Type"));
     }
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(packet.type, zbee_nwk_frame_types, "Reserved Frame Type"));
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet.type, zbee_nwk_frame_types, "Reserved Frame Type"));
     }
 
     /* Get the destination address. */
@@ -641,7 +641,7 @@ static void dissect_zbee_nwk_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     /* Add the command name to the info column. */
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd_id, zbee_nwk_cmd_names, "Unknown Command"));
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmd_id, zbee_nwk_cmd_names, "Unknown Command"));
     }
 
     /* Handle the command. */

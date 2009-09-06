@@ -269,7 +269,7 @@ dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
     proto_tree_add_item(mtp2_tree, hf_mtp2_sf_extra, su_tvb, sf_extra_offset, SF_EXTRA_LENGTH, LITTLE_ENDIAN_BYTE_ORDER);
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(sf, status_field_acro_vals, "Unknown"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(sf, status_field_acro_vals, "Unknown"));
 }
 
 static void

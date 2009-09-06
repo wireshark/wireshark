@@ -2258,13 +2258,13 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						 ptp2_managementErrorId_vals, "Unknown Error Id %u"));
 					break;
 				default:
-					col_set_str(pinfo->cinfo, COL_INFO, val_to_str(ptp_v2_messageid, ptp_v2_messageid_vals, "Unknown PTP Message (%u)"));
+					col_add_fstr(pinfo->cinfo, COL_INFO, val_to_str(ptp_v2_messageid, ptp_v2_messageid_vals, "Unknown PTP Message (%u)"));
 					break;
 			}
 		}
 		else
 		{
-		    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(ptp_v2_messageid, ptp_v2_messageid_vals, "Unknown PTP Message (%u)"));
+		    col_add_fstr(pinfo->cinfo, COL_INFO, val_to_str(ptp_v2_messageid, ptp_v2_messageid_vals, "Unknown PTP Message (%u)"));
 		}
 	}
 

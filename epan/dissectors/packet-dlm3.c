@@ -784,7 +784,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO,
-                val_to_str(h_cmd,
+                val_to_str_const(h_cmd,
                            dlm3_cmd,
                            "packet-dlm3.c internal bug"));
 

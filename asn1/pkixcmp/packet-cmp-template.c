@@ -158,7 +158,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	}
 
 	if (check_col (pinfo->cinfo, COL_INFO)) {
-		col_set_str (pinfo->cinfo, COL_INFO, val_to_str (pdu_type, cmp_pdu_types, "0x%x"));
+		col_add_fstr (pinfo->cinfo, COL_INFO, val_to_str (pdu_type, cmp_pdu_types, "0x%x"));
 	}
 
 	switch(pdu_type){

@@ -50,6 +50,22 @@ val_to_str(guint32 val, const value_string *vs, const char *fmt) {
 }
 
 /* Tries to match val against each element in the value_string array vs.
+   Returns the associated string ptr on a match.
+   Returns 'unknown_str', on failure. */
+const gchar*
+val_to_str_const(guint32 val, const value_string *vs, const char *unknown_str) {
+  const gchar *ret;
+
+  g_assert(unknown_str != NULL);
+
+  ret = match_strval(val, vs);
+  if (ret != NULL)
+    return ret;
+
+  return unknown_str;
+}
+
+/* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr, and sets "*idx" to the index in
    that table, on a match, and returns NULL, and sets "*idx" to -1,
    on failure. */

@@ -366,7 +366,7 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
 
     /* Display the frame type. */
     if (tree) proto_item_append_text(tree, " %s", val_to_str(packet->frame_type, ieee802154_frame_types, "Reserved"));
-    if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, val_to_str(packet->frame_type, ieee802154_frame_types, "Reserved"));
+    if (check_col(pinfo->cinfo, COL_INFO)) col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->frame_type, ieee802154_frame_types, "Reserved"));
 
     /* Add the FCF to the protocol tree. */
     if (tree) {
@@ -1117,7 +1117,7 @@ dissect_ieee802154_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
     /* Get and display the command frame identifier. */
     cmd_id = tvb_get_guint8(tvb, offset);
     if(check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd_id, ieee802154_cmd_names, "Unknown Command"));
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmd_id, ieee802154_cmd_names, "Unknown Command"));
     }
     if (tree) {
         /* Create a subtree for this command frame. */
