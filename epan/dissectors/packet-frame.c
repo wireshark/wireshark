@@ -264,19 +264,23 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  ti = proto_tree_add_boolean(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->flags.marked);
 	  PROTO_ITEM_SET_GENERATED(ti);
 
-	  /* we are going to be using proto_item_append_string() on
-	   * hf_frame_protocols, and we must therefore disable the
-	   * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
-	   * setting it as visible.
-	   *
-	   * See proto.h for details.
-	   */
-	  old_visible = proto_tree_set_visible(fh_tree, TRUE);
-	  ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, "");
-	  PROTO_ITEM_SET_GENERATED(ti);
-	  proto_tree_set_visible(fh_tree, old_visible);
+	  if(proto_field_is_referenced(tree, hf_frame_protocols)) {
+		  /* we are going to be using proto_item_append_string() on
+		   * hf_frame_protocols, and we must therefore disable the
+		   * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
+		   * setting it as visible.
+		   *
+		   * See proto.h for details.
+		   */
+		  old_visible = proto_tree_set_visible(fh_tree, TRUE);
+		  ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, "");
+		  PROTO_ITEM_SET_GENERATED(ti);
+		  proto_tree_set_visible(fh_tree, old_visible);
 
-	  pinfo->layer_names = g_string_new("");
+		  pinfo->layer_names = g_string_new("");
+	  }
+	  else
+		pinfo->layer_names = NULL;
 
 	  /* Check for existences of P2P pseudo header */
 	  if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {

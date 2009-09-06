@@ -293,7 +293,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
 
     EP_CHECK_CANARY(("before dissecting frame %d",fd->num));
-    
+
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
@@ -322,7 +322,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 		RETHROW;
 	}
 	ENDTRY;
-    
+
     EP_CHECK_CANARY(("after dissecting frame %d",fd->num));
 
 	fd->flags.visited = 1;
@@ -453,8 +453,8 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 		if ((pinfo->layer_names)&&(add_proto_name)) {
 			if (pinfo->layer_names->len > 0)
 				g_string_append(pinfo->layer_names, ":");
-			g_string_append(pinfo->layer_names,
-			    proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
+				g_string_append(pinfo->layer_names,
+				proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
 		}
 	}
 
@@ -473,8 +473,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
  		 * of protocols.
 		 */
  		if ((pinfo->layer_names != NULL)&&(add_proto_name)) {
- 			g_string_truncate(pinfo->layer_names,
- 			    saved_layer_names_len);
+ 			g_string_truncate(pinfo->layer_names, saved_layer_names_len);
 		}
  	}
  	pinfo->current_proto = saved_proto;
@@ -699,13 +698,13 @@ dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
 #if 0
         if (pattern == 0) {
 		g_warning("%s: %s registering using a pattern of 0",
-			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol))); 
+			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
         }
 
 	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern));
 	if (dtbl_entry != NULL) {
 		g_warning("%s: %s registering using pattern %d already registered by %s",
-			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol)), 
+			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol)),
                           pattern, proto_get_protocol_filter_name(proto_get_id(dtbl_entry->initial->protocol)));
 	}
 #endif
@@ -1590,7 +1589,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 			if (pinfo->layer_names) {
 				if (pinfo->layer_names->len > 0)
 					g_string_append(pinfo->layer_names, ":");
-				g_string_append(pinfo->layer_names,
+					g_string_append(pinfo->layer_names,
 					proto_get_protocol_filter_name(proto_get_id(dtbl_entry->protocol)));
 			}
 		}
@@ -1611,8 +1610,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 			 * of protocols.
 			 */
 			if (pinfo->layer_names != NULL) {
-				g_string_truncate(pinfo->layer_names,
-				    saved_layer_names_len);
+				g_string_truncate(pinfo->layer_names, saved_layer_names_len);
             }
 		}
 	}
