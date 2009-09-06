@@ -45,8 +45,6 @@
 #include <epan/strutil.h>
 #include <epan/epan.h>
 
-static column_info *ci;
-
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
 void
@@ -310,9 +308,6 @@ void
 col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 {
   int i;
-
-  /* Save this into the static variable ci for use by col_custom_set_fstr() later. */
-  ci = cinfo;
 
   if(!HAVE_CUSTOM_COLS(cinfo))
       return;
