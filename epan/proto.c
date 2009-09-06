@@ -416,7 +416,7 @@ proto_cleanup(void)
 		g_hash_table_destroy(proto_names);
 		proto_names = NULL;
 	}
-	
+
 	if (proto_short_names) {
 		g_hash_table_destroy(proto_short_names);
 		proto_short_names = NULL;
@@ -698,7 +698,7 @@ prefix_hash (gconstpointer key) {
 			break;
 		}
 	}
-	
+
 	return g_str_hash(copy);
 }
 
@@ -707,19 +707,19 @@ static gboolean
 prefix_equal (gconstpointer ap,gconstpointer bp) {
 	const gchar* a = ap;
 	const gchar* b = bp;
-	
+
 	do {
 		gchar ac = *a++;
 		gchar bc = *b++;
-		
+
 		if ((ac == '.' || ac == '\0') && (bc == '.' || bc == '\0')) return TRUE;
-		
+
 		if ( (ac == '.' || ac == '\0') && ! (bc == '.' || bc == '\0') ) return FALSE;
 		if ( (bc == '.' || bc == '\0') && ! (ac == '.' || ac == '\0') ) return FALSE;
-		
+
 		if (ac != bc) return FALSE;
 	} while(1);
-	
+
 	return FALSE;
 }
 
@@ -734,7 +734,7 @@ proto_register_prefix(const char *prefix, prefix_initializer_t pi ) {
 	if (! prefixes ) {
 		prefixes = g_hash_table_new(prefix_hash,prefix_equal);
 	}
-	
+
 	g_hash_table_insert(prefixes,(gpointer)prefix,pi);
 }
 
@@ -761,23 +761,23 @@ proto_registrar_get_byname(const char *field_name)
 {
 	header_field_info* hfinfo;
 	prefix_initializer_t pi;
-	
+
 	if (!field_name)
 		return NULL;
 
 	hfinfo = g_tree_lookup(gpa_name_tree, field_name);
-	
+
 	if (hfinfo) return hfinfo;
-	
+
 	if  (!prefixes) return NULL;
-	
+
 	if(( pi = g_hash_table_lookup(prefixes,field_name) )) {
 		pi(field_name);
 		g_hash_table_remove(prefixes,field_name);
 	} else {
 		return NULL;
 	}
-	
+
 	return g_tree_lookup(gpa_name_tree, field_name);
 }
 
@@ -1137,7 +1137,7 @@ static GPtrArray *proto_lookup_or_create_interesting_hfids(proto_tree *tree,
 		if (!ptrs) {
 			/* First element triggers the creation of pointer array */
 			ptrs = g_ptr_array_new();
-			g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids, 
+			g_hash_table_insert(PTREE_DATA(tree)->interesting_hfids,
 								GINT_TO_POINTER(hfinfo->id), ptrs);
 		}
 	}
@@ -3209,7 +3209,7 @@ proto_custom_set(proto_tree* tree, const gchar *field,
 	GPtrArray	*finfos;
 	field_info	*finfo;
 	header_field_info* hfinfo;
-	
+
 	if (!field)
 		return "";
 
@@ -3219,7 +3219,7 @@ proto_custom_set(proto_tree* tree, const gchar *field,
 	hfinfo = g_tree_lookup(gpa_name_tree, field);
 
 	/* do we need to rewind ? */
-	if (!hfinfo) 
+	if (!hfinfo)
 		return "";
 
 	while (hfinfo) {
@@ -5420,7 +5420,7 @@ proto_registrar_dump_protocols(void)
 	}
 }
 
-/* Dumps the value_strings, range_strings or true/false strings for fields 
+/* Dumps the value_strings, range_strings or true/false strings for fields
  * that have them. There is one record per line. Fields are tab-delimited.
  * There are three types of records: Value String, Range String
  * and True/False String. The first field, 'V', 'R' or 'T', indicates
@@ -6009,7 +6009,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 			break;
 
 		case FT_PCRE:
-			/* FT_PCRE never appears as a type for a registered field. It is 
+			/* FT_PCRE never appears as a type for a registered field. It is
 			 * only used internally. */
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
@@ -6205,7 +6205,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, int offset, int len
  * This array is terminated by a NULL entry.
  *
  * FT_BOOLEAN bits that are set to 1 will have the name added to the expansion.
- * FT_integer fields that have a value_string attached will have the 
+ * FT_integer fields that have a value_string attached will have the
  * matched string displayed on the expansion line.
  */
 proto_item *

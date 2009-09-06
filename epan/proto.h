@@ -28,9 +28,9 @@
     A protocol tree will hold all necessary data to display the whole dissected packet.
     Creating a protocol tree is done in a two stage process:
     A static part at program startup, and a dynamic part when the dissection with the real packet data is done.<BR>
-    The "static" information is provided by creating a hf_register_info hf[] array, and register it using the 
+    The "static" information is provided by creating a hf_register_info hf[] array, and register it using the
     proto_register_field_array() function. This is usually done at dissector registering.<BR>
-    The "dynamic" information is added to the protocol tree by calling one of the proto_tree_add_...() functions, 
+    The "dynamic" information is added to the protocol tree by calling one of the proto_tree_add_...() functions,
     e.g. proto_tree_add_bytes().
 */
 
@@ -80,7 +80,7 @@ struct _protocol;
 
 /** Structure for information about a protocol */
 typedef struct _protocol protocol_t;
- 
+
 /** check protocol activation
  * @todo this macro looks like a hack */
 #define CHECK_DISPLAY_AS_X(x_handle,index, tvb, pinfo, tree) {	\
@@ -119,7 +119,7 @@ typedef struct _protocol protocol_t;
    __DISSECTOR_ASSERT (expression, __FILE__, __LINE__)))
 
 #if 0
-/* win32: using a debug breakpoint (int 3) can be very handy while debugging, 
+/* win32: using a debug breakpoint (int 3) can be very handy while debugging,
  * as the assert handling of GTK/GLib is currently not very helpful */
 #define DISSECTOR_ASSERT(expression)  \
 { if(!(expression)) _asm { int 3}; }
@@ -141,7 +141,7 @@ typedef struct _protocol protocol_t;
      file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
 
 /* BASE_STRUCTURE_RESET constant is used in proto.c to reset the bits
- * identifying special structures used in translation of value for display. 
+ * identifying special structures used in translation of value for display.
  * Its value means that we may have at most 16 base_display_e values */
 #define BASE_STRUCTURE_RESET 0x0F
 /* Following constants have to be ORed with a base_display_e when dissector
@@ -235,7 +235,7 @@ typedef struct field_info {
  * shuffle the expert information upward; see below.
  */
 
-/** The protocol field should not be shown in the tree (it's used for filtering only), 
+/** The protocol field should not be shown in the tree (it's used for filtering only),
  * used in field_info.flags. */
 /* HIDING PROTOCOL FIELDS IS DEPRECATED, IT'S CONSIDERED TO BE BAD GUI DESIGN! */
 #define FI_HIDDEN		0x00000001
@@ -358,8 +358,8 @@ extern void proto_tree_children_foreach(proto_tree *tree,
 #define PTREE_DATA(proto_tree)   ((proto_tree)->tree_data)
 
 /** Sets up memory used by proto routines. Called at program startup */
-extern void proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_data), 
-		       void (register_all_handoffs_func)(register_cb cb, gpointer client_data), 
+extern void proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_data),
+		       void (register_all_handoffs_func)(register_cb cb, gpointer client_data),
 		       register_cb cb, void *client_data);
 
 
@@ -369,7 +369,7 @@ extern void proto_cleanup(void);
 /** This function takes a tree and a protocol id as parameter and
     will return TRUE/FALSE for whether the protocol or any of the filterable
     fields in the protocol is referenced by any fitlers.
-    If this function returns FALSE then it is safe to skip any 
+    If this function returns FALSE then it is safe to skip any
     proto_tree_add_...() calls and just treat the call as if the
     dissector was called with tree==NULL.
     If you reset the tree to NULL by this dissector returning FALSE,
@@ -430,7 +430,7 @@ extern void proto_item_set_len(proto_item *ti, gint length);
  * in the item is relative to the beginning of the data source tvbuff,
  * we need to pass in a tvbuff.
  @param ti the item to set the length
- @param tvb end is relative to this tvbuff 
+ @param tvb end is relative to this tvbuff
  @param end this end offset is relative to the beginning of tvb
  @todo make usage clearer, I don't understand it!
  */
@@ -1291,7 +1291,7 @@ proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
  @param ... printf like parameters
  @return the newly created item */
 extern proto_item *
-proto_tree_add_debug_text(proto_tree *tree, const char *format, 
+proto_tree_add_debug_text(proto_tree *tree, const char *format,
 	...) GNUC_FORMAT_CHECK(printf,2,3);
 
 
@@ -1317,7 +1317,7 @@ proto_item_append_string(proto_item *pi, const char *str);
 
 /** Fill given label_str with string representation of field
  @param fi the item to get the info from
- @param label_str the string to fill 
+ @param label_str the string to fill
  @todo think about changing the parameter profile */
 extern void
 proto_item_fill_label(field_info *fi, gchar *label_str);
@@ -1326,7 +1326,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str);
 /** Register a new protocol.
  @param name the full name of the new protocol
  @param short_name abbreviated name of the new protocol
- @param filter_name protocol name used for a display filter string 
+ @param filter_name protocol name used for a display filter string
  @return the new protocol handle */
 extern int
 proto_register_protocol(const char *name, const char *short_name, const char *filter_name);
@@ -1455,7 +1455,7 @@ extern const char *proto_get_protocol_short_name(protocol_t *protocol);
 extern const char *proto_get_protocol_long_name(protocol_t *protocol);
 
 /** Is protocol's decoding enabled ?
- @param protocol 
+ @param protocol
  @return TRUE if decoding is enabled, FALSE if not */
 extern gboolean proto_is_protocol_enabled(protocol_t *protocol);
 
@@ -1525,11 +1525,11 @@ extern void proto_registrar_dump_fields(int format);
 
 /** Points to the first element of an array of Booleans, indexed by
    a subtree item type. That array element is TRUE if subtrees of
-   an item of that type are to be expanded. With MSVC and a 
+   an item of that type are to be expanded. With MSVC and a
    libwireshark.dll, we need a special declaration. */
 WS_VAR_IMPORT gboolean	     *tree_is_expanded;
 
-/** Number of elements in the tree_is_expanded array. With MSVC and a 
+/** Number of elements in the tree_is_expanded array. With MSVC and a
  * libwireshark.dll, we need a special declaration. */
 WS_VAR_IMPORT int           num_tree_types;
 
