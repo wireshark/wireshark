@@ -93,10 +93,12 @@ col_init(column_info *cinfo)
   cinfo->writable = TRUE;
 }
 
+#define COL_GET_WRITABLE(cinfo) (cinfo ? cinfo->writable : FALSE)
+
 gboolean
 col_get_writable(column_info *cinfo)
 {
-    return (cinfo ? cinfo->writable : FALSE);
+    return COL_GET_WRITABLE(cinfo);
 }
 
 void
@@ -106,19 +108,17 @@ col_set_writable(column_info *cinfo, gboolean writable)
         cinfo->writable = writable;
 }
 
-/* Checks to see if a particular packet information element is needed for
-   the packet list */
-gint
-check_col(column_info *cinfo, gint el) {
+/* Checks to see if a particular packet information element is needed for the packet list */
+#define CHECK_COL(cinfo, el) \
+    /* We are constructing columns, and they're writable */ \
+    (COL_GET_WRITABLE(cinfo) && \
+      /* There is at least one column in that format */ \
+    ((cinfo)->col_first[el] >= 0))
 
-  if (col_get_writable(cinfo)) {
-    /* We are constructing columns, and they're writable */
-    if (cinfo->col_first[el] >= 0) {
-      /* There is at least one column in that format */
-      return TRUE;
-    }
-  }
-  return FALSE;
+gint
+check_col(column_info *cinfo, gint el)
+{
+  return CHECK_COL(cinfo, el);
 }
 
 /* Sets the fence for a column to be at the end of the column. */
@@ -127,7 +127,7 @@ col_set_fence(column_info *cinfo, gint el)
 {
   int i;
 
-  if (!check_col(cinfo, el))
+  if (!CHECK_COL(cinfo, el))
     return;
 
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
@@ -149,7 +149,7 @@ col_clear(column_info *cinfo, gint el)
   int    i;
   int    fence;
 
-  if (!check_col(cinfo, el))
+  if (!CHECK_COL(cinfo, el))
     return;
 
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
@@ -208,7 +208,7 @@ col_set_str(column_info *cinfo, gint el, const gchar* str)
   int fence;
   size_t max_len;
 
-  if (!check_col(cinfo, el))
+  if (!CHECK_COL(cinfo, el))
     return;
 
   if (el == COL_INFO)
@@ -246,7 +246,7 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   int     fence;
   int     max_len;
 
-  if (!check_col(cinfo, el))
+  if (!CHECK_COL(cinfo, el))
     return;
 
   if (el == COL_INFO)
@@ -288,10 +288,10 @@ void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo)
        i <= cinfo->col_last[COL_CUSTOM]; i++) {
     if (cinfo->fmt_matx[i][COL_CUSTOM] && cinfo->col_custom_field[i]) {
       cinfo->col_data[i] = cinfo->col_buf[i];
-      
+
       cinfo->col_expr.col_expr[i] = epan_custom_set(edt, cinfo->col_custom_field[i],
                                      cinfo->col_buf[i],
-                                     cinfo->col_expr.col_expr_val[i], 
+                                     cinfo->col_expr.col_expr_val[i],
                                      COL_MAX_LEN);
     }
   }
@@ -319,7 +319,7 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 gboolean
 have_custom_cols(column_info *cinfo)
 {
-  /* The same as check_col(), but without the check to see if the column
+  /* The same as CHECK_COL(), but without the check to see if the column
    * is writable. */
   if (cinfo && cinfo->col_first[COL_CUSTOM] >= 0)
     return TRUE;
@@ -384,7 +384,7 @@ col_append_fstr(column_info *cinfo, gint el, const gchar *format, ...)
 {
   va_list ap;
 
-  if (!check_col(cinfo, el))
+  if (!CHECK_COL(cinfo, el))
     return;
 
   va_start(ap, format);
@@ -400,7 +400,7 @@ col_append_sep_fstr(column_info *cinfo, gint el, const gchar *separator,
 {
   va_list ap;
 
-  if (!check_col(cinfo, el))
+  if (!CHECK_COL(cinfo, el))
     return;
 
   if (separator == NULL)
@@ -424,7 +424,7 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   const char *orig;
   int         max_len;
 
-  if (!check_col(cinfo, el))
+  if (!CHECK_COL(cinfo, el))
     return;
 
   if (el == COL_INFO)
@@ -466,7 +466,7 @@ col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   const char *orig;
   int         max_len;
 
-  if (!check_col(cinfo, el))
+  if (!CHECK_COL(cinfo, el))
     return;
 
   if (el == COL_INFO)
@@ -512,7 +512,7 @@ col_add_str(column_info *cinfo, gint el, const gchar* str)
   int    fence;
   size_t max_len;
 
-  if (!check_col(cinfo, el))
+  if (!CHECK_COL(cinfo, el))
     return;
 
   if (el == COL_INFO)
@@ -547,7 +547,7 @@ col_do_append_str(column_info *cinfo, gint el, const gchar* separator,
   int    i;
   size_t len, max_len, sep_len;
 
-  if (!check_col(cinfo, el))
+  if (!CHECK_COL(cinfo, el))
     return;
 
   if (el == COL_INFO)
@@ -801,7 +801,7 @@ col_set_delta_time(frame_data *fd, column_info *cinfo, int col)
 }
 
 /* ------------------------------------------
- To do: Add check_col checks to the col_add* routines 
+ To do: Add CHECK_COL checks to the col_add* routines
 */
 static gint
 set_delta_time_dis(frame_data *fd, gchar *buf)
@@ -856,7 +856,7 @@ col_set_delta_time_dis(frame_data *fd, column_info *cinfo, int col)
 }
 
 /* ------------------------ */
-/* To do: Add check_col checks to the col_add* routines */
+/* To do: Add CHECK_COL checks to the col_add* routines */
 
 static gint
 set_abs_time(frame_data *fd, gchar *buf)
@@ -920,7 +920,7 @@ set_abs_time(frame_data *fd, gchar *buf)
       default:
           g_assert_not_reached();
       }
-      
+
   } else {
     *buf = '\0';
   }
@@ -1117,7 +1117,7 @@ col_set_time(column_info *cinfo, gint el, nstime_t *ts, char *fieldname)
 {
   int   col;
 
-  if (!check_col(cinfo, el))
+  if (!CHECK_COL(cinfo, el))
     return;
 
   for (col = cinfo->col_first[el]; col <= cinfo->col_last[el]; col++) {
@@ -1639,10 +1639,10 @@ set_addr(address *addr, gboolean is_res)
 {
   if (addr->type == AT_NONE)
     return "";  /* no address, nothing to do */
-  
+
   if (is_res) {
     return se_get_addr_name(addr /*, COL_MAX_LEN*/);
-  } 
+  }
   return se_address_to_str(addr);
 }
 
@@ -1653,14 +1653,14 @@ col_fill_fdata(packet_info *pinfo)
   int i;
   frame_data *fdata;
   gboolean res;
-  
+
   if (!pinfo->cinfo)
     return;
-  
+
   fdata = pinfo->fd;
 
   res =FALSE;
- 
+
   for (i = 0; i < pinfo->cinfo->num_cols; i++) {
 
     switch (pinfo->cinfo->col_fmt[i]) {
@@ -1735,19 +1735,19 @@ col_fill_fdata(packet_info *pinfo)
       break;
 
     case COL_IF_DIR:    /* currently done by dissectors */
-    case COL_PROTOCOL:  
-    case COL_INFO:  
+    case COL_PROTOCOL:
+    case COL_INFO:
     case COL_HPUX_SUBSYS:
-    case COL_HPUX_DEVID: 
-    case COL_DCE_CALL:  
+    case COL_HPUX_DEVID:
+    case COL_DCE_CALL:
     case COL_8021Q_VLAN_ID:
     case COL_DSCP_VALUE:
-    case COL_COS_VALUE: 
+    case COL_COS_VALUE:
     case COL_FR_DLCI:
     case COL_BSSGP_TLLI:
     case COL_EXPERT:
     case COL_CUSTOM:
-    case COL_FREQ_CHAN: 
+    case COL_FREQ_CHAN:
       if (pinfo->cinfo->col_data[i] != pinfo->cinfo->col_buf[i]) {
          /* XXX assume it's a constant */
          fdata->col_text[i] = (gchar *)pinfo->cinfo->col_data[i];
@@ -1773,14 +1773,14 @@ col_fill_fdata(packet_info *pinfo)
       fdata->col_text[i] = (gchar *)(GUINT_TO_POINTER((guint)pinfo->dst_idx));
       break;
     case COL_VSAN:
-      fdata->col_text[i] = (gchar *)(GUINT_TO_POINTER((guint)pinfo->vsan));      
+      fdata->col_text[i] = (gchar *)(GUINT_TO_POINTER((guint)pinfo->vsan));
       break;
 
     case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
       g_assert_not_reached();
       break;
     }
-  }      
+  }
 }
 
 /* XXX Gets/creates the text fro col_text in frame data */
@@ -1792,7 +1792,7 @@ static gchar fmtbuf[3][COL_MAX_LEN];
 static int idx;
 gchar  *buf;
 gchar  *ptr;
-    
+
     idx = (idx + 1) % 3;
     buf = fmtbuf[idx];
     *buf = 0;
@@ -1840,7 +1840,7 @@ gchar  *ptr;
     case COL_RES_NET_SRC:
     case COL_UNRES_NET_SRC:
     case COL_DEF_DST:
-    case COL_RES_DST:   
+    case COL_RES_DST:
     case COL_UNRES_DST:
     case COL_DEF_DL_DST:
     case COL_RES_DL_DST:
@@ -1849,21 +1849,21 @@ gchar  *ptr;
     case COL_RES_NET_DST:
     case COL_UNRES_NET_DST:
 
-    case COL_IF_DIR:    
-    case COL_CIRCUIT_ID:  
-    case COL_PROTOCOL:  
-    case COL_INFO:  
+    case COL_IF_DIR:
+    case COL_CIRCUIT_ID:
+    case COL_PROTOCOL:
+    case COL_INFO:
     case COL_HPUX_SUBSYS:
-    case COL_HPUX_DEVID: 
-    case COL_DCE_CALL:  
+    case COL_HPUX_DEVID:
+    case COL_DCE_CALL:
     case COL_8021Q_VLAN_ID:
     case COL_DSCP_VALUE:
-    case COL_COS_VALUE: 
+    case COL_COS_VALUE:
     case COL_FR_DLCI:
     case COL_BSSGP_TLLI:
     case COL_EXPERT:
     case COL_CUSTOM:
-    case COL_FREQ_CHAN: 
+    case COL_FREQ_CHAN:
       ptr = fd->col_text[col];
       break;
 
