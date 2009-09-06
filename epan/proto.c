@@ -100,7 +100,7 @@ wrs_count_bitshift(guint32 bitmask)
 		return(NULL); \
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);	\
 	if(!(PTREE_DATA(tree)->visible)){				\
-			if((hfinfo->ref_count == HF_REF_TYPE_NONE)	\
+			if((hfinfo->ref_count != HF_REF_TYPE_DIRECT)	\
 			&& (hfinfo->type!=FT_PROTOCOL ||	\
 				PTREE_DATA(tree)->fake_protocols)){	\
 				/* just return tree back to the caller */\
