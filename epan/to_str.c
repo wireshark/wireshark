@@ -123,223 +123,6 @@ bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
   return p;
 }
 
-/* Wrapper for the most common case of asking
- * for a string using a colon as the hex-digit separator.
- */
-/* XXX FIXME
-remove this one later when every call has been converted to ep_address_to_str()
-*/
-gchar *
-ether_to_str(const guint8 *ad)
-{
-	return bytestring_to_str(ad, 6, ':');
-}
-
-/*
- This function is very fast and this function is called a lot.
- XXX update the ep_address_to_str stuff to use this function.
-*/
-const gchar *
-ip_to_str(const guint8 *ad) {
-  gchar *buf;
-
-  buf=ep_alloc(MAX_IP_STR_LEN);
-  ip_to_str_buf(ad, buf, MAX_IP_STR_LEN);
-  return buf;
-}
-
-/*
- This function is very fast and this function is called a lot.
- XXX update the ep_address_to_str stuff to use this function.
-*/
-static const char * const fast_strings[] = {
-"0", "1", "2", "3", "4", "5", "6", "7",
-"8", "9", "10", "11", "12", "13", "14", "15",
-"16", "17", "18", "19", "20", "21", "22", "23",
-"24", "25", "26", "27", "28", "29", "30", "31",
-"32", "33", "34", "35", "36", "37", "38", "39",
-"40", "41", "42", "43", "44", "45", "46", "47",
-"48", "49", "50", "51", "52", "53", "54", "55",
-"56", "57", "58", "59", "60", "61", "62", "63",
-"64", "65", "66", "67", "68", "69", "70", "71",
-"72", "73", "74", "75", "76", "77", "78", "79",
-"80", "81", "82", "83", "84", "85", "86", "87",
-"88", "89", "90", "91", "92", "93", "94", "95",
-"96", "97", "98", "99", "100", "101", "102", "103",
-"104", "105", "106", "107", "108", "109", "110", "111",
-"112", "113", "114", "115", "116", "117", "118", "119",
-"120", "121", "122", "123", "124", "125", "126", "127",
-"128", "129", "130", "131", "132", "133", "134", "135",
-"136", "137", "138", "139", "140", "141", "142", "143",
-"144", "145", "146", "147", "148", "149", "150", "151",
-"152", "153", "154", "155", "156", "157", "158", "159",
-"160", "161", "162", "163", "164", "165", "166", "167",
-"168", "169", "170", "171", "172", "173", "174", "175",
-"176", "177", "178", "179", "180", "181", "182", "183",
-"184", "185", "186", "187", "188", "189", "190", "191",
-"192", "193", "194", "195", "196", "197", "198", "199",
-"200", "201", "202", "203", "204", "205", "206", "207",
-"208", "209", "210", "211", "212", "213", "214", "215",
-"216", "217", "218", "219", "220", "221", "222", "223",
-"224", "225", "226", "227", "228", "229", "230", "231",
-"232", "233", "234", "235", "236", "237", "238", "239",
-"240", "241", "242", "243", "244", "245", "246", "247",
-"248", "249", "250", "251", "252", "253", "254", "255"
-};
-void
-ip_to_str_buf(const guint8 *ad, gchar *buf, int buf_len)
-{
-	register gchar const *p;
-	register gchar *b=buf;
-
-	if (buf_len < MAX_IP_STR_LEN) {
-		g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR );                 /* Let the unexpected value alert user */
-		return;
-	}
-
-	p=fast_strings[*ad++];
-	do {
-		*b++=*p;
-		p++;
-	} while(*p);
-	*b++='.';
-
-	p=fast_strings[*ad++];
-	do {
-		*b++=*p;
-		p++;
-	} while(*p);
-	*b++='.';
-
-	p=fast_strings[*ad++];
-	do {
-		*b++=*p;
-		p++;
-	} while(*p);
-	*b++='.';
-
-	p=fast_strings[*ad];
-	do {
-		*b++=*p;
-		p++;
-	} while(*p);
-	*b=0;
-}
-
-
-/* XXX FIXME
-remove this one later when every call has been converted to ep_address_to_str()
-*/
-gchar *
-ip6_to_str(const struct e_in6_addr *ad) {
-#ifndef INET6_ADDRSTRLEN
-#define INET6_ADDRSTRLEN 46
-#endif
-  static gchar *str;
-
-  str=ep_alloc(INET6_ADDRSTRLEN+1);
-
-  ip6_to_str_buf(ad, str);
-  return str;
-}
-
-void
-ip6_to_str_buf(const struct e_in6_addr *ad, gchar *buf)
-{
-  inet_ntop(AF_INET6, (const guchar*)ad, buf, INET6_ADDRSTRLEN);
-}
-
-gchar*
-ipx_addr_to_str(guint32 net, const guint8 *ad)
-{
-	gchar	*buf;
-	char	*name;
-
-	buf=ep_alloc(8+1+MAXNAMELEN+1); /* 8 digits, 1 period, NAME, 1 null */
-	name = get_ether_name_if_known(ad);
-
-	if (name) {
-		g_snprintf(buf, 8+1+MAXNAMELEN+1, "%s.%s", get_ipxnet_name(net), name);
-	}
-	else {
-		g_snprintf(buf, 8+1+MAXNAMELEN+1, "%s.%s", get_ipxnet_name(net),
-		    bytestring_to_str(ad, 6, '\0'));
-	}
-	return buf;
-}
-
-gchar*
-ipxnet_to_string(const guint8 *ad)
-{
-	guint32	addr = pntohl(ad);
-	return ipxnet_to_str_punct(addr, ' ');
-}
-
-gchar *
-ipxnet_to_str_punct(const guint32 ad, char punct)
-{
-  gchar        *buf;
-  gchar        *p;
-  int          i;
-  guint32      octet;
-  /* At least one version of Apple's C compiler/linker is buggy, causing
-     a complaint from the linker about the "literal C string section"
-     not ending with '\0' if we initialize a 16-element "char" array with
-     a 16-character string, the fact that initializing such an array with
-     such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
-     '\0' byte in the string nonwithstanding. */
-  static const gchar hex_digits[16] =
-      { '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-  static const guint32  octet_mask[4] =
-	  { 0xff000000 , 0x00ff0000, 0x0000ff00, 0x000000ff };
-
-  buf=ep_alloc(12);
-  p = &buf[12];
-  *--p = '\0';
-  i = 3;
-  for (;;) {
-    octet = (ad & octet_mask[i]) >> ((3 - i) * 8);
-    *--p = hex_digits[octet&0xF];
-    octet >>= 4;
-    *--p = hex_digits[octet&0xF];
-    if (i == 0)
-      break;
-    if (punct)
-      *--p = punct;
-    i--;
-  }
-  return p;
-}
-
-gchar *
-vines_addr_to_str(const guint8 *addrp)
-{
-  gchar	*buf;
-
-  buf=ep_alloc(214);
-
-  vines_addr_to_str_buf(addrp, buf, 214);
-  return buf;
-}
-
-void
-vines_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
-{
-  g_snprintf(buf, buf_len, "%08x.%04x", pntohl(&addrp[0]), pntohs(&addrp[4]));
-}
-
-
-void
-usb_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
-{
-  if(pletohl(&addrp[0])==0xffffffff){
-    g_snprintf(buf, buf_len, "host");
-  } else {
-    g_snprintf(buf, buf_len, "%d.%d", pletohl(&addrp[0]), pletohl(&addrp[4]));
-  }
-}
-
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
 #define	COMMA(do_it)	((do_it) ? ", " : "")
 
@@ -737,71 +520,6 @@ rel_time_to_secs_str(nstime_t *rel_time)
         return buf;
 }
 
-
-/* XXX FIXME
-remove this one later when every call has been converted to ep_address_to_str()
-*/
-gchar *
-fc_to_str(const guint8 *ad)
-{
-    return bytestring_to_str (ad, 3, '.');
-}
-
-/* FC Network Header Network Address Authority Identifiers */
-
-#define FC_NH_NAA_IEEE		1	/* IEEE 802.1a */
-#define FC_NH_NAA_IEEE_E	2	/* IEEE Exteneded */
-#define FC_NH_NAA_LOCAL		3
-#define FC_NH_NAA_IP		4	/* 32-bit IP address */
-#define FC_NH_NAA_IEEE_R	5	/* IEEE Registered */
-#define FC_NH_NAA_IEEE_R_E	6	/* IEEE Registered Exteneded */
-/* according to FC-PH 3 draft these are now reclaimed and reserved */
-#define FC_NH_NAA_CCITT_INDV	12	/* CCITT 60 bit individual address */
-#define FC_NH_NAA_CCITT_GRP	14	/* CCITT 60 bit group address */
-
-gchar *
-fcwwn_to_str (const guint8 *ad)
-{
-    int fmt;
-    guint8 oui[6];
-    gchar *ethstr;
-
-    if (ad == NULL) return NULL;
-
-    ethstr=ep_alloc(512);
-
-    fmt = (ad[0] & 0xF0) >> 4;
-
-    switch (fmt) {
-
-    case FC_NH_NAA_IEEE:
-    case FC_NH_NAA_IEEE_E:
-        memcpy (oui, &ad[2], 6);
-        g_snprintf (ethstr, 512, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0],
-                 ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7],
-                 get_manuf_name (oui));
-        break;
-
-    case FC_NH_NAA_IEEE_R:
-        oui[0] = ((ad[0] & 0x0F) << 4) | ((ad[1] & 0xF0) >> 4);
-        oui[1] = ((ad[1] & 0x0F) << 4) | ((ad[2] & 0xF0) >> 4);
-        oui[2] = ((ad[2] & 0x0F) << 4) | ((ad[3] & 0xF0) >> 4);
-        oui[3] = ((ad[3] & 0x0F) << 4) | ((ad[4] & 0xF0) >> 4);
-        oui[4] = ((ad[4] & 0x0F) << 4) | ((ad[5] & 0xF0) >> 4);
-        oui[5] = ((ad[5] & 0x0F) << 4) | ((ad[6] & 0xF0) >> 4);
-
-        g_snprintf (ethstr, 512, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0],
-                 ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7],
-                 get_manuf_name (oui));
-        break;
-
-    default:
-        g_snprintf (ethstr, 512, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", ad[0],
-                 ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7]);
-        break;
-    }
-    return (ethstr);
-}
 /*
  * Generates a string representing the bits in a bitfield at "bit_offset" from an 8 bit boundary
  * with the length in bits of no_of_bits based on value.
@@ -941,6 +659,310 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
   return buf;
 }
 
+/* Wrapper for the most common case of asking
+ * for a string using a colon as the hex-digit separator.
+ */
+/* XXX FIXME
+remove this one later when every call has been converted to ep_address_to_str()
+*/
+gchar *
+ether_to_str(const guint8 *ad)
+{
+	return bytestring_to_str(ad, 6, ':');
+}
+
+/*
+ This function is very fast and this function is called a lot.
+ XXX update the ep_address_to_str stuff to use this function.
+*/
+const gchar *
+ip_to_str(const guint8 *ad) {
+  gchar *buf;
+
+  buf=ep_alloc(MAX_IP_STR_LEN);
+  ip_to_str_buf(ad, buf, MAX_IP_STR_LEN);
+  return buf;
+}
+
+/*
+ This function is very fast and this function is called a lot.
+ XXX update the ep_address_to_str stuff to use this function.
+*/
+static const char * const fast_strings[] = {
+"0", "1", "2", "3", "4", "5", "6", "7",
+"8", "9", "10", "11", "12", "13", "14", "15",
+"16", "17", "18", "19", "20", "21", "22", "23",
+"24", "25", "26", "27", "28", "29", "30", "31",
+"32", "33", "34", "35", "36", "37", "38", "39",
+"40", "41", "42", "43", "44", "45", "46", "47",
+"48", "49", "50", "51", "52", "53", "54", "55",
+"56", "57", "58", "59", "60", "61", "62", "63",
+"64", "65", "66", "67", "68", "69", "70", "71",
+"72", "73", "74", "75", "76", "77", "78", "79",
+"80", "81", "82", "83", "84", "85", "86", "87",
+"88", "89", "90", "91", "92", "93", "94", "95",
+"96", "97", "98", "99", "100", "101", "102", "103",
+"104", "105", "106", "107", "108", "109", "110", "111",
+"112", "113", "114", "115", "116", "117", "118", "119",
+"120", "121", "122", "123", "124", "125", "126", "127",
+"128", "129", "130", "131", "132", "133", "134", "135",
+"136", "137", "138", "139", "140", "141", "142", "143",
+"144", "145", "146", "147", "148", "149", "150", "151",
+"152", "153", "154", "155", "156", "157", "158", "159",
+"160", "161", "162", "163", "164", "165", "166", "167",
+"168", "169", "170", "171", "172", "173", "174", "175",
+"176", "177", "178", "179", "180", "181", "182", "183",
+"184", "185", "186", "187", "188", "189", "190", "191",
+"192", "193", "194", "195", "196", "197", "198", "199",
+"200", "201", "202", "203", "204", "205", "206", "207",
+"208", "209", "210", "211", "212", "213", "214", "215",
+"216", "217", "218", "219", "220", "221", "222", "223",
+"224", "225", "226", "227", "228", "229", "230", "231",
+"232", "233", "234", "235", "236", "237", "238", "239",
+"240", "241", "242", "243", "244", "245", "246", "247",
+"248", "249", "250", "251", "252", "253", "254", "255"
+};
+void
+ip_to_str_buf(const guint8 *ad, gchar *buf, int buf_len)
+{
+	register gchar const *p;
+	register gchar *b=buf;
+
+	if (buf_len < MAX_IP_STR_LEN) {
+		g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR );                 /* Let the unexpected value alert user */
+		return;
+	}
+
+	p=fast_strings[*ad++];
+	do {
+		*b++=*p;
+		p++;
+	} while(*p);
+	*b++='.';
+
+	p=fast_strings[*ad++];
+	do {
+		*b++=*p;
+		p++;
+	} while(*p);
+	*b++='.';
+
+	p=fast_strings[*ad++];
+	do {
+		*b++=*p;
+		p++;
+	} while(*p);
+	*b++='.';
+
+	p=fast_strings[*ad];
+	do {
+		*b++=*p;
+		p++;
+	} while(*p);
+	*b=0;
+}
+
+
+/* XXX FIXME
+remove this one later when every call has been converted to ep_address_to_str()
+*/
+gchar *
+ip6_to_str(const struct e_in6_addr *ad) {
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif
+  static gchar *str;
+
+  str=ep_alloc(INET6_ADDRSTRLEN+1);
+
+  ip6_to_str_buf(ad, str);
+  return str;
+}
+
+void
+ip6_to_str_buf(const struct e_in6_addr *ad, gchar *buf)
+{
+  inet_ntop(AF_INET6, (const guchar*)ad, buf, INET6_ADDRSTRLEN);
+}
+
+gchar*
+ipx_addr_to_str(guint32 net, const guint8 *ad)
+{
+	gchar	*buf;
+	char	*name;
+
+	buf=ep_alloc(8+1+MAXNAMELEN+1); /* 8 digits, 1 period, NAME, 1 null */
+	name = get_ether_name_if_known(ad);
+
+	if (name) {
+		g_snprintf(buf, 8+1+MAXNAMELEN+1, "%s.%s", get_ipxnet_name(net), name);
+	}
+	else {
+		g_snprintf(buf, 8+1+MAXNAMELEN+1, "%s.%s", get_ipxnet_name(net),
+		    bytestring_to_str(ad, 6, '\0'));
+	}
+	return buf;
+}
+
+gchar*
+ipxnet_to_string(const guint8 *ad)
+{
+	guint32	addr = pntohl(ad);
+	return ipxnet_to_str_punct(addr, ' ');
+}
+
+gchar *
+ipxnet_to_str_punct(const guint32 ad, char punct)
+{
+  gchar        *buf;
+  gchar        *p;
+  int          i;
+  guint32      octet;
+  /* At least one version of Apple's C compiler/linker is buggy, causing
+     a complaint from the linker about the "literal C string section"
+     not ending with '\0' if we initialize a 16-element "char" array with
+     a 16-character string, the fact that initializing such an array with
+     such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
+     '\0' byte in the string nonwithstanding. */
+  static const gchar hex_digits[16] =
+      { '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+  static const guint32  octet_mask[4] =
+	  { 0xff000000 , 0x00ff0000, 0x0000ff00, 0x000000ff };
+
+  buf=ep_alloc(12);
+  p = &buf[12];
+  *--p = '\0';
+  i = 3;
+  for (;;) {
+    octet = (ad & octet_mask[i]) >> ((3 - i) * 8);
+    *--p = hex_digits[octet&0xF];
+    octet >>= 4;
+    *--p = hex_digits[octet&0xF];
+    if (i == 0)
+      break;
+    if (punct)
+      *--p = punct;
+    i--;
+  }
+  return p;
+}
+
+gchar *
+vines_addr_to_str(const guint8 *addrp)
+{
+  gchar	*buf;
+
+  buf=ep_alloc(214);
+
+  vines_addr_to_str_buf(addrp, buf, 214);
+  return buf;
+}
+
+void
+vines_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
+{
+  g_snprintf(buf, buf_len, "%08x.%04x", pntohl(&addrp[0]), pntohs(&addrp[4]));
+}
+
+
+void
+usb_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
+{
+  if(pletohl(&addrp[0])==0xffffffff){
+    g_snprintf(buf, buf_len, "host");
+  } else {
+    g_snprintf(buf, buf_len, "%d.%d", pletohl(&addrp[0]), pletohl(&addrp[4]));
+  }
+}
+
+void
+tipc_addr_to_str_buf( const guint8 *data, gchar *buf, int buf_len){
+	guint8 zone;
+	guint16 subnetwork;
+	guint16 processor;
+	guint32 tipc_address;
+
+	tipc_address = data[0];
+	tipc_address = (tipc_address << 8) ^ data[1];
+	tipc_address = (tipc_address << 8) ^ data[2];
+	tipc_address = (tipc_address << 8) ^ data[3];
+
+	processor = tipc_address & 0x0fff;
+
+	tipc_address = tipc_address >> 12;
+	subnetwork = tipc_address & 0x0fff;
+
+	tipc_address = tipc_address >> 12;
+	zone = tipc_address & 0xff;
+
+	g_snprintf(buf,buf_len,"%u.%u.%u",zone,subnetwork,processor);
+}
+
+/* XXX FIXME
+remove this one later when every call has been converted to ep_address_to_str()
+*/
+gchar *
+fc_to_str(const guint8 *ad)
+{
+    return bytestring_to_str (ad, 3, '.');
+}
+
+/* FC Network Header Network Address Authority Identifiers */
+
+#define FC_NH_NAA_IEEE		1	/* IEEE 802.1a */
+#define FC_NH_NAA_IEEE_E	2	/* IEEE Exteneded */
+#define FC_NH_NAA_LOCAL		3
+#define FC_NH_NAA_IP		4	/* 32-bit IP address */
+#define FC_NH_NAA_IEEE_R	5	/* IEEE Registered */
+#define FC_NH_NAA_IEEE_R_E	6	/* IEEE Registered Exteneded */
+/* according to FC-PH 3 draft these are now reclaimed and reserved */
+#define FC_NH_NAA_CCITT_INDV	12	/* CCITT 60 bit individual address */
+#define FC_NH_NAA_CCITT_GRP	14	/* CCITT 60 bit group address */
+
+gchar *
+fcwwn_to_str (const guint8 *ad)
+{
+    int fmt;
+    guint8 oui[6];
+    gchar *ethstr;
+
+    if (ad == NULL) return NULL;
+
+    ethstr=ep_alloc(512);
+
+    fmt = (ad[0] & 0xF0) >> 4;
+
+    switch (fmt) {
+
+    case FC_NH_NAA_IEEE:
+    case FC_NH_NAA_IEEE_E:
+        memcpy (oui, &ad[2], 6);
+        g_snprintf (ethstr, 512, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0],
+                 ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7],
+                 get_manuf_name (oui));
+        break;
+
+    case FC_NH_NAA_IEEE_R:
+        oui[0] = ((ad[0] & 0x0F) << 4) | ((ad[1] & 0xF0) >> 4);
+        oui[1] = ((ad[1] & 0x0F) << 4) | ((ad[2] & 0xF0) >> 4);
+        oui[2] = ((ad[2] & 0x0F) << 4) | ((ad[3] & 0xF0) >> 4);
+        oui[3] = ((ad[3] & 0x0F) << 4) | ((ad[4] & 0xF0) >> 4);
+        oui[4] = ((ad[4] & 0x0F) << 4) | ((ad[5] & 0xF0) >> 4);
+        oui[5] = ((ad[5] & 0x0F) << 4) | ((ad[6] & 0xF0) >> 4);
+
+        g_snprintf (ethstr, 512, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0],
+                 ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7],
+                 get_manuf_name (oui));
+        break;
+
+    default:
+        g_snprintf (ethstr, 512, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", ad[0],
+                 ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7]);
+        break;
+    }
+    return (ethstr);
+}
 
 /*XXX FIXME the code below may be called very very frequently in the future.
   optimize it for speed and get rid of the slow sprintfs */
@@ -1068,30 +1090,5 @@ gchar* guid_to_str_buf(const e_guid_t *guid, gchar *buf, int buf_len) {
           guid->data1, guid->data2, guid->data3,
           guid->data4[0], guid->data4[1], guid->data4[2], guid->data4[3], guid->data4[4], guid->data4[5], guid->data4[6], guid->data4[7]);
   return buf;
-}
-
-void
-tipc_addr_to_str_buf( const guint8 *data, gchar *buf, int buf_len){
-	guint8 zone;
-	guint16 subnetwork;
-	guint16 processor;
-	guint32 tipc_address;
-
-	tipc_address = data[0];
-	tipc_address = (tipc_address << 8) ^ data[1];
-	tipc_address = (tipc_address << 8) ^ data[2];
-	tipc_address = (tipc_address << 8) ^ data[3];
-
-	processor = tipc_address & 0x0fff;
-
-	tipc_address = tipc_address >> 12;
-	subnetwork = tipc_address & 0x0fff;
-
-	tipc_address = tipc_address >> 12;
-	zone = tipc_address & 0xff;
-
-	g_snprintf(buf,buf_len,"%u.%u.%u",zone,subnetwork,processor);
-
-
 }
 
