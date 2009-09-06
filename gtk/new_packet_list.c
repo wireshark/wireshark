@@ -175,14 +175,14 @@ create_view_and_model(void)
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
 		renderer = gtk_cell_renderer_text_new();
 		if (right_justify_column (i)) {
-			g_object_set(G_OBJECT(renderer), 
-				"xalign", 
-				1.0, 
+			g_object_set(G_OBJECT(renderer),
+				"xalign",
+				1.0,
 				NULL);
 		}
 		g_object_set(renderer,
 				 "ypad", 0,
-				 NULL); 	   
+				 NULL);
 		col = gtk_tree_view_column_new();
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
 		gtk_tree_view_column_set_cell_data_func(col, renderer,
@@ -195,7 +195,7 @@ create_view_and_model(void)
 		gtk_tree_view_column_set_sizing(col,GTK_TREE_VIEW_COLUMN_FIXED);
 		gtk_tree_view_column_set_reorderable(col, TRUE); /* XXX - Should this be saved in the prefs? */
 
-		/* The column can't be adjusted to a size smaller than this 
+		/* The column can't be adjusted to a size smaller than this
 		 * XXX Should we use a different value for different column formats?
 		 */
 		gtk_tree_view_column_set_min_width(col, 40);
@@ -440,7 +440,7 @@ new_packet_list_find_row_from_data(gpointer data, gboolean select)
 	GtkTreeIter iter;
 	frame_data *fdata_needle = data;
 
-	/* Initializes iter with the first iterator in the tree (the one at the path "0") 
+	/* Initializes iter with the first iterator in the tree (the one at the path "0")
 	 * and returns TRUE. Returns FALSE if the tree is empty
 	 */
 	if(!gtk_tree_model_get_iter_first(model, &iter))
@@ -506,7 +506,7 @@ row_number_from_iter(GtkTreeIter *iter)
 	/* Indices start from 0, but rows start from 1. Hence +1 */
 	row = indices[0] + 1;
 
-	gtk_tree_path_free(path);	 
+	gtk_tree_path_free(path);
 
 	return row;
 }
@@ -598,23 +598,18 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 {
 	guint col_num = GPOINTER_TO_INT(data);
 	frame_data *fdata;
-	color_filter_t *color_filter;
-	color_t fg_color_t;
-	color_t bg_color_t;
-	GdkColor fg_gdk;
-	GdkColor bg_gdk;
 	const gchar *cell_text;
 	PacketListRecord *record;
 
 	record = new_packet_list_get_record(model, iter);
-    fdata = record->fdata;
+	fdata = record->fdata;
 
-	if (record->dissected)
-		color_filter = fdata->color_filter;
-	else {
-		g_assert(fdata->col_text == NULL);
-		packet_list_dissect_and_cache(packetlist, iter);
-		color_filter = fdata->color_filter;
+	if (!record->columnized || !record->colorized) {
+		g_assert((fdata->col_text == NULL && !record->columnized) ||
+				 (fdata->col_text != NULL && record->columnized));
+		packet_list_dissect_and_cache(packetlist, iter,
+									  !record->columnized,
+									  !record->colorized);
 	}
 
 	g_assert(fdata->col_text);
@@ -627,12 +622,17 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 
 	if((fdata->color_filter)||(fdata->flags.marked)){
 		gboolean color_on = enable_color;
+		GdkColor fg_gdk;
+		GdkColor bg_gdk;
 		if(fdata->flags.marked){
 			color_t_to_gdkcolor(&fg_gdk, &prefs.gui_marked_fg);
 			color_t_to_gdkcolor(&bg_gdk, &prefs.gui_marked_bg);
 			color_on = TRUE;
 		}else{
-			color_filter = fdata->color_filter;
+			color_t fg_color_t;
+			color_t bg_color_t;
+			color_filter_t *color_filter = fdata->color_filter;
+
 			fg_color_t = color_filter->fg_color;
 			bg_color_t = color_filter->bg_color;
 			color_t_to_gdkcolor(&fg_gdk, &fg_color_t);
@@ -668,7 +668,7 @@ new_packet_list_queue_draw(void)
 }
 
 /* call this after last set_frame_mark is done */
-static void mark_frames_ready(void) 
+static void mark_frames_ready(void)
 {
 	file_save_update_dynamics();
 	packets_bar_update();
@@ -711,7 +711,7 @@ new_packet_list_set_font(PangoFontDescription *font)
 	gtk_widget_modify_font(packetlist->view, font);
 }
 
-void new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) 
+void new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeSelection *selection;
@@ -744,7 +744,7 @@ typedef enum {
 	CS_CSV	 /* Packet summary data (comma separated) */
 } copy_summary_type;
 
-void 
+void
 new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, gint copy_type)
 {
 	gint col;
@@ -816,17 +816,17 @@ new_packet_list_recent_write_all(FILE *rf)
 	fprintf (rf, "\n");
 }
 
-GtkWidget * 
-new_packet_list_get_widget(void) 
-{ 
-	g_assert(packetlist); 
-	g_assert(packetlist->view); 
-	return packetlist->view; 
-} 
+GtkWidget *
+new_packet_list_get_widget(void)
+{
+	g_assert(packetlist);
+	g_assert(packetlist->view);
+	return packetlist->view;
+}
 
 void new_packet_list_colorize_packets(void)
 {
-	packet_list_reset_dissected(packetlist);
+	packet_list_reset_colorized(packetlist);
 	gtk_widget_queue_draw (packetlist->view);
 }
 #endif /* NEW_PACKET_LIST */

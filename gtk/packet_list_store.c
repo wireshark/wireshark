@@ -104,7 +104,7 @@ static void packet_list_sortable_init(GtkTreeSortableIface *iface);
 static gint packet_list_compare_records(gint sort_id _U_, PacketListRecord *a,
 					PacketListRecord *b);
 static void packet_list_resort(PacketList *packet_list);
-static void packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecord *record);
+static void packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_columns, gboolean dissect_color );
 
 static GObjectClass *parent_class = NULL;
 
@@ -149,7 +149,7 @@ packet_list_get_type(void)
 		g_type_add_interface_static(packet_list_type,
 						GTK_TYPE_TREE_MODEL,
 						&tree_model_info);
-							  
+
 
 		/* Register our GtkTreeModel interface with the type system */
 		g_type_add_interface_static(packet_list_type,
@@ -233,7 +233,7 @@ packet_list_init(PacketList *packet_list)
 	packet_list->physical_rows = g_ptr_array_new();
 	packet_list->visible_rows = g_ptr_array_new();
 
-	packet_list->dissected = FALSE;
+	packet_list->columnized = FALSE;
 	packet_list->sort_id = 0; /* defaults to first column for now */
 	packet_list->sort_order = GTK_SORT_ASCENDING;
 }
@@ -365,10 +365,10 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 	type = packet_list->column_types[column];
 	g_value_init(value, type);
 
-	/* XXX Probably the switch should be on column or 
+	/* XXX Probably the switch should be on column or
 	 * should we allways return the pointer and read the data as required??
 	 * If we use FOREGROUND_COLOR_COL etc we'll need a couple of "internal" columns
-	 */ 
+	 */
 	switch(type){
 		case G_TYPE_POINTER:
 			g_value_set_pointer(value, record);
@@ -569,7 +569,7 @@ new_packet_list_store_clear(PacketList *packet_list)
 		g_ptr_array_free(packet_list->visible_rows, TRUE);
 	packet_list->physical_rows = g_ptr_array_new();
 	packet_list->visible_rows = g_ptr_array_new();
-	packet_list->dissected = FALSE;
+	packet_list->columnized = FALSE;
 }
 
 #if 0
@@ -619,7 +619,8 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), -1);
 
 	newrecord = se_alloc(sizeof(PacketListRecord));
-	newrecord->dissected = FALSE;
+	newrecord->columnized = FALSE;
+	newrecord->colorized = FALSE;
 	newrecord->fdata = fdata;
 	newrecord->physical_pos = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);
 
@@ -712,7 +713,7 @@ packet_list_sortable_get_sort_column_id(GtkTreeSortable *sortable,
 static gboolean
 packet_list_column_contains_values(PacketList *packet_list, gint sort_col_id)
 {
-	if (packet_list->dissected || col_based_on_frame_data(&cfile.cinfo, sort_col_id))
+	if (packet_list->columnized || col_based_on_frame_data(&cfile.cinfo, sort_col_id))
 		return TRUE;
 	else
 		return FALSE;
@@ -724,16 +725,16 @@ packet_list_dissect_and_cache_all(PacketList *packet_list)
 	PacketListRecord *record;
 	guint i;
 
-	g_assert(packet_list->dissected == FALSE);
+	g_assert(packet_list->columnized == FALSE);
 
 	g_warning(G_STRLOC " - TODO: Insert progress bar");
 
 	for(i = 0; i < PACKET_LIST_RECORD_COUNT(packet_list->physical_rows); ++i) {
 		record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, i);
-		packet_list_dissect_and_cache_by_record(packet_list, record);
+		packet_list_dissect_and_cache_by_record(packet_list, record, TRUE, FALSE);
 	}
 
-	packet_list->dissected = TRUE;
+	packet_list->columnized = TRUE;
 }
 
 static void
@@ -820,7 +821,7 @@ packet_list_compare_records(gint sort_id, PacketListRecord *a,
 		return (a->fdata->col_text[sort_id] == NULL) ? -1 : 1;
 
 	g_return_val_if_reached(0);
-}		
+}
 
 static gint
 packet_list_qsort_physical_compare_func(PacketListRecord **a, PacketListRecord **b,
@@ -847,7 +848,7 @@ packet_list_qsort_visible_compare_func(PacketListRecord **a, PacketListRecord **
 
 	g_assert((a) && (b) && (packet_list));
 
-	ret = ((*a)->visible_pos) <  ((*b)->visible_pos) ? -1 : 
+	ret = ((*a)->visible_pos) <  ((*b)->visible_pos) ? -1 :
 		  ((*a)->visible_pos) >  ((*b)->visible_pos) ? 1  : 0;
 
 	return ret;
@@ -869,7 +870,7 @@ packet_list_resort(PacketList *packet_list)
 		return;
 
 	/* resort physical rows according to sorting column */
-	g_qsort_with_data(packet_list->physical_rows->pdata, 
+	g_qsort_with_data(packet_list->physical_rows->pdata,
 			  PACKET_LIST_RECORD_COUNT(packet_list->physical_rows),
 			  sizeof(PacketListRecord*),
 			  (GCompareDataFunc) packet_list_qsort_physical_compare_func,
@@ -893,7 +894,7 @@ packet_list_resort(PacketList *packet_list)
 	g_assert(vis_idx == PACKET_LIST_RECORD_COUNT(packet_list->visible_rows));
 
 	/* resort visible rows according to new physical order */
-	g_qsort_with_data(packet_list->visible_rows->pdata, 
+	g_qsort_with_data(packet_list->visible_rows->pdata,
 			  PACKET_LIST_RECORD_COUNT(packet_list->visible_rows),
 			  sizeof(PacketListRecord*),
 			  (GCompareDataFunc) packet_list_qsort_visible_compare_func,
@@ -925,7 +926,7 @@ packet_list_recreate_visible_rows(PacketList *packet_list)
 		g_ptr_array_free(packet_list->visible_rows, TRUE);
 
 	packet_list->visible_rows = g_ptr_array_new();
-	
+
 	for(phy_idx = 0, vis_idx = 0; phy_idx < PACKET_LIST_RECORD_COUNT(packet_list->physical_rows); ++phy_idx) {
 		record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, phy_idx);
 		if (record->fdata->flags.passed_dfilter) {
@@ -940,7 +941,7 @@ packet_list_recreate_visible_rows(PacketList *packet_list)
 }
 
 void
-packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter)
+packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter, gboolean dissect_columns, gboolean dissect_color)
 {
 	PacketListRecord *record;
 
@@ -951,11 +952,11 @@ packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter)
 
 	record = iter->user_data;
 
-	packet_list_dissect_and_cache_by_record(packet_list, record);
+	packet_list_dissect_and_cache_by_record(packet_list, record, dissect_columns, dissect_color);
 }
 
 static void
-packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecord *record)
+packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_columns, gboolean dissect_color)
 {
 	epan_dissect_t edt;
 	int err;
@@ -965,7 +966,11 @@ packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecor
 	gint col;
 
 	fdata = record->fdata;
-	cinfo = &cfile.cinfo;
+
+	if (dissect_columns)
+		cinfo = &cfile.cinfo;
+	else
+		cinfo = NULL;
 
 	if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
 		cfile.pd, fdata->cap_len, &err, &err_info)) {
@@ -975,34 +980,45 @@ packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecor
 	}
 
 	epan_dissect_init(&edt, TRUE /* create_proto_tree */, FALSE /* proto_tree_visible */);
-	color_filters_prime_edt(&edt);
-	col_custom_prime_edt(&edt, cinfo);
+
+	if (dissect_color)
+		color_filters_prime_edt(&edt);
+	if (dissect_columns)
+		col_custom_prime_edt(&edt, cinfo);
+
 	epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata, cinfo);
-	fdata->color_filter = color_filters_colorize_packet(0 /* row - unused */, &edt);
 
-	/* "Stringify" non frame_data vals */
-	epan_dissect_fill_in_columns(&edt, FALSE /* fill_fd_colums */);
+	if (dissect_color)
+		fdata->color_filter = color_filters_colorize_packet(0 /* row - unused */, &edt);
 
-	for(col = 0; col < cinfo->num_cols; ++col) {
-		/* Skip columns based om frame_data because we already store those. */
-		if (!col_based_on_frame_data(cinfo, col))
-			packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
+	if (dissect_columns) {
+		/* "Stringify" non frame_data vals */
+		epan_dissect_fill_in_columns(&edt, FALSE /* fill_fd_colums */);
+
+		for(col = 0; col < cinfo->num_cols; ++col) {
+			/* Skip columns based om frame_data because we already store those. */
+			if (!col_based_on_frame_data(cinfo, col))
+				packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
+		}
 	}
 
-	record->dissected = TRUE;
+	if (dissect_columns)
+		record->columnized = TRUE;
+	if (dissect_color)
+		record->colorized = TRUE;
 
 	epan_dissect_cleanup(&edt);
 }
 
 void
-packet_list_reset_dissected(PacketList *packet_list)
+packet_list_reset_colorized(PacketList *packet_list)
 {
 	PacketListRecord *record;
 	guint i;
 
 	for(i = 0; i < PACKET_LIST_RECORD_COUNT(packet_list->physical_rows); ++i) {
 		record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, i);
-		record->dissected = FALSE;
+		record->colorized = FALSE;
 	}
 }
 

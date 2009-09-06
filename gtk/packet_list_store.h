@@ -50,15 +50,17 @@ typedef struct _PacketListClass PacketListClass;
 /* PacketListRecord: represents a row */
 struct _PacketListRecord
 {
-	/* Has this record been dissected? */
-	gboolean dissected;
+	/* Has this record been columnized? */
+	gboolean columnized;
+	/* Has this record been colorized? */
+	gboolean colorized;
 	frame_data *fdata;
 
 	/* admin stuff used by the custom list model */
 	/* position within the physical array */
-	guint physical_pos; 
+	guint physical_pos;
 	/* position within the visible array */
-	gint visible_pos; 
+	gint visible_pos;
 };
 
 /* PacketListRecord: Everything for our model implementation. */
@@ -68,10 +70,10 @@ struct _PacketList
 
 	GPtrArray *visible_rows;
 	/* Array of pointers to the PacketListRecord structure for each row. */
-	GPtrArray *physical_rows; 
+	GPtrArray *physical_rows;
 
-	/* Has the entire file been dissected? */
-	gboolean dissected;
+	/* Has the entire file been columnized? */
+	gboolean columnized;
 
 	gint n_columns;
 	/* Note: We need one extra column to store the entire PacketListRecord */
@@ -98,8 +100,8 @@ guint packet_list_recreate_visible_rows(PacketList *packet_list);
 gboolean packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter);
 gint packet_list_append_record(PacketList *packet_list, frame_data *fdata);
 void packet_list_change_record(PacketList *packet_list, guint row, gint col, column_info *cinfo);
-void packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter);
-void packet_list_reset_dissected(PacketList *packet_list);
+void packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter, gboolean dissect_columns, gboolean dissect_color);
+void packet_list_reset_colorized(PacketList *packet_list);
 #endif /* NEW_PACKET_LIST */
 
 #endif /* __NEW_PACKET_LIST_H__ */
