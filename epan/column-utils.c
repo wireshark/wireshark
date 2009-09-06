@@ -276,12 +276,21 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
   va_end(ap);
 }
 
+/* The same as CHECK_COL(), but without the check to see if the column is writable. */
+#define HAVE_CUSTOM_COLS(cinfo) ((cinfo) && (cinfo)->col_first[COL_CUSTOM] >= 0)
+
+gboolean
+have_custom_cols(column_info *cinfo)
+{
+  return HAVE_CUSTOM_COLS(cinfo);
+}
+
 /* search in edt tree custom fields */
 void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo)
 {
   int i;
 
-  if(!have_custom_cols(cinfo))
+  if(!HAVE_CUSTOM_COLS(cinfo))
       return;
 
   for (i = cinfo->col_first[COL_CUSTOM];
@@ -302,10 +311,10 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 {
   int i;
 
-  ci = cinfo; /* Save this into the static variable ci for use by
-           * col_custom_set_fstr() later. */
+  /* Save this into the static variable ci for use by col_custom_set_fstr() later. */
+  ci = cinfo;
 
-  if(!have_custom_cols(cinfo))
+  if(!HAVE_CUSTOM_COLS(cinfo))
       return;
 
   for (i = cinfo->col_first[COL_CUSTOM];
@@ -314,17 +323,6 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
         cinfo->col_custom_dfilter[i])
         epan_dissect_prime_dfilter(edt, cinfo->col_custom_dfilter[i]);
   }
-}
-
-gboolean
-have_custom_cols(column_info *cinfo)
-{
-  /* The same as CHECK_COL(), but without the check to see if the column
-   * is writable. */
-  if (cinfo && cinfo->col_first[COL_CUSTOM] >= 0)
-    return TRUE;
-  else
-    return FALSE;
 }
 
 gboolean
