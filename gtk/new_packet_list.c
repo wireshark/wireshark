@@ -269,26 +269,30 @@ new_packet_list_recreate_visible_rows(void)
 	packet_list_recreate_visible_rows(packetlist);
 }
 
+void new_packet_list_resize_column(gint col)
+{
+	PangoLayout *layout;
+	GtkTreeViewColumn *column;
+	gint col_width;
+
+	column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col);
+	layout = gtk_widget_create_pango_layout(packetlist->view,
+										  packet_list_get_widest_column_string(packetlist, col));
+	pango_layout_get_pixel_size(layout, &col_width, NULL);
+	gtk_tree_view_column_set_fixed_width(column, col_width);
+	g_object_unref(G_OBJECT(layout));
+}
+
 static void
 new_packet_list_resize_columns(void)
 {
-    gint        progbar_loop_max;
-    gint        progbar_loop_var;
+	gint		progbar_loop_max;
+	gint		progbar_loop_var;
 
-    progbar_loop_max = cfile.cinfo.num_cols;
+	progbar_loop_max = cfile.cinfo.num_cols;
 
-    for (progbar_loop_var = 0; progbar_loop_var < progbar_loop_max; ++progbar_loop_var) {
-      PangoLayout *layout;
-      GtkTreeViewColumn *column;
-      gint col_width;
-
-      column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), progbar_loop_var);
-      layout = gtk_widget_create_pango_layout(packetlist->view,
-                                              packet_list_get_widest_column_string(packetlist, progbar_loop_var));
-      pango_layout_get_pixel_size(layout, &col_width, NULL);
-      gtk_tree_view_column_set_fixed_width(column, col_width);
-      g_object_unref(G_OBJECT(layout));
-    }
+	for (progbar_loop_var = 0; progbar_loop_var < progbar_loop_max; ++progbar_loop_var)
+		new_packet_list_resize_column(progbar_loop_var);
 }
 
 void
@@ -853,18 +857,5 @@ void new_packet_list_colorize_packets(void)
 	gtk_widget_queue_draw (packetlist->view);
 }
 
-void new_packet_list_set_time_width(gint col)
-{
-	PangoLayout *layout;
-	GtkTreeViewColumn *column;
-	gint col_width;
-
-	column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col);
-	layout = gtk_widget_create_pango_layout(packetlist->view, get_column_width_string(get_column_format(col), col));
-	pango_layout_get_pixel_size(layout, &col_width, NULL);
-	gtk_tree_view_column_set_fixed_width(column, col_width);
-	g_object_unref(G_OBJECT(layout));
-
-}
 #endif /* NEW_PACKET_LIST */
 
