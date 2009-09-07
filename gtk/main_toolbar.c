@@ -205,10 +205,9 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
 				 have_captured_packets);
         gtk_widget_set_sensitive(GTK_WIDGET(zoom_100_button),
 				 have_captured_packets);
-#ifndef NEW_PACKET_LIST
         gtk_widget_set_sensitive(GTK_WIDGET(resize_columns_button),
 				 have_captured_packets);
-#endif
+
         /* XXX - I don't see a reason why this should be done (as it is in the
          * menus) */
         /* gtk_widget_set_sensitive(GTK_WIDGET(color_display_button),
