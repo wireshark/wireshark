@@ -590,7 +590,10 @@ static GtkItemFactoryEntry menu_items[] =
                              0, "<StockItem>", GTK_STOCK_ZOOM_OUT,},
     {"/View/_Normal Size", "<control>equal", GTK_MENU_FUNC(view_zoom_100_cb),
                              0, "<StockItem>", GTK_STOCK_ZOOM_100,},
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+    {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(new_packet_list_resize_columns_cb),
+                       0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
+#else
     {"/View/Resize All Columns", "<shift><control>R", GTK_MENU_FUNC(packet_list_resize_columns_cb),
                        0, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
 #endif /* NEW_PACKET_LIST */
