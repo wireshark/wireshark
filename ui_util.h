@@ -77,6 +77,7 @@ void new_packet_list_select_last_row(void);
 void new_packet_list_moveto_end(void);
 gboolean new_packet_list_check_end(void);
 gint new_packet_list_find_row_from_data(gpointer data, gboolean select);
+void new_packet_list_set_time_width(gint, gint);
 #else
 /* packet list related functions */
 void packet_list_clear(void);

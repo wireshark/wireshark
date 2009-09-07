@@ -829,5 +829,19 @@ void new_packet_list_colorize_packets(void)
 	packet_list_reset_colorized(packetlist);
 	gtk_widget_queue_draw (packetlist->view);
 }
+
+void new_packet_list_set_time_width(gint col_fmt, gint col)
+{
+	PangoLayout *layout;
+	GtkTreeViewColumn *column;
+	gint col_width;
+
+	column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col);
+	layout = gtk_widget_create_pango_layout(packetlist->view, get_column_width_string(get_column_format(col), col));
+	pango_layout_get_pixel_size(layout, &col_width, NULL);
+	gtk_tree_view_column_set_fixed_width(column, col_width);
+	g_object_unref(G_OBJECT(layout));
+
+}
 #endif /* NEW_PACKET_LIST */
 

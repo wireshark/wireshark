@@ -189,6 +189,9 @@ cf_callback_remove(cf_callback_t func)
 void
 cf_timestamp_auto_precision(capture_file *cf)
 {
+#ifdef NEW_PACKET_LIST
+	int i;
+#endif
 	int prec = timestamp_get_precision();
 
 
@@ -229,6 +232,15 @@ cf_timestamp_auto_precision(capture_file *cf)
 			g_assert_not_reached();
 		}
 	}
+#ifdef NEW_PACKET_LIST
+  /* Set the column widths of those columns that show the time in
+     "command-line-specified" format. */
+  for (i = 0; i < cf->cinfo.num_cols; i++) {
+    if (col_has_time_fmt(&cf->cinfo, i)) {
+      new_packet_list_set_time_width(cf->cinfo.col_fmt[i], i);
+	}
+  }
+#endif
 }
 
 
@@ -2976,7 +2988,9 @@ cf_change_time_formats(capture_file *cf)
      "command-line-specified" format. */
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     if (col_has_time_fmt(&cf->cinfo, i)) {
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+      new_packet_list_set_time_width(cf->cinfo.col_fmt[i], i);
+#else
       packet_list_set_time_width(cf->cinfo.col_fmt[i], i);
 #endif
     }
