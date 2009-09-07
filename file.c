@@ -237,7 +237,7 @@ cf_timestamp_auto_precision(capture_file *cf)
      "command-line-specified" format. */
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     if (col_has_time_fmt(&cf->cinfo, i)) {
-      new_packet_list_set_time_width(cf->cinfo.col_fmt[i], i);
+      new_packet_list_set_time_width(i);
 	}
   }
 #endif

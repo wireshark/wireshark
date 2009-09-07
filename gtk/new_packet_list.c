@@ -830,7 +830,7 @@ void new_packet_list_colorize_packets(void)
 	gtk_widget_queue_draw (packetlist->view);
 }
 
-void new_packet_list_set_time_width(gint col_fmt, gint col)
+void new_packet_list_set_time_width(gint col)
 {
 	PangoLayout *layout;
 	GtkTreeViewColumn *column;
