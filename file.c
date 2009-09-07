@@ -2990,7 +2990,7 @@ cf_change_time_formats(capture_file *cf)
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     if (col_has_time_fmt(&cf->cinfo, i)) {
 #ifdef NEW_PACKET_LIST
-      new_packet_list_set_time_width(cf->cinfo.col_fmt[i], i);
+      new_packet_list_set_time_width(i);
 #else
       packet_list_set_time_width(cf->cinfo.col_fmt[i], i);
 #endif
