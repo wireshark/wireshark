@@ -371,6 +371,13 @@ static int hf_gsm_a_bssap_cell_id_list_seg_cell_id_disc = -1;
 static int hf_gsm_a_bssap_res_ind_method = -1;
 static int hf_gsm_a_bssmap_ch_mode = -1;
 static int hf_gsm_a_bssmap_channel = -1;
+static int hf_gsm_a_bssmap_trace_trigger_id = -1;
+static int hf_gsm_a_bssmap_trace_priority_indication = -1;
+static int hf_gsm_a_bssmap_trace_bss_record_type = -1;
+static int hf_gsm_a_bssmap_trace_msc_record_type = -1;
+static int hf_gsm_a_bssmap_trace_invoking_event = -1;
+static int hf_gsm_a_bssmap_trace_reference = -1;
+static int hf_gsm_a_bssmap_trace_omc_id = -1;
 static int hf_gsm_a_bssmap_be_rnc_id = -1;
 static int hf_gsm_a_bssmap_apdu_protocol_id = -1;
 static int hf_gsm_a_bssmap_periodicity = -1;
@@ -2083,6 +2090,27 @@ static const value_string gsm_a_bssmap_channel_vals[] = {
 	{ 4,	"8 Full Rate TCHs" },
 	{ 0, NULL },
 };
+static const value_string gsm_a_bssmap_trace_bss_record_type_vals[] = {
+	{ 0,	"Basic" },
+	{ 1,	"Handover" },
+	{ 2,	"Radio" },
+	{ 3,	"No BSS Trace" },
+	{ 0, NULL },
+};
+static const value_string gsm_a_bssmap_trace_msc_record_type_vals[] = {
+	{ 0,	"Basic" },
+	{ 1,	"Detailed (optional)" },
+	{ 2,	"Spare" },
+	{ 3,	"No MSC Trace" },
+	{ 0, NULL },
+};
+static const value_string gsm_a_bssmap_trace_invoking_event_vals[] = {
+	{ 0,	"MOC, MTC, SMS MO, SMS MT, PDS MO, PDS MT, SS, Location Updates, IMSI attach, IMSI detach" },
+	{ 1,	"MOC, MTC, SMS_MO, SMS_MT, PDS MO, PDS MT, SS only" },
+	{ 2,	"Location updates, IMSI attach IMSI detach only" },
+	{ 3,	"Operator definable" },
+	{ 0, NULL },
+};
 static guint16
 be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -2183,10 +2211,91 @@ be_cha_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 /*
  * 3.2.2.37 Trace Type
  * coded as the MSC/BSS Trace Type specified in 3GPP TS 52.008
- * 3.2.2.38 TriggerID
- * 3.2.2.39 Trace Reference
- * 3.2.2.40 TransactionID
  */
+static guint16
+be_trace_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+    gint bit_offset;
+
+    bit_offset = (offset<<3);
+	curr_offset = offset;
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_trace_priority_indication, tvb, bit_offset, 1, FALSE);
+    bit_offset ++;
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, bit_offset, 1, FALSE);
+    bit_offset ++;
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_trace_bss_record_type, tvb, bit_offset, 2, FALSE);
+    bit_offset += 2;
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_trace_msc_record_type, tvb, bit_offset, 2, FALSE);
+    bit_offset += 2;
+    proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_trace_invoking_event, tvb, bit_offset, 2, FALSE);
+    bit_offset += 2;
+    curr_offset++;
+
+	/* no length check possible */
+
+	return(curr_offset - offset);
+}
+
+/*
+ * [2] 3.2.2.38 TriggerID
+ */
+static guint16
+be_trace_trigger_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_trace_trigger_id, tvb, curr_offset, len, FALSE);
+	curr_offset += len;
+
+	/* no length check possible */
+
+	return(curr_offset - offset);
+}
+
+    /* 3.2.2.39 Trace Reference */
+static guint16
+be_trace_reference(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_trace_reference, tvb, curr_offset, 2, FALSE);
+	curr_offset +=2;
+
+	/* no length check possible */
+
+	return(curr_offset - offset);
+}
+    /* 3.2.2.40 TransactionID */
+static guint16
+be_trace_transaction_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+
+    if (len == 1) 
+    {
+        proto_tree_add_item(tree, hf_gsm_a_bssmap_trace_reference, tvb, curr_offset, 1, FALSE);
+        curr_offset ++;
+    }
+    else 
+    {
+        proto_tree_add_item(tree, hf_gsm_a_bssmap_trace_reference, tvb, curr_offset, 2, FALSE);
+        curr_offset +=2;
+    }
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	return(curr_offset - offset);
+}
 /*
  * 3.2.2.41 Mobile Identity (IMSI, IMEISV or IMEI as coded in 3GPP TS 24.008)
  * Dissected in packet-gsm_a_common.c
@@ -2195,6 +2304,20 @@ be_cha_needed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * 3.2.2.42 OMCID
  * For the OMC identity, see 3GPP TS 52.021
  */
+static guint16
+be_trace_omc_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_trace_omc_id, tvb, curr_offset, len, FALSE);
+	curr_offset += len;
+
+	/* no length check possible */
+
+	return(curr_offset - offset);
+}
 /*
  * [2] 3.2.2.43 Forward Indicator
  */
@@ -3482,12 +3605,12 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	be_tot_res_acc,	/* Total Resource Accessible */
 	be_ciph_resp_mode,	/* Cipher Response Mode */
 	be_cha_needed,	/* Channel Needed */
-	NULL,	/* Trace Type */
-	NULL,	/* TriggerID */
-	NULL,	/* Trace Reference */
-	NULL,				/* TransactionID */
+	be_trace_type,	/* Trace Type */
+	be_trace_trigger_id,/* TriggerID */
+	be_trace_reference,	/* Trace Reference */
+	be_trace_transaction_id, /* TransactionID */
 	de_mid,				/* Mobile Identity */
-	NULL,				/* OMCID */
+	be_trace_omc_id,	/* OMCID */
 	be_for_ind,			/* Forward Indicator */
 	be_chosen_enc_alg,	/* Chosen Encryption Algorithm */
 	be_cct_pool,		/* Circuit Pool */
@@ -4285,26 +4408,60 @@ bssmap_overload(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * 3.2.1.27	MSC INVOKE TRACE
  */
-/*
-Trace Type	3.2.2.37	MSC-BSS 	M	2
-Triggerid 	3.2.2.38	MSC-BSS 	O	3-22
-Trace Reference 	3.2.2.39	MSC-BSS 	M	3
-Transactionid 	3.2.2.40	MSC-BSS 	O	4
-Mobile Identity 	3.2.2.41	MSC-BSS 	O	3-10
-OMCId 	3.2.2.42	MSC-BSS 	O	3-22
-*/
+static void
+bssmap_msc_invoke_trace(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+    /* Trace Type  3.2.2.37    MSC-BSS     M   2 */
+	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_TRACE_TYPE].value, BSSAP_PDU_TYPE_BSSMAP, BE_TRACE_TYPE, NULL);
+    /* Triggerid 	3.2.2.38	MSC-BSS 	O	3-22 */
+	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_TRIGGERID].value, BSSAP_PDU_TYPE_BSSMAP, BE_TRIGGERID, NULL);
+    /* Trace Reference 	3.2.2.39	MSC-BSS 	M	3 */
+	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_TRACE_REF].value, BSSAP_PDU_TYPE_BSSMAP, BE_TRACE_REF, NULL);
+    /* Transactionid 	3.2.2.40	MSC-BSS 	O	4 */
+	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_TRANSID].value, BSSAP_PDU_TYPE_BSSMAP, BE_TRANSID, NULL);
+    /* Mobile Identity 	3.2.2.41	MSC-BSS 	O	3-10 */
+	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_MID].value, BSSAP_PDU_TYPE_BSSMAP, BE_MID, NULL);
+    /* OMCId 	3.2.2.42	MSC-BSS 	O	3-22 */
+	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_OMCID].value, BSSAP_PDU_TYPE_BSSMAP, BE_OMCID, NULL);
+ 
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 
 /*
  * 3.2.1.28	BSS INVOKE TRACE
  */
-/*
-Trace Type	3.2.2.37	Both	M	2
-Forward Indicator	3.2.2.43	Both	O	2
-Triggerid 	3.2.2.38	Both 	O	3-22
-Trace Reference 	3.2.2.39	Both	M	3 
-TransactionId 	3.2.2.40	Both	O	4
-OMCId 	3.2.2.42	Both	O	3-22
-*/
+static void
+bssmap_bss_invoke_trace(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_offset = offset;
+	curr_len = len;
+
+    /* Trace Type	3.2.2.37	Both	M	2 */
+	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_TRACE_TYPE].value, BSSAP_PDU_TYPE_BSSMAP, BE_TRACE_TYPE, NULL);
+    /* Forward Indicator	3.2.2.43	Both	O	2 */
+	ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_FOR_IND].value, BSSAP_PDU_TYPE_BSSMAP, BE_FOR_IND, NULL);
+    /* Triggerid 	3.2.2.38	Both 	O	3-22 */
+	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_TRIGGERID].value, BSSAP_PDU_TYPE_BSSMAP, BE_TRIGGERID, NULL);
+    /* Trace Reference 	3.2.2.39	Both	M	3 */
+	ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_TRACE_REF].value, BSSAP_PDU_TYPE_BSSMAP, BE_TRACE_REF, NULL);
+    /* TransactionId 	3.2.2.40	Both	O	4 */
+	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_TRANSID].value, BSSAP_PDU_TYPE_BSSMAP, BE_TRANSID, NULL);
+    /* OMCId 	3.2.2.42	Both	O	3-22 */
+	ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_OMCID].value, BSSAP_PDU_TYPE_BSSMAP, BE_OMCID, NULL);
+ 
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
 
 /*
  *  [2] 3.2.1.29 CLASSMARK UPDATE
@@ -5531,8 +5688,8 @@ static void (*bssmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 	NULL,	/* Reserved */
 	bssmap_reset_cct,	/* Reset Circuit */
 	bssmap_reset_cct_ack,	/* Reset Circuit Acknowledge */
-	NULL,	/* MSC Invoke Trace */
-	NULL,	/* BSS Invoke Trace */
+	bssmap_msc_invoke_trace,	/* MSC Invoke Trace */
+	bssmap_bss_invoke_trace,	/* BSS Invoke Trace */
 	NULL,	/* Connectionless Information */
 	bssmap_reset_res,	/* Reset Resource */
 	bssmap_reset_res_ack,	/* Reset Resource Acknowledge */
@@ -5802,6 +5959,41 @@ proto_register_gsm_a_bssmap(void)
 		{ "Channel","gsm_a_bssmap.channel",
 		FT_UINT8,BASE_DEC,  VALS(gsm_a_bssmap_channel_vals), 0x0f,
 		NULL, HFILL }
+	},
+	{ &hf_gsm_a_bssmap_trace_trigger_id,
+		{ "Priority Indication","gsm_a_bssmap.trace_trigger_id",
+		FT_STRING, BASE_NONE, NULL, 0x0, 
+        NULL, HFILL }
+	},    
+	{ &hf_gsm_a_bssmap_trace_priority_indication,
+		{ "Priority Indication","gsm_a_bssmap.trace_priority_indication",
+		FT_UINT8,BASE_DEC,  NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_bssmap_trace_bss_record_type,
+		{ "BSS Record Type","gsm_a_bssmap.bss_record__type",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_bssmap_trace_bss_record_type_vals), 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_bssmap_trace_msc_record_type,
+		{ "MSC Record Type","gsm_a_bssmap.msc_record_type",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_bssmap_trace_msc_record_type_vals), 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_bssmap_trace_invoking_event,
+		{ "Invoking Event","gsm_a_bssmap.trace_invoking_event",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_bssmap_trace_invoking_event_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_bssmap_trace_reference,
+		{ "Trace Reference","gsm_a_bssmap.trace_id",
+		FT_UINT16,BASE_DEC,  NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_bssmap_trace_omc_id,
+		{ "OMC ID","gsm_a_bssmap.trace_omc_id",
+		FT_STRING, BASE_NONE, NULL, 0x0, 
+        NULL, HFILL }
 	},
 	{ &hf_gsm_a_bssmap_be_rnc_id,
 		{ "RNC-ID","gsm_a.be.rnc_id",
