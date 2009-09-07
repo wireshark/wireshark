@@ -630,7 +630,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	if (!record->columnized || !record->colorized) {
 		g_assert((fdata->col_text == NULL && !record->columnized) ||
 				 (fdata->col_text != NULL && record->columnized));
-		packet_list_dissect_and_cache(packetlist, iter,
+		packet_list_dissect_and_cache_iter(packetlist, iter,
 									  !record->columnized,
 									  !record->colorized);
 	}

@@ -1028,7 +1028,7 @@ packet_list_recreate_visible_rows(PacketList *packet_list)
 }
 
 void
-packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter, gboolean dissect_columns, gboolean dissect_color)
+packet_list_dissect_and_cache_iter(PacketList *packet_list, GtkTreeIter *iter, gboolean dissect_columns, gboolean dissect_color)
 {
 	PacketListRecord *record;
 
