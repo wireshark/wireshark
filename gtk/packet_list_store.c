@@ -26,7 +26,6 @@
 
 /* This code is based on the GTK+ Tree View tutorial at http://scentric.net */
 
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -236,6 +235,10 @@ packet_list_init(PacketList *packet_list)
 	packet_list->columnized = FALSE;
 	packet_list->sort_id = 0; /* defaults to first column for now */
 	packet_list->sort_order = GTK_SORT_ASCENDING;
+
+#ifdef NEW_PACKET_LIST_STATISTICS
+	packet_list->const_strings = 0;
+#endif
 }
 
 /* This function is called just before a packet list is destroyed.	Free
@@ -569,7 +572,13 @@ new_packet_list_store_clear(PacketList *packet_list)
 		g_ptr_array_free(packet_list->visible_rows, TRUE);
 	packet_list->physical_rows = g_ptr_array_new();
 	packet_list->visible_rows = g_ptr_array_new();
+
 	packet_list->columnized = FALSE;
+
+#ifdef NEW_PACKET_LIST_STATISTICS
+	g_warning("Const strings: %u", packet_list->const_strings);
+	packet_list->const_strings = 0;
+#endif
 }
 
 #if 0
@@ -693,6 +702,9 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 			/* This is a constant string, so we don't have to copy it */
 			record->fdata->col_text[col] = (gchar *) cinfo->col_data[col];
 			record->fdata->col_text_len[col] = (guint) strlen(record->fdata->col_text[col]);
+#ifdef NEW_PACKET_LIST_STATISTICS
+			++packet_list->const_strings;
+#endif
 			break;
 		case COL_PROTOCOL:
 		case COL_INFO:
@@ -706,6 +718,9 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 				/* This is a constant string, so we don't have to copy it */
 				record->fdata->col_text[col] = (gchar *) cinfo->col_data[col];
 				record->fdata->col_text_len[col] = (guint) strlen(record->fdata->col_text[col]);
+#ifdef NEW_PACKET_LIST_STATISTICS
+				++packet_list->const_strings;
+#endif
 				break;
 			}
 		/* !! FALL-THROUGH!! */

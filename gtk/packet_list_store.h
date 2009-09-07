@@ -22,10 +22,15 @@
  * USA.
  */
 
+/* Uncomment to track some statistics (const strings, etc.) */
+/* #define NEW_PACKET_LIST_STATISTICS */
+
 #ifndef __NEW_PACKET_LIST_H__
 #define __NEW_PACKET_LIST_H__
 
 #ifdef NEW_PACKET_LIST
+
+#include <glib.h>
 
 #include "epan/column_info.h"
 #include "epan/frame_data.h"
@@ -85,6 +90,11 @@ struct _PacketList
 
 	/* Random integer to check whether an iter belongs to our model. */
 	gint stamp;
+
+#ifdef NEW_PACKET_LIST_STATISTICS
+	/* Statistics */
+	guint const_strings;
+#endif
 };
 
 /* PacketListClass: more boilerplate GObject stuff */
