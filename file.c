@@ -1266,6 +1266,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   fdata->flags.ref_time = 0;
   fdata->color_filter = NULL;
   fdata->col_text = NULL;
+  fdata->col_text_len = NULL;
 
   fdata->abs_ts.secs = phdr->ts.secs;
   fdata->abs_ts.nsecs = phdr->ts.nsecs;

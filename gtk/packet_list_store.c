@@ -660,12 +660,15 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 	g_assert(record->physical_pos == row);
 
 	if (record->fdata->col_text && record->fdata->col_text[col] != NULL)
-		/* Column already contains a value. Bail out */
+		/* TODO: Column already contains a value. Bail out */
 		return;
 
-	if (!record->fdata->col_text)
+	if (!record->fdata->col_text) {
+		record->fdata->col_text_len = se_alloc0(sizeof(record->fdata->col_text) *
+                                            (packet_list->n_columns-1));
 		record->fdata->col_text = se_alloc0(sizeof(record->fdata->col_text) *
 											(packet_list->n_columns-1));
+	}
 
 	switch (cfile.cinfo.col_fmt[col]) {
 		case COL_PROTOCOL:
@@ -679,12 +682,15 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 			if (cinfo->col_data[col] != cinfo->col_buf[col]) {
 				/* This is a constant string, so we don't have to copy it */
 				record->fdata->col_text[col] = (gchar *) cinfo->col_data[col];
+				record->fdata->col_text_len[col] = (guint) strlen(record->fdata->col_text[col]);
 				break;
 			}
 		/* !! FALL-THROUGH!! */
 
 		default:
-			record->fdata->col_text[col] = se_strdup(cinfo->col_data[col]);
+			record->fdata->col_text_len[col] = (guint) strlen(cinfo->col_data[col]);
+			record->fdata->col_text[col] = se_memdup(cinfo->col_data[col],
+                                                     record->fdata->col_text_len[col] + 1);
 			break;
 	}
 }

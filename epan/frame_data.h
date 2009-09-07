@@ -59,6 +59,7 @@ typedef struct _frame_data {
   nstime_t     del_cap_ts;  /* Delta timestamp to previous captured frame (yes, it can be negative) */
   gint64       file_off;    /* File offset */
   gchar        **col_text;  /* The column text for some columns, see colum_utils */
+  guint        *col_text_len; /* The length of the column text strings in 'col_text' */
 } frame_data;
 
 /*
