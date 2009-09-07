@@ -1165,11 +1165,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
   if (addr->type == AT_NONE)
     return; /* no address, nothing to do */
 
-  if (is_res) {
-    get_addr_name_buf(addr, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
-  } else {
-    address_to_str_buf(addr, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
-  }
+  get_addr_name_buf(addr, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
   pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
 
   switch (addr->type) {

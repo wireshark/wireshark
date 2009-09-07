@@ -2696,13 +2696,14 @@ const gchar *get_addr_name(address *addr)
   }
 
   /* if it gets here, either it is of type AT_NONE, */
-  /* or it should be solvable in ep_address_to_str -unless addr->type is wrongly defined- */
+  /* or it should be solvable in se_address_to_str -unless addr->type is wrongly defined- */
 
   if (addr->type == AT_NONE){
 	  return "NONE";
   }
 
-  return(ep_address_to_str(addr));
+  /* We need a "permanently" allocated string */
+  return(se_address_to_str(addr));
 } /* get_addr_name */
 
 
