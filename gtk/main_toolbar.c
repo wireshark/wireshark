@@ -51,7 +51,6 @@
 #include "gtk/prefs_dlg.h"
 #include "gtk/main.h"
 #include "gtk/menus.h"
-#include "gtk/main_packet_list.h"
 #include "gtk/main_toolbar.h"
 #include "gtk/help_dlg.h"
 #include "gtk/gtkglobals.h"
@@ -60,11 +59,14 @@
 #include "gtk/recent.h"
 #include "gtk/packet_history.h"
 
-
+#ifdef NEW_PACKET_LIST
+#include "gtk/new_packet_list.h"
+#else
+#include "gtk/main_packet_list.h"
+#endif
 
 /* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
 #define E_TB_MAIN_KEY             "toolbar_main"
-
 
 static gboolean toolbar_init = FALSE;
 
@@ -77,9 +79,7 @@ static GtkToolItem *print_button, *find_button, *history_forward_button, *histor
 static GtkToolItem *go_to_button, *go_to_top_button, *go_to_bottom_button;
 static GtkToolItem *display_filter_button;
 static GtkToolItem *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button;
-#ifndef NEW_PACKET_LIST
 static GtkToolItem *resize_columns_button;
-#endif
 static GtkToolItem *color_display_button, *prefs_button, *help_button;
 
 #define SAVE_BUTTON_TOOLTIP_TEXT "Save this capture file..."
@@ -204,7 +204,7 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
         gtk_widget_set_sensitive(GTK_WIDGET(zoom_out_button),
 				 have_captured_packets);
         gtk_widget_set_sensitive(GTK_WIDGET(zoom_100_button),
-				 have_captured_packets);        
+				 have_captured_packets);
 #ifndef NEW_PACKET_LIST
         gtk_widget_set_sensitive(GTK_WIDGET(resize_columns_button),
 				 have_captured_packets);
@@ -284,11 +284,11 @@ toolbar_new(void)
     GtkTooltips *tooltips;
 
     tooltips = gtk_tooltips_new();
-    
+
     /* this function should be only called once! */
     g_assert(!toolbar_init);
 
-    /* we need to realize the window because we use pixmaps for 
+    /* we need to realize the window because we use pixmaps for
      * items on the toolbar in the context of it */
     /* (coming from the gtk example, please don't ask me why ;-) */
     gtk_widget_realize(window);
@@ -303,114 +303,117 @@ toolbar_new(void)
 
 
 #ifdef HAVE_LIBPCAP
-    toolbar_item(if_button, main_tb, 
+    toolbar_item(if_button, main_tb,
 	WIRESHARK_STOCK_CAPTURE_INTERFACES, tooltips, "List the available capture interfaces...", capture_if_cb, NULL);
 
-    toolbar_item(capture_options_button, main_tb, 
+    toolbar_item(capture_options_button, main_tb,
 	WIRESHARK_STOCK_CAPTURE_OPTIONS, tooltips, "Show the capture options...", capture_prep_cb, NULL);
 
-    toolbar_item(new_button, main_tb, 
+    toolbar_item(new_button, main_tb,
 	WIRESHARK_STOCK_CAPTURE_START, tooltips, "Start a new live capture", capture_start_cb, NULL);
 
-    toolbar_item(stop_button, main_tb, 
+    toolbar_item(stop_button, main_tb,
 	WIRESHARK_STOCK_CAPTURE_STOP, tooltips, "Stop the running live capture", capture_stop_cb, NULL);
 
-    toolbar_item(clear_button, main_tb, 
+    toolbar_item(clear_button, main_tb,
 	WIRESHARK_STOCK_CAPTURE_RESTART, tooltips, "Restart the running live capture", capture_restart_cb, NULL);
 
     toolbar_append_separator(main_tb);
 #endif /* HAVE_LIBPCAP */
 
-    toolbar_item(open_button, main_tb, 
+    toolbar_item(open_button, main_tb,
 	GTK_STOCK_OPEN, tooltips, "Open a capture file...", file_open_cmd_cb, NULL);
 
     /* Only create a separate button in GTK < 2.4.  With GTK 2.4+, we will
      * just modify the save_button to read/show save or save as as needed.
-     * We'll also fudge in an object key ("save") for the save button with data which  specifies 
+     * We'll also fudge in an object key ("save") for the save button with data which  specifies
      * whether the button is currently "save" (1)or "save as" (0).
      * The fcn file_save_or_save_as_cmd_cb
      * will then call the appropriate file_save_cmd_cb or file_save_as_cmd_cb
      */
 
-    toolbar_item(save_button, main_tb, 
+    toolbar_item(save_button, main_tb,
 	GTK_STOCK_SAVE, tooltips, SAVE_BUTTON_TOOLTIP_TEXT, file_save_or_save_as_cmd_cb, NULL);
     g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(1));
 
-    toolbar_item(close_button, main_tb, 
+    toolbar_item(close_button, main_tb,
 	GTK_STOCK_CLOSE, tooltips, "Close this capture file", file_close_cmd_cb, NULL);
 
-    toolbar_item(reload_button, main_tb, 
+    toolbar_item(reload_button, main_tb,
 	GTK_STOCK_REFRESH, tooltips, "Reload this capture file", file_reload_cmd_cb, NULL);
 
-    toolbar_item(print_button, main_tb, 
+    toolbar_item(print_button, main_tb,
 	GTK_STOCK_PRINT, tooltips, "Print packet(s)...", file_print_cmd_cb, NULL);
 
     toolbar_append_separator(main_tb);
 
-    toolbar_item(find_button, main_tb, 
+    toolbar_item(find_button, main_tb,
 	GTK_STOCK_FIND, tooltips, "Find a packet...", find_frame_cb, NULL);
 
-    toolbar_item(history_back_button, main_tb, 
+    toolbar_item(history_back_button, main_tb,
 	GTK_STOCK_GO_BACK, tooltips, "Go back in packet history", history_back_cb, NULL);
 
-    toolbar_item(history_forward_button, main_tb, 
+    toolbar_item(history_forward_button, main_tb,
 	GTK_STOCK_GO_FORWARD, tooltips, "Go forward in packet history", history_forward_cb, NULL);
 
-    toolbar_item(go_to_button, main_tb, 
+    toolbar_item(go_to_button, main_tb,
 	GTK_STOCK_JUMP_TO, tooltips, "Go to the packet with number...", goto_frame_cb, NULL);
 
-    toolbar_item(go_to_top_button, main_tb, 
+    toolbar_item(go_to_top_button, main_tb,
 	GTK_STOCK_GOTO_TOP, tooltips, "Go to the first packet", goto_top_frame_cb, NULL);
 
-    toolbar_item(go_to_bottom_button, main_tb, 
+    toolbar_item(go_to_bottom_button, main_tb,
 	GTK_STOCK_GOTO_BOTTOM, tooltips, "Go to the last packet", goto_bottom_frame_cb, NULL);
 
     toolbar_append_separator(main_tb);
 
-    toolbar_toggle_button(colorize_button, window, main_tb, 
+    toolbar_toggle_button(colorize_button, window, main_tb,
 	WIRESHARK_STOCK_COLORIZE, tooltips, "Colorize Packet List", colorize_toggle_cb, NULL);
 
 #ifdef HAVE_LIBPCAP
-    toolbar_toggle_button(autoscroll_button, window, main_tb, 
+    toolbar_toggle_button(autoscroll_button, window, main_tb,
 	WIRESHARK_STOCK_AUTOSCROLL, tooltips, "Auto Scroll Packet List in Live Capture", auto_scroll_live_toggle_cb, NULL);
 #endif
 
     toolbar_append_separator(main_tb);
 
-    toolbar_item(zoom_in_button, main_tb, 
+    toolbar_item(zoom_in_button, main_tb,
 	GTK_STOCK_ZOOM_IN, tooltips, "Zoom in", view_zoom_in_cb, NULL);
 
-    toolbar_item(zoom_out_button, main_tb, 
+    toolbar_item(zoom_out_button, main_tb,
 	GTK_STOCK_ZOOM_OUT, tooltips, "Zoom out", view_zoom_out_cb, NULL);
 
-    toolbar_item(zoom_100_button, main_tb, 
+    toolbar_item(zoom_100_button, main_tb,
 	GTK_STOCK_ZOOM_100, tooltips, "Zoom 100%", view_zoom_100_cb, NULL);
 
-#ifndef NEW_PACKET_LIST
-    toolbar_item(resize_columns_button, main_tb, 
-	WIRESHARK_STOCK_RESIZE_COLUMNS, tooltips, "Resize All Columns", packet_list_resize_columns_cb, NULL);
+#ifdef NEW_PACKET_LIST
+    toolbar_item(resize_columns_button, main_tb,
+    WIRESHARK_STOCK_RESIZE_COLUMNS, tooltips, "Resize All Columns", new_packet_list_resize_columns_cb, NULL);
+#else
+    toolbar_item(resize_columns_button, main_tb,
+    WIRESHARK_STOCK_RESIZE_COLUMNS, tooltips, "Resize All Columns", packet_list_resize_columns_cb, NULL);
 #endif
 
     toolbar_append_separator(main_tb);
-    
+
 #ifdef HAVE_LIBPCAP
-    toolbar_item(capture_filter_button, main_tb, 
+    toolbar_item(capture_filter_button, main_tb,
 	WIRESHARK_STOCK_CAPTURE_FILTER, tooltips, "Edit capture filter...", cfilter_dialog_cb, NULL);
 #endif /* HAVE_LIBPCAP */
 
-    toolbar_item(display_filter_button, main_tb, 
+    toolbar_item(display_filter_button, main_tb,
 	WIRESHARK_STOCK_DISPLAY_FILTER, tooltips, "Edit/apply display filter...", dfilter_dialog_cb, NULL);
 
-    toolbar_item(color_display_button, main_tb, 
+    toolbar_item(color_display_button, main_tb,
 	GTK_STOCK_SELECT_COLOR, tooltips, "Edit coloring rules...", color_display_cb, NULL);
 
     /* the preference button uses it's own Stock icon label "Prefs", as "Preferences" is too long */
-    toolbar_item(prefs_button, main_tb, 
+    toolbar_item(prefs_button, main_tb,
 	GTK_STOCK_PREFERENCES, tooltips, "Edit preferences...", prefs_cb, NULL);
 
     toolbar_append_separator(main_tb);
 
-    toolbar_item(help_button, main_tb, 
+    toolbar_item(help_button, main_tb,
 	GTK_STOCK_HELP, tooltips, "Show some help...", topic_cb, GINT_TO_POINTER(HELP_CONTENT));
 
     /* disable all "sensitive" items by default */

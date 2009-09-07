@@ -46,6 +46,7 @@
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
 #include "../ui_util.h"
+#include "../progress_dlg.h"
 #include "../simple_dialog.h"
 #include "epan/emem.h"
 #include "globals.h"
@@ -61,6 +62,8 @@
 #include "gtk/color_utils.h"
 #include "gtk/capture_file_dlg.h"
 #include "gtk/main_statusbar.h"
+
+#define N_PROGBAR_UPDATES 100
 
 static PacketList *packetlist;
 static gboolean last_at_end = FALSE;
@@ -268,10 +271,83 @@ new_packet_list_recreate_visible_rows(void)
 	packet_list_recreate_visible_rows(packetlist);
 }
 
+static void
+new_packet_list_resize_columns(void)
+{
+    int         col;
+    int         progbar_nextstep;
+    int         progbar_quantum;
+    gboolean    progbar_stop_flag;
+    GTimeVal    progbar_start_time;
+    float       progbar_val;
+    progdlg_t  *progbar = NULL;
+    gchar       status_str[100];
+
+    /* Update the progress bar when it gets to this value. */
+    progbar_nextstep = 0;
+    /* When we reach the value that triggers a progress bar update,
+       bump that value by this amount. */
+    progbar_quantum = cfile.cinfo.num_cols/N_PROGBAR_UPDATES;
+    /* Progress so far. */
+    progbar_val = 0.0f;
+
+    progbar_stop_flag = FALSE;
+    g_get_current_time(&progbar_start_time);
+
+    main_window_update();
+
+    for (col = 0; col < cfile.cinfo.num_cols; col++) {
+      PangoLayout *layout;
+      GtkTreeViewColumn *column;
+      gint col_width;
+      /* Create the progress bar if necessary.
+         We check on every iteration of the loop, so that it takes no
+         longer than the standard time to create it (otherwise, for a
+         large file, we might take considerably longer than that standard
+         time in order to get to the next progress bar step). */
+      if (progbar == NULL)
+         progbar = delayed_create_progress_dlg("Resizing", "Resize Columns",
+           TRUE, &progbar_stop_flag, &progbar_start_time, progbar_val);
+
+      if (col >= progbar_nextstep) {
+        /* let's not divide by zero. I should never be started
+         * with count == 0, so let's assert that
+         */
+        g_assert(cfile.cinfo.num_cols > 0);
+
+        progbar_val = (gfloat) col / cfile.cinfo.num_cols;
+
+        if (progbar != NULL) {
+          g_snprintf(status_str, sizeof(status_str),
+                     "%u of %u columns (%s)", col+1, cfile.cinfo.num_cols, cfile.cinfo.col_title[col]);
+          update_progress_dlg(progbar, progbar_val, status_str);
+        }
+
+        progbar_nextstep += progbar_quantum;
+      }
+
+      column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col);
+      layout = gtk_widget_create_pango_layout(packetlist->view, get_column_width_string(get_column_format(col), col));
+      pango_layout_get_pixel_size(layout, &col_width, NULL);
+      gtk_tree_view_column_set_fixed_width(column, col_width);
+      g_object_unref(G_OBJECT(layout));
+
+      if (progbar_stop_flag) {
+        /* Well, the user decided to abort the resizing... */
+        break;
+      }
+    }
+
+    /* We're done resizing the columns; destroy the progress bar if it
+       was created. */
+    if (progbar != NULL)
+      destroy_progress_dlg(progbar);
+}
+
 void
 new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-	g_warning("*** new_packet_list_resize_columns_cb() not yet implemented.");
+	new_packet_list_resize_columns();
 }
 
 void
