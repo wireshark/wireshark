@@ -25,7 +25,7 @@
 #ifndef __CAPTURE_DLG_H__
 #define __CAPTURE_DLG_H__
 
-extern GtkWidget* airpcap_tb;
+/* extern GtkWidget* airpcap_tb; */
 
 /** @file
  *  "Capture Options" dialog box.
