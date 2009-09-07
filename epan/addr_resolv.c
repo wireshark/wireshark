@@ -977,7 +977,7 @@ static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 }
 #endif
 
-static const gchar *solve_address_to_name(address *addr)
+static const gchar *solve_address_to_name(const address *addr)
 {
   switch (addr->type) {
 
@@ -1004,7 +1004,7 @@ static const gchar *solve_address_to_name(address *addr)
   }
 }
 
-static const gchar *se_solve_address_to_name(address *addr)
+static const gchar *se_solve_address_to_name(const address *addr)
 {
   switch (addr->type) {
 
@@ -2710,7 +2710,7 @@ extern gchar *get_sctp_port(guint port)
 
 } /* get_sctp_port */
 
-const gchar *get_addr_name(address *addr)
+const gchar *get_addr_name(const address *addr)
 {
   const gchar *result;
 
@@ -2730,7 +2730,7 @@ const gchar *get_addr_name(address *addr)
   return ep_address_to_str(addr);
 }
 
-const gchar *se_get_addr_name(address *addr)
+const gchar *se_get_addr_name(const address *addr)
 {
   const gchar *result;
 

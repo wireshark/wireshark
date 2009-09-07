@@ -106,8 +106,8 @@ extern gchar *get_sctp_port(guint port);
 /*    which should be a string representation for the answer -e.g. "10.10.10.10" for IPv4 */
 /*    address 10.10.10.10 */
 
-const gchar *get_addr_name(address *addr);
-const gchar *se_get_addr_name(address *addr);
+const gchar *get_addr_name(const address *addr);
+const gchar *se_get_addr_name(const address *addr);
 
 /* get_addr_name_buf solves an address in the same way as get_addr_name above */
 /* The difference is that get_addr_name_buf takes as input a buffer, into which it puts */
