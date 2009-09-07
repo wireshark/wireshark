@@ -102,6 +102,8 @@ gint packet_list_append_record(PacketList *packet_list, frame_data *fdata);
 void packet_list_change_record(PacketList *packet_list, guint row, gint col, column_info *cinfo);
 void packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter, gboolean dissect_columns, gboolean dissect_color);
 void packet_list_reset_colorized(PacketList *packet_list);
+const char* packet_list_get_widest_column_string(PacketList *packet_list, gint col);
+
 #endif /* NEW_PACKET_LIST */
 
 #endif /* __NEW_PACKET_LIST_H__ */

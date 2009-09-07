@@ -1014,5 +1014,42 @@ packet_list_reset_colorized(PacketList *packet_list)
 	}
 }
 
+const char*
+packet_list_get_widest_column_string(PacketList *packet_list, gint col)
+{
+	g_return_val_if_fail(packet_list != NULL, NULL);
+	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), NULL);
+	g_return_val_if_fail(col < packet_list->n_columns && col >= 0, NULL);
+
+	if (PACKET_LIST_RECORD_COUNT(packet_list->visible_rows) == 0)
+		return "";
+
+	if (col_based_on_frame_data(&cfile.cinfo, col)) {
+        /* TODO: Calculate according to column */
+		return get_column_width_string(get_column_format(col), col);
+	}
+	else {
+		PacketListRecord *record;
+		guint vis_idx;
+		guint widest_column_idx = 0;
+		guint widest_column_len = 0;
+
+        if (!packet_list->columnized)
+            packet_list_dissect_and_cache_all(packet_list);
+
+		for(vis_idx = 0; vis_idx < PACKET_LIST_RECORD_COUNT(packet_list->visible_rows); ++vis_idx) {
+			record = PACKET_LIST_RECORD_GET(packet_list->visible_rows, vis_idx);
+			if (record->fdata->col_text_len[col] > widest_column_len) {
+				widest_column_idx = vis_idx;
+				widest_column_len = record->fdata->col_text_len[col];
+			}
+		}
+
+		g_assert(widest_column_idx < PACKET_LIST_RECORD_COUNT(packet_list->visible_rows));
+		record = PACKET_LIST_RECORD_GET(packet_list->visible_rows, widest_column_idx);
+		return record->fdata->col_text[col];
+	}
+}
+
 #endif /* NEW_PACKET_LIST */
 
