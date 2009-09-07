@@ -1177,29 +1177,9 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 			}
 		}
 
-		switch (cfile.cinfo.col_fmt[col]) {
+		col_fill_in_frame_data(record->fdata, &cfile.cinfo, col);
 
-		case COL_NUMBER:
-		case COL_PACKET_LENGTH:
-		case COL_CUMULATIVE_BYTES:
-            return ep_strdup_printf("%u", widest_column_val);
-
-		case COL_ABS_TIME:
-		case COL_REL_TIME:
-		case COL_DELTA_TIME:
-		case COL_DELTA_TIME_DIS:
-			/* TODO: Implement */
-			return get_column_width_string(get_column_format(col), col);
-
-		case COL_CLS_TIME:
-		case COL_ABS_DATE_TIME:
-			/* TODO: Implement */
-			return get_column_width_string(get_column_format(col), col);
-
-		default:
-			g_assert_not_reached();
-			return NULL;
-		}
+		return cfile.cinfo.col_buf[col];
 	}
 	else {
 		PacketListRecord *record;
