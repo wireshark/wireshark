@@ -1259,7 +1259,9 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   fdata->pkt_len  = phdr->len;
   fdata->cap_len  = phdr->caplen;
   fdata->file_off = offset;
-  fdata->lnk_t = phdr->pkt_encap;
+  /* To save some memory, we coarcese it into a gint8 */
+  g_assert(phdr->pkt_encap <= G_MAXINT8);
+  fdata->lnk_t = (gint8) phdr->pkt_encap;
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;
   fdata->flags.marked = 0;

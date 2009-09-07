@@ -326,7 +326,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                 tvb, pinfo, parent_tree)) {
 
 				col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
-				col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %u",
+				col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
 				    pinfo->fd->lnk_t);
 			call_dissector(data_handle,tvb, pinfo, parent_tree);
 		}
