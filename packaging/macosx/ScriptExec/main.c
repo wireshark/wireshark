@@ -92,7 +92,6 @@ OSErr LoadMenuBar(char *appName);
 static OSStatus FSMakePath(FSSpec file, char *path, long maxPathSize);
 static void RedFatalAlert(Str255 errorString, Str255 expStr);
 static short DoesFileExist(char *path);
-static OSStatus FixFCCache(void);
 
 static OSErr AppQuitAEHandler(const AppleEvent *theAppleEvent,
                               AppleEvent *reply, long refCon);
@@ -110,7 +109,7 @@ static OSErr AppReopenAppAEHandler(const AppleEvent *theAppleEvent,
 static OSStatus CompileAppleScript(const void* text, long textLength,
                                   AEDesc *resultData);
 static OSStatus SimpleCompileAppleScript(const char* theScript);
-static void runScript();
+static OSErr runScript();
 
 ///////////////////////////////////////
 // Globals
@@ -252,117 +251,6 @@ static OSStatus FCCacheFailedHandler(EventHandlerCallRef theHandlerCall,
 
     return noErr;
 }
-
-
-static size_t safeRead(int d, void *buf, size_t nbytes)
-{
-	ssize_t bytesToRead = nbytes;
-	ssize_t bytesRead = 0;
-	char *offset = (char *) buf;
-
-	while ((bytesToRead > 0))
-	{
-		bytesRead = read(d, offset, bytesToRead);
-		if (bytesRead > 0)
-		{
-			offset += bytesRead;
-			bytesToRead -= bytesRead;
-		}
-		else if (bytesRead == 0)
-		{
-			// Reached EOF.
-			break;
-		}
-		else if (bytesRead == -1)
-		{
-			if ((errno == EINTR) || (errno == EAGAIN))
-			{
-				// Try again.
-				continue;
-			}
-			return 0;
-		}
-	}
-	return bytesRead;
-}
-
-
-/////////////////////////////////////
-// Code to run fc-cache on first run
-/////////////////////////////////////
-static OSStatus FixFCCache (void)
-{
-	FILE *fileConnToChild = NULL;
-	int fdConnToChild = 0;
-	pid_t childPID = WAIT_ANY;
-	size_t bytesChildPID;
-	size_t bytesRead;
-	int status;
-
-	char commandStr[] = "/usr/X11R6/bin/fc-cache";
-	char *commandArgs[] = { "-f", NULL };
-
-	// Run fc-cache
-	AuthorizationItem authItems[] =
-	{
-	{
-		kAuthorizationRightExecute,
-		strlen(commandStr),
-		commandStr,
-		0
-	}
-	};
-	AuthorizationItemSet authItemSet =
-	{
-		1,
-		authItems
-	};
-	AuthorizationRef authRef = NULL;
-	OSStatus err = AuthorizationCreate (NULL, &authItemSet,
-			kAuthorizationFlagInteractionAllowed |
-			kAuthorizationFlagExtendRights, &authRef);
-
-	if (err == errAuthorizationSuccess)
-	{
-		err = AuthorizationExecuteWithPrivileges(authRef, commandStr,
-				kAuthorizationFlagDefaults, commandArgs,
-				&fileConnToChild);
-
-		if (err == errAuthorizationSuccess)
-		{
-			// Unfortunately, AuthorizationExecuteWithPrivileges
-			// does not return the process ID associated with the
-			// process it runs.  The best solution we have it to
-			// try and get the process ID from the file descriptor.
-			// This is based on example code from Apple's
-			// MoreAuthSample.
-
-			fdConnToChild = fileno(fileConnToChild);
-
-			// Try an get the process ID of the fc-cache command
-			bytesChildPID = sizeof(childPID);
-			bytesRead = safeRead(fdConnToChild, &childPID,
-					bytesChildPID);
-			if (bytesRead != bytesChildPID)
-			{
-				// If we can't get it the best alternative
-				// is to wait for any child to finish.
-				childPID = WAIT_ANY;
-			}
-
-			if (fileConnToChild != NULL) {
-				fclose(fileConnToChild);
-			}
-
-			// Wait for child process to finish.
-			waitpid(childPID, &status, 0);
-		}
-	}
-	AuthorizationFree(authRef, kAuthorizationFlagDestroyRights);
-
-	return err;
-}
-
 
 ///////////////////////////////////
 // Execution thread starts here
@@ -660,7 +548,7 @@ static OSErr AppOpenDocAEHandler(const AppleEvent *theAppleEvent,
 static OSErr AppReopenAppAEHandler(const AppleEvent *theAppleEvent,
                                  AppleEvent *reply, long refCon)
 {
-    runScript();
+    return runScript();
 }
 
 // if app is being opened
@@ -711,7 +599,7 @@ static OSStatus X11FailedHandler(EventHandlerCallRef theHandlerCall,
     if (odtid) pthread_join(odtid, NULL);
 
 	SInt16 itemHit;
-	const char *getX11 = "\pGet X11 for Panther";
+	const unsigned char *getX11 = "\pGet X11 for Panther";
 
 	AlertStdAlertParamRec params;
 	params.movable = true;
@@ -775,7 +663,7 @@ static OSStatus CompileAppleScript(const void* text, long textLength,
 }
 
 /* runs the compiled applescript */
-static void runScript()
+static OSErr runScript()
 {
     /* run the script */
     err = OSAExecute(theComponent, scriptID, kOSANullScript,
