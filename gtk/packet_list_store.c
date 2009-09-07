@@ -37,6 +37,9 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
+#include "packet_list_store.h"
+#include "ui_util.h"
+
 #include <epan/epan_dissect.h>
 #include "epan/column_info.h"
 #include "epan/column.h"
@@ -44,9 +47,10 @@
 #include "color.h"
 #include "color_filters.h"
 
-#include "packet_list_store.h"
 #include "globals.h"
+
 #include "../simple_dialog.h"
+#include "../progress_dlg.h"
 
 static void packet_list_init(PacketList *pkg_tree);
 static void packet_list_class_init(PacketListClass *klass);
@@ -103,7 +107,7 @@ static void packet_list_sortable_init(GtkTreeSortableIface *iface);
 static gint packet_list_compare_records(gint sort_id _U_, PacketListRecord *a,
 					PacketListRecord *b);
 static void packet_list_resort(PacketList *packet_list);
-static void packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_columns, gboolean dissect_color );
+static void packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_columns, gboolean dissect_color );
 
 static GObjectClass *parent_class = NULL;
 
@@ -767,16 +771,74 @@ static void
 packet_list_dissect_and_cache_all(PacketList *packet_list)
 {
 	PacketListRecord *record;
-	guint i;
+
+    int         progbar_nextstep;
+    int         progbar_quantum;
+    gboolean    progbar_stop_flag;
+    GTimeVal    progbar_start_time;
+    float       progbar_val;
+    progdlg_t  *progbar = NULL;
+    gchar       progbar_status_str[100];
+    gint        progbar_loop_max;
+    gint        progbar_loop_var;
+    gint        progbar_updates = 100 /* 100% */;
 
 	g_assert(packet_list->columnized == FALSE);
 
-	g_warning(G_STRLOC " - TODO: Insert progress bar");
+    progbar_loop_max = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);
+    /* Update the progress bar when it gets to this value. */
+    progbar_nextstep = 0;
+    /* When we reach the value that triggers a progress bar update,
+       bump that value by this amount. */
+    progbar_quantum = progbar_loop_max/progbar_updates;
+    /* Progress so far. */
+    progbar_val = 0.0f;
 
-	for(i = 0; i < PACKET_LIST_RECORD_COUNT(packet_list->physical_rows); ++i) {
-		record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, i);
-		packet_list_dissect_and_cache_by_record(packet_list, record, TRUE, FALSE);
-	}
+    progbar_stop_flag = FALSE;
+    g_get_current_time(&progbar_start_time);
+
+    main_window_update();
+
+    for (progbar_loop_var = 0; progbar_loop_var < progbar_loop_max; ++progbar_loop_var) {
+      record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, progbar_loop_var);
+      packet_list_dissect_and_cache_record(packet_list, record, TRUE, FALSE);
+
+      /* Create the progress bar if necessary.
+         We check on every iteration of the loop, so that it takes no
+         longer than the standard time to create it (otherwise, for a
+         large file, we might take considerably longer than that standard
+         time in order to get to the next progress bar step). */
+      if (progbar == NULL)
+         progbar = delayed_create_progress_dlg("Construct", "Columns",
+                        TRUE, &progbar_stop_flag,
+                        &progbar_start_time, progbar_val);
+
+      if (progbar_loop_var >= progbar_nextstep) {
+        /* let's not divide by zero. We should never be started
+         * with count == 0, so let's assert that */
+        g_assert(progbar_loop_max > 0);
+
+        progbar_val = (gfloat) progbar_loop_var / progbar_loop_max;
+
+        if (progbar != NULL) {
+          g_snprintf(progbar_status_str, sizeof(progbar_status_str),
+                     "%u of %u frames", progbar_loop_var+1, progbar_loop_max);
+          update_progress_dlg(progbar, progbar_val, progbar_status_str);
+        }
+
+        progbar_nextstep += progbar_quantum;
+      }
+
+      if (progbar_stop_flag) {
+        /* Well, the user decided to abort the resizing... */
+        break;
+      }
+    }
+
+    /* We're done resizing the columns; destroy the progress bar if it
+       was created. */
+    if (progbar != NULL)
+      destroy_progress_dlg(progbar);
 
 	packet_list->columnized = TRUE;
 }
@@ -976,11 +1038,11 @@ packet_list_dissect_and_cache(PacketList *packet_list, GtkTreeIter *iter, gboole
 
 	record = iter->user_data;
 
-	packet_list_dissect_and_cache_by_record(packet_list, record, dissect_columns, dissect_color);
+	packet_list_dissect_and_cache_record(packet_list, record, dissect_columns, dissect_color);
 }
 
 static void
-packet_list_dissect_and_cache_by_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_columns, gboolean dissect_color)
+packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_columns, gboolean dissect_color)
 {
 	epan_dissect_t edt;
 	int err;
