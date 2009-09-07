@@ -41,8 +41,9 @@
 #include "ui_util.h"
 
 #include <epan/epan_dissect.h>
-#include "epan/column_info.h"
-#include "epan/column.h"
+#include <epan/column_info.h>
+#include <epan/column.h>
+#include <epan/nstime.h>
 
 #include "color.h"
 #include "color_filters.h"
@@ -678,7 +679,7 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 
 	if (!record->fdata->col_text) {
 		record->fdata->col_text_len = se_alloc0(sizeof(record->fdata->col_text) *
-                                            (packet_list->n_columns-1));
+											(packet_list->n_columns-1));
 		record->fdata->col_text = se_alloc0(sizeof(record->fdata->col_text) *
 											(packet_list->n_columns-1));
 	}
@@ -732,7 +733,7 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 		default:
 			record->fdata->col_text_len[col] = (guint) strlen(cinfo->col_data[col]);
 			record->fdata->col_text[col] = se_memdup(cinfo->col_data[col],
-                                                     record->fdata->col_text_len[col] + 1);
+													 record->fdata->col_text_len[col] + 1);
 			break;
 	}
 }
@@ -772,73 +773,73 @@ packet_list_dissect_and_cache_all(PacketList *packet_list)
 {
 	PacketListRecord *record;
 
-    int         progbar_nextstep;
-    int         progbar_quantum;
-    gboolean    progbar_stop_flag;
-    GTimeVal    progbar_start_time;
-    float       progbar_val;
-    progdlg_t  *progbar = NULL;
-    gchar       progbar_status_str[100];
-    gint        progbar_loop_max;
-    gint        progbar_loop_var;
-    gint        progbar_updates = 100 /* 100% */;
+	int 		progbar_nextstep;
+	int 		progbar_quantum;
+	gboolean	progbar_stop_flag;
+	GTimeVal	progbar_start_time;
+	float		progbar_val;
+	progdlg_t  *progbar = NULL;
+	gchar		progbar_status_str[100];
+	gint		progbar_loop_max;
+	gint		progbar_loop_var;
+	gint		progbar_updates = 100 /* 100% */;
 
 	g_assert(packet_list->columnized == FALSE);
 
-    progbar_loop_max = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);
-    /* Update the progress bar when it gets to this value. */
-    progbar_nextstep = 0;
-    /* When we reach the value that triggers a progress bar update,
-       bump that value by this amount. */
-    progbar_quantum = progbar_loop_max/progbar_updates;
-    /* Progress so far. */
-    progbar_val = 0.0f;
+	progbar_loop_max = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);
+	/* Update the progress bar when it gets to this value. */
+	progbar_nextstep = 0;
+	/* When we reach the value that triggers a progress bar update,
+	   bump that value by this amount. */
+	progbar_quantum = progbar_loop_max/progbar_updates;
+	/* Progress so far. */
+	progbar_val = 0.0f;
 
-    progbar_stop_flag = FALSE;
-    g_get_current_time(&progbar_start_time);
+	progbar_stop_flag = FALSE;
+	g_get_current_time(&progbar_start_time);
 
-    main_window_update();
+	main_window_update();
 
-    for (progbar_loop_var = 0; progbar_loop_var < progbar_loop_max; ++progbar_loop_var) {
-      record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, progbar_loop_var);
-      packet_list_dissect_and_cache_record(packet_list, record, TRUE, FALSE);
+	for (progbar_loop_var = 0; progbar_loop_var < progbar_loop_max; ++progbar_loop_var) {
+	  record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, progbar_loop_var);
+	  packet_list_dissect_and_cache_record(packet_list, record, TRUE, FALSE);
 
-      /* Create the progress bar if necessary.
-         We check on every iteration of the loop, so that it takes no
-         longer than the standard time to create it (otherwise, for a
-         large file, we might take considerably longer than that standard
-         time in order to get to the next progress bar step). */
-      if (progbar == NULL)
-         progbar = delayed_create_progress_dlg("Construct", "Columns",
-                        TRUE, &progbar_stop_flag,
-                        &progbar_start_time, progbar_val);
+	  /* Create the progress bar if necessary.
+		 We check on every iteration of the loop, so that it takes no
+		 longer than the standard time to create it (otherwise, for a
+		 large file, we might take considerably longer than that standard
+		 time in order to get to the next progress bar step). */
+	  if (progbar == NULL)
+		 progbar = delayed_create_progress_dlg("Construct", "Columns",
+						TRUE, &progbar_stop_flag,
+						&progbar_start_time, progbar_val);
 
-      if (progbar_loop_var >= progbar_nextstep) {
-        /* let's not divide by zero. We should never be started
-         * with count == 0, so let's assert that */
-        g_assert(progbar_loop_max > 0);
+	  if (progbar_loop_var >= progbar_nextstep) {
+		/* let's not divide by zero. We should never be started
+		 * with count == 0, so let's assert that */
+		g_assert(progbar_loop_max > 0);
 
-        progbar_val = (gfloat) progbar_loop_var / progbar_loop_max;
+		progbar_val = (gfloat) progbar_loop_var / progbar_loop_max;
 
-        if (progbar != NULL) {
-          g_snprintf(progbar_status_str, sizeof(progbar_status_str),
-                     "%u of %u frames", progbar_loop_var+1, progbar_loop_max);
-          update_progress_dlg(progbar, progbar_val, progbar_status_str);
-        }
+		if (progbar != NULL) {
+		  g_snprintf(progbar_status_str, sizeof(progbar_status_str),
+					 "%u of %u frames", progbar_loop_var+1, progbar_loop_max);
+		  update_progress_dlg(progbar, progbar_val, progbar_status_str);
+		}
 
-        progbar_nextstep += progbar_quantum;
-      }
+		progbar_nextstep += progbar_quantum;
+	  }
 
-      if (progbar_stop_flag) {
-        /* Well, the user decided to abort the resizing... */
-        break;
-      }
-    }
+	  if (progbar_stop_flag) {
+		/* Well, the user decided to abort the resizing... */
+		break;
+	  }
+	}
 
-    /* We're done resizing the columns; destroy the progress bar if it
-       was created. */
-    if (progbar != NULL)
-      destroy_progress_dlg(progbar);
+	/* We're done resizing the columns; destroy the progress bar if it
+	   was created. */
+	if (progbar != NULL)
+	  destroy_progress_dlg(progbar);
 
 	packet_list->columnized = TRUE;
 }
@@ -1125,29 +1126,100 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 		return "";
 
 	if (col_based_on_frame_data(&cfile.cinfo, col)) {
-        /* TODO: Calculate according to column */
-		return get_column_width_string(get_column_format(col), col);
+		PacketListRecord *record;
+		guint vis_idx;
+
+        guint32 widest_column_val = 0;
+		nstime_t widest_column_time;
+
+		nstime_set_zero(&widest_column_time);
+
+		for(vis_idx = 0; vis_idx < PACKET_LIST_RECORD_COUNT(packet_list->visible_rows); ++vis_idx) {
+			record = PACKET_LIST_RECORD_GET(packet_list->visible_rows, vis_idx);
+			switch (cfile.cinfo.col_fmt[col]) {
+
+			case COL_NUMBER:
+				if (record->fdata->num > widest_column_val)
+					widest_column_val = record->fdata->num;
+				break;
+			case COL_PACKET_LENGTH:
+				if (record->fdata->pkt_len > widest_column_val)
+					widest_column_val = record->fdata->pkt_len;
+				break;
+			case COL_CUMULATIVE_BYTES:
+				if (record->fdata->cum_bytes > widest_column_val)
+					widest_column_val = record->fdata->cum_bytes;
+				break;
+			case COL_ABS_TIME:
+				if (nstime_cmp(&record->fdata->abs_ts, &widest_column_time))
+					widest_column_time = record->fdata->abs_ts;
+				break;
+			case COL_REL_TIME:
+				if (nstime_cmp(&record->fdata->rel_ts, &widest_column_time))
+					widest_column_time = record->fdata->rel_ts;
+				break;
+			case COL_DELTA_TIME:
+				if (nstime_cmp(&record->fdata->del_cap_ts, &widest_column_time))
+					widest_column_time = record->fdata->del_cap_ts;
+				break;
+			case COL_DELTA_TIME_DIS:
+				if (nstime_cmp(&record->fdata->del_dis_ts, &widest_column_time))
+					widest_column_time = record->fdata->del_dis_ts;
+				break;
+
+			case COL_CLS_TIME:
+			case COL_ABS_DATE_TIME:
+				/* TODO: Implement */
+				break;
+
+			default:
+				g_assert_not_reached();
+			}
+		}
+
+		switch (cfile.cinfo.col_fmt[col]) {
+
+		case COL_NUMBER:
+		case COL_PACKET_LENGTH:
+		case COL_CUMULATIVE_BYTES:
+            return ep_strdup_printf("%u", widest_column_val);
+
+		case COL_ABS_TIME:
+		case COL_REL_TIME:
+		case COL_DELTA_TIME:
+		case COL_DELTA_TIME_DIS:
+			/* TODO: Implement */
+			return get_column_width_string(get_column_format(col), col);
+
+		case COL_CLS_TIME:
+		case COL_ABS_DATE_TIME:
+			/* TODO: Implement */
+			return get_column_width_string(get_column_format(col), col);
+
+		default:
+			g_assert_not_reached();
+			return NULL;
+		}
 	}
 	else {
 		PacketListRecord *record;
 		guint vis_idx;
-		guint widest_column_idx = 0;
+
+		gchar *widest_column_str = NULL;
 		guint widest_column_len = 0;
 
-        if (!packet_list->columnized)
-            packet_list_dissect_and_cache_all(packet_list);
+		if (!packet_list->columnized)
+			packet_list_dissect_and_cache_all(packet_list);
 
 		for(vis_idx = 0; vis_idx < PACKET_LIST_RECORD_COUNT(packet_list->visible_rows); ++vis_idx) {
 			record = PACKET_LIST_RECORD_GET(packet_list->visible_rows, vis_idx);
 			if (record->fdata->col_text_len[col] > widest_column_len) {
-				widest_column_idx = vis_idx;
+				widest_column_str = record->fdata->col_text[col];
 				widest_column_len = record->fdata->col_text_len[col];
 			}
 		}
 
-		g_assert(widest_column_idx < PACKET_LIST_RECORD_COUNT(packet_list->visible_rows));
-		record = PACKET_LIST_RECORD_GET(packet_list->visible_rows, widest_column_idx);
-		return record->fdata->col_text[col];
+		return widest_column_str;
 	}
 }
 

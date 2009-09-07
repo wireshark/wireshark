@@ -78,7 +78,7 @@ extern void nstime_sum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
  * a = b : 0
  * a < b : < 0
  */
-extern int nstime_cmp(nstime_t *a, const nstime_t *b );
+extern int nstime_cmp (const nstime_t *a, const nstime_t *b );
 
 /* converts nstime to double, time base is milli seconds */
 extern double nstime_to_msec(const nstime_t *nstime);

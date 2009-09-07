@@ -138,7 +138,7 @@ void nstime_sum(nstime_t *sum, const nstime_t *a, const nstime_t *b)
  * a < b : < 0
  */
 
-int nstime_cmp (nstime_t *a, const nstime_t *b )
+int nstime_cmp (const nstime_t *a, const nstime_t *b )
 {
     if (a->secs == b->secs) {
         return a->nsecs - b->nsecs;
