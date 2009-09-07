@@ -6824,7 +6824,7 @@ dtap_rr_cip_mode_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * 9.1.10 Ciphering Mode Complete
  */
-static void
+void
 dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
     guint32	curr_offset;

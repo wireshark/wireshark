@@ -2182,8 +2182,9 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	 */
 	l3_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 
-	call_dissector(dtap_handle, l3_tvb, g_pinfo, g_tree);
-
+    /* although not obvious in 48.008, the L3 contents here are 
+       the contents of the 44.018 CIPHER MODE COMPLETE PDU */
+    dtap_rr_cip_mode_cpte(l3_tvb, tree, 0, len);
 	curr_offset += len;
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
