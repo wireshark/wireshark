@@ -591,7 +591,7 @@ static void dissect_homeplug_vs(ptvcursor_t * cursor)
   ptvcursor_push_subtree(cursor, it, ett_homeplug_vs);
     ptvcursor_add(cursor, hf_homeplug_vs_oui, 3, FALSE);
 
-    it = ptvcursor_add_no_advance(cursor, hf_homeplug_vs_mid, 0, FALSE);
+    it = ptvcursor_add_no_advance(cursor, hf_homeplug_vs_mid, 1, FALSE);
     mid = tvb_get_guint8(ptvcursor_tvbuff(cursor),
         ptvcursor_current_offset(cursor)) & HOMEPLUG_VS_MID;
 
@@ -1548,7 +1548,7 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_cer_rsvd1,
       { "Reserved", "homeplug.cer.rsvd1",
-      FT_UINT8, BASE_DEC, NULL, HOMEPLUG_CER_RSVD, NULL, HFILL }
+      FT_UINT16, BASE_DEC, NULL, HOMEPLUG_CER_RSVD, NULL, HFILL }
     },
 
     { &hf_homeplug_cer_rxtmi,
@@ -1744,7 +1744,7 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_loader_length,
       { "Length", "homeplug.loader.length",
-      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_status,
