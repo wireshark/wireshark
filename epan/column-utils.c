@@ -1157,7 +1157,7 @@ col_set_time(column_info *cinfo, gint el, nstime_t *ts, char *fieldname)
 }
 
 static void
-col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
+col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res _U_,
          gboolean is_src)
 {
   struct e_in6_addr ipv6_addr;
