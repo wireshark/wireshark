@@ -1004,6 +1004,33 @@ static const gchar *solve_address_to_name(address *addr)
   }
 }
 
+static const gchar *se_solve_address_to_name(address *addr)
+{
+  switch (addr->type) {
+
+  case AT_ETHER:
+    return get_ether_name(addr->data);
+
+  case AT_IPv4: {
+    guint32 ipv4_addr;
+    memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
+    return get_hostname(ipv4_addr);
+  }
+
+  case AT_IPv6: {
+    struct e_in6_addr ipv6_addr;
+    memcpy(&ipv6_addr.bytes, addr->data, sizeof ipv6_addr.bytes);
+    return get_hostname6(&ipv6_addr);
+  }
+
+  case AT_STRINGZ:
+    return se_strdup(addr->data);
+
+  default:
+    return NULL;
+  }
+}
+
 /*
  * Ethernet / manufacturer resolution
  *
@@ -2683,28 +2710,45 @@ extern gchar *get_sctp_port(guint port)
 
 } /* get_sctp_port */
 
-
 const gchar *get_addr_name(address *addr)
 {
   const gchar *result;
 
   result = solve_address_to_name(addr);
 
-  if (result!=NULL){
-	  return result;
-  }
+  if (result != NULL)
+      return result;
 
   /* if it gets here, either it is of type AT_NONE, */
-  /* or it should be solvable in se_address_to_str -unless addr->type is wrongly defined- */
+  /* or it should be solvable in address_to_str -unless addr->type is wrongly defined */
 
   if (addr->type == AT_NONE){
-	  return "NONE";
+      return "NONE";
+  }
+
+  /* We need an ephemeral allocated string */
+  return ep_address_to_str(addr);
+}
+
+const gchar *se_get_addr_name(address *addr)
+{
+  const gchar *result;
+
+  result = se_solve_address_to_name(addr);
+
+  if (result != NULL)
+      return result;
+
+  /* if it gets here, either it is of type AT_NONE, */
+  /* or it should be solvable in se_address_to_str -unless addr->type is wrongly defined */
+
+  if (addr->type == AT_NONE){
+      return "NONE";
   }
 
   /* We need a "permanently" allocated string */
-  return(se_address_to_str(addr));
-} /* get_addr_name */
-
+  return se_address_to_str(addr);
+}
 
 void get_addr_name_buf(address *addr, gchar *buf, gsize size)
 {
