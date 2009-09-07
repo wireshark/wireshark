@@ -42,17 +42,23 @@
 #  ADNS_FOUND       - True if adns found.
 
 #Includes
-FIND_PATH(ADNS_INCLUDE_DIR adns.h
-  /usr/local/include
-  /usr/include
+FIND_PATH(ADNS_INCLUDE_DIR
+  NAMES
+    adns.h
+  PATHS
+    /usr/local/include
+    /usr/include
 )
 
 SET(ADNS_INCLUDE_DIRS ${ADNS_INCLUDE_DIR})
 
 #Library
 FIND_LIBRARY(ADNS_LIBRARY
-  NAMES adns
-  PATHS /usr/lib /usr/local/lib
+  NAMES
+    adns
+  PATHS
+    /usr/lib
+    /usr/local/lib
 )
 
 SET(ADNS_LIBRARIES ${ADNS_LIBRARY})
@@ -63,7 +69,17 @@ IF(ADNS_INCLUDE_DIR AND ADNS_LIBRARY)
 ENDIF(ADNS_INCLUDE_DIR AND ADNS_LIBRARY)
 
 
+if (ADNS_FOUND)
+  if (NOT ADNS_FIND_QUIETLY)
+    message(STATUS "Found ADNS: ${ADNS_LIBRARIES}")
+  endif (NOT ADNS_FIND_QUIETLY)
+else (ADNS_FOUND)
+  if (ADNS_FIND_REQUIRED)
+    message(FATAL_ERROR "Could not find ADNS")
+  endif (ADNS_FIND_REQUIRED)
+endif (ADNS_FOUND)
+
 MARK_AS_ADVANCED(
-  ADNS_LIBRARY
-  ADNS_INCLUDE_DIR
+  ADNS_LIBRARIES
+  ADNS_INCLUDE_DIRS
 )

@@ -25,12 +25,6 @@ project(wireshark C)
 
 cmake_minimum_required(VERSION 2.6)
 
-subdirs(
-#	epan
-	wiretap
-	wsutil
-)
-
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 INCLUDE(UseLemon)
@@ -47,8 +41,13 @@ include(CMakeInstallDirs)
 
 include_directories(
 	${CMAKE_BINARY_DIR}
+	${CMAKE_BINARY_DIR}/epan
 	${CMAKE_SOURCE_DIR}
-#	${CMAKE_SOURCE_DIR}/include
+	${CMAKE_SOURCE_DIR}/epan
+	${CMAKE_SOURCE_DIR}/epan/dfilter
+	${CMAKE_SOURCE_DIR}/epan/dissectors
+	${CMAKE_SOURCE_DIR}/epan/ftypes
+	${CMAKE_SOURCE_DIR}/tools/lemon
 	${CMAKE_SOURCE_DIR}/wiretap
 	${CMAKE_SOURCE_DIR}/wsutil
 )
@@ -90,11 +89,7 @@ else()
 endif()
 
 #The minimum package list
-if(WIN32)
-	set(PACKAGELIST WSWIN32 LEX YACC Perl ${PACKAGELIST})
-else()
-	set(PACKAGELIST GLIB2 PCAP LEX YACC Perl ${PACKAGELIST})
-endif()
+set(PACKAGELIST GLIB2 PCAP LEX YACC Perl PythonInterp HtmlViewer ${PACKAGELIST})
 
 #Build the gui ?
 if(BUILD_wireshark)
@@ -104,7 +99,6 @@ endif()
 #Gnu asynchronous DNS
 if(ENABLE_ADNS)
 	set(PACKAGELIST ADNS ${PACKAGELIST})
-	set(HAVE_GNU_ADNS 1)
 endif()
 
 set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
@@ -123,6 +117,11 @@ foreach(PACKAGE ${PACKAGELIST})
 		message(STATUS "${PACKAGE} lib ${${PACKAGE}_LIBRARIES}")
 	endif()
 endforeach()
+
+# Hack for now
+if(HAVE_LIBADNS)
+	set(HAVE_GNU_ADNS 1)
+endif()
 
 #packaging
 set(CPACK_PACKAGE_NAME wireshark)
@@ -169,6 +168,10 @@ if(WIN32)
 endif()
 
 
+add_subdirectory( epan )
+add_subdirectory( wiretap )
+add_subdirectory( wsutil )
+
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
 
 link_directories(
@@ -180,8 +183,7 @@ link_directories(
 ADD_CUSTOM_COMMAND(
 	OUTPUT ${CMAKE_BINARY_DIR}/svnversion.h
 	COMMAND ${PERL} ${CMAKE_SOURCE_DIR}/make-version.pl
-	ARGS
-	${CMAKE_SOURCE_DIR}
+	  ${CMAKE_SOURCE_DIR}
 )
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/svnversion.h GENERATED)
 

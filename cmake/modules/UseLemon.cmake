@@ -9,9 +9,8 @@ MACRO(ADD_LEMON_FILES _sources )
       ADD_CUSTOM_COMMAND(
          OUTPUT ${_out}
          COMMAND ${CMAKE_BINARY_DIR}/lemon
-         ARGS
-         t=${_lemonpardir}/lempar.c
-         ${srcdir}/${_in}
+           t=${_lemonpardir}/lempar.c
+           ${srcdir}/${_in}
          DEPENDS ${_in}
       )
 

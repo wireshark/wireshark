@@ -43,10 +43,9 @@ MACRO(ADD_LEX_FILES _sources )
         OUTPUT ${_outc}
 #       COMMAND ${LEX_EXECUTABLE}
         COMMAND ${CMAKE_SOURCE_DIR}/tools/runlex.sh ${LEX_EXECUTABLE}
-        ARGS
-        -o${_outc}
-        --header-file=${_outh}
-        ${_in}
+          -o${_outc}
+          --header-file=${_outh}
+          ${_in}
         DEPENDS ${_in}
       )
 

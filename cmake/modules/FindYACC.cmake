@@ -40,11 +40,10 @@ MACRO(ADD_YACC_FILES _sources )
       ADD_CUSTOM_COMMAND(
          OUTPUT ${_out}
          COMMAND ${YACC_EXECUTABLE}
-         ARGS
-         -d
-         -p ${_basename}
-         -o${_out}
-         ${_in}
+           -d
+           -p ${_basename}
+           -o${_out}
+           ${_in}
          DEPENDS ${_in}
       )
 
