@@ -364,12 +364,9 @@ profile_bar_new(void)
 /*
  * update the packets statusbar to the current values
  */
-void 
+void
 packets_bar_update(void)
 {
-
-gulong     computed_elapsed = cf_get_computed_elapsed();
-
     if(packets_bar) {
         /* remove old status */
         if(packets_str) {
@@ -383,6 +380,8 @@ gulong     computed_elapsed = cf_get_computed_elapsed();
                 packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Dropped: %u",
                     cfile.count, cfile.displayed_count, cfile.marked_count, cfile.drops);
             } else {
+                gulong computed_elapsed = cf_get_computed_elapsed();
+
                 packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u  Time: %02lu:%02lu:%02lu.%03lu",
                     cfile.count, cfile.displayed_count, cfile.marked_count,
                     computed_elapsed/3600000,

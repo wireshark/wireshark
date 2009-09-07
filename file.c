@@ -243,6 +243,29 @@ cf_timestamp_auto_precision(capture_file *cf)
 #endif
 }
 
+gulong
+cf_get_computed_elapsed(void)
+{
+    return computed_elapsed;
+}
+
+static void reset_elapsed(void)
+{
+    computed_elapsed = 0;
+}
+
+static void compute_elapsed(GTimeVal *start_time)
+{
+    gdouble    delta_time;
+    GTimeVal   time_now;
+
+    g_get_current_time(&time_now);
+
+    delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
+    time_now.tv_usec - start_time->tv_usec;
+
+    computed_elapsed = (gulong) (delta_time / 1000); /* ms*/
+}
 
 cf_status_t
 cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
@@ -279,6 +302,8 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   /* If it's a temporary capture buffer file, mark it as not saved. */
   cf->user_saved = !is_tempfile;
+
+  reset_elapsed();
 
   cf->cd_t        = wtap_file_type(cf->wth);
   cf->count     = 0;
@@ -426,23 +451,6 @@ cf_close(capture_file *cf)
 void outofmemory_cb(gpointer dialog _U_, gint btn _U_, gpointer data _U_)
 {
     main_window_exit();
-}
-
-gulong
-cf_get_computed_elapsed(void){
-	return computed_elapsed;
-}
-static void  compute_elapsed(GTimeVal *start_time)
-{
-      gdouble    delta_time;
-      GTimeVal   time_now;
-
-      g_get_current_time(&time_now);
-
-      delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
-		time_now.tv_usec - start_time->tv_usec;
-
-	  computed_elapsed = (gulong) (delta_time / 1000); /* ms*/
 }
 
 static float calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos){
@@ -1749,6 +1757,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   /* We don't yet know which will be the first and last frames displayed. */
   cf->first_displayed = NULL;
   cf->last_displayed = NULL;
+
+  reset_elapsed();
 
   /* We currently don't display any packets */
   cf->displayed_count = 0;
