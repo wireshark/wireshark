@@ -977,24 +977,24 @@ static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 }
 #endif
 
-/* --------------------------- */
 static const gchar *solve_address_to_name(address *addr)
 {
-  guint32 ipv4_addr;
-  struct e_in6_addr ipv6_addr;
-
   switch (addr->type) {
 
   case AT_ETHER:
     return get_ether_name(addr->data);
 
-  case AT_IPv4:
+  case AT_IPv4: {
+    guint32 ipv4_addr;
     memcpy(&ipv4_addr, addr->data, sizeof ipv4_addr);
     return get_hostname(ipv4_addr);
+  }
 
-  case AT_IPv6:
+  case AT_IPv6: {
+    struct e_in6_addr ipv6_addr;
     memcpy(&ipv6_addr.bytes, addr->data, sizeof ipv6_addr.bytes);
     return get_hostname6(&ipv6_addr);
+  }
 
   case AT_STRINGZ:
     return addr->data;
@@ -1002,8 +1002,7 @@ static const gchar *solve_address_to_name(address *addr)
   default:
     return NULL;
   }
-} /* solve_address_to_name */
-
+}
 
 /*
  * Ethernet / manufacturer resolution
