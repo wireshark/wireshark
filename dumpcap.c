@@ -273,12 +273,7 @@ static void capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
 static void capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
 			  int err, gboolean is_close);
 
-
-#if __GNUC__ >= 2
-static void exit_main(int err) __attribute__ ((noreturn));
-#else
-static void exit_main(int err);
-#endif
+static void exit_main(int err) G_GNUC_NORETURN;
 
 static void report_new_capture_file(const char *filename);
 static void report_packet_count(int packet_count);
@@ -705,7 +700,7 @@ cap_pipe_adjust_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcapr
  * Iff the read is successful cap_pipe_read pushes an item onto
  * cap_pipe_done_q, otherwise an error is signaled. No data is passed in
  * the queues themselves (yet).
- * 
+ *
  * We might want to move some of the cap_pipe_dispatch logic here so that
  * we can let cap_pipe_read run independently, queuing up multiple reads
  * for the main thread (and possibly get rid of cap_pipe_read_mtx).
@@ -732,7 +727,7 @@ static void *cap_pipe_read(void *ld_ptr) {
             res = ReadFile(ld->cap_pipe_h, ld->cap_pipe_buf+bytes_read,
                            ld->cap_pipe_bytes_to_read - bytes_read,
                            &b, NULL);
-            
+
             bytes_read += b;
             if (!res) {
                 last_err = GetLastError();
@@ -1142,7 +1137,7 @@ cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
         result = PD_PIPE_ERR;
       break;
     }
-    ld->cap_pipe_bytes_read += b; 
+    ld->cap_pipe_bytes_read += b;
 #else /* USE_THREADS */
     g_get_current_time(&wait_time);
     g_time_val_add(&wait_time, THREAD_READ_TIMEOUT);
@@ -1466,7 +1461,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
       if (ld->cap_pipe_err == PIPNEXIST) {
         /* Pipe doesn't exist, so output message for interface */
-    
+
         /* If we got a "can't find PPA for X" message, warn the user (who
            is running (T)Wireshark on HP-UX) that they don't have a version
            of libpcap that properly handles HP-UX (libpcap 0.6.x and later
@@ -1647,7 +1642,7 @@ capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_d
   }
   if (ld->pdh) {
     gboolean successful;
-    
+
     ld->bytes_written = 0;
     if (capture_opts->use_pcapng) {
       char appname[100];
@@ -2186,7 +2181,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           if (ringbuf_switch_file(&global_ld.pdh, &capture_opts->save_file,
                                   &save_file_fd, &global_ld.err)) {
             gboolean successful;
-            
+
             /* File switch succeeded: reset the conditions */
             global_ld.bytes_written = 0;
             if (capture_opts->use_pcapng) {
@@ -2683,7 +2678,7 @@ main(int argc, char *argv[])
 
   /* Set handler for Ctrl+C key */
   SetConsoleCtrlHandler(capture_cleanup, TRUE);
-  
+
   /* Prepare to read from a pipe */
   if (!g_thread_supported ())
     g_thread_init (NULL);
@@ -2848,7 +2843,7 @@ main(int argc, char *argv[])
         status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
         if(status != 0) {
           exit_main(status);
-        } 
+        }
         break;
       /*** hidden option: Wireshark child mode (using binary output messages) ***/
       case 'Z':

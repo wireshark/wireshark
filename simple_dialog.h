@@ -26,6 +26,8 @@
 #ifndef __DIALOG_H__
 #define __DIALOG_H__
 
+#include <epan/gnuc_format_check.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -37,7 +39,7 @@ extern "C" {
 
 
 /** Dialog types. */
-typedef enum { 
+typedef enum {
     ESD_TYPE_INFO,          /**< tells the user something they should know, but not requiring
                                     any action; the only button should be "OK" */
     ESD_TYPE_WARN,          /**< tells the user about a problem; the only button should be "OK" */
@@ -50,21 +52,21 @@ typedef enum {
 /** display no buttons at all */
 #define ESD_BTN_NONE   0x00
 /** display an "Ok" button */
-#define ESD_BTN_OK     0x01 
+#define ESD_BTN_OK     0x01
 /** display a "Cancel" button */
-#define ESD_BTN_CANCEL 0x02 
+#define ESD_BTN_CANCEL 0x02
 /** display a "Yes" button */
-#define ESD_BTN_YES    0x04 
+#define ESD_BTN_YES    0x04
 /** display a "No" button */
-#define ESD_BTN_NO     0x08 
+#define ESD_BTN_NO     0x08
 /** display a "Clear" button */
 #define ESD_BTN_CLEAR  0x10
 /** display a "Save" button */
 #define ESD_BTN_SAVE   0x20
 /** display a "Continue without Saving" button */
-#define ESD_BTN_DONT_SAVE 0x40 
+#define ESD_BTN_DONT_SAVE 0x40
 /** display a "Quit without Saving" button */
-#define ESD_BTN_QUIT_DONT_SAVE 0x80 
+#define ESD_BTN_QUIT_DONT_SAVE 0x80
 
 /** Standard button combination "Ok" + "Cancel". */
 #define ESD_BTNS_OK_CANCEL	(ESD_BTN_OK|ESD_BTN_CANCEL)
@@ -77,7 +79,6 @@ typedef enum {
 /** Standard button combination "Quit without saving" + "Cancel" + "Save". */
 #define ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL (ESD_BTN_QUIT_DONT_SAVE|ESD_BTN_CANCEL|ESD_BTN_SAVE)
 
-#if __GNUC__ >= 2
 /** Create and show a simple dialog.
  *
  * @param type type of dialog
@@ -88,7 +89,7 @@ typedef enum {
  */
 extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
     const gchar *msg_format, ...)
-    __attribute__((format (printf, 3, 4)));
+    GNUC_FORMAT_CHECK(printf, 3, 4);
 /** Create and show a simple dialog using a va_list.
  *
  * @param type type of dialog
@@ -99,28 +100,6 @@ extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
  */
 extern gpointer vsimple_dialog(ESD_TYPE_E type, gint btn_mask,
    const gchar *msg_format, va_list ap);
-#else
-/** Create and show a simple dialog.
- *
- * @param type type of dialog
- * @param btn_mask the buttons to display
- * @param msg_format printf like message format
- * @param ... printf like parameters
- * @return the newly created dialog
- */
-extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
-    const gchar *msg_format, ...);
-/** Create and show a simple dialog using a va_list.
- *
- * @param type type of dialog
- * @param btn_mask the buttons to display
- * @param msg_format printf like message format
- * @param ap parameters
- * @return the newly created dialog
- */
-extern gpointer vsimple_dialog(ESD_TYPE_E type, gint btn_mask,
-    const gchar *msg_format, va_list ap);
-#endif
 
 /** Callback function type for simple_dialog_set_cb() */
 typedef void (* simple_dialog_cb_t) (gpointer dialog, gint btn, gpointer data);
@@ -140,25 +119,25 @@ extern void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fc
 extern void simple_dialog_close(gpointer dialog);
 
 /** Add a check button to the dialog (e.g. "Don't show this message again")
- * 
+ *
  * @param dialog the dialog from simple_dialog()
- * @param text the text to display 
+ * @param text the text to display
  */
 extern void simple_dialog_check_set(gpointer dialog, gchar *text);
 
 /** Get the check buttons state.
- * 
+ *
  * @param dialog the dialog from simple_dialog()
  * @return current button state (TRUE is checked)
  */
 extern gboolean simple_dialog_check_get(gpointer dialog);
 
-/** Surround the primary dialog message text by 
+/** Surround the primary dialog message text by
  *  simple_dialog_primary_start() and simple_dialog_primary_end().
  *  To highlight the first sentence (will take effect on GTK2 only).
  */
 extern char *simple_dialog_primary_start(void);
-/** Surround the primary dialog message text by 
+/** Surround the primary dialog message text by
  *  simple_dialog_primary_start() and simple_dialog_primary_end().
  *  To highlight the first sentence (will take effect on GTK2 only).
  */

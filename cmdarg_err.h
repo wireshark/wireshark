@@ -29,25 +29,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include <epan/gnuc_format_check.h>
+
 /*
  * Report an error in command-line arguments.
  */
-#if __GNUC__ >= 2
 extern void cmdarg_err(const char *fmt, ...)
-    __attribute__((format (printf, 1, 2)));
-#else
-extern void cmdarg_err(const char *fmt, ...);
-#endif
+    GNUC_FORMAT_CHECK(printf, 1, 2);
 
 /*
  * Report additional information for an error in command-line arguments.
  */
-#if __GNUC__ >= 2
 extern void cmdarg_err_cont(const char *fmt, ...)
-    __attribute__((format (printf, 1, 2)));
-#else
-extern void cmdarg_err_cont(const char *fmt, ...);
-#endif
+    GNUC_FORMAT_CHECK(printf, 1, 2);
 
 #ifdef __cplusplus
 }
