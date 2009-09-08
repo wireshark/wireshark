@@ -607,8 +607,11 @@ fileopen_dir_changed_cb(GtkWidget *fileopen_entry _U_, GdkEvent *event _U_, gpoi
 	if (fileopen_dir_te_length == 0)
 		return FALSE;
 	lastchar = gtk_editable_get_chars(GTK_EDITABLE(fileopen_entry), fileopen_dir_te_length-1, -1);
-	if (strcmp(lastchar, G_DIR_SEPARATOR_S) != 0)
-		gtk_entry_append_text(GTK_ENTRY(fileopen_entry), G_DIR_SEPARATOR_S);
+	if (strcmp(lastchar, G_DIR_SEPARATOR_S) != 0){
+		gtk_editable_insert_text(GTK_EDITABLE(fileopen_entry), G_DIR_SEPARATOR_S,
+            1, /* new_text_length */
+            &fileopen_dir_te_length); /* *position */
+	}
 	return FALSE;
 }
 
