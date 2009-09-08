@@ -1,4 +1,4 @@
-﻿
+
 
 Original Author
 -------- ------
@@ -2317,6 +2317,26 @@ Francesco Fondelli	<francesco.fondelli [AT] gmail.com> {
 	enhanced "what's past last MPLS label?" heuristic
 	Ethernet PW (with/without CW) support, RFC 4448
 	ATM PW (with/without CW) support, RFC 4717
+}
+
+Artem Tamazov           <artem.tamazov [AT] tellabs.com> {
+	Frame Relay PW in MPLS PSN, FR DLCI mode, RFC 4619
+	SAToP PW in MPLS PSN, no RTP headers, RFC 4553
+	SAToP PW in IP PSN/UDP demux, no RTP headers, RFC 4553
+	CESoPSN PW in MPLS PSN, Basic NxDS0 mode, no RTP headers, RFC 5086
+	CESoPSN PW in IP PSN/UDP demux, Basic NxDS0 mode, no RTP headers, RFC 5086
+	ATM PW in MPLS PSN, RFC 4717
+	LLC SNAP auto-detection in ATM decoder
+	"Raw" BFD support in MPLS PW Associated Channel, RFC 4385
+}
+
+Dmitry Trebich          <dmitry.trebich [AT] gmail.com> {
+	Preference for selecting default dissector for MPLS payloads.
+	HDLC PW in MPLS PSN, HDLC mode (no CW) with PPP payload, RFC 4618 5.1
+	HDLC PW in MPLS PSN, FR port mode (no CW), RFC 4618 5.2
+	Frame Relay PW in MPLS PSN, FR DLCI mode, RFC 4619
+	SAToP PW in MPLS PSN, no RTP headers, RFC 4553
+	CESoPSN PW in MPLS PSN, Basic NxDS0 mode, no RTP headers, RFC 5086
 }
 
 Bill Meier		<wmeier [AT] newsguy.com> {
