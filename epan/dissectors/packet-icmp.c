@@ -729,12 +729,12 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       code_str = val_to_str (icmp_code, photuris_code_str, "Unknown code: %u");
       break;
     default:
-      code_str = "";
+      code_str = NULL;
       break;
   }
 
   col_set_str(pinfo->cinfo, COL_INFO, type_str);
-  if (code_str[0] != '\0')
+  if (code_str)
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", code_str);
 
   length = tvb_length(tvb);
@@ -742,14 +742,13 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   ti = proto_tree_add_item(tree, proto_icmp, tvb, 0, length, FALSE);
   icmp_tree = proto_item_add_subtree(ti, ett_icmp);
-  proto_tree_add_uint_format(icmp_tree, hf_icmp_type, tvb, 0, 1,
-			     icmp_type,
-			     "Type: %u (%s)",
-			     icmp_type, type_str);
-  proto_tree_add_uint_format(icmp_tree, hf_icmp_code, tvb, 1, 1,
-			     icmp_code,
-			     "Code: %u (%s)",
-			     icmp_code, code_str);
+
+  ti = proto_tree_add_item(icmp_tree, hf_icmp_type, tvb, 0, 1, FALSE);
+  proto_item_append_text (ti, " (%s)", type_str);
+
+  ti = proto_tree_add_item(icmp_tree, hf_icmp_code, tvb, 1, 1, FALSE);
+  if (code_str)
+    proto_item_append_text (ti, " (%s)", code_str);
 
   if (!pinfo->fragmented && length >= reported_length) {
     /* The packet isn't part of a fragmented datagram and isn't
@@ -913,7 +912,7 @@ proto_register_icmp(void)
         NULL, HFILL }},
 
     { &hf_icmp_code,
-      { "Code",         "icmp.code",            FT_UINT8, BASE_HEX,     NULL, 0x0,
+      { "Code",         "icmp.code",            FT_UINT8, BASE_DEC,     NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_icmp_checksum,
@@ -965,43 +964,43 @@ proto_register_icmp(void)
         NULL, HFILL}},
 
     { &hf_icmp_mip_r,
-      { "Registration Required", "icmp.mip.r", FT_BOOLEAN, 16, NULL, 32768,
+      { "Registration Required", "icmp.mip.r", FT_BOOLEAN, 16, NULL, 0x8000,
         "Registration with this FA is required", HFILL }},
 
     { &hf_icmp_mip_b,
-      { "Busy", "icmp.mip.b", FT_BOOLEAN, 16, NULL, 16384,
+      { "Busy", "icmp.mip.b", FT_BOOLEAN, 16, NULL, 0x4000,
         "This FA will not accept requests at this time", HFILL }},
 
     { &hf_icmp_mip_h,
-      { "Home Agent", "icmp.mip.h", FT_BOOLEAN, 16, NULL, 8192,
+      { "Home Agent", "icmp.mip.h", FT_BOOLEAN, 16, NULL, 0x2000,
         "Home Agent Services Offered", HFILL }},
 
     { &hf_icmp_mip_f,
-      { "Foreign Agent", "icmp.mip.f", FT_BOOLEAN, 16, NULL, 4096,
+      { "Foreign Agent", "icmp.mip.f", FT_BOOLEAN, 16, NULL, 0x1000,
         "Foreign Agent Services Offered", HFILL }},
 
     { &hf_icmp_mip_m,
-      { "Minimal Encapsulation", "icmp.mip.m", FT_BOOLEAN, 16, NULL, 2048,
+      { "Minimal Encapsulation", "icmp.mip.m", FT_BOOLEAN, 16, NULL, 0x0800,
         "Minimal encapsulation tunneled datagram support", HFILL }},
 
     { &hf_icmp_mip_g,
-      { "GRE", "icmp.mip.g", FT_BOOLEAN, 16, NULL, 1024,
+      { "GRE", "icmp.mip.g", FT_BOOLEAN, 16, NULL, 0x0400,
         "GRE encapsulated tunneled datagram support", HFILL }},
 
     { &hf_icmp_mip_v,
-      { "VJ Comp", "icmp.mip.v", FT_BOOLEAN, 16, NULL, 512,
+      { "VJ Comp", "icmp.mip.v", FT_BOOLEAN, 16, NULL, 0x0200,
         "Van Jacobson Header Compression Support", HFILL }},
 
     { &hf_icmp_mip_rt,
-      { "Reverse tunneling", "icmp.mip.rt", FT_BOOLEAN, 16, NULL, 256,
+      { "Reverse tunneling", "icmp.mip.rt", FT_BOOLEAN, 16, NULL, 0x0100,
        "Reverse tunneling support", HFILL }},
 
     { &hf_icmp_mip_u,
-      { "UDP tunneling", "icmp.mip.u", FT_BOOLEAN, 16, NULL, 128,
+      { "UDP tunneling", "icmp.mip.u", FT_BOOLEAN, 16, NULL, 0x0080,
        "UDP tunneling support", HFILL }},
 
     { &hf_icmp_mip_x,
-      { "Revocation support", "icmp.mip.x", FT_BOOLEAN, 16, NULL, 64,
+      { "Revocation support", "icmp.mip.x", FT_BOOLEAN, 16, NULL, 0x0040,
        "Registration revocation support", HFILL }},
 
 
