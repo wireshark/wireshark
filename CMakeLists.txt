@@ -77,16 +77,20 @@ if(ENABLE_EXTRA_GCC_CHECKS)
 		  -pedantic -Wstrict-prototypes -Wmissing-declarations -Wwrite-strings)
 endif()
 
+add_definitions(
+	-DHAVE_CONFIG_H
+	-DPACKAGE=\"wireshark\"
+	-DNEW_PACKET_LIST
+)
+
 if(CMAKE_COMPILER_IS_GNUCC)
 	add_definitions(
-		-DHAVE_CONFIG_H
 		-D_U_=__attribute__\(\(unused\)\)
-		-DPACKAGE=\"wireshark\"
 		-Wall -Wpointer-arith -W
 		${WIRESHARK_EXTRA_GCC_FLAGS}
 	)
 else()
-	add_definitions(-DPACKAGE=\"wireshark\" -DHAVE_CONFIG_H -D_U_=\"\")
+	add_definitions(-D_U_=\"\")
 endif()
 
 #The minimum package list
