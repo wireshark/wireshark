@@ -123,10 +123,11 @@
 /***************************************************************************/
 /* Application Layer Bit-Masks */
 /***************************************************************************/
+#define DNP3_AL_UNS   0x10
 #define DNP3_AL_CON   0x20
 #define DNP3_AL_FIN   0x40
 #define DNP3_AL_FIR   0x80
-#define DNP3_AL_SEQ   0x1f
+#define DNP3_AL_SEQ   0x0f
 #define DNP3_AL_FUNC  0xff
 
 /***************************************************************************/
@@ -489,6 +490,7 @@ static int hf_dnp3_al_ctl = -1;
 static int hf_dnp3_al_fir = -1;
 static int hf_dnp3_al_fin = -1;
 static int hf_dnp3_al_con = -1;
+static int hf_dnp3_al_uns = -1;
 static int hf_dnp3_al_seq = -1;
 static int hf_dnp3_al_func = -1;
 /* Added for Application Layer Decoding */
@@ -2084,7 +2086,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8        al_ctl, al_seq, al_func, al_class = 0, i;
   guint16       bytes, obj_type;
-  gboolean      al_fir, al_fin, al_con;
+  gboolean      al_fir, al_fin, al_con, al_uns;
   guint         data_len = 0, offset = 0;
   proto_item   *ti = NULL, *tc, *t_robj;
   proto_tree   *al_tree = NULL, *field_tree = NULL, *robj_tree = NULL;
@@ -2098,6 +2100,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   al_fir = al_ctl & DNP3_AL_FIR;
   al_fin = al_ctl & DNP3_AL_FIN;
   al_con = al_ctl & DNP3_AL_CON;
+  al_uns = al_ctl & DNP3_AL_UNS;
   al_func = tvb_get_guint8(tvb, (offset+1));
   func_code_str = val_to_str(al_func, dnp3_al_func_vals, "Unknown function (0x%02x)");
 
@@ -2121,12 +2124,14 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (al_ctl & DNP3_AL_FIR)  proto_item_append_text(tc, "FIR, ");
   if (al_ctl & DNP3_AL_FIN)  proto_item_append_text(tc, "FIN, ");
   if (al_ctl & DNP3_AL_CON)  proto_item_append_text(tc, "CON, ");
+  if (al_ctl & DNP3_AL_UNS)  proto_item_append_text(tc, "UNS, ");
   proto_item_append_text(tc, "Sequence %u)", al_seq);
 
   field_tree = proto_item_add_subtree(tc, ett_dnp3_al_ctl);
   proto_tree_add_boolean(field_tree, hf_dnp3_al_fir, tvb, offset, 1, al_ctl);
   proto_tree_add_boolean(field_tree, hf_dnp3_al_fin, tvb, offset, 1, al_ctl);
   proto_tree_add_boolean(field_tree, hf_dnp3_al_con, tvb, offset, 1, al_ctl);
+  proto_tree_add_boolean(field_tree, hf_dnp3_al_uns, tvb, offset, 1, al_ctl);
   proto_tree_add_item(field_tree, hf_dnp3_al_seq, tvb, offset, 1, FALSE);
   offset += 1;
 
@@ -2728,6 +2733,9 @@ proto_register_dnp3(void)
 
     { &hf_dnp3_al_con,
     { "Confirm", "dnp3.al.con", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_AL_CON, NULL, HFILL }},
+
+    { &hf_dnp3_al_uns,
+    { "Unsolicited", "dnp3.al.uns", FT_BOOLEAN, 8, TFS(&tfs_set_notset), DNP3_AL_UNS, NULL, HFILL }},
 
     { &hf_dnp3_al_seq,
     { "Sequence", "dnp3.al.seq", FT_UINT8, BASE_DEC, NULL, DNP3_AL_SEQ, "Frame Sequence Number", HFILL }},
