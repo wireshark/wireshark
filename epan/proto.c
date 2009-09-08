@@ -51,6 +51,9 @@
 
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
 #define SUBTREE_MAX_LEVELS 256
+/* Throw an exception if we exceed this many tree items. */
+/* XXX - This should probably be a preference */
+#define MAX_TREE_ITEMS (1 * 1000 * 1000)
 
 
 typedef struct __subtree_lvl {
@@ -96,12 +99,19 @@ wrs_count_bitshift(guint32 bitmask)
 	   We fake FT_PROTOCOL unless some clients have requested us    \
 	   not to do so. \
 	*/								\
-	if (!tree) \
-		return(NULL); \
-	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);	\
+	if (!tree)							\
+		return(NULL);						\
+	PTREE_DATA(tree)->count++;					\
+	if (PTREE_DATA(tree)->count > MAX_TREE_ITEMS) {			\
+		/* Let the exception handler add items to the tree */	\
+		PTREE_DATA(tree)->count = 0;				\
+		THROW_MESSAGE(DissectorError,				\
+			ep_strdup_printf("More than %d items in the tree -- possible infinite loop", MAX_TREE_ITEMS)); \
+	}								\
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);			\
 	if(!(PTREE_DATA(tree)->visible)){				\
 			if((hfinfo->ref_count != HF_REF_TYPE_DIRECT)	\
-			&& (hfinfo->type!=FT_PROTOCOL ||	\
+			&& (hfinfo->type!=FT_PROTOCOL ||		\
 				PTREE_DATA(tree)->fake_protocols)){	\
 				/* just return tree back to the caller */\
 				return tree;				\
@@ -2921,9 +2931,6 @@ proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 	return pi;
 }
 
-/* Throw an exception if we exceed this many tree items. */
-/* XXX - This should probably be a preference */
-#define MAX_TREE_ITEMS (1 * 1000 * 1000)
 /* Add a field_info struct to the proto_tree, encapsulating it in a proto_node */
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi)
@@ -2950,14 +2957,6 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 
 	DISSECTOR_ASSERT(tfi == NULL ||
 	    (tfi->tree_type >= 0 && tfi->tree_type < num_tree_types));
-
-	PTREE_DATA(tree)->count++;
-	if (PTREE_DATA(tree)->count > MAX_TREE_ITEMS) {
-		/* Let the exception handler add items to the tree */
-		PTREE_DATA(tree)->count = 0;
-		THROW_MESSAGE(DissectorError,
-			ep_strdup_printf("More than %d items in the tree -- possible infinite loop", MAX_TREE_ITEMS));
-	}
 
 	PROTO_NODE_NEW(pnode);
 	pnode->parent = tnode;
