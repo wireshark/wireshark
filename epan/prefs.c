@@ -1761,7 +1761,8 @@ try_convert_to_custom_column(gpointer *el_data)
         { COL_FR_DLCI, "fr.dlci" },
         { COL_REL_CONV_TIME, "tcp.time_relative" },
         { COL_DELTA_CONV_TIME, "tcp.time_delta" },
-        { COL_OXID, "fc.ox_id" }
+        { COL_OXID, "fc.ox_id" },
+        { COL_RXID, "fc.rx_id" }
     };
 
     guint haystack_idx;
