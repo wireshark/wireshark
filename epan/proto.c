@@ -3315,15 +3315,15 @@ proto_custom_set(proto_tree* tree, int field_id,
 		case FT_UINT_BYTES:
 		case FT_BYTES:
 			bytes = fvalue_get(&finfo->value);
-			g_snprintf(result, size, "%s", bytes_to_str(bytes, fvalue_length(&finfo->value)));
+			g_strlcpy(result, bytes_to_str(bytes, fvalue_length(&finfo->value)), size);
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			g_snprintf(result, size, "%s", abs_time_to_str(fvalue_get(&finfo->value)));
+			g_strlcpy(result, abs_time_to_str(fvalue_get(&finfo->value)), size);
 			break;
 
 		case FT_RELATIVE_TIME:
-			g_snprintf(result, size, "%s", rel_time_to_secs_str(fvalue_get(&finfo->value)));
+			g_strlcpy(result, rel_time_to_secs_str(fvalue_get(&finfo->value)), size);
 			break;
 
 		case FT_BOOLEAN:
@@ -3332,7 +3332,7 @@ proto_custom_set(proto_tree* tree, int field_id,
 			if (hfinfo->strings) {
 				tfstring = (const struct true_false_string*) hfinfo->strings;
 			}
-			g_snprintf(result, size, "%s", u_integer ? tfstring->true_string : tfstring->false_string);
+			g_strlcpy(result, u_integer ? tfstring->true_string : tfstring->false_string, size);
 			break;
 
 		case FT_UINT8:
@@ -3343,9 +3343,9 @@ proto_custom_set(proto_tree* tree, int field_id,
 			u_integer = fvalue_get_uinteger(&finfo->value);
 			if (hfinfo->strings) {
 				if (hfinfo->display & BASE_RANGE_STRING) {
-					g_snprintf(result, size, "%s", rval_to_str(u_integer, hfinfo->strings, "%u"));
+					g_strlcpy(result, rval_to_str(u_integer, hfinfo->strings, "%u"), size);
 				} else {
-					g_snprintf(result, size, "%s", val_to_str(u_integer, cVALS(hfinfo->strings), "%u"));
+					g_strlcpy(result, val_to_str(u_integer, cVALS(hfinfo->strings), "%u"), size);
 				}
 			} else if (IS_BASE_DUAL(hfinfo->display)) {
 				g_snprintf(result, size, hfinfo_uint_value_format(hfinfo), u_integer, u_integer);
@@ -3367,9 +3367,9 @@ proto_custom_set(proto_tree* tree, int field_id,
 			integer = fvalue_get_sinteger(&finfo->value);
 			if (hfinfo->strings) {
 				if (hfinfo->display & BASE_RANGE_STRING) {
-					g_snprintf(result, size, "%s", rval_to_str(integer, hfinfo->strings, "%d"));
+					g_strlcpy(result, rval_to_str(integer, hfinfo->strings, "%d"), size);
 				} else {
-					g_snprintf(result, size, "%s", val_to_str(integer, cVALS(hfinfo->strings), "%d"));
+					g_strlcpy(result, val_to_str(integer, cVALS(hfinfo->strings), "%d"), size);
 			}
 			} else if (IS_BASE_DUAL(hfinfo->display)) {
 				g_snprintf(result, size, hfinfo_int_value_format(hfinfo), integer, integer);
@@ -3381,20 +3381,20 @@ proto_custom_set(proto_tree* tree, int field_id,
 		case FT_IPv4:
 			ipv4 = fvalue_get(&finfo->value);
 			n_addr = ipv4_get_net_order_addr(ipv4);
-			g_snprintf(result, size, "%s", ip_to_str((guint8 *)&n_addr));
+			g_strlcpy(result, ip_to_str((guint8 *)&n_addr), size);
 			break;
 
 		case FT_ETHER:
-			g_snprintf(result, size, "%s", bytes_to_str_punct(fvalue_get(&finfo->value), 6, ':'));
+			g_strlcpy(result, bytes_to_str_punct(fvalue_get(&finfo->value), 6, ':'), size);
 			break;
 
 		case FT_GUID:
-			g_snprintf(result, size, "%s", guid_to_str((e_guid_t *)fvalue_get(&finfo->value)));
+			g_strlcpy(result, guid_to_str((e_guid_t *)fvalue_get(&finfo->value)), size);
 			break;
 
 		case FT_OID:
 			bytes = fvalue_get(&finfo->value);
-			g_snprintf(result, size, "%s", oid_resolved_from_encoded(bytes, fvalue_length(&finfo->value)));
+			g_strlcpy(result, oid_resolved_from_encoded(bytes, fvalue_length(&finfo->value)), size);
 			break;
 
 		case FT_FLOAT:
@@ -3405,12 +3405,12 @@ proto_custom_set(proto_tree* tree, int field_id,
 			g_snprintf(result, size, "%." STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
 			break;
 
-	        case FT_EBCDIC:
+		case FT_EBCDIC:
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
 			bytes = fvalue_get(&finfo->value);
-			g_snprintf(result, size,  "%s", format_text(bytes, strlen(bytes)));
+			g_strlcpy(result, format_text(bytes, strlen(bytes)), size);
 			break;
 
 		case FT_IPXNET: /*XXX really No column custom ?*/
@@ -3424,11 +3424,11 @@ proto_custom_set(proto_tree* tree, int field_id,
 		}
 
 		switch(hfinfo->type) {
-	        case FT_EBCDIC:
+		case FT_EBCDIC:
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
-        		g_snprintf(expr, size, "\"%s\"",result);
+			g_snprintf(expr, size, "\"%s\"",result);
 		default:
 			g_strlcpy(expr, result, size);
 			break;
