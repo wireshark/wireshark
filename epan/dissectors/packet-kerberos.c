@@ -383,7 +383,7 @@ static const char *keytab_filename = "insert filename here";
 #undef HAVE_STDARG_H
 #undef HAVE_SYS_TYPES_H
 #if (_MSC_VER <= 1200)
-/* #define _W64 */
+#define _W64
 #endif /* _MSC_VER */
 #endif /* _WIN32 */
 #include <krb5.h>
