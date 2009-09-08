@@ -974,6 +974,20 @@ set(DISSECTOR_SUPPORT_SRC
 	register.c
 )
 
+set(DISSECTOR_ASM_UTILS
+	asm_utils.c
+#	!IFDEF NASM
+#	asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
+#	        $(NASM) -f $(WIRESHARK_TARGET_PLATFORM) -o $@ $?
+#	!ENDIF
+#	...
+#	!IF defined(NASM) && "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
+#	        asm_utils_win32_x86.obj
+#	!ELSE
+#	        asm_utils.obj
+#	!ENDIF
+)
+
 set(DISSECTOR_FILES
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
@@ -1127,7 +1141,7 @@ add_lemon_files(LIBWIRESHARK_FILES
 	dtd_grammar.lemon
 )
 
-add_library(libwireshark SHARED
+add_library(wireshark SHARED
 	# Needed to trigger build of the include files for x11
 	x11-declarations.h
 	x11-register-info.h
@@ -1138,9 +1152,12 @@ add_library(libwireshark SHARED
 	${FTYPE_FILES}
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
+	${DISSECTOR_ASM_UTILS}
 )
 
-install(TARGETS libwireshark
+add_dependencies(wireshark lemon)
+
+install(TARGETS wireshark
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION lib
 	ARCHIVE DESTINATION lib

@@ -81,19 +81,25 @@ if(CMAKE_COMPILER_IS_GNUCC)
 	add_definitions(
 		-DHAVE_CONFIG_H
 		-D_U_=__attribute__\(\(unused\)\)
+		-DPACKAGE=\"wireshark\"
 		-Wall -Wpointer-arith -W
 		${WIRESHARK_EXTRA_GCC_FLAGS}
 	)
 else()
-	add_definitions(-DHAVE_CONFIG_H -D_U_=\"\")
+	add_definitions(-DPACKAGE=\"wireshark\" -DHAVE_CONFIG_H -D_U_=\"\")
 endif()
 
 #The minimum package list
-set(PACKAGELIST GLIB2 PCAP LEX YACC Perl PythonInterp HtmlViewer ${PACKAGELIST})
+set(PACKAGELIST GLIB2 PCAP MATH LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGELIST})
 
 #Build the gui ?
 if(BUILD_wireshark)
 	set(PACKAGELIST GTK2 ${PACKAGELIST})
+endif()
+
+# Regular expressions lib
+if(ENABLE_PCRE)
+	set(PACKAGELIST PCRE ${PACKAGELIST})
 endif()
 
 #Gnu asynchronous DNS
@@ -111,14 +117,11 @@ foreach(PACKAGE ${PACKAGELIST})
 		set(HAVE_LIB${PACKAGE} "1")
 		include_directories(${${PACKAGE}_INCLUDE_DIRS})
 		message(STATUS "${PACKAGE} include ${${PACKAGE}_INCLUDE_DIRS}")
-		foreach(PROG ${PROGLIST})
-#		set(${PROG}_LIBS ${${PROG}_LIBS} ${${PACKAGE}_LIBRARIES})
-		endforeach()
 		message(STATUS "${PACKAGE} lib ${${PACKAGE}_LIBRARIES}")
 	endif()
 endforeach()
 
-# Hack for now
+# Hack for now: compat with current configure stuff
 if(HAVE_LIBADNS)
 	set(HAVE_GNU_ADNS 1)
 endif()
@@ -181,11 +184,11 @@ link_directories(
 )
 
 ADD_CUSTOM_COMMAND(
-	OUTPUT ${CMAKE_BINARY_DIR}/svnversion.h
-	COMMAND ${PERL} ${CMAKE_SOURCE_DIR}/make-version.pl
-	  ${CMAKE_SOURCE_DIR}
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/svnversion.h
+	COMMAND ${PERL} ${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
+	  ${CMAKE_CURRENT_SOURCE_DIR}
 )
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/svnversion.h GENERATED)
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_BINARY_DIR}/svnversion.h GENERATED)
 
 # Create the necessary tools
 set(lemon_FILES
@@ -196,7 +199,30 @@ set(lemon_LIBS
 )
 add_executable(lemon ${lemon_FILES})
 target_link_libraries(lemon ${lemon_LIBS})
-# but don't install them
+# but don't install
+
+ADD_CUSTOM_COMMAND(
+	OUTPUT tshark-tap-register.c
+	COMMAND ${SHELL}
+	  ${CMAKE_SOURCE_DIR}/make-tapreg-dotc
+	  tshark-tap-register.c
+	  ${CMAKE_CURRENT_SOURCE_DIR}
+	  ${TSHARK_TAP_SRC}
+	DEPENDS
+	  ${CMAKE_SOURCE_DIR}/make-tapreg-dotc
+	  ${TSHARK_TAP_SRC}
+)
+
+ADD_CUSTOM_COMMAND(
+	OUTPUT ps.c
+	COMMAND ${PYTHON_EXECUTABLE}
+	  ${CMAKE_CURRENT_SOURCE_DIR}/rdps.py
+	  ${CMAKE_CURRENT_SOURCE_DIR}/print.ps
+	  ps.c
+	DEPENDS
+	  ${CMAKE_CURRENT_SOURCE_DIR}/rdps.py
+	  ${CMAKE_CURRENT_SOURCE_DIR}/print.ps
+)
 
 if(UNIX)
 	set(PLATFORM_SRC
@@ -210,24 +236,170 @@ if(WIN32)
 	)
 endif()
 
+set(WIRESHARK_COMMON_SRC
+	${PLATFORM_SRC}
+	capture_errs.c
+	capture-pcap-util.c
+	capture_ui_utils.c
+	cfile.c
+	clopts_common.c
+	disabled_protos.c
+	packet-range.c
+	print.c
+	ps.c
+	sync_pipe_write.c
+	timestats.c
+	util.c
+	tap-megaco-common.c
+	tap-rtp-common.c
+	version_info.c
+)
+
+set(TSHARK_TAP_SRC
+        tap-afpstat.c
+        tap-ansi_astat.c
+        tap-bootpstat.c
+        tap-camelcounter.c
+        tap-camelsrt.c
+        tap-comparestat.c
+        tap-dcerpcstat.c
+        tap-funnel.c
+        tap-gsm_astat.c
+        tap-h225counter.c
+        tap-h225rassrt.c
+        tap-httpstat.c
+        tap-iostat.c
+        tap-iousers.c
+        tap-mgcpstat.c
+        tap-megacostat.c
+        tap-protocolinfo.c
+        tap-protohierstat.c
+        tap-radiusstat.c
+        tap-rpcstat.c
+        tap-rpcprogs.c
+        tap-rtp.c
+        tap-sctpchunkstat.c
+        tap-sipstat.c
+        tap-smbsids.c
+        tap-smbstat.c
+        tap-stats_tree.c
+        tap-wspstat.c
+)
+
+set(LIBWIRESHARK_LIBS
+#		$(wireshark_optional_objects)
+		wiretap
+		wsutil
+		wireshark
+#		@INET_PTON_LO@
+#		@INET_NTOP_LO@
+#		@SSL_LIBS@
+#		$(plugin_ldadd)
+		${PCRE_LIBRARIES}
+		${GLIB2_LIBRARIES}
+		${MATH_LIBRARIES}
+		${PCAP_LIBRARIES}
+#		@SOCKET_LIBS@
+#		@NSL_LIBS@
+#		@C_ARES_LIBS@
+		${ADNS_LIBRARIES}
+#		@KRB5_LIBS@
+#		@FRAMEWORKS@
+#		@LIBGCRYPT_LIBS@
+#		@LIBGNUTLS_LIBS@
+#		@LIBSMI_LDFLAGS@
+)
+
 if(BUILD_wireshark)
 # todo
+	set(wireshark_LIBS
+#		gtk/libui.a
+#		codecs/libcodec.a
+		${PORTAUDIO_LIBS}
+		${GTK2_LIBS}
+		${LIBWIRESHARK_LIBS}
+	)
+	set(wireshark_FILES
+		airpcap_loader.c
+		alert_box.c
+		capture.c
+		capture_info.c
+		capture_opts.c
+		capture_sync.c
+		color_filters.c
+		file.c
+		fileset.c
+		filters.c
+		g711.c
+		merge.c
+		proto_hier_stats.c
+		summary.c
+		${WIRESHARK_COMMON_SRC}
+	)
 endif()
 
 if(BUILD_tshark)
-# todo
+	set(tshark_LIBS
+		${LIBWIRESHARK_LIBS}
+	)
+	set(tshark_FILES
+		capture_opts.c
+		capture_sync.c
+		tempfile.c
+		tshark-tap-register.c
+		tshark.c
+		${TSHARK_TAP_SRC}
+	        ${WIRESHARK_COMMON_SRC}
+	)
+	add_executable(tshark ${tshark_FILES})
+	target_link_libraries(tshark ${tshark_LIBS})
+	install(TARGETS tshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(BUILD_rawshark)
-# todo
-endif()
-
-if(BUILD_randpkt)
-# todo
+	set(rawshark_LIBS
+		${LIBWIRESHARK_LIBS}
+	)
+	set(rawshark_FILES
+	        ${WIRESHARK_COMMON_SRC}
+		rawshark.c
+	)
+	add_executable(rawshark ${rawshark_FILES})
+	target_link_libraries(rawshark ${rawshark_LIBS})
+	install(TARGETS rawshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(BUILD_dftest)
-# todo
+	set(dftest_LIBS
+		${LIBWIRESHARK_LIBS}
+	)
+	set(dftest_FILES
+		dftest.c
+		util.c
+	)
+	add_executable(dftest ${dftest_FILES})
+	target_link_libraries(dftest ${dftest_LIBS})
+	install(TARGETS dftest RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
+if(BUILD_randpkt)
+	set(randpkt_LIBS
+		wiretap
+		wsutil
+		${GLIB2_LIBRARIES}
+		${MATH_LIBRARIES}
+		${PCAP_LIBRARIES}
+#		@SOCKET_LIBS@
+#		@NSL_LIBS@
+#		@C_ARES_LIBS@
+		${ADNS_LIBRARIES}
+	)
+	set(randpkt_FILES
+		randpkt.c
+	)
+	add_executable(randpkt ${randpkt_FILES})
+	target_link_libraries(randpkt ${randpkt_LIBS})
+	install(TARGETS randpkt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(BUILD_text2pcap)
@@ -235,6 +407,7 @@ if(BUILD_text2pcap)
 		wiretap
 		wsutil
 		${GLIB2_LIBRARIES}
+		${MATH_LIBRARIES}
 	)
 	set(text2pcap_FILES
 		text2pcap.c
@@ -297,8 +470,16 @@ if(BUILD_dumpcap)
 	set(dumpcap_LIBS
 		wiretap
 		wsutil
+#		@INET_NTOP_LO@
 		${GLIB2_LIBRARIES}
 		${PCAP_LIBRARIES}
+#		@SOCKET_LIBS@
+#		@NSL_LIBS@
+#		@FRAMEWORKS@
+#		@LIBGCRYPT_LIBS@
+#		@LIBGNUTLS_LIBS@
+#		@LIBCAP_LIBS@
+
 	)
 	set(dumpcap_FILES
 		svnversion.h
