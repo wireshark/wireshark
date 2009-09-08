@@ -34,6 +34,7 @@
 
 #define GIOP_HEADER_SIZE    12
 #define GIOP_MAGIC 	 "GIOP"
+#define MIOP_MAGIC 	 "MIOP"
 
 typedef struct Version {
   guint8 major;

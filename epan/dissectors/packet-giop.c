@@ -3284,6 +3284,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   gchar *print_requesting_principal;
   guint8 response_expected;
   gchar *reserved;
+  gchar miop[4];
   proto_tree *request_tree = NULL;
   proto_item *tf;
 
@@ -3344,35 +3345,58 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
      g_free(reserved);
   }
 
+  /* Prior to GIOP 1.2, MIOP profile address prefixed with 'MIOP' */
 
+  miop[0] = get_CDR_octet (tvb, &offset);
+  miop[1] = get_CDR_octet (tvb, &offset);
+  miop[2] = get_CDR_octet (tvb, &offset);
+  miop[3] = get_CDR_octet (tvb, &offset);
 
-  /* Length of object_key sequence */
-  objkey_len = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
-
-
-  if(tree)
+  if (miop[0] == 'M' && miop[1] == 'I' && miop[2] == 'O' && miop[3] == 'P')
   {
-         proto_tree_add_text (request_tree, tvb, offset-4, 4,
-         /**/                 "Object Key length: %u", objkey_len);
-  }
+     if (tree)
+     {
+        proto_tree_add_text (request_tree, tvb, offset - 4, 4,
+			     "Magic number: %s", MIOP_MAGIC);
+     }
 
-  if (objkey_len > 0)
+     decode_TaggedProfile (tvb, pinfo, request_tree, &offset, GIOP_HEADER_SIZE,
+                           stream_is_big_endian, NULL);
+  }
+  else
   {
-	  get_CDR_octet_seq(tvb, &objkey, &offset, objkey_len);
+     /* Wind back if not MIOP profile */
 
-       if(tree)
-       {
-       proto_tree_add_item(request_tree, hf_giop_objekt_key, tvb, offset - objkey_len, objkey_len, FALSE);
+     offset -= 4;
 
-       }
+     /* Length of object_key sequence */
 
-  }
+     objkey_len = get_CDR_ulong (tvb, &offset, stream_is_big_endian,
+                                 GIOP_HEADER_SIZE);
 
-  /*
+     if (tree)
+     {
+        proto_tree_add_text (request_tree, tvb, offset-4, 4,
+                             "Object Key length: %u", objkey_len);
+     }
+
+     if (objkey_len > 0)
+     {
+        get_CDR_octet_seq(tvb, &objkey, &offset, objkey_len);
+
+        if(tree)
+        {
+           proto_tree_add_item (request_tree, hf_giop_objekt_key, tvb, 
+                                offset - objkey_len, objkey_len, FALSE);
+        }
+     }
+   }
+
+   /*
    * Register a cleanup function in case on of our tvbuff accesses
    * throws an exception. We need to clean up objkey.
    */
-  CLEANUP_PUSH(g_free, objkey);
+   CLEANUP_PUSH (g_free, objkey);
 
   /* length of operation string and string */
   len = get_CDR_string(tvb, &operation, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
