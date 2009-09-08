@@ -1629,7 +1629,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_GENERATED(ti);
         if (p_mac_lte_info->crcStatus != TRUE) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                   "Frame has CRC error");
+                                   "%s Frame has CRC error",
+                                   (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL");
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s: <CRC FAILURE> on %s %u ",
                             (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL",
                             val_to_str(p_mac_lte_info->rntiType, rnti_type_vals,
