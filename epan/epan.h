@@ -123,7 +123,7 @@ epan_dissect_free(epan_dissect_t* edt);
 
 /* Sets custom column */
 const gchar *
-epan_custom_set(epan_dissect_t *edt, const gchar *field,
+epan_custom_set(epan_dissect_t *edt, int id,
 				gchar *result, gchar *expr, int size );
 
 #endif /* EPAN_H */

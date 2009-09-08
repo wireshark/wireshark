@@ -59,6 +59,7 @@ col_setup(column_info *cinfo, gint num_cols)
   cinfo->col_last   = g_new(int, NUM_COL_FMTS);
   cinfo->col_title  = g_new(gchar*, num_cols);
   cinfo->col_custom_field = g_new(gchar*, num_cols);
+  cinfo->col_custom_field_id = g_new(int, num_cols);
   cinfo->col_custom_dfilter = g_new(dfilter_t*, num_cols);
   cinfo->col_data   = (const gchar **)g_new(gchar*, num_cols);
   cinfo->col_buf    = g_new(gchar*, num_cols);
@@ -296,7 +297,7 @@ void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo)
     if (cinfo->fmt_matx[i][COL_CUSTOM] && cinfo->col_custom_field[i]) {
       cinfo->col_data[i] = cinfo->col_buf[i];
 
-      cinfo->col_expr.col_expr[i] = epan_custom_set(edt, cinfo->col_custom_field[i],
+       cinfo->col_expr.col_expr[i] = epan_custom_set(edt, cinfo->col_custom_field_id[i],
                                      cinfo->col_buf[i],
                                      cinfo->col_expr.col_expr_val[i],
                                      COL_MAX_LEN);
@@ -314,9 +315,18 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 
   for (i = cinfo->col_first[COL_CUSTOM];
        i <= cinfo->col_last[COL_CUSTOM]; i++) {
+
+    cinfo->col_custom_field_id[i] = -1;
     if (cinfo->fmt_matx[i][COL_CUSTOM] &&
-        cinfo->col_custom_dfilter[i])
+		cinfo->col_custom_dfilter[i]){
         epan_dissect_prime_dfilter(edt, cinfo->col_custom_dfilter[i]);
+        if (cinfo->col_custom_field) {
+            header_field_info* hfinfo = proto_registrar_get_byname(cinfo->col_custom_field[i]);
+            /* ASSERT if none ? */
+			g_assert(hfinfo);
+            cinfo->col_custom_field_id[i] = hfinfo->id;
+        }
+	}
   }
 }
 

@@ -3276,7 +3276,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 
 /* -------------------------- */
 const gchar *
-proto_custom_set(proto_tree* tree, const gchar *field,
+proto_custom_set(proto_tree* tree, int field_id,
                              gchar *result,
                              gchar *expr, int size )
 {
@@ -3292,13 +3292,9 @@ proto_custom_set(proto_tree* tree, const gchar *field,
 	field_info	*finfo;
 	header_field_info* hfinfo;
 
-	if (!field)
-		return "";
+	g_assert(field_id>=0);
 
-        /* speed up by storing field id in column info ? they
-           are already in the filter.
-        */
-	hfinfo = g_tree_lookup(gpa_name_tree, field);
+	hfinfo = proto_registrar_get_nth((guint)field_id);
 
 	/* do we need to rewind ? */
 	if (!hfinfo)

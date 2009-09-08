@@ -1646,12 +1646,12 @@ proto_check_field_name(const gchar *field_name);
 
 
 /** Check if given string is a valid field name
- @param field the field name used for custom column
+ @param field_id the field id used for custom column
  @param result the buffer to fill with the field string
  @param expr the filter expression
  @param aize the size of the string buffer */
 const gchar *
-proto_custom_set(proto_tree* tree, const gchar *field,
+proto_custom_set(proto_tree* tree, int field_id,
                              gchar *result,
                              gchar *expr, int size );
 
