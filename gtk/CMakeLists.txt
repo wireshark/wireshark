@@ -202,15 +202,20 @@ set(WIRESHARK_TAP_SRC
 
 ADD_CUSTOM_COMMAND(
 	OUTPUT wireshark-tap-register.c
-	COMMAND ${SHELL} ${CMAKE_SOURCE_DIR}/make-tapreg-dotc
-	  ${CMAKE_CURRENT_SOURCE_DIR} ${WIRESHARK_TAP_SRC}
+	COMMAND ${SHELL}
+	  ${CMAKE_SOURCE_DIR}/make-tapreg-dotc
+	  wireshark-tap-register.c
+	  ${CMAKE_CURRENT_SOURCE_DIR}
+	  ${WIRESHARK_TAP_SRC}
 	DEPENDS
-	  ${CMAKE_CURRENT_SOURCE_DIR}/make-tapreg-dotc
+	  ${CMAKE_SOURCE_DIR}/make-tapreg-dotc
 	  ${WIRESHARK_TAP_SRC}
 )
 
 add_library(ui SHARED
-	${WIRETAP_FILES}
+	${WIRESHARK_GTK_SRC}
+	${WIRESHARK_TAP_SRC}
+	wireshark-tap-register.c
 )
 
 install(TARGETS ui

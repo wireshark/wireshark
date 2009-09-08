@@ -79,8 +79,6 @@ add_yacc_files(WIRETAP_FILES
 	ascend.y
 )
 
-# add_dependency(ascend.c ascend_scanner_lex.h)
-
 add_library(wiretap SHARED
 	${WIRETAP_FILES}
 )

@@ -172,16 +172,21 @@ endif()
 
 
 add_subdirectory( epan )
+add_subdirectory( gtk )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
 
 link_directories(
+	epan
 	wiretap
 	wsutil
-	epan
 )
+
+if(BUILD_wireshark)
+	link_directories( gtk )
+endif()
 
 ADD_CUSTOM_COMMAND(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/svnversion.h
@@ -286,11 +291,11 @@ set(TSHARK_TAP_SRC
         tap-wspstat.c
 )
 
-set(LIBWIRESHARK_LIBS
+set(LIBEPAN_LIBS
 #		$(wireshark_optional_objects)
 		wiretap
 		wsutil
-		wireshark
+		epan
 #		@INET_PTON_LO@
 #		@INET_NTOP_LO@
 #		@SSL_LIBS@
@@ -313,11 +318,11 @@ set(LIBWIRESHARK_LIBS
 if(BUILD_wireshark)
 # todo
 	set(wireshark_LIBS
-#		gtk/libui.a
+		ui
+		${GTK2_LIBRARIES}
 #		codecs/libcodec.a
-		${PORTAUDIO_LIBS}
-		${GTK2_LIBS}
-		${LIBWIRESHARK_LIBS}
+		${PORTAUDIO_LIBRARIES}
+		${LIBEPAN_LIBS}
 	)
 	set(wireshark_FILES
 		airpcap_loader.c
@@ -334,13 +339,17 @@ if(BUILD_wireshark)
 		merge.c
 		proto_hier_stats.c
 		summary.c
+		tempfile.c
 		${WIRESHARK_COMMON_SRC}
 	)
+	add_executable(wireshark ${wireshark_FILES})
+	target_link_libraries(wireshark ${wireshark_LIBS})
+	install(TARGETS wireshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(BUILD_tshark)
 	set(tshark_LIBS
-		${LIBWIRESHARK_LIBS}
+		${LIBEPAN_LIBS}
 	)
 	set(tshark_FILES
 		capture_opts.c
@@ -358,7 +367,7 @@ endif()
 
 if(BUILD_rawshark)
 	set(rawshark_LIBS
-		${LIBWIRESHARK_LIBS}
+		${LIBEPAN_LIBS}
 	)
 	set(rawshark_FILES
 	        ${WIRESHARK_COMMON_SRC}
@@ -371,7 +380,7 @@ endif()
 
 if(BUILD_dftest)
 	set(dftest_LIBS
-		${LIBWIRESHARK_LIBS}
+		${LIBEPAN_LIBS}
 	)
 	set(dftest_FILES
 		dftest.c

@@ -1141,7 +1141,7 @@ add_lemon_files(LIBWIRESHARK_FILES
 	dtd_grammar.lemon
 )
 
-add_library(wireshark SHARED
+add_library(epan SHARED
 	# Needed to trigger build of the include files for x11
 	x11-declarations.h
 	x11-register-info.h
@@ -1155,9 +1155,9 @@ add_library(wireshark SHARED
 	${DISSECTOR_ASM_UTILS}
 )
 
-add_dependencies(wireshark lemon)
+add_dependencies(epan lemon)
 
-install(TARGETS wireshark
+install(TARGETS epan
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION lib
 	ARCHIVE DESTINATION lib
