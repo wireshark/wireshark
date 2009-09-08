@@ -1157,8 +1157,7 @@ col_set_time(column_info *cinfo, gint el, nstime_t *ts, char *fieldname)
 }
 
 static void
-col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res _U_,
-         gboolean is_src)
+col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_src)
 {
   struct e_in6_addr ipv6_addr;
 
@@ -1402,56 +1401,56 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
 
     case COL_DEF_SRC:
     case COL_RES_SRC:   /* COL_DEF_SRC is currently just like COL_RES_SRC */
-      col_set_addr(pinfo, i, &pinfo->src, TRUE, TRUE);
+      col_set_addr(pinfo, i, &pinfo->src, TRUE);
       break;
 
     case COL_UNRES_SRC:
-      col_set_addr(pinfo, i, &pinfo->src, FALSE, TRUE);
+      col_set_addr(pinfo, i, &pinfo->src, TRUE);
       break;
 
     case COL_DEF_DL_SRC:
     case COL_RES_DL_SRC:
-      col_set_addr(pinfo, i, &pinfo->dl_src, TRUE, TRUE);
+      col_set_addr(pinfo, i, &pinfo->dl_src, TRUE);
       break;
 
     case COL_UNRES_DL_SRC:
-      col_set_addr(pinfo, i, &pinfo->dl_src, FALSE, TRUE);
+      col_set_addr(pinfo, i, &pinfo->dl_src, TRUE);
       break;
 
     case COL_DEF_NET_SRC:
     case COL_RES_NET_SRC:
-      col_set_addr(pinfo, i, &pinfo->net_src, TRUE, TRUE);
+      col_set_addr(pinfo, i, &pinfo->net_src, TRUE);
       break;
 
     case COL_UNRES_NET_SRC:
-      col_set_addr(pinfo, i, &pinfo->net_src, FALSE, TRUE);
+      col_set_addr(pinfo, i, &pinfo->net_src, TRUE);
       break;
 
     case COL_DEF_DST:
     case COL_RES_DST:   /* COL_DEF_DST is currently just like COL_RES_DST */
-      col_set_addr(pinfo, i, &pinfo->dst, TRUE, FALSE);
+      col_set_addr(pinfo, i, &pinfo->dst, FALSE);
       break;
 
     case COL_UNRES_DST:
-      col_set_addr(pinfo, i, &pinfo->dst, FALSE, FALSE);
+      col_set_addr(pinfo, i, &pinfo->dst, FALSE);
       break;
 
     case COL_DEF_DL_DST:
     case COL_RES_DL_DST:
-      col_set_addr(pinfo, i, &pinfo->dl_dst, TRUE, FALSE);
+      col_set_addr(pinfo, i, &pinfo->dl_dst, FALSE);
       break;
 
     case COL_UNRES_DL_DST:
-      col_set_addr(pinfo, i, &pinfo->dl_dst, FALSE, FALSE);
+      col_set_addr(pinfo, i, &pinfo->dl_dst, FALSE);
       break;
 
     case COL_DEF_NET_DST:
     case COL_RES_NET_DST:
-      col_set_addr(pinfo, i, &pinfo->net_dst, TRUE, FALSE);
+      col_set_addr(pinfo, i, &pinfo->net_dst, FALSE);
       break;
 
     case COL_UNRES_NET_DST:
-      col_set_addr(pinfo, i, &pinfo->net_dst, FALSE, FALSE);
+      col_set_addr(pinfo, i, &pinfo->net_dst, FALSE);
       break;
 
     case COL_DEF_SRC_PORT:
