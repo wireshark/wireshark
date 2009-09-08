@@ -1129,7 +1129,8 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 		PacketListRecord *record;
 		guint vis_idx;
 
-		frame_data fdata = { 0, };
+		frame_data fdata;
+		memset (&fdata, 0, sizeof fdata);
 
 		nstime_set_zero(&fdata.abs_ts);
 		nstime_set_zero(&fdata.rel_ts);
