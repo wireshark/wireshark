@@ -436,40 +436,34 @@ static const char *time_unit_name[MAX_TIME_UNITS] = {
 /* create one of the duration options */
 /* (and select the matching unit depending on the given value) */
 static GtkWidget *time_unit_option_menu_new(guint32 value) {
-    GtkWidget *unit_om, *menu, *menu_item;
+    GtkWidget *unit_combo_box;
     int i;
 
-	unit_om=gtk_option_menu_new();
-	menu=gtk_menu_new();
+	unit_combo_box = gtk_combo_box_new_text ();
 	for(i=0;i<MAX_TIME_UNITS;i++){
-		menu_item=gtk_menu_item_new_with_label(time_unit_name[i]);
-		g_object_set_data(G_OBJECT(menu_item), "time_unit", GINT_TO_POINTER(i));
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+		gtk_combo_box_append_text (GTK_COMBO_BOX (unit_combo_box), time_unit_name[i]);
 	}
-
     /* the selected menu item can't be changed, once the option_menu
        is created, so set the matching menu item now */
     /* days */
     if(value >= 60 * 60 * 24) {
-	    gtk_menu_set_active(GTK_MENU(menu), TIME_UNIT_DAY);
+		 gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_DAY);
     } else {
         /* hours */
         if(value >= 60 * 60) {
-	        gtk_menu_set_active(GTK_MENU(menu), TIME_UNIT_HOUR);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_HOUR);
         } else {
             /* minutes */
             if(value >= 60) {
-	            gtk_menu_set_active(GTK_MENU(menu), TIME_UNIT_MINUTE);
+				gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_MINUTE);
             } else {
                 /* seconds */
-	            gtk_menu_set_active(GTK_MENU(menu), TIME_UNIT_SECOND);
+				gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), TIME_UNIT_SECOND);
             }
         }
     }
 
-    gtk_option_menu_set_menu(GTK_OPTION_MENU(unit_om), menu);
-
-    return unit_om;
+	return unit_combo_box;
 }
 
 /* convert time value from raw to displayed (e.g. 60s -> 1min) */
@@ -497,16 +491,12 @@ guint32 value)
 
 /* get raw value from unit and value fields */
 static guint32 time_unit_option_menu_get_value(
-GtkWidget *unit_om,
+GtkWidget *unit_combo_box,
 guint32 value)
 {
-	GtkWidget *menu, *menu_item;
     int unit;
 
-    menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(unit_om));
-    menu_item = gtk_menu_get_active(GTK_MENU(menu));
-    unit = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menu_item), "time_unit"));
-
+	unit = gtk_combo_box_get_active (GTK_COMBO_BOX(unit_combo_box));
 
     switch(unit) {
     case(TIME_UNIT_SECOND):
@@ -537,35 +527,30 @@ static const char *size_unit_name[MAX_SIZE_UNITS] = {
 /* create one of the size options */
 /* (and select the matching unit depending on the given value) */
 static GtkWidget *size_unit_option_menu_new(guint32 value) {
-    GtkWidget *unit_om, *menu, *menu_item;
+    GtkWidget *unit_combo_box;
     int i;
 
-	unit_om=gtk_option_menu_new();
-	menu=gtk_menu_new();
+	unit_combo_box=gtk_combo_box_new_text();
 	for(i=0;i<MAX_SIZE_UNITS;i++){
-		menu_item=gtk_menu_item_new_with_label(size_unit_name[i]);
-		g_object_set_data(G_OBJECT(menu_item), "size_unit", GINT_TO_POINTER(i));
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+		gtk_combo_box_append_text (GTK_COMBO_BOX (unit_combo_box), size_unit_name[i]);
 	}
 
     /* the selected menu item can't be changed, once the option_menu
        is created, so set the matching menu item now */
     /* gigabytes */
     if(value >= 1024 * 1024) {
-	    gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_GIGABYTES);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), SIZE_UNIT_GIGABYTES);
     } else {
         /* megabytes */
         if(value >= 1024) {
-	        gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_MEGABYTES);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), SIZE_UNIT_MEGABYTES);
         } else {
             /* kilobytes */
-            gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_KILOBYTES);
+			gtk_combo_box_set_active(GTK_COMBO_BOX(unit_combo_box), SIZE_UNIT_KILOBYTES);
         }
     }
 
-    gtk_option_menu_set_menu(GTK_OPTION_MENU(unit_om), menu);
-
-    return unit_om;
+     return unit_combo_box;
 }
 
 /* convert size value from raw to displayed (e.g. 1024 Bytes -> 1 KB) */
@@ -588,16 +573,12 @@ guint32 value)
 
 /* get raw value from unit and value fields */
 static guint32 size_unit_option_menu_convert_value(
-GtkWidget *unit_om,
+GtkWidget *unit_combo_box,
 guint32 value)
 {
-	GtkWidget *menu, *menu_item;
     int unit;
 
-    menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(unit_om));
-    menu_item = gtk_menu_get_active(GTK_MENU(menu));
-    unit = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menu_item), "size_unit"));
-
+	unit = gtk_combo_box_get_active (GTK_COMBO_BOX(unit_combo_box));
 
     switch(unit) {
     case(SIZE_UNIT_KILOBYTES):
