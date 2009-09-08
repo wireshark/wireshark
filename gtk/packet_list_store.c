@@ -1085,7 +1085,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 
 	if (dissect_columns) {
 		/* "Stringify" non frame_data vals */
-		epan_dissect_fill_in_columns(&edt, FALSE /* fill_fd_colums */);
+		epan_dissect_fill_in_columns(&edt, FALSE, FALSE /* fill_fd_colums */);
 
 		for(col = 0; col < cinfo->num_cols; ++col) {
 			/* Skip columns based om frame_data because we already store those. */
@@ -1216,7 +1216,7 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 			}
 		}
 
-		col_fill_in_frame_data(&fdata, &cfile.cinfo, col);
+		col_fill_in_frame_data(&fdata, &cfile.cinfo, col, FALSE);
 
 		return cfile.cinfo.col_buf[col];
 	}

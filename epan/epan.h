@@ -111,7 +111,7 @@ epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t *dfcode);
 
 /* fill the dissect run output into the packet list columns */
 void
-epan_dissect_fill_in_columns(epan_dissect_t *edt, gboolean fill_fd_colums);
+epan_dissect_fill_in_columns(epan_dissect_t *edt, gboolean fill_col_exprs, gboolean fill_fd_colums);
 
 /* releases resources attached to the packet dissection. DOES NOT free the actual pointer */
 void

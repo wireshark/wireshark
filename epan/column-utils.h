@@ -70,13 +70,13 @@ extern void	col_set_fmt_time(frame_data *fd, column_info *cinfo, gint fmt, gint 
  *
  * Internal, don't use this in dissectors!
  */
-extern void col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col);
+extern void col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col, gboolean fill_col_exprs);
 
 /** Fill in all columns of the given packet.
  *
  * Internal, don't use this in dissectors!
  */
-extern void	col_fill_in(packet_info *pinfo, gboolean fill_fd_colums);
+extern void	col_fill_in(packet_info *pinfo, gboolean fill_col_exprs, gboolean fill_fd_colums);
 
 /* Utility routines used by packet*.c */
 
@@ -87,7 +87,7 @@ extern void	col_fill_in(packet_info *pinfo, gboolean fill_fd_colums);
  */
 extern gboolean	col_get_writable(column_info *cinfo);
 
-/** Set the columns writable. 
+/** Set the columns writable.
  *
  * @param cinfo the current packet row
  * @param writable TRUE if it's writable, FALSE if not
@@ -101,8 +101,8 @@ extern void	col_set_writable(column_info *cinfo, gboolean writable);
  */
 extern gint	check_col(column_info *cinfo, gint col);
 
-/** Sets a fence for the current column content, 
- * so this content won't be affected by further col_... function calls. 
+/** Sets a fence for the current column content,
+ * so this content won't be affected by further col_... function calls.
  *
  * This can be useful if a protocol is more than once in a single packet,
  * e.g. multiple HTTP calls in a single TCP packet.
@@ -231,11 +231,11 @@ extern void	col_append_sep_fstr(column_info *cinfo, gint col, const gchar *sep,
  *
  * Used by multiple dissectors to set the time in the column
  * COL_DELTA_CONV_TIME
- * 
+ *
  * @param cinfo		the current packet row
  * @param col		the column to use, e.g. COL_INFO
  * @param ts		the time to set in the column
- * @param fieldname	the fieldname to use for creating a filter (when 
+ * @param fieldname	the fieldname to use for creating a filter (when
  *			  applying/preparing/copying as filter)
  */
 extern void 	col_set_time(column_info *cinfo, int col,

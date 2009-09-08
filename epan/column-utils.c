@@ -1153,7 +1153,7 @@ col_set_time(column_info *cinfo, gint el, nstime_t *ts, char *fieldname)
 }
 
 static void
-col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_src)
+col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_src, gboolean fill_col_exprs)
 {
   struct e_in6_addr ipv6_addr;
 
@@ -1167,6 +1167,9 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_src)
   get_addr_name_buf(addr, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
   pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
 #endif
+
+  if (!fill_col_exprs)
+    return;
 
   switch (addr->type) {
 
@@ -1226,7 +1229,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_src)
 
 /* ------------------------ */
 static void
-col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
+col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src, gboolean fill_col_exprs _U_)
 {
   guint32 port;
 
@@ -1234,6 +1237,8 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
     port = pinfo->srcport;
   else
     port = pinfo->destport;
+
+  /* TODO: Use fill_col_exprs */
 
   switch (pinfo->ptype) {
   case PT_SCTP:
@@ -1334,15 +1339,13 @@ col_based_on_frame_data(column_info *cinfo, gint col)
 }
 
 void
-col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col)
+col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col, gboolean fill_col_exprs)
 {
     switch (cinfo->col_fmt[col]) {
 
     case COL_NUMBER:
       g_snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%u", fd->num);
       cinfo->col_data[col] = cinfo->col_buf[col];
-      cinfo->col_expr.col_expr[col] = "frame.number";
-      g_strlcpy(cinfo->col_expr.col_expr_val[col], cinfo->col_buf[col], COL_MAX_LEN);
       break;
 
     case COL_CLS_TIME:
@@ -1351,14 +1354,13 @@ col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col)
     case COL_REL_TIME:
     case COL_DELTA_TIME:
     case COL_DELTA_TIME_DIS:
+       /* TODO: Pass on fill_col_exprs */
       col_set_fmt_time(fd, cinfo, cinfo->col_fmt[col], col);
       break;
 
     case COL_PACKET_LENGTH:
       g_snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%u", fd->pkt_len);
       cinfo->col_data[col] = cinfo->col_buf[col];
-      cinfo->col_expr.col_expr[col] = "frame.len";
-      g_strlcpy(cinfo->col_expr.col_expr_val[col], cinfo->col_buf[col], COL_MAX_LEN);
       break;
 
     case COL_CUMULATIVE_BYTES:
@@ -1369,10 +1371,41 @@ col_fill_in_frame_data(frame_data *fd, column_info *cinfo, gint col)
     default:
       break;
     }
+
+    if (!fill_col_exprs)
+        return;
+
+    switch (cinfo->col_fmt[col]) {
+
+    case COL_NUMBER:
+      cinfo->col_expr.col_expr[col] = "frame.number";
+      g_strlcpy(cinfo->col_expr.col_expr_val[col], cinfo->col_buf[col], COL_MAX_LEN);
+      break;
+
+    case COL_CLS_TIME:
+    case COL_ABS_TIME:
+    case COL_ABS_DATE_TIME:
+    case COL_REL_TIME:
+    case COL_DELTA_TIME:
+    case COL_DELTA_TIME_DIS:
+      /* Already handled above */
+      break;
+
+    case COL_PACKET_LENGTH:
+      cinfo->col_expr.col_expr[col] = "frame.len";
+      g_strlcpy(cinfo->col_expr.col_expr_val[col], cinfo->col_buf[col], COL_MAX_LEN);
+      break;
+
+    case COL_CUMULATIVE_BYTES:
+      break;
+
+    default:
+      break;
+    }
 }
 
 void
-col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
+col_fill_in(packet_info *pinfo, gboolean fill_col_exprs, gboolean fill_fd_colums)
 {
   int i;
 
@@ -1392,79 +1425,79 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
     case COL_PACKET_LENGTH:
     case COL_CUMULATIVE_BYTES:
       if (fill_fd_colums)
-        col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i);
+        col_fill_in_frame_data(pinfo->fd, pinfo->cinfo, i, fill_col_exprs);
       break;
 
     case COL_DEF_SRC:
     case COL_RES_SRC:   /* COL_DEF_SRC is currently just like COL_RES_SRC */
-      col_set_addr(pinfo, i, &pinfo->src, TRUE);
+      col_set_addr(pinfo, i, &pinfo->src, TRUE, fill_col_exprs);
       break;
 
     case COL_UNRES_SRC:
-      col_set_addr(pinfo, i, &pinfo->src, TRUE);
+      col_set_addr(pinfo, i, &pinfo->src, TRUE, fill_col_exprs);
       break;
 
     case COL_DEF_DL_SRC:
     case COL_RES_DL_SRC:
-      col_set_addr(pinfo, i, &pinfo->dl_src, TRUE);
+      col_set_addr(pinfo, i, &pinfo->dl_src, TRUE, fill_col_exprs);
       break;
 
     case COL_UNRES_DL_SRC:
-      col_set_addr(pinfo, i, &pinfo->dl_src, TRUE);
+      col_set_addr(pinfo, i, &pinfo->dl_src, TRUE, fill_col_exprs);
       break;
 
     case COL_DEF_NET_SRC:
     case COL_RES_NET_SRC:
-      col_set_addr(pinfo, i, &pinfo->net_src, TRUE);
+      col_set_addr(pinfo, i, &pinfo->net_src, TRUE, fill_col_exprs);
       break;
 
     case COL_UNRES_NET_SRC:
-      col_set_addr(pinfo, i, &pinfo->net_src, TRUE);
+      col_set_addr(pinfo, i, &pinfo->net_src, TRUE, fill_col_exprs);
       break;
 
     case COL_DEF_DST:
     case COL_RES_DST:   /* COL_DEF_DST is currently just like COL_RES_DST */
-      col_set_addr(pinfo, i, &pinfo->dst, FALSE);
+      col_set_addr(pinfo, i, &pinfo->dst, FALSE, fill_col_exprs);
       break;
 
     case COL_UNRES_DST:
-      col_set_addr(pinfo, i, &pinfo->dst, FALSE);
+      col_set_addr(pinfo, i, &pinfo->dst, FALSE, fill_col_exprs);
       break;
 
     case COL_DEF_DL_DST:
     case COL_RES_DL_DST:
-      col_set_addr(pinfo, i, &pinfo->dl_dst, FALSE);
+      col_set_addr(pinfo, i, &pinfo->dl_dst, FALSE, fill_col_exprs);
       break;
 
     case COL_UNRES_DL_DST:
-      col_set_addr(pinfo, i, &pinfo->dl_dst, FALSE);
+      col_set_addr(pinfo, i, &pinfo->dl_dst, FALSE, fill_col_exprs);
       break;
 
     case COL_DEF_NET_DST:
     case COL_RES_NET_DST:
-      col_set_addr(pinfo, i, &pinfo->net_dst, FALSE);
+      col_set_addr(pinfo, i, &pinfo->net_dst, FALSE, fill_col_exprs);
       break;
 
     case COL_UNRES_NET_DST:
-      col_set_addr(pinfo, i, &pinfo->net_dst, FALSE);
+      col_set_addr(pinfo, i, &pinfo->net_dst, FALSE, fill_col_exprs);
       break;
 
     case COL_DEF_SRC_PORT:
     case COL_RES_SRC_PORT:  /* COL_DEF_SRC_PORT is currently just like COL_RES_SRC_PORT */
-      col_set_port(pinfo, i, TRUE, TRUE);
+      col_set_port(pinfo, i, TRUE, TRUE, fill_col_exprs);
       break;
 
     case COL_UNRES_SRC_PORT:
-      col_set_port(pinfo, i, FALSE, TRUE);
+      col_set_port(pinfo, i, FALSE, TRUE, fill_col_exprs);
       break;
 
     case COL_DEF_DST_PORT:
     case COL_RES_DST_PORT:  /* COL_DEF_DST_PORT is currently just like COL_RES_DST_PORT */
-      col_set_port(pinfo, i, TRUE, FALSE);
+      col_set_port(pinfo, i, TRUE, FALSE, fill_col_exprs);
       break;
 
     case COL_UNRES_DST_PORT:
-      col_set_port(pinfo, i, FALSE, FALSE);
+      col_set_port(pinfo, i, FALSE, FALSE, fill_col_exprs);
       break;
 
     case COL_VSAN:

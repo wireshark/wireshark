@@ -239,9 +239,9 @@ epan_custom_set(epan_dissect_t *edt, int field_id,
 }
 
 void
-epan_dissect_fill_in_columns(epan_dissect_t *edt, gboolean fill_fd_colums)
+epan_dissect_fill_in_columns(epan_dissect_t *edt, gboolean fill_col_exprs, gboolean fill_fd_colums)
 {
     col_custom_set_edt(edt, edt->pi.cinfo);
-    col_fill_in(&edt->pi, fill_fd_colums);
+    col_fill_in(&edt->pi, fill_col_exprs, fill_fd_colums);
 }
 

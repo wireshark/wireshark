@@ -141,7 +141,7 @@ void new_window_cb(GtkWidget *w _U_)
   DataPtr->edt = epan_dissect_new(TRUE, TRUE);
   epan_dissect_run(DataPtr->edt, &DataPtr->pseudo_header, DataPtr->pd,
           DataPtr->frame, &cfile.cinfo);
-  epan_dissect_fill_in_columns(DataPtr->edt, TRUE);
+  epan_dissect_fill_in_columns(DataPtr->edt, FALSE, TRUE);
 
   /*
    * Build title of window by getting column data constructed when the

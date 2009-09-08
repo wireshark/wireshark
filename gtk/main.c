@@ -526,7 +526,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
 
         epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata,
                  &cfile.cinfo);
-        epan_dissect_fill_in_columns(&edt, TRUE);
+        epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
         if (strlen(cfile.cinfo.col_expr.col_expr[column]) != 0 &&
             strlen(cfile.cinfo.col_expr.col_expr_val[column]) != 0) {

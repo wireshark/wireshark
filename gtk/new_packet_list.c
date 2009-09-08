@@ -642,7 +642,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	g_assert(fdata->col_text);
 
 	if (col_based_on_frame_data(&cfile.cinfo, col_num)) {
-		col_fill_in_frame_data(fdata, &cfile.cinfo, col_num);
+		col_fill_in_frame_data(fdata, &cfile.cinfo, col_num, FALSE);
 		cell_text = cfile.cinfo.col_data[col_num];
 	}else
 		cell_text = fdata->col_text[col_num];
@@ -757,7 +757,7 @@ static gboolean
 get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_text){
 
 	if (col_based_on_frame_data(&cfile.cinfo, col_num)) {
-		col_fill_in_frame_data(record->fdata, &cfile.cinfo, col_num);
+		col_fill_in_frame_data(record->fdata, &cfile.cinfo, col_num, FALSE);
 		*cell_text = g_strdup(cfile.cinfo.col_data[col_num]);
 	}else
 		*cell_text = g_strdup(record->fdata->col_text[col_num]);
