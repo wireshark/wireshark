@@ -510,7 +510,7 @@ packet_list_recreate(void)
 
     prefs.num_cols = g_list_length(prefs.col_list);
 
-    build_column_format_array(&cfile.cinfo, FALSE);
+    build_column_format_array(&cfile.cinfo, prefs.num_cols, FALSE);
 
     pkt_scrollw = packet_list_new(&prefs);
     gtk_widget_show(pkt_scrollw);

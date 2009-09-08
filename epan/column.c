@@ -314,139 +314,139 @@ static const char *
 get_timestamp_column_longest_string(gint type, gint precision)
 {
 
-	switch(type) {
-	case(TS_ABSOLUTE_WITH_DATE):
-		switch(precision) {
-			case(TS_PREC_AUTO_SEC):
-			case(TS_PREC_FIXED_SEC):
-				return "0000-00-00 00:00:00";
-				break;
-			case(TS_PREC_AUTO_DSEC):
-			case(TS_PREC_FIXED_DSEC):
-				return "0000-00-00 00:00:00.0";
-				break;
-			case(TS_PREC_AUTO_CSEC):
-			case(TS_PREC_FIXED_CSEC):
-				return "0000-00-00 00:00:00.00";
-				break;
-			case(TS_PREC_AUTO_MSEC):
-			case(TS_PREC_FIXED_MSEC):
-				return "0000-00-00 00:00:00.000";
-				break;
-			case(TS_PREC_AUTO_USEC):
-			case(TS_PREC_FIXED_USEC):
-				return "0000-00-00 00:00:00.000000";
-				break;
-			case(TS_PREC_AUTO_NSEC):
-			case(TS_PREC_FIXED_NSEC):
-				return "0000-00-00 00:00:00.000000000";
-				break;
-			default:
-				g_assert_not_reached();
-		}
-			break;
-	case(TS_ABSOLUTE):
-		switch(precision) {
-			case(TS_PREC_AUTO_SEC):
-			case(TS_PREC_FIXED_SEC):
-				return "00:00:00";
-				break;
-			case(TS_PREC_AUTO_DSEC):
-			case(TS_PREC_FIXED_DSEC):
-				return "00:00:00.0";
-				break;
-			case(TS_PREC_AUTO_CSEC):
-			case(TS_PREC_FIXED_CSEC):
-				return "00:00:00.00";
-				break;
-			case(TS_PREC_AUTO_MSEC):
-			case(TS_PREC_FIXED_MSEC):
-				return "00:00:00.000";
-				break;
-			case(TS_PREC_AUTO_USEC):
-			case(TS_PREC_FIXED_USEC):
-				return "00:00:00.000000";
-				break;
-			case(TS_PREC_AUTO_NSEC):
-			case(TS_PREC_FIXED_NSEC):
-				return "00:00:00.000000000";
-				break;
-			default:
-				g_assert_not_reached();
-		}
-		break;
-	case(TS_RELATIVE):	/* fallthrough */
-	case(TS_DELTA):
-	case(TS_DELTA_DIS):
-		switch(precision) {
-			case(TS_PREC_AUTO_SEC):
-			case(TS_PREC_FIXED_SEC):
-				return "0000";
-				break;
-			case(TS_PREC_AUTO_DSEC):
-			case(TS_PREC_FIXED_DSEC):
-				return "0000.0";
-				break;
-			case(TS_PREC_AUTO_CSEC):
-			case(TS_PREC_FIXED_CSEC):
-				return "0000.00";
-				break;
-			case(TS_PREC_AUTO_MSEC):
-			case(TS_PREC_FIXED_MSEC):
-				return "0000.000";
-				break;
-			case(TS_PREC_AUTO_USEC):
-			case(TS_PREC_FIXED_USEC):
-				return "0000.000000";
-				break;
-			case(TS_PREC_AUTO_NSEC):
-			case(TS_PREC_FIXED_NSEC):
-				return "0000.000000000";
-				break;
-			default:
-				g_assert_not_reached();
-		}
-		break;
-	case(TS_EPOCH):
+    switch(type) {
+    case(TS_ABSOLUTE_WITH_DATE):
+        switch(precision) {
+            case(TS_PREC_AUTO_SEC):
+            case(TS_PREC_FIXED_SEC):
+                return "0000-00-00 00:00:00";
+                break;
+            case(TS_PREC_AUTO_DSEC):
+            case(TS_PREC_FIXED_DSEC):
+                return "0000-00-00 00:00:00.0";
+                break;
+            case(TS_PREC_AUTO_CSEC):
+            case(TS_PREC_FIXED_CSEC):
+                return "0000-00-00 00:00:00.00";
+                break;
+            case(TS_PREC_AUTO_MSEC):
+            case(TS_PREC_FIXED_MSEC):
+                return "0000-00-00 00:00:00.000";
+                break;
+            case(TS_PREC_AUTO_USEC):
+            case(TS_PREC_FIXED_USEC):
+                return "0000-00-00 00:00:00.000000";
+                break;
+            case(TS_PREC_AUTO_NSEC):
+            case(TS_PREC_FIXED_NSEC):
+                return "0000-00-00 00:00:00.000000000";
+                break;
+            default:
+                g_assert_not_reached();
+        }
+            break;
+    case(TS_ABSOLUTE):
+        switch(precision) {
+            case(TS_PREC_AUTO_SEC):
+            case(TS_PREC_FIXED_SEC):
+                return "00:00:00";
+                break;
+            case(TS_PREC_AUTO_DSEC):
+            case(TS_PREC_FIXED_DSEC):
+                return "00:00:00.0";
+                break;
+            case(TS_PREC_AUTO_CSEC):
+            case(TS_PREC_FIXED_CSEC):
+                return "00:00:00.00";
+                break;
+            case(TS_PREC_AUTO_MSEC):
+            case(TS_PREC_FIXED_MSEC):
+                return "00:00:00.000";
+                break;
+            case(TS_PREC_AUTO_USEC):
+            case(TS_PREC_FIXED_USEC):
+                return "00:00:00.000000";
+                break;
+            case(TS_PREC_AUTO_NSEC):
+            case(TS_PREC_FIXED_NSEC):
+                return "00:00:00.000000000";
+                break;
+            default:
+                g_assert_not_reached();
+        }
+        break;
+    case(TS_RELATIVE):  /* fallthrough */
+    case(TS_DELTA):
+    case(TS_DELTA_DIS):
+        switch(precision) {
+            case(TS_PREC_AUTO_SEC):
+            case(TS_PREC_FIXED_SEC):
+                return "0000";
+                break;
+            case(TS_PREC_AUTO_DSEC):
+            case(TS_PREC_FIXED_DSEC):
+                return "0000.0";
+                break;
+            case(TS_PREC_AUTO_CSEC):
+            case(TS_PREC_FIXED_CSEC):
+                return "0000.00";
+                break;
+            case(TS_PREC_AUTO_MSEC):
+            case(TS_PREC_FIXED_MSEC):
+                return "0000.000";
+                break;
+            case(TS_PREC_AUTO_USEC):
+            case(TS_PREC_FIXED_USEC):
+                return "0000.000000";
+                break;
+            case(TS_PREC_AUTO_NSEC):
+            case(TS_PREC_FIXED_NSEC):
+                return "0000.000000000";
+                break;
+            default:
+                g_assert_not_reached();
+        }
+        break;
+    case(TS_EPOCH):
         /* This is enough to represent 2^63 (signed 64-bit integer) + fractions */
-		switch(precision) {
-			case(TS_PREC_AUTO_SEC):
-			case(TS_PREC_FIXED_SEC):
-				return "0000000000000000000";
-				break;
-			case(TS_PREC_AUTO_DSEC):
-			case(TS_PREC_FIXED_DSEC):
-				return "0000000000000000000.0";
-				break;
-			case(TS_PREC_AUTO_CSEC):
-			case(TS_PREC_FIXED_CSEC):
-				return "0000000000000000000.00";
-				break;
-			case(TS_PREC_AUTO_MSEC):
-			case(TS_PREC_FIXED_MSEC):
-				return "0000000000000000000.000";
-				break;
-			case(TS_PREC_AUTO_USEC):
-			case(TS_PREC_FIXED_USEC):
-				return "0000000000000000000.000000";
-				break;
-			case(TS_PREC_AUTO_NSEC):
-			case(TS_PREC_FIXED_NSEC):
-				return "0000000000000000000.000000000";
-				break;
-			default:
-				g_assert_not_reached();
-		}
-		break;
-	case(TS_NOT_SET):
-		return "0000.000000";
-		break;
-	default:
-		g_assert_not_reached();
-	}
+        switch(precision) {
+            case(TS_PREC_AUTO_SEC):
+            case(TS_PREC_FIXED_SEC):
+                return "0000000000000000000";
+                break;
+            case(TS_PREC_AUTO_DSEC):
+            case(TS_PREC_FIXED_DSEC):
+                return "0000000000000000000.0";
+                break;
+            case(TS_PREC_AUTO_CSEC):
+            case(TS_PREC_FIXED_CSEC):
+                return "0000000000000000000.00";
+                break;
+            case(TS_PREC_AUTO_MSEC):
+            case(TS_PREC_FIXED_MSEC):
+                return "0000000000000000000.000";
+                break;
+            case(TS_PREC_AUTO_USEC):
+            case(TS_PREC_FIXED_USEC):
+                return "0000000000000000000.000000";
+                break;
+            case(TS_PREC_AUTO_NSEC):
+            case(TS_PREC_FIXED_NSEC):
+                return "0000000000000000000.000000000";
+                break;
+            default:
+                g_assert_not_reached();
+        }
+        break;
+    case(TS_NOT_SET):
+        return "0000.000000";
+        break;
+    default:
+        g_assert_not_reached();
+    }
 
-	/* never reached, satisfy compiler */
-	return "";
+    /* never reached, satisfy compiler */
+    return "";
 }
 
 /* Returns the longer string of the column title or the hard-coded width of
@@ -454,11 +454,11 @@ get_timestamp_column_longest_string(gint type, gint precision)
 const gchar *
 get_column_width_string(gint format, gint col)
 {
-	if(strlen(get_column_longest_string(format)) >
-	   strlen(get_column_title(col)))
-		return get_column_longest_string(format);
-	else
-		return get_column_title(col);
+    if(strlen(get_column_longest_string(format)) >
+       strlen(get_column_title(col)))
+        return get_column_longest_string(format);
+    else
+        return get_column_title(col);
 }
 
 /* Returns a string representing the longest possible value for a
@@ -498,8 +498,8 @@ get_column_longest_string(gint format)
     case COL_DELTA_TIME_DIS:
       return get_timestamp_column_longest_string(TS_DELTA_DIS, timestamp_get_precision());
       break;
-    case COL_REL_CONV_TIME:	/* 'abuse' TS_RELATIVE to set the time format */
-    case COL_DELTA_CONV_TIME:	/* for the conversation related time columns */
+    case COL_REL_CONV_TIME: /* 'abuse' TS_RELATIVE to set the time format */
+    case COL_DELTA_CONV_TIME:   /* for the conversation related time columns */
       return get_timestamp_column_longest_string(TS_RELATIVE, timestamp_get_precision());
       break;
     case COL_DEF_SRC:
@@ -531,7 +531,7 @@ get_column_longest_string(gint format)
       return "000000";
       break;
     case COL_PROTOCOL:
-      return "Protocol";	/* not the longest, but the longest is too long */
+      return "Protocol";    /* not the longest, but the longest is too long */
       break;
     case COL_PACKET_LENGTH:
       return "00000";
@@ -599,7 +599,7 @@ get_column_longest_string(gint format)
       return "9999 MHz [A 999]";
       break;
     case COL_CUSTOM:
-      return "0000000000";	/* not the longest, but the longest is too long */
+      return "0000000000";  /* not the longest, but the longest is too long */
       break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
@@ -633,7 +633,7 @@ get_column_format_from_str(gchar *str) {
     if (strcmp(str, col_format_to_string(i)) == 0)
       return i;
   }
-  return -1;	/* illegal */
+  return -1;    /* illegal */
 }
 
 gchar *
@@ -657,15 +657,17 @@ get_column_custom_field(gint col) {
 }
 
 void
-build_column_format_array(column_info *cinfo, gboolean reset_fences)
+build_column_format_array(column_info *cinfo, gint num_cols, gboolean reset_fences)
 {
-  int i, j;
+  int i;
 
-  col_setup(cinfo, prefs.num_cols);
+  /* Build the column format array */
+  col_setup(cinfo, num_cols);
 
   for (i = 0; i < cinfo->num_cols; i++) {
     cinfo->col_fmt[i] = get_column_format(i);
     cinfo->col_title[i] = g_strdup(get_column_title(i));
+
     if (cinfo->col_fmt[i] == COL_CUSTOM) {
       cinfo->col_custom_field[i] = g_strdup(get_column_custom_field(i));
       if(!dfilter_compile(cinfo->col_custom_field[i], &cinfo->col_custom_dfilter[i])) {
@@ -678,34 +680,32 @@ build_column_format_array(column_info *cinfo, gboolean reset_fences)
       cinfo->col_custom_field[i] = NULL;
       cinfo->col_custom_dfilter[i] = NULL;
     }
-    cinfo->fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
-						     NUM_COL_FMTS);
-    get_column_format_matches(cinfo->fmt_matx[i],
-			      cinfo->col_fmt[i]);
+
+    cinfo->fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) * NUM_COL_FMTS);
+    get_column_format_matches(cinfo->fmt_matx[i], cinfo->col_fmt[i]);
     cinfo->col_data[i] = NULL;
 
     if (cinfo->col_fmt[i] == COL_INFO)
-      cinfo->col_buf[i] = (gchar *) g_malloc(sizeof(gchar) *
-						  COL_MAX_INFO_LEN);
+      cinfo->col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
     else
       cinfo->col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
 
     if(reset_fences)
       cinfo->col_fence[i] = 0;
 
-    cinfo->col_expr.col_expr[i] = (gchar *) g_malloc(sizeof(gchar) *
-							    COL_MAX_LEN);
-    cinfo->col_expr.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) *
-								COL_MAX_LEN);
+    cinfo->col_expr.col_expr[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+    cinfo->col_expr.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
   }
 
   cinfo->col_expr.col_expr[i] = NULL;
   cinfo->col_expr.col_expr_val[i] = NULL;
 
   for (i = 0; i < cinfo->num_cols; i++) {
+    int j;
+
     for (j = 0; j < NUM_COL_FMTS; j++) {
       if (!cinfo->fmt_matx[i][j])
-	      continue;
+          continue;
 
       if (cinfo->col_first[j] == -1)
         cinfo->col_first[j] = i;

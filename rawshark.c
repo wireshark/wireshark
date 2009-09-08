@@ -766,35 +766,7 @@ main(int argc, char *argv[])
   }
 
   /* Build the column format array */
-  col_setup(&cfile.cinfo, prefs->num_cols);
-  for (i = 0; i < cfile.cinfo.num_cols; i++) {
-    cfile.cinfo.col_fmt[i] = get_column_format(i);
-    cfile.cinfo.col_title[i] = g_strdup(get_column_title(i));
-    cfile.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
-      NUM_COL_FMTS);
-    get_column_format_matches(cfile.cinfo.fmt_matx[i], cfile.cinfo.col_fmt[i]);
-    cfile.cinfo.col_data[i] = NULL;
-    if (cfile.cinfo.col_fmt[i] == COL_INFO)
-      cfile.cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
-    else
-      cfile.cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
-    cfile.cinfo.col_fence[i] = 0;
-    cfile.cinfo.col_expr.col_expr[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
-    cfile.cinfo.col_expr.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
-  }
-
-  for (i = 0; i < cfile.cinfo.num_cols; i++) {
-      int j;
-
-      for (j = 0; j < NUM_COL_FMTS; j++) {
-         if (!cfile.cinfo.fmt_matx[i][j])
-             continue;
-
-         if (cfile.cinfo.col_first[j] == -1)
-             cfile.cinfo.col_first[j] = i;
-         cfile.cinfo.col_last[j] = i;
-      }
-  }
+  build_column_format_array(&cfile.cinfo, prefs->num_cols, TRUE);
 
   if (n_rfilters != 0) {
     for (i = 0; i < n_rfilters; i++) {

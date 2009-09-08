@@ -577,7 +577,7 @@ copy_selected_plist_cb(GtkWidget *w _U_, gpointer data _U_, COPY_SELECTED_E acti
         break;
     case COPY_SELECTED_VALUE:
         if (cfile.edt !=0 ) {
-            g_string_append(gtk_text_str, 
+            g_string_append(gtk_text_str,
                     get_node_field_value(cfile.finfo_selected, cfile.edt));
         }
         break;
@@ -2522,7 +2522,7 @@ main(int argc, char *argv[])
     set_disabled_protos_list();
   }
 
-  build_column_format_array(&cfile.cinfo, TRUE);
+  build_column_format_array(&cfile.cinfo, prefs->num_cols, TRUE);
 
   /* read in rc file from global and personal configuration paths. */
   rc_file = get_datafile_path(RC_FILE);
@@ -2868,10 +2868,10 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
   /* ignore log message, if log_level isn't interesting based
      upon the console log preferences.
-     If the preferences haven't been loaded loaded yet, display the 
+     If the preferences haven't been loaded loaded yet, display the
      message anyway.
 
-     The default console_log_level preference value is such that only 
+     The default console_log_level preference value is such that only
        ERROR, CRITICAL and WARNING level messages are processed;
        MESSAGE, INFO and DEBUG level messages are ignored.  */
   if((log_level & G_LOG_LEVEL_MASK & prefs.console_log_level) == 0 &&
@@ -3196,7 +3196,7 @@ main_widgets_show_or_hide(void)
     /* workaround for bug in GtkCList to ensure packet list scrollbar is updated */
 #ifndef NEW_PACKET_LIST
     packet_list_freeze ();
-    packet_list_thaw (); 
+    packet_list_thaw ();
 #endif
 }
 
@@ -3433,7 +3433,7 @@ void change_configuration_profile (const gchar *profile_name)
    /* Reset current preferences and apply the new */
    prefs_reset();
    menu_prefs_reset();
-   
+
    (void) read_configuration_files (&gdp_path, &dp_path);
 
    recent_read_profile_static(&rf_path, &rf_open_errno);

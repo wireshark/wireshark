@@ -47,7 +47,7 @@ const char          *get_column_longest_string(gint);
 gint                 get_column_char_width(gint format);
 
 void
-build_column_format_array(column_info *cinfo, gboolean reset_fences);
+build_column_format_array(column_info *cinfo, gint num_cols, gboolean reset_fences);
 
 #ifdef __cplusplus
 }
