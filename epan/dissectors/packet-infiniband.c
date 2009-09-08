@@ -113,7 +113,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     all_headers_tree = proto_item_add_subtree(infiniband_packet, ett_all_headers);
 
     /* Local Route Header Subtree */
-    local_route_header_item = proto_tree_add_bytes(all_headers_tree, hf_infiniband_LRH, tvb, offset, 8, tvb->real_data);
+    local_route_header_item = proto_tree_add_item(all_headers_tree, hf_infiniband_LRH, tvb, offset, 8, FALSE);
     proto_item_set_text(local_route_header_item, "%s", "Local Route Header");
     local_route_header_tree = proto_item_add_subtree(local_route_header_item, ett_lrh);
 
