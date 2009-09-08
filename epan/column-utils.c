@@ -192,10 +192,10 @@ col_clear(column_info *cinfo, gint el)
     cinfo->col_data[i] = cinfo->col_buf[i];         \
   }
 
-#define COL_CHECK_REF_TIME(fd, buf) \
+#define COL_CHECK_REF_TIME(fd, buf)         \
   if(fd->flags.ref_time){                   \
     g_strlcpy(buf, "*REF*", COL_MAX_LEN );  \
-    return 0;                           \
+    return;                                 \
   }
 
 /* Use this if "str" points to something that will stay around (and thus
@@ -607,8 +607,6 @@ set_abs_date_time(frame_data *fd, gchar *buf)
   struct tm *tmp;
   time_t then;
 
-  COL_CHECK_REF_TIME(fd, buf);
-
   then = fd->abs_ts.secs;
   tmp = localtime(&then);
   if (tmp != NULL) {
@@ -697,12 +695,9 @@ col_set_abs_date_time(frame_data *fd, column_info *cinfo, int col)
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
-/* --------------------------------- */
 static gint
 set_rel_time(frame_data *fd, gchar *buf)
 {
-  COL_CHECK_REF_TIME(fd, buf);
-
   switch(timestamp_get_precision()) {
       case(TS_PREC_FIXED_SEC):
       case(TS_PREC_AUTO_SEC):
@@ -750,12 +745,9 @@ col_set_rel_time(frame_data *fd, column_info *cinfo, int col)
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
-/* ------------------------------------------ */
 static gint
 set_delta_time(frame_data *fd, gchar *buf)
 {
-  COL_CHECK_REF_TIME(fd, buf);
-
   switch(timestamp_get_precision()) {
       case(TS_PREC_FIXED_SEC):
       case(TS_PREC_AUTO_SEC):
@@ -803,14 +795,9 @@ col_set_delta_time(frame_data *fd, column_info *cinfo, int col)
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
-/* ------------------------------------------
- To do: Add CHECK_COL checks to the col_add* routines
-*/
 static gint
 set_delta_time_dis(frame_data *fd, gchar *buf)
 {
-  COL_CHECK_REF_TIME(fd, buf);
-
   switch(timestamp_get_precision()) {
       case(TS_PREC_FIXED_SEC):
       case(TS_PREC_AUTO_SEC):
@@ -858,16 +845,11 @@ col_set_delta_time_dis(frame_data *fd, column_info *cinfo, int col)
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
-/* ------------------------ */
-/* To do: Add CHECK_COL checks to the col_add* routines */
-
 static gint
 set_abs_time(frame_data *fd, gchar *buf)
 {
   struct tm *tmp;
   time_t then;
-
-  COL_CHECK_REF_TIME(fd, buf);
 
   then = fd->abs_ts.secs;
   tmp = localtime(&then);
@@ -940,13 +922,9 @@ col_set_abs_time(frame_data *fd, column_info *cinfo, int col)
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
-/* ------------------------ */
 static gint
 set_epoch_time(frame_data *fd, gchar *buf)
 {
-
-  COL_CHECK_REF_TIME(fd, buf);
-
   switch(timestamp_get_precision()) {
       case(TS_PREC_FIXED_SEC):
       case(TS_PREC_AUTO_SEC):
@@ -987,7 +965,6 @@ set_epoch_time(frame_data *fd, gchar *buf)
 static void
 col_set_epoch_time(frame_data *fd, column_info *cinfo, int col)
 {
-
   if (set_epoch_time(fd, cinfo->col_buf[col])) {
     cinfo->col_expr.col_expr[col] = "frame.time_delta";
     g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
@@ -995,6 +972,7 @@ col_set_epoch_time(frame_data *fd, column_info *cinfo, int col)
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
+#if 0
 /* Set the format of the variable time format.
    XXX - this is called from "file.c" when the user changes the time
    format they want for "command-line-specified" time; it's a bit ugly
@@ -1005,6 +983,8 @@ col_set_epoch_time(frame_data *fd, column_info *cinfo, int col)
 void
 set_cls_time(frame_data *fd, gchar *buf)
 {
+  COL_CHECK_REF_TIME(fd, cinfo->col_buf[col]);
+
   switch (timestamp_get_type()) {
     case TS_ABSOLUTE:
       set_abs_time(fd, buf);
@@ -1036,7 +1016,7 @@ set_cls_time(frame_data *fd, gchar *buf)
         break;
   }
 }
-
+#endif
 
 static void
 col_set_cls_time(frame_data *fd, column_info *cinfo, gint col)
@@ -1083,9 +1063,11 @@ col_set_cls_time(frame_data *fd, column_info *cinfo, gint col)
 void
 col_set_fmt_time(frame_data *fd, column_info *cinfo, gint fmt, gint col)
 {
+  COL_CHECK_REF_TIME(fd, cinfo->col_buf[col]);
+
   switch (fmt) {
     case COL_CLS_TIME:
-       col_set_cls_time(fd, cinfo, col);
+      col_set_cls_time(fd, cinfo, col);
       break;
 
     case COL_ABS_TIME:
@@ -1118,10 +1100,14 @@ col_set_fmt_time(frame_data *fd, column_info *cinfo, gint fmt, gint col)
 void
 col_set_time(column_info *cinfo, gint el, nstime_t *ts, char *fieldname)
 {
-  int   col;
+  int col;
 
   if (!CHECK_COL(cinfo, el))
     return;
+
+  /* TODO: We don't respect fd->flags.ref_time (no way to access 'fd')
+  COL_CHECK_REF_TIME(fd, buf);
+  */
 
   for (col = cinfo->col_first[el]; col <= cinfo->col_last[el]; col++) {
     if (cinfo->fmt_matx[col][el]) {
