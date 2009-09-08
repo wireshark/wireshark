@@ -72,7 +72,7 @@ enum {
   COL_ABS_TIME,       /* 2) Absolute time */
   COL_CIRCUIT_ID,     /* 3) Circuit ID */
   COL_DSTIDX,         /* 4) Dst port idx - Cisco MDS-specific */
-  COL_SRCIDX,         /* 5) Src port idx - Cisco MDS-specific */
+  COL_SRCIDX,         /* 5) !! DEPRECATED !! - Src port idx - Cisco MDS-specific */
   COL_VSAN,           /* 6) VSAN - Cisco MDS-specific */
   COL_CUMULATIVE_BYTES, /* 7) Cumulative number of bytes */
   COL_CUSTOM,         /* 8) Custom column (any filter name's contents) */

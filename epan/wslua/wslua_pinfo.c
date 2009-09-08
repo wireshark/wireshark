@@ -329,7 +329,6 @@ static const struct col_names_t colnames[] = {
     {"packet_len",COL_PACKET_LENGTH},
     {"cumulative_bytes",COL_CUMULATIVE_BYTES},
     {"direction",COL_IF_DIR},
-    {"src_idx",COL_SRCIDX},
     {"dst_idx",COL_DSTIDX},
     {"vsan",COL_VSAN},
     {"tx_rate",COL_TX_RATE},
