@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h248.c                                                              */
-/* ../../tools/asn2wrs.py -b -p h248 -c h248.cnf -s packet-h248-template h248v3.asn */
+/* ../../tools/asn2wrs.py -b -p h248 -c ./h248.cnf -s ./packet-h248-template -D . h248v3.asn */
 
 /* Input file: packet-h248-template.c */
 
@@ -2183,7 +2183,7 @@ static const ber_sequence_t TopologyRequest_sequence[] = {
   { &hf_h248_terminationTo  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_h248_TerminationID },
   { &hf_h248_topologyDirection, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_h248_T_topologyDirection },
   { &hf_h248_streamID       , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_h248_StreamID },
-  { &hf_h248_topologyDirectionExtension, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_h248_T_topologyDirectionExtension },
+  { &hf_h248_topologyDirectionExtension, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_h248_T_topologyDirectionExtension },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -6428,7 +6428,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1427 "packet-h248-template.c"
+#line 1426 "packet-h248-template.c"
 
 	GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6590,7 +6590,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1445 "packet-h248-template.c"
+#line 1444 "packet-h248-template.c"
   };
 
   module_t *h248_module;

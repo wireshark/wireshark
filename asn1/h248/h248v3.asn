@@ -1,6 +1,9 @@
 MEDIA-GATEWAY-CONTROL {itu-t(0) recommendation(0) h(8) h248(248) modules(0)
 media-gateway-control(0) version3(3)}
 --
+-- Module MEDIA-GATEWAY-CONTROL (H.248.1:09/2005)
+-- See also ITU-T H.248.1 v3 (2005) Amend. 1 (05/2008)
+--
 -- $Id$
 --DEFINITIONS AUTOMATIC TAGS ::=
 --BEGIN
@@ -274,7 +277,7 @@ BEGIN
 			onewayexternal(0),
 			onewayboth(1),
 			...
-		}
+		} OPTIONAL
 	}
 
 	AmmRequest ::= SEQUENCE
