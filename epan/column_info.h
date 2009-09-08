@@ -77,7 +77,7 @@ enum {
   COL_CUMULATIVE_BYTES, /* 7) Cumulative number of bytes */
   COL_CUSTOM,         /* 8) Custom column (any filter name's contents) */
   COL_DCE_CALL,       /* 9) DCE/RPC connection oriented call id OR datagram sequence number */
-  COL_DCE_CTX,        /* 10) DCE/RPC connection oriented context id */
+  COL_DCE_CTX,        /* 10) !! DEPRECATED !! - DCE/RPC connection oriented context id */
   COL_DELTA_TIME,     /* 11) Delta time */
   COL_DELTA_CONV_TIME,/* 12) Delta time to last frame in conversation */
   COL_DELTA_TIME_DIS, /* 13) Delta time displayed*/

@@ -126,7 +126,7 @@ packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
                 (hfi->type == FT_DOUBLE) || (hfi->type == FT_FLOAT) ||
                 (hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
                 (hfi->type == FT_RELATIVE_TIME))) {
-      
+
       /* Compare numeric column */
       custom_numeric = TRUE;
     }
@@ -135,9 +135,9 @@ packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
     num1 = atof(text1);
     num2 = atof(text2);
     if ((col_fmt == COL_UNRES_SRC_PORT) || (col_fmt == COL_UNRES_DST_PORT) ||
-        (custom_numeric) || 
+        (custom_numeric) ||
         ((num1 != 0) && (num2 != 0) && ((col_fmt == COL_DEF_SRC_PORT) ||
-                                        (col_fmt == COL_RES_SRC_PORT) || 
+                                        (col_fmt == COL_RES_SRC_PORT) ||
                                         (col_fmt == COL_DEF_DST_PORT) ||
                                         (col_fmt == COL_RES_DST_PORT)))) {
 
@@ -214,7 +214,7 @@ packet_list_resize_column_cb(GtkCList *clist _U_, gint column, gint width, gpoin
 
 /* What to do when a list item is selected/unselected */
 static void
-packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_) 
+packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_)
 {
   frame_data *fdata;
 
@@ -237,7 +237,7 @@ packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, GdkEventButton *
 }
 
 static void
-packet_list_unselect_cb(GtkWidget *w _U_, gint row _U_, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_) 
+packet_list_unselect_cb(GtkWidget *w _U_, gint row _U_, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_)
 {
   cf_unselect_packet(&cfile);
 }
@@ -274,13 +274,13 @@ set_frame_mark(gboolean set, frame_data *frame, gint row)
 }
 
 /* call this after last set_frame_mark is done */
-static void mark_frames_ready(void) 
+static void mark_frames_ready(void)
 {
   file_save_update_dynamics();
   packets_bar_update();
 }
 
-void packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) 
+void packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 {
   if (cfile.current_frame) {
     set_frame_mark(!cfile.current_frame->flags.marked,
@@ -289,7 +289,7 @@ void packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 }
 
-static void mark_all_frames(gboolean set) 
+static void mark_all_frames(gboolean set)
 {
   frame_data *fdata;
 
@@ -302,7 +302,7 @@ static void mark_all_frames(gboolean set)
   mark_frames_ready();
 }
 
-void packet_list_update_marked_frames(void) 
+void packet_list_update_marked_frames(void)
 {
   frame_data *fdata;
 
@@ -318,12 +318,12 @@ void packet_list_update_marked_frames(void)
   mark_frames_ready();
 }
 
-void packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) 
+void packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
   mark_all_frames(TRUE);
 }
 
-void packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) 
+void packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
   mark_all_frames(FALSE);
 }
@@ -474,10 +474,10 @@ packet_list_new(e_prefs *prefs)
         custom_right_justify = FALSE;
         if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
           hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
-          if ((hfi != NULL) && (hfi->strings == NULL) && 
+          if ((hfi != NULL) && (hfi->strings == NULL) &&
               ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
                (((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
-                (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  || 
+                (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  ||
                  (hfi->type == FT_INT64) || (hfi->type == FT_UINT64))))) {
             custom_right_justify = TRUE;
           }
@@ -488,7 +488,6 @@ packet_list_new(e_prefs *prefs)
             cfile.cinfo.col_fmt[i] == COL_PACKET_LENGTH ||
             cfile.cinfo.col_fmt[i] == COL_CUMULATIVE_BYTES ||
             cfile.cinfo.col_fmt[i] == COL_DCE_CALL ||
-            cfile.cinfo.col_fmt[i] == COL_DCE_CTX ||
             custom_right_justify)
             gtk_clist_set_column_justification(GTK_CLIST(packet_list), i,
                                                GTK_JUSTIFY_RIGHT);
@@ -587,7 +586,7 @@ packet_list_freeze(void)
 }
 
 static void
-packet_list_resize_columns(void) 
+packet_list_resize_columns(void)
 {
     int         i;
     int         progbar_nextstep;
@@ -795,7 +794,7 @@ packet_list_get_row_data(gint row)
 
 /* get the first fully visible row number, given row MUST be visible */
 static gint
-packet_list_first_full_visible_row(gint row) 
+packet_list_first_full_visible_row(gint row)
 {
         g_assert(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) == GTK_VISIBILITY_FULL);
 
@@ -808,7 +807,7 @@ packet_list_first_full_visible_row(gint row)
 
 /* get the last fully visible row number, given row MUST be visible */
 static gint
-packet_list_last_full_visible_row(gint row) 
+packet_list_last_full_visible_row(gint row)
 {
         g_assert(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) == GTK_VISIBILITY_FULL);
 

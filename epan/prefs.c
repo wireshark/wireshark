@@ -1764,7 +1764,8 @@ try_convert_to_custom_column(gpointer *el_data)
         { COL_OXID, "fc.ox_id" },
         { COL_RXID, "fc.rx_id" },
         { COL_SRCIDX, "mdshdr.srcidx" },
-        { COL_DSTIDX, "mdshdr.dstidx" }
+        { COL_DSTIDX, "mdshdr.dstidx" },
+        { COL_DCE_CTX, "dcerpc.cn_ctx_id" }
     };
 
     guint haystack_idx;

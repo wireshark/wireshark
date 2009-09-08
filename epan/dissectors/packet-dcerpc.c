@@ -2615,16 +2615,6 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       dissect_dcerpc_uint16 (tvb, offset, pinfo, NULL, hdr->drep,
                                       hf_dcerpc_cn_ctx_id, &ctx_id);
 
-      if (check_col (pinfo->cinfo, COL_DCE_CTX)) {
-		if(pinfo->dcectxid == 0) {
-			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "%u", ctx_id);
-		} else {
-			/* this is not the first DCE-RPC request/response in this (TCP?-)PDU,
-			 * prepend a delimiter */
-			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "#%u", ctx_id);
-		}
-      }
-
       /* save context ID for use with dcerpc_add_conv_to_bind_table() */
       /* (if we have multiple contexts, this might cause "decode as"
        *  to behave unpredictably) */
@@ -3259,16 +3249,6 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_item_append_text(parent_pi, " Ctx: %u", ctx_id);
     }
 
-    if (check_col (pinfo->cinfo, COL_DCE_CTX)) {
-		if(pinfo->dcectxid == 0) {
-			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "%u", ctx_id);
-		} else {
-			/* this is not the first DCE-RPC request/response in this (TCP?-)PDU,
-			 * prepend a delimiter */
-			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "#%u", ctx_id);
-		}
-    }
-
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_opnum, &opnum);
 
@@ -3439,17 +3419,6 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_item_append_text(parent_pi, " Ctx: %u", ctx_id);
     }
 
-    if (check_col (pinfo->cinfo, COL_DCE_CTX)) {
-		if(pinfo->dcectxid == 0) {
-			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "%u", ctx_id);
-		} else {
-			/* this is not the first DCE-RPC request/response in this (TCP?-)PDU,
-			 * prepend a delimiter */
-			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "#%u", ctx_id);
-		}
-    }
-
-
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
 
@@ -3582,16 +3551,6 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_ctx_id, &ctx_id);
-
-    if (check_col (pinfo->cinfo, COL_DCE_CTX)) {
-		if(pinfo->dcectxid == 0) {
-			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "%u", ctx_id);
-		} else {
-			/* this is not the first DCE-RPC request/response in this (TCP?-)PDU,
-			 * prepend a delimiter */
-			col_append_fstr (pinfo->cinfo, COL_DCE_CTX, "#%u", ctx_id);
-		}
-    }
 
     offset = dissect_dcerpc_uint8 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                    hf_dcerpc_cn_cancel_count, NULL);

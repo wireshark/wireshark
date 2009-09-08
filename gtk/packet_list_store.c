@@ -715,7 +715,6 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 		case COL_INFO:
 		case COL_IF_DIR:
 		case COL_DCE_CALL:
-		case COL_DCE_CTX:
 		case COL_8021Q_VLAN_ID:
 		case COL_EXPERT:
 		case COL_FREQ_CHAN:
