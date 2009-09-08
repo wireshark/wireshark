@@ -382,7 +382,10 @@ static const char *keytab_filename = "insert filename here";
 /* prevent redefinition warnings in kfw-2.5\inc\win_mac.h */
 #undef HAVE_STDARG_H
 #undef HAVE_SYS_TYPES_H
-#endif
+#if (_MSC_VER <= 1200)
+/* #define _W64 */
+#endif /* _MSC_VER */
+#endif /* _WIN32 */
 #include <krb5.h>
 enc_key_t *enc_key_list=NULL;
 
@@ -838,7 +841,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		ENDTRY;
 
 		if (do_continue) continue;
-		
+
 		data_len = item_len + offset - CONFOUNDER_PLUS_CHECKSUM;
 		if ((int) item_len + offset > length) {
 			tvb_free(encr_tvb);

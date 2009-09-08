@@ -657,7 +657,7 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
     header_field_info *hfinfo = OBJECT_GET_DATA(window,
                                                 E_DFILTER_EXPR_CURRENT_VAR_KEY);
     const value_string *value = NULL;
-    char value_display_string;
+    char *value_display_string = NULL;
 
 #if GTK_MAJOR_VERSION < 2
     value = OBJECT_GET_DATA(child, E_DFILTER_EXPR_VALUE_KEY);
