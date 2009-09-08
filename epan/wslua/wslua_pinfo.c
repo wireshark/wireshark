@@ -67,7 +67,7 @@ WSLUA_CLASS_DEFINE(Address,NOP,NOP); /* Represents an address */
 
 WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
 	/* Creates an Address Object representing an IP address. */
-	
+
 #define WSLUA_ARG_Address_ip_HOSTNAME 1 /* The address or name of the IP host. */
     Address addr = g_malloc(sizeof(address));
     guint32* ip_addr = g_malloc(sizeof(guint32));
@@ -328,7 +328,6 @@ static const struct col_names_t colnames[] = {
     {"info",COL_INFO},
     {"packet_len",COL_PACKET_LENGTH},
     {"cumulative_bytes",COL_CUMULATIVE_BYTES},
-    {"oxid",COL_OXID},
     {"rxid",COL_RXID},
     {"direction",COL_IF_DIR},
     {"src_idx",COL_SRCIDX},
@@ -381,7 +380,7 @@ static int Column__gc(lua_State* L) {
     Column col = checkColumn(L,1);
 
     if (!col) return 0;
-    
+
     if (!col->expired)
         col->expired = TRUE;
     else
@@ -562,7 +561,7 @@ static int Columns_gc(lua_State* L) {
     Columns cols = checkColumns(L,1);
 
     if (!cols) return 0;
-    
+
     if (!cols->expired)
         cols->expired = TRUE;
     else
@@ -706,7 +705,7 @@ static int Pinfo_columns(lua_State *L) {
         luaL_error(L,"expired_pinfo");
         return 0;
     }
-    
+
     cols = g_malloc(sizeof(struct _wslua_cols));
     cols->cinfo = pinfo->ws_pinfo->cinfo;
     cols->expired = FALSE;
@@ -752,7 +751,7 @@ int Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
         luaL_error(L,"Not an OK address");
         return 0;
     }
-    
+
     if (!pinfo) {
         luaL_error(L,"expired_pinfo");
         return 0;
@@ -793,7 +792,7 @@ int Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
         luaL_error(L,"expired_pinfo");
         return 0;
     }
-    
+
     switch(pt) {
         case PARAM_PORT_SRC:
             pinfo->srcport = (guint32)v;
@@ -947,10 +946,10 @@ static const pinfo_method_t Pinfo_methods[] = {
 
 	/* WSLUA_ATTRIBUTE Pinfo_desegment_offset RW Offset in the tvbuff at which the dissector will continue processing when next called*/
     {"desegment_offset", Pinfo_desegment_offset, Pinfo_set_int,  PARAM_DESEGMENT_OFFSET },
-	
+
 	/* WSLUA_ATTRIBUTE Pinfo_private_data RO Access to private data */
     {"private_data", Pinfo_private_data, pushnil_param, PARAM_NONE},
-	
+
     {NULL,NULL,NULL,PARAM_NONE}
 };
 
@@ -1018,7 +1017,7 @@ static int Pinfo_gc(lua_State* L) {
     Pinfo pinfo = checkPinfo(L,1);
 
     if (!pinfo) return 0;
-    
+
     if (!pinfo->expired)
         pinfo->expired = TRUE;
     else

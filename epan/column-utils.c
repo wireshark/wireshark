@@ -1481,11 +1481,6 @@ col_fill_in(packet_info *pinfo, gboolean fill_fd_colums)
       col_set_port(pinfo, i, FALSE, FALSE);
       break;
 
-    case COL_OXID:
-      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->oxid);
-      pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      break;
-
     case COL_RXID:
       g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->rxid);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];

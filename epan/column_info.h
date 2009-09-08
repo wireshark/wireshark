@@ -89,7 +89,7 @@ enum {
   COL_DEF_DST_PORT,   /* 19) Destination port */
   COL_EXPERT,         /* 20) Expert Info */
   COL_IF_DIR,         /* 21) FW-1 monitor interface/direction */
-  COL_OXID,           /* 22) Fibre Channel OXID */
+  COL_OXID,           /* 22) !! DEPRECATED !! - Fibre Channel OXID */
   COL_RXID,           /* 23) Fibre Channel RXID */
   COL_FR_DLCI,        /* 24) !! DEPRECATED !! - Frame Relay DLCI */
   COL_FREQ_CHAN,      /* 25) IEEE 802.11 (and WiMax?) - Channel */
