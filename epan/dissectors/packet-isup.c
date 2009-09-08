@@ -7125,7 +7125,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
-     * necessary to generate protocol tree items.
+	 * necessary to generate protocol tree items.
 	 */
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, FALSE);
@@ -7159,17 +7159,22 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Extract message type field */
 	message_type = tvb_get_guint8(tvb, BICC_CIC_OFFSET + BICC_CIC_LENGTH);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
-
-	/* dissect CIC in main dissector since pass-along message type carrying complete BICC/ISUP message w/o CIC needs
-	 * recursive message dissector call
-	 */
 	bicc_cic = tvb_get_letohl(tvb, BICC_CIC_OFFSET);
 
 	pinfo->ctype = CT_BICC;
 	pinfo->circuit_id = bicc_cic;
 
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		if (isup_show_cic_in_info) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s (CIC %u) ", val_to_str(message_type, isup_message_type_value_acro, "reserved"), bicc_cic);
+		} else {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
+		}
+	}
+	/* dissect CIC in main dissector since pass-along message type carrying complete BICC/ISUP message w/o CIC needs
+	 * recursive message dissector call
+	 */
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
 	 * necessary to generate protocol tree items.
 	 */
