@@ -526,10 +526,9 @@ dissect_smrse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_smrse);
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMRSE");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMRSE");
   	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_set_str(pinfo->cinfo, COL_INFO, val_to_str(tag, tag_vals,"Unknown Tag:0x%02x"));
+  		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(tag, tag_vals,"Unknown Tag:0x%02x"));
 
 	proto_tree_add_item(tree, hf_smrse_reserved, tvb, 0, 1, FALSE);
 	proto_tree_add_item(tree, hf_smrse_length, tvb, 1, 2, FALSE);
@@ -616,7 +615,7 @@ void proto_register_smrse(void) {
         "smrse.T_address_value", HFILL }},
     { &hf_smrse_octet_format,
       { "octet-format", "smrse.octet_format",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "smrse.T_octet_format", HFILL }},
     { &hf_smrse_connect_fail_reason,
       { "connect-fail-reason", "smrse.connect_fail_reason",
@@ -624,11 +623,11 @@ void proto_register_smrse(void) {
         "smrse.Connect_fail", HFILL }},
     { &hf_smrse_mt_priority_request,
       { "mt-priority-request", "smrse.mt_priority_request",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "smrse.BOOLEAN", HFILL }},
     { &hf_smrse_mt_mms,
       { "mt-mms", "smrse.mt_mms",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "smrse.BOOLEAN", HFILL }},
     { &hf_smrse_mt_message_reference,
       { "mt-message-reference", "smrse.mt_message_reference",
@@ -644,7 +643,7 @@ void proto_register_smrse(void) {
         "smrse.SMS_Address", HFILL }},
     { &hf_smrse_mt_user_data,
       { "mt-user-data", "smrse.mt_user_data",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "smrse.RP_UD", HFILL }},
     { &hf_smrse_mt_origVMSCAddr,
       { "mt-origVMSCAddr", "smrse.mt_origVMSCAddr",
@@ -664,7 +663,7 @@ void proto_register_smrse(void) {
         "smrse.SMS_Address", HFILL }},
     { &hf_smrse_mo_user_data,
       { "mo-user-data", "smrse.mo_user_data",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "smrse.RP_UD", HFILL }},
     { &hf_smrse_origVMSCAddr,
       { "origVMSCAddr", "smrse.origVMSCAddr",
@@ -672,7 +671,7 @@ void proto_register_smrse(void) {
         "smrse.SMS_Address", HFILL }},
     { &hf_smrse_moimsi,
       { "moimsi", "smrse.moimsi",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "smrse.IMSI_Address", HFILL }},
     { &hf_smrse_message_reference,
       { "message-reference", "smrse.message_reference",
@@ -684,7 +683,7 @@ void proto_register_smrse(void) {
         "smrse.Error_reason", HFILL }},
     { &hf_smrse_msg_waiting_set,
       { "msg-waiting-set", "smrse.msg_waiting_set",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "smrse.BOOLEAN", HFILL }},
     { &hf_smrse_alerting_MS_ISDN,
       { "alerting-MS-ISDN", "smrse.alerting_MS_ISDN",
@@ -692,7 +691,7 @@ void proto_register_smrse(void) {
         "smrse.SMS_Address", HFILL }},
     { &hf_smrse_sm_diag_info,
       { "sm-diag-info", "smrse.sm_diag_info",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "smrse.RP_UD", HFILL }},
     { &hf_smrse_ms_address,
       { "ms-address", "smrse.ms_address",
@@ -700,7 +699,7 @@ void proto_register_smrse(void) {
         "smrse.SMS_Address", HFILL }},
 
 /*--- End of included file: packet-smrse-hfarr.c ---*/
-#line 167 "packet-smrse-template.c"
+#line 166 "packet-smrse-template.c"
   };
 
   /* List of subtrees */
@@ -722,7 +721,7 @@ void proto_register_smrse(void) {
     &ett_smrse_RPAlertSC,
 
 /*--- End of included file: packet-smrse-ettarr.c ---*/
-#line 173 "packet-smrse-template.c"
+#line 172 "packet-smrse-template.c"
   };
 
   /* Register protocol */

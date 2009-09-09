@@ -836,8 +836,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
     offset++;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO,
-                   val_to_str(opcode, rlc_op_vals, "Unknown"));
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(opcode, rlc_op_vals, "Unknown"));
     }
 
     /* Assume UE side, so REQ is UL, IND is DL */

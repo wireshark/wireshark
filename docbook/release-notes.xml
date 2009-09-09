@@ -51,6 +51,21 @@ Wireshark Info
           -->
         </listitem>
 
+        <listitem>
+          <para>
+            The OpcUa dissector could use excessive CPU and memory.
+            <!-- Fixed in trunk: r29813 -->
+            <!-- Fixed in trunk-1.2: r29826 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3893">Bug
+            3893</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.6 to 1.0.8, 1.2.0 to 1.2.1</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+          -->
+        </listitem>
 
       </itemizedlist>
 
@@ -189,6 +204,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          DHCPv6, Vendor-Specific Informantion, SubOption"Option Request" parser incorrect.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3987">Bug
+          3987</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark could leak memory while analyzing SSL.
         </para></listitem>
 
@@ -222,6 +243,7 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
 DCERPC,
+DHCPv6,
 DNS,
 E.212,
 GSM A RR,
@@ -231,6 +253,7 @@ IPMI,
 ISAKMP/IKE,
 Kingfisher,
 LDAP,
+OpcUA,
 RTCP,
 SCTP,
 SIP,

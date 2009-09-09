@@ -109,7 +109,7 @@ static void dissect_nat_pmp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   offset++;
 
   if (check_col (pinfo->cinfo, COL_INFO))
-    col_set_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, opcode_vals, "Unknown opcode: %d"));
+    col_add_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, opcode_vals, "Unknown opcode: %d"));
 
   switch (opcode) {
 
