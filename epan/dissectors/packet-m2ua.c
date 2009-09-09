@@ -876,7 +876,7 @@ static const value_string parameter_tag_values[] = {
  * The other option is the old Draft 7 value defined below.
  */
 #define	PROTOCOL_DATA_1_DRAFT_7				0x000e
-static guint protocol_data_1_global = PROTOCOL_DATA_1_PARAMETER_TAG;
+static gint protocol_data_1_global = PROTOCOL_DATA_1_PARAMETER_TAG;
 
 static void
 dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m2ua_tree)
