@@ -42,6 +42,8 @@ include(CMakeInstallDirs)
 include_directories(
 	${CMAKE_BINARY_DIR}
 	${CMAKE_BINARY_DIR}/epan
+	${CMAKE_BINARY_DIR}/epan/wslua
+	${CMAKE_BINARY_DIR}/epan/wspython
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/epan
 	${CMAKE_SOURCE_DIR}/epan/dfilter
