@@ -610,8 +610,8 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
         procedure = &g_array_index(err->procs_array, error_procedure_t, row);
         
         /* Create the item in our memory table */
-        procedure->entries[0]=(char *)g_string_chunk_insert(err->text, expert_data->protocol);    /* Protocol */
-        procedure->entries[1]=(char *)g_string_chunk_insert(err->text, expert_data->summary);     /* Summary */
+        procedure->entries[0]=(char *)g_string_chunk_insert_const(err->text, expert_data->protocol);    /* Protocol */
+        procedure->entries[1]=(char *)g_string_chunk_insert_const(err->text, expert_data->summary);     /* Summary */
 
         /* Create a new item in our tree view */
         store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view)); /* Get store */
@@ -630,7 +630,7 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
             g_assert(PITEM_FINFO(expert_data->pitem));
             filter = proto_construct_match_selected_string(PITEM_FINFO(expert_data->pitem), NULL);
             if (filter != NULL)
-                procedure->fvalue_value = g_string_chunk_insert(err->text, filter);
+                procedure->fvalue_value = g_string_chunk_insert_const(err->text, filter);
         }
         /* Store the updated count of events */
         err->num_procs = ++old_num_procs;
