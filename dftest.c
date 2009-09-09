@@ -48,11 +48,9 @@
 #include "epan/dfilter/dfilter.h"
 #include "register.h"
 
-packet_info	pi;
-
 static void failure_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,
-    gboolean for_writing);
+	gboolean for_writing);
 static void read_failure_message(const char *filename, int err);
 static void write_failure_message(const char *filename, int err);
 
@@ -78,7 +76,7 @@ main(int argc, char **argv)
 	init_progfile_dir_error = init_progfile_dir(argv[0], main);
 	if (init_progfile_dir_error != NULL) {
 		fprintf(stderr, "dftest: Can't get pathname of dftest program: %s.\n",
-		    init_progfile_dir_error);
+			init_progfile_dir_error);
 	}
 
 	timestamp_set_type(TS_RELATIVE);
@@ -100,29 +98,29 @@ main(int argc, char **argv)
 	setlocale(LC_ALL, "");
 
 	prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-	    &pf_open_errno, &pf_read_errno, &pf_path);
+		&pf_open_errno, &pf_read_errno, &pf_path);
 	if (gpf_path != NULL) {
 		if (gpf_open_errno != 0) {
 			fprintf(stderr,
-			    "can't open global preferences file \"%s\": %s.\n",
-			    pf_path, strerror(gpf_open_errno));
+				"can't open global preferences file \"%s\": %s.\n",
+				pf_path, strerror(gpf_open_errno));
 		}
 		if (gpf_read_errno != 0) {
 			fprintf(stderr,
-			    "I/O error reading global preferences file \"%s\": %s.\n",
-			    pf_path, strerror(gpf_read_errno));
+				"I/O error reading global preferences file \"%s\": %s.\n",
+				pf_path, strerror(gpf_read_errno));
 		}
 	}
 	if (pf_path != NULL) {
 		if (pf_open_errno != 0) {
 			fprintf(stderr,
-			    "can't open your preferences file \"%s\": %s.\n",
-			    pf_path, strerror(pf_open_errno));
+				"can't open your preferences file \"%s\": %s.\n",
+				pf_path, strerror(pf_open_errno));
 		}
 		if (pf_read_errno != 0) {
 			fprintf(stderr,
-			    "I/O error reading your preferences file \"%s\": %s.\n",
-			    pf_path, strerror(pf_read_errno));
+				"I/O error reading your preferences file \"%s\": %s.\n",
+				pf_path, strerror(pf_read_errno));
 		}
 	}
 
@@ -157,6 +155,7 @@ main(int argc, char **argv)
 	else
 		dfilter_dump(df);
 
+	dfilter_free(df);
 	epan_cleanup();
 	exit(0);
 }
@@ -190,7 +189,7 @@ static void
 read_failure_message(const char *filename, int err)
 {
 	fprintf(stderr, "dftest: An error occurred while reading from the file \"%s\": %s.\n",
-	    filename, strerror(err));
+		filename, strerror(err));
 }
 
 /*
@@ -200,5 +199,5 @@ static void
 write_failure_message(const char *filename, int err)
 {
 	fprintf(stderr, "dftest: An error occurred while writing to the file \"%s\": %s.\n",
-	    filename, strerror(err));
+		filename, strerror(err));
 }
