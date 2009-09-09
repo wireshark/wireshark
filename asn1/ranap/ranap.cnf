@@ -9,7 +9,7 @@ ALIGNED
 #.END
 
 #.EXPORTS
-TargetID
+TargetRNC-ID
 Service-Handover
 IntegrityProtectionInformation
 EncryptionInformation

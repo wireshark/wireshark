@@ -4562,7 +4562,7 @@ static const per_sequence_t TargetRNC_ID_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_ranap_TargetRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ranap_TargetRNC_ID, TargetRNC_ID_sequence);
@@ -6390,7 +6390,7 @@ dissect_ranap_TargetBSS_ToSourceBSS_TransparentContainer(tvbuff_t *tvb _U_, int 
 }
 
 
-const value_string ranap_TargetID_vals[] = {
+static const value_string ranap_TargetID_vals[] = {
   {   0, "targetRNC-ID" },
   {   1, "cGI" },
   {   2, "targeteNB-ID" },
@@ -6404,7 +6404,7 @@ static const per_choice_t TargetID_choice[] = {
   { 0, NULL, 0, NULL }
 };
 
-int
+static int
 dissect_ranap_TargetID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_ranap_TargetID, TargetID_choice,

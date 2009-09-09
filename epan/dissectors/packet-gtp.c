@@ -213,7 +213,7 @@ static int hf_gtp_ext_rat_type = -1;
 static int hf_gtp_ext_geo_loc_type = -1;
 static int hf_gtp_ext_sac = -1;
 static int hf_gtp_ext_imeisv = -1;
-static int hf_gtp_targetid = -1;
+static int hf_gtp_targetRNC_ID = -1;
 static int hf_gtp_bssgp_cause = -1;
 static int hf_gtp_sapi = -1;
 static int hf_gtp_xid_par_len = -1;
@@ -4659,7 +4659,7 @@ static int decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
     next_tvb = tvb_new_subset(tvb, offset, length, length);
-    dissect_ranap_TargetID(next_tvb, 0, &asn1_ctx, ext_tree, hf_gtp_targetid);
+    dissect_ranap_TargetRNC_ID(next_tvb, 0, &asn1_ctx, ext_tree, hf_gtp_targetRNC_ID);
 
     return 3 + length;
 }
@@ -6867,10 +6867,10 @@ void proto_register_gtp(void)
 	  FT_STRING, BASE_NONE, NULL, 0x0,
 	  NULL, HFILL}
 	 },
-	{&hf_gtp_targetid,
-	 {"TargetID", "gtp.targetid",
-	  FT_UINT32, BASE_DEC, VALS(ranap_TargetID_vals), 0,
-	  NULL, HFILL}},
+    { &hf_gtp_targetRNC_ID,
+      { "targetRNC-ID", "gtp.targetRNC_ID",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 	{&hf_gtp_bssgp_cause,
 	 {"BSSGP Cause", "gtp.bssgp_cause",
 	  FT_UINT8, BASE_DEC, VALS(tab_cause), 0,
