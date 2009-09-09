@@ -167,32 +167,32 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpcUa");
 
     /* parse message type */
-    if (tvb->real_data[0] == 'H' && tvb->real_data[1] == 'E' && tvb->real_data[2] == 'L')
+    if (tvb_memeql(tvb, 0, "HEL", 3))
     {
         msgtype = MSG_HELLO;
         pfctParse = parseHello;
     }
-    else if (tvb->real_data[0] == 'A' && tvb->real_data[1] == 'C' && tvb->real_data[2] == 'K')
+    else if (tvb_memeql(tvb, 0, "ACK", 3))
     {
         msgtype = MSG_ACKNOWLEDGE;
         pfctParse = parseAcknowledge;
     }
-    else if (tvb->real_data[0] == 'E' && tvb->real_data[1] == 'R' && tvb->real_data[2] == 'R')
+    else if (tvb_memeql(tvb, 0, "ERR", 3))
     {
         msgtype = MSG_ERROR;
         pfctParse = parseError;
     }
-    else if (tvb->real_data[0] == 'M' && tvb->real_data[1] == 'S' && tvb->real_data[2] == 'G')
+    else if (tvb_memeql(tvb, 0, "MSG", 3))
     {
         msgtype = MSG_MESSAGE;
         pfctParse = parseMessage;
     }
-    else if (tvb->real_data[0] == 'O' && tvb->real_data[1] == 'P' && tvb->real_data[2] == 'N')
+    else if (tvb_memeql(tvb, 0, "OPN", 3))
     {
         msgtype = MSG_OPENSECURECHANNEL;
         pfctParse = parseOpenSecureChannel;
     }
-    else if (tvb->real_data[0] == 'C' && tvb->real_data[1] == 'L' && tvb->real_data[2] == 'O')
+    else if (tvb_memeql(tvb, 0, "CLO", 3))
     {
         msgtype = MSG_CLOSESECURECHANNEL;
         pfctParse = parseCloseSecureChannel;
