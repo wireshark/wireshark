@@ -1276,7 +1276,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item *it = NULL;
     proto_tree *fcsof_tree = NULL;
     gint bytes_remaining;
-    tvbuff_t *next_tvb;
+    tvbuff_t *next_tvb, *checksum_tvb;
     guint32 sof = 0;
     guint32 crc = 0;
     guint32 crc_computed = 0;
@@ -1285,10 +1285,12 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     gint eof_offset = 0;
     gint sof_offset = 0;
     const gint FCSOF_TRAILER_LEN = 8;
+    const gint FCSOF_HEADER_LEN = 4;
+    gint frame_len_for_checksum = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC");
 
-    crc_offset = tvb_reported_length_remaining(tvb, 0) - FCSOF_TRAILER_LEN;
+    crc_offset = tvb_reported_length(tvb) - FCSOF_TRAILER_LEN;
     eof_offset = crc_offset + 4;
     sof_offset = 0;
 
@@ -1299,7 +1301,9 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     crc = tvb_get_ntohl(tvb, crc_offset);
 
     /* GET Computed CRC */
-    crc_computed = crc32_802_tvb(tvb, tvb_length(tvb) - 4);
+    frame_len_for_checksum = crc_offset - FCSOF_HEADER_LEN;
+    checksum_tvb = tvb_new_subset(tvb, 4, frame_len_for_checksum, frame_len_for_checksum);
+    crc_computed = crc32_802_tvb(checksum_tvb, frame_len_for_checksum);
 
     /* Get EOF */
     eof = tvb_get_ntohl(tvb, eof_offset);
