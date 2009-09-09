@@ -1801,10 +1801,14 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
 {
     gint i;
 
-    if(ssl_session->cipher_suite.kex!=KEX_RSA) {
-        ssl_debug_printf("ssl_decrypt_pre_master_secret key %d different from KEX_RSA(%d)\n",
+    if(ssl_session->cipher_suite.kex == KEX_DH) {
+        ssl_debug_printf("ssl_decrypt_pre_master_secret session uses DH (%d) key exchange, which is impossible to decrypt\n",
+            KEX_DH);
+        return -1;
+    } else if(ssl_session->cipher_suite.kex != KEX_RSA) {
+         ssl_debug_printf("ssl_decrypt_pre_master_secret key exchange %d different from KEX_RSA (%d)\n",
             ssl_session->cipher_suite.kex, KEX_RSA);
-        return(-1);
+        return -1;
     }
 
     /* with tls key loading will fail if not rsa type, so no need to check*/
