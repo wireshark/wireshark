@@ -1280,6 +1280,8 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
 
   fdata->abs_ts.secs = phdr->ts.secs;
   fdata->abs_ts.nsecs = phdr->ts.nsecs;
+  fdata->col_text_len = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
+  fdata->col_text = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
 
   if (cf->plist_end != NULL)
     nstime_delta(&fdata->del_cap_ts, &fdata->abs_ts, &cf->plist_end->abs_ts);
