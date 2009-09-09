@@ -13,7 +13,7 @@ LDFLAGS = $(PLUGIN_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK
 LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
-CFLAGS=/DHAVE_WIN32_LIBWIRESHARK_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
+CFLAGS=/D_NEED_VAR_IMPORT_ $(CFLAGS)
 
 OBJECTS=packet-cosnaming.obj  packet-coseventcomm.obj packet-tango.obj packet-parlay.obj
 

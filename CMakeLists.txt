@@ -232,7 +232,7 @@ if(APPLE)
 endif()
 
 if(WIN32)
-	add_definitions(-DHAVE_WIN32_LIBWIRESHARK_LIB -D_NEED_VAR_IMPORT_)
+	add_definitions(-D_NEED_VAR_IMPORT_)
 	set(WS_VAR_IMPORT "__declspec(dllimport) extern")
 
 	# Disable deprecation
