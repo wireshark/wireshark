@@ -34,9 +34,6 @@
 #include <string.h>
 #include <epan/emem.h>
 
-/* string buffer */
-#define MAX_BUFFER 256
-
 #define DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG           0x01
 #define DIAGNOSTICINFO_ENCODINGMASK_NAMESPACE_FLAG            0x02
 #define DIAGNOSTICINFO_ENCODINGMASK_LOCALIZEDTEXT_FLAG        0x04
@@ -52,6 +49,9 @@
 #define DATAVALUE_ENCODINGBYTE_SERVERTIMESTAMP                0x08
 #define EXTOBJ_ENCODINGMASK_BINBODY_FLAG                      0x01
 #define EXTOBJ_ENCODINGMASK_XMLBODY_FLAG                      0x02
+
+/* Chosen arbitrarily */
+#define MAX_ARRAY_LEN 10000
 
 static int hf_opcua_diag_mask_symbolicflag = -1;
 static int hf_opcua_diag_mask_namespaceflag = -1;
@@ -317,35 +317,28 @@ void parseInt64(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 
 void parseString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    char *szValue = ep_alloc(MAX_BUFFER);
+    char *szValue;
     gint iOffset = *pOffset;
     gint32 iLen = tvb_get_letohl(tvb, *pOffset);
     iOffset+=4;
 
-    if (szValue)
+    if (iLen == -1)
     {
-        if (iLen == -1)
-        {
-            g_snprintf(szValue, MAX_BUFFER, "[OpcUa Null String]");
-        }
-        else if (iLen >= 0)
-        {
-            int iStrLen = iLen;
-            if (iStrLen > (MAX_BUFFER-1)) iStrLen = MAX_BUFFER - 1;
-            /* copy non null terminated string of length iStrlen */
-            strncpy(szValue, (char*)&tvb->real_data[iOffset], iStrLen);
-            /* set null terminator */
-            szValue[iStrLen] = 0;
-            iOffset += iLen; /* eat the whole string */
-        }
-        else
-        {
-            g_snprintf(szValue, MAX_BUFFER, "[Invalid String] Ups, something is wrong with this message.");
-        }
-
-        proto_tree_add_string(tree, hfIndex, tvb, *pOffset, (iOffset - *pOffset), szValue);
-        *pOffset = iOffset;
+        proto_tree_add_string(tree, hfIndex, tvb, *pOffset, (iOffset - *pOffset),
+                              "[OpcUa Null String]");
     }
+    else if (iLen >= 0)
+    {
+        iOffset += iLen; /* eat the whole string */
+        proto_tree_add_item(tree, hfIndex, tvb, *pOffset, (iOffset - *pOffset), TRUE);
+    }
+    else
+    {
+        szValue = ep_strdup_printf("[Invalid String] Invalid length: %d", iLen);
+        proto_tree_add_string(tree, hfIndex, tvb, *pOffset, (iOffset - *pOffset), szValue);
+    }
+
+    *pOffset = iOffset;
 }
 
 void parseStatusCode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
@@ -623,11 +616,17 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfInde
     /* read array length */
     iLen = tvb_get_letohl(tvb, *pOffset);
     proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, TRUE);
-    *pOffset += 4;
 
     if (iLen == -1) return; /* no array */
     if (iLen == 0)  return; /* array with zero elements*/
 
+    if (iLen > MAX_ARRAY_LEN)
+    {
+        PROTO_ITEM_SET_GENERATED(proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen));
+        return;
+    }
+
+    *pOffset += 4;
     for (i=0; i<iLen; i++)
     {
         (*pParserFunction)(subtree, tvb, pOffset, hfIndex);
@@ -649,11 +648,17 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, fctEnumParse
     /* read array length */
     iLen = tvb_get_letohl(tvb, *pOffset);
     proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, TRUE);
-    *pOffset += 4;
 
     if (iLen == -1) return; /* no array */
     if (iLen == 0)  return; /* array with zero elements*/
 
+    if (iLen > MAX_ARRAY_LEN)
+    {
+        PROTO_ITEM_SET_GENERATED(proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen));
+        return;
+    }
+
+    *pOffset += 4;
     for (i=0; i<iLen; i++)
     {
         (*pParserFunction)(subtree, tvb, pOffset);
@@ -674,11 +679,17 @@ void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
     /* read array length */
     iLen = tvb_get_letohl(tvb, *pOffset);
     proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, TRUE);
-    *pOffset += 4;
 
     if (iLen == -1) return; /* no array */
     if (iLen == 0)  return; /* array with zero elements*/
 
+    if (iLen > MAX_ARRAY_LEN)
+    {
+        PROTO_ITEM_SET_GENERATED(proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen));
+        return;
+    }
+
+    *pOffset += 4;
     for (i=0; i<iLen; i++)
     {
         char szNum[20];

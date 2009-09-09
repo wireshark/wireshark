@@ -184,11 +184,11 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     /* parse message type */
-    if (tvb->real_data[0] == 'U' && tvb->real_data[1] == 'A')
+    if (tvb_get_guint8(tvb, 0) == 'U' && tvb_get_guint8(tvb, 1) == 'A')
     {
-        if (tvb->real_data[2] == 'T')
+        if (tvb_get_guint8(tvb, 2) == 'T')
         {
-            switch(tvb->real_data[3])
+            switch(tvb_get_guint8(tvb, 3))
             {
             case 'H': msgtype = MSG_HELLO;
                 pfctParse = parseHello;
@@ -203,9 +203,9 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 break;
             }                
         }
-        else if (tvb->real_data[2] == 'M')
+        else if (tvb_get_guint8(tvb, 2) == 'M')
         {
-            switch(tvb->real_data[3])
+            switch(tvb_get_guint8(tvb, 3))
             {
             case 'G': msgtype = MSG_DATA_LAST_CHUNK;
                 pfctParse = parseData;

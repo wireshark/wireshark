@@ -43,7 +43,7 @@ Wireshark Info
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=564">Bug
             3564</ulink>)
           </para>
-          <para>Versions affected: 0.9.2 to 1.0.8 and 1.2.0</para>
+          <para>Versions affected: 0.9.2 to 1.0.8, 1.2.0</para>
         </listitem>
 
         <listitem>
@@ -52,7 +52,23 @@ Wireshark Info
             <!-- Fixed in trunk: r28839 -->
             <!-- Fixed in trunk-1.0: r29702 -->
           </para>
-          <para>Versions affected: 0.9.2 to 1.0.8 and 1.2.0</para>
+          <para>Versions affected: 0.9.2 to 1.0.8, 1.2.0</para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The OpcUa dissector could use excessive CPU and memory.
+            <!-- Fixed in trunk: r29813 -->
+            <!-- Fixed in trunk-1.2: r29826 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3893">Bug
+            3893</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.6 to 1.0.8, 1.2.0 to 1.2.1</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+          -->
         </listitem>
 
       </itemizedlist>
@@ -177,7 +193,8 @@ AFS,
 eDonkey,
 FTP,
 IEEE 802.11,
-Infiniband
+Infiniband,
+OpcUa
 
 
     </para>
