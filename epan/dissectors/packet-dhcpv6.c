@@ -1370,7 +1370,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, tvbuff_t *tvb, int voff, int
                 field_len = 2;
                 opt_len = tlv_len * field_len;
                 if (opt_len > 0) {
-                  for (i = 0; i < tlv_len; i++) {
+                  for (i = 0; i < tlv_len; i += field_len) {
                     sub_value = tvb_get_ntohs(tvb, sub_off);
                     proto_item_append_text(ti, " %d", sub_value);
                    sub_off += field_len;
