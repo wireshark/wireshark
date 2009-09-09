@@ -23,12 +23,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 /*
- * Added support for OSPF restart signaling:
- *       draft-nguyen-ospf-lls-05.txt
- *       draft-nguyen-ospf-oob-resync-05.txt
- *       draft-nguyen-ospf-restart-05.txt
- *   - (c) 2005 Michael Rozhavsky <mrozhavsky@fortinet.com>
- *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
  * OSPF Extensions which introduce new Packet types
@@ -38,6 +32,12 @@
  *
  * Added support to E-NNI routing (OIF2003.259.02)
  *   - (c) 2004 Roberto Morro <roberto.morro[AT]tilab.com>
+ *
+ * Added support for OSPF restart signaling:
+ *       draft-nguyen-ospf-lls-05.txt
+ *       draft-nguyen-ospf-oob-resync-05.txt
+ *       draft-nguyen-ospf-restart-05.txt
+ *   - (c) 2005 Michael Rozhavsky <mrozhavsky@fortinet.com>
  *
  * Added support of MPLS Diffserv-aware TE (RFC 4124); new BC sub-TLV
  *   - (c) 2006 (FF) <francesco.fondelli[AT]gmail.com>
@@ -49,7 +49,9 @@
  * Added support for draft-ietf-ospf-af-alt-06
  *   - (c) 2008 Cisco Systems
  *
- * TOS - support is not fully implemented
+ * Added support for Multi-Topology (MT) Routing (RFC4915)
+ *   - (c) 2009 Stig Bjorlykke <stig@bjorlykke.org>, Thales Norway AS
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -82,7 +84,7 @@
 
 static const value_string pt_vals[] = {
 	{OSPF_HELLO,   "Hello Packet"   },
-	{OSPF_DB_DESC, "DB Descr."      },
+	{OSPF_DB_DESC, "DB Description" },
 	{OSPF_LS_REQ,  "LS Request"     },
 	{OSPF_LS_UPD,  "LS Update"      },
 	{OSPF_LS_ACK,  "LS Acknowledge" },
@@ -100,6 +102,7 @@ static const value_string auth_vals[] = {
 	{0,                NULL              }
 };
 
+#define OSPF_V2_OPTIONS_MT		0x01
 #define OSPF_V2_OPTIONS_E		0x02
 #define OSPF_V2_OPTIONS_MC		0x04
 #define OSPF_V2_OPTIONS_NP		0x08
@@ -282,6 +285,8 @@ static const range_string mpls_link_stlv_bcmodel_rvals[] = {
 #define OSPF_V2_ROUTER_LSA_FLAG_B 0x01
 #define OSPF_V2_ROUTER_LSA_FLAG_E 0x02
 #define OSPF_V2_ROUTER_LSA_FLAG_V 0x04
+#define OSPF_V2_ROUTER_LSA_FLAG_W 0x08
+#define OSPF_V2_ROUTER_LSA_FLAG_N 0x10
 #define OSPF_V3_ROUTER_LSA_FLAG_B 0x01
 #define OSPF_V3_ROUTER_LSA_FLAG_E 0x02
 #define OSPF_V3_ROUTER_LSA_FLAG_V 0x04
@@ -345,7 +350,7 @@ static gint ett_ospf_lsa_grace_tlv = -1;
 
 static const true_false_string tfs_v2_options_dc = {
 	"Demand Circuits are supported",
-	"Demand circuits are NOT supported"
+	"Demand Circuits are NOT supported"
 };
 static const true_false_string tfs_v2_options_l = {
 	"The packet contains LLS data block",
@@ -353,15 +358,19 @@ static const true_false_string tfs_v2_options_l = {
 };
 static const true_false_string tfs_v2_options_np = {
 	"NSSA is supported",
-	"Nssa is NOT supported"
+	"NSSA is NOT supported"
 };
 static const true_false_string tfs_v2_options_mc = {
 	"Multicast Capable",
-	"NOT multicast capable"
+	"NOT Multicast Capable"
 };
 static const true_false_string tfs_v2_options_e = {
-	"ExternalRoutingCapability",
-	"NO ExternalRoutingCapability"
+	"External Routing Capability",
+	"NO External Routing Capability"
+};
+static const true_false_string tfs_v2_options_mt = {
+	"Multi-Topology Routing",
+	"NO Multi-Topology Routing"
 };
 static const true_false_string tfs_v2_options_o = {
 	"O-bit is SET",
@@ -475,6 +484,14 @@ static const true_false_string tfs_v2_router_lsa_flags_v = {
 	"Virtual link endpoint",
 	"NO Virtual link endpoint"
 };
+static const true_false_string tfs_v2_router_lsa_flags_w = {
+	"Wild-card multicast receiver",
+	"NO Wild-card multicast receiver"
+};
+static const true_false_string tfs_v2_router_lsa_flags_n = {
+	"N flag",
+	"NO N flag"
+};
 static const true_false_string tfs_v3_router_lsa_flags_b = {
 	"Area border router",
 	"NO Area border router"
@@ -569,6 +586,7 @@ enum {
     OSPFF_LS_OIF_REMOTE_NODE_ID,
 
     OSPFF_V2_OPTIONS,
+    OSPFF_V2_OPTIONS_MT,
     OSPFF_V2_OPTIONS_E,
     OSPFF_V2_OPTIONS_MC,
     OSPFF_V2_OPTIONS_NP,
@@ -620,6 +638,8 @@ enum {
     OSPFF_V2_ROUTER_LSA_FLAG_B,
     OSPFF_V2_ROUTER_LSA_FLAG_E,
     OSPFF_V2_ROUTER_LSA_FLAG_V,
+    OSPFF_V2_ROUTER_LSA_FLAG_W,
+    OSPFF_V2_ROUTER_LSA_FLAG_N,
     OSPFF_V3_ROUTER_LSA_FLAG,
     OSPFF_V3_ROUTER_LSA_FLAG_B,
     OSPFF_V3_ROUTER_LSA_FLAG_E,
@@ -701,6 +721,13 @@ static int bf_v2_router_lsa_flags[] = {
     OSPFF_V2_ROUTER_LSA_FLAG_E,
     OSPFF_V2_ROUTER_LSA_FLAG_B
 };
+static int bf_v2_router_lsa_mt_flags[] = {
+    OSPFF_V2_ROUTER_LSA_FLAG_N,
+    OSPFF_V2_ROUTER_LSA_FLAG_W,
+    OSPFF_V2_ROUTER_LSA_FLAG_V,
+    OSPFF_V2_ROUTER_LSA_FLAG_E,
+    OSPFF_V2_ROUTER_LSA_FLAG_B
+};
 static int bf_v3_router_lsa_flags[] = {
     OSPFF_V3_ROUTER_LSA_FLAG_W,
     OSPFF_V3_ROUTER_LSA_FLAG_V,
@@ -719,7 +746,8 @@ static int bf_v2_options[] = {
     OSPFF_V2_OPTIONS_L,
     OSPFF_V2_OPTIONS_NP,
     OSPFF_V2_OPTIONS_MC,
-    OSPFF_V2_OPTIONS_E
+    OSPFF_V2_OPTIONS_E,
+    OSPFF_V2_OPTIONS_MT
 };
 static int bf_v3_options[] = {
     OSPFF_V3_OPTIONS_F,
@@ -763,6 +791,10 @@ static bitfield_info bfinfo_v3_lls_relay_options = {
 static bitfield_info bfinfo_v2_router_lsa_flags = {
     OSPFF_V2_ROUTER_LSA_FLAG, &ett_ospf_v2_router_lsa_flags,
     bf_v2_router_lsa_flags, array_length(bf_v2_router_lsa_flags)
+};
+static bitfield_info bfinfo_v2_router_lsa_mt_flags = {
+    OSPFF_V2_ROUTER_LSA_FLAG, &ett_ospf_v2_router_lsa_flags,
+    bf_v2_router_lsa_mt_flags, array_length(bf_v2_router_lsa_mt_flags)
 };
 static bitfield_info bfinfo_v3_router_lsa_flags = {
     OSPFF_V3_ROUTER_LSA_FLAG, &ett_ospf_v3_router_lsa_flags,
@@ -840,7 +872,9 @@ dissect_ospf_bitfield (proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 	    }
 	    proto_tree_add_boolean(tree, index, tvb, offset, length, flags);
 	}
-	proto_item_append_text(item, " (%s)", str);
+	if (str[0]) {
+	    proto_item_append_text(item, " (%s)", str);
+	}
     }
 }
 
@@ -2291,15 +2325,16 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     guint16		 ls_length;
     int			 end_offset;
     guint16		 nr_links;
-    guint16		 nr_tos;
+    guint16		 nr_metric;
 
     /* router LSA */
     guint8		 link_type;
     guint16 		 link_counter;
-    guint8 		 tos_counter;
+    guint8 		 metric_counter;
     const char 		*link_type_str;
     const char 		*link_type_short_str;
     const char 		*link_id;
+    const char 		*metric_type_str;
 
     /* AS-external LSA */
     guint8		 options;
@@ -2325,6 +2360,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 			tvb_get_ntohs(tvb, offset) & ~OSPF_DNA_LSA);
     proto_tree_add_text(ospf_lsa_tree, tvb, offset, 2, "Do Not Age: %s",
 			(tvb_get_ntohs(tvb, offset) & OSPF_DNA_LSA) ? "True" : "False");
+    options = tvb_get_guint8 (tvb, offset + 2);
     dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset + 2, &bfinfo_v2_options);
     proto_tree_add_item(ospf_lsa_tree, ospf_filter[OSPFF_LS_TYPE], tvb,
 			offset + 3, 1, FALSE);
@@ -2333,6 +2369,12 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 					  ospf_filter[ospf_ls_type_to_filter(ls_type)], tvb,
 					  offset + 3, 1, FALSE);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    }
+
+    if (options & OSPF_V2_OPTIONS_MT) {
+        metric_type_str = "MT-ID";
+    } else {
+        metric_type_str = "TOS";
     }
 
     if (is_opaque(ls_type)) {
@@ -2383,7 +2425,11 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     case OSPF_LSTYPE_ROUTER:
 	/* flags field in an router-lsa */
-	dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset, &bfinfo_v2_router_lsa_flags);
+	if (options & OSPF_V2_OPTIONS_MT) {
+	    dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset, &bfinfo_v2_router_lsa_mt_flags);
+	} else {
+	    dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset, &bfinfo_v2_router_lsa_flags);
+	}
 
 	nr_links = tvb_get_ntohs(tvb, offset + 2);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 2, 2, "Number of Links: %u",
@@ -2432,10 +2478,10 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 		break;
 	    }
 
-	    nr_tos = tvb_get_guint8(tvb, offset + 9);
+	    nr_metric = tvb_get_guint8(tvb, offset + 9);
 
 
-            ti_local = proto_tree_add_text(ospf_lsa_tree, tvb, offset, 12 + 4 * nr_tos,
+            ti_local = proto_tree_add_text(ospf_lsa_tree, tvb, offset, 12 + 4 * nr_metric,
                                      "Type: %-8s ID: %-15s Data: %-15s Metric: %d",
                                      link_type_short_str,
                                      ip_to_str(tvb_get_ptr(tvb, offset, 4)),
@@ -2453,20 +2499,20 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 8, 1, "Link Type: %u - %s",
 				link_type, link_type_str);
-	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 9, 1, "Number of TOS metrics: %u",
-				nr_tos);
-	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 10, 2, "TOS 0 metric: %u",
-				tvb_get_ntohs(tvb, offset + 10));
+	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 9, 1, "Number of %s metrics: %u",
+				metric_type_str, nr_metric);
+	    proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 10, 2, "%s 0 metric: %u",
+				metric_type_str, tvb_get_ntohs(tvb, offset + 10));
 
 	    offset += 12;
 
-	    /* nr_tos metrics may follow each link
-	     * ATTENTION: TOS metrics are not tested (I don't have TOS
-	     * based routing)
-	     * please send me a mail if it is/isn't working
+	    /* nr_metric metrics may follow each link
+	     * According to RFC4915 the TOS metrics was never deployed and was subsequently deprecated,
+	     * but decoding still present because MT-ID use the same structure.
 	     */
-	    for (tos_counter = 1; tos_counter <= nr_tos; tos_counter++) {
-		proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset, 4, "TOS: %u, Metric: %u",
+	    for (metric_counter = 1; metric_counter <= nr_metric; metric_counter++) {
+		proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset, 4, "%s: %u, Metric: %u",
+				    metric_type_str,
 				    tvb_get_guint8(tvb, offset),
 				    tvb_get_ntohs(tvb, offset + 2));
 		offset += 4;
@@ -2497,9 +2543,10 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    tvb_get_ntoh24(tvb, offset + 1));
 	offset += 4;
 
-	/* TOS-specific information, if any */
+	/* Metric specific information, if any */
 	while (offset < end_offset) {
-	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "TOS: %u, Metric: %u",
+	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "%s: %u, Metric: %u",
+				metric_type_str,
 				tvb_get_guint8(tvb, offset),
 				tvb_get_ntoh24(tvb, offset + 1));
 	    offset += 4;
@@ -2533,7 +2580,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    tvb_get_ntohl(tvb, offset));
 	offset += 4;
 
-	/* TOS-specific information, if any */
+	/* Metric specific information, if any */
 	while (offset < end_offset) {
 	    options = tvb_get_guint8(tvb, offset);
 	    if (options & 0x80) { /* check whether or not E bit is set */
@@ -2543,8 +2590,8 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 		proto_tree_add_text(ospf_lsa_tree, tvb, offset, 1,
 			"External Type: Type 1 (metric is specified in the same units as interface cost)");
 	    }
-	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "TOS: %u, Metric: %u",
-				options & 0x7F,
+	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "%s: %u, Metric: %u",
+				metric_type_str, options & 0x7F,
 				tvb_get_ntoh24(tvb, offset + 1));
 	    offset += 4;
 
@@ -3134,6 +3181,9 @@ proto_register_ospf(void)
 		{&ospf_filter[OSPFF_V2_OPTIONS],
 		 { "Options", "ospf.v2.options", FT_UINT8, BASE_HEX,
 		   NULL, 0x0, NULL, HFILL }},
+		{&ospf_filter[OSPFF_V2_OPTIONS_MT],
+		 { "MT", "ospf.v2.options.mt", FT_BOOLEAN, 8,
+		   TFS(&tfs_v2_options_mt), OSPF_V2_OPTIONS_MT, "", HFILL }},
 		{&ospf_filter[OSPFF_V2_OPTIONS_E],
 		 { "E", "ospf.v2.options.e", FT_BOOLEAN, 8,
 		   TFS(&tfs_v2_options_e), OSPF_V2_OPTIONS_E, NULL, HFILL }},
@@ -3224,6 +3274,12 @@ proto_register_ospf(void)
 		{&ospf_filter[OSPFF_V2_ROUTER_LSA_FLAG_V],
 		 { "V", "ospf.v2.router.lsa.flags.v", FT_BOOLEAN, 8,
 		   TFS(&tfs_v2_router_lsa_flags_v), OSPF_V2_ROUTER_LSA_FLAG_V, NULL, HFILL }},
+		{&ospf_filter[OSPFF_V2_ROUTER_LSA_FLAG_W],
+		 { "W", "ospf.v2.router.lsa.flags.w", FT_BOOLEAN, 8,
+		   TFS(&tfs_v2_router_lsa_flags_w), OSPF_V2_ROUTER_LSA_FLAG_W, "", HFILL }},
+		{&ospf_filter[OSPFF_V2_ROUTER_LSA_FLAG_N],
+		 { "N", "ospf.v2.router.lsa.flags.n", FT_BOOLEAN, 8,
+		   TFS(&tfs_v2_router_lsa_flags_n), OSPF_V2_ROUTER_LSA_FLAG_N, "", HFILL }},
 		{&ospf_filter[OSPFF_V3_ROUTER_LSA_FLAG],
 		 { "Flags", "ospf.v3.router.lsa.flags", FT_UINT8, BASE_HEX,
 		   NULL, 0x0, NULL, HFILL }},
