@@ -21,6 +21,24 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+if (HAVE_LIBLUA)
+	add_subdirectory( wslua )
+	set(WSLUA_LIB wslua)
+else()
+	set(WSLUA_LIB )
+endif()
+if (HAVE_LIBPYTHON)
+	add_subdirectory( wspython )
+	set(WSPYTHON_LIB wspython)
+else()
+	set(WSPYTHON_LIB )
+endif()
+
+link_directories(
+	wslua
+	wspython
+)
+
 ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sminmpec.c
     COMMAND ${PERL_EXECUTABLE}
@@ -1044,8 +1062,6 @@ set(FTYPE_FILES
 	ftypes/ftype-tvbuff.c
 )
 
-# FIXME: trunk/epan/wslua/ and trunk/epan/wspython/ are missing
-
 ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sminmpec.c
     COMMAND ${PERL_EXECUTABLE}
@@ -1153,6 +1169,11 @@ add_library(epan SHARED
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
 	${DISSECTOR_ASM_UTILS}
+)
+
+target_link_libraries(epan
+	${WSLUA_LIB}
+	${PYTHON_LIB}
 )
 
 add_dependencies(epan lemon)

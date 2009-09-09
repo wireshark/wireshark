@@ -33,6 +33,15 @@
 /* Define to 1 if you have the `getprotobynumber' function. */
 #cmakedefine HAVE_GETPROTOBYNUMBER 1
 
+/* Define to use the airpcap library */
+#cmakedefine HAVE_AIRPCAP 1
+
+/* Define to use C ares library */
+#cmakedefine HAVE_C_ARES 1
+
+/* Define to use SMI SNMP library */
+#cmakedefine HAVE_LIBSMI 1
+
 /* Define to use GNU ADNS library */
 #cmakedefine HAVE_GNU_ADNS 1
 

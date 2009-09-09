@@ -47,6 +47,8 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/epan/dfilter
 	${CMAKE_SOURCE_DIR}/epan/dissectors
 	${CMAKE_SOURCE_DIR}/epan/ftypes
+	${CMAKE_SOURCE_DIR}/epan/wslua
+	${CMAKE_SOURCE_DIR}/epan/wspython
 	${CMAKE_SOURCE_DIR}/tools/lemon
 	${CMAKE_SOURCE_DIR}/wiretap
 	${CMAKE_SOURCE_DIR}/wsutil
@@ -68,9 +70,28 @@ option(BUILD_editcap     "Build editcap" ON)
 option(BUILD_capinfos    "Build capinfos" ON)
 option(BUILD_randpkt     "Build randpkt" ON)
 option(BUILD_dftest      "Build dftest" ON)
-option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
-option(ENABLE_ADNS       "Build with adns support" ON)
+
+
 option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC" OFF)
+option(ENABLE_AIRPCAP	 "Enable Airpcap support" ON)
+# todo
+option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
+
+option(ENABLE_CARES      "Build with c_ares support" OFF)
+option(ENABLE_ADNS       "Build with adns support" ON)
+option(ENABLE_PCRE       "Build with pcre support" ON)
+option(ENABLE_PORTAUDIO  "Build with portaudio support" ON)
+option(ENABLE_Z	 	 "Build with zlib compression support" ON)
+option(ENABLE_LUA	 "Build with lua dissector support" ON)
+option(ENABLE_SMI	 "Build with smi snmp support" ON)
+# todo
+option(ENABLE_GNUTLS	 "Build with GNU TLS support" ON)
+option(ENABLE_GCRYPT	 "Build with GNU crypto support" ON)
+option(ENABLE_KRB5	 "Build with MIT Kerberos 5 support" ON)
+option(ENABLE_GEOIP	 "Build with GeoIP support" ON)
+option(ENABLE_PYTHON	 "Build with python dissector support" ON)
+option(ENABLE_CAP	 "Build with posix capabilities support" OFF)
+
 
 if(ENABLE_EXTRA_GCC_CHECKS)
 	set(WIRESHARK_EXTRA_GCC_FLAGS -Wcast-qual -Wcast-align -Wbad-function-cast
@@ -101,14 +122,49 @@ if(BUILD_wireshark)
 	set(PACKAGELIST GTK2 ${PACKAGELIST})
 endif()
 
+# SMI SNMP
+if(ENABLE_SMI)
+	set(PACKAGELIST SMI ${PACKAGELIST})
+endif()
+
+# GNU crypto
+if(ENABLE_GCRYPT)
+	set(PACKAGELIST GCRYPT ${PACKAGELIST})
+endif()
+
+# GNU SSL/TLS support
+if(ENABLE_GNUTLS)
+	set(PACKAGELIST GNUTLS ${PACKAGELIST})
+endif()
+
 # Regular expressions lib
 if(ENABLE_PCRE)
 	set(PACKAGELIST PCRE ${PACKAGELIST})
 endif()
 
+# Portable audio
+if(ENABLE_PORTAUDIO)
+	set(PACKAGELIST PORTAUDIO ${PACKAGELIST})
+endif()
+
+# C Asynchronouse resolver
+if(ENABLE_CARES)
+	set(PACKAGELIST CARES ${PACKAGELIST})
+endif()
+
 #Gnu asynchronous DNS
 if(ENABLE_ADNS)
 	set(PACKAGELIST ADNS ${PACKAGELIST})
+endif()
+
+# Zlib compression
+if(ENABLE_Z)
+	set(PACKAGELIST Z ${PACKAGELIST})
+endif()
+
+# Lua 5.1 dissectors
+if(ENABLE_LUA)
+	set(PACKAGELIST LUA ${PACKAGELIST})
 endif()
 
 set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
@@ -120,14 +176,23 @@ foreach(PACKAGE ${PACKAGELIST})
 	if (${PACKAGE}_FOUND)
 		set(HAVE_LIB${PACKAGE} "1")
 		include_directories(${${PACKAGE}_INCLUDE_DIRS})
-		message(STATUS "${PACKAGE} include ${${PACKAGE}_INCLUDE_DIRS}")
-		message(STATUS "${PACKAGE} lib ${${PACKAGE}_LIBRARIES}")
+		message(STATUS "${PACKAGE} includes: ${${PACKAGE}_INCLUDE_DIRS}")
+		message(STATUS "${PACKAGE} libs: ${${PACKAGE}_LIBRARIES}")
 	endif()
 endforeach()
 
-# Hack for now: compat with current configure stuff
-if(HAVE_LIBADNS)
+
+if(HAVE_LIBLUA)
+	set(HAVE_LUA_H 1)
+	set(HAVE_LUA_5_1 1)
+endif()
+if(HAVE_LIBCARES)
+	set(HAVE_C_ARES 1)
+elseif(HAVE_LIBADNS)
 	set(HAVE_GNU_ADNS 1)
+endif()
+if(ENABLE_AIRPCAP)
+	set(HAVE_AIRPCAP 1)
 endif()
 
 #packaging
@@ -177,20 +242,19 @@ endif()
 
 add_subdirectory( epan )
 add_subdirectory( gtk )
+add_subdirectory( codecs )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
 
 link_directories(
+	gtk
+	codecs
 	epan
 	wiretap
 	wsutil
 )
-
-if(BUILD_wireshark)
-	link_directories( gtk )
-endif()
 
 ADD_CUSTOM_COMMAND(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/svnversion.h
@@ -310,21 +374,22 @@ set(LIBEPAN_LIBS
 		${PCAP_LIBRARIES}
 #		@SOCKET_LIBS@
 #		@NSL_LIBS@
-#		@C_ARES_LIBS@
+		${CARES_LIBRARIES}
 		${ADNS_LIBRARIES}
 #		@KRB5_LIBS@
 #		@FRAMEWORKS@
-#		@LIBGCRYPT_LIBS@
-#		@LIBGNUTLS_LIBS@
-#		@LIBSMI_LDFLAGS@
+		${LUA_LIBRARIES}
+		${GCRYPT_LIBRARIES}
+		${GNUTLS_LIBRARIES}
+		${SMI_LIBRARIES}
+		${Z_LIBRARIES}
 )
 
 if(BUILD_wireshark)
-# todo
 	set(wireshark_LIBS
 		ui
 		${GTK2_LIBRARIES}
-#		codecs/libcodec.a
+		codecs
 		${PORTAUDIO_LIBRARIES}
 		${LIBEPAN_LIBS}
 	)
@@ -404,8 +469,9 @@ if(BUILD_randpkt)
 		${PCAP_LIBRARIES}
 #		@SOCKET_LIBS@
 #		@NSL_LIBS@
-#		@C_ARES_LIBS@
+		${CARES_LIBRARIES}
 		${ADNS_LIBRARIES}
+		${Z_LIBRARIES}
 	)
 	set(randpkt_FILES
 		randpkt.c
@@ -421,6 +487,7 @@ if(BUILD_text2pcap)
 		wsutil
 		${GLIB2_LIBRARIES}
 		${MATH_LIBRARIES}
+		${Z_LIBRARIES}
 	)
 	set(text2pcap_FILES
 		text2pcap.c
@@ -438,6 +505,7 @@ if(BUILD_mergecap)
 		wiretap
 		wsutil
 		${GLIB2_LIBRARIES}
+		${Z_LIBRARIES}
 	)
 	set(mergecap_FILES
 		mergecap.c
@@ -454,6 +522,7 @@ if(BUILD_capinfos)
 		wiretap
 		wsutil
 		${GLIB2_LIBRARIES}
+		${Z_LIBRARIES}
 	)
 	set(capinfos_FILES
 		capinfos.c
@@ -468,6 +537,7 @@ if(BUILD_editcap)
 		wiretap
 		wsutil
 		${GLIB2_LIBRARIES}
+		${Z_LIBRARIES}
 	)
 	set(editcap_FILES
 		editcap.c
@@ -489,9 +559,10 @@ if(BUILD_dumpcap)
 #		@SOCKET_LIBS@
 #		@NSL_LIBS@
 #		@FRAMEWORKS@
-#		@LIBGCRYPT_LIBS@
-#		@LIBGNUTLS_LIBS@
+		${GCRYPT_LIBRARIES}
+		${GNUTLS_LIBRARIES}
 #		@LIBCAP_LIBS@
+		${Z_LIBRARIES}
 
 	)
 	set(dumpcap_FILES
