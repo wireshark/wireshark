@@ -673,16 +673,11 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 
 	g_assert(record->physical_pos == row);
 
+	g_assert((record->fdata->col_text != NULL)&&(record->fdata->col_text_len != NULL));
+
 	if (record->fdata->col_text && record->fdata->col_text[col] != NULL)
 		/* TODO: Column already contains a value. Bail out */
 		return;
-
-	if (!record->fdata->col_text) {
-		record->fdata->col_text_len = se_alloc0(sizeof(record->fdata->col_text) *
-											(packet_list->n_columns-1));
-		record->fdata->col_text = se_alloc0(sizeof(record->fdata->col_text) *
-											(packet_list->n_columns-1));
-	}
 
 	switch (cfile.cinfo.col_fmt[col]) {
 		case COL_DEF_SRC:
