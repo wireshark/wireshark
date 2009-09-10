@@ -2,6 +2,11 @@
  *
  * $Id$
  *
+ * Auxiliary Security Header support and
+ * option to force TI CC24xx FCS format
+ * By Jean-Francois Wauthy <jfw@info.fundp.ac.be>
+ * Copyright 2009 The University of Namur, Belgium
+ *
  * IEEE 802.15.4 Dissectors for Wireshark
  * By Owen Kirby <osk@exegin.com>
  * Copyright 2007 Exegin Technologies Limited
@@ -89,6 +94,9 @@
 /* ethertype for 802.15.4 tag - encapsulating an Ethernet packet */
 static unsigned int ieee802154_ethertype = 0x809A;
 
+/* boolean value set if the FCS field is using the TI CC24xx format */
+static gboolean ieee802154_cc24xx = FALSE;
+
 /*  Function declarations */
 /* Register Functions. Loads the dissector into Wireshark. */
 void proto_reg_handoff_ieee802154   (void);
@@ -172,11 +180,22 @@ static int hf_ieee802154_bcn_gts_direction = -1;
 static int hf_ieee802154_bcn_pending16 = -1;
 static int hf_ieee802154_bcn_pending64 = -1;
 
+/*  Registered fields for Auxiliary Security Header */
+static int hf_ieee802154_security_level = -1;
+static int hf_ieee802154_key_id_mode = -1;
+static int hf_ieee802154_aux_sec_reserved = -1;
+static int hf_ieee802154_aux_sec_frame_counter = -1;
+static int hf_ieee802154_aux_sec_key_source = -1;
+static int hf_ieee802154_aux_sec_key_index = -1;
+
 /*  Initialize Subtree Pointers */
 static gint ett_ieee802154_nonask_phy = -1;
 static gint ett_ieee802154_nonask_phy_phr = -1;
 static gint ett_ieee802154 = -1;
 static gint ett_ieee802154_fcf = -1;
+static gint ett_ieee802154_auxiliary_security = -1;
+static gint ett_ieee802154_aux_sec_control = -1;
+static gint ett_ieee802154_aux_sec_key_id = -1;
 static gint ett_ieee802154_fcs = -1;
 static gint ett_ieee802154_cmd = -1;
 static gint ett_ieee802154_cmd_cinfo = -1;
@@ -217,6 +236,26 @@ static const value_string ieee802154_cmd_names[] = {
     { IEEE802154_CMD_BCN_RQ,    "Beacon Request" },
     { IEEE802154_CMD_COORD_REAL,"Coordinator Realignment" },
     { IEEE802154_CMD_GTS_REQ,   "GTS Request" },
+    { 0, NULL }
+};
+
+static const value_string ieee802154_sec_level_names[] = {
+    { SECURITY_LEVEL_NONE,        "No Security" },
+    { SECURITY_LEVEL_MIC_32,      "32-bit Message Integrity Code" },
+    { SECURITY_LEVEL_MIC_64,      "64-bit Message Integrity Code" },
+    { SECURITY_LEVEL_MIC_128,     "128-bit Message Integrity Code" },
+    { SECURITY_LEVEL_ENC,         "Encryption" },
+    { SECURITY_LEVEL_ENC_MIC_32,  "Encryption with 32-bit Message Integrity Code" },
+    { SECURITY_LEVEL_ENC_MIC_64,  "Encryption with 64-bit Message Integrity Code" },
+    { SECURITY_LEVEL_ENC_MIC_128, "Encryption with 128-bit Message Integrity Code" },
+    { 0, NULL }
+};
+
+static const value_string ieee802154_key_id_mode_names[] = {
+    { KEY_ID_MODE_IMPLICIT,       "Implicit Key" },
+    { KEY_ID_MODE_KEY_INDEX,      "Indexed Key using the Default Key Source" },
+    { KEY_ID_MODE_KEY_EXPLICIT_4, "Explicit Key with 4-octet Key Source" },
+    { KEY_ID_MODE_KEY_EXPLICIT_8, "Explicit Key with 8-octet Key Source" },
     { 0, NULL }
 };
 
@@ -329,10 +368,10 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
 
      /* Parse FCF Flags. */
     packet->frame_type      = fcf & IEEE802154_FCF_TYPE_MASK;
-    packet->security_enable = (fcf & IEEE802154_FCF_SEC_EN) >> 3;
-    packet->frame_pending   = (fcf & IEEE802154_FCF_FRAME_PND) >> 4;
-    packet->ack_request     = (fcf & IEEE802154_FCF_ACK_REQ) >> 5;
-    packet->intra_pan       = (fcf & IEEE802154_FCF_INTRA_PAN) >> 6;
+    packet->security_enable = fcf & IEEE802154_FCF_SEC_EN;
+    packet->frame_pending   = fcf & IEEE802154_FCF_FRAME_PND;
+    packet->ack_request     = fcf & IEEE802154_FCF_ACK_REQ;
+    packet->intra_pan       = fcf & IEEE802154_FCF_INTRA_PAN;
     packet->version         = (fcf & IEEE802154_FCF_VERSION) >> 12;
     packet->dst_addr_mode   = (fcf & IEEE802154_FCF_DADDR_MASK) >> 10;
     packet->src_addr_mode   = (fcf & IEEE802154_FCF_SADDR_MASK) >> 14;
@@ -449,7 +488,7 @@ static void
 dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Call the common dissector. */
-    dissect_ieee802154_common(tvb, pinfo, tree, 0);
+    dissect_ieee802154_common(tvb, pinfo, tree, (ieee802154_cc24xx ? DISSECT_IEEE802154_OPTION_CC24xx : 0));
 } /* dissect_ieee802154 */
 
 /*FUNCTION:------------------------------------------------------
@@ -767,6 +806,89 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
 
     /*=====================================================
+     * AUXILIARY SECURITY HEADER
+     *=====================================================
+     */
+    if (packet->security_enable) {
+      proto_item *ti;
+      proto_tree *header_tree, *field_tree;
+
+      guint                     key_length = 0;
+      guint8                    security_control;
+      ieee802154_security_level sec_level;
+      ieee802154_key_id_mode    key_id_mode;
+      guint32                   frame_counter;
+
+      guint64 key_source = 0;
+      guint8  key_index;
+
+      security_control = tvb_get_guint8(tvb, offset);
+
+      sec_level = (security_control & IEEE802154_AUX_SEC_LEVEL_MASK);
+      key_id_mode = (security_control & IEEE802154_AUX_KEY_ID_MODE_MASK);
+      switch ((key_id_mode >> 3)) {
+      case KEY_ID_MODE_IMPLICIT:
+        break;
+      case KEY_ID_MODE_KEY_INDEX:
+        key_length++;
+        break;
+      case KEY_ID_MODE_KEY_EXPLICIT_4:
+        key_length += 5;
+        break;
+      case KEY_ID_MODE_KEY_EXPLICIT_8:
+        key_length += 9;
+        break;
+      }
+
+      ti = proto_tree_add_text(ieee802154_tree, tvb, offset, 5 + key_length, "Auxiliary Security Header");
+      header_tree = proto_item_add_subtree(ti, ett_ieee802154_auxiliary_security);
+
+      /* Security Control Field */
+      ti = proto_tree_add_text(header_tree, tvb, offset, sizeof (guint8), "Security Control Field");
+      field_tree = proto_item_add_subtree(ti, ett_ieee802154_aux_sec_control);
+
+      proto_tree_add_uint(field_tree, hf_ieee802154_security_level, tvb, offset, sizeof(guint8), sec_level);
+      proto_tree_add_uint(field_tree, hf_ieee802154_key_id_mode, tvb, offset, sizeof(guint8), key_id_mode);
+      proto_tree_add_uint(field_tree, hf_ieee802154_aux_sec_reserved, tvb, offset, sizeof(guint8), 0);
+
+      offset++;
+
+      /* Frame Counter Field */
+      frame_counter = tvb_get_ntohl (tvb, offset);
+
+      proto_tree_add_uint(header_tree, hf_ieee802154_aux_sec_frame_counter, tvb, offset, sizeof(guint32), frame_counter);
+
+      offset += sizeof (guint32);
+
+      /* Key Identifier Fields */
+      switch ((key_id_mode >> 3)) {
+      case KEY_ID_MODE_IMPLICIT:
+      case KEY_ID_MODE_KEY_INDEX:
+        break;
+      case KEY_ID_MODE_KEY_EXPLICIT_4:
+        key_source = (guint64) tvb_get_ntohl(tvb, offset);
+        break;
+      case KEY_ID_MODE_KEY_EXPLICIT_8:
+        key_source = tvb_get_ntoh64(tvb, offset);
+        break;
+      }
+
+      ti = proto_tree_add_text(header_tree, tvb, offset, key_length, "Key Identifier Field");
+      field_tree = proto_item_add_subtree(ti, ett_ieee802154_aux_sec_key_id);
+
+      /* Key Source Field */
+      if ((key_id_mode >> 3) > KEY_ID_MODE_KEY_INDEX) {
+        proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, offset, sizeof (guint64), key_source);
+        offset += key_length - 1;
+      }
+
+      /* Key Index Field */
+      key_index = tvb_get_guint8(tvb, offset);
+      proto_tree_add_uint(field_tree, hf_ieee802154_aux_sec_key_index, tvb, offset, sizeof (guint8), key_index);
+      offset++;
+    }
+
+    /*=====================================================
      * PAYLOAD DISSECTION
      *=====================================================
      */
@@ -854,13 +976,13 @@ dissect_ieee802154_fcs:
         /* Display the FCS depending on expected FCS format */
         if ((options & DISSECT_IEEE802154_OPTION_CC24xx)) {
             /* Create a subtree for the FCS. */
-            ti = proto_tree_add_text(ieee802154_tree, tvb, offset, sizeof(guint16), "Frame Check Sequence: FCS %s", (fcs_ok) ? "OK" : "Bad");
+            ti = proto_tree_add_text(ieee802154_tree, tvb, offset, sizeof(guint16), "Frame Check Sequence (TI CC24xx format): FCS %s", (fcs_ok) ? "OK" : "Bad");
             field_tree = proto_item_add_subtree(ti, ett_ieee802154_fcs);
             /* Display FCS contents.  */
-            ti = proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset, 1, (gint8) (fcs & IEEE802154_CC24xx_RSSI));
+            ti = proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, sizeof(gint8), (gint8) (fcs & IEEE802154_CC24xx_RSSI));
             proto_item_append_text(ti, " dBm"); /*  Displaying Units */
-            proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset + 1, 1, (gboolean) (fcs & IEEE802154_CC24xx_CRC_OK));
-            proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset + 1, 1, (guint8) ((fcs & IEEE802154_CC24xx_CORRELATION) >> 8));
+            proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, sizeof(gint8), (gboolean) (fcs & IEEE802154_CC24xx_CRC_OK));
+            proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, sizeof(gint8), (guint8) ((fcs & IEEE802154_CC24xx_CORRELATION) >> 8));
         }
         else {
             ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_fcs, tvb, offset, sizeof(guint16), fcs);
@@ -1719,7 +1841,32 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_bcn_pending64,
         { "Address",                    "wpan.bcn.pending64", FT_UINT64, BASE_HEX, NULL, 0x0,
-            "Device with pending data to receive.", HFILL }}
+            "Device with pending data to receive.", HFILL }},
+            /* Auxiliary Security Header Fields */
+            /*----------------------------------*/
+        { &hf_ieee802154_security_level,
+        { "Security Level", "wpan.aux_sec.sec_level", FT_UINT8, BASE_HEX, VALS(ieee802154_sec_level_names), IEEE802154_AUX_SEC_LEVEL_MASK,
+            "The Security Level of the frame", HFILL }},
+
+        { &hf_ieee802154_key_id_mode,
+        { "Key Identifier Mode", "wpan.aux_sec.key_id_mode", FT_UINT8, BASE_HEX, VALS(ieee802154_key_id_mode_names), IEEE802154_AUX_KEY_ID_MODE_MASK,
+            "The scheme to use by the recipient to lookup the key in its key table", HFILL }},
+
+        { &hf_ieee802154_aux_sec_reserved,
+        { "Reserved", "wpan.aux_sec.reserved", FT_UINT8, BASE_HEX, NULL, IEEE802154_AUX_KEY_RESERVED_MASK,
+            "Reserved", HFILL }},
+
+        { &hf_ieee802154_aux_sec_frame_counter,
+        { "Frame Counter", "wpan.aux_sec.frame_counter", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Frame counter of the originator of the protected frame", HFILL }},
+
+        { &hf_ieee802154_aux_sec_key_source,
+        { "Key Source", "wpan.aux_sec.key_source", FT_UINT64, BASE_HEX, NULL, 0x0,
+            "Key Source for processing of the protected frame", HFILL }},
+
+        { &hf_ieee802154_aux_sec_key_index,
+        { "Key Index", "wpan.aux_sec.key_index", FT_UINT8, BASE_HEX, NULL, 0x0,
+            "Key Index for processing of the protected frame", HFILL }}
     };
 
     static gint *ett[] = {
@@ -1727,6 +1874,9 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_nonask_phy_phr,
         &ett_ieee802154,
         &ett_ieee802154_fcf,
+        &ett_ieee802154_auxiliary_security,
+        &ett_ieee802154_aux_sec_control,
+        &ett_ieee802154_aux_sec_key_id,
         &ett_ieee802154_fcs,
         &ett_ieee802154_cmd,
         &ett_ieee802154_cmd_cinfo,
@@ -1752,11 +1902,15 @@ void proto_register_ieee802154(void)
 
     /* add a user preference to set the 802.15.4 ethertype */
     ieee802154_module = prefs_register_protocol(proto_ieee802154,
-						proto_reg_handoff_ieee802154);
+        proto_reg_handoff_ieee802154);
     prefs_register_uint_preference(ieee802154_module, "802154_ethertype",
-				   "802.15.4 Ethertype (in hex)",
-				   "(Hexadecimal) Ethertype used to indicate IEEE 802.15.4 frame.",
-				   16, &ieee802154_ethertype);
+                                   "802.15.4 Ethertype (in hex)",
+                                   "(Hexadecimal) Ethertype used to indicate IEEE 802.15.4 frame.",
+                                   16, &ieee802154_ethertype);
+    prefs_register_bool_preference(ieee802154_module, "802154_cc24xx",
+                                   "TI CC24xx FCS format",
+                                   "Set if the FCS field is in TI CC24xx format.",
+                                   &ieee802154_cc24xx);
 
     /* Register the subdissector list */
     register_heur_dissector_list("wpan", &ieee802154_heur_subdissector_list);

@@ -127,6 +127,29 @@
 /*  Bit mask for PHY length field */
 #define IEEE802154_PHY_LENGTH_MASK          0x7f
 
+/* Auxiliary Security Header */
+#define IEEE802154_AUX_SEC_LEVEL_MASK       0x07  /* Security Level */
+#define IEEE802154_AUX_KEY_ID_MODE_MASK     0x18  /* Key Identifier Mode */
+#define IEEE802154_AUX_KEY_RESERVED_MASK    0xE0  /* Reserved */
+
+typedef enum {
+    SECURITY_LEVEL_NONE = 0x00,
+    SECURITY_LEVEL_MIC_32 = 0x01,
+    SECURITY_LEVEL_MIC_64 = 0x02,
+    SECURITY_LEVEL_MIC_128 = 0x03,
+    SECURITY_LEVEL_ENC = 0x04,
+    SECURITY_LEVEL_ENC_MIC_32 = 0x05,
+    SECURITY_LEVEL_ENC_MIC_64 = 0x06,
+    SECURITY_LEVEL_ENC_MIC_128 = 0x07
+} ieee802154_security_level;
+
+typedef enum {
+    KEY_ID_MODE_IMPLICIT = 0x00,
+    KEY_ID_MODE_KEY_INDEX = 0x01,
+    KEY_ID_MODE_KEY_EXPLICIT_4 = 0x02,
+    KEY_ID_MODE_KEY_EXPLICIT_8 = 0x03
+} ieee802154_key_id_mode;
+
 /*  Structure containing information regarding all necessary packet feilds. */
 typedef struct {
     /* Frame control field. */
@@ -156,7 +179,6 @@ typedef struct {
 
 
 /* Some Helper Function Definitions. */
-extern guint    get_by_mask(guint, guint);
 extern gchar    *print_eui64(guint64);
 extern gchar    *print_eui64_oui(guint64);
 
