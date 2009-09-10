@@ -180,6 +180,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          WPA Decryption Issues.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3890">Bug
+          3890</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           GSM A RR sys info dissection problem.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3901">Bug
           3901</ulink>)
@@ -218,6 +224,10 @@ Wireshark Info
           in some cases.
         </para></listitem>
 
+        <listitem><para>
+          The Mac OS X ChmodBPF script now works correctly under Snow Leopard.
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -252,6 +262,7 @@ H.248,
 IEEE 802.11,
 IPMI,
 ISAKMP/IKE,
+ISUP,
 Kingfisher,
 LDAP,
 OpcUA,
