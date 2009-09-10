@@ -73,26 +73,26 @@ option(BUILD_capinfos    "Build capinfos" ON)
 option(BUILD_randpkt     "Build randpkt" ON)
 option(BUILD_dftest      "Build dftest" ON)
 
-
 option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC" OFF)
 option(ENABLE_AIRPCAP	 "Enable Airpcap support" ON)
 # todo
 option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
 
-option(ENABLE_CARES      "Build with c_ares support" OFF)
 option(ENABLE_ADNS       "Build with adns support" ON)
 option(ENABLE_PCRE       "Build with pcre support" ON)
 option(ENABLE_PORTAUDIO  "Build with portaudio support" ON)
 option(ENABLE_Z	 	 "Build with zlib compression support" ON)
-option(ENABLE_LUA	 "Build with lua dissector support" ON)
+option(ENABLE_LUA	 "Build with lua dissector support" OFF)
 option(ENABLE_SMI	 "Build with smi snmp support" ON)
-# todo
 option(ENABLE_GNUTLS	 "Build with GNU TLS support" ON)
 option(ENABLE_GCRYPT	 "Build with GNU crypto support" ON)
-option(ENABLE_KRB5	 "Build with MIT Kerberos 5 support" ON)
-option(ENABLE_GEOIP	 "Build with GeoIP support" ON)
-option(ENABLE_PYTHON	 "Build with python dissector support" ON)
+# todo Mostly hardcoded
+option(ENABLE_KERBEROS	 "Build with Kerberos support" ON)
+# Untested
+option(ENABLE_GEOIP	 "Build with GeoIP support" OFF)
 option(ENABLE_CAP	 "Build with posix capabilities support" OFF)
+option(ENABLE_CARES      "Build with c_ares support" OFF)
+option(ENABLE_PYTHON	 "Build with python dissector support" OFF)
 
 
 if(ENABLE_EXTRA_GCC_CHECKS)
@@ -117,7 +117,7 @@ else()
 endif()
 
 #The minimum package list
-set(PACKAGELIST GLIB2 PCAP MATH LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGELIST})
+set(PACKAGELIST GLIB2 PCAP M LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGELIST})
 
 #Build the gui ?
 if(BUILD_wireshark)
@@ -142,6 +142,11 @@ endif()
 # Regular expressions lib
 if(ENABLE_PCRE)
 	set(PACKAGELIST PCRE ${PACKAGELIST})
+endif()
+
+# Kerberos
+if(ENABLE_KERBEROS)
+	set(PACKAGELIST KERBEROS ${PACKAGELIST})
 endif()
 
 # Portable audio
@@ -169,6 +174,16 @@ if(ENABLE_LUA)
 	set(PACKAGELIST LUA ${PACKAGELIST})
 endif()
 
+# GeoIP address resolving
+if(ENABLE_GEOIP)
+	set(PACKAGELIST GEOIP ${PACKAGELIST})
+endif()
+
+# Capabilities
+if(ENABLE_CAP)
+	set(PACKAGELIST CAP ${PACKAGELIST})
+endif()
+
 set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
 
 #Let's loop the package list
@@ -183,10 +198,26 @@ foreach(PACKAGE ${PACKAGELIST})
 	endif()
 endforeach()
 
+if(ENABLE_PYTHON)
+	find_package(FindPythonLibs)
+	message(PYTHONLIBS_FOUND)
+	if (PYTHONLIBS_FOUND)
+		set(HAVE_LIBPYTHON "1")
+		include_directories(PYTHON_INCLUDE_PATH)
+		message(STATUS "${PACKAGE} includes: ${PYTHON_INCLUDE_PATH}")
+		message(STATUS "${PACKAGE} libs: ${PYTHON_LIBRARIES}")
+	endif()
+endif()
 
 if(HAVE_LIBLUA)
 	set(HAVE_LUA_H 1)
 	set(HAVE_LUA_5_1 1)
+endif()
+if(HAVE_LIBKERBEROS)
+	set(HAVE_KERBEROS 1)
+	# HAVE_HEIMDAL_KERBEROS
+	set(HAVE_MIT_KERBEROS 1)
+	set(HAVE_KEYTYPE_ARCFOUR_56 1)
 endif()
 if(HAVE_LIBCARES)
 	set(HAVE_C_ARES 1)
@@ -372,19 +403,21 @@ set(LIBEPAN_LIBS
 #		$(plugin_ldadd)
 		${PCRE_LIBRARIES}
 		${GLIB2_LIBRARIES}
-		${MATH_LIBRARIES}
 		${PCAP_LIBRARIES}
 #		@SOCKET_LIBS@
 #		@NSL_LIBS@
 		${CARES_LIBRARIES}
 		${ADNS_LIBRARIES}
-#		@KRB5_LIBS@
+		${KERBEROS_LIBRARIES}
 #		@FRAMEWORKS@
 		${LUA_LIBRARIES}
+		${PYTHON_LIBRARIES}
+		${GEOIP_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${GNUTLS_LIBRARIES}
 		${SMI_LIBRARIES}
 		${Z_LIBRARIES}
+		${M_LIBRARIES}
 )
 
 if(BUILD_wireshark)
@@ -467,7 +500,7 @@ if(BUILD_randpkt)
 		wiretap
 		wsutil
 		${GLIB2_LIBRARIES}
-		${MATH_LIBRARIES}
+		${M_LIBRARIES}
 		${PCAP_LIBRARIES}
 #		@SOCKET_LIBS@
 #		@NSL_LIBS@
@@ -488,7 +521,7 @@ if(BUILD_text2pcap)
 		wiretap
 		wsutil
 		${GLIB2_LIBRARIES}
-		${MATH_LIBRARIES}
+		${M_LIBRARIES}
 		${Z_LIBRARIES}
 	)
 	set(text2pcap_FILES
