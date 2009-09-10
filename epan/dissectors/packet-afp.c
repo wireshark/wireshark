@@ -58,10 +58,11 @@ http://developer.apple.com/DOCUMENTATION/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
   
 http://developer.apple.com/documentation/Networking/Conceptual/AFP/index.html
 
-  AFP 3.1 specification, in HTML form, at
 
-http://developer.apple.com/documentation/Networking/Reference/AFP_Reference/index.html
-
+  AFP 3.3 specfication in HTML form, at
+http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/Introduction/Introduction.html
+ 
+ 
   The netatalk source code by Wesley Craig & Adrian Sun
 	http://netatalk.sf.net
 */
@@ -162,6 +163,7 @@ http://developer.apple.com/documentation/Networking/Reference/AFP_Reference/inde
 #define AFP_ACCESS		75
 
 /* AFP 3.2 calls added in 10.5 */
+#define AFP_SPOTLIGHTRPC 76
 #define AFP_SYNCDIR		78
 #define AFP_SYNCFORK		79
 
@@ -428,6 +430,7 @@ const value_string CommandCode_vals[] = {
   {AFP_GETACL,		"FPGetACL" },
   {AFP_SETACL,		"FPSetACL" },
   {AFP_ACCESS,		"FPAccess" },
+  {AFP_SPOTLIGHTRPC,	"FPSpotlightRPC" },
   {AFP_SYNCFORK,	"FPSyncFork" },
   {AFP_SYNCDIR,		"FPSyncDir" },
   {0,			 NULL }
@@ -580,6 +583,7 @@ static int hf_afp_vol_attribute_DefaultPrivsFromParent		= -1;
 static int hf_afp_vol_attribute_NoExchangeFiles			= -1;
 static int hf_afp_vol_attribute_SupportsExtAttrs		= -1;
 static int hf_afp_vol_attribute_SupportsACLs			= -1;
+static int hf_afp_vol_attribute_CaseSensitive			= -1;
 
 static int hf_afp_dir_bitmap_Attributes     = -1;
 static int hf_afp_dir_bitmap_ParentDirID    = -1;
@@ -713,6 +717,7 @@ static const value_string map_id_reply_type_vals[] = {
 #define kNoExchangeFiles			(1 << 9)
 #define kSupportsExtAttrs			(1 << 10)
 #define kSupportsACLs				(1 << 11)
+#define kCaseSensitive				(1 << 12)
 
 /*
   directory bitmap from Apple AFP3.1.pdf
@@ -1064,6 +1069,7 @@ decode_vol_attribute (proto_tree *tree, tvbuff_t *tvb, gint offset)
 		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_NoExchangeFiles         ,tvb, offset, 2,FALSE);
 		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsExtAttrs        ,tvb, offset, 2,FALSE);
 		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsACLs            ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_CaseSensitive           ,tvb, offset, 2,FALSE);
 	}
 
 	return bitmap;
@@ -4585,8 +4591,13 @@ proto_register_afp(void)
 
     { &hf_afp_vol_attribute_SupportsACLs,
       { "ACLs",         "afp.vol_attribute.acls",
+         FT_BOOLEAN, 16, NULL, kSupportsACLs,
+        "Supports access control lists", HFILL }},
+
+    { &hf_afp_vol_attribute_CaseSensitive,
+      { "CaseSensitive",         "afp.vol_attribute.acls",
 		 FT_BOOLEAN, 16, NULL, kSupportsACLs,
-      	"Supports access control lists", HFILL }},
+      	"Is case sensitive", HFILL }},
 
     { &hf_afp_vol_bitmap_Signature,
       { "Signature",         "afp.vol_bitmap.signature",

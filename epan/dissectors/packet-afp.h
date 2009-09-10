@@ -92,6 +92,7 @@ extern const value_string afp_server_addr_type_vals[];
 #define AFPSRVRINFO_SRVDIRECTORY (1<<8)  /* supports directory services */
 #define AFPSRVRINFO_SRVUTF8      (1<<9)  /* supports UTF8 names AFP 3.1 */
 #define AFPSRVRINFO_UUID         (1<<10)  /* supports UUIDs AFP 3.2 */
+#define AFPSRVRINFO_EXT_SLEEP    (1<<11)  /* supports extended sleep, AFP 3.3 */
 #define AFPSRVRINFO_FASTBOZO     (1<<15) /* fast copying */
 
 

@@ -50,6 +50,9 @@ http://developer.apple.com/DOCUMENTATION/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
   http://developer.apple.com/documentation/Networking/Conceptual/AFPClient/AFPClient-6.html
 
 (no longer available, apparently)
+ 
+  Also, AFP 3.3 documents parts of DSI at:  
+  http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/Introduction/Introduction.html
 
  * What a Data Stream Interface packet looks like:
  * 0                               32
@@ -79,6 +82,7 @@ static gint ett_dsi = -1;
 static int hf_dsi_open_type	= -1;
 static int hf_dsi_open_len	= -1;
 static int hf_dsi_open_quantum	= -1;
+static int hf_dsi_replay_cache_size = -1;
 static int hf_dsi_open_option	= -1;
 
 static int hf_dsi_attn_flag 		= -1;
@@ -108,6 +112,7 @@ static const value_string dsi_attn_flag_vals[] = {
 static const value_string dsi_open_type_vals[] = {
   {0,	"Server quantum" },
   {1,	"Attention quantum" },
+  {2,	"Replay cache size" },
   {0,			NULL } };
 
 /* status stuff same for asp and afp */
@@ -132,6 +137,7 @@ static int hf_dsi_server_flag_reconnect	= -1;
 static int hf_dsi_server_flag_directory	= -1;
 static int hf_dsi_server_flag_utf8_name = -1;
 static int hf_dsi_server_flag_uuid      = -1;
+static int hf_dsi_server_flag_ext_sleep = -1;
 static int hf_dsi_server_flag_fast_copy = -1;
 static int hf_dsi_server_signature	= -1;
 
@@ -201,7 +207,7 @@ static const value_string func_vals[] = {
   {0,			NULL } };
 
 static gint
-dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
+dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset, gint dsi_length)
 {
         proto_tree      *tree;
 	proto_item	*ti;
@@ -210,19 +216,33 @@ dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 
 	ti = proto_tree_add_text(dsi_tree, tvb, offset, -1, "Open Session");
 	tree = proto_item_add_subtree(ti, ett_dsi_open);
-	type = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_dsi_open_type, tvb, offset, 1, FALSE);
-	offset++;
-	len = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_dsi_open_len, tvb, offset, 1, FALSE);
-	offset++;
-	if (type <= 1) {
-		proto_tree_add_item(tree, hf_dsi_open_quantum, tvb, offset, 4, FALSE);
+	
+	while( dsi_length >2 ) {
+		
+		type = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tree, hf_dsi_open_type, tvb, offset, 1, FALSE);
+		offset++;
+		len = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tree, hf_dsi_open_len, tvb, offset, 1, FALSE);
+		offset++;
+		switch (type) {
+			case 0:
+				proto_tree_add_item(tree, hf_dsi_open_quantum, tvb, offset, 4, FALSE);
+				break;	
+			case 1:
+				proto_tree_add_item(tree, hf_dsi_open_quantum, tvb, offset, 4, FALSE);
+                break;	
+			case 2:
+				proto_tree_add_item(tree, hf_dsi_replay_cache_size, tvb, offset, 4, FALSE);
+				break;
+			default:
+				proto_tree_add_item(tree, hf_dsi_open_option, tvb, offset, len, FALSE);
+		}
+		
+		dsi_length -= len + 2;
+		
+		offset += len;
 	}
-	else {
-		proto_tree_add_item(tree, hf_dsi_open_option, tvb, offset, len, FALSE);
-	}
-	offset += len;
 	return offset;
 }
 
@@ -306,6 +326,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_directory     , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_utf8_name     , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_uuid          , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_ext_sleep     , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_fast_copy     , tvb, ofs, 2, FALSE);
 
 	proto_tree_add_item(tree, hf_dsi_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, FALSE);
@@ -485,7 +506,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 static void
 dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        proto_tree      *dsi_tree;
+    proto_tree      *dsi_tree;
 	proto_item	*ti;
 	guint8		dsi_flags,dsi_command;
 	guint16		dsi_requestid;
@@ -551,7 +572,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (dsi_command) {
 	case DSIFUNC_OPEN:
 		if (tree) {
-			dissect_dsi_open_session(tvb, dsi_tree, DSI_BLOCKSIZ);
+			dissect_dsi_open_session(tvb, dsi_tree, DSI_BLOCKSIZ, dsi_length);
 		}
 		break;
 	case DSIFUNC_ATTN:
@@ -759,6 +780,10 @@ proto_register_dsi(void)
       { "Support UUIDs",      "dsi.server_flag.uuids",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_UUID,
       	"Server supports UUIDs", HFILL }},
+    { &hf_dsi_server_flag_ext_sleep,
+      { "Support extended sleep",      "dsi.server_flag.ext_sleep",
+        FT_BOOLEAN, 16, NULL, AFPSRVRINFO_EXT_SLEEP,
+        "Server supports extended sleep", HFILL }},    
     { &hf_dsi_server_flag_fast_copy,
       { "Support fast copy",      "dsi.server_flag.fast_copy",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_FASTBOZO,
@@ -781,7 +806,7 @@ proto_register_dsi(void)
       	"Address value", HFILL }},
 
     { &hf_dsi_open_type,
-      { "Flags",          "dsi.open_type",
+      { "Option",          "dsi.open_type",
 	FT_UINT8, BASE_DEC, VALS(dsi_open_type_vals), 0x0,
       	"Open session option type.", HFILL }},
 
@@ -795,6 +820,11 @@ proto_register_dsi(void)
 	FT_UINT32, BASE_DEC, NULL, 0x0,
       	"Server/Attention quantum", HFILL }},
 
+    { &hf_dsi_replay_cache_size,
+      { "Replay",       "dsi.replay_cache",
+    FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Replay cache size", HFILL }},
+	  
     { &hf_dsi_open_option,
       { "Option",          "dsi.open_option",
 	FT_BYTES, BASE_NONE, NULL, 0x0,
