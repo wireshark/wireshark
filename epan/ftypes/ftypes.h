@@ -149,7 +149,6 @@ typedef struct _fvalue_t {
 	ftype_t	*ftype;
 	union {
 		/* Put a few basic types in here */
-		gpointer	pointer;
 		guint32		uinteger;
 		gint32		sinteger;
 		guint64		integer64;
@@ -250,7 +249,7 @@ fvalue_init(fvalue_t *fv, ftenum_t ftype);
 /* Define type needed for the fvalue_t free list. */
 SLAB_ITEM_TYPE_DEFINE(fvalue_t)
 
-/* Free all memory used by an fvalue_t. With MSVC and a 
+/* Free all memory used by an fvalue_t. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
 WS_VAR_IMPORT SLAB_FREE_LIST_DECLARE(fvalue_t)
@@ -294,7 +293,7 @@ fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype);
  * The pointer to the beginning of the string representation is
  * returned. If 'buf' was NULL, this points to the newly-allocated
  * memory. if 'buf' was non-NULL, then the return value will be
- * 'buf'. 
+ * 'buf'.
  *
  * Returns NULL if the string cannot be represented in the given rtype.*/
 extern char *
