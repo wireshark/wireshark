@@ -39,9 +39,6 @@
 #define CMP_MATCHES NULL
 #endif
 
-#define ETHER_LEN	6
-#define IPv6_LEN	16
-
 static void
 bytes_fvalue_new(fvalue_t *fv)
 {
@@ -155,14 +152,14 @@ static void
 ether_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(!already_copied);
-	common_fvalue_set(fv, value, ETHER_LEN);
+	common_fvalue_set(fv, value, FT_ETHER_LEN);
 }
 
 static void
 ipv6_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(!already_copied);
-	common_fvalue_set(fv, value, IPv6_LEN);
+	common_fvalue_set(fv, value, FT_IPv6_LEN);
 }
 
 static void
@@ -235,12 +232,12 @@ ether_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc
 	 * we'll log a message.
 	 */
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
-		if (fv->value.bytes->len > ETHER_LEN) {
+		if (fv->value.bytes->len > FT_ETHER_LEN) {
 			logfunc("\"%s\" contains too many bytes to be a valid Ethernet address.",
 			    s);
 			return FALSE;
 		}
-		else if (fv->value.bytes->len < ETHER_LEN && !allow_partial_value) {
+		else if (fv->value.bytes->len < FT_ETHER_LEN && !allow_partial_value) {
 			logfunc("\"%s\" contains too few bytes to be a valid Ethernet address.",
 			    s);
 			return FALSE;
@@ -593,7 +590,7 @@ ftype_register_bytes(void)
 		FT_ETHER,			/* ftype */
 		"FT_ETHER",			/* name */
 		"Ethernet or other MAC address",/* pretty_name */
-		ETHER_LEN,			/* wire_size */
+		FT_ETHER_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
 		ether_from_unparsed,		/* val_from_unparsed */
@@ -631,7 +628,7 @@ ftype_register_bytes(void)
 		FT_IPv6,			/* ftype */
 		"FT_IPv6",			/* name */
 		"IPv6 address",			/* pretty_name */
-		IPv6_LEN,			/* wire_size */
+		FT_IPv6_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
 		ipv6_from_unparsed,		/* val_from_unparsed */

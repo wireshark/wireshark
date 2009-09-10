@@ -71,6 +71,13 @@ enum ftenum {
 #define IS_FT_TIME(ft)   ((ft)==FT_ABSOLUTE_TIME||(ft)==FT_RELATIVE_TIME)
 #define IS_FT_STRING(ft) ((ft)==FT_STRING||(ft)==FT_STRINGZ)
 
+/* field types lengths */
+#define FT_ETHER_LEN        6
+#define FT_GUID_LEN         16
+#define FT_IPv4_LEN         4
+#define FT_IPv6_LEN         16
+#define FT_IPXNET_LEN       4
+
 typedef enum ftenum ftenum_t;
 typedef struct _ftype_t ftype_t;
 

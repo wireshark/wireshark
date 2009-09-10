@@ -1261,29 +1261,29 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_IPv4:
-			DISSECTOR_ASSERT(length == 4);
+			DISSECTOR_ASSERT(length == FT_IPv4_LEN);
 			value = tvb_get_ipv4(tvb, start);
 			proto_tree_set_ipv4(new_fi, little_endian ? GUINT32_SWAP_LE_BE(value) : value);
 			break;
 
 		case FT_IPXNET:
-			DISSECTOR_ASSERT(length == 4);
+			DISSECTOR_ASSERT(length == FT_IPXNET_LEN);
 			proto_tree_set_ipxnet(new_fi,
 			    get_uint_value(tvb, start, 4, FALSE));
 			break;
 
 		case FT_IPv6:
-			DISSECTOR_ASSERT(length >=0 && length <= 16);
+			DISSECTOR_ASSERT(length >=0 && length <= FT_IPv6_LEN);
 			proto_tree_set_ipv6_tvb(new_fi, tvb, start, length);
 			break;
 
 		case FT_ETHER:
-			DISSECTOR_ASSERT(length == 6);
+			DISSECTOR_ASSERT(length == FT_ETHER_LEN);
 			proto_tree_set_ether_tvb(new_fi, tvb, start);
 			break;
 
 		case FT_GUID:
-			DISSECTOR_ASSERT(length == 16);
+			DISSECTOR_ASSERT(length == FT_GUID_LEN);
 			proto_tree_set_guid_tvb(new_fi, tvb, start, little_endian);
 			break;
 
@@ -2386,7 +2386,7 @@ proto_tree_set_ether(field_info *fi, const guint8* value)
 static void
 proto_tree_set_ether_tvb(field_info *fi, tvbuff_t *tvb, gint start)
 {
-	proto_tree_set_ether(fi, tvb_get_ptr(tvb, start, 6));
+	proto_tree_set_ether(fi, tvb_get_ptr(tvb, start, FT_ETHER_LEN));
 }
 
 /* Add a FT_BOOLEAN to a proto_tree */
