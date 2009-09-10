@@ -3248,9 +3248,9 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 			break;
 			case BEARER_CONTROL_UNIT_IDENTIFIER :
 				tempdata = tvb_get_guint8(parameter_tvb, offset);
-				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1, "Network ID Length indicator= %u",tempdata);
+				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1, "Network ID Length indicator = %u",tempdata);
+				offset = offset + 1;
 				if ( tempdata > 0 ) {
-					offset = offset +1;
 
 /* Q.765.5 amd 1
 	Network ID
