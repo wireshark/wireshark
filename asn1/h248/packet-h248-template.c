@@ -63,6 +63,9 @@ static int hf_h248_param = -1;
 
 static int hf_h248_serviceChangeReasonStr = -1;
 
+/* h248v1 support */
+static int hf_h248_auditValueReplyV1 = -1;
+
 #include "packet-h248-hf.c"
 
 /* Initialize the subtree pointers */
@@ -105,6 +108,12 @@ static dissector_handle_t h248_tpkt_handle;
 
 /* Forward declarations */
 static int dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+
+/* h248v1 support */
+static int dissect_h248_AuditReplyV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static int dissect_h248_ValueV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static int dissect_h248_EventParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static int dissect_h248_PropertyParmV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 /* http://www.iana.org/assignments/megaco-h248 last updated 2007-11-28*/
 static const value_string package_name_vals[] = {
@@ -659,6 +668,7 @@ static const value_string wildcard_levels[] = {
 
 static h248_curr_info_t curr_info = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 static guint32 error_code;
+static guint32 h248_version = 0; /* h248v1 support */
 static gcp_wildcard_t wild_term;
 static guint8 wild_card = 0xFF; /* place to store wildcardField */
 
@@ -1421,6 +1431,12 @@ void proto_register_h248(void) {
       { "ServiceChangeReasonStr", "h248.serviceChangeReasonstr",
         FT_STRING, BASE_NONE, NULL, 0,
         "h248.IA5String", HFILL }},
+
+/* h248v1 support */
+	{ &hf_h248_auditValueReplyV1,
+		{ "auditValueReplyV1", "h248.auditValueReplyV1",
+			FT_NONE, BASE_NONE, NULL, 0,
+			NULL, HFILL }},
 
 #include "packet-h248-hfarr.c"
 

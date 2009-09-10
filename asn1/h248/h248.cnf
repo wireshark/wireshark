@@ -94,6 +94,10 @@ TransactionPending/transactionId	tpend_transactionId
         gcp_analyze_msg(h248_tree, h248_tvb, curr_info.msg, &h248_arrel);
 #.END
 
+#.FN_BODY Message/version VAL_PTR = &h248_version 
+	%(DEFAULT_BODY)s
+#.END
+
 #.FN_BODY TransactionRequest/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
@@ -253,9 +257,35 @@ TransactionPending/transactionId	tpend_transactionId
       H248_TAP();
 #.END
 
+#.FN_BODY CommandReply/auditCapReply
+/* h248v1 support */
+	if(h248_version > 1) {
+		%(DEFAULT_BODY)s
+} else {
+		/* call V1 of the dissector */
+		offset = dissect_h248_AuditReplyV1(implicit_tag, tvb, offset, actx, tree, hf_index);
+}
+#.END
+
 #.FN_HDR CommandReply/auditValueReply
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITVAL_REPLY,offset,keep_persistent_data);
       H248_TAP();
+#.END
+
+#.FN_BODY CommandReply/auditValueReply
+/* h248v1 support */
+	if(h248_version > 1) {
+		%(DEFAULT_BODY)s
+} else {
+		/* call V1 of the dissector */
+		offset = dissect_h248_AuditReplyV1(implicit_tag, tvb, offset, actx, tree, hf_index);
+}
+#.END
+
+#.FN_BODY AuditReplyV1
+/* h248v1 support */
+	offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+		AuditReplyV1_sequence, hf_h248_auditValueReplyV1, ett_h248_AuditReplyV1);
 #.END
 
 #.FN_BODY ErrorDescriptor/errorCode
@@ -317,7 +347,18 @@ TransactionPending/transactionId	tpend_transactionId
 	}
 #.END
 
- 
+#.FN_BODY SCreasonValue
+/* H248 v1 support */
+	if ( h248_version >1 ) {	
+		/* Not V1, so call "standard" function */
+%(DEFAULT_BODY)s	
+} else {
+			/* V1 so Value == octet string */
+		offset = dissect_h248_ValueV1( implicit_tag, tvb, offset, actx, tree, hf_index);
+};
+	
+#.END
+
 #.FN_BODY SCreasonValueOctetStr VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
@@ -327,6 +368,25 @@ TransactionPending/transactionId	tpend_transactionId
 	return offset;
 
  dissect_h248_ServiceChangeReasonStr(FALSE, parameter_tvb, 0, actx, tree, hf_h248_serviceChangeReasonStr);
+#.END
+
+#.FN_BODY EventParameter
+/* H248 v1 support */
+	if (h248_version >1) {
+		%(DEFAULT_BODY)s
+} else {
+		offset = dissect_h248_EventParameterV1( implicit_tag, tvb, offset, actx, tree, hf_index);
+}
+#.END
+
+#.FN_BODY PropertyParm
+/* H248 v1 support */
+	if (h248_version >1) {
+		%(DEFAULT_BODY)s
+} else {
+		offset = dissect_h248_PropertyParmV1( implicit_tag, tvb, offset, actx, tree, hf_index);
+}
+#.END
 
 #.TYPE_ATTR
 IP4Address/address  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL

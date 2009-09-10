@@ -1,0 +1,49 @@
+-- Required for support for h248v1
+--
+-- $Id$
+-- 
+-- This file represents the differences between h248v1 and the h248v3, the current version
+-- This file is included in the Makefile generate_dissectors and related tasks necessary
+-- to generate epan/dissectors/packet-h248.[ch]
+
+H238V1-SUPPORT DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+	
+	--	V1 version of AuditReply
+	AuditReplyV1 ::= SEQUENCE
+	{
+		terminationID		[0] TerminationID,
+		auditResult			[1] AuditResultV1
+	}
+	
+	--	V1 Version of AuditResult
+	AuditResultV1 ::= CHOICE
+	{
+		contectAuditResult		[0] TerminationID,
+		terminationAuditResult	[1] TerminationAudit
+	}
+		
+	-- V1
+	EventParameterV1 ::= SEQUENCE
+	{
+		eventParamterName		[0] Name,
+		value					[1] ValueV1
+	}
+		
+	-- V1
+	PropertyParmV1 ::= SEQUENCE
+	{
+		name				[0] PkgdName,
+		value				[1] SEQUENCE OF OCTET STRING,
+		extraInfo			[2] CHOICE
+		{
+			relation		[0] Relation,
+			range			[1] BOOLEAN,
+			sublist			[2] BOOLEAN
+		} OPTIONAL,
+			...
+	}
+	
+	ValueV1 ::= OCTET STRING
+
+END
