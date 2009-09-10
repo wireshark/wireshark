@@ -31,6 +31,7 @@
 #include <epan/tap.h>
 
 #include "packet-mac-lte.h"
+#include "packet-rlc-lte.h"
 
 
 /* Described in:
@@ -383,7 +384,11 @@ static gboolean global_mac_lte_decode_rar_ul_grant = TRUE;
 /* Whether should attempt to dissect frames failing CRC check */
 static gboolean global_mac_lte_dissect_crc_failures = FALSE;
 
+/* Whether should attempt to decode lcid 1&2 SDUs as srb1/2 (i.e. AM RLC) */
+static gboolean global_mac_lte_attempt_srb_decode = FALSE;
 
+
+extern int proto_rlc_lte;
 
 /***************************************************************/
 /* Keeping track of Msg3 bodies so they can be compared with   */
@@ -1433,6 +1438,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             break;
         }
 
+        /* Work out length */
         data_length = (pdu_lengths[n] == -1) ?
                             tvb_length_remaining(tvb, offset) :
                             pdu_lengths[n];
@@ -1492,6 +1498,51 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
             ENDTRY
         }
+
+        /* LCID 1 and 2 can be assumed to be srb1&2, so can dissect as RLC AM */
+        if (((lcids[n] == 1) || (lcids[n] == 2)) && global_mac_lte_attempt_srb_decode) {
+            tvbuff_t *srb_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
+            struct rlc_lte_info *p_rlc_lte_info;
+
+            /* Get RLC dissector handle */
+            volatile dissector_handle_t protocol_handle = find_dissector("rlc-lte");
+
+            /* Resuse or create RLC info */
+            p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
+            if (p_rlc_lte_info == NULL) {
+                p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
+            }
+
+            /* Fill in struct details for srb channels */
+            p_rlc_lte_info->rlcMode = RLC_AM_MODE;
+            p_rlc_lte_info->direction = p_mac_lte_info->direction;
+            p_rlc_lte_info->priority = 0; /* ?? */
+            p_rlc_lte_info->ueid = p_mac_lte_info->ueid;
+            p_rlc_lte_info->channelType = CHANNEL_TYPE_SRB;
+            p_rlc_lte_info->channelId = lcids[n];
+            p_rlc_lte_info->pduLength = data_length;
+            p_rlc_lte_info->UMSequenceNumberLength = 0;
+
+            /* Store info in packet */
+            p_add_proto_data(pinfo->fd, proto_rlc_lte, p_rlc_lte_info);
+
+            /* Hide raw view of bytes */
+            PROTO_ITEM_SET_HIDDEN(sdu_ti);
+
+            /* Don't want these columns replaced */
+            col_set_writable(pinfo->cinfo, FALSE);
+
+            /* Call it (catch exceptions so that stats will be updated) */
+            TRY {
+                call_dissector_only(protocol_handle, srb_tvb, pinfo, tree);
+            }
+            CATCH_ALL {
+            }
+            ENDTRY
+
+            col_set_writable(pinfo->cinfo, TRUE);
+        }
+
 
         offset += data_length;
 
@@ -2232,6 +2283,12 @@ void proto_register_mac_lte(void)
         "When enabled, use heuristic dissector to find MAC-LTE frames sent with "
         "UDP framing",
         &global_mac_lte_heur);
+
+    prefs_register_bool_preference(mac_lte_module, "attempt_to_dissect_srb_sdus",
+        "Attempt to dissect LCID 1&2 as srb1&2",
+        "Will call LTE RLC dissector with standard settings as per RRC spec",
+        &global_mac_lte_attempt_srb_decode);
+
 
     register_init_routine(&mac_lte_init_protocol);
 }

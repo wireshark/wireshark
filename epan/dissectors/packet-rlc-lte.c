@@ -268,13 +268,13 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo,
 
         /* Read next extension */
         proto_tree_add_bits_ret_val(extension_part_tree, hf_rlc_lte_extension_e, tvb,
-                                   (offset*8) + ((isOdd) ? 4 : 0),
+                                    (offset*8) + ((isOdd) ? 4 : 0),
                                     1,
                                     &extension, FALSE);
 
         /* Read length field */
         proto_tree_add_bits_ret_val(extension_part_tree, hf_rlc_lte_extension_li, tvb,
-                                   (offset*8) + ((isOdd) ? 5 : 1),
+                                    (offset*8) + ((isOdd) ? 5 : 1),
                                     11,
                                     &length, FALSE);
 
@@ -286,7 +286,7 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo,
         } else {
             offset++;
         }
-
+ 
         s_lengths[s_number_of_extensions++] = (guint16)length;
     }
 
@@ -1002,6 +1002,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree             *rlc_lte_tree;
+    proto_item             *top_ti;
     proto_item             *ti;
     proto_item             *mode_ti;
     gint                   offset = 0;
@@ -1011,8 +1012,8 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-LTE");
 
     /* Create protocol tree. */
-    ti = proto_tree_add_item(tree, proto_rlc_lte, tvb, offset, -1, FALSE);
-    rlc_lte_tree = proto_item_add_subtree(ti, ett_rlc_lte);
+    top_ti = proto_tree_add_item(tree, proto_rlc_lte, tvb, offset, -1, FALSE);
+    rlc_lte_tree = proto_item_add_subtree(top_ti, ett_rlc_lte);
 
 
     /* Look for packet info! */
@@ -1070,6 +1071,17 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
+    /* Append channel info to top-level item */
+    if (p_rlc_lte_info->channelId == 0) {
+        proto_item_append_text(top_ti, " (%s)",
+                               val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
+    }
+    else {
+        proto_item_append_text(top_ti, " (%s:%u)",
+                               val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
+                               p_rlc_lte_info->channelId);
+    }
+                     
 
     /* Append context highlights to info column */
     col_add_fstr(pinfo->cinfo, COL_INFO,
