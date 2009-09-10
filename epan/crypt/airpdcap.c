@@ -1009,7 +1009,7 @@ AirPDcapRsnaMng(
     try_data=ep_alloc(*decrypt_len);
 
     /* start of loop added by GCS */
-    for(/* sa */; sa != NULL && ret_value == 1 ;sa=sa->next) {
+    for(/* sa */; sa != NULL ;sa=sa->next) {
 
        /* copy the encrypted data into a temp buffer */
        memcpy(try_data, decrypt_data, *decrypt_len);
@@ -1017,7 +1017,6 @@ AirPDcapRsnaMng(
        if (sa->wpa.key_ver==1) {
            /* CCMP -> HMAC-MD5 is the EAPOL-Key MIC, RC4 is the EAPOL-Key encryption algorithm */
            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP", AIRPDCAP_DEBUG_LEVEL_3);
-
            DEBUG_DUMP("ptk", sa->wpa.ptk, 64);
            DEBUG_DUMP("ptk portion used", AIRPDCAP_GET_TK(sa->wpa.ptk), 16);
 
@@ -1030,6 +1029,7 @@ AirPDcapRsnaMng(
            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "TKIP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
            /* remove MIC (8bytes) and ICV (4bytes) from the end of packet */
            *decrypt_len-=12;
+           break;
        } else {
            /* AES-CCMP -> HMAC-SHA1-128 is the EAPOL-Key MIC, AES wep_key wrap is the EAPOL-Key encryption algorithm */
            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "CCMP", AIRPDCAP_DEBUG_LEVEL_3);
@@ -1041,11 +1041,12 @@ AirPDcapRsnaMng(
            AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "CCMP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
            /* remove MIC (8bytes) from the end of packet */
            *decrypt_len-=8;
+           break;
        }
     }
     /* end of loop */
 
-    /* non of the keys workd */
+    /* none of the keys worked */
     if(sa == NULL)
         return ret_value;
 
