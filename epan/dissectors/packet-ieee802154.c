@@ -228,33 +228,6 @@ static const value_string ieee802154_cmd_names[] = {
 #define IEEE802154_CRC_XOROUT   0xFFFF
 #define ieee802154_crc_tvb(tvb, offset)   (crc16_ccitt_tvb_seed(tvb, offset, IEEE802154_CRC_SEED) ^ IEEE802154_CRC_XOROUT)
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      get_by_mask
- *  DESCRIPTION
- *      Extracts an integer sub-field from an int with a given mask
- *      if the mask is 0, this will return 0, if the mask is non-
- *      continuos the output is undefined.
- *  PARAMETERS
- *      guint       input
- *      guint       mask
- *  RETURNS
- *      guint
- *---------------------------------------------------------------
- */
-guint
-get_by_mask(guint input, guint mask)
-{
-    /* Sanity Check, don't want infinite loops. */
-    if (mask == 0) return 0;
-    /* Shift input and mask together. */
-    while (!(mask & 0x1)) {
-        input >>= 1;
-        mask >>=1;
-    } /* while */
-    return (input & mask);
-} /* get_by_mask */
-
 #define EUI64_STRLEN    (3*(sizeof(guint64)+1))
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -355,14 +328,14 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
     fcf = tvb_get_letohs(tvb, *offset);
 
      /* Parse FCF Flags. */
-    packet->frame_type      = get_by_mask(fcf, IEEE802154_FCF_TYPE_MASK);
-    packet->security_enable = get_by_mask(fcf, IEEE802154_FCF_SEC_EN);
-    packet->frame_pending   = get_by_mask(fcf, IEEE802154_FCF_FRAME_PND);
-    packet->ack_request     = get_by_mask(fcf, IEEE802154_FCF_ACK_REQ);
-    packet->intra_pan       = get_by_mask(fcf, IEEE802154_FCF_INTRA_PAN);
-    packet->version         = get_by_mask(fcf, IEEE802154_FCF_VERSION);
-    packet->dst_addr_mode   = get_by_mask(fcf, IEEE802154_FCF_DADDR_MASK);
-    packet->src_addr_mode   = get_by_mask(fcf, IEEE802154_FCF_SADDR_MASK);
+    packet->frame_type      = fcf & IEEE802154_FCF_TYPE_MASK;
+    packet->security_enable = (fcf & IEEE802154_FCF_SEC_EN) >> 3;
+    packet->frame_pending   = (fcf & IEEE802154_FCF_FRAME_PND) >> 4;
+    packet->ack_request     = (fcf & IEEE802154_FCF_ACK_REQ) >> 5;
+    packet->intra_pan       = (fcf & IEEE802154_FCF_INTRA_PAN) >> 6;
+    packet->version         = (fcf & IEEE802154_FCF_VERSION) >> 12;
+    packet->dst_addr_mode   = (fcf & IEEE802154_FCF_DADDR_MASK) >> 10;
+    packet->src_addr_mode   = (fcf & IEEE802154_FCF_SADDR_MASK) >> 14;
 
     /* Display the frame type. */
     if (tree) proto_item_append_text(tree, " %s", val_to_str(packet->frame_type, ieee802154_frame_types, "Reserved"));
@@ -884,10 +857,10 @@ dissect_ieee802154_fcs:
             ti = proto_tree_add_text(ieee802154_tree, tvb, offset, sizeof(guint16), "Frame Check Sequence: FCS %s", (fcs_ok) ? "OK" : "Bad");
             field_tree = proto_item_add_subtree(ti, ett_ieee802154_fcs);
             /* Display FCS contents.  */
-            ti = proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset, sizeof(guint16), get_by_mask(fcs, IEEE802154_CC24xx_RSSI));
+            ti = proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset, 1, (gint8) (fcs & IEEE802154_CC24xx_RSSI));
             proto_item_append_text(ti, " dBm"); /*  Displaying Units */
-            proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, sizeof(guint16), get_by_mask(fcs, IEEE802154_CC24xx_CRC_OK));
-            proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, sizeof(guint16), get_by_mask(fcs, IEEE802154_CC24xx_CORRELATION));
+            proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset + 1, 1, (gboolean) (fcs & IEEE802154_CC24xx_CRC_OK));
+            proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset + 1, 1, (guint8) ((fcs & IEEE802154_CC24xx_CORRELATION) >> 8));
         }
         else {
             ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_fcs, tvb, offset, sizeof(guint16), fcs);

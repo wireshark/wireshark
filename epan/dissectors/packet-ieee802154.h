@@ -115,9 +115,9 @@
 #define IEEE802154_FCF_ADDR_EXT             0x0003
 
 /*  Bit-masks for CC24xx style FCS */
-#define IEEE802154_CC24xx_CORRELATION       0x007F
-#define IEEE802154_CC24xx_CRC_OK            0x0080
-#define IEEE802154_CC24xx_RSSI              0xFF00
+#define IEEE802154_CC24xx_CORRELATION       0x7F00
+#define IEEE802154_CC24xx_CRC_OK            0x8000
+#define IEEE802154_CC24xx_RSSI              0x00FF
 
 /*  Special IEEE802.15.4 Addresses */
 #define IEEE802154_NO_ADDR16                0xFFFE
