@@ -194,7 +194,9 @@ eDonkey,
 FTP,
 IEEE 802.11,
 Infiniband,
-OpcUa
+ISUP,
+OpcUa,
+SCTP
 
 
     </para>
