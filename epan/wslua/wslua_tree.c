@@ -317,6 +317,25 @@ WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
     return 0;
 }
 
+WSLUA_METHOD TreeItem_set_len(lua_State *L) {
+    /* Set TreeItem's length inside tvb, after it has already been created. */
+#define WSLUA_ARG_TreeItem_set_len_LEN 2 /* The length to be used. */
+    TreeItem ti = checkTreeItem(L,1);
+    gint len;
+    
+    if (ti) {
+        if (ti->expired) {
+            luaL_error(L,"expired TreeItem");
+            return 0;
+        }
+
+        len = luaL_checkint(L,WSLUA_ARG_TreeItem_set_len_LEN);
+        proto_item_set_len(ti->item, len);
+    }
+    
+    return 0;
+}
+
 static int TreeItem_gc(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
 
@@ -340,6 +359,7 @@ static const luaL_reg TreeItem_methods[] = {
     {"add_expert_info",       TreeItem_add_expert_info},
     {"set_generated",       TreeItem_set_generated},
     {"set_hidden",       TreeItem_set_hidden},
+    {"set_len",       TreeItem_set_len},
     { NULL, NULL }
 };
 static const luaL_reg TreeItem_meta[] = {
