@@ -256,8 +256,8 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 								     POINT_SIZE, POINT_SIZE,0, (64*360) );
 					}
 				}
-			tlist = g_list_next(tlist);
 			}
+			tlist = g_list_next(tlist);
 		}
 		list = g_list_previous(list);
 	}
