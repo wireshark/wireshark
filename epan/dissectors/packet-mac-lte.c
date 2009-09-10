@@ -962,6 +962,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     gboolean   have_seen_data_header = FALSE;
     gboolean   have_seen_bsr = FALSE;
     gboolean   expecting_body_data = FALSE;
+    guint32    is_truncated = FALSE;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s: (SF=%u) UEId=%u ",
                     (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
@@ -1163,13 +1164,253 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_item_set_len(pdu_header_ti, offset);
 
 
-    /* TODO: some valid PDUs don't have any bodies, so don't want expert info.
-       Use expecting_body_data to track this */
 
-    /* There might not be any data, if only headers were logged */
+
+    /************************************************************************/
+    /* Dissect SDUs / control elements / padding.                           */
+    /************************************************************************/
+
+    /* Dissect control element bodies first */
+
+    for (n=0; n < number_of_headers; n++) {
+        /* Get out of loop once see any data SDU subheaders */
+        if (lcids[n] <= 10) {
+            break;
+        }
+
+        /* Process what should be a valid control PDU type */
+        if (direction == DIRECTION_DOWNLINK) {
+
+            /****************************/
+            /* DL-SCH Control PDUs      */
+            switch (lcids[n]) {
+                case UE_CONTENTION_RESOLUTION_IDENTITY_LCID:
+                    {
+                        proto_item *cr_ti;
+                        proto_tree *cr_tree;
+                        proto_item *ti;
+                        ContentionResolutionResult *crResult;
+
+                        /* Create CR root */
+                        cr_ti = proto_tree_add_string_format(tree,
+                                                             hf_mac_lte_control_ue_contention_resolution,
+                                                             tvb, offset, 6,
+                                                             "",
+                                                             "Contention Resolution");
+                        cr_tree = proto_item_add_subtree(cr_ti, ett_mac_lte_contention_resolution);
+
+
+                        proto_tree_add_item(cr_tree, hf_mac_lte_control_ue_contention_resolution_identity,
+                                            tvb, offset, 6, FALSE);
+
+                        /* Get pointer to result struct for this frame */
+                        crResult =  g_hash_table_lookup(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+                        if (crResult == NULL) {
+
+                            /* Need to set result by looking for and comparing with Msg3 */
+                            Msg3Data *msg3Data;
+                            guint msg3Key = p_mac_lte_info->rnti;
+
+                            /* Allocate result and add it to the table */
+                            crResult = se_alloc(sizeof(ContentionResolutionResult));
+                            g_hash_table_insert(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->fd->num), crResult);
+
+                            /* Look for Msg3 */
+                            msg3Data = g_hash_table_lookup(mac_lte_msg3_hash, GUINT_TO_POINTER(msg3Key));
+
+                            /* Compare CCCH bytes */
+                            if (msg3Data != NULL) {
+                                crResult->msg3FrameNum = msg3Data->framenum;
+                                if (memcmp(&msg3Data->data, tvb_get_ptr(tvb, offset, 6), 6) == 0) {
+                                    crResult->status = Msg3Match;
+                                }
+                                else {
+                                    crResult->status = Msg3NoMatch;
+                                }
+                            }
+                            else {
+                                crResult->status = NoMsg3;
+                            }
+                        }
+
+                        /* Now show CR result in tree */
+                        switch (crResult->status) {
+                            case NoMsg3:
+                                proto_item_append_text(cr_ti, " (no corresponding Msg3 found!)");
+                                break;
+
+                            case Msg3Match:
+                                ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3,
+                                                         tvb, 0, 0, crResult->msg3FrameNum);
+                                PROTO_ITEM_SET_GENERATED(ti);
+                                ti = proto_tree_add_boolean(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3_matched,
+                                                            tvb, 0, 0, TRUE);
+                                PROTO_ITEM_SET_GENERATED(ti);
+                                proto_item_append_text(cr_ti, " (matches Msg3 from frame %u)", crResult->msg3FrameNum);
+                                break;
+
+                            case Msg3NoMatch:
+                                ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3,
+                                                         tvb, 0, 0, crResult->msg3FrameNum);
+                                PROTO_ITEM_SET_GENERATED(ti);
+                                ti = proto_tree_add_boolean(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3_matched,
+                                                             tvb, 0, 0, FALSE);
+                                expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                                                       "CR body in Msg4 doesn't match Msg3 CCCH in frame %u",
+                                                       crResult->msg3FrameNum);
+                                PROTO_ITEM_SET_GENERATED(ti);
+                                proto_item_append_text(cr_ti, " (doesn't match Msg3 from frame %u)", crResult->msg3FrameNum);
+                                break;
+                        };
+
+                        offset += 6;
+                    }
+                    break;
+                case TIMING_ADVANCE_LCID:
+                    {
+                        proto_item *reserved_ti;
+                        guint8      reserved;
+
+                        /* Check 2 reserved bits */
+                        reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
+                        reserved_ti = proto_tree_add_item(tree, hf_mac_lte_control_timing_advance_reserved, tvb, offset, 1, FALSE);
+                        if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
+                            expert_add_info_format(pinfo, reserved_ti, PI_MALFORMED, PI_ERROR,
+                                                   "Timing Advance Reserved bits not zero (found 0x%x)", reserved);
+                        }
+                        proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
+                                            tvb, offset, 1, FALSE);
+                        offset++;
+                    }
+                    break;
+                case DRX_COMMAND_LCID:
+                    /* No payload */
+                    break;
+                case PADDING_LCID:
+                    /* No payload (in this position) */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        else {
+
+            /**********************************/
+            /* UL-SCH Control PDUs            */
+            switch (lcids[n]) {
+                case POWER_HEADROOM_REPORT_LCID:
+                    {
+                        proto_item *phr_ti;
+                        proto_tree *phr_tree;
+                        proto_item *ti;
+                        guint8 reserved;
+                        guint8 level;
+
+                        /* Create PHR root */
+                        phr_ti = proto_tree_add_string_format(tree,
+                                                              hf_mac_lte_control_power_headroom,
+                                                              tvb, offset, 1,
+                                                              "",
+                                                              "Power Headroom");
+                        phr_tree = proto_item_add_subtree(phr_ti, ett_mac_lte_power_headroom);
+
+                        /* Check 2 Reserved bits */
+                        reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
+                        ti = proto_tree_add_item(phr_tree, hf_mac_lte_control_power_headroom_reserved,
+                                                 tvb, offset, 1, FALSE);
+                        if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
+                            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                                   "Power Headroom Reserved bits not zero (found 0x%x)", reserved);
+                        }
+
+                        /* Level */
+                        level = tvb_get_guint8(tvb, offset) & 0x3f;
+                        proto_tree_add_item(phr_tree, hf_mac_lte_control_power_headroom_level,
+                                            tvb, offset, 1, FALSE);
+
+                        /* Show value in root label */
+                        proto_item_append_text(phr_ti, " (POWER_HEADROOM_%u)", level);
+                        offset++;
+                    }
+
+
+                    break;
+                case CRNTI_LCID:
+                    proto_tree_add_item(tree, hf_mac_lte_control_crnti,
+                                        tvb, offset, 2, FALSE);
+                    offset += 2;
+                    break;
+                case TRUNCATED_BSR_LCID:
+                case SHORT_BSR_LCID:
+                    {
+                        proto_tree *bsr_tree;
+                        proto_item *bsr_ti;
+                        guint8 lcgid;
+                        guint8 buffer_size;
+
+                        bsr_ti = proto_tree_add_string_format(tree,
+                                                              hf_mac_lte_control_bsr,
+                                                              tvb, offset, 1,
+                                                              "",
+                                                              "BSR");
+                        bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
+
+                        /* LCG ID */
+                        lcgid = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_lcg_id,
+                                                    tvb, offset, 1, FALSE);
+                        /* Buffer Size */
+                        buffer_size = tvb_get_guint8(tvb, offset) & 0x3f;
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size,
+                                            tvb, offset, 1, FALSE);
+                        offset++;
+
+                        proto_item_append_text(bsr_ti, " (lcgid=%u  %s)",
+                                               lcgid,
+                                               val_to_str(buffer_size, buffer_size_vals, "Unknown"));
+                    }
+                    break;
+                case LONG_BSR_LCID:
+                    {
+                        proto_tree *bsr_tree;
+                        proto_item *bsr_ti;
+                        bsr_ti = proto_tree_add_string_format(tree,
+                                                              hf_mac_lte_control_bsr,
+                                                              tvb, offset, 3,
+                                                              "",
+                                                              "Long BSR");
+                        bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
+
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_1,
+                                            tvb, offset, 1, FALSE);
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_2,
+                                            tvb, offset, 1, FALSE);
+                        offset++;
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_3,
+                                            tvb, offset, 1, FALSE);
+                        offset++;
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_4,
+                                            tvb, offset, 1, FALSE);
+                        offset++;
+                    }
+                    break;
+                case PADDING_LCID:
+                    /* No payload, in this position */
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+
+    /* There might not be any data, if only headers (plus control data) were logged */
+    is_truncated = ((tvb_length_remaining(tvb, offset) == 0) && expecting_body_data);
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_sch_header_only, tvb, 0, 0,
-                                       tvb_length_remaining(tvb, offset) == 0);
-    if (tvb_length_remaining(tvb, offset) == 0) {
+                                       is_truncated);
+    if (is_truncated) {
         PROTO_ITEM_SET_GENERATED(truncated_ti);
         expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
                                "MAC PDU SDUs have been ommitted");
@@ -1180,346 +1421,104 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
 
-    /************************************************************************/
-    /* Dissect SDUs / control elements / padding.                           */
-    /************************************************************************/
-
-    for (n=0; n < number_of_headers; n++) {
+    /* Now process remaining bodies, which should all be data */
+    for (; n < number_of_headers; n++) {
 
         /* Data SDUs treated identically for Uplink or downlink channels */
-        if (lcids[n] <= 10) {
-            proto_item *sdu_ti;
-            volatile guint16 data_length = (pdu_lengths[n] == -1) ?
-                                                tvb_length_remaining(tvb, offset) :
-                                                pdu_lengths[n];
+        proto_item *sdu_ti;
+        volatile guint16 data_length;
 
-            /* Dissect SDU */
-            sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_sch_sdu, tvb, offset, pdu_lengths[n],
-                                                 tvb_get_ptr(tvb, offset, pdu_lengths[n]),
-                                                 "SDU (%s, length=%u bytes)",
-                                                 val_to_str(lcids[n],
-                                                            (direction == DIRECTION_UPLINK) ?
-                                                                ulsch_lcid_vals :
-                                                                dlsch_lcid_vals,
-                                                            "Unknown"),
-                                                 data_length);
-
-            /* Look for Msg3 data so that it may be compared with later
-               Contention Resolution body */
-            if ((lcids[n] == 0) && (direction == DIRECTION_UPLINK) && (data_length == 6)) {
-                if (!pinfo->fd->flags.visited) {
-                    guint key = p_mac_lte_info->rnti;
-                    Msg3Data *data = g_hash_table_lookup(mac_lte_msg3_hash, GUINT_TO_POINTER(key));
-
-                    /* Look for previous entry for this UE */
-                    if (data == NULL) {
-                        /* Allocate space for data and add to table */
-                        data = se_alloc(sizeof(Msg3Data));
-                        g_hash_table_insert(mac_lte_msg3_hash, GUINT_TO_POINTER(key), data);
-                    }
-
-                    /* Fill in data details */
-                    data->framenum = pinfo->fd->num;
-                    memcpy(&data->data, tvb_get_ptr(tvb, offset, data_length), data_length);
-                }
-            }
-
-            /* CCCH frames can be dissected directly by LTE RRC... */
-            if ((lcids[n] == 0) && global_mac_lte_attempt_rrc_decode) {
-                tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
-
-                /* Get appropriate dissector handle */
-                volatile dissector_handle_t protocol_handle = 0;
-                if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
-                    protocol_handle = find_dissector("lte-rrc.ul.ccch");
-                }
-                else {
-                    protocol_handle = find_dissector("lte-rrc.dl.ccch");
-                }
-
-                /* Hide raw view of bytes */
-                PROTO_ITEM_SET_HIDDEN(sdu_ti);
-
-                /* Call it (catch exceptions so that stats will be updated) */
-                TRY {
-                    call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
-                }
-                CATCH_ALL {
-                }
-                ENDTRY
-            }
-
-            offset += data_length;
-
-            /* Update tap byte count for this channel */
-            tap_info->bytes_for_lcid[lcids[n]] += data_length;
-            tap_info->sdus_for_lcid[lcids[n]]++;
+        /* Break out if meet padding */
+        if (lcids[n] == PADDING_LCID) {
+            break;
         }
-        else {
-            /* See if its a control PDU type */
-            if (direction == DIRECTION_DOWNLINK) {
 
-                /****************************/
-                /* DL-SCH Control PDUs      */
-                switch (lcids[n]) {
-                    case UE_CONTENTION_RESOLUTION_IDENTITY_LCID:
-                        {
-                            proto_item *cr_ti;
-                            proto_tree *cr_tree;
-                            proto_item *ti;
-                            ContentionResolutionResult *crResult;
+        data_length = (pdu_lengths[n] == -1) ?
+                            tvb_length_remaining(tvb, offset) :
+                            pdu_lengths[n];
 
-                            /* Create CR root */
-                            cr_ti = proto_tree_add_string_format(tree,
-                                                                 hf_mac_lte_control_ue_contention_resolution,
-                                                                 tvb, offset, 6,
-                                                                 "",
-                                                                 "Contention Resolution");
-                            cr_tree = proto_item_add_subtree(cr_ti, ett_mac_lte_contention_resolution);
+        /* Dissect SDU */
+        sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_sch_sdu, tvb, offset, pdu_lengths[n],
+                                             tvb_get_ptr(tvb, offset, pdu_lengths[n]),
+                                             "SDU (%s, length=%u bytes)",
+                                             val_to_str(lcids[n],
+                                                        (direction == DIRECTION_UPLINK) ?
+                                                            ulsch_lcid_vals :
+                                                            dlsch_lcid_vals,
+                                                        "Unknown"),
+                                             data_length);
 
+        /* Look for Msg3 data so that it may be compared with later
+           Contention Resolution body */
+        if ((lcids[n] == 0) && (direction == DIRECTION_UPLINK) && (data_length == 6)) {
+            if (!pinfo->fd->flags.visited) {
+                guint key = p_mac_lte_info->rnti;
+                Msg3Data *data = g_hash_table_lookup(mac_lte_msg3_hash, GUINT_TO_POINTER(key));
 
-                            proto_tree_add_item(cr_tree, hf_mac_lte_control_ue_contention_resolution_identity,
-                                                tvb, offset, 6, FALSE);
-
-                            /* Get pointer to result struct for this frame */
-                            crResult =  g_hash_table_lookup(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
-                            if (crResult == NULL) {
-
-                                /* Need to set result by looking for and comparing with Msg3 */
-                                Msg3Data *msg3Data;
-                                guint msg3Key = p_mac_lte_info->rnti;
-
-                                /* Allocate result and add it to the table */
-                                crResult = se_alloc(sizeof(ContentionResolutionResult));
-                                g_hash_table_insert(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->fd->num), crResult);
-
-                                /* Look for Msg3 */
-                                msg3Data = g_hash_table_lookup(mac_lte_msg3_hash, GUINT_TO_POINTER(msg3Key));
-
-                                /* Compare CCCH bytes */
-                                if (msg3Data != NULL) {
-                                    crResult->msg3FrameNum = msg3Data->framenum;
-                                    if (memcmp(&msg3Data->data, tvb_get_ptr(tvb, offset, 6), 6) == 0) {
-                                        crResult->status = Msg3Match;
-                                    }
-                                    else {
-                                        crResult->status = Msg3NoMatch;
-                                    }
-                                }
-                                else {
-                                    crResult->status = NoMsg3;
-                                }
-                            }
-
-                            /* Now show CR result in tree */
-                            switch (crResult->status) {
-                                case NoMsg3:
-                                    proto_item_append_text(cr_ti, " (no corresponding Msg3 found!)");
-                                    break;
-
-                                case Msg3Match:
-                                    ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3,
-                                                             tvb, 0, 0, crResult->msg3FrameNum);
-                                    PROTO_ITEM_SET_GENERATED(ti);
-                                    ti = proto_tree_add_boolean(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3_matched,
-                                                                tvb, 0, 0, TRUE);
-                                    PROTO_ITEM_SET_GENERATED(ti);
-                                    proto_item_append_text(cr_ti, " (matches Msg3 from frame %u)", crResult->msg3FrameNum);
-                                    break;
-
-                                case Msg3NoMatch:
-                                    ti = proto_tree_add_uint(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3,
-                                                             tvb, 0, 0, crResult->msg3FrameNum);
-                                    PROTO_ITEM_SET_GENERATED(ti);
-                                    ti = proto_tree_add_boolean(cr_tree, hf_mac_lte_control_ue_contention_resolution_msg3_matched,
-                                                                 tvb, 0, 0, FALSE);
-                                    expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                                           "CR body in Msg4 doesn't match Msg3 CCCH in frame %u",
-                                                           crResult->msg3FrameNum);
-                                    PROTO_ITEM_SET_GENERATED(ti);
-                                    proto_item_append_text(cr_ti, " (doesn't match Msg3 from frame %u)", crResult->msg3FrameNum);
-                                    break;
-                            };
-
-                            offset += 6;
-                        }
-                        break;
-                    case TIMING_ADVANCE_LCID:
-                        {
-                            proto_item *reserved_ti;
-                            guint8      reserved;
-
-                            /* Check 2 reserved bits */
-                            reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
-                            reserved_ti = proto_tree_add_item(tree, hf_mac_lte_control_timing_advance_reserved, tvb, offset, 1, FALSE);
-                            if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
-                                expert_add_info_format(pinfo, reserved_ti, PI_MALFORMED, PI_ERROR,
-                                                       "Timing Advance Reserved bits not zero (found 0x%x)", reserved);
-                            }
-                            proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
-                                                tvb, offset, 1, FALSE);
-                            offset++;
-                        }
-                        break;
-                    case DRX_COMMAND_LCID:
-                        /* No payload */
-                        break;
-                    case PADDING_LCID:
-                        /* No payload, unless its the last subheader, in which case
-                           it extends to the end of the PDU */
-                        if (n == (number_of_headers-1)) {
-                            if (tvb_length_remaining(tvb, offset) > 0) {
-                                proto_tree_add_item(tree, hf_mac_lte_padding_data,
-                                                    tvb, offset, -1, FALSE);
-                            }
-                            padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
-                                                                   tvb, offset, 0,
-                                                                   p_mac_lte_info->length - offset);
-                            PROTO_ITEM_SET_GENERATED(padding_length_ti);
-
-                            /* Make sure the PDU isn't bigger than reported! */
-                            if (offset > p_mac_lte_info->length) {
-                                expert_add_info_format(pinfo, padding_length_ti, PI_MALFORMED, PI_ERROR,
-                                                       "MAC PDU is longer than reported length (reported=%u, actual=%u)",
-                                                       p_mac_lte_info->length, offset);
-                            }
-                        }
-                        break;
-
-                    default:
-                        break;
+                /* Look for previous entry for this UE */
+                if (data == NULL) {
+                    /* Allocate space for data and add to table */
+                    data = se_alloc(sizeof(Msg3Data));
+                    g_hash_table_insert(mac_lte_msg3_hash, GUINT_TO_POINTER(key), data);
                 }
+
+                /* Fill in data details */
+                data->framenum = pinfo->fd->num;
+                memcpy(&data->data, tvb_get_ptr(tvb, offset, data_length), data_length);
+            }
+        }
+
+        /* CCCH frames can be dissected directly by LTE RRC... */
+        if ((lcids[n] == 0) && global_mac_lte_attempt_rrc_decode) {
+            tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
+
+            /* Get appropriate dissector handle */
+            volatile dissector_handle_t protocol_handle = 0;
+            if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
+                protocol_handle = find_dissector("lte-rrc.ul.ccch");
             }
             else {
-
-                /**********************************/
-                /* UL-SCH Control PDUs            */
-                switch (lcids[n]) {
-                    case POWER_HEADROOM_REPORT_LCID:
-                        {
-                            proto_item *phr_ti;
-                            proto_tree *phr_tree;
-                            proto_item *ti;
-                            guint8 reserved;
-                            guint8 level;
-
-                            /* Create PHR root */
-                            phr_ti = proto_tree_add_string_format(tree,
-                                                                  hf_mac_lte_control_power_headroom,
-                                                                  tvb, offset, 1,
-                                                                  "",
-                                                                  "Power Headroom");
-                            phr_tree = proto_item_add_subtree(phr_ti, ett_mac_lte_power_headroom);
-
-                            /* Check 2 Reserved bits */
-                            reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
-                            ti = proto_tree_add_item(phr_tree, hf_mac_lte_control_power_headroom_reserved,
-                                                     tvb, offset, 1, FALSE);
-                            if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
-                                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                                       "Power Headroom Reserved bits not zero (found 0x%x)", reserved);
-                            }
-
-                            /* Level */
-                            level = tvb_get_guint8(tvb, offset) & 0x3f;
-                            proto_tree_add_item(phr_tree, hf_mac_lte_control_power_headroom_level,
-                                                tvb, offset, 1, FALSE);
-
-                            /* Show value in root label */
-                            proto_item_append_text(phr_ti, " (POWER_HEADROOM_%u)", level);
-                            offset++;
-                        }
-
-
-                        break;
-                    case CRNTI_LCID:
-                        proto_tree_add_item(tree, hf_mac_lte_control_crnti,
-                                            tvb, offset, 2, FALSE);
-                        offset += 2;
-                        break;
-                    case TRUNCATED_BSR_LCID:
-                    case SHORT_BSR_LCID:
-                        {
-                            proto_tree *bsr_tree;
-                            proto_item *bsr_ti;
-                            guint8 lcgid;
-                            guint8 buffer_size;
-
-                            bsr_ti = proto_tree_add_string_format(tree,
-                                                                  hf_mac_lte_control_bsr,
-                                                                  tvb, offset, 1,
-                                                                  "",
-                                                                  "BSR");
-                            bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
-
-                            /* LCG ID */
-                            lcgid = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
-                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_lcg_id,
-                                                        tvb, offset, 1, FALSE);
-                            /* Buffer Size */
-                            buffer_size = tvb_get_guint8(tvb, offset) & 0x3f;
-                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size,
-                                                tvb, offset, 1, FALSE);
-                            offset++;
-
-                            proto_item_append_text(bsr_ti, " (lcgid=%u  %s)",
-                                                   lcgid,
-                                                   val_to_str(buffer_size, buffer_size_vals, "Unknown"));
-                        }
-                        break;
-                    case LONG_BSR_LCID:
-                        {
-                            proto_tree *bsr_tree;
-                            proto_item *bsr_ti;
-                            bsr_ti = proto_tree_add_string_format(tree,
-                                                                  hf_mac_lte_control_bsr,
-                                                                  tvb, offset, 3,
-                                                                  "",
-                                                                  "Long BSR");
-                            bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
-
-                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_1,
-                                                tvb, offset, 1, FALSE);
-                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_2,
-                                                tvb, offset, 1, FALSE);
-                            offset++;
-                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_3,
-                                                tvb, offset, 1, FALSE);
-                            offset++;
-                            proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_4,
-                                                tvb, offset, 1, FALSE);
-                            offset++;
-                        }
-                        break;
-                    case PADDING_LCID:
-                        /* No payload, unless its the last subheader, in which case
-                           it extends to the end of the PDU */
-                        if (n == (number_of_headers-1)) {
-                            if (tvb_length_remaining(tvb, offset) > 0) {
-                                proto_tree_add_item(tree, hf_mac_lte_padding_data,
-                                                    tvb, offset, -1, FALSE);
-                            }
-                            padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
-                                                                   tvb, offset, 0,
-                                                                   p_mac_lte_info->length - offset);
-                            PROTO_ITEM_SET_GENERATED(padding_length_ti);
-
-                            /* Make sure the PDU isn't bigger than reported! */
-                            if (offset > p_mac_lte_info->length) {
-                                expert_add_info_format(pinfo, padding_length_ti, PI_MALFORMED, PI_ERROR,
-                                                       "MAC PDU is longer than reported length (reported=%u, actual=%u)",
-                                                       p_mac_lte_info->length, offset);
-                            }
-                        }
-
-                        break;
-
-                    default:
-                        break;
-                }
+                protocol_handle = find_dissector("lte-rrc.dl.ccch");
             }
+
+            /* Hide raw view of bytes */
+            PROTO_ITEM_SET_HIDDEN(sdu_ti);
+
+            /* Call it (catch exceptions so that stats will be updated) */
+            TRY {
+                call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+            }
+            CATCH_ALL {
+            }
+            ENDTRY
+        }
+
+        offset += data_length;
+
+        /* Update tap byte count for this channel */
+        tap_info->bytes_for_lcid[lcids[n]] += data_length;
+        tap_info->sdus_for_lcid[lcids[n]]++;
+    }
+
+    /* Now padding, if present, extends to the end of the PDU */
+    if (lcids[number_of_headers-1] == PADDING_LCID) {
+        if (tvb_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(tree, hf_mac_lte_padding_data,
+                                tvb, offset, -1, FALSE);
+        }
+        padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
+                                               tvb, offset, 0,
+                                               p_mac_lte_info->length - offset);
+        PROTO_ITEM_SET_GENERATED(padding_length_ti);
+
+        /* Make sure the PDU isn't bigger than reported! */
+        if (offset > p_mac_lte_info->length) {
+            expert_add_info_format(pinfo, padding_length_ti, PI_MALFORMED, PI_ERROR,
+                                   "MAC PDU is longer than reported length (reported=%u, actual=%u)",
+                                   p_mac_lte_info->length, offset);
         }
     }
+
 }
 
 
