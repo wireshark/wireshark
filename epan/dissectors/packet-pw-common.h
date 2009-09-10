@@ -61,12 +61,19 @@ typedef enum {
 				+ PWC_CW_BAD_FLAGS
 				+ PWC_CW_BAD_PAYLEN_LE_0
 				+ PWC_CW_BAD_PADDING_NE_0
-	,PWC_CW_SUSPECT_LM		= 1 << 6				
+	,PWC_CW_SUSPECT_LM		= 1 << 6
 	,PWC_ANYOF_CW_SUSPECT	= PWC_CW_SUSPECT_LM
 	,PWC_PAY_SIZE_BAD		= 1 << 7
 }
 pwc_packet_properties_t;
 #define PWC_PACKET_PROPERTIES_T_INITIALIZER 0
+
+typedef enum {
+	PWC_DEMUX_MPLS = 0
+	,PWC_DEMUX_UDP		/*IPv4/IPv6 and UDP as demultiplexing layer*/
+	,PWC_DEMUX_L2TP		/*IPv4/IPv6 and L2TPv3 as demultiplexing layer*/
+}
+pwc_demux_type_t;
 
 extern void pwc_item_append_cw(proto_item* item, const guint32 cw, const gboolean append_text);
 extern void pwc_item_append_text_n_items(proto_item* item, const int n, const char * const item_text);

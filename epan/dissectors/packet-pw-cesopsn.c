@@ -24,8 +24,9 @@
  *
  * History:
  * ---------------------------------
- * 16.03.2009 initial implementation
- * Not supported:
+ * 16.03.2009 initial implementation for MPLS
+ * 14.08.2009 added: support for IP/UDP demultiplexing
+ * Not supported yet:
  * - All PW modes, except Basic NxDS0 mode.
  * - <Optional> RTP Headers (RFC3550)
  * - Decoding of PW payload
@@ -78,7 +79,12 @@ static const value_string vals_cw_lm[] = {
 	{ 0,	NULL }
 };
 
-static void dissect_pw_cesopsn( tvbuff_t * tvb_original, packet_info * pinfo, proto_tree * tree )
+
+static
+void dissect_pw_cesopsn( tvbuff_t * tvb_original
+						,packet_info * pinfo
+						,proto_tree * tree
+						,pwc_demux_type_t demux)
 {
 	const int encaps_size = 4; /*RTP header in encapsulation is not supported yet*/
 	gint packet_size;
@@ -87,6 +93,7 @@ static void dissect_pw_cesopsn( tvbuff_t * tvb_original, packet_info * pinfo, pr
 	pwc_packet_properties_t properties;
 
 	packet_size = tvb_reported_length_remaining(tvb_original, 0);
+
 	/*
 	 * FIXME
 	 * "4" below should be replaced by something like "min_packet_size_this_dissector"
@@ -110,8 +117,18 @@ static void dissect_pw_cesopsn( tvbuff_t * tvb_original, packet_info * pinfo, pr
 		return;
 	}
 
-	if (dissect_try_cw_first_nibble(tvb_original, pinfo, tree))
+	switch (demux)
 	{
+	case PWC_DEMUX_MPLS:
+		if (dissect_try_cw_first_nibble(tvb_original, pinfo, tree))
+		{
+			return;
+		}
+		break;
+	case PWC_DEMUX_UDP:
+		break;
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
 		return;
 	}
 
@@ -155,7 +172,7 @@ static void dissect_pw_cesopsn( tvbuff_t * tvb_original, packet_info * pinfo, pr
 			 */
 			payload_size = payload_size_from_packet;
 			padding_size = 0;
-			
+
 			if (payload_size_from_cw < 0)
 			{
 				properties |= PWC_CW_BAD_PAYLEN_LT_0;
@@ -180,7 +197,7 @@ static void dissect_pw_cesopsn( tvbuff_t * tvb_original, packet_info * pinfo, pr
 			padding_size = 0;
 		}
 	}
-	
+
 	{
 		guint8 cw_lm;
 		cw_lm = tvb_get_guint8(tvb_original, 0) & 0x0b /*l+mod*/;
@@ -235,13 +252,13 @@ static void dissect_pw_cesopsn( tvbuff_t * tvb_original, packet_info * pinfo, pr
 		}
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "TDM octets:%d", (int)payload_size);
-		
+
 		if (padding_size != 0)
 		{
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Padding:%d", (int)padding_size);
 		}
 	}
-		
+
 	if (tree)
 	{
 		proto_item* item;
@@ -268,16 +285,16 @@ static void dissect_pw_cesopsn( tvbuff_t * tvb_original, packet_info * pinfo, pr
 							expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
 								,"Bits 0..3 of Control Word must be 0");
 						}
-						
+
 						item = proto_tree_add_item(tree, hf_cw_lm,  tvb, 0, 1, FALSE);
 						if (properties & PWC_CW_SUSPECT_LM)
 						{
 							expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN
 								,"Reserved combination of L and Modifier bits");
 						}
-						
+
 						(void)proto_tree_add_item(tree, hf_cw_r, tvb, 0, 1, FALSE);
-						
+
 						item = proto_tree_add_item(tree, hf_cw_frg, tvb, 1, 1, FALSE);
 						if (properties & PWC_CW_BAD_FRAG)
 						{
@@ -285,7 +302,7 @@ static void dissect_pw_cesopsn( tvbuff_t * tvb_original, packet_info * pinfo, pr
 								,"Fragmentation of payload is not allowed"
 								" for basic CESoPSN mode");
 						}
-				
+
 						item = proto_tree_add_item(tree, hf_cw_len, tvb, 1, 1, FALSE);
 						if (properties & PWC_CW_BAD_PAYLEN_LT_0)
 						{
@@ -305,9 +322,9 @@ static void dissect_pw_cesopsn( tvbuff_t * tvb_original, packet_info * pinfo, pr
 								,"Bad Length: must be 0 if CESoPSN packet size (%d) is > 64"
 								,(int)packet_size);
 						}
-				
+
 						proto_tree_add_item(tree, hf_cw_seq, tvb, 2, 2, FALSE);
-						
+
 					}
 				}
 			}
@@ -349,7 +366,7 @@ static void dissect_pw_cesopsn( tvbuff_t * tvb_original, packet_info * pinfo, pr
 				PROTO_ITEM_SET_HIDDEN(item);
 			}
 		}
-		
+
 		/* padding */
 		if (padding_size > 0)
 		{
@@ -360,10 +377,27 @@ static void dissect_pw_cesopsn( tvbuff_t * tvb_original, packet_info * pinfo, pr
 				tvb = tvb_new_subset(tvb_original, PWC_SIZEOF_CW + payload_size, padding_size, -1);
 				call_dissector(pw_padding_handle, tvb, pinfo, tree);
 			}
-		}	
+		}
 	}
 	return;
 }
+
+
+static
+void dissect_pw_cesopsn_mpls( tvbuff_t * tvb_original, packet_info * pinfo, proto_tree * tree)
+{
+	dissect_pw_cesopsn(tvb_original,pinfo,tree,PWC_DEMUX_MPLS);
+	return;
+}
+
+
+static
+void dissect_pw_cesopsn_udp( tvbuff_t * tvb_original, packet_info * pinfo, proto_tree * tree)
+{
+	dissect_pw_cesopsn(tvb_original,pinfo,tree,PWC_DEMUX_UDP);
+	return;
+}
+
 
 void proto_register_pw_cesopsn(void)
 {
@@ -372,7 +406,7 @@ void proto_register_pw_cesopsn(void)
 				,FT_NONE			,BASE_NONE		,NULL
 				,0				,NULL			,HFILL }}
 		,{&hf_cw_bits03,{"Bits 0 to 3"			,"pwcesopsn.cw.bits03"
-				,FT_UINT8			,BASE_DEC		,NULL		
+				,FT_UINT8			,BASE_DEC		,NULL
 				,0xf0				,NULL			,HFILL }}
 		,{ &hf_cw_lm, 	{"L+M bits"			,"pwcesopsn.cw.lm"
 				,FT_UINT8			,BASE_HEX		,VALS(vals_cw_lm)
@@ -389,14 +423,14 @@ void proto_register_pw_cesopsn(void)
 		,{&hf_cw_seq,	{"Sequence number"		,"pwcesopsn.cw.seqno"
 				,FT_UINT16			,BASE_DEC		,NULL
 				,0				,NULL			,HFILL }}
-		,{&hf_payload	,{"TDM payload"			,"pwcesopsn.payload"	
-				,FT_BYTES			,BASE_NONE		,NULL			
+		,{&hf_payload	,{"TDM payload"			,"pwcesopsn.payload"
+				,FT_BYTES			,BASE_NONE		,NULL
 				,0				,NULL			,HFILL }}
 		,{&hf_payload_l	,{"TDM payload length"		,"pwcesopsn.payload.len"
 				,FT_INT32			,BASE_DEC		,NULL
 				,0				,NULL			,HFILL }}
 	};
-	
+
 	static gint *ett_array[] = {
 		&ett
 	};
@@ -404,16 +438,17 @@ void proto_register_pw_cesopsn(void)
 	proto = proto_register_protocol(pwc_longname_pw_cesopsn, shortname, "pwcesopsn");
 	proto_register_field_array(proto, hf, array_length(hf));
 	proto_register_subtree_array(ett_array, array_length(ett_array));
-	register_dissector("pw_cesopsn", dissect_pw_cesopsn, proto);
+	register_dissector("pw_cesopsn_mpls", dissect_pw_cesopsn_mpls, proto);
+	register_dissector("pw_cesopsn_udp", dissect_pw_cesopsn_udp, proto);
 	return;
 }
 
+
 void proto_reg_handoff_pw_cesopsn(void)
 {
-	dissector_handle_t h;
-	h = find_dissector("pw_cesopsn");
 	data_handle = find_dissector("data");
 	pw_padding_handle = find_dissector("pw_padding");
-	dissector_add("mpls.label", LABEL_INVALID, h);
+	dissector_add("mpls.label", LABEL_INVALID, find_dissector("pw_cesopsn_mpls"));
+	dissector_add_handle("udp.port", find_dissector("pw_cesopsn_udp")); /* For Decode-As */
 	return;
 }

@@ -25,7 +25,8 @@
  * History:
  * ---------------------------------
  * 19.03.2009 initial implementation
- * Not supported:
+ * 14.08.2009 added: support for IP/UDP demultiplexing
+ * Not supported yet:
  * - Decoding of PW payload
  * - Optional RTP Headers (RFC3550)
  */
@@ -65,7 +66,11 @@ const char pwc_longname_pw_satop[] = "SAToP (no RTP support)";
 static const char shortname[] = "SAToP (no RTP)";
 
 
-static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto_tree * tree)
+static
+void dissect_pw_satop(tvbuff_t * tvb_original
+					,packet_info * pinfo
+					,proto_tree * tree
+					,pwc_demux_type_t demux)
 {
 	const int encaps_size = 4; /*RTP header in encapsulation is not supported yet*/
 	gint packet_size;
@@ -106,8 +111,18 @@ static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto
 		return;
 	}
 
-	if (dissect_try_cw_first_nibble(tvb_original, pinfo, tree))
+	switch (demux)
 	{
+	case PWC_DEMUX_MPLS:
+		if (dissect_try_cw_first_nibble(tvb_original, pinfo, tree))
+		{
+			return;
+		}
+		break;
+	case PWC_DEMUX_UDP:
+		break;
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
 		return;
 	}
 
@@ -181,7 +196,7 @@ static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto
 	}
 	if (payload_size == 0)
 	{
-		/*		
+		/*
 		 * As CW.L it indicates that PW payload is invalid, dissector should
 		 * not blame packets with bad payload (including "bad" or "strange" SIZE of
 		 * payload) when L bit is set.
@@ -191,7 +206,7 @@ static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto
 			properties |= PWC_PAY_SIZE_BAD;
 		}
 	}
-	
+
 	/* guess about payload type */
 	if (payload_size == 256)
 	{
@@ -235,7 +250,7 @@ static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto
 		{
 			col_append_fstr(pinfo->cinfo, COL_INFO, "TDM octets:%d", (int)payload_size);
 		}
-		
+
 		if (padding_size != 0)
 		{
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Padding:%d", (int)padding_size);
@@ -306,7 +321,7 @@ static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto
 								,"Bad Length: must be 0 if SAToP packet size (%d) is > 64"
 								,(int)packet_size);
 						}
-				
+
 						(void)proto_tree_add_item(tree, hf_cw_seq, tvb, 2, 2, FALSE);
 					}
 				}
@@ -366,7 +381,7 @@ static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto
 				}
 			}
 		}
-		
+
 		/* padding */
 		if (padding_size > 0)
 		{
@@ -377,8 +392,24 @@ static void dissect_pw_satop(tvbuff_t * tvb_original, packet_info * pinfo, proto
 				tvb = tvb_new_subset(tvb_original, PWC_SIZEOF_CW + payload_size, padding_size, -1);
 				call_dissector(pw_padding_handle, tvb, pinfo, tree);
 			}
-		}	
+		}
 	}
+	return;
+}
+
+
+static
+void dissect_pw_satop_mpls( tvbuff_t * tvb_original, packet_info * pinfo, proto_tree * tree)
+{
+	dissect_pw_satop(tvb_original,pinfo,tree,PWC_DEMUX_MPLS);
+	return;
+}
+
+
+static
+void dissect_pw_satop_udp( tvbuff_t * tvb_original, packet_info * pinfo, proto_tree * tree)
+{
+	dissect_pw_satop(tvb_original,pinfo,tree,PWC_DEMUX_UDP);
 	return;
 }
 
@@ -390,7 +421,7 @@ void proto_register_pw_satop(void)
 				,FT_NONE			,BASE_NONE		,NULL
 				,0				,NULL			,HFILL }}
 		,{&hf_cw_bits03,{"Bits 0 to 3"			,"pwsatop.cw.bits03"
-				,FT_UINT8			,BASE_DEC		,NULL		
+				,FT_UINT8			,BASE_DEC		,NULL
 				,0xf0				,NULL			,HFILL }}
 		,{&hf_cw_l,	{"L bit: TDM payload state"	,"pwsatop.cw.lbit"
 				,FT_UINT8			,BASE_DEC		,VALS(pwc_vals_cw_l_bit)
@@ -410,14 +441,14 @@ void proto_register_pw_satop(void)
 		,{&hf_cw_seq,	{"Sequence number"		,"pwsatop.cw.seqno"
 				,FT_UINT16			,BASE_DEC		,NULL
 				,0				,NULL			,HFILL }}
-		,{&hf_payload	,{"TDM payload"			,"pwsatop.payload"	
-				,FT_BYTES			,BASE_NONE		,NULL			
+		,{&hf_payload	,{"TDM payload"			,"pwsatop.payload"
+				,FT_BYTES			,BASE_NONE		,NULL
 				,0				,NULL			,HFILL }}
 		,{&hf_payload_l	,{"TDM payload length"		,"pwsatop.payload.len"
 				,FT_INT32			,BASE_DEC		,NULL
 				,0				,NULL			,HFILL }}
 	};
-	
+
 	static gint *ett_array[] = {
 		&ett
 	};
@@ -425,15 +456,15 @@ void proto_register_pw_satop(void)
 	proto = proto_register_protocol(pwc_longname_pw_satop, shortname, "pwsatopcw");
 	proto_register_field_array(proto, hf, array_length(hf));
 	proto_register_subtree_array(ett_array, array_length(ett_array));
-	register_dissector("pw_satop", dissect_pw_satop, proto);
+	register_dissector("pw_satop_mpls", dissect_pw_satop_mpls, proto);
+	register_dissector("pw_satop_udp", dissect_pw_satop_udp, proto);
 	return;
 }
 
 void proto_reg_handoff_pw_satop(void)
 {
-	dissector_handle_t h;
-	h = find_dissector("pw_satop");
 	data_handle = find_dissector("data");
 	pw_padding_handle = find_dissector("pw_padding");
-	dissector_add("mpls.label", LABEL_INVALID, h);
+	dissector_add("mpls.label", LABEL_INVALID, find_dissector("pw_satop_mpls"));
+	dissector_add_handle("udp.port", find_dissector("pw_satop_udp")); /* for Decode-As */
 }

@@ -2331,6 +2331,7 @@ Artem Tamazov           <artem.tamazov [AT] tellabs.com> {
 	ATM PW in MPLS PSN, RFC 4717
 	LLC SNAP auto-detection in ATM decoder
 	"Raw" BFD support in MPLS PW Associated Channel, RFC 4385
+	Decoding of UDP-multiplexed CESoPSN and SAToP traffic
 }
 
 Dmitry Trebich          <dmitry.trebich [AT] gmail.com> {
