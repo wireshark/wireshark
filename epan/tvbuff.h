@@ -304,11 +304,11 @@ extern gint tvb_reported_length_remaining(tvbuff_t *tvb, gint offset);
    Also adjusts the data length. */
 extern void tvb_set_reported_length(tvbuff_t*, guint);
 
-extern int offset_from_real_beginning(tvbuff_t *tvb, int counter);
+extern guint tvb_offset_from_real_beginning(tvbuff_t *tvb);
 
 /* Returns the offset from the first byte of real data. */
 #define TVB_RAW_OFFSET(tvb)			\
-	((tvb->raw_offset==-1)?(tvb->raw_offset = offset_from_real_beginning(tvb, 0)):tvb->raw_offset)
+	((tvb->raw_offset==-1)?(tvb->raw_offset = tvb_offset_from_real_beginning(tvb)):tvb->raw_offset)
 
 /************** START OF ACCESSORS ****************/
 /* All accessors will throw an exception if appropriate */

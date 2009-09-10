@@ -605,7 +605,6 @@ nstime_to_msec
 nstime_to_sec
 nt_cmd_vals                     DATA
 num_tree_types                  DATA
-offset_from_real_beginning
 oid_add
 oid_add_from_encoded
 oid_add_from_string
@@ -1010,6 +1009,7 @@ tvb_new_child_real_data
 tvb_new_subset
 tvb_new_subset_remaining
 tvb_offset_exists
+tvb_offset_from_real_beginning
 tvb_pbrk_guint8
 tvb_reported_length
 tvb_reported_length_remaining

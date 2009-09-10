@@ -1911,7 +1911,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 	  /* XXX: this might fail with multihomed SCTP (on a path failure during a call) */
 	  sccp_assoc_info_t* assoc;
 	  reset_sccp_assoc();
-	  assoc = get_sccp_assoc(pinfo, offset_from_real_beginning(message_tvb,0), srn, drn, message_type);
+	  assoc = get_sccp_assoc(pinfo, tvb_offset_from_real_beginning(message_tvb), srn, drn, message_type);
 
 	  if (assoc && assoc->curr_msg) {
 		  pinfo->sccp_info = assoc->curr_msg;

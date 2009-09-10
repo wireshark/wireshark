@@ -2134,7 +2134,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   fragment_data *frag_msg = NULL;
   guint32 source_local_ref=0;
   guint8 more;
-  guint msg_offset = offset_from_real_beginning(tvb,0);
+  guint msg_offset = tvb_offset_from_real_beginning(tvb);
 
 /* Macro for getting pointer to mandatory variable parameters */
 #define VARIABLE_POINTER(var, hf_var, ptr_size) \

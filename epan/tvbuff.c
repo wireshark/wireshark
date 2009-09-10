@@ -328,7 +328,7 @@ tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, guint length, gint
 	if (tvb) {
 		tvb_set_child_real_data_tvbuff (parent, tvb);
 	}
-	
+
 	return tvb;
 }
 
@@ -410,7 +410,7 @@ compute_offset_length(guint tvb_length, guint tvb_reported_length, gint offset, 
 
 
 static gboolean
-check_offset_length_no_exception(guint tvb_length, guint tvb_reported_length, gint offset, gint length, 
+check_offset_length_no_exception(guint tvb_length, guint tvb_reported_length, gint offset, gint length,
 		guint *offset_ptr, guint *length_ptr, int *exception)
 {
 	guint	end_offset;
@@ -804,8 +804,8 @@ first_real_data_ptr(tvbuff_t *tvb)
 }
 #endif
 
-int
-offset_from_real_beginning(tvbuff_t *tvb, int counter)
+static guint
+offset_from_real_beginning(tvbuff_t *tvb, guint counter)
 {
 	tvbuff_t	*member;
 
@@ -822,6 +822,12 @@ offset_from_real_beginning(tvbuff_t *tvb, int counter)
 
 	DISSECTOR_ASSERT_NOT_REACHED();
 	return 0;
+}
+
+guint
+tvb_offset_from_real_beginning(tvbuff_t *tvb)
+{
+    return offset_from_real_beginning(tvb, 0);
 }
 
 static const guint8*

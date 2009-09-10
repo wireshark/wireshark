@@ -1431,7 +1431,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 	usm_p.msg_tvb = tvb;
-	usm_p.start_offset = offset_from_real_beginning(tvb,0) ;
+	usm_p.start_offset = tvb_offset_from_real_beginning(tvb);
 	usm_p.engine_tvb = NULL;
 	usm_p.user_tvb = NULL;
 	usm_p.auth_item = NULL;
@@ -1564,7 +1564,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return length_remaining;
 		break;
 	}
-	
+
 	/* There may be appended data after the SNMP data, so treat as raw
 	 * data which needs to be dissected in case of UDP as UDP is PDU oriented.
  	 */
@@ -1606,7 +1606,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	/* then comes a length which spans the rest of the tvb */
 	offset = get_ber_length(tvb, offset, &tmp_length, &tmp_ind);
-	/* if(tmp_length!=(guint32)tvb_reported_length_remaining(tvb, offset)){ 
+	/* if(tmp_length!=(guint32)tvb_reported_length_remaining(tvb, offset)){
 	 * Losen the heuristic a bit to handle the case where data has intentionally
 	 * been added after the snmp PDU ( UDP case)
 	 */
