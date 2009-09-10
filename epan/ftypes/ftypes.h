@@ -156,7 +156,6 @@ typedef struct _fvalue_t {
 		gchar		*string;
 		guchar		*ustring;
 		GByteArray	*bytes;
-		GString		*gstring;
 		ipv4_addr	ipv4;
 		e_guid_t	guid;
 		nstime_t	time;

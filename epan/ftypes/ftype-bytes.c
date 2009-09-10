@@ -93,7 +93,7 @@ bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
  *   3 bytes it can be at most "2097151." (8 bytes we give it 12)
  *   4 bytes it can be at most "268435456." (10 bytes we give it 16)
  *   5 bytes it can be at most "34359738368." (12 bytes we give it 20)
- *   
+ *
  *  a 5 bytes encoded subid can already overflow the guint32 that holds a sub-id,
  *  making it a completely different issue!
  */
@@ -476,7 +476,7 @@ cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 static gboolean
 cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 {
-	GString *a = fv_a->value.gstring;
+	GByteArray *a = fv_a->value.bytes;
 	pcre_tuple_t *pcre_t = fv_b->value.re;
 	int options = 0;
 	int rc;
@@ -494,7 +494,7 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	rc = pcre_exec(
 		pcre_t->re,	/* Compiled PCRE */
 		pcre_t->ex,	/* PCRE extra from pcre_study() */
-		a->str,		/* The data to check for the pattern... */
+		a->data,		/* The data to check for the pattern... */
 		(int)a->len,	/* ... and its length */
 		0,			/* Start offset within data */
 		options,	/* PCRE options */
