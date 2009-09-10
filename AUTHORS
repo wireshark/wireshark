@@ -2253,6 +2253,9 @@ Chris Maynard		<Christopher.Maynard [AT] GTECH.COM> {
 	Add versions of those routines with an "offset in the tvbuff"
 	    argument
 	Add Doxygen comments to the CRC-16 and CRC-32 headers
+	Add support for RFC 2520: NHRP with Mobile NHCs
+	    and RFC 2735: NHRP Support for Virtual Private Networks
+
 }
 
 SEKINE Hideki		<sekineh [AT] gf7.so-net.ne.jp> {
@@ -2830,7 +2833,7 @@ Martin Lutz		<MartinL [AT] copadata.at> {
 
 Johnny Mitrevski	<mitrevj [AT] hotmail.com> {
 	BSSAP LE Dissector
-} 
+}
 
 Neil Horman		<nhorman [AT] tuxdriver.com> {
 	Netdump dissector
