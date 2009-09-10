@@ -465,12 +465,12 @@ static const true_false_string tfs_v3_lls_state_options_n = {
 	"Incomplete (N-bit) is NOT set",
 };
 static const true_false_string tfs_v3_lls_relay_options_a = {
-	"Answer (A-bit) is SET",
-	"Answer (A-bit) is NOT set",
+	"Always (A-bit) is SET",
+	"Always (A-bit) is NOT set",
 };
 static const true_false_string tfs_v3_lls_relay_options_n = {
-	"Incomplete (N-bit) is SET",
-	"Incomplete (N-bit) is NOT set",
+	"Never (N-bit) is SET",
+	"Never (N-bit) is NOT set",
 };
 static const true_false_string tfs_v2_router_lsa_flags_b = {
 	"Area border router",
@@ -893,7 +893,7 @@ static void dissect_ospf_lls_data_block(tvbuff_t*, int, proto_tree*, guint8);
  * LSA header
  */
 static int dissect_ospf_v2_lsa(tvbuff_t*, int, proto_tree*, gboolean disassemble_body);
-static int dissect_ospf_v3_lsa(tvbuff_t*, int, proto_tree*, gboolean disassemble_body, 
+static int dissect_ospf_v3_lsa(tvbuff_t*, int, proto_tree*, gboolean disassemble_body,
                                guint8);
 
 static void dissect_ospf_v3_address_prefix(tvbuff_t *, int, int, proto_tree *, guint8);
@@ -1299,7 +1299,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
         break;
     default:
         ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
-                                 val_to_str(type, lls_v3_tlv_type_vals, "Unknown TLV")); 
+                                 val_to_str(type, lls_v3_tlv_type_vals, "Unknown TLV"));
     }
 
     ospf_lls_tlv_tree = proto_item_add_subtree(ti, ett_ospf_lls_tlv);
@@ -1616,7 +1616,7 @@ dissect_ospf_ls_upd(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
         if ( version == OSPF_VERSION_2)
 	    offset = dissect_ospf_v2_lsa(tvb, offset, ospf_lsa_upd_tree, TRUE);
         else if ( version == OSPF_VERSION_3)
-            offset = dissect_ospf_v3_lsa(tvb, offset, ospf_lsa_upd_tree, TRUE, 
+            offset = dissect_ospf_v3_lsa(tvb, offset, ospf_lsa_upd_tree, TRUE,
                                          address_family);
         else
             /* We could potentially waste CPU cycles looping */
@@ -1637,7 +1637,7 @@ dissect_ospf_ls_ack(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
 	    offset = dissect_ospf_v2_lsa(tvb, offset, tree, FALSE);
         else
 	    if ( version == OSPF_VERSION_3)
-                offset = dissect_ospf_v3_lsa(tvb, offset, tree, FALSE, 
+                offset = dissect_ospf_v3_lsa(tvb, offset, tree, FALSE,
                                              address_family);
     }
 }
@@ -1741,7 +1741,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     const guint8 allzero[] = { 0x00, 0x00, 0x00 };
     guint num_bcs = 0;
-    
+
     ti = proto_tree_add_text(tree, tvb, offset, length,
 			     "MPLS Traffic Engineering LSA");
     hidden_item = proto_tree_add_item(tree, ospf_filter[OSPFF_LS_MPLS],
@@ -1904,7 +1904,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case MPLS_LINK_BANDWIDTH_CONSTRAINT:
 		    /*
 		      The "Bandwidth Constraints" sub-TLV format is illustrated below:
-		      
+
 		      0                   1                   2                   3
 		      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 		      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1917,48 +1917,48 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		      |                       BCh value                               |
 		      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		    */
-		    
+
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					     "%s", stlv_name);
-		    
+
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
-		    
+
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
-		    
+
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
-		    
+
 		    proto_tree_add_item(stlv_tree, ospf_filter[OSPFF_LS_MPLS_BC_MODEL_ID],
 			tvb, stlv_offset+4, 1, FALSE);
 
 		    /* 3 octets reserved +5, +6 and +7 (all 0x00) */
 		    if(tvb_memeql(tvb, stlv_offset+5, allzero, 3) == -1) {
-			proto_tree_add_text(stlv_tree, tvb, stlv_offset+5, 3, 
+			proto_tree_add_text(stlv_tree, tvb, stlv_offset+5, 3,
 					    "Warning: these bytes are reserved and must be 0x00");
 		    }
-		    
+
 		    if(((stlv_len % 4)!=0)) {
-			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, stlv_len, 
+			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, stlv_len,
 					    "Malformed Packet: Length must be N x 4 octets");
 			break;
 		    }
-		    
+
 		    /* stlv_len shound range from 4 to 36 bytes */
 		    num_bcs = (stlv_len - 4)/4;
-		    
+
 		    if(num_bcs>8) {
-			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, stlv_len, 
+			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, stlv_len,
 					    "Malformed Packet: too many BC (%u)", num_bcs);
 			break;
 		    }
-		    
+
 		    if(num_bcs==0) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, stlv_len,
 					    "Malformed Packet: Bandwidth Constraints sub-TLV with no BC?");
 			break;
 		    }
-		    
+
 		    for(i = 0; i < (int) num_bcs; i++) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+8+(i*4), 4,
 					    "BC %d: %.10g bytes/s (%.0f bits/s)", i,
@@ -1966,7 +1966,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4) * 8.0);
 		    }
 		    break;
-		    
+
 		case MPLS_LINK_LOCAL_REMOTE_ID:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 		    			     "%s: %d (0x%x) - %d (0x%x)", stlv_name,
@@ -2063,7 +2063,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
-		    proto_tree_add_item(stlv_tree, 
+		    proto_tree_add_item(stlv_tree,
 				        ospf_filter[OSPFF_LS_OIF_LOCAL_NODE_ID],
 				        tvb, stlv_offset + 4, 4, FALSE);
 		    break;
@@ -2077,7 +2077,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
-		    proto_tree_add_item(stlv_tree, 
+		    proto_tree_add_item(stlv_tree,
 				        ospf_filter[OSPFF_LS_OIF_REMOTE_NODE_ID],
 				        tvb, stlv_offset + 4, 4, FALSE);
 		    break;
@@ -2219,10 +2219,10 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
     }
 }
 
-/* 
+/*
  * Dissect the TLVs within a Grace-LSA as defined by RFC 3623
  */
-static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset, 
+static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
 				    proto_tree *tree, guint32 length)
 {
     guint16 tlv_type;
@@ -2250,7 +2250,7 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
 	tree_item = proto_tree_add_item(tree, ospf_filter[OSPFF_V2_GRACE_TLV], tvb, offset,
 		tlv_length_with_pad, FALSE);
 	tlv_tree = proto_item_add_subtree(tree_item, ett_ospf_lsa_grace_tlv);
-	proto_tree_add_text(tlv_tree, tvb, offset, 2, "Type: %s (%u)", 
+	proto_tree_add_text(tlv_tree, tvb, offset, 2, "Type: %s (%u)",
 		val_to_str(tlv_type, grace_tlv_type_vals, "Unknown grace-LSA TLV"), tlv_type);
 	proto_tree_add_text(tlv_tree, tvb, offset + 2, 2, "Length: %u", tlv_length);
 
@@ -2264,7 +2264,7 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
 		break;
 	    case GRACE_TLV_REASON:
 		restart_reason = tvb_get_guint8(tvb, offset + 4);
-		proto_tree_add_item(tlv_tree, ospf_filter[OSPFF_V2_GRACE_REASON], tvb, offset + 4, 
+		proto_tree_add_item(tlv_tree, ospf_filter[OSPFF_V2_GRACE_REASON], tvb, offset + 4,
 			tlv_length, FALSE);
 		proto_item_set_text(tree_item, "Restart Reason: %s (%u)",
 			val_to_str(restart_reason, restart_reason_vals, "Unknown Restart Reason"),
@@ -2274,7 +2274,7 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
 		restart_ip = tvb_get_ipv4(tvb, offset + 4);
 		proto_tree_add_item(tlv_tree, ospf_filter[OSPFF_V2_GRACE_IP], tvb, offset + 4,
 			tlv_length, FALSE);
-		proto_item_set_text(tree_item, "Restart IP: %s (%s)", 
+		proto_item_set_text(tree_item, "Restart IP: %s (%s)",
 			get_hostname(restart_ip), ip_to_str((guint8 *)&restart_ip));
 		break;
 	    default:
@@ -2282,8 +2282,8 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
 		break;
 	}
 	if (4 + tlv_length < tlv_length_with_pad) {
-	    proto_tree_add_text(tlv_tree, tvb, offset + 4 + tlv_length, 
-		    tlv_length_with_pad - (4 + tlv_length), "Pad Bytes (%u)", 
+	    proto_tree_add_text(tlv_tree, tvb, offset + 4 + tlv_length,
+		    tlv_length_with_pad - (4 + tlv_length), "Pad Bytes (%u)",
 		    tlv_length_with_pad - (4 + tlv_length) );
 	}
 	offset += tlv_length_with_pad;
@@ -3049,7 +3049,7 @@ static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix
     }
     if (address_family == OSPF_AF_6) {
         proto_tree_add_text(tree, tvb, offset, bytes_to_process,
-                            "Address Prefix: %s", ip6_to_str(&prefix)); 
+                            "Address Prefix: %s", ip6_to_str(&prefix));
     } else {
         proto_tree_add_text(tree, tvb, offset, bytes_to_process,
                             "Address Prefix: %s", ip_to_str(tvb_get_ptr(tvb, offset, 4)));
@@ -3168,7 +3168,7 @@ proto_register_ospf(void)
 		   BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{&ospf_filter[OSPFF_LS_MPLS_BC_MODEL_ID],
 		 { "MPLS/DSTE Bandwidth Constraints Model Id", "ospf.mpls.bc", FT_UINT8,
-		   BASE_RANGE_STRING | BASE_DEC, RVALS(&mpls_link_stlv_bcmodel_rvals), 0x0, 
+		   BASE_RANGE_STRING | BASE_DEC, RVALS(&mpls_link_stlv_bcmodel_rvals), 0x0,
 		   NULL, HFILL }},
 
 		{&ospf_filter[OSPFF_LS_OIF_LOCAL_NODE_ID],
@@ -3328,8 +3328,8 @@ proto_register_ospf(void)
 		 { "Grace TLV", "ospf.v2.grace", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 		{&ospf_filter[OSPFF_V2_GRACE_PERIOD],
 		 { "Grace Period", "ospf.v2.grace.period", FT_UINT32, BASE_DEC,
-		   NULL, 0x0, 
-		   "The number of seconds neighbors should advertise the router as fully adjacent", 
+		   NULL, 0x0,
+		   "The number of seconds neighbors should advertise the router as fully adjacent",
 		   HFILL }},
 		{&ospf_filter[OSPFF_V2_GRACE_REASON],
 		 { "Restart Reason", "ospf.v2.grace.reason", FT_UINT8, BASE_DEC,
