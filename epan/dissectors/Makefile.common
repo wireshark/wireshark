@@ -24,10 +24,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
-BUILT_HEADER_FILES = \
-	x11-declarations.h	\
-	x11-register-info.h
-
 BUILT_C_FILES = \
 	register.c
 
@@ -1241,6 +1237,11 @@ DISSECTOR_INCLUDES =	\
 	packet-wtp.h	\
 	packet-x11-keysym.h	\
 	packet-x11-keysymdef.h	\
+	x11-declarations.h	\
+	x11-register-info.h	\
+	x11-extension-implementation.h	\
+	x11-extension-errors.h	\
+	x11-glx-render-enum.h	\
 	packet-x411.h	\
 	packet-x420.h	\
 	packet-x509af.h	\

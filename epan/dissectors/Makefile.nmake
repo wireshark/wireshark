@@ -39,18 +39,6 @@ packet-rrc.obj : packet-rrc.c
 !ENDIF
 
 #
-# The header files listed here are built from x11-fields using Perl;
-# we declare a dependency here so that they get built.
-#
-packet-x11.obj	: packet-x11.c x11-declarations.h x11-register-info.h
-
-#
-# Build various header files for the X11 dissector.
-#
-x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
-	$(PERL) process-x11-fields.pl <x11-fields
-
-#
 # Build register.c, which contains a function register_all_protocols()
 # that calls the register routines for all protocols and a function
 # register_all_protocol_handoffs() that calls the handoff registration

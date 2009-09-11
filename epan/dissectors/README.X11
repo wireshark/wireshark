@@ -1,0 +1,23 @@
+The X11 dissector generator is no longer run automatically.
+
+To run the dissector generator, you will need perl 5.10 and the XML::Twig
+module from CPAN. You will also need 'git' to retrieve the lastest protocol
+descriptions.
+
+Once you have those, you also need the XML protocol descriptions. In the
+epan/dissectors directory, run the following commands:
+ git clone git://anongit.freedesktop.org/xcb/proto xcbproto
+ git clone git://anongit.freedesktop.org/git/mesa/mesa
+
+Or, if you have already cloned those repositories, "git pull" each one to bring
+it up to date. Please be aware that the Mesa repository is rather large; it is
+slightly more than 53MB as of this writing.
+
+Run the following:
+ perl5.10 ./process-x11-xcb.pl
+
+This will automatically run process-x11-fields.pl (for the core protocol
+definitions), and then it will process the XML descriptions from XCB and Mesa
+to generate the extension dissectors.
+
+Once process-x11-xcb.pl is complete, compile wireshark as usual.

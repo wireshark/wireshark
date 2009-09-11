@@ -2828,6 +2828,10 @@ David Castleford	<david.castleford [AT] orange-ftgroup.com> {
 	Simulcrypt dissector
 }
 
+Peter Harris		<pharris[AT]opentext.com> {
+	X11 extension decoding
+}
+
 Martin Lutz		<MartinL [AT] copadata.at> {
 	IEC 61850 GOOSE Dissector
 }

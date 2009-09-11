@@ -63,6 +63,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 
 #include <epan/prefs.h>
 #include "packet-frame.h"
@@ -91,6 +92,8 @@
 #define UNKNOWN_OPCODE           0
 
 #define MAX_OPCODES		(255 + 1) /* 255 + INITIAL_CONN */
+#define LastExtensionError	255
+#define LastExtensionEvent	127
 
 #define BYTE_ORDER_BE		0
 #define BYTE_ORDER_LE		1
@@ -129,6 +132,13 @@ typedef struct _x11_conv_data {
       GHashTable *valtable;/* hashtable of sequencenumber <-> &opcode_vals */
       /* major opcodes including extensions (NULL terminated) */
       value_string opcode_vals[MAX_OPCODES+1];
+      /* error codes including extensions (NULL terminated) */
+      value_string errorcode_vals[LastExtensionError + 2];
+      /* event codes including extensions (NULL terminated) */
+      value_string eventcode_vals[LastExtensionEvent + 2];
+      GHashTable *eventcode_funcs;	/* hashtable of eventcode <-> dissect_event() */
+      GHashTable *reply_funcs;		/* hashtable of opcode <-> dissect_reply() */
+
       int	sequencenumber;	/* sequencenumber of current packet.	   */
       guint32	iconn_frame;	/* frame # of initial connection request   */
       guint32	iconn_reply;	/* frame # of initial connection reply     */
@@ -150,6 +160,11 @@ typedef struct _x11_conv_data {
 
 static x11_conv_data_t *x11_conv_data_list;
 
+static GHashTable *extension_table; /* hashtable of extension name <-> dispatch function */
+static GHashTable *event_table;     /* hashtable of extension name <-> event info list */
+static GHashTable *error_table;     /* hashtable of extension name <-> error list */
+static GHashTable *reply_table;     /* hashtable of extension name <-> reply list */
+
 /* Initialize the protocol and registered fields */
 static int proto_x11 = -1;
 
@@ -162,6 +177,8 @@ static gint ett_x11_list_of_arc = -1;
 static gint ett_x11_arc = -1;
 static gint ett_x11_list_of_atom = -1;
 static gint ett_x11_list_of_card32 = -1;
+static gint ett_x11_list_of_float = -1;
+static gint ett_x11_list_of_double = -1;
 static gint ett_x11_list_of_color_item = -1;
 static gint ett_x11_color_item = -1;
 static gint ett_x11_list_of_keycode = -1;
@@ -866,8 +883,6 @@ static const value_string opcode_vals[] = {
 #define ColormapNotify		32
 #define ClientMessage		33
 #define MappingNotify		34
-#define FirstExtensionEvent	64
-#define LastExtensionEvent	127
 
 static const value_string eventcode_vals[] = {
 	{ KeyPress,          "KeyPress" },
@@ -934,9 +949,6 @@ static const value_string eventcode_vals[] = {
 #define BadLength	  	16	/* Request length incorrect */
 #define BadImplementation 	17	/* server is defective */
 
-#define FirstExtensionError	128
-#define LastExtensionError	255
-
 static const value_string errorcode_vals[] = {
 	{ Success,               "Success" },
 	{ BadRequest,            "BadRequest" },
@@ -956,8 +968,6 @@ static const value_string errorcode_vals[] = {
 	{ BadName,               "BadName" },
 	{ BadLength,             "BadLength" },
 	{ BadImplementation,     "BadImplementation" },
-	{ FirstExtensionError,   "FirstExtensionError" },
-	{ LastExtensionError,    "LastExtensionError" },
 	{ 0,                     NULL }
 };
 
@@ -1058,6 +1068,8 @@ static const value_string zero_is_none_vals[] = {
 #define VALUE8(tvb, offset) (tvb_get_guint8(tvb, offset))
 #define VALUE16(tvb, offset) (little_endian ? tvb_get_letohs(tvb, offset) : tvb_get_ntohs(tvb, offset))
 #define VALUE32(tvb, offset) (little_endian ? tvb_get_letohl(tvb, offset) : tvb_get_ntohl(tvb, offset))
+#define FLOAT(tvb, offset) (little_endian ? tvb_get_letohieee_float(tvb, offset) : tvb_get_ntohieee_float(tvb, offset))
+#define DOUBLE(tvb, offset) (little_endian ? tvb_get_letohieee_double(tvb, offset) : tvb_get_ntohieee_double(tvb, offset))
 
 #define FIELD8(name)  (field8(tvb, offsetp, t, hf_x11_##name, little_endian))
 #define FIELD16(name) (field16(tvb, offsetp, t, hf_x11_##name, little_endian))
@@ -1144,7 +1156,7 @@ static const value_string zero_is_none_vals[] = {
 	ti = proto_tree_add_text(t, next_tvb, 0, -1, "event: %d (%s)",	\
 				 eventcode,				\
 				 val_to_str(eventcode & 0x7F,           \
-					    eventcode_vals,             \
+					    state->eventcode_vals,             \
 					    "<Unknown eventcode %u>")); \
 	proto_tree = proto_item_add_subtree(ti, ett_x11_event);		\
 	decode_x11_event(next_tvb, eventcode, sent, proto_tree,		\
@@ -1169,7 +1181,15 @@ static const value_string zero_is_none_vals[] = {
 #define LISTofSTRING8(name, length) { listOfString8(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_string, (length), little_endian); }
 #define LISTofTEXTITEM8(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, FALSE, next_offset, little_endian); }
 #define LISTofTEXTITEM16(name) { listOfTextItem(tvb, offsetp, t, hf_x11_##name, TRUE, next_offset, little_endian); }
-#define OPCODE()       { opcode = FIELD8(opcode); }
+#define OPCODE() {						\
+    const gchar *enumValue = NULL;				\
+    opcode = VALUE8(tvb, *offsetp);				\
+    enumValue = match_strval(opcode, state->opcode_vals);	\
+    proto_tree_add_uint_format(t, hf_x11_opcode, tvb, *offsetp, 1, opcode,	\
+            "opcode: %u (%s)", opcode, enumValue);		\
+    *offsetp += 1;						\
+  }
+
 #define PIXMAP(name)   { FIELD32(name); }
 #define REQUEST_LENGTH() (requestLength(tvb, offsetp, t, little_endian))
 #define SETofEVENT(name) { setOfEvent(tvb, offsetp, t, little_endian); }
@@ -1212,20 +1232,20 @@ static const value_string zero_is_none_vals[] = {
 	*offsetp, sizeof(seqno), seqno,                                 \
 	"sequencenumber: %d (%s)",                             		\
 	(int)seqno,                                                     \
-	val_to_str(opcode, state->opcode_vals, "<Unknown opcode %d>"));	\
+	val_to_str(opcode & 0xFF, state->opcode_vals, "<Unknown opcode %d>"));	\
 	*offsetp += sizeof(seqno);                                      \
 } while (0)
 
 #define REPLYCONTENTS_COMMON() do { 					\
 	REPLY(reply);							\
-	proto_tree_add_item(t, hf_x11_undecoded, tvb, offset, 		\
+	proto_tree_add_item(t, hf_x11_undecoded, tvb, *offsetp, 	\
 	1, little_endian);						\
-	++offset;							\
+	++(*offsetp);							\
 	SEQUENCENUMBER_REPLY(sequencenumber);				\
 	REPLYLENGTH(replylength);					\
-	proto_tree_add_item(t, hf_x11_undecoded, tvb, offset, 		\
-	tvb_reported_length_remaining(tvb, offset), little_endian);	\
-	offset += tvb_reported_length_remaining(tvb, offset);		\
+	proto_tree_add_item(t, hf_x11_undecoded, tvb, *offsetp, 	\
+	tvb_reported_length_remaining(tvb, *offsetp), little_endian);	\
+	*offsetp += tvb_reported_length_remaining(tvb, *offsetp);	\
 } while (0)
 
 
@@ -1447,6 +1467,28 @@ static void listOfByte(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       *offsetp += length;
 }
 
+static void listOfCard16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+			 int hf_item, int length, gboolean little_endian)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 2, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
+      while(length--) {
+	    proto_tree_add_uint(tt, hf_item, tvb, *offsetp, 2, VALUE16(tvb, *offsetp));
+	    *offsetp += 2;
+      }
+}
+
+static void listOfInt16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+			 int hf_item, int length, gboolean little_endian)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 2, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
+      while(length--) {
+	    proto_tree_add_int(tt, hf_item, tvb, *offsetp, 2, VALUE16(tvb, *offsetp));
+	    *offsetp += 2;
+      }
+}
+
 static void listOfCard32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 			 int hf_item, int length, gboolean little_endian)
 {
@@ -1455,6 +1497,39 @@ static void listOfCard32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       while(length--) {
 	    proto_tree_add_uint(tt, hf_item, tvb, *offsetp, 4, VALUE32(tvb, *offsetp));
 	    *offsetp += 4;
+      }
+}
+
+static void listOfInt32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+			 int hf_item, int length, gboolean little_endian)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
+      while(length--) {
+	    proto_tree_add_int(tt, hf_item, tvb, *offsetp, 4, VALUE32(tvb, *offsetp));
+	    *offsetp += 4;
+      }
+}
+
+static void listOfFloat(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+			 int hf_item, int length, gboolean little_endian)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_float);
+      while(length--) {
+	    proto_tree_add_float(tt, hf_item, tvb, *offsetp, 4, FLOAT(tvb, *offsetp));
+	    *offsetp += 4;
+      }
+}
+
+static void listOfDouble(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
+			 int hf_item, int length, gboolean little_endian)
+{
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
+      proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_double);
+      while(length--) {
+	    proto_tree_add_double(tt, hf_item, tvb, *offsetp, 8, DOUBLE(tvb, *offsetp));
+	    *offsetp += 8;
       }
 }
 
@@ -2949,6 +3024,127 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 }
 
+typedef struct x11_reply_info {
+    const guint8 minor;
+    void (*dissect)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, int little_endian);
+} x11_reply_info;
+
+typedef struct event_info {
+    const gchar *name;
+    void (*dissect)(tvbuff_t *tvb, int *offsetp, proto_tree *t, int little_endian);
+} x11_event_info;
+
+static void set_handler(const char *name, void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, int little_endian),
+			const char **errors,
+			const x11_event_info *event_info,
+			const x11_reply_info *reply_info)
+{
+    g_hash_table_insert(extension_table, (gpointer)name, (gpointer)func);
+    g_hash_table_insert(error_table, (gpointer)name, (gpointer)errors);
+    g_hash_table_insert(event_table, (gpointer)name, (gpointer)event_info);
+    g_hash_table_insert(reply_table, (gpointer)name, (gpointer)reply_info);
+}
+
+
+#include "x11-extension-errors.h"
+#include "x11-extension-implementation.h"
+
+static void tryExtension(int opcode, tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t,
+    x11_conv_data_t *state, gboolean little_endian)
+{
+    const gchar *extension;
+    void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, int little_endian);
+
+    extension = match_strval(opcode, state->opcode_vals);
+    if (!extension)
+	return;
+
+    func = g_hash_table_lookup(extension_table, extension);
+    if (func)
+	func(tvb, pinfo, offsetp, t, little_endian);
+}
+
+static void tryExtensionReply(int opcode, tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t,
+    x11_conv_data_t *state, gboolean little_endian)
+{
+    void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, int little_endian);
+
+    func = g_hash_table_lookup(state->reply_funcs, GINT_TO_POINTER(opcode));
+    if (func)
+	func(tvb, pinfo, offsetp, t, little_endian);
+    else
+	REPLYCONTENTS_COMMON();
+}
+
+static void tryExtensionEvent(int event, tvbuff_t *tvb, int *offsetp, proto_tree *t,
+    x11_conv_data_t *state, gboolean little_endian)
+{
+    void (*func)(tvbuff_t *tvb, int *offsetp, proto_tree *t, int little_endian);
+
+    func = g_hash_table_lookup(state->eventcode_funcs, GINT_TO_POINTER(event));
+    if (func)
+	func(tvb, offsetp, t, little_endian);
+}
+
+static void register_extension(x11_conv_data_t *state, value_string *vals_p,
+    int major_opcode, unsigned int first_event, unsigned int first_error)
+{
+    const char **error_string;
+    x11_event_info *event_info;
+    x11_reply_info *reply_info;
+    int i;
+
+    vals_p->value = major_opcode;
+
+    error_string = g_hash_table_lookup(error_table, vals_p->strptr);
+    while (error_string && *error_string && first_error <= LastExtensionError) {
+	/* store string of extension error */
+	for (i = 0; i <= LastExtensionError; i++) {
+	    if (state->errorcode_vals[i].strptr == NULL) {
+		state->errorcode_vals[i].value = first_error;
+		state->errorcode_vals[i].strptr = *error_string;
+		break;
+	    } else if (state->errorcode_vals[i].value == first_error) {
+		/* TODO: Warn about extensions stepping on each other */
+		state->errorcode_vals[i].strptr = *error_string;
+		break;
+	    }
+	}
+	first_error++;
+	error_string++;
+    }
+
+    event_info = g_hash_table_lookup(event_table, vals_p->strptr);
+    while (event_info && event_info->name && first_event <= LastExtensionEvent) {
+	/* store string of extension event */
+	for (i = 0; i <= LastExtensionEvent; i++) {
+	    if (state->eventcode_vals[i].strptr == NULL) {
+		state->eventcode_vals[i].value = first_event;
+		state->eventcode_vals[i].strptr = event_info->name;
+		break;
+	    } else if (state->eventcode_vals[i].value == first_event) {
+		/* TODO: Warn about extensions stepping on each other */
+		state->eventcode_vals[i].strptr = event_info->name;
+		break;
+	    }
+	}
+
+	/* store event decode function */
+	g_hash_table_insert(state->eventcode_funcs, GINT_TO_POINTER(first_event), (gpointer)event_info->dissect);
+
+	first_event++;
+	event_info++;
+    }
+
+    reply_info = g_hash_table_lookup(reply_table, vals_p->strptr);
+    if (reply_info)
+	for (i = 0; reply_info[i].dissect; i++)
+	    g_hash_table_insert(state->reply_funcs,
+			GINT_TO_POINTER(major_opcode | (reply_info[i].minor << 8)),
+			(gpointer)reply_info[i].dissect);
+}
+
+
 static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, const char *sep, x11_conv_data_t *state,
     gboolean little_endian)
@@ -3009,6 +3205,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 		while(i < MAX_OPCODES) {
 			if (state->opcode_vals[i].strptr == NULL) {
 				state->opcode_vals[i].strptr = name;
+				state->opcode_vals[i].value = -1;
 				g_hash_table_insert(state->valtable,
 						    GINT_TO_POINTER(state->sequencenumber),
 						    (int *)&state->opcode_vals[i]);
@@ -3078,9 +3275,12 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 		 * With Extension, we don't know, so assume there could be one
 		 */
 		if (opcode >= X_FirstExtension && opcode <= X_LastExtension) {
+			guint32 minor;
+			minor = tvb_get_guint8(tvb, 1);
+
 			g_hash_table_insert(state->seqtable,
 					    GINT_TO_POINTER(state->sequencenumber),
-					    GINT_TO_POINTER(opcode));
+					    GINT_TO_POINTER(opcode | (minor << 8)));
 		}
 
 		/*
@@ -4060,6 +4260,9 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	    UNUSED(1);
 	    REQUEST_LENGTH();
 	    break;
+      default:
+	    tryExtension(opcode, tvb, pinfo, offsetp, t, state, little_endian);
+	    break;
       }
 
       if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
@@ -4378,6 +4581,36 @@ x11_stateinit(conversation_t *conversation)
 	  i++;
 	}
 
+	/* initialise errorcodes */
+	i = 0;
+	while (1) {
+	  if (errorcode_vals[i].strptr == NULL) break;
+	  state->errorcode_vals[i].value = errorcode_vals[i].value;
+	  state->errorcode_vals[i].strptr = errorcode_vals[i].strptr;
+	  i++;
+	}
+	while (i <= LastExtensionError + 1) {
+	  state->errorcode_vals[i].value = 0;
+	  state->errorcode_vals[i].strptr = NULL;
+	  i++;
+	}
+
+	/* initialise eventcodes */
+	i = 0;
+	while (1) {
+	  if (eventcode_vals[i].strptr == NULL) break;
+	  state->eventcode_vals[i].value = eventcode_vals[i].value;
+	  state->eventcode_vals[i].strptr = eventcode_vals[i].strptr;
+	  i++;
+	}
+	while (i <= LastExtensionEvent + 1) {
+	  state->eventcode_vals[i].value = 0;
+	  state->eventcode_vals[i].strptr = NULL;
+	  i++;
+	}
+	state->eventcode_funcs = g_hash_table_new(g_direct_hash, g_direct_equal);
+	state->reply_funcs = g_hash_table_new(g_direct_hash, g_direct_equal);
+
 	state->seqtable = g_hash_table_new(g_direct_hash, g_direct_equal);
 	state->valtable = g_hash_table_new(g_direct_hash, g_direct_equal);
       	g_hash_table_insert(state->seqtable, (int *)0, (int *)NOTHING_SEEN);
@@ -4533,7 +4766,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  gboolean little_endian)
 {
 	int offset = 0, *offsetp = &offset, length, left, opcode;
-	int major_opcode, sequence_number;
+	int major_opcode, sequence_number, first_error, first_event;
 	value_string *vals_p;
 	proto_item *ti;
 	proto_tree *t;
@@ -4586,11 +4819,17 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 					sep,
-					val_to_str(opcode, state->opcode_vals,
+					val_to_str(opcode & 0xFF, state->opcode_vals,
 						   "<Unknown opcode %d>"));
 
-		proto_item_append_text(ti, ", Reply, opcode: %d (%s)",
-				       opcode, val_to_str(opcode,
+		if (opcode > 0xFF)
+		    proto_item_append_text(ti, ", Reply, opcode: %d.%d (%s)",
+					   opcode & 0xFF, opcode >> 8, val_to_str(opcode & 0xFF,
+							  state->opcode_vals,
+							  "<Unknown opcode %d>"));
+		else
+		    proto_item_append_text(ti, ", Reply, opcode: %d (%s)",
+					   opcode, val_to_str(opcode,
 							  state->opcode_vals,
 							  "<Unknown opcode %d>"));
 	}
@@ -4617,7 +4856,10 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						     GINT_TO_POINTER(sequence_number));
 			if (vals_p != NULL) {
 				major_opcode = VALUE8(tvb, offset + 9);
-				vals_p->value = major_opcode;
+				first_event = VALUE8(tvb, offset + 10);
+				first_error = VALUE8(tvb, offset + 11);
+
+				register_extension(state, vals_p, major_opcode, first_event, first_error);
 				g_hash_table_remove(state->valtable,
 						    GINT_TO_POINTER(sequence_number));
 			}
@@ -4883,8 +5125,12 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				      state->keycodes_per_modifier);
 			break;
 
-		default:
+		case UNKNOWN_OPCODE:
 			REPLYCONTENTS_COMMON();
+			break;
+
+		default:
+			tryExtensionReply(opcode, tvb, pinfo, offsetp, t, state, little_endian);
 	}
 
       	if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
@@ -4932,12 +5178,12 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s%s",
 			  	sep, sent,
-				val_to_str(eventcode & 0x7F, eventcode_vals,
+				val_to_str(eventcode & 0x7F, state->eventcode_vals,
 			  	"<Unknown eventcode %u>"));
 
 	proto_item_append_text(ti, ", Event, eventcode: %d (%s%s)",
 			      eventcode, sent,
-			      val_to_str(eventcode & 0x7F, eventcode_vals,
+			      val_to_str(eventcode & 0x7F, state->eventcode_vals,
 			      "<Unknown eventcode %u>"));
 
   	if (tree == NULL)
@@ -4959,7 +5205,7 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
 				   eventcode,
 				   "eventcode: %d (%s%s)",
 				   eventcode, sent,
-				   val_to_str(eventcode & 0x7F, eventcode_vals,
+				   val_to_str(eventcode & 0x7F, state->eventcode_vals,
 				   "<Unknown eventcode %u>"));
 	++offset;
 
@@ -5248,6 +5494,7 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
 			break;
 
 		default:
+			tryExtensionEvent(eventcode & 0x7F, tvb, offsetp, t, state, little_endian);
 			break;
 	}
 
@@ -5276,18 +5523,18 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	errorcode = tvb_get_guint8(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-	  	sep, val_to_str(errorcode, errorcode_vals, "<Unknown errorcode %u>"));
+		sep, val_to_str(errorcode, state->errorcode_vals, "<Unknown errorcode %u>"));
 
 	proto_tree_add_uint_format(t, hf_x11_errorcode, tvb, offset, 1,
 				   errorcode,
 				   "errorcode: %d (%s)",
 				   errorcode,
-				   val_to_str(errorcode, errorcode_vals,
+				   val_to_str(errorcode, state->errorcode_vals,
 				   "<Unknown errorcode %u>"));
 	++offset;
 
         proto_item_append_text(ti, ", Error, errorcode: %d (%s)",
-                              errorcode, val_to_str(errorcode, errorcode_vals,
+                              errorcode, val_to_str(errorcode, state->errorcode_vals,
                               "<Unknown errorcode %u>"));
 
   	if (tree == NULL)
@@ -5347,6 +5594,8 @@ void proto_register_x11(void)
 	    &ett_x11_arc,
 	    &ett_x11_list_of_atom,
 	    &ett_x11_list_of_card32,
+	    &ett_x11_list_of_float,
+	    &ett_x11_list_of_double,
 	    &ett_x11_list_of_color_item,
 	    &ett_x11_color_item,
 	    &ett_x11_list_of_keycode,
@@ -5382,6 +5631,12 @@ void proto_register_x11(void)
       proto_register_subtree_array(ett, array_length(ett));
 
       register_init_routine(x11_init_protocol);
+
+      extension_table = g_hash_table_new(g_str_hash, g_str_equal);
+      error_table = g_hash_table_new(g_str_hash, g_str_equal);
+      event_table = g_hash_table_new(g_str_hash, g_str_equal);
+      reply_table = g_hash_table_new(g_str_hash, g_str_equal);
+      register_x11_extensions();
 
       x11_module = prefs_register_protocol(proto_x11, NULL);
       prefs_register_bool_preference(x11_module, "desegment",

@@ -48,21 +48,10 @@ EXTRA_DIST = \
 	Makefile.common		\
 	Makefile.nmake		\
 	ncp2222.py		\
-	packet-ncp2222.inc	\
-	process-x11-fields.pl	\
-	x11-fields
+	packet-ncp2222.inc
 
 packet-ncp2222.c : $(srcdir)/ncp2222.py
 	$(PYTHON) $< -o $@
-
-#
-# Build various header files for the X11 dissector.
-#
-PROC_X11_FIELDS = $(srcdir)/process-x11-fields.pl
-X11_FIELDS = $(srcdir)/x11-fields
-
-x11-declarations.h x11-register-info.h: $(PROC_X11_FIELDS) $(X11_FIELDS)
-	$(PERL) $(PROC_X11_FIELDS) < $(X11_FIELDS)
 
 #
 # Build register.c, which contains a function register_all_protocols()
