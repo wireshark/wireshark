@@ -1170,6 +1170,8 @@ add_library(epan SHARED
 	${DISSECTOR_SUPPORT_SRC}
 	${DISSECTOR_ASM_UTILS}
 )
+# In case we want the libwireshark name back
+# SET_TARGET_PROPERTIES(epan PROPERTIES OUTPUT_NAME "wireshark")
 
 target_link_libraries(epan
 	${WSLUA_LIB}

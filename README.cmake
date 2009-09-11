@@ -4,11 +4,8 @@
 
                            Notice 
 
-   The CMake build system for Wireshark is not yet ready for
-   building the whole system. You'll still need autofoo to buld it.
-   The only thing that can be build is dumpcap, and even that one
-   requires that you successfully ran autofoo prior to running cmake
-   (e.g. config.h is not yet build, lex and yacc are not run).
+   To find out the current state of the cmake implementaion for
+   Wireshark, please take a look at "What needs to be done?" below.
    Basically this is an experiment and if we find out that it works
    and we like cmake more than autofoo we might switch one day.
 
@@ -31,21 +28,21 @@ in tree builds do not work properly in all cases.
 
 How to do out of tree build (Unix/Linux):
 1) Install cmake.
-2) Build the project with the old build system once (to generate
-   config.h and run bison and flex to generate some c-files).
-3) Assuming, you are in the top directory of the wireshark source
+2) Assuming, you are in the top directory of the wireshark source
    cd ..
-4) mkdir build
-5) cd build
-6) cmake ../<Name_of_WS_source_dir>
-7) make
+3) mkdir build
+4) cd build
+5) cmake ../<Name_of_WS_source_dir>
+6) make
 
 Why cmake?
 ==========
 - Can create project files for some MS and Apple IDEs.
 - Fast
 - Easier to understand/learn
-- One build infrastructure even including Windows?
+- Doesn't create any files in the source tree in case
+  of out of tree builds
+- One build infrastructure even including Windows
 ...
 
 Why not cmake?
@@ -58,18 +55,27 @@ Why not cmake?
   cmake really works).
 ...
 
+What works?
+===========
+
+All the executables now build on my system (32bit openSUSE 11.1) from
+clean source.
+
 What needs to be done?
 ======================
 
-only dumpcap and libwiretap have been done, and even those rely on
-autofoo having been run before:
-
-- Add proper GTK1/GLIB2/GLIB1 detection (currently links against gtk2
-  to pull in glib2).
-- Create config.h
-- Autocreated source files in wiretap need to be build from .l, .y files.
-
-All other tools and libs still need to be built.
+- Test detection/build with a few remaining packages
+- Add back -Werror flags.
+- Redo glib2 and gtk2 find modules.
+- Add back platform specific objects.
+- Fix places in the cmake files marked as todo.
+- Add back (working) install target.
+- Build source package (using CPack).
+- Build rpm package (using CPack).
+- Add back checkAPI target.
+- Test and add support for other platforms (BSDs, OSX,
+  Solaris, Win32, Win64, ...)
+...
 
 Links regarding cmake
 =====================
@@ -81,6 +87,9 @@ The home page of the cmake project documentation
 
 About cmake in general and why KDE4 uses it
 	http://lwn.net/Articles/188693/
+
+Introductory/tutorial presentation
+	http://ait.web.psi.ch/services/linux/hpc/hpc_user_cookbook/tools/cmake/docs/Cmake_VM_2007.pdf
 
 Introductory arcticle in Linux Journal
 	http://www.linuxjournal.com/node/6700/print
