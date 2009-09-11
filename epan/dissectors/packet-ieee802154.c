@@ -809,7 +809,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
      * AUXILIARY SECURITY HEADER
      *=====================================================
      */
-    if (packet->security_enable) {
+    /* The Auxiliary Security Header only exists in IEEE 802.15.4-2006 */
+    if (packet->security_enable && (packet->version == 1)) {
       proto_item *ti;
       proto_tree *header_tree, *field_tree;
 
@@ -844,7 +845,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
       header_tree = proto_item_add_subtree(ti, ett_ieee802154_auxiliary_security);
 
       /* Security Control Field */
-      ti = proto_tree_add_text(header_tree, tvb, offset, sizeof (guint8), "Security Control Field");
+      ti = proto_tree_add_text(header_tree, tvb, offset, sizeof (guint8), "Security Control Field (0x%02x)", security_control);
       field_tree = proto_item_add_subtree(ti, ett_ieee802154_aux_sec_control);
 
       proto_tree_add_uint(field_tree, hf_ieee802154_security_level, tvb, offset, sizeof(guint8), sec_level);
@@ -854,7 +855,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
       offset++;
 
       /* Frame Counter Field */
-      frame_counter = tvb_get_ntohl (tvb, offset);
+      frame_counter = tvb_get_letohl (tvb, offset);
 
       proto_tree_add_uint(header_tree, hf_ieee802154_aux_sec_frame_counter, tvb, offset, sizeof(guint32), frame_counter);
 
