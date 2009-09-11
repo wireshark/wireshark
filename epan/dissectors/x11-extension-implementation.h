@@ -6992,7 +6992,7 @@ static void glxPixelStoref(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, 
 {
     int f_context_tag;
     int f_pname;
-    int f_datum;
+    gfloat f_datum;
     f_context_tag = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_glx_PixelStoref_context_tag, tvb, *offsetp, 4, little_endian);
     *offsetp += 4;
@@ -7165,7 +7165,7 @@ static void glxGetDoublev_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gdouble f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetDoublev");
 
@@ -7234,7 +7234,7 @@ static void glxGetFloatv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, 
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetFloatv");
 
@@ -7318,7 +7318,7 @@ static void glxGetLightfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp,
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetLightfv");
 
@@ -7406,7 +7406,7 @@ static void glxGetMapdv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gdouble f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMapdv");
 
@@ -7450,7 +7450,7 @@ static void glxGetMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMapfv");
 
@@ -7538,7 +7538,7 @@ static void glxGetMaterialfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMaterialfv");
 
@@ -7622,7 +7622,7 @@ static void glxGetPixelMapfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offse
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetPixelMapfv");
 
@@ -7813,7 +7813,7 @@ static void glxGetTexEnvfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexEnvfv");
 
@@ -7901,7 +7901,7 @@ static void glxGetTexGendv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gdouble f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexGendv");
 
@@ -7945,7 +7945,7 @@ static void glxGetTexGenfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexGenfv");
 
@@ -8093,7 +8093,7 @@ static void glxGetTexParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int *o
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexParameterfv");
 
@@ -8185,7 +8185,7 @@ static void glxGetTexLevelParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, i
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetTexLevelParameterfv");
 
@@ -8481,7 +8481,7 @@ static void glxGetColorTableParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo,
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetColorTableParameterfv");
 
@@ -8621,7 +8621,7 @@ static void glxGetConvolutionParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetConvolutionParameterfv");
 
@@ -8813,7 +8813,7 @@ static void glxGetHistogramParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, 
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetHistogramParameterfv");
 
@@ -8948,7 +8948,7 @@ static void glxGetMinmaxParameterfv_Reply(tvbuff_t *tvb, packet_info *pinfo, int
 {
     int f_length, length, sequence_number;
     int f_n;
-    int f_datum;
+    gfloat f_datum;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "-GetMinmaxParameterfv");
 

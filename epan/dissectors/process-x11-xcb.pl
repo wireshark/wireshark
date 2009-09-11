@@ -442,7 +442,13 @@ sub register_element($$$;$)
     if ($e->name() eq 'field') {
 	if ($basictype{$type} or $simpletype{$type}) {
 	    # Pre-declare variable
-	    print $impl $indent."int f_$fieldname;\n";
+	    if ($ft eq 'FT_FLOAT') {
+		print $impl $indent."gfloat f_$fieldname;\n";
+	    } elsif ($ft eq 'FT_DOUBLE') {
+		print $impl $indent."gdouble f_$fieldname;\n";
+	    } else {
+		print $impl $indent."int f_$fieldname;\n";
+	    }
 	}
     }
 }
