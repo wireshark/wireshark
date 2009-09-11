@@ -4567,7 +4567,7 @@ proto_register_rtcp(void)
 		&global_rtcp_show_setup_info);
 
 	prefs_register_bool_preference(rtcp_module, "heuristic_rtcp",
-		"Try to decode RTCP outside of conversations ",
+		"Try to decode RTCP outside of conversations",
 		"If call control SIP/H.323/RTSP/.. messages are missing in the trace, "
 		"RTCP isn't decoded without this",
 		&global_rtcp_heur);
