@@ -850,7 +850,8 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree,
                                int offset,
-                               rlc_lte_info *p_rlc_lte_info _U_)
+                               rlc_lte_info *p_rlc_lte_info _U_,
+                               proto_item *top_ti)
 {
     guint8 is_data;
     guint8 is_segment;
@@ -882,6 +883,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /**************************************************/
     if (!is_data) {
         col_append_str(pinfo->cinfo, COL_INFO, " [CONTROL]");
+        proto_item_append_text(top_ti, "[CONTROL]");
 
         /* Control PDUs are a completely separate format  */
         dissect_rlc_lte_am_status_pdu(tvb, pinfo, am_header_tree, am_header_ti, offset);
@@ -896,6 +898,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_rf, tvb, offset, 1, FALSE);
 
     col_append_str(pinfo->cinfo, COL_INFO, (is_segment) ? " [DATA-SEGMENT]" : " [DATA]");
+    proto_item_append_text(top_ti, (is_segment) ? " [DATA-SEGMENT]" : " [DATA]");
 
 
     /* Polling bit */
@@ -1071,17 +1074,23 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
-    /* Append channel info to top-level item */
+    /* Append highlights to top-level item */
+    if (p_rlc_lte_info->ueid != 0) {
+        proto_item_append_text(top_ti, "   UEId=%u", p_rlc_lte_info->ueid);
+    }
+
     if (p_rlc_lte_info->channelId == 0) {
-        proto_item_append_text(top_ti, " (%s)",
+        proto_item_append_text(top_ti, " (%s) ",
                                val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"));
     }
     else {
-        proto_item_append_text(top_ti, " (%s:%u)",
+        proto_item_append_text(top_ti, " (%s:%u) ",
                                val_to_str(p_rlc_lte_info->channelType, rlc_channel_type_vals, "Unknown"),
                                p_rlc_lte_info->channelId);
     }
-                     
+    proto_item_append_text(top_ti, "[%s] ",
+                           val_to_str(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"));
+
 
     /* Append context highlights to info column */
     col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -1119,7 +1128,7 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case RLC_AM_MODE:
-            dissect_rlc_lte_am(tvb, pinfo, rlc_lte_tree, offset, p_rlc_lte_info);
+            dissect_rlc_lte_am(tvb, pinfo, rlc_lte_tree, offset, p_rlc_lte_info, top_ti);
             break;
 
         case RLC_PREDEF:
