@@ -172,6 +172,20 @@ create_view_and_model(void)
 
 	gtk_widget_modify_font(packetlist->view, user_font_get_regular());
 
+        /* This seems kind of silly, but it's what GDM does. */
+
+	gtk_rc_parse_string ("\n"
+			     "   style \"ws-packetlist-treeview-style\"\n"
+			     "   {\n"
+			     /* "      GtkTreeView::horizontal-separator=1\n" */
+			     "      GtkTreeView::vertical-separator=1\n"
+			     "   }\n"
+			     "\n"
+			     "    widget \"*.ws-packetlist-treeview\" style \"ws-packetlist-treeview-style\"\n"
+			     "\n");
+	gtk_widget_set_name(GTK_WIDGET(packetlist->view), "ws-packetlist-treeview");
+
+
 	/* We need one extra column to store the entire PacketListRecord */
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
 		renderer = gtk_cell_renderer_text_new();
