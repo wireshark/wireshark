@@ -756,7 +756,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   dfilter_t   *dfcode;
   gboolean filtering_tap_listeners;
   guint tap_flags;
-  gboolean visible;
+  volatile gboolean visible = FALSE;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
