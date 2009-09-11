@@ -194,6 +194,7 @@ packet_list_class_init(PacketListClass *klass)
 		"style \"PacketList-style\"\n"
 		"{\n"
 		"  GtkTreeView::horizontal-separator = 0\n"
+		"  GtkTreeView::vertical-separator = 1\n"
 		"} widget_class \"*TreeView*\""
 		" style \"PacketList-style\"");
 
