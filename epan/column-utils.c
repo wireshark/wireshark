@@ -1160,9 +1160,11 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_src, gboole
 {
   struct e_in6_addr ipv6_addr;
 
-  if (addr->type == AT_NONE)
+  if (addr->type == AT_NONE) {
+    pinfo->cinfo->col_data[col] = "";
     /* No address, nothing to do */
     return;
+  }
 
 #ifdef NEW_PACKET_LIST
   pinfo->cinfo->col_data[col] = se_get_addr_name(addr);
