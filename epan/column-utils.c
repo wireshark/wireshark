@@ -318,15 +318,15 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 
     cinfo->col_custom_field_id[i] = -1;
     if (cinfo->fmt_matx[i][COL_CUSTOM] &&
-		cinfo->col_custom_dfilter[i]){
+        cinfo->col_custom_dfilter[i]){
         epan_dissect_prime_dfilter(edt, cinfo->col_custom_dfilter[i]);
         if (cinfo->col_custom_field) {
             header_field_info* hfinfo = proto_registrar_get_byname(cinfo->col_custom_field[i]);
             /* ASSERT if none ? */
-			g_assert(hfinfo);
+            g_assert(hfinfo);
             cinfo->col_custom_field_id[i] = hfinfo->id;
         }
-	}
+    }
   }
 }
 
@@ -550,9 +550,6 @@ col_do_append_str(column_info *cinfo, gint el, const gchar* separator,
   int    i;
   size_t len, max_len, sep_len;
 
-  if (!CHECK_COL(cinfo, el))
-    return;
-
   if (el == COL_INFO)
     max_len = COL_MAX_INFO_LEN;
   else
@@ -588,6 +585,9 @@ col_do_append_str(column_info *cinfo, gint el, const gchar* separator,
 void
 col_append_str(column_info *cinfo, gint el, const gchar* str)
 {
+  if (!CHECK_COL(cinfo, el))
+    return;
+
   col_do_append_str(cinfo, el, NULL, str);
 }
 
@@ -595,6 +595,9 @@ void
 col_append_sep_str(column_info *cinfo, gint el, const gchar* separator,
     const gchar* str)
 {
+  if (!CHECK_COL(cinfo, el))
+    return;
+
   if (separator == NULL)
     separator = ", ";    /* default */
   col_do_append_str(cinfo, el, separator, str);
