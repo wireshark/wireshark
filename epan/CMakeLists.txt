@@ -101,17 +101,17 @@ ADD_CUSTOM_COMMAND(
     ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/ncp2222.py
 )
 
-ADD_CUSTOM_COMMAND(
-    OUTPUT
-      x11-declarations.h
-      x11-register-info.h
-    COMMAND ${PERL_EXECUTABLE}
-      ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/process-x11-fields.pl
-      <${CMAKE_CURRENT_SOURCE_DIR}/dissectors/x11-fields
-    DEPENDS
-      dissectors/x11-fields
-      dissectors/process-x11-fields.pl
-)
+#ADD_CUSTOM_COMMAND(
+#    OUTPUT
+#      x11-declarations.h
+#      x11-register-info.h
+#    COMMAND ${PERL_EXECUTABLE}
+#      ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/process-x11-fields.pl
+#      <${CMAKE_CURRENT_SOURCE_DIR}/dissectors/x11-fields
+#    DEPENDS
+#      dissectors/x11-fields
+#      dissectors/process-x11-fields.pl
+#)
 
 set(PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-atsvc.c
@@ -1159,8 +1159,8 @@ add_lemon_files(LIBWIRESHARK_FILES
 
 add_library(epan SHARED
 	# Needed to trigger build of the include files for x11
-	x11-declarations.h
-	x11-register-info.h
+	#x11-declarations.h
+	#x11-register-info.h
 	${LIBWIRESHARK_FILES}
 	${CRC_FILES}
 	${CRYPT_FILES}
