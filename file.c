@@ -1667,8 +1667,11 @@ cf_redissect_packets(capture_file *cf)
    any state information they have (because a preference that affects
    some dissector has changed, meaning some dissector might construct
    its state differently from the way it was constructed the last time). */
+
+/* Rescan packets with "old" packet list */
+#ifndef NEW_PACKET_LIST
 static void
-rescan_packets(capture_file *cf, const char *action, const char *action_item,
+rescan_packets_old(capture_file *cf, const char *action, const char *action_item,
 		gboolean refilter, gboolean redissect)
 {
   frame_data *fdata;
@@ -1689,11 +1692,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   dfilter_t   *dfcode;
   gboolean    filtering_tap_listeners;
   guint       tap_flags;
-#ifdef NEW_PACKET_LIST
-  gboolean    add_to_packet_list = FALSE;
-#else
   gboolean    add_to_packet_list = TRUE;
-#endif
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -1724,14 +1723,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
-#ifdef NEW_PACKET_LIST
-  new_packet_list_freeze();
-#else
   packet_list_freeze();
 
   /* Clear it out. */
   packet_list_clear();
-#endif
 
   if (redissect) {
     /* We need to re-initialize all the state information that protocols
@@ -1748,12 +1743,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     /* Initialize all data structures used for dissection. */
     init_dissection();
 
-#ifdef NEW_PACKET_LIST
-    /* We need to redissect the packets so we have to discard our old
-     * packet list store. */
-    new_packet_list_clear();
-    add_to_packet_list = TRUE;
-#endif
   }
 
   /* We don't yet know which will be the first and last frames displayed. */
@@ -1898,11 +1887,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   /* We are done redissecting the packet list. */
   cf->redissecting = FALSE;
 
-#ifndef NEW_PACKET_LIST
-  /* Re-sort the list using the previously selected order */
-  packet_list_set_sort_column();
-#endif
-
   if (redissect) {
     /* Clear out what remains of the visited flags and per-frame data
        pointers.
@@ -1928,13 +1912,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     destroy_progress_dlg(progbar);
 
   /* Unfreeze the packet list. */
-#ifdef NEW_PACKET_LIST
-  if (!add_to_packet_list)
-    new_packet_list_recreate_visible_rows();
-  new_packet_list_thaw();
-#else
   packet_list_thaw();
-#endif
 
   if (selected_row == -1) {
     /* The selected frame didn't pass the filter. */
@@ -1973,7 +1951,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     /* There are no frames displayed at all. */
     cf_unselect_packet(cf);
   } else {
-#ifndef NEW_PACKET_LIST
     /* Either the frame that was selected passed the filter, or we've
        found the nearest displayed frame to that frame.  Select it, make
        it the focus row, and make it visible. */
@@ -1982,7 +1959,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
       cf->current_row = -1;
     }
     packet_list_set_selected_row(selected_row);
-#endif /* NEW_PACKET_LIST */
   }
 
   /* Cleanup and release all dfilter resources */
@@ -1990,6 +1966,318 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     dfilter_free(dfcode);
   }
 }
+#endif /* NEW_PACKET_LIST rescan_packets_old*/
+
+static void
+rescan_packets(capture_file *cf, const char *action, const char *action_item,
+		gboolean refilter, gboolean redissect)
+{
+#ifndef NEW_PACKET_LIST
+	rescan_packets_old(cf, action, action_item, refilter, redissect);
+}
+#else
+	/* Rescan packets new packet list */
+  frame_data *fdata;
+  progdlg_t  *progbar = NULL;
+  gboolean    stop_flag;
+  int         count;
+  int         err;
+  gchar      *err_info;
+  frame_data *selected_frame, *preceding_frame, *following_frame, *prev_frame;
+  int         selected_frame_num, preceding_frame_num, following_frame_num, prev_frame_num;
+  gboolean    selected_frame_seen;
+  int         frame_num;
+  float       progbar_val;
+  GTimeVal    start_time;
+  gchar       status_str[100];
+  int         progbar_nextstep;
+  int         progbar_quantum;
+  dfilter_t   *dfcode;
+  gboolean    filtering_tap_listeners;
+  guint       tap_flags;
+  gboolean    add_to_packet_list = FALSE;
+
+  /* Compile the current display filter.
+   * We assume this will not fail since cf->dfilter is only set in
+   * cf_filter IFF the filter was valid.
+   */
+  dfcode=NULL;
+  if(cf->dfilter){
+    dfilter_compile(cf->dfilter, &dfcode);
+  }
+
+  /* Do we have any tap listeners with filters? */
+  filtering_tap_listeners = have_filtering_tap_listeners();
+
+  /* Get the union of the flags for all tap listeners. */
+  tap_flags = union_of_tap_listener_flags();
+
+  cum_bytes=0;
+  reset_tap_listeners();
+  /* Which frame, if any, is the currently selected frame?
+     XXX - should the selected frame or the focus frame be the "current"
+     frame, that frame being the one from which "Find Frame" searches
+     start? */
+  selected_frame = cf->current_frame;
+
+  /* Mark frane num as not found */
+  selected_frame_num = -1;
+
+  /* Freeze the packet list while we redo it, so we don't get any
+     screen updates while it happens. */
+  new_packet_list_freeze();
+
+  if (redissect) {
+    /* We need to re-initialize all the state information that protocols
+       keep, because some preference that controls a dissector has changed,
+       which might cause the state information to be constructed differently
+       by that dissector. */
+
+    /* We might receive new packets while redissecting, and we don't
+       want to dissect those before their time. */
+    cf->redissecting = TRUE;
+
+    /* Cleanup all data structures used for dissection. */
+    cleanup_dissection();
+    /* Initialize all data structures used for dissection. */
+    init_dissection();
+
+    /* We need to redissect the packets so we have to discard our old
+     * packet list store. */
+    new_packet_list_clear();
+    add_to_packet_list = TRUE;
+  }
+
+  /* We don't yet know which will be the first and last frames displayed. */
+  cf->first_displayed = NULL;
+  cf->last_displayed = NULL;
+
+  reset_elapsed();
+
+  /* We currently don't display any packets */
+  cf->displayed_count = 0;
+
+  /* Iterate through the list of frames.  Call a routine for each frame
+     to check whether it should be displayed and, if so, add it to
+     the display list. */
+  nstime_set_unset(&first_ts);
+  nstime_set_unset(&prev_dis_ts);
+
+  /* Update the progress bar when it gets to this value. */
+  progbar_nextstep = 0;
+  /* When we reach the value that triggers a progress bar update,
+     bump that value by this amount. */
+  progbar_quantum = cf->count/N_PROGBAR_UPDATES;
+  /* Count of packets at which we've looked. */
+  count = 0;
+  /* Progress so far. */
+  progbar_val = 0.0f;
+
+  stop_flag = FALSE;
+  g_get_current_time(&start_time);
+
+  /* no previous row yet */
+  frame_num = -1;
+  prev_frame_num = -1;
+  prev_frame = NULL;
+
+  preceding_frame_num = -1;
+  preceding_frame = NULL;
+  following_frame_num = -1;
+  following_frame = NULL;
+
+  selected_frame_seen = FALSE;
+
+  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+    /* Create the progress bar if necessary.
+       We check on every iteration of the loop, so that it takes no
+       longer than the standard time to create it (otherwise, for a
+       large file, we might take considerably longer than that standard
+       time in order to get to the next progress bar step). */
+    if (progbar == NULL)
+      progbar = delayed_create_progress_dlg(action, action_item, TRUE,
+                                            &stop_flag, &start_time,
+                                            progbar_val);
+
+    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+       when we update it, we have to run the GTK+ main loop to get it
+       to repaint what's pending, and doing so may involve an "ioctl()"
+       to see if there's any pending input from an X server, and doing
+       that for every packet can be costly, especially on a big file. */
+    if (count >= progbar_nextstep) {
+      /* let's not divide by zero. I should never be started
+       * with count == 0, so let's assert that
+       */
+      g_assert(cf->count > 0);
+      progbar_val = (gfloat) count / cf->count;
+
+      if (progbar != NULL) {
+        g_snprintf(status_str, sizeof(status_str),
+                  "%4u of %u frames", count, cf->count);
+        update_progress_dlg(progbar, progbar_val, status_str);
+      }
+
+      progbar_nextstep += progbar_quantum;
+    }
+
+    if (stop_flag) {
+      /* Well, the user decided to abort the filtering.  Just stop.
+
+         XXX - go back to the previous filter?  Users probably just
+	 want not to wait for a filtering operation to finish;
+	 unless we cancel by having no filter, reverting to the
+	 previous filter will probably be even more expensive than
+	 continuing the filtering, as it involves going back to the
+	 beginning and filtering, and even with no filter we currently
+	 have to re-generate the entire clist, which is also expensive.
+
+	 I'm not sure what Network Monitor does, but it doesn't appear
+	 to give you an unfiltered display if you cancel. */
+      break;
+    }
+
+    count++;
+
+    if (redissect) {
+      /* Since all state for the frame was destroyed, mark the frame
+       * as not visited, free the GSList referring to the state
+       * data (the per-frame data itself was freed by
+       * "init_dissection()"), and null out the GSList pointer. */
+      fdata->flags.visited = 0;
+      if (fdata->pfd) {
+		g_slist_free(fdata->pfd);
+        fdata->pfd = NULL;
+      }
+    }
+
+    if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
+    	cf->pd, fdata->cap_len, &err, &err_info)) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    cf_read_error_message(err, err_info), cf->filename);
+			break;
+    }
+
+    /* If the previous frame is displayed, and we haven't yet seen the
+       selected frame, remember that frame - it's the closest one we've
+       yet seen before the selected frame. */
+    if (prev_frame_num != -1 && !selected_frame_seen && prev_frame->flags.passed_dfilter) {
+      preceding_frame_num = prev_frame_num;
+      preceding_frame = prev_frame;
+    }
+    add_packet_to_packet_list(fdata, cf, dfcode, filtering_tap_listeners,
+                                    tap_flags, &cf->pseudo_header, cf->pd,
+                                    refilter,
+                                    add_to_packet_list);
+
+    /* If this frame is displayed, and this is the first frame we've
+       seen displayed after the selected frame, remember this frame -
+       it's the closest one we've yet seen at or after the selected
+       frame. */
+    if (fdata->flags.passed_dfilter && selected_frame_seen && following_frame_num == -1) {
+      following_frame_num = fdata->num;
+      following_frame = fdata;
+    }
+    if (fdata == selected_frame) {
+      selected_frame_seen = TRUE;
+	  if (fdata->flags.passed_dfilter)
+		  selected_frame_num = fdata->num;
+    }
+
+    /* Remember this frame - it'll be the previous frame
+       on the next pass through the loop. */
+    prev_frame_num = fdata->num;
+    prev_frame = fdata;
+  }
+
+  /* We are done redissecting the packet list. */
+  cf->redissecting = FALSE;
+
+  if (redissect) {
+    /* Clear out what remains of the visited flags and per-frame data
+       pointers.
+
+       XXX - that may cause various forms of bogosity when dissecting
+       these frames, as they won't have been seen by this sequential
+       pass, but the only alternative I see is to keep scanning them
+       even though the user requested that the scan stop, and that
+       would leave the user stuck with an Wireshark grinding on
+       until it finishes.  Should we just stick them with that? */
+    for (; fdata != NULL; fdata = fdata->next) {
+      fdata->flags.visited = 0;
+      if (fdata->pfd) {
+		g_slist_free(fdata->pfd);
+        fdata->pfd = NULL;
+      }
+    }
+  }
+
+  /* We're done filtering the packets; destroy the progress bar if it
+     was created. */
+  if (progbar != NULL)
+    destroy_progress_dlg(progbar);
+
+  /* Unfreeze the packet list. */
+  if (!add_to_packet_list)
+    new_packet_list_recreate_visible_rows();
+
+  new_packet_list_thaw();
+
+  if (selected_frame_num == -1) {
+    /* The selected frame didn't pass the filter. */
+    if (selected_frame == NULL) {
+      /* That's because there *was* no selected frame.  Make the first
+         displayed frame the current frame. */
+      selected_frame_num = 0;
+    } else {
+      /* Find the nearest displayed frame to the selected frame (whether
+         it's before or after that frame) and make that the current frame.
+         If the next and previous displayed frames are equidistant from the
+         selected frame, choose the next one. */
+      g_assert(following_frame == NULL ||
+               following_frame->num >= selected_frame->num);
+      g_assert(preceding_frame == NULL ||
+               preceding_frame->num <= selected_frame->num);
+      if (following_frame == NULL) {
+        /* No frame after the selected frame passed the filter, so we
+           have to select the last displayed frame before the selected
+           frame. */
+        selected_frame_num = preceding_frame_num;
+		selected_frame = preceding_frame;
+      } else if (preceding_frame == NULL) {
+        /* No frame before the selected frame passed the filter, so we
+           have to select the first displayed frame after the selected
+           frame. */
+        selected_frame_num = following_frame_num;
+		selected_frame = following_frame;
+      } else {
+        /* Frames before and after the selected frame passed the filter, so
+		   we'll select the previous frame */
+        selected_frame_num = preceding_frame_num;
+		selected_frame = preceding_frame;
+      }
+    }
+  }
+
+  if (selected_frame_num == -1) {
+    /* There are no frames displayed at all. */
+    cf_unselect_packet(cf);
+  } else {
+    /* Either the frame that was selected passed the filter, or we've
+       found the nearest displayed frame to that frame.  Select it, make
+       it the focus row, and make it visible. */
+    if (selected_frame_num == 0) {
+	  new_packet_list_select_first_row();
+	}else{
+	  new_packet_list_find_row_from_data(selected_frame, TRUE);
+	}
+  }
+
+  /* Cleanup and release all dfilter resources */
+  if (dfcode != NULL){
+    dfilter_free(dfcode);
+  }
+}
+#endif /* NEW_PACKET_LIST */
 /*
  * Scan trough all frame data and recalculate the ref time
  * without rereading the file.
