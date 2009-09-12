@@ -17,7 +17,7 @@ CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I../.. $(GLIB_CFLAGS) \
 	$(KFW_CFLAGS) $(AIRPCAP_CFLAGS) $(GEOIP_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
-CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL 
+CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
 .c.obj::
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
@@ -29,8 +29,8 @@ DISSECTOR_SUPPORT_OBJECTS = \
 	$(DISSECTOR_SUPPORT_SRC:.c=.obj)
 
 dissectors.lib: register.obj packet-ncp2222.c $(GENERATED_HEADER_FILES) ../../config.h $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
-	@echo Linking dissectors.lib $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) 
-	link /lib /out:dissectors.lib $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) 
+	@echo Linking dissectors.lib $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
+	link /lib /out:dissectors.lib $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
 
 !IF "$(MSVC_VARIANT)" != "MSVC2005EE" && "$(MSVC_VARIANT)" != "MSVC2005" && "$(MSVC_VARIANT)" != "MSVC2008EE" && "$(MSVC_VARIANT)" != "MSVC2008"
 # Disable debug for large dissectors
@@ -81,10 +81,10 @@ register.c: $(ALL_DISSECTORS_SRC)
 	@$(SH) ../../tools/make-dissector-reg . dissectors $(ALL_DISSECTORS_SRC) \
 !ENDIF
 
-packet-ncp2222.c : ncp2222.py
+packet-ncp2222.c : ../../tools/ncp2222.py
 !IFDEF PYTHON
 	@echo Making packet-ncp2222.c
-	$(PYTHON) ncp2222.py -o packet-ncp2222.c
+	$(PYTHON) ../../tools/ncp2222.py -o packet-ncp2222.c
 !ELSE
 	@echo Faking packet-ncp2222.c...
 	@echo Python is required to build the NCP disector
@@ -94,6 +94,12 @@ packet-ncp2222.c : ncp2222.py
 !ENDIF
 
 packet-ncp2222.obj: packet-ncp2222.inc
+
+# Target to rebuild the X11 dissector header files.
+# See README.X11 before using this--it requires the xcb and mesa source.
+x11-dissector: ../../tools/process-x11-fields.pl x11-fields ../../tools/process-x11-xcb.pl
+	$(PERL) ../../tools/process-x11-fields.pl < x11-fields
+	$(PERL) ../../tools/process-x11-xcb.pl
 
 clean:
 	rm -f dissectors.lib *.pdb register.c-tmp register-cache.pkl \

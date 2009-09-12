@@ -14,10 +14,10 @@ it up to date. Please be aware that the Mesa repository is rather large; it is
 slightly more than 53MB as of this writing.
 
 Run the following:
- perl5.10 ./process-x11-xcb.pl
+ make x11-dissector
 
 This will automatically run process-x11-fields.pl (for the core protocol
-definitions), and then it will process the XML descriptions from XCB and Mesa
-to generate the extension dissectors.
+definitions), and then it will run process-x11-xcb.pl to process the XML
+descriptions from XCB and Mesa to generate the extension dissectors.
 
-Once process-x11-xcb.pl is complete, compile wireshark as usual.
+Once this is complete, compile wireshark as usual.

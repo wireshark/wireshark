@@ -5,17 +5,17 @@
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 2004 Gerald Combs
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -47,11 +47,18 @@ EXTRA_DIST = \
 	Custom.nmake		\
 	Makefile.common		\
 	Makefile.nmake		\
-	ncp2222.py		\
-	packet-ncp2222.inc
+	packet-ncp2222.inc	\
+	README.X11		\
+	x11-fields
 
-packet-ncp2222.c : $(srcdir)/ncp2222.py
+packet-ncp2222.c : $(top_srcdir)/tools/ncp2222.py
 	$(PYTHON) $< -o $@
+
+# Target to rebuild the X11 dissector header files.
+# See README.X11 before using this--it requires the xcb and mesa source.
+x11-dissector: $(top_srcdir)/tools/process-x11-fields.pl x11-fields $(top_srcdir)/tools/process-x11-xcb.pl
+	$(PERL) $(top_srcdir)/tools/process-x11-fields.pl < x11-fields
+	$(PERL) $(top_srcdir)/tools/process-x11-xcb.pl
 
 #
 # Build register.c, which contains a function register_all_protocols()

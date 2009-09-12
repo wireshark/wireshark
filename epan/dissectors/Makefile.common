@@ -151,7 +151,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-x509af.c \
 	packet-x509ce.c \
 	packet-x509if.c \
-	packet-x509sat.c 
+	packet-x509sat.c
 
 #
 # asn2wrs-generated ASN.1 dissectors with warnings.

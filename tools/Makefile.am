@@ -83,30 +83,33 @@ PIDL_FILES= \
 
 EXTRA_DIST = \
 	$(PIDL_FILES)					\
-	WiresharkXML.py					\
-	Makefile.nmake					\
 	asn2wrs.py					\
 	cvsdiff-fix.py					\
 	dfilter-test.py 				\
-	extract_asn1_from_spec.pl	\
+	extract_asn1_from_spec.pl			\
 	fuzz-test.sh					\
-	html2text.py				\
+	html2text.py					\
 	idl2wrs.sh					\
 	idl2wrs.sh.in					\
 	lex.py						\
+	Makefile.nmake					\
 	make-dissector-reg				\
 	make-dissector-reg.py				\
 	make-tap-reg.py					\
 	msnchat						\
-	native-nmake.cmd			\
+	native-nmake.cmd				\
+	ncp2222.py					\
 	netscreen2dump.py				\
 	pkt-from-core.py				\
+	process-x11-fields.pl				\
+	process-x11-xcb.pl				\
 	runlex.sh					\
 	setuid-root.pl.in				\
 	unix2dos.pl					\
 	win32-setup.sh					\
 	wireshark_be.py					\
 	wireshark_gen.py				\
+	WiresharkXML.py					\
 	yacc.py
 
 noinst_SCRIPTS = setuid-root.pl

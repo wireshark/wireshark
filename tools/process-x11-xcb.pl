@@ -1099,7 +1099,8 @@ eot
 }
 
 # initialize core X11 protocol
-system('./process-x11-fields.pl < x11-fields');
+# Do this in the Makefile now
+#system('./process-x11-fields.pl < x11-fields');
 
 # Extension implementation
 $impl = new IO::File '> x11-extension-implementation.h'
