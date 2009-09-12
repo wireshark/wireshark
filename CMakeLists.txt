@@ -82,17 +82,17 @@ option(ENABLE_ADNS       "Build with adns support" ON)
 option(ENABLE_PCRE       "Build with pcre support" ON)
 option(ENABLE_PORTAUDIO  "Build with portaudio support" ON)
 option(ENABLE_Z	 	 "Build with zlib compression support" ON)
+# todo wslua currently seems to be broken
 option(ENABLE_LUA	 "Build with lua dissector support" OFF)
+option(ENABLE_PYTHON	 "Build with python dissector support" ON)
 option(ENABLE_SMI	 "Build with smi snmp support" ON)
 option(ENABLE_GNUTLS	 "Build with GNU TLS support" ON)
 option(ENABLE_GCRYPT	 "Build with GNU crypto support" ON)
+option(ENABLE_GEOIP	 "Build with GeoIP support" ON)
+option(ENABLE_CAP	 "Build with posix capabilities support" ON)
+option(ENABLE_CARES      "Build with c_ares support" ON)
 # todo Mostly hardcoded
 option(ENABLE_KERBEROS	 "Build with Kerberos support" ON)
-# Untested
-option(ENABLE_GEOIP	 "Build with GeoIP support" OFF)
-option(ENABLE_CAP	 "Build with posix capabilities support" OFF)
-option(ENABLE_CARES      "Build with c_ares support" OFF)
-option(ENABLE_PYTHON	 "Build with python dissector support" OFF)
 
 
 if(ENABLE_EXTRA_GCC_CHECKS)
@@ -154,13 +154,11 @@ if(ENABLE_PORTAUDIO)
 	set(PACKAGELIST PORTAUDIO ${PACKAGELIST})
 endif()
 
-# C Asynchronouse resolver
-if(ENABLE_CARES)
-	set(PACKAGELIST CARES ${PACKAGELIST})
-endif()
 
-#Gnu asynchronous DNS
-if(ENABLE_ADNS)
+# Prefer c-ares over adns
+if(ENABLE_CARES)        # C Asynchronouse resolver
+	set(PACKAGELIST CARES ${PACKAGELIST})
+elseif(ENABLE_ADNS)     # Gnu asynchronous DNS
 	set(PACKAGELIST ADNS ${PACKAGELIST})
 endif()
 
@@ -184,6 +182,10 @@ if(ENABLE_CAP)
 	set(PACKAGELIST CAP ${PACKAGELIST})
 endif()
 
+if(ENABLE_PYTHON)
+	set(PACKAGELIST PYTHON ${PACKAGELIST})
+endif()
+
 set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
 
 #Let's loop the package list
@@ -191,24 +193,17 @@ foreach(PACKAGE ${PACKAGELIST})
 	find_package(${PACKAGE} REQUIRED)
 	message(${PACKAGE}_FOUND)
 	if (${PACKAGE}_FOUND)
-		set(HAVE_LIB${PACKAGE} "1")
+		set(HAVE_LIB${PACKAGE} 1)
 		include_directories(${${PACKAGE}_INCLUDE_DIRS})
 		message(STATUS "${PACKAGE} includes: ${${PACKAGE}_INCLUDE_DIRS}")
 		message(STATUS "${PACKAGE} libs: ${${PACKAGE}_LIBRARIES}")
 	endif()
 endforeach()
 
-if(ENABLE_PYTHON)
-	find_package(FindPythonLibs)
-	message(PYTHONLIBS_FOUND)
-	if (PYTHONLIBS_FOUND)
-		set(HAVE_LIBPYTHON "1")
-		include_directories(PYTHON_INCLUDE_PATH)
-		message(STATUS "${PACKAGE} includes: ${PYTHON_INCLUDE_PATH}")
-		message(STATUS "${PACKAGE} libs: ${PYTHON_LIBRARIES}")
-	endif()
+if(HAVE_LIBPYTHON)
+	set(HAVE_PYTHON 1)
+	set(PYTHON_DIR "${CMAKE_INSTALL_PREFIX}/lib/wireshark/python/${VERSION}")
 endif()
-
 if(HAVE_LIBLUA)
 	set(HAVE_LUA_H 1)
 	set(HAVE_LUA_5_1 1)
@@ -219,9 +214,13 @@ if(HAVE_LIBKERBEROS)
 	set(HAVE_MIT_KERBEROS 1)
 	set(HAVE_KEYTYPE_ARCFOUR_56 1)
 endif()
+if(HAVE_LIBGEOIP)
+	set(HAVE_GEOIP 1)
+endif()
 if(HAVE_LIBCARES)
 	set(HAVE_C_ARES 1)
-elseif(HAVE_LIBADNS)
+endif()
+if(HAVE_LIBADNS)
 	set(HAVE_GNU_ADNS 1)
 endif()
 if(ENABLE_AIRPCAP)
@@ -591,12 +590,12 @@ if(BUILD_dumpcap)
 #		@INET_NTOP_LO@
 		${GLIB2_LIBRARIES}
 		${PCAP_LIBRARIES}
+		${CAP_LIBRARIES}
 #		@SOCKET_LIBS@
 #		@NSL_LIBS@
 #		@FRAMEWORKS@
 		${GCRYPT_LIBRARIES}
 		${GNUTLS_LIBRARIES}
-#		@LIBCAP_LIBS@
 		${Z_LIBRARIES}
 
 	)

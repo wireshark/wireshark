@@ -64,7 +64,6 @@ clean source.
 What needs to be done?
 ======================
 
-- Test detection/build with a few remaining packages
 - Add back -Werror flags.
 - Redo glib2 and gtk2 find modules.
 - Add back platform specific objects.

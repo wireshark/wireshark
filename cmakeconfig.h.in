@@ -1,5 +1,8 @@
 /* cmakeconfig.h.in */
 
+/* Version number of package */
+#define VERSION "@CPACK_PACKAGE_VERSION@"
+
 /* Directory for data */
 #define DATAFILE_DIR "@CMAKE_INSTALL_PREFIX@/share/@CPACK_PACKAGE_NAME@"
 
@@ -41,6 +44,12 @@
 
 /* Define to use SMI SNMP library */
 #cmakedefine HAVE_LIBSMI 1
+
+/* Define to use GEOIP library */
+#cmakedefine HAVE_GEOIP 1
+
+/* Define to use capabilities library */
+#cmakedefine HAVE_LIBCAP 1
 
 /* Define to use GNU ADNS library */
 #cmakedefine HAVE_GNU_ADNS 1
@@ -104,6 +113,12 @@
 
 /* Define to 1 if you have the <lua.h> header file. */
 #cmakedefine HAVE_LUA_H 1
+
+/* Define to 1 if you have libpython. */
+#cmakedefine HAVE_PYTHON 1
+
+/* Path to Python. */
+#cmakedefine PYTHON_DIR "${CMAKE_INSTALL_PREFIX}/lib/${CPACK_PACKAGE_NAME}/python/${VERSION}"
 
 /* Define to 1 if you have the <memory.h> header file. */
 #cmakedefine HAVE_MEMORY_H 1
@@ -303,9 +318,6 @@
 /* Define to 1 if you have the ANSI C header files. */
 /* Note: not use in the code */
 #cmakedefine STDC_HEADERS 1
-
-/* Version number of package */
-#define VERSION "@CPACK_PACKAGE_VERSION@"
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */

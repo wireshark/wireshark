@@ -1,3 +1,6 @@
+# todo: result for NEED_... is wrong (inverted), at least
+#   in the case of getopt
+
 #check system for includes
 include(CheckIncludeFile)
 check_include_file("arpa/inet.h"         HAVE_ARPA_INET_H)

@@ -1175,7 +1175,7 @@ add_library(epan SHARED
 
 target_link_libraries(epan
 	${WSLUA_LIB}
-	${PYTHON_LIB}
+	${WSPYTHON_LIB}
 )
 
 add_dependencies(epan lemon)
