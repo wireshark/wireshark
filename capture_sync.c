@@ -1425,11 +1425,11 @@ sync_pipe_stop(capture_options *capture_opts)
 
   if (capture_opts->fork_child != -1) {
 #ifndef _WIN32
-    /* send the SIGUSR1 signal to close the capture child gracefully. */
-    int sts = kill(capture_opts->fork_child, SIGUSR1);
+    /* send the SIGINT signal to close the capture child gracefully. */
+    int sts = kill(capture_opts->fork_child, SIGINT);
     if (sts != 0) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
-              "Sending SIGUSR1 to child failed: %s\n", strerror(errno));
+              "Sending SIGINT to child failed: %s\n", strerror(errno));
     }
 #else
 #define STOP_SLEEP_TIME 500 /* ms */
