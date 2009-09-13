@@ -89,10 +89,6 @@
 #include <winsock2.h>       /* needed to define AF_ values on Windows */
 #endif
 
-#ifdef AVOID_DNS_TIMEOUT
-# include <setjmp.h>
-#endif
-
 #ifdef NEED_INET_ATON_H
 # include "inet_aton.h"
 #endif
@@ -137,14 +133,14 @@
 
 #define ENAME_HOSTS     "hosts"
 #define ENAME_SUBNETS   "subnets"
-#define ENAME_ETHERS        "ethers"
-#define ENAME_IPXNETS       "ipxnets"
+#define ENAME_ETHERS    "ethers"
+#define ENAME_IPXNETS   "ipxnets"
 #define ENAME_MANUF     "manuf"
 #define ENAME_SERVICES  "services"
 
 #define MAXMANUFLEN 9   /* max vendor name length with ending '\0' */
-#define HASHETHSIZE 1024
-#define HASHHOSTSIZE    1024
+#define HASHETHSIZE		2048
+#define HASHHOSTSIZE    2048
 #define HASHIPXNETSIZE  256
 #define HASHMANUFSIZE   256
 #define HASHPORTSIZE    256
@@ -298,20 +294,17 @@ gchar *g_pservices_path = NULL;     /* personal services file */
  * ares_gethostbyaddr().
  * The callback processes the response, then frees the request.
  */
-
-static gboolean c_ares_initialized = FALSE;
+#define ASYNC_DNS
 ares_channel alchan;
-int c_ares_in_flight = 0;
-GList *c_ares_queue_head = NULL;
 
-typedef struct _c_ares_queue_msg
+typedef struct _async_dns_queue_msg
 {
   union {
     guint32           ip4;
     struct e_in6_addr ip6;
   } addr;
   int                 family;
-} c_ares_queue_msg_t;
+} async_dns_queue_msg_t;
 
 #if ( ( ARES_VERSION_MAJOR < 1 )                                     \
  || ( 1 == ARES_VERSION_MAJOR && ARES_VERSION_MINOR < 5 ) )
@@ -323,7 +316,7 @@ static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hoste
 #else
 /* GNU ADNS */
 #ifdef HAVE_GNU_ADNS
-
+#define ASYNC_DNS
 /*
  * Submitted queries have to be checked individually using adns_check().
  * Queries are added to adns_queue_head. During processing, the list is
@@ -331,21 +324,42 @@ static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hoste
  * and once to check the status of each query.
  */
 
-static gboolean gnu_adns_initialized = FALSE;
 adns_state ads;
-int adns_in_flight = 0;
-GList *adns_queue_head = NULL;
 
-typedef struct _adns_queue_msg
+typedef struct _async_dns_queue_msg
 {
   gboolean          submitted;
   guint32           ip4_addr;
   int               type;
   adns_query        query;
-} adns_queue_msg_t;
+} async_dns_queue_msg_t;
 
 #endif /* HAVE_GNU_ADNS */
 #endif /* HAVE_C_ARES */
+#ifdef ASYNC_DNS
+static         gboolean async_dns_initialized = FALSE;
+static  int     async_dns_in_flight = 0;
+static  GList  *async_dns_queue_head = NULL;
+
+/* push a dns request */
+static void
+add_async_dns_ipv4(int type, guint32 addr)
+{
+    async_dns_queue_msg_t *msg;
+
+    msg = g_malloc(sizeof(async_dns_queue_msg_t));
+#ifdef HAVE_C_ARES
+    msg->family = type;
+    msg->addr.ip4 = addr;
+#else
+    msg->type = type;
+    msg->ip4_addr = addr;
+    msg->submitted = FALSE;
+#endif
+    async_dns_queue_head = g_list_append(async_dns_queue_head, (gpointer) msg);
+}
+
+#endif
 
 typedef struct {
     guint32 mask;
@@ -528,7 +542,6 @@ static void parse_services_file(const char * path)
   fclose(serv_p);
 }
 
-
 static void initialize_services(void)
 {
 
@@ -624,18 +637,6 @@ static gchar *serv_name_lookup(guint port, port_type proto)
 } /* serv_name_lookup */
 
 
-#ifdef AVOID_DNS_TIMEOUT
-
-#define DNS_TIMEOUT     2   /* max sec per call */
-
-jmp_buf hostname_env;
-
-static void abort_network_query(int sig _U_)
-{
-  longjmp(hostname_env, 1);
-}
-#endif /* AVOID_DNS_TIMEOUT */
-
 /* Fill in an IP4 structure with info from subnets file or just with the
  * string form of the address.
  */
@@ -691,11 +692,11 @@ c_ares_ghba_cb(void *arg, int status, struct hostent *he) {
 #else
 c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
 #endif
-  c_ares_queue_msg_t *caqm = arg;
+  async_dns_queue_msg_t *caqm = arg;
   char **p;
 
   if (!caqm) return;
-  c_ares_in_flight--;
+  async_dns_in_flight--;
 
   if (status == ARES_SUCCESS) {
     for (p = he->h_addr_list; *p != NULL; p++) {
@@ -733,13 +734,6 @@ static hashipv4_t *host_lookup(guint addr, gboolean resolve, gboolean *found)
   int hash_idx;
   hashipv4_t * volatile tp;
   struct hostent *hostp;
-#ifdef HAVE_C_ARES
-  c_ares_queue_msg_t *caqm;
-#else
-#ifdef HAVE_GNU_ADNS
-  adns_queue_msg_t *qmsg;
-#endif /* HAVE_GNU_ADNS */
-#endif /* HAVE_C_ARES */
 
   *found = TRUE;
 
@@ -769,40 +763,18 @@ static hashipv4_t *host_lookup(guint addr, gboolean resolve, gboolean *found)
 
   if (resolve) {
       tp->resolve = TRUE;
-#ifdef HAVE_C_ARES
+#ifdef ASYNC_DNS
   if ((g_resolv_flags & RESOLV_CONCURRENT) &&
       prefs.name_resolve_concurrency > 0 &&
-      c_ares_initialized) {
-    caqm = g_malloc(sizeof(c_ares_queue_msg_t));
-    caqm->family = AF_INET;
-    caqm->addr.ip4 = addr;
-    c_ares_queue_head = g_list_append(c_ares_queue_head, (gpointer) caqm);
-
-    /* XXX found is set to TRUE, which seems a bit odd, but I'm not
-     * going to risk changing the semantics.
-     */
-    fill_dummy_ip4(addr, tp);
-    return tp;
+      async_dns_initialized) {
+		  add_async_dns_ipv4(AF_INET, addr);
+		  /* XXX found is set to TRUE, which seems a bit odd, but I'm not
+		   * going to risk changing the semantics.
+		   */
+		  fill_dummy_ip4(addr, tp);
+		  return tp;
   }
-#else
-#ifdef HAVE_GNU_ADNS
-  if ((g_resolv_flags & RESOLV_CONCURRENT) &&
-      prefs.name_resolve_concurrency > 0 &&
-      gnu_adns_initialized) {
-    qmsg = g_malloc(sizeof(adns_queue_msg_t));
-    qmsg->type = AF_INET;
-    qmsg->ip4_addr = addr;
-    qmsg->submitted = FALSE;
-    adns_queue_head = g_list_append(adns_queue_head, (gpointer) qmsg);
-
-    /* XXX found is set to TRUE, which seems a bit odd, but I'm not
-     * going to risk changing the semantics.
-     */
-    fill_dummy_ip4(addr, tp);
-    return tp;
-  }
-#endif /* HAVE_GNU_ADNS */
-#endif /* HAVE_C_ARES */
+#endif /* ASYNC_DNS */
 
   /*
    * The Windows "gethostbyaddr()" insists on translating 0.0.0.0 to
@@ -815,30 +787,13 @@ static hashipv4_t *host_lookup(guint addr, gboolean resolve, gboolean *found)
    * else call gethostbyaddr and hope for the best
    */
 
-# ifdef AVOID_DNS_TIMEOUT
-
-    /* Quick hack to avoid DNS/YP timeout */
-
-    if (!setjmp(hostname_env)) {
-      signal(SIGALRM, abort_network_query);
-      alarm(DNS_TIMEOUT);
-# endif /* AVOID_DNS_TIMEOUT */
-
       hostp = gethostbyaddr((char *)&addr, 4, AF_INET);
-
-# ifdef AVOID_DNS_TIMEOUT
-      alarm(0);
-# endif /* AVOID_DNS_TIMEOUT */
 
       if (hostp != NULL) {
           g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
           tp->is_dummy_entry = FALSE;
           return tp;
       }
-# ifdef AVOID_DNS_TIMEOUT
-
-    }
-# endif /* AVOID_DNS_TIMEOUT */
   }
 
   /* unknown host or DNS timeout */
@@ -878,7 +833,7 @@ static hashipv6_t *host_lookup6(const struct e_in6_addr *addr, gboolean resolve,
   int hash_idx;
   hashipv6_t * volatile tp;
 #ifdef HAVE_C_ARES
-  c_ares_queue_msg_t *caqm;
+  async_dns_queue_msg_t *caqm;
 #endif /* HAVE_C_ARES */
 #ifdef INET6
   struct hostent *hostp;
@@ -917,16 +872,17 @@ static hashipv6_t *host_lookup6(const struct e_in6_addr *addr, gboolean resolve,
 #ifdef HAVE_C_ARES
   if ((g_resolv_flags & RESOLV_CONCURRENT) &&
       prefs.name_resolve_concurrency > 0 &&
-      c_ares_initialized) {
-    caqm = g_malloc(sizeof(c_ares_queue_msg_t));
+      async_dns_initialized) {
+    caqm = g_malloc(sizeof(async_dns_queue_msg_t));
     caqm->family = AF_INET6;
     memcpy(&caqm->addr.ip6, addr, sizeof(caqm->addr.ip6));
-    c_ares_queue_head = g_list_append(c_ares_queue_head, (gpointer) caqm);
+    async_dns_queue_head = g_list_append(async_dns_queue_head, (gpointer) caqm);
 
     /* XXX found is set to TRUE, which seems a bit odd, but I'm not
      * going to risk changing the semantics.
      */
     if (!tp->is_dummy_entry) {
+		strcpy(tp->name, tp->ip6);
         ip6_to_str_buf(addr, tp->name);
         tp->is_dummy_entry = TRUE;
     }
@@ -935,26 +891,13 @@ static hashipv6_t *host_lookup6(const struct e_in6_addr *addr, gboolean resolve,
 #endif /* HAVE_C_ARES */
 
     /* Quick hack to avoid DNS/YP timeout */
-
-#ifdef AVOID_DNS_TIMEOUT
-    if (!setjmp(hostname_env)) {
-      signal(SIGALRM, abort_network_query);
-      alarm(DNS_TIMEOUT);
-#endif /* AVOID_DNS_TIMEOUT */
       hostp = gethostbyaddr((char *)addr, sizeof(*addr), AF_INET6);
-#ifdef AVOID_DNS_TIMEOUT
-      alarm(0);
-# endif /* AVOID_DNS_TIMEOUT */
 
       if (hostp != NULL) {
           g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
           tp->is_dummy_entry = FALSE;
           return tp;
       }
-
-#ifdef AVOID_DNS_TIMEOUT
-    }
-# endif /* AVOID_DNS_TIMEOUT */
 #endif /* INET6 */
   }
 
@@ -2337,7 +2280,7 @@ host_name_lookup_init(void) {
 
 #ifdef HAVE_C_ARES
   if (ares_init(&alchan) == ARES_SUCCESS) {
-    c_ares_initialized = TRUE;
+    async_dns_initialized = TRUE;
   }
 #else
 #ifdef HAVE_GNU_ADNS
@@ -2383,8 +2326,8 @@ host_name_lookup_init(void) {
      */
     return;
   }
-  gnu_adns_initialized = TRUE;
-  adns_in_flight = 0;
+  async_dns_initialized = TRUE;
+  async_dns_in_flight = 0;
 #endif /* HAVE_GNU_ADNS */
 #endif /* HAVE_C_ARES */
 
@@ -2394,28 +2337,28 @@ host_name_lookup_init(void) {
 #ifdef HAVE_C_ARES
 gboolean
 host_name_lookup_process(gpointer data _U_) {
-  c_ares_queue_msg_t *caqm;
+  async_dns_queue_msg_t *caqm;
   struct timeval tv = { 0, 0 };
   int nfds;
   fd_set rfds, wfds;
 
-  if (!c_ares_initialized)
+  if (!async_dns_initialized)
     /* c-ares not initialized. Bail out and cancel timers. */
     return FALSE;
 
-  c_ares_queue_head = g_list_first(c_ares_queue_head);
+  async_dns_queue_head = g_list_first(async_dns_queue_head);
 
-  while (c_ares_queue_head && c_ares_in_flight <= prefs.name_resolve_concurrency) {
-    caqm = (c_ares_queue_msg_t *) c_ares_queue_head->data;
-    c_ares_queue_head = g_list_remove(c_ares_queue_head, (void *) caqm);
+  while (async_dns_queue_head && async_dns_in_flight <= prefs.name_resolve_concurrency) {
+    caqm = (async_dns_queue_msg_t *) async_dns_queue_head->data;
+    async_dns_queue_head = g_list_remove(async_dns_queue_head, (void *) caqm);
     if (caqm->family == AF_INET) {
       ares_gethostbyaddr(alchan, &caqm->addr.ip4, sizeof(guint32), AF_INET,
         c_ares_ghba_cb, caqm);
-      c_ares_in_flight++;
+      async_dns_in_flight++;
     } else if (caqm->family == AF_INET6) {
       ares_gethostbyaddr(alchan, &caqm->addr.ip6, sizeof(struct e_in6_addr),
         AF_INET, c_ares_ghba_cb, caqm);
-      c_ares_in_flight++;
+      async_dns_in_flight++;
     }
   }
 
@@ -2435,17 +2378,17 @@ void
 host_name_lookup_cleanup(void) {
   GList *cur;
 
-  cur = g_list_first(c_ares_queue_head);
+  cur = g_list_first(async_dns_queue_head);
   while (cur) {
     g_free(cur->data);
     cur = g_list_next (cur);
   }
 
-  g_list_free(c_ares_queue_head);
+  g_list_free(async_dns_queue_head);
 
-  if (c_ares_initialized)
+  if (async_dns_initialized)
     ares_destroy(alchan);
-  c_ares_initialized = FALSE;
+  async_dns_initialized = FALSE;
 }
 
 #elif defined(HAVE_GNU_ADNS)
@@ -2455,7 +2398,7 @@ host_name_lookup_cleanup(void) {
  */
 gboolean
 host_name_lookup_process(gpointer data _U_) {
-  adns_queue_msg_t *almsg;
+  async_dns_queue_msg_t *almsg;
   GList *cur;
   char addr_str[] = "111.222.333.444.in-addr.arpa.";
   guint8 *addr_bytes;
@@ -2463,11 +2406,11 @@ host_name_lookup_process(gpointer data _U_) {
   int ret;
   gboolean dequeue;
 
-  adns_queue_head = g_list_first(adns_queue_head);
+  async_dns_queue_head = g_list_first(async_dns_queue_head);
 
-  cur = adns_queue_head;
-  while (cur && adns_in_flight <= prefs.name_resolve_concurrency) {
-    almsg = (adns_queue_msg_t *) cur->data;
+  cur = async_dns_queue_head;
+  while (cur &&  async_dns_in_flight <= prefs.name_resolve_concurrency) {
+    almsg = (async_dns_queue_msg_t *) cur->data;
     if (! almsg->submitted && almsg->type == AF_INET) {
       addr_bytes = (guint8 *) &almsg->ip4_addr;
       g_snprintf(addr_str, sizeof addr_str, "%u.%u.%u.%u.in-addr.arpa.", addr_bytes[3],
@@ -2475,15 +2418,15 @@ host_name_lookup_process(gpointer data _U_) {
       /* XXX - what if it fails? */
       adns_submit (ads, addr_str, adns_r_ptr, 0, NULL, &almsg->query);
       almsg->submitted = TRUE;
-      adns_in_flight++;
+       async_dns_in_flight++;
     }
     cur = cur->next;
   }
 
-  cur = adns_queue_head;
+  cur = async_dns_queue_head;
   while (cur) {
     dequeue = FALSE;
-    almsg = (adns_queue_msg_t *) cur->data;
+    almsg = (async_dns_queue_msg_t *) cur->data;
     if (almsg->submitted) {
       ret = adns_check(ads, &almsg->query, &ans, NULL);
       if (ret == 0) {
@@ -2495,9 +2438,9 @@ host_name_lookup_process(gpointer data _U_) {
     }
     cur = cur->next;
     if (dequeue) {
-      adns_queue_head = g_list_remove(adns_queue_head, (void *) almsg);
+      async_dns_queue_head = g_list_remove(async_dns_queue_head, (void *) almsg);
       g_free(almsg);
-      adns_in_flight--;
+       async_dns_in_flight--;
     }
   }
 
@@ -2509,16 +2452,16 @@ void
 host_name_lookup_cleanup(void) {
   void *qdata;
 
-  adns_queue_head = g_list_first(adns_queue_head);
-  while (adns_queue_head) {
-    qdata = adns_queue_head->data;
-    adns_queue_head = g_list_remove(adns_queue_head, qdata);
+  async_dns_queue_head = g_list_first(async_dns_queue_head);
+  while (async_dns_queue_head) {
+    qdata = async_dns_queue_head->data;
+    async_dns_queue_head = g_list_remove(async_dns_queue_head, qdata);
     g_free(qdata);
   }
 
-  if (gnu_adns_initialized)
+  if (async_dns_initialized)
     adns_finish(ads);
-  gnu_adns_initialized = FALSE;
+   async_dns_initialized = FALSE;
 }
 
 #else /* HAVE_GNU_ADNS */
@@ -2758,7 +2701,7 @@ void get_addr_name_buf(address *addr, gchar *buf, gsize size)
 } /* get_addr_name_buf */
 
 
-extern gchar *get_ether_name(const guint8 *addr)
+gchar *get_ether_name(const guint8 *addr)
 {
   hashether_t *tp;
   gboolean resolve = g_resolv_flags & RESOLV_MAC;
@@ -2774,6 +2717,50 @@ extern gchar *get_ether_name(const guint8 *addr)
   tp = eth_name_lookup(addr, resolve);
   return tp->name;
 } /* get_ether_name */
+
+/* a name resolution is unset, reset name */
+void
+name_resolution_changed(guint32 action)
+{
+  guint i;
+  if ((action & RESOLV_MAC)) {
+      /* this stuff is broken but ether stuff isn't easy */
+      hashether_t *tp;
+      for (i = 0; i < HASHETHSIZE; i++) {
+         tp = eth_table[i];
+         while (tp) {
+            strcpy(tp->name, tp->hexa);
+            /* tp->is_dummy_entry = FALSE; */
+            tp = tp->next;
+       }
+      }
+  }
+
+  if ((action & RESOLV_NETWORK)) {
+      hashipv4_t *tp;
+      hashipv6_t *tp6;
+
+      for (i = 0; i < HASHHOSTSIZE; i++) {
+         tp = ipv4_table[i];
+         while (tp) {
+            strcpy(tp->name, tp->ip);
+            tp->is_dummy_entry = TRUE;
+            tp->resolve = FALSE;
+            tp = tp->next;
+       }
+      }
+
+      for (i = 0; i < HASHHOSTSIZE; i++) {
+         tp6 = ipv6_table[i];
+         while (tp6) {
+            strcpy(tp6->name, tp6->ip6);
+            tp6->is_dummy_entry = TRUE;
+            tp6->resolve = FALSE;
+            tp6 = tp6->next;
+       }
+      }
+  }
+}
 
 /* ---------------------- */
 extern gchar *get_ether_hexa(const guint8 *addr)
