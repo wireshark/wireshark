@@ -134,8 +134,8 @@ static const fragment_items rtp_fragment_items = {
 };
 
 static dissector_handle_t rtp_handle;
-static dissector_handle_t stun_handle;
-static dissector_handle_t stun_heur_handle;
+static dissector_handle_t classicstun_handle;
+static dissector_handle_t classicstun_heur_handle;
 static dissector_handle_t t38_handle;
 static dissector_handle_t zrtp_handle;
 
@@ -204,12 +204,12 @@ static guint global_pkt_ccc_udp_port = 0;
 
 
 #define RTP0_INVALID 0
-#define RTP0_STUN    1
+#define RTP0_CLASSICSTUN    1
 #define RTP0_T38     2
 
 static enum_val_t rtp_version0_types[] = {
 	{ "invalid", "Invalid or ZRTP packets", RTP0_INVALID },
-	{ "stun", "STUN packets", RTP0_STUN },
+	{ "classicstun", "CLASSIC-STUN packets", RTP0_CLASSICSTUN },
 	{ "t38", "T.38 packets", RTP0_T38 },
 	{ NULL, NULL, 0 }
 };
@@ -558,8 +558,8 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			return TRUE;
 		} else {
 			switch (global_rtp_version0_type) {
-			case RTP0_STUN:
-				return call_dissector_only(stun_heur_handle, tvb, pinfo, tree);
+			case RTP0_CLASSICSTUN:
+				return call_dissector_only(classicstun_heur_handle, tvb, pinfo, tree);
 
 			case RTP0_T38:
 				/* XXX: Should really be calling a heuristic dissector for T38 ??? */
@@ -1033,8 +1033,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	if (version == 0) {
 		switch (global_rtp_version0_type) {
-		case RTP0_STUN:
-			call_dissector(stun_handle, tvb, pinfo, tree);
+		case RTP0_CLASSICSTUN:
+			call_dissector(classicstun_handle, tvb, pinfo, tree);
 			return;
 
 		case RTP0_T38:
@@ -1996,7 +1996,7 @@ proto_register_rtp(void)
 	prefs_register_enum_preference(rtp_module, "version0_type",
 	                               "Treat RTP version 0 packets as",
 	                               "If an RTP version 0 packet is encountered, it can be treated as "
-				       "an invalid or ZRTP packet, a STUN packet, or a T.38 packet",
+				       "an invalid or ZRTP packet, a CLASSIC-STUN packet, or a T.38 packet",
 	                               &global_rtp_version0_type,
 	                               rtp_version0_types, FALSE);
 	prefs_register_uint_preference(rtp_module,
@@ -2022,11 +2022,11 @@ proto_reg_handoff_rtp(void)
 		dissector_add_handle("udp.port", rtp_handle);  /* for 'decode-as' */
 		dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
 		heur_dissector_add( "udp", dissect_rtp_heur, proto_rtp);
-		heur_dissector_add("stun2", dissect_rtp_heur, proto_rtp);
+		heur_dissector_add("stun", dissect_rtp_heur, proto_rtp);
 
 		data_handle = find_dissector("data");
-		stun_handle = find_dissector("stun");
-		stun_heur_handle = find_dissector("stun-heur");
+		classicstun_handle = find_dissector("classicstun");
+		classicstun_heur_handle = find_dissector("classicstun-heur");
 		t38_handle = find_dissector("t38");
 		zrtp_handle = find_dissector("zrtp");
 

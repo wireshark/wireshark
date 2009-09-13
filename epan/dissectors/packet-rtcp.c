@@ -4598,5 +4598,5 @@ proto_reg_handoff_rtcp(void)
 	dissector_add_handle("udp.port", rtcp_handle);
 
 	heur_dissector_add( "udp", dissect_rtcp_heur, proto_rtcp);
-        heur_dissector_add("stun2", dissect_rtcp_heur, proto_rtcp);
+        heur_dissector_add("stun", dissect_rtcp_heur, proto_rtcp);
 }

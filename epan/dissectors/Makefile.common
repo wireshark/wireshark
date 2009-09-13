@@ -288,6 +288,7 @@ DISSECTOR_SRC = \
 	packet-cisco-oui.c	\
 	packet-cisco-sm.c	\
 	packet-cisco-wids.c	\
+	packet-classicstun.c	\
 	packet-clearcase.c	\
 	packet-clip.c		\
 	packet-clnp.c		\
@@ -829,7 +830,6 @@ DISSECTOR_SRC = \
 	packet-stat-notify.c	\
 	packet-stat.c		\
 	packet-stun.c		\
-	packet-stun2.c		\
 	packet-sua.c		\
 	packet-symantec.c	\
 	packet-synergy.c 	\

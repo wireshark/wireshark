@@ -554,7 +554,7 @@ proto_reg_handoff_tftp(void)
 
   if (!tftp_initialized) {
     tftp_handle = find_dissector("tftp");
-    heur_dissector_add("stun2", dissect_embeddedtftp_heur, proto_tftp);
+    heur_dissector_add("stun", dissect_embeddedtftp_heur, proto_tftp);
     tftp_initialized = TRUE;
   } else {
     range_foreach (tftp_port_range, range_delete_callback);
