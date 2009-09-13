@@ -95,10 +95,10 @@ add_lemon_files(DFILTER_FILES
 ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
     COMMAND ${PYTHON_EXECUTABLE}
-      ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/ncp2222.py
+      ${CMAKE_SOURCE_DIR}/tools/ncp2222.py
       -o ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
     DEPENDS 
-    ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/ncp2222.py
+    ${CMAKE_SOURCE_DIR}/tools/ncp2222.py
 )
 
 #ADD_CUSTOM_COMMAND(
@@ -106,11 +106,11 @@ ADD_CUSTOM_COMMAND(
 #      x11-declarations.h
 #      x11-register-info.h
 #    COMMAND ${PERL_EXECUTABLE}
-#      ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/process-x11-fields.pl
+#      ${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
 #      <${CMAKE_CURRENT_SOURCE_DIR}/dissectors/x11-fields
 #    DEPENDS
 #      dissectors/x11-fields
-#      dissectors/process-x11-fields.pl
+#      ${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
 #)
 
 set(PIDL_DISSECTOR_SRC
