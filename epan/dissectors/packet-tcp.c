@@ -3159,6 +3159,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           }
           if(tcp_relative_seq){
               tcp_get_relative_seq_ack(&(tcph->th_seq), &(tcph->th_ack), &(tcph->th_win), tcpd);
+              if ((tcph->th_flags&TH_SYN)) {   /* SYNs are never scaled */
+                  tcph->th_win = real_window;
+              }
           }
       }
 
@@ -3187,11 +3190,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tcph->th_flags&TH_ACK) {
       col_append_fstr(pinfo->cinfo, COL_INFO, " Ack=%u", tcph->th_ack);
     }
-    if (tcph->th_flags&TH_SYN) {   /* SYNs are never scaled */
-      col_append_fstr(pinfo->cinfo, COL_INFO, " Win=%u", real_window);
-    } else {
-      col_append_fstr(pinfo->cinfo, COL_INFO, " Win=%u", tcph->th_win);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Win=%u", tcph->th_win);
   }
 
   if (tree) {
@@ -3265,9 +3264,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tf_rst = proto_tree_add_boolean(field_tree, hf_tcp_flags_reset, tvb, offset + 13, 1, tcph->th_flags);
     tf_syn = proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, tcph->th_flags);
     tf_fin = proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, tcph->th_flags);
-    if(tcp_relative_seq
-    && (tcph->th_win!=real_window)
-    && !(tcph->th_flags&TH_SYN) ){   /* SYNs are never scaled */
+    if(tcp_relative_seq && tcph->th_win!=real_window) {
       proto_tree_add_uint_format(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win, "Window size: %u (scaled)", tcph->th_win);
     } else {
       proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, real_window);
