@@ -65,4 +65,4 @@ $(LEMON)\lemon.exe:
 	cd ../plugins/mate
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)
+	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC) $(DISSECTOR_INCLUDES)

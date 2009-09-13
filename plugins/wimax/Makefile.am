@@ -125,4 +125,7 @@ EXTRA_DIST = \
 	plugin.rc.in
 
 checkapi:
-	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput \
+	$(DISSECTOR_SRC) \
+	$(DISSECTOR_INCLUDES) \
+	$(DISSECTOR_SUPPORT_SRC)

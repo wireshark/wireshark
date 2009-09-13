@@ -102,4 +102,5 @@ maintainer-clean: distclean
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput \
 	$(DISSECTOR_SRC) \
+	$(DISSECTOR_INCLUDES) \
 	$(DISSECTOR_SUPPORT_SRC)
