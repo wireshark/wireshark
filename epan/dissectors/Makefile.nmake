@@ -81,10 +81,10 @@ register.c: $(ALL_DISSECTORS_SRC)
 	@$(SH) ../../tools/make-dissector-reg . dissectors $(ALL_DISSECTORS_SRC) \
 !ENDIF
 
-packet-ncp2222.c : ../../tools/ncp2222.py
+packet-ncp2222.c : ..\..\tools/ncp2222.py
 !IFDEF PYTHON
 	@echo Making packet-ncp2222.c
-	$(PYTHON) ../../tools/ncp2222.py -o packet-ncp2222.c
+	$(PYTHON) "../../tools/ncp2222.py" -o packet-ncp2222.c
 !ELSE
 	@echo Faking packet-ncp2222.c...
 	@echo Python is required to build the NCP disector
@@ -97,7 +97,7 @@ packet-ncp2222.obj: packet-ncp2222.inc
 
 # Target to rebuild the X11 dissector header files.
 # See README.X11 before using this--it requires the xcb and mesa source.
-x11-dissector: ../../tools/process-x11-fields.pl x11-fields ../../tools/process-x11-xcb.pl
+x11-dissector: ..\..\tools/process-x11-fields.pl x11-fields ..\..\tools/process-x11-xcb.pl
 	$(PERL) ../../tools/process-x11-fields.pl < x11-fields
 	$(PERL) ../../tools/process-x11-xcb.pl
 
