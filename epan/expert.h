@@ -37,7 +37,7 @@ typedef struct expert_info_s {
 	guint32 packet_num;
 	int group;
 	int severity;
-	gchar * protocol;
+	const gchar * protocol;
 	gchar * summary;
     proto_item *pitem;
 } expert_info_t;

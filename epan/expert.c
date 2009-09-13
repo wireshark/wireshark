@@ -150,9 +150,10 @@ expert_set_info_vformat(
 packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, va_list ap)
 {
 	char			formatted[300];
+	int				tap;
 	expert_info_t	*ei;
-	proto_tree	*tree;
-	proto_item	*ti;
+	proto_tree		*tree;
+	proto_item		*ti;
 
 
 	/* if this packet isn't loaded because of a read filter, don't output anything */
@@ -160,20 +161,21 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 		return;
 	}
 
-        if(severity > highest_severity) {
-            highest_severity = severity;
-        }
+    if(severity > highest_severity) {
+        highest_severity = severity;
+    }
+
+	if(pi != NULL && pi->finfo != NULL) {	
+		expert_set_item_flags(pi, group, severity);
+	}
+
+	if (check_col(pinfo->cinfo, COL_EXPERT))
+		col_add_str(pinfo->cinfo, COL_EXPERT, val_to_str(severity, expert_severity_vals, "?%u?"));
+
+	tap = have_tap_listener(expert_tap);
 
 	/* XXX - use currently nonexistant se_vsnprintf instead */
 	g_vsnprintf(formatted, sizeof(formatted), format, ap);
-
-	ei = ep_alloc(sizeof(expert_info_t));
-	ei->packet_num	= pinfo->fd->num;
-	ei->group		= group;
-	ei->severity	= severity;
-	ei->protocol	= ep_strdup(pinfo->current_proto);
-	ei->summary		= ep_strdup(formatted);
-	ei->pitem       = NULL;
 
 	tree = expert_create_tree(pi, group, severity, formatted);
 	ti = proto_tree_add_string(tree, hf_expert_msg, NULL, 0, 0, formatted);
@@ -183,14 +185,21 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 	ti = proto_tree_add_uint(tree, hf_expert_group, NULL, 0, 0, group);
 	PROTO_ITEM_SET_GENERATED(ti);
 
+	if (!tap)
+		return;
+
+	ei = ep_alloc(sizeof(expert_info_t));
+	ei->packet_num	= pinfo->fd->num;
+	ei->group		= group;
+	ei->severity	= severity;
+	ei->protocol	= pinfo->current_proto; /* ep_strdup(pinfo->current_proto); it's a const */
+	ei->summary		= ep_strdup(formatted);
+	ei->pitem       = NULL;
+
 	/* if we have a proto_item (not a faked item), set expert attributes to it */
 	if(pi != NULL && PITEM_FINFO(pi) != NULL) {
         ei->pitem       = pi;
-		expert_set_item_flags(pi, group, severity);
 	}
-
-	if (check_col(pinfo->cinfo, COL_EXPERT))
-	  col_add_str(pinfo->cinfo, COL_EXPERT, val_to_str(severity, expert_severity_vals, "?%u?"));
 
 	tap_queue_packet(expert_tap, pinfo, ei);
 }
