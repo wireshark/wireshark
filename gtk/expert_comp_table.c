@@ -192,7 +192,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     /*       to be translated to the group number (or the actual group number    */
     /*       will also need to be stored in the TreeModel).                      */
     selection = find_summary_data(err, &expert_data);
-    g_free(expert_data.protocol);
+    /* g_free(expert_data.protocol); - const */
     g_free(expert_data.summary);
 
     if(selection>=(int)err->num_procs){
