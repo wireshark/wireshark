@@ -67,6 +67,22 @@ Wireshark Info
           -->
         </listitem>
 
+        <listitem>
+          <para>
+            The TLS dissector could crash on some platforms.
+            <!-- Fixed in trunk: r29906 -->
+            <!-- Fixed in trunk-1.2: r29907 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4008">Bug
+            3893</ulink>) -->
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.1</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+          -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -275,6 +291,7 @@ OpcUA,
 RTCP,
 SCTP,
 SIP,
+SSL,
 TCP,
 WBXML,
 ZRTP

@@ -74,8 +74,6 @@
 #include "inet_v6defs.h"
 #include "packet-ssl-utils.h"
 
-extern const gchar *ssl_version_short_names[];
-
 /* we need to remember the top tree so that subdissectors we call are created
  * at the root and not deep down inside the DTLS decode
  */

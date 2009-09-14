@@ -150,6 +150,7 @@
  * Lookup tables
  *
  */
+extern const gchar* ssl_version_short_names[];
 extern const value_string ssl_20_msg_types[];
 extern const value_string ssl_20_cipher_suites[];
 extern const value_string ssl_20_certificate_type[];

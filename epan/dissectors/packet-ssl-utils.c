@@ -43,6 +43,17 @@
  * Lookup tables
  *
  */
+const gchar* ssl_version_short_names[] = {
+    "SSL",
+    "SSLv2",
+    "SSLv3",
+    "TLSv1",
+    "TLSv1.1",
+    "DTLSv1.0",
+    "PCT",
+    "TLSv1.2"
+};
+
 const value_string ssl_20_msg_types[] = {
     { SSL2_HND_ERROR,               "Error" },
     { SSL2_HND_CLIENT_HELLO,        "Client Hello" },
