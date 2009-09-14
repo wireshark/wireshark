@@ -2921,6 +2921,14 @@ Chris Costa		<chcosta75 [AT] hotmail.com> {
         Properly decode SMB2 error response
 }
 
+Bruno Prémont		<bonbons [AT] linux-vserver.org> {
+	CollectD dissector
+}
+
+Florian Forster		<octo [AT] verplant.org> {
+	CollectD dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

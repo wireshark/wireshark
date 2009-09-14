@@ -293,6 +293,7 @@ DISSECTOR_SRC = \
 	packet-clip.c		\
 	packet-clnp.c		\
 	packet-cmpp.c		\
+	packet-collectd.c	\
 	packet-componentstatus.c \
 	packet-cops.c 		\
 	packet-cosine.c		\
