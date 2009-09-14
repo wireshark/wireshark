@@ -1243,11 +1243,11 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 		proto_item_append_text(item, ": %s", s);
 		item = GET_ITEM_PARENT(item);
 		levels--;
-		if (levels > 0) {
+		if (item && levels > 0) {
 			proto_item_append_text(item, ": %s", s);
 			item = GET_ITEM_PARENT(item);
 			levels--;
-			while (levels > 0) {
+			while (item && levels > 0) {
 				proto_item_append_text(item, " %s", s);
 				item = GET_ITEM_PARENT(item);
 				levels--;
