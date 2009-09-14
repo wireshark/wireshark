@@ -73,7 +73,8 @@ option(BUILD_capinfos    "Build capinfos" ON)
 option(BUILD_randpkt     "Build randpkt" ON)
 option(BUILD_dftest      "Build dftest" ON)
 
-option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC" OFF)
+option(DISABLE_WERROR	 "Do not treat Warnings as errors" OFF)
+option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC (disables -Werror)" ON)
 option(ENABLE_AIRPCAP	 "Enable Airpcap support" ON)
 # todo
 option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
@@ -95,9 +96,55 @@ option(ENABLE_CARES      "Build with c_ares support" ON)
 option(ENABLE_KERBEROS	 "Build with Kerberos support" ON)
 
 
+set(WIRESHARK_CC_FLAGS
+	# todo Workaround for problem described below
+	-doesntexist
+	-O2
+	-Werror
+	-Wall
+	-W
+	-Wextra
+	-Wdeclaration-after-statement
+	-Wendif-labels
+	-Wpointer-arith
+	-Wno-pointer-sign
+	-Warray-bounds
+	-Wcast-align
+	-Wformat-security
+)
+
+set(WIRESHARK_EXTRA_CC_FLAGS
+	-pedantic
+	-Woverflow
+	-Wlogical-op
+	-Wno-overlength-strings
+	-fstrict-overflow -Wstrict-overflow=4
+	-Wunreachable-code
+	-Wunsafe-loop-optimizations
+	-Wno-long-long
+	-Wbad-function-cast
+	-Wcast-qual
+	-Waddress
+	-Warray-bounds
+	-Wattributes
+	-Wdiv-by-zero
+	-Wformat-security
+	-Wignored-qualifiers
+	-Wpragmas
+	-Wredundant-decls
+	-Wvla
+	# packet-ncp2222.inc prevents this from going into all warnings
+	-Wwrite-strings
+	-Wstrict-prototypes
+	-Wmissing-declarations
+	# Problem with packet-afs.c
+	-Wshadow
+	# More cleanup needed for this on LP64
+	-Wshorten-64-to-32
+)
+
 if(ENABLE_EXTRA_GCC_CHECKS)
-	set(WIRESHARK_EXTRA_GCC_FLAGS -Wcast-qual -Wcast-align -Wbad-function-cast
-		  -pedantic -Wstrict-prototypes -Wmissing-declarations -Wwrite-strings)
+	set(WIRESHARK_CC_FLAGS ${WIRESHARK_CC_FLAGS} ${WIRESHARK_EXTRA_CC_FLAGS})
 endif()
 
 add_definitions(
@@ -106,15 +153,33 @@ add_definitions(
 	-DNEW_PACKET_LIST
 )
 
-if(CMAKE_COMPILER_IS_GNUCC)
-	add_definitions(
-		-D_U_=__attribute__\(\(unused\)\)
-		-Wall -Wpointer-arith -W
-		${WIRESHARK_EXTRA_GCC_FLAGS}
-	)
-else()
-	add_definitions(-D_U_=\"\")
+# todo
+# This doesn't actually work because of some cache magic in
+# CHECK_C_SOURCE_COMPILES
+include(CheckCCompilerFlag)
+foreach(WS_C_FLAG ${WIRESHARK_CC_FLAGS})
+	message(STATUS "Flag pre: ${WS_C_FLAG}")
+	check_c_compiler_flag(${WS_C_FLAG} WS_C_FLAG_VALID)
+	if (${WS_C_FLAG_VALID})
+		add_definitions(${WS_C_FLAG})
+	endif()
+	message(STATUS "Flag post ${WS_C_FLAG}: ${WS_C_FLAG_VALID}")
+	#set(WS_C_FLAG_VALID "" CACHE INTERNAL "Dummy" )
+endforeach()
+
+if(DISABLE_WERROR OR ENABLE_EXTRA_GCC_CHECKS)
+	remove_definitions( -Werror )
 endif()
+
+if(CMAKE_COMPILER_IS_GNUCC)
+	add_definitions( -D_U_=__attribute__\(\(unused\)\) )
+else()
+	add_definitions( -D_U_=\"\" )
+endif()
+
+# todo 
+# Same for linker flags, but it looks like it's do-it-yourself here
+# AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,--as-needed])
 
 #The minimum package list
 set(PACKAGELIST GLIB2 PCAP M LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGELIST})
