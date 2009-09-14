@@ -177,12 +177,10 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 
 	if (length > size)
 	{
-		pi = proto_tree_add_protocol_format (tree_root,
-						     proto_collectd, tvb,
-						     offset, length,
-						     "collectd %s segment: Length = %i <BAD>",
-						     val_to_str (type, part_names, "UNKNOWN"),
-						     length);
+		pi = proto_tree_add_text (tree_root, tvb, offset, length,
+					  "collectd %s segment: Length = %i <BAD>",
+					  val_to_str (type, part_names, "UNKNOWN"),
+					  length);
 		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
 					"String part with invalid part length: "
 					"Part is longer than rest of package.");
@@ -194,11 +192,10 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 
 	*ret_string = tvb_get_ephemeral_string (tvb, *ret_offset, *ret_length);
 
-	pi = proto_tree_add_protocol_format (tree_root, proto_collectd, tvb,
-					     offset, length,
-					     "collectd %s segment: \"%s\"",
-					     val_to_str (type, part_names, "UNKNOWN"),
-					     *ret_string);
+	pi = proto_tree_add_text (tree_root, tvb, offset, length,
+				  "collectd %s segment: \"%s\"",
+				  val_to_str (type, part_names, "UNKNOWN"),
+				  *ret_string);
 
 	if (ret_item != NULL)
 		*ret_item = pi;
@@ -235,19 +232,18 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 
 	if (size < 12)
 	{
-		pi = proto_tree_add_protocol_format (tree_root, proto_collectd,
-				tvb, offset, -1, "collectd %s segment: <BAD>",
-				val_to_str (type, part_names, "UNKNOWN"));
+		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
+					  "collectd %s segment: <BAD>",
+					  val_to_str (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_integer);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2,
 				     type);
 		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 				     length);
-		pi = proto_tree_add_protocol_format (pt, proto_collectd,
-				tvb, offset + 4, -1,
-				"Garbage at end of packet: Length = %i <BAD>",
-				size - 4);
+		pi = proto_tree_add_text (pt, tvb, offset + 4, -1,
+					  "Garbage at end of packet: Length = %i <BAD>",
+					  size - 4);
 		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
 					"Garbage at end of packet");
 
@@ -256,9 +252,9 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 
 	if (length != 12)
 	{
-		pi = proto_tree_add_protocol_format (tree_root, proto_collectd,
-				tvb, offset, -1, "collectd %s segment: <BAD>",
-				val_to_str (type, part_names, "UNKNOWN"));
+		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
+					  "collectd %s segment: <BAD>",
+					  val_to_str (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_integer);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2,
@@ -274,11 +270,10 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	*ret_offset = offset + 4;
 	*ret_value = tvb_get_ntoh64 (tvb, offset + 4);
 
-	pi = proto_tree_add_protocol_format (tree_root, proto_collectd, tvb,
-					     offset, length,
-					     "collectd %s segment: %"G_GINT64_MODIFIER"u",
-					     val_to_str (type, part_names, "UNKNOWN"),
-					     *ret_value);
+	pi = proto_tree_add_text (tree_root, tvb, offset, length,
+				  "collectd %s segment: %"G_GINT64_MODIFIER"u",
+				  val_to_str (type, part_names, "UNKNOWN"),
+				  *ret_value);
 	if (ret_item != NULL)
 		*ret_item = pi;
 
@@ -345,7 +340,8 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 
 			val = tvb_get_letohieee_double (tvb, value_offset);
 			pi = proto_tree_add_text (values_tree, tvb, msg_off + 6,
-						  val_cnt * 9, "Gauge: %g", val);
+						  val_cnt * 9,
+						  "Gauge: %g", val);
 
 			value_tree = proto_item_add_subtree (pi,
 					ett_collectd_valinfo);
@@ -405,18 +401,17 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 	if (size < 15)
 	{
-		pi = proto_tree_add_protocol_format (tree_root, proto_collectd,
-				tvb, offset, -1, "collectd %s segment: <BAD>",
-				val_to_str (type, part_names, "UNKNOWN"));
+		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
+					  "collectd %s segment: <BAD>",
+					  val_to_str (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_part_value);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 				     length);
-		pi = proto_tree_add_protocol_format (pt, proto_collectd, tvb,
-						     offset + 4, -1,
-						     "Garbage at end of packet: Length = %i <BAD>",
-						     size - 4);
+		pi = proto_tree_add_text (pt, tvb, offset + 4, -1,
+					  "Garbage at end of packet: Length = %i <BAD>",
+					  size - 4);
 		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
 					"Garbage at end of packet");
 
@@ -425,9 +420,9 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 	if ((length < 15) || ((length % 9) != 6))
 	{
-		pi = proto_tree_add_protocol_format (tree_root, proto_collectd,
-				tvb, offset, -1, "collectd %s segment: <BAD>",
-				val_to_str (type, part_names, "UNKNOWN"));
+		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
+					  "collectd %s segment: <BAD>",
+					  val_to_str (type, part_names, "UNKNOWN"));
 
 		pt = proto_item_add_subtree (pi, ett_collectd_part_value);
 		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
@@ -444,21 +439,19 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 	if (values_count != corrected_values_count)
 	{
-		pi = proto_tree_add_protocol_format (tree_root, proto_collectd,
-				tvb, offset, length,
-				"collectd %s segment: %d (%d) value%s <BAD>",
-				val_to_str (type, part_names, "UNKNOWN"),
-				values_count, corrected_values_count,
-				(values_count == 1) ? "" : "s");
+		pi = proto_tree_add_text (tree_root, tvb, offset, length,
+					  "collectd %s segment: %d (%d) value%s <BAD>",
+					  val_to_str (type, part_names, "UNKNOWN"),
+					  values_count, corrected_values_count,
+					  plurality(values_count), "", "s");
 	}
 	else
 	{
-		pi = proto_tree_add_protocol_format (tree_root, proto_collectd,
-				tvb, offset, length,
-				"collectd %s segment: %d value%s",
-				val_to_str (type, part_names, "UNKNOWN"),
-				values_count,
-				(values_count == 1) ? "" : "s");
+		pi = proto_tree_add_text (tree_root, tvb, offset, length,
+					  "collectd %s segment: %d value%s",
+					  val_to_str (type, part_names, "UNKNOWN"),
+					  values_count,
+					  plurality(values_count), "", "s");
 	}
 
 	pt = proto_item_add_subtree (pi, ett_collectd_part_value);
@@ -602,14 +595,13 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * of the next part. If there's less, there's some garbage
 		 * at the end of the packet. */
 		if (size < 4) {
-			pi = proto_tree_add_protocol_format (collectd_tree,
-					proto_collectd, tvb,
-					offset, -1,
-					"Garbage at end of packet: Length = %i <BAD>",
-					size);
-			expert_add_info_format (pinfo, pi,
-					PI_MALFORMED, PI_ERROR,
-					"Garbage at end of packet");
+			pi = proto_tree_add_text (collectd_tree, tvb,
+						  offset, -1,
+						  "Garbage at end of packet: Length = %i <BAD>",
+						  size);
+			expert_add_info_format (pinfo, pi, PI_MALFORMED,
+						PI_ERROR,
+						"Garbage at end of packet");
 			pkt_errors++;
 			status = -1;
 			break;
@@ -623,12 +615,11 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * confuse this with the above: Here we check the information
 		 * provided in the packet.. */
 		if ((part_length < 4) || (part_length > size)) {
-			pi = proto_tree_add_protocol_format (collectd_tree,
-					proto_collectd, tvb,
-					offset, part_length,
-					"collectd %s segment: Length = %i <BAD>",
-					val_to_str (part_type, part_names, "UNKNOWN"),
-					part_length);
+			pi = proto_tree_add_text (collectd_tree, tvb,
+						  offset, part_length,
+						  "collectd %s segment: Length = %i <BAD>",
+						  val_to_str (part_type, part_names, "UNKNOWN"),
+						  part_length);
 
 			pt = proto_item_add_subtree (pi, ett_collectd_invalid_length);
 			proto_tree_add_uint (pt, hf_collectd_type, tvb, offset,
@@ -847,12 +838,11 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		default: {
 			pkt_unknown++;
-			pi = proto_tree_add_protocol_format (collectd_tree,
-					proto_collectd, tvb,
-					offset, part_length,
-					"collectd %s segment: %i bytes",
-					val_to_str(part_type, part_names, "UNKNOWN"),
-					part_length);
+			pi = proto_tree_add_text (collectd_tree, tvb,
+						  offset, part_length,
+						  "collectd %s segment: %i bytes",
+						  val_to_str(part_type, part_names, "UNKNOWN"),
+						  part_length);
 
 			pt = proto_item_add_subtree(pi, ett_collectd_unknown);
 			pi = proto_tree_add_uint (pt, hf_collectd_type, tvb,
