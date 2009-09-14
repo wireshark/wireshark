@@ -15,105 +15,85 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The IPMI dissector could overrun a buffer.
+     o The GSM A RR dissector could crash.
 
-       Versions affected: 1.2.0
+       Versions affected: 1.2.0 to 1.2.1
 
-     o The AFS dissector could crash.
+     o The OpcUa dissector could use excessive CPU and memory.
 
-       Versions affected: 1.2.0
+       Versions affected: 0.99.6 to 1.0.8, 1.2.0 to 1.2.1
 
-     o The Infiniband dissector could crash on some platforms.
+     o The TLS dissector could crash on some platforms.
 
-       Versions affected: 1.2.0
-
-     o The Bluetooth L2CAP dissector could crash.
-
-       Versions affected: 1.2.0
-
-     o The RADIUS dissector could crash.
-
-       Versions affected: 1.2.0
-
-     o The MIOP dissector could crash.
-
-       Versions affected: 1.2.0
-
-     o The sFlow dissector could use excessive CPU and memory.
-
-       Versions affected: 1.2.0
+       Versions affected: 1.2.0 to 1.2.1
 
    The following bugs have been fixed:
 
-     o Wireshark could crash while reading a pcap-ng file.
+     o The "Capture->Interfaces" window can't be closed. (Bug 1740)
 
-     o Wireshark could crash while reading a PacketLogger file.
+     o tshark-1.0.2 (dumpcap) signal abort core saved. (Bug 2767)
 
-     o CFLOW decoding is wrong for IPv6 fields (Bug 3328)
+     o Memory leak fixes. (Bug 3330)
 
-     o Buildbot crash output: fuzz-2009-04-24-2891.pcap (Bug 3438)
+     o Display filter autocompletion doesn't work for some RADIUS and
+       WiMAX ASNCP fields. (Bug 3538)
 
-     o packet-dcm, corrupt DICOM export files (Bug 3493)
-
-     o GeoIP map should use random temporary file name (Bug 3530)
-
-     o Wireshark crashes when range_string is the data type (Bug
-       3536)
-
-     o Pcap-ng breaks VoIP call data (Bug 3539)
-
-     o ANSI MAP legInformation BER Error (Bug 3541)
-
-     o Starting Wireshark Portable 1.2.0 gives error message. (Bug
+     o Wireshark Portable includes wrong WinPcap installer. (Bug
        3547)
 
-     o On Windows, Wireshark could crash on startup. (Bug 3555)
+     o Crash when loading a profile. (Bug 3640)
 
-     o The title in the TCP sequence graphs is too short. (Bug 3556)
+     o The proto,colinfo tap doesn't work if the INFO column isn't
+       being printed. (Bug 3675)
 
-     o USB Packets in pcap-ng Files Not Dissected Properly (Bug 3560)
+     o Flow Graph adds too much unnecessary garbage. (Bug 3693)
 
-     o 802.11 decryption is broken (Bug 3590)
+     o The EAP Diameter dictionary file was missing in the
+       distribution. (Bug 3761)
 
-     o SMB2 Error Response doesn't decode properly (Bug 3609)
+     o Graph analysis window is behind other window. (Bug 3773)
 
-     o configure.in uses deprecated autoconf test for gnutls
-       detection (Bug 3627)
+     o IKEv2 Cert Request payload dissection error. (Bug 3782)
 
-     o Radius Malformed Packet error message (Bug 3635)
+     o DNS NAPTR RR (RFC 3403) replacement MUST be a fully qualified
+       domain-name. (Bug 3792)
 
-     o Wireshark could crash when loading a profile. (Bug 3640)
+     o Malformed RTCP Packet error while sending Payload specific
+       RTCP feedback packet( as per RFC 4585). (Bug 3800)
 
-     o Analyze->Decode as... menu item becomes unavailable (Bug 3642)
+     o 802.11n Block Ack packet Bitmap field missing. (Bug 3806)
 
-     o btsnoop: Incorrect error message for not supported datalink
-       type (Bug 3645)
+     o Wireshark doesn't decode WBXML/ActiveSync information
+       correctly. (Bug 3811)
 
-     o Decode error for network-id in BICC BCU-ID (Bug 3648)
+     o Malformed packet when IPv6 packet has Next Header == 59. (Bug
+       3820)
 
-     o IEC 60870-5-104 dissector decodes nothing (Bug 3650)
+     o Wireshark could crash while reading an ERF file. (Bug 3849)
 
-     o radius_register_avp_dissector() can stop RADIUS dissector from
-       working correctly (Bug 3651)
+     o Minor errors in gsm rr dissectors. (Bug 3889)
 
-     o ANSI ISUP Cause indicators with coding standard=ANSI fail to
-       dissect. (Bug 3654)
+     o WPA Decryption Issues. (Bug 3890)
 
-     o Wrong field position in PacketCable Multimedia Extended
-       Classifier (Bug 3656)
+     o GSM A RR sys info dissection problem. (Bug 3901)
 
-     o FF Protocol "FMS Initiate - Version OD Calling" field packet
-       data not unpacked properly (Bug 3694)
+     o GSM A RR inverts MEAS-VALID values. (Bug 3915)
 
-     o hci_h4: Optimize column/field handling (Bug 3703)
+     o PDML output leaks ~300 bytes / packet. (Bug 3913)
 
-     o BSSLAP Protocol Not Decoded In BSSMAP-LE Messages (Bug 3711)
+     o Incorrect station identifier parsing in Kingfisher dissector.
+       (Bug 3946)
 
-     o Description of tshark -t dd missing from tshark.pod (Bug 3723)
+     o DHCPv6, Vendor-Specific Informantion, SubOption"Option
+       Request" parser incorrect. (Bug 3987)
 
-     o Problem in packet-per.c for ASN.1 PER Encoding (Bug 3733)
+     o Wireshark could leak memory while analyzing SSL.
 
-     o [SNMP] Crash when dissecting packet (custom MIB) (Bug 3746)
+     o Wireshark could crash while updating menu items after reading
+       a file in some cases.
+
+     o The Mac OS X ChmodBPF script now works correctly under Snow
+       Leopard.
 
   New and Updated Features
 
@@ -125,11 +105,13 @@ What's New
 
   Updated Protocol Support
 
-   There are too many updates to list here.
+   DCERPC, DHCPv6, DNS, E.212, GSM A RR, GTPv2, H.248, IEEE 802.11,
+   IPMI, ISAKMP/IKE, ISUP, Kingfisher, LDAP, OpcUA, RTCP, SCTP, SIP,
+   SSL, TCP, WBXML, ZRTP
 
-  New Capture File Support
+  Updated Capture File Support
 
-   There are no new or updated capture file formats in this release.
+   ERF
 
 Getting Wireshark
 
