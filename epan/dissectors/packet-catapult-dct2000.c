@@ -773,12 +773,13 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
 /* Dissect a PDCP LTE frame by first parsing the RLCPrim header then passing
    the data to the PDCP LTE dissector */
 static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
-                      packet_info *pinfo, proto_tree *tree)
+                             packet_info *pinfo, proto_tree *tree)
 {
     guint8                 opcode;
     guint8                 tag;
     struct pdcp_lte_info   *p_pdcp_lte_info = NULL;
     tvbuff_t               *pdcp_lte_tvb;
+    guint16                ueid;
 
     /* Look this up so can update channel info */
     p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
@@ -898,7 +899,10 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                             /* UEId */
                             proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
                                                 tvb, offset, 2, FALSE);
+                            ueid = tvb_get_ntohs(tvb, offset);
                             offset += 2;
+
+                            col_append_fstr(pinfo->cinfo, COL_INFO, " UEId=%u", ueid);
                             break;
 
                         default:
