@@ -293,7 +293,7 @@ find_hf_field(char *name)
 
 
 /* this function will create the code required for a hf field.
-   it MIGTH rename the field so a user MUST use the name returned
+   it MIGHT rename the field so a user MUST use the name returned
    from this function.
    for fields that are to be renamed  no code is generated
 */
