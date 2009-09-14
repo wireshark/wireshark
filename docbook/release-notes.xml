@@ -84,6 +84,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          tshark-1.0.2 (dumpcap) signal abort core saved.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2767">Bug
+          2767</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Memory leak fixes.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3330">Bug
           3330</ulink>)
