@@ -443,7 +443,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 					  "collectd %s segment: %d (%d) value%s <BAD>",
 					  val_to_str (type, part_names, "UNKNOWN"),
 					  values_count, corrected_values_count,
-					  plurality(values_count), "", "s");
+					  plurality(values_count, "", "s"));
 	}
 	else
 	{
@@ -451,7 +451,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 					  "collectd %s segment: %d value%s",
 					  val_to_str (type, part_names, "UNKNOWN"),
 					  values_count,
-					  plurality(values_count), "", "s");
+					  plurality(values_count, "", "s"));
 	}
 
 	pt = proto_item_add_subtree (pi, ett_collectd_part_value);
