@@ -129,7 +129,7 @@ static void capture_loop_stop(void);
  * is interrupted by a signal on UN*X, just go back and try again to
  * read again.
  *
- * On UN*X, we catch SIGUSR1 as a "stop capturing" signal, and, in
+ * On UN*X, we catch SIGINT as a "stop capturing" signal, and, in
  * the signal handler, set a flag to stop capturing; however, without
  * a guarantee of that sort, we can't guarantee that we'll stop capturing
  * if the read will be retried and won't time out if no packets arrive.
@@ -152,7 +152,7 @@ static void capture_loop_stop(void);
  * exit pcap_dispatch() with an indication that no packets have arrived,
  * and will break out of the capture loop at that point.
  *
- * On Windows, we can't send a SIGUSR1 to stop capturing, so none of this
+ * On Windows, we can't send a SIGINT to stop capturing, so none of this
  * applies in any case.
  *
  * XXX - the various BSDs appear to define BSD in <sys/param.h>; we don't
@@ -226,7 +226,7 @@ static const char please_report[] =
     "(This is not a crash; please do not report it as such.)";
 
 /*
- * This needs to be static, so that the SIGUSR1 handler can clear the "go"
+ * This needs to be static, so that the SIGINT handler can clear the "go"
  * flag.
  */
 static loop_data   ld;
@@ -398,7 +398,7 @@ cmdarg_err_cont(const char *fmt, ...)
 
 #ifdef _WIN32
 static BOOL WINAPI
-capture_cleanup(DWORD dwCtrlType)
+capture_cleanup_handler(DWORD dwCtrlType)
 {
     /* CTRL_C_EVENT is sort of like SIGINT, CTRL_BREAK_EVENT is unique to
        Windows, CTRL_CLOSE_EVENT is sort of like SIGHUP, CTRL_LOGOFF_EVENT
@@ -430,16 +430,16 @@ capture_cleanup(DWORD dwCtrlType)
 }
 #else
 static void
-capture_cleanup(int signum)
+capture_cleanup_handler(int signum _U_)
 {
     /* On UN*X, we cleanly shut down the capture on SIGINT, SIGHUP, and
        SIGTERM.  We assume that if the user wanted it to keep running
        after they logged out, they'd have nohupped it. */
 
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-        "Console: Signal");
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-        "Console: Signal, signal value: %u", signum);
+    /* Note: don't call g_log() in the signal handler: if we happened to be in
+     * g_log() in process context when the signal came in, g_log will detect
+     * the "recursion" and abort.
+     */
 
     capture_loop_stop();
 }
@@ -1690,13 +1690,6 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
 }
 
 
-static void
-capture_loop_stop_signal_handler(int signo _U_)
-{
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Signal: Stop capture");
-  capture_loop_stop();
-}
-
 #ifdef _WIN32
 #define TIME_GET() GetTickCount()
 #else
@@ -1708,9 +1701,6 @@ capture_loop_stop_signal_handler(int signo _U_)
 static gboolean
 capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
-#ifndef _WIN32
-  struct sigaction act;
-#endif
   time_t      upd_time, cur_time;
   time_t      start_time;
   int         err_close;
@@ -1751,22 +1741,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   /* We haven't yet gotten the capture statistics. */
   *stats_known      = FALSE;
-
-#ifndef _WIN32
-  /*
-   * Catch SIGUSR1, so that we exit cleanly if the parent process
-   * kills us with it due to the user selecting "Capture->Stop".
-   */
-  act.sa_handler = capture_loop_stop_signal_handler;
-  /*
-   * Arrange that system calls not get restarted, because when
-   * our signal handler returns we don't want to restart
-   * a call that was waiting for packets to arrive.
-   */
-  act.sa_flags = 0;
-  sigemptyset(&act.sa_mask);
-  sigaction(SIGUSR1, &act, NULL);
-#endif /* _WIN32 */
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop starting ...");
   capture_opts_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, capture_opts);
@@ -2335,11 +2309,16 @@ main(int argc, char *argv[])
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 
   /* Set handler for Ctrl+C key */
-  SetConsoleCtrlHandler(capture_cleanup, TRUE);
+  SetConsoleCtrlHandler(capture_cleanup_handler, TRUE);
 #else
   /* Catch SIGINT and SIGTERM and, if we get either of them, clean up
      and exit. */
-  action.sa_handler = capture_cleanup;
+  action.sa_handler = capture_cleanup_handler;
+  /*
+   * Arrange that system calls not get restarted, because when
+   * our signal handler returns we don't want to restart
+   * a call that was waiting for packets to arrive.
+   */
   action.sa_flags = 0;
   sigemptyset(&action.sa_mask);
   sigaction(SIGTERM, &action, NULL);
@@ -2406,7 +2385,7 @@ main(int argc, char *argv[])
   /*                                                                   */
   /*        It is therefore conceivable that if dumpcap somehow hangs  */
   /*        in pcap_open_live or before that wireshark will not        */
-  /*        be able to stop dumpcap using a signal (USR1, TERM, etc).  */
+  /*        be able to stop dumpcap using a signal (INT, TERM, etc).  */
   /*        In this case, exiting wireshark will kill the child        */
   /*        dumpcap process.                                           */
   /*                                                                   */
