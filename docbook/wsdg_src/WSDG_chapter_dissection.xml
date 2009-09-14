@@ -156,13 +156,9 @@ proto_reg_handoff_foo(void)
 <![CDATA[static void
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
 	/* Clear out stuff in the info column */
-	if (check_col(pinfo->cinfo,COL_INFO)) {
-		col_clear(pinfo->cinfo,COL_INFO);
-	}
+	col_clear(pinfo->cinfo,COL_INFO);
 }]]>
    </programlisting></example>
 	<para>
@@ -243,13 +239,9 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
 	/* Clear out stuff in the info column */
-	if (check_col(pinfo->cinfo,COL_INFO)) {
-		col_clear(pinfo->cinfo,COL_INFO);
-	}
+	col_clear(pinfo->cinfo,COL_INFO);
 
 	if (tree) { /* we are being asked for details */
 		proto_item *ti = NULL;
@@ -563,17 +555,11 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 packet_type = tvb_get_guint8(tvb, 0);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
 	/* Clear out stuff in the info column */
-	if (check_col(pinfo->cinfo,COL_INFO)) {
-		col_clear(pinfo->cinfo,COL_INFO);
-	}
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",
-			   val_to_str(packet_type, packettypenames, "Unknown (0x%02x)"));
-	}
+	col_clear(pinfo->cinfo,COL_INFO);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s",
+		     val_to_str(packet_type, packettypenames, "Unknown (0x%02x)"));
 
 	if (tree) { /* we are being asked for details */
 		proto_item *ti = NULL;
@@ -792,13 +778,11 @@ if (flags & FL_FRAGMENT) { /* fragmented */
 		NULL, msg_tree);
 
 	if (frag_msg) { /* Reassembled */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO,
-			" (Message Reassembled)");
+		col_append_str(pinfo->cinfo, COL_INFO,
+				" (Message Reassembled)");
 	} else { /* Not last packet of reassembled Short Message */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-			" (Message fragment %u)", msg_num);
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				" (Message fragment %u)", msg_num);
 	}
 
 	if (new_tvb) { /* take it all */
