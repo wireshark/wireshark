@@ -101,17 +101,21 @@ ADD_CUSTOM_COMMAND(
     ${CMAKE_SOURCE_DIR}/tools/ncp2222.py
 )
 
-#ADD_CUSTOM_COMMAND(
-#    OUTPUT
+ADD_CUSTOM_COMMAND(
+    OUTPUT
+       x11-dissector
 #      x11-declarations.h
 #      x11-register-info.h
-#    COMMAND ${PERL_EXECUTABLE}
-#      ${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
-#      <${CMAKE_CURRENT_SOURCE_DIR}/dissectors/x11-fields
-#    DEPENDS
-#      dissectors/x11-fields
-#      ${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
-#)
+    COMMAND ${PERL_EXECUTABLE}
+      ${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
+      <dissectors/x11-fields
+    COMMAND ${PERL_EXECUTABLE}
+      ${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl
+    DEPENDS
+      dissectors/x11-fields
+      ${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
+      ${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl
+)
 
 set(PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-atsvc.c
@@ -328,10 +332,12 @@ set(DISSECTOR_SRC
 	dissectors/packet-cisco-oui.c
 	dissectors/packet-cisco-sm.c
 	dissectors/packet-cisco-wids.c
+	dissectors/packet-classicstun.c
 	dissectors/packet-clearcase.c
 	dissectors/packet-clip.c
 	dissectors/packet-clnp.c
 	dissectors/packet-cmpp.c
+	dissectors/packet-collectd.c
 	dissectors/packet-componentstatus.c
 	dissectors/packet-cops.c
 	dissectors/packet-cosine.c
@@ -869,7 +875,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-stat-notify.c
 	dissectors/packet-stat.c
 	dissectors/packet-stun.c
-	dissectors/packet-stun2.c
 	dissectors/packet-sua.c
 	dissectors/packet-symantec.c
 	dissectors/packet-synergy.c
