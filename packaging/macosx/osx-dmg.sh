@@ -65,7 +65,7 @@ OPTIONS
 	-s
 		set a new apperance (do not actually creates a bundle)
 	-p,--package
-		set the path to the Wireshark.app that should be copie
+		set the path to the Wireshark.app that should be copied
 		in the dmg
 "
 }
@@ -136,13 +136,15 @@ cp -rf "$package" "$tmp_dir"/
 ln -sf /Applications "$tmp_dir"/
 # Copy the utilites
 cp -rf "$utilities" "$tmp_dir"/
-ln -sf /Library/StartupItems "$tmp_dir"/"$utilities"
+ln -sf /Library/StartupItems "$tmp_dir$utilities"
 # Copy the readme
 cp -rf  Read_me_first.rtf "$tmp_dir"/"Read me first.rtf"
 
-# Copy a background image inside a hidden directory so the image file itself won't be shown.
+# Copy a background images inside hidden directories so the image file itself won't be shown.
 mkdir "$tmp_dir/.background"
 cp dmg_background.png "$tmp_dir/.background/background.png"
+mkdir "$tmp_dir/$utilities/.background"
+cp util_background.png "$tmp_dir/$utilities/.background/background.png"
 
 # If the appearance settings are not to be modified we just copy them
 if [ ${set_ds_store} = "false" ]; then
@@ -172,7 +174,7 @@ bless -openfolder /Volumes/$volume_name
 
 # In case the apperance has to be modified, mount the image and apply the base settings to it via Applescript
 if [ ${set_ds_store} = "true" ]; then
-#	/usr/bin/osascript dmg_set_style.scpt
+	/usr/bin/osascript dmg_set_style.scpt
 
 	open "/Volumes/$volume_name"
 	# BUG: one needs to move and close the window manually for the
