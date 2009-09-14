@@ -819,17 +819,12 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return 0;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOABBREV");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOABBREV");
 
 /* This field shows up as the "Info" column in the display; you should use
    it, if possible, to summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. See section 1.5
    for more information.
-
-   Before changing the contents of a column you should make sure the column is
-   active by calling "check_col(pinfo->cinfo, COL_*)". If it is not active
-   don't bother setting it.
 
    If you are setting the column to a constant string, use "col_set_str()",
    as it's more efficient than the other "col_set_XXX()" calls.
@@ -848,13 +843,11 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    past the end of the packet, so that the Info column doesn't have data
    left over from the previous dissector; do
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
    */
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "XXX Request");
+	col_set_str(pinfo->cinfo, COL_INFO, "XXX Request");
 
 /* A protocol dissector can be called in 2 different ways:
 
@@ -1316,12 +1309,6 @@ the all-lower-case abbreviation used elsewhere) is COL_PROTOCOL, and the
 COL_ value for the "Info" field, giving a summary of the contents of the
 packet for that protocol, is COL_INFO.
 
-A value for a column should only be added if the user specified that it
-be displayed; to check whether a given column is to be displayed, call
-'check_col' with the COL_ value for that field as an argument - it will
-return TRUE if the column is to be displayed and FALSE if it is not to
-be displayed.
-
 The value for a column can be specified with one of several functions,
 all of which take the 'fd' argument to the dissector as their first
 argument, and the COL_ value for the column as their second argument.
@@ -1344,8 +1331,7 @@ that case.
 For example, to set the "Protocol" column
 to "PROTOABBREV":
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOABBREV");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOABBREV");
 
 
 1.5.2 The col_add_str function.
@@ -1366,9 +1352,8 @@ the "Info" field to "<XXX> request, <N> bytes", where "reqtype" is a
 string containing the type of the request in the packet and "n" is an
 unsigned integer containing the number of bytes in the request:
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s request, %u bytes",
-			reqtype, n);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s request, %u bytes",
+                     reqtype, n);
 
 Don't use 'col_add_fstr' with a format argument of just "%s" -
 'col_add_str', or possibly even 'col_set_str' if the string that matches
@@ -1473,10 +1458,8 @@ based on the time-value.
 
 For example:
 
-if (check_col(pinfo->cinfo, COL_REL_CONV_TIME)) {
-  nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
-  col_set_time(pinfo->cinfo, COL_REL_CONV_TIME, &ts, "tcp.time_relative");
-}
+	nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
+  	col_set_time(pinfo->cinfo, COL_REL_CONV_TIME, &ts, "tcp.time_relative");
 
 
 1.6 Constructing the protocol tree.
@@ -3638,9 +3621,7 @@ static void dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             return;
         }
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_set_str(pinfo->cinfo, COL_INFO, "C String");
-        }
+        col_set_str(pinfo->cinfo, COL_INFO, "C String");
 
         len += 1; /* Add one for the '\0' */
 
