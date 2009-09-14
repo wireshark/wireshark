@@ -156,7 +156,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   cmap  = gdk_colormap_get_system();
   pixmap = gdk_pixmap_colormap_create_from_xpm_d(NULL, cmap,  &mask,
     &style->bg[GTK_STATE_NORMAL], (gchar **) icon);
-  type_pm = gtk_pixmap_new(pixmap, mask);
+  type_pm = gtk_image_new_from_pixmap(pixmap, mask);
   gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5f, 0.0f);
   gtk_container_add(GTK_CONTAINER(top_hb), type_pm);
   gtk_widget_show(type_pm);
