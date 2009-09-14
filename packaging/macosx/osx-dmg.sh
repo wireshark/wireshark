@@ -136,7 +136,7 @@ cp -rf "$package" "$tmp_dir"/
 ln -sf /Applications "$tmp_dir"/
 # Copy the utilites
 cp -rf "$utilities" "$tmp_dir"/
-ln -sf /Library/StartupItems "$tmp_dir$utilities"
+ln -sf /Library/StartupItems "$tmp_dir/$utilities"/
 # Copy the readme
 cp -rf  Read_me_first.rtf "$tmp_dir"/"Read me first.rtf"
 
