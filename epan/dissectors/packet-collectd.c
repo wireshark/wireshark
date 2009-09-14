@@ -816,7 +816,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					     ndispatch.time, ndispatch.time_str);
 			proto_tree_add_text (pt, tvb, ndispatch.severity_off, 8,
 					     "Severity: %s (%#"G_GINT64_MODIFIER"x)",
-					     val_to_str(ndispatch.severity, severity_names, "UNKNOWN"),
+					     val_to_str((gint32)ndispatch.severity, severity_names, "UNKNOWN"),
 					     ndispatch.severity);
 			proto_tree_add_text (pt, tvb, ndispatch.message_off,
 					     ndispatch.message_len,
@@ -838,7 +838,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_item_set_text (pi,
 						"collectd SEVERITY segment: "
 						"%s (%"G_GINT64_MODIFIER"u)",
-						val_to_str (ndispatch.severity, severity_names, "UNKNOWN"),
+						val_to_str ((gint32)ndispatch.severity, severity_names, "UNKNOWN"),
 						ndispatch.severity);
 			}
 
