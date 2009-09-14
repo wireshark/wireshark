@@ -1693,7 +1693,7 @@ col_fill_fdata(packet_info *pinfo)
   }
 }
 
-/* XXX Gets/creates the text fro col_text in frame data */
+/* XXX Gets/creates the text from col_text in frame data */
 /* --------------------- */
 gchar *
 col_get_text(frame_data *fd, column_info *cinfo, gint col)
