@@ -247,7 +247,7 @@ typedef struct {
 static int is_http_request_or_reply(const gchar *data, int linelen,
 				    http_type_t *type, ReqRespDissector
 				    *reqresp_dissector, http_conv_t *conv_data);
-static int chunked_encoding_dissector(tvbuff_t * parent, tvbuff_t **tvb_ptr, packet_info *pinfo,
+static int chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		proto_tree *tree, int offset);
 static void process_header(tvbuff_t *tvb, int offset, int next_offset,
     const guchar *line, int linelen, int colon_offset, packet_info *pinfo,
@@ -654,7 +654,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 	}
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
@@ -1038,7 +1039,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    (g_ascii_strncasecmp(headers.transfer_encoding, "chunked", 7)
 			    == 0)) {
 
-				chunks_decoded = chunked_encoding_dissector(tvb,
+				chunks_decoded = chunked_encoding_dissector(
 				    &next_tvb, pinfo, http_tree, 0);
 
 				if (chunks_decoded <= 0) {
@@ -1053,6 +1054,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					 * Add a new data source for the
 					 * de-chunked data.
 					 */
+					tvb_set_child_real_data_tvbuff(tvb,
+						next_tvb);
 					add_new_data_source(pinfo, next_tvb,
 						"De-chunked entity body");
 				}
@@ -1327,7 +1330,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
  * Dissect the http data chunks and add them to the tree.
  */
 static int
-chunked_encoding_dissector(tvbuff_t *parent, tvbuff_t **tvb_ptr, packet_info *pinfo,
+chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
     proto_tree *tree, int offset)
 {
 	guint8 *chunk_string = NULL;
@@ -1341,7 +1344,6 @@ chunked_encoding_dissector(tvbuff_t *parent, tvbuff_t **tvb_ptr, packet_info *pi
 	gint chunked_data_size = 0;
 	proto_tree *subtree = NULL;
 	proto_item *ti = NULL;
-	guint8 *raw_data = NULL;
 
 	if (tvb_ptr == NULL || *tvb_ptr == NULL) {
 		return 0;
@@ -1363,6 +1365,7 @@ chunked_encoding_dissector(tvbuff_t *parent, tvbuff_t **tvb_ptr, packet_info *pi
 		proto_tree *chunk_subtree = NULL;
 		tvbuff_t *data_tvb = NULL;
 		gchar *c = NULL;
+		guint8 *raw_data;
 		gint raw_len = 0;
 
 		linelen = tvb_find_line_end(tvb, offset, -1, &chunk_offset, TRUE);
@@ -1418,12 +1421,14 @@ chunked_encoding_dissector(tvbuff_t *parent, tvbuff_t **tvb_ptr, packet_info *pi
 
 		chunked_data_size += chunk_size;
 
-		raw_data = g_realloc(raw_data, chunked_data_size);
+		raw_data = g_malloc(chunked_data_size);
 		raw_len = 0;
 
 		if (new_tvb != NULL) {
 			raw_len = tvb_length_remaining(new_tvb, 0);
-			tvb_set_real_data(new_tvb, raw_data, chunked_data_size, chunked_data_size);
+			tvb_memcpy(new_tvb, raw_data, 0, raw_len);
+
+			tvb_free(new_tvb);
 		}
 
 		tvb_memcpy(tvb, (guint8 *)(raw_data + raw_len),
@@ -1431,9 +1436,9 @@ chunked_encoding_dissector(tvbuff_t *parent, tvbuff_t **tvb_ptr, packet_info *pi
 
 		/* Don't create a new tvb if we have a single chunk with
 		 * a size of zero (meaning it is the end of the chunks). */
-		if(chunked_data_size > 0 && !new_tvb) {
-			new_tvb = tvb_new_child_real_data(parent, raw_data,
-						chunked_data_size, chunked_data_size);
+		if(chunked_data_size > 0) {
+			new_tvb = tvb_new_real_data(raw_data,
+			      chunked_data_size, chunked_data_size);
 			tvb_set_free_cb(new_tvb, g_free);
 		}
 
@@ -2211,7 +2216,8 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * first HTTP message; set a fence so that subsequent
 			 * HTTP messages don't overwrite the Info column.
 			 */
-			col_set_fence(pinfo->cinfo, COL_INFO);
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_set_fence(pinfo->cinfo, COL_INFO);
 		}
 	}
 }
@@ -2585,7 +2591,8 @@ dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		offset = 0, next_offset;
 	gint		len;
 
-	col_append_str(pinfo->cinfo, COL_INFO, " (message/http)");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_str(pinfo->cinfo, COL_INFO, " (message/http)");
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_message_http,
 				tvb, 0, -1, FALSE);
