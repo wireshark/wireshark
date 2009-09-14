@@ -1,4 +1,4 @@
-Wireshark Automated Build Release Notes
+Wireshark 1.3.0 Release Notes
 
    ------------------------------------------------------------------
 
@@ -10,20 +10,48 @@ What is Wireshark?
 
 What's New
 
-   Please review the SVN log to get a list of all changes
+  Bug Fixes
+
+   The following vulnerabilities have been fixed. See the security
+   advisory for details and a workaround.
+
+     o The NetFlow dissector could run off with your dog, crash your
+       truck, and write a country music song about the experience.
+
+       Versions affected: 0.99.5 to 1.0.8
+
+   The following bugs have been fixed:
+
+     o Wireshark could crash without warning.
+
+  New and Updated Features
+
+   The following features are new (or have been significantly
+   updated) since version 1.0:
+
+     o The packet list internals have been rewritten and are now more
+       efficient.
+
+     o Capturing from pipes on Windows has been improved.
+
+  New Protocol Support
+
+  Updated Protocol Support
+
+  New and Updated Capture File Support
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   the [1]download page on the main web site.
+   the download page on the main web site.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages.
    You can usually install or upgrade Wireshark using the package
    management system specific to that platform. A list of third-party
-   packages can be found on the [1]download page on the Wireshark
-   web site.
+   packages can be found on the download page on the Wireshark web
+   site.
 
 File Locations
 
@@ -34,25 +62,41 @@ File Locations
 
 Known Problems
 
-   See: http://wiki.wireshark.org/KnownBugs
+   Wireshark may appear offscreen on multi-monitor Windows systems.
+   (Bug 553)
+
+   Wireshark might make your system disassociate from a wireless
+   network on OS X. (Bug 1315)
+
+   Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419)
+
+   Wireshark is unable to decrypt WPA group keys. (Bug 1420)
+
+   The BER dissector might infinitely loop. (Bug 1516)
+
+   Wireshark can't dynamically update the packet list. This means
+   that host name resolutions above a certain response time threshold
+   won't show up in the packet list. (Bug 1605)
+
+   Capture filters aren't applied when capturing from named pipes.
+   (Bug 1814)
+
+   Wireshark might freeze when reading from a pipe. (Bug 2082)
+
+   Capturing from named pipes might be delayed on Windows. (Bug 2200)
+
+   Filtering tshark captures with display filters (-R) no longer
+   works. (Bug 2234)
 
 Getting Help
 
    Community support is available on the wireshark-users mailing
    list. Subscription information and archives for all of Wireshark's
-   mailing lists can be found on [2]the web site.
+   mailing lists can be found on the web site.
 
    Commercial support, training, and development services are
-   available from [3]CACE Technologies.
+   available from CACE Technologies.
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [4]Wireshark web site.
-
-References
-
-   Visible links
-   1. http://www.wireshark.org/download.html
-   2. http://www.wireshark.org/lists/
-   3. http://www.cacetech.com/
-   4. http://www.wireshark.org/faq.html
+   A complete FAQ is available on the Wireshark web site.

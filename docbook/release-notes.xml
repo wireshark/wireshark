@@ -175,12 +175,6 @@ Wireshark Info
     </para>
 
     <para>
-      Wireshark is unable to decrypt WPA group keys.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
-      1420</ulink>)
-    </para>
-
-    <para>
       The BER dissector might infinitely loop.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516">Bug
       1516</ulink>)
