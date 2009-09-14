@@ -1,362 +1,536 @@
 ------------------------------------------------------------------------
-r28015 | gerald | 2009-04-08 22:35:47 -0700 (Wed, 08 Apr 2009) | 2 lines
+r28494 | gerald | 2009-05-26 13:43:12 -0700 (Tue, 26 May 2009) | 2 lines
 Changed paths:
+   M /trunk-1.0/NEWS
    M /trunk-1.0/config.nmake
    M /trunk-1.0/configure.in
    M /trunk-1.0/debian/changelog
+   M /trunk-1.0/docbook/release-notes.xml
    M /trunk-1.0/version.conf
 
-Move to 1.0.8pre
+Move to 1.0.9pre1
 
 ------------------------------------------------------------------------
-r28025 | gerald | 2009-04-09 08:47:51 -0700 (Thu, 09 Apr 2009) | 2 lines
+r28541 | gerald | 2009-05-31 08:04:47 -0700 (Sun, 31 May 2009) | 1 line
 Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-05-31]
+------------------------------------------------------------------------
+r28652 | gerald | 2009-06-07 08:04:02 -0700 (Sun, 07 Jun 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-06-07]
+------------------------------------------------------------------------
+r28725 | gerald | 2009-06-14 08:04:03 -0700 (Sun, 14 Jun 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-06-14]
+------------------------------------------------------------------------
+r28786 | gerald | 2009-06-21 08:04:14 -0700 (Sun, 21 Jun 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-06-21]
+------------------------------------------------------------------------
+r28870 | gerald | 2009-06-28 08:04:01 -0700 (Sun, 28 Jun 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-06-28]
+------------------------------------------------------------------------
+r28942 | gerald | 2009-07-05 08:04:09 -0700 (Sun, 05 Jul 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-07-05]
+------------------------------------------------------------------------
+r29071 | gerald | 2009-07-12 08:04:13 -0700 (Sun, 12 Jul 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-07-12]
+------------------------------------------------------------------------
+r29139 | gerald | 2009-07-19 08:04:26 -0700 (Sun, 19 Jul 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-07-19]
+------------------------------------------------------------------------
+r29197 | gerald | 2009-07-26 08:04:04 -0700 (Sun, 26 Jul 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-07-26]
+------------------------------------------------------------------------
+r29263 | gerald | 2009-08-02 08:04:13 -0700 (Sun, 02 Aug 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-08-02]
+------------------------------------------------------------------------
+r29349 | gerald | 2009-08-09 08:04:05 -0700 (Sun, 09 Aug 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-08-09]
+------------------------------------------------------------------------
+r29448 | gerald | 2009-08-16 08:04:00 -0700 (Sun, 16 Aug 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-08-16]
+------------------------------------------------------------------------
+r29526 | gerald | 2009-08-23 08:04:02 -0700 (Sun, 23 Aug 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-08-23]
+------------------------------------------------------------------------
+r29628 | gerald | 2009-08-30 08:03:55 -0700 (Sun, 30 Aug 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-08-30]
+------------------------------------------------------------------------
+r29702 | gerald | 2009-09-04 14:26:50 -0700 (Fri, 04 Sep 2009) | 210 lines
+Changed paths:
+   M /trunk-1.0/Makefile.am
+   M /trunk-1.0/Makefile.nmake
+   M /trunk-1.0/capture_ui_utils.c
+   M /trunk-1.0/capture_ui_utils.h
+   M /trunk-1.0/config.nmake
    M /trunk-1.0/docbook/release-notes.xml
-
-Reset the release notes.
-
-------------------------------------------------------------------------
-r28036 | gerald | 2009-04-12 08:04:18 -0700 (Sun, 12 Apr 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-04-12]
-------------------------------------------------------------------------
-r28087 | gerald | 2009-04-19 08:04:30 -0700 (Sun, 19 Apr 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-04-19]
-------------------------------------------------------------------------
-r28158 | gerald | 2009-04-26 10:12:04 -0700 (Sun, 26 Apr 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-04-26]
-------------------------------------------------------------------------
-r28260 | gerald | 2009-05-03 08:04:13 -0700 (Sun, 03 May 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-05-03]
-------------------------------------------------------------------------
-r28324 | gerald | 2009-05-10 08:05:07 -0700 (Sun, 10 May 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-05-10]
-------------------------------------------------------------------------
-r28382 | gerald | 2009-05-17 08:04:32 -0700 (Sun, 17 May 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-05-17]
-------------------------------------------------------------------------
-r28404 | gerald | 2009-05-18 15:51:53 -0700 (Mon, 18 May 2009) | 84 lines
-Changed paths:
-   M /trunk-1.0/doc/tshark.pod
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-pcnfsd.c
-   M /trunk-1.0/epan/dissectors/packet-rpc.c
-   M /trunk-1.0/epan/dissectors/packet-rpc.h
-   M /trunk-1.0/epan/dissectors/packet-rtcp.c
-   M /trunk-1.0/epan/dissectors/packet-s5066.c
-   M /trunk-1.0/epan/dissectors/packet-sccp.c
-   M /trunk-1.0/epan/dissectors/packet-ssl.c
-   M /trunk-1.0/epan/dissectors/packet-user_encap.c
-   M /trunk-1.0/epan/uat.h
+   M /trunk-1.0/docbook/wsug_src/WSUG_chapter_use.xml
+   M /trunk-1.0/dumpcap.c
+   M /trunk-1.0/epan/dfilter/semcheck.c
+   M /trunk-1.0/epan/dissectors/packet-afs.c
+   M /trunk-1.0/epan/dissectors/packet-edonkey.c
+   M /trunk-1.0/epan/dissectors/packet-ff.c
+   M /trunk-1.0/epan/dissectors/packet-ftp.c
+   M /trunk-1.0/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.0/epan/dissectors/packet-mip6.c
+   M /trunk-1.0/epan/dissectors/packet-mip6.h
+   M /trunk-1.0/epan/wslua/wslua_proto.c
+   M /trunk-1.0/file.c
+   M /trunk-1.0/gtk/about_dlg.c
+   M /trunk-1.0/gtk/capture_if_dlg.c
+   M /trunk-1.0/gtk/dfilter_expr_dlg.c
+   M /trunk-1.0/gtk/expert_comp_dlg.c
+   M /trunk-1.0/gtk/main.c
+   M /trunk-1.0/gtk/menu.c
+   M /trunk-1.0/gtk/sctp_chunk_stat_dlg.c
+   M /trunk-1.0/packaging/nsis/wireshark.nsi
+   M /trunk-1.0/services
+   M /trunk-1.0/tools/win32-setup.sh
+   M /trunk-1.0/wiretap/ascend-grammar.y
+   M /trunk-1.0/wiretap/netscreen.c
+   M /trunk-1.0/wiretap/pcapng.c
 
 Copy over revisions from the trunk:
 
 ------------------------------------------------------------------------
-r27663 | stig | 2009-03-08 15:31:28 -0700 (Sun, 08 Mar 2009) | 5 lines
+r25183 | stig | 2008-04-27 03:54:25 -0700 (Sun, 27 Apr 2008) | 3 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-user_encap.c
-   M /trunk/epan/uat.h
+   M /trunk/Makefile.am
 
-Don't use ep_strndup() to copy the uat protocol name, because the value
-can be free'ed before we use it.  Allocate the string like we do for
-other strings and copy/free the memory in the appropriate copy_cb/free_cb
-functions.  This is only used in the DLT_USER table yet.
+Add adns_dll.dep and adns_dll.rc to the tarball, as requested by Sake
+and indicated by Anders.
 ------------------------------------------------------------------------
-r27714 | stig | 2009-03-12 15:06:59 -0700 (Thu, 12 Mar 2009) | 3 lines
+r25871 | morriss | 2008-07-30 06:34:23 -0700 (Wed, 30 Jul 2008) | 1 line
 Changed paths:
-   M /trunk/epan/dissectors/packet-s5066.c
+   M /trunk/epan/dissectors/packet-ftp.c
 
-From Menno Andriesse:
-Check for correct tx_mode in dissect_s5066_21() and dissect_s5066_25().
+Register the FTP and ftp-data dissectors by name
 ------------------------------------------------------------------------
-r28031 | guy | 2009-04-10 20:56:14 -0700 (Fri, 10 Apr 2009) | 5 lines
+r28471 | sake | 2009-05-25 12:59:17 -0700 (Mon, 25 May 2009) | 9 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-rtcp.c
+   M /trunk/wiretap/netscreen.c
 
-Get the offset of the padding count correct (it has nothing to do with
-the amount of captured packet data, so calculating it must not involve
-tvb_length_remaining()), and, when processing the padding, count the
-padding count octet in the offset, so that the length check is correct.
+Fix for bug 3469:
+
+In Juniper NetScreen snoop output files, the encapsulation type of
+traffic on ADSL interfaces can be ethernet or PPP. Check whether the
+first 6 bytes of the data are the same as the destination mac-address
+in the packet header. If they are, assume ethernet. If not, assume PPP.
 ------------------------------------------------------------------------
-r28046 | sake | 2009-04-14 09:38:08 -0700 (Tue, 14 Apr 2009) | 8 lines
+r28550 | stig | 2009-05-31 12:46:31 -0700 (Sun, 31 May 2009) | 4 lines
 Changed paths:
-   M /trunk/doc/tshark.pod
+   M /trunk/epan/dfilter/semcheck.c
 
-Add a note for -z io,stat,<interval>,<filter>,<filter>,... to use "." as 
-a decimal separator, as the "," will make the command fail.
-
-(of course it would be nice to have this fixed, but for now, it at least
-informs the user how to work around the issue)
+From yami (bug 3361):
+Try to resolve a crash issue when having a function on the RHS
+of a filter test which does not return the same type as the LHS.
 ------------------------------------------------------------------------
-r28058 | wmeier | 2009-04-15 13:01:45 -0700 (Wed, 15 Apr 2009) | 3 lines
+r28555 | stig | 2009-06-01 07:51:09 -0700 (Mon, 01 Jun 2009) | 5 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-sccp.c
+   M /trunk/file.c
 
-packet_sccp.c: Init an uninit'd variable which was the cause of intermittent crashes.
- Fixes Bug #3409 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3409)
+From Kovarththanan Rajaratnam via bug 3429:
+This patch downgrades the g_assert() to a proper if statement. This is needed
+because we can end up with a match but _without_ any valid row attached to it.
+This is the case when the user has aborted while dissecting.
 ------------------------------------------------------------------------
-r28088 | sake | 2009-04-19 13:28:18 -0700 (Sun, 19 Apr 2009) | 8 lines
+r28556 | stig | 2009-06-01 08:26:15 -0700 (Mon, 01 Jun 2009) | 3 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-ssl.c
+   M /trunk/file.c
 
-When a frame contains the remainder of a previous PDU and a new PDU, the 
-protocol tree would show two "Secure Socket Layer" branches and the INFO
-column would fail to show the content type of the second PDU. Don't give
-control back to TCP for the second PDU by just fetching the remaining bytes
-of the first PDU, but ask for a whole new segment so that all processing
-will be done within the SSL dissector itself.
+Popup a dialog in case we match a row outside the loaded frame area.
+This adds some information for bug 3429.
 ------------------------------------------------------------------------
-
-
-Copy over revisions by hand:
-
-------------------------------------------------------------------------
-r28397 | gerald | 2009-05-18 13:30:55 -0700 (Mon, 18 May 2009) | 2 lines
+r28620 | stig | 2009-06-03 03:38:07 -0700 (Wed, 03 Jun 2009) | 4 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-sccp.c
+   M /trunk/epan/dissectors/packet-ieee80211.c
 
-Use se_alloc0 and ep_alloc0.
+Fixed bit position for wlan_mgt.fixed.delba.param.initiator.
+
+This fixes bug 3505.
 ------------------------------------------------------------------------
-r28128 | gerald | 2009-04-22 10:42:47 -0700 (Wed, 22 Apr 2009) | 6 lines
+r28633 | stig | 2009-06-04 01:21:51 -0700 (Thu, 04 Jun 2009) | 4 lines
 Changed paths:
-   M /trunk/epan/dissectors/packet-pcnfsd.c
-   M /trunk/epan/dissectors/packet-rpc.c
-   M /trunk/epan/dissectors/packet-rpc.h
+   M /trunk/epan/wslua/wslua_proto.c
 
-From Mark Cave-Ayland: Fix a crash in the PCNFSD dissector.
+From Sam Roberts:
+The value_string_from_table()'s use of the lua stack is not balanced,
+if a table is iterated, it pops one more time than it should.
+------------------------------------------------------------------------
+r28640 | jake | 2009-06-04 10:37:48 -0700 (Thu, 04 Jun 2009) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-edonkey.c
 
-From me: Apply Mark's fix to the ident string. Add public #defines for
-the special strings that dissect_rpc_* might return and use them in
-PCNFSD.  Replace a manual buffer allocation with ep_strdup_printf.
+From Jakub Zawadzki:
+Fix edonkey dissector a little, by using gint type for tvb_length_remaining() result.
+------------------------------------------------------------------------
+r28696 | tuexen | 2009-06-11 04:24:29 -0700 (Thu, 11 Jun 2009) | 3 lines
+Changed paths:
+   M /trunk/wiretap/pcapng.c
+
+When writing pcapng files use correct interface index
+of 0 instead of 1.
+------------------------------------------------------------------------
+r28917 | stig | 2009-07-01 23:51:27 -0700 (Wed, 01 Jul 2009) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-mip6.c
+   M /trunk/epan/dissectors/packet-mip6.h
+
+From Albert Chin:
+Small patch to make it compile on AIX.
+------------------------------------------------------------------------
+r29051 | stig | 2009-07-10 02:12:13 -0700 (Fri, 10 Jul 2009) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-ff.c
+
+Use correct length for "Version OD Calling".
+This fixes bug 3694.
+------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+------------------------------------------------------------------------
+r28482 | stig | 2009-05-26 06:52:03 -0700 (Tue, 26 May 2009) | 3 lines
+Changed paths:
+   M /trunk/gtk/capture_if_dlg.c
+
+From Carlos G Mendioroz:
+Use the user defined comment in the Capture Interfaces dialog box.
+------------------------------------------------------------------------
+r28503 | stig | 2009-05-27 07:13:55 -0700 (Wed, 27 May 2009) | 3 lines
+Changed paths:
+   M /trunk/gtk/about_dlg.c
+   M /trunk/gtk/main.c
+
+From Siddhes (bug 3483):
+Throttle splash screen updates when running remote.
+------------------------------------------------------------------------
+r28538 | jake | 2009-05-31 04:31:40 -0700 (Sun, 31 May 2009) | 2 lines
+Changed paths:
+   M /trunk/file.c
+
+Fix bug 3489:
+Array overrun at copy of filter expression on GTK1 build.
+------------------------------------------------------------------------
+r28549 | rbalint | 2009-05-31 11:38:28 -0700 (Sun, 31 May 2009) | 3 lines
+Changed paths:
+   M /trunk/dumpcap.c
+
+Set SIGPIPE handler every time the program starts.
+This hopefully fixes bug 1740.
+------------------------------------------------------------------------
+r28592 | stig | 2009-06-02 03:40:58 -0700 (Tue, 02 Jun 2009) | 3 lines
+Changed paths:
+   M /trunk/gtk/expert_comp_dlg.c
+   M /trunk/gtk/expert_comp_table.h
+
+From Jim Young (bug 2504):
+Quick fix to sync expert_tapdata_s.
+------------------------------------------------------------------------
+r28670 | sake | 2009-06-08 23:23:37 -0700 (Mon, 08 Jun 2009) | 14 lines
+Changed paths:
+   M /trunk/docbook/wsug_src/WSUG_chapter_use.xml
+   M /trunk/gtk/main_menu.c
+
+Reverted part of SVN 27411. The "home" and "end" key bindings overruled
+the use of these keys while editing a filter in the filter toolbar.
+The keys "ctrl-home" and "ctrl-end" already provide the functionality to 
+go to the first or last packet in the packet-list. I added these as
+accelerator keys and updated the users guide accordingly.
+
+Of course we can also make "home" and "end" work, without breaking 
+functionality in the filter toolbar, but that takes a little more
+work (at least for me... maybe not after going to Steve's session
+at Sharkfest :-)).
+
+(will add this to inclusion list for 1.0.9 and 1.2.0)
+------------------------------------------------------------------------
+r28684 | gerald | 2009-06-09 18:30:49 -0700 (Tue, 09 Jun 2009) | 2 lines
+Changed paths:
+   M /trunk/Makefile.nmake
+   M /trunk/config.nmake
+   M /trunk/packaging/nsis/wireshark.nsi
+
+Upgrade to KFW 3.2.2.
+------------------------------------------------------------------------
+r28749 | gerald | 2009-06-15 15:25:05 -0700 (Mon, 15 Jun 2009) | 7 lines
+Changed paths:
+   M /trunk/wiretap/ascend.y
+
+From Ben Winslow via bug 3535:
+
+Because Lucent/Ascend equipment will sometimes omit the hex dump for a packet
+or send two headers followed by two hex dumps, Wireshark needs to be very
+lenient when parsing a Lucent/Ascend trace.  On a busy access server, a packet
+like this is pretty likely to appear within a few minutes.
+------------------------------------------------------------------------
+r28815 | gerald | 2009-06-22 15:38:29 -0700 (Mon, 22 Jun 2009) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-afs.c
+
+Instead of tvb_get_ptr + ep_alloc + proto_tree_add_string to fetch a string and
+add it to the tree, just call proto_tree_add_item. Fixes bug 3564.
+
+Replace another tvb_get_ptr call with tvb_format_text.
+------------------------------------------------------------------------
+r28839 | stig | 2009-06-24 18:50:56 -0700 (Wed, 24 Jun 2009) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-infiniband.c
+
+Remove a tvb_free() call.
+------------------------------------------------------------------------
+r28931 | wmeier | 2009-07-02 18:11:23 -0700 (Thu, 02 Jul 2009) | 12 lines
+Changed paths:
+   M /trunk/epan/dfilter/semcheck.c
+   M /trunk/gtk/dfilter_expr_dlg.c
+
+From  Kovarththanan Rajaratnam: Fixes for bug #3536
+(plus some additional changes by me).
+
+Handle BASE_RANGE_STRING display types properly
+
+We always treat header field info strings as value_string's undiscriminated.
+However, if the header field info display is marked as BASE_RANGE_STRING, we
+need to treat them as range_string's. This wasn't properly handled in the
+filter expression dialog and in the filter toolbar which would cause a crash
+upon referencing any fields marked as BASE_RANGE_STRING.
+------------------------------------------------------------------------
+
+
+Copy over services from /trunk. Update the release notes. Use the latest
+wireshark-win32-libs tag.
+
+------------------------------------------------------------------------
+r29751 | gerald | 2009-09-06 08:04:01 -0700 (Sun, 06 Sep 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-09-06]
+------------------------------------------------------------------------
+r29801 | gerald | 2009-09-08 09:25:57 -0700 (Tue, 08 Sep 2009) | 2 lines
+Changed paths:
+   M /trunk-1.0/epan/dissectors/packet-kerberos.c
+   M /trunk-1.0/gtk/dfilter_expr_dlg.c
+
+Try to fix the Windows build.
+
+------------------------------------------------------------------------
+r29809 | gerald | 2009-09-08 13:53:59 -0700 (Tue, 08 Sep 2009) | 2 lines
+Changed paths:
+   M /trunk-1.0/epan/dissectors/packet-kerberos.c
+
+Another try at fixing the build.
+
+------------------------------------------------------------------------
+r29829 | gerald | 2009-09-09 13:32:30 -0700 (Wed, 09 Sep 2009) | 17 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/plugins/opcua/opcua.c
+   M /trunk-1.0/plugins/opcua/opcua_simpletypes.c
+   M /trunk-1.0/plugins/opcua/opcua_transport_layer.c
+
+Back-port r29813:
+
+------------------------------------------------------------------------
+r29813 | gerald | 2009-09-08 17:18:15 -0700 (Tue, 08 Sep 2009) | 4 lines
+Changed paths:
+   M /trunk/plugins/opcua/opcua.c
+   M /trunk/plugins/opcua/opcua_simpletypes.c
+   M /trunk/plugins/opcua/opcua_transport_layer.c
+
+Check our array lengths and refuse to process them if they're too large.
+Fixes bug 3986. Use tvb_memeql and proto_tree_add_item instead of
+digging around in tvb->real_data.
+
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r29850 | gerald | 2009-09-10 14:05:59 -0700 (Thu, 10 Sep 2009) | 18 lines
+Changed paths:
+   M /trunk-1.0/AUTHORS
+   M /trunk-1.0/gtk/sctp_graph_dlg.c
+   M /trunk-1.0/gtk/sctp_stat.c
+   M /trunk-1.0/gtk/sctp_stat.h
+
+Copy over bits of r28642 (AUTHORS and stability fixes).
+------------------------------------------------------------------------
+r28642 | tuexen | 2009-06-05 06:33:18 -0700 (Fri, 05 Jun 2009) | 4 lines
+Changed paths:
+   M /trunk/AUTHORS
+   M /trunk/epan/dissectors/packet-sctp.c
+   M /trunk/gtk/sctp_chunk_stat.c
+   M /trunk/gtk/sctp_chunk_stat_dlg.c
+   M /trunk/gtk/sctp_graph_dlg.c
+   M /trunk/gtk/sctp_stat.c
+   M /trunk/gtk/sctp_stat.h
+
+* Fix name of Irene in AUTHORS.
+* Add Varun Notibala to AUTHORS.
+* Add support for NR-SACK and fix stability problems.
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r29851 | gerald | 2009-09-10 14:14:47 -0700 (Thu, 10 Sep 2009) | 49 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-isup.c
+   M /trunk-1.0/packaging/macosx/ChmodBPF/README.macosx
+   M /trunk-1.0/packaging/macosx/ChmodBPF/StartupParameters.plist
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r29830 | guy | 2009-09-09 16:56:27 -0700 (Wed, 09 Sep 2009) | 21 lines
+Changed paths:
+   M /trunk/packaging/macosx/ChmodBPF/StartupParameters.plist
+
+To quote
+    
+        http://developer.apple.com/mac/library/documentation/MacOSX/Conceptual/BPSystemStartup/Articles/StartupItems.html
+
+"Table 1  StartupParameters.plist key-value pairs
+
+Key             Type    Value
+Description     String  A short description of the startup item,
+                        used by administrative tools.
+
+Provides        Array   The names of the services provided by this
+                        startup item.  Although a startup item can
+                        potentially provide multiple services, it is
+                        recommended that you limit your startup items
+                        to only one service each."
+
+Fix "Provides" to be the name of the service, not a description of the
+helpful operations that it provides.
+
+(Propagated from tcpdump.org git repository.)
+------------------------------------------------------------------------
+r29831 | guy | 2009-09-09 17:37:16 -0700 (Wed, 09 Sep 2009) | 3 lines
+Changed paths:
+   M /trunk/packaging/macosx/ChmodBPF/README.macosx
+
+Put in a note about the Snow Leopard bug that requires that you have BPF
+devices open for writing in order to capture outgoing traffic.
+------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+------------------------------------------------------------------------
+r29839 | tuexen | 2009-09-10 02:50:30 -0700 (Thu, 10 Sep 2009) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-isup.c
+
+Fix handling of BEARER_CONTROL_UNIT_IDENTIFIER.
 ------------------------------------------------------------------------
 
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r28405 | gerald | 2009-05-18 16:55:55 -0700 (Mon, 18 May 2009) | 47 lines
+r29875 | gerald | 2009-09-13 08:04:04 -0700 (Sun, 13 Sep 2009) | 1 line
 Changed paths:
-   M /trunk-1.0/asn1/mpeg-pes/Makefile.nmake
-   M /trunk-1.0/asn1/mpeg-pes/packet-mpeg-pes-template.c
-   M /trunk-1.0/configure.in
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-09-13]
+------------------------------------------------------------------------
+r29905 | gerald | 2009-09-14 11:53:27 -0700 (Mon, 14 Sep 2009) | 29 lines
+Changed paths:
+   M /trunk-1.0/capture_sync.c
    M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-acp133.c
-   M /trunk-1.0/epan/dissectors/packet-acp133.h
-   M /trunk-1.0/epan/dissectors/packet-acse.c
-   M /trunk-1.0/epan/dissectors/packet-acse.h
-   M /trunk-1.0/epan/dissectors/packet-ansi_tcap.c
-   M /trunk-1.0/epan/dissectors/packet-camel.c
-   M /trunk-1.0/epan/dissectors/packet-camel.h
-   M /trunk-1.0/epan/dissectors/packet-cdt.c
-   M /trunk-1.0/epan/dissectors/packet-cdt.h
-   M /trunk-1.0/epan/dissectors/packet-cmip.c
-   M /trunk-1.0/epan/dissectors/packet-cmip.h
-   M /trunk-1.0/epan/dissectors/packet-cmp.c
-   M /trunk-1.0/epan/dissectors/packet-cmp.h
-   M /trunk-1.0/epan/dissectors/packet-cms.c
-   M /trunk-1.0/epan/dissectors/packet-cms.h
-   M /trunk-1.0/epan/dissectors/packet-crmf.c
-   M /trunk-1.0/epan/dissectors/packet-crmf.h
-   M /trunk-1.0/epan/dissectors/packet-dap.c
-   M /trunk-1.0/epan/dissectors/packet-dap.h
-   M /trunk-1.0/epan/dissectors/packet-disp.c
-   M /trunk-1.0/epan/dissectors/packet-disp.h
-   M /trunk-1.0/epan/dissectors/packet-dop.c
-   M /trunk-1.0/epan/dissectors/packet-dop.h
-   M /trunk-1.0/epan/dissectors/packet-dsp.c
-   M /trunk-1.0/epan/dissectors/packet-dsp.h
-   M /trunk-1.0/epan/dissectors/packet-ess.c
-   M /trunk-1.0/epan/dissectors/packet-ess.h
-   M /trunk-1.0/epan/dissectors/packet-ftam.c
-   M /trunk-1.0/epan/dissectors/packet-ftam.h
-   M /trunk-1.0/epan/dissectors/packet-gnm.c
-   M /trunk-1.0/epan/dissectors/packet-gnm.h
-   M /trunk-1.0/epan/dissectors/packet-gsm_map.c
-   M /trunk-1.0/epan/dissectors/packet-h225.c
-   M /trunk-1.0/epan/dissectors/packet-h225.h
-   M /trunk-1.0/epan/dissectors/packet-h235.c
-   M /trunk-1.0/epan/dissectors/packet-h235.h
-   M /trunk-1.0/epan/dissectors/packet-h245.c
-   M /trunk-1.0/epan/dissectors/packet-h248.c
-   M /trunk-1.0/epan/dissectors/packet-h248.h
-   M /trunk-1.0/epan/dissectors/packet-h282.c
-   M /trunk-1.0/epan/dissectors/packet-h283.c
-   M /trunk-1.0/epan/dissectors/packet-h323.c
-   M /trunk-1.0/epan/dissectors/packet-h323.h
-   M /trunk-1.0/epan/dissectors/packet-h450.c
-   M /trunk-1.0/epan/dissectors/packet-h460.c
-   M /trunk-1.0/epan/dissectors/packet-h501.c
-   M /trunk-1.0/epan/dissectors/packet-inap.c
-   M /trunk-1.0/epan/dissectors/packet-inap.h
-   M /trunk-1.0/epan/dissectors/packet-ldap.c
-   M /trunk-1.0/epan/dissectors/packet-ldap.h
-   M /trunk-1.0/epan/dissectors/packet-logotypecertextn.c
-   M /trunk-1.0/epan/dissectors/packet-logotypecertextn.h
-   M /trunk-1.0/epan/dissectors/packet-mms.c
-   M /trunk-1.0/epan/dissectors/packet-mms.h
-   M /trunk-1.0/epan/dissectors/packet-mpeg-audio.c
-   M /trunk-1.0/epan/dissectors/packet-mpeg-pes.c
-   M /trunk-1.0/epan/dissectors/packet-nbap.c
-   M /trunk-1.0/epan/dissectors/packet-ns_cert_exts.c
-   M /trunk-1.0/epan/dissectors/packet-ocsp.c
-   M /trunk-1.0/epan/dissectors/packet-ocsp.h
-   M /trunk-1.0/epan/dissectors/packet-pcap.c
-   M /trunk-1.0/epan/dissectors/packet-pkcs1.c
-   M /trunk-1.0/epan/dissectors/packet-pkcs1.h
-   M /trunk-1.0/epan/dissectors/packet-pkcs12.c
-   M /trunk-1.0/epan/dissectors/packet-pkinit.c
-   M /trunk-1.0/epan/dissectors/packet-pkinit.h
-   M /trunk-1.0/epan/dissectors/packet-pkix1explicit.c
-   M /trunk-1.0/epan/dissectors/packet-pkix1implicit.c
-   M /trunk-1.0/epan/dissectors/packet-pkix1implicit.h
-   M /trunk-1.0/epan/dissectors/packet-pkixproxy.c
-   M /trunk-1.0/epan/dissectors/packet-pkixproxy.h
-   M /trunk-1.0/epan/dissectors/packet-pkixqualified.c
-   M /trunk-1.0/epan/dissectors/packet-pkixqualified.h
-   M /trunk-1.0/epan/dissectors/packet-pkixtsp.c
-   M /trunk-1.0/epan/dissectors/packet-pkixtsp.h
-   M /trunk-1.0/epan/dissectors/packet-pres.c
-   M /trunk-1.0/epan/dissectors/packet-pres.h
-   M /trunk-1.0/epan/dissectors/packet-q932.c
-   M /trunk-1.0/epan/dissectors/packet-q932.h
-   M /trunk-1.0/epan/dissectors/packet-qsig.c
-   M /trunk-1.0/epan/dissectors/packet-qsig.h
-   M /trunk-1.0/epan/dissectors/packet-ranap.c
-   M /trunk-1.0/epan/dissectors/packet-ranap.h
-   M /trunk-1.0/epan/dissectors/packet-rnsap.c
-   M /trunk-1.0/epan/dissectors/packet-ros.c
-   M /trunk-1.0/epan/dissectors/packet-rrc.c
-   M /trunk-1.0/epan/dissectors/packet-rrlp.c
-   M /trunk-1.0/epan/dissectors/packet-s1ap.c
-   M /trunk-1.0/epan/dissectors/packet-s4406.c
-   M /trunk-1.0/epan/dissectors/packet-s4406.h
-   M /trunk-1.0/epan/dissectors/packet-sabp.c
-   M /trunk-1.0/epan/dissectors/packet-smrse.c
-   M /trunk-1.0/epan/dissectors/packet-smrse.h
-   M /trunk-1.0/epan/dissectors/packet-spnego.c
-   M /trunk-1.0/epan/dissectors/packet-spnego.h
-   M /trunk-1.0/epan/dissectors/packet-t125.c
-   M /trunk-1.0/epan/dissectors/packet-t125.h
-   M /trunk-1.0/epan/dissectors/packet-t38.c
-   M /trunk-1.0/epan/dissectors/packet-tcap.c
-   M /trunk-1.0/epan/dissectors/packet-ulp.c
-   M /trunk-1.0/epan/dissectors/packet-wlancertextn.c
-   M /trunk-1.0/epan/dissectors/packet-wlancertextn.h
-   M /trunk-1.0/epan/dissectors/packet-x2ap.c
-   M /trunk-1.0/epan/dissectors/packet-x411.c
-   M /trunk-1.0/epan/dissectors/packet-x411.h
-   M /trunk-1.0/epan/dissectors/packet-x420.c
-   M /trunk-1.0/epan/dissectors/packet-x420.h
-   M /trunk-1.0/epan/dissectors/packet-x509af.c
-   M /trunk-1.0/epan/dissectors/packet-x509af.h
-   M /trunk-1.0/epan/dissectors/packet-x509ce.c
-   M /trunk-1.0/epan/dissectors/packet-x509ce.h
-   M /trunk-1.0/epan/dissectors/packet-x509if.c
-   M /trunk-1.0/epan/dissectors/packet-x509if.h
-   M /trunk-1.0/epan/dissectors/packet-x509sat.c
-   M /trunk-1.0/epan/wslua/init_wslua.c
-   M /trunk-1.0/gtk/rtp_player.c
+   M /trunk-1.0/dumpcap.c
 
-Copy over revisions from the trunk:
+Copy over with manual intervention:
 
 ------------------------------------------------------------------------
-r28325 | stig | 2009-05-10 08:56:57 -0700 (Sun, 10 May 2009) | 6 lines
+r29881 | morriss | 2009-09-13 10:46:10 -0700 (Sun, 13 Sep 2009) | 17 lines
 Changed paths:
-   M /trunk/epan/wslua/init_wslua.c
+   M /trunk/capture_sync.c
+   M /trunk/dumpcap.c
 
-Postpone marking objects as expired until the whole frame is completed.
-We can have a case where one Lua dissector calls another Lua dissector,
-so we can't mark all objects when only one dissector is completed.
+Don't use SIGUSR1 to tell dumpcap to exit, use SIGINT: SIGINT is traditionally
+used for this purpose and using it also prevents the 2 signals the child gets:
+        - the user's Ctrl-C (which is sent as a SIGINT to both *shark and its
+          child dumpcap)
+        - the signal *shark generates to shut down the child
 
-This fixes comment #37 and #39 in bug 2453.
-------------------------------------------------------------------------
-r28358 | jake | 2009-05-13 23:26:16 -0700 (Wed, 13 May 2009) | 1 line
-Changed paths:
-   M /trunk/gtk/rtp_player.c
+from colliding (and running 2 signal handlers in the child).
 
-Extend error reporting from PortAudio library.
-------------------------------------------------------------------------
+It might be possible for tshark to not send the signal at all when it gets
+SIGINT, but it doesn't do any harm now.
 
+Also, do not call g_log() within the signal handler: doing so can cause
+aborts (if g_log is being called by the process when the signal comes, the
+2nd entrance into g_log is detected as a recursion).
 
-Copy over revisions by hand:
-
-------------------------------------------------------------------------
-r28201 | etxrab | 2009-04-30 08:57:05 -0700 (Thu, 30 Apr 2009) | 4 lines
-Changed paths:
-   M /trunk/asn1/mpeg-pes/Makefile.nmake
-   M /trunk/asn1/mpeg-pes/packet-mpeg-pes-template.c
-   M /trunk/epan/dissectors/packet-mpeg-pes.c
-
-Fix:
-"This is due to a bug in the sourcecode of the MPEG-PES dissector. It originates in r26328, which added a bugfix to the generated code with the use of 'illegal' 
-characters in the comment block.
-Currently the bugfix is dropped since it was never added to the ASN.1 dissector template, hence has been lost with the new generation of this code."
-------------------------------------------------------------------------
-r28333 | stig | 2009-05-12 05:03:14 -0700 (Tue, 12 May 2009) | 2 lines
-Changed paths:
-   M /trunk/configure.in
-
-Lua support is no plugin.
+This fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2767
 ------------------------------------------------------------------------
 
-
-Regenerate all of the ASN.1 dissectors except for p7 (which wouldn't compile).
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r28411 | jake | 2009-05-19 10:01:22 -0700 (Tue, 19 May 2009) | 1 line
+r29908 | gerald | 2009-09-14 16:14:42 -0700 (Mon, 14 Sep 2009) | 2 lines
 Changed paths:
-   M /trunk-1.0/epan/dissectors/packet-dcm.c
+   M /trunk-1.0/version.conf
 
-Plug memory leak.
-------------------------------------------------------------------------
-r28416 | gerald | 2009-05-19 12:58:18 -0700 (Tue, 19 May 2009) | 16 lines
-Changed paths:
-   M /trunk-1.0/ChangeLog
-   M /trunk-1.0/NEWS
-   M /trunk-1.0/asn1/p7/p7.cnf
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-ndmp.c
-   M /trunk-1.0/epan/dissectors/packet-p7.c
-   M /trunk-1.0/epan/dissectors/packet-p7.h
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r28409 | stig | 2009-05-19 07:40:23 -0700 (Tue, 19 May 2009) | 5 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ndmp.c
-
-Avoid crash when not reassembling multiple TCP segments.
-(check for valid pointers, in this case: ndmp_conv_data->task)
-
-This fixes the crash in bug #3470.
-------------------------------------------------------------------------
-
-Add a fix for p7 from Anders. Update the release notes, ChangeLog, and
-NEWS.
+Build 1.0.9.
 
 ------------------------------------------------------------------------

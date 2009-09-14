@@ -1,4 +1,4 @@
-Wireshark 1.0.8 Release Notes
+Wireshark 1.0.9 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,21 +15,58 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The PCNFSD dissector could crash.
+     o The AFS dissector could crash. (Bug 3564)
 
-       Versions affected: 0.8.20 to 1.0.7
+       Versions affected: 0.9.2 to 1.0.8, 1.2.0
 
-       CVE-2009-????
+     o The Infiniband dissector could crash on some platforms.
+
+       Versions affected: 0.9.2 to 1.0.8, 1.2.0
+
+     o The OpcUa dissector could use excessive CPU and memory.
+
+       Versions affected: 0.99.6 to 1.0.8, 1.2.0 to 1.2.1
 
    The following bugs have been fixed:
 
-     o Lua integration could crash. (Bug 2453)
+     o Window "capture->Interfaces" cannot be closed. (Bug 1740)
 
-     o The SCCP dissector could crash when loading more than one file
-       in a single session. (Bug 3409)
+     o Slow response when using Expert Info Composite. (Bug 2504)
 
-     o The NDMP dissector could crash if reassembly was enabled. (Bug
-       3470)
+     o tshark-1.0.2 (dumpcap) signal abort core saved. (Bug 2767)
+
+     o Crash when applying a display filter. (Bug 3361)
+
+     o Propagate interface Comment field to the Capture... Interfaces
+       dialogue box. (Bug 3414)
+
+     o Crash when searching for Time Reference. (Bug 3429)
+
+     o Wireshark doesn't interpret "adsl" interface in snoop output
+       of Juniper ScreenOS. (Bug 3469)
+
+     o Wireshark start-up very slow when X forwarding over ssh. (Bug
+       3483)
+
+     o Wireshark crashes while reading capture file. (Bug 3489)
+
+     o Windows build with ADNS fails because some ADNS files are
+       missing. (Bug 3499)
+
+     o Field wlan_mgt.fixed.delba.param.initiator is indicated by
+       wrong bit of wlan_mgt.fixed.delba.param. (Bug 3505)
+
+     o Edonkey bug in dissecting UDP Get Gerver Info packets. (Bug
+       3509)
+
+     o The Lucent/Ascend file parser could go into an infinite loop.
+       (Bug 3535)
+
+     o Wireshark crashes when range_string is the data type. (Bug
+       3536)
+
+     o FF Protocol "FMS Initiate - Version OD Calling" field packet
+       data not unpacked properly. (Bug 3694)
 
   New and Updated Features
 
@@ -41,12 +78,11 @@ What's New
 
   Updated Protocol Support
 
-   All ASN.1 protocols, DICOM, NDMP, PCNFSD, RTCP, SCCP, SSL, STANAG
-   5066
+   AFS, eDonkey, FTP, IEEE 802.11, Infiniband, ISUP, OpcUa, SCTP
 
   New and Updated Capture File Support
 
-   There are no new or updated capture file formats in this release.
+   NetScreen snoop.
 
 Getting Wireshark
 
