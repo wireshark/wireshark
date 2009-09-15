@@ -93,7 +93,7 @@ static int hf_gtpv2_cng_rep_act = -1;
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
 static gint ett_gtpv2_ie = -1;
-
+static gint ett_gtpv2_bearer_ctx = -1;
 
 static int hf_gtpv2_selec_mode= -1;
 
@@ -168,6 +168,8 @@ static int hf_gtpv2_uli_rai_rac= -1;
 static int hf_gtpv2_uli_tai_tac= -1;
 static int hf_gtpv2_uli_ecgi_eci= -1;
 static int hf_gtpv2_bearer_control_mode= -1;
+
+static void dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, gint offset);
 
 /*Message Types for GTPv2 (Refer Pg19 29.274) (SB)*/
 static const value_string gtpv2_message_type_vals[] = {
@@ -1298,6 +1300,7 @@ static void
 dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
 	int offset= 0,i=0;
+	proto_tree *grouped_tree;
 	int newoffset, newoffset1, newoffset2, newoffset3;
 	guint8 number, opcode, ebit, comptype, length1;
 	guint8 type, instances;
@@ -1305,250 +1308,10 @@ dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	proto_item *ti;
 	guint8 v4, v6;
 	guint16 lengths;
-	while (offset<length)
-		{
-			type = tvb_get_guint8(tvb,offset);
-			lengths = tvb_get_ntohs(tvb, offset+1);
-			ti = proto_tree_add_text(tree, tvb, offset, 4 + lengths, "%s : ", val_to_str(type, gtpv2_element_type_vals, "Unknown"));
-			ie_tree = proto_item_add_subtree(ti, ett_gtpv2_ie);
-			/* Octet 1 */
-			proto_tree_add_item(ie_tree, hf_gtpv2_ie, tvb, offset, 1, FALSE);
-			offset++;
 
-			/*Octet 2 - 3 */
-			proto_tree_add_item(ie_tree, hf_gtpv2_ie_len, tvb, offset, 2, FALSE);
-			offset+=2;
-			/* CR Spare Instance Octet 4*/
-			proto_tree_add_item(ie_tree, hf_gtpv2_cr, tvb, offset, 1, FALSE);
-
-			instances = tvb_get_guint8(tvb,offset)& 0x0f;
-			proto_tree_add_item(ie_tree, hf_gtpv2_instance, tvb, offset, 1, FALSE);
-			offset++;
-			switch(type)
-			{
-				case 73:
-					/* EPS Bearer ID */
-					proto_tree_add_item(ie_tree, hf_gtpv2_ebi, tvb, offset, 1, FALSE);
-					offset+=lengths;
-					break;
-				case 2:
-					/* Cause */
-					proto_tree_add_item(ie_tree, hf_gtpv2_cause, tvb, offset, 1, FALSE);
-					proto_tree_add_item(ie_tree, hf_gtpv2_cause_cs, tvb, offset+1, 1, FALSE);
-					offset+=lengths;
-					break;
-				case 80:
-					/* Bearer Qos */
-						newoffset3= offset;
-						proto_tree_add_item(ie_tree, hf_gtpv2_bearer_qos_pvi, tvb, newoffset3, 1, FALSE);
-						proto_tree_add_item(ie_tree, hf_gtpv2_bearer_qos_pl, tvb, newoffset3, 1, FALSE);
-						proto_tree_add_item(ie_tree, hf_gtpv2_bearer_qos_pci, tvb, newoffset3, 1, FALSE);
-
-						newoffset3++;
-						proto_tree_add_item(ie_tree, hf_gtpv2_bearer_qos_label_qci, tvb, newoffset3, 1, FALSE);
-
-						newoffset3++;
-						proto_tree_add_item(ie_tree, hf_gtpv2_bearer_qos_mbr_up, tvb, newoffset3, 5, FALSE);
-
-						newoffset3= newoffset3+5;
-						proto_tree_add_item(ie_tree, hf_gtpv2_bearer_qos_mbr_down, tvb, newoffset3, 5, FALSE);
-
-						newoffset3= newoffset3+5;
-						proto_tree_add_item(ie_tree, hf_gtpv2_bearer_qos_gbr_up, tvb, newoffset3, 5, FALSE);
-
-						newoffset3= newoffset3+5;
-						proto_tree_add_item(ie_tree, hf_gtpv2_bearer_qos_gbr_down, tvb, newoffset3, 5, FALSE);
-
-						newoffset3= newoffset3+5;
-						offset+=lengths;
-						break;
-				case 84:
-					/* TFT */
-						newoffset1=offset;
-						number = tvb_get_guint8(tvb,newoffset1)& 0x0f;
-						opcode = tvb_get_guint8(tvb,newoffset1)& 0xe0;
-						ebit = tvb_get_guint8(tvb,newoffset1)& 0x10;
-						proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_opcode, tvb, newoffset1, 1, FALSE);
-						proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_number, tvb, newoffset1, 1, FALSE);
-						proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_ebit, tvb, newoffset1, 1, FALSE);
-						newoffset1++;
-						switch(opcode)
-							{
-								case SPARE:
-									/* Spare */
-									break;
-								case CREATE_NEW_TFT:
-									/* Create New TFT */
-								case ADD_PACKET_FILTERS_TFT:
-									/* Add packet filters to existing TFT */
-								case REPLACE_PACKET_FILTERS_TFT:
-									/*Replace Packet filters in existing TFT */
-									while (i<number)
-									{
-										i++;newoffset2=0;
-										proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_id, tvb, newoffset1, 1, FALSE);
-										proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_direction, tvb, newoffset1, 1, FALSE);
-										newoffset1++;
-										proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_eval, tvb, newoffset1, 1, FALSE);
-										newoffset1++;
-										length1 =tvb_get_guint8(tvb,newoffset1);
-										proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_length, tvb, newoffset1, 1, FALSE);
-										newoffset1++;
-
-										while (newoffset2<length1)
-									  	{
-										proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_comp_type, tvb, newoffset1, 1, FALSE);
-										comptype = tvb_get_guint8(tvb,newoffset1);
-										newoffset1++;
-										newoffset2++;
-											if (comptype==16)
-											{
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4, tvb, newoffset1, 4, FALSE);
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv4_mask, tvb, newoffset1, 4, FALSE);
-												newoffset1+=8;
-												newoffset2+=8;
-											}
-											if (comptype==32)
-											{
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6, tvb, newoffset1, 16, FALSE);
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_ipv6_mask, tvb, newoffset1, 16, FALSE);
-												newoffset1+=32;
-												newoffset2+=32;
-											}
-											if (comptype==48)
-											{
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_prot_id, tvb, newoffset1, 1, FALSE);
-												newoffset1+=1;
-												newoffset2+=1;
-											}
-											if (comptype==64)
-											{
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_local, tvb, newoffset1, 2, FALSE);
-												newoffset1+=2;
-												newoffset2+=2;
-											}
-											if (comptype==65)
-											{
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_low, tvb, newoffset1, 2, FALSE);
-												newoffset1+=2;
-												newoffset2+=2;
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_local_port_high, tvb, newoffset1, 2, FALSE);
-												newoffset1+=2;
-												newoffset2+=2;
-											}
-											if (comptype==80)
-											{
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_single_remote, tvb, newoffset1, 2, FALSE);
-												newoffset1+=2;
-												newoffset2+=2;
-											}
-											if (comptype==81)
-											{
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_low, tvb, newoffset1, 2, FALSE);
-												newoffset1+=2;
-												newoffset2+=2;
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_remote_port_high, tvb, newoffset1, 2, FALSE);
-												newoffset1+=2;
-												newoffset2+=2;
-											}
-											if (comptype==96)
-											{
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_security, tvb, newoffset1, 4, FALSE);
-												newoffset1+=4;
-												newoffset2+=4;
-											}
-											if (comptype==112)
-											{
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type, tvb, newoffset1, 1, FALSE);
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_service_type_mask, tvb, newoffset1, 1, FALSE);
-												newoffset1+=2;
-												newoffset2+=2;
-											}
-											if (comptype==128)
-											{
-												proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_flow_label, tvb, offset, 3, FALSE);
-												newoffset1+=3;
-												newoffset2+=3;
-											}
-									  }
-									}
-
-									break;
-								case DELETE_TFT:
-									/* Delete Existing TFT */
-									break;
-
-								case DELETE_PACKET_FILTERS_TFT:
-									/* Delete Packet filters from existing TFT */
-									while (i<number)
-										{
-										i++;
-										proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_id, tvb, newoffset1, 1, FALSE);
-										proto_tree_add_item(ie_tree, hf_gtpv2_b_tft_pf_direction, tvb, newoffset1, 1, FALSE);
-										newoffset1++;
-										}
-									break;
-								case NO_TFT_OPERATION:
-									/* No TFT operation */
-									break;
-								case RESERVED:
-									/* Reserved */
-									break;
-								default:
-									break;
-							}
-					offset+=lengths;
-					break;
-
-				case 87:
-					/* F-TEID*/
-					newoffset=offset;
-					v4 = tvb_get_guint8(tvb,newoffset)& 0x80;
-					v6 = tvb_get_guint8(tvb,newoffset)& 0x40;
-
-					proto_tree_add_item(ie_tree, hf_gtpv2_f_teid_v4, tvb, newoffset, 1, FALSE);
-					proto_tree_add_item(ie_tree, hf_gtpv2_f_teid_v6, tvb, newoffset, 1, FALSE);
-					proto_tree_add_item(ie_tree, hf_gtpv2_f_teid_interface_type, tvb, newoffset, 1, FALSE);
-					newoffset++;
-					proto_tree_add_item(ie_tree, hf_gtpv2_f_teid_gre_key, tvb, newoffset, 4, FALSE);
-					newoffset= newoffset+4;
-					if (v4)
-					{
-						proto_tree_add_item(ie_tree, hf_gtpv2_f_teid_ipv4, tvb, newoffset, 4, FALSE);
-						newoffset= newoffset+4;
-					}
-					if (v6)
-					{
-						proto_tree_add_item(ie_tree, hf_gtpv2_f_teid_ipv6, tvb, newoffset, 16, FALSE);
-						newoffset= newoffset+16;
-					}
-					offset+=lengths;
-					break;
-				case 94:
-					/* Charging Id */
-					proto_tree_add_item(ie_tree, hf_gtpv2_charging_id, tvb, offset, lengths, FALSE);
-					offset+=lengths;
-					break;
-				case 97:
-					/* Bearer flags */
-					proto_tree_add_item(ie_tree, hf_gtpv2_bearer_flag, tvb, offset, lengths, FALSE);
-					offset+=lengths;
-					break;
-				case 122:
-					/* NSAPI */
-					proto_tree_add_text(ie_tree, tvb, 0, lengths, "IE data not dissected yet");
-					offset+=lengths;
-					break;
-				case 137:
-					/* Transaction Identifier */
-					proto_tree_add_text(ie_tree, tvb, 0, lengths, "IE data not dissected yet");
-					offset+=lengths;
-					break;
-				default:
-					break;
-			}
-
-		}
+	proto_item_append_text(item, "[Grouped IE]");
+	grouped_tree = proto_item_add_subtree(item, ett_gtpv2_bearer_ctx);
+	dissect_gtpv2_ie_common(tvb, pinfo, grouped_tree, offset);
 
 }
 /* 8.29 Charging ID */
@@ -1564,16 +1327,26 @@ dissect_gtpv2_charging_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 
- /* 8.30 Charging Characteristics  */
+ /* 8.30 Charging Characteristics  
+  * The charging characteristics information element is defined in 3GPP TS 32.251 [8]
+  * and is a way of informing both the SGW and PGW of the rules for producing charging 
+  * information based on operator configured triggers. For the encoding of this 
+  * information element see 3GPP TS 32.298 [9].
+  */
 
 static void
 dissect_gtpv2_charging_characteristic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
 
 	int offset = 0;
+	proto_tree_add_text(tree, tvb, 0, 1,"Here");
 
-	proto_tree_add_item(tree, hf_gtpv2_charging_characteristic, tvb, offset, length, FALSE);
-
+	proto_tree_add_item(tree, hf_gtpv2_charging_characteristic, tvb, offset, 2, FALSE);
+	if(length>2){
+		offset+=2;
+		/* These octet(s) is/are present only if explicitly specified */
+		proto_tree_add_text(tree, tvb, offset, length-2, "Remaining octets");
+	}
 
 }
 /* 8.30 Bearer Flag  */
@@ -1836,7 +1609,7 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tr
 			proto_tree_add_text(ie_tree, tvb, offset, length, "IE type Zero is Reserved and should not be used");
 		}else{
 			i = -1;
-			/* Loop over the IE dissector list to se if we find an entry, the last entry will have ie_type=0 braking the loop */
+			/* Loop over the IE dissector list to se if we find an entry, the last entry will have ie_type=0 breaking the loop */
 			while (gtpv2_ies[++i].ie_type){
 				if (gtpv2_ies[i].ie_type == type)
 					break;
@@ -2458,6 +2231,7 @@ void proto_register_gtpv2(void)
 		&ett_gtpv2,
 		&ett_gtpv2_flags,
 		&ett_gtpv2_ie,
+		&ett_gtpv2_bearer_ctx,
     };
 
 	proto_gtpv2 = proto_register_protocol("GPRS Tunneling Protocol V2", "GTPv2", "gtpv2");
