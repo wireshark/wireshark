@@ -1843,7 +1843,8 @@ rescan_packets_old(capture_file *cf, const char *action, const char *action_item
       /* Since all state for the frame was destroyed, mark the frame
        * as not visited, free the GSList referring to the state
        * data (the per-frame data itself was freed by
-       * "init_dissection()"), and null out the GSList pointer. */
+       * "init_dissection()"), and null out the GSList pointer.
+	   */
       fdata->flags.visited = 0;
       if (fdata->pfd) {
 		g_slist_free(fdata->pfd);
@@ -2153,6 +2154,12 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 		g_slist_free(fdata->pfd);
         fdata->pfd = NULL;
       }
+	  /* cleanup_dissection() calls se_free_all(); 
+	   * And after that fdata->col_text (which is allocated using se_alloc0())
+	   * no longer points to valid memory.
+	   */
+	    fdata->col_text_len = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
+		fdata->col_text = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
     }
 
     if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
