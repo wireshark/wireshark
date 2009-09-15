@@ -71,7 +71,7 @@ Wireshark Info
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
       The following features are new (or have been significantly updated)
-      since version 1.0:
+      since version 1.2:
 
       <itemizedlist>
 
@@ -79,6 +79,12 @@ Wireshark Info
           <para>
             The packet list internals have been rewritten and are now more
             efficient.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Python scripting support has been added.
           </para>
         </listitem>
 
