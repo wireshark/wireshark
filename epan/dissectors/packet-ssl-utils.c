@@ -2816,6 +2816,8 @@ ssl_association_remove(GTree* associations, SslAssociation *assoc)
   if (assoc->handle)
     dissector_delete((assoc->tcp)?"tcp.port":"udp.port", assoc->ssl_port, assoc->handle);
 
+  g_free(assoc->info);
+
   g_tree_remove(associations, assoc);
   g_free(assoc);
 }
