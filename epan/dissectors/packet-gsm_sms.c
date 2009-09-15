@@ -3660,7 +3660,7 @@ proto_register_gsm_sms(void)
 
     /* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_PARMS	12
-    static gint *ett[NUM_INDIVIDUAL_PARMS+NUM_MSGS+NUM_UDH_IEIS+2];
+    gint *ett[NUM_INDIVIDUAL_PARMS+NUM_MSGS+NUM_UDH_IEIS+2];
 
     ett[0] = &ett_gsm_sms;
     ett[1] = &ett_pid;

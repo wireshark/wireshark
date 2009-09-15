@@ -6084,9 +6084,9 @@ proto_register_gsm_a_gm(void)
 
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	15
-	static gint *ett[NUM_INDIVIDUAL_ELEMS +
-			NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SM +
-			NUM_GSM_GM_ELEM];
+	gint *ett[NUM_INDIVIDUAL_ELEMS +
+		  NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SM +
+		  NUM_GSM_GM_ELEM];
 
 	ett[0]  = &ett_tc_component;
 	ett[1]  = &ett_tc_invoke_id;

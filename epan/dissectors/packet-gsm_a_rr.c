@@ -10157,11 +10157,11 @@ proto_register_gsm_a_rr(void)
 
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	3
-    static gint *ett[NUM_INDIVIDUAL_ELEMS +
-                     NUM_GSM_DTAP_MSG_RR +
-                     NUM_GSM_RR_ELEM +
-                     NUM_GSM_RR_REST_OCTETS_ELEM +
-                     NUM_GSM_SACCH_MSG_RR];
+    gint *ett[NUM_INDIVIDUAL_ELEMS +
+              NUM_GSM_DTAP_MSG_RR +
+              NUM_GSM_RR_ELEM +
+              NUM_GSM_RR_REST_OCTETS_ELEM +
+              NUM_GSM_SACCH_MSG_RR];
 
     ett[0] = &ett_ccch_msg;
     ett[1] = &ett_ccch_oct_1;

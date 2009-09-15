@@ -4593,10 +4593,10 @@ void proto_register_nas_eps(void) {
 
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	2
-	static gint *ett[NUM_INDIVIDUAL_ELEMS +
-		NUM_NAS_EPS_COMMON_ELEM +
-		NUM_NAS_MSG_EMM + NUM_NAS_EMM_ELEM+
-		NUM_NAS_MSG_ESM + NUM_NAS_ESM_ELEM];
+	gint *ett[NUM_INDIVIDUAL_ELEMS +
+		  NUM_NAS_EPS_COMMON_ELEM +
+		  NUM_NAS_MSG_EMM + NUM_NAS_EMM_ELEM+
+		  NUM_NAS_MSG_ESM + NUM_NAS_ESM_ELEM];
 
 	ett[0] = &ett_nas_eps;
 	ett[1] = &ett_nas_eps_esm_msg_cont;

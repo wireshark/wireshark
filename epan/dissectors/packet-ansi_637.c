@@ -2326,7 +2326,7 @@ proto_register_ansi_637(void)
 
     /* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_PARAMS	3
-    static gint *ett[NUM_INDIVIDUAL_PARAMS+NUM_TELE_PARAM+NUM_TRANS_MSG_TYPE+NUM_TRANS_PARAM];
+    gint *ett[NUM_INDIVIDUAL_PARAMS+NUM_TELE_PARAM+NUM_TRANS_MSG_TYPE+NUM_TRANS_PARAM];
 
     memset((void *) ett, 0, sizeof(ett));
 

@@ -6066,10 +6066,10 @@ proto_register_gsm_a_dtap(void)
 
 	/* Setup protocol subtree array */
 #define NUM_INDIVIDUAL_ELEMS    19
-	static gint *ett[NUM_INDIVIDUAL_ELEMS +
-			NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_CC +
-			NUM_GSM_DTAP_MSG_SMS + NUM_GSM_DTAP_MSG_SS + NUM_GSM_DTAP_MSG_TP +
-			NUM_GSM_DTAP_ELEM];
+	gint *ett[NUM_INDIVIDUAL_ELEMS +
+		  NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_CC +
+		  NUM_GSM_DTAP_MSG_SMS + NUM_GSM_DTAP_MSG_SS + NUM_GSM_DTAP_MSG_TP +
+		  NUM_GSM_DTAP_ELEM];
 
 	ett[0] = &ett_dtap_msg;
 	ett[1] = &ett_dtap_oct_1;

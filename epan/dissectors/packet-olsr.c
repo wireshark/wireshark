@@ -976,7 +976,7 @@ void proto_register_olsr(void) {
     &ett_olsr_message_ns
   };
 
-  static gint *ett[array_length(ett_base) + (G_MAXUINT8+1)];
+  gint *ett[array_length(ett_base) + (G_MAXUINT8+1)];
 
   module_t *olsr_module;
   int i,j;

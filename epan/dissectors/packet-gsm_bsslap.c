@@ -932,8 +932,8 @@ proto_register_gsm_bsslap(void)
 
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	2
-	static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSLAP_MSG +
-			NUM_GSM_BSSLAP_ELEM];
+	gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSLAP_MSG +
+		  NUM_GSM_BSSLAP_ELEM];
 
 	ett[0] = &ett_gsm_bsslap;
 	ett[1] = &ett_bsslap_cell_list;

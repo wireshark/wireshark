@@ -841,7 +841,7 @@ proto_register_cimd(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[MAXPARAMSCOUNT + 1];
+  gint *ett[MAXPARAMSCOUNT + 1];
   int i;
 
   ett[0] = &ett_cimd;

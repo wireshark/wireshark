@@ -1068,8 +1068,8 @@ proto_register_gsm_bssmap_le(void)
 	};
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	1
-	static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_LE_MSG +
-			NUM_GSM_BSSMAP_LE_ELEM];
+	gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_LE_MSG +
+		  NUM_GSM_BSSMAP_LE_ELEM];
 
 	ett[0] = &ett_bssmap_le_msg;
 

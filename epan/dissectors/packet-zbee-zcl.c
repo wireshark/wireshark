@@ -2112,7 +2112,7 @@ void proto_register_zbee_zcl(void)
     };
 
     /* ZCL subtrees */
-    static gint *ett[ZBEE_ZCL_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_NUM_ATTR_ETT];
+    gint *ett[ZBEE_ZCL_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_NUM_ATTR_ETT];
 
     ett[0] = &ett_zbee_zcl;
     ett[1] = &ett_zbee_zcl_fcf;

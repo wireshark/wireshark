@@ -263,7 +263,6 @@ enum {
     TT_MAX
 };
 static gint ett_treelist[TT_MAX];
-static gint *ett_tree[TT_MAX];
 #define TREE(X) ett_treelist[(X)]
 
 /* Should we dissect bundle messages? */
@@ -5915,6 +5914,8 @@ proto_register_rsvp(void)
 		 { "Source Transport Network Address", "rsvp.callid.srcaddr.ipv6", FT_IPv6,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
+
+    gint *ett_tree[TT_MAX];
 
     /* Build the tree array */
     for (i=0; i<TT_MAX; i++) {
