@@ -39,15 +39,6 @@ link_directories(
 	wspython
 )
 
-ADD_CUSTOM_COMMAND(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sminmpec.c
-    COMMAND ${PERL_EXECUTABLE}
-      ${CMAKE_CURRENT_SOURCE_DIR}/make-sminmpec.pl
-      ${CMAKE_CURRENT_SOURCE_DIR}/enterprise-numbers
-      ${CMAKE_CURRENT_BINARY_DIR}/sminmpec.c
-    DEPENDS enterprise-numbers
-)
-
 set(CRC_FILES
 	crc/crc-16-plain.c
 )
@@ -1030,6 +1021,7 @@ set_source_files_properties(
 	
 ADD_CUSTOM_COMMAND(
 # FIXME: Only the Python stuff has been implemented
+#        Make this into a MACRO, to avoid duplication with plugins/.../
 #register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) $(top_srcdir)/tools/make-dissector-reg \
 #    $(top_srcdir)/tools/make-dissector-reg.py
 #        @if test -n "$(PYTHON)"; then \
@@ -1041,7 +1033,7 @@ ADD_CUSTOM_COMMAND(
 #                $(top_srcdir)/tools/make-dissector-reg $(srcdir) \
 #                   dissectors $(plugin_src) $(ALL_DISSECTORS_SRC) ; \
 #        fi
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/register.c
+    OUTPUT register.c
     COMMAND ${PYTHON_EXECUTABLE}
       ${CMAKE_SOURCE_DIR}/tools/make-dissector-reg.py
       ${CMAKE_CURRENT_SOURCE_DIR}
@@ -1068,12 +1060,14 @@ set(FTYPE_FILES
 )
 
 ADD_CUSTOM_COMMAND(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/sminmpec.c
+    OUTPUT sminmpec.c
     COMMAND ${PERL_EXECUTABLE}
       ${CMAKE_CURRENT_SOURCE_DIR}/make-sminmpec.pl
       ${CMAKE_CURRENT_SOURCE_DIR}/enterprise-numbers
-      ${CMAKE_CURRENT_BINARY_DIR}/sminmpec.c
-    DEPENDS enterprise-numbers
+      sminmpec.c
+    DEPENDS
+      enterprise-numbers
+      make-sminmpec.pl
 )
 
 set(LIBWIRESHARK_FILES

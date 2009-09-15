@@ -78,11 +78,12 @@ option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC (disables -Werror
 option(ENABLE_AIRPCAP	 "Enable Airpcap support" ON)
 # todo
 option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
+option(ENABLE_PLUGINS    "Build with plugins" ON)
 
 option(ENABLE_ADNS       "Build with adns support" ON)
 option(ENABLE_PCRE       "Build with pcre support" ON)
 option(ENABLE_PORTAUDIO  "Build with portaudio support" ON)
-option(ENABLE_Z	 	 "Build with zlib compression support" ON)
+option(ENABLE_Z          "Build with zlib compression support" ON)
 # todo wslua currently seems to be broken
 option(ENABLE_LUA	 "Build with lua dissector support" OFF)
 option(ENABLE_PYTHON	 "Build with python dissector support" ON)
@@ -96,7 +97,7 @@ option(ENABLE_CARES      "Build with c_ares support" ON)
 option(ENABLE_KERBEROS	 "Build with Kerberos support" ON)
 
 
-set(WIRESHARK_CC_FLAGS
+set(WIRESHARK_C_FLAGS
 	# todo Workaround for problem described below
 	-doesntexist
 	-O2
@@ -113,7 +114,7 @@ set(WIRESHARK_CC_FLAGS
 	-Wformat-security
 )
 
-set(WIRESHARK_EXTRA_CC_FLAGS
+set(WIRESHARK_EXTRA_C_FLAGS
 	-pedantic
 	-Woverflow
 	-Wlogical-op
@@ -144,7 +145,7 @@ set(WIRESHARK_EXTRA_CC_FLAGS
 )
 
 if(ENABLE_EXTRA_GCC_CHECKS)
-	set(WIRESHARK_CC_FLAGS ${WIRESHARK_CC_FLAGS} ${WIRESHARK_EXTRA_CC_FLAGS})
+	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_C_FLAGS})
 endif()
 
 add_definitions(
@@ -157,7 +158,7 @@ add_definitions(
 # This doesn't actually work because of some cache magic in
 # CHECK_C_SOURCE_COMPILES
 include(CheckCCompilerFlag)
-foreach(WS_C_FLAG ${WIRESHARK_CC_FLAGS})
+foreach(WS_C_FLAG ${WIRESHARK_C_FLAGS})
 	message(STATUS "Flag pre: ${WS_C_FLAG}")
 	check_c_compiler_flag(${WS_C_FLAG} WS_C_FLAG_VALID)
 	if (${WS_C_FLAG_VALID})
@@ -316,6 +317,34 @@ test_big_endian(WORDS_BIGENDIAN)
 
 set(DATAFILE_DIR "${CMAKE_INSTALL_PREFIX}/share/${CPACK_PACKAGE_NAME}")
 
+if(ENABLE_PLUGINS)
+	set(HAVE_PLUGINS 1)
+	set(PLUGIN_DIR="${DATAFILE_DIR}/plugins/${CPACK_PACKAGE_VERSION}")
+	set(PLUGIN_SRC_DIRS
+		plugins/asn1
+#		plugins/docsis
+#		plugins/ethercat
+#		plugins/giop
+#		plugins/gryphon
+#		plugins/irda
+#		plugins/m2m
+#		plugins/mate
+#		plugins/opcua
+#		plugins/profinet
+#		plugins/sercosiii
+#		plugins/stats_tree
+#		plugins/unistim
+#		plugins/wimax
+#		plugins/wimaxasncp
+	)
+else()
+	set(PLUGIN_SRC_DIRS )
+endif()
+
+foreach(PLUGIN_DIR ${PLUGIN_SRC_DIRS})
+	add_subdirectory( ${PLUGIN_DIR} )
+endforeach()
+
 #Platform specific
 if(UNIX)
 	set(WS_VAR_IMPORT "extern")
@@ -337,11 +366,15 @@ if(WIN32)
 endif()
 
 
+add_subdirectory( codecs )
 add_subdirectory( epan )
 add_subdirectory( gtk )
-add_subdirectory( codecs )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
+
+if (ENABLE_PLUGINS)
+	add_subdirectory( plugins )
+endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
 
@@ -405,6 +438,12 @@ if(WIN32)
 		capture-wpcap.c capture_wpcap_packet.c
 	)
 endif()
+
+set(WTAP_PLUGIN_SOURCES
+	epan/plugins.c
+	epan/report_err.c
+	epan/filesystem.c
+)
 
 set(WIRESHARK_COMMON_SRC
 	${PLATFORM_SRC}
@@ -625,6 +664,7 @@ if(BUILD_capinfos)
 	)
 	set(capinfos_FILES
 		capinfos.c
+		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(capinfos ${capinfos_FILES})
 	target_link_libraries(capinfos ${capinfos_LIBS})
@@ -642,6 +682,7 @@ if(BUILD_editcap)
 		editcap.c
 		epan/crypt/crypt-md5.c
 		epan/nstime.c
+		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(editcap ${editcap_FILES})
 	target_link_libraries(editcap ${editcap_LIBS})
