@@ -981,27 +981,25 @@ void proto_register_olsr(void) {
   module_t *olsr_module;
   int i,j;
 
-  if (proto_olsr == -1) {
-    memcpy(ett, ett_base, sizeof(ett_base));
-    j = array_length(ett_base);
-    for (i=0; i<G_MAXUINT8+1; i++) {
-      ett_olsr_message[i] = -1;
-      ett[j++] = &ett_olsr_message[i];
-    }
-
-    proto_olsr = proto_register_protocol("Optimized Link State Routing Protocol", "OLSR", "olsr");
-
-    proto_register_field_array(proto_olsr, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
-
-    olsr_module = prefs_register_protocol(proto_olsr, NULL);
-    prefs_register_bool_preference(olsr_module, "ff_olsrorg",
-        "Dissect olsr.org messages","Dissect custom olsr.org message types (compatible with rfc routing agents)",
-        &global_olsr_olsrorg);
-    prefs_register_bool_preference(olsr_module, "nrlolsr",
-        "Dissect NRL-Olsr TC messages", "Dissect custom nrlolsr tc message (incompatible with rfc routing agents)",
-        &global_olsr_nrlolsr);
+  memcpy(ett, ett_base, sizeof(ett_base));
+  j = array_length(ett_base);
+  for (i=0; i<G_MAXUINT8+1; i++) {
+    ett_olsr_message[i] = -1;
+    ett[j++] = &ett_olsr_message[i];
   }
+
+  proto_olsr = proto_register_protocol("Optimized Link State Routing Protocol", "OLSR", "olsr");
+
+  proto_register_field_array(proto_olsr, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+
+  olsr_module = prefs_register_protocol(proto_olsr, NULL);
+  prefs_register_bool_preference(olsr_module, "ff_olsrorg",
+                                 "Dissect olsr.org messages","Dissect custom olsr.org message types (compatible with rfc routing agents)",
+                                 &global_olsr_olsrorg);
+  prefs_register_bool_preference(olsr_module, "nrlolsr",
+                                 "Dissect NRL-Olsr TC messages", "Dissect custom nrlolsr tc message (incompatible with rfc routing agents)",
+                                 &global_olsr_nrlolsr);
 }
 
 void proto_reg_handoff_olsr(void) {
