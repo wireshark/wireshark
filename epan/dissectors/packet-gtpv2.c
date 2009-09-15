@@ -1299,16 +1299,9 @@ dissect_gtpv2_delay_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static void
 dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_)
 {
-	int offset= 0,i=0;
+	int offset= 0;
 	proto_tree *grouped_tree;
-	int newoffset, newoffset1, newoffset2, newoffset3;
-	guint8 number, opcode, ebit, comptype, length1;
-	guint8 type, instances;
-	proto_tree *ie_tree;
-	proto_item *ti;
-	guint8 v4, v6;
-	guint16 lengths;
-
+	
 	proto_item_append_text(item, "[Grouped IE]");
 	grouped_tree = proto_item_add_subtree(item, ett_gtpv2_bearer_ctx);
 	dissect_gtpv2_ie_common(tvb, pinfo, grouped_tree, offset);
