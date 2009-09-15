@@ -2929,6 +2929,13 @@ Florian Forster		<octo [AT] verplant.org> {
 	CollectD dissector
 }
 
+Ivan Sy Jr.             <ivan_jr [AT] yahoo.com> {
+        Added DNS RRs: DLV, SSHFP, SPF, HIP, DHCID, NSEC3PARAM, APL, PX,
+                       GPOS, NSAP, NSAP-PTR, AFSDB, RP, X25, ISDN, RT, RR
+        Allow some network control block addresses with ttl != 1.
+        Miscellaneous IPv6 enhancements.
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
