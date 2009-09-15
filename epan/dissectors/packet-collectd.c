@@ -46,6 +46,8 @@
 #define TYPE_INTERVAL        0x0007
 #define TYPE_MESSAGE         0x0100
 #define TYPE_SEVERITY        0x0101
+#define TYPE_SIGN_SHA256     0x0200
+#define TYPE_ENCR_AES256     0x0210
 
 typedef struct value_data_s {
 	gchar *host;
@@ -95,6 +97,8 @@ static const value_string part_names[] = {
 	{ TYPE_TYPE_INSTANCE,   "TYPE_INSTANCE" },
 	{ TYPE_MESSAGE,         "MESSAGE" },
 	{ TYPE_SEVERITY,        "SEVERITY" },
+	{ TYPE_SIGN_SHA256,     "SIGNATURE" },
+	{ TYPE_ENCR_AES256,     "ENCRYPTED_DATA" },
 	{ 0, NULL }
 };
 
@@ -138,6 +142,11 @@ static gint hf_collectd_val_gauge	= -1;
 static gint hf_collectd_val_unknown	= -1;
 static gint hf_collectd_data_severity	= -1;
 static gint hf_collectd_data_message	= -1;
+static gint hf_collectd_data_sighash    = -1;
+static gint hf_collectd_data_initvec    = -1;
+static gint hf_collectd_data_username_len = -1;
+static gint hf_collectd_data_username   = -1;
+static gint hf_collectd_data_encrypted  = -1;
 
 static gint ett_collectd		= -1;
 static gint ett_collectd_string		= -1;
@@ -145,6 +154,8 @@ static gint ett_collectd_integer	= -1;
 static gint ett_collectd_part_value	= -1;
 static gint ett_collectd_value		= -1;
 static gint ett_collectd_valinfo	= -1;
+static gint ett_collectd_signature	= -1;
+static gint ett_collectd_encryption	= -1;
 static gint ett_collectd_dispatch	= -1;
 static gint ett_collectd_invalid_length	= -1;
 static gint ett_collectd_unknown	= -1;
@@ -164,7 +175,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	gint length;
 	gint size;
 
-	size = tvb_length_remaining (tvb, offset);
+	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
 	{
 		/* This should never happen, because `dissect_collectd' checks
@@ -219,7 +230,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	gint length;
 	gint size;
 
-	size = tvb_length_remaining (tvb, offset);
+	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
 	{
 		/* This should never happen, because `dissect_collectd' checks
@@ -300,7 +311,8 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 
 	values_tree = proto_item_add_subtree (pi, ett_collectd_value);
 
-	for (i = 0; i < val_cnt; i++) {
+	for (i = 0; i < val_cnt; i++)
+	{
 		gint value_offset;
 
 		gint value_type_offset;
@@ -388,7 +400,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	gint values_count;
 	gint corrected_values_count;
 
-	size = tvb_length_remaining (tvb, offset);
+	size = tvb_reported_length_remaining (tvb, offset);
 	if (size < 4)
 	{
 		/* This should never happen, because `dissect_collectd' checks
@@ -494,7 +506,171 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			     "Interval: %"G_GINT64_MODIFIER"u",
 			     vdispatch->interval);
 	return (0);
-} /* int dissect_collectd_part_values */
+} /* void dissect_collectd_part_values */
+
+static int
+dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
+			    gint offset, proto_tree *tree_root)
+{
+	proto_item *pi;
+	proto_tree *pt;
+	gint type;
+	gint length;
+	gint size;
+
+	size = tvb_reported_length_remaining (tvb, offset);
+	if (size < 4)
+	{
+		/* This should never happen, because `dissect_collectd' checks
+		 * for this condition already. */
+		return (-1);
+	}
+
+	type   = tvb_get_ntohs (tvb, offset);
+	length = tvb_get_ntohs (tvb, offset + 2);
+
+	if (size < 36) /* remaining packet size too small for signature */
+	{
+		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
+					  "collectd %s segment: <BAD>",
+					  val_to_str (type, part_names, "UNKNOWN"));
+
+		pt = proto_item_add_subtree (pi, ett_collectd_signature);
+		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
+		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
+				     length);
+		pi = proto_tree_add_text (pt, tvb, offset + 4, -1,
+					  "Garbage at end of packet: Length = %i <BAD>",
+					  size - 4);
+		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
+					"Garbage at end of packet");
+
+		return (-1);
+	}
+
+	if (length < 36)
+	{
+		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
+					  "collectd %s segment: <BAD>",
+					  val_to_str (type, part_names, "UNKNOWN"));
+
+		pt = proto_item_add_subtree (pi, ett_collectd_signature);
+		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
+		pi = proto_tree_add_uint (pt, hf_collectd_length, tvb,
+					  offset + 2, 2, length);
+		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
+					"Invalid length field for a signature part.");
+
+		return (-1);
+	}
+
+	pi = proto_tree_add_text (tree_root, tvb, offset, length,
+				  "collectd %s segment: HMAC-SHA-256",
+				  val_to_str (type, part_names, "UNKNOWN"));
+
+	pt = proto_item_add_subtree (pi, ett_collectd_signature);
+	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
+	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
+			     length);
+	proto_tree_add_item (pt, hf_collectd_data_sighash, tvb, offset + 4, 32, FALSE);
+	proto_tree_add_item (pt, hf_collectd_data_username, tvb, offset + 36, length - 36, FALSE);
+
+	return (0);
+} /* int dissect_collectd_signature */
+
+static int
+dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
+			    gint offset, proto_tree *tree_root)
+{
+	proto_item *pi;
+	proto_tree *pt;
+	gint type;
+	gint length;
+	gint size;
+	gint username_length;
+
+	size = tvb_reported_length_remaining (tvb, offset);
+	if (size < 4)
+	{
+		/* This should never happen, because `dissect_collectd' checks
+		 * for this condition already. */
+		return (-1);
+	}
+
+	type   = tvb_get_ntohs (tvb, offset);
+	length = tvb_get_ntohs (tvb, offset + 2);
+
+	if (size < 42) /* remaining packet size too small for signature */
+	{
+		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
+					  "collectd %s segment: <BAD>",
+					  val_to_str (type, part_names, "UNKNOWN"));
+
+		pt = proto_item_add_subtree (pi, ett_collectd_encryption);
+		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
+		proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
+				     length);
+		pi = proto_tree_add_text (pt, tvb, offset + 4, -1,
+					  "Garbage at end of packet: Length = %i <BAD>",
+					  size - 4);
+		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
+					"Garbage at end of packet");
+
+		return (-1);
+	}
+
+	if (length < 42)
+	{
+		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
+					  "collectd %s segment: <BAD>",
+					  val_to_str (type, part_names, "UNKNOWN"));
+
+		pt = proto_item_add_subtree (pi, ett_collectd_encryption);
+		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
+		pi = proto_tree_add_uint (pt, hf_collectd_length, tvb,
+					  offset + 2, 2, length);
+		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
+					"Invalid length field for an encryption part.");
+
+		return (-1);
+	}
+
+	username_length = tvb_get_ntohs (tvb, offset + 4);
+	if (username_length > (length - 42))
+	{
+		pi = proto_tree_add_text (tree_root, tvb, offset, -1,
+					  "collectd %s segment: <BAD>",
+					  val_to_str (type, part_names, "UNKNOWN"));
+
+		pt = proto_item_add_subtree (pi, ett_collectd_encryption);
+		proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
+		proto_tree_add_uint (pt, hf_collectd_length, tvb,
+				     offset + 2, 2, length);
+		pi = proto_tree_add_uint (pt, hf_collectd_data_username_len, tvb,
+					  offset + 4, 2, length);
+		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_ERROR,
+					"Invalid username length field for an encryption part.");
+
+		return (-1);
+	}
+
+	pi = proto_tree_add_text (tree_root, tvb, offset, length,
+				  "collectd %s segment: AES-256",
+				  val_to_str (type, part_names, "UNKNOWN"));
+
+	pt = proto_item_add_subtree (pi, ett_collectd_encryption);
+	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
+	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2, length);
+	proto_tree_add_uint (pt, hf_collectd_data_username_len, tvb, offset + 4, 2, username_length);
+	proto_tree_add_item (pt, hf_collectd_data_username, tvb, offset + 6, username_length, FALSE);
+	proto_tree_add_item (pt, hf_collectd_data_initvec, tvb,
+			     offset + (6 + username_length), 16, FALSE);
+	proto_tree_add_item (pt, hf_collectd_data_encrypted, tvb,
+			     offset + (22 + username_length),
+			     length - (22 + username_length), FALSE);
+
+	return (0);
+} /* int dissect_collectd_encrypted */
 
 static void
 dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -524,7 +700,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	collectd_tree = proto_item_add_subtree(pi, ett_collectd);
 
 	status = 0;
-	while ((size > 0) && (status == 0)) {
+	while ((size > 0) && (status == 0))
+	{
 
 		gint part_type;
 		gint part_length;
@@ -534,7 +711,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * plugins and notifications. The payload is not checked at
 		 * all, but the same checks are run on the part_length stuff -
 		 * it's important to keep an eye on that. */
-		if (!tree) {
+		if (!tree)
+		{
 			/* Check for garbage at end of packet. */
 			if (size < 4)
 			{
@@ -547,7 +725,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			part_length  = tvb_get_ntohs (tvb, offset+2);
 
 			/* Check if part_length is in the valid range. */
-			if ((part_length < 4) || (part_length > size)) {
+			if ((part_length < 4) || (part_length > size))
+			{
 				pkt_errors++;
 				status = -1;
 				break;
@@ -594,7 +773,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Four bytes are used to read the type and the length
 		 * of the next part. If there's less, there's some garbage
 		 * at the end of the packet. */
-		if (size < 4) {
+		if (size < 4)
+		{
 			pi = proto_tree_add_text (collectd_tree, tvb,
 						  offset, -1,
 						  "Garbage at end of packet: Length = %i <BAD>",
@@ -614,7 +794,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Check if the length of the part is in the valid range. Don't
 		 * confuse this with the above: Here we check the information
 		 * provided in the packet.. */
-		if ((part_length < 4) || (part_length > size)) {
+		if ((part_length < 4) || (part_length > size))
+		{
 			pi = proto_tree_add_text (collectd_tree, tvb,
 						  offset, part_length,
 						  "collectd %s segment: Length = %i <BAD>",
@@ -645,7 +826,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* The header information looks okay, let's tend to the actual
 		 * payload in this part. */
 		switch (part_type) {
-		case TYPE_HOST: {
+		case TYPE_HOST:
+		{
 			status = dissect_collectd_string (tvb, pinfo,
 					hf_collectd_data_host,
 					offset,
@@ -655,7 +837,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					collectd_tree, /* item = */ NULL);
 			if (status != 0)
 				pkt_errors++;
-			else {
+			else
+			{
 				if (pkt_host == NULL)
 					pkt_host = vdispatch.host;
 				ndispatch.host_off = vdispatch.host_off;
@@ -666,7 +849,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		case TYPE_PLUGIN: {
+		case TYPE_PLUGIN:
+		{
 			status = dissect_collectd_string (tvb, pinfo,
 					hf_collectd_data_plugin,
 					offset,
@@ -682,7 +866,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		case TYPE_PLUGIN_INSTANCE: {
+		case TYPE_PLUGIN_INSTANCE:
+		{
 			status = dissect_collectd_string (tvb, pinfo,
 					hf_collectd_data_plugin_inst,
 					offset,
@@ -696,7 +881,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		case TYPE_TYPE: {
+		case TYPE_TYPE:
+		{
 			status = dissect_collectd_string (tvb, pinfo,
 					hf_collectd_data_type,
 					offset,
@@ -710,7 +896,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		case TYPE_TYPE_INSTANCE: {
+		case TYPE_TYPE_INSTANCE:
+		{
 			status = dissect_collectd_string (tvb, pinfo,
 					hf_collectd_data_type_inst,
 					offset,
@@ -724,7 +911,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		case TYPE_TIME: {
+		case TYPE_TIME:
+		{
 			ndispatch.time_str = NULL;
 			vdispatch.time_str = NULL;
 
@@ -737,7 +925,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					collectd_tree, &pi);
 			if (status != 0)
 				pkt_errors++;
-			else {
+			else
+			{
 				vdispatch.time_str = abs_time_secs_to_str ((time_t) vdispatch.time);
 
 				ndispatch.time = vdispatch.time;
@@ -750,7 +939,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		case TYPE_INTERVAL: {
+		case TYPE_INTERVAL:
+		{
 			status = dissect_collectd_integer (tvb, pinfo,
 					hf_collectd_data_interval,
 					offset,
@@ -763,7 +953,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		case TYPE_VALUES: {
+		case TYPE_VALUES:
+		{
 			status = dissect_collectd_part_values (tvb, pinfo,
 					offset,
 					&vdispatch,
@@ -776,7 +967,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		case TYPE_MESSAGE: {
+		case TYPE_MESSAGE:
+		{
 			pi = NULL;
 			status = dissect_collectd_string (tvb, pinfo,
 					hf_collectd_data_message,
@@ -815,7 +1007,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		case TYPE_SEVERITY: {
+		case TYPE_SEVERITY:
+		{
 			pi = NULL;
 			status = dissect_collectd_integer (tvb, pinfo,
 					hf_collectd_data_severity,
@@ -825,7 +1018,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					collectd_tree, &pi);
 			if (status != 0)
 				pkt_errors++;
-			else {
+			else
+			{
 				proto_item_set_text (pi,
 						"collectd SEVERITY segment: "
 						"%s (%"G_GINT64_MODIFIER"u)",
@@ -836,7 +1030,29 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		default: {
+		case TYPE_SIGN_SHA256:
+		{
+			status = dissect_collectd_signature (tvb, pinfo,
+							     offset,
+							     collectd_tree);
+			if (status != 0)
+				pkt_errors++;
+
+			break;
+		}
+
+		case TYPE_ENCR_AES256:
+		{
+			status = dissect_collectd_encrypted (tvb, pinfo,
+					offset, collectd_tree);
+			if (status != 0)
+				pkt_errors++;
+
+			break;
+		}
+
+		default:
+		{
 			pkt_unknown++;
 			pi = proto_tree_add_text (collectd_tree, tvb,
 						  offset, part_length,
@@ -969,6 +1185,26 @@ void proto_register_collectd(void)
 			{ "Message", "collectd.data.message", FT_STRING, BASE_NONE,
 				NULL, 0x0, NULL, HFILL }
 		},
+		{ &hf_collectd_data_sighash,
+			{ "Signature", "collectd.data.sighash", FT_BYTES, BASE_HEX,
+				NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_collectd_data_initvec,
+			{ "Init vector", "collectd.data.initvec", FT_BYTES, BASE_HEX,
+				NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_collectd_data_username_len,
+			{ "Username length", "collectd.data.username_length", FT_UINT16, BASE_DEC,
+				NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_collectd_data_username,
+			{ "Username", "collectd.data.username", FT_STRING, BASE_NONE,
+				NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_collectd_data_encrypted,
+			{ "Encrypted data", "collectd.data.encrypted", FT_BYTES, BASE_HEX,
+				NULL, 0x0, NULL, HFILL }
+		},
 	};
 
 	/* Setup protocol subtree array */
@@ -979,6 +1215,8 @@ void proto_register_collectd(void)
 		&ett_collectd_part_value,
 		&ett_collectd_value,
 		&ett_collectd_valinfo,
+		&ett_collectd_signature,
+		&ett_collectd_encryption,
 		&ett_collectd_dispatch,
 		&ett_collectd_invalid_length,
 		&ett_collectd_unknown,
