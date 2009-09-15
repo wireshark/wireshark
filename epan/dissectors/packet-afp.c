@@ -55,14 +55,14 @@ http://developer.apple.com/DOCUMENTATION/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
    http://developer.apple.com/documentation/Networking/Conceptual/AFP/AFP3_1.pdf
 
   and in HTML form, at
-  
+
 http://developer.apple.com/documentation/Networking/Conceptual/AFP/index.html
 
 
   AFP 3.3 specfication in HTML form, at
 http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/Introduction/Introduction.html
- 
- 
+
+
   The netatalk source code by Wesley Craig & Adrian Sun
 	http://netatalk.sf.net
 */
@@ -584,6 +584,7 @@ static int hf_afp_vol_attribute_NoExchangeFiles			= -1;
 static int hf_afp_vol_attribute_SupportsExtAttrs		= -1;
 static int hf_afp_vol_attribute_SupportsACLs			= -1;
 static int hf_afp_vol_attribute_CaseSensitive			= -1;
+static int hf_afp_vol_attribute_SupportsTMLockSteal		= -1;
 
 static int hf_afp_dir_bitmap_Attributes     = -1;
 static int hf_afp_dir_bitmap_ParentDirID    = -1;
@@ -698,7 +699,7 @@ static const value_string map_id_reply_type_vals[] = {
   {1,	"user name" },
   {2,	"group name" },
   {0,	NULL } };
-  
+
 /*
   volume attribute from Apple AFP3.0.pdf
   Table 1-3 p. 22
@@ -717,7 +718,9 @@ static const value_string map_id_reply_type_vals[] = {
 #define kNoExchangeFiles			(1 << 9)
 #define kSupportsExtAttrs			(1 << 10)
 #define kSupportsACLs				(1 << 11)
-#define kCaseSensitive				(1 << 12)
+/* AFP3.2+ */
+#define kCaseSensitive 				(1 << 12)
+#define kSupportsTMLockSteal			(1 << 13)
 
 /*
   directory bitmap from Apple AFP3.1.pdf
@@ -1070,6 +1073,7 @@ decode_vol_attribute (proto_tree *tree, tvbuff_t *tvb, gint offset)
 		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsExtAttrs        ,tvb, offset, 2,FALSE);
 		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsACLs            ,tvb, offset, 2,FALSE);
 		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_CaseSensitive           ,tvb, offset, 2,FALSE);
+		proto_tree_add_item(sub_tree, hf_afp_vol_attribute_SupportsTMLockSteal     ,tvb, offset, 2,FALSE);
 	}
 
 	return bitmap;
@@ -1460,7 +1464,7 @@ decode_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_Attributes      , tvb, offset, 2,FALSE);
 		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_ParentDirID    , tvb, offset, 2,FALSE);
 		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_CreateDate     , tvb, offset, 2,FALSE);
-		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_ModDate        , tvb, offset, 2,FALSE);	
+		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_ModDate        , tvb, offset, 2,FALSE);
 		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_BackupDate     , tvb, offset, 2,FALSE);
 		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_FinderInfo     , tvb, offset, 2,FALSE);
 		proto_tree_add_item(sub_tree, hf_afp_dir_bitmap_LongName       , tvb, offset, 2,FALSE);
@@ -3343,16 +3347,16 @@ int size = 1;
 	if (!len) {
 	        len = tvb_get_guint8(tvb, offset +1);
 	        if (!len) {
-	            /* assume it's undocumented type 5 or 6 reply */ 
+	            /* assume it's undocumented type 5 or 6 reply */
                     proto_tree_add_item(tree, hf_afp_map_id_reply_type, tvb, offset, 4,FALSE);
                     offset += 4;
 
                     proto_tree_add_item(tree, hf_afp_map_id, tvb, offset, 4,FALSE);
                     offset += 4;
-                    
+
                     size = 2;
                     len = tvb_get_guint8(tvb, offset +1);
-	            
+
 	        }
 	        else {
 		    gint remain = tvb_reported_length_remaining(tvb,offset);
@@ -4180,7 +4184,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				col_set_str(pinfo->cinfo, COL_INFO,
 			          "[Error!IP port reused, you need to split the capture file]");
 				expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-				  "IP port reused, you need to split the capture file"); 
+				  "IP port reused, you need to split the capture file");
 				return;
 			}
 		}
@@ -4595,9 +4599,14 @@ proto_register_afp(void)
         "Supports access control lists", HFILL }},
 
     { &hf_afp_vol_attribute_CaseSensitive,
-      { "CaseSensitive",         "afp.vol_attribute.acls",
-		 FT_BOOLEAN, 16, NULL, kSupportsACLs,
-      	"Is case sensitive", HFILL }},
+      { "Case sensitive",         "afp.vol_attribute.case_sensitive",
+		 FT_BOOLEAN, 16, NULL, kCaseSensitive,
+      	"Supports case-sensitive filenames", HFILL }},
+
+    { &hf_afp_vol_attribute_SupportsTMLockSteal,
+      { "TM lock steal",         "afp.vol_attribute.TM_lock_steal",
+		 FT_BOOLEAN, 16, NULL, kSupportsTMLockSteal,
+      	"Supports Time Machine lock stealing", HFILL }},
 
     { &hf_afp_vol_bitmap_Signature,
       { "Signature",         "afp.vol_bitmap.signature",
