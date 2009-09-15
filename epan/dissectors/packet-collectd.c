@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/stats_tree.h>
 
 #define TYPE_HOST            0x0000
 #define TYPE_TIME            0x0001
@@ -86,6 +87,23 @@ typedef struct notify_data_s {
 	gint message_len;
 } notify_data_t;
 
+struct string_counter_s;
+typedef struct string_counter_s string_counter_t;
+struct string_counter_s
+{
+	gchar *string;
+	gint   count;
+	string_counter_t *next;
+};
+
+typedef struct tap_data_s {
+	gint values_num;
+
+	string_counter_t *hosts;
+	string_counter_t *plugins;
+	string_counter_t *types;
+} tap_data_t;
+
 static const value_string part_names[] = {
 	{ TYPE_VALUES,          "VALUES" },
 	{ TYPE_TIME,            "TIME" },
@@ -124,6 +142,7 @@ static const value_string severity_names[] = {
 static gint collectd_udp_port = UDP_PORT_COLLECTD;
 
 static gint proto_collectd		= -1;
+static gint tap_collectd                = -1;
 
 static gint hf_collectd_type		= -1;
 static gint hf_collectd_length		= -1;
@@ -160,8 +179,77 @@ static gint ett_collectd_dispatch	= -1;
 static gint ett_collectd_invalid_length	= -1;
 static gint ett_collectd_unknown	= -1;
 
+static gint st_collectd_packets = -1;
+static gint st_collectd_values  = -1;
+static gint st_collectd_values_hosts   = -1;
+static gint st_collectd_values_plugins = -1;
+static gint st_collectd_values_types   = -1;
+
 /* Prototype for the handoff function */
 void proto_reg_handoff_collectd (void);
+
+static void
+collectd_stats_tree_init (stats_tree *st)
+{
+	st_collectd_packets = stats_tree_create_node (st, "Packets", 0, FALSE);
+	st_collectd_values = stats_tree_create_node (st, "Values", 0, TRUE);
+
+	st_collectd_values_hosts = stats_tree_create_pivot (st, "By host",
+							   st_collectd_values);
+	st_collectd_values_plugins = stats_tree_create_pivot (st, "By plugin",
+							      st_collectd_values);
+	st_collectd_values_types = stats_tree_create_pivot (st, "By type",
+							    st_collectd_values);
+} /* void collectd_stats_tree_init */
+
+static int
+collectd_stats_tree_packet (stats_tree *st, packet_info *pinfo _U_,
+			    epan_dissect_t *edt _U_, const void *user_data)
+{
+	const tap_data_t *td;
+	string_counter_t *sc;
+
+	td = user_data;
+	if (td == NULL)
+		return (-1);
+
+	tick_stat_node (st, "Packets", 0, FALSE);
+	increase_stat_node (st, "Values", 0, TRUE, td->values_num);
+
+	for (sc = td->hosts; sc != NULL; sc = sc->next)
+	{
+		gint i;
+		for (i = 0; i < sc->count; i++)
+			stats_tree_tick_pivot (st, st_collectd_values_hosts,
+					       sc->string);
+	}
+
+	for (sc = td->plugins; sc != NULL; sc = sc->next)
+	{
+		gint i;
+		for (i = 0; i < sc->count; i++)
+			stats_tree_tick_pivot (st, st_collectd_values_plugins,
+					       sc->string);
+	}
+
+	for (sc = td->types; sc != NULL; sc = sc->next)
+	{
+		gint i;
+		for (i = 0; i < sc->count; i++)
+			stats_tree_tick_pivot (st, st_collectd_values_types,
+					       sc->string);
+	}
+
+	return (1);
+} /* int collectd_stats_tree_packet */
+
+static void
+collectd_stats_tree_register (void)
+{
+	stats_tree_register ("collectd", "collectd", "Collectd", 0,
+			     collectd_stats_tree_packet,
+			     collectd_stats_tree_init, NULL);
+} /* void register_collectd_stat_trees */
 
 static int
 dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
@@ -672,9 +760,45 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 	return (0);
 } /* int dissect_collectd_encrypted */
 
+static int
+stats_account_string (string_counter_t **ret_list, const gchar *new_value)
+{
+	string_counter_t *entry;
+
+	if (ret_list == NULL)
+		return (-1);
+
+	if (new_value == NULL)
+		new_value = "(null)";
+
+	for (entry = *ret_list; entry != NULL; entry = entry->next)
+		if (strcmp (new_value, entry->string) == 0)
+		{
+			entry->count++;
+			return (0);
+		}
+
+	entry = ep_alloc (sizeof (*entry));
+	if (entry == NULL)
+		return (-1);
+	memset (entry, 0, sizeof (*entry));
+
+	entry->string = ep_strdup (new_value);
+	if (entry->string == NULL)
+		return (-1);
+	entry->count = 1;
+	entry->next = *ret_list;
+
+	*ret_list = entry;
+
+	return (0);
+}
+
 static void
 dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	static tap_data_t tap_data;
+
 	gint offset;
 	gint size;
 	gchar *pkt_host = NULL;
@@ -698,6 +822,8 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* create the collectd protocol tree */
 	pi = proto_tree_add_item(tree, proto_collectd, tvb, 0, -1, FALSE);
 	collectd_tree = proto_item_add_subtree(pi, ett_collectd);
+
+	memset (&tap_data, 0, sizeof (tap_data));
 
 	status = 0;
 	while ((size > 0) && (status == 0))
@@ -734,25 +860,42 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			switch (part_type) {
 			case TYPE_HOST:
+				vdispatch.host = tvb_get_ephemeral_string (tvb,
+						offset + 4, part_length - 4);
 				if (pkt_host == NULL)
-					pkt_host = tvb_get_ephemeral_string(tvb, offset+4, part_length-4);
+					pkt_host = vdispatch.host;
 				break;
 			case TYPE_TIME:
 				break;
 			case TYPE_PLUGIN:
+				vdispatch.plugin = tvb_get_ephemeral_string (tvb,
+						offset + 4, part_length - 4);
 				pkt_plugins++;
 				break;
 			case TYPE_PLUGIN_INSTANCE:
 				break;
 			case TYPE_TYPE:
+				vdispatch.type = tvb_get_ephemeral_string (tvb,
+						offset + 4, part_length - 4);
 				break;
 			case TYPE_TYPE_INSTANCE:
 				break;
 			case TYPE_INTERVAL:
 				break;
 			case TYPE_VALUES:
+			{
 				pkt_values++;
+
+				tap_data.values_num++;
+				stats_account_string (&tap_data.hosts,
+						      vdispatch.host);
+				stats_account_string (&tap_data.plugins,
+						      vdispatch.plugin);
+				stats_account_string (&tap_data.types,
+						      vdispatch.type);
+
 				break;
+			}
 			case TYPE_MESSAGE:
 				pkt_messages++;
 				break;
@@ -964,6 +1107,14 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			else
 				pkt_values++;
 
+			tap_data.values_num++;
+			stats_account_string (&tap_data.hosts,
+					      vdispatch.host);
+			stats_account_string (&tap_data.plugins,
+					      vdispatch.plugin);
+			stats_account_string (&tap_data.types,
+					      vdispatch.type);
+
 			break;
 		}
 
@@ -1109,6 +1260,9 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      pkt_values, plurality (pkt_values, " ", "s"),
 			      pkt_plugins, plurality (pkt_plugins, ", ", "s,"),
 			      pkt_messages, plurality (pkt_messages, "", "s"));
+
+	/* Dispatch tap data. */
+	tap_queue_packet (tap_collectd, pinfo, &tap_data);
 } /* void dissect_collectd */
 
 void proto_register_collectd(void)
@@ -1230,6 +1384,8 @@ void proto_register_collectd(void)
 	proto_register_field_array(proto_collectd, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	tap_collectd = register_tap ("collectd");
+
 	/*
 	 * Create an unsigned integer preference to allow the user to specify the
 	 * UDP port on which to capture DIS packets.
@@ -1261,6 +1417,9 @@ void proto_reg_handoff_collectd (void)
 
 	dissector_add ("udp.port", collectd_udp_port, collectd_handle);
 	registered_udp_port = collectd_udp_port;
+
+	if (first_run)
+		collectd_stats_tree_register ();
 
 	first_run = FALSE;
 } /* void proto_reg_handoff_collectd */
