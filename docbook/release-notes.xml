@@ -31,7 +31,7 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-04.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-06.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
@@ -40,8 +40,8 @@ Wireshark Info
             The GSM A RR dissector could crash.
             <!-- Fixed in trunk: r29403 -->
             <!-- Fixed in trunk-1.2: r29099 -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3893">Bug
-            3893</ulink>) -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3893">Bug
+            3893</ulink>)
           </para>
           <para>Versions affected: 1.2.0 to 1.2.1</para>
           <!--
@@ -56,8 +56,8 @@ Wireshark Info
             The OpcUa dissector could use excessive CPU and memory.
             <!-- Fixed in trunk: r29813 -->
             <!-- Fixed in trunk-1.2: r29826 -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3893">Bug
-            3893</ulink>) -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3986">Bug
+            3986</ulink>)
           </para>
           <para>Versions affected: 0.99.6 to 1.0.8, 1.2.0 to 1.2.1</para>
           <!--
@@ -72,8 +72,8 @@ Wireshark Info
             The TLS dissector could crash on some platforms.
             <!-- Fixed in trunk: r29906 -->
             <!-- Fixed in trunk-1.2: r29907 -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4008">Bug
-            3893</ulink>) -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4008">Bug
+            4008</ulink>)
           </para>
           <para>Versions affected: 1.2.0 to 1.2.1</para>
           <!--
