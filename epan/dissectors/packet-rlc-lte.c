@@ -313,6 +313,7 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo,
 /* Show in the info column how many bytes are in the UM/AM PDU, and indicate
    whether or not the beginning and end are included in this packet */
 static void show_PDU_in_info(packet_info *pinfo,
+                             proto_item *top_ti,
                              guint16 length,
                              gboolean first_includes_start,
                              gboolean last_includes_end)
@@ -323,6 +324,12 @@ static void show_PDU_in_info(packet_info *pinfo,
                     length,
                     (length > 1) ? "s" : "",
                     (last_includes_end) ? "]" : "..");
+
+    proto_item_append_text(top_ti, "  %s%u-byte%s%s",
+                          (first_includes_start) ? "[" : "..",
+                          length,
+                          (length > 1) ? "s" : "",
+                          (last_includes_end) ? "]" : "..");
 }
 
 
@@ -603,7 +610,8 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree,
                                int offset,
-                               rlc_lte_info *p_rlc_lte_info)
+                               rlc_lte_info *p_rlc_lte_info,
+                               proto_item *top_ti)
 {
     guint64 framing_info;
     gboolean first_includes_start;
@@ -717,7 +725,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         int n;
         for (n=0; n < s_number_of_extensions; n++) {
             proto_tree_add_item(tree, hf_rlc_lte_um_data, tvb, offset, s_lengths[n], FALSE);
-            show_PDU_in_info(pinfo, s_lengths[n],
+            show_PDU_in_info(pinfo, top_ti, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
             tvb_ensure_bytes_exist(tvb, offset, s_lengths[n]);
@@ -727,7 +735,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Final data element */
     proto_tree_add_item(tree, hf_rlc_lte_um_data, tvb, offset, -1, FALSE);
-    show_PDU_in_info(pinfo, (guint16)tvb_length_remaining(tvb, offset),
+    show_PDU_in_info(pinfo, top_ti, (guint16)tvb_length_remaining(tvb, offset),
                      (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                      last_includes_end);
 }
@@ -740,7 +748,8 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                           packet_info *pinfo,
                                           proto_tree *tree,
                                           proto_item *status_ti,
-                                          int offset)
+                                          int offset,
+                                          proto_item *top_ti)
 {
     guint8     cpt;
     guint64    ack_sn, nack_sn;
@@ -774,6 +783,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                 bit_offset, 10, &ack_sn, FALSE);
     bit_offset += 10;
     col_append_fstr(pinfo->cinfo, COL_INFO, "  ACK_SN=%u", (guint16)ack_sn);
+    proto_item_append_text(top_ti, "  ACK_SN=%u", (guint16)ack_sn);
 
     /* E1 */
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
@@ -795,6 +805,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                                   bit_offset, 10, &nack_sn, FALSE);
             bit_offset += 10;
             col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK_SN=%u", (guint16)nack_sn);
+            proto_item_append_text(top_ti, "  NACK_SN=%u", (guint16)nack_sn);
             expert_add_info_format(pinfo, nack_ti, PI_SEQUENCE, PI_WARN,
                                    "Status PDU reports NACK for SN=%u", (guint16)nack_sn);
 
@@ -825,6 +836,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
             if ((guint16)so_end == 0x7fff) {
                 col_append_str(pinfo->cinfo, COL_INFO, " (missing portion reaches end of AMD PDU)");
+                proto_item_append_text(top_ti, " (missing portion reaches end of AMD PDU)");
             }
 
             /* Reset this flag here */
@@ -883,10 +895,10 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /**************************************************/
     if (!is_data) {
         col_append_str(pinfo->cinfo, COL_INFO, " [CONTROL]");
-        proto_item_append_text(top_ti, "[CONTROL]");
+        proto_item_append_text(top_ti, " [CONTROL]");
 
         /* Control PDUs are a completely separate format  */
-        dissect_rlc_lte_am_status_pdu(tvb, pinfo, am_header_tree, am_header_ti, offset);
+        dissect_rlc_lte_am_status_pdu(tvb, pinfo, am_header_tree, am_header_ti, offset, top_ti);
         return;
     }
 
@@ -905,6 +917,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     polling = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
     proto_tree_add_item(am_header_tree, hf_rlc_lte_am_p, tvb, offset, 1, FALSE);
     col_append_str(pinfo->cinfo, COL_INFO, (polling) ? " (P) " : "     ");
+    proto_item_append_text(top_ti,  (polling) ? " (P) " : "     ");
     if (polling) {
         proto_item_append_text(am_header_ti, " (P)");
     }
@@ -923,7 +936,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "sn=%u", sn);
-
+    proto_item_append_text(top_ti, " (SN=%u)", sn);
 
     /* Show SN in AM header root */
     proto_item_append_text(am_header_ti, " (SN=%u)", sn);
@@ -941,6 +954,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         segmentOffset = tvb_get_ntohs(tvb, offset) & 0x7fff;
         proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_so, tvb, offset, 2, FALSE);
         col_append_fstr(pinfo->cinfo, COL_INFO, " SO=%u ", segmentOffset);
+        proto_item_append_text(top_ti, " SO=%u ", segmentOffset);
 
         offset += 2;
     }
@@ -974,7 +988,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         int n;
         for (n=0; n < s_number_of_extensions; n++) {
             proto_tree_add_item(tree, hf_rlc_lte_am_data, tvb, offset, s_lengths[n], FALSE);
-            show_PDU_in_info(pinfo, s_lengths[n],
+            show_PDU_in_info(pinfo, top_ti, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
             tvb_ensure_bytes_exist(tvb, offset, s_lengths[n]);
@@ -985,7 +999,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Final data element */
     if (tvb_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(tree, hf_rlc_lte_am_data, tvb, offset, -1, FALSE);
-        show_PDU_in_info(pinfo, (guint16)tvb_length_remaining(tvb, offset),
+        show_PDU_in_info(pinfo, top_ti, (guint16)tvb_length_remaining(tvb, offset),
                          (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                          last_includes_end);
     }
@@ -1124,7 +1138,7 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case RLC_UM_MODE:
-            dissect_rlc_lte_um(tvb, pinfo, rlc_lte_tree, offset, p_rlc_lte_info);
+            dissect_rlc_lte_um(tvb, pinfo, rlc_lte_tree, offset, p_rlc_lte_info, top_ti);
             break;
 
         case RLC_AM_MODE:
