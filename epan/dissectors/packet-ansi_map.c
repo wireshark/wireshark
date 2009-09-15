@@ -5486,7 +5486,7 @@ dissect_ansi_map_ServiceIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 			}
 		}
 	}
-
+	 
 
 
   return offset;
@@ -6014,7 +6014,7 @@ dissect_ansi_map_CDMA2000HandoffInvokeIOSData(gboolean implicit_tag _U_, tvbuff_
 
 	if (parameter_tvb){
 		subtree = proto_item_add_subtree(actx->created_item, ett_CDMA2000HandoffInvokeIOSData);
-		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree,
+		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree, 
 			0, tvb_length_remaining(parameter_tvb,0));
 	}
 
@@ -6622,7 +6622,7 @@ dissect_ansi_map_CDMA2000HandoffResponseIOSData(gboolean implicit_tag _U_, tvbuf
 
 	if (parameter_tvb){
 		subtree = proto_item_add_subtree(actx->created_item, ett_CDMA2000HandoffResponseIOSData);
-		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree,
+		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree, 
 			0, tvb_length_remaining(parameter_tvb,0));
 	}
 
@@ -16185,34 +16185,26 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 1:
         OperationCode = p_private_tcap->d.OperationCode_private & 0x00ff;
         ansi_map_is_invoke = TRUE;
-        if (check_col(pinfo->cinfo, COL_INFO)){
-            col_clear(pinfo->cinfo, COL_INFO);
-            col_add_fstr(pinfo->cinfo, COL_INFO,"%s Invoke", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
-        }
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_add_fstr(pinfo->cinfo, COL_INFO,"%s Invoke ", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
         proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
         offset = dissect_invokeData(ansi_map_tree, tvb, 0, &asn1_ctx);
         update_saved_invokedata(pinfo, ansi_map_tree, tvb);
         break;
     case 2:
         OperationCode = find_saved_invokedata(&asn1_ctx);
-        if (check_col(pinfo->cinfo, COL_INFO)){
-            col_clear(pinfo->cinfo, COL_INFO);
-            col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnResult", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
-        }
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnResult ", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
         proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
         offset = dissect_returnData(ansi_map_tree, tvb, 0, &asn1_ctx);
         break;
     case 3:
-        if (check_col(pinfo->cinfo, COL_INFO)){
-            col_clear(pinfo->cinfo, COL_INFO);
-            col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnError", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
-        }
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnError ", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
         break;
     case 4:
-        if (check_col(pinfo->cinfo, COL_INFO)){
-            col_clear(pinfo->cinfo, COL_INFO);
-            col_add_fstr(pinfo->cinfo, COL_INFO,"%s Reject", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
-        }
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_add_fstr(pinfo->cinfo, COL_INFO,"%s Reject ", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
         break;
     default:
         /* Must be Invoke ReturnResult ReturnError or Reject */
@@ -19251,7 +19243,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.QualificationRequest2Res", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5247 "packet-ansi_map-template.c"
+#line 5236 "packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19511,7 +19503,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5280 "packet-ansi_map-template.c"
+#line 5269 "packet-ansi_map-template.c"
     };
 
 
