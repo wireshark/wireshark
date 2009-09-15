@@ -1280,12 +1280,10 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   fdata->flags.marked = 0;
   fdata->flags.ref_time = 0;
   fdata->color_filter = NULL;
-  fdata->col_text = NULL;
-  fdata->col_text_len = NULL;
 
   fdata->abs_ts.secs = phdr->ts.secs;
   fdata->abs_ts.nsecs = phdr->ts.nsecs;
-  fdata->col_text_len = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
+  fdata->col_text_len = se_alloc0(sizeof(fdata->col_text_len) * (cf->cinfo.num_cols));
   fdata->col_text = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
 
   if (cf->plist_end != NULL)
@@ -2158,7 +2156,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 	   * And after that fdata->col_text (which is allocated using se_alloc0())
 	   * no longer points to valid memory.
 	   */
-	    fdata->col_text_len = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
+	    fdata->col_text_len = se_alloc0(sizeof(fdata->col_text_len) * (cf->cinfo.num_cols));
 		fdata->col_text = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
     }
 
