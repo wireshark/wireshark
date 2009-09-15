@@ -40,7 +40,7 @@ Wireshark Info
             The AFS dissector could crash.
             <!-- Fixed in trunk: r28815 -->
             <!-- Fixed in trunk-1.0: r29702 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=564">Bug
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3564">Bug
             3564</ulink>)
           </para>
           <para>Versions affected: 0.9.2 to 1.0.8, 1.2.0</para>
@@ -60,8 +60,8 @@ Wireshark Info
             The OpcUa dissector could use excessive CPU and memory.
             <!-- Fixed in trunk: r29813 -->
             <!-- Fixed in trunk-1.2: r29826 -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3893">Bug
-            3893</ulink>) -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3986">Bug
+            3986</ulink>)
           </para>
           <para>Versions affected: 0.99.6 to 1.0.8, 1.2.0 to 1.2.1</para>
           <!--
