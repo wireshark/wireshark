@@ -2249,8 +2249,8 @@ void proto_register_irda(void)
         &ett_ttp
     };
 
-    static gint* ett_p[MAX_PARAMETERS];
-    static gint* ett_iap_e[MAX_IAP_ENTRIES];
+    gint* ett_p[MAX_PARAMETERS];
+    gint* ett_iap_e[MAX_IAP_ENTRIES];
 
 
     /* Register re-init routine */

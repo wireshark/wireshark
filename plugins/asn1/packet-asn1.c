@@ -4942,7 +4942,7 @@ proto_register_asn1(void) {
 	  { NULL, NULL, -1},
   };
 
-  static gint *ett[1+MAX_NEST+MAXPDU];
+  gint *ett[1+MAX_NEST+MAXPDU];
 
   module_t *asn1_module;
   int i, j;

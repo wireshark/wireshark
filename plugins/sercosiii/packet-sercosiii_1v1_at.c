@@ -198,7 +198,7 @@ void dissect_siii_at_init(gint proto_siii _U_)
     &ett_siii_at_devstats
   };
 
-  static gint* etts[MAX_SERCOS_DEVICES];
+  gint* etts[MAX_SERCOS_DEVICES];
 
   for(idx = 0; idx < MAX_SERCOS_DEVICES; ++idx)
   {

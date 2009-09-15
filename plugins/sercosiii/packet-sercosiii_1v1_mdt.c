@@ -220,7 +220,7 @@ void dissect_siii_mdt_init(gint proto_siii)
     &ett_siii_mdt_devctrls
   };
 
-  static gint* etts[MAX_SERCOS_DEVICES];
+  gint* etts[MAX_SERCOS_DEVICES];
 
   for(idx = 0; idx < MAX_SERCOS_DEVICES; ++idx)
   {

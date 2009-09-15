@@ -414,7 +414,7 @@ void proto_register_ircomm(void)
         &ett_ircomm_ctrl
     };
 
-    static gint* ett_p[MAX_IAP_ENTRIES * MAX_PARAMETERS];
+    gint* ett_p[MAX_IAP_ENTRIES * MAX_PARAMETERS];
 
 
     /* Register protocol names and descriptions */
