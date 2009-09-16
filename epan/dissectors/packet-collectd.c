@@ -122,9 +122,13 @@ static const value_string part_names[] = {
 
 #define TYPE_VALUE_COUNTER  0x00
 #define TYPE_VALUE_GAUGE    0x01
+#define TYPE_VALUE_DERIVE   0x02
+#define TYPE_VALUE_ABSOLUTE 0x03
 static const value_string valuetypenames[] = {
 	{ TYPE_VALUE_COUNTER,   "COUNTER" },
 	{ TYPE_VALUE_GAUGE,     "GAUGE" },
+	{ TYPE_VALUE_DERIVE,    "DERIVE" },
+	{ TYPE_VALUE_ABSOLUTE,  "ABSOLUTE" },
 	{ 0, NULL }
 };
 
@@ -158,6 +162,8 @@ static gint hf_collectd_data_valcnt	= -1;
 static gint hf_collectd_val_type	= -1;
 static gint hf_collectd_val_counter	= -1;
 static gint hf_collectd_val_gauge	= -1;
+static gint hf_collectd_val_derive	= -1;
+static gint hf_collectd_val_absolute	= -1;
 static gint hf_collectd_val_unknown	= -1;
 static gint hf_collectd_data_severity	= -1;
 static gint hf_collectd_data_message	= -1;
@@ -451,6 +457,44 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 			 * collectd stores doubles in x86 representation. */
 			proto_tree_add_item (value_tree, hf_collectd_val_gauge,
 					     tvb, value_offset, 8, TRUE);
+			break;
+		}
+
+		case TYPE_VALUE_DERIVE:
+		{
+			gint64 val64;
+
+			val64 = tvb_get_ntoh64 (tvb, value_offset);
+			pi = proto_tree_add_text (values_tree, tvb, msg_off + 6,
+						  val_cnt * 9,
+						  "Derive: %"G_GINT64_MODIFIER"i", val64);
+
+			value_tree = proto_item_add_subtree (pi,
+					ett_collectd_valinfo);
+			proto_tree_add_item (value_tree, hf_collectd_val_type,
+					     tvb, value_type_offset, 1, FALSE);
+			proto_tree_add_item (value_tree,
+					     hf_collectd_val_derive, tvb,
+					     value_offset, 8, FALSE);
+			break;
+		}
+
+		case TYPE_VALUE_ABSOLUTE:
+		{
+			guint64 val64;
+
+			val64 = tvb_get_ntoh64 (tvb, value_offset);
+			pi = proto_tree_add_text (values_tree, tvb, msg_off + 6,
+						  val_cnt * 9,
+						  "Absolute: %"G_GINT64_MODIFIER"u", val64);
+
+			value_tree = proto_item_add_subtree (pi,
+					ett_collectd_valinfo);
+			proto_tree_add_item (value_tree, hf_collectd_val_type,
+					     tvb, value_type_offset, 1, FALSE);
+			proto_tree_add_item (value_tree,
+					     hf_collectd_val_absolute, tvb,
+					     value_offset, 8, FALSE);
 			break;
 		}
 
@@ -1325,6 +1369,14 @@ void proto_register_collectd(void)
 		},
 		{ &hf_collectd_val_gauge,
 			{ "Gauge value", "collectd.val.gauge", FT_DOUBLE, BASE_NONE,
+				NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_collectd_val_derive,
+			{ "Derive value", "collectd.val.derive", FT_INT64, BASE_DEC,
+				NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_collectd_val_absolute,
+			{ "Absolute value", "collectd.val.absolute", FT_UINT64, BASE_DEC,
 				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_val_unknown,
