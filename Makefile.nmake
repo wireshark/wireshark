@@ -19,7 +19,7 @@ WIN_SETUP=tools\$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 
 # -------------
 # Checking  that the Wireshark Libraries are up-to-date:
-#  1. winxx-setup.sh --checktag is invoked during nmake "preprocessing".
+#  1. win??-setup.sh --checktag is invoked during nmake "preprocessing".
 #     If an error status is returned (ie: the libraries are not up-to-date)
 #      then CHECK_TAG is defined as a non-null string.
 #  2. The $(LIBS_CHECK) target is invoked during the nmake:
@@ -717,7 +717,7 @@ $(LIBS_CHECK):  $(CHECK_TAG) config.nmake Makefile.nmake
 !IF "$(CHECK_TAG)" != ""
 $(CHECK_TAG): FORCE
 	@echo \? Wireshark Libraries not up-to-date \?
-	@echo \? Do you need to run "nmake -f makefile.nmake setup" \?
+	@echo \? Do you need to run "nmake -f Makefile.nmake setup" \?
 	@echo.
 	@exit 1
 
