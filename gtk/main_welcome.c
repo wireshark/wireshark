@@ -716,6 +716,7 @@ welcome_new(void)
 #ifdef _WIN32
     LONG reg_ret;
     DWORD chimney_enabled = 0;
+    DWORD ce_size = sizeof(chimney_enabled);
 #endif
 
     /* prepare colors */
@@ -824,7 +825,7 @@ welcome_new(void)
     /* Check for chimney offloading */
     reg_ret = RegQueryValueEx(HKEY_LOCAL_MACHINE,
 			      _T("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\EnableTCPChimney"),
-			      NULL, NULL, (LPBYTE) &chimney_enabled, NULL);
+			      NULL, NULL, (LPBYTE) &chimney_enabled, &ce_size);
     if (reg_ret == ERROR_SUCCESS && chimney_enabled) {	
 	item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
 		    "Offloading Detected",
