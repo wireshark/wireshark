@@ -41,19 +41,11 @@ include(CMakeInstallDirs)
 
 include_directories(
 	${CMAKE_BINARY_DIR}
-	${CMAKE_BINARY_DIR}/epan
-	${CMAKE_BINARY_DIR}/epan/wslua
-	${CMAKE_BINARY_DIR}/epan/wspython
+
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/epan
-	${CMAKE_SOURCE_DIR}/epan/dfilter
-	${CMAKE_SOURCE_DIR}/epan/dissectors
-	${CMAKE_SOURCE_DIR}/epan/ftypes
-	${CMAKE_SOURCE_DIR}/epan/wslua
-	${CMAKE_SOURCE_DIR}/epan/wspython
 	${CMAKE_SOURCE_DIR}/tools/lemon
 	${CMAKE_SOURCE_DIR}/wiretap
-	${CMAKE_SOURCE_DIR}/wsutil
 )
 
 #Where to put libraries

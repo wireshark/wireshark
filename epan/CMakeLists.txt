@@ -34,6 +34,18 @@ else()
 	set(WSPYTHON_LIB )
 endif()
 
+include_directories(
+	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/wslua
+	${CMAKE_CURRENT_BINARY_DIR}/wspython
+
+	${CMAKE_CURRENT_SOURCE_DIR}/dfilter
+	${CMAKE_CURRENT_SOURCE_DIR}/dissectors
+	${CMAKE_CURRENT_SOURCE_DIR}/ftypes
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua
+	${CMAKE_CURRENT_SOURCE_DIR}/wspython
+)
+
 link_directories(
 	wslua
 	wspython
