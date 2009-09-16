@@ -635,7 +635,7 @@ gint ett_gsm_common_elem[NUM_GSM_COMMON_ELEM];
 0 0 0 0 Ellipsoid Point
 0 0 0 1 Ellipsoid point with uncertainty Circle
 0 0 1 1 Ellipsoid point with uncertainty Ellipse
-0 1 0 1 Polygon 
+0 1 0 1 Polygon
 1 0 0 0 Ellipsoid point with altitude
 1 0 0 1 Ellipsoid point with altitude and uncertainty Ellipsoid
 1 0 1 0 Ellipsoid Arc
@@ -683,8 +683,8 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	/*subtree = proto_item_add_subtree(item, ett_gsm_a_geo_desc);*/
 
 	length = tvb_reported_length_remaining(tvb,0);
-	/* Geographical Location 
-	 * The Location Estimate field is composed of 1 or more octets with an internal structure 
+	/* Geographical Location
+	 * The Location Estimate field is composed of 1 or more octets with an internal structure
 	 * according to section 7 in [23.032].
 	 */
 	proto_tree_add_item(tree, hf_gsm_a_geo_loc_type_of_shape, tvb, 0, 1, FALSE);
@@ -692,7 +692,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		return;
 	type_of_shape = tvb_get_guint8(tvb,offset)>>4;
 	switch (type_of_shape){
-	case ELLIPSOID_POINT:	
+	case ELLIPSOID_POINT:
 		/* Ellipsoid Point */
 	case ELLIPSOID_POINT_WITH_UNCERT_CIRC:
 		/* Ellipsoid Point with uncertainty Circle */
@@ -732,21 +732,21 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		}else if(type_of_shape==ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE){
 			/* Ellipsoid Point with uncertainty Ellipse */
 			/* Uncertainty semi-major octet 10
-			 * To convert to metres 10*(((1.1)^X)-1) 
+			 * To convert to metres 10*(((1.1)^X)-1)
 			 */
-			value = tvb_get_guint8(tvb,offset)&0x7f; 
+			value = tvb_get_guint8(tvb,offset)&0x7f;
 			major_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
 			proto_item_append_text(major_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Uncertainty semi-minor Octet 11
-			 * To convert to metres 10*(((1.1)^X)-1) 
+			 * To convert to metres 10*(((1.1)^X)-1)
 			 */
-			value = tvb_get_guint8(tvb,offset)&0x7f; 
+			value = tvb_get_guint8(tvb,offset)&0x7f;
 			minor_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
 			proto_item_append_text(minor_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Orientation of major axis octet 12
-			 * allowed value from 0-179 to convert 
+			 * allowed value from 0-179 to convert
 			 * to actual degrees multiply by 2.
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f;
@@ -769,30 +769,30 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			proto_tree_add_item(tree, hf_gsm_a_geo_loc_altitude, tvb, offset, 2, FALSE);
 			offset = offset +2;
 			/* Uncertainty semi-major octet 10
-			 * To convert to metres 10*(((1.1)^X)-1) 
+			 * To convert to metres 10*(((1.1)^X)-1)
 			 */
-			value = tvb_get_guint8(tvb,offset)&0x7f; 
+			value = tvb_get_guint8(tvb,offset)&0x7f;
 			major_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
 			proto_item_append_text(major_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Uncertainty semi-minor Octet 11
-			 * To convert to metres 10*(((1.1)^X)-1) 
+			 * To convert to metres 10*(((1.1)^X)-1)
 			 */
-			value = tvb_get_guint8(tvb,offset)&0x7f; 
+			value = tvb_get_guint8(tvb,offset)&0x7f;
 			minor_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
 			proto_item_append_text(minor_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Orientation of major axis octet 12
-			 * allowed value from 0-179 to convert 
+			 * allowed value from 0-179 to convert
 			 * to actual degrees multiply by 2.
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f;
 			proto_tree_add_uint(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, value*2);
 			offset++;
 			/* Uncertainty Altitude 13
-			 * to convert to metres 45*(((1.025)^X)-1) 
+			 * to convert to metres 45*(((1.025)^X)-1)
 			 */
-			value = tvb_get_guint8(tvb,offset)&0x7f; 
+			value = tvb_get_guint8(tvb,offset)&0x7f;
 			alt_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_altitude, tvb, offset, 1, FALSE);
 			proto_item_append_text(alt_item,"(%.1f m)", 45 * (pow(1.025, (double)value) - 1));
 			offset++;
@@ -1003,8 +1003,8 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int
 
 /*
  * Type Length Value Extended(TLV-E) element dissector
- * TS 24.007 
- * information elements of format LV-E or TLV-E with value part consisting of zero, 
+ * TS 24.007
+ * information elements of format LV-E or TLV-E with value part consisting of zero,
  * one or more octets and a maximum of 65535 octets (type 6). This category is used in EPS only.
  */
 guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len _U_, const gchar *name_add)
@@ -1640,9 +1640,9 @@ de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * Key sequence (octet 1)
  * Bits
  * 3 2 1
- * 0 0 0 
- * through 
- * 1 1 0 
+ * 0 0 0
+ * through
+ * 1 1 0
  * Possible values for the ciphering key sequence number
  * 1 1 1 No key is available (MS to network);Reserved (network to MS)
  */
@@ -1977,7 +1977,7 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 }
 
 /*
- * [3] 10.5.1.6 Mobile Station Classmark 2 
+ * [3] 10.5.1.6 Mobile Station Classmark 2
  * 3GPP TS 24.008 version 7.8.0 Release 7
  */
 guint16
@@ -2056,7 +2056,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	proto_tree	*subtree;
 	proto_item	*item;
 	guint32 bits_left, target_bit_offset;
-	guint64 multi_bnd_sup_fields, rsupport, multislotCapability, msMeasurementCapability, msPosMethodCapPresent; 
+	guint64 multi_bnd_sup_fields, rsupport, multislotCapability, msMeasurementCapability, msPosMethodCapPresent;
 	guint64 ecsdMultiSlotCapability, eightPskStructPresent, gsm400BandInfoPresent, gsm850AssocRadioCapabilityPresent;
 	guint64 gsm1900AssocRadioCapabilityPresent, dtmEGprsMultiSlotInfoPresent, dtmEgprsMultiSlotClassPresent, singleBandSupport;
 	guint64 gsm750AssocRadioCapabilityPresent, extDtmEGprsMultiSlotInfoPresent, highMultislotCapPresent, geranIuModeSupport;
@@ -2071,7 +2071,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
 
-	/* Multiband supported field 
+	/* Multiband supported field
 	 * { < Multiband supported : { 000 } >
 	 * < A5 bits >
 	 * | < Multiband supported : { 101 | 110 } >
@@ -2083,7 +2083,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 * < spare bit >(4)
 	 * < Associated Radio Capability 1 : bit(4) > }
 	 */
-	
+
 	item = proto_tree_add_bits_ret_val(tree, hf_gsm_a_multi_bnd_sup_fields, tvb, bit_offset, 3, &multi_bnd_sup_fields, FALSE);
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
 
@@ -2134,7 +2134,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 			proto_tree_add_bits_item(tree, hf_gsm_a_ass_radio_cap2, tvb, bit_offset, 4, FALSE);
 			bit_offset+=4;
 			/* < Associated Radio Capability 1 : bit(4) > */
-			proto_tree_add_bits_item(subtree, hf_gsm_a_ass_radio_cap1, tvb, bit_offset, 4, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_ass_radio_cap1, tvb, bit_offset, 4, FALSE);
 			bit_offset+=4;
 			break;
 		default:
@@ -2146,15 +2146,15 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
 	if(rsupport == 1)
 	{
-		/* 
+		/*
 		 * { 0 | 1 < R Support > }
-		 * Extract R Capabilities 
+		 * Extract R Capabilities
 		 */
 		proto_tree_add_bits_item(tree, hf_gsm_a_r_capabilities, tvb, bit_offset, 3, FALSE);
 		bit_offset = bit_offset + 3;
 	}
 
-	/* 
+	/*
 	 * { 0 | 1 < HSCSD Multi Slot Capability > }
 	 * Extract Multislot capability
 	 */
@@ -2176,7 +2176,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	proto_tree_add_bits_item(tree, hf_gsm_a_extended_measurement_cap, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
-	/* { 0 | 1 < MS measurement capability > } 
+	/* { 0 | 1 < MS measurement capability > }
 	 * Extract MS Measurement capability
 	 */
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_measurement_capability, tvb, bit_offset, 1, &msMeasurementCapability, FALSE);
@@ -2198,7 +2198,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 */
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_pos_method_cap_present, tvb, bit_offset, 1, &msPosMethodCapPresent, FALSE);
 	bit_offset = bit_offset + 1;
-	
+
 	if(msPosMethodCapPresent == 1)
 	{
 		/* Extract MS Positioning Method */
@@ -2265,7 +2265,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 */
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_400_band_info_present, tvb, bit_offset, 1, &gsm400BandInfoPresent, FALSE);
 	bit_offset = bit_offset + 1;
-	
+
 	if(gsm400BandInfoPresent == 1)
 	{
 		/* Extract GSM 400 Bands Supported */
@@ -2361,7 +2361,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 		return(len);
 
 	if (bits_left < 8)
-	{	
+	{
 		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
 		{
 			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
@@ -2383,7 +2383,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 		/* Extract Single Band Support */
 		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_band, tvb, bit_offset, 4, FALSE);
 		bit_offset = bit_offset + 4;
-	}	
+	}
 
 	/* { 0 | 1 <GSM 750 Associated Radio Capability : bit(4) > }
 	 * Extract GSM 750 Associated Radio Capability presence
@@ -2438,7 +2438,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 		return(len);
 
 	if (bits_left < 8)
-	{	
+	{
 		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
 		{
 			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
@@ -2523,7 +2523,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 		return(len);
 
 	if (bits_left < 8)
-	{	
+	{
 		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
 		{
 			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
@@ -2539,7 +2539,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 */
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_t_gsm_400_band_info_present, tvb, bit_offset, 1, &tGsm400BandInfoPresent, FALSE);
 	bit_offset = bit_offset + 1;
-	
+
 	if(tGsm400BandInfoPresent == 1)
 	{
 		/* Extract T-GSM 400 Bands Supported */
@@ -2622,7 +2622,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 		return(len);
 
 	if (bits_left < 8)
-	{	
+	{
 		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
 		{
 			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
@@ -2669,7 +2669,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 * Extract Additional Positioning Capabilities
 	 */
 	proto_tree_add_bits_item(tree, hf_gsm_a_additional_positioning_caps, tvb, bit_offset, 1, FALSE);
-	bit_offset = bit_offset + 1;	
+	bit_offset = bit_offset + 1;
 
 	/*
 	 * Data in bit stream for this release end here
@@ -2681,7 +2681,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 		return(len);
 
 	if (bits_left < 8)
-	{	
+	{
 		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
 		{
 			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
@@ -2717,7 +2717,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 */
 	bits_left = (((len + offset) << 3) - bit_offset) & 0x07;
 	if (bits_left != 0)
-	{	
+	{
 		proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
 		bit_offset += bits_left;
 	}
@@ -3170,12 +3170,12 @@ proto_register_gsm_a_common(void)
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_pgsm_supported,
-		{ "P-GSM Supported", "gsm_a.classmark3.pgsmSupported", 
+		{ "P-GSM Supported", "gsm_a.classmark3.pgsmSupported",
 		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_egsm_supported,
-		{ "E-GSM or R-GSM Supported", "gsm_a.classmark3.egsmSupported", 
+		{ "E-GSM or R-GSM Supported", "gsm_a.classmark3.egsmSupported",
 		FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
 		NULL, HFILL}
 	},
@@ -3255,27 +3255,27 @@ proto_register_gsm_a_common(void)
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_assisted_e_otd,
-		{ "MS assisted E-OTD", "gsm_a.classmark3.ms_assisted_e_otd", 
+		{ "MS assisted E-OTD", "gsm_a.classmark3.ms_assisted_e_otd",
 		FT_UINT8, BASE_DEC, VALS(ms_assisted_e_otd_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_based_e_otd,
-		{ "MS based E-OTD", "gsm_a.classmark3.ms_based_e_otd", 
+		{ "MS based E-OTD", "gsm_a.classmark3.ms_based_e_otd",
 		FT_UINT8, BASE_DEC, VALS(ms_based_e_otd_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_assisted_gps,
-		{ "MS assisted GPS", "gsm_a.classmark3.ms_assisted_gps", 
+		{ "MS assisted GPS", "gsm_a.classmark3.ms_assisted_gps",
 		FT_UINT8, BASE_DEC, VALS(ms_assisted_gps_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_based_gps,
-		{ "MS based GPS", "gsm_a.classmark3.ms_based_gps", 
+		{ "MS based GPS", "gsm_a.classmark3.ms_based_gps",
 		FT_UINT8, BASE_DEC, VALS(ms_based_gps_vals), 0x0,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_ms_conventional_gps,
-		{ "MS Conventional GPS", "gsm_a.classmark3.ms_conventional_gps", 
+		{ "MS Conventional GPS", "gsm_a.classmark3.ms_conventional_gps",
 		FT_UINT8, BASE_DEC, VALS(ms_conventional_gps_vals), 0x0,
 		NULL, HFILL}
 	},
@@ -3375,7 +3375,7 @@ proto_register_gsm_a_common(void)
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_single_slot_dtm,
-		{ "Single Slot DTM", "gsm_a.classmark3.single_slot_dtm_supported", 
+		{ "Single Slot DTM", "gsm_a.classmark3.single_slot_dtm_supported",
 		FT_UINT8, BASE_DEC, VALS(single_slot_dtm_vals), 0x0,
 		NULL, HFILL}
 	},
@@ -3525,7 +3525,7 @@ proto_register_gsm_a_common(void)
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_offset_required,
-		{ "Offset required", "gsm_a.classmark3.offset_required", 
+		{ "Offset required", "gsm_a.classmark3.offset_required",
 		FT_UINT8, BASE_DEC, VALS(offset_required_vals), 0x0,
 		NULL, HFILL}
 	},
@@ -3591,92 +3591,92 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_geo_loc_type_of_shape,
 		{ "Location estimate","gsm_a.gad.location_estimate",
-		FT_UINT8,BASE_DEC, VALS(type_of_shape_vals), 0xf0,          
+		FT_UINT8,BASE_DEC, VALS(type_of_shape_vals), 0xf0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_sign_of_lat,
 		{ "Sign of latitude","gsm_a.gad.sign_of_latitude",
-		FT_UINT8,BASE_DEC, VALS(sign_of_latitude_vals), 0x80,          
+		FT_UINT8,BASE_DEC, VALS(sign_of_latitude_vals), 0x80,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_deg_of_lat,
 		{ "Degrees of latitude","gsm_a.gad.sign_of_latitude",
-		FT_UINT24,BASE_DEC, NULL, 0x7fffff,          
+		FT_UINT24,BASE_DEC, NULL, 0x7fffff,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_deg_of_long,
 		{ "Degrees of longitude","gsm_a.gad.sign_of_longitude",
-		FT_UINT24,BASE_DEC, NULL, 0xffffff,          
+		FT_UINT24,BASE_DEC, NULL, 0xffffff,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_uncertainty_code,
 		{ "Uncertainty code","gsm_a.gad.uncertainty_code",
-		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		FT_UINT8,BASE_DEC, NULL, 0x7f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_uncertainty_semi_major,
 		{ "Uncertainty semi-major","gsm_a.gad.uncertainty_semi_major",
-		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		FT_UINT8,BASE_DEC, NULL, 0x7f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_uncertainty_semi_minor,
 		{ "Uncertainty semi-minor","gsm_a.gad.uncertainty_semi_minor",
-		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		FT_UINT8,BASE_DEC, NULL, 0x7f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_orientation_of_major_axis,
 		{ "Orientation of major axis","gsm_a.gad.orientation_of_major_axis",
-		FT_UINT8,BASE_DEC, NULL, 0x0,          
+		FT_UINT8,BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_uncertainty_altitude,
 		{ "Uncertainty Altitude","gsm_a.gad.uncertainty_altitude",
-		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		FT_UINT8,BASE_DEC, NULL, 0x7f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_confidence,
 		{ "Confidence(%)","gsm_a.gad.confidence",
-		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		FT_UINT8,BASE_DEC, NULL, 0x7f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_no_of_points,
 		{ "Number of points","gsm_a.gad.no_of_points",
-		FT_UINT8,BASE_DEC, NULL, 0x0f,          
+		FT_UINT8,BASE_DEC, NULL, 0x0f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_D,
 		{ "D: Direction of Altitude","gsm_a.gad.D",
-		FT_UINT16,BASE_DEC, VALS(dir_of_alt_vals), 0x8000,          
+		FT_UINT16,BASE_DEC, VALS(dir_of_alt_vals), 0x8000,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_altitude,
 		{ "Altitude in meters","gsm_a.gad.altitude",
-		FT_UINT16,BASE_DEC, NULL, 0x7fff,          
+		FT_UINT16,BASE_DEC, NULL, 0x7fff,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_inner_radius,
 		{ "Inner radius","gsm_a.gad.altitude",
-		FT_UINT16,BASE_DEC, NULL, 0x0,          
+		FT_UINT16,BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_uncertainty_radius,
 		{ "Uncertainty radius","gsm_a.gad.no_of_points",
-		FT_UINT8,BASE_DEC, NULL, 0x7f,          
+		FT_UINT8,BASE_DEC, NULL, 0x7f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_offset_angle,
 		{ "Offset angle","gsm_a.gad.offset_angle",
-		FT_UINT8,BASE_DEC, NULL, 0x0,          
+		FT_UINT8,BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_geo_loc_included_angle,
 		{ "Included angle","gsm_a.gad.included_angle",
-		FT_UINT8,BASE_DEC, NULL, 0x0,          
+		FT_UINT8,BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_key_seq,
 		{ "key sequence","gsm_a.key_seq",
-		FT_UINT8,BASE_DEC, VALS(gsm_a_key_seq_vals), 0x07,          
+		FT_UINT8,BASE_DEC, VALS(gsm_a_key_seq_vals), 0x07,
 		NULL, HFILL }
 	},
 	};
