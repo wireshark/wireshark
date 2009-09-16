@@ -311,6 +311,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 {
 #if defined(_WIN32)
 	OSVERSIONINFOEX info;
+	SYSTEM_INFO system_info;
 #elif defined(HAVE_SYS_UTSNAME_H)
 	struct utsname name;
 #endif
@@ -338,6 +339,8 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	 * not even be able to compile code that *uses* that structure with
 	 * older versions of the SDK.
 	 */
+
+	memset(&info, '\0', sizeof info);
 	info.dwOSVersionInfoSize = sizeof info;
 	if (!GetVersionEx((OSVERSIONINFO *)&info)) {
 		/*
@@ -346,6 +349,10 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 		g_string_append(str, "unknown Windows version");
 		return;
 	}
+
+	memset(&system_info, '\0', sizeof system_info);
+	GetSystemInfo(&system_info);    /* only for W2K or greater .... (which is what we suuport) */
+
 	switch (info.dwPlatformId) {
 
 	case VER_PLATFORM_WIN32s:
@@ -410,7 +417,14 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 				break;
 
 			case 2:
-				g_string_append_printf(str, "Windows Server 2003");
+				if ((info.wProductType == VER_NT_WORKSTATION) &&
+				    (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)) {
+					g_string_append_printf(str, "Windows XP Professional x64 Edition");
+				} else {
+					g_string_append_printf(str, "Windows Server 2003");
+					if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+						g_string_append_printf(str, " X64 Edition");
+				}
 				break;
 
 			default:
@@ -420,23 +434,38 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 			}
 			break;
 
-		case 6:
+		case 6: {
+			gboolean is_nt_workstation;
+
+			if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+				g_string_append(str, "64-bit ");
+			else if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
+				g_string_append(str, "32-bit ");
 #ifndef VER_NT_WORKSTATION
 #define VER_NT_WORKSTATION 0x01
-			if ((info.wReserved[1] & 0xff) == VER_NT_WORKSTATION)
+			is_nt_workstation = ((info.wReserved[1] & 0xff) == VER_NT_WORKSTATION);
 #else
-			if (info.wProductType == VER_NT_WORKSTATION)
+			is_nt_workstation = (info.wProductType == VER_NT_WORKSTATION);
 #endif
-				g_string_append_printf(str, "Windows Vista");
-			else
-				g_string_append_printf(str, "Windows Server 2008");
+			switch (info.dwMinorVersion) {
+			case 0:
+				g_string_append_printf(str, is_nt_workstation ? "Windows Vista" : "Windows Server 2008");
+				break;
+			case 1:
+				g_string_append_printf(str, is_nt_workstation ? "Windows 7" : "Windows Server 2008 R2");
+				break;
+			default:
+				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
+						       info.dwMajorVersion, info.dwMinorVersion);
+				break;
+			}
 			break;
-
+		}  /* case 6 */
 		default:
 			g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
 			    info.dwMajorVersion, info.dwMinorVersion);
 			break;
-		}
+		} /* info.dwMajorVersion */
 		break;
 
 	default:
