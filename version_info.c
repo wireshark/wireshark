@@ -423,13 +423,13 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 				} else {
 					g_string_append_printf(str, "Windows Server 2003");
 					if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-						g_string_append_printf(str, " X64 Edition");
+						g_string_append_printf(str, " x64 Edition");
 				}
 				break;
 
 			default:
 				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
-				    info.dwMajorVersion, info.dwMinorVersion);
+						       info.dwMajorVersion, info.dwMinorVersion);
 				break;
 			}
 			break;
