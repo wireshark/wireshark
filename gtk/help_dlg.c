@@ -170,6 +170,9 @@ topic_online_url(topic_action_e action)
     case(ONLINEPAGE_SECURITY):
         return "http://wiki.wireshark.org/Security";
         break;
+    case(ONLINEPAGE_CHIMNEY):
+        return "http://wiki.wireshark.org/CaptureSetup/Offloading#chimney";
+        break;
     default:
         return NULL;
     }

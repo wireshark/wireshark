@@ -58,6 +58,11 @@
 #include "../image/wssplash-dev.xpm"
 #include "../version_info.h"
 
+#ifdef _WIN32
+#include <tchar.h>
+#include <windows.h>
+#endif
+
 #ifdef HAVE_AIRPCAP
 #include "airpcap.h"
 #include "airpcap_loader.h"
@@ -708,7 +713,10 @@ welcome_new(void)
 #endif  /* HAVE_LIBPCAP */
     GtkWidget *file_child_box;
     gchar *label_text;
-
+#ifdef _WIN32
+    LONG reg_ret;
+    DWORD chimney_enabled = 0;
+#endif
 
     /* prepare colors */
     /* header bar background color */
@@ -811,6 +819,21 @@ welcome_new(void)
         "Same as Capture/Options menu or toolbar item",
         G_CALLBACK(capture_prep_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+
+#ifdef _WIN32
+    /* Check for chimney offloading */
+    reg_ret = RegQueryValueEx(HKEY_LOCAL_MACHINE,
+			      _T("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\EnableTCPChimney"),
+			      NULL, NULL, (LPBYTE) &chimney_enabled, NULL);
+    if (reg_ret == ERROR_SUCCESS && chimney_enabled) {	
+	item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
+		    "Offloading Detected",
+	    "TCP Chimney offloading is enabled. You \nmight not capture much data.",
+	    topic_online_url(ONLINEPAGE_CHIMNEY),
+	    G_CALLBACK(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_CHIMNEY));
+	gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+    }
+#endif /* _WIN32 */
 
     /* capture help topic */
     topic_vb = welcome_topic_new("Capture Help", &topic_to_fill);
