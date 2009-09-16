@@ -834,6 +834,16 @@ File "${GTK_DIR}\bin\${TIFF_DLL}"
 !ifdef NEED_LIBJPEG_DLL
 File "${GTK_DIR}\bin\${JPEG_DLL}"
 !endif
+!ifdef NEED_FREETYPE_DLL
+File "${GTK_DIR}\bin\libpangoft2-1.0-0.dll"
+File "${WIRESHARK_LIBS}\freetype\bin\${FREETYPE_DLL}"
+!endif
+!ifdef NEED_FONTCONFIG_DLL
+File "${WIRESHARK_LIBS}\fontconfig\bin\${FONTCONFIG_DLL}"
+!endif
+!ifdef NEED_EXPAT_DLL
+File "${WIRESHARK_LIBS}\expat\bin\${EXPAT_DLL}"
+!endif
 SetOutPath $INSTDIR\etc\gtk-2.0
 File "${GTK_DIR}\etc\gtk-2.0\*.*"
 

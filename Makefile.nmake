@@ -834,6 +834,15 @@ process_libs:
 !ERROR ? Unknown or invalid PANGO_INST_VERSION
 !ENDIF
 !ENDIF
+# PANGO 1.24.5 needs these DLL:s
+!IFDEF NEED_FREETYPE_DLL
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		expat gtk$(GTK_INST_VERSION)/expat_$(EXPAT_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		fontconfig gtk$(GTK_INST_VERSION)/fontconfig_$(FONTCONFIG_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		freetype gtk$(GTK_INST_VERSION)/freetype_$(FREETYPE_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
+!ENDIF
 !IFDEF HHC_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		user-guide user-guide-28526.zip
@@ -1028,6 +1037,16 @@ install-all: install-generated-files
 !IFDEF NEED_CAIRO_DLL
 	xcopy $(GTK_DIR)\bin\libcairo-2.dll $(INSTALL_DIR)  /d
 	xcopy $(GTK_DIR)\bin\libpangocairo-1.0-0.dll $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF NEED_FREETYPE_DLL
+	xcopy $(GTK_DIR)\bin\libpangoft2-1.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(WIRESHARK_LIBS)\freetype\bin\$(FREETYPE_DLL) $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF NEED_FONTCONFIG_DLL
+	xcopy $(WIRESHARK_LIBS)\fontconfig\bin\$(FONTCONFIG_DLL) $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF NEED_EXPAT_DLL
+	xcopy $(WIRESHARK_LIBS)\expat\bin\$(EXPAT_DLL) $(INSTALL_DIR) /d
 !ENDIF
 	if not exist $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR)
 	xcopy "$(GTK_WIMP_DLLSRC_DIR)\libwimp.dll" $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) /d
