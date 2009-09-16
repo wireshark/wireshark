@@ -314,13 +314,13 @@ if(ENABLE_PLUGINS)
 	set(PLUGIN_DIR="${DATAFILE_DIR}/plugins/${CPACK_PACKAGE_VERSION}")
 	set(PLUGIN_SRC_DIRS
 		plugins/asn1
-#		plugins/docsis
-#		plugins/ethercat
-#		plugins/giop
-#		plugins/gryphon
-#		plugins/irda
-#		plugins/m2m
-#		plugins/mate
+		plugins/docsis
+		plugins/ethercat
+		plugins/giop
+		plugins/gryphon
+		plugins/irda
+		plugins/m2m
+		plugins/mate
 #		plugins/opcua
 #		plugins/profinet
 #		plugins/sercosiii
