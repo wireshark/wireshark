@@ -785,7 +785,7 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	}
 	/* Skip the header. */
 	rsize = ((int) whdr.pad[3]) - 8;
-	if (file_seek(wth->fh, rsize, SEEK_CUR, err) == -1)
+	if (file_seek(fh, rsize, SEEK_CUR, err) == -1)
 		return FALSE;
 
 	pseudo_header->ieee_802_11.fcs_len = 4;
