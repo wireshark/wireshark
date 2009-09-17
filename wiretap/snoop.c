@@ -96,7 +96,7 @@ static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
 static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err);
+    union wtap_pseudo_header *pseudo_header, int *err, int *header_size);
 static gboolean snoop_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -432,6 +432,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 	char	padbuf[4];
 	guint	padbytes;
 	int	bytes_to_read;
+	int header_size;
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
@@ -525,16 +526,16 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 			return FALSE;
 		}
 		if (!snoop_read_shomiti_wireless_pseudoheader(wth->fh,
-		    &wth->pseudo_header, err))
+		    &wth->pseudo_header, err, &header_size))
 			return FALSE;	/* Read error */
 
 		/*
 		 * Don't count the pseudo-header as part of the packet.
 		 */
-		rec_size -= (guint32)sizeof (shomiti_wireless_header);
-		orig_size -= (guint32)sizeof (shomiti_wireless_header);
-		packet_size -= (guint32)sizeof (shomiti_wireless_header);
-		wth->data_offset += sizeof (shomiti_wireless_header);
+		rec_size -= header_size;
+		orig_size -= header_size;
+		packet_size -= header_size;
+		wth->data_offset += header_size;
 		break;
 	}
 
@@ -627,7 +628,7 @@ snoop_seek_read(wtap *wth, gint64 seek_off,
 
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 		if (!snoop_read_shomiti_wireless_pseudoheader(wth->random_fh,
-		    pseudo_header, err)) {
+		    pseudo_header, err, NULL)) {
 			/* Read error */
 			return FALSE;
 		}
@@ -745,10 +746,12 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 
 static gboolean
 snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err)
+    union wtap_pseudo_header *pseudo_header, int *err, int *header_size)
 {
 	shomiti_wireless_header whdr;
 	int	bytes_read;
+	char buffer[250];
+	int rsize;
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&whdr, 1, sizeof (shomiti_wireless_header), fh);
@@ -759,12 +762,31 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 		return FALSE;
 	}
 
+	/* the 4th byte of the pad is actually a header length,
+	 * we've already read 8 bytes of it, and it is never
+	 * less than 8
+	 */
+	rsize = ((int) whdr.pad[3]) - 8;
+	if(rsize > 0) {
+	    bytes_read = file_read(buffer, 1, rsize, fh);
+	    if (bytes_read != rsize) {
+		*err = file_error(fh);
+		if (*err == 0)
+		    *err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	    }
+	}
+
 	pseudo_header->ieee_802_11.fcs_len = 4;
 	pseudo_header->ieee_802_11.channel = whdr.channel;
 	pseudo_header->ieee_802_11.data_rate = whdr.rate;
 	pseudo_header->ieee_802_11.signal_level = whdr.signal;
 
-	return TRUE;
+	/* add back the header and don't forget the pad as well */
+	if(header_size != NULL)
+	    *header_size = rsize + 8 + 4;
+
+    return TRUE;
 }
 
 static gboolean
