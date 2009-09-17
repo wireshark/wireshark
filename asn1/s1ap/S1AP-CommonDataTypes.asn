@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.6.0 (2009-06)
+-- 3GPP TS 36.413 V8.6.1 (2009-06)
 -- 9.3.5	Common Definitions
 -- **************************************************************
 --
@@ -33,6 +33,3 @@ ProtocolIE-ID		::= INTEGER (0..65535)
 TriggeringMessage	::= ENUMERATED { initiating-message, successful-outcome, unsuccessfull-outcome }
 
 END
-
-
-

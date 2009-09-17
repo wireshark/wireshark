@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.6.0 (2009-06)
+-- 3GPP TS 36.413 V8.6.1 (2009-06)
 -- 9.3.7	Container Definitions
 -- **************************************************************
 --
@@ -199,9 +199,3 @@ PrivateIE-Field {S1AP-PRIVATE-IES : IEsSetParam} ::= SEQUENCE {
 }
 
 END
-
-
-
-
-
-

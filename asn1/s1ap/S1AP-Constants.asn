@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.6.0 (2009-06)
+-- 3GPP TS 36.413 V8.6.1 (2009-06)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -249,5 +249,3 @@ id-DefaultPagingDRX								ProtocolIE-ID ::= 137
 id-Source-ToTarget-TransparentContainer-Secondary			ProtocolIE-ID ::= 138
 id-Target-ToSource-TransparentContainer-Secondary			ProtocolIE-ID ::= 139
 END
-
-

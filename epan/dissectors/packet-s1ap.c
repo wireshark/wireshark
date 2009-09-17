@@ -2113,7 +2113,6 @@ dissect_s1ap_CNDomain(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static const value_string s1ap_CSFallbackIndicator_vals[] = {
   {   0, "cs-fallback-required" },
   {   1, "cs-fallback-high-priority" },
-  {   2, "cs-fallback-high-priority" },
   { 0, NULL }
 };
 
@@ -2121,7 +2120,7 @@ static const value_string s1ap_CSFallbackIndicator_vals[] = {
 static int
 dissect_s1ap_CSFallbackIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 1, NULL);
+                                     1, NULL, TRUE, 1, NULL);
 
   return offset;
 }

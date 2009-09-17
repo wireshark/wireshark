@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.6.0 (2009-06)
+-- 3GPP TS 36.413 V8.6.1 (2009-06)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -287,7 +287,6 @@ CNDomain ::= ENUMERATED {
 
 CSFallbackIndicator ::= ENUMERATED { 
 	cs-fallback-required,
-	cs-fallback-high-priority, 
 	...,
 	cs-fallback-high-priority 
 }
@@ -1177,7 +1176,3 @@ X2TNLConfigurationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- Z
 
 END
-
-
-
-
