@@ -227,7 +227,7 @@ new_packet_list_get_record(GtkTreeModel *model, GtkTreeIter *iter)
 
 	gtk_tree_model_get(model, iter,
 			   record_column,
-			   (PacketListRecord*) &record,
+			   &record,
 			   -1);
 
 	return record;
