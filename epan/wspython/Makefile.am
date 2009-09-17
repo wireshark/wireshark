@@ -53,4 +53,7 @@ wspython_DATA= \
 
 EXTRA_DIST = \
 	Makefile.common		\
-	Makefile.nmake
+	Makefile.nmake		\
+	register-dissector.py	\
+	wspy_dissector.py	\
+	wspy_libws.py
