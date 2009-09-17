@@ -71,9 +71,9 @@ typedef enum {
 	BRA  = 2,
 	ACOA = 3,
 	NI   = 4,
-	MBAD = 5,
+	AUTD = 5,
 	MNP  = 6,
-	LLA  = 7,
+	MHLLA  = 7,
 	MNID = 8,
 	HNP  = 9,   /* temporary value, not yet defined by IANA */
 	TS   = 10   /* temporary value, not yet defined by IANA */
