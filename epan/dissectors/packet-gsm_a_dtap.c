@@ -404,6 +404,21 @@ static int hf_gsm_a_dtap_stream_identifier = -1;
 static int hf_gsm_a_dtap_mcs = -1;
 static int hf_gsm_a_dtap_cause_of_no_cli = -1;
 
+static int hf_gsm_a_codec_tdma_efr = -1;
+static int hf_gsm_a_codec_umts_amr_2 = -1;
+static int hf_gsm_a_codec_umts_amr = -1;
+static int hf_gsm_a_codec_hr_amr = -1;
+static int hf_gsm_a_codec_fr_amr = -1;
+static int hf_gsm_a_codec_gsm_efr = -1;
+static int hf_gsm_a_codec_gsm_hr = -1;
+static int hf_gsm_a_codec_gsm_fr = -1;
+static int hf_gsm_a_codec_ohr_amr_wb = -1;
+static int hf_gsm_a_codec_ofr_amr_wb = -1;
+static int hf_gsm_a_codec_ohr_amr = -1;
+static int hf_gsm_a_codec_umts_amr_wb = -1;
+static int hf_gsm_a_codec_fr_amr_wb = -1;
+static int hf_gsm_a_codec_pdc_efr = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
 static gint ett_dtap_oct_1 = -1;
@@ -3193,7 +3208,7 @@ de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
  */
 static const value_string gsm_a_sysid_values[] = {
 	{ 0x0,	"GSM" },
-	{ 0x4,	"GSM half rate speech version 1(GSM HR)" },
+	{ 0x4,	"UMTS" },
 	{ 0, NULL }
 };
 static guint16
@@ -3201,6 +3216,9 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 {
 	guint32	curr_offset;
 	guint8 length;
+	proto_tree	*subtree;
+	proto_item	*item;
+	guint8 sysid_counter;
 
 	curr_offset = offset;
 
@@ -3209,32 +3227,65 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	 * Bitmap indicates the supported codec types.
 	 * Coding of this Octet is defined in 3GPP TS 26.103
 	 */
+	sysid_counter = 0;
 	while (len>(curr_offset-offset)){
+		sysid_counter++;
 		proto_tree_add_item(tree, hf_gsm_a_sysid, tvb, curr_offset, 1, FALSE);
 		curr_offset++;
 		/* 	Length Of Bitmap for SysID */
 		proto_tree_add_item(tree, hf_gsm_a_bitmap_length, tvb, curr_offset, 1, FALSE);
 		length = tvb_get_guint8(tvb,curr_offset);
-		curr_offset++;
-		proto_tree_add_text(tree, tvb, curr_offset, length, "Bitmap for SysID");
-		/* 6.2 Codec Bitmap
-		 * The Codec Types are coded in the first and second octet of the Codec List
-		 * Bitmap as follows:
-		 * 8		 7	       6		5		4		3		2		bit 1
-		 * TDMA		 UMTS	   UMTS		HR AMR	FR AMR	GSM EFR GSM HR	GSM FR Octet 1
-		 * EFR		 AMR 2	   AMR 
-		 * bit 16	 15		   14		13		12		11		10		bit 9
-		 *(reserved) (reserved)OHR		OFR		OHR		UMTS	FR		PDC EFR Octet 2
-		 *                     AMR-WB	AMR-WB	AMR		AMR-WB	AMR-WB
-		 * A Codec Type is supported, if the corresponding bit is set to "1". 
-		 * All reserved bits shall be set to "0".
-		 * 
-		 * NOTE: If the Codec Bitmap for a SysID is 1 octet, it is an indication that 
-		 * all codecs of the 2nd octet are not supported. 
-		 * If the Codec Bitmap for a SysID is more than 2 octets, the network shall 
-		 * ignore the additional octet(s) of the bitmap and process the rest of the 
-		 * information element.
-		 */
+        if (length > 0)
+		{
+			curr_offset++;
+			item = proto_tree_add_text(tree, tvb, curr_offset, length, "Codec Bitmap for SysID %u", sysid_counter);
+			subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_SUP_CODEC_LIST]);
+			/* 6.2 Codec Bitmap
+			 * The Codec Types are coded in the first and second octet of the Codec List
+			 * Bitmap as follows:
+			 * 8		 7	       6		5		4		3		2		bit 1
+			 * TDMA		 UMTS	   UMTS		HR AMR	FR AMR	GSM EFR GSM HR	GSM FR Octet 1
+			 * EFR		 AMR 2	   AMR 
+			 * bit 16	 15		   14		13		12		11		10		bit 9
+			 *(reserved) (reserved)OHR		OFR		OHR		UMTS	FR		PDC EFR Octet 2
+			 *                     AMR-WB	AMR-WB	AMR		AMR-WB	AMR-WB
+			 * A Codec Type is supported, if the corresponding bit is set to "1". 
+			 * All reserved bits shall be set to "0".
+			 * 
+			 * NOTE: If the Codec Bitmap for a SysID is 1 octet, it is an indication that 
+			 * all codecs of the 2nd octet are not supported. 
+			 * If the Codec Bitmap for a SysID is more than 2 octets, the network shall 
+			 * ignore the additional octet(s) of the bitmap and process the rest of the 
+			 * information element.
+			 *
+			 * Right now we are sure that at least the first octet of the bitmap is present
+			 */
+			proto_tree_add_item(subtree, hf_gsm_a_codec_tdma_efr, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_umts_amr_2, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_umts_amr, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_hr_amr, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_fr_amr, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_gsm_efr, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_gsm_hr, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_gsm_fr, tvb, curr_offset, 1, FALSE);
+			length--;
+		}
+		if (length > 0)
+		{
+			/*
+			 * We can proceed with the second octet of the bitmap
+			 */
+			curr_offset++;
+			proto_tree_add_bits_item(subtree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset << 3, 2, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_ohr_amr_wb, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_ofr_amr_wb, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_ohr_amr, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_umts_amr_wb, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_fr_amr_wb, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(subtree, hf_gsm_a_codec_pdc_efr, tvb, curr_offset, 1, FALSE);
+			length--;
+		}
+
 		curr_offset = curr_offset + length;
 	}
 
@@ -5998,7 +6049,7 @@ proto_register_gsm_a_dtap(void)
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_bitmap_length,
-		{ "Length", "gsm_a.bitmap_length",
+		{ "Bitmap Length", "gsm_a.bitmap_length",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
@@ -6060,6 +6111,76 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_cause_ss_diagnostics,
 		{ "Supplementary Services Diagnostics", "gsm_a.dtap.cause_ss_diagnostics",
 		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_cause_ss_diagnostics_vals), 0x7f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_tdma_efr,
+		{ "TDMA EFR", "gsm_a.codec.tdma_efr",
+		FT_BOOLEAN, 8, NULL, 0x80,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_umts_amr_2,
+		{ "UMTS AMR 2", "gsm_a.codec.umts_amr_2",
+		FT_BOOLEAN, 8, NULL, 0x40,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_umts_amr,
+		{ "UMTS AMR", "gsm_a.codec.umts_amr",
+		FT_BOOLEAN, 8, NULL, 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_hr_amr,
+		{ "HR AMR", "gsm_a.codec.hr_amr",
+		FT_BOOLEAN, 8, NULL, 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_fr_amr,
+		{ "FR AMR", "gsm_a.codec.fr_amr",
+		FT_BOOLEAN, 8, NULL, 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_gsm_efr,
+		{ "GSM EFR", "gsm_a.codec.gsm_efr",
+		FT_BOOLEAN, 8, NULL, 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_gsm_hr,
+		{ "GSM HR", "gsm_a.codec.gsm_hr",
+		FT_BOOLEAN, 8, NULL, 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_gsm_fr,
+		{ "GSM FR", "gsm_a.codec.gsm_fr",
+		FT_BOOLEAN, 8, NULL, 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_ohr_amr_wb,
+		{ "OHR AMR-WB", "gsm_a.codec.ohr_amr_wb",
+		FT_BOOLEAN, 8, NULL, 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_ofr_amr_wb,
+		{ "OFR AMR-WB", "gsm_a.codec.ofr_amr_wb",
+		FT_BOOLEAN, 8, NULL, 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_ohr_amr,
+		{ "OHR AMR", "gsm_a.codec.ohr_amr",
+		FT_BOOLEAN, 8, NULL, 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_umts_amr_wb,
+		{ "UMTS AMR-WB", "gsm_a.codec.umts_amr_wb",
+		FT_BOOLEAN, 8, NULL, 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_fr_amr_wb,
+		{ "FR AMR-WB", "gsm_a.codec.fr_amr_wb",
+		FT_BOOLEAN, 8, NULL, 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_codec_pdc_efr,
+		{ "PDC EFR", "gsm_a.codec.pdc_efr",
+		FT_BOOLEAN, 8, NULL, 0x01,
 		NULL, HFILL }
 	},
 	};
