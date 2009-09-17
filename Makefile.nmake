@@ -227,7 +227,7 @@ packaging_zip: all
 	xcopy "$(MSVCR_DLL)" $(INSTALL_DIR)
 !ENDIF
 !IFDEF VCREDIST_EXE
-	@echo Including vcredist_x86.exe -- your recipient may need to run it!
+	@echo Including vcredist_$(TARGET_MACHINE).exe -- your recipient may need to run it!
 	xcopy "$(VCREDIST_EXE)" $(INSTALL_DIR)
 !ENDIF
 	rm -f wireshark.zip
@@ -923,7 +923,7 @@ debug-dumpcap: dumpcap.exe install-generated-files
 install-generated-files:
 	set copycmd=/y
 	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
-!IF "$(MSVC_VARIANT)" == "MSVC2008"
+!IF DEFINED (MSVCR_DLL) && "$(MSVC_VARIANT)" == "MSVC2008"
 	xcopy "$(MSVCR_DLL)" $(INSTALL_DIR)\*.* /d
 !ENDIF
 !IFDEF ENABLE_LIBWIRESHARK

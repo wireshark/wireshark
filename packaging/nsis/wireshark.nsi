@@ -426,7 +426,15 @@ File "..\..\ipmap.html"
 !ifdef VCREDIST_EXE
 ; vcredist_x86.exe (MSVC V8) - copy and execute the redistributable installer
 File "${VCREDIST_EXE}"
+!if ${WIRESHARK_TARGET_PLATFORM} == "win32"
 ExecWait '"$INSTDIR\vcredist_x86.exe"' $0
+!else
+; If the user already has the redistributable installed they will see a
+; Big Ugly Dialog by default, asking if they want to uninstall or repair.
+; Ideally we should add a checkbox for this somewhere. In the meantime,
+; just do a silent install.
+ExecWait '"$INSTDIR\vcredist_x64.exe" /q' $0
+!endif ; WIRESHARK_TARGET_PLATFORM
 DetailPrint "vcredist_x86 returned $0"
 !else
 !ifdef MSVCR_DLL

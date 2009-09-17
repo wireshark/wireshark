@@ -745,7 +745,10 @@ MSC_VER_REQUIRED=1500
 !IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "DOTNET10" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11"
 LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED)
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" || "$(MSVC_VARIANT)" == "MSVC2008" || "$(MSVC_VARIANT)" == "MSVC2008EE"
-LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) /D_BIND_TO_CURRENT_CRT_VERSION=1
+LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED)
+!IF "$(WIRESHARK_TARGET_PLATFORM)" != "win64"
+LOCAL_CFLAGS=$(LOCAL_CFLAGS) /D_BIND_TO_CURRENT_CRT_VERSION=1
+!ENDIF
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF
@@ -813,6 +816,11 @@ INSTALL_DIR=wireshark-gtk2
 !IF "$(MSVC_VARIANT)" == "MSVC6"
 # msvcrt.dll will already be available on target machines - nothing additional to install
 
+!ELSEIF "$(WIRESHARK_TARGET_PLATFORM)" == "win64"
+# We're not creating portable packages and therefore don't have to worry about
+# "deploying using xcopy"
+VCREDIST_EXE=$(WIRESHARK_LIBS)\vcredist_$(TARGET_MACHINE).exe
+
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2002"
 # you probably need to tweak this directory if you don't use the professional edition!
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio .NET\Visual Studio .NET Professional - English\msvcr70.dll
@@ -842,7 +850,9 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(VCREDIST_DLL)
 !ERROR MSVC_VARIANT unknown
 !ENDIF
 
-
+!IF DEFINED(VCREDIST_EXE) && ! EXIST("$(VCREDIST_EXE)")
+!ERROR Can't find $(VCREDIST_EXE). Have you downloaded it from Microsoft?
+!ENDIF
 
 ##### Advanced: Docbook/XML documentation generation #####
 # If you want to generate the Docbook/XML based docs (User's and Developer's
