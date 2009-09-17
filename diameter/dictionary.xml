@@ -1384,6 +1384,16 @@ http://www.iana.org/assignments/radius-types
 492 MIP-MN-HA-MSA [RFC-ietf-dime-mip6-split-17] 
 493 Service-Selection [RFC-ietf-dime-mip6-split-17] 
 494 MIP6-Auth-Mode [RFC-ietf-dime-mip6-split-17] 
+495 TMOD-1 [RFC5624] 
+496 Token-Rate [RFC5624] 
+497 Bucket-Depth [RFC5624] 
+498 Peak-Traffic-Rate [RFC5624] 
+499 Minimum-Policed-Unit [RFC5624] 
+500 Maximum-Packet-Size [RFC5624] 
+501 TMOD-2 [RFC5624] 
+502 Bandwidth [RFC5624] 
+503 PHB-Class [RFC5624] 
+504-0xffffff Unassigned 
 
 -->
     <avp name="Example-AVP" code="999999" mandatory="mustnot" vendor-bit="may">
