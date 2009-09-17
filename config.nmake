@@ -390,7 +390,7 @@ GTK_DIR=$(WIRESHARK_LIBS)\gtk2
 # These macros are used by the nsis installer script and by the install target.
 TIFF_DLL=libtiff-3.dll
 JPEG_DLL=libjpeg-7.dll
-FREETYPE_DLL=freetype6.dll
+FREETYPE_DLL=libfreetype-6.dll
 FONTCONFIG_DLL=libfontconfig-1.dll
 EXPAT_DLL=libexpat-1.dll
 # These macros are used by the setup target.
