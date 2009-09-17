@@ -143,7 +143,7 @@ GLIB_PKG=2.20.5-1
 
 ##### To Use new packet list uncomment this line ####
 ### Warning Experimental - work in progress
-#NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
+NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
 
 #
 # Mandatory: GTK (& related libs) settings
