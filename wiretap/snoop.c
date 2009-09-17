@@ -96,7 +96,8 @@ static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
 static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, int *header_size);
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info,
+    int *header_size);
 static gboolean snoop_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -526,7 +527,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 			return FALSE;
 		}
 		if (!snoop_read_shomiti_wireless_pseudoheader(wth->fh,
-		    &wth->pseudo_header, err, &header_size))
+		    &wth->pseudo_header, err, err_info, &header_size))
 			return FALSE;	/* Read error */
 
 		/*
@@ -599,7 +600,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 static gboolean
 snoop_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -628,7 +629,7 @@ snoop_seek_read(wtap *wth, gint64 seek_off,
 
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 		if (!snoop_read_shomiti_wireless_pseudoheader(wth->random_fh,
-		    pseudo_header, err, NULL)) {
+		    pseudo_header, err, err_info, NULL)) {
 			/* Read error */
 			return FALSE;
 		}
@@ -746,7 +747,8 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 
 static gboolean
 snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
-    union wtap_pseudo_header *pseudo_header, int *err, int *header_size)
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info,
+    int *header_size)
 {
 	shomiti_wireless_header whdr;
 	int	bytes_read;
