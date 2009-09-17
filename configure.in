@@ -1618,7 +1618,7 @@ AC_ARG_ENABLE(new-packet-list,
                   [use new packet list feature.  @<:@default=yes@:>@]),
                   new_packet_list=$enableval,new_packet_list=yes)
 AC_MSG_CHECKING(if new packet list is used);
-if test "x$enable_new_packet_list" = "xyes" ; then
+if test "x$new_packet_list" = "xyes" ; then
 	AC_MSG_RESULT(yes)
 	CFLAGS=" -DNEW_PACKET_LIST $CFLAGS"
 else
