@@ -53,6 +53,12 @@
 #include "../simple_dialog.h"
 #include "../progress_dlg.h"
 
+/* To be compatible with Solaris XXX Define else where?*/
+#ifndef __FUNCTION__  
+#define __FUNCTION__ __func__  
+#endif  
+
+
 static void packet_list_init(PacketList *pkg_tree);
 static void packet_list_class_init(PacketListClass *klass);
 static void packet_list_tree_model_init(GtkTreeModelIface *iface);
