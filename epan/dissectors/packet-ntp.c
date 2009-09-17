@@ -409,7 +409,7 @@ ntp_fmt_ts(const guint8 *reftime)
 	fractime = bd->tm_sec + tempfrac / 4294967296.0;
 	buff=ep_alloc(NTP_TS_SIZE);
 	g_snprintf(buff, NTP_TS_SIZE,
-                 "%s %2d, %d %02d:%02d:%07.4f UTC",
+                 "%s %2d, %d %02d:%02d:%09.6f UTC",
 		 mon_names[bd->tm_mon],
 		 bd->tm_mday,
 		 bd->tm_year + 1900,
