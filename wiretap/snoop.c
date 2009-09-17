@@ -750,8 +750,7 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 {
 	shomiti_wireless_header whdr;
 	int	bytes_read;
-	char buffer[250];
-	int rsize;
+	int	rsize;
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&whdr, 1, sizeof (shomiti_wireless_header), fh);
@@ -763,19 +762,29 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	}
 
 	/* the 4th byte of the pad is actually a header length,
-	 * we've already read 8 bytes of it, and it is never
-	 * less than 8
+	 * we've already read 8 bytes of it, and it must never
+	 * be less than 8.
+	 *
+	 * XXX - presumably that means that the header length
+	 * doesn't include the length field, as we've read
+	 * 12 bytes total.
+	 *
+	 * XXX - what's in the other 3 bytes of the padding?  Is it a
+	 * 4-byte length field?
+	 * XXX - is there anything in the rest of the header of interest?
+	 * XXX - are there any files where the header is shorter than
+	 * 4 bytes of length plus 8 bytes of information?
 	 */
-	rsize = ((int) whdr.pad[3]) - 8;
-	if(rsize > 0) {
-	    bytes_read = file_read(buffer, 1, rsize, fh);
-	    if (bytes_read != rsize) {
-		*err = file_error(fh);
-		if (*err == 0)
-		    *err = WTAP_ERR_SHORT_READ;
+	if (whdr.pad[3] < 8) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("snoop: Header length in Surveyor record is %u, less than minimum of 8",
+		    whdr.pad[3]);
 		return FALSE;
-	    }
 	}
+	/* Skip the header. */
+	rsize = ((int) whdr.pad[3]) - 8;
+	if (file_seek(wth->fh, rsize, SEEK_CUR, err) == -1)
+		return FALSE;
 
 	pseudo_header->ieee_802_11.fcs_len = 4;
 	pseudo_header->ieee_802_11.channel = whdr.channel;
