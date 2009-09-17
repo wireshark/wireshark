@@ -66,6 +66,14 @@ static const aim_tlv messaging_incoming_ch1_tlvs[] = {
 static int dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo);
 static int dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
 
+#define ICBM_CHANNEL_IM		0x0001
+#define ICBM_CHANNEL_RENDEZVOUS	0x0002
+
+static const value_string icbm_channel_types[] = {
+	{ ICBM_CHANNEL_IM, "IM" },
+	{ ICBM_CHANNEL_RENDEZVOUS, "Rendezvous" },
+	{ 0, NULL },
+};
 
 #define INCOMING_CH2_SERVER_ACK_REQ    	   0x0003
 #define INCOMING_CH2_RENDEZVOUS_DATA       0x0005
@@ -159,12 +167,43 @@ static const value_string rendezvous_msg_types[] = {
 	{ 0, NULL },
 };
 
-#define CLIENTAUTORESP_REASON_BUSTED_PAYLOAD	2
-#define CLIENTAUTORESP_REASON_CHANNEL_SPECIFIC	3
+#define CLIENT_ERR__REASON_UNSUPPORTED_CHANNEL	1
+#define CLIENT_ERR__REASON_BUSTED_PAYLOAD	2
+#define CLIENT_ERR__REASON_CHANNEL_SPECIFIC	3
 
-static const value_string clientautoresp_reason_types[] = {
-	{ CLIENTAUTORESP_REASON_BUSTED_PAYLOAD, "Busted Payload" },
-	{ CLIENTAUTORESP_REASON_CHANNEL_SPECIFIC, "Channel-specific" },
+static const value_string client_err_reason_types[] = {
+	{ CLIENT_ERR__REASON_UNSUPPORTED_CHANNEL, "Unsupported Channel" },
+	{ CLIENT_ERR__REASON_BUSTED_PAYLOAD, "Busted Payload" },
+	{ CLIENT_ERR__REASON_CHANNEL_SPECIFIC, "Channel Specific Error" },
+	{ 0, NULL },
+};
+
+#define RENDEZVOUS_NAK_PROPOSAL_UNSUPPORTED 0
+#define RENDEZVOUS_NAK_PROPOSAL_DENIED 1
+#define RENDEZVOUS_NAK_PROPOSAL_IGNORED 2
+#define RENDEZVOUS_NAK_BUSTED_PARAMETERS 3
+#define RENDEZVOUS_NAK_PROPOSAL_TIMED_OUT 4
+#define RENDEZVOUS_NAK_ONLINE_BUT_NOT_AVAILABLE 5
+#define RENDEZVOUS_NAK_INSUFFICIENT_RESOURCES 6
+#define RENDEZVOUS_NAK_RATE_LIMITED 7
+#define RENDEZVOUS_NAK_NO_DATA 8
+#define RENDEZVOUS_NAK_VERSION_MISMATCH 9
+#define RENDEZVOUS_NAK_SECURITY_MISMATCH 10
+#define RENDEZVOUS_NAK_SERVICE_SPECIFIC_REASON 15
+
+static const value_string rendezvous_nak_reason_types[] = {
+	{ RENDEZVOUS_NAK_PROPOSAL_UNSUPPORTED, "Proposal UUID not supported" },
+	{ RENDEZVOUS_NAK_PROPOSAL_DENIED, "Not authorized, or user declined" },
+	{ RENDEZVOUS_NAK_PROPOSAL_IGNORED, "Proposal ignored" },
+	{ RENDEZVOUS_NAK_BUSTED_PARAMETERS, "Proposal malformed" },
+	{ RENDEZVOUS_NAK_PROPOSAL_TIMED_OUT, "Attempt to act on proposal (e.g. connect) timed out" },
+	{ RENDEZVOUS_NAK_ONLINE_BUT_NOT_AVAILABLE, "Recipient away or busy" },
+	{ RENDEZVOUS_NAK_INSUFFICIENT_RESOURCES, "Recipient had internal error" },
+	{ RENDEZVOUS_NAK_RATE_LIMITED, "Recipient was ratelimited" },
+	{ RENDEZVOUS_NAK_NO_DATA, "Recipient had nothing to send" },
+	{ RENDEZVOUS_NAK_VERSION_MISMATCH, "Incompatible versions" },
+	{ RENDEZVOUS_NAK_SECURITY_MISMATCH, "Incompatible security settings" },
+	{ RENDEZVOUS_NAK_SERVICE_SPECIFIC_REASON, "Service-specific reject defined by client" },
 	{ 0, NULL },
 };
 
@@ -234,14 +273,16 @@ static int hf_aim_icbm_min_msg_interval = -1;
 static int hf_aim_icbm_notification_cookie = -1;
 static int hf_aim_icbm_notification_channel = -1;
 static int hf_aim_icbm_notification_type = -1;
+static int hf_aim_icbm_rendezvous_nak = -1;
+static int hf_aim_icbm_rendezvous_nak_length = -1;
 static int hf_aim_message_channel_id = -1;
 static int hf_aim_icbm_evil = -1;
 static int hf_aim_evil_warn_level = -1;
 static int hf_aim_evil_new_warn_level = -1;
 static int hf_aim_rendezvous_msg_type = -1;
-static int hf_aim_icbm_clientautoresp_reason = -1;
-static int hf_aim_icbm_clientautoresp_protocol_version = -1;
-static int hf_aim_icbm_clientautoresp_client_caps_flags = -1;
+static int hf_aim_icbm_client_err_reason = -1;
+static int hf_aim_icbm_client_err_protocol_version = -1;
+static int hf_aim_icbm_client_err_client_caps_flags = -1;
 static int hf_aim_rendezvous_extended_data_message_type = -1;
 static int hf_aim_rendezvous_extended_data_message_flags = -1;
 static int hf_aim_rendezvous_extended_data_message_flags_normal = -1;
@@ -258,7 +299,8 @@ static gint ett_aim_rendezvous_data = -1;
 static gint ett_aim_extended_data = -1;
 static gint ett_aim_extended_data_message_flags = -1;
 
-static int dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo)
+static int
+dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo)
 {
 	int offset = 0;
 	proto_tree *entry = proto_item_add_subtree(ti, ett_aim_rendezvous_data);
@@ -274,8 +316,8 @@ static int dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_,
 							rendezvous_tlvs);
 }
 
-static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo,
-						  proto_tree *msg_tree)
+static int
+dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
 	const aim_tlv *ch_tlvs = NULL;
@@ -304,8 +346,8 @@ static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo,
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 
 	switch(channel_id) {
-	case 1: ch_tlvs = messaging_incoming_ch1_tlvs; break;
-	case 2: ch_tlvs = messaging_incoming_ch2_tlvs; break;
+	case ICBM_CHANNEL_IM: ch_tlvs = messaging_incoming_ch1_tlvs; break;
+	case ICBM_CHANNEL_RENDEZVOUS: ch_tlvs = messaging_incoming_ch2_tlvs; break;
 	default: return offset;
 	}
 
@@ -313,7 +355,8 @@ static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
-static int dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
+static int
+dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
 	const aim_tlv *ch_tlvs;
@@ -332,15 +375,16 @@ static int dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	offset = dissect_aim_userinfo(tvb, pinfo, offset, msg_tree);
 
 	switch(channel_id) {
-	case 1: ch_tlvs = messaging_incoming_ch1_tlvs; break;
-	case 2: ch_tlvs = messaging_incoming_ch2_tlvs; break;
+	case ICBM_CHANNEL_IM: ch_tlvs = messaging_incoming_ch1_tlvs; break;
+	case ICBM_CHANNEL_RENDEZVOUS: ch_tlvs = messaging_incoming_ch2_tlvs; break;
 	default: return offset;
 	}
 
 	return dissect_aim_tlv_sequence(tvb, pinfo, offset, msg_tree, ch_tlvs);
 }
 
-static int dissect_aim_msg_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *msg_tree)
+static int
+dissect_aim_msg_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *msg_tree)
 {
 	int offset = 0;
 	proto_tree_add_item(msg_tree, hf_aim_icbm_channel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
@@ -352,7 +396,8 @@ static int dissect_aim_msg_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	return offset;
 }
 
-static int dissect_aim_msg_evil_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
+static int
+dissect_aim_msg_evil_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
 	proto_tree_add_item(msg_tree, hf_aim_icbm_evil, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
@@ -360,7 +405,8 @@ static int dissect_aim_msg_evil_req(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 
-static int dissect_aim_msg_evil_repl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *msg_tree)
+static int
+dissect_aim_msg_evil_repl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *msg_tree)
 {
 	int offset = 0;
 	proto_tree_add_item(msg_tree, hf_aim_evil_warn_level, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
@@ -368,7 +414,8 @@ static int dissect_aim_msg_evil_repl(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	return offset;
 }
 
-static int dissect_aim_msg_minityping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
+static int
+dissect_aim_msg_minityping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
 	proto_tree_add_item(msg_tree,hf_aim_icbm_notification_cookie, tvb, offset, 8, FALSE); offset+=8;
@@ -396,7 +443,8 @@ static const aim_client_plugin known_client_plugins[] = {
 	{ NULL, {0x0, 0x0, 0x0, { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 } } }
 };
 
-static const aim_client_plugin *aim_find_plugin ( e_uuid_t uuid)
+static const
+aim_client_plugin *aim_find_plugin ( e_uuid_t uuid)
 {
 	int i;
 
@@ -411,7 +459,8 @@ static const aim_client_plugin *aim_find_plugin ( e_uuid_t uuid)
 	return NULL;
 }
 
-static int dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_uuid_t* out_plugin_uuid)
+static int
+dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_uuid_t* out_plugin_uuid)
 {
 	const aim_client_plugin *plugin = NULL;
 	e_uuid_t uuid;
@@ -436,7 +485,8 @@ static int dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_uu
 	return offset+16;
 }
 
-static int dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
+static int
+dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 {
 	guint8 message_type, message_flags;
 	int offset = 0;
@@ -465,7 +515,8 @@ static int dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *ms
 	return offset;
 }
 
-static int is_uuid_null(e_uuid_t uuid)
+static int
+is_uuid_null(e_uuid_t uuid)
 {
 	return (uuid.Data1 == 0) &&
 	       (uuid.Data2 == 0) &&
@@ -480,7 +531,8 @@ static int is_uuid_null(e_uuid_t uuid)
 	       (uuid.Data4[7] == 0);
 }
 
-static int dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
+static int
+dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
 	int offset = 0;
 	guint16 length, protocol_version;
@@ -493,11 +545,11 @@ static int dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _
 	proto_tree_add_text(entry, tvb, offset, 2, "Length: %d", length); offset+=2;
 	start_offset = offset;
 	protocol_version = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(entry, hf_aim_icbm_clientautoresp_protocol_version, tvb, offset, 2, TRUE); offset+=2;
+	proto_tree_add_item(entry, hf_aim_icbm_client_err_protocol_version, tvb, offset, 2, TRUE); offset+=2;
 
 	offset = dissect_aim_plugin(entry, tvb, offset, &plugin_uuid);
 	proto_tree_add_text(entry, tvb, offset, 2, "Unknown"); offset += 2;
-	proto_tree_add_item(entry, hf_aim_icbm_clientautoresp_client_caps_flags, tvb, offset, 4, TRUE); offset+=4;
+	proto_tree_add_item(entry, hf_aim_icbm_client_err_client_caps_flags, tvb, offset, 4, TRUE); offset+=4;
 	proto_tree_add_text(entry, tvb, offset, 1, "Unknown");	offset += 1;
 	proto_tree_add_text(entry, tvb, offset, 2, "Downcounter?"); offset += 2;
 
@@ -526,7 +578,8 @@ static int dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _
 	return offset;
 }
 
-static int dissect_aim_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
+static int
+dissect_aim_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
 
@@ -540,25 +593,36 @@ static int dissect_aim_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ms
 	return offset;
 }
 
-static int dissect_aim_msg_clientautoresp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
+static int
+dissect_aim_msg_client_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
-	guint16 reason;
+	guint16 channel, reason;
 
 	proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, FALSE); offset+=8;
+	channel = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(msg_tree,hf_aim_icbm_channel, tvb, offset, 2, FALSE); offset+=2;
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 	reason = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(msg_tree, hf_aim_icbm_clientautoresp_reason, tvb, offset, 2, FALSE); offset+=2;
-	switch (reason)
+	proto_tree_add_item(msg_tree, hf_aim_icbm_client_err_reason, tvb, offset, 2, FALSE); offset+=2;
+
+	if (reason == CLIENT_ERR__REASON_CHANNEL_SPECIFIC && tvb_length_remaining(tvb, offset) > 0)
 	{
-	case 0x0003:
+		switch (channel)
 		{
-		    proto_item *ti_extended_data = proto_tree_add_text(msg_tree, tvb, offset, -1, "Extended Data");
+		case ICBM_CHANNEL_RENDEZVOUS:
+			proto_tree_add_item(msg_tree, hf_aim_icbm_rendezvous_nak_length, tvb, offset, 2, FALSE); offset+=2;
+			proto_tree_add_item(msg_tree, hf_aim_icbm_rendezvous_nak, tvb, offset, 2, FALSE); offset+=2;
+			break;
+
+		default:
+		  {
 		    tvbuff_t *subtvb = tvb_new_subset_remaining(tvb, offset);
+		    proto_item *ti_extended_data = proto_tree_add_text(msg_tree, tvb, offset, -1, "Extended Data");
 		    dissect_aim_tlv_value_extended_data(ti_extended_data, 0, subtvb, pinfo);
+		    break;
+		  }
 		}
-		break;
 	}
 
 	return offset;
@@ -575,7 +639,7 @@ static const aim_subtype aim_fnac_family_messaging[] = {
 	{ 0x0008, "Evil Request", dissect_aim_msg_evil_req },
 	{ 0x0009, "Evil Response", dissect_aim_msg_evil_repl  },
 	{ 0x000a, "Missed Call", NULL },
-	{ 0x000b, "Client Auto Response", dissect_aim_msg_clientautoresp },
+	{ 0x000b, "Client Error", dissect_aim_msg_client_err },
 	{ 0x000c, "Acknowledge", dissect_aim_msg_ack },
 	{ 0x0014, "Mini Typing Notifications (MTN)", dissect_aim_msg_minityping },
 	{ 0, NULL, NULL }
@@ -591,7 +655,7 @@ proto_register_aim_messaging(void)
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_aim_icbm_channel,
-			{ "Channel to setup", "aim_messaging.icbm.channel", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
+			{ "Channel", "aim_messaging.icbm.channel", FT_UINT16, BASE_HEX, VALS(icbm_channel_types), 0x0, NULL, HFILL },
 		},
 		{ &hf_aim_icbm_msg_flags,
 			{ "Message Flags", "aim_messaging.icbm.flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL },
@@ -632,17 +696,23 @@ proto_register_aim_messaging(void)
 		{ &hf_aim_icbm_notification_type,
 			{ "Notification Type", "aim_messaging.notification.type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
 		},
+		{ &hf_aim_icbm_rendezvous_nak,
+			{ "Rendezvous NAK reason", "aim_messaging.rendezvous_nak", FT_UINT16, BASE_HEX, VALS(rendezvous_nak_reason_types), 0x0, NULL, HFILL },
+		},
+		{ &hf_aim_icbm_rendezvous_nak_length,
+			{ "Rendezvous NAK reason length", "aim_messaging.rendezvous_nak_length", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
+		},
 		{ &hf_aim_rendezvous_msg_type,
 			{ "Message Type", "aim_messaging.rendezvous.msg_type", FT_UINT16, BASE_HEX, VALS(rendezvous_msg_types), 0x0, NULL, HFILL },
 		},
-		{ &hf_aim_icbm_clientautoresp_reason,
-			{ "Reason", "aim_messaging.clientautoresp.reason", FT_UINT16, BASE_DEC, VALS(clientautoresp_reason_types), 0x0, NULL, HFILL },
+		{ &hf_aim_icbm_client_err_reason,
+			{ "Reason", "aim_messaging.clienterr.reason", FT_UINT16, BASE_DEC, VALS(client_err_reason_types), 0x0, NULL, HFILL },
 		},
-		{ &hf_aim_icbm_clientautoresp_protocol_version,
-			{ "Version", "aim_messaging.clientautoresp.protocol_version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
+		{ &hf_aim_icbm_client_err_protocol_version,
+			{ "Version", "aim_messaging.clienterr.protocol_version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
 		},
-		{ &hf_aim_icbm_clientautoresp_client_caps_flags,
-			{ "Client Capabilities Flags", "aim_messaging.clientautoresp.client_caps_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL },
+		{ &hf_aim_icbm_client_err_client_caps_flags,
+			{ "Client Capabilities Flags", "aim_messaging.clienterr.client_caps_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL },
 		},
 		{ &hf_aim_rendezvous_extended_data_message_type,
 			{ "Message Type", "aim_messaging.icbm.extended_data.message.type", FT_UINT8, BASE_HEX, VALS(extended_data_message_types), 0x0, NULL, HFILL },
