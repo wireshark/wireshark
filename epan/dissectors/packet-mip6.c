@@ -112,6 +112,7 @@ static int hf_fmip6_lla_optcode = -1;
 static int hf_mip6_mnid_subtype = -1;
 
 static int hf_pmip6_timestamp = -1;
+static int hf_mip6_mobility_opt = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mip6 = -1;
@@ -594,7 +595,7 @@ dissect_mip6_opt_mnid(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 	len = optlen - MIP6_MNID_MNID_OFF;
 
 	if (len > 0)
-		proto_tree_add_text(field_tree, tvb, p, len, "Identifier: %s", tvb_get_ptr(tvb, p, len));
+		proto_tree_add_text(field_tree, tvb, p, len, "Identifier: %s", tvb_format_text(tvb, p, len));
 }
 
 static void
@@ -610,7 +611,7 @@ dissect_pmip6_opt_ts(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 static const ip_tcp_opt mip6_opts[] = {
 {
-	PAD1,
+	PAD1,						/* 0 Pad1 [RFC3775] */
 	"Pad1",
 	NULL,
 	NO_LENGTH,
@@ -618,7 +619,7 @@ static const ip_tcp_opt mip6_opts[] = {
 	NULL,
 },
 {
-	PADN,
+	PADN,						/* 1 PadN [RFC3775] */
 	"PadN",
 	&ett_mip6_opt_padn,
 	VARIABLE_LENGTH,
@@ -626,7 +627,7 @@ static const ip_tcp_opt mip6_opts[] = {
 	dissect_mip6_opt_padn
 },
 {
-	BRA,
+	BRA,						/* 2 Binding Refresh Advice */
 	"Binding Refresh Advice",
 	&ett_mip6_opt_bra,
 	FIXED_LENGTH,
@@ -634,7 +635,7 @@ static const ip_tcp_opt mip6_opts[] = {
 	dissect_mip6_opt_bra
 },
 {
-	ACOA,
+	ACOA,						/*3  Alternate Care-of Address */
 	"Alternate Care-of Address",
 	&ett_mip6_opt_acoa,
 	FIXED_LENGTH,
@@ -642,7 +643,7 @@ static const ip_tcp_opt mip6_opts[] = {
 	dissect_mip6_opt_acoa
 },
 {
-	MNP,
+	MNP,						/* 6 Mobile Network Prefix Option */
 	"Mobile Network Prefix",
 	&ett_nemo_opt_mnp,
 	FIXED_LENGTH,
@@ -650,7 +651,7 @@ static const ip_tcp_opt mip6_opts[] = {
 	dissect_nemo_opt_mnp
 },
 {
-	NI,
+	NI,							/* 4 Nonce Indices */
 	"Nonce Indices",
 	&ett_mip6_opt_ni,
 	FIXED_LENGTH,
@@ -658,23 +659,23 @@ static const ip_tcp_opt mip6_opts[] = {
 	dissect_mip6_opt_ni
 },
 {
-	MBAD,
-	"Binding Authorization Data",
+	AUTD,						/* 5 Authorization Data */
+	"Authorization Data",
 	&ett_mip6_opt_bad,
 	VARIABLE_LENGTH,
 	0,
 	dissect_mip6_opt_bad
 },
 {
-	LLA,
-	"Link-Layer Address",
+	MHLLA,						/* 7 Mobility Header Link-Layer Address option [RFC5568] */
+	"Mobility Header Link-Layer Address option",
 	&ett_fmip6_opt_lla,
 	VARIABLE_LENGTH,
 	FMIP6_LLA_MINLEN,
 	dissect_fmip6_opt_lla
 },
 {
-	MNID,
+	MNID,						/* 8 MN-ID-OPTION-TYPE */
 	"Mobile Node Identifier",
 	&ett_mip6_opt_mnid,
 	VARIABLE_LENGTH,
@@ -701,6 +702,50 @@ static const ip_tcp_opt mip6_opts[] = {
 
 #define N_MIP6_OPTS	(sizeof mip6_opts / sizeof mip6_opts[0])
 
+/* Mobility Option types 
+ * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xhtml
+ */
+
+static const value_string nas_eps_emm_lcs_ind_vals[] = {
+	{ 0,	"Pad1"},										/* RFC3775 */ 
+	{ 1,	"PadN"},										/* RFC3775 */ 
+	{ 2,	"Binding Refresh Advice"},						/* RFC3775 */ 
+	{ 3,	"Alternate Care-of Address"},					/* RFC3775 */ 
+	{ 4,	"Nonce Indices"},								/* RFC3775 */ 
+	{ 5,	"Authorization Data"},							/* RFC3775 */ 
+	{ 6,	"Mobile Network Prefix Option"},				/* RFC3963 */ 
+	{ 7,	"Mobility Header Link-Layer Address option"},	/* RFC5568 */ 
+	{ 8,	"MN-ID-OPTION-TYPE"},							/* RFC4283 */ 
+	{ 9,	"AUTH-OPTION-TYPE"},							/* RFC4285 */ 
+	{ 10,	"MESG-ID-OPTION-TYPE"},							/* RFC4285 */ 
+	{ 11,	"CGA Parameters Request"},						/* RFC4866 */ 
+	{ 12,	"CGA Parameters"},								/* RFC4866 */ 
+	{ 13,	"Signature"},									/* RFC4866 */ 
+	{ 14,	"Permanent Home Keygen Token"},					/* RFC4866 */ 
+	{ 15,	"Care-of Test Init"},							/* RFC4866 */ 
+	{ 16,	"Care-of Test"},								/* RFC4866 */ 
+	{ 17,	"DNS-UPDATE-TYPE"},								/* RFC5026 */ 
+	{ 18,	"Experimental Mobility Option"},				/* RFC5096 */ 
+	{ 19,	"Vendor Specific Mobility Option"},				/* RFC5094 */ 
+	{ 20,	"Service Selection Mobility Option"},			/* RFC5149 */ 
+	{ 21,	"Binding Authorization Data for FMIPv6 (BADF)"}, /* RFC5568 */ 
+	{ 22,	"Home Network Prefix Option"},					/* RFC5213 */ 
+	{ 23,	"Handoff Indicator Option"},					/* RFC5213 */ 
+	{ 24,	"Access Technology Type Option"},				/* RFC5213 */ 
+	{ 25,	"Mobile Node Link-layer Identifier Option"},	/* RFC5213 */ 
+	{ 26,	"Link-local Address Option"},					/* RFC5213 */ 
+	{ 27,	"Timestamp Option"},							/* RFC5213 */ 
+	{ 28,	"Restart Counter"},								/* RFC-ietf-netlmm-pmipv6-heartbeat-07 */ 
+	{ 29,	"IPv4 Home Address"},							/* RFC5555 */ 
+	{ 30,	"IPv4 Address Acknowledgement"},				/* RFC5555 */ 
+	{ 31,	"NAT Detection"},								/* RFC5555 */ 
+	{ 32,	"IPv4 Care-of Address"},						/* RFC5555 */ 
+	{ 33,	"GRE Key Option"},								/* RFC-ietf-netlmm-grekey-option-09 */ 
+	{ 34,	"Mobility Header IPv6 Address/Prefix"},			/* RFC5568 */ 
+	{ 35,	"Binding Identifier"},							/* RFC-ietf-monami6-multiplecoa-14 */ 
+	{ 0, NULL }
+};
+
 /* Like "dissect_ip_tcp_options()", but assumes the length of an option
  * *doesn't* include the type and length bytes.  The option parsers,
  * however, are passed a length that *does* include them.
@@ -710,6 +755,7 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
                       const ip_tcp_opt *opttab, int nopts, int eol,
                       packet_info *pinfo, proto_tree *opt_tree)
 {
+	proto_item		 *ti;
 	guchar            opt;
 	const ip_tcp_opt  *optp;
 	opt_len_type      len_type;
@@ -778,32 +824,30 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
 						len, plurality(len, "", "s"), optlen);
 				return;
 			} else {
+				ti = proto_tree_add_item(opt_tree, hf_mip6_mobility_opt, tvb, offset, 1, FALSE);
 				if (optp == NULL) {
-					proto_tree_add_text(opt_tree, tvb, offset, len + 2, "%s (%u byte%s)",
-							name, len, plurality(len, "", "s"));
+					proto_item_append_text(ti, "(%u byte%s)",len, plurality(len, "", "s"));
+					proto_tree_add_text(opt_tree, tvb, offset+2,len,"[Not disseted yet]");
 				} else {
 					if (dissect != NULL) {
 						/* Option has a dissector. */
-						if (opt == LLA)
+						if (opt == MHLLA)
 							(*dissect)(optp, tvb, offset,
 								   len + 2 + FMIP6_LLA_OPTCODE_LEN, pinfo, opt_tree);
 						else
 							(*dissect)(optp, tvb, offset, len + 2, pinfo, opt_tree);
-					} else {
-						/* Option has no data, hence no dissector. */
-						proto_tree_add_text(opt_tree, tvb, offset, len + 2, "%s", name);
 					}
 				}
 				/* RFC4068 Section 6.4.4
 				 *   Length         The size of this option in octets not including the
 				 *                  Type, Length, and Option-Code fields.
 				 */
-				if (opt == LLA)
+				if (opt == MHLLA)
 					offset += len + 2 + FMIP6_LLA_OPTCODE_LEN;
 				else
 					offset += len + 2;
 			}
-			if (opt == LLA)
+			if (opt == MHLLA)
 				length -= (len + FMIP6_LLA_OPTCODE_LEN);
 			else
 				length -= len;
@@ -1151,6 +1195,9 @@ proto_register_mip6(void)
 
 	{ &hf_pmip6_timestamp,      { "Timestamp", "pmip6.timestamp",
                                       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+	{ &hf_mip6_mobility_opt,      { "Mobility Options", "pmip6.mobility_opt",
+                                      FT_UINT8, BASE_DEC, VALS(nas_eps_emm_lcs_ind_vals), 0, NULL, HFILL }},
 	};
 
 	/* Setup protocol subtree array */
