@@ -351,7 +351,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	}
 
 	memset(&system_info, '\0', sizeof system_info);
-	GetSystemInfo(&system_info);    /* only for W2K or greater .... (which is what we suuport) */
+	GetSystemInfo(&system_info);    /* only for W2K or greater .... (which is what we support) */
 
 	switch (info.dwPlatformId) {
 
