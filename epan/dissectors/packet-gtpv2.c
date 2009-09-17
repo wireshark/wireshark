@@ -1332,7 +1332,6 @@ dissect_gtpv2_charging_characteristic(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 {
 
 	int offset = 0;
-	proto_tree_add_text(tree, tvb, 0, 1,"Here");
 
 	proto_tree_add_item(tree, hf_gtpv2_charging_characteristic, tvb, offset, 2, FALSE);
 	if(length>2){
