@@ -390,14 +390,20 @@ GTK_DIR=$(WIRESHARK_LIBS)\gtk2
 # These macros are used by the nsis installer script and by the install target.
 TIFF_DLL=libtiff.dll
 JPEG_DLL=libjpeg-62.dll
+FREETYPE_DLL=freetype6.dll
+FONTCONFIG_DLL=libfontconfig-1.dll
+EXPAT_DLL=libexpat-1.dll
 # These macros are used by the setup target.
-GTK_PKG=2.16.2-1
-CAIRO_PKG=1.8.6-2
-ATK_PKG=1.26.0-1
-LIBPNG_PKG=1.2.37-1
-TIFF_PKG=libtiff_3.8.2-1_win64
+GTK_PKG=2.16.6-1
+CAIRO_PKG=1.8.8-2
+ATK_PKG=1.26.0-2
+LIBPNG_PKG=1.2.40-1
+TIFF_PKG=libtiff_3.9.1-1_win64
 JPEG_PKG=jpeg_6b-2_win64
-PANGO_PKG=1.24.2-1
+PANGO_PKG=1.24.5-2
+FREETYPE_PKG=2.3.9-2
+FONTCONFIG_PKG=2.7.3-1
+EXPAT_PKG=2.0.1-2
 
 #
 # Mandatory: Version numbers of GTK and pango.
