@@ -100,6 +100,7 @@ static int hf_nas_eps_emm_short_mac = -1;
 static int hf_nas_eps_emm_tai_tol = -1;
 static int hf_nas_eps_emm_tai_n_elem = -1;
 static int hf_nas_eps_emm_tai_tac = -1;
+static int hf_nas_eps_emm_eea0 = -1;
 static int hf_nas_eps_emm_128eea0 = -1;
 static int hf_nas_eps_emm_128eea1 = -1;
 static int hf_nas_eps_emm_128eea2 = -1;
@@ -1443,8 +1444,8 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	curr_offset = offset;
 
-	/* EPS encryption algorithm 128-EEA0 supported (octet 3, bit 8) */
-	proto_tree_add_item(tree, hf_nas_eps_emm_128eea0, tvb, curr_offset, 1, FALSE);
+	/* EPS encryption algorithm EEA0 supported (octet 3, bit 8) */
+	proto_tree_add_item(tree, hf_nas_eps_emm_eea0, tvb, curr_offset, 1, FALSE);
 	/* EPS encryption algorithm 128-EEA1 supported (octet 3, bit 7) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_128eea1, tvb, curr_offset, 1, FALSE);
 	/* EPS encryption algorithm 128-EEA2 supported (octet 3, bit 6) */
@@ -1482,6 +1483,12 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	proto_tree_add_item(tree, hf_nas_eps_emm_eia7, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
+
+	/* Octets 5, 6, and 7 are optional. If octet 5 is included,
+	 * then also octet 6 shall be included and octet 7 may be included.
+	 */
+	if(len==2)
+		return(len);
 
 	/* UMTS encryption algorithms supported (octet 5)
 	 * UMTS encryption algorithm UEA0 supported (octet 5, bit 8)
@@ -1522,6 +1529,8 @@ de_emm_ue_sec_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	proto_tree_add_item(tree, hf_nas_eps_emm_uia7, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
+	if(len==4)
+		return(len);
 	/* Bit 8 of octet 7 is spare and shall be coded as zero. */
 	proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 1, FALSE);
 	/* GPRS encryption algorithm GEA1 supported (octet 7, bit 7) */
@@ -2358,16 +2367,18 @@ nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_offset = offset;
 	curr_len = len;
 
-	/* 
-	 * NAS key set identifierASME 	NAS key set identifier 9.9.3.21	M	V	1/2  
-	 */
 	bit_offset = curr_offset<<3;
-	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, "ASME");
-	bit_offset+=4;
-	
+	/* H1 */
 	/* 	Spare half octet	Spare half octet 9.9.2.7	M	V	1/2 */
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_spare_half_octet, tvb, bit_offset, 4, FALSE);
 	bit_offset+=4;
+	/* H0 */
+	/* 
+	 * NAS key set identifierASME 	NAS key set identifier 9.9.3.21	M	V	1/2  
+	 */
+	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, "ASME");
+	bit_offset+=4;
+	
 	/* Fix the lengths */
 	curr_len--;
 	curr_offset++;
@@ -2379,7 +2390,7 @@ nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/*
 	 * Authentication parameter AUTN (EPS challenge) 9.9.3.2	M	LV	17
 	 */
-	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_AUTH_PARAM_AUTN, " - EPS challenge");
+	ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN, " - EPS challenge");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -3877,7 +3888,8 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *nas_eps_tree;
 	guint8		pd, security_header_type;
 	int			offset = 0;
-	guint32			len;
+	guint32		len;
+	guint32		msg_auth_code;
 
 	/* Save pinfo */
 	gpinfo = pinfo;
@@ -3915,11 +3927,14 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		/* Message authentication code */
 		proto_tree_add_item(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, FALSE);
+		msg_auth_code = tvb_get_ntohl(tvb, offset);
 		offset+=4;
 		if ((security_header_type==2)||(security_header_type==4)){
-			/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
-			proto_tree_add_text(nas_eps_tree, tvb, offset, len-5,"Ciphered message");
-			return;
+			if(msg_auth_code!=0){
+				/* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
+				proto_tree_add_text(nas_eps_tree, tvb, offset, len-5,"Ciphered message");
+				return;
+			}
 		}
 	}
 	/* Sequence number	Sequence number 9.6	M	V	1 */
@@ -4198,6 +4213,11 @@ void proto_register_nas_eps(void) {
 	{ &hf_nas_eps_emm_tai_tac,
 		{ "Tracking area code(TAC)","nas_eps.emm.tai_tac",
 		FT_UINT16, BASE_HEX,  NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_nas_eps_emm_eea0,
+		{ "EEA0","nas_eps.emm.eea0",
+		FT_BOOLEAN, 8, TFS(&nas_eps_emm_supported_flg_value), 0x80,
 		NULL, HFILL }
 	},
 	{ &hf_nas_eps_emm_128eea0,
