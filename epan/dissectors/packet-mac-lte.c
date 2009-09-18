@@ -29,6 +29,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/uat.h>
 
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
@@ -388,7 +389,60 @@ static gboolean global_mac_lte_dissect_crc_failures = FALSE;
 static gboolean global_mac_lte_attempt_srb_decode = FALSE;
 
 
+/***********************************************************************/
+/* How to dissect lcid 3-10 (presume drb logical channels)             */
+
+static const value_string drb_lcid_vals[] = {
+    { 3,  "LCID 3"},
+    { 4,  "LCID 4"},
+    { 5,  "LCID 5"},
+    { 6,  "LCID 6"},
+    { 7,  "LCID 7"},
+    { 8,  "LCID 8"},
+    { 9,  "LCID 9"},
+    { 10, "LCID 10"},
+    { 0, NULL }
+};
+
+typedef enum rlc_channel_type_t {
+    rlcRaw,
+    rlcTM,
+    rlcUM5,
+    rlcUM10,
+    rlcAM
+} rlc_channel_type_t;
+
+static const value_string rlc_channel_type_vals[] = {
+    { rlcTM,    "TM"},
+    { rlcUM5 ,  "UM, SN Len=5"},
+    { rlcUM10,  "UM, SN Len=10"},
+    { rlcAM  ,  "AM"},
+    { 0, NULL }
+};
+
+/* Mapping type */
+typedef struct drb_mapping_t {
+    guint16 lcid;
+    guint16 drbid;
+    rlc_channel_type_t channel_type;
+} lcid_drb_mapping_t;
+
+/* Mapping entity */
+static lcid_drb_mapping_t *lcid_drb_mappings = NULL;
+static guint num_lcid_drb_mappings = 0;
+
+UAT_VS_DEF(lcid_drb_mappings, lcid, lcid_drb_mapping_t, 3, "LCID 3")
+UAT_DEC_CB_DEF(lcid_drb_mappings, drbid, lcid_drb_mapping_t)
+UAT_VS_DEF(lcid_drb_mappings, channel_type, lcid_drb_mapping_t, 2, "AM")
+
+/* UAT object */
+static uat_t* lcid_drb_mappings_uat;
+
 extern int proto_rlc_lte;
+
+/***************************************************************/
+
+
 
 /***************************************************************/
 /* Keeping track of Msg3 bodies so they can be compared with   */
@@ -414,7 +468,6 @@ static guint mac_lte_msg3_hash_func(gconstpointer v)
 {
     return GPOINTER_TO_UINT(v);
 }
-
 
 
 
@@ -603,6 +656,10 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Timing Advance */
     timing_advance = (tvb_get_ntohs(tvb, offset) & 0x7ff0) >> 4;
     proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ta, tvb, offset, 2, FALSE);
+    if (timing_advance != 0) {
+        expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+                               "RAR Timing advance not zero (%u)", timing_advance);
+    }
     offset++;
 
     /* UL Grant */
@@ -943,6 +1000,53 @@ static int is_bsr_lcid(guint8 lcid)
 }
 
 
+
+static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                               int offset, guint16 data_length,
+                               guint8 mode, guint8 direction, guint16 ueid,
+                               guint16 channelType, guint16 channelId,
+                               guint8 UMSequenceNumberLength)
+{
+    tvbuff_t *srb_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
+    struct rlc_lte_info *p_rlc_lte_info;
+
+    /* Get RLC dissector handle */
+    volatile dissector_handle_t protocol_handle = find_dissector("rlc-lte");
+
+    /* Resuse or create RLC info */
+    p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
+    if (p_rlc_lte_info == NULL) {
+        p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
+    }
+
+    /* Fill in struct details for srb channels */
+    p_rlc_lte_info->rlcMode = mode;
+    p_rlc_lte_info->direction = direction;
+    p_rlc_lte_info->priority = 0; /* ?? */
+    p_rlc_lte_info->ueid = ueid;
+    p_rlc_lte_info->channelType = channelType;
+    p_rlc_lte_info->channelId = channelId;
+    p_rlc_lte_info->pduLength = data_length;
+    p_rlc_lte_info->UMSequenceNumberLength = UMSequenceNumberLength;
+
+    /* Store info in packet */
+    p_add_proto_data(pinfo->fd, proto_rlc_lte, p_rlc_lte_info);
+
+    /* Don't want these columns replaced */
+    col_set_writable(pinfo->cinfo, FALSE);
+
+    /* Call it (catch exceptions so that stats will be updated) */
+    TRY {
+        call_dissector_only(protocol_handle, srb_tvb, pinfo, tree);
+    }
+    CATCH_ALL {
+    }
+    ENDTRY
+
+    col_set_writable(pinfo->cinfo, TRUE);
+}
+
+
 #define MAX_HEADERS_IN_PDU 1024
 
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
@@ -1273,8 +1377,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     break;
                 case TIMING_ADVANCE_LCID:
                     {
+                        proto_item *ta_ti;
                         proto_item *reserved_ti;
                         guint8      reserved;
+                        guint8      ta_value;
 
                         /* Check 2 reserved bits */
                         reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
@@ -1283,8 +1389,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             expert_add_info_format(pinfo, reserved_ti, PI_MALFORMED, PI_ERROR,
                                                    "Timing Advance Reserved bits not zero (found 0x%x)", reserved);
                         }
-                        proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
-                                            tvb, offset, 1, FALSE);
+                        ta_value = tvb_get_guint8(tvb, offset) & 0x3f;
+                        ta_ti = proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
+                                                    tvb, offset, 1, FALSE);
+                        expert_add_info_format(pinfo, ta_ti, PI_SEQUENCE, PI_WARN,
+                                               "Timing Advance control element received (%u)",
+                                               ta_value);
+                        
                         offset++;
                     }
                     break;
@@ -1443,7 +1554,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             tvb_length_remaining(tvb, offset) :
                             pdu_lengths[n];
 
-        /* Dissect SDU */
+        /* Dissect SDU as raw bytes */
         sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_sch_sdu, tvb, offset, pdu_lengths[n],
                                              tvb_get_ptr(tvb, offset, pdu_lengths[n]),
                                              "SDU (%s, length=%u bytes)",
@@ -1500,49 +1611,82 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
 
         /* LCID 1 and 2 can be assumed to be srb1&2, so can dissect as RLC AM */
-        if (((lcids[n] == 1) || (lcids[n] == 2)) && global_mac_lte_attempt_srb_decode) {
-            tvbuff_t *srb_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
-            struct rlc_lte_info *p_rlc_lte_info;
+        if ((lcids[n] == 1) || (lcids[n] == 2)) {
+            if (global_mac_lte_attempt_srb_decode) {
+                /* Call RLC dissector */
+                call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
+                                   RLC_AM_MODE, direction, p_mac_lte_info->ueid,
+                                   CHANNEL_TYPE_SRB, lcids[n], 0);
 
-            /* Get RLC dissector handle */
-            volatile dissector_handle_t protocol_handle = find_dissector("rlc-lte");
-
-            /* Resuse or create RLC info */
-            p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
-            if (p_rlc_lte_info == NULL) {
-                p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
+                /* Hide raw view of bytes */
+                PROTO_ITEM_SET_HIDDEN(sdu_ti);
             }
-
-            /* Fill in struct details for srb channels */
-            p_rlc_lte_info->rlcMode = RLC_AM_MODE;
-            p_rlc_lte_info->direction = p_mac_lte_info->direction;
-            p_rlc_lte_info->priority = 0; /* ?? */
-            p_rlc_lte_info->ueid = p_mac_lte_info->ueid;
-            p_rlc_lte_info->channelType = CHANNEL_TYPE_SRB;
-            p_rlc_lte_info->channelId = lcids[n];
-            p_rlc_lte_info->pduLength = data_length;
-            p_rlc_lte_info->UMSequenceNumberLength = 0;
-
-            /* Store info in packet */
-            p_add_proto_data(pinfo->fd, proto_rlc_lte, p_rlc_lte_info);
-
-            /* Hide raw view of bytes */
-            PROTO_ITEM_SET_HIDDEN(sdu_ti);
-
-            /* Don't want these columns replaced */
-            col_set_writable(pinfo->cinfo, FALSE);
-
-            /* Call it (catch exceptions so that stats will be updated) */
-            TRY {
-                call_dissector_only(protocol_handle, srb_tvb, pinfo, tree);
-            }
-            CATCH_ALL {
-            }
-            ENDTRY
-
-            col_set_writable(pinfo->cinfo, TRUE);
         }
 
+        else if ((lcids[n] >= 2) && (lcids[n] <= 10)) {
+
+            /* Look for mapping for this LCID to drb channel set by UAT table */
+            rlc_channel_type_t rlc_channel_type = rlcRaw;
+            guint8 UM_seqnum_length = 0;
+            guint8 drb_id = 0;
+
+            guint m;
+            for (m=0; m < num_lcid_drb_mappings; m++) {
+                if (lcids[n] == lcid_drb_mappings[m].lcid) {
+
+                    rlc_channel_type = lcid_drb_mappings[m].channel_type;
+
+                    /* Set UM_seqnum_length */
+                    switch (lcid_drb_mappings[m].channel_type) {
+                        case rlcUM5:
+                            UM_seqnum_length = 5;
+                            break;
+                        case rlcUM10:
+                            UM_seqnum_length = 10;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    /* Set drb_id */
+                    drb_id = lcid_drb_mappings[m].drbid;
+                    break;
+                }
+            }
+
+            /* Dissect according to channel type */
+            switch (rlc_channel_type) {
+                case rlcUM5:
+                    call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
+                                       RLC_UM_MODE, direction, p_mac_lte_info->ueid,
+                                       CHANNEL_TYPE_DRB, drb_id, UM_seqnum_length);
+                    break;
+                case rlcUM10:
+                    call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
+                                       RLC_UM_MODE, direction, p_mac_lte_info->ueid,
+                                       CHANNEL_TYPE_DRB, drb_id, UM_seqnum_length);
+                    break;
+                case rlcAM:
+                    call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
+                                       RLC_AM_MODE, direction, p_mac_lte_info->ueid,
+                                       CHANNEL_TYPE_DRB, drb_id, 0);
+                    break;
+                case rlcTM:
+                    call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
+                                       RLC_TM_MODE, direction, p_mac_lte_info->ueid,
+                                       CHANNEL_TYPE_DRB, drb_id, 0);
+                    break;
+                case rlcRaw:
+                    /* Nothing to do! */
+                    break;
+            }
+
+            if (rlc_channel_type != rlcRaw) {
+                /* Hide raw view of bytes */
+                PROTO_ITEM_SET_HIDDEN(sdu_ti);
+            }
+
+        }
 
         offset += data_length;
 
@@ -1581,8 +1725,9 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree             *mac_lte_tree;
     proto_item             *ti;
     gint                   offset = 0;
-    struct mac_lte_info   *p_mac_lte_info = NULL;
+    struct mac_lte_info    *p_mac_lte_info = NULL;
 
+    /* Zero out tap */
     static mac_lte_tap_info tap_info;
     memset(&tap_info, 0, sizeof(mac_lte_tap_info));
 
@@ -1681,8 +1826,9 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                    "%s Frame has CRC error",
                                    (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL");
-            col_append_fstr(pinfo->cinfo, COL_INFO, "%s: <CRC FAILURE> on %s %u ",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s: <CRC FAILURE> UEId=%u %s=%u ",
                             (p_mac_lte_info->direction == DIRECTION_UPLINK) ? "UL" : "DL",
+                            p_mac_lte_info->ueid,
                             val_to_str(p_mac_lte_info->rntiType, rnti_type_vals,
                                        "Unknown RNTI type"),
                             p_mac_lte_info->rnti);
@@ -1775,6 +1921,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
+
 /* Initializes the hash table and the mem_chunk area each time a new
  * file is loaded or re-loaded in wireshark */
 static void
@@ -1792,6 +1939,21 @@ mac_lte_init_protocol(void)
     mac_lte_msg3_hash = g_hash_table_new(mac_lte_msg3_hash_func, mac_lte_msg3_hash_equal);
     mac_lte_cr_result_hash = g_hash_table_new(mac_lte_cr_result_hash_func, mac_lte_cr_result_hash_equal);
 }
+
+
+static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, unsigned len _U_) 
+{
+    const lcid_drb_mapping_t *o = orig;
+    lcid_drb_mapping_t *d = dest;
+
+    /* Copy all items over */
+    d->lcid = o->lcid;
+    d->drbid = o->drbid;
+    d->channel_type = o->channel_type;
+
+    return d;
+}
+
 
 
 void proto_register_mac_lte(void)
@@ -2236,6 +2398,14 @@ void proto_register_mac_lte(void)
 
     module_t *mac_lte_module;
 
+    static uat_field_t lcid_drb_mapping_flds[] = {
+        UAT_FLD_VS(lcid_drb_mappings, lcid, "lcid", drb_lcid_vals, "The MAC LCID"),
+        UAT_FLD_DEC(lcid_drb_mappings, drbid,"drb id (1-32)", "Identifier of logical data channel"),
+        UAT_FLD_VS(lcid_drb_mappings, channel_type, "RLC Channel Type", rlc_channel_type_vals, "The MAC LCID"),
+        UAT_END_FIELDS
+    };
+
+
     /* Register protocol. */
     proto_mac_lte = proto_register_protocol("MAC-LTE", "MAC-LTE", "mac-lte");
     proto_register_field_array(proto_mac_lte, hf, array_length(hf));
@@ -2289,6 +2459,25 @@ void proto_register_mac_lte(void)
         "Will call LTE RLC dissector with standard settings as per RRC spec",
         &global_mac_lte_attempt_srb_decode);
 
+
+    lcid_drb_mappings_uat = uat_new("LCID -> drb Table",
+                               sizeof(lcid_drb_mapping_t),
+                               "drb_logchans",
+                               TRUE,
+                               (void*) &lcid_drb_mappings,
+                               &num_lcid_drb_mappings,
+                               UAT_CAT_FFMT,
+                               "",  /* TODO: is this ref to help manual? */
+                               lcid_drb_mapping_copy_cb,
+                               NULL,
+                               NULL,
+                               lcid_drb_mapping_flds );
+
+    prefs_register_uat_preference(mac_lte_module,
+                                  "drb_table",
+                                  "LCID -> DRB Mappings Table",
+                                  "A table that maps from configurable lcids -> RLC logical channels",
+                                  lcid_drb_mappings_uat);
 
     register_init_routine(&mac_lte_init_protocol);
 }
