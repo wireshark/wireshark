@@ -557,6 +557,7 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 	row = row_number_from_iter(&iter);
 
 	cf_select_packet(&cfile, row);
+	gtk_widget_grab_focus(packetlist->view);
 
 	/* Add newly selected frame to packet history (breadcrumbs) */
 	packet_history_add(row);
