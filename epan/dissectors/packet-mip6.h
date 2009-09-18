@@ -64,19 +64,48 @@ static const value_string mip6_mh_types[] = {
 	{0,     NULL}
 };
 
-/* Mobility Option types */
+/* Mobility Option types 
+ * http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xhtml
+ */
 typedef enum {
-	PAD1 = 0,
-	PADN = 1,
-	BRA  = 2,
-	ACOA = 3,
-	NI   = 4,
-	AUTD = 5,
-	MNP  = 6,
-	MHLLA  = 7,
-	MNID = 8,
-	HNP  = 9,   /* temporary value, not yet defined by IANA */
-	TS   = 10   /* temporary value, not yet defined by IANA */
+	PAD1 = 0,	/* 0 Pad1 [RFC3775] */
+	PADN = 1,	/* 1 PadN [RFC3775] */
+	BRA  = 2,	/* 2 Binding Refresh Advice */
+	ACOA = 3,	/* 3 Alternate Care-of Address */
+	NI   = 4,	/* 4 Nonce Indices */
+	AUTD = 5,	/* 5 Authorization Data */
+	MNP  = 6,	/* 6 Mobile Network Prefix Option */
+	MHLLA  = 7,	/* 7 Mobility Header Link-Layer Address option [RFC5568] */
+	MNID = 8,	/* 8 MN-ID-OPTION-TYPE */
+				/* 9 AUTH-OPTION-TYPE */
+				/* 10 MESG-ID-OPTION-TYPE [RFC4285]  */
+				/* 11 CGA Parameters Request [RFC4866]  */
+				/* 12 CGA Parameters [RFC4866]  */
+				/* 13 Signature [RFC4866]  */
+				/* 14 Permanent Home Keygen Token [RFC4866]  */ 
+				/* 15 Care-of Test Init [RFC4866]  */
+				/* 16 Care-of Test [RFC4866]  */
+				/* 17 DNS-UPDATE-TYPE [RFC5026]  */
+				/* 18 Experimental Mobility Option [RFC5096]  */
+				/* 19 Vendor Specific Mobility Option [RFC5094]  */
+				/* 20 Service Selection Mobility Option [RFC5149]  */
+				/* 21 Binding Authorization Data for FMIPv6 (BADF) [RFC5568]  */
+	HNP  = 22,	/* Home Network Prefix  */
+				/* 22 Home Network Prefix Option [RFC5213]   */
+				/* 23 Handoff Indicator Option [RFC5213]   */
+				/* 24 Access Technology Type Option [RFC5213]  */ 
+				/* 25 Mobile Node Link-layer Identifier Option [RFC5213]  */ 
+				/* 26 Link-local Address Option [RFC5213   */
+	TS   = 27	/* Timestamp */
+				/* 28 Restart Counter [RFC-ietf-netlmm-pmipv6-heartbeat-07] */ 
+				/* 29 IPv4 Home Address [RFC5555]  */
+				/* 30 IPv4 Address Acknowledgement [RFC5555] */ 
+				/* 31 NAT Detection [RFC5555]  */
+				/* 32 IPv4 Care-of Address [RFC5555]  */
+				/* 33 GRE Key Option [RFC-ietf-netlmm-grekey-option-09]  */
+				/* 34 Mobility Header IPv6 Address/Prefix [RFC5568]  */
+				/* 35 Binding Identifier [RFC-ietf-monami6-multiplecoa-14]  */
+
 } optTypes;
 
 /* Binding Update flag description */
