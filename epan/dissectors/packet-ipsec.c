@@ -2453,7 +2453,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		    }
 
-		  if(decrypt_ok)
+		  if(decrypt_ok && (decrypted_len > esp_iv_len))
 		    {
 		      tvb_decrypted = tvb_new_child_real_data(tvb,
                                                               g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,
