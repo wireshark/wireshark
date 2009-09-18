@@ -423,7 +423,7 @@ static const value_string rlc_channel_type_vals[] = {
 /* Mapping type */
 typedef struct drb_mapping_t {
     guint16 lcid;
-    guint16 drbid;
+    guint drbid;
     rlc_channel_type_t channel_type;
 } lcid_drb_mapping_t;
 
@@ -1628,7 +1628,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Look for mapping for this LCID to drb channel set by UAT table */
             rlc_channel_type_t rlc_channel_type = rlcRaw;
             guint8 UM_seqnum_length = 0;
-            guint8 drb_id = 0;
+            guint drb_id = 0;
 
             guint m;
             for (m=0; m < num_lcid_drb_mappings; m++) {
