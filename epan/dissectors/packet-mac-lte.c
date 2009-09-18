@@ -420,10 +420,11 @@ static const value_string rlc_channel_type_vals[] = {
     { 0, NULL }
 };
 
+
 /* Mapping type */
 typedef struct drb_mapping_t {
     guint16 lcid;
-    guint drbid;
+    gint drbid;
     rlc_channel_type_t channel_type;
 } lcid_drb_mapping_t;
 
@@ -1628,7 +1629,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Look for mapping for this LCID to drb channel set by UAT table */
             rlc_channel_type_t rlc_channel_type = rlcRaw;
             guint8 UM_seqnum_length = 0;
-            guint drb_id = 0;
+            gint drb_id = 0;
 
             guint m;
             for (m=0; m < num_lcid_drb_mappings; m++) {
@@ -1659,22 +1660,22 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 case rlcUM5:
                     call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
                                        RLC_UM_MODE, direction, p_mac_lte_info->ueid,
-                                       CHANNEL_TYPE_DRB, drb_id, UM_seqnum_length);
+                                       CHANNEL_TYPE_DRB, (guint16)drb_id, UM_seqnum_length);
                     break;
                 case rlcUM10:
                     call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
                                        RLC_UM_MODE, direction, p_mac_lte_info->ueid,
-                                       CHANNEL_TYPE_DRB, drb_id, UM_seqnum_length);
+                                       CHANNEL_TYPE_DRB, (guint16)drb_id, UM_seqnum_length);
                     break;
                 case rlcAM:
                     call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
                                        RLC_AM_MODE, direction, p_mac_lte_info->ueid,
-                                       CHANNEL_TYPE_DRB, drb_id, 0);
+                                       CHANNEL_TYPE_DRB, (guint16)drb_id, 0);
                     break;
                 case rlcTM:
                     call_rlc_dissector(tvb, pinfo, tree, offset, data_length,
                                        RLC_TM_MODE, direction, p_mac_lte_info->ueid,
-                                       CHANNEL_TYPE_DRB, drb_id, 0);
+                                       CHANNEL_TYPE_DRB, (guint16)drb_id, 0);
                     break;
                 case rlcRaw:
                     /* Nothing to do! */
