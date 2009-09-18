@@ -43,6 +43,7 @@ static int hf_message_flags  = -1;
 static int hf_message_length = -1;
 static int hf_message_status = -1;
 static int hf_message_data   = -1;
+static int hf_message_info   = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ssprotocol   = -1;
@@ -62,6 +63,7 @@ dissect_ssprotocol_message(tvbuff_t *, packet_info *, proto_tree *);
 #define MESSAGE_LENGTH_OFFSET     (MESSAGE_FLAGS_OFFSET   + MESSAGE_FLAGS_LENGTH)
 #define MESSAGE_STATUS_OFFSET     (MESSAGE_LENGTH_OFFSET  + MESSAGE_LENGTH_LENGTH)
 #define MESSAGE_DATA_OFFSET       (MESSAGE_LENGTH_OFFSET  + MESSAGE_LENGTH_LENGTH)
+#define MESSAGE_INFO_OFFSET       (MESSAGE_LENGTH_OFFSET  + MESSAGE_LENGTH_LENGTH)
 
 
 #define SS_READY_TYPE          1
@@ -88,6 +90,7 @@ dissect_ssprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
 {
   guint8  type;
   guint16 data_length;
+  guint16 info_length;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   if (pinfo && (check_col(pinfo->cinfo, COL_INFO))) {
@@ -106,6 +109,12 @@ dissect_ssprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
       data_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET) - 4;
       if (data_length > 0) {
         proto_tree_add_item(ssprotocol_tree, hf_message_data, message_tvb, MESSAGE_DATA_OFFSET, data_length, FALSE);
+      }
+     break;
+    case SS_READY_TYPE:
+      info_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET) - 4;
+      if (info_length > 0) {
+        proto_tree_add_item(ssprotocol_tree, hf_message_info, message_tvb, MESSAGE_INFO_OFFSET, info_length, FALSE);
       }
      break;
   }
@@ -148,7 +157,8 @@ proto_register_ssprotocol(void)
     { &hf_message_flags,     { "Flags",      "ssprotocol.message_flags",  FT_UINT8,  BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_message_length,    { "Length",     "ssprotocol.message_length", FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_message_status,    { "Status",     "ssprotocol.message_status", FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
-    { &hf_message_data,      { "Data",       "ssprotocol.message_data",   FT_BYTES,  BASE_NONE, NULL,                      0x0, NULL, HFILL } }
+    { &hf_message_data,      { "Data",       "ssprotocol.message_data",   FT_BYTES,  BASE_NONE, NULL,                     0x0, NULL, HFILL } },
+    { &hf_message_info,      { "Info",       "ssprotocol.message_info",   FT_STRING, BASE_NONE, NULL,                     0x0, NULL, HFILL } }
   };
 
   /* Setup protocol subtree array */
