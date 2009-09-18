@@ -93,6 +93,12 @@
  *
  * Beware - these specs may have errors.
  */
+
+/* DFS referral entry flags */
+#define REFENT_FLAGS_NAME_LIST_REFERRAL  0x0002
+#define REFENT_FLAGS_TARGET_SET_BOUNDARY 0x0004
+
+
 static int proto_smb = -1;
 static int hf_smb_cmd = -1;
 static int hf_smb_mapped_in = -1;
@@ -559,7 +565,8 @@ static int hf_smb_get_dfs_fielding = -1;
 static int hf_smb_dfs_referral_version = -1;
 static int hf_smb_dfs_referral_size = -1;
 static int hf_smb_dfs_referral_server_type = -1;
-static int hf_smb_dfs_referral_flags_strip = -1;
+static int hf_smb_dfs_referral_flags_name_list_referral = -1;
+static int hf_smb_dfs_referral_flags_target_set_boundary = -1;
 static int hf_smb_dfs_referral_node_offset = -1;
 static int hf_smb_dfs_referral_node = -1;
 static int hf_smb_dfs_referral_proximity = -1;
@@ -568,6 +575,12 @@ static int hf_smb_dfs_referral_path_offset = -1;
 static int hf_smb_dfs_referral_path = -1;
 static int hf_smb_dfs_referral_alt_path_offset = -1;
 static int hf_smb_dfs_referral_alt_path = -1;
+static int hf_smb_dfs_referral_domain_offset = -1;
+static int hf_smb_dfs_referral_number_of_expnames = -1;
+static int hf_smb_dfs_referral_expnames_offset = -1;
+static int hf_smb_dfs_referral_domain_name = -1;
+static int hf_smb_dfs_referral_expname = -1;
+static int hf_smb_dfs_referral_server_guid = -1;
 static int hf_smb_end_of_search = -1;
 static int hf_smb_last_name_offset = -1;
 static int hf_smb_fn_information_level = -1;
@@ -737,6 +750,7 @@ static gint ett_smb_stream_info = -1;
 static gint ett_smb_dfs_referrals = -1;
 static gint ett_smb_dfs_referral = -1;
 static gint ett_smb_dfs_referral_flags = -1;
+static gint ett_smb_dfs_referral_expnames = -1;
 static gint ett_smb_get_dfs_flags = -1;
 static gint ett_smb_ff2_data = -1;
 static gint ett_smb_device_characteristics = -1;
@@ -10205,16 +10219,19 @@ static const true_false_string tfs_get_dfs_fielding = {
 	"The server in referrals is NOT fielding capable"
 };
 
-static const true_false_string tfs_dfs_referral_flags_strip = {
-	"STRIP off pathconsumed characters before submitting",
-	"Do NOT strip off any characters"
+static const true_false_string tfs_dfs_referral_flags_name_list_referral = {
+	"A domain/DC referral response",
+	"NOT a domain/DC referral response"
+};
+
+static const true_false_string tfs_dfs_referral_flags_target_set_boundary = {
+	"The first target in the target set",
+	"NOT the first target in the target set"
 };
 
 static const value_string dfs_referral_server_type_vals[] = {
-	{0,	"Don't know"},
-	{1,	"SMB Server"},
-	{2,	"Netware Server"},
-	{3,	"Domain Server"},
+	{0,	"Non-root targets returned"},
+	{1,	"Root targets returns"},
 	{0, NULL}
 };
 
@@ -10909,7 +10926,9 @@ dissect_dfs_referral_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 			"Flags: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_dfs_referral_flags);
 
-		proto_tree_add_boolean(tree, hf_smb_dfs_referral_flags_strip,
+		proto_tree_add_boolean(tree, hf_smb_dfs_referral_flags_name_list_referral,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_dfs_referral_flags_target_set_boundary,
 			tvb, offset, 2, mask);
 	}
 
@@ -10962,6 +10981,215 @@ dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
+static int
+dissect_dfs_referral_strings(tvbuff_t *tvb, proto_tree *tree, int hfindex, 
+			     int nstring, int stroffset, int oldoffset, int offset,
+			     guint16 bc, gboolean unicode, int *end)
+{
+	int istring;
+	const char *str;
+	int str_len;       /* string length including the terminating NULL. */
+
+	if (stroffset <= oldoffset)
+		return oldoffset;
+
+	bc -= (stroffset - offset);
+	for (istring=0; istring<nstring; istring++) {
+		if ((gint16)bc > 0) {
+			str = get_unicode_or_ascii_string(tvb, &stroffset, unicode, &str_len, FALSE, FALSE, &bc);
+			CHECK_STRING_TRANS_SUBR(str);
+			proto_tree_add_string(tree, hfindex, tvb, stroffset, str_len, str);
+			stroffset += str_len;
+			bc -= str_len;
+			if (end && (*end < stroffset))
+				*end = stroffset;
+		}
+	}
+	
+	return offset;
+}
+
+
+static int
+dissect_dfs_referral_string(tvbuff_t *tvb, proto_tree *tree, int hfindex, 
+			    int stroffset, int oldoffset, int offset,
+			    guint16 bc, gboolean unicode, int *end)
+{
+	return dissect_dfs_referral_strings(tvb, tree, hfindex,
+					   1, stroffset, oldoffset, offset,
+					   bc, unicode, end);
+}
+
+static int
+dissect_dfs_referral_entry_v2(tvbuff_t *tvb, proto_tree *tree, int oldoffset, int offset,
+			      guint16 refflags _U_, guint16 *bcp, gboolean unicode, int *ucstring_end)
+{
+	
+	guint16 pathoffset;
+	guint16 altpathoffset;
+	guint16 nodeoffset;
+
+	/* proximity */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_proximity, tvb, offset, 4, TRUE);
+	COUNT_BYTES_TRANS_SUBR(4);
+
+	/* ttl */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_ttl, tvb, offset, 4, TRUE);
+	COUNT_BYTES_TRANS_SUBR(4);
+
+	/* path offset */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	pathoffset = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_dfs_referral_path_offset, tvb, offset, 2, pathoffset);
+	COUNT_BYTES_TRANS_SUBR(2);
+
+	/* alt path offset */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	altpathoffset = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_dfs_referral_alt_path_offset, tvb, offset, 2, altpathoffset);
+	COUNT_BYTES_TRANS_SUBR(2);
+
+	/* node offset */
+	CHECK_BYTE_COUNT_TRANS_SUBR(2);
+	nodeoffset = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_dfs_referral_node_offset, tvb, offset, 2, nodeoffset);
+	COUNT_BYTES_TRANS_SUBR(2);
+
+	/* path */
+	if (pathoffset) {
+		dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_path, 
+					    pathoffset+oldoffset, oldoffset, offset,
+					    *bcp, unicode, ucstring_end);
+	}
+
+	/* alt path */
+	if (altpathoffset) {
+		dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_alt_path,
+					    altpathoffset+oldoffset, oldoffset, offset,
+					    *bcp, unicode, ucstring_end);
+	}
+
+	/* node */
+	if (nodeoffset) {
+		dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_node,
+					    nodeoffset+oldoffset, oldoffset, offset,
+					    *bcp, unicode, ucstring_end);
+	}
+
+	return offset;
+
+}
+
+
+static int
+dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, int offset, 
+			      guint16 refflags, guint16 *bcp, gboolean unicode, int *ucstring_end)
+{
+	guint16 domoffset;
+	guint16 nexpnames;
+	guint16 expoffset;
+	guint16 pathoffset;
+	guint16 altpathoffset;
+	guint16 nodeoffset;
+
+	/* ttl */
+	CHECK_BYTE_COUNT_TRANS_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_ttl, tvb, offset, 4, TRUE);
+	COUNT_BYTES_TRANS_SUBR(4);
+	
+	if (refflags & REFENT_FLAGS_NAME_LIST_REFERRAL) {		
+		/* domain name offset */
+		CHECK_BYTE_COUNT_TRANS_SUBR(2);
+		domoffset = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_dfs_referral_domain_offset, tvb, offset, 2, domoffset);
+		COUNT_BYTES_TRANS_SUBR(2);
+
+		/* number of expanded names*/
+		CHECK_BYTE_COUNT_TRANS_SUBR(2);
+		nexpnames = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_dfs_referral_number_of_expnames, tvb, offset, 2, nexpnames);
+		COUNT_BYTES_TRANS_SUBR(2);
+
+		/* expanded names offset */
+		CHECK_BYTE_COUNT_TRANS_SUBR(2);
+		expoffset = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_dfs_referral_expnames_offset, tvb, offset, 2, expoffset);
+		COUNT_BYTES_TRANS_SUBR(2);
+		
+		/* padding: zero or 16 bytes, which should be ignored by clients. 
+		 * we ignore them too.
+		 */
+		
+		/* domain name */
+		if (domoffset) {
+			dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_domain_name,
+						    domoffset+oldoffset, oldoffset, offset,
+						    *bcp, unicode, ucstring_end);
+		}
+		/* expanded names */
+		if (expoffset) {
+			proto_item *expitem = NULL;
+			proto_tree *exptree = NULL;
+			
+			expitem = proto_tree_add_text(tree, tvb, offset, *bcp, "Expanded Names");
+			exptree = proto_item_add_subtree(expitem, ett_smb_dfs_referral_expnames);
+
+			dissect_dfs_referral_strings(tvb, exptree, hf_smb_dfs_referral_expname,
+						     nexpnames, expoffset+oldoffset, oldoffset, offset,
+						     *bcp, unicode, ucstring_end);
+		}
+	} else {
+		/* path offset */
+		CHECK_BYTE_COUNT_TRANS_SUBR(2);
+		pathoffset = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_dfs_referral_path_offset, tvb, offset, 2, pathoffset);
+		COUNT_BYTES_TRANS_SUBR(2);
+
+		/* alt path offset */
+		CHECK_BYTE_COUNT_TRANS_SUBR(2);
+		altpathoffset = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_dfs_referral_alt_path_offset, tvb, offset, 2, altpathoffset);
+		COUNT_BYTES_TRANS_SUBR(2);
+
+		/* node offset */
+		CHECK_BYTE_COUNT_TRANS_SUBR(2);
+		nodeoffset = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_dfs_referral_node_offset, tvb, offset, 2, nodeoffset);
+		COUNT_BYTES_TRANS_SUBR(2);
+
+		/* service site guid */
+		CHECK_BYTE_COUNT_TRANS_SUBR(16);
+		proto_tree_add_item(tree, hf_smb_dfs_referral_server_guid, tvb, offset, 16, TRUE);
+		COUNT_BYTES_TRANS_SUBR(16);
+
+		/* path */
+		if (pathoffset) {
+			dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_path, 
+						    pathoffset+oldoffset, oldoffset, offset,
+						    *bcp, unicode, ucstring_end);
+		}
+
+		/* alt path */
+		if (altpathoffset) {
+			dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_alt_path,
+						    altpathoffset+oldoffset, oldoffset, offset,
+						    *bcp, unicode, ucstring_end);
+		}
+
+		/* node */
+		if (nodeoffset) {
+			dissect_dfs_referral_string(tvb, tree, hf_smb_dfs_referral_node,
+						    nodeoffset+oldoffset, oldoffset, offset,
+						    *bcp, unicode, ucstring_end);
+		}
+	}
+
+	return offset;
+
+}
+
 /* get dfs referral data  (4.4.1)
 */
 static int
@@ -10971,13 +11199,8 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 	smb_info_t *si = pinfo->private_data;
 	guint16 numref;
 	guint16 refsize;
-	guint16 pathoffset;
-	guint16 altpathoffset;
-	guint16 nodeoffset;
+	guint16 refflags;
 	int fn_len;
-	int stroffset;
-	int offsetoffset;
-	guint16 save_bc;
 	const char *fn;
 	int unklen;
 	int ucstring_end;
@@ -11057,6 +11280,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 
 			/* referral flags */
 			CHECK_BYTE_COUNT_TRANS_SUBR(2);
+			refflags = tvb_get_letohs(tvb, offset);
 			offset = dissect_dfs_referral_flags(tvb, rt, offset);
 			*bcp -= 2;
 
@@ -11072,93 +11296,18 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 				break;
 
 			case 2:
-			case 3:	/* XXX - like version 2, but not identical;
-				   seen in a capture, but the format isn't
-				   documented */
-				/* proximity */
-				CHECK_BYTE_COUNT_TRANS_SUBR(2);
-				proto_tree_add_item(rt, hf_smb_dfs_referral_proximity, tvb, offset, 2, TRUE);
-				COUNT_BYTES_TRANS_SUBR(2);
-
-				/* ttl */
-				CHECK_BYTE_COUNT_TRANS_SUBR(2);
-				proto_tree_add_item(rt, hf_smb_dfs_referral_ttl, tvb, offset, 2, TRUE);
-				COUNT_BYTES_TRANS_SUBR(2);
-
-				/* path offset */
-				CHECK_BYTE_COUNT_TRANS_SUBR(2);
-				pathoffset = tvb_get_letohs(tvb, offset);
-				proto_tree_add_uint(rt, hf_smb_dfs_referral_path_offset, tvb, offset, 2, pathoffset);
-				COUNT_BYTES_TRANS_SUBR(2);
-
-				/* alt path offset */
-				CHECK_BYTE_COUNT_TRANS_SUBR(2);
-				altpathoffset = tvb_get_letohs(tvb, offset);
-				proto_tree_add_uint(rt, hf_smb_dfs_referral_alt_path_offset, tvb, offset, 2, altpathoffset);
-				COUNT_BYTES_TRANS_SUBR(2);
-
-				/* node offset */
-				CHECK_BYTE_COUNT_TRANS_SUBR(2);
-				nodeoffset = tvb_get_letohs(tvb, offset);
-				proto_tree_add_uint(rt, hf_smb_dfs_referral_node_offset, tvb, offset, 2, nodeoffset);
-				COUNT_BYTES_TRANS_SUBR(2);
-
-				/* path */
-				if (pathoffset != 0) {
-					stroffset = old_offset + pathoffset;
-					offsetoffset = stroffset - offset;
-					if (offsetoffset > 0 &&
-					    *bcp > offsetoffset) {
-						save_bc = *bcp;
-						*bcp -= offsetoffset;
-						fn = get_unicode_or_ascii_string(tvb, &stroffset, si->unicode, &fn_len, FALSE, FALSE, bcp);
-						CHECK_STRING_TRANS_SUBR(fn);
-						proto_tree_add_string(rt, hf_smb_dfs_referral_path, tvb, stroffset, fn_len,
-							fn);
-						stroffset += fn_len;
-						if (ucstring_end < stroffset)
-							ucstring_end = stroffset;
-						*bcp = save_bc;
-					}
-				}
-
-				/* alt path */
-				if (altpathoffset != 0) {
-					stroffset = old_offset + altpathoffset;
-					offsetoffset = stroffset - offset;
-					if (offsetoffset > 0 &&
-					    *bcp > offsetoffset) {
-						save_bc = *bcp;
-						*bcp -= offsetoffset;
-						fn = get_unicode_or_ascii_string(tvb, &stroffset, si->unicode, &fn_len, FALSE, FALSE, bcp);
-						CHECK_STRING_TRANS_SUBR(fn);
-						proto_tree_add_string(rt, hf_smb_dfs_referral_alt_path, tvb, stroffset, fn_len,
-							fn);
-						stroffset += fn_len;
-						if (ucstring_end < stroffset)
-							ucstring_end = stroffset;
-						*bcp = save_bc;
-					}
-				}
-
-				/* node */
-				if (nodeoffset != 0) {
-					stroffset = old_offset + nodeoffset;
-					offsetoffset = stroffset - offset;
-					if (offsetoffset > 0 &&
-					    *bcp > offsetoffset) {
-						save_bc = *bcp;
-						*bcp -= offsetoffset;
-						fn = get_unicode_or_ascii_string(tvb, &stroffset, si->unicode, &fn_len, FALSE, FALSE, bcp);
-						CHECK_STRING_TRANS_SUBR(fn);
-						proto_tree_add_string(rt, hf_smb_dfs_referral_node, tvb, stroffset, fn_len,
-							fn);
-						stroffset += fn_len;
-						if (ucstring_end < stroffset)
-							ucstring_end = stroffset;
-						*bcp = save_bc;
-					}
-				}
+				offset = dissect_dfs_referral_entry_v2(tvb, rt, old_offset, offset,
+								       refflags, bcp, si->unicode, &ucstring_end);
+				break;
+			case 3:	
+				offset = dissect_dfs_referral_entry_v3(tvb, rt, old_offset, offset,
+								       refflags, bcp, si->unicode, &ucstring_end);
+				break;
+			case 4:
+				/* V4 is extactly same as V3, except the version number and 
+				 * one more ReferralEntryFlags */
+				offset = dissect_dfs_referral_entry_v3(tvb, rt, old_offset, offset,
+								       refflags, bcp, si->unicode, &ucstring_end);
 				break;
 			}
 
@@ -18562,9 +18711,13 @@ proto_register_smb(void)
 		{ "Server Type", "smb.dfs.referral.server.type", FT_UINT16, BASE_DEC,
 		VALS(dfs_referral_server_type_vals), 0, "Type of referral server", HFILL }},
 
-	{ &hf_smb_dfs_referral_flags_strip,
-		{ "Strip", "smb.dfs.referral.flags.strip", FT_BOOLEAN, 16,
-		TFS(&tfs_dfs_referral_flags_strip), 0x01, "Should we strip off pathconsumed characters before submitting?", HFILL }},
+	{ &hf_smb_dfs_referral_flags_name_list_referral,
+		{ "NameListReferral", "smb.dfs.referral.flags.name_list_referral", FT_BOOLEAN, 16,
+		TFS(&tfs_dfs_referral_flags_name_list_referral), REFENT_FLAGS_NAME_LIST_REFERRAL, "Is a domain/DC referral response?", HFILL }},
+
+	{ &hf_smb_dfs_referral_flags_target_set_boundary,
+		{ "TargetSetBoundary", "smb.dfs.referral.flags.target_set_boundary", FT_BOOLEAN, 16,
+		TFS(&tfs_dfs_referral_flags_target_set_boundary), REFENT_FLAGS_TARGET_SET_BOUNDARY, "Is this a first target in the target set?", HFILL }},
 
 	{ &hf_smb_dfs_referral_node_offset,
 		{ "Node Offset", "smb.dfs.referral.node_offset", FT_UINT16, BASE_DEC,
@@ -18575,11 +18728,11 @@ proto_register_smb(void)
 		NULL, 0, "Name of entity to visit next", HFILL }},
 
 	{ &hf_smb_dfs_referral_proximity,
-		{ "Proximity", "smb.dfs.referral.proximity", FT_UINT16, BASE_DEC,
+		{ "Proximity", "smb.dfs.referral.proximity", FT_UINT32, BASE_DEC,
 		NULL, 0, "Hint describing proximity of this server to the client", HFILL }},
 
 	{ &hf_smb_dfs_referral_ttl,
-		{ "TTL", "smb.dfs.referral.ttl", FT_UINT16, BASE_DEC,
+		{ "TTL", "smb.dfs.referral.ttl", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of seconds the client can cache this referral", HFILL }},
 
 	{ &hf_smb_dfs_referral_path_offset,
@@ -18597,6 +18750,30 @@ proto_register_smb(void)
 	{ &hf_smb_dfs_referral_alt_path,
 		{ "Alt Path", "smb.dfs.referral.alt_path", FT_STRING, BASE_NONE,
 		NULL, 0, "Alternative(8.3) Path that matched pathconsumed", HFILL }},
+
+	{ &hf_smb_dfs_referral_domain_offset,
+		{ "Domain Offset", "smb.dfs.referral.domain_offset", FT_UINT16, BASE_DEC,
+		NULL, 0, "Offset of Dfs Path that matched pathconsumed", HFILL }},
+
+	{ &hf_smb_dfs_referral_number_of_expnames,
+		{ "Number of Expanded Names", "smb.dfs.referral.number_of_expnames", FT_UINT16, BASE_DEC,
+		NULL, 0, "Number of expanded names", HFILL }},
+
+	{ &hf_smb_dfs_referral_expnames_offset,
+		{ "Expanded Names Offset", "smb.dfs.referral.expnames_offset", FT_UINT16, BASE_DEC,
+		NULL, 0, "Offset of Dfs Path that matched pathconsumed", HFILL }},
+
+	{ &hf_smb_dfs_referral_domain_name,
+		{ "Domain Name", "smb.dfs.referral.domain_name", FT_STRING, BASE_NONE,
+		NULL, 0, "Dfs referral domain name", HFILL }},
+
+	{ &hf_smb_dfs_referral_expname,
+		{ "Expanded Name", "smb.dfs.referral.expname", FT_STRING, BASE_NONE,
+		NULL, 0, "Dfs expanded name", HFILL }},
+
+	{ &hf_smb_dfs_referral_server_guid,
+		{ "Server GUID", "smb.dfs.referral.server_guid", FT_BYTES, BASE_HEX,
+		NULL, 0, "Globally unique identifier for this server", HFILL }},
 
 	{ &hf_smb_end_of_search,
 		{ "End Of Search", "smb.end_of_search", FT_UINT16, BASE_DEC,
@@ -19172,6 +19349,7 @@ proto_register_smb(void)
 		&ett_smb_dfs_referrals,
 		&ett_smb_dfs_referral,
 		&ett_smb_dfs_referral_flags,
+		&ett_smb_dfs_referral_expnames,
 		&ett_smb_get_dfs_flags,
 		&ett_smb_ff2_data,
 		&ett_smb_device_characteristics,
