@@ -1681,6 +1681,9 @@ get_gui_compiled_info(GString *str)
 #else
   g_string_append(str, "without AirPcap");
 #endif
+#ifdef NEW_PACKET_LIST
+  g_string_append(str, ", with new_packet_list");
+#endif
 }
 
 static void
