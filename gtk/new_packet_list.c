@@ -62,6 +62,7 @@
 #include "gtk/color_utils.h"
 #include "gtk/capture_file_dlg.h"
 #include "gtk/main_statusbar.h"
+#include "gtk/packet_win.h"
 
 static PacketList *packetlist;
 static gboolean last_at_end = FALSE;
@@ -70,6 +71,10 @@ static gboolean enable_color;
 static GtkWidget *create_view_and_model(void);
 static void scroll_to_and_select_iter(GtkTreeIter *iter);
 static void new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_);
+static void new_packet_list_double_click_cb(GtkTreeView *treeview,
+					    GtkTreePath *path,
+					    GtkTreeViewColumn *col _U_,
+					    gpointer userdata _U_);
 static void show_cell_data_func(GtkTreeViewColumn *col,
 				GtkCellRenderer *renderer,
 				GtkTreeModel *model,
@@ -86,15 +91,6 @@ new_packet_list_create(void)
 	view = create_view_and_model();
 
 	gtk_container_add(GTK_CONTAINER(scrollwin), view);
-
-	/* XXX - Implement me
-	g_signal_connect(view, "row-activated",
-			 G_CALLBACK(popup_menu_handler),
-			 g_object_get_data(G_OBJECT(popup_menu_object),
-					   PM_PACKET_LIST_KEY));
-	g_signal_connect(view, "button_press_event",
-			 G_CALLBACK(new_packet_list_button_pressed_cb), NULL);
-	*/
 
 	g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, view);
 
@@ -164,6 +160,10 @@ create_view_and_model(void)
 #endif
 	g_signal_connect(packetlist->view, "cursor-changed",
 			 G_CALLBACK(new_packet_list_select_cb), NULL);
+	g_signal_connect(packetlist->view, "row-activated",
+			 G_CALLBACK(new_packet_list_double_click_cb),
+			 g_object_get_data(G_OBJECT(popup_menu_object),
+					   PM_PACKET_LIST_KEY));
 	g_signal_connect(packetlist->view, "button_press_event", G_CALLBACK(popup_menu_handler),
 				   g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
 	g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, packetlist);
@@ -561,6 +561,13 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 
 	/* Add newly selected frame to packet history (breadcrumbs) */
 	packet_history_add(row);
+}
+
+static void
+new_packet_list_double_click_cb(GtkTreeView *treeview, GtkTreePath *path _U_,
+    GtkTreeViewColumn *col _U_, gpointer userdata _U_)
+{
+        new_window_cb(GTK_WIDGET(treeview));
 }
 
 gboolean
