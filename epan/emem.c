@@ -298,7 +298,7 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 	/* we dont have any free data, so we must allocate a new one */
     DISSECTOR_ASSERT(!*free_list);
 
-	npc = g_malloc(sizeof(emem_chunk_t));
+	npc = g_new(emem_chunk_t, 1);
 	npc->next = NULL;
 	if (use_canary) {
 		npc->canary_info = g_new(emem_canary_t, 1);
@@ -430,7 +430,7 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 	} else {
 		emem_chunk_t *npc;
 
-		npc=g_malloc(sizeof(emem_chunk_t));
+		npc=g_new(emem_chunk_t, 1);
 		npc->next=mem->used_list;
 		npc->buf=g_malloc(size);
 		npc->canary_info = NULL;
@@ -1301,7 +1301,7 @@ pe_tree_create(int type, const char *name)
 {
 	emem_tree_t *tree_list;
 
-	tree_list=g_malloc(sizeof(emem_tree_t));
+	tree_list=g_new(emem_tree_t, 1);
 	tree_list->next=NULL;
 	tree_list->type=type;
 	tree_list->tree=NULL;
