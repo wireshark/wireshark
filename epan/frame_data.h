@@ -84,4 +84,7 @@ extern void p_remove_proto_data(frame_data *fd, int proto);
 /* compare two frame_datas */
 extern gint frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field);
 
+extern void frame_data_cleanup(frame_data *fdata);
+
 #endif  /* __FRAME_DATA__ */
+

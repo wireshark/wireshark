@@ -1844,10 +1844,7 @@ rescan_packets_old(capture_file *cf, const char *action, const char *action_item
        * "init_dissection()"), and null out the GSList pointer.
 	   */
       fdata->flags.visited = 0;
-      if (fdata->pfd) {
-		g_slist_free(fdata->pfd);
-        fdata->pfd = NULL;
-      }
+      frame_data_cleanup(fdata);
     }
 
     if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
@@ -1903,10 +1900,7 @@ rescan_packets_old(capture_file *cf, const char *action, const char *action_item
        until it finishes.  Should we just stick them with that? */
     for (; fdata != NULL; fdata = fdata->next) {
       fdata->flags.visited = 0;
-      if (fdata->pfd) {
-		g_slist_free(fdata->pfd);
-        fdata->pfd = NULL;
-      }
+      frame_data_cleanup(fdata);
     }
   }
 
@@ -2148,11 +2142,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        * data (the per-frame data itself was freed by
        * "init_dissection()"), and null out the GSList pointer. */
       fdata->flags.visited = 0;
-      if (fdata->pfd) {
-		g_slist_free(fdata->pfd);
-        fdata->pfd = NULL;
-      }
-	  /* cleanup_dissection() calls se_free_all(); 
+      frame_data_cleanup(fdata);
+
+	  /* cleanup_dissection() calls se_free_all();
 	   * And after that fdata->col_text (which is allocated using se_alloc0())
 	   * no longer points to valid memory.
 	   */
@@ -2214,10 +2206,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        until it finishes.  Should we just stick them with that? */
     for (; fdata != NULL; fdata = fdata->next) {
       fdata->flags.visited = 0;
-      if (fdata->pfd) {
-		g_slist_free(fdata->pfd);
-        fdata->pfd = NULL;
-      }
+      frame_data_cleanup(fdata);
     }
   }
 

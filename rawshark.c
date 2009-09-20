@@ -995,14 +995,6 @@ load_cap_file(capture_file *cf)
   return err;
 }
 
-/* Free up all data attached to a "frame_data" structure. */
-static void
-clear_fdata(frame_data *fdata)
-{
-  if (fdata->pfd)
-    g_slist_free(fdata->pfd);
-}
-
 static gboolean
 process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
                const guchar *pd)
@@ -1108,7 +1100,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   }
 
   epan_dissect_cleanup(&edt);
-  clear_fdata(&fdata);
+  frame_data_cleanup(&fdata);
 
   return passed;
 }

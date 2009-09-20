@@ -259,3 +259,12 @@ frame_data_init(frame_data *fdata, capture_file *cf,
   *prev_cap_ts = fdata->abs_ts;
 }
 
+void
+frame_data_cleanup(frame_data *fdata)
+{
+  if (fdata->pfd)
+    g_slist_free(fdata->pfd);
+
+  fdata->pfd = NULL;
+}
+
