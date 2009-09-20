@@ -465,6 +465,7 @@ emem_strbuf_t *ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c);
  */
 emem_strbuf_t *ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len);
 
+void emem_print_tree(emem_tree_t* emem_tree);
 
 /* #define DEBUG_INTENSE_CANARY_CHECKS */
 /* Helper to troubleshoot ep memory corruption
@@ -482,8 +483,14 @@ void ep_check_canary_integrity(const char* fmt, ...);
 #define EP_CHECK_CANARY(dummy)
 #endif
 
-void emem_print_tree(emem_tree_t* emem_tree);
-
-
+/**
+ * Verify that the given pointer is of ephemeral/seasonal type.
+ *
+ * @param ptr The pointer to verify
+ *
+ * @return TRUE if the pointer belongs to the ephemeral/seasonal pool.
+ */
+gboolean ep_verify_pointer(const void *ptr);
+gboolean se_verify_pointer(const void *ptr);
 
 #endif /* emem.h */

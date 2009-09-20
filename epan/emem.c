@@ -283,6 +283,32 @@ se_init_chunk(void)
 		emem_canary(se_canary);
 }
 
+static gboolean
+emem_verify_pointer(emem_chunk_t *chunk, const void *ptr)
+{
+	const gchar *cptr = ptr;
+
+	for ( ; chunk ; chunk = chunk->next) {
+		if (cptr >= (chunk->buf + chunk->free_offset_init) &&
+			cptr < (chunk->buf + chunk->free_offset))
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+gboolean
+ep_verify_pointer(const void *ptr)
+{
+	return emem_verify_pointer(ep_packet_mem.used_list, ptr);
+}
+
+gboolean
+se_verify_pointer(const void *ptr)
+{
+	return emem_verify_pointer(se_packet_mem.used_list, ptr);
+}
+
 static void
 emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 #if defined (_WIN32)
