@@ -2230,7 +2230,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
           offset += 4;
 
           /* Name */
-          member_name = tvb_get_string(tvb, offset, member_name_len);
+          member_name = tvb_get_ephemeral_string(tvb, offset, member_name_len);
           offset += member_name_len;
 
           /* is Pointer ? */
@@ -2272,7 +2272,6 @@ static gint rtps_util_add_typecode(proto_tree *tree,
                     -1,
                     NULL,
                     ndds_40_hack);
-          g_free(member_name);
         }
         /* Finally prints the name of the struct (if provided) */
         g_strlcpy(type_name, "}", 40);
@@ -2351,7 +2350,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         offset += 4;
 
         /* struct name */
-        struct_name = tvb_get_string(tvb, offset, struct_name_len);
+        struct_name = tvb_get_ephemeral_string(tvb, offset, struct_name_len);
         offset += struct_name_len;
 
 
@@ -2364,7 +2363,6 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         if (seq_max_len != -1) {
           /* We're dissecting a sequence of struct, bypass the seq definition */
           g_snprintf(type_name, 40, "%s", struct_name);
-          g_free(struct_name);
           break;
         }
         /* Prints it */
@@ -2376,7 +2374,6 @@ static gint rtps_util_add_typecode(proto_tree *tree,
                     indent_string,
                     typecode_name,
                     struct_name);
-        g_free(struct_name);
 
         /* PAD align */
         LONG_ALIGN(offset);
@@ -2403,7 +2400,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
           offset += 4;
 
           /* Name */
-          member_name = tvb_get_string(tvb, offset, member_name_len);
+          member_name = tvb_get_ephemeral_string(tvb, offset, member_name_len);
           offset += member_name_len;
 
           if (tk_id == RTI_CDR_TK_ENUM) {
@@ -2451,8 +2448,6 @@ static gint rtps_util_add_typecode(proto_tree *tree,
                           NULL,
                           ndds_40_hack);
           }
-
-          g_free(member_name);
         }
         /* Finally prints the name of the struct (if provided) */
         g_strlcpy(type_name, "}", 40);
@@ -2562,10 +2557,9 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         LONG_ALIGN(offset);
         alias_name_length = NEXT_guint32(tvb, offset, little_endian);
         offset += 4;
-        alias_name = tvb_get_string(tvb, offset, alias_name_length);
+        alias_name = tvb_get_ephemeral_string(tvb, offset, alias_name_length);
         offset += alias_name_length;
         g_strlcpy(type_name, alias_name, 40);
-        g_free(alias_name);
         break;
     }
 
@@ -2592,7 +2586,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         offset += 4;
 
         /* value name */
-        value_name = tvb_get_string(tvb, offset, value_name_len);
+        value_name = tvb_get_ephemeral_string(tvb, offset, value_name_len);
         offset += value_name_len;
 
         g_snprintf(type_name, 40, "valuetype %s", value_name);
