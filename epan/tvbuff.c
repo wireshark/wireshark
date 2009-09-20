@@ -3,11 +3,11 @@
  * Testy, Virtual(-izable) Buffer of guint8*'s
  *
  * "Testy" -- the buffer gets mad when an attempt to access data
- * 		beyond the bounds of the buffer. An exception is thrown.
+ *		beyond the bounds of the buffer. An exception is thrown.
  *
  * "Virtual" -- the buffer can have its own data, can use a subset of
- * 		the data of a backing tvbuff, or can be a composite of
- * 		other tvbuffs.
+ *		the data of a backing tvbuff, or can be a composite of
+ *		other tvbuffs.
  *
  * $Id$
  *
@@ -146,9 +146,9 @@ tvb_new(tvbuff_type type)
 }
 
 static tvbuff_t*
-tvb_new_with_subset(tvbuff_type type, guint subset_tvb_offset, guint subset_tvb_length)
+tvb_new_with_subset(guint subset_tvb_offset, guint subset_tvb_length)
 {
-	tvbuff_t *tvb = tvb_new(type);
+	tvbuff_t *tvb = tvb_new(TVBUFF_SUBSET);
 	tvb->tvbuffs.subset.offset = subset_tvb_offset;
 	tvb->tvbuffs.subset.length = subset_tvb_length;
 
@@ -523,7 +523,7 @@ tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint
 			&subset_tvb_offset,
 			&subset_tvb_length);
 
-	tvb = tvb_new_with_subset(TVBUFF_SUBSET, subset_tvb_offset, subset_tvb_length);
+	tvb = tvb_new_with_subset(subset_tvb_offset, subset_tvb_length);
 
 	tvb_set_subset_no_exceptions(tvb, backing, reported_length);
 
@@ -547,7 +547,7 @@ tvb_new_subset_remaining(tvbuff_t *backing, gint backing_offset)
 			&subset_tvb_offset,
 			&subset_tvb_length);
 
-	tvb = tvb_new_with_subset(TVBUFF_SUBSET, subset_tvb_offset, subset_tvb_length);
+	tvb = tvb_new_with_subset(subset_tvb_offset, subset_tvb_length);
 
 	tvb_set_subset_no_exceptions(tvb, backing, -1 /* reported_length */);
 
@@ -827,7 +827,7 @@ offset_from_real_beginning(tvbuff_t *tvb, guint counter)
 guint
 tvb_offset_from_real_beginning(tvbuff_t *tvb)
 {
-    return offset_from_real_beginning(tvb, 0);
+	return offset_from_real_beginning(tvb, 0);
 }
 
 static const guint8*
@@ -881,7 +881,7 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 	guint	abs_offset, abs_length;
 
 	if (!check_offset_length_no_exception(tvb->length, tvb->reported_length, offset, length,
-	    &abs_offset, &abs_length, exception)) {
+		&abs_offset, &abs_length, exception)) {
 		return NULL;
 	}
 
@@ -934,7 +934,7 @@ fast_ensure_contiguous(tvbuff_t *tvb, gint offset, guint length)
 	DISSECTOR_ASSERT(length <= 8);
 
 	if (offset < 0 || !tvb->real_data) {
-	    return ensure_contiguous(tvb, offset, length);
+		return ensure_contiguous(tvb, offset, length);
 	}
 
 	u_offset = offset;
@@ -1276,7 +1276,7 @@ get_ieee_float(guint32 w)
 #endif
 
 	exponent = ((exponent >> IEEE_SP_MANTISSA_WIDTH) - IEEE_SP_BIAS) -
-	    IEEE_SP_MANTISSA_WIDTH;
+		IEEE_SP_MANTISSA_WIDTH;
 	mantissa |= IEEE_SP_IMPLIED_BIT;
 
 	if (sign)
@@ -1337,7 +1337,7 @@ get_ieee_double(guint64 w)
 #endif
 
 	exponent = ((exponent >> IEEE_DP_MANTISSA_WIDTH) - IEEE_DP_BIAS) -
-	    IEEE_DP_MANTISSA_WIDTH;
+		IEEE_DP_MANTISSA_WIDTH;
 	mantissa |= IEEE_DP_IMPLIED_BIT;
 
 	if (sign)
@@ -1553,26 +1553,26 @@ tvb_get_guid(tvbuff_t *tvb, gint offset, e_guid_t *guid, gboolean little_endian)
 }
 
 static const guint8 bit_mask8[] = {
-    0xff,
-    0x7f,
-    0x3f,
-    0x1f,
-    0x0f,
-    0x07,
-    0x03,
-    0x01
+	0xff,
+	0x7f,
+	0x3f,
+	0x1f,
+	0x0f,
+	0x07,
+	0x03,
+	0x01
 };
 
 /* Bit offset mask for number of bits = 8 - 16 */
 static const guint16 bit_mask16[] = {
-    0xffff,
-    0x7fff,
-    0x3fff,
-    0x1fff,
-    0x0fff,
-    0x07ff,
-    0x03ff,
-    0x01ff
+	0xffff,
+	0x7fff,
+	0x3fff,
+	0x1fff,
+	0x0fff,
+	0x07ff,
+	0x03ff,
+	0x01ff
 };
 
 /* Get 1 - 8 bits */
@@ -1611,14 +1611,14 @@ tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, gint no_of_bits)
 /* Get 9 - 16 bits */
 /* Bit offset mask for number of bits = 16 - 32 */
 static const guint32 bit_mask32[] = {
-    0xffffffff,
-    0x7fffffff,
-    0x3fffffff,
-    0x1fffffff,
-    0x0fffffff,
-    0x07ffffff,
-    0x03ffffff,
-    0x01ffffff
+	0xffffffff,
+	0x7fffffff,
+	0x3fffffff,
+	0x1fffffff,
+	0x0fffffff,
+	0x07ffffff,
+	0x03ffffff,
+	0x01ffffff
 };
 
 guint16
@@ -1665,14 +1665,14 @@ tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_e
 
 /* Bit offset mask for number of bits = 32 - 64 */
 static const guint64 bit_mask64[] = {
-    G_GINT64_CONSTANT(0xffffffffffffffffU),
-    G_GINT64_CONSTANT(0x7fffffffffffffffU),
-    G_GINT64_CONSTANT(0x3fffffffffffffffU),
-    G_GINT64_CONSTANT(0x1fffffffffffffffU),
-    G_GINT64_CONSTANT(0x0fffffffffffffffU),
-    G_GINT64_CONSTANT(0x07ffffffffffffffU),
-    G_GINT64_CONSTANT(0x03ffffffffffffffU),
-    G_GINT64_CONSTANT(0x01ffffffffffffffU)
+	G_GINT64_CONSTANT(0xffffffffffffffffU),
+	G_GINT64_CONSTANT(0x7fffffffffffffffU),
+	G_GINT64_CONSTANT(0x3fffffffffffffffU),
+	G_GINT64_CONSTANT(0x1fffffffffffffffU),
+	G_GINT64_CONSTANT(0x0fffffffffffffffU),
+	G_GINT64_CONSTANT(0x07ffffffffffffffU),
+	G_GINT64_CONSTANT(0x03ffffffffffffffU),
+	G_GINT64_CONSTANT(0x01ffffffffffffffU)
 };
 
 guint32
@@ -1910,7 +1910,7 @@ tvb_strsize(tvbuff_t *tvb, gint offset)
 		 * an exception.
 		 *
 		 * Did we hit the end of the captured data, or the end
-		 * of the actual data?  If there's less captured data
+		 * of the actual data?	If there's less captured data
 		 * than actual data, we presumably hit the end of the
 		 * captured data, otherwise we hit the end of the actual
 		 * data.
@@ -2033,7 +2033,7 @@ tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str, size_t size)
 	}
 }
 
-/* Convert a string from Unicode to ASCII.  At the moment we fake it by
+/* Convert a string from Unicode to ASCII.	At the moment we fake it by
  * replacing all non-ASCII characters with a '.' )-:  The caller must
  * free the result returned.  The len parameter is the number of guint16's
  * to convert from Unicode. */
@@ -2064,7 +2064,7 @@ tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
 	return buffer;
 }
 
-/* Convert a string from Unicode to ASCII.  At the moment we fake it by
+/* Convert a string from Unicode to ASCII.	At the moment we fake it by
  * replacing all non-ASCII characters with a '.' )-:   The len parameter is
  * the number of guint16's to convert from Unicode.
  *
@@ -2111,8 +2111,8 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
 
   if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
 
-    len = tvb_length_remaining(tvb, offset);
-    ptr = ensure_contiguous(tvb, offset, len);
+	len = tvb_length_remaining(tvb, offset);
+	ptr = ensure_contiguous(tvb, offset, len);
 
   }
 
@@ -2132,8 +2132,8 @@ tvb_format_text_wsp(tvbuff_t *tvb, gint offset, gint size)
 
   if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
 
-    len = tvb_length_remaining(tvb, offset);
-    ptr = ensure_contiguous(tvb, offset, len);
+	len = tvb_length_remaining(tvb, offset);
+	ptr = ensure_contiguous(tvb, offset, len);
 
   }
 
@@ -2154,13 +2154,13 @@ tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size)
 
   if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
 
-    len = tvb_length_remaining(tvb, offset);
-    ptr = ensure_contiguous(tvb, offset, len);
+	len = tvb_length_remaining(tvb, offset);
+	ptr = ensure_contiguous(tvb, offset, len);
 
   }
 
   for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
-    ;
+	;
   return format_text(ptr, stringlen);
 
 }
@@ -2178,13 +2178,13 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, gint offset, gint size)
 
   if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
 
-    len = tvb_length_remaining(tvb, offset);
-    ptr = ensure_contiguous(tvb, offset, len);
+	len = tvb_length_remaining(tvb, offset);
+	ptr = ensure_contiguous(tvb, offset, len);
 
   }
 
   for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
-    ;
+	;
   return format_text_wsp(ptr, stringlen);
 
 }
@@ -2278,7 +2278,7 @@ tvb_get_seasonal_string(tvbuff_t *tvb, gint offset, gint length)
  * a null-terminated string, find the length of that string (and throw
  * an exception if the tvbuff ends before we find the null), allocate
  * a buffer big enough to hold the string, copy the string into it,
- * and return a pointer to the string.  Also return the length of the
+ * and return a pointer to the string.	Also return the length of the
  * string (including the terminating null) through a pointer.
  */
 guint8 *
@@ -2298,7 +2298,7 @@ tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
  * a null-terminated string, find the length of that string (and throw
  * an exception if the tvbuff ends before we find the null), allocate
  * a buffer big enough to hold the string, copy the string into it,
- * and return a pointer to the string.  Also return the length of the
+ * and return a pointer to the string.	Also return the length of the
  * string (including the terminating null) through a pointer.
  *
  * This function allocates memory from a buffer with packet lifetime.
@@ -2325,7 +2325,7 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
  * a null-terminated string, find the length of that string (and throw
  * an exception if the tvbuff ends before we find the null), allocate
  * a buffer big enough to hold the string, copy the string into it,
- * and return a pointer to the string.  Also return the length of the
+ * and return a pointer to the string.	Also return the length of the
  * string (including the terminating null) through a pointer.
  *
  * This function allocates memory from a buffer with capture session lifetime.
@@ -2496,11 +2496,11 @@ tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint bufsize, guint8* buffer)
  *
  * Set "*next_offset" to the offset of the character past the line
  * terminator, or past the end of the buffer if we don't find a line
- * terminator.  (It's not set if we return -1.)
+ * terminator.	(It's not set if we return -1.)
  */
 gint
 tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset,
-    gboolean desegment)
+	gboolean desegment)
 {
 	gint eob_offset;
 	gint eol_offset;
@@ -2613,7 +2613,7 @@ tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset,
  */
 gint
 tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
-    gint *next_offset)
+	gint *next_offset)
 {
 	gint cur_offset, char_offset;
 	gboolean is_quoted;
@@ -2632,7 +2632,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 	cur_offset = offset;
 	is_quoted = FALSE;
 	for (;;) {
-	    	/*
+			/*
 		 * Is this part of the string quoted?
 		 */
 		if (is_quoted) {
@@ -2640,13 +2640,13 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 			 * Yes - look only for the terminating quote.
 			 */
 			char_offset = tvb_find_guint8(tvb, cur_offset, len,
-			    '"');
+				'"');
 		} else {
 			/*
 			 * Look either for a CR, an LF, or a '"'.
 			 */
 			char_offset = tvb_pbrk_guint8(tvb, cur_offset, len,
-			    (const guint8 *)"\r\n\"");
+				(const guint8 *)"\r\n\"");
 		}
 		if (char_offset == -1) {
 			/*
@@ -2696,8 +2696,8 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 					 * Yes; is it followed by an LF?
 					 */
 					if (char_offset + 1 < eob_offset &&
-					    tvb_get_guint8(tvb, char_offset + 1)
-					      == '\n') {
+						tvb_get_guint8(tvb, char_offset + 1)
+						  == '\n') {
 						/*
 						 * Yes; skip over the CR.
 						 */
@@ -2738,8 +2738,8 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 /*
  * Copied from the mgcp dissector. (This function should be moved to /epan )
  * tvb_skip_wsp - Returns the position in tvb of the first non-whitespace
- *                character following offset or offset + maxlength -1 whichever
- *                is smaller.
+ *				  character following offset or offset + maxlength -1 whichever
+ *				  is smaller.
  *
  * Parameters:
  * tvb - The tvbuff in which we are skipping whitespace.
@@ -2748,8 +2748,8 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
  * whitespace.
  *
  * Returns: The position in tvb of the first non-whitespace
- *          character following offset or offset + maxlength -1 whichever
- *          is smaller.
+ *			character following offset or offset + maxlength -1 whichever
+ *			is smaller.
  */
 gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength)
 {
@@ -2767,10 +2767,10 @@ gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength)
 
 	/* Skip past spaces, tabs, CRs and LFs until run out or meet something else */
 	for (counter = offset;
-	     counter < end &&
-	      ((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
-	      tempchar == '\t' || tempchar == '\r' || tempchar == '\n');
-	     counter++);
+		 counter < end &&
+		  ((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
+		  tempchar == '\t' || tempchar == '\r' || tempchar == '\n');
+		 counter++);
 
 	return (counter);
 }
@@ -2953,7 +2953,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 				uncompr = g_memdup(strmbuf, bytes_pass);
 			} else {
 				guint8 *new_data = g_malloc0(bytes_out +
-				    bytes_pass);
+					bytes_pass);
 
 				if (new_data == NULL) {
 					inflateEnd(strm);
@@ -2970,7 +2970,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 
 				g_memmove(new_data, uncompr, bytes_out);
 				g_memmove((new_data + bytes_out), strmbuf,
-				    bytes_pass);
+					bytes_pass);
 
 				g_free(uncompr);
 				uncompr = new_data;
@@ -3002,8 +3002,8 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			}
 
 		} else if (err == Z_DATA_ERROR && inits_done == 1
-		    && uncompr == NULL && (*compr  == 0x1f) &&
-		    (*(compr + 1) == 0x8b)) {
+			&& uncompr == NULL && (*compr  == 0x1f) &&
+			(*(compr + 1) == 0x8b)) {
 			/*
 			 * inflate() is supposed to handle both gzip and deflate
 			 * streams automatically, but in reality it doesn't
@@ -3039,7 +3039,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			if (flags & (1 << 2)) {
 				/* An Extra field is present. */
 				gint xsize = (gint)(*c |
-				    (*(c + 1) << 8));
+					(*(c + 1) << 8));
 
 				c += xsize;
 			}
@@ -3081,7 +3081,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			err = inflateInit2(strm, wbits);
 			inits_done++;
 		} else if (err == Z_DATA_ERROR && uncompr == NULL &&
-		    inits_done <= 3) {
+			inits_done <= 3) {
 
 			/*
 			 * Re-init the stream with a negative
@@ -3135,7 +3135,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 
 	if (uncompr != NULL) {
 		uncompr_tvb =  tvb_new_real_data((guint8*) uncompr, bytes_out,
-		    bytes_out);
+			bytes_out);
 		tvb_set_free_cb(uncompr_tvb, g_free);
 	}
 	g_free(compr);
