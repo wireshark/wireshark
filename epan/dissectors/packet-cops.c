@@ -2523,7 +2523,7 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
 
      /* Special section for printing strings */
 	 if (mode==FMT_STR) {
-		 codestr = tvb_get_string(tvb, offset, octets);
+		 codestr = tvb_get_ephemeral_string(tvb, offset, octets);
 		 pi = proto_tree_add_string_format(stt, *hf_proto_parameter, tvb,
 	         offset, octets, codestr, "%-28s : %s", str, codestr);
 		 return pi;
@@ -3233,7 +3233,7 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean
 	info_to_display(tvb,stt,offset,2,"ClassifierID",NULL,FMT_HEX,&hf_cops_pcmm_classifier_classifier_id);
 	offset += 2;
     }
-    
+
     /* Priority */
     info_to_display(tvb,stt,offset,1,"Priority",NULL,FMT_HEX,&hf_cops_pcmm_classifier_priority);
     offset += 1;
