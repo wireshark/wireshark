@@ -207,6 +207,8 @@ col_set_str(column_info *cinfo, gint el, const gchar* str)
   int fence;
   size_t max_len;
 
+  DISSECTOR_ASSERT(str);
+
   if (!CHECK_COL(cinfo, el))
     return;
 
