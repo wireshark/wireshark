@@ -1325,6 +1325,9 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src, gboo
 gboolean
 col_based_on_frame_data(column_info *cinfo, gint col)
 {
+    g_assert(cinfo);
+    g_assert(col < cinfo->num_cols);
+
     switch (cinfo->col_fmt[col]) {
 
     case COL_NUMBER:
