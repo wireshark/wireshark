@@ -257,11 +257,11 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	"Source: %s, channel %u",
 	val_to_str(src, src_dest, "Unknown (0x%02x)"),
 	tvb_get_guint8(tvb, offset + 1));
-    
+
 	hiddenItem = proto_tree_add_uint(header_tree, hf_gryphon_src, tvb,
 	offset, 1, src);
 	PROTO_ITEM_SET_HIDDEN(hiddenItem);
-    
+
 	hiddenItem = proto_tree_add_uint(header_tree, hf_gryphon_srcchan, tvb,
 	offset+1, 1, tvb_get_guint8(tvb, offset + 1));
 	PROTO_ITEM_SET_HIDDEN(hiddenItem);
@@ -270,7 +270,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	"Destination: %s, channel %u",
 	val_to_str(dest, src_dest, "Unknown (0x%02x)"),
 	tvb_get_guint8(tvb, offset + 3));
-    
+
 	hiddenItem = proto_tree_add_uint(header_tree, hf_gryphon_dest, tvb,
 	offset+2, 1, dest);
 	PROTO_ITEM_SET_HIDDEN(hiddenItem);
@@ -283,7 +283,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	"Data length: %u byte%s", msglen, msglen == 1 ? "" : "s");
     proto_tree_add_text(header_tree, tvb, offset+6, 1,
 	"Frame type: %s", frame_type[frmtyp]);
-    
+
 	if (is_msgresp_add) {
 	localItem = proto_tree_add_text(header_tree, tvb, offset+6, 1, "Flags");
 	localTree = proto_item_add_subtree (localItem, ett_gryphon_flags);
@@ -1753,7 +1753,7 @@ cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
     msglen = tvb_reported_length_remaining(tvb, offset);
     offset = cmd_delete(tvb, offset, pt);	/* decode the name */
     if (offset < msglen + hdr_stuff) {
-        string = tvb_get_stringz(tvb, offset, &length);
+        string = tvb_get_ephemeral_stringz(tvb, offset, &length);
         if (length > 1) {
             proto_tree_add_text(pt, tvb, offset, length, "Arguments: %s", string);
             offset += length;
@@ -1763,7 +1763,6 @@ cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
 	        offset += length;
             }
         }
-        g_free(string);
     }
     return offset;
 }
@@ -2070,7 +2069,7 @@ cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
     } else {
         proto_tree_add_text(pt, tvb, offset, 1, "No digital values are set");
     }
-            
+
     offset++;
     msglen--;
     return offset;
@@ -2099,7 +2098,7 @@ cmd_bits_out (tvbuff_t *tvb, int offset, proto_tree *pt)
     } else {
         proto_tree_add_text(pt, tvb, offset, 1, "No digital values are set");
     }
-            
+
     offset++;
     msglen--;
     return offset;
