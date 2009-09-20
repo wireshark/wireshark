@@ -196,21 +196,6 @@ cf_mark_frame(capture_file *cf, frame_data *frame)
   }
 }
 
-/*
- * Unmark a particular frame.
- * Copied from file.c
- */
-void
-cf_unmark_frame(capture_file *cf, frame_data *frame)
-{
-  if (frame->flags.marked) {
-    frame->flags.marked = FALSE;
-    if (cf->marked_count > 0)
-      cf->marked_count--;
-  }
-}
-
-
 static void list_capture_types(void) {
     int i;
 
