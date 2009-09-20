@@ -790,32 +790,6 @@ void* ep_stack_pop(ep_stack_t stack) {
 	}
 }
 
-
-
-#ifdef REMOVED
-void print_tree_item(emem_tree_node_t *node, int level){
-	int i;
-	for(i=0;i<level;i++){
-		printf("   ");
-	}
-	printf("%s  KEY:0x%08x node:0x%08x parent:0x%08x left:0x%08x right:0x%08x\n",node->u.rb_color==EMEM_TREE_RB_COLOR_BLACK?"BLACK":"RED",node->key32,(int)node,(int)node->parent,(int)node->left,(int)node->right);
-	if(node->left)
-		print_tree_item(node->left,level+1);
-	if(node->right)
-		print_tree_item(node->right,level+1);
-}
-
-void print_tree(emem_tree_node_t *node){
-	if(!node){
-		return;
-	}
-	while(node->parent){
-		node=node->parent;
-	}
-	print_tree_item(node,0);
-}
-#endif
-
 emem_tree_t *
 se_tree_create(int type, const char *name)
 {
@@ -831,8 +805,6 @@ se_tree_create(int type, const char *name)
 
 	return tree_list;
 }
-
-
 
 void *
 emem_tree_lookup32(emem_tree_t *se_tree, guint32 key)
