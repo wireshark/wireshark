@@ -209,6 +209,10 @@ col_set_str(column_info *cinfo, gint el, const gchar* str)
 
   DISSECTOR_ASSERT(str);
 
+  /* The caller is expected to pass in something that 'will stay around' and
+   * something from the ephemeral pool certainly doesn't fit the bill. */
+  DISSECTOR_ASSERT(!ep_verify_pointer(str));
+
   if (!CHECK_COL(cinfo, el))
     return;
 
@@ -602,6 +606,7 @@ col_append_sep_str(column_info *cinfo, gint el, const gchar* separator,
 
   if (separator == NULL)
     separator = ", ";    /* default */
+
   col_do_append_str(cinfo, el, separator, str);
 }
 
