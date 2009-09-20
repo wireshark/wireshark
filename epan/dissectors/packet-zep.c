@@ -133,7 +133,7 @@ static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissector_handle_t  next_dissector;
 
     /*  Determine whether this is a Q51/IEEE 802.15.4 sniffer packet or not */
-    if(strcmp(tvb_get_string(tvb, 0, 2), ZEP_PREAMBLE)){
+    if(strcmp(tvb_get_ephemeral_string(tvb, 0, 2), ZEP_PREAMBLE)){
         /*  This is not a Q51/ZigBee sniffer packet */
         call_dissector(data_handle, tvb, pinfo, tree);
         return;
