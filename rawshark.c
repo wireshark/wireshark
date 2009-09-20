@@ -158,7 +158,7 @@ static void write_failure_message(const char *filename, int err);
 static void protocolinfo_init(char *field);
 static gboolean parse_field_string_format(char *format);
 
-extern frame_data_init(frame_data *fdata, capture_file *cf,
+extern void frame_data_init(frame_data *fdata, capture_file *cf,
                   const struct wtap_pkthdr *phdr, gint64 offset,
                   guint32 *cum_bytes,
                   nstime_t *first_ts,

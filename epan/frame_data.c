@@ -188,6 +188,7 @@ frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field
 	g_return_val_if_reached(0);
 }
 
+void
 frame_data_init(frame_data *fdata, capture_file *cf,
                 const struct wtap_pkthdr *phdr, gint64 offset,
                 guint32 *cum_bytes,
