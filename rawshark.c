@@ -124,7 +124,6 @@ static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_
 static nstime_t first_ts;
 static nstime_t prev_dis_ts;
 static nstime_t prev_cap_ts;
-static GString *comp_info_str, *runtime_info_str;
 
 /*
  * The way the packet decode is to be written.
@@ -409,6 +408,20 @@ set_link_type(const char *lt_arg) {
   return FALSE;
 }
 
+static void
+show_version(GString *comp_info_str, GString *runtime_info_str)
+{
+  printf("Rawshark " VERSION "%s\n"
+         "\n"
+         "%s"
+         "\n"
+         "%s"
+         "\n"
+         "%s",
+         wireshark_svnversion, get_copyright_info(), comp_info_str->str,
+         runtime_info_str->str);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -568,14 +581,6 @@ main(int argc, char *argv[])
 
   init_cap_file(&cfile);
 
-  /* Assemble the compile-time version information string */
-  comp_info_str = g_string_new("Compiled ");
-  get_compiled_version_info(comp_info_str, get_epan_compiled_version_info);
-
-  /* Assemble the run-time version information string */
-  runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str, NULL);
-
   /* Print format defaults to this. */
   print_format = PR_FMT_TEXT;
 
@@ -688,18 +693,22 @@ main(int argc, char *argv[])
         }
         break;
       case 'v':        /* Show version and exit */
-        printf("Rawshark " VERSION "%s\n"
-               "\n"
-               "%s"
-               "\n"
-               "%s"
-               "\n"
-               "%s",
-               wireshark_svnversion, get_copyright_info(), comp_info_str->str,
-               runtime_info_str->str);
+      {
+        GString             *comp_info_str;
+        GString             *runtime_info_str;
+        /* Assemble the compile-time version information string */
+        comp_info_str = g_string_new("Compiled ");
+        get_compiled_version_info(comp_info_str, get_epan_compiled_version_info);
+
+        /* Assemble the run-time version information string */
+        runtime_info_str = g_string_new("Running ");
+        get_runtime_version_info(runtime_info_str, NULL);
+        show_version(comp_info_str, runtime_info_str);
+        g_string_free(comp_info_str, TRUE);
+        g_string_free(runtime_info_str, TRUE);
         exit(0);
         break;
-
+      }
       default:
       case '?':        /* Bad flag - print usage message */
         print_usage(TRUE);
