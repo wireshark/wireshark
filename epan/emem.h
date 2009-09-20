@@ -28,7 +28,7 @@
 
 #include "gnuc_format_check.h"
 
-/* Functions for handling memory allocation and garbage collection with 
+/* Functions for handling memory allocation and garbage collection with
  * a packet lifetime scope.
  * These functions are used to allocate memory that will only remain persistent
  * until Wireshark starts dissecting the next packet in the list.
@@ -39,7 +39,7 @@
  * Everytime a new packet is dissected, all memory allocations done in
  * the previous packet is freed.
  */
-/* Initialize packet-lifetime memory allocation pool. This function is called 
+/* Initialize packet-lifetime memory allocation pool. This function is called
  * once when [t]Wireshark is initialized to set up the required structures.
  */
 void ep_init_chunk(void);
@@ -74,7 +74,7 @@ gchar* ep_strdup_printf(const gchar* fmt, ...)
  */
 #define ep_alloc_array0(type,num) (type*)ep_alloc0(sizeof(type)*(num))
 
-/* 
+/*
  * Splits a string into a maximum of max_tokens pieces, using the given
  * delimiter. If max_tokens is reached, the remainder of string is appended
  * to the last token. Consecutive delimiters are treated as a single delimiter.
@@ -118,17 +118,17 @@ void* ep_stack_pop(ep_stack_t stack);
 #define ep_stack_peek(stack) ((*(stack))->payload)
 
 
-/* Functions for handling memory allocation and garbage collection with 
+/* Functions for handling memory allocation and garbage collection with
  * a capture lifetime scope.
  * These functions are used to allocate memory that will only remain persistent
  * until Wireshark opens a new capture or capture file.
  * Everytime Wireshark starts a new capture or opens a new capture file
- * all the data allocated through these functions will be released back 
+ * all the data allocated through these functions will be released back
  * to the free pool.
  *
  * These functions are very fast and offer automatic garbage collection.
  */
-/* Initialize capture-lifetime memory allocation pool. This function is called 
+/* Initialize capture-lifetime memory allocation pool. This function is called
  * once when [t]Wireshark is initialized to set up the required structures.
  */
 void se_init_chunk(void);
@@ -163,7 +163,7 @@ void se_free_all(void);
 
 
 /**************************************************************
- * binary trees 
+ * binary trees
  **************************************************************/
 typedef struct _emem_tree_node_t {
 	struct _emem_tree_node_t *parent;
@@ -185,7 +185,7 @@ typedef struct _emem_tree_node_t {
  * to try something different, such as a tree where each node keeps track
  * of how many times it has been looked up, and letting often looked up
  * nodes bubble upwards in the tree using rotate_right/left.
- * That would probably be good for things like nfs filehandles 
+ * That would probably be good for things like nfs filehandles
  */
 #define EMEM_TREE_TYPE_RED_BLACK	1
 typedef struct _emem_tree_t {
@@ -196,17 +196,11 @@ typedef struct _emem_tree_t {
 	void *(*malloc)(size_t);
 } emem_tree_t;
 
-/* list of all trees with se allocation scope so that they can all be reset 
- * automatically when we free all se memory
- */
-extern emem_tree_t *se_trees;
-
-
 /* *******************************************************************
  * Tree functions for SE memory allocation scope
  * ******************************************************************* */
 /* This function is used to create a se based tree with monitoring.
- * When the SE heap is released back to the system the pointer to the 
+ * When the SE heap is released back to the system the pointer to the
  * tree is automatically reset to NULL.
  *
  * type is : EMEM_TREE_TYPE_RED_BLACK for a standard red/black tree.
@@ -214,7 +208,7 @@ extern emem_tree_t *se_trees;
 emem_tree_t *se_tree_create(int type, const char *name);
 
 /* This function is similar to the se_tree_create() call but with the
- * difference that when the se memory is release everything including the 
+ * difference that when the se memory is release everything including the
  * pointer to the tree itself will be released.
  * This tree will not be just reset to zero  it will be completely forgotten
  * by the allocator.
@@ -224,12 +218,12 @@ emem_tree_t *se_tree_create(int type, const char *name);
  */
 emem_tree_t *se_tree_create_non_persistent(int type, const char *name);
 
-/* se_tree_insert32 
+/* se_tree_insert32
  * Insert data into the tree and key it by a 32bit integer value
  */
 #define se_tree_insert32 emem_tree_insert32
 
-/* se_tree_lookup32 
+/* se_tree_lookup32
  * Retrieve the data at the search key. the search key is a 32bit integer value
  */
 #define se_tree_lookup32 emem_tree_lookup32
@@ -288,7 +282,7 @@ emem_tree_t *pe_tree_create(int type, const char *name);
 
 /* This function is used to insert a node indexed by a guint32 key value.
  * The data pointer should be allocated by the appropriate storage scope
- * so that it will be released at the same time as the tree itself is 
+ * so that it will be released at the same time as the tree itself is
  * destroyed.
  */
 void emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data);
@@ -300,7 +294,7 @@ void *emem_tree_lookup32(emem_tree_t *se_tree, guint32 key);
 
 /* This function will look up a node in the tree indexed by a guint32 integer
  * value.
- * The function will return the node that has the largest key that is 
+ * The function will return the node that has the largest key that is
  * equal to or smaller than the search key, or NULL if no such key was
  * found.
  */
@@ -311,7 +305,7 @@ typedef struct _emem_tree_key_t {
 	guint32 *key;
 } emem_tree_key_t;
 
-/* This function is used to insert a node indexed by a sequence of guint32 
+/* This function is used to insert a node indexed by a sequence of guint32
  * key values.
  * The data pointer should be allocated by SE allocators so that the
  * data will be released at the same time as the tree itself is destroyed.
@@ -321,7 +315,7 @@ typedef struct _emem_tree_key_t {
  * as SPARC that require aligned pointers.
  *
  * If you use ...32_array() calls you MUST make sure that every single node
- * you add to a specific tree always has a key of exactly the same number of 
+ * you add to a specific tree always has a key of exactly the same number of
  * keylen words or things will most likely crash. Or at least that every single
  * item that sits behind the same top level node always have exactly the same
  * number of words.
@@ -477,7 +471,7 @@ emem_strbuf_t *ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len);
  * if compiled and the environment variable WIRESHARK_DEBUG_EP_INTENSE_CANARY exists
  * it will check the canaries and when found corrupt stop there in the hope
  * the corruptor is still there in the stack.
- * Some checkpoints are already set in packet.c in strategic points 
+ * Some checkpoints are already set in packet.c in strategic points
  * before and after dissection of a frame or a dissector call.
  */
 
@@ -487,7 +481,7 @@ void ep_check_canary_integrity(const char* fmt, ...);
 #else
 #define EP_CHECK_CANARY(dummy)
 #endif
-    
+
 void emem_print_tree(emem_tree_t* emem_tree);
 
 

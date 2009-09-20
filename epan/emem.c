@@ -731,6 +731,9 @@ ep_free_all(void)
 		ep_init_chunk();
 }
 
+/* routines to manage se allocated red-black trees */
+static emem_tree_t *se_trees=NULL;
+
 /* release all allocated memory back to the pool. */
 void
 se_free_all(void)
@@ -812,11 +815,6 @@ void print_tree(emem_tree_node_t *node){
 	print_tree_item(node,0);
 }
 #endif
-
-
-
-/* routines to manage se allocated red-black trees */
-emem_tree_t *se_trees=NULL;
 
 emem_tree_t *
 se_tree_create(int type, const char *name)
