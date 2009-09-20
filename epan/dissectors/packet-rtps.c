@@ -1546,7 +1546,7 @@ static gint rtps_util_add_string(proto_tree *tree,      /* Can be NULL */
   guint32 size = NEXT_guint32(tvb, offset, little_endian);
 
   if (size > 0) {
-    retVal = tvb_get_string(tvb, offset+4, size);
+    retVal = tvb_get_ephemeral_string(tvb, offset+4, size);
   } 
 
   if (tree != NULL) {
@@ -1575,7 +1575,6 @@ static gint rtps_util_add_string(proto_tree *tree,      /* Can be NULL */
       g_snprintf(buffer, (gulong) buffer_size, "%s", retVal);
     }
   }
-  g_free(retVal);
 
   /* NDDS align strings at 4-bytes word. So:
    *  string_length: 4 -> buffer_length = 4;
@@ -2139,7 +2138,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         /* Get structure name length */
         struct_name_len = NEXT_guint32(tvb, offset, little_endian);
         offset += 4;
-        struct_name = tvb_get_string(tvb, offset, struct_name_len);
+        struct_name = tvb_get_ephemeral_string(tvb, offset, struct_name_len);
         offset += struct_name_len;
 
         /* - - - - - - -      Default index      - - - - - - - */
@@ -2161,7 +2160,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
             /* Enums has also a name that we should print */
             LONG_ALIGN(offset);
             discriminator_enum_name_length = NEXT_guint32(tvb, offset, little_endian);
-            discriminator_enum_name = tvb_get_string(tvb, offset+4, discriminator_enum_name_length);
+            discriminator_enum_name = tvb_get_ephemeral_string(tvb, offset+4, discriminator_enum_name_length);
         }        
         offset = disc_offset_begin + disc_size;
 /*
@@ -2199,11 +2198,9 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         if (seq_max_len != -1) {
           /* We're dissecting a sequence of struct, bypass the seq definition */
           g_snprintf(type_name, 40, "%s", struct_name);
-          g_free(struct_name);
           break;
         }
 
-        g_free(struct_name);
         /* - - - - - - -      Number of members     - - - - - - - */
         LONG_ALIGN(offset);
         num_members = NEXT_guint32(tvb, offset, little_endian);
