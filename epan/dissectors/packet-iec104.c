@@ -7,6 +7,10 @@
  * Copyright (c) 2008 by Joan Ramio <joan@ramio.cat>
  * Joan is a masculine catalan name. Search the Internet for Joan Pujol (alias Garbo).
  *
+ * Copyright (c) 2009 by Kjell Hultman <kjell.hultman@gmail.com> 
+ * Added dissection of signal (ASDU) information.
+ * Kjell is also a masculine name, but a Scandinavian one.
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
@@ -33,6 +37,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+#include <math.h> /* floor */
 
 #include <epan/packet.h>
 #include <epan/dissectors/packet-tcp.h>
@@ -64,6 +69,87 @@ struct apciheader {
 	guint16 Tx;
 	guint16 Rx;
 };
+
+/* asdu value time stamp structure */
+typedef struct
+{
+  guint8 cp56t_ms;
+  guint8 cp56t_s;
+  guint8 cp56t_min;
+  guint8 cp56t_h;
+  guint8 cp56t_dom;    /* day of month */
+  guint8 cp56t_dow;    /* day of week */
+  guint8 cp56t_month;
+  guint8 cp56t_year;
+  
+  gboolean IV;  /* Invalid (1) */
+
+
+} td_CP56Time;
+
+/* asdu value/status structure */
+typedef struct {
+	union {
+		guint8  VTI; /* Value w transient state indication, */ 
+					 /* CP8: value I7[1..7]<-64..+63>,  */
+					 /* Transient BS1[8]<0..1>0: eq. not in transient state, 1: in trans ... */
+		gint16 NVA;  /* Normalized value F16[1..16]<-1..+1-2^-15> */
+		gint16 SVA;  /* Scaled value I16[1..16]<-2^15..+2^15-1> */
+		gfloat  FLT; /* IEEE 754 float value  R32.23{Fraction,Exponent,Sign} */
+		/* ToDo -- BCR Binary counter reading */
+	} MV;	/* Measured Value */
+
+	/* together with VTI */
+	gboolean TRANSIENT; /* equipment is in transient state */
+
+	/* boolean values */
+	gboolean IPOS0;	/* double-point: indeterminate or intermediate state  */
+	gboolean OFF;
+	gboolean ON;
+	gboolean IPOS3; /* double-point: indeterminate state  (fault?) */
+	
+	/* quality descriptor-bits  */
+	gboolean BL;  /* Blocked (1) */
+	gboolean SB;  /* Substituted (1) */
+	gboolean NT;  /* Topical (0) / Not topical (1) [Topical <=> if most recent update was succesful] */
+	gboolean IV;  /* Invalid (1) */
+	/* from separat quality descriptor  */
+	gboolean OV;  /* Overflow (1) */
+	/* from separate quality descriptor  */
+	gboolean EI;  /* Elapsed time valid (0) / Elapsed time invalid (1) */
+	
+} td_ValueInfo;
+
+/* asdu command value/status structure */
+typedef struct {
+	gboolean OFF;
+	gboolean ON;
+	
+	/* QOC qualifier-bits */
+	guint16  QU;      /* qualifier-value */
+	gboolean ZeroP;   /* No pulse */
+	gboolean ShortP;  /* Short Pulse */
+	gboolean LongP;   /* Long Pulse */
+	gboolean Persist; /* Persistent output */
+	gboolean SE;      /* Select (1) / Execute (0) */
+
+
+} td_CmdInfo;
+
+/* asdu setpoint value/status structure */
+typedef struct {
+	union {                                                                  
+		gint16 NVA; /* Normalized value F16[1..16]<-1..+1-2^-15>            */
+		gint16 SVA; /* Scaled value I16[1..16]<-2^15..+2^15-1>              */
+		gfloat  FLT; /* IEEE 754 float value  R32.23{Fraction,Exponent,Sign} */
+	} SP;	/* Measured Value */
+	
+	/* QOS qualifier-bits  */
+	guint8 QL;    /* UI7[1..7]<0..127>; 0-default, 1..63-reserved for strd def.,     */
+				  /*				64..127-reserved for special use (private range) */ 
+	gboolean SE;  /* Select (1) / Execute (0)                                        */
+
+} td_SpInfo;
 
 
 
@@ -390,9 +476,459 @@ static int hf_ioa  = -1;
 static int hf_numix  = -1;
 static int hf_sq  = -1;
 
+static gint hf_iec104_asdufloat = -1;
+static gint hf_iec104_asdunormval = -1;
 
 static gint ett_apci = -1;
 static gint ett_asdu = -1;
+
+/* Misc. functions for dissection of signal values */
+
+/* ==================================================================== 
+    void get_CP56Time( td_CP56Time *cp56t, tvbuff_t *tvb, guint8 offset)
+
+    Dissects the CP56Time2a time (Seven octet binary time)
+    that starts 'offset' bytes in 'tvb'.
+    The time and date is put in struct 'cp56t'
+   ==================================================================== */  
+void get_CP56Time( td_CP56Time *cp56t, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+  guint16 ms;
+  ms = tvb_get_letohs( tvb , *offset );
+  (*offset) += 2;
+  cp56t->cp56t_s = (int)floor(ms/1000);
+  cp56t->cp56t_ms = (int)(ms-(cp56t->cp56t_s*1000));
+   
+  cp56t->cp56t_min = tvb_get_guint8(tvb, *offset);
+  /* "Invalid" -- Todo: test */
+  cp56t->IV = cp56t->cp56t_min & 0x80;
+
+  cp56t->cp56t_min = cp56t->cp56t_min & 0x3F;
+  (*offset)++;
+  cp56t->cp56t_h = 0x1F & tvb_get_guint8(tvb, *offset);
+  (*offset)++;
+  cp56t->cp56t_dom = tvb_get_guint8(tvb, *offset);
+  cp56t->cp56t_dow = 0xE0 & cp56t->cp56t_dom;
+  cp56t->cp56t_dow >>= 5;
+  cp56t->cp56t_dom = cp56t->cp56t_dom & 0x1F;
+  (*offset)++;
+  cp56t->cp56t_month = 0x0F & tvb_get_guint8(tvb, *offset);
+  (*offset)++;
+  cp56t->cp56t_year = 0x7F & tvb_get_guint8(tvb, *offset);
+  (*offset)++;
+
+
+  if( iec104_header_tree != NULL )
+  {
+    /* ---- format yy-mm-dd (dow) hh:mm:ss.ms  */
+    proto_tree_add_text(iec104_header_tree, tvb, (*offset)-7, 7, 
+          "%.2d-%.2d-%.2d (%d) %.2d:%.2d:%.2d.%.3d (%s)",
+		  cp56t->cp56t_year,cp56t->cp56t_month,cp56t->cp56t_dom,
+		  cp56t->cp56t_dow,cp56t->cp56t_h,cp56t->cp56t_min,
+		  cp56t->cp56t_s,cp56t->cp56t_ms,cp56t->IV?"Invalid":"Valid");
+  }
+
+
+}
+
+
+/* ==================================================================== 
+    Information object address (Identifier)
+    ASDU -> Inform Object #1 -> Information object address
+   ==================================================================== */  
+void get_InfoObjectAddress( guint32 *asdu_info_obj_addr, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+  /* --------  Information object address */
+  *asdu_info_obj_addr = tvb_get_letoh24(tvb, *offset);
+  if( iec104_header_tree != NULL )
+  {
+    proto_tree_add_uint(iec104_header_tree, hf_ioa, 
+    		tvb, *offset, 3, *asdu_info_obj_addr);
+    		
+  }
+  (*offset) += 3;          
+}
+
+
+
+
+/* ==================================================================== 
+    SIQ: Single-point information (IEV 371-02-07) w quality descriptor
+   ==================================================================== */  
+void get_SIQ( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+  guint8 siq;
+  siq = tvb_get_guint8(tvb, *offset);
+  
+  value->ON = siq & 0x01;
+  value->OFF = !(value->ON);
+  value->BL = siq & 0x10;  /* Blocked (1)                                       */
+  value->SB = siq & 0x20;  /* Substituted (1)                                   */
+  value->NT = siq & 0x40;  /* Topical (0) / Not topical (1)                     */
+                           /* [Topical <=> if most recent update was succesful] */
+  value->IV = siq & 0x80;  /* Invalid (1)                                       */
+  if( iec104_header_tree != NULL )
+  {
+    proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Value: %s - Status: %s, %s, %s, %s",
+		value->ON?"ON":"OFF", value->BL?"Blocked":"Not blocked", 
+		value->SB?"Substituted":"Not Substituted", value->NT?"Not Topical":"Topical",
+		value->IV?"Invalid":"Valid" );
+  }
+
+  (*offset)++;
+
+}
+
+
+/* ==================================================================== 
+    DIQ: Double-point information (IEV 371-02-08) w quality descriptor
+   ==================================================================== */  
+void get_DIQ( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+
+  guint8 diq;
+  diq = tvb_get_guint8(tvb, *offset);
+  value->IPOS0 = FALSE;
+  value->OFF = FALSE;
+  value->ON = FALSE;
+  value->IPOS3 = FALSE;
+  switch ( diq & 0x03 )
+  {
+  case 0:
+    value->IPOS0 = TRUE;
+    break;
+  case 1:
+    value->OFF = TRUE;
+    break;
+  case 2:
+    value->ON = TRUE;
+    break;
+  case 3:
+    value->IPOS3 = TRUE;
+    break;
+  default:
+    break;
+  }
+  value->BL = diq & 0x10;  /* Blocked (1)                                       */
+  value->SB = diq & 0x20;  /* Substituted (1)                                   */
+  value->NT = diq & 0x40;  /* Topical (0) / Not topical (1)                     */
+                           /* [Topical <=> if most recent update was succesful] */
+  value->IV = diq & 0x80;  /* Invalid (1)                                       */
+  
+  if( iec104_header_tree != NULL )
+  {
+    proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Value: %s%s%s%s - Status: %s, %s, %s, %s",
+		value->ON?"ON":"", value->OFF?"OFF":"", value->IPOS0?"IPOS0":"", value->IPOS3?"IPOS3":"", 
+		value->BL?"Blocked":"Not blocked", value->SB?"Substituted":"Not Substituted", 
+		value->NT?"Not Topical":"Topical", value->IV?"Invalid":"Valid" );
+  }
+
+  (*offset)++;
+
+}
+
+/* ==================================================================== 
+    QDS: Quality descriptor (separate octet) 
+   ==================================================================== */  
+void get_QDS( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+  guint8 qds;
+  /* --------  QDS quality description */
+  qds = tvb_get_guint8(tvb, *offset);
+
+  value->OV = qds & 0x01;  /* Overflow (1)                                      */
+  value->BL = qds & 0x10;  /* Blocked (1)                                       */
+  value->SB = qds & 0x20;  /* Substituted (1)                                   */
+  value->NT = qds & 0x40;  /* Topical (0) / Not topical (1)                     */
+                           /* [Topical <=> if most recent update was succesful] */
+  value->IV = qds & 0x80;  /* Invalid (1)                                       */
+  if( iec104_header_tree != NULL )
+  {
+    proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Status: %s, %s, %s, %s, %s",
+		value->OV?"Overflow!":"No Overflow", value->BL?"Blocked!":"Not Blocked", 
+		value->SB?"Substituted!":"Not Substituted", value->NT?"Not Topical!":"Topical",
+		value->IV?"Invalid!":"Valid" );
+  }
+
+  (*offset)++;
+
+}
+
+/* ==================================================================== 
+    QDP: Quality descriptor for events of protection equipment
+	(separate octet)
+   ==================================================================== */  
+void get_QDP( td_ValueInfo *value _U_, tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_ )
+{
+	/* todo */
+
+}
+
+/* ==================================================================== 
+    VTI: Value with transient state indication
+   ==================================================================== */  
+void get_VTI( td_ValueInfo *value _U_, tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_ )
+{
+	/* todo */
+
+}
+
+/* ==================================================================== 
+    NVA: Normalized value
+   ==================================================================== */  
+void get_NVA( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+  /* Normalized value F16[1..16]<-1..+1-2^-15> */
+	value->MV.NVA = tvb_get_letohs(tvb, *offset);	
+
+	if ( iec104_header_tree != NULL )
+	{
+  		proto_tree_add_int(iec104_header_tree, hf_iec104_asdunormval,
+  								tvb, *offset, 2, value->MV.NVA);
+			/* todo ... presentation as float +/- 1 (val/32767) ... */
+	}
+	(*offset) += 2;
+
+}
+
+void get_NVAspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset, 
+            proto_tree *iec104_header_tree )
+{
+  /* Normalized value F16[1..16]<-1..+1-2^-15> */
+	spt->SP.NVA = tvb_get_letohs(tvb, *offset);	
+
+	if ( iec104_header_tree != NULL )
+	{
+  		proto_tree_add_int(iec104_header_tree, hf_iec104_asdunormval,
+  								tvb, *offset, 2, spt->SP.NVA);
+			/* todo ... presentation as float +/- 1 */
+	}
+	(*offset) += 2;
+
+}
+
+/* ==================================================================== 
+    SVA: Scaled value
+   ==================================================================== */  
+void get_SVA( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+  /* Scaled value I16[1..16]<-2^15..+2^15-1> */
+	value->MV.SVA = tvb_get_letohs(tvb, *offset);	
+	if ( iec104_header_tree != NULL )
+	{
+  		proto_tree_add_int(iec104_header_tree, hf_iec104_asdunormval,
+  								tvb, *offset, 2, value->MV.SVA);
+	}
+	(*offset) += 2;
+
+}
+
+void get_SVAspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset, 
+            proto_tree *iec104_header_tree )
+{
+  /* Scaled value I16[1..16]<-2^15..+2^15-1> */
+	spt->SP.SVA = tvb_get_letohs(tvb, *offset);	
+	if ( iec104_header_tree != NULL )
+	{
+  		proto_tree_add_int(iec104_header_tree, hf_iec104_asdunormval,
+  								tvb, *offset, 2, spt->SP.SVA);
+	}
+	(*offset) += 2;
+
+}
+
+/* ==================================================================== 
+    "FLT": Short floating point number
+   ==================================================================== */  
+void get_FLT( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+  	/* --------  IEEE 754 float value */
+	value->MV.FLT = tvb_get_letohieee_float(tvb, *offset);
+
+	if ( iec104_header_tree != NULL )
+	{
+  		proto_tree_add_float(iec104_header_tree, hf_iec104_asdufloat,
+  				tvb, *offset, 4, value->MV.FLT);
+	}
+	(*offset) += 4;
+
+
+}
+
+void get_FLTspt( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+  	/* --------  IEEE 754 float value */
+	spt->SP.FLT = tvb_get_letohieee_float(tvb, *offset);
+
+	if ( iec104_header_tree != NULL )
+	{
+  		proto_tree_add_float(iec104_header_tree, hf_iec104_asdufloat,
+  				tvb, *offset, 4, spt->SP.FLT);
+	}
+	(*offset) += 4;
+
+
+}
+
+/* ==================================================================== 
+    todo  -- BCR: Binary counter reading
+   ==================================================================== */  
+/* void get_BCR( td_ValueInfo *value, tvbuff_t *tvb, guint8 *offset, 
+           proto_tree *iec104_header_tree );  */
+
+/* ==================================================================== 
+    todo -- SEP: Single event of protection equipment
+   ==================================================================== */  
+void get_SEP( td_ValueInfo *value _U_, tvbuff_t *tvb _U_, guint8 *offset _U_, proto_tree *iec104_header_tree _U_ )
+{
+	/* todo */
+
+}
+
+/* ==================================================================== 
+    QOC: Qualifier Of Command
+   ==================================================================== */  
+void get_QOC( td_CmdInfo *value, guint8 data )
+{
+	value->ZeroP   = FALSE;  /* No pulse                        */
+	value->ShortP  = FALSE;  /* Short Pulse                     */
+	value->LongP   = FALSE;  /* Long Pulse                      */
+	value->Persist = FALSE;  /* Persistent output               */
+
+	value->QU = data & 0x7c;
+	value->QU >>= 2;
+
+	switch( value->QU )
+	{
+		case 0x00:
+			value->ZeroP = TRUE;
+			break; /* No additional definition */
+		case 0x01:
+			value->ShortP = TRUE;  
+			break;
+		case 0x02:
+			value->LongP = TRUE;
+			break;
+		case 0x03:
+			value->Persist = TRUE;
+			break;
+		default:
+		/* case 4..31 --> reserved .. */
+			;
+    		break;
+	}
+	value->SE = data & 0x80;  /* Select (1) / Execute (0) */
+
+}
+
+
+/* ==================================================================== 
+    QOS: Qualifier Of Set-point command
+   ==================================================================== */  
+void get_QOS( td_SpInfo *spt, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+	guint8 qos;
+  /* --------  QOS quality description */
+  qos = tvb_get_guint8(tvb, *offset);
+
+	spt->QL = qos & 0x7F;  /* UI7[1..7]<0..127>        */
+	spt->SE = qos & 0x80;  /* Select (1) / Execute (0) */
+
+  if( iec104_header_tree != NULL )
+  {
+	  proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Qualifier - QL: %d, S/E: %s",
+		spt->QL, spt->SE?"Select":"Execute" );
+  }
+
+  (*offset)++;
+
+}
+
+
+/* ==================================================================== 
+    SCO: Single Command (IEV 371-03-02)
+   ==================================================================== */  
+void get_SCO( td_CmdInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+  guint8 data;
+  /* On/Off */
+  data = tvb_get_guint8(tvb, *offset);
+  value->ON  = data & 0x01;
+  value->OFF = !(value->ON);
+  
+  /* QOC */
+  get_QOC( value, data );
+
+
+  if( iec104_header_tree != NULL )
+  {
+	  if ( value->QU < 4 )
+	  {
+  		  proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Command: %s%s, Qualifier: %s%s%s%s, %s",
+			value->ON?"ON":"", value->OFF?"OFF":"", 
+			value->ZeroP?"No pulse defined":"", value->ShortP?"Short Pulse":"", 
+			value->LongP?"Long Pulse":"", value->Persist?"Persistent Output":"",
+			value->SE?"Select":"Execute");
+	  } else {
+  		  proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Command: %s%s, Qualifier: QU=%d, %s",
+			value->ON?"ON":"", value->OFF?"OFF":"", 
+			value->QU,
+			value->SE?"Select":"Execute");
+  	  }		  
+  }
+
+  (*offset)++;
+	
+}
+
+/* ==================================================================== 
+    DCO: Double Command (IEV 371-03-03)
+   ==================================================================== */  
+void get_DCO( td_CmdInfo *value, tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree )
+{
+  guint8 data;
+  /* On/Off */
+  data = tvb_get_guint8(tvb, *offset);
+  value->OFF = FALSE;
+  value->ON = FALSE;
+  switch ( data & 0x03 )
+  {
+  case 1:
+    value->OFF = TRUE;
+    break;
+  case 2:
+    value->ON = TRUE;
+    break;
+  default:
+    ;
+    break;
+  }
+  
+  /* QOC */
+  get_QOC( value, data );
+
+
+  if( iec104_header_tree != NULL )
+  {
+	  if ( value->QU < 4 )
+	  {
+  		  proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Command: %s%s%s, Qualifier: %s%s%s%s, %s",
+			value->ON?"ON":"", value->OFF?"OFF":"", (value->ON | value->OFF)?"":"Error: On/Off not defined",
+			value->ZeroP?"No pulse defined":"", value->ShortP?"Short Pulse":"", 
+			value->LongP?"Long Pulse":"", value->Persist?"Persistent Output":"",
+			value->SE?"Select":"Execute");
+	  } else {
+  		  proto_tree_add_text( iec104_header_tree, tvb, *offset, 1, "Command: %s%s%s, Qualifier: QU=%d, %s",
+			value->ON?"ON":"", value->OFF?"OFF":"", (value->ON | value->OFF)?"":"Error: On/Off not defined",
+			value->QU,
+			value->SE?"Select":"Execute");
+  	  }		  
+  }
+
+  (*offset)++;
+
+}
+/* .... end Misc. functions for dissection of signal values */
 
 
 /* Find the APDU 104 (APDU=APCI+ASDU) length.
@@ -424,7 +960,19 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	emem_strbuf_t * res;
 	proto_item * it104 = NULL;
 	proto_tree * trHead;
-
+	
+	
+	guint8 offset = 0;  /* byte offset, signal dissection */
+	guint8 offset_start_ioa = 0; /* position first ioa */
+	guint8 i;
+	guint32 asdu_info_obj_addr = 0;
+	proto_item * itSignal = NULL;
+	proto_tree * trSignal;
+	td_ValueInfo value;  /* signal value struct */
+	td_CmdInfo cmd;      /* command value struct */
+	td_SpInfo  spt;	     /* setpoint value struct */
+	td_CP56Time cp56t;   /* time value struct */
+	
 	if (!(check_col(pinfo->cinfo, COL_INFO) || tree))   return; /* Be sure that the function is only called twice */
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "104asdu");
@@ -499,6 +1047,289 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	proto_tree_add_uint(trHead, hf_addr, tvb, 4, 2, asduh->AddrLow+ 256* asduh->AddrHigh);
 	proto_tree_add_uint(trHead, hf_ioa, tvb, 6, 3, asduh->IOA);
 	if (asduh->NumIx > 1)   proto_tree_add_boolean(trHead, hf_sq, tvb, 1, 1, asduh->SQ);
+	
+	/* 'Signal Details': TREE */
+	offset = 6;  /* offset position after DUI, already stored in asduh struct */
+	/* -------- get signal value and status based on ASDU type id */
+	
+	switch (asduh->TypeId) {
+		case M_SP_NA_1:
+		case M_DP_NA_1:
+		case M_SP_TB_1: 
+		case M_DP_TB_1: 
+		case M_ME_NA_1: 
+		case M_ME_NB_1: 
+		case M_ME_NC_1:
+		case M_ME_ND_1: 
+		case M_ME_TD_1: 
+		case M_ME_TE_1: 
+		case M_ME_TF_1: 
+		case C_SC_NA_1:
+		case C_DC_NA_1:
+		case C_SE_NA_1: 
+		case C_SE_NB_1: 
+		case C_SE_NC_1: 
+		case C_SC_TA_1: 
+		case C_DC_TA_1: 
+		case C_SE_TA_1: 
+		case C_SE_TB_1: 
+		case C_SE_TC_1: 
+		case C_CS_NA_1: 
+			
+			/* create subtree for the signal values ... */
+			itSignal = proto_tree_add_item( trHead, proto_iec104asdu, tvb, offset, -1, FALSE );
+			proto_item_append_text(itSignal, ": Value");
+			
+			trSignal = proto_item_add_subtree( itSignal, ett_asdu );
+			
+			/* -- object values */
+			for(i = 0; i < asduh->NumIx; i++)
+			{
+				/* --------  First Information object address */
+				if (!i)
+				{
+					offset_start_ioa = offset;
+					/* --------  Information object address */
+					asdu_info_obj_addr = asduh->IOA;
+					proto_tree_add_uint(trSignal, hf_ioa, 
+							tvb, offset_start_ioa, 3, asdu_info_obj_addr);	
+					/* check length */
+					if( Len < (guint)(offset+3) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					offset += 3;  /* step over IOA bytes */
+				} else {
+					/* -------- following Information object address depending on SQ */
+					if (asduh->SQ) /* <=> SQ=1, info obj addr = startaddr++ */
+					{
+						asdu_info_obj_addr++;
+						proto_tree_add_uint(trSignal, hf_ioa, 
+								tvb, offset_start_ioa, 3, asdu_info_obj_addr);	
+									
+
+					} else { /* SQ=0, info obj addr given */
+						/* --------  Information object address */
+						/* check length */
+						if( Len < (guint)(offset+3) ) {
+							proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+							return;
+						}
+						get_InfoObjectAddress( &asdu_info_obj_addr, tvb, &offset, 
+							trSignal);
+						
+					}
+				}
+
+				switch (asduh->TypeId) {
+				case M_SP_NA_1: /* 1	Single-point information */
+					/* check length */
+					if( Len < (guint)(offset+1) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_SIQ( &value, tvb, &offset, trSignal );
+					break;
+				case M_DP_NA_1: /* 3	Double-point information */
+					/* check length */
+					if( Len < (guint)(offset+1) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_DIQ( &value, tvb, &offset, trSignal );
+					break;
+				case M_ME_NA_1: /* 9	Measured value, normalized value */
+					/* check length */
+					if( Len < (guint)(offset+3) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_NVA( &value, tvb, &offset, trSignal );
+					get_QDS( &value, tvb, &offset, trSignal );
+					break;
+				case M_ME_NB_1: /* 11     Measured value, scaled value */
+					/* check length */
+					if( Len < (guint)(offset+3) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_SVA( &value, tvb, &offset, trSignal );
+					get_QDS( &value, tvb, &offset, trSignal );
+					break;
+				case M_ME_NC_1: /* 13	Measured value, short floating point value */
+					/* check length */
+					if( Len < (guint)(offset+5) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_FLT( &value, tvb, &offset, trSignal );
+					get_QDS( &value, tvb, &offset, trSignal );
+					break;
+				case M_ME_ND_1: /* 21    Measured value, normalized value without quality descriptor */
+					/* check length */
+					if( Len < (guint)(offset+2) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_NVA( &value, tvb, &offset, trSignal );
+					break;
+				case M_SP_TB_1: /* 30	Single-point information with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+8) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_SIQ( &value, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case M_DP_TB_1: /* 31	Double-point information with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+8) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_DIQ( &value, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case M_ME_TD_1: /* 34    Measured value, normalized value with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+10) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_NVA( &value, tvb, &offset, trSignal );
+					get_QDS( &value, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case M_ME_TE_1: /* 35    Measured value, scaled value with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+10) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_SVA( &value, tvb, &offset, trSignal );
+					get_QDS( &value, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case M_ME_TF_1: /* 36    Measured value, short floating point value with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+12) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_FLT( &value, tvb, &offset, trSignal );
+					get_QDS( &value, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case C_SC_NA_1: /* 45	Single command */
+					/* check length */
+					if( Len < (guint)(offset+1) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_SCO( &cmd, tvb, &offset, trSignal );
+					break;
+				case C_DC_NA_1: /* 46	Double command */
+					/* check length */
+					if( Len < (guint)(offset+1) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_DCO( &cmd, tvb, &offset, trSignal );
+					break;
+				case C_SE_NA_1: /*  48    Set point command, normalized value */
+					/* check length */
+					if( Len < (guint)(offset+3) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_NVAspt( &spt, tvb, &offset, trSignal );
+					get_QOS( &spt, tvb, &offset, trSignal );
+					break;
+				case C_SE_NB_1: /* 49    Set point command, scaled value */
+					/* check length */
+					if( Len < (guint)(offset+3) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_SVAspt( &spt, tvb, &offset, trSignal );
+					get_QOS( &spt, tvb, &offset, trSignal );
+					break;
+				case C_SE_NC_1: /* 50    Set point command, short floating point value */
+					/* check length */
+					if( Len < (guint)(offset+5) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_FLTspt( &spt, tvb, &offset, trSignal );
+					get_QOS( &spt, tvb, &offset, trSignal );
+					break;
+				case C_SC_TA_1: /* 58    Single command with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+8) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_SCO( &cmd, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case C_DC_TA_1: /* 59    Double command with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+8) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_DCO( &cmd, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;					
+				case C_SE_TA_1: /* 61    Set point command, normalized value with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+10) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_NVAspt( &spt, tvb, &offset, trSignal );
+					get_QOS( &spt, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case C_SE_TB_1: /* 62    Set point command, scaled value with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+10) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_SVAspt( &spt, tvb, &offset, trSignal );
+					get_QOS( &spt, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case C_SE_TC_1: /* 63    Set point command, short floating point value with time tag CP56Time2a */
+					/* check length */
+					if( Len < (guint)(offset+12) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_FLTspt( &spt, tvb, &offset, trSignal );
+					get_QOS( &spt, tvb, &offset, trSignal );
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+				case C_CS_NA_1: /* 103    clock synchronization command  */
+					/* check length */
+					if( Len < (guint)(offset+7) ) {
+						proto_tree_add_text( trSignal, tvb, offset, 1, "<ERR Short Asdu>" );
+						return;
+					}
+					get_CP56Time( &cp56t, tvb, &offset, trSignal );
+					break;
+
+				default:
+    				break;
+				} /* end 'switch (asduh->TypeId)' */
+			} /* end 'for(i = 0; i < dui.asdu_vsq_no_of_obj; i++)' */
+			break;
+		default:
+			break;
+	} /* end 'switch (asdu_typeid)' */
+
 }
 
 
@@ -722,6 +1553,14 @@ proto_register_iec104asdu(void)
 		{ &hf_sq,
 		  { "SQ", "104asdu.sq", FT_BOOLEAN, 8, NULL, F_SQ,
 		    "Sequence", HFILL }},
+
+		{ &hf_iec104_asdufloat,
+		{ "Object value", "iec104.asdu_float", FT_FLOAT, BASE_DEC, NULL, 0x0,
+		 "Object value", HFILL }},		    
+
+		{ &hf_iec104_asdunormval,
+		{ "Object value", "iec104.asdu_asdunormval", FT_INT16, BASE_DEC, NULL, 0x0,
+		 "Object value", HFILL }},
 
 	};
 
