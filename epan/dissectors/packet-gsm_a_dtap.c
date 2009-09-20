@@ -419,6 +419,8 @@ static int hf_gsm_a_codec_umts_amr_wb = -1;
 static int hf_gsm_a_codec_fr_amr_wb = -1;
 static int hf_gsm_a_codec_pdc_efr = -1;
 
+static int hf_gsm_a_notification_description = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
 static gint ett_dtap_oct_1 = -1;
@@ -2830,8 +2832,21 @@ de_llc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 /*
  * 10.5.4.20 Notification indicator
  */
+static const value_string gsm_a_dtap_notification_description_vals[] = {
+	{ 0x00, "User suspended" },
+	{ 0x01, "User resumed" },
+	{ 0x02, "Bearer change" },
+	{ 0, NULL }
+};
 
-
+static guint16
+de_notif_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_notification_description, tvb, offset, 1, FALSE);
+	
+	return 1;
+}
 /*
  * [3] 10.5.4.21 Progress indicator
  */
@@ -3793,7 +3808,7 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	de_keypad_facility,	/* Keypad Facility */
 	de_llc,							/* 10.5.4.18 Low layer compatibility */
 	NULL,	/* More Data */
-	NULL,	/* Notification Indicator */
+	de_notif_ind,	/* Notification Indicator */
 	de_prog_ind,	/* Progress Indicator */
 	NULL,	/* Recall type $(CCBS)$ */
 	NULL,	/* Redirecting Party BCD Number */
@@ -6181,6 +6196,11 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_codec_pdc_efr,
 		{ "PDC EFR", "gsm_a.codec.pdc_efr",
 		FT_BOOLEAN, 8, NULL, 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_notification_description,
+		{ "Notification description", "gsm_a.notif_descr",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_dtap_notification_description_vals), 0x7f,
 		NULL, HFILL }
 	},
 	};
