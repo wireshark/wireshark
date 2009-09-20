@@ -204,7 +204,7 @@ create_view_and_model(void)
 
 		/* Set the size the column will be displayed with */
 		col_width = recent_get_column_width(i);
-		if(col_width == -1) {
+		if(col_width < 0) {
 			layout = gtk_widget_create_pango_layout(packetlist->view, get_column_width_string(get_column_format(i), i));
 			pango_layout_get_pixel_size(layout, &col_width, NULL);
 			gtk_tree_view_column_set_fixed_width(col, col_width);
