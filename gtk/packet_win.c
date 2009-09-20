@@ -130,6 +130,16 @@ void new_window_cb(GtkWidget *w _U_)
                       *bv_nb_ptr;
   struct PacketWinData *DataPtr;
   int i;
+  int err;
+  gchar *err_info;
+
+  /* With the new packetlists "lazy columns" it's neccesary to reread the frame */
+  if (!wtap_seek_read(cfile.wth, cfile.current_frame->file_off, &cfile.pseudo_header,
+		cfile.pd, cfile.current_frame->cap_len, &err, &err_info)) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			cf_read_error_message(err, err_info), cfile.filename);
+			return;
+  }
 
   /* Allocate data structure to represent this window. */
   DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
