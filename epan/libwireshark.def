@@ -424,6 +424,7 @@ fragment_set_partial_reassembly
 fragment_set_tot_len
 fragment_table_init
 frame_data_compare
+frame_data_init
 free_prefs
 ftype_can_contains
 ftype_can_eq

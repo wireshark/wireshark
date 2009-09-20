@@ -27,10 +27,12 @@
 # include "config.h"
 #endif
 
-#include "frame_data.h"
-#include "packet.h"
-#include "emem.h"
-#include "timestamp.h"
+#include <wiretap/wtap.h>
+#include <epan/frame_data.h>
+#include <epan/packet.h>
+#include <epan/emem.h>
+#include <epan/timestamp.h>
+#include "cfile.h"
 
 #include <glib.h>
 
@@ -184,5 +186,76 @@ frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field
 
 	}
 	g_return_val_if_reached(0);
+}
+
+frame_data_init(frame_data *fdata, capture_file *cf,
+                const struct wtap_pkthdr *phdr, gint64 offset,
+                guint32 *cum_bytes,
+                nstime_t *first_ts,
+                nstime_t *prev_dis_ts,
+                nstime_t *prev_cap_ts)
+{
+  fdata->next = NULL;
+  fdata->prev = NULL;
+  fdata->pfd = NULL;
+  fdata->num = cf->count;
+  fdata->pkt_len = phdr->len;
+  *cum_bytes += phdr->len;
+  fdata->cum_bytes  = *cum_bytes;
+  fdata->cap_len = phdr->caplen;
+  fdata->file_off = offset;
+  /* To save some memory, we coarcese it into a gint8 */
+  g_assert(phdr->pkt_encap <= G_MAXINT8);
+  fdata->lnk_t = (gint8) phdr->pkt_encap;
+  fdata->abs_ts.secs = phdr->ts.secs;
+  fdata->abs_ts.nsecs = phdr->ts.nsecs;
+  fdata->flags.passed_dfilter = 0;
+  fdata->flags.encoding = CHAR_ASCII;
+  fdata->flags.visited = 0;
+  fdata->flags.marked = 0;
+  fdata->flags.ref_time = 0;
+  fdata->color_filter = NULL;
+
+  /* If we don't have the time stamp of the first packet in the
+     capture, it's because this is the first packet.  Save the time
+     stamp of this packet as the time stamp of the first packet. */
+  if (nstime_is_unset(first_ts)) {
+    *first_ts = fdata->abs_ts;
+  }
+
+  /* If we don't have the time stamp of the previous captured packet,
+     it's because this is the first packet.  Save the time
+     stamp of this packet as the time stamp of the previous captured
+     packet. */
+  if (nstime_is_unset(prev_cap_ts)) {
+    *prev_cap_ts = fdata->abs_ts;
+  }
+
+  /* Get the time elapsed between the first packet and this packet. */
+  nstime_delta(&fdata->rel_ts, &fdata->abs_ts, first_ts);
+
+  /* If it's greater than the current elapsed time, set the elapsed time
+     to it (we check for "greater than" so as not to be confused by
+     time moving backwards). */
+  if ((gint32)cf->elapsed_time.secs < fdata->rel_ts.secs
+	|| ((gint32)cf->elapsed_time.secs == fdata->rel_ts.secs && (gint32)cf->elapsed_time.nsecs < fdata->rel_ts.nsecs)) {
+    cf->elapsed_time = fdata->rel_ts;
+  }
+
+  /* If we don't have the time stamp of the previous displayed packet,
+     it's because this is the first packet that's being displayed.  Save the time
+     stamp of this packet as the time stamp of the previous displayed
+     packet. */
+  if (nstime_is_unset(prev_dis_ts))
+    *prev_dis_ts = fdata->abs_ts;
+
+  /* Get the time elapsed between the previous displayed packet and
+     this packet. */
+  nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, prev_dis_ts);
+
+  /* Get the time elapsed between the previous captured packet and
+     this packet. */
+  nstime_delta(&fdata->del_cap_ts, &fdata->abs_ts, prev_cap_ts);
+  *prev_cap_ts = fdata->abs_ts;
 }
 
