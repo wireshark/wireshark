@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-09-13)
+(last updated 2009-09-19)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -1226,9 +1226,9 @@ Decimal
     Len Rochford
       len.rochford&commscraft.com
 303
-  Hughes Electronics Corp.
+  Hughes Communications, Inc.
     David Whitefield
-      dwhitefield&hns.com
+      David.Whitefield&hughes.com
 304
   Farallon Computing, Inc.
     Sam Roberts
@@ -29198,9 +29198,9 @@ Decimal
     Bart Steanes
       bart.steanes&enstor.com.au
 7311
-  T-Nova
+  T-Systems Enterprise Services GmbH
     Klaus Biedenbach
-      klaus.biedenbach&telekom.de
+      klaus.biedenbach&t-systems.com
 7312
   BARCO Control Rooms
     Thomas Kappler
@@ -31766,9 +31766,9 @@ Decimal
     Kenji Kusaka
       kusaka&too.co.jp
 7953
-  Myretsu
-    Mark Sztainbok
-      sz&myretsu.com
+  Majitek
+    Andrew Birch
+      administrator&majitek.com
 7954
   Siemens Business Services AS
     Kaare Smith
@@ -76723,9 +76723,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Serge Blais
       sblais&pirel.com
 19293
-  Shanghai jisung information technology co.,Ltd
-    james zhang
-      zhangyongfeng&jisung.cn
+  Danriver Technologies Corporation (previous was 'Shanghai jisung information technology co.,Ltd')
+    Yongfeng Zhang
+      benson.zhang&hotmail.com
 19294
   LeapComm Communication Technologies Inc.
     Lily Yin
@@ -99916,7 +99916,7 @@ Minas Gerais
       itdept&smbc.com.au
 25087
   HWS
-    Evgeny Illyushko
+    Evgeny V Illyushko
       info&hws.ru
 25088
   Transactional Records Access Clearinghouse
@@ -101779,9 +101779,9 @@ University, Computing Center
     Bill Dishman
       bill.dishman&amec.com
 25552
-  Jacob Angel Munoz
+  Poxix
     Jacob Angel Munoz
-      pokey1919&hotmail.com
+      me&poxix.com
 25553
   Sonas Innovation Ltd
     Barry Flanagan
@@ -136707,6 +136707,182 @@ Decentralization / Helenic Public Administra
   Metva
     Enno Davids
       enno06&metva.com
+34281
+  Taiwan Dichen Co, Ltd.
+    YANG WAN SHAN
+      hackerkevin&gmail.com
+34282
+  MEON-yamaguchi
+    Kenichiro Miyoshi
+      support&stellar.meon.ne.jp
+34283
+  CA-Jinchen Software Co.,Ltd
+    Zhou Li
+      zhou.li&ca-jc.com
+34284
+  Elisa Oyj
+    Matti Swan
+      matti.swan&elisa.fi
+34285
+  S.C. DigiSign S.A.
+    Marius Daniel PESTINA
+      dan.pestina&digisign.ro
+34286
+  Feusi Bildungszentrum AG
+    Heinz Dubach
+      informatik&feusi.ch
+34287
+  Raiffeisen Bank Kosovo JSC
+    Bujar Ibrahimi
+      bujar.ibrahimi&raiffeisen-kosovo.com
+34288
+  Centralna banka Crne Gore
+    Božo Cvetkovski
+      bozo.cvetkovski&cb-cg.org
+34289
+  IRE Rayos X S.A.
+    Jose Maria VENEROSO BENITEZ
+      jmvene&irerayosx.com
+34290
+  RS2i
+    Fahrid Djebbari
+      fdjebbari&rs2i.fr
+34291
+  xrow GmbH
+    Björn Dieding
+      service&xrow.de
+34292
+  Spring Street Storage
+    gabriel wolney
+      mgrwolney&yahoo.com
+34293
+  Coyote Creek
+    Dave Theodore
+      dtheodore&coyotecrk.com
+34294
+  C-Cron GmbH
+    Markus Heinze
+      markus.heinze&c-cron.de
+34295
+  Dalian Gigatec Electronics Co.,Ltd
+    Dalian guokun 
+      guo_kun1977&126.com
+34296
+  Dalian Maritime University
+    Wang Renda
+      renda&newmail.dlmu.edu.cn
+34297
+  Mobistar sa/nv
+    Laurent DENIS
+      laurent.denis&mail.mobistar.be
+34298
+  ConteXtream
+    Harold Lowenthal
+      harold&contextream.com
+34299
+  Travelnet Technologies Inc.
+    Jesse White
+      jwhite&datavalet.com
+34300
+  Croix Rouge Francaise
+    Manson Thomas
+      mt&mansonthomas.com
+34301
+  NEON, Inc.
+    Leo Bredehoft
+      lbredehoft&neoninc.org
+34302
+  NetIntegrate Solutions Inc
+    Chris Roylance
+      chris&netintegrate.ca
+34303
+  Skyline Network Engineering
+    Michael Branan
+      snmp&skylinenet.net
+34304
+  Feynman Group, Inc.
+    Mike Wilson
+      administrator&feynman.net
+34305
+  Developing Solutions, Inc.
+    John Minnis
+      iana&developingsolutions.com
+34306
+  Decre
+    Wout Decré
+      wout&delta-design.be
+34307
+  Deckland
+    Martin Ried
+      MartinRied&gmx.net
+34308
+  Ford & Mason Ltd
+    Andrew Ford
+      A.Ford&ford-mason.co.uk
+34309
+  Archimedes Solutions GmbH
+    Marco Fagiolini
+      mfx&archimedes-solutions.de
+34310
+  UBINETSYS.CO., LTD.
+    Jinju, Lee
+      ceo&ubinetsys.com
+34311
+  Data Net Solutions Group, Inc.
+    Mark Greco
+      mgreco&4datanet.com
+34312
+  Accanto Systems S.r.l.
+    Silvani Lucia
+      lucia.silvani&accantosystems.com
+34313
+  iDMS
+    COUROUBLE Bertrand
+      bcourouble.idms&nordnet.fr
+34314
+  Datanomic Ltd.
+    Richard Evans
+      richard.evans&datanomic.com
+34315
+  Broadband United GmbH
+    Georg Herrmann
+      info&broadbandunited.de
+34316
+  PDSG
+    Igor Klacansky
+      iklacansky&pdsg.com
+34317
+  Fabric Technologies
+    James Waite
+      james.waite&fabrictechnologies.com
+34318
+  iEARN-USA
+    Jeffrey Spiro
+      jeffrey&us.iearn.org
+34319
+  Inveneo Inc.
+    Mark Summer
+      it&inveneo.org
+34320
+  Octo Wireless LLC
+    Michel Stam
+      mstam&octo-wireless.com
+34321
+  ICP DAS  Co., Ltd
+    LiLing Huang
+      liling_huang&icpdas.com
+34322
+  Hoojima Ltd
+    Ofir Mano
+      ofir&xmousse.com
+34323
+  Zolfo Cooper
+    Faruk Patel
+      fpatel&zolfocooper.eu
+34324
+  Ministry for Information Society of Montenegro
+    Ružica Mišković
+      ruzica.miskovic&gov.me
 
 
 End of Document
