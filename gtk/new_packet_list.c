@@ -309,6 +309,7 @@ new_packet_list_next(void)
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
+	GtkWidget *focus = gtk_window_get_focus(GTK_WINDOW(top_level)); 
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
@@ -319,6 +320,10 @@ new_packet_list_next(void)
 		return;
 
 	scroll_to_and_select_iter(&iter);
+
+	/* Set the focus back where it was */
+	if (focus)
+		gtk_window_set_focus(GTK_WINDOW(top_level), focus);
 }
 
 void
@@ -328,6 +333,7 @@ new_packet_list_prev(void)
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 	GtkTreePath *path;
+	GtkWidget *focus = gtk_window_get_focus(GTK_WINDOW(top_level));
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
@@ -345,6 +351,10 @@ new_packet_list_prev(void)
 	scroll_to_and_select_iter(&iter);
 
 	gtk_tree_path_free(path);
+
+	/* Set the focus back where it was */
+	if (focus)
+		gtk_window_set_focus(GTK_WINDOW(top_level), focus);
 }
 
 static void
