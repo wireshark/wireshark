@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -127,13 +127,13 @@ static const value_string opsi_opcode[] = {
 		{ DISCOVER_REQUEST, 	"Discover Request" },
 		{ DISCOVER_RESPONSE, 	"Discover Response" },
 		{ SERVICE_REQUEST, 	"Service Request" },
-		{ SERVICE_ACCEPT,  	"Service Accept" }, 
+		{ SERVICE_ACCEPT,  	"Service Accept" },
 		{ SERVICE_REJECT,  	"Service Reject" },
 		{ TERMINATE_REQUEST, 	"Terminate Request" },
 		{ 0,       		NULL }
 	};
-	
-static const value_string opsi_service_type_code[] = {	
+
+static const value_string opsi_service_type_code[] = {
 		{ 1, "Login" },
        		{ 2, "Framed" },
        		{ 3, "Callback Login" },
@@ -146,7 +146,7 @@ static const value_string opsi_service_type_code[] = {
 		{ 0,       		NULL }
 	};
 
-static const value_string opsi_framed_protocol_code[] = {	
+static const value_string opsi_framed_protocol_code[] = {
 		{ 1, 	"PPP" },
        		{ 2,  	"SLIP" },
         	{ 3,  	"AppleTalk Remote Access Protocol (ARAP)" },
@@ -163,7 +163,7 @@ static const value_string opsi_framed_protocol_code[] = {
        		{ 263,	"FR-CIR"},
         	{ 0,       		NULL }
 	};
-	
+
 static const value_string opsi_framed_routing_code[] = {
 		{ 0,	"None" },
 		{ 1,	"Broadcast" },
@@ -182,7 +182,7 @@ static const value_string opsi_framed_compression_code[] = {
 		{ 0,	NULL }
 	};
 
-static const value_string opsi_nas_port_type_code[] = {	
+static const value_string opsi_nas_port_type_code[] = {
 		{ 0, "Async" },
       		{ 1, "Sync" },
       		{ 2, "ISDN Sync" },
@@ -207,7 +207,7 @@ static const value_string opsi_nas_port_type_code[] = {
       		{ 0,       		NULL }
 	};
 
-	
+
 /* Structure used to decode OPSI frame attributes	*/
 /* CAUTION : it is compulsory to sort this array	*/
 /* (first argument of the opsi_attribute_handle_t)	*/
@@ -254,7 +254,7 @@ static opsi_attribute_handle_t opsi_attributes[] = {
 	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
 	{ACCOUNTING_43_ATTRIBUTE,	/* 43 */
 	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
-	{ACCOUNTING_SESSION_ID_ATTRIBUTE,	/* 44 */ 
+	{ACCOUNTING_SESSION_ID_ATTRIBUTE,	/* 44 */
 	"Accounting session ID attribute", &ett_opsi_acct_session_id, &hf_acct_session_id_att, decode_string_attribute },
 	{ACCOUNTING_45_ATTRIBUTE,	/* 45 */
 	"Accounting attribute", &ett_opsi_accounting, &hf_accounting_att, decode_string_attribute },
@@ -336,10 +336,9 @@ void decode_string_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int 
 		proto_tree_add_text(tree, tvb, offset, length, "Too short attribute!");
 		return;
 	}
-	
-	pbuffer=tvb_get_string(tvb, offset+4, length-4);
+
+	pbuffer=tvb_get_ephemeral_string(tvb, offset+4, length-4);
 	proto_tree_add_string(tree, *hfValue, tvb, offset+4, length-4, pbuffer);
-	g_free(pbuffer);	
 }
 
 
@@ -375,7 +374,7 @@ void decode_value_string_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue
 void decode_time_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length)
 {
 	nstime_t ns;
-	
+
 	if (length < 8) {
 		proto_tree_add_text(tree, tvb, offset, length, "Too short attribute!");
 		return;
@@ -403,7 +402,7 @@ static guint get_opsi_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int get_opsi_attribute_index(int min, int max, int attribute_type)
 {
 	int middle, at;
-	
+
 	middle = (min+max)/2;
 	at = opsi_attributes[middle].attribute_type;
 	if (at == attribute_type) return middle;
@@ -414,7 +413,7 @@ static int get_opsi_attribute_index(int min, int max, int attribute_type)
 }
 
 
-static void 
+static void
 dissect_attributes(tvbuff_t *tvb, proto_tree *opsi_tree, int offset, int length)
 {
 	int i;
@@ -422,7 +421,7 @@ dissect_attributes(tvbuff_t *tvb, proto_tree *opsi_tree, int offset, int length)
 	int attribute_length;
 	proto_item *ti;
 	proto_tree *ntree = NULL;
-	
+
 	while (length >= 4) {
 		attribute_type 		= tvb_get_ntohs(tvb, offset);
 		attribute_length 	= tvb_get_ntohs(tvb, offset+2);
@@ -430,7 +429,7 @@ dissect_attributes(tvbuff_t *tvb, proto_tree *opsi_tree, int offset, int length)
 		/* We perform a standard log(n) lookup */
 		i = get_opsi_attribute_index(0, OPSI_ATTRIBUTES_COUNT-1, attribute_type);
 		if (i == -1) {
-			proto_tree_add_text(opsi_tree, tvb, offset, attribute_length, "Unknown attribute (%d)", attribute_type);			
+			proto_tree_add_text(opsi_tree, tvb, offset, attribute_length, "Unknown attribute (%d)", attribute_type);
 		}
 		else {
 			ti = proto_tree_add_text(opsi_tree, tvb, offset, attribute_length, "%s (%d)", opsi_attributes[i].tree_text, attribute_type);
@@ -455,12 +454,12 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *opsi_tree;
-	
+
 	if (opsi_first == TRUE) {
 		opsi_first = FALSE;
-		
+
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "OPSI");
-    
+
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_clear(pinfo->cinfo, COL_INFO);
 			if (tvb_length(tvb) < CODE_OFFSET+1) {
@@ -468,14 +467,14 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			else {
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Open Policy Service Interface, %s",
-					val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode,  
+					val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode,
 				     "<Unknown opcode %d>"));
 			}
 		}
 	}
 	else if (check_col(pinfo->cinfo, COL_INFO) && (tvb_length(tvb) > CODE_OFFSET)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-			  val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode, 
+			  val_to_str(tvb_get_guint8(tvb, CODE_OFFSET), opsi_opcode,
 				     "<Unknown opcode %d>"));
 	}
 
@@ -486,14 +485,14 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(opsi_tree, tvb, 0, -1, "Too short OPSI packet!");
 			return;
 		}
-		
+
 		proto_tree_add_item(opsi_tree, hf_opsi_major_version, tvb, MAJOR_VERSION_OFFSET, 1, FALSE);
 		proto_tree_add_item(opsi_tree, hf_opsi_minor_version, tvb, MINOR_VERSION_OFFSET, 1, FALSE);
 		proto_tree_add_item(opsi_tree, hf_opsi_opcode, tvb, CODE_OFFSET, 1, FALSE);
 		proto_tree_add_item(opsi_tree, hf_opsi_hook_id, tvb, HOOK_ID_OFFSET, 1, FALSE);
 		proto_tree_add_item(opsi_tree, hf_opsi_length, tvb, PACKET_LENGTH_OFFSET, 2, FALSE);
 		proto_tree_add_item(opsi_tree, hf_opsi_session_id, tvb, SESSION_OFFSET, 2, FALSE);
-		
+
 		dissect_attributes(tvb, opsi_tree, HEADER_LENGTH, MIN(((int)tvb_length(tvb)-HEADER_LENGTH), (tvb_get_ntohs(tvb, PACKET_LENGTH_OFFSET)-HEADER_LENGTH)));
 	}
 }
@@ -511,18 +510,18 @@ dissect_opsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_opsi(void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_opsi_major_version,
 			{ "Major version",           "opsi.major",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_opsi_minor_version,
 			{ "Minor version",           "opsi.minor",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_opsi_opcode,
@@ -612,7 +611,7 @@ proto_register_opsi(void)
 		},
 		{ &hf_called_station_att,
 			{ "Called station ID",		"opsi.attr.called_station_id",
-			FT_STRING, BASE_NONE, NULL, 0x00,	
+			FT_STRING, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
 		},
 		{ &hf_calling_station_att,
@@ -660,7 +659,7 @@ proto_register_opsi(void)
 			FT_UINT32, BASE_DEC, NULL, 0x00,
 			NULL, HFILL }
 		},
-		{ &hf_smc_vpn_id_att,	
+		{ &hf_smc_vpn_id_att,
 			{ "SMC VPN ID",			"opsi.attr.smc_vpn_id",
 			FT_UINT32, BASE_DEC, NULL, 0x00,
 			NULL, HFILL }
@@ -675,7 +674,7 @@ proto_register_opsi(void)
 			FT_UINT32, BASE_DEC, NULL, 0x00,
 			NULL, HFILL }
 		},
-		{ &hf_smc_ran_ip_att,	
+		{ &hf_smc_ran_ip_att,
 			{ "SMC RAN IP address",		"opsi.attr.smc_ran_ip",
 			FT_IPv4, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
@@ -695,7 +694,7 @@ proto_register_opsi(void)
 			FT_STRING, BASE_NONE, NULL, 0x00,
 			NULL, HFILL }
 		},
-		{ &hf_smc_id_att,        
+		{ &hf_smc_id_att,
 			{ "SMC ID",			"opsi.attr.smc_id",
 			FT_UINT32, BASE_DEC, NULL, 0x00,
 			NULL, HFILL }
@@ -748,22 +747,22 @@ proto_register_opsi(void)
 		&ett_opsi_designation_number,
 		&ett_opsi_nas_port_id,
 		&ett_opsi_smc_aaa_id,
-		&ett_opsi_smc_vpn_id,		
+		&ett_opsi_smc_vpn_id,
 		&ett_opsi_smc_vpn_name,
-		&ett_opsi_smc_ran_id,	
-		&ett_opsi_smc_ran_ip,		
+		&ett_opsi_smc_ran_id,
+		&ett_opsi_smc_ran_ip,
 		&ett_opsi_smc_ran_name,
-		&ett_opsi_smc_pop_id,	
+		&ett_opsi_smc_pop_id,
 		&ett_opsi_smc_pop_name,
-		&ett_opsi_smc_id,	        
+		&ett_opsi_smc_id,
 		&ett_opsi_smc_receive_time,
 		&ett_opsi_smc_stat_time,
 		&ett_opsi_flags,
 		&ett_opsi_application_name,
 	};
-	
+
 /* For desegmentation / reassembly */
-	module_t *opsi_module;	
+	module_t *opsi_module;
 
 /* Register the protocol name and description */
 	proto_opsi = proto_register_protocol("Open Policy Service Interface",
@@ -772,8 +771,8 @@ proto_register_opsi(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_opsi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	
-/* We activate the desegmentation / reassembly feature */	
+
+/* We activate the desegmentation / reassembly feature */
 	opsi_module = prefs_register_protocol(proto_opsi, NULL);
   	prefs_register_bool_preference(opsi_module, "desegment_opsi_messages",
     		"Reassemble OPSI messages spanning multiple TCP segments",
