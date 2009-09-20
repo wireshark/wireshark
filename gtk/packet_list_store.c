@@ -53,12 +53,6 @@
 #include "../simple_dialog.h"
 #include "../progress_dlg.h"
 
-/* To be compatible with Solaris XXX Define else where?*/
-#ifndef __FUNCTION__  
-#define __FUNCTION__ __func__  
-#endif  
-
-
 static void packet_list_init(PacketList *pkg_tree);
 static void packet_list_class_init(PacketListClass *klass);
 static void packet_list_tree_model_init(GtkTreeModelIface *iface);
@@ -393,7 +387,7 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 			g_value_set_string(value, record->fdata->col_text[column]);
 			break;
 		default:
-			g_warning ("%s: Unsupported type (%s) retrieved.", G_STRLOC, g_type_name (value->g_type));
+			g_warning (G_STRLOC ": Unsupported type (%s) retrieved.", g_type_name (value->g_type));
 			break;
 	}
 }
@@ -887,8 +881,7 @@ packet_list_sortable_set_sort_func(GtkTreeSortable *sortable _U_,
 				   gpointer user_data _U_,
 				   GtkDestroyNotify destroy_func _U_)
 {
-	g_warning("%s is not supported by the PacketList model.\n",
-		  __FUNCTION__);
+	g_warning(G_STRLOC ": is not supported by the PacketList model.\n");
 }
 
 static void
@@ -897,8 +890,7 @@ packet_list_sortable_set_default_sort_func(GtkTreeSortable *sortable _U_,
 					   gpointer user_data _U_,
 					   GtkDestroyNotify destroy_func _U_)
 {
-	g_warning("%s is not supported by the PacketList model.\n",
-		  __FUNCTION__);
+	g_warning(G_STRLOC ": is not supported by the PacketList model.\n");
 }
 
 static gboolean

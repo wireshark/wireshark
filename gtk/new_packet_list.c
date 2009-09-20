@@ -654,6 +654,8 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 	}else
 		cell_text = fdata->col_text[col_num];
 
+	g_assert(cell_text);
+
 	if((fdata->color_filter)||(fdata->flags.marked)){
 		gboolean color_on = enable_color;
 		GdkColor fg_gdk;
