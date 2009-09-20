@@ -1404,7 +1404,7 @@ static void rtps_util_add_guid_prefix(proto_tree *tree,
   }
 
   /* Format the string */
-  temp_buff = (guint8 *)g_malloc(MAX_GUID_PREFIX_SIZE);
+  temp_buff = (guint8 *) ep_alloc(MAX_GUID_PREFIX_SIZE);
   g_snprintf(temp_buff, MAX_GUID_PREFIX_SIZE,
                         "%s=%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x"
                         " { hostId=%08x, appId=%08x, counter=%08x }",
@@ -1476,7 +1476,6 @@ static void rtps_util_add_guid_prefix(proto_tree *tree,
   if (buffer != NULL) {
     g_strlcpy(buffer, temp_buff, buffer_size);
   }
-  g_free(temp_buff);
 }
 
 
