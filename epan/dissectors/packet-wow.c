@@ -52,7 +52,7 @@ typedef enum {
 	XFER_RESUME          = 0x33,
 	XFER_CANCEL          = 0x34
 } auth_cmd_e;
-	
+
 static const value_string cmd_vs[] = {
 	{ AUTH_LOGON_CHALLENGE, "Authentication Logon Challenge" },
 	{ AUTH_LOGON_PROOF,     "Authentication Logon Proof"     },
@@ -216,7 +216,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    val_to_str_const(cmd, cmd_vs,
 				       "Unrecognized packet type"));
 	}
-	
+
 	if(tree) {
 		ti = proto_tree_add_item(tree, proto_wow, tvb, 0, -1, TRUE);
 		wow_tree = proto_item_add_subtree(ti, ett_wow);
@@ -233,51 +233,47 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
 						    offset, 1, TRUE);
 				offset += 1;
-				
+
 				proto_tree_add_item(wow_tree, hf_wow_pkt_size,
 						    tvb, offset, 2, TRUE);
 				offset += 2;
-				
-				string = g_strreverse(tvb_get_string(tvb, offset, 4));
+
+				string = g_strreverse(tvb_get_ephemeral_string(tvb, offset, 4));
 				proto_tree_add_string(wow_tree, hf_wow_gamename,
 						      tvb, offset, 4, string);
-				g_free(string);
 				offset += 4;
-				
+
 				proto_tree_add_item(wow_tree, hf_wow_version1,
 						    tvb, offset, 1, TRUE);
 				offset += 1;
-				
+
 				proto_tree_add_item(wow_tree, hf_wow_version2,
 						    tvb, offset, 1, TRUE);
 				offset += 1;
-				
+
 				proto_tree_add_item(wow_tree, hf_wow_version3,
 						    tvb, offset, 1, TRUE);
 				offset += 1;
-				
+
 				proto_tree_add_item(wow_tree, hf_wow_build, tvb,
 						    offset, 2, TRUE);
 				offset += 2;
-				
-				string = g_strreverse(tvb_get_string(tvb, offset, 4));
+
+				string = g_strreverse(tvb_get_ephemeral_string(tvb, offset, 4));
 				proto_tree_add_string(wow_tree, hf_wow_platform,
 						      tvb, offset, 4, string);
-				g_free(string);
 				offset += 4;
-				
-				string = g_strreverse(tvb_get_string(tvb, offset, 4));
+
+				string = g_strreverse(tvb_get_ephemeral_string(tvb, offset, 4));
 				proto_tree_add_string(wow_tree, hf_wow_os, tvb,
 						      offset, 4, string);
-				g_free(string);
 				offset += 4;
-				
-				string = g_strreverse(tvb_get_string(tvb, offset, 4));
+
+				string = g_strreverse(tvb_get_ephemeral_string(tvb, offset, 4));
 				proto_tree_add_string(wow_tree, hf_wow_country,
 						      tvb, offset, 4, string);
-				g_free(string);
 				offset += 4;
-				
+
 				proto_tree_add_item(wow_tree,
 						    hf_wow_timezone_bias,
 						    tvb, offset, 4, TRUE);
@@ -286,7 +282,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(wow_tree, hf_wow_ip, tvb,
 						    offset, 4, FALSE);
 				offset += 4;
-			
+
 				proto_tree_add_item(wow_tree,
 						    hf_wow_srp_i_len,
 						    tvb, offset, 1, TRUE);
@@ -304,7 +300,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
 						    offset, 1, TRUE);
 				offset += 1;
-				
+
 				offset += 1; /* Unknown field */
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_b, tvb,
@@ -335,7 +331,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				offset += 16; /* Unknown field */
 			}
-			
+
 			break;
 
 		case AUTH_LOGON_PROOF :
@@ -375,19 +371,19 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			break;
 
-		case REALM_LIST : 
+		case REALM_LIST :
 
 			if(WOW_CLIENT_TO_SERVER) {
 
 
 			} else if(WOW_SERVER_TO_CLIENT) {
-				
+
 				proto_tree_add_item(wow_tree, hf_wow_pkt_size,
 						    tvb, offset, 2, TRUE);
 				offset += 2;
-				
+
 				offset += 4; /* Unknown field; always 0 */
-			
+
 				proto_tree_add_item(wow_tree, hf_wow_num_realms,
 						    tvb, offset, 2, TRUE);
 				num_realms = tvb_get_letohs(tvb, offset);
@@ -402,7 +398,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								 offset, 0,
 								 "%s",
 								 realm_name);
-					
+
 					wow_realms_tree = proto_item_add_subtree(ti, ett_wow_realms);
 					proto_tree_add_item(wow_realms_tree, hf_wow_realm_type, tvb, offset, 1, TRUE);
 					offset += 1;
@@ -453,7 +449,7 @@ proto_register_wow(void)
 		    FT_UINT8, BASE_HEX, VALS(cmd_vs), 0,
 		    "Type of packet", HFILL }
 		},
-		
+
 		{ &hf_wow_error,
 		  { "Error", "wow.error",
 		    FT_UINT8, BASE_DEC, 0, 0,
