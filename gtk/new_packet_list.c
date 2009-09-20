@@ -1,6 +1,7 @@
 /* new_packet_list.c
  * Routines to implement a new GTK2 packet list using our custom model
  * Copyright 2008-2009, Stephen Fisher (see AUTHORS file)
+ * Co-authors Anders Broman and Kovarththanan Rajaratnam.
  *
  * $Id$
  *
