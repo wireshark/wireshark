@@ -131,7 +131,7 @@ void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 	size_t sourcelen;
 	guint16 port;          /* UDP port */
 	guint16 padding;       /* 2 padding bytes */
-	
+
 	fprintf(file, "#!rtpplay%s %s/%u\n", RTPFILE_VERSION,
 		get_addr_name(&(strinfo->dest_addr)),
 		strinfo->dest_port);
@@ -280,14 +280,14 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 		/* increment the packets counter of all streams */
 		++(tapinfo->npackets);
-		
+
 		return 1;  /* refresh output */
 	}
 	else if (tapinfo->mode == TAP_SAVE) {
 		if (rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_fwd)==0) {
 			/* XXX - what if rtpinfo->info_all_data_present is
 			   FALSE, so that we don't *have* all the data? */
-			sample.header.rec_time = 
+			sample.header.rec_time =
 				(pinfo->fd->abs_ts.nsecs/1000 + 1000000 - tapinfo->filter_stream_fwd->start_usec)/1000
 				+ (guint32) (pinfo->fd->abs_ts.secs - tapinfo->filter_stream_fwd->start_sec - 1)*1000;
 			sample.header.frame_length = rtpinfo->info_data_len;
@@ -295,8 +295,10 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			rtp_write_sample(&sample, tapinfo->save_file);
 		}
 	}
+	/* TODO: This doesn't belong here. We really shouldn't refer to cf_mark_frame()
+	 * which only make sense if we're using the GTK UI backend. This effectively forces
+	 * tshark/rawshark to implement a cf_mark_frame() stub */
 	else if (tapinfo->mode == TAP_MARK) {
-
 		if (rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_fwd)==0
 			|| rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_rev)==0)
 		{
@@ -420,7 +422,7 @@ static guint32
 get_dyn_pt_clock_rate(gchar *payload_type_str)
 {
 	int i;
-	
+
 	/* Search for matching mimetype in reverse order to avoid false matches
 	 * when pt_mime_name_str is the prefix of payload_type_str */
 	for (i = NUM_DYN_CLOCK_VALUES - 1; i > -1 ; i--) {
@@ -588,7 +590,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	}
 
 	/* Can only analyze defined sampling rates */
-    if (clock_rate != 0) { 
+    if (clock_rate != 0) {
 		statinfo->clock_rate = clock_rate;
 		/* Convert from sampling clock to ms */
 		nominaltime = nominaltime /(clock_rate/1000);
@@ -614,7 +616,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		}
 		/* Gather data for calculation of average, minimum and maximum framerate based on timestamp */
 #if 0
-		if (numPackets > 0 && (!hardPayloadType || !alternatePayloadType)) { 
+		if (numPackets > 0 && (!hardPayloadType || !alternatePayloadType)) {
 			/* Skip first packet and possibly alternate payload type packets */
 			double dt;
 			dt     = nominaltime - statinfo->lastnominaltime;
@@ -668,7 +670,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 			statinfo->max_delta = statinfo->delta;
 			statinfo->max_nr = pinfo->fd->num;
 		}
-		if (clock_rate != 0) { 
+		if (clock_rate != 0) {
 			/* Maximum and mean jitter calculation */
 			if (statinfo->jitter > statinfo->max_jitter) {
 				statinfo->max_jitter = statinfo->jitter;

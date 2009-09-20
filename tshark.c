@@ -182,18 +182,10 @@ static void write_failure_message(const char *filename, int err);
 
 capture_file cfile;
 
-/*
- * Mark a particular frame.
- * Copied from file.c
- */
 void
-cf_mark_frame(capture_file *cf, frame_data *frame)
+cf_mark_frame(capture_file *cf _U_, frame_data *frame _U_)
 {
-  if (! frame->flags.marked) {
-    frame->flags.marked = TRUE;
-    if (cf->count > cf->marked_count)
-      cf->marked_count++;
-  }
+    g_assert_not_reached();
 }
 
 static void list_capture_types(void) {
