@@ -135,11 +135,18 @@ void register_all_py_protocols_func(register_cb cb, gpointer client_data)
   nothing = cb;
   nothing = client_data;
 
+  /* intialize the hash table where all the python dissectors are kept */
+  g_py_dissectors = g_hash_table_new(g_str_hash, g_str_equal);
+
   /* STA TODO : init only if prefs is enabled */
   wspy_init();
 
   /* load the python register module */
   py_reg = fopen(get_py_register_file(), "r");
+  if (py_reg == NULL) {
+    printf("no register file %s\n", get_py_register_file());
+    return;
+  }
   PyRun_SimpleFile(py_reg, get_py_register_file());
 
   /* Getting the global symbols from the python register module */
@@ -153,7 +160,6 @@ void register_all_py_protocols_func(register_cb cb, gpointer client_data)
   /* This function returns a sequence of python dissectors objects */
   py_args = Py_BuildValue("(s)", get_wspython_dir());
   py_dissectors = PyObject_CallObject(register_fn, py_args);
-  //py_dissectors = PyObject_CallObject(register_fn, NULL);
 
   /* Check that the py_dissectors is really a sequence */
   if (!PySequence_Check(py_dissectors)) {
@@ -161,19 +167,12 @@ void register_all_py_protocols_func(register_cb cb, gpointer client_data)
     return;
   }
 
-  /* intialize the hash table where all the python dissectors are kept */
-  g_py_dissectors = g_hash_table_new(g_str_hash, g_str_equal);
-
   /**
    * For each dissector, register it in cb and registers all fields, subtrees,
    * protocol name, etc ...
    */
-  for (index = 0; ; index++) {
-    py_dissector = PySequence_GetItem(py_dissectors, index);
-    if (!py_dissector)
-      break;
-    assert(py_dissector);
-
+  for (index = 0; (py_dissector = PySequence_GetItem(py_dissectors, index)); index++)
+  {
     name = py_dissector_name(py_dissector);
     py_dissector_register(py_dissector, name, cb, client_data);
     g_hash_table_insert(g_py_dissectors, (gpointer*)name, py_dissector);
