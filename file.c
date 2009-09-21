@@ -1068,28 +1068,159 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
     cf->rfcode = rfcode;
 }
 
+#ifdef NEW_PACKET_LIST
 static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 	dfilter_t *dfcode, gboolean filtering_tap_listeners,
 	guint tap_flags,
 	union wtap_pseudo_header *pseudo_header, const guchar *buf,
 	gboolean refilter,
-#ifdef NEW_PACKET_LIST
 	gboolean add_to_packet_list)
-#else
-	gboolean add_to_packet_list _U_)
-#endif
 {
   gboolean	create_proto_tree = FALSE;
   epan_dissect_t edt;
   column_info *cinfo;
   gint row = -1;
 
-#ifdef NEW_PACKET_LIST
   cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
+
+  /* just add some value here until we know if it is being displayed or not */
+  fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
+
+  /* If we don't have the time stamp of the first packet in the
+     capture, it's because this is the first packet.  Save the time
+     stamp of this packet as the time stamp of the first packet. */
+  if (nstime_is_unset(&first_ts)) {
+    first_ts  = fdata->abs_ts;
+  }
+  /* if this frames is marked as a reference time frame, reset
+     firstsec and firstusec to this frame */
+  if(fdata->flags.ref_time){
+    first_ts = fdata->abs_ts;
+  }
+
+  /* If we don't have the time stamp of the previous displayed packet,
+     it's because this is the first displayed packet.  Save the time
+     stamp of this packet as the time stamp of the previous displayed
+     packet. */
+  if (nstime_is_unset(&prev_dis_ts)) {
+    prev_dis_ts = fdata->abs_ts;
+  }
+
+  /* Get the time elapsed between the first packet and this packet. */
+  nstime_delta(&fdata->rel_ts, &fdata->abs_ts, &first_ts);
+
+  /* If it's greater than the current elapsed time, set the elapsed time
+     to it (we check for "greater than" so as not to be confused by
+     time moving backwards). */
+  if ((gint32)cf->elapsed_time.secs < fdata->rel_ts.secs
+  || ((gint32)cf->elapsed_time.secs == fdata->rel_ts.secs && (gint32)cf->elapsed_time.nsecs < fdata->rel_ts.nsecs)) {
+    cf->elapsed_time = fdata->rel_ts;
+  }
+
+  /* Get the time elapsed between the previous displayed packet and
+     this packet. */
+  nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
+
+  /* If either
+    + we have a display filter and are re-applying it;
+    + we have tap listeners with filters;
+    + we have tap listeners that require a protocol tree;
+
+     allocate a protocol tree root node, so that we'll construct
+     a protocol tree against which a filter expression can be
+     evaluated. */
+  if ((dfcode != NULL && refilter) ||
+      filtering_tap_listeners || (tap_flags & TL_REQUIRES_PROTO_TREE))
+      create_proto_tree = TRUE;
+
+  /* Dissect the frame. */
+  epan_dissect_init(&edt, create_proto_tree, FALSE);
+
+  if (dfcode != NULL && refilter) {
+      epan_dissect_prime_dfilter(&edt, dfcode);
+  }
+
+  tap_queue_init(&edt);
+  epan_dissect_run(&edt, pseudo_header, buf, fdata, cinfo);
+  tap_push_tapped_queue(&edt);
+
+  /* If we have a display filter, apply it if we're refiltering, otherwise
+     leave the "passed_dfilter" flag alone.
+
+     If we don't have a display filter, set "passed_dfilter" to 1. */
+  if (dfcode != NULL) {
+    if (refilter) {
+      fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, &edt) ? 1 : 0;
+    }
+  } else
+    fdata->flags.passed_dfilter = 1;
+
+  if (add_to_packet_list) {
+    /* We fill the needed columns from new_packet_list */
+      row = new_packet_list_append(cinfo, fdata, &edt.pi);
+  }
+
+  if( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) )
+  {
+    /* This frame either passed the display filter list or is marked as
+       a time reference frame.  All time reference frames are displayed
+       even if they dont pass the display filter */
+    if(fdata->flags.ref_time){
+      /* if this was a TIME REF frame we should reset the cul bytes field */
+      cum_bytes = fdata->pkt_len;
+      fdata->cum_bytes = cum_bytes;
+    } else {
+      /* increase cum_bytes with this packets length */
+      cum_bytes += fdata->pkt_len;
+    }
+
+    /* If we haven't yet seen the first frame, this is it.
+
+       XXX - we must do this before we add the row to the display,
+       as, if the display's GtkCList's selection mode is
+       GTK_SELECTION_BROWSE, when the first entry is added to it,
+       "cf_select_packet()" will be called, and it will fetch the row
+       data for the 0th row, and will get a null pointer rather than
+       "fdata", as "gtk_clist_append()" won't yet have returned and
+       thus "gtk_clist_set_row_data()" won't yet have been called.
+
+       We thus need to leave behind bread crumbs so that
+       "cf_select_packet()" can find this frame.  See the comment
+       in "cf_select_packet()". */
+    if (cf->first_displayed == NULL)
+      cf->first_displayed = fdata;
+
+    /* This is the last frame we've seen so far. */
+    cf->last_displayed = fdata;
+
+    /* Set the time of the previous displayed frame to the time of this
+       frame. */
+    prev_dis_ts = fdata->abs_ts;
+
+    cf->displayed_count++;
+  }
+
+  epan_dissect_cleanup(&edt);
+  return row;
+}
+
 #else
+
+static int
+add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
+	dfilter_t *dfcode, gboolean filtering_tap_listeners,
+	guint tap_flags,
+	union wtap_pseudo_header *pseudo_header, const guchar *buf,
+	gboolean refilter,
+	gboolean add_to_packet_list _U_)
+{
+  gboolean	create_proto_tree = FALSE;
+  epan_dissect_t edt;
+  column_info *cinfo;
+  gint row = -1;
+
   cinfo = &cf->cinfo;
-#endif
 
   /* just add some value here until we know if it is being displayed or not */
   fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
@@ -1145,10 +1276,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      a protocol tree against which a filter expression can be
      evaluated. */
   if ((dfcode != NULL && refilter) ||
-#ifndef NEW_PACKET_LIST
       color_filters_used() ||
       have_custom_cols(cinfo) ||
-#endif
       filtering_tap_listeners || (tap_flags & TL_REQUIRES_PROTO_TREE))
 	  create_proto_tree = TRUE;
 
@@ -1160,10 +1289,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   }
 
   /* prepare color filters */
-#ifndef NEW_PACKET_LIST
   color_filters_prime_edt(&edt);
   col_custom_prime_edt(&edt, cinfo);
-#endif
 
   tap_queue_init(&edt);
   epan_dissect_run(&edt, pseudo_header, buf, fdata, cinfo);
@@ -1180,13 +1307,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   } else
     fdata->flags.passed_dfilter = 1;
 
-#ifdef NEW_PACKET_LIST
-    if (add_to_packet_list) {
-		/* We fill the needed columns from new_packet_list */
-        row = new_packet_list_append(cinfo, fdata, &edt.pi);
-    }
-#endif
-
   if( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) )
   {
     /* This frame either passed the display filter list or is marked as
@@ -1201,9 +1321,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       cum_bytes += fdata->pkt_len;
     }
 
-#ifndef NEW_PACKET_LIST
     epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
-#endif
 
     /* If we haven't yet seen the first frame, this is it.
 
@@ -1224,7 +1342,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     /* This is the last frame we've seen so far. */
     cf->last_displayed = fdata;
 
-#ifndef NEW_PACKET_LIST
     row = packet_list_append(cinfo->col_data, fdata);
 
     /* colorize packet: first apply color filters
@@ -1236,7 +1353,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      if (fdata->flags.marked) {
        packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
      }
-#endif /* NEW_PACKET_LIST */
 
     /* Set the time of the previous displayed frame to the time of this
        frame. */
@@ -1248,6 +1364,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   epan_dissect_cleanup(&edt);
   return row;
 }
+#endif
 
 /* read in a new packet */
 /* returns the row of the new packet in the packet list or -1 if not displayed */
