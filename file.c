@@ -1085,7 +1085,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
   /* just add some value here until we know if it is being displayed or not */
-  fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
+  fdata->cum_bytes = cum_bytes + fdata->pkt_len;
 
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
@@ -1380,6 +1380,8 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   frame_data   *plist_end;
   int row = -1;
 
+  cf->count++;
+
   /* Allocate the next list entry, and add it to the list.
    * memory chunks have been deprecated in favor of the slice allocator,
    * which has been added in 2.10
@@ -1389,7 +1391,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
 #else
   fdata = g_mem_chunk_alloc(cf->plist_chunk);
 #endif
-  fdata->num = 0;
+  fdata->num = cf->count;
   fdata->next = NULL;
   fdata->prev = NULL;
   fdata->pfd  = NULL;
@@ -1435,15 +1437,17 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
       cf->plist = fdata;
     cf->plist_end = fdata;
 
-    cf->count++;
     cf->f_datalen = offset + phdr->caplen;
-    fdata->num = cf->count;
+
     if (!cf->redissecting) {
       row = add_packet_to_packet_list(fdata, cf, dfcode,
                                       filtering_tap_listeners, tap_flags,
                                       pseudo_header, buf, TRUE, TRUE);
     }
   } else {
+    /* We didn't pass read filter so roll back count */
+    cf->count--;
+
     /* XXX - if we didn't have read filters, or if we could avoid
        allocating the "frame_data" structure until we knew whether
        the frame passed the read filter, we could use a G_ALLOC_ONLY
