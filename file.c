@@ -333,9 +333,16 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 	G_ALLOC_AND_FREE);
   g_assert(cf->plist_chunk);
 #endif
+
+#ifdef NEW_PACKET_LIST
+  /* Adjust timestamp precision if auto is selected, col width will be adjusted */
+  cf_timestamp_auto_precision(cf);
+  /* XXX needed ? */
+  new_packet_list_queue_draw();
+#else
   /* change the time formats now, as we might have a new precision */
   cf_change_time_formats(cf);
-
+#endif
   fileset_file_opened(fname);
 
   if(cf->cd_t == WTAP_FILE_BER) {
@@ -3114,18 +3121,20 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
   return CF_PRINT_OK;
 }
 
+#ifndef NEW_PACKET_LIST /* This finction is not needed with the new packet list */
+
 /* Scan through the packet list and change all columns that use the
    "command-line-specified" time stamp format to use the current
    value of that format. */
 void
 cf_change_time_formats(capture_file *cf)
 {
+  int         i;
   frame_data *fdata;
   progdlg_t  *progbar = NULL;
   gboolean    stop_flag;
   int         count;
   int         row;
-  int         i;
   float       progbar_val;
   GTimeVal    start_time;
   gchar       status_str[100];
@@ -3133,8 +3142,7 @@ cf_change_time_formats(capture_file *cf)
   int         progbar_quantum;
   gboolean    sorted_by_frame_column;
 
-
-  /* adjust timestamp precision if auto is selected */
+  /* Adjust timestamp precision if auto is selected */
   cf_timestamp_auto_precision(cf);
 
   /* Are there any columns with time stamps in the "command-line-specified"
@@ -3156,11 +3164,7 @@ cf_change_time_formats(capture_file *cf)
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
-#ifdef NEW_PACKET_LIST
-  new_packet_list_freeze();
-#else
   packet_list_freeze();
-#endif
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
@@ -3188,9 +3192,7 @@ cf_change_time_formats(capture_file *cf)
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     if (cf->cinfo.col_fmt[i] == COL_NUMBER)
     {
-#ifndef NEW_PACKET_LIST
       sorted_by_frame_column = (i == packet_list_get_sort_column());
-#endif
       break;
     }
   }
@@ -3248,11 +3250,7 @@ cf_change_time_formats(capture_file *cf)
     /* Find what row this packet is in. */
     if (!sorted_by_frame_column) {
       /* This function is O(N), so we try to avoid using it... */
-#ifdef NEW_PACKET_LIST
-	  row = new_packet_list_find_row_from_data(fdata, FALSE);
-#else
       row = packet_list_find_row_from_data(fdata);
-#endif
     } else {
       /* ...which we do by maintaining a count of packets that are
          being displayed (i.e., that have passed the display filter),
@@ -3260,9 +3258,9 @@ cf_change_time_formats(capture_file *cf)
          (which is why we can only do it when the display is sorted
          by the frame number). */
       if (fdata->flags.passed_dfilter)
-	row++;
+	    row++;
       else
-	continue;
+	    continue;
     }
 
     if (row != -1) {
@@ -3274,10 +3272,7 @@ cf_change_time_formats(capture_file *cf)
              "command-line-specified" format; update it. */
           cf->cinfo.col_buf[i][0] = '\0';
           col_set_fmt_time(fdata, &cf->cinfo, cf->cinfo.col_fmt[i], i);
-#ifdef NEW_PACKET_LIST
-#else
           packet_list_set_text(row, i, cf->cinfo.col_data[i]);
-#endif
         }
       }
     }
@@ -3292,21 +3287,15 @@ cf_change_time_formats(capture_file *cf)
      "command-line-specified" format. */
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     if (col_has_time_fmt(&cf->cinfo, i)) {
-#ifdef NEW_PACKET_LIST
-      new_packet_list_resize_column(i);
-#else
       packet_list_set_time_width(cf->cinfo.col_fmt[i], i);
-#endif
     }
   }
 
   /* Unfreeze the packet list. */
-#ifdef NEW_PACKET_LIST
-  new_packet_list_thaw();
-#else
   packet_list_thaw();
-#endif
 }
+#endif /* NEW_PACKET_LIST */
+
 
 typedef struct {
 	const char	*string;

@@ -625,7 +625,12 @@ static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_
     case(ESD_BTN_YES):
         timestamp_set_type(TS_RELATIVE);
         recent.gui_time_format  = TS_RELATIVE;
+#ifdef NEW_PACKET_LIST
+		cf_timestamp_auto_precision(&cfile);
+		new_packet_list_queue_draw();
+#else
         cf_change_time_formats(&cfile);
+#endif
         break;
     case(ESD_BTN_NO):
         break;

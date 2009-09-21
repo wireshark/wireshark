@@ -2045,8 +2045,8 @@ timestamp_format_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
         timestamp_set_type(action);
         recent.gui_time_format = action;
 #ifdef NEW_PACKET_LIST
-		cf_timestamp_auto_precision(&cfile);
-		/* XXX Width should be adjusted */
+		/* This call adjusts column width */
+		cf_timestamp_auto_precision(&cfile);		
 		new_packet_list_queue_draw();
 #else
         cf_change_time_formats(&cfile);
@@ -2067,8 +2067,8 @@ timestamp_precision_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
         }
         recent.gui_time_precision  = action;
 #ifdef NEW_PACKET_LIST
+		/* This call adjusts column width */
 		cf_timestamp_auto_precision(&cfile);
-		/* XXX Width should be adjusted */
 		new_packet_list_queue_draw();
 #else
         cf_change_time_formats(&cfile);
