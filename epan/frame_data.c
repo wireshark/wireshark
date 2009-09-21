@@ -189,7 +189,8 @@ frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field
 }
 
 void
-frame_data_init(frame_data *fdata, capture_file *cf,
+frame_data_init(frame_data *fdata, guint32 num,
+                nstime_t *elapsed_time,
                 const struct wtap_pkthdr *phdr, gint64 offset,
                 guint32 *cum_bytes,
                 nstime_t *first_ts,
@@ -199,7 +200,7 @@ frame_data_init(frame_data *fdata, capture_file *cf,
   fdata->next = NULL;
   fdata->prev = NULL;
   fdata->pfd = NULL;
-  fdata->num = cf->count;
+  fdata->num = num;
   fdata->pkt_len = phdr->len;
   *cum_bytes += phdr->len;
   fdata->cum_bytes  = *cum_bytes;
@@ -238,9 +239,9 @@ frame_data_init(frame_data *fdata, capture_file *cf,
   /* If it's greater than the current elapsed time, set the elapsed time
      to it (we check for "greater than" so as not to be confused by
      time moving backwards). */
-  if ((gint32)cf->elapsed_time.secs < fdata->rel_ts.secs
-	|| ((gint32)cf->elapsed_time.secs == fdata->rel_ts.secs && (gint32)cf->elapsed_time.nsecs < fdata->rel_ts.nsecs)) {
-    cf->elapsed_time = fdata->rel_ts;
+  if ((gint32)elapsed_time->secs < fdata->rel_ts.secs
+	|| ((gint32)elapsed_time->secs == fdata->rel_ts.secs && (gint32)elapsed_time->nsecs < fdata->rel_ts.nsecs)) {
+    *elapsed_time = fdata->rel_ts;
   }
 
   /* If we don't have the time stamp of the previous displayed packet,

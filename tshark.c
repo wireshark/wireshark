@@ -183,13 +183,6 @@ static void failure_message(const char *msg_format, va_list ap);
 static void read_failure_message(const char *filename, int err);
 static void write_failure_message(const char *filename, int err);
 
-extern void frame_data_init(frame_data *fdata, capture_file *cf,
-                  const struct wtap_pkthdr *phdr, gint64 offset,
-                  guint32 *cum_bytes,
-                  nstime_t *first_ts,
-                  nstime_t *prev_dis_ts,
-                  nstime_t *prev_cap_ts);
-
 capture_file cfile;
 
 void
@@ -2354,8 +2347,8 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-    frame_data_init(&fdata, cf, whdr, offset,
-                    &cum_bytes, &first_ts, &prev_dis_ts, &prev_cap_ts);
+      frame_data_init(&fdata, cf->count, &cf->elapsed_time, whdr, offset,
+                      &cum_bytes, &first_ts, &prev_dis_ts, &prev_cap_ts);
 
     if (print_packet_info) {
       /* Grab any resolved addresses */

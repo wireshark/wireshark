@@ -158,13 +158,6 @@ static void write_failure_message(const char *filename, int err);
 static void protocolinfo_init(char *field);
 static gboolean parse_field_string_format(char *format);
 
-extern void frame_data_init(frame_data *fdata, capture_file *cf,
-                  const struct wtap_pkthdr *phdr, gint64 offset,
-                  guint32 *cum_bytes,
-                  nstime_t *first_ts,
-                  nstime_t *prev_dis_ts,
-                  nstime_t *prev_cap_ts);
-
 typedef enum {
 	SF_NONE,	/* No format (placeholder) */
 	SF_NAME,	/* %D Field name / description */
@@ -1028,7 +1021,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
-  frame_data_init(&fdata, cf, whdr, offset,
+  frame_data_init(&fdata, cf->count, &cf->elapsed_time, whdr, offset,
                   &cum_bytes, &first_ts, &prev_dis_ts, &prev_cap_ts);
 
   passed = TRUE;

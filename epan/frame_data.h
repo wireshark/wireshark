@@ -86,5 +86,13 @@ extern gint frame_data_compare(const frame_data *fdata1, const frame_data *fdata
 
 extern void frame_data_cleanup(frame_data *fdata);
 
+extern void frame_data_init(frame_data *fdata, guint32 num,
+                nstime_t *elapsed_time,
+                const struct wtap_pkthdr *phdr, gint64 offset,
+                guint32 *cum_bytes,
+                nstime_t *first_ts,
+                nstime_t *prev_dis_ts,
+                nstime_t *prev_cap_ts);
+
 #endif  /* __FRAME_DATA__ */
 
