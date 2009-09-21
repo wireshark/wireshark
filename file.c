@@ -507,15 +507,14 @@ cf_read(capture_file *cf)
 #ifdef HAVE_LIBPCAP
   volatile int displayed_once = 0;
 #endif
+  gboolean compiled;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
-  dfcode=NULL;
-  if(cf->dfilter){
-    dfilter_compile(cf->dfilter, &dfcode);
-  }
+  compiled = dfilter_compile(cf->dfilter, &dfcode);
+  g_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
@@ -764,15 +763,14 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   gboolean filtering_tap_listeners;
   guint tap_flags;
   volatile gboolean visible = FALSE;
+  gboolean compiled;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
-  dfcode=NULL;
-  if(cf->dfilter){
-    dfilter_compile(cf->dfilter, &dfcode);
-  }
+  compiled = dfilter_compile(cf->dfilter, &dfcode);
+  g_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
@@ -895,15 +893,14 @@ cf_finish_tail(capture_file *cf, int *err)
   dfilter_t   *dfcode;
   gboolean filtering_tap_listeners;
   guint tap_flags;
+  gboolean compiled;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
-  dfcode=NULL;
-  if(cf->dfilter){
-    dfilter_compile(cf->dfilter, &dfcode);
-  }
+  compiled = dfilter_compile(cf->dfilter, &dfcode);
+  g_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
@@ -1826,15 +1823,14 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   gboolean    filtering_tap_listeners;
   guint       tap_flags;
   gboolean    add_to_packet_list = TRUE;
+  gboolean compiled;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
-  dfcode=NULL;
-  if(cf->dfilter){
-    dfilter_compile(cf->dfilter, &dfcode);
-  }
+  compiled = dfilter_compile(cf->dfilter, &dfcode);
+  g_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
@@ -2121,15 +2117,14 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   gboolean    filtering_tap_listeners;
   guint       tap_flags;
   gboolean    add_to_packet_list = FALSE;
+  gboolean compiled;
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
-  dfcode=NULL;
-  if(cf->dfilter){
-    dfilter_compile(cf->dfilter, &dfcode);
-  }
+  compiled = dfilter_compile(cf->dfilter, &dfcode);
+  g_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
