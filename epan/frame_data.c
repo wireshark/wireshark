@@ -60,7 +60,6 @@ static gint p_compare(gconstpointer a, gconstpointer b)
 
 }
 
-
 void
 p_add_proto_data(frame_data *fd, int proto, void *proto_data)
 {
@@ -74,8 +73,8 @@ p_add_proto_data(frame_data *fd, int proto, void *proto_data)
   /* Add it to the GSLIST */
 
   fd -> pfd = g_slist_insert_sorted(fd -> pfd,
-				    (gpointer *)p1,
-				    p_compare);
+                    (gpointer *)p1,
+                    p_compare);
 
 }
 
@@ -140,52 +139,52 @@ p_remove_proto_data(frame_data *fd, int proto)
 gint
 frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field)
 {
-	switch (field) {
-		case COL_NUMBER:
-			return COMPARE_FRAME_NUM();
+    switch (field) {
+        case COL_NUMBER:
+            return COMPARE_FRAME_NUM();
 
-		case COL_CLS_TIME:
-			switch (timestamp_get_type()) {
-				case TS_ABSOLUTE:
-				case TS_ABSOLUTE_WITH_DATE:
-				case TS_EPOCH:
-					return COMPARE_TS(abs_ts);
+        case COL_CLS_TIME:
+            switch (timestamp_get_type()) {
+                case TS_ABSOLUTE:
+                case TS_ABSOLUTE_WITH_DATE:
+                case TS_EPOCH:
+                    return COMPARE_TS(abs_ts);
 
-				case TS_RELATIVE:
-					return COMPARE_TS(rel_ts);
+                case TS_RELATIVE:
+                    return COMPARE_TS(rel_ts);
 
-				case TS_DELTA:
-					return COMPARE_TS(del_cap_ts);
+                case TS_DELTA:
+                    return COMPARE_TS(del_cap_ts);
 
-				case TS_DELTA_DIS:
-					return COMPARE_TS(del_dis_ts);
+                case TS_DELTA_DIS:
+                    return COMPARE_TS(del_dis_ts);
 
-				case TS_NOT_SET:
-					return 0;
-			}
-			return 0;
+                case TS_NOT_SET:
+                    return 0;
+            }
+            return 0;
 
-		case COL_ABS_TIME:
-		case COL_ABS_DATE_TIME:
-			return COMPARE_TS(abs_ts);
+        case COL_ABS_TIME:
+        case COL_ABS_DATE_TIME:
+            return COMPARE_TS(abs_ts);
 
-		case COL_REL_TIME:
-			return COMPARE_TS(rel_ts);
+        case COL_REL_TIME:
+            return COMPARE_TS(rel_ts);
 
-		case COL_DELTA_TIME:
-			return COMPARE_TS(del_cap_ts);
+        case COL_DELTA_TIME:
+            return COMPARE_TS(del_cap_ts);
 
-		case COL_DELTA_TIME_DIS:
-			return COMPARE_TS(del_dis_ts);
+        case COL_DELTA_TIME_DIS:
+            return COMPARE_TS(del_dis_ts);
 
-		case COL_PACKET_LENGTH:
-			return COMPARE_NUM(pkt_len);
+        case COL_PACKET_LENGTH:
+            return COMPARE_NUM(pkt_len);
 
-		case COL_CUMULATIVE_BYTES:
-			return COMPARE_NUM(cum_bytes);
+        case COL_CUMULATIVE_BYTES:
+            return COMPARE_NUM(cum_bytes);
 
-	}
-	g_return_val_if_reached(0);
+    }
+    g_return_val_if_reached(0);
 }
 
 void
@@ -217,6 +216,10 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->flags.marked = 0;
   fdata->flags.ref_time = 0;
   fdata->color_filter = NULL;
+#ifdef NEW_PACKET_LIST
+  fdata->col_text_len = NULL;
+  fdata->col_text = NULL;
+#endif
 
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
@@ -240,7 +243,7 @@ frame_data_init(frame_data *fdata, guint32 num,
      to it (we check for "greater than" so as not to be confused by
      time moving backwards). */
   if ((gint32)elapsed_time->secs < fdata->rel_ts.secs
-	|| ((gint32)elapsed_time->secs == fdata->rel_ts.secs && (gint32)elapsed_time->nsecs < fdata->rel_ts.nsecs)) {
+    || ((gint32)elapsed_time->secs == fdata->rel_ts.secs && (gint32)elapsed_time->nsecs < fdata->rel_ts.nsecs)) {
     *elapsed_time = fdata->rel_ts;
   }
 
