@@ -465,7 +465,7 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 		/* There's no padding/alignment involved (from our point of view) when
 		 * we fetch the memory directly from the system pool, so WYSIWYG */
 		npc->free_offset = npc->free_offset_init = 0;
-		npc->amount_free = npc->amount_free_init = size;
+		npc->amount_free = npc->amount_free_init = (unsigned int) size;
 	}
 
 	return buf;
