@@ -1,6 +1,6 @@
 /* wspy_proto.c
  *
- * $Id: $
+ * $Id$
  *
  * Wireshark Protocol Python Binding
  *

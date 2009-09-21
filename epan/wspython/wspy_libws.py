@@ -1,6 +1,6 @@
 # wspy_libws.py
 #
-# $Id: $
+# $Id$
 #
 # Wireshark Protocol Python Binding
 #
