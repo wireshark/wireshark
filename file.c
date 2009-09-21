@@ -318,9 +318,11 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
     cf->snap = WTAP_MAX_PACKET_SIZE;
   } else
     cf->has_snap = TRUE;
+
   nstime_set_zero(&cf->elapsed_time);
   nstime_set_unset(&first_ts);
   nstime_set_unset(&prev_dis_ts);
+  cum_bytes = 0;
 
 #if GLIB_CHECK_VERSION(2,10,0)
 #else
@@ -520,8 +522,6 @@ cf_read(capture_file *cf)
 
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
-
-  cum_bytes=0;
 
   reset_tap_listeners();
 
