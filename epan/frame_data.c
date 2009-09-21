@@ -228,6 +228,19 @@ frame_data_init(frame_data *fdata, guint32 num,
     *first_ts = fdata->abs_ts;
   }
 
+  /* if this frames is marked as a reference time frame, reset
+     firstsec and firstusec to this frame */
+  if(fdata->flags.ref_time){
+    *first_ts = fdata->abs_ts;
+  }
+
+  /* If we don't have the time stamp of the previous displayed packet,
+     it's because this is the first packet that's being displayed.  Save the time
+     stamp of this packet as the time stamp of the previous displayed
+     packet. */
+  if (nstime_is_unset(prev_dis_ts))
+    *prev_dis_ts = fdata->abs_ts;
+
   /* If we don't have the time stamp of the previous captured packet,
      it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the previous captured
@@ -246,13 +259,6 @@ frame_data_init(frame_data *fdata, guint32 num,
     || ((gint32)elapsed_time->secs == fdata->rel_ts.secs && (gint32)elapsed_time->nsecs < fdata->rel_ts.nsecs)) {
     *elapsed_time = fdata->rel_ts;
   }
-
-  /* If we don't have the time stamp of the previous displayed packet,
-     it's because this is the first packet that's being displayed.  Save the time
-     stamp of this packet as the time stamp of the previous displayed
-     packet. */
-  if (nstime_is_unset(prev_dis_ts))
-    *prev_dis_ts = fdata->abs_ts;
 
   /* Get the time elapsed between the previous displayed packet and
      this packet. */

@@ -1089,6 +1089,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (nstime_is_unset(&first_ts)) {
     first_ts  = fdata->abs_ts;
   }
+
   /* if this frames is marked as a reference time frame, reset
      firstsec and firstusec to this frame */
   if(fdata->flags.ref_time){
@@ -1170,7 +1171,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       row = new_packet_list_append(cinfo, fdata, &edt.pi);
   }
 
-  if( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) )
+  if(fdata->flags.passed_dfilter || fdata->flags.ref_time)
   {
     /* This frame either passed the display filter list or is marked as
        a time reference frame.  All time reference frames are displayed
@@ -1184,6 +1185,10 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       cum_bytes += fdata->pkt_len;
       fdata->cum_bytes = cum_bytes;
     }
+
+    /* Set the time of the previous displayed frame to the time of this
+       frame. */
+    prev_dis_ts = fdata->abs_ts;
 
     /* If we haven't yet seen the first frame, this is it.
 
@@ -1203,10 +1208,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
     /* This is the last frame we've seen so far. */
     cf->last_displayed = fdata;
-
-    /* Set the time of the previous displayed frame to the time of this
-       frame. */
-    prev_dis_ts = fdata->abs_ts;
 
     cf->displayed_count++;
   }
