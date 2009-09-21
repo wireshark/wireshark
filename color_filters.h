@@ -103,7 +103,7 @@ void color_filters_prime_edt(epan_dissect_t *edt);
  * @param edt the dissected packet
  * @return the matching color filter or NULL
  */
-color_filter_t *
+const color_filter_t *
 #ifdef NEW_PACKET_LIST
 color_filters_colorize_packet(epan_dissect_t *edt);
 #else

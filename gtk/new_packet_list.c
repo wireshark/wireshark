@@ -692,7 +692,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 		}else{
 			color_t fg_color_t;
 			color_t bg_color_t;
-			color_filter_t *color_filter = fdata->color_filter;
+			const color_filter_t *color_filter = fdata->color_filter;
 
 			fg_color_t = color_filter->fg_color;
 			bg_color_t = color_filter->bg_color;

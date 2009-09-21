@@ -441,7 +441,7 @@ color_filters_prime_edt(epan_dissect_t *edt)
 /* Colorize a single packet of the packet list (old packet list)
  *
  * Return the color_t for later use (new packet list) */
-color_filter_t *
+const color_filter_t *
 #ifdef NEW_PACKET_LIST
 color_filters_colorize_packet(epan_dissect_t *edt)
 #else

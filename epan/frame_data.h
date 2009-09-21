@@ -54,7 +54,7 @@ typedef struct _frame_data {
     unsigned int ref_time       : 1; /* 1 = marked as a reference time frame, 0 = normal */
   } flags;
 
-  void *color_filter;       /* Per-packet matching color_filter_t object */
+  const void *color_filter; /* Per-packet matching color_filter_t object */
 
   nstime_t     abs_ts;      /* Absolute timestamp */
   nstime_t     rel_ts;      /* Relative timestamp (yes, it can be negative) */
