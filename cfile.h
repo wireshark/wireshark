@@ -92,9 +92,8 @@ typedef struct _capture_file {
   gint         current_row;     /* Row number for current frame */
   epan_dissect_t *edt;          /* Protocol dissection for currently selected packet */
   field_info  *finfo_selected;	/* Field info for currently selected field */
-  struct ph_stats_s* pstats;    /* accumulated stats (reset on redisplay in GUI)*/
 } capture_file;
 
-void init_cap_file(capture_file *);
+void init_cap_file(capture_file *cf);
 
 #endif /* cfile.h */
