@@ -1275,16 +1275,17 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   /* To save some memory, we coarcese it into a gint8 */
   g_assert(phdr->pkt_encap <= G_MAXINT8);
   fdata->lnk_t = (gint8) phdr->pkt_encap;
+  fdata->abs_ts.secs = phdr->ts.secs;
+  fdata->abs_ts.nsecs = phdr->ts.nsecs;
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;
   fdata->flags.marked = 0;
   fdata->flags.ref_time = 0;
   fdata->color_filter = NULL;
-
-  fdata->abs_ts.secs = phdr->ts.secs;
-  fdata->abs_ts.nsecs = phdr->ts.nsecs;
+#ifdef NEW_PACKET_LIST
   fdata->col_text_len = se_alloc0(sizeof(fdata->col_text_len) * (cf->cinfo.num_cols));
   fdata->col_text = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
+#endif
 
   if (cf->plist_end != NULL)
     nstime_delta(&fdata->del_cap_ts, &fdata->abs_ts, &cf->plist_end->abs_ts);
@@ -1300,6 +1301,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
     passed = dfilter_apply_edt(cf->rfcode, &edt);
     epan_dissect_cleanup(&edt);
   }
+
   if (passed) {
     plist_end = cf->plist_end;
     fdata->prev = plist_end;
