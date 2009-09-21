@@ -1083,9 +1083,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
-  /* just add some value here until we know if it is being displayed or not */
-  fdata->cum_bytes = cum_bytes + fdata->pkt_len;
-
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the first packet. */
@@ -1185,6 +1182,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     } else {
       /* increase cum_bytes with this packets length */
       cum_bytes += fdata->pkt_len;
+      fdata->cum_bytes = cum_bytes;
     }
 
     /* If we haven't yet seen the first frame, this is it.
