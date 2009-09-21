@@ -2413,10 +2413,8 @@ ref_time_packets(capture_file *cf)
   cum_bytes = 0;
 
   for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
-
-    fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
     /* just add some value here until we know if it is being displayed or not */
-    fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
+    fdata->cum_bytes = cum_bytes + fdata->pkt_len;
 
     /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
