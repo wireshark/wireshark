@@ -49,7 +49,6 @@ typedef struct _capture_file {
   gint64       f_datalen;       /* Size of capture file data (uncompressed) */
   guint16      cd_t;            /* File type of capture file */
   int          lnk_t;           /* Link-layer type with which to save capture */
-  guint32      vers;            /* Version.  For tcpdump minor is appended to major */
   int          count;           /* Total number of frames */
   int          displayed_count; /* Number of displayed frames */
   int          marked_count;    /* Number of marked frames */
