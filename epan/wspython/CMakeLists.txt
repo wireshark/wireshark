@@ -30,3 +30,18 @@ add_library(wspython STATIC
 	${WSPYTHON_FILES}
 )
 
+install(PROGRAMS
+		register-dissector.py
+		wspy_dissector.py
+		wspy_libws.py
+	DESTINATION	
+		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}/python/${CPACK_PACKAGE_VERSION}
+)
+
+
+install(DIRECTORY
+		wspy_dissectors
+	DESTINATION	
+		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}/python/${CPACK_PACKAGE_VERSION}
+        PATTERN ".svn" EXCLUDE
+)

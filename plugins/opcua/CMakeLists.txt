@@ -22,12 +22,25 @@
 #
 
 set(DISSECTOR_SRC
-	packet-asn1.c
+	opcua.c
+)
+
+set(DISSECTOR_SUPPORT_SRC
+	opcua_transport_layer.c
+	opcua_security_layer.c
+	opcua_application_layer.c
+	opcua_serviceparser.c
+	opcua_complextypeparser.c
+	opcua_enumparser.c
+	opcua_simpletypes.c
+	opcua_servicetable.c
+	opcua_hfindeces.c
 )
 
 set(PLUGIN_FILES
 	plugin.c
 	${DISSECTOR_SRC}
+	${DISSECTOR_SUPPORT_SRC}
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -35,16 +48,16 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 ADD_CUSTOM_COMMAND(
 # FIXME: Only the Python stuff has been implemented
 #        Make this into a MACRO, to avoid duplication with epan/
-#plugin.c: $(DISSECTOR_SRC) $(top_srcdir)/tools/make-dissector-reg \
+#plugin.c: $(DISSECTOR_SRC) $(top_srcdir)/tools/make-dissector-reg
 #    $(top_srcdir)/tools/make-dissector-reg.py
-#        @if test -n "$(PYTHON)"; then \
-#                echo Making plugin.c with python ; \
-#                $(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
-#                    plugin $(DISSECTOR_SRC) ; \
-#        else \
-#                echo Making plugin.c with shell script ; \
-#                $(top_srcdir)/tools/make-dissector-reg $(srcdir) \
-#                    $(plugin_src) plugin $(DISSECTOR_SRC) ; \
+#        @if test -n "$(PYTHON)"; then
+#                echo Making plugin.c with python ;
+#                $(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir)
+#                    plugin $(DISSECTOR_SRC) ;
+#        else
+#                echo Making plugin.c with shell script ;
+#                $(top_srcdir)/tools/make-dissector-reg $(srcdir)
+#                    $(plugin_src) plugin $(DISSECTOR_SRC) ;
 #        fi
 
     OUTPUT plugin.c
@@ -63,11 +76,11 @@ ADD_CUSTOM_COMMAND(
 # Do I need any of this or is this handled by type MODULE?
 # asn1_la_LDFLAGS = -module -avoid-version
 
-add_library(asn1 MODULE
+add_library(opcua MODULE
 	${PLUGIN_FILES}
 )
 
-install(TARGETS asn1
+install(TARGETS opcua
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
         RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}

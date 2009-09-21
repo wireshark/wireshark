@@ -1,16 +1,22 @@
 /* cmakeconfig.h.in */
 
-/* Version number of package */
-#define VERSION "@CPACK_PACKAGE_VERSION@"
+/* Note: You cannot use earlier #defines in later #cmakedefines (cmake 2.6.2). */
 
+/* Version number of package */
+#define VERSION "${CPACK_PACKAGE_VERSION}"
+
+/* FIXME: Move the path stuff to the CMakeInstallDirs.cmake file */
 /* Directory for data */
-#define DATAFILE_DIR "@CMAKE_INSTALL_PREFIX@/share/@CPACK_PACKAGE_NAME@"
+#define DATAFILE_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}"
+
+/* Path to Python. */
+#cmakedefine PYTHON_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}/python/${CPACK_PACKAGE_VERSION}"
+
+/* Directory where plugins reside */
+#define PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}"
 
 /* Define to 1 if we want to enable plugins */
 #cmakedefine HAVE_PLUGINS 1
-
-/* Directory where plugins reside */
-#define PLUGIN_DIR "${DATAFILE_DIR}/plugins/${CPACK_PACKAGE_VERSION}"
 
 /* Link plugins statically into Wireshark */
 #cmakedefine ENABLE_STATIC 1
@@ -122,9 +128,6 @@
 
 /* Define to 1 if you have libpython. */
 #cmakedefine HAVE_PYTHON 1
-
-/* Path to Python. */
-#cmakedefine PYTHON_DIR "${CMAKE_INSTALL_PREFIX}/lib/${CPACK_PACKAGE_NAME}/python/${VERSION}"
 
 /* Define to 1 if you have the <memory.h> header file. */
 #cmakedefine HAVE_MEMORY_H 1

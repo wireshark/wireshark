@@ -316,12 +316,12 @@ if(ENABLE_PLUGINS)
 		plugins/asn1
 		plugins/docsis
 		plugins/ethercat
-		plugins/giop
+#		plugins/giop
 		plugins/gryphon
 		plugins/irda
 		plugins/m2m
 		plugins/mate
-#		plugins/opcua
+		plugins/opcua
 #		plugins/profinet
 #		plugins/sercosiii
 #		plugins/stats_tree
@@ -485,6 +485,41 @@ set(TSHARK_TAP_SRC
         tap-smbstat.c
         tap-stats_tree.c
         tap-wspstat.c
+)
+
+set(INSTALL_DIRS
+	diameter
+	dtds
+	help
+	radius
+	tpncp
+	wimaxasncp
+)
+
+set(INSTALL_FILES
+#	AUTHORS-SHORT
+	COPYING
+#	capinfos.html
+#	cfilters
+#	colorfilters
+#	console.lua
+#	dfilters
+#	dtd_gen.lua
+#	dumpcap.html
+#	editcap.html
+#	idl2wrs.html
+#	init.lua
+#	ipmap.html
+#	manuf
+#	mergecap.html
+#	rawshark.html
+#	services
+#	smi_modules
+#	text2pcap.html
+#	tshark.html
+#	wireshark-filter.html
+#	wireshark.html
+#	ws.css
 )
 
 set(LIBEPAN_LIBS
@@ -716,3 +751,19 @@ if(BUILD_dumpcap)
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
 	install(TARGETS dumpcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
+
+install(
+	FILES
+		${INSTALL_FILES}
+	DESTINATION
+		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
+)
+
+install(
+	DIRECTORY
+		${INSTALL_DIRS}
+	DESTINATION
+		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
+	PATTERN ".svn" EXCLUDE
+	PATTERN "Makefile.*" EXCLUDE
+)
