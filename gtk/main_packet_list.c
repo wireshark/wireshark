@@ -257,7 +257,7 @@ set_frame_mark(gboolean set, frame_data *frame, gint row)
     gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
     gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
   } else {
-    color_filter_t *cfilter = frame->color_filter;
+    const color_filter_t *cfilter = frame->color_filter;
 
     cf_unmark_frame(&cfile, frame);
     /* Restore the color from the matching color filter if any */
