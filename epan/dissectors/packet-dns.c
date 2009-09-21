@@ -149,11 +149,16 @@ typedef struct _dns_conv_info_t {
 /* DNS structs and definitions */
 
 /* Ports used for DNS. */
-#define UDP_PORT_DNS     53
-#define TCP_PORT_DNS     53
-#define UDP_PORT_MDNS    5353
-#define TCP_PORT_MDNS    5353
-#define UDP_PORT_LLMNR   5355
+#define UDP_PORT_DNS            53
+#define TCP_PORT_DNS            53
+#define SCTP_PORT_DNS           53
+#define UDP_PORT_MDNS           5353
+#define TCP_PORT_MDNS           5353
+#define UDP_PORT_LLMNR          5355
+#if 0
+/* PPID used for DNS/SCTP (will be changed when IANA assgined) */
+#define DNS_PAYLOAD_PROTOCOL_ID 1000
+#endif
 
 /* Offsets of fields in the DNS header. */
 #define	DNS_ID		0
@@ -3326,6 +3331,14 @@ dissect_dns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_dns_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
+
+  dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE, FALSE);
+}
+
+static void
 dissect_mdns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDNS");
@@ -3658,11 +3671,13 @@ proto_reg_handoff_dns(void)
 {
   dissector_handle_t dns_udp_handle;
   dissector_handle_t dns_tcp_handle;
+  dissector_handle_t dns_sctp_handle;
   dissector_handle_t mdns_udp_handle;
   dissector_handle_t llmnr_udp_handle;
 
   dns_udp_handle = create_dissector_handle(dissect_dns_udp, proto_dns);
   dns_tcp_handle = create_dissector_handle(dissect_dns_tcp, proto_dns);
+  dns_sctp_handle = create_dissector_handle(dissect_dns_sctp, proto_dns);
   mdns_udp_handle = create_dissector_handle(dissect_mdns_udp, proto_dns);
   llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_dns);
 
@@ -3671,6 +3686,10 @@ proto_reg_handoff_dns(void)
   dissector_add("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
   dissector_add("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
   dissector_add("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);
+  dissector_add("sctp.port", SCTP_PORT_DNS, dns_sctp_handle);
+#if 0
+  dissector_add("sctp.ppi",  DNS_PAYLOAD_PROTOCOL_ID, dns_sctp_handle);
+#endif
 
   gssapi_handle = find_dissector("gssapi");
   ntlmssp_handle = find_dissector("ntlmssp");
