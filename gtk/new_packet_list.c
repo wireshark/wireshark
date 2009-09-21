@@ -293,8 +293,7 @@ void new_packet_list_resize_column(gint col)
 	gint col_width;
 
 	column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col);
-	layout = gtk_widget_create_pango_layout(packetlist->view,
-										  packet_list_get_widest_column_string(packetlist, col));
+	layout = gtk_widget_create_pango_layout(packetlist->view, packet_list_get_widest_column_string(packetlist, col));
 	pango_layout_get_pixel_size(layout, &col_width, NULL);
 	gtk_tree_view_column_set_fixed_width(column, col_width);
 	g_object_unref(G_OBJECT(layout));
