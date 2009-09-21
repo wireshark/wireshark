@@ -1800,7 +1800,7 @@ cf_redissect_packets(capture_file *cf)
 /* Rescan packets with "old" packet list */
 #ifndef NEW_PACKET_LIST
 static void
-rescan_packets_old(capture_file *cf, const char *action, const char *action_item,
+rescan_packets(capture_file *cf, const char *action, const char *action_item,
 		gboolean refilter, gboolean redissect)
 {
   frame_data *fdata;
@@ -2090,16 +2090,13 @@ rescan_packets_old(capture_file *cf, const char *action, const char *action_item
     dfilter_free(dfcode);
   }
 }
-#endif /* NEW_PACKET_LIST rescan_packets_old*/
+
+#else
 
 static void
 rescan_packets(capture_file *cf, const char *action, const char *action_item,
 		gboolean refilter, gboolean redissect)
 {
-#ifndef NEW_PACKET_LIST
-	rescan_packets_old(cf, action, action_item, refilter, redissect);
-}
-#else
 	/* Rescan packets new packet list */
   frame_data *fdata;
   progdlg_t  *progbar = NULL;
@@ -2403,6 +2400,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   }
 }
 #endif /* NEW_PACKET_LIST */
+
 /*
  * Scan trough all frame data and recalculate the ref time
  * without rereading the file.
