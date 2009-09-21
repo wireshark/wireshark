@@ -121,7 +121,7 @@
  */
 static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_as_protocol>";
 
-static guint32 cum_bytes = 0;
+static guint32 cum_bytes;
 static nstime_t first_ts;
 static nstime_t prev_dis_ts;
 static nstime_t prev_cap_ts;

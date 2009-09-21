@@ -77,9 +77,11 @@
 gboolean auto_scroll_live;
 #endif
 
+static guint32 cum_bytes;
 static nstime_t first_ts;
 static nstime_t prev_dis_ts;
-static guint32 cum_bytes;
+static nstime_t prev_cap_ts;
+
 static gulong computed_elapsed;
 
 static void cf_reset_state(capture_file *cf);
@@ -321,6 +323,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   nstime_set_zero(&cf->elapsed_time);
   nstime_set_unset(&first_ts);
   nstime_set_unset(&prev_dis_ts);
+  nstime_set_unset(&prev_cap_ts);
   cum_bytes = 0;
 
 #if GLIB_CHECK_VERSION(2,10,0)
@@ -1103,6 +1106,14 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     prev_dis_ts = fdata->abs_ts;
   }
 
+  /* If we don't have the time stamp of the previous captured packet,
+     it's because this is the first packet.  Save the time
+     stamp of this packet as the time stamp of the previous captured
+     packet. */
+  if (nstime_is_unset(&prev_cap_ts)) {
+    prev_cap_ts = fdata->abs_ts;
+  }
+
   /* Get the time elapsed between the first packet and this packet. */
   nstime_delta(&fdata->rel_ts, &fdata->abs_ts, &first_ts);
 
@@ -1117,6 +1128,11 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   /* Get the time elapsed between the previous displayed packet and
      this packet. */
   nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
+
+  /* Get the time elapsed between the previous captured packet and
+     this packet. */
+  nstime_delta(&fdata->del_cap_ts, &fdata->abs_ts, &prev_cap_ts);
+  prev_cap_ts = fdata->abs_ts;
 
   /* If either
     + we have a display filter and are re-applying it;
@@ -1408,11 +1424,6 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   fdata->col_text_len = se_alloc0(sizeof(fdata->col_text_len) * (cf->cinfo.num_cols));
   fdata->col_text = se_alloc0(sizeof(fdata->col_text) * (cf->cinfo.num_cols));
 #endif
-
-  if (cf->plist_end != NULL)
-    nstime_delta(&fdata->del_cap_ts, &fdata->abs_ts, &cf->plist_end->abs_ts);
-  else
-    nstime_set_zero(&fdata->del_cap_ts);
 
   passed = TRUE;
   if (cf->rfcode) {
@@ -1885,6 +1896,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
      the display list. */
   nstime_set_unset(&first_ts);
   nstime_set_unset(&prev_dis_ts);
+  nstime_set_unset(&prev_cap_ts);
   cum_bytes = 0;
 
   /* Update the progress bar when it gets to this value. */
@@ -2410,6 +2422,7 @@ ref_time_packets(capture_file *cf)
 
   nstime_set_unset(&first_ts);
   nstime_set_unset(&prev_dis_ts);
+  nstime_set_unset(&prev_cap_ts);
   cum_bytes = 0;
 
   for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
