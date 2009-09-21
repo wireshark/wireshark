@@ -3233,7 +3233,7 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
   return CF_PRINT_OK;
 }
 
-#ifndef NEW_PACKET_LIST /* This finction is not needed with the new packet list */
+#ifndef NEW_PACKET_LIST /* This function is not needed with the new packet list */
 
 /* Scan through the packet list and change all columns that use the
    "command-line-specified" time stamp format to use the current
