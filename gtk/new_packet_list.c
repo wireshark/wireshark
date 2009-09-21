@@ -70,7 +70,7 @@ static gboolean last_at_end = FALSE;
 static gboolean enable_color;
 
 static GtkWidget *create_view_and_model(void);
-static void scroll_to_and_select_iter(GtkTreeIter *iter);
+static void scroll_to_and_select_iter(GtkTreeModel *model, GtkTreeSelection *selection, GtkTreeIter *iter);
 static void new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_);
 static void new_packet_list_double_click_cb(GtkTreeView *treeview,
 					    GtkTreePath *path,
@@ -81,6 +81,7 @@ static void show_cell_data_func(GtkTreeViewColumn *col,
 				GtkTreeModel *model,
 				GtkTreeIter *iter,
 				gpointer data);
+static guint row_number_from_iter(GtkTreeIter *iter);
 
 GtkWidget *
 new_packet_list_create(void)
@@ -206,8 +207,20 @@ create_view_and_model(void)
 		/* Set the size the column will be displayed with */
 		col_width = recent_get_column_width(i);
 		if(col_width < 1) {
-			layout = gtk_widget_create_pango_layout(packetlist->view, get_column_width_string(get_column_format(i), i));
-			pango_layout_get_pixel_size(layout, &col_width, NULL);
+			gint fmt;
+			const gchar *long_str;
+
+			fmt = get_column_format(i);
+			long_str = get_column_width_string(fmt, i);
+			layout = gtk_widget_create_pango_layout(packetlist->view, long_str);
+			/*  the logical width and height of a PangoLayout in device units */
+			pango_layout_get_pixel_size(layout, 
+				&col_width, /* width */ 
+				NULL); /* height */
+			if (col_width < 1){
+				g_warning("*** Error: A column width of %u passed to gtk_tree_view_column_set_fixed_width()\n"
+					"column %u Long string  %s format %u",col_width,i,long_str, fmt );
+			}
 			gtk_tree_view_column_set_fixed_width(col, col_width);
 			g_object_unref(G_OBJECT(layout));
 		}else{
@@ -268,7 +281,9 @@ new_packet_list_thaw(void)
 void
 new_packet_list_recreate_visible_rows(void)
 {
+
 	packet_list_recreate_visible_rows(packetlist);
+
 }
 
 void new_packet_list_resize_column(gint col)
@@ -312,14 +327,14 @@ new_packet_list_next(void)
 	GtkWidget *focus = gtk_window_get_focus(GTK_WINDOW(top_level)); 
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
-	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
+	/* model is filled with the current model as a convenience. */
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 		return;
 
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	if (!gtk_tree_model_iter_next(model, &iter))
 		return;
 
-	scroll_to_and_select_iter(&iter);
+	scroll_to_and_select_iter(model, selection, &iter);
 
 	/* Set the focus back where it was */
 	if (focus)
@@ -336,10 +351,10 @@ new_packet_list_prev(void)
 	GtkWidget *focus = gtk_window_get_focus(GTK_WINDOW(top_level));
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
-	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
+	/* model is filled with the current model as a convenience. */
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 		return;
 
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	path = gtk_tree_model_get_path(model, &iter);
 
 	if (!gtk_tree_path_prev(path))
@@ -348,7 +363,7 @@ new_packet_list_prev(void)
 	if (!gtk_tree_model_get_iter(model, &iter, path))
 		return;
 
-	scroll_to_and_select_iter(&iter);
+	scroll_to_and_select_iter(model, selection, &iter);
 
 	gtk_tree_path_free(path);
 
@@ -358,16 +373,15 @@ new_packet_list_prev(void)
 }
 
 static void
-scroll_to_and_select_iter(GtkTreeIter *iter)
+scroll_to_and_select_iter(GtkTreeModel *model, GtkTreeSelection *selection, GtkTreeIter *iter)
 {
-	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
-	GtkTreeSelection *selection;
 	GtkTreePath *path;
 
 	g_assert(model);
 
 	/* Select the row */
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	if(!selection)
+		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	gtk_tree_selection_select_iter (selection, iter);
 	path = gtk_tree_model_get_path(model, iter);
 	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(packetlist->view),
@@ -396,7 +410,7 @@ new_packet_list_select_first_row(void)
 	if(!gtk_tree_model_get_iter_first(model, &iter))
 		return;
 
-	scroll_to_and_select_iter(&iter);
+	scroll_to_and_select_iter(model, NULL, &iter);
 }
 
 void
@@ -414,7 +428,7 @@ new_packet_list_select_last_row(void)
 	if(!gtk_tree_model_iter_nth_child(model, &iter, NULL, last_row))
 		return;
 
-	scroll_to_and_select_iter(&iter);
+	scroll_to_and_select_iter(model, NULL, &iter);
 }
 
 void
@@ -494,7 +508,7 @@ new_packet_list_find_row_from_data(gpointer data, gboolean select)
 
 		if(fdata == fdata_needle) {
 			if(select)
-				scroll_to_and_select_iter(&iter);
+				scroll_to_and_select_iter(model, NULL, &iter);
 
 			return fdata->num;
 		}
@@ -760,13 +774,14 @@ new_packet_list_set_font(PangoFontDescription *font)
 
 void new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
+	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
 	PacketListRecord *record;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
-	gtk_tree_selection_get_selected(selection, NULL, &iter);
+	/* model is filled with the current model as a convenience. */
+	gtk_tree_selection_get_selected(selection, &model, &iter);
 	record = new_packet_list_get_record(model, &iter);
 
 	set_frame_mark(!record->fdata->flags.marked, record->fdata);
@@ -797,7 +812,7 @@ new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, gint copy_
 	gint col;
 	gchar *celltext;
 	GString* text;
-	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
+	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
 	PacketListRecord *record;
@@ -810,7 +825,8 @@ new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, gint copy_
 
 	if (cfile.current_frame) {
 		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
-		gtk_tree_selection_get_selected(selection, NULL, &iter);
+		/* model is filled with the current model as a convenience.  */
+		gtk_tree_selection_get_selected(selection, &model, &iter);
 		record = new_packet_list_get_record(model, &iter);
 		for(col = 0; col < cfile.cinfo.num_cols; ++col) {
 			if(col != 0) {
