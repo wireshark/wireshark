@@ -462,6 +462,10 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 		npc->canary_info = NULL;
 		buf = npc->buf;
 		mem->used_list=npc;
+		/* There's no padding/alignment involved (from our point of view) when
+		 * we fetch the memory directly from the system pool, so WYSIWYG */
+		npc->free_offset = npc->free_offset_init = 0;
+		npc->amount_free = npc->amount_free_init = size;
 	}
 
 	return buf;
