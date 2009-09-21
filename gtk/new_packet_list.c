@@ -214,8 +214,8 @@ create_view_and_model(void)
 			long_str = get_column_width_string(fmt, i);
 			layout = gtk_widget_create_pango_layout(packetlist->view, long_str);
 			/*  the logical width and height of a PangoLayout in device units */
-			pango_layout_get_pixel_size(layout, 
-				&col_width, /* width */ 
+			pango_layout_get_pixel_size(layout,
+				&col_width, /* width */
 				NULL); /* height */
 			if (col_width < 1){
 				g_warning("*** Error: A column width of %u passed to gtk_tree_view_column_set_fixed_width()\n"
@@ -324,7 +324,7 @@ new_packet_list_next(void)
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	GtkWidget *focus = gtk_window_get_focus(GTK_WINDOW(top_level)); 
+	GtkWidget *focus = gtk_window_get_focus(GTK_WINDOW(top_level));
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	/* model is filled with the current model as a convenience. */
@@ -749,7 +749,7 @@ static void mark_all_frames(gboolean set)
 	frame_data *fdata;
 
 	/* XXX: we might need a progressbar here */
-	for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
+	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
 		set_frame_mark(set, fdata);
 	}
 	mark_frames_ready();

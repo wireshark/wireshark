@@ -219,7 +219,7 @@ ph_stats_new(void)
 	tot_packets = 0;
 	tot_bytes = 0;
 
-	for (frame = cfile.plist; frame != NULL; frame = frame->next) {
+	for (frame = cfile.plist_start; frame != NULL; frame = frame->next) {
 		/* Create the progress bar if necessary.
 		   We check on every iteration of the loop, so that
 		   it takes no longer than the standard time to create
@@ -228,7 +228,7 @@ ph_stats_new(void)
 		   to get to the next progress bar step). */
 		if (progbar == NULL)
 			progbar = delayed_create_progress_dlg(
-			    "Computing", "protocol hierarchy statistics", 
+			    "Computing", "protocol hierarchy statistics",
 			    TRUE, &stop_flag, &start_time, progbar_val);
 
 		/* Update the progress bar, but do it only N_PROGBAR_UPDATES
@@ -272,7 +272,7 @@ ph_stats_new(void)
 				ps->first_time = cur_time;
 				ps->last_time = cur_time;
 			}
-			
+
 			/* we don't care about colinfo */
 			if (!process_frame(frame, NULL, ps)) {
 				/*

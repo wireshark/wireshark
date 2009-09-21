@@ -294,7 +294,7 @@ static void mark_all_frames(gboolean set)
   frame_data *fdata;
 
   /* XXX: we might need a progressbar here */
-  for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
+  for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
     set_frame_mark(set,
                    fdata,
                    gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata));
@@ -306,10 +306,10 @@ void packet_list_update_marked_frames(void)
 {
   frame_data *fdata;
 
-  if (cfile.plist == NULL) return;
+  if (cfile.plist_start == NULL) return;
 
   /* XXX: we might need a progressbar here */
-  for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
+  for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
     if (fdata->flags.marked)
       set_frame_mark(TRUE, fdata,
                      gtk_clist_find_row_from_data(GTK_CLIST(packet_list),

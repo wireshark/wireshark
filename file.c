@@ -388,8 +388,8 @@ cf_reset_state(capture_file *cf)
   cf->user_saved = FALSE;
 
 #if GLIB_CHECK_VERSION(2,10,0)
-  if (cf->plist != NULL)
-    g_slice_free_chain(frame_data, cf->plist, next);
+  if (cf->plist_start != NULL)
+    g_slice_free_chain(frame_data, cf->plist_start, next);
 #else
   /* memory chunks have been deprecated in favor of the slice allocator,
    * which has been added in 2.10
@@ -403,7 +403,7 @@ cf_reset_state(capture_file *cf)
     dfilter_free(cf->rfcode);
     cf->rfcode = NULL;
   }
-  cf->plist = NULL;
+  cf->plist_start = NULL;
   cf->plist_end = NULL;
   cf_unselect_packet(cf);   /* nothing to select */
   cf->first_displayed = NULL;
@@ -1430,7 +1430,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
     if (plist_end != NULL)
       plist_end->next = fdata;
     else
-      cf->plist = fdata;
+      cf->plist_start = fdata;
     cf->plist_end = fdata;
 
     cf->f_datalen = offset + phdr->caplen;
@@ -1912,7 +1912,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   selected_frame_seen = FALSE;
 
-  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
     /* Create the progress bar if necessary.
        We check on every iteration of the loop, so that it takes no
        longer than the standard time to create it (otherwise, for a
@@ -2412,7 +2412,7 @@ ref_time_packets(capture_file *cf)
   nstime_set_unset(&prev_dis_ts);
   cum_bytes = 0;
 
-  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
     /* just add some value here until we know if it is being displayed or not */
     fdata->cum_bytes = cum_bytes + fdata->pkt_len;
 
@@ -2515,7 +2515,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
 
   /* Iterate through the list of packets, printing the packets that
      were selected by the current display filter.  */
-  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
     /* Create the progress bar if necessary.
        We check on every iteration of the loop, so that it takes no
        longer than the standard time to create it (otherwise, for a
@@ -3858,7 +3858,7 @@ find_packet(capture_file *cf,
                             "%sEnd of capture exceeded!%s\n\n"
                             "Search is continued from the start of the capture.",
                             simple_dialog_primary_start(), simple_dialog_primary_end());
-              fdata = cf->plist;    /* wrap around */
+              fdata = cf->plist_start;    /* wrap around */
           }
           else
           {
@@ -3940,7 +3940,7 @@ cf_goto_frame(capture_file *cf, guint fnumber)
   frame_data *fdata;
   int row;
 
-  for (fdata = cf->plist; fdata != NULL && fdata->num < fnumber; fdata = fdata->next)
+  for (fdata = cf->plist_start; fdata != NULL && fdata->num < fnumber; fdata = fdata->next)
     ;
 
   if (fdata == NULL) {

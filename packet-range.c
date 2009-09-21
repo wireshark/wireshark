@@ -66,13 +66,13 @@ static void packet_range_calc(packet_range_t *range) {
   /* The next for-loop is used to obtain the amount of packets to be processed
    * and is used to present the information in the Save/Print As widget.
    * We have different types of ranges: All the packets, the number
-   * of packets of a marked range, a single packet, and a user specified 
+   * of packets of a marked range, a single packet, and a user specified
    * packet range. The last one is not calculated here since this
    * data must be entered in the widget by the user.
    */
 
   current_count = 0;
-  for(packet = cfile.plist; packet != NULL; packet = packet->next) {
+  for(packet = cfile.plist_start; packet != NULL; packet = packet->next) {
       current_count++;
       if (cfile.current_frame == packet) {
           range->selected_packet = current_count;
@@ -99,18 +99,18 @@ static void packet_range_calc(packet_range_t *range) {
             }
       }
   }
-        
+
   current_count = 0;
-  for(packet = cfile.plist; packet != NULL; packet = packet->next) {
+  for(packet = cfile.plist_start; packet != NULL; packet = packet->next) {
       current_count++;
 
-      if (current_count >= mark_low && 
+      if (current_count >= mark_low &&
           current_count <= mark_high)
       {
           range->mark_range_cnt++;
       }
 
-      if (current_count >= displayed_mark_low && 
+      if (current_count >= displayed_mark_low &&
           current_count <= displayed_mark_high)
       {
           if (packet->flags.passed_dfilter) {
@@ -123,7 +123,7 @@ static void packet_range_calc(packet_range_t *range) {
   /*if (cfile.marked_count != 0) {
     range->mark_range = mark_high - mark_low + 1;
   }*/
-        
+
   /* in case we marked just one packet, we add 1. */
   /*if (range->displayed_marked_cnt != 0) {
     range->displayed_mark_range = displayed_mark_high - displayed_mark_low + 1;
@@ -140,7 +140,7 @@ static void packet_range_calc_user(packet_range_t *range) {
   range->displayed_user_range_cnt   = 0L;
 
   current_count = 0;
-  for(packet = cfile.plist; packet != NULL; packet = packet->next) {
+  for(packet = cfile.plist_start; packet != NULL; packet = packet->next) {
       current_count++;
 
       if (value_is_in_range(range->user_range, current_count)) {

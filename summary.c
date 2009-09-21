@@ -105,11 +105,11 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->marked_bytes = 0;
 
   /* initialize the tally */
-  if (cf->plist != NULL) {
-    first_frame = cf->plist;
+  if (cf->plist_start != NULL) {
+    first_frame = cf->plist_start;
     st->start_time 	= nstime_to_sec(&first_frame->abs_ts);
     st->stop_time = nstime_to_sec(&first_frame->abs_ts);
-    cur_glist = cf->plist;
+    cur_glist = cf->plist_start;
 
     for (i = 0; i < cf->count; i++) {
       cur_frame = cur_glist;
