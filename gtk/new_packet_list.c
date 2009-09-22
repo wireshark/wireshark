@@ -83,6 +83,8 @@ static void show_cell_data_func(GtkTreeViewColumn *col,
 				gpointer data);
 static guint row_number_from_iter(GtkTreeIter *iter);
 
+void new_packet_list_set_sel_browse(gboolean val, gboolean force_set);
+
 GtkWidget *
 new_packet_list_create(void)
 {
@@ -91,6 +93,8 @@ new_packet_list_create(void)
 	scrollwin = scrolled_window_new(NULL, NULL);
 
 	view = create_view_and_model();
+
+	new_packet_list_set_sel_browse(prefs.gui_plist_sel_browse, FALSE);
 
 	gtk_container_add(GTK_CONTAINER(scrollwin), view);
 
@@ -450,16 +454,12 @@ new_packet_list_moveto_end(void)
 	path = gtk_tree_model_get_path(model, &iter);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 
-	if (!gtk_tree_selection_path_is_selected(selection, path)) {
-		/* XXX - this doesn't seem to work, i.e. gtk_tree_selection_path_is_selected() is always false? */
-		gtk_tree_selection_select_path(selection, path);
-		gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(packetlist->view),
-				path,
-				NULL,
-				TRUE,	/* use_align */
-				0.5,	/* row_align determines where the row is placed, 0.5 means center */
-				0); 	/* The horizontal alignment of the column */
-	}
+	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(packetlist->view),
+			path,
+			NULL,
+			TRUE,	/* use_align */
+			0.5,	/* row_align determines where the row is placed, 0.5 means center */
+			0); 	/* The horizontal alignment of the column */
 
 	gtk_tree_path_free(path);
 }
@@ -763,6 +763,46 @@ void new_packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 void new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 	mark_all_frames(FALSE);
+}
+
+/* Set the selection mode of the packet list window. */
+void
+new_packet_list_set_sel_browse(gboolean val, gboolean force_set)
+{
+    GtkSelectionMode new_mode;
+    /* initialize with a mode we don't use, so that the mode == new_mode
+     * test will fail the first time */
+    static GtkSelectionMode mode = GTK_SELECTION_MULTIPLE;
+
+    /* Yeah, GTK uses "browse" in the case where we do not, but oh well. I
+     * think "browse" in Wireshark makes more sense than "SINGLE" in GTK+ */
+    new_mode = val ? GTK_SELECTION_SINGLE : GTK_SELECTION_BROWSE;
+
+    if ((mode == new_mode) && !force_set) {
+        /*
+         * The mode isn't changing, so don't do anything.
+         * In particular, don't gratuitiously unselect the
+         * current packet.
+         *
+		 * XXX - Copied code from "old" packet list 
+		 *  - I don't know if the comment below is still true...
+         * XXX - why do we have to unselect the current packet
+         * ourselves?  The documentation for the GtkCList at
+         *
+         *      http://developer.gnome.org/doc/API/gtk/gtkclist.html
+         *
+         * says "Note that setting the widget's selection mode to
+         * one of GTK_SELECTION_BROWSE or GTK_SELECTION_SINGLE will
+         * cause all the items in the GtkCList to become deselected."
+         */
+      return;
+    }
+
+    if (cfile.finfo_selected)
+        cf_unselect_field(&cfile);
+
+    mode = new_mode;
+    gtk_tree_selection_set_mode (gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view)), mode);
 }
 
 void

@@ -73,6 +73,14 @@ extern void new_packet_list_recent_write_all(FILE *rf);
 GtkWidget * new_packet_list_get_widget(void);
 void new_packet_list_colorize_packets(void);
 
+/** Set the selection mode of the packet list window.
+ *
+ * @param val TRUE for GTK_SELECTION_SINGLE, FALSE for GTK_SELECTION_BROWSE
+ * @param force_set TRUE to force setting of the selection mode even if it
+ *                  was already set (used within packet_list_recreate).
+ */
+extern void new_packet_list_set_sel_browse(gboolean val, gboolean force_set);
+
 #endif /* NEW_PACKET_LIST */
 
 #endif /* __NEW_PACKET_LIST_H__ */
