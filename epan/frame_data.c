@@ -197,7 +197,7 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->pfd = NULL;
   fdata->num = num;
   fdata->pkt_len = phdr->len;
-  fdata->cum_bytes  = cum_bytes + phdr->len;
+  fdata->cum_bytes = cum_bytes + phdr->len;
   fdata->cap_len = phdr->caplen;
   fdata->file_off = offset;
   /* To save some memory, we coarcese it into a gint8 */
@@ -227,15 +227,13 @@ frame_data_set_before_dissect(frame_data *fdata,
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the first packet. */
-  if (nstime_is_unset(first_ts)) {
+  if (nstime_is_unset(first_ts))
     *first_ts = fdata->abs_ts;
-  }
 
   /* if this frames is marked as a reference time frame, reset
      firstsec and firstusec to this frame */
-  if(fdata->flags.ref_time){
+  if(fdata->flags.ref_time)
     *first_ts = fdata->abs_ts;
-  }
 
   /* If we don't have the time stamp of the previous displayed packet,
      it's because this is the first packet that's being displayed.  Save the time
@@ -248,9 +246,8 @@ frame_data_set_before_dissect(frame_data *fdata,
      it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the previous captured
      packet. */
-  if (nstime_is_unset(prev_cap_ts)) {
+  if (nstime_is_unset(prev_cap_ts))
     *prev_cap_ts = fdata->abs_ts;
-  }
 
   /* Get the time elapsed between the first packet and this packet. */
   nstime_delta(&fdata->rel_ts, &fdata->abs_ts, first_ts);
