@@ -264,12 +264,12 @@ const value_string gsm_dtap_elem_strings[] = {
 	{ 0x00,	"Allowed Actions $(CCBS)$" },
 	{ 0x00,	"Stream Identifier" },
 	{ 0x00,	"Network Call Control Capabilities" },
-	{ 0x00,	"Cause of No CLI" },
-	{ 0x00,	"Immediate Modification Indicator" },			/* 10.5.4.30 Cause of No CLI */
+	{ 0x00,	"Cause of No CLI" },						/* 10.5.4.30 Cause of No CLI */
 	/* 10.5.4.31 Void */
 	{ 0x00,	"Supported Codec List" },				/* 10.5.4.32 Supported codec list */
 	{ 0x00,	"Service Category" },					/* 10.5.4.33 Service category */
 	{ 0x00,	"Redial" },						/* 10.5.4.34 Redial */
+	{ 0x00, "Network-initiated Service Upgrade indicator" },
 	/* 10.5.4.35 Network-initiated Service Upgrade indicator */
 	/* Short Message Service Information Elements [5] 8.1.4 */
 	{ 0x00,	"CP-User Data" },
@@ -3824,10 +3824,10 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	de_stream_id,			/* Stream Identifier */
 	de_nw_call_ctrl_cap,	/* Network Call Control Capabilities */
 	de_ca_of_no_cli,		/* Cause of No CLI */
-	NULL,					/* Immediate Modification Indicator */
 	de_sup_codec_list,		/* Supported Codec List */
 	de_serv_cat,			/* Service Category */
 	NULL,					/* 10.5.4.34 Redial */
+	NULL,					/* 10.5.4.35 Network-initiated Service Upgrade ind */
 	/* Short Message Service Information Elements [5] 8.1.4 */
 	de_cp_user_data,		/* CP-User Data */
 	de_cp_cause,			/* CP-Cause */
@@ -4836,7 +4836,7 @@ dtap_cc_modify(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	ELEM_OPT_T(0xa3, GSM_A_PDU_TYPE_DTAP, DE_REV_CALL_SETUP_DIR, NULL);
 
-	ELEM_OPT_T(0xa4, GSM_A_PDU_TYPE_DTAP, DE_IMM_MOD_IND, NULL);
+	ELEM_OPT_T(0xa4, GSM_A_PDU_TYPE_DTAP, DE_NET_INIT_SERV_UPG, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }

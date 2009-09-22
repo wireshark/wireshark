@@ -913,10 +913,10 @@ typedef enum
 	DE_SI,							/* Stream Identifier */
 	DE_NET_CC_CAP,					/* Network Call Control Capabilities */
 	DE_CAUSE_NO_CLI,				/* Cause of No CLI */
-	DE_IMM_MOD_IND,					/* Immediate Modification Indicator */
 	DE_SUP_CODEC_LIST,				/* Supported Codec List */
 	DE_SERV_CAT,					/* Service Category */
 	DE_REDIAL,						/* 10.5.4.34 Redial */
+	DE_NET_INIT_SERV_UPG,			/* 10.5.4.35 Network-initiated Service Upgrade ind */
 	/* Short Message Service Information Elements [5] 8.1.4 */
 	DE_CP_USER_DATA,				/* CP-User Data */
 	DE_CP_CAUSE,					/* CP-Cause */
