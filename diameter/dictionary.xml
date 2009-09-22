@@ -1002,7 +1002,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Vodafone Gx+" code="16777234"/>
 			<enum name="ITU-T Rs" code="16777235"/>
 			<enum name="3GPP Rx" code="16777236"/>
-			<enum name="TGPP2 Ty" code="16777237"/>
+			<enum name="3GPP2 Ty" code="16777237"/>
 			<enum name="3GPP Gx" code="16777238"/>
 			<enum name="Juniper Cluster" code="16777239"/>
 			<enum name="Juniper Policy-Control-AAA" code="16777240"/>
@@ -1012,9 +1012,9 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Juniper Policy-Control-JSRC" code="16777244"/>   
 			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 -->
       <enum name="NSN Unified Charging Trigger Function (UCTF)" code="16777246"/>
-      <enum name="TGPP2 CAN Access Authentication and Authorization" code="16777247"/>
-      <enum name="TGPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
-      <enum name="TGPP2 WLAN Interworking Accounting" code="16777249"/>
+      <enum name="3GPP2 CAN Access Authentication and Authorization" code="16777247"/>
+      <enum name="3GPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
+      <enum name="3GPP2 WLAN Interworking Accounting" code="16777249"/>
       <enum name="3GPP STaMIP" code="16777250"/>
       <enum name="3GPP S6a" code="16777251"/>
       <enum name="3GPP S13" code="16777252"/>
@@ -1051,7 +1051,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Vodafone Gx+" code="16777234"/>
 			<enum name="ITU-T Rs" code="16777235"/>
 			<enum name="3GPP Rx" code="16777236"/>
-			<enum name="TGPP2 Ty" code="16777237"/>
+			<enum name="3GPP2 Ty" code="16777237"/>
 			<enum name="3GPP Gx" code="16777238"/>
 			<enum name="Juniper Cluster" code="16777239"/>
 			<enum name="Juniper Policy-Control-AAA" code="16777240"/>
@@ -1062,9 +1062,9 @@ http://www.iana.org/assignments/radius-types
 			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 --> 
 			<enum name="Relay" code="4294967295"/>
       <enum name="NSN Unified Charging Trigger Function (UCTF)" code="16777246"/>
-      <enum name="TGPP2 CAN Access Authentication and Authorization" code="16777247"/>
-      <enum name="TGPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
-      <enum name="TGPP2 WLAN Interworking Accounting" code="16777249"/>
+      <enum name="3GPP2 CAN Access Authentication and Authorization" code="16777247"/>
+      <enum name="3GPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
+      <enum name="3GPP2 WLAN Interworking Accounting" code="16777249"/>
       <enum name="3GPP STaMIP" code="16777250"/>
       <enum name="3GPP S6a" code="16777251"/>
       <enum name="3GPP S13" code="16777252"/>
@@ -2334,7 +2334,7 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
       <enum name="DOCSIS" 	code="1"/>
       <enum name="xDSL" 	code="2"/>
       <enum name="WiMAX" 	code="3"/>
-      <enum name="TGPP2" 	code="4"/>
+      <enum name="3GPP2" 	code="4"/>
       <enum name="3GPP-EPS" 	code="5"/>
     </avp>
 		<avp name="QoS-Class-Identifier" code="1028" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -3799,7 +3799,7 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
       <type type-name="UTF8String"/>
 		</avp>
 		<avp name="SDP-Type" code="2036" vendor-bit="must" vendor-id="TGPP"> 
-       <type type-name="Enumerated"/>
+      <type type-name="Enumerated"/>
       <enum name="SDP Offer" code="0"/>
       <enum name="SDP Answer" code="1"/>
 		</avp>
@@ -3954,9 +3954,9 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
     </avp>
     <avp name="Tariff-Information" code="2060" vendor-bit="must" vendor-id="TGPP">
       <grouped>
-        <gavp name="Current Tariff"/>
+        <gavp name="Current-Tariff"/>
         <gavp name="Tariff-Time-Change"/>
-        <gavp name="Next Tariff"/>
+        <gavp name="Next-Tariff"/>
       </grouped>
     </avp>
     <avp name="Unit-Cost" code="2061" vendor-bit="must" vendor-id="TGPP">
