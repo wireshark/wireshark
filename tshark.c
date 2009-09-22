@@ -112,6 +112,8 @@ static nstime_t prev_cap_ts;
 
 static gboolean print_packet_info;	/* TRUE if we're to print packet information */
 
+static gboolean perform_two_pass_analysis;
+
 /*
  * The way the packet decode is to be written.
  */
@@ -764,7 +766,7 @@ main(int argc, char *argv[])
   GLogLevelFlags       log_flags;
   int                  optind_initial;
 
-#define OPTSTRING_INIT "a:b:c:C:d:De:E:f:F:G:hi:K:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
+#define OPTSTRING_INIT "a:b:c:C:d:De:E:f:F:G:hi:K:lLnN:o:pPqr:R:s:St:T:vVw:xX:y:z:"
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -1081,6 +1083,11 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
+#if GLIB_CHECK_VERSION(2,10,0)
+      case 'P':        /* Perform two pass analysis */
+        perform_two_pass_analysis = TRUE;
+        break;
+#endif
       case 'n':        /* No name resolution */
         g_resolv_flags = RESOLV_NONE;
         break;
@@ -1621,6 +1628,11 @@ main(int argc, char *argv[])
     exit(2);
 #endif
   }
+
+#if GLIB_CHECK_VERSION(2,10,0)
+  if (cfile.plist_start != NULL)
+    g_slice_free_chain(frame_data, cfile.plist_start, next);
+#endif
 
   draw_tap_listeners(TRUE);
   funnel_dump_all_text_windows();
@@ -2165,6 +2177,181 @@ capture_cleanup(int signum _U_)
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 
+#if GLIB_CHECK_VERSION(2,10,0)
+static gboolean
+process_packet_first_pass(capture_file *cf,
+               gint64 offset, const struct wtap_pkthdr *whdr,
+               union wtap_pseudo_header *pseudo_header, const guchar *pd)
+{
+  frame_data *fdata = g_slice_new(frame_data);
+  epan_dissect_t edt;
+  gboolean passed;
+
+  /* Count this packet. */
+  cf->count++;
+
+  /* If we're not running a display filter and we're not printing any
+     packet information, we don't need to do a dissection. This means
+     that all packets can be marked as 'passed'. */
+  passed = TRUE;
+
+  frame_data_init(fdata, cf->count, whdr, offset, cum_bytes);
+
+  /* If we're going to print packet information, or we're going to
+     run a read filter, or we're going to process taps, set up to
+     do a dissection and do so. */
+  if (do_dissection) {
+    if (g_resolv_flags)
+      /* Grab any resolved addresses */
+      host_name_lookup_process(NULL);
+
+    /* The protocol tree will be "visible", i.e., printed, only if we're
+       printing packet details, which is true if we're printing stuff
+       ("print_packet_info" is true) and we're in verbose mode ("verbose"
+       is true). */
+    epan_dissect_init(&edt, FALSE, FALSE);
+
+    /* If we're running a read filter, prime the epan_dissect_t with that
+       filter. */
+    if (cf->rfcode)
+      epan_dissect_prime_dfilter(&edt, cf->rfcode);
+
+    frame_data_set_before_dissect(fdata, &cf->elapsed_time,
+                                  &first_ts, &prev_dis_ts, &prev_cap_ts);
+
+    epan_dissect_run(&edt, pseudo_header, pd, fdata, NULL);
+
+    /* Run the read filter if we have one. */
+    if (cf->rfcode)
+      passed = dfilter_apply_edt(cf->rfcode, &edt);
+  }
+
+  if (passed) {
+    frame_data_set_after_dissect(fdata, &cum_bytes, &prev_dis_ts);
+    cap_file_add_fdata(cf, fdata);
+  }
+  else
+    g_slice_free(frame_data, fdata);
+
+  if (do_dissection)
+    epan_dissect_cleanup(&edt);
+
+  return passed;
+}
+
+static gboolean
+process_packet_second_pass(capture_file *cf, frame_data *fdata,
+               gint64 offset, union wtap_pseudo_header *pseudo_header, const guchar *pd,
+               gboolean filtering_tap_listeners, guint tap_flags)
+{
+  gboolean create_proto_tree;
+  column_info *cinfo;
+  epan_dissect_t edt;
+  gboolean passed;
+
+  /* If we're not running a display filter and we're not printing any
+     packet information, we don't need to do a dissection. This means
+     that all packets can be marked as 'passed'. */
+  passed = TRUE;
+
+  /* If we're going to print packet information, or we're going to
+     run a read filter, or we're going to process taps, set up to
+     do a dissection and do so. */
+  if (do_dissection) {
+    if (g_resolv_flags)
+      /* Grab any resolved addresses */
+      host_name_lookup_process(NULL);
+
+    if (cf->rfcode || verbose || filtering_tap_listeners ||
+        (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
+      create_proto_tree = TRUE;
+    else
+      create_proto_tree = FALSE;
+
+    /* The protocol tree will be "visible", i.e., printed, only if we're
+       printing packet details, which is true if we're printing stuff
+       ("print_packet_info" is true) and we're in verbose mode ("verbose"
+       is true). */
+    epan_dissect_init(&edt, create_proto_tree, print_packet_info && verbose);
+
+    /* If we're running a read filter, prime the epan_dissect_t with that
+       filter. */
+    if (cf->rfcode)
+      epan_dissect_prime_dfilter(&edt, cf->rfcode);
+
+    col_custom_prime_edt(&edt, &cf->cinfo);
+
+    tap_queue_init(&edt);
+
+    /* We only need the columns if either
+
+         1) some tap needs the columns
+
+       or
+
+         2) we're printing packet info but we're *not* verbose; in verbose
+            mode, we print the protocol tree, not the protocol summary. */
+    if ((tap_flags & TL_REQUIRES_COLUMNS) || (print_packet_info && !verbose))
+      cinfo = &cf->cinfo;
+    else
+      cinfo = NULL;
+
+    epan_dissect_run(&edt, pseudo_header, pd, fdata, cinfo);
+
+    tap_push_tapped_queue(&edt);
+
+    /* Run the read filter if we have one. */
+    if (cf->rfcode)
+      passed = dfilter_apply_edt(cf->rfcode, &edt);
+  }
+
+  if (passed) {
+    /* Process this packet. */
+    if (print_packet_info) {
+      /* We're printing packet information; print the information for
+         this packet. */
+      if (do_dissection)
+        print_packet(cf, &edt);
+      else
+        print_packet(cf, NULL);
+
+      /* The ANSI C standard does not appear to *require* that a line-buffered
+         stream be flushed to the host environment whenever a newline is
+         written, it just says that, on such a stream, characters "are
+         intended to be transmitted to or from the host environment as a
+         block when a new-line character is encountered".
+
+         The Visual C++ 6.0 C implementation doesn't do what is intended;
+         even if you set a stream to be line-buffered, it still doesn't
+         flush the buffer at the end of every line.
+
+         So, if the "-l" flag was specified, we flush the standard output
+         at the end of a packet.  This will do the right thing if we're
+         printing packet summary lines, and, as we print the entire protocol
+         tree for a single packet without waiting for anything to happen,
+         it should be as good as line-buffered mode if we're printing
+         protocol trees.  (The whole reason for the "-l" flag in either
+         tcpdump or TShark is to allow the output of a live capture to
+         be piped to a program or script and to have that script see the
+         information for the packet as soon as it's printed, rather than
+         having to wait until a standard I/O buffer fills up. */
+      if (line_buffered)
+        fflush(stdout);
+
+      if (ferror(stdout)) {
+        show_print_file_io_error(errno);
+        exit(2);
+      }
+    }
+  }
+
+  if (do_dissection) {
+    epan_dissect_cleanup(&edt);
+  }
+  return passed;
+}
+#endif
+
 static int
 load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     int max_packet_count, gint64 max_byte_count)
@@ -2241,34 +2428,99 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   /* Get the union of the flags for all tap listeners. */
   tap_flags = union_of_tap_listener_flags();
 
-  while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
-    if (process_packet(cf, data_offset, wtap_phdr(cf->wth),
-                       wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
-                       filtering_tap_listeners, tap_flags)) {
-      /* Either there's no read filtering or this packet passed the
-         filter, so, if we're writing to a capture file, write
-         this packet out. */
-      if (pdh != NULL) {
-        if (!wtap_dump(pdh, wtap_phdr(cf->wth),
-                       wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
-                       &err)) {
-          /* Error writing to a capture file */
-          show_capture_file_io_error(save_file, err, FALSE);
-          wtap_dump_close(pdh, &err);
-          exit(2);
+  if (perform_two_pass_analysis) {
+#if GLIB_CHECK_VERSION(2,10,0)
+    frame_data *fdata;
+    int old_max_packet_count = max_packet_count;
+
+    while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
+      if (process_packet_first_pass(cf, data_offset, wtap_phdr(cf->wth),
+                         wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth))) {
+        /* Stop reading if we have the maximum number of packets;
+         * When the -c option has not been used, max_packet_count
+         * starts at 0, which practically means, never stop reading.
+         * (unless we roll over max_packet_count ?)
+         */
+        if( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
+          err = 0; /* This is not an error */
+          break;
         }
       }
-      /* Stop reading if we have the maximum number of packets;
-       * When the -c option has not been used, max_packet_count
-       * starts at 0, which practically means, never stop reading.
-       * (unless we roll over max_packet_count ?)
-       */
-      if( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
-        err = 0; /* This is not an error */
-        break;
+    }
+
+    /* Close the sequential I/O side, to free up memory it requires. */
+    wtap_sequential_close(cf->wth);
+
+    /* Allow the protocol dissectors to free up memory that they
+     * don't need after the sequential run-through of the packets. */
+    postseq_cleanup_all_protocols();
+
+    max_packet_count = old_max_packet_count;
+
+    for (fdata = cf->plist_start; err == 0 && fdata != NULL; fdata = fdata->next) {
+      if (wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
+          cf->pd, fdata->cap_len, &err, &err_info)) {
+        if (process_packet_second_pass(cf, fdata, fdata->file_off,
+                           &cf->pseudo_header, cf->pd,
+                           filtering_tap_listeners, tap_flags)) {
+          /* Either there's no read filtering or this packet passed the
+             filter, so, if we're writing to a capture file, write
+             this packet out. */
+          if (pdh != NULL) {
+            if (!wtap_dump(pdh, wtap_phdr(cf->wth),
+                           wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
+                           &err)) {
+              /* Error writing to a capture file */
+              show_capture_file_io_error(save_file, err, FALSE);
+              wtap_dump_close(pdh, &err);
+              exit(2);
+            }
+          }
+          /* Stop reading if we have the maximum number of packets;
+           * When the -c option has not been used, max_packet_count
+           * starts at 0, which practically means, never stop reading.
+           * (unless we roll over max_packet_count ?)
+           */
+          if( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
+            err = 0; /* This is not an error */
+            break;
+          }
+        }
+      }
+    }
+#endif
+  }
+  else {
+    while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
+      if (process_packet(cf, data_offset, wtap_phdr(cf->wth),
+                         wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
+                         filtering_tap_listeners, tap_flags)) {
+        /* Either there's no read filtering or this packet passed the
+           filter, so, if we're writing to a capture file, write
+           this packet out. */
+        if (pdh != NULL) {
+          if (!wtap_dump(pdh, wtap_phdr(cf->wth),
+                         wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
+                         &err)) {
+            /* Error writing to a capture file */
+            show_capture_file_io_error(save_file, err, FALSE);
+            wtap_dump_close(pdh, &err);
+            exit(2);
+          }
+        }
+        /* Stop reading if we have the maximum number of packets;
+         * When the -c option has not been used, max_packet_count
+         * starts at 0, which practically means, never stop reading.
+         * (unless we roll over max_packet_count ?)
+         */
+        if( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
+          err = 0; /* This is not an error */
+          break;
+        }
       }
     }
   }
+
   if (err != 0) {
     /* Print a message noting that the read failed somewhere along the line. */
     switch (err) {
@@ -3009,7 +3261,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   gchar       *err_info;
   char        err_msg[2048+1];
 
-  wth = wtap_open_offline(fname, err, &err_info, FALSE);
+  wth = wtap_open_offline(fname, err, &err_info, perform_two_pass_analysis);
   if (wth == NULL)
     goto fail;
 

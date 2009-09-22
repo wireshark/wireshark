@@ -28,6 +28,9 @@ ERR_FILE=$BASE_NAME.err
 # Loop this many times (< 1 loops forever)
 MAX_PASSES=0
 
+# Perform a two pass analysis on the capture file?
+TWO_PASS=
+
 # These may be set to your liking
 # Stop the child process, if it's running longer than x seconds
 MAX_CPU_TIME=900
@@ -44,12 +47,13 @@ ERR_PROB=0.02
 
 
 # To do: add options for file names and limits
-while getopts ":b:d:e:p:" OPTCHAR ; do
+while getopts ":b:d:e:Pp:" OPTCHAR ; do
     case $OPTCHAR in
         b) BIN_DIR=$OPTARG ;;
         d) TMP_DIR=$OPTARG ;;
         e) ERR_PROB=$OPTARG ;;
         p) MAX_PASSES=$OPTARG ;;
+        P) TWO_PASS="-P " ;;
     esac
 done
 shift $(($OPTIND - 1))
@@ -71,7 +75,7 @@ ulimit -c unlimited
 # V Print a view of the details of the packet rather than a one-line summary of the packet
 # x Cause TShark to print a hex and ASCII dump of the packet data after printing the summary or details
 # r Read packet data from the following infile
-TSHARK_ARGS="-nVxr"
+TSHARK_ARGS="${TWO_PASS}-nVxr"
 
 NOTFOUND=0
 for i in "$TSHARK" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR" ; do
@@ -98,7 +102,7 @@ if [ $FOUND -eq 0 ] ; then
     cat <<FIN
 Error: No valid capture files found.
 
-Usage: `basename $0` [-p passes] [-d work_dir] [-e error probability] capture file 1 [capture file 2]...
+Usage: `basename $0` [-p passes] [-d work_dir] [-P ] [-e error probability] capture file 1 [capture file 2]...
 FIN
     exit 1
 fi
