@@ -52,14 +52,14 @@ gboolean get_color(GdkColor *new_color);
  * @param target the GdkColor to be filled
  * @param source the source color_t
  */
-void color_t_to_gdkcolor(GdkColor *target, color_t *source);
+void color_t_to_gdkcolor(GdkColor *target, const color_t *source);
 
 /** Convert GdkColor to color_t.
  *
  * @param target the source color_t
  * @param source the GdkColor to be filled
  */
-void gdkcolor_to_color_t(color_t *target, GdkColor *source);
+void gdkcolor_to_color_t(color_t *target, const GdkColor *source);
 
 #if GTK_CHECK_VERSION(2,12,0)
 #else

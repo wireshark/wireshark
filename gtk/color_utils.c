@@ -25,8 +25,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <string.h>
 
+#include <string.h>
 
 #include <gtk/gtk.h>
 
@@ -36,14 +36,12 @@
 #include "gtk/color_utils.h"
 #include "gtk/gtkglobals.h"
 
-
 static GdkColormap*	sys_cmap;
 static GdkColormap*	our_cmap = NULL;
 
 GdkColor	WHITE = { 0, 65535, 65535, 65535 };
 GdkColor	LTGREY = { 0, 57343, 57343, 57343 };
 GdkColor	BLACK = { 0, 0, 0, 0 };
-
 
 /*
  * Initialize a color with R, G, and B values, including any toolkit-dependent
@@ -80,14 +78,14 @@ colors_init(void)
 	if (!got_white) {
 		if (!got_black)
 			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-			    "Could not allocate colors black or white.");
+				"Could not allocate colors black or white.");
 		else
 			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-			    "Could not allocate color white.");
+				"Could not allocate color white.");
 	} else {
 		if (!got_black)
 			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-			    "Could not allocate color black.");
+				"Could not allocate color black.");
 	}
 }
 
@@ -99,11 +97,11 @@ get_color(GdkColor *new_color)
 
 	if (!our_cmap) {
 		if (!gdk_colormap_alloc_color (sys_cmap, new_color, FALSE,
-		    TRUE)) {
+			TRUE)) {
 			pv = gdk_visual_get_best();
 			if (!(our_cmap = gdk_colormap_new(pv, TRUE))) {
 				simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-				    "Could not create new colormap");
+					"Could not create new colormap");
 			}
 		} else
 			return (TRUE);
@@ -112,7 +110,7 @@ get_color(GdkColor *new_color)
 }
 
 void
-color_t_to_gdkcolor(GdkColor *target, color_t *source)
+color_t_to_gdkcolor(GdkColor *target, const color_t *source)
 {
 	target->pixel = source->pixel;
 	target->red   = source->red;
@@ -121,7 +119,7 @@ color_t_to_gdkcolor(GdkColor *target, color_t *source)
 }
 
 void
-gdkcolor_to_color_t(color_t *target, GdkColor *source)
+gdkcolor_to_color_t(color_t *target, const GdkColor *source)
 {
 	target->pixel = source->pixel;
 	target->red   = source->red;
@@ -147,11 +145,9 @@ gdkcolor_to_color_t(color_t *target, GdkColor *source)
 gchar *
 gdk_color_to_string (const GdkColor *color)
 {
+	g_return_val_if_fail (color != NULL, NULL);
 
-  g_return_val_if_fail (color != NULL, NULL);
-
-  return g_strdup_printf ("#%04x%04x%04x", color->red, color->green, color->blue);
-
+	return g_strdup_printf ("#%04x%04x%04x", color->red, color->green, color->blue);
 }
 #endif /* GTK_CHECK_VERSION(2,12,0) */
 
