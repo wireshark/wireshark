@@ -51,3 +51,15 @@ init_cap_file(capture_file *cf)
   cf->redissecting  = FALSE;
 }
 
+void
+cap_file_add_fdata(capture_file *cf, frame_data *fdata)
+{
+  frame_data *plist_end = cf->plist_end;
+  fdata->prev = plist_end;
+  if (plist_end != NULL)
+    plist_end->next = fdata;
+  else
+    cf->plist_start = fdata;
+  cf->plist_end = fdata;
+}
+

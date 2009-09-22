@@ -95,4 +95,6 @@ typedef struct _capture_file {
 
 void init_cap_file(capture_file *cf);
 
+void cap_file_add_fdata(capture_file *cf, frame_data *fdata);
+
 #endif /* cfile.h */

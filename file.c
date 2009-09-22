@@ -1327,8 +1327,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   const guchar *buf = wtap_buf_ptr(cf->wth);
   frame_data   *fdata;
   int           passed;
-  frame_data   *plist_end;
-  int row = -1;
+  int           row = -1;
 
   cf->count++;
 
@@ -1360,15 +1359,9 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   }
 
   if (passed) {
-    plist_end = cf->plist_end;
-    fdata->prev = plist_end;
-    if (plist_end != NULL)
-      plist_end->next = fdata;
-    else
-      cf->plist_start = fdata;
-    cf->plist_end = fdata;
+    cap_file_add_fdata(cf, fdata);
 
-    cf->f_datalen = offset + phdr->caplen;
+    cf->f_datalen = offset + fdata->cap_len;
 
     if (!cf->redissecting) {
       row = add_packet_to_packet_list(fdata, cf, dfcode,
