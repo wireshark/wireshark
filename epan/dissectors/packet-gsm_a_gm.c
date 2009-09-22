@@ -896,6 +896,9 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	gchar answer_lcs[2][80]={ "LCS value added location request notification capability not supported" ,
 				"LCS value added location request notification capability supported" };
 
+	gchar answer_ps_irat[2][80]={ "PS inter-RAT HO to UTRAN Iu mode not supported" ,
+                                      "PS inter-RAT HO to UTRAN Iu mode supported" };
+
 	curr_len = len;
 	curr_offset = offset;
 
@@ -983,13 +986,29 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"LCS VA capability:: (%u) %s",
+		"LCS VA capability: (%u) %s",
 		oct>>7,
 		answer_lcs[oct>>7]);
 
 	curr_offset++;
-	   
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    if ( curr_len == 0 ){ EXTRANEOUS_DATA_CHECK(len, curr_offset - offset); return(curr_offset - offset); }
+    oct = tvb_get_guint8(tvb, curr_offset);
+    curr_len--;
+
+    proto_tree_add_text(tree,
+                        tvb, curr_offset, 1,
+                        "PS inter-RAT HO to UTRAN Iu mode capability: (%u) %s",
+                        oct,
+                        answer_ps_irat[oct]);
+
+    proto_tree_add_text(tree,
+                        tvb, curr_offset, 1,
+                        "Spare: (%u)",
+                        oct>>1);
+
+    curr_offset++;
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(curr_offset - offset);
 }
