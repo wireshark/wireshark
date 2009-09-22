@@ -297,13 +297,13 @@ static void dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	    /* Only Start and End flags (bits 0 & 1) are valid in Data Segment */
 	    if((conv_hdr & ~(TCP_CONVERGENCE_TYPE_MASK | TCP_CONVERGENCE_DATA_FLAGS)) != 0) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid TCP CL Data Segment Flags");
+		col_set_str(pinfo->cinfo, COL_INFO, "Invalid TCP CL Data Segment Flags");
 		return;
 	    }
 	    fixed = 1;
 	    segment_length = evaluate_sdnv(tvb, fixed + frame_offset, &sdnv_length);
 	    if(segment_length < 0) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Protocol Error (Length)");
+		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error (Length)");
 		return;
 	    }
 	    convergence_hdr_size = sdnv_length + fixed;
@@ -357,7 +357,7 @@ static void dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	    if(new_tvb){
 		bundle_size = dissect_complete_bundle(new_tvb, pinfo, bundle_tree);
 		if(bundle_size == 0) {	/*Couldn't parse bundle*/
-		    col_add_fstr(pinfo->cinfo, COL_INFO, "Dissection Failed");
+		    col_set_str(pinfo->cinfo, COL_INFO, "Dissection Failed");
 		    return;			/*Give up*/
 		}
 	    }
@@ -373,7 +373,7 @@ static void dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		 * 2-segment case.
 		 */
 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "[Reassembled Segment of a Bundle]");
+		col_set_str(pinfo->cinfo, COL_INFO, "[Reassembled Segment of a Bundle]");
 	    }
 
 	    /*
@@ -528,7 +528,7 @@ dissect_udp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     primary_tree = proto_item_add_subtree(primary_item, ett_primary_hdr);
     hdr_offset = dissect_primary_header(pinfo, primary_tree, tvb);
     if(hdr_offset == 0) {
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Protocol Error");
+	col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 	return;
     }
     proto_item_set_len(primary_item, hdr_offset);
@@ -549,7 +549,7 @@ dissect_udp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							hdr_offset, &lasthdrflag);
 	}
 	if(hdr_offset == 0) {
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "Protocol Error");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 	    return;
 	}
 	if(lasthdrflag) {
@@ -612,7 +612,7 @@ dissect_complete_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     primary_tree = proto_item_add_subtree(primary_item, ett_primary_hdr);
     primary_header_size = dissect_primary_header(pinfo, primary_tree, tvb);
     if(primary_header_size == 0) {	/*Couldn't parse primary header*/
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Protocol Error");
+	col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 	return(0);	/*Give up*/
     }
     proto_item_set_len(primary_item, primary_header_size);
@@ -638,7 +638,7 @@ dissect_complete_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if(payload_size == 0) {	/*Payload header parse failed*/
 
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "Dissection Failed");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Dissection Failed");
 	    return (0);
 	}
 	offset += payload_size;
@@ -1692,7 +1692,7 @@ dissect_contact_header(tvbuff_t *tvb, packet_info *pinfo,
     eid_length = evaluate_sdnv(tvb, 8, &sdnv_length);
     if(eid_length < 0) {
 	if(check_col(pinfo->cinfo, COL_INFO)) {
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "Protocol Error (Local EID Length)");
+	    col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error (Local EID Length)");
 	}
 	return 0;
     }

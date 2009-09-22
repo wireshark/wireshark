@@ -234,7 +234,7 @@ static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            gint hdr_offset = offset;
 
            if (check_col(pinfo->cinfo, COL_INFO))
-              col_add_fstr(pinfo->cinfo, COL_INFO, "XOT PVC Setup");
+              col_set_str(pinfo->cinfo, COL_INFO, "XOT PVC Setup");
            proto_item_set_len(ti, XOT_HEADER_LENGTH + plen);
 
            /* These fields are in overlay with packet-x25.c */

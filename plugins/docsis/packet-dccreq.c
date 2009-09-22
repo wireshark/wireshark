@@ -268,7 +268,7 @@ dissect_dccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (check_col (pinfo->cinfo, COL_INFO))
     {
       col_clear (pinfo->cinfo, COL_INFO);
-      col_add_fstr (pinfo->cinfo, COL_INFO,"DCC-REQ Message: ");
+      col_set_str(pinfo->cinfo, COL_INFO, "DCC-REQ Message: ");
     }
 
   if (tree)

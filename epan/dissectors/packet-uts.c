@@ -88,7 +88,7 @@ static int testchar(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int op, g
 		}
 	} else {
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown Message Format");
+			col_set_str(pinfo->cinfo, COL_INFO, "Unknown Message Format");
 		return 0;	
 	}
 }

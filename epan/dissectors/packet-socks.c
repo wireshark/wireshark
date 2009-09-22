@@ -394,7 +394,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Socks");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Version: 5, UDP Associated packet");
+		col_set_str(pinfo->cinfo, COL_INFO, "Version: 5, UDP Associated packet");
 
 	if ( tree) {
     		ti = proto_tree_add_protocol_format( tree, proto_socks, tvb,

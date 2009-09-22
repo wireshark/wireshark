@@ -197,7 +197,7 @@ static void dissect_kdp(tvbuff_t *tvb,
      print more detailed summary info */
   if (check_col(pinfo->cinfo, COL_INFO)) {
     if (version != 2) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "SDDP message");
+      col_set_str(pinfo->cinfo, COL_INFO, "SDDP message");
     } else {
       char ack_string[BUFFER_SIZE];
       char seq_num_string[BUFFER_SIZE];

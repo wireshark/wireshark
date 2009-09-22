@@ -439,7 +439,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* two first bits not NULL => should be a channel-data message*/
 
 		/* Clear out stuff in the info column */
-		col_add_fstr(pinfo->cinfo, COL_INFO, "ChannelData TURN Message");
+		col_set_str(pinfo->cinfo, COL_INFO, "ChannelData TURN Message");
 
 		if (!tree)
 			return tvb_length(tvb);

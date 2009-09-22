@@ -676,7 +676,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* ask heuristics, if some sub-dissector is interested in this packet payload */
     if(!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree)) {
         /*if (check_col(pinfo->cinfo, COL_INFO))
-              col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown");*/
+              col_set_str(pinfo->cinfo, COL_INFO, "Unknown");*/
 
         /* Oh, well, we don't know this; dissect it as data. */
         dissect_pn_undecoded(next_tvb, 0, pinfo, tree, tvb_length(next_tvb));
