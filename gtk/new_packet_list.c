@@ -256,6 +256,12 @@ new_packet_list_clear(void)
 
 	new_packet_list_store_clear(packetlist);
 	gtk_widget_queue_draw(packetlist->view);
+	/* XXX is this correct in all cases?
+	 * Reset the sort column, use packetlist as model in case the list is frozen.
+	 */
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist),
+			0, GTK_SORT_ASCENDING);
+
 }
 
 void
