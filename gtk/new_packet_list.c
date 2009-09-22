@@ -31,9 +31,7 @@
 
 #ifdef NEW_PACKET_LIST
 
-#ifdef HAVE_STRING_H
 #include "string.h"
-#endif
 
 #include <stdio.h>
 #include <gtk/gtk.h>
@@ -295,9 +293,14 @@ void new_packet_list_resize_column(gint col)
 	PangoLayout *layout;
 	GtkTreeViewColumn *column;
 	gint col_width;
+	const gchar *long_str;
 
+	long_str = packet_list_get_widest_column_string(packetlist, col);
+	if(strcmp("",long_str)==0)
+		/* If we get an empty string levae the width unchanged */
+		return;
 	column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col);
-	layout = gtk_widget_create_pango_layout(packetlist->view, packet_list_get_widest_column_string(packetlist, col));
+	layout = gtk_widget_create_pango_layout(packetlist->view, long_str );
 	pango_layout_get_pixel_size(layout, &col_width, NULL);
 	gtk_tree_view_column_set_fixed_width(column, col_width);
 	g_object_unref(G_OBJECT(layout));
@@ -439,7 +442,6 @@ new_packet_list_moveto_end(void)
 {
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view));
 	GtkTreeIter iter;
-	GtkTreeSelection *selection;
 	GtkTreePath *path;
 	gint children;
 	guint last_row;
@@ -452,7 +454,6 @@ new_packet_list_moveto_end(void)
 		return;
 
 	path = gtk_tree_model_get_path(model, &iter);
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 
 	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(packetlist->view),
 			path,
