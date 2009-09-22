@@ -462,6 +462,7 @@ new_packet_list_moveto_end(void)
 			0); 	/* The horizontal alignment of the column */
 
 	gtk_tree_path_free(path);
+	gtk_widget_grab_focus(packetlist->view);
 }
 
 gboolean

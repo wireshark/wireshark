@@ -848,6 +848,11 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
 #ifdef NEW_PACKET_LIST
   new_packet_list_thaw();
+  /* With the new packet list the first packet
+   * isn't automatically selected.
+   */
+  if(!cf->current_frame)
+	  new_packet_list_select_first_row();
 #else
   /* XXX - this causes "flickering" of the list */
   packet_list_thaw();
