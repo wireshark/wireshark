@@ -93,7 +93,7 @@ typedef struct _capture_file {
   field_info  *finfo_selected;	/* Field info for currently selected field */
 } capture_file;
 
-void init_cap_file(capture_file *cf);
+void cap_file_init(capture_file *cf);
 
 void cap_file_add_fdata(capture_file *cf, frame_data *fdata);
 

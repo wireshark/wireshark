@@ -981,7 +981,7 @@ main(int argc, char *argv[])
 
   check_capture_privs();
 
-  init_cap_file(&cfile);
+  cap_file_init(&cfile);
 
   /* Print format defaults to this. */
   print_format = PR_FMT_TEXT;

@@ -34,7 +34,7 @@
 #include "cfile.h"
 
 void
-init_cap_file(capture_file *cf)
+cap_file_init(capture_file *cf)
 {
   /* Initialize the capture file struct */
   cf->plist_start   = NULL;

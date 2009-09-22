@@ -2209,7 +2209,7 @@ main(int argc, char *argv[])
 		  rf_path, strerror(rf_open_errno));
   }
 
-  init_cap_file(&cfile);
+  cap_file_init(&cfile);
 
   /* Fill in capture options with values from the preferences */
   prefs_to_capture_opts();
