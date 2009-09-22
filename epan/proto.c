@@ -664,11 +664,11 @@ proto_tree_set_fake_protocols(proto_tree *tree, gboolean fake_protocols)
 }
 
 /* Assume dissector set only its protocol fields.
-   This function is called by dissectors and allowes to speed up filtering
-   in wireshark, if this function returns FALSE it is safe to reset tree to NULL
+   This function is called by dissectors and allows the speeding up of filtering
+   in wireshark; if this function returns FALSE it is safe to reset tree to NULL
    and thus skip calling most of the expensive proto_tree_add_...()
    functions.
-   If the tree is visible we implicitely assume the field is referenced.
+   If the tree is visible we implicitly assume the field is referenced.
 */
 gboolean
 proto_field_is_referenced(proto_tree *tree, int proto_id)
