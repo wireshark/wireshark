@@ -2347,8 +2347,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-      frame_data_init(&fdata, cf->count, &cf->elapsed_time, whdr, offset,
-                      &cum_bytes, &first_ts, &prev_dis_ts, &prev_cap_ts);
+      frame_data_init(&fdata, cf->count, whdr, offset, cum_bytes);
 
     if (print_packet_info) {
       /* Grab any resolved addresses */
@@ -2391,6 +2390,10 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
       cinfo = &cf->cinfo;
     else
       cinfo = NULL;
+
+    frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
+                                  &first_ts, &prev_dis_ts, &prev_cap_ts);
+
     epan_dissect_run(&edt, pseudo_header, pd, &fdata, cinfo);
 
     tap_push_tapped_queue(&edt);
@@ -2407,11 +2410,10 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
     passed = TRUE;
   }
 
+  fdata.flags.passed_dfilter = passed;
+
   if (passed) {
-    /* Keep the time of the current packet if the packet passed
-       the read filter so that the delta time since last displayed
-       packet can be calculated */
-    prev_dis_ts = fdata.abs_ts;
+    frame_data_set_after_dissect(&fdata, &cum_bytes, &prev_dis_ts);
 
     /* Process this packet. */
     if (print_packet_info) {

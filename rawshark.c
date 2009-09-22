@@ -1021,8 +1021,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
-  frame_data_init(&fdata, cf->count, &cf->elapsed_time, whdr, offset,
-                  &cum_bytes, &first_ts, &prev_dis_ts, &prev_cap_ts);
+  frame_data_init(&fdata, cf->count, whdr, offset, cum_bytes);
 
   passed = TRUE;
   create_proto_tree = TRUE;
@@ -1042,7 +1041,10 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
 
   tap_queue_init(&edt);
 
-  printf("%lu", (unsigned long int)cf->count);
+  printf("%lu", (unsigned long int) cf->count);
+
+  frame_data_set_before_dissect(&fdata, &cf->elapsed_time,
+                                &first_ts, &prev_dis_ts, &prev_cap_ts);
 
   /* We only need the columns if we're printing packet info but we're
      *not* verbose; in verbose mode, we print the protocol tree, not
@@ -1050,6 +1052,10 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   epan_dissect_run(&edt, &pseudo_header, pd, &fdata, &cf->cinfo);
 
   tap_push_tapped_queue(&edt);
+
+  /* We don't use a display filter */
+  fdata.flags.passed_dfilter = 1;
+  frame_data_set_after_dissect(&fdata, &cum_bytes, &prev_dis_ts);
 
   for(i = 0; i < n_rfilters; i++) {
     /* Run the read filter if we have one. */

@@ -426,6 +426,8 @@ fragment_table_init
 frame_data_cleanup
 frame_data_compare
 frame_data_init
+frame_data_set_before_dissect
+frame_data_set_after_dissect
 free_prefs
 ftype_can_contains
 ftype_can_eq

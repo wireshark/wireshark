@@ -189,20 +189,15 @@ frame_data_compare(const frame_data *fdata1, const frame_data *fdata2, int field
 
 void
 frame_data_init(frame_data *fdata, guint32 num,
-                nstime_t *elapsed_time,
                 const struct wtap_pkthdr *phdr, gint64 offset,
-                guint32 *cum_bytes,
-                nstime_t *first_ts,
-                nstime_t *prev_dis_ts,
-                nstime_t *prev_cap_ts)
+                guint32 cum_bytes)
 {
   fdata->next = NULL;
   fdata->prev = NULL;
   fdata->pfd = NULL;
   fdata->num = num;
   fdata->pkt_len = phdr->len;
-  *cum_bytes += phdr->len;
-  fdata->cum_bytes  = *cum_bytes;
+  fdata->cum_bytes  = cum_bytes + phdr->len;
   fdata->cap_len = phdr->caplen;
   fdata->file_off = offset;
   /* To save some memory, we coarcese it into a gint8 */
@@ -220,7 +215,15 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->col_text_len = NULL;
   fdata->col_text = NULL;
 #endif
+}
 
+void
+frame_data_set_before_dissect(frame_data *fdata,
+                nstime_t *elapsed_time,
+                nstime_t *first_ts,
+                nstime_t *prev_dis_ts,
+                nstime_t *prev_cap_ts)
+{
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the first packet. */
@@ -268,6 +271,32 @@ frame_data_init(frame_data *fdata, guint32 num,
      this packet. */
   nstime_delta(&fdata->del_cap_ts, &fdata->abs_ts, prev_cap_ts);
   *prev_cap_ts = fdata->abs_ts;
+}
+
+void
+frame_data_set_after_dissect(frame_data *fdata,
+                guint32 *cum_bytes,
+                nstime_t *prev_dis_ts)
+{
+  if(fdata->flags.passed_dfilter || fdata->flags.ref_time)
+  {
+    /* This frame either passed the display filter list or is marked as
+       a time reference frame.  All time reference frames are displayed
+       even if they dont pass the display filter */
+    if(fdata->flags.ref_time){
+      /* if this was a TIME REF frame we should reset the cul bytes field */
+      *cum_bytes = fdata->pkt_len;
+      fdata->cum_bytes = *cum_bytes;
+    } else {
+      /* increase cum_bytes with this packets length */
+      *cum_bytes += fdata->pkt_len;
+      fdata->cum_bytes = *cum_bytes;
+    }
+
+    /* Set the time of the previous displayed frame to the time of this
+       frame. */
+    *prev_dis_ts = fdata->abs_ts;
+  }
 }
 
 void
