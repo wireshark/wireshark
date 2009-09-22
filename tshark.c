@@ -2343,26 +2343,27 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   /* Count this packet. */
   cf->count++;
 
+  /* If we're not running a display filter and we're not printing any
+     packet information, we don't need to do a dissection. This means
+     that all packets can be marked as 'passed'. */
+  passed = TRUE;
+
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
       frame_data_init(&fdata, cf->count, whdr, offset, cum_bytes);
 
-    if (print_packet_info) {
+    if (print_packet_info && g_resolv_flags)
       /* Grab any resolved addresses */
+      host_name_lookup_process(NULL);
 
-      if (g_resolv_flags) {
-        host_name_lookup_process(NULL);
-      }
-    }
-
-    passed = TRUE;
     if (cf->rfcode || verbose || filtering_tap_listeners ||
         (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo))
       create_proto_tree = TRUE;
     else
       create_proto_tree = FALSE;
+
     /* The protocol tree will be "visible", i.e., printed, only if we're
        printing packet details, which is true if we're printing stuff
        ("print_packet_info" is true) and we're in verbose mode ("verbose"
@@ -2401,13 +2402,6 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
     /* Run the read filter if we have one. */
     if (cf->rfcode)
       passed = dfilter_apply_edt(cf->rfcode, &edt);
-    else
-      passed = TRUE;
-  } else {
-    /* We're not running a display filter and we're not printing any
-       packet information, so we don't need to do a dissection, and all
-       packets are processed. */
-    passed = TRUE;
   }
 
   if (passed) {
