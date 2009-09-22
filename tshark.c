@@ -2410,8 +2410,6 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
     passed = TRUE;
   }
 
-  fdata.flags.passed_dfilter = passed;
-
   if (passed) {
     frame_data_set_after_dissect(&fdata, &cum_bytes, &prev_dis_ts);
 

@@ -1053,8 +1053,6 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
 
   tap_push_tapped_queue(&edt);
 
-  /* We don't use a display filter */
-  fdata.flags.passed_dfilter = 1;
   frame_data_set_after_dissect(&fdata, &cum_bytes, &prev_dis_ts);
 
   for(i = 0; i < n_rfilters; i++) {
