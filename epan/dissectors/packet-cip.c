@@ -864,7 +864,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                /* Display the 8-bit attribute number */
                if ( generate )
                {
-                  it = proto_tree_add_item( cia_tree, hf_cip_member8, NULL, 0, 0, TRUE );
+                  it = proto_tree_add_uint( cia_tree, hf_cip_member8, NULL, 0, 0, temp_data );
                   PROTO_ITEM_SET_GENERATED(it);
                }
                else
@@ -891,7 +891,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                /* Display the 16-bit attribute number */
                if ( generate )
                {
-                  it = proto_tree_add_item( cia_tree, hf_cip_member16, NULL, 0, 0, TRUE );
+                  it = proto_tree_add_uint( cia_tree, hf_cip_member16, NULL, 0, 0, temp_data );
                   PROTO_ITEM_SET_GENERATED(it);
                }
                else
@@ -918,7 +918,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                /* Display the 32-bit attribute number */
                if ( generate )
                {
-                  it = proto_tree_add_item( cia_tree, hf_cip_member32, NULL, 0, 0, TRUE );
+                  it = proto_tree_add_uint( cia_tree, hf_cip_member32, NULL, 0, 0, temp_data );
                   PROTO_ITEM_SET_GENERATED(it);
                }
                else
@@ -957,7 +957,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                /* Display the 8-bit attribute number */
                if ( generate )
                {
-                  it = proto_tree_add_item( cia_tree, hf_cip_attribute8, NULL, 0, 0, TRUE );
+                  it = proto_tree_add_uint( cia_tree, hf_cip_attribute8, NULL, 0, 0, temp_data );
                   PROTO_ITEM_SET_GENERATED(it);
                }
                else
@@ -984,7 +984,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                /* Display the 16-bit attribute number */
                if ( generate )
                {
-                  it = proto_tree_add_item( cia_tree, hf_cip_attribute16, NULL, 0, 0, TRUE );
+                  it = proto_tree_add_uint( cia_tree, hf_cip_attribute16, NULL, 0, 0, temp_data );
                   PROTO_ITEM_SET_GENERATED(it);
                }
                else
@@ -1011,7 +1011,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                /* Display the 32-bit attribute number */
                if ( generate )
                {
-                  it = proto_tree_add_item( cia_tree, hf_cip_attribute32, NULL, 0, 0, TRUE );
+                  it = proto_tree_add_uint( cia_tree, hf_cip_attribute32, NULL, 0, 0, temp_data );
                   PROTO_ITEM_SET_GENERATED(it);
                }
                else
@@ -2645,7 +2645,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
                /* Add the epath */
                pi = proto_tree_add_text(cip_tree, NULL, 0, 0, "Request Path: ");
                PROTO_ITEM_SET_GENERATED(pi);
-               dissect_epath( tvbIOI, pi, 0, preq_info->IOILen, TRUE );
+               dissect_epath( tvbIOI, pi, 0, preq_info->IOILen*2, TRUE );
                tvb_free(tvbIOI);
             }
          }
