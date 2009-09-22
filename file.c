@@ -2229,7 +2229,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
 
   selected_frame_seen = FALSE;
 
-  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
     /* Create the progress bar if necessary.
        We check on every iteration of the loop, so that it takes no
        longer than the standard time to create it (otherwise, for a
@@ -3324,7 +3324,7 @@ cf_change_time_formats(capture_file *cf)
      is in a row of the summary list and, if so, whether there are
      any columns that show the time in the "command-line-specified"
      format and, if so, update that row. */
-  for (fdata = cf->plist, row = -1; fdata != NULL; fdata = fdata->next) {
+  for (fdata = cf->plist_start, row = -1; fdata != NULL; fdata = fdata->next) {
     /* Create the progress bar if necessary.
        We check on every iteration of the loop, so that it takes no
        longer than the standard time to create it (otherwise, for a
@@ -3994,7 +3994,7 @@ cf_goto_top_frame(capture_file *cf _U_)
   int row;
   frame_data *lowest_fdata = NULL;
 
-  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
     if (fdata->flags.passed_dfilter) {
         lowest_fdata = fdata;
         break;
@@ -4027,7 +4027,7 @@ cf_goto_bottom_frame(capture_file *cf _U_) /* cf is unused w/ NEW_PACKET_LIST */
   int row;
   frame_data *highest_fdata = NULL;
 
-  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+  for (fdata = cf->plist_start; fdata != NULL; fdata = fdata->next) {
     if (fdata->flags.passed_dfilter) {
         highest_fdata = fdata;
     }
