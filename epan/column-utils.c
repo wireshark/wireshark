@@ -198,89 +198,6 @@ col_clear(column_info *cinfo, gint el)
     return;                                 \
   }
 
-/* Use this if "str" points to something that will stay around (and thus
-   needn't be copied). */
-void
-col_set_str(column_info *cinfo, gint el, const gchar* str)
-{
-  int i;
-  int fence;
-  size_t max_len;
-
-  DISSECTOR_ASSERT(str);
-
-  /* The caller is expected to pass in something that 'will stay around' and
-   * something from the ephemeral pool certainly doesn't fit the bill. */
-  DISSECTOR_ASSERT(!ep_verify_pointer(str));
-
-  if (!CHECK_COL(cinfo, el))
-    return;
-
-  if (el == COL_INFO)
-    max_len = COL_MAX_INFO_LEN;
-  else
-    max_len = COL_MAX_LEN;
-
-  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
-    if (cinfo->fmt_matx[i][el]) {
-      fence = cinfo->col_fence[i];
-      if (fence != 0) {
-        /*
-         * We will append the string after the fence.
-         * First arrange that we can append, if necessary.
-         */
-        COL_CHECK_APPEND(cinfo, i, max_len);
-
-        g_strlcpy(&cinfo->col_buf[i][fence], str, max_len - fence);
-      } else {
-        /*
-         * There's no fence, so we can just set the column to point
-         * to the string.
-         */
-        cinfo->col_data[i] = str;
-      }
-    }
-  }
-}
-
-/* Adds a vararg list to a packet info string. */
-void
-col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
-  va_list ap;
-  int     i;
-  int     fence;
-  int     max_len;
-
-  if (!CHECK_COL(cinfo, el))
-    return;
-
-  if (el == COL_INFO)
-    max_len = COL_MAX_INFO_LEN;
-  else
-    max_len = COL_MAX_LEN;
-
-  va_start(ap, format);
-  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
-    if (cinfo->fmt_matx[i][el]) {
-      fence = cinfo->col_fence[i];
-      if (fence != 0) {
-        /*
-         * We will append the string after the fence.
-         * First arrange that we can append, if necessary.
-         */
-        COL_CHECK_APPEND(cinfo, i, max_len);
-      } else {
-        /*
-         * There's no fence, so we can just write to the string.
-         */
-        cinfo->col_data[i] = cinfo->col_buf[i];
-      }
-      g_vsnprintf(&cinfo->col_buf[i][fence], max_len - fence, format, ap);
-    }
-  }
-  va_end(ap);
-}
-
 /* The same as CHECK_COL(), but without the check to see if the column is writable. */
 #define HAVE_CUSTOM_COLS(cinfo) ((cinfo) && (cinfo)->col_first[COL_CUSTOM] >= 0)
 
@@ -334,17 +251,6 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
         }
     }
   }
-}
-
-gboolean
-col_has_time_fmt(column_info *cinfo, gint col)
-{
-  return ((cinfo->fmt_matx[col][COL_CLS_TIME]) ||
-          (cinfo->fmt_matx[col][COL_ABS_TIME]) ||
-          (cinfo->fmt_matx[col][COL_ABS_DATE_TIME]) ||
-          (cinfo->fmt_matx[col][COL_REL_TIME]) ||
-          (cinfo->fmt_matx[col][COL_DELTA_TIME]) ||
-          (cinfo->fmt_matx[col][COL_DELTA_TIME_DIS]));
 }
 
 static void
@@ -549,6 +455,89 @@ col_add_str(column_info *cinfo, gint el, const gchar* str)
   }
 }
 
+/* Use this if "str" points to something that will stay around (and thus
+   needn't be copied). */
+void
+col_set_str(column_info *cinfo, gint el, const gchar* str)
+{
+  int i;
+  int fence;
+  size_t max_len;
+
+  DISSECTOR_ASSERT(str);
+
+  /* The caller is expected to pass in something that 'will stay around' and
+   * something from the ephemeral pool certainly doesn't fit the bill. */
+  DISSECTOR_ASSERT(!ep_verify_pointer(str));
+
+  if (!CHECK_COL(cinfo, el))
+    return;
+
+  if (el == COL_INFO)
+    max_len = COL_MAX_INFO_LEN;
+  else
+    max_len = COL_MAX_LEN;
+
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
+    if (cinfo->fmt_matx[i][el]) {
+      fence = cinfo->col_fence[i];
+      if (fence != 0) {
+        /*
+         * We will append the string after the fence.
+         * First arrange that we can append, if necessary.
+         */
+        COL_CHECK_APPEND(cinfo, i, max_len);
+
+        g_strlcpy(&cinfo->col_buf[i][fence], str, max_len - fence);
+      } else {
+        /*
+         * There's no fence, so we can just set the column to point
+         * to the string.
+         */
+        cinfo->col_data[i] = str;
+      }
+    }
+  }
+}
+
+/* Adds a vararg list to a packet info string. */
+void
+col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
+  va_list ap;
+  int     i;
+  int     fence;
+  int     max_len;
+
+  if (!CHECK_COL(cinfo, el))
+    return;
+
+  if (el == COL_INFO)
+    max_len = COL_MAX_INFO_LEN;
+  else
+    max_len = COL_MAX_LEN;
+
+  va_start(ap, format);
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
+    if (cinfo->fmt_matx[i][el]) {
+      fence = cinfo->col_fence[i];
+      if (fence != 0) {
+        /*
+         * We will append the string after the fence.
+         * First arrange that we can append, if necessary.
+         */
+        COL_CHECK_APPEND(cinfo, i, max_len);
+      } else {
+        /*
+         * There's no fence, so we can just write to the string.
+         */
+        cinfo->col_data[i] = cinfo->col_buf[i];
+      }
+      g_vsnprintf(&cinfo->col_buf[i][fence], max_len - fence, format, ap);
+    }
+  }
+  va_end(ap);
+}
+
 static void
 col_do_append_str(column_info *cinfo, gint el, const gchar* separator,
     const gchar* str)
@@ -611,6 +600,17 @@ col_append_sep_str(column_info *cinfo, gint el, const gchar* separator,
 }
 
 /* --------------------------------- */
+gboolean
+col_has_time_fmt(column_info *cinfo, gint col)
+{
+  return ((cinfo->fmt_matx[col][COL_CLS_TIME]) ||
+          (cinfo->fmt_matx[col][COL_ABS_TIME]) ||
+          (cinfo->fmt_matx[col][COL_ABS_DATE_TIME]) ||
+          (cinfo->fmt_matx[col][COL_REL_TIME]) ||
+          (cinfo->fmt_matx[col][COL_DELTA_TIME]) ||
+          (cinfo->fmt_matx[col][COL_DELTA_TIME_DIS]));
+}
+
 static gint
 set_abs_date_time(frame_data *fd, gchar *buf)
 {
