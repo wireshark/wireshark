@@ -402,10 +402,8 @@ cf_reset_state(capture_file *cf)
     cf->plist_chunk = NULL;
   }
 #endif
-  if (cf->rfcode != NULL) {
-    dfilter_free(cf->rfcode);
-    cf->rfcode = NULL;
-  }
+  dfilter_free(cf->rfcode);
+  cf->rfcode = NULL;
   cf->plist_start = NULL;
   cf->plist_end = NULL;
   cf_unselect_packet(cf);   /* nothing to select */
@@ -1681,9 +1679,8 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   }
 
   /* Cleanup and release all dfilter resources */
-  if (dfcode != NULL){
-    dfilter_free(dfcode);
-  }
+  dfilter_free(dfcode);
+
   return CF_OK;
 }
 
@@ -2027,9 +2024,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   }
 
   /* Cleanup and release all dfilter resources */
-  if (dfcode != NULL){
-    dfilter_free(dfcode);
-  }
+  dfilter_free(dfcode);
 }
 
 #else
@@ -2320,9 +2315,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   }
 
   /* Cleanup and release all dfilter resources */
-  if (dfcode != NULL){
-    dfilter_free(dfcode);
-  }
+  dfilter_free(dfcode);
 }
 #endif /* NEW_PACKET_LIST */
 
