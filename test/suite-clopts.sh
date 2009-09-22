@@ -74,7 +74,7 @@ clopts_step_nonexisting_file() {
 
 # check exit status of all single char option being invalid
 clopts_suite_tshark_invalid_chars() {
-	for index in A B C E F H I J K M N O P Q R T U W X Y Z a b c d e f g i j k m o r s t u w y z
+	for index in A B C E F H I J K M N O Q R T U W X Y Z a b c d e f g i j k m o r s t u w y z
 	do
 	  test_step_add "Invalid TShark parameter -$index, exit status must be $EXIT_COMMAND_LINE" "test_single_char_options $TSHARK $index $EXIT_COMMAND_LINE"
 	done
