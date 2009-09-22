@@ -28,10 +28,10 @@
     <avp name="3GPP-GGSN address" code="7" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="IPAddress"/>
     </avp>
-    <avp name="3GPP-IMSI MCC-MNC" code="8" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <avp name="3GPP-IMSI-MCC-MNC" code="8" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="UTF8String"/>
     </avp>
-    <avp name="3GPP-GGSN MCC-MNC" code="9" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <avp name="3GPP-GGSN-MCC-MNC" code="9" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="UTF8String"/>
     </avp>
     <avp name="3GPP-NSAPI" code="10" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
