@@ -2241,7 +2241,7 @@ process_packet_first_pass(capture_file *cf,
 
 static gboolean
 process_packet_second_pass(capture_file *cf, frame_data *fdata,
-               gint64 offset, union wtap_pseudo_header *pseudo_header, const guchar *pd,
+               union wtap_pseudo_header *pseudo_header, const guchar *pd,
                gboolean filtering_tap_listeners, guint tap_flags)
 {
   gboolean create_proto_tree;
@@ -2460,7 +2460,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     for (fdata = cf->plist_start; err == 0 && fdata != NULL; fdata = fdata->next) {
       if (wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
           cf->pd, fdata->cap_len, &err, &err_info)) {
-        if (process_packet_second_pass(cf, fdata, fdata->file_off,
+        if (process_packet_second_pass(cf, fdata,
                            &cf->pseudo_header, cf->pd,
                            filtering_tap_listeners, tap_flags)) {
           /* Either there's no read filtering or this packet passed the
