@@ -2348,12 +2348,12 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
      that all packets can be marked as 'passed'. */
   passed = TRUE;
 
+  frame_data_init(&fdata, cf->count, whdr, offset, cum_bytes);
+
   /* If we're going to print packet information, or we're going to
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-      frame_data_init(&fdata, cf->count, whdr, offset, cum_bytes);
-
     if (print_packet_info && g_resolv_flags)
       /* Grab any resolved addresses */
       host_name_lookup_process(NULL);
