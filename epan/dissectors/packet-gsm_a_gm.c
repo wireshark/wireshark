@@ -50,9 +50,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <string.h>
 
 #include <epan/packet.h>
@@ -250,7 +247,7 @@ static dissector_table_t gprs_sm_pco_subdissector_table; /* GPRS SM PCO PPP Prot
 #define	NUM_GSM_GM_ELEM (sizeof(gsm_gm_elem_strings)/sizeof(value_string))
 gint ett_gsm_gm_elem[NUM_GSM_GM_ELEM];
 
-const	gchar *pdp_str[2]={ "PDP-INACTIVE", "PDP-ACTIVE" };
+static const gchar *pdp_str[2]={ "PDP-INACTIVE", "PDP-ACTIVE" };
 
 /*
  * [7] 10.5.5.1
