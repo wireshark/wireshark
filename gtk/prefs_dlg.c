@@ -770,7 +770,7 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
     const enum_val_t *enumvals, gint current_val)
 {
   GtkTooltips *tooltips;
-  GtkWidget *menu_box, *menu, *menu_item, *option_menu;
+  GtkWidget *menu_box, *combo_box;
   int menu_index, index;
   const enum_val_t *enum_valp;
   GtkWidget *event_box;
@@ -781,35 +781,26 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
                    tooltips);
 
   /* Create a menu from the enumvals */
-  menu = gtk_menu_new();
+  combo_box = gtk_combo_box_new_text ();
   if (tooltip_text != NULL && tooltips != NULL)
-    gtk_tooltips_set_tip(tooltips, menu, tooltip_text, NULL);
-  menu_index = -1;
+    gtk_tooltips_set_tip(tooltips, combo_box, tooltip_text, NULL);
+  menu_index = 0;
   for (enum_valp = enumvals, index = 0; enum_valp->name != NULL;
        enum_valp++, index++) {
-    menu_item = gtk_menu_item_new_with_label(enum_valp->description);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+	gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), enum_valp->description);
     if (enum_valp->value == current_val)
       menu_index = index;
-    gtk_widget_show(menu_item);
   }
-
-  /* Create the option menu from the menu */
-  option_menu = gtk_option_menu_new();
-  gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
-
-  /* Set its current value to the variable's current value */
-  if (menu_index != -1)
-    gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu),
-                                menu_index);
+  /* Set the current value active */
+  gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), menu_index);
 
   /*
-   * Put the option menu in an hbox, so that it's only as wide
+   * Put the combo box in an hbox, so that it's only as wide
    * as the widest entry, rather than being as wide as the table
    * space.
    */
   menu_box = gtk_hbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(menu_box), option_menu, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(menu_box), combo_box, FALSE, FALSE, 0);
 
   event_box = gtk_event_box_new();
   gtk_event_box_set_visible_window (GTK_EVENT_BOX(event_box), FALSE);
@@ -819,20 +810,21 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
     gtk_tooltips_set_tip(tooltips, event_box, tooltip_text, NULL);
   gtk_container_add(GTK_CONTAINER(event_box), menu_box);
 
-  return option_menu;
+  return combo_box;
 }
 
 gint
-fetch_preference_option_menu_val(GtkWidget *optmenu, const enum_val_t *enumvals)
+fetch_preference_option_menu_val(GtkWidget *combo_box, const enum_val_t *enumvals)
 {
   /*
    * OK, now return the value corresponding to the label for the
-   * currently active entry in the option menu.
-   *
-   * Yes, this is how you get the label for that entry.  See FAQ
-   * 6.8 in the GTK+ FAQ.
+   * currently active entry in the combo box.
    */
-  return label_to_enum_val(GTK_BIN(optmenu)->child, enumvals);
+    int i;
+
+	i = gtk_combo_box_get_active (GTK_COMBO_BOX(combo_box));
+
+	return enumvals[i].value;
 }
 
 GtkWidget *
