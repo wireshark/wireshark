@@ -310,7 +310,7 @@ colorize_dialog_new (char *filter)
   store = gtk_list_store_new(6, 
                                  G_TYPE_STRING, 
                                  G_TYPE_STRING,
-                             G_TYPE_STRING, 
+                                 G_TYPE_STRING, 
                                  G_TYPE_STRING, 
                                  G_TYPE_BOOLEAN, 
                                  G_TYPE_POINTER);
