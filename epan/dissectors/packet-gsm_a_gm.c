@@ -999,8 +999,9 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     proto_tree_add_text(tree,
                         tvb, curr_offset, 1,
                         "PS inter-RAT HO to UTRAN Iu mode capability: (%u) %s",
-                        oct,
-                        answer_ps_irat[oct]);
+                        oct & 0x1,                    /* XXX: There's only 2 entries in the ..._irat array  */
+                        answer_ps_irat[oct & 0x1]);   /*      so we'll assume that this is a 1 bit value.   */
+                                                      
 
     proto_tree_add_text(tree,
                         tvb, curr_offset, 1,
