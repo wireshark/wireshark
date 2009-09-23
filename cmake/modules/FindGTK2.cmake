@@ -222,6 +222,20 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         /sw/lib
     )
 
+    FIND_LIBRARY(GTK2_GDK_PIXBUF_LIBRARY
+      NAMES
+        gdk_pixbuf-2.0
+      PATHS
+        /usr/lib
+        /usr/local/lib
+        /usr/openwin/lib
+        /usr/X11R6/lib
+        /opt/gnome/lib
+        /opt/lib
+        /opt/local/lib
+        /sw/lib
+    )
+
     FIND_LIBRARY(GTK2_GMODULE_LIBRARY
       NAMES
         gmodule-2.0
@@ -242,6 +256,20 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
         glib-2.0
       PATHS
         ${_GLIB2inkDir}
+        /usr/lib
+        /usr/local/lib
+        /usr/openwin/lib
+        /usr/X11R6/lib
+        /opt/gnome/lib
+        /opt/lib
+        /opt/local/lib
+        /sw/lib
+    )
+
+    FIND_LIBRARY(GTK2_PANGO_LIBRARY
+      NAMES
+        pango-1.0
+      PATHS
         /usr/lib
         /usr/local/lib
         /usr/openwin/lib
@@ -322,6 +350,9 @@ ELSE (GTK2_LIBRARIES AND GTK2_INCLUDE_DIRS)
                       ${GTK2_GTK_LIBRARY}
                       ${GTK2_GDK_LIBRARY}
                       ${GTK2_GLIB_LIBRARY}
+                      ${GTK2_GDK_PIXBUF_LIBRARY}
+                      ${GTK2_PANGO_LIBRARY}
+                      ${GTK2_GOBJECT_LIBRARY}
                     )
                     #${GTK2_GOBJECT_LIBRARY})
 
