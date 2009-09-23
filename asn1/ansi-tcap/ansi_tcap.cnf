@@ -84,37 +84,37 @@ tvbuff_t	*parameter_tvb;
 #.FN_HDR PackageType/unidirectional
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "unidirectional ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "unidirectional ");
 
 #.FN_HDR PackageType/queryWithPerm
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "queryWithPerm ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "queryWithPerm ");
 
 #.FN_HDR PackageType/queryWithoutPerm
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "queryWithoutPerm ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "queryWithoutPerm ");
 
 #.FN_HDR PackageType/response
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "response ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "response ");
 
 #.FN_HDR PackageType/conversationWithPerm
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "conversationWithPerm ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "conversationWithPerm ");
 
 #.FN_HDR PackageType/conversationWithoutPerm
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "conversationWithoutPerm ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "conversationWithoutPerm ");
 
 #.FN_HDR PackageType/abort
 gp_tcapsrt_info->ope=TC_ANSI_ABORT;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 
 #.FN_BODY TransactionID/_untag VAL_PTR = &next_tvb
 
