@@ -322,12 +322,13 @@ if(ENABLE_PLUGINS)
 		plugins/m2m
 		plugins/mate
 		plugins/opcua
-#		plugins/profinet
-#		plugins/sercosiii
-#		plugins/stats_tree
-#		plugins/unistim
-#		plugins/wimax
-#		plugins/wimaxasncp
+		plugins/profinet
+		plugins/sercosiii
+		plugins/stats_tree
+#		plugins/tpg
+		plugins/unistim
+		plugins/wimax
+		plugins/wimaxasncp
 	)
 else()
 	set(PLUGIN_SRC_DIRS )
@@ -766,4 +767,5 @@ install(
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
 	PATTERN ".svn" EXCLUDE
 	PATTERN "Makefile.*" EXCLUDE
+	PATTERN "faq.py" EXCLUDE
 )

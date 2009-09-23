@@ -69,12 +69,15 @@ What needs to be done?
 - Add back platform specific objects.
 - Fix places in the cmake files marked as todo.
 - Add back (working) install target.
+  Currently, directories are created with user umask
 - Build source package (using CPack).
 - Build rpm package (using CPack).
 - Add back checkAPI target.
 - Test and add support for other platforms (BSDs, OSX,
   Solaris, Win32, Win64, ...)
 ...
+Couldn't load module /opt/test/lib/wireshark/plugins/1.3.0/libasn1.so: /opt/test/lib/wireshark/plugins/1.3.0/libasn1.so: undefined symbol: asn1_bool_decode
+Couldn't load module /opt/test/lib/wireshark/plugins/1.3.0/libmate.so: /opt/test/lib/wireshark/plugins/1.3.0/libmate.so: undefined symbol: mate_load_config
 
 Links regarding cmake
 =====================
