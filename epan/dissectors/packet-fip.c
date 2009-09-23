@@ -526,7 +526,7 @@ proto_register_fip(void)
         { &hf_fip_desc_mac,
           {"MAC Address", "fip.mac", FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL}},
         { &hf_fip_desc_map,
-          {"FC-MAP-OUI", "fip.map", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}},
+          {"FC-MAP-OUI", "fip.map", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}},
         { &hf_fip_desc_name,
           {"Switch or Node Name", "fip.name", FT_STRING, BASE_NONE, NULL,
             0, NULL, HFILL}},
