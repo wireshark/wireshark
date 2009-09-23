@@ -36,9 +36,15 @@ set(WSUTIL_FILES
   ${WSUTIL_PLATFORM_FILES}
 )
 
+set(wsutil_LIBS
+  ${GLIB2_LIBRARIES}
+)
+
 add_library(wsutil SHARED
   ${WSUTIL_FILES}
 )
+
+target_link_libraries(wsutil ${wsutil_LIBS})
 
 install(TARGETS wsutil
     LIBRARY DESTINATION lib
