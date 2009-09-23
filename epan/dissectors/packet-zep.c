@@ -193,7 +193,6 @@ static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*  Enter name info protocol field */
     if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-        col_clear(pinfo->cinfo, COL_PROTOCOL);
         col_set_str(pinfo->cinfo, COL_PROTOCOL, (zep_data.version==1)?"ZEP":"ZEPv2");
     }
 
