@@ -389,7 +389,6 @@ static void dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 cmd_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMP");
-    col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_INFO, pinfo->p2p_dir == P2P_DIR_SENT ? "Sent " : "Rcvd ");
 
     if(tree){

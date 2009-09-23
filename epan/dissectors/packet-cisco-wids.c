@@ -80,8 +80,6 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint remain;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CWIDS");
-	col_clear(pinfo->cinfo, COL_INFO);
-
 	col_set_str(pinfo->cinfo, COL_INFO, "Cwids: ");
 	/* FIXME: col_set_fence(pinfo->cinfo, all-cols, only addr-cols?); */
 

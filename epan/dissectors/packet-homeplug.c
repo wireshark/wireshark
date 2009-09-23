@@ -728,7 +728,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 	switch(mid) {
 	case HOMEPLUG_MID_LGDFV:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Get Firmware Version");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_gdfv, 1, FALSE);
@@ -740,7 +739,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_LSF:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Start Firmware");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_lsf, 1, FALSE);
@@ -748,7 +746,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_LWM:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Write Memory");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_lwm, 1, FALSE);
@@ -765,7 +762,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_LRM:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Read Memory");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_lrm, 1, FALSE);
@@ -781,7 +777,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_LRNVM:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Read NVM");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_lrnvm, 1, FALSE);
@@ -797,7 +792,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_LWNVM:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Write NVM");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_lwnvm, 1, FALSE);
@@ -813,7 +807,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_LRESET:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Reset");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_lreset, 1, FALSE);
@@ -821,7 +814,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_GMD:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Get Module Data");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_gmd, 1, FALSE);
@@ -839,7 +831,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_SMD:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Set Module Data");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_smd, 1, FALSE);
@@ -858,7 +849,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_CM:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Commit Module");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_cm, 1, FALSE);
@@ -869,7 +859,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_LEMD:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Erase Module Data");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_lemd, 1, FALSE);
@@ -880,7 +869,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_LENVMS:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Erase NVM Sectors");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_lenvms, 1, FALSE);
@@ -892,7 +880,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_GNVMP:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Get NVM Parametes");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_gnvmp, 1, FALSE);
@@ -907,7 +894,6 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
 		break;
 	case HOMEPLUG_MID_SNVMP:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_set_str(pinfo->cinfo, COL_INFO, "Loader Set NVM Parametes");
 		}
 		ptvcursor_add(cursor, hf_homeplug_loader_snvmp, 1, FALSE);
@@ -947,70 +933,60 @@ static void dissect_homeplug_hreq(ptvcursor_t * cursor, packet_info * pinfo)
   switch(mid) {
   case HOMEPLUG_MID_GDV:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Request: Get Device Version");
     }
     ptvcursor_add(cursor, hf_homeplug_hreq_gdv, 1, FALSE);
     break;
   case HOMEPLUG_MID_GFV:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Request: Get Firmware Version");
     }
     ptvcursor_add(cursor, hf_homeplug_hreq_gfv, 1, FALSE);
     break;
   case HOMEPLUG_MID_GNEK:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Request: Get Network Encryption Key Request");
     }
     ptvcursor_add(cursor, hf_homeplug_hreq_gnek, 1, FALSE);
     break;
   case HOMEPLUG_MID_GCLBPL:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Request: Get/ Clear Local Bridge Proxy List");
     }
     ptvcursor_add(cursor, hf_homeplug_hreq_gclbpl, 1, FALSE);
     break;
   case HOMEPLUG_MID_NVDS:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Request: Non-volatile Database Status");
     }
     ptvcursor_add(cursor, hf_homeplug_hreq_nvds, 1, FALSE);
     break;
   case HOMEPLUG_MID_GRBT:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Request: Get Remote Bridge Table");
     }
     ptvcursor_add(cursor, hf_homeplug_hreq_grbt, 1, FALSE);
     break;
   case HOMEPLUG_MID_GSLNM:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Request: Get/Set Logical Network Mappings");
     }
     ptvcursor_add(cursor, hf_homeplug_hreq_gslnm, 1, FALSE);
     break;
   case HOMEPLUG_MID_GSSS:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Request: Get/Set Spectral Scaling");
     }
     ptvcursor_add(cursor, hf_homeplug_hreq_gsss, 1, FALSE);
     break;
   case HOMEPLUG_MID_RSL:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Request: MAC Reset to Secondary Loader");
     }
     ptvcursor_add(cursor, hf_homeplug_hreq_rsl, 1, FALSE);
     break;
   case HOMEPLUG_MID_RESET:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Request: MAC Reset");
     }
     ptvcursor_add(cursor, hf_homeplug_hreq_reset, 1, FALSE);
@@ -1043,7 +1019,6 @@ static void dissect_homeplug_hrsp(ptvcursor_t * cursor, packet_info * pinfo)
   switch(mid) {
   case HOMEPLUG_MID_GDVR:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Response: Get Device Version");
     }
     ptvcursor_add(cursor, hf_homeplug_hrsp_gdvr, 1, FALSE);
@@ -1051,7 +1026,6 @@ static void dissect_homeplug_hrsp(ptvcursor_t * cursor, packet_info * pinfo)
     break;
   case HOMEPLUG_MID_GFVR:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Response: Get Firmware Version");
     }
     ptvcursor_add(cursor, hf_homeplug_hrsp_gfvr, 1, FALSE);
@@ -1059,7 +1033,6 @@ static void dissect_homeplug_hrsp(ptvcursor_t * cursor, packet_info * pinfo)
     break;
   case HOMEPLUG_MID_GNEKR:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Get Network Encryption Key");
     }
     ptvcursor_add(cursor, hf_homeplug_hrsp_gnekr, 1, FALSE);
@@ -1068,7 +1041,6 @@ static void dissect_homeplug_hrsp(ptvcursor_t * cursor, packet_info * pinfo)
     break;
   case HOMEPLUG_MID_INVALID:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Response: Invalid MME");
     }
     ptvcursor_add(cursor, hf_homeplug_hrsp_invalid, 1, FALSE);
@@ -1307,35 +1279,30 @@ static void dissect_homeplug_mme(ptvcursor_t * cursor, packet_info * pinfo)
       break;
     case HOMEPLUG_MME_VS:
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Vendor Specific");
       }
       dissect_homeplug_vs(cursor);
       break;
     case HOMEPLUG_MME_RBA:
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Replace Bridge Address");
       }
       dissect_homeplug_rba(cursor);
       break;
     case HOMEPLUG_MME_SNK:
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Set Network Encryption Key");
       }
       dissect_homeplug_snk(cursor);
       break;
     case HOMEPLUG_MME_MWR:
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Multicast With Response");
       }
       dissect_homeplug_mwr(cursor);
       break;
     case HOMEPLUG_MME_CNK:
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Confirm Network Encryption Key");
       }
       dissect_homeplug_cnk(cursor);
@@ -1351,28 +1318,24 @@ static void dissect_homeplug_mme(ptvcursor_t * cursor, packet_info * pinfo)
       break;
     case HOMEPLUG_MME_LOADER:
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Load Firmware");
       }
       dissect_homeplug_loader(cursor, pinfo);
       break;
     case HOMEPLUG_MME_HREQ:
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Request");
       }
       dissect_homeplug_hreq(cursor, pinfo);
       break;
     case HOMEPLUG_MME_HRSP:
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Response");
       }
       dissect_homeplug_hrsp(cursor, pinfo);
       break;
     case HOMEPLUG_MME_HTAG:
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Host Tag");
       }
       dissect_homeplug_htag(cursor);
@@ -1417,7 +1380,6 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "HomePlug");
   /* Clear out stuff in the info column */
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_INFO, "MAC Management");
   }
 

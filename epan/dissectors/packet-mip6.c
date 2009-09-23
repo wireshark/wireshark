@@ -990,7 +990,6 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Call the IPv6 dissector */
 		dissector_try_port(ip_dissector_table, pproto, ipv6_tvb, pinfo, tree);
 
-		col_clear(pinfo->cinfo, COL_INFO);
 		col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement[Fast Binding Update]");
 	}
 }

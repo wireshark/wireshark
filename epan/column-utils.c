@@ -170,7 +170,7 @@ col_clear(column_info *cinfo, gint el)
        *      we don't do anything.
        */
       fence = cinfo->col_fence[i];
-      if (fence == 0 || cinfo->col_buf[i] == cinfo->col_data[i]) {
+      if (cinfo->col_buf[i] == cinfo->col_data[i] || fence == 0) {
         /*
          * The fence isn't at the end of the column, or the column wasn't
          * last set with "col_set_str()", so clear the column out.

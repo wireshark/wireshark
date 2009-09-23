@@ -272,8 +272,7 @@ static void dissect_control(tvbuff_t *tvb, packet_info *pinfo,
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LWAPP");
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
-        col_set_str(pinfo->cinfo, COL_INFO,
+	col_set_str(pinfo->cinfo, COL_INFO,
                     "CNTL ");
     }
 
@@ -335,8 +334,7 @@ static void dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LWAPP-L3");
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
-        col_set_str(pinfo->cinfo, COL_INFO, "802.3 Packets over Layer 3");
+	col_set_str(pinfo->cinfo, COL_INFO, "802.3 Packets over Layer 3");
     }
 
     if (tree) {
@@ -378,8 +376,7 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LWAPP");
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_clear(pinfo->cinfo, COL_INFO);
-        col_set_str(pinfo->cinfo, COL_INFO,
+	col_set_str(pinfo->cinfo, COL_INFO,
                     "LWAPP IP or Layer 2");
     }
 
