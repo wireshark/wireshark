@@ -1168,6 +1168,29 @@ add_lemon_files(LIBWIRESHARK_FILES
 	dtd_grammar.lemon
 )
 
+set(epan_LIBS
+	wiretap
+	wsutil
+#	@INET_ATON_LO@
+#	@INET_PTON_LO@
+#	@INET_NTOP_LO@
+#	@SSL_LIBS@
+	${PCRE_LIBRARIES}
+	${GLIB2_LIBRARIES}
+	${PCAP_LIBRARIES}
+#	@SOCKET_LIBS@
+#	@NSL_LIBS@
+	${CARES_LIBRARIES}
+	${ADNS_LIBRARIES}
+	${KERBEROS_LIBRARIES}
+#	@FRAMEWORKS@
+	${GEOIP_LIBRARIES}
+	${GCRYPT_LIBRARIES}
+	${GNUTLS_LIBRARIES}
+	${SMI_LIBRARIES}
+	${M_LIBRARIES}
+)
+
 add_library(epan SHARED
 	# Needed to trigger build of the include files for x11
 	#x11-declarations.h
@@ -1188,6 +1211,8 @@ target_link_libraries(epan
 	${WSLUA_LIB}
 	${WSPYTHON_LIB}
 )
+
+target_link_libraries(epan ${epan_LIBS})
 
 add_dependencies(epan lemon)
 

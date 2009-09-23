@@ -26,9 +26,15 @@ set(WSPYTHON_FILES
 	wspy_proto.c
 )
 
+set(wspython_LIBS
+	${PYTHON_LIBRARIES}
+)
+
 add_library(wspython STATIC
 	${WSPYTHON_FILES}
 )
+
+target_link_libraries(wspython ${wspython_LIBS})
 
 install(PROGRAMS
 		register-dissector.py

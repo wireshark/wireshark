@@ -79,9 +79,15 @@ add_yacc_files(WIRETAP_FILES
 	ascend.y
 )
 
+set(wiretap_LIBS
+  ${GLIB2_LIBRARIES}
+)
+
 add_library(wiretap SHARED
 	${WIRETAP_FILES}
 )
+
+target_link_libraries(wiretap ${wiretap_LIBS})
 
 install(TARGETS wiretap
 	LIBRARY DESTINATION lib

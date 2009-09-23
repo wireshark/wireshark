@@ -101,7 +101,13 @@ ADD_CUSTOM_COMMAND(
       ${CMAKE_SOURCE_DIR}/stat_menu.h
 )
 
+set(wslua_LIBS
+  ${LUA_LIBRARIES}
+)
+
 add_library(wslua STATIC
 	${WSLUA_FILES}
 )
+
+target_link_libraries(wslua ${wslua_LIBS})
 
