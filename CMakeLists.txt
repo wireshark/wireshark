@@ -346,6 +346,8 @@ endif()
 if(APPLE)
 #TODO verify that APPLE implies HAVE_OS_X_FRAMEWORKS
 	set(HAVE_OS_X_FRAMEWORKS 1)
+	FIND_LIBRARY (APPLE_CORE_SERVICES_LIBRARY CoreServices)
+	FIND_LIBRARY (APPLE_COCOA_LIBRARY Cocoa)
 endif()
 
 if(WIN32)
@@ -558,6 +560,8 @@ if(BUILD_wireshark)
 		codecs
 		${PORTAUDIO_LIBRARIES}
 		${LIBEPAN_LIBS}
+		${APPLE_CORE_SERVICES_LIBRARY}
+		${APPLE_COCOA_LIBRARY}
 	)
 	set(wireshark_FILES
 		airpcap_loader.c
@@ -585,6 +589,7 @@ endif()
 if(BUILD_tshark)
 	set(tshark_LIBS
 		${LIBEPAN_LIBS}
+		${APPLE_COCOA_LIBRARY}
 	)
 	set(tshark_FILES
 		capture_opts.c
@@ -603,6 +608,7 @@ endif()
 if(BUILD_rawshark)
 	set(rawshark_LIBS
 		${LIBEPAN_LIBS}
+		${APPLE_COCOA_LIBRARY}
 	)
 	set(rawshark_FILES
 	        ${WIRESHARK_COMMON_SRC}
@@ -689,6 +695,7 @@ if(BUILD_capinfos)
 		wsutil
 		${GLIB2_LIBRARIES}
 		${Z_LIBRARIES}
+		${APPLE_COCOA_LIBRARY}
 	)
 	set(capinfos_FILES
 		capinfos.c
@@ -731,7 +738,7 @@ if(BUILD_dumpcap)
 		${GCRYPT_LIBRARIES}
 		${GNUTLS_LIBRARIES}
 		${Z_LIBRARIES}
-
+		${APPLE_COCOA_LIBRARY}
 	)
 	set(dumpcap_FILES
 		svnversion.h
