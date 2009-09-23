@@ -1072,7 +1072,7 @@ dissect_ansi_tcap_T_unidirectional(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 #line 85 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "unidirectional ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "unidirectional ");
 
 
   offset = dissect_ansi_tcap_UniTransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1103,7 +1103,7 @@ dissect_ansi_tcap_T_queryWithPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 #line 90 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "queryWithPerm ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "queryWithPerm ");
 
 
   offset = dissect_ansi_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1118,7 +1118,7 @@ dissect_ansi_tcap_T_queryWithoutPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 #line 95 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "queryWithoutPerm ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "queryWithoutPerm ");
 
 
   offset = dissect_ansi_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1133,7 +1133,7 @@ dissect_ansi_tcap_T_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 100 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "response ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "response ");
 
 
   offset = dissect_ansi_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1148,7 +1148,7 @@ dissect_ansi_tcap_T_conversationWithPerm(gboolean implicit_tag _U_, tvbuff_t *tv
 #line 105 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "conversationWithPerm ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "conversationWithPerm ");
 
 
   offset = dissect_ansi_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1163,7 +1163,7 @@ dissect_ansi_tcap_T_conversationWithoutPerm(gboolean implicit_tag _U_, tvbuff_t 
 #line 110 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "conversationWithoutPerm ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "conversationWithoutPerm ");
 
 
   offset = dissect_ansi_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1260,7 +1260,7 @@ dissect_ansi_tcap_T_abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 #line 115 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ABORT;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 
 
   offset = dissect_ansi_tcap_Abort(implicit_tag, tvb, offset, actx, tree, hf_index);

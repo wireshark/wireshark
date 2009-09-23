@@ -358,7 +358,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-RT");
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO, "PROFINET Real-Time");
+    col_set_str(pinfo->cinfo, COL_INFO, "PROFINET Real-Time");
 
   if (tvb_len < 6) {
     dissect_pn_malformed(tvb, 0, pinfo, tree, tvb_len);

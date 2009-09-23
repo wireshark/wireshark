@@ -733,7 +733,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_add_str(pinfo->cinfo, COL_INFO, "Result: ");
+        col_set_str(pinfo->cinfo, COL_INFO, "Result: ");
         col_append_str(pinfo->cinfo, COL_INFO, val_to_str(retcode, iap_return_vals, "0x%02X"));
 
         switch (op)

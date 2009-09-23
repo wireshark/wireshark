@@ -2560,8 +2560,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (next_tvb) { /* Reassembled */
           /* We have the complete payload */
           if (check_col (pinfo->cinfo, COL_INFO))
-            col_add_str (pinfo->cinfo, COL_INFO,
-                "Reassembled Application Layer");
+            col_set_str(pinfo->cinfo, COL_INFO, "Reassembled Application Layer");
             col_set_fence(pinfo->cinfo, COL_INFO);
         }
         else

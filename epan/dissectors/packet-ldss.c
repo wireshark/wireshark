@@ -491,7 +491,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		gboolean already_dissected = TRUE;
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_str(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Requesting file - pull)");
+			col_set_str(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Requesting file - pull)");
 		}
 
 		if (highest_num_seen == 0 ||

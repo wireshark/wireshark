@@ -7366,7 +7366,7 @@ dissect_PNIO_heur(tvbuff_t *tvb,
     /* is this a PNIO high priority alarm packet? */
     if(u16FrameID == 0xfc01) {
     	if (check_col(pinfo->cinfo, COL_INFO))
-	        col_add_str(pinfo->cinfo, COL_INFO, "Alarm High");
+	        col_set_str(pinfo->cinfo, COL_INFO, "Alarm High");
 
         dissect_PNIO_RTA(tvb, 0, pinfo, tree, drep);
         return TRUE;
@@ -7375,7 +7375,7 @@ dissect_PNIO_heur(tvbuff_t *tvb,
     /* is this a PNIO low priority alarm packet? */
     if(u16FrameID == 0xfe01) {
     	if (check_col(pinfo->cinfo, COL_INFO))
-	        col_add_str(pinfo->cinfo, COL_INFO, "Alarm Low");
+	        col_set_str(pinfo->cinfo, COL_INFO, "Alarm Low");
 
         dissect_PNIO_RTA(tvb, 0, pinfo, tree, drep);
         return TRUE;

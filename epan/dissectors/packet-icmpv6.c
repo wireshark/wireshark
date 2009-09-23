@@ -1640,7 +1640,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_clear(pinfo->cinfo, COL_PROTOCOL);
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
             }    
-            col_add_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
+            col_set_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
         } else {   
             if (coltypename && strcmp(coltypename, "Unknown") == 0) {
                 g_snprintf(typebuf, sizeof(typebuf), "Unknown (0x%02x)",

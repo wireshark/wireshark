@@ -58,8 +58,7 @@ dissect_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	col_add_fstr (pinfo->cinfo, COL_INFO, "Ranging Request: SID = %u",
 		      sid);
       else
-	col_add_str (pinfo->cinfo, COL_INFO,
-		     "Initial Ranging Request SID = 0");
+	col_set_str(pinfo->cinfo, COL_INFO, "Initial Ranging Request SID = 0");
     }
 
   if (tree)

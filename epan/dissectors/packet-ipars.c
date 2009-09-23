@@ -90,7 +90,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 					col_add_fstr(pinfo->cinfo, COL_INFO, "GoAhead NextIA (0x%2.2X)", ta);
 			} else {
 				if (check_col(pinfo->cinfo, COL_INFO))
-					col_add_str(pinfo->cinfo, COL_INFO, "GoAhead NextIA");
+					col_set_str(pinfo->cinfo, COL_INFO, "GoAhead NextIA");
 			}
 		}
 	} else {																		/* if its not a 'go ahead'... it must be some kind of data message */
@@ -125,7 +125,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 			if (ia == 0x03) {
 				proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 0, 1, "GoAhead Next IA");
 				if (check_col(pinfo->cinfo, COL_INFO))
-					col_add_str(pinfo->cinfo, COL_INFO, "GoAhead");
+					col_set_str(pinfo->cinfo, COL_INFO, "GoAhead");
 				return;
 			} else if (ia != S1) {
 				proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb,
