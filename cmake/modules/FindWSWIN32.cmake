@@ -1,3 +1,6 @@
+#
+# $Id: $
+#
 # - Find packages bundled with Windows
 #
 

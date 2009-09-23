@@ -1,4 +1,7 @@
-# - Try to find GLIB2
+#
+# $Id$
+#
+# Try to find GLIB2
 # Once done this will define
 #
 #  GLIB2_FOUND - system has GLIB2

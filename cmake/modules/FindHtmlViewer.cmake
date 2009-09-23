@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 # - Find an html viewer program
 #
 #  HTML_VIEWER_EXECUTABLE - the full path to perl
@@ -10,6 +13,7 @@ FIND_PROGRAM(HTML_VIEWER_EXECUTABLE
     xdg-open
     mozilla
     htmlview
+    ENV{HTML_VIEWER}
   PATHS
     ${CYGWIN_INSTALL_PATH}/bin
     /bin

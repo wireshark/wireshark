@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 MACRO(ADD_LEMON_FILES _sources )
     set(_lemonpardir ${CMAKE_SOURCE_DIR}/tools/lemon)
     FOREACH (_current_FILE ${ARGN})

@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 # - Find gnutls
 # Find the native GNUTLS includes and library
 #

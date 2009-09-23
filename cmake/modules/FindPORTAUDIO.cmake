@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 # - Find portaudio
 # Find the native PORTAUDIO includes and library
 #

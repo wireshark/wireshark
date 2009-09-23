@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 # - Find zlib
 # Find the native ZLIB includes and library
 #

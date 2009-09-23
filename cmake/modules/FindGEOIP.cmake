@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 # - Find GeoIP
 # Find the native GEOIP includes and library
 #

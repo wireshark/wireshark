@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 # - Find cares
 # Find the native CARES includes and library
 #

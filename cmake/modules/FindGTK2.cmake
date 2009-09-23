@@ -1,4 +1,6 @@
 #
+# $Id$
+#
 # try to find GTK2 (and glib) and GTK2GLArea
 #
 # GTK2_INCLUDE_DIRS  - Directories to include to use GTK2

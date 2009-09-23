@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 # Locate Lua library
 # This module defines
 #  LUA_FOUND, if false, do not try to link to Lua 

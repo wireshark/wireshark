@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 # - Find lex executable
 #
 

@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 # - Find kerberos
 # Find the native KERBEROS includes and library
 #

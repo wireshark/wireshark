@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 # - Find gcrypt
 # Find the native GCRYPT includes and library
 #

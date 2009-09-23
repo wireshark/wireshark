@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 # - Find math
 # Find the native M includes and library
 #
