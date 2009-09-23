@@ -35,6 +35,15 @@ How to do out of tree build (Unix/Linux):
 5) cmake ../<Name_of_WS_source_dir>
 6) make
 
+Note 1:
+in step 5), you may override the defaults for features:
+ cmake -DENABLE_CAP=OFF ../<Name_of_WS_source_dir>
+ will disable the capabilities check.
+
+Note 2:
+ On OS X, you may want to run cmake like this:
+ cmake -DENABLE_CAP=OFF -G "Unix Makefiles"
+
 Why cmake?
 ==========
 - Can create project files for some MS and Apple IDEs.
