@@ -360,7 +360,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * an exception.  We can set them later as well....
 		 */
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_add_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
 		col_clear(pinfo->cinfo, COL_INFO);
 
 		/*

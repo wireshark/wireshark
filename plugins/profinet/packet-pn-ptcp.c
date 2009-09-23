@@ -769,7 +769,7 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb,
     }
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PN-PTCP");
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-PTCP");
     if (check_col(pinfo->cinfo, COL_INFO))
       col_add_str(pinfo->cinfo, COL_INFO, "");
 

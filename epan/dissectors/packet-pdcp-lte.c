@@ -1370,7 +1370,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gboolean           ip_id_needed = TRUE;
 
     /* Append this protocol name rather than replace. */
-    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
 
     /* Create pdcp tree. */
     if (tree) {

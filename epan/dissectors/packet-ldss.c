@@ -804,14 +804,14 @@ dissect_ldss (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    pinfo->ipproto == IP_PROTO_UDP) {
 
 		if(check_col(pinfo->cinfo,COL_PROTOCOL)){
-			col_add_str(pinfo->cinfo,COL_PROTOCOL,"LDSS");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDSS");
 		}
 		return dissect_ldss_broadcast(tvb, pinfo, tree);
 	}
 	else if (pinfo->ipproto == IP_PROTO_TCP) {
 
 		if(check_col(pinfo->cinfo,COL_PROTOCOL)){
-			col_add_str(pinfo->cinfo,COL_PROTOCOL,"LDSS");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDSS");
 		}
 		return dissect_ldss_transfer(tvb, pinfo, tree);
 	}

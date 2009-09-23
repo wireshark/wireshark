@@ -206,7 +206,7 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		if (is_event)
-			col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "I2C Event");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "I2C Event");
 		else
 			col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "I2C %s",
 					(flags & I2C_FLAG_RD) ? "Read" : "Write");

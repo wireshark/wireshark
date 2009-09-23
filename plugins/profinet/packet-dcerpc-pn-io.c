@@ -6717,7 +6717,7 @@ dissect_IPNIO_rqst_header(tvbuff_t *tvb, int offset,
 
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-CM");
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-CM");
 
     /* args_max */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -6762,7 +6762,7 @@ dissect_IPNIO_resp_header(tvbuff_t *tvb, int offset,
 
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-CM");
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-CM");
 
     offset = dissect_PNIO_status(tvb, offset, pinfo, tree, drep);
 
@@ -7192,7 +7192,7 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
 
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");
 
     if(tree) {
 	    data_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, offset, tvb_length(tvb),
@@ -7240,7 +7240,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
 
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_add_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-AL");
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-AL");
 
 	rta_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, offset, tvb_length(tvb),
         "PROFINET IO Alarm");

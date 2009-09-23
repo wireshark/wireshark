@@ -1328,7 +1328,7 @@ static void dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     /* Add ourself to the protocol column. */
     if(check_col(pinfo->cinfo, COL_PROTOCOL)){
-        col_add_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZigBee");
     }
     /* Create the tree for this beacon. */
     if (tree) {

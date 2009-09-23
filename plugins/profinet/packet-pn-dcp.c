@@ -924,7 +924,7 @@ dissect_PNDCP_Data_heur(tvbuff_t *tvb,
     }
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_add_str(pinfo->cinfo, COL_PROTOCOL, "PN-DCP");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-DCP");
     if (check_col(pinfo->cinfo, COL_INFO))
       col_add_str(pinfo->cinfo, COL_INFO, "");
 

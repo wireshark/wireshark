@@ -145,7 +145,7 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t	*next_tvb;
 
 	if(check_col(pinfo->cinfo,COL_PROTOCOL))
-		col_add_str(pinfo->cinfo,COL_PROTOCOL,"RBLI");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RBLI");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_redbackli,

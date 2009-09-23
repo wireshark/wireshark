@@ -82,7 +82,7 @@ dissect_pcli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   /* Set the protocol column */
   if(check_col(pinfo->cinfo,COL_PROTOCOL)){
-    col_add_str(pinfo->cinfo,COL_PROTOCOL,"PCLI");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCLI");
   }
 
   /* Get the CCCID */
