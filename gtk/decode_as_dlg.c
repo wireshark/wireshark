@@ -675,22 +675,28 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
  * @param leadin A string to print at the start of each line.
  */
 static void
-decode_debug (GtkCList *clist, gchar *leadin)
+decode_debug (GtkTreeView *tree_view, gchar *leadin)
 {
+	GtkListStore *store;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
     gchar *string, *text[E_LIST_S_COLUMNS];
     dissector_handle_t handle;
-    gint row;
 
-    if (clist->selection) {
-	row = GPOINTER_TO_INT(clist->selection->data);
-	gtk_clist_get_text(clist, row, E_LIST_S_PROTO_NAME, &text[E_LIST_S_PROTO_NAME]);
-	gtk_clist_get_text(clist, row, E_LIST_S_TABLE, &text[E_LIST_S_TABLE]);
-	handle = gtk_clist_get_row_data(clist, row);
-	string = g_strdup_printf("%s clist row %d: <put handle here>, name %s, table %s",
-		leadin, row, text[E_LIST_S_PROTO_NAME],
-		text[E_LIST_S_TABLE]);
+	selection = gtk_tree_view_get_selection(tree_view);
+
+	if (gtk_tree_selection_get_selected(selection, NULL, &iter)){
+		store = GTK_LIST_STORE(gtk_tree_view_get_model(tree_view));
+		gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 
+			E_LIST_S_PROTO_NAME, &text[E_LIST_S_PROTO_NAME],
+			E_LIST_S_TABLE, &text[E_LIST_S_TABLE],
+			E_LIST_S_TABLE+1, &handle,
+			-1);
+		string = g_strdup_printf("%s list: <put handle here>, name %s, table %s",
+			leadin, text[E_LIST_S_PROTO_NAME],
+			text[E_LIST_S_TABLE]);
     } else {
-	string = g_strdup_printf("%s clist row (none), aka do not decode", leadin);
+		string = g_strdup_printf("%s list row (none), aka do not decode", leadin);
     }
     simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, string);
     g_free(string);
@@ -724,7 +730,7 @@ decode_simple (GtkWidget *notebook_pg)
 
 #ifdef DEBUG
     string = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
-    decode_debug(GTK_CLIST(list), string);
+    decode_debug(GTK_TREE_VIEW(list), string);
 #endif
 
     table_name = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
@@ -749,6 +755,9 @@ decode_transport(GtkWidget *notebook_pg)
     gchar *table_name;
     gint requested_srcdst, requested_port, ppid;
     gpointer portp;
+#ifdef DEBUG
+	gchar *string;
+#endif
 
     list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
@@ -761,7 +770,7 @@ decode_transport(GtkWidget *notebook_pg)
 
 #ifdef DEBUG
     string = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
-    decode_debug(GTK_CLIST(list), string);
+    decode_debug(GTK_TREE_VIEW(list), string);
 #endif
 
     table_name = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
