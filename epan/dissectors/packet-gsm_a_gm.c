@@ -250,7 +250,7 @@ static dissector_table_t gprs_sm_pco_subdissector_table; /* GPRS SM PCO PPP Prot
 #define	NUM_GSM_GM_ELEM (sizeof(gsm_gm_elem_strings)/sizeof(value_string))
 gint ett_gsm_gm_elem[NUM_GSM_GM_ELEM];
 
-const	gchar pdp_str[2][20]={ "PDP-INACTIVE", "PDP-ACTIVE" };
+const	gchar *pdp_str[2]={ "PDP-INACTIVE", "PDP-ACTIVE" };
 
 /*
  * [7] 10.5.5.1
@@ -870,34 +870,47 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	guint	curr_len;
 	guint	gea_val;
 
-	gchar answer_gea[2][40]={ "encryption algorithm not available",
-				"encryption algorithm available" };
-	gchar answer_smdch[2][120]={ "Mobile station does not support mobile terminated point to point SMS via dedicated signalling channels",
-				"Mobile station supports mobile terminated point to point SMS via dedicated signalling channels" };
-	gchar answer_smgprs[2][100]={ "Mobile station does not support mobile terminated point to point SMS via GPRS packet data channels",
-				"Mobile station supports mobile terminated point to point SMS via GPRS packet data channels" };
-	gchar answer_ucs2[2][100]={ "the ME has a preference for the default alphabet (defined in 3GPP TS 23.038 [8b]) over UCS2",
-				"the ME has no preference between the use of the default alphabet and the use of UCS2" };
+	static const gchar *answer_gea[2]={
+		"encryption algorithm not available",
+		"encryption algorithm available" };
 
-	gchar answer_ssid[4][80]={ "default value of phase 1",
-				"capability of handling of ellipsis notation and phase 2 error handling",
-				"capability of handling of ellipsis notation and phase 2 error handling",
-				"capability of handling of ellipsis notation and phase 2 error handling" };
+	static const gchar *answer_smdch[2]={
+		"Mobile station does not support mobile terminated point to point SMS via dedicated signalling channels",
+		"Mobile station supports mobile terminated point to point SMS via dedicated signalling channels" };
 
-	gchar answer_solsa[2][40]={ "The ME does not support SoLSA",
-				"The ME supports SoLSA" };
+	static const gchar *answer_smgprs[2]={
+		"Mobile station does not support mobile terminated point to point SMS via GPRS packet data channels",
+		"Mobile station supports mobile terminated point to point SMS via GPRS packet data channels" };
+
+	static const gchar *answer_ucs2[2]= {
+		"the ME has a preference for the default alphabet (defined in 3GPP TS 23.038 [8b]) over UCS2",
+		"the ME has no preference between the use of the default alphabet and the use of UCS2" };
+
+	static const gchar *answer_ssid[4]={
+		"default value of phase 1",
+		"capability of handling of ellipsis notation and phase 2 error handling",
+		"capability of handling of ellipsis notation and phase 2 error handling",
+		"capability of handling of ellipsis notation and phase 2 error handling" };
+
+	static const gchar *answer_solsa[2]={
+		"The ME does not support SoLSA",
+		"The ME supports SoLSA" };
 			
-	gchar answer_rev[2][80]={ "used by a mobile station not supporting R99 or later versions of the protocol",
-				"used by a mobile station supporting R99 or later versions of the protocol" };
+	static const gchar *answer_rev[2]={
+		"used by a mobile station not supporting R99 or later versions of the protocol",
+		"used by a mobile station supporting R99 or later versions of the protocol" };
 
-	gchar answer_pfc[2][80]={ "Mobile station does not support BSS packet flow procedures",
-				"Mobile station does support BSS packet flow procedures" };
+	static const gchar *answer_pfc[2]={
+		"Mobile station does not support BSS packet flow procedures",
+		"Mobile station does support BSS packet flow procedures" };
 
-	gchar answer_lcs[2][80]={ "LCS value added location request notification capability not supported" ,
-				"LCS value added location request notification capability supported" };
+	static const gchar *answer_lcs[2]={
+		"LCS value added location request notification capability not supported" ,
+		"LCS value added location request notification capability supported" };
 
-	gchar answer_ps_irat[2][80]={ "PS inter-RAT HO to UTRAN Iu mode not supported" ,
-                                      "PS inter-RAT HO to UTRAN Iu mode supported" };
+	static const gchar *answer_ps_irat[2]={
+		"PS inter-RAT HO to UTRAN Iu mode not supported" ,
+		"PS inter-RAT HO to UTRAN Iu mode supported" };
 
 	curr_len = len;
 	curr_offset = offset;
@@ -997,16 +1010,16 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     curr_len--;
 
     proto_tree_add_text(tree,
-                        tvb, curr_offset, 1,
-                        "PS inter-RAT HO to UTRAN Iu mode capability: (%u) %s",
-                        oct & 0x1,                    /* XXX: There's only 2 entries in the ..._irat array  */
-                        answer_ps_irat[oct & 0x1]);   /*      so we'll assume that this is a 1 bit value.   */
-                                                      
+			tvb, curr_offset, 1,
+			"PS inter-RAT HO to UTRAN Iu mode capability: (%u) %s",
+			oct & 0x1,                    /* XXX: There's only 2 entries in the ..._irat array  */
+			answer_ps_irat[oct & 0x1]);   /*      so we'll assume that this is a 1 bit value.   */
+
 
     proto_tree_add_text(tree,
-                        tvb, curr_offset, 1,
-                        "Spare: (%u)",
-                        oct>>1);
+			tvb, curr_offset, 1,
+			"Spare: (%u)",
+			oct>>1);
 
     curr_offset++;
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -1090,7 +1103,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 {
 	guint32      curr_offset;
 	guint        curr_len;
-	int			 bit_offset;
+	int          bit_offset;
 	proto_item  *tf = NULL;
 	proto_tree  *tf_tree = NULL;
 	guint32      oct;
@@ -1100,9 +1113,10 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	guint        add_ocetets;	/* octets which are covered by one element -1 */
 	guint        curr_bits_length;
 	guchar       acc_type;
-	guint		 value;
+	guint        value;
 	const gchar *str;
-	gchar        multi_slot_str[64][230] = {
+	/** XXX: AFAIT only the first 32 entries of the following are actually used. Is this a bug someplace ?? */
+	static const gchar *multi_slot_str[64] = {
 		"Not specified", /* 00 */
 		"Max Rx-Slot/TDMA:1 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:2 Tta:3 Ttb:2 Tra:4 Trb:2 Type:1", /* 01 */
 		"Max Rx-Slot/TDMA:2 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:3 Tta:3 Ttb:2 Tra:3 Trb:1 Type:1", /* 02 */
@@ -2862,10 +2876,12 @@ de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	guint8	oct;
 	guint32	curr_offset;
 
-	gchar	str_otd[2][40]={ "MS assisted E-OTD not supported",
-				"MS assisted E-OTD supported" };
-	gchar	str_gps[2][40]={ "MS assisted GPS not supported",
-				"MS assisted GPS supported" };
+	static const gchar *str_otd[2]={
+		"MS assisted E-OTD not supported",
+		"MS assisted E-OTD supported" };
+	static const gchar *str_gps[2]={
+		"MS assisted GPS not supported",
+		"MS assisted GPS supported" };
 
 	curr_offset = offset;
 
@@ -4263,8 +4279,9 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	guint	curr_len;
 	gchar	oct;
 
-	gchar   ti_flag[2][80]={ "The message is sent from the side that originates the TI" ,
-				"The message is sent to the side that originates the TI" };
+	static const gchar *ti_flag[2]={
+		"The message is sent from the side that originates the TI" ,
+		"The message is sent to the side that originates the TI" };
 
 	curr_len = len;
 	curr_offset = offset;
@@ -4333,7 +4350,9 @@ de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 {
 	guint8	oct;
 	guint32	curr_offset;
-	gchar	str[2][30] = { "tear down not requested" , "tear down requested" };
+	static const gchar *str[2] = {
+		"tear down not requested" ,
+		"tear down requested" };
 
 	curr_offset = offset;
 
@@ -5987,17 +6006,17 @@ proto_register_gsm_a_gm(void)
 	},
 	{ &hf_gsm_a_gmm_split_on_ccch,
 		{ "SPLIT on CCCH","gsm_a.gmm.split_on_ccch",
-		  FT_BOOLEAN,8,  TFS(&gsm_a_gmm_split_on_ccch_value), 0x08,
+		  FT_BOOLEAN, 8, TFS(&gsm_a_gmm_split_on_ccch_value), 0x08,
 		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_gmm_non_drx_timer,
 		{ "Non-DRX timer","gsm_a.gmm.non_drx_timer",
-		  FT_UINT8,BASE_DEC,  VALS(gsm_a_gmm_non_drx_timer_strings), 0x07,
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_gmm_non_drx_timer_strings), 0x07,
 		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef,
 		{ "CN Specific DRX cycle length coefficient","gsm_a.gmm.cn_spec_drs_cycle_len_coef",
-		  FT_UINT8,BASE_DEC,  VALS(gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings), 0xf0,
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings), 0xf0,
 		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_op_code,
@@ -6007,7 +6026,7 @@ proto_register_gsm_a_gm(void)
 	},
 	{ &hf_gsm_a_tft_e_bit,
 		{ "E bit","gsm_a.tft.e_bit",
-		  FT_BOOLEAN,8,  TFS(&gsm_a_tft_e_bit), 0x10,
+		  FT_BOOLEAN, 8, TFS(&gsm_a_tft_e_bit), 0x10,
 		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_pkt_flt,
