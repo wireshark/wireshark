@@ -29,9 +29,9 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 
@@ -145,7 +145,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	bvlc_function = tvb_get_guint8(tvb, offset+1);
 	packet_length = tvb_get_ntohs(tvb, offset+2);
-	length_remaining = tvb_length_remaining(tvb, offset);
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
 	if (bvlc_function > 0x08) {
 		/*  We have a constant header length of BVLC of 4 in every
 		 *  BVLC-packet forewarding an NPDU. Beware: Changes in the
@@ -170,7 +170,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (bvlc_length < 4) {
 			proto_tree_add_text(tree, tvb, 2, 2,
 				"Bogus length: %d", bvlc_length);
-			return tvb_length(tvb);	/* XXX - reject? */
+			return tvb_reported_length(tvb);	/* XXX - reject? */
 		}
 		ti = proto_tree_add_item(tree, proto_bvlc, tvb, 0,
 			bvlc_length, FALSE);
@@ -312,7 +312,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Unknown function - dissect the paylod as data */
 		call_dissector(data_handle,next_tvb, pinfo, tree);
 	}
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 void proto_reg_handoff_bvlc(void);
