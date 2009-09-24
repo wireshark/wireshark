@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="libui"
 	ProjectGUID="{57231C4A-CF70-4CC6-8AED-4C1D6ABC3E94}"
 	Keyword="MakeFileProj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -240,10 +241,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\menus.c"
-				>
-			</File>
-			<File
 				RelativePath=".\main_packet_list.c"
 				>
 			</File>
@@ -265,6 +262,10 @@
 			</File>
 			<File
 				RelativePath=".\mcast_stream.c"
+				>
+			</File>
+			<File
+				RelativePath=".\menus.c"
 				>
 			</File>
 			<File
@@ -902,10 +903,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\menus.h"
-				>
-			</File>
-			<File
 				RelativePath=".\main_packet_list.h"
 				>
 			</File>
@@ -931,6 +928,10 @@
 			</File>
 			<File
 				RelativePath=".\mcast_stream_dlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\menus.h"
 				>
 			</File>
 			<File
