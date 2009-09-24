@@ -1898,10 +1898,12 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"RADIUS Attributes: %s",
 					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
+		break; /* XXX: Added since code seems incorrect otherwise ...  */
 	case 8: /* 8   Authentication Suboption               [RFC4030]  */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Authentication: %s",
 					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
+		break; /* XXX: Added since code seems incorrect otherwise ...  */
 	case 9:
 		while (suboptoff < optend) {
 			enterprise = tvb_get_ntohl(tvb, suboptoff);
