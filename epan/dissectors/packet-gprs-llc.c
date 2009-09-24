@@ -626,10 +626,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (frame_format)
 	{
 		case I_FORMAT:
-			if (check_col(pinfo->cinfo,COL_INFO))
-			{
-				col_append_str(pinfo->cinfo,COL_INFO, ", I, ");
-			}
+			col_append_str(pinfo->cinfo,COL_INFO, ", I, ");
 
 			/* MLT CHANGES - additional parsing code */
 			ns = tvb_get_ntohs(tvb, offset);

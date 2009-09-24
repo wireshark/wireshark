@@ -260,10 +260,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 
 	if (contains_faststart == TRUE )
 	{
-		if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(%(ACTX)s->pinfo->cinfo, COL_INFO, "OpenLogicalChannel " );
-		}
+		col_append_str(%(ACTX)s->pinfo->cinfo, COL_INFO, "OpenLogicalChannel " );
 	}
 
 	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);

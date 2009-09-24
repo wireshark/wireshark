@@ -94,19 +94,13 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.263 ");
 
     if( rfc2190_version == 0x00) {
-        if ( check_col( pinfo->cinfo, COL_INFO) ) {
-	    col_append_str( pinfo->cinfo, COL_INFO, "MODE A ");
-        }
+        col_append_str( pinfo->cinfo, COL_INFO, "MODE A ");
     }
     else if( rfc2190_version == 0x02) {
-        if ( check_col( pinfo->cinfo, COL_INFO) ) {
-	    col_append_str( pinfo->cinfo, COL_INFO, "MODE B ");
-        }
+        col_append_str( pinfo->cinfo, COL_INFO, "MODE B ");
     }
     else if( rfc2190_version == 0x03) {
-        if ( check_col( pinfo->cinfo, COL_INFO) ) {
-	    col_append_str( pinfo->cinfo, COL_INFO, "MODE C ");
-        }
+        col_append_str( pinfo->cinfo, COL_INFO, "MODE C ");
     }
 
     if ( tree ) {

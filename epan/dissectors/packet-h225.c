@@ -4720,10 +4720,7 @@ dissect_h225_T_h323_message_body(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 	if (contains_faststart == TRUE )
 	{
-		if (check_col(actx->pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(actx->pinfo->cinfo, COL_INFO, "OpenLogicalChannel " );
-		}
+		col_append_str(actx->pinfo->cinfo, COL_INFO, "OpenLogicalChannel " );
 	}
 
 	col_set_fence(actx->pinfo->cinfo,COL_INFO);

@@ -627,72 +627,56 @@ dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int 
 	proto_tree_add_boolean(tree, hf_sbccs_dib_status_attention, tvb, offset, 1, flags);
 	if (flags&0x80){
 		proto_item_append_text(item, "  Attention");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, "  Attention");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "  Attention");
 	}
 	flags&=(~( 0x80 ));
 
 	proto_tree_add_boolean(tree, hf_sbccs_dib_status_modifier, tvb, offset, 1, flags);
 	if (flags&0x40){
 		proto_item_append_text(item, "  Status Modifier");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, "  Status Modifier");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "  Status Modifier");
 	}
 	flags&=(~( 0x40 ));
 
 	proto_tree_add_boolean(tree, hf_sbccs_dib_status_cue, tvb, offset, 1, flags);
 	if (flags&0x20){
 		proto_item_append_text(item, "  Control-Unit End");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, "  Control-Unit End");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "  Control-Unit End");
 	}
 	flags&=(~( 0x20 ));
 
 	proto_tree_add_boolean(tree, hf_sbccs_dib_status_busy, tvb, offset, 1, flags);
 	if (flags&0x10){
 		proto_item_append_text(item, "  Busy");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, "  Busy");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "  Busy");
 	}
 	flags&=(~( 0x10 ));
 
 	proto_tree_add_boolean(tree, hf_sbccs_dib_status_channelend, tvb, offset, 1, flags);
 	if (flags&0x08){
 		proto_item_append_text(item, "  Channel End");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, "  Channel End");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "  Channel End");
 	}
 	flags&=(~( 0x08 ));
 
 	proto_tree_add_boolean(tree, hf_sbccs_dib_status_deviceend, tvb, offset, 1, flags);
 	if (flags&0x04){
 		proto_item_append_text(item, "  Device End");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, "  Device End");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "  Device End");
 	}
 	flags&=(~( 0x04 ));
 
 	proto_tree_add_boolean(tree, hf_sbccs_dib_status_unit_check, tvb, offset, 1, flags);
 	if (flags&0x02){
 		proto_item_append_text(item, "  Unit Check");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, "  Unit Check");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "  Unit Check");
 	}
 	flags&=(~( 0x02 ));
 
 	proto_tree_add_boolean(tree, hf_sbccs_dib_status_unit_exception, tvb, offset, 1, flags);
 	if (flags&0x01){
 		proto_item_append_text(item, "  Unit Exception");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, "  Unit Exception");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "  Unit Exception");
 	}
 	flags&=(~( 0x01 ));
 

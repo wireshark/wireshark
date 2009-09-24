@@ -313,9 +313,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         call_dissector(data_handle, reassembled, pinfo, tree);
             }
             else {
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_append_str(pinfo->cinfo, COL_INFO, " (Fragment)");
-                }
+                col_append_str(pinfo->cinfo, COL_INFO, " (Fragment)");
                 if (tree) {
                     proto_tree_add_text(lapdm_tree, payload, 0, -1, "Fragment Data");
                 }

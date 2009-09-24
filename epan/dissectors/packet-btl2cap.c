@@ -798,9 +798,7 @@ static void dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	tvbuff_t *next_tvb;
 	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_append_str(pinfo->cinfo, COL_INFO, "Connection oriented channel");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, "Connection oriented channel");
 
 	if(psm){
 		proto_item *psm_item;
@@ -1212,9 +1210,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	} else if (cid == BTL2CAP_FIXED_CID_CONNLESS) { /* Connectionless reception channel */
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_append_str(pinfo->cinfo, COL_INFO, "Connectionless reception channel");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "Connectionless reception channel");
 
 		psm = tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 2, TRUE);

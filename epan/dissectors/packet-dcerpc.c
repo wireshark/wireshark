@@ -3701,10 +3701,8 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		    }
 		} else {
 		    /* PDU is fragmented and this isn't the first fragment */
-		    if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO,
+		    col_append_str(pinfo->cinfo, COL_INFO,
 			                " [DCE/RPC fragment]");
-		    }
 		    if (dcerpc_tree) {
 			if (stub_length > 0) {
 			    tvb_ensure_bytes_exist(tvb, offset, stub_length);
@@ -3736,10 +3734,8 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			     stub_length,
 			     TRUE);
 		    }
-		    if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO,
+		    col_append_str(pinfo->cinfo, COL_INFO,
 			                " [DCE/RPC fragment]");
-		    }
 		} else if(hdr->flags&PFC_LAST_FRAG){  /* LAST fragment */
 		    if( value->rep_frame ){
 			fragment_data *fd_head;
@@ -3782,10 +3778,8 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			} else {
 			    /* Reassembly not complete - some fragments
 			       are missing */
-			    if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_str(pinfo->cinfo, COL_INFO,
+			    col_append_str(pinfo->cinfo, COL_INFO,
 				                " [DCE/RPC fragment]");
-			    }
 			}
 		    }
 		} else {  /* MIDDLE fragment(s) */
@@ -3795,10 +3789,8 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			     stub_length,
 			     TRUE);
 		    }
-		    if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO,
+		    col_append_str(pinfo->cinfo, COL_INFO,
 			                " [DCE/RPC fragment]");
-		    }
 		}
 	    }
         }
@@ -4426,9 +4418,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 				next_tvb, hdr->drep, di, NULL);
 	} else {
 	    /* PDU is fragmented and this isn't the first fragment */
-	    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_str(pinfo->cinfo, COL_INFO, " [DCE/RPC fragment]");
-	    }
+	    col_append_str(pinfo->cinfo, COL_INFO, " [DCE/RPC fragment]");
 	    if (dcerpc_tree) {
 		if (length > 0) {
 		    tvb_ensure_bytes_exist(tvb, offset, stub_length);
@@ -4488,9 +4478,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
 	} else {
 	    /* Reassembly isn't completed yet */
-	    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_str(pinfo->cinfo, COL_INFO, " [DCE/RPC fragment]");
-	    }
+	    col_append_str(pinfo->cinfo, COL_INFO, " [DCE/RPC fragment]");
 	}
     }
     pinfo->fragmented = save_fragmented;

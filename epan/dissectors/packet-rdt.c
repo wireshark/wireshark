@@ -682,10 +682,7 @@ guint dissect_rdt_bandwidth_report_packet(tvbuff_t *tvb, packet_info *pinfo, pro
     proto_tree_add_item(tree, hf_rdt_brpt_sequence, tvb, offset, 1, FALSE);
     offset += 1;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "BANDWIDTH-REPORT:  ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "BANDWIDTH-REPORT:  ");
 
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
@@ -778,10 +775,7 @@ guint dissect_rdt_rtt_request_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
     offset += 2;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "RTT-REQUEST:  ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "RTT-REQUEST:  ");
 
     return offset;
 }
@@ -804,10 +798,7 @@ guint dissect_rdt_rtt_response_packet(tvbuff_t *tvb, packet_info *pinfo, proto_t
     proto_tree_add_item(tree, hf_rdt_rtrp_ts_usec, tvb, offset, 4, FALSE);
     offset += 4;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "RTT-RESPONSE:  ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "RTT-RESPONSE:  ");
 
     return offset;
 }
@@ -830,10 +821,7 @@ guint dissect_rdt_congestion_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_tree_add_item(tree, hf_rdt_cong_recv_mult, tvb, offset, 4, FALSE);
     offset += 4;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "CONGESTION:  ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "CONGESTION:  ");
 
     return offset;
 }
@@ -965,10 +953,7 @@ guint dissect_rdt_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         packet_length = tvb_length_remaining(tvb, start_offset);
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "REPORT:  ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "REPORT:  ");
 
     /* The remaining data is unparsed. */
     proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, FALSE);
@@ -1090,10 +1075,7 @@ guint dissect_rdt_transport_info_request_packet(tvbuff_t *tvb, packet_info *pinf
         offset += 4;
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "TRANSPORT-INFO-REQUEST:  ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "TRANSPORT-INFO-REQUEST:  ");
 
     return offset;
 }
@@ -1189,10 +1171,7 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
     /* Report what is left */
     offset += tvb_length_remaining(tvb, offset);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "RESPONSE:  ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "RESPONSE:  ");
 
     return offset;
 }
@@ -1248,10 +1227,7 @@ guint dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_tree_add_item(tree, hf_rdt_timestamp, tvb, offset, 1, FALSE);
     offset += 4;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "BW-PROBING:  ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "BW-PROBING:  ");
 
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
@@ -1281,10 +1257,7 @@ guint dissect_rdt_unknown_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, FALSE);
     offset += tvb_length_remaining(tvb, offset);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "UNKNOWN-CTL:  ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "UNKNOWN-CTL:  ");
 
     return offset;
 }

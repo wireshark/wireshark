@@ -336,10 +336,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
-	if ( check_col(pinfo->cinfo, COL_INFO) )
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, ", Connect");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, ", Connect");
 
 	if ( connect_tree )
 	{
@@ -531,10 +528,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
-	if ( check_col(pinfo->cinfo, COL_INFO) )
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, ", Accept");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, ", Accept");
 
 	if ( accept_tree )
 	{
@@ -648,10 +642,7 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
-	if ( check_col(pinfo->cinfo, COL_INFO) )
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, ", Refuse");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, ", Refuse");
 
 	if ( refuse_tree )
 	{
@@ -700,10 +691,7 @@ static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
-	if ( check_col(pinfo->cinfo, COL_INFO) )
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, ", Abort");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, ", Abort");
 
 	if ( abort_tree )
 	{
@@ -806,10 +794,7 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
-	if ( check_col(pinfo->cinfo, COL_INFO) )
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, ", Redirect");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, ", Redirect");
 
 	if ( redirect_tree )
 	{
@@ -843,10 +828,7 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
-	if ( check_col(pinfo->cinfo, COL_INFO) )
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, ", Control");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, ", Control");
 
 	if ( control_tree )
 	{

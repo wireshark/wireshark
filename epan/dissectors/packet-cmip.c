@@ -2195,9 +2195,7 @@ static const ber_sequence_t CMIPAbortInfo_sequence[] = {
 int
 dissect_cmip_CMIPAbortInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 222 "cmip.cnf"
-  if(check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ABORT");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ABORT");
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CMIPAbortInfo_sequence, hf_index, ett_cmip_CMIPAbortInfo);
@@ -2252,9 +2250,7 @@ static const ber_sequence_t CMIPUserInfo_sequence[] = {
 int
 dissect_cmip_CMIPUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 228 "cmip.cnf"
-  if(check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ASSOCIATE");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ASSOCIATE");
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CMIPUserInfo_sequence, hf_index, ett_cmip_CMIPUserInfo);

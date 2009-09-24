@@ -401,10 +401,7 @@ static void fch_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 	}
 	else	/* display FCH info */
 	{	/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "FCH Burst: DL Frame Prefix");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "FCH Burst: DL Frame Prefix");
 	}
 }
 
@@ -417,10 +414,7 @@ static void cdma_code_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 	}
 	else	/* display CDMA Code Attribute info */
 	{	/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "CDMA Code Attribute");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "CDMA Code Attribute");
 	}
 }
 
@@ -482,10 +476,7 @@ static void pdu_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint
 		}
 		else	/* display PDU Burst info */
 		{	/* update the info column */
-			if (check_col(pinfo->cinfo, COL_INFO))
-			{
-				col_append_str(pinfo->cinfo, COL_INFO, "PDU Burst");
-			}
+			col_append_str(pinfo->cinfo, COL_INFO, "PDU Burst");
 		}
 	}
 }
@@ -499,10 +490,7 @@ static void fast_feedback_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint of
 	}
 	else	/* display the Fast Feedback Burst info */
 	{	/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "Fast Feedback Burst");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "Fast Feedback Burst");
 	}
 }
 
@@ -514,10 +502,7 @@ static void harq_ack_bursts_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset
 	}
 	else	/* display the TLV HARQ ACK Bursts info */
 	{	/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "HARQ ACK Bursts");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "HARQ ACK Bursts");
 	}
 }
 
@@ -529,10 +514,7 @@ static void physical_attributes_decoder(proto_tree *tree, tvbuff_t *tvb, gint of
 	}
 	else	/* display the TLV PDU Burst Physical Attributes info */
 	{	/* update the info column */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, "PHY-attr");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "PHY-attr");
 	}
 }
 
@@ -540,10 +522,7 @@ static void extended_tlv_decoder(packet_info *pinfo)
 {
 	/* display the Extended TLV info */
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, "Extended TLV");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, "Extended TLV");
 }
 
 /* Display the raw WiMax TLV */

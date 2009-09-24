@@ -451,10 +451,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*rp_tree = NULL;
 	const gchar	*str;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, "(RP) ");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, "(RP) ");
 
 	/*
 	 * In the interest of speed, if "tree" is NULL, don't do any work

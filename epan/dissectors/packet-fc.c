@@ -1125,9 +1125,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     if (!is_lastframe_inseq) {
         /* Show this only as a fragmented FC frame */
-        if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_append_str (pinfo->cinfo, COL_INFO, " (Fragmented)");
-        }
+        col_append_str (pinfo->cinfo, COL_INFO, " (Fragmented)");
     }
 
     /* If this is a fragment, attempt to check if fully reassembled frame is
@@ -1183,9 +1181,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
               * 0. This is a bogus frame, don't attempt to reassemble it.
               */
              next_tvb = tvb_new_subset_remaining (tvb, next_offset);
-             if (check_col (pinfo->cinfo, COL_INFO)) {
-                  col_append_str (pinfo->cinfo, COL_INFO, " (Bogus Fragment)");
-             }
+             col_append_str (pinfo->cinfo, COL_INFO, " (Bogus Fragment)");
         } else {
         
              frag_id = ((pinfo->oxid << 16) ^ seq_id) | is_exchg_resp ;

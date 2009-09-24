@@ -177,9 +177,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case RSYNC_CLIENT_QUERY:
 	proto_tree_add_item(rsync_tree, hf_rsync_query_string, tvb, offset, -1, TRUE);
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_str(pinfo->cinfo, COL_INFO, "Client Query");
-	}
+        col_append_str(pinfo->cinfo, COL_INFO, "Client Query");
 
 	conversation_data->state = RSYNC_SERV_MOTD;
         conversation_add_proto_data(conversation, proto_rsync, conversation_data);
@@ -188,9 +186,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case RSYNC_SERV_MOTD:
 	proto_tree_add_item(rsync_tree, hf_rsync_motd_string, tvb, offset, -1, TRUE);
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_str(pinfo->cinfo, COL_INFO, "Server MOTD");
-	}
+        col_append_str(pinfo->cinfo, COL_INFO, "Server MOTD");
 
 	conversation_data->state = RSYNC_SERV_RESPONSE;
         conversation_add_proto_data(conversation, proto_rsync, conversation_data);
@@ -204,18 +200,14 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  /* needs to handle the AUTHREQD case, but doesn't - FIXME */
 	  proto_tree_add_item(rsync_tree, hf_rsync_rsyncdok_string, tvb, offset, -1, TRUE);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_str(pinfo->cinfo, COL_INFO, "Authentication");
-	  }
+	  col_append_str(pinfo->cinfo, COL_INFO, "Authentication");
 	  conversation_data->state = RSYNC_COMMAND;
 
 	} else { /*  it didn't match, so it is probably a module list */
 
 	  proto_tree_add_item(rsync_tree, hf_rsync_response_string, tvb, offset, -1, TRUE);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_str(pinfo->cinfo, COL_INFO, "Module list");
-	  }
+	  col_append_str(pinfo->cinfo, COL_INFO, "Module list");
 
 	  /* we need to check the end of the buffer for magic string */
 	  buff_length = tvb_length_remaining(tvb, offset);
@@ -237,9 +229,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  /* then we are still sending commands */
 	  proto_tree_add_item(rsync_tree, hf_rsync_command_string, tvb, offset, -1, TRUE);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_str(pinfo->cinfo, COL_INFO, "Command");
-	  }
+	  col_append_str(pinfo->cinfo, COL_INFO, "Command");
 
 	  conversation_data->state = RSYNC_COMMAND;
 	  conversation_add_proto_data(conversation, proto_rsync, conversation_data);
@@ -251,9 +241,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       /* then we are still sending commands */
       proto_tree_add_item(rsync_tree, hf_rsync_data, tvb, offset, -1, TRUE);
 
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_str(pinfo->cinfo, COL_INFO, "Data");
-      }
+      col_append_str(pinfo->cinfo, COL_INFO, "Data");
 
       conversation_data->state = RSYNC_DATA;
       conversation_add_proto_data(conversation, proto_rsync, conversation_data);

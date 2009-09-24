@@ -614,9 +614,7 @@ dissect_smb2_olb_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset),
 				    "Invalid offset/length. Malformed packet");
 
-		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_str(pinfo->cinfo, COL_INFO, " [Malformed packet]");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, " [Malformed packet]");
 
 		return NULL;
 	}
@@ -693,9 +691,7 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 		proto_tree_add_text(parent_tree, tvb, offset, tvb_length_remaining(tvb, offset),
 				    "Invalid offset/length. Malformed packet");
 
-		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_str(pinfo->cinfo, COL_INFO, " [Malformed packet]");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, " [Malformed packet]");
 
 		return;
 	}

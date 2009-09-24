@@ -743,9 +743,7 @@ dissect_quakeworld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tvb_get_ntohl(tvb, 0) == 0xffffffff) {
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, " Connectionless");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, " Connectionless");
 		if (quakeworld_tree)
 			proto_tree_add_uint_format(quakeworld_tree,
 				hf_quakeworld_connectionless,
@@ -755,9 +753,7 @@ dissect_quakeworld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb, pinfo, quakeworld_tree, direction);
 	}
 	else {
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, " Game");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, " Game");
 		if (quakeworld_tree)
 			proto_tree_add_uint_format(quakeworld_tree,
 				hf_quakeworld_game,

@@ -5691,10 +5691,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, "(DTAP) ");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, "(DTAP) ");
 
 	/*
 	 * set tap record pointer

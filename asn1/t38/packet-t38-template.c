@@ -531,9 +531,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		show_setup_info(tvb, tr, p_t38_packet_conv);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_str(pinfo->cinfo, COL_INFO, "UDP: UDPTLPacket ");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, "UDP: UDPTLPacket ");
 
 	offset = dissect_UDPTLPacket_PDU(tvb, pinfo, tr);
 
@@ -542,9 +540,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(tr, tvb, offset, tvb_reported_length_remaining(tvb, offset),
 				"[MALFORMED PACKET or wrong preference settings]");
 		}
-		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_str(pinfo->cinfo, COL_INFO, " [Malformed?]");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, " [Malformed?]");
 	}
 }
 
@@ -576,9 +572,7 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		show_setup_info(tvb, tr, p_t38_packet_conv);
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_str(pinfo->cinfo, COL_INFO, "TCP: IFPPacket");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, "TCP: IFPPacket");
 
 	while(tvb_length_remaining(tvb,offset)>0)
 	{
@@ -592,9 +586,7 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_text(tr, tvb, offset, tvb_reported_length_remaining(tvb, offset),
 						"[MALFORMED PACKET or wrong preference settings]");
 				}
-				if (check_col(pinfo->cinfo, COL_INFO)){
-					col_append_str(pinfo->cinfo, COL_INFO, " [Malformed?]");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, " [Malformed?]");
 				break;
 			} 
 			else {

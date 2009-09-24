@@ -62,9 +62,7 @@ static void dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_str(pinfo->cinfo, COL_PROTOCOL, "/sipfrag");
 
     /* Add mention of this protocol to info column */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, ", with Sipfrag");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, ", with Sipfrag");
 
     /* Create sipfrag tree. */
     ti = proto_tree_add_item(tree, proto_sipfrag, tvb, offset, -1, FALSE);

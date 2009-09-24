@@ -11607,10 +11607,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const gchar                 *msg_str;
 
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "(BSMAP) ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "(BSMAP) ");
 
     /*
      * set tap record pointer
@@ -11727,10 +11724,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "(DTAP) ");
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, "(DTAP) ");
 
     /*
      * set tap record pointer

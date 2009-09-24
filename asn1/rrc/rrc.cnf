@@ -104,477 +104,319 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 #.END
 
 #.FN_BODY ActiveSetUpdate
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "ActiveSetUpdate");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "ActiveSetUpdate");
 %(DEFAULT_BODY)s
 
 #.FN_BODY ActiveSetUpdateComplete
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "ActiveSetUpdateComplete");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "ActiveSetUpdateComplete");
 %(DEFAULT_BODY)s
 
 #.FN_BODY ActiveSetUpdateFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "ActiveSetUpdateFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "ActiveSetUpdateFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY AssistanceDataDelivery
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "AssistanceDataDelivery");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "AssistanceDataDelivery");
 %(DEFAULT_BODY)s
 
 #.FN_BODY CellChangeOrderFromUTRAN
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CellChangeOrderFromUTRAN");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CellChangeOrderFromUTRAN");
 %(DEFAULT_BODY)s
 
 #.FN_BODY CellChangeOrderFromUTRANFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CellChangeOrderFromUTRANFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CellChangeOrderFromUTRANFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY CellUpdate
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdate");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdate");
 %(DEFAULT_BODY)s
 
 #.FN_BODY CellUpdateConfirm-CCCH
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm-CCCH");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm-CCCH");
 %(DEFAULT_BODY)s
 
 #.FN_BODY CellUpdateConfirm
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CellUpdateConfirm");
 %(DEFAULT_BODY)s
 
 #.FN_BODY CounterCheck
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheck");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheck");
 %(DEFAULT_BODY)s
 
 #.FN_BODY CounterCheckResponse
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheckResponse");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheckResponse");
 %(DEFAULT_BODY)s
 
 #.FN_BODY DownlinkDirectTransfer
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "DownlinkDirectTransfer");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "DownlinkDirectTransfer");
 %(DEFAULT_BODY)s
 
 #.FN_BODY HandoverToUTRANComplete
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverToUTRANComplete");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverToUTRANComplete");
 %(DEFAULT_BODY)s
 
 #.FN_BODY HandoverFromUTRANCommand-GERANIu
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromUTRANCommand-GERANIu");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromUTRANCommand-GERANIu");
 %(DEFAULT_BODY)s
 
 #.FN_BODY HandoverFromUTRANCommand-GSM
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromUTRANCommand-GSM");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromUTRANCommand-GSM");
 %(DEFAULT_BODY)s
 
 #.FN_BODY HandoverFromUTRANCommand-CDMA2000
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromUTRANCommand-CDMA2000");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromUTRANCommand-CDMA2000");
 %(DEFAULT_BODY)s
 
 #.FN_BODY HandoverFromUTRANFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromUTRANFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromUTRANFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY InitialDirectTransfer
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "InitialDirectTransfer");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "InitialDirectTransfer");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSAccessInformation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSAccessInformation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSAccessInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSCommonPTMRBInformation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCommonPTMRBInformation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCommonPTMRBInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSCurrentCellPTMRBInformation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCurrentCellPTMRBInformation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCurrentCellPTMRBInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSCurrentCellPTMRBInformation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCurrentCellPTMRBInformation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCurrentCellPTMRBInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSGeneralInformation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSGeneralInformation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSGeneralInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSModificationRequest
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSModificationRequest");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSModificationRequest");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSModifiedServicesInformation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSModifiedServicesInformation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSModifiedServicesInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSNeighbouringCellPTMRBInformation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSNeighbouringCellPTMRBInformation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSNeighbouringCellPTMRBInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSSchedulingInformation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSSchedulingInformation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSSchedulingInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSUnmodifiedServicesInformation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSUnmodifiedServicesInformation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSUnmodifiedServicesInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MeasurementControl
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MeasurementControl");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MeasurementControl");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MeasurementControlFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MeasurementControlFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MeasurementControlFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MeasurementReport
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "MeasurementReport");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "MeasurementReport");
 %(DEFAULT_BODY)s
 
 #.FN_BODY PagingType1
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "PagingType1");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "PagingType1");
 %(DEFAULT_BODY)s
 
 #.FN_BODY PagingType2
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "PagingType2");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "PagingType2");
 %(DEFAULT_BODY)s
 
 #.FN_BODY PhysicalChannelReconfiguration
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalChannelReconfiguration");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalChannelReconfiguration");
 %(DEFAULT_BODY)s
 
 #.FN_BODY PhysicalChannelReconfigurationComplete
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalChannelReconfigurationComplete");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalChannelReconfigurationComplete");
 %(DEFAULT_BODY)s
 
 #.FN_BODY PhysicalChannelReconfigurationFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalChannelReconfigurationFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalChannelReconfigurationFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY PhysicalSharedChannelAllocation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalSharedChannelAllocation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "PhysicalSharedChannelAllocation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY PUSCHCapacityRequest
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "PUSCHCapacityRequest");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "PUSCHCapacityRequest");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RadioBearerReconfiguration
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReconfiguration");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReconfiguration");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RadioBearerReconfigurationComplete
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReconfigurationComplete");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReconfigurationComplete");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RadioBearerReconfigurationFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReconfigurationFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReconfigurationFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RadioBearerRelease
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerRelease");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerRelease");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RadioBearerReleaseComplete
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReleaseComplete");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReleaseComplete");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RadioBearerReleaseFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReleaseFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerReleaseFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RadioBearerSetup
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerSetup");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerSetup");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RadioBearerSetupComplete
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerSetupComplete");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerSetupComplete");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RadioBearerSetupFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerSetupFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RadioBearerSetupFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCConnectionReject
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCConnectionRelease
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRelease");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRelease");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCConnectionRelease-CCCH
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRelease-CCCH");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRelease-CCCH");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCConnectionReleaseComplete
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReleaseComplete");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReleaseComplete");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCConnectionRequest
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRequest");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRequest");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCConnectionSetup
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCConnectionSetupComplete
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete");
 %(DEFAULT_BODY)s
 
 #.FN_BODY RRCStatus
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCStatus");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCStatus");
 %(DEFAULT_BODY)s
 
 #.FN_BODY SecurityModeCommand
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeCommand");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeCommand");
 %(DEFAULT_BODY)s
 
 #.FN_BODY SecurityModeComplete
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeComplete");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeComplete");
 %(DEFAULT_BODY)s
 
 #.FN_BODY SecurityModeFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY SignallingConnectionRelease
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SignallingConnectionRelease");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SignallingConnectionRelease");
 %(DEFAULT_BODY)s
 
 #.FN_BODY SignallingConnectionReleaseIndication
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SignallingConnectionReleaseIndication");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SignallingConnectionReleaseIndication");
 %(DEFAULT_BODY)s
 
 #.FN_BODY SystemInformation-BCH
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation-BCH");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation-BCH");
 %(DEFAULT_BODY)s
 
 #.FN_BODY SystemInformation-FACH
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation-FACH");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation-FACH");
 %(DEFAULT_BODY)s
 
 #.FN_BODY SystemInformationChangeIndication
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationChangeIndication");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationChangeIndication");
 %(DEFAULT_BODY)s
 
 #.FN_BODY TransportChannelReconfiguration
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportChannelReconfiguration");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportChannelReconfiguration");
 %(DEFAULT_BODY)s
 
 #.FN_BODY TransportChannelReconfigurationComplete
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportChannelReconfigurationComplete");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportChannelReconfigurationComplete");
 %(DEFAULT_BODY)s
 
 #.FN_BODY TransportChannelReconfigurationFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportChannelReconfigurationFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportChannelReconfigurationFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY TransportFormatCombinationControl
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportFormatCombinationControl");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportFormatCombinationControl");
 %(DEFAULT_BODY)s
 
 #.FN_BODY TransportFormatCombinationControlFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportFormatCombinationControlFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "TransportFormatCombinationControlFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UECapabilityEnquiry
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityEnquiry");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityEnquiry");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UECapabilityInformation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityInformation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UECapabilityInformationConfirm
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityInformationConfirm");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityInformationConfirm");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UplinkDirectTransfer
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UplinkDirectTransfer");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UplinkDirectTransfer");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UplinkPhysicalChannelControl
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UplinkPhysicalChannelControl");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UplinkPhysicalChannelControl");
 %(DEFAULT_BODY)s
 
 #.FN_BODY URAUpdate
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "URAUpdate");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "URAUpdate");
 %(DEFAULT_BODY)s
 
 #.FN_BODY URAUpdateConfirm
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "URAUpdateConfirm");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "URAUpdateConfirm");
 %(DEFAULT_BODY)s
 
 #.FN_BODY URAUpdateConfirm-CCCH
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "URAUpdateConfirm-CCCH");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "URAUpdateConfirm-CCCH");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UTRANMobilityInformation
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UTRANMobilityInformation");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UTRANMobilityInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UTRANMobilityInformationConfirm
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UTRANMobilityInformationConfirm");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UTRANMobilityInformationConfirm");
 %(DEFAULT_BODY)s
 
 #.FN_BODY UTRANMobilityInformationFailure
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "UTRANMobilityInformationFailure");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UTRANMobilityInformationFailure");
 %(DEFAULT_BODY)s
 
 #.FN_BODY TargetRNC-ToSourceRNC-Container/dL-DCCHmessage VAL_PTR = &dl_dcch_message_tvb

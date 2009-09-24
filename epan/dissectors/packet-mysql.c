@@ -1825,9 +1825,7 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	guint64 insert_id;
 	int fle;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_str(pinfo->cinfo, COL_INFO, " OK" );
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, " OK" );
 
 	fle= tvb_get_fle(tvb, offset, &affected_rows, NULL);
 	proto_tree_add_uint64(tree, hf_mysql_affected_rows,
@@ -1963,9 +1961,7 @@ mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	gint fle;
 	guint64 num_fields, extra;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_str(pinfo->cinfo, COL_INFO, " TABULAR" );
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, " TABULAR" );
 
 	fle= tvb_get_fle(tvb, offset, &num_fields, NULL);
 	proto_tree_add_uint64(tree, hf_mysql_num_fields,

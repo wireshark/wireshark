@@ -265,9 +265,7 @@ static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	/* select and display ISMACryp version */
 	if ((ismacryp_version!=version_type) && override_flag){ 
 		/* override -> use manual preference setting */
-		if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_str(pinfo->cinfo, COL_INFO, " Manual version");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, " Manual version");
 		set_version = version_type; /* set to preference value */
 	}
 	else {

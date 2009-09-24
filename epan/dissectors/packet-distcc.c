@@ -247,9 +247,7 @@ dissect_distcc_doti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 	/* see if we need to desegment the PDU */
 	DESEGMENT_TCP("DOTI");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_str(pinfo->cinfo, COL_INFO, "DOTI source ");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, "DOTI source ");
 
 	proto_tree_add_item(tree, hf_distcc_doti_source, tvb, offset, len, FALSE);
 	if(len!=parameter){
@@ -269,9 +267,7 @@ dissect_distcc_doto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 	/* see if we need to desegment the PDU */
 	DESEGMENT_TCP("DOTO");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_str(pinfo->cinfo, COL_INFO, "DOTO object ");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, "DOTO object ");
 
 	proto_tree_add_item(tree, hf_distcc_doto_object, tvb, offset, len, FALSE);
 	if(len!=parameter){

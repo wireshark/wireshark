@@ -8664,9 +8664,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		}
 	} else {
 		/* secondary request */
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_append_str(pinfo->cinfo, COL_INFO, " (secondary request)");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, " (secondary request)");
 	}
 	offset += 2;
 
@@ -9125,9 +9123,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	} else {
 		proto_tree_add_text(tree, tvb, offset, 0,
 			"Function: <unknown function - could not find matching request>");
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_append_str(pinfo->cinfo, COL_INFO, ", <unknown>");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, ", <unknown>");
 	}
 
 	WORD_COUNT;
@@ -13343,10 +13339,8 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (!dissected_trans)
 				dissect_trans_data(s_tvb, p_tvb, d_tvb, tree);
 		} else {
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_append_str(pinfo->cinfo, COL_INFO,
+			col_append_str(pinfo->cinfo, COL_INFO,
 					"[transact continuation]");
-			}
 		}
 	}
 
@@ -15125,9 +15119,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			 */
 			proto_tree_add_text(tree, tvb, 0, 0,
 				"Subcommand: <UNKNOWN> since request packet wasn't seen");
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_str(pinfo->cinfo, COL_INFO, "<unknown>");
-			}
+			col_append_str(pinfo->cinfo, COL_INFO, "<unknown>");
 		} else {
 			si->info_level = t2i->info_level;
 			if (t2i->subcmd == -1) {
@@ -15139,9 +15131,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				 */
 				proto_tree_add_text(tree, tvb, 0, 0,
 					"Subcommand: <UNKNOWN> since transaction code wasn't found in request packet");
-				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_str(pinfo->cinfo, COL_INFO, "<unknown>");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "<unknown>");
 			} else {
 				proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, t2i->subcmd);
 				/* FIND_FIRST2 */
@@ -15432,10 +15422,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 
 	if( (p_tvb==0) && (d_tvb==0) ){
-		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_append_str(pinfo->cinfo, COL_INFO,
+		col_append_str(pinfo->cinfo, COL_INFO,
 				       "[transact continuation]");
-		}
 	}
 
 	pinfo->fragmented = save_fragmented;

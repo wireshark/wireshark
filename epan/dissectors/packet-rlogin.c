@@ -173,10 +173,7 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 		tvb_memcpy(tvb, (guint8 *)hash_info->user_name, 0, stringlen);
 		hash_info->user_name[stringlen] = '\0';
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO, ", (User information)");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, ", (User information)");
 	}
 }
 

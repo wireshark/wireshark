@@ -80,10 +80,8 @@ rs_misc_dissect_login_get_info_rqst (tvbuff_t *tvb, int offset,
 				"rs_login_get_info Request for: %s ", key_t1);
 		}
 	} else {
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, 
+		col_append_str(pinfo->cinfo, COL_INFO, 
 				"rs_login_get_info Request (other)");
-		}
 	}
 
 	return offset;

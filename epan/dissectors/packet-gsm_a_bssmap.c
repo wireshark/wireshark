@@ -5758,10 +5758,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		sccp_msg = NULL;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, "(BSSMAP) ");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, "(BSSMAP) ");
 
 	/*
 	 * set tap record pointer

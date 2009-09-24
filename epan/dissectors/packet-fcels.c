@@ -1746,14 +1746,10 @@ dissect_fcels_cbind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     switch(tvb_reported_length(tvb)){
     case 32: /* 28 byte Request + 4 bytes FC CRC */
-        if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_append_str (pinfo->cinfo, COL_INFO, "Request");
-        }
+        col_append_str (pinfo->cinfo, COL_INFO, "Request");
         break;
     case 40: /* 36 byte Response + 4 bytes FC CRC */
-        if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_append_str (pinfo->cinfo, COL_INFO, "Response");
-        }
+        col_append_str (pinfo->cinfo, COL_INFO, "Response");
         proto_tree_add_item (cbind_tree, hf_fcels_cbind_status, tvb, offset+30, 2, FALSE);
         proto_tree_add_item (cbind_tree, hf_fcels_chandle, tvb, offset+34, 2, FALSE);
         break;
@@ -1781,14 +1777,10 @@ dissect_fcels_unbind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     switch(tvb_reported_length(tvb)){
     case 24: /* 20 byte Request + 4 bytes FC CRC */
-        if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_append_str (pinfo->cinfo, COL_INFO, "Request");
-        }
+        col_append_str (pinfo->cinfo, COL_INFO, "Request");
         break;
     case 28: /* 24 byte Response + 4 bytes FC CRC */
-        if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_append_str (pinfo->cinfo, COL_INFO, "Response");
-        }
+        col_append_str (pinfo->cinfo, COL_INFO, "Response");
         proto_tree_add_item (cbind_tree, hf_fcels_unbind_status, tvb, offset+22, 2, FALSE);
         break;
     }

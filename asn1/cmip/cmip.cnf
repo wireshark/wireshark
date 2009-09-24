@@ -219,15 +219,11 @@ RejectProblem
 
 
 #.FN_HDR CMIPAbortInfo
-  if(check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ABORT");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ABORT");
 #.END
 
 #.FN_HDR CMIPUserInfo
-  if(check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ASSOCIATE");
-  }
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "CMIP-A-ASSOCIATE");
 #.END
 
 #.FN_BODY CMIPAbortSource  VAL_PTR = &value

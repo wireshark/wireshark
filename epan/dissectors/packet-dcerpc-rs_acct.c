@@ -82,10 +82,8 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 				" Request for: %s ", keyx_t);
 		}
 	} else {
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_str(pinfo->cinfo, COL_INFO, 
+		col_append_str(pinfo->cinfo, COL_INFO, 
 				" Request (other)");
-		}
 	}
 
 	return offset;

@@ -1026,10 +1026,7 @@ dissect_epl_asnd_sdo(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gi
     {
         offset = dissect_epl_sdo_command(epl_tree, tvb, pinfo, offset);
     }
-    else if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_append_str(pinfo->cinfo, COL_INFO, "Empty CommandLayer");
-    }
+    else col_append_str(pinfo->cinfo, COL_INFO, "Empty CommandLayer");
 
     return offset;
 }
@@ -1237,10 +1234,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
     else
     {
         /* response, no payload */
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_str(pinfo->cinfo, COL_INFO, "Response");
-        }
+        col_append_str(pinfo->cinfo, COL_INFO, "Response");
     }
     return offset;
 }

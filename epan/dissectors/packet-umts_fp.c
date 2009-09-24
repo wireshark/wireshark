@@ -2756,10 +2756,7 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         /********************************/
         /* HS-DCH type 2 data here      */
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_str(pinfo->cinfo, COL_INFO, "(ehs)");
-        }
+        col_append_str(pinfo->cinfo, COL_INFO, "(ehs)");
 
         /* Frame Seq Nr (4 bits) */
         if ((p_fp_info->release == 6) ||

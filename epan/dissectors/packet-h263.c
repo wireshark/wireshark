@@ -642,9 +642,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	guint32 data;
 	guint8 startcode;
 
-	if ( check_col( pinfo->cinfo, COL_INFO) ) {
-	  col_append_str( pinfo->cinfo, COL_INFO, "H263 payload ");
-	}
+	col_append_str( pinfo->cinfo, COL_INFO, "H263 payload ");
 
 	if( tree ) {
 	  h263_payload_item = proto_tree_add_item( tree, proto_h263_data, tvb, offset, -1, FALSE );

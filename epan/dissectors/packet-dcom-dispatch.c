@@ -316,27 +316,19 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
 
 	if (u32Flags & DISPATCH_FLAGS_METHOD) {
 		proto_item_append_text(feature_item, ", Method");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-		  col_append_str(pinfo->cinfo, COL_INFO, " Method");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, " Method");
 	}
 	if (u32Flags & DISPATCH_FLAGS_PROPGET) {
 		proto_item_append_text(feature_item, ", PropertyGet");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-		  col_append_str(pinfo->cinfo, COL_INFO, " PropertyGet");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, " PropertyGet");
 	}
 	if (u32Flags & DISPATCH_FLAGS_PROPPUT) {
 		proto_item_append_text(feature_item, ", PropertyPut");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-		  col_append_str(pinfo->cinfo, COL_INFO, " PropertyPut");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, " PropertyPut");
 	}
 	if (u32Flags & DISPATCH_FLAGS_PROPPUTREF) {
 		proto_item_append_text(feature_item, ", PropertyPutRef");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-		  col_append_str(pinfo->cinfo, COL_INFO, " PropertyPutRef");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, " PropertyPutRef");
 	}
 
 	offset = u32TmpOffset;

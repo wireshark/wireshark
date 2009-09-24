@@ -184,10 +184,8 @@ static void dissect_ice_string(proto_tree *tree, int hf_icep,
 			proto_tree_add_text(tree, tvb, offset, -1, 
 					    "1st byte of Size missing");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (1st byte of Size missing)");
-		}
 		
 		(*consumed) = -1;
 		return;
@@ -207,10 +205,8 @@ static void dissect_ice_string(proto_tree *tree, int hf_icep,
 				proto_tree_add_text(tree, tvb, offset, -1,
 						    "second field of Size missing");
 			
-			if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-				col_append_str(mypinfo->cinfo, COL_INFO, 
+			col_append_str(mypinfo->cinfo, COL_INFO, 
 					       " (second field of Size missing)");
-			}
 			
 			(*consumed) = -1;
 			return;
@@ -231,10 +227,8 @@ static void dissect_ice_string(proto_tree *tree, int hf_icep,
 			proto_tree_add_text(tree, tvb, offset, -1, 
 					    "missing or truncated string");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (missing or truncated string)");
-		}
 		
 		(*consumed) = -1;
 		return;
@@ -245,10 +239,8 @@ static void dissect_ice_string(proto_tree *tree, int hf_icep,
 		if (tree)
 			proto_tree_add_text(tree, tvb, offset, -1, "string too long");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (string too long)");
-		}
 		
 		(*consumed) = -1;
 		return;
@@ -310,10 +302,8 @@ static void dissect_ice_facet(proto_tree *tree, int hf_icep,
 		if (tree)
 			proto_tree_add_text(tree, tvb, offset, -1, "facet field missing");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (facet field missing)");
-		}
 		
 		(*consumed) = -1;
 		return;
@@ -357,10 +347,8 @@ static void dissect_ice_facet(proto_tree *tree, int hf_icep,
 		proto_tree_add_text(tree, tvb, offset - 1, 1, 
 				    "facet can be max one element");
 	
-	if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-		col_append_str(mypinfo->cinfo, COL_INFO, 
+	col_append_str(mypinfo->cinfo, COL_INFO, 
 			       " (facet can be max one element)");
-	}
 	
 	(*consumed) = -1;
 	return;
@@ -395,10 +383,8 @@ static void dissect_ice_context(proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		if (tree)
 			proto_tree_add_text(tree, tvb, offset, -1, "context missing");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (context missing)");
-		}
 		
 		(*consumed) = -1;
 		return;
@@ -418,10 +404,8 @@ static void dissect_ice_context(proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				proto_tree_add_text(tree, tvb, offset, -1,
 						    "second field of Size missing");
 			
-			if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-				col_append_str(mypinfo->cinfo, COL_INFO, 
+			col_append_str(mypinfo->cinfo, COL_INFO, 
 					       " (second field of Size missing)");
-			}
 			
 			(*consumed) = -1;
 			return;
@@ -441,10 +425,8 @@ static void dissect_ice_context(proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			/* display the XX Size byte when click here */
 			proto_tree_add_text(tree, tvb, offset - 1, 1, "too long context");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (too long context)");
-		}
 		
 		(*consumed) = -1;
 		return;
@@ -534,10 +516,8 @@ static void dissect_ice_params(proto_tree *tree, tvbuff_t *tvb,
 		if (tree)
 			proto_tree_add_text(tree, tvb, offset, -1, "params missing");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (params missing)");
-		}
 		
 		(*consumed) = -1;
 		return;
@@ -554,10 +534,8 @@ static void dissect_ice_params(proto_tree *tree, tvbuff_t *tvb,
 			proto_tree_add_text(tree, tvb, offset, 4, 
 					    "params size too small");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (params size too small)");
-		}
 		
 		(*consumed) = -1;
 		return;
@@ -650,10 +628,8 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
 			proto_tree_add_text(icep_sub_tree, tvb, offset, -1, 
 					    "too short header");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (too short header)");
-		}
 		
 		goto error;
 	}
@@ -731,10 +707,8 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
 			proto_tree_add_text(icep_sub_tree, tvb, offset, -1, 
 					    "mode field missing");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (mode field missing)");
-		}
 		
 		goto error;
 	}
@@ -806,10 +780,8 @@ static void dissect_icep_request(tvbuff_t *tvb, guint32 offset, proto_tree *icep
 			proto_tree_add_text(icep_tree, tvb, offset, -1, 
 					    "too short header");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (too short header)");
-		}
 		
 		return;
 	}
@@ -838,9 +810,7 @@ static void dissect_icep_request(tvbuff_t *tvb, guint32 offset, proto_tree *icep
 					tvb_get_letohl(tvb, offset));
 		}
 	} else
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, "(oneway):");
-		}
+		col_append_str(mypinfo->cinfo, COL_INFO, "(oneway):");
 	
 	
 	offset += 4;
@@ -894,10 +864,8 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 			proto_tree_add_text(icep_tree, tvb, offset, -1, 
 					    "counter of batch requests missing");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (counter of batch requests missing)");
-		}
 		
 		return;
 	}
@@ -927,19 +895,15 @@ static void dissect_icep_batch_request(tvbuff_t *tvb, guint32 offset,
 		if (icep_tree)
 			proto_tree_add_text(icep_tree, tvb, offset, -1,
 					    "empty batch requests sequence");
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 					" (empty batch requests sequence)");
-		}
 		
 		return;
 	}
 	
 	
-	if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-		col_append_str(mypinfo->cinfo, COL_INFO, 
+	col_append_str(mypinfo->cinfo, COL_INFO, 
 				":");
-	}
 	
 	/*
 	 * process requests 
@@ -1005,10 +969,8 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset, proto_tree *icep_t
 			proto_tree_add_text(icep_tree, tvb, offset, -1, 
 					    "too short header");
 		
-		if ( check_col(mypinfo->cinfo, COL_INFO) ) {
-			col_append_str(mypinfo->cinfo, COL_INFO, 
+		col_append_str(mypinfo->cinfo, COL_INFO, 
 				       " (too short header)");
-		}
 		
 		return;
 	}

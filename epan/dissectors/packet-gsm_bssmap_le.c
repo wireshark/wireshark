@@ -873,10 +873,7 @@ dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		sccp_msg = NULL;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_str(pinfo->cinfo, COL_INFO, "(BSSMAP LE) ");
-	}
+	col_append_str(pinfo->cinfo, COL_INFO, "(BSSMAP LE) ");
 
 	/*
 	 * set tap record pointer
