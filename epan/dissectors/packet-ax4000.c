@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -26,10 +26,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include <glib.h>
 
@@ -56,27 +52,25 @@ dissect_ax4000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *ax4000_tree;
 	
-	guint8 ax_port;
-	guint8 ax_chassis;
+	guint8  ax_port;
+	guint8  ax_chassis;
 	guint16 ax_index;
 	guint32 ax_seq;
 	guint32 ax_timestamp;
 
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AX4000");
-    
+	col_clear(pinfo->cinfo, COL_INFO);
+
 	ax_port = tvb_get_guint8(tvb, 0);
 	ax_chassis = tvb_get_guint8(tvb, 1);
 	ax_index = tvb_get_ntohs(tvb, 2) & 0x0FFF;
 	ax_timestamp = tvb_get_letohl(tvb, 6);
 	ax_seq = tvb_get_letohl(tvb, 10);
 	
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "");
-		col_append_fstr(pinfo->cinfo, COL_INFO,
+	col_append_fstr(pinfo->cinfo, COL_INFO,
 			"Chss:%u Prt:%u Idx:%u Seq:0x%08x TS:%.6f[msec]",
 			ax_chassis, ax_port, ax_index, ax_seq, ax_timestamp*1e-5);
-	}
 	
 	if (tree) {
 		/* create display subtree for the protocol */
@@ -100,7 +94,6 @@ dissect_ax4000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    hf_ax4000_crc, tvb, 14, 2, tvb_get_letohs(tvb, 14));
 	}
 
-/* If this protocol has a sub-dissector call it here, see section 1.8 */
 }
 
 /* Register the protocol with Wireshark */
@@ -111,41 +104,41 @@ dissect_ax4000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_ax4000(void)
-{                 
+{
 	static hf_register_info hf[] = {
 		{ &hf_ax4000_port,
 			{ "Port Number", "ax4000.port",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_ax4000_chassis,
 			{ "Chassis Number", "ax4000.chassis",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_ax4000_fill,
 			{ "Fill Type", "ax4000.fill",
-			FT_UINT8, BASE_DEC, NULL, 0xc0,          
+			FT_UINT8, BASE_DEC, NULL, 0xc0,
 			NULL, HFILL }
 		},
 		{ &hf_ax4000_index,
 			{ "Index", "ax4000.index",
-			FT_UINT16, BASE_DEC, NULL, 0x0FFF,          
+			FT_UINT16, BASE_DEC, NULL, 0x0FFF,
 			NULL, HFILL }
 		},
 		{ &hf_ax4000_timestamp,
 			{ "Timestamp", "ax4000.timestamp",
-			FT_UINT32, BASE_HEX, NULL, 0x0,          
+			FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_ax4000_seq,
 			{ "Sequence Number", "ax4000.seq",
-			FT_UINT32, BASE_HEX, NULL, 0x0,          
+			FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_ax4000_crc,
 			{ "CRC (unchecked)", "ax4000.crc",
-			FT_UINT16, BASE_HEX, NULL, 0x0,          
+			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		}
 	};
