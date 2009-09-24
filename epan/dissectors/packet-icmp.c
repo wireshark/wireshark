@@ -698,7 +698,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   icmp_code = tvb_get_guint8(tvb, 1);
   cksum = tvb_get_ntohs(tvb, 2);
 
-  type_str = val_to_str (icmp_type, icmp_type_str, "Unknown ICMP (obsolete or malformed?)");
+  type_str = val_to_str_const (icmp_type, icmp_type_str, "Unknown ICMP (obsolete or malformed?)");
 
   switch (icmp_type) {
     case ICMP_UNREACH:
