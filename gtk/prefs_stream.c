@@ -66,12 +66,17 @@ static GdkColor tcolors[MAX_IDX], *curcolor = NULL;
 GtkWidget *
 stream_prefs_show()
 {
-  GtkWidget *main_vb, *main_tb, *label, *optmenu, *menu, *menuitem;
+  GtkWidget *main_vb, *main_tb, *label, *combo_box;
   GtkWidget *sample, *colorsel;
   int        width, height, i;
-  gchar     *mt[] = { "Marked packet foreground", "Marked packet background",
-                      "TCP stream client foreground", "TCP stream client background",
-                      "TCP stream server foreground", "TCP stream server background" };
+  const gchar     *mt[] = { 
+	  "Marked packet foreground",		/* MFG_IDX 0*/
+	  "Marked packet background",		/* MBG_IDX 1*/
+	  "TCP stream client foreground",	/* CFG_IDX 2*/
+	  "TCP stream client background",	/* CBG_IDX 3*/
+	  "TCP stream server foreground",	/* SFG_IDX 4*/
+	  "TCP stream server background"	/* SBG_IDX 5*/
+  };
   int mcount = sizeof(mt) / sizeof (gchar *);
   GtkTextBuffer *buf;
   GtkTextIter    iter;
@@ -104,18 +109,15 @@ stream_prefs_show()
   /* We have to create this now, and configure it below. */
   colorsel = gtk_color_selection_new();
 
-  optmenu = gtk_option_menu_new ();
-  menu = gtk_menu_new ();
+  combo_box = gtk_combo_box_new_text ();
   for (i = 0; i < mcount; i++){
-    menuitem = gtk_menu_item_new_with_label (mt[i]);
-    g_object_set_data(G_OBJECT(menuitem), STREAM_CS_KEY, colorsel);
-    g_signal_connect(menuitem, "activate", G_CALLBACK(update_current_color), &tcolors[i]);
-    gtk_widget_show (menuitem);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), menuitem);
+	  gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), mt[i]);
   }
-  gtk_option_menu_set_menu (GTK_OPTION_MENU (optmenu), menu);
-  gtk_table_attach(GTK_TABLE(main_tb), optmenu, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-  gtk_widget_show(optmenu);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), CFG_IDX);
+  g_signal_connect(combo_box, "changed", G_CALLBACK(update_current_color), colorsel);
+  gtk_table_attach(GTK_TABLE(main_tb), combo_box, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
+
+  gtk_widget_show(combo_box);
 
   sample = gtk_text_view_new();
   layout = gtk_widget_create_pango_layout(sample, SAMPLE_SERVER_TEXT);
@@ -177,12 +179,13 @@ update_text_color(GtkWidget *w, gpointer data _U_) {
 }
 
 static void
-update_current_color(GtkWidget *w, gpointer data)
+update_current_color(GtkWidget *combo_box, gpointer data)
 {
-  GtkColorSelection *colorsel;
+  GtkColorSelection *colorsel = data;
+  int i;
 
-  colorsel = GTK_COLOR_SELECTION(g_object_get_data(G_OBJECT(w), STREAM_CS_KEY));
-  curcolor = (GdkColor *) data;
+  i = gtk_combo_box_get_active (GTK_COMBO_BOX(combo_box));
+  curcolor = &tcolors[i];
 
   gtk_color_selection_set_current_color(colorsel, curcolor);
 }
