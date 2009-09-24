@@ -28,8 +28,6 @@
 #include "config.h"
 #endif
 
-#include <ctype.h>
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/prefs.h>
@@ -428,7 +426,7 @@ static int actrace_tap = -1;
 static actrace_info_t *actrace_pi;
 
 /*
- * Here are the global variable associated with
+ * Here are the global variables associated with
  * the user definable characteristics of the dissection
  */
 static guint global_actrace_udp_port = UDP_PORT_ACTRACE;
@@ -457,8 +455,8 @@ static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/*
 	 * Check to see whether we're really dealing with AC trace by looking
-	 * for a valid "source" and fixed len for CAS; and the direction for ISDN.
-	 * This isn't infallible, but its cheap and its better than nothing.
+	 * for a valid "source" and fixed len for CAS, and the direction for ISDN.
+	 * This isn't infallible, but its cheap and it's better than nothing.
 	 */
 	actrace_protocol = is_actrace(tvb, 0);
 	if (actrace_protocol != NOT_ACTRACE)
@@ -536,13 +534,12 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	proto_tree_add_int(actrace_tree, hf_actrace_cas_function, tvb, offset, 4, function);
 	offset += 4;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s|%d|%s|%d|%s|", 
-						val_to_str(source, actrace_cas_source_vals_short, "ukn"),
-						curr_state,
-						val_to_str(event, actrace_cas_event_vals, "%d"),
-						next_state,
-						val_to_str(function, actrace_cas_function_vals, "%d"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s|%d|%s|%d|%s|", 
+			val_to_str(source, actrace_cas_source_vals_short, "ukn"),
+			curr_state,
+			val_to_str(event, actrace_cas_event_vals, "%d"),
+			next_state,
+			val_to_str(function, actrace_cas_function_vals, "%d"));
 
 	par0 = tvb_get_ntohl(tvb, offset);
 	switch (function)
@@ -551,31 +548,27 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 			proto_tree_add_text(actrace_tree, tvb, offset, 4,
 				"Parameter 0: %s", val_to_str(par0, 
 				actrace_cas_pstn_event_vals, "Unknown (%d)"));
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
-								val_to_str(par0, actrace_cas_pstn_event_vals, "%d"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
+					val_to_str(par0, actrace_cas_pstn_event_vals, "%d"));
 			break;
 		case CHANGE_COLLECT_TYPE:
 			proto_tree_add_text(actrace_tree, tvb, offset, 4,
 				"Parameter 0: %s", val_to_str(par0, 
 				actrace_cas_collect_type_vals, "Unknown (%d)"));
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
-								val_to_str(par0, actrace_cas_collect_type_vals, "%d"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
+					val_to_str(par0, actrace_cas_collect_type_vals, "%d"));
 			break;
 		case SEND_MF:
 		case SEND_DEST_NUM:
 			proto_tree_add_text(actrace_tree, tvb, offset, 4,
 				"Parameter 0: %s", val_to_str(par0, 
 				actrace_cas_send_type_vals, "Unknown (%d)"));
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
-								val_to_str(par0, actrace_cas_send_type_vals, "%d"));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
+					val_to_str(par0, actrace_cas_send_type_vals, "%d"));
 			break;
 		default:
 			proto_tree_add_int(actrace_tree, hf_actrace_cas_par0, tvb, offset, 4, par0);
-			if (check_col(pinfo->cinfo, COL_INFO))
-						col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par0);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par0);
 	}
 	offset += 4;
 
@@ -583,20 +576,17 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	if (function == SEND_EVENT) {
 		proto_tree_add_text(actrace_tree, tvb, offset, 4,
 			"Parameter 1: %s", val_to_str(par1, actrace_cas_cause_vals, "Unknown (%d)"));
-		if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
-								val_to_str(par1, actrace_cas_cause_vals, "%d"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s|", 
+				val_to_str(par1, actrace_cas_cause_vals, "%d"));
 	} else {
 		proto_tree_add_int(actrace_tree, hf_actrace_cas_par1, tvb, offset, 4, par1);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par1);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par1);
 	}
 	offset += 4;
 
 	par2 = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_int(actrace_tree, hf_actrace_cas_par2, tvb, offset, 4, par2);
-	if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par2);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%d|", par2);
 	offset += 4;
 
 	trunk = tvb_get_ntohl(tvb, offset);
@@ -607,8 +597,7 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 	proto_tree_add_int(actrace_tree, hf_actrace_cas_bchannel, tvb, offset, 4, bchannel);
 	offset += 4;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-			col_prepend_fstr(pinfo->cinfo, COL_INFO, "t%db%d|", trunk, bchannel);
+	col_prepend_fstr(pinfo->cinfo, COL_INFO, "t%db%d|", trunk, bchannel);
 
 	value = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_int(actrace_tree, hf_actrace_cas_connection_id, tvb, offset, 4, value);
@@ -707,9 +696,45 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	call_dissector(lapd_handle, next_tvb, pinfo, tree);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_ISDN");
-	if (check_col(pinfo->cinfo, COL_INFO))
-			col_prepend_fstr(pinfo->cinfo, COL_INFO, "Trunk:%d  Blade %s PSTN "
-			, trunk, value==PSTN_TO_BLADE?"<--":"-->");
+	col_prepend_fstr(pinfo->cinfo, COL_INFO, "Trunk:%d  Blade %s PSTN "
+			 , trunk, value==PSTN_TO_BLADE?"<--":"-->");
+}
+
+/*
+ * is_actrace - A function for determining whether there is a
+ *              AudioCodes packet at offset in tvb. The packet could be 
+ *				a CAS, ISDN or other Trunk protocol. Here we are only
+ *				trying to decode CAS or ISDN protocols
+ *
+ * Parameter:
+ * tvb - The tvbuff in which we are looking for
+ * offset - The offset in tvb at which we are looking for
+ *
+ * Return: NOT_ACTRACE if there isn't an AudioCodes trace packet at offset
+ * in tvb, ACTRACE_CAS if there's a CAS packet there, ACTRACE_ISDN if
+ * there's an ISDN packet there.
+ */
+static int is_actrace(tvbuff_t *tvb, gint offset)
+{
+	gint tvb_len;
+	gint32 source, isdn_header;
+
+	tvb_len = tvb_reported_length(tvb);
+	
+	/* is a CAS packet? 
+	 * the CAS messages are 48 byte fixed and the source should be 0,1 or 2 (DSP, User or Table) 
+	 */
+	source = tvb_get_ntohl(tvb, offset+4);
+	if ( (tvb_len == 48) && ((source > -1) && (source <3)) )
+		return ACTRACE_CAS;
+	/* is ISDN packet? 
+	 * the ISDN packets have 0x49446463 for packets from PSTN to the Blade and
+	 * 0x49644443 for packets from the Blade to the PSTN at offset 4
+	 */
+	isdn_header = tvb_get_ntohl(tvb, offset+4);
+	if ( (tvb_len >= 50) && ( (isdn_header == PSTN_TO_BLADE) || (isdn_header == BLADE_TO_PSTN)) )
+		return ACTRACE_ISDN;
+	return NOT_ACTRACE;
 }
 
 /* Register all the bits needed with the filtering engine */
@@ -818,39 +843,3 @@ void proto_reg_handoff_actrace(void)
 	dissector_add("udp.port", global_actrace_udp_port, actrace_handle);
 }
 
-/*
- * is_actrace - A function for determining whether there is a
- *              AudioCodes packet at offset in tvb. The packet could be 
- *				a CAS, ISDN or other Trunk protocol. Here we are only
- *				trying to decode CAS or ISDN protocols
- *
- * Parameter:
- * tvb - The tvbuff in which we are looking for
- * offset - The offset in tvb at which we are looking for
- *
- * Return: NOT_ACTRACE if there isn't an AutioCode trace packet at offset
- * in tvb, ACTRACE_CAS if there's a CAS packet there, ACTRACE_ISDN if
- * there's an ISDN packet there.
- */
-static int is_actrace(tvbuff_t *tvb, gint offset)
-{
-	gint tvb_len;
-	gint32 source, isdn_header;
-
-	tvb_len = tvb_reported_length(tvb);
-	
-	/* is a CAS packet? 
-	 * the CAS masages are 48 byte fixed and the sorce should be 0,1 or 2 (DSP, User or Table) 
-	 */
-	source = tvb_get_ntohl(tvb, offset+4);
-	if ( (tvb_len == 48) && ((source > -1) && (source <3)) )
-		return ACTRACE_CAS;
-	/* is ISDN packet? 
-	 * the ISDN packets have 0x49446463 for packets from PSTN to the Blade and
-	 * 0x49644443 for packets from the Blade to the PSTN at offset 4
-	 */
-	isdn_header = tvb_get_ntohl(tvb, offset+4);
-	if ( (tvb_len >= 50) && ( (isdn_header == PSTN_TO_BLADE) || (isdn_header == BLADE_TO_PSTN)) )
-		return ACTRACE_ISDN;
-	return NOT_ACTRACE;
-}
