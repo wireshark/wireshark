@@ -55,10 +55,7 @@ dissect_dccack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   len = tvb_length_remaining (tvb, 0);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    {
-      col_set_str(pinfo->cinfo, COL_INFO, "DCC-ACK Message: ");
-    }
+  col_set_str(pinfo->cinfo, COL_INFO, "DCC-ACK Message: ");
 
   if (tree)
     {

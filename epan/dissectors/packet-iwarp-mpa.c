@@ -483,9 +483,7 @@ is_mpa_fpdu(packet_info *pinfo)
 void
 mpa_packetlist(packet_info *pinfo, gint message_type)
 {
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPA");
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPA");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);

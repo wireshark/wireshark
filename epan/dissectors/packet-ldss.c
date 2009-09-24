@@ -490,9 +490,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint offset = 0;
 		gboolean already_dissected = TRUE;
 
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_set_str(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Requesting file - pull)");
-		}
+		col_set_str(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Requesting file - pull)");
 
 		if (highest_num_seen == 0 ||
 		    highest_num_seen < pinfo->fd->num) {
@@ -803,16 +801,12 @@ dissect_ldss (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (is_broadcast(&pinfo->dl_dst) &&
 	    pinfo->ipproto == IP_PROTO_UDP) {
 
-		if(check_col(pinfo->cinfo,COL_PROTOCOL)){
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDSS");
-		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDSS");
 		return dissect_ldss_broadcast(tvb, pinfo, tree);
 	}
 	else if (pinfo->ipproto == IP_PROTO_TCP) {
 
-		if(check_col(pinfo->cinfo,COL_PROTOCOL)){
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDSS");
-		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDSS");
 		return dissect_ldss_transfer(tvb, pinfo, tree);
 	}
 	else {

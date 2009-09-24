@@ -9188,10 +9188,8 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         expert_item = proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb,
             7, 1, FALSE);
         if (conn_stat != 0 && conn_stat != 0x40 ) {
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_set_str(pinfo->cinfo, COL_INFO,
+                col_set_str(pinfo->cinfo, COL_INFO,
                                    "Error: Bad Connection Status");
-                }
                 if (ncp_echo_err) {
                         expert_add_info_format(pinfo, expert_item,
                                                PI_RESPONSE_CODE, PI_ERROR,
@@ -12055,15 +12053,9 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
        	/* Fill in the INFO column. */
        	if (ncp_rec)
         {
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		{
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
-		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDS");
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-                        col_set_str(pinfo->cinfo, COL_INFO, "C Ping for NDS");
-		}
+		col_set_str(pinfo->cinfo, COL_INFO, "C Ping for NDS");
 
         }
        	if (!pinfo->fd->flags.visited)

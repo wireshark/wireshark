@@ -1636,9 +1636,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* RFC 4380 
              * 5.2.9. Direct IPv6 Connectivity Test 
              */
-            if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
-            }    
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");    
             col_set_str(pinfo->cinfo, COL_INFO, "Direct IPv6 Connectivity Test");
         } else {   
             if (coltypename && strcmp(coltypename, "Unknown") == 0) {

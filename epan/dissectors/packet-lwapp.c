@@ -271,10 +271,8 @@ static void dissect_control(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LWAPP");
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_set_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
                     "CNTL ");
-    }
 
     /* Copy our header */
     tvb_memcpy(tvb, (guint8*) &header, offset, sizeof(header));
@@ -333,9 +331,7 @@ static void dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LWAPP-L3");
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_set_str(pinfo->cinfo, COL_INFO, "802.3 Packets over Layer 3");
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, "802.3 Packets over Layer 3");
 
     if (tree) {
 	/* create display subtree for the protocol */
@@ -375,10 +371,8 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LWAPP");
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_set_str(pinfo->cinfo, COL_INFO,
+    col_set_str(pinfo->cinfo, COL_INFO,
                     "LWAPP IP or Layer 2");
-    }
 
     /* First, set up our dest mac, if we're a control packet with a
      * dest of port 12223 */

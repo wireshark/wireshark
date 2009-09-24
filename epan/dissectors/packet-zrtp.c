@@ -437,46 +437,34 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_ErrorACK(packet_info *pinfo) {
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "ErrorACK Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "ErrorACK Packet");
 }
 
 static void
 dissect_ClearACK(packet_info *pinfo) {
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "ClearACK Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "ClearACK Packet");
 }
 
 static void
 dissect_RelayACK(packet_info *pinfo) {
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "RelayACK Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "RelayACK Packet");
 }
 
 static void
 dissect_Conf2ACK(packet_info *pinfo) {
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "Conf2ACK Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "Conf2ACK Packet");
 }
 
 static void
 dissect_HelloACK(packet_info *pinfo) {
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "HelloACK Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "HelloACK Packet");
 }
 
 static void
 dissect_Ping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   unsigned int data_offset=24;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "Ping Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "Ping Packet");
 
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,FALSE);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_endpointhash,tvb,data_offset+4,8,FALSE);
@@ -486,9 +474,7 @@ static void
 dissect_PingACK(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   unsigned int data_offset=24;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "PingACK Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "PingACK Packet");
 
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,FALSE);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_pingack_endpointhash,tvb,data_offset+4,8,FALSE);
@@ -500,9 +486,7 @@ static void
 dissect_GoClear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   unsigned int data_offset=24;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "GoClear Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "GoClear Packet");
 
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,FALSE);
 }
@@ -511,9 +495,7 @@ static void
 dissect_Error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   unsigned int data_offset=24;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "Error Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "Error Packet");
 
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_error,tvb,data_offset,4,FALSE);
 }
@@ -543,9 +525,7 @@ dissect_SASrelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   proto_tree *zrtp_msg_encrypted_tree;
   int linelen;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "SASrelay Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "SASrelay Packet");
 
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,FALSE);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_cfb,tvb,data_offset+8,16,FALSE);
@@ -591,9 +571,7 @@ dissect_Commit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   */
   unsigned int offset;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "Commit Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "Commit Packet");
 
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hash_image,tvb,msg_offset+12,32,FALSE);
   /* ZID */
@@ -664,16 +642,12 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   unsigned char version_str[5];
   proto_tree *tmp_tree;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_set_str(pinfo->cinfo, COL_INFO, "Hello Packet");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "Hello Packet");
 
   tvb_memcpy(tvb,version_str,msg_offset+12,4);
   version_str[4]='\0';
   if (check_valid_version(version_str) == NULL){
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_set_str(pinfo->cinfo, COL_INFO, "Unsupported version of ZRTP protocol");
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, "Unsupported version of ZRTP protocol");
   }
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_version,tvb,msg_offset+12,4,FALSE);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_client_id,tvb,msg_offset+16,16,FALSE);

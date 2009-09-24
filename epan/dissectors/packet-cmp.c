@@ -1510,9 +1510,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMP");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
 
 	if(parent_tree){
 		item=proto_tree_add_item(parent_tree, proto_cmp, tvb, 0, -1, FALSE);
@@ -1679,9 +1677,7 @@ dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMP");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
 
 	if(parent_tree){
 		item=proto_tree_add_item(parent_tree, proto_cmp, tvb, 0, -1, FALSE);

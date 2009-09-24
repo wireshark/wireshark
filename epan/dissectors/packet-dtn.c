@@ -1691,9 +1691,7 @@ dissect_contact_header(tvbuff_t *tvb, packet_info *pinfo,
 
     eid_length = evaluate_sdnv(tvb, 8, &sdnv_length);
     if(eid_length < 0) {
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-	    col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error (Local EID Length)");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error (Local EID Length)");
 	return 0;
     }
     proto_tree_add_text(conv_tree, tvb, 8, sdnv_length,

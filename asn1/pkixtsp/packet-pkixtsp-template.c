@@ -66,9 +66,7 @@ dissect_timestamp_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIXTSP");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "Reply");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "Reply");
 
 
 	if(parent_tree){
@@ -89,9 +87,7 @@ dissect_timestamp_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIXTSP");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, "Query");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "Query");
 
 
 	if(parent_tree){
