@@ -1906,15 +1906,15 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"RADIUS Attributes: %s",
 					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-		break; /* XXX: Added since code seems incorrect otherwise ...  */
+		break;
 
 	case 8: /* 8   Authentication Suboption               [RFC4030]  */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Authentication: %s",
 					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
-		break; /* XXX: Added since code seems incorrect otherwise ...  */
+		break;
 
-	case 9:
+	case 9: /* Vendor-Specific Information Suboption    [RFC 4243] */
 		while (suboptoff < optend) {
 			enterprise = tvb_get_ntohl(tvb, suboptoff);
 			vti = proto_tree_add_text(v_tree, tvb, suboptoff, 4,
@@ -1976,6 +1976,19 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Flags: %s",
 					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
+		break;
+
+	case 11: /* Server Identifier Override Suboption     [RFC 5107] */
+		if (subopt_len == 4) {
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+				"Server ID Override: %s",
+				ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
+		} else {
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+				"Server ID Override: Invalid length (%d instead of 4)",
+				subopt_len);
+		}
+		break;
 
 	default:
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
