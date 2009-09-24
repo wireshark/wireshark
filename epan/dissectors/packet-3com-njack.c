@@ -500,7 +500,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 			offset += tlv_length;
 			break;
 		default:
-			if (tlv_length > 0) {
+			if (tlv_length != 0) {
 				proto_tree_add_item(tlv_tree, hf_njack_tlv_data,
 					tvb, offset, tlv_length, FALSE);
 				offset += tlv_length;
@@ -576,11 +576,8 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint remaining;
 
 	packet_type = tvb_get_guint8(tvb, 5);
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type,
-			njack_type_vals, "Type 0x%02x"));
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type, njack_type_vals, "Type 0x%02x"));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_njack, tvb, offset, -1,
@@ -614,8 +611,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(njack_tree, hf_njack_setresult, tvb, offset,
 				1, FALSE);
 			offset += 1;
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+			col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
 					val_to_str(setresult, njack_setresult_vals, "[0x%02x]"));
 			break;
 		case NJACK_TYPE_GET:
@@ -650,9 +646,9 @@ static gboolean
 test_njack(tvbuff_t *tvb)
 {
 	/* We need at least 'NJ200' + 1 Byte packet type */
-	if ( tvb_length(tvb) < 6 ||
-		    g_ascii_strncasecmp((const char *)tvb_get_ptr(tvb, 0, 5), "NJ200", 5) ) {
-        	return FALSE;
+	if ( (tvb_length(tvb) < 6) ||
+	     (tvb_strncaseeql(tvb, 0, "NJ200", 5) != 0) ) {
+		return FALSE;
 	}
 	return TRUE;
 }
