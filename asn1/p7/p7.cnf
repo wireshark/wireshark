@@ -374,13 +374,9 @@ RTSE-apdus	B	"2.6.0.2.10""id-as-ms-rtse"
 #.FN_PARS	SequenceNumber	VAL_PTR = &seqno
 
 #.FN_BODY	NumberRange
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (range=");
-	}
+	col_append_str(actx->pinfo->cinfo, COL_INFO, " (range=");
 	%(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, ")");
-	}
+	col_append_str(actx->pinfo->cinfo, COL_INFO, ")");
 
 #.FN_FTR	NumberRange/from
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {

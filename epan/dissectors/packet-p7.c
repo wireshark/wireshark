@@ -1326,15 +1326,11 @@ static const ber_sequence_t NumberRange_sequence[] = {
 
 static int
 dissect_p7_NumberRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (range=");
-	}
+	col_append_str(actx->pinfo->cinfo, COL_INFO, " (range=");
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NumberRange_sequence, hf_index, ett_p7_NumberRange);
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, ")");
-	}
+	col_append_str(actx->pinfo->cinfo, COL_INFO, ")");
 
 
   return offset;
