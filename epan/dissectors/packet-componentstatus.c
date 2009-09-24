@@ -74,10 +74,6 @@ static gint ett_componentstatusprotocol = -1;
 static gint ett_association             = -1;
 
 
-static void
-dissect_componentstatusprotocol_message(tvbuff_t *, packet_info *, proto_tree *);
-
-
 #define COMPONENTSTATUSPROTOCOL_PORT    2960
 #define COMPONENTSTATUSPROTOCOL_VERSION 0x0200
 
@@ -92,27 +88,27 @@ dissect_componentstatusprotocol_message(tvbuff_t *, packet_info *, proto_tree *)
 
 
 #define MESSAGE_TYPE_OFFSET             0
-#define MESSAGE_FLAGS_OFFSET            (MESSAGE_TYPE_OFFSET + MESSAGE_TYPE_LENGTH)
-#define MESSAGE_LENGTH_OFFSET           (MESSAGE_FLAGS_OFFSET + MESSAGE_FLAGS_OFFSET)
-#define MESSAGE_VERSION_OFFSET          (MESSAGE_LENGTH_OFFSET + MESSAGE_LENGTH_OFFSET)
-#define MESSAGE_SENDERID_OFFSET         (MESSAGE_VERSION_OFFSET + MESSAGE_VERSION_OFFSET)
-#define MESSAGE_SENDERTIMESTAMP_OFFSET  (MESSAGE_SENDERID_OFFSET + MESSAGE_SENDERID_OFFSET)
+#define MESSAGE_FLAGS_OFFSET            (MESSAGE_TYPE_OFFSET            + MESSAGE_TYPE_LENGTH)
+#define MESSAGE_LENGTH_OFFSET           (MESSAGE_FLAGS_OFFSET           + MESSAGE_FLAGS_LENGTH)
+#define MESSAGE_VERSION_OFFSET          (MESSAGE_LENGTH_OFFSET          + MESSAGE_LENGTH_LENGTH)
+#define MESSAGE_SENDERID_OFFSET         (MESSAGE_VERSION_OFFSET         + MESSAGE_VERSION_LENGTH)
+#define MESSAGE_SENDERTIMESTAMP_OFFSET  (MESSAGE_SENDERID_OFFSET        + MESSAGE_SENDERID_LENGTH)
 #define MESSAGE_VALUE_OFFSET            (MESSAGE_SENDERTIMESTAMP_OFFSET + MESSAGE_SENDERTIMESTAMP_LENGTH)
 
 
-#define COMPONENTSTATUSREPORT_REPORTINTERVAL_LENGTH 4
-#define COMPONENTSTATUSREPORT_WORKLOAD_LENGTH  2
-#define COMPONENTSTATUSREPORT_ASSOCIATIONS_LENGTH 2
-#define COMPONENTSTATUSREPORT_LOCATION_LENGTH 128
-#define COMPONENTSTATUSREPORT_STATUS_LENGTH 128
+#define COMPONENTSTATUSREPORT_REPORTINTERVAL_LENGTH   4
+#define COMPONENTSTATUSREPORT_WORKLOAD_LENGTH         2
+#define COMPONENTSTATUSREPORT_ASSOCIATIONS_LENGTH     2
+#define COMPONENTSTATUSREPORT_LOCATION_LENGTH       128
+#define COMPONENTSTATUSREPORT_STATUS_LENGTH         128
 
 
-#define COMPONENTSTATUSREPORT_REPORTINTERVAL_OFFSET MESSAGE_VALUE_OFFSET
-#define COMPONENTSTATUSREPORT_LOCATION_OFFSET (COMPONENTSTATUSREPORT_REPORTINTERVAL_OFFSET + COMPONENTSTATUSREPORT_REPORTINTERVAL_LENGTH)
-#define COMPONENTSTATUSREPORT_STATUS_OFFSET (COMPONENTSTATUSREPORT_LOCATION_OFFSET + COMPONENTSTATUSREPORT_LOCATION_LENGTH)
-#define COMPONENTSTATUSREPORT_WORKLOAD_OFFSET (COMPONENTSTATUSREPORT_STATUS_OFFSET + COMPONENTSTATUSREPORT_STATUS_LENGTH)
-#define COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET (COMPONENTSTATUSREPORT_WORKLOAD_OFFSET + COMPONENTSTATUSREPORT_WORKLOAD_LENGTH)
-#define COMPONENTSTATUSREPORT_ASSOCIATIONARRAY_OFFSET (COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET + COMPONENTSTATUSREPORT_ASSOCIATIONS_LENGTH)
+#define COMPONENTSTATUSREPORT_REPORTINTERVAL_OFFSET   MESSAGE_VALUE_OFFSET
+#define COMPONENTSTATUSREPORT_LOCATION_OFFSET         (COMPONENTSTATUSREPORT_REPORTINTERVAL_OFFSET + COMPONENTSTATUSREPORT_REPORTINTERVAL_LENGTH)
+#define COMPONENTSTATUSREPORT_STATUS_OFFSET           (COMPONENTSTATUSREPORT_LOCATION_OFFSET       + COMPONENTSTATUSREPORT_LOCATION_LENGTH)
+#define COMPONENTSTATUSREPORT_WORKLOAD_OFFSET         (COMPONENTSTATUSREPORT_STATUS_OFFSET         + COMPONENTSTATUSREPORT_STATUS_LENGTH)
+#define COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET     (COMPONENTSTATUSREPORT_WORKLOAD_OFFSET       + COMPONENTSTATUSREPORT_WORKLOAD_LENGTH)
+#define COMPONENTSTATUSREPORT_ASSOCIATIONARRAY_OFFSET (COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET   + COMPONENTSTATUSREPORT_ASSOCIATIONS_LENGTH)
 
 
 #define COMPONENTASSOCIATION_RECEIVERID_LENGTH  8
@@ -121,12 +117,12 @@ dissect_componentstatusprotocol_message(tvbuff_t *, packet_info *, proto_tree *)
 #define COMPONENTASSOCIATION_PROTOCOLID_LENGTH  2
 #define COMPONENTASSOCIATION_PPID_LENGTH        4
 
-#define COMPONENTASSOCIATION_RECEIVERID_OFFSET  0
-#define COMPONENTASSOCIATION_DURATION_OFFSET (COMPONENTASSOCIATION_RECEIVERID_OFFSET + COMPONENTASSOCIATION_RECEIVERID_LENGTH)
-#define COMPONENTASSOCIATION_FLAGS_OFFSET (COMPONENTASSOCIATION_DURATION_OFFSET + COMPONENTASSOCIATION_DURATION_LENGTH)
-#define COMPONENTASSOCIATION_PROTOCOLID_OFFSET (COMPONENTASSOCIATION_FLAGS_OFFSET + COMPONENTASSOCIATION_FLAGS_LENGTH)
-#define COMPONENTASSOCIATION_PPID_OFFSET (COMPONENTASSOCIATION_PROTOCOLID_OFFSET + COMPONENTASSOCIATION_PROTOCOLID_LENGTH)
-#define COMPONENTASSOCIATION_LENGTH (COMPONENTASSOCIATION_PPID_OFFSET + COMPONENTASSOCIATION_PPID_LENGTH)
+#define COMPONENTASSOCIATION_RECEIVERID_OFFSET 0
+#define COMPONENTASSOCIATION_DURATION_OFFSET   (COMPONENTASSOCIATION_RECEIVERID_OFFSET + COMPONENTASSOCIATION_RECEIVERID_LENGTH)
+#define COMPONENTASSOCIATION_FLAGS_OFFSET      (COMPONENTASSOCIATION_DURATION_OFFSET   + COMPONENTASSOCIATION_DURATION_LENGTH)
+#define COMPONENTASSOCIATION_PROTOCOLID_OFFSET (COMPONENTASSOCIATION_FLAGS_OFFSET      + COMPONENTASSOCIATION_FLAGS_LENGTH)
+#define COMPONENTASSOCIATION_PPID_OFFSET       (COMPONENTASSOCIATION_PROTOCOLID_OFFSET + COMPONENTASSOCIATION_PROTOCOLID_LENGTH)
+#define COMPONENTASSOCIATION_LENGTH            (COMPONENTASSOCIATION_PPID_OFFSET       + COMPONENTASSOCIATION_PPID_LENGTH)
 
 
 #define COMPONENTSTATUS_COMPONENTSTATUSREPORT_MESSAGE_TYPE       0x01
@@ -143,11 +139,11 @@ static const value_string message_type_values[] = {
 static void
 dissect_componentstatusprotocol_componentassociation_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  proto_tree_add_item(message_tree, hf_componentassociation_receiverid,  message_tvb, COMPONENTASSOCIATION_RECEIVERID_OFFSET,  COMPONENTASSOCIATION_RECEIVERID_LENGTH,  FALSE);
-  proto_tree_add_item(message_tree, hf_componentassociation_duration, message_tvb, COMPONENTASSOCIATION_DURATION_OFFSET, COMPONENTASSOCIATION_DURATION_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_componentassociation_flags, message_tvb, COMPONENTASSOCIATION_FLAGS_OFFSET, COMPONENTASSOCIATION_FLAGS_LENGTH, FALSE);
+  proto_tree_add_item(message_tree, hf_componentassociation_receiverid, message_tvb, COMPONENTASSOCIATION_RECEIVERID_OFFSET, COMPONENTASSOCIATION_RECEIVERID_LENGTH, FALSE);
+  proto_tree_add_item(message_tree, hf_componentassociation_duration,   message_tvb, COMPONENTASSOCIATION_DURATION_OFFSET,   COMPONENTASSOCIATION_DURATION_LENGTH,   FALSE);
+  proto_tree_add_item(message_tree, hf_componentassociation_flags,      message_tvb, COMPONENTASSOCIATION_FLAGS_OFFSET,      COMPONENTASSOCIATION_FLAGS_LENGTH,      FALSE);
   proto_tree_add_item(message_tree, hf_componentassociation_protocolid, message_tvb, COMPONENTASSOCIATION_PROTOCOLID_OFFSET, COMPONENTASSOCIATION_PROTOCOLID_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_componentassociation_ppid, message_tvb, COMPONENTASSOCIATION_PPID_OFFSET, COMPONENTASSOCIATION_PPID_LENGTH, FALSE);
+  proto_tree_add_item(message_tree, hf_componentassociation_ppid,       message_tvb, COMPONENTASSOCIATION_PPID_OFFSET,       COMPONENTASSOCIATION_PPID_LENGTH,       FALSE);
 }
 
 
@@ -160,22 +156,23 @@ dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_
   gint        associations;
   int         i;
   gint        offset;
-  gint        remaining_length;
 
   proto_tree_add_item(message_tree, hf_componentstatusreport_reportinterval, message_tvb, COMPONENTSTATUSREPORT_REPORTINTERVAL_OFFSET, COMPONENTSTATUSREPORT_REPORTINTERVAL_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_componentstatusreport_location, message_tvb,  COMPONENTSTATUSREPORT_LOCATION_OFFSET, COMPONENTSTATUSREPORT_LOCATION_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_componentstatusreport_status, message_tvb,  COMPONENTSTATUSREPORT_STATUS_OFFSET, COMPONENTSTATUSREPORT_STATUS_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_componentstatusreport_workload, message_tvb,  COMPONENTSTATUSREPORT_WORKLOAD_OFFSET, COMPONENTSTATUSREPORT_WORKLOAD_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_componentstatusreport_associations,  message_tvb, COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET, COMPONENTSTATUSREPORT_ASSOCIATIONS_LENGTH, FALSE);
+  proto_tree_add_item(message_tree, hf_componentstatusreport_location,       message_tvb, COMPONENTSTATUSREPORT_LOCATION_OFFSET,       COMPONENTSTATUSREPORT_LOCATION_LENGTH,       FALSE);
+  proto_tree_add_item(message_tree, hf_componentstatusreport_status,         message_tvb, COMPONENTSTATUSREPORT_STATUS_OFFSET,         COMPONENTSTATUSREPORT_STATUS_LENGTH,         FALSE);
+  proto_tree_add_item(message_tree, hf_componentstatusreport_workload,       message_tvb, COMPONENTSTATUSREPORT_WORKLOAD_OFFSET,       COMPONENTSTATUSREPORT_WORKLOAD_LENGTH,       FALSE);
+  proto_tree_add_item(message_tree, hf_componentstatusreport_associations,   message_tvb, COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET,   COMPONENTSTATUSREPORT_ASSOCIATIONS_LENGTH,   FALSE);
 
   associations = tvb_get_ntohs(message_tvb, COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET);
   offset = COMPONENTSTATUSREPORT_ASSOCIATIONARRAY_OFFSET;
   i = 1;
-  while((remaining_length = tvb_length_remaining(message_tvb, offset)) >= COMPONENTASSOCIATION_LENGTH) {
+  while(tvb_reported_length_remaining(message_tvb, offset) >= COMPONENTASSOCIATION_LENGTH) {
      association_item = proto_tree_add_text(message_tree, message_tvb, offset, COMPONENTASSOCIATION_LENGTH,
          "Association #%d", i++);
      association_tree = proto_item_add_subtree(association_item, ett_association);
-     association_tvb  = tvb_new_subset(message_tvb, offset, COMPONENTASSOCIATION_LENGTH, COMPONENTASSOCIATION_LENGTH);
+     association_tvb  = tvb_new_subset(message_tvb, offset, 
+                                       MIN(COMPONENTASSOCIATION_LENGTH, tvb_length_remaining(message_tvb, offset)),
+                                       COMPONENTASSOCIATION_LENGTH);
 
      dissect_componentstatusprotocol_componentassociation_message(association_tvb, association_tree);
      offset += COMPONENTASSOCIATION_LENGTH;
@@ -189,8 +186,8 @@ dissect_componentstatusprotocol_message(tvbuff_t *message_tvb, packet_info *pinf
   guint8 type;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
-  if (pinfo && (check_col(pinfo->cinfo, COL_INFO))) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown ComponentStatusProtocol type"));
+  if (pinfo) {
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, message_type_values, "Unknown ComponentStatusProtocol type"));
   }
   proto_tree_add_item(componentstatusprotocol_tree, hf_message_type,            message_tvb, MESSAGE_TYPE_OFFSET,     MESSAGE_TYPE_LENGTH,     FALSE);
   proto_tree_add_item(componentstatusprotocol_tree, hf_message_flags,           message_tvb, MESSAGE_FLAGS_OFFSET,    MESSAGE_FLAGS_LENGTH,    FALSE);
@@ -214,20 +211,23 @@ dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto
   gint8 type;
   gint32 version;
 
+  if (tvb_length(message_tvb) < (MESSAGE_VERSION_OFFSET + MESSAGE_VERSION_LENGTH))
+    return(0);
+
   /* Check, if this packet really contains a ComponentStatusProtocol message */
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   if (type != COMPONENTSTATUS_COMPONENTSTATUSREPORT_MESSAGE_TYPE) {
-    return(FALSE);
+    return(0);
   }
   version = tvb_get_ntohl(message_tvb, MESSAGE_VERSION_OFFSET);
   if (version != COMPONENTSTATUSPROTOCOL_VERSION) {
-    return(FALSE);
+    return(0);
   }
 
   /* pinfo is NULL only if dissect_componentstatusprotocol_message is called from dissect_error cause */
-  if (pinfo && (check_col(pinfo->cinfo, COL_PROTOCOL)))
+  if (pinfo) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ComponentStatusProtocol");
-
+  }
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
@@ -239,7 +239,7 @@ dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto
   };
   /* dissect the message */
   dissect_componentstatusprotocol_message(message_tvb, pinfo, componentstatusprotocol_tree);
-  return(TRUE);
+  return(tvb_length(message_tvb));
 }
 
 
@@ -257,8 +257,8 @@ proto_register_componentstatusprotocol(void)
     { &hf_message_senderid,                       { "SenderID",         "componentstatusprotocol.message_senderid",                       FT_UINT64, BASE_HEX, NULL,                      0x0, NULL, HFILL } },
     { &hf_message_sendertimestamp,                { "SenderTimeStamp",  "componentstatusprotocol.message_sendertimestamp",                FT_UINT64, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_componentstatusreport_reportinterval,   { "ReportInterval",   "componentstatusprotocol.componentstatusreport_reportinterval",   FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
-    { &hf_componentstatusreport_location,         { "Location",         "componentstatusprotocol.componentstatusreport_location",         FT_STRING, BASE_NONE, NULL,                             0x0, NULL, HFILL } },
-    { &hf_componentstatusreport_status,           { "Status",           "componentstatusprotocol.componentstatusreport_status",           FT_STRING, BASE_NONE, NULL,                             0x0, NULL, HFILL } },
+    { &hf_componentstatusreport_location,         { "Location",         "componentstatusprotocol.componentstatusreport_location",         FT_STRING, BASE_NONE, NULL,                     0x0, NULL, HFILL } },
+    { &hf_componentstatusreport_status,           { "Status",           "componentstatusprotocol.componentstatusreport_status",           FT_STRING, BASE_NONE, NULL,                     0x0, NULL, HFILL } },
     { &hf_componentstatusreport_workload,         { "Workload",         "componentstatusprotocol.componentstatusreport_workload",         FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_componentstatusreport_associations,     { "Associations",     "componentstatusprotocol.componentstatusreport_associations",     FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_componentstatusreport_associationarray, { "AssociationArray", "componentstatusprotocol.componentstatusreport_AssociationArray", FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
