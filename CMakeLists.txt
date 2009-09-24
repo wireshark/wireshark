@@ -146,18 +146,19 @@ add_definitions(
 	-DNEW_PACKET_LIST
 )
 
-# todo
-# This doesn't actually work because of some cache magic in
-# CHECK_C_SOURCE_COMPILES
+# Counterhack to work around some cache magic in CHECK_C_SOURCE_COMPILES
 include(CheckCCompilerFlag)
-foreach(WS_C_FLAG ${WIRESHARK_C_FLAGS})
-	message(STATUS "Flag pre: ${WS_C_FLAG}")
-	check_c_compiler_flag(${WS_C_FLAG} WS_C_FLAG_VALID)
-	if (${WS_C_FLAG_VALID})
-		add_definitions(${WS_C_FLAG})
+set(C 0)
+# Sigh: Have to use THIS_FLAG instead of ${F} for some reason
+foreach(THIS_FLAG ${WIRESHARK_C_FLAGS})
+	set(F WS_C_FLAG_${C})
+	set(${F} ${THIS_FLAG})
+	set(V WS_C_FLAG_VALID${C})
+	check_c_compiler_flag(${${F}} ${V})
+	if (${${V}})
+		add_definitions(${${F}})
 	endif()
-	message(STATUS "Flag post ${WS_C_FLAG}: ${WS_C_FLAG_VALID}")
-	#set(WS_C_FLAG_VALID "" CACHE INTERNAL "Dummy" )
+	math(EXPR C "${C} + 1")
 endforeach()
 
 if(DISABLE_WERROR OR ENABLE_EXTRA_GCC_CHECKS)
@@ -285,22 +286,6 @@ if(ENABLE_AIRPCAP)
 	set(HAVE_AIRPCAP 1)
 endif()
 
-#packaging
-set(CPACK_PACKAGE_NAME wireshark)
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "capture packet")
-set(CPACK_PACKAGE_VENDOR "wireshark")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
-set(CPACK_PACKAGE_VERSION_MAJOR "1")
-set(CPACK_PACKAGE_VERSION_MINOR "3")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
-set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
-set(CPACK_GENERATOR "TGZ")
-set(CPACK_SOURCE_GENERATOR "TGZ")
-
 include(ConfigureChecks.cmake)
 
 #Big or little endian ?
@@ -372,6 +357,27 @@ if (ENABLE_PLUGINS)
 endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
+
+include(FeatureSummary)
+#SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ] 
+PRINT_ENABLED_FEATURES()
+PRINT_DISABLED_FEATURES()
+
+#packaging
+set(CPACK_PACKAGE_NAME wireshark)
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "capture packet")
+set(CPACK_PACKAGE_VENDOR "wireshark")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "3")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
+set(CPACK_GENERATOR "TGZ")
+set(CPACK_SOURCE_GENERATOR "TGZ")
 
 link_directories(
 	gtk

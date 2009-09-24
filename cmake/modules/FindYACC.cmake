@@ -19,21 +19,12 @@ FIND_PROGRAM(YACC_EXECUTABLE
     /sbin
 )
 
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(YACC DEFAULT_MSG YACC_EXECUTABLE)
+
 MARK_AS_ADVANCED(YACC_EXECUTABLE)
 
-# search bison/yacc
-MACRO(FIND_YACC)
-    IF(NOT YACC_EXECUTABLE)
-        FIND_PROGRAM(YACC_EXECUTABLE bison)
-        IF (NOT YACC_EXECUTABLE)
-          MESSAGE(FATAL_ERROR "bison/yacc not found - aborting")
-        ENDIF (NOT YACC_EXECUTABLE)
-    ENDIF(NOT YACC_EXECUTABLE)
-ENDMACRO(FIND_YACC)
-
 MACRO(ADD_YACC_FILES _sources )
-    FIND_YACC()
-
     FOREACH (_current_FILE ${ARGN})
       GET_FILENAME_COMPONENT(_in ${_current_FILE} ABSOLUTE)
       GET_FILENAME_COMPONENT(_basename ${_current_FILE} NAME_WE)
@@ -49,7 +40,6 @@ MACRO(ADD_YACC_FILES _sources )
            ${_in}
          DEPENDS ${_in}
       )
-
       SET(${_sources} ${${_sources}} ${_out} )
    ENDFOREACH (_current_FILE)
 ENDMACRO(ADD_YACC_FILES)
