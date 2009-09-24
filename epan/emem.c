@@ -284,14 +284,23 @@ se_init_chunk(void)
 }
 
 static gboolean
-emem_verify_pointer(emem_chunk_t *chunk, const void *ptr)
+emem_verify_pointer(emem_header_t *hdr, const void *ptr)
 {
 	const gchar *cptr = ptr;
+	emem_chunk_t *used_list[2];
+	guint8 used_list_idx;
+	emem_chunk_t *chunk;
 
-	for ( ; chunk ; chunk = chunk->next) {
-		if (cptr >= (chunk->buf + chunk->free_offset_init) &&
-			cptr < (chunk->buf + chunk->free_offset))
-			return TRUE;
+	used_list[0] = hdr->free_list;
+	used_list[1] = hdr->used_list;
+
+	for (used_list_idx=0; used_list_idx < G_N_ELEMENTS(used_list); ++used_list_idx) {
+		chunk = used_list[used_list_idx];
+		for ( ; chunk ; chunk = chunk->next) {
+			if (cptr >= (chunk->buf + chunk->free_offset_init) &&
+				cptr < (chunk->buf + chunk->free_offset))
+				return TRUE;
+		}
 	}
 
 	return FALSE;
@@ -300,13 +309,13 @@ emem_verify_pointer(emem_chunk_t *chunk, const void *ptr)
 gboolean
 ep_verify_pointer(const void *ptr)
 {
-	return emem_verify_pointer(ep_packet_mem.used_list, ptr);
+	return emem_verify_pointer(&ep_packet_mem, ptr);
 }
 
 gboolean
 se_verify_pointer(const void *ptr)
 {
-	return emem_verify_pointer(se_packet_mem.used_list, ptr);
+	return emem_verify_pointer(&se_packet_mem, ptr);
 }
 
 static void
