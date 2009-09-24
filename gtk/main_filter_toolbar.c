@@ -80,14 +80,13 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
 
 GtkWidget *filter_toolbar_new()
 {
-    GtkWidget
-              *filter_bt, *filter_cm, *filter_te,
-              *filter_add_expr_bt,
-              *filter_apply,
-              *filter_reset;
-    GtkWidget *filter_tb;
+    GtkWidget *filter_cm, *filter_te;
+    GtkWidget     *filter_tb;
     GList         *dfilter_list = NULL;
     GtkTooltips   *tooltips;
+	GtkToolItem	  *filter_bt, *filter_add_expr_bt, *filter_reset,
+		          *filter_apply, *item;
+
 
     /* Display filter construct dialog has an Apply button, and "OK" not
        only sets our text widget, it activates it (i.e., it causes us to
@@ -105,16 +104,23 @@ GtkWidget *filter_toolbar_new()
     filter_tb = gtk_toolbar_new();
     gtk_toolbar_set_orientation(GTK_TOOLBAR(filter_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
+	/* XXX make this a preference? */
+	gtk_toolbar_set_style(GTK_TOOLBAR(filter_tb),
+								GTK_TOOLBAR_TEXT);
     gtk_widget_show(filter_tb);
 
     /* Create the "Filter:" button */
-    filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+	filter_bt = gtk_tool_button_new_from_stock (WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
     g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
-    gtk_widget_show(filter_bt);
+    gtk_widget_show(GTK_WIDGET (filter_bt));
     g_object_set_data(G_OBJECT(top_level), E_FILT_BT_PTR_KEY, filter_bt);
 
-    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_bt,
-        "Open the \"Display Filter\" dialog, to edit/apply filters", "Private");
+	gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
+                           filter_bt,
+                           -1);
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), GTK_WIDGET(filter_bt),
+		"Open the \"Display Filter\" dialog, to edit/apply filters",
+		"Private");
 
     /* Create the filter combobox */
     filter_cm = gtk_combo_new();
@@ -135,8 +141,15 @@ GtkWidget *filter_toolbar_new()
     g_signal_connect(filter_tb, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
     gtk_widget_set_size_request(filter_cm, 400, -1);
     gtk_widget_show(filter_cm);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_cm,
-        NULL, NULL);
+
+	item = gtk_tool_item_new ();
+	gtk_container_add (GTK_CONTAINER (item), filter_cm);
+	gtk_widget_show (GTK_WIDGET (item));
+
+	gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
+                           item,
+                           -1);
+
     /* setting a tooltip for a combobox will do nothing, so add it to the corresponding text entry */
     gtk_tooltips_set_tip(tooltips, filter_te,
         "Enter a display filter, or choose one of your recently used filters. "
@@ -145,28 +158,45 @@ GtkWidget *filter_toolbar_new()
 
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
-    filter_add_expr_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
+    filter_add_expr_bt = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_tb), E_FILT_FILTER_TE_KEY, filter_te);
     g_signal_connect(filter_add_expr_bt, "clicked", G_CALLBACK(filter_add_expr_bt_cb), filter_tb);
-    gtk_widget_show(filter_add_expr_bt);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_add_expr_bt,
-        "Add an expression to this filter string", "Private");
+    gtk_widget_show(GTK_WIDGET(filter_add_expr_bt));
+
+	gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
+                           filter_add_expr_bt,
+                           -1);
+
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), GTK_WIDGET(filter_add_expr_bt),
+		"Add an expression to this filter string", 
+		"Private");
 
     /* Create the "Clear" button */
-    filter_reset = gtk_button_new_from_stock(WIRESHARK_STOCK_CLEAR_EXPRESSION);
+    filter_reset = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_CLEAR_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
     g_signal_connect(filter_reset, "clicked", G_CALLBACK(filter_reset_cb), NULL);
-    gtk_widget_show(filter_reset);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_reset,
-        "Clear this filter string and update the display", "Private");
+    gtk_widget_show(GTK_WIDGET(filter_reset));
+	gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
+                           filter_reset,
+                           -1);
+
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), GTK_WIDGET(filter_reset),
+		"Clear this filter string and update the display", 
+		"Private");
 
     /* Create the "Apply" button */
-    filter_apply = gtk_button_new_from_stock(WIRESHARK_STOCK_APPLY_EXPRESSION);
+    filter_apply = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_APPLY_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
     g_signal_connect(filter_apply, "clicked", G_CALLBACK(filter_activate_cb), filter_te);
-    gtk_widget_show(filter_apply);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_apply,
-        "Apply this filter string to the display", "Private");
+    gtk_widget_show(GTK_WIDGET(filter_apply));
+
+	gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
+                           filter_apply,
+                           -1);
+
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), GTK_WIDGET(filter_apply),
+        "Apply this filter string to the display",
+		"Private");
 
     /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
      * of any widget that ends up calling a callback which needs
