@@ -133,6 +133,7 @@ static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	/* set protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_BATMAN");
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	version = tvb_get_guint8(tvb, 0);
 	switch (version) {
@@ -140,10 +141,7 @@ static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		dissect_bat_batman_v5(tvb, pinfo, tree);
 		break;
 	default:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
@@ -195,11 +193,7 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	batman_packeth->hna_len = tvb_get_guint8(tvb, 17);
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Seq=%u",
-		                batman_packeth->seqno);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
 	if (tree) {
@@ -208,8 +202,8 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, BATMAN_PACKET_V5_SIZE,
-			                                    "B.A.T.M.A.N., Orig: %s (%s)",
-			                                    get_hostname(orig), ip_to_str(batman_packeth->orig.data));
+							    "B.A.T.M.A.N., Orig: %s (%s)",
+							    get_hostname(orig), ip_to_str(batman_packeth->orig.data));
 		} else {
 			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, BATMAN_PACKET_V5_SIZE, FALSE);
 		}
@@ -296,8 +290,8 @@ static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 5,
-			                                    "B.A.T.M.A.N. HNA: %s/%d",
-			                                    ip_to_str(hna_addr), hna_netmask);
+							    "B.A.T.M.A.N. HNA: %s/%d",
+							    ip_to_str(hna_addr), hna_netmask);
 		} else {
 			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 5, FALSE);
 		}
@@ -337,14 +331,11 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_GW");
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Type=%s",
-		                val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
-		if (ip != 0) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " IP: %s (%s)",
-			                get_hostname(ip), ip_to_str(ip_addr));
-		}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Type=%s",
+		     val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
+	if (ip != 0) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " IP: %s (%s)",
+				get_hostname(ip), ip_to_str(ip_addr));
 	}
 
 
@@ -355,8 +346,8 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 1,
-			                                    "B.A.T.M.A.N. GW [%s]",
-			                                    val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
+							    "B.A.T.M.A.N. GW [%s]",
+							    val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
 		} else {
 			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 1, FALSE);
 		}
@@ -403,10 +394,7 @@ static void dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_bat_vis_v23(tvb, pinfo, tree);
 		break;
 	default:
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_clear(pinfo->cinfo, COL_INFO);
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
-		}
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
@@ -436,11 +424,8 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
-		                get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
+		     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
 
 	/* Set tree info */
 	if (tree) {
@@ -448,8 +433,8 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V22_SIZE,
-			                                    "B.A.T.M.A.N. Vis, Src: %s (%s)",
-			                                    get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
+							    "B.A.T.M.A.N. Vis, Src: %s (%s)",
+							    get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
 		} else {
 			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V22_SIZE, FALSE);
 		}
@@ -520,9 +505,9 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 7,
-			                                    "VIS Entry: [%s] %s (%s)",
-			                                    val_to_str(vis_datah->type, vis_packettypenames, "Unknown (0x%02x)"),
-			                                    get_hostname(ip), ip_to_str(vis_datah->ip.data));
+							    "VIS Entry: [%s] %s (%s)",
+							    val_to_str(vis_datah->type, vis_packettypenames, "Unknown (0x%02x)"),
+							    get_hostname(ip), ip_to_str(vis_datah->ip.data));
 		} else {
 			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 7, FALSE);
 		}
@@ -569,11 +554,8 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
-		                get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
+		     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
 
 	/* Set tree info */
 	if (tree) {
@@ -581,8 +563,8 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V23_SIZE,
-			                                    "B.A.T.M.A.N. Vis, Src: %s (%s)",
-			                                    get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
+							    "B.A.T.M.A.N. Vis, Src: %s (%s)",
+							    get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
 		} else {
 			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V23_SIZE, FALSE);
 		}
@@ -653,9 +635,9 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 		if (PTREE_DATA(tree)->visible) {
 			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 7,
-			                                    "VIS Entry: [%s] %s (%s)",
-			                                    val_to_str(vis_datah->type, vis_packettypenames, "Unknown (0x%02x)"),
-			                                    get_hostname(ip), ip_to_str(vis_datah->ip.data));
+							    "VIS Entry: [%s] %s (%s)",
+							    val_to_str(vis_datah->type, vis_packettypenames, "Unknown (0x%02x)"),
+							    get_hostname(ip), ip_to_str(vis_datah->ip.data));
 		} else {
 			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 7, FALSE);
 		}
@@ -827,10 +809,10 @@ void proto_register_bat(void)
 	};
 
 	proto_bat_plugin = proto_register_protocol(
-	                           "B.A.T.M.A.N. Layer 3 Protocol",
-	                           "BAT",          /* short name */
-	                           "bat"           /* abbrev */
-	                   );
+		"B.A.T.M.A.N. Layer 3 Protocol",
+		"BAT",          /* short name */
+		"bat"           /* abbrev */
+		);
 
 	/* Register our configuration options for B.A.T.M.A.N. */
 	bat_module = prefs_register_protocol(proto_bat_plugin, proto_reg_handoff_bat);
@@ -839,17 +821,17 @@ void proto_register_bat(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	prefs_register_uint_preference(bat_module, "batman.bat.port", "BAT UDP Port",
-	                               "Set the port for B.A.T.M.A.N. BAT "
-	                               "messages (if other than the default of 4305)",
-	                               10, &global_bat_batman_udp_port);
+				       "Set the port for B.A.T.M.A.N. BAT "
+				       "messages (if other than the default of 4305)",
+				       10, &global_bat_batman_udp_port);
 	prefs_register_uint_preference(bat_module, "batman.gw.port", "GW UDP Port",
-	                               "Set the port for B.A.T.M.A.N. Gateway "
-	                               "messages (if other than the default of 4306)",
-	                               10, &global_bat_gw_udp_port);
+				       "Set the port for B.A.T.M.A.N. Gateway "
+				       "messages (if other than the default of 4306)",
+				       10, &global_bat_gw_udp_port);
 	prefs_register_uint_preference(bat_module, "batman.vis.port", "VIS UDP Port",
-	                               "Set the port for B.A.T.M.A.N. VIS "
-	                               "messages (if other than the default of 4307)",
-	                               10, &global_bat_vis_udp_port);
+				       "Set the port for B.A.T.M.A.N. VIS "
+				       "messages (if other than the default of 4307)",
+				       10, &global_bat_vis_udp_port);
 }
 
 void proto_reg_handoff_bat(void)
