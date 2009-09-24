@@ -500,8 +500,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   }
   pos+=1;
   if ( cod == 10 ) {
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, "CPING" );
+    col_append_str(pinfo->cinfo, COL_INFO, "CPING" );
     return;
   }
 

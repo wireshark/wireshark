@@ -1647,8 +1647,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tds_defragment &&
 	    (packet_number > 1 || status == STATUS_NOT_LAST_BUFFER)) {
 		if (status == STATUS_NOT_LAST_BUFFER) {
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO,
+			col_append_str(pinfo->cinfo, COL_INFO,
 				    " (Not last buffer)");
 		}
 		len = tvb_reported_length_remaining(tvb, offset);

@@ -2049,8 +2049,7 @@ dissect_dap_DirectoryBindArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 		/* its an empty set - i.e anonymous  (assuming version is DEFAULTed) */
 		proto_tree_add_text(tree, tvb, offset, -1,"Anonymous");
 
-		if(check_col(actx->pinfo->cinfo, COL_INFO))
-			col_append_str(actx->pinfo->cinfo, COL_INFO, " anonymous");
+		col_append_str(actx->pinfo->cinfo, COL_INFO, " anonymous");
 
 	}
 	/* do the default thing */

@@ -2289,7 +2289,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				else
 				{
 					/* This is a MQ segment continuation (if MQ reassembly is not enabled) */
-					if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
+					col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
 					call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 				}
 			}
@@ -2297,7 +2297,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else
 		{
 			/* This packet is a TCP continuation of a segment (if desegmentation is not enabled) */
-			if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " [Undesegmented]");
+			col_append_str(pinfo->cinfo, COL_INFO, " [Undesegmented]");
 			if (tree)
 			{
 				proto_tree_add_item(tree, proto_mq, tvb, offset, -1, FALSE);
@@ -2379,7 +2379,7 @@ reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if (bFirstSegment)
 					{
 						/* MQ segment is the first of a unreassembled series */
-						if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
+						col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
 					}
 					return;
 				}

@@ -695,8 +695,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 	if ( hash_info->state == None) {		/* new connection */
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, " Connect to server request");
+		col_append_str(pinfo->cinfo, COL_INFO, " Connect to server request");
 
 		hash_info->state = Connecting;	/* change state		*/
 
@@ -745,8 +744,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 						/* waiting for V4 user name */
 	}else if ( hash_info->state == V4UserNameWait){
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, " Connect Request (User name)");
+		col_append_str(pinfo->cinfo, COL_INFO, " Connect Request (User name)");
 
 		hash_info->v4_user_name_row = get_packet_ptr;
 /*XXX may need to check for domain name here */
@@ -761,8 +759,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 	}
 	else if ( hash_info->state == Connecting){
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, " Connect Response");
+		col_append_str(pinfo->cinfo, COL_INFO, " Connect Response");
 
 						/* save packet pointer 	*/
 		hash_info->cmd_reply_row = get_packet_ptr;
@@ -789,8 +786,7 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 	if ( hash_info->state == None) {
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, " Connect to server request");
+		col_append_str(pinfo->cinfo, COL_INFO, " Connect to server request");
 
 		hash_info->state = Connecting;	/* change state		*/
 		hash_info->connect_row = get_packet_ptr;
@@ -803,8 +799,7 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 		guint AuthMethod = tvb_get_guint8(tvb, offset + 1);
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, " Connect to server response");
+		col_append_str(pinfo->cinfo, COL_INFO, " Connect to server response");
 
 		hash_info->auth_method_row = get_packet_ptr;
 
@@ -879,15 +874,13 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 	}
 	else if ( hash_info->state == V5BindReply) {	/* V5 Bind Second Reply */
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, " Command Response: Bind remote host info");
+		col_append_str(pinfo->cinfo, COL_INFO, " Command Response: Bind remote host info");
 
 		hash_info->bind_reply_row = get_packet_ptr;
 		hash_info->state = Done;
 	}
 	else if ( hash_info->state == UserNameAuth) {	/* Handle V5 User Auth*/
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO,
+		col_append_str(pinfo->cinfo, COL_INFO,
 				" User authentication request");
 
 		hash_info->user_name_auth_row = get_packet_ptr;
@@ -895,21 +888,18 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 	}
 	else if ( hash_info->state == GssApiAuth) {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO,
+		col_append_str(pinfo->cinfo, COL_INFO,
 						   " GSSAPI Authentication request");
 		hash_info->gssapi_auth_row = get_packet_ptr;
 		hash_info->state = GssApiAuthReply;
 	}
 	else if ( hash_info->state == GssApiAuthReply) {
 		if (tvb_get_guint8(tvb, offset+1) == 0xFF) {
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO,
+			col_append_str(pinfo->cinfo, COL_INFO,
 							   " GSSAPI Authentication failure");
 			hash_info->gssapi_auth_failure_row = get_packet_ptr;
 		} else {
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO,
+			col_append_str(pinfo->cinfo, COL_INFO,
 							   " GSSAPI Authentication reply");
 			if (tvb_get_ntohs(tvb, offset+2) == 0)
 				hash_info->state = V5Command;
@@ -920,8 +910,7 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 	}
 	else if ( hash_info->state == UserNameAuthReply){	/* V5 User Auth reply */
 		hash_info->auth_version = get_packet_ptr;
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, " User authentication reply");
+		col_append_str(pinfo->cinfo, COL_INFO, " User authentication reply");
 		hash_info->state = V5Command;
 	}
 }
@@ -940,8 +929,7 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 					/* handle the end command */
        	if ( pinfo->destport == TCP_PORT_SOCKS){
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, ", Terminate Request");
+		col_append_str(pinfo->cinfo, COL_INFO, ", Terminate Request");
 
 		if ( tree)
   			proto_tree_add_text(tree, tvb, offset, 1,
@@ -950,8 +938,7 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	   			"Traceroute: End command");
 	}
        	else{ 		/* display the PING or Traceroute results */
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, ", Results");
+		col_append_str(pinfo->cinfo, COL_INFO, ", Results");
 
 		if ( tree){
 			proto_tree_add_text(tree, tvb, offset, -1,

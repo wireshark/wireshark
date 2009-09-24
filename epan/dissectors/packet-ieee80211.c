@@ -6991,8 +6991,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         }
 
         if (retransmitted) {
-            if (check_col (pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO, " [retransmitted]");
+            col_append_str(pinfo->cinfo, COL_INFO, " [retransmitted]");
             if (tree) {
                 proto_item *item;
 

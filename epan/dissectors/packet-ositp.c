@@ -1561,8 +1561,7 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   proto_tree *cltp_tree = NULL;
   tvbuff_t   *next_tvb;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_str(pinfo->cinfo, COL_INFO, "UD TPDU");
+  col_append_str(pinfo->cinfo, COL_INFO, "UD TPDU");
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cltp, tvb, offset, li + 1, FALSE);
@@ -1622,13 +1621,11 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
 
   while (tvb_offset_exists(tvb, offset)) {
     if (!first_tpdu) {
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, ", ");
+      col_append_str(pinfo->cinfo, COL_INFO, ", ");
 	  expert_add_info_format(pinfo, NULL, PI_SEQUENCE, PI_NOTE, "Multiple TPDUs in one packet");
     }
     if ((li = tvb_get_guint8(tvb, offset + P_LI)) == 0) {
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, "Length indicator is zero");
+      col_append_str(pinfo->cinfo, COL_INFO, "Length indicator is zero");
       if (!first_tpdu)
         call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
                        pinfo, tree);

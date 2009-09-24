@@ -447,8 +447,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     * continuation data
 	     */
 	    offset = tvb_length(tvb);
-	    if (check_col(pinfo->cinfo, COL_INFO))
-	      col_append_str(pinfo->cinfo, COL_INFO,
+	    col_append_str(pinfo->cinfo, COL_INFO,
 			     "Continuation Data");
 
 	    /* Set the protocol column */
@@ -602,8 +601,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     /* if we don't have a valid content_type, there's no sense
      * continuing any further
      */
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
+    col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
 
     /* Set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
@@ -705,8 +703,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
   switch (content_type) {
   case SSL_ID_CHG_CIPHER_SPEC:
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
+    col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
     dissect_dtls_change_cipher_spec(tvb, dtls_record_tree,
 				    offset, conv_version, content_type);
     break;
@@ -758,8 +755,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 			  record_length, content_type, ssl, TRUE);
 
     /* show on info colum what we are decoding */
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
+    col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
 
     if (!dtls_record_tree)
       break;
@@ -805,8 +801,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
   default:
     /* shouldn't get here since we check above for valid types */
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, "Bad DTLS Content Type");
+    col_append_str(pinfo->cinfo, COL_INFO, "Bad DTLS Content Type");
     break;
   }
   offset += record_length; /* skip to end of record */
@@ -883,8 +878,7 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
     }
   else
     {
-      if (check_col(pinfo->cinfo, COL_INFO))
-	col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Alert");
+      col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Alert");
     }
 
   if (tree)
@@ -992,8 +986,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
       /* on second and later iterations, add comma to info col */
       if (!first_iteration)
         {
-	  if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_str(pinfo->cinfo, COL_INFO, ", ");
+	  col_append_str(pinfo->cinfo, COL_INFO, ", ");
         }
 
       /*

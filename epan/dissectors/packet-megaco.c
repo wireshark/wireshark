@@ -735,22 +735,19 @@ nextcontext:
 			my_proto_tree_add_string(megaco_context_tree, hf_megaco_Context, tvb,
 				tvb_previous_offset, 1,
 				"Choose one");
-			if (check_col(pinfo->cinfo, COL_INFO) )
-				col_append_str(pinfo->cinfo, COL_INFO, " |=Choose one");
+			col_append_str(pinfo->cinfo, COL_INFO, " |=Choose one");
 			break;
 		case '*':
 			ctx_id = ALL_CONTEXTS;
 			my_proto_tree_add_string(megaco_context_tree, hf_megaco_Context, tvb,
 				tvb_previous_offset, 1,
 				"All");
-			if (check_col(pinfo->cinfo, COL_INFO) )
-				col_append_str(pinfo->cinfo, COL_INFO, " |=All");
+			col_append_str(pinfo->cinfo, COL_INFO, " |=All");
 			break;
 		case '-':
 			ctx_id = NULL_CONTEXT;
 			proto_tree_add_text(megaco_context_tree, tvb, tvb_previous_offset, tokenlen, "Context: NULL" );
-			if (check_col(pinfo->cinfo, COL_INFO) )
-				col_append_str(pinfo->cinfo, COL_INFO, " |=NULL");
+			col_append_str(pinfo->cinfo, COL_INFO, " |=NULL");
 			break;
 		default:
 			my_proto_tree_add_string(megaco_context_tree, hf_megaco_Context, tvb,
@@ -975,8 +972,7 @@ nextcontext:
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"AuditValue");
-								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_str(pinfo->cinfo, COL_INFO, " AuditValue");
+								col_append_str(pinfo->cinfo, COL_INFO, " AuditValue");
 								break;
 
 							case 'C':
@@ -988,8 +984,7 @@ nextcontext:
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"AuditCapability");
-								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_str(pinfo->cinfo, COL_INFO, " AuditCapability");
+								col_append_str(pinfo->cinfo, COL_INFO, " AuditCapability");
 								break;
 
 							default:
@@ -1002,8 +997,7 @@ nextcontext:
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"Add");
-								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_str(pinfo->cinfo, COL_INFO, " Add");
+								col_append_str(pinfo->cinfo, COL_INFO, " Add");
 								break;
 							}
 							break;
@@ -1018,8 +1012,7 @@ nextcontext:
 							my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 								tvb_command_start_offset, tokenlen,
 								"Notify");
-								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_str(pinfo->cinfo, COL_INFO, " Notify");
+								col_append_str(pinfo->cinfo, COL_INFO, " Notify");
 							break;
 
 						case 'M':
@@ -1039,8 +1032,7 @@ nextcontext:
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"Modify");
-								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_str(pinfo->cinfo, COL_INFO, " Modify");
+								col_append_str(pinfo->cinfo, COL_INFO, " Modify");
 								break;
 
 							case 'V':
@@ -1052,8 +1044,7 @@ nextcontext:
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"Move");
-								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_str(pinfo->cinfo, COL_INFO, " Move");
+								col_append_str(pinfo->cinfo, COL_INFO, " Move");
 								break;
 							}
 							break;
@@ -1121,8 +1112,7 @@ nextcontext:
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"Subtract");
-								if (check_col(pinfo->cinfo, COL_INFO) )
-									col_append_str(pinfo->cinfo, COL_INFO, " Subtract");
+								col_append_str(pinfo->cinfo, COL_INFO, " Subtract");
 								break;
 							}
 							break;
@@ -1271,8 +1261,7 @@ nextcontext:
 						my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
 							tvb_offset, tokenlen,
 							"WildCard all");
-							if (check_col(pinfo->cinfo, COL_INFO) )
-								col_append_str(pinfo->cinfo, COL_INFO, "=*");
+							col_append_str(pinfo->cinfo, COL_INFO, "=*");
 						break;
 
 					case '$':
@@ -1286,8 +1275,7 @@ nextcontext:
 						my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
 							tvb_offset, tokenlen,
 							"WildCard any");
-							if (check_col(pinfo->cinfo, COL_INFO) )
-								col_append_str(pinfo->cinfo, COL_INFO, "=$");
+							col_append_str(pinfo->cinfo, COL_INFO, "=$");
 						break;
 
 					default:
@@ -2096,8 +2084,7 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 	  proto_tree_add_text(megaco_tree_command_line, tvb, tvb_signals_start_offset, tokenlen,
 				"%s", "Empty Signal Descriptor");
 
-	  if(check_col(pinfo->cinfo, COL_INFO))
-	    col_append_str(pinfo->cinfo, COL_INFO, " (Signal:none)");		/* then say so */
+	  col_append_str(pinfo->cinfo, COL_INFO, " (Signal:none)");		/* then say so */
 
 	  return;								/* and return */
 	}

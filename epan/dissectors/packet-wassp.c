@@ -760,8 +760,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 			PI_MALFORMED, PI_ERROR,
 			"Malformed or short SNMP subpacket");
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO,
+		col_append_str(pinfo->cinfo, COL_INFO,
 				" [Malformed or short SNMP subpacket] " );
 	} ENDTRY;
 

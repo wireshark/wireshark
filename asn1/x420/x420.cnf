@@ -218,16 +218,14 @@ IpnSecurityResponse			B	"2.6.1.18.1"	"id-sec-security-common-fields"
 
 #.FN_BODY IPM
 
- if(check_col(actx->pinfo->cinfo, COL_INFO))
-   col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
+ col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
 
   %(DEFAULT_BODY)s
 
 
 #.FN_BODY IPN
 
- if(check_col(actx->pinfo->cinfo, COL_INFO))
-   col_append_str(actx->pinfo->cinfo, COL_INFO, " Notification");
+ col_append_str(actx->pinfo->cinfo, COL_INFO, " Notification");
 
   %(DEFAULT_BODY)s
 

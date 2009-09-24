@@ -58,8 +58,7 @@ static void dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint        lines = 0;
 
     /* Append this protocol name rather than replace. */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_append_str(pinfo->cinfo, COL_PROTOCOL, "/sipfrag");
+    col_append_str(pinfo->cinfo, COL_PROTOCOL, "/sipfrag");
 
     /* Add mention of this protocol to info column */
     col_append_str(pinfo->cinfo, COL_INFO, ", with Sipfrag");

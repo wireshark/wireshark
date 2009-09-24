@@ -126,8 +126,7 @@ dissect_PNMRP_Common(tvbuff_t *tvb, int offset,
     /* MRP_DomainUUID */
     offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_mrp_domain_uuid, &uuid);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "Common");
+    col_append_str(pinfo->cinfo, COL_INFO, "Common");
 
     proto_item_append_text(item, "Common");
 
@@ -156,8 +155,7 @@ dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset,
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "LinkUp");
+    col_append_str(pinfo->cinfo, COL_INFO, "LinkUp");
 
     proto_item_append_text(item, "LinkUp");
 
@@ -186,8 +184,7 @@ dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "LinkDown");
+    col_append_str(pinfo->cinfo, COL_INFO, "LinkDown");
 
     proto_item_append_text(item, "LinkDown");
 
@@ -228,8 +225,7 @@ dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "Test");
+    col_append_str(pinfo->cinfo, COL_INFO, "Test");
 
     proto_item_append_text(item, "Test");
 
@@ -258,8 +254,7 @@ dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset,
     /* Padding */
     /*offset = dissect_pn_align4(tvb, offset, pinfo, tree);*/
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "TopologyChange");
+    col_append_str(pinfo->cinfo, COL_INFO, "TopologyChange");
 
     proto_item_append_text(item, "TopologyChange");
 
@@ -290,15 +285,13 @@ dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
         if(length != 0) {
             offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
         }
-        if (check_col(pinfo->cinfo, COL_INFO))
-          col_append_fstr(pinfo->cinfo, COL_INFO, "Option(Siemens)");
+        col_append_str(pinfo->cinfo, COL_INFO, "Option(Siemens)");
 		break;
 	default:
         proto_item_append_text(item, "Option(Unknown-OUI)");
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-          col_append_fstr(pinfo->cinfo, COL_INFO, "Option");
+        col_append_str(pinfo->cinfo, COL_INFO, "Option");
     }
 
     offset += length;
@@ -337,8 +330,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
         offset = dissect_pn_uint8(tvb_new, offset, pinfo, tree, hf_pn_mrp_length, &length);
 
         if(i != 0) {
-            if (check_col(pinfo->cinfo, COL_INFO))
-              col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+            col_append_str(pinfo->cinfo, COL_INFO, ", ");
 
             proto_item_append_text(item, ", ");
         }
@@ -346,8 +338,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
         switch(type) {
         case(0x00):
             /* no content */
-            if (check_col(pinfo->cinfo, COL_INFO))
-              col_append_fstr(pinfo->cinfo, COL_INFO, "End");
+            col_append_str(pinfo->cinfo, COL_INFO, "End");
             proto_item_append_text(item, "End");
             return offset;
             break;

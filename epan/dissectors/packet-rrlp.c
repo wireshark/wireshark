@@ -4558,8 +4558,7 @@ dissect_rrlp_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 	
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
 
-	if (check_col(actx->pinfo->cinfo, COL_PROTOCOL)) 
-		col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/RRLP");
+	col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/RRLP");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rrlp_PDU, PDU_sequence);

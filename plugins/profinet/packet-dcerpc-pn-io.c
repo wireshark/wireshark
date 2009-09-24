@@ -2225,8 +2225,7 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
 
     if(u8ErrorCode == 0 && u8ErrorDecode == 0 && u8ErrorCode1 == 0 && u8ErrorCode2 == 0) {
         proto_item_append_text(sub_item, ": OK");
-        if (check_col(pinfo->cinfo, COL_INFO))
-	        col_append_str(pinfo->cinfo, COL_INFO, ", OK");
+        col_append_str(pinfo->cinfo, COL_INFO, ", OK");
     } else {
         proto_item_append_text(sub_item, ": Error: \"%s\", \"%s\", \"%s\", \"%s\"",
             val_to_str(u8ErrorCode, pn_io_error_code, "(0x%x)"),
@@ -2928,8 +2927,7 @@ dissect_Alarm_ack_block(tvbuff_t *tvb, int offset,
         return offset;
 	}
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_str(pinfo->cinfo, COL_INFO, ", Alarm Ack");
+    col_append_str(pinfo->cinfo, COL_INFO, ", Alarm Ack");
 
     offset = dissect_Alarm_header(tvb, offset, pinfo, tree, item, drep);
 
@@ -3275,26 +3273,22 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
     if(u16Command & 0x0001) {
         proto_item_append_text(sub_item, ", ParameterEnd");
         proto_item_append_text(item, " ParameterEnd");
-        if (check_col(pinfo->cinfo, COL_INFO))
-	        col_append_fstr(pinfo->cinfo, COL_INFO, ", Command: ParameterEnd");
+        col_append_str(pinfo->cinfo, COL_INFO, ", Command: ParameterEnd");
     }
     if(u16Command & 0x0002) {
         proto_item_append_text(sub_item, ", ApplicationReady");
         proto_item_append_text(item, " ApplicationReady");
-        if (check_col(pinfo->cinfo, COL_INFO))
-	        col_append_fstr(pinfo->cinfo, COL_INFO, ", Command: ApplicationReady");
+        col_append_str(pinfo->cinfo, COL_INFO, ", Command: ApplicationReady");
     }
     if(u16Command & 0x0004) {
         proto_item_append_text(sub_item, ", Release");
         proto_item_append_text(item, " Release");
-        if (check_col(pinfo->cinfo, COL_INFO))
-	        col_append_fstr(pinfo->cinfo, COL_INFO, ", Command: Release");
+        col_append_str(pinfo->cinfo, COL_INFO, ", Command: Release");
     }
     if(u16Command & 0x0008) {
         proto_item_append_text(sub_item, ", Done");
         proto_item_append_text(item, ", Done");
-        if (check_col(pinfo->cinfo, COL_INFO))
-	        col_append_fstr(pinfo->cinfo, COL_INFO, ", Command: Done");
+        col_append_str(pinfo->cinfo, COL_INFO, ", Command: Done");
     }
 
     proto_item_append_text(item, ", Properties:0x%x", u16Properties);
@@ -7289,23 +7283,19 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
 
     switch(u8PDUType & 0x0F) {
     case(1):    /* Data-RTA */
-    	if (check_col(pinfo->cinfo, COL_INFO))
-	        col_append_str(pinfo->cinfo, COL_INFO, ", Data-RTA");
+    	col_append_str(pinfo->cinfo, COL_INFO, ", Data-RTA");
         offset = dissect_block(tvb, offset, pinfo, rta_tree, drep, &u16Index, &u32RecDataLen, &ar);
         break;
     case(2):    /* NACK-RTA */
-    	if (check_col(pinfo->cinfo, COL_INFO))
-	        col_append_str(pinfo->cinfo, COL_INFO, ", NACK-RTA");
+    	col_append_str(pinfo->cinfo, COL_INFO, ", NACK-RTA");
         /* no additional data */
         break;
     case(3):    /* ACK-RTA */
-    	if (check_col(pinfo->cinfo, COL_INFO))
-	        col_append_str(pinfo->cinfo, COL_INFO, ", ACK-RTA");
+    	col_append_str(pinfo->cinfo, COL_INFO, ", ACK-RTA");
         /* no additional data */
         break;
     case(4):    /* ERR-RTA */
-    	if (check_col(pinfo->cinfo, COL_INFO))
-	        col_append_str(pinfo->cinfo, COL_INFO, ", ERR-RTA");
+    	col_append_str(pinfo->cinfo, COL_INFO, ", ERR-RTA");
         offset = dissect_PNIO_status(tvb, offset, pinfo, rta_tree, drep);
         break;
     default:

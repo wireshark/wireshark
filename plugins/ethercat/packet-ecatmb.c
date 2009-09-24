@@ -601,8 +601,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
       proto_item_append_text(aparent,":CoE ");
    }
 
-   if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, "CoE ");
+   col_append_str(pinfo->cinfo, COL_INFO, "CoE ");
 
    if( coe_length >= ETHERCAT_COE_HEADER_LEN )
    {
@@ -631,8 +630,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
             if( coe_length < ETHERCAT_COE_HEADER_LEN + ETHERCAT_SDO_HEADER_LEN )
             {
-               if (check_col(pinfo->cinfo, COL_INFO))
-                  col_append_str(pinfo->cinfo, COL_INFO, "Sdo Req - invalid length");
+               col_append_str(pinfo->cinfo, COL_INFO, "Sdo Req - invalid length");
                break;
             }
 
@@ -722,8 +720,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             ETHERCAT_SDO_HEADER sdo;
             if( coe_length < ETHERCAT_COE_HEADER_LEN + ETHERCAT_SDO_HEADER_LEN )
             {
-               if (check_col(pinfo->cinfo, COL_INFO))
-                  col_append_str(pinfo->cinfo, COL_INFO, "Sdo Res - invalid length");
+               col_append_str(pinfo->cinfo, COL_INFO, "Sdo Res - invalid length");
                break;
             }
 
@@ -801,8 +798,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
             if( coe_length < ETHERCAT_COE_HEADER_LEN + ETHERCAT_SDO_INFO_LISTREQ_LEN )
             {
-               if (check_col(pinfo->cinfo, COL_INFO))
-                  col_append_str(pinfo->cinfo, COL_INFO, "Sdo Info - invalid length");
+               col_append_str(pinfo->cinfo, COL_INFO, "Sdo Info - invalid length");
                break;
             }
 
@@ -919,8 +915,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    }
    else
    {
-      if (check_col(pinfo->cinfo, COL_INFO))
-         col_append_str(pinfo->cinfo, COL_INFO, "- invalid length");
+      col_append_str(pinfo->cinfo, COL_INFO, "- invalid length");
    }
 }
 
@@ -1010,8 +1005,7 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    }
    else
    {
-      if (check_col(pinfo->cinfo, COL_INFO))
-         col_append_str(pinfo->cinfo, COL_INFO, "SoE - invalid length");
+      col_append_str(pinfo->cinfo, COL_INFO, "SoE - invalid length");
    }
 }
 
@@ -1192,8 +1186,7 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    }
    else
    {
-      if (check_col(pinfo->cinfo, COL_INFO))
-         col_append_str(pinfo->cinfo, COL_INFO, "EoE - invalid length!");
+      col_append_str(pinfo->cinfo, COL_INFO, "EoE - invalid length!");
    }
 }
 
@@ -1291,8 +1284,7 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    }
    else
    {
-      if (check_col(pinfo->cinfo, COL_INFO))
-         col_append_str(pinfo->cinfo, COL_INFO, "FoE - invalid length");
+      col_append_str(pinfo->cinfo, COL_INFO, "FoE - invalid length");
    }
 }
 
@@ -1317,8 +1309,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
       if( mailbox_length >= ETHERCAT_MBOX_HEADER_LEN + hdr.Length )
       {
-         if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, " Mbx(");
+         col_append_str(pinfo->cinfo, COL_INFO, " Mbx(");
 
          if( tree )
          {
@@ -1380,8 +1371,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             anItem = proto_tree_add_item(ecat_mailbox_tree, hf_ecat_mailboxdata, tvb, offset, hdr.Length, TRUE);
          }
 
-         if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, ")");
+         col_append_str(pinfo->cinfo, COL_INFO, ")");
       }
    }
 }

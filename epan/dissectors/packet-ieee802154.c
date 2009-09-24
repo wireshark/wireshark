@@ -1008,7 +1008,7 @@ dissect_ieee802154_fcs:
 
     /* If the CRC is invalid, make a note of it in the info column. */
     if (!fcs_ok) {
-        if (check_col(pinfo->cinfo, COL_INFO)) col_append_fstr(pinfo->cinfo, COL_INFO, ", Bad FCS");
+        col_append_str(pinfo->cinfo, COL_INFO, ", Bad FCS");
         if (tree) proto_item_append_text(proto_root, ", Bad FCS");
 
         /* Flag packet as having a bad crc. */

@@ -2197,8 +2197,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
        * frame, so it must be a duplicate fragment. maybe a retransmission?
        * Mark it as duplicate and return NULL
        */
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, " (Duplicate Message Fragment)");
+      col_append_str(pinfo->cinfo, COL_INFO, " (Duplicate Message Fragment)");
 
       proto_tree_add_uint(tree, hf_sctp_duplicate, tvb, 0, 0, fragment->frame_num);
       return NULL;
@@ -2370,8 +2369,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     /* this is not the last fragment,
      * so let the user know the frame where the reassembly is
      */
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
+    col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
 
     proto_tree_add_uint(tree, hf_sctp_reassembled_in, tvb, 0, 0, message->reassembled_in->frame_num);
     return NULL;
@@ -2408,8 +2406,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
      * just mark as fragment
      */
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
+    col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
 
     return NULL;
   }
@@ -2440,8 +2437,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
      */
     if ((last_frag->tsn + 1)) {
       /* there are just fragments missing */
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
+      col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
 
       return NULL;
     }
@@ -2463,8 +2459,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
 
   if (!frag_i || frag_i != end->fragment || frag_i->tsn != (last_frag->tsn + 1)) {
     /* we need more fragments. just mark as fragment */
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
+    col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
 
     return NULL;
   }

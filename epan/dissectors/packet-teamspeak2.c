@@ -433,7 +433,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		new_tvb = process_reassembled_data(tvb, 24, pinfo,"Reassembled Message", frag_msg, &msg_frag_items, NULL, ts2_tree);
 		if (frag_msg)
 		{ /* Reassembled */
-			if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+			col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
 		} 
 		else 
 		{ /* Not last packet of reassembled Short Message */
@@ -490,7 +490,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	}
 	/* The packet is out of order, update the cinfo and ignore the packet */
 	if(frag->outoforder)
-		if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " (Out Of Order, ignored)");
+		col_append_str(pinfo->cinfo, COL_INFO, " (Out Of Order, ignored)");
 }
 
 

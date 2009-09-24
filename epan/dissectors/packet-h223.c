@@ -1240,8 +1240,7 @@ static gint dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset, packe
     }
 
     CATCH2(BoundsError,ReportedBoundsError) {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO,
+        col_append_str(pinfo->cinfo, COL_INFO,
                            "[Malformed Packet]");
         proto_tree_add_protocol_format(h223_tree, proto_malformed,
                                        tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);

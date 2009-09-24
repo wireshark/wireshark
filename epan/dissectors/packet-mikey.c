@@ -1324,8 +1324,7 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_append_text(ti, ": %s", val_to_str(mikey->type, data_type_vals, "Unknown"));
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/MIKEY");
+	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/MIKEY");
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Mikey: %s", val_to_str(mikey->type, data_type_vals, "Unknown"));

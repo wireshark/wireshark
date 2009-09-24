@@ -2345,8 +2345,7 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 	rem=tvb_reported_length_remaining(tvb, offset);
 
 	if( rem < 8 ) {/*chk for minimum header = type + length + msg_id*/
-		if( check_col(pinfo->cinfo, COL_INFO) )
-			col_append_str(pinfo->cinfo, COL_INFO, "Bad Message");
+		col_append_str(pinfo->cinfo, COL_INFO, "Bad Message");
 		if(tree)
 			proto_tree_add_text(tree, tvb, offset, rem,
 			    "Error processing Message: length is %d, should be >= 8",
@@ -2371,8 +2370,7 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if( (length = tvb_get_ntohs(tvb, offset + 2)) < (4+extra) ) {/*not enough data for type*/
-		if( check_col(pinfo->cinfo, COL_INFO) )
-			col_append_str(pinfo->cinfo, COL_INFO, "Bad Message Length ");
+		col_append_str(pinfo->cinfo, COL_INFO, "Bad Message Length ");
 		if(tree)
 			proto_tree_add_text(tree, tvb, offset, rem,
 			    "Error processing Message Length: length is %d, should be >= %u",

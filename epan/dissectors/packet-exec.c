@@ -342,15 +342,13 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* offset = 0 since the whole packet is data */
 			proto_tree_add_text(exec_tree, tvb, 0, -1, "Client -> Server Data");
 	  
-			if(check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO, "Client -> Server data");
+			col_append_str(pinfo->cinfo, COL_INFO, "Client -> Server data");
 		} else {
 			/* This packet must be going back to the client */
 			/* offset = 0 since the whole packet is data */
 			proto_tree_add_text(exec_tree, tvb, 0, -1, "Server -> Client Data");
 	  
-			if(check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO, "Server -> Client Data");
+			col_append_str(pinfo->cinfo, COL_INFO, "Server -> Client Data");
 		}
 	}
 

@@ -3468,12 +3468,10 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 				NULL, parameter_tree);
 
 			if (frag_msg) { /* Reassembled */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_str(pinfo->cinfo, COL_INFO,
+				col_append_str(pinfo->cinfo, COL_INFO,
 					" (Message Reassembled)");
 			} else { /* Not last packet of reassembled Short Message */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_str(pinfo->cinfo, COL_INFO,
+				col_append_str(pinfo->cinfo, COL_INFO,
 					" (Message fragment )");
 			}
 
@@ -7200,8 +7198,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 message_type;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ITU)");
+	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ITU)");
 
 /* Extract message type field */
 	message_type = tvb_get_guint8(tvb, 0);

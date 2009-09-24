@@ -2591,8 +2591,7 @@ dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		offset = 0, next_offset;
 	gint		len;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_str(pinfo->cinfo, COL_INFO, " (message/http)");
+	col_append_str(pinfo->cinfo, COL_INFO, " (message/http)");
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_message_http,
 				tvb, 0, -1, FALSE);

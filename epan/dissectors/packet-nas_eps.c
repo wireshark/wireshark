@@ -3896,8 +3896,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	len = tvb_length(tvb);
 
 	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
+	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
 
 	item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, FALSE);
 	nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);

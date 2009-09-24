@@ -338,32 +338,26 @@ dissect_sec_rgy_pgo_flags_t (tvbuff_t * tvb, int offset,
 #define sec_rgy_pgo_flags_none  0
 
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_str (pinfo->cinfo, COL_INFO, " PgoFlags=");
+  col_append_str (pinfo->cinfo, COL_INFO, " PgoFlags=");
   if ((flags & sec_rgy_pgo_is_an_alias) == sec_rgy_pgo_is_an_alias)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":IS_AN_ALIAS");
+      col_append_str (pinfo->cinfo, COL_INFO, ":IS_AN_ALIAS");
     }
   if ((flags & sec_rgy_pgo_is_required) == sec_rgy_pgo_is_required)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":IS_REQUIRED");
+      col_append_str (pinfo->cinfo, COL_INFO, ":IS_REQUIRED");
     }
   if ((flags & sec_rgy_pgo_projlist_ok) == sec_rgy_pgo_projlist_ok)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":PROJLIST_OK");
+      col_append_str (pinfo->cinfo, COL_INFO, ":PROJLIST_OK");
     }
   if ((flags & sec_rgy_acct_admin_client) == sec_rgy_acct_admin_client)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":NONE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":NONE");
     }
   if ((flags & sec_rgy_pgo_flags_none) == sec_rgy_pgo_flags_none)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":NONE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":NONE");
     }
 
   proto_item_set_len (item, offset - old_offset);
@@ -710,30 +704,24 @@ dissect_rs_pgo_query_t (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep, hf_rs_pgo_query_t,
 		       &query_t);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_str (pinfo->cinfo, COL_INFO, " rs_pgo_query_t:");
+  col_append_str (pinfo->cinfo, COL_INFO, " rs_pgo_query_t:");
 
   switch (query_t)
     {
     case rs_pgo_query_name:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, "NAME");
+      col_append_str (pinfo->cinfo, COL_INFO, "NAME");
       break;
     case rs_pgo_query_id:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, "ID");
+      col_append_str (pinfo->cinfo, COL_INFO, "ID");
       break;
     case rs_pgo_query_unix_num:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, "UNIX_NUM");
+      col_append_str (pinfo->cinfo, COL_INFO, "UNIX_NUM");
       break;
     case rs_pgo_query_next:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, "NEXT");
+      col_append_str (pinfo->cinfo, COL_INFO, "NEXT");
       break;
     case rs_pgo_query_none:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, "NONE");
+      col_append_str (pinfo->cinfo, COL_INFO, "NONE");
       break;
     default:
       if (check_col (pinfo->cinfo, COL_INFO))
@@ -950,34 +938,28 @@ dissect_rs_pgo_query_key_t (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep, hf_rs_pgo_query_key_t,
 			&query_t);
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_str (pinfo->cinfo, COL_INFO, " rs_pgo_query_key_t:");
+  col_append_str (pinfo->cinfo, COL_INFO, " rs_pgo_query_key_t:");
   offset += 4;
   switch (query_t)
     {
     case rs_pgo_query_name:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, "NAME");
+      col_append_str (pinfo->cinfo, COL_INFO, "NAME");
       offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
       break;
     case rs_pgo_query_id:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, "ID");
+      col_append_str (pinfo->cinfo, COL_INFO, "ID");
       offset = dissect_rs_pgo_id_key_t (tvb, offset, pinfo, tree, drep);
       break;
     case rs_pgo_query_unix_num:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, "UNIX_NUM");
+      col_append_str (pinfo->cinfo, COL_INFO, "UNIX_NUM");
       offset = dissect_rs_pgo_unix_num_key_t (tvb, offset, pinfo, tree, drep);
       break;
     case rs_pgo_query_next:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, "NEXT");
+      col_append_str (pinfo->cinfo, COL_INFO, "NEXT");
       offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
       break;
     case rs_pgo_query_none:
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, "NONE");
+      col_append_str (pinfo->cinfo, COL_INFO, "NONE");
       break;
 
     default:

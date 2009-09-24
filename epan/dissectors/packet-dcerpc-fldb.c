@@ -518,105 +518,85 @@ dissect_afsflags (tvbuff_t * tvb, int offset,
 			hf_fldb_afsflags_flags, &afsflags);
   if (afsflags)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, " afsFlags=");
+      col_append_str (pinfo->cinfo, COL_INFO, " afsFlags=");
       if ((afsflags & AFS_FLAG_RETURNTOKEN) == AFS_FLAG_RETURNTOKEN)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":RETURNTOKEN");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":RETURNTOKEN");
 	}
       if ((afsflags & AFS_FLAG_TOKENJUMPQUEUE) == AFS_FLAG_TOKENJUMPQUEUE)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":TOKENJUMPQUEUE");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":TOKENJUMPQUEUE");
 	}
       if ((afsflags & AFS_FLAG_SKIPTOKEN) == AFS_FLAG_SKIPTOKEN)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":SKIPTOKEN");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":SKIPTOKEN");
 	}
       if ((afsflags & AFS_FLAG_NOOPTIMISM) == AFS_FLAG_NOOPTIMISM)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":NOOPTIMISM");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":NOOPTIMISM");
 	}
       if ((afsflags & AFS_FLAG_TOKENID) == AFS_FLAG_TOKENID)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":TOKENID");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":TOKENID");
 	}
       if ((afsflags & AFS_FLAG_RETURNBLOCKER) == AFS_FLAG_RETURNBLOCKER)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":RETURNBLOCKER");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":RETURNBLOCKER");
 	}
       if ((afsflags & AFS_FLAG_ASYNCGRANT) == AFS_FLAG_ASYNCGRANT)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":ASYNCGRANT");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":ASYNCGRANT");
 	}
       if ((afsflags & AFS_FLAG_NOREVOKE) == AFS_FLAG_NOREVOKE)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":NOREVOKE");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":NOREVOKE");
 	}
       if ((afsflags & AFS_FLAG_MOVE_REESTABLISH) == AFS_FLAG_MOVE_REESTABLISH)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_REESTABLISH");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_REESTABLISH");
 	}
       if ((afsflags & AFS_FLAG_SERVER_REESTABLISH) ==
 	  AFS_FLAG_SERVER_REESTABLISH)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":SERVER_REESTABLISH");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":SERVER_REESTABLISH");
 	  if ((afsflags & AFS_FLAG_NO_NEW_EPOCH) == AFS_FLAG_NO_NEW_EPOCH)
 	    {
-	      if (check_col (pinfo->cinfo, COL_INFO))
-		col_append_str (pinfo->cinfo, COL_INFO, ":NO_NEW_EPOCH");
+	      col_append_str (pinfo->cinfo, COL_INFO, ":NO_NEW_EPOCH");
 	    }
 	  if ((afsflags & AFS_FLAG_MOVE_SOURCE_OK) == AFS_FLAG_MOVE_SOURCE_OK)
 	    {
-	      if (check_col (pinfo->cinfo, COL_INFO))
-		col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_SOURCE_OK");
+	      col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_SOURCE_OK");
 	    }
 	  if ((afsflags & AFS_FLAG_SYNC) == AFS_FLAG_SYNC)
 	    {
-	      if (check_col (pinfo->cinfo, COL_INFO))
-		col_append_str (pinfo->cinfo, COL_INFO, ":SYNC");
+	      col_append_str (pinfo->cinfo, COL_INFO, ":SYNC");
 	    }
 	  if ((afsflags & AFS_FLAG_ZERO) == AFS_FLAG_ZERO)
 	    {
-	      if (check_col (pinfo->cinfo, COL_INFO))
-		col_append_str (pinfo->cinfo, COL_INFO, ":ZERO");
+	      col_append_str (pinfo->cinfo, COL_INFO, ":ZERO");
 	    }
 	  if ((afsflags & AFS_FLAG_SKIPSTATUS) == AFS_FLAG_SKIPSTATUS)
 	    {
-	      if (check_col (pinfo->cinfo, COL_INFO))
-		col_append_str (pinfo->cinfo, COL_INFO, ":SKIPSTATUS");
+	      col_append_str (pinfo->cinfo, COL_INFO, ":SKIPSTATUS");
 	    }
 	  if ((afsflags & AFS_FLAG_FORCEREVOCATIONS) ==
 	      AFS_FLAG_FORCEREVOCATIONS)
 	    {
-	      if (check_col (pinfo->cinfo, COL_INFO))
-		col_append_str (pinfo->cinfo, COL_INFO, ":FORCEREVOCATIONS");
+	      col_append_str (pinfo->cinfo, COL_INFO, ":FORCEREVOCATIONS");
 	    }
 	  if ((afsflags & AFS_FLAG_FORCEVOLQUIESCE) ==
 	      AFS_FLAG_FORCEVOLQUIESCE)
 	    {
-	      if (check_col (pinfo->cinfo, COL_INFO))
-		col_append_str (pinfo->cinfo, COL_INFO, ":FORCEVOLQUIESCE");
+	      col_append_str (pinfo->cinfo, COL_INFO, ":FORCEVOLQUIESCE");
 	    }
 	  if ((afsflags & AFS_FLAG_SEC_SERVICE) == AFS_FLAG_SEC_SERVICE)
 	    {
-	      if (check_col (pinfo->cinfo, COL_INFO))
-		col_append_str (pinfo->cinfo, COL_INFO, ":SEC_SERVICE");
+	      col_append_str (pinfo->cinfo, COL_INFO, ":SEC_SERVICE");
 	    }
 	  if ((afsflags & AFS_FLAG_CONTEXT_NEW_ACL_IF) ==
 	      AFS_FLAG_CONTEXT_NEW_ACL_IF)
 	    {
-	      if (check_col (pinfo->cinfo, COL_INFO))
-		col_append_str (pinfo->cinfo, COL_INFO,
+	      col_append_str (pinfo->cinfo, COL_INFO,
 				":CONTEXT_NEW_ACL_IF");
 	    }
 
@@ -652,47 +632,38 @@ dissect_siteflags (tvbuff_t * tvb, int offset,
 
   if (siteflags)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, " SiteFlags");
+      col_append_str (pinfo->cinfo, COL_INFO, " SiteFlags");
       if ((siteflags & VLSF_NEWREPSITE) == VLSF_NEWREPSITE)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":NEWREPSITE");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":NEWREPSITE");
 	}
       if ((siteflags & VLSF_SPARE1) == VLSF_SPARE1)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":SPARE1");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":SPARE1");
 	}
       if ((siteflags & VLSF_SPARE2) == VLSF_SPARE2)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":SPARE2");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":SPARE2");
 	}
       if ((siteflags & VLSF_SPARE3) == VLSF_SPARE3)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":SPARE3");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":SPARE3");
 	}
       if ((siteflags & VLSF_SAMEASPREV) == VLSF_SAMEASPREV)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":SAMEASPREV");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":SAMEASPREV");
 	}
       if ((siteflags & VLSF_DEFINED) == VLSF_DEFINED)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":DEFINED");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":DEFINED");
 	}
       if ((siteflags & VLSF_PARTIALADDRS) == VLSF_PARTIALADDRS)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":PARTIALADDRS ");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":PARTIALADDRS ");
 	}
       if ((siteflags & VLSF_ZEROIXHERE) == VLSF_ZEROIXHERE)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":ZEROIXHERE");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":ZEROIXHERE");
 
 	}
     }

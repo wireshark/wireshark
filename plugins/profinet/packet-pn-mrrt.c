@@ -81,8 +81,7 @@ dissect_PNMRRT_Common(tvbuff_t *tvb, int offset,
     /* MRRT_DomainUUID */
     offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_mrrt_domain_uuid, &uuid);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "Common");
+    col_append_str(pinfo->cinfo, COL_INFO, "Common");
 
     proto_item_append_text(item, "Common");
 
@@ -103,8 +102,7 @@ dissect_PNMRRT_Test(tvbuff_t *tvb, int offset,
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, "Test");
+    col_append_str(pinfo->cinfo, COL_INFO, "Test");
 
     proto_item_append_text(item, "Test");
 
@@ -133,8 +131,7 @@ dissect_PNMRRT_PDU(tvbuff_t *tvb, int offset,
 
 
         if(i != 0) {
-            if (check_col(pinfo->cinfo, COL_INFO))
-              col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+            col_append_str(pinfo->cinfo, COL_INFO, ", ");
 
             proto_item_append_text(item, ", ");
         }
@@ -144,8 +141,7 @@ dissect_PNMRRT_PDU(tvbuff_t *tvb, int offset,
         switch(type) {
         case(0x00):
             /* no content */
-            if (check_col(pinfo->cinfo, COL_INFO))
-              col_append_fstr(pinfo->cinfo, COL_INFO, "End");
+            col_append_str(pinfo->cinfo, COL_INFO, "End");
             proto_item_append_text(item, "End");
             return offset;
             break;

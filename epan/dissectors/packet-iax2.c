@@ -2020,8 +2020,7 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
   ts = ts;
 
   if( offset >= tvb_reported_length (tvb)) {
-    if (check_col (pinfo->cinfo, COL_INFO))
-      col_append_str (pinfo->cinfo, COL_INFO, ", empty frame" );
+    col_append_str (pinfo->cinfo, COL_INFO, ", empty frame" );
     return;
   }
 

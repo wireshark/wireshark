@@ -2956,8 +2956,7 @@ dissect_ldap_ProtocolOp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 	if(ldap_info->start_tls_pending && !ldap_info->start_tls_frame) {
 		/* XXX: some directories do not correctly return the responseName in the extendedResponse so we don't know start_tls has been negotiated */
 
-		if(check_col(actx->pinfo->cinfo, COL_INFO))
-		      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[LDAP_START_TLS_OID responseName missing] ");
+		col_append_str(actx->pinfo->cinfo, COL_INFO, "[LDAP_START_TLS_OID responseName missing] ");
 		ldap_info->start_tls_frame = (actx->pinfo->fd->num) + 1;
 	}
 

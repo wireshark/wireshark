@@ -362,8 +362,7 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
 		    "Reassembled Short Message", fd_sm, &sm_frag_items,
 		    NULL, sm_tree);
 		if (reassembled) { /* Reassembled */
-			if (check_col (pinfo->cinfo, COL_INFO))
-				col_append_str (pinfo->cinfo, COL_INFO,
+			col_append_str (pinfo->cinfo, COL_INFO,
 						" (Short Message Reassembled)");
 		} else {
 			/* Not last packet of reassembled Short Message */

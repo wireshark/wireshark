@@ -516,8 +516,7 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     else {
         proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: number of digits must be 20]");
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET: number of digits must be 20]" );
+        col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET: number of digits must be 20]" );
     }
 }
 
@@ -530,8 +529,7 @@ dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     if (len < 2) {
         proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: FCD length must be at least 2 bytes]");
         expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 FCD length must be at least 2 bytes");
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
+        col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
     }
 
@@ -559,8 +557,7 @@ dissect_t30_non_standard_cap(tvbuff_t *tvb, int offset, packet_info *pinfo, int 
     if (len < 2) {
         proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: NSC length must be at least 2 bytes]");
         expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 NSC length must be at least 2 bytes");
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
+        col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
     }
 
@@ -582,8 +579,7 @@ dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, i
     if (len != 4) {
         proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: PPS length must be 4 bytes]");
         expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 PPS length must be 4 bytes");
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
+        col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
     }
 
@@ -622,8 +618,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     if (len < 3) {
         proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: DIS length must be at least 4 bytes]");
         expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 DIS length must be at least 4 bytes");
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
+        col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
     }
 
@@ -878,15 +873,13 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tvb_reported_length_remaining(tvb, offset) < 3) {
         proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: hdlc T30 length must be at least 4 bytes]");
         expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 length must be at least 4 bytes");
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, " (HDLC Reassembled: [MALFORMED OR SHORT PACKET])");
+        col_append_str(pinfo->cinfo, COL_INFO, " (HDLC Reassembled: [MALFORMED OR SHORT PACKET])");
         return offset;
     }
 
 /*  if (tree) {
         proto_item *item;*/
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, " (HDLC Reassembled:");
+        col_append_str(pinfo->cinfo, COL_INFO, " (HDLC Reassembled:");
 
         it=proto_tree_add_protocol_format(tree, proto_t30, tvb, offset, -1,
         "ITU-T Recommendation T.30");
@@ -946,8 +939,7 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         }
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, ")");
+        col_append_str(pinfo->cinfo, COL_INFO, ")");
 
 /*  }*/
 

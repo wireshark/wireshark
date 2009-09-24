@@ -2617,8 +2617,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		if (reassembled) 
 		{ 
 			/* Reassembled */
-			if (check_col (g_pinfo->cinfo, COL_INFO))
-				col_append_str (g_pinfo->cinfo, COL_INFO,
+			col_append_str (g_pinfo->cinfo, COL_INFO,
 						" (Short Message Reassembled)");
 		} 
 		else 

@@ -670,8 +670,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				/* Picture Start Code (PSC)
 				 * ( 1000 00x.)
 				 */
-				if(check_col( pinfo->cinfo, COL_INFO))
-					col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
+				col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
 				offset = dissect_h263_picture_layer( tvb, pinfo, h263_payload_tree, offset, -1, FALSE);
 				break;
 			case 0xfc:
@@ -683,8 +682,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				/* Group of Block Start Code (GBSC) or
 				 * Slice Start Code (SSC)
 				 */
-				if ( check_col( pinfo->cinfo, COL_INFO) )
-					col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
+				col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
 				offset = dissect_h263_group_of_blocks_layer( tvb, h263_payload_tree, offset,FALSE);
 				break;
 			}

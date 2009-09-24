@@ -1190,8 +1190,7 @@ vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		break;
 
 	default :
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO,
+		col_append_str(pinfo->cinfo, COL_INFO,
 				       "Unknown server message type");
 		break;
 	}

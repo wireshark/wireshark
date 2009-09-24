@@ -613,8 +613,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                             data_fragment_table /* list of message fragments */
                         );
                     } else {
-                        if (check_col(actx->pinfo->cinfo, COL_INFO))
-                            col_append_str(actx->pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)"); 
+                        col_append_str(actx->pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)"); 
                         
                         g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
                     }

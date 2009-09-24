@@ -464,8 +464,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {          
         case ADSSRVID_READ:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Request");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Request");
 
               if( tree )
               {
@@ -487,8 +486,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_WRITE:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Write Request");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Write Request");
 
               if( tree )
               {
@@ -512,8 +510,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_READWRITE:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Write Request");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Write Request");
 
               if( tree )
               {
@@ -540,8 +537,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_READSTATE:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Read State Request");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Read State Request");
 
               if( tree )
               {
@@ -556,8 +552,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_WRITECTRL:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Write Control Request");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Write Control Request");
 
               if( tree )
               {
@@ -581,8 +576,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_READDEVICEINFO:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Device Info Request");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Device Info Request");
 
               if( tree )
               {
@@ -597,8 +591,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_ADDDEVICENOTE:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Add Device Notification Request");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Add Device Notification Request");
 
               if( tree )
               {
@@ -629,8 +622,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_DELDEVICENOTE:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Delete Device Notification Request");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Delete Device Notification Request");
 
               if( tree )
               {
@@ -645,8 +637,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_DEVICENOTE:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Device Notification Request");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Device Notification Request");
 
               if( tree )
               {
@@ -679,8 +670,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
         case ADSSRVID_READ:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Response");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Response");
 
               if( tree )
               {
@@ -701,8 +691,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_WRITE:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Write Response");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Write Response");
 
               if( tree )
               {
@@ -717,8 +706,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_READWRITE:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Write Response");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Write Response");
 
               if( tree )
               {
@@ -739,8 +727,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_READSTATE:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Read State Response");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Read State Response");
 
               if( tree )
               {
@@ -761,8 +748,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_WRITECTRL:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Write Control Response");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Write Control Response");
 
               if( tree )
               {
@@ -777,8 +763,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_READDEVICEINFO:
            {
-              if (check_col(pinfo->cinfo, COL_INFO))
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Device Info Response");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Device Info Response");
 
               if( tree )
               {
@@ -801,8 +786,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_ADDDEVICENOTE:
            {
-              if (check_col(pinfo->cinfo, COL_INFO))
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Device Notification Response");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Device Notification Response");
 
               if( tree )
               {
@@ -820,8 +804,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            break;
         case ADSSRVID_DELDEVICENOTE:
            {
-              if (check_col(pinfo->cinfo, COL_INFO)) 
-                 col_append_str(pinfo->cinfo, COL_INFO, "ADS Delete Device Notification Response");
+              col_append_str(pinfo->cinfo, COL_INFO, "ADS Delete Device Notification Response");
 
               if( tree )
               {

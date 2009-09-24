@@ -1412,8 +1412,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 						NULL, tipc_tree);
 
 				if (frag_msg) { /* Reassembled */
-					if (check_col(pinfo->cinfo, COL_INFO))
-						col_append_str(pinfo->cinfo, COL_INFO,
+					col_append_str(pinfo->cinfo, COL_INFO,
 								" (Message Reassembled)");
 				} else { /* Not last packet of reassembled Short Message */
 					if (check_col(pinfo->cinfo, COL_INFO))
@@ -1965,8 +1964,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 						NULL, tipc_tree);
 
 				if (frag_msg) { /* Reassembled */
-					if (check_col(pinfo->cinfo, COL_INFO))
-						col_append_str(pinfo->cinfo, COL_INFO,
+					col_append_str(pinfo->cinfo, COL_INFO,
 								" (Message Reassembled)");
 				} else { /* Not last packet of reassembled Short Message */
 					if (check_col(pinfo->cinfo, COL_INFO))

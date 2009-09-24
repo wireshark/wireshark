@@ -98,8 +98,7 @@ VAL_PTR=&Data_Field_field_type_value
                             data_fragment_table /* list of message fragments */
                         );
                     } else {
-                        if (check_col(actx->pinfo->cinfo, COL_INFO))
-                            col_append_str(actx->pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)"); 
+                        col_append_str(actx->pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)"); 
                         
                         g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
                     }

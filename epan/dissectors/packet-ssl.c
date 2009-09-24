@@ -660,8 +660,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  * continuation data
                  */
                 offset = tvb_length(tvb);
-                if (check_col(pinfo->cinfo, COL_INFO))
-                    col_append_str(pinfo->cinfo, COL_INFO,
+                col_append_str(pinfo->cinfo, COL_INFO,
                                    "Continuation Data");
 
                 /* Set the protocol column */
@@ -1254,8 +1253,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     if ((*conv_version==SSL_VER_TLS || *conv_version==SSL_VER_TLSv1DOT1 || *conv_version==SSL_VER_TLSv1DOT2) &&
         (available_bytes >=1 ) && !ssl_is_valid_content_type(tvb_get_guint8(tvb, offset))) {
       proto_tree_add_text(tree, tvb, offset, available_bytes, "Ignored Unknown Record");
-      if (check_col(pinfo->cinfo, COL_INFO))
-          col_append_str(pinfo->cinfo, COL_INFO, "Ignored Unknown Record");
+      col_append_str(pinfo->cinfo, COL_INFO, "Ignored Unknown Record");
       if (check_col(pinfo->cinfo, COL_PROTOCOL))
           col_set_str(pinfo->cinfo, COL_PROTOCOL, ssl_version_short_names[*conv_version]);
       return offset + available_bytes;
@@ -1323,8 +1321,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         /* if we don't have a valid content_type, there's no sense
          * continuing any further
          */
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
+        col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
 
         /* Set the protocol column */
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -1440,8 +1437,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     switch (content_type) {
     case SSL_ID_CHG_CIPHER_SPEC:
         ssl_debug_printf("dissect_ssl3_change_cipher_spec\n");
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
+        col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
         dissect_ssl3_change_cipher_spec(tvb, ssl_record_tree,
                                         offset, conv_version, content_type);
         if (ssl) ssl_change_cipher(ssl, ssl_packet_from_server(ssl, ssl_associations, pinfo));
@@ -1500,8 +1496,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         }
 
         /* show on info colum what we are decoding */
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
+        col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
 
         /* we need dissector information when the selected packet is shown.
          * ssl session pointer is NULL at that time, so we can't access
@@ -1524,8 +1519,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
     default:
         /* shouldn't get here since we check above for valid types */
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, "Bad SSLv3 Content Type");
+        col_append_str(pinfo->cinfo, COL_INFO, "Bad SSLv3 Content Type");
         break;
     }
     offset += record_length; /* skip to end of record */
@@ -1601,8 +1595,7 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
     }
     else
     {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Alert");
+        col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Alert");
     }
 
     if (tree)
@@ -1705,8 +1698,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         /* on second and later iterations, add comma to info col */
         if (!first_iteration)
         {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_str(pinfo->cinfo, COL_INFO, ", ");
+            col_append_str(pinfo->cinfo, COL_INFO, ", ");
         }
 
         /*
@@ -2590,8 +2582,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             PROTO_ITEM_SET_GENERATED(ti);
         }
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Data");
+        col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Data");
         return initial_offset + record_length_length + record_length;
     }
     else

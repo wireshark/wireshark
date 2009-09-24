@@ -1603,8 +1603,7 @@ int
 dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 220 "x420.cnf"
 
- if(check_col(actx->pinfo->cinfo, COL_INFO))
-   col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
+ col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
 
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IPM_sequence, hf_index, ett_x420_IPM);
@@ -1875,8 +1874,7 @@ int
 dissect_x420_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 228 "x420.cnf"
 
- if(check_col(actx->pinfo->cinfo, COL_INFO))
-   col_append_str(actx->pinfo->cinfo, COL_INFO, " Notification");
+ col_append_str(actx->pinfo->cinfo, COL_INFO, " Notification");
 
     offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               IPN_set, hf_index, ett_x420_IPN);

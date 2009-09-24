@@ -2332,12 +2332,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 						   tree);
 
 		if (frag_msg && frag_msg->next) { /* Reassembled */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO,
+			col_append_str(pinfo->cinfo, COL_INFO,
 					   "(Message reassembled) ");
 		} else if (more) { /* Not last packet of reassembled message */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO, "(Message fragment) ");
+			col_append_str(pinfo->cinfo, COL_INFO, "(Message fragment) ");
 		}
 
 		pinfo->fragmented = save_fragmented;
@@ -2573,11 +2571,9 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 					       NULL, tree);
 
 			if (frag_msg) { /* Reassembled */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_str(pinfo->cinfo, COL_INFO,"(Message reassembled) ");
+				col_append_str(pinfo->cinfo, COL_INFO,"(Message reassembled) ");
 			} else { /* Not last packet of reassembled message */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_str(pinfo->cinfo, COL_INFO,"(Message fragment) ");
+				col_append_str(pinfo->cinfo, COL_INFO,"(Message fragment) ");
 			}
 
 			pinfo->fragmented = save_fragmented;
@@ -2658,12 +2654,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 					       NULL, tree);
 
 	    if (frag_msg) { /* Reassembled */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		    col_append_str(pinfo->cinfo, COL_INFO,
+		col_append_str(pinfo->cinfo, COL_INFO,
 				   "(Message reassembled) ");
 	    } else { /* Not last packet of reassembled message */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		    col_append_str(pinfo->cinfo, COL_INFO,
+		col_append_str(pinfo->cinfo, COL_INFO,
 				    "(Message fragment) ");
 	    }
 

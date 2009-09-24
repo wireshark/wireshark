@@ -393,8 +393,7 @@ dissect_afsFid (tvbuff_t * tvb, int offset,
 
   if ((vnode == 1) || (vnode == 2))
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, " InFS ");
+      col_append_str (pinfo->cinfo, COL_INFO, " InFS ");
     }
   else
     {
@@ -503,66 +502,54 @@ dissect_afsConnParams (tvbuff_t * tvb, int offset,
 			hf_afsconnparams_values, &Values[19]);
   if ((mask & AFS_CONN_PARAM_HOSTLIFE) == AFS_CONN_PARAM_HOSTLIFE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":HOSTLIFE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":HOSTLIFE");
     }
   if ((mask & AFS_CONN_PARAM_HOSTRPC) == AFS_CONN_PARAM_HOSTRPC)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":HOSTRPC");
+      col_append_str (pinfo->cinfo, COL_INFO, ":HOSTRPC");
     }
   if ((mask & AFS_CONN_PARAM_DEADSERVER) == AFS_CONN_PARAM_DEADSERVER)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":DEADSERVER");
+      col_append_str (pinfo->cinfo, COL_INFO, ":DEADSERVER");
     }
   if ((mask & AFS_CONN_PARAM_EPOCH) == AFS_CONN_PARAM_EPOCH)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":EPOCH");
+      col_append_str (pinfo->cinfo, COL_INFO, ":EPOCH");
     }
   if ((mask & AFS_CONN_PARAM_MAXFILE_CLIENT) == AFS_CONN_PARAM_MAXFILE_CLIENT)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":MAXFILE_CLIENT");
+      col_append_str (pinfo->cinfo, COL_INFO, ":MAXFILE_CLIENT");
     }
   if ((mask & AFS_CONN_PARAM_MAXFILE_SERVER) == AFS_CONN_PARAM_MAXFILE_SERVER)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":MAXFILE_SERVER");
+      col_append_str (pinfo->cinfo, COL_INFO, ":MAXFILE_SERVER");
     }
   if ((mask & AFS_CONN_PARAM_HOST_TYPE_CLIENT) ==
       AFS_CONN_PARAM_HOST_TYPE_CLIENT)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":HOST_TYPE_CLIENT");
+      col_append_str (pinfo->cinfo, COL_INFO, ":HOST_TYPE_CLIENT");
     }
   if ((mask & AFS_CONN_PARAM_HOST_TYPE_SERVER) ==
       AFS_CONN_PARAM_HOST_TYPE_SERVER)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":HOST_TYPE_SERVER");
+      col_append_str (pinfo->cinfo, COL_INFO, ":HOST_TYPE_SERVER");
     }
   if ((mask & AFS_CONN_PARAM_FT_MASK_CLIENT) == AFS_CONN_PARAM_FT_MASK_CLIENT)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":FT_MASK_CLIENT");
+      col_append_str (pinfo->cinfo, COL_INFO, ":FT_MASK_CLIENT");
     }
   if ((mask & AFS_CONN_PARAM_FT_MASK_SERVER) == AFS_CONN_PARAM_FT_MASK_SERVER)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":FT_MASK_SERVER");
+      col_append_str (pinfo->cinfo, COL_INFO, ":FT_MASK_SERVER");
     }
   if ((mask & AFS_CONN_PARAM_SUPPORTS_64BITS) ==
       AFS_CONN_PARAM_SUPPORTS_64BITS)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":SUPPORTS_64BITS");
+      col_append_str (pinfo->cinfo, COL_INFO, ":SUPPORTS_64BITS");
     }
   if ((mask & AFS_CONN_PARAM_512BYTE_BLOCKS) == AFS_CONN_PARAM_512BYTE_BLOCKS)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":512BYTE_BLOCKS");
+      col_append_str (pinfo->cinfo, COL_INFO, ":512BYTE_BLOCKS");
     }
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO,
@@ -1138,8 +1125,7 @@ dissect_afsstorestatus (tvbuff_t * tvb, int offset,
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_storestatus_spare6, &spare6);
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, " Mask=");
+  col_append_str (pinfo->cinfo, COL_INFO, " Mask=");
   if ((mask & AFS_SETMODTIME) == AFS_SETMODTIME)
     {
       if (check_col (pinfo->cinfo, COL_INFO))
@@ -1175,33 +1161,27 @@ dissect_afsstorestatus (tvbuff_t * tvb, int offset,
     }
   if ((mask & AFS_SETLENGTH) == AFS_SETLENGTH)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":SETLENGTH");
+      col_append_str (pinfo->cinfo, COL_INFO, ":SETLENGTH");
     }
   if ((mask & AFS_SETTYPEUUID) == AFS_SETTYPEUUID)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":SETTYPEUUID");
+      col_append_str (pinfo->cinfo, COL_INFO, ":SETTYPEUUID");
     }
   if ((mask & AFS_SETDEVNUM) == AFS_SETDEVNUM)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":SETDEVNUM");
+      col_append_str (pinfo->cinfo, COL_INFO, ":SETDEVNUM");
     }
   if ((mask & AFS_SETMODEXACT) == AFS_SETMODEXACT)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":SETMODEXACT");
+      col_append_str (pinfo->cinfo, COL_INFO, ":SETMODEXACT");
     }
   if ((mask & AFS_SETTRUNCLENGTH) == AFS_SETTRUNCLENGTH)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":SETTRUNCLENGTH");
+      col_append_str (pinfo->cinfo, COL_INFO, ":SETTRUNCLENGTH");
     }
   if ((mask & AFS_SETCLIENTSPARE) == AFS_SETCLIENTSPARE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":SETCLIENTSPARE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":SETCLIENTSPARE");
     }
 
   proto_item_set_len (item, offset - old_offset);
@@ -1276,98 +1256,79 @@ dissect_afstoken (tvbuff_t * tvb, int offset,
 		     endrange, beginrangeext, endrangeext);
   type = type_low;
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_str (pinfo->cinfo, COL_INFO, " Type=");
+  col_append_str (pinfo->cinfo, COL_INFO, " Type=");
 
   if ((type & TKN_LOCK_READ) == TKN_LOCK_READ)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":LOCK_READ");
+      col_append_str (pinfo->cinfo, COL_INFO, ":LOCK_READ");
     }
   if ((type & TKN_LOCK_WRITE) == TKN_LOCK_WRITE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":LOCK_WRITE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":LOCK_WRITE");
     }
   if ((type & TKN_DATA_READ) == TKN_DATA_READ)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":DATA_READ");
+      col_append_str (pinfo->cinfo, COL_INFO, ":DATA_READ");
     }
   if ((type & TKN_DATA_WRITE) == TKN_DATA_WRITE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":DATA_WRITE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":DATA_WRITE");
     }
   if ((type & TKN_OPEN_READ) == TKN_OPEN_READ)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_READ");
+      col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_READ");
     }
   if ((type & TKN_OPEN_WRITE) == TKN_OPEN_WRITE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_WRITE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_WRITE");
     }
   if ((type & TKN_OPEN_SHARED) == TKN_OPEN_SHARED)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_SHARED");
+      col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_SHARED");
     }
   if ((type & TKN_OPEN_EXCLUSIVE) == TKN_OPEN_EXCLUSIVE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_EXCLUSIVE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_EXCLUSIVE");
     }
   if ((type & TKN_OPEN_DELETE) == TKN_OPEN_DELETE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_DELETE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_DELETE");
     }
   if ((type & TKN_OPEN_PRESERVE) == TKN_OPEN_PRESERVE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_PRESERVE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_PRESERVE");
     }
   if ((type & TKN_STATUS_READ) == TKN_STATUS_READ)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":STATUS_READ");
+      col_append_str (pinfo->cinfo, COL_INFO, ":STATUS_READ");
     }
   if ((type & TKN_STATUS_WRITE) == TKN_STATUS_WRITE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":STATUS_WRITE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":STATUS_WRITE");
     }
   if ((type & TKN_OPEN_UNLINK) == TKN_OPEN_UNLINK)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_UNLINK");
+      col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_UNLINK");
     }
   if ((type & TKN_SPOT_HERE) == TKN_SPOT_HERE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":SPOT_HERE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":SPOT_HERE");
     }
   if ((type & TKN_SPOT_THERE) == TKN_SPOT_THERE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":SPOT_THERE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":SPOT_THERE");
     }
   if ((type & TKN_OPEN_NO_READ) == TKN_OPEN_NO_READ)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_NO_READ");
+      col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_NO_READ");
     }
   if ((type & TKN_OPEN_NO_WRITE) == TKN_OPEN_NO_WRITE)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_NO_WRITE");
+      col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_NO_WRITE");
     }
   if ((type & TKN_OPEN_NO_UNLINK) == TKN_OPEN_NO_UNLINK)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_NO_UNLINK");
+      col_append_str (pinfo->cinfo, COL_INFO, ":OPEN_NO_UNLINK");
     }
 
   proto_item_set_len (item, offset - old_offset);
@@ -1750,104 +1711,84 @@ dissect_afsFlags (tvbuff_t * tvb, int offset,
 
   if (flags)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO, " Flags=");
+      col_append_str (pinfo->cinfo, COL_INFO, " Flags=");
       if ((flags & AFS_FLAG_RETURNTOKEN) == AFS_FLAG_RETURNTOKEN)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":RETURNTOKEN");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":RETURNTOKEN");
 	}
       if ((flags & AFS_FLAG_TOKENJUMPQUEUE) == AFS_FLAG_TOKENJUMPQUEUE)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":TOKENJUMPQUEUE");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":TOKENJUMPQUEUE");
 	}
       if ((flags & AFS_FLAG_SKIPTOKEN) == AFS_FLAG_SKIPTOKEN)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":SKIPTOKEN");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":SKIPTOKEN");
 	}
       if ((flags & AFS_FLAG_NOOPTIMISM) == AFS_FLAG_NOOPTIMISM)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":NOOPTIMISM");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":NOOPTIMISM");
 	}
       if ((flags & AFS_FLAG_TOKENID) == AFS_FLAG_TOKENID)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":TOKENID");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":TOKENID");
 	}
       if ((flags & AFS_FLAG_RETURNBLOCKER) == AFS_FLAG_RETURNBLOCKER)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":RETURNBLOCKER");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":RETURNBLOCKER");
 	}
       if ((flags & AFS_FLAG_ASYNCGRANT) == AFS_FLAG_ASYNCGRANT)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":ASYNCGRANT");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":ASYNCGRANT");
 	}
       if ((flags & AFS_FLAG_NOREVOKE) == AFS_FLAG_NOREVOKE)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":NOREVOKE");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":NOREVOKE");
 	}
       if ((flags & AFS_FLAG_MOVE_REESTABLISH) == AFS_FLAG_MOVE_REESTABLISH)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_REESTABLISH");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_REESTABLISH");
 	}
       if ((flags & AFS_FLAG_SERVER_REESTABLISH) ==
 	  AFS_FLAG_SERVER_REESTABLISH)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":SERVER_REESTABLISH");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":SERVER_REESTABLISH");
 	}
       if ((flags & AFS_FLAG_NO_NEW_EPOCH) == AFS_FLAG_NO_NEW_EPOCH)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":NO_NEW_EPOCH");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":NO_NEW_EPOCH");
 	}
       if ((flags & AFS_FLAG_MOVE_SOURCE_OK) == AFS_FLAG_MOVE_SOURCE_OK)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_SOURCE_OK");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":MOVE_SOURCE_OK");
 	}
       if ((flags & AFS_FLAG_SYNC) == AFS_FLAG_SYNC)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":SYNC");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":SYNC");
 	}
       if ((flags & AFS_FLAG_ZERO) == AFS_FLAG_ZERO)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":ZERO");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":ZERO");
 	}
       if ((flags & AFS_FLAG_SKIPSTATUS) == AFS_FLAG_SKIPSTATUS)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":SKIPSTATUS");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":SKIPSTATUS");
 	}
       if ((flags & AFS_FLAG_FORCEREVOCATIONS) == AFS_FLAG_FORCEREVOCATIONS)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":FORCEREVOCATIONS");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":FORCEREVOCATIONS");
 	}
       if ((flags & AFS_FLAG_FORCEVOLQUIESCE) == AFS_FLAG_FORCEVOLQUIESCE)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":FORCEVOLQUIESCE");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":FORCEVOLQUIESCE");
 	}
       if ((flags & AFS_FLAG_SEC_SERVICE) == AFS_FLAG_SEC_SERVICE)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":SEC_SERVICE");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":SEC_SERVICE");
 	}
       if ((flags & AFS_FLAG_CONTEXT_NEW_ACL_IF) ==
 	  AFS_FLAG_CONTEXT_NEW_ACL_IF)
 	{
-	  if (check_col (pinfo->cinfo, COL_INFO))
-	    col_append_str (pinfo->cinfo, COL_INFO, ":CONTEXT_NEW_ACL_IF");
+	  col_append_str (pinfo->cinfo, COL_INFO, ":CONTEXT_NEW_ACL_IF");
 	}
     }
 
@@ -2531,8 +2472,7 @@ fileexp_dissect_fetchacl_rqst (tvbuff_t * tvb, int offset,
 
   if (acltype)
     {
-      if (check_col (pinfo->cinfo, COL_INFO))
-	col_append_str (pinfo->cinfo, COL_INFO,
+      col_append_str (pinfo->cinfo, COL_INFO,
 			" :copy the ACL from specified fid:");
     }
 
@@ -3114,7 +3054,7 @@ fileexp_dissect_setcontext_rqst (tvbuff_t * tvb, int offset,
 
   offset = dissect_afsFlags (tvb, offset, pinfo, tree, drep);
 
-if (check_col (pinfo->cinfo, COL_INFO)) col_append_str (pinfo->cinfo, COL_INFO, " setObjectID");
+col_append_str (pinfo->cinfo, COL_INFO, " setObjectID");
 
   offset =  dissect_ndr_pointer (tvb, offset, pinfo, tree, drep, dissect_afsuuid,
 			 NDR_POINTER_REF, "afsUUID:", -1);

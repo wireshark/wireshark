@@ -3353,8 +3353,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_GENERATED(item);
         expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_WARN, "TCP Checksum 0xffff instead of 0x0000 (see RFC 1624)");
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-          col_append_str(pinfo->cinfo, COL_INFO, " [TCP CHECKSUM 0xFFFF]");
+        col_append_str(pinfo->cinfo, COL_INFO, " [TCP CHECKSUM 0xFFFF]");
 
         /* Checksum is treated as valid on most systems, so we're willing to desegment it. */
         desegment_ok = TRUE;
@@ -3402,8 +3401,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_GENERATED(item);
         expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-          col_append_str(pinfo->cinfo, COL_INFO, " [TCP CHECKSUM INCORRECT]");
+        col_append_str(pinfo->cinfo, COL_INFO, " [TCP CHECKSUM INCORRECT]");
 
         /* Checksum is invalid, so we're not willing to desegment it. */
         desegment_ok = FALSE;

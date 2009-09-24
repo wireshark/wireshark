@@ -7002,8 +7002,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     if (tvb_length_remaining(tvb, foffset) < 12 && tvb_get_ntohl(tvb, foffset) == 0) /* No error and no return data */
     {
         proto_tree_add_uint(ndps_tree, hf_ndps_error_val, tvb, foffset, 4, error_val);
-        if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_str(pinfo->cinfo, COL_INFO, "- Ok");
+        col_append_str(pinfo->cinfo, COL_INFO, "- Ok");
         return;
     }
     if(ndps_func == 1 || ndps_func == 2)
@@ -7015,15 +7014,13 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         }
         foffset += 4;
         if (tvb_length_remaining(tvb,foffset) < 4 ) {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_str(pinfo->cinfo, COL_INFO, "- Error");
+            col_append_str(pinfo->cinfo, COL_INFO, "- Error");
             return;
         }
         proto_tree_add_item(ndps_tree, hf_ndps_rpc_acc_results, tvb, foffset, 4, FALSE);
         foffset += 4;
         if (tvb_length_remaining(tvb,foffset) < 4) {
-            if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_str(pinfo->cinfo, COL_INFO, "- Error");
+            col_append_str(pinfo->cinfo, COL_INFO, "- Error");
             return;
         }
     }
@@ -7036,12 +7033,10 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         expert_status = tvb_get_ntohl(tvb, foffset);
         expert_item = proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
         expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Fault: %s", val_to_str(expert_status, ndps_error_types, "Unknown NDPS Error (0x%08x)"));
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, "- Error");
+        col_append_str(pinfo->cinfo, COL_INFO, "- Error");
         return;
     }
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, "- Ok");
+    col_append_str(pinfo->cinfo, COL_INFO, "- Ok");
     switch(ndps_prog)
     {
     case 0x060976:  /* Print */

@@ -807,8 +807,7 @@ dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 octet;
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/BSSLAP");
+	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/BSSLAP");
 	if (tree) {
 		octet = tvb_get_guint8(tvb, offset);
 		item = proto_tree_add_item(tree, proto_gsm_bsslap, tvb, 0, -1, FALSE);

@@ -318,8 +318,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * what the protocol inside which the SDP stuff resides
    * put there.
    */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_append_str(pinfo->cinfo, COL_PROTOCOL, "/SDP");
+  col_append_str(pinfo->cinfo, COL_PROTOCOL, "/SDP");
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     /* XXX: Needs description. */

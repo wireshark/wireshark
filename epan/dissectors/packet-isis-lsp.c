@@ -1738,8 +1738,7 @@ static void isis_lsp_checkum_additional_info(tvbuff_t * tvb, packet_info * pinfo
         PROTO_ITEM_SET_GENERATED(item);
 	if (!is_cksum_correct) {
 	  expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
-	  if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_str(pinfo->cinfo, COL_INFO, " [ISIS CHECKSUM INCORRECT]");
+	  col_append_str(pinfo->cinfo, COL_INFO, " [ISIS CHECKSUM INCORRECT]");
 	}
 }
 

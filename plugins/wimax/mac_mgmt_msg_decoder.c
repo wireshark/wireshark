@@ -218,8 +218,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		}
 		else
 		{
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO, "Unknown message type,");
+			col_append_str(pinfo->cinfo, COL_INFO, "Unknown message type,");
 			/* display MAC payload types */
 			message_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_decoder, tvb, offset, tvb_len, "Unknown message type: %u (%u bytes)", message_type, tvb_len);
 			/* add MAC payload subtree */

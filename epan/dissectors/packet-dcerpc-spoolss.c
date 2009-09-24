@@ -676,8 +676,7 @@ static int dissect_printerdata_data(tvbuff_t *tvb, int offset,
 			break;
 		}
 		case DCERPC_REG_BINARY:
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(
+			col_append_str(
 					pinfo->cinfo, COL_INFO, 
 					" = <binary data>");
 			break;

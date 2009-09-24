@@ -1577,8 +1577,7 @@ typedef struct mr_mult_req_info {
                   ** We call our selves again to disect embedded packet
                   */
 
-                  if(check_col(pinfo->cinfo, COL_INFO))
-                     col_append_str( pinfo->cinfo, COL_INFO, ", ");
+                  col_append_str( pinfo->cinfo, COL_INFO, ", ");
 
                   next_tvb = tvb_new_subset(tvb, offset+serv_offset+4, serv_length, serv_length);
                   if ( mr_mult_req_info )
@@ -1706,8 +1705,7 @@ typedef struct mr_mult_req_info {
                ** We call our selves again to disect embedded packet
                */
 
-               if(check_col(pinfo->cinfo, COL_INFO))
-                  col_append_str( pinfo->cinfo, COL_INFO, ", ");
+               col_append_str( pinfo->cinfo, COL_INFO, ", ");
 
                next_tvb = tvb_new_subset(tvb, offset+serv_offset+6, serv_length, serv_length);
 
@@ -2262,8 +2260,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             ** We call our selves again to disect embedded packet
             */
 
-            if(check_col(pinfo->cinfo, COL_INFO))
-              col_append_str( pinfo->cinfo, COL_INFO, ": ");
+            col_append_str( pinfo->cinfo, COL_INFO, ": ");
 
             next_tvb = tvb_new_subset(tvb, offset+2+req_path_size+4, msg_req_siz, msg_req_siz);
             preq_info = p_get_proto_data( pinfo->fd, proto_cip );
