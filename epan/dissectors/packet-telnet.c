@@ -623,11 +623,11 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
      "Purge TX",
      "Purge RX/TX"
  };
-  
+
   guint8 cmd;
   guint8 isservercmd;
   const char *source;
-  
+
   cmd = tvb_get_guint8(tvb, offset);
   isservercmd = cmd > 99;
   cmd = (isservercmd) ? (cmd - 100) : cmd;
@@ -649,7 +649,7 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
     if (len >= 4) {
   	guint32 baud = tvb_get_ntohl(tvb, offset+1);
         if (baud == 0) {
-            proto_tree_add_text(tree, tvb, offset, 5, "%s Requests Baud Rate",source);            
+            proto_tree_add_text(tree, tvb, offset, 5, "%s Requests Baud Rate",source);
         } else {
             proto_tree_add_text(tree, tvb, offset, 5, "%s Baud Rate: %d",source,baud);
         }
@@ -657,7 +657,7 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
         proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Baud Rate Packet>",source);
     }
     break;
-    
+
   case TNCOMPORT_SETDATASIZE:
     len--;
     if (len >= 1) {
@@ -679,7 +679,7 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
         proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Parity Packet>",source);
     }
     break;
-    
+
   case TNCOMPORT_SETSTOPSIZE:
     len--;
     if (len >= 1) {
@@ -701,7 +701,7 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
         proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Control Packet>",source);
     }
     break;
-    
+
   case TNCOMPORT_SETLINESTATEMASK:
   case TNCOMPORT_NOTIFYLINESTATE:
     len--;
@@ -731,7 +731,7 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
         proto_tree_add_text(tree, tvb, offset, 1 + len, print_pattern, source);
     }
     break;
-    
+
   case TNCOMPORT_SETMODEMSTATEMASK:
   case TNCOMPORT_NOTIFYMODEMSTATE:
     len--;
@@ -766,12 +766,12 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
     len--;
     proto_tree_add_text(tree, tvb, offset, 1, "%s Flow Control Suspend",source);
     break;
-  
+
   case TNCOMPORT_FLOWCONTROLRESUME:
     len--;
     proto_tree_add_text(tree, tvb, offset, 1, "%s Flow Control Resume",source);
     break;
-  
+
   case TNCOMPORT_PURGEDATA:
     len--;
     if (len >= 1) {
@@ -782,7 +782,7 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
         proto_tree_add_text(tree, tvb, offset, 1 + len, "%s <Invalid Purge Packet>",source);
     }
     break;
-  
+
   default:
     proto_tree_add_text(tree, tvb, offset, 1, "Invalid %s subcommand %u",
                         optname, cmd);
@@ -988,7 +988,7 @@ unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offs
 		*(dpos++)=*(spos++);
 		l--;
 	}
-	krb5_tvb = tvb_new_child_real_data(tvb, buf, len-skip, len-skip); 
+	krb5_tvb = tvb_new_child_real_data(tvb, buf, len-skip, len-skip);
 	tvb_set_free_cb(krb5_tvb, g_free);
 	add_new_data_source(pinfo, krb5_tvb, "Unpacked Telnet Option");
 
@@ -1114,7 +1114,7 @@ dissect_encryption_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuf
 
 	ecmd = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_telnet_enc_cmd, tvb, offset, 1, ecmd);
-	
+
 	offset++;
 	len--;
 
@@ -1138,7 +1138,7 @@ dissect_encryption_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuf
 			len--;
 		}
 		break;
-		
+
 	case TN_ENC_START:
 		/* keyid ... */
 		if (len > 0) {
@@ -1160,7 +1160,7 @@ dissect_encryption_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuf
 	case TN_ENC_REQUEST_END:
 		/* no data */
 		break;
-		
+
 	case TN_ENC_ENC_KEYID:
 	case TN_ENC_DEC_KEYID:
 		/* (optional) keyid - if not supplied, there are no more known keys */
@@ -1188,7 +1188,7 @@ static tn_opt options[] = {
     0,
     NULL
   },
-  {    
+  {
     "Reconnection",				/* DOD Protocol Handbook */
     NULL,
     NO_LENGTH,
@@ -1438,7 +1438,7 @@ static tn_opt options[] = {
     &ett_auth_subopt,
     VARIABLE_LENGTH,
     1,
-    dissect_authentication_subopt		
+    dissect_authentication_subopt
   },
   {
     "Encryption Option",			/* RFC 2946 */
@@ -1489,7 +1489,7 @@ static tn_opt options[] = {
     1,
     dissect_comport_subopt
   }
-  
+
 };
 
 #define	NOPTIONS	(sizeof options / sizeof options[0])
@@ -1505,14 +1505,14 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
   gint ett = ett_telnet_subopt;
   int iac_offset;
   guint len;
-  tvbuff_t * unescaped_tvb; 
+  tvbuff_t * unescaped_tvb;
   void (*dissect)(packet_info *, const char *, tvbuff_t *, int, int, proto_tree *);
   gint cur_offset;
   gboolean iac_found;
 
   /*
-   * As data with value iac (0xff) is possible, this value must be escaped 
-   * with iac (rfc 854). 
+   * As data with value iac (0xff) is possible, this value must be escaped
+   * with iac (rfc 854).
    */
   int  iac_data = 0;
 
@@ -1558,7 +1558,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
       }
 
   } while (!iac_found);
-  
+
   subneg_len = offset - start_offset;
 
   ti = proto_tree_add_text(telnet_tree, tvb, start_offset, subneg_len,
@@ -1602,7 +1602,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
       }
 
       /* We have a dissector for this suboption's parameters; call it. */
-      if (iac_data > 0) { 
+      if (iac_data > 0) {
         /* Data is escaped, we have to unescape it. */
         unescaped_tvb = unescape_and_tvbuffify_telnet_option(pinfo, tvb, start_offset, subneg_len);
         (*dissect)(pinfo, opt, unescaped_tvb, 0, subneg_len - iac_data, option_tree);
@@ -1611,7 +1611,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
       }
     } else {
       /* We don't have a dissector for them; just show them as data. */
-      if (iac_data > 0) { 
+      if (iac_data > 0) {
         /* Data is escaped, we have to unescape it. */
         unescaped_tvb = unescape_and_tvbuffify_telnet_option(pinfo, tvb, start_offset, subneg_len);
         proto_tree_add_text(option_tree, unescaped_tvb, 0, subneg_len - iac_data,
@@ -1844,58 +1844,54 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint offset = 0;
 	guint len = 0;
 	guint is_tn3270 = 0;
+	int data_len;
+	gint iac_offset;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TELNET");
-
 	col_set_str(pinfo->cinfo, COL_INFO, "Telnet Data ...");
 
 	is_tn3270 = find_tn3270_conversation(pinfo);
 
-	if (tree) {
-	  int data_len;
-	  gint iac_offset;
+	ti = proto_tree_add_item(tree, proto_telnet, tvb, offset, -1, FALSE);
+	telnet_tree = proto_item_add_subtree(ti, ett_telnet);
 
-	  ti = proto_tree_add_item(tree, proto_telnet, tvb, offset, -1, FALSE);
-	  telnet_tree = proto_item_add_subtree(ti, ett_telnet);
-
-	  /*
-	   * Scan through the buffer looking for an IAC byte.
-	   */
-	  while ((len = tvb_length_remaining(tvb, offset)) > 0) {
-	    iac_offset = find_unescaped_iac(tvb, offset, len);
-	    if (iac_offset != -1) {
-	      /*
-	       * We found an IAC byte.
-	       * If there's any data before it, add that data to the
-	       * tree, a line at a time.
-	       */
-	      data_len = iac_offset - offset;
-	      if (data_len > 0) {
-	        if (is_tn3270) {
-	          next_tvb = tvb_new_subset(tvb, offset, data_len, data_len);
-	          call_dissector(tn3270_handle, next_tvb, pinfo, telnet_tree);
-	        } else
-	          telnet_add_text(telnet_tree, tvb, offset, data_len);
-	      }
-	      /*
-	       * Now interpret the command.
-	       */
-	      offset = telnet_command(pinfo, telnet_tree, tvb, iac_offset);
-	    } else {
-	      /* get more data if tn3270 */
-	      if (is_tn3270) {
-	        pinfo->desegment_offset = offset;
-	        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-	        return;
-	      }
-	      /*
-	       * We found no IAC byte, so what remains in the buffer
-	       * is the last of the data in the packet.
-	       * Add it to the tree, a line at a time, and then quit.
-	       */
-	      telnet_add_text(telnet_tree, tvb, offset, len);
-	      break;
-	    }
+	/*
+	 * Scan through the buffer looking for an IAC byte.
+	 */
+	while ((len = tvb_length_remaining(tvb, offset)) > 0) {
+	  iac_offset = find_unescaped_iac(tvb, offset, len);
+	  if (iac_offset != -1) {
+		/*
+		 * We found an IAC byte.
+		 * If there's any data before it, add that data to the
+		 * tree, a line at a time.
+		 */
+		data_len = iac_offset - offset;
+		if (data_len > 0) {
+		  if (is_tn3270) {
+			next_tvb = tvb_new_subset(tvb, offset, data_len, data_len);
+			call_dissector(tn3270_handle, next_tvb, pinfo, telnet_tree);
+		  } else
+			telnet_add_text(telnet_tree, tvb, offset, data_len);
+		}
+		/*
+		 * Now interpret the command.
+		 */
+		offset = telnet_command(pinfo, telnet_tree, tvb, iac_offset);
+	  } else {
+		/* get more data if tn3270 */
+		if (is_tn3270) {
+		  pinfo->desegment_offset = offset;
+		  pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+		  return;
+		}
+		/*
+		 * We found no IAC byte, so what remains in the buffer
+		 * is the last of the data in the packet.
+		 * Add it to the tree, a line at a time, and then quit.
+		 */
+		telnet_add_text(telnet_tree, tvb, offset, len);
+		break;
 	  }
 	}
 }
@@ -1903,7 +1899,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_telnet(void)
 {
-	static hf_register_info hf[] = {  
+	static hf_register_info hf[] = {
 	{ &hf_telnet_auth_name,
 		{ "Name", "telnet.auth.name", FT_STRING, BASE_NONE,
 		  NULL, 0, "Name of user being authenticated", HFILL }},
