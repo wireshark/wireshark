@@ -77,10 +77,8 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <glib.h>
-#include <ctype.h>
 #include <epan/packet.h>
 #include "packet-arp.h"
 #include "packet-dns.h"				/* for get_dns_name() */
@@ -322,23 +320,23 @@ static gboolean novell_string = FALSE;
 #define F_FQDN_MBZ	0xf0
 
 static const true_false_string tfs_fqdn_s = {
-  "Server",
-  "Client"
+	"Server",
+	"Client"
 };
 
 static const true_false_string tfs_fqdn_o = {
-  "Override",
-  "No override"
+	"Override",
+	"No override"
 };
 
 static const true_false_string tfs_fqdn_e = {
-  "Binary encoding",
-  "ASCII encoding"
+	"Binary encoding",
+	"ASCII encoding"
 };
 
 static const true_false_string tfs_fqdn_n = {
-  "No server updates",
-  "Some server updates"
+	"No server updates",
+	"Some server updates"
 };
 
 enum field_type {
@@ -368,8 +366,8 @@ struct opt_info {
 };
 
 static const true_false_string flag_set_broadcast = {
-  "Broadcast",
-  "Unicast"
+	"Broadcast",
+	"Unicast"
 };
 
 
@@ -464,11 +462,11 @@ static const value_string opt53_text[] = {
 #define VENDOR_INFO_OFFSET		236
 
 static const value_string bootp_nbnt_vals[] = {
-    {0x1,   "B-node" },
-    {0x2,   "P-node" },
-    {0x4,   "M-node" },
-    {0x8,   "H-node" },
-    {0,     NULL     }
+	{0x1,   "B-node" },
+	{0x2,   "P-node" },
+	{0x4,   "M-node" },
+	{0x8,   "H-node" },
+	{0,     NULL     }
 };
 
 static const value_string bootp_client_arch[] = {
@@ -774,8 +772,8 @@ bootp_get_opt_ftype(unsigned int idx)
 /* Returns the number of bytes consumed by this option. */
 static int
 bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
-    gboolean first_pass, gboolean *at_end, const char **dhcp_type_p,
-    const guint8 **vendor_class_id_p, guint8 *overload_p)
+	     gboolean first_pass, gboolean *at_end, const char **dhcp_type_p,
+	     const guint8 **vendor_class_id_p, guint8 *overload_p)
 {
 	const char		*text;
 	enum field_type		ftype;
@@ -801,34 +799,34 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 
 	static const value_string slpda_vals[] = {
-	    {0x00,   "Dynamic Discovery" },
-	    {0x01,   "Static Discovery" },
-	    {0x80,   "Backwards compatibility" },
-	    {0,     NULL     } };
+		{0x00,   "Dynamic Discovery" },
+		{0x01,   "Static Discovery" },
+		{0x80,   "Backwards compatibility" },
+		{0,     NULL     } };
 
 	static const value_string slp_scope_vals[] = {
-	    {0x00,   "Preferred Scope" },
-	    {0x01,   "Mandatory Scope" },
-	    {0,     NULL     } };
+		{0x00,   "Preferred Scope" },
+		{0x01,   "Mandatory Scope" },
+		{0,     NULL     } };
 
 	static const value_string authen_protocol_vals[] = {
-	    {AUTHEN_PROTO_CONFIG_TOKEN,   "configuration token" },
-	    {AUTHEN_PROTO_DELAYED_AUTHEN, "delayed authentication" },
-	    {0,                           NULL     } };
+		{AUTHEN_PROTO_CONFIG_TOKEN,   "configuration token" },
+		{AUTHEN_PROTO_DELAYED_AUTHEN, "delayed authentication" },
+		{0,                           NULL     } };
 
 	static const value_string authen_da_algo_vals[] = {
-	    {AUTHEN_DELAYED_ALGO_HMAC_MD5, "HMAC_MD5" },
-	    {0,                            NULL     } };
+		{AUTHEN_DELAYED_ALGO_HMAC_MD5, "HMAC_MD5" },
+		{0,                            NULL     } };
 
 	static const value_string authen_rdm_vals[] = {
-	    {AUTHEN_RDM_MONOTONIC_COUNTER, "Monotonically-increasing counter" },
-	    {0,                            NULL     } };
+		{AUTHEN_RDM_MONOTONIC_COUNTER, "Monotonically-increasing counter" },
+		{0,                            NULL     } };
 
 	static const value_string opt_overload_vals[] = {
-	    { OPT_OVERLOAD_FILE,  "Boot file name holds options",                },
-	    { OPT_OVERLOAD_SNAME, "Server host name holds options",              },
-	    { OPT_OVERLOAD_BOTH,  "Boot file and server host names hold options" },
-	    { 0,                  NULL                                           } };
+		{ OPT_OVERLOAD_FILE,  "Boot file name holds options",                },
+		{ OPT_OVERLOAD_SNAME, "Server host name holds options",              },
+		{ OPT_OVERLOAD_BOTH,  "Boot file and server host names hold options" },
+		{ 0,                  NULL                                           } };
 
 	/* Options whose length isn't "optlen + 2". */
 	switch (code) {
@@ -1431,6 +1429,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 						tvb_bytes_to_str(tvb, optoff, 16));
 					break;
 				}
+
 			default:
 				if (optleft == 0)
 					break;
@@ -1673,15 +1672,16 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			optend = optoff + optlen;
 			while (optoff < optend) {
 				switch (pkt_ccc_protocol_version) {
-					case PACKETCABLE_CCC_I05:
-						optoff = dissect_packetcable_i05_ccc(v_tree, tvb, optoff, optend);
-						break;
-					case PACKETCABLE_CCC_DRAFT5:
-					case PACKETCABLE_CCC_RFC_3495:
-						optoff = dissect_packetcable_ietf_ccc(v_tree, tvb, optoff, optend, pkt_ccc_protocol_version);
-						break;
-					default: /* XXX Should we do something here? */
-						break;
+
+				case PACKETCABLE_CCC_I05:
+					optoff = dissect_packetcable_i05_ccc(v_tree, tvb, optoff, optend);
+					break;
+				case PACKETCABLE_CCC_DRAFT5:
+				case PACKETCABLE_CCC_RFC_3495:
+					optoff = dissect_packetcable_ietf_ccc(v_tree, tvb, optoff, optend, pkt_ccc_protocol_version);
+					break;
+				default: /* XXX Should we do something here? */
+					break;
 				}
 			}
 		}
@@ -1690,6 +1690,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	}
 
 	switch (ftype) {
+
 	case ipv4:
 		if (optlen != 4) {
 			proto_item_append_text(vti,
@@ -1864,46 +1865,55 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	 	return (optend);
 	}
 	switch (subopt) {
+
 	case 1: /* 1   Agent Circuit ID Sub-option            [RFC3046] */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "Agent Circuit ID: %s",
 				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break;
+
 	case 2: /* 2   Agent Remote ID Sub-option             [RFC3046] */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "Agent Remote ID: %s",
 				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break;
+
 	case 3:
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "Reserved: %s",
 				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break;
+
 	case 4: /* 4   DOCSIS Device Class Suboption          [RFC3256] */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "DOCSIS Device Class: %s",
 				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break;
+
 	case 5: /* 5   Link selection Sub-option              [RFC3527] */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "Link selection: %s",
 					ip_to_str(tvb_get_ptr(tvb, suboptoff, subopt_len)));
 		break;
+
 	case 6: /*Subscriber-ID Suboption                [RFC3993] */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Subscriber ID: %s",
 					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break;
+
 	case 7: /* 7   RADIUS Attributes Sub-option           [RFC4014] */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"RADIUS Attributes: %s",
 					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break; /* XXX: Added since code seems incorrect otherwise ...  */
+
 	case 8: /* 8   Authentication Suboption               [RFC4030]  */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Authentication: %s",
 					tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break; /* XXX: Added since code seems incorrect otherwise ...  */
+
 	case 9:
 		while (suboptoff < optend) {
 			enterprise = tvb_get_ntohl(tvb, suboptoff);
@@ -1921,6 +1931,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 				suboptoff++;
 
 				switch (vs_opt) {
+
 				case 1:
 					if (vs_len == 4) {
 						tag = tvb_get_guint8(tvb, suboptoff);
@@ -1960,6 +1971,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			}
 		}
 		break;
+
 	case 10: /* 10   Relay Agent Flags                      [RFC5010] */
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Flags: %s",
@@ -2087,11 +2099,12 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			}
 			break;
 
-/* XXX		case string:
+#if 0 /* XXX */
+		case string:
 			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 				"Suboption %d: %s", subopt, o43pxeclient_opt[subopt].text);
 			break;
-   XXX */
+#endif /*  XXX */
 
 		case val_u_byte:
 			if (subopt_len != 1) {
@@ -3076,86 +3089,95 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 				    tvb_format_text(tvb, off, 2),
 				    val_to_str(raw_val, pkt_mdc_type_vals, "unknown"));
 				switch (raw_val) {
-					case PKT_MDC_VERSION:
-						raw_val = tvb_get_ntohs(tvb, off + 4);
+
+				case PKT_MDC_VERSION:
+					raw_val = tvb_get_ntohs(tvb, off + 4);
+					proto_item_append_text(ti,
+							       "%s (%s)",
+							       val_to_str(raw_val, pkt_mdc_version_vals, "Reserved"),
+							       tvb_format_stringzpad(tvb, off + 4, 2) );
+					break;
+
+				case PKT_MDC_TEL_END:
+				case PKT_MDC_IF_INDEX:
+					proto_item_append_text(ti,
+							       "%s",
+							       tvb_format_stringzpad(tvb, off + 4, 2) );
+					break;
+
+				case PKT_MDC_TGT:
+				case PKT_MDC_HTTP_ACC:
+				case PKT_MDC_SYSLOG:
+				case PKT_MDC_NCS:
+				case PKT_MDC_PRI_LINE:
+				case PKT_MDC_NVRAM_STOR:
+				case PKT_MDC_PROV_REP:
+				case PKT_MDC_PROV_REP_LC:
+				case PKT_MDC_SILENCE:
+				case PKT_MDC_SILENCE_LC:
+				case PKT_MDC_ECHO_CANCEL:
+				case PKT_MDC_ECHO_CANCEL_LC:
+				case PKT_MDC_RSVP:
+				case PKT_MDC_RSVP_LC:
+				case PKT_MDC_UGS_AD:
+				case PKT_MDC_UGS_AD_LC:
+				case PKT_MDC_FLOW_LOG:
+				case PKT_MDC_RFC2833_DTMF:
+				case PKT_MDC_VOICE_METRICS:
+				case PKT_MDC_MGPI:
+				case PKT_MDC_V152:
+					raw_val = tvb_get_ntohs(tvb, off + 4);
+					proto_item_append_text(ti,
+							       "%s (%s)",
+							       val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
+							       tvb_format_stringzpad(tvb, off + 4, 2) );
+					break;
+
+				case PKT_MDC_SUPP_CODECS:
+				case PKT_MDC_SUPP_CODECS_LC:
+					for (i = 0; i < tlv_len; i++) {
+						raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
 						proto_item_append_text(ti,
-						    "%s (%s)",
-						    val_to_str(raw_val, pkt_mdc_version_vals, "Reserved"),
-						    tvb_format_stringzpad(tvb, off + 4, 2) );
-						break;
-					case PKT_MDC_TEL_END:
-					case PKT_MDC_IF_INDEX:
-						proto_item_append_text(ti,
-						    "%s",
-						    tvb_format_stringzpad(tvb, off + 4, 2) );
-						break;
-					case PKT_MDC_TGT:
-					case PKT_MDC_HTTP_ACC:
-					case PKT_MDC_SYSLOG:
-					case PKT_MDC_NCS:
-					case PKT_MDC_PRI_LINE:
-					case PKT_MDC_NVRAM_STOR:
-					case PKT_MDC_PROV_REP:
-					case PKT_MDC_PROV_REP_LC:
-					case PKT_MDC_SILENCE:
-					case PKT_MDC_SILENCE_LC:
-					case PKT_MDC_ECHO_CANCEL:
-					case PKT_MDC_ECHO_CANCEL_LC:
-					case PKT_MDC_RSVP:
-					case PKT_MDC_RSVP_LC:
-					case PKT_MDC_UGS_AD:
-					case PKT_MDC_UGS_AD_LC:
-					case PKT_MDC_FLOW_LOG:
-					case PKT_MDC_RFC2833_DTMF:
-					case PKT_MDC_VOICE_METRICS:
-					case PKT_MDC_MGPI:
-					case PKT_MDC_V152:
-						raw_val = tvb_get_ntohs(tvb, off + 4);
-						proto_item_append_text(ti,
-						    "%s (%s)",
-						    val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
-						    tvb_format_stringzpad(tvb, off + 4, 2) );
-						break;
-					case PKT_MDC_SUPP_CODECS:
-					case PKT_MDC_SUPP_CODECS_LC:
-						for (i = 0; i < tlv_len; i++) {
-							raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
-							proto_item_append_text(ti,
-							    "%s%s (%s)",
-							    plurality(i + 1, "", ", "),
-							    val_to_str(raw_val, pkt_mdc_codec_vals, "unknown"),
-							    tvb_format_stringzpad(tvb, off + 4 + (i * 2), 2) );
-						}
-						break;
-					case PKT_MDC_PROV_FLOWS:
-						tvb_memcpy(tvb, flow_val_str, off + 4, 4);
-						flow_val_str[4] = '\0';
-						flow_val = strtoul((gchar*)flow_val_str, NULL, 16);
-						proto_item_append_text(ti,
-						    "0x%04lx", flow_val);
-						break;
-					case PKT_MDC_T38_VERSION:
-						raw_val = tvb_get_ntohs(tvb, off + 4);
-						proto_item_append_text(ti,
-						    "%s (%s)",
-						    val_to_str(raw_val, pkt_mdc_t38_version_vals, "unknown"),
-						    tvb_format_stringzpad(tvb, off + 4, 2) );
-						break;
-					case PKT_MDC_T38_EC:
-						raw_val = tvb_get_ntohs(tvb, off + 4);
-						proto_item_append_text(ti,
-						    "%s (%s)",
-						    val_to_str(raw_val, pkt_mdc_t38_ec_vals, "unknown"),
-						    tvb_format_stringzpad(tvb, off + 4, 2) );
-						break;
-					case PKT_MDC_MIBS:
-						break;
-					case PKT_MDC_VENDOR_TLV:
-					default:
-						proto_item_append_text(ti,
-						    "%s",
-						    tvb_format_stringzpad(tvb, off + 4, tlv_len * 2) );
-						break;
+								       "%s%s (%s)",
+								       plurality(i + 1, "", ", "),
+								       val_to_str(raw_val, pkt_mdc_codec_vals, "unknown"),
+								       tvb_format_stringzpad(tvb, off + 4 + (i * 2), 2) );
+					}
+					break;
+
+				case PKT_MDC_PROV_FLOWS:
+					tvb_memcpy(tvb, flow_val_str, off + 4, 4);
+					flow_val_str[4] = '\0';
+					flow_val = strtoul((gchar*)flow_val_str, NULL, 16);
+					proto_item_append_text(ti,
+							       "0x%04lx", flow_val);
+					break;
+
+				case PKT_MDC_T38_VERSION:
+					raw_val = tvb_get_ntohs(tvb, off + 4);
+					proto_item_append_text(ti,
+							       "%s (%s)",
+							       val_to_str(raw_val, pkt_mdc_t38_version_vals, "unknown"),
+							       tvb_format_stringzpad(tvb, off + 4, 2) );
+					break;
+
+				case PKT_MDC_T38_EC:
+					raw_val = tvb_get_ntohs(tvb, off + 4);
+					proto_item_append_text(ti,
+							       "%s (%s)",
+							       val_to_str(raw_val, pkt_mdc_t38_ec_vals, "unknown"),
+							       tvb_format_stringzpad(tvb, off + 4, 2) );
+					break;
+
+				case PKT_MDC_MIBS:
+					break;
+
+				case PKT_MDC_VENDOR_TLV:
+				default:
+					proto_item_append_text(ti,
+							       "%s",
+							       tvb_format_stringzpad(tvb, off + 4, tlv_len * 2) );
+					break;
 				}
 			}
 			subtree = proto_item_add_subtree(ti, ett_bootp_option);
@@ -3199,30 +3221,33 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 						return;
 					}
 					switch (raw_val) {
-					    	case PKT_MDC_MIB_CL:
-					    		subtree2 = proto_item_add_subtree(mib_ti, ett_bootp_option);
 
-					    		for (i = 0; i < 8; i++) {
-							    	if (mib_val & pkt_mdc_cl_mib_vals[i].value) {
-								    	decode_bitfield_value(bit_fld, mib_val, pkt_mdc_cl_mib_vals[i].value, 8);
-								    	proto_tree_add_text(subtree2, tvb, subopt_off, 2,
-								    		"%s%s", bit_fld, pkt_mdc_cl_mib_vals[i].strptr);
-								}
-							}
-							break;
-					    	case PKT_MDC_MIB_IETF:
-					    		subtree2 = proto_item_add_subtree(mib_ti, ett_bootp_option);
+					case PKT_MDC_MIB_CL:
+						subtree2 = proto_item_add_subtree(mib_ti, ett_bootp_option);
 
-					    		for (i = 0; i < 8; i++) {
-							    	if (mib_val & pkt_mdc_ietf_mib_vals[i].value) {
-								    	decode_bitfield_value(bit_fld, mib_val, pkt_mdc_ietf_mib_vals[i].value, 8);
-								    	proto_tree_add_text(subtree2, tvb, subopt_off, 2,
-								    		"%s%s", bit_fld, pkt_mdc_ietf_mib_vals[i].strptr);
-								}
+						for (i = 0; i < 8; i++) {
+							if (mib_val & pkt_mdc_cl_mib_vals[i].value) {
+								decode_bitfield_value(bit_fld, mib_val, pkt_mdc_cl_mib_vals[i].value, 8);
+								proto_tree_add_text(subtree2, tvb, subopt_off, 2,
+										    "%s%s", bit_fld, pkt_mdc_cl_mib_vals[i].strptr);
 							}
-							break;
-						default:
-							break;
+						}
+						break;
+
+					case PKT_MDC_MIB_IETF:
+						subtree2 = proto_item_add_subtree(mib_ti, ett_bootp_option);
+
+						for (i = 0; i < 8; i++) {
+							if (mib_val & pkt_mdc_ietf_mib_vals[i].value) {
+								decode_bitfield_value(bit_fld, mib_val, pkt_mdc_ietf_mib_vals[i].value, 8);
+								proto_tree_add_text(subtree2, tvb, subopt_off, 2,
+										    "%s%s", bit_fld, pkt_mdc_ietf_mib_vals[i].strptr);
+							}
+						}
+						break;
+
+					default:
+						break;
 					}
 					subopt_off += 2;
 				}
@@ -3270,73 +3295,79 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 				    tvb_format_text(tvb, off, 2),
 				    val_to_str(raw_val, docs_cm_type_vals, "unknown"));
 				switch (raw_val) {
-					case DOCS_CM_CONCAT_SUP:
-					case DOCS_CM_FRAG_SUP:
-					case DOCS_CM_PHS_SUP:
-					case DOCS_CM_IGMP_SUP:
-					case DOCS_CM_DCC_SUP:
-					case DOCS_CM_DCC_SUP_LC:
-						for (i = 0; i < tlv_len; i++) {
-							raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
-							proto_item_append_text(ti,
-							    "%s%s (%s)",
-							    plurality(i + 1, "", ", "),
-							    val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
-							    tvb_format_text(tvb, off + 4 + (i * 2), 2) );
-						}
-						break;
-					case DOCS_CM_DOCSIS_VER:
-						raw_val = tvb_get_ntohs(tvb, off + 4);
+
+				case DOCS_CM_CONCAT_SUP:
+				case DOCS_CM_FRAG_SUP:
+				case DOCS_CM_PHS_SUP:
+				case DOCS_CM_IGMP_SUP:
+				case DOCS_CM_DCC_SUP:
+				case DOCS_CM_DCC_SUP_LC:
+					for (i = 0; i < tlv_len; i++) {
+						raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
 						proto_item_append_text(ti,
-						    "%s (%s)",
-						    val_to_str(raw_val, docs_cm_version_vals, "Reserved"),
-						    tvb_format_text(tvb, off + 4, 2) );
-						break;
-					case DOCS_CM_PRIV_SUP:
-						raw_val = tvb_get_ntohs(tvb, off + 4);
+								       "%s%s (%s)",
+								       plurality(i + 1, "", ", "),
+								       val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
+								       tvb_format_text(tvb, off + 4 + (i * 2), 2) );
+					}
+					break;
+
+				case DOCS_CM_DOCSIS_VER:
+					raw_val = tvb_get_ntohs(tvb, off + 4);
+					proto_item_append_text(ti,
+							       "%s (%s)",
+							       val_to_str(raw_val, docs_cm_version_vals, "Reserved"),
+							       tvb_format_text(tvb, off + 4, 2) );
+					break;
+
+				case DOCS_CM_PRIV_SUP:
+					raw_val = tvb_get_ntohs(tvb, off + 4);
+					proto_item_append_text(ti,
+							       "%s (%s)",
+							       val_to_str(raw_val, docs_cm_privacy_vals, "Reserved"),
+							       tvb_format_text(tvb, off + 4, 2) );
+					break;
+
+				case DOCS_CM_DSAID_SUP:
+				case DOCS_CM_USID_SUP:
+				case DOCS_CM_TET_MI:
+				case DOCS_CM_TET_MI_LC:
+				case DOCS_CM_TET:
+				case DOCS_CM_TET_LC:
+					tvb_memcpy (tvb, asc_val, off + 4, 2);
+					raw_val = strtoul((gchar*)asc_val, NULL, 16);
+					proto_item_append_text(ti,
+							       "%lu", raw_val);
+					break;
+
+				case DOCS_CM_IPFILT_SUP:
+				case DOCS_CM_IPFILT_SUP_LC:
+				case DOCS_CM_LLCFILT_SUP:
+				case DOCS_CM_LLCFILT_SUP_LC:
+					tvb_memcpy (tvb, asc_val, off + 4, 4);
+					raw_val = strtoul((gchar*)asc_val, NULL, 16);
+					proto_item_append_text(ti,
+							       "%lu", raw_val);
+					break;
+
+				case DOCS_CM_FILT_SUP:
+					tvb_memcpy (tvb, asc_val, off + 4, 2);
+					raw_val = strtoul((gchar*)asc_val, NULL, 16);
+					if (raw_val & 0x01)
 						proto_item_append_text(ti,
-						    "%s (%s)",
-						    val_to_str(raw_val, docs_cm_privacy_vals, "Reserved"),
-						    tvb_format_text(tvb, off + 4, 2) );
-						break;
-					case DOCS_CM_DSAID_SUP:
-					case DOCS_CM_USID_SUP:
-					case DOCS_CM_TET_MI:
-					case DOCS_CM_TET_MI_LC:
-					case DOCS_CM_TET:
-					case DOCS_CM_TET_LC:
-						tvb_memcpy (tvb, asc_val, off + 4, 2);
-						raw_val = strtoul((gchar*)asc_val, NULL, 16);
-						proto_item_append_text(ti,
-						    "%lu", raw_val);
-						break;
-					case DOCS_CM_IPFILT_SUP:
-					case DOCS_CM_IPFILT_SUP_LC:
-					case DOCS_CM_LLCFILT_SUP:
-					case DOCS_CM_LLCFILT_SUP_LC:
-						tvb_memcpy (tvb, asc_val, off + 4, 4);
-						raw_val = strtoul((gchar*)asc_val, NULL, 16);
-						proto_item_append_text(ti,
-						    "%lu", raw_val);
-						break;
-					case DOCS_CM_FILT_SUP:
-						tvb_memcpy (tvb, asc_val, off + 4, 2);
-						raw_val = strtoul((gchar*)asc_val, NULL, 16);
+								       "802.1p filtering");
+					if (raw_val & 0x02) {
 						if (raw_val & 0x01)
-							proto_item_append_text(ti,
-							    "802.1p filtering");
-						if (raw_val & 0x02) {
-							if (raw_val & 0x01)
-								proto_item_append_text(ti, ", ");
-							proto_item_append_text(ti,
-							    "802.1Q filtering");
-						}
-						if (!(raw_val & 0x03))
-							proto_item_append_text(ti,
-							    "None");
+							proto_item_append_text(ti, ", ");
 						proto_item_append_text(ti,
-						    " (0x%02lx)", raw_val);
-						break;
+								       "802.1Q filtering");
+					}
+					if (!(raw_val & 0x03))
+						proto_item_append_text(ti,
+								       "None");
+					proto_item_append_text(ti,
+							       " (0x%02lx)", raw_val);
+					break;
 				}
 			}
 			off += (tlv_len * 2) + 4;
@@ -3428,117 +3459,118 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	    val_to_str(subopt, pkt_i05_ccc_opt_vals, "unknown/reserved") );
 
 	switch (subopt) {
-		case PKT_CCC_PRI_DHCP:	/* String values */
-		case PKT_CCC_SEC_DHCP:
-		case PKT_CCC_I05_SNMP:
-		case PKT_CCC_I05_PRI_DNS:
-		case PKT_CCC_I05_SEC_DNS:
-		case PKT_CCC_KRB_REALM:
-		case PKT_CCC_CMS_FQDN:
-			proto_item_append_text(vti, "%s (%u byte%s)",
-					tvb_format_stringzpad(tvb, suboptoff, subopt_len),
-					subopt_len,
-					plurality(subopt_len, "", "s") );
-			suboptoff += subopt_len;
-			break;
 
-		case PKT_CCC_TGT_FLAG:
-			if (suboptoff+1 > optend) {
-				proto_item_append_text(vti,
-				    "no room left in option for suboption value");
-			 	return (optend);
-			}
-			fetch_tgt = tvb_get_guint8(tvb, suboptoff);
-			proto_item_append_text(vti, "%s (%u byte%s%s)",
-					fetch_tgt ? "Yes" : "No",
-					subopt_len,
-					plurality(subopt_len, "", "s"),
-					subopt_len != 1 ? " [Invalid]" : "");
-			suboptoff += subopt_len;
-			break;
+	case PKT_CCC_PRI_DHCP:	/* String values */
+	case PKT_CCC_SEC_DHCP:
+	case PKT_CCC_I05_SNMP:
+	case PKT_CCC_I05_PRI_DNS:
+	case PKT_CCC_I05_SEC_DNS:
+	case PKT_CCC_KRB_REALM:
+	case PKT_CCC_CMS_FQDN:
+		proto_item_append_text(vti, "%s (%u byte%s)",
+				       tvb_format_stringzpad(tvb, suboptoff, subopt_len),
+				       subopt_len,
+				       plurality(subopt_len, "", "s") );
+		suboptoff += subopt_len;
+		break;
 
-		case PKT_CCC_PROV_TIMER:
-			if (suboptoff+1 > optend) {
-				proto_item_append_text(vti,
-				    "no room left in option for suboption value");
-			 	return (optend);
-			}
-			timer_val = tvb_get_guint8(tvb, suboptoff);
-			proto_item_append_text(vti, "%u%s (%u byte%s%s)", timer_val,
-					timer_val > 30 ? " [Invalid]" : "",
-					subopt_len,
-					plurality(subopt_len, "", "s"),
-					subopt_len != 1 ? " [Invalid]" : "");
-			suboptoff += subopt_len;
-			break;
+	case PKT_CCC_TGT_FLAG:
+		if (suboptoff+1 > optend) {
+			proto_item_append_text(vti,
+					       "no room left in option for suboption value");
+			return (optend);
+		}
+		fetch_tgt = tvb_get_guint8(tvb, suboptoff);
+		proto_item_append_text(vti, "%s (%u byte%s%s)",
+				       fetch_tgt ? "Yes" : "No",
+				       subopt_len,
+				       plurality(subopt_len, "", "s"),
+				       subopt_len != 1 ? " [Invalid]" : "");
+		suboptoff += subopt_len;
+		break;
 
-		case PKT_CCC_AS_KRB:
-			if (suboptoff+12 > optend) {
-				proto_item_append_text(vti,
-				    "no room left in option for suboption value");
-			 	return (optend);
-			}
-			proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
-					plurality(subopt_len, "", "s"),
-					subopt_len != 12 ? " [Invalid]" : "");
-			if (subopt_len == 12) {
-				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
-						"pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u",
-						tvb_get_ntohl(tvb, suboptoff));
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
-						"pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u",
-						tvb_get_ntohl(tvb, suboptoff + 4));
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
-						"pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u",
-						tvb_get_ntohl(tvb, suboptoff + 8));
-			}
-			suboptoff += subopt_len;
-			break;
+	case PKT_CCC_PROV_TIMER:
+		if (suboptoff+1 > optend) {
+			proto_item_append_text(vti,
+					       "no room left in option for suboption value");
+			return (optend);
+		}
+		timer_val = tvb_get_guint8(tvb, suboptoff);
+		proto_item_append_text(vti, "%u%s (%u byte%s%s)", timer_val,
+				       timer_val > 30 ? " [Invalid]" : "",
+				       subopt_len,
+				       plurality(subopt_len, "", "s"),
+				       subopt_len != 1 ? " [Invalid]" : "");
+		suboptoff += subopt_len;
+		break;
 
-		case PKT_CCC_AP_KRB:
-			if (suboptoff+12 > optend) {
-				proto_item_append_text(vti,
-				    "no room left in option for suboption value");
-			 	return (optend);
-			}
-			proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
-					plurality(subopt_len, "", "s"),
-					subopt_len != 12 ? " [Invalid]" : "");
-			if (subopt_len == 12) {
-				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
-						"pktcMtaDevProvUnsolicitedKeyNomTimeout: %u",
-						tvb_get_ntohl(tvb, suboptoff));
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
-						"pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u",
-						tvb_get_ntohl(tvb, suboptoff + 4));
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
-						"pktcMtaDevProvUnsolicitedKeyMaxRetries: %u",
-						tvb_get_ntohl(tvb, suboptoff + 8));
-			}
-			suboptoff += subopt_len;
-			break;
+	case PKT_CCC_AS_KRB:
+		if (suboptoff+12 > optend) {
+			proto_item_append_text(vti,
+					       "no room left in option for suboption value");
+			return (optend);
+		}
+		proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
+				       plurality(subopt_len, "", "s"),
+				       subopt_len != 12 ? " [Invalid]" : "");
+		if (subopt_len == 12) {
+			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
+					    "pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u",
+					    tvb_get_ntohl(tvb, suboptoff));
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
+					    "pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u",
+					    tvb_get_ntohl(tvb, suboptoff + 4));
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
+					    "pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u",
+					    tvb_get_ntohl(tvb, suboptoff + 8));
+		}
+		suboptoff += subopt_len;
+		break;
 
-		case PKT_CCC_MTA_KRB_CLEAR:
-			if (suboptoff+1 > optend) {
-				proto_item_append_text(vti,
-				    "no room left in option for suboption value");
-			 	return (optend);
-			}
-			ticket_ctl = tvb_get_guint8(tvb, suboptoff);
-			proto_item_append_text(vti, "%s (%u) (%u byte%s%s)",
-					val_to_str (ticket_ctl, pkt_i05_ccc_ticket_ctl_vals, "unknown/invalid"),
-					ticket_ctl,
-					subopt_len,
-					plurality(subopt_len, "", "s"),
-					subopt_len != 1 ? " [Invalid]" : "");
-			suboptoff += subopt_len;
-			break;
+	case PKT_CCC_AP_KRB:
+		if (suboptoff+12 > optend) {
+			proto_item_append_text(vti,
+					       "no room left in option for suboption value");
+			return (optend);
+		}
+		proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
+				       plurality(subopt_len, "", "s"),
+				       subopt_len != 12 ? " [Invalid]" : "");
+		if (subopt_len == 12) {
+			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
+					    "pktcMtaDevProvUnsolicitedKeyNomTimeout: %u",
+					    tvb_get_ntohl(tvb, suboptoff));
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
+					    "pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u",
+					    tvb_get_ntohl(tvb, suboptoff + 4));
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
+					    "pktcMtaDevProvUnsolicitedKeyMaxRetries: %u",
+					    tvb_get_ntohl(tvb, suboptoff + 8));
+		}
+		suboptoff += subopt_len;
+		break;
 
-		default:
-			suboptoff += subopt_len;
-			break;
+	case PKT_CCC_MTA_KRB_CLEAR:
+		if (suboptoff+1 > optend) {
+			proto_item_append_text(vti,
+					       "no room left in option for suboption value");
+			return (optend);
+		}
+		ticket_ctl = tvb_get_guint8(tvb, suboptoff);
+		proto_item_append_text(vti, "%s (%u) (%u byte%s%s)",
+				       val_to_str (ticket_ctl, pkt_i05_ccc_ticket_ctl_vals, "unknown/invalid"),
+				       ticket_ctl,
+				       subopt_len,
+				       plurality(subopt_len, "", "s"),
+				       subopt_len != 1 ? " [Invalid]" : "");
+		suboptoff += subopt_len;
+		break;
+
+	default:
+		suboptoff += subopt_len;
+		break;
 
 	}
 	return suboptoff;
@@ -3583,167 +3615,171 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	    val_to_str(subopt, pkt_draft5_ccc_opt_vals, "unknown/reserved") );
 
 	switch (subopt) {
-		case PKT_CCC_PRI_DHCP:	/* IPv4 values */
-		case PKT_CCC_SEC_DHCP:
+
+	case PKT_CCC_PRI_DHCP:	/* IPv4 values */
+	case PKT_CCC_SEC_DHCP:
+		if (suboptoff+4 > optend) {
+			proto_item_append_text(vti,
+					       "no room left in option for suboption value");
+			return (optend);
+		}
+		ipv4addr = tvb_get_ipv4(tvb, suboptoff);
+		proto_item_append_text(vti, "%s (%u byte%s%s)",
+				       ip_to_str((guint8 *)&ipv4addr),
+				       subopt_len,
+				       plurality(subopt_len, "", "s"),
+				       subopt_len != 4 ? " [Invalid]" : "");
+		suboptoff += subopt_len;
+		break;
+
+	case PKT_CCC_IETF_PROV_SRV:
+		if (suboptoff+1 > optend) {
+			proto_item_append_text(vti,
+					       "no room left in option for suboption value");
+			return (optend);
+		}
+		prov_type = tvb_get_guint8(tvb, suboptoff);
+		suboptoff += 1;
+		switch (prov_type) {
+
+		case 0:
+			get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name);
+			proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
+					       subopt_len - 1, plurality(subopt_len, "", "s") );
+			break;
+
+		case 1:
 			if (suboptoff+4 > optend) {
 				proto_item_append_text(vti,
-				    "no room left in option for suboption value");
-			 	return (optend);
+						       "no room left in option for suboption value");
+				return (optend);
 			}
 			ipv4addr = tvb_get_ipv4(tvb, suboptoff);
 			proto_item_append_text(vti, "%s (%u byte%s%s)",
-					ip_to_str((guint8 *)&ipv4addr),
-					subopt_len,
-					plurality(subopt_len, "", "s"),
-					subopt_len != 4 ? " [Invalid]" : "");
-			suboptoff += subopt_len;
-			break;
-
-		case PKT_CCC_IETF_PROV_SRV:
-			if (suboptoff+1 > optend) {
-				proto_item_append_text(vti,
-				    "no room left in option for suboption value");
-			 	return (optend);
-			}
-			prov_type = tvb_get_guint8(tvb, suboptoff);
-			suboptoff += 1;
-			switch (prov_type) {
-				case 0:
-					get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name);
-					proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
-							subopt_len - 1, plurality(subopt_len, "", "s") );
-					break;
-				case 1:
-					if (suboptoff+4 > optend) {
-						proto_item_append_text(vti,
-						    "no room left in option for suboption value");
-					 	return (optend);
-					}
-					ipv4addr = tvb_get_ipv4(tvb, suboptoff);
-					proto_item_append_text(vti, "%s (%u byte%s%s)",
-							ip_to_str((guint8 *)&ipv4addr),
-							subopt_len,
-							plurality(subopt_len, "", "s"),
-							subopt_len != 5 ? " [Invalid]" : "");
-					break;
-				default:
-					proto_item_append_text(vti, "Invalid type: %u (%u byte%s)",
-							prov_type,
-							subopt_len,
-							plurality(subopt_len, "", "s") );
-					break;
-			}
-			suboptoff += subopt_len - 1;
-			break;
-
-		case PKT_CCC_IETF_AS_KRB:
-			if (suboptoff+12 > optend) {
-				proto_item_append_text(vti,
-				    "no room left in option for suboption value");
-			 	return (optend);
-			}
-			proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
-					plurality(subopt_len, "", "s"),
-					subopt_len != 12 ? " [Invalid]" : "");
-			if (subopt_len == 12) {
-				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
-						"pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u",
-						tvb_get_ntohl(tvb, suboptoff));
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
-						"pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u",
-						tvb_get_ntohl(tvb, suboptoff + 4));
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
-						"pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u",
-						tvb_get_ntohl(tvb, suboptoff + 8));
-			}
-			suboptoff += subopt_len;
-			break;
-
-		case PKT_CCC_IETF_AP_KRB:
-			proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
-					plurality(subopt_len, "", "s"),
-					subopt_len != 12 ? " [Invalid]" : "");
-			if (subopt_len == 12) {
-				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
-					"pktcMtaDevProvUnsolicitedKeyNomTimeout: %u",
-					tvb_get_ntohl(tvb, suboptoff));
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
-						"pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u",
-						tvb_get_ntohl(tvb, suboptoff + 4));
-				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
-					"pktcMtaDevProvUnsolicitedKeyMaxRetries: %u",
-					tvb_get_ntohl(tvb, suboptoff + 8));
-			}
-			suboptoff += subopt_len;
-			break;
-
-		case PKT_CCC_KRB_REALM: /* String values */
-			get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name);
-			proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
-					subopt_len, plurality(subopt_len, "", "s") );
-			suboptoff += subopt_len;
-			break;
-
-		case PKT_CCC_TGT_FLAG:
-			if (suboptoff+1 > optend) {
-				proto_item_append_text(vti,
-				    "no room left in option for suboption value");
-			 	return (optend);
-			}
-			fetch_tgt = tvb_get_guint8(tvb, suboptoff);
-			proto_item_append_text(vti, "%s (%u byte%s%s)",
-					fetch_tgt ? "Yes" : "No",
-					subopt_len,
-					plurality(subopt_len, "", "s"),
-					subopt_len != 1 ? " [Invalid]" : "");
-			suboptoff += 1;
-			break;
-
-		case PKT_CCC_PROV_TIMER:
-			if (suboptoff+1 > optend) {
-				proto_item_append_text(vti,
-				    "no room left in option for suboption value");
-			 	return (optend);
-			}
-			if (revision == PACKETCABLE_CCC_DRAFT5)
-				max_timer_val = 30;
-			timer_val = tvb_get_guint8(tvb, suboptoff);
-			proto_item_append_text(vti, "%u%s (%u byte%s%s)", timer_val,
-					timer_val > max_timer_val ? " [Invalid]" : "",
-					subopt_len,
-					plurality(subopt_len, "", "s"),
-					subopt_len != 1 ? " [Invalid]" : "");
-			suboptoff += 1;
-			break;
-
-		case PKT_CCC_IETF_SEC_TKT:
-			if (suboptoff+2 > optend) {
-				proto_item_append_text(vti,
-				    "no room left in option for suboption value");
-			 	return (optend);
-			}
-			sec_tcm = tvb_get_ntohs(tvb, suboptoff);
-			proto_item_append_text(vti, "0x%04x (%u byte%s%s)", sec_tcm, subopt_len,
-					plurality(subopt_len, "", "s"),
-					subopt_len != 2 ? " [Invalid]" : "");
-			if (subopt_len == 2) {
-				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				for (i = 0; i < 2; i++) {
-					if (sec_tcm & sec_tcm_vals[i].value) {
-						decode_bitfield_value(bit_fld, sec_tcm, sec_tcm_vals[i].value, 16);
-						proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 2, "%sInvalidate %s",
-							bit_fld, sec_tcm_vals[i].strptr);
-					}
-				}
-			}
-			suboptoff += subopt_len;
+					       ip_to_str((guint8 *)&ipv4addr),
+					       subopt_len,
+					       plurality(subopt_len, "", "s"),
+					       subopt_len != 5 ? " [Invalid]" : "");
 			break;
 
 		default:
-			suboptoff += subopt_len;
+			proto_item_append_text(vti, "Invalid type: %u (%u byte%s)",
+					       prov_type,
+					       subopt_len,
+					       plurality(subopt_len, "", "s") );
 			break;
+		}
+		suboptoff += subopt_len - 1;
+		break;
+
+	case PKT_CCC_IETF_AS_KRB:
+		if (suboptoff+12 > optend) {
+			proto_item_append_text(vti,
+					       "no room left in option for suboption value");
+			return (optend);
+		}
+		proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
+				       plurality(subopt_len, "", "s"),
+				       subopt_len != 12 ? " [Invalid]" : "");
+		if (subopt_len == 12) {
+			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
+					    "pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u",
+					    tvb_get_ntohl(tvb, suboptoff));
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
+					    "pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u",
+					    tvb_get_ntohl(tvb, suboptoff + 4));
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
+					    "pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u",
+					    tvb_get_ntohl(tvb, suboptoff + 8));
+		}
+		suboptoff += subopt_len;
+		break;
+
+	case PKT_CCC_IETF_AP_KRB:
+		proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
+				       plurality(subopt_len, "", "s"),
+				       subopt_len != 12 ? " [Invalid]" : "");
+		if (subopt_len == 12) {
+			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
+					    "pktcMtaDevProvUnsolicitedKeyNomTimeout: %u",
+					    tvb_get_ntohl(tvb, suboptoff));
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
+					    "pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u",
+					    tvb_get_ntohl(tvb, suboptoff + 4));
+			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
+					    "pktcMtaDevProvUnsolicitedKeyMaxRetries: %u",
+					    tvb_get_ntohl(tvb, suboptoff + 8));
+		}
+		suboptoff += subopt_len;
+		break;
+
+	case PKT_CCC_KRB_REALM: /* String values */
+		get_dns_name(tvb, suboptoff, subopt_len, suboptoff, &dns_name);
+		proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
+				       subopt_len, plurality(subopt_len, "", "s") );
+		suboptoff += subopt_len;
+		break;
+
+	case PKT_CCC_TGT_FLAG:
+		if (suboptoff+1 > optend) {
+			proto_item_append_text(vti,
+					       "no room left in option for suboption value");
+			return (optend);
+		}
+		fetch_tgt = tvb_get_guint8(tvb, suboptoff);
+		proto_item_append_text(vti, "%s (%u byte%s%s)",
+				       fetch_tgt ? "Yes" : "No",
+				       subopt_len,
+				       plurality(subopt_len, "", "s"),
+				       subopt_len != 1 ? " [Invalid]" : "");
+		suboptoff += 1;
+		break;
+
+	case PKT_CCC_PROV_TIMER:
+		if (suboptoff+1 > optend) {
+			proto_item_append_text(vti,
+					       "no room left in option for suboption value");
+			return (optend);
+		}
+		if (revision == PACKETCABLE_CCC_DRAFT5)
+			max_timer_val = 30;
+		timer_val = tvb_get_guint8(tvb, suboptoff);
+		proto_item_append_text(vti, "%u%s (%u byte%s%s)", timer_val,
+				       timer_val > max_timer_val ? " [Invalid]" : "",
+				       subopt_len,
+				       plurality(subopt_len, "", "s"),
+				       subopt_len != 1 ? " [Invalid]" : "");
+		suboptoff += 1;
+		break;
+
+	case PKT_CCC_IETF_SEC_TKT:
+		if (suboptoff+2 > optend) {
+			proto_item_append_text(vti,
+					       "no room left in option for suboption value");
+			return (optend);
+		}
+		sec_tcm = tvb_get_ntohs(tvb, suboptoff);
+		proto_item_append_text(vti, "0x%04x (%u byte%s%s)", sec_tcm, subopt_len,
+				       plurality(subopt_len, "", "s"),
+				       subopt_len != 2 ? " [Invalid]" : "");
+		if (subopt_len == 2) {
+			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			for (i = 0; i < 2; i++) {
+				if (sec_tcm & sec_tcm_vals[i].value) {
+					decode_bitfield_value(bit_fld, sec_tcm, sec_tcm_vals[i].value, 16);
+					proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 2, "%sInvalidate %s",
+							    bit_fld, sec_tcm_vals[i].strptr);
+				}
+			}
+		}
+		suboptoff += subopt_len;
+		break;
+
+	default:
+		suboptoff += subopt_len;
+		break;
 	}
 	return suboptoff;
 }
@@ -3777,41 +3813,37 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		overload = 0; /* DHCP option overload */
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOOTP");
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		/*
-		 * In case we throw an exception fetching the opcode, etc.
-		 */
-		col_clear(pinfo->cinfo, COL_INFO);
-	}
+	/*
+	 * In case we throw an exception fetching the opcode, etc.
+	 */
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	op = tvb_get_guint8(tvb, 0);
 	htype = tvb_get_guint8(tvb, 1);
 	hlen = tvb_get_guint8(tvb, 2);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		switch (op) {
+	switch (op) {
 
-		case BOOTREQUEST:
-			if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
-			    && hlen == 6)
-				col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s (%s)",
-				    arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
-				        hlen, htype),
-				    get_ether_name(tvb_get_ptr(tvb, 28, hlen)));
-			else
-				col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s",
-				    arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
-					hlen, htype));
-			break;
+	case BOOTREQUEST:
+		if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
+		    && hlen == 6)
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s (%s)",
+				     arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
+						       hlen, htype),
+				     get_ether_name(tvb_get_ptr(tvb, 28, hlen)));
+		else
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s",
+				     arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
+						       hlen, htype));
+		break;
 
-		case BOOTREPLY:
-			col_set_str(pinfo->cinfo, COL_INFO, "Boot Reply");
-			break;
+	case BOOTREPLY:
+		col_set_str(pinfo->cinfo, COL_INFO, "Boot Reply");
+		break;
 
-		default:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown BOOTP message type (%u)",
-			    op);
-			break;
-		}
+	default:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown BOOTP message type (%u)",
+			     op);
+		break;
 	}
 
 	voff = VENDOR_INFO_OFFSET;
@@ -3850,9 +3882,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * packet type.
 		 */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCP");
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_fstr(pinfo->cinfo, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
-			    dhcp_type, tvb_get_ntohl(tvb, 4));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
+			     dhcp_type, tvb_get_ntohl(tvb, 4));
 		tap_queue_packet( bootp_dhcp_tap, pinfo, dhcp_type);
 	}
 
@@ -4013,326 +4044,326 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void 
 bootp_init_protocol(void)
 {
-    gchar **optionstrings = NULL;
-    gchar **optiondetail = NULL;
-    gchar *type = NULL;
-    guint i, ii;
+	gchar **optionstrings = NULL;
+	gchar **optiondetail = NULL;
+	gchar *type = NULL;
+	guint i, ii;
 
-    /* first copy default_bootp_opt[] to bootp_opt[].  This resets all values to default */
-    for(i=0; i<BOOTP_OPT_NUM; i++)
-    {
-        bootp_opt[i].text = default_bootp_opt[i].text;
-        bootp_opt[i].ftype = default_bootp_opt[i].ftype;
-        bootp_opt[i].data = default_bootp_opt[i].data;
-    }
+	/* first copy default_bootp_opt[] to bootp_opt[].  This resets all values to default */
+	for(i=0; i<BOOTP_OPT_NUM; i++)
+	{
+		bootp_opt[i].text = default_bootp_opt[i].text;
+		bootp_opt[i].ftype = default_bootp_opt[i].ftype;
+		bootp_opt[i].data = default_bootp_opt[i].data;
+	}
 
-    /* now split semicolon seperated fields groups */
-    optionstrings = ep_strsplit(pref_optionstring, ";", -1);
-    for (i=0;optionstrings[i]!=NULL;i++)
-    {
-        /* input string should have 3 fields:
-           1 - bootp option - uint8 1-254, not being a special
-           2 - option name - string
-           3 - option type - defined in enum represented as a string
-        */
+	/* now split semicolon seperated fields groups */
+	optionstrings = ep_strsplit(pref_optionstring, ";", -1);
+	for (i=0;optionstrings[i]!=NULL;i++)
+	{
+		/* input string should have 3 fields:
+		   1 - bootp option - uint8 1-254, not being a special
+		   2 - option name - string
+		   3 - option type - defined in enum represented as a string
+		*/
 
-        /* now split field groups to usable data */
-        optiondetail = ep_strsplit(optionstrings[i], ",",-1);
-        /* verify array has 3 or more entries, any entries beyond 3 are ingnored */
-        for(ii=0;(optiondetail[ii]!=NULL);ii++)
-        {
-            /* do nothing */
-        }
-        if (ii < 3) continue;                            /* not enough values.  Go again              */
-        ii = atoi(optiondetail[0]);                      /* get the bootp option number               */
-        if (ii==0 || ii>=BOOTP_OPT_NUM-1) continue;      /* not a number or out of range.  Go again   */
-        if (bootp_opt[ii].ftype == special) continue;    /* don't mess with specials.  Go again       */
-        bootp_opt[ii].text = se_strdup(optiondetail[1]); /* store a permanent ("seasonal") copy       */
-        type = optiondetail[2];                          /* A string to be converted to an ftype enum */
-        /* XXX This if statement could be extended to allow for additinonal types */
-        if (g_ascii_strcasecmp(type,"string") == 0)
-        {
-            bootp_opt[ii].ftype = string;
-        } else if (g_ascii_strcasecmp(type,"ipv4") == 0)
-        {
-            bootp_opt[ii].ftype = ipv4;
-        } else if (g_ascii_strcasecmp(type,"bytes") == 0)
-        {
-            bootp_opt[ii].ftype = bytes;
-        } else
-        {
-            bootp_opt[ii].ftype = opaque;
-        }
-    }
+		/* now split field groups to usable data */
+		optiondetail = ep_strsplit(optionstrings[i], ",",-1);
+		/* verify array has 3 or more entries, any entries beyond 3 are ingnored */
+		for(ii=0;(optiondetail[ii]!=NULL);ii++)
+		{
+			/* do nothing */
+		}
+		if (ii < 3) continue;                            /* not enough values.  Go again              */
+		ii = atoi(optiondetail[0]);                      /* get the bootp option number               */
+		if (ii==0 || ii>=BOOTP_OPT_NUM-1) continue;      /* not a number or out of range.  Go again   */
+		if (bootp_opt[ii].ftype == special) continue;    /* don't mess with specials.  Go again       */
+		bootp_opt[ii].text = se_strdup(optiondetail[1]); /* store a permanent ("seasonal") copy       */
+		type = optiondetail[2];                          /* A string to be converted to an ftype enum */
+		/* XXX This if statement could be extended to allow for additinonal types */
+		if (g_ascii_strcasecmp(type,"string") == 0)
+		{
+			bootp_opt[ii].ftype = string;
+		} else if (g_ascii_strcasecmp(type,"ipv4") == 0)
+		{
+			bootp_opt[ii].ftype = ipv4;
+		} else if (g_ascii_strcasecmp(type,"bytes") == 0)
+		{
+			bootp_opt[ii].ftype = bytes;
+		} else
+		{
+			bootp_opt[ii].ftype = opaque;
+		}
+	}
 }
 
 void
 proto_register_bootp(void)
 {
-  static hf_register_info hf[] = {
-    { &hf_bootp_dhcp,
-      { "Frame is DHCP",                "bootp.dhcp",    FT_BOOLEAN,
-        BASE_NONE,				NULL,		 0x0,
-        NULL, HFILL }},
+    static hf_register_info hf[] = {
+        { &hf_bootp_dhcp,
+          { "Frame is DHCP",            "bootp.dhcp",    FT_BOOLEAN,
+            BASE_NONE,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_type,
-      { "Message type",			"bootp.type",	 FT_UINT8,
-         BASE_DEC, 			VALS(op_vals),   0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_type,
+          { "Message type",		"bootp.type",	 FT_UINT8,
+            BASE_DEC, 			VALS(op_vals),   0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_hw_type,
-      { "Hardware type",	       	"bootp.hw.type", FT_UINT8,
-        BASE_HEX,			NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_hw_type,
+          { "Hardware type",	       	"bootp.hw.type", FT_UINT8,
+            BASE_HEX,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_hw_len,
-      { "Hardware address length",	"bootp.hw.len",  FT_UINT8,
-        BASE_DEC,			NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_hw_len,
+          { "Hardware address length",	"bootp.hw.len",  FT_UINT8,
+            BASE_DEC,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_hops,
-      { "Hops",			       	"bootp.hops",	 FT_UINT8,
-        BASE_DEC,			NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_hops,
+          { "Hops",		       	"bootp.hops",	 FT_UINT8,
+            BASE_DEC,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_id,
-      { "Transaction ID",	       	"bootp.id",	 FT_UINT32,
-        BASE_HEX,			 NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_id,
+          { "Transaction ID",	       	"bootp.id",	 FT_UINT32,
+            BASE_HEX,			 NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_secs,
-      { "Seconds elapsed",	       	"bootp.secs",	 FT_UINT16,
-        BASE_DEC,			 NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_secs,
+          { "Seconds elapsed",	       	"bootp.secs",	 FT_UINT16,
+            BASE_DEC,			 NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_flags,
-      { "Bootp flags",		       	"bootp.flags",   FT_UINT16,
-        BASE_HEX,			NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_flags,
+          { "Bootp flags",	       	"bootp.flags",   FT_UINT16,
+            BASE_HEX,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_flags_broadcast,
-      { "Broadcast flag",	       	"bootp.flags.bc", FT_BOOLEAN,
-        16,			TFS(&flag_set_broadcast), BOOTP_BC,
-      	NULL, HFILL }},
+        { &hf_bootp_flags_broadcast,
+          { "Broadcast flag",	       	"bootp.flags.bc", FT_BOOLEAN,
+            16,			TFS(&flag_set_broadcast), BOOTP_BC,
+            NULL, HFILL }},
 
-    { &hf_bootp_flags_reserved,
-      { "Reserved flags",	       	"bootp.flags.reserved", FT_UINT16,
-        BASE_HEX,			NULL,		BOOTP_MBZ,
-      	NULL, HFILL }},
+        { &hf_bootp_flags_reserved,
+          { "Reserved flags",	       	"bootp.flags.reserved", FT_UINT16,
+            BASE_HEX,			NULL,		BOOTP_MBZ,
+            NULL, HFILL }},
 
-    { &hf_bootp_ip_client,
-      { "Client IP address",	       	"bootp.ip.client",FT_IPv4,
-        BASE_NONE,			NULL,		  0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_ip_client,
+          { "Client IP address",	"bootp.ip.client",FT_IPv4,
+            BASE_NONE,			NULL,		  0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_ip_your,
-      { "Your (client) IP address",	"bootp.ip.your",  FT_IPv4,
-        BASE_NONE,			NULL,		  0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_ip_your,
+          { "Your (client) IP address",	"bootp.ip.your",  FT_IPv4,
+            BASE_NONE,			NULL,		  0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_ip_server,
-      { "Next server IP address",	"bootp.ip.server",FT_IPv4,
-        BASE_NONE,			NULL,		  0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_ip_server,
+          { "Next server IP address",	"bootp.ip.server",FT_IPv4,
+            BASE_NONE,			NULL,		  0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_ip_relay,
-      { "Relay agent IP address",	"bootp.ip.relay", FT_IPv4,
-        BASE_NONE,			NULL,		  0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_ip_relay,
+          { "Relay agent IP address",	"bootp.ip.relay", FT_IPv4,
+            BASE_NONE,			NULL,		  0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_hw_addr,
-      { "Client hardware address",	"bootp.hw.addr", FT_BYTES,
-        BASE_NONE,			NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_hw_addr,
+          { "Client hardware address",	"bootp.hw.addr", FT_BYTES,
+            BASE_NONE,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_hw_addr_padding,
-      { "Client hardware address padding",	"bootp.hw.addr_padding", FT_BYTES,
-        BASE_NONE,			NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_hw_addr_padding,
+          { "Client hardware address padding",	"bootp.hw.addr_padding", FT_BYTES,
+            BASE_NONE,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_hw_ether_addr,
-      { "Client MAC address",		"bootp.hw.mac_addr", FT_ETHER,
-        BASE_NONE,			NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_hw_ether_addr,
+          { "Client MAC address",	"bootp.hw.mac_addr", FT_ETHER,
+            BASE_NONE,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_server,
-      { "Server host name",		"bootp.server",  FT_STRING,
-        BASE_NONE,			NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_server,
+          { "Server host name",		"bootp.server",  FT_STRING,
+            BASE_NONE,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_file,
-      { "Boot file name",		"bootp.file",	 FT_STRING,
-        BASE_NONE,			NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_file,
+          { "Boot file name",		"bootp.file",	 FT_STRING,
+            BASE_NONE,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_cookie,
-      { "Magic cookie",			"bootp.cookie",	 FT_IPv4,
-         BASE_NONE,			NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_cookie,
+          { "Magic cookie",		"bootp.cookie",	 FT_IPv4,
+            BASE_NONE,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_vendor,
-      { "Bootp Vendor Options",		"bootp.vendor", FT_BYTES,
-        BASE_NONE,			NULL,		 0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_vendor,
+          { "Bootp Vendor Options",	"bootp.vendor",  FT_BYTES,
+            BASE_NONE,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_fqdn_s,
-      { "Server",		"bootp.fqdn.s",		FT_BOOLEAN,
-        8,			TFS(&tfs_fqdn_s),	F_FQDN_S,
-      	"If true, server should do DDNS update", HFILL }},
+        { &hf_bootp_fqdn_s,
+          { "Server",			"bootp.fqdn.s",	 FT_BOOLEAN,
+            8,			TFS(&tfs_fqdn_s),	F_FQDN_S,
+            "If true, server should do DDNS update", HFILL }},
 
-    { &hf_bootp_fqdn_o,
-      { "Server overrides",	"bootp.fqdn.o",		FT_BOOLEAN,
-        8,			TFS(&tfs_fqdn_o),	F_FQDN_O,
-      	"If true, server insists on doing DDNS update", HFILL }},
+        { &hf_bootp_fqdn_o,
+          { "Server overrides",		"bootp.fqdn.o",  FT_BOOLEAN,
+            8,			      TFS(&tfs_fqdn_o),  F_FQDN_O,
+            "If true, server insists on doing DDNS update", HFILL }},
 
-    { &hf_bootp_fqdn_e,
-      { "Encoding",	"bootp.fqdn.e",		FT_BOOLEAN,
-        8,			TFS(&tfs_fqdn_e),	F_FQDN_E,
-      	"If true, name is binary encoded", HFILL }},
+        { &hf_bootp_fqdn_e,
+          { "Encoding",			"bootp.fqdn.e",  FT_BOOLEAN,
+            8,			      TFS(&tfs_fqdn_e),	 F_FQDN_E,
+            "If true, name is binary encoded", HFILL }},
 
-    { &hf_bootp_fqdn_n,
-      { "Server DDNS",	"bootp.fqdn.n",		FT_BOOLEAN,
-        8,			TFS(&tfs_fqdn_n),	F_FQDN_N,
-      	"If true, server should not do any DDNS updates", HFILL }},
+        { &hf_bootp_fqdn_n,
+          { "Server DDNS",		"bootp.fqdn.n",  FT_BOOLEAN,
+            8,			      TFS(&tfs_fqdn_n),  F_FQDN_N,
+            "If true, server should not do any DDNS updates", HFILL }},
 
-    { &hf_bootp_fqdn_mbz,
-      { "Reserved flags",	"bootp.fqdn.mbz",	FT_UINT8,
-        BASE_HEX,		NULL,			F_FQDN_MBZ,
-      	NULL, HFILL }},
+        { &hf_bootp_fqdn_mbz,
+          { "Reserved flags",		"bootp.fqdn.mbz",FT_UINT8,
+            BASE_HEX,			NULL,		 F_FQDN_MBZ,
+            NULL, HFILL }},
 
-    { &hf_bootp_fqdn_rcode1,
-      { "A-RR result",	       	"bootp.fqdn.rcode1",	 FT_UINT8,
-        BASE_DEC,		NULL,			 0x0,
-      	"Result code of A-RR update", HFILL }},
+        { &hf_bootp_fqdn_rcode1,
+          { "A-RR result",	       	"bootp.fqdn.rcode1", FT_UINT8,
+            BASE_DEC,			NULL,		 0x0,
+            "Result code of A-RR update", HFILL }},
 
-    { &hf_bootp_fqdn_rcode2,
-      { "PTR-RR result",       	"bootp.fqdn.rcode2",	 FT_UINT8,
-        BASE_DEC,		NULL,			 0x0,
-      	"Result code of PTR-RR update", HFILL }},
+        { &hf_bootp_fqdn_rcode2,
+          { "PTR-RR result",       	"bootp.fqdn.rcode2", FT_UINT8,
+            BASE_DEC,			NULL,		 0x0,
+            "Result code of PTR-RR update", HFILL }},
 
-    { &hf_bootp_fqdn_name,
-      { "Client name",		"bootp.fqdn.name",	FT_STRING,
-        BASE_NONE,		NULL,			0x0,
-      	"Name to register via DDNS", HFILL }},
+        { &hf_bootp_fqdn_name,
+          { "Client name",		"bootp.fqdn.name", FT_STRING,
+            BASE_NONE,			NULL,		 0x0,
+            "Name to register via DDNS", HFILL }},
 
-    { &hf_bootp_fqdn_asciiname,
-      { "Client name",		"bootp.fqdn.name",	FT_STRING,
-        BASE_NONE,		NULL,			0x0,
-      	"Name to register via DDNS", HFILL }},
+        { &hf_bootp_fqdn_asciiname,
+          { "Client name",		"bootp.fqdn.name", FT_STRING,
+            BASE_NONE,			NULL,		 0x0,
+            "Name to register via DDNS", HFILL }},
 
-    { &hf_bootp_pkt_mtacap_len,
-      { "MTA DC Length",	"bootp.vendor.pktc.mtacap_len",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        "PacketCable MTA Device Capabilities Length", HFILL }},
+        { &hf_bootp_pkt_mtacap_len,
+          { "MTA DC Length",		"bootp.vendor.pktc.mtacap_len", FT_UINT8,
+            BASE_DEC,			 NULL,		 0x0,
+            "PacketCable MTA Device Capabilities Length", HFILL }},
 
-    { &hf_bootp_docsis_cmcap_len,
-      { "CM DC Length",		"bootp.vendor.docsis.cmcap_len",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        "DOCSIS Cable Modem Device Capabilities Length", HFILL }},
+        { &hf_bootp_docsis_cmcap_len,
+          { "CM DC Length",		"bootp.vendor.docsis.cmcap_len", FT_UINT8,
+            BASE_DEC,			NULL,		 0x0,
+            "DOCSIS Cable Modem Device Capabilities Length", HFILL }},
 
-    { &hf_bootp_alu_vid,
-      { "Voice VLAN ID",	"bootp.vendor.alu.vid",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        "Alcatel-Lucent VLAN ID to define Voice VLAN", HFILL }},
+        { &hf_bootp_alu_vid,
+          { "Voice VLAN ID",		"bootp.vendor.alu.vid", FT_UINT16,
+            BASE_DEC, 			NULL,		 0x0,
+            "Alcatel-Lucent VLAN ID to define Voice VLAN", HFILL }},
 
-	{ &hf_bootp_alu_tftp1,
-      { "Spatial Redundancy TFTP1",    "bootp.vendor.alu.tftp1" ,FT_IPv4,
-        BASE_NONE,			NULL,		  0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_alu_tftp1,
+          { "Spatial Redundancy TFTP1",	"bootp.vendor.alu.tftp1" , FT_IPv4,
+            BASE_NONE,			NULL,		 0x0,
+            NULL, HFILL }},
 
-	{ &hf_bootp_alu_tftp2,
-      { "Spatial Redundancy TFTP2",    "bootp.vendor.alu.tftp2" ,FT_IPv4,
-        BASE_NONE,			NULL,		  0x0,
-      	NULL, HFILL }},
+        { &hf_bootp_alu_tftp2,
+          { "Spatial Redundancy TFTP2",	"bootp.vendor.alu.tftp2" ,FT_IPv4,
+            BASE_NONE,			NULL,		 0x0,
+            NULL, HFILL }},
 
-    { &hf_bootp_client_identifier_uuid,
-      { "Client Identifier (UUID)",    "bootp.client_id_uuid",
-	FT_GUID, BASE_NONE, NULL, 0x0,
-	"Client Machine Identifier (UUID)", HFILL }},
+        { &hf_bootp_client_identifier_uuid,
+          { "Client Identifier (UUID)",	"bootp.client_id_uuid", FT_GUID,
+            BASE_NONE,			NULL,		 0x0,
+            "Client Machine Identifier (UUID)", HFILL }},
 
-    { &hf_bootp_client_network_id_major_ver,
-      { "Client Network ID Major Version",    "bootp.client_network_id_major",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"Client Machine Identifier, Major Version", HFILL }},
+        { &hf_bootp_client_network_id_major_ver,
+          { "Client Network ID Major Version", "bootp.client_network_id_major", FT_UINT8,
+            BASE_DEC, 			NULL,		 0x0,
+            "Client Machine Identifier, Major Version", HFILL }},
 
-    { &hf_bootp_client_network_id_minor_ver,
-      { "Client Network ID Minor Version",    "bootp.client_network_id_minor",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"Client Machine Identifier, Major Version", HFILL }},
+        { &hf_bootp_client_network_id_minor_ver,
+          { "Client Network ID Minor Version", "bootp.client_network_id_minor", FT_UINT8,
+            BASE_DEC, 			NULL,		 0x0,
+            "Client Machine Identifier, Major Version", HFILL }},
 
-    { &hf_bootp_option_type,
-      { "Option",	"bootp.option.type",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        "Bootp/Dhcp option type", HFILL }},
+        { &hf_bootp_option_type,
+          { "Option",	"bootp.option.type", FT_UINT8,
+            BASE_DEC,			 NULL,		 0x0,
+            "Bootp/Dhcp option type", HFILL }},
 
-    { &hf_bootp_option_length,
-      { "Length",	"bootp.option.length",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        "Bootp/Dhcp option length", HFILL }},
+        { &hf_bootp_option_length,
+          { "Length",	"bootp.option.length", FT_UINT8,
+            BASE_DEC, 			NULL,		 0x0,
+            "Bootp/Dhcp option length", HFILL }},
 
-    { &hf_bootp_option_value,
-      { "Value",	"bootp.option.value",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Bootp/Dhcp option value", HFILL }},
+        { &hf_bootp_option_value,
+          { "Value",	"bootp.option.value", FT_BYTES,
+            BASE_NONE, 			NULL,		 0x0,
+            "Bootp/Dhcp option value", HFILL }},
 
-  };
+    };
 
-  static gint *ett[] = {
-    &ett_bootp,
-    &ett_bootp_flags,
-    &ett_bootp_option,
-    &ett_bootp_fqdn,
-  };
+	static gint *ett[] = {
+		&ett_bootp,
+		&ett_bootp_flags,
+		&ett_bootp_option,
+		&ett_bootp_fqdn,
+	};
 
-  module_t *bootp_module;
+	module_t *bootp_module;
 
-  proto_bootp = proto_register_protocol("Bootstrap Protocol", "BOOTP/DHCP",
-					"bootp");
-  proto_register_field_array(proto_bootp, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-  bootp_dhcp_tap = register_tap("bootp");
+	proto_bootp = proto_register_protocol("Bootstrap Protocol", "BOOTP/DHCP",
+					      "bootp");
+	proto_register_field_array(proto_bootp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+	bootp_dhcp_tap = register_tap("bootp");
 
-  /* register init routine to setup the custom bootp options */
-  register_init_routine(&bootp_init_protocol);
+	/* register init routine to setup the custom bootp options */
+	register_init_routine(&bootp_init_protocol);
   
-  /* Allow dissector to find be found by name. */
-  register_dissector("bootp", dissect_bootp, proto_bootp);
+	/* Allow dissector to find be found by name. */
+	register_dissector("bootp", dissect_bootp, proto_bootp);
 
-  bootp_module = prefs_register_protocol(proto_bootp, NULL);
+	bootp_module = prefs_register_protocol(proto_bootp, NULL);
 
-  prefs_register_bool_preference(bootp_module, "novellserverstring",
-    "Decode Option 85 as String",
-    "Novell Servers option 85 can be configured as a string instead of address",
-    &novell_string);
+	prefs_register_bool_preference(bootp_module, "novellserverstring",
+				       "Decode Option 85 as String",
+				       "Novell Servers option 85 can be configured as a string instead of address",
+				       &novell_string);
 
-  prefs_register_enum_preference(bootp_module, "pkt.ccc.protocol_version",
-    "PacketCable CCC protocol version",
-    "The PacketCable CCC protocol version",
-    &pkt_ccc_protocol_version,
-    pkt_ccc_protocol_versions,
-    FALSE);
+	prefs_register_enum_preference(bootp_module, "pkt.ccc.protocol_version",
+				       "PacketCable CCC protocol version",
+				       "The PacketCable CCC protocol version",
+				       &pkt_ccc_protocol_version,
+				       pkt_ccc_protocol_versions,
+				       FALSE);
 
-  prefs_register_uint_preference(bootp_module, "pkt.ccc.option",
-    "PacketCable CCC option",
-    "Option Number for PacketCable CableLabs Client Configuration",
-    10,
-    &pkt_ccc_option);
+	prefs_register_uint_preference(bootp_module, "pkt.ccc.option",
+				       "PacketCable CCC option",
+				       "Option Number for PacketCable CableLabs Client Configuration",
+				       10,
+				       &pkt_ccc_option);
 
-  prefs_register_string_preference(bootp_module, "displayasstring",
-    "Custom BootP/DHCP Options (Excl. suboptions)",
-    "Format: OptionNumber,OptionName,OptionType[;Format].\n"
-    "Example: 176,MyOption,string;242,NewOption,ipv4.\n"
-    "OptionNumbers: 1-254, but no special options. "
-    "OptionType: string, ipv4 and bytes",
-    &pref_optionstring );
+	prefs_register_string_preference(bootp_module, "displayasstring",
+					 "Custom BootP/DHCP Options (Excl. suboptions)",
+					 "Format: OptionNumber,OptionName,OptionType[;Format].\n"
+					 "Example: 176,MyOption,string;242,NewOption,ipv4.\n"
+					 "OptionNumbers: 1-254, but no special options. "
+					 "OptionType: string, ipv4 and bytes",
+					 &pref_optionstring );
 }
 
 void
 proto_reg_handoff_bootp(void)
 {
-  dissector_handle_t bootp_handle;
+	dissector_handle_t bootp_handle;
 
-  bootp_handle = create_dissector_handle(dissect_bootp, proto_bootp);
-  dissector_add("udp.port", UDP_PORT_BOOTPS, bootp_handle);
-  dissector_add("udp.port", UDP_PORT_BOOTPC, bootp_handle);
+	bootp_handle = create_dissector_handle(dissect_bootp, proto_bootp);
+	dissector_add("udp.port", UDP_PORT_BOOTPS, bootp_handle);
+	dissector_add("udp.port", UDP_PORT_BOOTPC, bootp_handle);
 }
