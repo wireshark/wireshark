@@ -26,7 +26,7 @@
 #
 
 from optparse import OptionParser
-from multiprocessing import Process, Pool
+import multiprocessing
 import sys
 import os
 import subprocess
@@ -125,16 +125,22 @@ def main():
     cap_files = find_capture_files(paths, cap_hash)
     cap_files.sort()
     print len(cap_files), "total files,",
+    options.max_files = min(options.max_files, len(cap_files))
     cap_files = cap_files[:options.max_files]
     print len(cap_files), "indexable files"
     print "\n"
 
-    pool = Pool(options.num_procs)
+    pool = multiprocessing.Pool(options.num_procs)
     results = [pool.apply_async(process_capture_file, [tshark, file]) for file in cap_files]
     cur_item_num = 0
     for result in results:
         cur_item_num += 1
-        file_result = result.get()
+        try:
+            file_result = result.get(1)
+        except multiprocessing.TimeoutError:
+            cur_item_num -= 1
+            continue
+
         if file_result is None:
             continue
 
