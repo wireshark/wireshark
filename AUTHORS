@@ -1,4 +1,4 @@
-
+﻿
 
 Original Author
 -------- ------
@@ -2255,7 +2255,6 @@ Chris Maynard		<Christopher.Maynard [AT] GTECH.COM> {
 	Add Doxygen comments to the CRC-16 and CRC-32 headers
 	Add support for RFC 2520: NHRP with Mobile NHCs
 	    and RFC 2735: NHRP Support for Virtual Private Networks
-
 }
 
 SEKINE Hideki		<sekineh [AT] gf7.so-net.ne.jp> {
@@ -3105,7 +3104,8 @@ Murali Raja		<Murali.Raja [AT] citrix.com>
 Devesh Prakash		<Devesh.Prakash [AT] citrix.com>
 Richard Kümmel		<r.kuemmel [AT] beckhoff.de>
 Kovarththanan Rajaratnam <kovarththanan.rajaratnam [AT] gmail.com>
-Darryl Champagne <dchampagne [AT] sta.samsung.com>
+Darryl Champagne	<dchampagne [AT] sta.samsung.com>
+Michael Speck		<Michael.Speck [AT] avl.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
