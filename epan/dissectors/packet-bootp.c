@@ -3838,15 +3838,21 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case BOOTREQUEST:
 		if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
-		    && hlen == 6)
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s (%s)",
-				     arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
-						       hlen, htype),
-				     get_ether_name(tvb_get_ptr(tvb, 28, hlen)));
-		else
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s",
-				     arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
-						       hlen, htype));
+		    && hlen == 6) {
+			if (check_col(pinfo->cinfo, COL_INFO)) { 
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s (%s)",
+					     arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
+							       hlen, htype),
+					     get_ether_name(tvb_get_ptr(tvb, 28, hlen)));
+			}
+		}
+		else {
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s",
+					     arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
+							       hlen, htype));
+			}
+		}
 		break;
 
 	case BOOTREPLY:
@@ -3854,8 +3860,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	default:
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown BOOTP message type (%u)",
-			     op);
+		if (check_col(pinfo->cinfo, COL_INFO))  
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown BOOTP message type (%u)", op);
 		break;
 	}
 
@@ -3895,8 +3901,9 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * packet type.
 		 */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCP");
-		col_add_fstr(pinfo->cinfo, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
-			     dhcp_type, tvb_get_ntohl(tvb, 4));
+		if (check_col(pinfo->cinfo, COL_INFO))  
+			col_add_fstr(pinfo->cinfo, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
+				     dhcp_type, tvb_get_ntohl(tvb, 4));
 		tap_queue_packet( bootp_dhcp_tap, pinfo, dhcp_type);
 	}
 

@@ -577,7 +577,8 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	packet_type = tvb_get_guint8(tvb, 5);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type, njack_type_vals, "Type 0x%02x"));
+        if (check_col(pinfo->cinfo, COL_INFO))  
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(packet_type, njack_type_vals, "Type 0x%02x"));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_njack, tvb, offset, -1,

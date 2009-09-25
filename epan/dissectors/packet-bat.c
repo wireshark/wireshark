@@ -141,7 +141,8 @@ static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		dissect_bat_batman_v5(tvb, pinfo, tree);
 		break;
 	default:
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
+		if (check_col(pinfo->cinfo, COL_INFO))  
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
@@ -193,7 +194,8 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	batman_packeth->hna_len = tvb_get_guint8(tvb, 17);
 
 	/* Set info column */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
+        if (check_col(pinfo->cinfo, COL_INFO))  
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
 	if (tree) {
@@ -331,11 +333,13 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_GW");
 
 	/* Set info column */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Type=%s",
-		     val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
+        if (check_col(pinfo->cinfo, COL_INFO))  
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Type=%s",
+			     val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
 	if (ip != 0) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " IP: %s (%s)",
-				get_hostname(ip), ip_to_str(ip_addr));
+		if (check_col(pinfo->cinfo, COL_INFO))  
+			col_append_fstr(pinfo->cinfo, COL_INFO, " IP: %s (%s)",
+					get_hostname(ip), ip_to_str(ip_addr));
 	}
 
 
@@ -394,7 +398,8 @@ static void dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_bat_vis_v23(tvb, pinfo, tree);
 		break;
 	default:
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
+		if (check_col(pinfo->cinfo, COL_INFO))  
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
@@ -424,8 +429,9 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
 	/* Set info column */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
-		     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
+        if (check_col(pinfo->cinfo, COL_INFO))  
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
+			     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
 
 	/* Set tree info */
 	if (tree) {
@@ -554,8 +560,9 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
 	/* Set info column */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
-		     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
+        if (check_col(pinfo->cinfo, COL_INFO))  
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
+			     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
 
 	/* Set tree info */
 	if (tree) {
