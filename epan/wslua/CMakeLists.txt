@@ -21,25 +21,29 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+include_directories(
+	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 set(WSLUA_MODULES
-	lua_bitop.c
-	wslua_tvb.c
-	wslua_proto.c
-	wslua_tree.c
-	wslua_pinfo.c
-	wslua_listener.c
-	wslua_gui.c
-	wslua_util.c
-	wslua_field.c
-	wslua_dumper.c
+	${CMAKE_CURRENT_SOURCE_DIR}/lua_bitop.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_tvb.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_proto.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_tree.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_pinfo.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_listener.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_gui.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_util.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_field.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_dumper.c
 )
 
 set(WSLUA_FILES
 	${WSLUA_MODULES}
-	${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
+	taps_wslua.c
 	register_wslua.c
-	${CMAKE_CURRENT_SOURCE_DIR}/init_wslua.c
+	init_wslua.c
 )
 
 # Used with untypical CWD
@@ -53,7 +57,8 @@ set(WSLUA_TAPS_USED
 
 # make-taps.pl depends on the current working directory
 # to find the dissector files (contents of taps file
-# depend on this actually).
+# depend on this actually, so just changing the paths
+# in these lists won't help).
 ADD_CUSTOM_COMMAND(
     OUTPUT
       ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
@@ -82,7 +87,7 @@ ADD_CUSTOM_COMMAND(
     DEPENDS
       ${CMAKE_CURRENT_SOURCE_DIR}/make-reg.pl
       ${WSLUA_MODULES}
-      ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
+      # ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
 )
 
 ADD_CUSTOM_COMMAND(
@@ -102,12 +107,27 @@ ADD_CUSTOM_COMMAND(
 )
 
 set(wslua_LIBS
-  ${LUA_LIBRARIES}
+	${LUA_LIBRARIES}
 )
 
 add_library(wslua STATIC
 	${WSLUA_FILES}
 )
 
+add_custom_target(
+     wsluaauxiliary ALL
+     DEPENDS
+	init.lua
+)
+
 target_link_libraries(wslua ${wslua_LIBS})
+
+install(
+    FILES
+	console.lua
+	dtd_gen.lua
+	${CMAKE_CURRENT_BINARY_DIR}/init.lua
+    DESTINATION
+	${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
+)
 
