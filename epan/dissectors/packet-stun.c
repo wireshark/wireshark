@@ -561,8 +561,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (msg_method_str == NULL)
 		msg_method_str = "Unknown";
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		     msg_method_str, msg_class_str);
+	if(check_col(pinfo->cinfo,COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+			     msg_method_str, msg_class_str);
+	}
 
 	if (!tree)
 		return tvb_length(tvb);
@@ -704,13 +706,15 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						ip = tvb_get_ipv4(tvb,offset+4);
 						ipstr = ip_to_str((guint8*)&ip);
 						proto_item_append_text(att_tree, ": %s:%d", ipstr,tvb_get_ntohs(tvb,offset+2));
-						col_append_fstr(
-							pinfo->cinfo, COL_INFO,
-							" %s: %s:%d",
-							val_to_str(att_type, attributes, "Unknown"),
-							ipstr,
-							tvb_get_ntohs(tvb,offset+2)
-							);
+						if(check_col(pinfo->cinfo,COL_INFO)) {
+							col_append_fstr(
+								pinfo->cinfo, COL_INFO,
+								" %s: %s:%d",
+								val_to_str(att_type, attributes, "Unknown"),
+								ipstr,
+								tvb_get_ntohs(tvb,offset+2)
+								);
+						}
 					}
 					break;
 
@@ -732,11 +736,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case USERNAME:
 				proto_tree_add_item(att_tree, stun_att_username, tvb, offset, att_length, FALSE);
 				proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset, att_length));
-				col_append_fstr(
-					pinfo->cinfo, COL_INFO,
-					" user: %s",
-					tvb_get_ephemeral_string(tvb,offset, att_length)
-					);
+				if(check_col(pinfo->cinfo,COL_INFO)) {
+					col_append_fstr(
+						pinfo->cinfo, COL_INFO,
+						" user: %s",
+						tvb_get_ephemeral_string(tvb,offset, att_length)
+						);
+				}
 				if (att_length % 4 != 0)
 					proto_tree_add_uint(att_tree, stun_att_padding, 
 							    tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
@@ -766,23 +772,27 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						human_error_num, /* human readable error code */
 						val_to_str(human_error_num, error_code, "*Unknown error code*")
 						);
-					col_append_fstr(
-						pinfo->cinfo, COL_INFO,
-						" error-code: %d (%s)",
-						human_error_num,
-						val_to_str(human_error_num, error_code, "*Unknown error code*")
-						);
+					if(check_col(pinfo->cinfo,COL_INFO)) {
+						col_append_fstr(
+							pinfo->cinfo, COL_INFO,
+							" error-code: %d (%s)",
+							human_error_num,
+							val_to_str(human_error_num, error_code, "*Unknown error code*")
+							);
+					}
 				}
 				if (att_length < 5)
 					break;
 				proto_tree_add_item(att_tree, stun_att_error_reason, tvb, offset+4, att_length-4, FALSE);
 
 				proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset+4, att_length-4));
-				col_append_fstr(
-					pinfo->cinfo, COL_INFO,
-					" %s",
-					tvb_get_ephemeral_string(tvb, offset+4, att_length-4)
-					);
+				if(check_col(pinfo->cinfo,COL_INFO)) {
+					col_append_fstr(
+						pinfo->cinfo, COL_INFO,
+						" %s",
+						tvb_get_ephemeral_string(tvb, offset+4, att_length-4)
+						);
+				}
 
 				if (att_length % 4 != 0)
 					proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
@@ -798,11 +808,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case REALM:
 				proto_tree_add_item(att_tree, stun_att_realm, tvb, offset, att_length, FALSE);
 				proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset, att_length));
-				col_append_fstr(
-					pinfo->cinfo, COL_INFO,
-					" realm: %s",
-					tvb_get_ephemeral_string(tvb,offset, att_length)
-					);
+				if(check_col(pinfo->cinfo,COL_INFO)) {
+					col_append_fstr(
+						pinfo->cinfo, COL_INFO,
+						" realm: %s",
+						tvb_get_ephemeral_string(tvb,offset, att_length)
+						);
+				}
 				if (att_length % 4 != 0)
 					proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
 				break;
@@ -810,10 +822,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case NONCE:
 				proto_tree_add_item(att_tree, stun_att_nonce, tvb, offset, att_length, FALSE);
 				proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset, att_length));
-				col_append_fstr(
-					pinfo->cinfo, COL_INFO,
-					" with nonce"
-					);
+				if(check_col(pinfo->cinfo,COL_INFO)) {
+					col_append_fstr(
+						pinfo->cinfo, COL_INFO,
+						" with nonce"
+						);
+				}
 				if (att_length % 4 != 0)
 					proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
 				break;
@@ -865,13 +879,15 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						ipstr = ip_to_str((guint8*)&ip);
 						port = tvb_get_ntohs(tvb, offset+2) ^ (magic_cookie_first_word >> 16);
 						proto_item_append_text(att_tree, ": %s:%d", ipstr, port);
-						col_append_fstr(
-							pinfo->cinfo, COL_INFO,
-							" %s: %s:%d",
-							val_to_str(att_type, attributes, "Unknown"),
-							ipstr,
-							port
-							);
+						if(check_col(pinfo->cinfo,COL_INFO)) {
+							col_append_fstr(
+								pinfo->cinfo, COL_INFO,
+								" %s: %s:%d",
+								val_to_str(att_type, attributes, "Unknown"),
+								ipstr,
+								port
+								);
+						}
 					}
 					break;
 
@@ -991,11 +1007,13 @@ case EVEN_PORT:
 				{
 					guint8  protoCode = tvb_get_guint8(tvb, offset);
 					proto_item_append_text(att_tree, ": %s", val_to_str(protoCode, transportnames, "Unknown (0x%8x)"));
-					col_append_fstr(
-						pinfo->cinfo, COL_INFO,
-						" %s",
-						val_to_str(protoCode, transportnames, "Unknown (0x%8x)")
-						);
+					if(check_col(pinfo->cinfo,COL_INFO)) {
+						col_append_fstr(
+							pinfo->cinfo, COL_INFO,
+							" %s",
+							val_to_str(protoCode, transportnames, "Unknown (0x%8x)")
+							);
+					}
 				}
 				proto_tree_add_uint(att_tree, stun_att_reserved, tvb, offset+1, 3, 3);
 				break;
@@ -1007,11 +1025,13 @@ case EVEN_PORT:
 				{
 					guint16 chan = tvb_get_ntohs(tvb, offset);
 					proto_item_append_text(att_tree, ": 0x%x", chan);
-					col_append_fstr(
-						pinfo->cinfo, COL_INFO,
-						" ChannelNumber=0x%x",
-						chan
-						);
+					if(check_col(pinfo->cinfo,COL_INFO)) {
+						col_append_fstr(
+							pinfo->cinfo, COL_INFO,
+							" ChannelNumber=0x%x",
+							chan
+							);
+					}
 				}
 				proto_tree_add_uint(att_tree, stun_att_reserved, tvb, offset+2, 2, 2);
 				break;
@@ -1021,22 +1041,26 @@ case EVEN_PORT:
 					break;
 				proto_tree_add_item(att_tree, stun_att_bandwidth, tvb, offset, 4, FALSE);
 				proto_item_append_text(att_tree, " %d", tvb_get_ntohl(tvb, offset));
-				col_append_fstr(
-					pinfo->cinfo, COL_INFO,
-					" bandwidth: %d",
-					tvb_get_ntohl(tvb, offset)
-					);
+				if(check_col(pinfo->cinfo,COL_INFO)) {
+					col_append_fstr(
+						pinfo->cinfo, COL_INFO,
+						" bandwidth: %d",
+						tvb_get_ntohl(tvb, offset)
+						);
+				}
 				break;
 			case LIFETIME:
 				if (att_length < 4)
 					break;
 				proto_tree_add_item(att_tree, stun_att_lifetime, tvb, offset, 4, FALSE);
 				proto_item_append_text(att_tree, " %d", tvb_get_ntohl(tvb, offset));
-				col_append_fstr(
-					pinfo->cinfo, COL_INFO,
-					" lifetime: %d",
-					tvb_get_ntohl(tvb, offset)
-					);
+				if(check_col(pinfo->cinfo,COL_INFO)) {
+					col_append_fstr(
+						pinfo->cinfo, COL_INFO,
+						" lifetime: %d",
+						tvb_get_ntohl(tvb, offset)
+						);
+				}
 				break;
 
 			default:
