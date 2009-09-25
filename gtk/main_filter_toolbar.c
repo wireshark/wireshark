@@ -104,9 +104,6 @@ GtkWidget *filter_toolbar_new()
     gtk_toolbar_set_orientation(GTK_TOOLBAR(filter_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
 
-	//gtk_toolbar_set_style(GTK_TOOLBAR(filter_tb),
-	//							GTK_TOOLBAR_TEXT);
-
 	g_object_set_data(G_OBJECT(top_level), E_TB_FILTER_KEY, filter_tb);
     gtk_widget_show(filter_tb);
 
