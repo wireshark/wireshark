@@ -111,5 +111,5 @@
 #define AIRPCAP_ADVANCED_FROM_KEY				"airpcap_advanced_from_key"
 #endif /* HAVE_AIRPCAP */
 
-#endif /* __KEYS_H__ *
+#endif /* __KEYS_H__ */
 
