@@ -529,15 +529,12 @@ set(INSTALL_FILES
 
 set(LIBEPAN_LIBS
 #		$(wireshark_optional_objects)
-		wiretap
-		wsutil
 		epan
 #		@INET_PTON_LO@
 #		@INET_NTOP_LO@
 #		@SSL_LIBS@
 #		$(plugin_ldadd)
 		${PCRE_LIBRARIES}
-		${GLIB2_LIBRARIES}
 		${PCAP_LIBRARIES}
 #		@SOCKET_LIBS@
 #		@NSL_LIBS@
@@ -637,8 +634,6 @@ endif()
 if(BUILD_randpkt)
 	set(randpkt_LIBS
 		wiretap
-		wsutil
-		${GLIB2_LIBRARIES}
 		${M_LIBRARIES}
 		${PCAP_LIBRARIES}
 #		@SOCKET_LIBS@
@@ -658,8 +653,6 @@ endif()
 if(BUILD_text2pcap)
 	set(text2pcap_LIBS
 		wiretap
-		wsutil
-		${GLIB2_LIBRARIES}
 		${M_LIBRARIES}
 		${Z_LIBRARIES}
 	)
@@ -677,8 +670,6 @@ endif()
 if(BUILD_mergecap)
 	set(mergecap_LIBS
 		wiretap
-		wsutil
-		${GLIB2_LIBRARIES}
 		${Z_LIBRARIES}
 	)
 	set(mergecap_FILES
@@ -694,8 +685,6 @@ endif()
 if(BUILD_capinfos)
 	set(capinfos_LIBS
 		wiretap
-		wsutil
-		${GLIB2_LIBRARIES}
 		${Z_LIBRARIES}
 		${APPLE_COCOA_LIBRARY}
 	)
@@ -711,8 +700,6 @@ endif()
 if(BUILD_editcap)
 	set(editcap_LIBS
 		wiretap
-		wsutil
-		${GLIB2_LIBRARIES}
 		${Z_LIBRARIES}
 	)
 	set(editcap_FILES
@@ -729,9 +716,7 @@ endif()
 if(BUILD_dumpcap)
 	set(dumpcap_LIBS
 		wiretap
-		wsutil
 #		@INET_NTOP_LO@
-		${GLIB2_LIBRARIES}
 		${PCAP_LIBRARIES}
 		${CAP_LIBRARIES}
 #		@SOCKET_LIBS@
