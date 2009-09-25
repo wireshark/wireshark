@@ -50,7 +50,6 @@
 #include "main_toolbar.h"
 #include "main_filter_toolbar.h"
 
-
 GtkWidget   *main_display_filter_widget=NULL;
 
 /* Run the current display filter on the current packet set, and
@@ -80,7 +79,7 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
 
 GtkWidget *filter_toolbar_new()
 {
-    GtkWidget *filter_cm, *filter_te;
+    GtkWidget     *filter_cm, *filter_te;
     GtkWidget     *filter_tb;
     GList         *dfilter_list = NULL;
     GtkTooltips   *tooltips;
@@ -104,9 +103,11 @@ GtkWidget *filter_toolbar_new()
     filter_tb = gtk_toolbar_new();
     gtk_toolbar_set_orientation(GTK_TOOLBAR(filter_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
-	/* XXX make this a preference? */
-	gtk_toolbar_set_style(GTK_TOOLBAR(filter_tb),
-								GTK_TOOLBAR_TEXT);
+
+	//gtk_toolbar_set_style(GTK_TOOLBAR(filter_tb),
+	//							GTK_TOOLBAR_TEXT);
+
+	g_object_set_data(G_OBJECT(top_level), E_TB_FILTER_KEY, filter_tb);
     gtk_widget_show(filter_tb);
 
     /* Create the "Filter:" button */
@@ -248,6 +249,9 @@ GtkWidget *filter_toolbar_new()
                          filter_te);
     set_toolbar_object_data(E_DFILTER_TE_KEY, filter_te);
     g_object_set_data(G_OBJECT(popup_menu_object), E_DFILTER_TE_KEY, filter_te);
+
+    /* make current preferences effective */
+    toolbar_redraw_all();
 
     return filter_tb;
 }

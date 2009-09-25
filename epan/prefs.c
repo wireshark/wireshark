@@ -1093,6 +1093,7 @@ init_prefs(void) {
   prefs.gui_hex_dump_highlight_style = 1;
   prefs.filter_toolbar_show_in_statusbar = FALSE;
   prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
+  prefs.gui_toolbar_filter_style = TB_STYLE_TEXT;
 #ifdef _WIN32
   prefs.gui_font_name = g_strdup("Lucida Console 10");
 #else
@@ -1638,6 +1639,7 @@ prefs_is_capture_device_hidden(const char *name)
 #define PRS_GUI_GEOMETRY_MAIN_HEIGHT     "gui.geometry.main.height"
 #define PRS_GUI_TOOLBAR_MAIN_SHOW        "gui.toolbar_main_show"
 #define PRS_GUI_TOOLBAR_MAIN_STYLE       "gui.toolbar_main_style"
+#define PRS_GUI_TOOLBAR_FILTER_STYLE     "gui.toolbar_filter_style"
 #define PRS_GUI_WEBBROWSER               "gui.webbrowser"
 #define PRS_GUI_WINDOW_TITLE             "gui.window_title"
 #define PRS_GUI_START_TITLE              "gui.start_title"
@@ -1959,10 +1961,15 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
   } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_MAIN_SHOW) == 0) {
     /* obsoleted by recent setting */
   } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_MAIN_STYLE) == 0) {
-    /* see toolbar.c for details, "icons only" is default */
+    /* see main_toolbar.c for details, "icons only" is default */
 	prefs.gui_toolbar_main_style =
 	    find_index_from_string_array(value, gui_toolbar_style_text,
 				     TB_STYLE_ICONS);
+  } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_FILTER_STYLE) == 0) {
+    /* see main_filter_toolbar.c for details, "name only" is default */
+	prefs.gui_toolbar_filter_style =
+	    find_index_from_string_array(value, gui_toolbar_style_text,
+				     TB_STYLE_TEXT);
   } else if (strcmp(pref_name, PRS_GUI_FONT_NAME_1) == 0) {
     /* GTK1 font name obsolete */
   } else if (strcmp(pref_name, PRS_GUI_FONT_NAME_2) == 0) {
@@ -2743,6 +2750,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# One of: ICONS, TEXT, BOTH\n");
   fprintf(pf, PRS_GUI_TOOLBAR_MAIN_STYLE ": %s\n",
 		  gui_toolbar_style_text[prefs.gui_toolbar_main_style]);
+
+  fprintf(pf, "\n# Filter Toolbar style.\n");
+  fprintf(pf, "# One of: ICONS, TEXT, BOTH\n");
+  fprintf(pf, PRS_GUI_TOOLBAR_FILTER_STYLE ": %s\n",
+		  gui_toolbar_style_text[prefs.gui_toolbar_filter_style]);
 
   fprintf(pf, "\n# Save window position at exit?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");

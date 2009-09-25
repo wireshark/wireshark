@@ -115,6 +115,7 @@ typedef struct _e_prefs {
   gint     gui_ptree_expander_style;
   gboolean gui_hex_dump_highlight_style;
   gint     gui_toolbar_main_style;
+  gint     gui_toolbar_filter_style;
   gchar   *gui_font_name;
   color_t  gui_marked_fg;
   color_t  gui_marked_bg;

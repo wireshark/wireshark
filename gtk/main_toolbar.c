@@ -65,9 +65,6 @@
 #include "gtk/main_packet_list.h"
 #endif
 
-/* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
-#define E_TB_MAIN_KEY             "toolbar_main"
-
 static gboolean toolbar_init = FALSE;
 
 #ifdef HAVE_LIBPCAP
@@ -87,17 +84,23 @@ static GtkToolItem *color_display_button, *prefs_button, *help_button;
 
 
 /*
- * Redraw all toolbars (currently only the main toolbar)
+ * Redraw all toolbars 
  */
 void
 toolbar_redraw_all(void)
 {
     GtkWidget     *main_tb;
+    GtkWidget     *filter_tb;
 
     main_tb = g_object_get_data(G_OBJECT(top_level), E_TB_MAIN_KEY);
 
     gtk_toolbar_set_style(GTK_TOOLBAR(main_tb),
                           prefs.gui_toolbar_main_style);
+
+	filter_tb = g_object_get_data(G_OBJECT(top_level), E_TB_FILTER_KEY);
+
+    gtk_toolbar_set_style(GTK_TOOLBAR(filter_tb),
+                          prefs.gui_toolbar_filter_style);
 }
 
 /* Enable or disable toolbar items based on whether you have a capture file

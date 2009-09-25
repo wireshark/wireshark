@@ -252,10 +252,11 @@ layout_defaults_cb (GtkWidget * w _U_, gpointer data _U_)
 #define HEX_DUMP_HIGHLIGHT_STYLE_KEY	"hex_dump_highlight_style"
 #define FILTER_TOOLBAR_PLACEMENT_KEY    "filter_toolbar_show_in_statusbar"
 #define GUI_TOOLBAR_STYLE_KEY           "toolbar_style"
+#define GUI_FILTER_TOOLBAR_STYLE_KEY    "filter_toolbar_style"
 #define GUI_WINDOW_TITLE_KEY            "window_title"
 
 
-#define GUI_TABLE_ROWS 5
+#define GUI_TABLE_ROWS 6
 
 static const enum_val_t scrollbar_placement_vals[] = {
     { "FALSE", "Left", FALSE },
@@ -293,11 +294,12 @@ layout_prefs_show(void)
     GtkWidget	*default_vb, *default_bt;
     GtkWidget   *main_tb, *hbox;
     GtkWidget	*scrollbar_om;
-    GtkWidget *altern_colors_om;
-    GtkWidget *highlight_style_om;
-    GtkWidget *toolbar_style_om;
-    GtkWidget *filter_toolbar_placement_om;
-    GtkWidget *window_title_te;
+    GtkWidget	*altern_colors_om;
+    GtkWidget	*highlight_style_om;
+    GtkWidget	*toolbar_style_om;
+	GtkWidget	*filter_toolbar_style_om;
+    GtkWidget	*filter_toolbar_placement_om;
+    GtkWidget	*window_title_te;
 
     GtkTooltips   *tooltips = gtk_tooltips_new();
 
@@ -414,6 +416,13 @@ layout_prefs_show(void)
         toolbar_style_vals, prefs.gui_toolbar_main_style);
     g_object_set_data(G_OBJECT(main_vb), GUI_TOOLBAR_STYLE_KEY, toolbar_style_om);
 
+    /* Filter toolbar prefs */
+    filter_toolbar_style_om = create_preference_option_menu(main_tb, pos++,
+        "Filter toolbar style:", 
+        "Select the style in which the filter toolbar will be displayed.",
+        toolbar_style_vals, prefs.gui_toolbar_filter_style);
+    g_object_set_data(G_OBJECT(main_vb), GUI_FILTER_TOOLBAR_STYLE_KEY, filter_toolbar_style_om);
+
     /* Placement of Filter toolbar */
     filter_toolbar_placement_om = create_preference_option_menu(main_tb, pos++,
         "Filter toolbar placement:",
@@ -465,6 +474,8 @@ layout_prefs_fetch(GtkWidget *w)
         g_object_get_data(G_OBJECT(w), HEX_DUMP_HIGHLIGHT_STYLE_KEY),  highlight_style_vals);
     prefs.gui_toolbar_main_style = fetch_enum_value(
         g_object_get_data(G_OBJECT(w), GUI_TOOLBAR_STYLE_KEY), toolbar_style_vals);
+    prefs.gui_toolbar_filter_style = fetch_enum_value(
+        g_object_get_data(G_OBJECT(w), GUI_FILTER_TOOLBAR_STYLE_KEY), toolbar_style_vals);
 
     g_free(prefs.gui_window_title);
     prefs.gui_window_title = g_strdup(gtk_entry_get_text(
