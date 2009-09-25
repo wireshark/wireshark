@@ -31,12 +31,6 @@ set(DISSECTOR_SUPPORT_SRC
 	mate_util.c
 )
 
-set(PLUGIN_FILES
-	plugin.c
-	${DISSECTOR_SRC}
-	${DISSECTOR_SUPPORT_SRC}
-)
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 #mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
@@ -49,6 +43,12 @@ add_lemon_files(DISSECTOR_SUPPORT_SRC
 
 add_lex_files(DISSECTOR_SUPPORT_SRC
 	mate_parser.l
+)
+
+set(PLUGIN_FILES
+	plugin.c
+	${DISSECTOR_SRC}
+	${DISSECTOR_SUPPORT_SRC}
 )
 
 ADD_CUSTOM_COMMAND(

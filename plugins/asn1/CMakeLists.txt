@@ -25,9 +25,14 @@ set(DISSECTOR_SRC
 	packet-asn1.c
 )
 
+set(DISSECTOR_SUPPORT_SRC
+	asn1.c
+)
+
 set(PLUGIN_FILES
 	plugin.c
 	${DISSECTOR_SRC}
+	${DISSECTOR_SUPPORT_SRC}
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

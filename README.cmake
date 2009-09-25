@@ -84,8 +84,6 @@ What needs to be done?
 - Test and add support for other platforms (BSDs, OSX,
   Solaris, Win32, Win64, ...)
 ...
-Couldn't load module /opt/test/lib/wireshark/plugins/1.3.0/libasn1.so: /opt/test/lib/wireshark/plugins/1.3.0/libasn1.so: undefined symbol: asn1_bool_decode
-Couldn't load module /opt/test/lib/wireshark/plugins/1.3.0/libmate.so: /opt/test/lib/wireshark/plugins/1.3.0/libmate.so: undefined symbol: mate_load_config
 
 Links regarding cmake
 =====================
