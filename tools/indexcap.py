@@ -26,16 +26,41 @@
 #
 
 from optparse import OptionParser
+from multiprocessing import Process, Pool
 import sys
 import os
 import subprocess
 import re
+import pickle
+
+def process_capture_file(args):
+    tshark, file = args
+    cmd = [tshark, "-Tfields", "-e", "frame.protocols", "-r", file]
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (stdout, stderr) = p.communicate()
+    if p.returncode != 0:
+        print "SKIP:", file
+    else:
+        print "PROCESSED:", file
+
+    proto_hash = {}
+    for line in stdout.splitlines():
+    #for line in re.split(r'\r\n|\n', stdout):
+        if not re.match(r'^[\w:-]+$', line):
+            continue
+
+        for proto in line.split(':'):
+            num = proto_hash.setdefault(proto, 0)
+            proto_hash[proto] = num+1
+
+    return (file, proto_hash)
 
 def main():
     parser = OptionParser(usage="usage: %prog [options] cache_file file_1|dir_1 [.. file_n|dir_n]")
     parser.add_option("-n", "--no-append", dest="append", default=True, action="store_false", help="Do not append to existing cache file")
     parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxint, type="int", help="Max number of files to process")
     parser.add_option("-b", "--binary-dir", dest="bin_dir", default=os.getcwd(), help="Directory containing tshark executable")
+    parser.add_option("-j", dest="num_procs", default=1, type=int, help="Max number of processes to spawn")
 
     (options, args) = parser.parse_args()
 
@@ -45,8 +70,12 @@ def main():
     if len(args) == 1:
         parser.error("one capture file/directory must be specified")
 
-    tshark = os.path.join(options.bin_dir, "tshark")
-    print "tshark:", tshark, "\n"
+    tshark = os.path.join(options.bin_dir, "tshark.exe")
+    if os.access(tshark, os.X_OK):
+        print "tshark:", tshark, "[FOUND]\n"
+    else:
+        print "tshark:", tshark, "[MISSING]\n"
+        exit(1)
 
     cache_file = args.pop(0)
     paths = args
@@ -62,26 +91,10 @@ def main():
     cap_files.sort()
     cap_files = cap_files[:options.max_files]
 
-    cap_hash = {}
-    for file in cap_files:
-        p = subprocess.Popen([tshark, "-Tfields", "-e", "frame.protocols", "-r", file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (stdout, stderr) = p.communicate()
-        if p.returncode != 0:
-            print "SKIP:", file
-        else:
-            print "PROCESSED:", file
-
-        proto_hash = {}
-        for line in re.split(r'\r\n|\n', stdout):
-            if not re.match(r'^[\w:-]+$', line):
-                continue
-
-            for proto in line.split(':'):
-                num = proto_hash.setdefault(proto, 0)
-                proto_hash[proto] = num+1
-
-        #print proto_hash
-        cap_hash[file] = proto_hash
+    pool = Pool(options.num_procs)
+    proc_args = [(tshark, file) for file in cap_files]
+    results = pool.map(process_capture_file, proc_args)
+    cap_hash = dict(results)
 
     print cap_hash
 
