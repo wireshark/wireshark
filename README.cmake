@@ -73,7 +73,6 @@ clean source.
 What needs to be done?
 ======================
 
-- Add back -Werror flags.
 - Redo glib2 and gtk2 find modules.
 - Add back platform specific objects.
 - Fix places in the cmake files marked as todo.

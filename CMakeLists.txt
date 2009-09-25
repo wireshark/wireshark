@@ -90,8 +90,6 @@ option(ENABLE_KERBEROS	 "Build with Kerberos support" ON)
 
 
 set(WIRESHARK_C_FLAGS
-	# todo Workaround for problem described below
-	-doesntexist
 	-O2
 	-Werror
 	-Wall
@@ -292,6 +290,22 @@ include(ConfigureChecks.cmake)
 include(TestBigEndian)
 test_big_endian(WORDS_BIGENDIAN)
 
+#packaging
+set(CPACK_PACKAGE_NAME wireshark)
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "capture packet")
+set(CPACK_PACKAGE_VENDOR "wireshark")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "3")
+set(CPACK_PACKAGE_VERSION_PATCH "1")
+set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
+set(CPACK_GENERATOR "TGZ")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+
 set(DATAFILE_DIR "${CMAKE_INSTALL_PREFIX}/share/${CPACK_PACKAGE_NAME}")
 
 if(ENABLE_PLUGINS)
@@ -352,32 +366,12 @@ add_subdirectory( gtk )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
-if (ENABLE_PLUGINS)
-	add_subdirectory( plugins )
-endif()
-
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
 
 include(FeatureSummary)
 #SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ] 
 PRINT_ENABLED_FEATURES()
 PRINT_DISABLED_FEATURES()
-
-#packaging
-set(CPACK_PACKAGE_NAME wireshark)
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "capture packet")
-set(CPACK_PACKAGE_VENDOR "wireshark")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
-set(CPACK_PACKAGE_VERSION_MAJOR "1")
-set(CPACK_PACKAGE_VERSION_MINOR "3")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
-set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
-set(CPACK_GENERATOR "TGZ")
-set(CPACK_SOURCE_GENERATOR "TGZ")
 
 link_directories(
 	gtk
@@ -388,11 +382,13 @@ link_directories(
 )
 
 ADD_CUSTOM_COMMAND(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/svnversion.h
-	COMMAND ${PERL} ${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
-	  ${CMAKE_CURRENT_SOURCE_DIR}
+	OUTPUT svnversion.h
+	COMMAND ${PERL}
+		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
+		${CMAKE_CURRENT_SOURCE_DIR}
+	DEPENDS
+		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 )
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_BINARY_DIR}/svnversion.h GENERATED)
 
 # Create the necessary tools
 set(lemon_FILES
@@ -506,24 +502,24 @@ set(INSTALL_DIRS
 )
 
 set(INSTALL_FILES
-#	AUTHORS-SHORT
+	${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 	COPYING
 #	capinfos.html
-#	cfilters
-#	colorfilters
+	cfilters
+	colorfilters
 #	console.lua
-#	dfilters
+	dfilters
 #	dtd_gen.lua
 #	dumpcap.html
 #	editcap.html
 #	idl2wrs.html
 #	init.lua
 #	ipmap.html
-#	manuf
+	manuf
 #	mergecap.html
 #	rawshark.html
-#	services
-#	smi_modules
+	services
+	smi_modules
 #	text2pcap.html
 #	tshark.html
 #	wireshark-filter.html
@@ -766,6 +762,26 @@ if(BUILD_dumpcap)
 	install(TARGETS dumpcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
+ADD_CUSTOM_COMMAND(
+	OUTPUT	AUTHORS-SHORT
+	COMMAND ${PERL}
+		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
+		${CMAKE_SOURCE_DIR}/doc/make-authors-short.pl
+		< ${CMAKE_SOURCE_DIR}/AUTHORS
+		> AUTHORS-SHORT
+	DEPENDS
+		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
+		${CMAKE_SOURCE_DIR}/doc/make-authors-short.pl
+		${CMAKE_SOURCE_DIR}/AUTHORS
+)
+
+add_custom_target(
+	auxiliary ALL
+	DEPENDS
+		AUTHORS-SHORT
+		# todo: Add manpages and onlinedocs and generate them
+)
+
 install(
 	FILES
 		${INSTALL_FILES}
@@ -776,6 +792,10 @@ install(
 install(
 	DIRECTORY
 		${INSTALL_DIRS}
+	DIRECTORY_PERMISSIONS
+		OWNER_EXECUTE OWNER_WRITE OWNER_READ
+		GROUP_EXECUTE GROUP_READ
+		WORLD_EXECUTE WORLD_READ
 	DESTINATION
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
 	PATTERN ".svn" EXCLUDE
