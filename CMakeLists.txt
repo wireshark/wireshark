@@ -257,6 +257,8 @@ foreach(PACKAGE ${PACKAGELIST})
 	endif()
 endforeach()
 
+find_package(YAPP)
+
 if(HAVE_LIBPYTHON)
 	set(HAVE_PYTHON 1)
 	set(PYTHON_DIR "${CMAKE_INSTALL_PREFIX}/lib/wireshark/python/${VERSION}")
@@ -315,7 +317,7 @@ if(ENABLE_PLUGINS)
 		plugins/asn1
 		plugins/docsis
 		plugins/ethercat
-#		plugins/giop
+		plugins/giop
 		plugins/gryphon
 		plugins/irda
 		plugins/m2m
@@ -324,11 +326,17 @@ if(ENABLE_PLUGINS)
 		plugins/profinet
 		plugins/sercosiii
 		plugins/stats_tree
-#		plugins/tpg
 		plugins/unistim
 		plugins/wimax
 		plugins/wimaxasncp
 	)
+# It seems this stuff doesn't build with autofoo either...
+#	if(YAPP_FOUND)
+#		set(PLUGIN_SRC_DIRS
+#			${PLUGIN_SRC_DIRS}
+#			plugins/tpg
+#		)
+#	endif()
 else()
 	set(PLUGIN_SRC_DIRS )
 endif()
