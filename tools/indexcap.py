@@ -45,7 +45,6 @@ def process_capture_file(args):
 
     proto_hash = {}
     for line in stdout.splitlines():
-    #for line in re.split(r'\r\n|\n', stdout):
         if not re.match(r'^[\w:-]+$', line):
             continue
 
@@ -56,7 +55,7 @@ def process_capture_file(args):
     return (file, proto_hash)
 
 def main():
-    parser = OptionParser(usage="usage: %prog [options] cache_file file_1|dir_1 [.. file_n|dir_n]")
+    parser = OptionParser(usage="usage: %prog [options] index_file file_1|dir_1 [.. file_n|dir_n]")
     parser.add_option("-n", "--no-append", dest="append", default=True, action="store_false", help="Do not append to existing cache file")
     parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxint, type="int", help="Max number of files to process")
     parser.add_option("-b", "--binary-dir", dest="bin_dir", default=os.getcwd(), help="Directory containing tshark executable")
@@ -65,27 +64,39 @@ def main():
     (options, args) = parser.parse_args()
 
     if len(args) == 0:
-        parser.error("cache_file is a required argument")
+        parser.error("index_file is a required argument")
 
     if len(args) == 1:
         parser.error("one capture file/directory must be specified")
 
     tshark = os.path.join(options.bin_dir, "tshark.exe")
     if os.access(tshark, os.X_OK):
-        print "tshark:", tshark, "[FOUND]\n"
+        print "tshark:", tshark, "[FOUND]"
     else:
-        print "tshark:", tshark, "[MISSING]\n"
+        print "tshark:", tshark, "[MISSING]"
         exit(1)
 
-    cache_file = args.pop(0)
+    index_file_name = args.pop(0)
+    index_file = open(index_file_name, "r")
+    print "index_file:", index_file.name, "[OPENED]",
+
+    try:
+        cap_hash = pickle.load(index_file)
+        print "[REUSING]"
+    except IOError:
+        cap_hash = {}
+        print "[NEW]"
+    finally:
+        index_file.close()
+
     paths = args
     cap_files = []
     for path in paths:
         if os.path.isdir(path):
             path = os.path.normpath(path)
             for root, dirs, files in os.walk(path):
-                cap_files += [os.path.join(root, name) for name in files]
-        else:
+                cap_files += [os.path.join(root, name) for name in files if os.path.join(root, name) not in cap_hash]
+        elif path not in cap_hash:
             cap_files.append(path)
 
     cap_files.sort()
@@ -97,6 +108,9 @@ def main():
     cap_hash = dict(results)
 
     print cap_hash
+    index_file = open(index_file_name, "a")
+    pickle.dump(cap_hash, index_file)
+    index_file.close()
 
 if __name__ == "__main__":
     main()
