@@ -33,16 +33,12 @@ import subprocess
 import re
 import pickle
 
-def process_capture_file(args):
-    tshark, file = args
+def process_capture_file(tshark, file):
     cmd = [tshark, "-Tfields", "-e", "frame.protocols", "-r", file]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (stdout, stderr) = p.communicate()
     if p.returncode != 0:
-        print "SKIP:", file
-        return (None, None)
-    else:
-        print "PROCESSED:", file, os.path.getsize(file), "bytes"
+        return None
 
     proto_hash = {}
     for line in stdout.splitlines():
@@ -134,9 +130,16 @@ def main():
     print "\n"
 
     pool = Pool(options.num_procs)
-    proc_args = [(tshark, file) for file in cap_files]
-    results = pool.map(process_capture_file, proc_args)
-    cap_hash.update(dict(results))
+    results = [pool.apply_async(process_capture_file, [tshark, file]) for file in cap_files]
+    cur_item_num = 0
+    for result in results:
+        cur_item_num += 1
+        file_result = result.get()
+        if file_result is None:
+            continue
+
+        print "PROCESSED [%u/%u] %s %u bytes" % (cur_item_num, options.max_files, file_result[0], os.path.getsize(file_result[0]))
+        cap_hash.update(dict([file_result]))
 
     index_file = open(index_file_name, "w")
     pickle.dump(cap_hash, index_file)
