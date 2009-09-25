@@ -42,7 +42,7 @@ def process_capture_file(args):
         print "SKIP:", file
         return (None, None)
     else:
-        print "PROCESSED:", file
+        print "PROCESSED:", file, os.path.getsize(file), "bytes"
 
     proto_hash = {}
     for line in stdout.splitlines():
@@ -50,35 +50,35 @@ def process_capture_file(args):
             continue
 
         for proto in line.split(':'):
-            num = proto_hash.setdefault(proto, 0)
-            proto_hash[proto] = num+1
+            proto_hash[proto] = 1 + proto_hash.setdefault(proto, 0)
 
     return (file, proto_hash)
 
+def list_proto(cap_hash):
+    proto_hash = {}
+    for files_hash in cap_hash.itervalues():
+        for proto,count in files_hash.iteritems():
+            proto_hash[proto] = count + proto_hash.setdefault(proto, 0)
+
+    print proto_hash
+
 def main():
-    parser = OptionParser(usage="usage: %prog [options] index_file file_1|dir_1 [.. file_n|dir_n]")
+    parser = OptionParser(usage="usage: %prog [options] index_file [file_1|dir_1 [.. file_n|dir_n]]")
     parser.add_option("-n", "--no-append", dest="append", default=True, action="store_false", help="Do not append to existing cache file")
     parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxint, type="int", help="Max number of files to process")
     parser.add_option("-b", "--binary-dir", dest="bin_dir", default=os.getcwd(), help="Directory containing tshark executable")
     parser.add_option("-j", dest="num_procs", default=1, type=int, help="Max number of processes to spawn")
+    parser.add_option("-l", "--list-proto", dest="list_proto", default=False, action="store_true", help="List all protocols in index file")
 
     (options, args) = parser.parse_args()
 
     if len(args) == 0:
         parser.error("index_file is a required argument")
 
-    if len(args) == 1:
+    if len(args) == 1 and not options.list_proto:
         parser.error("one capture file/directory must be specified")
 
-    tshark = os.path.join(options.bin_dir, "tshark.exe")
-    if os.access(tshark, os.X_OK):
-        print "tshark:", tshark, "[FOUND]"
-    else:
-        print "tshark:", tshark, "[MISSING]"
-        exit(1)
-
     index_file_name = args.pop(0)
-
     try:
         index_file = open(index_file_name, "r")
         print "index file:", index_file.name, "[OPENED]",
@@ -88,6 +88,17 @@ def main():
     except IOError:
         print "index file:", index_file_name, "[NEW]"
         cap_hash = {}
+
+    if options.list_proto:
+        list_proto(cap_hash)
+        exit(0)
+
+    tshark = os.path.join(options.bin_dir, "tshark.exe")
+    if os.access(tshark, os.X_OK):
+        print "tshark:", tshark, "[FOUND]"
+    else:
+        print "tshark:", tshark, "[MISSING]"
+        exit(1)
 
     paths = args
     cap_files = []
@@ -103,6 +114,7 @@ def main():
     print len(cap_files), "total files,",
     cap_files = cap_files[:options.max_files]
     print len(cap_files), "indexable files"
+    print "\n"
 
     pool = Pool(options.num_procs)
     proc_args = [(tshark, file) for file in cap_files]
