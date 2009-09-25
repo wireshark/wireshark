@@ -71,6 +71,17 @@ def list_files(cap_hash):
 def index_file_action(options):
     return options.list_proto or options.list_files
 
+def find_capture_files(paths, cap_hash):
+    cap_files = []
+    for path in paths:
+        if os.path.isdir(path):
+            path = os.path.normpath(path)
+            for root, dirs, files in os.walk(path):
+                cap_files += [os.path.join(root, name) for name in files if os.path.join(root, name) not in cap_hash]
+        elif path not in cap_hash:
+            cap_files.append(path)
+    return cap_files
+
 def main():
     parser = OptionParser(usage="usage: %prog [options] index_file [file_1|dir_1 [.. file_n|dir_n]]")
     parser.add_option("-n", "--no-append", dest="append", default=True, action="store_false", help="Do not append to existing cache file")
@@ -115,15 +126,7 @@ def main():
         exit(1)
 
     paths = args
-    cap_files = []
-    for path in paths:
-        if os.path.isdir(path):
-            path = os.path.normpath(path)
-            for root, dirs, files in os.walk(path):
-                cap_files += [os.path.join(root, name) for name in files if os.path.join(root, name) not in cap_hash]
-        elif path not in cap_hash:
-            cap_files.append(path)
-
+    cap_files = find_capture_files(paths, cap_hash)
     cap_files.sort()
     print len(cap_files), "total files,",
     cap_files = cap_files[:options.max_files]
