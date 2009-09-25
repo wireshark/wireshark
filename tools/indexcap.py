@@ -34,21 +34,24 @@ import re
 import pickle
 
 def process_capture_file(tshark, file):
-    cmd = [tshark, "-Tfields", "-e", "frame.protocols", "-r", file]
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (stdout, stderr) = p.communicate()
-    if p.returncode != 0:
-        return (file, {})
+    try:
+        cmd = [tshark, "-Tfields", "-e", "frame.protocols", "-r", file]
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout, stderr) = p.communicate()
+        if p.returncode != 0:
+            return (file, {})
 
-    proto_hash = {}
-    for line in stdout.splitlines():
-        if not re.match(r'^[\w:-]+$', line):
-            continue
+        proto_hash = {}
+        for line in stdout.splitlines():
+            if not re.match(r'^[\w:-]+$', line):
+                continue
 
-        for proto in line.split(':'):
-            proto_hash[proto] = 1 + proto_hash.setdefault(proto, 0)
+            for proto in line.split(':'):
+                proto_hash[proto] = 1 + proto_hash.setdefault(proto, 0)
 
-    return (file, proto_hash)
+        return (file, proto_hash)
+    except KeyboardInterrupt:
+        return None
 
 def list_proto(cap_hash):
     proto_hash = {}
@@ -130,11 +133,15 @@ def main():
 
     pool = multiprocessing.Pool(options.num_procs)
     results = [pool.apply_async(process_capture_file, [tshark, file]) for file in cap_files]
-    for (cur_item_idx,result) in enumerate(results):
-        file_result = result.get()
-        action = "SKIPPED" if file_result[1] is {} else "PROCESSED"
-        print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, options.max_files, file_result[0], os.path.getsize(file_result[0]))
-        cap_hash.update(dict([file_result]))
+    try:
+        for (cur_item_idx,result) in enumerate(results):
+            file_result = result.get()
+            action = "SKIPPED" if file_result[1] is {} else "PROCESSED"
+            print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, options.max_files, file_result[0], os.path.getsize(file_result[0]))
+            cap_hash.update(dict([file_result]))
+    except KeyboardInterrupt:
+        print "%s was interrupted by user" % (sys.argv[0])
+        pool.terminate()
 
     index_file = open(index_file_name, "w")
     pickle.dump(cap_hash, index_file)
