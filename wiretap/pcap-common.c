@@ -443,11 +443,17 @@ static const struct {
 	 * 13 is DLT_ATM_RFC1483 on BSD/OS.
 	 *
 	 * 13 is DLT_ENC in OpenBSD, which is, I suspect, some kind
-	 * of decrypted IPSEC traffic.
+	 * of decrypted IPsec traffic.
+	 *
+	 * We treat 13 as WTAP_ENCAP_ENC on all systems except those
+	 * that define DLT_ATM_RFC1483 as 13 - presumably only
+	 * BSD/OS does so - so that, on BSD/OS systems, we still
+	 * treate 13 as WTAP_ENCAP_ATM_RFC1483, but, on all other
+	 * systems, we can read OpenBSD DLT_ENC captures.
 	 */
 #if defined(DLT_ATM_RFC1483) && (DLT_ATM_RFC1483 == 13)
 	{ 13,		WTAP_ENCAP_ATM_RFC1483 },
-#elif defined(DLT_ENC) && (DLT_ENC == 13)
+#else
 	{ 13,		WTAP_ENCAP_ENC },
 #endif
 

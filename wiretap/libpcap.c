@@ -230,18 +230,8 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		}
 	}
 
-	/*
-	 * We treat a DLT_ value of 13 specially - it appears that in
-	 * Nokia libpcap format, it's some form of ATM with what I
-	 * suspect is a pseudo-header (even though Nokia's IPSO is
-	 * based on FreeBSD, which #defines DLT_SLIP_BSDOS as 13).
-	 *
-	 * We don't yet know whether this is a Nokia capture, so if
-	 * "wtap_pcap_encap_to_wtap_encap()" returned WTAP_ENCAP_UNKNOWN
-	 * but "hdr.network" is 13, we don't treat that as an error yet.
-	 */
 	file_encap = wtap_pcap_encap_to_wtap_encap(hdr.network);
-	if (file_encap == WTAP_ENCAP_UNKNOWN && hdr.network != 13) {
+	if (file_encap == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("pcap: network type %u unknown or unsupported",
 		    hdr.network);
@@ -481,22 +471,17 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		}
 	}
 
-	if (hdr.network == 13) {
-		/*
-		 * OK, if this was a Nokia capture, make it
-		 * WTAP_ENCAP_ATM_PDUS, otherwise return
-		 * an error.
-		 */
-		if (wth->file_type == WTAP_FILE_PCAP_NOKIA)
-			wth->file_encap = WTAP_ENCAP_ATM_PDUS;
-		else {
-			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-			*err_info = g_strdup_printf("pcap: network type %u unknown or unsupported",
-			    hdr.network);
-			g_free(wth->capture.pcap);
-			return -1;
-		}
-	}
+	/*
+	 * We treat a DLT_ value of 13 specially - it appears that in
+	 * Nokia libpcap format, it's some form of ATM with what I
+	 * suspect is a pseudo-header (even though Nokia's IPSO is
+	 * based on FreeBSD, which #defines DLT_SLIP_BSDOS as 13).
+	 *
+	 * If this is a Nokia capture, treat 13 as WTAP_ENCAP_ATM_PDUS,
+	 * rather than as what we normally treat it.
+	 */
+	if (wth->file_type == WTAP_FILE_PCAP_NOKIA && hdr.network == 13)
+		wth->file_encap = WTAP_ENCAP_ATM_PDUS;
 
 	return 1;
 }
