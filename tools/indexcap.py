@@ -40,6 +40,7 @@ def process_capture_file(args):
     (stdout, stderr) = p.communicate()
     if p.returncode != 0:
         print "SKIP:", file
+        return (None, None)
     else:
         print "PROCESSED:", file
 
@@ -77,17 +78,16 @@ def main():
         exit(1)
 
     index_file_name = args.pop(0)
-    index_file = open(index_file_name, "r")
-    print "index_file:", index_file.name, "[OPENED]",
 
     try:
+        index_file = open(index_file_name, "r")
+        print "index file:", index_file.name, "[OPENED]",
         cap_hash = pickle.load(index_file)
-        print "[REUSING]"
-    except IOError:
-        cap_hash = {}
-        print "[NEW]"
-    finally:
         index_file.close()
+        print len(cap_hash), "files"
+    except IOError:
+        print "index file:", index_file_name, "[NEW]"
+        cap_hash = {}
 
     paths = args
     cap_files = []
@@ -100,15 +100,16 @@ def main():
             cap_files.append(path)
 
     cap_files.sort()
+    print len(cap_files), "total files,",
     cap_files = cap_files[:options.max_files]
+    print len(cap_files), "indexable files"
 
     pool = Pool(options.num_procs)
     proc_args = [(tshark, file) for file in cap_files]
     results = pool.map(process_capture_file, proc_args)
-    cap_hash = dict(results)
+    cap_hash.update(dict(results))
 
-    print cap_hash
-    index_file = open(index_file_name, "a")
+    index_file = open(index_file_name, "w")
     pickle.dump(cap_hash, index_file)
     index_file.close()
 
