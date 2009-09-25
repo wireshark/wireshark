@@ -38,7 +38,7 @@ def process_capture_file(tshark, file):
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (stdout, stderr) = p.communicate()
     if p.returncode != 0:
-        return None
+        return (file, {})
 
     proto_hash = {}
     for line in stdout.splitlines():
@@ -124,27 +124,16 @@ def main():
     paths = args
     cap_files = find_capture_files(paths, cap_hash)
     cap_files.sort()
-    print len(cap_files), "total files,",
     options.max_files = min(options.max_files, len(cap_files))
+    print "%u total files, %u indexable files\n" % (len(cap_files), options.max_files)
     cap_files = cap_files[:options.max_files]
-    print len(cap_files), "indexable files"
-    print "\n"
 
     pool = multiprocessing.Pool(options.num_procs)
     results = [pool.apply_async(process_capture_file, [tshark, file]) for file in cap_files]
-    cur_item_num = 0
-    for result in results:
-        cur_item_num += 1
-        try:
-            file_result = result.get(1)
-        except multiprocessing.TimeoutError:
-            cur_item_num -= 1
-            continue
-
-        if file_result is None:
-            continue
-
-        print "PROCESSED [%u/%u] %s %u bytes" % (cur_item_num, options.max_files, file_result[0], os.path.getsize(file_result[0]))
+    for (cur_item_idx,result) in enumerate(results):
+        file_result = result.get()
+        action = "SKIPPED" if file_result[1] is {} else "PROCESSED"
+        print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, options.max_files, file_result[0], os.path.getsize(file_result[0]))
         cap_hash.update(dict([file_result]))
 
     index_file = open(index_file_name, "w")
