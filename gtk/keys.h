@@ -47,13 +47,16 @@
 #define PM_TREE_VIEW_KEY				"popup_menu_tree_view"
 #define PM_HEXDUMP_KEY					"popup_menu_hexdump"
 
+#define E_TB_MAIN_KEY					"toolbar_main"
+#define E_TB_FILTER_KEY					"toolbar_filter"
+
 #ifdef HAVE_AIRPCAP
-#define AIRPCAP_TOOLBAR_KEY				"airpcap_toolbar_key"
-#define AIRPCAP_TOOLBAR_INTERFACE_KEY	"airpcap_toolbar_if_key"
-#define AIRPCAP_TOOLBAR_LINK_TYPE_KEY	"airpcap_toolbar_lt_key" 
-#define AIRPCAP_TOOLBAR_CHANNEL_KEY		"airpcap_toolbar_ch_key"
-#define AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY "airpcap_toolbar_ch_lb_key"
-#define AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY	"airpcap_toolbar_ch_offset_key"
+#define AIRPCAP_TOOLBAR_KEY						"airpcap_toolbar_key"
+#define AIRPCAP_TOOLBAR_INTERFACE_KEY			"airpcap_toolbar_if_key"
+#define AIRPCAP_TOOLBAR_LINK_TYPE_KEY			"airpcap_toolbar_lt_key" 
+#define AIRPCAP_TOOLBAR_CHANNEL_KEY				"airpcap_toolbar_ch_key"
+#define AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY		"airpcap_toolbar_ch_lb_key"
+#define AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY		"airpcap_toolbar_ch_offset_key"
 #define AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY "airpcap_toolbar_ch_offset_lb_key"
 #define AIRPCAP_TOOLBAR_FCS_CHECK_KEY	"airpcap_toolbar_fcs_check_key"
 #define AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY	"airpcap_toolbar_fcs_filter_lb_key"
@@ -106,10 +109,7 @@
 #define AIRPCAP_OPTIONS_ADVANCED_KEY			"airpcap_options_advanced_key"
 
 #define AIRPCAP_ADVANCED_FROM_KEY				"airpcap_advanced_from_key"
+#endif /* HAVE_AIRPCAP */
 
-#define E_TB_MAIN_KEY							"toolbar_main"
-#define E_TB_FILTER_KEY							"toolbar_filter"
+#endif /* __KEYS_H__ *
 
-#endif
-
-#endif
