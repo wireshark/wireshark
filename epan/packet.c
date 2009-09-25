@@ -220,16 +220,23 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 
 	src = ep_alloc(sizeof (data_source));
 	src->tvb = tvb;
-    src->name_initialized = FALSE;
+	src->name_initialized = FALSE;
 	src->name = name;
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
 }
 
+/*
+ * This should only add a data source to the list of data sources for
+ * a frame if the data sources are being used.  Note that they can
+ * be used even if the protocol tree isn't being built or isn't visible,
+ * e.g. if you run tshark with -x but without -V or anything else to
+ * cause the protocol tree to be built.
+ */
 void
-packet_add_new_data_source(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, const char *name)
+packet_add_new_data_source(packet_info *pinfo, proto_tree *tree _U_,
+    tvbuff_t *tvb, const char *name)
 {
-	if (tree && PTREE_DATA(tree)->visible)
-		add_new_data_source(pinfo, tvb, name);
+	add_new_data_source(pinfo, tvb, name);
 }
 
 const char*
