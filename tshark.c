@@ -2705,52 +2705,6 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   return passed;
 }
 
-static void
-show_capture_file_io_error(const char *fname, int err, gboolean is_close)
-{
-  char *save_file_string;
-
-  save_file_string = output_file_description(fname);
-
-  switch (err) {
-
-  case ENOSPC:
-    cmdarg_err("Not all the packets could be written to the %s because there is "
-               "no space left on the file system.",
-               save_file_string);
-    break;
-
-#ifdef EDQUOT
-  case EDQUOT:
-    cmdarg_err("Not all the packets could be written to the %s because you are "
-               "too close to, or over your disk quota.",
-               save_file_string);
-  break;
-#endif
-
-  case WTAP_ERR_CANT_CLOSE:
-    cmdarg_err("The %s couldn't be closed for some unknown reason.",
-               save_file_string);
-    break;
-
-  case WTAP_ERR_SHORT_WRITE:
-    cmdarg_err("Not all the packets could be written to the %s.",
-               save_file_string);
-    break;
-
-  default:
-    if (is_close) {
-      cmdarg_err("The %s could not be closed: %s.", save_file_string,
-                 wtap_strerror(err));
-    } else {
-      cmdarg_err("An error occurred while writing to the %s: %s.",
-                 save_file_string, wtap_strerror(err));
-    }
-    break;
-  }
-  g_free(save_file_string);
-}
-
 static gboolean
 write_preamble(capture_file *cf)
 {
@@ -3120,6 +3074,111 @@ write_finale(void)
   }
 }
 
+cf_status_t
+cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
+{
+  wtap       *wth;
+  gchar       *err_info;
+  char        err_msg[2048+1];
+
+  wth = wtap_open_offline(fname, err, &err_info, perform_two_pass_analysis);
+  if (wth == NULL)
+    goto fail;
+
+  /* The open succeeded.  Fill in the information for this file. */
+
+  /* Cleanup all data structures used for dissection. */
+  cleanup_dissection();
+  /* Initialize all data structures used for dissection. */
+  init_dissection();
+
+  cf->wth = wth;
+  cf->f_datalen = 0; /* not used, but set it anyway */
+
+  /* Set the file name because we need it to set the follow stream filter.
+     XXX - is that still true?  We need it for other reasons, though,
+     in any case. */
+  cf->filename = g_strdup(fname);
+
+  /* Indicate whether it's a permanent or temporary file. */
+  cf->is_tempfile = is_tempfile;
+
+  /* If it's a temporary capture buffer file, mark it as not saved. */
+  cf->user_saved = !is_tempfile;
+
+  cf->cd_t      = wtap_file_type(cf->wth);
+  cf->count     = 0;
+  cf->drops_known = FALSE;
+  cf->drops     = 0;
+  cf->snap      = wtap_snapshot_length(cf->wth);
+  if (cf->snap == 0) {
+    /* Snapshot length not known. */
+    cf->has_snap = FALSE;
+    cf->snap = WTAP_MAX_PACKET_SIZE;
+  } else
+    cf->has_snap = TRUE;
+  nstime_set_zero(&cf->elapsed_time);
+  nstime_set_unset(&first_ts);
+  nstime_set_unset(&prev_dis_ts);
+  nstime_set_unset(&prev_cap_ts);
+
+  cf->state = FILE_READ_IN_PROGRESS;
+
+  return CF_OK;
+
+fail:
+  g_snprintf(err_msg, sizeof err_msg,
+             cf_open_error_message(*err, err_info, FALSE, cf->cd_t), fname);
+  cmdarg_err("%s", err_msg);
+  return CF_ERROR;
+}
+
+static void
+show_capture_file_io_error(const char *fname, int err, gboolean is_close)
+{
+  char *save_file_string;
+
+  save_file_string = output_file_description(fname);
+
+  switch (err) {
+
+  case ENOSPC:
+    cmdarg_err("Not all the packets could be written to the %s because there is "
+               "no space left on the file system.",
+               save_file_string);
+    break;
+
+#ifdef EDQUOT
+  case EDQUOT:
+    cmdarg_err("Not all the packets could be written to the %s because you are "
+               "too close to, or over your disk quota.",
+               save_file_string);
+  break;
+#endif
+
+  case WTAP_ERR_CANT_CLOSE:
+    cmdarg_err("The %s couldn't be closed for some unknown reason.",
+               save_file_string);
+    break;
+
+  case WTAP_ERR_SHORT_WRITE:
+    cmdarg_err("Not all the packets could be written to the %s.",
+               save_file_string);
+    break;
+
+  default:
+    if (is_close) {
+      cmdarg_err("The %s could not be closed: %s.", save_file_string,
+                 wtap_strerror(err));
+    } else {
+      cmdarg_err("An error occurred while writing to the %s: %s.",
+                 save_file_string, wtap_strerror(err));
+    }
+    break;
+  }
+  g_free(save_file_string);
+}
+
 static void
 show_print_file_io_error(int err)
 {
@@ -3252,65 +3311,6 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
   fprintf(stderr, "tshark: ");
   fprintf(stderr, file_open_error_message(err, for_writing), filename);
   fprintf(stderr, "\n");
-}
-
-cf_status_t
-cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
-{
-  wtap       *wth;
-  gchar       *err_info;
-  char        err_msg[2048+1];
-
-  wth = wtap_open_offline(fname, err, &err_info, perform_two_pass_analysis);
-  if (wth == NULL)
-    goto fail;
-
-  /* The open succeeded.  Fill in the information for this file. */
-
-  /* Cleanup all data structures used for dissection. */
-  cleanup_dissection();
-  /* Initialize all data structures used for dissection. */
-  init_dissection();
-
-  cf->wth = wth;
-  cf->f_datalen = 0; /* not used, but set it anyway */
-
-  /* Set the file name because we need it to set the follow stream filter.
-     XXX - is that still true?  We need it for other reasons, though,
-     in any case. */
-  cf->filename = g_strdup(fname);
-
-  /* Indicate whether it's a permanent or temporary file. */
-  cf->is_tempfile = is_tempfile;
-
-  /* If it's a temporary capture buffer file, mark it as not saved. */
-  cf->user_saved = !is_tempfile;
-
-  cf->cd_t      = wtap_file_type(cf->wth);
-  cf->count     = 0;
-  cf->drops_known = FALSE;
-  cf->drops     = 0;
-  cf->snap      = wtap_snapshot_length(cf->wth);
-  if (cf->snap == 0) {
-    /* Snapshot length not known. */
-    cf->has_snap = FALSE;
-    cf->snap = WTAP_MAX_PACKET_SIZE;
-  } else
-    cf->has_snap = TRUE;
-  nstime_set_zero(&cf->elapsed_time);
-  nstime_set_unset(&first_ts);
-  nstime_set_unset(&prev_dis_ts);
-  nstime_set_unset(&prev_cap_ts);
-
-  cf->state = FILE_READ_IN_PROGRESS;
-
-  return CF_OK;
-
-fail:
-  g_snprintf(err_msg, sizeof err_msg,
-             cf_open_error_message(*err, err_info, FALSE, cf->cd_t), fname);
-  cmdarg_err("%s", err_msg);
-  return CF_ERROR;
 }
 
 
