@@ -78,9 +78,9 @@ def dissect_file_process(tshark, file):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, stderr) = p.communicate()
         if p.returncode == 0:
-            return (file, True)
+            return (file, True, stdout, stderr)
         else:
-            return (file, False)
+            return (file, False, stdout, stderr)
 
     except KeyboardInterrupt:
         return False
@@ -93,6 +93,24 @@ def dissect_files(tshark, num_procs, max_files, cap_files):
             file_result = result_async.get()
             action = "FAILED" if file_result[1] is False else "PASSED"
             print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result[0], os.path.getsize(file_result[0]))
+    except KeyboardInterrupt:
+        print "%s was interrupted by user" % (sys.argv[0])
+        pool.terminate()
+        exit(1)
+
+    exit(0)
+
+def compare_files(tshark_bin, tshark_cmp, num_procs, max_files, cap_files):
+    pool = multiprocessing.Pool(num_procs)
+    results_bin = [pool.apply_async(dissect_file_process, [tshark_bin, file]) for file in cap_files]
+    results_cmp = [pool.apply_async(dissect_file_process, [tshark_cmp, file]) for file in cap_files]
+    try:
+        for (cur_item_idx,(result_async_bin, result_async_cmp)) in enumerate(zip(results_bin, results_cmp)):
+            file_result_bin = result_async_bin.get()
+            file_result_cmp = result_async_cmp.get()
+            action = "FAILED" if (file_result_cmp[1] is False or file_result_bin[1] is False) else "PASSED"
+            print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result_bin[0], os.path.getsize(file_result_bin[0]))
+            print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result_cmp[0], os.path.getsize(file_result_cmp[0]))
     except KeyboardInterrupt:
         print "%s was interrupted by user" % (sys.argv[0])
         pool.terminate()
@@ -156,8 +174,10 @@ def main():
                       help="Dissect all matching files")
     parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxint, type="int", 
                       help="Max number of files to process")
-    parser.add_option("-b", "--binary-dir", dest="bin_dir", default=os.getcwd(), 
+    parser.add_option("-b", "--binary-dir", dest="bin_dir", default=os.getcwd(),
                       help="Directory containing tshark executable")
+    parser.add_option("-c", "--compare-dir", dest="compare_dir", default=None,
+                      help="Directory containing tshark executable which is used for comparison")
     parser.add_option("-j", dest="num_procs", default=1, type=int, 
                       help="Max number of processes to spawn")
     parser.add_option("", "--list-all-proto", dest="list_all_proto", default=False, action="store_true", 
@@ -178,6 +198,9 @@ def main():
 
     if options.dissect_files and not options.list_all_files and not options.list_all_proto_files:
         parser.error("--list-all-files or --list-all-proto-files must be specified")
+
+    if options.dissect_files and not options.compare_dir is None:
+        parser.error("--dissect-files and --compare-dir cannot be specified at the same time")
 
     index_file_name = args.pop(0)
     paths = args
@@ -204,14 +227,22 @@ def main():
         indexed_files = list_all_proto_files(cap_hash, options.list_all_proto_files)
         print indexed_files
 
-    tshark = find_tshark_executable(options.bin_dir)
-    if not tshark is None:
-        print "tshark:", tshark, "[FOUND]"
+    tshark_bin = find_tshark_executable(options.bin_dir)
+    if not tshark_bin is None:
+        print "tshark:", tshark_bin, "[FOUND]"
     else:
-        print "tshark:", tshark, "[MISSING]"
+        print "tshark:", tshark_bin, "[MISSING]"
         exit(1)
 
-    if options.dissect_files:
+    if not options.compare_dir is None:
+        tshark_cmp = find_tshark_executable(options.compare_dir)
+        if not tshark_cmp is None:
+            print "tshark:", tshark_cmp, "[FOUND]"
+        else:
+            print "tshark:", tshark_cmp, "[MISSING]"
+            exit(1)
+
+    if options.dissect_files or options.compare_dir:
         cap_files = indexed_files
     elif options.list_all_proto_files or options.list_all_files:
         exit(0)
@@ -223,10 +254,12 @@ def main():
     print "%u total files, %u working files\n" % (len(cap_files), options.max_files)
     cap_files = cap_files[:options.max_files]
 
-    if options.dissect_files:
-        dissect_files(tshark, options.num_procs, options.max_files, cap_files)
+    if options.compare_dir:
+        compare_files(tshark_bin, tshark_cmp, options.num_procs, options.max_files, cap_files)
+    elif options.dissect_files:
+        dissect_files(tshark_bin, options.num_procs, options.max_files, cap_files)
     else:
-        extract_protos_from_file(tshark, options.num_procs, options.max_files, cap_files, cap_hash, index_file_name)
+        extract_protos_from_file(tshark_bin, options.num_procs, options.max_files, cap_files, cap_hash, index_file_name)
 
 if __name__ == "__main__":
     main()
