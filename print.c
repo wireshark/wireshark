@@ -1209,16 +1209,11 @@ static const print_stream_ops_t print_ps_ops = {
 	destroy_ps
 };
 
-print_stream_t *
-print_stream_ps_new(int to_file, const char *dest)
+static print_stream_t *
+print_stream_ps_alloc(int to_file, FILE *fh)
 {
-	FILE *fh;
 	print_stream_t *stream;
 	output_ps *output;
-
-	fh = open_print_dest(to_file, dest);
-	if (fh == NULL)
-		return NULL;
 
 	output = g_malloc(sizeof *output);
 	output->to_file = to_file;
@@ -1231,19 +1226,21 @@ print_stream_ps_new(int to_file, const char *dest)
 }
 
 print_stream_t *
+print_stream_ps_new(int to_file, const char *dest)
+{
+	FILE *fh;
+
+	fh = open_print_dest(to_file, dest);
+	if (fh == NULL)
+		return NULL;
+
+	return print_stream_ps_alloc(to_file, fh);
+}
+
+print_stream_t *
 print_stream_ps_stdio_new(FILE *fh)
 {
-	print_stream_t *stream;
-	output_ps *output;
-
-	output = g_malloc(sizeof *output);
-	output->to_file = TRUE;
-	output->fh = fh;
-	stream = g_malloc(sizeof (print_stream_t));
-	stream->ops = &print_ps_ops;
-	stream->data = output;
-
-	return stream;
+	return print_stream_ps_alloc(TRUE, fh);
 }
 
 output_fields_t* output_fields_new()
