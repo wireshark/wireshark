@@ -33,7 +33,7 @@ import subprocess
 import re
 import pickle
 
-def process_capture_file(tshark, file):
+def extract_protos_from_file_proces(tshark, file):
     try:
         cmd = [tshark, "-Tfields", "-e", "frame.protocols", "-r", file]
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -53,19 +53,66 @@ def process_capture_file(tshark, file):
     except KeyboardInterrupt:
         return None
 
+def extract_protos_from_file(tshark, num_procs, max_files, cap_files, cap_hash, index_file_name):
+    pool = multiprocessing.Pool(num_procs)
+    results = [pool.apply_async(extract_protos_from_file_proces, [tshark, file]) for file in cap_files]
+    try:
+        for (cur_item_idx,result_async) in enumerate(results):
+            file_result = result_async.get()
+            action = "SKIPPED" if file_result[1] is {} else "PROCESSED"
+            print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result[0], os.path.getsize(file_result[0]))
+            cap_hash.update(dict([file_result]))
+    except KeyboardInterrupt:
+        print "%s was interrupted by user" % (sys.argv[0])
+        pool.terminate()
+        exit(1)
+
+    index_file = open(index_file_name, "w")
+    pickle.dump(cap_hash, index_file)
+    index_file.close()
+    exit(0)
+
+def dissect_file_process(tshark, file):
+    try:
+        cmd = [tshark, "-nxVr", file]
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        (stdout, stderr) = p.communicate()
+        if p.returncode == 0:
+            return (file, True)
+        else:
+            return (file, False)
+
+    except KeyboardInterrupt:
+        return False
+
+def dissect_files(tshark, num_procs, max_files, cap_files):
+    pool = multiprocessing.Pool(num_procs)
+    results = [pool.apply_async(dissect_file_process, [tshark, file]) for file in cap_files]
+    try:
+        for (cur_item_idx,result_async) in enumerate(results):
+            file_result = result_async.get()
+            action = "FAILED" if file_result[1] is False else "PASSED"
+            print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result[0], os.path.getsize(file_result[0]))
+    except KeyboardInterrupt:
+        print "%s was interrupted by user" % (sys.argv[0])
+        pool.terminate()
+        exit(1)
+
+    exit(0)
+
 def list_all_proto(cap_hash):
     proto_hash = {}
     for files_hash in cap_hash.itervalues():
         for proto,count in files_hash.iteritems():
             proto_hash[proto] = count + proto_hash.setdefault(proto, 0)
 
-    print proto_hash
+    return proto_hash
 
 def list_all_files(cap_hash):
     files = cap_hash.keys()
     files.sort()
 
-    print files
+    return files
 
 def list_all_proto_files(cap_hash, proto_comma_delit):
     protos = [ x.strip() for x in proto_comma_delit.split(',') ]
@@ -76,12 +123,13 @@ def list_all_proto_files(cap_hash, proto_comma_delit):
                 files.append(file)
                 break
 
-    print files
+    return files
 
 def index_file_action(options):
     return options.list_all_proto or \
            options.list_all_files or \
-           options.list_all_proto_files
+           options.list_all_proto_files or \
+           options.dissect_files
 
 def find_capture_files(paths, cap_hash):
     cap_files = []
@@ -104,6 +152,8 @@ def find_tshark_executable(bin_dir):
 
 def main():
     parser = OptionParser(usage="usage: %prog [options] index_file [file_1|dir_1 [.. file_n|dir_n]]")
+    parser.add_option("-d", "--dissect-files", dest="dissect_files", default=False, action="store_true",
+                      help="Dissect all matching files")
     parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxint, type="int", 
                       help="Max number of files to process")
     parser.add_option("-b", "--binary-dir", dest="bin_dir", default=os.getcwd(), 
@@ -126,7 +176,11 @@ def main():
     if len(args) == 1 and not index_file_action(options):
         parser.error("one capture file/directory must be specified")
 
+    if options.dissect_files and not options.list_all_files and not options.list_all_proto_files:
+        parser.error("--list-all-files or --list-all-proto-files must be specified")
+
     index_file_name = args.pop(0)
+    paths = args
     cap_hash = {}
     try:
         index_file = open(index_file_name, "r")
@@ -138,16 +192,17 @@ def main():
         print "index file:", index_file_name, "[NEW]"
 
     if options.list_all_proto:
-        list_all_proto(cap_hash)
+        print list_all_proto(cap_hash)
         exit(0)
 
+    indexed_files = []
     if options.list_all_files:
-        list_all_files(cap_hash)
-        exit(0)
+        indexed_files = list_all_files(cap_hash)
+        print indexed_files
 
     if options.list_all_proto_files:
-        list_all_proto_files(cap_hash, options.list_all_proto_files)
-        exit(0)
+        indexed_files = list_all_proto_files(cap_hash, options.list_all_proto_files)
+        print indexed_files
 
     tshark = find_tshark_executable(options.bin_dir)
     if not tshark is None:
@@ -156,28 +211,22 @@ def main():
         print "tshark:", tshark, "[MISSING]"
         exit(1)
 
-    paths = args
-    cap_files = find_capture_files(paths, cap_hash)
+    if options.dissect_files:
+        cap_files = indexed_files
+    elif options.list_all_proto_files or options.list_all_files:
+        exit(0)
+    else:
+        cap_files = find_capture_files(paths, cap_hash)
+
     cap_files.sort()
     options.max_files = min(options.max_files, len(cap_files))
-    print "%u total files, %u indexable files\n" % (len(cap_files), options.max_files)
+    print "%u total files, %u working files\n" % (len(cap_files), options.max_files)
     cap_files = cap_files[:options.max_files]
 
-    pool = multiprocessing.Pool(options.num_procs)
-    results = [pool.apply_async(process_capture_file, [tshark, file]) for file in cap_files]
-    try:
-        for (cur_item_idx,result) in enumerate(results):
-            file_result = result.get()
-            action = "SKIPPED" if file_result[1] is {} else "PROCESSED"
-            print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, options.max_files, file_result[0], os.path.getsize(file_result[0]))
-            cap_hash.update(dict([file_result]))
-    except KeyboardInterrupt:
-        print "%s was interrupted by user" % (sys.argv[0])
-        pool.terminate()
-
-    index_file = open(index_file_name, "w")
-    pickle.dump(cap_hash, index_file)
-    index_file.close()
+    if options.dissect_files:
+        dissect_files(tshark, options.num_procs, options.max_files, cap_files)
+    else:
+        extract_protos_from_file(tshark, options.num_procs, options.max_files, cap_files, cap_hash, index_file_name)
 
 if __name__ == "__main__":
     main()
