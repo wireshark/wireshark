@@ -53,7 +53,7 @@ def process_capture_file(tshark, file):
     except KeyboardInterrupt:
         return None
 
-def list_proto(cap_hash):
+def list_all_proto(cap_hash):
     proto_hash = {}
     for files_hash in cap_hash.itervalues():
         for proto,count in files_hash.iteritems():
@@ -61,14 +61,27 @@ def list_proto(cap_hash):
 
     print proto_hash
 
-def list_files(cap_hash):
+def list_all_files(cap_hash):
     files = cap_hash.keys()
     files.sort()
 
     print files
 
+def list_all_proto_files(cap_hash, proto_comma_delit):
+    protos = [ x.strip() for x in proto_comma_delit.split(',') ]
+    files = []
+    for (file, files_hash) in cap_hash.iteritems():
+        for proto in files_hash.iterkeys():
+            if proto in protos:
+                files.append(file)
+                break
+
+    print files
+
 def index_file_action(options):
-    return options.list_proto or options.list_files
+    return options.list_all_proto or \
+           options.list_all_files or \
+           options.list_all_proto_files
 
 def find_capture_files(paths, cap_hash):
     cap_files = []
@@ -83,12 +96,19 @@ def find_capture_files(paths, cap_hash):
 
 def main():
     parser = OptionParser(usage="usage: %prog [options] index_file [file_1|dir_1 [.. file_n|dir_n]]")
-    parser.add_option("-n", "--no-append", dest="append", default=True, action="store_false", help="Do not append to existing cache file")
-    parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxint, type="int", help="Max number of files to process")
-    parser.add_option("-b", "--binary-dir", dest="bin_dir", default=os.getcwd(), help="Directory containing tshark executable")
-    parser.add_option("-j", dest="num_procs", default=1, type=int, help="Max number of processes to spawn")
-    parser.add_option("-l", "--list-proto", dest="list_proto", default=False, action="store_true", help="List all protocols in index file")
-    parser.add_option("-f", "--list-files", dest="list_files", default=False, action="store_true", help="List all files in index file")
+    parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxint, type="int", 
+                      help="Max number of files to process")
+    parser.add_option("-b", "--binary-dir", dest="bin_dir", default=os.getcwd(), 
+                      help="Directory containing tshark executable")
+    parser.add_option("-j", dest="num_procs", default=1, type=int, 
+                      help="Max number of processes to spawn")
+    parser.add_option("", "--list-all-proto", dest="list_all_proto", default=False, action="store_true", 
+                      help="List all protocols in index file")
+    parser.add_option("", "--list-all-files", dest="list_all_files", default=False, action="store_true", 
+                      help="List all files in index file")
+    parser.add_option("", "--list-all-proto-files", dest="list_all_proto_files", default=False,
+                      metavar="PROTO_1[, .. PROTO_N]",
+                      help="List all files in index file containing the given protocol")
 
     (options, args) = parser.parse_args()
 
@@ -99,6 +119,7 @@ def main():
         parser.error("one capture file/directory must be specified")
 
     index_file_name = args.pop(0)
+    cap_hash = {}
     try:
         index_file = open(index_file_name, "r")
         print "index file:", index_file.name, "[OPENED]",
@@ -107,14 +128,17 @@ def main():
         print len(cap_hash), "files"
     except IOError:
         print "index file:", index_file_name, "[NEW]"
-        cap_hash = {}
 
-    if options.list_proto:
-        list_proto(cap_hash)
+    if options.list_all_proto:
+        list_all_proto(cap_hash)
         exit(0)
 
-    if options.list_files:
-        list_files(cap_hash)
+    if options.list_all_files:
+        list_all_files(cap_hash)
+        exit(0)
+
+    if options.list_all_proto_files:
+        list_all_proto_files(cap_hash, options.list_all_proto_files)
         exit(0)
 
     tshark = os.path.join(options.bin_dir, "tshark.exe")
