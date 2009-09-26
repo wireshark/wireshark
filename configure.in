@@ -1753,7 +1753,6 @@ AC_OUTPUT(
   plugins/profinet/Makefile
   plugins/sercosiii/Makefile
   plugins/stats_tree/Makefile
-  plugins/tpg/Makefile
   plugins/unistim/Makefile
   plugins/wimax/Makefile
   plugins/wimaxasncp/Makefile
