@@ -1072,16 +1072,11 @@ static const print_stream_ops_t print_text_ops = {
 	destroy_text
 };
 
-print_stream_t *
-print_stream_text_new(int to_file, const char *dest)
+static print_stream_t *
+print_stream_text_allow(int to_file, FILE *fh)
 {
-	FILE *fh;
 	print_stream_t *stream;
 	output_text *output;
-
-	fh = open_print_dest(to_file, dest);
-	if (fh == NULL)
-		return NULL;
 
 	output = g_malloc(sizeof *output);
 	output->to_file = to_file;
@@ -1094,19 +1089,21 @@ print_stream_text_new(int to_file, const char *dest)
 }
 
 print_stream_t *
+print_stream_text_new(int to_file, const char *dest)
+{
+	FILE *fh;
+
+	fh = open_print_dest(to_file, dest);
+	if (fh == NULL)
+		return NULL;
+
+	return print_stream_text_allow(to_file, fh);
+}
+
+print_stream_t *
 print_stream_text_stdio_new(FILE *fh)
 {
-	print_stream_t *stream;
-	output_text *output;
-
-	output = g_malloc(sizeof *output);
-	output->to_file = TRUE;
-	output->fh = fh;
-	stream = g_malloc(sizeof (print_stream_t));
-	stream->ops = &print_text_ops;
-	stream->data = output;
-
-	return stream;
+	return print_stream_text_allow(TRUE, fh);
 }
 
 typedef struct {
