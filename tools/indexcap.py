@@ -94,6 +94,14 @@ def find_capture_files(paths, cap_hash):
             cap_files.append(path)
     return cap_files
 
+def find_tshark_executable(bin_dir):
+    for file in ["tshark.exe", "tshark"]:
+        tshark = os.path.join(bin_dir, file)
+        if os.access(tshark, os.X_OK):
+            return tshark
+
+    return None
+
 def main():
     parser = OptionParser(usage="usage: %prog [options] index_file [file_1|dir_1 [.. file_n|dir_n]]")
     parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxint, type="int", 
@@ -141,8 +149,8 @@ def main():
         list_all_proto_files(cap_hash, options.list_all_proto_files)
         exit(0)
 
-    tshark = os.path.join(options.bin_dir, "tshark.exe")
-    if os.access(tshark, os.X_OK):
+    tshark = find_tshark_executable(options.bin_dir)
+    if not tshark is None:
         print "tshark:", tshark, "[FOUND]"
     else:
         print "tshark:", tshark, "[MISSING]"
