@@ -127,6 +127,10 @@ def compare_files(tshark_bin, tshark_cmp, num_procs, max_files, cap_files):
                 action = "FAILED (stderr)"
             else:
                 action = "PASSED"
+                os.remove(file_result_bin[2])
+                os.remove(file_result_cmp[2])
+                os.remove(file_result_bin[3])
+                os.remove(file_result_cmp[3])
 
             print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result_bin[0], os.path.getsize(file_result_bin[0]))
             print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result_cmp[0], os.path.getsize(file_result_cmp[0]))
