@@ -32,6 +32,8 @@ import os
 import subprocess
 import re
 import pickle
+import tempfile
+import filecmp
 
 def extract_protos_from_file_proces(tshark, file):
     try:
@@ -72,22 +74,29 @@ def extract_protos_from_file(tshark, num_procs, max_files, cap_files, cap_hash, 
     index_file.close()
     exit(0)
 
-def dissect_file_process(tshark, file):
+def dissect_file_process(tshark, tmpdir, file):
     try:
+        (handle_o, tmpfile_o) = tempfile.mkstemp(suffix='_stdout', dir=tmpdir)
+        (handle_e, tmpfile_e) = tempfile.mkstemp(suffix='_stderr', dir=tmpdir)
         cmd = [tshark, "-nxVr", file]
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(cmd, stdout=handle_o, stderr=handle_e)
         (stdout, stderr) = p.communicate()
         if p.returncode == 0:
-            return (file, True, stdout, stderr)
+            return (file, True, tmpfile_o, tmpfile_e)
         else:
-            return (file, False, stdout, stderr)
+            return (file, False, tmpfile_o, tmpfile_e)
 
     except KeyboardInterrupt:
         return False
 
+    finally:
+        os.close(handle_o)
+        os.close(handle_e)
+
 def dissect_files(tshark, num_procs, max_files, cap_files):
     pool = multiprocessing.Pool(num_procs)
-    results = [pool.apply_async(dissect_file_process, [tshark, file]) for file in cap_files]
+    print "Temporary working dir: %s" % tmpdir
+    results = [pool.apply_async(dissect_file_process, [tshark, tmpdir, file]) for file in cap_files]
     try:
         for (cur_item_idx,result_async) in enumerate(results):
             file_result = result_async.get()
@@ -102,13 +111,23 @@ def dissect_files(tshark, num_procs, max_files, cap_files):
 
 def compare_files(tshark_bin, tshark_cmp, num_procs, max_files, cap_files):
     pool = multiprocessing.Pool(num_procs)
-    results_bin = [pool.apply_async(dissect_file_process, [tshark_bin, file]) for file in cap_files]
-    results_cmp = [pool.apply_async(dissect_file_process, [tshark_cmp, file]) for file in cap_files]
+    tmpdir = tempfile.mkdtemp()
+    print "Temporary working dir: %s" % tmpdir
+    results_bin = [pool.apply_async(dissect_file_process, [tshark_bin, tmpdir, file]) for file in cap_files]
+    results_cmp = [pool.apply_async(dissect_file_process, [tshark_cmp, tmpdir, file]) for file in cap_files]
     try:
         for (cur_item_idx,(result_async_bin, result_async_cmp)) in enumerate(zip(results_bin, results_cmp)):
             file_result_bin = result_async_bin.get()
             file_result_cmp = result_async_cmp.get()
-            action = "FAILED" if (file_result_cmp[1] is False or file_result_bin[1] is False) else "PASSED"
+            if file_result_cmp[1] is False or file_result_bin[1] is False:
+                action = "FAILED (exitcode)"
+            if not filecmp.cmp(file_result_bin[2], file_result_cmp[2]):
+                action = "FAILED (stdout)"
+            if not filecmp.cmp(file_result_bin[3], file_result_cmp[3]):
+                action = "FAILED (stderr)"
+            else:
+                action = "PASSED"
+
             print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result_bin[0], os.path.getsize(file_result_bin[0]))
             print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result_cmp[0], os.path.getsize(file_result_cmp[0]))
     except KeyboardInterrupt:
@@ -251,7 +270,7 @@ def main():
 
     cap_files.sort()
     options.max_files = min(options.max_files, len(cap_files))
-    print "%u total files, %u working files\n" % (len(cap_files), options.max_files)
+    print "%u total files, %u working files" % (len(cap_files), options.max_files)
     cap_files = cap_files[:options.max_files]
 
     if options.compare_dir:
