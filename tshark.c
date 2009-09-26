@@ -1560,7 +1560,6 @@ main(int argc, char *argv[])
       epan_cleanup();
       exit(2);
     }
-    cf_name[0] = '\0';
   } else {
     /* No capture file specified, so we're supposed to do a live capture
        (or get a list of link-layer types for a live capture device);
@@ -1628,6 +1627,8 @@ main(int argc, char *argv[])
     exit(2);
 #endif
   }
+
+  g_free(cf_name);
 
 #if GLIB_CHECK_VERSION(2,10,0)
   if (cfile.plist_start != NULL)
