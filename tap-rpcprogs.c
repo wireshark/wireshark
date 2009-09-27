@@ -130,7 +130,7 @@ rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 	
 	/* we are only interested in reply packets */
-	if(ri->request){
+	if(ri->request || !rp){
 		return 0;
 	}
 
