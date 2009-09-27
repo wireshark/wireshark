@@ -108,18 +108,14 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* do we have spdu type from the session dissector?  */
 	if( !session ){
-		if(tree){
-			proto_tree_add_text(tree, tvb, 0, -1,
-				"Internal error:can't get spdu type from session dissector.");
-			return;
-		}
+		proto_tree_add_text(tree, tvb, 0, -1,
+			"Internal error:can't get spdu type from session dissector.");
+		return;
 	} else {
 		if(session->spdu_type == 0 ) {
-			if(tree){
-				proto_tree_add_text(tree, tvb, 0, -1,
-					"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
-				return;
-			}
+			proto_tree_add_text(tree, tvb, 0, -1,
+				"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
+			return;
 		}
 	}
 
