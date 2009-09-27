@@ -324,6 +324,7 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 		fInfoTemp=se_tree_lookup32(cs->packet_tree, cs->start_packet_nr_first);
 		if(fInfoTemp==NULL){
 			printf("ERROR: start number not set correctly\n");
+			return FALSE;
 		}
 		if(fmod(fInfoTemp->zebra_time.nsecs, 2)){
 			/*first file*/
