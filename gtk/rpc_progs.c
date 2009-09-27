@@ -214,7 +214,7 @@ rpcprogs_packet(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 
 	/* we are only interested in reply packets */
-	if(ri->request){
+	if(ri->request || !rp){
 		return 0;
 	}
 
