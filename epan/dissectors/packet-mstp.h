@@ -26,10 +26,6 @@
 #ifndef __MSTP_H__
 #define __MSTP_H__
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

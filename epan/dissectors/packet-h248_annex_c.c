@@ -25,6 +25,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include "packet-h248.h"
 #define PNAME  "H.248 Annex C"
 #define PSNAME "H248C"

@@ -24,10 +24,6 @@
 #ifndef __GCP_H_
 #define __GCP_H_
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
-
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>

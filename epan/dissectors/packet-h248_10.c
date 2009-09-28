@@ -29,6 +29,10 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include "packet-h248.h"
 #define PNAME  "H.248.10"
 #define PSNAME "H248CHP"

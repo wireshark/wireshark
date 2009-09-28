@@ -29,6 +29,10 @@
   *  - avoid persistent tracking of NULL and ALL contexts
   */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include "gcp.h"
 
 static emem_tree_t* msgs = NULL;
