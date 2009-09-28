@@ -28,10 +28,6 @@
 #ifndef _FUNNEL_H
 #define _FUNNEL_H
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <glib.h>
 #include "../stat_menu.h"
 

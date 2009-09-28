@@ -27,10 +27,6 @@
 #ifndef __PTVCURSOR_H__
 #define __PTVCURSOR_H__
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
-
 #include <glib.h>
 #include <epan/packet.h>
 
