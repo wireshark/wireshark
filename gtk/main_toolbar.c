@@ -99,7 +99,9 @@ toolbar_redraw_all(void)
 
 	filter_tb = g_object_get_data(G_OBJECT(top_level), E_TB_FILTER_KEY);
 
-    gtk_toolbar_set_style(GTK_TOOLBAR(filter_tb),
+	/* In case the filter toolbar hasn't been built */
+	if(filter_tb)
+		gtk_toolbar_set_style(GTK_TOOLBAR(filter_tb),
                           prefs.gui_toolbar_filter_style);
 }
 
