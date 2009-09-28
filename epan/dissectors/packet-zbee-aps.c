@@ -1138,8 +1138,6 @@ dissect_zbee_aps_skke_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     return offset;
 } /* dissect_zbee_aps_skke_data */
 
-guint   dissect_zbee_aps_skke_data      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
-
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      dissect_zbee_aps_transport_key
