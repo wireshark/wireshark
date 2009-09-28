@@ -25,10 +25,6 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "globals.h"
 
 /** @defgroup main_window_group Main window
