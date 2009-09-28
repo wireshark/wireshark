@@ -23,10 +23,6 @@
  * USA.
  */
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
-
 #include <gtk/gtk.h>
 
 /* Type of follow we are doing */
