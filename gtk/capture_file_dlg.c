@@ -121,7 +121,6 @@ static GtkWidget *file_save_as_w;
 static packet_range_t range;
 static gboolean color_selected;
 static int filetype;
-static GtkWidget *cfselect_cb;
 static GtkWidget *ft_om;
 static GtkWidget *range_tb;
 
@@ -1654,6 +1653,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
   win32_export_color_file(GDK_WINDOW_HWND(top_level->window), filter_list);
 #else /* _WIN32 */
   GtkWidget *main_vb, *cfglobal_but;
+  GtkWidget *cfselect_cb;
 
   if (file_color_export_w != NULL) {
     /* There's already an "Color Filter Export" dialog box; reactivate it. */
