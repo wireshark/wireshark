@@ -832,10 +832,10 @@ static hashipv6_t *host_lookup6(const struct e_in6_addr *addr, gboolean resolve,
 {
   int hash_idx;
   hashipv6_t * volatile tp;
+#ifdef INET6
 #ifdef HAVE_C_ARES
   async_dns_queue_msg_t *caqm;
 #endif /* HAVE_C_ARES */
-#ifdef INET6
   struct hostent *hostp;
 #endif
 
@@ -2490,14 +2490,6 @@ extern const gchar *get_hostname(guint addr)
   return tp->name;
 }
 
-extern gchar *get_hostip(guint addr)
-{
-  gboolean found;
-  hashipv4_t *tp = host_lookup(addr, FALSE, &found);
-
-  return tp->ip;
-}
-
 /* -------------------------- */
 
 extern const gchar *get_hostname6(struct e_in6_addr *addr)
@@ -2509,14 +2501,6 @@ extern const gchar *get_hostname6(struct e_in6_addr *addr)
   if (!resolve || E_IN6_IS_ADDR_LINKLOCAL(addr) || E_IN6_IS_ADDR_MULTICAST(addr))
     return tp->ip6;
   return tp->name;
-}
-
-extern gchar *get_hostip6(const struct e_in6_addr *addr)
-{
-  gboolean found;
-  hashipv6_t *tp = host_lookup6(addr, FALSE, &found);
-
-  return tp->ip6;
 }
 
 /* -------------------------- */
@@ -2717,58 +2701,6 @@ gchar *get_ether_name(const guint8 *addr)
   tp = eth_name_lookup(addr, resolve);
   return tp->name;
 } /* get_ether_name */
-
-/* a name resolution is unset, reset name */
-void
-name_resolution_changed(guint32 action)
-{
-  guint i;
-  if ((action & RESOLV_MAC)) {
-      /* this stuff is broken but ether stuff isn't easy */
-      hashether_t *tp;
-      for (i = 0; i < HASHETHSIZE; i++) {
-         tp = eth_table[i];
-         while (tp) {
-            strcpy(tp->name, tp->hexa);
-            /* tp->is_dummy_entry = FALSE; */
-            tp = tp->next;
-       }
-      }
-  }
-
-  if ((action & RESOLV_NETWORK)) {
-      hashipv4_t *tp;
-      hashipv6_t *tp6;
-
-      for (i = 0; i < HASHHOSTSIZE; i++) {
-         tp = ipv4_table[i];
-         while (tp) {
-            strcpy(tp->name, tp->ip);
-            tp->is_dummy_entry = TRUE;
-            tp->resolve = FALSE;
-            tp = tp->next;
-       }
-      }
-
-      for (i = 0; i < HASHHOSTSIZE; i++) {
-         tp6 = ipv6_table[i];
-         while (tp6) {
-            strcpy(tp6->name, tp6->ip6);
-            tp6->is_dummy_entry = TRUE;
-            tp6->resolve = FALSE;
-            tp6 = tp6->next;
-       }
-      }
-  }
-}
-
-/* ---------------------- */
-extern gchar *get_ether_hexa(const guint8 *addr)
-{
-  hashether_t *tp;
-  tp = eth_name_lookup(addr, FALSE);
-  return tp->hexa;
-}
 
 
 /* Look for an ether name in the hash, and return it if found.
