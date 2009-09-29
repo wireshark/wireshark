@@ -459,7 +459,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				kl = k;
 			}
 
-			if (implied) {
+			if (implied && kl) {
 				switch (kl->key_type) {
 					case OID_KEY_TYPE_BYTES:  kl->key_type = OID_KEY_TYPE_IMPLIED_BYTES; break;
 					case OID_KEY_TYPE_STRING: kl->key_type = OID_KEY_TYPE_IMPLIED_STRING; break;
