@@ -462,19 +462,19 @@ find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
 static void
 hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
-    GtkWidget   *filter_text_box, *hex_rb;
+    GtkWidget   *filter_tb, *hex_rb;
 
-    filter_text_box = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
+    filter_tb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
     hex_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_HEXDATA_KEY);
 
     /* Disable AutoCompletion feature */
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hex_rb)) && g_signal_handler_is_connected(filter_text_box, te_presskey_handler_id)) {
-      g_signal_handler_disconnect(filter_text_box, te_presskey_handler_id);
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hex_rb)) && g_signal_handler_is_connected(filter_tb, te_presskey_handler_id)) {
+      g_signal_handler_disconnect(filter_tb, te_presskey_handler_id);
       g_signal_handler_disconnect(parent_w, win_presskey_handler_id);
     }
 
     /* Re-check the display filter. */
-    find_filter_te_syntax_check_cb(filter_text_box, parent_w);
+    find_filter_te_syntax_check_cb(filter_tb, parent_w);
     return;
 }
 
@@ -486,7 +486,7 @@ static void
 string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
     GtkWidget   *string_rb, *hex_data_rb, *decode_data_rb, *summary_data_rb,
-                *data_combo_lb, *data_combo_cb, *data_case_cb, *filter_text_box;
+                *data_combo_lb, *data_combo_cb, *data_case_cb, *filter_tb;
 
     string_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGDATA_KEY);
     hex_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_HEX_KEY);
@@ -496,7 +496,7 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
     data_combo_lb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGTYPE_LABEL_KEY);
     data_combo_cb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGTYPE_KEY);
     data_case_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CASE_SEARCH_KEY);
-    filter_text_box = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
+    filter_tb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(string_rb))) {
         gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), TRUE);
@@ -507,8 +507,8 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
         gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), TRUE);
 
 	/* Disable AutoCompletion feature */
-	if(g_signal_handler_is_connected(filter_text_box, te_presskey_handler_id)) {
-	  g_signal_handler_disconnect(filter_text_box, te_presskey_handler_id);
+	if(g_signal_handler_is_connected(filter_tb, te_presskey_handler_id)) {
+	  g_signal_handler_disconnect(filter_tb, te_presskey_handler_id);
 	  g_signal_handler_disconnect(parent_w, win_presskey_handler_id);
 	}
 
@@ -521,7 +521,7 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
         gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), FALSE);
     }
     /* Re-check the display filter. */
-    find_filter_te_syntax_check_cb(filter_text_box, parent_w);
+    find_filter_te_syntax_check_cb(filter_tb, parent_w);
     return;
 }
 
