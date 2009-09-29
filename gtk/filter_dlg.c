@@ -1282,7 +1282,7 @@ colorize_filter_te_as_invalid(GtkWidget *w)
     color_filter_te(w, 0xFFFF, 0xAFFF, 0xAFFF);
 }
 
-void
+static void
 colorize_filter_te_as_deprecated(GtkWidget *w)
 {
     /* light yellow */
