@@ -915,7 +915,6 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 	guint bytelen = 0;
 	guint i;
 	guint32 subid;
-	guint8* bytes;
 	guint8* b;
 
 	if ( !subids || subids_len <= 0) {
@@ -942,7 +941,7 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 			subid = subids[i];
 	} while ( i++ < subids_len );
 
-	*bytes_p = b = bytes = ep_alloc(bytelen);
+	*bytes_p = b = ep_alloc(bytelen);
 
 	subid = (subids[0] * 40) + subids[1];
 	i = 2;
