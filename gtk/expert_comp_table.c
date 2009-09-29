@@ -119,11 +119,11 @@ proto_sort_func(GtkTreeModel *model,
 	} 
 	else {
         if (grp == packet) {
-          gint a = atoi(str_a);
-          gint b = atoi(str_b);
-          if (a == b)
+          gint int_a = atoi(str_a);
+          gint int_b = atoi(str_b);
+          if (int_a == int_b)
               ret = 0;
-          else if (a < b)
+          else if (int_a < int_b)
               ret = -1;
           else 
               ret = 1;
