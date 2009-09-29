@@ -39,6 +39,8 @@
 #include "tvbuff.h"
 #include "filesystem.h"
 
+#include "wspy_register.h"
+
 /* hash table containing all the registered python dissectors */
 GHashTable * g_py_dissectors=NULL;
 
@@ -53,15 +55,15 @@ proto_tree * g_tree = NULL;
 
 
 /* Initialization of the Python Interpreter */
-inline
-void wspy_init()
+static inline
+void wspy_init(void)
 {
   Py_Initialize();
 }
 
 /* Finalization of the Python Interpreter */
-inline
-void wspy_finalize()
+static inline
+void wspy_finalize(void)
 {
   Py_Finalize();
 }
@@ -88,10 +90,10 @@ char * py_dissector_name(PyObject * py_dissector)
  */
 void py_dissector_register(PyObject * py_dissector, char * py_name, register_cb cb, gpointer client_data)
 {
-//  const char * py_name;
+/*  const char * py_name; */
 
   /* Get the name of the dissector */
-//  py_name = py_dissector_name(py_dissector);
+/*  py_name = py_dissector_name(py_dissector); */
 
   /* Register dissector in register_cb */
   if (cb)
@@ -106,7 +108,7 @@ void py_dissector_register(PyObject * py_dissector, char * py_name, register_cb 
 
 }
 
-const char *get_py_register_file()
+static const char *get_py_register_file(void)
 {
   static const char * wspython_register_file = NULL;
 
@@ -179,17 +181,17 @@ void register_all_py_protocols_func(register_cb cb, gpointer client_data)
   }
 }
 
-tvbuff_t *py_tvbuff()
+tvbuff_t *py_tvbuff(void)
 {
   return g_tvb;
 }
 
-packet_info * py_pinfo()
+packet_info * py_pinfo(void)
 {
   return g_pinfo;
 }
 
-proto_tree * py_tree()
+proto_tree * py_tree(void)
 {
   return g_tree;
 }
@@ -207,8 +209,8 @@ void py_dissect(tvbuff_t * tvb, packet_info * pinfo,
 {
   PyObject * py_dissector;
 
-  //printf("pinfo->current_proto : %s\n", pinfo->current_proto);
-  //NOTE => pinfo->current_proto == "HomePlug"
+  /* printf("pinfo->current_proto : %s\n", pinfo->current_proto); */
+  /* NOTE => pinfo->current_proto == "HomePlug" */
 
   g_tree = tree;
   g_pinfo = pinfo;
@@ -228,7 +230,7 @@ void py_dissect(tvbuff_t * tvb, packet_info * pinfo,
  * knowing how to conver the parameter - in the Python code when
  * calling back a C function with a PyCObject as parameter
  */
-dissector_t py_generic_dissector()
+dissector_t py_generic_dissector(void)
 {
   return py_dissect;
 }
@@ -238,7 +240,7 @@ struct SRegisterHandoffsForeach {
   gpointer client_data;
 };
 
-void register_all_py_handoffs_foreach(gpointer key _U_, gpointer value, gpointer user_data)
+static void register_all_py_handoffs_foreach(gpointer key _U_, gpointer value, gpointer user_data)
 {
   PyObject * py_dissector = (PyObject *)value;
   struct SRegisterHandoffsForeach *rhf = (struct SRegisterHandoffsForeach*)user_data;
