@@ -1239,7 +1239,7 @@ execute_next_instruction:
 		{
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 				"Addr: %u ## COPY-LITERAL (position=%u, length=%u, $destination=%u)",
-				current_address, position, length, destination);
+				current_address, position, length, ref_destination);
 		}
 		current_address = next_operand_address;
 
