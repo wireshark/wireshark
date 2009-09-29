@@ -543,17 +543,12 @@ col_do_append_str(column_info *cinfo, gint el, const gchar* separator,
     const gchar* str)
 {
   int    i;
-  size_t len, max_len, sep_len;
+  size_t len, max_len;
 
   if (el == COL_INFO)
     max_len = COL_MAX_INFO_LEN;
   else
     max_len = COL_MAX_LEN;
-
-  if (separator == NULL)
-    sep_len = 0;
-  else
-    sep_len = strlen(separator);
 
   for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
     if (cinfo->fmt_matx[i][el]) {
