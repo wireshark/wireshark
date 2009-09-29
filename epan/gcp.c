@@ -703,7 +703,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, tvbuff_t* gcp_tvb, gcp_msg_t* m, gcp_
 
         PROTO_ITEM_SET_GENERATED(ctx_item);
 
-        if (( c = ctx->cmds )) {
+        if (ctx->cmds) {
             proto_item* history_item = proto_tree_add_text(ctx_tree,gcp_tvb,0,0,"[ Command History ]");
             proto_tree* history_tree = proto_item_add_subtree(history_item,ids->ett.ctx_cmds);
 
