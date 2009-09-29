@@ -146,7 +146,7 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 	} while (readLine[0] == COMMENT_LINE);
 
 	/* parse one line of capture data */
-	if (sscanf(readLine, "%*s %" G_GINT64_MODIFIER "u.%u %u %s",
+	if (sscanf(readLine, "%*s %" G_GINT64_MODIFIER "u.%d %u %s",
 		&seconds, &wth->phdr.ts.nsecs,
 		&wth->phdr.len, readData) != 4) {
 			*err = WTAP_ERR_BAD_RECORD;
