@@ -125,17 +125,14 @@ static const char *get_py_register_file(void)
 /**
  * Finds out all the python dissectors and register them
  */
-void register_all_py_protocols_func(register_cb cb, gpointer client_data)
+void register_all_py_protocols_func(register_cb cb _U_, gpointer client_data _U_)
 {
   FILE * py_reg;
   PyObject * global_dict, * main_module, * register_fn;
   PyObject * py_dissectors, * py_dissector;
   PyObject * py_args;
   Py_ssize_t index;
-  void * nothing;
   char * name;
-  nothing = cb;
-  nothing = client_data;
 
   /* intialize the hash table where all the python dissectors are kept */
   g_py_dissectors = g_hash_table_new(g_str_hash, g_str_equal);
