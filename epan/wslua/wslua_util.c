@@ -295,8 +295,10 @@ WSLUA_METAMETHOD Dir__call(lua_State* L) {
 	const gchar* filename;
 	const char* ext;
 	
-	if (!dir) 
+	if (!dir) {
 		luaL_argerror(L,1,"must be a Dir");
+		return 0;
+	}
 
 	if (!dir->dir) {
 		return 0;
