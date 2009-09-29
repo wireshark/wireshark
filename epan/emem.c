@@ -147,7 +147,7 @@ static intptr_t pagesize;
 /*
  * Set a canary value to be placed between memchunks.
  */
-void
+static void
 emem_canary(guint8 *canary) {
 	int i;
 	static GRand   *rand_state = NULL;
@@ -902,6 +902,10 @@ emem_tree_lookup32_le(emem_tree_t *se_tree, guint32 key)
 		}
 	}
 
+
+	if(!node){
+		return NULL;
+	}
 
 	/* If we are still at the root of the tree this means that this node
 	 * is either smaller than the search key and then we return this
