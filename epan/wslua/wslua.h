@@ -408,4 +408,6 @@ extern int wslua_init(lua_State* L);
 extern tap_extractor_t wslua_get_tap_extractor(const gchar* name);
 extern int wslua_set_tap_enums(lua_State* L);
 
+extern int luaopen_bit(lua_State *L);
+
 #endif
