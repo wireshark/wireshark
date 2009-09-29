@@ -364,7 +364,7 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 }
 
 
-void
+static void
 sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
 {
 	gchar *f_string = NULL;
@@ -479,7 +479,7 @@ static void analyse_window_set_title(struct sctp_analyse *u_data)
 }
 
 static
-GtkWidget *create_list()
+GtkWidget *create_list(void)
 {
 	GtkListStore *list_store;
 	GtkWidget * list;
@@ -870,9 +870,7 @@ void assoc_analyse(sctp_assoc_info_t* assoc)
 
 static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 {
-	guint8* ip_src;
 	guint16 srcport;
-	guint8* ip_dst;
 	guint16 dstport;
 	GList *list, *framelist;
 	dfilter_t *sfcode;
@@ -922,10 +920,6 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 		return;
 	}
 
-	ip_src = g_malloc(edt.pi.net_src.len);
-	memcpy(ip_src, edt.pi.net_src.data, edt.pi.net_src.len);
-	ip_dst = g_malloc(edt.pi.net_dst.len);
-	memcpy(ip_dst, edt.pi.net_dst.data, edt.pi.net_dst.len);
 	srcport = edt.pi.srcport;
 	dstport = edt.pi.destport;
 	list = g_list_first(sctp_stat_get_info()->assoc_info_list);
