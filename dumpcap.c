@@ -823,7 +823,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   wchar_t *err_str;
 #endif
 #endif
-  guint32       magic;
+  guint32       magic = 0;
 
 #ifndef _WIN32
   ld->cap_pipe_fd = -1;
