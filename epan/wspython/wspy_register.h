@@ -28,8 +28,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "config.h"
-
 #ifdef HAVE_PYTHON
 void register_all_py_protocols_func(register_cb cb, gpointer client_data);
 void register_all_py_handoffs_func(register_cb cb, gpointer client_data);

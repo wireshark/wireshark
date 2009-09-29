@@ -28,8 +28,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "config.h"
-
 #ifdef HAVE_PYTHON
 hf_register_info *hf_register_info_create(const guint8 size);
 void hf_register_info_destroy(hf_register_info *hf);
