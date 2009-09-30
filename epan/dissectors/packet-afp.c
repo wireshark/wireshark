@@ -4112,8 +4112,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint col_info = check_col(pinfo->cinfo, COL_INFO);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AFP");
-	if (col_info)
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
@@ -4146,8 +4145,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (!request_val) {	/* missing request */
-		if (col_info)
-			col_set_str(pinfo->cinfo, COL_INFO, "[Reply without query?]");
+		col_set_str(pinfo->cinfo, COL_INFO, "[Reply without query?]");
 		return;
 	}
 
@@ -4180,13 +4178,11 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        	 * ....
 	        	 * ip1:2048 --> ip2:548 <SYN> use the same port but it's a new session!
 	        	 */
-			if (col_info) {
-				col_set_str(pinfo->cinfo, COL_INFO,
-			          "[Error!IP port reused, you need to split the capture file]");
-				expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-				  "IP port reused, you need to split the capture file");
-				return;
-			}
+			col_set_str(pinfo->cinfo, COL_INFO,
+				    "[Error!IP port reused, you need to split the capture file]");
+			expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+					       "IP port reused, you need to split the capture file");
+			return;
 		}
 
 		/*
