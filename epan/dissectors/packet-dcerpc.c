@@ -50,6 +50,12 @@
 
 static int dcerpc_tap = -1;
 
+/* standard transport syntax */
+static e_uuid_t uuid_data_repr_proto = { 0x8a885d04, 0x1ceb, 0x11c9, { 0x9f, 0xe8, 0x08, 0x00, 0x2b, 0x10, 0x48, 0x60 } };
+/* ndr64 transport syntax, introduced in w2k8 */
+static e_uuid_t ndr64_uuid = { 0x71710533, 0xbeba, 0x4937, { 0x83, 0x19, 0xb5, 0xdb, 0xef, 0x9c, 0xcc, 0x36 } };
+
+
 
 static const value_string pckt_vals[] = {
     { PDU_REQ,        "Request"},
@@ -807,6 +813,7 @@ typedef struct _dcerpc_bind_key {
 typedef struct _dcerpc_bind_value {
 	e_uuid_t uuid;
 	guint16 ver;
+	e_uuid_t transport;
 } dcerpc_bind_value;
 
 static gint
@@ -2676,6 +2683,40 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
           proto_item_set_len(iface_item, 20);
       }
 
+
+      for (j = 0; j < num_trans_items; j++) {
+	    proto_tree *trans_tree = NULL;
+	    proto_item *trans_item = NULL;
+
+        dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
+        if (ctx_tree) {
+
+        trans_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_trans_syntax, tvb, offset, 0, FALSE);
+        trans_tree = proto_item_add_subtree(trans_item, ett_dcerpc_cn_trans_syntax);
+
+        uuid_str = guid_to_str((e_guid_t *) &trans_id);
+        uuid_name = guids_get_uuid_name(&trans_id);
+
+        if(uuid_name) {
+	    proto_tree_add_guid_format (trans_tree, hf_dcerpc_cn_bind_trans_id, tvb,
+                               offset, 16, (e_guid_t *) &trans_id, "Transport Syntax: %s UUID:%s", uuid_name, uuid_str);
+            proto_item_append_text(trans_item, "[%u]: %s", j+1, uuid_name);
+        } else {
+          proto_tree_add_guid_format (trans_tree, hf_dcerpc_cn_bind_trans_id, tvb,
+                                        offset, 16, (e_guid_t *) &trans_id, "Transport Syntax: %s", uuid_str);
+          proto_item_append_text(trans_item, "[%u]: %s", j+1, uuid_str);
+        }
+        }
+        offset += 16;
+
+        offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, trans_tree, hdr->drep,
+                                        hf_dcerpc_cn_bind_trans_ver, &trans_ver);
+        if (ctx_tree) {
+          proto_item_set_len(trans_item, 20);
+          proto_item_append_text(trans_item, " V%u", trans_ver);
+        }
+      }
+
       if (!saw_ctx_item) {
         conv = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                   pinfo->srcport, pinfo->destport, 0);
@@ -2702,6 +2743,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         	value = se_alloc (sizeof (dcerpc_bind_value));
         	value->uuid = if_id;
         	value->ver = if_ver;
+		value->transport=trans_id;
 
 		/* add this entry to the bind table, first removing any
 		   previous ones that are identical
@@ -2720,31 +2762,6 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        guids_resolve_uuid_to_str(&if_id), if_ver, if_ver_minor);
         }
         saw_ctx_item = TRUE;
-      }
-
-      for (j = 0; j < num_trans_items; j++) {
-	    proto_tree *trans_tree = NULL;
-	    proto_item *trans_item = NULL;
-
-        dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
-        if (ctx_tree) {
-
-        trans_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_trans_syntax, tvb, offset, 0, FALSE);
-        trans_tree = proto_item_add_subtree(trans_item, ett_dcerpc_cn_trans_syntax);
-
-        uuid_str = guid_to_str((e_guid_t *) &trans_id);
-            proto_tree_add_guid_format (trans_tree, hf_dcerpc_cn_bind_trans_id, tvb,
-                                          offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s", uuid_str);
-            proto_item_append_text(trans_item, "[%u]: %s", j+1, uuid_str);
-        }
-        offset += 16;
-
-        offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, trans_tree, hdr->drep,
-                                        hf_dcerpc_cn_bind_trans_ver, &trans_ver);
-        if (ctx_tree) {
-          proto_item_set_len(trans_item, 20);
-          proto_item_append_text(trans_item, " V%u", trans_ver);
-        }
       }
 
       if(ctx_tree) {
@@ -2773,6 +2790,7 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     e_uuid_t trans_id;
     guint32 trans_ver;
     dcerpc_auth_info auth_info;
+    const char *uuid_name = NULL;
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_max_xmit, &max_xmit);
@@ -2827,10 +2845,12 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
 
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
+        uuid_name = guids_get_uuid_name(&trans_id);
+
         if (ctx_tree) {
             proto_tree_add_guid_format (ctx_tree, hf_dcerpc_cn_ack_trans_id, tvb,
                                           offset, 16, (e_guid_t *) &trans_id, "Transfer Syntax: %s",
-                                          guid_to_str((e_guid_t *) &trans_id));
+                                          uuid_name?uuid_name:guid_to_str((e_guid_t *) &trans_id));
         }
         offset += 16;
 
@@ -3207,6 +3227,12 @@ dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
     bind_value = se_alloc (sizeof (dcerpc_bind_value));
     bind_value->uuid = binding->uuid;
     bind_value->ver = binding->ver;
+    /* For now, assume all DCE/RPC we pick from "decode as" is using
+       standard ndr and not ndr64.
+       We should make this selectable from the dialog in the future
+    */
+    bind_value->transport=uuid_data_repr_proto;
+
 
     key = se_alloc(sizeof (dcerpc_bind_key));
     key->conv = conv;
@@ -5387,4 +5413,8 @@ proto_reg_handoff_dcerpc (void)
     heur_dissector_add ("smb2_heur_subdissectors", dissect_dcerpc_cn_smb2, proto_dcerpc);
     heur_dissector_add ("http", dissect_dcerpc_cn_bs, proto_dcerpc);
     dcerpc_smb_init(proto_dcerpc);
+
+
+    guids_add_uuid(&uuid_data_repr_proto, "Version 1.1 network data representation protocol");
+    guids_add_uuid(&ndr64_uuid, "NDR64");
 }

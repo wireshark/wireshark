@@ -81,8 +81,6 @@ static guint16  ver_epm3 = 3;
 static guint16  ver_epm4 = 4;
 
 
-static e_uuid_t uuid_data_repr_proto = { 0x8a885d04, 0x1ceb, 0x11c9, { 0x9f, 0xe8, 0x08, 0x00, 0x2b, 0x10, 0x48, 0x60 } };
-
 
 static const value_string ep_service[] = {
 	{ 0, "rpc_c_ep_all_elts" },
@@ -787,9 +785,6 @@ proto_register_epm (void)
 void
 proto_reg_handoff_epm (void)
 {
-    /* Register the UUIDs */
-    guids_add_uuid(&uuid_data_repr_proto, "Version 1.1 network data representation protocol");
-
     /* Register the protocol as dcerpc */
     dcerpc_init_uuid (proto_epm3, ett_epm, &uuid_epm, ver_epm3, epm_dissectors, hf_epm_opnum);
     dcerpc_init_uuid (proto_epm4, ett_epm, &uuid_epm, ver_epm4, epm_dissectors, hf_epm_opnum);
