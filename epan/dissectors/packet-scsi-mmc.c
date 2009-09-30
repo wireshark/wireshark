@@ -1267,6 +1267,7 @@ const value_string scsi_mmc_vals[] = {
     {SCSI_SPC_INQUIRY               , "Inquiry"},
     {SCSI_SPC_MODESELECT10          , "Mode Select(10)"},
     {SCSI_SPC_MODESENSE10           , "Mode Sense(10)"},
+    {SCSI_SPC_MODESENSE6            , "Mode Sense(6)"},
     {SCSI_SPC_PREVMEDREMOVAL        , "Prevent/Allow Medium Removal"},
     {SCSI_MMC4_READ10                , "Read(10)"},
     {SCSI_MMC4_READ12                , "Read(12)"},
