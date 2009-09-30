@@ -78,11 +78,16 @@ What needs to be done?
 - Fix places in the cmake files marked as todo.
 - Add back (working) install target.
   Currently, directories are created with user umask
+- Add back -Werror
+- Bug with empty list and PRINT_DISABLED_FEATURES?
+- Add back compiler flags test
 - Build source package (using CPack).
 - Build rpm package (using CPack).
+- Build dpkg package (using CPack).
 - Add back checkAPI target.
 - Test and add support for other platforms (BSDs, OSX,
   Solaris, Win32, Win64, ...)
+
 ...
 
 Links regarding cmake
