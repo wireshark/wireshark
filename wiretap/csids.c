@@ -72,7 +72,6 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
 
   gboolean byteswap = FALSE;
   struct csids_header hdr;
-  bytesRead=0;
 
   /* check the file to make sure it is a csids file. */
   bytesRead = file_read( &hdr, 1, sizeof( struct csids_header), wth->fh );
