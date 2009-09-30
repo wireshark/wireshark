@@ -323,14 +323,15 @@ static const enum_val_t dmx_display_line_format[] = {
 static gboolean is_acn(tvbuff_t *tvb)
 {
   static char acn_packet_id[] = "ASC-E1.17\0\0\0";  /* must be 12 bytes */
-  guint8      *packet_id;
 
-  /* Get the fields in octets 2 - 12 octet */
-  packet_id = tvb_get_ephemeral_string(tvb, 4, 12);
-  if (memcmp(packet_id, &acn_packet_id, 12) == 0) {
-    return TRUE;
-  }
-  return FALSE;
+  if (tvb_length(tvb) < (4+sizeof(acn_packet_id)))
+    return FALSE;
+
+  /* Check the bytes in octets 4 - 16 */
+  if (tvb_memeql(tvb, 4, acn_packet_id, sizeof(acn_packet_id)) != 0)
+    return FALSE;
+
+  return TRUE;
 }
 
 
@@ -2129,7 +2130,6 @@ dissect_acn_dmx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     if(check_col(pinfo->cinfo,COL_INFO)){
       col_append_fstr(pinfo->cinfo,COL_INFO, ", Universe %d, Seq %3d", universe, sequence );
     }
-
     proto_item_append_text(ti, ", Universe: %d, Priority: %d", universe, priority);
 
     data_offset = dissect_acn_dmx_data_pdu(tvb, pinfo, pdu_tree, data_offset, &pdu_offsets);
@@ -2491,7 +2491,6 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
       /* add cid to info */
       if(check_col(pinfo->cinfo,COL_INFO)){
-        col_clear(pinfo->cinfo,COL_INFO);
         col_add_fstr(pinfo->cinfo,COL_INFO, "CID %s", guid_to_str(&guid));
       }
 
@@ -2589,11 +2588,8 @@ dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Set the protocol column */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACN");
 
-  /* Clear out stuff in the info column */
-  if(check_col(pinfo->cinfo,COL_INFO)){
-  /* col_clear(pinfo->cinfo,COL_INFO); */
+  if(check_col(pinfo->cinfo,COL_INFO))
     col_add_fstr(pinfo->cinfo,COL_INFO, "ACN [Src Port: %d, Dst Port: %d]", pinfo->srcport, pinfo->destport );
-  }
 
   if (tree) { /* we are being asked for details */
     ti = proto_tree_add_item(tree, proto_acn, tvb, 0, -1, FALSE);
