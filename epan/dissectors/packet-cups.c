@@ -160,8 +160,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	cups_ptype_t	ptype;
 	unsigned int	state;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_CUPS);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_CUPS);
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
