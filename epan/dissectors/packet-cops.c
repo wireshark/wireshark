@@ -5482,6 +5482,7 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
 #define PCMM_TRANSACTION_ID                0x0101
 #define PCMM_AMID                          0x0201
 #define PCMM_SUBSCRIBER_ID                 0x0301
+#define PCMM_SUBSCRIBER_ID_V6              0x0302
 #define PCMM_GATE_ID                       0x0401
 #define PCMM_GATE_SPEC                     0x0501
 #define PCMM_CLASSIFIER                    0x0601
@@ -5549,6 +5550,9 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                break;
         case PCMM_SUBSCRIBER_ID:
                cops_subscriber_id_v4(tvb, tree, object_len, offset);
+               break;
+        case PCMM_SUBSCRIBER_ID_V6:
+               cops_subscriber_id_v6(tvb, tree, object_len, offset);
                break;
         case PCMM_GATE_ID:
                cops_gate_id(tvb, tree, object_len, offset);
