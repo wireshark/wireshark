@@ -35,15 +35,15 @@
 
 
 
-static int expert_tap = -1;
-static int proto_expert = -1;
-static int highest_severity = 0;
+static int expert_tap         = -1;
+static int proto_expert       = -1;
+static int highest_severity   =  0;
 
-static int ett_expert = -1;
-static int ett_subexpert = -1;
+static int ett_expert         = -1;
+static int ett_subexpert      = -1;
 
-static int hf_expert_msg = -1;
-static int hf_expert_group = -1;
+static int hf_expert_msg      = -1;
+static int hf_expert_group    = -1;
 static int hf_expert_severity = -1;
 
 const value_string expert_group_vals[] = {
@@ -117,7 +117,7 @@ expert_get_highest_severity(void)
 
 
 /* set's the PI_ flags to a protocol item
- * (and it's parent items till the toplevel) */
+ * (and its parent items till the toplevel) */
 static void
 expert_set_item_flags(proto_item *pi, int group, int severity)
 {
@@ -137,9 +137,9 @@ expert_create_tree(proto_item *pi, int group, int severity, const char *msg)
 
 	tree = proto_item_add_subtree(pi, ett_expert);
 	ti = proto_tree_add_protocol_format(tree, proto_expert, NULL, 0, 0, "Expert Info (%s/%s): %s",
-		val_to_str(severity, expert_severity_vals, "?%u?"),
-		val_to_str(group, expert_group_vals, "?%u?"),
-		msg);
+					    val_to_str(severity, expert_severity_vals, "?%u?"),
+					    val_to_str(group, expert_group_vals, "?%u?"),
+					    msg);
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	return proto_item_add_subtree(ti, ett_subexpert);
@@ -149,11 +149,11 @@ static void
 expert_set_info_vformat(
 packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, va_list ap)
 {
-	char			formatted[300];
-	int				tap;
+	char		formatted[300];
+	int		tap;
 	expert_info_t	*ei;
-	proto_tree		*tree;
-	proto_item		*ti;
+	proto_tree	*tree;
+	proto_item	*ti;
 
 
 	/* if this packet isn't loaded because of a read filter, don't output anything */
@@ -161,9 +161,9 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 		return;
 	}
 
-    if(severity > highest_severity) {
-        highest_severity = severity;
-    }
+	if(severity > highest_severity) {
+		highest_severity = severity;
+	}
 
 	if(pi != NULL && pi->finfo != NULL) {	
 		expert_set_item_flags(pi, group, severity);
@@ -189,16 +189,17 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 		return;
 
 	ei = ep_alloc(sizeof(expert_info_t));
+
 	ei->packet_num	= pinfo->fd->num;
-	ei->group		= group;
+	ei->group	= group;
 	ei->severity	= severity;
 	ei->protocol	= pinfo->current_proto; /* ep_strdup(pinfo->current_proto); it's a const */
-	ei->summary		= ep_strdup(formatted);
+	ei->summary	= ep_strdup(formatted);
 	ei->pitem       = NULL;
 
 	/* if we have a proto_item (not a faked item), set expert attributes to it */
 	if(pi != NULL && PITEM_FINFO(pi) != NULL) {
-        ei->pitem       = pi;
+		ei->pitem = pi;
 	}
 
 	tap_queue_packet(expert_tap, pinfo, ei);
