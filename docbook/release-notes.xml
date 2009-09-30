@@ -37,40 +37,20 @@ Wireshark Info
 
         <listitem>
           <para>
-            The AFS dissector could crash.
-            <!-- Fixed in trunk: r28815 -->
-            <!-- Fixed in trunk-1.0: r29702 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3564">Bug
-            3564</ulink>)
+            The RADIUS dissector could crash.
+            <!-- Fixed in trunk: r28891 -->
+            <!-- Fixed in trunk-1.0: r29101 -->
+            <!-- Fixed in trunk-1.2: r30219 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3578">Bug
+            3578</ulink>) -->
           </para>
-          <para>Versions affected: 0.9.2 to 1.0.8, 1.2.0</para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The Infiniband dissector could crash on some platforms.
-            <!-- Fixed in trunk: r28839 -->
-            <!-- Fixed in trunk-1.0: r29702 -->
-          </para>
-          <para>Versions affected: 0.9.2 to 1.0.8, 1.2.0</para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The OpcUa dissector could use excessive CPU and memory.
-            <!-- Fixed in trunk: r29813 -->
-            <!-- Fixed in trunk-1.2: r29826 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3986">Bug
-            3986</ulink>)
-          </para>
-          <para>Versions affected: 0.99.6 to 1.0.8, 1.2.0 to 1.2.1</para>
+          <para>Versions affected: 0.10.10 to 1.0.9, 1.2.0</para>
           <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
           </para>
           -->
         </listitem>
-
       </itemizedlist>
 
     </para>
