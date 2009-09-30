@@ -760,7 +760,7 @@ static void add_xml_field(GArray* hfs, int* p_id, gchar* name, gchar* fqn) {
 	hfri.hfinfo.blurb = NULL;
 	hfri.hfinfo.id = 0;
 	hfri.hfinfo.parent = 0;
-	hfri.hfinfo.ref_count = HF_REF_TYPE_NONE;
+	hfri.hfinfo.ref_type = HF_REF_TYPE_NONE;
 	hfri.hfinfo.bitshift = 0;
 	hfri.hfinfo.same_name_next = NULL;
 	hfri.hfinfo.same_name_prev = NULL;

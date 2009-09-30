@@ -110,7 +110,7 @@ wrs_count_bitshift(guint32 bitmask)
 	}								\
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);			\
 	if(!(PTREE_DATA(tree)->visible)){				\
-			if((hfinfo->ref_count != HF_REF_TYPE_DIRECT)	\
+			if((hfinfo->ref_type != HF_REF_TYPE_DIRECT)	\
 			&& (hfinfo->type!=FT_PROTOCOL ||		\
 				PTREE_DATA(tree)->fake_protocols)){	\
 				/* just return tree back to the caller */\
@@ -552,7 +552,7 @@ free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 	header_field_info *hfinfo;
 
 	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
-	if(hfinfo->ref_count != HF_REF_TYPE_NONE) {
+	if(hfinfo->ref_type != HF_REF_TYPE_NONE) {
 		/* when a field is referenced by a filter this also
 		   affects the refcount for the parent protocol so we need
 		   to adjust the refcount for the parent as well
@@ -560,9 +560,9 @@ free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 		if( hfinfo->parent != -1 ) {
 			header_field_info *parent_hfinfo;
 			PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
-			parent_hfinfo->ref_count = HF_REF_TYPE_NONE;
+			parent_hfinfo->ref_type = HF_REF_TYPE_NONE;
 		}
-		hfinfo->ref_count = HF_REF_TYPE_NONE;
+		hfinfo->ref_type = HF_REF_TYPE_NONE;
 	}
 
 	g_ptr_array_free(ptrs, TRUE);
@@ -683,7 +683,7 @@ proto_field_is_referenced(proto_tree *tree, int proto_id)
 		return TRUE;
 
 	PROTO_REGISTRAR_GET_NTH(proto_id, hfinfo);
-	if (hfinfo->ref_count != HF_REF_TYPE_NONE)
+	if (hfinfo->ref_type != HF_REF_TYPE_NONE)
 		return TRUE;
 
 	if (hfinfo->type == FT_PROTOCOL && !PTREE_DATA(tree)->fake_protocols)
@@ -1154,7 +1154,7 @@ static GPtrArray *proto_lookup_or_create_interesting_hfids(proto_tree *tree,
 	DISSECTOR_ASSERT(tree);
 	DISSECTOR_ASSERT(hfinfo);
 
-	if (hfinfo->ref_count == HF_REF_TYPE_DIRECT) {
+	if (hfinfo->ref_type == HF_REF_TYPE_DIRECT) {
 		if (PTREE_DATA(tree)->interesting_hfids == NULL) {
 			/* Initialize the hash because we now know that it is needed */
 			PTREE_DATA(tree)->interesting_hfids =
@@ -3612,7 +3612,7 @@ proto_tree_prime_hfid(proto_tree *tree _U_, gint hfid)
 	/* this field is referenced by a filter so increase the refcount.
 	   also increase the refcount for the parent, i.e the protocol.
 	*/
-	hfinfo->ref_count = HF_REF_TYPE_DIRECT;
+	hfinfo->ref_type = HF_REF_TYPE_DIRECT;
 	/* only increase the refcount if there is a parent.
 	   if this is a protocol and not a field then parent will be -1
 	   and there is no parent to add any refcounting for.
@@ -3624,8 +3624,8 @@ proto_tree_prime_hfid(proto_tree *tree _U_, gint hfid)
 		/* Mark parent as indirectly referenced unless it is already directly
 		 * referenced, i.e. the user has specified the parent in a filter.
 		 */
-		if (parent_hfinfo->ref_count != HF_REF_TYPE_DIRECT)
-			parent_hfinfo->ref_count = HF_REF_TYPE_INDIRECT;
+		if (parent_hfinfo->ref_type != HF_REF_TYPE_DIRECT)
+			parent_hfinfo->ref_type = HF_REF_TYPE_INDIRECT;
 	}
 }
 
@@ -3848,7 +3848,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
 	hfinfo->strings = protocol;
 	hfinfo->bitmask = 0;
 	hfinfo->bitshift = 0;
-	hfinfo->ref_count = HF_REF_TYPE_NONE;
+	hfinfo->ref_type = HF_REF_TYPE_NONE;
 	hfinfo->blurb = NULL;
 	hfinfo->parent = -1; /* this field differentiates protos and fields */
 
