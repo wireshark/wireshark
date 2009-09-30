@@ -27,9 +27,7 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+
 #include <glib.h>
 #include <epan/prefs.h>
 #include <epan/packet.h>
@@ -41,8 +39,6 @@
 #include "packet-esis.h"
 #include <epan/nlpid.h>
 #include <epan/ipproto.h>
-#include <epan/expert.h>
-#include <epan/strutil.h>
 
 /* protocols and fields */
 
