@@ -2598,7 +2598,6 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_dmp_structured_id (tvbuff_t *tvb, proto_tree *body_tree,
                                        gint offset)
 {
-  proto_item *tf = NULL;
   guint8      id_byte;
   guint16     id_short;
   guint32     id_int;
@@ -2612,45 +2611,39 @@ static void dissect_dmp_structured_id (tvbuff_t *tvb, proto_tree *body_tree,
   case STRUCT_ID_UINT8:
     id_byte = tvb_get_guint8 (tvb, offset);
     g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%u", id_byte);
-    tf = proto_tree_add_item (body_tree, hf_message_bodyid_uint8, tvb,
-			      offset, 1, FALSE);
+    proto_tree_add_item (body_tree, hf_message_bodyid_uint8, tvb, offset, 1, FALSE);
     break;
 
   case STRUCT_ID_UINT16:
     id_short = tvb_get_ntohs (tvb, offset);
     g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%u", id_short);
-    tf = proto_tree_add_item (body_tree, hf_message_bodyid_uint16, tvb,
-			      offset, 2, FALSE);
+    proto_tree_add_item (body_tree, hf_message_bodyid_uint16, tvb, offset, 2, FALSE);
     break;
 
   case STRUCT_ID_UINT32:
     id_int = tvb_get_ntohl (tvb, offset);
     g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%u", id_int);
-    tf = proto_tree_add_item (body_tree, hf_message_bodyid_uint32, tvb,
-			      offset, 4, FALSE);
+    proto_tree_add_item (body_tree, hf_message_bodyid_uint32, tvb, offset, 4, FALSE);
     break;
 
   case STRUCT_ID_UINT64:
     id_guint64 = tvb_get_ntoh64 (tvb, offset);
-    g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%" G_GINT64_MODIFIER "u",
-		id_guint64);
-    tf = proto_tree_add_item (body_tree, hf_message_bodyid_uint64, tvb,
-			      offset, 8, FALSE);
+    g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%" G_GINT64_MODIFIER "u", id_guint64);
+    proto_tree_add_item (body_tree, hf_message_bodyid_uint64, tvb, offset, 8, FALSE);
     break;
 
   case STRUCT_ID_STRING:
     id_string = tvb_get_ephemeral_string (tvb, offset, (gint) dmp_struct_length);
     g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%s", id_string);
-    tf = proto_tree_add_item (body_tree, hf_message_bodyid_string, tvb,
-			      offset, dmp_struct_length, FALSE);
+    proto_tree_add_item (body_tree, hf_message_bodyid_string, tvb, offset, dmp_struct_length, FALSE);
     break;
 
   case STRUCT_ID_ZSTRING:
     id_string = tvb_get_ephemeral_stringz (tvb, offset, &length);
     g_snprintf (dmp.struct_id, MAX_STRUCT_ID_LEN, "%s", id_string);
-    tf = proto_tree_add_item (body_tree, hf_message_bodyid_zstring, tvb,
-			      offset, length, FALSE);
+    proto_tree_add_item (body_tree, hf_message_bodyid_zstring, tvb, offset, length, FALSE);
     break;
+
   }
 }
 
