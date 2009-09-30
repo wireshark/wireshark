@@ -1689,7 +1689,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
                 break;
               case AL_OBJ_AO_DBLOPB:
                 al_valdbl = tvb_get_letohieee_double(tvb, data_pos);
-                proto_item_append_text(point_item, ", Value: %lg", al_valdbl);
+                proto_item_append_text(point_item, ", Value: %g", al_valdbl);
                 proto_tree_add_item(point_tree, hf_dnp3_al_anaoutdbl, tvb, data_pos, 8, TRUE);
                 data_pos += 8;
                 break;
@@ -1925,7 +1925,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
               case AL_OBJ_AIFC_DBLT:
 
                 al_valdbl = tvb_get_letohieee_double(tvb, data_pos);
-                proto_item_append_text(point_item, ", Value: %lg", al_valdbl);
+                proto_item_append_text(point_item, ", Value: %g", al_valdbl);
                 proto_tree_add_item(point_tree, hf_dnp3_al_anadbl, tvb, data_pos, 8, TRUE);
                 data_pos += 8;
                 break;
@@ -1991,7 +1991,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
               case AL_OBJ_AO_DBL:     /* 64-Bit Floating Point Output Status (Obj:40, Var:04) */
 
                 al_valdbl = tvb_get_letohieee_double(tvb, data_pos);
-                proto_item_append_text(point_item, ", Value: %lg", al_valdbl);
+                proto_item_append_text(point_item, ", Value: %g", al_valdbl);
                 proto_tree_add_item(point_tree, hf_dnp3_al_anaoutdbl, tvb, data_pos, 8, TRUE);
                 data_pos += 8;
                 break;
