@@ -48,7 +48,7 @@
  * Dutin Johnson - 802.11n and portions of 802.11k and 802.11ma
  * dustin@dustinj.us & dustin.johnson@cacetech.com
  *
- * 04/21/2008 - Added dissection for 802.11p 
+ * 04/21/2008 - Added dissection for 802.11p
  * Arada Systems <http://www.aradasystems.com>
  */
 
@@ -4539,7 +4539,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           proto_item_append_text(ti, ": Broadcast");
         }
         en = proto_tree_add_string_format (tree, hf_tagged_ssid, tvb, offset + 2,
-                                           tag_len, format_text(ssid, tag_len), 
+                                           tag_len, format_text(ssid, tag_len),
                                            "SSID: %s", format_text(ssid, tag_len));
         PROTO_ITEM_SET_HIDDEN (en);
         beacon_padding++; /* padding bug */
@@ -4991,7 +4991,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
 
 /* Std 802.11-2007
- * 7.3.2.26 Vendor Specific information element 
+ * 7.3.2.26 Vendor Specific information element
  * The
  * information element is in the format shown in Figure 7-75 and requires that the first 3 octets of the
  * information field contain the OUI of the entity that has defined the content of the particular Vendor Specific
@@ -5080,7 +5080,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
     }
     /*** End: Power Capability Tag - Dustin Johnson ***/
-    /* 
+    /*
      * 7.3.2.18 TPC Report element
      *
      */
@@ -5316,7 +5316,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     /* End: Measure Request Tag - Dustin Johnson */
     /* Begin: Measure Report Tag - Dustin Johnson */
         /* 7.3.2.22 Measurement Report element
-         * The Length field is variable and depends on the length of the 
+         * The Length field is variable and depends on the length of the
          * Measurement Report field. The minimum value of the Length field is 3.
          */
     case TAG_MEASURE_REP:
@@ -5536,7 +5536,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
     /*** End: Measure Report Tag - Dustin Johnson ***/
     /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
-    /* The Capabilities field is a bit field indicating the capabilities being advertised 
+    /* The Capabilities field is a bit field indicating the capabilities being advertised
      * by the STA transmitting the information element
      */
     case TAG_EXTENDED_CAPABILITIES:
@@ -6138,7 +6138,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   if (datapad)
     hdr_len = roundup2(hdr_len, 4);
 
-  fts_str = val_to_str(frame_type_subtype, frame_type_subtype_vals,
+  fts_str = val_to_str_const(frame_type_subtype, frame_type_subtype_vals,
               "Unrecognized (Reserved frame)");
   if (check_col (pinfo->cinfo, COL_INFO))
       col_set_str (pinfo->cinfo, COL_INFO, fts_str);
@@ -7928,20 +7928,20 @@ in bytes.
 Many WLAN devices supply a relatively high resolution frame reception
 time value.  This field contains the value supplied by the device.  If
 the device does not supply a receive time value, this field shall be
-set to zero.  The units for this field are microseconds.  
+set to zero.  The units for this field are microseconds.
 
 If possible, this time value should be absolute, representing the number
 of microseconds elapsed since the UNIX epoch.
 
 4.4 hosttime
 The hosttime field is set to the current value of the host maintained
-clock variable when the frame is received by the host. 
+clock variable when the frame is received by the host.
 
-If possible, this time value should be absolute, representing the number 
+If possible, this time value should be absolute, representing the number
 of microseconds elapsed since the UNIX epoch.
 
 4.5 phytype
-The phytype field identifies what type of PHY is employed by the WLAN 
+The phytype field identifies what type of PHY is employed by the WLAN
 device used to capture this frame.  The valid values are:
 
         PhyType                         Value
@@ -7958,10 +7958,10 @@ device used to capture this frame.  The valid values are:
 
 4.6 frequency
 
-This represents the frequency or channel number of the receiver at the 
+This represents the frequency or channel number of the receiver at the
 time the frame was received.  It is interpreted as follows:
 
-For frequency hopping radios, this field is broken in to the 
+For frequency hopping radios, this field is broken in to the
 following subfields:
 
         Byte    Subfield
@@ -8002,7 +8002,7 @@ information is present: "None", "Normalized RSSI" or "dBm".  "None"
 indicates that the underlying WLAN device does not supply any signal
 strength at all and the ssi_* values are unset.  "Normalized RSSI"
 values are integers in the range [0-1000] where higher numbers
-indicate stronger signal.  "dBm" values indicate an actual signal 
+indicate stronger signal.  "dBm" values indicate an actual signal
 strength measurement quantity and are usually in the range [-108 - 10].
 The following values indicate the three types:
 
@@ -8042,7 +8042,7 @@ multiple encoding types, this will tell us which one was used.
         Value   Description
         ---------------------------------------------
         0       Unknown
-        1       CCK           
+        1       CCK
         2       PBCC
         3       OFDM
         4       DSSS-OFDM
@@ -8052,20 +8052,20 @@ multiple encoding types, this will tell us which one was used.
         8       64QAM
 
 4.14 sequence
-This is a receive frame sequence counter.  The sniff host shall 
+This is a receive frame sequence counter.  The sniff host shall
 increment this by one for every valid frame received off the medium.
-By watching for gaps in the sequence numbers we can determine when 
-packets are lost due to unreliable transport, rather than a frame never 
+By watching for gaps in the sequence numbers we can determine when
+packets are lost due to unreliable transport, rather than a frame never
 being received to begin with.
 
 4.15 drops
-This is a counter of the number of known frame drops that occured.  This 
-is particularly useful when the system or hardware cannot keep up with 
+This is a counter of the number of known frame drops that occured.  This
+is particularly useful when the system or hardware cannot keep up with
 the sniffer load.
 
 4.16 receiver_addr
-This specifies the MAC address of the receiver of this frame.  
-It is six octets in length.  This field is followed by two octets of 
+This specifies the MAC address of the receiver of this frame.
+It is six octets in length.  This field is followed by two octets of
 padding to keep the structure 32-bit word aligned.
 
 ================================
@@ -8073,7 +8073,7 @@ padding to keep the structure 32-bit word aligned.
 Changes: v2->v2.1
 
  * Added contact e-mail address to introduction
- * Added sniffer_addr, drop count, and sequence fields, bringing total 
+ * Added sniffer_addr, drop count, and sequence fields, bringing total
    length to 80 bytes
  * Bumped version to 0x80211002
  * Mactime is specified in microseconds, not nanoseconds
@@ -9958,7 +9958,7 @@ proto_register_ieee80211 (void)
       NULL, HFILL }},
 
     {&hf_tagged_ssid,
-     {"SSID", "wlan_mgt.ssid", FT_STRING, BASE_NONE, NULL, 0, 
+     {"SSID", "wlan_mgt.ssid", FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     /*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
