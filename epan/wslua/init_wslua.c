@@ -197,7 +197,7 @@ static int lua_main_error_handler(lua_State* LS) {
     return 0;
 }
 
-void lua_load_script(const gchar* filename) {
+static void lua_load_script(const gchar* filename) {
     FILE* file;
 
     if (! ( file = ws_fopen(filename,"r")) ) {
