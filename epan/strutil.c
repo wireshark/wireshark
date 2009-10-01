@@ -662,7 +662,6 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
  * @param ba The byte array to be copied.
  * @return If ba exists, a freshly allocated copy.  NULL otherwise.
  *
- * XXX - Should this be in strutil.c?
  */
 GByteArray *
 byte_array_dup(GByteArray *ba) {
