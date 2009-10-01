@@ -845,7 +845,7 @@ PROTOFIELD_OTHER(bool,FT_BOOLEAN)
 WSLUA_METAMETHOD ProtoField_tostring(lua_State* L) {
 	/* Returns a string w/ info about a protofiled (for debugging purposes) */
     ProtoField f = checkProtoField(L,1);
-    gchar* s = ep_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",f->hfid,f->name,f->abbr,ftenum_to_string(f->type),base_to_string(f->base),f->vs,f->mask,f->blob);
+    gchar* s = ep_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",f->hfid,f->name,f->abbr,ftenum_to_string(f->type),base_to_string(f->base),(void *)f->vs,f->mask,f->blob);
     
     lua_pushstring(L,s);
     
