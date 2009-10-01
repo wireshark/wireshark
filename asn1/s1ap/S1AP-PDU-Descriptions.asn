@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.6.1 (2009-06)
+-- 3GPP TS 36.413 V8.7.0 (2009-09)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -9,7 +9,7 @@
 
 S1AP-PDU-Descriptions  { 
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
-eps-Access (20) modules (3) s1ap (1) version1 (1) s1ap-PDU-Descriptions (0)}
+eps-Access (21) modules (3) s1ap (1) version1 (1) s1ap-PDU-Descriptions (0)}
 
 DEFINITIONS AUTOMATIC TAGS ::= 
 

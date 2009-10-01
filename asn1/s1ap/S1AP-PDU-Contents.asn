@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.6.1 (2009-06)
+-- 3GPP TS 36.413 V8.7.0 (2009-09)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -9,7 +9,7 @@
 
 S1AP-PDU-Contents { 
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
-eps-Access (20) modules (3) s1ap (1) version1 (1) s1ap-PDU-Contents (1) }
+eps-Access (21) modules (3) s1ap (1) version1 (1) s1ap-PDU-Contents (1) }
 
 DEFINITIONS AUTOMATIC TAGS ::= 
 
@@ -1655,6 +1655,7 @@ UplinkS1cdma2000tunnelingIEs S1AP-PROTOCOL-IES ::= {
 	...
 }
 
+
 -- **************************************************************
 --
 -- UE CAPABILITY INFO INDICATION ELEMENTARY PROCEDURE
@@ -2081,3 +2082,4 @@ PrivateMessageIEs S1AP-PRIVATE-IES ::= {
 }
 
 END
+

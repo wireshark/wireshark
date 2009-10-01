@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.6.1 (2009-06)
+-- 3GPP TS 36.413 V8.7.0 (2009-09)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -9,7 +9,7 @@
 
 S1AP-IEs { 
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
-eps-Access (20) modules (3) s1ap (1) version1 (1) s1ap-IEs (2) }
+eps-Access (21) modules (3) s1ap (1) version1 (1) s1ap-IEs (2) }
 
 DEFINITIONS AUTOMATIC TAGS ::= 
 
@@ -178,7 +178,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	s1-inter-system-handover-triggered,
 	x2-handover-triggered,
 	...,
-	redirection-towards-1xRTT
+	redirection-towards-1xRTT,
+	not-supported-QCI-value
 
 }
 
@@ -785,7 +786,7 @@ ReportArea ::= ENUMERATED {
 	...
 }
 
-RepetitionPeriod ::= INTEGER (0..4096)
+RepetitionPeriod ::= INTEGER (0..4095)
 
 
 RNC-ID					::= INTEGER (0..4095)
@@ -1176,3 +1177,4 @@ X2TNLConfigurationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- Z
 
 END
+
