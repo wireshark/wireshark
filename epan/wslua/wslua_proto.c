@@ -1238,8 +1238,7 @@ int Proto_commit(lua_State* L) {
         GArray* hfa = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
         GArray* etta = g_array_new(TRUE,TRUE,sizeof(gint*));
         Proto proto;
-        const gchar* proto_name;
-        proto_name = lua_tostring(L,2);
+        /* const gchar* proto_name = lua_tostring(L,2); */
         proto = checkProto(L,3);
                 
         lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
