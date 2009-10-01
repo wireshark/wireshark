@@ -302,13 +302,15 @@ typedef struct _dcerpc_call_value {
                              */
     void *private_data;      /* XXX This will later be renamed as ep_data */
     e_ctx_hnd *pol;	     /* policy handle tracked between request/response*/
+#define DCERPC_IS_NDR64 0x00000001
+    guint32 flags;	     /* flags for this transaction */
 } dcerpc_call_value;
 
 typedef struct _dcerpc_info {
 	conversation_t *conv;	/* Which TCP stream we are in */
 	guint32 call_id;	/* Context id for this call */
 	guint16 smb_fid;	/* FID for DCERPC over SMB */
-    guint8 ptype;       /* packet type: PDU_REQ, PDU_RESP, ... */
+	guint8 ptype;       /* packet type: PDU_REQ, PDU_RESP, ... */
 	gboolean conformant_run;
 	gint32 conformant_eaten; /* how many bytes did the conformant run eat?*/
 	guint32 array_max_count;	/* max_count for conformant arrays */

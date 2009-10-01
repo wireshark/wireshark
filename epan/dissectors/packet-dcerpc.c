@@ -3363,7 +3363,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_value=se_alloc (sizeof (dcerpc_call_value));
 				call_value->uuid = bind_value->uuid;
 				call_value->ver = bind_value->ver;
-                call_value->object_uuid = obj_id;
+				call_value->object_uuid = obj_id;
 				call_value->opnum = opnum;
 				call_value->req_frame=pinfo->fd->num;
 				call_value->req_time=pinfo->fd->abs_ts;
@@ -3372,6 +3372,11 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_value->se_data = NULL;
 				call_value->private_data = NULL;
 				call_value->pol = NULL;
+				call_value->flags = 0;
+				if (!memcmp(&bind_value->transport, &ndr64_uuid, sizeof(ndr64_uuid))) {
+					call_value->flags |= DCERPC_IS_NDR64;
+	    	       	     	}
+
 				g_hash_table_insert (dcerpc_cn_calls, call_key, call_value);
 
 				new_matched_key = se_alloc(sizeof (dcerpc_matched_key));
@@ -3643,6 +3648,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			new_matched_key = se_alloc(sizeof (dcerpc_matched_key));
 			*new_matched_key = matched_key;
 			g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
+
 			value = call_value;
 			if(call_value->rep_frame==0){
 				call_value->rep_frame=pinfo->fd->num;
@@ -4543,6 +4549,9 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	call_value->se_data = NULL;
 	call_value->private_data = NULL;
 	call_value->pol = NULL;
+	/* NDR64 is not available on dg transports ?*/
+	call_value->flags = 0;
+
 	g_hash_table_insert (dcerpc_dg_calls, call_key, call_value);
 
 	new_matched_key = se_alloc(sizeof (dcerpc_matched_key));
