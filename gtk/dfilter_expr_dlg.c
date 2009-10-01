@@ -655,6 +655,9 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)),
                                         &model, &iter)) {
         gtk_tree_model_get(model, &iter, 0, &item_str, -1);
+    } else {
+        /* Nothing selected */
+        return;
     }
 
     /*
