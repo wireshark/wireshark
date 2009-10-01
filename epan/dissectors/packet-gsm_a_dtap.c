@@ -399,6 +399,7 @@ static int hf_gsm_a_dtap_serv_cat_b4 = -1;
 static int hf_gsm_a_dtap_serv_cat_b3 = -1;
 static int hf_gsm_a_dtap_serv_cat_b2 = -1;
 static int hf_gsm_a_dtap_serv_cat_b1 = -1;
+static int hf_gsm_a_dtap_alerting_pattern = -1;
 static int hf_gsm_a_dtap_ccbs_activation = -1;
 static int hf_gsm_a_dtap_stream_identifier = -1;
 static int hf_gsm_a_dtap_mcs = -1;
@@ -3081,6 +3082,18 @@ de_u2u(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *ad
 /*
  * 10.5.4.26 Alerting Pattern $(NIA)$
  */
+static const value_string gsm_a_alerting_pattern_vals[] = {
+	{ 0x00, "Alerting Pattern 1" },
+	{ 0x01, "Alerting Pattern 2" },
+	{ 0x02, "Alerting Pattern 3" },
+	{ 0x04, "Alerting Pattern 5" },
+	{ 0x05, "Alerting Pattern 6" },
+	{ 0x06, "Alerting Pattern 7" },
+	{ 0x07, "Alerting Pattern 8" },
+	{ 0x08, "Alerting Pattern 9" },
+	{ 0, NULL }
+};
+
 static guint16
 de_alert_pat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -3088,8 +3101,11 @@ de_alert_pat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset << 3), 4, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_alerting_pattern, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
 
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(len);
 }
@@ -6098,6 +6114,11 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_serv_cat_b1,
 		{ "Police", "gsm_a.dtap.serv_cat_b1",
 		FT_BOOLEAN, 8, NULL, 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_alerting_pattern,
+		{ "Alerting Pattern", "gsm_a.dtap.alerting_pattern",
+		FT_UINT8, BASE_DEC, VALS(&gsm_a_alerting_pattern_vals), 0x0f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_dtap_ccbs_activation,
