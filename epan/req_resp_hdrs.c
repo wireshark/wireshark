@@ -331,7 +331,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					 * already have it 
 					 */
 					if (reported_length_remaining >
-					        chunk_size) {
+					        (gint) chunk_size) {
 						
 						next_offset = chunk_offset 
 						    + chunk_size + 2;
