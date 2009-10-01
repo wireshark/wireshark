@@ -80,9 +80,9 @@ add_yacc_files(WIRETAP_FILES
 )
 
 set(wiretap_LIBS
-  ${GLIB2_LIBRARIES}
-  ${Z_LIBRARIES}
-  wsutil
+	${GLIB2_LIBRARIES}
+	${Z_LIBRARIES}
+	wsutil
 )
 
 add_library(wiretap SHARED
