@@ -27,10 +27,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
 
 #include <gtk/gtk.h>
 
@@ -38,121 +34,47 @@
 
 #include "../simple_dialog.h"
 #include "../globals.h"
-#include "../color.h"
 
 #include "gtk/service_response_time_table.h"
 #include "gtk/filter_utils.h"
 #include "gtk/gui_utils.h"
-#include "gtk/gtkglobals.h"
 
-#include "image/clist_ascend.xpm"
-#include "image/clist_descend.xpm"
-
-
-typedef struct column_arrows {
-	GtkWidget *table;
-	GtkWidget *ascend_pm;
-	GtkWidget *descend_pm;
-} column_arrows;
-
-
-static void
-srt_click_column_cb(GtkCList *clist, gint column, gpointer data)
+enum
 {
-	column_arrows *col_arrows = (column_arrows *) data;
-	int i;
-
-	gtk_clist_freeze(clist);
-
-	for (i = 0; i < 6; i++) {
-		gtk_widget_hide(col_arrows[i].ascend_pm);
-		gtk_widget_hide(col_arrows[i].descend_pm);
-	}
-
-	if (column == clist->sort_column) {
-		if (clist->sort_type == GTK_SORT_ASCENDING) {
-			clist->sort_type = GTK_SORT_DESCENDING;
-			gtk_widget_show(col_arrows[column].descend_pm);
-		} else {
-			clist->sort_type = GTK_SORT_ASCENDING;
-			gtk_widget_show(col_arrows[column].ascend_pm);
-		}
-	} else {
-		/* Columns 2-5   Count, Min, Max, Avg are sorted in descending
-			order by default.
-		   Columns 0 and 1 sort by ascending order by default
-		*/
-		if(column>=2){
-			clist->sort_type = GTK_SORT_DESCENDING;
-			gtk_widget_show(col_arrows[column].descend_pm);
-		} else {
-			clist->sort_type = GTK_SORT_ASCENDING;
-			gtk_widget_show(col_arrows[column].ascend_pm);
-		}
-		gtk_clist_set_sort_column(clist, column);
-	}
-	gtk_clist_thaw(clist);
-
-	gtk_clist_sort(clist);
-}
-
-static gint
-srt_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
-{
-	char *text1 = NULL;
-	char *text2 = NULL;
-	int i1, i2;
-	float f1,f2;
-
-	const GtkCListRow *row1 = ptr1;
-	const GtkCListRow *row2 = ptr2;
-
-	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
-	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
-
-	switch(clist->sort_column){
-	case 1:
-		return strcmp (text1, text2);
-	case 0:
-	case 2:
-		i1=atoi(text1);
-		i2=atoi(text2);
-		return i1-i2;
-	case 3:
-	case 4:
-	case 5:
-		sscanf(text1,"%f",&f1);
-		sscanf(text2,"%f",&f2);
-		if(fabs(f1-f2)<0.000005)
-			return 0;
-		if(f1>f2)
-			return 1;
-		return -1;
-	}
-	g_assert_not_reached();
-	return 0;
-}
+   INDEX_COLUMN,
+   PROCEDURE_COLUMN,
+   CALLS_COLUMN,
+   MIN_SRT_COLUMN,
+   MAX_SRT_COLUMN,
+   AVG_SRT_COLUMN,
+   N_COLUMNS
+};
 
 
 static void
 srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
-	int selection;
 	srt_stat_table *rst = (srt_stat_table *)callback_data;
 	char *str = NULL;
-
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	GtkTreeSelection  *sel;
+	int selection;
 
 	if(rst->filter_string==NULL){
 		return;
 	}
 
-	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(rst->table)->selection, 0));
+	sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(rst->table));
+
+	if (!gtk_tree_selection_get_selected(sel, &model, &iter))
+		return;
+
+	gtk_tree_model_get (model, &iter, INDEX_COLUMN, &selection, -1);
 	if(selection>=(int)rst->num_procs){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No procedure selected");
 		return;
 	}
-	/* translate it back from row index to index in procedures array */
-	selection=GPOINTER_TO_INT(gtk_clist_get_row_data(rst->table, selection));
 
 	str = g_strdup_printf("%s==%d", rst->filter_string, selection);
 
@@ -249,94 +171,87 @@ srt_create_popup_menu(srt_stat_table *rst)
 	g_signal_connect(rst->table, "button_press_event", G_CALLBACK(srt_show_popup_menu_cb), rst);
 }
 
-
+/*
+    XXX Resizable columns are ugly when there's more than on table cf. SMB
+*/
 void
 init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *filter_string)
 {
-	int i, j;
-	column_arrows *col_arrows;
-	GdkBitmap *ascend_bm, *descend_bm;
-	GdkPixmap *ascend_pm, *descend_pm;
-	GtkStyle *win_style;
-	GtkWidget *column_lb;
+	int i;
+	GtkListStore *store;
+	GtkWidget *tree;
+	GtkTreeViewColumn *column;
+	GtkCellRenderer *renderer;
+	GtkTreeSortable *sortable;
+	GtkTreeSelection  *sel;
+
 	const char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT", "Max SRT", "Avg SRT" };
 
+	/* Create the store */
+	store = gtk_list_store_new (N_COLUMNS,  /* Total number of columns */
+                               G_TYPE_INT,   	/* Index     */
+                               G_TYPE_STRING,   /* Procedure */
+                               G_TYPE_INT,   	/* Calls     */
+                               G_TYPE_STRING,   /* Min SRT   */
+                               G_TYPE_STRING,   /* Max SRT   */
+                               G_TYPE_STRING);  /* Avg SRT   */
+
+      /* Create a view */
+    tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+    rst->table = GTK_TREE_VIEW(tree);
+    sortable = GTK_TREE_SORTABLE(store);
+
+    /* The view now holds a reference.  We can get rid of our own reference */
+	g_object_unref (G_OBJECT (store));
 
 	if(filter_string){
 		rst->filter_string=g_strdup(filter_string);
 	} else {
 		rst->filter_string=NULL;
 	}
+	for (i = 0; i < N_COLUMNS; i++) {
+		renderer = gtk_cell_renderer_text_new ();
+		if (i != PROCEDURE_COLUMN) {
+			/* right align numbers */
+			g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
+		}
+		g_object_set(renderer, "ypad", 0, NULL);
+		column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, "text", 
+				i, NULL);
+				
+		gtk_tree_view_column_set_sort_column_id(column, i);
+		gtk_tree_view_column_set_resizable(column, TRUE);
+		gtk_tree_view_append_column (rst->table, column);
+		if (i == CALLS_COLUMN) {
+			/* XXX revert order sort */
+			gtk_tree_view_column_clicked(column);
+			gtk_tree_view_column_clicked(column);
+		}
+	}
+
 	rst->scrolled_window=scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(rst->scrolled_window),
+					    GTK_SHADOW_IN);
+	gtk_container_add(GTK_CONTAINER(rst->scrolled_window), GTK_WIDGET (rst->table));
 	gtk_box_pack_start(GTK_BOX(vbox), rst->scrolled_window, TRUE, TRUE, 0);
 
-	rst->table=(GtkCList *)gtk_clist_new(6);
+    gtk_tree_view_set_reorderable (rst->table, FALSE);   
+	/* Now enable the sorting of each column */
+	gtk_tree_view_set_rules_hint(rst->table, TRUE);
+	gtk_tree_view_set_headers_clickable(rst->table, TRUE);
 
-	gtk_widget_show(GTK_WIDGET(rst->table));
 	gtk_widget_show(rst->scrolled_window);
-
-	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * 6);
-	win_style = gtk_widget_get_style(rst->scrolled_window);
-	ascend_pm = gdk_pixmap_create_from_xpm_d(rst->scrolled_window->window,
-			&ascend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_ascend_xpm);
-	descend_pm = gdk_pixmap_create_from_xpm_d(rst->scrolled_window->window,
-			&descend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_descend_xpm);
-	for (i = 0; i < 6; i++) {
-		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-		column_lb = gtk_label_new(default_titles[i]);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		gtk_widget_show(column_lb);
-
-		col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		if (i == 2) {
-			gtk_widget_show(col_arrows[i].descend_pm);
-		}
-		gtk_clist_set_column_widget(GTK_CLIST(rst->table), i, col_arrows[i].table);
-		gtk_widget_show(col_arrows[i].table);
-	}
-	gtk_clist_column_titles_show(GTK_CLIST(rst->table));
-
-	gtk_clist_set_compare_func(rst->table, srt_sort_column);
-	gtk_clist_set_sort_column(rst->table, 2);
-	gtk_clist_set_sort_type(rst->table, GTK_SORT_DESCENDING);
-
-
-	/*XXX instead of this we should probably have some code to
-		dynamically adjust the width of the columns */
-	gtk_clist_set_column_width(rst->table, 0, 32);
-	gtk_clist_set_column_width(rst->table, 1, 160);
-	gtk_clist_set_column_width(rst->table, 2, 50);
-	gtk_clist_set_column_width(rst->table, 3, 60);
-	gtk_clist_set_column_width(rst->table, 4, 60);
-	gtk_clist_set_column_width(rst->table, 5, 60);
-
-	gtk_clist_set_shadow_type(rst->table, GTK_SHADOW_IN);
-	gtk_clist_column_titles_show(rst->table);
-	gtk_container_add(GTK_CONTAINER(rst->scrolled_window), (GtkWidget *)rst->table);
-
-	g_signal_connect(rst->table, "click-column", G_CALLBACK(srt_click_column_cb), col_arrows);
-
-	gtk_widget_show(GTK_WIDGET(rst->table));
-	gtk_widget_show(rst->scrolled_window);
-
 
 	rst->num_procs=num_procs;
 	rst->procedures=g_malloc(sizeof(srt_procedure_t)*num_procs);
 	for(i=0;i<num_procs;i++){
 		time_stat_init(&rst->procedures[i].stats);
-		for(j=0;j<6;j++){
-			rst->procedures[i].entries[j]=NULL;
-		}
+		rst->procedures[i].index = 0;
+		rst->procedures[i].procedure = NULL;
 	}
 
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(rst->table));
+	gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
 	/* create popup menu for this table */
 	if(rst->filter_string){
 		srt_create_popup_menu(rst);
@@ -349,24 +264,18 @@ init_srt_table_row(srt_stat_table *rst, int index, const char *procedure)
 	/* we have discovered a new procedure. Extend the table accordingly */
 	if(index>=rst->num_procs){
 		int old_num_procs=rst->num_procs;
-		int i,j;
+		int i;
+
 		rst->num_procs=index+1;
 		rst->procedures=g_realloc(rst->procedures, sizeof(srt_procedure_t)*(rst->num_procs));
 		for(i=old_num_procs;i<rst->num_procs;i++){
 			time_stat_init(&rst->procedures[i].stats);
-			for(j=0;j<6;j++){
-				rst->procedures[i].entries[j]=NULL;
-			}
+			rst->procedures[i].index = i;
+			rst->procedures[i].procedure=NULL;
 		}
 	}
-	rst->procedures[index].entries[0]=g_strdup_printf("%d", index);
-
-	rst->procedures[index].entries[1]=g_strdup(procedure);
-
-	rst->procedures[index].entries[2]=g_strdup("0");
-	rst->procedures[index].entries[3]=g_strdup("0");
-	rst->procedures[index].entries[4]=g_strdup("0");
-	rst->procedures[index].entries[5]=g_strdup("0");
+	rst->procedures[index].index = index;
+	rst->procedures[index].procedure=g_strdup(procedure);
 }
 
 void
@@ -374,8 +283,8 @@ add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, pac
 {
 	srt_procedure_t *rp;
 	nstime_t t, delta;
-	gint row;
 
+	g_assert(index >= 0 && index < rst->num_procs);
 	rp=&rst->procedures[index];
 
 	/*
@@ -388,9 +297,18 @@ add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, pac
 	 * (Yes, this means that the rows aren't in order by anything
 	 * interesting.  That's why we have the table sorted by a column.)
 	 */
+
 	if (rp->stats.num==0){
-		row=gtk_clist_append(rst->table, rst->procedures[index].entries);
-		gtk_clist_set_row_data(rst->table, row, (gpointer)(long) index);
+		GtkListStore *store = GTK_LIST_STORE(gtk_tree_view_get_model(rst->table));
+		gtk_list_store_append(store, &rp->iter);
+		gtk_list_store_set(store, &rp->iter,
+				   INDEX_COLUMN,     rp->index,
+				   PROCEDURE_COLUMN, rp->procedure,
+				   CALLS_COLUMN,     rp->stats.num,
+				   MIN_SRT_COLUMN,   "",
+				   MAX_SRT_COLUMN,   "",
+				   AVG_SRT_COLUMN,   "",
+				   -1);
 	}
 
 	/* calculate time delta between request and reply */
@@ -403,12 +321,13 @@ add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, pac
 void
 draw_srt_table_data(srt_stat_table *rst)
 {
-	int i,j;
+	int i;
 	guint64 td;
-	char *strp;
+	char *min, *max, *avg;
+	GtkListStore *store = GTK_LIST_STORE(gtk_tree_view_get_model(rst->table));
 
 	for(i=0;i<rst->num_procs;i++){
-		/* ignore procedures with no calls (they don't have CList rows) */
+		/* ignore procedures with no calls (they don't have rows) */
 		if(rst->procedures[i].stats.num==0){
 			continue;
 		}
@@ -419,36 +338,26 @@ draw_srt_table_data(srt_stat_table *rst)
 		td=td*100000+(int)rst->procedures[i].stats.tot.nsecs/10000;
 		td/=rst->procedures[i].stats.num;
 
-		j=gtk_clist_find_row_from_data(rst->table, (gpointer)(long)i);
-		strp=g_strdup_printf("%d", rst->procedures[i].stats.num);
-		gtk_clist_set_text(rst->table, j, 2, strp);
-		g_free(rst->procedures[i].entries[2]);
-		rst->procedures[i].entries[2]=strp;
-
-
-		strp=g_strdup_printf("%3d.%05d",
+		min=g_strdup_printf("%3d.%05d",
 		    (int)rst->procedures[i].stats.min.secs,
 		    rst->procedures[i].stats.min.nsecs/10000);
-		gtk_clist_set_text(rst->table, j, 3, strp);
-		g_free(rst->procedures[i].entries[3]);
-		rst->procedures[i].entries[3]=strp;
 
-
-		strp=g_strdup_printf("%3d.%05d",
+		max=g_strdup_printf("%3d.%05d",
 		    (int)rst->procedures[i].stats.max.secs,
 		    rst->procedures[i].stats.max.nsecs/10000);
-		gtk_clist_set_text(rst->table, j, 4, strp);
-		g_free(rst->procedures[i].entries[4]);
-		rst->procedures[i].entries[4]=strp;
-
-		strp=g_strdup_printf("%3" G_GINT64_MODIFIER "d.%05" G_GINT64_MODIFIER "d",
-		    td/100000, td%100000);
-		gtk_clist_set_text(rst->table, j, 5, strp);
-		g_free(rst->procedures[i].entries[5]);
-		rst->procedures[i].entries[5]=strp;
+		avg=g_strdup_printf("%3" G_GINT64_MODIFIER "d.%05" G_GINT64_MODIFIER "d",
+ 		    td/100000, td%100000);
+		    
+		gtk_list_store_set(store, &rst->procedures[i].iter,
+				   CALLS_COLUMN,     rst->procedures[i].stats.num,
+				   MIN_SRT_COLUMN,   min,
+				   MAX_SRT_COLUMN,   max,
+				   AVG_SRT_COLUMN,   avg,
+				   -1);
+		g_free(min);
+		g_free(max);
+		g_free(avg);
 	}
-
-	gtk_clist_sort(rst->table);
 }
 
 
@@ -456,25 +365,23 @@ void
 reset_srt_table_data(srt_stat_table *rst)
 {
 	int i;
+	GtkListStore *store;
 
 	for(i=0;i<rst->num_procs;i++){
 		time_stat_init(&rst->procedures[i].stats);
 	}
-	gtk_clist_clear(rst->table);
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(rst->table));
+	gtk_list_store_clear(store);
 }
 
 void
 free_srt_table_data(srt_stat_table *rst)
 {
-	int i,j;
+	int i;
 
 	for(i=0;i<rst->num_procs;i++){
-		for(j=0;j<6;j++){
-			if(rst->procedures[i].entries[j]){
-				g_free(rst->procedures[i].entries[j]);
-				rst->procedures[i].entries[j]=NULL;
-			}
-		}
+		g_free(rst->procedures[i].procedure);
+		rst->procedures[i].procedure=NULL;
 	}
 	g_free(rst->filter_string);
 	rst->filter_string=NULL;

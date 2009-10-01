@@ -34,14 +34,16 @@
 
 /** Procedure data */
 typedef struct _srt_procedure_t {
-	char *entries[6];   /**< column entries */
+	int  index;
 	timestat_t stats;   /**< stats */
+	char *procedure;   /**< column entries */
+	GtkTreeIter iter;
 } srt_procedure_t;
 
 /** Statistics table */
 typedef struct _srt_stat_table {
 	GtkWidget *scrolled_window; /**< window widget */
-	GtkCList *table;            /**< table widget */
+	GtkTreeView  *table;        /**< Tree view */
 	GtkWidget *menu;            /**< context menu */
 	char *filter_string;        /**< append procedure number (%d) to this string 
 				to create a display filter */
