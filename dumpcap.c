@@ -1555,7 +1555,7 @@ static void capture_loop_close_input(loop_data *ld) {
 
   /* if open, close the pcap "input file" */
   if(ld->pcap_h != NULL) {
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input: closing %p", ld->pcap_h);
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input: closing %p", (void *)ld->pcap_h);
     g_assert(!ld->from_cap_pipe);
     pcap_close(ld->pcap_h);
     ld->pcap_h = NULL;
