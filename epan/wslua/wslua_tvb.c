@@ -555,8 +555,6 @@ static const luaL_reg Tvb_methods[] = {
     { NULL, NULL }
 };
 
-static int Tvb_range(lua_State* L);
-
 static const luaL_reg Tvb_meta[] = {
     {"__call", Tvb_range},
     {"__tostring", Tvb__tostring},
