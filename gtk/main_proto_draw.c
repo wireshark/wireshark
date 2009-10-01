@@ -1506,20 +1506,22 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
         g_object_set (cell, "foreground-set", TRUE, NULL);
     }
 
-    if(fi->hfinfo->type == FT_PROTOCOL) {
-        g_object_set (cell, "background", "gray90", NULL);
-        g_object_set (cell, "background-set", TRUE, NULL);
-        g_object_set (cell, "foreground", "black", NULL);
-        g_object_set (cell, "foreground-set", TRUE, NULL);
-        /*g_object_set (cell, "weight", PANGO_WEIGHT_BOLD, NULL);
-        g_object_set (cell, "weight-set", TRUE, NULL);*/
-	}
-
-    if((fi->hfinfo->type == FT_FRAMENUM) ||
-       (FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type))) {
-        render_as_url(cell);
+    if (fi && fi->hfinfo) {
+        if(fi->hfinfo->type == FT_PROTOCOL) {
+            g_object_set (cell, "background", "gray90", NULL);
+            g_object_set (cell, "background-set", TRUE, NULL);
+            g_object_set (cell, "foreground", "black", NULL);
+            g_object_set (cell, "foreground-set", TRUE, NULL);
+            /*g_object_set (cell, "weight", PANGO_WEIGHT_BOLD, NULL);
+			g_object_set (cell, "weight-set", TRUE, NULL);*/
+        }
+		
+        if((fi->hfinfo->type == FT_FRAMENUM) ||
+           (FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type))) {
+            render_as_url(cell);
+        }
     }
-
+	
 	if(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
 		switch(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
 		case(PI_CHAT):
