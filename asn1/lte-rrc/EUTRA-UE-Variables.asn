@@ -1,45 +1,43 @@
--- 3GPP TS 36.331 V8.4.0 Release 8
--- $Id:$
---
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
  
 BEGIN
 
 
-VarMeasurementConfiguration ::=		SEQUENCE {
+VarMeasConfig ::=					SEQUENCE {
 	-- Measurement identities
-	measIdList							MeasIdToAddModifyList				OPTIONAL,
+	measIdList							MeasIdToAddModList					OPTIONAL,
 	-- Measurement objects
-	measObjectList						MeasObjectToAddModifyList			OPTIONAL,
+	measObjectList						MeasObjectToAddModList				OPTIONAL,
 	-- Reporting configurations
-	reportConfigList					ReportConfigToAddModifyList			OPTIONAL,
+	reportConfigList					ReportConfigToAddModList			OPTIONAL,
 	-- Other parameters
 	quantityConfig						QuantityConfig						OPTIONAL,
 	s-Measure							RSRP-Range							OPTIONAL,
-	cdma2000-SystemTimeInfo				CDMA2000-SystemTimeInfo				OPTIONAL,
-	neighbourCellConfiguration			NeighbourCellConfiguration			OPTIONAL,
-	speedDependentParameters			SEQUENCE {
-		mobilityStateParameters				MobilityStateParameters,
-		speedDependentScalingParameters		ConnectedModeSpeedDependentScalingParameters
+	speedStatePars						CHOICE {
+		release								NULL,
+		setup								SEQUENCE {
+			mobilityStateParameters				MobilityStateParameters,
+			timeToTrigger-SF					SpeedStateScaleFactors
+		}
 	}																		OPTIONAL
 }
 
 
-VarMeasurementReports ::=				SEQUENCE (SIZE (1..maxMeasId)) OF SEQUENCE {
+VarMeasReportList ::=				SEQUENCE (SIZE (1..maxMeasId)) OF VarMeasReport
+
+VarMeasReport ::=					SEQUENCE {
 	-- List of measurement that have been triggered
 	measId								MeasId,
 	cellsTriggeredList					CellsTriggeredList				OPTIONAL,
 	numberOfReportsSent					INTEGER
 }
 
-CellsTriggeredList ::=				SEQUENCE (SIZE (1..maxCellMeas)) OF SEQUENCE {
-	cellIdentity						PhysicalCellIdentity
-}
+CellsTriggeredList ::=				SEQUENCE (SIZE (1..maxCellMeas)) OF PhysCellId
 
 
 VarShortMAC-Input ::=					SEQUENCE {
 	cellIdentity							CellIdentity,
-	physicalCellIdentity					PhysicalCellIdentity,
+	physCellId								PhysCellId,
 	c-RNTI									C-RNTI
 }
 

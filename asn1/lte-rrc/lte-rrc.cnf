@@ -21,7 +21,7 @@ UL-CCCH-Message              @ul.ccch
 UL-DCCH-Message              @ul.dcch
 #.END
 
-#.FN_BODY NAS-DedicatedInformation VAL_PTR = &nas_eps_tvb
+#.FN_BODY DedicatedInfoNAS VAL_PTR = &nas_eps_tvb
   tvbuff_t *nas_eps_tvb=NULL;
 
 %(DEFAULT_BODY)s
@@ -61,9 +61,9 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReject");
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetup");
 
-#.FN_HDR CDMA2000-CSFBParametersResponse
+#.FN_HDR CSFBParametersResponseCDMA2000
 
-col_append_str(actx->pinfo->cinfo, COL_INFO, "CDMA2000-CSFBParametersResponse");
+col_append_str(actx->pinfo->cinfo, COL_INFO, "CSFBParametersResponseCDMA2000");
 
 #.FN_HDR DLInformationTransfer
 
@@ -101,9 +101,9 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentReques
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionRequest");
 
-#.FN_HDR CDMA2000-CSFBParametersRequest
+#.FN_HDR CSFBParametersRequestCDMA2000
 
-col_append_str(actx->pinfo->cinfo, COL_INFO, "CDMA2000-CSFBParametersRequest");
+col_append_str(actx->pinfo->cinfo, COL_INFO, "CSFBParametersRequestCDMA2000");
 
 #.FN_HDR MeasurementReport
 
@@ -120,10 +120,6 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentComple
 #.FN_HDR RRCConnectionSetupComplete
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionSetupComplete");
-
-#.FN_HDR RRCStatus
-
-col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCStatus");
 
 #.FN_HDR SecurityModeComplete
 
@@ -144,3 +140,7 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "ULHandoverPreparationTransfer");
 #.FN_HDR ULInformationTransfer
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "ULInformationTransfer");
+
+#.FN_HDR CounterCheckResponse
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheckResponse");
