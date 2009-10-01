@@ -258,8 +258,8 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			gboolean done_chunking = FALSE;
 
 			while (!done_chunking) {
-				gint chunk_size = 0;
-				gint chunk_offset = 0;
+				guint chunk_size = 0;
+				gint  chunk_offset = 0;
 				gchar *chunk_string = NULL;
 				gchar *c = NULL;
 
@@ -299,8 +299,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					*c = '\0';
 				}
 
-				if ((sscanf(chunk_string, "%x",
-				    &chunk_size) < 0) || chunk_size < 0) {
+				if (sscanf(chunk_string, "%x", &chunk_size) < 1) {
 					/* We couldn't get the chunk size,
 					 * so stop trying.
 					 */
