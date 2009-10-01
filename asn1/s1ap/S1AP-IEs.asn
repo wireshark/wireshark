@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.7.0 (2009-09)
+-- 3GPP TS 36.413 V9.0.0 (2009-09)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -100,6 +100,13 @@ BitRate	::= INTEGER (0..10000000000)
 
 BPLMNs ::= SEQUENCE (SIZE(1.. maxnoofBPLMNs)) OF PLMNidentity
 
+BroadcastCancelledAreaList ::= CHOICE {
+	cellID-Cancelled				CellID-Cancelled,
+	tAI-Cancelled					TAI-Cancelled,
+	emergencyAreaID-Cancelled		EmergencyAreaID-Cancelled,
+	...
+}
+
 BroadcastCompletedAreaList ::= CHOICE {
 	cellID-Broadcast				CellID-Broadcast,
 	tAI-Broadcast					TAI-Broadcast,
@@ -109,6 +116,32 @@ BroadcastCompletedAreaList ::= CHOICE {
 
 
 -- C
+
+CancelledCellinEAI ::= SEQUENCE (SIZE(1..maxnoofCellinEAI)) OF CancelledCellinEAI-Item
+
+CancelledCellinEAI-Item ::= SEQUENCE {
+	eCGI					EUTRAN-CGI,
+	numberOfBroadcasts	NumberOfBroadcasts,
+	iE-Extensions			ProtocolExtensionContainer { {CancelledCellinEAI-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CancelledCellinEAI-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CancelledCellinTAI ::= SEQUENCE (SIZE(1..maxnoofCellinTAI)) OF CancelledCellinTAI-Item
+
+CancelledCellinTAI-Item ::= SEQUENCE{
+	eCGI				EUTRAN-CGI,
+	numberOfBroadcasts	NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { {CancelledCellinTAI-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CancelledCellinTAI-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 Cause ::= CHOICE {
 	radioNetwork		CauseRadioNetwork,
@@ -211,6 +244,18 @@ CellID-Broadcast-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+CellID-Cancelled::= SEQUENCE (SIZE(1..maxnoofCellID)) OF CellID-Cancelled-Item
+
+CellID-Cancelled-Item ::= SEQUENCE {
+	eCGI				EUTRAN-CGI,
+	numberOfBroadcasts	NumberOfBroadcasts,
+	iE-Extensions		ProtocolExtensionContainer { {CellID-Cancelled-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellID-Cancelled-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 Cdma2000PDU	::= OCTET STRING
 
@@ -286,6 +331,10 @@ CNDomain ::= ENUMERATED {
 	cs 
 }
 
+ConcurrentWarningMessageIndicator ::= ENUMERATED {
+	true
+}
+
 CSFallbackIndicator ::= ENUMERATED { 
 	cs-fallback-required,
 	...,
@@ -359,6 +408,7 @@ Direct-Forwarding-Path-Availability ::= ENUMERATED {
 	...
 }
 
+
 -- E
 
 ECGIList ::= SEQUENCE (SIZE(1..maxnoofCellID)) OF EUTRAN-CGI
@@ -380,6 +430,18 @@ EmergencyAreaID-Broadcast-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+EmergencyAreaID-Cancelled ::= SEQUENCE (SIZE(1..maxnoofEmergencyAreaID)) OF EmergencyAreaID-Cancelled-Item
+
+EmergencyAreaID-Cancelled-Item ::= SEQUENCE {
+	emergencyAreaID			EmergencyAreaID,
+	cancelledCellinEAI		CancelledCellinEAI,
+	iE-Extensions			ProtocolExtensionContainer { {EmergencyAreaID-Cancelled-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+EmergencyAreaID-Cancelled-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 CompletedCellinEAI ::= SEQUENCE (SIZE(1..maxnoofCellinEAI)) OF CompletedCellinEAI-Item
 
@@ -513,6 +575,8 @@ EUTRAN-CGI ::= SEQUENCE {
 EUTRAN-CGI-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+EUTRANRoundTripDelayEstimationInfo ::= INTEGER (0..255)
 
 ExtendedRNC-ID					::= INTEGER (4096..65535)
 
@@ -693,7 +757,7 @@ NASSecurityParameterstoE-UTRAN ::= OCTET STRING
 
 NumberofBroadcastRequest ::= INTEGER (0..65535)
 
-NumberofBroadcast ::= INTEGER (0..65535)
+NumberOfBroadcasts ::= INTEGER (0..65535)
 
 -- O
 OldBSS-ToNewBSS-Information		::= OCTET STRING
@@ -976,6 +1040,19 @@ TAI-Broadcast-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+TAI-Cancelled ::= SEQUENCE (SIZE(1..maxnoofTAIforWarning)) OF TAI-Cancelled-Item
+
+TAI-Cancelled-Item ::= SEQUENCE {
+	tAI					TAI,
+	cancelledCellinTAI	CancelledCellinTAI,
+	iE-Extensions			ProtocolExtensionContainer { {TAI-Cancelled-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+TAI-Cancelled-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 CompletedCellinTAI ::= SEQUENCE (SIZE(1..maxnoofCellinTAI)) OF CompletedCellinTAI-Item
 
 CompletedCellinTAI-Item ::= SEQUENCE{
@@ -1177,4 +1254,5 @@ X2TNLConfigurationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- Z
 
 END
+
 

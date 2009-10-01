@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.7.0 (2009-09)
+-- 3GPP TS 36.413 V9.0.0 (2009-09)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -49,6 +49,8 @@ FROM S1AP-CommonDataTypes
 	InitialContextSetupRequest,
 	InitialContextSetupResponse,
 	InitialUEMessage,
+	KillRequest,
+	KillResponse,
 	LocationReportingControl,
 	LocationReportingFailureIndication,
 	LocationReport,
@@ -109,6 +111,7 @@ FROM S1AP-PDU-Contents
 	id-InitialContextSetup,
 	id-initialUEMessage,
 	id-ENBConfigurationUpdate,
+	id-Kill,
 	id-LocationReportingControl,
 	id-LocationReportingFailureIndication,
 	id-LocationReport,
@@ -216,6 +219,7 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	e-RABRelease					|
 	initialContextSetup				|
 	handoverCancel					|
+	kill							|
 	reset							|
 	s1Setup							|
 	uEContextModification			|
@@ -545,4 +549,12 @@ privateMessage S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY			ignore
 }
 
+kill S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	KillRequest
+	SUCCESSFUL OUTCOME	KillResponse
+	PROCEDURE CODE		id-Kill
+	CRITICALITY			reject
+}
+
 END
+

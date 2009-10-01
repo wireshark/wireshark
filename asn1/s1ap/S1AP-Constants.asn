@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.7.0 (2009-09)
+-- 3GPP TS 36.413 V9.0.0 (2009-09)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -71,12 +71,13 @@ id-LocationReport					ProcedureCode ::= 33
 id-OverloadStart					ProcedureCode ::= 34
 id-OverloadStop						ProcedureCode ::= 35
 id-WriteReplaceWarning				ProcedureCode ::= 36
-id-eNBDirectInformationTransfer			ProcedureCode ::= 37
-id-MMEDirectInformationTransfer			ProcedureCode ::= 38
+id-eNBDirectInformationTransfer		ProcedureCode ::= 37
+id-MMEDirectInformationTransfer	ProcedureCode ::= 38
 id-PrivateMessage					ProcedureCode ::= 39
 id-eNBConfigurationTransfer			ProcedureCode ::= 40
 id-MMEConfigurationTransfer			ProcedureCode ::= 41
 id-CellTrafficTrace					ProcedureCode ::= 42
+id-Kill								ProcedureCode ::= 43
 
 -- **************************************************************
 --
@@ -113,9 +114,8 @@ maxnoofCellinTAI						INTEGER ::= 65535
 maxnoofCellinEAI						INTEGER ::= 65535 
 maxnoofeNBX2TLAs						INTEGER ::= 2
 maxnoofRATs								INTEGER ::= 8
-maxnoofGroupIDs								INTEGER ::= 65535
-maxnoofMMECs								INTEGER ::= 256
-
+maxnoofGroupIDs							INTEGER ::= 65535
+maxnoofMMECs							INTEGER ::= 256
 
 
 
@@ -125,12 +125,12 @@ maxnoofMMECs								INTEGER ::= 256
 --
 -- **************************************************************
 
-id-MME-UE-S1AP-ID									ProtocolIE-ID ::= 0
-id-HandoverType									ProtocolIE-ID ::= 1
-id-Cause										ProtocolIE-ID ::= 2
-id-SourceID										ProtocolIE-ID ::= 3
-id-TargetID										ProtocolIE-ID ::= 4
-id-eNB-UE-S1AP-ID								ProtocolIE-ID ::= 8
+id-MME-UE-S1AP-ID							ProtocolIE-ID ::= 0
+id-HandoverType								ProtocolIE-ID ::= 1
+id-Cause									ProtocolIE-ID ::= 2
+id-SourceID									ProtocolIE-ID ::= 3
+id-TargetID									ProtocolIE-ID ::= 4
+id-eNB-UE-S1AP-ID							ProtocolIE-ID ::= 8
 id-E-RABSubjecttoDataForwardingList			ProtocolIE-ID ::= 12
 id-E-RABtoReleaseListHOCmd					ProtocolIE-ID ::= 13
 id-E-RABDataForwardingItem					ProtocolIE-ID ::= 14
@@ -144,8 +144,8 @@ id-E-RABFailedtoSetupItemHOReqAck			ProtocolIE-ID ::= 21
 id-E-RABToBeSwitchedDLList					ProtocolIE-ID ::= 22
 id-E-RABToBeSwitchedDLItem					ProtocolIE-ID ::= 23
 id-E-RABToBeSetupListCtxtSUReq				ProtocolIE-ID ::= 24
-id-TraceActivation								ProtocolIE-ID ::= 25
-id-NAS-PDU										ProtocolIE-ID ::= 26
+id-TraceActivation							ProtocolIE-ID ::= 25
+id-NAS-PDU									ProtocolIE-ID ::= 26
 id-E-RABToBeSetupItemHOReq					ProtocolIE-ID ::= 27
 id-E-RABSetupListBearerSURes				ProtocolIE-ID ::= 28
 id-E-RABFailedToSetupListBearerSURes		ProtocolIE-ID ::= 29
@@ -180,16 +180,16 @@ id-MMEname										ProtocolIE-ID ::= 61
 id-ServedPLMNs									ProtocolIE-ID ::= 63
 id-SupportedTAs									ProtocolIE-ID ::= 64
 id-TimeToWait									ProtocolIE-ID ::= 65
-id-uEaggregateMaximumBitrate						ProtocolIE-ID ::= 66
+id-uEaggregateMaximumBitrate					ProtocolIE-ID ::= 66
 id-TAI											ProtocolIE-ID ::= 67
-id-E-RABReleaseListBearerRelComp			ProtocolIE-ID ::= 69
+id-E-RABReleaseListBearerRelComp				ProtocolIE-ID ::= 69
 id-cdma2000PDU									ProtocolIE-ID ::= 70
 id-cdma2000RATType								ProtocolIE-ID ::= 71
 id-cdma2000SectorID								ProtocolIE-ID ::= 72
 id-SecurityKey									ProtocolIE-ID ::= 73
 id-UERadioCapability							ProtocolIE-ID ::= 74
 id-GUMMEI-ID									ProtocolIE-ID ::= 75
-id-E-RABInformationListItem					ProtocolIE-ID ::= 78
+id-E-RABInformationListItem						ProtocolIE-ID ::= 78
 id-Direct-Forwarding-Path-Availability			ProtocolIE-ID ::= 79
 id-UEIdentityIndexValue							ProtocolIE-ID ::= 80
 id-cdma2000HOStatus								ProtocolIE-ID ::= 83
@@ -202,23 +202,23 @@ id-eNB-StatusTransfer-TransparentContainer		ProtocolIE-ID ::= 90
 id-UE-associatedLogicalS1-ConnectionItem		ProtocolIE-ID ::= 91
 id-ResetType									ProtocolIE-ID ::= 92
 id-UE-associatedLogicalS1-ConnectionListResAck	ProtocolIE-ID ::= 93
-id-E-RABToBeSwitchedULItem					ProtocolIE-ID ::= 94
-id-E-RABToBeSwitchedULList					ProtocolIE-ID ::= 95
+id-E-RABToBeSwitchedULItem						ProtocolIE-ID ::= 94
+id-E-RABToBeSwitchedULList						ProtocolIE-ID ::= 95
 id-S-TMSI										ProtocolIE-ID ::= 96
 id-cdma2000OneXRAND								ProtocolIE-ID ::= 97
 id-RequestType									ProtocolIE-ID ::= 98
 id-UE-S1AP-IDs									ProtocolIE-ID ::= 99
-id-EUTRAN-CGI								ProtocolIE-ID ::= 100
+id-EUTRAN-CGI									ProtocolIE-ID ::= 100
 id-OverloadResponse								ProtocolIE-ID ::= 101
 id-cdma2000OneXSRVCCInfo						ProtocolIE-ID ::= 102
-id-E-RABFailedToBeReleasedList				ProtocolIE-ID ::= 103
-id-Source-ToTarget-TransparentContainer	ProtocolIE-ID ::= 104
+id-E-RABFailedToBeReleasedList					ProtocolIE-ID ::= 103
+id-Source-ToTarget-TransparentContainer			ProtocolIE-ID ::= 104
 id-ServedGUMMEIs								ProtocolIE-ID ::= 105
 id-SubscriberProfileIDforRFP					ProtocolIE-ID ::= 106
 id-UESecurityCapabilities						ProtocolIE-ID ::= 107
 id-CSFallbackIndicator							ProtocolIE-ID ::= 108
 id-CNDomain										ProtocolIE-ID ::= 109
-id-E-RABReleasedList						ProtocolIE-ID ::= 110
+id-E-RABReleasedList							ProtocolIE-ID ::= 110
 id-MessageIdentifier							ProtocolIE-ID ::= 111
 id-SerialNumber									ProtocolIE-ID ::= 112
 id-WarningAreaList								ProtocolIE-ID ::= 113
@@ -229,8 +229,8 @@ id-WarningSecurityInfo							ProtocolIE-ID ::= 117
 id-DataCodingScheme								ProtocolIE-ID ::= 118
 id-WarningMessageContents						ProtocolIE-ID ::= 119
 id-BroadcastCompletedAreaList					ProtocolIE-ID ::= 120
-id-Inter-SystemInformationTransferTypeEDT			ProtocolIE-ID ::= 121
-id-Inter-SystemInformationTransferTypeMDT			ProtocolIE-ID ::= 122
+id-Inter-SystemInformationTransferTypeEDT		ProtocolIE-ID ::= 121
+id-Inter-SystemInformationTransferTypeMDT		ProtocolIE-ID ::= 122
 id-Target-ToSource-TransparentContainer			ProtocolIE-ID ::= 123
 id-SRVCCOperationPossible						ProtocolIE-ID ::= 124
 id-SRVCCHOIndication							ProtocolIE-ID ::= 125
@@ -246,7 +246,12 @@ id-RRC-Establishment-Cause						ProtocolIE-ID ::= 134
 id-NASSecurityParametersfromE-UTRAN				ProtocolIE-ID ::= 135
 id-NASSecurityParameterstoE-UTRAN				ProtocolIE-ID ::= 136
 id-DefaultPagingDRX								ProtocolIE-ID ::= 137
-id-Source-ToTarget-TransparentContainer-Secondary			ProtocolIE-ID ::= 138
-id-Target-ToSource-TransparentContainer-Secondary			ProtocolIE-ID ::= 139
+id-Source-ToTarget-TransparentContainer-Secondary	ProtocolIE-ID ::= 138
+id-Target-ToSource-TransparentContainer-Secondary	ProtocolIE-ID ::= 139
+id-EUTRANRoundTripDelayEstimationInfo			ProtocolIE-ID ::= 140
+id-BroadcastCancelledAreaList					ProtocolIE-ID ::= 141
+id-ConcurrentWarningMessageIndicator			ProtocolIE-ID ::= 142
+
 END
+
 

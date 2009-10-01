@@ -29,7 +29,6 @@ ProtocolError-IE-ContainerList
 E-RAB-IE-ContainerPairList
 Presence
 L3-Information
-NumberofBroadcast
 OldBSS-ToNewBSS-Information
 SourceBSS-ToTargetBSS-TransparentContainer
 SourceeNB-ToTargeteNB-TransparentContainer
@@ -295,6 +294,7 @@ id-PrivateMessage						ProcedureCode
 id-eNBConfigurationTransfer				ProcedureCode
 id-MMEConfigurationTransfer				ProcedureCode
 id-CellTrafficTrace						ProcedureCode
+id-Kill									ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID									ProtocolIE-ID
@@ -420,6 +420,9 @@ id-NASSecurityParameterstoE-UTRAN					ProtocolIE-ID
 id-DefaultPagingDRX									ProtocolIE-ID
 id-Source-ToTarget-TransparentContainer-Secondary	ProtocolIE-ID
 id-Target-ToSource-TransparentContainer-Secondary	ProtocolIE-ID
+id-EUTRANRoundTripDelayEstimationInfo				ProtocolIE-ID
+id-BroadcastCancelledAreaList						ProtocolIE-ID
+id-ConcurrentWarningMessageIndicator				ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -544,6 +547,9 @@ NASSecurityParameterstoE-UTRAN			N s1ap.ies id-NASSecurityParameterstoE-UTRAN
 PagingDRX								N s1ap.ies id-DefaultPagingDRX
 Source-ToTarget-TransparentContainer	N s1ap.ies id-Source-ToTarget-TransparentContainer-Secondary
 Target-ToSource-TransparentContainer	N s1ap.ies id-Target-ToSource-TransparentContainer-Secondary
+EUTRANRoundTripDelayEstimationInfo		N s1ap.ies id-EUTRANRoundTripDelayEstimationInfo
+BroadcastCancelledAreaList				N s1ap.ies id-BroadcastCancelledAreaList
+ConcurrentWarningMessageIndicator		N s1ap.ies id-ConcurrentWarningMessageIndicator
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst				N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -662,6 +668,9 @@ ENBConfigurationTransfer				N s1ap.proc.imsg id-eNBConfigurationTransfer
 MMEConfigurationTransfer				N s1ap.proc.imsg id-MMEConfigurationTransfer
 
 CellTrafficTrace						N s1ap.proc.imsg id-CellTrafficTrace
+
+KillRequest								N s1ap.proc.imsg id-Kill
+KillResponse							N s1ap.proc.sout id-Kill
 
 
 #.TYPE_ATTR

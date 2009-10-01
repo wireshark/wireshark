@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V8.7.0 (2009-09)
+-- 3GPP TS 36.413V9.0.0 (2009-09)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -32,7 +32,9 @@ IMPORTS
 	Cdma2000PDU,
 	Cdma2000RATType,
 	Cdma2000SectorID,
+	EUTRANRoundTripDelayEstimationInfo,
 	CNDomain,
+	ConcurrentWarningMessageIndicator,
 	CriticalityDiagnostics,
 	CSFallbackIndicator,
 	CSG-Id,
@@ -102,7 +104,8 @@ IMPORTS
 	DataCodingScheme,
 	WarningMessageContents,
 	BroadcastCompletedAreaList,
-	RRC-Establishment-Cause
+	RRC-Establishment-Cause,
+	BroadcastCancelledAreaList
 
 FROM S1AP-IEs
 
@@ -129,7 +132,9 @@ FROM S1AP-Containers
 	id-cdma2000PDU,
 	id-cdma2000RATType,
 	id-cdma2000SectorID,
+	id-EUTRANRoundTripDelayEstimationInfo,
 	id-CNDomain,
+	id-ConcurrentWarningMessageIndicator,
 	id-CriticalityDiagnostics,
 	id-CSFallbackIndicator,
 	id-CSG-Id,
@@ -240,6 +245,7 @@ FROM S1AP-Containers
 	id-DataCodingScheme,
 	id-WarningMessageContents,
 	id-BroadcastCompletedAreaList,
+	id-BroadcastCancelledAreaList,
 	id-RRC-Establishment-Cause,
 	id-TraceCollectionEntityIPAddress,
 	maxnoofTAIs,
@@ -1191,12 +1197,13 @@ UEContextModificationRequest ::= SEQUENCE {
 }
 
 UEContextModificationRequestIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID					CRITICALITY reject	TYPE MME-UE-S1AP-ID		 			PRESENCE mandatory	} |
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID		 			PRESENCE mandatory	} |
 	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	} |	
 	{ ID id-SecurityKey					CRITICALITY reject	TYPE SecurityKey		 			PRESENCE optional	}|
-	{ ID id-SubscriberProfileIDforRFP		CRITICALITY ignore	TYPE SubscriberProfileIDforRFP	PRESENCE optional	}|
-	{ ID id-uEaggregateMaximumBitrate		CRITICALITY ignore	TYPE UEAggregateMaximumBitrate		PRESENCE optional	}|
-	{ ID id-CSFallbackIndicator				CRITICALITY reject		TYPE CSFallbackIndicator		PRESENCE optional	},
+	{ ID id-SubscriberProfileIDforRFP	CRITICALITY ignore	TYPE SubscriberProfileIDforRFP	PRESENCE optional	}|
+	{ ID id-uEaggregateMaximumBitrate	CRITICALITY ignore	TYPE UEAggregateMaximumBitrate		PRESENCE optional	}|
+	{ ID id-CSFallbackIndicator			CRITICALITY reject		TYPE CSFallbackIndicator		PRESENCE optional	}|
+	{ ID id-UESecurityCapabilities		CRITICALITY reject	TYPE UESecurityCapabilities			PRESENCE optional	},
 	...
 }
 -- **************************************************************
@@ -1648,10 +1655,12 @@ UplinkS1cdma2000tunnelingIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	} |
 	{ ID id-cdma2000RATType				CRITICALITY reject	TYPE Cdma2000RATType 			PRESENCE mandatory	} |
 	{ ID id-cdma2000SectorID			CRITICALITY reject	TYPE Cdma2000SectorID 			PRESENCE mandatory	} |
-	{ ID id-cdma2000HORequiredIndication			CRITICALITY ignore	TYPE Cdma2000HORequiredIndication 			PRESENCE optional	} |
-	{ ID id-cdma2000OneXSRVCCInfo			CRITICALITY reject	TYPE Cdma2000OneXSRVCCInfo 			PRESENCE optional	} |
+	{ ID id-cdma2000HORequiredIndication	CRITICALITY ignore	TYPE Cdma2000HORequiredIndication 			PRESENCE optional	} |
+	{ ID id-cdma2000OneXSRVCCInfo		CRITICALITY reject	TYPE Cdma2000OneXSRVCCInfo 			PRESENCE optional	} |
 	{ ID id-cdma2000OneXRAND			CRITICALITY reject	TYPE Cdma2000OneXRAND 			PRESENCE optional	} |
-	{ ID id-cdma2000PDU					CRITICALITY reject	TYPE Cdma2000PDU	 			PRESENCE mandatory	},
+	{ ID id-cdma2000PDU					CRITICALITY reject	TYPE Cdma2000PDU	 			PRESENCE mandatory	}|
+	{ ID id-EUTRANRoundTripDelayEstimationInfo	CRITICALITY ignore	TYPE EUTRANRoundTripDelayEstimationInfo		PRESENCE optional},
+	-- Extension for Release 9 to assist target HRPD access with the acquisition of the UE --
 	...
 }
 
@@ -1946,7 +1955,8 @@ WriteReplaceWarningRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-WarningType					CRITICALITY ignore	TYPE WarningType			PRESENCE optional		}|
 	{ ID id-WarningSecurityInfo			CRITICALITY ignore	TYPE WarningSecurityInfo	PRESENCE optional		}|
 	{ ID id-DataCodingScheme			CRITICALITY ignore	TYPE DataCodingScheme		PRESENCE optional		}|
-	{ ID id-WarningMessageContents		CRITICALITY ignore	TYPE WarningMessageContents		PRESENCE optional		},
+	{ ID id-WarningMessageContents		CRITICALITY ignore	TYPE WarningMessageContents		PRESENCE optional		}|
+	{ ID id-ConcurrentWarningMessageIndicator	CRITICALITY reject	TYPE ConcurrentWarningMessageIndicator		PRESENCE optional		},
 	...
 }
 -- **************************************************************
@@ -2078,6 +2088,44 @@ PrivateMessage ::= SEQUENCE {
 }
 
 PrivateMessageIEs S1AP-PRIVATE-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- Kill Request
+--
+-- **************************************************************
+
+
+KillRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {KillRequestIEs} },
+	...
+}
+
+KillRequestIEs S1AP-PROTOCOL-IES ::= {	
+	{ ID id-MessageIdentifier			CRITICALITY reject	TYPE MessageIdentifier		PRESENCE mandatory		}|
+	{ ID id-SerialNumber				CRITICALITY reject	TYPE SerialNumber		PRESENCE mandatory		}|
+	{ ID id-WarningAreaList				CRITICALITY ignore	TYPE WarningAreaList		PRESENCE optional		},
+	...
+}
+
+-- **************************************************************
+--
+-- Kill Response
+--
+-- **************************************************************
+
+KillResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container		{ {KillResponseIEs} },
+	...
+}
+
+KillResponseIEs S1AP-PROTOCOL-IES ::= {
+	{ ID id-MessageIdentifier			CRITICALITY reject	TYPE MessageIdentifier				PRESENCE mandatory		}|
+	{ ID id-SerialNumber				CRITICALITY reject	TYPE SerialNumber					PRESENCE mandatory		}|
+	{ ID id-BroadcastCancelledAreaList	CRITICALITY ignore	TYPE BroadcastCancelledAreaList		PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
 	...
 }
 
