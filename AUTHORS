@@ -2319,6 +2319,7 @@ Francesco Fondelli	<francesco.fondelli [AT] gmail.com> {
 	enhanced "what's past last MPLS label?" heuristic
 	Ethernet PW (with/without CW) support, RFC 4448
 	ATM PW (with/without CW) support, RFC 4717
+	LMP, update to RFC 4204
 }
 
 Artem Tamazov           <artem.tamazov [AT] tellabs.com> {

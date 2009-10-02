@@ -72,6 +72,8 @@ static int proto_lmp = -1;
 static guint lmp_udp_port = UDP_PORT_LMP_DEFAULT;
 static guint lmp_udp_port_config = UDP_PORT_LMP_DEFAULT;
 
+static gboolean lmp_checksum_config = FALSE;
+
 static dissector_handle_t lmp_handle;
 
 /*----------------------------------------------------------------------
@@ -735,28 +737,32 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return tvb_length(tvb);
 	}
 
-	cksum = tvb_get_ntohs(tvb, offset+6);
-	if (!pinfo->fragmented && (int) tvb_length(tvb) >= msg_length) {
-	    /* The packet isn't part of a fragmented datagram and isn't
-	       truncated, so we can checksum it. */
-	    cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);
-	    cksum_vec[0].len = msg_length;
-	    computed_cksum = in_cksum(&cksum_vec[0], 1);
+	if (lmp_checksum_config) {
+		cksum = tvb_get_ntohs(tvb, offset+6);
+		if (!pinfo->fragmented && (int) tvb_length(tvb) >= msg_length) {
+		    /* The packet isn't part of a fragmented datagram and isn't
+		       truncated, so we can checksum it. */
+		    cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, msg_length);
+		    cksum_vec[0].len = msg_length;
+		    computed_cksum = in_cksum(&cksum_vec[0], 1);
 
-	    if (computed_cksum == 0) {
-		proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
-				    "Message Checksum: 0x%04x [correct]",
-				    cksum);
-	    } else {
-		proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
-				    "Message Checksum: 0x%04x [incorrect, should be 0x%04x]",
-				    cksum,
-				    in_cksum_shouldbe(cksum, computed_cksum));
-	    }
+		    if (computed_cksum == 0) {
+			proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
+					    "Message Checksum: 0x%04x [correct]",
+					    cksum);
+		    } else {
+			proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
+					    "Message Checksum: 0x%04x [incorrect, should be 0x%04x]",
+					    cksum,
+					    in_cksum_shouldbe(cksum, computed_cksum));
+		    }
+		} else {
+		    proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
+					"Message Checksum: 0x%04x",
+					cksum);
+		}
 	} else {
-	    proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
-				"Message Checksum: 0x%04x",
-				cksum);
+		proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2, "No checksum");
 	}
 
 	offset += 8;
@@ -2032,6 +2038,9 @@ register_lmp_prefs (void)
     prefs_register_uint_preference(
 	lmp_module, "udp_port", "LMP UDP Port",
 	"UDP port number to use for LMP", 10, &lmp_udp_port_config);
+    prefs_register_bool_preference(
+	lmp_module, "checksum", "LMP checksum field",
+	"Whether LMP contains a checksum which can be checked", &lmp_checksum_config);
     prefs_register_obsolete_preference(
         lmp_module, "version");
 }
