@@ -851,7 +851,8 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(VCREDIST_DLL)
 !ENDIF
 
 !IF DEFINED(VCREDIST_EXE) && ! EXIST("$(VCREDIST_EXE)")
-!ERROR Can't find $(VCREDIST_EXE). Have you downloaded it from Microsoft?
+!ERROR Can't find $(VCREDIST_EXE). Have you downloaded it from Microsoft? \
+See the developer's guide section "C-Runtime "Redistributable" files" for details how to get it
 !ENDIF
 
 ##### Advanced: Docbook/XML documentation generation #####
