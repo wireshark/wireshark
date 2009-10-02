@@ -239,9 +239,9 @@ title Command Prompt (VC++ 2008)]]>
                 <superscript>2</superscript></para>
               </listitem>
               <listitem>
-                <para>MSVC_VARIANT : Make sure the variant for your compiler is uncommented, and that all others are commented out. For example, if you're using Visual C++ 2005 Express Edition, find the line
+                <para>MSVC_VARIANT : Make sure the variant for your compiler is uncommented, and that all others are commented out. For example, if you're using Visual C++ 2008 Express Edition, find the line
                 <programlisting>
-                  <![CDATA[#MSVC_VARIANT=MSVC2005EE]]>
+                  <![CDATA[#MSVC_VARIANT=MSVC2008EE]]>
                 </programlisting>
                 and remove the comment character (#)
                 from the beginning of the line. Then, find the line
