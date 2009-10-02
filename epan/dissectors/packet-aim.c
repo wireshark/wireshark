@@ -749,7 +749,8 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
     pd_save = pinfo->private_data;
     pinfo->private_data = &aiminfo;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, family->name);
+    if (family)
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, family->name);
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
