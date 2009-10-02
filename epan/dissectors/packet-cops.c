@@ -702,6 +702,16 @@ static gint hf_cops_pcmm_classifier_priority = -1;
 static gint hf_cops_pcmm_classifier_classifier_id = -1;
 static gint hf_cops_pcmm_classifier_activation_state = -1;
 static gint hf_cops_pcmm_classifier_action = -1;
+static gint hf_cops_pcmm_classifier_flags = -1;
+static gint hf_cops_pcmm_classifier_tc_low = -1;
+static gint hf_cops_pcmm_classifier_tc_high = -1;
+static gint hf_cops_pcmm_classifier_tc_mask = -1;
+static gint hf_cops_pcmm_classifier_flow_label = -1;
+static gint hf_cops_pcmm_classifier_next_header_type = -1;
+static gint hf_cops_pcmm_classifier_source_prefix_length = -1;
+static gint hf_cops_pcmm_classifier_destination_prefix_length = -1;
+static gint hf_cops_pcmm_classifier_src_addr_v6 = -1;
+static gint hf_cops_pcmm_classifier_dst_addr_v6 = -1;
 static gint hf_cops_pcmm_flow_spec_envelope = -1;
 static gint hf_cops_pcmm_flow_spec_service_number = -1;
 static gint hf_cops_pcmm_docsis_scn = -1;
@@ -2148,7 +2158,7 @@ void proto_register_cops(void)
 	    "PacketCable Multimedia Classifier Destination IP Address", HFILL }
     },
     { &hf_cops_pcmm_classifier_dst_mask,
-	    { "Destination address", "cops.pc_mm_classifier_dst_mask",
+	    { "Destination mask", "cops.pc_mm_classifier_dst_mask",
 	    FT_IPv4, BASE_NONE, NULL, 0,
 	    "PacketCable Multimedia Classifier Destination Mask", HFILL }
     },
@@ -2168,7 +2178,7 @@ void proto_register_cops(void)
 	    "PacketCable Multimedia Classifier Source Port", HFILL }
     },
     { &hf_cops_pcmm_classifier_dst_port_end,
-	    { "Destination Port", "cops.pc_mm_classifier_dst_port_end",
+	    { "Destination Port End", "cops.pc_mm_classifier_dst_port_end",
 	    FT_UINT16, BASE_DEC, NULL, 0,
 	    "PacketCable Multimedia Classifier Source Port End", HFILL }
     },
@@ -2178,19 +2188,69 @@ void proto_register_cops(void)
 	    "PacketCable Multimedia Classifier Priority", HFILL }
     },
     { &hf_cops_pcmm_classifier_classifier_id,
-	    { "Priority", "cops.pc_mm_classifier_id",
+	    { "Classifier Id", "cops.pc_mm_classifier_id",
 	    FT_UINT16, BASE_HEX, NULL, 0,
 	    "PacketCable Multimedia Classifier ID", HFILL }
     },
     { &hf_cops_pcmm_classifier_activation_state,
-	    { "Priority", "cops.pc_mm_classifier_activation_state",
+	    { "Activation State", "cops.pc_mm_classifier_activation_state",
 	    FT_UINT8, BASE_HEX, pcmm_activation_state_vals, 0,
 	    "PacketCable Multimedia Classifier Activation State", HFILL }
     },
     { &hf_cops_pcmm_classifier_action,
-	    { "Priority", "cops.pc_mm_classifier_action",
+	    { "Action", "cops.pc_mm_classifier_action",
 	    FT_UINT8, BASE_HEX, pcmm_action_vals, 0,
 	    "PacketCable Multimedia Classifier Action", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_flags,
+	    { "Flags", "cops.pc_mm_classifier_flags",
+	    FT_UINT8, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia Classifier Flags", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_tc_low,
+	    { "tc-low", "cops.pc_mm_classifier_tc_low",
+	    FT_UINT8, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia Classifier tc-low", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_tc_high,
+	    { "tc-high", "cops.pc_mm_classifier_tc_high",
+	    FT_UINT8, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia Classifier tc-high", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_tc_mask,
+	    { "tc-mask", "cops.pc_mm_classifier_tc_mask",
+	    FT_UINT8, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia Classifier tc-mask", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_flow_label,
+	    { "Flow Label", "cops.pc_mm_classifier_flow_label",
+	    FT_UINT32, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia Classifier Flow Label", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_next_header_type,
+	    { "Next Header Type", "cops.pc_mm_classifier_next_header_type",
+	    FT_UINT16, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia Classifier Next Header Type", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_source_prefix_length,
+	    { "Source Prefix Length", "cops.pc_mm_classifier_source_prefix_length",
+	    FT_UINT8, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia Classifier Source Prefix Length", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_destination_prefix_length,
+	    { "Destination Prefix Length", "cops.pc_mm_classifier_destination_prefix_length",
+	    FT_UINT8, BASE_HEX, NULL, 0,
+	    "PacketCable Multimedia Classifier Destination Prefix Length", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_src_addr_v6,
+	    { "IPv6 Source Address", "cops.pc_mm_classifier_src_addr_v6",
+	    FT_IPv6, BASE_NONE, NULL, 0,
+	    "PacketCable Multimedia Classifier IPv6 Source Address", HFILL }
+    },
+    { &hf_cops_pcmm_classifier_dst_addr_v6,
+	    { "IPv6 Destination Address", "cops.pc_mm_classifier_dst_addr_v6",
+	    FT_IPv6, BASE_NONE, NULL, 0,
+	    "PacketCable Multimedia Classifier IPv6 Destination Address", HFILL }
     },
 
     { &hf_cops_pcmm_flow_spec_envelope,
@@ -3247,6 +3307,92 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean
 	info_to_display(tvb,stt,offset,1,"Action",NULL,FMT_HEX,&hf_cops_pcmm_classifier_action);
 	offset += 1;
     }
+
+    /* 3 octets Not specified */
+    offset += 3;
+}
+
+/* Cops - Section : IPv6 Classifier */
+static void
+cops_ipv6_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
+
+    proto_tree *stt;
+
+    /* Create a subtree */
+    stt = info_to_cops_subtree(tvb,st,n,offset, "IPv6 Classifier");
+    offset += 4;
+
+    /* Reserved/Flags */
+    info_to_display(tvb,stt,offset,1,"Flags",NULL,FMT_HEX,&hf_cops_pcmm_classifier_flags);
+    offset += 1;
+
+    /* tc-low */
+    info_to_display(tvb,stt,offset,1,"tc-low",NULL,FMT_HEX,&hf_cops_pcmm_classifier_tc_low);
+    offset += 1;
+
+    /* tc-high */
+    info_to_display(tvb,stt,offset,1,"tc-high",NULL,FMT_HEX,&hf_cops_pcmm_classifier_tc_high);
+    offset += 1;
+
+    /* tc-mask */
+    info_to_display(tvb,stt,offset,1,"tc-mask",NULL,FMT_HEX,&hf_cops_pcmm_classifier_tc_mask);
+    offset += 1;
+
+    /* Flow Label */
+    info_to_display(tvb,stt,offset,4,"Flow Label",NULL,FMT_HEX,&hf_cops_pcmm_classifier_flow_label);
+    offset += 4;
+
+    /* Next Header Type */
+    info_to_display(tvb,stt,offset,2,"Next Header Type",NULL,FMT_DEC,&hf_cops_pcmm_classifier_next_header_type);
+    offset += 2;
+
+    /* Source Prefix Length */
+    info_to_display(tvb,stt,offset,1,"Source Prefix Length",NULL,FMT_DEC,&hf_cops_pcmm_classifier_source_prefix_length);
+    offset += 1;
+
+    /* Destination Prefix Length */
+    info_to_display(tvb,stt,offset,1,"Destination Prefix Length",NULL,FMT_DEC,&hf_cops_pcmm_classifier_destination_prefix_length);
+    offset += 1;
+
+    /* Source IP Address */
+    info_to_display(tvb,stt,offset,16,"IPv6 Source Address",NULL,FMT_IPv6,&hf_cops_pcmm_classifier_src_addr_v6);
+    offset += 16;
+
+    /* Destination IP Address */
+    info_to_display(tvb,stt,offset,16,"IPv6 Destination Address",NULL,FMT_IPv6,&hf_cops_pcmm_classifier_dst_addr_v6);
+    offset += 16;
+
+    /* Source IP Port */
+    info_to_display(tvb,stt,offset,2,"Source Port Start",NULL,FMT_DEC,&hf_cops_pcmm_classifier_src_port);
+    offset += 2;
+
+	/* Source Port End */
+	info_to_display(tvb,stt,offset,2,"Source Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_src_port_end);
+	offset += 2;
+
+    /* Destination IP Port */
+    info_to_display(tvb,stt,offset,2,"Destination Port Start",NULL,FMT_DEC,&hf_cops_pcmm_classifier_dst_port);
+    offset += 2;
+
+	/* Destination Port End */
+	info_to_display(tvb,stt,offset,2,"Destination Port End",NULL,FMT_DEC,&hf_cops_pcmm_classifier_dst_port_end);
+	offset += 2;
+
+	/* ClassifierID */
+	info_to_display(tvb,stt,offset,2,"ClassifierID",NULL,FMT_HEX,&hf_cops_pcmm_classifier_classifier_id);
+	offset += 2;
+
+    /* Priority */
+    info_to_display(tvb,stt,offset,1,"Priority",NULL,FMT_HEX,&hf_cops_pcmm_classifier_priority);
+    offset += 1;
+
+	/* Activation State */
+	info_to_display(tvb,stt,offset,1,"Activation State",NULL,FMT_HEX,&hf_cops_pcmm_classifier_activation_state);
+	offset += 1;
+
+	/* Action */
+	info_to_display(tvb,stt,offset,1,"Action",NULL,FMT_HEX,&hf_cops_pcmm_classifier_action);
+	offset += 1;
 
     /* 3 octets Not specified */
     offset += 3;
@@ -5487,6 +5633,7 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
 #define PCMM_GATE_SPEC                     0x0501
 #define PCMM_CLASSIFIER                    0x0601
 #define PCMM_EXTENDED_CLASSIFIER           0x0602
+#define PCMM_IPV6_CLASSIFIER               0x0603
 #define PCMM_FLOW_SPEC                     0x0701
 #define PCMM_DOCSIS_SERVICE_CLASS_NAME     0x0702
 #define PCMM_BEST_EFFORT_SERVICE           0x0703
@@ -5566,6 +5713,9 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         case PCMM_EXTENDED_CLASSIFIER:
                cops_classifier(tvb, tree, object_len, offset, TRUE);
                break;
+        case PCMM_IPV6_CLASSIFIER:
+        	   cops_ipv6_classifier(tvb, tree, object_len, offset);
+			   break;
         case PCMM_FLOW_SPEC:
                cops_flow_spec(tvb, tree, object_len, offset);
                break;
