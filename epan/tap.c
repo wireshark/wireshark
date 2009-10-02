@@ -192,6 +192,25 @@ tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 /* **********************************************************************
  * Functions used by file.c to drive the tap subsystem
  * ********************************************************************** */
+
+void tap_build_interesting (epan_dissect_t *edt)
+{
+	tap_listener_t *tl;
+
+	/* nothing to do, just return */
+	if(!tap_listener_queue){
+		return;
+	}
+
+	/* loop over all tap listeners and build the list of all
+	   interesting hf_fields */
+	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+		if(tl->code){
+			epan_dissect_prime_dfilter(edt, tl->code);
+		}
+	}
+}
+
 /* This function is used to delete/initialize the tap queue and prime an
    epan_dissect_t with all the filters for tap listeners.
    To free the tap queue, we just prepend the used queue to the free queue.
@@ -199,8 +218,6 @@ tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 void
 tap_queue_init(epan_dissect_t *edt)
 {
-	tap_listener_t *tl;
-
 	/* nothing to do, just return */
 	if(!tap_listener_queue){
 		return;
@@ -210,13 +227,7 @@ tap_queue_init(epan_dissect_t *edt)
 
 	tap_packet_index=0;
 
-	/* loop over all tap listeners and build the list of all
-	   interesting hf_fields */
-	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
-		if(tl->code){
-			epan_dissect_prime_dfilter(edt, tl->code);
-		}
-	}
+	tap_build_interesting (edt);
 }
 
 /* this function is called after a packet has been fully dissected to push the tapped

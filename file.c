@@ -4056,6 +4056,7 @@ cf_select_packet(capture_file *cf, int row)
   /* We don't need the columns here. */
   cf->edt = epan_dissect_new(TRUE, TRUE);
 
+  tap_build_interesting(cf->edt);
   epan_dissect_run(cf->edt, &cf->pseudo_header, cf->pd, cf->current_frame,
           NULL);
 
