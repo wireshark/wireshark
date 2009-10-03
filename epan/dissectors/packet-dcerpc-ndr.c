@@ -231,8 +231,10 @@ dissect_ndr_uint3264 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     } else {
         guint32 val;
         offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hfindex, &val);
-	*pdata = val;
-	return offset;
+        if (pdata) {
+            *pdata = val;
+        }
+        return offset;
     }
 }
 
@@ -253,8 +255,10 @@ dissect_ndr_uint1632 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     } else {
         guint16 val;
         offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hfindex, &val);
-	*pdata = val;
-	return offset;
+        if (pdata) {
+            *pdata = val;
+        }
+        return offset;
     }
 }
 
@@ -421,7 +425,7 @@ PIDL_dissect_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int
 dissect_ndr_float(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, guint8 *drep, 
+                    proto_tree *tree, guint8 *drep,
                     int hfindex, gfloat *pdata)
 {
     dcerpc_info *di;
@@ -436,14 +440,14 @@ dissect_ndr_float(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (offset % 4) {
         offset += 4 - (offset % 4);
     }
-    return dissect_dcerpc_float(tvb, offset, pinfo, 
+    return dissect_dcerpc_float(tvb, offset, pinfo,
                                   tree, drep, hfindex, pdata);
 }
 
 
 int
 dissect_ndr_double(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                    proto_tree *tree, guint8 *drep, 
+                    proto_tree *tree, guint8 *drep,
                     int hfindex, gdouble *pdata)
 {
     dcerpc_info *di;
@@ -458,7 +462,7 @@ dissect_ndr_double(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (offset % 8) {
         offset += 8 - (offset % 8);
     }
-    return dissect_dcerpc_double(tvb, offset, pinfo, 
+    return dissect_dcerpc_double(tvb, offset, pinfo,
                                   tree, drep, hfindex, pdata);
 }
 
