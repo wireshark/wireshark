@@ -1027,7 +1027,19 @@ dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
             : tvb_get_ntoh64 (tvb, offset));
 
     if (tree) {
-        proto_tree_add_item(tree, hfindex, tvb, offset, 8, (drep[0] & 0x10));
+        header_field_info *hfinfo;
+
+        /* This might be a field that is either 32bit, in NDR or
+	   64 bits in NDR64. So we must be careful and call the right
+	   helper here
+	*/
+        hfinfo = proto_registrar_get_nth(hfindex);
+
+	if (hfinfo->type == FT_UINT64) {
+            proto_tree_add_uint64(tree, hfindex, tvb, offset, 8, data);
+        } else {
+            proto_tree_add_uint(tree, hfindex, tvb, offset, 8, data);
+        }
     }
     if (pdata)
         *pdata = data;
@@ -1170,20 +1182,29 @@ dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	guint32 i;
 	dcerpc_info *di;
 	int old_offset;
+	int conformance_size = 4;
 
 	di=pinfo->private_data;
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		conformance_size = 8;
+	}
+
 	if(di->conformant_run){
+		guint64 val;
+
 		/* conformant run, just dissect the max_count header */
 		old_offset=offset;
 		di->conformant_run=0;
-		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-				hf_dcerpc_array_max_count, &di->array_max_count);
-		di->array_max_count_offset=offset-4;
+		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_max_count, &val);
+		di->array_max_count = val;
+		di->array_max_count_offset=offset-conformance_size;
 		di->conformant_run=1;
 		di->conformant_eaten=offset-old_offset;
 	} else {
 		/* we don't remember where in the bytestream this field was */
-		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, 4, di->array_max_count);
+		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, conformance_size, di->array_max_count);
 
 		/* real run, dissect the elements */
 		for(i=0;i<di->array_max_count;i++){
@@ -1202,28 +1223,39 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	guint32 i;
 	dcerpc_info *di;
 	int old_offset;
+	int conformance_size = 4;
 
 	di=pinfo->private_data;
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		conformance_size = 8;
+	}
+
 	if(di->conformant_run){
+		guint64 val;
+
 		/* conformant run, just dissect the max_count header */
 		old_offset=offset;
 		di->conformant_run=0;
-		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-				hf_dcerpc_array_max_count, &di->array_max_count);
-		di->array_max_count_offset=offset-4;
-		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-				hf_dcerpc_array_offset, &di->array_offset);
-		di->array_offset_offset=offset-4;
-		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-				hf_dcerpc_array_actual_count, &di->array_actual_count);
-		di->array_actual_count_offset=offset-4;
+		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_max_count, &val);
+		di->array_max_count = val;
+		di->array_max_count_offset=offset-conformance_size;
+		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_offset, &val);
+		di->array_offset = val;
+		di->array_offset_offset=offset-conformance_size;
+		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_actual_count, &val);
+		di->array_actual_count=val;
+		di->array_actual_count_offset=offset-conformance_size;
 		di->conformant_run=1;
 		di->conformant_eaten=offset-old_offset;
 	} else {
 		/* we dont dont remember where  in the bytestream these fields were */
-		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, 4, di->array_max_count);
-		proto_tree_add_uint(tree, hf_dcerpc_array_offset, tvb, di->array_offset_offset, 4, di->array_offset);
-		proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, di->array_actual_count_offset, 4, di->array_actual_count);
+		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, conformance_size, di->array_max_count);
+		proto_tree_add_uint(tree, hf_dcerpc_array_offset, tvb, di->array_offset_offset, conformance_size, di->array_offset);
+		proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, di->array_actual_count_offset, conformance_size, di->array_actual_count);
 
 		/* real run, dissect the elements */
 		for(i=0;i<di->array_actual_count;i++){
@@ -1245,24 +1277,34 @@ dissect_ndr_uvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	guint32 i;
 	dcerpc_info *di;
 	int old_offset;
+	int conformance_size = 4;
 
 	di=pinfo->private_data;
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		conformance_size = 8;
+	}
+
 	if(di->conformant_run){
+		guint64 val;
+
 		/* conformant run, just dissect the max_count header */
 		old_offset=offset;
 		di->conformant_run=0;
-		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-				hf_dcerpc_array_offset, &di->array_offset);
-		di->array_offset_offset=offset-4;
-		offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-				hf_dcerpc_array_actual_count, &di->array_actual_count);
-		di->array_actual_count_offset=offset-4;
+		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_offset, &val);
+		di->array_offset=val;
+		di->array_offset_offset=offset-conformance_size;
+		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+				hf_dcerpc_array_actual_count, &val);
+		di->array_actual_count=val;
+		di->array_actual_count_offset=offset-conformance_size;
 		di->conformant_run=1;
 		di->conformant_eaten=offset-old_offset;
 	} else {
 		/* we dont dont remember where  in the bytestream these fields were */
-		proto_tree_add_uint(tree, hf_dcerpc_array_offset, tvb, di->array_offset_offset, 4, di->array_offset);
-		proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, di->array_actual_count_offset, 4, di->array_actual_count);
+		proto_tree_add_uint(tree, hf_dcerpc_array_offset, tvb, di->array_offset_offset, conformance_size, di->array_offset);
+		proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, di->array_actual_count_offset, conformance_size, di->array_actual_count);
 
 		/* real run, dissect the elements */
 		for(i=0;i<di->array_actual_count;i++){
@@ -1293,7 +1335,7 @@ dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
                             proto_tree *tree, guint8 *drep)
 {
     dcerpc_info *di;
-    guint32 len;
+    guint64 len;
 
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -1303,13 +1345,13 @@ dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* NDR array header */
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+    offset = dissect_ndr_4or8(tvb, offset, pinfo, tree, drep,
                                 hf_dcerpc_array_max_count, NULL);
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+    offset = dissect_ndr_4or8(tvb, offset, pinfo, tree, drep,
                                 hf_dcerpc_array_offset, NULL);
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+    offset = dissect_ndr_4or8(tvb, offset, pinfo, tree, drep,
                                 hf_dcerpc_array_actual_count, &len);
 
     if (tree && len) {
@@ -1339,7 +1381,8 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     dcerpc_info *di;
     proto_item *string_item;
     proto_tree *string_tree;
-    guint32 len, buffer_len;
+    guint64 len;
+    guint32 buffer_len;
     char *s;
     header_field_info *hfinfo;
 
@@ -1360,13 +1403,13 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* NDR array header */
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, string_tree, drep,
+    offset = dissect_ndr_4or8(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_max_count, NULL);
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, string_tree, drep,
+    offset = dissect_ndr_4or8(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_offset, NULL);
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, string_tree, drep,
+    offset = dissect_ndr_4or8(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_actual_count, &len);
 
     buffer_len = size_is * len;
@@ -1528,7 +1571,8 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     dcerpc_info *di;
     proto_item *string_item;
     proto_tree *string_tree;
-    guint32 len, buffer_len;
+    guint64 len;
+    guint32 buffer_len;
     char *s;
     header_field_info *hfinfo;
 
@@ -1548,10 +1592,10 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     /* NDR array header */
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, string_tree, drep,
+    offset = dissect_ndr_4or8(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_offset, NULL);
 
-    offset = dissect_ndr_uint32(tvb, offset, pinfo, string_tree, drep,
+    offset = dissect_ndr_4or8(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_actual_count, &len);
 
     buffer_len = size_is * len;
