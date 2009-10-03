@@ -2127,7 +2127,7 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
 	}
-	offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 		hf_samr_sec_desc_buf_len, &len);
 	dcv = (dcerpc_call_value *)di->call_data;
 	if(dcv){
@@ -2168,7 +2168,7 @@ cnf_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
 	}
-	offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 		hf_samr_sec_desc_buf_len, &len);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                        cnf_dissect_sec_desc_buf_, NDR_POINTER_UNIQUE,
@@ -3785,7 +3785,7 @@ samr_dissect_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint32 level;
+	guint16 level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -3793,7 +3793,7 @@ samr_dissect_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 		tree = proto_item_add_subtree(item, ett_samr_samr_DomainInfo);
 	}
 
-	offset = dissect_ndr_2or4(tvb, offset, pinfo, tree, drep, hf_index, &level);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &level);
 	ALIGN_TO_8_BYTES;
 
 	switch(level) {

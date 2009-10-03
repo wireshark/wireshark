@@ -188,9 +188,12 @@ int dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int dissect_ndr_2or4 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		        proto_tree *tree, guint8 *drep,
 		        int hfindex, guint32 *pdata);
-int dissect_ndr_4or8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+
+typedef guint64 guint3264;
+
+int dissect_ndr_uint3264 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		        proto_tree *tree, guint8 *drep,
-		        int hfindex, guint64 *pdata);
+		        int hfindex, guint3264 *pdata);
 
 typedef int (dcerpc_dissect_fnct_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);
 

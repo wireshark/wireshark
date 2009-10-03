@@ -218,9 +218,9 @@ dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
    data, which is 4 bytes in size in NDR but 8 bytes in NDR64.
 */
 int
-dissect_ndr_4or8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+dissect_ndr_uint3264 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, guint8 *drep,
-                    int hfindex, guint64 *pdata)
+                    int hfindex, guint3264 *pdata)
 {
     dcerpc_info *di;
 

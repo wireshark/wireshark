@@ -429,7 +429,7 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		return offset;
 	}
 
-	offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 		hf_samr_sec_desc_buf_len, &len);
 
 	dcv = (dcerpc_call_value *)di->call_data;
@@ -477,7 +477,7 @@ cnf_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		return offset;
 	}
 
-	offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 		hf_samr_sec_desc_buf_len, &len);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,

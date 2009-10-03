@@ -1196,7 +1196,7 @@ dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		/* conformant run, just dissect the max_count header */
 		old_offset=offset;
 		di->conformant_run=0;
-		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_max_count, &val);
 		di->array_max_count = val;
 		di->array_max_count_offset=offset-conformance_size;
@@ -1237,15 +1237,15 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		/* conformant run, just dissect the max_count header */
 		old_offset=offset;
 		di->conformant_run=0;
-		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_max_count, &val);
 		di->array_max_count = val;
 		di->array_max_count_offset=offset-conformance_size;
-		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_offset, &val);
 		di->array_offset = val;
 		di->array_offset_offset=offset-conformance_size;
-		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_actual_count, &val);
 		di->array_actual_count=val;
 		di->array_actual_count_offset=offset-conformance_size;
@@ -1291,11 +1291,11 @@ dissect_ndr_uvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		/* conformant run, just dissect the max_count header */
 		old_offset=offset;
 		di->conformant_run=0;
-		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_offset, &val);
 		di->array_offset=val;
 		di->array_offset_offset=offset-conformance_size;
-		offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
+		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_actual_count, &val);
 		di->array_actual_count=val;
 		di->array_actual_count_offset=offset-conformance_size;
@@ -1345,13 +1345,13 @@ dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* NDR array header */
 
-    offset = dissect_ndr_4or8(tvb, offset, pinfo, tree, drep,
+    offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, drep,
                                 hf_dcerpc_array_max_count, NULL);
 
-    offset = dissect_ndr_4or8(tvb, offset, pinfo, tree, drep,
+    offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, drep,
                                 hf_dcerpc_array_offset, NULL);
 
-    offset = dissect_ndr_4or8(tvb, offset, pinfo, tree, drep,
+    offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, drep,
                                 hf_dcerpc_array_actual_count, &len);
 
     if (tree && len) {
@@ -1403,13 +1403,13 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* NDR array header */
 
-    offset = dissect_ndr_4or8(tvb, offset, pinfo, string_tree, drep,
+    offset = dissect_ndr_uint3264(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_max_count, NULL);
 
-    offset = dissect_ndr_4or8(tvb, offset, pinfo, string_tree, drep,
+    offset = dissect_ndr_uint3264(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_offset, NULL);
 
-    offset = dissect_ndr_4or8(tvb, offset, pinfo, string_tree, drep,
+    offset = dissect_ndr_uint3264(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_actual_count, &len);
 
     buffer_len = size_is * len;
@@ -1592,10 +1592,10 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     /* NDR array header */
-    offset = dissect_ndr_4or8(tvb, offset, pinfo, string_tree, drep,
+    offset = dissect_ndr_uint3264(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_offset, NULL);
 
-    offset = dissect_ndr_4or8(tvb, offset, pinfo, string_tree, drep,
+    offset = dissect_ndr_uint3264(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_actual_count, &len);
 
     buffer_len = size_is * len;
@@ -1970,7 +1970,7 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_item *item;
 
 		/* get the referent id */
-		offset = dissect_ndr_4or8(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_uint3264(tvb, offset, pinfo, NULL, drep, -1, &id);
 
 		tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
 		/* we got a NULL pointer */
@@ -2010,7 +2010,7 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_item *item;
 
 		/* get the referent id */
-		offset = dissect_ndr_4or8(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_uint3264(tvb, offset, pinfo, NULL, drep, -1, &id);
 
 		tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
 		/* we got a NULL pointer */
@@ -2040,7 +2040,7 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_item *item;
 
 		/* get the referent id */
-		offset = dissect_ndr_4or8(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_uint3264(tvb, offset, pinfo, NULL, drep, -1, &id);
 
 		tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
 		/* new pointer */
@@ -2062,7 +2062,7 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_item *item;
 
 		/* get the referent id */
-		offset = dissect_ndr_4or8(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_uint3264(tvb, offset, pinfo, NULL, drep, -1, &id);
 
 		tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
 		/* we got a NULL pointer */
@@ -2093,7 +2093,7 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		proto_item *item;
 
 		/* get the referent id */
-		offset = dissect_ndr_4or8(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_uint3264(tvb, offset, pinfo, NULL, drep, -1, &id);
 
 		tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
 		/* we got a NULL pointer */
