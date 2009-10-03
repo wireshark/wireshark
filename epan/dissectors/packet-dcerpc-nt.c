@@ -1270,7 +1270,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* the SID contains a conformant array, first we must eat
 	   the 4-byte max_count before we can hand it off */
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
 			hf_nt_count, NULL);
 
 	offset = dissect_nt_sid(tvb, offset, tree, name, &sid_str,
