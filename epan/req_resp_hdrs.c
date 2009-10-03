@@ -130,8 +130,8 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				pinfo->desegment_offset = offset;
 				pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 				return FALSE;
-			} 
-                        
+			}
+
                         if (linelen == 0) {
 				/*
 				 * We found the end of the headers.
@@ -286,7 +286,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 					 return FALSE;
 				}
-				
+
 				/* We have a line with the chunk size in it.*/
 				chunk_string = tvb_get_ephemeral_string(tvb, next_offset,
 				    linelen);
@@ -305,6 +305,11 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					 */
 					return TRUE;
 				}
+				if (chunk_size > 2<<31) {
+					/* Chunk size is unreasonable. */
+					/* XXX What /is/ reasonable? */
+					return TRUE;
+				}
 
 				if (chunk_size == 0) {
 					/*
@@ -313,7 +318,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					 */
 					linelen = tvb_find_line_end(tvb,
 					    chunk_offset, -1, &chunk_offset, TRUE);
-						
+
 					if (linelen == -1 &&
 					    length_remaining >=
 					    reported_length_remaining) {
@@ -326,20 +331,20 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					pinfo->desegment_len = 0;
 					done_chunking = TRUE;
 				} else {
-					/* 
+					/*
 					 * Skip to the next chunk if we
-					 * already have it 
+					 * already have it
 					 */
 					if (reported_length_remaining >
 					        (gint) chunk_size) {
-						
-						next_offset = chunk_offset 
+
+						next_offset = chunk_offset
 						    + chunk_size + 2;
 					} else {
-						/* 
+						/*
 						 * Fetch this chunk, plus the
 						 * trailing CRLF.
-						 */ 
+						 */
 						pinfo->desegment_offset = offset;
 						pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 						return FALSE;
