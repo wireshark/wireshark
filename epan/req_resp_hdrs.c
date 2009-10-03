@@ -305,7 +305,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					 */
 					return TRUE;
 				}
-				if (chunk_size > 2<<31) {
+				if (chunk_size > (guint)1<<31) {
 					/* Chunk size is unreasonable. */
 					/* XXX What /is/ reasonable? */
 					return TRUE;
