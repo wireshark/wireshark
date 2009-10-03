@@ -2082,7 +2082,7 @@ cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	proto_tree *tree = NULL;
 	int old_offset;
 	header_field_info *hf_info;
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 	old_offset = offset;
 	hf_info=proto_registrar_get_nth(hfindex);
 	if (parent_tree) {
@@ -2116,7 +2116,7 @@ cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 static int
 cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	guint32 len;
+	guint64 len;
 	dcerpc_info *di = NULL;
 	e_ctx_hnd *polhnd = NULL;
 	dcerpc_call_value *dcv = NULL;
@@ -2127,7 +2127,7 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
 	}
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
 		hf_samr_sec_desc_buf_len, &len);
 	dcv = (dcerpc_call_value *)di->call_data;
 	if(dcv){
@@ -2161,14 +2161,14 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 static int
 cnf_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	guint32 len;
+	guint64 len;
 	dcerpc_info *di;
 	di=pinfo->private_data;
 	if(di->conformant_run){
 		/*just a run to handle conformant arrays, nothing to dissect */
 		return offset;
 	}
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_4or8 (tvb, offset, pinfo, tree, drep,
 		hf_samr_sec_desc_buf_len, &len);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
                        cnf_dissect_sec_desc_buf_, NDR_POINTER_UNIQUE,
