@@ -214,6 +214,28 @@ dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                   tree, drep, hfindex, pdata);
 }
 
+/* This is used to dissect the new datatypes, such as pointers and conformance
+   data, which is 4 bytes in size in NDR but 8 bytes in NDR64.
+*/
+int
+dissect_ndr_4or8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, guint8 *drep,
+                    int hfindex, guint64 *pdata)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+
+    if (di->call_data->flags & DCERPC_IS_NDR64) {
+        return dissect_ndr_uint64(tvb, offset, pinfo, tree, drep, hfindex, pdata);
+    } else {
+        guint32 val;
+        offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hfindex, &val);
+	*pdata = val;
+	return offset;
+    }
+}
+
 int
 PIDL_dissect_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, guint8 *drep,

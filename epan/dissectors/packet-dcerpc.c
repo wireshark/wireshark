@@ -1888,6 +1888,7 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	dcerpc_info *di;
 	proto_tree *tr = NULL;
 	gint start_offset = offset;
+	int pointer_size = 4;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -1897,6 +1898,10 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		*/
 		return offset;
 	}
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		pointer_size = 8;
+	}
+
 
 	/*TOP LEVEL REFERENCE POINTER*/
 	if( pointers_are_top_level
@@ -1917,16 +1922,17 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	if( pointers_are_top_level
 	&& (type==NDR_POINTER_PTR) ){
 		int idx;
-		guint32 id;
+		guint64 id;
 		proto_item *item;
 
 		/* get the referent id */
-		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_4or8(tvb, offset, pinfo, NULL, drep, -1, &id);
 
-		tvb_ensure_bytes_exist(tvb, offset-4, 4);
+		tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
 		/* we got a NULL pointer */
 		if(id==0){
-			proto_tree_add_text(tree, tvb, offset-4, 4,
+			proto_tree_add_text(tree, tvb, offset-pointer_size,
+				pointer_size,
 				"(NULL pointer) %s",text);
 			goto after_ref_id;
 		}
@@ -1936,16 +1942,19 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		/* we have seen this pointer before */
 		if(idx>=0){
-			proto_tree_add_text(tree, tvb, offset-4, 4,
+			proto_tree_add_text(tree, tvb, offset-pointer_size,
+				pointer_size,
 				"(duplicate PTR) %s",text);
 			goto after_ref_id;
 		}
 
 		/* new pointer */
-		item=proto_tree_add_text(tree, tvb, offset-4, 4,
+		item=proto_tree_add_text(tree, tvb, offset-pointer_size,
+			pointer_size,
 			"%s", text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
+		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
+			offset-pointer_size, pointer_size, id);
 		add_pointer_to_list(pinfo, tr, item, fnct, id, hf_index,
 				    callback, callback_args);
 		goto after_ref_id;
@@ -1953,25 +1962,28 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	/*TOP LEVEL UNIQUE POINTER*/
 	if( pointers_are_top_level
 	&& (type==NDR_POINTER_UNIQUE) ){
-		guint32 id;
+		guint64 id;
 		proto_item *item;
 
 		/* get the referent id */
-		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_4or8(tvb, offset, pinfo, NULL, drep, -1, &id);
 
-		tvb_ensure_bytes_exist(tvb, offset-4, 4);
+		tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
 		/* we got a NULL pointer */
 		if(id==0){
-			proto_tree_add_text(tree, tvb, offset-4, 4,
+			proto_tree_add_text(tree, tvb, offset-pointer_size,
+				pointer_size,
 				"(NULL pointer) %s",text);
 			goto after_ref_id;
 		}
 
 		/* new pointer */
-		item=proto_tree_add_text(tree, tvb, offset-4, 4,
+		item=proto_tree_add_text(tree, tvb, offset-pointer_size,
+			pointer_size,
 			"%s", text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
+		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
+			offset-pointer_size, pointer_size, id);
 		add_pointer_to_list(pinfo, tr, item, fnct, 0xffffffff,
 				    hf_index, callback, callback_args);
 		goto after_ref_id;
@@ -1980,18 +1992,20 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	/*EMBEDDED REFERENCE POINTER*/
 	if( (!pointers_are_top_level)
 	&& (type==NDR_POINTER_REF) ){
-		guint32 id;
+		guint64 id;
 		proto_item *item;
 
 		/* get the referent id */
-		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_4or8(tvb, offset, pinfo, NULL, drep, -1, &id);
 
-		tvb_ensure_bytes_exist(tvb, offset-4, 4);
+		tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
 		/* new pointer */
-		item=proto_tree_add_text(tree, tvb, offset-4, 4,
+		item=proto_tree_add_text(tree, tvb, offset-pointer_size,
+			pointer_size,
 			"%s",text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
+		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
+			offset-pointer_size, pointer_size, id);
 		add_pointer_to_list(pinfo, tr, item, fnct, 0xffffffff,
 				    hf_index, callback, callback_args);
 		goto after_ref_id;
@@ -2000,25 +2014,28 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	/*EMBEDDED UNIQUE POINTER*/
 	if( (!pointers_are_top_level)
 	&& (type==NDR_POINTER_UNIQUE) ){
-		guint32 id;
+		guint64 id;
 		proto_item *item;
 
 		/* get the referent id */
-		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_4or8(tvb, offset, pinfo, NULL, drep, -1, &id);
 
-		tvb_ensure_bytes_exist(tvb, offset-4, 4);
+		tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
 		/* we got a NULL pointer */
 		if(id==0){
-			proto_tree_add_text(tree, tvb, offset-4, 4,
+			proto_tree_add_text(tree, tvb, offset-pointer_size,
+				pointer_size,
 				"(NULL pointer) %s", text);
 			goto after_ref_id;
 		}
 
 		/* new pointer */
-		item=proto_tree_add_text(tree, tvb, offset-4, 4,
+		item=proto_tree_add_text(tree, tvb, offset-pointer_size,
+			pointer_size,
 			"%s",text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
+		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
+			offset-pointer_size, pointer_size, id);
 		add_pointer_to_list(pinfo, tr, item, fnct, 0xffffffff,
 				    hf_index, callback, callback_args);
 		goto after_ref_id;
@@ -2028,16 +2045,17 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	if( (!pointers_are_top_level)
 	&& (type==NDR_POINTER_PTR) ){
 		int idx;
-		guint32 id;
+		guint64 id;
 		proto_item *item;
 
 		/* get the referent id */
-		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
+		offset = dissect_ndr_4or8(tvb, offset, pinfo, NULL, drep, -1, &id);
 
-		tvb_ensure_bytes_exist(tvb, offset-4, 4);
+		tvb_ensure_bytes_exist(tvb, offset-pointer_size, pointer_size);
 		/* we got a NULL pointer */
 		if(id==0){
-			proto_tree_add_text(tree, tvb, offset-4, 4,
+			proto_tree_add_text(tree, tvb, offset-pointer_size,
+				pointer_size,
 				"(NULL pointer) %s",text);
 			goto after_ref_id;
 		}
@@ -2047,16 +2065,19 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		/* we have seen this pointer before */
 		if(idx>=0){
-			proto_tree_add_text(tree, tvb, offset-4, 4,
+			proto_tree_add_text(tree, tvb, offset-pointer_size,
+				pointer_size,
 				"(duplicate PTR) %s",text);
 			goto after_ref_id;
 		}
 
 		/* new pointer */
-		item=proto_tree_add_text(tree, tvb, offset-4, 4,
+		item=proto_tree_add_text(tree, tvb, offset-pointer_size,
+		       pointer_size,
 			"%s", text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
-		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
+		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
+			offset-pointer_size, pointer_size, id);
 		add_pointer_to_list(pinfo, tr, item, fnct, id, hf_index,
 				    callback, callback_args);
 		goto after_ref_id;
@@ -2199,7 +2220,6 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
     key.uuid = info->call_data->uuid;
     key.ver = info->call_data->ver;
-
 
     if ((sub_proto = g_hash_table_lookup (dcerpc_uuids, &key)) == NULL
          || !proto_is_protocol_enabled(sub_proto->proto)) {
