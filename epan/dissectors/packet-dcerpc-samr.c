@@ -3785,7 +3785,7 @@ samr_dissect_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset;
-	guint16 level;
+	guint32 level;
 
 	old_offset = offset;
 	if (parent_tree) {
@@ -3793,7 +3793,7 @@ samr_dissect_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 		tree = proto_item_add_subtree(item, ett_samr_samr_DomainInfo);
 	}
 
-	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &level);
+	offset = dissect_ndr_2or4(tvb, offset, pinfo, tree, drep, hf_index, &level);
 	ALIGN_TO_8_BYTES;
 
 	switch(level) {
