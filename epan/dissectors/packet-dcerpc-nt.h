@@ -66,6 +66,8 @@ extern const value_string platform_id_vals[];
 	  } \
 	}
 
+#define ALIGN_TO_5_BYTES ALIGN_TO_4_OR_8_BYTES
+
 #define ALIGN_TO_4_OR_8_BYTES \
 	{ dcerpc_info *xzdi2; \
 	  xzdi2=pinfo->private_data; \
@@ -75,6 +77,8 @@ extern const value_string platform_id_vals[];
 	    ALIGN_TO_4_BYTES; \
 	  } \
 	}
+
+
 int
 dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
