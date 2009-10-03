@@ -7005,7 +7005,7 @@ samr_dissect_UserInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &level);
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_4_OR_8_BYTES;
 
 	switch(level) {
 		case 1:
