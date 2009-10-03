@@ -187,6 +187,7 @@ DISSECTOR_SRC = \
 	packet-3com-njack.c	\
 	packet-3com-xns.c	\
 	packet-3g-a11.c		\
+	packet-6lowpan.c	\
 	packet-9p.c		\
 	packet-aarp.c		\
 	packet-acap.c		\
@@ -938,6 +939,7 @@ DISSECTOR_SRC = \
 #
 DISSECTOR_INCLUDES =	\
 	$(PIDL_DISSECTOR_INCLUDES) 	\
+	packet-6lowpan.h	\
 	packet-acn.h	\
 	packet-acp133.h	\
 	packet-acse.h	\
