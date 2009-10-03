@@ -1243,6 +1243,7 @@ DISSECTOR_INCLUDES =	\
 	x11-extension-implementation.h	\
 	x11-extension-errors.h	\
 	x11-glx-render-enum.h	\
+	x11-enum.h	\
 	packet-x411.h	\
 	packet-x420.h	\
 	packet-x509af.h	\

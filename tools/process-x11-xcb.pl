@@ -48,10 +48,10 @@ my %basictype = (
     char =>   { size => 1, type => 'FT_STRING', base => 'BASE_NONE',    get => 'VALUE8',  list => 'listOfByte', },
     void =>   { size => 1, type => 'FT_BYTES',  base => 'BASE_NONE',    get => 'VALUE8',  list => 'listOfByte', },
     BYTE =>   { size => 1, type => 'FT_BYTES',  base => 'BASE_NONE',    get => 'VALUE8',  list => 'listOfByte', },
-    CARD8 =>  { size => 1, type => 'FT_BYTES',  base => 'BASE_NONE',    get => 'VALUE8',  list => 'listOfByte', },
+    CARD8 =>  { size => 1, type => 'FT_UINT8',  base => 'BASE_HEX_DEC', get => 'VALUE8',  list => 'listOfByte', },
     CARD16 => { size => 2, type => 'FT_UINT16', base => 'BASE_HEX_DEC', get => 'VALUE16', list => 'listOfCard16', },
     CARD32 => { size => 4, type => 'FT_UINT32', base => 'BASE_HEX_DEC', get => 'VALUE32', list => 'listOfCard32', },
-    INT8 =>   { size => 1, type => 'FT_BYTES',  base => 'BASE_NONE',    get => 'VALUE8',  list => 'listOfByte', },
+    INT8 =>   { size => 1, type => 'FT_INT8',   base => 'BASE_DEC',     get => 'VALUE8',  list => 'listOfByte', },
     INT16 =>  { size => 2, type => 'FT_INT16',  base => 'BASE_DEC',     get => 'VALUE16', list => 'listOfInt16', },
     INT32 =>  { size => 4, type => 'FT_INT32',  base => 'BASE_DEC',     get => 'VALUE32', list => 'listOfInt32', },
     float =>  { size => 4, type => 'FT_FLOAT',  base => 'BASE_NONE',    get => 'FLOAT',   list => 'listOfFloat', },
@@ -127,6 +127,7 @@ my %struct =  # Not reset; contains structures already defined.
     # structures defined by xv, but never used (bug in xcb?)
     Image => 1,
 );
+my %enum;  # Not reset; contains enums already defined.
 my $header;
 my $extname;
 my $parentclass;
@@ -409,6 +410,29 @@ sub get_op($;$) {
     return "($left " . $op->att('op') . " $right)";
 }
 
+sub dump_enum_values($)
+{
+    my $e = shift;
+
+    defined($enum{$e}) or die("Enum $e not found");
+
+    my $enumname = "x11_enum_$e";
+    return $enumname if (defined $enum{$e}{done});
+
+    say $enum 'static const value_string '.$enumname.'[] = {';
+
+    my $value = $enum{$e}{value};
+    for my $val (sort { $a <=> $b } keys %$value) {
+	say $enum sprintf("\t{ %3d, \"%s\" },", $val, $$value{$val});
+    }
+    say $enum sprintf("\t{ %3d, NULL },", 0);
+    say $enum '};';
+    say $enum '';
+
+    $enum{$e}{done} = 1;
+    return $enumname;
+}
+
 sub register_element($$$;$)
 {
     my $e = shift;
@@ -430,6 +454,40 @@ sub register_element($$$;$)
     my $info = $basictype{$type} // $simpletype{$type} // $struct{$type};
     my $ft = $info->{'type'} // 'FT_NONE';
     my $base = $info->{'base'} // 'BASE_NONE';
+    my $vals = 'NULL';
+    
+    my $enum = $e->att('enum') // $e->att('altenum');
+    if (defined $enum) {
+	my $enumname = dump_enum_values($enum);
+	$vals = "VALS($enumname)";
+
+	# Wireshark does not allow FT_BYTES or BASE_NONE to have an enum
+	$ft =~ s/FT_BYTES/FT_UINT8/;
+	$base =~ s/BASE_NONE/BASE_DEC/;
+    }
+
+    $enum = $e->att('mask');
+    if (defined $enum) {
+	# Create subtree items:
+	defined($enum{$enum}) or die("Enum $enum not found");
+
+	# Wireshark does not allow FT_BYTES or BASE_NONE to have an enum
+	$ft =~ s/FT_BYTES/FT_UINT8/;
+	$base =~ s/BASE_NONE/BASE_DEC/;
+
+	my $bitsize = $info->{'size'} * 8;
+
+	my $bit = $enum{$enum}{bit};
+	for my $val (sort { $a <=> $b } keys %$bit) {
+	    my $itemname = $$bit{$val};
+	    my $item = $regname . '_mask_' . $itemname;
+	    my $itemhuman = $humanname . '.' . $itemname;
+	    my $bitshift = "1 << $val";
+
+	    say $decl "static int $item = -1;";
+	    say $reg "{ &$item, { \"$itemname\", \"$itemhuman\", FT_BOOLEAN, $bitsize, NULL, $bitshift, NULL, HFILL }},";
+	}
+    }
 
     print $decl "static int $regname = -1;\n";
     if ($e->name() eq 'list' and $info->{'size'} > 1) {
@@ -437,7 +495,7 @@ sub register_element($$$;$)
 	$regname .= '_item';
 	print $decl "static int $regname = -1;\n";
     }
-    print $reg "{ &$regname, { \"$fieldname\", \"$humanname\", $ft, $base, NULL, 0, NULL, HFILL }},\n";
+    print $reg "{ &$regname, { \"$fieldname\", \"$humanname\", $ft, $base, $vals, 0, NULL, HFILL }},\n";
 
     if ($e->name() eq 'field') {
 	if ($basictype{$type} or $simpletype{$type}) {
@@ -476,9 +534,30 @@ sub dissect_element($$$;$$)
 	    my $size = $info->{'size'};
 	    my $get = $info->{'get'};
 
-	    print $impl $indent."f_$fieldname = $get(tvb, *offsetp);\n";
-	    print $impl $indent."proto_tree_add_item(t, $regname, tvb, *offsetp, $size, little_endian);\n";
-	    print $impl $indent."*offsetp += $size;\n";
+	    if ($e->att('enum') // $e->att('altenum')) {
+		my $fieldsize = $size * 8;
+		say $impl $indent."f_$fieldname = field$fieldsize(tvb, offsetp, t, $regname, little_endian);";
+	    } elsif ($e->att('mask')) {
+		say $impl $indent."f_$fieldname = $get(tvb, *offsetp);";
+		say $impl $indent."{";
+		say $impl $indent."    proto_item *ti = proto_tree_add_item(t, $regname, tvb, *offsetp, $size, little_endian);";
+		say $impl $indent."    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);";
+
+		my $bytesize = $info->{'size'};
+		my $bit = $enum{$e->att('mask')}{bit};
+		for my $val (sort { $a <=> $b } keys %$bit) {
+		    my $item = $regname . '_mask_' . $$bit{$val};
+
+		    say $impl "$indent    proto_tree_add_item(bitmask_tree, $item, tvb, *offsetp, $bytesize, little_endian);";
+		}
+
+		say $impl $indent."}";
+		say $impl $indent."*offsetp += $size;";
+	    } else {
+		print $impl $indent."f_$fieldname = $get(tvb, *offsetp);\n";
+		print $impl $indent."proto_tree_add_item(t, $regname, tvb, *offsetp, $size, little_endian);\n";
+		print $impl $indent."*offsetp += $size;\n";
+	    }
 	    $length += $size;
 	} elsif ($struct{$type}) {
 	    # TODO: variable-lengths (when $info->{'size'} == 0 )
@@ -750,6 +829,48 @@ eot
     $t->purge;
 }
 
+sub enum {
+    my ($t, $elt) = @_;
+    my $name = $elt->att('name');
+
+    if (defined $enum{$name}) {
+	$t->purge;
+	return;
+    }
+
+    my @elements = $elt->children('item');
+
+    print(" - Enum $name\n");
+
+    my $value = {};
+    my $bit = {};
+    $enum{$name} = { value => $value, bit => $bit };
+
+    my $nextvalue = 0;
+
+    foreach my $e (@elements) {
+	my $n = $e->att('name');
+	my $valtype = $e->first_child(qr/value|bit/);
+	if (defined $valtype) {
+	    my $val = int($valtype->text());
+	    given ($valtype->name()) {
+		when ('value') {
+		    $$value{$val} = $n;
+		    $nextvalue = $val + 1;
+		}
+		when ('bit') {
+		    $$bit{$val} = $n;
+		}
+	    }
+	} else {
+	    $$value{$nextvalue} = $n;
+	    $nextvalue++;
+	}
+    }
+
+    $t->purge;
+}
+
 sub request {
     my ($t, $elt) = @_;
     my $name = $elt->att('name');
@@ -947,6 +1068,7 @@ sub include
 		    'xidtype' => \&xidtype,
 		    'xidunion' => \&xidtype,
 		    'typedef' => \&typedef,
+		    'enum' => \&enum,
 		});
     $xml->parsefile("xcbproto/src/$include.xml") or die ("Cannot open $include.xml\n");
 
@@ -1212,6 +1334,11 @@ eot
     print $impl "    }\n}\n";
 }
 
+$enum = new IO::File '> x11-enum.h'
+	or die ("Cannot open x11-enum.h for writing\n");
+add_generated_header($enum, 'xcbproto');
+print $impl '#include "x11-enum.h"'."\n\n";
+
 # XCB
 foreach my $ext (@reslist) {
     my $xml = XML::Twig->new(
@@ -1230,6 +1357,7 @@ foreach my $ext (@reslist) {
 		    'error' => \&error,
 		    'errorcopy' => \&error,
 		    'event' => \&event,
+		    'enum' => \&enum,
 		});
     $xml->parsefile($ext) or die ("Cannot open $ext\n");
 }
