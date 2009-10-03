@@ -952,7 +952,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint                offset = 0;
     gint                length;
-    proto_tree *        iphc_tree;
+    proto_tree *        iphc_tree = NULL;
     proto_item *        ti = NULL;
     proto_item *        ti_sam = NULL;
     proto_item *        ti_dam = NULL;
