@@ -2243,7 +2243,7 @@ samr_dissect_struct_lsa_String(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -2309,7 +2309,7 @@ samr_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -2729,7 +2729,7 @@ samr_dissect_struct_SamEntry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -2793,7 +2793,7 @@ samr_dissect_struct_SamArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3167,7 +3167,7 @@ samr_dissect_struct_DomGeneralInformation(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3261,7 +3261,7 @@ samr_dissect_struct_DomOEMInformation(tvbuff_t *tvb _U_, int offset _U_, packet_
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3298,7 +3298,7 @@ samr_dissect_struct_DomInfo5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3335,7 +3335,7 @@ samr_dissect_struct_DomInfo6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3894,7 +3894,7 @@ samr_dissect_struct_Ids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -3958,7 +3958,7 @@ samr_dissect_struct_Types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo 
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4118,7 +4118,7 @@ samr_dissect_struct_GroupInfoAll(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4198,7 +4198,7 @@ samr_dissect_struct_GroupInfoDescription(tvbuff_t *tvb _U_, int offset _U_, pack
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4302,7 +4302,7 @@ samr_dissect_GroupInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &level);
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	switch(level) {
 		case GROUPINFOALL:
@@ -4457,7 +4457,7 @@ samr_dissect_struct_GetMembersBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4516,7 +4516,7 @@ samr_dissect_struct_AliasInfoAll(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4604,7 +4604,7 @@ samr_dissect_AliasInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &level);
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	switch(level) {
 		case ALIASINFOALL:
@@ -4679,7 +4679,7 @@ samr_dissect_struct_UserInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4751,7 +4751,7 @@ samr_dissect_struct_UserInfo2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -4819,7 +4819,7 @@ samr_dissect_struct_LogonHours(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5011,7 +5011,7 @@ samr_dissect_struct_UserInfo3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5082,7 +5082,7 @@ samr_dissect_struct_UserInfo4(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5272,7 +5272,7 @@ samr_dissect_struct_UserInfo5(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5352,7 +5352,7 @@ samr_dissect_struct_UserInfo6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5391,7 +5391,7 @@ samr_dissect_struct_UserInfo7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5428,7 +5428,7 @@ samr_dissect_struct_UserInfo8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5511,7 +5511,7 @@ samr_dissect_struct_UserInfo10(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5550,7 +5550,7 @@ samr_dissect_struct_UserInfo11(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5587,7 +5587,7 @@ samr_dissect_struct_UserInfo12(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5624,7 +5624,7 @@ samr_dissect_struct_UserInfo13(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5661,7 +5661,7 @@ samr_dissect_struct_UserInfo14(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -5772,7 +5772,7 @@ samr_dissect_struct_UserInfo20(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -6423,7 +6423,7 @@ samr_dissect_struct_UserInfo21(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -6581,7 +6581,7 @@ samr_dissect_struct_UserInfo23(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -6722,7 +6722,7 @@ samr_dissect_struct_UserInfo25(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -7005,7 +7005,7 @@ samr_dissect_UserInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &level);
-	ALIGN_TO_4_OR_8_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	switch(level) {
 		case 1:
@@ -7239,7 +7239,7 @@ samr_dissect_struct_RidWithAttributeArray(tvbuff_t *tvb _U_, int offset _U_, pac
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -7323,7 +7323,7 @@ samr_dissect_struct_DispEntryGeneral(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -7395,7 +7395,7 @@ samr_dissect_struct_DispInfoGeneral(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -7470,7 +7470,7 @@ samr_dissect_struct_DispEntryFull(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -7540,7 +7540,7 @@ samr_dissect_struct_DispInfoFull(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -7615,7 +7615,7 @@ samr_dissect_struct_DispEntryFullGroup(tvbuff_t *tvb _U_, int offset _U_, packet
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -7685,7 +7685,7 @@ samr_dissect_struct_DispInfoFullGroups(tvbuff_t *tvb _U_, int offset _U_, packet
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -7797,7 +7797,7 @@ samr_dissect_struct_DispInfoAscii(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
@@ -7903,7 +7903,7 @@ samr_dissect_DispInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, &level);
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	switch(level) {
 		case SAMR_DOMAIN_DISPLAY_USER:
@@ -8390,7 +8390,7 @@ samr_dissect_struct_ValidationBlob(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 	proto_tree *tree = NULL;
 	int old_offset;
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	old_offset = offset;
 
