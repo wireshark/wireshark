@@ -637,7 +637,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8              hc1_encoding;
     guint8              hc_udp_encoding = 0;
     guint8              next_header;
-    proto_tree *        hc_tree;
+    proto_tree *        hc_tree = NULL;
     proto_item *        ti;
     tvbuff_t *          ipv6_tvb;
     /* IPv6 header. */
@@ -653,10 +653,8 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
         ti = proto_tree_add_text(tree, tvb, 0, sizeof(guint16), "HC1 Encoding");
         hc_tree = proto_item_add_subtree(ti, ett_6lowpan_hc1);
-    }
 
-    /* Get and display the pattern. */
-    if (tree) {
+	/* Get and display the pattern. */
         proto_tree_add_bits_item(hc_tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_HC1_BITS, FALSE);
     }
     offset += sizeof(guint8);
@@ -1611,16 +1609,12 @@ dissect_6lowpan_bc0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     if (tree) {
         ti = proto_tree_add_text(tree, tvb, 0, sizeof(guint16), "Broadcast Header");
         bcast_tree = proto_item_add_subtree(ti, ett_6lowpan_bcast);
-    }
 
-    /* Get and display the pattern. */
-    if (tree) {
+	/* Get and display the pattern. */
         proto_tree_add_bits_item(bcast_tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_BC0_BITS, FALSE);
-    }
 
-    /* Get and display the sequence number. */
-    seqnum = tvb_get_guint8(tvb, sizeof(guint8));
-    if (tree) {
+	/* Get and display the sequence number. */
+	seqnum = tvb_get_guint8(tvb, sizeof(guint8));
         proto_tree_add_uint(bcast_tree, hf_6lowpan_bcast_seqnum, tvb, sizeof(guint8), sizeof(guint8), seqnum);
     }
 
