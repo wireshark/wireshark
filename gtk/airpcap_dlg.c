@@ -2161,7 +2161,9 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     GtkWidget *key_ls;
     GtkWidget *key_list_decryption_type_col_lb;
     GtkWidget *key_list_decryption_key_col_lb;
+#ifdef HAVE_AIRPDCAP
     GtkWidget *key_ls_decryption_ssid_col_lb;
+#endif
     GtkWidget *key_v_button_box;
     GtkWidget *add_new_key_bt;
     GtkWidget *remove_key_bt;
