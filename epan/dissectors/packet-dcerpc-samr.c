@@ -43,7 +43,6 @@ static gint ett_samr_samr_SamEntry = -1;
 static gint ett_samr_samr_SamArray = -1;
 static gint ett_samr_samr_PasswordProperties = -1;
 static gint ett_samr_samr_DomInfo1 = -1;
-static gint ett_samr_samr_DomainStateInformation = -1;
 static gint ett_samr_samr_DomGeneralInformation = -1;
 static gint ett_samr_samr_DomInfo3 = -1;
 static gint ett_samr_samr_DomOEMInformation = -1;
@@ -57,14 +56,12 @@ static gint ett_samr_samr_DomInfo12 = -1;
 static gint ett_samr_samr_DomInfo13 = -1;
 static gint ett_samr_samr_DomainInfo = -1;
 static gint ett_samr_samr_Ids = -1;
-static gint ett_samr_samr_Types = -1;
 static gint ett_samr_samr_GroupAttrs = -1;
 static gint ett_samr_samr_GroupInfoAll = -1;
 static gint ett_samr_samr_GroupInfoAttributes = -1;
 static gint ett_samr_samr_GroupInfoDescription = -1;
 static gint ett_samr_samr_GroupInfo = -1;
-static gint ett_samr_samr_SeGroupAttributes = -1;
-static gint ett_samr_samr_GetMembersBuffer = -1;
+static gint ett_samr_samr_RidTypeArray = -1;
 static gint ett_samr_samr_AliasInfoAll = -1;
 static gint ett_samr_samr_AliasInfo = -1;
 static gint ett_samr_samr_UserInfo1 = -1;
@@ -84,6 +81,8 @@ static gint ett_samr_samr_UserInfo13 = -1;
 static gint ett_samr_samr_UserInfo14 = -1;
 static gint ett_samr_samr_UserInfo16 = -1;
 static gint ett_samr_samr_UserInfo17 = -1;
+static gint ett_samr_samr_Password = -1;
+static gint ett_samr_samr_UserInfo18 = -1;
 static gint ett_samr_samr_UserInfo20 = -1;
 static gint ett_samr_samr_FieldsPresent = -1;
 static gint ett_samr_samr_UserInfo21 = -1;
@@ -94,7 +93,6 @@ static gint ett_samr_samr_CryptPasswordEx = -1;
 static gint ett_samr_samr_UserInfo25 = -1;
 static gint ett_samr_samr_UserInfo26 = -1;
 static gint ett_samr_samr_UserInfo = -1;
-static gint ett_samr_samr_Password = -1;
 static gint ett_samr_samr_RidWithAttribute = -1;
 static gint ett_samr_samr_RidWithAttributeArray = -1;
 static gint ett_samr_samr_DispEntryGeneral = -1;
@@ -170,6 +168,7 @@ static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_NUM_LOGONS = -1;
 static gint hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_BAD_PASSWORD_COUNT = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_LAST_PWD_CHANGE = -1;
 static gint hf_samr_samr_UserInfo20_parameters = -1;
+static gint hf_samr_samr_UserInfo18_lm_pwd = -1;
 static gint hf_samr_samr_UserInfo1_account_name = -1;
 static gint hf_samr_samr_ChangePasswordUser2_lm_change = -1;
 static gint hf_samr_samr_UserInfo21_description = -1;
@@ -183,7 +182,6 @@ static gint hf_samr_samr_UserInfo2_unknown = -1;
 static gint hf_samr_samr_ValidatePasswordReq3_password = -1;
 static gint hf_samr_samr_UserInfo5_logon_script = -1;
 static gint hf_samr_samr_RidWithAttributeArray_count = -1;
-static gint hf_samr_samr_SeGroupAttributes_SE_GROUP_ENABLED_BY_DEFAULT = -1;
 static gint hf_samr_samr_ValidatePasswordInfo_pwd_history_len = -1;
 static gint hf_samr_samr_DispInfoFullGroups_entries = -1;
 static gint hf_samr_samr_UserInfo5_bad_password_count = -1;
@@ -205,11 +203,9 @@ static gint hf_samr_samr_UserInfo3_last_logon = -1;
 static gint hf_samr_samr_UserInfo_info10 = -1;
 static gint hf_samr_samr_EnumDomainGroups_max_size = -1;
 static gint hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_NO_ANON_CHANGE = -1;
-static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_PASSWORD2 = -1;
 static gint hf_samr_samr_UserInfo3_full_name = -1;
 static gint hf_samr_samr_DispEntryAscii_account_name = -1;
 static gint hf_samr_samr_UserInfo11_logon_script = -1;
-static gint hf_samr_samr_Types_types = -1;
 static gint hf_samr_samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT = -1;
 static gint hf_samr_samr_ChangePasswordUser_lm_present = -1;
 static gint hf_samr_samr_AddMultipleMembersToAlias_sids = -1;
@@ -246,7 +242,6 @@ static gint hf_samr_group_handle = -1;
 static gint hf_samr_samr_EnumDomainAliases_num_entries = -1;
 static gint hf_samr_samr_AcctFlags_ACB_SVRTRUST = -1;
 static gint hf_samr_samr_DomGeneralInformation_oem_information = -1;
-static gint hf_samr_samr_SetMemberAttributesOfGroup_attributes = -1;
 static gint hf_samr_samr_UserInfo_info8 = -1;
 static gint hf_samr_samr_UserInfo25_info = -1;
 static gint hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_GROUP_MEMBERSHIP = -1;
@@ -257,9 +252,9 @@ static gint hf_samr_samr_SetGroupInfo_info = -1;
 static gint hf_samr_lsa_Strings_names = -1;
 static gint hf_samr_samr_EnumDomainAliases_resume_handle = -1;
 static gint hf_samr_samr_DomGeneralInformation_num_aliases = -1;
+static gint hf_samr_samr_EnumDomainAliases_max_size = -1;
 static gint hf_samr_samr_UserInfo21_full_name = -1;
 static gint hf_samr_samr_GetDomPwInfo_domain_name = -1;
-static gint hf_samr_samr_GetMembersBuffer_attributes = -1;
 static gint hf_samr_samr_UserInfo3_primary_gid = -1;
 static gint hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_LOOKUP_INFO = -1;
 static gint hf_samr_samr_UserInfo_info5 = -1;
@@ -269,6 +264,7 @@ static gint hf_samr_samr_DeleteAliasMember_sid = -1;
 static gint hf_samr_samr_ValidatePassword_rep = -1;
 static gint hf_samr_samr_ValidatePasswordInfo_fields_present = -1;
 static gint hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_REMOVE_MEMBER = -1;
+static gint hf_samr_samr_SetMemberAttributesOfGroup_unknown1 = -1;
 static gint hf_samr_samr_GetDisplayEnumerationIndex2_level = -1;
 static gint hf_samr_samr_AcctFlags_ACB_ENC_TXT_PWD_ALLOWED = -1;
 static gint hf_samr_samr_AliasInfo_description = -1;
@@ -282,6 +278,7 @@ static gint hf_samr_samr_UserInfo_info14 = -1;
 static gint hf_samr_samr_CreateUser2_access_granted = -1;
 static gint hf_samr_samr_ConnectInfo1_client_version = -1;
 static gint hf_samr_samr_UserInfo5_acct_flags = -1;
+static gint hf_samr_samr_UserInfo24_password_expired = -1;
 static gint hf_samr_samr_AcctFlags_ACB_NOT_DELEGATED = -1;
 static gint hf_samr_samr_SetDsrmPassword_name = -1;
 static gint hf_samr_samr_Connect_system_name = -1;
@@ -340,15 +337,18 @@ static gint hf_samr_samr_UserInfo24_password = -1;
 static gint hf_samr_samr_DispEntryFull_idx = -1;
 static gint hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_INITIALIZE_SERVER = -1;
 static gint hf_samr_samr_DispEntryFull_acct_flags = -1;
+static gint hf_samr_samr_DomInfo13_modified_count_at_last_promotion = -1;
 static gint hf_samr_samr_GetAliasMembership_sids = -1;
 static gint hf_samr_samr_UserInfo_info1 = -1;
 static gint hf_samr_samr_GroupAttrs_SE_GROUP_RESOURCE = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_DESCRIPTION = -1;
+static gint hf_samr_samr_UserInfo18_nt_pwd = -1;
 static gint hf_samr_samr_UserInfo23_password = -1;
 static gint hf_samr_samr_UserInfo21_last_logoff = -1;
 static gint hf_samr_samr_DispInfo_info2 = -1;
 static gint hf_samr_samr_EnumDomainUsers_resume_handle = -1;
 static gint hf_samr_samr_ValidatePasswordRepCtr_status = -1;
+static gint hf_samr_samr_SetMemberAttributesOfGroup_unknown2 = -1;
 static gint hf_samr_samr_DomainInfo_general2 = -1;
 static gint hf_samr_samr_DispInfoFull_count = -1;
 static gint hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_GET_MEMBERS = -1;
@@ -366,6 +366,7 @@ static gint hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_SET_INFO = -1;
 static gint hf_samr_samr_UserInfo2_comment = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_RID = -1;
 static gint hf_samr_samr_UserInfo_info23 = -1;
+static gint hf_samr_samr_UserInfo18_password_expired = -1;
 static gint hf_samr_samr_QueryDisplayInfo2_total_size = -1;
 static gint hf_samr_samr_UserInfo25_password = -1;
 static gint hf_samr_samr_ChangePasswordUser2_lm_verifier = -1;
@@ -400,6 +401,7 @@ static gint hf_samr_samr_UserInfo21_buf_count = -1;
 static gint hf_samr_samr_PwInfo_min_password_length = -1;
 static gint hf_samr_user_access_mask = -1;
 static gint hf_samr_samr_DomGeneralInformation_sequence_num = -1;
+static gint hf_samr_samr_UserInfo26_password_expired = -1;
 static gint hf_samr_samr_ChangePasswordUser_old_lm_crypted = -1;
 static gint hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_GET_MEMBERS = -1;
 static gint hf_samr_samr_AcctFlags_ACB_NORMAL = -1;
@@ -425,7 +427,6 @@ static gint hf_samr_samr_EnumDomainGroups_sam = -1;
 static gint hf_samr_samr_GroupInfoAll_name = -1;
 static gint hf_samr_samr_ValidatePasswordRep_ctr2 = -1;
 static gint hf_samr_samr_UserInfo_info24 = -1;
-static gint hf_samr_samr_SeGroupAttributes_SE_GROUP_MANDATORY = -1;
 static gint hf_samr_samr_DomainInfo_info3 = -1;
 static gint hf_samr_samr_EnumDomainGroups_num_entries = -1;
 static gint hf_samr_samr_AcctFlags_ACB_PWNOTREQ = -1;
@@ -456,7 +457,6 @@ static gint hf_samr_samr_QueryDisplayInfo2_buf_size = -1;
 static gint hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_STORE_CLEARTEXT = -1;
 static gint hf_samr_samr_DomGeneralInformation2_lockout_threshold = -1;
 static gint hf_samr_samr_UserInfo21_last_password_change = -1;
-static gint hf_samr_samr_GetMembersBuffer_rids = -1;
 static gint hf_samr_samr_ChangePasswordUser2_account = -1;
 static gint hf_samr_samr_ChangePasswordUser3_lm_password = -1;
 static gint hf_samr_samr_UserInfo3_account_name = -1;
@@ -469,7 +469,6 @@ static gint hf_samr_lsa_Strings_count = -1;
 static gint hf_samr_samr_UserInfo3_acct_flags = -1;
 static gint hf_samr_samr_UserInfo3_allow_password_change = -1;
 static gint hf_samr_samr_QueryDomainInfo2_level = -1;
-static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_PASSWORD = -1;
 static gint hf_samr_samr_GetDisplayEnumerationIndex_name = -1;
 static gint hf_samr_samr_ValidatePasswordReq3_info = -1;
 static gint hf_samr_samr_ValidatePasswordInfo_lockout_time = -1;
@@ -478,17 +477,17 @@ static gint hf_samr_samr_DomInfo1_password_history_length = -1;
 static gint hf_samr_samr_QueryUserInfo_info = -1;
 static gint hf_samr_samr_DomGeneralInformation_primary = -1;
 static gint hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_SHUTDOWN_SERVER = -1;
+static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_LM_PASSWORD_PRESENT = -1;
 static gint hf_samr_samr_UserInfo5_home_drive = -1;
 static gint hf_samr_samr_RemoveMemberFromForeignDomain_sid = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_FORCE_PWD_CHANGE = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_LAST_LOGOFF = -1;
+static gint hf_samr_samr_Password_hash = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_OWF_PWD = -1;
 static gint hf_samr_samr_UserInfo_info25 = -1;
-static gint hf_samr_samr_Password_hash = -1;
 static gint hf_samr_samr_UserInfo3_home_drive = -1;
 static gint hf_samr_samr_QueryDisplayInfo_start_idx = -1;
 static gint hf_samr_samr_UserInfo_info13 = -1;
-static gint hf_samr_samr_DomainStateInformation_state = -1;
 static gint hf_samr_samr_ChangePasswordUser2_nt_password = -1;
 static gint hf_samr_samr_ValidatePasswordInfo_bad_pwd_count = -1;
 static gint hf_samr_samr_QueryGroupMember_rids = -1;
@@ -505,19 +504,17 @@ static gint hf_samr_samr_ChangePasswordUser_nt_present = -1;
 static gint hf_samr_samr_UserInfo21_home_directory = -1;
 static gint hf_samr_samr_UserInfo_info12 = -1;
 static gint hf_samr_samr_OemChangePasswordUser2_password = -1;
+static gint hf_samr_samr_RidTypeArray_types = -1;
 static gint hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_CREATE_ALIAS = -1;
 static gint hf_samr_opnum = -1;
 static gint hf_samr_samr_ChangePasswordUser3_server = -1;
-static gint hf_samr_samr_UserInfo24_pw_len = -1;
 static gint hf_samr_samr_GetDisplayEnumerationIndex2_name = -1;
 static gint hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_LOOKUP_INFO = -1;
 static gint hf_samr_samr_UserInfo14_workstations = -1;
-static gint hf_samr_samr_DomInfo13_unknown1 = -1;
 static gint hf_samr_samr_DispInfo_info3 = -1;
 static gint hf_samr_samr_DomainInfo_info8 = -1;
 static gint hf_samr_samr_DispInfoGeneral_entries = -1;
 static gint hf_samr_samr_UserInfo8_full_name = -1;
-static gint hf_samr_samr_SeGroupAttributes_SE_GROUP_ENABLED = -1;
 static gint hf_samr_samr_UserInfo21_logon_count = -1;
 static gint hf_samr_samr_UserInfo21_code_page = -1;
 static gint hf_samr_samr_DispEntryFullGroup_acct_flags = -1;
@@ -527,10 +524,10 @@ static gint hf_samr_samr_DispEntryFull_account_name = -1;
 static gint hf_samr_samr_ValidateFieldsPresent_SAMR_VALIDATE_FIELD_PASSWORD_HISTORY_LENGTH = -1;
 static gint hf_samr_samr_CreateUser2_acct_flags = -1;
 static gint hf_samr_lsa_String_name_len = -1;
-static gint hf_samr_samr_EnumDomainAliases_acct_flags = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_HOME_DRIVE = -1;
 static gint hf_samr_samr_DomainInfo_info1 = -1;
 static gint hf_samr_samr_ValidatePasswordRep_ctr1 = -1;
+static gint hf_samr_samr_UserInfo18_nt_pwd_active = -1;
 static gint hf_samr_samr_AcctFlags_ACB_DOMTRUST = -1;
 static gint hf_samr_samr_ChangePasswordUser_lm_cross = -1;
 static gint hf_samr_samr_UserInfo3_profile_path = -1;
@@ -570,7 +567,6 @@ static gint hf_samr_samr_DispEntryGeneral_idx = -1;
 static gint hf_samr_samr_QueryDisplayInfo2_start_idx = -1;
 static gint hf_samr_samr_UserInfo21_logon_hours = -1;
 static gint hf_samr_samr_UserInfo21_country_code = -1;
-static gint hf_samr_samr_DomInfo13_unknown2 = -1;
 static gint hf_samr_samr_SetDsrmPassword_hash = -1;
 static gint hf_samr_samr_DomainInfo_general = -1;
 static gint hf_samr_samr_GroupAttrs_SE_GROUP_MANDATORY = -1;
@@ -585,29 +581,29 @@ static gint hf_samr_alias_access_mask = -1;
 static gint hf_samr_samr_ChangePasswordUser2_nt_verifier = -1;
 static gint hf_samr_samr_AcctFlags_ACB_TRUSTED_FOR_DELEGATION = -1;
 static gint hf_samr_samr_EnumDomains_connect_handle = -1;
+static gint hf_samr_samr_UserInfo_info18 = -1;
 static gint hf_samr_samr_UserInfo21_force_password_change = -1;
 static gint hf_samr_samr_UserInfo21_nt_password = -1;
+static gint hf_samr_samr_DomGeneralInformation_domain_server_state = -1;
 static gint hf_samr_samr_SetBootKeyInformation_unknown3 = -1;
 static gint hf_samr_samr_EnumDomainUsers_num_entries = -1;
 static gint hf_samr_samr_ValidatePasswordReq2_info = -1;
 static gint hf_samr_samr_LookupNames_num_names = -1;
 static gint hf_samr_samr_QueryDisplayInfo3_level = -1;
+static gint hf_samr_samr_RidTypeArray_count = -1;
 static gint hf_samr_samr_QueryDisplayInfo2_max_entries = -1;
 static gint hf_samr_samr_ValidatePasswordInfo_last_password_change = -1;
 static gint hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_GET_LOCALE = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_LOGON_HOURS = -1;
-static gint hf_samr_samr_UserInfo26_pw_len = -1;
 static gint hf_samr_samr_ChangePasswordUser3_dominfo = -1;
 static gint hf_samr_samr_ValidationBlob_data = -1;
+static gint hf_samr_samr_UserInfo18_lm_pwd_active = -1;
 static gint hf_samr_samr_UserInfo_info26 = -1;
 static gint hf_samr_samr_GroupInfoAll_attributes = -1;
-static gint hf_samr_samr_Types_count = -1;
-static gint hf_samr_samr_GetMembersBuffer_count = -1;
 static gint hf_samr_samr_DomainInfo_info7 = -1;
 static gint hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CONNECT_TO_SERVER = -1;
 static gint hf_samr_samr_EnumDomains_num_entries = -1;
 static gint hf_samr_samr_UserInfo21_parameters = -1;
-static gint hf_samr_samr_DomGeneralInformation_state = -1;
 static gint hf_samr_samr_DispEntryGeneral_acct_flags = -1;
 static gint hf_samr_connect_handle = -1;
 static gint hf_samr_samr_AcctFlags_ACB_TEMPDUP = -1;
@@ -631,6 +627,7 @@ static gint hf_samr_samr_GetGroupsForUser_rids = -1;
 static gint hf_samr_samr_UserInfo3_last_logoff = -1;
 static gint hf_samr_samr_ValidatePasswordRepCtr_info = -1;
 static gint hf_samr_samr_SetGroupInfo_level = -1;
+static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_NT_PASSWORD_PRESENT = -1;
 static gint hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_SET_PASSWORD = -1;
 static gint hf_samr_samr_SetUserInfo2_level = -1;
 static gint hf_samr_samr_UserInfo5_acct_expiry = -1;
@@ -676,7 +673,6 @@ static gint hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_CREATE_GROUP = -1;
 static gint hf_samr_samr_QueryDisplayInfo_returned_size = -1;
 static gint hf_samr_samr_UserInfo21_allow_password_change = -1;
 static gint hf_samr_samr_ConnectInfo_info1 = -1;
-static gint hf_samr_samr_SetMemberAttributesOfGroup_rid = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_FULL_NAME = -1;
 static gint hf_samr_samr_AliasInfoAll_description = -1;
 
@@ -1013,18 +1009,12 @@ static int samr_dissect_element_DomInfo1_password_history_length(tvbuff_t *tvb _
 static int samr_dissect_element_DomInfo1_password_properties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomInfo1_max_password_age(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomInfo1_min_password_age(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-const value_string samr_samr_DomainServerEnableState_vals[] = {
-	{ SAMR_DOMAIN_SERVER_ENABLED, "SAMR_DOMAIN_SERVER_ENABLED" },
-	{ SAMR_DOMAIN_SERVER_DISABLED, "SAMR_DOMAIN_SERVER_DISABLED" },
-{ 0, NULL }
-};
-static int samr_dissect_element_DomainStateInformation_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomGeneralInformation_force_logoff_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomGeneralInformation_oem_information(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomGeneralInformation_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomGeneralInformation_primary(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomGeneralInformation_sequence_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomGeneralInformation_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_DomGeneralInformation_domain_server_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomGeneralInformation_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomGeneralInformation_unknown3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomGeneralInformation_num_users(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1047,8 +1037,7 @@ static int samr_dissect_element_DomInfo12_lockout_window(tvbuff_t *tvb _U_, int 
 static int samr_dissect_element_DomInfo12_lockout_threshold(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomInfo13_sequence_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomInfo13_domain_create_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo13_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomInfo13_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_DomInfo13_modified_count_at_last_promotion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomainInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomainInfo_general(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomainInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1065,10 +1054,6 @@ static int samr_dissect_element_Ids_count(tvbuff_t *tvb _U_, int offset _U_, pac
 static int samr_dissect_element_Ids_ids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_Ids_ids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_Ids_ids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_Types_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_Types_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_Types_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_Types_types__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static const true_false_string samr_GroupAttrs_SE_GROUP_MANDATORY_tfs = {
    "SE_GROUP_MANDATORY is SET",
    "SE_GROUP_MANDATORY is NOT SET",
@@ -1116,25 +1101,13 @@ static int samr_dissect_element_GroupInfo_name(tvbuff_t *tvb _U_, int offset _U_
 static int samr_dissect_element_GroupInfo_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GroupInfo_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GroupInfo_all2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static const true_false_string samr_SeGroupAttributes_SE_GROUP_MANDATORY_tfs = {
-   "SE_GROUP_MANDATORY is SET",
-   "SE_GROUP_MANDATORY is NOT SET",
-};
-static const true_false_string samr_SeGroupAttributes_SE_GROUP_ENABLED_BY_DEFAULT_tfs = {
-   "SE_GROUP_ENABLED_BY_DEFAULT is SET",
-   "SE_GROUP_ENABLED_BY_DEFAULT is NOT SET",
-};
-static const true_false_string samr_SeGroupAttributes_SE_GROUP_ENABLED_tfs = {
-   "SE_GROUP_ENABLED is SET",
-   "SE_GROUP_ENABLED is NOT SET",
-};
-static int samr_dissect_element_GetMembersBuffer_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetMembersBuffer_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetMembersBuffer_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetMembersBuffer_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetMembersBuffer_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetMembersBuffer_attributes_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_GetMembersBuffer_attributes__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_RidTypeArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_RidTypeArray_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_RidTypeArray_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_RidTypeArray_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_RidTypeArray_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_RidTypeArray_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_RidTypeArray_types__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_AliasInfoAll_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_AliasInfoAll_num_members(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_AliasInfoAll_description(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1236,6 +1209,13 @@ static int samr_dissect_element_UserInfo13_description(tvbuff_t *tvb _U_, int of
 static int samr_dissect_element_UserInfo14_workstations(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo16_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo17_acct_expiry(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_Password_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_Password_hash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo18_nt_pwd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo18_lm_pwd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo18_nt_pwd_active(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo18_lm_pwd_active(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo18_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo20_parameters(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static const true_false_string samr_FieldsPresent_SAMR_FIELD_ACCOUNT_NAME_tfs = {
    "SAMR_FIELD_ACCOUNT_NAME is SET",
@@ -1333,13 +1313,13 @@ static const true_false_string samr_FieldsPresent_SAMR_FIELD_CODE_PAGE_tfs = {
    "SAMR_FIELD_CODE_PAGE is SET",
    "SAMR_FIELD_CODE_PAGE is NOT SET",
 };
-static const true_false_string samr_FieldsPresent_SAMR_FIELD_PASSWORD_tfs = {
-   "SAMR_FIELD_PASSWORD is SET",
-   "SAMR_FIELD_PASSWORD is NOT SET",
+static const true_false_string samr_FieldsPresent_SAMR_FIELD_NT_PASSWORD_PRESENT_tfs = {
+   "SAMR_FIELD_NT_PASSWORD_PRESENT is SET",
+   "SAMR_FIELD_NT_PASSWORD_PRESENT is NOT SET",
 };
-static const true_false_string samr_FieldsPresent_SAMR_FIELD_PASSWORD2_tfs = {
-   "SAMR_FIELD_PASSWORD2 is SET",
-   "SAMR_FIELD_PASSWORD2 is NOT SET",
+static const true_false_string samr_FieldsPresent_SAMR_FIELD_LM_PASSWORD_PRESENT_tfs = {
+   "SAMR_FIELD_LM_PASSWORD_PRESENT is SET",
+   "SAMR_FIELD_LM_PASSWORD_PRESENT is NOT SET",
 };
 static const true_false_string samr_FieldsPresent_SAMR_FIELD_PRIVATE_DATA_tfs = {
    "SAMR_FIELD_PRIVATE_DATA is SET",
@@ -1389,8 +1369,8 @@ static int samr_dissect_element_UserInfo21_bad_password_count(tvbuff_t *tvb _U_,
 static int samr_dissect_element_UserInfo21_logon_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_country_code(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_code_page(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo21_nt_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_lm_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo21_nt_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo21_privatedatasensitive(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_CryptPassword_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1398,13 +1378,13 @@ static int samr_dissect_element_CryptPassword_data_(tvbuff_t *tvb _U_, int offse
 static int samr_dissect_element_UserInfo23_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo23_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo24_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo24_pw_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo24_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_CryptPasswordEx_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_CryptPasswordEx_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo25_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo25_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo26_password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_UserInfo26_pw_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo26_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1421,14 +1401,13 @@ static int samr_dissect_element_UserInfo_info13(tvbuff_t *tvb _U_, int offset _U
 static int samr_dissect_element_UserInfo_info14(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info16(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info17(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_UserInfo_info18(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info20(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info21(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info23(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info24(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info25(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_UserInfo_info26(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_Password_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_Password_hash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_RidWithAttribute_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_RidWithAttribute_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_RidWithAttributeArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1600,14 +1579,17 @@ static int samr_dissect_element_LookupDomain_domain_name(tvbuff_t *tvb _U_, int 
 static int samr_dissect_element_LookupDomain_domain_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_LookupDomain_sid__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomains_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomains_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomains_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomains_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomains_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomains_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomains_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_EnumDomains_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_EnumDomains_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomains_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_EnumDomains_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_OpenDomain_connect_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_OpenDomain_connect_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_OpenDomain_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1620,6 +1602,7 @@ static int samr_dissect_element_QueryDomainInfo_domain_handle_(tvbuff_t *tvb _U_
 static int samr_dissect_element_QueryDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryDomainInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SetDomainInfo_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SetDomainInfo_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SetDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1638,10 +1621,12 @@ static int samr_dissect_element_EnumDomainGroups_domain_handle(tvbuff_t *tvb _U_
 static int samr_dissect_element_EnumDomainGroups_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomainGroups_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomainGroups_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainGroups_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomainGroups_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomainGroups_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_EnumDomainGroups_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_EnumDomainGroups_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomainGroups_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_EnumDomainGroups_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_CreateUser_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_CreateUser_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_CreateUser_account_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1673,10 +1658,12 @@ static int samr_dissect_element_EnumDomainAliases_domain_handle(tvbuff_t *tvb _U
 static int samr_dissect_element_EnumDomainAliases_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomainAliases_resume_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomainAliases_resume_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_EnumDomainAliases_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomainAliases_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomainAliases_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_EnumDomainAliases_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_EnumDomainAliases_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_EnumDomainAliases_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_EnumDomainAliases_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetAliasMembership_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetAliasMembership_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetAliasMembership_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1688,17 +1675,19 @@ static int samr_dissect_element_LookupNames_domain_handle_(tvbuff_t *tvb _U_, in
 static int samr_dissect_element_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupNames_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupNames_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupNames_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_LookupNames_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupNames_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_LookupNames_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_num_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_LookupRids_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_LookupRids_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_LookupRids_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_OpenGroup_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_OpenGroup_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_OpenGroup_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1710,6 +1699,7 @@ static int samr_dissect_element_QueryGroupInfo_group_handle_(tvbuff_t *tvb _U_, 
 static int samr_dissect_element_QueryGroupInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryGroupInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryGroupInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryGroupInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SetGroupInfo_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SetGroupInfo_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SetGroupInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1728,10 +1718,11 @@ static int samr_dissect_element_QueryGroupMember_group_handle(tvbuff_t *tvb _U_,
 static int samr_dissect_element_QueryGroupMember_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryGroupMember_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryGroupMember_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryGroupMember_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SetMemberAttributesOfGroup_group_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SetMemberAttributesOfGroup_group_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetMemberAttributesOfGroup_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_SetMemberAttributesOfGroup_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_SetMemberAttributesOfGroup_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_SetMemberAttributesOfGroup_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_OpenAlias_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_OpenAlias_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_OpenAlias_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1743,6 +1734,7 @@ static int samr_dissect_element_QueryAliasInfo_alias_handle_(tvbuff_t *tvb _U_, 
 static int samr_dissect_element_QueryAliasInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryAliasInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryAliasInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryAliasInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SetAliasInfo_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SetAliasInfo_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SetAliasInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1803,6 +1795,7 @@ static int samr_dissect_element_GetGroupsForUser_user_handle(tvbuff_t *tvb _U_, 
 static int samr_dissect_element_GetGroupsForUser_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetGroupsForUser_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetGroupsForUser_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_GetGroupsForUser_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1880,8 +1873,11 @@ static int samr_dissect_element_QueryDisplayInfo3_start_idx(tvbuff_t *tvb _U_, i
 static int samr_dissect_element_QueryDisplayInfo3_max_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo3_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo3_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryDisplayInfo3_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo3_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryDisplayInfo3_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo3_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryDisplayInfo3_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_AddMultipleMembersToAlias_alias_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_AddMultipleMembersToAlias_alias_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_AddMultipleMembersToAlias_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -3078,76 +3074,13 @@ samr_dissect_struct_DomInfo1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 }
 
 
-/* IDL: enum { */
-/* IDL: 	SAMR_DOMAIN_SERVER_ENABLED=1, */
-/* IDL: 	SAMR_DOMAIN_SERVER_DISABLED=2, */
-/* IDL: } */
-
-int
-samr_dissect_enum_DomainServerEnableState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
-{
-	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
-	}
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
-	}
-	return offset;
-}
-
-
-/* IDL: struct { */
-/* IDL: 	samr_DomainServerEnableState state; */
-/* IDL: } */
-
-static int
-samr_dissect_element_DomainStateInformation_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = samr_dissect_enum_DomainServerEnableState(tvb, offset, pinfo, tree, drep, hf_samr_samr_DomainStateInformation_state, 0);
-
-	return offset;
-}
-
-int
-samr_dissect_struct_DomainStateInformation(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
-{
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
-	int old_offset;
-
-	ALIGN_TO_4_BYTES;
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-		tree = proto_item_add_subtree(item, ett_samr_samr_DomainStateInformation);
-	}
-	
-	offset = samr_dissect_element_DomainStateInformation_state(tvb, offset, pinfo, tree, drep);
-
-
-	proto_item_set_len(item, offset-old_offset);
-
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
-	}
-
-	return offset;
-}
-
-
 /* IDL: struct { */
 /* IDL: 	NTTIME force_logoff_time; */
 /* IDL: 	lsa_String oem_information; */
 /* IDL: 	lsa_String domain_name; */
 /* IDL: 	lsa_String primary; */
 /* IDL: 	udlong sequence_num; */
-/* IDL: 	samr_DomainServerEnableState state; */
+/* IDL: 	samr_DomainServerState domain_server_state; */
 /* IDL: 	samr_Role role; */
 /* IDL: 	uint32 unknown3; */
 /* IDL: 	uint32 num_users; */
@@ -3196,9 +3129,9 @@ samr_dissect_element_DomGeneralInformation_sequence_num(tvbuff_t *tvb _U_, int o
 }
 
 static int
-samr_dissect_element_DomGeneralInformation_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_DomGeneralInformation_domain_server_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_enum_DomainServerEnableState(tvb, offset, pinfo, tree, drep, hf_samr_samr_DomGeneralInformation_state, 0);
+	offset = samr_dissect_enum_DomainServerState(tvb, offset, pinfo, tree, drep, hf_samr_samr_DomGeneralInformation_domain_server_state, 0);
 
 	return offset;
 }
@@ -3270,7 +3203,7 @@ samr_dissect_struct_DomGeneralInformation(tvbuff_t *tvb _U_, int offset _U_, pac
 
 	offset = samr_dissect_element_DomGeneralInformation_sequence_num(tvb, offset, pinfo, tree, drep);
 
-	offset = samr_dissect_element_DomGeneralInformation_state(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_DomGeneralInformation_domain_server_state(tvb, offset, pinfo, tree, drep);
 
 	offset = samr_dissect_element_DomGeneralInformation_role(tvb, offset, pinfo, tree, drep);
 
@@ -3750,8 +3683,7 @@ samr_dissect_struct_DomInfo12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 /* IDL: struct { */
 /* IDL: 	hyper sequence_num; */
 /* IDL: 	NTTIME domain_create_time; */
-/* IDL: 	uint32 unknown1; */
-/* IDL: 	uint32 unknown2; */
+/* IDL: 	hyper modified_count_at_last_promotion; */
 /* IDL: } */
 
 static int
@@ -3771,17 +3703,9 @@ samr_dissect_element_DomInfo13_domain_create_time(tvbuff_t *tvb _U_, int offset 
 }
 
 static int
-samr_dissect_element_DomInfo13_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_DomInfo13_modified_count_at_last_promotion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_DomInfo13_unknown1, 0);
-
-	return offset;
-}
-
-static int
-samr_dissect_element_DomInfo13_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_DomInfo13_unknown2, 0);
+	offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, drep, 0, hf_samr_samr_DomInfo13_modified_count_at_last_promotion);
 
 	return offset;
 }
@@ -3807,9 +3731,7 @@ samr_dissect_struct_DomInfo13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 
 	offset = samr_dissect_element_DomInfo13_domain_create_time(tvb, offset, pinfo, tree, drep);
 
-	offset = samr_dissect_element_DomInfo13_unknown1(tvb, offset, pinfo, tree, drep);
-
-	offset = samr_dissect_element_DomInfo13_unknown2(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_DomInfo13_modified_count_at_last_promotion(tvb, offset, pinfo, tree, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -4063,76 +3985,6 @@ samr_dissect_struct_Ids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 	offset = samr_dissect_element_Ids_count(tvb, offset, pinfo, tree, drep);
 
 	offset = samr_dissect_element_Ids_ids(tvb, offset, pinfo, tree, drep);
-
-
-	proto_item_set_len(item, offset-old_offset);
-
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_5_BYTES;
-	}
-
-	return offset;
-}
-
-
-/* IDL: struct { */
-/* IDL: 	[range(0,1024)] uint32 count; */
-/* IDL: 	[unique(1)] [size_is(count)] lsa_SidType *types; */
-/* IDL: } */
-
-static int
-samr_dissect_element_Types_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_Types_count, 0);
-
-	return offset;
-}
-
-static int
-samr_dissect_element_Types_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_Types_types_, NDR_POINTER_UNIQUE, "Pointer to Types (lsa_SidType)",hf_samr_samr_Types_types);
-
-	return offset;
-}
-
-static int
-samr_dissect_element_Types_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, samr_dissect_element_Types_types__);
-
-	return offset;
-}
-
-static int
-samr_dissect_element_Types_types__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = samr_dissect_enum_lsa_SidType(tvb, offset, pinfo, tree, drep, hf_samr_samr_Types_types, 0);
-
-	return offset;
-}
-
-int
-samr_dissect_struct_Types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
-{
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
-	int old_offset;
-
-	ALIGN_TO_5_BYTES;
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-		tree = proto_item_add_subtree(item, ett_samr_samr_Types);
-	}
-	
-	offset = samr_dissect_element_Types_count(tvb, offset, pinfo, tree, drep);
-
-	offset = samr_dissect_element_Types_types(tvb, offset, pinfo, tree, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -4517,128 +4369,70 @@ samr_dissect_GroupInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 	return offset;
 }
 
-/* IDL: bitmap { */
-/* IDL: 	SE_GROUP_MANDATORY =  0x00000001 , */
-/* IDL: 	SE_GROUP_ENABLED_BY_DEFAULT =  0x00000002 , */
-/* IDL: 	SE_GROUP_ENABLED =  0x00000004 , */
-/* IDL: } */
-
-int
-samr_dissect_bitmap_SeGroupAttributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
-{
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
-	guint32 flags;
-	ALIGN_TO_4_BYTES;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
-		tree = proto_item_add_subtree(item,ett_samr_samr_SeGroupAttributes);
-	}
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &flags);
-	proto_item_append_text(item, ": ");
-
-	if (!flags)
-		proto_item_append_text(item, "(No values set)");
-
-	proto_tree_add_boolean(tree, hf_samr_samr_SeGroupAttributes_SE_GROUP_MANDATORY, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000001 )){
-		proto_item_append_text(item, "SE_GROUP_MANDATORY");
-		if (flags & (~( 0x00000001 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000001 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_SeGroupAttributes_SE_GROUP_ENABLED_BY_DEFAULT, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000002 )){
-		proto_item_append_text(item, "SE_GROUP_ENABLED_BY_DEFAULT");
-		if (flags & (~( 0x00000002 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000002 ));
-
-	proto_tree_add_boolean(tree, hf_samr_samr_SeGroupAttributes_SE_GROUP_ENABLED, tvb, offset-4, 4, flags);
-	if (flags&( 0x00000004 )){
-		proto_item_append_text(item, "SE_GROUP_ENABLED");
-		if (flags & (~( 0x00000004 )))
-			proto_item_append_text(item, ", ");
-	}
-	flags&=(~( 0x00000004 ));
-
-	if (flags) {
-		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
-	}
-
-	return offset;
-}
-
-
 /* IDL: struct { */
 /* IDL: 	uint32 count; */
 /* IDL: 	[unique(1)] [size_is(count)] uint32 *rids; */
-/* IDL: 	[unique(1)] [size_is(count)] samr_SeGroupAttributes *attributes; */
+/* IDL: 	[unique(1)] [size_is(count)] uint32 *types; */
 /* IDL: } */
 
 static int
-samr_dissect_element_GetMembersBuffer_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_count(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_GetMembersBuffer_count, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_RidTypeArray_count, 0);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_GetMembersBuffer_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_GetMembersBuffer_rids_, NDR_POINTER_UNIQUE, "Pointer to Rids (uint32)",hf_samr_samr_GetMembersBuffer_rids);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_RidTypeArray_rids_, NDR_POINTER_UNIQUE, "Pointer to Rids (uint32)",hf_samr_rid);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_GetMembersBuffer_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, samr_dissect_element_GetMembersBuffer_rids__);
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, samr_dissect_element_RidTypeArray_rids__);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_GetMembersBuffer_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_GetMembersBuffer_rids, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_rid, 0);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_GetMembersBuffer_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_GetMembersBuffer_attributes_, NDR_POINTER_UNIQUE, "Pointer to Attributes (samr_SeGroupAttributes)",hf_samr_samr_GetMembersBuffer_attributes);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_RidTypeArray_types_, NDR_POINTER_UNIQUE, "Pointer to Types (uint32)",hf_samr_samr_RidTypeArray_types);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_GetMembersBuffer_attributes_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, samr_dissect_element_GetMembersBuffer_attributes__);
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, samr_dissect_element_RidTypeArray_types__);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_GetMembersBuffer_attributes__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_RidTypeArray_types__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_bitmap_SeGroupAttributes(tvb, offset, pinfo, tree, drep, hf_samr_samr_GetMembersBuffer_attributes, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_RidTypeArray_types, 0);
 
 	return offset;
 }
 
 int
-samr_dissect_struct_GetMembersBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+samr_dissect_struct_RidTypeArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -4651,14 +4445,14 @@ samr_dissect_struct_GetMembersBuffer(tvbuff_t *tvb _U_, int offset _U_, packet_i
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-		tree = proto_item_add_subtree(item, ett_samr_samr_GetMembersBuffer);
+		tree = proto_item_add_subtree(item, ett_samr_samr_RidTypeArray);
 	}
 	
-	offset = samr_dissect_element_GetMembersBuffer_count(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_RidTypeArray_count(tvb, offset, pinfo, tree, drep);
 
-	offset = samr_dissect_element_GetMembersBuffer_rids(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_RidTypeArray_rids(tvb, offset, pinfo, tree, drep);
 
-	offset = samr_dissect_element_GetMembersBuffer_attributes(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_RidTypeArray_types(tvb, offset, pinfo, tree, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -6097,6 +5891,134 @@ samr_dissect_struct_UserInfo17(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 
 /* IDL: struct { */
+/* IDL: 	uint8 hash[16]; */
+/* IDL: } */
+
+static int
+samr_dissect_element_Password_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	int i;
+	for (i = 0; i < 16; i++)
+		offset = samr_dissect_element_Password_hash_(tvb, offset, pinfo, tree, drep);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_Password_hash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_Password_hash, 0);
+
+	return offset;
+}
+
+int
+samr_dissect_struct_Password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_samr_samr_Password);
+	}
+	
+	offset = samr_dissect_element_Password_hash(tvb, offset, pinfo, tree, drep);
+
+
+	proto_item_set_len(item, offset-old_offset);
+
+
+	return offset;
+}
+
+
+/* IDL: struct { */
+/* IDL: 	samr_Password nt_pwd; */
+/* IDL: 	samr_Password lm_pwd; */
+/* IDL: 	uint8 nt_pwd_active; */
+/* IDL: 	uint8 lm_pwd_active; */
+/* IDL: 	uint8 password_expired; */
+/* IDL: } */
+
+static int
+samr_dissect_element_UserInfo18_nt_pwd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,drep,hf_samr_samr_UserInfo18_nt_pwd,0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_UserInfo18_lm_pwd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_Password(tvb,offset,pinfo,tree,drep,hf_samr_samr_UserInfo18_lm_pwd,0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_UserInfo18_nt_pwd_active(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo18_nt_pwd_active, 0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_UserInfo18_lm_pwd_active(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo18_lm_pwd_active, 0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_UserInfo18_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo18_password_expired, 0);
+
+	return offset;
+}
+
+int
+samr_dissect_struct_UserInfo18(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_samr_samr_UserInfo18);
+	}
+	
+	offset = samr_dissect_element_UserInfo18_nt_pwd(tvb, offset, pinfo, tree, drep);
+
+	offset = samr_dissect_element_UserInfo18_lm_pwd(tvb, offset, pinfo, tree, drep);
+
+	offset = samr_dissect_element_UserInfo18_nt_pwd_active(tvb, offset, pinfo, tree, drep);
+
+	offset = samr_dissect_element_UserInfo18_lm_pwd_active(tvb, offset, pinfo, tree, drep);
+
+	offset = samr_dissect_element_UserInfo18_password_expired(tvb, offset, pinfo, tree, drep);
+
+
+	proto_item_set_len(item, offset-old_offset);
+
+
+	return offset;
+}
+
+
+/* IDL: struct { */
 /* IDL: 	lsa_String parameters; */
 /* IDL: } */
 
@@ -6164,8 +6086,8 @@ samr_dissect_struct_UserInfo20(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: 	SAMR_FIELD_PARAMETERS =  0x00200000 , */
 /* IDL: 	SAMR_FIELD_COUNTRY_CODE =  0x00400000 , */
 /* IDL: 	SAMR_FIELD_CODE_PAGE =  0x00800000 , */
-/* IDL: 	SAMR_FIELD_PASSWORD =  0x01000000 , */
-/* IDL: 	SAMR_FIELD_PASSWORD2 =  0x02000000 , */
+/* IDL: 	SAMR_FIELD_NT_PASSWORD_PRESENT =  0x01000000 , */
+/* IDL: 	SAMR_FIELD_LM_PASSWORD_PRESENT =  0x02000000 , */
 /* IDL: 	SAMR_FIELD_PRIVATE_DATA =  0x04000000 , */
 /* IDL: 	SAMR_FIELD_EXPIRED_FLAG =  0x08000000 , */
 /* IDL: 	SAMR_FIELD_SEC_DESC =  0x10000000 , */
@@ -6384,17 +6306,17 @@ samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	}
 	flags&=(~( 0x00800000 ));
 
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_PASSWORD, tvb, offset-4, 4, flags);
+	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_NT_PASSWORD_PRESENT, tvb, offset-4, 4, flags);
 	if (flags&( 0x01000000 )){
-		proto_item_append_text(item, "SAMR_FIELD_PASSWORD");
+		proto_item_append_text(item, "SAMR_FIELD_NT_PASSWORD_PRESENT");
 		if (flags & (~( 0x01000000 )))
 			proto_item_append_text(item, ", ");
 	}
 	flags&=(~( 0x01000000 ));
 
-	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_PASSWORD2, tvb, offset-4, 4, flags);
+	proto_tree_add_boolean(tree, hf_samr_samr_FieldsPresent_SAMR_FIELD_LM_PASSWORD_PRESENT, tvb, offset-4, 4, flags);
 	if (flags&( 0x02000000 )){
-		proto_item_append_text(item, "SAMR_FIELD_PASSWORD2");
+		proto_item_append_text(item, "SAMR_FIELD_LM_PASSWORD_PRESENT");
 		if (flags & (~( 0x02000000 )))
 			proto_item_append_text(item, ", ");
 	}
@@ -6471,8 +6393,8 @@ samr_dissect_bitmap_FieldsPresent(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: 	uint16 logon_count; */
 /* IDL: 	uint16 country_code; */
 /* IDL: 	uint16 code_page; */
-/* IDL: 	uint8 nt_password_set; */
 /* IDL: 	uint8 lm_password_set; */
+/* IDL: 	uint8 nt_password_set; */
 /* IDL: 	uint8 password_expired; */
 /* IDL: 	uint8 privatedatasensitive; */
 /* IDL: } */
@@ -6734,17 +6656,17 @@ samr_dissect_element_UserInfo21_code_page(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_UserInfo21_nt_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_lm_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo21_nt_password_set, 0);
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo21_lm_password_set, 0);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_UserInfo21_lm_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo21_nt_password_set(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo21_lm_password_set, 0);
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo21_nt_password_set, 0);
 
 	return offset;
 }
@@ -6842,9 +6764,9 @@ samr_dissect_struct_UserInfo21(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 	offset = samr_dissect_element_UserInfo21_code_page(tvb, offset, pinfo, tree, drep);
 
-	offset = samr_dissect_element_UserInfo21_nt_password_set(tvb, offset, pinfo, tree, drep);
-
 	offset = samr_dissect_element_UserInfo21_lm_password_set(tvb, offset, pinfo, tree, drep);
+
+	offset = samr_dissect_element_UserInfo21_nt_password_set(tvb, offset, pinfo, tree, drep);
 
 	offset = samr_dissect_element_UserInfo21_password_expired(tvb, offset, pinfo, tree, drep);
 
@@ -6965,7 +6887,7 @@ samr_dissect_struct_UserInfo23(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 /* IDL: struct { */
 /* IDL: 	samr_CryptPassword password; */
-/* IDL: 	uint8 pw_len; */
+/* IDL: 	uint8 password_expired; */
 /* IDL: } */
 
 static int
@@ -6977,9 +6899,9 @@ samr_dissect_element_UserInfo24_password(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_UserInfo24_pw_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo24_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo24_pw_len, 0);
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo24_password_expired, 0);
 
 	return offset;
 }
@@ -7001,7 +6923,7 @@ samr_dissect_struct_UserInfo24(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	
 	offset = samr_dissect_element_UserInfo24_password(tvb, offset, pinfo, tree, drep);
 
-	offset = samr_dissect_element_UserInfo24_pw_len(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_UserInfo24_password_expired(tvb, offset, pinfo, tree, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -7114,7 +7036,7 @@ samr_dissect_struct_UserInfo25(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 
 /* IDL: struct { */
 /* IDL: 	samr_CryptPasswordEx password; */
-/* IDL: 	uint8 pw_len; */
+/* IDL: 	uint8 password_expired; */
 /* IDL: } */
 
 static int
@@ -7126,9 +7048,9 @@ samr_dissect_element_UserInfo26_password(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-samr_dissect_element_UserInfo26_pw_len(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_UserInfo26_password_expired(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo26_pw_len, 0);
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_UserInfo26_password_expired, 0);
 
 	return offset;
 }
@@ -7150,7 +7072,7 @@ samr_dissect_struct_UserInfo26(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 	
 	offset = samr_dissect_element_UserInfo26_password(tvb, offset, pinfo, tree, drep);
 
-	offset = samr_dissect_element_UserInfo26_pw_len(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_UserInfo26_password_expired(tvb, offset, pinfo, tree, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -7177,6 +7099,7 @@ samr_dissect_struct_UserInfo26(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 /* IDL: [case(14)] [case(14)] samr_UserInfo14 info14; */
 /* IDL: [case(16)] [case(16)] samr_UserInfo16 info16; */
 /* IDL: [case(17)] [case(17)] samr_UserInfo17 info17; */
+/* IDL: [case(18)] [case(18)] samr_UserInfo18 info18; */
 /* IDL: [case(20)] [case(20)] samr_UserInfo20 info20; */
 /* IDL: [case(21)] [case(21)] samr_UserInfo21 info21; */
 /* IDL: [case(23)] [case(23)] samr_UserInfo23 info23; */
@@ -7314,6 +7237,14 @@ samr_dissect_element_UserInfo_info17(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
+samr_dissect_element_UserInfo_info18(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_UserInfo18(tvb,offset,pinfo,tree,drep,hf_samr_samr_UserInfo_info18,0);
+
+	return offset;
+}
+
+static int
 samr_dissect_element_UserInfo_info20(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = samr_dissect_struct_UserInfo20(tvb,offset,pinfo,tree,drep,hf_samr_samr_UserInfo_info20,0);
@@ -7443,6 +7374,10 @@ samr_dissect_UserInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 			offset = samr_dissect_element_UserInfo_info17(tvb, offset, pinfo, tree, drep);
 		break;
 
+		case 18:
+			offset = samr_dissect_element_UserInfo_info18(tvb, offset, pinfo, tree, drep);
+		break;
+
 		case 20:
 			offset = samr_dissect_element_UserInfo_info20(tvb, offset, pinfo, tree, drep);
 		break;
@@ -7472,53 +7407,6 @@ samr_dissect_UserInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 
 	return offset;
 }
-
-/* IDL: struct { */
-/* IDL: 	uint8 hash[16]; */
-/* IDL: } */
-
-static int
-samr_dissect_element_Password_hash(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	int i;
-	for (i = 0; i < 16; i++)
-		offset = samr_dissect_element_Password_hash_(tvb, offset, pinfo, tree, drep);
-
-	return offset;
-}
-
-static int
-samr_dissect_element_Password_hash_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_samr_samr_Password_hash, 0);
-
-	return offset;
-}
-
-int
-samr_dissect_struct_Password(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
-{
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	int old_offset;
-
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-		tree = proto_item_add_subtree(item, ett_samr_samr_Password);
-	}
-	
-	offset = samr_dissect_element_Password_hash(tvb, offset, pinfo, tree, drep);
-
-
-	proto_item_set_len(item, offset-old_offset);
-
-
-	return offset;
-}
-
 
 /* IDL: struct { */
 /* IDL: 	uint32 rid; */
@@ -9706,13 +9594,21 @@ samr_dissect_element_LookupDomain_domain_name_(tvbuff_t *tvb _U_, int offset _U_
 static int
 samr_dissect_element_LookupDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupDomain_sid_, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)",hf_samr_samr_LookupDomain_sid);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupDomain_sid_, NDR_POINTER_REF, "Pointer to Sid (dom_sid2)",hf_samr_samr_LookupDomain_sid);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_LookupDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupDomain_sid__, NDR_POINTER_UNIQUE, "Pointer to Sid (dom_sid2)",hf_samr_samr_LookupDomain_sid);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_LookupDomain_sid__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset=cnf_dissect_dom_sid2(tvb, offset, pinfo, tree, drep);
 
@@ -9722,7 +9618,7 @@ samr_dissect_element_LookupDomain_sid_(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: NTSTATUS samr_LookupDomain( */
 /* IDL: [in] [ref] policy_handle *connect_handle, */
 /* IDL: [in] [ref] lsa_String *domain_name, */
-/* IDL: [out] [unique(1)] dom_sid2 *sid */
+/* IDL: [out] [ref] dom_sid2 **sid */
 /* IDL: ); */
 
 static int
@@ -9786,6 +9682,30 @@ samr_dissect_element_EnumDomains_resume_handle_(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
+samr_dissect_element_EnumDomains_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomains_sam_, NDR_POINTER_REF, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomains_sam);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EnumDomains_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomains_sam__, NDR_POINTER_UNIQUE, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomains_sam);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EnumDomains_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_SamArray(tvb,offset,pinfo,tree,drep,hf_samr_samr_EnumDomains_sam,0);
+
+	return offset;
+}
+
+static int
 samr_dissect_element_EnumDomains_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_EnumDomains_buf_size, 0);
@@ -9794,23 +9714,15 @@ samr_dissect_element_EnumDomains_buf_size(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-samr_dissect_element_EnumDomains_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomains_sam_, NDR_POINTER_UNIQUE, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomains_sam);
-
-	return offset;
-}
-
-static int
-samr_dissect_element_EnumDomains_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = samr_dissect_struct_SamArray(tvb,offset,pinfo,tree,drep,hf_samr_samr_EnumDomains_sam,0);
-
-	return offset;
-}
-
-static int
 samr_dissect_element_EnumDomains_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomains_num_entries_, NDR_POINTER_REF, "Pointer to Num Entries (uint32)",hf_samr_samr_EnumDomains_num_entries);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EnumDomains_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_EnumDomains_num_entries, 0);
 
@@ -9820,9 +9732,9 @@ samr_dissect_element_EnumDomains_num_entries(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: NTSTATUS samr_EnumDomains( */
 /* IDL: [in] [ref] policy_handle *connect_handle, */
 /* IDL: [out] [in] [ref] uint32 *resume_handle, */
+/* IDL: [out] [ref] samr_SamArray **sam, */
 /* IDL: [in] uint32 buf_size, */
-/* IDL: [out] [unique(1)] samr_SamArray *sam, */
-/* IDL: [out] uint32 num_entries */
+/* IDL: [out] [ref] uint32 *num_entries */
 /* IDL: ); */
 
 static int
@@ -9981,13 +9893,21 @@ samr_dissect_element_QueryDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 samr_dissect_element_QueryDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDomainInfo_info_, NDR_POINTER_UNIQUE, "Pointer to Info (samr_DomainInfo)",hf_samr_samr_QueryDomainInfo_info);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDomainInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_DomainInfo)",hf_samr_samr_QueryDomainInfo_info);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_QueryDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDomainInfo_info__, NDR_POINTER_UNIQUE, "Pointer to Info (samr_DomainInfo)",hf_samr_samr_QueryDomainInfo_info);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryDomainInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = samr_dissect_DomainInfo(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDomainInfo_info, 0);
 
@@ -9997,7 +9917,7 @@ samr_dissect_element_QueryDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: NTSTATUS samr_QueryDomainInfo( */
 /* IDL: [in] [ref] policy_handle *domain_handle, */
 /* IDL: [in] samr_DomainInfoClass level, */
-/* IDL: [out] [unique(1)] [switch_is(level)] samr_DomainInfo *info */
+/* IDL: [out] [ref] [switch_is(level)] samr_DomainInfo **info */
 /* IDL: ); */
 
 static int
@@ -10247,6 +10167,30 @@ samr_dissect_element_EnumDomainGroups_resume_handle_(tvbuff_t *tvb _U_, int offs
 }
 
 static int
+samr_dissect_element_EnumDomainGroups_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomainGroups_sam_, NDR_POINTER_REF, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainGroups_sam);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EnumDomainGroups_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomainGroups_sam__, NDR_POINTER_UNIQUE, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainGroups_sam);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EnumDomainGroups_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_SamArray(tvb,offset,pinfo,tree,drep,hf_samr_samr_EnumDomainGroups_sam,0);
+
+	return offset;
+}
+
+static int
 samr_dissect_element_EnumDomainGroups_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_EnumDomainGroups_max_size, 0);
@@ -10255,23 +10199,15 @@ samr_dissect_element_EnumDomainGroups_max_size(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-samr_dissect_element_EnumDomainGroups_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomainGroups_sam_, NDR_POINTER_UNIQUE, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainGroups_sam);
-
-	return offset;
-}
-
-static int
-samr_dissect_element_EnumDomainGroups_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = samr_dissect_struct_SamArray(tvb,offset,pinfo,tree,drep,hf_samr_samr_EnumDomainGroups_sam,0);
-
-	return offset;
-}
-
-static int
 samr_dissect_element_EnumDomainGroups_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomainGroups_num_entries_, NDR_POINTER_REF, "Pointer to Num Entries (uint32)",hf_samr_samr_EnumDomainGroups_num_entries);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EnumDomainGroups_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_EnumDomainGroups_num_entries, 0);
 
@@ -10279,11 +10215,11 @@ samr_dissect_element_EnumDomainGroups_num_entries(tvbuff_t *tvb _U_, int offset 
 }
 
 /* IDL: NTSTATUS samr_EnumDomainGroups( */
-/* IDL: [in] [ref] policy_handle *domain_handle, */
+/* IDL: [ref] [in] policy_handle *domain_handle, */
 /* IDL: [out] [in] [ref] uint32 *resume_handle, */
+/* IDL: [out] [ref] samr_SamArray **sam, */
 /* IDL: [in] uint32 max_size, */
-/* IDL: [out] [unique(1)] samr_SamArray *sam, */
-/* IDL: [out] uint32 num_entries */
+/* IDL: [out] [ref] uint32 *num_entries */
 /* IDL: ); */
 
 static int
@@ -10508,7 +10444,7 @@ samr_dissect_element_EnumDomainUsers_num_entries(tvbuff_t *tvb _U_, int offset _
 }
 
 /* IDL: NTSTATUS samr_EnumDomainUsers( */
-/* IDL: [in] [ref] policy_handle *domain_handle, */
+/* IDL: [ref] [in] policy_handle *domain_handle, */
 /* IDL: [out] [in] [ref] uint32 *resume_handle, */
 /* IDL: [in] samr_AcctFlags acct_flags, */
 /* IDL: [in] uint32 max_size, */
@@ -10700,17 +10636,9 @@ samr_dissect_element_EnumDomainAliases_resume_handle_(tvbuff_t *tvb _U_, int off
 }
 
 static int
-samr_dissect_element_EnumDomainAliases_acct_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = samr_dissect_bitmap_AcctFlags(tvb, offset, pinfo, tree, drep, hf_samr_samr_EnumDomainAliases_acct_flags, 0);
-
-	return offset;
-}
-
-static int
 samr_dissect_element_EnumDomainAliases_sam(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomainAliases_sam_, NDR_POINTER_UNIQUE, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainAliases_sam);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomainAliases_sam_, NDR_POINTER_REF, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainAliases_sam);
 
 	return offset;
 }
@@ -10718,7 +10646,23 @@ samr_dissect_element_EnumDomainAliases_sam(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 samr_dissect_element_EnumDomainAliases_sam_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomainAliases_sam__, NDR_POINTER_UNIQUE, "Pointer to Sam (samr_SamArray)",hf_samr_samr_EnumDomainAliases_sam);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EnumDomainAliases_sam__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = samr_dissect_struct_SamArray(tvb,offset,pinfo,tree,drep,hf_samr_samr_EnumDomainAliases_sam,0);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EnumDomainAliases_max_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_EnumDomainAliases_max_size, 0);
 
 	return offset;
 }
@@ -10726,17 +10670,25 @@ samr_dissect_element_EnumDomainAliases_sam_(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 samr_dissect_element_EnumDomainAliases_num_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_EnumDomainAliases_num_entries_, NDR_POINTER_REF, "Pointer to Num Entries (uint32)",hf_samr_samr_EnumDomainAliases_num_entries);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_EnumDomainAliases_num_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_EnumDomainAliases_num_entries, 0);
 
 	return offset;
 }
 
 /* IDL: NTSTATUS samr_EnumDomainAliases( */
-/* IDL: [in] [ref] policy_handle *domain_handle, */
+/* IDL: [ref] [in] policy_handle *domain_handle, */
 /* IDL: [out] [in] [ref] uint32 *resume_handle, */
-/* IDL: [in] samr_AcctFlags acct_flags, */
-/* IDL: [out] [unique(1)] samr_SamArray *sam, */
-/* IDL: [out] uint32 num_entries */
+/* IDL: [out] [ref] samr_SamArray **sam, */
+/* IDL: [in] uint32 max_size, */
+/* IDL: [out] [ref] uint32 *num_entries */
 /* IDL: ); */
 
 static int
@@ -10770,7 +10722,7 @@ samr_dissect_EnumDomainAliases_request(tvbuff_t *tvb _U_, int offset _U_, packet
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = samr_dissect_element_EnumDomainAliases_resume_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = samr_dissect_element_EnumDomainAliases_acct_flags(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_EnumDomainAliases_max_size(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -10884,21 +10836,13 @@ samr_dissect_element_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 samr_dissect_element_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupNames_names_, NDR_POINTER_REF, "Pointer to Names (lsa_String)",hf_samr_samr_LookupNames_names);
+	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupNames_names_);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_LookupNames_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupNames_names__);
-
-	return offset;
-}
-
-static int
-samr_dissect_element_LookupNames_names__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, 0, hf_samr_samr_LookupNames_names);
 
@@ -10908,6 +10852,14 @@ samr_dissect_element_LookupNames_names__(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 samr_dissect_element_LookupNames_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupNames_rids_, NDR_POINTER_REF, "Pointer to Rids (samr_Ids)",hf_samr_samr_LookupNames_rids);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_LookupNames_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = samr_dissect_struct_Ids(tvb,offset,pinfo,tree,drep,hf_samr_samr_LookupNames_rids,0);
 
 	return offset;
@@ -10916,7 +10868,15 @@ samr_dissect_element_LookupNames_rids(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 samr_dissect_element_LookupNames_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_struct_Types(tvb,offset,pinfo,tree,drep,hf_samr_samr_LookupNames_types,0);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupNames_types_, NDR_POINTER_REF, "Pointer to Types (samr_Ids)",hf_samr_samr_LookupNames_types);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_LookupNames_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_Ids(tvb,offset,pinfo,tree,drep,hf_samr_samr_LookupNames_types,0);
 
 	return offset;
 }
@@ -10924,9 +10884,9 @@ samr_dissect_element_LookupNames_types(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: NTSTATUS samr_LookupNames( */
 /* IDL: [in] [ref] policy_handle *domain_handle, */
 /* IDL: [in] [range(0,1000)] uint32 num_names, */
-/* IDL: [in] [ref] [length_is(num_names)] [size_is(1000)] lsa_String *names, */
-/* IDL: [out] samr_Ids rids, */
-/* IDL: [out] samr_Types types */
+/* IDL: [in] [length_is(num_names)] [size_is(1000)] lsa_String names[*], */
+/* IDL: [out] [ref] samr_Ids *rids, */
+/* IDL: [out] [ref] samr_Ids *types */
 /* IDL: ); */
 
 static int
@@ -10989,21 +10949,13 @@ samr_dissect_element_LookupRids_num_rids(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 samr_dissect_element_LookupRids_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupRids_rids_, NDR_POINTER_REF, "Pointer to Rids (uint32)",hf_samr_rid);
+	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupRids_rids_);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_LookupRids_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupRids_rids__);
-
-	return offset;
-}
-
-static int
-samr_dissect_element_LookupRids_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_rid, 0);
 
@@ -11013,6 +10965,14 @@ samr_dissect_element_LookupRids_rids__(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 samr_dissect_element_LookupRids_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupRids_names_, NDR_POINTER_REF, "Pointer to Names (lsa_Strings)",hf_samr_samr_LookupRids_names);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_LookupRids_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = samr_dissect_struct_lsa_Strings(tvb,offset,pinfo,tree,drep,hf_samr_samr_LookupRids_names,0);
 
 	return offset;
@@ -11021,7 +10981,15 @@ samr_dissect_element_LookupRids_names(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 samr_dissect_element_LookupRids_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_struct_Types(tvb,offset,pinfo,tree,drep,hf_samr_samr_LookupRids_types,0);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_LookupRids_types_, NDR_POINTER_REF, "Pointer to Types (samr_Ids)",hf_samr_samr_LookupRids_types);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_LookupRids_types_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_Ids(tvb,offset,pinfo,tree,drep,hf_samr_samr_LookupRids_types,0);
 
 	return offset;
 }
@@ -11029,9 +10997,9 @@ samr_dissect_element_LookupRids_types(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: NTSTATUS samr_LookupRids( */
 /* IDL: [in] [ref] policy_handle *domain_handle, */
 /* IDL: [in] [range(0,1000)] uint32 num_rids, */
-/* IDL: [in] [ref] [length_is(num_rids)] [size_is(1000)] uint32 *rids, */
-/* IDL: [out] lsa_Strings names, */
-/* IDL: [out] samr_Types types */
+/* IDL: [in] [length_is(num_rids)] [size_is(1000)] uint32 rids[*], */
+/* IDL: [out] [ref] lsa_Strings *names, */
+/* IDL: [out] [ref] samr_Ids *types */
 /* IDL: ); */
 
 static int
@@ -11179,13 +11147,21 @@ samr_dissect_element_QueryGroupInfo_level(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 samr_dissect_element_QueryGroupInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryGroupInfo_info_, NDR_POINTER_UNIQUE, "Pointer to Info (samr_GroupInfo)",hf_samr_samr_QueryGroupInfo_info);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryGroupInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_GroupInfo)",hf_samr_samr_QueryGroupInfo_info);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_QueryGroupInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryGroupInfo_info__, NDR_POINTER_UNIQUE, "Pointer to Info (samr_GroupInfo)",hf_samr_samr_QueryGroupInfo_info);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryGroupInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = samr_dissect_GroupInfo(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryGroupInfo_info, 0);
 
@@ -11195,7 +11171,7 @@ samr_dissect_element_QueryGroupInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: NTSTATUS samr_QueryGroupInfo( */
 /* IDL: [in] [ref] policy_handle *group_handle, */
 /* IDL: [in] samr_GroupInfoEnum level, */
-/* IDL: [out] [unique(1)] [switch_is(level)] samr_GroupInfo *info */
+/* IDL: [out] [ref] [switch_is(level)] samr_GroupInfo **info */
 /* IDL: ); */
 
 static int
@@ -11483,7 +11459,7 @@ samr_dissect_element_QueryGroupMember_group_handle_(tvbuff_t *tvb _U_, int offse
 static int
 samr_dissect_element_QueryGroupMember_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryGroupMember_rids_, NDR_POINTER_UNIQUE, "Pointer to Rids (samr_GetMembersBuffer)",hf_samr_samr_QueryGroupMember_rids);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryGroupMember_rids_, NDR_POINTER_REF, "Pointer to Rids (samr_RidTypeArray)",hf_samr_samr_QueryGroupMember_rids);
 
 	return offset;
 }
@@ -11491,14 +11467,22 @@ samr_dissect_element_QueryGroupMember_rids(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 samr_dissect_element_QueryGroupMember_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_struct_GetMembersBuffer(tvb,offset,pinfo,tree,drep,hf_samr_samr_QueryGroupMember_rids,0);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryGroupMember_rids__, NDR_POINTER_UNIQUE, "Pointer to Rids (samr_RidTypeArray)",hf_samr_samr_QueryGroupMember_rids);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryGroupMember_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_struct_RidTypeArray(tvb,offset,pinfo,tree,drep,hf_samr_samr_QueryGroupMember_rids,0);
 
 	return offset;
 }
 
 /* IDL: NTSTATUS samr_QueryGroupMember( */
 /* IDL: [in] [ref] policy_handle *group_handle, */
-/* IDL: [out] [unique(1)] samr_GetMembersBuffer *rids */
+/* IDL: [out] [ref] samr_RidTypeArray **rids */
 /* IDL: ); */
 
 static int
@@ -11544,25 +11528,25 @@ samr_dissect_element_SetMemberAttributesOfGroup_group_handle_(tvbuff_t *tvb _U_,
 }
 
 static int
-samr_dissect_element_SetMemberAttributesOfGroup_rid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_SetMemberAttributesOfGroup_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_SetMemberAttributesOfGroup_rid, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_SetMemberAttributesOfGroup_unknown1, 0);
 
 	return offset;
 }
 
 static int
-samr_dissect_element_SetMemberAttributesOfGroup_attributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_SetMemberAttributesOfGroup_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_bitmap_SeGroupAttributes(tvb, offset, pinfo, tree, drep, hf_samr_samr_SetMemberAttributesOfGroup_attributes, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_SetMemberAttributesOfGroup_unknown2, 0);
 
 	return offset;
 }
 
 /* IDL: NTSTATUS samr_SetMemberAttributesOfGroup( */
 /* IDL: [in] [ref] policy_handle *group_handle, */
-/* IDL: [in] uint32 rid, */
-/* IDL: [in] samr_SeGroupAttributes attributes */
+/* IDL: [in] uint32 unknown1, */
+/* IDL: [in] uint32 unknown2 */
 /* IDL: ); */
 
 static int
@@ -11585,9 +11569,9 @@ samr_dissect_SetMemberAttributesOfGroup_request(tvbuff_t *tvb _U_, int offset _U
 	pinfo->dcerpc_procedure_name="SetMemberAttributesOfGroup";
 	offset = samr_dissect_element_SetMemberAttributesOfGroup_group_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = samr_dissect_element_SetMemberAttributesOfGroup_rid(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_SetMemberAttributesOfGroup_unknown1(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = samr_dissect_element_SetMemberAttributesOfGroup_attributes(tvb, offset, pinfo, tree, drep);
+	offset = samr_dissect_element_SetMemberAttributesOfGroup_unknown2(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -11704,13 +11688,21 @@ samr_dissect_element_QueryAliasInfo_level(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 samr_dissect_element_QueryAliasInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryAliasInfo_info_, NDR_POINTER_UNIQUE, "Pointer to Info (samr_AliasInfo)",hf_samr_samr_QueryAliasInfo_info);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryAliasInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_AliasInfo)",hf_samr_samr_QueryAliasInfo_info);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_QueryAliasInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryAliasInfo_info__, NDR_POINTER_UNIQUE, "Pointer to Info (samr_AliasInfo)",hf_samr_samr_QueryAliasInfo_info);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryAliasInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = samr_dissect_AliasInfo(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryAliasInfo_info, 0);
 
@@ -11720,7 +11712,7 @@ samr_dissect_element_QueryAliasInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: NTSTATUS samr_QueryAliasInfo( */
 /* IDL: [in] [ref] policy_handle *alias_handle, */
 /* IDL: [in] samr_AliasInfoEnum level, */
-/* IDL: [out] [unique(1)] [switch_is(level)] samr_AliasInfo *info */
+/* IDL: [out] [ref] [switch_is(level)] samr_AliasInfo **info */
 /* IDL: ); */
 
 static int
@@ -12563,13 +12555,21 @@ samr_dissect_element_GetGroupsForUser_user_handle_(tvbuff_t *tvb _U_, int offset
 static int
 samr_dissect_element_GetGroupsForUser_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_GetGroupsForUser_rids_, NDR_POINTER_UNIQUE, "Pointer to Rids (samr_RidWithAttributeArray)",hf_samr_samr_GetGroupsForUser_rids);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_GetGroupsForUser_rids_, NDR_POINTER_REF, "Pointer to Rids (samr_RidWithAttributeArray)",hf_samr_samr_GetGroupsForUser_rids);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_GetGroupsForUser_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_GetGroupsForUser_rids__, NDR_POINTER_UNIQUE, "Pointer to Rids (samr_RidWithAttributeArray)",hf_samr_samr_GetGroupsForUser_rids);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_GetGroupsForUser_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = samr_dissect_struct_RidWithAttributeArray(tvb,offset,pinfo,tree,drep,hf_samr_samr_GetGroupsForUser_rids,0);
 
@@ -12578,7 +12578,7 @@ samr_dissect_element_GetGroupsForUser_rids_(tvbuff_t *tvb _U_, int offset _U_, p
 
 /* IDL: NTSTATUS samr_GetGroupsForUser( */
 /* IDL: [in] [ref] policy_handle *user_handle, */
-/* IDL: [out] [unique(1)] samr_RidWithAttributeArray *rids */
+/* IDL: [out] [ref] samr_RidWithAttributeArray **rids */
 /* IDL: ); */
 
 static int
@@ -13625,6 +13625,14 @@ samr_dissect_element_QueryDisplayInfo3_buf_size(tvbuff_t *tvb _U_, int offset _U
 static int
 samr_dissect_element_QueryDisplayInfo3_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDisplayInfo3_total_size_, NDR_POINTER_REF, "Pointer to Total Size (uint32)",hf_samr_samr_QueryDisplayInfo3_total_size);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryDisplayInfo3_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDisplayInfo3_total_size, 0);
 
 	return offset;
@@ -13633,6 +13641,14 @@ samr_dissect_element_QueryDisplayInfo3_total_size(tvbuff_t *tvb _U_, int offset 
 static int
 samr_dissect_element_QueryDisplayInfo3_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDisplayInfo3_returned_size_, NDR_POINTER_REF, "Pointer to Returned Size (uint32)",hf_samr_samr_QueryDisplayInfo3_returned_size);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryDisplayInfo3_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDisplayInfo3_returned_size, 0);
 
 	return offset;
@@ -13640,6 +13656,14 @@ samr_dissect_element_QueryDisplayInfo3_returned_size(tvbuff_t *tvb _U_, int offs
 
 static int
 samr_dissect_element_QueryDisplayInfo3_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDisplayInfo3_info_, NDR_POINTER_REF, "Pointer to Info (samr_DispInfo)",hf_samr_samr_QueryDisplayInfo3_info);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryDisplayInfo3_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = samr_dissect_DispInfo(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDisplayInfo3_info, 0);
 
@@ -13652,9 +13676,9 @@ samr_dissect_element_QueryDisplayInfo3_info(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: [in] uint32 start_idx, */
 /* IDL: [in] uint32 max_entries, */
 /* IDL: [in] uint32 buf_size, */
-/* IDL: [out] uint32 total_size, */
-/* IDL: [out] uint32 returned_size, */
-/* IDL: [out] [switch_is(level)] samr_DispInfo info */
+/* IDL: [out] [ref] uint32 *total_size, */
+/* IDL: [out] [ref] uint32 *returned_size, */
+/* IDL: [out] [ref] [switch_is(level)] samr_DispInfo *info */
 /* IDL: ); */
 
 static int
@@ -15446,6 +15470,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Samr Field Last Pwd Change", "samr.samr_FieldsPresent.SAMR_FIELD_LAST_PWD_CHANGE", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_LAST_PWD_CHANGE_tfs), ( 0x00040000 ), NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo20_parameters, 
 	  { "Parameters", "samr.samr_UserInfo20.parameters", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo18_lm_pwd, 
+	  { "Lm Pwd", "samr.samr_UserInfo18.lm_pwd", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo1_account_name, 
 	  { "Account Name", "samr.samr_UserInfo1.account_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser2_lm_change, 
@@ -15472,8 +15498,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Logon Script", "samr.samr_UserInfo5.logon_script", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_RidWithAttributeArray_count, 
 	  { "Count", "samr.samr_RidWithAttributeArray.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_SeGroupAttributes_SE_GROUP_ENABLED_BY_DEFAULT, 
-	  { "Se Group Enabled By Default", "samr.samr_SeGroupAttributes.SE_GROUP_ENABLED_BY_DEFAULT", FT_BOOLEAN, 32, TFS(&samr_SeGroupAttributes_SE_GROUP_ENABLED_BY_DEFAULT_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_samr_samr_ValidatePasswordInfo_pwd_history_len, 
 	  { "Pwd History Len", "samr.samr_ValidatePasswordInfo.pwd_history_len", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DispInfoFullGroups_entries, 
@@ -15516,16 +15540,12 @@ void proto_register_dcerpc_samr(void)
 	  { "Max Size", "samr.samr_EnumDomainGroups.max_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_PasswordProperties_DOMAIN_PASSWORD_NO_ANON_CHANGE, 
 	  { "Domain Password No Anon Change", "samr.samr_PasswordProperties.DOMAIN_PASSWORD_NO_ANON_CHANGE", FT_BOOLEAN, 32, TFS(&samr_PasswordProperties_DOMAIN_PASSWORD_NO_ANON_CHANGE_tfs), ( 0x00000002 ), NULL, HFILL }},
-	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_PASSWORD2, 
-	  { "Samr Field Password2", "samr.samr_FieldsPresent.SAMR_FIELD_PASSWORD2", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_PASSWORD2_tfs), ( 0x02000000 ), NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo3_full_name, 
 	  { "Full Name", "samr.samr_UserInfo3.full_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DispEntryAscii_account_name, 
 	  { "Account Name", "samr.samr_DispEntryAscii.account_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo11_logon_script, 
 	  { "Logon Script", "samr.samr_UserInfo11.logon_script", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_Types_types, 
-	  { "Types", "samr.samr_Types.types", FT_UINT32, BASE_DEC, VALS(samr_lsa_SidType_vals), 0, NULL, HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT, 
 	  { "Acb Trust Auth Delegat", "samr.samr_AcctFlags.ACB_TRUST_AUTH_DELEGAT", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_TRUST_AUTH_DELEGAT_tfs), ( 0x00040000 ), NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser_lm_present, 
@@ -15598,8 +15618,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Acb Svrtrust", "samr.samr_AcctFlags.ACB_SVRTRUST", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_SVRTRUST_tfs), ( 0x00000100 ), NULL, HFILL }},
 	{ &hf_samr_samr_DomGeneralInformation_oem_information, 
 	  { "Oem Information", "samr.samr_DomGeneralInformation.oem_information", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_SetMemberAttributesOfGroup_attributes, 
-	  { "Attributes", "samr.samr_SetMemberAttributesOfGroup.attributes", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo_info8, 
 	  { "Info8", "samr.samr_UserInfo.info8", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo25_info, 
@@ -15620,12 +15638,12 @@ void proto_register_dcerpc_samr(void)
 	  { "Resume Handle", "samr.samr_EnumDomainAliases.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DomGeneralInformation_num_aliases, 
 	  { "Num Aliases", "samr.samr_DomGeneralInformation.num_aliases", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_EnumDomainAliases_max_size, 
+	  { "Max Size", "samr.samr_EnumDomainAliases.max_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_full_name, 
 	  { "Full Name", "samr.samr_UserInfo21.full_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_GetDomPwInfo_domain_name, 
 	  { "Domain Name", "samr.samr_GetDomPwInfo.domain_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_GetMembersBuffer_attributes, 
-	  { "Attributes", "samr.samr_GetMembersBuffer.attributes", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo3_primary_gid, 
 	  { "Primary Gid", "samr.samr_UserInfo3.primary_gid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_LOOKUP_INFO, 
@@ -15644,6 +15662,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Fields Present", "samr.samr_ValidatePasswordInfo.fields_present", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_REMOVE_MEMBER, 
 	  { "Samr Group Access Remove Member", "samr.samr_GroupAccessMask.SAMR_GROUP_ACCESS_REMOVE_MEMBER", FT_BOOLEAN, 32, TFS(&samr_GroupAccessMask_SAMR_GROUP_ACCESS_REMOVE_MEMBER_tfs), ( 0x00000008 ), NULL, HFILL }},
+	{ &hf_samr_samr_SetMemberAttributesOfGroup_unknown1, 
+	  { "Unknown1", "samr.samr_SetMemberAttributesOfGroup.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_GetDisplayEnumerationIndex2_level, 
 	  { "Level", "samr.samr_GetDisplayEnumerationIndex2.level", FT_UINT1632, BASE_DEC, VALS(samr_samr_DomainDisplayInformation_vals), 0, NULL, HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_ENC_TXT_PWD_ALLOWED, 
@@ -15670,6 +15690,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Client Version", "samr.samr_ConnectInfo1.client_version", FT_UINT32, BASE_DEC, VALS(samr_samr_ConnectVersion_vals), 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo5_acct_flags, 
 	  { "Acct Flags", "samr.samr_UserInfo5.acct_flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo24_password_expired, 
+	  { "Password Expired", "samr.samr_UserInfo24.password_expired", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_NOT_DELEGATED, 
 	  { "Acb Not Delegated", "samr.samr_AcctFlags.ACB_NOT_DELEGATED", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_NOT_DELEGATED_tfs), ( 0x00004000 ), NULL, HFILL }},
 	{ &hf_samr_samr_SetDsrmPassword_name, 
@@ -15786,6 +15808,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Samr Access Initialize Server", "samr.samr_ConnectAccessMask.SAMR_ACCESS_INITIALIZE_SERVER", FT_BOOLEAN, 32, TFS(&samr_ConnectAccessMask_SAMR_ACCESS_INITIALIZE_SERVER_tfs), ( 0x00000004 ), NULL, HFILL }},
 	{ &hf_samr_samr_DispEntryFull_acct_flags, 
 	  { "Acct Flags", "samr.samr_DispEntryFull.acct_flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_DomInfo13_modified_count_at_last_promotion, 
+	  { "Modified Count At Last Promotion", "samr.samr_DomInfo13.modified_count_at_last_promotion", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_GetAliasMembership_sids, 
 	  { "Sids", "samr.samr_GetAliasMembership.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo_info1, 
@@ -15794,6 +15818,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Se Group Resource", "samr.samr_GroupAttrs.SE_GROUP_RESOURCE", FT_BOOLEAN, 32, TFS(&samr_GroupAttrs_SE_GROUP_RESOURCE_tfs), ( 0x20000000 ), NULL, HFILL }},
 	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_DESCRIPTION, 
 	  { "Samr Field Description", "samr.samr_FieldsPresent.SAMR_FIELD_DESCRIPTION", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_DESCRIPTION_tfs), ( 0x00000010 ), NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo18_nt_pwd, 
+	  { "Nt Pwd", "samr.samr_UserInfo18.nt_pwd", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo23_password, 
 	  { "Password", "samr.samr_UserInfo23.password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_last_logoff, 
@@ -15804,6 +15830,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Resume Handle", "samr.samr_EnumDomainUsers.resume_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ValidatePasswordRepCtr_status, 
 	  { "Status", "samr.samr_ValidatePasswordRepCtr.status", FT_UINT1632, BASE_DEC, VALS(samr_samr_ValidationStatus_vals), 0, NULL, HFILL }},
+	{ &hf_samr_samr_SetMemberAttributesOfGroup_unknown2, 
+	  { "Unknown2", "samr.samr_SetMemberAttributesOfGroup.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DomainInfo_general2, 
 	  { "General2", "samr.samr_DomainInfo.general2", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DispInfoFull_count, 
@@ -15838,6 +15866,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Samr Field Rid", "samr.samr_FieldsPresent.SAMR_FIELD_RID", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_RID_tfs), ( 0x00000004 ), NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo_info23, 
 	  { "Info23", "samr.samr_UserInfo.info23", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo18_password_expired, 
+	  { "Password Expired", "samr.samr_UserInfo18.password_expired", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_QueryDisplayInfo2_total_size, 
 	  { "Total Size", "samr.samr_QueryDisplayInfo2.total_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo25_password, 
@@ -15906,6 +15936,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Access Mask", "samr.user.access_mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DomGeneralInformation_sequence_num, 
 	  { "Sequence Num", "samr.samr_DomGeneralInformation.sequence_num", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo26_password_expired, 
+	  { "Password Expired", "samr.samr_UserInfo26.password_expired", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser_old_lm_crypted, 
 	  { "Old Lm Crypted", "samr.samr_ChangePasswordUser.old_lm_crypted", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_AliasAccessMask_SAMR_ALIAS_ACCESS_GET_MEMBERS, 
@@ -15956,8 +15988,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Ctr2", "samr.samr_ValidatePasswordRep.ctr2", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo_info24, 
 	  { "Info24", "samr.samr_UserInfo.info24", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_SeGroupAttributes_SE_GROUP_MANDATORY, 
-	  { "Se Group Mandatory", "samr.samr_SeGroupAttributes.SE_GROUP_MANDATORY", FT_BOOLEAN, 32, TFS(&samr_SeGroupAttributes_SE_GROUP_MANDATORY_tfs), ( 0x00000001 ), NULL, HFILL }},
 	{ &hf_samr_samr_DomainInfo_info3, 
 	  { "Info3", "samr.samr_DomainInfo.info3", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_EnumDomainGroups_num_entries, 
@@ -16018,8 +16048,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Lockout Threshold", "samr.samr_DomGeneralInformation2.lockout_threshold", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_last_password_change, 
 	  { "Last Password Change", "samr.samr_UserInfo21.last_password_change", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_GetMembersBuffer_rids, 
-	  { "Rids", "samr.samr_GetMembersBuffer.rids", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser2_account, 
 	  { "Account", "samr.samr_ChangePasswordUser2.account", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser3_lm_password, 
@@ -16044,8 +16072,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Allow Password Change", "samr.samr_UserInfo3.allow_password_change", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_QueryDomainInfo2_level, 
 	  { "Level", "samr.samr_QueryDomainInfo2.level", FT_UINT1632, BASE_DEC, VALS(samr_samr_DomainInfoClass_vals), 0, NULL, HFILL }},
-	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_PASSWORD, 
-	  { "Samr Field Password", "samr.samr_FieldsPresent.SAMR_FIELD_PASSWORD", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_PASSWORD_tfs), ( 0x01000000 ), NULL, HFILL }},
 	{ &hf_samr_samr_GetDisplayEnumerationIndex_name, 
 	  { "Name", "samr.samr_GetDisplayEnumerationIndex.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ValidatePasswordReq3_info, 
@@ -16062,6 +16088,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Primary", "samr.samr_DomGeneralInformation.primary", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_SHUTDOWN_SERVER, 
 	  { "Samr Access Shutdown Server", "samr.samr_ConnectAccessMask.SAMR_ACCESS_SHUTDOWN_SERVER", FT_BOOLEAN, 32, TFS(&samr_ConnectAccessMask_SAMR_ACCESS_SHUTDOWN_SERVER_tfs), ( 0x00000002 ), NULL, HFILL }},
+	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_LM_PASSWORD_PRESENT, 
+	  { "Samr Field Lm Password Present", "samr.samr_FieldsPresent.SAMR_FIELD_LM_PASSWORD_PRESENT", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_LM_PASSWORD_PRESENT_tfs), ( 0x02000000 ), NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo5_home_drive, 
 	  { "Home Drive", "samr.samr_UserInfo5.home_drive", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_RemoveMemberFromForeignDomain_sid, 
@@ -16070,20 +16098,18 @@ void proto_register_dcerpc_samr(void)
 	  { "Samr Field Force Pwd Change", "samr.samr_FieldsPresent.SAMR_FIELD_FORCE_PWD_CHANGE", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_FORCE_PWD_CHANGE_tfs), ( 0x00020000 ), NULL, HFILL }},
 	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_LAST_LOGOFF, 
 	  { "Samr Field Last Logoff", "samr.samr_FieldsPresent.SAMR_FIELD_LAST_LOGOFF", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_LAST_LOGOFF_tfs), ( 0x00001000 ), NULL, HFILL }},
+	{ &hf_samr_samr_Password_hash, 
+	  { "Hash", "samr.samr_Password.hash", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_OWF_PWD, 
 	  { "Samr Field Owf Pwd", "samr.samr_FieldsPresent.SAMR_FIELD_OWF_PWD", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_OWF_PWD_tfs), ( 0x20000000 ), NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo_info25, 
 	  { "Info25", "samr.samr_UserInfo.info25", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_Password_hash, 
-	  { "Hash", "samr.samr_Password.hash", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo3_home_drive, 
 	  { "Home Drive", "samr.samr_UserInfo3.home_drive", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_QueryDisplayInfo_start_idx, 
 	  { "Start Idx", "samr.samr_QueryDisplayInfo.start_idx", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo_info13, 
 	  { "Info13", "samr.samr_UserInfo.info13", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_DomainStateInformation_state, 
-	  { "State", "samr.samr_DomainStateInformation.state", FT_UINT32, BASE_DEC, VALS(samr_samr_DomainServerEnableState_vals), 0, NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser2_nt_password, 
 	  { "Nt Password", "samr.samr_ChangePasswordUser2.nt_password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ValidatePasswordInfo_bad_pwd_count, 
@@ -16116,22 +16142,20 @@ void proto_register_dcerpc_samr(void)
 	  { "Info12", "samr.samr_UserInfo.info12", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_OemChangePasswordUser2_password, 
 	  { "Password", "samr.samr_OemChangePasswordUser2.password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_RidTypeArray_types, 
+	  { "Types", "samr.samr_RidTypeArray.types", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_CREATE_ALIAS, 
 	  { "Samr Domain Access Create Alias", "samr.samr_DomainAccessMask.SAMR_DOMAIN_ACCESS_CREATE_ALIAS", FT_BOOLEAN, 32, TFS(&samr_DomainAccessMask_SAMR_DOMAIN_ACCESS_CREATE_ALIAS_tfs), ( 0x00000040 ), NULL, HFILL }},
 	{ &hf_samr_opnum, 
 	  { "Operation", "samr.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser3_server, 
 	  { "Server", "samr.samr_ChangePasswordUser3.server", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_UserInfo24_pw_len, 
-	  { "Pw Len", "samr.samr_UserInfo24.pw_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_GetDisplayEnumerationIndex2_name, 
 	  { "Name", "samr.samr_GetDisplayEnumerationIndex2.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_GroupAccessMask_SAMR_GROUP_ACCESS_LOOKUP_INFO, 
 	  { "Samr Group Access Lookup Info", "samr.samr_GroupAccessMask.SAMR_GROUP_ACCESS_LOOKUP_INFO", FT_BOOLEAN, 32, TFS(&samr_GroupAccessMask_SAMR_GROUP_ACCESS_LOOKUP_INFO_tfs), ( 0x00000001 ), NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo14_workstations, 
 	  { "Workstations", "samr.samr_UserInfo14.workstations", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_DomInfo13_unknown1, 
-	  { "Unknown1", "samr.samr_DomInfo13.unknown1", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DispInfo_info3, 
 	  { "Info3", "samr.samr_DispInfo.info3", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DomainInfo_info8, 
@@ -16140,8 +16164,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Entries", "samr.samr_DispInfoGeneral.entries", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo8_full_name, 
 	  { "Full Name", "samr.samr_UserInfo8.full_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_SeGroupAttributes_SE_GROUP_ENABLED, 
-	  { "Se Group Enabled", "samr.samr_SeGroupAttributes.SE_GROUP_ENABLED", FT_BOOLEAN, 32, TFS(&samr_SeGroupAttributes_SE_GROUP_ENABLED_tfs), ( 0x00000004 ), NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_logon_count, 
 	  { "Logon Count", "samr.samr_UserInfo21.logon_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_code_page, 
@@ -16160,14 +16182,14 @@ void proto_register_dcerpc_samr(void)
 	  { "Acct Flags", "samr.samr_CreateUser2.acct_flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_lsa_String_name_len, 
 	  { "Name Len", "samr.lsa_String.name_len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_EnumDomainAliases_acct_flags, 
-	  { "Acct Flags", "samr.samr_EnumDomainAliases.acct_flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_HOME_DRIVE, 
 	  { "Samr Field Home Drive", "samr.samr_FieldsPresent.SAMR_FIELD_HOME_DRIVE", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_HOME_DRIVE_tfs), ( 0x00000080 ), NULL, HFILL }},
 	{ &hf_samr_samr_DomainInfo_info1, 
 	  { "Info1", "samr.samr_DomainInfo.info1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ValidatePasswordRep_ctr1, 
 	  { "Ctr1", "samr.samr_ValidatePasswordRep.ctr1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo18_nt_pwd_active, 
+	  { "Nt Pwd Active", "samr.samr_UserInfo18.nt_pwd_active", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_AcctFlags_ACB_DOMTRUST, 
 	  { "Acb Domtrust", "samr.samr_AcctFlags.ACB_DOMTRUST", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_DOMTRUST_tfs), ( 0x00000040 ), NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser_lm_cross, 
@@ -16246,8 +16268,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Logon Hours", "samr.samr_UserInfo21.logon_hours", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_country_code, 
 	  { "Country Code", "samr.samr_UserInfo21.country_code", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_DomInfo13_unknown2, 
-	  { "Unknown2", "samr.samr_DomInfo13.unknown2", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_SetDsrmPassword_hash, 
 	  { "Hash", "samr.samr_SetDsrmPassword.hash", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DomainInfo_general, 
@@ -16276,10 +16296,14 @@ void proto_register_dcerpc_samr(void)
 	  { "Acb Trusted For Delegation", "samr.samr_AcctFlags.ACB_TRUSTED_FOR_DELEGATION", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_TRUSTED_FOR_DELEGATION_tfs), ( 0x00002000 ), NULL, HFILL }},
 	{ &hf_samr_samr_EnumDomains_connect_handle, 
 	  { "Connect Handle", "samr.samr_EnumDomains.connect_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo_info18, 
+	  { "Info18", "samr.samr_UserInfo.info18", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_force_password_change, 
 	  { "Force Password Change", "samr.samr_UserInfo21.force_password_change", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_nt_password, 
 	  { "Nt Password", "samr.samr_UserInfo21.nt_password", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_DomGeneralInformation_domain_server_state, 
+	  { "Domain Server State", "samr.samr_DomGeneralInformation.domain_server_state", FT_UINT32, BASE_DEC, VALS(samr_samr_DomainServerState_vals), 0, NULL, HFILL }},
 	{ &hf_samr_samr_SetBootKeyInformation_unknown3, 
 	  { "Unknown3", "samr.samr_SetBootKeyInformation.unknown3", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_EnumDomainUsers_num_entries, 
@@ -16290,6 +16314,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Num Names", "samr.samr_LookupNames.num_names", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_QueryDisplayInfo3_level, 
 	  { "Level", "samr.samr_QueryDisplayInfo3.level", FT_UINT1632, BASE_DEC, VALS(samr_samr_DomainDisplayInformation_vals), 0, NULL, HFILL }},
+	{ &hf_samr_samr_RidTypeArray_count, 
+	  { "Count", "samr.samr_RidTypeArray.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_QueryDisplayInfo2_max_entries, 
 	  { "Max Entries", "samr.samr_QueryDisplayInfo2.max_entries", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ValidatePasswordInfo_last_password_change, 
@@ -16298,20 +16324,16 @@ void proto_register_dcerpc_samr(void)
 	  { "Samr User Access Get Locale", "samr.samr_UserAccessMask.SAMR_USER_ACCESS_GET_LOCALE", FT_BOOLEAN, 32, TFS(&samr_UserAccessMask_SAMR_USER_ACCESS_GET_LOCALE_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_LOGON_HOURS, 
 	  { "Samr Field Logon Hours", "samr.samr_FieldsPresent.SAMR_FIELD_LOGON_HOURS", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_LOGON_HOURS_tfs), ( 0x00002000 ), NULL, HFILL }},
-	{ &hf_samr_samr_UserInfo26_pw_len, 
-	  { "Pw Len", "samr.samr_UserInfo26.pw_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ChangePasswordUser3_dominfo, 
 	  { "Dominfo", "samr.samr_ChangePasswordUser3.dominfo", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ValidationBlob_data, 
 	  { "Data", "samr.samr_ValidationBlob.data", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_UserInfo18_lm_pwd_active, 
+	  { "Lm Pwd Active", "samr.samr_UserInfo18.lm_pwd_active", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo_info26, 
 	  { "Info26", "samr.samr_UserInfo.info26", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_GroupInfoAll_attributes, 
 	  { "Attributes", "samr.samr_GroupInfoAll.attributes", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_Types_count, 
-	  { "Count", "samr.samr_Types.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_GetMembersBuffer_count, 
-	  { "Count", "samr.samr_GetMembersBuffer.count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DomainInfo_info7, 
 	  { "Info7", "samr.samr_DomainInfo.info7", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CONNECT_TO_SERVER, 
@@ -16320,8 +16342,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Num Entries", "samr.samr_EnumDomains.num_entries", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_parameters, 
 	  { "Parameters", "samr.samr_UserInfo21.parameters", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_DomGeneralInformation_state, 
-	  { "State", "samr.samr_DomGeneralInformation.state", FT_UINT32, BASE_DEC, VALS(samr_samr_DomainServerEnableState_vals), 0, NULL, HFILL }},
 	{ &hf_samr_samr_DispEntryGeneral_acct_flags, 
 	  { "Acct Flags", "samr.samr_DispEntryGeneral.acct_flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_connect_handle, 
@@ -16368,6 +16388,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Info", "samr.samr_ValidatePasswordRepCtr.info", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_SetGroupInfo_level, 
 	  { "Level", "samr.samr_SetGroupInfo.level", FT_UINT1632, BASE_DEC, VALS(samr_samr_GroupInfoEnum_vals), 0, NULL, HFILL }},
+	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_NT_PASSWORD_PRESENT, 
+	  { "Samr Field Nt Password Present", "samr.samr_FieldsPresent.SAMR_FIELD_NT_PASSWORD_PRESENT", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_NT_PASSWORD_PRESENT_tfs), ( 0x01000000 ), NULL, HFILL }},
 	{ &hf_samr_samr_UserAccessMask_SAMR_USER_ACCESS_SET_PASSWORD, 
 	  { "Samr User Access Set Password", "samr.samr_UserAccessMask.SAMR_USER_ACCESS_SET_PASSWORD", FT_BOOLEAN, 32, TFS(&samr_UserAccessMask_SAMR_USER_ACCESS_SET_PASSWORD_tfs), ( 0x00000080 ), NULL, HFILL }},
 	{ &hf_samr_samr_SetUserInfo2_level, 
@@ -16458,8 +16480,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Allow Password Change", "samr.samr_UserInfo21.allow_password_change", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ConnectInfo_info1, 
 	  { "Info1", "samr.samr_ConnectInfo.info1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_SetMemberAttributesOfGroup_rid, 
-	  { "Rid", "samr.samr_SetMemberAttributesOfGroup.rid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_FULL_NAME, 
 	  { "Samr Field Full Name", "samr.samr_FieldsPresent.SAMR_FIELD_FULL_NAME", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_FULL_NAME_tfs), ( 0x00000002 ), NULL, HFILL }},
 	{ &hf_samr_samr_AliasInfoAll_description, 
@@ -16481,7 +16501,6 @@ void proto_register_dcerpc_samr(void)
 		&ett_samr_samr_SamArray,
 		&ett_samr_samr_PasswordProperties,
 		&ett_samr_samr_DomInfo1,
-		&ett_samr_samr_DomainStateInformation,
 		&ett_samr_samr_DomGeneralInformation,
 		&ett_samr_samr_DomInfo3,
 		&ett_samr_samr_DomOEMInformation,
@@ -16495,14 +16514,12 @@ void proto_register_dcerpc_samr(void)
 		&ett_samr_samr_DomInfo13,
 		&ett_samr_samr_DomainInfo,
 		&ett_samr_samr_Ids,
-		&ett_samr_samr_Types,
 		&ett_samr_samr_GroupAttrs,
 		&ett_samr_samr_GroupInfoAll,
 		&ett_samr_samr_GroupInfoAttributes,
 		&ett_samr_samr_GroupInfoDescription,
 		&ett_samr_samr_GroupInfo,
-		&ett_samr_samr_SeGroupAttributes,
-		&ett_samr_samr_GetMembersBuffer,
+		&ett_samr_samr_RidTypeArray,
 		&ett_samr_samr_AliasInfoAll,
 		&ett_samr_samr_AliasInfo,
 		&ett_samr_samr_UserInfo1,
@@ -16522,6 +16539,8 @@ void proto_register_dcerpc_samr(void)
 		&ett_samr_samr_UserInfo14,
 		&ett_samr_samr_UserInfo16,
 		&ett_samr_samr_UserInfo17,
+		&ett_samr_samr_Password,
+		&ett_samr_samr_UserInfo18,
 		&ett_samr_samr_UserInfo20,
 		&ett_samr_samr_FieldsPresent,
 		&ett_samr_samr_UserInfo21,
@@ -16532,7 +16551,6 @@ void proto_register_dcerpc_samr(void)
 		&ett_samr_samr_UserInfo25,
 		&ett_samr_samr_UserInfo26,
 		&ett_samr_samr_UserInfo,
-		&ett_samr_samr_Password,
 		&ett_samr_samr_RidWithAttribute,
 		&ett_samr_samr_RidWithAttributeArray,
 		&ett_samr_samr_DispEntryGeneral,
