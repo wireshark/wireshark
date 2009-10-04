@@ -2162,6 +2162,7 @@ static int
 cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint64 len;
+	guint32 len32;
 	dcerpc_info *di = NULL;
 	e_ctx_hnd *polhnd = NULL;
 	dcerpc_call_value *dcv = NULL;
@@ -2174,6 +2175,10 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 	}
 	offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 		hf_samr_sec_desc_buf_len, &len);
+
+	DISSECTOR_ASSERT(len<=G_MAXUINT32);
+	len32 = (guint32)len;
+
 	dcv = (dcerpc_call_value *)di->call_data;
 	if(dcv){
 		polhnd = dcv->pol;
@@ -2199,8 +2204,8 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		ami=&samr_alias_access_mask_info;
 		break;
 	}
-	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len, ami);
-	offset += len;
+	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len32, ami);
+	offset += len32;
 	return offset;
 }
 static int
