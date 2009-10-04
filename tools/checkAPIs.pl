@@ -218,8 +218,10 @@ my %deprecatedGtkFunctions = (
                 'gtk_about_dialog_set_name',                   'E',
                 'gtk_accel_group_ref',                         'E',
                 'gtk_accel_group_unref',                       'E',
-		'gtk_action_block_activate_from',              'E',
-		'gtk_action_unblock_activate_from',            'E',
+				'gtk_action_block_activate_from',              'E',
+				'gtk_action_connect_proxy',					   'E',
+				'gtk_action_disconnect_proxy',				   'E',
+				'gtk_action_unblock_activate_from',            'E',
                 'gtk_binding_entry_add',                       'E',
                 'gtk_binding_entry_add_signall',               'E',
                 'gtk_binding_entry_clear',                     'E',
@@ -466,7 +468,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_file_selection_set_filename',             'E',
                 'gtk_file_selection_set_select_multiple',      'E',
                 'gtk_file_selection_show_fileop_buttons',      'E',
-		'gtk_font_selection_dialog_get_apply_button',  'E',
+				'gtk_font_selection_dialog_get_apply_button',  'E',
                 'gtk_font_selection_dialog_get_font',          'E',
                 'gtk_font_selection_get_font',                 'E', # gtk_font_selection_get_font_name [!=]
                 'GTK_FUNDAMENTAL_TYPE',                        'E',
@@ -804,7 +806,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_vbutton_box_get_spacing_default',         'E',
                 'gtk_vbutton_box_set_layout_default',          'E',
                 'gtk_vbutton_box_set_spacing_default',         'E',
-                'gtk_widget_draw',                             'W', # gtk_widget_queue_draw_area(): 
+                'gtk_widget_draw',                             'E', # gtk_widget_queue_draw_area(): 
                                                                     #  "in general a better choice if you want
                                                                     #  to draw a region of a widget."
                 'gtk_widget_pop_visual',                       'E',

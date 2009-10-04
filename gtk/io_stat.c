@@ -1644,13 +1644,14 @@ count_type_select(GtkWidget *item, gpointer key)
 			disable_graph(&io->graphs[i]);
 			gtk_widget_show(io->graphs[i].advanced_buttons);
 /* redraw the entire window so the unhidden widgets show up, hopefully */
-{GdkRectangle update_rect;
-update_rect.x=0;
-update_rect.y=0;
-update_rect.width=io->window->allocation.width;
-update_rect.height=io->window->allocation.height;
-gtk_widget_draw(io->window, &update_rect);
-}
+	gtk_widget_queue_draw_area(io->window,
+						   0,
+						   0,
+						   io->window->allocation.width,
+						   io->window->allocation.height);
+
+
+
 		}
 		advanced_visible=TRUE;
 		io_stat_redraw(io);
