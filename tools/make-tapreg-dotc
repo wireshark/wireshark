@@ -28,7 +28,8 @@ echo '#include "register.h"' >>${outfile}-tmp
 #
 # Build code to call all the tap listener registration routines.
 #
-echo -e 'void register_all_tap_listeners(void)\n{' >>${outfile}-tmp
+echo 'void register_all_tap_listeners(void){' >>${outfile}-tmp
+echo '' >>${outfile}-tmp
 for f in "$@"
 do
 	if [ -f $f ]
@@ -42,6 +43,7 @@ done | while read func; do
 	echo "  { extern void $func(void);" >>${outfile}-tmp
 	echo "    $func();}" >>${outfile}-tmp
 done 
-echo -e '}\n' >>${outfile}-tmp
+echo '}' >>${outfile}-tmp
+echo '' >>${outfile}-tmp
 
 mv ${outfile}-tmp ${outfile}
