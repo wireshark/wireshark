@@ -389,10 +389,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compact DL-MAP IEs");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compact DL-MAP IEs");
 #endif
 	/* set the local offset */
 	dl_map_offset = offset;
@@ -995,10 +992,7 @@ static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tre
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Format Configuration IE");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Format Configuration IE");
 #endif
 	/* set the local offset */
 	dl_map_offset = offset;
@@ -1118,10 +1112,7 @@ static guint wimax_compact_dlmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RCID IE");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RCID IE");
 #endif
 	if(nibble_offset & 1)
 	{
@@ -1210,10 +1201,7 @@ static guint wimax_compact_dlmap_harq_control_ie_decoder(proto_tree *tree, packe
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "HARQ Control IE");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "HARQ Control IE");
 #endif
 	/* Get the first byte */
 	byte = tvb_get_guint8(tvb, offset);
@@ -1270,10 +1258,7 @@ static guint wimax_compact_dlmap_cqich_control_ie_decoder(proto_tree *tree, pack
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CQICH Control IE");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CQICH Control IE");
 #endif
 	/* Get the first byte */
 	byte = tvb_get_guint8(tvb, offset);
@@ -1342,10 +1327,7 @@ static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 
 #ifdef DEBUG
 	/* update the info column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DL-MAP Extension IE");
-	}
+	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DL-MAP Extension IE");
 #endif
 	/* Get the first 16-bit word */
 	tvb_value = tvb_get_ntohs(tvb, offset);
