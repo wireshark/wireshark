@@ -74,7 +74,7 @@ sctp_error_on_select_row(GtkTreeSelection *sel, gpointer user_data _U_)
 }
 
 static
-GtkWidget *create_list()
+GtkWidget *create_list(void)
 {
 	GtkListStore *list_store;
 	GtkWidget * list;
