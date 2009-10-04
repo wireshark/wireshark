@@ -997,7 +997,8 @@ static int
 dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si, int mode)
 {
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
-	dcerpc_info di;	/* fake dcerpc_info struct */
+	static dcerpc_info di;	/* fake dcerpc_info struct */
+	static dcerpc_call_value call_data;
 	void *old_private_data;
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item=NULL;
@@ -1005,7 +1006,8 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	guint32 open_frame = 0, close_frame = 0;
 
 	di.conformant_run=0;
-	di.call_data=NULL;
+	/* we need di->call_data->flags.NDR64 == 0 */
+	di.call_data=&call_data;
 	old_private_data=pinfo->private_data;
 	pinfo->private_data=&di;
 
