@@ -83,9 +83,9 @@ dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = pinfo->private_data;
 	guint16 len, size;
 
-        /* Structure starts with short, but is aligned for longs */
+        /* Structure starts with short, but is aligned for pointer */
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	if (di->conformant_run)
 		return offset;
@@ -108,6 +108,10 @@ dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 			"Character Array", hf_index, callback, callback_args);
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -186,9 +190,9 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 	proto_tree *subtree;
 	guint16 len, size;
 
-        /* Structure starts with short, but is aligned for longs */
+        /* Structure starts with short, but is aligned for pointer */
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	if (di->conformant_run)
 		return offset;
@@ -216,6 +220,10 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, subtree, drep,
 			dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
 			"Byte Array", hf_index, callback, callback_args);
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -292,9 +300,9 @@ dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
 	proto_tree *subtree;
 	guint16 len, size;
 
-        /* Structure starts with short, but is aligned for longs */
+        /* Structure starts with short, but is aligned for pointer */
 
-	ALIGN_TO_4_BYTES;
+	ALIGN_TO_5_BYTES;
 
 	if (di->conformant_run)
 		return offset;
@@ -322,6 +330,10 @@ dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, subtree, drep,
 			dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
 			"Ascii String", hf_index, callback, callback_args);
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
