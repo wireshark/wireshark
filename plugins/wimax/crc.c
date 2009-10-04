@@ -61,7 +61,7 @@ void wimax_mac_gen_crc32_table(void)
   guint32 crc;
 
   /* little-endian (reflected) algorithm */
-  for ( index = 0;  index < 256;  index++ )
+  for ( index = 0;  index < G_N_ELEMENTS(crc32_table);  index++ )
   { 
     crc = ( index << 24 );
     for ( bit = 0;  bit < 8;  bit++ )
@@ -95,7 +95,7 @@ void wimax_mac_gen_crc8_table(void)
   guint  index, bit;
   guint8 crc;
   
-  for ( index = 0;  index < 256;  index++ )
+  for ( index = 0;  index < G_N_ELEMENTS(crc8_table);  index++ )
   { 
     crc = index;
     for ( bit = 0;  bit < 8;  bit++ )
