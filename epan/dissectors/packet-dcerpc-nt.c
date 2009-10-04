@@ -1572,6 +1572,7 @@ dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
 	guint32 count;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	dcerpc_info *di = pinfo->private_data;
 	int old_offset=offset;
 
 	if(parent_tree){
@@ -1580,6 +1581,8 @@ dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
 		tree = proto_item_add_subtree(item, ett_nt_sid_array);
 	}
 
+	ALIGN_TO_5_BYTES;
+
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_nt_count, &count);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -1587,6 +1590,11 @@ dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
 			"PSID_ARRAY", -1);
 
 	proto_item_set_len(item, offset-old_offset);
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
+
 	return offset;
 }
 
