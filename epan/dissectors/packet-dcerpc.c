@@ -1043,7 +1043,8 @@ dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
             proto_tree_add_int64(tree, hfindex, tvb, offset, 8, data);
 	    break;
 	default:
-            proto_tree_add_uint(tree, hfindex, tvb, offset, 8, data);
+			DISSECTOR_ASSERT(data<=G_MAXUINT32);
+            proto_tree_add_uint(tree, hfindex, tvb, offset, 8, (guint32)data);
         }
     }
     if (pdata)
@@ -1203,7 +1204,7 @@ dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		di->conformant_run=0;
 		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_max_count, &val);
-		di->array_max_count = val;
+		di->array_max_count = (gint32)val;
 		di->array_max_count_offset=offset-conformance_size;
 		di->conformant_run=1;
 		di->conformant_eaten=offset-old_offset;
@@ -1244,15 +1245,18 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		di->conformant_run=0;
 		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_max_count, &val);
-		di->array_max_count = val;
+		DISSECTOR_ASSERT(val<=G_MAXUINT32);
+		di->array_max_count = (guint32)val;
 		di->array_max_count_offset=offset-conformance_size;
 		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_offset, &val);
-		di->array_offset = val;
+		DISSECTOR_ASSERT(val<=G_MAXUINT32);
+		di->array_offset = (guint32)val;
 		di->array_offset_offset=offset-conformance_size;
 		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_actual_count, &val);
-		di->array_actual_count=val;
+		DISSECTOR_ASSERT(val<=G_MAXUINT32);
+		di->array_actual_count=(guint32)val;
 		di->array_actual_count_offset=offset-conformance_size;
 		di->conformant_run=1;
 		di->conformant_eaten=offset-old_offset;
@@ -1298,11 +1302,13 @@ dissect_ndr_uvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		di->conformant_run=0;
 		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_offset, &val);
-		di->array_offset=val;
+		DISSECTOR_ASSERT(val<=G_MAXUINT32);
+		di->array_offset=(guint32)val;
 		di->array_offset_offset=offset-conformance_size;
 		offset = dissect_ndr_uint3264 (tvb, offset, pinfo, tree, drep,
 				hf_dcerpc_array_actual_count, &val);
-		di->array_actual_count=val;
+		DISSECTOR_ASSERT(val<=G_MAXUINT32);
+		di->array_actual_count=(guint32)val;
 		di->array_actual_count_offset=offset-conformance_size;
 		di->conformant_run=1;
 		di->conformant_eaten=offset-old_offset;
@@ -1359,13 +1365,14 @@ dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, drep,
                                 hf_dcerpc_array_actual_count, &len);
 
+	DISSECTOR_ASSERT(len<=G_MAXUINT32);
     if (tree && len) {
-        tvb_ensure_bytes_exist(tvb, offset, len);
+        tvb_ensure_bytes_exist(tvb, offset, (guint32)len);
         proto_tree_add_item(tree, hf_dcerpc_array_buffer,
-                            tvb, offset, len, drep[0] & 0x10);
+                            tvb, offset, (guint32)len, drep[0] & 0x10);
     }
 
-    offset += len;
+    offset += (guint32)len;
 
     return offset;
 }
@@ -1417,7 +1424,8 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = dissect_ndr_uint3264(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_actual_count, &len);
 
-    buffer_len = size_is * len;
+	DISSECTOR_ASSERT(len<=G_MAXUINT32);
+    buffer_len = size_is * (guint32)len;
 
     /* Adjust offset */
     if (offset % size_is)
@@ -1603,7 +1611,8 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = dissect_ndr_uint3264(tvb, offset, pinfo, string_tree, drep,
                                 hf_dcerpc_array_actual_count, &len);
 
-    buffer_len = size_is * len;
+	DISSECTOR_ASSERT(len<=G_MAXUINT32);
+    buffer_len = size_is * (guint32)len;
 
     /* Adjust offset */
     if (offset % size_is)
@@ -1987,7 +1996,8 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		}
 
 		/* see if we have seen this pointer before */
-		idx=find_pointer_index(id);
+		DISSECTOR_ASSERT(id<=G_MAXUINT32);
+		idx=find_pointer_index((guint32)id);
 
 		/* we have seen this pointer before */
 		if(idx>=0){
@@ -2003,8 +2013,8 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			"%s", text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
 		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
-			offset-pointer_size, pointer_size, id);
-		add_pointer_to_list(pinfo, tr, item, fnct, id, hf_index,
+			offset-pointer_size, pointer_size, (guint32)id);
+		add_pointer_to_list(pinfo, tr, item, fnct, (guint32)id, hf_index,
 				    callback, callback_args);
 		goto after_ref_id;
 	}
@@ -2027,12 +2037,13 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		}
 
 		/* new pointer */
+		DISSECTOR_ASSERT(id<=G_MAXUINT32);
 		item=proto_tree_add_text(tree, tvb, offset-pointer_size,
 			pointer_size,
 			"%s", text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
 		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
-			offset-pointer_size, pointer_size, id);
+			offset-pointer_size, pointer_size, (guint32)id);
 		add_pointer_to_list(pinfo, tr, item, fnct, 0xffffffff,
 				    hf_index, callback, callback_args);
 		goto after_ref_id;
@@ -2053,8 +2064,9 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			pointer_size,
 			"%s",text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
+		DISSECTOR_ASSERT(id<=G_MAXUINT32);
 		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
-			offset-pointer_size, pointer_size, id);
+			offset-pointer_size, pointer_size, (guint32)id);
 		add_pointer_to_list(pinfo, tr, item, fnct, 0xffffffff,
 				    hf_index, callback, callback_args);
 		goto after_ref_id;
@@ -2083,8 +2095,9 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			pointer_size,
 			"%s",text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
+		DISSECTOR_ASSERT(id<=G_MAXUINT32);
 		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
-			offset-pointer_size, pointer_size, id);
+			offset-pointer_size, pointer_size, (guint32)id);
 		add_pointer_to_list(pinfo, tr, item, fnct, 0xffffffff,
 				    hf_index, callback, callback_args);
 		goto after_ref_id;
@@ -2110,7 +2123,8 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		}
 
 		/* see if we have seen this pointer before */
-		idx=find_pointer_index(id);
+		DISSECTOR_ASSERT(id<=G_MAXUINT32);
+		idx=find_pointer_index((guint32)id);
 
 		/* we have seen this pointer before */
 		if(idx>=0){
@@ -2126,8 +2140,8 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			"%s", text);
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
 		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb,
-			offset-pointer_size, pointer_size, id);
-		add_pointer_to_list(pinfo, tr, item, fnct, id, hf_index,
+			offset-pointer_size, pointer_size, (guint32)id);
+		add_pointer_to_list(pinfo, tr, item, fnct, (guint32)id, hf_index,
 				    callback, callback_args);
 		goto after_ref_id;
 	}
