@@ -1252,7 +1252,7 @@ check_crc:
 			{	/* get the CRC */
 				mac_crc = tvb_get_ntohl(tvb, mac_len - sizeof(mac_crc));
 				/* calculate the CRC */
-        	                calculated_crc = wimax_mac_calc_crc32((guint8 *)tvb_get_ptr(tvb, 0, mac_len - sizeof(mac_crc)), mac_len - sizeof(mac_crc));
+        	    calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - sizeof(mac_crc)), mac_len - sizeof(mac_crc));
 				/* display the CRC */
 				generic_item = proto_tree_add_item(tree, hf_mac_header_generic_crc, tvb, mac_len - sizeof(mac_crc), sizeof(mac_crc), FALSE);
 				if (mac_crc != calculated_crc)

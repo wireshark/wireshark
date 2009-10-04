@@ -126,7 +126,7 @@ void wimax_mac_gen_crc8_table(void)
   SIDE EFFECTS:
 
 */
-guint32 wimax_mac_calc_crc32(guint8 *data, guint data_len)
+guint32 wimax_mac_calc_crc32(const guint8 *data, guint data_len)
 {
   guint32 crc=CRC32_INITIAL_VALUE;
   guint i, j;

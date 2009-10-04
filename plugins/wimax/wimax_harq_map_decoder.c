@@ -167,7 +167,7 @@ void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		/* get the CRC */
 		harq_map_msg_crc = tvb_get_ntohl(tvb, length - sizeof(harq_map_msg_crc));
 		/* calculate the HARQ MAM Message CRC */
-		calculated_crc = wimax_mac_calc_crc32((guint8 *)tvb_get_ptr(tvb, 0, length - sizeof(harq_map_msg_crc)), length - sizeof(harq_map_msg_crc));
+		calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, length - sizeof(harq_map_msg_crc)), length - sizeof(harq_map_msg_crc));
 		/* display the CRC */
 		it = proto_tree_add_item(harq_map_tree, hf_harq_map_msg_crc, tvb, length - sizeof(harq_map_msg_crc), sizeof(harq_map_msg_crc), FALSE);
 		/* verify the CRC */
