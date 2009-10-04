@@ -2881,10 +2881,6 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 
 	strm = g_malloc0(sizeof(z_stream));
 
-	if (strm == NULL) {
-		return NULL;
-	}
-
 	compr = tvb_memdup(tvb, offset, comprlen);
 
 	if (!compr) {
@@ -2915,13 +2911,6 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 
 
 	strmbuf = g_malloc0(bufsiz);
-
-	if(strmbuf == NULL) {
-		g_free(compr);
-		g_free(strm);
-		return NULL;
-	}
-
 	strm->next_out = strmbuf;
 	strm->avail_out = bufsiz;
 
@@ -2952,21 +2941,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			if (uncompr == NULL) {
 				uncompr = g_memdup(strmbuf, bytes_pass);
 			} else {
-				guint8 *new_data = g_malloc0(bytes_out +
-					bytes_pass);
-
-				if (new_data == NULL) {
-					inflateEnd(strm);
-					g_free(strm);
-					g_free(strmbuf);
-					g_free(compr);
-
-					if (uncompr != NULL) {
-						g_free(uncompr);
-					}
-
-					return NULL;
-				}
+				guint8 *new_data = g_malloc0(bytes_out + bytes_pass);
 
 				g_memmove(new_data, uncompr, bytes_out);
 				g_memmove((new_data + bytes_out), strmbuf,
@@ -3156,5 +3131,4 @@ tvbuff_t* tvb_child_uncompress(tvbuff_t *parent _U_, tvbuff_t *tvb, int offset, 
 		tvb_set_child_real_data_tvbuff (parent, new_tvb);
 	return new_tvb;
 }
-
 
