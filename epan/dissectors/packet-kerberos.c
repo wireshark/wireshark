@@ -2599,7 +2599,8 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
-	dcerpc_info di;	/* fake dcerpc_info struct */
+	static dcerpc_info di;	/* fake dcerpc_info struct */
+	static dcerpc_call_value call_data;
 	void *old_private_data;
 
 	item=proto_tree_add_item(parent_tree, hf_krb_PAC_LOGON_INFO, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
@@ -2615,7 +2616,8 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
 	/* the PAC_LOGON_INFO blob */
 	/* fake whatever state the dcerpc runtime support needs */
 	di.conformant_run=0;
-	di.call_data=NULL;
+	/* we need di->call_data->flags.NDR64 == 0 */
+	di.call_data=&call_data;
 	old_private_data=actx->pinfo->private_data;
 	actx->pinfo->private_data=&di;
 	init_ndr_pointer_list(actx->pinfo);
@@ -2633,7 +2635,8 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(proto_tree *parent_tree, tvbuff_t *tvb, 
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
-	dcerpc_info di;	/* fake dcerpc_info struct */
+	static dcerpc_info di;	/* fake dcerpc_info struct */
+	static dcerpc_call_value call_data;
 	void *old_private_data;
 
 	item=proto_tree_add_item(parent_tree, hf_krb_PAC_CONSTRAINED_DELEGATION, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
@@ -2650,7 +2653,8 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(proto_tree *parent_tree, tvbuff_t *tvb, 
 	/* the PAC_CONSTRAINED_DELEGATION blob */
 	/* fake whatever state the dcerpc runtime support needs */
 	di.conformant_run=0;
-	di.call_data=NULL;
+	/* we need di->call_data->flags.NDR64 == 0 */
+	di.call_data=&call_data;
 	old_private_data=actx->pinfo->private_data;
 	actx->pinfo->private_data=&di;
 	init_ndr_pointer_list(actx->pinfo);
