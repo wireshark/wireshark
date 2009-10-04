@@ -28,7 +28,7 @@ echo '#include "register.h"' >>${outfile}-tmp
 #
 # Build code to call all the tap listener registration routines.
 #
-echo 'void register_all_tap_listeners(void) {' >>${outfile}-tmp
+echo -e 'void register_all_tap_listeners(void)\n{' >>${outfile}-tmp
 for f in "$@"
 do
 	if [ -f $f ]
@@ -39,9 +39,9 @@ do
 	fi
 	grep '^register_tap_listener_[a-z_0-9A-Z]* *(' $srcfile 2>/dev/null | grep -v ';' | sed -e 's/(.*//'
 done | while read func; do
-	echo "  { extern void $func (void);" >>${outfile}-tmp
-	echo "    $func ();}" >>${outfile}-tmp
+	echo "  { extern void $func(void);" >>${outfile}-tmp
+	echo "    $func();}" >>${outfile}-tmp
 done 
-echo '}' >>${outfile}-tmp
+echo -e '}\n' >>${outfile}-tmp
 
 mv ${outfile}-tmp ${outfile}
