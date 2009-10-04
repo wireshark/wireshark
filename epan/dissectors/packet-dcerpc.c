@@ -1035,9 +1035,14 @@ dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 	*/
         hfinfo = proto_registrar_get_nth(hfindex);
 
-	if (hfinfo->type == FT_UINT64) {
+	switch(hfinfo->type) {
+	case FT_UINT64:
             proto_tree_add_uint64(tree, hfindex, tvb, offset, 8, data);
-        } else {
+	    break;
+	case FT_INT64:
+            proto_tree_add_int64(tree, hfindex, tvb, offset, 8, data);
+	    break;
+	default:
             proto_tree_add_uint(tree, hfindex, tvb, offset, 8, data);
         }
     }

@@ -244,6 +244,23 @@
 
 	/************************/
 	/* Function    0x08     */
+
+	typedef enum {
+		DomainPasswordInformation	= 1,
+		DomainGeneralInformation	= 2,
+		DomainLogoffInformation		= 3,
+		DomainOemInformation		= 4,
+		DomainNameInformation		= 5,
+		DomainReplicationInformation	= 6,
+		DomainServerRoleInformation	= 7,
+		DomainModifiedInformation	= 8,
+		DomainStateInformation		= 9,
+		DomainUasInformation		= 10,
+		DomainGeneralInformation2	= 11,
+		DomainLockoutInformation	= 12,
+		DomainModifiedInformation2	= 13
+	} samr_DomainInfoClass;
+
 	/* server roles */
 	typedef [v1_enum] enum {
 		SAMR_ROLE_STANDALONE    = 0,
@@ -261,6 +278,11 @@
 		DOMAIN_PASSWORD_STORE_CLEARTEXT = 0x00000010,
 		DOMAIN_REFUSE_PASSWORD_CHANGE   = 0x00000020
 	} samr_PasswordProperties;
+
+	typedef [v1_enum] enum {
+		DOMAIN_SERVER_ENABLED = 1,
+		DOMAIN_SERVER_DISABLED = 2
+	} samr_DomainServerState;
 
 	typedef struct {
 		uint16 min_password_length;
@@ -321,6 +343,10 @@
 	} samr_DomInfo8;
 
 	typedef struct {
+		samr_DomainServerState domain_server_state;
+	} samr_DomInfo9;
+
+	typedef struct {
 		samr_DomGeneralInformation general;
 		hyper lockout_duration;
 		hyper lockout_window;
@@ -340,40 +366,24 @@
 		uint32 unknown2;
 	} samr_DomInfo13;
 
-	typedef enum {
-		SAMR_DOMAIN_PASSWORD_INFO	= 1,
-		SAMR_DOMAIN_GENERAL_INFO	= 2,
-		SAMR_DOMAIN_LOGOFF_INFO		= 3,
-		SAMR_DOMAIN_OEM_INFO		= 4,
-		SAMR_DOMAIN_NAME_INFO		= 5,
-		SAMR_DOMAIN_REPLICA_INFO	= 6,
-		SAMR_DOMAIN_SERVER_ROLE_INFO	= 7,
-		SAMR_DOMAIN_MODIFIED_INFO	= 8,
-		SAMR_DOMAIN_STATE_INFO		= 9,
-		SAMR_DOMAIN_UAS_INFO		= 10,
-		SAMR_DOMAIN_GENERAL_INFO2	= 11,
-		SAMR_DOMAIN_LOCKOUT_INFO	= 12,
-		SAMR_DOMAIN_MODIFIED_INFO2	= 13
-	} samr_DomainInformationClass;
-
-	typedef [switch_type(uint16)] union {
-		[case(SAMR_DOMAIN_PASSWORD_INFO)] samr_DomInfo1 info1;
-		[case(SAMR_DOMAIN_GENERAL_INFO)] samr_DomGeneralInformation general;
-		[case(SAMR_DOMAIN_LOGOFF_INFO)] samr_DomInfo3 info3;
-		[case(SAMR_DOMAIN_OEM_INFO)] samr_DomOEMInformation oem;
-		[case(SAMR_DOMAIN_NAME_INFO)] samr_DomInfo5 info5;
-		[case(SAMR_DOMAIN_REPLICA_INFO)] samr_DomInfo6 info6;
-		[case(SAMR_DOMAIN_SERVER_ROLE_INFO)] samr_DomInfo7 info7;
-		[case(SAMR_DOMAIN_MODIFIED_INFO)] samr_DomInfo8 info8;
-		[case(SAMR_DOMAIN_STATE_INFO)] samr_DomainStateInformation state;
-		[case(SAMR_DOMAIN_GENERAL_INFO2)] samr_DomGeneralInformation2 general2;
-		[case(SAMR_DOMAIN_LOCKOUT_INFO)] samr_DomInfo12 info12;
-		[case(SAMR_DOMAIN_MODIFIED_INFO2)] samr_DomInfo13 info13;
+        typedef [switch_type(uint16)] union {
+		[case(1)] samr_DomInfo1 info1;
+		[case(2)] samr_DomGeneralInformation general;
+		[case(3)] samr_DomInfo3 info3;
+		[case(4)] samr_DomOEMInformation oem;
+		[case(5)] samr_DomInfo5 info5;
+		[case(6)] samr_DomInfo6 info6;
+		[case(7)] samr_DomInfo7 info7;
+		[case(8)] samr_DomInfo8 info8;
+		[case(9)] samr_DomInfo9 info9;
+		[case(11)] samr_DomGeneralInformation2 general2;
+		[case(12)] samr_DomInfo12 info12;
+		[case(13)] samr_DomInfo13 info13;
 	} samr_DomainInfo;
 
 	NTSTATUS samr_QueryDomainInfo(
 		[in,ref]      policy_handle *domain_handle,
-		[in]          samr_DomainInformationClass level,
+		[in]          samr_DomainInfoClass level,
 		[out,switch_is(level),unique] samr_DomainInfo *info
 		);
 
@@ -385,7 +395,7 @@
 	*/
 	NTSTATUS samr_SetDomainInfo(
 		[in,ref]      policy_handle *domain_handle,
-		[in]          samr_DomainInformationClass level,
+		[in]          samr_DomainInfoClass level,
 		[in,switch_is(level),ref] samr_DomainInfo *info
 		);
 
@@ -1192,7 +1202,7 @@
 	*/
 	NTSTATUS samr_QueryDomainInfo2(
 		[in,ref]      policy_handle *domain_handle,
-		[in]          samr_DomainInformationClass level,
+		[in]          samr_DomainInfoClass level,
 		[out,unique,switch_is(level)] samr_DomainInfo *info
 		);
 
@@ -1309,7 +1319,7 @@
 	/* Function    0x38     */
 	NTSTATUS samr_GetDomPwInfo(
 		[in,unique] lsa_String *domain_name,
-		[out]       samr_PwInfo info
+		[out,ref]   samr_PwInfo *info
 		);
 
 	/************************/
@@ -1323,7 +1333,7 @@
 	/************************/
 	/* Function    0x3a     */
 	/*
-	  seems to be an exact alias for samr_SetUserInfo() 
+	  seems to be an exact alias for samr_SetUserInfo()
 	*/
 	[public] NTSTATUS samr_SetUserInfo2(
 		[in,ref]                   policy_handle *user_handle,
@@ -1347,7 +1357,7 @@
 	/* Function    0x3c     */
 	NTSTATUS samr_GetBootKeyInformation(
 		[in,ref]   policy_handle *domain_handle,
-		[out]      uint32 unknown
+		[out,ref]  uint32 *unknown
 		);
 
 	/************************/

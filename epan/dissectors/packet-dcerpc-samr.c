@@ -51,6 +51,7 @@ static gint ett_samr_samr_DomInfo5 = -1;
 static gint ett_samr_samr_DomInfo6 = -1;
 static gint ett_samr_samr_DomInfo7 = -1;
 static gint ett_samr_samr_DomInfo8 = -1;
+static gint ett_samr_samr_DomInfo9 = -1;
 static gint ett_samr_samr_DomGeneralInformation2 = -1;
 static gint ett_samr_samr_DomInfo12 = -1;
 static gint ett_samr_samr_DomInfo13 = -1;
@@ -329,6 +330,7 @@ static gint hf_samr_samr_DomInfo1_min_password_length = -1;
 static gint hf_samr_samr_ValidatePasswordReq3_pwd_must_change_at_next_logon = -1;
 static gint hf_samr_samr_FieldsPresent_SAMR_FIELD_WORKSTATIONS = -1;
 static gint hf_samr_samr_GetDisplayEnumerationIndex_idx = -1;
+static gint hf_samr_samr_DomInfo9_domain_server_state = -1;
 static gint hf_samr_samr_Connect5_level_out = -1;
 static gint hf_samr_samr_UserInfo5_last_logon = -1;
 static gint hf_samr_samr_ChangePasswordUser2_server = -1;
@@ -461,6 +463,7 @@ static gint hf_samr_samr_UserInfo3_account_name = -1;
 static gint hf_samr_samr_Connect3_system_name = -1;
 static gint hf_samr_lsa_String_name_size = -1;
 static gint hf_samr_samr_UserInfo_info11 = -1;
+static gint hf_samr_samr_DomainInfo_info9 = -1;
 static gint hf_samr_samr_SamEntry_name = -1;
 static gint hf_samr_lsa_Strings_count = -1;
 static gint hf_samr_samr_UserInfo3_acct_flags = -1;
@@ -603,7 +606,6 @@ static gint hf_samr_samr_GetMembersBuffer_count = -1;
 static gint hf_samr_samr_DomainInfo_info7 = -1;
 static gint hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CONNECT_TO_SERVER = -1;
 static gint hf_samr_samr_EnumDomains_num_entries = -1;
-static gint hf_samr_samr_DomainInfo_state = -1;
 static gint hf_samr_samr_UserInfo21_parameters = -1;
 static gint hf_samr_samr_DomGeneralInformation_state = -1;
 static gint hf_samr_samr_DispEntryGeneral_acct_flags = -1;
@@ -954,6 +956,22 @@ static int samr_dissect_element_SamArray_count(tvbuff_t *tvb _U_, int offset _U_
 static int samr_dissect_element_SamArray_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SamArray_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_SamArray_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+const value_string samr_samr_DomainInfoClass_vals[] = {
+	{ DomainPasswordInformation, "DomainPasswordInformation" },
+	{ DomainGeneralInformation, "DomainGeneralInformation" },
+	{ DomainLogoffInformation, "DomainLogoffInformation" },
+	{ DomainOemInformation, "DomainOemInformation" },
+	{ DomainNameInformation, "DomainNameInformation" },
+	{ DomainReplicationInformation, "DomainReplicationInformation" },
+	{ DomainServerRoleInformation, "DomainServerRoleInformation" },
+	{ DomainModifiedInformation, "DomainModifiedInformation" },
+	{ DomainStateInformation, "DomainStateInformation" },
+	{ DomainUasInformation, "DomainUasInformation" },
+	{ DomainGeneralInformation2, "DomainGeneralInformation2" },
+	{ DomainLockoutInformation, "DomainLockoutInformation" },
+	{ DomainModifiedInformation2, "DomainModifiedInformation2" },
+{ 0, NULL }
+};
 const value_string samr_samr_Role_vals[] = {
 	{ SAMR_ROLE_STANDALONE, "SAMR_ROLE_STANDALONE" },
 	{ SAMR_ROLE_DOMAIN_MEMBER, "SAMR_ROLE_DOMAIN_MEMBER" },
@@ -985,6 +1003,11 @@ static const true_false_string samr_PasswordProperties_DOMAIN_REFUSE_PASSWORD_CH
    "DOMAIN_REFUSE_PASSWORD_CHANGE is SET",
    "DOMAIN_REFUSE_PASSWORD_CHANGE is NOT SET",
 };
+const value_string samr_samr_DomainServerState_vals[] = {
+	{ DOMAIN_SERVER_ENABLED, "DOMAIN_SERVER_ENABLED" },
+	{ DOMAIN_SERVER_DISABLED, "DOMAIN_SERVER_DISABLED" },
+{ 0, NULL }
+};
 static int samr_dissect_element_DomInfo1_min_password_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomInfo1_password_history_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomInfo1_password_properties(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1014,6 +1037,7 @@ static int samr_dissect_element_DomInfo6_primary(tvbuff_t *tvb _U_, int offset _
 static int samr_dissect_element_DomInfo7_role(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomInfo8_sequence_num(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomInfo8_domain_create_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_DomInfo9_domain_server_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomGeneralInformation2_general(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomGeneralInformation2_lockout_duration(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomGeneralInformation2_lockout_window(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1025,22 +1049,6 @@ static int samr_dissect_element_DomInfo13_sequence_num(tvbuff_t *tvb _U_, int of
 static int samr_dissect_element_DomInfo13_domain_create_time(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomInfo13_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomInfo13_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-const value_string samr_samr_DomainInformationClass_vals[] = {
-	{ SAMR_DOMAIN_PASSWORD_INFO, "SAMR_DOMAIN_PASSWORD_INFO" },
-	{ SAMR_DOMAIN_GENERAL_INFO, "SAMR_DOMAIN_GENERAL_INFO" },
-	{ SAMR_DOMAIN_LOGOFF_INFO, "SAMR_DOMAIN_LOGOFF_INFO" },
-	{ SAMR_DOMAIN_OEM_INFO, "SAMR_DOMAIN_OEM_INFO" },
-	{ SAMR_DOMAIN_NAME_INFO, "SAMR_DOMAIN_NAME_INFO" },
-	{ SAMR_DOMAIN_REPLICA_INFO, "SAMR_DOMAIN_REPLICA_INFO" },
-	{ SAMR_DOMAIN_SERVER_ROLE_INFO, "SAMR_DOMAIN_SERVER_ROLE_INFO" },
-	{ SAMR_DOMAIN_MODIFIED_INFO, "SAMR_DOMAIN_MODIFIED_INFO" },
-	{ SAMR_DOMAIN_STATE_INFO, "SAMR_DOMAIN_STATE_INFO" },
-	{ SAMR_DOMAIN_UAS_INFO, "SAMR_DOMAIN_UAS_INFO" },
-	{ SAMR_DOMAIN_GENERAL_INFO2, "SAMR_DOMAIN_GENERAL_INFO2" },
-	{ SAMR_DOMAIN_LOCKOUT_INFO, "SAMR_DOMAIN_LOCKOUT_INFO" },
-	{ SAMR_DOMAIN_MODIFIED_INFO2, "SAMR_DOMAIN_MODIFIED_INFO2" },
-{ 0, NULL }
-};
 static int samr_dissect_element_DomainInfo_info1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomainInfo_general(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomainInfo_info3(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1049,7 +1057,7 @@ static int samr_dissect_element_DomainInfo_info5(tvbuff_t *tvb _U_, int offset _
 static int samr_dissect_element_DomainInfo_info6(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomainInfo_info7(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomainInfo_info8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int samr_dissect_element_DomainInfo_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_DomainInfo_info9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomainInfo_general2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomainInfo_info12(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_DomainInfo_info13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1897,6 +1905,7 @@ static int samr_dissect_element_ChangePasswordUser2_lm_verifier_(tvbuff_t *tvb _
 static int samr_dissect_element_GetDomPwInfo_domain_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetDomPwInfo_domain_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetDomPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_GetDomPwInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_Connect2_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_Connect2_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_Connect2_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1915,6 +1924,7 @@ static int samr_dissect_element_SetBootKeyInformation_unknown3(tvbuff_t *tvb _U_
 static int samr_dissect_element_GetBootKeyInformation_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetBootKeyInformation_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetBootKeyInformation_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_GetBootKeyInformation_unknown_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_Connect3_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_Connect3_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_Connect3_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -2815,6 +2825,37 @@ samr_dissect_struct_SamArray(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 
 
 /* IDL: enum { */
+/* IDL: 	DomainPasswordInformation=1, */
+/* IDL: 	DomainGeneralInformation=2, */
+/* IDL: 	DomainLogoffInformation=3, */
+/* IDL: 	DomainOemInformation=4, */
+/* IDL: 	DomainNameInformation=5, */
+/* IDL: 	DomainReplicationInformation=6, */
+/* IDL: 	DomainServerRoleInformation=7, */
+/* IDL: 	DomainModifiedInformation=8, */
+/* IDL: 	DomainStateInformation=9, */
+/* IDL: 	DomainUasInformation=10, */
+/* IDL: 	DomainGeneralInformation2=11, */
+/* IDL: 	DomainLockoutInformation=12, */
+/* IDL: 	DomainModifiedInformation2=13, */
+/* IDL: } */
+
+int
+samr_dissect_enum_DomainInfoClass(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+{
+	guint1632 parameter=0;
+	if(param){
+		parameter=(guint1632)*param;
+	}
+	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	if(param){
+		*param=(guint32)parameter;
+	}
+	return offset;
+}
+
+
+/* IDL: enum { */
 /* IDL: 	SAMR_ROLE_STANDALONE=0, */
 /* IDL: 	SAMR_ROLE_DOMAIN_MEMBER=1, */
 /* IDL: 	SAMR_ROLE_DOMAIN_BDC=2, */
@@ -2917,6 +2958,26 @@ samr_dissect_bitmap_PasswordProperties(tvbuff_t *tvb _U_, int offset _U_, packet
 		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
 	}
 
+	return offset;
+}
+
+
+/* IDL: enum { */
+/* IDL: 	DOMAIN_SERVER_ENABLED=1, */
+/* IDL: 	DOMAIN_SERVER_DISABLED=2, */
+/* IDL: } */
+
+int
+samr_dissect_enum_DomainServerState(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+{
+	guint32 parameter=0;
+	if(param){
+		parameter=(guint32)*param;
+	}
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	if(param){
+		*param=(guint32)parameter;
+	}
 	return offset;
 }
 
@@ -3494,6 +3555,49 @@ samr_dissect_struct_DomInfo8(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 
 
 /* IDL: struct { */
+/* IDL: 	samr_DomainServerState domain_server_state; */
+/* IDL: } */
+
+static int
+samr_dissect_element_DomInfo9_domain_server_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = samr_dissect_enum_DomainServerState(tvb, offset, pinfo, tree, drep, hf_samr_samr_DomInfo9_domain_server_state, 0);
+
+	return offset;
+}
+
+int
+samr_dissect_struct_DomInfo9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
+	int old_offset;
+
+	ALIGN_TO_4_BYTES;
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_samr_samr_DomInfo9);
+	}
+	
+	offset = samr_dissect_element_DomInfo9_domain_server_state(tvb, offset, pinfo, tree, drep);
+
+
+	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
+
+	return offset;
+}
+
+
+/* IDL: struct { */
 /* IDL: 	samr_DomGeneralInformation general; */
 /* IDL: 	hyper lockout_duration; */
 /* IDL: 	hyper lockout_window; */
@@ -3710,50 +3814,19 @@ samr_dissect_struct_DomInfo13(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 }
 
 
-/* IDL: enum { */
-/* IDL: 	SAMR_DOMAIN_PASSWORD_INFO=1, */
-/* IDL: 	SAMR_DOMAIN_GENERAL_INFO=2, */
-/* IDL: 	SAMR_DOMAIN_LOGOFF_INFO=3, */
-/* IDL: 	SAMR_DOMAIN_OEM_INFO=4, */
-/* IDL: 	SAMR_DOMAIN_NAME_INFO=5, */
-/* IDL: 	SAMR_DOMAIN_REPLICA_INFO=6, */
-/* IDL: 	SAMR_DOMAIN_SERVER_ROLE_INFO=7, */
-/* IDL: 	SAMR_DOMAIN_MODIFIED_INFO=8, */
-/* IDL: 	SAMR_DOMAIN_STATE_INFO=9, */
-/* IDL: 	SAMR_DOMAIN_UAS_INFO=10, */
-/* IDL: 	SAMR_DOMAIN_GENERAL_INFO2=11, */
-/* IDL: 	SAMR_DOMAIN_LOCKOUT_INFO=12, */
-/* IDL: 	SAMR_DOMAIN_MODIFIED_INFO2=13, */
-/* IDL: } */
-
-int
-samr_dissect_enum_DomainInformationClass(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
-{
-	guint1632 parameter=0;
-	if(param){
-		parameter=(guint1632)*param;
-	}
-	offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
-	}
-	return offset;
-}
-
-
 /* IDL: [switch_type(uint16)] union { */
-/* IDL: [case(SAMR_DOMAIN_PASSWORD_INFO)] [case(SAMR_DOMAIN_PASSWORD_INFO)] samr_DomInfo1 info1; */
-/* IDL: [case(SAMR_DOMAIN_GENERAL_INFO)] [case(SAMR_DOMAIN_GENERAL_INFO)] samr_DomGeneralInformation general; */
-/* IDL: [case(SAMR_DOMAIN_LOGOFF_INFO)] [case(SAMR_DOMAIN_LOGOFF_INFO)] samr_DomInfo3 info3; */
-/* IDL: [case(SAMR_DOMAIN_OEM_INFO)] [case(SAMR_DOMAIN_OEM_INFO)] samr_DomOEMInformation oem; */
-/* IDL: [case(SAMR_DOMAIN_NAME_INFO)] [case(SAMR_DOMAIN_NAME_INFO)] samr_DomInfo5 info5; */
-/* IDL: [case(SAMR_DOMAIN_REPLICA_INFO)] [case(SAMR_DOMAIN_REPLICA_INFO)] samr_DomInfo6 info6; */
-/* IDL: [case(SAMR_DOMAIN_SERVER_ROLE_INFO)] [case(SAMR_DOMAIN_SERVER_ROLE_INFO)] samr_DomInfo7 info7; */
-/* IDL: [case(SAMR_DOMAIN_MODIFIED_INFO)] [case(SAMR_DOMAIN_MODIFIED_INFO)] samr_DomInfo8 info8; */
-/* IDL: [case(SAMR_DOMAIN_STATE_INFO)] [case(SAMR_DOMAIN_STATE_INFO)] samr_DomainStateInformation state; */
-/* IDL: [case(SAMR_DOMAIN_GENERAL_INFO2)] [case(SAMR_DOMAIN_GENERAL_INFO2)] samr_DomGeneralInformation2 general2; */
-/* IDL: [case(SAMR_DOMAIN_LOCKOUT_INFO)] [case(SAMR_DOMAIN_LOCKOUT_INFO)] samr_DomInfo12 info12; */
-/* IDL: [case(SAMR_DOMAIN_MODIFIED_INFO2)] [case(SAMR_DOMAIN_MODIFIED_INFO2)] samr_DomInfo13 info13; */
+/* IDL: [case(1)] [case(1)] samr_DomInfo1 info1; */
+/* IDL: [case(2)] [case(2)] samr_DomGeneralInformation general; */
+/* IDL: [case(3)] [case(3)] samr_DomInfo3 info3; */
+/* IDL: [case(4)] [case(4)] samr_DomOEMInformation oem; */
+/* IDL: [case(5)] [case(5)] samr_DomInfo5 info5; */
+/* IDL: [case(6)] [case(6)] samr_DomInfo6 info6; */
+/* IDL: [case(7)] [case(7)] samr_DomInfo7 info7; */
+/* IDL: [case(8)] [case(8)] samr_DomInfo8 info8; */
+/* IDL: [case(9)] [case(9)] samr_DomInfo9 info9; */
+/* IDL: [case(11)] [case(11)] samr_DomGeneralInformation2 general2; */
+/* IDL: [case(12)] [case(12)] samr_DomInfo12 info12; */
+/* IDL: [case(13)] [case(13)] samr_DomInfo13 info13; */
 /* IDL: } */
 
 static int
@@ -3821,9 +3894,9 @@ samr_dissect_element_DomainInfo_info8(tvbuff_t *tvb _U_, int offset _U_, packet_
 }
 
 static int
-samr_dissect_element_DomainInfo_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+samr_dissect_element_DomainInfo_info9(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_struct_DomainStateInformation(tvb,offset,pinfo,tree,drep,hf_samr_samr_DomainInfo_state,0);
+	offset = samr_dissect_struct_DomInfo9(tvb,offset,pinfo,tree,drep,hf_samr_samr_DomainInfo_info9,0);
 
 	return offset;
 }
@@ -3857,7 +3930,6 @@ samr_dissect_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 	guint16 level;
 
@@ -3871,60 +3943,56 @@ samr_dissect_DomainInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U
 	ALIGN_TO_8_BYTES;
 
 	switch(level) {
-		case SAMR_DOMAIN_PASSWORD_INFO:
+		case 1:
 			offset = samr_dissect_element_DomainInfo_info1(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case SAMR_DOMAIN_GENERAL_INFO:
+		case 2:
 			offset = samr_dissect_element_DomainInfo_general(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case SAMR_DOMAIN_LOGOFF_INFO:
+		case 3:
 			offset = samr_dissect_element_DomainInfo_info3(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case SAMR_DOMAIN_OEM_INFO:
+		case 4:
 			offset = samr_dissect_element_DomainInfo_oem(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case SAMR_DOMAIN_NAME_INFO:
+		case 5:
 			offset = samr_dissect_element_DomainInfo_info5(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case SAMR_DOMAIN_REPLICA_INFO:
+		case 6:
 			offset = samr_dissect_element_DomainInfo_info6(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case SAMR_DOMAIN_SERVER_ROLE_INFO:
+		case 7:
 			offset = samr_dissect_element_DomainInfo_info7(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case SAMR_DOMAIN_MODIFIED_INFO:
+		case 8:
 			offset = samr_dissect_element_DomainInfo_info8(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case SAMR_DOMAIN_STATE_INFO:
-			offset = samr_dissect_element_DomainInfo_state(tvb, offset, pinfo, tree, drep);
+		case 9:
+			offset = samr_dissect_element_DomainInfo_info9(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case SAMR_DOMAIN_GENERAL_INFO2:
+		case 11:
 			offset = samr_dissect_element_DomainInfo_general2(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case SAMR_DOMAIN_LOCKOUT_INFO:
+		case 12:
 			offset = samr_dissect_element_DomainInfo_info12(tvb, offset, pinfo, tree, drep);
 		break;
 
-		case SAMR_DOMAIN_MODIFIED_INFO2:
+		case 13:
 			offset = samr_dissect_element_DomainInfo_info13(tvb, offset, pinfo, tree, drep);
 		break;
 	}
 	proto_item_set_len(item, offset-old_offset);
 
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_8_BYTES;
-	}
 
 	return offset;
 }
@@ -4401,7 +4469,6 @@ samr_dissect_GroupInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 	guint1632 level;
 
@@ -4437,10 +4504,6 @@ samr_dissect_GroupInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 	}
 	proto_item_set_len(item, offset-old_offset);
 
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_5_BYTES;
-	}
 
 	return offset;
 }
@@ -4721,7 +4784,6 @@ samr_dissect_AliasInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 	guint1632 level;
 
@@ -4749,10 +4811,6 @@ samr_dissect_AliasInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 	}
 	proto_item_set_len(item, offset-old_offset);
 
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_5_BYTES;
-	}
 
 	return offset;
 }
@@ -7299,7 +7357,6 @@ samr_dissect_UserInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 	guint16 level;
 
@@ -7403,10 +7460,6 @@ samr_dissect_UserInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 	}
 	proto_item_set_len(item, offset-old_offset);
 
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_5_BYTES;
-	}
 
 	return offset;
 }
@@ -8264,7 +8317,6 @@ samr_dissect_DispInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 	guint16 level;
 
@@ -8300,10 +8352,6 @@ samr_dissect_DispInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_,
 	}
 	proto_item_set_len(item, offset-old_offset);
 
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_5_BYTES;
-	}
 
 	return offset;
 }
@@ -8519,7 +8567,6 @@ samr_dissect_ConnectInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 	guint32 level;
 
@@ -8539,10 +8586,6 @@ samr_dissect_ConnectInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _
 	}
 	proto_item_set_len(item, offset-old_offset);
 
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_4_BYTES;
-	}
 
 	return offset;
 }
@@ -8966,7 +9009,6 @@ samr_dissect_ValidatePasswordRep(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 	guint16 level;
 
@@ -8994,10 +9036,6 @@ samr_dissect_ValidatePasswordRep(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	}
 	proto_item_set_len(item, offset-old_offset);
 
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_8_BYTES;
-	}
 
 	return offset;
 }
@@ -9276,7 +9314,6 @@ samr_dissect_ValidatePasswordReq(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
 	int old_offset;
 	guint16 level;
 
@@ -9304,10 +9341,6 @@ samr_dissect_ValidatePasswordReq(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 	}
 	proto_item_set_len(item, offset-old_offset);
 
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_8_BYTES;
-	}
 
 	return offset;
 }
@@ -9931,7 +9964,7 @@ samr_dissect_element_QueryDomainInfo_domain_handle_(tvbuff_t *tvb _U_, int offse
 static int
 samr_dissect_element_QueryDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_enum_DomainInformationClass(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDomainInfo_level, 0);
+	offset = samr_dissect_enum_DomainInfoClass(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDomainInfo_level, 0);
 
 	return offset;
 }
@@ -9954,7 +9987,7 @@ samr_dissect_element_QueryDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pa
 
 /* IDL: NTSTATUS samr_QueryDomainInfo( */
 /* IDL: [in] [ref] policy_handle *domain_handle, */
-/* IDL: [in] samr_DomainInformationClass level, */
+/* IDL: [in] samr_DomainInfoClass level, */
 /* IDL: [out] [unique(1)] [switch_is(level)] samr_DomainInfo *info */
 /* IDL: ); */
 
@@ -10005,7 +10038,7 @@ samr_dissect_element_SetDomainInfo_domain_handle_(tvbuff_t *tvb _U_, int offset 
 static int
 samr_dissect_element_SetDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_enum_DomainInformationClass(tvb, offset, pinfo, tree, drep, hf_samr_samr_SetDomainInfo_level, 0);
+	offset = samr_dissect_enum_DomainInfoClass(tvb, offset, pinfo, tree, drep, hf_samr_samr_SetDomainInfo_level, 0);
 
 	return offset;
 }
@@ -10028,7 +10061,7 @@ samr_dissect_element_SetDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, pack
 
 /* IDL: NTSTATUS samr_SetDomainInfo( */
 /* IDL: [in] [ref] policy_handle *domain_handle, */
-/* IDL: [in] samr_DomainInformationClass level, */
+/* IDL: [in] samr_DomainInfoClass level, */
 /* IDL: [in] [ref] [switch_is(level)] samr_DomainInfo *info */
 /* IDL: ); */
 
@@ -12987,7 +13020,7 @@ samr_dissect_element_QueryDomainInfo2_domain_handle_(tvbuff_t *tvb _U_, int offs
 static int
 samr_dissect_element_QueryDomainInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = samr_dissect_enum_DomainInformationClass(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDomainInfo2_level, 0);
+	offset = samr_dissect_enum_DomainInfoClass(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDomainInfo2_level, 0);
 
 	return offset;
 }
@@ -13010,7 +13043,7 @@ samr_dissect_element_QueryDomainInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, p
 
 /* IDL: NTSTATUS samr_QueryDomainInfo2( */
 /* IDL: [in] [ref] policy_handle *domain_handle, */
-/* IDL: [in] samr_DomainInformationClass level, */
+/* IDL: [in] samr_DomainInfoClass level, */
 /* IDL: [unique(1)] [out] [switch_is(level)] samr_DomainInfo *info */
 /* IDL: ); */
 
@@ -13975,6 +14008,14 @@ samr_dissect_element_GetDomPwInfo_domain_name_(tvbuff_t *tvb _U_, int offset _U_
 static int
 samr_dissect_element_GetDomPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_GetDomPwInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_PwInfo)",hf_samr_samr_GetDomPwInfo_info);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_GetDomPwInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = samr_dissect_struct_PwInfo(tvb,offset,pinfo,tree,drep,hf_samr_samr_GetDomPwInfo_info,0);
 
 	return offset;
@@ -13982,7 +14023,7 @@ samr_dissect_element_GetDomPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet
 
 /* IDL: NTSTATUS samr_GetDomPwInfo( */
 /* IDL: [unique(1)] [in] lsa_String *domain_name, */
-/* IDL: [out] samr_PwInfo info */
+/* IDL: [out] [ref] samr_PwInfo *info */
 /* IDL: ); */
 
 static int
@@ -14256,6 +14297,14 @@ samr_dissect_element_GetBootKeyInformation_domain_handle_(tvbuff_t *tvb _U_, int
 static int
 samr_dissect_element_GetBootKeyInformation_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_GetBootKeyInformation_unknown_, NDR_POINTER_REF, "Pointer to Unknown (uint32)",hf_samr_samr_GetBootKeyInformation_unknown);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_GetBootKeyInformation_unknown_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_GetBootKeyInformation_unknown, 0);
 
 	return offset;
@@ -14263,7 +14312,7 @@ samr_dissect_element_GetBootKeyInformation_unknown(tvbuff_t *tvb _U_, int offset
 
 /* IDL: NTSTATUS samr_GetBootKeyInformation( */
 /* IDL: [in] [ref] policy_handle *domain_handle, */
-/* IDL: [out] uint32 unknown */
+/* IDL: [out] [ref] uint32 *unknown */
 /* IDL: ); */
 
 static int
@@ -15569,7 +15618,7 @@ void proto_register_dcerpc_samr(void)
 	{ &hf_samr_samr_DispInfo_info1, 
 	  { "Info1", "samr.samr_DispInfo.info1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_SetDomainInfo_level, 
-	  { "Level", "samr.samr_SetDomainInfo.level", FT_UINT1632, BASE_DEC, VALS(samr_samr_DomainInformationClass_vals), 0, NULL, HFILL }},
+	  { "Level", "samr.samr_SetDomainInfo.level", FT_UINT1632, BASE_DEC, VALS(samr_samr_DomainInfoClass_vals), 0, NULL, HFILL }},
 	{ &hf_samr_samr_DispInfo_info4, 
 	  { "Info4", "samr.samr_DispInfo.info4", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DomInfo8_domain_create_time, 
@@ -15636,6 +15685,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Samr Field Workstations", "samr.samr_FieldsPresent.SAMR_FIELD_WORKSTATIONS", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_WORKSTATIONS_tfs), ( 0x00000400 ), NULL, HFILL }},
 	{ &hf_samr_samr_GetDisplayEnumerationIndex_idx, 
 	  { "Idx", "samr.samr_GetDisplayEnumerationIndex.idx", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_DomInfo9_domain_server_state, 
+	  { "Domain Server State", "samr.samr_DomInfo9.domain_server_state", FT_UINT32, BASE_DEC, VALS(samr_samr_DomainServerState_vals), 0, NULL, HFILL }},
 	{ &hf_samr_samr_Connect5_level_out, 
 	  { "Level Out", "samr.samr_Connect5.level_out", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo5_last_logon, 
@@ -15689,7 +15740,7 @@ void proto_register_dcerpc_samr(void)
 	{ &hf_samr_samr_AcctFlags_ACB_NO_AUTH_DATA_REQD, 
 	  { "Acb No Auth Data Reqd", "samr.samr_AcctFlags.ACB_NO_AUTH_DATA_REQD", FT_BOOLEAN, 32, TFS(&samr_AcctFlags_ACB_NO_AUTH_DATA_REQD_tfs), ( 0x00080000 ), NULL, HFILL }},
 	{ &hf_samr_samr_QueryDomainInfo_level, 
-	  { "Level", "samr.samr_QueryDomainInfo.level", FT_UINT1632, BASE_DEC, VALS(samr_samr_DomainInformationClass_vals), 0, NULL, HFILL }},
+	  { "Level", "samr.samr_QueryDomainInfo.level", FT_UINT1632, BASE_DEC, VALS(samr_samr_DomainInfoClass_vals), 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo26_password, 
 	  { "Password", "samr.samr_UserInfo26.password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_ValidatePasswordReq1_password_matched, 
@@ -15900,6 +15951,8 @@ void proto_register_dcerpc_samr(void)
 	  { "Name Size", "samr.lsa_String.name_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo_info11, 
 	  { "Info11", "samr.samr_UserInfo.info11", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_samr_samr_DomainInfo_info9, 
+	  { "Info9", "samr.samr_DomainInfo.info9", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_SamEntry_name, 
 	  { "Name", "samr.samr_SamEntry.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_lsa_Strings_count, 
@@ -15909,7 +15962,7 @@ void proto_register_dcerpc_samr(void)
 	{ &hf_samr_samr_UserInfo3_allow_password_change, 
 	  { "Allow Password Change", "samr.samr_UserInfo3.allow_password_change", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_QueryDomainInfo2_level, 
-	  { "Level", "samr.samr_QueryDomainInfo2.level", FT_UINT1632, BASE_DEC, VALS(samr_samr_DomainInformationClass_vals), 0, NULL, HFILL }},
+	  { "Level", "samr.samr_QueryDomainInfo2.level", FT_UINT1632, BASE_DEC, VALS(samr_samr_DomainInfoClass_vals), 0, NULL, HFILL }},
 	{ &hf_samr_samr_FieldsPresent_SAMR_FIELD_PASSWORD, 
 	  { "Samr Field Password", "samr.samr_FieldsPresent.SAMR_FIELD_PASSWORD", FT_BOOLEAN, 32, TFS(&samr_FieldsPresent_SAMR_FIELD_PASSWORD_tfs), ( 0x01000000 ), NULL, HFILL }},
 	{ &hf_samr_samr_GetDisplayEnumerationIndex_name, 
@@ -16184,8 +16237,6 @@ void proto_register_dcerpc_samr(void)
 	  { "Samr Access Connect To Server", "samr.samr_ConnectAccessMask.SAMR_ACCESS_CONNECT_TO_SERVER", FT_BOOLEAN, 32, TFS(&samr_ConnectAccessMask_SAMR_ACCESS_CONNECT_TO_SERVER_tfs), ( 0x00000001 ), NULL, HFILL }},
 	{ &hf_samr_samr_EnumDomains_num_entries, 
 	  { "Num Entries", "samr.samr_EnumDomains.num_entries", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_samr_samr_DomainInfo_state, 
-	  { "State", "samr.samr_DomainInfo.state", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_parameters, 
 	  { "Parameters", "samr.samr_UserInfo21.parameters", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_DomGeneralInformation_state, 
@@ -16357,6 +16408,7 @@ void proto_register_dcerpc_samr(void)
 		&ett_samr_samr_DomInfo6,
 		&ett_samr_samr_DomInfo7,
 		&ett_samr_samr_DomInfo8,
+		&ett_samr_samr_DomInfo9,
 		&ett_samr_samr_DomGeneralInformation2,
 		&ett_samr_samr_DomInfo12,
 		&ett_samr_samr_DomInfo13,
