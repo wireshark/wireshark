@@ -11,35 +11,35 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  * The following information was graciously provided by Intel:
- * Offset    Size (bytes)    Contents	
- * 0         6               Destination Broadcast probes: {FF,FF,FF,FF,FF,FF} 
- *                           Multicast probes: {01,AA,00,00,00,00}	
- * 6         6               Source Matches the CurrentMACAddress of the 
- *                           adapter sending the probe.	
- * 8         2               Type Network order is 0x886D, Intel's reserved 
+ * Offset    Size (bytes)    Contents
+ * 0         6               Destination Broadcast probes: {FF,FF,FF,FF,FF,FF}
+ *                           Multicast probes: {01,AA,00,00,00,00}
+ * 6         6               Source Matches the CurrentMACAddress of the
+ *                           adapter sending the probe.
+ * 8         2               Type Network order is 0x886D, Intel's reserved
  *                           packet type.
- * 10 (0)    2               ApplicationID Network order is 0x0001, identifies 
- *                           it as fault tolerance probe.	
- * 12 (2)    2               RevID Network order, identifies the revision id 
- *                           of Teaming software.	
- * 16 (4)    4               ProbeSequenceNumber Ascending sequence number 
- *                           that identifies the current probing cycle.	
- * 20 (8)    2               SenderID Unique ID within a team identifying 
- *                           the member that originally sent the probe.	
- * 22 (10)   6               TeamID Unique ID identifying the team in charge 
- *                           of this probe.	
- * 28        Padding         Reserved	
+ * 10 (0)    2               ApplicationID Network order is 0x0001, identifies
+ *                           it as fault tolerance probe.
+ * 12 (2)    2               RevID Network order, identifies the revision id
+ *                           of Teaming software.
+ * 16 (4)    4               ProbeSequenceNumber Ascending sequence number
+ *                           that identifies the current probing cycle.
+ * 20 (8)    2               SenderID Unique ID within a team identifying
+ *                           the member that originally sent the probe.
+ * 22 (10)   6               TeamID Unique ID identifying the team in charge
+ *                           of this probe.
+ * 28        Padding         Reserved
  *
  */
 
@@ -78,13 +78,11 @@ dissect_ans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Intel ANS probe");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		
 		seq_num = tvb_get_ntohl(tvb, 4);
 		sender_id = tvb_get_ntohs(tvb, 8);
 		tvb_memcpy(tvb, team_id, 10, 6);
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Sequence: %u, Sender ID %u, Team ID %s",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Sequence: %u, Sender ID %u, Team ID %s",
 			seq_num, sender_id, ether_to_str(team_id));
 	}
 
@@ -150,3 +148,4 @@ proto_reg_handoff_ans(void)
 	ans_handle = create_dissector_handle(dissect_ans, proto_ans);
 	dissector_add("ethertype", ETHERTYPE_INTEL_ANS, ans_handle);
 }
+
