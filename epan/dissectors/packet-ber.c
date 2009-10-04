@@ -1611,7 +1611,6 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 		/* move the offset to the beginning of the next sequenced item */
 		}
 		offset = eoffset;
-		seq++;
 		if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
 			/* if we stripped the tag and length we should also strip the EOC is ind_len 
 			 * Unless its a zero length field (len = 2)
@@ -1624,6 +1623,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 				}
 			}
 		}
+		seq++;
 	}
 
 	/* if we didnt end up at exactly offset, then we ate too many bytes */
@@ -3290,11 +3290,12 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 
                         s_offset = offset;
 
-			if(ind){ /* this sequence of was of indefinite length, so check for EOC */
+			/*if(ind){  this sequence of was of indefinite length, if this is implicit indefinite impossible maybe
+			  but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
 				if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
 					break;
 				}
-			}
+			/*}*/
 
 			/* read header and len for next field */
 			offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
@@ -3336,14 +3337,15 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		gboolean imp_tag;
 
 		hoffset = offset;
-	 	if(ind){ /*this sequence of was of indefinite length, so check for EOC */
+		/*if(ind){  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
+		  but ber dissector uses this to eat the tag length then pass into here... EOC still on there...*/
 			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
 				if(show_internal_ber_fields){
 					proto_tree_add_text(tree, tvb, hoffset, end_offset-hoffset, "SEQ OF EOC");
 				}
 				return offset+2;
 			}
-		}
+		/*}*/
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 		offset = get_ber_length(tvb, offset, &len, &ind_field);
