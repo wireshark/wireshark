@@ -75,9 +75,9 @@ wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../tools/make-tap-reg.py
 	@echo Making wireshark-tap-register.c (using python)
 	@$(PYTHON) "../tools/make-tap-reg.py" . taps $(WIRESHARK_TAP_SRC)
 !ELSE
-wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../make-tapreg-dotc Makefile.common
+wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../tools/make-tapreg-dotc Makefile.common
 	@echo Making wireshark-tap-register.c
-	@$(SH) ../make-tapreg-dotc wireshark-tap-register.c . $(WIRESHARK_TAP_SRC)
+	@$(SH) ../tools/make-tapreg-dotc wireshark-tap-register.c . $(WIRESHARK_TAP_SRC)
 !ENDIF
 
 
