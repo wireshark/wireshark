@@ -40,12 +40,13 @@
 #include "wimax_mac.h"
 
 #include "wimax_bits.h"
+#include "wimax_utils.h"
 
 extern gint proto_mac_mgmt_msg_rng_req_decoder;
 extern gint proto_mac_mgmt_msg_reg_req_decoder;
 
 extern gint mac_sdu_length;                   /* declared in packet-wmx.c */
-extern	gboolean include_cor2_changes;
+extern gboolean include_cor2_changes;
 
 /* forward reference */
 void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
