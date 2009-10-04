@@ -596,7 +596,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_paned_gutter_size',                       'E', # gtk_paned_set_gutter_size()
                 'gtk_paned_set_gutter_size',                   'E', # "does nothing"
                 'gtk_pixmap_get',                              'E', # GtkImage ...
-                'gtk_pixmap_new',                              'W',
+                'gtk_pixmap_new',                              'E',
                 'gtk_pixmap_set',                              'E',
                 'gtk_pixmap_set_build_insensitive',            'E',
                 'gtk_preview_draw_row',                        'E',

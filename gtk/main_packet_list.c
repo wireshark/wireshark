@@ -550,14 +550,14 @@ packet_list_set_column_titles(void)
         gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2,
                          GTK_SHRINK, GTK_SHRINK, 0, 0);
         gtk_widget_show(column_lb);
-        col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
+        col_arrows[i].ascend_pm = gtk_image_new_from_pixmap(ascend_pm, ascend_bm);
         gtk_table_attach(GTK_TABLE(col_arrows[i].table),
                          col_arrows[i].ascend_pm,
                          1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
         if (i == 0) {
             gtk_widget_show(col_arrows[i].ascend_pm);
         }
-        col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
+        col_arrows[i].descend_pm = gtk_image_new_from_pixmap(descend_pm, descend_bm);
         gtk_table_attach(GTK_TABLE(col_arrows[i].table),
                          col_arrows[i].descend_pm,
                          1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
