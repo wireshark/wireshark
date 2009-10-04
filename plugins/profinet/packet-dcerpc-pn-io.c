@@ -357,6 +357,9 @@ static int hf_pn_io_own_chassis_id = -1;
 static int hf_pn_io_ethertype = -1;
 static int hf_pn_io_rx_port = -1;
 static int hf_pn_io_frame_details = -1;
+static int hf_pn_io_frame_details_sync_frame = -1;
+static int hf_pn_io_frame_details_meaning_frame_send_offset = -1;
+static int hf_pn_io_frame_details_reserved = -1;
 static int hf_pn_io_nr_of_tx_port_groups = -1;
 
 static int hf_pn_io_start_of_red_frame_id = -1;
@@ -520,6 +523,7 @@ static gint ett_pn_io_ir_frame_data = -1;
 static gint ett_pn_io_ar_info = -1;
 static gint ett_pn_io_ir_begin_end_port = -1;
 static gint ett_pn_io_subframe_data =-1;
+static gint ett_pn_io_frame_defails = -1;
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -1879,6 +1883,20 @@ static const value_string pn_io_fs_parameter_mode_vals[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_frame_details_sync_master_vals[] = {
+	{ 0x0000, "No Sync Frame" },
+	{ 0x0001, "Primary sync frame" },
+	{ 0x0002, "Secondary sync frame" },
+	{ 0x0003, "Reserved" },
+    { 0, NULL }
+};
+static const value_string pn_io_frame_details_meaning_frame_send_offset_vals[] = {
+	{ 0x0000, "Field FrameSendOffset specifies the point of time for receiving or transmitting a frame " },
+	{ 0x0001, "Field FrameSendOffset specifies the beginning of the RT_CLASS_3 interval within a phase" },
+	{ 0x0002, "Field FrameSendOffset specifies the ending of the RT_CLASS_3 interval within a phase" },
+	{ 0x0003, "Reserved" },
+    { 0, NULL }
+};
 
 GList *pnio_ars;
 
@@ -3846,7 +3864,7 @@ dissect_CheckSyncDifference_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(sub_item, "CheckSyncMode: SyncMaster:%d, CableDelay:%d",
         (u16CheckSyncMode & 0x2) && 1, (u16CheckSyncMode & 0x1) && 1);
 
-    proto_item_append_text(item, ": SyncMaster:%d, CableDelay:%d",
+    proto_item_append_text(item, " : SyncMaster:%d, CableDelay:%d",
         (u16CheckSyncMode >> 1) & 1, u16CheckSyncMode & 1);
 
     return offset;
@@ -4650,6 +4668,8 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
     proto_tree *ir_frame_data_tree = NULL;
     proto_item *ir_frame_data_sub_item = NULL;
 	guint16 n=0;
+	proto_item *sub_item;
+	proto_tree *sub_tree;
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -4694,8 +4714,14 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
     	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, ir_frame_data_tree, drep,
                                     hf_pn_io_rx_port, &u8RXPort);
       /* FrameDetails */
-    	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, ir_frame_data_tree, drep,
-                                    hf_pn_io_frame_details, &u8FrameDetails);
+        sub_item = proto_tree_add_item(ir_frame_data_tree, hf_pn_io_frame_details, tvb, offset, 1, FALSE);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_frame_defails);
+        dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_frame_details_sync_frame, &u8FrameDetails);
+        dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_frame_details_meaning_frame_send_offset, &u8FrameDetails);
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_frame_details_reserved, &u8FrameDetails);
       /* TxPortGroup */
 	    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, ir_frame_data_tree, drep,
                                     hf_pn_io_nr_of_tx_port_groups, &u8NumberOfTxPortGroups);
@@ -4795,7 +4821,7 @@ dissect_PDIRBeginEndData_block(tvbuff_t *tvb, int offset,
         proto_item_set_len(ir_begin_end_port_sub_item, offset - u32SubStart);
 	}
 
-	proto_item_append_text(item, ": StartOfRed:%u, EndOfRed:%u, Ports:%u",
+	proto_item_append_text(item, ": StartOfRed: 0x%x, EndOfRed: 0x%x, Ports:%u",
         u16StartOfRedFrameID, u16EndOfRedFrameID, u32NumberOfPorts);
 
 	return offset+u16BodyLength;
@@ -8001,13 +8027,19 @@ proto_register_pn_io (void)
       { "RXPort", "pn_io.rx_port", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_frame_details,
       { "FrameDetails", "pn_io.frame_details", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_frame_details_sync_frame,
+      { "SyncFrame", "pn_io.frame_details.sync_frame", FT_UINT8, BASE_HEX, VALS(pn_io_frame_details_sync_master_vals), 0x03, NULL, HFILL }},
+    { &hf_pn_io_frame_details_meaning_frame_send_offset,
+      { "Meaning", "pn_io.frame_details.meaning_frame_send_offset", FT_UINT8, BASE_HEX, VALS(pn_io_frame_details_meaning_frame_send_offset_vals), 0x0C, NULL, HFILL }},
+    { &hf_pn_io_frame_details_reserved,
+      { "Reserved", "pn_io.frame_details.reserved", FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
     { &hf_pn_io_nr_of_tx_port_groups,
       { "NumberOfTxPortGroups", "pn_io.nr_of_tx_port_groups", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_pn_io_start_of_red_frame_id,
-      { "StartOfRedFrameID", "pn_io.start_of_red_frame_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "StartOfRedFrameID", "pn_io.start_of_red_frame_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_end_of_red_frame_id,
-      { "EndOfRedFrameID", "pn_io.end_of_red_frame_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "EndOfRedFrameID", "pn_io.end_of_red_frame_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_ir_begin_end_port,
       { "Port", "pn_io.ir_begin_end_port", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_number_of_assignments,
@@ -8270,7 +8302,8 @@ proto_register_pn_io (void)
         &ett_pn_io_ir_frame_data,
         &ett_pn_io_ar_info,
 		&ett_pn_io_ir_begin_end_port,
-		&ett_pn_io_subframe_data
+		&ett_pn_io_subframe_data,
+		&ett_pn_io_frame_defails
 	};
 
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
