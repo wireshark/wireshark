@@ -160,7 +160,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			break;
 		}
 		/* calculate the MAC header HCS */
-		mac_hcs_calculated = wimax_mac_calc_crc8((guint8 *)tvb_get_ptr(tvb, offset, WIMAX_MAC_HEADER_INFO_FIELDS), WIMAX_MAC_HEADER_INFO_FIELDS);
+		mac_hcs_calculated = wimax_mac_calc_crc8(tvb_get_ptr(tvb, offset, WIMAX_MAC_HEADER_INFO_FIELDS), WIMAX_MAC_HEADER_INFO_FIELDS);
 		/* get the Header Check Sequence (HCS) in the header */
 		mac_hcs = tvb_get_guint8(tvb, offset + WIMAX_MAC_HEADER_SIZE - 1);
 		/* verify the HCS */
