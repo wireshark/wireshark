@@ -3290,8 +3290,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     g_signal_connect(GTK_OBJECT(top_level), "key-press-event",
                          G_CALLBACK(top_level_key_pressed_cb), NULL );
 
-    gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
-
     /* Vertical container for menu bar, toolbar(s), paned windows and progress/info box */
     main_vbox = gtk_vbox_new(FALSE, 1);
     gtk_container_set_border_width(GTK_CONTAINER(main_vbox), 1);

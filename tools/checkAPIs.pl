@@ -823,7 +823,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_widget_set_visual',                       'E',
                 'gtk_widget_unref',                            'E',
                 'gtk_window_position',                         'E',
-                'gtk_window_set_policy',                       'W', # >>? gtk_window_set_resizable()
+                'gtk_window_set_policy',                       'E', # >>? gtk_window_set_resizable()
 ##
 ## Deprecated as of GTK+ 2.12 but to be replaced only when Wireshark requires GTK+ 2.12 or later
 ## 2.12		'gtk_tooltips_data_get',                       'E', # new API: GtkToolTip (avail since 2.12) ...
