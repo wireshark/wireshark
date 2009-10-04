@@ -2857,8 +2857,6 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, gint haystack_offset)
 tvbuff_t *
 tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 {
-
-
 	gint err = Z_OK;
 	guint bytes_out = 0;
 	guint8 *compr = NULL;
@@ -2889,12 +2887,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 	 * the compressed size.
 	 */
 	bufsiz = tvb_length_remaining(tvb, offset) * 2;
-
-	if (bufsiz < TVB_Z_MIN_BUFSIZ) {
-		bufsiz = TVB_Z_MIN_BUFSIZ;
-	} else if (bufsiz > TVB_Z_MAX_BUFSIZ) {
-		bufsiz = TVB_Z_MIN_BUFSIZ;
-	}
+	bufsiz = CLAMP(bufsiz, TVB_Z_MIN_BUFSIZ, TVB_Z_MAX_BUFSIZ);
 
 #ifdef TVB_Z_DEBUG
 	printf("bufsiz: %u bytes\n", bufsiz);
