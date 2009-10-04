@@ -524,9 +524,9 @@ SUFFIXES = .sh
 # The first argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-tshark-tap-register.c: $(TSHARK_TAP_SRC) $(srcdir)/make-tapreg-dotc
+tshark-tap-register.c: $(TSHARK_TAP_SRC) $(srcdir)/tools/make-tapreg-dotc
 	@echo Making tshark-tap-register.c
-	@$(srcdir)/make-tapreg-dotc tshark-tap-register.c $(srcdir) $(TSHARK_TAP_SRC)
+	@$(srcdir)/tools/make-tapreg-dotc tshark-tap-register.c $(srcdir) $(TSHARK_TAP_SRC)
 
 ps.c: print.ps $(srcdir)/tools/rdps.py
 	$(PYTHON) $(srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c
@@ -791,7 +791,6 @@ EXTRA_DIST = \
 	image/wssplash-dev.xpm	\
 	ipmap.html	\
 	make-manuf		\
-	make-tapreg-dotc	\
 	make-version.pl		\
 	manuf			\
 	manuf.tmpl		\

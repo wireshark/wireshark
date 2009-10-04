@@ -412,12 +412,12 @@ target_link_libraries(lemon ${lemon_LIBS})
 ADD_CUSTOM_COMMAND(
 	OUTPUT tshark-tap-register.c
 	COMMAND ${SHELL}
-	  ${CMAKE_SOURCE_DIR}/make-tapreg-dotc
+	  ${CMAKE_SOURCE_DIR}/tools/make-tapreg-dotc
 	  tshark-tap-register.c
 	  ${CMAKE_CURRENT_SOURCE_DIR}
 	  ${TSHARK_TAP_SRC}
 	DEPENDS
-	  ${CMAKE_SOURCE_DIR}/make-tapreg-dotc
+	  ${CMAKE_SOURCE_DIR}/tools/make-tapreg-dotc
 	  ${TSHARK_TAP_SRC}
 )
 

@@ -93,8 +93,9 @@ EXTRA_DIST = \
 	idl2wrs.sh.in					\
 	lex.py						\
 	Makefile.nmake					\
-	make-dissector-reg				\
+	make-dissector-reg					\
 	make-dissector-reg.py				\
+	make-tapreg-dotc			\
 	make-tap-reg.py					\
 	msnchat						\
 	native-nmake.cmd				\
