@@ -1073,7 +1073,7 @@ static const print_stream_ops_t print_text_ops = {
 };
 
 static print_stream_t *
-print_stream_text_allow(int to_file, FILE *fh)
+print_stream_text_alloc(int to_file, FILE *fh)
 {
 	print_stream_t *stream;
 	output_text *output;
@@ -1097,13 +1097,13 @@ print_stream_text_new(int to_file, const char *dest)
 	if (fh == NULL)
 		return NULL;
 
-	return print_stream_text_allow(to_file, fh);
+	return print_stream_text_alloc(to_file, fh);
 }
 
 print_stream_t *
 print_stream_text_stdio_new(FILE *fh)
 {
-	return print_stream_text_allow(TRUE, fh);
+	return print_stream_text_alloc(TRUE, fh);
 }
 
 typedef struct {
