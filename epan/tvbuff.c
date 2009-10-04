@@ -2879,14 +2879,10 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 		return NULL;
 	}
 
-	strm = g_malloc0(sizeof(z_stream));
-
 	compr = tvb_memdup(tvb, offset, comprlen);
 
-	if (!compr) {
-		g_free(strm);
+	if (!compr)
 		return NULL;
-	}
 
 	/*
 	 * Assume that the uncompressed data is at least twice as big as
@@ -2906,9 +2902,9 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 
 	next = compr;
 
+	strm = g_malloc0(sizeof(z_stream));
 	strm->next_in = next;
 	strm->avail_in = comprlen;
-
 
 	strmbuf = g_malloc0(bufsiz);
 	strm->next_out = strmbuf;
