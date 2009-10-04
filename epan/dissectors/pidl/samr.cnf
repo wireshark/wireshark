@@ -212,12 +212,12 @@ CODE START
 static void
 samr_connect_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
-	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_OPEN_DOMAIN, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_ENUM_DOMAINS, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_CREATE_DOMAIN, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_INITIALIZE_SERVER, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_SHUTDOWN_SERVER, tvb, offset, 4, access);
-	proto_tree_add_boolean(tree, hf_samr_samr_ServerAccessMask_SAMR_SERVER_ACCESS_CONNECT_TO_SERVER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_LOOKUP_DOMAIN, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_ENUM_DOMAINS, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CREATE_DOMAIN, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_INITIALIZE_SERVER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_SHUTDOWN_SERVER, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_samr_samr_ConnectAccessMask_SAMR_ACCESS_CONNECT_TO_SERVER, tvb, offset, 4, access);
 }
 
 struct access_mask_info samr_connect_access_mask_info = {

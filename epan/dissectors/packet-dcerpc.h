@@ -186,6 +186,7 @@ int dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, guint8 *drep,
                         int hfindex, e_ctx_hnd *pdata);
 
+#define FT_UINT1632 FT_UINT32
 typedef guint32 guint1632;
 
 int dissect_ndr_uint1632 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
