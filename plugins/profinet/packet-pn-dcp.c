@@ -251,6 +251,7 @@ static const value_string pn_dcp_suboption_dhcp[] = {
 #define PNDCP_SUBOPTION_CONTROL_END_TRANS   0x02
 #define PNDCP_SUBOPTION_CONTROL_SIGNAL      0x03
 #define PNDCP_SUBOPTION_CONTROL_RESPONSE    0x04
+#define PNDCP_SUBOPTION_CONTROL_FACT_RESET  0x05
 
 static const value_string pn_dcp_suboption_control[] = {
     { 0x00, "Reserved" },
@@ -258,6 +259,7 @@ static const value_string pn_dcp_suboption_control[] = {
     { PNDCP_SUBOPTION_CONTROL_END_TRANS, "End Transaction" },
     { PNDCP_SUBOPTION_CONTROL_SIGNAL, "Signal" },
     { PNDCP_SUBOPTION_CONTROL_RESPONSE, "Response" },
+	{ PNDCP_SUBOPTION_CONTROL_FACT_RESET, "Reset Factory Settings" },
     /*0x05 - 0xff reserved */
     { 0, NULL }
 };
@@ -663,7 +665,12 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, ", BlockError: %s", val_to_str(block_error, pn_dcp_block_error, "Unknown"));
 
         break;
-    /* XXX - add PNDCP_SUBOPTION_CONTROL_FACTORY_RESET */
+    case(PNDCP_SUBOPTION_CONTROL_FACT_RESET):
+        pn_append_info(pinfo, dcp_item, ", Reset FactorySettings");
+        proto_item_append_text(block_item, "Control/Reset FactorySettings");
+        offset       += 2;
+        block_length -= 2;
+        break;
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length); 
     }
