@@ -709,7 +709,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_text_get_length',                         'E',
                 'gtk_text_get_point',                          'E',
                 'GTK_TEXT_INDEX',                              'E',
-                'gtk_text_insert',                             'W', # GtkTextView (GtkText "known to be buggy" !)
+                'gtk_text_insert',                             'E', # GtkTextView (GtkText "known to be buggy" !)
                 'gtk_text_new',                                'E',
                 'gtk_text_set_adjustments',                    'E',
                 'gtk_text_set_editable',                       'E',
@@ -827,13 +827,13 @@ my %deprecatedGtkFunctions = (
 ##
 ## Deprecated as of GTK+ 2.12 but to be replaced only when Wireshark requires GTK+ 2.12 or later
 ## 2.12		'gtk_tooltips_data_get',                       'E', # new API: GtkToolTip (avail since 2.12) ...
-##		'gtk_tooltips_disable',                        'E',
-##		'gtk_tooltips_enable',                         'E',
-##		'gtk_tooltips_force_window',                   'E',
-##		'gtk_tooltips_get_info_from_tip_window',       'E',
-##		'gtk_tooltips_new',                            'W',
-##		'gtk_tooltips_set_delay',                      'E',
-##		'gtk_tooltips_set_tip',                        'W',
+##			'gtk_tooltips_disable',                        'E',
+##			'gtk_tooltips_enable',                         'E',
+##			'gtk_tooltips_force_window',                   'E',
+##			'gtk_tooltips_get_info_from_tip_window',       'E',
+##			'gtk_tooltips_new',                            'W',
+##			'gtk_tooltips_set_delay',                      'E',
+##			'gtk_tooltips_set_tip',                        'W',
 ## 2.12		'gtk_tool_item_set_tooltip',                   'W', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
 ##
 ## Deprecated as of GTK+ 2.16 but to be replaced only when Wireshark requires GTK+ 2.16 or later
