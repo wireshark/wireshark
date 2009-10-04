@@ -30,8 +30,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * References: ETSI ES 201 296 V1.3.1 (2003-04)
  */
- 
-
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -46,7 +44,6 @@
 
 #include "packet-ber.h"
 #include "packet-charging_ase.h"
-
 
 #define PNAME  "Charging ASE"
 #define PSNAME "ChargingASE"
@@ -122,7 +119,7 @@ static int hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff = -1;
 static int hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff = -1;
 
 /*--- End of included file: packet-charging_ase-hf.c ---*/
-#line 51 "packet-charging_ase-template.c"
+#line 48 "packet-charging_ase-template.c"
 
 static int ett_charging_ase = -1;
 
@@ -160,10 +157,9 @@ static gint ett_charging_ase_T_tariffControlIndicators_01 = -1;
 static gint ett_charging_ase_ChargingReferenceIdentification = -1;
 
 /*--- End of included file: packet-charging_ase-ett.c ---*/
-#line 54 "packet-charging_ase-template.c"
+#line 51 "packet-charging_ase-template.c"
 
-static dissector_handle_t  charging_ase_handle;
-
+static dissector_handle_t charging_ase_handle;
 
 
 /*--- Included file: packet-charging_ase-fn.c ---*/
@@ -847,27 +843,24 @@ int dissect_charging_ase_ChargingMessageType_PDU(tvbuff_t *tvb _U_, packet_info 
 
 
 /*--- End of included file: packet-charging_ase-fn.c ---*/
-#line 59 "packet-charging_ase-template.c"
+#line 55 "packet-charging_ase-template.c"
 
 static void
 dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *it;
-	proto_tree *tr;
+    proto_item *it;
+    proto_tree *tr;
 
-	it=proto_tree_add_protocol_format(tree, proto_charging_ase, tvb, 0, tvb_length(tvb), "Charging ASE");
-	tr=proto_item_add_subtree(it, ett_charging_ase);
+    it=proto_tree_add_protocol_format(tree, proto_charging_ase, tvb, 0, tvb_length(tvb), "Charging ASE");
+    tr=proto_item_add_subtree(it, ett_charging_ase);
 
-      if(tvb_length(tvb)>0)
-      {
-      	dissect_charging_ase_ChargingMessageType_PDU(tvb , pinfo, tr);
-      }
-            
-
+    if(tvb_length(tvb)>0)
+    {
+        dissect_charging_ase_ChargingMessageType_PDU(tvb , pinfo, tr);
+    }
 }
 
 /* Register all the bits needed with the filtering engine */
-
 void
 proto_register_charging_ase(void)
 {
@@ -1122,11 +1115,11 @@ proto_register_charging_ase(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-charging_ase-hfarr.c ---*/
-#line 85 "packet-charging_ase-template.c"
+#line 78 "packet-charging_ase-template.c"
   };
 
   /* List of subtrees */
-	static gint *ett[] = {
+    static gint *ett[] = {
     &ett_charging_ase,
 
 /*--- Included file: packet-charging_ase-ettarr.c ---*/
@@ -1163,9 +1156,8 @@ proto_register_charging_ase(void)
     &ett_charging_ase_ChargingReferenceIdentification,
 
 /*--- End of included file: packet-charging_ase-ettarr.c ---*/
-#line 91 "packet-charging_ase-template.c"
-		};
-
+#line 84 "packet-charging_ase-template.c"
+        };
 
   proto_charging_ase = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
@@ -1177,9 +1169,6 @@ proto_register_charging_ase(void)
 void
 proto_reg_handoff_charging_ase(void)
 {
-
   charging_ase_handle = create_dissector_handle(dissect_charging_ase, proto_charging_ase);
-  
-
 }
 
