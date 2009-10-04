@@ -939,7 +939,6 @@ DISSECTOR_SRC = \
 #
 DISSECTOR_INCLUDES =	\
 	$(PIDL_DISSECTOR_INCLUDES) 	\
-	packet-6lowpan.h	\
 	packet-acn.h	\
 	packet-acp133.h	\
 	packet-acse.h	\
