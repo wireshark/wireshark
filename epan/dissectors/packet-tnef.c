@@ -348,13 +348,15 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	gint        offset, start_offset;
 	
 	guint8      drep[] = {0x10 /* LE */, /* DCE_RPC_DREP_FP_IEEE */ 0 };
-	dcerpc_info di; 
+	static dcerpc_info di; 
+	static dcerpc_call_value call_data;
 	void        *old_private_data;
 	
 	offset = 0;
 	
 	di.conformant_run = 0;
-	di.call_data = NULL;
+	/* we need di->call_data->flags.NDR64 == 0 */
+	di.call_data = &call_data;
 	
 	old_private_data = pinfo->private_data;
 	pinfo->private_data = &di;
