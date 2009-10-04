@@ -41,7 +41,7 @@ void wimax_mac_gen_crc8_table(void);
 #endif
 
 guint32 wimax_mac_calc_crc32(const guint8 *data, guint data_len);
-guint16 wimax_mac_calc_crc16(guint8 *data, guint data_len);
+guint16 wimax_mac_calc_crc16(const guint8 *data, guint data_len);
 guint8 wimax_mac_calc_crc8 (guint8 *data, guint data_len);
 
 #endif /* CRC_H */

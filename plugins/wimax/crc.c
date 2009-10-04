@@ -155,7 +155,7 @@ guint32 wimax_mac_calc_crc32(const guint8 *data, guint data_len)
   SIDE EFFECTS:
 
 */
-guint16 wimax_mac_calc_crc16(guint8 *data, guint data_len)
+guint16 wimax_mac_calc_crc16(const guint8 *data, guint data_len)
 {
   guint32 crc=CRC16_INITIAL_VALUE;
   guint j;

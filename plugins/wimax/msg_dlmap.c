@@ -550,7 +550,7 @@ gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, gi
         data = BIT_BITS(bit, bufptr, 16);
         generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
         /* calculate the CRC */
-        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
         if (data != calculated_crc)
         {
             proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
@@ -623,7 +623,7 @@ gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, gin
         data = BIT_BITS(bit, bufptr, 16);
         generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
         /* calculate the CRC */
-        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
         if (data != calculated_crc)
         {
             proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
@@ -692,7 +692,7 @@ gint MIMO_DL_Chase_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr
         data = BIT_BITS(bit, bufptr, 16);
         generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
         /* calculate the CRC */
-        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
         if (data != calculated_crc)
         {
             proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
@@ -755,7 +755,7 @@ gint MIMO_DL_IR_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, g
         data = BIT_BITS(bit, bufptr, 16);
         generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
         /* calculate the CRC */
-        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
         if (data != calculated_crc)
         {
             proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
@@ -819,7 +819,7 @@ gint MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bu
         data = BIT_BITS(bit, bufptr, 16);
         generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
         /* calculate the CRC */
-        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
         if (data != calculated_crc)
         {
             proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
@@ -881,7 +881,7 @@ gint MIMO_DL_STC_HARQ_sub_burst_IE(proto_tree *diuc_tree, const guint8 *bufptr, 
         data = BIT_BITS(bit, bufptr, 16);
         generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
         /* calculate the CRC */
-        calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+        calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
         if (data != calculated_crc)
         {
             proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
@@ -2268,7 +2268,7 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *b
     data = NIB_WORD(nib, bufptr);
     generic_item = proto_tree_add_text(tree, tvb, NIBHI(nib,4), "CRC-16: 0x%04x",data);
     /* calculate the CRC */
-    calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, NIB_TO_BYTE(nib)), NIB_TO_BYTE(nib));
+    calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, NIB_TO_BYTE(nib)), NIB_TO_BYTE(nib));
     if (data != calculated_crc)
     {
         proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
@@ -2397,7 +2397,7 @@ gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     data = BIT_BITS(bit, bufptr, 16);
     generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
     /* calculate the CRC */
-    calculated_crc = wimax_mac_calc_crc16((guint8 *)tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
+    calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
     if (data != calculated_crc)
     {
         proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
