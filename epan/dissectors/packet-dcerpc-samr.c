@@ -1810,8 +1810,11 @@ static int samr_dissect_element_QueryDisplayInfo_start_idx(tvbuff_t *tvb _U_, in
 static int samr_dissect_element_QueryDisplayInfo_max_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryDisplayInfo_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryDisplayInfo_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryDisplayInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetDisplayEnumerationIndex_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetDisplayEnumerationIndex_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetDisplayEnumerationIndex_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1824,6 +1827,7 @@ static int samr_dissect_element_TestPrivateFunctionsUser_user_handle_(tvbuff_t *
 static int samr_dissect_element_GetUserPwInfo_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetUserPwInfo_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetUserPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_GetUserPwInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_RemoveMemberFromForeignDomain_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_RemoveMemberFromForeignDomain_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1833,11 +1837,13 @@ static int samr_dissect_element_QueryDomainInfo2_domain_handle_(tvbuff_t *tvb _U
 static int samr_dissect_element_QueryDomainInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDomainInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDomainInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryDomainInfo2_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryUserInfo2_user_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryUserInfo2_user_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryUserInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryUserInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryUserInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryUserInfo2_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo2_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo2_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -1845,8 +1851,11 @@ static int samr_dissect_element_QueryDisplayInfo2_start_idx(tvbuff_t *tvb _U_, i
 static int samr_dissect_element_QueryDisplayInfo2_max_entries(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo2_buf_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo2_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryDisplayInfo2_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo2_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryDisplayInfo2_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_QueryDisplayInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int samr_dissect_element_QueryDisplayInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetDisplayEnumerationIndex2_domain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int samr_dissect_element_GetDisplayEnumerationIndex2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -12649,6 +12658,14 @@ samr_dissect_element_QueryDisplayInfo_buf_size(tvbuff_t *tvb _U_, int offset _U_
 static int
 samr_dissect_element_QueryDisplayInfo_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDisplayInfo_total_size_, NDR_POINTER_REF, "Pointer to Total Size (uint32)",hf_samr_samr_QueryDisplayInfo_total_size);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryDisplayInfo_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDisplayInfo_total_size, 0);
 
 	return offset;
@@ -12657,6 +12674,14 @@ samr_dissect_element_QueryDisplayInfo_total_size(tvbuff_t *tvb _U_, int offset _
 static int
 samr_dissect_element_QueryDisplayInfo_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDisplayInfo_returned_size_, NDR_POINTER_REF, "Pointer to Returned Size (uint32)",hf_samr_samr_QueryDisplayInfo_returned_size);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryDisplayInfo_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDisplayInfo_returned_size, 0);
 
 	return offset;
@@ -12664,6 +12689,14 @@ samr_dissect_element_QueryDisplayInfo_returned_size(tvbuff_t *tvb _U_, int offse
 
 static int
 samr_dissect_element_QueryDisplayInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDisplayInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_DispInfo)",hf_samr_samr_QueryDisplayInfo_info);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryDisplayInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = samr_dissect_DispInfo(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDisplayInfo_info, 0);
 
@@ -12676,9 +12709,9 @@ samr_dissect_element_QueryDisplayInfo_info(tvbuff_t *tvb _U_, int offset _U_, pa
 /* IDL: [in] uint32 start_idx, */
 /* IDL: [in] uint32 max_entries, */
 /* IDL: [in] uint32 buf_size, */
-/* IDL: [out] uint32 total_size, */
-/* IDL: [out] uint32 returned_size, */
-/* IDL: [out] [switch_is(level)] samr_DispInfo info */
+/* IDL: [out] [ref] uint32 *total_size, */
+/* IDL: [out] [ref] uint32 *returned_size, */
+/* IDL: [out] [ref] [switch_is(level)] samr_DispInfo *info */
 /* IDL: ); */
 
 static int
@@ -12903,6 +12936,14 @@ samr_dissect_element_GetUserPwInfo_user_handle_(tvbuff_t *tvb _U_, int offset _U
 static int
 samr_dissect_element_GetUserPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_GetUserPwInfo_info_, NDR_POINTER_REF, "Pointer to Info (samr_PwInfo)",hf_samr_samr_GetUserPwInfo_info);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_GetUserPwInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = samr_dissect_struct_PwInfo(tvb,offset,pinfo,tree,drep,hf_samr_samr_GetUserPwInfo_info,0);
 
 	return offset;
@@ -12910,7 +12951,7 @@ samr_dissect_element_GetUserPwInfo_info(tvbuff_t *tvb _U_, int offset _U_, packe
 
 /* IDL: NTSTATUS samr_GetUserPwInfo( */
 /* IDL: [in] [ref] policy_handle *user_handle, */
-/* IDL: [out] samr_PwInfo info */
+/* IDL: [out] [ref] samr_PwInfo *info */
 /* IDL: ); */
 
 static int
@@ -13028,13 +13069,21 @@ samr_dissect_element_QueryDomainInfo2_level(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 samr_dissect_element_QueryDomainInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDomainInfo2_info_, NDR_POINTER_UNIQUE, "Pointer to Info (samr_DomainInfo)",hf_samr_samr_QueryDomainInfo2_info);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDomainInfo2_info_, NDR_POINTER_REF, "Pointer to Info (samr_DomainInfo)",hf_samr_samr_QueryDomainInfo2_info);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_QueryDomainInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDomainInfo2_info__, NDR_POINTER_UNIQUE, "Pointer to Info (samr_DomainInfo)",hf_samr_samr_QueryDomainInfo2_info);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryDomainInfo2_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = samr_dissect_DomainInfo(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDomainInfo2_info, 0);
 
@@ -13044,7 +13093,7 @@ samr_dissect_element_QueryDomainInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: NTSTATUS samr_QueryDomainInfo2( */
 /* IDL: [in] [ref] policy_handle *domain_handle, */
 /* IDL: [in] samr_DomainInfoClass level, */
-/* IDL: [unique(1)] [out] [switch_is(level)] samr_DomainInfo *info */
+/* IDL: [out] [ref] [switch_is(level)] samr_DomainInfo **info */
 /* IDL: ); */
 
 static int
@@ -13102,13 +13151,21 @@ samr_dissect_element_QueryUserInfo2_level(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 samr_dissect_element_QueryUserInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryUserInfo2_info_, NDR_POINTER_UNIQUE, "Pointer to Info (samr_UserInfo)",hf_samr_samr_QueryUserInfo2_info);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryUserInfo2_info_, NDR_POINTER_REF, "Pointer to Info (samr_UserInfo)",hf_samr_samr_QueryUserInfo2_info);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_QueryUserInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryUserInfo2_info__, NDR_POINTER_UNIQUE, "Pointer to Info (samr_UserInfo)",hf_samr_samr_QueryUserInfo2_info);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryUserInfo2_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = samr_dissect_UserInfo(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryUserInfo2_info, 0);
 
@@ -13118,7 +13175,7 @@ samr_dissect_element_QueryUserInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: NTSTATUS samr_QueryUserInfo2( */
 /* IDL: [in] [ref] policy_handle *user_handle, */
 /* IDL: [in] samr_UserInfoLevel level, */
-/* IDL: [unique(1)] [out] [switch_is(level)] samr_UserInfo *info */
+/* IDL: [out] [ref] [switch_is(level)] samr_UserInfo **info */
 /* IDL: ); */
 
 static int
@@ -13200,6 +13257,14 @@ samr_dissect_element_QueryDisplayInfo2_buf_size(tvbuff_t *tvb _U_, int offset _U
 static int
 samr_dissect_element_QueryDisplayInfo2_total_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDisplayInfo2_total_size_, NDR_POINTER_REF, "Pointer to Total Size (uint32)",hf_samr_samr_QueryDisplayInfo2_total_size);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryDisplayInfo2_total_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDisplayInfo2_total_size, 0);
 
 	return offset;
@@ -13208,6 +13273,14 @@ samr_dissect_element_QueryDisplayInfo2_total_size(tvbuff_t *tvb _U_, int offset 
 static int
 samr_dissect_element_QueryDisplayInfo2_returned_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDisplayInfo2_returned_size_, NDR_POINTER_REF, "Pointer to Returned Size (uint32)",hf_samr_samr_QueryDisplayInfo2_returned_size);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryDisplayInfo2_returned_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDisplayInfo2_returned_size, 0);
 
 	return offset;
@@ -13215,6 +13288,14 @@ samr_dissect_element_QueryDisplayInfo2_returned_size(tvbuff_t *tvb _U_, int offs
 
 static int
 samr_dissect_element_QueryDisplayInfo2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, samr_dissect_element_QueryDisplayInfo2_info_, NDR_POINTER_REF, "Pointer to Info (samr_DispInfo)",hf_samr_samr_QueryDisplayInfo2_info);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_QueryDisplayInfo2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = samr_dissect_DispInfo(tvb, offset, pinfo, tree, drep, hf_samr_samr_QueryDisplayInfo2_info, 0);
 
@@ -13227,9 +13308,9 @@ samr_dissect_element_QueryDisplayInfo2_info(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: [in] uint32 start_idx, */
 /* IDL: [in] uint32 max_entries, */
 /* IDL: [in] uint32 buf_size, */
-/* IDL: [out] uint32 total_size, */
-/* IDL: [out] uint32 returned_size, */
-/* IDL: [out] [switch_is(level)] samr_DispInfo info */
+/* IDL: [out] [ref] uint32 *total_size, */
+/* IDL: [out] [ref] uint32 *returned_size, */
+/* IDL: [out] [ref] [switch_is(level)] samr_DispInfo *info */
 /* IDL: ); */
 
 static int

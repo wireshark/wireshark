@@ -1125,9 +1125,9 @@
 		[in]        uint32 start_idx,
 		[in]        uint32 max_entries,
 		[in]        uint32 buf_size,
-		[out]       uint32 total_size,
-		[out]       uint32 returned_size,
-		[out,switch_is(level)] samr_DispInfo info
+		[out,ref]   uint32 *total_size,
+		[out,ref]   uint32 *returned_size,
+		[out,ref,switch_is(level)] samr_DispInfo *info
 		);
 
 
@@ -1184,7 +1184,7 @@
 
 	[public] NTSTATUS samr_GetUserPwInfo(
 		[in,ref]    policy_handle *user_handle,
-		[out]       samr_PwInfo info
+		[out,ref]   samr_PwInfo *info
 		);
 
 	/************************/
@@ -1203,7 +1203,7 @@
 	NTSTATUS samr_QueryDomainInfo2(
 		[in,ref]      policy_handle *domain_handle,
 		[in]          samr_DomainInfoClass level,
-		[out,unique,switch_is(level)] samr_DomainInfo *info
+		[out,ref,switch_is(level)] samr_DomainInfo **info
 		);
 
 	/************************/
@@ -1215,7 +1215,7 @@
 	NTSTATUS samr_QueryUserInfo2(
 		[in,ref]                  policy_handle *user_handle,
 		[in]                      samr_UserInfoLevel level,
-		[out,unique,switch_is(level)]    samr_UserInfo *info
+		[out,ref,switch_is(level)]    samr_UserInfo **info
 		);
 
 	/************************/
@@ -1230,9 +1230,9 @@
 		[in]        uint32 start_idx,
 		[in]        uint32 max_entries,
 		[in]        uint32 buf_size,
-		[out]       uint32 total_size,
-		[out]       uint32 returned_size,
-		[out,switch_is(level)] samr_DispInfo info
+		[out,ref]   uint32 *total_size,
+		[out,ref]   uint32 *returned_size,
+		[out,ref,switch_is(level)] samr_DispInfo *info
 		);
 
 	/************************/
