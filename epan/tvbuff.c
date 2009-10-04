@@ -2895,7 +2895,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 
 	next = compr;
 
-	strm = g_malloc0(sizeof(z_stream));
+	strm = g_new0(z_stream, 1);
 	strm->next_in = next;
 	strm->avail_in = comprlen;
 
