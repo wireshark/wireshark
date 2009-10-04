@@ -807,7 +807,6 @@ EXTRA_DIST = \
 	text2pcap-scanner.l	\
 	text2pcap.c		\
 	text2pcap.h		\
-	tools/rdps.py	\
 	services		\
 	wireshark.desktop	\
 	wka.tmpl

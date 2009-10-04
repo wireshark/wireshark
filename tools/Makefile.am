@@ -103,6 +103,7 @@ EXTRA_DIST = \
 	pkt-from-core.py				\
 	process-x11-fields.pl				\
 	process-x11-xcb.pl				\
+	rdps.py						\
 	runlex.sh					\
 	setuid-root.pl.in				\
 	unix2dos.pl					\
