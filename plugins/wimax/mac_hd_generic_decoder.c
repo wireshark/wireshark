@@ -47,12 +47,12 @@
 #include <epan/address.h>
 #include <epan/reassemble.h>
 #include "crc.h"
+#include "wimax_utils.h"
 
 extern gint proto_wimax;
 
 extern gint seen_a_service_type;
 extern gboolean first_gmh;			/* defined in wimax_pdu_decoder.c */
-guint get_service_type( void ); 		/* defined in wimax_utils.c */
 
 extern gint8 arq_enabled;                       /* declared in packet-wmx.c */
 extern gint  scheduling_service_type;           /* declared in packet-wmx.c */

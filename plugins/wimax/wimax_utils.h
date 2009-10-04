@@ -31,6 +31,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 
+extern guint get_service_type(void);
 extern void proto_register_wimax_utility_decoders(void);
 extern void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
