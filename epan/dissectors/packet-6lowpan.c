@@ -2081,8 +2081,7 @@ proto_init_6lowpan(void)
  *      proto_reg_handoff_6lowpan
  *  DESCRIPTION
  *      Protocol handoff routine for 6LoWPAN. Called after all
- *      protocols have been loaded, and whenever any preferences
- *      are changed.
+ *      protocols have been loaded.
  *  PARAMETERS
  *      none            ;
  *  RETURNS
@@ -2092,14 +2091,10 @@ proto_init_6lowpan(void)
 void
 proto_reg_handoff_6lowpan(void)
 {
-    static gboolean             init = FALSE;
-
-    if (!init) {
-        data_handle     = find_dissector("data");
-        ipv6_handle     = find_dissector("ipv6");
-        init = TRUE;
-    }
+    data_handle = find_dissector("data");
+    ipv6_handle = find_dissector("ipv6");
 
     /* Register the 6LoWPAN dissector with IEEE 802.15.4 */
     heur_dissector_add("wpan", dissect_6lowpan_heur, proto_6lowpan);
 } /* proto_reg_handoff_6lowpan */
+
