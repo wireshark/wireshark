@@ -37,7 +37,7 @@ merge_open_in_files(int in_file_count, char *const *in_file_names,
                     int *err_fileno)
 {
   int i, j;
-  int files_size = in_file_count * sizeof(merge_in_file_t);
+  size_t files_size = in_file_count * sizeof(merge_in_file_t);
   merge_in_file_t *files;
   gint64 size;
 
