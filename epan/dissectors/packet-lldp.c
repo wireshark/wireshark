@@ -544,7 +544,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	guint8 incorrectLen = 0;	/* incorrect length if 1 */
 
 	const guint8 *mac_addr = NULL;
-	guint32 ip_addr;
+	guint32 ip_addr = 0;
 	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
 
@@ -748,7 +748,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	guint32 tempLen = 0;
 	const char *strPtr;
 	const guint8 *mac_addr = NULL;
-	guint32 ip_addr;
+	guint32 ip_addr = 0;
 	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
 
