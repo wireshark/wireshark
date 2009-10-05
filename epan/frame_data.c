@@ -65,17 +65,14 @@ p_add_proto_data(frame_data *fd, int proto, void *proto_data)
 {
   frame_proto_data *p1 = se_alloc(sizeof(frame_proto_data));
 
-  g_assert(p1 != NULL);
-
-  p1 -> proto = proto;
-  p1 -> proto_data = proto_data;
+  p1->proto = proto;
+  p1->proto_data = proto_data;
 
   /* Add it to the GSLIST */
 
   fd -> pfd = g_slist_insert_sorted(fd -> pfd,
                     (gpointer *)p1,
                     p_compare);
-
 }
 
 void *
