@@ -3300,23 +3300,24 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 			proto_tree_add_item(subtree, hf_gsm_a_codec_gsm_hr, tvb, curr_offset, 1, FALSE);
 			proto_tree_add_item(subtree, hf_gsm_a_codec_gsm_fr, tvb, curr_offset, 1, FALSE);
 			length--;
-		}
-		if (length > 0)
-		{
-			/*
-			 * We can proceed with the second octet of the bitmap
-			 */
-			curr_offset++;
-			proto_tree_add_bits_item(subtree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset << 3, 2, FALSE);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_ohr_amr_wb, tvb, curr_offset, 1, FALSE);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_ofr_amr_wb, tvb, curr_offset, 1, FALSE);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_ohr_amr, tvb, curr_offset, 1, FALSE);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_umts_amr_wb, tvb, curr_offset, 1, FALSE);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_fr_amr_wb, tvb, curr_offset, 1, FALSE);
-			proto_tree_add_item(subtree, hf_gsm_a_codec_pdc_efr, tvb, curr_offset, 1, FALSE);
-			length--;
-		}
 
+			if (length > 0)
+			{
+				/*
+				 * We can proceed with the second octet of the bitmap
+				 */
+				curr_offset++;
+				proto_tree_add_bits_item(subtree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset << 3, 2, FALSE);
+				proto_tree_add_item(subtree, hf_gsm_a_codec_ohr_amr_wb, tvb, curr_offset, 1, FALSE);
+				proto_tree_add_item(subtree, hf_gsm_a_codec_ofr_amr_wb, tvb, curr_offset, 1, FALSE);
+				proto_tree_add_item(subtree, hf_gsm_a_codec_ohr_amr, tvb, curr_offset, 1, FALSE);
+				proto_tree_add_item(subtree, hf_gsm_a_codec_umts_amr_wb, tvb, curr_offset, 1, FALSE);
+				proto_tree_add_item(subtree, hf_gsm_a_codec_fr_amr_wb, tvb, curr_offset, 1, FALSE);
+				proto_tree_add_item(subtree, hf_gsm_a_codec_pdc_efr, tvb, curr_offset, 1, FALSE);
+				length--;
+			}
+		}
+		
 		curr_offset = curr_offset + length;
 	}
 
