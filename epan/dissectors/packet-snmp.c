@@ -555,7 +555,14 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 
 	add_oid_debug_subtree(oid_info,pt_name);
 
-	if (subids && oid_matched+oid_left) {
+	if (!subids) {
+		proto_item* pi = proto_tree_add_text(pt_name,tvb, 0, 0, "invalid oid: %s", oid_bytes);
+		pt = proto_item_add_subtree(pi, ett_decoding_error);
+		expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "invalid oid: %s", oid_bytes);
+		return dissect_unknown_ber(actx->pinfo, tvb, name_offset, pt);
+	}
+
+	if (oid_matched+oid_left) {
 		oid_string = oid_subid2string(subids,oid_matched+oid_left);
 	}
 
