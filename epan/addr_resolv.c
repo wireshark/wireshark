@@ -376,7 +376,7 @@ static int fgetline(char **buf, int *size, FILE *fp)
   int len;
   int c;
 
-  if (fp == NULL)
+  if (fp == NULL || buf == NULL)
     return -1;
 
   if (*buf == NULL) {
