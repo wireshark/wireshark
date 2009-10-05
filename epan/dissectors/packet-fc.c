@@ -283,36 +283,32 @@ static const value_string fc_iu_val[] = {
 
 
 /* For FC SOF */
-typedef enum {
-    FC_SOFC1 = 0xBCB51717,
-    FC_SOFI1 = 0xBCB55757,
-    FC_SOFN1 = 0xBCB53737,
-    FC_SOFI2 = 0xBCB55555,
-    FC_SOFN2 = 0xBCB53535,
-    FC_SOFI3 = 0xBCB55656,
-    FC_SOFN3 = 0xBCB53636,
-    FC_SOFC4 = 0xBCB51919,
-    FC_SOFI4 = 0xBCB55959,
-    FC_SOFN4 = 0xBCB53939,
-    FC_SOFF  = 0xBCB55858    
-} fc_sof_t;
+#define    FC_SOFC1  0xBCB51717
+#define    FC_SOFI1  0xBCB55757
+#define    FC_SOFN1  0xBCB53737
+#define    FC_SOFI2  0xBCB55555
+#define    FC_SOFN2  0xBCB53535
+#define    FC_SOFI3  0xBCB55656
+#define    FC_SOFN3  0xBCB53636
+#define    FC_SOFC4  0xBCB51919
+#define    FC_SOFI4  0xBCB55959
+#define    FC_SOFN4  0xBCB53939
+#define    FC_SOFF   0xBCB55858    
 
-typedef enum {
-    EOFT_NEG   = 0xBC957575,
-    EOFT_POS   = 0xBCB57575,
-    EOFDT_NEG  = 0xBC959595,
-    EOFDT_POS  = 0xBCB59595,
-    EOFA_NEG   = 0xBC95F5F5,
-    EOFA_POS   = 0xBCB5F5F5,
-    EOFNI_NEG  = 0xBC8AD5D5,
-    EOFNI_POS  = 0xBCAAD5D5,
-    EOFDTI_NEG = 0xBC8A9595,
-    EOFDTI_POS = 0xBCAA9595,
-    EOFRI_NEG  = 0xBC959999,
-    EOFRI_POS  = 0xBCB59999,
-    EOFRTI_NEG = 0xBC8A9999,
-    EOFRTI_POS = 0xBCAA9999
-} fc_eof_t;
+#define    EOFT_NEG    0xBC957575
+#define    EOFT_POS    0xBCB57575
+#define    EOFDT_NEG   0xBC959595
+#define    EOFDT_POS   0xBCB59595
+#define    EOFA_NEG    0xBC95F5F5
+#define    EOFA_POS    0xBCB5F5F5
+#define    EOFNI_NEG   0xBC8AD5D5
+#define    EOFNI_POS   0xBCAAD5D5
+#define    EOFDTI_NEG  0xBC8A9595
+#define    EOFDTI_POS  0xBCAA9595
+#define    EOFRI_NEG   0xBC959999
+#define    EOFRI_POS   0xBCB59999
+#define    EOFRTI_NEG  0xBC8A9999
+#define    EOFRTI_POS  0xBCAA9999
 
 static const value_string fc_sof_vals[] = {
     {FC_SOFC1, "SOFc1 - SOF Connect Class 1 (Obsolete)" },
