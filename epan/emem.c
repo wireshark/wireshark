@@ -394,7 +394,7 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 	npc->free_offset = npc->free_offset_init;
 
 #else /* Is there a draft in here? */
-	npc->buf = malloc(EMEM_PACKET_CHUNK_SIZE);
+	npc->buf = g_malloc(EMEM_PACKET_CHUNK_SIZE);
 	if(npc->buf == NULL) {
 		THROW(OutOfMemoryError);
 	}
@@ -834,7 +834,7 @@ se_tree_create(int type, const char *name)
 {
 	emem_tree_t *tree_list;
 
-	tree_list=malloc(sizeof(emem_tree_t));
+	tree_list=g_malloc(sizeof(emem_tree_t));
 	tree_list->next=se_trees;
 	tree_list->type=type;
 	tree_list->tree=NULL;
@@ -1417,7 +1417,7 @@ emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v, guint32 f
 	guint32 i;
 	guint32 tmp;
 
-	aligned = malloc(div * sizeof (guint32));
+	aligned = g_malloc(div * sizeof (guint32));
 
 	/* pack the bytes one one by one into guint32s */
 	tmp = 0;
@@ -1470,7 +1470,7 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k, guint32 flags)
 	guint32 tmp;
 	void *ret;
 
-	aligned = malloc(div * sizeof (guint32));
+	aligned = g_malloc(div * sizeof (guint32));
 
 	/* pack the bytes one one by one into guint32s */
 	tmp = 0;
