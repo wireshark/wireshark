@@ -2599,7 +2599,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 		bit_offset = bit_offset + 1;
 
 		/* Extract DTM EGPRS High Multi Slot Class */
-		if (dtmEgprsMultiSlotClassPresent == 1)
+		if (dtmEgprsHighMultiSlotClassPresent == 1)
 		{
 			proto_tree_add_bits_item(tree, hf_gsm_a_dtm_egprs_high_multi_slot_class, tvb, bit_offset, 3, FALSE);
 			bit_offset = bit_offset + 3;
