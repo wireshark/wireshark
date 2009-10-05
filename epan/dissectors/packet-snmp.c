@@ -2107,11 +2107,11 @@ dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
  if (parameter_tvb){
 	guint8 v3_flags = tvb_get_guint8(parameter_tvb, 0);
 	proto_tree* flags_tree = proto_item_add_subtree(actx->created_item,ett_msgFlags);
-
+	
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, FALSE);
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, FALSE);
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_auth, parameter_tvb, 0, 1, FALSE);
-
+	
 	usm_p.encrypted = v3_flags & TH_CRYPT ? TRUE : FALSE;
 	usm_p.authenticated = v3_flags & TH_AUTH ? TRUE : FALSE;
   }
@@ -2156,7 +2156,7 @@ dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 #line 155 "snmp.cnf"
 
 	switch(MsgSecurityModel){
-		case SNMP_SEC_USM:	/* 3 */
+		case SNMP_SEC_USM:	/* 3 */		
 			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, actx, tree, -1);
 			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb);
 			break;
@@ -2202,7 +2202,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 	if( usm_p.encrypted && crypt_tvb
 		&& usm_p.user_assoc
 		&& usm_p.user_assoc->user.privProtocol ) {
-
+		
 		const gchar* error = NULL;
 		proto_tree* encryptedpdu_tree = proto_item_add_subtree(actx->created_item,ett_encryptedPDU);
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, &error );
@@ -2210,13 +2210,13 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 		if (! cleartext_tvb) {
 			proto_item* cause = proto_tree_add_text(encryptedpdu_tree, crypt_tvb, 0, -1,
 				"Failed to decrypt encryptedPDU: %s", error);
-
+			
 			expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
 				"Failed to decrypt encryptedPDU: %s", error);
 
 			if (check_col(actx->pinfo->cinfo, COL_INFO))
 				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
-
+				
 			return offset;
 		} else {
 			proto_item* decrypted_item;
@@ -2225,19 +2225,19 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 			if (! check_ScopedPdu(cleartext_tvb)) {
 				proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
 											"Decrypted data not formatted as expected, wrong key?");
-
+				
 				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
 									   "Decrypted data not formatted as expected");
 
 				if (check_col(actx->pinfo->cinfo, COL_INFO))
 					col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formatted as expected");
-
+				
 				return offset;
 			}
 
-
+			
             add_new_data_source(actx->pinfo, cleartext_tvb, "Decrypted ScopedPDU");
-
+			
 			decrypted_item = proto_tree_add_item(encryptedpdu_tree, hf_snmp_decryptedPDU,cleartext_tvb,0,-1,FALSE);
 			decrypted_tree = proto_item_add_subtree(decrypted_item,ett_decrypted);
 			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, actx, decrypted_tree, -1);
@@ -2298,7 +2298,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 		proto_tree* authen_tree = proto_item_add_subtree(usm_p.auth_item,ett_authParameters);
 		guint8* calc_auth;
 		guint calc_auth_len;
-
+		
 		usm_p.authOK = usm_p.user_assoc->user.authModel->authenticate( &usm_p, &calc_auth, &calc_auth_len, &error );
 
 		if (error) {
@@ -2307,11 +2307,11 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 			expert_add_info_format( actx->pinfo, authen_item, PI_MALFORMED, PI_ERROR, "Error while verifying Message authenticity: %s", error );
 		} else {
 			int severity;
-			gchar* msg;
+			gchar* msg;			
 
 			authen_item = proto_tree_add_boolean(authen_tree, hf_snmp_msgAuthentication, tvb, 0, 0, usm_p.authOK);
 			PROTO_ITEM_SET_GENERATED(authen_item);
-
+			
 			if (usm_p.authOK) {
 				msg = "SNMP Authentication OK";
 				severity = PI_CHAT;
@@ -2605,7 +2605,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1410 "packet-snmp-template.c"
+#line 1417 "packet-snmp-template.c"
 
 
 guint
@@ -3403,7 +3403,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1944 "packet-snmp-template.c"
+#line 1950 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3443,7 +3443,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1960 "packet-snmp-template.c"
+#line 1966 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {
