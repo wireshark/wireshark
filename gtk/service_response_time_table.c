@@ -171,6 +171,74 @@ srt_create_popup_menu(srt_stat_table *rst)
 	g_signal_connect(rst->table, "button_press_event", G_CALLBACK(srt_show_popup_menu_cb), rst);
 }
 
+/* ---------------- */
+static void
+srt_time_func (GtkTreeViewColumn *column _U_,
+                           GtkCellRenderer   *renderer,
+                           GtkTreeModel      *model,
+                           GtkTreeIter       *iter,
+                           gpointer           user_data)
+{	
+	 gchar *str;
+	 nstime_t *data;
+
+     /* The col to get data from is in userdata */
+     gint data_column = GPOINTER_TO_INT(user_data);
+
+     gtk_tree_model_get(model, iter, data_column, &data, -1);
+     if (!data) {
+	     g_object_set(renderer, "text", "", NULL);
+	     return;
+	 }
+	 str = g_strdup_printf("%3d.%05d", (int)data->secs, data->nsecs/10000);
+	 g_object_set(renderer, "text", str, NULL);
+	 g_free(str);
+}
+
+static void
+srt_avg_func (GtkTreeViewColumn *column _U_,
+                           GtkCellRenderer   *renderer,
+                           GtkTreeModel      *model,
+                           GtkTreeIter       *iter,
+                           gpointer           user_data)
+{	
+	 gchar *str;
+	 guint64 td;
+     gint data_column = GPOINTER_TO_INT(user_data);
+
+     gtk_tree_model_get(model, iter, data_column, &td, -1);
+     str=g_strdup_printf("%3" G_GINT64_MODIFIER "d.%05" G_GINT64_MODIFIER "d",
+ 		    td/100000, td%100000);
+	 g_object_set(renderer, "text", str, NULL);
+	 g_free(str);
+}
+
+static gint
+srt_time_sort_func(GtkTreeModel *model,
+							GtkTreeIter *a,
+							GtkTreeIter *b,
+							gpointer user_data)
+{
+	 nstime_t *ns_a;
+	 nstime_t *ns_b;
+	 gint ret = 0;
+	 gint data_column = GPOINTER_TO_INT(user_data);
+
+     gtk_tree_model_get(model, a, data_column, &ns_a, -1);
+     gtk_tree_model_get(model, b, data_column, &ns_b, -1);
+
+	if (ns_a == ns_b) {
+		ret = 0;
+	} 
+	else if (ns_a == NULL || ns_b == NULL) {
+		ret = (ns_a == NULL) ? -1 : 1;
+	} 
+	else {
+		ret = nstime_cmp(ns_a,ns_b);
+	}
+	return ret;
+}
+
 /*
     XXX Resizable columns are ugly when there's more than on table cf. SMB
 */
@@ -191,10 +259,10 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 	store = gtk_list_store_new (N_COLUMNS,  /* Total number of columns */
                                G_TYPE_INT,   	/* Index     */
                                G_TYPE_STRING,   /* Procedure */
-                               G_TYPE_INT,   	/* Calls     */
-                               G_TYPE_STRING,   /* Min SRT   */
-                               G_TYPE_STRING,   /* Max SRT   */
-                               G_TYPE_STRING);  /* Avg SRT   */
+                               G_TYPE_UINT,   	/* Calls     */
+                               G_TYPE_POINTER,  /* Min SRT   */
+                               G_TYPE_POINTER,  /* Max SRT   */
+                               G_TYPE_UINT64);  /* Avg SRT   */
 
       /* Create a view */
     tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
@@ -216,9 +284,23 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 			g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
 		}
 		g_object_set(renderer, "ypad", 0, NULL);
-		column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, "text", 
-				i, NULL);
-				
+		switch (i) {
+		case MIN_SRT_COLUMN:
+		case MAX_SRT_COLUMN:
+			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, NULL);
+			gtk_tree_view_column_set_cell_data_func(column, renderer, srt_time_func,  GINT_TO_POINTER(i), NULL);
+			gtk_tree_sortable_set_sort_func(sortable, i, srt_time_sort_func, GINT_TO_POINTER(i), NULL);
+			break;
+		case AVG_SRT_COLUMN:
+			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, NULL);
+			gtk_tree_view_column_set_cell_data_func(column, renderer, srt_avg_func,  GINT_TO_POINTER(i), NULL);
+			break;
+		default:
+			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, "text", 
+					i, NULL);
+			break;
+		}				
+
 		gtk_tree_view_column_set_sort_column_id(column, i);
 		gtk_tree_view_column_set_resizable(column, TRUE);
 		gtk_tree_view_append_column (rst->table, column);
@@ -305,9 +387,9 @@ add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, pac
 				   INDEX_COLUMN,     rp->index,
 				   PROCEDURE_COLUMN, rp->procedure,
 				   CALLS_COLUMN,     rp->stats.num,
-				   MIN_SRT_COLUMN,   "",
-				   MAX_SRT_COLUMN,   "",
-				   AVG_SRT_COLUMN,   "",
+				   MIN_SRT_COLUMN,   NULL,
+				   MAX_SRT_COLUMN,   NULL,
+				   AVG_SRT_COLUMN,   (guint64)0,
 				   -1);
 	}
 
@@ -323,7 +405,6 @@ draw_srt_table_data(srt_stat_table *rst)
 {
 	int i;
 	guint64 td;
-	char *min, *max, *avg;
 	GtkListStore *store = GTK_LIST_STORE(gtk_tree_view_get_model(rst->table));
 
 	for(i=0;i<rst->num_procs;i++){
@@ -337,26 +418,12 @@ draw_srt_table_data(srt_stat_table *rst)
 		td=(int)rst->procedures[i].stats.tot.secs;
 		td=td*100000+(int)rst->procedures[i].stats.tot.nsecs/10000;
 		td/=rst->procedures[i].stats.num;
-
-		min=g_strdup_printf("%3d.%05d",
-		    (int)rst->procedures[i].stats.min.secs,
-		    rst->procedures[i].stats.min.nsecs/10000);
-
-		max=g_strdup_printf("%3d.%05d",
-		    (int)rst->procedures[i].stats.max.secs,
-		    rst->procedures[i].stats.max.nsecs/10000);
-		avg=g_strdup_printf("%3" G_GINT64_MODIFIER "d.%05" G_GINT64_MODIFIER "d",
- 		    td/100000, td%100000);
-		    
 		gtk_list_store_set(store, &rst->procedures[i].iter,
 				   CALLS_COLUMN,     rst->procedures[i].stats.num,
-				   MIN_SRT_COLUMN,   min,
-				   MAX_SRT_COLUMN,   max,
-				   AVG_SRT_COLUMN,   avg,
+				   MIN_SRT_COLUMN,   &rst->procedures[i].stats.min,
+				   MAX_SRT_COLUMN,   &rst->procedures[i].stats.max,
+				   AVG_SRT_COLUMN,   td,
 				   -1);
-		g_free(min);
-		g_free(max);
-		g_free(avg);
 	}
 }
 
