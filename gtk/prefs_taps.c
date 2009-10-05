@@ -42,7 +42,6 @@
 static char update_interval_str[128] = "";
 static char max_visible_str[128] = "";
 
-extern void reset_tap_update_timer(void);
 
 GtkWidget*
 stats_prefs_show(void)
