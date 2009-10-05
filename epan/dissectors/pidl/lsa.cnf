@@ -361,7 +361,7 @@ lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset
 {
 	dcerpc_info *di = NULL;
 	tvbuff_t *next_tvb;
-	guint32 len, reported_len;
+	gint len, reported_len;
 	dissector_handle_t efsblob_handle;
 
 	di=pinfo->private_data;
