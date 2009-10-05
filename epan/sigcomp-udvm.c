@@ -131,7 +131,8 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 						   gint udvm_start_ip)
 {
 	tvbuff_t	*decomp_tvb;
-	guint8		buff[UDVM_MEMORY_SIZE];
+	/* UDVM memory must be initialised to zero */
+	guint8		*buff = ep_alloc0(UDVM_MEMORY_SIZE);
 	char		string[2];
 	guint8		*out_buff;		/* Largest allowed size for a message is 65535  */
 	guint32		i = 0;
@@ -251,12 +252,6 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 			break;
 	}
 
-
-
-
-
-	/* UDVM memory must be initialised to zero */
-	memset(buff, 0, UDVM_MEMORY_SIZE);
 	/* Set initial UDVM data
 	 *  The first 32 bytes of UDVM memory are then initialized to special
 	 *  values as illustrated in Figure 5.
