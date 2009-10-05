@@ -94,7 +94,7 @@ gint pdu_type=-1;
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
 		usm_p.auth_item = %(ACTX)s->created_item;
-		usm_p.auth_offset = offset_from_real_beginning(usm_p.auth_tvb,0);
+		usm_p.auth_offset = tvb_offset_from_real_beginning(usm_p.auth_tvb);
 	}
 #.FN_PARS UsmSecurityParameters/msgPrivacyParameters
 	VAL_PTR = &usm_p.priv_tvb
