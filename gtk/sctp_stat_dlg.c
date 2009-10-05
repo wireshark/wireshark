@@ -88,7 +88,10 @@ sctp_stat_on_select_row(GtkTreeSelection *sel, gpointer user_data _U_)
 			VTAG1_COLUMN, &vtag1,
 			VTAG2_COLUMN, &vtag2,
 			-1);
-		}
+	} else {
+		/* Nothing selected */
+		return;
+	}
 
 	list = g_list_first(sctp_assocs->assoc_info_list);
 
