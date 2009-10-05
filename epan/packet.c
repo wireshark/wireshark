@@ -696,6 +696,26 @@ find_uint_dtbl_entry(dissector_table_t sub_dissectors, guint32 pattern)
 	    GUINT_TO_POINTER(pattern));
 }
 
+#if 0
+static void
+dissector_add_sanity_check(const char *name, guint32 pattern, dissector_handle_t handle, dissector_table_t sub_dissectors)
+{
+	dtbl_entry_t *dtbl_entry;
+
+	if (pattern == 0) {
+		g_warning("%s: %s registering using a pattern of 0",
+			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
+	}
+
+	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern));
+	if (dtbl_entry != NULL) {
+		g_warning("%s: %s registering using pattern %d already registered by %s",
+			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol)),
+						  pattern, proto_get_protocol_filter_name(proto_get_id(dtbl_entry->initial->protocol)));
+	}
+}
+#endif
+
 /* Add an entry to a uint dissector table. */
 void
 dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
@@ -726,25 +746,16 @@ dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
 	}
 
 #if 0
-        if (pattern == 0) {
-		g_warning("%s: %s registering using a pattern of 0",
-			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol)));
-        }
-
-	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern));
-	if (dtbl_entry != NULL) {
-		g_warning("%s: %s registering using pattern %d already registered by %s",
-			  name, proto_get_protocol_filter_name(proto_get_id(handle->protocol)),
-                          pattern, proto_get_protocol_filter_name(proto_get_id(dtbl_entry->initial->protocol)));
-	}
+    dissector_add_sanity_check(name, pattern, handle, sub_dissectors);
 #endif
+
 	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
 	dtbl_entry->current = handle;
 	dtbl_entry->initial = dtbl_entry->current;
 
 /* do the table insertion */
-    	g_hash_table_insert( sub_dissectors->hash_table,
-    	    GUINT_TO_POINTER( pattern), (gpointer)dtbl_entry);
+	g_hash_table_insert( sub_dissectors->hash_table,
+	    GUINT_TO_POINTER( pattern), (gpointer)dtbl_entry);
 
 	/*
 	 * Now add it to the list of handles that could be used with this
