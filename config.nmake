@@ -738,8 +738,6 @@ MSC_VER_REQUIRED=1500
 # /D_CRT_NONSTDC_NO_DEPRECATE       Don't warn for "Deprecated CRT Functions" as MSDN calls this
 # /D_BIND_TO_CURRENT_CRT_VERSION=1  Make sure our CRT and manifest versions match (http://msdn.microsoft.com/en-us/library/cc664727.aspx)
 # /DWIN32_LEAN_AND_MEAN             Don't include unnecessary Windows include files (see windows.h)
-# /MP [<number of processes>]       [MSVC2008]: Compiles multiple source files by using multiple processes
-#                                               Add if desired for compile speedup on machines with 2 or more "effective processors"
 # /MANIFEST:no                      Don't create a SxS manifest. Makes sure our plugins don't load a second copy of the CRT.
 #
 !IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "DOTNET10" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11"
@@ -754,18 +752,18 @@ LOCAL_CFLAGS=$(LOCAL_CFLAGS) /D_BIND_TO_CURRENT_CRT_VERSION=1
 !ENDIF
 
 # http://msdn.microsoft.com/en-us/library/bb385193.aspx
-# /MP (Build with Multiple Processes)
-# /MP[processMax]
-# If you omit the processMax argument, the compiler retrieves the number of effective processors
-# on your computer from the operating system, and creates a process for each processor.
+# /MP               Compiles multiple source files by using multiple processes
+# /MP[processMax]   If you omit the processMax argument, the compiler retrieves the number of effective processors
+#                   on your computer from the operating system, and creates a process for each processor.
 #
 # The following compiler options and language features that are incompatible with the /MP option:
-# #import preprocessor directive
-# /E, /EP
-# /Gm
-# /showIncludes
-# /Yc
-
+#
+# * #import preprocessor directive
+# * /E, /EP
+# * /Gm
+# * /showIncludes
+# * /Yc
+#
 !IF "$(MSVC_VARIANT)" == "MSVC2008" || "$(MSVC_VARIANT)" == "MSVC2008EE"
 LOCAL_CFLAGS= $(LOCAL_CFLAGS) /MP
 !ENDIF
