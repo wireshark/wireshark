@@ -23,7 +23,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * References: 3GPP TS 24.301 V8.0.0 (2008-12) and V8.2.0
+ * References: 3GPP TS 24.301 V9.0.0 (2009-09)
  */
 
 #ifdef HAVE_CONFIG_H
