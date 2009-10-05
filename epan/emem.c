@@ -1456,7 +1456,7 @@ emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v, guint32 f
 
 
 	emem_tree_insert32_array(se_tree, key, v);
-	free(aligned);
+	g_free(aligned);
 }
 
 void *
@@ -1509,7 +1509,7 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k, guint32 flags)
 
 
 	ret = emem_tree_lookup32_array(se_tree, key);
-	free(aligned);
+	g_free(aligned);
 	return ret;
 }
 
