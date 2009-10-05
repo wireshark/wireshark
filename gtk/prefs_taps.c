@@ -33,6 +33,7 @@
 
 #include "gtk/prefs_taps.h"
 #include "gtk/prefs_dlg.h"
+#include "gtk/main.h"
 
 #define TAP_UPDATE_INTERVAL_KEY   "update_interval"
 
