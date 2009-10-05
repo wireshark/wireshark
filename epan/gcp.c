@@ -168,9 +168,7 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
                     return trxmsg->trx;
                 }
             }
-
-            DISSECTOR_ASSERT(! "a trx that should exist does not!" );
-
+            DISSECTOR_ASSERT_NOT_REACHED();
         } else {
 			emem_tree_key_t key[] = {
 				{1,&(m->hi_addr)},
@@ -214,6 +212,8 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,guint32 t_id , gcp_trx_type_t type, gboolean ke
         t->error = 0;
         t->cmds = NULL;
     }
+
+    DISSECTOR_ASSERT(trxmsg);
 
     trxmsg->trx = t;
     trxmsg->next = NULL;
