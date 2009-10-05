@@ -2868,8 +2868,8 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint16 sec_addr_len;
     guint8 num_results;
     guint i;
-    guint16 result;
-    guint16 reason;
+    guint16 result = 0;
+    guint16 reason = 0;
     e_uuid_t trans_id;
     guint32 trans_ver;
     dcerpc_auth_info auth_info;
@@ -4216,7 +4216,7 @@ static gboolean
 dissect_dcerpc_cn_bs_body (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     volatile int offset = 0;
-    int pdu_len;
+    int pdu_len = 0;
     volatile gboolean dcerpc_pdus = 0;
     volatile gboolean ret = FALSE;
 
