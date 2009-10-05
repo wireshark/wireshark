@@ -102,6 +102,8 @@ frs_return_t follow_show(follow_info_t *follow_info,
 			 void *arg, guint32 *global_pos,
 			 guint32 *server_packet_count,
 			 guint32 *client_packet_count);
+gboolean follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
+		       void *arg);
 
 frs_return_t follow_read_tcp_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
 frs_return_t follow_read_udp_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);

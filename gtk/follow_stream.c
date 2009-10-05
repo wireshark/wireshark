@@ -77,7 +77,7 @@ static void follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data);
 
 GList *follow_infos = NULL;
 
-frs_return_t
+static frs_return_t
 follow_read_stream(follow_info_t *follow_info,
 		   gboolean (*print_line)(char *, size_t, gboolean, void *),
 		   void *arg)
@@ -140,7 +140,7 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
  * lines of what's done when displaying this in a window, as per Warren Young's
  * suggestion.
  */
-gboolean
+static gboolean
 follow_print_text(char *buffer, size_t nchars, gboolean is_server _U_,
 		  void *arg)
 {
@@ -167,7 +167,7 @@ follow_print_text(char *buffer, size_t nchars, gboolean is_server _U_,
 	return TRUE;
 }
 
-gboolean
+static gboolean
 follow_write_raw(char *buffer, size_t nchars, gboolean is_server _U_, void *arg)
 {
 	FILE *fh = arg;
@@ -675,7 +675,7 @@ follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 	follow_info->follow_save_as_w = NULL;
 }
 
-void
+static void
 follow_stream_direction_changed(GtkWidget *w, gpointer data)
 {
 	follow_info_t *follow_info = data;
