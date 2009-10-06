@@ -2047,6 +2047,14 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [3] 10.5.1.7 Mobile Station Classmark 3
  * 3GPP TS 24.008 version 8.6.0 Release 8
  */
+#define AVAILABLE_BITS_CHECK(n) \
+	bits_left = ((len + offset) << 3) - bit_offset; \
+	if (bits_left < (n)) { \
+		if (bits_left) \
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE); \
+		return(len); \
+	}
+
 guint16
 de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -2141,6 +2149,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 			break;
 	}
 	/* Extract R Support */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_rsupport, tvb, bit_offset, 1, &rsupport, FALSE);
 	bit_offset++;
 
@@ -2158,6 +2167,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 * { 0 | 1 < HSCSD Multi Slot Capability > }
 	 * Extract Multislot capability
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_multislot_capabilities, tvb, bit_offset, 1, &multislotCapability, FALSE);
 	bit_offset++;
 
@@ -2169,16 +2179,19 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	}
 
 	/* < UCS2 treatment: bit > */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_ucs2_treatment, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
 	/* < Extended Measurement Capability : bit > */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_extended_measurement_cap, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
 	/* { 0 | 1 < MS measurement capability > }
 	 * Extract MS Measurement capability
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_measurement_capability, tvb, bit_offset, 1, &msMeasurementCapability, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2196,6 +2209,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* { 0 | 1 < MS Positioning Method Capability > }
 	 * Extract MS Positioning Method Capability
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_pos_method_cap_present, tvb, bit_offset, 1, &msPosMethodCapPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2224,6 +2238,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* { 0 | 1 < ECSD Multi Slot Capability > }
 	 * Extract ECSD Multi Slot Capability
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ecsd_multi_slot_capability, tvb, bit_offset, 1, &ecsdMultiSlotCapability, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2237,6 +2252,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* { 0 | 1 < 8-PSK Struct > }
 	 * Extract 8-PSK struct presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_8_psk_struct_present, tvb, bit_offset, 1, &eightPskStructPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2263,6 +2279,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 *   < GSM 400 Associated Radio Capability: bit(4) > }
 	 * Extract GSM 400 Band Information presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_400_band_info_present, tvb, bit_offset, 1, &gsm400BandInfoPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2280,6 +2297,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* { 0 | 1 <GSM 850 Associated Radio Capability : bit(4) > }
 	 * Extract GSM 850 Associated Radio Capability presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_850_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm850AssocRadioCapabilityPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2293,6 +2311,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* { 0 | 1 <GSM 1900 Associated Radio Capability : bit(4) > }
 	 * Extract GSM 1900 Associated Radio Capability presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_1900_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm1900AssocRadioCapabilityPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2306,18 +2325,21 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* < UMTS FDD Radio Access Technology Capability : bit >
 	 * Extract UMTS FDD Radio Access Technology Capability
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_umts_fdd_rat_cap, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
 	/* < UMTS 3.84 Mcps TDD Radio Access Technology Capability : bit >
 	 * Extract UMTS 3.84 Mcps TDD Radio Access Technology Capability
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_umts_384_mcps_tdd_rat_cap, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
 	/* < CDMA 2000 Radio Access Technology Capability : bit >
 	 * Extract CDMA 2000 Radio Access Technology Capability
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_cdma_2000_rat_cap, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2326,6 +2348,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 *   {0 | 1< DTM EGPRS Multi Slot Class : bit(2) > } }
 	 * Extract DTM E/GPRS Information presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_e_gprs_multi_slot_info_present, tvb, bit_offset, 1, &dtmEGprsMultiSlotInfoPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2352,29 +2375,12 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	}
 
 	/*
-	 * Data in bit stream for this release end here
-	 * Do not proceed to next release data if all that is
-	 * left is < 8 all zero bits
-	 */
-	bits_left = ((len + offset) << 3) - bit_offset;
-	if (bits_left == 0)
-		return(len);
-
-	if (bits_left < 8)
-	{
-		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
-		{
-			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
-			return(len);
-		}
-	}
-
-	/*
 	 * Release 4 starts here
 	 *
 	 * { 0 | 1 < Single Band Support > } -- Release 4 starts here:
 	 * Extract Single Band Support
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_single_band_support, tvb, bit_offset, 1, &singleBandSupport, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2388,6 +2394,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* { 0 | 1 <GSM 750 Associated Radio Capability : bit(4) > }
 	 * Extract GSM 750 Associated Radio Capability presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_750_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm750AssocRadioCapabilityPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2401,12 +2408,14 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* < UMTS 1.28 Mcps TDD Radio Access Technology Capability : bit >
 	 * Extract UMTS 1.28 Mcps TDD Radio Access Technology Capability
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_umts_128_mcps_tdd_rat_cap, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
 	/* < GERAN Feature Package 1 : bit >
 	 * Extract GERAN Feature Package 1
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_geran_feature_package_1, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2414,6 +2423,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 *   < Extended DTM EGPRS Multi Slot Class : bit(2) > }
 	 * Extract Extended DTM E/GPRS Information presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ext_dtm_e_gprs_multi_slot_info_present, tvb, bit_offset, 1, &extDtmEGprsMultiSlotInfoPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2429,29 +2439,12 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	}
 
 	/*
-	 * Data in bit stream for this release end here
-	 * Do not proceed to next release data if all that is
-	 * left is < 8 all zero bits
-	 */
-	bits_left = ((len + offset) << 3) - bit_offset;
-	if (bits_left == 0)
-		return(len);
-
-	if (bits_left < 8)
-	{
-		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
-		{
-			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
-			return(len);
-		}
-	}
-
-	/*
 	 * Release 5 starts here
 	 *
 	 * { 0 | 1 < High Multislot Capability : bit(2) > } -- Release 5 starts here.
 	 * Extract High Multislot Capability presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_high_multislot_cap_present, tvb, bit_offset, 1, &highMultislotCapPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2466,6 +2459,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 * { 0 | 1 < GERAN Iu Mode Capabilities > } -- "1" also means support of GERAN Iu mode
 	 * Extract GERAN Iu Mode Capabilities presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_geran_iu_mode_support, tvb, bit_offset, 1, &geranIuModeSupport, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2498,38 +2492,23 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* < GERAN Feature Package 2 : bit >
 	 * Extract GERAN Feature Package 2
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_geran_feature_package_2, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
 	/* < GMSK Multislot Power Profile : bit (2) >
 	 * Extract GMSK Multislot Power Profile
 	 */
+	AVAILABLE_BITS_CHECK(2);
 	proto_tree_add_bits_item(tree, hf_gsm_a_gmsk_multislot_power_prof, tvb, bit_offset, 2, FALSE);
 	bit_offset = bit_offset + 2;
 
 	/* < 8-PSK Multislot Power Profile : bit (2) >
 	 * Extract GMSK Multislot Power Profile
 	 */
+	AVAILABLE_BITS_CHECK(2);
 	proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_multislot_power_prof, tvb, bit_offset, 2, FALSE);
 	bit_offset = bit_offset + 2;
-
-	/*
-	 * Data in bit stream for this release end here
-	 * Do not proceed to next release data if all that is
-	 * left is < 8 all zero bits
-	 */
-	bits_left = ((len + offset) << 3) - bit_offset;
-	if (bits_left == 0)
-		return(len);
-
-	if (bits_left < 8)
-	{
-		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
-		{
-			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
-			return(len);
-		}
-	}
 
 	/*
 	 * Release 6 starts here
@@ -2537,6 +2516,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 * { 0 | 1 < T-GSM 400 Bands Supported : { 01 | 10 | 11 } > -- Release 6 starts here.
 	 *   < T-GSM 400 Associated Radio Capability: bit(4) > }
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_t_gsm_400_band_info_present, tvb, bit_offset, 1, &tGsm400BandInfoPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2554,6 +2534,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* { 0 | 1 < T-GSM 900 Associated Radio Capability: bit(4) > }
 	 * Extract T-GSM 900 Associated Radio Capability presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_t_gsm_900_assoc_radio_cap_present, tvb, bit_offset, 1, &tGsm900AssocRadioCapabilityPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2567,12 +2548,14 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* < Downlink Advanced Receiver Performance : bit (2)>
 	 * Extract Downlink Advanced Receiver Performance
 	 */
+	AVAILABLE_BITS_CHECK(2);
 	proto_tree_add_bits_item(tree, hf_gsm_a_downlink_adv_receiver_perf, tvb, bit_offset, 2, FALSE);
 	bit_offset = bit_offset + 2;
 
 	/* < DTM Enhancements Capability : bit >
 	 * Extract DTM Enhancements Capability
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_dtm_enhancements_cap, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2581,6 +2564,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 *   { 0 | 1 < DTM EGPRS High Multi Slot Class : bit(3) > } }
 	 * Extract DTM E/GPRS High Multi Slot Information presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_e_gprs_high_multi_slot_info_present, tvb, bit_offset, 1, &dtmEGprsHighMultiSlotInfoPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2609,26 +2593,9 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* < Repeated ACCH Capability : bit >
 	 * Extract Repeated ACCH Capability
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_repeated_acch_cap, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
-
-	/*
-	 * Data in bit stream for this release end here
-	 * Do not proceed to next release data if all that is
-	 * left is < 8 all zero bits
-	 */
-	bits_left = ((len + offset) << 3) - bit_offset;
-	if (bits_left == 0)
-		return(len);
-
-	if (bits_left < 8)
-	{
-		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
-		{
-			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
-			return(len);
-		}
-	}
 
 	/*
 	 * Release 7 starts here
@@ -2636,6 +2603,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 * { 0 | 1 <GSM 710 Associated Radio Capability : bit(4) > } -- Release 7 starts here.
 	 * Extract GSM 710 Associated Radio Capability presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_710_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm710AssocRadioCapabilityPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2649,6 +2617,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* { 0 | 1 < T-GSM 810 Associated Radio Capability: bit(4) > }
 	 * Extract T-GSM 810 Associated Radio Capability presence
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_ret_val(tree, hf_gsm_a_t_gsm_810_assoc_radio_cap_present, tvb, bit_offset, 1, &tGsm810AssocRadioCapabilityPresent, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2662,32 +2631,16 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	/* < Ciphering Mode Setting Capability : bit >
 	 * Extract Ciphering Mode Setting Capability
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_ciphering_mode_setting_cap, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
 	/* < Additional Positioning Capabilities : bit >
 	 * Extract Additional Positioning Capabilities
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_additional_positioning_caps, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
-
-	/*
-	 * Data in bit stream for this release end here
-	 * Do not proceed to next release data if all that is
-	 * left is < 8 all zero bits
-	 */
-	bits_left = ((len + offset) << 3) - bit_offset;
-	if (bits_left == 0)
-		return(len);
-
-	if (bits_left < 8)
-	{
-		if (tvb_get_bits8(tvb, bit_offset, bits_left) == 0)
-		{
-			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
-			return(len);
-		}
-	}
 
 	/*
 	 * Release 8 starts here
@@ -2695,6 +2648,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 * { 0 | 1 <E-UTRA FDD support : bit > } -- Release 8 starts here.
 	 * Extract E-UTRA FDD support
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_fdd_support, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2702,6 +2656,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 * { 0 | 1 <E-UTRA TDD support : bit > }
 	 * Extract E-UTRA TDD support
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_tdd_support, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
@@ -2709,6 +2664,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	 * { 0 | 1 <E-UTRA Measurement and Reporting support : bit > }
 	 * Extract E-UTRA Measurement and Reporting support
 	 */
+	AVAILABLE_BITS_CHECK(1);
 	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_meas_and_report_support, tvb, bit_offset, 1, FALSE);
 	bit_offset = bit_offset + 1;
 
