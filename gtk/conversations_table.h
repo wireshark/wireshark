@@ -46,6 +46,10 @@ typedef struct _conversation_t {
 
 	nstime_t start_time;     /**< start time for the conversation */
 	nstime_t stop_time;      /**< stop time for the conversation */
+
+	gboolean modified;       /**< new to redraw the row */	
+	GtkTreeIter iter;
+	gboolean iter_valid;     /**< not a new row */	
 } conv_t;
 
 /** Conversation widget */
@@ -57,13 +61,15 @@ typedef struct _conversations_table {
 	GtkWidget           *page_lb;           /**< page label */
 	GtkWidget           *name_lb;           /**< name label */
 	GtkWidget           *scrolled_window;   /**< the scrolled window */
-	GtkCList            *table;             /**< the GTK table */
-	guint32             num_columns;         /**< number of columns in the above table */
+	GtkTreeView         *table;             /**< the GTK table */
 	const char          *default_titles[14]; /**< Column headers */
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
 	guint32             num_conversations;  /**< number of conversations */
-	conv_t              *conversations;     /**< array of conversation values */
+	GArray		    *conversations;     /**< array of conversation values */
+	GHashTable          *hashtable;         /**< conversations hash table */
+
+	gboolean 	    fixed_col;      	/**< if switched to fixed column */
 	gboolean            resolve_names;      /**< resolve address names? */
 } conversations_table;
 
