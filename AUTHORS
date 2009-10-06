@@ -2942,6 +2942,11 @@ Matthieu Patou		<mat@matws.net> {
 	Netlogon/Schannel.
 }
 
+Kovarththanan Rajaratnam <kovarththanan.rajaratnam [AT] gmail.com> {
+	Work on the new packet list.
+	Miscellaneous fixes and enhancements.
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -3110,10 +3115,9 @@ Raghav SN		<Raghav.SN [AT] citrix.com>
 Murali Raja		<Murali.Raja [AT] citrix.com>
 Devesh Prakash		<Devesh.Prakash [AT] citrix.com>
 Richard Kümmel		<r.kuemmel [AT] beckhoff.de>
-Kovarththanan Rajaratnam <kovarththanan.rajaratnam [AT] gmail.com>
 Darryl Champagne	<dchampagne [AT] sta.samsung.com>
 Michael Speck		<Michael.Speck [AT] avl.com>
-Gerasimos Dimitriadis		<dimeg [AT] intracom.gr>   
+Gerasimos Dimitriadis	<dimeg [AT] intracom.gr>   
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
