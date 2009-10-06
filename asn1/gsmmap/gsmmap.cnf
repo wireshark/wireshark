@@ -177,6 +177,10 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 	 offset = tvb_length_remaining(tvb,offset);
   }	
 
+#.FN_PARS  AccessNetworkProtocolId
+
+  VAL_PTR = &AccessNetworkProtocolId
+
 #.FN_BODY AddressString VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
