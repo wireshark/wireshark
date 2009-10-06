@@ -112,6 +112,9 @@ gssapi_reassembly_init(void)
  */
 
 static dissector_handle_t ntlmssp_handle;
+static dissector_handle_t ntlmssp_payload_handle;
+static dissector_handle_t ntlmssp_verf_handle;
+static dissector_handle_t ntlmssp_data_only_handle;
 static dissector_handle_t spnego_krb5_wrap_handle;
 
 static GHashTable *gssapi_oids;
@@ -307,12 +310,36 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (!(class == BER_CLASS_APP && pc && tag == 0)) {
 		  /* It could be NTLMSSP, with no OID.  This can happen 
 		     for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
-		  if ((tvb_length_remaining(gss_tvb, start_offset)>7) && (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0)) {
-		    return_offset = call_dissector(ntlmssp_handle,
-						   tvb_new_subset_remaining(gss_tvb, start_offset),
-						   pinfo, subtree);
-		    goto done;
-		  }
+			if ((tvb_length_remaining(gss_tvb, start_offset)>7) && (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0)) {
+				return_offset = call_dissector(ntlmssp_handle,
+							tvb_new_subset_remaining(gss_tvb, start_offset),
+							pinfo, subtree);
+				goto done;
+			}
+			/* Maybe it's new NTLMSSP payload */
+			if ((tvb_length_remaining(gss_tvb, start_offset)>16) &&
+			   ((tvb_memeql(gss_tvb, start_offset, "\x01\x00\x00\x00", 4) == 0))) {
+				return_offset = call_dissector(ntlmssp_payload_handle,
+							tvb_new_subset(gss_tvb, start_offset, -1, -1),
+							pinfo, subtree);
+				pinfo->gssapi_data_encrypted = TRUE;
+				goto done;
+			}
+			if ((tvb_length_remaining(gss_tvb, start_offset)==16) &&
+			   ((tvb_memeql(gss_tvb, start_offset, "\x01\x00\x00\x00", 4) == 0))) {
+				if( is_verifier ) {
+					return_offset = call_dissector(ntlmssp_verf_handle, 
+									tvb_new_subset(gss_tvb, start_offset, -1, -1), 
+									pinfo, subtree);
+				}
+				else {
+					return_offset = call_dissector(ntlmssp_data_only_handle,
+									tvb_new_subset(pinfo->gssapi_encrypted_tvb, 0, -1, -1),
+									pinfo, subtree);
+					pinfo->gssapi_data_encrypted = TRUE;
+				}
+		   		goto done;
+		  	}
 
 		  /* Maybe it's new GSSKRB5 CFX Wrapping */
 		  if ((tvb_length_remaining(gss_tvb, start_offset)>2) &&
@@ -601,7 +628,7 @@ wrap_dissect_gssapi_payload(tvbuff_t *data_tvb,
 	pinfo->gssapi_wrap_tvb=NULL;
 	pinfo->gssapi_encrypted_tvb=data_tvb;
 	pinfo->gssapi_decrypted_tvb=NULL;
-	dissect_gssapi_verf(auth_tvb, pinfo, NULL);
+	dissect_gssapi(auth_tvb, pinfo, NULL);
 	result=pinfo->gssapi_decrypted_tvb;
 
 	pinfo->decrypt_gssapi_tvb=0;
@@ -628,6 +655,9 @@ proto_reg_handoff_gssapi(void)
 	dissector_handle_t gssapi_handle;
 
 	ntlmssp_handle = find_dissector("ntlmssp");
+	ntlmssp_payload_handle = find_dissector("ntlmssp_payload");
+	ntlmssp_verf_handle = find_dissector("ntlmssp_verf");
+	ntlmssp_data_only_handle = find_dissector("ntlmssp_data_only");
 	spnego_krb5_wrap_handle = find_dissector("spnego-krb5-wrap");
 
 	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,

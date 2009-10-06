@@ -2936,6 +2936,12 @@ Ivan Sy Jr.             <ivan_jr [AT] yahoo.com> {
         Miscellaneous IPv6 enhancements.
 }
 
+Matthieu Patou		<mat@matws.net> {
+	NTLM v1 and v2 decryption.
+	LDAP fixes.
+	Netlogon/Schannel.
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
