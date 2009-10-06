@@ -267,10 +267,11 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
 
 }
 
-guint
+gboolean
 splash_destroy(GtkWidget *win)
 {
-    if (win == NULL) return FALSE;
+    if (win == NULL)
+        return FALSE;
 
     gtk_widget_destroy(win);
     return FALSE;

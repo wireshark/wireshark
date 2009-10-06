@@ -30,7 +30,7 @@
  *  @ingroup dialog_group
  */
 
-/** Create a splash screen showed when Wireshark is started. 
+/** Create a splash screen showed when Wireshark is started.
  *
  * @param message the new message to be displayed
  * @return the newly created window handle
@@ -45,12 +45,12 @@ extern GtkWidget *splash_new(const char *message);
  */
 extern void splash_update(register_action_e action, const char *message, void *call_data);
 
-/** Destroy the splash screen. 
+/** Destroy the splash screen.
  *
  * @param win the window handle from splash_new()
  * @return always FALSE, so this function can be used as a callback for gtk_timeout_add()
  */
-extern guint splash_destroy(GtkWidget *win);
+extern gboolean splash_destroy(GtkWidget *win);
 
 /** User requested the "About" dialog box by menu or toolbar.
  *
