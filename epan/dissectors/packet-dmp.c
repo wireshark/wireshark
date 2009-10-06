@@ -30,7 +30,6 @@
 
 /*
  * TODO:
- * - Obtain a dedicated UDP port number for DMP
  * - Add Transmission/Retransmission statistics
  */
 
@@ -57,9 +56,8 @@
 #define PSNAME "DMP"
 #define PFNAME "dmp"
 
-/* Recommended UDP Port Numbers */
-/* Default disabled */
-#define DEFAULT_DMP_PORT_RANGE ""
+/* Default UDP Port Number */
+#define DEFAULT_DMP_PORT_RANGE "5031"
 
 /* Version supported */
 #define DMP_VERSION  1
