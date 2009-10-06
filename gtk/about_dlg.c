@@ -444,11 +444,7 @@ about_folders_page_new(void)
   /* GeoIP */
   path = geoip_db_get_paths();
 
-#ifdef _WIN32
-  resultArray = g_strsplit(path, ";", 10);
-#else
-  resultArray = g_strsplit(path, ":", 10);
-#endif
+  resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 10);
 
   for(i = 0; resultArray[i]; i++)
     about_folders_row(table, "GeoIP path", g_strstrip(resultArray[i]),
@@ -461,11 +457,7 @@ about_folders_page_new(void)
   /* SMI MIBs/PIBs */
   path = oid_get_default_mib_path();
 
-#ifdef _WIN32
-  resultArray = g_strsplit(path, ";", 10);
-#else
-  resultArray = g_strsplit(path, ":", 10);
-#endif
+  resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 10);
 
   for(i = 0; resultArray[i]; i++)
     about_folders_row(table, "MIB/PIB path", g_strstrip(resultArray[i]),
