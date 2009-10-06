@@ -383,8 +383,8 @@ static void str_to_unicode(const char *nt_password, char *nt_password_unicode)
      nt_password_unicode[i*2]=nt_password[i];
      nt_password_unicode[i*2+1]=0;
    }
+   nt_password_unicode[2*password_len]='\0';
   }
-  nt_password_unicode[2*password_len]='\0';
 }
 
 /* This function generate the Key Exchange Key
