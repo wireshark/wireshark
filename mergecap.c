@@ -27,8 +27,10 @@
 #include <string.h>
 #include "wtap.h"
 
-#ifdef NEED_GETOPT_H
-#include "getopt.h"
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#else
+#include "wsgetopt.h"
 #endif
 
 #include "svnversion.h"
@@ -140,8 +142,6 @@ static void list_encap_types(void) {
 int
 main(int argc, char *argv[])
 {
-  extern char *optarg;
-  extern int   optind;
   int          opt;
   gboolean     do_append     = FALSE;
   gboolean     verbose       = FALSE;

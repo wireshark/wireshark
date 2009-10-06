@@ -122,7 +122,7 @@ TSHARK_TAP_SRC =	\
 
 # helpers already available on some platforms (and on others not)
 EXTRA_wireshark_SOURCES =	\
-	getopt.c	\
+	wsgetopt.c	\
 	inet_ntop.c	\
 	inet_pton.c	\
 	strerror.c	\
@@ -131,7 +131,7 @@ EXTRA_wireshark_SOURCES =	\
 
 # corresponding headers
 EXTRA_wireshark_INCLUDES =	\
-	getopt.h	\
+	wsgetopt.h	\
 	inet_v6defs.h	\
 	strerror.h	\
 	strptime.h

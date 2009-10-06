@@ -51,8 +51,10 @@
 #include "wtap.h"
 #include <wsutil/privileges.h>
 
-#ifdef NEED_GETOPT_H
-#include "getopt.h"
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#else
+#include "wsgetopt.h"
 #endif
 
 static gboolean cap_file_type = FALSE;      /* Do not report capture type     */

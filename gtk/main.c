@@ -45,8 +45,10 @@
 #include "strerror.h"
 #endif
 
-#ifdef NEED_GETOPT_H
-#include "getopt.h"
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#else
+#include "wsgetopt.h"
 #endif
 
 #ifdef _WIN32 /* Needed for console I/O */
@@ -1816,7 +1818,6 @@ main(int argc, char *argv[])
   char                *init_progfile_dir_error;
   char                *s;
   int                  opt;
-  extern char         *optarg;
   gboolean             arg_error = FALSE;
 
   extern int           splash_register_freq;  /* Found in about_dlg.c */

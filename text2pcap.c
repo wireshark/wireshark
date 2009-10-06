@@ -125,8 +125,10 @@
 #include <errno.h>
 #include <assert.h>
 
-#ifdef NEED_GETOPT_H
-# include "getopt.h"
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#else
+#include "wsgetopt.h"
 #endif
 
 #ifdef NEED_STRPTIME_H

@@ -65,8 +65,10 @@
 #include "strerror.h"
 #endif
 
-#ifdef NEED_GETOPT_H
-#include "getopt.h"
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#else
+#include "wsgetopt.h"
 #endif
 
 #include <glib.h>
@@ -428,7 +430,6 @@ main(int argc, char *argv[])
 {
   char                *init_progfile_dir_error;
   int                  opt, i;
-  extern char         *optarg;
   gboolean             arg_error = FALSE;
 
 #ifdef _WIN32

@@ -51,8 +51,10 @@
 #include <signal.h>
 #include <errno.h>
 
-#ifdef NEED_GETOPT_H
-#include "getopt.h"
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#else
+#include "wsgetopt.h"
 #endif
 
 #ifdef HAVE_NETDB_H
@@ -2543,7 +2545,6 @@ int
 main(int argc, char *argv[])
 {
   int                  opt;
-  extern char         *optarg;
   gboolean             arg_error = FALSE;
 
 #ifdef _WIN32

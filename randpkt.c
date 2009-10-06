@@ -27,8 +27,10 @@
 #include "config.h"
 #endif
 
-#ifdef NEED_GETOPT_H
-#include "getopt.h"
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#else
+#include "wsgetopt.h"
 #endif
 
 #ifdef HAVE_UNISTD_H
@@ -500,9 +502,6 @@ main(int argc, char **argv)
 	guint8			buffer[65536];
 
 	int			opt;
-	extern char		*optarg;
-	extern int		optind;
-
 	int			produce_count = 1000; /* number of pkts to produce */
 	int			produce_type = PKT_ETHERNET;
 	char			*produce_filename = NULL;

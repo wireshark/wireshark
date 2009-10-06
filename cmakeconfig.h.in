@@ -39,6 +39,9 @@
 /* Define to 1 if you have the <fcntl.h> header file. */
 #cmakedefine HAVE_FCNTL_H 1
 
+/* Define to 1 if you have the <getopt.h> header file. */
+#cmakedefine HAVE_GETOPT_H 1
+
 /* Define to 1 if you have the `chown' function. */
 #cmakedefine HAVE_CHOWN 1
 
@@ -275,9 +278,6 @@
 /* Define if <inttypes.h> defines PRI[doxu]64 macros */
 /* Note: always defines  PRI[doxu]64 macros so inttypes.h becomes useless.*/
 #cmakedefine INTTYPES_H_DEFINES_FORMATS 1
-
-/* Define if getopt.h needs to be included */
-#cmakedefine NEED_GETOPT_H 1
 
 /* Define if g_ascii_strtoull.h needs to be included */
 #cmakedefine NEED_G_ASCII_STRTOULL_H 1

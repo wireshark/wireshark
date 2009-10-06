@@ -42,8 +42,10 @@
 
 #include "wtap.h"
 
-#ifdef NEED_GETOPT_H
-#include "getopt.h"
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#else
+#include "wsgetopt.h"
 #endif
 
 #ifdef _WIN32
@@ -672,8 +674,6 @@ main(int argc, char *argv[])
   wtap *wth;
   int i, j, err;
   gchar *err_info;
-  extern char *optarg;
-  extern int optind;
   int opt;
   char *p;
   unsigned int snaplen = 0;             /* No limit               */
