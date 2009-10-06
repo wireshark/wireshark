@@ -503,7 +503,6 @@ static void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action
 {
 	struct segment current;
 	struct graph *g;
-	struct tcpheader *thdr;
 
 	guint graph_type = GPOINTER_TO_INT(data);
 
@@ -516,7 +515,7 @@ static void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action
 	graph_initialize_values (g);
 
 	g->type = graph_type;
-	if (!(thdr=select_tcpip_session (&cfile, &current))) {
+	if (!select_tcpip_session (&cfile, &current)) {
 		return;
 	}
 
