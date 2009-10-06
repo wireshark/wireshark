@@ -69,8 +69,8 @@ bacnet_mstp_frame_type_name[] = {
 	{0, NULL }
 };
 
-static dissector_handle_t bacnet_handle;
 static dissector_handle_t data_handle;
+static dissector_table_t subdissector_table;
 
 static int proto_mstp = -1;
 
@@ -82,6 +82,7 @@ static int hf_mstp_preamble_FF = -1;
 static int hf_mstp_frame_type = -1;
 static int hf_mstp_frame_destination = -1;
 static int hf_mstp_frame_source = -1;
+static int hf_mstp_frame_vendor_id = -1;
 static int hf_mstp_frame_pdu_len = -1;
 static int hf_mstp_frame_crc8 = -1;
 static int hf_mstp_frame_crc16 = -1;
@@ -150,6 +151,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8 mstp_frame_destination = 0;
 	guint16 mstp_frame_pdu_len = 0;
 	guint16 mstp_tvb_pdu_len = 0;
+	guint16 vendorid = 0;
 	tvbuff_t *next_tvb = NULL;
 	proto_item *item;
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
@@ -237,15 +239,27 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (mstp_tvb_pdu_len > 2) {
 		/* remove the 16-bit crc checksum bytes */
 		mstp_tvb_pdu_len -= 2;
-		next_tvb = tvb_new_subset(tvb, offset,
-			mstp_tvb_pdu_len, mstp_frame_pdu_len);
-		if ((mstp_frame_type == MSTP_BACNET_DATA_EXPECTING_REPLY) ||
-			(mstp_frame_type == MSTP_BACNET_DATA_NOT_EXPECTING_REPLY)) {
-			/* NPDU - call the BACnet NPDU dissector */
-			call_dissector(bacnet_handle, next_tvb, pinfo, tree);
+		if (mstp_frame_type < 128) {
+			vendorid = 0;
+			next_tvb = tvb_new_subset(tvb, offset,
+				mstp_tvb_pdu_len, mstp_frame_pdu_len);
 		} else {
-			/* Unknown function - dissect the payload as data */
-			call_dissector(data_handle, next_tvb, pinfo, tree);
+			/* With Vendor ID */
+			vendorid = tvb_get_ntohs(tvb, offset);
+			
+			/* Write Vendor ID as tree */
+			proto_tree_add_item(subtree, hf_mstp_frame_vendor_id, tvb,
+				offset, 2, FALSE);
+
+			/* NPDU - call the Vendor specific dissector */
+			next_tvb = tvb_new_subset(tvb, offset+2,
+				mstp_tvb_pdu_len-2, mstp_frame_pdu_len);
+		}
+
+		if (!(dissector_try_port(subdissector_table, (vendorid<<16) + mstp_frame_type, 
+			next_tvb, pinfo, tree))) {
+				/* Unknown function - dissect the payload as data */
+				call_dissector(data_handle, next_tvb, pinfo, tree);
 		}
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
 		/* 16-bit checksum - calculate to validate */
@@ -365,6 +379,11 @@ proto_register_mstp(void)
 			FT_UINT8, BASE_DEC, NULL, 0,
 			"Source MS/TP MAC Address", HFILL }
 		},
+		{ &hf_mstp_frame_vendor_id,
+			{ "VendorID", "mstp.vendorid",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			"MS/TP Vendor ID of proprietary frametypes", HFILL }
+		},
 		{ &hf_mstp_frame_pdu_len,
 			{ "Length", "mstp.len",
 			FT_UINT16, BASE_DEC, NULL, 0,
@@ -404,15 +423,25 @@ proto_register_mstp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("mstp", dissect_mstp_wtap, proto_mstp);
+		
+	subdissector_table = register_dissector_table("mstp.vendor_frame_type",
+	    "MSTP Vendor specific Frametypes", FT_UINT24, BASE_DEC);
+	/* Table_type: (Vendor ID << 16) + Frametype */
 }
 
 void
+
 proto_reg_handoff_mstp(void)
 {
 	dissector_handle_t mstp_handle;
+	dissector_handle_t bacnet_handle;
 
 	mstp_handle = find_dissector("mstp");
 	dissector_add("wtap_encap", WTAP_ENCAP_BACNET_MS_TP, mstp_handle);
+
 	bacnet_handle = find_dissector("bacnet");
 	data_handle = find_dissector("data");
+
+	dissector_add("mstp.vendor_frame_type", (0/*VendorID ASHRAE*/ << 16) + MSTP_BACNET_DATA_EXPECTING_REPLY, bacnet_handle);
+	dissector_add("mstp.vendor_frame_type", (0/*VendorID ASHRAE*/ << 16) + MSTP_BACNET_DATA_NOT_EXPECTING_REPLY, bacnet_handle);
 }
