@@ -40,7 +40,6 @@
 
 #define PASS_DONT_CHANGE_AT_NEXT_LOGON	( 0x00 )
 
-int samr_dissect_struct_lsa_String(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int samr_dissect_struct_lsa_Strings(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 #define SID_NAME_USE_NONE (0)
 #define SID_NAME_USER (1)

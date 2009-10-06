@@ -40,6 +40,17 @@
 #include "packet-windows-common.h"
 
 
+static int hf_nt_cs_len = -1;
+static int hf_nt_cs_size = -1;
+static int hf_lsa_String_name_len = -1;
+static int hf_lsa_String_name_size = -1;
+
+
+gint ett_nt_unicode_string = -1; /* FIXME: make static */
+static gint ett_lsa_String = -1;
+
+
+
 /* This is used to safely walk the decode tree up, one item at a time safely.
    This is used by dcerpc dissectors that want to push the display of a string
    higher up in the tree for greater visibility.
@@ -66,12 +77,7 @@ const value_string platform_id_vals[] = {
 
 /* Parse some common RPC structures */
 
-gint ett_nt_unicode_string = -1; /* FIXME: make static */
-
 /* Dissect a counted string as a callback to dissect_ndr_pointer_cb() */
-
-static int hf_nt_cs_len = -1;
-static int hf_nt_cs_size = -1;
 
 int
 dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
@@ -355,6 +361,51 @@ dissect_nt_GUID(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset=dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, hf_nt_guid, NULL);
+
+	return offset;
+}
+
+/* This function is used to dissect a lsa_String
+	typedef [public] struct {
+		[value(strlen_m_term(name)*2)] uint16 name_len;
+		[value(strlen_m_term(name)*2)] uint16 name_size;
+		[string,charset(UTF16)] uint16 *name;
+	} lsa_String;
+ */
+int
+dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, guint32 param, int hfindex)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
+	int old_offset;
+	header_field_info *hf_info;
+
+	ALIGN_TO_5_BYTES;
+
+	old_offset = offset;
+	hf_info=proto_registrar_get_nth(hfindex);
+
+	if (parent_tree) {
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0, "%s: ", hf_info->name);
+		tree = proto_item_add_subtree(item, ett_lsa_String);
+	}
+	
+	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_lsa_String_name_len, 0);
+
+	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_lsa_String_name_size, 0);
+
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
+		hf_info->name, hfindex, cb_wstr_postprocess,
+		GINT_TO_POINTER(param));
+
+	proto_item_set_len(item, offset-old_offset);
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
 
 	return offset;
 }
@@ -1788,6 +1839,14 @@ void dcerpc_smb_init(int proto_dcerpc)
                 { &hf_nt_attrib,
 		  { "Attributes", "dcerpc.nt.attr",
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_lsa_String_name_len, 
+		  { "Name Len", "dcerpc.lsa_String.name_len",
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_lsa_String_name_size, 
+		  { "Name Size", "dcerpc.lsa_String.name_size",
+		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -1803,6 +1862,7 @@ void dcerpc_smb_init(int proto_dcerpc)
                 &ett_nt_sid_and_attributes_array,
                 &ett_nt_sid_and_attributes,
 		&ett_nt_counted_ascii_string,
+		&ett_lsa_String,
 	};
 
 	/* Register ett's and hf's */

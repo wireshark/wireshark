@@ -129,6 +129,11 @@ dissect_nt_GUID(tvbuff_t *tvb, int offset,
 			guint8 *drep);
 
 int
+dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		       proto_tree *parent_tree, guint8 *drep,
+		       guint32 param, int hfindex);
+
+int
 dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep, int hf_index);

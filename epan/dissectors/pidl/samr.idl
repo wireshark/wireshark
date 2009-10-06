@@ -17,12 +17,6 @@
 {
 
 	typedef [public] struct {
-		[value(strlen_m_term(name)*2)] uint16 name_len;
-		[value(strlen_m_term(name)*2)] uint16 name_size;
-		[string,charset(UTF16)] uint16 *name;
-	} lsa_String;
-
-	typedef [public] struct {
 		uint32 count;
 		[size_is(count)] lsa_String *names;
 	} lsa_Strings;
@@ -47,6 +41,7 @@
 		SAMR_REJECT_IN_HISTORY = 2,
 		SAMR_REJECT_COMPLEXITY = 5
 	} samr_RejectReason;
+
 
 
 	/* account control (acct_flags) bits */
@@ -433,9 +428,9 @@
 		[in]          policy_handle *domain_handle,
 		[in,out,ref]  uint32 *resume_handle,
 		[in]          samr_AcctFlags acct_flags,
+		[out,ref]     samr_SamArray **sam,
 		[in]          uint32 max_size,
-		[out,unique]  samr_SamArray *sam,
-		[out]         uint32 num_entries
+		[out,ref]     uint32 *num_entries
 		);
 
 	/************************/
@@ -478,7 +473,7 @@
 	[public] NTSTATUS samr_LookupNames(
 		[in,ref]      policy_handle *domain_handle,
 		[in,range(0,1000)] uint32 num_names,
-		[in,size_is(1000),length_is(num_names)] lsa_String names[],
+		[in,size_is(1000),length_is(num_names),ref] lsa_String *names,
 		[out,ref]     samr_Ids *rids,
 		[out,ref]     samr_Ids *types
 		);
@@ -931,7 +926,7 @@
 		uint8  lm_password_set;
 		uint8  nt_password_set;
 		uint8  password_expired;
-		uint8  privatedatasensitive;
+		uint8  unknown4;
 	} samr_UserInfo21;
 
 	typedef [public, flag(NDR_PAHEX)] struct {
@@ -1129,16 +1124,16 @@
 	  this seems to be an alphabetic search function. The returned index
 	  is the index for samr_QueryDisplayInfo needed to get names occurring
 	  after the specified name. The supplied name does not need to exist
-	  in the database (for example you can supply just a first letter for 
+	  in the database (for example you can supply just a first letter for
 	  searching starting at that letter)
 
 	  The level corresponds to the samr_QueryDisplayInfo level
 	*/
 	NTSTATUS samr_GetDisplayEnumerationIndex(
 		[in,ref]    policy_handle *domain_handle,
-		[in]        samr_DomainDisplayInformation level,
-		[in]        lsa_String name,
-		[out]       uint32 idx
+		[in]        uint16 level,
+		[in,ref]    lsa_String *name,
+		[out,ref]   uint32 *idx
 		);
 
 
@@ -1235,8 +1230,8 @@
 	NTSTATUS samr_GetDisplayEnumerationIndex2(
 		[in,ref]    policy_handle *domain_handle,
 		[in]        samr_DomainDisplayInformation level,
-		[in]        lsa_String name,
-		[out]       uint32 idx
+		[in,ref]    lsa_String *name,
+		[out,ref]   uint32 *idx
 		);
 
 

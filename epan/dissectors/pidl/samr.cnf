@@ -151,9 +151,9 @@ PARAM_VALUE samr_dissect_element_GetDomPwInfo_domain_name_ 3|PIDL_SET_COL_INFO
 PARAM_VALUE samr_dissect_element_CreateUser_account_name_ 3|PIDL_SET_COL_INFO|PIDL_STR_SAVE
 PARAM_VALUE samr_dissect_element_CreateUser2_account_name_ 3|PIDL_SET_COL_INFO|PIDL_STR_SAVE
 
-TYPE lsa_String "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
+TYPE lsa_String "offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE lsa_AsciiString "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
-TYPE lsa_StringLarge "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
+TYPE lsa_StringLarge "offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE lsa_AsciiStringLarge "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8 
 
@@ -355,41 +355,6 @@ samr_dissect_bitmap_UserAccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo
 		&samr_user_access_mask_info, NULL);
 	return offset;
 }
-
-
-
-static int
-cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, guint32 param, int hfindex)
-{
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	int old_offset;
-	header_field_info *hf_info;
-
-	ALIGN_TO_5_BYTES;
-
-	old_offset = offset;
-	hf_info=proto_registrar_get_nth(hfindex);
-
-	if (parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, 0, "%s: ", hf_info->name);
-		tree = proto_item_add_subtree(item, ett_samr_lsa_String);
-	}
-	
-	offset = samr_dissect_element_lsa_String_name_len(tvb, offset, pinfo, tree, drep);
-	offset = samr_dissect_element_lsa_String_name_size(tvb, offset, pinfo, tree, drep);
-
-	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
-		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
-		hf_info->name, hfindex, cb_wstr_postprocess,
-		GINT_TO_POINTER(param));
-
-	proto_item_set_len(item, offset-old_offset);
-
-	return offset;
-}
-
 
 
 static int
