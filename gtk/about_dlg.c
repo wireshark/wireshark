@@ -277,7 +277,6 @@ splash_destroy(GtkWidget *win)
     return FALSE;
 }
 
-
 static GtkWidget *
 about_wireshark_page_new(void)
 {
@@ -362,7 +361,6 @@ about_folders_row(GtkWidget *table, const char *label, const char *dir, const ch
   simple_list_append(table, 0, label, 1, dir, 2, tip, -1);
 }
 
-
 static GtkWidget *
 about_folders_page_new(void)
 {
@@ -397,13 +395,13 @@ about_folders_page_new(void)
   path = get_tempfile_path("");
   about_folders_row(table, "Temp", path,
       "untitled capture files");
-  g_free((void *) path);
+  g_free(path);
 
   /* pers conf */
   path = get_persconffile_path("", FALSE, FALSE);
   about_folders_row(table, "Personal configuration", path,
       "\"dfilters\", \"preferences\", \"ethers\", ...");
-  g_free((void *) path);
+  g_free(path);
 
   /* global conf */
   constpath = get_datafile_dir();
@@ -427,7 +425,7 @@ about_folders_page_new(void)
   path = get_plugins_pers_dir();
   about_folders_row(table, "Personal Plugins", path,
       "dissector plugins");
-  g_free((void *) path);
+  g_free(path);
 
   /* global plugins */
   about_folders_row(table, "Global Plugins", get_plugin_dir(),
@@ -450,7 +448,7 @@ about_folders_page_new(void)
     about_folders_row(table, "GeoIP path", g_strstrip(resultArray[i]),
 		      "GeoIP database search path");
   g_strfreev(resultArray);
-  g_free((void *) path);
+  g_free(path);
 #endif
 
 #ifdef HAVE_LIBSMI
@@ -463,7 +461,7 @@ about_folders_page_new(void)
     about_folders_row(table, "MIB/PIB path", g_strstrip(resultArray[i]),
 		      "SMI MIB/PIB search path");
   g_strfreev(resultArray);
-  g_free((void *) path);
+  g_free(path);
 #endif
 
   gtk_container_add(GTK_CONTAINER(scrolledwindow), table);
@@ -567,5 +565,4 @@ about_wireshark_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   /* Note that we no longer have an "About Wireshark" dialog box. */
   about_wireshark_w = NULL;
 }
-
 
