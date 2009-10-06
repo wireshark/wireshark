@@ -416,7 +416,7 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
             simple_dialog_set_cb(dialog, selected_ptree_info_answered_cb, (gpointer)proto_abbrev);
         } else {
             /* appologize to the user that the wiki page cannot be opened */
-            dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
                     "%sCan't open Wireshark Wiki page of protocol \"%s\"%s\n"
                     "\n"
                     "This would open the \"%s\" related Wireshark Wiki page in your Web browser.\n"
@@ -481,7 +481,7 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
             simple_dialog_set_cb(dialog, selected_ptree_ref_answered_cb, (gpointer)proto_abbrev);
         } else {
             /* appologize to the user that the wiki page cannot be opened */
-            dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
                     "%sCan't open Wireshark filter reference page of protocol \"%s\"%s\n"
                     "\n"
                     "This would open the \"%s\" related Wireshark filter reference page in your Web browser.\n"
@@ -815,7 +815,7 @@ void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
   }
 }
 
-void
+static void
 main_set_for_capture_file(gboolean have_capture_file_in)
 {
     have_capture_file = have_capture_file_in;
@@ -1354,7 +1354,7 @@ main_cf_cb_file_read_finished(capture_file *cf)
     set_menus_for_captured_packets(TRUE);
 }
 
-GList *icon_list_create(
+static GList *icon_list_create(
     const char **icon16_xpm,
     const char **icon32_xpm,
     const char **icon48_xpm,
@@ -3269,7 +3269,6 @@ top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_dat
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 {
-    GtkTooltips   *tooltips;
     GtkAccelGroup *accel;
     gchar         *title;
 
@@ -3279,8 +3278,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Main window */
     top_level = window_new(GTK_WINDOW_TOPLEVEL, title);
     g_free(title);
-
-    tooltips = gtk_tooltips_new();
 
     gtk_widget_set_name(top_level, "main window");
     g_signal_connect(top_level, "delete_event", G_CALLBACK(main_window_delete_event_cb),
