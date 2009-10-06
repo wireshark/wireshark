@@ -2,6 +2,8 @@
  * Portable Exception Handling for ANSI C.
  * Copyright (C) 1999 Kaz Kylheku <kaz@ashi.footprints.net>
  *
+ * $Id$
+ *
  * Free Software License:
  *
  * All rights are reserved by the author, with the following exceptions:
@@ -13,8 +15,6 @@
  * This source code may be translated into executable form and incorporated
  * into proprietary software; there is no requirement for such software to
  * contain a copyright notice related to this source.
- * $Id$
- * $Name:  $
  */
 
 /*
@@ -44,10 +44,6 @@
 #endif
 
 #define XCEPT_BUFFER_SIZE	1024
-
-#ifdef KAZLIB_RCSID
-static const char rcsid[] = "$Id$";
-#endif
 
 #ifdef KAZLIB_POSIX_THREADS
 
@@ -139,13 +135,13 @@ void except_deinit(void)
 static int init_counter;
 static void unhandled_catcher(except_t *);
 static void (*uh_catcher_ptr)(except_t *) = unhandled_catcher;
-/* We need this 'size_t' cast due to a glitch in GLib where g_malloc was prototyped 
- * as 'gpointer g_malloc (gulong n_bytes)'. This was later fixed to the correct prototype 
- * 'gpointer g_malloc (gsize n_bytes)'. In Wireshark we use the latter prototype 
- * throughout the code. We can get away with this even with older versions of GLib by 
- * adding a '(void *(*)(size_t))' cast whenever we refer to g_malloc. The only platform 
- * supported by Wireshark where this isn't safe (sizeof size_t != sizeof gulong) is Win64. 
- * However, we _always_ bundle the newest version of GLib on this platform so 
+/* We need this 'size_t' cast due to a glitch in GLib where g_malloc was prototyped
+ * as 'gpointer g_malloc (gulong n_bytes)'. This was later fixed to the correct prototype
+ * 'gpointer g_malloc (gsize n_bytes)'. In Wireshark we use the latter prototype
+ * throughout the code. We can get away with this even with older versions of GLib by
+ * adding a '(void *(*)(size_t))' cast whenever we refer to g_malloc. The only platform
+ * supported by Wireshark where this isn't safe (sizeof size_t != sizeof gulong) is Win64.
+ * However, we _always_ bundle the newest version of GLib on this platform so
  * the size_t issue doesn't exists here. Pheew.. */
 static void *(*allocator)(size_t) = (void *(*)(size_t)) g_malloc;
 static void (*deallocator)(void *) = g_free;
@@ -178,9 +174,9 @@ void except_deinit(void)
 
 static int match(const volatile except_id_t *thrown, const except_id_t *caught)
 {
-    int group_match = (caught->except_group == XCEPT_GROUP_ANY || 
+    int group_match = (caught->except_group == XCEPT_GROUP_ANY ||
 	caught->except_group == thrown->except_group);
-    int code_match = (caught->except_code == XCEPT_CODE_ANY || 
+    int code_match = (caught->except_code == XCEPT_CODE_ANY ||
 	caught->except_code == thrown->except_code);
 
     return group_match && code_match;
@@ -190,7 +186,7 @@ G_GNUC_NORETURN static void do_throw(except_t *except)
 {
     struct except_stacknode *top;
 
-    assert (except->except_id.except_group != 0 && 
+    assert (except->except_id.except_group != 0 &&
 	except->except_id.except_code != 0);
 
     for (top = get_top(); top != 0; top = top->except_down) {

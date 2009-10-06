@@ -1,6 +1,8 @@
 /*
  * Copyright (c) 1996,1999 by Internet Software Consortium.
  *
+ * $Id$
+ *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
@@ -18,10 +20,6 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id$";
-#endif /* LIBC_SCCS and not lint */
 
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>

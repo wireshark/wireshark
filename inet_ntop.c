@@ -22,10 +22,6 @@
 #include "config.h"
 #endif
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id$";
-#endif /* LIBC_SCCS and not lint */
-
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
