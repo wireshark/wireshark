@@ -1354,6 +1354,7 @@ main_cf_cb_file_read_finished(capture_file *cf)
     set_menus_for_captured_packets(TRUE);
 }
 
+#ifdef HAVE_LIBPCAP
 static GList *icon_list_create(
     const char **icon16_xpm,
     const char **icon32_xpm,
@@ -1394,7 +1395,6 @@ static GList *icon_list_create(
   return icon_list;
 }
 
-#ifdef HAVE_LIBPCAP
 static void
 main_capture_cb_capture_prepared(capture_options *capture_opts)
 {
