@@ -103,7 +103,7 @@ static int dev_zero_fd;
 #define EMEM_PACKET_CHUNK_SIZE 10485760
 
 /* The maximum number of allocations per chunk */
-#define EMEM_ALLOCS_PER_CHUNK (EMEM_PACKET_CHUNK_SIZE / 512)
+#define EMEM_ALLOCS_PER_CHUNK (EMEM_PACKET_CHUNK_SIZE / 64)
 
 #define EMEM_CANARY_SIZE 8
 #define EMEM_CANARY_DATA_SIZE (EMEM_CANARY_SIZE * 2 - 1)
