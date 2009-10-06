@@ -80,7 +80,6 @@ GtkWidget *create_list(void)
 	GtkWidget * list;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
-	GtkTreeSortable *sortable;
 	GtkTreeView *list_view;
 	GtkTreeSelection *selection;
 	
@@ -93,7 +92,6 @@ GtkWidget *create_list(void)
     list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
 
 	list_view = GTK_TREE_VIEW(list);
-	sortable = GTK_TREE_SORTABLE(list_store);
 
 #if GTK_CHECK_VERSION(2,6,0)
 	/* Speed up the list display */
