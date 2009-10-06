@@ -134,7 +134,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
   if (offset & 0x07) {  /* unaligned */
     shift1 = offset & 0x07;
     shift0 = 8 - shift1;
-    buf = ep_alloc(actual_length);
+    buf = g_malloc(actual_length);
     octet0 = tvb_get_guint8(tvb, boffset);
     for (i=0; i<actual_length; i++) {
       octet1 = octet0;
@@ -142,6 +142,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
       buf[i] = (octet1 << shift1) | (octet0 >> shift0);
     }
     sub_tvb = tvb_new_child_real_data(tvb, buf, actual_length, length);
+    tvb_set_free_cb(sub_tvb, g_free);
     add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
   } else {  /* aligned */
     sub_tvb = tvb_new_subset(tvb, boffset, actual_length, length);
@@ -195,7 +196,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_
 	  /* Number of bits = even number of octets */
 	return new_octet_aligned_subset(tvb, offset, actx, length);
   }
-  buf = ep_alloc(length);
+  buf = g_malloc(length);
 
   if (actx->aligned)
   {
@@ -244,6 +245,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_
     buf[i] = (guint8) (word & 0x00ff);
   }
   sub_tvb = tvb_new_child_real_data(tvb, buf, length, length);
+  tvb_set_free_cb(sub_tvb, g_free);
   add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
   
   return sub_tvb;

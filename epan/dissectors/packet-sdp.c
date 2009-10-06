@@ -1155,7 +1155,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 static tvbuff_t *
 ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gint len, gchar *msg)
 {
-	guint8 *buf = ep_alloc(10240);
+	guint8 *buf = g_malloc(10240);
 
 	/* arbitrary maximum length */
 	if(len<20480){
@@ -1220,6 +1220,7 @@ ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gint len, gchar *msg)
 			return NULL;
 		}
 		bytes_tvb = tvb_new_child_real_data(tvb, buf,i,i);
+                tvb_set_free_cb(bytes_tvb, g_free);
 		add_new_data_source(pinfo, bytes_tvb, "ASCII bytes to tvb");
 		return bytes_tvb;
 	}

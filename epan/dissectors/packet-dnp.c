@@ -2468,7 +2468,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* XXX - check for dl_len <= 5 */
     data_len = dl_len - 5;
-    tmp = ep_alloc(data_len);
+    tmp = g_malloc(data_len);
     tmp_ptr = tmp;
     i = 0;
     data_offset = 1;  /* skip the transport layer byte when assembling chunks */
@@ -2510,6 +2510,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (crc_OK)
     {
       al_tvb = tvb_new_child_real_data(tvb, tmp, (guint) (tmp_ptr-tmp), (gint) (tmp_ptr-tmp));
+      tvb_set_free_cb(al_tvb, g_free);
 
       /* Check for fragmented packet */
       save_fragmented = pinfo->fragmented;
@@ -2586,6 +2587,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
       /* CRC error - throw away the data. */
       next_tvb = NULL;
+      g_free(tmp);
       proto_tree_add_text(dnp3_tree, tvb, 11, -1, "CRC failed, %u chunks", i);
     }
 

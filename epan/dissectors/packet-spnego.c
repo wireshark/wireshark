@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-spnego.c                                                            */
-/* ../../tools/asn2wrs.py -b -p spnego -c spnego.cnf -s packet-spnego-template spnego.asn */
+/* ../../tools/asn2wrs.py -b -p spnego -c ./spnego.cnf -s ./packet-spnego-template -D . spnego.asn */
 
 /* Input file: packet-spnego-template.c */
 
@@ -561,7 +561,7 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
    * token it dissected, so we can return the length of the part
    * we (and it) dissected.
    */
-  token_tvb = tvb_new_subset_remaining(tvb, offset);
+  token_tvb = tvb_new_subset(tvb, offset, -1, -1);
   if (next_level_value && next_level_value->wrap_handle) {
     len = call_dissector(next_level_value->wrap_handle, token_tvb, actx->pinfo,
                          subtree);
@@ -1136,6 +1136,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 			pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(tvb, 
 				output_message_buffer,
 				ret, ret);
+			tvb_set_free_cb(pinfo->gssapi_decrypted_tvb, g_free);
 			add_new_data_source(pinfo, pinfo->gssapi_decrypted_tvb, "Decrypted GSS-Krb5");
 			return;
 		}
@@ -1204,12 +1205,11 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_, packet_info *pinfo _U_, tvbuff
 		return;
 	}
 
-	rotated = ep_alloc(tvb_length(tvb));
-
-	tvb_memcpy(tvb, rotated, 0, tvb_length(tvb));
+	rotated = tvb_memdup(tvb, 0, tvb_length(tvb));
 	res = rrc_rotate(rotated, tvb_length(tvb), rrc, TRUE);
 
 	next_tvb=tvb_new_child_real_data(tvb, rotated, tvb_length(tvb), tvb_reported_length(tvb));
+	tvb_set_free_cb(next_tvb, g_free);
 	add_new_data_source(pinfo, next_tvb, "GSSAPI CFX");
 
 	output = decrypt_krb5_data(tree, pinfo, usage, next_tvb,
@@ -1218,7 +1218,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_, packet_info *pinfo _U_, tvbuff
 	if (output) {
 		char *outdata;
 
-		outdata = ep_alloc(tvb_length(tvb));
+		outdata = g_malloc(tvb_length(tvb));
 		memcpy(outdata, output, tvb_length(tvb));
 		g_free(output);
 
@@ -1227,6 +1227,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_, packet_info *pinfo _U_, tvbuff
 			datalen-16,
 			datalen-16);
 		add_new_data_source(pinfo, pinfo->gssapi_decrypted_tvb, "Decrypted GSS-Krb5");
+		tvb_set_free_cb(pinfo->gssapi_decrypted_tvb, g_free);
 		return;
 	}
 	return;
@@ -1963,7 +1964,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1379 "packet-spnego-template.c"
+#line 1380 "packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1985,7 +1986,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1389 "packet-spnego-template.c"
+#line 1390 "packet-spnego-template.c"
 	};
 
 	/* Register protocol */

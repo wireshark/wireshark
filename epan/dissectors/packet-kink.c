@@ -744,6 +744,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
     plaintext=decrypt_krb5_data(tree, pinfo, 0, next_tvb, keytype, NULL);    
     if(plaintext){
       next_tvb=tvb_new_child_real_data(tvb, plaintext, encrypt_length, encrypt_length);
+      tvb_set_free_cb(next_tvb, g_free);
       add_new_data_source(pinfo, next_tvb, "decrypted kink encrypt");
       dissect_decrypt_kink_encrypt(pinfo, next_tvb, tree, encrypt_length);
     }

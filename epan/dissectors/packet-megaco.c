@@ -1734,7 +1734,6 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 {
 	proto_item *item;
 	proto_tree *tree;
-	guint8 *buf = ep_alloc(10240);
 
 	/*item=proto_tree_add_string(megaco_tree, hf_megaco_h245, tvb,
 		offset, len, msg );
@@ -1748,6 +1747,7 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 	if(len<20480){
 		int i;
 		tvbuff_t *h245_tvb;
+		guint8 *buf = g_malloc(10240);
 
 		/* first, skip to where the encoded pdu starts, this is
 		   the first hex digit after the '=' char.
@@ -1807,6 +1807,7 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 			return;
 		}
 		h245_tvb = tvb_new_child_real_data(tvb, buf,i,i);
+		tvb_set_free_cb(h245_tvb, g_free);
 		add_new_data_source(pinfo, h245_tvb, "H.245 over MEGACO");
 		/* should go through a handle, however,  the two h245 entry
 		   points are different, one is over tpkt and the other is raw
@@ -1819,13 +1820,13 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 static void
 dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, gint offset _U_, gint len, gchar *msg)
 {
-	guint8 *buf = ep_alloc(10240);
 	asn1_ctx_t actx;
 
 	/* arbitrary maximum length */
 	if(len<20480){
 		int i;
 		tvbuff_t *h245_tvb;
+		guint8 *buf = g_malloc(10240);
 
 		/* first, skip to where the encoded pdu starts, this is
 		   the first hex digit after the '=' char.
@@ -1886,6 +1887,7 @@ dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *meg
 		}
 		h245_tvb = tvb_new_child_real_data(tvb, buf,i,i);
 		add_new_data_source(pinfo, h245_tvb, "H.245 over MEGACO");
+		tvb_set_free_cb(h245_tvb, g_free);
 		/* should go through a handle, however,  the two h245 entry
 		   points are different, one is over tpkt and the other is raw
 		*/

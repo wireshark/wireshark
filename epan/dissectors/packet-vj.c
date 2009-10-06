@@ -380,6 +380,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
   if (ipsize < isize)
     isize = ipsize;
   next_tvb = tvb_new_child_real_data(tvb, buffer, isize, ipsize);
+  tvb_set_free_cb(next_tvb, g_free);
   add_new_data_source(pinfo, next_tvb, "VJ Uncompressed");
 
   /*
@@ -503,6 +504,7 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   tvb_memcpy(src_tvb, pbuf + hdr_len, offset, buf_len - hdr_len);
   memcpy(&tot_len, data_ptr + 2, 2);
   *dst_tvb = tvb_new_child_real_data(src_tvb, pbuf, buf_len, g_ntohs(tot_len));
+  tvb_set_free_cb(*dst_tvb, g_free);
   add_new_data_source(pinfo, *dst_tvb, "VJ Decompressed");
   return VJ_OK;
 }
