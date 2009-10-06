@@ -67,6 +67,8 @@ add_library(gryphon MODULE
 	${PLUGIN_FILES}
 )
 
+target_link_libraries(gryphon epan)
+
 install(TARGETS gryphon
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
         RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}

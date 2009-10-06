@@ -78,6 +78,8 @@ add_library(sercosiii MODULE
 	${PLUGIN_FILES}
 )
 
+target_link_libraries(sercosiii epan)
+
 install(TARGETS sercosiii
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
         RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}

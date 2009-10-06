@@ -25,9 +25,14 @@ set(DISSECTOR_SRC
 	packet-m2m.c
 )
 
+set(DISSECTOR_SUPPORT_SRC
+        wimax_tlv.c
+)
+
 set(PLUGIN_FILES
 	plugin.c
 	${DISSECTOR_SRC}
+	${DISSECTOR_SUPPORT_SRC}
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -66,6 +71,8 @@ ADD_CUSTOM_COMMAND(
 add_library(m2m MODULE
 	${PLUGIN_FILES}
 )
+
+target_link_libraries(m2m epan)
 
 install(TARGETS m2m
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}

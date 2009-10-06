@@ -79,6 +79,8 @@ add_library(profinet MODULE
 	${PLUGIN_FILES}
 )
 
+target_link_libraries(profinet epan)
+
 install(TARGETS profinet
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
         RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}

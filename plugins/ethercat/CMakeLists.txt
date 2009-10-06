@@ -73,6 +73,8 @@ add_library(ethercat MODULE
 	${PLUGIN_FILES}
 )
 
+target_link_libraries(ethercat epan)
+
 install(TARGETS ethercat
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
         RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}

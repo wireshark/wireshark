@@ -35,6 +35,8 @@ add_library(stats_tree MODULE
 	${TAP_SRC}
 )
 
+target_link_libraries(stats_tree epan)
+
 install(TARGETS stats_tree
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
         RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}

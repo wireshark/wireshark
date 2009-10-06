@@ -46,6 +46,8 @@ add_library(cosnaming MODULE
 	${COSNAMING_SRC}
 )
 
+target_link_libraries(cosnaming epan)
+
 install(TARGETS cosnaming
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
         RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
@@ -55,6 +57,8 @@ install(TARGETS cosnaming
 add_library(coseventcomm MODULE
 	${COSEVENTCOMM_SRC}
 )
+
+target_link_libraries(coseventcomm epan)
 
 install(TARGETS coseventcomm
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
@@ -66,6 +70,8 @@ add_library(tango MODULE
 	${TANGO_SRC}
 )
 
+target_link_libraries(tango epan)
+
 install(TARGETS tango
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
         RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
@@ -75,6 +81,8 @@ install(TARGETS tango
 add_library(parlay MODULE
 	${PARLAY_SRC}
 )
+
+target_link_libraries(parlay epan)
 
 install(TARGETS parlay
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}

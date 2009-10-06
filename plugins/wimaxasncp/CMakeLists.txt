@@ -71,6 +71,8 @@ add_library(wimaxasncp MODULE
 	${PLUGIN_FILES}
 )
 
+target_link_libraries(wimaxasncp epan)
+
 install(TARGETS wimaxasncp
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
         RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
