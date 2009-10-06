@@ -1,5 +1,5 @@
 /* packet-ntlmssp.c
- * Add-on for better NTLM v1/v2 handling 
+ * Add-on for better NTLM v1/v2 handling
  * Copyright 2009 Matthieu Patou <matthieu.patou@matws.net>
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
@@ -103,7 +103,7 @@ static GHashTable* hash_packet = NULL;
  * "Request Non-NT Session Key", rather than those values shifted
  * right one having those interpretations.
  *
- * UPDATE: Further information obtained from [MS-NLMP]: 
+ * UPDATE: Further information obtained from [MS-NLMP]:
  * NT LAN Manager (NTLM) Authentication Protocol Specification
  * http://msdn2.microsoft.com/en-us/library/cc236621.aspx
  *
@@ -374,7 +374,7 @@ static void str_to_unicode(const char *nt_password, char *nt_password_unicode)
 {
   int password_len = 0;
   int i;
-  
+
   password_len = strlen(nt_password);
   if(nt_password_unicode != NULL)
   {
@@ -387,12 +387,12 @@ static void str_to_unicode(const char *nt_password, char *nt_password_unicode)
   nt_password_unicode[2*password_len]='\0';
 }
 
-/* This function generate the Key Exchange Key 
+/* This function generate the Key Exchange Key
  * Depending on the flags this key will either be used to crypt the exported session key
  * or will be used directly as exported session key.
  * Exported session key is the key that will be used for sealing and signing communication*/
 
-static void 
+static void
 get_keyexchange_key(unsigned char keyexchangekey[16],const unsigned char sessionbasekey[16],const unsigned char lm_challenge_response[24],int flags)
 {
   guint8 basekey[16];
@@ -413,18 +413,18 @@ get_keyexchange_key(unsigned char keyexchangekey[16],const unsigned char session
   {
     if(flags&NTLMSSP_REQUEST_NON_NT_SESSION)
     {
-      /*People from samba tends to use the same function in this case than in the previous one but with 0 data 
-       * it's not clear that it produce the good result 
+      /*People from samba tends to use the same function in this case than in the previous one but with 0 data
+       * it's not clear that it produce the good result
        * memcpy(keyexchangekey,lm_hash,8);
        * Let's trust samba implementation it mights seem weird but they are more often rights than the spec !
        */
-      memset(zeros,0,24); 
+      memset(zeros,0,24);
       crypt_des_ecb(keyexchangekey,zeros,basekey,3);
       crypt_des_ecb(keyexchangekey+8,zeros,basekey+7,1);
     }
     else
     {
-      /* it is stated page 65 of NTLM SSP spec that sessionbasekey should be encrypted with hmac_md5 using the concact of both challenge 
+      /* it is stated page 65 of NTLM SSP spec that sessionbasekey should be encrypted with hmac_md5 using the concact of both challenge
        * when it's NTLM v1 + extended security but it turns out to be wrong !
        */
       memcpy(keyexchangekey,sessionbasekey,16);
@@ -497,7 +497,7 @@ create_ntlmssp_v2_key(const char *nt_password, const guint8 *serverchallenge , c
   guint32 nb_pass = 0;
   int found = 0;
 
-  /* We are going to try password encrypted in keytab as well, it's an idean of Stefan Metzmacher <metze@samba.org> 
+  /* We are going to try password encrypted in keytab as well, it's an idean of Stefan Metzmacher <metze@samba.org>
    * The idea is to be able to test all the key of domain in once and to be able to decode the NTLM dialogs */
 
   memset(sessionkey, 0, 16);
@@ -511,13 +511,13 @@ create_ntlmssp_v2_key(const char *nt_password, const guint8 *serverchallenge , c
      for (j = 0; j < (2*user_len); j++) {
        if( buf[j] != '\0' ) {
          user_uppercase[j] = toupper(buf[j]);
-       }  
+       }
      }
   }
   else {
      /* Unable to calculate the session not enought space in buffer, note this is unlikely to happen but ......*/
      return;
-  }  
+  }
   domain_len = strlen(ntlmssph->domain_name);
   if( domain_len < 129 ) {
     str_to_unicode(ntlmssph->domain_name,domain_name_unicode);
@@ -531,7 +531,7 @@ create_ntlmssp_v2_key(const char *nt_password, const guint8 *serverchallenge , c
     memcpy(nt_password_hash,pass_list[i].md4,16);
     /*printnbyte(nt_password_hash,16,"Current NT password hash: ","\n");*/
     i++;
-    /* ntowf computation */ 
+    /* ntowf computation */
     memset(buf,0,512);
     memcpy(buf,user_uppercase,user_len*2);
     memcpy(buf+user_len*2,domain_name_unicode,domain_len*2);
@@ -543,7 +543,7 @@ create_ntlmssp_v2_key(const char *nt_password, const guint8 *serverchallenge , c
     md5_hmac(buf,16,ntowf,16,lm_challenge_response);
     memcpy(lm_challenge_response+16,clientchallenge,8);
     printnbyte(lm_challenge_response,24,"LM Response: ","\n");
-  
+
     /* NT proof = First 16 bytes of NT response */
     memset(buf,0,512);
     memcpy(buf,serverchallenge,8);
@@ -560,10 +560,10 @@ create_ntlmssp_v2_key(const char *nt_password, const guint8 *serverchallenge , c
 
     return;
   }
-  
+
   md5_hmac(nt_proof,16,ntowf,16,sessionbasekey);
   get_keyexchange_key(keyexchangekey,sessionbasekey,lm_challenge_response,flags);
-  /* now decrypt session key if needed and setup sessionkey for decrypting further communications */ 
+  /* now decrypt session key if needed and setup sessionkey for decrypting further communications */
   if (flags & NTLMSSP_NEGOTIATE_KEY_EXCH)
   {
     memcpy(sessionkey,encryptedsessionkey,16);
@@ -576,7 +576,7 @@ create_ntlmssp_v2_key(const char *nt_password, const guint8 *serverchallenge , c
   }
 
 }
- /* Create an NTLMSSP version 1 key 
+ /* Create an NTLMSSP version 1 key
  * That is more complicated logic and methods and user challenge as well.
  * password points to the ANSI password to encrypt, challenge points to
  * the 8 octet challenge string
@@ -598,7 +598,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
   guint8 lm_challenge_response[24];
   guint8 nt_challenge_response[24];
   rc4_state_struct rc4state;
-  md5_state_t md5state; 
+  md5_state_t md5state;
   char nt_password_unicode[256];
   size_t password_len;
   unsigned int i;
@@ -606,7 +606,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
   md4_pass *pass_list;
   unsigned char lmhash_key[] =
     {0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25};
-  
+
   memset(sessionkey, 0, 16);
   memset(lm_password_upper, 0, sizeof(lm_password_upper));
   /* lm auth/lm session == (!NTLM_NEGOTIATE_NT_ONLY && NTLMSSP_NEGOTIATE_LM_KEY) || ! (EXTENDED_SECURITY) || ! NTLMSSP_NEGOTIATE_NTLM*/
@@ -638,7 +638,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
     memcpy(sessionbasekey,lm_password_hash,16);
   }
   else {
-    
+
     memset(lm_challenge_response,0,24);
     if( flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY ) {
       nb_pass = get_md4pass_list(&pass_list,nt_password);
@@ -649,7 +649,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
         /*printnbyte(nt_password_hash,16,"Current NT password hash: ","\n");*/
         i++;
         memcpy(lm_challenge_response,clientchallenge,8);
-        md5_init(&md5state); 
+        md5_init(&md5state);
         md5_append(&md5state,serverchallenge,8);
         md5_append(&md5state,clientchallenge,8);
         md5_finish(&md5state,challenges_hash);
@@ -671,7 +671,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
       }
       if( !memcmp(ref_nt_challenge_response,nt_challenge_response,24) && !memcmp(ref_lm_challenge_response,lm_challenge_response,24) ) {
           found = 1;
-      }    
+      }
     }
     /* So it's clearly not like this that's put into NTLMSSP doc but after some digging into samba code I'm quite confident
      * that sessionbasekey should be based md4(nt_password_hash) only in the case of some NT auth
@@ -685,8 +685,8 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
     }
     else {
      memcpy(sessionbasekey,md4,16);
-    }  
-  } 
+    }
+  }
 
   if( found == 0 ) {
     return;
@@ -697,7 +697,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
   memset(sessionkey, 0, 16);
   /*printnbyte(nt_challenge_response,24,"NT challenge response","\n");
   printnbyte(lm_challenge_response,24,"LM challenge response","\n");*/
-  /* now decrypt session key if needed and setup sessionkey for decrypting further communications */ 
+  /* now decrypt session key if needed and setup sessionkey for decrypting further communications */
   if (flags & NTLMSSP_NEGOTIATE_KEY_EXCH)
   {
     memcpy(sessionkey,encryptedsessionkey,16);
@@ -712,28 +712,28 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
 static void
 get_siging_key(guint8 *sign_key_server,guint8* sign_key_client,const guint8 key[16], int keylen)
 {
-  md5_state_t md5state; 
-  md5_state_t md5state2; 
+  md5_state_t md5state;
+  md5_state_t md5state2;
   memset(sign_key_client,0,16);
   memset(sign_key_server,0,16);
-  md5_init(&md5state); 
+  md5_init(&md5state);
   md5_append(&md5state,key,keylen);
   md5_append(&md5state,CLIENT_SIGN_TEXT,strlen(CLIENT_SIGN_TEXT)+1);
   md5_finish(&md5state,sign_key_client);
-  md5_init(&md5state2); 
+  md5_init(&md5state2);
   md5_append(&md5state2,key,keylen);
   md5_append(&md5state2,SERVER_SIGN_TEXT,strlen(SERVER_SIGN_TEXT)+1);
   md5_finish(&md5state2,sign_key_server);
- 
+
 }
 
 /* We return either a 128 or 64 bit key
  */
-static void 
+static void
 get_sealing_rc4key(const guint8 exportedsessionkey[16] ,const int flags ,int *keylen ,guint8 *clientsealkey ,guint8 *serversealkey)
 {
-  md5_state_t md5state; 
-  md5_state_t md5state2; 
+  md5_state_t md5state;
+  md5_state_t md5state2;
   memset(clientsealkey,0,16);
   memset(serversealkey,0,16);
   memcpy(clientsealkey,exportedsessionkey,16);
@@ -758,11 +758,11 @@ get_sealing_rc4key(const guint8 exportedsessionkey[16] ,const int flags ,int *ke
       }
     }
     memcpy(serversealkey,clientsealkey,16);
-    md5_init(&md5state); 
+    md5_init(&md5state);
     md5_append(&md5state,clientsealkey,*keylen);
     md5_append(&md5state,CLIENT_SEAL_TEXT,strlen(CLIENT_SEAL_TEXT)+1);
     md5_finish(&md5state,clientsealkey);
-    md5_init(&md5state2); 
+    md5_init(&md5state2);
     md5_append(&md5state2,serversealkey,*keylen);
     md5_append(&md5state2,SERVER_SEAL_TEXT,strlen(SERVER_SEAL_TEXT)+1);
     md5_finish(&md5state2,serversealkey);
@@ -788,7 +788,7 @@ get_sealing_rc4key(const guint8 exportedsessionkey[16] ,const int flags ,int *ke
         clientsealkey[6]=0x38;
         clientsealkey[7]=0xb0;
       }
-    }  
+    }
     serversealkey = memcpy(serversealkey,clientsealkey,*keylen);
   }
 }
@@ -1442,10 +1442,10 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     tvb_memcpy(tvb, conv_ntlmssp_info->server_challenge, offset, 8);
     conv_ntlmssp_info->is_auth_ntlm_v2=0;
     /* Between the challenge and the user provided password, we can build the
-       NTLMSSP key and initialize the cipher if we are not in EXTENDED SECURITY 
+       NTLMSSP key and initialize the cipher if we are not in EXTENDED SECURITY
        in this case we need the client challenge as well*/
     /* BTW this is true just if we are in LM Authentification if not the logic is a bit different.
-     * Right now it's not very clear what is LM Authentification it __seems__ to be when 
+     * Right now it's not very clear what is LM Authentification it __seems__ to be when
      * NEGOTIATE NT ONLY is not set and NEGOSIATE EXTENDED SECURITY is not set as well*/
     if (!(conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY))
     {
@@ -1458,7 +1458,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
         conv_ntlmssp_info->server_dest_port = pinfo->destport;
         conv_ntlmssp_info->rc4_state_initialized = 1;
       }
-  
+
     }
     conversation_add_proto_data(conversation, proto_ntlmssp, conv_ntlmssp_info);
   }
@@ -1522,9 +1522,9 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * strings are Unicode or not by looking at *our* flags.
    * XXX it seems it's more from the CHALLENGE message, which is more clever in fact
    * because the server can change some flags.
-   * But according to MS NTLMSSP doc it's not that simple. 
+   * But according to MS NTLMSSP doc it's not that simple.
    * In case of Conection less mode AUTHENTICATE flags should be used because they
-   * reprensent the choice of the client after having been informed of options of the 
+   * reprensent the choice of the client after having been informed of options of the
    * server in the CHALLENGE message.
    * In Connection mode then the CHALLENGE flags should (must ?) be used
    */
@@ -1555,9 +1555,9 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   /*
    * Sometimes the session key and flags are missing.
-   * Sometimes the session key is present but the flags are missing. 
-   * XXX Who stay so ? Reading spec I would rather say the opposite: flags are 
-   * always present, session information are always there as well but sometime 
+   * Sometimes the session key is present but the flags are missing.
+   * XXX Who stay so ? Reading spec I would rather say the opposite: flags are
+   * always present, session information are always there as well but sometime
    * session information could be null (in case of no session)
    * Sometimes they're both present.
    *
@@ -1580,7 +1580,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 				conv_ntlmssp_info == NULL ? NULL :
 				    &conv_ntlmssp_info->lm_response);
   data_end = MAX(data_end, item_end);
-  
+
   /* NTLM response */
   item_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_blob(tvb, offset, ntlmssp_tree,
@@ -1675,13 +1675,13 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
           get_sealing_rc4key(sspkey,conv_ntlmssp_info->flags,&ssp_key_len,clientkey,serverkey);
           get_siging_key((guint8*)&conv_ntlmssp_info->sign_key_server,(guint8*)&conv_ntlmssp_info->sign_key_client,sspkey,ssp_key_len);
           crypt_rc4_init(&conv_ntlmssp_info->rc4_state_server, serverkey, ssp_key_len);
-          crypt_rc4_init(&conv_ntlmssp_info->rc4_state_client, clientkey, ssp_key_len); 
+          crypt_rc4_init(&conv_ntlmssp_info->rc4_state_client, clientkey, ssp_key_len);
           conv_ntlmssp_info->server_dest_port = pinfo->destport;
           conv_ntlmssp_info->rc4_state_initialized = 1;
         }
       }
      }
-  }  
+  }
   return MAX(offset, data_end);
 }
 static guint8*
@@ -1721,7 +1721,7 @@ get_sign_key(packet_info *pinfo, int cryptpeer)
 }
 /*
  * Get the encryption state tied to this conversation.  cryptpeer indicates
- * whether to retrieve the client key (1) or the server key (0) 
+ * whether to retrieve the client key (1) or the server key (0)
  */
 static rc4_state_struct *
 get_encrypted_state(packet_info *pinfo, int cryptpeer)
@@ -1758,7 +1758,7 @@ get_encrypted_state(packet_info *pinfo, int cryptpeer)
     }
   }
 }
-void 
+void
 decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 		 packet_info *pinfo, proto_tree *tree _U_,gpointer key);
 static void
@@ -1842,7 +1842,7 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
   return offset;
 }
-void 
+void
 decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 		 packet_info *pinfo, proto_tree *tree _U_,gpointer key)
 {
@@ -1907,12 +1907,12 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
         rc4_state = get_encrypted_state(pinfo, 0);
         rc4_state_peer = get_encrypted_state(pinfo, 1);
       }
-  
+
       if (rc4_state == NULL ) {
         /* There is no encryption state, so we cannot decrypt */
         return ;
       }
-  
+
       /* Store the decrypted contents in the packet state struct
          (of course at this point, they aren't decrypted yet) */
       packet_ntlmssp_info->decrypted_payload = tvb_memdup(tvb, offset,
@@ -1923,24 +1923,23 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
       if( key != NULL ) {
         g_hash_table_insert(hash_packet,key,packet_ntlmssp_info);
       }
-  
+
       /* Do the decryption of the payload */
       crypt_rc4(rc4_state, packet_ntlmssp_info->decrypted_payload,
   	      encrypted_block_length);
       /* decrypt the verifier */
       /*printnchar(packet_ntlmssp_info->decrypted_payload,encrypted_block_length,"data: ","\n");*/
       /* We setup a temporary buffer so we can re-encrypt the payload after
-         decryption.  This is to update the opposite peer's RC4 state 
+         decryption.  This is to update the opposite peer's RC4 state
          it's usefull when we have only one key for both conversation
          in case of KEY_EXCH we have independant key so this is not needed*/
       if( !(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags)) {
-        peer_block = g_malloc(encrypted_block_length);
+        peer_block = ep_alloc(encrypted_block_length);
         memcpy(peer_block, packet_ntlmssp_info->decrypted_payload,
   	      encrypted_block_length);
         crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
-        g_free(peer_block);
-      } 
-    
+      }
+
       packet_ntlmssp_info->payload_decrypted = TRUE;
     }
   }
@@ -1959,7 +1958,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   volatile int offset = 0;
   proto_tree *volatile ntlmssp_tree = NULL;
   proto_item *tf = NULL;
-  ntlmssp_header_t *ntlmssph; 
+  ntlmssp_header_t *ntlmssph;
 
   ntlmssph=ep_alloc(sizeof(ntlmssp_header_t));
   ntlmssph->type=0;
@@ -2107,20 +2106,20 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
         sign_key = get_sign_key(pinfo,0);
         rc4_state_peer = get_encrypted_state(pinfo, 1);
       }
-  
+
       if (rc4_state == NULL || rc4_state_peer == NULL) {
         /* There is no encryption state, so we cannot decrypt */
         return;
       }
-  
+
       /* Setup the buffer to decrypt to */
       tvb_memcpy(tvb, packet_ntlmssp_info->verifier,
   	       offset, encrypted_block_length);
-      
+
       /*if( !(NTLMSSP_NEGOTIATE_KEY_EXCH & packet_ntlmssp_info->flags)) {*/
       if( conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY ) {
         if( (NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags)) {
-          /* The spec says that if we have have a key exchange then we have a the signature that is crypted 
+          /* The spec says that if we have have a key exchange then we have a the signature that is crypted
            * otherwise it's just a hmac_md5(keysign,concat(message,sequence))[0..7]
            */
           crypt_rc4(rc4_state, packet_ntlmssp_info->verifier,
@@ -2129,10 +2128,10 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
         /*
          * Try to check the HMAC MD5 of the message against those calculated works great with LDAP payload but
          * don't with DCE/RPC calls.
-         * Some analysis need to be done ... 
+         * Some analysis need to be done ...
          */
         if( sign_key != NULL ) {
-          check_buf = g_malloc(packet_ntlmssp_info->payload_len+4);
+          check_buf = ep_alloc(packet_ntlmssp_info->payload_len+4);
           tvb_memcpy(tvb, &sequence,offset+8,4);
           memcpy(check_buf,&sequence,4);
           memcpy(check_buf+4,packet_ntlmssp_info->decrypted_payload,packet_ntlmssp_info->payload_len);
@@ -2141,7 +2140,6 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
           printnbyte(packet_ntlmssp_info->verifier,8,"HMAC from packet: ","\n");
           printnbyte(calculated_md5,8,"HMAC            : ","\n");
           */
-          g_free(check_buf);
         }
       }
       else {
@@ -2150,21 +2148,20 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
         crypt_rc4(rc4_state, packet_ntlmssp_info->verifier,
   	        encrypted_block_length);
       }
-  
-  
-  
+
+
+
       /* We setup a temporary buffer so we can re-encrypt the payload after
-         decryption.  This is to update the opposite peer's RC4 state 
+         decryption.  This is to update the opposite peer's RC4 state
          This is not needed when we just have EXTENDED SECURITY because the signature is not crypted
          and it's also not needed when we have key exchange because server and client have independant keys */
       if( !(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags) && !(NTLMSSP_NEGOTIATE_EXTENDED_SECURITY & conv_ntlmssp_info->flags)) {
-        peer_block = g_malloc(encrypted_block_length);
+        peer_block = ep_alloc(encrypted_block_length);
         memcpy(peer_block, packet_ntlmssp_info->verifier,
   	      encrypted_block_length);
         crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
-        g_free(peer_block);
       }
-  
+
       /* Mark the packet as decrypted so that subsequent attempts to dissect
          the packet use the already decrypted payload instead of attempting
          to decrypt again */
@@ -2184,7 +2181,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 			   encrypted_block_length,
 			   plurality(encrypted_block_length, "", "s"));
   decr_tree = proto_item_add_subtree (tf, ett_ntlmssp);
-  
+
   if(( conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY )) {
     proto_tree_add_item (decr_tree, hf_ntlmssp_verf_hmacmd5,
 	  	       decr_tvb, decrypted_offset, 8,TRUE);
@@ -2217,7 +2214,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 }
 
 /* Used when NTLMSSP is done over DCE/RPC because in this case verifier and real payload are not contigious*/
-static int 
+static int
 dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *tree)
 {
   volatile int offset = 0;
@@ -2420,11 +2417,10 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 
     / * We setup a temporary buffer so we can re-encrypt the payload after
        decryption.  This is to update the opposite peer's RC4 state * /
-    peer_block = g_malloc(encrypted_block_length);
+    peer_block = ep_alloc(encrypted_block_length);
     memcpy(peer_block, packet_ntlmssp_info->decrypted_payload,
 	   encrypted_block_length);
     crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
-    g_free(peer_block);
 
     packet_ntlmssp_info->payload_decrypted = TRUE;
   }
@@ -2459,7 +2455,7 @@ gboolean g_header_equal(gconstpointer pointer1, gconstpointer pointer2) {
     return FALSE;
   }
 }
-  
+
 static void
 ntlmssp_init_protocol(void)
 {
@@ -2533,7 +2529,7 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_negotiate_flags_40000,
       { "Target Type Share", "ntlmssp.targettypeshare", FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_TARGET_TYPE_SHARE, NULL, HFILL }},
     { &hf_ntlmssp_negotiate_flags_80000,
-      { "Negotiate Extended Security", "ntlmssp.negotiatentlm2", FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_NEGOTIATE_EXTENDED_SECURITY, "", HFILL }}, 
+      { "Negotiate Extended Security", "ntlmssp.negotiatentlm2", FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_NEGOTIATE_EXTENDED_SECURITY, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_100000,
       { "Negotiate Identify", "ntlmssp.negotiateidentify", FT_BOOLEAN, 32, TFS (&tfs_set_notset), NTLMSSP_NEGOTIATE_IDENTIFY, NULL, HFILL }},
     { &hf_ntlmssp_negotiate_flags_200000,
