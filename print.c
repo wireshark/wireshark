@@ -881,7 +881,6 @@ print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
 			 * Start of a new line.
 			 */
 			j = 0;
-			k = 0;
 			l = use_digits;
 			do {
 				l--;
