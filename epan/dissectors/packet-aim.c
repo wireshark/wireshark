@@ -231,6 +231,7 @@ const aim_tlv client_tlvs[] = {
 
 static int dissect_aim_tlv_value_userstatus(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
 static int dissect_aim_tlv_value_dcinfo(proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
+static int dissect_aim_tlv_value_client_short_capabilities(proto_item *ti, guint16, tvbuff_t *, packet_info *);
 
 #define AIM_ONLINEBUDDY_USERCLASS      0x0001
 #define AIM_ONLINEBUDDY_ONSINCE        0x0003
@@ -265,7 +266,7 @@ const aim_tlv onlinebuddy_tlvs[] = {
   { AIM_ONLINEBUDDY_SESSIONLEN, "Session Length (sec)", dissect_aim_tlv_value_uint32 },
   { AIM_ONLINEBUDDY_ICQSESSIONLEN, "ICQ Session Length (sec)", dissect_aim_tlv_value_uint32 },
   { AIM_ONLINEBUDDY_MYINSTANCENUM, "Client instance number", dissect_aim_tlv_value_uint8 },
-  { AIM_ONLINEBUDDY_SHORTCAPS, "Short Capabilities", dissect_aim_tlv_value_bytes },
+  { AIM_ONLINEBUDDY_SHORTCAPS, "Short Capabilities", dissect_aim_tlv_value_client_short_capabilities },
   { AIM_ONLINEBUDDY_BARTINFO, "BART Info", dissect_aim_tlv_value_bytes },
   { AIM_ONLINEBUDDY_NICKFLAGS2, "Upper bytes of Nick Flags", dissect_aim_tlv_value_bytes },
   { AIM_ONLINEBUDDY_BUDDYFEEDTIME, "Last Buddy Feed update", dissect_aim_tlv_value_time },
@@ -425,6 +426,8 @@ static int hf_aim_userclass_unknown10000 = -1;
 static int hf_aim_userclass_unknown20000 = -1;
 static int hf_aim_userclass_no_knock_knock = -1;
 static int hf_aim_userclass_forward_mobile = -1;
+static int hf_aim_nickinfo_caps = -1;
+static int hf_aim_nickinfo_short_caps = -1;
 static int hf_aim_messageblock_featuresdes = -1;
 static int hf_aim_messageblock_featureslen = -1;
 static int hf_aim_messageblock_features = -1;
@@ -455,7 +458,8 @@ static gint ett_aim_fnac_flags = -1;
 static gint ett_aim_tlv      = -1;
 static gint ett_aim_userclass = -1;
 static gint ett_aim_messageblock = -1;
-static gint ett_aim_client_capabilities = -1;
+static gint ett_aim_nickinfo_caps = -1;
+static gint ett_aim_nickinfo_short_caps = -1;
 static gint ett_aim_string08_array = -1;
 
 /* desegmentation of AIM over TCP */
@@ -855,7 +859,7 @@ dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 typedef struct _aim_client_capability
 {
 	const char *name;
-	e_uuid_t clsid;
+	e_guid_t clsid;
 } aim_client_capability;
 
 static const aim_client_capability known_client_caps[] = {
@@ -994,8 +998,8 @@ static const aim_client_capability known_client_caps[] = {
 	{ NULL, {0x0, 0x0, 0x0, { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 } } }
 };
 
-static const
-aim_client_capability *aim_find_capability (e_uuid_t clsid)
+static const aim_client_capability *
+aim_find_capability (e_guid_t clsid)
 {
 	int i;
 
@@ -1003,35 +1007,59 @@ aim_client_capability *aim_find_capability (e_uuid_t clsid)
 	{
 		const aim_client_capability *caps = &(known_client_caps[i]);
 
-		if(memcmp(&(caps->clsid), &clsid, sizeof(e_uuid_t)) == 0)
+		if(memcmp(&(caps->clsid), &clsid, sizeof(e_guid_t)) == 0)
 			return caps;
 	}
 
 	return NULL;
 }
 
+static const aim_client_capability *
+aim_find_short_capability(guint16 shortid)
+{
+	e_guid_t clsid = {0x09460000, 0x4c7f, 0x11d1, {0x82, 0x22, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00}};
+	clsid.data1 |= shortid;
+
+	return aim_find_capability(clsid);
+}
+
 int
 dissect_aim_capability(proto_tree *entry, tvbuff_t *tvb, int offset)
 {
-	const aim_client_capability *caps = NULL;
-	e_uuid_t clsid;
+	const aim_client_capability *caps;
+	e_guid_t clsid;
 
-	clsid.Data1 = tvb_get_ntohl(tvb, offset);
-	clsid.Data2 = tvb_get_ntohs(tvb, offset+4);
-	clsid.Data3 = tvb_get_ntohs(tvb, offset+6);
-	tvb_memcpy(tvb, clsid.Data4, offset+8, 8);
-
+	tvb_get_ntohguid(tvb, offset, &clsid);
 	caps = aim_find_capability(clsid);
 
-	proto_tree_add_text(entry, tvb, offset, 16,
+	proto_tree_add_guid_format(entry, hf_aim_nickinfo_caps, tvb, offset, 16,
+		&clsid,
 		"%s {%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}",
-		caps?caps->name:"Unknown", clsid.Data1, clsid.Data2,
-		clsid.Data3, clsid.Data4[0], clsid.Data4[1], clsid.Data4[2],
-		clsid.Data4[3], clsid.Data4[4],	clsid.Data4[5], clsid.Data4[6],
-		clsid.Data4[7]
+		caps?caps->name:"Unknown", clsid.data1, clsid.data2,
+		clsid.data3, clsid.data4[0], clsid.data4[1], clsid.data4[2],
+		clsid.data4[3], clsid.data4[4],	clsid.data4[5], clsid.data4[6],
+		clsid.data4[7]
 	);
 
 	return offset+16;
+}
+
+static int
+dissect_aim_short_capability(proto_tree *entry, tvbuff_t *tvb, int offset)
+{
+	const aim_client_capability *caps;
+	guint16 shortid;
+
+	shortid = tvb_get_ntohs(tvb, offset);
+	caps = aim_find_short_capability(shortid);
+
+	proto_tree_add_uint_format(entry, hf_aim_nickinfo_short_caps, tvb, offset, 2,
+		shortid,
+		"%s (0x%04x)",
+		caps?caps->name:"Unknown", shortid
+	);
+
+	return offset+2;
 }
 
 int
@@ -1042,10 +1070,27 @@ dissect_aim_tlv_value_client_capabilities(proto_item *ti _U_, guint16 valueid _U
 
 	proto_item_set_text(ti, "Client Capabilities List");
 
-	entry = proto_item_add_subtree(ti, ett_aim_client_capabilities);
+	entry = proto_item_add_subtree(ti, ett_aim_nickinfo_caps);
 
   	while (tvb_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_capability(entry, tvb, offset);
+	}
+
+	return tvb_length(tvb);
+}
+
+static int
+dissect_aim_tlv_value_client_short_capabilities(proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
+{
+	int offset = 0;
+	proto_tree *entry;
+
+	proto_item_set_text(ti, "Short Client Capabilities List");
+
+	entry = proto_item_add_subtree(ti, ett_aim_nickinfo_short_caps);
+
+  	while (tvb_length_remaining(tvb, offset) > 0) {
+		offset = dissect_aim_short_capability(entry, tvb, offset);
 	}
 
 	return tvb_length(tvb);
@@ -1588,6 +1633,12 @@ proto_register_aim(void)
 	{ &hf_aim_userclass_forward_mobile,
 		{ "Forward to mobile if not active", "aim.userclass.forward_mobile", FT_BOOLEAN, 32, TFS(&tfs_set_notset), CLASS_FORWARD_MOBILE, NULL, HFILL },
 	},
+	{ &hf_aim_nickinfo_caps,
+		{ "Client capabilities", "aim.nickinfo.caps", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL },
+	},
+	{ &hf_aim_nickinfo_short_caps,
+		{ "Short client capabilities", "aim.nickinfo.short_caps", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
+	},
 	{ &hf_aim_fnac_flag_next_is_related,
 		{ "Followed By SNAC with related information", "aim.fnac.flags.next_is_related", FT_BOOLEAN, 16, TFS(&tfs_set_notset), FNAC_FLAG_NEXT_IS_RELATED, NULL, HFILL },
 	},
@@ -1669,7 +1720,8 @@ proto_register_aim(void)
 	  &ett_aim_buddyname,
 	  &ett_aim_userclass,
 	  &ett_aim_messageblock,
-	  &ett_aim_client_capabilities,
+	  &ett_aim_nickinfo_caps,
+	  &ett_aim_nickinfo_short_caps,
 	  &ett_aim_string08_array
   };
   module_t *aim_module;
