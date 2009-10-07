@@ -63,7 +63,7 @@ typedef struct _mgcpstat_t {
 	GtkWidget *vbox;
 	char *filter;
 	GtkWidget *scrolled_window;
-	GtkCList *table;
+	GtkTreeView *table;
         timestat_t rtd[NUM_TIMESTATS];
 	guint32 open_req_num;
 	guint32 disc_rsp_num;
@@ -190,14 +190,13 @@ mgcpstat_draw(void *pms)
 {
 	mgcpstat_t *ms=(mgcpstat_t *)pms;
 	int i;
-	char *str[7];
-
-	for(i=0;i<7;i++) {
-		str[i]=g_malloc(sizeof(char[256]));
-	}
+	char str[3][256];
+	GtkListStore *store;
+	GtkTreeIter iter;
 
 	/* clear list before printing */
-	gtk_clist_clear(ms->table);
+  	store = GTK_LIST_STORE(gtk_tree_view_get_model(ms->table));
+  	gtk_list_store_clear(store);
 
 	for(i=0;i<NUM_TIMESTATS;i++) {
 		/* nothing seen, nothing to do */
@@ -205,19 +204,19 @@ mgcpstat_draw(void *pms)
 			continue;
 		}
 
-		g_snprintf(str[0], sizeof(char[256]), "%s", val_to_str(i,mgcp_mesage_type,"Other"));
-		g_snprintf(str[1], sizeof(char[256]), "%d", ms->rtd[i].num);
-		g_snprintf(str[2], sizeof(char[256]), "%8.2f msec", nstime_to_msec(&(ms->rtd[i].min)));
-		g_snprintf(str[3], sizeof(char[256]), "%8.2f msec", nstime_to_msec(&(ms->rtd[i].max)));
-		g_snprintf(str[4], sizeof(char[256]), "%8.2f msec", get_average(&(ms->rtd[i].tot), ms->rtd[i].num));
-		g_snprintf(str[5], sizeof(char[256]), "%6u", ms->rtd[i].min_num);
-		g_snprintf(str[6], sizeof(char[256]), "%6u", ms->rtd[i].max_num);
-		gtk_clist_append(ms->table, str);
-	}
-
-	gtk_widget_show(GTK_WIDGET(ms->table));
-	for(i=0;i<7;i++) {
-		g_free(str[i]);
+		g_snprintf(str[0], sizeof(char[256]), "%8.2f msec", nstime_to_msec(&(ms->rtd[i].min)));
+		g_snprintf(str[1], sizeof(char[256]), "%8.2f msec", nstime_to_msec(&(ms->rtd[i].max)));
+		g_snprintf(str[2], sizeof(char[256]), "%8.2f msec", get_average(&(ms->rtd[i].tot), ms->rtd[i].num));
+		gtk_list_store_append(store, &iter);
+		gtk_list_store_set(store, &iter,
+			0, val_to_str(i, mgcp_mesage_type,"Other"),
+			1, ms->rtd[i].num,
+			2, str[0],
+			3, str[1],
+			4, str[2],
+			5, ms->rtd[i].min_num,
+			6, ms->rtd[i].max_num,
+			-1);
 	}
 }
 
@@ -237,14 +236,15 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	g_free(ms);
 }
 
-static const gchar *titles[]={
-			"Type",
-			"Messages",
-			"Min SRT",
-			"Max SRT",
-			"Avg SRT",
-			"Min in Frame",
-			"Max in Frame" };
+static const stat_column titles[]={
+	{G_TYPE_STRING, LEFT, "Type" },
+	{G_TYPE_UINT, RIGHT,   "Messages" },
+	{G_TYPE_STRING, RIGHT, "Min SRT" },
+	{G_TYPE_STRING, RIGHT, "Max SRT" },
+	{G_TYPE_STRING, RIGHT, "Avg SRT" },
+	{G_TYPE_UINT, RIGHT,  "Min in Frame" },
+	{G_TYPE_UINT, RIGHT,  "Max in Frame" } 
+};
 
 static void
 gtk_mgcpstat_init(const char *optarg, void *userdata _U_)

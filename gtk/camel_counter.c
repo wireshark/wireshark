@@ -72,7 +72,7 @@ struct camelcounter_t {
   GtkWidget *vbox;
   char *filter;
   GtkWidget *scrolled_window;
-  GtkCList *table;
+  GtkTreeView *table;
   guint32 camel_msg[camel_MAX_NUM_OPR_CODES];
 };
 
@@ -108,26 +108,27 @@ static void gtk_camelcounter_draw(void *phs)
 {
   struct camelcounter_t *p_counter=(struct camelcounter_t *)phs;
   int i;
-  char *str[2];
-
-  for(i=0;i<2;i++) {
-    str[i]=g_malloc(sizeof(char[256]));
-  }
+  char str[256];
+  GtkListStore *store;
+  GtkTreeIter iter;
+  
   /* Now print Message and Reason Counter Table */
   /* clear list before printing */
-  gtk_clist_clear(p_counter->table);
+  store = GTK_LIST_STORE(gtk_tree_view_get_model(p_counter->table));
+  gtk_list_store_clear(store);
 
   for(i=0;i<camel_MAX_NUM_OPR_CODES;i++) {
     /* Message counter */
     if(p_counter->camel_msg[i]!=0) {
-      g_snprintf(str[0], sizeof(char[256]),
-		 "Request %s", val_to_str(i,camel_opr_code_strings,"Unknown message "));
-      g_snprintf(str[1], sizeof(char[256]),
-		 "%d", p_counter->camel_msg[i]);
-      gtk_clist_append(p_counter->table, str);
+      g_snprintf(str, 256, "Request %s", val_to_str(i,camel_opr_code_strings,"Unknown message "));
+
+      gtk_list_store_append(store, &iter);
+      gtk_list_store_set(store, &iter,
+				   0, str,
+				   1, p_counter->camel_msg[i],
+				   -1);
     }
   } /* Message Type */
-  gtk_widget_show(GTK_WIDGET(p_counter->table));
 }
 
 static void win_destroy_cb(GtkWindow *win _U_, gpointer data)
@@ -145,9 +146,10 @@ static void win_destroy_cb(GtkWindow *win _U_, gpointer data)
   g_free(hs);
 }
 
-static const gchar *titles[]={
-  "Message Type or Reason",
-  "Count" };
+static const stat_column titles[]={
+  {G_TYPE_STRING, LEFT, "Message Type or Reason"},
+  {G_TYPE_UINT, RIGHT, "Count" }
+};
 
 static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
 {

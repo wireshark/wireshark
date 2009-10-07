@@ -29,10 +29,21 @@
 
 #include <gtk/gtk.h>
 
+
 /** @file
  *  Utilities for statistics.
  */
 
+#define LEFT 0
+#define RIGHT 1
+
+/** Columns definition
+ */
+typedef struct {
+    GType      type;   /* column type */
+    gint       align;  /* alignement  */
+    const char *title; /* column title */
+} stat_column;
 
 /** Init a window for stats, set title and display used filter in window.
  *
@@ -48,8 +59,8 @@ extern void init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, const c
  * @param scrolled_window the scrolled window
  * @param vbox the vbox for the window
  * @param columns number of columns
- * @param titles 
+ * @param headers columns title and type, G_TYPE_POINTER is illegal, there's no default cell renderer for it
  */
-extern GtkCList *create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, const char *titles[]);
+extern GtkTreeView *create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, const stat_column *headers);
 
 #endif

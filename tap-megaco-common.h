@@ -71,7 +71,7 @@ typedef struct _megacostat_t {
 	GtkWidget *win;
 	GtkWidget *vbox;
 	GtkWidget *scrolled_window;
-	GtkCList *table;
+	GtkTreeView *table;
 #endif /*__GHTK_H__*/
 } megacostat_t;
 

@@ -73,7 +73,7 @@ typedef struct _radiusstat_t {
 	GtkWidget *vbox;
 	char *filter;
 	GtkWidget *scrolled_window;
-	GtkCList *table;
+	GtkTreeView *table;
 	radius_rtd_t radius_rtd[NUM_TIMESTATS];
 } radiusstat_t;
 
@@ -230,41 +230,41 @@ radiusstat_draw(void *prs)
 {
 	radiusstat_t *rs=(radiusstat_t *)prs;
 	int i;
-	char *str[NUM_COLUMNS];
-
-	for(i=0;i<NUM_COLUMNS;i++) {
-		str[i]=g_malloc(sizeof(char[256]));
-	}
+	char str[5][256];
+	GtkListStore *store;
+	GtkTreeIter iter;
 
 	/* clear list before printing */
-	gtk_clist_clear(rs->table);
+  	store = GTK_LIST_STORE(gtk_tree_view_get_model(rs->table));
+  	gtk_list_store_clear(store);
 
 	for(i=0;i<NUM_TIMESTATS;i++) {
 		/* nothing seen, nothing to do */
 		if(rs->radius_rtd[i].stats.num==0){
 			continue;
 		}
-
-		g_snprintf(str[0], sizeof(char[256]), "%s", val_to_str(i,radius_message_code,"Other"));
-		g_snprintf(str[1], sizeof(char[256]), "%d", rs->radius_rtd[i].stats.num);
-		g_snprintf(str[2], sizeof(char[256]), "%8.2f msec", nstime_to_msec(&(rs->radius_rtd[i].stats.min)));
-		g_snprintf(str[3], sizeof(char[256]), "%8.2f msec", nstime_to_msec(&(rs->radius_rtd[i].stats.max)));
-		g_snprintf(str[4], sizeof(char[256]), "%8.2f msec", get_average(&(rs->radius_rtd[i].stats.tot), rs->radius_rtd[i].stats.num));
-		g_snprintf(str[5], sizeof(char[256]), "%6u", rs->radius_rtd[i].stats.min_num);
-		g_snprintf(str[6], sizeof(char[256]), "%6u", rs->radius_rtd[i].stats.max_num);
-		g_snprintf(str[7], sizeof(char[256]), "%4u", rs->radius_rtd[i].open_req_num);
-		g_snprintf(str[8], sizeof(char[256]), "%4u", rs->radius_rtd[i].disc_rsp_num);
-		g_snprintf(str[9], sizeof(char[256]), "%4u (%4.2f%%)", rs->radius_rtd[i].req_dup_num,
+		g_snprintf(str[0], 256, "%8.2f msec", nstime_to_msec(&(rs->radius_rtd[i].stats.min)));
+		g_snprintf(str[1], 256, "%8.2f msec", nstime_to_msec(&(rs->radius_rtd[i].stats.max)));
+		g_snprintf(str[2], 256, "%8.2f msec", get_average(&(rs->radius_rtd[i].stats.tot), rs->radius_rtd[i].stats.num));
+		g_snprintf(str[3], 256, "%4u (%4.2f%%)", rs->radius_rtd[i].req_dup_num,
 			rs->radius_rtd[i].stats.num?((double)rs->radius_rtd[i].req_dup_num*100)/(double)rs->radius_rtd[i].stats.num:0);
-		g_snprintf(str[10], sizeof(char[256]), "%4u (%4.2f%%)", rs->radius_rtd[i].rsp_dup_num,
+		g_snprintf(str[4], 256, "%4u (%4.2f%%)", rs->radius_rtd[i].rsp_dup_num,
 			rs->radius_rtd[i].stats.num?((double)rs->radius_rtd[i].rsp_dup_num*100)/(double)rs->radius_rtd[i].stats.num:0);
 
-		gtk_clist_append(rs->table, str);
-	}
-
-	gtk_widget_show(GTK_WIDGET(rs->table));
-	for(i=0;i<NUM_COLUMNS;i++) {
-		g_free(str[i]);
+		gtk_list_store_append(store, &iter);
+		gtk_list_store_set(store, &iter,
+			0, val_to_str(i, radius_message_code,"Other"),
+			1, rs->radius_rtd[i].stats.num,
+			2, str[0],
+			3, str[1],
+			4, str[2],
+			5, rs->radius_rtd[i].stats.min_num,
+			6, rs->radius_rtd[i].stats.max_num,
+			7, rs->radius_rtd[i].open_req_num,
+			8, rs->radius_rtd[i].disc_rsp_num,
+			9, str[3],
+			10, str[4],
+			-1);
 	}
 }
 
@@ -284,18 +284,19 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	g_free(rs);
 }
 
-static const gchar *titles[]={
-			"Type",
-			"Messages",
-			"Min SRT",
-			"Max SRT",
-			"Avg SRT",
-			"Min in Frame",
-			"Max in Frame",
-			"Open Requests",
-			"Discarded Responses",
-			"Repeated Requests",
-			"Repeated Responses" };
+static const stat_column titles[]={
+	{G_TYPE_STRING, LEFT,  "Type" },
+	{G_TYPE_UINT, RIGHT,   "Messages" },
+	{G_TYPE_STRING, RIGHT, "Min SRT" },
+	{G_TYPE_STRING, RIGHT, "Max SRT" },
+	{G_TYPE_STRING, RIGHT, "Avg SRT" },
+	{G_TYPE_UINT, RIGHT,   "Min in Frame" },
+	{G_TYPE_UINT, RIGHT,   "Max in Frame" },
+	{G_TYPE_UINT, RIGHT,   "Open Requests" },
+	{G_TYPE_UINT, RIGHT,   "Discarded Responses" },
+	{G_TYPE_STRING, RIGHT, "Repeated Requests" },
+	{G_TYPE_STRING, RIGHT, "Repeated Responses"}
+};
 
 static void
 gtk_radiusstat_init(const char *optarg, void *userdata _U_)

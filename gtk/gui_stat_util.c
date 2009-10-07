@@ -104,28 +104,55 @@ init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, const char *title, 
 
 /* create a table, using a scrollable gtkclist */
 
-GtkCList *
-create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, const char *titles[])
+GtkTreeView *
+create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, const stat_column *headers)
 {
-	GtkCList *table;
+	GtkTreeView *table;
+	GtkListStore *store;
+	GtkWidget *tree;
+	GtkTreeViewColumn *column;
+	GtkTreeSelection  *sel;
+	GtkCellRenderer *renderer;
+	GType *types;
 	int i;
 
-	/* create table */
-	table = GTK_CLIST(gtk_clist_new_with_titles(columns, (gchar **) titles));
+	if (columns <= 0)
+		return NULL;
 
+	types = g_malloc(columns *sizeof(GType));
+	for (i = 0; i < columns; i++)
+		types[i] = headers[i].type;
+		
+	store = gtk_list_store_newv (columns, types);
+	g_free(types);
+	
+	/* create table */
+	tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+	table = GTK_TREE_VIEW(tree);
+	g_object_unref (G_OBJECT (store));
+
+	for (i = 0; i < columns; i++) {
+		renderer = gtk_cell_renderer_text_new ();
+		if (headers[i].align == RIGHT) {
+			/* right align */
+			g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
+		}
+		g_object_set(renderer, "ypad", 0, NULL);
+		column = gtk_tree_view_column_new_with_attributes (headers[i].title, renderer, "text", 
+					i, NULL);
+		gtk_tree_view_column_set_resizable(column, TRUE);
+		gtk_tree_view_append_column (table, column);
+	}
+	gtk_container_add(GTK_CONTAINER(scrolled_window), GTK_WIDGET (table));
 	gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, TRUE, 0);
 
 	/* configure clist */
-	gtk_clist_column_titles_passive(table);
-	gtk_clist_column_titles_show(table);
-	for (i = 0; i < columns; i++)
-	    gtk_clist_set_column_auto_resize(table, i, TRUE);
-	gtk_clist_set_selection_mode(table, GTK_SELECTION_SINGLE);
+	gtk_tree_view_set_rules_hint(table, FALSE);
+	gtk_tree_view_set_headers_clickable(table, FALSE);
 
-	/* Put clist into a scrolled window */
-	gtk_container_add(GTK_CONTAINER(scrolled_window),
-                          GTK_WIDGET(table));
-        gtk_widget_show(GTK_WIDGET(table));
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(table));
+	gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
+
 	gtk_widget_show(scrolled_window);
 
 	return table;

@@ -112,7 +112,7 @@ typedef struct _h225rassrt_t {
 	GtkWidget *vbox;
 	char *filter;
 	GtkWidget *scrolled_window;
-	GtkCList *table;
+	GtkTreeView *table;
 	h225_rtd_t ras_rtd[NUM_RAS_STATS];
 } h225rassrt_t;
 
@@ -205,48 +205,42 @@ h225rassrt_draw(void *phs)
 {
 	h225rassrt_t *hs=(h225rassrt_t *)phs;
 	int i;
-	char *str[11];
+	char str[3][256];
+	GtkListStore *store;
+	GtkTreeIter iter;
 
-	for(i=0;i<11;i++) {
-		str[i]=g_malloc(sizeof(char[256]));
-	}
 	/* Now print Message and Reason Counter Table */
 	/* clear list before printing */
-	gtk_clist_clear(hs->table);
+  	store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
+  	gtk_list_store_clear(store);
 
 	for(i=0;i<NUM_RAS_STATS;i++) {
 		/* nothing seen, nothing to do */
 		if(hs->ras_rtd[i].stats.num==0){
 			continue;
 		}
-
 		g_snprintf(str[0], sizeof(char[256]),
-            "%s", val_to_str(i,ras_message_category,"Other"));
+				"%8.2f msec", nstime_to_msec(&(hs->ras_rtd[i].stats.min)));
 		g_snprintf(str[1], sizeof(char[256]),
-            "%7d", hs->ras_rtd[i].stats.num);
+				"%8.2f msec", nstime_to_msec(&(hs->ras_rtd[i].stats.max)));
 		g_snprintf(str[2], sizeof(char[256]),
-            "%8.2f msec", nstime_to_msec(&(hs->ras_rtd[i].stats.min)));
-		g_snprintf(str[3], sizeof(char[256]),
-            "%8.2f msec", nstime_to_msec(&(hs->ras_rtd[i].stats.max)));;
-		g_snprintf(str[4], sizeof(char[256]),
-            "%8.2f msec", get_average(&(hs->ras_rtd[i].stats.tot), hs->ras_rtd[i].stats.num));
-		g_snprintf(str[5], sizeof(char[256]),
-            "%6u", hs->ras_rtd[i].stats.min_num);
-		g_snprintf(str[6], sizeof(char[256]),
-            "%6u", hs->ras_rtd[i].stats.max_num);
-		g_snprintf(str[7], sizeof(char[256]),
-            "%4u", hs->ras_rtd[i].open_req_num);
-		g_snprintf(str[8], sizeof(char[256]),
-            "%4u", hs->ras_rtd[i].disc_rsp_num);
-		g_snprintf(str[9], sizeof(char[256]),
-            "%4u", hs->ras_rtd[i].req_dup_num);
-		g_snprintf(str[10], sizeof(char[256]),
-            "%4u", hs->ras_rtd[i].rsp_dup_num);
-		gtk_clist_append(GTK_CLIST(hs->table), str);
+				"%8.2f msec", get_average(&(hs->ras_rtd[i].stats.tot), hs->ras_rtd[i].stats.num));
+
+		gtk_list_store_append(store, &iter);
+		gtk_list_store_set(store, &iter,
+			0, val_to_str(i,ras_message_category,"Other"),
+			1, hs->ras_rtd[i].stats.num,
+			2, str[0],
+			3, str[1],
+			4, str[2],
+			5, hs->ras_rtd[i].stats.min_num,
+			6, hs->ras_rtd[i].stats.max_num,
+			7, hs->ras_rtd[i].open_req_num,
+			8, hs->ras_rtd[i].disc_rsp_num,
+			9, hs->ras_rtd[i].req_dup_num,
+			10, hs->ras_rtd[i].rsp_dup_num,
+			-1);
 	}
-
-	gtk_widget_show(GTK_WIDGET(hs->table));
-
 }
 
 static void
@@ -266,18 +260,19 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
-static const gchar *titles[]={
-			"RAS-Type",
-			"Measurements",
-			"Min RTT",
-			"Max RTT",
-			"Avg RTT",
-			"Min in Frame",
-			"Max in Frame",
-			"Open Requests",
-			"Discarded Responses",
-			"Repeated Requests",
-			"Repeated Responses" };
+static const stat_column titles[]={
+	{G_TYPE_STRING, LEFT, "RAS-Type" },
+	{G_TYPE_UINT, RIGHT,   "Measurements" },
+	{G_TYPE_STRING, RIGHT, "Min RTT" },
+	{G_TYPE_STRING, RIGHT, "Max RTT" },
+	{G_TYPE_STRING, RIGHT, "Avg RTT" },
+	{G_TYPE_UINT, RIGHT,  "Min in Frame" },
+	{G_TYPE_UINT, RIGHT,  "Max in Frame" },
+	{G_TYPE_UINT, RIGHT,  "Open Requests" },
+	{G_TYPE_UINT, RIGHT,  "Discarded Responses" },
+	{G_TYPE_UINT, RIGHT,  "Repeated Requests" },
+	{G_TYPE_UINT, RIGHT,  "Repeated Responses"}
+};
 
 static void
 gtk_h225rassrt_init(const char *optarg, void *userdata _U_)

@@ -79,7 +79,7 @@ typedef struct _sctp_stat_t {
 	GtkWidget  *vbox;
 	char       *filter;
 	GtkWidget  *scrolled_window;
-	GtkCList   *table;
+	GtkTreeView *table;
 	guint32    number_of_packets;
 	sctp_ep_t* ep_list;
 } sctpstat_t;
@@ -209,41 +209,37 @@ static void
 sctpstat_draw(void *phs)
 {
 	sctpstat_t *hs=(sctpstat_t *)phs;
-	sctp_ep_t* list = hs->ep_list, *tmp=0;
-	char *str[15];
-	int i=0;
+	sctp_ep_t* list = hs->ep_list, *tmp;
+	GtkListStore *store;
+	GtkTreeIter iter;
 
-	for(i=0;i<15;i++) {
-		str[i]=g_malloc(sizeof(char[256]));
-	}
 	/* Now print Message and Reason Counter Table */
 	/* clear list before printing */
-	gtk_clist_clear(hs->table);
-
+	/* XXX use an iter for new/modified ? */
+  	store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
+  	gtk_list_store_clear(store);
 
 	for(tmp = list ; tmp ; tmp=tmp->next) {
-
-		g_snprintf(str[0],  sizeof(char[256]),"%s", ep_address_to_str(&tmp->src));
-		g_snprintf(str[1],  sizeof(char[256]),"%u", tmp->sport);
-		g_snprintf(str[2],  sizeof(char[256]),"%s", ep_address_to_str(&tmp->dst));
-		g_snprintf(str[3],  sizeof(char[256]),"%u", tmp->dport);
-		g_snprintf(str[4],  sizeof(char[256]),"%u", tmp->chunk_count[SCTP_DATA_CHUNK_ID]);
-		g_snprintf(str[5],  sizeof(char[256]),"%u", tmp->chunk_count[SCTP_SACK_CHUNK_ID]);
-		g_snprintf(str[6],  sizeof(char[256]),"%u", tmp->chunk_count[SCTP_HEARTBEAT_CHUNK_ID]);
-		g_snprintf(str[7],  sizeof(char[256]),"%u", tmp->chunk_count[SCTP_HEARTBEAT_ACK_CHUNK_ID]);
-		g_snprintf(str[8],  sizeof(char[256]),"%u", tmp->chunk_count[SCTP_INIT_CHUNK_ID]);
-		g_snprintf(str[9],  sizeof(char[256]),"%u", tmp->chunk_count[SCTP_INIT_ACK_CHUNK_ID]);
-		g_snprintf(str[10], sizeof(char[256]),"%u", tmp->chunk_count[SCTP_COOKIE_ECHO_CHUNK_ID]);
-		g_snprintf(str[11], sizeof(char[256]),"%u", tmp->chunk_count[SCTP_COOKIE_ACK_CHUNK_ID]);
-		g_snprintf(str[12], sizeof(char[256]),"%u", tmp->chunk_count[SCTP_ABORT_CHUNK_ID]);
-		g_snprintf(str[13], sizeof(char[256]),"%u", tmp->chunk_count[SCTP_ERROR_CHUNK_ID]);
-		g_snprintf(str[14], sizeof(char[256]),"%u", tmp->chunk_count[SCTP_NR_SACK_CHUNK_ID]);
-
-		gtk_clist_append(hs->table, str);
+		gtk_list_store_append(store, &iter);
+		gtk_list_store_set(store, &iter,
+		0,  ep_address_to_str(&tmp->src),
+		1,  tmp->sport,
+		2,  ep_address_to_str(&tmp->dst),
+		3,  tmp->dport,
+		4,  tmp->chunk_count[SCTP_DATA_CHUNK_ID],
+		5,  tmp->chunk_count[SCTP_SACK_CHUNK_ID],
+		6,  tmp->chunk_count[SCTP_HEARTBEAT_CHUNK_ID],
+		7,  tmp->chunk_count[SCTP_HEARTBEAT_ACK_CHUNK_ID],
+		8,  tmp->chunk_count[SCTP_INIT_CHUNK_ID],
+		9,  tmp->chunk_count[SCTP_INIT_ACK_CHUNK_ID],
+		10, tmp->chunk_count[SCTP_COOKIE_ECHO_CHUNK_ID],
+		11, tmp->chunk_count[SCTP_COOKIE_ACK_CHUNK_ID],
+		12, tmp->chunk_count[SCTP_ABORT_CHUNK_ID],
+		13, tmp->chunk_count[SCTP_ERROR_CHUNK_ID],
+		14, tmp->chunk_count[SCTP_NR_SACK_CHUNK_ID],
+		-1
+		);
 	}
-
-	gtk_widget_show(GTK_WIDGET(hs->table));
-
 }
 
 static void
@@ -263,22 +259,23 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
-static const gchar *titles[]={
-			"Source IP",
-			"Source Port",
-			"Dest IP",
-			"Dest Port",
-			"DATA",
-			"SACK",
-			"HBEAT",
-			"HBEAT_ACK",
-			"INIT",
-			"INIT_ACK",
-			"COOKIE",
-			"COOKIE_ACK",
-			"ABORT",
-			"ERROR",
-			"NR_SACK" };
+static const stat_column titles[]={
+	{G_TYPE_STRING, LEFT, "Source IP" },
+	{G_TYPE_UINT, RIGHT,  "Source Port" },
+	{G_TYPE_STRING, LEFT, "Dest IP" },
+	{G_TYPE_UINT, RIGHT,  "Dest Port" },
+	{G_TYPE_UINT, RIGHT,  "DATA" },
+	{G_TYPE_UINT, RIGHT,  "SACK" },
+	{G_TYPE_UINT, RIGHT,  "HBEAT" },
+	{G_TYPE_UINT, RIGHT,  "HBEAT_ACK" },
+	{G_TYPE_UINT, RIGHT,  "INIT" },
+	{G_TYPE_UINT, RIGHT,  "INIT_ACK" },
+	{G_TYPE_UINT, RIGHT,  "COOKIE" },
+	{G_TYPE_UINT, RIGHT,  "COOKIE_ACK" },
+	{G_TYPE_UINT, RIGHT,  "ABORT" },
+	{G_TYPE_UINT, RIGHT,  "ERROR" },
+	{G_TYPE_UINT, RIGHT,  "NR_SACK" }
+};
 
 static void
 sctpstat_init(const char *optarg, void *userdata _U_)
