@@ -93,7 +93,7 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_widget_show (list_vb);
     gtk_box_pack_start (GTK_BOX (main_vb), list_vb, TRUE, TRUE, 0);
 
-    list_lb = gtk_label_new (("[The first list entry will be displayed as the leftmost column]"));
+    list_lb = gtk_label_new (("[The first list entry will be displayed as the leftmost column - Drag and drop entries to change column order]"));
     gtk_widget_show (list_lb);
     gtk_box_pack_start (GTK_BOX (list_vb), list_lb, FALSE, FALSE, 0);
 
@@ -272,7 +272,7 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data) {
     GtkTreePath       *path;
     GtkTreeViewColumn *title_column;
 
-    cur_fmt        = COL_NUMBER;
+    cur_fmt        = COL_NUMBER;    /*  Set the default new column type */
     cfmt           = (fmt_data *) g_malloc(sizeof(fmt_data));
     cfmt->title    = g_strdup(title);
     cfmt->fmt      = g_strdup(col_format_to_string(cur_fmt));
