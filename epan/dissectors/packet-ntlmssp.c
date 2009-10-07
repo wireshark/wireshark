@@ -431,6 +431,7 @@ get_keyexchange_key(unsigned char keyexchangekey[16],const unsigned char session
     }
   }
 }
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 static guint32
 get_md4pass_list(md4_pass** p_pass_list,const char* nt_password) {
   guint32 nb_pass = 0;
@@ -473,10 +474,11 @@ get_md4pass_list(md4_pass** p_pass_list,const char* nt_password) {
   }
   return nb_pass;
 }
+#endif
 /* Create an NTLMSSP version 2
  */
 static void
-create_ntlmssp_v2_key(const char *nt_password, const guint8 *serverchallenge , const guint8 *clientchallenge ,
+create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge , const guint8 *clientchallenge ,
 		      guint8 *sessionkey ,const  guint8 *encryptedsessionkey , int flags , ntlmssp_blob ntlm_response, ntlmssp_blob lm_response _U_, ntlmssp_header_t *ntlmssph ) {
   char domain_name_unicode[256];
   char user_uppercase[256];
@@ -493,7 +495,7 @@ create_ntlmssp_v2_key(const char *nt_password, const guint8 *serverchallenge , c
   rc4_state_struct rc4state;
   guint32  user_len;
   guint32 domain_len;
-  md4_pass *pass_list;
+  md4_pass *pass_list = NULL;
   guint32 nb_pass = 0;
   int found = 0;
 
@@ -501,7 +503,9 @@ create_ntlmssp_v2_key(const char *nt_password, const guint8 *serverchallenge , c
    * The idea is to be able to test all the key of domain in once and to be able to decode the NTLM dialogs */
 
   memset(sessionkey, 0, 16);
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
   nb_pass = get_md4pass_list(&pass_list,nt_password);
+#endif
   i=0;
   memset(user_uppercase,0,256);
   user_len = strlen(ntlmssph->acct_name);
@@ -603,7 +607,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
   size_t password_len;
   unsigned int i;
   int found = 0;
-  md4_pass *pass_list;
+  md4_pass *pass_list = NULL;
   unsigned char lmhash_key[] =
     {0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25};
 
@@ -641,7 +645,9 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
 
     memset(lm_challenge_response,0,24);
     if( flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY ) {
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
       nb_pass = get_md4pass_list(&pass_list,nt_password);
+#endif
       i=0;
       while (i < nb_pass ) {
         /*fprintf(stderr,"Turn %d, ",i);*/
