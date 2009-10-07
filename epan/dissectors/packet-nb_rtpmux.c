@@ -171,7 +171,7 @@ proto_register_nb_rtpmux(void)
         },
         { &hf_nb_rtpmux_data,
             { "RTP Packet", "nb_rtpmux.data",
-             FT_BYTES, BASE_HEX, NULL, 0x00,
+             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         }
     };

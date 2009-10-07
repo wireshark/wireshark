@@ -256,7 +256,7 @@ void proto_register_redbackli(void) {
          (even though 'direction' sounds like a fixed length field */
 			{ "Direction", "redbackli.dir", FT_UINT8, BASE_DEC, NULL, 0x0,
 #endif
-			{ "Direction", "redbackli.dir", FT_BYTES, BASE_DEC, NULL, 0x0,
+			{ "Direction", "redbackli.dir", FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 		{ &hf_redbackli_label,
 			{ "Label", "redbackli.label", FT_STRING, BASE_NONE, NULL, 0x0,

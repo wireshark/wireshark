@@ -1324,7 +1324,7 @@ void proto_register_collectd(void)
 				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data,
-			{ "Payload", "collectd.data", FT_BYTES, BASE_HEX,
+			{ "Payload", "collectd.data", FT_BYTES, BASE_NONE,
 				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data_host,
@@ -1392,11 +1392,11 @@ void proto_register_collectd(void)
 				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data_sighash,
-			{ "Signature", "collectd.data.sighash", FT_BYTES, BASE_HEX,
+			{ "Signature", "collectd.data.sighash", FT_BYTES, BASE_NONE,
 				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data_initvec,
-			{ "Init vector", "collectd.data.initvec", FT_BYTES, BASE_HEX,
+			{ "Init vector", "collectd.data.initvec", FT_BYTES, BASE_NONE,
 				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data_username_len,
@@ -1408,7 +1408,7 @@ void proto_register_collectd(void)
 				NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data_encrypted,
-			{ "Encrypted data", "collectd.data.encrypted", FT_BYTES, BASE_HEX,
+			{ "Encrypted data", "collectd.data.encrypted", FT_BYTES, BASE_NONE,
 				NULL, 0x0, NULL, HFILL }
 		},
 	};

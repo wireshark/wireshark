@@ -18760,7 +18760,7 @@ proto_register_smb(void)
 		NULL, 0, "Dfs expanded name", HFILL }},
 
 	{ &hf_smb_dfs_referral_server_guid,
-		{ "Server GUID", "smb.dfs.referral.server_guid", FT_BYTES, BASE_HEX,
+		{ "Server GUID", "smb.dfs.referral.server_guid", FT_BYTES, BASE_NONE,
 		NULL, 0, "Globally unique identifier for this server", HFILL }},
 
 	{ &hf_smb_end_of_search,

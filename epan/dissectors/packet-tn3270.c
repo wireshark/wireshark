@@ -4327,7 +4327,7 @@ proto_register_tn3270(void)
             NULL, HFILL }},
     { &hf_tn3270_scs_data,
         {  "SCS data (noncompressed and noncompacted) to set up for restart", "tn3270.scs_data",
-            FT_BYTES, BASE_HEX, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
     /* End - 5.22 - Restart */
 
@@ -5403,7 +5403,7 @@ proto_register_tn3270(void)
             NULL, HFILL }},
     { &hf_tn3270_unknown_data,
         {  "Unknown Data (Possible Mainframe/Emulator Bug)", "tn3270.unknown_data",
-            FT_EBCDIC, BASE_HEX, NULL, 0x0,
+            FT_EBCDIC, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
     /*TN3270E - Header Fields */

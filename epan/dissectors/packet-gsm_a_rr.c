@@ -9216,7 +9216,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_apdu_data,
               { "APDU Data","gsm_a.rr.apdu_data",
-		FT_BYTES,BASE_HEX,  NULL, 0x00,
+		FT_BYTES,BASE_NONE,  NULL, 0x00,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8,
