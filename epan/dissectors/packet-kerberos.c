@@ -387,6 +387,34 @@ gboolean krb_decrypt = FALSE;
 /* keytab filename */
 static const char *keytab_filename = "insert filename here";
 
+void read_keytab_file(const char *);
+
+void
+read_keytab_file_from_preferences(void)
+{
+	static char *last_keytab = NULL;
+
+	if (!krb_decrypt) {
+		return;
+	}
+
+	if (keytab_filename == NULL) {
+		return;
+	}
+
+	if (last_keytab && !strcmp(last_keytab, keytab_filename)) {
+		return;
+	}
+
+	if (last_keytab != NULL) {
+		g_free(last_keytab);
+		last_keytab = NULL;
+	}
+	last_keytab = g_strdup(keytab_filename);
+
+	read_keytab_file(last_keytab);
+}
+
 #endif
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
@@ -505,7 +533,6 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int keytype,
 			int *datalen)
 {
-	static gboolean first_time=TRUE;
 	krb5_error_code ret;
 	enc_key_t *ek;
 	static krb5_data data = {0,0,NULL};
@@ -523,14 +550,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		return NULL;
 	}
 
-	/* XXX we should only do this for first time, then store somewhere */
-	/* XXX We also need to re-read the keytab when the preference changes */
-
-	/* should this have a destroy context ?  MIT people would know */
-	if(first_time){
-		first_time=FALSE;
-		read_keytab_file(keytab_filename);
-	}
+	read_keytab_file_from_preferences();
 
 	for(ek=enc_key_list;ek;ek=ek->next){
 		krb5_enc_data input;
@@ -646,7 +666,6 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int keytype,
 			int *datalen)
 {
-	static gboolean first_time=TRUE;
 	krb5_error_code ret;
 	krb5_data data;
 	enc_key_t *ek;
@@ -663,14 +682,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		return NULL;
 	}
 
-	/* XXX we should only do this for first time, then store somewhere */
-	/* XXX We also need to re-read the keytab when the preference changes */
-
-	/* should this have a destroy context ?  Heimdal people would know */
-	if(first_time){
-		first_time=FALSE;
-		read_keytab_file(keytab_filename);
-	}
+	read_keytab_file_from_preferences();
 
 	for(ek=enc_key_list;ek;ek=ek->next){
 		krb5_keytab_entry key;

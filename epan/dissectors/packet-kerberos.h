@@ -85,6 +85,8 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 
 extern gboolean krb_decrypt;
 
+void read_keytab_file_from_preferences(void);
+
 #endif /* HAVE_KERBEROS */
 
 #endif /* __PACKET_KERBEROS_H */

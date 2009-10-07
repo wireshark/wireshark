@@ -801,6 +801,7 @@ range_empty
 range_foreach
 ranges_are_equal
 read_keytab_file
+read_keytab_file_from_preferences
 read_prefs
 read_prefs_file
 reassembled_table_init
