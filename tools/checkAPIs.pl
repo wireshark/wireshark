@@ -468,7 +468,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_file_selection_set_filename',             'E',
                 'gtk_file_selection_set_select_multiple',      'E',
                 'gtk_file_selection_show_fileop_buttons',      'E',
-				'gtk_font_selection_dialog_get_apply_button',  'E',
+                'gtk_font_selection_dialog_get_apply_button',  'E',
                 'gtk_font_selection_dialog_get_font',          'E',
                 'gtk_font_selection_get_font',                 'E', # gtk_font_selection_get_font_name [!=]
                 'GTK_FUNDAMENTAL_TYPE',                        'E',
