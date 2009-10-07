@@ -38,7 +38,7 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 
 	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
 		if (!pres_try_users_table(presentation_context_identifier, tvb, offset, actx->pinfo)) {
@@ -54,7 +54,7 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 
 	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){
-		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
 		if (!pres_try_users_table(presentation_context_identifier, tvb, offset, actx->pinfo)) {

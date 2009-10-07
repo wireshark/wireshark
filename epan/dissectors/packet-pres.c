@@ -1400,7 +1400,7 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	return offset;
 }
 
-void
+static void
 dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0, old_offset;
@@ -1784,7 +1784,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 376 "packet-pres-template.c"
+#line 374 "packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1830,7 +1830,7 @@ void proto_register_pres(void) {
     &ett_pres_User_session_requirements,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 382 "packet-pres-template.c"
+#line 380 "packet-pres-template.c"
   };
   
   static uat_field_t users_flds[] = {
