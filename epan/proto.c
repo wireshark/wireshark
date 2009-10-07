@@ -72,7 +72,7 @@ struct ptvcursor {
 };
 
 /* Candidates for assembler */
-int
+static int
 wrs_count_bitshift(guint32 bitmask)
 {
 	int bitshift = 0;
@@ -143,7 +143,6 @@ static void fill_label_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_int(field_info *fi, gchar *label_str);
 static void fill_label_int64(field_info *fi, gchar *label_str);
 
-int hfinfo_bitwidth(header_field_info *hfinfo);
 static const char* hfinfo_uint_vals_format(header_field_info *hfinfo);
 static const char* hfinfo_uint_format(header_field_info *hfinfo);
 static const char* hfinfo_uint_value_format(header_field_info *hfinfo);
