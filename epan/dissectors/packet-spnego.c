@@ -561,7 +561,7 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
    * token it dissected, so we can return the length of the part
    * we (and it) dissected.
    */
-  token_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  token_tvb = tvb_new_subset_remaining(tvb, offset);
   if (next_level_value && next_level_value->wrap_handle) {
     len = call_dissector(next_level_value->wrap_handle, token_tvb, actx->pinfo,
                          subtree);

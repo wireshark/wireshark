@@ -2971,12 +2971,12 @@ if (!actx->value_ptr)
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
 			/* Strip off discrimination and length */
 			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,FALSE);
-			next_tvb = tvb_new_subset(actx->value_ptr, 2, -1, -1);
+			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}else if(octet==1){
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,FALSE);
 			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,FALSE);
-			next_tvb = tvb_new_subset(actx->value_ptr, 3, -1, -1);
+			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 3);
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
 		}	
 		break;
@@ -2985,7 +2985,7 @@ if (!actx->value_ptr)
 		octet = tvb_get_guint8(actx->value_ptr,0);
 		length = tvb_get_guint8(actx->value_ptr,1);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
-			next_tvb = tvb_new_subset(actx->value_ptr, 2, -1, -1);
+			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}
 		break;
@@ -3084,13 +3084,13 @@ dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 			/* Strip off discrimination and length */
 			length = tvb_get_guint8(parameter_tvb,0);
 			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 1,1,FALSE);
-			next_tvb = tvb_new_subset(parameter_tvb, 2, -1, -1);
+			next_tvb = tvb_new_subset_remaining(parameter_tvb, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}else if(octet==1){
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, parameter_tvb, 1,1,FALSE);
 			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 2,1,FALSE);
 			length = tvb_get_guint8(parameter_tvb,0);
-			next_tvb = tvb_new_subset(parameter_tvb, 3, -1, -1);
+			next_tvb = tvb_new_subset_remaining(parameter_tvb, 3);
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
 		}	
 		break;
@@ -14733,12 +14733,12 @@ if (!actx->value_ptr)
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
 			/* Strip off discrimination and length */
 			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,FALSE);
-			next_tvb = tvb_new_subset(actx->value_ptr, 2, -1, -1);
+			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}else if(octet==1){
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,FALSE);
 			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,FALSE);
-			next_tvb = tvb_new_subset(actx->value_ptr, 3, -1, -1);
+			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 3);
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree); 
 		}	
 		break;
@@ -14747,7 +14747,7 @@ if (!actx->value_ptr)
 		octet = tvb_get_guint8(actx->value_ptr,0);
 		length = tvb_get_guint8(actx->value_ptr,1);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
-			next_tvb = tvb_new_subset(actx->value_ptr, 2, -1, -1);
+			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}
 		break;
