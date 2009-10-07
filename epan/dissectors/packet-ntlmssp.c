@@ -372,8 +372,8 @@ static int ntlmssp_generate_challenge_response(guint8 *response,
 /* Ultra simple ainsi to unicode converter, will only work for ascii password ...*/
 static void str_to_unicode(const char *nt_password, char *nt_password_unicode)
 {
-  int password_len = 0;
-  int i;
+  size_t password_len = 0;
+  size_t i;
 
   password_len = strlen(nt_password);
   if(nt_password_unicode != NULL)
@@ -493,8 +493,8 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
   guint32 i;
   guint32 j;
   rc4_state_struct rc4state;
-  guint32  user_len;
-  guint32 domain_len;
+  size_t user_len;
+  size_t domain_len;
   md4_pass *pass_list = NULL;
   guint32 nb_pass = 0;
   int found = 0;

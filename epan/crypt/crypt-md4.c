@@ -127,11 +127,11 @@ static void copy4(unsigned char *out, guint32 x)
 }
 
 /* produce a md4 message digest from data of length n bytes */
-void crypt_md4(unsigned char *out, const unsigned char *in, int n)
+void crypt_md4(unsigned char *out, const unsigned char *in, size_t n)
 {
 	unsigned char buf[128];
 	guint32 M[16];
-	guint32 b = n * 8;
+	guint32 b = (guint32)(n * 8);
 	int i;
 
 	A = 0x67452301;

@@ -20,4 +20,4 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-void crypt_md4(unsigned char *out, const unsigned char *in, int n);
+void crypt_md4(unsigned char *out, const unsigned char *in, size_t n);
