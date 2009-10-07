@@ -2173,8 +2173,9 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		ami=&samr_alias_access_mask_info;
 		break;
 	}
-	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len, ami);
-	offset += len;
+	DISSECTOR_ASSERT(len<=G_MAXUINT32);
+	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, (guint32)len, ami);
+	offset += (guint32)len;
 	return offset;
 }
 static int
