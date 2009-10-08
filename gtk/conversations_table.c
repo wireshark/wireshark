@@ -1890,7 +1890,10 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         ct->conversations= g_array_sized_new(FALSE, FALSE, sizeof(conv_t), 10000);
         conversation_idx=0;
 
-        ct->hashtable = g_hash_table_new(conversation_hash,conversation_match);
+        ct->hashtable = g_hash_table_new_full(conversation_hash,
+			conversation_match, /* key_equal_func */
+			g_free,				/* key_destroy_func */
+			NULL);				/* value_destroy_func */
 
     }
     else {
@@ -1938,11 +1941,13 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         g_array_append_val(ct->conversations, conv);
         conversation_idx=ct->num_conversations;
         conversation=&g_array_index(ct->conversations, conv_t, conversation_idx);
-        new_key = g_malloc(sizeof (conv_key_t));
-	COPY_ADDRESS(&new_key->addr1,addr1);
-	COPY_ADDRESS(&new_key->addr2,addr2);
-	new_key->port1 = port1;
-	new_key->port2 = port2;
+
+        /* ct->conversations address is not a constant but src/dst_address.data are */
+        new_key = g_new(conv_key_t, 1);
+		SET_ADDRESS(&new_key->addr1, conversation->src_address.type, conversation->src_address.len, conversation->src_address.data);
+		SET_ADDRESS(&new_key->addr2, conversation->dst_address.type, conversation->dst_address.len, conversation->dst_address.data);
+		new_key->port1 = port1;
+		new_key->port2 = port2;
         g_hash_table_insert(ct->hashtable, new_key, GUINT_TO_POINTER(conversation_idx +1));
 
         ct->num_conversations++;
