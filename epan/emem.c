@@ -283,7 +283,6 @@ se_init_chunk(void)
 
 	se_debug_use_chunks = (gboolean) (!getenv("WIRESHARK_DEBUG_SE_NO_CHUNKS"));
 	se_debug_use_canary = (gboolean) (getenv("WIRESHARK_DEBUG_SE_USE_CANARY"));
-	g_warning("se_debug_use_canary %u",se_debug_use_canary);
 
 	if (se_debug_use_canary)
 		emem_canary(se_canary);
@@ -538,7 +537,7 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 	if(npc->buf == NULL) {
 		THROW(OutOfMemoryError);
 	}
-#ifdef SHOW_EMEM_STATS 
+#ifdef SHOW_EMEM_STATS
 	total_no_chunks++;
 #endif
 	buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
@@ -565,7 +564,7 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 		THROW(OutOfMemoryError);
 	}
 	buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
-#ifdef SHOW_EMEM_STATS 
+#ifdef SHOW_EMEM_STATS
 	total_no_chunks++;
 #endif
 	/* Align our guard pages on page-sized boundaries */
@@ -586,7 +585,7 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 	if(npc->buf == NULL) {
 		THROW(OutOfMemoryError);
 	}
-#ifdef SHOW_EMEM_STATS 
+#ifdef SHOW_EMEM_STATS
 	total_no_chunks++;
 #endif
 	npc->amount_free_init = EMEM_PACKET_CHUNK_SIZE;
