@@ -4185,16 +4185,19 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 		DISSECTOR_ASSERT(hfinfo->display != BASE_NONE);
 		break;
 
+	case FT_PROTOCOL:
 	case FT_FRAMENUM:
-	case FT_STRING:
-	case FT_STRINGZ:
-	case FT_EBCDIC:
-		/* Don't allow bitfields or value strings for frame numbers and strings */
+		DISSECTOR_ASSERT(hfinfo->display == BASE_NONE);
 		DISSECTOR_ASSERT(hfinfo->bitmask == 0);
-		DISSECTOR_ASSERT(hfinfo->strings == NULL);
+		break;
+
+	case FT_BOOLEAN:
 		break;
 
 	default:
+		DISSECTOR_ASSERT(hfinfo->display == BASE_NONE);
+		DISSECTOR_ASSERT(hfinfo->bitmask == 0);
+		DISSECTOR_ASSERT(hfinfo->strings == NULL);
 		break;
 	}
 }
@@ -4492,7 +4495,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_STRING:
 		case FT_STRINGZ:
-			case FT_EBCDIC:
+		case FT_EBCDIC:
 		case FT_UINT_STRING:
 			bytes = fvalue_get(&fi->value);
 			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
