@@ -1042,9 +1042,9 @@ static const value_string h248_reasons[] = {
     { 474, "Invalid SDP Syntax"},											/*[H.248.49] */
     { 475, "Unable to pause the playout of the signal"},					/*[H.248.66] */
     { 476, "Unable to adjust the data delivery speed of the Signal"},		/*[H.248.66] */
-              
+
     { 477, "Unable to adjust the playback relative scale of the signal"},	/*[H.248.66] */
-              
+
     { 478, "Behaviour Contradicts Resource Rule"},							/*[H.248.63] */
 
     { 500, "Internal software Failure in MG"},
@@ -1979,13 +1979,13 @@ dissect_h248_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 #line 292 "h248.cnf"
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_h248_error_code, &error_code);
     expert_add_info_format(actx->pinfo, actx->created_item, PI_RESPONSE_CODE, PI_WARN, "Errored Command");
-    
+
     if (curr_info.cmd) {
         gcp_cmd_set_error(curr_info.cmd,error_code);
     } else if (curr_info.trx) {
         gcp_trx_set_error(curr_info.trx,error_code);
     }
-    
+
     return offset;
 
 
@@ -2092,7 +2092,7 @@ dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
     wild_term = tvb_get_guint8(new_tvb,0) & 0x80 ? GCP_WILDCARD_CHOOSE : GCP_WILDCARD_ALL;
     /* limitation: assume only one wildcard is used */
     wild_card = tvb_get_guint8(new_tvb,0);
-    
+
 
 
   return offset;
@@ -2118,7 +2118,7 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 324 "h248.cnf"
 	tvbuff_t* new_tvb;
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
-	
+
 	if (new_tvb) {
 		curr_info.term->len = tvb_length(new_tvb);
 		curr_info.term->type = 0; /* unknown */
@@ -2131,9 +2131,9 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, keep_persistent_data);
 
 		if (h248_term_handle) {
-		    actx->pinfo->private_data = &wild_card;		    
+		    actx->pinfo->private_data = &wild_card;
 			call_dissector(h248_term_handle, new_tvb, actx->pinfo, tree);
-			wild_card = 0xFF;		
+			wild_card = 0xFF;
 		}
 	} else {
 		curr_info.term->len = 0;
@@ -4288,16 +4288,16 @@ static int
 dissect_h248_SCreasonValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 351 "h248.cnf"
 /* H248 v1 support */
-	if ( h248_version >1 ) {	
+	if ( h248_version >1 ) {
 		/* Not V1, so call "standard" function */
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SCreasonValue_sequence_of, hf_index, ett_h248_SCreasonValue);
-	
+
 } else {
 			/* V1 so Value == octet string */
 		offset = dissect_h248_ValueV1( implicit_tag, tvb, offset, actx, tree, hf_index);
 };
-	
+
 
 
   return offset;
@@ -5121,8 +5121,8 @@ dissect_h248_Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 #line 90 "h248.cnf"
     if (check_col(actx->pinfo->cinfo, COL_INFO))
-        col_set_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
-        
+        col_add_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
+
     if (keep_persistent_data)
         gcp_analyze_msg(h248_tree, h248_tvb, curr_info.msg, &h248_arrel);
 

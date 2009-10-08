@@ -88,7 +88,7 @@ TransactionPending/transactionId	tpend_transactionId
 
 #.FN_FTR Message
     if (check_col(actx->pinfo->cinfo, COL_INFO))
-        col_set_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
+        col_add_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
         
     if (keep_persistent_data)
         gcp_analyze_msg(h248_tree, h248_tvb, curr_info.msg, &h248_arrel);
