@@ -172,7 +172,7 @@ const guint32 crc32_ccitt_table[256] = {
 #define CRC32_CCITT_SEED    0xFFFFFFFF
 
 guint32
-calculate_crc32c(const void *buf, int len, guint32 crc)
+crc32c_calculate(const void *buf, int len, guint32 crc)
 {
 	const guint8 *p = (const guint8 *)buf;
 	crc = CRC32C_SWAP(crc);

@@ -1,11 +1,11 @@
-/* TODO for the cases where one just can not autodetect whether header digest 
-   is used or not we might need a new preference 
-   HeaderDigest : 
+/* TODO for the cases where one just can not autodetect whether header digest
+   is used or not we might need a new preference
+   HeaderDigest :
        Automatic (default)
        None
        CRC32
 */
- 
+
 /* packet-iscsi.c
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
@@ -511,8 +511,8 @@ static const value_string iscsi_reject_reasons[] = {
     {0, NULL},
 };
 
-/* structure and functions to keep track of 
- * COMMAND/DATA_IN/DATA_OUT/RESPONSE matching 
+/* structure and functions to keep track of
+ * COMMAND/DATA_IN/DATA_OUT/RESPONSE matching
  */
 typedef struct _iscsi_conv_data {
     guint32 data_in_frame;
@@ -547,7 +547,7 @@ handleHeaderDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb
     switch(iscsi_session->header_digest){
     case ISCSI_HEADER_DIGEST_CRC32:
 	if(available_bytes >= (headerLen + 4)) {
-	    guint32 crc = ~calculate_crc32c(tvb_get_ptr(tvb, offset, headerLen), headerLen, CRC32C_PRELOAD);
+	    guint32 crc = ~crc32c_calculate(tvb_get_ptr(tvb, offset, headerLen), headerLen, CRC32C_PRELOAD);
 	    guint32 sent = tvb_get_ntohl(tvb, offset + headerLen);
 	    if(crc == sent) {
 		proto_tree_add_uint_format(ti, hf_iscsi_HeaderDigest32, tvb, offset + headerLen, 4, sent, "HeaderDigest: 0x%08x (Good CRC32)", sent);
@@ -566,7 +566,7 @@ handleDataDigest(proto_item *ti, tvbuff_t *tvb, guint offset, int dataLen) {
     if(enableDataDigests) {
 	if(dataDigestIsCRC32) {
 	    if(available_bytes >= (dataLen + 4)) {
-		guint32 crc = ~calculate_crc32c(tvb_get_ptr(tvb, offset, dataLen), dataLen, CRC32C_PRELOAD);
+		guint32 crc = ~crc32c_calculate(tvb_get_ptr(tvb, offset, dataLen), dataLen, CRC32C_PRELOAD);
 		guint32 sent = tvb_get_ntohl(tvb, offset + dataLen);
 		if(crc == sent) {
 		    proto_tree_add_uint_format(ti, hf_iscsi_DataDigest32, tvb, offset + dataLen, 4, sent, "DataDigest: 0x%08x (Good CRC32)", sent);
@@ -709,7 +709,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	  people that care can add host specific dissection of vsa later.
 
           We need to keep track of this on a per transaction basis since
-          for error recoverylevel 0 and when the A bit is clear in a 
+          for error recoverylevel 0 and when the A bit is clear in a
           Data-In PDU, there will not be a LUN field in teh iscsi layer.
         */
         if(tvb_get_guint8(tvb, offset+8)&0x40){
@@ -891,7 +891,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		    ahs_type=tvb_get_guint8(tvb, ahs_offset);
 		    proto_tree_add_item(ti, hf_iscsi_AHS_type, tvb, ahs_offset, 1, FALSE);
 		    ahs_offset++;
-		
+
 		    switch(ahs_type){
 		    case 0x01: /* extended CDB */
 			/* additional cdb */
@@ -922,7 +922,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
 	    }
 	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48 + ahsLen);
-	    
+
             immediate_data_offset=offset;
 	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_immediate_data);
 	    immediate_data_length=offset-immediate_data_offset;
@@ -1730,7 +1730,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	    return FALSE;
 	}
 	/* should we test that datasegmentlen is non zero unless we just
-	 * entered full featured phase? 
+	 * entered full featured phase?
 	 */
 	break;
     case ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION:
@@ -1925,7 +1925,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	    return FALSE;
 	}
 	/* one of the F and C bits must be set but not both
-	 * low 6 bits in byte 1 must be 0 
+	 * low 6 bits in byte 1 must be 0
 	 */
 	switch(tvb_get_guint8(tvb,offset+1)){
 	case 0x80:
@@ -1954,7 +1954,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	    return FALSE;
 	}
 	/* one of the F and C bits must be set but not both
-	 * low 6 bits in byte 1 must be 0 
+	 * low 6 bits in byte 1 must be 0
 	 */
 	switch(tvb_get_guint8(tvb,offset+1)){
 	case 0x80:
@@ -2178,7 +2178,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 		badPdu = TRUE;
 	    } else if(opcode==ISCSI_OPCODE_NOP_OUT) {
 		/* TransferTag for NOP-Out should either be -1 or
-		   the tag value we want for a response. 
+		   the tag value we want for a response.
 		   Assume 0 means we are just inside a big all zero
 		   datablock.
 		*/
@@ -2240,9 +2240,9 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             conversation_add_proto_data(conversation, proto_iscsi, iscsi_session);
 
             /* DataOut PDUs are often mistaken by DCERPC heuristics to be
-             * that protocol. Now that we know this is iscsi, set a 
+             * that protocol. Now that we know this is iscsi, set a
              * dissector for this conversation to block other heuristic
-             * dissectors. 
+             * dissectors.
              */
             conversation_set_dissector(conversation, iscsi_handle);
         }
@@ -2250,7 +2250,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	if(digestsActive && (available_bytes>=(guint32) (48+4+ahsLen*4)) && (iscsi_session->header_digest==ISCSI_HEADER_DIGEST_AUTO) ){
             guint32 crc;
 		/* we have enough data to test if HeaderDigest is enabled */
-            crc= ~calculate_crc32c(tvb_get_ptr(tvb, offset, 48+ahsLen*4), 48+ahsLen*4, CRC32C_PRELOAD);
+            crc= ~crc32c_calculate(tvb_get_ptr(tvb, offset, 48+ahsLen*4), 48+ahsLen*4, CRC32C_PRELOAD);
             if(crc==tvb_get_ntohl(tvb,48+ahsLen*4)){
                 iscsi_session->header_digest=ISCSI_HEADER_DIGEST_CRC32;
             } else {
@@ -2296,7 +2296,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	}
 
 	/* This is to help TCP keep track of PDU boundaries
-	   and allows it to find PDUs that are not aligned to 
+	   and allows it to find PDUs that are not aligned to
 	   the start of a TCP segments.
 	   Since it also allows TCP to know what is in the middle
 	   of a large PDU, it reduces the probability of a segment

@@ -108,7 +108,7 @@ copy_file_binary_mode
 copy_prefs
 crc16_ccitt_tvb
 crc16_plain_tvb_offset
-calculate_crc32c
+crc32c_calculate
 crc32_ccitt
 crc32_ccitt_seed
 crc32_ccitt_tvb

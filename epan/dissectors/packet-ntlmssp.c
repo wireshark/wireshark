@@ -2448,7 +2448,7 @@ free_payload(gpointer decrypted_payload, gpointer user_data _U_)
 }
 
 guint g_header_hash(gconstpointer pointer) {
-  guint32 crc =  ~calculate_crc32c(pointer,16,CRC32C_PRELOAD);
+  guint32 crc =  ~crc32c_calculate(pointer,16,CRC32C_PRELOAD);
   /* Mat TBD fprintf(stderr,"Val: %u\n",crc);*/
   return crc;
 }

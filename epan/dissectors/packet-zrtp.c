@@ -413,7 +413,7 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   sent_crc = tvb_get_ntohl(tvb,msg_offset+checksum_offset);
-  calc_crc = ~calculate_crc32c(tvb_get_ptr(tvb,0,msg_offset+checksum_offset),msg_offset+checksum_offset,CRC32C_PRELOAD);
+  calc_crc = ~crc32c_calculate(tvb_get_ptr(tvb,0,msg_offset+checksum_offset),msg_offset+checksum_offset,CRC32C_PRELOAD);
 
   if (sent_crc == calc_crc) {
     ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,
@@ -604,7 +604,7 @@ dissect_Commit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 				  "SAS type: %s",key_to_val(value,4,zrtp_sas_type_vals,"Unknown SAS type %s"));
 
   switch(key_type){
-  case 1: /* 
+  case 1: /*
 	     Mult
 	  */
     proto_tree_add_item(zrtp_tree,hf_zrtp_msg_nonce,tvb,data_offset+32,16,FALSE);
@@ -692,7 +692,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
     run_offset+=4;
   }
   ti=proto_tree_add_uint_format(zrtp_tree,hf_zrtp_msg_authtag_count,tvb,data_offset+2,1,ac,"Auth tag count = %d",vac);
-  tmp_tree = proto_item_add_subtree(ti,ett_zrtp_msg_ac);  
+  tmp_tree = proto_item_add_subtree(ti,ett_zrtp_msg_ac);
   for(i=0;i<vac;i++){
     tvb_memcpy(tvb,(void *)value,run_offset,4);
     value[4]='\0';
@@ -701,7 +701,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
     run_offset+=4;
   }
   ti=proto_tree_add_uint_format(zrtp_tree,hf_zrtp_msg_key_count,tvb,data_offset+3,1,kc,"Key agreement type count = %d",vkc);
-  tmp_tree = proto_item_add_subtree(ti,ett_zrtp_msg_kc);  
+  tmp_tree = proto_item_add_subtree(ti,ett_zrtp_msg_kc);
   for(i=0;i<vkc;i++){
     tvb_memcpy(tvb,(void *)value,run_offset,4);
     value[4]='\0';
@@ -710,7 +710,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
     run_offset+=4;
   }
   ti=proto_tree_add_uint_format(zrtp_tree,hf_zrtp_msg_sas_count,tvb,data_offset+3,1,sc,"SAS type count = %d",vsc);
-  tmp_tree = proto_item_add_subtree(ti,ett_zrtp_msg_sc);  
+  tmp_tree = proto_item_add_subtree(ti,ett_zrtp_msg_sc);
   for(i=0;i<vsc;i++){
     tvb_memcpy(tvb,(void *)value,run_offset,4);
     value[4]='\0';
@@ -968,7 +968,7 @@ proto_register_zrtp(void)
        "rs1ID", "zrtp.rs1id",
        FT_BYTES, BASE_NONE,
        NULL, 0x0,
-       NULL, HFILL 
+       NULL, HFILL
      }
     },
 

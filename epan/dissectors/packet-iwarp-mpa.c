@@ -621,7 +621,7 @@ dissect_fpdu_crc(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
 
 	if (state->crc) {
 
-		crc = ~calculate_crc32c(tvb_get_ptr(tvb, 0, length), length,
+		crc = ~crc32c_calculate(tvb_get_ptr(tvb, 0, length), length,
 				CRC32C_PRELOAD);
 
 		sent_crc = tvb_get_ntohl(tvb, offset); /* crc start offset */
