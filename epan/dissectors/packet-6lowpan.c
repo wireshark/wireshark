@@ -1516,7 +1516,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 
         /* Compute the length of the extension header padded to an 8-byte alignment. */
         length = sizeof(struct ip6_ext) + ext_len;
-        length += ((length + 7) & 0x7);
+        length = (length + 7) & ~0x7;
 
         /* Create the next header structure for the IPv6 extension header. */
         nhdr = ep_alloc0(sizeof(struct lowpan_nhdr) + sizeof(struct ip6_ext) + length);
