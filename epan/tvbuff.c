@@ -517,6 +517,8 @@ tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint
 	guint		subset_tvb_offset;
 	guint		subset_tvb_length;
 
+	DISSECTOR_ASSERT(backing && backing->initialized);
+
 	THROW_ON(reported_length < -1, ReportedBoundsError);
 
 	check_offset_length(backing->length, backing->reported_length, backing_offset, backing_length,
