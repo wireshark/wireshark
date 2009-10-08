@@ -88,6 +88,8 @@ struct _PacketList
 	gint sort_id;
 	GtkSortType sort_order;
 
+	GStringChunk *string_pool;
+
 	/* Random integer to check whether an iter belongs to our model. */
 	gint stamp;
 

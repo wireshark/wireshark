@@ -665,6 +665,7 @@ void
 packet_list_change_record(PacketList *packet_list, guint row, gint col, column_info *cinfo)
 {
 	PacketListRecord *record;
+	gchar *str;
 
 	g_return_if_fail(packet_list);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
@@ -727,9 +728,12 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 		/* !! FALL-THROUGH!! */
 
 		default:
+			if(!packet_list->string_pool)
+				packet_list->string_pool = g_string_chunk_new(32);
+
 			record->fdata->col_text_len[col] = (guint) strlen(cinfo->col_data[col]);
-			record->fdata->col_text[col] = se_memdup(cinfo->col_data[col],
-													 record->fdata->col_text_len[col] + 1);
+			str = g_string_chunk_insert_const (packet_list->string_pool,  (const gchar *)cinfo->col_data[col]);
+			record->fdata->col_text[col] = str;
 			break;
 	}
 }
