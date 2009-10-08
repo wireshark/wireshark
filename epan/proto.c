@@ -3287,7 +3287,7 @@ proto_custom_set(proto_tree* tree, int field_id,
 	field_info	*finfo;
 	header_field_info* hfinfo;
 
-	g_assert(field_id>=0);
+	g_assert(field_id >= 0);
 
 	hfinfo = proto_registrar_get_nth((guint)field_id);
 
