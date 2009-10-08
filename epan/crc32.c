@@ -171,7 +171,8 @@ const guint32 crc32_ccitt_table[256] = {
 
 #define CRC32_CCITT_SEED    0xFFFFFFFF
 
-guint32 calculate_crc32c(const void *buf, int len, guint32 crc)
+guint32
+calculate_crc32c(const void *buf, int len, guint32 crc)
 {
 	const guint8 *p = (const guint8 *)buf;
 	crc = CRC32C_SWAP(crc);
@@ -184,63 +185,64 @@ guint32 calculate_crc32c(const void *buf, int len, guint32 crc)
 guint32
 crc32_ccitt(const guint8 *buf, guint len)
 {
-  return ( crc32_ccitt_seed(buf, len, CRC32_CCITT_SEED) );
+	return (crc32_ccitt_seed(buf, len, CRC32_CCITT_SEED));
 }
 
 guint32
 crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed)
 {
-  guint i;
-  guint32 crc32 = seed;
+	guint i;
+	guint32 crc32 = seed;
 
-  for (i = 0; i < len; i++)
-    crc32 = crc32_ccitt_table[(crc32 ^ buf[i]) & 0xff] ^ (crc32 >> 8);
+	for (i = 0; i < len; i++)
+		crc32 = crc32_ccitt_table[(crc32 ^ buf[i]) & 0xff] ^ (crc32 >> 8);
 
-  return ( ~crc32 );
+	return ( ~crc32 );
 }
 
 guint32
 crc32_ccitt_tvb(tvbuff_t *tvb, guint len)
 {
-  const guint8* buf;
+	const guint8* buf;
 
-  tvb_ensure_bytes_exist(tvb, 0, len);  /* len == -1 not allowed */
-  buf = tvb_get_ptr(tvb, 0, len);
+	tvb_ensure_bytes_exist(tvb, 0, len);  /* len == -1 not allowed */
+	buf = tvb_get_ptr(tvb, 0, len);
 
-  return ( crc32_ccitt_seed(buf, len, CRC32_CCITT_SEED) );
+	return ( crc32_ccitt_seed(buf, len, CRC32_CCITT_SEED) );
 }
 
 guint32
 crc32_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint len)
 {
-  const guint8* buf;
+	const guint8* buf;
 
-  tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
-  buf = tvb_get_ptr(tvb, offset, len);
+	tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
+	buf = tvb_get_ptr(tvb, offset, len);
 
-  return ( crc32_ccitt(buf, len) );
+	return ( crc32_ccitt(buf, len) );
 }
 
 guint32
 crc32_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed)
 {
-  const guint8* buf;
+	const guint8* buf;
 
-  tvb_ensure_bytes_exist(tvb, 0, len);  /* len == -1 not allowed */
-  buf = tvb_get_ptr(tvb, 0, len);
+	tvb_ensure_bytes_exist(tvb, 0, len);  /* len == -1 not allowed */
+	buf = tvb_get_ptr(tvb, 0, len);
 
-  return ( crc32_ccitt_seed(buf, len, seed) );
+	return ( crc32_ccitt_seed(buf, len, seed) );
 }
 
 guint32
-crc32_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len, guint32 seed)
+crc32_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len,
+			    guint32 seed)
 {
-  const guint8* buf;
+	const guint8* buf;
 
-  tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
-  buf = tvb_get_ptr(tvb, offset, len);
+	tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
+	buf = tvb_get_ptr(tvb, offset, len);
 
-  return ( crc32_ccitt_seed(buf, len, seed) );
+	return ( crc32_ccitt_seed(buf, len, seed) );
 }
 
 /*
@@ -255,15 +257,15 @@ crc32_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len, guint32 seed
 guint32
 crc32_802_tvb(tvbuff_t *tvb, guint len)
 {
-  guint32 c_crc;
+	guint32 c_crc;
 
-  c_crc = crc32_ccitt_tvb(tvb, len);
+	c_crc = crc32_ccitt_tvb(tvb, len);
 
-  /* Byte reverse. */
-  c_crc = ((unsigned char)(c_crc>>0)<<24) |
-    ((unsigned char)(c_crc>>8)<<16) |
-    ((unsigned char)(c_crc>>16)<<8) |
-    ((unsigned char)(c_crc>>24)<<0);
+	/* Byte reverse. */
+	c_crc = ((unsigned char)(c_crc>>0)<<24) |
+		((unsigned char)(c_crc>>8)<<16) |
+		((unsigned char)(c_crc>>16)<<8) |
+		((unsigned char)(c_crc>>24)<<0);
 
-  return ( c_crc );
+	return ( c_crc );
 }
