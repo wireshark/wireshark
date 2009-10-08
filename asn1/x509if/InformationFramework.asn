@@ -1,4 +1,4 @@
--- $Id:$
+-- $Id$
 -- Module InformationFramework (X.501:08/2005)
 InformationFramework {joint-iso-itu-t ds(5) module(1) informationFramework(1) 
   5} DEFINITIONS ::=

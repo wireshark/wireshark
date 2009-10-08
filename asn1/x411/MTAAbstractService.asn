@@ -1,4 +1,4 @@
--- $Id:$
+-- $Id$
 -- Module MTAAbstractService (X.411:06/1999)
 MTAAbstractService {joint-iso-itu-t mhs(6) mts(3) modules(0)
   mta-abstract-service(2) version-1999(1)} DEFINITIONS IMPLICIT TAGS ::=

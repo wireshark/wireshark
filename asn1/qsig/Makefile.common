@@ -26,7 +26,6 @@ DISSECTOR_FILES = \
 	packet-$(PROTOCOL_NAME).c \
 	packet-$(PROTOCOL_NAME).h
 
-NEED_PACKET_PROTO_H = 1
 
 EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 

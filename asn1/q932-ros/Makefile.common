@@ -26,7 +26,6 @@ DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c
 
 PROTO_OPT = -p q932.ros
 
-# NEED_PACKET_PROTO_H = 0
 
 EXT_ASN_FILE_LIST = \
 	../ros/Remote-Operations-Information-Objects.asn

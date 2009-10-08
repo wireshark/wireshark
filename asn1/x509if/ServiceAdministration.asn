@@ -1,4 +1,4 @@
--- $Id:$
+-- $Id$
 -- Module ServiceAdministration (X.501:08/2005)
 ServiceAdministration {joint-iso-itu-t ds(5) module(1)
   serviceAdministration(33) 5} DEFINITIONS ::=
