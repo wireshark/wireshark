@@ -282,7 +282,11 @@ se_init_chunk(void)
 	se_packet_mem.used_list=NULL;
 
 	se_debug_use_chunks = (gboolean) (!getenv("WIRESHARK_DEBUG_SE_NO_CHUNKS"));
-	se_debug_use_canary = (gboolean) (getenv("WIRESHARK_DEBUG_SE_USE_CANARY"));
+
+	if (getenv("WIRESHARK_DEBUG_SE_USE_CANARY"))
+		se_debug_use_canary = TRUE;
+	else
+		se_debug_use_canary = FALSE;
 
 	if (se_debug_use_canary)
 		emem_canary(se_canary);
