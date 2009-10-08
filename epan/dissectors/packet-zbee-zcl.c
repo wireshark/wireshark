@@ -2016,15 +2016,15 @@ void proto_register_zbee_zcl(void)
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_semi,
-            { "Semi Float", "zbee.zcl.attr.float", FT_FLOAT, BASE_DEC, NULL, 0x0,
+            { "Semi Float", "zbee.zcl.attr.float", FT_FLOAT, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_float,
-            { "Float", "zbee.zcl.attr.float", FT_FLOAT, BASE_DEC, NULL, 0x0,
+            { "Float", "zbee.zcl.attr.float", FT_FLOAT, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_double,
-            { "Double Float", "zbee.zcl.attr.float", FT_DOUBLE, BASE_DEC, NULL, 0x0,
+            { "Double Float", "zbee.zcl.attr.float", FT_DOUBLE, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_bytes,

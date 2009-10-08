@@ -1555,8 +1555,8 @@ proto_register_iec104asdu(void)
 		    "Sequence", HFILL }},
 
 		{ &hf_iec104_asdufloat,
-		{ "Object value", "iec104.asdu_float", FT_FLOAT, BASE_DEC, NULL, 0x0,
-		 "Object value", HFILL }},		    
+		{ "Object value", "iec104.asdu_float", FT_FLOAT, BASE_NONE, NULL, 0x0,
+		 "Object value", HFILL }},
 
 		{ &hf_iec104_asdunormval,
 		{ "Object value", "iec104.asdu_asdunormval", FT_INT16, BASE_DEC, NULL, 0x0,
