@@ -1,5 +1,5 @@
 ##################################################
-# Samba4 NDR parser generator for IDL structures
+# Wireshark NDR parser generator for IDL structures
 # Copyright tridge@samba.org 2000-2003
 # Copyright tpot@samba.org 2001,2005
 # Copyright jelmer@samba.org 2004-2007
@@ -545,6 +545,9 @@ sub Struct($$$$)
 	$self->indent;
 	$self->pidl_code("proto_item *item = NULL;");
 	$self->pidl_code("proto_tree *tree = NULL;");
+	if ($e->{ALIGN} > 1) {
+		$self->pidl_code("dcerpc_info *di = pinfo->private_data;");
+	}
 	$self->pidl_code("int old_offset;");
 	$self->pidl_code("");
 
@@ -565,6 +568,15 @@ sub Struct($$$$)
 	$self->pidl_code("\n$res");
 
 	$self->pidl_code("proto_item_set_len(item, offset-old_offset);\n");
+	if ($e->{ALIGN} > 1) {
+		$self->pidl_code("");
+		$self->pidl_code("if (di->call_data->flags & DCERPC_IS_NDR64) {");
+		$self->indent;
+		$self->pidl_code("ALIGN_TO_$e->{ALIGN}_BYTES;");
+		$self->deindent;
+		$self->pidl_code("}");
+	}
+	$self->pidl_code("");
 	$self->pidl_code("return offset;");
 	$self->deindent;
 	$self->pidl_code("}\n");
@@ -634,6 +646,8 @@ sub Union($$$$)
 
 	$self->pidl_code("switch(level) {$res\t}");
 	$self->pidl_code("proto_item_set_len(item, offset-old_offset);\n");
+	$self->pidl_code("");
+
 	$self->pidl_code("return offset;");
 	$self->deindent;
 	$self->pidl_code("}");
@@ -895,7 +909,7 @@ sub Initialize($$)
 sub Parse($$$$$)
 {
 	my($self,$ndr,$idl_file,$h_filename,$cnf_file) = @_;
-	
+
 	$self->Initialize($cnf_file);
 
 	return (undef, undef) if defined($self->{conformance}->{noemit_dissector});

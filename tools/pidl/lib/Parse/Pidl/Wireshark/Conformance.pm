@@ -110,6 +110,7 @@ use strict;
 
 use Parse::Pidl qw(fatal warning error);
 use Parse::Pidl::Util qw(has_property);
+use Parse::Pidl::Typelist qw(addType);
 
 sub handle_type($$$$$$$$$$)
 {
@@ -149,6 +150,17 @@ sub handle_type($$$$$$$$$$)
 		VALSSTRING => $valsstring,
 		ALIGNMENT => $alignment
 	};
+
+	addType({
+		NAME => $name,
+		TYPE => "CONFORMANCE",
+		BASEFILE => "conformance file",
+		DATA => {
+			NAME => $name,
+			TYPE => "CONFORMANCE",
+			ALIGN => $alignment
+		}
+	});
 }
 
 sub handle_tfs($$$$$)

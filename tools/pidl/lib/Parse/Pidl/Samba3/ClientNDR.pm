@@ -71,10 +71,12 @@ sub HeaderProperties($$)
 	}
 }
 
-sub ParseOutputArgument($$$)
+sub ParseOutputArgument($$$;$$)
 {
-	my ($self, $fn, $e) = @_;
+	my ($self, $fn, $e, $r, $o) = @_;
 	my $level = 0;
+	$r = "r." unless defined($r);
+	$o = "" unless defined($o);
 
 	if ($e->{LEVELS}[0]->{TYPE} ne "POINTER" and $e->{LEVELS}[0]->{TYPE} ne "ARRAY") {
 		$self->pidl("return NT_STATUS_NOT_SUPPORTED;");
@@ -85,7 +87,7 @@ sub ParseOutputArgument($$$)
 	if ($e->{LEVELS}[0]->{TYPE} eq "POINTER") {
 		$level = 1;
 		if ($e->{LEVELS}[0]->{POINTER_TYPE} ne "ref") {
-			$self->pidl("if ($e->{NAME} && r.out.$e->{NAME}) {");
+			$self->pidl("if ($o$e->{NAME} && ${r}out.$e->{NAME}) {");
 			$self->indent;
 		}
 	}
@@ -95,7 +97,7 @@ sub ParseOutputArgument($$$)
 		# Since the data is being copied into a user-provided data 
 		# structure, the user should be able to know the size beforehand 
 		# to allocate a structure of the right size.
-		my $env = GenerateFunctionInEnv($fn, "r.");
+		my $env = GenerateFunctionInEnv($fn, $r);
 		my $l = $e->{LEVELS}[$level];
 		unless (defined($l->{SIZE_IS})) {
 			error($e->{ORIGINAL}, "no size known for [out] array `$e->{NAME}'");
@@ -103,13 +105,13 @@ sub ParseOutputArgument($$$)
 		} else {
 			my $size_is = ParseExpr($l->{SIZE_IS}, $env, $e->{ORIGINAL});
 			if (has_property($e, "charset")) {
-				$self->pidl("memcpy(CONST_DISCARD(char *, $e->{NAME}), r.out.$e->{NAME}, $size_is * sizeof(*$e->{NAME}));");
+				$self->pidl("memcpy(CONST_DISCARD(char *, $o$e->{NAME}), ${r}out.$e->{NAME}, $size_is * sizeof(*$o$e->{NAME}));");
 			} else {
-				$self->pidl("memcpy($e->{NAME}, r.out.$e->{NAME}, $size_is * sizeof(*$e->{NAME}));");
+				$self->pidl("memcpy($o$e->{NAME}, ${r}out.$e->{NAME}, $size_is * sizeof(*$o$e->{NAME}));");
 			}
 		}
 	} else {
-		$self->pidl("*$e->{NAME} = *r.out.$e->{NAME};");
+		$self->pidl("*$o$e->{NAME} = *${r}out.$e->{NAME};");
 	}
 
 	if ($e->{LEVELS}[0]->{TYPE} eq "POINTER") {
@@ -120,7 +122,247 @@ sub ParseOutputArgument($$$)
 	}
 }
 
-sub ParseFunction($$$)
+sub ParseFunctionAsyncState($$$)
+{
+	my ($self, $if, $fn) = @_;
+
+	my $state_str = "struct rpccli_$fn->{NAME}_state";
+	my $done_fn = "rpccli_$fn->{NAME}_done";
+
+	$self->pidl("$state_str {");
+	$self->indent;
+	$self->pidl("struct $fn->{NAME} orig;");
+	$self->pidl("struct $fn->{NAME} tmp;");
+	$self->pidl("TALLOC_CTX *out_mem_ctx;");
+	$self->pidl("NTSTATUS (*dispatch_recv)(struct tevent_req *req, TALLOC_CTX *mem_ctx);");
+	$self->deindent;
+	$self->pidl("};");
+	$self->pidl("");
+	$self->pidl("static void $done_fn(struct tevent_req *subreq);");
+	$self->pidl("");
+}
+
+sub ParseFunctionAsyncSend($$$)
+{
+	my ($self, $if, $fn) = @_;
+
+	my $fn_args = "";
+	my $uif = uc($if);
+	my $ufn = "NDR_".uc($fn->{NAME});
+	my $state_str = "struct rpccli_$fn->{NAME}_state";
+	my $done_fn = "rpccli_$fn->{NAME}_done";
+	my $out_mem_ctx = "rpccli_$fn->{NAME}_out_memory";
+	my $fn_str = "struct tevent_req *rpccli_$fn->{NAME}_send";
+	my $pad = genpad($fn_str);
+
+	$fn_args .= "TALLOC_CTX *mem_ctx";
+	$fn_args .= ",\n" . $pad . "struct tevent_context *ev";
+	$fn_args .= ",\n" . $pad . "struct rpc_pipe_client *cli";
+
+	foreach (@{$fn->{ELEMENTS}}) {
+		my $dir = ElementDirection($_);
+		my $prop = HeaderProperties($_->{PROPERTIES}, ["in", "out"]);
+		$fn_args .= ",\n" . $pad . DeclLong($_, "_") . " /* $dir $prop */";
+	}
+
+	$self->fn_declare("$fn_str($fn_args)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("struct tevent_req *req;");
+	$self->pidl("$state_str *state;");
+	$self->pidl("struct tevent_req *subreq;");
+	$self->pidl("");
+	$self->pidl("req = tevent_req_create(mem_ctx, &state,");
+	$self->pidl("\t\t\t$state_str);");
+	$self->pidl("if (req == NULL) {");
+	$self->indent;
+	$self->pidl("return NULL;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("state->out_mem_ctx = NULL;");
+	$self->pidl("state->dispatch_recv = cli->dispatch_recv;");
+	$self->pidl("");
+
+	$self->pidl("/* In parameters */");
+	foreach (@{$fn->{ELEMENTS}}) {
+		if (grep(/in/, @{$_->{DIRECTION}})) {
+			$self->pidl("state->orig.in.$_->{NAME} = _$_->{NAME};");
+		}
+	}
+	$self->pidl("");
+
+	my $out_params = 0;
+	$self->pidl("/* Out parameters */");
+	foreach (@{$fn->{ELEMENTS}}) {
+		if (grep(/out/, @{$_->{DIRECTION}})) {
+			$self->pidl("state->orig.out.$_->{NAME} = _$_->{NAME};");
+			$out_params++;
+		}
+	}
+	$self->pidl("");
+
+	if (defined($fn->{RETURN_TYPE})) {
+		$self->pidl("/* Result */");
+		$self->pidl("ZERO_STRUCT(state->orig.out.result);");
+		$self->pidl("");
+	}
+
+	$self->pidl("if (DEBUGLEVEL >= 10) {");
+	$self->indent;
+	$self->pidl("NDR_PRINT_IN_DEBUG($fn->{NAME}, &state->orig);");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	if ($out_params > 0) {
+		$self->pidl("state->out_mem_ctx = talloc_named_const(state, 0,");
+		$self->pidl("\t\t     \"$out_mem_ctx\");");
+		$self->pidl("if (tevent_req_nomem(state->out_mem_ctx, req)) {");
+		$self->indent;
+		$self->pidl("return tevent_req_post(req, ev);");
+		$self->deindent;
+		$self->pidl("}");
+		$self->pidl("");
+	}
+
+	$self->pidl("/* make a temporary copy, that we pass to the dispatch function */");
+	$self->pidl("state->tmp = state->orig;");
+	$self->pidl("");
+
+	$self->pidl("subreq = cli->dispatch_send(state, ev, cli,");
+	$self->pidl("\t\t\t    &ndr_table_$if,");
+	$self->pidl("\t\t\t    $ufn,");
+	$self->pidl("\t\t\t    &state->tmp);");
+	$self->pidl("if (tevent_req_nomem(subreq, req)) {");
+	$self->indent;
+	$self->pidl("return tevent_req_post(req, ev);");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("tevent_req_set_callback(subreq, $done_fn, req);");
+	$self->pidl("return req;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+}
+
+sub ParseFunctionAsyncDone($$$)
+{
+	my ($self, $if, $fn) = @_;
+
+	my $state_str = "struct rpccli_$fn->{NAME}_state";
+	my $done_fn = "rpccli_$fn->{NAME}_done";
+
+	$self->pidl("static void $done_fn(struct tevent_req *subreq)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("struct tevent_req *req = tevent_req_callback_data(");
+	$self->pidl("\tsubreq, struct tevent_req);");
+	$self->pidl("$state_str *state = tevent_req_data(");
+	$self->pidl("\treq, $state_str);");
+	$self->pidl("NTSTATUS status;");
+	$self->pidl("TALLOC_CTX *mem_ctx;");
+	$self->pidl("");
+
+	$self->pidl("if (state->out_mem_ctx) {");
+	$self->indent;
+	$self->pidl("mem_ctx = state->out_mem_ctx;");
+	$self->deindent;
+	$self->pidl("} else {");
+	$self->indent;
+	$self->pidl("mem_ctx = state;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("status = state->dispatch_recv(subreq, mem_ctx);");
+	$self->pidl("TALLOC_FREE(subreq);");
+	$self->pidl("if (!NT_STATUS_IS_OK(status)) {");
+	$self->indent;
+	$self->pidl("tevent_req_nterror(req, status);");
+	$self->pidl("return;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("/* Copy out parameters */");
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		next unless (grep(/out/, @{$e->{DIRECTION}}));
+
+		$self->ParseOutputArgument($fn, $e, "state->tmp.", "state->orig.out.");
+	}
+	$self->pidl("");
+
+	if (defined($fn->{RETURN_TYPE})) {
+		$self->pidl("/* Copy result */");
+		$self->pidl("state->orig.out.result = state->tmp.out.result;");
+		$self->pidl("");
+	}
+
+	$self->pidl("/* Reset temporary structure */");
+	$self->pidl("ZERO_STRUCT(state->tmp);");
+	$self->pidl("");
+
+	$self->pidl("if (DEBUGLEVEL >= 10) {");
+	$self->indent;
+	$self->pidl("NDR_PRINT_OUT_DEBUG($fn->{NAME}, &state->orig);");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("tevent_req_done(req);");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+}
+
+sub ParseFunctionAsyncRecv($$$)
+{
+	my ($self, $if, $fn) = @_;
+
+	my $fn_args = "";
+	my $state_str = "struct rpccli_$fn->{NAME}_state";
+	my $fn_str = "NTSTATUS rpccli_$fn->{NAME}_recv";
+	my $pad = genpad($fn_str);
+
+	$fn_args .= "struct tevent_req *req,\n" . $pad . "TALLOC_CTX *mem_ctx";
+
+	if (defined($fn->{RETURN_TYPE})) {
+		$fn_args .= ",\n" . $pad . "$fn->{RETURN_TYPE} *result";
+	}
+
+	$self->fn_declare("$fn_str($fn_args)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("$state_str *state = tevent_req_data(");
+	$self->pidl("\treq, $state_str);");
+	$self->pidl("NTSTATUS status;");
+	$self->pidl("");
+	$self->pidl("if (tevent_req_is_nterror(req, &status)) {");
+	$self->indent;
+	$self->pidl("tevent_req_received(req);");
+	$self->pidl("return status;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+
+	$self->pidl("/* Steal possbile out parameters to the callers context */");
+	$self->pidl("talloc_steal(mem_ctx, state->out_mem_ctx);");
+	$self->pidl("");
+
+	if (defined($fn->{RETURN_TYPE})) {
+		$self->pidl("/* Return result */");
+		$self->pidl("*result = state->orig.out.result;");
+		$self->pidl("");
+	}
+
+	$self->pidl("tevent_req_received(req);");
+	$self->pidl("return NT_STATUS_OK;");
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
+}
+
+sub ParseFunctionSync($$$)
 {
 	my ($self, $if, $fn) = @_;
 
@@ -219,6 +461,18 @@ sub ParseFunction($$$)
 	$self->deindent;
 	$self->pidl("}");
 	$self->pidl("");
+}
+
+sub ParseFunction($$$)
+{
+	my ($self, $if, $fn) = @_;
+
+	$self->ParseFunctionAsyncState($if, $fn);
+	$self->ParseFunctionAsyncSend($if, $fn);
+	$self->ParseFunctionAsyncDone($if, $fn);
+	$self->ParseFunctionAsyncRecv($if, $fn);
+
+	$self->ParseFunctionSync($if, $fn);
 }
 
 sub ParseInterface($$)

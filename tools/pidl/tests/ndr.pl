@@ -533,7 +533,8 @@ $t = {
 	ORIGINAL => {
 		TYPE => "UNION",
 		NAME => "foo"
-	}
+	},
+	ALIGN => undef
 };
 is_deeply(ParseType($t->{ORIGINAL}, "ref"), $t); 
 

@@ -71,7 +71,7 @@ is(0, scalar_is_reference({TYPE => "STRUCT", NAME => "echo_foobar"}));
 
 is("uint8", enum_type_fn({TYPE => "ENUM", PARENT=>{PROPERTIES => {enum8bit => 1}}}));
 is("uint32", enum_type_fn({TYPE => "ENUM", PARENT=>{PROPERTIES => {v1_enum => 1}}}));
-is("uint16", enum_type_fn({TYPE => "ENUM", PARENT=>{PROPERTIES => {}}}));
+is("uint1632", enum_type_fn({TYPE => "ENUM", PARENT=>{PROPERTIES => {}}}));
 
 is("uint8", bitmap_type_fn({TYPE => "BITMAP", PROPERTIES => {bitmap8bit => 1}}));
 is("uint16", bitmap_type_fn({TYPE => "BITMAP", PROPERTIES => {bitmap16bit => 1}}));

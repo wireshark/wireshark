@@ -653,7 +653,18 @@ sub process_file($)
 
 	$pidl = Parse::Pidl::ODL::ODL2IDL($pidl, dirname($idl_file), \@opt_incdirs);
 
-	if (defined($opt_ws_parser) or 
+	if (defined($opt_ws_parser)) {
+	  require Parse::Pidl::Wireshark::NDR;
+
+	  my $cnffile = $idl_file;
+	  $cnffile =~ s/\.idl$/\.cnf/;
+
+	  my $generator = new Parse::Pidl::Wireshark::NDR();
+	  $generator->Initialize($cnffile);
+	}
+
+
+	if (defined($opt_ws_parser) or
 	    defined($opt_client) or
 	    defined($opt_server) or 
 	    defined($opt_header) or

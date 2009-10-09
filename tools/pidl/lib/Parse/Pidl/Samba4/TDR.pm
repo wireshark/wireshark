@@ -7,6 +7,7 @@ package Parse::Pidl::Samba4::TDR;
 use Parse::Pidl qw(fatal);
 use Parse::Pidl::Util qw(has_property ParseExpr is_constant);
 use Parse::Pidl::Samba4 qw(is_intree choose_header);
+use Parse::Pidl::Typelist qw(mapTypeName);
 
 use Exporter;
 @ISA = qw(Exporter);
@@ -195,15 +196,16 @@ sub ParserEnum($$$$)
 {
 	my ($self,$e,$t,$p) = @_;
 	my $bt = Parse::Pidl::Typelist::enum_type_fn($e);
+	my $mt = mapTypeName($bt);
 
 	$self->fn_declare($p, "NTSTATUS tdr_$t\_$e->{NAME} (struct tdr_$t *tdr".typearg($t).", enum $e->{NAME} *v)");
 	$self->pidl("{");
 	if ($t eq "pull") {
-		$self->pidl("\t$bt\_t r;");
+		$self->pidl("\t$mt r;");
 		$self->pidl("\tTDR_CHECK(tdr_$t\_$bt(tdr, mem_ctx, \&r));");
 		$self->pidl("\t*v = r;");
 	} elsif ($t eq "push") {
-		$self->pidl("\tTDR_CHECK(tdr_$t\_$bt(tdr, ($bt\_t *)v));");
+		$self->pidl("\tTDR_CHECK(tdr_$t\_$bt(tdr, ($mt *)v));");
 	} elsif ($t eq "print") {
 		$self->pidl("\t/* FIXME */");
 	}

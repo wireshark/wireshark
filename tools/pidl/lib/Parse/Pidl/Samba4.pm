@@ -102,10 +102,11 @@ sub ArrayBrackets($)
 	return $res;
 }
 
-sub DeclLong($)
+sub DeclLong($;$)
 {
-	my ($e) = shift;
+	my ($e, $p) = @_;
 	my $res = "";
+	$p = "" unless defined($p);
 
 	if (has_property($e, "represent_as")) {
 		$res .= mapTypeName($e->{PROPERTIES}->{represent_as})." ";
@@ -118,7 +119,7 @@ sub DeclLong($)
 
 		$res .= ElementStars($e);
 	}
-	$res .= $e->{NAME};
+	$res .= $p.$e->{NAME};
 	$res .= ArrayBrackets($e);
 
 	return $res;

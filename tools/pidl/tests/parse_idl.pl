@@ -113,52 +113,127 @@ testok "cpp-quote", "cpp_quote(\"bla\")";
 
 my $x = Parse::Pidl::IDL::parse_string("interface foo { struct x {}; }", "<foo>");
 
-is_deeply($x, 
-	 [ { 'FILE' => '<foo>', 'NAME' => 'foo', 'DATA' => [ 
-		 { 'NAME' => 'x', 'TYPE' => 'STRUCT', ELEMENTS => [] } ], 
-		 'TYPE' => 'INTERFACE', 'LINE' => 0 } ]); 
+is_deeply($x, [ {
+	'TYPE' => 'INTERFACE',
+	'NAME' => 'foo',
+	'DATA' => [ {
+		'TYPE' => 'STRUCT',
+		'NAME' => 'x',
+		'ELEMENTS' => [],
+		'FILE' => '<foo>',
+		'LINE' => 0
+	} ],
+	'FILE' => '<foo>',
+	'LINE' => 0
+}]);
 
 $x = Parse::Pidl::IDL::parse_string("interface foo { struct x; }", "<foo>");
-is_deeply($x, 
-	 [ { 'FILE' => '<foo>', 'NAME' => 'foo', 'DATA' => [ 
-		 { 'NAME' => 'x', 'TYPE' => 'STRUCT' } ], 
-		 'TYPE' => 'INTERFACE', 'LINE' => 0 } ]); 
+is_deeply($x, [ {
+	'TYPE' => 'INTERFACE',
+	'NAME' => 'foo',
+	'DATA' => [ {
+		'TYPE' => 'STRUCT',
+		'NAME' => 'x',
+		'FILE' => '<foo>',
+		'LINE' => 0
+	} ],
+	'FILE' => '<foo>',
+	'LINE' => 0
+}]);
 
 $x = Parse::Pidl::IDL::parse_string("cpp_quote(\"foobar\")", "<quote>");
-is_deeply($x, 
-	 [ { 'FILE' => '<quote>', 'DATA' => '"foobar"',
-		 'TYPE' => 'CPP_QUOTE', 'LINE' => 0 } ]); 
+is_deeply($x, [ {
+	'TYPE' => 'CPP_QUOTE',
+	'DATA' => '"foobar"',
+	'FILE' => '<quote>',
+	'LINE' => 0
+}]);
 
 # A typedef of a struct without body
 $x = Parse::Pidl::IDL::parse_string("interface foo { typedef struct x y; }", "<foo>");
 
-is_deeply($x, 
-	 [ { 'FILE' => '<foo>', 'NAME' => 'foo', 'DATA' => [ 
-		 { 'FILE' => '<foo>', 'LINE' => 0, 'NAME' => 'y', 'TYPE' => 'TYPEDEF', DATA => {
-			 TYPE => 'STRUCT', NAME => 'x' } } ], 
-		 'TYPE' => 'INTERFACE', 'LINE' => 0 } ]); 
+is_deeply($x, [ {
+	'TYPE' => 'INTERFACE',
+	'NAME' => 'foo',
+	'DATA' => [ {
+		'TYPE' => 'TYPEDEF',
+		'NAME' => 'y',
+		'DATA' => {
+			'TYPE' => 'STRUCT',
+			'NAME' => 'x',
+			'FILE' => '<foo>',
+			'LINE' => 0,
+		},
+		'FILE' => '<foo>',
+		'LINE' => 0,
+	} ],
+	'FILE' => '<foo>',
+	'LINE' => 0
+}]);
 
 # A typedef of a struct with empty body
 $x = Parse::Pidl::IDL::parse_string("interface foo { typedef struct {} y; }", "<foo>");
 
-is_deeply($x, 
-	 [ { 'FILE' => '<foo>', 'NAME' => 'foo', 'DATA' => [ 
-		 { 'FILE' => '<foo>', 'LINE' => 0, 'NAME' => 'y', 'TYPE' => 'TYPEDEF', DATA => { TYPE => 'STRUCT', ELEMENTS => [] } } ], 
-		 'TYPE' => 'INTERFACE', 'LINE' => 0 } ]); 
+is_deeply($x, [ {
+	'TYPE' => 'INTERFACE',
+	'NAME' => 'foo',
+	'DATA' => [ {
+		'TYPE' => 'TYPEDEF',
+		'NAME' => 'y',
+		'DATA' => {
+			'TYPE' => 'STRUCT',
+			'ELEMENTS' => [],
+			'FILE' => '<foo>',
+			'LINE' => 0
+		},
+		'FILE' => '<foo>',
+		'LINE' => 0
+	} ],
+	'FILE' => '<foo>',
+	'LINE' => 0
+}]);
 
 # A typedef of a bitmap with no body
 $x = Parse::Pidl::IDL::parse_string("interface foo { typedef bitmap x y; }", "<foo>");
 
-is_deeply($x, 
-	 [ { 'FILE' => '<foo>', 'NAME' => 'foo', 'DATA' => [ 
-		 { 'FILE' => '<foo>', 'LINE' => 0, 'NAME' => 'y', 'TYPE' => 'TYPEDEF', DATA => { TYPE => 'BITMAP', NAME => 'x' } } ], 
-		 'TYPE' => 'INTERFACE', 'LINE' => 0 } ]); 
+is_deeply($x, [ {
+	'TYPE' => 'INTERFACE',
+	'NAME' => 'foo',
+	'DATA' => [ {
+		'TYPE' => 'TYPEDEF',
+		'NAME' => 'y',
+		'DATA' => {
+			'TYPE' => 'BITMAP',
+			'NAME' => 'x',
+			'FILE' => '<foo>',
+			'LINE' => 0
+		},
+		'FILE' => '<foo>',
+		'LINE' => 0
+	} ],
+	'FILE' => '<foo>',
+	'LINE' => 0
+}]);
 
 
 # A typedef of a union with no body
 $x = Parse::Pidl::IDL::parse_string("interface foo { typedef union x y; }", "<foo>");
 
-is_deeply($x, 
-	 [ { 'FILE' => '<foo>', 'NAME' => 'foo', 'DATA' => [ 
-		 { 'FILE' => '<foo>', 'LINE' => 0, 'NAME' => 'y', 'TYPE' => 'TYPEDEF', DATA => { TYPE => 'UNION', NAME => 'x' } } ], 
-		 'TYPE' => 'INTERFACE', 'LINE' => 0 } ]); 
+is_deeply($x, [ {
+	'TYPE' => 'INTERFACE',
+	'NAME' => 'foo',
+	'DATA' => [ {
+		'TYPE' => 'TYPEDEF',
+		'NAME' => 'y',
+		'DATA' => {
+			'TYPE' => 'UNION',
+			'NAME' => 'x',
+			'FILE' => '<foo>',
+			'LINE' => 0
+		},
+		'FILE' => '<foo>',
+		'LINE' => 0
+	} ],
+	'FILE' => '<foo>',
+	'LINE' => 0
+}]);

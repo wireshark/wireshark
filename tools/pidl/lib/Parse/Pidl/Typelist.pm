@@ -32,8 +32,12 @@ my %scalars = (
 	"uint8"		=> "uint8_t",
 	"int16"		=> "int16_t",
 	"uint16"	=> "uint16_t",
+	"int1632"	=> "int16_t",
+	"uint1632"	=> "uint16_t",
 	"int32"		=> "int32_t",
 	"uint32"	=> "uint32_t",
+	"int3264"	=> "int32_t",
+	"uint3264"	=> "uint32_t",
 	"hyper"		=> "uint64_t",
 	"dlong"		=> "int64_t",
 	"udlong"	=> "uint64_t",
@@ -220,7 +224,7 @@ sub enum_type_fn($)
 	} elsif (has_property($enum->{PARENT}, "v1_enum")) {
 		return "uint32";
 	}
-	return "uint16";
+	return "uint1632";
 }
 
 sub bitmap_type_fn($)
