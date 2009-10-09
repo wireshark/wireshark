@@ -200,16 +200,8 @@ set(WIRESHARK_TAP_SRC
 # todo
 # about_dlg.c main_welcome.c: ../image/wssplash.xpm ../image/wssplash-dev.xpm
 
-ADD_CUSTOM_COMMAND(
-	OUTPUT wireshark-tap-register.c
-	COMMAND ${SHELL}
-	  ${CMAKE_SOURCE_DIR}/tools/make-tapreg-dotc
-	  wireshark-tap-register.c
-	  ${CMAKE_CURRENT_SOURCE_DIR}
-	  ${WIRESHARK_TAP_SRC}
-	DEPENDS
-	  ${CMAKE_SOURCE_DIR}/tools/make-tapreg-dotc
-	  ${WIRESHARK_TAP_SRC}
+register_tap_files(wireshark-tap-register.c
+	${WIRESHARK_TAP_SRC}
 )
 
 add_library(ui STATIC

@@ -410,16 +410,8 @@ add_executable(lemon ${lemon_FILES})
 target_link_libraries(lemon ${lemon_LIBS})
 # but don't install
 
-ADD_CUSTOM_COMMAND(
-	OUTPUT tshark-tap-register.c
-	COMMAND ${SHELL}
-	  ${CMAKE_SOURCE_DIR}/tools/make-tapreg-dotc
-	  tshark-tap-register.c
-	  ${CMAKE_CURRENT_SOURCE_DIR}
-	  ${TSHARK_TAP_SRC}
-	DEPENDS
-	  ${CMAKE_SOURCE_DIR}/tools/make-tapreg-dotc
-	  ${TSHARK_TAP_SRC}
+register_tap_files(wireshark-tap-register.c
+	${WIRESHARK_TAP_SRC}
 )
 
 ADD_CUSTOM_COMMAND(
