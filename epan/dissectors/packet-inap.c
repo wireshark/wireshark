@@ -11394,7 +11394,7 @@ void proto_register_inap(void) {
         "inap.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 196 "packet-inap-template.c"
+#line 193 "packet-inap-template.c"
   };
 
 
@@ -11644,7 +11644,7 @@ void proto_register_inap(void) {
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 208 "packet-inap-template.c"
+#line 205 "packet-inap-template.c"
   };
 
   /* Register protocol */

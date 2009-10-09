@@ -1144,7 +1144,7 @@ void proto_register_s4406(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s4406-hfarr.c ---*/
-#line 95 "packet-s4406-template.c"
+#line 93 "packet-s4406-template.c"
   };
 
   /* List of subtrees */
@@ -1176,7 +1176,7 @@ void proto_register_s4406(void) {
     &ett_s4406_BodyPartSecurityLabel,
 
 /*--- End of included file: packet-s4406-ettarr.c ---*/
-#line 101 "packet-s4406-template.c"
+#line 99 "packet-s4406-template.c"
   };
 
   /* Register protocol */
@@ -1218,7 +1218,7 @@ void proto_reg_handoff_s4406(void) {
 
 
 /*--- End of included file: packet-s4406-dis-tab.c ---*/
-#line 116 "packet-s4406-template.c"
+#line 114 "packet-s4406-template.c"
 
   register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_s4406, proto_s4406, "Military Message");
 

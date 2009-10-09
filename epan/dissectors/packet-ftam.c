@@ -6481,7 +6481,7 @@ void proto_register_ftam(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ftam-hfarr.c ---*/
-#line 133 "packet-ftam-template.c"
+#line 131 "packet-ftam-template.c"
   };
 
   /* List of subtrees */
@@ -6654,7 +6654,7 @@ void proto_register_ftam(void) {
     &ett_ftam_AE_title,
 
 /*--- End of included file: packet-ftam-ettarr.c ---*/
-#line 139 "packet-ftam-template.c"
+#line 137 "packet-ftam-template.c"
   };
 
   /* Register protocol */

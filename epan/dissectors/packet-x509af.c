@@ -1234,7 +1234,7 @@ void proto_register_x509af(void) {
         "x509af.INTEGER", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
-#line 109 "packet-x509af-template.c"
+#line 104 "packet-x509af-template.c"
   };
 
   /* List of subtrees */
@@ -1277,7 +1277,7 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
-#line 115 "packet-x509af-template.c"
+#line 110 "packet-x509af-template.c"
   };
 
   /* Register protocol */
@@ -1311,7 +1311,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
-#line 135 "packet-x509af-template.c"
+#line 130 "packet-x509af-template.c"
 
 	/*XXX these should really go to a better place but since that
 	  I have not that ITU standard, ill put it here for the time

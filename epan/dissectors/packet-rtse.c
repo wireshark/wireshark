@@ -953,7 +953,7 @@ void proto_register_rtse(void) {
         "rtse.T_octetString", HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 348 "packet-rtse-template.c"
+#line 346 "packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -975,7 +975,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 357 "packet-rtse-template.c"
+#line 355 "packet-rtse-template.c"
   };
 
   module_t *rtse_module;

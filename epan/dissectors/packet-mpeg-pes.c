@@ -1121,7 +1121,7 @@ proto_register_mpeg_pes(void)
         "mpeg_pes.BIT_STRING_SIZE_16", HFILL }},
 
 /*--- End of included file: packet-mpeg-pes-hfarr.c ---*/
-#line 483 "packet-mpeg-pes-template.c"
+#line 479 "packet-mpeg-pes-template.c"
 		{ &hf_mpeg_pes_pack_header,
 			{ "Pack header", "mpeg-pes.pack",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -1217,7 +1217,7 @@ proto_register_mpeg_pes(void)
     &ett_mpeg_pes_Picture,
 
 /*--- End of included file: packet-mpeg-pes-ettarr.c ---*/
-#line 568 "packet-mpeg-pes-template.c"
+#line 564 "packet-mpeg-pes-template.c"
 		&ett_mpeg_pes_pack_header,
 		&ett_mpeg_pes_header_data,
 	};

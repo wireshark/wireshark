@@ -544,7 +544,7 @@ void proto_register_pkixtsp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkixtsp-hfarr.c ---*/
-#line 118 "packet-pkixtsp-template.c"
+#line 108 "packet-pkixtsp-template.c"
   };
 
   /* List of subtrees */
@@ -562,7 +562,7 @@ void proto_register_pkixtsp(void) {
     &ett_pkixtsp_Accuracy,
 
 /*--- End of included file: packet-pkixtsp-ettarr.c ---*/
-#line 124 "packet-pkixtsp-template.c"
+#line 114 "packet-pkixtsp-template.c"
   };
 
   /* Register protocol */
@@ -593,6 +593,6 @@ void proto_reg_handoff_pkixtsp(void) {
 
 
 /*--- End of included file: packet-pkixtsp-dis-tab.c ---*/
-#line 148 "packet-pkixtsp-template.c"
+#line 138 "packet-pkixtsp-template.c"
 }
 

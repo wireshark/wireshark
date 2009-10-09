@@ -2458,7 +2458,7 @@ void proto_register_dsp(void) {
         "dsp.EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-#line 280 "packet-dsp-template.c"
+#line 278 "packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2539,7 +2539,7 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-#line 286 "packet-dsp-template.c"
+#line 284 "packet-dsp-template.c"
   };
   module_t *dsp_module;
 
@@ -2582,7 +2582,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-#line 319 "packet-dsp-template.c"
+#line 317 "packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 

@@ -667,7 +667,7 @@ proto_register_mpeg_audio(void)
         "mpeg_audio.T_genre", HFILL }},
 
 /*--- End of included file: packet-mpeg-audio-hfarr.c ---*/
-#line 170 "packet-mpeg-audio-template.c"
+#line 166 "packet-mpeg-audio-template.c"
 		{ &hf_mpeg_audio,
 			{ "MPEG Audio", "mpeg.audio",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -694,7 +694,7 @@ proto_register_mpeg_audio(void)
     &ett_mpeg_audio_ID3v1,
 
 /*--- End of included file: packet-mpeg-audio-ettarr.c ---*/
-#line 190 "packet-mpeg-audio-template.c"
+#line 186 "packet-mpeg-audio-template.c"
 	};
 
 	proto_mpeg_audio = proto_register_protocol(

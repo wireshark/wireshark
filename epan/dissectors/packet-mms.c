@@ -9559,7 +9559,7 @@ void proto_register_mms(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-mms-hfarr.c ---*/
-#line 97 "packet-mms-template.c"
+#line 95 "packet-mms-template.c"
   };
 
   /* List of subtrees */
@@ -9775,7 +9775,7 @@ void proto_register_mms(void) {
     &ett_mms_FileAttributes,
 
 /*--- End of included file: packet-mms-ettarr.c ---*/
-#line 103 "packet-mms-template.c"
+#line 101 "packet-mms-template.c"
   };
 
   /* Register protocol */

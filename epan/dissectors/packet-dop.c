@@ -2963,7 +2963,7 @@ void proto_register_dop(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 250 "packet-dop-template.c"
+#line 248 "packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3042,7 +3042,7 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 257 "packet-dop-template.c"
+#line 255 "packet-dop-template.c"
   };
 
   module_t *dop_module;
@@ -3098,7 +3098,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 290 "packet-dop-template.c"
+#line 288 "packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");

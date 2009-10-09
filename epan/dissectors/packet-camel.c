@@ -7276,7 +7276,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 524 "packet-camel-template.c"
+#line 522 "packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -9326,7 +9326,7 @@ void proto_register_camel(void) {
         "camel.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 697 "packet-camel-template.c"
+#line 695 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -9529,7 +9529,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 710 "packet-camel-template.c"
+#line 708 "packet-camel-template.c"
   };
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);

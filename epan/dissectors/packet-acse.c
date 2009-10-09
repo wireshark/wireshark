@@ -2181,7 +2181,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 251 "packet-acse-template.c"
+#line 249 "packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2227,7 +2227,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 257 "packet-acse-template.c"
+#line 255 "packet-acse-template.c"
   };
 
   /* Register protocol */

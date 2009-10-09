@@ -2627,7 +2627,7 @@ void proto_register_t125(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t125-hfarr.c ---*/
-#line 95 "packet-t125-template.c"
+#line 89 "packet-t125-template.c"
   };
 
   /* List of subtrees */
@@ -2705,7 +2705,7 @@ void proto_register_t125(void) {
     &ett_t125_DomainMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/
-#line 101 "packet-t125-template.c"
+#line 95 "packet-t125-template.c"
   };
 
   /* Register protocol */

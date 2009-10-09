@@ -11213,7 +11213,7 @@ proto_reg_handoff_pcap(void)
 
 
 /*--- End of included file: packet-pcap-dis-tab.c ---*/
-#line 174 "packet-pcap-template.c"
+#line 173 "packet-pcap-template.c"
     } else {
         range_foreach(ssn_range, range_delete_callback);
         g_free(ssn_range);
@@ -14650,7 +14650,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pcap-hfarr.c ---*/
-#line 190 "packet-pcap-template.c"
+#line 189 "packet-pcap-template.c"
   };
 
   /* List of subtrees */
@@ -14983,7 +14983,7 @@ void proto_register_pcap(void) {
     &ett_pcap_Outcome,
 
 /*--- End of included file: packet-pcap-ettarr.c ---*/
-#line 196 "packet-pcap-template.c"
+#line 195 "packet-pcap-template.c"
   };
 
   module_t *pcap_module;

@@ -44268,7 +44268,7 @@ void proto_register_rnsap(void) {
         "rnsap.Outcome_value", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 143 "packet-rnsap-template.c"
+#line 142 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -45332,7 +45332,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Outcome,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 149 "packet-rnsap-template.c"
+#line 148 "packet-rnsap-template.c"
   };
 
 
@@ -46042,7 +46042,7 @@ proto_reg_handoff_rnsap(void)
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 188 "packet-rnsap-template.c"
+#line 187 "packet-rnsap-template.c"
 }
 
 

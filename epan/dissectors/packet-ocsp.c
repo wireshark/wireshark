@@ -914,7 +914,7 @@ void proto_register_ocsp(void) {
         "ocsp.GeneralizedTime", HFILL }},
 
 /*--- End of included file: packet-ocsp-hfarr.c ---*/
-#line 126 "packet-ocsp-template.c"
+#line 116 "packet-ocsp-template.c"
   };
 
   /* List of subtrees */
@@ -944,7 +944,7 @@ void proto_register_ocsp(void) {
     &ett_ocsp_CrlID,
 
 /*--- End of included file: packet-ocsp-ettarr.c ---*/
-#line 132 "packet-ocsp-template.c"
+#line 122 "packet-ocsp-template.c"
   };
 
   /* Register protocol */
@@ -979,6 +979,6 @@ void proto_reg_handoff_ocsp(void) {
 
 
 /*--- End of included file: packet-ocsp-dis-tab.c ---*/
-#line 155 "packet-ocsp-template.c"
+#line 145 "packet-ocsp-template.c"
 }
 

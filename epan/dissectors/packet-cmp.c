@@ -2358,7 +2358,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 352 "packet-cmp-template.c"
+#line 343 "packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2416,7 +2416,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 358 "packet-cmp-template.c"
+#line 349 "packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2510,7 +2510,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 430 "packet-cmp-template.c"
+#line 421 "packet-cmp-template.c"
 		inited = TRUE;
 	}
 

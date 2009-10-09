@@ -1538,7 +1538,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 257 "packet-tcap-template.c"
+#line 254 "packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -1869,7 +1869,7 @@ proto_register_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 319 "packet-tcap-template.c"
+#line 316 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1918,7 +1918,7 @@ proto_register_tcap(void)
     &ett_tcap_Associate_source_diagnostic,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 329 "packet-tcap-template.c"
+#line 326 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

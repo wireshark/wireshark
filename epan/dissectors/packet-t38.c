@@ -669,7 +669,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 155 "t38.cnf"
+#line 152 "t38.cnf"
     tvbuff_t *value_tvb = NULL;
     guint32 value_len;
 
@@ -680,7 +680,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 
-#line 162 "t38.cnf"
+#line 159 "t38.cnf"
     if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
         if(value_len < 8){
             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[%s]",
@@ -798,7 +798,7 @@ dissect_t38_T_seq_number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &seq_number, FALSE);
 
-#line 232 "t38.cnf"
+#line 229 "t38.cnf"
     /* info for tap */
     if (primary_part)
         t38_info->seq_num = seq_number;
@@ -814,12 +814,12 @@ dissect_t38_T_seq_number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_t38_T_primary_ifp_packet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 242 "t38.cnf"
+#line 239 "t38.cnf"
     primary_part = TRUE;
 
   offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, dissect_t38_IFPPacket);
 
-#line 244 "t38.cnf"
+#line 241 "t38.cnf"
     /* if is a valid t38 packet, add to tap */
     if (p_t38_packet_conv && (!actx->pinfo->in_error_pkt) && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum))
         tap_queue_packet(t38_tap, actx->pinfo, t38_info);
@@ -913,14 +913,14 @@ static const per_choice_t T_error_recovery_choice[] = {
 
 static int
 dissect_t38_T_error_recovery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 252 "t38.cnf"
+#line 249 "t38.cnf"
     primary_part = FALSE;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_t38_T_error_recovery, T_error_recovery_choice,
                                  NULL);
 
-#line 254 "t38.cnf"
+#line 251 "t38.cnf"
     primary_part = TRUE;
 
   return offset;
@@ -936,7 +936,7 @@ static const per_sequence_t UDPTLPacket_sequence[] = {
 
 static int
 dissect_t38_UDPTLPacket(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 226 "t38.cnf"
+#line 223 "t38.cnf"
     /* Initialize to something else than data type */
     Data_Field_field_type_value = 1;
 
@@ -1322,7 +1322,7 @@ proto_register_t38(void)
         "t38.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 679 "packet-t38-template.c"
+#line 671 "packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1377,7 +1377,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 720 "packet-t38-template.c"
+#line 712 "packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments

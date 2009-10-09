@@ -4690,7 +4690,7 @@ void proto_register_x2ap(void) {
         "x2ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-x2ap-hfarr.c ---*/
-#line 140 "packet-x2ap-template.c"
+#line 139 "packet-x2ap-template.c"
   };
 
   /* List of subtrees */
@@ -4801,7 +4801,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-x2ap-ettarr.c ---*/
-#line 146 "packet-x2ap-template.c"
+#line 145 "packet-x2ap-template.c"
   };
 
 
@@ -4900,7 +4900,7 @@ proto_reg_handoff_x2ap(void)
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
-#line 178 "packet-x2ap-template.c"
+#line 177 "packet-x2ap-template.c"
 }
 
 
