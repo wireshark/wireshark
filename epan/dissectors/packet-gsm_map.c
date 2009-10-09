@@ -44,7 +44,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * References GSM MAP: 
+ * References GSM MAP:
  * ETSI TS 129 002
  * Updated to ETSI TS 129 002 V7.5.0 (3GPP TS 29.002 V7.5.0 (2006-09) Release 7)
  * Updated to ETSI TS 129 002 V8.4.0 (3GPP TS 29.002 V8.1.0 (2007-06) Release 8)
@@ -1457,7 +1457,7 @@ static gint ett_gsm_map_ReturnError_result = -1;
 static gint ett_gsm_map_GSMMAPPDU = -1;
 static gint ett_gsm_map_ext_qos_subscribed = -1;
 static gint ett_gsm_map_pdptypenumber = -1;
-static gint ett_gsm_map_RAIdentity = -1; 
+static gint ett_gsm_map_RAIdentity = -1;
 static gint ett_gsm_map_LAIFixedLength = -1;
 static gint ett_gsm_map_isdn_address_string = -1;
 static gint ett_gsm_map_geo_desc = -1;
@@ -2048,8 +2048,7 @@ static guint32 opcode=0;
 static guint32 errorCode;
 static proto_tree *top_tree;
 static int application_context_version;
-static guint ProtocolId; 
-guint protocolId;
+static guint ProtocolId;
 guint AccessNetworkProtocolId;
 const char *obj_id = NULL;
 static int gsm_map_tap = -1;
@@ -2140,7 +2139,7 @@ static guint
 gsm_map_calc_bitrate(guint8 value){
 
 	guint8 granularity;
-	guint returnvalue; 
+	guint returnvalue;
 
 	if (value == 0xff)
 		return 0;
@@ -2164,7 +2163,7 @@ gsm_map_calc_bitrate(guint8 value){
 
 }
 
-static void 
+static void
 dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx){
 	int offset = 0;
     proto_tree *subtree;
@@ -2216,7 +2215,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 			proto_tree_add_uint(subtree, hf_gsm_map_qos_max_sdu, tvb, offset, 1, value);
 		}else{
 			proto_tree_add_text(subtree, tvb, offset, 1, "Maximum SDU size value 0x%x not defined in TS 24.008",octet);
-		}			
+		}
 	}
 	offset++;
 
@@ -2236,7 +2235,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 		proto_tree_add_uint(subtree, hf_gsm_map_max_brate_dlink, tvb, offset, 1, gsm_map_calc_bitrate(octet));
 	}
 	offset++;
-	/* Residual Bit Error Rate (BER), octet 10 (see 3GPP TS 23.107) Bits 8 7 6 5 */ 
+	/* Residual Bit Error Rate (BER), octet 10 (see 3GPP TS 23.107) Bits 8 7 6 5 */
 	proto_tree_add_item(subtree, hf_gsm_map_qos_ber, tvb, offset, 1, FALSE);
 	/* SDU error ratio, octet 10 (see 3GPP TS 23.107) */
 	proto_tree_add_item(subtree, hf_gsm_map_qos_sdu_err_rat, tvb, offset, 1, FALSE);
@@ -2283,7 +2282,7 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 0 0 0 0 Ellipsoid Point
 0 0 0 1 Ellipsoid point with uncertainty Circle
 0 0 1 1 Ellipsoid point with uncertainty Ellipse
-0 1 0 1 Polygon 
+0 1 0 1 Polygon
 1 0 0 0 Ellipsoid point with altitude
 1 0 0 1 Ellipsoid point with altitude and uncertainty Ellipsoid
 1 0 1 0 Ellipsoid Arc
@@ -2316,25 +2315,25 @@ static const value_string dir_of_alt_vals[] = {
 };
 
 static const value_string gsm_map_cbs_data_coding_scheme_coding_grp_vals[] = {
-	{ 0, "Coding Group 0(Language using the GSM 7 bit default alphabet)" }, 
-	{ 1, "Coding Group 1" }, 
-	{ 2, "Coding Group 2" }, 
-	{ 3, "Coding Group 3" }, 
-	{ 4, "General Data Coding indication" }, 
-	{ 5, "General Data Coding indication" }, 
-	{ 6, "General Data Coding indication" }, 
-	{ 7, "General Data Coding indication" }, 
-	{ 8, "Reserved" }, 
-	{ 9, "Message with User Data Header (UDH) structure" }, 
-	{ 10,"Reserved" }, 
-	{ 11,"Reserved" }, 
-	{ 12,"Reserved" }, 
-	{ 13,"Reserved" }, 
-	{ 14,"Defined by the WAP Forum" }, 
-	{ 15,"Data coding / message handling" }, 
+	{ 0, "Coding Group 0(Language using the GSM 7 bit default alphabet)" },
+	{ 1, "Coding Group 1" },
+	{ 2, "Coding Group 2" },
+	{ 3, "Coding Group 3" },
+	{ 4, "General Data Coding indication" },
+	{ 5, "General Data Coding indication" },
+	{ 6, "General Data Coding indication" },
+	{ 7, "General Data Coding indication" },
+	{ 8, "Reserved" },
+	{ 9, "Message with User Data Header (UDH) structure" },
+	{ 10,"Reserved" },
+	{ 11,"Reserved" },
+	{ 12,"Reserved" },
+	{ 13,"Reserved" },
+	{ 14,"Defined by the WAP Forum" },
+	{ 15,"Data coding / message handling" },
 	{ 0, NULL}
 };
-/* Coding group 0 
+/* Coding group 0
  * Bits 3..0 indicate the language:
  */
 static const value_string gsm_map_cbs_coding_grp0_lang_vals[] = {
@@ -2467,7 +2466,7 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	octet = tvb_get_guint8(tvb,0);
 	coding_grp = octet >>4;
 	proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp, tvb, 0, 1, FALSE);
-	
+
 	sms_encoding = SMS_ENCODING_NOT_SET;
 	switch (coding_grp){
 	case 0:
@@ -2560,7 +2559,7 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		/* 1010..1101 Reserved coding groups */
 		break;
 	case 14:
-		/* Defined by the WAP Forum 
+		/* Defined by the WAP Forum
 		 * "Wireless Datagram Protocol Specification", Wireless Application Protocol Forum Ltd.
 		 */
 		break;
@@ -2603,7 +2602,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  if ((na == 1) && (np==1))/*International Number & E164*/
 	dissect_e164_cc(tvb, tree, 1, TRUE);
  else if(np==6)
-	dissect_e212_mcc_mnc(tvb, tree, 1); 
+	dissect_e212_mcc_mnc(tvb, tree, 1);
 
 }
 
@@ -16158,7 +16157,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 747 "packet-gsmmap-template.c"
+#line 746 "packet-gsmmap-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -16371,7 +16370,7 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 758 "packet-gsmmap-template.c"
+#line 757 "packet-gsmmap-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -16577,7 +16576,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 762 "packet-gsmmap-template.c"
+#line 761 "packet-gsmmap-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -16632,7 +16631,7 @@ static const true_false_string gsm_map_Ss_Status_a_values = {
  * Take into account the MAP version for ForwardSM
  */
 const gchar* gsm_map_opr_code(guint32 val) {
-  switch (val) { 
+  switch (val) {
   case 44: /*mt-forwardSM*/
   case 46: /*mo-forwardSM*/
     if (application_context_version < 3) {
@@ -16661,14 +16660,14 @@ typedef int (* dissect_function_t)( gboolean,
  * But in the previous MAP version, it was a CHOICE between a SEQUENCE and an IMSI
  * As ASN1 encoders (or software) still uses the old encoding, this function allows
  * the decoding of both versions.
- * Moreover, some optimizations (or bad practice ?) in ASN1 encoder, removes the 
+ * Moreover, some optimizations (or bad practice ?) in ASN1 encoder, removes the
  * SEQUENCE tag, when only one parameter is present in the SEQUENCE.
  * This explain why the function expects 3 parameters:
  * - a [3] SEQUENCE corresponding the recent ASN1 MAP encoding
  * - a SEQUENCE for old style
  * - and a single parameter, for old version or optimizations
  *
- * The analyze of the first ASN1 tag, indicate what kind of decoding should be used, 
+ * The analyze of the first ASN1 tag, indicate what kind of decoding should be used,
  * if the decoding function is provided (so not a NULL function)
  */
 static int dissect_mc_message(tvbuff_t *tvb,
@@ -16721,15 +16720,15 @@ static int dissect_mc_message(tvbuff_t *tvb,
 }
 
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
- 
+
   proto_item *cause;
 
   switch(opcode){
-  case  2: /*updateLocation*/	
+  case  2: /*updateLocation*/
     offset=dissect_gsm_map_ms_UpdateLocationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case  3: /*cancelLocation*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, dissect_gsm_map_Identity, hf_gsm_map_ms_identity,
 			      FALSE, dissect_gsm_map_Identity, hf_gsm_map_ms_identity,
 			      TRUE , dissect_gsm_map_ms_CancelLocationArg, -1);/*undefined*/
@@ -16809,7 +16808,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     /* undefined 27 */
     /* reserved performHandover (28) */
   case 29: /*sendEndSignal*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, NULL, -1,
 			      FALSE, dissect_gsm_old_Bss_APDU, -1,
 			      TRUE , dissect_gsm_map_ms_SendEndSignal_Arg, -1);
@@ -16822,13 +16821,13 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_old_SIWFSSignallingModifyArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 33: /*processAccessSignalling*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, NULL, -1,
 			      FALSE, dissect_gsm_old_Bss_APDU, -1,
 			      TRUE , dissect_gsm_map_ms_ProcessAccessSignalling_Arg, -1);
     break;
   case 34: /*forwardAccessSignalling*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, NULL, -1,
 			      FALSE, dissect_gsm_old_Bss_APDU, -1,
 			      TRUE , dissect_gsm_map_ms_ForwardAccessSignalling_Arg, -1);
@@ -16854,7 +16853,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_gr_ForwardGroupCallSignallingArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 43: /*checkIMEI*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, dissect_gsm_map_IMEI, hf_gsm_map_ms_imei,
 			      FALSE, dissect_gsm_map_ms_CheckIMEI_Arg, -1,
 			      TRUE , NULL, -1); /* no [3] SEQUENCE */
@@ -16880,7 +16879,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_sm_ReportSM_DeliveryStatusArg(FALSE, tvb, offset, actx, tree, -1);
     break;
     /* reserved noteSubscriberPresent (48) */
-    /* reserved alertServiceCentreWithoutResult (49)  
+    /* reserved alertServiceCentreWithoutResult (49)
 	 * ETS 300 599: December 2000 (GSM 09.02 version 4.19.1)
 	 * -- alertServiceCentreWithoutResult must not be used in
 	 * -- version greater 1
@@ -16900,13 +16899,13 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_ss_BeginSubscriberActivityArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 55: /*sendIdentification*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, dissect_gsm_map_TMSI, hf_gsm_map_tmsi,
 			      FALSE, dissect_gsm_map_ms_SendIdentificationArg, -1,
 			      TRUE,  NULL, -1);
     break;
-  case 56: /*sendAuthenticationInfo*/ 
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+  case 56: /*sendAuthenticationInfo*/
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
 			      FALSE, dissect_gsm_map_ms_SendAuthenticationInfoArg, -1,
 			      TRUE,  NULL, -1);
@@ -16942,19 +16941,19 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_sm_ReadyForSM_Arg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 67: /*purgeMS*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
 			      FALSE, dissect_gsm_old_PurgeMSArgV2, -1, /*undefined*/
 			      TRUE , dissect_gsm_map_ms_PurgeMS_Arg, -1);
     break;
   case 68: /*prepareHandover*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, NULL, -1,
 			      FALSE, dissect_gsm_old_PrepareHO_ArgOld, -1,
 			      TRUE, dissect_gsm_map_ms_PrepareHO_Arg, -1);
     break;
   case 69: /*prepareSubsequentHandover*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, NULL, -1,
 			      FALSE, NULL, -1,
 			      TRUE, dissect_gsm_map_ms_PrepareSubsequentHO_Arg, -1);
@@ -17073,10 +17072,10 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
 
   proto_item *cause;
-	
+
   switch(opcode){
-  case  2: /*updateLocation*/ 
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+  case  2: /*updateLocation*/
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
 			      FALSE, dissect_gsm_map_ms_UpdateLocationRes, -1,
 			      TRUE , NULL, -1);
@@ -17138,15 +17137,15 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 21: /*mt-ForwardSM-VGCS*/
     offset=dissect_gsm_map_sm_MT_ForwardSM_VGCS_Res(FALSE, tvb, offset, actx, tree, -1);
     break;
-  case 22: /*sendRoutingInfo*/ 
+  case 22: /*sendRoutingInfo*/
 	  if (application_context_version == 3){
 		  /* If the tag is missing use SendRoutingInfoRes_U */
-		  offset=dissect_mc_message(tvb, offset, actx, tree,    
+		  offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, NULL, -1,
 			      FALSE, dissect_gsm_map_ch_SendRoutingInfoRes_U, -1,
 			      TRUE , dissect_gsm_map_ch_SendRoutingInfoRes, -1);
 	  }else{
-		  offset=dissect_mc_message(tvb, offset, actx, tree,    
+		  offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
 			      FALSE, dissect_gsm_old_SendRoutingInfoResV2, -1,
 			      TRUE , dissect_gsm_map_ch_SendRoutingInfoRes, -1);
@@ -17165,7 +17164,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_map_ms_NoteMsPresentForGprsRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 29: /*sendEndSignal*/
-	  /* Taken from MAP-MobileServiceOperations{ 0 identified-organization (4) etsi (0) mobileDomain 
+	  /* Taken from MAP-MobileServiceOperations{ 0 identified-organization (4) etsi (0) mobileDomain
 	   * (0) gsm-Network (1) modules (3) map-MobileServiceOperations (5) version9 (9) }
 	   */
     offset=dissect_gsm_map_ms_SendEndSignal_Res(FALSE, tvb, offset, actx, tree, -1);
@@ -17182,8 +17181,8 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 40: /*sendGroupCallEndSignal*/
     offset=dissect_gsm_map_gr_SendGroupCallEndSignalRes(FALSE, tvb, offset, actx, tree, -1);
     break;
-  case 43: /*checkIMEI*/ 
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+  case 43: /*checkIMEI*/
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, dissect_gsm_map_ms_EquipmentStatus, hf_gsm_map_ms_equipmentStatus,
 			      FALSE, dissect_gsm_map_ms_CheckIMEI_Res, -1,
 			      TRUE,  NULL, -1);
@@ -17209,13 +17208,13 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_map_om_DeactivateTraceModeRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 55: /*sendIdentification */
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
 			      FALSE, dissect_gsm_old_SendIdentificationResV2, -1,/*undefined*/
 			      TRUE,  dissect_gsm_map_ms_SendIdentificationRes, -1);
     break;
-  case 56: /*sendAuthenticationInfo*/ 
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+  case 56: /*sendAuthenticationInfo*/
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, NULL, -1,
 			      FALSE, dissect_gsm_old_SendAuthenticationInfoResOld, -1,
 			      TRUE , dissect_gsm_map_ms_SendAuthenticationInfoRes, -1);
@@ -17251,14 +17250,14 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 67: /*purgeMS*/
     offset=dissect_gsm_map_ms_PurgeMS_Res(FALSE, tvb, offset, actx, tree, -1);
     break;
-  case 68: /*prepareHandover*/ 
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+  case 68: /*prepareHandover*/
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, NULL, -1,
 			      FALSE, dissect_gsm_old_PrepareHO_ResOld, -1,
 			      TRUE , dissect_gsm_map_ms_PrepareHO_Res, -1);
     break;
   case 69: /*prepareSubsequentHandover*/
-    offset=dissect_mc_message(tvb, offset, actx, tree,    
+    offset=dissect_mc_message(tvb, offset, actx, tree,
 			      FALSE, NULL, -1,
 			      FALSE, NULL, -1,
 			      TRUE , dissect_gsm_map_ms_PrepareSubsequentHO_Res, -1);
@@ -17370,7 +17369,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
   proto_item *cause;
-	
+
   switch(errorCode){
   case 1: /* UnknownSubscriberParam */
 	  offset=dissect_gsm_map_er_UnknownSubscriberParam(FALSE, tvb, offset, actx, tree, -1);
@@ -17533,7 +17532,7 @@ static void dissect_gsm_mapext_PlmnContainer(tvbuff_t *tvb, packet_info *pinfo, 
   proto_item    *item=NULL;
   proto_tree    *tree=NULL;
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);  
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   /* create display subtree for the protocol */
   if(parent_tree){
     item = proto_tree_add_text(parent_tree, tvb, 0, -1, "MAP Ext. Plmn Container");
@@ -17796,7 +17795,7 @@ static const value_string Bearerservice_vals[] = {
 { 0, NULL }
 };
 
-/* ForwardingOptions 
+/* ForwardingOptions
 
 -- bit 8: notification to forwarding party
 -- 0 no notification
@@ -17910,7 +17909,7 @@ void proto_reg_handoff_gsm_map(void) {
         dtap_handle = find_dissector("gsm_a_dtap");
 
         map_handle = find_dissector("gsm_map");
-        register_ber_oid_dissector_handle("0.4.0.0.1.0.1.3", map_handle, proto_gsm_map,"networkLocUpContext-v3");  
+        register_ber_oid_dissector_handle("0.4.0.0.1.0.1.3", map_handle, proto_gsm_map,"networkLocUpContext-v3");
         register_ber_oid_dissector_handle("0.4.0.0.1.0.1.2", map_handle, proto_gsm_map,"networkLocUpContext-v2" );
         register_ber_oid_dissector_handle("0.4.0.0.1.0.1.1", map_handle, proto_gsm_map,"networkLocUpContext-v1" );
         register_ber_oid_dissector_handle("0.4.0.0.1.0.2.3", map_handle, proto_gsm_map,"locationCancellationContext-v3" );
@@ -18127,7 +18126,7 @@ void proto_register_gsm_map(void) {
         { "Traffic handling priority", "gsm_map.qos.traff_hdl_pri",
           FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traff_hdl_pri_vals), 0x03,
           NULL, HFILL }},
-      
+
       { &hf_gsm_map_qos_max_sdu,
         { "Maximum SDU size", "gsm_map.qos.max_sdu",
           FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -18182,64 +18181,64 @@ void proto_register_gsm_map(void) {
           "gsm_map.ss.SS_UserData", HFILL }},
       { &hf_gsm_map_cbs_coding_grp,
         { "Coding Group","gsm_map.cbs.coding_grp",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_data_coding_scheme_coding_grp_vals), 0xf0,          
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_data_coding_scheme_coding_grp_vals), 0xf0,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp0_lang,
         { "Language","gsm_map.cbs.coding_grp0_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp0_lang_vals), 0x0f,          
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp0_lang_vals), 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp1_lang,
         { "Language","gsm_map.cbs.coding_grp1_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp1_lang_vals), 0x0f,          
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp1_lang_vals), 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp2_lang,
         { "Language","gsm_map.cbs.coding_grp2_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp2_lang_vals), 0x0f,          
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp2_lang_vals), 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp3_lang,
         { "Language","gsm_map.cbs.coding_grp3_lang",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp3_lang_vals), 0x0f,          
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp3_lang_vals), 0x0f,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp4_7_comp,
         { "Compressed indicator","gsm_map.cbs.coding_grp4_7_comp",
-          FT_BOOLEAN, 8, TFS(&gsm_map_cbs_coding_grp4_7_comp_vals), 0x20,          
+          FT_BOOLEAN, 8, TFS(&gsm_map_cbs_coding_grp4_7_comp_vals), 0x20,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp4_7_class_ind,
         { "Message Class present","gsm_map.cbs.coding_grp4_7_class_ind",
-          FT_BOOLEAN, 8, TFS(&gsm_map_cbs_coding_grp4_7_class_ind_vals), 0x10,          
+          FT_BOOLEAN, 8, TFS(&gsm_map_cbs_coding_grp4_7_class_ind_vals), 0x10,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp4_7_char_set,
         { "Character set being used","gsm_map.cbs.coding_grp4_7_char_set",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp4_7_char_set_vals), 0x0c,          
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp4_7_char_set_vals), 0x0c,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp4_7_class,
         { "Message Class","gsm_map.cbs.coding_grp4_7_class",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp4_7_class_vals), 0x03,          
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp4_7_class_vals), 0x03,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp15_mess_code,
         { "Message coding","gsm_map.cbs.cbs_coding_grp15_mess_code",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_mess_code_vals), 0x04,          
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_mess_code_vals), 0x04,
           NULL, HFILL }
       },
       { &hf_gsm_map_cbs_coding_grp15_class,
         { "Message Class","gsm_map.cbs.gsm_map_cbs_coding_grp15_class",
-          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_class_vals), 0x03,          
+          FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_class_vals), 0x03,
           NULL, HFILL }
       },
       { &hf_gsm_map_tmsi,
         { "tmsi", "gsm_map.tmsi",
           FT_BYTES, BASE_NONE, NULL, 0,
           "gsm_map.TMSI", HFILL }},
-      
+
       { &hf_gsm_map_ie_tag,
         { "Tag", "gsm_map.ie_tag",
           FT_UINT8, BASE_DEC, VALS(gsm_map_tag_vals), 0,
@@ -23281,7 +23280,7 @@ void proto_register_gsm_map(void) {
         "gsm_map_lcs.LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2442 "packet-gsmmap-template.c"
+#line 2441 "packet-gsmmap-template.c"
   };
 
   /* List of subtrees */
@@ -23870,19 +23869,19 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2470 "packet-gsmmap-template.c"
+#line 2469 "packet-gsmmap-template.c"
   };
 
   /* Register protocol */
   proto_gsm_map_dialogue =proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
-  
+
   /* Register fields and subtrees */
   proto_register_field_array(proto_gsm_map, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  sms_dissector_table = register_dissector_table("gsm_map.sms_tpdu", 
+  sms_dissector_table = register_dissector_table("gsm_map.sms_tpdu",
 						 "GSM SMS TPDU", FT_UINT8,
 						 BASE_DEC);
 
@@ -23946,7 +23945,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2488 "packet-gsmmap-template.c"
+#line 2487 "packet-gsmmap-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
