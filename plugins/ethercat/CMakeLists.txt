@@ -38,31 +38,9 @@ set(PLUGIN_FILES
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-ADD_CUSTOM_COMMAND(
-# FIXME: Only the Python stuff has been implemented
-#        Make this into a MACRO, to avoid duplication with epan/
-#plugin.c: $(DISSECTOR_SRC) $(top_srcdir)/tools/make-dissector-reg \
-#    $(top_srcdir)/tools/make-dissector-reg.py
-#        @if test -n "$(PYTHON)"; then \
-#                echo Making plugin.c with python ; \
-#                $(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
-#                    plugin $(DISSECTOR_SRC) ; \
-#        else \
-#                echo Making plugin.c with shell script ; \
-#                $(top_srcdir)/tools/make-dissector-reg $(srcdir) \
-#                    $(plugin_src) plugin $(DISSECTOR_SRC) ; \
-#        fi
-
-    OUTPUT plugin.c
-    COMMAND ${PYTHON_EXECUTABLE}
-      ${CMAKE_SOURCE_DIR}/tools/make-dissector-reg.py
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      plugin
-      ${DISSECTOR_SRC}
-    DEPENDS
-      ${DISSECTOR_SRC}
-      ${CMAKE_SOURCE_DIR}/tools/make-dissector-reg
-      ${CMAKE_SOURCE_DIR}/tools/make-dissector-reg.py
+register_dissector_files(plugin.c
+	plugin
+	${DISSECTOR_SRC}
 )
 
 # todo

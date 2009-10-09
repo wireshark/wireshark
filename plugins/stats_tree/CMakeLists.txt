@@ -26,7 +26,6 @@ set(TAP_SRC
 	pinfo_stats_tree.c
 )
 
-
 # todo
 # Do I need any of this or is this handled by type MODULE?
 # asn1_la_LDFLAGS = -module -avoid-version
