@@ -239,6 +239,8 @@ dissect_ndr_uint16
 dissect_ndr_uint32
 dissect_ndr_uint8
 dissect_ndr_uuid_t
+dissect_ndr_uint1632
+dissect_ndr_uint3264
 dissect_nt_64bit_time
 dissect_per_bit_string
 dissect_per_bit_string_containing_pdu
