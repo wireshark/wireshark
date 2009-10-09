@@ -415,6 +415,16 @@ read_keytab_file_from_preferences(void)
 	read_keytab_file(last_keytab);
 }
 
+#elif defined(_WIN32)
+
+/*  Dummy version to allow us to put this function in libwireshark.def--even
+ *  on systems without KERBEROS.
+ */
+void
+read_keytab_file_from_preferences(void)
+{
+}
+
 #endif
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
@@ -2710,8 +2720,8 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 	proto_tree_add_item(tree, hf_krb_pac_upn_dns_offset, tvb, offset, 2, TRUE);
 	offset+=2;
 
-	/* flags */	
-	proto_tree_add_item(tree, hf_krb_pac_upn_flags, tvb, offset, 4, TRUE);	
+	/* flags */
+	proto_tree_add_item(tree, hf_krb_pac_upn_flags, tvb, offset, 4, TRUE);
 
 	/* upn */
 	offset = upn_offset;
