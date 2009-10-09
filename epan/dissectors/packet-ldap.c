@@ -106,7 +106,6 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/asn1.h>
 
-#include "packet-frame.h"
 #include "packet-ldap.h"
 #include "packet-ntlmssp.h"
 #include "packet-ssl.h"
@@ -553,7 +552,7 @@ static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, i
   guint32 flags;
   proto_item *item;
   proto_tree *tree=NULL;
-  guint fields[] = { 
+  guint fields[] = {
 		     hf_mscldap_ntver_flags_v1,
 		     hf_mscldap_ntver_flags_v5,
 		     hf_mscldap_ntver_flags_v5ex,
@@ -565,12 +564,12 @@ static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, i
 		     hf_mscldap_ntver_flags_local,
 		     hf_mscldap_ntver_flags_gc,
 		     0 };
-  
+
   guint  *field;
   header_field_info *hfi;
   gboolean one_bit_set = FALSE;
 
-  flags=tvb_get_letohl(tvb, offset); 
+  flags=tvb_get_letohl(tvb, offset);
   item=proto_tree_add_item(parent_tree, hf_mscldap_ntver_flags, tvb, offset, 4, TRUE);
   if(parent_tree){
     tree = proto_item_add_subtree(item, ett_mscldap_ntver_flags);
@@ -593,8 +592,8 @@ static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, i
 
     }
   }
- 
-  proto_item_append_text(item, ")"); 
+
+  proto_item_append_text(item, ")");
 
   offset += 4;
 
@@ -672,7 +671,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		len = 0;
 		/* get flag value to populate ldapvalue_string */
 		flags=tvb_get_letohl(tvb, offset);
-		
+
 		ldapvalue_string=ep_alloc(1024);
 		g_snprintf(ldapvalue_string, 1023, "0x%08x",flags);
 
@@ -3471,7 +3470,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     ldap_info_items = ldap_info;
 
   }
-  
+
   switch (ldap_info->auth_type) {
     case LDAP_AUTH_SASL:
     /*
@@ -3768,7 +3767,7 @@ static int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int maxl
 }
 
 
-/* These are the cldap DC flags 
+/* These are the cldap DC flags
    http://msdn.microsoft.com/en-us/library/cc201036.aspx
  */
 static const true_false_string tfs_ads_pdc = {
@@ -3836,7 +3835,7 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
   guint32 flags;
   proto_item *item;
   proto_tree *tree=NULL;
-  guint fields[] = { 
+  guint fields[] = {
 			 hf_mscldap_netlogon_flags_fnc,
 		     hf_mscldap_netlogon_flags_dnc,
 		     hf_mscldap_netlogon_flags_dns,
@@ -3908,19 +3907,19 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
   /* check the len if it is to small return */
   if (len < 10) return;
-  
+
   /* Type */
   itype = tvb_get_letohs(tvb, offset);
 
-  /* get the version number from the end of the buffer, as the 
+  /* get the version number from the end of the buffer, as the
      length is variable and the version determines what fields
 	 need to be decoded */
-  
+
   version = tvb_get_letohl(tvb,len-8);
-  
+
   switch(itype){
-		
-		case LOGON_SAM_LOGON_RESPONSE: 
+
+		case LOGON_SAM_LOGON_RESPONSE:
 			/* Type */
 			proto_tree_add_uint_format(tree, hf_mscldap_netlogon_type, tvb,offset, 2, itype,"Type: LOGON_SAM_LOGON_RESPONSE (19)" );
 			offset = 2;
@@ -3946,7 +3945,7 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 				/* domain guid */
 				proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, TRUE);
 				offset += 16;
-				
+
 				/* domain guid part 2
 				   there is another 16 byte guid but this is alway zero, so we will skip it */
 				offset += 16;
@@ -3972,7 +3971,7 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 				/* Flags */
 				offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
-	
+
 			}
 
 			break;
@@ -4030,26 +4029,26 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			old_offset=offset;
 			offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
 			proto_tree_add_string(tree, hf_mscldap_clientsitename, tvb, old_offset, offset-old_offset, str);
-			
+
 			/* include the extra fields for version 5 with IP s */
 			if ((version & NETLOGON_NT_VERSION_5EX_WITH_IP) == NETLOGON_NT_VERSION_5EX_WITH_IP){
-				
+
 
 				/* The ip address is returned as a sockaddr_in structure
-				 *  
+				 *
 				 *  This section may need to be updated if the base Windows APIs
 				 *  are changed to support ipv6, which currently is not the case.
 				 *
 				 *  The desector assumes the length is based on ipv4 and
 				 *  ignores the length
 				 */
-				
-				/* skip the length of the sockaddr_in */ 
-				
+
+				/* skip the length of the sockaddr_in */
+
 				offset +=1;
 
 				/* add IP address and desect the sockaddr_in structure */
-				
+
 				old_offset = offset + 4;
 				item = proto_tree_add_ipv4(tree, hf_mscldap_netlogon_ipaddress, tvb, old_offset, 4, tvb_get_ipv4(tvb,old_offset));
 
@@ -4057,15 +4056,15 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 					proto_tree *subtree;
 
 					subtree = proto_item_add_subtree(item, ett_mscldap_ipdetails);
-					
+
 					/* get sockaddr family */
 					proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_family, tvb, offset, 2, TRUE);
-					offset +=2;		
+					offset +=2;
 
 					/* get sockaddr port */
 					proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_port, tvb, offset, 2, TRUE);
-					offset +=2;	
-					
+					offset +=2;
+
 					/* get IP address */
 					proto_tree_add_ipv4(subtree, hf_mscldap_netlogon_ipaddress_ipv4, tvb, offset, 4, tvb_get_ipv4(tvb,offset));
 					offset +=4;
@@ -4080,14 +4079,14 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 		default:
 			proto_tree_add_uint_format(tree, hf_mscldap_netlogon_type, tvb, offset, 2, itype,"Type: Unknown type (%d)", itype );
-			
-  }				
+
+  }
 
 
  /* complete the decode with the version and token details */
 
   offset = len-8;
- 
+
   /* Version */
   proto_tree_add_item(tree, hf_mscldap_netlogon_version, tvb, offset, 4, TRUE);
   offset += 4;
@@ -4282,11 +4281,11 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean ind;
         conversation_t *conversation;
 	ldap_conv_info_t *ldap_info = NULL;
- 
+
 	/*
 	 * Do we have a conversation for this connection?
 	 */
-	conversation = find_conversation(pinfo->fd->num, 
+	conversation = find_conversation(pinfo->fd->num,
 				&pinfo->src, &pinfo->dst,
 				pinfo->ptype, pinfo->srcport,
 				pinfo->destport, 0);
@@ -4303,19 +4302,19 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * and performs a few unauthenticated searches of LDAP before
 	 * it performs the bind on the same tcp connection.
 	 */
-	/* check for a SASL header, i.e. assume it is SASL if 
-	 * 1, first four bytes (SASL length) is an integer 
+	/* check for a SASL header, i.e. assume it is SASL if
+	 * 1, first four bytes (SASL length) is an integer
 	 *    with a value that must be <LDAP_SASL_MAX_BUF and >2
 	 *    (>2 to fight false positives, 0x00000000 is a common
 	 *        "random" tcp payload)
-	 * (SASL ldap PDUs might be >64k in size, which is why 
+	 * (SASL ldap PDUs might be >64k in size, which is why
 	 * LDAP_SASL_MAX_BUF is used - defined in packet-ldap.h)
 	 *
 	 * 2, we must have a conversation and the auth type must
 	 *    be LDAP_AUTH_SASL
 	 */
 	sasl_len=tvb_get_ntohl(tvb, 0);
- 
+
 	if( sasl_len<2 ){
 		goto this_was_not_sasl;
 	}
@@ -4323,7 +4322,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if( sasl_len>LDAP_SASL_MAX_BUF ){
 		goto this_was_not_sasl;
 	}
-		
+
 	if((!ldap_info) || (ldap_info->auth_type!=LDAP_AUTH_SASL) ){
 		goto this_was_not_sasl;
 	}
@@ -4356,17 +4355,17 @@ this_was_not_sasl:
 this_was_not_normal_ldap:
 
 	/* perhaps it was SSL? */
-	if(ldap_info && 
-	   ldap_info->start_tls_frame && 
+	if(ldap_info &&
+	   ldap_info->start_tls_frame &&
 	   ( pinfo->fd->num >= ldap_info->start_tls_frame)) {
 
 	  /* we have started TLS and so this may be an SSL layer */
 	  guint32 old_start_tls_frame;
 
 	  /* temporarily dissect this port as SSL */
-	  dissector_delete("tcp.port", tcp_port, ldap_handle); 
+	  dissector_delete("tcp.port", tcp_port, ldap_handle);
 	  ssl_dissector_add(tcp_port, "ldap", TRUE);
-    
+
 	  old_start_tls_frame = ldap_info->start_tls_frame;
 	  ldap_info->start_tls_frame = 0; /* make sure we don't call SSL again */
 	  pinfo->can_desegment++; /* ignore this LDAP layer so SSL can use the TCP resegment */
@@ -4499,12 +4498,12 @@ void proto_register_ldap(void) {
       { "Flags", "mscldap.netlogon.flags",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         "Netlogon flags describing the DC properties", HFILL }},
-    
+
     { &hf_mscldap_ntver_flags,
       { "Search Flags", "mscldap.ntver.searchflags",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         "cldap Netlogon request flags", HFILL }},
-        
+
     { &hf_mscldap_domain_guid,
       { "Domain GUID", "mscldap.domain.guid",
         FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -4586,7 +4585,7 @@ void proto_register_ldap(void) {
     { &hf_mscldap_ntver_flags_ip,
       { "IP", "mscldap.ntver.searchflags.ip", FT_BOOLEAN, 32,
         TFS(&tfs_ntver_ip), 0x20000000, NULL, HFILL }},
-        
+
     { &hf_mscldap_ntver_flags_pdc,
       { "PDC", "mscldap.ntver.searchflags.pdc", FT_BOOLEAN, 32,
         TFS(&tfs_ntver_pdc), 0x10000000, NULL, HFILL }},
@@ -4659,31 +4658,31 @@ void proto_register_ldap(void) {
       { "GUID", "ldap.guid", FT_GUID, BASE_NONE,
         NULL, 0, NULL, HFILL }},
 
-    { &hf_ldap_AccessMask_ADS_CREATE_CHILD, 
+    { &hf_ldap_AccessMask_ADS_CREATE_CHILD,
       { "Create Child", "ldap.AccessMask.ADS_CREATE_CHILD", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_CREATE_CHILD_tfs), LDAP_ACCESSMASK_ADS_CREATE_CHILD, NULL, HFILL }},
 
-    { &hf_ldap_AccessMask_ADS_DELETE_CHILD, 
+    { &hf_ldap_AccessMask_ADS_DELETE_CHILD,
       { "Delete Child", "ldap.AccessMask.ADS_DELETE_CHILD", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_DELETE_CHILD_tfs), LDAP_ACCESSMASK_ADS_DELETE_CHILD, NULL, HFILL }},
 
-    { &hf_ldap_AccessMask_ADS_LIST, 
+    { &hf_ldap_AccessMask_ADS_LIST,
       { "List", "ldap.AccessMask.ADS_LIST", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_LIST_tfs), LDAP_ACCESSMASK_ADS_LIST, NULL, HFILL }},
 
-    { &hf_ldap_AccessMask_ADS_SELF_WRITE, 
+    { &hf_ldap_AccessMask_ADS_SELF_WRITE,
       { "Self Write", "ldap.AccessMask.ADS_SELF_WRITE", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_SELF_WRITE_tfs), LDAP_ACCESSMASK_ADS_SELF_WRITE, NULL, HFILL }},
 
-    { &hf_ldap_AccessMask_ADS_READ_PROP, 
+    { &hf_ldap_AccessMask_ADS_READ_PROP,
       { "Read Prop", "ldap.AccessMask.ADS_READ_PROP", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_READ_PROP_tfs), LDAP_ACCESSMASK_ADS_READ_PROP, NULL, HFILL }},
 
-    { &hf_ldap_AccessMask_ADS_WRITE_PROP, 
+    { &hf_ldap_AccessMask_ADS_WRITE_PROP,
       { "Write Prop", "ldap.AccessMask.ADS_WRITE_PROP", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_WRITE_PROP_tfs), LDAP_ACCESSMASK_ADS_WRITE_PROP, NULL, HFILL }},
 
-    { &hf_ldap_AccessMask_ADS_DELETE_TREE, 
+    { &hf_ldap_AccessMask_ADS_DELETE_TREE,
       { "Delete Tree", "ldap.AccessMask.ADS_DELETE_TREE", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_DELETE_TREE_tfs), LDAP_ACCESSMASK_ADS_DELETE_TREE, NULL, HFILL }},
 
-    { &hf_ldap_AccessMask_ADS_LIST_OBJECT, 
+    { &hf_ldap_AccessMask_ADS_LIST_OBJECT,
       { "List Object", "ldap.AccessMask.ADS_LIST_OBJECT", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_LIST_OBJECT_tfs), LDAP_ACCESSMASK_ADS_LIST_OBJECT, NULL, HFILL }},
 
-    { &hf_ldap_AccessMask_ADS_CONTROL_ACCESS, 
+    { &hf_ldap_AccessMask_ADS_CONTROL_ACCESS,
       { "Control Access", "ldap.AccessMask.ADS_CONTROL_ACCESS", FT_BOOLEAN, 32, TFS(&ldap_AccessMask_ADS_CONTROL_ACCESS_tfs), LDAP_ACCESSMASK_ADS_CONTROL_ACCESS, NULL, HFILL }},
 
 
@@ -5384,7 +5383,7 @@ proto_reg_handoff_ldap(void)
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
 #line 2208 "packet-ldap-template.c"
-	
+
 
 }
 
@@ -5397,7 +5396,7 @@ void prefs_register_ldap(void) {
     /* Set our port number for future use */
     tcp_port = global_ldap_tcp_port;
 
-    if(tcp_port) 
+    if(tcp_port)
       dissector_add("tcp.port", tcp_port, ldap_handle);
 
   }
@@ -5409,7 +5408,7 @@ void prefs_register_ldap(void) {
     /* Set our port number for future use */
     ssl_port = global_ldaps_tcp_port;
 
-    if(ssl_port) 
+    if(ssl_port)
       ssl_dissector_add(ssl_port, "ldap", TRUE);
   }
 
