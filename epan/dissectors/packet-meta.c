@@ -25,8 +25,6 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <glib.h>
@@ -474,31 +472,31 @@ proto_register_meta(void)
 {
 	static hf_register_info hf[] = {
 		/* metadata header */
-		{ &hf_meta_schema, { "Schema", "meta.schema", FT_UINT16, BASE_DEC, VALS(meta_schema_vals), 0, "", HFILL } },
-		{ &hf_meta_hdrlen, { "Header Length", "meta.hdrlen", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL } },
-		{ &hf_meta_proto, { "Protocol", "meta.proto", FT_UINT16, BASE_DEC, VALS(meta_proto_vals), 0, "", HFILL } },
-		{ &hf_meta_reserved, { "Reserved", "meta.reserved", FT_UINT16, BASE_HEX, NULL, 0, "", HFILL } },
+		{ &hf_meta_schema, { "Schema", "meta.schema", FT_UINT16, BASE_DEC, VALS(meta_schema_vals), 0, NULL, HFILL } },
+		{ &hf_meta_hdrlen, { "Header Length", "meta.hdrlen", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_proto, { "Protocol", "meta.proto", FT_UINT16, BASE_DEC, VALS(meta_proto_vals), 0, NULL, HFILL } },
+		{ &hf_meta_reserved, { "Reserved", "meta.reserved", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
 
 		/* general meta item */
-		{ &hf_meta_item, { "Unknown Item", "meta.item", FT_NONE, BASE_NONE, NULL, 0, "", HFILL } }, 
-		{ &hf_meta_item_id, { "Item ID", "meta.item.id", FT_UINT16, BASE_HEX, VALS(meta_id_vals), 0x0, "", HFILL } },
-		{ &hf_meta_item_type, { "Item Type", "meta.item.type", FT_UINT8, BASE_HEX, VALS(meta_type_vals), 0x0, "", HFILL } },
-		{ &hf_meta_item_len, { "Item Length", "meta.item.len", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL } },
-		{ &hf_meta_item_data, { "Item Data", "meta.item.data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL } },
+		{ &hf_meta_item, { "Unknown Item", "meta.item", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } }, 
+		{ &hf_meta_item_id, { "Item ID", "meta.item.id", FT_UINT16, BASE_HEX, VALS(meta_id_vals), 0x0, NULL, HFILL } },
+		{ &hf_meta_item_type, { "Item Type", "meta.item.type", FT_UINT8, BASE_HEX, VALS(meta_type_vals), 0x0, NULL, HFILL } },
+		{ &hf_meta_item_len, { "Item Length", "meta.item.len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_data, { "Item Data", "meta.item.data", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
 		/* specific meta items */
-		{ &hf_meta_item_direction, { "Direction", "meta.direction", FT_UINT8, BASE_DEC, VALS(meta_direction_vals), 0, "", HFILL } },
-		{ &hf_meta_item_ts, { "Timestamp", "meta.timestamp", FT_UINT64, BASE_DEC, NULL, 0, "", HFILL } },
-		{ &hf_meta_item_phylinkid, { "Physical Link ID", "meta.phylinkid", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL } },
-		{ &hf_meta_item_nsapi, { "NSAPI", "meta.nsapi", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL } },
-		{ &hf_meta_item_imsi, { "IMSI", "meta.imsi", FT_UINT64, BASE_HEX, NULL, 0, "", HFILL } },
-		{ &hf_meta_item_imei, { "IMEI", "meta.imei", FT_UINT64, BASE_HEX, NULL, 0, "", HFILL } },
-		{ &hf_meta_item_signaling, { "Signaling", "meta.signaling", FT_BOOLEAN, BASE_NONE, NULL, 0, "", HFILL } },
-		{ &hf_meta_item_incomplete, { "Incomplete", "meta.incomplete", FT_BOOLEAN, BASE_NONE, NULL, 0, "", HFILL } },
-		{ &hf_meta_item_apn, { "APN", "meta.apn", FT_STRINGZ, BASE_NONE, NULL, 0, "", HFILL } },
-		{ &hf_meta_item_rat, { "RAT", "meta.rat", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL } },
-		{ &hf_meta_item_aal5proto, { "AAL5 Protocol Type", "meta.aal5proto", FT_UINT8, BASE_DEC, VALS(meta_aal5proto_vals), 0, "", HFILL } },
-		{ &hf_meta_item_cell, { "Cell", "meta.cell", FT_UINT64, BASE_HEX, NULL, 0, "", HFILL } },
+		{ &hf_meta_item_direction, { "Direction", "meta.direction", FT_UINT8, BASE_DEC, VALS(meta_direction_vals), 0, NULL, HFILL } },
+		{ &hf_meta_item_ts, { "Timestamp", "meta.timestamp", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_phylinkid, { "Physical Link ID", "meta.phylinkid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_nsapi, { "NSAPI", "meta.nsapi", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_imsi, { "IMSI", "meta.imsi", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_imei, { "IMEI", "meta.imei", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_signaling, { "Signaling", "meta.signaling", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_incomplete, { "Incomplete", "meta.incomplete", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_apn, { "APN", "meta.apn", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_rat, { "RAT", "meta.rat", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_meta_item_aal5proto, { "AAL5 Protocol Type", "meta.aal5proto", FT_UINT8, BASE_DEC, VALS(meta_aal5proto_vals), 0, NULL, HFILL } },
+		{ &hf_meta_item_cell, { "Cell", "meta.cell", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
 	};
 
 	static gint *ett[] = {
