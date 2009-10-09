@@ -40,6 +40,11 @@ typedef struct _hostlist_talker_t {
 	guint64 tx_frames;      /**< number of transmitted packets */
 	guint64 rx_bytes;       /**< number of received bytes */
 	guint64 tx_bytes;       /**< number of transmitted bytes */
+
+        gboolean modified;      /**< new to redraw the row */   
+        GtkTreeIter iter; 
+        gboolean iter_valid;    /**< not a new row */
+
 } hostlist_talker_t;
 
 #define NUM_BUILTIN_COLS 8
@@ -59,14 +64,16 @@ typedef struct _hostlist_table {
 	GtkWidget           *page_lb;           /**< page label */
 	GtkWidget           *name_lb;           /**< name label */
 	GtkWidget           *scrolled_window;   /**< the scrolled window */
-	GtkCList            *table;             /**< the GTK table */
-	guint32             num_columns;        /**< number of columns in the above table */
+	GtkTreeView         *table;             /**< the GTK table */
 	const char          *default_titles[NUM_HOSTLIST_COLS]; /**< Column headers */
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
 	guint32             num_hosts;          /**< number of hosts (0 or 1) */
-	hostlist_talker_t   *hosts;             /**< array of host values */
+	GArray              *hosts;             /**< array of host values */
+	GHashTable          *hashtable;         /**< conversations hash table */
+	gboolean 	    fixed_col;      	/**< if switched to fixed column */
 	gboolean            resolve_names;      /**< resolve address names? */
+	gboolean            geoip_visible;      /**< if geoip columns are visible */
 } hostlist_table;
 
 /** Register the hostlist table for the multiple hostlist window.
