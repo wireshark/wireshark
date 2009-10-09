@@ -3109,6 +3109,7 @@ int main(int argc, char *argv[])
 {
 	char idlfile[256];
 	char cnffile[256];
+	char tmplfile[256];
 	char prefix_str[256];
 	bracket_item_t *bi;
 
@@ -3285,9 +3286,10 @@ int main(int argc, char *argv[])
 	/* merge code and template into dissector */
 	sprintf(line, "packet-dcerpc-%s.c", ifname);
 	fh=fopen(line, "w");
-	tfh=fopen("template.c", "r");
+	sprintf(tmplfile, "packet-dcerpc-%s-template.c", argv[1]);
+	tfh=fopen(tmplfile, "r");
 	if(!tfh){
-		fprintf(stderr, "ERROR: could not find template.c\n");
+		fprintf(stderr, "ERROR: could not find %s\n", tmplfile);
 		exit(10);
 	}
 	while(!feof(tfh)){
@@ -3319,9 +3321,10 @@ int main(int argc, char *argv[])
 
 	sprintf(line, "packet-dcerpc-%s.h", ifname);
 	fh=fopen(line, "w");
-	tfh=fopen("template.h", "r");
+	sprintf(tmplfile, "packet-dcerpc-%s-template.h", argv[1]);
+	tfh=fopen(tmplfile, "r");
 	if(!tfh){
-		fprintf(stderr, "ERROR: could not find template.h\n");
+		fprintf(stderr, "ERROR: could not find %s\n", tmplfile);
 		exit(10);
 	}
 	while(!feof(tfh)){
