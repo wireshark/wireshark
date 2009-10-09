@@ -72,16 +72,16 @@ packet-rrc.obj : packet-rrc.c
 # All subsequent arguments are the files to scan.
 #
 
-register.c: $(ALL_DISSECTORS_SRC)
+register.c: $(ALL_DISSECTORS_SRC) ..\..\tools\make-dissector-reg.py ..\..\tools\make-dissector-reg
 !IFDEF PYTHON
 	@echo Making register.c (using python)
 	@$(PYTHON) "../../tools/make-dissector-reg.py" . dissectors $(ALL_DISSECTORS_SRC)
 !ELSE
 	@echo Making register.c (using sh)
-	@$(SH) ../../tools/make-dissector-reg . dissectors $(ALL_DISSECTORS_SRC) \
+	@$(SH) ../../tools/make-dissector-reg . dissectors $(ALL_DISSECTORS_SRC)
 !ENDIF
 
-packet-ncp2222.c : ..\..\tools/ncp2222.py
+packet-ncp2222.c: ..\..\tools/ncp2222.py
 !IFDEF PYTHON
 	@echo Making packet-ncp2222.c
 	$(PYTHON) "../../tools/ncp2222.py" -o packet-ncp2222.c
