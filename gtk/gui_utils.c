@@ -1137,6 +1137,44 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
     return FALSE;
 }
 
+void
+switch_to_fixed_col(GtkTreeView *view)
+{
+    gint size;
+    GtkTreeViewColumn *column;
+    GList	    *columns;
+
+    columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(view));
+    while(columns) {
+        column = columns->data;
+        size = gtk_tree_view_column_get_width (column);
+        gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_FIXED);
+        if (size > gtk_tree_view_column_get_fixed_width(column))
+            gtk_tree_view_column_set_fixed_width(column, size);
+        columns = g_list_next(columns);
+    }
+    g_list_free(columns);
+    
+#if GTK_CHECK_VERSION(2,6,0)
+    gtk_tree_view_set_fixed_height_mode(view, TRUE);
+#endif
+}
+
+gint 
+get_default_col_size(GtkWidget *view, const gchar *str)
+{
+    PangoLayout *layout;
+    gint col_width;
+
+    layout = gtk_widget_create_pango_layout(view, str);
+    pango_layout_get_pixel_size(layout, 
+				&col_width, /* width */
+				NULL); /* height */
+    g_object_unref(G_OBJECT(layout));
+    return col_width;
+}
+
+
 /* 
  * This function can be called from gtk_tree_view_column_set_cell_data_func()
  * the user data must be the colum number.
@@ -1195,6 +1233,34 @@ present_as_hex_func (GtkTreeViewColumn *column _U_,
      g_snprintf(buf, sizeof(buf), "0x%02x", val);
 
      g_object_set(renderer, "text", buf, NULL);
+   }
+
+void
+u64_data_func (GtkTreeViewColumn *column _U_,
+                           GtkCellRenderer   *renderer,
+                           GtkTreeModel      *model,
+                           GtkTreeIter       *iter,
+                           gpointer           user_data)
+   {
+     guint64 val;
+     int i = 0;
+     gchar *bp;
+     gchar   buf[35];
+
+	 /* the col to get data from is in userdata */
+	 gint col = GPOINTER_TO_INT(user_data);
+
+     gtk_tree_model_get(model, iter, col, &val, -1);
+
+     bp = &buf[34];
+     *bp = 0;
+     do {
+        *--bp = (gchar)(val % 10) +'0';
+        if (!(++i % 3)) {
+            *--bp = ' ';
+        }
+	 } while ((val /= 10) != 0 && bp > buf);
+     g_object_set(renderer, "text", bp, NULL);
    }
 
 /* 

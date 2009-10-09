@@ -326,6 +326,17 @@ void float_data_func (GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkT
  */
 void present_as_hex_func (GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
 
+/** Renders an unsigned 64 bits integer with space as thousand separator, called from gtk_tree_view_column_set_cell_data_func()
+ * The user data must be the colum number.
+ * Present value as hexadecimal. 
+ * @param column A GtkTreeColumn 
+ * @param renderer The GtkCellRenderer that is being rendered by tree_column 
+ * @param model The GtkTreeModel being rendered 
+ * @param iter A GtkTreeIter of the current row rendered 
+ * @param user_data must be the colum number to fetch the data from
+ */
+void u64_data_func (GtkTreeViewColumn *column, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data);
+
 /** This function can be called from gtk_tree_view_column_set_cell_data_func()
  * the user data must be the colum number.
  * Present value as hexadecimal. 
@@ -351,6 +362,15 @@ gint str_ptr_sort_func(GtkTreeModel *model,
 							GtkTreeIter *b,
 							gpointer user_data);
 
+/** Switch a GtkTReeView to fixed columns (speed optimization)
+ * @param view A GtkTreeView 
+ */
+void switch_to_fixed_col(GtkTreeView *view);
 
+/** Return the size in pixels of a string displayed with the GtkWidget's font.
+ * @param view A GtkWidget
+ * @param str UTF8 string 
+ */
+gint get_default_col_size(GtkWidget *view, const gchar *str);
 
 #endif /* __GTKGUIUI_UTIL_H__ */

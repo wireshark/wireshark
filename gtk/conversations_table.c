@@ -1053,30 +1053,6 @@ draw_ct_table_addresses(conversations_table *ct)
 }
 
 static void
-switch_to_fixed_col(conversations_table *ct)
-{
-    gint size;
-    GtkTreeViewColumn *column;
-    GList	    *columns;
-
-    ct->fixed_col = TRUE;
-    columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(ct->table));
-    while(columns) {
-        column = columns->data;
-        size = gtk_tree_view_column_get_width (column);
-        gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_FIXED);
-        if (size > gtk_tree_view_column_get_fixed_width(column))
-            gtk_tree_view_column_set_fixed_width(column, size);
-        columns = g_list_next(columns);
-    }
-    g_list_free(columns);
-    
-#if GTK_CHECK_VERSION(2,6,0)
-    gtk_tree_view_set_fixed_height_mode(ct->table, TRUE);
-#endif
-}
-
-static void
 draw_ct_table_data(conversations_table *ct)
 {
     guint32 i;
@@ -1185,7 +1161,9 @@ draw_ct_table_data(conversations_table *ct)
                  * let it run in autosize a little (1000 is arbitrary)
                  * and then switch to fixed width.
                 */
-                switch_to_fixed_col(ct);
+                ct->fixed_col = TRUE;
+
+                switch_to_fixed_col(ct->table);
             }
 
             gtk_tree_view_set_model(GTK_TREE_VIEW(ct->table), GTK_TREE_MODEL(store));
@@ -1321,19 +1299,6 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
     g_string_free(csv.CSV_str, TRUE);                    /* Free the memory */
 }
 
-static gint get_default_col_size(GtkWidget *view, const gchar *str)
-{
-    PangoLayout *layout;
-    gint col_width;
-
-    layout = gtk_widget_create_pango_layout(view, str);
-    pango_layout_get_pixel_size(layout, 
-				&col_width, /* width */
-				NULL); /* height */
-    g_object_unref(G_OBJECT(layout));
-    return col_width;
-}
-
 static gint default_col_size[N_COLUMNS];
 
 static void
@@ -1344,8 +1309,8 @@ init_default_col_size(GtkWidget *view)
     default_col_size[DST_ADR_COLUMN] = default_col_size[SRC_ADR_COLUMN];
     default_col_size[SRC_PORT_COLUMN] = get_default_col_size(view, "000000");
     default_col_size[DST_PORT_COLUMN] = default_col_size[SRC_PORT_COLUMN];
-    default_col_size[PACKETS_COLUMN] = get_default_col_size(view, "00000000");
-    default_col_size[BYTES_COLUMN] = get_default_col_size(view, "0000000000");
+    default_col_size[PACKETS_COLUMN] = get_default_col_size(view, "00 000 000");
+    default_col_size[BYTES_COLUMN] = get_default_col_size(view, "0 000 000 000");
     default_col_size[PKT_AB_COLUMN] = default_col_size[PACKETS_COLUMN]; 
     default_col_size[PKT_BA_COLUMN] = default_col_size[PACKETS_COLUMN];
     default_col_size[BYTES_AB_COLUMN] = default_col_size[BYTES_COLUMN];
@@ -1441,15 +1406,11 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     for (i = 0; i < N_COLUMNS -1; i++) {
         renderer = gtk_cell_renderer_text_new ();
         g_object_set(renderer, "ypad", 0, NULL);
-        if (i >= 4) {
-            /* right align numbers */
-            g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
-            column = gtk_tree_view_column_new_with_attributes (conversations->default_titles[i], renderer, "text", 
-				i, NULL);
-            if (i >= 10)
-                gtk_tree_sortable_set_sort_func(sortable, i, ct_sort_func, GINT_TO_POINTER(i), NULL);
-        }
-        else {
+        switch(i) {
+        case 0: /* addresses and ports */
+        case 1:
+        case 2:
+        case 3:
             column = gtk_tree_view_column_new_with_attributes (conversations->default_titles[i], renderer, "text", 
 				i, NULL);
             if(hide_ports && (i == 1 || i == 3)){
@@ -1457,6 +1418,24 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
               gtk_tree_view_column_set_visible(column, FALSE);
             }
             gtk_tree_sortable_set_sort_func(sortable, i, ct_sort_func, GINT_TO_POINTER(i), NULL);
+            break;
+        case 4: /* counts */
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9: /* right align numbers */
+            g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
+            column = gtk_tree_view_column_new_with_attributes (conversations->default_titles[i], renderer, NULL);
+            gtk_tree_view_column_set_cell_data_func(column, renderer, u64_data_func,  GINT_TO_POINTER(i), NULL);
+            break;
+        default: /* times and bps */
+            g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
+            column = gtk_tree_view_column_new_with_attributes (conversations->default_titles[i], renderer, "text", 
+				i, NULL);
+
+            gtk_tree_sortable_set_sort_func(sortable, i, ct_sort_func, GINT_TO_POINTER(i), NULL);
+            break;
         }
         gtk_tree_view_column_set_sort_column_id(column, i);
         gtk_tree_view_column_set_resizable(column, TRUE);
