@@ -122,12 +122,13 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
 
     proto_item *ti, *name_item;
-    proto_tree *turbocell_tree, *network_tree;
+    proto_tree *turbocell_tree = NULL, *network_tree;
     tvbuff_t   *next_tvb;
     int i=0;
     guint8 packet_type;
     guint8 * str_name;
     guint str_len;
+    gint remaining_length;
 
     packet_type = tvb_get_guint8(tvb, 0);
 
@@ -146,7 +147,6 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     if (tree) {
-        gint remaining_length;
         ti = proto_tree_add_item(tree, proto_turbocell, tvb, 0, 20, FALSE);
 
         turbocell_tree = proto_item_add_subtree(ti, ett_turbocell);
@@ -171,6 +171,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_tree_add_item(turbocell_tree, hf_turbocell_unknown, tvb, 0x0E, 2, FALSE);
         proto_tree_add_item(turbocell_tree, hf_turbocell_ip, tvb, 0x10, 4, FALSE);
 
+    }
 
         remaining_length=tvb_length_remaining(tvb, 0x14);
 
@@ -245,7 +246,6 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 }
             }
         }
-    }
 }
 
 /* Register the protocol with Wireshark */

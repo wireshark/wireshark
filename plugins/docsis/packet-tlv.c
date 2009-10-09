@@ -1780,7 +1780,6 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 
   total_len = tvb_reported_length_remaining (tvb, 0);
 
-  if (tree)
     {
       it =
 	proto_tree_add_protocol_format (tree, proto_docsis_tlv, tvb, 0,

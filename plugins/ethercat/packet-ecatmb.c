@@ -1043,7 +1043,6 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
          col_append_str(pinfo->cinfo, COL_INFO, szText);
       }
 
-      if( tree )
       {
          ecat_eoe_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe);
 

@@ -511,9 +511,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 dissect it as a CLNP PDU. */
       if (check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
-      if (tree) {
-        next_length = tvb_length_remaining(tvb, offset);
-        if (next_length != 0) {
+      next_length = tvb_length_remaining(tvb, offset);
+      if (next_length != 0) {
           /* We have payload; dissect it. */
           ti = proto_tree_add_text(clnp_tree, tvb, offset, next_length,
             "Discarded PDU");
@@ -530,7 +529,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
           /* Restore the "we're inside an error packet" flag. */
           pinfo->in_error_pkt = save_in_error_pkt;
-        }
       }
       pinfo->fragmented = save_fragmented;
       return;	/* we're done with this PDU */

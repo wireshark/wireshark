@@ -566,9 +566,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			     msg_method_str, msg_class_str);
 	}
 
-	if (!tree)
-		return tvb_length(tvb);
-
 	ti = proto_tree_add_item(tree, proto_stun, tvb, 0, -1, FALSE);
 
 	stun_tree = proto_item_add_subtree(ti, ett_stun);

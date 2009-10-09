@@ -696,12 +696,14 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /* reserved */
 	  proto_tree_add_item(mip_tree, hf_mip_nattt_reserved, tvb, offset, 2, FALSE);
 	  offset += 2;
-
-	  /* encapsulated payload */
-	  next_tvb = tvb_new_subset_remaining(tvb, 4);
-	  call_dissector(ip_handle, next_tvb, pinfo, mip_tree);
-	  offset += tvb_reported_length_remaining(tvb, offset);
 	} /* if tree */
+	else {
+	  offset += 4;
+	}
+	/* encapsulated payload */
+	next_tvb = tvb_new_subset_remaining(tvb, 4);
+	call_dissector(ip_handle, next_tvb, pinfo, mip_tree);
+	offset += tvb_reported_length_remaining(tvb, offset);
 	break;
   case REGISTRATION_REVOCATION:
 	if (check_col(pinfo->cinfo, COL_INFO))

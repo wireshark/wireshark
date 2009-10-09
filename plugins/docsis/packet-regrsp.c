@@ -49,7 +49,7 @@ dissect_regrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
 
   proto_item *it;
-  proto_tree *regrsp_tree;
+  proto_tree *regrsp_tree = NULL;
   guint16 sid;
   guint8 response;
   tvbuff_t *next_tvb;
@@ -75,10 +75,10 @@ dissect_regrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   FALSE);
       proto_tree_add_item (regrsp_tree, hf_docsis_regrsp_response, tvb, 2, 1,
 			   FALSE);
-      /* Call Dissector for Appendix C TLV's */
-      next_tvb = tvb_new_subset_remaining (tvb, 3);
-      call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrsp_tree);
     }
+    /* Call Dissector for Appendix C TLV's */
+    next_tvb = tvb_new_subset_remaining (tvb, 3);
+    call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrsp_tree);
 
 }
 

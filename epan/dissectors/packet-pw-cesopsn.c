@@ -259,7 +259,6 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 		}
 	}
 
-	if (tree)
 	{
 		proto_item* item;
 		item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, FALSE);

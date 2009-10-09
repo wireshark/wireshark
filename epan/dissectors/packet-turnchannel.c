@@ -95,9 +95,6 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 	  col_add_fstr(pinfo->cinfo, COL_INFO, "Channel Id 0x%x", channel_id);
 
-	if (!tree)
-	  return tvb_length(tvb);
-
 	ti = proto_tree_add_item(tree, proto_turnchannel, tvb, 0, -1, FALSE);
 
 	turnchannel_tree = proto_item_add_subtree(ti, ett_turnchannel);

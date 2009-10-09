@@ -201,115 +201,116 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    format_text(line, linelen));
   }
 
-  if (tree) { 
-    ti = proto_tree_add_item(tree, proto_pop, tvb, offset, -1, FALSE);
-    pop_tree = proto_item_add_subtree(ti, ett_pop);
+  ti = proto_tree_add_item(tree, proto_pop, tvb, offset, -1, FALSE);
+  pop_tree = proto_item_add_subtree(ti, ett_pop);
 
-    if (is_continuation) {
+  if (is_continuation) {
 
-      if (pop_data_desegment) {
+    if (pop_data_desegment) {
 
-        if (!frame_data) {
+      if (!frame_data) {
 
-          data_val->msg_read_len += tvb_length(tvb);
+        data_val->msg_read_len += tvb_length(tvb);
 
-          frame_data = se_alloc(sizeof(struct pop_proto_data));
+        frame_data = se_alloc(sizeof(struct pop_proto_data));
 
-          frame_data->conversation_id = conversation->index;
-          frame_data->more_frags = data_val->msg_read_len < data_val->msg_tot_len;
+        frame_data->conversation_id = conversation->index;
+        frame_data->more_frags = data_val->msg_read_len < data_val->msg_tot_len;
 
-          p_add_proto_data(pinfo->fd, proto_pop, frame_data);  
+        p_add_proto_data(pinfo->fd, proto_pop, frame_data);  
+      }
+
+      frag_msg = fragment_add_seq_next(tvb, 0, pinfo, 
+                                       frame_data->conversation_id, 
+                                       pop_data_segment_table, 
+                                       pop_data_reassembled_table, 
+                                       tvb_length(tvb), 
+                                       frame_data->more_frags);
+
+      next_tvb = process_reassembled_data(tvb, offset, pinfo, 
+                                          "Reassembled DATA",
+                                          frag_msg, &pop_data_frag_items, 
+                                          NULL, pop_tree);
+
+      if (next_tvb) {
+
+        if (imf_handle)
+          call_dissector(imf_handle, next_tvb, pinfo, tree);
+
+        if (data_val) {
+          /* we have read everything - reset */
+          
+          data_val->msg_read_len = 0;
+          data_val->msg_tot_len = 0; 
         }
-
-        frag_msg = fragment_add_seq_next(tvb, 0, pinfo, 
-                                         frame_data->conversation_id, 
-                                         pop_data_segment_table, 
-                                         pop_data_reassembled_table, 
-                                         tvb_length(tvb), 
-                                         frame_data->more_frags);
-
-        next_tvb = process_reassembled_data(tvb, offset, pinfo, 
-                                            "Reassembled DATA",
-                                            frag_msg, &pop_data_frag_items, 
-                                            NULL, pop_tree);
-
-        if (next_tvb) {
-
-          if (imf_handle)
-            call_dissector(imf_handle, next_tvb, pinfo, tree);
-
-          if (data_val) {
-            /* we have read everything - reset */
-            
-            data_val->msg_read_len = 0;
-            data_val->msg_tot_len = 0; 
-          }
-          pinfo->fragmented = FALSE;
-        } else {
-          pinfo->fragmented = TRUE;
-        }
-
+        pinfo->fragmented = FALSE;
       } else {
-
-        /*
-         * Put the whole packet into the tree as data.
-         */
-        call_dissector(data_handle,tvb, pinfo, pop_tree);
-      
+        pinfo->fragmented = TRUE;
       }
-      return;
+
+    } else {
+
+      /*
+       * Put the whole packet into the tree as data.
+       */
+      call_dissector(data_handle,tvb, pinfo, pop_tree);
+    
     }
+    return;
+  }
 
-    /*
-     * Put the line into the protocol tree.
-     */
-    ti = proto_tree_add_string_format(pop_tree,
-                                      (is_request) ?
-                                          hf_pop_request :
-                                          hf_pop_response,
-                                      tvb, offset,
-                                      next_offset - offset,
-                                      "", "%s",
-                                      tvb_format_text(tvb, offset, next_offset - offset));
-    reqresp_tree = proto_item_add_subtree(ti, ett_pop_reqresp);
+  /*
+   * Put the line into the protocol tree.
+   */
+  ti = proto_tree_add_string_format(pop_tree,
+                                    (is_request) ?
+                                        hf_pop_request :
+                                        hf_pop_response,
+                                    tvb, offset,
+                                    next_offset - offset,
+                                    "", "%s",
+                                    tvb_format_text(tvb, offset, next_offset - offset));
+  reqresp_tree = proto_item_add_subtree(ti, ett_pop_reqresp);
 
-    /*
-     * Extract the first token, and, if there is a first
-     * token, add it as the request or reply code.
-     */
-    tokenlen = get_token_len(line, line + linelen, &next_token);
-    if (tokenlen != 0) {
-      proto_tree_add_item(reqresp_tree,
-                          (is_request) ?
-                              hf_pop_request_command :
-                              hf_pop_response_indicator,
-                          tvb, offset, tokenlen, FALSE);
+  /*
+   * Extract the first token, and, if there is a first
+   * token, add it as the request or reply code.
+   */
+  tokenlen = get_token_len(line, line + linelen, &next_token);
+  if (tokenlen != 0) {
+    proto_tree_add_item(reqresp_tree,
+                        (is_request) ?
+                            hf_pop_request_command :
+                            hf_pop_response_indicator,
+                        tvb, offset, tokenlen, FALSE);
 
-      if (data_val) {
-        if (is_request) {
-          /* see if this is RETR or TOP command */
-          if (g_ascii_strncasecmp(line, "RETR", 4) == 0 ||
-             g_ascii_strncasecmp(line, "TOP", 3) == 0)
-            /* the next response will tell us how many bytes */
-            data_val->msg_request = TRUE;
-        } else {
-          if (data_val->msg_request) {
-            /* this is a response to a RETR or TOP command */
+    if (data_val) {
+      if (is_request) {
+        /* see if this is RETR or TOP command */
+        if (g_ascii_strncasecmp(line, "RETR", 4) == 0 ||
+           g_ascii_strncasecmp(line, "TOP", 3) == 0)
+          /* the next response will tell us how many bytes */
+          data_val->msg_request = TRUE;
+      } else {
+        if (data_val->msg_request) {
+          /* this is a response to a RETR or TOP command */
 
-            if (g_ascii_strncasecmp(line, "+OK ", 4) == 0) {
-              /* the message will be sent - work out how many bytes */
-              data_val->msg_read_len = 0;
-              data_val->msg_tot_len = atoi(line + 4);
-            }
-            data_val->msg_request = FALSE;
+          if (g_ascii_strncasecmp(line, "+OK ", 4) == 0) {
+            /* the message will be sent - work out how many bytes */
+            data_val->msg_read_len = 0;
+            data_val->msg_tot_len = atoi(line + 4);
           }
+          data_val->msg_request = FALSE;
         }
       }
-
-      offset += (gint) (next_token - line);
-      linelen -= (int) (next_token - line);
     }
 
+    offset += (gint) (next_token - line);
+    linelen -= (int) (next_token - line);
+  }
+
+
+  if (tree) { 
     /*
      * Add the rest of the first line as request or
      * reply param/description.

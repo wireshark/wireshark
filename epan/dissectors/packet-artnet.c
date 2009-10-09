@@ -1651,20 +1651,18 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       break;
 
     case ARTNET_OP_RDM:
-      if (tree) {
-	hi = proto_tree_add_item(artnet_tree,
+      hi = proto_tree_add_item(artnet_tree,
 			         hf_artnet_rdm,
 				 tvb,
 				 offset,
 				 0,
 				 FALSE);
-	si = proto_item_add_subtree(hi,ett_artnet);
+      si = proto_item_add_subtree(hi,ett_artnet);
 
-	size = dissect_artnet_rdm( tvb, offset, si, pinfo );
-	size -= offset;
+      size = dissect_artnet_rdm( tvb, offset, si, pinfo );
+      size -= offset;
 
-	proto_item_set_len( si, size );
-      }
+      proto_item_set_len( si, size );
       break;
 
     case ARTNET_OP_IP_PROG:

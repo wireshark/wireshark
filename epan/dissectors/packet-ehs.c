@@ -1066,112 +1066,109 @@ dissect_ehs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "EHS");
         col_set_str(pinfo->cinfo, COL_INFO, "EHS");
 
-	if ( tree )
+        ehs_packet = proto_tree_add_item ( tree, proto_ehs, tvb, 0, -1, FALSE );
+        ehs_tree = proto_item_add_subtree ( ehs_packet, ett_ehs );
+
+        /* build the ehs primary header tree */
+        ehs_primary_header = proto_tree_add_text ( ehs_tree, tvb, offset, EHS_PRIMARY_HEADER_SIZE, "Primary EHS Header" );
+        ehs_primary_header_tree = proto_item_add_subtree ( ehs_primary_header, ett_ehs_primary_header );
+
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_version, tvb, offset, 1, FALSE );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_project, tvb, offset, 1, FALSE );
+        ++offset;
+
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_support_mode, tvb, offset, 1, FALSE );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_data_mode, tvb, offset, 1, FALSE );
+        ++offset;
+
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_mission, tvb, offset, 1, FALSE );
+        ++offset;
+
+        /* save protocol for use later on */
+        protocol = tvb_get_guint8 ( tvb, offset );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_protocol, tvb, offset, 1, FALSE );
+        ++offset;
+
+        year = tvb_get_guint8 ( tvb, offset );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_year, tvb, offset, 1, FALSE );
+        ++offset;
+
+        jday = tvb_get_ntohs ( tvb, offset );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_jday, tvb, offset, 2, FALSE );
+        offset += 2;
+
+        hour = tvb_get_guint8 ( tvb, offset );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_hour, tvb, offset, 1, FALSE );
+        ++offset;
+
+        minute = tvb_get_guint8 ( tvb, offset );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_minute, tvb, offset, 1, FALSE );
+        ++offset;
+
+        second = tvb_get_guint8 ( tvb, offset );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_second, tvb, offset, 1, FALSE );
+        ++offset;
+
+        tenths = tvb_get_guint8 ( tvb, offset ) >> 4;
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_tenths, tvb, offset, 1, FALSE );
+
+        /* format a more readable ground receipt time string */
+        proto_tree_add_text ( ehs_primary_header_tree, tvb, offset-7, 7,
+          "%04d/%03d:%02d:%02d:%02d.%1d = EHS Ground Receipt Time", year + 1900, jday, hour, minute, second, tenths );
+
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_new_data_flag, tvb, offset, 1, FALSE );
+        /* proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_pad1, tvb, offset, 1, FALSE ); */
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_hold_flag, tvb, offset, 1, FALSE );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_sign_flag, tvb, offset, 1, FALSE );
+        ++offset;
+
+        /* proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_pad2, tvb, offset, 1, FALSE ); */
+        ++offset;
+        /* proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_pad3, tvb, offset, 1, FALSE ); */
+        ++offset;
+        /* proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_pad4, tvb, offset, 1, FALSE ); */
+        ++offset;
+
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_hosc_packet_size, tvb, offset, 2, FALSE );
+        offset += 2;
+
+        /* build the ehs secondary header tree */
+        ehs_secondary_header = proto_tree_add_text ( ehs_tree, tvb, offset,
+          ehs_secondary_header_size ( protocol, tvb, offset ), "Secondary EHS Header" );
+        ehs_secondary_header_tree = proto_item_add_subtree ( ehs_secondary_header, ett_ehs_secondary_header );
+
+        /* since each protocol can have a different ehs secondary header structure, we will offload
+         * this processing to lower levels of code so we don't have to insert all of that complexity
+         * directly inline here, which would no doubt make this difficult to read at best.
+         */
+        ehs_secondary_header_dissector ( protocol, ehs_secondary_header_tree, tvb, &offset );
+
+        /* for ccsds protocol types pass the remaining packet off to the ccsds packet dissector */
+        switch ( protocol )
         {
-                ehs_packet = proto_tree_add_item ( tree, proto_ehs, tvb, 0, -1, FALSE );
-                ehs_tree = proto_item_add_subtree ( ehs_packet, ett_ehs );
+        case EHS_PROTOCOL__TDM_TELEMETRY:
+        case EHS_PROTOCOL__PSEUDO_TELEMETRY:
+        case EHS_PROTOCOL__AOS_LOS:
+        case EHS_PROTOCOL__PDSS_PAYLOAD_CCSDS_PACKET:
+        case EHS_PROTOCOL__PDSS_CORE_CCSDS_PACKET:
+        case EHS_PROTOCOL__PDSS_UDSM:
+                new_tvb = tvb_new_subset_remaining ( tvb, offset);
+                call_dissector ( ccsds_handle, new_tvb, pinfo, ehs_tree );
 
-                /* build the ehs primary header tree */
-                ehs_primary_header = proto_tree_add_text ( ehs_tree, tvb, offset, EHS_PRIMARY_HEADER_SIZE, "Primary EHS Header" );
-                ehs_primary_header_tree = proto_item_add_subtree ( ehs_primary_header, ett_ehs_primary_header );
+                /* bump the offset to the data zone area */
+	        first_word = tvb_get_ntohs ( tvb, offset );
 
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_version, tvb, offset, 1, FALSE );
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_project, tvb, offset, 1, FALSE );
-                ++offset;
-
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_support_mode, tvb, offset, 1, FALSE );
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_data_mode, tvb, offset, 1, FALSE );
-                ++offset;
-
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_mission, tvb, offset, 1, FALSE );
-                ++offset;
-
-                /* save protocol for use later on */
-                protocol = tvb_get_guint8 ( tvb, offset );
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_protocol, tvb, offset, 1, FALSE );
-                ++offset;
-
-                year = tvb_get_guint8 ( tvb, offset );
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_year, tvb, offset, 1, FALSE );
-                ++offset;
-
-                jday = tvb_get_ntohs ( tvb, offset );
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_jday, tvb, offset, 2, FALSE );
-                offset += 2;
-
-                hour = tvb_get_guint8 ( tvb, offset );
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_hour, tvb, offset, 1, FALSE );
-                ++offset;
-
-                minute = tvb_get_guint8 ( tvb, offset );
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_minute, tvb, offset, 1, FALSE );
-                ++offset;
-
-                second = tvb_get_guint8 ( tvb, offset );
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_second, tvb, offset, 1, FALSE );
-                ++offset;
-
-                tenths = tvb_get_guint8 ( tvb, offset ) >> 4;
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_tenths, tvb, offset, 1, FALSE );
-
-                /* format a more readable ground receipt time string */
-                proto_tree_add_text ( ehs_primary_header_tree, tvb, offset-7, 7,
-                  "%04d/%03d:%02d:%02d:%02d.%1d = EHS Ground Receipt Time", year + 1900, jday, hour, minute, second, tenths );
-
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_new_data_flag, tvb, offset, 1, FALSE );
-                /* proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_pad1, tvb, offset, 1, FALSE ); */
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_hold_flag, tvb, offset, 1, FALSE );
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_sign_flag, tvb, offset, 1, FALSE );
-                ++offset;
-
-                /* proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_pad2, tvb, offset, 1, FALSE ); */
-                ++offset;
-                /* proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_pad3, tvb, offset, 1, FALSE ); */
-                ++offset;
-                /* proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_pad4, tvb, offset, 1, FALSE ); */
-                ++offset;
-
-                proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_hosc_packet_size, tvb, offset, 2, FALSE );
-                offset += 2;
-
-                /* build the ehs secondary header tree */
-                ehs_secondary_header = proto_tree_add_text ( ehs_tree, tvb, offset,
-                  ehs_secondary_header_size ( protocol, tvb, offset ), "Secondary EHS Header" );
-                ehs_secondary_header_tree = proto_item_add_subtree ( ehs_secondary_header, ett_ehs_secondary_header );
-
-                /* since each protocol can have a different ehs secondary header structure, we will offload
-                 * this processing to lower levels of code so we don't have to insert all of that complexity
-                 * directly inline here, which would no doubt make this difficult to read at best.
-                 */
-                ehs_secondary_header_dissector ( protocol, ehs_secondary_header_tree, tvb, &offset );
-
-                /* for ccsds protocol types pass the remaining packet off to the ccsds packet dissector */
-                switch ( protocol )
-                {
-                case EHS_PROTOCOL__TDM_TELEMETRY:
-                case EHS_PROTOCOL__PSEUDO_TELEMETRY:
-                case EHS_PROTOCOL__AOS_LOS:
-                case EHS_PROTOCOL__PDSS_PAYLOAD_CCSDS_PACKET:
-                case EHS_PROTOCOL__PDSS_CORE_CCSDS_PACKET:
-                case EHS_PROTOCOL__PDSS_UDSM:
-                        new_tvb = tvb_new_subset_remaining ( tvb, offset);
-                        call_dissector ( ccsds_handle, new_tvb, pinfo, ehs_tree );
-
-                        /* bump the offset to the data zone area */
-		        first_word = tvb_get_ntohs ( tvb, offset );
-
-                        offset += CCSDS_PRIMARY_HEADER_LENGTH;
-		        if ( first_word & HDR_SECHDR ) offset += CCSDS_SECONDARY_HEADER_LENGTH;
-                        break;
+                offset += CCSDS_PRIMARY_HEADER_LENGTH;
+	        if ( first_word & HDR_SECHDR ) offset += CCSDS_SECONDARY_HEADER_LENGTH;
+                break;
 
 
-                default:
-                        break;
-                }
-
-                /* build the ehs data zone tree for well known protocols such as AOS/LOS and UDSM */
-                ehs_data_zone_dissector ( protocol, ehs_tree, tvb, &offset, pinfo );
+        default:
+                break;
         }
+
+        /* build the ehs data zone tree for well known protocols such as AOS/LOS and UDSM */
+        ehs_data_zone_dissector ( protocol, ehs_tree, tvb, &offset, pinfo );
 
 }
 

@@ -48,7 +48,7 @@ dissect_dscrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
 
   proto_item *it;
-  proto_tree *dscrsp_tree;
+  proto_tree *dscrsp_tree = NULL;
   guint16 transid;
   guint8 response;
   tvbuff_t *next_tvb;
@@ -76,10 +76,10 @@ dissect_dscrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_item (dscrsp_tree, hf_docsis_dscrsp_response, tvb, 2, 1,
 			   FALSE);
 
-      /* Call Dissector for Appendix C TLV's */
-      next_tvb = tvb_new_subset_remaining (tvb, 3);
-      call_dissector (docsis_tlv_handle, next_tvb, pinfo, dscrsp_tree);
     }
+    /* Call Dissector for Appendix C TLV's */
+    next_tvb = tvb_new_subset_remaining (tvb, 3);
+    call_dissector (docsis_tlv_handle, next_tvb, pinfo, dscrsp_tree);
 }
 
 

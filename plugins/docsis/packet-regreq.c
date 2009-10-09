@@ -46,7 +46,7 @@ dissect_regreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
 
   proto_item *it;
-  proto_tree *regreq_tree;
+  proto_tree *regreq_tree = NULL;
   guint16 sid;
   tvbuff_t *next_tvb;
 
@@ -67,10 +67,10 @@ dissect_regreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       regreq_tree = proto_item_add_subtree (it, ett_docsis_regreq);
       proto_tree_add_item (regreq_tree, hf_docsis_regreq_sid, tvb, 0, 2,
 			   FALSE);
-      /* Call Dissector for Appendix C TlV's */
-      next_tvb = tvb_new_subset_remaining (tvb, 2);
-      call_dissector (docsis_tlv_handle, next_tvb, pinfo, regreq_tree);
     }
+    /* Call Dissector for Appendix C TlV's */
+    next_tvb = tvb_new_subset_remaining (tvb, 2);
+    call_dissector (docsis_tlv_handle, next_tvb, pinfo, regreq_tree);
 
 
 

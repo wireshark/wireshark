@@ -128,10 +128,13 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(erspan_tree, hf_erspan_unknown4, tvb, offset, 4,
 			FALSE);
 		offset += 4;
-
-		eth_tvb = tvb_new_subset_remaining(tvb, offset);
-		call_dissector(ethnofcs_handle, eth_tvb, pinfo, tree);
 	}
+	else {
+		offset += 8;
+	}
+
+        eth_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(ethnofcs_handle, eth_tvb, pinfo, tree);
 }
 
 void

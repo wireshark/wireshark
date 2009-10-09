@@ -1474,7 +1474,6 @@ static void wimaxasncp_dissect_tlv_value(
         }
 
 
-        if (tree)
         {
             proto_tree *eap_tree;
             proto_item *item;

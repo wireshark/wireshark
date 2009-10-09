@@ -363,9 +363,6 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
     guint32 no_of_pars;
     guint32 i;
 
-    if (!tree)
-        return;
-
 again:
     if ((int)tvb_reported_length(tvb) <= offset)
         return; /* No more options left */

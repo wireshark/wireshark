@@ -208,7 +208,6 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     offset += 3;	/* skip reserved stuff */
 
-    if (tree) {
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 	    tiopt = proto_tree_add_text(pim_tree, tvb, offset, -1,
 		    "PIM parameters");
@@ -469,7 +468,6 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	default:
 	    break;
 	}
-    }
 done:;
 
     return offset+tvb_length_remaining(tvb, offset);

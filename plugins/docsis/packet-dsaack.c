@@ -48,7 +48,7 @@ dissect_dsaack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
 
   proto_item *it;
-  proto_tree *dsaack_tree;
+  proto_tree *dsaack_tree = NULL;
   guint16 transid;
   guint8 response;
   tvbuff_t *next_tvb;
@@ -74,11 +74,11 @@ dissect_dsaack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			   FALSE);
       proto_tree_add_item (dsaack_tree, hf_docsis_dsaack_response, tvb, 2, 1,
 			   FALSE);
-
-      /* Call Dissector for Appendix C TLV's */
-      next_tvb = tvb_new_subset_remaining (tvb, 3);
-      call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsaack_tree);
     }
+
+  /* Call Dissector for Appendix C TLV's */
+  next_tvb = tvb_new_subset_remaining (tvb, 3);
+  call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsaack_tree);
 }
 
 

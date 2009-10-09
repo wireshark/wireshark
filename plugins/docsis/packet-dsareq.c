@@ -45,7 +45,7 @@ dissect_dsareq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
 
   proto_item *it;
-  proto_tree *dsareq_tree;
+  proto_tree *dsareq_tree = NULL;
   guint16 transid;
   tvbuff_t *next_tvb;
 
@@ -67,10 +67,10 @@ dissect_dsareq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_item (dsareq_tree, hf_docsis_dsareq_tranid, tvb, 0, 2,
 			   FALSE);
 
-      /* Call Dissector for Appendix C TLV's */
-      next_tvb = tvb_new_subset_remaining (tvb, 2);
-      call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsareq_tree);
     }
+    /* Call Dissector for Appendix C TLV's */
+    next_tvb = tvb_new_subset_remaining (tvb, 2);
+    call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsareq_tree);
 
 }
 

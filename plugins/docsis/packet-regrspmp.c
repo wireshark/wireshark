@@ -54,7 +54,7 @@ static void
 dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
 	proto_item *it;
-	proto_tree *regrspmp_tree;
+	proto_tree *regrspmp_tree = NULL;
 	tvbuff_t *next_tvb;
 	
 	
@@ -72,10 +72,10 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_number_of_fragments, tvb, 3, 1, FALSE);
 			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, FALSE);
 	
-			/* Call Dissector for Appendix C TLV's */
-			next_tvb = tvb_new_subset_remaining (tvb, 5);
-			call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrspmp_tree);
 		}
+		/* Call Dissector for Appendix C TLV's */
+		next_tvb = tvb_new_subset_remaining (tvb, 5);
+		call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrspmp_tree);
 }
 
 

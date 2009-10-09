@@ -601,7 +601,6 @@ static void process_control_avps(tvbuff_t *tvb,
 	guint32 	bits;
 	guint16 	firmware_rev;
 	
-	if (l2tp_tree) {
 		while (index < length) {    /* Process AVP's */
 			ver_len_hidden	= tvb_get_ntohs(tvb, index);
 			avp_len		= AVP_LENGTH(ver_len_hidden);
@@ -1345,7 +1344,6 @@ static void process_control_avps(tvbuff_t *tvb,
 			index += avp_len;
 		}
 
-	}
 }
 
 /*

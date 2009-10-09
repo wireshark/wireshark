@@ -352,7 +352,7 @@ static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *t
 
 static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
-	proto_tree *eigrp_tree, *tlv_tree, *eigrp_flags_tree;
+	proto_tree *eigrp_tree = NULL, *tlv_tree, *eigrp_flags_tree;
 	proto_item *ti;
 
 	guint opcode, opcode_tmp;
@@ -378,7 +378,6 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_item(eigrp_tree, hf_eigrp_version, tvb, 0, 1, FALSE);
 		proto_tree_add_item(eigrp_tree, hf_eigrp_opcode, tvb, 1, 1, FALSE);
 		proto_tree_add_item(eigrp_tree, hf_eigrp_checksum, tvb, 2, 2, FALSE);
-
 /* Decode the EIGRP Flags Field */
 
 		ti = proto_tree_add_item(eigrp_tree, hf_eigrp_flags, tvb, 4, 4, FALSE);
@@ -392,12 +391,14 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_item(eigrp_tree, hf_eigrp_sequence, tvb, 8, 4, FALSE);
 		proto_tree_add_item(eigrp_tree, hf_eigrp_acknowledge, tvb, 12, 4, FALSE);
 		proto_tree_add_item(eigrp_tree, hf_eigrp_as, tvb, 16, 4, FALSE);
+	}
 
-		if (opcode == EIGRP_SAP) {
-			call_dissector(ipxsap_handle, tvb_new_subset(tvb, EIGRP_HEADER_LENGTH, -1, -1), pinfo, eigrp_tree);
-			return;
-		}
+	if (opcode == EIGRP_SAP) {
+		call_dissector(ipxsap_handle, tvb_new_subset(tvb, EIGRP_HEADER_LENGTH, -1, -1), pinfo, eigrp_tree);
+		return;
+	}
 
+	if (tree) {
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
 			tlv = tvb_get_ntohs(tvb, offset);

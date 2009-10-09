@@ -195,7 +195,6 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_item *message_item = NULL;
 	proto_tree *message_tree = NULL;
 
-	if (tree)
 	{	/* we are being asked for details */
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);

@@ -52,7 +52,7 @@ static void
 dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         gboolean        is_request;
-        proto_tree      *jabber_tree;
+        proto_tree      *jabber_tree = NULL;
         proto_item      *ti, *hidden_item;
 	gint		offset = 0;
 	const guchar	*line;
@@ -100,10 +100,10 @@ dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    hf_jabber_response, tvb, 0, 0, TRUE);
 		}
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
-
-		xmltvb = tvb_new_subset_remaining(tvb, offset);
-		call_dissector(xml_handle, xmltvb, pinfo, jabber_tree);
 	}
+
+        xmltvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(xml_handle, xmltvb, pinfo, jabber_tree);
 }
 
 void

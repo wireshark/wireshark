@@ -477,7 +477,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "JXTA");
 
-    if (tree) {
+    {
         guint tree_offset = 0;
         proto_item *jxta_tree_item =
             proto_tree_add_protocol_format(tree, proto_jxta, tvb, offset, -1, "JXTA" );
@@ -1609,7 +1609,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
     }
 
     /* Second (optional) pass : build the proto tree */
-    if (tree) {
+    {
         guint tree_offset = 0;
         proto_item *jxta_elem_tree_item = proto_tree_add_item(tree, hf_jxta_element, tvb, tree_offset, -1, FALSE);
         proto_tree *jxta_elem_tree = proto_item_add_subtree(jxta_elem_tree_item, ett_jxta_elem);
@@ -1867,7 +1867,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
     }
 
     /* Second (optional) pass : build the proto tree */
-    if (tree) {
+    {
         guint tree_offset = 0;
         proto_item *jxta_elem_tree_item = proto_tree_add_item(tree, hf_jxta_element, tvb, tree_offset, -1, FALSE);
         proto_tree *jxta_elem_tree = proto_item_add_subtree(jxta_elem_tree_item, ett_jxta_elem);
