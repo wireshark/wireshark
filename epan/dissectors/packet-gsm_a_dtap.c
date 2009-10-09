@@ -1049,8 +1049,8 @@ static const value_string gsm_a_itc_values[] = {
 	{ 0x1,	"Unrestricted digital information" },
 	{ 0x2,	"3.1 kHz audio, ex PLMN" },
 	{ 0x3,	"Facsimile group 3" },
-	{ 0x4,	"Other ITC (See Octet 5a)" },
-	{ 0x5,	"Reserved,(In Network alternate speech/facsimile group 3)" },
+	{ 0x5,	"Other ITC (See Octet 5a)" },
+	{ 0x7,	"Reserved,(In Network alternate speech/facsimile group 3)" },
 	{ 0, NULL }
 };
 
