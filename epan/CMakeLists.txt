@@ -968,20 +968,6 @@ set(DISSECTOR_SUPPORT_SRC
 	register.c
 )
 
-set(DISSECTOR_ASM_UTILS
-	asm_utils.c
-#	!IFDEF NASM
-#	asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
-#	        $(NASM) -f $(WIRESHARK_TARGET_PLATFORM) -o $@ $?
-#	!ENDIF
-#	...
-#	!IF defined(NASM) && "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-#	        asm_utils_win32_x86.obj
-#	!ELSE
-#	        asm_utils.obj
-#	!ENDIF
-)
-
 set(DISSECTOR_FILES
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
@@ -991,7 +977,7 @@ set(DISSECTOR_FILES
 )
 
 set_source_files_properties(
-        ${DISSECTOR_SRC}
+	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
 	${ASN1_DISSECTOR_SRC}
     PROPERTIES
@@ -1013,6 +999,20 @@ ADD_CUSTOM_COMMAND(
     DEPENDS
       enterprise-numbers
       make-sminmpec.pl
+)
+
+set(LIBWIRESHARK_ASM_FILES
+	asm_utils.c
+#	!IFDEF NASM
+#	asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
+#	        $(NASM) -f $(WIRESHARK_TARGET_PLATFORM) -o $@ $?
+#	!ENDIF
+#	...
+#	!IF defined(NASM) && "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
+#	        asm_utils_win32_x86.obj
+#	!ELSE
+#	        asm_utils.obj
+#	!ENDIF
 )
 
 set(LIBWIRESHARK_FILES
@@ -1129,10 +1129,9 @@ add_library(epan SHARED
 	#x11-declarations.h
 	#x11-register-info.h
 	${LIBWIRESHARK_FILES}
-	${FTYPE_FILES}
+	${LIBWIRESHARK_ASM_FILES}
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
-	${DISSECTOR_ASM_UTILS}
 )
 # In case we want the libwireshark name back
 # SET_TARGET_PROPERTIES(epan PROPERTIES OUTPUT_NAME "wireshark")
