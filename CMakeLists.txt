@@ -21,7 +21,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-project(wireshark C)
+project(Wireshark C)
 
 cmake_minimum_required(VERSION 2.6)
 
