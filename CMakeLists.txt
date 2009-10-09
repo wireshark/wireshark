@@ -410,8 +410,8 @@ add_executable(lemon ${lemon_FILES})
 target_link_libraries(lemon ${lemon_LIBS})
 # but don't install
 
-register_tap_files(wireshark-tap-register.c
-	${WIRESHARK_TAP_SRC}
+register_tap_files(tshark-tap-register.c
+	${TSHARK_TAP_SRC}
 )
 
 ADD_CUSTOM_COMMAND(
