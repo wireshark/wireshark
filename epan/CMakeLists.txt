@@ -43,6 +43,9 @@ set(CRYPT_LIB crypt )
 add_subdirectory( dfilter )
 set(DFILTER_LIB dfilter )
 
+add_subdirectory( ftypes )
+set(FTYPES_LIB ftypes )
+
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/dfilter
@@ -54,6 +57,7 @@ link_directories(
 	crc
 	crypt
 	dfilter
+	ftypes
 	wslua
 	wspython
 )
@@ -1000,20 +1004,6 @@ register_dissector_files(register.c
 	${DISSECTOR_FILES}
 )
 
-set(FTYPE_FILES
-	ftypes/ftypes.c
-	ftypes/ftype-bytes.c
-	ftypes/ftype-double.c
-	ftypes/ftype-integer.c
-	ftypes/ftype-ipv4.c
-	ftypes/ftype-guid.c
-	ftypes/ftype-none.c
-	ftypes/ftype-pcre.c
-	ftypes/ftype-string.c
-	ftypes/ftype-time.c
-	ftypes/ftype-tvbuff.c
-)
-
 ADD_CUSTOM_COMMAND(
     OUTPUT sminmpec.c
     COMMAND ${PERL_EXECUTABLE}
@@ -1151,6 +1141,7 @@ target_link_libraries(epan
 	${CRC_LIB}
 	${CRYPT_LIB}
 	${DFILTER_LIB}
+	${FTYPES_LIB}
 	${WSLUA_LIB}
 	${WSPYTHON_LIB}
 )
