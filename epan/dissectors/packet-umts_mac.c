@@ -25,10 +25,6 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -576,14 +572,15 @@ proto_register_umts_mac(void)
 		&ett_mac_edch,
 		&ett_mac_hsdsch,
 	};
+        /** XX: Looks like some duplicate filter names ?? **/
 	static hf_register_info hf[] = {
-		{ &hf_mac_rach_fdd_tctf, { "Target Channel Type Field", "mac.tctf", FT_UINT8, BASE_HEX, VALS(rach_fdd_tctf_vals), 0, "Target Channel Type Field", HFILL } },
-		{ &hf_mac_fach_fdd_tctf, { "Target Channel Type Field", "mac.tctf", FT_UINT8, BASE_HEX, VALS(fach_fdd_tctf_vals), 0, "Target Channel Type Field", HFILL } },
-		{ &hf_mac_ct, { "C/T", "mac.ct", FT_UINT8, BASE_HEX, NULL, 0, "C/T", HFILL } },
-		{ &hf_mac_ueid_type, { "UEID Type", "mac.ueid_type", FT_UINT8, BASE_DEC, VALS(ueid_type_vals), 0, "UEID Type", HFILL } },
-		{ &hf_mac_crnti, { "C-RNTI (UEID)", "mac.ueid", FT_UINT16, BASE_HEX, NULL, 0x0, "C-RNTI (UEID)", HFILL } },
-		{ &hf_mac_urnti, { "U-RNTI (UEID)", "mac.ueid", FT_UINT32, BASE_HEX, NULL, 0x0, "U-RNTI (UEID)", HFILL } },
-		{ &hf_mac_channel, { "Logical Channel", "mac.logical_channel", FT_UINT16, BASE_DEC, VALS(mac_logical_channel_vals), 0, "Logical Channel", HFILL } },
+		{ &hf_mac_rach_fdd_tctf, { "Target Channel Type Field", "mac.tctf", FT_UINT8, BASE_HEX, VALS(rach_fdd_tctf_vals), 0, NULL, HFILL } },
+		{ &hf_mac_fach_fdd_tctf, { "Target Channel Type Field", "mac.tctf", FT_UINT8, BASE_HEX, VALS(fach_fdd_tctf_vals), 0, NULL, HFILL } },
+		{ &hf_mac_ct, { "C/T", "mac.ct", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+		{ &hf_mac_ueid_type, { "UEID Type", "mac.ueid_type", FT_UINT8, BASE_DEC, VALS(ueid_type_vals), 0, NULL, HFILL } },
+		{ &hf_mac_crnti, { "C-RNTI (UEID)", "mac.ueid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+		{ &hf_mac_urnti, { "U-RNTI (UEID)", "mac.ueid", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+		{ &hf_mac_channel, { "Logical Channel", "mac.logical_channel", FT_UINT16, BASE_DEC, VALS(mac_logical_channel_vals), 0, NULL, HFILL } },
 	};
 
 	proto_umts_mac = proto_register_protocol("MAC", "MAC", "mac");
