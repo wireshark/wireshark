@@ -25,8 +25,6 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <glib.h>
@@ -51,6 +49,7 @@
 #define DEBUG_FRAME(number, msg) {if (pinfo->fd->num == number) printf("%u: %s\n", number, msg);}
 
 int proto_rlc = -1;
+
 extern int proto_fp;
 extern int proto_malformed;
 
@@ -1325,37 +1324,37 @@ void
 proto_register_rlc(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_rlc_dc, { "D/C Bit", "rlc.dc", FT_BOOLEAN, 8, TFS(&rlc_dc_val), 0x80, "D/C Bit", HFILL } },
+		{ &hf_rlc_dc, { "D/C Bit", "rlc.dc", FT_BOOLEAN, 8, TFS(&rlc_dc_val), 0x80, NULL, HFILL } },
 		{ &hf_rlc_ctrl_type, { "Control PDU Type", "rlc.ctrl_pdu_type", FT_UINT8, BASE_DEC, VALS(rlc_ctrl_vals), 0x70, "PDU Type", HFILL } },
-		{ &hf_rlc_seq, { "Sequence Number", "rlc.seq", FT_UINT8, BASE_DEC, NULL, 0, "Sequence Number", HFILL } },
-		{ &hf_rlc_ext, { "Extension Bit", "rlc.ext", FT_BOOLEAN, BASE_DEC, TFS(&rlc_ext_val), 0x01, "Extension Bit", HFILL } },
-		{ &hf_rlc_he, { "Header Extension Type", "rlc.he", FT_UINT8, BASE_DEC, VALS(rlc_he_vals), 0, "Header Extension Type", HFILL } },
-		{ &hf_rlc_p, { "Polling Bit", "rlc.p", FT_BOOLEAN, 8, TFS(&rlc_p_val), 0x04, "Polling Bit", HFILL } },
-		{ &hf_rlc_pad, { "Padding", "rlc.padding", FT_BYTES, BASE_HEX, NULL, 0x0, "Padding", HFILL } },
+		{ &hf_rlc_seq, { "Sequence Number", "rlc.seq", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_ext, { "Extension Bit", "rlc.ext", FT_BOOLEAN, BASE_DEC, TFS(&rlc_ext_val), 0x01, NULL, HFILL } },
+		{ &hf_rlc_he, { "Header Extension Type", "rlc.he", FT_UINT8, BASE_DEC, VALS(rlc_he_vals), 0, NULL, HFILL } },
+		{ &hf_rlc_p, { "Polling Bit", "rlc.p", FT_BOOLEAN, 8, TFS(&rlc_p_val), 0x04, NULL, HFILL } },
+		{ &hf_rlc_pad, { "Padding", "rlc.padding", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 		{ &hf_rlc_frags, { "Reassembled Fragments", "rlc.fragments", FT_NONE, BASE_NONE, NULL, 0, "Fragments", HFILL } },
-		{ &hf_rlc_frag, { "RLC Fragment", "rlc.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0, "", HFILL } },
-		{ &hf_rlc_duplicate_of, { "Duplicate of", "rlc.duplicate_of", FT_FRAMENUM, BASE_NONE, NULL, 0, "", HFILL } },
-		{ &hf_rlc_reassembled_in, { "Reassembled Message in frame", "rlc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0, "", HFILL } }, 
-		{ &hf_rlc_data, { "Data", "rlc.data", FT_NONE, BASE_NONE, NULL, 0, "Data", HFILL } },
+		{ &hf_rlc_frag, { "RLC Fragment", "rlc.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_duplicate_of, { "Duplicate of", "rlc.duplicate_of", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_reassembled_in, { "Reassembled Message in frame", "rlc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } }, 
+		{ &hf_rlc_data, { "Data", "rlc.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
 		/* LI information */
 		{ &hf_rlc_li, { "LI", "rlc.li", FT_NONE, BASE_NONE, NULL, 0, "Length Indicator", HFILL } },
-		{ &hf_rlc_li_value, { "LI value", "rlc.li.value", FT_UINT16, BASE_DEC, NULL, 0, "LI Value", HFILL } },
-		{ &hf_rlc_li_ext, { "LI extension bit", "rlc.li.ext", FT_BOOLEAN, BASE_DEC, TFS(&rlc_ext_val), 0x01, "LI Extension Bit", HFILL } },
-		{ &hf_rlc_li_data, { "LI Data", "rlc.li.data", FT_NONE, BASE_NONE, NULL, 0x0, "LI Data", HFILL } },
+		{ &hf_rlc_li_value, { "LI value", "rlc.li.value", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_li_ext, { "LI extension bit", "rlc.li.ext", FT_BOOLEAN, BASE_DEC, TFS(&rlc_ext_val), 0x01, NULL, HFILL } },
+		{ &hf_rlc_li_data, { "LI Data", "rlc.li.data", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 		/* SUFI information */
-		{ &hf_rlc_sufi, { "SUFI", "rlc.sufi", FT_NONE, BASE_NONE, NULL, 0, "SUFI", HFILL } },
-		{ &hf_rlc_sufi_type, { "SUFI Type", "rlc.sufi.type", FT_UINT8, BASE_DEC, VALS(rlc_sufi_vals), 0, "SUFI Type", HFILL } },
-		{ &hf_rlc_sufi_lsn, { "LSN", "rlc.sufi.lsn", FT_UINT16, BASE_DEC, NULL, 0, "LSN", HFILL } },
-		{ &hf_rlc_sufi_wsn, { "WSN", "rlc.sufi.wsn", FT_UINT16, BASE_DEC, NULL, 0, "WSN", HFILL } },
-		{ &hf_rlc_sufi_sn, { "SN", "rlc.sufi.sn", FT_UINT16, BASE_DEC, NULL, 0, "SN", HFILL } },
-		{ &hf_rlc_sufi_l, { "L", "rlc.sufi.l", FT_UINT8, BASE_DEC, NULL, 0, "L", HFILL } },
-		{ &hf_rlc_sufi_len, { "Length", "rlc.sufi.len", FT_UINT8, BASE_DEC, NULL, 0, "Length", HFILL } },
-		{ &hf_rlc_sufi_fsn, { "FSN", "rlc.sufi.fsn", FT_UINT16, BASE_DEC, NULL, 0, "FSN", HFILL } },
-		{ &hf_rlc_sufi_bitmap, { "Bitmap", "rlc.sufi.bitmap", FT_BYTES, BASE_HEX, NULL, 0x0, "Bitmap", HFILL } },
-		{ &hf_rlc_sufi_cw, { "CW", "rlc.sufi.cw", FT_UINT8, BASE_DEC, NULL, 0, "CW", HFILL } },
-		{ &hf_rlc_sufi_n, { "N", "rlc.sufi.n", FT_UINT8, BASE_DEC, NULL, 0, "N", HFILL } },
-		{ &hf_rlc_sufi_sn_ack, { "SN ACK", "rlc.sufi.sn_ack", FT_UINT16, BASE_DEC, NULL, 0, "SN ACK", HFILL } },
-		{ &hf_rlc_sufi_sn_mrw, { "SN MRW", "rlc.sufi.sn_mrw", FT_UINT16, BASE_DEC, NULL, 0, "SN MRW", HFILL } },
+		{ &hf_rlc_sufi, { "SUFI", "rlc.sufi", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_type, { "SUFI Type", "rlc.sufi.type", FT_UINT8, BASE_DEC, VALS(rlc_sufi_vals), 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_lsn, { "LSN", "rlc.sufi.lsn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_wsn, { "WSN", "rlc.sufi.wsn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_sn, { "SN", "rlc.sufi.sn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_l, { "L", "rlc.sufi.l", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_len, { "Length", "rlc.sufi.len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_fsn, { "FSN", "rlc.sufi.fsn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_bitmap, { "Bitmap", "rlc.sufi.bitmap", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+		{ &hf_rlc_sufi_cw, { "CW", "rlc.sufi.cw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_n, { "N", "rlc.sufi.n", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_sn_ack, { "SN ACK", "rlc.sufi.sn_ack", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_rlc_sufi_sn_mrw, { "SN MRW", "rlc.sufi.sn_mrw", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
 	};
 	static gint *ett[] = {
 		&ett_rlc,
