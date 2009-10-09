@@ -34,6 +34,9 @@ else()
 	set(WSPYTHON_LIB )
 endif()
 
+add_subdirectory( crc )
+set(CRC_LIB crc )
+
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/dfilter
@@ -42,12 +45,9 @@ include_directories(
 )
 
 link_directories(
+	crc
 	wslua
 	wspython
-)
-
-set(CRC_FILES
-	crc/crc-16-plain.c
 )
 
 set(CRYPT_FILES
@@ -1183,6 +1183,7 @@ add_library(epan SHARED
 # SET_TARGET_PROPERTIES(epan PROPERTIES OUTPUT_NAME "wireshark")
 
 target_link_libraries(epan
+	${CRC_LIB}
 	${WSLUA_LIB}
 	${WSPYTHON_LIB}
 )
