@@ -67,12 +67,14 @@ Why not cmake?
 What works?
 ===========
 
-All the executables now build on my system (32bit openSUSE 11.1) from
-clean source.
+All the executables now build from clean source on:
+* 32bit openSUSE 11.1
+* 32bit Ubuntu 9.04
 
 What needs to be done?
 ======================
 
+- Add asn1 autogen target (assigned: krj)
 - Redo glib2 and gtk2 find modules.
 - Add back platform specific objects.
 - Fix places in the cmake files marked as todo.
@@ -87,7 +89,6 @@ What needs to be done?
 - Add back checkAPI target.
 - Test and add support for other platforms (BSDs, OSX,
   Solaris, Win32, Win64, ...)
-
 ...
 
 Links regarding cmake
