@@ -255,15 +255,37 @@ register_wtap_module(void)
         reg_code.write("#endif\n");
 else:
 	reg_code.write("""
-gulong register_count(void)
+static gulong proto_reg_count(void)
 {
 """);
 
-	line = "  return %d + %d;\n" % (len(regs['proto_reg']), len(regs['handoff_reg']))
+	line = "  return %d;\n" % len(regs['proto_reg'])
 	reg_code.write(line)
 
 	reg_code.write("""
 }
+""");
+	reg_code.write("""
+static gulong handoff_reg_count(void)
+{
+""");
+
+	line = "  return %d;\n" % len(regs['handoff_reg'])
+	reg_code.write(line)
+
+	reg_code.write("""
+}
+""");
+	reg_code.write("""
+gulong register_count(void)
+{
+""");
+
+	line = "  return proto_reg_count() + handoff_reg_count();"
+	reg_code.write(line)
+
+	reg_code.write("""
+}\n
 """);
 
 
