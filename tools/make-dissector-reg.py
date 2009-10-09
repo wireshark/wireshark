@@ -74,7 +74,7 @@ for file in files:
 	if os.path.isfile(file):
 		filenames.append(file)
 	else:
-		filenames.append("%s/%s" % (srcdir, file))
+		filenames.append(os.path.join(srcdir, file))
 
 if len(filenames) < 1:
 	print "No files found"
