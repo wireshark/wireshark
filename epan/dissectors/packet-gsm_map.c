@@ -2049,8 +2049,8 @@ static guint32 errorCode;
 static proto_tree *top_tree;
 static int application_context_version;
 static guint ProtocolId;
-guint AccessNetworkProtocolId;
-const char *obj_id = NULL;
+static guint AccessNetworkProtocolId;
+static const char *obj_id = NULL;
 static int gsm_map_tap = -1;
 
 #define SMS_ENCODING_NOT_SET	0
