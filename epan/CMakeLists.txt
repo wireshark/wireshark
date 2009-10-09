@@ -1027,10 +1027,11 @@ set_source_files_properties(
         # COMPILE_FLAGS -Werror
 )
 
-register_dissector_files(register.c 
-	dissectors 
-	${DISSECTOR_FILES})
-	
+register_dissector_files(register.c
+	dissectors
+	${DISSECTOR_FILES}
+)
+
 set(FTYPE_FILES
 	ftypes/ftypes.c
 	ftypes/ftype-bytes.c
