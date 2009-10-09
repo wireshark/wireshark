@@ -174,9 +174,6 @@ typedef struct _dialog_data_t {
 	GtkWidget *save_csv_as_w;
 	gint notebook_signal_id;
     dialog_graph_t dialog_graph;
-#ifdef USE_CONVERSATION_GRAPH
-	GtkWidget *graph_window;
-#endif
 } dialog_data_t;
 
 #define OK_TEXT "[ Ok ]"
@@ -232,10 +229,6 @@ typedef struct _user_data_t {
 	/* dialog associated data */
 	dialog_data_t dlg;
 
-#ifdef USE_CONVERSATION_GRAPH
-	time_series_t series_fwd;
-	time_series_t series_rev;
-#endif
 } user_data_t;
 
 
@@ -356,17 +349,6 @@ rtp_reset(void *user_data_arg)
 	/* reset graph info */
 	dialog_graph_reset(user_data);
 
-#ifdef USE_CONVERSATION_GRAPH
-	if (user_data->dlg.graph_window != NULL)
-		window_destroy(user_data->dlg.graph_window);
-
-	g_array_free(user_data->series_fwd.value_pairs, TRUE);
-	user_data->series_fwd.value_pairs = g_array_new(FALSE, FALSE, sizeof(value_pair_t));
-
-	g_array_free(user_data->series_rev.value_pairs, TRUE);
-	user_data->series_rev.value_pairs = g_array_new(FALSE, FALSE, sizeof(value_pair_t));
-#endif
-
 	/* XXX check for error at fclose? */
 	if (user_data->forward.saveinfo.fp != NULL)
 		fclose(user_data->forward.saveinfo.fp);
@@ -465,9 +447,7 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 {
 	user_data_t *user_data = user_data_arg;
 	const struct _rtp_info *rtpinfo = rtpinfo_arg;
-#ifdef USE_CONVERSATION_GRAPH
-	value_pair_t vp;
-#endif
+
 	/* we ignore packets that are not displayed */
 	if (pinfo->fd->flags.passed_dfilter == 0)
 		return 0;
@@ -480,11 +460,6 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		&& user_data->port_src_fwd == pinfo->srcport
 		&& CMP_ADDRESS(&(user_data->ip_dst_fwd), &(pinfo->net_dst)) == 0
 		&& user_data->port_dst_fwd == pinfo->destport)  {
-#ifdef USE_CONVERSATION_GRAPH
-		vp.time = ((double)pinfo->fd->rel_secs + (double)pinfo->fd->rel_usecs/1000000);
-		vp.fnumber = pinfo->fd->num;
-		g_array_append_val(user_data->series_fwd.value_pairs, vp);
-#endif
 		rtp_packet_analyse(&(user_data->forward.statinfo), pinfo, rtpinfo);
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]), &(user_data->forward.statinfo), pinfo, (guint32)(user_data->forward.statinfo.jitter*1000000));
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_DIFF]), &(user_data->forward.statinfo), pinfo, (guint32)(user_data->forward.statinfo.diff*1000000));
@@ -499,11 +474,6 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		&& user_data->port_src_rev == pinfo->srcport
 		&& CMP_ADDRESS(&(user_data->ip_dst_rev), &(pinfo->net_dst)) == 0
 		&& user_data->port_dst_rev == pinfo->destport)  {
-#ifdef USE_CONVERSATION_GRAPH
-		vp.time = ((double)pinfo->fd->rel_secs + (double)pinfo->fd->rel_usecs/1000000);
-		vp.fnumber = pinfo->fd->num;
-		g_array_append_val(user_data->series_rev.value_pairs, vp);
-#endif
 		rtp_packet_analyse(&(user_data->reversed.statinfo), pinfo, rtpinfo);
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]), &(user_data->reversed.statinfo), pinfo, (guint32)(user_data->reversed.statinfo.jitter*1000000));
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_DIFF]), &(user_data->reversed.statinfo), pinfo, (guint32)(user_data->reversed.statinfo.diff*1000000));
@@ -768,12 +738,6 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data)
 	if (user_data->dlg.dialog_graph.window != NULL)
 		window_destroy(user_data->dlg.dialog_graph.window);
 
-#ifdef USE_CONVERSATION_GRAPH
-	/* destroy graph window if open */
-	if (user_data->dlg.graph_window != NULL)
-		window_destroy(user_data->dlg.graph_window);
-#endif
-
 	/* disable the "switch_page" signal in the dlg, otherwise will be called when the windows is destroy and cause an exception using GTK1*/
 	g_signal_handler_disconnect(user_data->dlg.notebook, user_data->dlg.notebook_signal_id);
 
@@ -803,87 +767,6 @@ static void on_list_select_row(GtkTreeSelection *selection,
 	user_data->dlg.selected_list_sel = selection;
 }
 
-#ifdef USE_CONVERSATION_GRAPH
-Note this will not work any more as clist is removed.
-/****************************************************************************/
-/* when the graph window gets destroyed */
-static void on_destroy_graph(GtkWidget *win _U_, user_data_t *user_data)
-{
-	/* note that graph window has been destroyed */
-	user_data->dlg.graph_window = NULL;
-}
-
-/****************************************************************************/
-static void graph_selection_callback(value_pair_t vp, user_data_t *user_data)
-{
-	guint row;
-	GtkCList *clist = NULL;
-	if (vp.fnumber != 0) {
-		clist = GTK_CLIST(user_data->dlg.clist_fwd);
-		row = gtk_clist_find_row_from_data(clist,
-				GUINT_TO_POINTER(vp.fnumber));
-		if (row==-1) {
-			clist = GTK_CLIST(user_data->dlg.clist_rev);
-			row = gtk_clist_find_row_from_data(clist,
-					GUINT_TO_POINTER(vp.fnumber));
-		}
-		if (row!=-1) {
-			gtk_notebook_set_current_page(GTK_NOTEBOOK(user_data->dlg.notebook),
-				(clist == GTK_CLIST(user_data->dlg.clist_fwd)) ? 0 : 1);
-			gtk_clist_select_row(clist, row, 0);
-			gtk_clist_moveto(clist, row, 0, 0.5, 0);
-		}
-	}
-}
-
-
-/****************************************************************************/
-static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
-{
-	gchar title1[80];
-	gchar title2[80];
-	GList *list = NULL;
-
-	if (user_data->dlg.graph_window != NULL) {
-		/* There's already a graph window; reactivate it. */
-		reactivate_window(user_data->dlg.graph_window);
-		return;
-	}
-	list = g_list_append(list, &(user_data->series_fwd));
-	list = g_list_append(list, &(user_data->series_rev));
-
-	user_data->series_fwd.color.pixel = 0;
-	user_data->series_fwd.color.red = 0x80ff;
-	user_data->series_fwd.color.green = 0xe0ff;
-	user_data->series_fwd.color.blue = 0xffff;
-	user_data->series_fwd.yvalue = 0.5;
-
-	user_data->series_rev.color.pixel = 0;
-	user_data->series_rev.color.red = 0x60ff;
-	user_data->series_rev.color.green = 0xc0ff;
-	user_data->series_rev.color.blue = 0xffff;
-	user_data->series_rev.yvalue = -0.5;
-
-	g_snprintf(title1, sizeof(title1), "Forward: %s:%u to %s:%u (SSRC=0x%X)",
-		get_addr_name(&(user_data->ip_src_fwd)),
-		user_data->port_src_fwd,
-		get_addr_name(&(user_data->ip_dst_fwd)),
-		user_data->port_dst_fwd,
-		user_data->ssrc_fwd);
-
-	g_snprintf(title2, sizeof(title2), "Reverse: %s:%u to %s:%u (SSRC=0x%X)",
-		get_addr_name(&(user_data->ip_src_rev)),
-		user_data->port_src_rev,
-		get_addr_name(&(user_data->ip_dst_rev)),
-		user_data->port_dst_rev,
-		user_data->ssrc_rev);
-
-	user_data->dlg.graph_window = show_conversation_graph(list, title1, title2,
-		&graph_selection_callback, user_data);
-	g_signal_connect(user_data->dlg.graph_window, "destroy",
-			G_CALLBACK(on_destroy_graph), user_data);
-}
-#endif /*USE_CONVERSATION_GRAPH*/
 
 /****************************************************************************/
 static void dialog_graph_set_title(user_data_t* user_data)
@@ -3310,9 +3193,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	GtkWidget *label;
 	GtkWidget *scrolled_window, *scrolled_window_r/*, *frame, *text, *label4, *page_help*/;
 	GtkWidget *box4, *voice_bt, *refresh_bt, *goto_bt, *close_bt, *csv_bt, *next_bt;
-#ifdef USE_CONVERSATION_GRAPH
-	GtkWidget *graph_bt;
-#endif
+
 	GtkWidget *graph_bt;
 	gchar label_forward[150];
 	gchar label_forward_tree[150];
@@ -3452,13 +3333,6 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(graph_bt);
 	g_signal_connect(graph_bt, "clicked", G_CALLBACK(on_graph_bt_clicked), user_data);
 
-
-#ifdef USE_CONVERSATION_GRAPH
-	graph_bt = gtk_button_new_with_label("Graph");
-	gtk_container_add(GTK_CONTAINER(box4), graph_bt);
-	gtk_widget_show(graph_bt);
-	g_signal_connect(graph_bt, "clicked", G_CALLBACK(on_graph_bt_clicked), user_data);
-#endif
 
 	next_bt = gtk_button_new_with_label("Next non-Ok");
 	gtk_container_add(GTK_CONTAINER(box4), next_bt);
@@ -3615,26 +3489,20 @@ void rtp_analysis(
 	user_data->dlg.save_csv_as_w = NULL;
     user_data->dlg.dialog_graph.window = NULL;
 
-#ifdef USE_CONVERSATION_GRAPH
-	user_data->dlg.graph_window = NULL;
-	user_data->series_fwd.value_pairs = NULL;
-	user_data->series_rev.value_pairs = NULL;
-#endif
-
-        /* init dialog_graph */
-        user_data->dlg.dialog_graph.needs_redraw=TRUE;
-        user_data->dlg.dialog_graph.interval=tick_interval_values[DEFAULT_TICK_VALUE];
-        user_data->dlg.dialog_graph.draw_area=NULL;
-        user_data->dlg.dialog_graph.pixmap=NULL;
-        user_data->dlg.dialog_graph.scrollbar=NULL;
-        user_data->dlg.dialog_graph.scrollbar_adjustment=NULL;
-        user_data->dlg.dialog_graph.pixmap_width=500;
-        user_data->dlg.dialog_graph.pixmap_height=200;
-        user_data->dlg.dialog_graph.pixels_per_tick=pixels_per_tick[DEFAULT_PIXELS_PER_TICK];
-        user_data->dlg.dialog_graph.max_y_units=AUTO_MAX_YSCALE;
-        user_data->dlg.dialog_graph.last_interval=0xffffffff;
-        user_data->dlg.dialog_graph.max_interval=0;
-        user_data->dlg.dialog_graph.num_items=0;
+    /* init dialog_graph */
+    user_data->dlg.dialog_graph.needs_redraw=TRUE;
+    user_data->dlg.dialog_graph.interval=tick_interval_values[DEFAULT_TICK_VALUE];
+    user_data->dlg.dialog_graph.draw_area=NULL;
+    user_data->dlg.dialog_graph.pixmap=NULL;
+    user_data->dlg.dialog_graph.scrollbar=NULL;
+    user_data->dlg.dialog_graph.scrollbar_adjustment=NULL;
+    user_data->dlg.dialog_graph.pixmap_width=500;
+    user_data->dlg.dialog_graph.pixmap_height=200;
+    user_data->dlg.dialog_graph.pixels_per_tick=pixels_per_tick[DEFAULT_PIXELS_PER_TICK];
+    user_data->dlg.dialog_graph.max_y_units=AUTO_MAX_YSCALE;
+    user_data->dlg.dialog_graph.last_interval=0xffffffff;
+    user_data->dlg.dialog_graph.max_interval=0;
+    user_data->dlg.dialog_graph.num_items=0;
 	user_data->dlg.dialog_graph.start_time = -1;
 
 	for(i=0;i<MAX_GRAPHS;i++){
