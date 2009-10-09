@@ -28,6 +28,7 @@ cmake_minimum_required(VERSION 2.6)
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 INCLUDE(UseLemon)
+INCLUDE(UseMakeDissectorReg)
 
 # Under linux the release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG
 

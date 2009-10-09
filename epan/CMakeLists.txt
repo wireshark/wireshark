@@ -36,7 +36,6 @@ endif()
 
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
-
 	${CMAKE_CURRENT_SOURCE_DIR}/dfilter
 	${CMAKE_CURRENT_SOURCE_DIR}/dissectors
 	${CMAKE_CURRENT_SOURCE_DIR}/ftypes
@@ -1027,33 +1026,11 @@ set_source_files_properties(
 	# FIXME: -Werror and -pedantic exclude each other: test for -pedantic
         # COMPILE_FLAGS -Werror
 )
-	
-ADD_CUSTOM_COMMAND(
-# FIXME: Only the Python stuff has been implemented
-#        Make this into a MACRO, to avoid duplication with plugins/.../
-#register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) $(top_srcdir)/tools/make-dissector-reg \
-#    $(top_srcdir)/tools/make-dissector-reg.py
-#        @if test -n "$(PYTHON)"; then \
-#                echo Making register.c with python ; \
-#                $(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
-#                    dissectors $(ALL_DISSECTORS_SRC) ; \
-#        else \
-#                echo Making register.c with shell script ; \
-#                $(top_srcdir)/tools/make-dissector-reg $(srcdir) \
-#                   dissectors $(plugin_src) $(ALL_DISSECTORS_SRC) ; \
-#        fi
-    OUTPUT register.c
-    COMMAND ${PYTHON_EXECUTABLE}
-      ${CMAKE_SOURCE_DIR}/tools/make-dissector-reg.py
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      dissectors
-      ${DISSECTOR_FILES}
-    DEPENDS
-      ${DISSECTOR_FILES}
-      ${CMAKE_SOURCE_DIR}/tools/make-dissector-reg
-      ${CMAKE_SOURCE_DIR}/tools/make-dissector-reg.py
-)
 
+register_dissector_files(register.c 
+	dissectors 
+	${DISSECTOR_FILES})
+	
 set(FTYPE_FILES
 	ftypes/ftypes.c
 	ftypes/ftype-bytes.c
