@@ -423,9 +423,9 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 		break;
 	}
 
-	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len, ami);
+	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, (int)len, ami);
 
-	offset += len;
+	offset += (int)len;
 
 	return offset;
 }
