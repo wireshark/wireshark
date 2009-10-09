@@ -535,9 +535,10 @@ draw_hostlist_table_data(hostlist_table *hl)
             guint j;
 
             if (host->address.type == AT_IPv4 && !hl->geoip_visible) {
-                GList	    *columns;
+                GList	    *columns, *list;
                 GtkTreeViewColumn *column;
                 columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(hl->table));
+                list = columns;
                 while(columns) {
                     const gchar *title;
                     gint  id;
@@ -550,7 +551,7 @@ draw_hostlist_table_data(hostlist_table *hl)
                     }
                     columns = g_list_next(columns);
                 }
-                g_list_free(columns);
+                g_list_free(list);
                 hl->geoip_visible = TRUE;
             }
 
@@ -693,7 +694,7 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
     GtkClipboard    *cb;
     char 	    *savelocale;
-    GList	    *columns;
+    GList	    *columns, *list;
     GtkTreeViewColumn *column;
     GtkListStore    *store;
     csv_t	     csv;
@@ -707,6 +708,7 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
     csv.CSV_str = g_string_new("");
 
     columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(csv.talkers->table));
+    list = columns;
     csv.nb_cols = 0;
     while(columns) {
         column = columns->data;
@@ -719,7 +721,7 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
         }
         columns = g_list_next(columns);
     }
-    g_list_free(columns);
+    g_list_free(list);
 
     g_string_append(csv.CSV_str,"\n");
     store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(csv.talkers->table)));
@@ -824,7 +826,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
     char            *map_path, *map_data_filename;
     char            *src_file_path;
     char            *dst_file_path;
-    GList	    	*columns;
+    GList	    	*columns, *list;
     GtkTreeViewColumn *column;
     GtkListStore    *store;
     map_t			map;
@@ -837,6 +839,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
     map.hosts_written = FALSE;
     /* Find the interesting columns */
     columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(map.talkers->table));
+    list = columns;
     map.nb_cols = 0;
     while(columns) {
         column = columns->data;
@@ -874,7 +877,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
         }
         columns = g_list_next(columns);
     }
-    g_list_free(columns);
+    g_list_free(list);
 
     /* check for the minimum required data */
     if(map.col_lat == -1 || map.col_lon == -1) {

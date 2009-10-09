@@ -1260,7 +1260,7 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
     GtkClipboard    *cb;
     char 	    *savelocale;
-    GList	    *columns;
+    GList	    *columns, *list;
     GtkTreeViewColumn *column;
     GtkListStore    *store;
     csv_t	     csv;
@@ -1275,6 +1275,7 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 
     columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(csv.talkers->table));
     csv.nb_cols = 0;
+    list = columns;
     while(columns) {
         column = columns->data;
         if (gtk_tree_view_column_get_visible(column)) {
@@ -1286,7 +1287,7 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
         }
         columns = g_list_next(columns);
     }
-    g_list_free(columns);
+    g_list_free(list);
 
     g_string_append(csv.CSV_str,"\n");
     store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(csv.talkers->table)));

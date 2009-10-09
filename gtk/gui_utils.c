@@ -1142,9 +1142,10 @@ switch_to_fixed_col(GtkTreeView *view)
 {
     gint size;
     GtkTreeViewColumn *column;
-    GList	    *columns;
+    GList	    *columns, *list;
 
     columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(view));
+    list = columns;
     while(columns) {
         column = columns->data;
         size = gtk_tree_view_column_get_width (column);
@@ -1153,7 +1154,7 @@ switch_to_fixed_col(GtkTreeView *view)
             gtk_tree_view_column_set_fixed_width(column, size);
         columns = g_list_next(columns);
     }
-    g_list_free(columns);
+    g_list_free(list);
     
 #if GTK_CHECK_VERSION(2,6,0)
     gtk_tree_view_set_fixed_height_mode(view, TRUE);
