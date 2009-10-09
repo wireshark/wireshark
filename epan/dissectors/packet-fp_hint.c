@@ -25,8 +25,6 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <glib.h>
@@ -537,26 +535,26 @@ void
 proto_register_fp_hint(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_fph_frametype, { "Frame Type", "fp_hint.frame_type", FT_UINT8, BASE_HEX, VALS(fph_frametype_vals), 0x0, "Frame Type", HFILL } },
-		{ &hf_fph_channeltype, { "Channel Type", "fp_hint.channel_type", FT_UINT8, BASE_HEX, VALS(fph_channeltype_vals), 0x0, "Channel Type", HFILL } },
-		{ &hf_fph_chcnt, { "Number of Channels", "fp_hint.num_chan", FT_UINT8, BASE_DEC, NULL, 0, "Number of Channels", HFILL } },
-		{ &hf_fph_dchid, { "DCH ID", "fp_hint.dchid", FT_UINT8, BASE_DEC, NULL, 0, "DCH ID", HFILL } },
-		{ &hf_fph_macdflowid, { "MACd Flow ID", "fp_hint.macdflowid", FT_UINT8, BASE_DEC, NULL, 0, "MACd Flow ID", HFILL } },
+		{ &hf_fph_frametype, { "Frame Type", "fp_hint.frame_type", FT_UINT8, BASE_HEX, VALS(fph_frametype_vals), 0x0, NULL, HFILL } },
+		{ &hf_fph_channeltype, { "Channel Type", "fp_hint.channel_type", FT_UINT8, BASE_HEX, VALS(fph_channeltype_vals), 0x0, NULL, HFILL } },
+		{ &hf_fph_chcnt, { "Number of Channels", "fp_hint.num_chan", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_fph_dchid, { "DCH ID", "fp_hint.dchid", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_fph_macdflowid, { "MACd Flow ID", "fp_hint.macdflowid", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		/* traffic format details */
-		{ &hf_fph_tf, { "Traffic Format", "fp_hint.tf", FT_NONE, BASE_NONE, NULL, 0, "", HFILL } },
-		{ &hf_fph_tf_n, { "N", "fp_hint.tf.n", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL } },
-		{ &hf_fph_tf_size, { "Size", "fp_hintf.tf.size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL } },
+		{ &hf_fph_tf, { "Traffic Format", "fp_hint.tf", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_fph_tf_n, { "N", "fp_hint.tf.n", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_fph_tf_size, { "Size", "fp_hintf.tf.size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
 		/* DDI information for E-DCH */
-		{ &hf_fph_ddi_entry, { "DDI Entry", "fp_hint.ddi", FT_NONE, BASE_NONE, NULL, 0, "", HFILL } },
-		{ &hf_fph_ddi_value, { "DDI", "fp_hint.ddi.value", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL } },
-		{ &hf_fph_ddi_logical, { "Logical Channel ID", "fp_hint.ddi.logical", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL } },
-		{ &hf_fph_ddi_size, { "Size", "fp_hint.ddi.size", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL } },
+		{ &hf_fph_ddi_entry, { "DDI Entry", "fp_hint.ddi", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_fph_ddi_value, { "DDI", "fp_hint.ddi.value", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_fph_ddi_logical, { "Logical Channel ID", "fp_hint.ddi.logical", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_fph_ddi_size, { "Size", "fp_hint.ddi.size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
 		/* radio bearer details */
-		{ &hf_fph_rb, { "Radio Bearer", "fp_hint.rb", FT_NONE, BASE_NONE, NULL, 0, "", HFILL } },
-		{ &hf_fph_urnti, { "U-RNTI", "fp_hint.rb.urnti", FT_UINT32, BASE_HEX, NULL, 0x0, "U-RNTI", HFILL } },
-		{ &hf_fph_content, { "Content", "fp_hint.rb.content", FT_UINT8, BASE_DEC, VALS(fph_content_vals), 0, "Content", HFILL } },
-		{ &hf_fph_rlcmode, { "RLC Mode", "fp_hint.rb.rlc_mode", FT_UINT8, BASE_DEC, VALS(fph_rlcmode_vals), 0, "RLC Mode", HFILL } },
-		{ &hf_fph_rbid, { "Radio Bearer ID", "fp_hint.rb.rbid", FT_UINT16, BASE_DEC, NULL, 0x01f0, "Radio Bearer ID", HFILL } },
+		{ &hf_fph_rb, { "Radio Bearer", "fp_hint.rb", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_fph_urnti, { "U-RNTI", "fp_hint.rb.urnti", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+		{ &hf_fph_content, { "Content", "fp_hint.rb.content", FT_UINT8, BASE_DEC, VALS(fph_content_vals), 0, NULL, HFILL } },
+		{ &hf_fph_rlcmode, { "RLC Mode", "fp_hint.rb.rlc_mode", FT_UINT8, BASE_DEC, VALS(fph_rlcmode_vals), 0, NULL, HFILL } },
+		{ &hf_fph_rbid, { "Radio Bearer ID", "fp_hint.rb.rbid", FT_UINT16, BASE_DEC, NULL, 0x01f0, NULL, HFILL } },
 		{ &hf_fph_ctmux, { "C/T Mux", "fp_hint.rb.ctmux", FT_BOOLEAN, BASE_NONE, TFS(&fph_ctmux_vals), 0, "C/T Mux field", HFILL } },
 		{ &hf_fph_ciphered, { "Ciphered", "fp_hint.rb.ciphered", FT_BOOLEAN, BASE_NONE, TFS(&fph_ciphered_vals), 0, "Ciphered flag", HFILL } },
 		{ &hf_fph_deciphered, { "Deciphered", "fp_hint.rb.deciphered", FT_BOOLEAN, BASE_NONE, TFS(&fph_deciphered_vals), 0, "Deciphered flag", HFILL } }
