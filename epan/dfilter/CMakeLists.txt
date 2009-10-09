@@ -1,0 +1,53 @@
+# CMakeLists.txt
+#
+# $Id$
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+set(DFILTER_FILES
+	dfilter.c
+	dfilter-macro.c
+	dfunctions.c
+	dfvm.c
+	drange.c
+	gencode.c
+	semcheck.c
+	sttype-function.c
+	sttype-integer.c
+	sttype-pointer.c
+	sttype-range.c
+	sttype-string.c
+	sttype-test.c
+	syntax-tree.c
+)
+
+add_lex_files(DFILTER_FILES
+	scanner.l
+)
+
+add_lemon_files(DFILTER_FILES
+	grammar.lemon
+)
+
+add_library(dfilter STATIC
+	${DFILTER_FILES}
+)

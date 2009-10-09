@@ -40,6 +40,9 @@ set(CRC_LIB crc )
 add_subdirectory( crypt )
 set(CRYPT_LIB crypt )
 
+add_subdirectory( dfilter )
+set(DFILTER_LIB dfilter )
+
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/dfilter
@@ -50,33 +53,9 @@ include_directories(
 link_directories(
 	crc
 	crypt
+	dfilter
 	wslua
 	wspython
-)
-
-set(DFILTER_FILES
-	dfilter/dfilter.c
-	dfilter/dfilter-macro.c
-	dfilter/dfunctions.c
-	dfilter/dfvm.c
-	dfilter/drange.c
-	dfilter/gencode.c
-	dfilter/semcheck.c
-	dfilter/sttype-function.c
-	dfilter/sttype-integer.c
-	dfilter/sttype-pointer.c
-	dfilter/sttype-range.c
-	dfilter/sttype-string.c
-	dfilter/sttype-test.c
-	dfilter/syntax-tree.c
-)
-
-add_lex_files(DFILTER_FILES
-	dfilter/scanner.l
-)
-
-add_lemon_files(DFILTER_FILES
-	dfilter/grammar.lemon
 )
 
 ADD_CUSTOM_COMMAND(
@@ -1160,7 +1139,6 @@ add_library(epan SHARED
 	#x11-declarations.h
 	#x11-register-info.h
 	${LIBWIRESHARK_FILES}
-	${DFILTER_FILES}
 	${FTYPE_FILES}
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
@@ -1172,6 +1150,7 @@ add_library(epan SHARED
 target_link_libraries(epan
 	${CRC_LIB}
 	${CRYPT_LIB}
+	${DFILTER_LIB}
 	${WSLUA_LIB}
 	${WSPYTHON_LIB}
 )
