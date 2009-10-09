@@ -37,6 +37,9 @@ endif()
 add_subdirectory( crc )
 set(CRC_LIB crc )
 
+add_subdirectory( crypt )
+set(CRYPT_LIB crypt )
+
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/dfilter
@@ -46,23 +49,9 @@ include_directories(
 
 link_directories(
 	crc
+	crypt
 	wslua
 	wspython
-)
-
-set(CRYPT_FILES
-	crypt/airpdcap.c
-	crypt/airpdcap_ccmp.c
-	crypt/airpdcap_debug.c
-	crypt/airpdcap_rijndael.c
-	crypt/airpdcap_tkip.c
-	crypt/airpdcap_wep.c
-	crypt/crypt-aes.c
-	crypt/crypt-des.c
-	crypt/crypt-md4.c
-	crypt/crypt-md5.c
-	crypt/crypt-rc4.c
-	crypt/crypt-sha1.c
 )
 
 set(DFILTER_FILES
@@ -1171,8 +1160,6 @@ add_library(epan SHARED
 	#x11-declarations.h
 	#x11-register-info.h
 	${LIBWIRESHARK_FILES}
-	${CRC_FILES}
-	${CRYPT_FILES}
 	${DFILTER_FILES}
 	${FTYPE_FILES}
 	${DISSECTOR_FILES}
@@ -1184,6 +1171,7 @@ add_library(epan SHARED
 
 target_link_libraries(epan
 	${CRC_LIB}
+	${CRYPT_LIB}
 	${WSLUA_LIB}
 	${WSPYTHON_LIB}
 )
