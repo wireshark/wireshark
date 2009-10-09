@@ -49,7 +49,7 @@ include_directories(
 
 #Where to put libraries
 if(NOT LIBRARY_OUTPUT_PATH)
-	set(LIBRARY_OUTPUT_PATH ${wireshark_BINARY_DIR}/lib CACHE INTERNAL
+	set(LIBRARY_OUTPUT_PATH ${Wireshark_BINARY_DIR}/lib CACHE INTERNAL
 		   "Single output directory for building all libraries.")
 endif()
 
