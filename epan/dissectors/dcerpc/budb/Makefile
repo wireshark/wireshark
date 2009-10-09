@@ -9,7 +9,7 @@ all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): $(IDL2WRS) $(PROTOCOL_NAME).idl $(PROTOCOL_NAME).cnf template.c template.h
+$(DISSECTOR_FILES): $(IDL2WRS) $(PROTOCOL_NAME).idl $(PROTOCOL_NAME).cnf packet-dcerpc-$(PROTOCOL_NAME)-template.c packet-dcerpc-$(PROTOCOL_NAME)-template.h
 	$(IDL2WRS) $(PROTOCOL_NAME)
 
 clean:
