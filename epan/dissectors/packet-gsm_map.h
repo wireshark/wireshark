@@ -1,11 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-gsm_map.h                                                           */
-/* ../../tools/asn2wrs.py -b -e -c ./gsmmap.cnf -s ./packet-gsmmap-template -D . ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Errors.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn */
+/* ../../tools/asn2wrs.py -b -e -c ./gsm_map.cnf -s ./packet-gsm_map-template -D . ../ros/Remote-Operations-Information-Objects.asn MobileDomainDefinitions.asn MAP-ApplicationContexts.asn MAP-SS-Code.asn MAP-BS-Code.asn MAP-TS-Code.asn MAP-ExtensionDataTypes.asn MAP-CommonDataTypes.asn MAP-SS-DataTypes.asn MAP-ER-DataTypes.asn MAP-SM-DataTypes.asn MAP-OM-DataTypes.asn MAP-MS-DataTypes.asn MAP-CH-DataTypes.asn MAP-LCS-DataTypes.asn MAP-GR-DataTypes.asn MAP-DialogueInformation.asn MAP-LocationServiceOperations.asn MAP-Group-Call-Operations.asn MAP-ShortMessageServiceOperations.asn MAP-SupplementaryServiceOperations.asn MAP-CallHandlingOperations.asn MAP-OperationAndMaintenanceOperations.asn MAP-MobileServiceOperations.asn MAP-Errors.asn MAP-Protocol.asn GSMMAP.asn SS-DataTypes.asn SS-Operations.asn */
 
-/* Input file: packet-gsmmap-template.h */
+/* Input file: packet-gsm_map-template.h */
 
-#line 1 "packet-gsmmap-template.h"
+#line 1 "packet-gsm_map-template.h"
 /* packet-gsm_map-template.h
  * Routines for GSM MAP packet dissection
  * Copyright 2004 - 2006, Anders Broman <anders.broman@ericsson.com>
@@ -168,7 +168,7 @@ int dissect_gsm_old_SecurityHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 int dissect_gsm_old_ProtectedPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-gsm_map-exp.h ---*/
-#line 58 "packet-gsmmap-template.h"
+#line 58 "packet-gsm_map-template.h"
 
 
 #endif  /* PACKET_GSM_MAP_H */

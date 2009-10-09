@@ -20,11 +20,10 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME=gsmmap
+PROTOCOL_NAME=gsm_map
 
 DISSECTOR_FILES=packet-gsm_map.c \
 	packet-gsm_map.h
-
 
 PROTO_OPT =
 
