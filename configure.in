@@ -1641,11 +1641,13 @@ AC_OUTPUT(
   asn1/acp133/Makefile
   asn1/acse/Makefile
   asn1/ansi_map/Makefile
-  asn1/ansi-tcap/Makefile
+  asn1/ansi_tcap/Makefile
   asn1/camel/Makefile
   asn1/cdt/Makefile
   asn1/charging_ase/Makefile
   asn1/cmip/Makefile
+  asn1/cmp/Makefile
+  asn1/crmf/Makefile
   asn1/cms/Makefile
   asn1/dap/Makefile
   asn1/disp/Makefile
@@ -1655,7 +1657,7 @@ AC_OUTPUT(
   asn1/ftam/Makefile
   asn1/gnm/Makefile
   asn1/goose/Makefile
-  asn1/gsmmap/Makefile
+  asn1/gsm_map/Makefile
   asn1/h225/Makefile
   asn1/h235/Makefile
   asn1/h245/Makefile
@@ -1669,7 +1671,7 @@ AC_OUTPUT(
   asn1/h501/Makefile
   asn1/inap/Makefile
   asn1/ldap/Makefile
-  asn1/logotype-cert-extn/Makefile
+  asn1/logotypecertextn/Makefile
   asn1/lte-rrc/Makefile
   asn1/mms/Makefile
   asn1/mpeg-audio/Makefile
@@ -1684,8 +1686,6 @@ AC_OUTPUT(
   asn1/pkinit/Makefile
   asn1/pkix1explicit/Makefile
   asn1/pkix1implicit/Makefile
-  asn1/pkixcmp/Makefile
-  asn1/pkixcrmf/Makefile
   asn1/pkixproxy/Makefile
   asn1/pkixqualified/Makefile
   asn1/pkixtsp/Makefile
