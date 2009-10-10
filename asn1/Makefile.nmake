@@ -29,7 +29,7 @@ ber: \
 	acse	\
 	acp133	\
 	ansi_map	\
-	ansi-tcap	\
+	ansi_tcap	\
 	camel	\
 	cdt	\
 	charging_ase	\
@@ -361,8 +361,8 @@ acp133::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
 	cd ..
 
-ansi-tcap::
-	cd ansi-tcap
+ansi_tcap::
+	cd ansi_tcap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
 	cd ..
 

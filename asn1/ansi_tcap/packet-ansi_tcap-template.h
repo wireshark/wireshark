@@ -1,4 +1,4 @@
-/* packet-ansi-tcap.h
+/* packet-ansi_tcap.h
  *
  * $Id$
  *
