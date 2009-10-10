@@ -502,7 +502,7 @@ static int hf_x411_UniversalOrganizationalUnitNames_item = -1;  /* UniversalOrga
 static int hf_x411_character_encoding = -1;       /* T_character_encoding */
 static int hf_x411_two_octets = -1;               /* BMPString_SIZE_1_ub_string_length */
 static int hf_x411_four_octets = -1;              /* UniversalString_SIZE_1_ub_string_length */
-static int hf_x411_iso_639_language_code = -1;    /* PrintableString_SIZE_CONSTR13894040 */
+static int hf_x411_iso_639_language_code = -1;    /* PrintableString_SIZE_CONSTR13857016 */
 static int hf_x411_numeric_code = -1;             /* AddrNumericString */
 static int hf_x411_printable_code = -1;           /* PrintableString_SIZE_1_ub_postal_code_length */
 static int hf_x411_printable_address = -1;        /* T_printable_address */
@@ -6419,7 +6419,7 @@ dissect_x411_T_character_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static int
-dissect_x411_PrintableString_SIZE_CONSTR13894040(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_x411_PrintableString_SIZE_CONSTR13857016(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -6430,7 +6430,7 @@ dissect_x411_PrintableString_SIZE_CONSTR13894040(gboolean implicit_tag _U_, tvbu
 
 static const ber_sequence_t UniversalOrBMPString_set[] = {
   { &hf_x411_character_encoding, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x411_T_character_encoding },
-  { &hf_x411_iso_639_language_code, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_PrintableString_SIZE_CONSTR13894040 },
+  { &hf_x411_iso_639_language_code, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_PrintableString_SIZE_CONSTR13857016 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -10125,7 +10125,7 @@ void proto_register_x411(void) {
     { &hf_x411_iso_639_language_code,
       { "iso-639-language-code", "x411.iso_639_language_code",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x411.PrintableString_SIZE_CONSTR13894040", HFILL }},
+        "x411.PrintableString_SIZE_CONSTR13857016", HFILL }},
     { &hf_x411_numeric_code,
       { "numeric-code", "x411.numeric_code",
         FT_STRING, BASE_NONE, NULL, 0,

@@ -6,7 +6,7 @@
 /* Input file: packet-logotypecertextn-template.c */
 
 #line 1 "packet-logotypecertextn-template.c"
-/* packet-logotype-cert-extn.c
+/* packet-logotypecertextn.c
  * Routines for RFC3709 Logotype Certificate Extensions packet dissection
  *   Ronnie Sahlberg 2004
  *
