@@ -374,6 +374,7 @@ endif()
 add_subdirectory( codecs )
 add_subdirectory( epan )
 add_subdirectory( gtk )
+add_subdirectory( tools/lemon )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
@@ -400,17 +401,6 @@ ADD_CUSTOM_COMMAND(
 	DEPENDS
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 )
-
-# Create the necessary tools
-set(lemon_FILES
-	tools/lemon/lemon.c
-)
-set(lemon_LIBS
-	# Do we need something here on any platform?
-)
-add_executable(lemon ${lemon_FILES})
-target_link_libraries(lemon ${lemon_LIBS})
-# but don't install
 
 register_tap_files(tshark-tap-register.c
 	${TSHARK_TAP_SRC}

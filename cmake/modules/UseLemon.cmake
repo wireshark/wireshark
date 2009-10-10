@@ -10,7 +10,8 @@ MACRO(ADD_LEMON_FILES _sources )
       SET(_out ${CMAKE_CURRENT_BINARY_DIR}/${_basename}.c)
 
       ADD_CUSTOM_COMMAND(
-         OUTPUT ${_out}
+         OUTPUT
+	  ${_out}
          COMMAND lemon
            t=${_lemonpardir}/lempar.c
            ${srcdir}/${_in}
@@ -20,4 +21,3 @@ MACRO(ADD_LEMON_FILES _sources )
       SET(${_sources} ${${_sources}} ${_out} )
    ENDFOREACH (_current_FILE)
 ENDMACRO(ADD_LEMON_FILES)
-
