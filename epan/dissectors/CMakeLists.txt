@@ -62,12 +62,27 @@ ADD_CUSTOM_COMMAND(
       ${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl
 )
 
+if (AUTOGEN_dcerpc)
+  set(PIDL_DISSECTOR_AUTOGEN_SRC
+	  dcerpc/budb/packet-dcerpc-budb.c
+	  dcerpc/butc/packet-dcerpc-butc.c
+	  dcerpc/drsuapi/packet-dcerpc-drsuapi.c
+  ) 
+  set_source_files_properties(${PIDL_DISSECTOR_AUTOGEN_SRC}
+	  PROPERTIES 
+	    GENERATED TRUE
+  )
+else()
+  set(PIDL_DISSECTOR_AUTOGEN_SRC
+	  packet-dcerpc-budb.c
+	  packet-dcerpc-butc.c
+	  packet-dcerpc-drsuapi.c
+  )
+endif()
+
 set(PIDL_DISSECTOR_SRC
 	packet-dcerpc-atsvc.c
-	packet-dcerpc-budb.c
-	packet-dcerpc-butc.c
 	packet-dcerpc-dfs.c
-	packet-dcerpc-drsuapi.c
 	packet-dcerpc-dssetup.c
 	packet-dcerpc-efs.c
 	packet-dcerpc-initshutdown.c
@@ -946,6 +961,7 @@ set(DISSECTOR_SUPPORT_SRC
 set(DISSECTOR_FILES
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
+	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${DIRTY_PIDL_DISSECTOR_SRC}
 	${ASN1_DISSECTOR_SRC}
 	${DIRTY_ASN1_DISSECTOR_SRC}
@@ -954,6 +970,7 @@ set(DISSECTOR_FILES
 set_source_files_properties(
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
+	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${ASN1_DISSECTOR_SRC}
     PROPERTIES
 	# FIXME: -Werror and -pedantic exclude each other: test for -pedantic
