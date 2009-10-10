@@ -76,6 +76,11 @@ ADD_CUSTOM_COMMAND(
     OUTPUT
        x11-dissector
 #      x11-declarations.h
+#      x11-enum.h
+#      x11-extension-errors.h
+#      x11-extension-implementation.h
+#      x11-fields
+#      x11-glx-render-enum.h
 #      x11-register-info.h
     COMMAND ${PERL_EXECUTABLE}
       ${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
