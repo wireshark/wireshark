@@ -3,7 +3,7 @@
 # Copyright 2005-2007 Anders Broman 
 # $Id$
 
-#.IMPORT ../gsmmap/gsm_map-exp.cnf
+#.IMPORT ../gsm_map/gsm_map-exp.cnf
 #.EXPORTS
 
 

@@ -3,7 +3,7 @@
 # Anders Broman 2007
 # $Id$
 
-#.IMPORT ../gsmmap/gsm_map-exp.cnf
+#.IMPORT ../gsm_map/gsm_map-exp.cnf
 #.IMPORT ../inap/inap-exp.cnf
 
 #.MODULE

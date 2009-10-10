@@ -37,7 +37,7 @@ IST-CommandRes,
 UU-Data,
 ReleaseResourcesArg,
 ReleaseResourcesRes,
---- WS added exports needed by gsmmap.asn (extra asn1 file to handle older proto. ver.)
+--- WS added exports needed by gsm_map.asn (extra asn1 file to handle older proto. ver.)
 RoutingInfo,
 CUG-CheckInfo
 ;

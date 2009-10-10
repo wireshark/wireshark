@@ -27,8 +27,8 @@ DISSECTOR_FILES = \
 
 
 EXT_ASN_FILE_LIST = \
-	../gsmmap/MAP-ExtensionDataTypes.asn	\
-	../gsmmap/MAP-LCS-DataTypes.asn 
+	../gsm_map/MAP-ExtensionDataTypes.asn	\
+	../gsm_map/MAP-LCS-DataTypes.asn 
 
 ASN_FILE_LIST = \
 	RRLP-Messages.asn	\

@@ -46,8 +46,8 @@ SRC_FILES = \
 A2W_FLAGS= -b 
 
 EXTRA_CNF= \
-        ../gsmmap/gsm_map-exp.cnf
+        ../gsm_map/gsm_map-exp.cnf
 
-../gsmmap/gsm_map-exp.cnf:
-	(cd ../gsmmap && $(MAKE_CNF_EXPORT))
+../gsm_map/gsm_map-exp.cnf:
+	(cd ../gsm_map && $(MAKE_CNF_EXPORT))
 
