@@ -67,6 +67,8 @@ TODO
 #include <stdlib.h>
 #include <stdarg.h>
 
+#undef IDL2WRS_DEBUG
+
 FILE *fh, *tfh, *eth_code, *eth_hdr, *eth_hf, *eth_hfarr, *eth_ett, *eth_ettarr, *eth_ft, *eth_handoff;
 char *uuid=NULL;
 char *version=NULL;
@@ -80,7 +82,9 @@ void FPRINTF(FILE *fh, const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	vfprintf (stderr, format, args);
+#ifdef IDL2WRS_DEBUG
+    vfprintf (stderr, format, args);
+#endif
 	if (fh)
 		vfprintf (fh, format, args);
 	va_end(args);
