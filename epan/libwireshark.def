@@ -848,6 +848,7 @@ report_failure
 report_open_failure
 report_read_failure
 report_write_failure
+req_resp_hdrs_do_reassembly
 reset_tap_listeners
 reset_tcp_reassembly
 rose_ctx_clean_data
