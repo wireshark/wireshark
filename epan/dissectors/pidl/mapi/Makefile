@@ -7,7 +7,7 @@ packet-dcerpc-mapi.c packet-dcerpc-mapi.h: 	mapi.idl 		\
 						mapicodes_enum.h  	\
 						mapitags_enum.h 	\
 						../idl_types.h
-	pidl  --verbose --includedir=.. --ws-parser -- mapi.idl
+	../../../../tools/pidl/pidl --verbose --includedir=.. --ws-parser -- mapi.idl
 
 clean:
 	rm -f packet-dcerpc-mapi.c packet-dcerpc-mapi.h idl_types.h
