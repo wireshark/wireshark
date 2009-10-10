@@ -10,7 +10,7 @@ PKIXCRMF-2005	crmf
 		
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
 #.INCLUDE ../pkix1implicit/pkix1implicit_exp.cnf
-#.IMPORT ../pkixcrmf/crmf-exp.cnf
+#.IMPORT ../crmf/crmf-exp.cnf
 
 #.EXPORTS
 CAKeyUpdAnnContent

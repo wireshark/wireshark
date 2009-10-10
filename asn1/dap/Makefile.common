@@ -54,7 +54,7 @@ A2W_FLAGS= -b -e -L
 EXTRA_CNF= \
 	../disp/disp-exp.cnf \
 	../dsp/dsp-exp.cnf \
-	../pkixcrmf/crmf-exp.cnf \
+	../crmf/crmf-exp.cnf \
 	../ros/ros-exp.cnf \
 	../x509af/x509af-exp.cnf \
 	../x509if/x509if-exp.cnf \
@@ -66,8 +66,8 @@ EXTRA_CNF= \
 ../dsp/dsp-exp.cnf:
 	(cd ../dsp && $(MAKE_CNF_EXPORT))
 
-../pkixcrmf/crmf-exp.cnf:
-	(cd ../pkixcrmf && $(MAKE_CNF_EXPORT))
+../crmf/crmf-exp.cnf:
+	(cd ../crmf && $(MAKE_CNF_EXPORT))
 
 ../ros/ros-exp.cnf:
 	(cd ../ros && $(MAKE_CNF_EXPORT))

@@ -1,7 +1,7 @@
 #.IMPORT	../x509if/x509if-exp.cnf
 #.IMPORT	../x509af/x509af-exp.cnf
 #.IMPORT	../x509sat/x509sat-exp.cnf
-#.IMPORT	../pkixcrmf/crmf-exp.cnf
+#.IMPORT	../crmf/crmf-exp.cnf
 #.IMPORT	../dsp/dsp-exp.cnf
 #.IMPORT	../disp/disp-exp.cnf
 #.IMPORT	../ros/ros-exp.cnf

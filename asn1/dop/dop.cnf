@@ -3,7 +3,7 @@
 #.IMPORT ../x509af/x509af-exp.cnf
 #.IMPORT ../dsp/dsp-exp.cnf
 #.IMPORT ../dap/dap-exp.cnf
-#.IMPORT ../pkixcrmf/crmf-exp.cnf
+#.IMPORT ../crmf/crmf-exp.cnf
 
 #.MODULE_IMPORT
 BasicAccessControl		crmf
