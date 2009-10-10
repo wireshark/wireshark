@@ -28,45 +28,45 @@ all: ber per
 ber: \
 	acp133	\
 	acse	\
-	ansi_map	\
+	ansi_map\
 	ansi_tcap	\
 	camel	\
-	cdt	\
+	cdt		\
 	charging_ase	\
 	cmip	\
-	cmp	\
+	cmp		\
 	crmf	\
-	cms	\
-	dap	\
-	dop	\
+	cms		\
+	dap		\
+	dop		\
 	disp	\
-	dsp	\
-	ess	\
+	dsp		\
+	ess		\
 	ftam	\
-	gnm	\
+	gnm		\
 	goose	\
 	gsm_map	\
 	h248	\
 	inap	\
-	ldap \
+	ldap 	\
 	logotypecertextn	\
-	mms	\
+	mms		\
 	ns-cert-exts	\
 	ocsp	\
-	p7	\
+	p7		\
 	pkcs1	\
 	pkcs12	\
 	pkinit	\
 	pkix1explicit	\
 	pkix1implicit	\
-	pkixproxy	\
+	pkixproxy		\
 	pkixqualified	\
 	pkixtsp	\
 	pres	\
 	q932	\
-	q932-ros	\
+	q932-ros\
 	qsig	\
-	ros	\
+	ros		\
 	rtse	\
 	s4406	\
 	smrse	\
@@ -80,8 +80,8 @@ ber: \
 	x509af	\
 	x509ce	\
 	x509if	\
-	x509sat	
-	
+	x509sat
+
 per: \
 	h225	\
 	h235	\
@@ -90,7 +90,7 @@ per: \
 	h283	\
 	h323	\
 	h450	\
-	h450-ros	\
+	h450-ros\
 	h460	\
 	h501	\
 	lte-rrc	\
@@ -107,16 +107,16 @@ per: \
 	t38		\
 	ulp		\
 	x2ap
-	
+
 clean:
 	cd acp133
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean	
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean
 	cd ..
 	cd acse
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean	
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean
 	cd ..
 	cd ansi_map
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean	
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean
 	cd ..
 	cd camel
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -128,6 +128,12 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd cmip
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd cmp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd crmf
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd cms
@@ -245,12 +251,6 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd pkix1implicit
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd cmp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd crmf
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd pkixproxy
@@ -350,25 +350,25 @@ clean:
 distclean: clean
 
 maintainer-clean: distclean
-	
+
 acse::
 	cd acse
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files
 	cd ..
 
 acp133::
 	cd acp133
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files
 	cd ..
 
 ansi_tcap::
 	cd ansi_tcap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files
 	cd ..
 
 ansi_map::
 	cd ansi_map
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files
 	cd ..
 
 camel::
@@ -388,6 +388,16 @@ charging_ase::
 
 cmip::
 	cd cmip
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+cmp::
+	cd cmp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+crmf::
+	cd crmf
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
@@ -434,8 +444,8 @@ goose::
 	cd goose
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
-	
-gsmmap::
+
+gsm_map::
 	cd gsm_map
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
@@ -514,7 +524,7 @@ lte-rrc::
 	cd lte-rrc
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
-	
+
 logotypecertextn::
 	cd logotypecertextn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
@@ -582,16 +592,6 @@ pkix1explicit::
 
 pkix1implicit::
 	cd pkix1implicit
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd ..
-
-cmp::
-	cd cmp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd ..
-
-crmf::
-	cd crmf
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

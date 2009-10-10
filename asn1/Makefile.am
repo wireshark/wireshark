@@ -22,25 +22,25 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-SUBDIRS = \
+SUBDIRS = 		\
 	acp133		\
 	acse		\
 	ansi_map	\
 	ansi_tcap	\
 	camel		\
-	cdt		\
-	charging_ase	\
+	cdt			\
+	charging_ase\
 	cmip		\
-	cmp		\
+	cmp			\
 	crmf		\
-	cms		\
-	dap		\
-	dop		\
+	cms			\
+	dap			\
+	dop			\
 	disp		\
-	dsp		\
-	ess		\
+	dsp			\
+	ess			\
 	ftam		\
-	gnm		\
+	gnm			\
 	goose		\
 	gsm_map		\
 	h225		\
@@ -57,14 +57,14 @@ SUBDIRS = \
 	inap		\
 	ldap		\
 	logotypecertextn	\
-	lte-rrc	\
-	mms		\
+	lte-rrc		\
+	mms			\
 	mpeg-audio	\
 	mpeg-pes	\
 	nbap		\
-	ns-cert-exts	\
+	ns-cert-exts\
 	ocsp		\
-	p7		\
+	p7			\
 	pcap		\
 	pkcs1		\
 	pkcs12		\
@@ -80,8 +80,8 @@ SUBDIRS = \
 	qsig		\
 	ranap		\
 	rnsap		\
-	ros		\
-	rrc		\
+	ros			\
+	rrc			\
 	rrlp		\
 	rtse		\
 	s1ap		\
@@ -91,10 +91,10 @@ SUBDIRS = \
 	snmp		\
 	spnego		\
 	t125		\
-	t38		\
+	t38			\
 	tcap		\
-	ulp		\
-	wlancertextn	\
+	ulp			\
+	wlancertextn\
 	x2ap		\
 	x411		\
 	x420		\
