@@ -31,16 +31,18 @@ SUBDIRS = \
 	cdt		\
 	charging_ase	\
 	cmip		\
+	cmp		\
+	crmf		\
 	cms		\
 	dap		\
-	disp		\
 	dop		\
+	disp		\
 	dsp		\
 	ess		\
 	ftam		\
 	gnm		\
 	goose		\
-	gsmmap		\
+	gsm_map		\
 	h225		\
 	h235		\
 	h245		\
@@ -54,7 +56,7 @@ SUBDIRS = \
 	h501		\
 	inap		\
 	ldap		\
-	logotype-cert-extn	\
+	logotypecertextn	\
 	lte-rrc	\
 	mms		\
 	mpeg-audio	\
@@ -69,8 +71,6 @@ SUBDIRS = \
 	pkinit		\
 	pkix1explicit	\
 	pkix1implicit	\
-	pkixcmp		\
-	pkixcrmf	\
 	pkixproxy	\
 	pkixqualified	\
 	pkixtsp		\

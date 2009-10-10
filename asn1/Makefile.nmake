@@ -26,14 +26,16 @@
 all: ber per
 
 ber: \
-	acse	\
 	acp133	\
+	acse	\
 	ansi_map	\
 	ansi_tcap	\
 	camel	\
 	cdt	\
 	charging_ase	\
 	cmip	\
+	cmp	\
+	crmf	\
 	cms	\
 	dap	\
 	dop	\
@@ -43,11 +45,11 @@ ber: \
 	ftam	\
 	gnm	\
 	goose	\
-	gsmmap	\
+	gsm_map	\
 	h248	\
 	inap	\
 	ldap \
-	logotype-cert-extn	\
+	logotypecertextn	\
 	mms	\
 	ns-cert-exts	\
 	ocsp	\
@@ -57,8 +59,6 @@ ber: \
 	pkinit	\
 	pkix1explicit	\
 	pkix1implicit	\
-	pkixcmp	\
-	pkixcrmf	\
 	pkixproxy	\
 	pkixqualified	\
 	pkixtsp	\
@@ -157,7 +157,7 @@ clean:
 	cd gnm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd gsmmap
+	cd gsm_map
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd h225
@@ -205,7 +205,7 @@ clean:
 	cd kerberos
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd logotype-cert-extn
+	cd logotypecertextn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd mms
@@ -247,10 +247,10 @@ clean:
 	cd pkix1implicit
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd pkixcmp
+	cd cmp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd pkixcrmf
+	cd crmf
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd pkixproxy
@@ -436,7 +436,7 @@ goose::
 	cd ..
 	
 gsmmap::
-	cd gsmmap
+	cd gsm_map
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
@@ -515,8 +515,8 @@ lte-rrc::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 	
-logotype-cert-extn::
-	cd logotype-cert-extn
+logotypecertextn::
+	cd logotypecertextn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
@@ -585,13 +585,13 @@ pkix1implicit::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
-pkixcmp::
-	cd pkixcmp
+cmp::
+	cd cmp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
-pkixcrmf::
-	cd pkixcrmf
+crmf::
+	cd crmf
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
