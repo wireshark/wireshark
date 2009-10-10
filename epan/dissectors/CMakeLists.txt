@@ -23,6 +23,14 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+if (AUTOGEN_dcerpc)
+    add_subdirectory( dcerpc )
+endif()
+
+if (AUTOGEN_pidl)
+    add_subdirectory( pidl )
+endif()
+
 ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
     COMMAND ${PYTHON_EXECUTABLE}

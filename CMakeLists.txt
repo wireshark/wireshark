@@ -65,6 +65,8 @@ option(BUILD_editcap     "Build editcap" ON)
 option(BUILD_capinfos    "Build capinfos" ON)
 option(BUILD_randpkt     "Build randpkt" ON)
 option(BUILD_dftest      "Build dftest" ON)
+option(AUTOGEN_dcerpc    "Autogenerate dcerpc dissectors" OFF)
+option(AUTOGEN_pidl      "Autogenerate pidl dissectors" OFF)
 
 option(DISABLE_WERROR	 "Do not treat Warnings as errors" OFF)
 option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC (disables -Werror)" ON)
