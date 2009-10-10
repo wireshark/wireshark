@@ -172,7 +172,7 @@ else()
 	add_definitions( -D_U_=\"\" )
 endif()
 
-# todo 
+# todo
 # Same for linker flags, but it looks like it's do-it-yourself here
 # AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,--as-needed])
 
@@ -348,6 +348,13 @@ foreach(PLUGIN_DIR ${PLUGIN_SRC_DIRS})
 	add_subdirectory( ${PLUGIN_DIR} )
 endforeach()
 
+add_subdirectory( codecs )
+add_subdirectory( epan )
+add_subdirectory( gtk )
+add_subdirectory( tools/lemon )
+add_subdirectory( wiretap )
+add_subdirectory( wsutil )
+
 #Platform specific
 if(UNIX)
 	set(WS_VAR_IMPORT "extern")
@@ -370,18 +377,10 @@ if(WIN32)
 	endif()
 endif()
 
-
-add_subdirectory( codecs )
-add_subdirectory( epan )
-add_subdirectory( gtk )
-add_subdirectory( tools/lemon )
-add_subdirectory( wiretap )
-add_subdirectory( wsutil )
-
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
 
 include(FeatureSummary)
-#SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ] 
+#SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ]
 PRINT_ENABLED_FEATURES()
 PRINT_DISABLED_FEATURES()
 
