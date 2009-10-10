@@ -1,10 +1,12 @@
-all: packet-dcerpc-nspi.c packet-dcerpc-nspi.h
+PROTOCOL_NAME=nspi
 
-packet-dcerpc-nspi.c packet-dcerpc-nspi.h: nspi.idl nspi.cnf mapicodes_enum.h  mapitags_enum.h ../idl_types.h
-	../../../../tools/pidl/pidl  --includedir=.. --ws-parser -- nspi.idl
+all: packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h
+
+packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h: $(PROTOCOL_NAME).idl $(PROTOCOL_NAME).cnf mapicodes_enum.h  mapitags_enum.h ../idl_types.h
+	../../../../tools/pidl/pidl  --includedir=.. --ws-parser -- $(PROTOCOL_NAME).idl
 
 clean:
-	rm -f packet-dcerpc-nspi.c packet-dcerpc-nspi.h idl_types.h
+	rm -f packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h idl_types.h
 
-install: packet-dcerpc-nspi.c packet-dcerpc-nspi.h
-	cp packet-dcerpc-nspi.c packet-dcerpc-nspi.h ../../
+install: packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h
+	cp packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h ../../

@@ -1,10 +1,12 @@
-all: packet-dcerpc-rfr.c packet-dcerpc-rfr.h
+PROTOCOL_NAME=rfr
 
-packet-dcerpc-rfr.c packet-dcerpc-rfr.h: rfr.idl rfr.cnf mapicodes_enum.h ../idl_types.h
-	../../../../tools/pidl/pidl --includedir=.. --ws-parser -- rfr.idl
+all: packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h
+
+packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h: $(PROTOCOL_NAME).idl $(PROTOCOL_NAME).cnf mapicodes_enum.h ../idl_types.h
+	../../../../tools/pidl/pidl --includedir=.. --ws-parser -- $(PROTOCOL_NAME).idl
 
 clean:
-	rm -f packet-dcerpc-rfr.c packet-dcerpc-rfr.h idl_types.h
+	rm -f packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h idl_types.h
 
-install: packet-dcerpc-rfr.c packet-dcerpc-rfr.h
-	cp packet-dcerpc-rfr.c packet-dcerpc-rfr.h ../../
+install: packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h
+	cp packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h ../../

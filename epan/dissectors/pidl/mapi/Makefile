@@ -1,16 +1,18 @@
-all: packet-dcerpc-mapi.c packet-dcerpc-mapi.h
+PROTOCOL_NAME=mapi
 
-packet-dcerpc-mapi.c packet-dcerpc-mapi.h: 	mapi.idl 		\
-						mapi.cnf 		\
+all: packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h
+
+packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h: $(PROTOCOL_NAME).idl \
+						$(PROTOCOL_NAME).cnf 		\
 						request.cnf.c		\
 						response.cnf.c		\
 						mapicodes_enum.h  	\
 						mapitags_enum.h 	\
 						../idl_types.h
-	../../../../tools/pidl/pidl --verbose --includedir=.. --ws-parser -- mapi.idl
+	../../../../tools/pidl/pidl --verbose --includedir=.. --ws-parser -- $(PROTOCOL_NAME).idl
 
 clean:
-	rm -f packet-dcerpc-mapi.c packet-dcerpc-mapi.h idl_types.h
+	rm -f packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h idl_types.h
 
-install: packet-dcerpc-mapi.c packet-dcerpc-mapi.h
-	cp packet-dcerpc-mapi.c packet-dcerpc-mapi.h ../../
+install: packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h
+	cp packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h ../../
