@@ -1401,7 +1401,7 @@ static gint32 actrace_direction = 0;
 /****************************************************************************/
 /* whenever a q931_ packet is seen by the tap listener */
 static int
-q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *q931_info _U_)
+q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *q931_info)
 {
 	GList *list,*list2;
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
