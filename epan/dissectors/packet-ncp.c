@@ -30,6 +30,18 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* XXX: 
+   ToDo: Find and fix possible memory leak(s):
+
+   Example:
+
+   A 40M capture file with mostly NCP frames results 
+   in a 400K-800K memory usage increase each time the file is reloaded.
+
+   (If the NCP dissection is disabled, there is minimal memory usage
+   increase each time the file is reloaded).
+*/
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -231,7 +243,7 @@ mncp_hash(gconstpointer v)
     return GPOINTER_TO_UINT(mncp_key->conversation)+mncp_key->nwconnection+mncp_key->nwtask;
 }
 
-/* Initializes the hash table and the mem_chunk area each time a new
+/* Initializes the hash table each time a new
  * file is loaded or re-loaded in wireshark */
 static void
 mncp_init_protocol(void)

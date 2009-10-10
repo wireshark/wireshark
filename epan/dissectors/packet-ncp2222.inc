@@ -1591,7 +1591,7 @@ static const value_string nds_verb2b_flag_vals[] = {
 
 static void
 process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
-                    int *req_cond_results, gboolean really_decode,
+                    gboolean *req_cond_results, gboolean really_decode,
                     const ncp_record *ncp_rec);
 
 /* NCP packets come in request/reply pairs. The request packets tell the type
@@ -1627,18 +1627,13 @@ typedef struct {
 typedef struct {
     ncp_req_eid_hash_key    *nds_eid;
     char                    object_name[256];
-    char                    *object_class;
 } ncp_req_eid_hash_value;
 
 static GHashTable *ncp_req_hash = NULL;
 static GHashTable *ncp_req_eid_hash = NULL;
-static GMemChunk *ncp_req_eid_hash_keys = NULL;
-static GMemChunk *ncp_req_eid_hash_values = NULL;
-static GMemChunk *ncp_req_hash_keys = NULL;
-static GMemChunk *ncp_req_hash_values = NULL;
 
 /* Hash Functions */
-static gint
+static gboolean
 ncp_equal(gconstpointer v, gconstpointer v2)
 {
     const ncp_req_hash_key *val1 = (const ncp_req_hash_key*)v;
@@ -1646,21 +1641,21 @@ ncp_equal(gconstpointer v, gconstpointer v2)
 
     if (val1->conversation == val2->conversation &&
         val1->nw_sequence  == val2->nw_sequence ) {
-        return 1;
+        return TRUE;
     }
-    return 0;
+    return FALSE;
 }
 
-static gint
+static gboolean
 ncp_eid_equal(gconstpointer v, gconstpointer v2)
 {
     const ncp_req_eid_hash_key *val1 = (const ncp_req_eid_hash_key*)v;
     const ncp_req_eid_hash_key *val2 = (const ncp_req_eid_hash_key*)v2;
 
     if (val1->nw_eid == val2->nw_eid ) {
-        return 1;
+        return TRUE;
     }
-    return 0;
+    return FALSE;
 }
 
 static guint
@@ -1675,28 +1670,6 @@ ncp_eid_hash(gconstpointer v)
 {
     const ncp_req_eid_hash_key *ncp_eid_key = (const ncp_req_eid_hash_key*)v;
     return GPOINTER_TO_UINT(ncp_eid_key->nw_eid);
-}
-
-/* Frees memory used by the ncp_req_hash_value's */
-static void
-ncp_req_hash_cleanup(gpointer key _U_, gpointer value, gpointer user_data _U_)
-{
-    ncp_req_hash_value *request_value = (ncp_req_hash_value*) value;
-
-    if (request_value->req_cond_results) {
-        g_free(request_value->req_cond_results);
-    }
-}
-
-/* Frees memory used by the ncp_eid_hash_value's */
-static void
-ncp_req_eid_hash_cleanup(gpointer key _U_, gpointer value, gpointer user_data _U_)
-{
-    ncp_req_eid_hash_value *request_eid_value = (ncp_req_eid_hash_value*) value;
-
-    if (request_eid_value->object_class) {
-        g_free(request_eid_value->object_class);
-    }
 }
 
 /* Initializes the hash table and the mem_chunk area each time a new
@@ -1715,40 +1688,14 @@ ncp_init_protocol(void)
     }
 
     if (ncp_req_hash) {
-        g_hash_table_foreach(ncp_req_hash, ncp_req_hash_cleanup, NULL);
         g_hash_table_destroy(ncp_req_hash);
     }
     if (ncp_req_eid_hash) {
-        g_hash_table_foreach(ncp_req_eid_hash, ncp_req_eid_hash_cleanup, NULL);
         g_hash_table_destroy(ncp_req_eid_hash);
     }
-    if (ncp_req_hash_keys)
-        g_mem_chunk_destroy(ncp_req_hash_keys);
-    if (ncp_req_hash_values)
-        g_mem_chunk_destroy(ncp_req_hash_values);
-    if (ncp_req_eid_hash_keys)
-        g_mem_chunk_destroy(ncp_req_eid_hash_keys);
-    if (ncp_req_eid_hash_values)
-        g_mem_chunk_destroy(ncp_req_eid_hash_values);
 
     ncp_req_hash = g_hash_table_new(ncp_hash, ncp_equal);
     ncp_req_eid_hash = g_hash_table_new(ncp_eid_hash, ncp_eid_equal);
-    ncp_req_hash_keys = g_mem_chunk_new("ncp_req_hash_keys",
-                                        sizeof(ncp_req_hash_key),
-                                        NCP_PACKET_INIT_COUNT * sizeof(ncp_req_hash_key),
-                                        G_ALLOC_ONLY);
-    ncp_req_hash_values = g_mem_chunk_new("ncp_req_hash_values",
-                                          sizeof(ncp_req_hash_value),
-                                          NCP_PACKET_INIT_COUNT * sizeof(ncp_req_hash_value),
-                                          G_ALLOC_ONLY);
-    ncp_req_eid_hash_keys = g_mem_chunk_new("ncp_req_eid_hash_keys",
-                                            sizeof(ncp_req_eid_hash_key),
-                                            NCP_PACKET_INIT_COUNT * sizeof(ncp_req_eid_hash_key),
-                                            G_ALLOC_ONLY);
-    ncp_req_eid_hash_values = g_mem_chunk_new("ncp_req_eid_hash_values",
-                                              sizeof(ncp_req_eid_hash_value),
-                                              NCP_PACKET_INIT_COUNT * sizeof(ncp_req_eid_hash_value),
-                                              G_ALLOC_ONLY);
 }
 
 /* After the sequential run, we don't need the ncp_request hash and keys
@@ -1757,15 +1704,13 @@ ncp_init_protocol(void)
 static void
 ncp_postseq_cleanup(void)
 {
+#if 0 /* XXX: ?? */
     if (ncp_req_hash) {
         /* Destroy the hash, but don't clean up request_condition data. */
-        /*g_hash_table_destroy(ncp_req_hash);
-          ncp_req_hash = NULL;*/
+        g_hash_table_destroy(ncp_req_hash);
+        ncp_req_hash = NULL;
     }
-    if (ncp_req_hash_keys) {
-        /*g_mem_chunk_destroy(ncp_req_hash_keys);
-          ncp_req_hash_keys = NULL;*/
-    }
+#endif
     /* Don't free the ncp_req_hash_values or EID_hash_table, as they're
      * needed during random-access processing of the proto_tree.*/
 }
@@ -1779,11 +1724,11 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
 
     /* Now remember the request, so we can find it if we later
        a reply to it. */
-    request_key = g_mem_chunk_alloc(ncp_req_hash_keys);
+    request_key = se_alloc(sizeof(ncp_req_hash_key));
     request_key->conversation = conversation;
     request_key->nw_sequence = nw_sequence;
 
-    request_value = g_mem_chunk_alloc(ncp_req_hash_values);
+    request_value = se_alloc(sizeof(ncp_req_hash_value));
     request_value->ncp_rec = ncp_rec;
     request_value->req_cond_results = NULL;
     request_value->req_nds_flags = 0;
@@ -1805,12 +1750,11 @@ ncp_eid_hash_insert(guint32 nw_eid)
 
     /* Now remember the request, so we can find it if we later
        a reply to it. */
-    request_eid_key = g_mem_chunk_alloc(ncp_req_eid_hash_keys);
+    request_eid_key = se_alloc(sizeof(ncp_req_eid_hash_key));
     request_eid_key->nw_eid = nw_eid;
 
-    request_eid_value = g_mem_chunk_alloc(ncp_req_eid_hash_values);
+    request_eid_value = se_alloc(sizeof(ncp_req_eid_hash_value));
     g_strlcpy(request_eid_value->object_name, " ", 256);
-    request_eid_value->object_class = NULL;
 
     g_hash_table_insert(ncp_req_eid_hash, request_eid_key, request_eid_value);
 
@@ -2201,7 +2145,7 @@ process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 /* Process a sub-ptvc_record that points to a "struct" ptvc_record. */
 static void
 process_struct_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
-                               int *req_cond_results, gboolean really_decode,
+                               gboolean *req_cond_results, gboolean really_decode,
                                const ncp_record *ncp_rec)
 {
     const ptvc_record   *sub_rec;
@@ -2241,7 +2185,7 @@ process_struct_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
  * is the work-horse of process_ptvc_record(). */
 static void
 _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
-                     int *req_cond_results, gboolean really_decode,
+                     gboolean *req_cond_results, gboolean really_decode,
                      const ncp_record *ncp_rec)
 {
     proto_item  *item;
@@ -2360,7 +2304,7 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
  * Honor a request condition result. */
 static void
 process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
-                    int *req_cond_results, gboolean really_decode,
+                    gboolean *req_cond_results, gboolean really_decode,
                     const ncp_record *ncp_rec)
 {
     gboolean decode;
@@ -7833,7 +7777,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
             gboolean    *results;
             dfilter_t   *dfilter;
 
-            results = g_new0(gboolean, NUM_REQ_CONDS);
+            results = se_alloc0(sizeof(gboolean)*NUM_REQ_CONDS);
             needed = ncp_rec->req_cond_indexes;
 
             while (*needed != -1) {
@@ -9001,7 +8945,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
     conversation_t      *conversation = NULL;
     ncp_req_hash_value  *request_value = NULL;
     const ncp_record    *ncp_rec = NULL;
-    int                 *req_cond_results;
+    gboolean            *req_cond_results;
     guint8               completion_code=0;
     ptvcursor_t         *ptvc = NULL;
     const char          *error_string;
