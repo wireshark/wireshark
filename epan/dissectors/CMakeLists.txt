@@ -63,15 +63,35 @@ ADD_CUSTOM_COMMAND(
 )
 
 if (AUTOGEN_dcerpc)
-  set(PIDL_DISSECTOR_AUTOGEN_SRC
-	  dcerpc/budb/packet-dcerpc-budb.c
-	  dcerpc/butc/packet-dcerpc-butc.c
-	  dcerpc/drsuapi/packet-dcerpc-drsuapi.c
+  set(PIDL_DISSECTOR_AUTOGEN_NAMES
+	  budb
+	  butc
+	  drsuapi
   ) 
-  set_source_files_properties(${PIDL_DISSECTOR_AUTOGEN_SRC}
-	  PROPERTIES 
-	    GENERATED TRUE
-  )
+
+  FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
+    set(PIDL_DISSECTOR_AUTOGEN_SRC 
+	${PIDL_DISSECTOR_AUTOGEN_SRC}
+	dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.c
+    )
+  ENDFOREACH()
+
+  FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
+    ADD_CUSTOM_COMMAND(
+	OUTPUT
+	  ${CMAKE_CURRENT_SOURCE_DIR}/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.c
+	  ${CMAKE_CURRENT_SOURCE_DIR}/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.h
+	COMMAND
+	  idl2wrs ${PROTOCOL_NAME}
+	WORKING_DIRECTORY
+	  ${CMAKE_CURRENT_SOURCE_DIR}/dcerpc/${PROTOCOL_NAME}
+	DEPENDS
+	  dcerpc/${PROTOCOL_NAME}/${PROTOCOL_NAME}.idl
+	  dcerpc/${PROTOCOL_NAME}/${PROTOCOL_NAME}.cnf
+	  dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}-template.c 
+	  dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}-template.h
+    )
+  ENDFOREACH()
 else()
   set(PIDL_DISSECTOR_AUTOGEN_SRC
 	  packet-dcerpc-budb.c
