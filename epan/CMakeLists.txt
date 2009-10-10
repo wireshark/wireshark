@@ -21,33 +21,34 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-if (HAVE_LIBLUA)
-	add_subdirectory( wslua )
-	set(WSLUA_LIB wslua)
-else()
-	set(WSLUA_LIB )
-endif()
-if (HAVE_LIBPYTHON)
-	add_subdirectory( wspython )
-	set(WSPYTHON_LIB wspython)
-else()
-	set(WSPYTHON_LIB )
-endif()
-
 add_subdirectory( crc )
 set(CRC_LIB crc )
 
 add_subdirectory( crypt )
 set(CRYPT_LIB crypt )
 
-add_subdirectory( dissectors )
-set(DISSECTORS_LIB dissectors )
-
 add_subdirectory( dfilter )
 set(DFILTER_LIB dfilter )
 
+add_subdirectory( dissectors )
+set(DISSECTORS_LIB dissectors )
+
 add_subdirectory( ftypes )
 set(FTYPES_LIB ftypes )
+
+if (HAVE_LIBLUA)
+	add_subdirectory( wslua )
+	set(WSLUA_LIB wslua)
+else()
+	set(WSLUA_LIB )
+endif()
+
+if (HAVE_LIBPYTHON)
+	add_subdirectory( wspython )
+	set(WSPYTHON_LIB wspython)
+else()
+	set(WSPYTHON_LIB )
+endif()
 
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
