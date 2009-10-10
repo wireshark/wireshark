@@ -1,4 +1,4 @@
-/* packet-logotype-cert-extn.h
+/* packet-logotypecertextn.h
  * Routines for RFC3907 Logotype Certificate Extensions packet dissection
  *    Ronnie Sahlberg 2004
  *

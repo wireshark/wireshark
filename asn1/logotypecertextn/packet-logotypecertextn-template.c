@@ -1,4 +1,4 @@
-/* packet-logotype-cert-extn.c
+/* packet-logotypecertextn.c
  * Routines for RFC3709 Logotype Certificate Extensions packet dissection
  *   Ronnie Sahlberg 2004
  *
