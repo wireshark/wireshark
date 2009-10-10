@@ -1,0 +1,28 @@
+# NS-CERT-EXT.cnf
+# NetScape Certificate Extensions conformation file
+
+# $Id$
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.REGISTER
+CertType        B "2.16.840.1.113730.1.1"  "ns_cert_exts.cert_type"
+BaseUrl         B "2.16.840.1.113730.1.2"  "ns_cert_exts.base_url"
+RevocationUrl   B "2.16.840.1.113730.1.3"  "ns_cert_exts.revocation-url"
+CaRevocationUrl B "2.16.840.1.113730.1.4"  "ns_cert_exts.ca-revocation-url"
+CertRenewalUrl  B "2.16.840.1.113730.1.7"  "ns_cert_exts.cert-renewal-url"
+CaPolicyUrl     B "2.16.840.1.113730.1.8"  "ns_cert_exts.ca-policy-url"
+SslServerName   B "2.16.840.1.113730.1.12" "ns_cert_exts.ssl-server-name"
+Comment         B "2.16.840.1.113730.1.13" "ns_cert_exts.comment"
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+
+

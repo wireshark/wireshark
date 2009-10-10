@@ -62,7 +62,7 @@ SUBDIRS = 		\
 	mpeg-audio	\
 	mpeg-pes	\
 	nbap		\
-	ns-cert-exts\
+	ns_cert_exts\
 	ocsp		\
 	p7			\
 	pcap		\

@@ -1,4 +1,4 @@
-/* packet-ns-cert-exts.h
+/* packet-ns_cert_exts.h
  * Routines for NetScape Certificate Extensions packet dissection
  *  Ronnie Sahlberg 2004
  *
@@ -26,7 +26,7 @@
 #ifndef PACKET_NS_CERT_EXTS_H
 #define PACKET_NS_CERT_EXTS_H
 
-#include "packet-ns-cert-exts-exp.h"
+#include "packet-ns_cert_exts-exp.h"
 
 #endif  /* PACKET_NS_CERT_EXTS_H */
 

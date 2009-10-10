@@ -51,7 +51,7 @@ ber: \
 	ldap 	\
 	logotypecertextn	\
 	mms		\
-	ns-cert-exts	\
+	ns_cert_exts	\
 	ocsp	\
 	p7		\
 	pkcs1	\
@@ -226,7 +226,7 @@ clean:
 	cd nbap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd ns-cert-exts
+	cd ns_cert_exts
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd ocsp
@@ -550,8 +550,8 @@ nbap::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
-ns-cert-exts::
-	cd ns-cert-exts
+ns_cert_exts::
+	cd ns_cert_exts
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
