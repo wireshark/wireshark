@@ -67,8 +67,9 @@ ADD_CUSTOM_COMMAND(
     COMMAND ${PYTHON_EXECUTABLE}
       ${CMAKE_SOURCE_DIR}/tools/ncp2222.py
       -o ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
-    DEPENDS 
-    ${CMAKE_SOURCE_DIR}/tools/ncp2222.py
+    DEPENDS
+      dissectors/packet-ncp2222.inc
+      ${CMAKE_SOURCE_DIR}/tools/ncp2222.py
 )
 
 ADD_CUSTOM_COMMAND(
