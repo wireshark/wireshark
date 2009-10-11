@@ -74,13 +74,10 @@ static struct tcaphash_context_t * gp_tcap_context=NULL;
 
 #define MAX_SSN 254
 
-gboolean g_ansi_tcap_HandleSRT=FALSE;
 extern gboolean gtcap_PersistentSRT;
-extern gboolean gtcap_DisplaySRT;
 extern guint gtcap_RepetitionTimeout;
 extern guint gtcap_LostTimeout;
 
-/* static dissector_handle_t    tcap_handle = NULL; */
 static dissector_table_t ber_oid_dissector_table=NULL;
 static const char * cur_oid;
 static const char * tcapext_oid;
@@ -89,7 +86,6 @@ static proto_tree * tcap_stat_tree=NULL;
 static proto_item * tcap_stat_item=NULL;
 
 static dissector_handle_t ansi_map_handle;
-
 
 struct ansi_tcap_private_t ansi_tcap_private;
 #define MAX_TID_STR_LEN 1024
@@ -102,7 +98,9 @@ static void ansi_tcap_ctx_init(struct ansi_tcap_private_t *a_tcap_ctx) {
 }
 
 static void dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
+
 /*
+static dissector_handle_t tcap_handle = NULL;
 static dissector_table_t sccp_ssn_table;
 
 static GHashTable* ansi_sub_dissectors = NULL;
@@ -350,8 +348,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     gp_tcap_context=NULL;
     dissect_ansi_tcap_PackageType(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 
-#if 0 /* Skipp this part for now it will be rewritten */
-
+#if 0 /* Skip this part for now it will be rewritten */
     if (g_ansi_tcap_HandleSRT && !tcap_subdissector_used ) {
                 if (gtcap_DisplaySRT && tree) {
                         stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
