@@ -46,7 +46,7 @@ static int hf_lsa_String_name_len = -1;
 static int hf_lsa_String_name_size = -1;
 
 
-gint ett_nt_unicode_string = -1; /* FIXME: make static */
+static gint ett_nt_unicode_string = -1;
 static gint ett_lsa_String = -1;
 
 

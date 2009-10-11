@@ -27,11 +27,6 @@
 #define __PACKET_DCERPC_NT_H
 
 /*
- * ett_ value for Unicode strings.
- */
-extern gint ett_nt_unicode_string;
-
-/*
  * Platform ID values, used by several dissectors.
  */
 extern const value_string platform_id_vals[];
