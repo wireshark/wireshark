@@ -103,17 +103,17 @@ static int proto_dcom = -1;
 gboolean dcom_prefs_display_unmarshalling_details = FALSE;
 
 
-gint ett_dcom_this = -1;
+static gint ett_dcom_this = -1;
 static int hf_dcom_this_version_major = -1;
 static int hf_dcom_this_version_minor = -1;
 static int hf_dcom_this_flags = -1;
 static int hf_dcom_this_res = -1;
 static int hf_dcom_this_cid = -1;
 
-gint ett_dcom_that = -1;
+static gint ett_dcom_that = -1;
 static int hf_dcom_that_flags = -1;
 
-gint ett_dcom_extent = -1;
+static gint ett_dcom_extent = -1;
 static int hf_dcom_extent = -1;
 static int hf_dcom_extent_array_count = -1;
 static int hf_dcom_extent_array_res = -1;
@@ -130,13 +130,13 @@ static int hf_dcom_pointer_val = -1;
 static int hf_dcom_version_major = -1;
 static int hf_dcom_version_minor = -1;
 
-gint ett_dcom_lpwstr = -1;
+static gint ett_dcom_lpwstr = -1;
 static int hf_dcom_max_count = -1;
 static int hf_dcom_offset = -1;
 static int hf_dcom_byte_length = -1;
 static int hf_dcom_actual_count = -1;
 
-gint ett_dcom_objref = -1;
+static gint ett_dcom_objref = -1;
 static int hf_dcom_objref = -1;
 static int hf_dcom_objref_signature = -1;
 static int hf_dcom_objref_flags = -1;
@@ -146,7 +146,7 @@ static int hf_dcom_objref_resolver_address = -1;
 static int hf_dcom_objref_cbextension = -1;
 static int hf_dcom_objref_size = -1;
 
-gint ett_dcom_stdobjref = -1;
+static gint ett_dcom_stdobjref = -1;
 static int hf_dcom_stdobjref = -1;
 static int hf_dcom_stdobjref_flags = -1;
 static int hf_dcom_stdobjref_public_refs = -1;
@@ -154,8 +154,8 @@ int hf_dcom_oxid = -1;
 int hf_dcom_oid = -1;
 int hf_dcom_ipid = -1;
 
-gint ett_dcom_dualstringarray = -1;
-gint ett_dcom_dualstringarray_binding = -1;
+static gint ett_dcom_dualstringarray = -1;
+static gint ett_dcom_dualstringarray_binding = -1;
 static int hf_dcom_dualstringarray_num_entries = -1;
 static int hf_dcom_dualstringarray_security_offset = -1;
 static int hf_dcom_dualstringarray_string = -1;
@@ -166,11 +166,11 @@ static int hf_dcom_dualstringarray_security_authn_svc = -1;
 static int hf_dcom_dualstringarray_security_authz_svc = -1;
 static int hf_dcom_dualstringarray_security_princ_name = -1;
 
-gint ett_dcom_interface_pointer = -1;
+static gint ett_dcom_interface_pointer = -1;
 static int hf_dcom_interface_pointer = -1;
 static int hf_dcom_ip_cnt_data = -1;
 
-gint ett_dcom_safearray = -1;
+static gint ett_dcom_safearray = -1;
 static int hf_dcom_safearray = -1;
 static int hf_dcom_sa_dims32 = -1;
 static int hf_dcom_sa_dims16 = -1;
@@ -183,7 +183,7 @@ static int hf_dcom_sa_elements = -1;
 static int hf_dcom_sa_bound_elements = -1;
 static int hf_dcom_sa_low_bound = -1;
 
-gint ett_dcom_sa_features = -1;
+static gint ett_dcom_sa_features = -1;
 static int hf_dcom_sa_features_auto = -1;
 static int hf_dcom_sa_features_static = -1;
 static int hf_dcom_sa_features_embedded = -1;
@@ -196,7 +196,7 @@ static int hf_dcom_sa_features_unknown = -1;
 static int hf_dcom_sa_features_dispatch = -1;
 static int hf_dcom_sa_features_variant = -1;
 
-gint ett_dcom_variant = -1;
+static gint ett_dcom_variant = -1;
 static int hf_dcom_variant = -1;
 static int hf_dcom_variant_type = -1;
 static int hf_dcom_variant_size = -1;
