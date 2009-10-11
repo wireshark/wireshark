@@ -92,10 +92,10 @@ for(@in_lines) {
 	s/([\x80-\xFF])/escape_non_ascii($1)/ge;
 	
 	if (/^(\d+)/) {
-		$code = $1;
+		$code = sprintf("%5d", $1);
 	} if (/^  (\S.*)/ ) {
 		my $name = $1;
-		$body .= "\t{ $code,\t\"$name\" },\n";
+		$body .= "\t{ $code, \"$name\" },\n";
 	}
 }
 
@@ -117,9 +117,7 @@ print OUT <<"_SMINMPEC";
 #include <epan/sminmpec.h>
 
 const value_string sminmpec_values[] = {
-
-$body
-	{0, NULL}
+$body\t{0, NULL}
 };
 
 _SMINMPEC
