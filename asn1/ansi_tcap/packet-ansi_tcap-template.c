@@ -49,11 +49,11 @@
 /* Initialize the protocol and registered fields */
 static int proto_ansi_tcap = -1;
 
-int hf_ansi_tcapsrt_SessionId=-1;
-int hf_ansi_tcapsrt_Duplicate=-1;
-int hf_ansi_tcapsrt_BeginSession=-1;
-int hf_ansi_tcapsrt_EndSession=-1;
-int hf_ansi_tcapsrt_SessionTime=-1;
+static int hf_ansi_tcapsrt_SessionId = -1;
+static int hf_ansi_tcapsrt_Duplicate = -1;
+static int hf_ansi_tcapsrt_BeginSession = -1;
+static int hf_ansi_tcapsrt_EndSession = -1;
+static int hf_ansi_tcapsrt_SessionTime = -1;
 
 #include "packet-ansi_tcap-hf.c"
 
@@ -63,7 +63,7 @@ static gint ett_param = -1;
 
 static gint ett_otid = -1;
 static gint ett_dtid = -1;
-gint ett_ansi_tcap_stat = -1;
+static gint ett_ansi_tcap_stat = -1;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static gboolean tcap_subdissector_used=FALSE;
