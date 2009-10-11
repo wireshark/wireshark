@@ -34,6 +34,7 @@ import re
 import pickle
 import tempfile
 import filecmp
+import random
 
 def extract_protos_from_file_proces(tshark, file):
     try:
@@ -204,6 +205,8 @@ def main():
                       help="Directory containing tshark executable which is used for comparison")
     parser.add_option("-j", dest="num_procs", default=1, type=int, 
                       help="Max number of processes to spawn")
+    parser.add_option("-r", "--randomize", default=False, action="store_true",
+                      help="Randomize the file list order")
     parser.add_option("", "--list-all-proto", dest="list_all_proto", default=False, action="store_true", 
                       help="List all protocols in index file")
     parser.add_option("", "--list-all-files", dest="list_all_files", default=False, action="store_true", 
@@ -273,7 +276,11 @@ def main():
     else:
         cap_files = find_capture_files(paths, cap_hash)
 
-    cap_files.sort()
+    if options.randomize:
+        random.shuffle(cap_files)
+    else:
+        cap_files.sort()
+
     options.max_files = min(options.max_files, len(cap_files))
     print "%u total files, %u working files" % (len(cap_files), options.max_files)
     cap_files = cap_files[:options.max_files]
