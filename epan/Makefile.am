@@ -101,7 +101,6 @@ EXTRA_DIST = \
 	libwireshark.def	\
 	Makefile.common		\
 	Makefile.nmake		\
-	make-sminmpec.pl 	\
 	radius_dict.l   	\
 	tvbtest.c		\
 	reassemble_test.c 	\
@@ -186,8 +185,8 @@ dtd_grammar.c: $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd
 
 tvbtest.o exntest.o: exceptions.h
 
-sminmpec.c: enterprise-numbers make-sminmpec.pl
-	$(PERL) $(srcdir)/make-sminmpec.pl $(srcdir)/enterprise-numbers sminmpec.c
+sminmpec.c: enterprise-numbers ../tools/make-sminmpec.pl
+	$(PERL) $(srcdir)/../tools/make-sminmpec.pl $(srcdir)/enterprise-numbers sminmpec.c
 
 inet_ntop.c:
 	ln -s $(srcdir)/../inet_ntop.c .

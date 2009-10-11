@@ -1061,14 +1061,15 @@ set(FTYPE_FILES
 )
 
 ADD_CUSTOM_COMMAND(
-    OUTPUT sminmpec.c
+    OUTPUT
+      sminmpec.c
     COMMAND ${PERL_EXECUTABLE}
-      ${CMAKE_CURRENT_SOURCE_DIR}/make-sminmpec.pl
+      ${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
       ${CMAKE_CURRENT_SOURCE_DIR}/enterprise-numbers
       sminmpec.c
     DEPENDS
       enterprise-numbers
-      make-sminmpec.pl
+      ${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
 )
 
 set(LIBWIRESHARK_FILES

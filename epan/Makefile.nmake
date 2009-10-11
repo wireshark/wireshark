@@ -288,8 +288,8 @@ inet_pton.c: ..\inet_pton.c
 	set copycmd=/y
 	xcopy ..\inet_pton.c . /d
 
-sminmpec.c: enterprise-numbers make-sminmpec.pl
-	$(PERL) make-sminmpec.pl enterprise-numbers sminmpec.c
+sminmpec.c: enterprise-numbers ..\tools\make-sminmpec.pl
+	$(PERL) ../tools/make-sminmpec.pl enterprise-numbers sminmpec.c
 
 RUNLEX=..\tools\runlex.sh
  

@@ -107,6 +107,7 @@ EXTRA_DIST = \
 	rdps.py						\
 	runlex.sh					\
 	setuid-root.pl.in				\
+	make-sminmpec.pl 			\
 	unix2dos.pl					\
 	win32-setup.sh					\
 	wireshark_be.py					\
