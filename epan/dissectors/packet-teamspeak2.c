@@ -706,11 +706,10 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 klass = tvb_get_letohs(tvb, 0);
 
 	conversation_data = ts2_get_conversation(pinfo);
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TS2");
-	/* Clear out stuff in the info column */
-	col_clear(pinfo->cinfo, COL_INFO);
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if(klass==TS2C_ACK)
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Class: %s", val_to_str(klass, classnames, "Unknown (0x%02x)"));
 		else
