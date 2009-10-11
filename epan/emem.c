@@ -153,9 +153,9 @@ static intptr_t pagesize;
  * Set a canary value to be placed between memchunks.
  */
 static void
-emem_canary(guint8 *canary) {
+emem_canary_init(guint8 *canary) {
 	int i;
-	static GRand   *rand_state = NULL;
+	static GRand *rand_state = NULL;
 
 	if (rand_state == NULL) {
 		rand_state = g_rand_new();
@@ -244,7 +244,7 @@ ep_init_chunk(void)
 #endif
 
 	if (ep_debug_use_canary)
-		emem_canary(ep_canary);
+		emem_canary_init(ep_canary);
 
 #if defined (_WIN32)
 	/* Set up our guard page info for Win32 */
@@ -285,7 +285,7 @@ se_init_chunk(void)
 
 	if (getenv("WIRESHARK_DEBUG_SE_USE_CANARY")) {
 		se_debug_use_canary = TRUE;
-		emem_canary(se_canary);
+		emem_canary_init(se_canary);
 	} else
 		se_debug_use_canary = FALSE;
 }
