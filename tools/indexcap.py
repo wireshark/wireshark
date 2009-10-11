@@ -95,6 +95,7 @@ def dissect_file_process(tshark, tmpdir, file):
 
 def dissect_files(tshark, num_procs, max_files, cap_files):
     pool = multiprocessing.Pool(num_procs)
+    tmpdir = tempfile.mkdtemp()
     print "Temporary working dir: %s" % tmpdir
     results = [pool.apply_async(dissect_file_process, [tshark, tmpdir, file]) for file in cap_files]
     try:
