@@ -428,6 +428,15 @@ proto_cleanup(void)
 
 	while (protocols) {
 		protocol_t *protocol = protocols->data;
+		header_field_info *hfinfo;
+		PROTO_REGISTRAR_GET_NTH(protocol->proto_id, hfinfo);
+		DISSECTOR_ASSERT(protocol->proto_id == hfinfo->id);
+
+#if GLIB_CHECK_VERSION(2,10,0)
+		g_slice_free(header_field_info, hfinfo);
+#else
+		g_mem_chunk_free(gmc_hfinfo, hfinfo);
+#endif
 
 		g_list_free(protocol->fields);
 		protocols = g_list_remove(protocols, protocol);
@@ -3828,7 +3837,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
 
 	/* Add this protocol to the list of known protocols; the list
 	   is sorted by protocol short name. */
-	protocol = g_malloc(sizeof (protocol_t));
+	protocol = g_new(protocol_t, 1);
 	protocol->name = name;
 	protocol->short_name = short_name;
 	protocol->filter_name = filter_name;
