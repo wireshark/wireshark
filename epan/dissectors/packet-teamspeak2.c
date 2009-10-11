@@ -298,11 +298,7 @@ static GHashTable *msg_fragment_table = NULL;
 static GHashTable *msg_reassembled_table = NULL;
 
 /* forward reference */
-static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gboolean ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *tvb, guint16 offset, guint32 icrc32);
-static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ts2_conversation *conversation_data);
-static gboolean ts2_standard_find_fragments(tvbuff_t *tvb, guint32 *last_inorder_frame, guint32 *frag_size, guint32 *frag_num, gboolean *outoforder);
-static ts2_conversation* ts2_get_conversation(packet_info *pinfo);
 static void ts2_parse_playerlist(tvbuff_t *tvb, proto_tree *ts2_tree);
 static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree);
 static void ts2_parse_newplayerjoined(tvbuff_t *tvb, proto_tree *ts2_tree);
