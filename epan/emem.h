@@ -468,6 +468,7 @@ emem_strbuf_t *ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len);
 void emem_print_tree(emem_tree_t* emem_tree);
 
 /* #define DEBUG_INTENSE_CANARY_CHECKS */
+
 /* Helper to troubleshoot ep memory corruption
  * if compiled and the environment variable WIRESHARK_DEBUG_EP_INTENSE_CANARY exists
  * it will check the canaries and when found corrupt stop there in the hope
@@ -477,10 +478,11 @@ void emem_print_tree(emem_tree_t* emem_tree);
  */
 
 #ifdef DEBUG_INTENSE_CANARY_CHECKS
-void ep_check_canary_integrity(const char* fmt, ...);
-#define EP_CHECK_CANARY(sprintf_args) ep_check_canary_integrity sprintf_args
+void ep_check_canary_integrity(const char* fmt, ...)
+    GNUC_FORMAT_CHECK(printf, 1, 2);
+#define EP_CHECK_CANARY(args) ep_check_canary_integrity args
 #else
-#define EP_CHECK_CANARY(dummy)
+#define EP_CHECK_CANARY(args)
 #endif
 
 /**
