@@ -159,12 +159,6 @@ static void lua_tap_reset(void *tapdata) {
     }
 }
 
-static int tap_draw_cb_error_handler(lua_State* L) {
-    const gchar* error =  lua_tostring(L,1);
-    report_failure("Lua: Error During execution of Listener Draw Callback:\n %s",error);
-    return 1;
-}
-
 static void lua_tap_draw(void *tapdata) {
     Listener tap = tapdata;
     const gchar* error;
