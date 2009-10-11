@@ -593,12 +593,11 @@ static void *
 emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 {
 	void *buf;
-	void *cptr;
-	guint8 pad;
-	emem_chunk_t *free_list;
 
 	if (use_chunks) {
 		gboolean use_canary = canary != NULL;
+		guint8 pad;
+		emem_chunk_t *free_list;
 		/* Round up to an 8 byte boundary. Make sure we have at least
 		 * 8 pad bytes for our canary.
 		 */
@@ -667,7 +666,7 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 		free_list->free_offset += (unsigned int) size;
 
 		if (use_canary) {
-			cptr = (char *)buf + size - pad;
+			void *cptr = (char *)buf + size - pad;
 			memcpy(cptr, canary, pad);
 			free_list->canary_info->canary[free_list->canary_info->c_count] = cptr;
 			free_list->canary_info->cmp_len[free_list->canary_info->c_count] = pad;
