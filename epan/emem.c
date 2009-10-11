@@ -729,9 +729,7 @@ gchar* ep_strdup(const gchar* src) {
 	guint len = (guint) strlen(src);
 	gchar* dst;
 
-	dst = strncpy(ep_alloc(len+1), src, len);
-
-	dst[len] = '\0';
+	dst = memcpy(ep_alloc(len+1), src, len+1);
 
 	return dst;
 }
@@ -866,14 +864,11 @@ gchar* se_strdup(const gchar* src) {
 	guint len;
 	gchar* dst;
 
-	if(!src){
+	if(!src)
 		return "<NULL>";
-	}
 
 	len = (guint) strlen(src);
-	dst = strncpy(se_alloc(len+1), src, len);
-
-	dst[len] = '\0';
+	dst = memcpy(se_alloc(len+1), src, len+1);
 
 	return dst;
 }
