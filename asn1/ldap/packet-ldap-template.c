@@ -137,7 +137,6 @@ static int hf_mscldap_netlogon_ipaddress_port = -1;
 static int hf_mscldap_netlogon_ipaddress = -1;
 static int hf_mscldap_netlogon_ipaddress_ipv4 = -1;
 static int hf_mscldap_netlogon_type = -1;
-static int hf_mscldap_netlogon_length = -1;
 static int hf_mscldap_netlogon_flags = -1;
 static int hf_mscldap_netlogon_flags_pdc = -1;
 static int hf_mscldap_netlogon_flags_gc = -1;
