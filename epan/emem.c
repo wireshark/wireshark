@@ -653,10 +653,10 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 			mem->free_list=mem->free_list->next;
 			npc->next=mem->used_list;
 			mem->used_list=npc;
-		}
 
-		if (!mem->free_list)
-			emem_create_chunk(&mem->free_list, use_canary);
+			if (!mem->free_list)
+				emem_create_chunk(&mem->free_list, use_canary);
+		}
 
 		free_list = mem->free_list;
 
