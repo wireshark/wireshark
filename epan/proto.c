@@ -465,7 +465,7 @@ proto_cleanup(void)
 		gpa_hfinfo.hfi=NULL;
 	}
 	g_free(tree_is_expanded);
-
+    tree_is_expanded = NULL;
 }
 
 static gboolean
