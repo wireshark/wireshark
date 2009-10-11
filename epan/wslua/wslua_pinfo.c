@@ -740,7 +740,7 @@ static int pushnil_param(lua_State* L, packet_info* pinfo _U_, pinfo_param_type_
     return 1;
 }
 
-int Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
+static int Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
     const address* from = checkAddress(L,1);
     address* to;
 
@@ -782,7 +782,7 @@ int Pinfo_set_addr(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
     return 0;
 }
 
-int Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
+static int Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt) {
     gint64 v = luaL_checkint(L,1);
 
     if (!pinfo) {

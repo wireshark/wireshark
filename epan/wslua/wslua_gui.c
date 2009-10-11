@@ -46,7 +46,7 @@ WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks whether the GUI facil
     WSLUA_RETURN(1); /* A boolean: true if it is enabled, false if it isn't. */
 }
 
-void lua_menu_callback(gpointer data) {
+static void lua_menu_callback(gpointer data) {
     struct _lua_menu_data* md = data;
 	lua_State* L = md->L;
 
@@ -160,7 +160,7 @@ struct _close_cb_data {
 };
 
 
-int text_win_close_cb_error_handler(lua_State* L) {
+static int text_win_close_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
     report_failure("Lua: Error During execution of TextWindow close callback:\n %s",error);
     return 0;

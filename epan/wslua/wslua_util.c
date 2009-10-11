@@ -386,12 +386,12 @@ typedef struct _statcmd_t {
 	int func_ref;
 } statcmd_t;
 
-int statcmd_init_cb_error_handler(lua_State* L) {
+static int statcmd_init_cb_error_handler(lua_State* L) {
 	(void)L;
 	return 0;
 }
 
-void statcmd_init(const char *optarg, void* userdata) {
+static void statcmd_init(const char *optarg, void* userdata) {
 	statcmd_t* sc = userdata;
     lua_State* L = sc->L;
     

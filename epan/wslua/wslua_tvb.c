@@ -493,7 +493,7 @@ WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("expired tvbrange"),NOP);
   TvbRanges are created by calling a tvb (e.g. tvb(offset,length)). If the TvbRange span is outside the Tvb's range the creation will cause a runtime error.
  */
 
-TvbRange new_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
+static TvbRange new_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
     TvbRange tvbr;
 
 

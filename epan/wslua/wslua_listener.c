@@ -39,7 +39,7 @@ WSLUA_CLASS_DEFINE(Listener,NOP,NOP);
     add elements to the tree. 
  */
 
-int tap_packet_cb_error_handler(lua_State* L) {
+static int tap_packet_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
     static gchar* last_error = NULL;
     static int repeated = 0;
@@ -79,7 +79,7 @@ int tap_packet_cb_error_handler(lua_State* L) {
 }
 
 
-int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
+static int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
     Listener tap = tapdata;
     int retval = 0;
     
@@ -130,13 +130,13 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
     return retval;
 }
 
-int tap_reset_cb_error_handler(lua_State* L) {
+static int tap_reset_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
     report_failure("Lua: Error During execution of Listener init Callback:\n %s",error);
     return 1;
 }
 
-void lua_tap_reset(void *tapdata) {
+static void lua_tap_reset(void *tapdata) {
     Listener tap = tapdata;
     
     if (tap->init_ref == LUA_NOREF) return;
@@ -159,13 +159,13 @@ void lua_tap_reset(void *tapdata) {
     }
 }
 
-int tap_draw_cb_error_handler(lua_State* L) {
+static int tap_draw_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
     report_failure("Lua: Error During execution of Listener Draw Callback:\n %s",error);
     return 1;
 }
 
-void lua_tap_draw(void *tapdata) {
+static void lua_tap_draw(void *tapdata) {
     Listener tap = tapdata;
     const gchar* error;
     if (tap->draw_ref == LUA_NOREF) return;

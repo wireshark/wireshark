@@ -182,7 +182,7 @@ static void wslua_init_routine(void) {
 }
 
 
-static const char *getF(lua_State *L _U_, void *ud, size_t *size)
+static const char *getF(lua_State *LS _U_, void *ud, size_t *size)
 {
     FILE *f=(FILE *)ud;
     static char buff[512];
