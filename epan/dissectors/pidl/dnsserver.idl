@@ -134,13 +134,13 @@
 		DNS_RPC_NAME		Name;
 	} DNS_RPC_RECORD_NODE_NAME;
 	
-//	typedef [nodiscriminant] union {
+/*	typedef [nodiscriminant] union { */
 	typedef union {
 		[case(2)] DNS_RPC_RECORD_NODE_NAME	NodeName;
 	} DNS_RPC_RECORD_UNION;
 
 	typedef struct {
-		uint16			DataLength; // size of 
+		uint16			DataLength; /* size of  */
 		DNS_RECORD_TYPE		Type;
 		uint32			Flags;
 		uint32			Serial;
