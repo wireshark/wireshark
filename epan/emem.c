@@ -604,7 +604,7 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 		 if (use_canary)
 			pad = emem_canary_pad(size);
 		 else
-			pad = ((8 - (size & 0x7)) & 0x7);
+			pad = (G_MEM_ALIGN - (size & (G_MEM_ALIGN-1))) & (G_MEM_ALIGN-1);
 
 		size += pad;
 
