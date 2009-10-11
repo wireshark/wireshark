@@ -105,7 +105,7 @@ static int dev_zero_fd;
 #endif
 
 /* When required, allocate more memory from the OS in this size chunks */
-#define EMEM_PACKET_CHUNK_SIZE 10485760
+#define EMEM_PACKET_CHUNK_SIZE (10 * 1024 * 1024)
 
 /* The maximum number of allocations per chunk */
 #define EMEM_ALLOCS_PER_CHUNK (EMEM_PACKET_CHUNK_SIZE / 64)
