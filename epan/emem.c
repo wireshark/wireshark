@@ -736,12 +736,8 @@ gchar* ep_strdup(const gchar* src) {
 
 gchar* ep_strndup(const gchar* src, size_t len) {
 	gchar* dst = ep_alloc(len+1);
-	guint i;
 
-	for (i = 0; (i < len) && src[i]; i++)
-		dst[i] = src[i];
-
-	dst[i] = '\0';
+	g_strlcpy(dst, src, len+1);
 
 	return dst;
 }
@@ -875,12 +871,8 @@ gchar* se_strdup(const gchar* src) {
 
 gchar* se_strndup(const gchar* src, size_t len) {
 	gchar* dst = se_alloc(len+1);
-	guint i;
 
-	for (i = 0; (i < len) && src[i]; i++)
-		dst[i] = src[i];
-
-	dst[i] = '\0';
+	g_strlcpy(dst, src, len+1);
 
 	return dst;
 }
