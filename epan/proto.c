@@ -249,7 +249,7 @@ struct _protocol {
 /* List of all protocols */
 static GList *protocols = NULL;
 
-#define INITIAL_NUM_PROTOCOL_HFINFO 	200
+#define INITIAL_NUM_PROTOCOL_HFINFO 	1500
 
 /* Contains information about protocols and header fields. Used when
  * dissectors register their data */
