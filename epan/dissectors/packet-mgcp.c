@@ -276,7 +276,7 @@ static void dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_
                                                 gint offset, gint param_type_len,
                                                 gint param_val_len);
 
-                                          
+
 static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
 /*
@@ -304,8 +304,6 @@ typedef struct _mgcp_call_info_key
 	conversation_t *conversation;
 } mgcp_call_info_key;
 
-static GMemChunk *mgcp_call_info_key_chunk;
-static GMemChunk *mgcp_call_info_value_chunk;
 static GHashTable *mgcp_calls;
 
 /* Compare 2 keys */
@@ -597,26 +595,8 @@ static void mgcp_init_protocol(void)
 		g_hash_table_destroy(mgcp_calls);
 		mgcp_calls = NULL;
 	}
-	if (mgcp_call_info_key_chunk != NULL)
-	{
-		g_mem_chunk_destroy(mgcp_call_info_key_chunk);
-		mgcp_call_info_key_chunk = NULL;
-	}
-	if (mgcp_call_info_value_chunk != NULL)
-	{
-		g_mem_chunk_destroy(mgcp_call_info_value_chunk);
-		mgcp_call_info_value_chunk = NULL;
-	}
 
 	mgcp_calls = g_hash_table_new(mgcp_call_hash, mgcp_call_equal);
-	mgcp_call_info_key_chunk = g_mem_chunk_new("call_info_key_chunk",
-	                                           sizeof(mgcp_call_info_key),
-	                                           200 * sizeof(mgcp_call_info_key),
-	                                           G_ALLOC_ONLY);
-	mgcp_call_info_value_chunk = g_mem_chunk_new("call_info_value_chunk",
-	                                             sizeof(mgcp_call_t),
-	                                             200 * sizeof(mgcp_call_t),
-	                                             G_ALLOC_ONLY);
 }
 
 /* Register all the bits needed with the filtering engine */
@@ -1523,7 +1503,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					break;
 				}
 			}
-      
+
 			if ((tokennum == 3 && mgcp_type == MGCP_REQUEST))
 			{
 				if (tvb_current_offset < tvb_len )
@@ -1753,9 +1733,9 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					   frame numbers are 1-origin, so we use 0
 					   to mean "we don't yet know in which frame
 					   the reply for this call appears". */
-					new_mgcp_call_key = g_mem_chunk_alloc(mgcp_call_info_key_chunk);
+					new_mgcp_call_key = se_alloc(sizeof(*new_mgcp_call_key));
 					*new_mgcp_call_key = mgcp_call_key;
-					mgcp_call = g_mem_chunk_alloc(mgcp_call_info_value_chunk);
+					mgcp_call = se_alloc(sizeof(*mgcp_call));
 					mgcp_call->req_num = pinfo->fd->num;
 					mgcp_call->rsp_num = 0;
 					mgcp_call->transid = mi->transid;
@@ -1890,7 +1870,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 
 	/* Split into type=value pairs separated by comma */
 	tokens = ep_strsplit(tokenline, ",", -1);
-	
+
 	for (i = 0; tokens[i] != NULL; i++)
 	{
 		tokenlen = (int)strlen(tokens[i]);
@@ -2006,7 +1986,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 	{
 		hf_uint = -1;
 		hf_string = -1;
-        
+
 		tokenlen = (int)strlen(tokens[i]);
 		typval = ep_strsplit(tokens[i], ":", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
