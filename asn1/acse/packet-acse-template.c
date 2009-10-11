@@ -61,7 +61,7 @@
 #define ACSE_APDU_OID "2.2.1.0.1"
 
 /* Initialize the protocol and registered fields */
-int proto_acse = -1;
+static int proto_acse = -1;
 #include "packet-acse-hf.c"
 
 /* Initialize the subtree pointers */

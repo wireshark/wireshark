@@ -59,8 +59,8 @@ static dissector_handle_t tpkt_handle;
 void prefs_register_x411(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
-int proto_x411 = -1;
-int proto_p3 = -1;
+static int proto_x411 = -1;
+static int proto_p3 = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static int extension_id = -1; /* integer extension id */

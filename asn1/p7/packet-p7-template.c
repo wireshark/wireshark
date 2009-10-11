@@ -57,7 +57,7 @@ void prefs_register_p7(void); /* forward declaration for use in preferences regi
 
 
 /* Initialize the protocol and registered fields */
-int proto_p7 = -1;
+static int proto_p7 = -1;
 
 #include "packet-p7-hf.c"
 

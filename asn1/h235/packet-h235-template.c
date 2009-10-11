@@ -52,7 +52,7 @@
 #define OID_SG            "0.0.8.235.0.3.71"
 
 /* Initialize the protocol and registered fields */
-int proto_h235 = -1;
+static int proto_h235 = -1;
 #include "packet-h235-hf.c"
 
 /* Initialize the subtree pointers */

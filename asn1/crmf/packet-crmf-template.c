@@ -45,7 +45,7 @@
 #define PFNAME "crmf"
 
 /* Initialize the protocol and registered fields */
-int proto_crmf = -1;
+static int proto_crmf = -1;
 static int hf_crmf_type_oid = -1;
 #include "packet-crmf-hf.c"
 

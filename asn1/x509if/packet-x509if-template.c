@@ -46,7 +46,7 @@
 #define PFNAME "x509if"
 
 /* Initialize the protocol and registered fields */
-int proto_x509if = -1;
+static int proto_x509if = -1;
 static int hf_x509if_object_identifier_id = -1;
 static int hf_x509if_any_string = -1;
 #include "packet-x509if-hf.c"

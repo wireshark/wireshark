@@ -47,7 +47,7 @@
 #define PFNAME "s4406"
 
 /* Initialize the protocol and registered fields */
-int proto_s4406 = -1;
+static int proto_s4406 = -1;
 
 #include "packet-s4406-hf.c"
 

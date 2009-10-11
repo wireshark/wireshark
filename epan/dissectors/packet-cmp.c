@@ -70,7 +70,7 @@ static guint cmp_alternate_http_port = 0;
 static guint cmp_alternate_tcp_style_http_port = 0;
 
 /* Initialize the protocol and registered fields */
-int proto_cmp = -1;
+static int proto_cmp = -1;
 static int hf_cmp_type_oid = -1;
 static int hf_cmp_tcptrans_len = -1;
 static int hf_cmp_tcptrans_type = -1;

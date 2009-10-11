@@ -44,7 +44,7 @@
 #define TCP_PORT_SMRSE 4321
 
 /* Initialize the protocol and registered fields */
-int proto_smrse = -1;
+static int proto_smrse = -1;
 static int hf_smrse_reserved = -1;
 static int hf_smrse_tag = -1;
 static int hf_smrse_length = -1;

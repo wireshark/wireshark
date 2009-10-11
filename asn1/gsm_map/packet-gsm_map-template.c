@@ -77,8 +77,8 @@
 #define PFNAME "gsm_map"
 
 /* Initialize the protocol and registered fields */
-int proto_gsm_map = -1;
-int proto_gsm_map_dialogue = -1;
+static int proto_gsm_map = -1;
+static int proto_gsm_map_dialogue = -1;
 
 static int hf_gsm_map_old_Component_PDU = -1;
 static int hf_gsm_map_getPassword = -1;

@@ -53,7 +53,7 @@
 #define PFNAME "x509sat"
 
 /* Initialize the protocol and registered fields */
-int proto_x509sat = -1;
+static int proto_x509sat = -1;
 
 /*--- Included file: packet-x509sat-hf.c ---*/
 #line 1 "packet-x509sat-hf.c"

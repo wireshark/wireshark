@@ -54,7 +54,7 @@
 #define PFNAME "ros"
 
 /* Initialize the protocol and registered fields */
-int proto_ros = -1;
+static int proto_ros = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 

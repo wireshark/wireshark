@@ -72,7 +72,7 @@
 #define PFNAME "camel"
 
 /* Initialize the protocol and registered fields */
-int proto_camel = -1;
+static int proto_camel = -1;
 int date_format = 1; /*assume european date format */
 int camel_tap = -1;
 /* Global variables */

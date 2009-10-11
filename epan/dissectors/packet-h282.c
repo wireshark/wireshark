@@ -50,7 +50,7 @@
 #define PFNAME "rdc"
 
 /* Initialize the protocol and registered fields */
-int proto_h282 = -1;
+static int proto_h282 = -1;
 
 /*--- Included file: packet-h282-hf.c ---*/
 #line 1 "packet-h282-hf.c"

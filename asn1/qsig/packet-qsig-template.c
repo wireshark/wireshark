@@ -278,7 +278,7 @@ static const value_string qsig_str_error[] = {
 };
                      
 /* Initialize the protocol and registered fields */
-int proto_qsig = -1;
+static int proto_qsig = -1;
 static int hf_qsig_operation = -1;
 static int hf_qsig_service = -1;
 static int hf_qsig_error = -1;

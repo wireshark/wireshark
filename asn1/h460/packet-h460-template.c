@@ -45,7 +45,7 @@
 #define PFNAME "h460"
 
 /* Initialize the protocol and registered fields */
-int proto_h460 = -1;
+static int proto_h460 = -1;
 #include "packet-h460-hf.c"
 
 /* Initialize the subtree pointers */

@@ -39,7 +39,7 @@
 #define PFNAME "q932"
 
 /* Initialize the protocol and registered fields */
-int proto_q932 = -1;
+static int proto_q932 = -1;
 static int hf_q932_ie_type = -1;
 static int hf_q932_ie_len = -1;
 static int hf_q932_ie_data = -1;

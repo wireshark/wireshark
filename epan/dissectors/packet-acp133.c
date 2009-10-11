@@ -57,7 +57,7 @@
 #define PFNAME "acp133"
 
 /* Initialize the protocol and registered fields */
-int proto_acp133 = -1;
+static int proto_acp133 = -1;
 
 
 

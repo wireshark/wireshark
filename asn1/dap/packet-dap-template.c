@@ -62,7 +62,7 @@ void prefs_register_dap(void); /* forward declaration for use in preferences reg
 
 
 /* Initialize the protocol and registered fields */
-int proto_dap = -1;
+static int proto_dap = -1;
 
 
 #include "packet-dap-hf.c"

@@ -47,7 +47,7 @@
 #define PFNAME "ansi_tcap"
 
 /* Initialize the protocol and registered fields */
-int proto_ansi_tcap = -1;
+static int proto_ansi_tcap = -1;
 
 int hf_ansi_tcapsrt_SessionId=-1;
 int hf_ansi_tcapsrt_Duplicate=-1;

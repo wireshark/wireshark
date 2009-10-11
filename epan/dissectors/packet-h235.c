@@ -60,7 +60,7 @@
 #define OID_SG            "0.0.8.235.0.3.71"
 
 /* Initialize the protocol and registered fields */
-int proto_h235 = -1;
+static int proto_h235 = -1;
 
 /*--- Included file: packet-h235-hf.c ---*/
 #line 1 "packet-h235-hf.c"

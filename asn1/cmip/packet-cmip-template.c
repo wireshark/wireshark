@@ -49,7 +49,7 @@
 #include "packet-pres.h"
 
 /* Initialize the protocol and registered fields */
-int proto_cmip = -1;
+static int proto_cmip = -1;
 static int hf_cmip_actionType_OID = -1;
 static int hf_cmip_eventType_OID = -1;
 static int hf_cmip_attributeId_OID = -1;

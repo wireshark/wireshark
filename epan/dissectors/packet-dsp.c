@@ -66,7 +66,7 @@ void prefs_register_dsp(void); /* forward declaration for use in preferences reg
 
 
 /* Initialize the protocol and registered fields */
-int proto_dsp = -1;
+static int proto_dsp = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 

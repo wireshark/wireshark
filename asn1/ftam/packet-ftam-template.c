@@ -49,7 +49,7 @@
 #define PFNAME "ftam"
 
 /* Initialize the protocol and registered fields */
-int proto_ftam = -1;
+static int proto_ftam = -1;
 
 static const char *object_identifier_id;
 /* Declare the function to avoid a compiler warning */

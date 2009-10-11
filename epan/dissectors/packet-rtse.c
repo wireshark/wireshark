@@ -57,7 +57,7 @@
 #define PFNAME "rtse"
 
 /* Initialize the protocol and registered fields */
-int proto_rtse = -1;
+static int proto_rtse = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 

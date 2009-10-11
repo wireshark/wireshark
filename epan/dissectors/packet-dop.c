@@ -68,7 +68,7 @@ static dissector_handle_t tpkt_handle;
 void prefs_register_dop(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
-int proto_dop = -1;
+static int proto_dop = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static const char *binding_type = NULL; /* binding_type */

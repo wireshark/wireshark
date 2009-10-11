@@ -55,7 +55,7 @@
 #define PFNAME "tcap"
 
 /* Initialize the protocol and registered fields */
-int proto_tcap = -1;
+static int proto_tcap = -1;
 static int hf_tcap_tag = -1;
 static int hf_tcap_length = -1;
 static int hf_tcap_data = -1;

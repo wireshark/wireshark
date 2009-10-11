@@ -41,7 +41,7 @@
 #define PFNAME "h450.ros"
 
 /* Initialize the protocol and registered fields */
-int proto_h450_ros = -1;
+static int proto_h450_ros = -1;
 #include "packet-h450-ros-hf.c" 
 
 /* Initialize the subtree pointers */

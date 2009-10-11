@@ -46,7 +46,7 @@
 #define PFNAME "wlancertextn"
 
 /* Initialize the protocol and registered fields */
-int proto_wlancertextn = -1;
+static int proto_wlancertextn = -1;
 #include "packet-wlancertextn-hf.c"
 
 /* Initialize the subtree pointers */

@@ -65,7 +65,7 @@ static proto_item *cdt_item = NULL;
 static guint32 content_type = 0;
 
 /* Initialize the protocol and registered fields */
-int proto_cdt = -1;
+static int proto_cdt = -1;
 
 /*--- Included file: packet-cdt-hf.c ---*/
 #line 1 "packet-cdt-hf.c"

@@ -46,7 +46,7 @@
 #define PFNAME "h501"
 
 /* Initialize the protocol and registered fields */
-int proto_h501 = -1;
+static int proto_h501 = -1;
 #include "packet-h501-hf.c"
 
 /* Initialize the subtree pointers */

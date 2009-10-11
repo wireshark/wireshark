@@ -49,7 +49,7 @@
 #define PFNAME "h450.ros"
 
 /* Initialize the protocol and registered fields */
-int proto_h450_ros = -1;
+static int proto_h450_ros = -1;
 
 /*--- Included file: packet-h450-ros-hf.c ---*/
 #line 1 "packet-h450-ros-hf.c"

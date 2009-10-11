@@ -53,7 +53,7 @@
 #define PFNAME "h460"
 
 /* Initialize the protocol and registered fields */
-int proto_h460 = -1;
+static int proto_h460 = -1;
 
 /*--- Included file: packet-h460-hf.c ---*/
 #line 1 "packet-h460-hf.c"

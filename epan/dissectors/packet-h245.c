@@ -500,7 +500,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 }
 
 /* Initialize the protocol and registered fields */
-int proto_h245 = -1;
+static int proto_h245 = -1;
 
 /*--- Included file: packet-h245-hf.c ---*/
 #line 1 "packet-h245-hf.c"

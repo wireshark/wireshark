@@ -91,7 +91,7 @@ void gef_ctx_update_key(gef_ctx_t *gefx) {
 }
 
 /* Initialize the protocol and registered fields */
-int proto_h323 = -1;
+static int proto_h323 = -1;
 #include "packet-h323-hf.c"
 
 /* Initialize the subtree pointers */

@@ -49,7 +49,7 @@
 #define PFNAME "q932.ros"
 
 /* Initialize the protocol and registered fields */
-int proto_q932_ros = -1;
+static int proto_q932_ros = -1;
 
 /*--- Included file: packet-q932-ros-hf.c ---*/
 #line 1 "packet-q932-ros-hf.c"

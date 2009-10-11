@@ -43,7 +43,7 @@
 
 
 /* Initialize the protocol and registered fields */
-int proto_t125 = -1;
+static int proto_t125 = -1;
 #include "packet-t125-hf.c"
 
 /* Initialize the subtree pointers */

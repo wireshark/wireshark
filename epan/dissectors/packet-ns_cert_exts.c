@@ -48,7 +48,7 @@
 #define PFNAME "ns_cert_exts"
 
 /* Initialize the protocol and registered fields */
-int proto_ns_cert_exts = -1;
+static int proto_ns_cert_exts = -1;
 
 /*--- Included file: packet-ns_cert_exts-hf.c ---*/
 #line 1 "packet-ns_cert_exts-hf.c"

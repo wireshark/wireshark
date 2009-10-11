@@ -46,7 +46,7 @@
 #define PFNAME "gnm"
 
 /* Initialize the protocol and registered fields */
-int proto_gnm = -1;
+static int proto_gnm = -1;
 
 #include "packet-gnm-hf.c"
 

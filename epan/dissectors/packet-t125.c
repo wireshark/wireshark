@@ -51,7 +51,7 @@
 
 
 /* Initialize the protocol and registered fields */
-int proto_t125 = -1;
+static int proto_t125 = -1;
 
 /*--- Included file: packet-t125-hf.c ---*/
 #line 1 "packet-t125-hf.c"

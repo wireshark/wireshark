@@ -42,7 +42,7 @@
 #define PFNAME "rdc"
 
 /* Initialize the protocol and registered fields */
-int proto_h282 = -1;
+static int proto_h282 = -1;
 #include "packet-h282-hf.c"
 
 /* Initialize the subtree pointers */

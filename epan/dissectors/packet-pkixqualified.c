@@ -53,7 +53,7 @@
 #define PFNAME "pkixqualified"
 
 /* Initialize the protocol and registered fields */
-int proto_pkixqualified = -1;
+static int proto_pkixqualified = -1;
 
 /*--- Included file: packet-pkixqualified-hf.c ---*/
 #line 1 "packet-pkixqualified-hf.c"

@@ -45,7 +45,7 @@
 #define PFNAME "pkixqualified"
 
 /* Initialize the protocol and registered fields */
-int proto_pkixqualified = -1;
+static int proto_pkixqualified = -1;
 #include "packet-pkixqualified-hf.c"
 
 /* Initialize the subtree pointers */

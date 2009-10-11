@@ -49,7 +49,7 @@
 #define PFNAME "cms"
 
 /* Initialize the protocol and registered fields */
-int proto_cms = -1;
+static int proto_cms = -1;
 static int hf_cms_ci_contentType = -1;
 #include "packet-cms-hf.c"
 

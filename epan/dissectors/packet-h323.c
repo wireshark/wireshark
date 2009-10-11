@@ -99,7 +99,7 @@ void gef_ctx_update_key(gef_ctx_t *gefx) {
 }
 
 /* Initialize the protocol and registered fields */
-int proto_h323 = -1;
+static int proto_h323 = -1;
 
 /*--- Included file: packet-h323-hf.c ---*/
 #line 1 "packet-h323-hf.c"

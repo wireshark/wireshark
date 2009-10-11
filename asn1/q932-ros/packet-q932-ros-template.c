@@ -41,7 +41,7 @@
 #define PFNAME "q932.ros"
 
 /* Initialize the protocol and registered fields */
-int proto_q932_ros = -1;
+static int proto_q932_ros = -1;
 #include "packet-q932-ros-hf.c" 
 
 /* Initialize the subtree pointers */

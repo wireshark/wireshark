@@ -71,7 +71,7 @@
 #define PKCS12_PBE_RC2_40_SHA1_OID	"1.2.840.113549.1.12.1.6"
 
 /* Initialize the protocol and registered fields */
-int proto_pkcs12 = -1;
+static int proto_pkcs12 = -1;
 
 static int hf_pkcs12_X509Certificate_PDU = -1;
 static gint ett_decrypted_pbe = -1;

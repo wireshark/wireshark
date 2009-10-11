@@ -59,7 +59,7 @@
 #define PFNAME "inap"
 
 /* Initialize the protocol and registered fields */
-int proto_inap = -1;
+static int proto_inap = -1;
 
 /* include constants */
 

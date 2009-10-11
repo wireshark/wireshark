@@ -45,7 +45,7 @@
 #define PFNAME "x509sat"
 
 /* Initialize the protocol and registered fields */
-int proto_x509sat = -1;
+static int proto_x509sat = -1;
 #include "packet-x509sat-hf.c"
 
 /* Initialize the subtree pointers */

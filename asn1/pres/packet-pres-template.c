@@ -52,7 +52,7 @@
 #define PFNAME "pres"
 
 /* Initialize the protocol and registered fields */
-int proto_pres = -1;
+static int proto_pres = -1;
 
 /*   type of session envelop */
 static struct SESSION_DATA_STRUCTURE* session = NULL;

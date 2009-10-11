@@ -52,7 +52,7 @@
 #define PFNAME "x420"
 
 /* Initialize the protocol and registered fields */
-int proto_x420 = -1;
+static int proto_x420 = -1;
 
 static const char *object_identifier_id; /* content type identifier */
 

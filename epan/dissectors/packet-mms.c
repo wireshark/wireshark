@@ -51,7 +51,7 @@
 #define PFNAME "mms"
 
 /* Initialize the protocol and registered fields */
-int proto_mms = -1;
+static int proto_mms = -1;
 
 
 /*--- Included file: packet-mms-hf.c ---*/

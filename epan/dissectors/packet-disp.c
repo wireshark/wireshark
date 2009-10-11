@@ -72,7 +72,7 @@ void prefs_register_disp(void); /* forward declaration for use in preferences re
 
 
 /* Initialize the protocol and registered fields */
-int proto_disp = -1;
+static int proto_disp = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 

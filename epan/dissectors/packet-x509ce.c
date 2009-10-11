@@ -54,7 +54,7 @@
 #define PFNAME "x509ce"
 
 /* Initialize the protocol and registered fields */
-int proto_x509ce = -1;
+static int proto_x509ce = -1;
 static int hf_x509ce_id_ce_invalidityDate = -1;
 static int hf_x509ce_id_ce_baseUpdateTime = -1;
 static int hf_x509ce_object_identifier_id = -1;
