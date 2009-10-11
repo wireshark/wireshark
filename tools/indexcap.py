@@ -94,10 +94,8 @@ def dissect_file_process(tshark, tmpdir, file):
         os.close(handle_o)
         os.close(handle_e)
 
-def dissect_files(tshark, num_procs, max_files, cap_files):
+def dissect_files(tshark, tmpdir, num_procs, max_files, cap_files):
     pool = multiprocessing.Pool(num_procs)
-    tmpdir = tempfile.mkdtemp()
-    print "Temporary working dir: %s" % tmpdir
     results = [pool.apply_async(dissect_file_process, [tshark, tmpdir, file]) for file in cap_files]
     try:
         for (cur_item_idx,result_async) in enumerate(results):
@@ -109,12 +107,8 @@ def dissect_files(tshark, num_procs, max_files, cap_files):
         pool.terminate()
         exit(1)
 
-    exit(0)
-
-def compare_files(tshark_bin, tshark_cmp, num_procs, max_files, cap_files):
+def compare_files(tshark_bin, tmpdir, tshark_cmp, num_procs, max_files, cap_files):
     pool = multiprocessing.Pool(num_procs)
-    tmpdir = tempfile.mkdtemp()
-    print "Temporary working dir: %s" % tmpdir
     results_bin = [pool.apply_async(dissect_file_process, [tshark_bin, tmpdir, file]) for file in cap_files]
     results_cmp = [pool.apply_async(dissect_file_process, [tshark_cmp, tmpdir, file]) for file in cap_files]
     try:
@@ -140,8 +134,6 @@ def compare_files(tshark_bin, tshark_cmp, num_procs, max_files, cap_files):
         print "%s was interrupted by user" % (sys.argv[0])
         pool.terminate()
         exit(1)
-
-    exit(0)
 
 def list_all_proto(cap_hash):
     proto_hash = {}
@@ -284,13 +276,16 @@ def main():
     options.max_files = min(options.max_files, len(cap_files))
     print "%u total files, %u working files" % (len(cap_files), options.max_files)
     cap_files = cap_files[:options.max_files]
+    tmpdir = tempfile.mkdtemp()
+    print "Temporary working dir: %s" % tmpdir
 
     if options.compare_dir:
-        compare_files(tshark_bin, tshark_cmp, options.num_procs, options.max_files, cap_files)
+        compare_files(tshark_bin, tmpdir, tshark_cmp, options.num_procs, options.max_files, cap_files)
     elif options.dissect_files:
-        dissect_files(tshark_bin, options.num_procs, options.max_files, cap_files)
+        dissect_files(tshark_bin, tmpdir, options.num_procs, options.max_files, cap_files)
     else:
-        extract_protos_from_file(tshark_bin, options.num_procs, options.max_files, cap_files, cap_hash, index_file_name)
+        extract_protos_from_file(tshark_bin, tmpdir, options.num_procs, options.max_files, cap_files, cap_hash, index_file_name)
 
+    os.rmdir(tmpdir)
 if __name__ == "__main__":
     main()
