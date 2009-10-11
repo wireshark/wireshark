@@ -289,9 +289,6 @@ typedef struct
 	gboolean outoforder;
 } ts2_frag;
 
-/* the GMemChunk base structure */
-static GMemChunk *conv_vals = NULL;
-
 #define my_init_count 5
 
 static GHashTable *msg_fragment_table = NULL;
@@ -678,7 +675,7 @@ static ts2_conversation* ts2_get_conversation(packet_info *pinfo)
 	}
 	else
 	{
-		conversation_data = g_mem_chunk_alloc(conv_vals);
+		conversation_data = se_alloc(sizeof(*conversation_data));
 		conversation_data->last_inorder_server_frame=0; /* sequence number should never be zero so we can use this as an initial number */
 		conversation_data->last_inorder_client_frame=0;
 		conversation_data->server_port=pinfo->srcport;
@@ -821,17 +818,10 @@ static gboolean ts2_add_checked_crc32(proto_tree *tree, int hf_item, tvbuff_t *t
 	}
 }
 
-static void ts2_init(void) {
+static void ts2_init(void)
+{
 	fragment_table_init(&msg_fragment_table);
 	reassembled_table_init(&msg_reassembled_table);
-    	if (conv_vals)
-		g_mem_chunk_destroy(conv_vals);
-
-	/* now create memory chunks */
-	conv_vals = g_mem_chunk_new("ts2_conv_vals",
-				    sizeof(ts2_conversation),
-				    my_init_count * sizeof(ts2_conversation),
-				    G_ALLOC_AND_FREE);
 }
 
 /*
