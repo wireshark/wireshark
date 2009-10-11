@@ -414,8 +414,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 
 	/* We've assigned all the subtree type values; allocate the array
 	   for them, and zero it out. */
-	tree_is_expanded = g_malloc(num_tree_types*sizeof (gboolean));
-	memset(tree_is_expanded, 0, num_tree_types*sizeof (gboolean));
+	tree_is_expanded = g_new0(gboolean, num_tree_types);
 }
 
 void
