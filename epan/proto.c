@@ -251,10 +251,12 @@ static GList *protocols = NULL;
 
 #define INITIAL_NUM_PROTOCOL_HFINFO 	200
 
-
 /* Contains information about protocols and header fields. Used when
  * dissectors register their data */
+#if GLIB_CHECK_VERSION(2,10,0)
+#else
 static GMemChunk *gmc_hfinfo = NULL;
+#endif
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
@@ -265,8 +267,6 @@ static field_info *field_info_tmp=NULL;
 	SLAB_ALLOC(fi, field_info)
 #define FIELD_INFO_FREE(fi)					\
 	SLAB_FREE(fi, field_info)
-
-
 
 /* Contains the space for proto_nodes. */
 SLAB_ITEM_TYPE_DEFINE(proto_node)
@@ -280,8 +280,6 @@ static SLAB_FREE_LIST_DEFINE(proto_node)
 #define PROTO_NODE_FREE(node)				\
 	SLAB_FREE(node, proto_node)
 
-
-
 /* String space for protocol and field items for the GUI */
 SLAB_ITEM_TYPE_DEFINE(item_label_t)
 static SLAB_FREE_LIST_DEFINE(item_label_t)
@@ -290,11 +288,9 @@ static SLAB_FREE_LIST_DEFINE(item_label_t)
 #define ITEM_LABEL_FREE(il)				\
 	SLAB_FREE(il, item_label_t)
 
-
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo) \
 	DISSECTOR_ASSERT((guint)hfindex < gpa_hfinfo.len); \
 	hfinfo=gpa_hfinfo.hfi[hfindex];
-
 
 /* List which stores protocols and fields that have been registered */
 typedef struct _gpa_hfinfo_t {
@@ -355,10 +351,13 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	proto_short_names = g_hash_table_new(wrs_str_hash, g_str_equal);
 	proto_filter_names = g_hash_table_new(wrs_str_hash, g_str_equal);
 
+#if GLIB_CHECK_VERSION(2,10,0)
+#else
 	gmc_hfinfo = g_mem_chunk_new("gmc_hfinfo",
 		sizeof(header_field_info),
 			INITIAL_NUM_PROTOCOL_HFINFO * sizeof(header_field_info),
 			G_ALLOC_ONLY);
+#endif
 
 	gpa_hfinfo.len=0;
 	gpa_hfinfo.allocated_len=0;
@@ -451,10 +450,13 @@ proto_cleanup(void)
 		proto_filter_names = NULL;
 	}
 
+#if GLIB_CHECK_VERSION(2,10,0)
+#else
 	if (gmc_hfinfo) {
 		g_mem_chunk_destroy(gmc_hfinfo);
 		gmc_hfinfo = NULL;
 	}
+#endif
 
 	if(gpa_hfinfo.allocated_len){
 		gpa_hfinfo.len=0;
@@ -3839,7 +3841,11 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
 	protocols = g_list_prepend(protocols, protocol);
 
 	/* Here we do allocate a new header_field_info struct */
+#if GLIB_CHECK_VERSION(2,10,0)
+	hfinfo = g_slice_new(header_field_info);
+#else
 	hfinfo = g_mem_chunk_alloc(gmc_hfinfo);
+#endif
 	hfinfo->name = name;
 	hfinfo->abbrev = filter_name;
 	hfinfo->type = FT_PROTOCOL;
