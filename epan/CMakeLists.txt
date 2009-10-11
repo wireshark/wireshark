@@ -90,6 +90,14 @@ add_lemon_files(DFILTER_FILES
 	dfilter/grammar.lemon
 )
 
+if (AUTOGEN_dcerpc)
+    add_subdirectory( dcerpc )
+endif()
+
+if (AUTOGEN_pidl)
+    add_subdirectory( pidl )
+endif()
+
 ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
     COMMAND ${PYTHON_EXECUTABLE}
@@ -1002,7 +1010,7 @@ set(DISSECTOR_SUPPORT_SRC
 	register.c
 )
 
-set(DISSECTOR_ASM_UTILS
+set(LIBWIRESHARK_ASM_FILES
 	asm_utils.c
 #	!IFDEF NASM
 #	asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
@@ -1025,12 +1033,12 @@ set(DISSECTOR_FILES
 )
 
 set_source_files_properties(
-        ${DISSECTOR_SRC}
+	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
 	${ASN1_DISSECTOR_SRC}
     PROPERTIES
 	# FIXME: -Werror and -pedantic exclude each other: test for -pedantic
-        # COMPILE_FLAGS -Werror
+	# COMPILE_FLAGS -Werror
 )
 
 register_dissector_files(register.c
@@ -1183,7 +1191,7 @@ add_library(epan SHARED
 	${FTYPE_FILES}
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
-	${DISSECTOR_ASM_UTILS}
+	${LIBWIRESHARK_ASM_FILES}
 )
 # In case we want the libwireshark name back
 # SET_TARGET_PROPERTIES(epan PROPERTIES OUTPUT_NAME "wireshark")
