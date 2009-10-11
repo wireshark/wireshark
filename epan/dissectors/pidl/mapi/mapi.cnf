@@ -1,5 +1,5 @@
 # handle
-HF_FIELD hf_mapi_handle "Handle" "mapi.handle" FT_BYTES BASE_NONE NULL 0 "" "" ""
+HF_FIELD hf_mapi_handle "Handle" "mapi.handle" FT_BYTES BASE_NONE NULL 0 NULL HFILL
 HF_RENAME hf_mapi_EcDoConnect_handle hf_mapi_handle
 HF_RENAME hf_mapi_EcDoDisconnect_handle hf_mapi_handle
 HF_RENAME hf_mapi_EcDoRpc_handle hf_mapi_handle
@@ -17,17 +17,17 @@ PARAM_VALUE mapi_dissect_element_EcDoConnect_handle_ 0x0001
 # Policyhandles are closed in these functions (close == 0x0002)
 PARAM_VALUE mapi_dissect_element_EcDoDisconnect_handle_ 0x0002
 
-HF_FIELD hf_mapi_property_types "Value" "mapi.SPropValue.value" FT_UINT32 BASE_HEX VALS(mapi_property_types_vals) 0 "" ""
+HF_FIELD hf_mapi_property_types "Value" "mapi.SPropValue.value" FT_UINT32 BASE_HEX VALS(mapi_property_types_vals) 0 NULL HFILL
 HF_RENAME hf_mapi_SPropValue_value hf_mapi_property_types
 
-HF_FIELD hf_mapi_recipient_type "Recipient Type" "mapi.recipients_headers.type" FT_UINT16 BASE_HEX VALS(mapi_OM_recipient_type_vals) 0 "" ""
+HF_FIELD hf_mapi_recipient_type "Recipient Type" "mapi.recipients_headers.type" FT_UINT16 BASE_HEX VALS(mapi_OM_recipient_type_vals) 0 NULL HFILL
 HF_RENAME hf_mapi_recipients_headers_type hf_mapi_recipient_type
 
-HF_FIELD hf_mapi_MAPI_OPNUM "Opnum" "mapi.EcDoRpc_MAPI_REQ.opnum" FT_UINT8 BASE_HEX VALS(mapi_MAPI_OPNUM_vals) 0 "" ""
+HF_FIELD hf_mapi_MAPI_OPNUM "Opnum" "mapi.EcDoRpc_MAPI_REQ.opnum" FT_UINT8 BASE_HEX VALS(mapi_MAPI_OPNUM_vals) 0 NULL HFILL
 HF_RENAME hf_mapi_EcDoRpc_MAPI_REQ_opnum hf_mapi_MAPI_OPNUM
 
 HF_FIELD hf_mapi_pdu_len "Length" "mapi.pdu.len" FT_UINT16 BASE_HEX NULL 0x0 "Size of the command PDU" HFILL
-HF_FIELD hf_mapi_decrypted_data "Decrypted data" "mapi.decrypted.data" FT_BYTES BASE_NONE NULL 0 "" ""
+HF_FIELD hf_mapi_decrypted_data "Decrypted data" "mapi.decrypted.data" FT_BYTES BASE_NONE NULL 0 NULL HFILL
 
 NOEMIT SBinary_short
 NOEMIT MV_LONG_STRUCT
