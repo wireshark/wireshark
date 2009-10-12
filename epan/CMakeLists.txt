@@ -34,9 +34,7 @@ else()
 	set(WSPYTHON_LIB )
 endif()
 
-if (AUTOGEN_dcerpc)
-    add_subdirectory( dissectors/dcerpc )
-endif()
+add_subdirectory( dissectors/dcerpc )
 
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
