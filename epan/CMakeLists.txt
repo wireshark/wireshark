@@ -99,12 +99,6 @@ if (AUTOGEN_pidl)
 endif()
 
 if (AUTOGEN_dcerpc)
-  set(PIDL_DISSECTOR_AUTOGEN_NAMES
-	  budb
-	  butc
-	  drsuapi
-  ) 
-
   FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
     set(PIDL_DISSECTOR_AUTOGEN_SRC 
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
@@ -129,11 +123,11 @@ if (AUTOGEN_dcerpc)
     )
   ENDFOREACH()
 else()
-  set(PIDL_DISSECTOR_AUTOGEN_SRC
-	  dissectors/packet-dcerpc-budb.c
-	  dissectors/packet-dcerpc-butc.c
-	  dissectors/packet-dcerpc-drsuapi.c
-  )
+  FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
+    set(PIDL_DISSECTOR_AUTOGEN_SRC 
+	${PIDL_DISSECTOR_AUTOGEN_SRC}
+	dissectors/packet-dcerpc-${PROTOCOL_NAME}.c
+    )
 endif()
 
 ADD_CUSTOM_COMMAND(

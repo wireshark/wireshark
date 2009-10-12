@@ -21,4 +21,11 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+set(PIDL_DISSECTOR_AUTOGEN_NAMES
+  budb
+  butc
+  drsuapi
+  PARENT_SCOPE
+) 
+
 add_executable(idl2wrs idl2wrs.c)
