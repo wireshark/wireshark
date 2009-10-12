@@ -362,7 +362,7 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
         if (vumeter->peak == TRUE) {
             /* Reset w */
             index = MAX (peak_level - 1, 0);
-            for (; index < MIN (peak_level + 1, height - 2); index++, h += inc) {
+            for (; index < MIN (peak_level + 1, height - 2); index++) {
                 h = vumeter->scale_inverted == TRUE ? height +vumeter->padding_top - (index + 2) : vumeter->padding_top + index + 1;
                 gdk_draw_line (widget->window, vumeter->f_gc[index], vumeter->padding_left, h, vumeter->padding_left+width-1, h);
             }            
