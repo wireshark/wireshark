@@ -620,6 +620,9 @@ get_column_format(gint col) {
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
 
+  if (!clp)  /* Invalid column requested */
+    return -1;
+	
   cfmt = (fmt_data *) clp->data;
 
   return(get_column_format_from_str(cfmt->fmt));
