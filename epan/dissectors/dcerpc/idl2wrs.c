@@ -35,12 +35,12 @@ TODO
    NTTIME_hyper A 64 bit integer representing a NTTIME
    NTTIME_1sec
 
-   unistr       A conformant and varying unicode string
+   unistr		A conformant and varying unicode string
 
-   ascstr       A conformant and varying ascii string
+   ascstr		A conformant and varying ascii string
 
 
-   SID          A SID structure.
+   SID			A SID structure.
 
    uuid_t	A 16 byte FT_GUID blob.
    GUID
@@ -69,21 +69,21 @@ TODO
 
 #undef IDL2WRS_DEBUG
 
-FILE *fh, *tfh, *eth_code, *eth_hdr, *eth_hf, *eth_hfarr, *eth_ett, *eth_ettarr, *eth_ft, *eth_handoff;
-char *uuid=NULL;
-char *version=NULL;
-char *pointer_default=NULL;
-char *ifname=NULL;
-char hf_status[256];
-int lineno,linepos;
-char line[1024];
+static FILE *fh, *tfh, *eth_code, *eth_hdr, *eth_hf, *eth_hfarr, *eth_ett, *eth_ettarr, *eth_ft, *eth_handoff;
+static char *uuid=NULL;
+static char *version=NULL;
+static char *pointer_default=NULL;
+static char *ifname=NULL;
+static char hf_status[256];
+static int lineno,linepos;
+static char line[1024];
 
 void FPRINTF(FILE *fh, const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
 #ifdef IDL2WRS_DEBUG
-    vfprintf (stderr, format, args);
+	vfprintf (stderr, format, args);
 #endif
 	if (fh)
 		vfprintf (fh, format, args);
@@ -116,7 +116,7 @@ typedef struct _no_emit_item_t {
 	struct _no_emit_item_t *next;
 	char *name;
 } no_emit_item_t;
-no_emit_item_t *no_emit_list=NULL;
+static no_emit_item_t *no_emit_list=NULL;
 
 typedef struct _hf_rename_item_t {
 	struct _hf_rename_item_t *next;
@@ -124,7 +124,7 @@ typedef struct _hf_rename_item_t {
 	char *old_name;
 	char *new_name;
 } hf_rename_item_t;
-hf_rename_item_t *hf_rename_list=NULL;
+static hf_rename_item_t *hf_rename_list=NULL;
 
 typedef struct _enum_list_t {
 	struct _enum_list_t *next;
@@ -132,14 +132,12 @@ typedef struct _enum_list_t {
 	int val;
 } enum_list_t;
 
-
 typedef struct _token_item_t {
 	struct _token_item_t *next;
 	char *str;
 } token_item_t;
-token_item_t *token_list=NULL;
-token_item_t *last_token_item=NULL;
-
+static token_item_t *token_list=NULL;
+static token_item_t *last_token_item=NULL;
 
 typedef struct _type_item_t {
 	struct _type_item_t *next;
@@ -151,28 +149,28 @@ typedef struct _type_item_t {
 	char *vals;
 	int alignment;
 } type_item_t;
-type_item_t *type_list=NULL;
+static type_item_t *type_list=NULL;
 
 typedef struct _union_tag_size_item_t {
 	struct _union_tag_size_item_t *next;
 	char *name;
 	int size;
 } union_tag_size_item_t;
-union_tag_size_item_t *union_tag_size_list=NULL;
+static union_tag_size_item_t *union_tag_size_list=NULL;
 
 typedef struct _hf_field_item_t {
 	struct _hf_field_item_t *next;
 	char *name;
 	char *ft_type;
 } hf_field_item_t;
-hf_field_item_t *hf_field_list=NULL;
+static hf_field_item_t *hf_field_list=NULL;
 
 typedef struct _dissector_param_value_t {
 	struct _dissector_param_value_t *next;
 	char *name;
 	char *value;
 } dissector_param_value_t;
-dissector_param_value_t *dissector_param_list=NULL;
+static dissector_param_value_t *dissector_param_list=NULL;
 
 static type_item_t *find_type(char *name);
 
@@ -232,7 +230,7 @@ ptr_to_define(char *pointer_type)
 		return "NDR_POINTER_PTR";
 	}
 
-	fprintf(stderr, "prt_to_define,     weirdo pointer :%s\n", pointer_type);
+	fprintf(stderr, "prt_to_define, 	weirdo pointer :%s\n", pointer_type);
 	exit(10);
 }
 
@@ -265,7 +263,7 @@ register_hf_rename(char *old_name, char *new_name)
 }
 
 /* this function checks that all hf_rename fields have actually been referenced
-   if not   out conformance file is stale
+   if not	out conformance file is stale
 */
 void
 check_hf_rename_refcount(void)
@@ -327,13 +325,13 @@ register_hf_field(char *hf_name, char *title, char *filter_name, char *ft_type, 
 	hfi->ft_type=strdup(ft_type);
 
 	FPRINTF(eth_hf, "static int %s = -1;\n", hf_name);
-	FPRINTF(eth_hfarr, "        { &%s,\n", hf_name);
-	FPRINTF(eth_hfarr, "          { \"%s\", \"%s\", %s, %s,\n", title, filter_name, ft_type, base_type);
-	FPRINTF(eth_hfarr, "          %s, %s,\n", valsstring, mask);
+	FPRINTF(eth_hfarr, "		{ &%s,\n", hf_name);
+	FPRINTF(eth_hfarr, "		  { \"%s\", \"%s\", %s, %s,\n", title, filter_name, ft_type, base_type);
+	FPRINTF(eth_hfarr, "		  %s, %s,\n", valsstring, mask);
 	if (strlen(blurb) > 0)
-		FPRINTF(eth_hfarr, "         \"%s\", HFILL }},\n", blurb);
+		FPRINTF(eth_hfarr, "		 \"%s\", HFILL }},\n", blurb);
 	else
-		FPRINTF(eth_hfarr, "         NULL, HFILL }},\n");
+		FPRINTF(eth_hfarr, "		 NULL, HFILL }},\n");
 	FPRINTF(eth_hfarr, "\n");
 
 	return hf_name;
@@ -409,7 +407,7 @@ prune_keyword_parameters(char *name)
 }
 
 /* this function will parse a bracket item
-       [ ... ]
+	   [ ... ]
    it will return the token of the next item following the ']'
 */
 token_item_t *
@@ -737,7 +735,7 @@ void printtokenlist(int count)
 		fprintf(stderr, "Token \"%s\"\n",ti->str);
 	}
 	if(!count){
-		fprintf(stderr, "    ...\n");
+		fprintf(stderr, "	 ...\n");
 	}
 }
 
@@ -748,9 +746,9 @@ void printtokenlist(int count)
  * [ <fields> ] inteface <ifname> {
  *
  * we are interested in the fields:
- *     uuid
- *     version
- *     pointer_default
+ *	   uuid
+ *	   version
+ *	   pointer_default
  *
  * this function will also remove the header from the token list
  */
@@ -833,7 +831,7 @@ void parseheader(void)
 	register_hf_field(hf_status, "Return code", filter_name, "FT_UINT32", "BASE_HEX", "VALS(NT_errors)", "0", "");
 
 	FPRINTF(eth_ett, "static gint ett_%s = -1;\n", ifname);
-	FPRINTF(eth_ettarr, "        &ett_%s,\n", ifname);
+	FPRINTF(eth_ettarr, "		 &ett_%s,\n", ifname);
 
 	/* the body must start with { */
 	if(strcmp(token_list->str, "{")){
@@ -849,8 +847,8 @@ void parseheader(void)
 		Exit(10);
 	}
 	FPRINTF(eth_code,"static e_uuid_t uuid_dcerpc_%s = {\n", ifname);
-	FPRINTF(eth_code,"    0x%c%c%c%c%c%c%c%c, 0x%c%c%c%c, 0x%c%c%c%c,\n",uuid[1],uuid[2],uuid[3],uuid[4],uuid[5],uuid[6],uuid[7],uuid[8],uuid[10],uuid[11],uuid[12],uuid[13],uuid[15],uuid[16],uuid[17],uuid[18]);
-	FPRINTF(eth_code,"    { 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c}\n",uuid[20],uuid[21],uuid[22],uuid[23],uuid[25],uuid[26],uuid[27],uuid[28],uuid[29],uuid[30],uuid[31],uuid[32],uuid[33],uuid[34],uuid[35],uuid[36]);
+	FPRINTF(eth_code,"	  0x%c%c%c%c%c%c%c%c, 0x%c%c%c%c, 0x%c%c%c%c,\n",uuid[1],uuid[2],uuid[3],uuid[4],uuid[5],uuid[6],uuid[7],uuid[8],uuid[10],uuid[11],uuid[12],uuid[13],uuid[15],uuid[16],uuid[17],uuid[18]);
+	FPRINTF(eth_code,"	  { 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c}\n",uuid[20],uuid[21],uuid[22],uuid[23],uuid[25],uuid[26],uuid[27],uuid[28],uuid[29],uuid[30],uuid[31],uuid[32],uuid[33],uuid[34],uuid[35],uuid[36]);
 	FPRINTF(eth_code,"};\n");
 	FPRINTF(eth_code,"\n");
 
@@ -858,9 +856,9 @@ void parseheader(void)
 	FPRINTF(eth_code,"static guint16 ver_%s = %d;\n", ifname, major);
 	FPRINTF(eth_code,"\n");
 
-	FPRINTF(eth_handoff, "    dcerpc_init_uuid(proto_%s, ett_%s,\n", ifname, ifname);
-	FPRINTF(eth_handoff, "        &uuid_dcerpc_%s, ver_%s,\n", ifname, ifname);
-	FPRINTF(eth_handoff, "        function_dissectors, hf_%s_opnum);\n", ifname);
+	FPRINTF(eth_handoff, "	  dcerpc_init_uuid(proto_%s, ett_%s,\n", ifname, ifname);
+	FPRINTF(eth_handoff, "		  &uuid_dcerpc_%s, ver_%s,\n", ifname, ifname);
+	FPRINTF(eth_handoff, "		  function_dissectors, hf_%s_opnum);\n", ifname);
 }
 
 
@@ -1159,8 +1157,8 @@ find_type(char *name)
 			FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param)\n", dissectorname);
 			FPRINTF(eth_code, "{\n");
 			FPRINTF(eth_code, "    offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,\n");
-			FPRINTF(eth_code, "                   hf_index, &policy_hnd, &hnd_item,\n");
-			FPRINTF(eth_code, "                   param&0x01, param&0x02);\n");
+			FPRINTF(eth_code, " 				  hf_index, &policy_hnd, &hnd_item,\n");
+			FPRINTF(eth_code, " 				  param&0x01, param&0x02);\n");
 
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");
@@ -1330,7 +1328,7 @@ void skipdeclare(void)
 }
 
 /* this function will parse a
-       const
+	   const
    and generate the appropriate code
    const must be followed by a suitable keyword [uint16|uint32|...]
    the const will later be removed from the token list
@@ -1389,7 +1387,7 @@ void parseconst(void)
 }
 
 /* this function will parse a
-       typedef struct {
+	   typedef struct {
    construct and generate the appropriate code.
    the typedef will be removed from the token_list once it has been processed
    the function assumes that the typedef is the first object in the token_list
@@ -1479,7 +1477,7 @@ void parsetypedefstruct(int pass)
 	/* pass 1  generate header for the struct dissector */
 	if(pass==1){
 		FPRINTF(eth_ett, "static gint ett_%s_%s = -1;\n", ifname, struct_name);
-		FPRINTF(eth_ettarr, "        &ett_%s_%s,\n", ifname, struct_name);
+		FPRINTF(eth_ettarr, "		 &ett_%s_%s,\n", ifname, struct_name);
 		FPRINTF(eth_hdr, "int %s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);\n", dissectorname);
 		FPRINTF(eth_code, "\n");
 		FPRINTF(eth_code, "int\n");
@@ -1510,8 +1508,8 @@ void parsetypedefstruct(int pass)
 		}
 		FPRINTF(eth_code, "    old_offset=offset;\n");
 		FPRINTF(eth_code, "    if(parent_tree){\n");
-		FPRINTF(eth_code, "        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);\n");
-		FPRINTF(eth_code, "        tree=proto_item_add_subtree(item, ett_%s_%s);\n", ifname, struct_name);
+		FPRINTF(eth_code, " 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);\n");
+		FPRINTF(eth_code, " 	   tree=proto_item_add_subtree(item, ett_%s_%s);\n", ifname, struct_name);
 		FPRINTF(eth_code, "    }\n");
 		FPRINTF(eth_code, "\n");
 	}
@@ -1623,9 +1621,9 @@ void parsetypedefstruct(int pass)
 			  FPRINTF(eth_code, "static int\n");
 			  FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", ptmpstr);
 			  FPRINTF(eth_code, "{\n");
-			  FPRINTF(eth_code, "    guint32 param=%s;\n",find_dissector_param_value(ptmpstr));
-			  FPRINTF(eth_code, "    offset=%s(tvb, offset, pinfo, tree, drep, %s, param);\n", type_item->dissector, hf);
-			  FPRINTF(eth_code, "    return offset;\n");
+			  FPRINTF(eth_code, "	 guint32 param=%s;\n",find_dissector_param_value(ptmpstr));
+			  FPRINTF(eth_code, "	 offset=%s(tvb, offset, pinfo, tree, drep, %s, param);\n", type_item->dissector, hf);
+			  FPRINTF(eth_code, "	 return offset;\n");
 			  FPRINTF(eth_code, "}\n");
 			  FPRINTF(eth_code, "\n");
 			} else {
@@ -1640,8 +1638,8 @@ void parsetypedefstruct(int pass)
 				  FPRINTF(eth_code, "static int\n");
 				  FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
 				  FPRINTF(eth_code, "{\n");
-				  FPRINTF(eth_code, "    offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, %s, %s, \"%s\", -1);\n", ptmpstr, ptr_to_define(pointer_type), field_name);
-				  FPRINTF(eth_code, "    return offset;\n");
+				  FPRINTF(eth_code, "	 offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, %s, %s, \"%s\", -1);\n", ptmpstr, ptr_to_define(pointer_type), field_name);
+				  FPRINTF(eth_code, "	 return offset;\n");
 				  FPRINTF(eth_code, "}\n");
 				  FPRINTF(eth_code, "\n");
 				} else {
@@ -1655,12 +1653,12 @@ void parsetypedefstruct(int pass)
 				  FPRINTF(eth_code, "static int\n");
 				  FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
 				  FPRINTF(eth_code, "{\n");
-				  FPRINTF(eth_code, "    int count=%d;\n",fixed_array_size);
-				  FPRINTF(eth_code, "    while(count--){\n");
-				  FPRINTF(eth_code, "        offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
-				  FPRINTF(eth_code, "    }\n");
+				  FPRINTF(eth_code, "	 int count=%d;\n",fixed_array_size);
+				  FPRINTF(eth_code, "	 while(count--){\n");
+				  FPRINTF(eth_code, "		 offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
+				  FPRINTF(eth_code, "	 }\n");
 				  FPRINTF(eth_code, "\n");
-				  FPRINTF(eth_code, "    return offset;\n");
+				  FPRINTF(eth_code, "	 return offset;\n");
 				  FPRINTF(eth_code, "}\n");
 				  FPRINTF(eth_code, "\n");
 				} else {
@@ -1673,55 +1671,55 @@ void parsetypedefstruct(int pass)
 			if(bi){
 			  switch(bi->flags&(BI_SIZE_IS|BI_LENGTH_IS)){
 			  case 0:
-			    break;
+				break;
 			  case BI_SIZE_IS:
-			    sprintf(tmpstr, "ucarray_%s", ptmpstr);
-			    if(check_if_to_emit(tmpstr)){
-			      FPRINTF(eth_code, "static int\n");
-			      FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
-			      FPRINTF(eth_code, "{\n");
-			      FPRINTF(eth_code, "    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
-			      FPRINTF(eth_code, "    return offset;\n");
-			      FPRINTF(eth_code, "}\n");
-			      FPRINTF(eth_code, "\n");
-			    } else {
-			      FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
-			    }
-			    ptmpstr=strdup(tmpstr);
-			    break;
+				sprintf(tmpstr, "ucarray_%s", ptmpstr);
+				if(check_if_to_emit(tmpstr)){
+				  FPRINTF(eth_code, "static int\n");
+				  FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+				  FPRINTF(eth_code, "{\n");
+				  FPRINTF(eth_code, "	 offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
+				  FPRINTF(eth_code, "	 return offset;\n");
+				  FPRINTF(eth_code, "}\n");
+				  FPRINTF(eth_code, "\n");
+				} else {
+				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
+				}
+				ptmpstr=strdup(tmpstr);
+				break;
 			  case BI_LENGTH_IS:
-			    sprintf(tmpstr, "uvarray_%s", ptmpstr);
-			    if(check_if_to_emit(tmpstr)){
-			      FPRINTF(eth_code, "static int\n");
-			      FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
-			      FPRINTF(eth_code, "{\n");
-			      FPRINTF(eth_code, "    offset=dissect_ndr_uvarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
-			      FPRINTF(eth_code, "    return offset;\n");
-			      FPRINTF(eth_code, "}\n");
-			      FPRINTF(eth_code, "\n");
-			    } else {
-			      FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
-			    }
-			    ptmpstr=strdup(tmpstr);
-			    break;
+				sprintf(tmpstr, "uvarray_%s", ptmpstr);
+				if(check_if_to_emit(tmpstr)){
+				  FPRINTF(eth_code, "static int\n");
+				  FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+				  FPRINTF(eth_code, "{\n");
+				  FPRINTF(eth_code, "	 offset=dissect_ndr_uvarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
+				  FPRINTF(eth_code, "	 return offset;\n");
+				  FPRINTF(eth_code, "}\n");
+				  FPRINTF(eth_code, "\n");
+				} else {
+				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
+				}
+				ptmpstr=strdup(tmpstr);
+				break;
 			  case BI_SIZE_IS|BI_LENGTH_IS:
-			    sprintf(tmpstr, "ucvarray_%s", ptmpstr);
-			    if(check_if_to_emit(tmpstr)){
-			      FPRINTF(eth_code, "static int\n");
-			      FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
-			      FPRINTF(eth_code, "{\n");
-			      FPRINTF(eth_code, "    offset=dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
-			      FPRINTF(eth_code, "    return offset;\n");
-			      FPRINTF(eth_code, "}\n");
-			      FPRINTF(eth_code, "\n");
-			    } else {
-			      FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
-			    }
-			    ptmpstr=strdup(tmpstr);
-			    break;
+				sprintf(tmpstr, "ucvarray_%s", ptmpstr);
+				if(check_if_to_emit(tmpstr)){
+				  FPRINTF(eth_code, "static int\n");
+				  FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+				  FPRINTF(eth_code, "{\n");
+				  FPRINTF(eth_code, "	 offset=dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
+				  FPRINTF(eth_code, "	 return offset;\n");
+				  FPRINTF(eth_code, "}\n");
+				  FPRINTF(eth_code, "\n");
+				} else {
+				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
+				}
+				ptmpstr=strdup(tmpstr);
+				break;
 			  default:
-			    fprintf(stderr, "ERROR: typedefstruct can not handle this combination of sizeis/lengthis\n");
-			    Exit(10);
+				fprintf(stderr, "ERROR: typedefstruct can not handle this combination of sizeis/lengthis\n");
+				Exit(10);
 			  }
 			}
 
@@ -1734,8 +1732,8 @@ void parsetypedefstruct(int pass)
 				  FPRINTF(eth_code, "static int\n");
 				  FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
 				  FPRINTF(eth_code, "{\n");
-				  FPRINTF(eth_code, "    offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, %s, %s, \"%s\", -1);\n", ptmpstr, ptr_to_define(pointer_type), field_name);
-				  FPRINTF(eth_code, "    return offset;\n");
+				  FPRINTF(eth_code, "	 offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, %s, %s, \"%s\", -1);\n", ptmpstr, ptr_to_define(pointer_type), field_name);
+				  FPRINTF(eth_code, "	 return offset;\n");
 				  FPRINTF(eth_code, "}\n");
 				  FPRINTF(eth_code, "\n");
 				} else {
@@ -1765,22 +1763,22 @@ void parsetypedefstruct(int pass)
 			if(bi){
 			  switch(bi->flags&(BI_SIZE_IS|BI_LENGTH_IS)){
 			  case 0:
-			    break;
+				break;
 			  case BI_SIZE_IS:
-			    sprintf(tmpstr, "ucarray_%s", ptmpstr);
-			    ptmpstr=strdup(tmpstr);
-			    break;
+				sprintf(tmpstr, "ucarray_%s", ptmpstr);
+				ptmpstr=strdup(tmpstr);
+				break;
 			  case BI_LENGTH_IS:
-			    sprintf(tmpstr, "uvarray_%s", ptmpstr);
-			    ptmpstr=strdup(tmpstr);
-			    break;
+				sprintf(tmpstr, "uvarray_%s", ptmpstr);
+				ptmpstr=strdup(tmpstr);
+				break;
 			  case BI_SIZE_IS|BI_LENGTH_IS:
-			    sprintf(tmpstr, "ucvarray_%s", ptmpstr);
-			    ptmpstr=strdup(tmpstr);
-			    break;
+				sprintf(tmpstr, "ucvarray_%s", ptmpstr);
+				ptmpstr=strdup(tmpstr);
+				break;
 			  default:
-			    fprintf(stderr, "ERROR: typedefstruct can not handle this combination of sizeis/lengthis\n");
-			    Exit(10);
+				fprintf(stderr, "ERROR: typedefstruct can not handle this combination of sizeis/lengthis\n");
+				Exit(10);
 			  }
 			}
 
@@ -1840,7 +1838,7 @@ typedef_struct_finished:
 }
 
 /* this function will parse a
-       typedef bitmap {
+	   typedef bitmap {
    construct and generate the appropriate code.
    the typedef will be removed from the token_list once it has been processed
    the function assumes that the typedef is the first object in the token_list
@@ -1920,7 +1918,7 @@ void parsetypedefbitmap(int pass)
 	/* pass 1  generate header for the struct dissector */
 	if(pass==1){
 		FPRINTF(eth_ett, "static gint ett_%s_%s = -1;\n", ifname, bitmap_name);
-		FPRINTF(eth_ettarr, "        &ett_%s_%s,\n", ifname, bitmap_name);
+		FPRINTF(eth_ettarr, "		 &ett_%s_%s,\n", ifname, bitmap_name);
 		FPRINTF(eth_hdr, "int %s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);\n", dissectorname);
 		FPRINTF(eth_code, "\n");
 		FPRINTF(eth_code, "int\n");
@@ -1944,8 +1942,8 @@ void parsetypedefbitmap(int pass)
 		}
 		FPRINTF(eth_code, "\n");
 		FPRINTF(eth_code, "    if(parent_tree){\n");
-		FPRINTF(eth_code, "        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, %d, TRUE);\n", alignment);
-		FPRINTF(eth_code, "        tree=proto_item_add_subtree(item, ett_%s_%s);\n", ifname, bitmap_name);
+		FPRINTF(eth_code, " 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, %d, TRUE);\n", alignment);
+		FPRINTF(eth_code, " 	   tree=proto_item_add_subtree(item, ett_%s_%s);\n", ifname, bitmap_name);
 		FPRINTF(eth_code, "    }\n");
 		FPRINTF(eth_code, "\n");
 		switch(alignment){
@@ -2016,7 +2014,7 @@ void parsetypedefbitmap(int pass)
 		if(pass==1){
 			FPRINTF(eth_code, "    proto_tree_add_boolean(tree, %s, tvb, offset-%d, %d, flags);\n", hf_bitname, alignment, alignment);
 			FPRINTF(eth_code, "    if(flags&%s){\n", value);
-			FPRINTF(eth_code, "        proto_item_append_text(item, \" %s\");\n", name);
+			FPRINTF(eth_code, " 	   proto_item_append_text(item, \" %s\");\n", name);
 			FPRINTF(eth_code, "    }\n");
 			FPRINTF(eth_code, "    flags&=(~%s);\n", value);
 			FPRINTF(eth_code, "\n");
@@ -2030,7 +2028,7 @@ void parsetypedefbitmap(int pass)
 
 	if(pass==1){
 		FPRINTF(eth_code, "    if(flags){\n");
-		FPRINTF(eth_code, "        proto_item_append_text(item, \"UNKNOWN-FLAGS\");\n");
+		FPRINTF(eth_code, " 	   proto_item_append_text(item, \"UNKNOWN-FLAGS\");\n");
 		FPRINTF(eth_code, "    }\n");
 		FPRINTF(eth_code, "\n");
 		FPRINTF(eth_code, "    return offset;\n");
@@ -2081,7 +2079,7 @@ case2str(char *str)
 {
   char *newstr;
   if(str[0]!='-'){
-    return str;
+	return str;
   }
   newstr=strdup(str);
   newstr[0]='m';
@@ -2089,7 +2087,7 @@ case2str(char *str)
 }
 
 /* this function will parse a
-       typedef union {
+	   typedef union {
    construct and generate the appropriate code.
    the typedef will be removed from the token_list once it has been processed
    the function assumes that the typedef is the first object in the token_list
@@ -2176,7 +2174,7 @@ void parsetypedefunion(int pass)
 	/* pass 1  generate header for the struct dissector */
 	if(pass==1){
 		FPRINTF(eth_ett, "static gint ett_%s_%s = -1;\n", ifname, union_name);
-		FPRINTF(eth_ettarr, "        &ett_%s_%s,\n", ifname, union_name);
+		FPRINTF(eth_ettarr, "		 &ett_%s_%s,\n", ifname, union_name);
 		FPRINTF(eth_code, "\n");
 		FPRINTF(eth_code, "static int\n");
 		FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)\n", dissectorname);
@@ -2210,8 +2208,8 @@ void parsetypedefunion(int pass)
 		}
 		FPRINTF(eth_code, "    old_offset=offset;\n");
 		FPRINTF(eth_code, "    if(parent_tree){\n");
-		FPRINTF(eth_code, "        item=proto_tree_add_text(parent_tree, tvb, offset, -1, \"%s\");\n", union_name);
-		FPRINTF(eth_code, "        tree=proto_item_add_subtree(item, ett_%s_%s);\n", ifname, union_name);
+		FPRINTF(eth_code, " 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, \"%s\");\n", union_name);
+		FPRINTF(eth_code, " 	   tree=proto_item_add_subtree(item, ett_%s_%s);\n", ifname, union_name);
 		FPRINTF(eth_code, "    }\n");
 		FPRINTF(eth_code, "\n");
 		switch(tag_alignment){
@@ -2219,11 +2217,11 @@ void parsetypedefunion(int pass)
 			break;
 		case 2:
 			FPRINTF(eth_code, "    offset=dissect_ndr_uint16(tvb, offset, pinfo, tree,\n");
-			FPRINTF(eth_code, "                              drep, hf_index, &level);\n");
+			FPRINTF(eth_code, " 							 drep, hf_index, &level);\n");
 		break;
 		case 4:
 			FPRINTF(eth_code, "    offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,\n");
-			FPRINTF(eth_code, "                              drep, hf_index, &level);\n");
+			FPRINTF(eth_code, " 							 drep, hf_index, &level);\n");
 			break;
 		default:
 			fprintf(stderr, "ERROR: typedefunion 2 can not handle alignment:%d\n",alignment);
@@ -2365,20 +2363,20 @@ void parsetypedefunion(int pass)
 			case 1:
 				break;
 			case 2:
-				FPRINTF(eth_code, "        ALIGN_TO_2_BYTES;\n");
+				FPRINTF(eth_code, " 	   ALIGN_TO_2_BYTES;\n");
 				break;
 			case 4:
-				FPRINTF(eth_code, "        ALIGN_TO_4_BYTES;\n");
+				FPRINTF(eth_code, " 	   ALIGN_TO_4_BYTES;\n");
 				break;
 			case 8:
-				FPRINTF(eth_code, "        ALIGN_TO_8_BYTES;\n");
+				FPRINTF(eth_code, " 	   ALIGN_TO_8_BYTES;\n");
 				break;
 			default:
 				fprintf(stderr, "ERROR: typedefunion 3 can not handle alignment:%d\n",item_alignment);
 				Exit(10);
 			}
-			FPRINTF(eth_code, "        offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
-			FPRINTF(eth_code, "        break;\n");
+			FPRINTF(eth_code, " 	   offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
+			FPRINTF(eth_code, " 	   break;\n");
 			FPRINTF(eth_code, "\n");
 		}
 		ti=ti->next;
@@ -2437,14 +2435,14 @@ void parsetypedefunion(int pass)
 
 
 /* this function will parse a
-       WERROR function (
+	   WERROR function (
    construct and generate the appropriate code.
    the function will be removed from the token_list once it has been processed
    the function assumes that the function is the first object in the token_list
    the function will be called three times with
-     pass=0   generate subdissectors and entries for the function table
-     pass=1   generate code for the REQUEST
-     pass=2   generate code for the REPLY
+	 pass=0   generate subdissectors and entries for the function table
+	 pass=1   generate code for the REQUEST
+	 pass=2   generate code for the REPLY
 */
 void parsefunction(int pass)
 {
@@ -2479,9 +2477,9 @@ void parsefunction(int pass)
 	FPRINTF(NULL,"\nFUNCTION:%s pass:%d\n-------\n",function_name,pass);
 
 	if(pass==0){
-		FPRINTF(eth_ft, "    { %d, \"%s\",\n",funcno,function_name);
-		FPRINTF(eth_ft, "        %s_dissect_%s_request,\n", ifname, function_name);
-		FPRINTF(eth_ft, "        %s_dissect_%s_response },\n", ifname, function_name);
+		FPRINTF(eth_ft, "	 { %d, \"%s\",\n",funcno,function_name);
+		FPRINTF(eth_ft, "		 %s_dissect_%s_request,\n", ifname, function_name);
+		FPRINTF(eth_ft, "		 %s_dissect_%s_response },\n", ifname, function_name);
 		funcno++;
 	}
 
@@ -2577,32 +2575,32 @@ void parsefunction(int pass)
 			if(bi){
 			  switch(bi->flags&(BI_SIZE_IS|BI_LENGTH_IS)){
 			  case 0:
-			    break;
+				break;
 			  case BI_SIZE_IS|BI_LENGTH_IS:
-			    sprintf(tmpstr, "ucvarray_%s", ptmpstr);
-			    FPRINTF(eth_code, "static int\n");
-			    FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
-			    FPRINTF(eth_code, "{\n");
-			    FPRINTF(eth_code, "    offset=dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
-			    FPRINTF(eth_code, "    return offset;\n");
-			    FPRINTF(eth_code, "}\n");
-			    FPRINTF(eth_code, "\n");
-			    ptmpstr=strdup(tmpstr);
-			    break;
+				sprintf(tmpstr, "ucvarray_%s", ptmpstr);
+				FPRINTF(eth_code, "static int\n");
+				FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+				FPRINTF(eth_code, "{\n");
+				FPRINTF(eth_code, "    offset=dissect_ndr_ucvarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
+				FPRINTF(eth_code, "    return offset;\n");
+				FPRINTF(eth_code, "}\n");
+				FPRINTF(eth_code, "\n");
+				ptmpstr=strdup(tmpstr);
+				break;
 			  case BI_SIZE_IS:
-			    sprintf(tmpstr, "ucarray_%s", ptmpstr);
-			    FPRINTF(eth_code, "static int\n");
-			    FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
-			    FPRINTF(eth_code, "{\n");
-			    FPRINTF(eth_code, "    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
-			    FPRINTF(eth_code, "    return offset;\n");
-			    FPRINTF(eth_code, "}\n");
-			    FPRINTF(eth_code, "\n");
-			    ptmpstr=strdup(tmpstr);
-			    break;
+				sprintf(tmpstr, "ucarray_%s", ptmpstr);
+				FPRINTF(eth_code, "static int\n");
+				FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", tmpstr);
+				FPRINTF(eth_code, "{\n");
+				FPRINTF(eth_code, "    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, %s);\n", ptmpstr);
+				FPRINTF(eth_code, "    return offset;\n");
+				FPRINTF(eth_code, "}\n");
+				FPRINTF(eth_code, "\n");
+				ptmpstr=strdup(tmpstr);
+				break;
 			  default:
-			    fprintf(stderr, "ERROR: typedeffunction can not handle this combination of sizeis/lengthis\n");
-			    Exit(10);
+				fprintf(stderr, "ERROR: typedeffunction can not handle this combination of sizeis/lengthis\n");
+				Exit(10);
 			  }
 			}
 
@@ -2631,18 +2629,18 @@ void parsefunction(int pass)
 			if(bi){
 			  switch(bi->flags&(BI_SIZE_IS|BI_LENGTH_IS)){
 			  case 0:
-			    break;
+				break;
 			  case BI_SIZE_IS|BI_LENGTH_IS:
-			    sprintf(tmpstr, "ucvarray_%s", ptmpstr);
-			    ptmpstr=strdup(tmpstr);
-			    break;
+				sprintf(tmpstr, "ucvarray_%s", ptmpstr);
+				ptmpstr=strdup(tmpstr);
+				break;
 			  case BI_SIZE_IS:
-			    sprintf(tmpstr, "ucarray_%s", ptmpstr);
-			    ptmpstr=strdup(tmpstr);
-			    break;
+				sprintf(tmpstr, "ucarray_%s", ptmpstr);
+				ptmpstr=strdup(tmpstr);
+				break;
 			  default:
-			    fprintf(stderr, "ERROR: typedeffunction can not handle this combination of sizeis/lengthis\n");
-			    Exit(10);
+				fprintf(stderr, "ERROR: typedeffunction can not handle this combination of sizeis/lengthis\n");
+				Exit(10);
 			  }
 			}
 
@@ -2655,13 +2653,13 @@ void parsefunction(int pass)
 			}
 
 			if((pass==1)&&(bi->flags&BI_IN)){
-				FPRINTF(eth_code, "        offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
-				FPRINTF(eth_code, "        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);\n");
+				FPRINTF(eth_code, " 	   offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
+				FPRINTF(eth_code, " 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);\n");
 				FPRINTF(eth_code, "\n");
 			}
 			if((pass==2)&&(bi->flags&BI_OUT)){
-				FPRINTF(eth_code, "        offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
-				FPRINTF(eth_code, "        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);\n");
+				FPRINTF(eth_code, " 	   offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
+				FPRINTF(eth_code, " 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);\n");
 				FPRINTF(eth_code, "\n");
 			}
 		}
@@ -2708,9 +2706,9 @@ void parsefunction(int pass)
 
 
 /* this function will parse a
-       typedef enum {
+	   typedef enum {
    or a
-       typedef [ v1_enum ] enum {
+	   typedef [ v1_enum ] enum {
    construct and generate the appropriate code.
    the typedef will be removed from the token_list once it has been processed
    the function assumes that the typedef is the first object in the token_list
@@ -2893,7 +2891,7 @@ typedef struct _trimmed_prefixes_t {
 	struct _trimmed_prefixes_t *next;
 	char *name;
 } trimmed_prefixes_t;
-trimmed_prefixes_t *prefixes_to_trim=NULL;
+static trimmed_prefixes_t *prefixes_to_trim=NULL;
 
 void preparetrimprefix(char *prefix_name)
 {
@@ -3170,7 +3168,7 @@ int main(int argc, char *argv[])
 	   the appropriate handler
 	*/
 	while(1) {
-	  	/* just skip any [ ] that starts a new construct */
+		/* just skip any [ ] that starts a new construct */
 		if( !strcmp(token_list->str, "[") ){
 			token_list=parsebrackets(token_list, &bi);
 			continue;
@@ -3278,7 +3276,7 @@ int main(int argc, char *argv[])
 
 	/* unless the token_list now only contains a single token : '}'
 	   we have failed to compile the idl file properly
-        */
+		*/
 	if( strcmp(token_list->str, "}") || token_list->next){
 		fprintf(stderr, "ERROR: we did not process all tokens. Compiler is incomplete.\n===========================================\n");
 		printtokenlist(10);
