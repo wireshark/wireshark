@@ -616,20 +616,22 @@ get_column_char_width(gint format)
 }
 
 gint
-get_column_format(gint col) {
+get_column_format(gint col)
+{
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
 
   if (!clp)  /* Invalid column requested */
     return -1;
-	
+
   cfmt = (fmt_data *) clp->data;
 
   return(get_column_format_from_str(cfmt->fmt));
 }
 
 gint
-get_column_format_from_str(gchar *str) {
+get_column_format_from_str(gchar *str)
+{
   gint i;
 
   for (i = 0; i < NUM_COL_FMTS; i++) {
@@ -640,9 +642,13 @@ get_column_format_from_str(gchar *str) {
 }
 
 gchar *
-get_column_title(gint col) {
+get_column_title(gint col)
+{
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
+
+  if (!clp)  /* Invalid column requested */
+    return -1;
 
   cfmt = (fmt_data *) clp->data;
 
@@ -650,9 +656,13 @@ get_column_title(gint col) {
 }
 
 const gchar *
-get_column_custom_field(gint col) {
+get_column_custom_field(gint col)
+{
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
+
+  if (!clp)  /* Invalid column requested */
+    return -1;
 
   cfmt = (fmt_data *) clp->data;
 
