@@ -2768,6 +2768,8 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 	save_private_data= gsm_a_dtap_pinfo->private_data;
 	saved_offset = offset;
 	gsm_a_dtap_pinfo->private_data = NULL;
+	col_append_str(gsm_a_dtap_pinfo->cinfo, COL_PROTOCOL,"/");
+	col_set_fence(gsm_a_dtap_pinfo->cinfo, COL_PROTOCOL);
 	while ( fac_len > (offset - saved_offset)){
 
 		/* Get the length of the component there can be more than one component in a facility message */
@@ -2776,7 +2778,7 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 		header_end_offset = get_ber_length(tvb, header_end_offset, &component_len, &ind);
 		if (ind){
 			proto_tree_add_text(tree, tvb, offset+1, 1,
-				"Indefinte length, ignoring component");
+				"Indefinite length, ignoring component");
 			gsm_a_dtap_pinfo->private_data = save_private_data;
 			return (fac_len);
 		}
@@ -2787,6 +2789,8 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 		TODO Call gsm map here
 		*/
 		SS_tvb = tvb_new_subset(tvb, offset, component_len, component_len);
+		col_append_str(gsm_a_dtap_pinfo->cinfo, COL_INFO,"(GSM MAP) ");
+		col_set_fence(gsm_a_dtap_pinfo->cinfo, COL_INFO);
 		call_dissector(gsm_map_handle, SS_tvb, gsm_a_dtap_pinfo, tree);
 		offset = offset + component_len;
 	}
