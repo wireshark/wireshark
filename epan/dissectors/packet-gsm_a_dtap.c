@@ -381,6 +381,8 @@ static int hf_gsm_a_cld_party_bcd_num = -1;
 static int hf_gsm_a_clg_party_bcd_num = -1;
 static int hf_gsm_a_dtap_cause = -1;
 static int hf_gsm_a_dtap_cause_ss_diagnostics	= -1;
+static int hf_gsm_a_dtap_emergency_bcd_num	= -1;
+static int hf_gsm_a_dtap_emerg_num_info_length = -1;
 
 int hf_gsm_a_extension = -1;
 static int hf_gsm_a_type_of_number = -1;
@@ -929,24 +931,53 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 {
 	guint32	curr_offset;
 	guint8 en_len;
+	guint8 count;
+	guint8	*poctets;
+	proto_tree	*subtree;
+	proto_item	*item;
 
 	curr_offset = offset;
 
+	count = 1;
 	while ((curr_offset - offset) < len){
 		/* Length of 1st Emergency Number information note 1) octet 3 
 		 * NOTE 1: The length contains the number of octets used to encode the 
 		 * Emergency Service Category Value and the Number digits.
 		 */
 		en_len = tvb_get_guint8(tvb, curr_offset);
+
+		item = proto_tree_add_text(tree,
+			tvb, curr_offset, en_len + 1,
+			"Emergency Number Information %u", count);
+		subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_EMERGENCY_NUM_LIST]);
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_emerg_num_info_length, tvb, curr_offset, 1, FALSE);
+
 		curr_offset++;
 		/* 0 0 0 Emergency Service Category Value (see
 		 *       Table 10.5.135d/3GPP TS 24.008
 		 * Table 10.5.135d/3GPP TS 24.008: Service Category information element
 		 */
-		de_serv_cat(tvb, tree, curr_offset, 1, NULL, 0);
-		proto_tree_add_text(tree, tvb, curr_offset+1, en_len-1, "Not decoded yet");
+		proto_tree_add_bits_item(subtree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 3, FALSE);
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_serv_cat_b5, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_serv_cat_b4, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_serv_cat_b3, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_serv_cat_b2, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_serv_cat_b1, tvb, curr_offset, 1, FALSE);
+		curr_offset++;
+		en_len--;
+
+		poctets = tvb_get_ephemeral_string(tvb, curr_offset, en_len);
+
+		my_dgt_tbcd_unpack(a_bigbuf, poctets, en_len, &Dgt_mbcd);
+
+		proto_tree_add_string_format(subtree, hf_gsm_a_dtap_emergency_bcd_num,
+			tvb, curr_offset, en_len,
+			a_bigbuf,
+			"BCD Digits: %s",
+			a_bigbuf);
 
 		curr_offset = curr_offset + en_len;
+		count++;
 	}
 
 
@@ -6220,6 +6251,16 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_notification_description,
 		{ "Notification description", "gsm_a.notif_descr",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_dtap_notification_description_vals), 0x7f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_emerg_num_info_length,
+		{ "Emergency Number Info length", "gsm_a.dtap.emerg_num_info_length",
+		FT_UINT8, BASE_DEC, 0, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_emergency_bcd_num,
+		{ "Emergency BCD Number", "gsm_a.dtap.emergency_bcd_num",
+		FT_STRING, BASE_NONE, 0, 0,
 		NULL, HFILL }
 	},
 	};
