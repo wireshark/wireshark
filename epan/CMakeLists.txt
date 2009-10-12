@@ -126,6 +126,7 @@ else()
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	dissectors/packet-dcerpc-${PROTOCOL_NAME}.c
     )
+  ENDFOREACH()
 endif()
 
 ADD_CUSTOM_COMMAND(
