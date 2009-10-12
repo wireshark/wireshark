@@ -1315,7 +1315,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t* conversation;
 	radius_call_info_key radius_call_key;
 	radius_call_info_key *new_radius_call_key;
-	radius_call_t *radius_call;
+	radius_call_t *radius_call = NULL;
 	nstime_t delta;
 	static address null_address = { AT_NONE, 0, NULL };
 	
