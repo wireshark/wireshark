@@ -1843,6 +1843,9 @@ DEBUG_ENTRY("dissect_per_sequence");
 		||  (sequence[i].extension==ASN1_EXTENSION_ROOT) ){
 			if(sequence[i].optional==ASN1_OPTIONAL){
 				gboolean is_present;
+				if (num_opts == 0){
+					continue;
+				}
 				is_present=(1<<(num_opts-1))&optional_mask;
 				num_opts--;
 				if(!is_present){
