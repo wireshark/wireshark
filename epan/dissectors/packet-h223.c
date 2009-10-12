@@ -27,9 +27,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-
-#include <gmodule.h>
 #include <glib.h>
 #include <epan/emem.h>
 #include <epan/bitswap.h>
@@ -53,7 +50,7 @@
 /* debug the mux-pdu defragmentation code. warning: verbose output! */
 /* #define DEBUG_H223_FRAGMENTATION */
 
-#define PROTO_TAG_H223	"H223"
+#define PROTO_TAG_H223 "H223"
 
 /* Wireshark ID of the H.223 protocol */
 static int proto_h223 = -1;
@@ -126,31 +123,31 @@ static dissector_handle_t data_handle;
 static dissector_handle_t srp_handle;
 
 static const fragment_items h223_mux_frag_items _U_ = {
-	&ett_h223_mux_fragment,
-	&ett_h223_mux_fragments,
-	&hf_h223_mux_fragments,
-	&hf_h223_mux_fragment,
-	&hf_h223_mux_fragment_overlap,
-	&hf_h223_mux_fragment_overlap_conflict,
-	&hf_h223_mux_fragment_multiple_tails,
-	&hf_h223_mux_fragment_too_long_fragment,
-	&hf_h223_mux_fragment_error,
-	&hf_h223_mux_reassembled_in,
-	"fragments"
+    &ett_h223_mux_fragment,
+    &ett_h223_mux_fragments,
+    &hf_h223_mux_fragments,
+    &hf_h223_mux_fragment,
+    &hf_h223_mux_fragment_overlap,
+    &hf_h223_mux_fragment_overlap_conflict,
+    &hf_h223_mux_fragment_multiple_tails,
+    &hf_h223_mux_fragment_too_long_fragment,
+    &hf_h223_mux_fragment_error,
+    &hf_h223_mux_reassembled_in,
+    "fragments"
 };
 
 static const fragment_items h223_al_frag_items = {
-	&ett_h223_al_fragment,
-	&ett_h223_al_fragments,
-	&hf_h223_al_fragments,
-	&hf_h223_al_fragment,
-	&hf_h223_al_fragment_overlap,
-	&hf_h223_al_fragment_overlap_conflict,
-	&hf_h223_al_fragment_multiple_tails,
-	&hf_h223_al_fragment_too_long_fragment,
-	&hf_h223_al_fragment_error,
-	&hf_h223_al_reassembled_in,
-	"fragments"
+    &ett_h223_al_fragment,
+    &ett_h223_al_fragments,
+    &hf_h223_al_fragments,
+    &hf_h223_al_fragment,
+    &hf_h223_al_fragment_overlap,
+    &hf_h223_al_fragment_overlap_conflict,
+    &hf_h223_al_fragment_multiple_tails,
+    &hf_h223_al_fragment_too_long_fragment,
+    &hf_h223_al_fragment_error,
+    &hf_h223_al_reassembled_in,
+    "fragments"
 };
 
 /* this is a fudge to pass pdu_offset into add_h223_mux_element() */
@@ -181,7 +178,7 @@ static gint circuit_chain_equal(gconstpointer v, gconstpointer w)
     const circuit_chain_key *v2 = (const circuit_chain_key *)w;
     gint result;
     result = ( v1->call == v2->call &&
-	       v1->vc == v2 -> vc );
+               v1->vc == v2 -> vc );
     return result;
 }
 
@@ -193,7 +190,7 @@ static guint circuit_chain_hash (gconstpointer v)
 }
 
 static guint32 circuit_chain_lookup(const h223_call_info* call_info,
-				    guint32 child_vc)
+                                    guint32 child_vc)
 {
     circuit_chain_key key, *new_key;
     guint32 circuit_id;
@@ -201,10 +198,10 @@ static guint32 circuit_chain_lookup(const h223_call_info* call_info,
     key.vc = child_vc;
     circuit_id = GPOINTER_TO_UINT(g_hash_table_lookup( circuit_chain_hashtable, &key ));
     if( circuit_id == 0 ) {
-	new_key = se_alloc(sizeof(circuit_chain_key));
-	*new_key = key;
-	circuit_id = ++circuit_chain_count;
-	g_hash_table_insert(circuit_chain_hashtable, new_key, GUINT_TO_POINTER(circuit_id));
+        new_key = se_alloc(sizeof(circuit_chain_key));
+        *new_key = key;
+        circuit_id = ++circuit_chain_count;
+        g_hash_table_insert(circuit_chain_hashtable, new_key, GUINT_TO_POINTER(circuit_id));
     }
     return circuit_id;
 }
@@ -212,7 +209,7 @@ static guint32 circuit_chain_lookup(const h223_call_info* call_info,
 static void circuit_chain_init(void)
 {
     if (circuit_chain_hashtable)
-	g_hash_table_destroy(circuit_chain_hashtable);
+        g_hash_table_destroy(circuit_chain_hashtable);
     circuit_chain_hashtable = g_hash_table_new(circuit_chain_hash, circuit_chain_equal);
     circuit_chain_count = 1;
 }
@@ -366,7 +363,7 @@ static h223_lc_params* find_h223_lc_params(h223_vc_info* vc_info, int direction,
 static void init_direction_data(h223_call_direction_data *direct)
 {
     int i;
-	h223_mux_element *mc0_element;
+    h223_mux_element *mc0_element;
 
     for ( i = 0; i < 16; ++i )
         direct->mux_table[i] = NULL;
@@ -583,23 +580,23 @@ static void h223_add_lc( packet_info* pinfo, guint16 lc, h223_lc_params* params 
  * AL-PDU dissection
  */
 
-const guint8 crctable[256] = {
-	0x00, 0x91, 0xe3, 0x72, 0x07, 0x96, 0xe4, 0x75, 0x0e, 0x9f, 0xed, 0x7c, 0x09, 0x98, 0xea, 0x7b,
-	0x1c, 0x8d, 0xff, 0x6e, 0x1b, 0x8a, 0xf8, 0x69, 0x12, 0x83, 0xf1, 0x60, 0x15, 0x84, 0xf6, 0x67,
-	0x38, 0xa9, 0xdb, 0x4a, 0x3f, 0xae, 0xdc, 0x4d, 0x36, 0xa7, 0xd5, 0x44, 0x31, 0xa0, 0xd2, 0x43,
-	0x24, 0xb5, 0xc7, 0x56, 0x23, 0xb2, 0xc0, 0x51, 0x2a, 0xbb, 0xc9, 0x58, 0x2d, 0xbc, 0xce, 0x5f,
-	0x70, 0xe1, 0x93, 0x02, 0x77, 0xe6, 0x94, 0x05, 0x7e, 0xef, 0x9d, 0x0c, 0x79, 0xe8, 0x9a, 0x0b,
-	0x6c, 0xfd, 0x8f, 0x1e, 0x6b, 0xfa, 0x88, 0x19, 0x62, 0xf3, 0x81, 0x10, 0x65, 0xf4, 0x86, 0x17,
-	0x48, 0xd9, 0xab, 0x3a, 0x4f, 0xde, 0xac, 0x3d, 0x46, 0xd7, 0xa5, 0x34, 0x41, 0xd0, 0xa2, 0x33,
-	0x54, 0xc5, 0xb7, 0x26, 0x53, 0xc2, 0xb0, 0x21, 0x5a, 0xcb, 0xb9, 0x28, 0x5d, 0xcc, 0xbe, 0x2f,
-	0xe0, 0x71, 0x03, 0x92, 0xe7, 0x76, 0x04, 0x95, 0xee, 0x7f, 0x0d, 0x9c, 0xe9, 0x78, 0x0a, 0x9b,
-	0xfc, 0x6d, 0x1f, 0x8e, 0xfb, 0x6a, 0x18, 0x89, 0xf2, 0x63, 0x11, 0x80, 0xf5, 0x64, 0x16, 0x87,
-	0xd8, 0x49, 0x3b, 0xaa, 0xdf, 0x4e, 0x3c, 0xad, 0xd6, 0x47, 0x35, 0xa4, 0xd1, 0x40, 0x32, 0xa3,
-	0xc4, 0x55, 0x27, 0xb6, 0xc3, 0x52, 0x20, 0xb1, 0xca, 0x5b, 0x29, 0xb8, 0xcd, 0x5c, 0x2e, 0xbf,
-	0x90, 0x01, 0x73, 0xe2, 0x97, 0x06, 0x74, 0xe5, 0x9e, 0x0f, 0x7d, 0xec, 0x99, 0x08, 0x7a, 0xeb,
-	0x8c, 0x1d, 0x6f, 0xfe, 0x8b, 0x1a, 0x68, 0xf9, 0x82, 0x13, 0x61, 0xf0, 0x85, 0x14, 0x66, 0xf7,
-	0xa8, 0x39, 0x4b, 0xda, 0xaf, 0x3e, 0x4c, 0xdd, 0xa6, 0x37, 0x45, 0xd4, 0xa1, 0x30, 0x42, 0xd3,
-	0xb4, 0x25, 0x57, 0xc6, 0xb3, 0x22, 0x50, 0xc1, 0xba, 0x2b, 0x59, 0xc8, 0xbd, 0x2c, 0x5e, 0xcf };
+static const guint8 crctable[256] = {
+    0x00, 0x91, 0xe3, 0x72, 0x07, 0x96, 0xe4, 0x75, 0x0e, 0x9f, 0xed, 0x7c, 0x09, 0x98, 0xea, 0x7b,
+    0x1c, 0x8d, 0xff, 0x6e, 0x1b, 0x8a, 0xf8, 0x69, 0x12, 0x83, 0xf1, 0x60, 0x15, 0x84, 0xf6, 0x67,
+    0x38, 0xa9, 0xdb, 0x4a, 0x3f, 0xae, 0xdc, 0x4d, 0x36, 0xa7, 0xd5, 0x44, 0x31, 0xa0, 0xd2, 0x43,
+    0x24, 0xb5, 0xc7, 0x56, 0x23, 0xb2, 0xc0, 0x51, 0x2a, 0xbb, 0xc9, 0x58, 0x2d, 0xbc, 0xce, 0x5f,
+    0x70, 0xe1, 0x93, 0x02, 0x77, 0xe6, 0x94, 0x05, 0x7e, 0xef, 0x9d, 0x0c, 0x79, 0xe8, 0x9a, 0x0b,
+    0x6c, 0xfd, 0x8f, 0x1e, 0x6b, 0xfa, 0x88, 0x19, 0x62, 0xf3, 0x81, 0x10, 0x65, 0xf4, 0x86, 0x17,
+    0x48, 0xd9, 0xab, 0x3a, 0x4f, 0xde, 0xac, 0x3d, 0x46, 0xd7, 0xa5, 0x34, 0x41, 0xd0, 0xa2, 0x33,
+    0x54, 0xc5, 0xb7, 0x26, 0x53, 0xc2, 0xb0, 0x21, 0x5a, 0xcb, 0xb9, 0x28, 0x5d, 0xcc, 0xbe, 0x2f,
+    0xe0, 0x71, 0x03, 0x92, 0xe7, 0x76, 0x04, 0x95, 0xee, 0x7f, 0x0d, 0x9c, 0xe9, 0x78, 0x0a, 0x9b,
+    0xfc, 0x6d, 0x1f, 0x8e, 0xfb, 0x6a, 0x18, 0x89, 0xf2, 0x63, 0x11, 0x80, 0xf5, 0x64, 0x16, 0x87,
+    0xd8, 0x49, 0x3b, 0xaa, 0xdf, 0x4e, 0x3c, 0xad, 0xd6, 0x47, 0x35, 0xa4, 0xd1, 0x40, 0x32, 0xa3,
+    0xc4, 0x55, 0x27, 0xb6, 0xc3, 0x52, 0x20, 0xb1, 0xca, 0x5b, 0x29, 0xb8, 0xcd, 0x5c, 0x2e, 0xbf,
+    0x90, 0x01, 0x73, 0xe2, 0x97, 0x06, 0x74, 0xe5, 0x9e, 0x0f, 0x7d, 0xec, 0x99, 0x08, 0x7a, 0xeb,
+    0x8c, 0x1d, 0x6f, 0xfe, 0x8b, 0x1a, 0x68, 0xf9, 0x82, 0x13, 0x61, 0xf0, 0x85, 0x14, 0x66, 0xf7,
+    0xa8, 0x39, 0x4b, 0xda, 0xaf, 0x3e, 0x4c, 0xdd, 0xa6, 0x37, 0x45, 0xd4, 0xa1, 0x30, 0x42, 0xd3,
+    0xb4, 0x25, 0x57, 0xc6, 0xb3, 0x22, 0x50, 0xc1, 0xba, 0x2b, 0x59, 0xc8, 0xbd, 0x2c, 0x5e, 0xcf };
 
 static guint8 h223_al2_crc8bit( tvbuff_t *tvb ) {
     guint32 len = tvb_reported_length(tvb) - 1;
@@ -633,64 +630,64 @@ static void dissect_mux_al_pdu( tvbuff_t *tvb,
     int data_start;
 
     switch( lc_params->al_type ) {
-    case al1Framed:
-    case al1NotFramed:
-        al_item = proto_tree_add_none_format(vc_tree, hf_h223_al1, tvb, 0, -1, "H.223 AL1 (%sframed)",
-                (lc_params->al_type==al1Framed)?"":"not ");
-        al_tree = proto_item_add_subtree (al_item, ett_h223_al1);
-        if(lc_params->al_type == al1Framed) {
-            hidden_item = proto_tree_add_boolean(al_tree, hf_h223_al1_framed, tvb, 0, 1, TRUE );
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
-        }
-        next_tvb = tvb;
-        al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, FALSE);
-        break;
+        case al1Framed:
+        case al1NotFramed:
+            al_item = proto_tree_add_none_format(vc_tree, hf_h223_al1, tvb, 0, -1, "H.223 AL1 (%sframed)",
+                                                 (lc_params->al_type==al1Framed)?"":"not ");
+            al_tree = proto_item_add_subtree (al_item, ett_h223_al1);
+            if(lc_params->al_type == al1Framed) {
+                hidden_item = proto_tree_add_boolean(al_tree, hf_h223_al1_framed, tvb, 0, 1, TRUE );
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
+            }
+            next_tvb = tvb;
+            al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, FALSE);
+            break;
         
-    case al2WithSequenceNumbers:
-        al2_sequenced = TRUE;
-        /* fall-through */
-    case al2WithoutSequenceNumbers:
-        tmp_item = proto_tree_add_boolean(vc_tree, hf_h223_al2, tvb, 0, 0, TRUE );
+        case al2WithSequenceNumbers:
+            al2_sequenced = TRUE;
+            /* fall-through */
+        case al2WithoutSequenceNumbers:
+            tmp_item = proto_tree_add_boolean(vc_tree, hf_h223_al2, tvb, 0, 0, TRUE );
 
-        al_item = proto_tree_add_item(vc_tree,
-                                      al2_sequenced?hf_h223_al2_sequenced:hf_h223_al2_unsequenced,
-                                      tvb, 0, -1,FALSE);
-        al_tree = proto_item_add_subtree (al_item, ett_h223_al2);
+            al_item = proto_tree_add_item(vc_tree,
+                                          al2_sequenced?hf_h223_al2_sequenced:hf_h223_al2_unsequenced,
+                                          tvb, 0, -1,FALSE);
+            al_tree = proto_item_add_subtree (al_item, ett_h223_al2);
 
-        PROTO_ITEM_SET_GENERATED(tmp_item);
-
-        /* check minimum payload length */
-        if(len < (al2_sequenced?2U:1U))
-            THROW(BoundsError);
-        
-        data_start = 0;
-        if( al2_sequenced ) {
-            proto_tree_add_item(al_tree, hf_h223_al2_seqno, tvb, 0, 1, TRUE);
-            data_start++;
-        }
-
-        next_tvb = tvb_new_subset( tvb, data_start, len-1-data_start, len-1-data_start );
-        al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, FALSE);
-
-        calc_checksum = h223_al2_crc8bit(tvb);
-        real_checksum = tvb_get_guint8(tvb, len - 1);
-
-        if( calc_checksum == real_checksum ) {
-            proto_tree_add_uint_format(al_tree, hf_h223_al2_crc, tvb, len - 1, 1, real_checksum,
-                "CRC: 0x%02x (correct)", real_checksum );
-        } else {
-            proto_tree_add_uint_format(al_tree, hf_h223_al2_crc, tvb, len - 1, 1, real_checksum,
-                "CRC: 0x%02x (incorrect, should be 0x%02x)", real_checksum, calc_checksum );
-            tmp_item = proto_tree_add_boolean( al_tree, hf_h223_al2_crc_bad, tvb, len - 1, 1, TRUE );
             PROTO_ITEM_SET_GENERATED(tmp_item);
 
-            /* don't pass pdus which fail checksums on to the subdissector */
-            subdissector = data_handle;
-        }
-        break;
-    default:
-        call_dissector(data_handle, tvb, pinfo, vc_tree);
-        return;
+            /* check minimum payload length */
+            if(len < (al2_sequenced?2U:1U))
+                THROW(BoundsError);
+        
+            data_start = 0;
+            if( al2_sequenced ) {
+                proto_tree_add_item(al_tree, hf_h223_al2_seqno, tvb, 0, 1, TRUE);
+                data_start++;
+            }
+
+            next_tvb = tvb_new_subset( tvb, data_start, len-1-data_start, len-1-data_start );
+            al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, FALSE);
+
+            calc_checksum = h223_al2_crc8bit(tvb);
+            real_checksum = tvb_get_guint8(tvb, len - 1);
+
+            if( calc_checksum == real_checksum ) {
+                proto_tree_add_uint_format(al_tree, hf_h223_al2_crc, tvb, len - 1, 1, real_checksum,
+                                           "CRC: 0x%02x (correct)", real_checksum );
+            } else {
+                proto_tree_add_uint_format(al_tree, hf_h223_al2_crc, tvb, len - 1, 1, real_checksum,
+                                           "CRC: 0x%02x (incorrect, should be 0x%02x)", real_checksum, calc_checksum );
+                tmp_item = proto_tree_add_boolean( al_tree, hf_h223_al2_crc_bad, tvb, len - 1, 1, TRUE );
+                PROTO_ITEM_SET_GENERATED(tmp_item);
+
+                /* don't pass pdus which fail checksums on to the subdissector */
+                subdissector = data_handle;
+            }
+            break;
+        default:
+            call_dissector(data_handle, tvb, pinfo, vc_tree);
+            return;
     }
 
     if (!subdissector)
@@ -708,15 +705,15 @@ static void dissect_mux_al_pdu( tvbuff_t *tvb,
 
 /* dissect a fragment of a MUX-PDU which belongs to a particular VC
  *
- * tvb	  	buffer containing the MUX-PDU fragment
- * pinfo	info on the packet containing the last fragment of the MUX-PDU
+ * tvb          buffer containing the MUX-PDU fragment
+ * pinfo        info on the packet containing the last fragment of the MUX-PDU
  * pkt_offset   offset within the block from the superdissector where the
  *                fragment starts (must increase monotonically for constant pinfo->fd->num)
- * pdu_tree	dissection tree for the PDU; a single item will be added (with
- * 		its own subtree)
- * vc		VC for this SDU
+ * pdu_tree     dissection tree for the PDU; a single item will be added (with
+ *              its own subtree)
+ * vc           VC for this SDU
  * end_of_mux_sdu true if this is a segmentable VC and this is the last
- * 		fragment in an SDU
+ *              fragment in an SDU
  */
 static void dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb,
                                     packet_info *pinfo,
@@ -792,7 +789,7 @@ static void dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb,
                     dissect_mux_al_pdu(next_tvb, pinfo, vc_tree,/* subcircuit,*/ lc_params );
                 }
         } else {
-		call_dissector(data_handle,next_tvb,pinfo,vc_tree);
+            call_dissector(data_handle,next_tvb,pinfo,vc_tree);
         }
     }
 
@@ -809,31 +806,31 @@ static guint32 mux_element_sublist_size( h223_mux_element* me )
     h223_mux_element *current_me = me;
     guint32 length = 0;
     while ( current_me ) {
-	current_me = current_me->next;
-	if ( current_me->sublist )
-	    length += current_me->repeat_count * mux_element_sublist_size( current_me->sublist );
-	else
-	    length += current_me->repeat_count;
+        current_me = current_me->next;
+        if ( current_me->sublist )
+            length += current_me->repeat_count * mux_element_sublist_size( current_me->sublist );
+        else
+            length += current_me->repeat_count;
     }
     if ( length == 0 ) { /* should never happen, but to avoid infinite loops... */
-	DISSECTOR_ASSERT_NOT_REACHED();
-	length = 1;
+        DISSECTOR_ASSERT_NOT_REACHED();
+        length = 1;
     }
     return length;
 }
 
 /* dissect part of a MUX-PDU payload according to a multiplex list
  *
- * tvb		buffer containing entire mux-pdu payload
- * pinfo	info on the packet containing the last fragment of the MUX-PDU
+ * tvb          buffer containing entire mux-pdu payload
+ * pinfo        info on the packet containing the last fragment of the MUX-PDU
  * pkt_offset   offset within the block from the superdissector where the
  *                MUX-PDU starts (must increase monotonically for constant
  *                pinfo->fd->num)
- * pdu_tree	dissection tree for the PDU
- * call_info	data structure for h223 call
- * me		top of mux list
- * offset	offset within tvb to start work
- * endOfMuxSdu	true if the end-of-sdu flag was set
+ * pdu_tree     dissection tree for the PDU
+ * call_info    data structure for h223 call
+ * me           top of mux list
+ * offset       offset within tvb to start work
+ * endOfMuxSdu  true if the end-of-sdu flag was set
  */
 static guint32 dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
                                                proto_tree *pdu_tree,
@@ -844,46 +841,46 @@ static guint32 dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo
     guint32 sublist_len;
     int i;
     while ( me ) {
-	if ( me->sublist ) {
-	    if ( me->repeat_count == 0 ) {
-		for(sublist_len = mux_element_sublist_size( me->sublist );
-		    offset + sublist_len <= len;
-		    offset = dissect_mux_payload_by_me_list( tvb, pinfo, pkt_offset, pdu_tree,
-		                                             call_info, me->sublist, offset, endOfMuxSdu ) );
-	    } else {
-		for(i = 0; i < me->repeat_count; ++i)
-		    offset = dissect_mux_payload_by_me_list( tvb, pinfo, pkt_offset, pdu_tree,
-		                                             call_info, me->sublist, offset, endOfMuxSdu );
-	    }
-	} else {
-	    if ( me->repeat_count == 0 )
-		frag_len = len - offset;
-	    else
-		frag_len = me->repeat_count;
-	    if(frag_len > 0) {
-		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_subset(tvb, offset, frag_len, frag_len);
-		dissect_mux_sdu_fragment( next_tvb, pinfo, pkt_offset + offset, pdu_tree,
-					  call_info, me->vc, (offset+frag_len==len) && endOfMuxSdu);
-		offset += frag_len;
-	    }
-	}
-	me = me->next;
+        if ( me->sublist ) {
+            if ( me->repeat_count == 0 ) {
+                for(sublist_len = mux_element_sublist_size( me->sublist );
+                    offset + sublist_len <= len;
+                    offset = dissect_mux_payload_by_me_list( tvb, pinfo, pkt_offset, pdu_tree,
+                                                             call_info, me->sublist, offset, endOfMuxSdu ) );
+            } else {
+                for(i = 0; i < me->repeat_count; ++i)
+                    offset = dissect_mux_payload_by_me_list( tvb, pinfo, pkt_offset, pdu_tree,
+                                                             call_info, me->sublist, offset, endOfMuxSdu );
+            }
+        } else {
+            if ( me->repeat_count == 0 )
+                frag_len = len - offset;
+            else
+                frag_len = me->repeat_count;
+            if(frag_len > 0) {
+                tvbuff_t *next_tvb;
+                next_tvb = tvb_new_subset(tvb, offset, frag_len, frag_len);
+                dissect_mux_sdu_fragment( next_tvb, pinfo, pkt_offset + offset, pdu_tree,
+                                          call_info, me->vc, (offset+frag_len==len) && endOfMuxSdu);
+                offset += frag_len;
+            }
+        }
+        me = me->next;
     }
     return offset;
 }
 
 /* dissect the payload of a MUX-PDU
  *
- * tvb		buffer containing entire mux-pdu payload
- * pinfo	info on the packet containing the last fragment of the MUX-PDU
+ * tvb          buffer containing entire mux-pdu payload
+ * pinfo        info on the packet containing the last fragment of the MUX-PDU
  * pkt_offset   offset within the block from the superdissector where the
  *                MUX-PDU starts (must increase monotonically for constant
  *                pinfo->fd->num)
- * pdu_tree	dissection tree for the PDU
- * call_info	data structure for h223 call
- * mc		multiplex code for this PDU
- * endOfMuxSdu	true if the end-of-sdu flag was set
+ * pdu_tree     dissection tree for the PDU
+ * call_info    data structure for h223 call
+ * mc           multiplex code for this PDU
+ * endOfMuxSdu  true if the end-of-sdu flag was set
  */ 
 static void dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
                                  proto_tree *pdu_tree,
@@ -909,15 +906,15 @@ static void dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_
 
 /* dissect a reassembled mux-pdu
  *
- * tvb		buffer containing mux-pdu, including header and closing flag
- * pinfo	packet info for packet containing the end of the mux-pdu
+ * tvb          buffer containing mux-pdu, including header and closing flag
+ * pinfo        packet info for packet containing the end of the mux-pdu
  * pkt_offset   offset within the block from the superdissector where the
  *                MUX-PDU starts (must increase monotonically for constant
  *                pinfo->fd->num)
- * h223_tree	dissection tree for h223 protocol; a single item will be added
- * 		(with a sub-tree)
- * call_info	h223 info structure for this h223 call
- * pdu_no	index of this pdu within the call
+ * h223_tree    dissection tree for h223 protocol; a single item will be added
+ *              (with a sub-tree)
+ * call_info    h223 info structure for this h223 call
+ * pdu_no       index of this pdu within the call
  */
 static void dissect_mux_pdu( tvbuff_t *tvb, packet_info * pinfo,
                              guint32 pkt_offset,
@@ -988,13 +985,13 @@ static void dissect_mux_pdu( tvbuff_t *tvb, packet_info * pinfo,
 
     
     if( h223_tree ) {
-	if( mpl == 0 ) {
-	    pdu_item = proto_tree_add_item (h223_tree, hf_h223_mux_stuffing_pdu, tvb, 0, -1, FALSE);
-	    pdu_tree = proto_item_add_subtree (pdu_item, ett_h223_mux_stuffing_pdu);
-	} else {
-	    pdu_item = proto_tree_add_item (h223_tree, hf_h223_mux_pdu, tvb, 0, -1, FALSE);
-	    pdu_tree = proto_item_add_subtree (pdu_item, ett_h223_mux_pdu);
-	}
+        if( mpl == 0 ) {
+            pdu_item = proto_tree_add_item (h223_tree, hf_h223_mux_stuffing_pdu, tvb, 0, -1, FALSE);
+            pdu_tree = proto_item_add_subtree (pdu_item, ett_h223_mux_stuffing_pdu);
+        } else {
+            pdu_item = proto_tree_add_item (h223_tree, hf_h223_mux_pdu, tvb, 0, -1, FALSE);
+            pdu_tree = proto_item_add_subtree (pdu_item, ett_h223_mux_pdu);
+        }
     }
 
     if( pdu_tree ) {
@@ -1050,21 +1047,21 @@ static void dissect_mux_pdu( tvbuff_t *tvb, packet_info * pinfo,
        dissected as data. */
     len -= mpl;
     if( len > 0 ) {
-	tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, len, len);
+        tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, len, len);
         proto_tree *vc_tree = NULL;
 
-	if( pdu_tree ) {
-	    proto_item *vc_item = proto_tree_add_item(pdu_tree, hf_h223_mux_extra, next_tvb, 0, len, FALSE);
-	    vc_tree = proto_item_add_subtree(vc_item, ett_h223_mux_deact);
-	}
-	call_dissector(data_handle,next_tvb,pinfo,vc_tree);
+        if( pdu_tree ) {
+            proto_item *vc_item = proto_tree_add_item(pdu_tree, hf_h223_mux_extra, next_tvb, 0, len, FALSE);
+            vc_tree = proto_item_add_subtree(vc_item, ett_h223_mux_deact);
+        }
+        call_dissector(data_handle,next_tvb,pinfo,vc_tree);
 
-	offset += len;
+        offset += len;
     } 
 
     /* add the closing HDLC flag */
     if( pdu_tree )
-	proto_tree_add_item(pdu_tree,hf_h223_mux_hdlc2,tvb,offset,2,FALSE);
+        proto_tree_add_item(pdu_tree,hf_h223_mux_hdlc2,tvb,offset,2,FALSE);
 }
 
 
@@ -1229,7 +1226,7 @@ static gint dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset, packe
 
     /* create a tvb for the fragment */
     next_tvb = tvb_new_subset(tvb, start_offset, offset-start_offset,
-			      offset-start_offset);
+                              offset-start_offset);
 
 
     /* we catch boundserrors on the pdu so that errors on an
@@ -1270,7 +1267,7 @@ static void dissect_h223 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 
     /* set up the protocol and info fields in the summary pane */
     if (check_col (pinfo->cinfo, COL_PROTOCOL))
-	col_set_str (pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_H223);
+        col_set_str (pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_H223);
 
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1284,37 +1281,37 @@ static void dissect_h223 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
     }
 
     while( offset < tvb_reported_length( tvb )) {
-	int res = dissect_mux_pdu_fragment( tvb, offset, pinfo,
-	                                    h223_tree, call_info);
-	if(res <= 0) {
-	    /* the end of the tvb held the start of a PDU */
-	    pinfo->desegment_offset = offset;
+        int res = dissect_mux_pdu_fragment( tvb, offset, pinfo,
+                                            h223_tree, call_info);
+        if(res <= 0) {
+            /* the end of the tvb held the start of a PDU */
+            pinfo->desegment_offset = offset;
 
-	    /* if res != 0, we actually know how much more data we need for a
-	     * PDU.
-	     *
-	     * However, if we return that, it means that we get called twice
-	     * for the next packet; this makes it hard to tell how far throught
-	     * the stream we are and we have to start messing about with
-	     * getting the seqno from the superdissector's private data. So we
-	     * don't do that.
-	     *
-	     * pinfo->desegment_len = (res == 0 ? DESEGMENT_ONE_MORE_SEGMENT : -res);
-	     */
-	    pinfo -> desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+            /* if res != 0, we actually know how much more data we need for a
+             * PDU.
+             *
+             * However, if we return that, it means that we get called twice
+             * for the next packet; this makes it hard to tell how far throught
+             * the stream we are and we have to start messing about with
+             * getting the seqno from the superdissector's private data. So we
+             * don't do that.
+             *
+             * pinfo->desegment_len = (res == 0 ? DESEGMENT_ONE_MORE_SEGMENT : -res);
+             */
+            pinfo -> desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 
-	    if(h223_item) {
-		/* shrink the h223 protocol item such that it only includes the
-		 * bits we dissected */
-		proto_item_set_len(h223_item,offset);
-	    }
+            if(h223_item) {
+                /* shrink the h223 protocol item such that it only includes the
+                 * bits we dissected */
+                proto_item_set_len(h223_item,offset);
+            }
 
-	    if(offset == 0) {
-		col_set_str(pinfo->cinfo, COL_INFO, "(No complete PDUs)");
-	    }
-	    return;
-	}
-	offset += res;
+            if(offset == 0) {
+                col_set_str(pinfo->cinfo, COL_INFO, "(No complete PDUs)");
+            }
+            return;
+        }
+        offset += res;
     }
 }
 
@@ -1371,188 +1368,188 @@ void proto_register_h223 (void)
      */
    
     static hf_register_info hf[] = {
-	{ &hf_h223_non_h223_data,
-	  { "Non-H.223 data", "h223.non-h223", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "Initial data in stream, not a PDU", HFILL }},
+        { &hf_h223_non_h223_data,
+          { "Non-H.223 data", "h223.non-h223", FT_NONE, BASE_NONE, NULL, 0x0,
+            "Initial data in stream, not a PDU", HFILL }},
 
-	{ &hf_h223_mux_stuffing_pdu,
-	  { "H.223 stuffing PDU", "h223.mux.stuffing", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "Empty PDU used for stuffing when no data available", HFILL }},
+        { &hf_h223_mux_stuffing_pdu,
+          { "H.223 stuffing PDU", "h223.mux.stuffing", FT_NONE, BASE_NONE, NULL, 0x0,
+            "Empty PDU used for stuffing when no data available", HFILL }},
 
-	{ &hf_h223_mux_pdu,
-	  { "H.223 MUX-PDU", "h223.mux", FT_NONE, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL }},
+        { &hf_h223_mux_pdu,
+          { "H.223 MUX-PDU", "h223.mux", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
-	{ &hf_h223_mux_header,
-	  { "Header", "h223.mux.header", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "H.223 MUX header", HFILL }},
+        { &hf_h223_mux_header,
+          { "Header", "h223.mux.header", FT_NONE, BASE_NONE, NULL, 0x0,
+            "H.223 MUX header", HFILL }},
 
-	{ &hf_h223_mux_rawhdr,
-	  { "Raw value", "h223.mux.rawhdr", FT_UINT24, BASE_HEX, NULL, 0x0,
-	    "Raw header bytes", HFILL }},
-	
-	{ &hf_h223_mux_correctedhdr,
-	  { "Corrected value", "h223.mux.correctedhdr", FT_UINT24, BASE_HEX, NULL, 0x0,
-	    "Corrected header bytes", HFILL }},
+        { &hf_h223_mux_rawhdr,
+          { "Raw value", "h223.mux.rawhdr", FT_UINT24, BASE_HEX, NULL, 0x0,
+            "Raw header bytes", HFILL }},
+        
+        { &hf_h223_mux_correctedhdr,
+          { "Corrected value", "h223.mux.correctedhdr", FT_UINT24, BASE_HEX, NULL, 0x0,
+            "Corrected header bytes", HFILL }},
 
-	{ &hf_h223_mux_mc,
-	  { "Multiplex Code", "h223.mux.mc", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    "H.223 MUX multiplex code", HFILL }},
+        { &hf_h223_mux_mc,
+          { "Multiplex Code", "h223.mux.mc", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "H.223 MUX multiplex code", HFILL }},
 
-	{ &hf_h223_mux_mpl,
-	  { "Multiplex Payload Length", "h223.mux.mpl", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    "H.223 MUX multiplex Payload Length", HFILL }},
+        { &hf_h223_mux_mpl,
+          { "Multiplex Payload Length", "h223.mux.mpl", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "H.223 MUX multiplex Payload Length", HFILL }},
 
-	{ &hf_h223_mux_deact,
-	  { "Deactivated multiplex table entry", "h223.mux.deactivated", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "mpl refers to an entry in the multiplex table which is not active", HFILL }},
+        { &hf_h223_mux_deact,
+          { "Deactivated multiplex table entry", "h223.mux.deactivated", FT_NONE, BASE_NONE, NULL, 0x0,
+            "mpl refers to an entry in the multiplex table which is not active", HFILL }},
 
-	{ &hf_h223_mux_vc,
-	  { "H.223 virtual circuit", "h223.mux.vc", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "H.223 Virtual Circuit", HFILL }},
-	
-	{ &hf_h223_mux_extra,
-	  { "Extraneous data", "h223.mux.extra", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "data beyond mpl", HFILL }},
-	
-	{ &hf_h223_mux_hdlc2,
-	  { "HDLC flag", "h223.mux.hdlc", FT_UINT16, BASE_HEX, NULL, 0x0,
-	    "framing flag", HFILL }},
+        { &hf_h223_mux_vc,
+          { "H.223 virtual circuit", "h223.mux.vc", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "H.223 Virtual Circuit", HFILL }},
+        
+        { &hf_h223_mux_extra,
+          { "Extraneous data", "h223.mux.extra", FT_NONE, BASE_NONE, NULL, 0x0,
+            "data beyond mpl", HFILL }},
+        
+        { &hf_h223_mux_hdlc2,
+          { "HDLC flag", "h223.mux.hdlc", FT_UINT16, BASE_HEX, NULL, 0x0,
+            "framing flag", HFILL }},
 
-	/* fields for h.223-mux fragments */
-	{ &hf_h223_mux_fragment_overlap,
-	  { "Fragment overlap",	"h223.mux.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "Fragment overlaps with other fragments", HFILL }},
-	
-	{ &hf_h223_mux_fragment_overlap_conflict,
-	  { "Conflicting data in fragment overlap",	"h223.mux.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "Overlapping fragments contained conflicting data", HFILL }},
-	
-	{ &hf_h223_mux_fragment_multiple_tails,
-	  { "Multiple tail fragments found",	"h223.mux.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "Several tails were found when defragmenting the packet", HFILL }},
-	
-	{ &hf_h223_mux_fragment_too_long_fragment,
-	  { "Fragment too long",	"h223.mux.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "Fragment contained data past end of packet", HFILL }},
-	
-	{ &hf_h223_mux_fragment_error,
-	  { "Defragmentation error", "h223.mux.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	    "Defragmentation error due to illegal fragments", HFILL }},
-	
-	{ &hf_h223_mux_fragment,
-	  { "H.223 MUX-PDU Fragment", "h223.mux.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL }},
-	
-	{ &hf_h223_mux_fragments,
-	  { "H.223 MUX-PDU Fragments", "h223.mux.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL }},
-	
-	{ &hf_h223_mux_reassembled_in,
-	  { "MUX-PDU fragment, reassembled in frame", "h223.mux.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	    "This H.223 MUX-PDU packet is reassembled in this frame", HFILL }},
+        /* fields for h.223-mux fragments */
+        { &hf_h223_mux_fragment_overlap,
+          { "Fragment overlap", "h223.mux.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Fragment overlaps with other fragments", HFILL }},
+        
+        { &hf_h223_mux_fragment_overlap_conflict,
+          { "Conflicting data in fragment overlap",     "h223.mux.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Overlapping fragments contained conflicting data", HFILL }},
+        
+        { &hf_h223_mux_fragment_multiple_tails,
+          { "Multiple tail fragments found",    "h223.mux.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Several tails were found when defragmenting the packet", HFILL }},
+        
+        { &hf_h223_mux_fragment_too_long_fragment,
+          { "Fragment too long",        "h223.mux.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Fragment contained data past end of packet", HFILL }},
+        
+        { &hf_h223_mux_fragment_error,
+          { "Defragmentation error", "h223.mux.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "Defragmentation error due to illegal fragments", HFILL }},
+        
+        { &hf_h223_mux_fragment,
+          { "H.223 MUX-PDU Fragment", "h223.mux.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        
+        { &hf_h223_mux_fragments,
+          { "H.223 MUX-PDU Fragments", "h223.mux.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        
+        { &hf_h223_mux_reassembled_in,
+          { "MUX-PDU fragment, reassembled in frame", "h223.mux.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "This H.223 MUX-PDU packet is reassembled in this frame", HFILL }},
 
         /* fields for h.223-al fragments */
-	{ &hf_h223_al_fragment_overlap,
-	  { "Fragment overlap",	"h223.al.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "Fragment overlaps with other fragments", HFILL }},
-	
-	{ &hf_h223_al_fragment_overlap_conflict,
-	  { "Conflicting data in fragment overlap",	"h223.al.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "Overlapping fragments contained conflicting data", HFILL }},
-	
-	{ &hf_h223_al_fragment_multiple_tails,
-	  { "Multiple tail fragments found",	"h223.al.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "Several tails were found when defragmenting the packet", HFILL }},
-	
-	{ &hf_h223_al_fragment_too_long_fragment,
-	  { "Fragment too long",	"h223.al.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "Fragment contained data past end of packet", HFILL }},
-	
-	{ &hf_h223_al_fragment_error,
-	  { "Defragmentation error", "h223.al.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	    "Defragmentation error due to illegal fragments", HFILL }},
-	
-	{ &hf_h223_al_fragment,
-	  { "H.223 AL-PDU Fragment", "h223.al.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL }},
-	
-	{ &hf_h223_al_fragments,
-	  { "H.223 AL-PDU Fragments", "h223.al.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL }},
-	
-	{ &hf_h223_al_reassembled_in,
-	  { "AL-PDU fragment, reassembled in frame", "h223.al.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	    "This H.223 AL-PDU packet is reassembled in this frame", HFILL }},
+        { &hf_h223_al_fragment_overlap,
+          { "Fragment overlap", "h223.al.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Fragment overlaps with other fragments", HFILL }},
+        
+        { &hf_h223_al_fragment_overlap_conflict,
+          { "Conflicting data in fragment overlap",     "h223.al.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Overlapping fragments contained conflicting data", HFILL }},
+        
+        { &hf_h223_al_fragment_multiple_tails,
+          { "Multiple tail fragments found",    "h223.al.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Several tails were found when defragmenting the packet", HFILL }},
+        
+        { &hf_h223_al_fragment_too_long_fragment,
+          { "Fragment too long",        "h223.al.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "Fragment contained data past end of packet", HFILL }},
+        
+        { &hf_h223_al_fragment_error,
+          { "Defragmentation error", "h223.al.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "Defragmentation error due to illegal fragments", HFILL }},
+        
+        { &hf_h223_al_fragment,
+          { "H.223 AL-PDU Fragment", "h223.al.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        
+        { &hf_h223_al_fragments,
+          { "H.223 AL-PDU Fragments", "h223.al.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        
+        { &hf_h223_al_reassembled_in,
+          { "AL-PDU fragment, reassembled in frame", "h223.al.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "This H.223 AL-PDU packet is reassembled in this frame", HFILL }},
 
         /* h223-als */
 
-	{ &hf_h223_al1,
-	  { "H.223 AL1", "h223.al1", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "H.223 AL-PDU using AL1", HFILL }},
+        { &hf_h223_al1,
+          { "H.223 AL1", "h223.al1", FT_NONE, BASE_NONE, NULL, 0x0,
+            "H.223 AL-PDU using AL1", HFILL }},
 
-	{ &hf_h223_al1_framed,
-	  { "H.223 AL1 framing", "h223.al1.framed", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL }},
+        { &hf_h223_al1_framed,
+          { "H.223 AL1 framing", "h223.al1.framed", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
-	{ &hf_h223_al2,
-	  { "H.223 AL2", "h223.al2", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    "H.223 AL-PDU using AL2", HFILL }},
+        { &hf_h223_al2,
+          { "H.223 AL2", "h223.al2", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "H.223 AL-PDU using AL2", HFILL }},
 
-	{ &hf_h223_al2_sequenced,
-	  { "H.223 sequenced AL2", "h223.sequenced_al2", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "H.223 AL-PDU using AL2 with sequence numbers", HFILL }},
+        { &hf_h223_al2_sequenced,
+          { "H.223 sequenced AL2", "h223.sequenced_al2", FT_NONE, BASE_NONE, NULL, 0x0,
+            "H.223 AL-PDU using AL2 with sequence numbers", HFILL }},
 
-	{ &hf_h223_al2_unsequenced,
-	  { "H.223 unsequenced AL2", "h223.unsequenced_al2", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "H.223 AL-PDU using AL2 without sequence numbers", HFILL }},
+        { &hf_h223_al2_unsequenced,
+          { "H.223 unsequenced AL2", "h223.unsequenced_al2", FT_NONE, BASE_NONE, NULL, 0x0,
+            "H.223 AL-PDU using AL2 without sequence numbers", HFILL }},
 
-	{ &hf_h223_al2_seqno,
-	  { "Sequence Number", "h223.al2.seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
-	    "H.223 AL2 sequence number", HFILL }},
+        { &hf_h223_al2_seqno,
+          { "Sequence Number", "h223.al2.seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "H.223 AL2 sequence number", HFILL }},
 
-	{ &hf_h223_al2_crc,
-	  { "CRC", "h223.al2.crc", FT_UINT8, BASE_HEX, NULL, 0x0,
-	    NULL, HFILL }},
+        { &hf_h223_al2_crc,
+          { "CRC", "h223.al2.crc", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
 
-	{ &hf_h223_al2_crc_bad,
-	  { "Bad CRC","h223.al2.crc_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL }},
+        { &hf_h223_al2_crc_bad,
+          { "Bad CRC","h223.al2.crc_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
-	{ &hf_h223_al_payload,
-	  { "H.223 AL Payload", "h223.al.payload", FT_NONE, BASE_NONE, NULL, 0x0,
-	    "H.223 AL-PDU Payload", HFILL }},
+        { &hf_h223_al_payload,
+          { "H.223 AL Payload", "h223.al.payload", FT_NONE, BASE_NONE, NULL, 0x0,
+            "H.223 AL-PDU Payload", HFILL }},
 
     };
 
     static gint *ett[] = {
-	&ett_h223,
-	&ett_h223_non_h223_data,
-	&ett_h223_mux_stuffing_pdu,
-	&ett_h223_mux_pdu,
-	&ett_h223_mux_header,
-	&ett_h223_mux_deact,
-	&ett_h223_mux_vc,
-	&ett_h223_mux_extra,
-	&ett_h223_mux_fragments,
-	&ett_h223_mux_fragment,
+        &ett_h223,
+        &ett_h223_non_h223_data,
+        &ett_h223_mux_stuffing_pdu,
+        &ett_h223_mux_pdu,
+        &ett_h223_mux_header,
+        &ett_h223_mux_deact,
+        &ett_h223_mux_vc,
+        &ett_h223_mux_extra,
+        &ett_h223_mux_fragments,
+        &ett_h223_mux_fragment,
         &ett_h223_al_fragments,
-	&ett_h223_al_fragment,
-	&ett_h223_al1,
-	&ett_h223_al2,
-	&ett_h223_al_payload
+        &ett_h223_al_fragment,
+        &ett_h223_al1,
+        &ett_h223_al2,
+        &ett_h223_al_payload
     };
 
     proto_h223 =
-	proto_register_protocol ("ITU-T Recommendation H.223", "H.223", "h223");
+        proto_register_protocol ("ITU-T Recommendation H.223", "H.223", "h223");
     proto_h223_bitswapped =
-	proto_register_protocol ("Bitswapped ITU-T Recommendation H.223", "H.223 (Bitswapped)", "h223_bitswapped");
+        proto_register_protocol ("Bitswapped ITU-T Recommendation H.223", "H.223 (Bitswapped)", "h223_bitswapped");
 
     proto_register_field_array (proto_h223, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
     register_dissector("h223", dissect_h223, proto_h223);
     register_dissector("h223_bitswapped", dissect_h223_bitswapped, proto_h223_bitswapped);
-	
+        
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */
     register_init_routine(&h223_init_protocol);
@@ -1573,4 +1570,16 @@ void proto_reg_handoff_h223(void)
     dissector_add_string("rtp_dyn_payload_type","CLEARMODE", h223_bitswapped);
     dissector_add("iax2.dataformat", AST_DATAFORMAT_H223_H245, h223_bitswapped);
 }
-/* vim:set ts=8 et: */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=4 expandtab
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
