@@ -35,20 +35,11 @@
 #include <epan/stream.h>
 #include <epan/tvbuff.h>
 
-/* number of streams to allocate memory for at once */
-#define MEMCHUNK_STREAM_COUNT 20
-
-/* ditto pdus */
-#define MEMCHUNK_PDU_COUNT 100
-
-/* ditto fragments */
-#define MEMCHUNK_FRAGMENT_COUNT 100
-
 
 typedef struct {
     fragment_data *fd_head;          /* the reassembled data, NULL
-				      * until we add the last fragment */
-    guint32 pdu_number;		     /* Number of this PDU within the stream */
+                                      * until we add the last fragment */
+    guint32 pdu_number;              /* Number of this PDU within the stream */
 
     /* id of this pdu (globally unique) */
     guint32 id;
@@ -57,7 +48,7 @@ typedef struct {
 
 struct stream_pdu_fragment
 {
-    guint32 len;	             /* the length of this fragment */
+    guint32 len;                     /* the length of this fragment */
     stream_pdu_t *pdu;
     gboolean final_fragment;
 };
@@ -92,15 +83,15 @@ typedef struct stream_key {
        that here */
     gboolean is_circuit;
     union {
-	const struct circuit *circuit;
-	const struct conversation *conv;
+        const struct circuit *circuit;
+        const struct conversation *conv;
     } circ;
     int p2p_dir;
 } stream_key_t;
 
 
 /* hash func */
-guint stream_hash_func(gconstpointer k)
+static guint stream_hash_func(gconstpointer k)
 {
     const stream_key_t *key = (const stream_key_t *)k;
 
@@ -109,25 +100,20 @@ guint stream_hash_func(gconstpointer k)
 }
 
 /* compare func */
-gboolean stream_compare_func(gconstpointer a,
-			     gconstpointer b)
+static gboolean stream_compare_func(gconstpointer a,
+                             gconstpointer b)
 {
     const stream_key_t *key1 = (const stream_key_t *)a;
     const stream_key_t *key2 = (const stream_key_t *)b;
     if( key1 -> p2p_dir != key2 -> p2p_dir ||
-	key1-> is_circuit != key2 -> is_circuit )
-	return FALSE;
+        key1-> is_circuit != key2 -> is_circuit )
+        return FALSE;
 
     if( key1 -> is_circuit )
-	return (key1 -> circ.circuit == key2 -> circ.circuit );
+        return (key1 -> circ.circuit == key2 -> circ.circuit );
     else
-	return (key1 -> circ.conv == key2 -> circ.conv );
+        return (key1 -> circ.conv == key2 -> circ.conv );
 }
-
-/* memory pools */
-static GMemChunk *stream_keys = NULL;
-static GMemChunk *streams = NULL;
-
 
 /* the hash table */
 static GHashTable *stream_hash;
@@ -135,34 +121,16 @@ static GHashTable *stream_hash;
 
 /* cleanup reset function, call from stream_cleanup() */
 static void cleanup_stream_hash( void ) {
-	if( stream_hash != NULL ) {
-		g_hash_table_destroy( stream_hash );
-	stream_hash = NULL;
-	}
-
-	if( stream_keys != NULL ) {
-		g_mem_chunk_destroy( stream_keys );
-	stream_keys = NULL;
-	}
-
-	if( streams != NULL ) {
-		g_mem_chunk_destroy( streams );
-	streams = NULL;
-	}
+    if( stream_hash != NULL ) {
+        g_hash_table_destroy( stream_hash );
+        stream_hash = NULL;
+    }
 }
 
 /* init function, call from stream_init() */
 static void init_stream_hash( void ) {
-    streams = g_mem_chunk_create(stream_t,
-				 MEMCHUNK_STREAM_COUNT,
-				 G_ALLOC_ONLY);
-
-    stream_keys = g_mem_chunk_create(stream_key_t,
-				     MEMCHUNK_STREAM_COUNT,
-				     G_ALLOC_ONLY);
-
     stream_hash = g_hash_table_new(stream_hash_func,
-				   stream_compare_func);
+                                   stream_compare_func);
 }
 
 /* lookup function, returns null if not found */
@@ -189,7 +157,7 @@ static stream_t *new_stream( stream_key_t *key )
 {
     stream_t *val;
 
-    val = g_mem_chunk_alloc(streams);
+    val = se_alloc(sizeof(stream_t));
     val -> key = key;
     val -> pdu_counter = 0;
     val -> current_pdu = NULL;
@@ -206,7 +174,7 @@ static stream_t *stream_hash_insert_circ( const struct circuit *circuit, int p2p
 {
     stream_key_t *key;
 
-    key = g_mem_chunk_alloc(stream_keys);
+    key = se_alloc(sizeof(stream_key_t));
     key->is_circuit = TRUE;
     key->circ.circuit = circuit;
     key->p2p_dir = p2p_dir;
@@ -218,7 +186,7 @@ static stream_t *stream_hash_insert_conv( const struct conversation *conv, int p
 {
     stream_key_t *key;
 
-    key = g_mem_chunk_alloc(stream_keys);
+    key = se_alloc(sizeof(stream_key_t));
     key->is_circuit = FALSE;
     key->circ.conv = conv;
     key->p2p_dir = p2p_dir;
@@ -231,24 +199,16 @@ static stream_t *stream_hash_insert_conv( const struct conversation *conv, int p
  *
  * PDU data
  */
-static GMemChunk *pdus = NULL;
 
 /* pdu counter, for generating unique pdu ids */
 static guint32 pdu_counter;
 
 static void stream_cleanup_pdu_data(void)
 {
-    if( pdus != NULL ) {
-	g_mem_chunk_destroy( pdus );
-	pdus = NULL;
-    }
 }
 
 static void stream_init_pdu_data(void)
 {
-    pdus = g_mem_chunk_create(stream_pdu_t,
-			      MEMCHUNK_PDU_COUNT,
-			      G_ALLOC_ONLY);
     pdu_counter = 0;
 }
 
@@ -257,7 +217,7 @@ static void stream_init_pdu_data(void)
 static stream_pdu_t *stream_new_pdu(stream_t *stream)
 {
     stream_pdu_t *pdu;
-    pdu = g_mem_chunk_alloc(pdus);
+    pdu = se_alloc(sizeof(stream_pdu_t));
     pdu -> fd_head = NULL;
     pdu -> pdu_number = stream -> pdu_counter++;
     pdu -> id = pdu_counter++;
@@ -278,26 +238,22 @@ typedef struct fragment_key {
 
 
 /* hash func */
-guint fragment_hash_func(gconstpointer k)
+static guint fragment_hash_func(gconstpointer k)
 {
     const fragment_key_t *key = (const fragment_key_t *)k;
     return ((guint)(unsigned long)key->stream) + ((guint)key -> framenum) + ((guint)key->offset);
 }
 
 /* compare func */
-gboolean fragment_compare_func(gconstpointer a,
-			       gconstpointer b)
+static gboolean fragment_compare_func(gconstpointer a,
+                               gconstpointer b)
 {
     const fragment_key_t *key1 = (const fragment_key_t *)a;
     const fragment_key_t *key2 = (const fragment_key_t *)b;
     return (key1 -> stream == key2 -> stream &&
-	    key1 -> framenum == key2 -> framenum &&
-	    key1 -> offset == key2 -> offset );
+            key1 -> framenum == key2 -> framenum &&
+            key1 -> offset == key2 -> offset );
 }
-
-/* memory pools */
-static GMemChunk *fragment_keys = NULL;
-static GMemChunk *fragment_vals = NULL;
 
 /* the hash table */
 static GHashTable *fragment_hash;
@@ -305,34 +261,16 @@ static GHashTable *fragment_hash;
 
 /* cleanup function, call from stream_cleanup() */
 static void cleanup_fragment_hash( void ) {
-	if( fragment_hash != NULL ) {
-		g_hash_table_destroy( fragment_hash );
-		fragment_hash = NULL;
-	}
-
-	if( fragment_vals != NULL ) {
-		g_mem_chunk_destroy( fragment_vals );
-		fragment_vals = NULL;
-	}
-
-	if( fragment_keys != NULL ) {
-		g_mem_chunk_destroy( fragment_keys );
-		fragment_keys = NULL;
-	}
+    if( fragment_hash != NULL ) {
+        g_hash_table_destroy( fragment_hash );
+        fragment_hash = NULL;
+    }
 }
 
 /* init function, call from stream_init() */
 static void init_fragment_hash( void ) {
-    fragment_keys = g_mem_chunk_create(fragment_key_t,
-				       MEMCHUNK_FRAGMENT_COUNT,
-				       G_ALLOC_ONLY);
-
-    fragment_vals = g_mem_chunk_create(stream_pdu_fragment_t,
-				       MEMCHUNK_FRAGMENT_COUNT,
-				       G_ALLOC_ONLY);
-
     fragment_hash = g_hash_table_new(fragment_hash_func,
-				     fragment_compare_func);
+                                     fragment_compare_func);
 }
 
 
@@ -353,17 +291,17 @@ static stream_pdu_fragment_t *fragment_hash_lookup( const stream_t *stream, guin
 
 /* insert function */
 static stream_pdu_fragment_t *fragment_hash_insert( const stream_t *stream, guint32 framenum, guint32 offset,
-						    guint32 length)
+                                                    guint32 length)
 {
     fragment_key_t *key;
     stream_pdu_fragment_t *val;
 
-    key = g_mem_chunk_alloc(fragment_keys);
+    key = se_alloc(sizeof(fragment_key_t));
     key->stream = stream;
     key->framenum = framenum;
     key->offset = offset;
 
-    val = g_mem_chunk_alloc(fragment_vals);
+    val = se_alloc(sizeof(stream_pdu_fragment_t));
     val->len = length;
     val->pdu = NULL;
     val->final_fragment = FALSE;
@@ -408,8 +346,6 @@ stream_t *stream_new_conv ( const struct conversation *conv, int p2p_dir )
 }
 
 
-
-
 /* retrieve a previously-created stream.
  *
  * Returns null if no matching stream was found.
@@ -424,6 +360,10 @@ stream_t *find_stream_conv ( const struct conversation *conv, int p2p_dir )
 }
 
 /* cleanup the stream routines */
+/* Note: stream_cleanup must only be called when seasonal memory
+ *       is also freed since the hash tables countain pointers to 
+ *       se_alloc'd memory.
+ */
 void stream_cleanup( void )
 {
     cleanup_stream_hash();
@@ -450,7 +390,7 @@ stream_pdu_fragment_t *stream_find_frag( stream_t *stream, guint32 framenum, gui
 }
 
 stream_pdu_fragment_t *stream_add_frag( stream_t *stream, guint32 framenum, guint32 offset,
-				tvbuff_t *tvb, packet_info *pinfo, gboolean more_frags )
+                                        tvbuff_t *tvb, packet_info *pinfo, gboolean more_frags )
 {
     fragment_data *fd_head;
     stream_pdu_t *pdu;
@@ -460,30 +400,30 @@ stream_pdu_fragment_t *stream_add_frag( stream_t *stream, guint32 framenum, guin
 
     /* check that this fragment is at the end of the stream */
     DISSECTOR_ASSERT( framenum > stream->lastfrag_framenum ||
-	      (framenum == stream->lastfrag_framenum && offset > stream->lastfrag_offset));
+                      (framenum == stream->lastfrag_framenum && offset > stream->lastfrag_offset));
 
 
     pdu = stream->current_pdu;
     if( pdu == NULL ) {
-	/* start a new pdu */
-	pdu = stream->current_pdu = stream_new_pdu(stream);
+        /* start a new pdu */
+        pdu = stream->current_pdu = stream_new_pdu(stream);
     }
 
     /* add it to the reassembly tables */
     fd_head = fragment_add_seq_next(tvb, 0, pinfo, pdu->id,
-				    stream_fragment_table, stream_reassembled_table,
-				    tvb_reported_length(tvb), more_frags);
+                                    stream_fragment_table, stream_reassembled_table,
+                                    tvb_reported_length(tvb), more_frags);
     /* add it to our hash */
     frag_data = fragment_hash_insert( stream, framenum, offset, tvb_reported_length(tvb));
     frag_data -> pdu = pdu;
 
     if( fd_head != NULL ) {
-	/* if this was the last fragment, update the pdu data.
-	 */
-	pdu -> fd_head = fd_head;
+        /* if this was the last fragment, update the pdu data.
+         */
+        pdu -> fd_head = fd_head;
 
-	/* start a new pdu next time */
-	stream->current_pdu = NULL;
+        /* start a new pdu next time */
+        stream->current_pdu = NULL;
 
         frag_data -> final_fragment = TRUE;
     }
