@@ -105,19 +105,26 @@ if (AUTOGEN_dcerpc)
   ENDFOREACH()
 
   FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
+    SET(CUR_PROTO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/dcerpc/${PROTOCOL_NAME})
+    SET(CUR_PROTO_C_FILE packet-dcerpc-${PROTOCOL_NAME}.c)
+    SET(CUR_PROTO_H_FILE packet-dcerpc-${PROTOCOL_NAME}.h)
     ADD_CUSTOM_COMMAND(
 	OUTPUT
-	  ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.c
-	  ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.h
+	  ${CUR_PROTO_DIR}/${CUR_PROTO_C_FILE}
+	  ${CUR_PROTO_DIR}/${CUR_PROTO_H_FILE}
 	COMMAND
 	  idl2wrs ${PROTOCOL_NAME}
+	COMMAND
+	  ${CMAKE_COMMAND} -E copy_if_different ${CUR_PROTO_DIR}/${CUR_PROTO_C_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/${CUR_PROTO_C_FILE}
+	COMMAND
+	  ${CMAKE_COMMAND} -E copy_if_different ${CUR_PROTO_DIR}/${CUR_PROTO_H_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/${CUR_PROTO_H_FILE}
 	WORKING_DIRECTORY
-	  ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/dcerpc/${PROTOCOL_NAME}
+	  ${CUR_PROTO_DIR}
 	DEPENDS
-	  dissectors/dcerpc/${PROTOCOL_NAME}/${PROTOCOL_NAME}.idl
-	  dissectors/dcerpc/${PROTOCOL_NAME}/${PROTOCOL_NAME}.cnf
-	  dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}-template.c 
-	  dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}-template.h
+	  ${CUR_PROTO_DIR}/${PROTOCOL_NAME}.idl
+	  ${CUR_PROTO_DIR}/${PROTOCOL_NAME}.cnf
+	  ${CUR_PROTO_DIR}/packet-dcerpc-${PROTOCOL_NAME}-template.c 
+	  ${CUR_PROTO_DIR}/packet-dcerpc-${PROTOCOL_NAME}-template.h
     )
   ENDFOREACH()
 else()
