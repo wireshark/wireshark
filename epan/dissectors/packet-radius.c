@@ -51,7 +51,6 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
@@ -146,19 +145,19 @@ static guint8 authenticator[AUTHENTICATOR_LENGTH];
 /* http://www.iana.org/assignments/radius-types */
 static const value_string radius_vals[] =
 {
-	{RADIUS_ACCESS_REQUEST,					"Access-Request"},					/*  1 RFC2865 */
-	{RADIUS_ACCESS_ACCEPT,					"Access-Accept"},					/*  2 RFC2865 */
-	{RADIUS_ACCESS_REJECT,					"Access-Reject"},					/*  3 RFC2865 */
-	{RADIUS_ACCOUNTING_REQUEST,				"Accounting-Request"},				/*  4 RFC2865 */
-	{RADIUS_ACCOUNTING_RESPONSE,			"Accounting-Response"},				/*  5 RFC2865 */
-	{RADIUS_ACCOUNTING_STATUS,				"Accounting-Status"},				/*  6 RFC2865 */
-	{RADIUS_ACCESS_PASSWORD_REQUEST,		"Password-Request"},				/*  7 RFC3575 */
-	{RADIUS_ACCESS_PASSWORD_ACK,			"Password-Ack"},					/*  8 RFC3575 */
-	{RADIUS_ACCESS_PASSWORD_REJECT,			"Password-Reject"},					/*  9 RFC3575 */
-	{RADIUS_ACCOUNTING_MESSAGE,				"Accounting-Message"},				/* 10 RFC3575 */
-	{RADIUS_ACCESS_CHALLENGE,				"Access-challenge"},				/* 11 RFC2865 */
-	{RADIUS_STATUS_SERVER,					"Status-Server"},					/* 12 RFC2865 */
-	{RADIUS_STATUS_CLIENT,					"Status-Client"},					/* 13 RFC2865 */
+	{RADIUS_ACCESS_REQUEST,			"Access-Request"},	/*  1 RFC2865 */
+	{RADIUS_ACCESS_ACCEPT,			"Access-Accept"},	/*  2 RFC2865 */
+	{RADIUS_ACCESS_REJECT,			"Access-Reject"},	/*  3 RFC2865 */
+	{RADIUS_ACCOUNTING_REQUEST,		"Accounting-Request"},	/*  4 RFC2865 */
+	{RADIUS_ACCOUNTING_RESPONSE,		"Accounting-Response"},	/*  5 RFC2865 */
+	{RADIUS_ACCOUNTING_STATUS,		"Accounting-Status"},	/*  6 RFC2865 */
+	{RADIUS_ACCESS_PASSWORD_REQUEST,	"Password-Request"},	/*  7 RFC3575 */
+	{RADIUS_ACCESS_PASSWORD_ACK,		"Password-Ack"},	/*  8 RFC3575 */
+	{RADIUS_ACCESS_PASSWORD_REJECT,		"Password-Reject"},	/*  9 RFC3575 */
+	{RADIUS_ACCOUNTING_MESSAGE,		"Accounting-Message"},	/* 10 RFC3575 */
+	{RADIUS_ACCESS_CHALLENGE,		"Access-challenge"},	/* 11 RFC2865 */
+	{RADIUS_STATUS_SERVER,			"Status-Server"},	/* 12 RFC2865 */
+	{RADIUS_STATUS_CLIENT,			"Status-Client"},	/* 13 RFC2865 */
 /*
 21       Resource-Free-Request        [RFC3575]
 22       Resource-Free-Response       [RFC3575]
@@ -168,30 +167,30 @@ static const value_string radius_vals[] =
          Reclaim-Request              [RFC3575]
 26       NAS-Reboot-Request           [RFC3575]
 */
-	{RADIUS_VENDOR_SPECIFIC_CODE,			"Vendor-Specific"},					/* 26 */
+	{RADIUS_VENDOR_SPECIFIC_CODE,		"Vendor-Specific"},	/* 26 */
 /*
 27       NAS-Reboot-Response          [RFC3575]
 28       Reserved
 */
-	{RADIUS_ASCEND_ACCESS_NEXT_CODE,		"Next-Passcode"},					/* 29 RFC3575 */
-	{RADIUS_ASCEND_ACCESS_NEW_PIN,			"New-Pin"},							/* 30 RFC3575 */
-	{31,									"Terminate-Session"},				/* 31 RFC3575 */
-	{RADIUS_ASCEND_PASSWORD_EXPIRED,		"Password-Expired"},				/* 32 RFC3575 */
-	{RADIUS_ASCEND_ACCESS_EVENT_REQUEST,	"Event-Request"},					/* 33 RFC3575 */
-	{RADIUS_ASCEND_ACCESS_EVENT_RESPONSE,	"Event-Response"},					/* 34 RFC3575 */
-	{RADIUS_DISCONNECT_REQUEST,				"Disconnect-Request"},				/* 40 RFC3575 */
-	{RADIUS_DISCONNECT_REQUEST_ACK,			"Disconnect-ACK"},					/* 41 RFC3575 */
-	{RADIUS_DISCONNECT_REQUEST_NAK,			"Disconnect-NAK"}		,			/* 42 RFC3575 */
-	{RADIUS_CHANGE_FILTER_REQUEST,			"CoA-Request"},						/* 43 */
-	{RADIUS_CHANGE_FILTER_REQUEST_ACK,		"CoA-ACK"},							/* 44 */ 
-	{RADIUS_CHANGE_FILTER_REQUEST_NAK,		"CoA-NAK"},							/* 45 */ 
+	{RADIUS_ASCEND_ACCESS_NEXT_CODE,	"Next-Passcode"},	/* 29 RFC3575 */
+	{RADIUS_ASCEND_ACCESS_NEW_PIN,		"New-Pin"},		/* 30 RFC3575 */
+	{31,					"Terminate-Session"},	/* 31 RFC3575 */
+	{RADIUS_ASCEND_PASSWORD_EXPIRED,	"Password-Expired"},	/* 32 RFC3575 */
+	{RADIUS_ASCEND_ACCESS_EVENT_REQUEST,	"Event-Request"},	/* 33 RFC3575 */
+	{RADIUS_ASCEND_ACCESS_EVENT_RESPONSE,	"Event-Response"},	/* 34 RFC3575 */
+	{RADIUS_DISCONNECT_REQUEST,		"Disconnect-Request"},	/* 40 RFC3575 */
+	{RADIUS_DISCONNECT_REQUEST_ACK,		"Disconnect-ACK"},	/* 41 RFC3575 */
+	{RADIUS_DISCONNECT_REQUEST_NAK,		"Disconnect-NAK"},	/* 42 RFC3575 */
+	{RADIUS_CHANGE_FILTER_REQUEST,		"CoA-Request"},		/* 43 */
+	{RADIUS_CHANGE_FILTER_REQUEST_ACK,	"CoA-ACK"},		/* 44 */ 
+	{RADIUS_CHANGE_FILTER_REQUEST_NAK,	"CoA-NAK"},		/* 45 */ 
 /*
 50       IP-Address-Allocate          [RFC3575]
 51       IP-Address-Release           [RFC3575]
 250-253  Experimental Use             [RFC3575]
 254      Reserved                     [RFC3575]
 */
-	{RADIUS_RESERVED,						"Reserved"},
+	{RADIUS_RESERVED,			"Reserved"},
 	{0, NULL}
 };
 
@@ -207,8 +206,6 @@ typedef struct _radius_call_info_key
 	nstime_t req_time;
 } radius_call_info_key;
 
-static GMemChunk *radius_call_info_key_chunk;
-static GMemChunk *radius_call_info_value_chunk;
 static GHashTable *radius_calls;
 
 typedef struct _radius_vsa_buffer_key
@@ -219,10 +216,10 @@ typedef struct _radius_vsa_buffer_key
 
 typedef struct _radius_vsa_buffer
 {
-    radius_vsa_buffer_key key;
-    guint8* data;
-    guint seg_num;
-    guint len;
+	radius_vsa_buffer_key key;
+	guint8* data;
+	guint seg_num;
+	guint len;
 } radius_vsa_buffer;
 
 static gint radius_vsa_equal(gconstpointer k1, gconstpointer k2)
@@ -303,16 +300,16 @@ static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb) {
 	if (ip_h == 0xFFFFFFFF) {
 		str = "Negotiated";
 		proto_tree_add_ipv4_format(tree, hf_radius_framed_ip_address,
-		    tvb, 0, len, ip, "Framed-IP-Address: %s", str);
+					   tvb, 0, len, ip, "Framed-IP-Address: %s", str);
 	} else if (ip_h == 0xFFFFFFFE) {
 		str = "Assigned";
 		proto_tree_add_ipv4_format(tree, hf_radius_framed_ip_address,
-		    tvb, 0, len, ip, "Framed-IP-Address: %s", str);
+					   tvb, 0, len, ip, "Framed-IP-Address: %s", str);
 	} else {
 		str = ip_to_str((guint8 *)&ip);
 		proto_tree_add_ipv4_format(tree, hf_radius_framed_ip_address,
-		    tvb, 0, len, ip, "Framed-IP-Address: %s (%s)",
-		    get_hostname(ip), str);
+					   tvb, 0, len, ip, "Framed-IP-Address: %s (%s)",
+					   get_hostname(ip), str);
 	}
 
 	return str;
@@ -334,16 +331,16 @@ static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb) {
 	if (ip_h == 0xFFFFFFFF) {
 		str = "User-selected";
 		proto_tree_add_ipv4_format(tree, hf_radius_login_ip_host,
-		    tvb, 0, len, ip, "Login-IP-Host: %s", str);
+					   tvb, 0, len, ip, "Login-IP-Host: %s", str);
 	} else if (ip_h == 0) {
 		str = "NAS-selected";
 		proto_tree_add_ipv4_format(tree, hf_radius_login_ip_host,
-		    tvb, 0, len, ip, "Login-IP-Host: %s", str);
+					   tvb, 0, len, ip, "Login-IP-Host: %s", str);
 	} else {
 		str = ip_to_str((guint8 *)&ip);
 		proto_tree_add_ipv4_format(tree, hf_radius_framed_ip_address,
-		    tvb, 0, len, ip, "Login-IP-Host: %s (%s)",
-		    get_hostname(ip), str);
+					   tvb, 0, len, ip, "Login-IP-Host: %s (%s)",
+					   get_hostname(ip), str);
 	}
 
 	return str;
@@ -432,7 +429,7 @@ static const gchar *dissect_framed_ipx_network(proto_tree* tree, tvbuff_t* tvb) 
 	else
 		str = ep_strdup_printf("0x%08X", net);
 	proto_tree_add_ipxnet_format(tree, hf_radius_framed_ipx_network, tvb, 0,
-	    len, net, "Framed-IPX-Network: %s", str);
+				     len, net, "Framed-IPX-Network: %s", str);
 
 	return str;
 }
@@ -455,50 +452,50 @@ static const gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb) {
 static void
 radius_decrypt_avp(gchar *dest,int dest_len,tvbuff_t *tvb,int offset,int length)
 {
-    md5_state_t md_ctx;
-    md5_byte_t digest[16];
-    int i;
-    gint totlen, returned_length;
-    const guint8 *pd;
-    guchar c;
+	md5_state_t md_ctx;
+	md5_byte_t digest[16];
+	int i;
+	gint totlen, returned_length;
+	const guint8 *pd;
+	guchar c;
 
-    DISSECTOR_ASSERT(dest_len > 2);  /* \"\"\0 */
-    dest[0] = '"';
-    dest[1] = '\0';
-    totlen = 1;
-    dest_len -= 1; /* Need to add trailing \" */
+	DISSECTOR_ASSERT(dest_len > 2);  /* \"\"\0 */
+	dest[0] = '"';
+	dest[1] = '\0';
+	totlen = 1;
+	dest_len -= 1; /* Need to add trailing \" */
 
-    md5_init(&md_ctx);
-    md5_append(&md_ctx,(const guint8*)shared_secret,(int)strlen(shared_secret));
-    md5_append(&md_ctx,authenticator, AUTHENTICATOR_LENGTH);
-    md5_finish(&md_ctx,digest);
+	md5_init(&md_ctx);
+	md5_append(&md_ctx,(const guint8*)shared_secret,(int)strlen(shared_secret));
+	md5_append(&md_ctx,authenticator, AUTHENTICATOR_LENGTH);
+	md5_finish(&md_ctx,digest);
 
-    pd = tvb_get_ptr(tvb,offset,length);
-    for( i = 0 ; i < AUTHENTICATOR_LENGTH && i < length ; i++ ) {
+	pd = tvb_get_ptr(tvb,offset,length);
+	for( i = 0 ; i < AUTHENTICATOR_LENGTH && i < length ; i++ ) {
 		c = pd[i] ^ digest[i];
 		if ( isprint(c) ) {
 			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
-				"%c",c);
+						     "%c",c);
 			totlen += MIN(returned_length, dest_len-totlen-1);
 		} else {
 			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
-				"\\%03o",c);
+						     "\\%03o",c);
 			totlen += MIN(returned_length, dest_len-totlen-1);
 		}
-    }
-    while(i<length) {
+	}
+	while(i<length) {
 		if ( isprint(pd[i]) ) {
 			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
-				"%c", pd[i]);
+						     "%c", pd[i]);
 			totlen += MIN(returned_length, dest_len-totlen-1);
 		} else {
 			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
-				"\\%03o", pd[i]);
+						     "\\%03o", pd[i]);
 			totlen += MIN(returned_length, dest_len-totlen-1);
 		}
 		i++;
-    }
-    g_snprintf(&dest[totlen], dest_len+1-totlen, "%c", '"');
+	}
+	g_snprintf(&dest[totlen], dest_len+1-totlen, "%c", '"');
 }
 
 
@@ -741,116 +738,116 @@ static void add_tlv_to_tree(proto_tree* tlv_tree, proto_item* tlv_item, packet_i
 }
 
 void radius_tlv(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
-    proto_item* item;
-    gint tlv_num = 0;
+	proto_item* item;
+	gint tlv_num = 0;
 
-    while (len > 0) {
-        radius_attr_info_t* dictionary_entry = NULL;
-        guint32 tlv_type;
-        guint32 tlv_length;
+	while (len > 0) {
+		radius_attr_info_t* dictionary_entry = NULL;
+		guint32 tlv_type;
+		guint32 tlv_length;
 
-	proto_item* tlv_item;
-        proto_item* tlv_len_item;
-        proto_tree* tlv_tree;
+		proto_item* tlv_item;
+		proto_item* tlv_len_item;
+		proto_tree* tlv_tree;
 
-        if (len < 2) {
-            item = proto_tree_add_text(tree, tvb, offset, 0,
-                        "Not enough room in packet for TLV header");
-            PROTO_ITEM_SET_GENERATED(item);
-            return;
-        }
-        tlv_type = tvb_get_guint8(tvb,offset);
-        tlv_length = tvb_get_guint8(tvb,offset+1);
+		if (len < 2) {
+			item = proto_tree_add_text(tree, tvb, offset, 0,
+						   "Not enough room in packet for TLV header");
+			PROTO_ITEM_SET_GENERATED(item);
+			return;
+		}
+		tlv_type = tvb_get_guint8(tvb,offset);
+		tlv_length = tvb_get_guint8(tvb,offset+1);
 
-        if (tlv_length < 2) {
-            item = proto_tree_add_text(tree, tvb, offset, 0,
-                        "TLV too short: length %u < 2", tlv_length);
-            PROTO_ITEM_SET_GENERATED(item);
-            return;
-        }
+		if (tlv_length < 2) {
+			item = proto_tree_add_text(tree, tvb, offset, 0,
+						   "TLV too short: length %u < 2", tlv_length);
+			PROTO_ITEM_SET_GENERATED(item);
+			return;
+		}
 
-        if (len < (gint)tlv_length) {
-            item = proto_tree_add_text(tree, tvb, offset, 0,
-                        "Not enough room in packet for TLV");
-            PROTO_ITEM_SET_GENERATED(item);
-            return;
-        }
+		if (len < (gint)tlv_length) {
+			item = proto_tree_add_text(tree, tvb, offset, 0,
+						   "Not enough room in packet for TLV");
+			PROTO_ITEM_SET_GENERATED(item);
+			return;
+		}
 
-        len -= tlv_length;
+		len -= tlv_length;
 
-        dictionary_entry = g_hash_table_lookup(a->tlvs_by_id,GUINT_TO_POINTER(tlv_type));
+		dictionary_entry = g_hash_table_lookup(a->tlvs_by_id,GUINT_TO_POINTER(tlv_type));
 
-        if (! dictionary_entry ) {
-            dictionary_entry = &no_dictionary_entry;
-        }
+		if (! dictionary_entry ) {
+			dictionary_entry = &no_dictionary_entry;
+		}
 
-        tlv_item = proto_tree_add_text(tree, tvb, offset, tlv_length,
-                                       "TLV: l=%u  t=%s(%u)", tlv_length,
-                                       dictionary_entry->name, tlv_type);
+		tlv_item = proto_tree_add_text(tree, tvb, offset, tlv_length,
+					       "TLV: l=%u  t=%s(%u)", tlv_length,
+					       dictionary_entry->name, tlv_type);
 
-        tlv_length -= 2;
-        offset += 2;
+		tlv_length -= 2;
+		offset += 2;
 
-        tlv_tree = proto_item_add_subtree(tlv_item,dictionary_entry->ett);
+		tlv_tree = proto_item_add_subtree(tlv_item,dictionary_entry->ett);
 
-        if (show_length) {
-            tlv_len_item = proto_tree_add_uint(tlv_tree,
-                                               dictionary_entry->hf_len,
-                                               tvb,0,0,tlv_length);
-            PROTO_ITEM_SET_GENERATED(tlv_len_item);
-        }
+		if (show_length) {
+			tlv_len_item = proto_tree_add_uint(tlv_tree,
+							   dictionary_entry->hf_len,
+							   tvb,0,0,tlv_length);
+			PROTO_ITEM_SET_GENERATED(tlv_len_item);
+		}
 
-        add_tlv_to_tree(tlv_tree, tlv_item, pinfo, tvb, dictionary_entry,
-                        tlv_length, offset);
-        offset += tlv_length;
-	tlv_num++;
-    }
+		add_tlv_to_tree(tlv_tree, tlv_item, pinfo, tvb, dictionary_entry,
+				tlv_length, offset);
+		offset += tlv_length;
+		tlv_num++;
+	}
 
-    proto_item_append_text(avp_item, "%d TLV(s) inside", tlv_num);
+	proto_item_append_text(avp_item, "%d TLV(s) inside", tlv_num);
 }
 
 static void add_avp_to_tree(proto_tree* avp_tree, proto_item* avp_item, packet_info* pinfo, tvbuff_t* tvb, radius_attr_info_t* dictionary_entry, guint32 avp_length, guint32 offset) {
-    proto_item* pi;
+	proto_item* pi;
 
-    if (dictionary_entry->tagged) {
-        guint tag;
+	if (dictionary_entry->tagged) {
+		guint tag;
 
-        if (avp_length == 0) {
-            pi = proto_tree_add_text(avp_tree, tvb, offset,
-                                0, "AVP too short for tag");
-            PROTO_ITEM_SET_GENERATED(pi);
-            return;
-        }
+		if (avp_length == 0) {
+			pi = proto_tree_add_text(avp_tree, tvb, offset,
+						 0, "AVP too short for tag");
+			PROTO_ITEM_SET_GENERATED(pi);
+			return;
+		}
 
-        tag = tvb_get_guint8(tvb, offset);
+		tag = tvb_get_guint8(tvb, offset);
 
-        if (tag <=  0x1f) {
-            proto_tree_add_uint(avp_tree,
-                                dictionary_entry->hf_tag,
-                                tvb, offset, 1, tag);
+		if (tag <=  0x1f) {
+			proto_tree_add_uint(avp_tree,
+					    dictionary_entry->hf_tag,
+					    tvb, offset, 1, tag);
 
-            proto_item_append_text(avp_item,
-                                   " Tag=0x%.2x", tag);
+			proto_item_append_text(avp_item,
+					       " Tag=0x%.2x", tag);
 
-            offset++;
-            avp_length--;
-        }
-    }
+			offset++;
+			avp_length--;
+		}
+	}
 
-    if ( dictionary_entry->dissector ) {
-        tvbuff_t* tvb_value;
-        const gchar* str;
+	if ( dictionary_entry->dissector ) {
+		tvbuff_t* tvb_value;
+		const gchar* str;
 
-        tvb_value = tvb_new_subset(tvb, offset, avp_length, (gint) avp_length);
+		tvb_value = tvb_new_subset(tvb, offset, avp_length, (gint) avp_length);
 
-        str = dictionary_entry->dissector(avp_tree,tvb_value);
+		str = dictionary_entry->dissector(avp_tree,tvb_value);
 
-        proto_item_append_text(avp_item, ": %s",str);
-    } else {
-        proto_item_append_text(avp_item, ": ");
+		proto_item_append_text(avp_item, ": %s",str);
+	} else {
+		proto_item_append_text(avp_item, ": ");
 
-        dictionary_entry->type(dictionary_entry,avp_tree,pinfo,tvb,offset,avp_length,avp_item);
-    }
+		dictionary_entry->type(dictionary_entry,avp_tree,pinfo,tvb,offset,avp_length,avp_item);
+	}
 }
 
 static gboolean vsa_buffer_destroy(gpointer k _U_, gpointer v, gpointer p _U_) {
@@ -869,376 +866,376 @@ static void vsa_buffer_table_destroy(void *table) {
 
 
 static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length) {
-    proto_item* item;
-    gboolean last_eap = FALSE;
-    guint8* eap_buffer = NULL;
-    guint eap_seg_num = 0;
-    guint eap_tot_len_captured = 0;
-    guint eap_tot_len = 0;
-    proto_tree* eap_tree = NULL;
-    tvbuff_t* eap_tvb = NULL;
+	proto_item* item;
+	gboolean last_eap = FALSE;
+	guint8* eap_buffer = NULL;
+	guint eap_seg_num = 0;
+	guint eap_tot_len_captured = 0;
+	guint eap_tot_len = 0;
+	proto_tree* eap_tree = NULL;
+	tvbuff_t* eap_tvb = NULL;
 
-    GHashTable* vsa_buffer_table = NULL;
+	GHashTable* vsa_buffer_table = NULL;
 
-    /*
-     * In case we throw an exception, clean up whatever stuff we've
-     * allocated (if any).
-     */
-    CLEANUP_PUSH(g_free, eap_buffer);
-    CLEANUP_PUSH(vsa_buffer_table_destroy, (void *)vsa_buffer_table);
+	/*
+	 * In case we throw an exception, clean up whatever stuff we've
+	 * allocated (if any).
+	 */
+	CLEANUP_PUSH(g_free, eap_buffer);
+	CLEANUP_PUSH(vsa_buffer_table_destroy, (void *)vsa_buffer_table);
 
-    while (length > 0) {
-        radius_attr_info_t* dictionary_entry = NULL;
-        gint tvb_len;
-        guint32 avp_type;
-        guint32 avp_length;
-        guint32 vendor_id;
+	while (length > 0) {
+		radius_attr_info_t* dictionary_entry = NULL;
+		gint tvb_len;
+		guint32 avp_type;
+		guint32 avp_length;
+		guint32 vendor_id;
 
-        proto_item* avp_item;
-        proto_item* avp_len_item;
-        proto_tree* avp_tree;
+		proto_item* avp_item;
+		proto_item* avp_len_item;
+		proto_tree* avp_tree;
 
-        if (length < 2) {
-            item = proto_tree_add_text(tree, tvb, offset, 0,
-                        "Not enough room in packet for AVP header");
-            PROTO_ITEM_SET_GENERATED(item);
-            break;  /* exit outer loop, then cleanup & return */
-        }
-        avp_type = tvb_get_guint8(tvb,offset);
-        avp_length = tvb_get_guint8(tvb,offset+1);
+		if (length < 2) {
+			item = proto_tree_add_text(tree, tvb, offset, 0,
+						   "Not enough room in packet for AVP header");
+			PROTO_ITEM_SET_GENERATED(item);
+			break;  /* exit outer loop, then cleanup & return */
+		}
+		avp_type = tvb_get_guint8(tvb,offset);
+		avp_length = tvb_get_guint8(tvb,offset+1);
 
-        if (avp_length < 2) {
-            item = proto_tree_add_text(tree, tvb, offset, 0,
-                        "AVP too short: length %u < 2", avp_length);
-            PROTO_ITEM_SET_GENERATED(item);
-            break;  /* exit outer loop, then cleanup & return */
-        }
-
-        if (length < avp_length) {
-            item = proto_tree_add_text(tree, tvb, offset, 0,
-                        "Not enough room in packet for AVP");
-            PROTO_ITEM_SET_GENERATED(item);
-            break;  /* exit outer loop, then cleanup & return */
-        }
-
-        length -= avp_length;
-
-        dictionary_entry = g_hash_table_lookup(dict->attrs_by_id,GUINT_TO_POINTER(avp_type));
-
-        if (! dictionary_entry ) {
-            dictionary_entry = &no_dictionary_entry;
-        }
-
-        avp_item = proto_tree_add_text(tree, tvb, offset, avp_length,
-                                       "AVP: l=%u  t=%s(%u)", avp_length,
-                                       dictionary_entry->name, avp_type);
-
-        avp_length -= 2;
-        offset += 2;
-
-        if (avp_type == RADIUS_VENDOR_SPECIFIC_CODE) {
-            radius_vendor_info_t* vendor;
-            proto_tree* vendor_tree;
-            gint max_offset = offset + avp_length;
-            const gchar* vendor_str;
-
-            /* XXX TODO: handle 2 byte codes for USR */
-
-            if (avp_length < 4) {
-                proto_item_append_text(avp_item, " [AVP too short; no room for vendor ID]");
-                offset += avp_length;
-                continue; /* while (length > 0) */
-            }
-            vendor_id = tvb_get_ntohl(tvb,offset);
-
-            avp_length -= 4;
-            offset += 4;
-
-            vendor = g_hash_table_lookup(dict->vendors_by_id,GUINT_TO_POINTER(vendor_id));
-            if (vendor) {
-            	vendor_str = vendor->name;
-            } else {
-                vendor_str = val_to_str(vendor_id, sminmpec_values, "Unknown");
-                vendor = &no_vendor;
-            }
-            proto_item_append_text(avp_item, " v=%s(%u)", vendor_str,
-                                   vendor_id);
-
-            vendor_tree = proto_item_add_subtree(avp_item,vendor->ett);
-
-            while (offset < max_offset) {
-                guint32 avp_vsa_type;
-                guint32 avp_vsa_len;
-                guint8 avp_vsa_flags = 0;
-                guint32 avp_vsa_header_len = vendor->type_octets + vendor->length_octets + (vendor->has_flags ? 1 : 0);
-
-                switch (vendor->type_octets) {
-                    case 1:
-                        avp_vsa_type = tvb_get_guint8(tvb,offset++);
-                        break;
-                    case 2:
-                        avp_vsa_type = tvb_get_ntohs(tvb,offset);
-                        offset += 2;
-			break;
-                    case 4:
-                        avp_vsa_type = tvb_get_ntohl(tvb,offset);
-                        offset += 4;
-			break;
-                    default:
-                        avp_vsa_type = tvb_get_guint8(tvb,offset++);
-                }
-
-                switch (vendor->length_octets) {
-                    case 1:
-                        avp_vsa_len = tvb_get_guint8(tvb,offset++);
-                        break;
-                    case 0:
-                        avp_vsa_len = avp_length;
-			break;
-                    case 2:
-                        avp_vsa_len = tvb_get_ntohs(tvb,offset);
-                        offset += 2;
-			break;
-                    default:
-                        avp_vsa_len = tvb_get_guint8(tvb,offset++);
-                }
-
-                if (vendor->has_flags) {
-                    avp_vsa_flags = tvb_get_guint8(tvb,offset++);
-                }
-
-                if (avp_vsa_len < avp_vsa_header_len) {
-                    proto_tree_add_text(tree, tvb, offset+1, 1,
-                                            "[VSA too short]");
-                    break; /* exit while (offset < max_offset) loop */
-                }
-
-                avp_vsa_len -= avp_vsa_header_len;
-
-                dictionary_entry = g_hash_table_lookup(vendor->attrs_by_id,GUINT_TO_POINTER(avp_vsa_type));
-
-                if ( !dictionary_entry ) {
-                    dictionary_entry = &no_dictionary_entry;
-                }
-
-                if (vendor->has_flags){
-                    avp_item = proto_tree_add_text(vendor_tree,tvb,offset-avp_vsa_header_len,avp_vsa_len+avp_vsa_header_len,
-                                               "VSA: l=%u t=%s(%u) C=0x%02x",
-                                               avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type, avp_vsa_flags);
-                } else {
-                    avp_item = proto_tree_add_text(vendor_tree,tvb,offset-avp_vsa_header_len,avp_vsa_len+avp_vsa_header_len,
-                                               "VSA: l=%u t=%s(%u)",
-                                               avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type);
-                }
-
-                avp_tree = proto_item_add_subtree(avp_item,dictionary_entry->ett);
-
-                if (show_length) {
-                    avp_len_item = proto_tree_add_uint(avp_tree,
-                                                       dictionary_entry->hf_len,
-                                                       tvb,0,0,avp_length);
-                    PROTO_ITEM_SET_GENERATED(avp_len_item);
-                }
-
-		if (vendor->has_flags) {
-			radius_vsa_buffer_key key;
-			radius_vsa_buffer* vsa_buffer = NULL;
-			key.vendor_id = vendor_id;
-			key.vsa_type = avp_vsa_type;
-
-			if (!vsa_buffer_table) {
-				vsa_buffer_table = g_hash_table_new(radius_vsa_hash, radius_vsa_equal);
-			}
-
-			vsa_buffer = g_hash_table_lookup(vsa_buffer_table, &key);
-			if (vsa_buffer) {
-				vsa_buffer->data = g_realloc(vsa_buffer->data, vsa_buffer->len + avp_vsa_len);
-				tvb_memcpy(tvb, vsa_buffer->data + vsa_buffer->len, offset, avp_vsa_len);
-				vsa_buffer->len += avp_vsa_len;
-				vsa_buffer->seg_num++;
-			}
-
-			if (avp_vsa_flags & 0x80) {
-				if (!vsa_buffer) {
-					vsa_buffer = g_malloc(sizeof(radius_vsa_buffer));
-					vsa_buffer->key.vendor_id = vendor_id;
-					vsa_buffer->key.vsa_type = avp_vsa_type;
-					vsa_buffer->len = avp_vsa_len;
-					vsa_buffer->seg_num = 1;
-					vsa_buffer->data = g_malloc(avp_vsa_len);
-					tvb_memcpy(tvb, vsa_buffer->data, offset, avp_vsa_len);
-					g_hash_table_insert(vsa_buffer_table, &(vsa_buffer->key), vsa_buffer);
-				}
-				proto_tree_add_text(avp_tree, tvb, offset, avp_vsa_len, "VSA fragment");
-				proto_item_append_text(avp_item, ": VSA fragment[%u]", vsa_buffer->seg_num);
-			} else {
-				if (vsa_buffer) {
-					tvbuff_t* vsa_tvb = NULL;
-					proto_tree_add_text(avp_tree, tvb, offset, avp_vsa_len, "VSA fragment");
-					proto_item_append_text(avp_item, ": Last VSA fragment[%u]", vsa_buffer->seg_num);
-					vsa_tvb = tvb_new_child_real_data(tvb, vsa_buffer->data, vsa_buffer->len, vsa_buffer->len);
-					tvb_set_free_cb(vsa_tvb, g_free);
-					add_new_data_source(pinfo, vsa_tvb, "Reassembled VSA");
-					add_avp_to_tree(avp_tree, avp_item, pinfo, vsa_tvb, dictionary_entry, vsa_buffer->len, 0);
-					g_hash_table_remove(vsa_buffer_table, &(vsa_buffer->key));
-					g_free(vsa_buffer);
-					
-				} else {
-	                		add_avp_to_tree(avp_tree, avp_item, pinfo, tvb, dictionary_entry, avp_vsa_len, offset);
-				}
-			}
-		} else {
-	                add_avp_to_tree(avp_tree, avp_item, pinfo, tvb, dictionary_entry, avp_vsa_len, offset);
+		if (avp_length < 2) {
+			item = proto_tree_add_text(tree, tvb, offset, 0,
+						   "AVP too short: length %u < 2", avp_length);
+			PROTO_ITEM_SET_GENERATED(item);
+			break;  /* exit outer loop, then cleanup & return */
 		}
 
-                offset += avp_vsa_len;
-            }; /* while (offset < max_offset) */
-            continue;  /* while (length > 0) */
-        }
+		if (length < avp_length) {
+			item = proto_tree_add_text(tree, tvb, offset, 0,
+						   "Not enough room in packet for AVP");
+			PROTO_ITEM_SET_GENERATED(item);
+			break;  /* exit outer loop, then cleanup & return */
+		}
 
-        avp_tree = proto_item_add_subtree(avp_item,dictionary_entry->ett);
+		length -= avp_length;
 
-        if (show_length) {
-            avp_len_item = proto_tree_add_uint(avp_tree,
-                                               dictionary_entry->hf_len,
-                                               tvb,0,0,avp_length);
-            PROTO_ITEM_SET_GENERATED(avp_len_item);
-        }
+		dictionary_entry = g_hash_table_lookup(dict->attrs_by_id,GUINT_TO_POINTER(avp_type));
 
-        tvb_len = tvb_length_remaining(tvb, offset);
+		if (! dictionary_entry ) {
+			dictionary_entry = &no_dictionary_entry;
+		}
 
-        if ((gint)avp_length < tvb_len)
-            tvb_len = avp_length;
+		avp_item = proto_tree_add_text(tree, tvb, offset, avp_length,
+					       "AVP: l=%u  t=%s(%u)", avp_length,
+					       dictionary_entry->name, avp_type);
 
-        if (avp_type == RADIUS_EAP_MESSAGE_CODE) {
-            eap_seg_num++;
+		avp_length -= 2;
+		offset += 2;
 
-            /* Show this as an EAP fragment. */
-            if (tree)
-                proto_tree_add_text(avp_tree, tvb, offset, tvb_len,
-                                    "EAP fragment");
+		if (avp_type == RADIUS_VENDOR_SPECIFIC_CODE) {
+			radius_vendor_info_t* vendor;
+			proto_tree* vendor_tree;
+			gint max_offset = offset + avp_length;
+			const gchar* vendor_str;
 
-            if (eap_tvb != NULL) {
-                /*
-                 * Oops, a non-consecutive EAP-Message
-                 * attribute.
-                 */
-                proto_item_append_text(avp_item, " (non-consecutive)");
-            } else {
-                /*
-                 * RFC 2869 says, in section 5.13, describing
-                 * the EAP-Message attribute:
-                 *
-                 *    The NAS places EAP messages received
-                 *    from the authenticating peer into one
-                 *    or more EAP-Message attributes and
-                 *    forwards them to the RADIUS Server
-                 *    within an Access-Request message.
-                 *    If multiple EAP-Messages are
-                 *    contained within an Access-Request or
-                 *    Access-Challenge packet, they MUST be
-                 *    in order and they MUST be consecutive
-                 *    attributes in the Access-Request or
-                 *    Access-Challenge packet.
-                 *
-                 *        ...
-                 *
-                 *    The String field contains EAP packets,
-                 *    as defined in [3].  If multiple
-                 *    EAP-Message attributes are present
-                 *    in a packet their values should be
-                 *    concatenated; this allows EAP packets
-                 *    longer than 253 octets to be passed
-                 *    by RADIUS.
-                 *
-                 * Do reassembly of EAP-Message attributes.
-                 * We just concatenate all the attributes,
-                 * and when we see either the end of the
-                 * attribute list or a non-EAP-Message
-                 * attribute, we know we're done.
-                 */
+			/* XXX TODO: handle 2 byte codes for USR */
 
-                if (eap_buffer == NULL)
-                    eap_buffer = g_malloc(eap_tot_len_captured + tvb_len);
-                else
-                    eap_buffer = g_realloc(eap_buffer,
-                                           eap_tot_len_captured + tvb_len);
-                tvb_memcpy(tvb, eap_buffer + eap_tot_len_captured, offset,
-                           tvb_len);
-                eap_tot_len_captured += tvb_len;
-                eap_tot_len += avp_length;
+			if (avp_length < 4) {
+				proto_item_append_text(avp_item, " [AVP too short; no room for vendor ID]");
+				offset += avp_length;
+				continue; /* while (length > 0) */
+			}
+			vendor_id = tvb_get_ntohl(tvb,offset);
 
-                if ( tvb_bytes_exist(tvb, offset + avp_length + 1, 1) ) {
-                    guint8 next_type = tvb_get_guint8(tvb, offset + avp_length);
+			avp_length -= 4;
+			offset += 4;
 
-                    if ( next_type != RADIUS_EAP_MESSAGE_CODE ) {
-                        /* Non-EAP-Message attribute */
-                        last_eap = TRUE;
-                    }
-                } else {
-                    /*
-                     * No more attributes, either because
-                     * we're at the end of the packet or
-                     * because we're at the end of the
-                     * captured packet data.
-                     */
-                    last_eap = TRUE;
-                }
+			vendor = g_hash_table_lookup(dict->vendors_by_id,GUINT_TO_POINTER(vendor_id));
+			if (vendor) {
+				vendor_str = vendor->name;
+			} else {
+				vendor_str = val_to_str(vendor_id, sminmpec_values, "Unknown");
+				vendor = &no_vendor;
+			}
+			proto_item_append_text(avp_item, " v=%s(%u)", vendor_str,
+					       vendor_id);
 
-                if (last_eap && eap_buffer) {
-                    gboolean save_writable;
+			vendor_tree = proto_item_add_subtree(avp_item,vendor->ett);
 
-                    proto_item_append_text(avp_item, " Last Segment[%u]",
-                                           eap_seg_num);
+			while (offset < max_offset) {
+				guint32 avp_vsa_type;
+				guint32 avp_vsa_len;
+				guint8 avp_vsa_flags = 0;
+				guint32 avp_vsa_header_len = vendor->type_octets + vendor->length_octets + (vendor->has_flags ? 1 : 0);
 
-                    eap_tree = proto_item_add_subtree(avp_item,ett_eap);
+				switch (vendor->type_octets) {
+					case 1:
+						avp_vsa_type = tvb_get_guint8(tvb,offset++);
+						break;
+					case 2:
+						avp_vsa_type = tvb_get_ntohs(tvb,offset);
+						offset += 2;
+						break;
+					case 4:
+						avp_vsa_type = tvb_get_ntohl(tvb,offset);
+						offset += 4;
+						break;
+					default:
+						avp_vsa_type = tvb_get_guint8(tvb,offset++);
+				}
 
-                    eap_tvb = tvb_new_child_real_data(tvb, eap_buffer,
-                                                eap_tot_len_captured,
-                                                eap_tot_len);
-                    tvb_set_free_cb(eap_tvb, g_free);
-                    add_new_data_source(pinfo, eap_tvb, "Reassembled EAP");
+				switch (vendor->length_octets) {
+					case 1:
+						avp_vsa_len = tvb_get_guint8(tvb,offset++);
+						break;
+					case 0:
+						avp_vsa_len = avp_length;
+						break;
+					case 2:
+						avp_vsa_len = tvb_get_ntohs(tvb,offset);
+						offset += 2;
+						break;
+					default:
+						avp_vsa_len = tvb_get_guint8(tvb,offset++);
+				}
 
-                    /*
-                     * Don't free this when we're done -
-                     * it's associated with a tvbuff.
-                     */
-                    eap_buffer = NULL;
+				if (vendor->has_flags) {
+					avp_vsa_flags = tvb_get_guint8(tvb,offset++);
+				}
 
-                    /*
-                     * Set the columns non-writable,
-                     * so that the packet list shows
-                     * this as an RADIUS packet, not
-                     * as an EAP packet.
-                     */
-                    save_writable = col_get_writable(pinfo->cinfo);
-                    col_set_writable(pinfo->cinfo, FALSE);
+				if (avp_vsa_len < avp_vsa_header_len) {
+					proto_tree_add_text(tree, tvb, offset+1, 1,
+							    "[VSA too short]");
+					break; /* exit while (offset < max_offset) loop */
+				}
 
-                    call_dissector(eap_handle, eap_tvb, pinfo, eap_tree);
+				avp_vsa_len -= avp_vsa_header_len;
 
-                    col_set_writable(pinfo->cinfo, save_writable);
-                } else {
-                    proto_item_append_text(avp_item, " Segment[%u]",
-                                           eap_seg_num);
-                }
-            }
+				dictionary_entry = g_hash_table_lookup(vendor->attrs_by_id,GUINT_TO_POINTER(avp_vsa_type));
 
-            offset += avp_length;
-        } else {
-            add_avp_to_tree(avp_tree, avp_item, pinfo, tvb, dictionary_entry,
-                            avp_length, offset);
-            offset += avp_length;
-        }
+				if ( !dictionary_entry ) {
+					dictionary_entry = &no_dictionary_entry;
+				}
 
-    }  /* while (length > 0) */
+				if (vendor->has_flags){
+					avp_item = proto_tree_add_text(vendor_tree,tvb,offset-avp_vsa_header_len,avp_vsa_len+avp_vsa_header_len,
+								       "VSA: l=%u t=%s(%u) C=0x%02x",
+								       avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type, avp_vsa_flags);
+				} else {
+					avp_item = proto_tree_add_text(vendor_tree,tvb,offset-avp_vsa_header_len,avp_vsa_len+avp_vsa_header_len,
+								       "VSA: l=%u t=%s(%u)",
+								       avp_vsa_len+avp_vsa_header_len, dictionary_entry->name, avp_vsa_type);
+				}
 
-    CLEANUP_CALL_AND_POP; /* vsa_buffer_table_destroy(vsa_buffer_table) */
+				avp_tree = proto_item_add_subtree(avp_item,dictionary_entry->ett);
 
-    /*
-     * Call the cleanup handler to free any reassembled data we haven't
-     * attached to a tvbuff, and pop the handler.
-     */
-    CLEANUP_CALL_AND_POP;
+				if (show_length) {
+					avp_len_item = proto_tree_add_uint(avp_tree,
+									   dictionary_entry->hf_len,
+									   tvb,0,0,avp_length);
+					PROTO_ITEM_SET_GENERATED(avp_len_item);
+				}
+
+				if (vendor->has_flags) {
+					radius_vsa_buffer_key key;
+					radius_vsa_buffer* vsa_buffer = NULL;
+					key.vendor_id = vendor_id;
+					key.vsa_type = avp_vsa_type;
+
+					if (!vsa_buffer_table) {
+						vsa_buffer_table = g_hash_table_new(radius_vsa_hash, radius_vsa_equal);
+					}
+
+					vsa_buffer = g_hash_table_lookup(vsa_buffer_table, &key);
+					if (vsa_buffer) {
+						vsa_buffer->data = g_realloc(vsa_buffer->data, vsa_buffer->len + avp_vsa_len);
+						tvb_memcpy(tvb, vsa_buffer->data + vsa_buffer->len, offset, avp_vsa_len);
+						vsa_buffer->len += avp_vsa_len;
+						vsa_buffer->seg_num++;
+					}
+
+					if (avp_vsa_flags & 0x80) {
+						if (!vsa_buffer) {
+							vsa_buffer = g_malloc(sizeof(radius_vsa_buffer));
+							vsa_buffer->key.vendor_id = vendor_id;
+							vsa_buffer->key.vsa_type = avp_vsa_type;
+							vsa_buffer->len = avp_vsa_len;
+							vsa_buffer->seg_num = 1;
+							vsa_buffer->data = g_malloc(avp_vsa_len);
+							tvb_memcpy(tvb, vsa_buffer->data, offset, avp_vsa_len);
+							g_hash_table_insert(vsa_buffer_table, &(vsa_buffer->key), vsa_buffer);
+						}
+						proto_tree_add_text(avp_tree, tvb, offset, avp_vsa_len, "VSA fragment");
+						proto_item_append_text(avp_item, ": VSA fragment[%u]", vsa_buffer->seg_num);
+					} else {
+						if (vsa_buffer) {
+							tvbuff_t* vsa_tvb = NULL;
+							proto_tree_add_text(avp_tree, tvb, offset, avp_vsa_len, "VSA fragment");
+							proto_item_append_text(avp_item, ": Last VSA fragment[%u]", vsa_buffer->seg_num);
+							vsa_tvb = tvb_new_child_real_data(tvb, vsa_buffer->data, vsa_buffer->len, vsa_buffer->len);
+							tvb_set_free_cb(vsa_tvb, g_free);
+							add_new_data_source(pinfo, vsa_tvb, "Reassembled VSA");
+							add_avp_to_tree(avp_tree, avp_item, pinfo, vsa_tvb, dictionary_entry, vsa_buffer->len, 0);
+							g_hash_table_remove(vsa_buffer_table, &(vsa_buffer->key));
+							g_free(vsa_buffer);
+					
+						} else {
+							add_avp_to_tree(avp_tree, avp_item, pinfo, tvb, dictionary_entry, avp_vsa_len, offset);
+						}
+					}
+				} else {
+					add_avp_to_tree(avp_tree, avp_item, pinfo, tvb, dictionary_entry, avp_vsa_len, offset);
+				}
+
+				offset += avp_vsa_len;
+			}; /* while (offset < max_offset) */
+			continue;  /* while (length > 0) */
+		}
+
+		avp_tree = proto_item_add_subtree(avp_item,dictionary_entry->ett);
+
+		if (show_length) {
+			avp_len_item = proto_tree_add_uint(avp_tree,
+							   dictionary_entry->hf_len,
+							   tvb,0,0,avp_length);
+			PROTO_ITEM_SET_GENERATED(avp_len_item);
+		}
+
+		tvb_len = tvb_length_remaining(tvb, offset);
+
+		if ((gint)avp_length < tvb_len)
+			tvb_len = avp_length;
+
+		if (avp_type == RADIUS_EAP_MESSAGE_CODE) {
+			eap_seg_num++;
+
+			/* Show this as an EAP fragment. */
+			if (tree)
+				proto_tree_add_text(avp_tree, tvb, offset, tvb_len,
+						    "EAP fragment");
+
+			if (eap_tvb != NULL) {
+				/*
+				 * Oops, a non-consecutive EAP-Message
+				 * attribute.
+				 */
+				proto_item_append_text(avp_item, " (non-consecutive)");
+			} else {
+				/*
+				 * RFC 2869 says, in section 5.13, describing
+				 * the EAP-Message attribute:
+				 *
+				 *    The NAS places EAP messages received
+				 *    from the authenticating peer into one
+				 *    or more EAP-Message attributes and
+				 *    forwards them to the RADIUS Server
+				 *    within an Access-Request message.
+				 *    If multiple EAP-Messages are
+				 *    contained within an Access-Request or
+				 *    Access-Challenge packet, they MUST be
+				 *    in order and they MUST be consecutive
+				 *    attributes in the Access-Request or
+				 *    Access-Challenge packet.
+				 *
+				 *        ...
+				 *
+				 *    The String field contains EAP packets,
+				 *    as defined in [3].  If multiple
+				 *    EAP-Message attributes are present
+				 *    in a packet their values should be
+				 *    concatenated; this allows EAP packets
+				 *    longer than 253 octets to be passed
+				 *    by RADIUS.
+				 *
+				 * Do reassembly of EAP-Message attributes.
+				 * We just concatenate all the attributes,
+				 * and when we see either the end of the
+				 * attribute list or a non-EAP-Message
+				 * attribute, we know we're done.
+				 */
+
+				if (eap_buffer == NULL)
+					eap_buffer = g_malloc(eap_tot_len_captured + tvb_len);
+				else
+					eap_buffer = g_realloc(eap_buffer,
+							       eap_tot_len_captured + tvb_len);
+				tvb_memcpy(tvb, eap_buffer + eap_tot_len_captured, offset,
+					   tvb_len);
+				eap_tot_len_captured += tvb_len;
+				eap_tot_len += avp_length;
+
+				if ( tvb_bytes_exist(tvb, offset + avp_length + 1, 1) ) {
+					guint8 next_type = tvb_get_guint8(tvb, offset + avp_length);
+
+					if ( next_type != RADIUS_EAP_MESSAGE_CODE ) {
+						/* Non-EAP-Message attribute */
+						last_eap = TRUE;
+					}
+				} else {
+					/*
+					 * No more attributes, either because
+					 * we're at the end of the packet or
+					 * because we're at the end of the
+					 * captured packet data.
+					 */
+					last_eap = TRUE;
+				}
+
+				if (last_eap && eap_buffer) {
+					gboolean save_writable;
+
+					proto_item_append_text(avp_item, " Last Segment[%u]",
+							       eap_seg_num);
+
+					eap_tree = proto_item_add_subtree(avp_item,ett_eap);
+
+					eap_tvb = tvb_new_child_real_data(tvb, eap_buffer,
+									  eap_tot_len_captured,
+									  eap_tot_len);
+					tvb_set_free_cb(eap_tvb, g_free);
+					add_new_data_source(pinfo, eap_tvb, "Reassembled EAP");
+
+					/*
+					 * Don't free this when we're done -
+					 * it's associated with a tvbuff.
+					 */
+					eap_buffer = NULL;
+
+					/*
+					 * Set the columns non-writable,
+					 * so that the packet list shows
+					 * this as an RADIUS packet, not
+					 * as an EAP packet.
+					 */
+					save_writable = col_get_writable(pinfo->cinfo);
+					col_set_writable(pinfo->cinfo, FALSE);
+
+					call_dissector(eap_handle, eap_tvb, pinfo, eap_tree);
+
+					col_set_writable(pinfo->cinfo, save_writable);
+				} else {
+					proto_item_append_text(avp_item, " Segment[%u]",
+							       eap_seg_num);
+				}
+			}
+
+			offset += avp_length;
+		} else {
+			add_avp_to_tree(avp_tree, avp_item, pinfo, tvb, dictionary_entry,
+					avp_length, offset);
+			offset += avp_length;
+		}
+
+	}  /* while (length > 0) */
+
+	CLEANUP_CALL_AND_POP; /* vsa_buffer_table_destroy(vsa_buffer_table) */
+
+	/*
+	 * Call the cleanup handler to free any reassembled data we haven't
+	 * attached to a tvbuff, and pop the handler.
+	 */
+	CLEANUP_CALL_AND_POP;
 }
 
 /* This function tries to determine whether a packet is radius or not */
@@ -1317,8 +1314,8 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	conversation_t* conversation;
 	radius_call_info_key radius_call_key;
-	radius_call_info_key *new_radius_call_key = NULL;
-	radius_call_t *radius_call = NULL;
+	radius_call_info_key *new_radius_call_key;
+	radius_call_t *radius_call;
 	nstime_t delta;
 	static address null_address = { AT_NONE, 0, NULL };
 	
@@ -1429,14 +1426,14 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * if you do that.
 				 */
 				conversation = find_conversation(pinfo->fd->num, &pinfo->src,
-					                                 &null_address, pinfo->ptype, pinfo->srcport,
-					                                 pinfo->destport, 0);
+								 &null_address, pinfo->ptype, pinfo->srcport,
+								 pinfo->destport, 0);
 				if (conversation == NULL)
 				{
 					/* It's not part of any conversation - create a new one. */
 					conversation = conversation_new(pinfo->fd->num, &pinfo->src,
-					                                &null_address, pinfo->ptype, pinfo->srcport,
-					                                pinfo->destport, 0);
+									&null_address, pinfo->ptype, pinfo->srcport,
+									pinfo->destport, 0);
 				}
 
 				/* Prepare the key data */
@@ -1459,8 +1456,8 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						if (check_col(pinfo->cinfo, COL_INFO))
 						{
 							col_append_fstr(pinfo->cinfo, COL_INFO,
-							                ", Duplicate Request ID:%u",
-							                rh.rh_ident);
+									", Duplicate Request ID:%u",
+									rh.rh_ident);
 						}
 						if (tree)
 						{
@@ -1479,9 +1476,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					   frame numbers are 1-origin, so we use 0
 					   to mean "we don't yet know in which frame
 					   the reply for this call appears". */
-					new_radius_call_key = g_mem_chunk_alloc(radius_call_info_key_chunk);
+					new_radius_call_key = se_alloc(sizeof(radius_call_info_key));
 					*new_radius_call_key = radius_call_key;
-					radius_call = g_mem_chunk_alloc(radius_call_info_value_chunk);
+					radius_call = se_alloc(sizeof(radius_call_t));
 					radius_call->req_num = pinfo->fd->num;
 					radius_call->rsp_num = 0;
 					radius_call->ident = rh.rh_ident;
@@ -1496,9 +1493,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if (radius_call && radius_call->rsp_num)
 				{
 					proto_item* item = proto_tree_add_uint_format(radius_tree, hf_radius_rsp_frame,
-					                                              tvb, 0, 0, radius_call->rsp_num,
-					                                              "The response to this request is in frame %u",
-					                                              radius_call->rsp_num);
+										      tvb, 0, 0, radius_call->rsp_num,
+										      "The response to this request is in frame %u",
+										      radius_call->rsp_num);
 					PROTO_ITEM_SET_GENERATED(item);
 				}
 				break;
@@ -1530,8 +1527,8 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * if you do that.
 				 */
 				conversation = find_conversation(pinfo->fd->num, &null_address,
-					                                 &pinfo->dst, pinfo->ptype, pinfo->srcport,
-					                                 pinfo->destport, 0);
+								 &pinfo->dst, pinfo->ptype, pinfo->srcport,
+								 pinfo->destport, 0);
 				if (conversation != NULL)
 				{
 					/* Look only for matching request, if
@@ -1554,9 +1551,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							radius_call->responded = TRUE;
 
 							item = proto_tree_add_uint_format(radius_tree, hf_radius_req_frame,
-							                                  tvb, 0, 0, radius_call->req_num,
-							                                  "This is a response to a request in frame %u",
-							                                  radius_call->req_num);
+											  tvb, 0, 0, radius_call->req_num,
+											  "This is a response to a request in frame %u",
+											  radius_call->req_num);
 							PROTO_ITEM_SET_GENERATED(item);
 							nstime_delta(&delta, &pinfo->fd->abs_ts, &radius_call->req_time);
 							item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
@@ -1581,8 +1578,8 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								if (check_col(pinfo->cinfo, COL_INFO))
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO,
-									                ", Duplicate Response ID:%u",
-									                rh.rh_ident);
+											", Duplicate Response ID:%u",
+											rh.rh_ident);
 								}
 								if (tree)
 								{
@@ -1590,7 +1587,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									hidden_item = proto_tree_add_uint(radius_tree, hf_radius_dup, tvb, 0,0, rh.rh_ident);
 									PROTO_ITEM_SET_HIDDEN(hidden_item);
 									item = proto_tree_add_uint(radius_tree, hf_radius_rsp_dup,
-									                           tvb, 0, 0, rh.rh_ident);
+												   tvb, 0, 0, rh.rh_ident);
 									PROTO_ITEM_SET_GENERATED(item);
 								}
 							}
@@ -1643,7 +1640,7 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 
 	for(i=0; abbrev[i]; i++) {
 		if(abbrev[i] == '-') abbrev[i] = '_';
-        if(abbrev[i] == '/') abbrev[i] = '_';
+		if(abbrev[i] == '/') abbrev[i] = '_';
 	}
 
 	hfri[0].p_id = &(a->hf);
@@ -1830,26 +1827,8 @@ radius_init_protocol(void)
 		g_hash_table_destroy(radius_calls);
 		radius_calls = NULL;
 	}
-	if (radius_call_info_key_chunk != NULL)
-	{
-		g_mem_chunk_destroy(radius_call_info_key_chunk);
-		radius_call_info_key_chunk = NULL;
-	}
-	if (radius_call_info_value_chunk != NULL)
-	{
-		g_mem_chunk_destroy(radius_call_info_value_chunk);
-		radius_call_info_value_chunk = NULL;
-	}
 
 	radius_calls = g_hash_table_new(radius_call_hash, radius_call_equal);
-	radius_call_info_key_chunk = g_mem_chunk_new("call_info_key_chunk",
-	                                           sizeof(radius_call_info_key),
-	                                           200 * sizeof(radius_call_info_key),
-	                                           G_ALLOC_ONLY);
-	radius_call_info_value_chunk = g_mem_chunk_new("call_info_value_chunk",
-	                                             sizeof(radius_call_t),
-	                                             200 * sizeof(radius_call_t),
-	                                             G_ALLOC_ONLY);
 }
 
 static void register_radius_fields(const char* unused _U_) {
@@ -1992,24 +1971,24 @@ proto_register_radius(void)
 	register_init_routine(&radius_init_protocol);
 	radius_module = prefs_register_protocol(proto_radius, proto_reg_handoff_radius);
 	prefs_register_string_preference(radius_module,"shared_secret","Shared Secret",
-                                     "Shared secret used to decode User Passwords",
-                                     &shared_secret);
+					 "Shared secret used to decode User Passwords",
+					 &shared_secret);
 	prefs_register_bool_preference(radius_module,"show_length","Show AVP Lengths",
-                                     "Whether to add or not to the tree the AVP's payload length",
-                                     &show_length);
+				       "Whether to add or not to the tree the AVP's payload length",
+				       &show_length);
 	prefs_register_uint_preference(radius_module, "alternate_port","Alternate Port",
-                                   "An alternate UDP port to decode as RADIUS", 10, &alt_port_pref);
+				       "An alternate UDP port to decode as RADIUS", 10, &alt_port_pref);
 	prefs_register_uint_preference(radius_module, "request_ttl", "Request TimeToLive",
-                     "Time to live for a radius request used for matching it with a response", 10, &request_ttl);
+				       "Time to live for a radius request used for matching it with a response", 10, &request_ttl);
 	radius_tap = register_tap("radius");
 	proto_register_prefix("radius",register_radius_fields);
 	
 	dict = g_malloc(sizeof(radius_dictionary_t));
-	dict->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
-	dict->attrs_by_name = g_hash_table_new(g_str_hash,g_str_equal);
-	dict->vendors_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
+	dict->attrs_by_id     = g_hash_table_new(g_direct_hash,g_direct_equal);
+	dict->attrs_by_name   = g_hash_table_new(g_str_hash,g_str_equal);
+	dict->vendors_by_id   = g_hash_table_new(g_direct_hash,g_direct_equal);
 	dict->vendors_by_name = g_hash_table_new(g_str_hash,g_str_equal);
-	dict->tlvs_by_name = g_hash_table_new(g_str_hash,g_str_equal);
+	dict->tlvs_by_name    = g_hash_table_new(g_str_hash,g_str_equal);
 }
 
 void
