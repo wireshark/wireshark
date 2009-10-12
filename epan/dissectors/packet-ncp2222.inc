@@ -40,7 +40,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#define NCP_PACKET_INIT_COUNT 200
 #define PROTO_LENGTH_UNTIL_END -1
 
 gboolean    nds_defragment  = TRUE;
