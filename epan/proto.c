@@ -5354,6 +5354,9 @@ proto_check_for_protocol_or_field(proto_tree* tree, int id)
 GPtrArray*
 proto_get_finfo_ptr_array(proto_tree *tree, int id)
 {
+	if (!tree)
+		return NULL;
+
 	if (PTREE_DATA(tree)->interesting_hfids != NULL)
 		return g_hash_table_lookup(PTREE_DATA(tree)->interesting_hfids,
 								GINT_TO_POINTER(id));
@@ -5364,6 +5367,9 @@ proto_get_finfo_ptr_array(proto_tree *tree, int id)
 gboolean
 proto_tracking_interesting_fields(proto_tree *tree)
 {
+	if (!tree)
+		return NULL;
+
 	return (PTREE_DATA(tree)->interesting_hfids != NULL);
 }
 
