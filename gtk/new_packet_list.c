@@ -902,15 +902,17 @@ new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, gint copy_
 void
 new_packet_list_recent_write_all(FILE *rf)
 {
-	gint col, width;
+	gint col, width, num_cols, col_fmt;
 	GtkTreeViewColumn *tree_column;
 
 	fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
-	for (col = 0; col < cfile.cinfo.num_cols; col++) {
-		if (cfile.cinfo.col_fmt[col] == COL_CUSTOM) {
+	num_cols = g_list_length(prefs.col_list);
+	for (col = 0; col < num_cols; col++) {
+		col_fmt = get_column_format(col);
+		if (col_fmt == COL_CUSTOM) {
 			fprintf (rf, " %%Cus:%s,", get_column_custom_field(col));
 		} else {
-			fprintf (rf, " %s,", col_format_to_string(cfile.cinfo.col_fmt[col]));
+			fprintf (rf, " %s,", col_format_to_string(col_fmt));
 		}
 		tree_column = gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col);
 		width = gtk_tree_view_column_get_width(tree_column);
@@ -919,7 +921,7 @@ new_packet_list_recent_write_all(FILE *rf)
 			width = recent_get_column_width (col);
 		}
 		fprintf (rf, " %d", width);
-		if (col != cfile.cinfo.num_cols-1) {
+		if (col != num_cols-1) {
 			fprintf (rf, ",");
 		}
 	}
