@@ -5368,7 +5368,7 @@ gboolean
 proto_tracking_interesting_fields(proto_tree *tree)
 {
 	if (!tree)
-		return NULL;
+		return FALSE;
 
 	return (PTREE_DATA(tree)->interesting_hfids != NULL);
 }
