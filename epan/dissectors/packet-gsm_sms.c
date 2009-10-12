@@ -2885,10 +2885,10 @@ dis_msg_deliver_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     guint8	oct;
     guint8	pi;
     guint8	udl;
-    gboolean	seven_bit;
-    gboolean	eight_bit;
-    gboolean	ucs2;
-    gboolean	compressed;
+    gboolean	seven_bit = FALSE;
+    gboolean	eight_bit = FALSE;
+    gboolean	ucs2 = FALSE;
+    gboolean	compressed = FALSE;
     gboolean	udhi;
 
 
@@ -3073,10 +3073,10 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     guint8	oct;
     guint8	pi;
     guint8	udl;
-    gboolean	seven_bit;
-    gboolean	eight_bit;
-    gboolean	ucs2;
-    gboolean	compressed;
+    gboolean	seven_bit = FALSE;
+    gboolean	eight_bit = FALSE;
+    gboolean	ucs2 = FALSE;
+    gboolean	compressed = FALSE;
     gboolean	udhi;
 
 
@@ -3183,10 +3183,10 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     guint8	oct;
     guint8	pi;
     guint8	udl;
-    gboolean	seven_bit;
-    gboolean	eight_bit;
-    gboolean	ucs2;
-    gboolean	compressed;
+    gboolean	seven_bit = FALSE;
+    gboolean	eight_bit = FALSE;
+    gboolean	ucs2 = FALSE;
+    gboolean	compressed = FALSE;
     gboolean	udhi; 
 
 
