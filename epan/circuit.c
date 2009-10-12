@@ -26,9 +26,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-
-#include <string.h>
 #include <glib.h>
 #include "packet.h"
 #include "circuit.h"
@@ -79,6 +76,15 @@ circuit_match(gconstpointer v, gconstpointer w)
 void
 circuit_cleanup(void)
 {
+	/*
+	 * Free up any space allocated for the circuit hashtable.
+	 *
+	 * We can free the hash as the structures pointed to in the
+         * hash are in "seasonal" memory which is freed separately.
+         * Note: circuit_cleanup() must be called only when
+         *       seasonal memory is also freed.
+	 */
+
 	if (circuit_hashtable != NULL)
 		g_hash_table_destroy(circuit_hashtable);
 
@@ -92,15 +98,6 @@ circuit_cleanup(void)
 void
 circuit_init(void)
 {
-	/*
-	 * Free up any space allocated for circuit protocol data
-	 * areas.
-	 *
-	 * We can free the space, as the structures it contains are
-	 * pointed to by circuit data structures that were freed
-	 * above.
-	 */
-
 	circuit_hashtable = g_hash_table_new(circuit_hash, circuit_match);
 
 	/*
@@ -297,7 +294,7 @@ circuit_get_dissector(circuit_t *circuit)
  */
 gboolean
 try_circuit_dissector(circuit_type ctype, guint32 circuit_id, guint32 frame,
-    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+		      tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	circuit_t *circuit;
 
