@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 #include <epan/xdlc.h>
 
 #include "irda-appl.h"
@@ -265,9 +266,6 @@ typedef struct lmp_conversation {
     gboolean                    ttp;
     dissector_t                 proto_dissector;
 } lmp_conversation_t;
-
-static GMemChunk* iap_conv_chunk = NULL;
-static GMemChunk* lmp_conv_chunk = NULL;
 
 static const true_false_string lap_cr_vals = {
     "Command",
@@ -559,7 +557,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
                     }
                     if (iap_conv->pnext == NULL)
                     {
-                        iap_conv->pnext = g_mem_chunk_alloc(iap_conv_chunk);
+                        iap_conv->pnext = se_alloc(sizeof(iap_conversation_t));
                         iap_conv = iap_conv->pnext;
                         break;
                     }
@@ -569,7 +567,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
             else
             {
                 conv = conversation_new(pinfo->fd->num, &srcaddr, &destaddr, PT_NONE, pinfo->srcport, pinfo->destport, 0);
-                iap_conv = g_mem_chunk_alloc(iap_conv_chunk);
+                iap_conv = se_alloc(sizeof(iap_conversation_t));
                 conversation_add_proto_data(conv, proto_iap, (void*)iap_conv);
             }
 
@@ -1245,7 +1243,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
 
             if (lmp_conv->pnext == NULL)
             {
-                lmp_conv->pnext = g_mem_chunk_alloc(lmp_conv_chunk);
+                lmp_conv->pnext = se_alloc(sizeof(lmp_conversation_t));
                 lmp_conv = lmp_conv->pnext;
                 break;
             }
@@ -1255,7 +1253,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     else
     {
         conv = conversation_new(pinfo->fd->num, &destaddr, &srcaddr, PT_NONE, dlsap, 0, NO_PORT_B);
-        lmp_conv = g_mem_chunk_alloc(lmp_conv_chunk);
+        lmp_conv = se_alloc(sizeof(lmp_conversation_t));
         conversation_add_proto_data(conv, proto_irlmp, (void*)lmp_conv);
     }
 
@@ -1912,23 +1910,6 @@ static void dissect_irda(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 
 
 /*
- * Re-initialize the IrDA dissector
- */
-static void init_irda(void)
-{
-    if (iap_conv_chunk)
-        g_mem_chunk_destroy(iap_conv_chunk);
-    if (lmp_conv_chunk)
-        g_mem_chunk_destroy(lmp_conv_chunk);
-
-    iap_conv_chunk = g_mem_chunk_new("iap_conversation", sizeof(iap_conversation_t),
-                                     10 * sizeof(iap_conversation_t), G_ALLOC_AND_FREE);
-    lmp_conv_chunk = g_mem_chunk_new("lmp_conversation", sizeof(lmp_conversation_t),
-                                     10 * sizeof(lmp_conversation_t), G_ALLOC_AND_FREE);
-}
-
-
-/*
  * Register the protocol with Wireshark
  * This format is required because a script is used to build the C function
  *  that calls all the protocol registrations.
@@ -2252,9 +2233,6 @@ void proto_register_irda(void)
     gint* ett_p[MAX_PARAMETERS];
     gint* ett_iap_e[MAX_IAP_ENTRIES];
 
-
-    /* Register re-init routine */
-    register_init_routine(init_irda);
 
     /* Register protocol names and descriptions */
     proto_irlap = proto_register_protocol("IrDA Link Access Protocol", "IrLAP", "irlap");
