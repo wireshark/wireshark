@@ -27,154 +27,149 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <glib.h>
-#include <gmodule.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
-/* Number of entries in the memeory chunk array (for conversation)*/
-#define SBUS_MEMCHUNKSIZE      20
-/* Attribut values*/
-#define SBUS_REQUEST                 0x00
-#define SBUS_RESPONSE                 0x01
-#define SBUS_ACKNAK                          0x02
+/* Attribute values*/
+#define SBUS_REQUEST                   0x00
+#define SBUS_RESPONSE                  0x01
+#define SBUS_ACKNAK                    0x02
 
 /*SBus command codes*/
-#define SBUS_RD_COUNTER                             0x00
-#define SBUS_RD_DISPLAY_REGISTER              0x01
-#define SBUS_RD_FLAG                               0x02
-#define SBUS_RD_INPUT                              0x03
-#define SBUS_RD_RTC                                0x04
-#define SBUS_RD_OUTPUT                      0x05
-#define SBUS_RD_REGISTER                            0x06
-#define SBUS_RD_TIMER                              0x07
-#define SBUS_WR_COUNTER                             0x0A
-#define SBUS_WR_FLAG                               0x0B
-#define SBUS_WR_RTC                                0x0C
-#define SBUS_WR_OUTPUT                      0x0D
-#define SBUS_WR_REGISTER                            0x0E
-#define SBUS_WR_TIMER                              0x0F
-#define SBUS_RDWR_MULTI_MEDIAS               0x13
-#define SBUS_RD_PCD_STATUS_CPU0               0x14
-#define SBUS_RD_PCD_STATUS_CPU1               0x15
-#define SBUS_RD_PCD_STATUS_CPU2               0x16
-#define SBUS_RD_PCD_STATUS_CPU3               0x17
-#define SBUS_RD_PCD_STATUS_CPU4               0x18
-#define SBUS_RD_PCD_STATUS_CPU5               0x19
-#define SBUS_RD_PCD_STATUS_CPU6               0x1A
-#define SBUS_RD_PCD_STATUS_OWN        0x1B
-#define SBUS_RD_SBUS_STN_NBR                 0x1D
-#define SBUS_RD_USER_MEMORY                  0x1E
-#define SBUS_RD_PROGRAM_LINE                 0x1F
-#define SBUS_RD_PROGRAM_VERSION               0x20
-#define SBUS_RD_TEXT                               0x21
-#define SBUS_RD_ACTIVE_TRANSITION             0x22
-#define SBUS_WR_USER_MEMORY                  0x23
-#define SBUS_WR_PROGRAM_LINE                 0x24
-#define SBUS_WR_TEXT                               0x25
-#define SBUS_RUN_PROCEDURE_CPU0               0x28
-#define SBUS_RUN_PROCEDURE_CPU1               0x29
-#define SBUS_RUN_PROCEDURE_CPU2               0x2A
-#define SBUS_RUN_PROCEDURE_CPU3               0x2B
-#define SBUS_RUN_PROCEDURE_CPU4               0x2C
-#define SBUS_RUN_PROCEDURE_CPU5               0x2D
-#define SBUS_RUN_PROCEDURE_CPU6               0x2E
-#define SBUS_RUN_PROCEDURE_OWN        0x2F
-#define SBUS_RUN_PROCEDURE_ALL        0x30
-#define SBUS_RESTART_COLD_CPU1               0x32
-#define SBUS_RESTART_COLD_CPU2               0x33
-#define SBUS_RESTART_COLD_CPU3               0x34
-#define SBUS_RESTART_COLD_CPU4               0x35
-#define SBUS_RESTART_COLD_CPU5               0x36
-#define SBUS_RESTART_COLD_CPU6               0x37
-#define SBUS_RESTART_COLD_OWN                0x38
-#define SBUS_RESTART_COLD_ALL                0x39
-#define SBUS_STOP_PROCEDURE_CPU0              0x3C
-#define SBUS_STOP_PROCEDURE_CPU1              0x3D
-#define SBUS_STOP_PROCEDURE_CPU2              0x3E
-#define SBUS_STOP_PROCEDURE_CPU3              0x3F
-#define SBUS_STOP_PROCEDURE_CPU4              0x40
-#define SBUS_STOP_PROCEDURE_CPU5              0x41
-#define SBUS_STOP_PROCEDURE_CPU6              0x42
-#define SBUS_STOP_PROCEDURE_OWN               0x43
-#define SBUS_STOP_PROCEDURE_ALL               0x44
-#define SBUS_RD_STATUSFLAG_ACCU               0x46
-#define SBUS_RD_BYTE                               0x47
-#define SBUS_RD_HALT_FAILURE_REG              0x48
-#define SBUS_RD_INDEX_REGISTER               0x49
-#define SBUS_RD_INSTRUCTION_POINTER           0x4A
-#define SBUS_FIND_HISTORY                           0x4B
-#define SBUS_WR_STATUSFLAG_ACCU               0x50
-#define SBUS_WR_BYTE                               0x51
-#define SBUS_WR_INDEX_REGISTER               0x52
-#define SBUS_WR_INSTRUCTION_POINTER           0x53
-#define SBUS_CLEAR_ALL                             0x5A
-#define SBUS_CLEAR_FLAGS                            0x5B
-#define SBUS_CLEAR_OUTPUTS                   0x5C
-#define SBUS_CLEAR_REGISTERS                 0x5D
-#define SBUS_CLEAR_TIMERS                           0x5E
-#define SBUS_RESTART_WARM_CPU1        0x64
-#define SBUS_RESTART_WARM_CPU2        0x65
-#define SBUS_RESTART_WARM_CPU3        0x66
-#define SBUS_RESTART_WARM_CPU4        0x67
-#define SBUS_RESTART_WARM_CPU5        0x68
-#define SBUS_RESTART_WARM_CPU6        0x69
-#define SBUS_RESTART_WARM_OWN         0x6A
-#define SBUS_RESTART_WARM_ALL                0x6B
-#define SBUS_CHANGE_BLOCK                           0x6E
-#define SBUS_CLEAR_HISTORY_FAILURE            0x6F
-#define SBUS_DELETE_PROGRAM_LINE              0x70
-#define SBUS_GO_CONDITIONAL                  0x71
-#define SBUS_INSERT_PROGRAM_LINE              0x72
-#define SBUS_LOCAL_CYCLE                            0x73
-#define SBUS_ALL_CYCLES                             0x74
-#define SBUS_MAKE_TEXT                      0x75
-#define SBUS_EXECUTE_SINGLE_INSTR             0x76
-#define SBUS_SINGLE_STEP                            0x77
-#define SBUS_XOB_17_INTERRUPT                0x82
-#define SBUS_XOB_18_INTERRUPT                0x83
-#define SBUS_XOB_19_INTERRUPT                0x84
-#define SBUS_RD_HANGUP_TIMEOUT        0x91
-#define SBUS_RD_DATA_BLOCK                          0x96
-#define SBUS_WR_DATA_BLOCK                   0x97
-#define SBUS_MAKE_DATA_BLOCK                 0x98
-#define SBUS_CLEAR_DATA_BLOCK                0x99
-#define SBUS_CLEAR_TEXT                             0x9A
-#define SBUS_RD_BLOCK_ADDRESSES               0x9B
-#define SBUS_RD_BLOCK_SIZES                  0x9C
-#define SBUS_RD_CURRENT_BLOCK                0x9D
-#define SBUS_RD_CALL_STACK                          0x9E
-#define SBUS_RD_DBX                                0x9F
+#define SBUS_RD_COUNTER                0x00
+#define SBUS_RD_DISPLAY_REGISTER       0x01
+#define SBUS_RD_FLAG                   0x02
+#define SBUS_RD_INPUT                  0x03
+#define SBUS_RD_RTC                    0x04
+#define SBUS_RD_OUTPUT                 0x05
+#define SBUS_RD_REGISTER               0x06
+#define SBUS_RD_TIMER                  0x07
+#define SBUS_WR_COUNTER                0x0A
+#define SBUS_WR_FLAG                   0x0B
+#define SBUS_WR_RTC                    0x0C
+#define SBUS_WR_OUTPUT                 0x0D
+#define SBUS_WR_REGISTER               0x0E
+#define SBUS_WR_TIMER                  0x0F
+#define SBUS_RDWR_MULTI_MEDIAS         0x13
+#define SBUS_RD_PCD_STATUS_CPU0        0x14
+#define SBUS_RD_PCD_STATUS_CPU1        0x15
+#define SBUS_RD_PCD_STATUS_CPU2        0x16
+#define SBUS_RD_PCD_STATUS_CPU3        0x17
+#define SBUS_RD_PCD_STATUS_CPU4        0x18
+#define SBUS_RD_PCD_STATUS_CPU5        0x19
+#define SBUS_RD_PCD_STATUS_CPU6        0x1A
+#define SBUS_RD_PCD_STATUS_OWN         0x1B
+#define SBUS_RD_SBUS_STN_NBR           0x1D
+#define SBUS_RD_USER_MEMORY            0x1E
+#define SBUS_RD_PROGRAM_LINE           0x1F
+#define SBUS_RD_PROGRAM_VERSION        0x20
+#define SBUS_RD_TEXT                   0x21
+#define SBUS_RD_ACTIVE_TRANSITION      0x22
+#define SBUS_WR_USER_MEMORY            0x23
+#define SBUS_WR_PROGRAM_LINE           0x24
+#define SBUS_WR_TEXT                   0x25
+#define SBUS_RUN_PROCEDURE_CPU0        0x28
+#define SBUS_RUN_PROCEDURE_CPU1        0x29
+#define SBUS_RUN_PROCEDURE_CPU2        0x2A
+#define SBUS_RUN_PROCEDURE_CPU3        0x2B
+#define SBUS_RUN_PROCEDURE_CPU4        0x2C
+#define SBUS_RUN_PROCEDURE_CPU5        0x2D
+#define SBUS_RUN_PROCEDURE_CPU6        0x2E
+#define SBUS_RUN_PROCEDURE_OWN         0x2F
+#define SBUS_RUN_PROCEDURE_ALL         0x30
+#define SBUS_RESTART_COLD_CPU1         0x32
+#define SBUS_RESTART_COLD_CPU2         0x33
+#define SBUS_RESTART_COLD_CPU3         0x34
+#define SBUS_RESTART_COLD_CPU4         0x35
+#define SBUS_RESTART_COLD_CPU5         0x36
+#define SBUS_RESTART_COLD_CPU6         0x37
+#define SBUS_RESTART_COLD_OWN          0x38
+#define SBUS_RESTART_COLD_ALL          0x39
+#define SBUS_STOP_PROCEDURE_CPU0       0x3C
+#define SBUS_STOP_PROCEDURE_CPU1       0x3D
+#define SBUS_STOP_PROCEDURE_CPU2       0x3E
+#define SBUS_STOP_PROCEDURE_CPU3       0x3F
+#define SBUS_STOP_PROCEDURE_CPU4       0x40
+#define SBUS_STOP_PROCEDURE_CPU5       0x41
+#define SBUS_STOP_PROCEDURE_CPU6       0x42
+#define SBUS_STOP_PROCEDURE_OWN        0x43
+#define SBUS_STOP_PROCEDURE_ALL        0x44
+#define SBUS_RD_STATUSFLAG_ACCU        0x46
+#define SBUS_RD_BYTE                   0x47
+#define SBUS_RD_HALT_FAILURE_REG       0x48
+#define SBUS_RD_INDEX_REGISTER         0x49
+#define SBUS_RD_INSTRUCTION_POINTER    0x4A
+#define SBUS_FIND_HISTORY              0x4B
+#define SBUS_WR_STATUSFLAG_ACCU        0x50
+#define SBUS_WR_BYTE                   0x51
+#define SBUS_WR_INDEX_REGISTER         0x52
+#define SBUS_WR_INSTRUCTION_POINTER    0x53
+#define SBUS_CLEAR_ALL                 0x5A
+#define SBUS_CLEAR_FLAGS               0x5B
+#define SBUS_CLEAR_OUTPUTS             0x5C
+#define SBUS_CLEAR_REGISTERS           0x5D
+#define SBUS_CLEAR_TIMERS              0x5E
+#define SBUS_RESTART_WARM_CPU1         0x64
+#define SBUS_RESTART_WARM_CPU2         0x65
+#define SBUS_RESTART_WARM_CPU3         0x66
+#define SBUS_RESTART_WARM_CPU4         0x67
+#define SBUS_RESTART_WARM_CPU5         0x68
+#define SBUS_RESTART_WARM_CPU6         0x69
+#define SBUS_RESTART_WARM_OWN          0x6A
+#define SBUS_RESTART_WARM_ALL          0x6B
+#define SBUS_CHANGE_BLOCK              0x6E
+#define SBUS_CLEAR_HISTORY_FAILURE     0x6F
+#define SBUS_DELETE_PROGRAM_LINE       0x70
+#define SBUS_GO_CONDITIONAL            0x71
+#define SBUS_INSERT_PROGRAM_LINE       0x72
+#define SBUS_LOCAL_CYCLE               0x73
+#define SBUS_ALL_CYCLES                0x74
+#define SBUS_MAKE_TEXT                 0x75
+#define SBUS_EXECUTE_SINGLE_INSTR      0x76
+#define SBUS_SINGLE_STEP               0x77
+#define SBUS_XOB_17_INTERRUPT          0x82
+#define SBUS_XOB_18_INTERRUPT          0x83
+#define SBUS_XOB_19_INTERRUPT          0x84
+#define SBUS_RD_HANGUP_TIMEOUT         0x91
+#define SBUS_RD_DATA_BLOCK             0x96
+#define SBUS_WR_DATA_BLOCK             0x97
+#define SBUS_MAKE_DATA_BLOCK           0x98
+#define SBUS_CLEAR_DATA_BLOCK          0x99
+#define SBUS_CLEAR_TEXT                0x9A
+#define SBUS_RD_BLOCK_ADDRESSES        0x9B
+#define SBUS_RD_BLOCK_SIZES            0x9C
+#define SBUS_RD_CURRENT_BLOCK          0x9D
+#define SBUS_RD_CALL_STACK             0x9E
+#define SBUS_RD_DBX                    0x9F
 #define SBUS_RD_USER_EEPROM_REGISTER   0xA1
 #define SBUS_WR_USER_EEPROM_REGISTER   0xA3
-#define SBUS_ERASE_FLASH                            0xA5
-#define SBUS_RESTART_COLD_FLAG               0xA6
-#define SBUS_WR_SYSTEM_BUFFER                0xA7
-#define SBUS_RD_SYSTEM_BUFFER                0xA8
-#define SBUS_RD_WR_PCD_BLOCK                 0xA9
-#define SBUS_GET_DIAGNOSTIC                  0xAA
-#define SBUS_RD_SYSTEM_INFORMATION            0xAB
-#define SBUS_CHANGE_BLOCKS_ON_RUN             0xAC
-#define SBUS_FLASHCARD_TELEGRAM               0xAD
-#define SBUS_DOWNLOAD_FIRMWARE        0xAE
+#define SBUS_ERASE_FLASH               0xA5
+#define SBUS_RESTART_COLD_FLAG         0xA6
+#define SBUS_WR_SYSTEM_BUFFER          0xA7
+#define SBUS_RD_SYSTEM_BUFFER          0xA8
+#define SBUS_RD_WR_PCD_BLOCK           0xA9
+#define SBUS_GET_DIAGNOSTIC            0xAA
+#define SBUS_RD_SYSTEM_INFORMATION     0xAB
+#define SBUS_CHANGE_BLOCKS_ON_RUN      0xAC
+#define SBUS_FLASHCARD_TELEGRAM        0xAD
+#define SBUS_DOWNLOAD_FIRMWARE         0xAE
 #define SBUS_WEB_SERVER_SERIAL_COMM    0xAF
 
 /* Bitfield in the arithmetic flags and accu*/
 #define F_ACCU      (1<<0)           /* Accumulator of PCD             */
-#define F_ERROR     (1<<1)          /* Error flag of PCD              */
-#define F_NEGATIVE  (1<<2)        /* Negative arithmetic status flag*/
-#define F_ZERO      (1<<3)          /* Zero arithmetic status flag    */
+#define F_ERROR     (1<<1)           /* Error flag of PCD              */
+#define F_NEGATIVE  (1<<2)           /* Negative arithmetic status flag*/
+#define F_ZERO      (1<<3)           /* Zero arithmetic status flag    */
 
 /* Bitfield in the system information*/
 /*#define F_EMPTY      (1<<0)          always 0             */
-#define F_MEMSIZE      (1<<1)  /* Memory size information*/
-#define F_TRACE        (1<<2)         /* Trace buffer feature              */
-#define F_INFO_B1      (1<<3)         /* EEPROM information of slot B1*/
-#define F_INFO_B2      (1<<4)         /* EEPROM information of slot B2*/
-#define F_PGU_BAUD (1<<5)             /* PGU baudrate can be switched*/
+#define F_MEMSIZE      (1<<1)        /* Memory size information*/
+#define F_TRACE        (1<<2)        /* Trace buffer feature              */
+#define F_INFO_B1      (1<<3)        /* EEPROM information of slot B1*/
+#define F_INFO_B2      (1<<4)        /* EEPROM information of slot B2*/
+#define F_PGU_BAUD (1<<5)            /* PGU baudrate can be switched*/
 
 /* Initialize the protocol and registered fields */
 static int proto_sbus = -1;
@@ -443,19 +438,17 @@ static const guint crc_table[] = {
 /* Conversion values passing structure*/
 typedef struct {
        guint32 conversation;  /*Conversation ID*/
-       guint16 sequence;             /*Sequence number of request telegram*/
+       guint16 sequence;      /*Sequence number of request telegram*/
 } sbus_request_key;
 
 typedef struct {
-       guint8 cmd_code;              /*command code from request*/
-       guint8 count;                /*rcount value*/
-       guint8 sysinfo;                      /*system information number (or command in other telegrams)*/
+       guint8 cmd_code;       /*command code from request*/
+       guint8 count;          /*rcount value*/
+       guint8 sysinfo;        /*system information number (or command in other telegrams)*/
 } sbus_request_val;
 
-/* The GMemChunk base structure (for conversations)*/
+/* The hash structure (for conversations)*/
 static GHashTable *sbus_request_hash = NULL;
-static GMemChunk *sbus_request_keys = NULL;
-static GMemChunk *sbus_request_vals = NULL;
 
 static guint crc_calc (guint crc, guint val)
 {
@@ -494,53 +487,39 @@ static void sbus_init_protocol(void){
        if (sbus_request_hash){
               g_hash_table_destroy(sbus_request_hash);
        }
-       if (sbus_request_keys){
-              g_mem_chunk_destroy(sbus_request_keys);
-       }
-       if (sbus_request_vals){
-              g_mem_chunk_destroy(sbus_request_vals);
-       }
        sbus_request_hash = g_hash_table_new(sbus_hash, sbus_equal);
-       sbus_request_keys = g_mem_chunk_new("sbus_request_keys",
-              sizeof(sbus_request_key),
-              SBUS_MEMCHUNKSIZE * sizeof(sbus_request_key),
-              G_ALLOC_AND_FREE);
-       sbus_request_vals = g_mem_chunk_new("sbus_request_vals",
-              sizeof(sbus_request_val),
-              SBUS_MEMCHUNKSIZE * sizeof(sbus_request_val),
-              G_ALLOC_AND_FREE);
 }
 
 /* check whether the packet looks like SBUS or not */
 static gboolean
 is_sbus_pdu(tvbuff_t *tvb)
 {
-	guint32 length;
+       guint32 length;
 
-	/* we need at least 8 bytes to determine whether this is sbus or
-	   not
-	*/
-	if(tvb_length(tvb)<8){
-		return FALSE;
-	}
+       /* we need at least 8 bytes to determine whether this is sbus or
+          not
+       */
+       if(tvb_length(tvb)<8){
+              return FALSE;
+       }
 
-	/* the length must be >= 8 bytes to accomodate the header,
-	   it also must be <65536 to fit inside a udp packet
-	 */
-	length=tvb_get_ntohl(tvb, 0);
-	if ( (length<8) || (length>65535) ) {
-		return FALSE;
-	}
-	if (tvb_reported_length(tvb) != length) {
-		return FALSE;
-	}
+       /* the length must be >= 8 bytes to accomodate the header,
+          it also must be <65536 to fit inside a udp packet
+       */
+       length=tvb_get_ntohl(tvb, 0);
+       if ( (length<8) || (length>65535) ) {
+              return FALSE;
+       }
+       if (tvb_reported_length(tvb) != length) {
+              return FALSE;
+       }
 
-	/* XXX */
-	/* We should also test version and protocol    but that requires
-	   someone to look at the specification for SBUS
-	*/
+       /* XXX */
+       /* We should also test version and protocol    but that requires
+          someone to look at the specification for SBUS
+       */
 
-	return TRUE;
+       return TRUE;
 }
 
 /*Dissect the telegram*/
@@ -603,10 +582,10 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        sbus_attribut = tvb_get_guint8(tvb,8);
 
        if ( !request_val && sbus_attribut == 0 ) {/* request telegram */
-              new_request_key = g_mem_chunk_alloc(sbus_request_keys);
+              new_request_key = se_alloc(sizeof(sbus_request_key));
               *new_request_key = request_key;
 
-              request_val = g_mem_chunk_alloc(sbus_request_vals);
+              request_val = se_alloc(sizeof(sbus_request_val));
               request_val->cmd_code=tvb_get_guint8(tvb,10);
 
               if (((request_val->cmd_code) == SBUS_RD_USER_EEPROM_REGISTER) ||
@@ -614,7 +593,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      request_val->count=((tvb_get_guint8(tvb,12))+1);
               } else {
                      request_val->count=((tvb_get_guint8(tvb,11))+1);
-	      }
+              }
 
               /*Enter system info*/
               if ((request_val->cmd_code) == SBUS_RD_SYSTEM_INFORMATION) {
@@ -1304,7 +1283,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                          "Checksum: 0x%04x (NOT correct)", sbus_helper);
                      hi = proto_tree_add_boolean(sbus_tree,
                          hf_sbus_crc_bad, tvb, offset + 2, 2, TRUE);
-					 PROTO_ITEM_SET_HIDDEN(hi);
+                     PROTO_ITEM_SET_HIDDEN(hi);
               }
               offset += 2; /*now at the end of the telegram*/
        }
@@ -1602,7 +1581,8 @@ proto_register_sbus(void)
               },
 
               { &hf_sbus_crc_bad,
-                     { "Bad Checksum",      "sbus.crc_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                     { "Bad Checksum",      "sbus.crc_bad",
+                     FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                      "A bad checksum in the telegram", HFILL }},
 
               { &hf_sbus_flags_accu,
@@ -1655,3 +1635,15 @@ proto_reg_handoff_sbus(void)
        dissector_add("udp.port", 5050, sbus_handle);
 }
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 7
+ * tab-width: 7
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=3 expandtab
+ * :indentSize=7:tabSize=7:noTabs=true:
+ */
