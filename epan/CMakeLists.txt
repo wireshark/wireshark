@@ -34,6 +34,10 @@ else()
 	set(WSPYTHON_LIB )
 endif()
 
+if (AUTOGEN_dcerpc)
+    add_subdirectory( dissectors/dcerpc )
+endif()
+
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/dfilter
@@ -90,12 +94,46 @@ add_lemon_files(DFILTER_FILES
 	dfilter/grammar.lemon
 )
 
-if (AUTOGEN_dcerpc)
-    add_subdirectory( dcerpc )
+if (AUTOGEN_pidl)
+    # TODO
 endif()
 
-if (AUTOGEN_pidl)
-    add_subdirectory( pidl )
+if (AUTOGEN_dcerpc)
+  set(PIDL_DISSECTOR_AUTOGEN_NAMES
+	  budb
+	  butc
+	  drsuapi
+  ) 
+
+  FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
+    set(PIDL_DISSECTOR_AUTOGEN_SRC 
+	${PIDL_DISSECTOR_AUTOGEN_SRC}
+	dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.c
+    )
+  ENDFOREACH()
+
+  FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
+    ADD_CUSTOM_COMMAND(
+	OUTPUT
+	  ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.c
+	  ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.h
+	COMMAND
+	  idl2wrs ${PROTOCOL_NAME}
+	WORKING_DIRECTORY
+	  ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/dcerpc/${PROTOCOL_NAME}
+	DEPENDS
+	  dissectors/dcerpc/${PROTOCOL_NAME}/${PROTOCOL_NAME}.idl
+	  dissectors/dcerpc/${PROTOCOL_NAME}/${PROTOCOL_NAME}.cnf
+	  dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}-template.c 
+	  dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}-template.h
+    )
+  ENDFOREACH()
+else()
+  set(PIDL_DISSECTOR_AUTOGEN_SRC
+	  dissectors/packet-dcerpc-budb.c
+	  dissectors/packet-dcerpc-butc.c
+	  dissectors/packet-dcerpc-drsuapi.c
+  )
 endif()
 
 ADD_CUSTOM_COMMAND(
@@ -131,10 +169,7 @@ ADD_CUSTOM_COMMAND(
 
 set(PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-atsvc.c
-	dissectors/packet-dcerpc-budb.c
-	dissectors/packet-dcerpc-butc.c
 	dissectors/packet-dcerpc-dfs.c
-	dissectors/packet-dcerpc-drsuapi.c
 	dissectors/packet-dcerpc-dssetup.c
 	dissectors/packet-dcerpc-efs.c
 	dissectors/packet-dcerpc-initshutdown.c
@@ -1027,6 +1062,7 @@ set(LIBWIRESHARK_ASM_FILES
 set(DISSECTOR_FILES
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
+	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${DIRTY_PIDL_DISSECTOR_SRC}
 	${ASN1_DISSECTOR_SRC}
 	${DIRTY_ASN1_DISSECTOR_SRC}
@@ -1035,6 +1071,7 @@ set(DISSECTOR_FILES
 set_source_files_properties(
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
+	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${ASN1_DISSECTOR_SRC}
     PROPERTIES
 	# FIXME: -Werror and -pedantic exclude each other: test for -pedantic
