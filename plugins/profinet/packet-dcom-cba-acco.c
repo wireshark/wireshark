@@ -2126,8 +2126,8 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 	guint16	u16QoSType;
 	guint16	u16QoSValue;
 	guint8	u8ConsMac[6];
-	guint16	u16CRID;
-	guint16	u16CRLength;
+	guint16	u16CRID = 0;
+	guint16	u16CRLength = 0;
 	guint32	u32Flags;
 	guint32	u32Count;
 	guint32	u32ArraySize;
@@ -2370,7 +2370,7 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
 	guint32 u32Count;
 	guint32 u32ArraySize;
 	guint32 u32Idx;
-	guint32 u32ProvCRID;
+	guint32 u32ProvCRID = 0;
 	proto_item *item;
     dcerpc_info *info = (dcerpc_info *)pinfo->private_data;
     cba_ldev_t *prov_ldev;
@@ -4427,7 +4427,7 @@ dissect_ICBAAccoSync_ReadItems_resp(tvbuff_t *tvb, int offset,
 {
 	guint32 u32Pointer;
 	guint16 u16QC;
-	guint32 u32ArraySize;
+	guint32 u32ArraySize = 0;
 	guint32 u32HResult;
 	guint32 u32Idx;
 	proto_item *sub_item;
