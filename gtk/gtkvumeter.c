@@ -209,6 +209,9 @@ static void gtk_vumeter_size_calculate (GtkWidget *widget, GtkRequisition *requi
                 PangoLayout * layout = gtk_widget_create_pango_layout (widget, item->label);
                 pango_layout_get_pixel_size(layout, &layout_width, &layout_height);
                 /* XXX - memleak */
+            } else {
+                layout_width = 0;
+                layout_height = 0;
             }
 
             if (vumeter->vertical == TRUE) {
