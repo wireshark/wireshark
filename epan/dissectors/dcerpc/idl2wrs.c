@@ -1,9 +1,9 @@
-/* 
+/*
 TODO
    check that every cnf defined type,hffield,rename,... has been referenced
    at least once and if not,   abort with an error
 
-   need to distinguish between NTTIME (absolute time) and relative time 
+   need to distinguish between NTTIME (absolute time) and relative time
 
    prune_xxx should only act inside of '[' ']'
 
@@ -43,7 +43,7 @@ TODO
    SID          A SID structure.
 
    uuid_t	A 16 byte FT_GUID blob.
-   GUID		
+   GUID
 
 
    policy_handle
@@ -53,7 +53,7 @@ TODO
    NTTIME
 */
 
-/* All field dissectors that call a normal type 
+/* All field dissectors that call a normal type
    (i.e. not a pointer, not an array)
    has a local variable  guint param declared which is passed on to the
    type dissector.
@@ -339,7 +339,7 @@ register_hf_field(char *hf_name, char *title, char *filter_name, char *ft_type, 
 	return hf_name;
 }
 
-/* this function will parse the no emit list and decide whether code should 
+/* this function will parse the no emit list and decide whether code should
    be generated for this dissector or if we should only register the type.
 */
 int
@@ -703,10 +703,10 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		Exit(10);
 	}
 }
-			
+
 /* this function will register a new type learnt from the IDL file
 */
-static type_item_t * 
+static type_item_t *
 register_new_type(char *name, char *dissectorname, char *ft_type, char *base_type, char *mask, char *valsstring, int alignment){
 	type_item_t *new_type;
 
@@ -865,7 +865,7 @@ void parseheader(void)
 
 
 
-/* this helper function is called by the tokenizer and will just append the 
+/* this helper function is called by the tokenizer and will just append the
    current token to the linked list
 */
 void pushtoken(char *token)
@@ -921,7 +921,7 @@ void tokenize(void)
 				if(nextch=='*'){
 					normalcomment=1;
 					continue;
-				} 
+				}
 				ungetc(nextch, fh);
 			}
 		} else {
@@ -931,7 +931,7 @@ void tokenize(void)
 				if(nextch=='/'){
 					normalcomment=0;
 					continue;
-				} 
+				}
 				ungetc(nextch, fh);
 			}
 			continue;
@@ -1350,7 +1350,7 @@ void parseconst(void)
 	}
 	ti=ti->next;
 
-	/* just skip second token */		
+	/* just skip second token */
 	ti=ti->next;
 
 	/* third is a variable and not a type */
@@ -1360,7 +1360,7 @@ void parseconst(void)
 	}
 	name=ti->str;
 	ti=ti->next;
-	
+
 	/* fourth is '=' */
 	if(strcmp(ti->str, "=")){
 		fprintf(stderr, "ERROR: const  fourth token is not '='\n");
@@ -1394,8 +1394,8 @@ void parseconst(void)
    the typedef will be removed from the token_list once it has been processed
    the function assumes that the typedef is the first object in the token_list
    the function will be called twice, once with pass=0 and once with pass=1
-   which controls whether subdissectors are to be generated or whether the 
-   struct dissector itself is to be generated 
+   which controls whether subdissectors are to be generated or whether the
+   struct dissector itself is to be generated
 */
 void parsetypedefstruct(int pass)
 {
@@ -1544,7 +1544,7 @@ void parsetypedefstruct(int pass)
 				Exit(10);
 			}
 		}
-		
+
 		/* handle the type, verify that we KNOW this type */
 		type_item=find_type(ti->str);
 		if(!type_item){
@@ -1647,7 +1647,7 @@ void parsetypedefstruct(int pass)
 				} else {
 				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
 				}
-				
+
 				ptmpstr=strdup(tmpstr);
 			} else if(fixed_array_size){
 				sprintf(tmpstr, "fixedarray_%s", ptmpstr);
@@ -1741,7 +1741,7 @@ void parsetypedefstruct(int pass)
 				} else {
 				  FPRINTF(NULL,"NOEMIT Skipping this struct item :%s\n",tmpstr);
 				}
-				
+
 				ptmpstr=strdup(tmpstr);
 			}
 		}
@@ -1791,7 +1791,7 @@ void parsetypedefstruct(int pass)
 				sprintf(tmpstr, "%s_%s", pointer_type, ptmpstr);
 				ptmpstr=strdup(tmpstr);
 			}
-				
+
 			FPRINTF(eth_code, "    offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
 			FPRINTF(eth_code, "\n");
 		}
@@ -1815,7 +1815,7 @@ void parsetypedefstruct(int pass)
 
 typedef_struct_finished:
 	FPRINTF(NULL,"\nEND STRUCT:%s pass:%d\n-------\n",struct_name,pass);
-	
+
 	/* only advance token_list for pass==1
 	   ti now points to the '}' token
 	*/
@@ -1834,7 +1834,7 @@ typedef_struct_finished:
 			Exit(10);
 		}
 		ti=ti->next;
-		
+
 		token_list=ti;
 	}
 }
@@ -1845,8 +1845,8 @@ typedef_struct_finished:
    the typedef will be removed from the token_list once it has been processed
    the function assumes that the typedef is the first object in the token_list
    the function will be called twice, once with pass=0 and once with pass=1
-   which controls whether subdissectors are to be generated or whether the 
-   bitmap dissector itself is to be generated 
+   which controls whether subdissectors are to be generated or whether the
+   bitmap dissector itself is to be generated
 
    bitmaps are by default 32 bits
 */
@@ -1871,7 +1871,7 @@ void parsetypedefbitmap(int pass)
 	ti=ti->next;
 
 	alignment=4;  /* default size is 32 bits */
-	
+
 	if(!strcmp(ti->str, "[")){
 		ti=parsebrackets(ti, &bi);
 	}
@@ -1888,7 +1888,7 @@ void parsetypedefbitmap(int pass)
 			alignment=1;
 		}
 	}
-		
+
 
 	if(strcmp(ti->str, "bitmap")){
 		fprintf(stderr, "ERROR: typedefbitmap  second token is not 'bitmap'\n");
@@ -2049,7 +2049,7 @@ void parsetypedefbitmap(int pass)
 	}
 
 	FPRINTF(NULL,"\nEND BITMAP:%s pass:%d\n-------\n",bitmap_name,pass);
-	
+
 	/* only advance token_list for pass==1
 	   ti now points to the '}' token
 	*/
@@ -2068,7 +2068,7 @@ void parsetypedefbitmap(int pass)
 			Exit(10);
 		}
 		ti=ti->next;
-		
+
 		token_list=ti;
 	}
 }
@@ -2094,8 +2094,8 @@ case2str(char *str)
    the typedef will be removed from the token_list once it has been processed
    the function assumes that the typedef is the first object in the token_list
    the function will be called twice, once with pass=0 and once with pass=1
-   which controls whether subdissectors are to be generated or whether the 
-   union dissector itself is to be generated 
+   which controls whether subdissectors are to be generated or whether the
+   union dissector itself is to be generated
 */
 void parsetypedefunion(int pass)
 {
@@ -2166,8 +2166,8 @@ void parsetypedefunion(int pass)
 	}
 
 	/* this is pass 0  so reset alignment to the minimum possible value
-	   and update as items are processed. 
-	   we need alignment when pass 1 is run 
+	   and update as items are processed.
+	   we need alignment when pass 1 is run
 	*/
 	if(pass==0){
 		alignment=tag_alignment;
@@ -2320,7 +2320,7 @@ void parsetypedefunion(int pass)
 
 			sprintf(filter_name, "%s.%s.%s", ifname, union_name, ti->str);
 			hf=register_hf_field(hf_index, ti->str, filter_name, type_item->ft_type, type_item->base_type, type_item->vals, type_item->mask, "");
-		
+
 			FPRINTF(eth_code, "static int\n");
 			FPRINTF(eth_code, "%s(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)\n", ptmpstr);
 			FPRINTF(eth_code, "{\n");
@@ -2340,9 +2340,9 @@ void parsetypedefunion(int pass)
 				FPRINTF(eth_code, "    return offset;\n");
 				FPRINTF(eth_code, "}\n");
 				FPRINTF(eth_code, "\n");
-				
+
 				ptmpstr=strdup(tmpstr);
-				
+
 			}
 		}
 
@@ -2354,7 +2354,7 @@ void parsetypedefunion(int pass)
 				sprintf(tmpstr, "%s_%s", ptmpstr, "unique");
 				ptmpstr=strdup(tmpstr);
 			}
-			
+
 			if(bi->flags&BI_CASE_DEFAULT){
 				FPRINTF(eth_code, "    default:\n");
 			} else {
@@ -2411,7 +2411,7 @@ void parsetypedefunion(int pass)
 	}
 
 	FPRINTF(NULL,"\nEND UNION:%s pass:%d\n-------\n",union_name,pass);
-	
+
 	/* only advance token_list for pass==1
 	   ti now points to the '}' token
 	*/
@@ -2430,7 +2430,7 @@ void parsetypedefunion(int pass)
 			Exit(10);
 		}
 		ti=ti->next;
-		
+
 		token_list=ti;
 	}
 }
@@ -2618,9 +2618,9 @@ void parsefunction(int pass)
 				FPRINTF(eth_code, "    return offset;\n");
 				FPRINTF(eth_code, "}\n");
 				FPRINTF(eth_code, "\n");
-				
+
 				ptmpstr=strdup(tmpstr);
-				
+
 			}
 		}
 
@@ -2653,13 +2653,13 @@ void parsefunction(int pass)
 				sprintf(tmpstr, "%s_%s", pointer_type, ptmpstr);
 				ptmpstr=strdup(tmpstr);
 			}
-			
-			if((pass==1)&&(bi->flags&BI_IN)){	
+
+			if((pass==1)&&(bi->flags&BI_IN)){
 				FPRINTF(eth_code, "        offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
 				FPRINTF(eth_code, "        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);\n");
 				FPRINTF(eth_code, "\n");
 			}
-			if((pass==2)&&(bi->flags&BI_OUT)){	
+			if((pass==2)&&(bi->flags&BI_OUT)){
 				FPRINTF(eth_code, "        offset=%s(tvb, offset, pinfo, tree, drep);\n", ptmpstr);
 				FPRINTF(eth_code, "        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);\n");
 				FPRINTF(eth_code, "\n");
@@ -2685,7 +2685,7 @@ void parsefunction(int pass)
 	}
 
 	FPRINTF(NULL,"\nEND FUNCTION:%s pass:%d\n-------\n",function_name,pass);
-	
+
 	/* only advance token_list for pass==2
 	   ti now points to the ')' token
 	*/
@@ -2701,7 +2701,7 @@ void parsefunction(int pass)
 			Exit(10);
 		}
 		ti=ti->next;
-		
+
 		token_list=ti;
 	}
 }
@@ -2996,7 +2996,7 @@ str_read_string(char *str, char **name)
 			return ++str;
 		}
 		*strptr++ = *str++;
-	}			
+	}
 	return NULL;
 }
 
@@ -3013,7 +3013,7 @@ readcnffile(FILE *fh)
 			continue;
 		}
 		if(cnfline[0]=='#'){
-			/* ignore all comments */			
+			/* ignore all comments */
 		} else if(!strncmp(cnfline, "NOEMIT", 6)){
 			no_emit_item_t *nei;
 			char *str, *name;
@@ -3202,7 +3202,7 @@ int main(int argc, char *argv[])
 		/* typedef struct { */
 		if( !strcmp(token_list->str,"typedef") ){
 			token_item_t *tmpti;
-			
+
 			tmpti=token_list->next;
 			if( !strcmp(tmpti->str, "[") ){
 				tmpti=parsebrackets(tmpti, &bi);
@@ -3218,7 +3218,7 @@ int main(int argc, char *argv[])
 		/* typedef union { */
 		if( !strcmp(token_list->str,"typedef") ){
 			token_item_t *tmpti;
-			
+
 			tmpti=token_list->next;
 			if( !strcmp(tmpti->str, "[") ){
 				tmpti=parsebrackets(tmpti, &bi);
@@ -3234,7 +3234,7 @@ int main(int argc, char *argv[])
 		/* typedef bitmap { */
 		if( !strcmp(token_list->str,"typedef") ){
 			token_item_t *tmpti;
-			
+
 			tmpti=token_list->next;
 			if( !strcmp(tmpti->str, "[") ){
 				tmpti=parsebrackets(tmpti, &bi);
@@ -3262,7 +3262,7 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-		
+
 		break;
 	};
 
@@ -3322,7 +3322,6 @@ int main(int argc, char *argv[])
 	fclose(fh);
 	fclose(tfh);
 
-
 	sprintf(line, "packet-dcerpc-%s.h", ifname);
 	fh=fopen(line, "w");
 	sprintf(tmplfile, "packet-dcerpc-%s-template.h", argv[1]);
@@ -3359,6 +3358,15 @@ int main(int argc, char *argv[])
 
 	fclose(fh);
 	fclose(tfh);
+
+	remove("ETH_CODE");
+	remove("ETH_HDR");
+	remove("ETH_HFARR");
+	remove("ETH_HF");
+	remove("ETH_ETTARR");
+	remove("ETH_ETT");
+	remove("ETH_FT");
+	remove("ETH_HANDOFF");
 
 	return 0;
 }
