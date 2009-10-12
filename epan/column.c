@@ -648,7 +648,7 @@ get_column_title(gint col)
   fmt_data *cfmt;
 
   if (!clp)  /* Invalid column requested */
-    return -1;
+    return NULL;
 
   cfmt = (fmt_data *) clp->data;
 
@@ -662,7 +662,7 @@ get_column_custom_field(gint col)
   fmt_data *cfmt;
 
   if (!clp)  /* Invalid column requested */
-    return -1;
+    return NULL;
 
   cfmt = (fmt_data *) clp->data;
 
