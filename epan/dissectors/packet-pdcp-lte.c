@@ -1515,7 +1515,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             guint   not_received = 0;
                             guint   sn;
                             proto_tree *bitmap_tree;
-                            proto_item *bitmap_ti;
+                            proto_item *bitmap_ti = NULL;
 
                             /* First-Missing-Sequence SN */
                             fms = tvb_get_ntohs(tvb, offset) & 0x0fff;
@@ -1525,26 +1525,30 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             offset += 2;
 
                             /* Bitmap tree */
-                            bitmap_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_bitmap, tvb,
-                                                            offset, -1, FALSE);
-                            bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_rohc_report_bitmap);
-
-
-                            /* For each byte... */
-                            for ( ; tvb_length_remaining(tvb, offset); offset++) {
-                                guint bit_offset = 0;
-                                /* .. look for error (0) in each bit */
-                                for ( ; bit_offset < 8; bit_offset++) {
-                                    if ((tvb_get_guint8(tvb, offset) >> (7-bit_offset) & 0x1) == 0) {
-                                        proto_tree_add_boolean_format_value(bitmap_tree, hf_pdcp_lte_bitmap_not_received, tvb, offset, 1, TRUE,
-                                                                            " (SN=%u)", sn);
-                                        not_received++;
+                            if (tvb_length_remaining(tvb, offset) > 0) {
+                                bitmap_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_bitmap, tvb,
+                                                                offset, -1, FALSE);
+                                bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_rohc_report_bitmap);
+    
+    
+                                /* For each byte... */
+                                for ( ; tvb_length_remaining(tvb, offset); offset++) {
+                                    guint bit_offset = 0;
+                                    /* .. look for error (0) in each bit */
+                                    for ( ; bit_offset < 8; bit_offset++) {
+                                        if ((tvb_get_guint8(tvb, offset) >> (7-bit_offset) & 0x1) == 0) {
+                                            proto_tree_add_boolean_format_value(bitmap_tree, hf_pdcp_lte_bitmap_not_received, tvb, offset, 1, TRUE,
+                                                                                " (SN=%u)", sn);
+                                            not_received++;
+                                        }
+                                        sn = (sn + 1) % 4096;
                                     }
-                                    sn = (sn + 1) % 4096;
                                 }
                             }
 
-                            proto_item_append_text(bitmap_ti, " (not-received=%u)", not_received);
+                            if (bitmap_ti != NULL) {
+                                proto_item_append_text(bitmap_ti, " (not-received=%u)", not_received);
+                            }
                             col_append_fstr(pinfo->cinfo, COL_INFO,
                                            " Status Report (fms=%u) not-received=%u",
                                            fms, not_received);
