@@ -44,6 +44,7 @@
 /* TODO:
    - TDD mode?
    - add a preference so that padding can be verified against an expected pattern?
+   - include detected DL retransmits in stats?
 */
 
 /* Initialize the protocol and registered fields. */
@@ -64,7 +65,6 @@ static int hf_mac_lte_context_ul_grant_size = -1;
 static int hf_mac_lte_context_bch_transport_channel = -1;
 static int hf_mac_lte_context_retx_count = -1;
 static int hf_mac_lte_context_crc_status = -1;
-
 
 /* MAC SCH header fields */
 static int hf_mac_lte_ulsch_header = -1;
@@ -130,6 +130,9 @@ static int hf_mac_lte_control_power_headroom = -1;
 static int hf_mac_lte_control_power_headroom_reserved = -1;
 static int hf_mac_lte_control_power_headroom_level = -1;
 static int hf_mac_lte_control_padding = -1;
+
+static int hf_mac_lte_suspected_dl_harq_resend = -1;
+static int hf_mac_lte_suspected_dl_harq_resend_original_frame = -1;
 
 
 /* Subtrees. */
@@ -389,6 +392,10 @@ static gboolean global_mac_lte_dissect_crc_failures = FALSE;
 static gboolean global_mac_lte_attempt_srb_decode = FALSE;
 
 
+/* Whether should attempt to detect and flag DL HARQ resends */
+static gboolean global_mac_lte_attempt_dl_harq_resend_detect = TRUE;
+
+
 /***********************************************************************/
 /* How to dissect lcid 3-10 (presume drb logical channels)             */
 
@@ -460,12 +467,12 @@ typedef struct Msg3Data {
 static GHashTable *mac_lte_msg3_hash = NULL;
 
 /* Hash table functions for mac_lte_msg3_hash.  Hash is just the (RNTI) key */
-static gint mac_lte_msg3_hash_equal(gconstpointer v, gconstpointer v2)
+static gint mac_lte_rnti_hash_equal(gconstpointer v, gconstpointer v2)
 {
     return (v == v2);
 }
 
-static guint mac_lte_msg3_hash_func(gconstpointer v)
+static guint mac_lte_rnti_hash_func(gconstpointer v)
 {
     return GPOINTER_TO_UINT(v);
 }
@@ -489,17 +496,49 @@ typedef struct ContentionResolutionResult {
 static GHashTable *mac_lte_cr_result_hash = NULL;
 
 /* Hash table functions for mac_lte_cr_result_hash.  Hash is just the (framenum) key */
-static gint mac_lte_cr_result_hash_equal(gconstpointer v, gconstpointer v2)
+static gint mac_lte_framenum_hash_equal(gconstpointer v, gconstpointer v2)
 {
     return (v == v2);
 }
 
-static guint mac_lte_cr_result_hash_func(gconstpointer v)
+static guint mac_lte_framenum_hash_func(gconstpointer v)
 {
     return GPOINTER_TO_UINT(v);
 }
 
+/**************************************************************************/
 
+
+
+/****************************************************************/
+/* Keeping track of last DL frames per C-RNTI so can guess when */
+/* there has been a HARQ retransmission                         */
+
+/* Could be bigger, but more than enough to flag suspected resends */
+#define MAX_EXPECTED_PDU_LENGTH 2048
+
+typedef struct DLLastFrameData {
+    guint32  framenum;
+    guint    subframeNumber;
+    nstime_t received_time;
+    gint     length;
+    guint8   data[MAX_EXPECTED_PDU_LENGTH];
+} DLLastFrameData;
+
+
+/* This table stores (RNTI -> DLLastFrameData*).  Will be populated when
+   DL frames are first read.  */
+static GHashTable *mac_lte_dl_harq_hash = NULL;
+
+typedef struct DLHARQResult {
+    gboolean    status;
+    guint       previousFrameNum;
+} DLHARQResult;
+
+
+/* This table stores (CRFrameNum -> DLHARQResult).  It is assigned during the first
+   pass and used thereafter */
+static GHashTable *mac_lte_dl_harq_result_hash = NULL;
 
 /**************************************************************************/
 
@@ -1078,6 +1117,75 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
                     p_mac_lte_info->subframeNumber,
                     p_mac_lte_info->ueid);
+
+
+    /* For downlink frames, can try to work out if this looks like a HARQ resend */
+    if (global_mac_lte_attempt_dl_harq_resend_detect && (direction == DIRECTION_DOWNLINK)) {
+        DLHARQResult *result = NULL;
+        proto_item *result_ti;
+
+        if (!pinfo->fd->flags.visited) {
+            /* First time, so set result and update DL harq table */
+            DLLastFrameData *lastData = g_hash_table_lookup(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
+            if (lastData != NULL) {
+                /* Compare time, sf, data to see if this looks like a retx */
+                if ((p_mac_lte_info->subframeNumber == ((lastData->framenum+2)%10)) &&
+                    (tvb_length_remaining(tvb, offset) == lastData->length) &&
+                    (memcmp(lastData->data, tvb_get_ptr(tvb, offset, lastData->length), MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
+                        /* Work out gap between frames */
+                        gint seconds_between_packets = (gint)
+                              (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
+                        gint nseconds_between_packets =
+                              pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
+
+                        gint total_gap = (seconds_between_packets*1000) +
+                                         (nseconds_between_packets / 1000000);
+
+                        /* Should be 8 ms apart, but allow some leeway */
+                        if ((total_gap >= 7) && (total_gap <= 9)) {
+                            /* Resend detected!!! Store result */
+                            result = se_alloc(sizeof(DLHARQResult));
+                            result->previousFrameNum = lastData->framenum;
+                            g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
+
+                        }
+                }
+            }
+            else {
+                /* Allocate entry in table for this RNTI */
+                lastData = se_alloc(sizeof(DLLastFrameData));
+                g_hash_table_insert(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti), lastData);
+            }
+
+            /* Store this frame's details in table */
+            lastData->length = tvb_length_remaining(tvb, offset);
+            memcpy(lastData->data, tvb_get_ptr(tvb, offset, MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)), lastData->length);
+            lastData->subframeNumber = p_mac_lte_info->subframeNumber;
+            lastData->framenum = pinfo->fd->num;
+            lastData->received_time = pinfo->fd->abs_ts;
+        }
+        else {
+            /* Not first time, so just set whats already stored in result */
+            result = g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+        }
+
+        /* Show result, with link back to original frame */
+        result_ti = proto_tree_add_boolean(tree, hf_mac_lte_suspected_dl_harq_resend,
+                                           tvb, 0, 0, (result != NULL));
+        if (result != NULL) {
+            proto_item *original_ti;
+            expert_add_info_format(pinfo, result_ti, PI_SEQUENCE, PI_WARN,
+                                   "Suspected DL HARQ resend (UE=%u)", p_mac_lte_info->ueid);
+            original_ti = proto_tree_add_uint(tree, hf_mac_lte_suspected_dl_harq_resend_original_frame,
+                                             tvb, 0, 0, result->previousFrameNum);
+            PROTO_ITEM_SET_GENERATED(original_ti);
+        }
+        else {
+            /* Don't show negatives */
+            PROTO_ITEM_SET_HIDDEN(result_ti);
+        }
+        PROTO_ITEM_SET_GENERATED(result_ti);
+    }
 
     /* Add PDU block header subtree */
     pdu_header_ti = proto_tree_add_string_format(tree,
@@ -1936,9 +2044,20 @@ mac_lte_init_protocol(void)
         g_hash_table_destroy(mac_lte_cr_result_hash);
     }
 
+    if (mac_lte_dl_harq_hash) {
+        g_hash_table_destroy(mac_lte_dl_harq_hash);
+    }
+    if (mac_lte_dl_harq_result_hash) {
+        g_hash_table_destroy(mac_lte_dl_harq_result_hash);
+    }
+
+
     /* Now create them over */
-    mac_lte_msg3_hash = g_hash_table_new(mac_lte_msg3_hash_func, mac_lte_msg3_hash_equal);
-    mac_lte_cr_result_hash = g_hash_table_new(mac_lte_cr_result_hash_func, mac_lte_cr_result_hash_equal);
+    mac_lte_msg3_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
+    mac_lte_cr_result_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
+
+    mac_lte_dl_harq_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
+    mac_lte_dl_harq_result_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
 }
 
 
@@ -2377,6 +2496,21 @@ void proto_register_mac_lte(void)
               NULL, HFILL
             }
         },
+
+        { &hf_mac_lte_suspected_dl_harq_resend,
+            { "Suspected DL HARQ resend",
+              "mac-lte.dlsch.suspected-harq-resend", FT_BOOLEAN, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_suspected_dl_harq_resend_original_frame,
+            { "Frame with previous tx",
+              "mac-lte.dlsch.suspected-harq-resend-original_frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+
+
     };
 
     static gint *ett[] =
@@ -2460,7 +2594,6 @@ void proto_register_mac_lte(void)
         "Will call LTE RLC dissector with standard settings as per RRC spec",
         &global_mac_lte_attempt_srb_decode);
 
-
     lcid_drb_mappings_uat = uat_new("LCID -> drb Table",
                                sizeof(lcid_drb_mapping_t),
                                "drb_logchans",
@@ -2479,6 +2612,11 @@ void proto_register_mac_lte(void)
                                   "LCID -> DRB Mappings Table",
                                   "A table that maps from configurable lcids -> RLC logical channels",
                                   lcid_drb_mappings_uat);
+
+    prefs_register_bool_preference(mac_lte_module, "attempt_to_detect_dl_harq_resend",
+        "Attempt to detect DL HARQ resends",
+        "Attempt to detect DL HARQ resends (useful if logging UE side so need to infer)",
+        &global_mac_lte_attempt_dl_harq_resend_detect);
 
     register_init_routine(&mac_lte_init_protocol);
 }
