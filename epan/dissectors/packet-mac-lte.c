@@ -518,6 +518,7 @@ static guint mac_lte_framenum_hash_func(gconstpointer v)
 #define MAX_EXPECTED_PDU_LENGTH 2048
 
 typedef struct DLLastFrameData {
+    gboolean inUse;
     guint32  framenum;
     guint    subframeNumber;
     nstime_t received_time;
@@ -525,8 +526,12 @@ typedef struct DLLastFrameData {
     guint8   data[MAX_EXPECTED_PDU_LENGTH];
 } DLLastFrameData;
 
+typedef struct DLLastFrameDataAllSubframes {
+    DLLastFrameData subframe[10];
+} DLLastFrameDataAllSubframes;
 
-/* This table stores (RNTI -> DLLastFrameData*).  Will be populated when
+
+/* This table stores (RNTI -> DLLastFrameDataAllSubframes*).  Will be populated when
    DL frames are first read.  */
 static GHashTable *mac_lte_dl_harq_hash = NULL;
 
@@ -1126,12 +1131,22 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         if (!pinfo->fd->flags.visited) {
             /* First time, so set result and update DL harq table */
-            DLLastFrameData *lastData = g_hash_table_lookup(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
-            if (lastData != NULL) {
-                /* Compare time, sf, data to see if this looks like a retx */
-                if ((p_mac_lte_info->subframeNumber == ((lastData->framenum+2)%10)) &&
-                    (tvb_length_remaining(tvb, offset) == lastData->length) &&
-                    (memcmp(lastData->data, tvb_get_ptr(tvb, offset, lastData->length), MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
+            DLLastFrameData *lastData = NULL;
+            DLLastFrameData *thisData = NULL;
+
+            /* Look up entry for this UE/RNTI */
+            DLLastFrameDataAllSubframes *ueData =
+                g_hash_table_lookup(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
+            if (ueData != NULL) {
+                /* Looking for a frame sent 8 subframes previously */
+                lastData = &(ueData->subframe[(p_mac_lte_info->subframeNumber+2) % 10]);
+                if (lastData->inUse) {
+                    /* Compare time, sf, data to see if this looks like a retx */
+                    if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
+                        (memcmp(lastData->data,
+                                tvb_get_ptr(tvb, offset, lastData->length),
+                                MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
+
                         /* Work out gap between frames */
                         gint seconds_between_packets = (gint)
                               (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
@@ -1149,20 +1164,23 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
 
                         }
+                    }
                 }
             }
             else {
-                /* Allocate entry in table for this RNTI */
-                lastData = se_alloc(sizeof(DLLastFrameData));
-                g_hash_table_insert(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti), lastData);
+                /* Allocate entry in table for this UE/RNTI */
+                ueData = se_alloc0(sizeof(DLLastFrameDataAllSubframes));
+                g_hash_table_insert(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti), ueData);
             }
 
             /* Store this frame's details in table */
-            lastData->length = tvb_length_remaining(tvb, offset);
-            memcpy(lastData->data, tvb_get_ptr(tvb, offset, MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)), lastData->length);
-            lastData->subframeNumber = p_mac_lte_info->subframeNumber;
-            lastData->framenum = pinfo->fd->num;
-            lastData->received_time = pinfo->fd->abs_ts;
+            thisData = &(ueData->subframe[p_mac_lte_info->subframeNumber]);
+            thisData->inUse = TRUE;
+            thisData->length = tvb_length_remaining(tvb, offset);
+            memcpy(thisData->data, tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)), thisData->length);
+            thisData->subframeNumber = p_mac_lte_info->subframeNumber;
+            thisData->framenum = pinfo->fd->num;
+            thisData->received_time = pinfo->fd->abs_ts;
         }
         else {
             /* Not first time, so just set whats already stored in result */
