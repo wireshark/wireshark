@@ -433,46 +433,53 @@ get_keyexchange_key(unsigned char keyexchangekey[16],const unsigned char session
 }
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 static guint32
-get_md4pass_list(md4_pass** p_pass_list,const char* nt_password) {
-  guint32 nb_pass = 0;
-  enc_key_t *ek;
-  unsigned char nt_password_hash[16];
-  int password_len = 0;
-  char nt_password_unicode[256];
-  md4_pass* pass_list;
-  int i = 0;
+get_md4pass_list(md4_pass** p_pass_list,const char* nt_password)
+{
+	
+	guint32 nb_pass = 0;
+	enc_key_t *ek;
+	unsigned char nt_password_hash[16];
+	int password_len = 0;
+	char nt_password_unicode[256];
+	md4_pass* pass_list;
+	int i = 0;
+	if(!krb_decrypt){
+		pass_list=NULL;
+		return 0;
+	}
+	read_keytab_file_from_preferences();
 
-  for(ek=enc_key_list;ek;ek=ek->next){
-    if( ek->keylength == 16 ) {
-      nb_pass++;
-    }
-  }
-  memset(nt_password_hash,0,16);
-  if (nt_password[0] != '\0' && ( strlen(nt_password) < 129 )) {
-    nb_pass++;
-    password_len = strlen(nt_password);
-    str_to_unicode(nt_password,nt_password_unicode);
-    crypt_md4(nt_password_hash,nt_password_unicode,password_len*2);
-  }
-  if( nb_pass == 0 ) {
-    /* Unable to calculate the session key without a password  or if password is more than 128 char ......*/
-    return 0;
-  }
-  i = 0;
-  *p_pass_list = ep_alloc(nb_pass*sizeof(md4_pass));
-  pass_list=*p_pass_list;
+	for(ek=enc_key_list;ek;ek=ek->next){
+		if( ek->keylength == 16 ) {
+			nb_pass++;
+		}
+	}
+	memset(nt_password_hash,0,16);
+	if (nt_password[0] != '\0' && ( strlen(nt_password) < 129 )) {
+		nb_pass++;
+		password_len = strlen(nt_password);
+		str_to_unicode(nt_password,nt_password_unicode);
+		crypt_md4(nt_password_hash,nt_password_unicode,password_len*2);
+	}
+	if( nb_pass == 0 ) {
+		/* Unable to calculate the session key without a password	or if password is more than 128 char ......*/
+		return 0;
+	}
+	i = 0;
+	*p_pass_list = ep_alloc(nb_pass*sizeof(md4_pass));
+	pass_list=*p_pass_list;
 
-  if( memcmp(nt_password_hash,zeros,16) != 0 ) {
-    memcpy(pass_list[i].md4,nt_password_hash,16);
-    i = 1;
-  }
-  for(ek=enc_key_list;ek;ek=ek->next){
-    if( ek->keylength == 16 ) {
-      memcpy(pass_list[i].md4,ek->keyvalue,16);
-      i++;
-    }
-  }
-  return nb_pass;
+	if( memcmp(nt_password_hash,zeros,16) != 0 ) {
+		memcpy(pass_list[i].md4,nt_password_hash,16);
+		i = 1;
+	}
+	for(ek=enc_key_list;ek;ek=ek->next){
+		if( ek->keylength == 16 ) {
+			memcpy(pass_list[i].md4,ek->keyvalue,16);
+			i++;
+		}
+	}
+	return nb_pass;
 }
 #endif
 /* Create an NTLMSSP version 2
