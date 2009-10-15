@@ -41,7 +41,7 @@
 /* fragment contains data past the end of the datagram */
 #define FD_TOOLONGFRAGMENT	0x0010
 
-/* fragment data not alloced, fd->data pointing to fd_head->data+fd->offset */
+/* fragment data not alloc'ed, fd->data pointing to fd_head->data+fd->offset */
 #define FD_NOT_MALLOCED         0x0020
 
 /* this flag is used to request fragment_add to continue the reassembly process */
@@ -58,7 +58,7 @@
  */
 #define FD_DATA_NOT_PRESENT	0x0200
 
-/* This flag is set in the to denote that datalen has ben set to a valid value.
+/* This flag is set in (only) fd_head to denote that datalen has been set to a valid value.
  * It's implied by FD_DEFRAGMENTED (we must know the total length of the
  * datagram if we have defragmented it...)
  */
