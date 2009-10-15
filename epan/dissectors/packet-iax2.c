@@ -1790,7 +1790,7 @@ dissect_minipacket (tvbuff_t * tvb, guint32 offset, guint16 scallno, packet_info
   dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, FALSE, iax_packet);
 
 
-  /* next time we come to parse this packet, don't propogate the codec into the
+  /* next time we come to parse this packet, don't propagate the codec into the
    * call_data */
   iax_packet->first_time = FALSE;
 
