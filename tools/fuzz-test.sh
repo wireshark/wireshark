@@ -165,7 +165,7 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
         fi
     fi
 
-    "$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
+    WIRESHARK_DEBUG_SE_USE_CANARY= "$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
         > /dev/null 2> $TMP_DIR/$ERR_FILE
     RETVAL=$?
     # Uncomment the next two lines to enable dissector bug
