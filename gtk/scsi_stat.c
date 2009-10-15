@@ -112,26 +112,13 @@ dlg_destroy_cb(void)
 	dlg=NULL;
 }
 
-static void
-scsistat_program_select(GtkWidget *w, gpointer key _U_)
-{
-	int i;
 
-	i = gtk_combo_box_get_active (GTK_COMBO_BOX(w));
-	switch(i){
-		case SCSI_STAT_PROG_LABEL_SBC:
-			scsi_program = SCSI_DEV_SBC;
-			break;
-		case SCSI_STAT_PROG_LABEL_SSC:
-			scsi_program = SCSI_DEV_SSC;
-			break;
-		case SCSI_STAT_PROG_LABEL_MMC:
-			scsi_program = SCSI_DEV_MMC;
-			break;
-		default:
-			scsi_program = SCSI_DEV_SBC;
-			break;
-	}	
+static void
+scsistat_program_select(GtkWidget *item _U_, gpointer key)
+{
+	int k=(long)key;
+
+	scsi_program=k;
 }
 
 static int
@@ -326,19 +313,12 @@ scsistat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 }
 
 
-enum
-{
-   SCSI_STAT_PROG_LABEL_SBC,
-   SCSI_STAT_PROG_LABEL_SSC,
-   SCSI_STAT_PROG_LABEL_MMC,
-};
-
 static void
 gtk_scsistat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	GtkWidget *prog_combo_box;
+	GtkWidget *prog_menu;
 	GtkWidget *dlg_box;
-	GtkWidget *prog_box, *prog_label;
+	GtkWidget *prog_box, *prog_label, *prog_opt;
 	GtkWidget *filter_box, *filter_bt;
 	GtkWidget *menu_item;
 	GtkWidget *bbox, *start_button, *cancel_button;
@@ -374,19 +354,32 @@ gtk_scsistat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show(prog_label);
 
 	/* Program menu */
-	prog_combo_box = gtk_combo_box_new_text ();
+	prog_opt=gtk_option_menu_new();
+	prog_menu=gtk_menu_new();
 
 	/* SBC */
-	gtk_combo_box_append_text (GTK_COMBO_BOX (prog_combo_box), "SBC (disk)");
-	/* SSC */
-	gtk_combo_box_append_text (GTK_COMBO_BOX (prog_combo_box), "SSC (tape)");
-	/* MMC */
-	gtk_combo_box_append_text (GTK_COMBO_BOX (prog_combo_box), "MMC (cd/dvd)");
+	menu_item=gtk_menu_item_new_with_label("SBC (disk)");
+	g_signal_connect(menu_item, "activate", G_CALLBACK(scsistat_program_select), SCSI_DEV_SBC);
+	gtk_widget_show(menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(prog_menu), menu_item);
 
-	gtk_box_pack_start(GTK_BOX(prog_box), prog_combo_box, TRUE, TRUE, 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(prog_combo_box), SCSI_DEV_SBC);
-	g_signal_connect(severity_combo_box, "changed", G_CALLBACK(scsistat_program_select), NULL);
-	gtk_widget_show(prog_combo_box);
+
+	/* SSC */
+	menu_item=gtk_menu_item_new_with_label("SSC (tape)");
+	g_signal_connect(menu_item, "activate", G_CALLBACK(scsistat_program_select), (gpointer)SCSI_DEV_SSC);
+	gtk_widget_show(menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(prog_menu), menu_item);
+
+	/* MMC */
+	menu_item=gtk_menu_item_new_with_label("MMC (cd/dvd)");
+	g_signal_connect(menu_item, "activate", G_CALLBACK(scsistat_program_select), (gpointer)SCSI_DEV_CDROM);
+	gtk_widget_show(menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(prog_menu), menu_item);
+
+
+	gtk_option_menu_set_menu(GTK_OPTION_MENU(prog_opt), prog_menu);
+	gtk_box_pack_start(GTK_BOX(prog_box), prog_opt, TRUE, TRUE, 0);
+	gtk_widget_show(prog_opt);
 
 	gtk_box_pack_start(GTK_BOX(dlg_box), prog_box, TRUE, TRUE, 0);
 	gtk_widget_show(prog_box);
