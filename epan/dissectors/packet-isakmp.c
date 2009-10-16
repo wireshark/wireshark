@@ -43,7 +43,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
 #include <string.h>
 
 #include <glib.h>
@@ -133,21 +132,21 @@ static GHashTable *isakmp_fragment_table = NULL;
 static GHashTable *isakmp_reassembled_table = NULL;
 
 static const fragment_items isakmp_frag_items = {
-        /* Fragment subtrees */
-        &ett_isakmp_fragment,
-        &ett_isakmp_fragments,
-        /* Fragment fields */
-        &hf_isakmp_fragments,
-        &hf_isakmp_fragment,
-        &hf_isakmp_fragment_overlap,
-        &hf_isakmp_fragment_overlap_conflicts,
-        &hf_isakmp_fragment_multiple_tails,
-        &hf_isakmp_fragment_too_long_fragment,
-        &hf_isakmp_fragment_error,
-        /* Reassembled in field */
-        &hf_isakmp_reassembled_in,
-        /* Tag */
-        "Message fragments"
+  /* Fragment subtrees */
+  &ett_isakmp_fragment,
+  &ett_isakmp_fragments,
+  /* Fragment fields */
+  &hf_isakmp_fragments,
+  &hf_isakmp_fragment,
+  &hf_isakmp_fragment_overlap,
+  &hf_isakmp_fragment_overlap_conflicts,
+  &hf_isakmp_fragment_multiple_tails,
+  &hf_isakmp_fragment_too_long_fragment,
+  &hf_isakmp_fragment_error,
+  /* Reassembled in field */
+  &hf_isakmp_reassembled_in,
+  /* Tag */
+  "Message fragments"
 };
 /* IKE port number assigned by IANA */
 #define UDP_PORT_ISAKMP	500
@@ -228,11 +227,11 @@ typedef struct isakmp_hdr {
 
 #ifdef HAVE_LIBGCRYPT
 
-#define MAIN_MODE 2
-#define AGGRESSIVE_MODE 4
-#define MAX_KEY_SIZE 256
-#define MAX_DIGEST_SIZE 64
-#define MAX_OAKLEY_KEY_LEN 32
+#define MAIN_MODE            2
+#define AGGRESSIVE_MODE      4
+#define MAX_KEY_SIZE       256
+#define MAX_DIGEST_SIZE     64
+#define MAX_OAKLEY_KEY_LEN  32
 
 typedef struct decrypt_key {
   guchar        secret[MAX_KEY_SIZE];
@@ -240,8 +239,8 @@ typedef struct decrypt_key {
 } decrypt_key_t;
 
 typedef struct iv_data {
-  guchar iv[MAX_DIGEST_SIZE];
-  guint  iv_len;
+  guchar  iv[MAX_DIGEST_SIZE];
+  guint   iv_len;
   guint32 frame_num;
 } iv_data_t;
 
@@ -289,8 +288,8 @@ typedef struct _ikev2_encr_alg_spec {
   gint gcry_mode; 
 } ikev2_encr_alg_spec_t;
 
-#define IKEV2_ENCR_NULL 1
-#define IKEV2_ENCR_3DES 2
+#define IKEV2_ENCR_NULL        1
+#define IKEV2_ENCR_3DES        2
 #define IKEV2_ENCR_AES_CBC_128 3
 #define IKEV2_ENCR_AES_CBC_192 4
 #define IKEV2_ENCR_AES_CBC_256 5
@@ -322,14 +321,14 @@ typedef struct _ikev2_auth_alg_spec {
   guint gcry_flag;
 } ikev2_auth_alg_spec_t;
 
-#define IKEV2_AUTH_NONE 1
-#define IKEV2_AUTH_HMAC_MD5_96 2
+#define IKEV2_AUTH_NONE         1
+#define IKEV2_AUTH_HMAC_MD5_96  2
 #define IKEV2_AUTH_HMAC_SHA1_96 3
-#define IKEV2_AUTH_ANY_96BITS 4
-#define IKEV2_AUTH_ANY_128BITS 5
-#define IKEV2_AUTH_ANY_160BITS 6
-#define IKEV2_AUTH_ANY_192BITS 7
-#define IKEV2_AUTH_ANY_256BITS 8
+#define IKEV2_AUTH_ANY_96BITS   4
+#define IKEV2_AUTH_ANY_128BITS  5
+#define IKEV2_AUTH_ANY_160BITS  6
+#define IKEV2_AUTH_ANY_192BITS  7
+#define IKEV2_AUTH_ANY_256BITS  8
 
 static ikev2_auth_alg_spec_t ikev2_auth_algs[] = {
   {IKEV2_AUTH_NONE, 0, 0, 0, GCRY_MD_NONE, 0},
@@ -380,23 +379,23 @@ static uat_t* ikev2_uat;
 static GHashTable *ikev2_key_hash = NULL;
 
 static const value_string vs_ikev2_encr_algs[] = {
-  {IKEV2_ENCR_3DES, "3DES [RFC2451]"},
+  {IKEV2_ENCR_3DES,        "3DES [RFC2451]"},
   {IKEV2_ENCR_AES_CBC_128, "AES-CBC-128 [RFC3602]"},
   {IKEV2_ENCR_AES_CBC_192, "AES-CBC-192 [RFC3602]"},
   {IKEV2_ENCR_AES_CBC_256, "AES-CBC-256 [RFC3602]"},
-  {IKEV2_ENCR_NULL, "NULL [RFC2410]"},
+  {IKEV2_ENCR_NULL,        "NULL [RFC2410]"},
   {0, NULL}
 };
 
 static const value_string vs_ikev2_auth_algs[] = {
-  {IKEV2_AUTH_HMAC_MD5_96, "HMAC_MD5_96 [RFC2403]"},
+  {IKEV2_AUTH_HMAC_MD5_96,  "HMAC_MD5_96 [RFC2403]"},
   {IKEV2_AUTH_HMAC_SHA1_96, "HMAC_SHA1_96 [RFC2404]"},
-  {IKEV2_AUTH_NONE, "NONE [RFC4306]"},
-  {IKEV2_AUTH_ANY_96BITS, "ANY 96-bits of Authentication [No Checking]"},
-  {IKEV2_AUTH_ANY_128BITS, "ANY 128-bits of Authentication [No Checking]"},
-  {IKEV2_AUTH_ANY_160BITS, "ANY 160-bits of Authentication [No Checking]"},
-  {IKEV2_AUTH_ANY_192BITS, "ANY 192-bits of Authentication [No Checking]"},
-  {IKEV2_AUTH_ANY_256BITS, "ANY 256-bits of Authentication [No Checking]"},
+  {IKEV2_AUTH_NONE,         "NONE [RFC4306]"},
+  {IKEV2_AUTH_ANY_96BITS,   "ANY 96-bits of Authentication [No Checking]"},
+  {IKEV2_AUTH_ANY_128BITS,  "ANY 128-bits of Authentication [No Checking]"},
+  {IKEV2_AUTH_ANY_160BITS,  "ANY 160-bits of Authentication [No Checking]"},
+  {IKEV2_AUTH_ANY_192BITS,  "ANY 192-bits of Authentication [No Checking]"},
+  {IKEV2_AUTH_ANY_256BITS,  "ANY 256-bits of Authentication [No Checking]"},
   {0, NULL}
 };
 
@@ -528,9 +527,9 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   guint32 message_id, cbc_block_size, digest_size;
 
   if (!decr ||
-  	decr->is_psk == FALSE ||
-  	decr->gi_len == 0 ||
-  	decr->gr_len == 0)
+      decr->is_psk == FALSE ||
+      decr->gi_len == 0 ||
+      decr->gr_len == 0)
     return NULL;
 
   switch(decr->encr_alg) {
@@ -634,8 +633,8 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   decrypted_data = g_malloc(buf_len);
 
   if (gcry_cipher_decrypt(decr_ctx, decrypted_data, buf_len, buf, buf_len) != GPG_ERR_NO_ERROR) {
-      g_free(decrypted_data);
-      return NULL;
+    g_free(decrypted_data);
+    return NULL;
   }
   gcry_cipher_close(decr_ctx);
 
@@ -751,7 +750,7 @@ static struct payload_func v1_plfunc[] = {
   { 12, "Delete",		dissect_delete    },
   { 13, "Vendor ID",		dissect_vid       },
   { 14, "Attrib",		dissect_config	  },
-  { 15, "NAT-Discovery",	dissect_nat_discovery }, /* draft-ietf-ipsec-nat-t-ike-04 */
+  { 15, "NAT-Discovery",	dissect_nat_discovery },        /* draft-ietf-ipsec-nat-t-ike-04 */
   { 16, "NAT-Original Address",	dissect_nat_original_address }, /* draft-ietf-ipsec-nat-t-ike */
   { 20, "NAT-D (RFC 3947)",	dissect_nat_discovery },
   { 21, "NAT-OA (RFC 3947)",	dissect_nat_original_address },
@@ -775,8 +774,8 @@ static struct payload_func v2_plfunc[] = {
   { 41, "Notification",		dissect_notif     },
   { 42, "Delete",		dissect_delete    },
   { 43, "Vendor ID",		dissect_vid       },
-  { 44, "Traffic Selector - I",	dissect_ts       },
-  { 45, "Traffic Selector - R",	dissect_ts       },
+  { 44, "Traffic Selector - I",	dissect_ts        },
+  { 45, "Traffic Selector - R",	dissect_ts        },
   { 46, "Encrypted",		dissect_enc       },
   { 47, "Configuration",	dissect_config	  },
   { 48, "Extensible Authentication",	dissect_eap	  },
@@ -941,7 +940,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree,
       tvb_ensure_bytes_exist(tvb, offset + 4, payload_length - 4);
       if ((f = getpayload_func(payload, isakmp_version)) != NULL && f->func != NULL)
         (*f->func)(tvb, offset + 4, payload_length - 4, ntree, parent_tree,
-		pinfo, isakmp_version, -1, next_payload);
+                   pinfo, isakmp_version, -1, next_payload);
       else {
         proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4,
                             "Payload");
@@ -949,14 +948,14 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree,
     }
     else if (payload_length > length) {
         proto_tree_add_text(ntree, tvb, 0, 0,
-            "Payload (bogus, length is %u, greater than remaining length %d",
-            payload_length, length);
+                            "Payload (bogus, length is %u, greater than remaining length %d",
+                            payload_length, length);
         return;
     }
     else {
         proto_tree_add_text(ntree, tvb, 0, 0,
-            "Payload (bogus, length is %u, must be at least 4)",
-            payload_length);
+                            "Payload (bogus, length is %u, must be at least 4)",
+                            payload_length);
         payload_length = 4;
     }
     offset += payload_length;
@@ -1108,23 +1107,23 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     hdr.next_payload = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint_format(isakmp_tree, hf_isakmp_nextpayload, tvb, offset,
-			sizeof(hdr.next_payload), hdr.next_payload,
-			"Next payload: %s (%u)",
-			payloadtype2str(isakmp_version, hdr.next_payload),
-			hdr.next_payload);
+                               sizeof(hdr.next_payload), hdr.next_payload,
+                               "Next payload: %s (%u)",
+                               payloadtype2str(isakmp_version, hdr.next_payload),
+                               hdr.next_payload);
     offset += sizeof(hdr.next_payload);
 
     proto_tree_add_uint_format(isakmp_tree, hf_isakmp_version, tvb, offset,
-			sizeof(hdr.version), hdr.version, "Version: %u.%u",
-			hi_nibble(hdr.version), lo_nibble(hdr.version));
+                               sizeof(hdr.version), hdr.version, "Version: %u.%u",
+                               hi_nibble(hdr.version), lo_nibble(hdr.version));
     offset += sizeof(hdr.version);
 
     hdr.exch_type = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint_format(isakmp_tree, hf_isakmp_exchangetype, tvb, offset,
-			sizeof(hdr.exch_type), hdr.exch_type,
-			"Exchange type: %s (%u)",
-			exchtype2str(isakmp_version, hdr.exch_type),
-			hdr.exch_type);
+                               sizeof(hdr.exch_type), hdr.exch_type,
+                               "Exchange type: %s (%u)",
+                               exchtype2str(isakmp_version, hdr.exch_type),
+                               hdr.exch_type);
     offset += sizeof(hdr.exch_type);
 
     {
@@ -1136,23 +1135,23 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (isakmp_version == 1) {
         proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-			  decode_boolean_bitfield(hdr.flags, E_FLAG, sizeof(hdr.flags)*8,
+                            decode_boolean_bitfield(hdr.flags, E_FLAG, sizeof(hdr.flags)*8,
 						  "Encrypted", "Not encrypted"));
         proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-			  decode_boolean_bitfield(hdr.flags, C_FLAG, sizeof(hdr.flags)*8,
+                            decode_boolean_bitfield(hdr.flags, C_FLAG, sizeof(hdr.flags)*8,
 						  "Commit", "No commit"));
         proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-			  decode_boolean_bitfield(hdr.flags, A_FLAG, sizeof(hdr.flags)*8,
+                            decode_boolean_bitfield(hdr.flags, A_FLAG, sizeof(hdr.flags)*8,
 						  "Authentication", "No authentication"));
       } else if (isakmp_version == 2) {
         proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-			  decode_boolean_bitfield(hdr.flags, I_FLAG, sizeof(hdr.flags)*8,
+                            decode_boolean_bitfield(hdr.flags, I_FLAG, sizeof(hdr.flags)*8,
 						  "Initiator", "Responder"));
         proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-			  decode_boolean_bitfield(hdr.flags, V_FLAG, sizeof(hdr.flags)*8,
+                            decode_boolean_bitfield(hdr.flags, V_FLAG, sizeof(hdr.flags)*8,
 						  "A higher version enabled", ""));
         proto_tree_add_text(ftree, tvb, offset, 1, "%s",
-			  decode_boolean_bitfield(hdr.flags, R_FLAG, sizeof(hdr.flags)*8,
+                            decode_boolean_bitfield(hdr.flags, R_FLAG, sizeof(hdr.flags)*8,
 						  "Response", "Request"));
       }
       offset += sizeof(hdr.flags);
@@ -1163,25 +1162,25 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += sizeof(hdr.message_id);
 
     if (hdr.length < ISAKMP_HDR_SIZE) {
-        proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length),
-			    hdr.length, "Length: (bogus, length is %u, should be at least %lu)",
-			    hdr.length, (unsigned long)ISAKMP_HDR_SIZE);
+      proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length),
+                                 hdr.length, "Length: (bogus, length is %u, should be at least %lu)",
+                                 hdr.length, (unsigned long)ISAKMP_HDR_SIZE);
 #ifdef HAVE_LIBGCRYPT
-        if (pd_changed) pinfo->private_data = pd_save;
+      if (pd_changed) pinfo->private_data = pd_save;
 #endif /* HAVE_LIBGCRYPT */
-        return;
+      return;
     }
 
     len = hdr.length - ISAKMP_HDR_SIZE;
 
     if (len < 0) {
-        proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length),
-			    hdr.length, "Length: (bogus, length is %u, which is too large)",
-			    hdr.length);
+      proto_tree_add_uint_format(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length),
+                                 hdr.length, "Length: (bogus, length is %u, which is too large)",
+                                 hdr.length);
 #ifdef HAVE_LIBGCRYPT
-        if (pd_changed) pinfo->private_data = pd_save;
+      if (pd_changed) pinfo->private_data = pd_save;
 #endif /* HAVE_LIBGCRYPT */
-        return;
+      return;
     }
 
     proto_tree_add_item(isakmp_tree, hf_isakmp_length, tvb, offset, sizeof(hdr.length), FALSE);
@@ -1190,8 +1189,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (hdr.flags & E_FLAG) {
       if (len && isakmp_tree) {
         ti = proto_tree_add_text(isakmp_tree, tvb, offset, len,
-			"Encrypted payload (%d byte%s)",
-			len, plurality(len, "", "s"));
+                                 "Encrypted payload (%d byte%s)",
+                                 len, plurality(len, "", "s"));
 #ifdef HAVE_LIBGCRYPT
 
 	if (decr) {
@@ -1199,7 +1198,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  if (decr_tvb) {
             decr_tree = proto_item_add_subtree(ti, ett_isakmp);
             dissect_payloads(decr_tvb, decr_tree, tree, isakmp_version,
-                   hdr.next_payload, 0, tvb_length(decr_tvb), pinfo);
+                             hdr.next_payload, 0, tvb_length(decr_tvb), pinfo);
 	  }
 	}
 #endif /* HAVE_LIBGCRYPT */
@@ -1225,7 +1224,7 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length,
 
   if (length < 4) {
     proto_tree_add_text(tree, tvb, offset, length,
-          "Not enough room in payload for all transforms");
+                        "Not enough room in payload for all transforms");
     return NULL;
   }
   next_payload = tvb_get_guint8(tvb, offset);
@@ -1235,23 +1234,23 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length,
    * proper place (dissect_vid)
    */
   if (payload == 13) { /* Vendor ID */
-	ti = proto_tree_add_text(tree, tvb, offset, payload_length,
-		"%s: %s", payloadtype2str(isakmp_version, payload),
-		vid_to_str(tvb, offset + 4, payload_length - 4));
+    ti = proto_tree_add_text(tree, tvb, offset, payload_length,
+                             "%s: %s", payloadtype2str(isakmp_version, payload),
+                             vid_to_str(tvb, offset + 4, payload_length - 4));
   } else {
-  	ti = proto_tree_add_text(tree, tvb, offset, payload_length,
-        	"%s payload", payloadtype2str(isakmp_version, payload));
+    ti = proto_tree_add_text(tree, tvb, offset, payload_length,
+                             "%s payload", payloadtype2str(isakmp_version, payload));
   }
   ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
 
   proto_tree_add_uint_format(ntree, hf_isakmp_nextpayload, tvb, offset, 1,
-			next_payload, "Next payload: %s (%u)",
-			payloadtype2str(isakmp_version, next_payload),
-			next_payload);
+                             next_payload, "Next payload: %s (%u)",
+                             payloadtype2str(isakmp_version, next_payload),
+                             next_payload);
   if (isakmp_version == 2) {
     proto_tree_add_text(ntree, tvb, offset + 1, 1, "%s",
-        	decode_boolean_bitfield(tvb_get_guint8(tvb, offset + 1), 0x80,
-        	8, "Critical", "Not critical"));
+                        decode_boolean_bitfield(tvb_get_guint8(tvb, offset + 1), 0x80,
+                                                8, "Critical", "Not critical"));
   }
   proto_tree_add_item(ntree, hf_isakmp_payloadlen, tvb, offset + 2, 2, FALSE);
 
@@ -1262,7 +1261,7 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length,
 
 static void
 dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
+           proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint32		doi;
   guint32		situation;
@@ -1276,8 +1275,8 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   if (isakmp_version == 1) {
     doi = tvb_get_ntohl(tvb, offset);
     proto_tree_add_uint_format(tree, hf_isakmp_doi, tvb, offset, 4,
-			doi, "Domain of interpretation: %s (%u)",
-			doitype2str(doi), doi);
+                               doi, "Domain of interpretation: %s (%u)",
+                               doitype2str(doi), doi);
     offset += 4;
     length -= 4;
 
@@ -1285,15 +1284,15 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       /* IPSEC */
       if (length < 4) {
         proto_tree_add_bytes_format(tree, hf_isakmp_sa_situation, tvb, offset, length,
-			  tvb_get_ptr(tvb, offset, length),
-			  "Situation: %s (length is %u, should be >= 4)",
-			  tvb_bytes_to_str(tvb, offset, length), length);
+                                    tvb_get_ptr(tvb, offset, length),
+                                    "Situation: %s (length is %u, should be >= 4)",
+                                    tvb_bytes_to_str(tvb, offset, length), length);
         return;
       }
       situation = tvb_get_ntohl(tvb, offset);
       proto_tree_add_bytes_format(tree, hf_isakmp_sa_situation, tvb, offset, 4,
-			tvb_get_ptr(tvb, offset, 4), "Situation: %s (%u)",
-			situation2str(situation), situation);
+                                  tvb_get_ptr(tvb, offset, 4), "Situation: %s (%u)",
+                                  situation2str(situation), situation);
       offset += 4;
       length -= 4;
 
@@ -1311,7 +1310,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_,  packet_info *pinfo _U_, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
+                 proto_tree *p _U_,  packet_info *pinfo _U_, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint8		protocol_id;
   guint8		spi_size;
@@ -1331,8 +1330,8 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
   protocol_id = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint_format(tree, hf_isakmp_protoid, tvb, offset, 1,
-			protocol_id, "Protocol ID: %s (%u)",
-			val_to_str(protocol_id, vs_proto, "UNKNOWN-PROTO-TYPE"), protocol_id);
+                             protocol_id, "Protocol ID: %s (%u)",
+                             val_to_str(protocol_id, vs_proto, "UNKNOWN-PROTO-TYPE"), protocol_id);
   offset += 1;
   length -= 1;
 
@@ -1355,21 +1354,21 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
   while (num_transforms > 0) {
     ntree = dissect_payload_header(tvb, offset, length, isakmp_version,
-      LOAD_TYPE_TRANSFORM, &next_payload, &payload_length, tree);
+                                   LOAD_TYPE_TRANSFORM, &next_payload, &payload_length, tree);
     if (ntree == NULL)
       break;
     if (length < payload_length) {
       proto_tree_add_text(tree, tvb, offset + 4, length,
-          "Not enough room in payload for all transforms");
+                          "Not enough room in payload for all transforms");
       break;
     }
     if (payload_length >= 4) {
       if (isakmp_version == 1)
         dissect_transform(tvb, offset + 4, payload_length - 4, ntree,
-			ntree, pinfo, isakmp_version, protocol_id, 0);
+                          ntree, pinfo, isakmp_version, protocol_id, 0);
       else if (isakmp_version == 2)
         dissect_transform2(tvb, offset + 4, payload_length - 4, ntree,
-			ntree, pinfo, isakmp_version, protocol_id, 0);
+                           ntree, pinfo, isakmp_version, protocol_id, 0);
     }
     else
       proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4, "Payload");
@@ -1381,7 +1380,8 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int protocol_id, guint8 inner_payload _U_)
+                  proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_,
+                  int protocol_id, guint8 inner_payload _U_)
 {
   static const value_string vs_v1_attr[] = {
     { 1,	"Encryption-Algorithm" },
@@ -1504,7 +1504,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
   while (length>0) {
     const char *str;
-    int ike_phase1 = 0;
+    int ike_phase1  = 0;
     guint16 aft     = tvb_get_ntohs(tvb, offset);
     guint16 type    = aft & 0x7fff;
     guint16 len;
@@ -1572,18 +1572,18 @@ v2_tid2encstr(guint16 tid)
     { 10,	"RESERVED" },
     { 11,	"ENCR_NULL" },
     { 12,	"ENCR_AES_CBC" },
-    { 13,	"ENCR_AES_CTR" },					/* [RFC3686] */
-    { 14,	"ENCR_AES-CCM_8" },					/* [RFC4309] */
-    { 15,	"ENCR-AES-CCM_12" },				/* [RFC4309] */
-    { 16,	"ENCR-AES-CCM_16" },				/* [RFC4309] */
+    { 13,	"ENCR_AES_CTR" },		 /* [RFC3686] */
+    { 14,	"ENCR_AES-CCM_8" },		 /* [RFC4309] */
+    { 15,	"ENCR-AES-CCM_12" },		 /* [RFC4309] */
+    { 16,	"ENCR-AES-CCM_16" },		 /* [RFC4309] */
     { 17,	"UNASSIGNED" },
-    { 18,	"AES-GCM with a 8 octet ICV" },		/* [RFC4106] */
-    { 19,	"AES-GCM with a 12 octet ICV" },	/* [RFC4106] */
-    { 20,	"AES-GCM with a 16 octet ICV" },	/* [RFC4106] */
-    { 21,	"ENCR_NULL_AUTH_AES_GMAC" },		/* [RFC4543] */
+    { 18,	"AES-GCM with a 8 octet ICV" },	 /* [RFC4106] */
+    { 19,	"AES-GCM with a 12 octet ICV" }, /* [RFC4106] */
+    { 20,	"AES-GCM with a 16 octet ICV" }, /* [RFC4106] */
+    { 21,	"ENCR_NULL_AUTH_AES_GMAC" },	 /* [RFC4543] */
 /*
- *		22-1023    RESERVED TO IANA                    [RFC4306]
- *		1024-65535    PRIVATE USE                      [RFC4306]
+ *		22-1023    RESERVED TO IANA         [RFC4306]
+ *		1024-65535    PRIVATE USE           [RFC4306]
  */
     { 0,	NULL },
   };
@@ -1601,13 +1601,13 @@ v2_tid2prfstr(guint16 tid)
     { 2,	"PRF_HMAC_SHA1" },
     { 3,	"PRF_HMAC_TIGER" },
     { 4,	"PRF_AES128_CBC" },
-    { 5,	"RESERVED TO IANA" },				/* [RFC4306] */
-    { 6,	"RESERVED TO IANA" },				/* [RFC4306] */
-    { 7,	"RESERVED TO IANA" },				/* [RFC4306] */
-    { 8,	"PRF_AES128_CMAC6" },				/* [RFC4615] */
+    { 5,	"RESERVED TO IANA" },		/* [RFC4306] */
+    { 6,	"RESERVED TO IANA" },		/* [RFC4306] */
+    { 7,	"RESERVED TO IANA" },		/* [RFC4306] */
+    { 8,	"PRF_AES128_CMAC6" },		/* [RFC4615] */
 	/*
-     9-1023    RESERVED TO IANA							[RFC4306]
-	 1024-65535    PRIVATE USE							[RFC4306]
+     9-1023    RESERVED TO IANA	   		   [RFC4306]
+	 1024-65535    PRIVATE USE		   [RFC4306]
 	 */
     { 0,	NULL },
   };
@@ -1625,12 +1625,12 @@ v2_tid2iastr(guint16 tid)
     { 3,	"AUTH_DES_MAC" },
     { 4,	"AUTH_KPDK_MD5" },
     { 5,	"AUTH_AES_XCBC_96" },
-    { 6,	"AUTH_HMAC_MD5_128" },				/* [RFC-maino-fcsp-02.txt] */
-    { 7,	"AUTH_HMAC_SHA1_160" },				/* [RFC-maino-fcsp-02.txt] */
-    { 8,	"AUTH_AES_CMAC_96" },				/* [RFC4494] */
-    { 9,	"AUTH_AES_128_GMAC" },				/* [RFC4543] */
-    { 10,	"AUTH_AES_192_GMAC" },				/* [RFC4543] */
-    { 11,	"AUTH_AES_256_GMAC" },				/* [RFC4543] */
+    { 6,	"AUTH_HMAC_MD5_128" },		/* [RFC-maino-fcsp-02.txt] */
+    { 7,	"AUTH_HMAC_SHA1_160" },		/* [RFC-maino-fcsp-02.txt] */
+    { 8,	"AUTH_AES_CMAC_96" },		/* [RFC4494] */
+    { 9,	"AUTH_AES_128_GMAC" },		/* [RFC4543] */
+    { 10,	"AUTH_AES_192_GMAC" },		/* [RFC4543] */
+    { 11,	"AUTH_AES_256_GMAC" },		/* [RFC4543] */
 	/*
     12-1023    RESERVED TO IANA                    [RFC4306]
  1024-65535    PRIVATE USE                         [RFC4306]
@@ -1651,15 +1651,15 @@ v2_tid2dhstr(guint16 tid)
     {  3,	"RESERVED" },
     {  4,	"RESERVED" },
     {  5,	"group 5 - 1536 Bit MODP" },
-	/* 6-13    RESERVED TO IANA                    [RFC4306] */
+	/* 6-13    RESERVED TO IANA                [RFC4306] */
     { 14,	"2048-bit MODP Group" },
     { 15,	"3072-bit MODP Group" },
     { 16,	"4096-bit MODP Group" },
     { 17,	"6144-bit MODP Group" },
     { 18,	"8192-bit MODP Group" },
-    { 19,	"256-bit random ECP group" },			/* [RFC-ietf-ipsec-ike-ecp-groups-02.txt]*/
-    { 20,	"384-bit random ECP group" },			/* [RFC-ietf-ipsec-ike-ecp-groups-02.txt]*/
-    { 21,	"521-bit random ECP group" },			/* [RFC-ietf-ipsec-ike-ecp-groups-02.txt]*/
+    { 19,	"256-bit random ECP group" },	/* [RFC-ietf-ipsec-ike-ecp-groups-02.txt]*/
+    { 20,	"384-bit random ECP group" },	/* [RFC-ietf-ipsec-ike-ecp-groups-02.txt]*/
+    { 21,	"521-bit random ECP group" },	/* [RFC-ietf-ipsec-ike-ecp-groups-02.txt]*/
 	/*
     22-1023    RESERVED TO IANA                    [RFC4306]
  1024-65535    PRIVATE USE                         [RFC4306]
@@ -1693,10 +1693,10 @@ static struct {
   const char *(*func)(guint16);
 } v2_tid_func[] = {
   { 0,	"RESERVED", NULL, },
-  { 1,	"Encryption Algorithm (ENCR)", v2_tid2encstr },
-  { 2,	"Pseudo-random Function (PRF)", v2_tid2prfstr },
-  { 3,	"Integrity Algorithm (INTEG)", v2_tid2iastr },
-  { 4,	"Diffie-Hellman Group (D-H)", v2_tid2dhstr },
+  { 1,	"Encryption Algorithm (ENCR)",     v2_tid2encstr },
+  { 2,	"Pseudo-random Function (PRF)",    v2_tid2prfstr },
+  { 3,	"Integrity Algorithm (INTEG)",     v2_tid2iastr },
+  { 4,	"Diffie-Hellman Group (D-H)",      v2_tid2dhstr },
   { 5,	"Extended Sequence Numbers (ESN)", v2_tid2esnstr },
 };
 
@@ -1720,15 +1720,15 @@ v2_tid2str(guint8 type, guint16 tid)
 static const char *
 v2_aft2str(guint16 aft)
 {
-    if (aft < 14 || (aft > 14 && aft < 18)) return "RESERVED";
-    if (aft == 14) return "Key Length (in bits)";
-    if (aft >= 18 && aft < 16384) return "RESERVED TO IANA";
-    return "PRIVATE USE";
+  if (aft < 14 || (aft > 14 && aft < 18)) return "RESERVED";
+  if (aft == 14) return "Key Length (in bits)";
+  if (aft >= 18 && aft < 16384) return "RESERVED TO IANA";
+  return "PRIVATE USE";
 }
 
 static void
 dissect_transform2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
+                   proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
 {
   guint8 transform_type;
   guint16 transform_id;
@@ -1802,7 +1802,7 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   }
 
   proto_tree_add_text(tree, tvb, offset, length, "Key Exchange Data (%d bytes / %d bits)",
-	length, length * 8);
+                      length, length * 8);
 
 #ifdef HAVE_LIBGCRYPT
   if (decr && decr->gi_len == 0 && ADDRESSES_EQUAL(&decr->initiator, &pinfo->src)) {
@@ -1819,7 +1819,7 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
+           proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
 {
   guint8		id_type;
   guint8		protocol_id;
@@ -1838,11 +1838,11 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   protocol_id = tvb_get_guint8(tvb, offset);
   if (protocol_id == 0) {
     proto_tree_add_uint_format(tree, hf_isakmp_protoid, tvb, offset, 1,
-			protocol_id, "Protocol ID: Unused");
+                               protocol_id, "Protocol ID: Unused");
   } else {
     proto_tree_add_uint_format(tree, hf_isakmp_protoid, tvb, offset, 1,
-			protocol_id, "Protocol ID: %s (%u)",
-			ipprotostr(protocol_id), protocol_id);
+                               protocol_id, "Protocol ID: %s (%u)",
+                               ipprotostr(protocol_id), protocol_id);
   }
   offset += 1;
   length -= 1;
@@ -1850,7 +1850,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   port = tvb_get_ntohs(tvb, offset);
   if (port == 0)
     proto_tree_add_uint_format(tree, hf_isakmp_id_port, tvb, offset, 2,
-			port, "Port: Unused");
+                               port, "Port: Unused");
   else
     proto_tree_add_item(tree, hf_isakmp_id_port, tvb, offset, 2, FALSE);
   offset += 2;
@@ -1903,7 +1903,8 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
+             proto_tree *p _U_, packet_info *pinfo, int isakmp_version, 
+             int unused _U_, guint8 inner_payload _U_)
 {
   guint8		cert_enc;
   asn1_ctx_t asn1_ctx;
@@ -1921,7 +1922,8 @@ dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_certreq_v1(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
+                   proto_tree *p _U_, packet_info *pinfo, int isakmp_version,
+                   int unused _U_, guint8 inner_payload _U_)
 {
   guint8		cert_type;
   asn1_ctx_t asn1_ctx;
@@ -1929,8 +1931,8 @@ dissect_certreq_v1(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
   cert_type = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint_format(tree, hf_isakmp_certreq_type, tvb, offset, 1,
-			cert_type, "Certificate type: %u - %s",
-			cert_type, certtype2str(isakmp_version, cert_type));
+                             cert_type, "Certificate type: %u - %s",
+                             cert_type, certtype2str(isakmp_version, cert_type));
   offset += 1;
   length -= 1;
 
@@ -1947,7 +1949,8 @@ dissect_certreq_v1(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_certreq_v2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
+                   proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version,
+                   int unused _U_, guint8 inner_payload _U_)
 {
   guint8		cert_type;
 
@@ -1968,14 +1971,16 @@ dissect_certreq_v2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_hash(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
+             proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_,
+             int unused _U_, guint8 inner_payload _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Hash Data");
 }
 
 static void
 dissect_auth(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
+             proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_,
+             int unused _U_, guint8 inner_payload _U_)
 {
   guint8 auth;
 
@@ -1997,7 +2002,8 @@ dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *ptree, packet_info *pinfo, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
+                            proto_tree *ptree, packet_info *pinfo, int isakmp_version _U_,
+                            int unused _U_, guint8 inner_payload _U_)
 {
 
   guint8 seq; /* Packet sequence number, starting from 1 */
@@ -2018,32 +2024,32 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 
   /* Start Reassembly stuff for Cisco IKE fragmentation */
   {
-        gboolean save_fragmented;
-        tvbuff_t *defrag_isakmp_tvb = NULL;
-        fragment_data *frag_msg = NULL;
+    gboolean save_fragmented;
+    tvbuff_t *defrag_isakmp_tvb = NULL;
+    fragment_data *frag_msg = NULL;
 
-	save_fragmented = pinfo->fragmented;
-        pinfo->fragmented = TRUE;
-        frag_msg = fragment_add_seq_check(tvb, offset, pinfo,
-                12345, /*FIXME:  Fragmented packet id, guint16, somehow get CKY here */
-                isakmp_fragment_table, /* list of message fragments */
-                isakmp_reassembled_table, /* list of reassembled messages */
-                seq-1, /* fragment sequence number, starting from 0 */
-                tvb_length_remaining(tvb, offset), /* fragment length - to the end */
-                last); /* More fragments? */
-        defrag_isakmp_tvb = process_reassembled_data(tvb, offset, pinfo,
-                "Reassembled Message", frag_msg, &isakmp_frag_items,
-                NULL, ptree);
+    save_fragmented = pinfo->fragmented;
+    pinfo->fragmented = TRUE;
+    frag_msg = fragment_add_seq_check(tvb, offset, pinfo,
+                                      12345,                    /*FIXME:  Fragmented packet id, guint16, somehow get CKY here */
+                                      isakmp_fragment_table,    /* list of message fragments */
+                                      isakmp_reassembled_table, /* list of reassembled messages */
+                                      seq-1,                    /* fragment sequence number, starting from 0 */
+                                      tvb_length_remaining(tvb, offset), /* fragment length - to the end */
+                                      last);                    /* More fragments? */
+    defrag_isakmp_tvb = process_reassembled_data(tvb, offset, pinfo,
+                                                 "Reassembled Message", frag_msg, &isakmp_frag_items,
+                                                 NULL, ptree);
 
-        if (defrag_isakmp_tvb) { /* take it all */
-                dissect_isakmp(defrag_isakmp_tvb, pinfo, ptree);
-        }
-        if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO,
-                       " (%sMessage fragment %u%s)",
-			(frag_msg ? "Reassembled + " : ""),
-			seq, (last ? " - last" : ""));
-        pinfo->fragmented = save_fragmented;
+    if (defrag_isakmp_tvb) { /* take it all */
+      dissect_isakmp(defrag_isakmp_tvb, pinfo, ptree);
+    }
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO,
+                      " (%sMessage fragment %u%s)",
+                      (frag_msg ? "Reassembled + " : ""),
+                      seq, (last ? " - last" : ""));
+    pinfo->fragmented = save_fragmented;
   }
   /* End Reassembly stuff for Cisco IKE fragmentation */
 
@@ -2051,7 +2057,8 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
 
 static void
 dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
+              proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_,
+              int unused _U_, guint8 inner_payload _U_)
 {
   proto_tree_add_text(tree, tvb, offset, length, "Nonce Data");
 }
@@ -2140,7 +2147,8 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
+               proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_,
+               int unused _U_, guint8 inner_payload _U_)
 {
   guint32		doi;
   guint8		protocol_id;
@@ -2159,8 +2167,8 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
   protocol_id = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint_format(tree, hf_isakmp_protoid, tvb, offset, 1,
-			protocol_id, "Protocol ID: %s (%u)",
-			val_to_str(protocol_id, vs_proto, "UNKNOWN-PROTO-TYPE"), protocol_id);
+                             protocol_id, "Protocol ID: %s (%u)",
+                             val_to_str(protocol_id, vs_proto, "UNKNOWN-PROTO-TYPE"), protocol_id);
   offset += 1;
   length -= 1;
 
@@ -2177,7 +2185,7 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   for (i = 0; i < num_spis; ++i) {
     if (length < spi_size) {
       proto_tree_add_text(tree, tvb, offset, length,
-          "Not enough room in payload for all SPI's");
+                          "Not enough room in payload for all SPI's");
       break;
     }
     proto_tree_add_text(tree, tvb, offset, spi_size, "SPI: 0x%s",
@@ -2196,186 +2204,187 @@ vid_to_str(tvbuff_t* tvb, int offset, int length)
   pVID = tvb_get_ptr(tvb, offset, length);
 
   if (length == VID_CISCO_FRAG_LEN
-	&& memcmp(pVID, VID_CISCO_FRAG, length) == 0)
-	vendorstring = "Cisco Fragmentation";
+      && memcmp(pVID, VID_CISCO_FRAG, length) == 0)
+    vendorstring = "Cisco Fragmentation";
   else
   if (length == VID_MS_LEN
-	&& memcmp(pVID, VID_MS_W2K_WXP, length) == 0)
-	vendorstring = "Microsoft Win2K/WinXP";
+      && memcmp(pVID, VID_MS_W2K_WXP, length) == 0)
+    vendorstring = "Microsoft Win2K/WinXP";
   else
   if (memcmp(pVID, VID_CP, isakmp_min(VID_CP_LEN, length)) == 0)
-	vendorstring = "Check Point";
+    vendorstring = "Check Point";
   else
   if (memcmp(pVID, VID_CYBERGUARD, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Cyber Guard";
+    vendorstring = "Cyber Guard";
   else
   if (memcmp(pVID,  VID_rfc3947, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "RFC 3947 Negotiation of NAT-Traversal in the IKE";
+    vendorstring = "RFC 3947 Negotiation of NAT-Traversal in the IKE";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_0, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 1.1.0";
+    vendorstring = "Ssh Communications Security IPSEC Express version 1.1.0";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 1.1.1";
+    vendorstring = "Ssh Communications Security IPSEC Express version 1.1.1";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_2, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 1.1.2";
+    vendorstring = "Ssh Communications Security IPSEC Express version 1.1.2";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_2_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 1.2.1";
+    vendorstring = "Ssh Communications Security IPSEC Express version 1.2.1";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_2_2, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 1.2.2";
+    vendorstring = "Ssh Communications Security IPSEC Express version 1.2.2";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_0_0, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 2.0.0";
+    vendorstring = "Ssh Communications Security IPSEC Express version 2.0.0";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_0, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 2.1.0";
+    vendorstring = "Ssh Communications Security IPSEC Express version 2.1.0";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 2.1.1";
+    vendorstring = "Ssh Communications Security IPSEC Express version 2.1.1";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_2, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 2.1.2";
+    vendorstring = "Ssh Communications Security IPSEC Express version 2.1.2";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_3_0_0, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 3.0.0";
+    vendorstring = "Ssh Communications Security IPSEC Express version 3.0.0";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_3_0_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 3.0.1";
+    vendorstring = "Ssh Communications Security IPSEC Express version 3.0.1";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_0_0, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 4.0.0";
+    vendorstring = "Ssh Communications Security IPSEC Express version 4.0.0";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_0_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 4.0.1";
+    vendorstring = "Ssh Communications Security IPSEC Express version 4.0.1";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_1_0, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 4.1.0";
+    vendorstring = "Ssh Communications Security IPSEC Express version 4.1.0";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_1_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 4.1.1";
+    vendorstring = "Ssh Communications Security IPSEC Express version 4.1.1";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_0, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 5.0";
+    vendorstring = "Ssh Communications Security IPSEC Express version 5.0";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_0_0, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 5.0.0";
+    vendorstring = "Ssh Communications Security IPSEC Express version 5.0.0";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_1_0, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 5.1.0";
+    vendorstring = "Ssh Communications Security IPSEC Express version 5.1.0";
   else
   if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_1_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Ssh Communications Security IPSEC Express version 5.1.1";
+    vendorstring = "Ssh Communications Security IPSEC Express version 5.1.1";
   else
   if (memcmp(pVID,  VID_SSH_SENTINEL, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "SSH Sentinel";
+    vendorstring = "SSH Sentinel";
   else
   if (memcmp(pVID,  VID_SSH_SENTINEL_1_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "SSH Sentinel 1.1";
+    vendorstring = "SSH Sentinel 1.1";
   else
   if (memcmp(pVID,  VID_SSH_SENTINEL_1_2, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "SSH Sentinel 1.2";
+    vendorstring = "SSH Sentinel 1.2";
   else
   if (memcmp(pVID,  VID_SSH_SENTINEL_1_3, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "SSH Sentinel 1.3";
+    vendorstring = "SSH Sentinel 1.3";
   else
   if (memcmp(pVID,  VID_SSH_QUICKSEC_0_9_0, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "SSH Communications Security QuickSec 0.9.0";
+    vendorstring = "SSH Communications Security QuickSec 0.9.0";
   else
   if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_0, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "SSH Communications Security QuickSec 1.1.0";
+    vendorstring = "SSH Communications Security QuickSec 1.1.0";
   else
   if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "SSH Communications Security QuickSec 1.1.1";
+    vendorstring = "SSH Communications Security QuickSec 1.1.1";
   else
   if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_2, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "SSH Communications Security QuickSec 1.1.2";
+    vendorstring = "SSH Communications Security QuickSec 1.1.2";
   else
   if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_3, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "SSH Communications Security QuickSec 1.1.3";
+    vendorstring = "SSH Communications Security QuickSec 1.1.3";
   else
   if (memcmp(pVID,  VID_draft_huttunen_ipsec_esp_in_udp_01, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "draft-huttunen-ipsec-esp-in-udp-01.txt";
+    vendorstring = "draft-huttunen-ipsec-esp-in-udp-01.txt";
   else
   if (memcmp(pVID,  VID_draft_stenberg_ipsec_nat_traversal_01, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "draft-stenberg-ipsec-nat-traversal-01";
+    vendorstring = "draft-stenberg-ipsec-nat-traversal-01";
   else
   if (memcmp(pVID,  VID_draft_stenberg_ipsec_nat_traversal_02, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "draft-stenberg-ipsec-nat-traversal-02";
+    vendorstring = "draft-stenberg-ipsec-nat-traversal-02";
   else
   if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_00, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "draft-ietf-ipsec-nat-t-ike-00";
+    vendorstring = "draft-ietf-ipsec-nat-t-ike-00";
   else
   if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_01, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "draft-ietf-ipsec-nat-t-ike-01";
+    vendorstring = "draft-ietf-ipsec-nat-t-ike-01";
   else
   if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_02a, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "draft-ietf-ipsec-nat-t-ike-02";
+    vendorstring = "draft-ietf-ipsec-nat-t-ike-02";
   else
   if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_02b, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "draft-ietf-ipsec-nat-t-ike-02\\n"; /* \n intentional */
+    vendorstring = "draft-ietf-ipsec-nat-t-ike-02\\n"; /* \n intentional */
   else
   if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_03, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "draft-ietf-ipsec-nat-t-ike-03";
+    vendorstring = "draft-ietf-ipsec-nat-t-ike-03";
   else
   if (memcmp(pVID,  VID_draft_beaulieu_ike_xauth_02, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "draft-beaulieu-ike-xauth-02.txt";
+    vendorstring = "draft-beaulieu-ike-xauth-02.txt";
   else
   if (memcmp(pVID,  VID_rfc3706_dpd, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "RFC 3706 Detecting Dead IKE Peers (DPD)";
+    vendorstring = "RFC 3706 Detecting Dead IKE Peers (DPD)";
   else
   if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys";
+    vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys";
   else
   if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_2, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys";
+    vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys";
   else
   if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_REV_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)";
+    vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)";
   else
   if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_REV_2, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)";
+    vendorstring = "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)";
   else
   if (memcmp(pVID,  VID_MS_L2TP_IPSEC_VPN_CLIENT, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "Microsoft L2TP/IPSec VPN Client";
+    vendorstring = "Microsoft L2TP/IPSec VPN Client";
   else
   if (memcmp(pVID,  VID_GSS_API_1, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "A GSS-API Authentication Method for IKE";
+    vendorstring = "A GSS-API Authentication Method for IKE";
   else
   if (memcmp(pVID,  VID_GSS_API_2, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "A GSS-API Authentication Method for IKE";
+    vendorstring = "A GSS-API Authentication Method for IKE";
   else
   if (memcmp(pVID,  VID_GSSAPI, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "GSSAPI";
+    vendorstring = "GSSAPI";
   else
   if (memcmp(pVID,  VID_MS_NT5_ISAKMPOAKLEY, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "MS NT5 ISAKMPOAKLEY";
+    vendorstring = "MS NT5 ISAKMPOAKLEY";
   else
   if (memcmp(pVID,  VID_CISCO_CONCENTRATOR, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "CISCO-CONCENTRATOR";
+    vendorstring = "CISCO-CONCENTRATOR";
   else
   if (memcmp(pVID,  VID_CISCO_UNITY_10, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "CISCO-UNITY-1.0";
+    vendorstring = "CISCO-UNITY-1.0";
   else
   if (memcmp(pVID,  VID_CISCO_UNITY, isakmp_min(VID_LEN, length)) == 0)
-        vendorstring = "CISCO-UNITY";
+    vendorstring = "CISCO-UNITY";
   else
   if (memcmp(pVID,  VID_draft_ietf_ipsec_antireplay_00, isakmp_min(VID_LEN_8, length)) == 0)
-        vendorstring = "draft-ietf-ipsec-antireplay-00.txt";
+    vendorstring = "draft-ietf-ipsec-antireplay-00.txt";
   else
   if (memcmp(pVID,  VID_draft_ietf_ipsec_heartbeats_00, isakmp_min(VID_LEN_8, length)) == 0)
-        vendorstring = "draft-ietf-ipsec-heartbeats-00.txt";
+    vendorstring = "draft-ietf-ipsec-heartbeats-00.txt";
   else
-        vendorstring = tvb_bytes_to_str(tvb, offset, length);
+    vendorstring = tvb_bytes_to_str(tvb, offset, length);
 
   return vendorstring;
 }
 
 static void
 dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_, guint8 inner_payload _U_)
+            proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version _U_,
+            int unused _U_, guint8 inner_payload _U_)
 {
   guint32 CPproduct, CPversion;
   const guint8 * pVID;
@@ -2384,55 +2393,56 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
   pVID = tvb_get_ptr(tvb, offset, length);
   pt = proto_tree_add_text(tree, tvb, offset, length, "Vendor ID: %s",
-	vid_to_str(tvb, offset, length));
+                           vid_to_str(tvb, offset, length));
 
   if (memcmp(pVID, VID_CP, isakmp_min(VID_CP_LEN, length)) == 0)
   {
-	offset += VID_CP_LEN;
-	CPproduct = tvb_get_ntohl(tvb, offset);
-	ntree = proto_item_add_subtree(pt, ett_isakmp_payload);
-	pt = proto_tree_add_text(ntree, tvb, offset, sizeof(CPproduct), "Check Point Product: ");
-	switch (CPproduct) {
-		case 1: proto_item_append_text(pt, "VPN-1");
-			break;
-		case 2: proto_item_append_text(pt, "SecuRemote/SecureClient");
-			break;
-		default: proto_item_append_text(pt, "Unknown CP product!");
-			break;
-	}
-	offset += sizeof(CPproduct);
-	CPversion = tvb_get_ntohl(tvb, offset);
-	pt = proto_tree_add_text(ntree, tvb, offset, sizeof(CPversion), "Version: ");
-	switch (CPversion) {
-		case 2: proto_item_append_text(pt, "4.1");
-			break;
-		case 3: proto_item_append_text(pt, "4.1 SP-1");
-			break;
-		case 4002: proto_item_append_text(pt, "4.1 (SP-2 or above)");
-			break;
-		case 5000: proto_item_append_text(pt, "NG");
-			break;
-		case 5001: proto_item_append_text(pt, "NG Feature Pack 1");
-			break;
-		case 5002: proto_item_append_text(pt, "NG Feature Pack 2");
-			break;
-		case 5003: proto_item_append_text(pt, "NG Feature Pack 3");
-			break;
-		case 5004: proto_item_append_text(pt, "NG with Application Intelligence");
-			break;
-		case 5005: proto_item_append_text(pt, "NG with Application Intelligence R55");
-			break;
-		default: proto_item_append_text(pt, " Unknown CP version!");
-			break;
-	}
-	offset += sizeof(CPversion);
-	proto_tree_add_text(ntree, tvb, offset, length - VID_CP_LEN - sizeof(CPproduct) - sizeof(CPversion),"Check Point Vendor ID parameters");
+    offset += VID_CP_LEN;
+    CPproduct = tvb_get_ntohl(tvb, offset);
+    ntree = proto_item_add_subtree(pt, ett_isakmp_payload);
+    pt = proto_tree_add_text(ntree, tvb, offset, sizeof(CPproduct), "Check Point Product: ");
+    switch (CPproduct) {
+      case 1: proto_item_append_text(pt, "VPN-1");
+        break;
+      case 2: proto_item_append_text(pt, "SecuRemote/SecureClient");
+        break;
+      default: proto_item_append_text(pt, "Unknown CP product!");
+        break;
+    }
+    offset += sizeof(CPproduct);
+    CPversion = tvb_get_ntohl(tvb, offset);
+    pt = proto_tree_add_text(ntree, tvb, offset, sizeof(CPversion), "Version: ");
+    switch (CPversion) {
+      case 2: proto_item_append_text(pt, "4.1");
+        break;
+      case 3: proto_item_append_text(pt, "4.1 SP-1");
+        break;
+      case 4002: proto_item_append_text(pt, "4.1 (SP-2 or above)");
+        break;
+      case 5000: proto_item_append_text(pt, "NG");
+        break;
+      case 5001: proto_item_append_text(pt, "NG Feature Pack 1");
+        break;
+      case 5002: proto_item_append_text(pt, "NG Feature Pack 2");
+        break;
+      case 5003: proto_item_append_text(pt, "NG Feature Pack 3");
+        break;
+      case 5004: proto_item_append_text(pt, "NG with Application Intelligence");
+        break;
+      case 5005: proto_item_append_text(pt, "NG with Application Intelligence R55");
+        break;
+      default: proto_item_append_text(pt, " Unknown CP version!");
+        break;
+    }
+    offset += sizeof(CPversion);
+    proto_tree_add_text(ntree, tvb, offset, length - VID_CP_LEN - sizeof(CPproduct) - sizeof(CPversion),"Check Point Vendor ID parameters");
   }
 }
 
 static void
 dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-    proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_, guint8 inner_payload _U_)
+               proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version,
+               int unused _U_, guint8 inner_payload _U_)
 {
   guint8		type;
 
@@ -2571,8 +2581,8 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   while (length > 0) {
     tstype = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 1,
-  		      "TS Type: %s (%u)",
-  		      v2_tstype2str(tstype), tstype);
+                        "TS Type: %s (%u)",
+                        v2_tstype2str(tstype), tstype);
     switch (tstype) {
     case IKEV2_TS_IPV4_ADDR_RANGE:
       addrlen = 4;
@@ -2582,7 +2592,7 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       break;
     default:
       proto_item_append_text(tree, "unknown TS data (aborted decoding): 0x%s",
-			tvb_bytes_to_str(tvb, offset, length));
+                             tvb_bytes_to_str(tvb, offset, length));
       return;
     }
 
@@ -2600,50 +2610,50 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
     protocol_id = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 1,
-  		      "Protocol ID: (%u)", protocol_id);
+                        "Protocol ID: (%u)", protocol_id);
     offset += 1;
     length -= 1;
 
     len = tvb_get_ntohs(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 2,
-  		      "Selector Length: %u", len);
+                        "Selector Length: %u", len);
     offset += 2;
     length -= 2;
 
     port = tvb_get_ntohs(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 2,
-  		      "Start Port: (%u)", port);
+                        "Start Port: (%u)", port);
     offset += 2;
     length -= 2;
 
     port = tvb_get_ntohs(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 2,
-  		      "End Port: (%u)", port);
+                        "End Port: (%u)", port);
     offset += 2;
     length -= 2;
 
     switch (tstype) {
     case IKEV2_TS_IPV4_ADDR_RANGE:
 	proto_tree_add_text(tree, tvb, offset, length,
-			  "Starting Address: %s",
-			  ip_to_str(tvb_get_ptr(tvb, offset, addrlen)));
+                            "Starting Address: %s",
+                            ip_to_str(tvb_get_ptr(tvb, offset, addrlen)));
 	offset += addrlen;
 	length -= addrlen;
 	proto_tree_add_text(tree, tvb, offset, length,
-  			  "Ending Address: %s",
-  			  ip_to_str(tvb_get_ptr(tvb, offset, addrlen)));
+                            "Ending Address: %s",
+                            ip_to_str(tvb_get_ptr(tvb, offset, addrlen)));
 	offset += addrlen;
 	length -= addrlen;
 	break;
     case IKEV2_TS_IPV6_ADDR_RANGE:
 	proto_tree_add_text(tree, tvb, offset, length,
-			  "Starting Address: %s",
-			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, addrlen)));
+                            "Starting Address: %s",
+                            ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, addrlen)));
 	offset += addrlen;
 	length -= addrlen;
 	proto_tree_add_text(tree, tvb, offset, length,
-  			  "Ending Address: %s",
-  			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, addrlen)));
+                            "Ending Address: %s",
+                            ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, addrlen)));
 	offset += addrlen;
 	length -= addrlen;
 	break;
@@ -2884,7 +2894,7 @@ payloadtype2str(int isakmp_version, guint8 type)
   struct payload_func *f;
 
   if ((f = getpayload_func(type, isakmp_version)) != NULL)
-      return f->str;
+    return f->str;
 
   if (isakmp_version == 1) {
     if (type < 128)
@@ -3704,12 +3714,12 @@ static void ikev2_uat_data_update_cb(void* p, const char** err) {
   ikev2_uat_data_t *ud = p;
 
   if (ud->key.spii_len != COOKIE_SIZE) {
-    *err = ep_strdup_printf("Length of Initiator's SPI must be %d octets (%d hex charactors).", COOKIE_SIZE, COOKIE_SIZE * 2);
+    *err = ep_strdup_printf("Length of Initiator's SPI must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
     return;
   }
 
   if (ud->key.spir_len != COOKIE_SIZE) {
-    *err = ep_strdup_printf("Length of Responder's SPI must be %d octets (%d hex charactors).", COOKIE_SIZE, COOKIE_SIZE * 2);
+    *err = ep_strdup_printf("Length of Responder's SPI must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
     return;
   }
 
