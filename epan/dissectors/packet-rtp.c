@@ -105,7 +105,6 @@ typedef struct  _rtp_private_conv_info {
 } rtp_private_conv_info;
 
 static GHashTable *fragment_table = NULL;
-static GHashTable * fid_table = NULL;
 
 static int hf_rtp_fragments = -1;
 static int hf_rtp_fragment = -1;
@@ -430,7 +429,6 @@ static const value_string srtp_auth_alg_vals[] =
 static void rtp_fragment_init(void)
 {
 	fragment_table_init(&fragment_table);
-	fid_table = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
 void
