@@ -13895,6 +13895,126 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 static int
+dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
+    int offset, guint16 *bcp, gboolean *trunc)
+{
+	int fn_len;
+	const char *fn;
+	int old_offset = offset;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+	guint32 neo;
+	int padcnt;
+
+	si = (smb_info_t *)pinfo->private_data;
+	DISSECTOR_ASSERT(si);
+
+	if(parent_tree){
+		tvb_ensure_bytes_exist(tvb, offset, *bcp);
+		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
+	}
+
+	/*
+	 * XXX - I have not seen any of these that contain a resume
+	 * key, even though some of the requests had the "return resume
+	 * key" flag set.
+	 */
+
+	/* next entry offset */
+	CHECK_BYTE_COUNT_SUBR(4);
+	neo = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_next_entry_offset, tvb, offset, 4, neo);
+	COUNT_BYTES_SUBR(4);
+
+	/* file index */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+        /* dissect standard 8-byte timestamps */
+	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
+	if (*trunc) {
+	  return offset;
+	}
+
+	/* end of file */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* allocation size */
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* Extended File Attributes */
+	CHECK_BYTE_COUNT_SUBR(4);
+	offset = dissect_file_ext_attr(tvb, tree, offset);
+	*bcp -= 4;
+
+	/* file name len */
+	CHECK_BYTE_COUNT_SUBR(4);
+	fn_len = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
+	COUNT_BYTES_SUBR(4);
+
+	/*
+	 * EA length.
+	 *
+	 * XXX - in one captures, this has the topmost bit set, and the
+	 * rest of the bits have the value 7.  Is the topmost bit being
+	 * set some indication that the value *isn't* the length of
+	 * the EAs?
+	 */
+	CHECK_BYTE_COUNT_SUBR(4);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+	COUNT_BYTES_SUBR(4);
+
+	/* skip 4 bytes */
+	COUNT_BYTES_SUBR(4);
+
+	CHECK_BYTE_COUNT_SUBR(8);
+	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, TRUE);
+	COUNT_BYTES_SUBR(8);
+
+	/* file name */
+	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, TRUE, bcp);
+	CHECK_STRING_SUBR(fn);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_SUBR(fn_len);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+		    format_text(fn, strlen(fn)));
+	}
+
+	/* skip to next structure */
+	if(neo){
+		padcnt = (old_offset + neo) - offset;
+		if (padcnt < 0) {
+			/*
+			 * XXX - this is bogus; flag it?
+			 */
+			padcnt = 0;
+		}
+		if (padcnt != 0) {
+			CHECK_BYTE_COUNT_SUBR(padcnt);
+			COUNT_BYTES_SUBR(padcnt);
+		}
+	}
+
+	proto_item_append_text(item, " File: %s", format_text(fn, strlen(fn)));
+	proto_item_set_len(item, offset-old_offset);
+
+	*trunc = FALSE;
+	return offset;
+}
+
+static int
 dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
@@ -14121,8 +14241,11 @@ dissect_ff2_response_data(tvbuff_t * tvb, packet_info * pinfo,
 		    trunc);
 		break;
 	case 0x0104:	/*Find File Both Directory Info*/
-	case 0x0105:	/*Find File Full Directory Info, these are same in smb*/
 		offset = dissect_4_3_4_6(tvb, pinfo, tree, offset, bcp,
+		    trunc);
+		break;
+	case 0x0105:	/*Find File Full Directory Info*/
+		offset = dissect_4_3_4_6full(tvb, pinfo, tree, offset, bcp,
 		    trunc);
 		break;
 	case 0x0202:	/*Find File UNIX*/
