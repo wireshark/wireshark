@@ -99,6 +99,8 @@
 #include "packet-ipv6.h"
 #include "packet-e212.h"
 #include "packet-ppp.h"
+#include "packet-gsm_sms.h"
+#include "expert.h"
 
 /* PROTOTYPES/FORWARDS */
 
@@ -612,6 +614,12 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	guint8	oct;
 	guint32	curr_offset;
 	const gchar *str;
+	guint8 coding_scheme, num_spare_bits;
+	guint32	num_chars, num_text_bits;
+	gchar *net_name = NULL;
+	GIConv cd;
+	GError *l_conv_error = NULL;
+	proto_item *item;
 
 	curr_offset = offset;
 
@@ -619,9 +627,10 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
-	switch ((oct & 0x70) >> 4)
+	coding_scheme = (oct & 0x70) >> 4;
+	switch (coding_scheme)
 	{
-	case 0x00: str = "Cell Broadcast data coding scheme, GSM default alphabet, language unspecified, defined in 3GPP TS 03.38"; break;
+	case 0x00: str = "Cell Broadcast data coding scheme, GSM default alphabet, language unspecified, defined in 3GPP TS 23.038"; break;
 	case 0x01: str = "UCS2 (16 bit)"; break;
 	default:
 		str = "Reserved";
@@ -642,9 +651,10 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 		a_bigbuf,
 		(oct & 0x08) ?
 			"add the letters for the Country's Initials and a separator (e.g. a space) to the text string" :
-			"The MS should not add the letters for the Country's Initials to the text string");
+			"not add the letters for the Country's Initials to the text string");
 
-	switch (oct & 0x07)
+	num_spare_bits = oct & 0x07;
+	switch (num_spare_bits)
 	{
 	case 1: str = "bit 8 is spare and set to '0' in octet n"; break;
 	case 2: str = "bits 7 and 8 are spare and set to '0' in octet n"; break;
@@ -659,7 +669,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
+	item = proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
 		"%s :  Number of spare bits in last octet: %s",
 		a_bigbuf,
@@ -668,16 +678,57 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	curr_offset++;
 
 	NO_MORE_DATA_CHECK(len);
+	switch(coding_scheme)
+	{
+	case 0:
+		num_chars = gsm_sms_char_7bit_unpack(0, len - 1, sizeof(a_bigbuf),
+			tvb_get_ptr(tvb, curr_offset, len - 1), a_bigbuf);
 
-	proto_tree_add_text(tree,
-		tvb, curr_offset, len - 1,
-		"Text string encoded according to Coding Scheme");
+		/* Check if there was a reasonable value for number of spare bits in last octet */
+		num_text_bits = ((len - 1) << 3) - num_spare_bits;
+		if (num_spare_bits && (num_text_bits % 7))
+		{
+			expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN, "Value leads to a Text String whose length is not a multiple of 7 bits");
+		}
+		/* 
+		 * If the number of spare bits is 7, then we have unpacked one extra
+		 * character. Disregard this character.
+		 */
+		if (num_spare_bits == 7)
+			num_chars--;
+		a_bigbuf[num_chars] = '\0';
+		/* There could be Greek chars, so better be safe */
+		net_name = ep_alloc(2 * num_chars);
+		gsm_sms_char_ascii_decode(net_name, a_bigbuf, num_chars);
+		proto_tree_add_text(tree, tvb , curr_offset, len - 1, "Text String: %s", net_name);
+		break;
+	case 1:
+		if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
+		{
+			net_name = g_convert_with_iconv(tvb_get_ptr(tvb, curr_offset, len - 1), len - 1, cd, NULL, NULL, &l_conv_error);
+			if(!l_conv_error){
+				proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Text String: %s", net_name);
+			}else{
+				proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Failed on UCS2 contact wireshark developers");
+			}
 
-	curr_offset += len - 1;
+			g_free(net_name);
+			g_iconv_close(cd);
+		}
+		else
+		{
+			/* tvb_get_ephemeral_faked_unicode takes the length in number of guint16's */
+			net_name = tvb_get_ephemeral_faked_unicode(tvb, curr_offset, ((len - 1) >> 1), FALSE);
+			proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Text String: %s", net_name);
+		}
+		break;
+	default:
+		proto_tree_add_text(tree,
+			tvb, curr_offset, len - 1,
+			"Text string encoded according to an unknown Coding Scheme");
+	}
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-	return(curr_offset - offset);
+	return(len);
 }
 
 /* 3GPP TS 24.008
