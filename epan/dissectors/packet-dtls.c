@@ -49,10 +49,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <sys/types.h>
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
@@ -138,14 +134,14 @@ static gint hf_dtls_handshake_dnames           = -1;
 static gint hf_dtls_handshake_dname_len        = -1;
 static gint hf_dtls_handshake_dname            = -1;
 
-static gint hf_dtls_fragments = -1;
-static gint hf_dtls_fragment = -1;
-static gint hf_dtls_fragment_overlap = -1;
+static gint hf_dtls_fragments                  = -1;
+static gint hf_dtls_fragment                   = -1;
+static gint hf_dtls_fragment_overlap           = -1;
 static gint hf_dtls_fragment_overlap_conflicts = -1;
-static gint hf_dtls_fragment_multiple_tails = -1;
+static gint hf_dtls_fragment_multiple_tails    = -1;
 static gint hf_dtls_fragment_too_long_fragment = -1;
-static gint hf_dtls_fragment_error = -1;
-static gint hf_dtls_reassembled_in = -1;
+static gint hf_dtls_fragment_error             = -1;
+static gint hf_dtls_reassembled_in             = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtls                   = -1;
@@ -162,15 +158,14 @@ static gint ett_dtls_dnames            = -1;
 static gint ett_dtls_fragment          = -1;
 static gint ett_dtls_fragments         = -1;
 
-static GHashTable *dtls_session_hash = NULL;
-static GHashTable *dtls_key_hash = NULL;
+static GHashTable *dtls_session_hash   = NULL;
+static GHashTable *dtls_key_hash       = NULL;
 static GHashTable *dtls_fragment_table = NULL;
-static GHashTable *dtls_reassembled_table = NULL;
 static GTree* dtls_associations = NULL;
-static dissector_handle_t dtls_handle = NULL;
+static dissector_handle_t dtls_handle  = NULL;
 static StringInfo dtls_compressed_data = {NULL, 0};
-static StringInfo dtls_decrypted_data = {NULL, 0};
-static gint dtls_decrypted_data_avail = 0;
+static StringInfo dtls_decrypted_data  = {NULL, 0};
+static gint dtls_decrypted_data_avail  = 0;
 
 static gchar* dtls_keys_list = NULL;
 #ifdef HAVE_LIBGNUTLS
@@ -178,21 +173,21 @@ static gchar* dtls_debug_file_name = NULL;
 #endif
 
 static const fragment_items dtls_frag_items = {
-	/* Fragment subtrees */
-	&ett_dtls_fragment,
-	&ett_dtls_fragments,
-	/* Fragment fields */
-	&hf_dtls_fragments,
-	&hf_dtls_fragment,
-	&hf_dtls_fragment_overlap,
-	&hf_dtls_fragment_overlap_conflicts,
-	&hf_dtls_fragment_multiple_tails,
-	&hf_dtls_fragment_too_long_fragment,
-	&hf_dtls_fragment_error,
-	/* Reassembled in field */
-	&hf_dtls_reassembled_in,
-	/* Tag */
-	"Message fragments"
+  /* Fragment subtrees */
+  &ett_dtls_fragment,
+  &ett_dtls_fragments,
+  /* Fragment fields */
+  &hf_dtls_fragments,
+  &hf_dtls_fragment,
+  &hf_dtls_fragment_overlap,
+  &hf_dtls_fragment_overlap_conflicts,
+  &hf_dtls_fragment_multiple_tails,
+  &hf_dtls_fragment_too_long_fragment,
+  &hf_dtls_fragment_error,
+  /* Reassembled in field */
+  &hf_dtls_reassembled_in,
+  /* Tag */
+  "Message fragments"
 };
 
 /* initialize/reset per capture state data (dtls sessions cache) */
@@ -201,7 +196,6 @@ dtls_init(void)
 {
   ssl_common_init(&dtls_session_hash, &dtls_decrypted_data, &dtls_compressed_data);
   fragment_table_init (&dtls_fragment_table);
-  reassembled_table_init(&dtls_reassembled_table);
 }
 
 /* parse dtls related preferences (private keys and ports association strings) */
@@ -245,9 +239,9 @@ dtls_parse(void)
 
 /* record layer dissector */
 static gint dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
-                               proto_tree *tree, guint32 offset,
-                               guint *conv_version,
-                               SslDecryptSession *conv_data);
+                                proto_tree *tree, guint32 offset,
+                                guint *conv_version,
+                                SslDecryptSession *conv_data);
 
 /* change cipher spec dissector */
 static void dissect_dtls_change_cipher_spec(tvbuff_t *tvb,
@@ -274,9 +268,9 @@ static void dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
                                        SslDecryptSession* ssl);
 
 static void dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
-						  proto_tree *tree,
-						  guint32 offset,
-						  SslDecryptSession* ssl);
+                                                  proto_tree *tree,
+                                                  guint32 offset,
+                                                  SslDecryptSession* ssl);
 
 static void dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
                                        proto_tree *tree,
@@ -303,7 +297,7 @@ static void dissect_dtls_hnd_finished(tvbuff_t *tvb,
 static gint  dtls_is_valid_handshake_type(guint8 type);
 
 static gint  dtls_is_authoritative_version_message(guint8 content_type,
-						  guint8 next_byte);
+                                                   guint8 next_byte);
 static gint  looks_like_dtls(tvbuff_t *tvb, guint32 offset);
 
 /*********************************************************************
@@ -344,12 +338,12 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    *       in addition to conv_version
    */
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-				   pinfo->srcport, pinfo->destport, 0);
+                                   pinfo->srcport, pinfo->destport, 0);
   if (!conversation)
     {
       /* create a new conversation */
       conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-				      pinfo->srcport, pinfo->destport, 0);
+                                      pinfo->srcport, pinfo->destport, 0);
     }
   conv_data = conversation_get_proto_data(conversation, proto_dtls);
 
@@ -375,7 +369,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dummy.port = pinfo->destport;
     }
     ssl_debug_printf("dissect_dtls server %s:%d\n",
-		     ep_address_to_str(&dummy.addr),dummy.port);
+                     ep_address_to_str(&dummy.addr),dummy.port);
 
     /* try to retrive private key for this service. Do it now 'cause pinfo
      * is not always available
@@ -415,9 +409,9 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * add a delimiter on info column
        */
       if (!first_record_in_frame
-	  && check_col(pinfo->cinfo, COL_INFO))
+          && check_col(pinfo->cinfo, COL_INFO))
         {
-	  col_append_str(pinfo->cinfo, COL_INFO, ", ");
+          col_append_str(pinfo->cinfo, COL_INFO, ", ");
         }
 
       /* first try to dispatch off the cached version
@@ -425,35 +419,35 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
       switch(*conv_version) {
       case SSL_VER_DTLS:
-	offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
-				     offset, conv_version,
-				     ssl_session);
-	break;
+        offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
+                                     offset, conv_version,
+                                     ssl_session);
+        break;
 
-	/* that failed, so apply some heuristics based
-	 * on this individual packet
-	 */
+        /* that failed, so apply some heuristics based
+         * on this individual packet
+         */
       default:
-	if (looks_like_dtls(tvb, offset))
-	  {
-	    /* looks like dtls */
-	    offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
-					 offset, conv_version,
-					 ssl_session);
-	  }
-	else
-	  {
-	    /* looks like something unknown, so lump into
-	     * continuation data
-	     */
-	    offset = tvb_length(tvb);
-	    col_append_str(pinfo->cinfo, COL_INFO,
-			     "Continuation Data");
+        if (looks_like_dtls(tvb, offset))
+          {
+            /* looks like dtls */
+            offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
+                                         offset, conv_version,
+                                         ssl_session);
+          }
+        else
+          {
+            /* looks like something unknown, so lump into
+             * continuation data
+             */
+            offset = tvb_length(tvb);
+            col_append_str(pinfo->cinfo, COL_INFO,
+                             "Continuation Data");
 
-	    /* Set the protocol column */
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
-	  }
-	break;
+            /* Set the protocol column */
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
+          }
+        break;
       }
 
       /* set up for next record in frame, if any */
@@ -465,8 +459,8 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static gint
 decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
-		    guint32 record_length, guint8 content_type, SslDecryptSession* ssl,
-		    gboolean save_plaintext)
+                    guint32 record_length, guint8 content_type, SslDecryptSession* ssl,
+                    gboolean save_plaintext)
 {
   gint ret;
   gint direction;
@@ -476,7 +470,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   /* if we can decrypt and decryption have success
    * add decrypted data to this packet info */
   ssl_debug_printf("decrypt_dtls_record: app_data len %d ssl state %X\n",
-		   record_length, ssl->state);
+                   record_length, ssl->state);
   if (!(ssl->state & SSL_HAVE_SESSION_KEY)) {
     ssl_debug_printf("decrypt_dtls_record: no session key\n");
     return ret;
@@ -496,10 +490,10 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   if (record_length > dtls_decrypted_data.data_len)
     {
       ssl_debug_printf("decrypt_dtls_record: allocating %d bytes"
-		       " for decrypt data (old len %d)\n",
-		       record_length + 32, dtls_decrypted_data.data_len);
+                       " for decrypt data (old len %d)\n",
+                       record_length + 32, dtls_decrypted_data.data_len);
       dtls_decrypted_data.data = g_realloc(dtls_decrypted_data.data,
-					   record_length + 32);
+                                           record_length + 32);
       dtls_decrypted_data.data_len = record_length + 32;
     }
 
@@ -507,8 +501,8 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
    * is successful*/
   dtls_decrypted_data_avail = dtls_decrypted_data.data_len;
   if (ssl_decrypt_record(ssl, decoder,
-			 content_type, tvb_get_ptr(tvb, offset, record_length),
-			 record_length, &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0)
+                         content_type, tvb_get_ptr(tvb, offset, record_length),
+                         record_length, &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0)
     ret = 1;
 
     if (ret && save_plaintext) {
@@ -617,7 +611,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       /* add the record layer subtree header */
       tvb_ensure_bytes_exist(tvb, offset, 13 + record_length);
       ti = proto_tree_add_item(tree, hf_dtls_record, tvb,
-			       offset, 13 + record_length, 0);
+                               offset, 13 + record_length, 0);
       dtls_record_tree = proto_item_add_subtree(ti, ett_dtls_record);
     }
 
@@ -626,12 +620,12 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
       /* show the one-byte content type */
       proto_tree_add_item(dtls_record_tree, hf_dtls_record_content_type,
-			  tvb, offset, 1, FALSE);
+                          tvb, offset, 1, FALSE);
       offset++;
 
       /* add the version */
       proto_tree_add_item(dtls_record_tree, hf_dtls_record_version, tvb,
-			  offset, 2, FALSE);
+                          offset, 2, FALSE);
       offset += 2;
 
       /* show epoch */
@@ -647,7 +641,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
       /* add the length */
       proto_tree_add_uint(dtls_record_tree, hf_dtls_record_length, tvb,
-			  offset, 2, record_length);
+                          offset, 2, record_length);
       offset += 2;    /* move past length field itself */
 
     }
@@ -669,27 +663,27 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       && dtls_is_authoritative_version_message(content_type, next_byte))
     {
       if (version == DTLSV1DOT0_VERSION ||
-	  version == DTLSV1DOT0_VERSION_NOT)
+          version == DTLSV1DOT0_VERSION_NOT)
         {
 
-	  *conv_version = SSL_VER_DTLS;
-	  if (ssl) {
-	    ssl->version_netorder = version;
-	    ssl->state |= SSL_VERSION;
-	  }
-	  /*ssl_set_conv_version(pinfo, ssl->version);*/
+          *conv_version = SSL_VER_DTLS;
+          if (ssl) {
+            ssl->version_netorder = version;
+            ssl->state |= SSL_VERSION;
+          }
+          /*ssl_set_conv_version(pinfo, ssl->version);*/
         }
     }
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
       if (version == DTLSV1DOT0_VERSION)
         {
-	  col_set_str(pinfo->cinfo, COL_PROTOCOL,
-		      ssl_version_short_names[SSL_VER_DTLS]);
+          col_set_str(pinfo->cinfo, COL_PROTOCOL,
+                      ssl_version_short_names[SSL_VER_DTLS]);
         }
       else
         {
-	  col_set_str(pinfo->cinfo, COL_PROTOCOL,"DTLS");
+          col_set_str(pinfo->cinfo, COL_PROTOCOL,"DTLS");
         }
     }
 
@@ -705,25 +699,25 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   case SSL_ID_CHG_CIPHER_SPEC:
     col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
     dissect_dtls_change_cipher_spec(tvb, dtls_record_tree,
-				    offset, conv_version, content_type);
+                                    offset, conv_version, content_type);
     break;
   case SSL_ID_ALERT:
     {
       tvbuff_t* decrypted;
       decrypted = 0;
       if (ssl&&decrypt_dtls_record(tvb, pinfo, offset,
-				   record_length, content_type, ssl, FALSE))
-	ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
-			    dtls_decrypted_data_avail, offset);
+                                   record_length, content_type, ssl, FALSE))
+        ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
+                            dtls_decrypted_data_avail, offset);
 
       /* try to retrive and use decrypted alert record, if any. */
       decrypted = ssl_get_record_info(proto_dtls, pinfo, offset);
       if (decrypted)
-	dissect_dtls_alert(decrypted, pinfo, dtls_record_tree, 0,
-			   conv_version);
+        dissect_dtls_alert(decrypted, pinfo, dtls_record_tree, 0,
+                           conv_version);
       else
-	dissect_dtls_alert(tvb, pinfo, dtls_record_tree, offset,
-			   conv_version);
+        dissect_dtls_alert(tvb, pinfo, dtls_record_tree, offset,
+                           conv_version);
       break;
     }
   case SSL_ID_HANDSHAKE:
@@ -735,24 +729,24 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
        * this record into the packet (we can have multiple handshake records
        * in the same frame) */
       if (ssl && decrypt_dtls_record(tvb, pinfo, offset,
-				     record_length, content_type, ssl, FALSE))
-	ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
-			    dtls_decrypted_data_avail, offset);
+                                     record_length, content_type, ssl, FALSE))
+        ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
+                            dtls_decrypted_data_avail, offset);
 
       /* try to retrive and use decrypted handshake record, if any. */
       decrypted = ssl_get_record_info(proto_dtls, pinfo, offset);
       if (decrypted)
-	dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
-			       decrypted->length, conv_version, ssl, content_type);
+        dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
+                               decrypted->length, conv_version, ssl, content_type);
       else
-	dissect_dtls_handshake(tvb, pinfo, dtls_record_tree, offset,
+        dissect_dtls_handshake(tvb, pinfo, dtls_record_tree, offset,
                                record_length, conv_version, ssl, content_type);
       break;
     }
   case SSL_ID_APP_DATA:
     if (ssl)
       decrypt_dtls_record(tvb, pinfo, offset,
-			  record_length, content_type, ssl, TRUE);
+                          record_length, content_type, ssl, TRUE);
 
     /* show on info colum what we are decoding */
     col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
@@ -767,35 +761,35 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     association = association ? association: ssl_association_find(dtls_associations, pinfo->destport, pinfo->ptype == PT_TCP);
 
     proto_item_set_text(dtls_record_tree,
-			"%s Record Layer: %s Protocol: %s",
-			ssl_version_short_names[*conv_version],
-			val_to_str(content_type, ssl_31_content_type, "unknown"),
-			association?association->info:"Application Data");
+                        "%s Record Layer: %s Protocol: %s",
+                        ssl_version_short_names[*conv_version],
+                        val_to_str(content_type, ssl_31_content_type, "unknown"),
+                        association?association->info:"Application Data");
 
     proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
-			offset, record_length, 0);
+                        offset, record_length, 0);
 
     /* show decrypted data info, if available */
     appl_data = ssl_get_data_info(proto_dtls, pinfo, TVB_RAW_OFFSET(tvb)+offset);
     if (appl_data && (appl_data->plain_data.data_len > 0))
       {
-		tvbuff_t *next_tvb;
-	/* try to dissect decrypted data*/
-	ssl_debug_printf("dissect_dtls_record decrypted len %d\n",
-			 appl_data->plain_data.data_len);
+        tvbuff_t *next_tvb;
+        /* try to dissect decrypted data*/
+        ssl_debug_printf("dissect_dtls_record decrypted len %d\n",
+                         appl_data->plain_data.data_len);
 
-		/* create a new TVB structure for desegmented data */
-		next_tvb = tvb_new_child_real_data(tvb, appl_data->plain_data.data, appl_data->plain_data.data_len, appl_data->plain_data.data_len);
+        /* create a new TVB structure for desegmented data */
+        next_tvb = tvb_new_child_real_data(tvb, appl_data->plain_data.data, appl_data->plain_data.data_len, appl_data->plain_data.data_len);
 
-	add_new_data_source(pinfo, next_tvb, "Decrypted DTLS data");
+        add_new_data_source(pinfo, next_tvb, "Decrypted DTLS data");
 
-	/* find out a dissector using server port*/
-	if (association && association->handle) {
-	  ssl_debug_printf("dissect_dtls_record found association %p\n", (void *)association);
-	  ssl_print_text_data("decrypted app data",appl_data->plain_data.data, appl_data->plain_data.data_len);
+        /* find out a dissector using server port*/
+        if (association && association->handle) {
+          ssl_debug_printf("dissect_dtls_record found association %p\n", (void *)association);
+          ssl_print_text_data("decrypted app data",appl_data->plain_data.data, appl_data->plain_data.data_len);
 
-	  call_dissector(association->handle, next_tvb, pinfo, top_tree);
-	}
+          call_dissector(association->handle, next_tvb, pinfo, top_tree);
+        }
       }
     break;
 
@@ -824,11 +818,11 @@ dissect_dtls_change_cipher_spec(tvbuff_t *tvb,
   if (tree)
     {
       proto_item_set_text(tree,
-			  "%s Record Layer: %s Protocol: Change Cipher Spec",
-			  ssl_version_short_names[*conv_version],
-			  val_to_str(content_type, ssl_31_content_type, "unknown"));
+                          "%s Record Layer: %s Protocol: Change Cipher Spec",
+                          ssl_version_short_names[*conv_version],
+                          val_to_str(content_type, ssl_31_content_type, "unknown"));
       proto_tree_add_item(tree, hf_dtls_change_cipher_spec, tvb,
-			  offset++, 1, FALSE);
+                          offset++, 1, FALSE);
     }
 }
 
@@ -853,7 +847,7 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
   if (tree)
     {
       ti = proto_tree_add_item(tree, hf_dtls_alert_message, tvb,
-			       offset, 2, 0);
+                               offset, 2, 0);
       ssl_alert_tree = proto_item_add_subtree(ti, ett_dtls_alert);
     }
 
@@ -872,9 +866,9 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
   if (level && desc)
     {
       if (check_col(pinfo->cinfo, COL_INFO))
-	col_append_fstr(pinfo->cinfo, COL_INFO,
-			"Alert (Level: %s, Description: %s)",
-			level, desc);
+        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        "Alert (Level: %s, Description: %s)",
+                        level, desc);
     }
   else
     {
@@ -885,23 +879,23 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
     {
       if (level && desc)
         {
-	  proto_item_set_text(tree, "%s Record Layer: Alert "
-			      "(Level: %s, Description: %s)",
-			      ssl_version_short_names[*conv_version],
-			      level, desc);
-	  proto_tree_add_item(ssl_alert_tree, hf_dtls_alert_message_level,
-			      tvb, offset++, 1, FALSE);
+          proto_item_set_text(tree, "%s Record Layer: Alert "
+                              "(Level: %s, Description: %s)",
+                              ssl_version_short_names[*conv_version],
+                              level, desc);
+          proto_tree_add_item(ssl_alert_tree, hf_dtls_alert_message_level,
+                              tvb, offset++, 1, FALSE);
 
-	  proto_tree_add_item(ssl_alert_tree, hf_dtls_alert_message_description,
-			      tvb, offset++, 1, FALSE);
+          proto_tree_add_item(ssl_alert_tree, hf_dtls_alert_message_description,
+                              tvb, offset++, 1, FALSE);
         }
       else
         {
-	  proto_item_set_text(tree,
-			      "%s Record Layer: Encrypted Alert",
-			      ssl_version_short_names[*conv_version]);
-	  proto_item_set_text(ssl_alert_tree,
-			      "Alert Message: Encrypted Alert");
+          proto_item_set_text(tree,
+                              "%s Record Layer: Encrypted Alert",
+                              ssl_version_short_names[*conv_version]);
+          proto_item_set_text(ssl_alert_tree,
+                              "Alert Message: Encrypted Alert");
         }
     }
 }
@@ -959,7 +953,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
   /* set record_length to the max offset */
   record_length += offset;
   for (; offset < record_length; offset += fragment_length,
-	 first_iteration = FALSE) /* set up for next pass, if any */
+         first_iteration = FALSE) /* set up for next pass, if any */
     {
       fragment_data *frag_msg = NULL;
       tvbuff_t *new_tvb = NULL;
@@ -976,258 +970,258 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
       if (!msg_type_str && !first_iteration)
         {
-	  /* only dissect / report messages if they're
-	   * either the first message in this record
-	   * or they're a valid message type
-	   */
-	  return;
+          /* only dissect / report messages if they're
+           * either the first message in this record
+           * or they're a valid message type
+           */
+          return;
         }
 
       /* on second and later iterations, add comma to info col */
       if (!first_iteration)
         {
-	  col_append_str(pinfo->cinfo, COL_INFO, ", ");
+          col_append_str(pinfo->cinfo, COL_INFO, ", ");
         }
 
       /*
        * Update our info string
        */
       if (check_col(pinfo->cinfo, COL_INFO))
-	col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
-			? msg_type_str : "Encrypted Handshake Message");
+        col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
+                        ? msg_type_str : "Encrypted Handshake Message");
 
       /* Handle fragments of known message type */
       if (fragmented)
-	{
-	  gboolean frag_hand;
+        {
+          gboolean frag_hand;
 
-	  switch (msg_type) {
-	  case SSL_HND_HELLO_REQUEST:
-	  case SSL_HND_CLIENT_HELLO:
-	  case SSL_HND_HELLO_VERIFY_REQUEST:
-	  case SSL_HND_SERVER_HELLO:
-	  case SSL_HND_CERTIFICATE:
-	  case SSL_HND_SERVER_KEY_EXCHG:
-	  case SSL_HND_CERT_REQUEST:
-	  case SSL_HND_SVR_HELLO_DONE:
-	  case SSL_HND_CERT_VERIFY:
-	  case SSL_HND_CLIENT_KEY_EXCHG:
-	  case SSL_HND_FINISHED:
-	    frag_hand = TRUE;
-	    break;
-	  default:
-	    /* Ignore encrypted handshake messages */
-	    frag_hand = FALSE;
-	    break;
-	  }
+          switch (msg_type) {
+          case SSL_HND_HELLO_REQUEST:
+          case SSL_HND_CLIENT_HELLO:
+          case SSL_HND_HELLO_VERIFY_REQUEST:
+          case SSL_HND_SERVER_HELLO:
+          case SSL_HND_CERTIFICATE:
+          case SSL_HND_SERVER_KEY_EXCHG:
+          case SSL_HND_CERT_REQUEST:
+          case SSL_HND_SVR_HELLO_DONE:
+          case SSL_HND_CERT_VERIFY:
+          case SSL_HND_CLIENT_KEY_EXCHG:
+          case SSL_HND_FINISHED:
+            frag_hand = TRUE;
+            break;
+          default:
+            /* Ignore encrypted handshake messages */
+            frag_hand = FALSE;
+            break;
+          }
 
-	  if (frag_hand) {
-	    /* Fragmented handshake message */
-	    pinfo->fragmented = TRUE;
-	    frag_msg = fragment_add(tvb, offset+12, pinfo, message_seq,
-				    dtls_fragment_table,
-				    fragment_offset, fragment_length, TRUE);
-	    fragment_set_tot_len(pinfo, message_seq, dtls_fragment_table,
-				 length);
+          if (frag_hand) {
+            /* Fragmented handshake message */
+            pinfo->fragmented = TRUE;
+            frag_msg = fragment_add(tvb, offset+12, pinfo, message_seq,
+                                    dtls_fragment_table,
+                                    fragment_offset, fragment_length, TRUE);
+            fragment_set_tot_len(pinfo, message_seq, dtls_fragment_table,
+                                 length);
 
-	    if (frag_msg && (fragment_length + fragment_offset) == length)
-	      {
-		/* Reassembled */
-		new_tvb = process_reassembled_data(tvb, offset+12, pinfo,
-						   "Reassembled Message",
-						   frag_msg,
-						   &dtls_frag_items,
-						   NULL, tree);
-		frag_str = " (Reassembled)";
-	      }
-	    else
-	      {
-		frag_str = " (Fragment)";
-	      }
+            if (frag_msg && (fragment_length + fragment_offset) == length)
+              {
+                /* Reassembled */
+                new_tvb = process_reassembled_data(tvb, offset+12, pinfo,
+                                                   "Reassembled Message",
+                                                   frag_msg,
+                                                   &dtls_frag_items,
+                                                   NULL, tree);
+                frag_str = " (Reassembled)";
+              }
+            else
+              {
+                frag_str = " (Fragment)";
+              }
 
-	    if (check_col(pinfo->cinfo, COL_INFO))
-	      col_append_str(pinfo->cinfo, COL_INFO, frag_str);
-	  }
-	}
+            if (check_col(pinfo->cinfo, COL_INFO))
+              col_append_str(pinfo->cinfo, COL_INFO, frag_str);
+          }
+        }
 
       if (tree)
         {
-	  /* set the label text on the record layer expanding node */
-	  if (first_iteration)
+          /* set the label text on the record layer expanding node */
+          if (first_iteration)
             {
-	      proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
-				  ssl_version_short_names[*conv_version],
-				  val_to_str(content_type, ssl_31_content_type, "unknown"),
-				  (msg_type_str!=NULL) ? msg_type_str :
-				  "Encrypted Handshake Message",
-				  (frag_str!=NULL) ? frag_str : "");
+              proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
+                                  ssl_version_short_names[*conv_version],
+                                  val_to_str(content_type, ssl_31_content_type, "unknown"),
+                                  (msg_type_str!=NULL) ? msg_type_str :
+                                  "Encrypted Handshake Message",
+                                  (frag_str!=NULL) ? frag_str : "");
             }
-	  else
+          else
             {
-	      proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
-				  ssl_version_short_names[*conv_version],
-				  val_to_str(content_type, ssl_31_content_type, "unknown"),
-				  "Multiple Handshake Messages",
-				  (frag_str!=NULL) ? frag_str : "");
+              proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
+                                  ssl_version_short_names[*conv_version],
+                                  val_to_str(content_type, ssl_31_content_type, "unknown"),
+                                  "Multiple Handshake Messages",
+                                  (frag_str!=NULL) ? frag_str : "");
             }
 
-	  /* add a subtree for the handshake protocol */
-	  ti = proto_tree_add_item(tree, hf_dtls_handshake_protocol, tvb,
-				   offset, fragment_length + 12, 0);
-	  ssl_hand_tree = proto_item_add_subtree(ti, ett_dtls_handshake);
+          /* add a subtree for the handshake protocol */
+          ti = proto_tree_add_item(tree, hf_dtls_handshake_protocol, tvb,
+                                   offset, fragment_length + 12, 0);
+          ssl_hand_tree = proto_item_add_subtree(ti, ett_dtls_handshake);
 
-	  if (ssl_hand_tree)
+          if (ssl_hand_tree)
             {
-	      /* set the text label on the subtree node */
-	      proto_item_set_text(ssl_hand_tree, "Handshake Protocol: %s%s",
-				  (msg_type_str != NULL) ? msg_type_str :
-				  "Encrypted Handshake Message",
-				  (frag_str!=NULL) ? frag_str : "");
+              /* set the text label on the subtree node */
+              proto_item_set_text(ssl_hand_tree, "Handshake Protocol: %s%s",
+                                  (msg_type_str != NULL) ? msg_type_str :
+                                  "Encrypted Handshake Message",
+                                  (frag_str!=NULL) ? frag_str : "");
             }
         }
 
       /* if we don't have a valid handshake type, just quit dissecting */
       if (!msg_type_str)
-	return;
+        return;
 
       /* if we are doing ssl decryption we must dissect some requests type */
       if (ssl_hand_tree || ssl)
         {
-	  tvbuff_t *sub_tvb = NULL;
+          tvbuff_t *sub_tvb = NULL;
 
-	  /* add nodes for the message type and message length */
-	  if (ssl_hand_tree)
-	    proto_tree_add_item(ssl_hand_tree, hf_dtls_handshake_type,
-				tvb, offset, 1, msg_type);
-	  offset++;
-	  if (ssl_hand_tree)
-	    proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_length,
+          /* add nodes for the message type and message length */
+          if (ssl_hand_tree)
+            proto_tree_add_item(ssl_hand_tree, hf_dtls_handshake_type,
+                                tvb, offset, 1, msg_type);
+          offset++;
+          if (ssl_hand_tree)
+            proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_length,
                                 tvb, offset, 3, length);
-	  offset += 3;
+          offset += 3;
 
-	  if (ssl_hand_tree)
-	    proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_message_seq,
+          if (ssl_hand_tree)
+            proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_message_seq,
                                 tvb, offset, 2, message_seq);
-	  offset += 2;
-	  if (ssl_hand_tree)
-	    proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_offset,
+          offset += 2;
+          if (ssl_hand_tree)
+            proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_offset,
                                 tvb, offset, 3, fragment_offset);
-	  offset += 3;
-	  if (ssl_hand_tree)
-	    proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_length,
+          offset += 3;
+          if (ssl_hand_tree)
+            proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_fragment_length,
                                 tvb, offset, 3, fragment_length);
-	  offset += 3;
+          offset += 3;
 
-	  if (fragmented && !new_tvb)
-	    {
-	      /* Skip fragmented messages not reassembled yet */
-	      continue;
-	    }
+          if (fragmented && !new_tvb)
+            {
+              /* Skip fragmented messages not reassembled yet */
+              continue;
+            }
 
-	  if (new_tvb)
-	    {
-	      sub_tvb = new_tvb;
-	    }
-	  else
-	    {
-	      sub_tvb = tvb_new_subset(tvb, offset, fragment_length,
-					fragment_length);
-	    }
+          if (new_tvb)
+            {
+              sub_tvb = new_tvb;
+            }
+          else
+            {
+              sub_tvb = tvb_new_subset(tvb, offset, fragment_length,
+                                        fragment_length);
+            }
 
-	  /* now dissect the handshake message, if necessary */
-	  switch (msg_type) {
-	  case SSL_HND_HELLO_REQUEST:
-	    /* hello_request has no fields, so nothing to do! */
-	    break;
+          /* now dissect the handshake message, if necessary */
+          switch (msg_type) {
+          case SSL_HND_HELLO_REQUEST:
+            /* hello_request has no fields, so nothing to do! */
+            break;
 
-	  case SSL_HND_CLIENT_HELLO:
-	    dissect_dtls_hnd_cli_hello(sub_tvb, ssl_hand_tree, 0, length, ssl);
-	    break;
+          case SSL_HND_CLIENT_HELLO:
+            dissect_dtls_hnd_cli_hello(sub_tvb, ssl_hand_tree, 0, length, ssl);
+            break;
 
-	  case SSL_HND_HELLO_VERIFY_REQUEST:
-	    dissect_dtls_hnd_hello_verify_request(sub_tvb, ssl_hand_tree, 0,  ssl);
-	    break;
+          case SSL_HND_HELLO_VERIFY_REQUEST:
+            dissect_dtls_hnd_hello_verify_request(sub_tvb, ssl_hand_tree, 0,  ssl);
+            break;
 
-	  case SSL_HND_SERVER_HELLO:
-	    dissect_dtls_hnd_srv_hello(sub_tvb, ssl_hand_tree, 0, length, ssl);
-	    break;
+          case SSL_HND_SERVER_HELLO:
+            dissect_dtls_hnd_srv_hello(sub_tvb, ssl_hand_tree, 0, length, ssl);
+            break;
 
-	  case SSL_HND_CERTIFICATE:
-	    dissect_dtls_hnd_cert(sub_tvb, ssl_hand_tree, 0, pinfo);
-	    break;
+          case SSL_HND_CERTIFICATE:
+            dissect_dtls_hnd_cert(sub_tvb, ssl_hand_tree, 0, pinfo);
+            break;
 
-	  case SSL_HND_SERVER_KEY_EXCHG:
-	    /* unimplemented */
-	    break;
+          case SSL_HND_SERVER_KEY_EXCHG:
+            /* unimplemented */
+            break;
 
-	  case SSL_HND_CERT_REQUEST:
-	    dissect_dtls_hnd_cert_req(sub_tvb, ssl_hand_tree, 0);
-	    break;
+          case SSL_HND_CERT_REQUEST:
+            dissect_dtls_hnd_cert_req(sub_tvb, ssl_hand_tree, 0);
+            break;
 
-	  case SSL_HND_SVR_HELLO_DONE:
-	    /* server_hello_done has no fields, so nothing to do! */
-	    break;
+          case SSL_HND_SVR_HELLO_DONE:
+            /* server_hello_done has no fields, so nothing to do! */
+            break;
 
-	  case SSL_HND_CERT_VERIFY:
-	    /* unimplemented */
-	    break;
+          case SSL_HND_CERT_VERIFY:
+            /* unimplemented */
+            break;
 
-	  case SSL_HND_CLIENT_KEY_EXCHG:
-	    {
-	      /* here we can have all the data to build session key */
-	      StringInfo encrypted_pre_master;
-	      gint ret;
-	      guint encrlen = length, skip;
+          case SSL_HND_CLIENT_KEY_EXCHG:
+            {
+              /* here we can have all the data to build session key */
+              StringInfo encrypted_pre_master;
+              gint ret;
+              guint encrlen = length, skip;
               skip = 0;
 
-	      if (!ssl)
-		break;
+              if (!ssl)
+                break;
 
-	      /* check for required session data */
-	      ssl_debug_printf("dissect_dtls_handshake found SSL_HND_CLIENT_KEY_EXCHG state %X\n",
-			       ssl->state);
-	      if ((ssl->state & (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) !=
-		  (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) {
-		ssl_debug_printf("dissect_dtls_handshake not enough data to generate key (required %X)\n",
-				 (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION));
-		break;
-	      }
+              /* check for required session data */
+              ssl_debug_printf("dissect_dtls_handshake found SSL_HND_CLIENT_KEY_EXCHG state %X\n",
+                               ssl->state);
+              if ((ssl->state & (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) !=
+                  (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) {
+                ssl_debug_printf("dissect_dtls_handshake not enough data to generate key (required %X)\n",
+                                 (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION));
+                break;
+              }
 
-	      encrypted_pre_master.data = se_alloc(encrlen);
-	      encrypted_pre_master.data_len = encrlen;
-	      tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
+              encrypted_pre_master.data = se_alloc(encrlen);
+              encrypted_pre_master.data_len = encrlen;
+              tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
 
-	      if (!ssl->private_key) {
-		ssl_debug_printf("dissect_dtls_handshake can't find private key\n");
-		break;
-	      }
+              if (!ssl->private_key) {
+                ssl_debug_printf("dissect_dtls_handshake can't find private key\n");
+                break;
+              }
 
-	      /* go with ssl key processessing; encrypted_pre_master
-	       * will be used for master secret store*/
-	      ret = ssl_decrypt_pre_master_secret(ssl, &encrypted_pre_master, ssl->private_key);
-	      if (ret < 0) {
-		ssl_debug_printf("dissect_dtls_handshake can't decrypt pre master secret\n");
-		break;
-	      }
-	      if (ssl_generate_keyring_material(ssl)<0) {
-		ssl_debug_printf("dissect_dtls_handshake can't generate keyring material\n");
-		break;
-	      }
-	      ssl->state |= SSL_HAVE_SESSION_KEY;
-	      ssl_save_session(ssl, dtls_session_hash);
-	      ssl_debug_printf("dissect_dtls_handshake session keys successfully generated\n");
-	    }
-	    break;
+              /* go with ssl key processessing; encrypted_pre_master
+               * will be used for master secret store*/
+              ret = ssl_decrypt_pre_master_secret(ssl, &encrypted_pre_master, ssl->private_key);
+              if (ret < 0) {
+                ssl_debug_printf("dissect_dtls_handshake can't decrypt pre master secret\n");
+                break;
+              }
+              if (ssl_generate_keyring_material(ssl)<0) {
+                ssl_debug_printf("dissect_dtls_handshake can't generate keyring material\n");
+                break;
+              }
+              ssl->state |= SSL_HAVE_SESSION_KEY;
+              ssl_save_session(ssl, dtls_session_hash);
+              ssl_debug_printf("dissect_dtls_handshake session keys successfully generated\n");
+            }
+            break;
 
-	  case SSL_HND_FINISHED:
-	    dissect_dtls_hnd_finished(sub_tvb, ssl_hand_tree,
-				      0, conv_version);
-	    break;
-	  }
+          case SSL_HND_FINISHED:
+            dissect_dtls_hnd_finished(sub_tvb, ssl_hand_tree,
+                                      0, conv_version);
+            break;
+          }
 
         }
       else{
-	offset += 12;        /* skip the handshake header when handshake is not processed*/
+        offset += 12;        /* skip the handshake header when handshake is not processed*/
       }
     }
 }
@@ -1245,31 +1239,31 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
       /* get proper peer information*/
       StringInfo* rnd;
       if (from_server)
-	rnd = &ssl->server_random;
+        rnd = &ssl->server_random;
       else
-	rnd = &ssl->client_random;
+        rnd = &ssl->client_random;
 
       /* get provided random for keyring generation*/
       tvb_memcpy(tvb, rnd->data, offset, 32);
       rnd->data_len = 32;
       if (from_server)
-	ssl->state |= SSL_SERVER_RANDOM;
+        ssl->state |= SSL_SERVER_RANDOM;
       else
-	ssl->state |= SSL_CLIENT_RANDOM;
+        ssl->state |= SSL_CLIENT_RANDOM;
       ssl_debug_printf("dissect_dtls_hnd_hello_common found random state %X\n",
-		       ssl->state);
+                       ssl->state);
 
       session_id_length = tvb_get_guint8(tvb, offset + 32);
       /* check stored session id info */
       if (from_server && (session_id_length == ssl->session_id.data_len) &&
-	  (tvb_memeql(tvb, offset+33, ssl->session_id.data, session_id_length) == 0))
+          (tvb_memeql(tvb, offset+33, ssl->session_id.data, session_id_length) == 0))
         {
-	  /* clinet/server id match: try to restore a previous cached session*/
-	  ssl_restore_session(ssl, dtls_session_hash);
+          /* clinet/server id match: try to restore a previous cached session*/
+          ssl_restore_session(ssl, dtls_session_hash);
         }
       else {
-	tvb_memcpy(tvb,ssl->session_id.data, offset+33, session_id_length);
-	ssl->session_id.data_len = session_id_length;
+        tvb_memcpy(tvb,ssl->session_id.data, offset+33, session_id_length);
+        ssl->session_id.data_len = session_id_length;
       }
     }
 
@@ -1279,27 +1273,27 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
       gmt_unix_time.secs = tvb_get_ntohl(tvb, offset);
       gmt_unix_time.nsecs = 0;
       proto_tree_add_time(tree, hf_dtls_handshake_random_time,
-			  tvb, offset, 4, &gmt_unix_time);
+                          tvb, offset, 4, &gmt_unix_time);
       offset += 4;
 
       /* show the random bytes */
       proto_tree_add_item(tree, hf_dtls_handshake_random_bytes,
-			  tvb, offset, 28, 0);
+                          tvb, offset, 28, 0);
       offset += 28;
 
       /* show the session id */
       session_id_length = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(tree, hf_dtls_handshake_session_id_len,
-			  tvb, offset++, 1, 0);
+                          tvb, offset++, 1, 0);
       if (session_id_length > 0)
         {
-	  proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
-				      tvb, offset, session_id_length,
-				      tvb_get_ptr(tvb, offset, session_id_length),
-				      "Session ID (%u byte%s)",
-				      session_id_length,
-				      plurality(session_id_length, "", "s"));
-	  offset += session_id_length;
+          proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
+                                      tvb, offset, session_id_length,
+                                      tvb_get_ptr(tvb, offset, session_id_length),
+                                      "Session ID (%u byte%s)",
+                                      session_id_length,
+                                      plurality(session_id_length, "", "s"));
+          offset += session_id_length;
         }
 
     }
@@ -1323,7 +1317,7 @@ dissect_dtls_hnd_hello_ext(tvbuff_t *tvb,
 
   extension_length = tvb_get_ntohs(tvb, offset);
   proto_tree_add_uint(tree, hf_dtls_handshake_extensions_len,
-		      tvb, offset, 2, extension_length);
+                      tvb, offset, 2, extension_length);
   offset += 2;
   left -= 2;
 
@@ -1333,27 +1327,27 @@ dissect_dtls_hnd_hello_ext(tvbuff_t *tvb,
       ext_len = tvb_get_ntohs(tvb, offset + 2);
 
       pi = proto_tree_add_text(tree, tvb, offset, 4 + ext_len,
-			       "Extension: %s",
-			       val_to_str(ext_type,
-					  tls_hello_extension_types,
-					  "Unknown %u"));
+                               "Extension: %s",
+                               val_to_str(ext_type,
+                                          tls_hello_extension_types,
+                                          "Unknown %u"));
       ext_tree = proto_item_add_subtree(pi, ett_dtls_extension);
       if (!ext_tree)
-	ext_tree = tree;
+        ext_tree = tree;
 
       proto_tree_add_uint(ext_tree, hf_dtls_handshake_extension_type,
-			  tvb, offset, 2, ext_type);
+                          tvb, offset, 2, ext_type);
       offset += 2;
 
       proto_tree_add_uint(ext_tree, hf_dtls_handshake_extension_len,
-			  tvb, offset, 2, ext_len);
+                          tvb, offset, 2, ext_len);
       offset += 2;
 
       proto_tree_add_bytes_format(ext_tree, hf_dtls_handshake_extension_data,
-				  tvb, offset, ext_len,
-				  tvb_get_ptr(tvb, offset, ext_len),
-				  "Data (%u byte%s)",
-				  ext_len, plurality(ext_len, "", "s"));
+                                  tvb, offset, ext_len,
+                                  tvb_get_ptr(tvb, offset, ext_len),
+                                  "Data (%u byte%s)",
+                                  ext_len, plurality(ext_len, "", "s"));
       offset += ext_len;
       left -= 2 + 2 + ext_len;
     }
@@ -1363,8 +1357,8 @@ dissect_dtls_hnd_hello_ext(tvbuff_t *tvb,
 
 static void
 dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
-			   proto_tree *tree, guint32 offset, guint32 length,
-			   SslDecryptSession*ssl)
+                           proto_tree *tree, guint32 offset, guint32 length,
+                           SslDecryptSession*ssl)
 {
   /* struct {
    *     ProtocolVersion client_version;
@@ -1392,7 +1386,7 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
     {
       /* show the client version */
       if (tree)
-	proto_tree_add_item(tree, hf_dtls_handshake_client_version, tvb,
+        proto_tree_add_item(tree, hf_dtls_handshake_client_version, tvb,
                             offset, 2, FALSE);
       offset += 2;
 
@@ -1402,113 +1396,113 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
       /* look for a cookie */
       cookie_length = tvb_get_guint8(tvb, offset);
       if (!tree)
-	return;
+        return;
 
       proto_tree_add_uint(tree, hf_dtls_handshake_cookie_len,
-			  tvb, offset, 1, cookie_length);
+                          tvb, offset, 1, cookie_length);
       offset ++;            /* skip opaque length */
 
       if (cookie_length > 0)
-	{
-	  proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
-				      tvb, offset, cookie_length,
-				      tvb_get_ptr(tvb, offset, cookie_length),
-				      "Cookie (%u byte%s)",
-				      cookie_length,
-				      plurality(cookie_length, "", "s"));
-	  offset += cookie_length;
-	}
+        {
+          proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
+                                      tvb, offset, cookie_length,
+                                      tvb_get_ptr(tvb, offset, cookie_length),
+                                      "Cookie (%u byte%s)",
+                                      cookie_length,
+                                      plurality(cookie_length, "", "s"));
+          offset += cookie_length;
+        }
 
       /* tell the user how many cipher suites there are */
       cipher_suite_length = tvb_get_ntohs(tvb, offset);
 
       proto_tree_add_uint(tree, hf_dtls_handshake_cipher_suites_len,
-			  tvb, offset, 2, cipher_suite_length);
+                          tvb, offset, 2, cipher_suite_length);
       offset += 2;            /* skip opaque length */
 
       if (cipher_suite_length > 0)
         {
-	  tvb_ensure_bytes_exist(tvb, offset, cipher_suite_length);
-	  ti = proto_tree_add_none_format(tree,
-					  hf_dtls_handshake_cipher_suites,
-					  tvb, offset, cipher_suite_length,
-					  "Cipher Suites (%u suite%s)",
-					  cipher_suite_length / 2,
-					  plurality(cipher_suite_length/2, "", "s"));
+          tvb_ensure_bytes_exist(tvb, offset, cipher_suite_length);
+          ti = proto_tree_add_none_format(tree,
+                                          hf_dtls_handshake_cipher_suites,
+                                          tvb, offset, cipher_suite_length,
+                                          "Cipher Suites (%u suite%s)",
+                                          cipher_suite_length / 2,
+                                          plurality(cipher_suite_length/2, "", "s"));
 
-	  /* make this a subtree */
-	  cs_tree = proto_item_add_subtree(ti, ett_dtls_cipher_suites);
-	  if (!cs_tree)
+          /* make this a subtree */
+          cs_tree = proto_item_add_subtree(ti, ett_dtls_cipher_suites);
+          if (!cs_tree)
             {
-	      cs_tree = tree; /* failsafe */
+              cs_tree = tree; /* failsafe */
             }
 
-	  while (cipher_suite_length > 0)
+          while (cipher_suite_length > 0)
             {
-	      proto_tree_add_item(cs_tree, hf_dtls_handshake_cipher_suite,
-				  tvb, offset, 2, FALSE);
-	      offset += 2;
-	      cipher_suite_length -= 2;
+              proto_tree_add_item(cs_tree, hf_dtls_handshake_cipher_suite,
+                                  tvb, offset, 2, FALSE);
+              offset += 2;
+              cipher_suite_length -= 2;
             }
         }
 
       /* tell the user how man compression methods there are */
       compression_methods_length = tvb_get_guint8(tvb, offset);
       proto_tree_add_uint(tree, hf_dtls_handshake_comp_methods_len,
-			  tvb, offset, 1, compression_methods_length);
+                          tvb, offset, 1, compression_methods_length);
       offset++;
 
       if (compression_methods_length > 0)
         {
-	  tvb_ensure_bytes_exist(tvb, offset, compression_methods_length);
-	  ti = proto_tree_add_none_format(tree,
-					  hf_dtls_handshake_comp_methods,
-					  tvb, offset, compression_methods_length,
-					  "Compression Methods (%u method%s)",
-					  compression_methods_length,
-					  plurality(compression_methods_length,
-						    "", "s"));
+          tvb_ensure_bytes_exist(tvb, offset, compression_methods_length);
+          ti = proto_tree_add_none_format(tree,
+                                          hf_dtls_handshake_comp_methods,
+                                          tvb, offset, compression_methods_length,
+                                          "Compression Methods (%u method%s)",
+                                          compression_methods_length,
+                                          plurality(compression_methods_length,
+                                                    "", "s"));
 
-	  /* make this a subtree */
-	  cs_tree = proto_item_add_subtree(ti, ett_dtls_comp_methods);
-	  if (!cs_tree)
+          /* make this a subtree */
+          cs_tree = proto_item_add_subtree(ti, ett_dtls_comp_methods);
+          if (!cs_tree)
             {
-	      cs_tree = tree; /* failsafe */
+              cs_tree = tree; /* failsafe */
             }
 
-	  while (compression_methods_length > 0)
+          while (compression_methods_length > 0)
             {
-	      compression_method = tvb_get_guint8(tvb, offset);
-	      if (compression_method < 64)
-		proto_tree_add_uint(cs_tree, hf_dtls_handshake_comp_method,
+              compression_method = tvb_get_guint8(tvb, offset);
+              if (compression_method < 64)
+                proto_tree_add_uint(cs_tree, hf_dtls_handshake_comp_method,
                                     tvb, offset, 1, compression_method);
-	      else if (compression_method > 63 && compression_method < 193)
-		proto_tree_add_text(cs_tree, tvb, offset, 1,
-				    "Compression Method: Reserved - to be assigned by IANA (%u)",
-				    compression_method);
-	      else
-		proto_tree_add_text(cs_tree, tvb, offset, 1,
-				    "Compression Method: Private use range (%u)",
-				    compression_method);
-	      offset++;
-	      compression_methods_length--;
+              else if (compression_method > 63 && compression_method < 193)
+                proto_tree_add_text(cs_tree, tvb, offset, 1,
+                                    "Compression Method: Reserved - to be assigned by IANA (%u)",
+                                    compression_method);
+              else
+                proto_tree_add_text(cs_tree, tvb, offset, 1,
+                                    "Compression Method: Private use range (%u)",
+                                    compression_method);
+              offset++;
+              compression_methods_length--;
             }
         }
 
       if (length > offset - start_offset)
-	{
-	  offset = dissect_dtls_hnd_hello_ext(tvb, tree, offset,
-					      length -
-					      (offset - start_offset));
-	}
+        {
+          offset = dissect_dtls_hnd_hello_ext(tvb, tree, offset,
+                                              length -
+                                              (offset - start_offset));
+        }
     }
 }
 
 
 static void dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
-						  proto_tree *tree,
-						  guint32 offset,
-						  SslDecryptSession* ssl)
+                                                  proto_tree *tree,
+                                                  guint32 offset,
+                                                  SslDecryptSession* ssl)
 {
   /*
    * struct {
@@ -1524,7 +1518,7 @@ static void dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
     {
       /* show the client version */
       if (tree)
-	proto_tree_add_item(tree, hf_dtls_handshake_server_version, tvb,
+        proto_tree_add_item(tree, hf_dtls_handshake_server_version, tvb,
                             offset, 2, FALSE);
       offset += 2;
 
@@ -1532,22 +1526,22 @@ static void dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
       /* look for a cookie */
       cookie_length = tvb_get_guint8(tvb, offset);
       if (!tree)
-	return;
+        return;
 
       proto_tree_add_uint(tree, hf_dtls_handshake_cookie_len,
-			  tvb, offset, 1, cookie_length);
+                          tvb, offset, 1, cookie_length);
       offset ++;            /* skip opaque length */
 
       if (cookie_length > 0)
-	{
-	  proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
-				      tvb, offset, cookie_length,
-				      tvb_get_ptr(tvb, offset, cookie_length),
-				      "Cookie (%u byte%s)",
-				      cookie_length,
-				      plurality(cookie_length, "", "s"));
-	  offset += cookie_length;
-	}
+        {
+          proto_tree_add_bytes_format(tree, hf_dtls_handshake_cookie,
+                                      tvb, offset, cookie_length,
+                                      tvb_get_ptr(tvb, offset, cookie_length),
+                                      "Cookie (%u byte%s)",
+                                      cookie_length,
+                                      plurality(cookie_length, "", "s"));
+          offset += cookie_length;
+        }
     }
 
 }
@@ -1572,7 +1566,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
     {
       /* show the server version */
       if (tree)
-	proto_tree_add_item(tree, hf_dtls_handshake_server_version, tvb,
+        proto_tree_add_item(tree, hf_dtls_handshake_server_version, tvb,
                             offset, 2, FALSE);
       offset += 2;
 
@@ -1583,54 +1577,54 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
 
       /* PAOLO: handle session cipher suite  */
       if (ssl) {
-	/* store selected cipher suite for decryption */
-	ssl->cipher = tvb_get_ntohs(tvb, offset);
-	if (ssl_find_cipher(ssl->cipher,&ssl->cipher_suite) < 0) {
-	  ssl_debug_printf("dissect_dtls_hnd_srv_hello can't find cipher suite %X\n", ssl->cipher);
-	  goto no_cipher;
-	}
+        /* store selected cipher suite for decryption */
+        ssl->cipher = tvb_get_ntohs(tvb, offset);
+        if (ssl_find_cipher(ssl->cipher,&ssl->cipher_suite) < 0) {
+          ssl_debug_printf("dissect_dtls_hnd_srv_hello can't find cipher suite %X\n", ssl->cipher);
+          goto no_cipher;
+        }
 
-	ssl->state |= SSL_CIPHER;
-	ssl_debug_printf("dissect_dtls_hnd_srv_hello found cipher %X, state %X\n",
-			 ssl->cipher, ssl->state);
+        ssl->state |= SSL_CIPHER;
+        ssl_debug_printf("dissect_dtls_hnd_srv_hello found cipher %X, state %X\n",
+                         ssl->cipher, ssl->state);
 
-	/* if we have restored a session now we can have enought material
-	 * to build session key, check it out*/
-	if ((ssl->state &
-	     (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET)) !=
-	    (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET)) {
-	  ssl_debug_printf("dissect_dtls_hnd_srv_hello not enough data to generate key (required %X)\n",
-			   (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET));
-	  goto no_cipher;
-	}
+        /* if we have restored a session now we can have enought material
+         * to build session key, check it out*/
+        if ((ssl->state &
+             (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET)) !=
+            (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET)) {
+          ssl_debug_printf("dissect_dtls_hnd_srv_hello not enough data to generate key (required %X)\n",
+                           (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET));
+          goto no_cipher;
+        }
 
-	ssl_debug_printf("dissect_dtls_hnd_srv_hello trying to generate keys\n");
-	if (ssl_generate_keyring_material(ssl)<0) {
-	  ssl_debug_printf("dissect_dtls_hnd_srv_hello can't generate keyring material\n");
-	  goto no_cipher;
-	}
-	ssl->state |= SSL_HAVE_SESSION_KEY;
+        ssl_debug_printf("dissect_dtls_hnd_srv_hello trying to generate keys\n");
+        if (ssl_generate_keyring_material(ssl)<0) {
+          ssl_debug_printf("dissect_dtls_hnd_srv_hello can't generate keyring material\n");
+          goto no_cipher;
+        }
+        ssl->state |= SSL_HAVE_SESSION_KEY;
       }
     no_cipher:
       if (!tree)
-	return;
+        return;
 
       /* now the server-selected cipher suite */
       proto_tree_add_item(tree, hf_dtls_handshake_cipher_suite,
-			  tvb, offset, 2, FALSE);
+                          tvb, offset, 2, FALSE);
       offset += 2;
 
       /* and the server-selected compression method */
       proto_tree_add_item(tree, hf_dtls_handshake_comp_method,
-			  tvb, offset, 1, FALSE);
+                          tvb, offset, 1, FALSE);
       offset++;
 
       if (length > offset - start_offset)
-	{
-	  offset = dissect_dtls_hnd_hello_ext(tvb, tree, offset,
-					      length -
-					      (offset - start_offset));
-	}
+        {
+          offset = dissect_dtls_hnd_hello_ext(tvb, tree, offset,
+                                              length -
+                                              (offset - start_offset));
+        }
     }
 }
 
@@ -1655,40 +1649,40 @@ dissect_dtls_hnd_cert(tvbuff_t *tvb,
     {
       certificate_list_length = tvb_get_ntoh24(tvb, offset);
       proto_tree_add_uint(tree, hf_dtls_handshake_certificates_len,
-			  tvb, offset, 3, certificate_list_length);
+                          tvb, offset, 3, certificate_list_length);
       offset += 3;            /* 24-bit length value */
 
       if (certificate_list_length > 0)
         {
-	  tvb_ensure_bytes_exist(tvb, offset, certificate_list_length);
-	  ti = proto_tree_add_none_format(tree,
-					  hf_dtls_handshake_certificates,
-					  tvb, offset, certificate_list_length,
-					  "Certificates (%u byte%s)",
-					  certificate_list_length,
-					  plurality(certificate_list_length,
-						    "", "s"));
+          tvb_ensure_bytes_exist(tvb, offset, certificate_list_length);
+          ti = proto_tree_add_none_format(tree,
+                                          hf_dtls_handshake_certificates,
+                                          tvb, offset, certificate_list_length,
+                                          "Certificates (%u byte%s)",
+                                          certificate_list_length,
+                                          plurality(certificate_list_length,
+                                                    "", "s"));
 
-	  /* make it a subtree */
-	  subtree = proto_item_add_subtree(ti, ett_dtls_certs);
-	  if (!subtree)
+          /* make it a subtree */
+          subtree = proto_item_add_subtree(ti, ett_dtls_certs);
+          if (!subtree)
             {
-	      subtree = tree; /* failsafe */
+              subtree = tree; /* failsafe */
             }
 
-	  /* iterate through each certificate */
-	  while (certificate_list_length > 0)
+          /* iterate through each certificate */
+          while (certificate_list_length > 0)
             {
-	      /* get the length of the current certificate */
-	      guint32 cert_length = tvb_get_ntoh24(tvb, offset);
-	      certificate_list_length -= 3 + cert_length;
+              /* get the length of the current certificate */
+              guint32 cert_length = tvb_get_ntoh24(tvb, offset);
+              certificate_list_length -= 3 + cert_length;
 
-	      proto_tree_add_item(subtree, hf_dtls_handshake_certificate_len,
-				  tvb, offset, 3, FALSE);
-	      offset += 3;
+              proto_tree_add_item(subtree, hf_dtls_handshake_certificate_len,
+                                  tvb, offset, 3, FALSE);
+              offset += 3;
 
-	      dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_certificate);
-	      offset += cert_length;
+              dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_certificate);
+              offset += cert_length;
             }
         }
 
@@ -1724,70 +1718,70 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
     {
       cert_types_count = tvb_get_guint8(tvb, offset);
       proto_tree_add_uint(tree, hf_dtls_handshake_cert_types_count,
-			  tvb, offset, 1, cert_types_count);
+                          tvb, offset, 1, cert_types_count);
       offset++;
 
       if (cert_types_count > 0)
         {
-	  ti = proto_tree_add_none_format(tree,
-					  hf_dtls_handshake_cert_types,
-					  tvb, offset, cert_types_count,
-					  "Certificate types (%u type%s)",
-					  cert_types_count,
-					  plurality(cert_types_count, "", "s"));
-	  subtree = proto_item_add_subtree(ti, ett_dtls_cert_types);
-	  if (!subtree)
+          ti = proto_tree_add_none_format(tree,
+                                          hf_dtls_handshake_cert_types,
+                                          tvb, offset, cert_types_count,
+                                          "Certificate types (%u type%s)",
+                                          cert_types_count,
+                                          plurality(cert_types_count, "", "s"));
+          subtree = proto_item_add_subtree(ti, ett_dtls_cert_types);
+          if (!subtree)
             {
-	      subtree = tree;
+              subtree = tree;
             }
 
-	  while (cert_types_count > 0)
+          while (cert_types_count > 0)
             {
-	      proto_tree_add_item(subtree, hf_dtls_handshake_cert_type,
-				  tvb, offset, 1, FALSE);
-	      offset++;
-	      cert_types_count--;
+              proto_tree_add_item(subtree, hf_dtls_handshake_cert_type,
+                                  tvb, offset, 1, FALSE);
+              offset++;
+              cert_types_count--;
             }
         }
 
       dnames_length = tvb_get_ntohs(tvb, offset);
       proto_tree_add_uint(tree, hf_dtls_handshake_dnames_len,
-			  tvb, offset, 2, dnames_length);
+                          tvb, offset, 2, dnames_length);
       offset += 2;
 
       if (dnames_length > 0)
         {
-	  tvb_ensure_bytes_exist(tvb, offset, dnames_length);
-	  ti = proto_tree_add_none_format(tree,
-					  hf_dtls_handshake_dnames,
-					  tvb, offset, dnames_length,
-					  "Distinguished Names (%d byte%s)",
-					  dnames_length,
-					  plurality(dnames_length, "", "s"));
-	  subtree = proto_item_add_subtree(ti, ett_dtls_dnames);
-	  if (!subtree)
+          tvb_ensure_bytes_exist(tvb, offset, dnames_length);
+          ti = proto_tree_add_none_format(tree,
+                                          hf_dtls_handshake_dnames,
+                                          tvb, offset, dnames_length,
+                                          "Distinguished Names (%d byte%s)",
+                                          dnames_length,
+                                          plurality(dnames_length, "", "s"));
+          subtree = proto_item_add_subtree(ti, ett_dtls_dnames);
+          if (!subtree)
             {
-	      subtree = tree;
+              subtree = tree;
             }
 
-	  while (dnames_length > 0)
+          while (dnames_length > 0)
             {
-	      /* get the length of the current certificate */
-	      guint16 name_length = tvb_get_ntohs(tvb, offset);
-	      dnames_length -= 2 + name_length;
+              /* get the length of the current certificate */
+              guint16 name_length = tvb_get_ntohs(tvb, offset);
+              dnames_length -= 2 + name_length;
 
-	      proto_tree_add_item(subtree, hf_dtls_handshake_dname_len,
-				  tvb, offset, 2, FALSE);
-	      offset += 2;
+              proto_tree_add_item(subtree, hf_dtls_handshake_dname_len,
+                                  tvb, offset, 2, FALSE);
+              offset += 2;
 
-	      proto_tree_add_bytes_format(subtree,
-					  hf_dtls_handshake_dname,
-					  tvb, offset, name_length,
-					  tvb_get_ptr(tvb, offset, name_length),
-					  "Distinguished Name (%u byte%s)",
-					  name_length,
-					  plurality(name_length, "", "s"));
-	      offset += name_length;
+              proto_tree_add_bytes_format(subtree,
+                                          hf_dtls_handshake_dname,
+                                          tvb, offset, name_length,
+                                          tvb_get_ptr(tvb, offset, name_length),
+                                          "Distinguished Name (%u byte%s)",
+                                          name_length,
+                                          plurality(name_length, "", "s"));
+              offset += name_length;
             }
         }
     }
@@ -1814,7 +1808,7 @@ dissect_dtls_hnd_finished(tvbuff_t *tvb,
   switch(*conv_version) {
   case SSL_VER_DTLS:
     proto_tree_add_item(tree, hf_dtls_handshake_finished,
-			tvb, offset, 12, FALSE);
+                        tvb, offset, 12, FALSE);
     break;
   }
 }
@@ -1839,13 +1833,13 @@ ssl_set_conv_version(packet_info *pinfo, guint version)
     }
 
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-				   pinfo->srcport, pinfo->destport, 0);
+                                   pinfo->srcport, pinfo->destport, 0);
 
   if (conversation == NULL)
     {
       /* create a new conversation */
       conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-				      pinfo->srcport, pinfo->destport, 0);
+                                      pinfo->srcport, pinfo->destport, 0);
     }
 
   if (conversation_get_proto_data(conversation, proto_dtls) != NULL)
@@ -1880,7 +1874,7 @@ dtls_is_valid_handshake_type(guint8 type)
 
 static gint
 dtls_is_authoritative_version_message(guint8 content_type,
-				      guint8 next_byte)
+                                      guint8 next_byte)
 {
   if (content_type == SSL_ID_HANDSHAKE
       && dtls_is_valid_handshake_type(next_byte))
@@ -1888,7 +1882,7 @@ dtls_is_authoritative_version_message(guint8 content_type,
       return (next_byte != SSL_HND_CLIENT_HELLO);
     }
   else if (ssl_is_valid_content_type(content_type)
-	   && content_type != SSL_ID_HANDSHAKE)
+           && content_type != SSL_ID_HANDSHAKE)
     {
       return 1;
     }
@@ -1938,282 +1932,282 @@ proto_register_dtls(void)
   static hf_register_info hf[] = {
     { &hf_dtls_record,
       { "Record Layer", "dtls.record",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"Record layer", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "Record layer", HFILL }
     },
     { &hf_dtls_record_content_type,
       { "Content Type", "dtls.record.content_type",
-	FT_UINT8, BASE_DEC, VALS(ssl_31_content_type), 0x0,
-	"Content type", HFILL}
+        FT_UINT8, BASE_DEC, VALS(ssl_31_content_type), 0x0,
+        "Content type", HFILL}
     },
     { &hf_dtls_record_version,
       { "Version", "dtls.record.version",
-	FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
-	"Record layer version.", HFILL }
+        FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
+        "Record layer version.", HFILL }
     },
     { &hf_dtls_record_epoch,
       { "Epoch", "dtls.record.epoch",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	NULL, HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_dtls_record_sequence_number,
       { "Sequence Number", "dtls.record.sequence_number",
-	FT_DOUBLE, BASE_NONE, NULL, 0x0,
-	NULL, HFILL }
+        FT_DOUBLE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_dtls_record_length,
       { "Length", "dtls.record.length",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Length of DTLS record data", HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of DTLS record data", HFILL }
     },
     { &hf_dtls_record_appdata,
       { "Encrypted Application Data", "dtls.app_data",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-	"Payload is encrypted application data", HFILL }
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Payload is encrypted application data", HFILL }
     },
     { &hf_dtls_change_cipher_spec,
       { "Change Cipher Spec Message", "dtls.change_cipher_spec",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"Signals a change in cipher specifications", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "Signals a change in cipher specifications", HFILL }
     },
     { & hf_dtls_alert_message,
       { "Alert Message", "dtls.alert_message",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"Alert message", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "Alert message", HFILL }
     },
     { & hf_dtls_alert_message_level,
       { "Level", "dtls.alert_message.level",
-	FT_UINT8, BASE_DEC, VALS(ssl_31_alert_level), 0x0,
-	"Alert message level", HFILL }
+        FT_UINT8, BASE_DEC, VALS(ssl_31_alert_level), 0x0,
+        "Alert message level", HFILL }
     },
     { &hf_dtls_alert_message_description,
       { "Description", "dtls.alert_message.desc",
-	FT_UINT8, BASE_DEC, VALS(ssl_31_alert_description), 0x0,
-	"Alert message description", HFILL }
+        FT_UINT8, BASE_DEC, VALS(ssl_31_alert_description), 0x0,
+        "Alert message description", HFILL }
     },
     { &hf_dtls_handshake_protocol,
       { "Handshake Protocol", "dtls.handshake",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"Handshake protocol message", HFILL}
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "Handshake protocol message", HFILL}
     },
     { &hf_dtls_handshake_type,
       { "Handshake Type", "dtls.handshake.type",
-	FT_UINT8, BASE_DEC, VALS(ssl_31_handshake_type), 0x0,
-	"Type of handshake message", HFILL}
+        FT_UINT8, BASE_DEC, VALS(ssl_31_handshake_type), 0x0,
+        "Type of handshake message", HFILL}
     },
     { &hf_dtls_handshake_length,
       { "Length", "dtls.handshake.length",
-	FT_UINT24, BASE_DEC, NULL, 0x0,
-	"Length of handshake message", HFILL }
+        FT_UINT24, BASE_DEC, NULL, 0x0,
+        "Length of handshake message", HFILL }
     },
     { &hf_dtls_handshake_message_seq,
       { "Message Sequence", "dtls.handshake.message_seq",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Message sequence of handshake message", HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Message sequence of handshake message", HFILL }
     },
     { &hf_dtls_handshake_fragment_offset,
       { "Fragment Offset", "dtls.handshake.fragment_offset",
-	FT_UINT24, BASE_DEC, NULL, 0x0,
-	"Fragment offset of handshake message", HFILL }
+        FT_UINT24, BASE_DEC, NULL, 0x0,
+        "Fragment offset of handshake message", HFILL }
     },
     { &hf_dtls_handshake_fragment_length,
       { "Fragment Length", "dtls.handshake.fragment_length",
-	FT_UINT24, BASE_DEC, NULL, 0x0,
-	"Fragment length of handshake message", HFILL }
+        FT_UINT24, BASE_DEC, NULL, 0x0,
+        "Fragment length of handshake message", HFILL }
     },
     { &hf_dtls_handshake_client_version,
       { "Version", "dtls.handshake.version",
-	FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
-	"Maximum version supported by client", HFILL }
+        FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
+        "Maximum version supported by client", HFILL }
     },
     { &hf_dtls_handshake_server_version,
       { "Version", "dtls.handshake.version",
-	FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
-	"Version selected by server", HFILL }
+        FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
+        "Version selected by server", HFILL }
     },
     { &hf_dtls_handshake_random_time,
       { "Random.gmt_unix_time", "dtls.handshake.random_time",
-	FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
-	"Unix time field of random structure", HFILL }
+        FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+        "Unix time field of random structure", HFILL }
     },
     { &hf_dtls_handshake_random_bytes,
       { "Random.bytes", "dtls.handshake.random",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"Random challenge used to authenticate server", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "Random challenge used to authenticate server", HFILL }
     },
     { &hf_dtls_handshake_cipher_suites_len,
       { "Cipher Suites Length", "dtls.handshake.cipher_suites_length",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Length of cipher suites field", HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of cipher suites field", HFILL }
     },
     { &hf_dtls_handshake_cipher_suites,
       { "Cipher Suites", "dtls.handshake.ciphersuites",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"List of cipher suites supported by client", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "List of cipher suites supported by client", HFILL }
     },
     { &hf_dtls_handshake_cipher_suite,
       { "Cipher Suite", "dtls.handshake.ciphersuite",
-	FT_UINT16, BASE_HEX, VALS(ssl_31_ciphersuite), 0x0,
-	"Cipher suite", HFILL }
+        FT_UINT16, BASE_HEX, VALS(ssl_31_ciphersuite), 0x0,
+        "Cipher suite", HFILL }
     },
     { &hf_dtls_handshake_cookie_len,
       { "Cookie Length", "dtls.handshake.cookie_length",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"Length of the cookie field", HFILL }
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Length of the cookie field", HFILL }
     },
     { &hf_dtls_handshake_cookie,
       { "Cookie", "dtls.handshake.cookie",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-	NULL, HFILL }
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_dtls_handshake_session_id,
       { "Session ID", "dtls.handshake.session_id",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-	"Identifies the DTLS session, allowing later resumption", HFILL }
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Identifies the DTLS session, allowing later resumption", HFILL }
     },
     { &hf_dtls_handshake_comp_methods_len,
       { "Compression Methods Length", "dtls.handshake.comp_methods_length",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"Length of compression methods field", HFILL }
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Length of compression methods field", HFILL }
     },
     { &hf_dtls_handshake_comp_methods,
       { "Compression Methods", "dtls.handshake.comp_methods",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"List of compression methods supported by client", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "List of compression methods supported by client", HFILL }
     },
     { &hf_dtls_handshake_comp_method,
       { "Compression Method", "dtls.handshake.comp_method",
-	FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,
-	NULL, HFILL }
+        FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,
+        NULL, HFILL }
     },
     { &hf_dtls_handshake_extensions_len,
       { "Extensions Length", "dtls.handshake.extensions_length",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Length of hello extensions", HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of hello extensions", HFILL }
     },
     { &hf_dtls_handshake_extension_type,
       { "Type", "dtls.handshake.extension.type",
-	FT_UINT16, BASE_HEX, VALS(tls_hello_extension_types), 0x0,
-	"Hello extension type", HFILL }
+        FT_UINT16, BASE_HEX, VALS(tls_hello_extension_types), 0x0,
+        "Hello extension type", HFILL }
     },
     { &hf_dtls_handshake_extension_len,
       { "Length", "dtls.handshake.extension.len",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Length of a hello extension", HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of a hello extension", HFILL }
     },
     { &hf_dtls_handshake_extension_data,
       { "Data", "dtls.handshake.extension.data",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-	"Hello Extension data", HFILL }
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Hello Extension data", HFILL }
     },
     { &hf_dtls_handshake_certificates_len,
       { "Certificates Length", "dtls.handshake.certificates_length",
-	FT_UINT24, BASE_DEC, NULL, 0x0,
-	"Length of certificates field", HFILL }
+        FT_UINT24, BASE_DEC, NULL, 0x0,
+        "Length of certificates field", HFILL }
     },
     { &hf_dtls_handshake_certificates,
       { "Certificates", "dtls.handshake.certificates",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"List of certificates", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "List of certificates", HFILL }
     },
     { &hf_dtls_handshake_certificate,
       { "Certificate", "dtls.handshake.certificate",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-	NULL, HFILL }
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_dtls_handshake_certificate_len,
       { "Certificate Length", "dtls.handshake.certificate_length",
-	FT_UINT24, BASE_DEC, NULL, 0x0,
-	"Length of certificate", HFILL }
+        FT_UINT24, BASE_DEC, NULL, 0x0,
+        "Length of certificate", HFILL }
     },
     { &hf_dtls_handshake_cert_types_count,
       { "Certificate types count", "dtls.handshake.cert_types_count",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"Count of certificate types", HFILL }
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Count of certificate types", HFILL }
     },
     { &hf_dtls_handshake_cert_types,
       { "Certificate types", "dtls.handshake.cert_types",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"List of certificate types", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "List of certificate types", HFILL }
     },
     { &hf_dtls_handshake_cert_type,
       { "Certificate type", "dtls.handshake.cert_type",
-	FT_UINT8, BASE_DEC, VALS(ssl_31_client_certificate_type), 0x0,
-	NULL, HFILL }
+        FT_UINT8, BASE_DEC, VALS(ssl_31_client_certificate_type), 0x0,
+        NULL, HFILL }
     },
     { &hf_dtls_handshake_finished,
       { "Verify Data", "dtls.handshake.verify_data",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"Opaque verification data", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "Opaque verification data", HFILL }
     },
     { &hf_dtls_handshake_md5_hash,
       { "MD5 Hash", "dtls.handshake.md5_hash",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"Hash of messages, master_secret, etc.", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "Hash of messages, master_secret, etc.", HFILL }
     },
     { &hf_dtls_handshake_sha_hash,
       { "SHA-1 Hash", "dtls.handshake.sha_hash",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"Hash of messages, master_secret, etc.", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "Hash of messages, master_secret, etc.", HFILL }
     },
     { &hf_dtls_handshake_session_id_len,
       { "Session ID Length", "dtls.handshake.session_id_length",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"Length of session ID field", HFILL }
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Length of session ID field", HFILL }
     },
     { &hf_dtls_handshake_dnames_len,
       { "Distinguished Names Length", "dtls.handshake.dnames_len",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Length of list of CAs that server trusts", HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of list of CAs that server trusts", HFILL }
     },
     { &hf_dtls_handshake_dnames,
       { "Distinguished Names", "dtls.handshake.dnames",
-	FT_NONE, BASE_NONE, NULL, 0x0,
-	"List of CAs that server trusts", HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        "List of CAs that server trusts", HFILL }
     },
     { &hf_dtls_handshake_dname_len,
       { "Distinguished Name Length", "dtls.handshake.dname_len",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"Length of distinguished name", HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Length of distinguished name", HFILL }
     },
     { &hf_dtls_handshake_dname,
       { "Distinguished Name", "dtls.handshake.dname",
-	FT_BYTES, BASE_NONE, NULL, 0x0,
-	"Distinguished name of a CA that server trusts", HFILL }
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Distinguished name of a CA that server trusts", HFILL }
     },
     { &hf_dtls_fragments,
       { "Message fragments", "dtls.fragments",
-	FT_NONE, BASE_NONE, NULL, 0x00,	NULL, HFILL }
+        FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     { &hf_dtls_fragment,
       { "Message fragment", "dtls.fragment",
-	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     { &hf_dtls_fragment_overlap,
       { "Message fragment overlap", "dtls.fragment.overlap",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_overlap_conflicts,
       { "Message fragment overlapping with conflicting data",
-	"dtls.fragment.overlap.conflicts",
+        "dtls.fragment.overlap.conflicts",
        FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_multiple_tails,
       { "Message has multiple tail fragments",
-	"dtls.fragment.multiple_tails",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        "dtls.fragment.multiple_tails",
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_too_long_fragment,
       { "Message fragment too long", "dtls.fragment.too_long_fragment",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dtls_fragment_error,
       { "Message defragmentation error", "dtls.fragment.error",
-	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     { &hf_dtls_reassembled_in,
       { "Reassembled in", "dtls.reassembled.in",
-	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
   };
 
@@ -2235,7 +2229,7 @@ proto_register_dtls(void)
 
   /* Register the protocol name and description */
   proto_dtls = proto_register_protocol("Datagram Transport Layer Security",
-				       "DTLS", "dtls");
+                                       "DTLS", "dtls");
 
   /* Required function calls to register the header fields and
    * subtrees used */
@@ -2246,14 +2240,14 @@ proto_register_dtls(void)
   {
     module_t *dtls_module = prefs_register_protocol(proto_dtls, dtls_parse);
     prefs_register_string_preference(dtls_module, "keys_list", "RSA keys list",
-				     "semicolon separated list of private RSA keys used for DTLS decryption; "
-				     "each list entry must be in the form of <ip>,<port>,<protocol>,<key_file_name>"
-				     "<key_file_name>   is the local file name of the RSA private key used by the specified server\n",
-				     (const gchar **)&dtls_keys_list);
+                                     "semicolon separated list of private RSA keys used for DTLS decryption; "
+                                     "each list entry must be in the form of <ip>,<port>,<protocol>,<key_file_name>"
+                                     "<key_file_name>   is the local file name of the RSA private key used by the specified server\n",
+                                     (const gchar **)&dtls_keys_list);
     prefs_register_string_preference(dtls_module, "debug_file", "DTLS debug file",
-				     "redirect dtls debug to file name; leave empty to disable debug, "
-				     "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
-				     (const gchar **)&dtls_debug_file_name);
+                                     "redirect dtls debug to file name; leave empty to disable debug, "
+                                     "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
+                                     (const gchar **)&dtls_debug_file_name);
   }
 #endif
 
@@ -2266,7 +2260,7 @@ proto_register_dtls(void)
   ssl_lib_init();
   dtls_tap = register_tap("dtls");
   ssl_debug_printf("proto_register_dtls: registered tap %s:%d\n",
-		   "dtls", dtls_tap);
+                   "dtls", dtls_tap);
 }
 
 /* If this dissector uses sub-dissector registration add a registration
