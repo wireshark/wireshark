@@ -2105,7 +2105,7 @@ free_table_entry(gpointer key, gpointer value, gpointer user_data _U_)
 static void
 frag_table_init(void)
 {
-  /* destroy an existing hast table and create a new one */
+  /* destroy an existing hash table and create a new one */
   if (frag_table) {
     g_hash_table_foreach_remove(frag_table, free_table_entry, NULL);
     g_hash_table_destroy(frag_table);
