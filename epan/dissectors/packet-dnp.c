@@ -2135,13 +2135,15 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_item(field_tree, hf_dnp3_al_seq, tvb, offset, 1, FALSE);
   offset += 1;
 
+#if 0
   /* If this packet is NOT the final Application Layer Message, exit and continue
-  processing the remaining data in the fragment.
+     processing the remaining data in the fragment. */
   if (!al_fin)
   {
   t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "Buffering User Data Until Final Frame is Received..");
   return 1;
-  } */
+  }
+#endif
 
   /* Application Layer Function Code Byte  */
   proto_tree_add_uint_format(al_tree, hf_dnp3_al_func, tvb, offset, 1, al_func,
@@ -2648,11 +2650,6 @@ dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dnp3_init(void)
-{
-}
-
-static void
 al_defragment_init(void)
 {
   fragment_table_init(&al_fragment_table);
@@ -3061,7 +3058,7 @@ proto_register_dnp3(void)
   module_t *dnp3_module;
 
 /* Register protocol init routine */
-  register_init_routine(&dnp3_init);
+  register_init_routine(&al_defragment_init);
 
 /* Register the protocol name and description */
   proto_dnp3 = proto_register_protocol("Distributed Network Protocol 3.0",
@@ -3077,8 +3074,6 @@ proto_register_dnp3(void)
     "Whether the DNP3 dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &dnp3_desegment);
-
-  al_defragment_init();
 }
 
 
