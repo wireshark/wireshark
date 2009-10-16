@@ -2,17 +2,28 @@
 #
 AC_PREREQ(2.60)
 
+AC_INIT(wireshark, 1.3.1)
+
 dnl Check for CPU / vendor / OS
 dnl The user is encouraged to use either `AC_CANONICAL_BUILD', or
 dnl `AC_CANONICAL_HOST', or `AC_CANONICAL_TARGET', depending on the
 dnl needs.  Using `AC_CANONICAL_TARGET' is enough to run the two other
 dnl macros.
+dnl
+dnl As nothing in the Wireshark is itself a build tool (we are not,
+dnl for example, a compiler that generates machine code), we probably
+dnl don't need AC_CANONICAL_TARGET, so, in theory, we should be able
+dnl to use AC_CANONICAL_BUILD and AC_CANONICAL_HOST - or perhaps just
+dnl AC_CANONICAL_HOST - instead.  Note that we do have tools, such as
+dnl lemon, that need to be built for the build machine, not for the
+dnl host machine, so we might need both.
+dnl
+dnl This has to be done *after* AC_INIT, otherwise autogen.sh fails.
 
-dnl AC_CANONICAL_HOST
 dnl AC_CANONICAL_BUILD
-dnl AC_CANONICAL_TARGET
+dnl AC_CANONICAL_HOST
+AC_CANONICAL_TARGET
 
-AC_INIT(wireshark, 1.3.1)
 AM_INIT_AUTOMAKE([1.9 tar-ustar])
 
 AM_DISABLE_STATIC
