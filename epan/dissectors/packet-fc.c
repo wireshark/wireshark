@@ -343,12 +343,6 @@ static const value_string fc_eof_vals[] = {
     {0, NULL}
 };
 
-
-static void fc_defragment_init(void)
-{
-  fragment_table_init (&fc_fragment_table);
-}
-
 /* BA_ACC & BA_RJT are decoded in this file itself instead of a traditional
  * dedicated file and dissector format because the dissector would require some
  * fields of the FC_HDR such as param in some cases, type in some others, the
@@ -1571,7 +1565,6 @@ proto_register_fc(void)
                                     "multi-frame sequence", 10,
                                     &fc_max_frame_size);
     
-    register_init_routine(fc_defragment_init);
     register_init_routine (fc_exchange_init_protocol);
 
 
