@@ -73,6 +73,14 @@ static gboolean se_debug_use_chunks;
 static gboolean ep_debug_use_canary;
 static gboolean se_debug_use_canary;
 
+/*
+ *  Memory scrubbing is expensive but can be useful to ensure we don't:
+ *    - use memory before initializing it
+ *    - use memory after freeing it
+ *  Export WIRESHARK_DEBUG_SCRUB_MEMORY to turn it on.
+ */
+static gboolean debug_use_memory_scrubber = FALSE;
+
 /* Print out statistics about our memory allocations? */
 /*#define SHOW_EMEM_STATS*/
 
@@ -288,6 +296,10 @@ se_init_chunk(void)
 		emem_canary_init(se_canary);
 	} else
 		se_debug_use_canary = FALSE;
+
+	/* This isn't specific to se_ memory, but need to init it somewhere.. */
+	if (getenv("WIRESHARK_DEBUG_SCRUB_MEMORY"))
+		debug_use_memory_scrubber  = TRUE;
 }
 
 #ifdef SHOW_EMEM_STATS
@@ -311,9 +323,10 @@ print_alloc_stats()
 	gboolean ep_stat=TRUE;
 
 	fprintf(stderr, "\n-------- EP allocator statistics --------\n");
-	fprintf(stderr, "%s chunks, %s canaries\n",
+	fprintf(stderr, "%s chunks, %s canaries, %s memory scrubber\n",
 	       ep_debug_use_chunks ? "Using" : "Not using",
-	       ep_debug_use_canary ? "using" : "not using");
+	       ep_debug_use_canary ? "using" : "not using",
+	       debug_use_memory_scrubber ? "using" : "not using");
 
 	if (! (ep_packet_mem.free_list || !ep_packet_mem.used_list)) {
 		fprintf(stderr, "No memory allocated\n");
@@ -494,6 +507,45 @@ se_verify_pointer(const void *ptr)
 }
 
 static void
+emem_scrub_memory(char *buf, size_t size, gboolean alloc)
+{
+	guint scrubbed_value;
+	guint offset;
+
+	if (!debug_use_memory_scrubber)
+		return;
+
+	if (alloc) /* this memory is being allocated */
+		scrubbed_value = 0xBADDCAFE;
+	else /* this memory is being freed */
+		scrubbed_value = 0xDEADBEEF;
+
+	/*  We shouldn't need to check the alignment of the starting address
+	 *  since this is malloc'd memory (or 'pagesize' bytes into malloc'd
+	 *  memory).
+	 */
+
+	for (offset = 0; offset + sizeof(guint) <= size; offset += sizeof(guint))
+		*(guint*)(buf+offset) = scrubbed_value;
+
+	/* Initialize the last bytes, if any */
+	if (offset < size) {
+		*(guint8*)(buf+offset) = scrubbed_value >> 24;
+		offset++;
+		if (offset < size) {
+			*(guint8*)(buf+offset) = (scrubbed_value >> 16) & 0xFF;
+			offset++;
+			if (offset < size) {
+				*(guint8*)(buf+offset) = (scrubbed_value >> 8) & 0xFF;
+				offset++;
+			}
+		}
+	}
+
+
+}
+
+static void
 emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 #if defined (_WIN32)
 	BOOL ret;
@@ -595,41 +647,43 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 	void *buf;
 
 	if (use_chunks) {
+		size_t asize = size;
 		gboolean use_canary = canary != NULL;
 		guint8 pad;
 		emem_chunk_t *free_list;
+
 		/* Round up to an 8 byte boundary. Make sure we have at least
 		 * 8 pad bytes for our canary.
 		 */
 		 if (use_canary)
-			pad = emem_canary_pad(size);
+			pad = emem_canary_pad(asize);
 		 else
-			pad = (G_MEM_ALIGN - (size & (G_MEM_ALIGN-1))) & (G_MEM_ALIGN-1);
+			pad = (G_MEM_ALIGN - (asize & (G_MEM_ALIGN-1))) & (G_MEM_ALIGN-1);
 
-		size += pad;
+		asize += pad;
 
 #ifdef SHOW_EMEM_STATS
 		/* Do this check here so we can include the canary size */
 		if (mem == &se_packet_mem) {
-			if (size < 32)
+			if (asize < 32)
 				allocations[0]++;
-			else if (size < 64)
+			else if (asize < 64)
 				allocations[1]++;
-			else if (size < 128)
+			else if (asize < 128)
 				allocations[2]++;
-			else if (size < 256)
+			else if (asize < 256)
 				allocations[3]++;
-			else if (size < 512)
+			else if (asize < 512)
 				allocations[4]++;
-			else if (size < 1024)
+			else if (asize < 1024)
 				allocations[5]++;
-			else if (size < 2048)
+			else if (asize < 2048)
 				allocations[6]++;
-			else if (size < 4096)
+			else if (asize < 4096)
 				allocations[7]++;
-			else if (size < 8192)
+			else if (asize < 8192)
 				allocations[8]++;
-			else if (size < 16384)
+			else if (asize < 16384)
 				allocations[8]++;
 			else
 				allocations[(NUM_ALLOC_DIST-1)]++;
@@ -637,7 +691,7 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 #endif
 
 		/* make sure we dont try to allocate too much (arbitrary limit) */
-		DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
+		DISSECTOR_ASSERT(asize<(EMEM_PACKET_CHUNK_SIZE>>2));
 
 		if (!mem->free_list)
 			emem_create_chunk(&mem->free_list, use_canary);
@@ -645,7 +699,7 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 		/* oops, we need to allocate more memory to serve this request
 		 * than we have free. move this node to the used list and try again
 		 */
-		if(size > mem->free_list->amount_free ||
+		if(asize > mem->free_list->amount_free ||
 		   (use_canary &&
 			mem->free_list->canary_info->c_count >= EMEM_ALLOCS_PER_CHUNK)) {
 			emem_chunk_t *npc;
@@ -662,11 +716,11 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 
 		buf = free_list->buf + free_list->free_offset;
 
-		free_list->amount_free -= (unsigned int) size;
-		free_list->free_offset += (unsigned int) size;
+		free_list->amount_free -= (unsigned int) asize;
+		free_list->free_offset += (unsigned int) asize;
 
 		if (use_canary) {
-			void *cptr = (char *)buf + size - pad;
+			void *cptr = (char *)buf + asize - pad;
 			memcpy(cptr, canary, pad);
 			free_list->canary_info->canary[free_list->canary_info->c_count] = cptr;
 			free_list->canary_info->cmp_len[free_list->canary_info->c_count] = pad;
@@ -686,6 +740,11 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 		npc->free_offset = npc->free_offset_init = 0;
 		npc->amount_free = npc->amount_free_init = (unsigned int) size;
 	}
+
+	/*  XXX - this is a waste of time if the allocator function is going to
+	 *  memset this straight back to 0.
+	 */
+	emem_scrub_memory(buf, size, TRUE);
 
 	return buf;
 }
@@ -933,11 +992,18 @@ emem_free_all(emem_header_t *mem, gboolean use_chunks, guint8 *canary, emem_tree
 				}
 				npc->canary_info->c_count = 0;
 			}
+
+			emem_scrub_memory((npc->buf + npc->free_offset_init),
+					  (npc->free_offset - npc->free_offset_init),
+					  FALSE);
+
 			npc->amount_free = npc->amount_free_init;
 			npc->free_offset = npc->free_offset_init;
 			npc = npc->next;
 		} else {
 			emem_chunk_t *next = npc->next;
+
+			emem_scrub_memory(npc->buf, npc->amount_free_init, FALSE);
 
 			g_free(npc->buf);
 			g_free(npc);
