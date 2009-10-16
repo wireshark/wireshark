@@ -58,6 +58,8 @@
 #include <winsock2.h>
 #endif
 
+#include <stdio.h>
+
 #include <glib.h>
 
 #include <epan/conversation.h>
