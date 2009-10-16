@@ -195,7 +195,6 @@ static guint32 seq_number = 0;
 
 /* Tables for reassembly of Data fragments. */
 static GHashTable *data_fragment_table = NULL;
-static GHashTable *data_reassembled_table = NULL;
 
 static const fragment_items data_frag_items = {
 	/* Fragment subtrees */
@@ -247,7 +246,6 @@ static void t38_defragment_init(void)
 {
 	/* Init reassemble tables */
 	fragment_table_init(&data_fragment_table);
-	reassembled_table_init(&data_reassembled_table);
 }
 
 
@@ -967,7 +965,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 393 "packet-t38-template.c"
+#line 391 "packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1322,7 +1320,7 @@ proto_register_t38(void)
         "t38.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 671 "packet-t38-template.c"
+#line 669 "packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1377,7 +1375,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 712 "packet-t38-template.c"
+#line 710 "packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments

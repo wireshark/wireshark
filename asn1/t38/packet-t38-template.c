@@ -150,7 +150,6 @@ static guint32 seq_number = 0;
 
 /* Tables for reassembly of Data fragments. */
 static GHashTable *data_fragment_table = NULL;
-static GHashTable *data_reassembled_table = NULL;
 
 static const fragment_items data_frag_items = {
 	/* Fragment subtrees */
@@ -202,7 +201,6 @@ static void t38_defragment_init(void)
 {
 	/* Init reassemble tables */
 	fragment_table_init(&data_fragment_table);
-	reassembled_table_init(&data_reassembled_table);
 }
 
 
