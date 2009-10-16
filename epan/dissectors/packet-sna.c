@@ -301,7 +301,6 @@ static dissector_handle_t data_handle;
 /* Defragment fragmented SNA BIUs*/
 static gboolean sna_defragment = TRUE;
 static GHashTable *sna_fragment_table = NULL;
-static GHashTable *sna_reassembled_table = NULL;
 
 /* Format Identifier */
 static const value_string sna_th_fid_vals[] = {
@@ -2618,7 +2617,6 @@ static void
 sna_init(void)
 {
 	fragment_table_init(&sna_fragment_table);
-	reassembled_table_init(&sna_reassembled_table);
 }
 
 
@@ -3555,6 +3553,8 @@ proto_register_sna(void)
 		"Reassemble fragmented BIUs",
 		"Whether fragmented BIUs should be reassembled",
 		&sna_defragment);
+
+	register_init_routine(sna_init);
 }
 
 void
@@ -3577,5 +3577,4 @@ proto_reg_handoff_sna(void)
 	dissector_add("ppp.protocol", PPP_SNA, sna_handle);
 	data_handle = find_dissector("data");
 
-	register_init_routine(sna_init);
 }
