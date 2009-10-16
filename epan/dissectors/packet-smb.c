@@ -10047,6 +10047,7 @@ static const value_string ff2_il_vals[] = {
 	{ 0x0102,	"Find File Full Directory Info"},
 	{ 0x0103,	"Find File Names Info"},
 	{ 0x0104,	"Find File Both Directory Info"},
+	{ 0x0105,	"Find File Full Directory Info"},
 	{ 0x0202,	"Find File UNIX"},
 	{0, NULL}
 };
@@ -14120,6 +14121,7 @@ dissect_ff2_response_data(tvbuff_t * tvb, packet_info * pinfo,
 		    trunc);
 		break;
 	case 0x0104:	/*Find File Both Directory Info*/
+	case 0x0105:	/*Find File Full Directory Info, these are same in smb*/
 		offset = dissect_4_3_4_6(tvb, pinfo, tree, offset, bcp,
 		    trunc);
 		break;
