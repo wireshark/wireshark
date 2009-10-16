@@ -266,8 +266,11 @@ typedef struct decrypt_data {
 } decrypt_data_t;
 
 static GHashTable *isakmp_hash = NULL;
+#if GLIB_CHECK_VERSION(2,10,0)
+#else
 static GMemChunk *isakmp_key_data = NULL;
 static GMemChunk *isakmp_decrypt_data = NULL;
+#endif
 static FILE *logf = NULL;
 static const char *pluto_log_path = "insert pluto log path here";
 
@@ -466,9 +469,14 @@ scan_pluto_log(void) {
         decr = (decrypt_data_t*) g_hash_table_lookup(isakmp_hash, i_cookie);
 
         if (! decr) {
+#if GLIB_CHECK_VERSION(2,10,0)
+          ic_key = g_slice_alloc(COOKIE_SIZE);
+          decr   = g_slice_alloc(sizeof(decrypt_data_t));
+#else
 	  ic_key = g_mem_chunk_alloc(isakmp_key_data);
+          decr   = g_mem_chunk_alloc(isakmp_decrypt_data);
+#endif
 	  memcpy(ic_key, i_cookie, COOKIE_SIZE);
-          decr = g_mem_chunk_alloc(isakmp_decrypt_data);
           memset(decr, 0, sizeof(decrypt_data_t));
 
           g_hash_table_insert(isakmp_hash, ic_key, decr);
@@ -1038,9 +1046,14 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     decr = (decrypt_data_t*) g_hash_table_lookup(isakmp_hash, i_cookie);
 
     if (! decr) {
+#if GLIB_CHECK_VERSION(2,10,0)
+      ic_key = g_slice_alloc(COOKIE_SIZE);
+      decr   = g_slice_alloc(sizeof(decrypt_data_t));
+#else
       ic_key = g_mem_chunk_alloc(isakmp_key_data);
+      decr   = g_mem_chunk_alloc(isakmp_decrypt_data);
+#endif
       memcpy(ic_key, i_cookie, COOKIE_SIZE);
-      decr = g_mem_chunk_alloc(isakmp_decrypt_data);
       memset(decr, 0, sizeof(decrypt_data_t));
       SET_ADDRESS(&decr->initiator, AT_NONE, 0, NULL);
 
@@ -3608,6 +3621,21 @@ static gint ikev2_key_equal_func(gconstpointer k1, gconstpointer k2) {
 }
 #endif /* HAVE_LIBGCRYPT */
 
+#ifdef HAVE_LIBGCRYPT
+#if GLIB_CHECK_VERSION(2,10,0)
+static gboolean
+free_cookie(gpointer key_arg, gpointer value, gpointer user_data _U_)
+{
+  guint8 *ic_key = key_arg;
+  decrypt_data_t *decr = value;
+
+  g_slice_free1(COOKIE_SIZE, ic_key);
+  g_slice_free1(sizeof(decrypt_data_t), decr);
+  return TRUE;
+}
+#endif
+#endif
+
 static void
 isakmp_init_protocol(void) {
 #ifdef HAVE_LIBGCRYPT
@@ -3618,20 +3646,26 @@ isakmp_init_protocol(void) {
 
 #ifdef HAVE_LIBGCRYPT
   if (isakmp_hash) {
+#if GLIB_CHECK_VERSION(2,10,0)
+    g_hash_table_foreach_remove(isakmp_hash, free_cookie, NULL);
+#endif
     g_hash_table_destroy(isakmp_hash);
   }
+#if GLIB_CHECK_VERSION(2,10,0)
+#else
   if (isakmp_key_data)
     g_mem_chunk_destroy(isakmp_key_data);
   if (isakmp_decrypt_data)
     g_mem_chunk_destroy(isakmp_decrypt_data);
 
-  isakmp_hash = g_hash_table_new(isakmp_hash_func, isakmp_equal_func);
   isakmp_key_data = g_mem_chunk_new("isakmp_key_data",
 	COOKIE_SIZE, 5 * COOKIE_SIZE,
 	G_ALLOC_AND_FREE);
   isakmp_decrypt_data = g_mem_chunk_new("isakmp_decrypt_data",
 	sizeof(decrypt_data_t), 5 * sizeof(decrypt_data_t),
 	G_ALLOC_AND_FREE);
+#endif
+  isakmp_hash = g_hash_table_new(isakmp_hash_func, isakmp_equal_func);
   if (logf)
     fclose(logf);
   logf = ws_fopen(pluto_log_path, "r");
