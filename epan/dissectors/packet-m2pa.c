@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
+#include <epan/expert.h>
 
 #define NETWORK_BYTE_ORDER          FALSE
 #define SCTP_PORT_M2PA              3565
@@ -71,6 +72,7 @@ static int hf_filler       = -1;
 static int hf_unknown_data = -1;
 static int hf_pri_prio     = -1;
 static int hf_pri_spare    = -1;
+static int hf_undecode_data   = -1;
 
 static gint ett_m2pa       = -1;
 static gint ett_m2pa_li    = -1;
@@ -456,11 +458,12 @@ dissect_v8_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
 static void
 dissect_v12_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
-  guint32 message_data_length;
+  guint32 length, message_data_length, actual_length;
   guint8 type;
   tvbuff_t *message_data_tvb;
 
-  message_data_length = tvb_get_ntohl(message_tvb, V12_LENGTH_OFFSET) - V8_HEADER_LENGTH;
+  length              = tvb_get_ntohl(message_tvb, V12_LENGTH_OFFSET);
+  message_data_length = length - V12_HEADER_LENGTH;
   message_data_tvb    = tvb_new_subset(message_tvb, V12_MESSAGE_DATA_OFFSET, message_data_length, message_data_length);
   type                = tvb_get_guint8(message_tvb, V12_TYPE_OFFSET);
 
@@ -474,6 +477,18 @@ dissect_v12_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *
     break;
   default:
     dissect_unknown_message(message_data_tvb, m2pa_tree);
+  }
+
+  actual_length = tvb_reported_length(message_tvb);
+
+  if (actual_length > length)
+  {
+    proto_item *pi;
+
+    pi = proto_tree_add_item(m2pa_tree, hf_undecode_data, message_tvb, length, (actual_length - length), NETWORK_BYTE_ORDER);
+    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN,
+			   "There are %d bytes of data which is greater than M2PA's length parameter (%d)",
+			   actual_length, length);
   }
 }
 
@@ -562,7 +577,8 @@ proto_register_m2pa(void)
     { &hf_v8_status,    { "Link Status",    "m2pa.status",         FT_UINT32, BASE_DEC,  VALS(v8_link_status_values),   0x0,                 NULL, HFILL} },
     { &hf_v12_status,   { "Link Status",    "m2pa.status",         FT_UINT32, BASE_DEC,  VALS(v12_link_status_values),  0x0,                 NULL, HFILL} },
     { &hf_filler,       { "Filler",         "m2pa.filler",         FT_BYTES,  BASE_NONE, NULL,                          0x0,                 NULL, HFILL} },
-    { &hf_unknown_data, { "Unknown Data",   "m2pa.unknown_data",   FT_BYTES,  BASE_NONE, NULL,                          0x0,                 NULL, HFILL} }
+    { &hf_unknown_data, { "Unknown Data",   "m2pa.unknown_data",   FT_BYTES,  BASE_NONE, NULL,                          0x0,                 NULL, HFILL} },
+    { &hf_undecode_data,{ "Undecoded data", "m2pa.undecoded_data", FT_BYTES,  BASE_NONE, NULL,                          0x0,                 NULL, HFILL} }
   };
 
   static gint *ett[] = {
