@@ -82,6 +82,7 @@
 #include "packetlogger.h"
 #include "daintree-sna.h"
 #include "netscaler.h"
+#include "jpeg_jfif.h"
 
 
 /* The open_file_* routines should return:
@@ -131,6 +132,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	tnef_open,
 	dct3trace_open,
 	daintree_sna_open,
+	jpeg_jfif_open,
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
 	 * identify them.  This includes the ASCII trace files that
@@ -618,6 +620,9 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_NETSCALER_2_0 */
 	{ "NetScaler Trace (Version 2.0)", "nstrace20", "*.cap", "*.cap", FALSE,
 	  nstrace_20_dump_can_write_encap, nstrace_dump_open },
+
+	/* WTAP_FILE_JPEG_JFIF */
+	{ "JPEG/JFIF", "jpeg", "*.jpg;*.jpeg;*.jfif", ".jpg", FALSE, NULL, NULL },
 
 };
 

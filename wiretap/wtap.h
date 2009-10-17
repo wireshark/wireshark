@@ -212,6 +212,7 @@ extern "C" {
 #define WTAP_ENCAP_NSTRACE_2_0                  120
 #define WTAP_ENCAP_FIBRE_CHANNEL_FC2            121
 #define WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS 122
+#define WTAP_ENCAP_JPEG_JFIF                    123
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
@@ -277,6 +278,7 @@ extern "C" {
 #define WTAP_FILE_DAINTREE_SNA                  56
 #define WTAP_FILE_NETSCALER_1_0                 57
 #define WTAP_FILE_NETSCALER_2_0                 58
+#define WTAP_FILE_JPEG_JFIF                     59
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 

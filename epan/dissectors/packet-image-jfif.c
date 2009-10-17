@@ -1187,4 +1187,6 @@ proto_reg_handoff_jfif(void)
 	dissector_add_string("media_type", "image/jfif", jfif_handle);
 	dissector_add_string("media_type", "image/jpg", jfif_handle);
 	dissector_add_string("media_type", "image/jpeg", jfif_handle);
+
+	dissector_add("wtap_encap", WTAP_ENCAP_JPEG_JFIF, jfif_handle);
 }

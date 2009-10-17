@@ -52,6 +52,7 @@ NONGENERATED_C_FILES = \
 	i4btrace.c		\
 	iptrace.c		\
 	iseries.c		\
+	jpeg_jfif.c		\
 	k12.c			\
 	lanalyzer.c		\
 	libpcap.c		\
@@ -101,6 +102,7 @@ NONGENERATED_HEADER_FILES = \
 	i4b_trace.h		\
 	iptrace.h		\
 	iseries.h		\
+	jpeg_jfif.h		\
 	k12.h			\
 	lanalyzer.h		\
 	libpcap.h		\

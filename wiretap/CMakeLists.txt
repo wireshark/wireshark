@@ -46,6 +46,7 @@ set(WIRETAP_FILES
 	i4btrace.c
 	iptrace.c
 	iseries.c
+	jpeg_jfif.c
 	k12.c
 	lanalyzer.c
 	libpcap.c
