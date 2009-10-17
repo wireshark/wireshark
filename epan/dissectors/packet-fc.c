@@ -438,7 +438,12 @@ fc_get_ftype (guint8 r_ctl, guint8 type)
         else
              return FC_FTYPE_UNDEF;
     case FC_RCTL_LINK_DATA:
-        return FC_FTYPE_LINKDATA;
+        switch (type) {
+        case FC_TYPE_SCSI:
+            return FC_FTYPE_SCSI;
+        default:
+            return FC_FTYPE_LINKDATA;
+        }
     case FC_RCTL_VIDEO:
         return FC_FTYPE_VDO;
     case FC_RCTL_BLS:

@@ -39,6 +39,7 @@
 #define FC_ELS_TEST          0x11
 #define FC_ELS_RRQ           0x12
 #define FC_ELS_REC           0x13
+#define FC_ELS_SRR           0x14
 #define FC_ELS_PRLI          0x20
 #define FC_ELS_PRLO          0x21
 #define FC_ELS_TPRLO         0x24
@@ -79,6 +80,7 @@ static const value_string fc_els_proto_val[] = {
     {FC_ELS_TEST         , "TEST"},
     {FC_ELS_RRQ          , "RRQ"},
     {FC_ELS_REC          , "REC"},
+    {FC_ELS_SRR          , "SRR"},
     {FC_ELS_PRLI         , "PRLI"},
     {FC_ELS_PRLO         , "PRLO"},
     {FC_ELS_TPRLO        , "TPRLO"},

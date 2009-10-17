@@ -48,6 +48,7 @@
 #include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-fcp.h"
+#include "packet-fcels.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_fcp         = -1;
@@ -90,6 +91,10 @@ static int hf_fcp_rsp_flags_res_vld = -1;
 static int hf_fcp_request_in = -1;
 static int hf_fcp_response_in = -1;
 static int hf_fcp_time = -1;
+static int hf_fcp_srr_op = -1;
+static int hf_fcp_srr_ox_id = -1;
+static int hf_fcp_srr_rx_id = -1;
+static int hf_fcp_srr_r_ctl = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fcp = -1;
@@ -105,6 +110,8 @@ static dissector_handle_t data_handle;
 
 /* Information Categories based on lower 4 bits of R_CTL */
 #define FCP_IU_DATA              0x1
+#define FCP_IU_UNSOL_CTL         0x2
+#define FCP_IU_SOL_CTL           0x3
 #define FCP_IU_CONFIRM           0x3
 #define FCP_IU_XFER_RDY          0x5
 #define FCP_IU_CMD               0x6
@@ -112,6 +119,7 @@ static dissector_handle_t data_handle;
 
 static const value_string fcp_iu_val[] = {
     {FCP_IU_DATA      , "FCP_DATA"},
+    {FCP_IU_UNSOL_CTL , "Control"},
     {FCP_IU_CONFIRM   , "Confirm"},
     {FCP_IU_XFER_RDY  , "XFER_RDY"},
     {FCP_IU_CMD       , "FCP_CMND"},
@@ -616,6 +624,52 @@ dissect_fcp_xfer_rdy(tvbuff_t *tvb, proto_tree *tree)
 }
 
 static void
+dissect_fcp_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8 r_ctl;
+
+    r_ctl = pinfo->r_ctl & 0xf;
+    if (r_ctl == FCP_IU_UNSOL_CTL) {            /* request */
+        proto_tree_add_item(tree, hf_fcp_srr_ox_id, tvb, 4, 2, FALSE);
+        proto_tree_add_item(tree, hf_fcp_srr_rx_id, tvb, 6, 2, FALSE);
+        proto_tree_add_item(tree, hf_fcp_data_ro, tvb, 8, 4, FALSE);
+        r_ctl = tvb_get_guint8(tvb, 12);
+        proto_tree_add_text(tree, tvb, 12, 1, "R_CTL: %s",
+                            val_to_str(r_ctl, fcp_iu_val, "0x%02x"));
+    }
+}
+
+static const value_string fcp_els_iu_val[] = {
+    {FCP_IU_UNSOL_CTL   , "FCP ELS Request"},
+    {FCP_IU_SOL_CTL     , "FCP ELS Response"},
+    {0, NULL},
+};
+
+/*
+ * Dissect FC-4 ELS for FCP.
+ */
+static void
+dissect_fcp_els(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8 op;
+
+    op = tvb_get_guint8(tvb, 0);
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(op, fc_els_proto_val, "0x%x"));
+    proto_tree_add_text(tree, tvb, 0, 1, "Opcode: %s",
+                                   val_to_str(op, fc_els_proto_val,
+                                              "ELS 0x%02x"));
+
+    switch (op) {   /* XXX should switch based on conv for LS_ACC */
+    case FC_ELS_SRR:
+        dissect_fcp_srr(tvb, pinfo, tree);
+        break;
+    default:
+        call_dissector(data_handle, tvb, pinfo, tree);
+        break;
+    }
+}
+
+static void
 dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti=NULL;
@@ -624,6 +678,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 r_ctl;
     fcp_conv_data_t *fcp_conv_data=NULL;
     itl_nexus_t *itl=NULL;
+    gboolean els;
 
     fchdr=(fc_hdr *)pinfo->private_data;
 
@@ -631,18 +686,21 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCP");
 
     r_ctl = pinfo->r_ctl;
-
+    els = (r_ctl & 0xf0) == FC_RCTL_LINK_DATA;
     r_ctl &= 0xF;
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_add_str (pinfo->cinfo, COL_INFO, val_to_str (r_ctl, fcp_iu_val,
-                                                      "0x%x"));
+        col_add_str (pinfo->cinfo, COL_INFO,
+                     val_to_str (r_ctl, els ? fcp_els_iu_val : fcp_iu_val,
+                                 "0x%x"));
     }
-
 
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_fcp, tvb, 0, -1,
-                                             "FCP: %s", val_to_str(r_ctl, fcp_iu_val, "Unknown 0x%02x"));
+                                            "FCP: %s",
+                                            val_to_str(r_ctl,
+                                            els ? fcp_els_iu_val :
+                                            fcp_iu_val, "Unknown 0x%02x"));
         fcp_tree = proto_item_add_subtree(ti, ett_fcp);
     }
 
@@ -654,12 +712,13 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         conversation_add_proto_data(fchdr->conversation, proto_fcp, fcp_conv_data);
     }
 
-    if(r_ctl!=FCP_IU_CMD){
+    if((r_ctl!=FCP_IU_CMD) && (r_ctl!=FCP_IU_UNSOL_CTL)){
         itl=(itl_nexus_t *)se_tree_lookup32(fcp_conv_data->luns, fchdr->itlq->lun);
     }
 
     /* put a request_in in all frames except the command frame */
-    if((r_ctl!=FCP_IU_CMD)&&(fchdr->itlq->first_exchange_frame)){
+    if((r_ctl!=FCP_IU_CMD) && (r_ctl!=FCP_IU_UNSOL_CTL) &&
+            (fchdr->itlq->first_exchange_frame)){
         proto_item *it;
         it=proto_tree_add_uint(fcp_tree, hf_fcp_singlelun, tvb, 0, 0, fchdr->itlq->lun);
         PROTO_ITEM_SET_GENERATED(it);
@@ -674,10 +733,16 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
     /* put a response_in in all frames except the response frame */
-    if((r_ctl!=FCP_IU_RSP)&&(fchdr->itlq->last_exchange_frame)){
+    if((r_ctl!=FCP_IU_RSP) && (r_ctl!=FCP_IU_SOL_CTL) &&
+            (fchdr->itlq->last_exchange_frame)){
         proto_item *it;
         it=proto_tree_add_uint(fcp_tree, hf_fcp_response_in, tvb, 0, 0, fchdr->itlq->last_exchange_frame);
         PROTO_ITEM_SET_GENERATED(it);
+    }
+
+    if (els) {
+        dissect_fcp_els(tvb, pinfo, fcp_tree);
+        return;
     }
 
     switch (r_ctl) {
@@ -813,6 +878,18 @@ proto_register_fcp (void)
         { &hf_fcp_time,
           { "Time from FCP_CMND", "fcp.time", FT_RELATIVE_TIME, BASE_NONE, NULL,
            0, "Time since the FCP_CMND frame", HFILL }},
+        { &hf_fcp_srr_op,
+          {"Opcode", "fcp.els.op", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
+           HFILL}},
+        { &hf_fcp_srr_ox_id,
+          {"OX_ID", "fcp.els.srr.ox_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL,
+           HFILL}},
+        { &hf_fcp_srr_rx_id,
+          {"RX_ID", "fcp.els.srr.rx_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL,
+           HFILL}},
+        { &hf_fcp_srr_r_ctl,
+          {"R_CTL", "fcp.els.srr.r_ctl", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
+           HFILL}},
     };
 
     /* Setup protocol subtree array */
