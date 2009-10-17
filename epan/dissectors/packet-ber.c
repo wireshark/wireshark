@@ -854,11 +854,18 @@ printf("dissect BER length %d, offset %d (remaining %d)\n", tmp_length, offset, 
 
 	return offset;
 }
+
+static GHashTable *octet_segment_table = NULL;
+static GHashTable *octet_reassembled_table = NULL;
+
+static void ber_defragment_init(void) {
+  fragment_table_init(&octet_segment_table);
+  reassembled_table_init(&octet_reassembled_table);
+}
+
 static int
 reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 con_len, gboolean ind, tvbuff_t **out_tvb)
 {
-  static GHashTable *octet_segment_table = NULL;
-  static GHashTable *octet_reassembled_table = NULL;
   fragment_data *fd_head = NULL;
   tvbuff_t *next_tvb = NULL;
   tvbuff_t *reassembled_tvb = NULL;
@@ -866,13 +873,6 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int o
   int start_offset = offset;
   gboolean fragment = TRUE;
   gboolean firstFragment = TRUE;
-
-  if(octet_segment_table == NULL) {
-    /* I assume I can take this late binding approach */
-    fragment_table_init(&octet_segment_table);
-    reassembled_table_init(&octet_reassembled_table);
-
-  }
 
   /* so we need to consume octet strings for the given length */
 
@@ -4394,6 +4394,8 @@ proto_register_ber(void)
     ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", FT_STRING, BASE_NONE);
     ber_syntax_dissector_table = register_dissector_table("ber.syntax", "BER Syntax Dissectors", FT_STRING, BASE_NONE);
     syntax_table=g_hash_table_new(g_str_hash, g_str_equal); /* oid to syntax */
+
+    register_init_routine(ber_defragment_init);
 }
 
 void
