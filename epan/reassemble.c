@@ -53,6 +53,7 @@ typedef struct _dcerpc_fragment_key {
 #else
 static GMemChunk *fragment_key_chunk = NULL;
 static GMemChunk *fragment_data_chunk = NULL;
+static GMemChunk *dcerpc_key_chunk = NULL;
 static int fragment_init_count = 200;
 #endif
 
@@ -89,7 +90,12 @@ static void *fragment_key_copy(const void *k)
 static void *dcerpc_fragment_key_copy(const void *k)
 {
 	const dcerpc_fragment_key* key = (const dcerpc_fragment_key*) k;
-	dcerpc_fragment_key *new_key = se_alloc(sizeof(dcerpc_fragment_key));
+
+#if GLIB_CHECK_VERSION(2,10,0)
+	dcerpc_fragment_key *new_key = g_slice_new(dcerpc_fragment_key);
+#else
+	dcerpc_fragment_key *new_key = g_mem_chunk_alloc(dcerpc_fragment_key_chunk);
+#endif
 
 	COPY_ADDRESS(&new_key->src, &key->src);
 	COPY_ADDRESS(&new_key->dst, &key->dst);
