@@ -512,7 +512,7 @@ gint parseField_Double(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserN
 
     offset = alignOffset(offset, 8);
     doubleVal = tvb_get_ntohieee_double(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 8, "%s = %lf",
+    proto_tree_add_text(tree, tvb, offset, 8, "%s = %f",
         parserNode.fieldLabel, doubleVal);
 
     offset += 8;
