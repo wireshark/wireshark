@@ -33,6 +33,7 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/ppptypes.h>
 
 static int proto_pppoed = -1;
 
@@ -701,6 +702,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint    actual_payload_length;
 	gint    length, reported_length;
 	gint    credit_offset = 0, tagstart = 0;
+	guint16 cp_code;
 
 	proto_tree  *pppoe_tree;
 	proto_item  *ti = NULL;
@@ -812,13 +814,21 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * to the length field, *after* it does all the
 		 * FCS heuristics.
 		 */
-	        if ((reported_payload_length != actual_payload_length) &&
-                ((reported_payload_length + 4) != actual_payload_length)) {
-                    proto_item_append_text(ti, " [incorrect, should be %u]",
-                        actual_payload_length);
-                    expert_add_info_format(pinfo, ti, PI_MALFORMED,
-                        PI_WARN, "Possible bad payload length %u != %u",
-                        reported_payload_length, actual_payload_length);
+
+		/* retrieve the control protocol code if it's there */
+		cp_code = tvb_get_ntohs(tvb, 6);
+		/*
+		 * The session payload length expressly does not include pad bytes
+		 *  when LCP or IPCP are present, so avoid the spurious error message
+		 */
+		if ((cp_code != PPP_LCP) && (cp_code != PPP_IPCP) &&
+			(reported_payload_length != actual_payload_length) &&
+			((reported_payload_length + 4) != actual_payload_length)) {
+			proto_item_append_text(ti, " [incorrect, should be %u]",
+				actual_payload_length);
+			expert_add_info_format(pinfo, ti, PI_MALFORMED,
+				PI_WARN, "Possible bad payload length %u != %u",
+				reported_payload_length, actual_payload_length);
 		}
 	}
 
