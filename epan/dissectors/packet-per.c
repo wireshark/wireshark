@@ -127,6 +127,9 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
   guint8 octet0, octet1, *buf;
   guint32 actual_length;
 
+  /*  XXX - why are we doing this?  Shouldn't we throw an exception if we've
+   *  been asked to decode more octets than exist?
+   */
   actual_length = tvb_length_remaining(tvb,boffset);
   if (length <= actual_length)
 	  actual_length = length;
@@ -196,6 +199,12 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_
 	  /* Number of bits = even number of octets */
 	return new_octet_aligned_subset(tvb, offset, actx, length);
   }
+
+  /*  Throw an exception if we're asked to display more bits than exist.
+   *  We check now to ensure we don't cause g_malloc() to abort because
+   *  we asked for entirely too much memory.
+   */
+  tvb_ensure_bytes_exist(tvb, offset, length);
   buf = g_malloc(length);
 
   if (actx->aligned)
@@ -247,7 +256,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_
   sub_tvb = tvb_new_child_real_data(tvb, buf, length, length);
   tvb_set_free_cb(sub_tvb, g_free);
   add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
-  
+
   return sub_tvb;
 }
 
@@ -255,7 +264,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_
 /* 10 Encoding procedures -------------------------------------------------- */
 
 /* 10.2 Open type fields --------------------------------------------------- */
-static guint32 
+static guint32
 dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, void* type_cb, asn1_cb_variant variant)
 {
 	guint32 type_length, end_offset;
@@ -306,47 +315,47 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 	return end_offset;
 }
 
-guint32 
+guint32
 dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb)
 {
 	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, (void*)type_cb, CB_ASN1_ENC);
 }
 
-guint32 
+guint32
 dissect_per_open_type_pdu(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, dissector_t type_cb)
 {
 	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, (void*)type_cb, CB_DISSECTOR);
 }
 
-guint32 
+guint32
 dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, new_dissector_t type_cb)
 {
 	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, (void*)type_cb, CB_NEW_DISSECTOR);
 }
 
-/* 10.9 General rules for encoding a length determinant -------------------- 
-	
-	  NOTE 1 - (Tutorial) The procedures of this subclause are invoked when an explicit length field is needed 
-				for some part of the encoding regardless of whether the length count is bounded above 
-				(by PER-visible constraints) or not. The part of the encoding to which the length applies may 
-				be a bit string (with the length count in bits), an octet string (with the length count in octets), 
-				a known-multiplier character string (with the length count in characters), or a list of fields 
+/* 10.9 General rules for encoding a length determinant --------------------
+
+	  NOTE 1 - (Tutorial) The procedures of this subclause are invoked when an explicit length field is needed
+				for some part of the encoding regardless of whether the length count is bounded above
+				(by PER-visible constraints) or not. The part of the encoding to which the length applies may
+				be a bit string (with the length count in bits), an octet string (with the length count in octets),
+				a known-multiplier character string (with the length count in characters), or a list of fields
 				(with the length count in components of a sequence-of or set-of).
-	
-	  NOTE 2 - (Tutorial) In the case of the ALIGNED variant if the length count is bounded above by an upper bound 
-				that is less than 64K, then the constrained whole number encoding is used for the length. 
-				For sufficiently small ranges the result is a bit-field, otherwise the unconstrained length ("n" say) 
+
+	  NOTE 2 - (Tutorial) In the case of the ALIGNED variant if the length count is bounded above by an upper bound
+				that is less than 64K, then the constrained whole number encoding is used for the length.
+				For sufficiently small ranges the result is a bit-field, otherwise the unconstrained length ("n" say)
 				is encoded into an octet-aligned bit-field in one of three ways (in order of increasing size):
 		a)	("n" less than 128) a single octet containing "n" with bit 8 set to zero;
 		b)	("n" less than 16K) two octets containing "n" with bit 8 of the first octet set to 1 and bit 7 set to zero;
-		c)	(large "n") a single octet containing a count "m" with bit 8 set to 1 and bit 7 set to 1. 
-			The count "m" is one to four, and the length indicates that a fragment of the material follows 
+		c)	(large "n") a single octet containing a count "m" with bit 8 set to 1 and bit 7 set to 1.
+			The count "m" is one to four, and the length indicates that a fragment of the material follows
 			(a multiple "m" of 16K items). For all values of "m", the fragment is then followed by another length encoding
 			for the remainder of the material.
-	
+
 	  NOTE 3 - (Tutorial) In the UNALIGNED variant, if the length count is bounded above by an upper bound that is less
-			than 64K, then the constrained whole number encoding is used to encode the length in the minimum number of 
-			bits necessary to represent the range. Otherwise, the unconstrained length ("n" say) is encoded into a bit 
+			than 64K, then the constrained whole number encoding is used to encode the length in the minimum number of
+			bits necessary to represent the range. Otherwise, the unconstrained length ("n" say) is encoded into a bit
 			field in the manner described above in Note 2.
 
  */
@@ -373,7 +382,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		char *str;
 		guint32 val;
 		gint val_start;
-		
+
 		val_start = offset>>3;
 		val = 0;
 		str=ep_alloc(256);
@@ -420,7 +429,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 				else
 					PROTO_ITEM_SET_HIDDEN(pi);
 			}
-		
+
 			return offset;
 		}
 		else if (num_bits==16) {
@@ -432,7 +441,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 				else
 					PROTO_ITEM_SET_HIDDEN(pi);
 			}
-        
+
 			return offset;
 		}
 		PER_NOT_DECODED_YET("10.9 Unaligned");
@@ -620,7 +629,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	/* xx.x if the length is 0 bytes there will be no encoding */
 	if(max_len==0){
 		if (value_tvb) {
-			*value_tvb = tvb_new_child_real_data(tvb, NULL, 0, 0); 
+			*value_tvb = tvb_new_child_real_data(tvb, NULL, 0, 0);
 		}
 		return offset;
 	}
@@ -709,8 +718,8 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 			val=(val<<1)|bit;
 		}
-		/* ALIGNED PER does not do any remapping of chars if 
-		   bitsperchar is 8 
+		/* ALIGNED PER does not do any remapping of chars if
+		   bitsperchar is 8
 		*/
 		if(bits_per_char==8){
 			buf[char_pos]=val;
@@ -725,7 +734,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	buf[char_pos]=0;
 	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), (char*)buf);
 	if (value_tvb) {
-		*value_tvb = tvb_new_child_real_data(tvb, buf, length, length); 
+		*value_tvb = tvb_new_child_real_data(tvb, buf, length, length);
 		tvb_set_free_cb(*value_tvb, g_free);
 	} else {
 		g_free(buf);
@@ -772,7 +781,7 @@ dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_
 guint32
 dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, 
+	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len,
 		" 0123456789", 11, NULL);
 
 	return offset;
@@ -780,7 +789,7 @@ dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto
 guint32
 dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, 
+	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len,
 		" '()+,-.*0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 74, NULL);
 	return offset;
 }
@@ -835,7 +844,7 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 	return offset;
 }
 
-guint32 
+guint32
 dissect_per_object_descriptor(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
 {
 	offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, -1, -1, FALSE, value_tvb);
@@ -856,7 +865,7 @@ dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *a
 
 DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 
-	/* 19.4	If there is a PER-visible constraint and an extension marker is present in it, 
+	/* 19.4	If there is a PER-visible constraint and an extension marker is present in it,
 	 * a single bit shall be added to the field-list in a bit-field of length one
 	 */
 	if(has_extension){
@@ -864,7 +873,7 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 		offset=dissect_per_boolean(tvb, offset, actx, parent_tree, hf_per_extension_present_bit, &extension_present);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		if(extension_present){
-			/* 10.9 shall be invoked to add the length determinant as a semi-constrained whole number to the field-list, 
+			/* 10.9 shall be invoked to add the length determinant as a semi-constrained whole number to the field-list,
 			 * followed by the component values
 			 * TODO: Handle extension
 			 */
@@ -950,7 +959,7 @@ DEBUG_ENTRY("dissect_per_object_identifier");
   offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_object_identifier_length, &length);
   if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
   val_tvb = new_octet_aligned_subset(tvb, offset, actx, length);
-	
+
   hfi = proto_registrar_get_nth(hf_index);
   if (hfi->type == FT_OID) {
     actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, FALSE);
@@ -1188,7 +1197,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 	hfi = proto_registrar_get_nth(hf_index);
 
-	/* 10.5.3 Let "range" be defined as the integer value ("ub" - "lb"   1), and let the value to be encoded be "n". 
+	/* 10.5.3 Let "range" be defined as the integer value ("ub" - "lb"   1), and let the value to be encoded be "n".
 	 * 10.5.7	In the case of the ALIGNED variant the encoding depends on whether
 	 *			d)	"range" is greater than 64K (the indefinite length case).
 	 */
@@ -1223,9 +1232,9 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 	if(range==1){
 		val_start = offset>>3; val_length = 0;
-		val = min; 
+		val = min;
 	} else if((range<=255)||(!actx->aligned)) {
-		/* 10.5.7.1 
+		/* 10.5.7.1
 		 * 10.5.6	In the case of the UNALIGNED variant the value ("n" - "lb") shall be encoded
 		 * as a non-negative  binary integer in a bit field as specified in 10.3 with the minimum
 		 * number of bits necessary to represent the range.
@@ -1381,14 +1390,14 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 
 	hfi = proto_registrar_get_nth(hf_index);
 
-	/* 10.5.3 Let "range" be defined as the integer value ("ub" - "lb"   1), and let the value to be encoded be "n". 
+	/* 10.5.3 Let "range" be defined as the integer value ("ub" - "lb"   1), and let the value to be encoded be "n".
 	 * 10.5.7	In the case of the ALIGNED variant the encoding depends on whether
 	 *			d)	"range" is greater than 64K (the indefinite length case).
 	 */
 	if(((max-min)>65536)&&(actx->aligned)){
                /* just set range really big so it will fall through
                   to the bottom of the encoding */
-               /* range=1000000; */		
+               /* range=1000000; */
 			   range = max-min;
 			   if (range==65536)
 				   range++; /* make it fall trough? */
@@ -1421,9 +1430,9 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 
 	if(range==1){
 		val_start = offset>>3; val_length = 0;
-		val = min; 
+		val = min;
 	} else if((range<=255)||(!actx->aligned)) {
-		/* 10.5.7.1 
+		/* 10.5.7.1
 		 * 10.5.6	In the case of the UNALIGNED variant the value ("n" - "lb") shall be encoded
 		 * as a non-negative  binary integer in a bit field as specified in 10.3 with the minimum
 		 * number of bits necessary to represent the range.
@@ -1543,7 +1552,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		val+=min;
 	}
 
-	
+
 	if (IS_FT_UINT(hfi->type)) {
 		it = proto_tree_add_uint64(tree, hf_index, tvb, val_start, val_length, val);
 	} else if (IS_FT_INT(hfi->type)) {
@@ -1589,7 +1598,7 @@ dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 			enum_index = 0;
 		} else {
 			/* 13.3 ".. and the value shall be added to the field-list as a
-			 * normally small non-negative whole number whose value is the 
+			 * normally small non-negative whole number whose value is the
 			 * enumeration index of the additional enumeration and with "lb" set to 0.."
 			 */
 			offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, actx, tree, hf_per_enum_extension_index, &enum_index);
@@ -1609,7 +1618,7 @@ dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 }
 
 /* 14 Encoding the real type */
-guint32 
+guint32
 dissect_per_real(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, double *value)
 {
 	guint32 val_length, end_offset;
@@ -1722,7 +1731,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		}
 	}
 
-	if (value && (index != -1)) 
+	if (value && (index != -1))
 		*value = choice[index].value;
 
 	return offset;
@@ -1947,10 +1956,10 @@ DEBUG_ENTRY("dissect_per_sequence");
 				difference = offset - new_offset;
 				/* A difference of 7 or less might be byte aligning */
 				if(difference > 7){
-					cause=proto_tree_add_text(tree, tvb, new_offset>>3, (offset-new_offset)>>3, 
+					cause=proto_tree_add_text(tree, tvb, new_offset>>3, (offset-new_offset)>>3,
 						"[Possible encoding error full length not decoded. Open type length %u ,decoded %u]",length, length - (difference>>3));
 					proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-					expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, 
+					expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
 						"Possible encoding error full length not decoded. Open type length %u ,decoded %u",length, length - (difference>>3));
 				}
 			} else {
@@ -2008,8 +2017,8 @@ DEBUG_ENTRY("dissect_per_bit_string");
 
 	/* 15.10 if length is fixed and less than to 64kbits*/
 	if((min_len==max_len)&&(min_len<65536)){
-		/* (octet-aligned in the ALIGNED variant) 
-		 * align to byte 
+		/* (octet-aligned in the ALIGNED variant)
+		 * align to byte
 		 */
 		if (actx->aligned){
 			/* TODO the displayed value will be wrong for the unaligned variant */
@@ -2124,17 +2133,17 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		min_len = 0;
 	}
 	if (max_len==0) {  /* 16.5 if the length is 0 bytes there will be no encoding */
-		val_start = offset>>3; 
+		val_start = offset>>3;
 		val_length = 0;
 
-	} else if((min_len==max_len)&&(max_len<=2)) {  
+	} else if((min_len==max_len)&&(max_len<=2)) {
 		/* 16.6 if length is fixed and less than or equal to two bytes*/
-		val_start = offset>>3; 
+		val_start = offset>>3;
 		val_length = min_len;
 		out_tvb = new_octet_aligned_subset(tvb, offset, actx, val_length);
 		offset+=min_len*8;
 
-	} else if ((min_len==max_len)&&(min_len<65536)) {  
+	} else if ((min_len==max_len)&&(min_len<65536)) {
 		/* 16.7 if length is fixed and less than to 64k*/
 
 		/* align to byte */
@@ -2147,14 +2156,14 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		offset+=min_len*8;
 
 	} else {  /* 16.8 */
-		if(max_len>0) {  
+		if(max_len>0) {
 			offset = dissect_per_constrained_integer(tvb, offset, actx, tree,
 				hf_per_octet_string_length, min_len, max_len, &length, FALSE);
 
-				if (!display_internal_per_fields) 
+				if (!display_internal_per_fields)
 					PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		} else {
-			offset = dissect_per_length_determinant(tvb, offset, actx, tree, 
+			offset = dissect_per_length_determinant(tvb, offset, actx, tree,
 				hf_per_octet_string_length, &length);
 		}
 
@@ -2165,7 +2174,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			}
 			out_tvb = new_octet_aligned_subset(tvb, offset, actx, length);
 		} else {
-			val_start = offset>>3; 
+			val_start = offset>>3;
 		}
 		val_length = length;
 		offset+=length*8;
@@ -2277,8 +2286,8 @@ gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *name, int
     encoding CHOICE {
     single-ASN1-type [0] ABSTRACT-SYNTAX.&Type,
     octet-aligned [1] IMPLICIT OCTET STRING,
-    arbitrary [2] IMPLICIT BIT STRING 
-  } 
+    arbitrary [2] IMPLICIT BIT STRING
+  }
 }
 */
 /* NOTE: This sequence type differs from that in ITU-T Rec. X.680 | ISO/IEC 8824-1 for historical reasons. */
@@ -2391,7 +2400,7 @@ dissect_per_External(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   return offset;
 }
 
-guint32 
+guint32
 dissect_per_external_type(tvbuff_t *tvb _U_, guint32 offset, asn1_ctx_t *actx, proto_tree *tree _U_, int hf_index _U_, per_type_fn type_cb)
 {
   asn1_ctx_clean_external(actx);
