@@ -1,8 +1,8 @@
 /* jpeg_jfif.c
  *
  * JPEG/JFIF file format decoder for the Wiretap library.
- * Written by Márton Németh <nm127@freemail.hu>
- * Copyright 2009 Márton Németh
+ * Written by Marton Nemeth <nm127@freemail.hu>
+ * Copyright 2009 Marton Nemeth
  *
  * $Id$
  *
