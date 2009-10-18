@@ -195,7 +195,7 @@ def main():
                       help="Directory containing tshark executable")
     parser.add_option("-c", "--compare-dir", dest="compare_dir", default=None,
                       help="Directory containing tshark executable which is used for comparison")
-    parser.add_option("-j", dest="num_procs", default=1, type=int, 
+    parser.add_option("-j", dest="num_procs", default=multiprocessing.cpu_count(), type=int, 
                       help="Max number of processes to spawn")
     parser.add_option("-r", "--randomize", default=False, action="store_true",
                       help="Randomize the file list order")
