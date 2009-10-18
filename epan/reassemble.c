@@ -53,7 +53,7 @@ typedef struct _dcerpc_fragment_key {
 #else
 static GMemChunk *fragment_key_chunk = NULL;
 static GMemChunk *fragment_data_chunk = NULL;
-static GMemChunk *dcerpc_key_chunk = NULL;
+static GMemChunk *dcerpc_fragment_key_chunk = NULL;
 static int fragment_init_count = 200;
 #endif
 
