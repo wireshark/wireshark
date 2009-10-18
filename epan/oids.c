@@ -266,7 +266,7 @@ static char* alnumerize(const char* name) {
 	return s;
 }
 
-const oid_value_type_t* get_typedata(SmiType* smiType) {
+static const oid_value_type_t* get_typedata(SmiType* smiType) {
 	/*
 	 * There has to be a better way to know if a given
 	 * OCTETSTRING type is actually human readable text,
@@ -486,7 +486,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 						   || (ft == FT_INT8) || (ft == FT_INT16) || (ft == FT_INT24) || (ft == FT_INT32) \
 						   || (ft == FT_UINT64) || (ft == FT_INT64) )
 
-void register_mibs(void) {
+static void register_mibs(void) {
 	SmiModule *smiModule;
 	SmiNode *smiNode;
 	guint i;
