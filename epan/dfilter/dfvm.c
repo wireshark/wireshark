@@ -343,7 +343,7 @@ any_test(dfilter_t *df, FvalueCmpFunc cmp, int reg1, int reg2)
 static void
 free_register_overhead(dfilter_t* df)
 {
-	int i;
+	guint i;
 
 	for (i = 0; i < df->num_registers; i++) {
 		df->attempted_load[i] = FALSE;

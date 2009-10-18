@@ -33,8 +33,8 @@
 struct _dfilter_t {
 	GPtrArray	*insns;
 	GPtrArray	*consts;
-	int		num_registers;
-	int		max_registers;
+	guint		num_registers;
+	guint		max_registers;
 	GList		**registers;
 	gboolean	*attempted_load;
 	int		*interesting_fields;
