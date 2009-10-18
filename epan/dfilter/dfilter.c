@@ -138,7 +138,7 @@ free_insns(GPtrArray *insns)
 void
 dfilter_free(dfilter_t *df)
 {
-	int i;
+	guint i;
 
 	if (!df)
 		return;
@@ -160,8 +160,6 @@ dfilter_free(dfilter_t *df)
 	}
 
 	if (df->deprecated) {
-		guint i;
-
 		for (i = 0; i < df->deprecated->len; ++i) {
 			gchar *depr = g_ptr_array_index(df->deprecated, i);
 			g_free(depr);
