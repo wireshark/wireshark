@@ -2179,7 +2179,7 @@ fDoubleTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 	tag_len = fTagHeader(tvb, offset, &tag_no, &tag_info, &lvt);
 	d_val = tvb_get_ntohieee_double(tvb, offset+tag_len);
 	ti = proto_tree_add_text(tree, tvb, offset, 8+tag_len,
-		"%s%lf (Double)", label, d_val);
+		"%s%f (Double)", label, d_val);
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 
@@ -6344,7 +6344,7 @@ fAbortPDU(tvbuff_t *tvb, proto_tree *bacapp_tree, guint offset)
 	return offset;
 }
 
-guint
+static guint
 do_the_dissection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 flag, bacapp_type;
@@ -6573,7 +6573,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
-void
+static void
 bacapp_init_routine(void)
 {
 	fragment_table_init(&msg_fragment_table);
