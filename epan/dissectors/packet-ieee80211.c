@@ -460,6 +460,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define FIELD_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT 0x2E
 #define FIELD_HT_INFORMATION            0x2F
 #define FIELD_HT_ACTION_CODE            0x30
+#define FIELD_PA_ACTION_CODE            0x31
 
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
@@ -652,6 +653,7 @@ static const value_string aruba_mgt_typevals[] = {
 #define CAT_QOS                1
 #define CAT_DLS                2
 #define CAT_BLOCK_ACK          3
+#define CAT_PUBLIC             4
 
 #define CAT_RADIO_MEASUREMENT   6
 #define CAT_HT                  7
@@ -677,6 +679,16 @@ static const value_string aruba_mgt_typevals[] = {
 #define BA_ADD_BLOCK_ACK_REQUEST    0
 #define BA_ADD_BLOCK_ACK_RESPONSE   1
 #define BA_DELETE_BLOCK_ACK         2
+
+#define PA_DSE_ENABLEMENT                  1
+#define PA_DSE_DEENABLEMENT                2
+#define PA_DSE_REG_LOC_ANNOUNCEMENT        3
+#define PA_EXT_CHANNEL_SWITCH_ANNOUNCEMENT 4
+#define PA_DSE_MEASUREMENT_REQUEST         5
+#define PA_DSE_MEASUREMENT_REPORT          6
+#define PA_MEASUREMENT_PILOT               7
+#define PA_DSE_POWER_CONSTRAINT            8
+#define PA_VENDOR_SPECIFIC                 9
 
 #define HT_ACTION_NOTIFY_CHAN_WIDTH           0
 #define HT_ACTION_SM_PWR_SAVE                 1
@@ -1092,6 +1104,8 @@ static int ff_psmp_sta_info_psmp_multicast_id = -1;
 /*** Begin: MIMO CSI Matrices Report - Dustin Johnson ***/
 static int ff_mimo_csi_snr = -1;
 /*** End: MIMO CSI Matrices Report - Dustin Johnson ***/
+
+static int ff_public_action = -1;
 
 /* ************************************************************************* */
 /*            Flags found in the capability field (fixed field)              */
@@ -2951,6 +2965,11 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         break;
       }
 
+    case FIELD_PA_ACTION_CODE:
+        proto_tree_add_item(tree, ff_public_action, tvb, offset, 1, FALSE);
+        length += 1;
+        break;
+
     case FIELD_ACTION:
       {
         proto_item *action_item;
@@ -3116,6 +3135,37 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                         break;
                       }
                   }
+                break;
+              }
+
+            case CAT_PUBLIC:
+              {
+                guint start = offset;
+                guint32 oui;
+                const guint8 *tag_data_ptr;
+                guint8 code;
+
+                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+                code = tvb_get_guint8(tvb, offset);
+                offset += add_fixed_field(action_tree, tvb, offset, FIELD_PA_ACTION_CODE);
+
+                switch (code)
+                  {
+                    case PA_VENDOR_SPECIFIC:
+                      oui = tvb_get_ntoh24(tvb, offset);
+                      tag_data_ptr = tvb_get_ptr(tvb, offset, 3);
+                      proto_tree_add_bytes_format(action_tree, tag_oui, tvb, offset, 3,
+                                                  tag_data_ptr, "Vendor: %s", get_manuf_name(tag_data_ptr));
+                      offset += 3;
+                      switch (oui)
+                      {
+                      default:
+                        /* Don't know how to handle this vendor */
+                        break;
+                      }
+                      break;
+                  }
+                length += offset - start;  /* Size of fixed fields */
                 break;
               }
 
@@ -8631,6 +8681,19 @@ proto_register_ieee80211 (void)
   };
   /*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
 
+  static const value_string ff_pa_action_codes[] = {
+    {PA_DSE_ENABLEMENT, "DSE enablement"},
+    {PA_DSE_DEENABLEMENT, "DSE deenablement"},
+    {PA_DSE_REG_LOC_ANNOUNCEMENT, "DSE Registered Location Announcement"},
+    {PA_EXT_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement"},
+    {PA_DSE_MEASUREMENT_REQUEST, "DSE measurement request"},
+    {PA_DSE_MEASUREMENT_REPORT, "DSE measurement report"},
+    {PA_MEASUREMENT_PILOT, "Measurement Pilot"},
+    {PA_DSE_POWER_CONSTRAINT, "DSE power constraint"},
+    {PA_VENDOR_SPECIFIC, "Vendor Specific"},
+    {0x00, NULL}
+  };
+
   static const value_string reason_codes[] = {
     {0x00, "Reserved"},
     {0x01, "Unspecified reason"},
@@ -8751,6 +8814,7 @@ proto_register_ieee80211 (void)
     {CAT_QOS, "Quality of Service (QoS)"},
     {CAT_DLS, "Direct-Link Setup (DLS)"},
     {CAT_BLOCK_ACK, "Block Ack"},
+    {CAT_PUBLIC, "Public Action"},
     {CAT_RADIO_MEASUREMENT, "Radio Measurement"},
     {CAT_HT, "High Throughput"},
     {CAT_MGMT_NOTIFICATION, "Management Notification"},
@@ -10318,6 +10382,10 @@ proto_register_ieee80211 (void)
      {"Signal to Noise Ratio (SNR)", "wlan_mgt.mimo.csimatrices.snr",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
     /*** End: MIMO CSI Matrices Report - Dustin Johnson ***/
+
+    {&ff_public_action,
+     {"Public Action", "wlan_mgt.fixed.publicact",
+      FT_UINT8, BASE_HEX, VALS(ff_pa_action_codes), 0, "Public Action Code", HFILL }},
 
     {&ff_capture,
      {"Capabilities", "wlan_mgt.fixed.capabilities", FT_UINT16, BASE_HEX, NULL, 0,
