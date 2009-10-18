@@ -1229,8 +1229,6 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else if(cid < BTL2CAP_FIXED_CID_MAX) {
 		if (cid == BTL2CAP_FIXED_CID_AMP_MAN) {
-			guint16 control;
-
 			control = tvb_get_letohs(tvb, offset);
 			if(control & 0x1) {
 				dissect_s_frame(tvb, pinfo, tree, btl2cap_tree, 0 /* unused */, length, offset, NULL /* unused */);
