@@ -143,7 +143,7 @@ static const value_string severity_names[] = {
 };
 
 #define UDP_PORT_COLLECTD 25826
-static gint collectd_udp_port = UDP_PORT_COLLECTD;
+static guint collectd_udp_port = UDP_PORT_COLLECTD;
 
 static gint proto_collectd		= -1;
 static gint tap_collectd                = -1;
