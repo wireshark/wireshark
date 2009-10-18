@@ -714,7 +714,7 @@ static const char *doitype2str(guint32);
 static const char *msgtype2str(int, guint16);
 static const char *situation2str(guint32);
 static const char *v1_attrval2str(int, guint16, guint32);
-static const char *v2_attrval2str(guint16, guint32);
+static const char *v2_attrval2str(guint16);
 static const char *cfgtype2str(int, guint8);
 static const char *cfgattr2str(int, guint16);
 static const char *id2str(int, guint8);
@@ -1762,7 +1762,7 @@ dissect_transform2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       proto_tree_add_text(tree, tvb, offset, 4,
 			  "%s (%u): %s (%u)",
 			  str, type,
-			  v2_attrval2str(type, val), val);
+			  v2_attrval2str(type), val);
       offset += 4;
       length -= 4;
     }
@@ -1777,7 +1777,7 @@ dissect_transform2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
         proto_tree_add_text(tree, tvb, offset, pack_len,
 			    "%s (%u): %s (%u)",
 			    str, type,
-			    v2_attrval2str(type, val), val);
+			    v2_attrval2str(type), val);
       }
       offset += pack_len;
       length -= pack_len;
@@ -3123,9 +3123,8 @@ situation2str(guint32 type)
 }
 
 static const char *
-v2_attrval2str(guint16 att_type, guint32 value)
+v2_attrval2str(guint16 att_type)
 {
-  value = 0;	/* dummy to be less warning in compiling it */
   switch (att_type) {
   case 14:
     return "Key-Length";
