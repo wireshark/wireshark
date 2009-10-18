@@ -157,7 +157,7 @@ register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector,
 void
 register_ros_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name, gboolean uses_rtse)
 {
-	g_hash_table_insert(protocol_table, (gpointer)oid, (gpointer)rinfo);	
+	g_hash_table_insert(protocol_table, (gpointer)oid, (gpointer)rinfo);
 	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
 
 	if(!uses_rtse)
@@ -169,10 +169,10 @@ static new_dissector_t ros_lookup_opr_dissector(gint32 opcode, const ros_opr_t *
 {
 	/* we don't know what order asn2wrs/module definition is, so ... */
 	if(operations) {
-		for(;operations->arg_pdu != (new_dissector_t)(-1); operations++) 
-			if(operations->opcode == opcode) 
+		for(;operations->arg_pdu != (new_dissector_t)(-1); operations++)
+			if(operations->opcode == opcode)
 				return argument ? operations->arg_pdu : operations->res_pdu;
-		
+
 	}
 	return NULL;
 }
@@ -182,7 +182,7 @@ static new_dissector_t ros_lookup_err_dissector(gint32 errcode, const ros_err_t 
 	/* we don't know what order asn2wrs/module definition is, so ... */
 	if(errors) {
 		for(;errors->err_pdu != (new_dissector_t) (-1); errors++) {
-			if(errors->errcode == errcode) 
+			if(errors->errcode == errcode)
 				return errors->err_pdu;
 		}
 	}
@@ -218,8 +218,8 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 			if((session->ros_op & ROS_OP_PDU_MASK) ==  ROS_OP_ERROR)
 				opcode = err_ros_bind;
 			else
-				opcode = op_ros_bind;				
-		} else 
+				opcode = op_ros_bind;
+		} else
 			/* otherwise just take the opcode */
 			opcode = session->ros_op & ROS_OP_OPCODE_MASK;
 
@@ -227,15 +227,15 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 		lookup = rinfo->opr_code_strings;
 
 		switch(session->ros_op & ROS_OP_PDU_MASK) {
-		case ROS_OP_ARGUMENT:	
+		case ROS_OP_ARGUMENT:
 			opdissector = ros_lookup_opr_dissector(opcode, rinfo->opr_code_dissectors, TRUE);
 			suffix = "_argument";
 			break;
-		case ROS_OP_RESULT:	
+		case ROS_OP_RESULT:
 			opdissector = ros_lookup_opr_dissector(opcode, rinfo->opr_code_dissectors, FALSE);
 			suffix = "_result";
 			break;
-		case ROS_OP_ERROR:	
+		case ROS_OP_ERROR:
 			opdissector = ros_lookup_err_dissector(opcode, rinfo->err_code_dissectors);
 			lookup = rinfo->err_code_strings;
 			break;
@@ -252,7 +252,7 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 				if(suffix)
 					col_append_str(pinfo->cinfo, COL_INFO, suffix);
 			}
-			
+
 			offset = (*opdissector)(tvb, pinfo, ros_tree);
 
 			return TRUE;
@@ -279,7 +279,7 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
 	}
 
-	/*XXX until we change the #.REGISTER signature for _PDU()s 
+	/*XXX until we change the #.REGISTER signature for _PDU()s
 	 * into new_dissector_t   we have to do this kludge with
 	 * manually step past the content in the ANY type.
 	 */
@@ -350,7 +350,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     rcr.req_frame=0;
     rcr.rep_frame=pinfo->fd->num;
   }
-  
+
   rcrp=g_hash_table_lookup(ros_info->matched, &rcr);
 
   if(rcrp) {
@@ -358,7 +358,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     rcrp->is_request=rcr.is_request;
 
   } else {
-    
+
     /* we haven't found a match - try and match it up */
 
     if(isInvoke) {
@@ -374,7 +374,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       if(rcrp){
 	g_hash_table_remove(ros_info->unmatched, rcrp);
       }
-      
+
       /* if we cant reuse the old one, grab a new chunk */
       if(!rcrp){
 	rcrp=se_alloc(sizeof(ros_call_response_t));
@@ -421,7 +421,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       PROTO_ITEM_SET_GENERATED (item);
     }
   }
-  
+
   return rcrp;
 }
 
@@ -1025,7 +1025,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if(parent_tree){
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error:can't get application context from ACSE dissector.");
-		} 
+		}
 		return  ;
 	} else {
 		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
@@ -1054,12 +1054,12 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	  /* No.  Attach that information to the conversation. */
 
-	  ros_info = se_alloc(sizeof(ros_conv_info_t));
+	  ros_info = g_malloc(sizeof(ros_conv_info_t));
 	  ros_info->matched=g_hash_table_new(ros_info_hash_matched, ros_info_equal_matched);
 	  ros_info->unmatched=g_hash_table_new(ros_info_hash_unmatched, ros_info_equal_unmatched);
-	  
+
 	  conversation_add_proto_data(conversation, proto_ros, ros_info);
-	  
+
 	  ros_info->next = ros_info_items;
 	  ros_info_items = ros_info;
 	  }
@@ -1097,11 +1097,17 @@ ros_reinit(void)
   ros_conv_info_t *ros_info;
 
   /* Free up state attached to the ros_info structures */
-  for (ros_info = ros_info_items; ros_info != NULL; ros_info = ros_info->next) {
+  for (ros_info = ros_info_items; ros_info != NULL; ) {
+    ros_conv_info_t *last;
+
     g_hash_table_destroy(ros_info->matched);
     ros_info->matched=NULL;
     g_hash_table_destroy(ros_info->unmatched);
     ros_info->unmatched=NULL;
+
+    last = ros_info;
+    ros_info = ros_info->next;
+    g_free(last);
   }
 
   ros_info_items = NULL;
@@ -1240,7 +1246,7 @@ void proto_register_ros(void) {
         "ros.OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 503 "packet-ros-template.c"
+#line 509 "packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1261,7 +1267,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 510 "packet-ros-template.c"
+#line 516 "packet-ros-template.c"
   };
 
   /* Register protocol */
