@@ -51,36 +51,6 @@
 #include <process.h>    /* getpid */
 #endif
 
-/*
- * Tools like Valgrind and ElectricFence don't work well with memchunks.
- * Export the following environment variables to make {ep|se}_alloc() allocate each
- * object individually.
- *
- * WIRESHARK_DEBUG_EP_NO_CHUNKS
- * WIRESHARK_DEBUG_SE_NO_CHUNKS
- */
-static gboolean ep_debug_use_chunks;
-static gboolean se_debug_use_chunks;
-
-/* Do we want to use canaries?
- * Export the following environment variables to disable/enable canaries
- *
- * WIRESHARK_DEBUG_EP_NO_CANARY
- * For SE memory use of canary is default off as the memory overhead
- * is considerable.
- * WIRESHARK_DEBUG_SE_USE_CANARY
- */
-static gboolean ep_debug_use_canary;
-static gboolean se_debug_use_canary;
-
-/*
- *  Memory scrubbing is expensive but can be useful to ensure we don't:
- *    - use memory before initializing it
- *    - use memory after freeing it
- *  Export WIRESHARK_DEBUG_SCRUB_MEMORY to turn it on.
- */
-static gboolean debug_use_memory_scrubber = FALSE;
-
 /* Print out statistics about our memory allocations? */
 /*#define SHOW_EMEM_STATS*/
 
@@ -121,10 +91,6 @@ static int dev_zero_fd;
 #define EMEM_CANARY_SIZE 8
 #define EMEM_CANARY_DATA_SIZE (EMEM_CANARY_SIZE * 2 - 1)
 
-/* this should be static, but if it were gdb would had problems finding it */
-guint8 ep_canary[EMEM_CANARY_DATA_SIZE];
-guint8 se_canary[EMEM_CANARY_DATA_SIZE];
-
 typedef struct _emem_no_chunk_t {
 	unsigned int	c_count;
 	void		*canary[EMEM_ALLOCS_PER_CHUNK];
@@ -133,7 +99,7 @@ typedef struct _emem_no_chunk_t {
 
 typedef struct _emem_chunk_t {
 	struct _emem_chunk_t *next;
-	char			*buf;
+	char		*buf;
 	unsigned int	amount_free_init;
 	unsigned int	amount_free;
 	unsigned int	free_offset_init;
@@ -144,10 +110,44 @@ typedef struct _emem_chunk_t {
 typedef struct _emem_header_t {
 	emem_chunk_t *free_list;
 	emem_chunk_t *used_list;
+
+	emem_tree_t *trees;		/* only used by se_mem allocator */
+
+	guint8 canary[EMEM_CANARY_DATA_SIZE];
+	void *(*memory_alloc)(size_t size, struct _emem_header_t *);
+
+	/*
+	 * Tools like Valgrind and ElectricFence don't work well with memchunks.
+	 * Export the following environment variables to make {ep|se}_alloc() allocate each
+	 * object individually.
+	 *
+	 * WIRESHARK_DEBUG_EP_NO_CHUNKS
+	 * WIRESHARK_DEBUG_SE_NO_CHUNKS
+	 */
+	gboolean debug_use_chunks;
+
+	/* Do we want to use canaries?
+	 * Export the following environment variables to disable/enable canaries
+	 *
+	 * WIRESHARK_DEBUG_EP_NO_CANARY
+	 * For SE memory use of canary is default off as the memory overhead
+	 * is considerable.
+	 * WIRESHARK_DEBUG_SE_USE_CANARY
+	 */
+	gboolean debug_use_canary;
+
 } emem_header_t;
 
 static emem_header_t ep_packet_mem;
 static emem_header_t se_packet_mem;
+
+/*
+ *  Memory scrubbing is expensive but can be useful to ensure we don't:
+ *    - use memory before initializing it
+ *    - use memory after freeing it
+ *  Export WIRESHARK_DEBUG_SCRUB_MEMORY to turn it on.
+ */
+static gboolean debug_use_memory_scrubber = FALSE;
 
 #if defined (_WIN32)
 static SYSTEM_INFO sysinfo;
@@ -157,11 +157,15 @@ static int pagesize;
 static intptr_t pagesize;
 #endif /* _WIN32 / USE_GUARD_PAGES */
 
+static void *emem_alloc_chunk(size_t size, emem_header_t *mem);
+static void *emem_alloc_glib(size_t size, emem_header_t *mem);
+
 /*
  * Set a canary value to be placed between memchunks.
  */
 static void
-emem_canary_init(guint8 *canary) {
+emem_canary_init(guint8 *canary)
+{
 	int i;
 	static GRand *rand_state = NULL;
 
@@ -179,7 +183,8 @@ emem_canary_init(guint8 *canary) {
  * the canary value.
  */
 static guint8
-emem_canary_pad (size_t allocation) {
+emem_canary_pad (size_t allocation)
+{
 	guint8 pad;
 
 	pad = EMEM_CANARY_SIZE - (allocation % EMEM_CANARY_SIZE);
@@ -195,7 +200,9 @@ gboolean intense_canary_checking = FALSE;
 
 /*  used to intensivelly check ep canaries
  */
-void ep_check_canary_integrity(const char* fmt, ...) {
+void
+ep_check_canary_integrity(const char* fmt, ...)
+{
 	va_list ap;
 	static gchar there[128] = {
 		'L','a','u','n','c','h',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -233,6 +240,18 @@ void ep_check_canary_integrity(const char* fmt, ...) {
 }
 #endif
 
+static void
+emem_init_chunk(emem_header_t *mem)
+{
+	if (mem->debug_use_canary)
+		emem_canary_init(mem->canary);
+
+	if (mem->debug_use_chunks)
+		mem->memory_alloc = emem_alloc_chunk;
+	else
+		mem->memory_alloc = emem_alloc_glib;
+}
+
 
 /* Initialize the packet-lifetime memory allocation pool.
  * This function should be called only once when Wireshark or TShark starts
@@ -243,16 +262,16 @@ ep_init_chunk(void)
 {
 	ep_packet_mem.free_list=NULL;
 	ep_packet_mem.used_list=NULL;
+	ep_packet_mem.trees=NULL;	/* not used by this allocator */
 
-	ep_debug_use_chunks = (gboolean) (!getenv("WIRESHARK_DEBUG_EP_NO_CHUNKS"));
-	ep_debug_use_canary = (gboolean) (!getenv("WIRESHARK_DEBUG_EP_NO_CANARY"));
+	ep_packet_mem.debug_use_chunks = (getenv("WIRESHARK_DEBUG_EP_NO_CHUNKS") == NULL);
+	ep_packet_mem.debug_use_canary = ep_packet_mem.debug_use_chunks && (getenv("WIRESHARK_DEBUG_EP_NO_CANARY") == NULL);
 
 #ifdef DEBUG_INTENSE_CANARY_CHECKS
 	intense_canary_checking = (gboolean)getenv("WIRESHARK_DEBUG_EP_INTENSE_CANARY");
 #endif
 
-	if (ep_debug_use_canary)
-		emem_canary_init(ep_canary);
+	emem_init_chunk(&ep_packet_mem);
 
 #if defined (_WIN32)
 	/* Set up our guard page info for Win32 */
@@ -288,14 +307,12 @@ se_init_chunk(void)
 {
 	se_packet_mem.free_list = NULL;
 	se_packet_mem.used_list = NULL;
+	ep_packet_mem.trees = NULL;
 
-	se_debug_use_chunks = (gboolean) (!getenv("WIRESHARK_DEBUG_SE_NO_CHUNKS"));
+	se_packet_mem.debug_use_chunks = (getenv("WIRESHARK_DEBUG_SE_NO_CHUNKS") == NULL);
+	se_packet_mem.debug_use_canary = se_packet_mem.debug_use_chunks && (getenv("WIRESHARK_DEBUG_SE_USE_CANARY") != NULL);
 
-	if (getenv("WIRESHARK_DEBUG_SE_USE_CANARY")) {
-		se_debug_use_canary = TRUE;
-		emem_canary_init(se_canary);
-	} else
-		se_debug_use_canary = FALSE;
+	emem_init_chunk(&se_packet_mem);
 
 	/* This isn't specific to se_ memory, but need to init it somewhere.. */
 	if (getenv("WIRESHARK_DEBUG_SCRUB_MEMORY"))
@@ -324,15 +341,15 @@ print_alloc_stats()
 
 	fprintf(stderr, "\n-------- EP allocator statistics --------\n");
 	fprintf(stderr, "%s chunks, %s canaries, %s memory scrubber\n",
-	       ep_debug_use_chunks ? "Using" : "Not using",
-	       ep_debug_use_canary ? "using" : "not using",
+	       ep_packet_mem.debug_use_chunks ? "Using" : "Not using",
+	       ep_packet_mem.debug_use_canary ? "using" : "not using",
 	       debug_use_memory_scrubber ? "using" : "not using");
 
 	if (! (ep_packet_mem.free_list || !ep_packet_mem.used_list)) {
 		fprintf(stderr, "No memory allocated\n");
 		ep_stat = FALSE;
 	}
-	if (ep_debug_use_chunks && ep_stat) {
+	if (ep_packet_mem.debug_use_chunks && ep_stat) {
 		/* Nothing interesting without chunks */
 		/*  Only look at the used_list since those chunks are fully
 		 *  used.  Looking at the free list would skew our view of what
@@ -374,15 +391,15 @@ print_alloc_stats()
 	fprintf(stderr, "Total number of chunk allocations %u\n",
 		total_no_chunks);
 	fprintf(stderr, "%s chunks, %s canaries\n",
-	       se_debug_use_chunks ? "Using" : "Not using",
-	       se_debug_use_canary ? "using" : "not using");
+	       se_packet_mem.debug_use_chunks ? "Using" : "Not using",
+	       se_packet_mem.debug_use_canary ? "using" : "not using");
 
 	if (! (se_packet_mem.free_list || !se_packet_mem.used_list)) {
 		fprintf(stderr, "No memory allocated\n");
 		return;
 	}
 
-	if (!se_debug_use_chunks )
+	if (!se_packet_mem.debug_use_chunks )
 		return; /* Nothing interesting without chunks?? */
 
 	/*  Only look at the used_list since those chunks are fully used.
@@ -394,7 +411,7 @@ print_alloc_stats()
 		total_allocation += chunk->amount_free_init;
 		total_free += chunk->amount_free;
 
-		if (se_debug_use_canary){
+		if (se_packet_mem.debug_use_canary){
 			for (i_ctr = 0; i_ctr < chunk->canary_info->c_count; i_ctr++) {
 				used_for_canaries += chunk->canary_info->cmp_len[i_ctr];
 			}
@@ -412,14 +429,14 @@ print_alloc_stats()
 	fprintf (stderr, "---- Headers ----\n");
 	fprintf (stderr, "\t(    Chunk header size: %10lu\n",
 		 sizeof(emem_chunk_t));
-	if (se_debug_use_canary)
+	if (se_packet_mem.debug_use_canary)
 		fprintf (stderr, "\t  + Canary header size: %10lu)\n",
 			 sizeof(emem_canary_t));
 	fprintf (stderr, "\t*     Number of chunks: %10u\n", num_chunks);
 	fprintf (stderr, "\t-------------------------------------------\n");
 
 	total_headers = sizeof(emem_chunk_t) * num_chunks;
-	if (se_debug_use_canary)
+	if (se_packet_mem.debug_use_canary)
 		total_headers += sizeof(emem_canary_t) * num_chunks;
 	fprintf (stderr, "\t= %u bytes used for headers\n", total_headers);
 	fprintf (stderr, "\n---- Buffer space ----\n");
@@ -558,7 +575,7 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 	emem_chunk_t *npc;
 
 	/* we dont have any free data, so we must allocate a new one */
-    DISSECTOR_ASSERT(!*free_list);
+	DISSECTOR_ASSERT(!*free_list);
 
 	npc = g_new(emem_chunk_t, 1);
 	npc->next = NULL;
@@ -640,106 +657,117 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 #endif /* USE_GUARD_PAGES */
 }
 
-/* allocate 'size' amount of memory. */
 static void *
-emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
+emem_alloc_chunk(size_t size, emem_header_t *mem)
 {
 	void *buf;
 
-	if (use_chunks) {
-		size_t asize = size;
-		gboolean use_canary = canary != NULL;
-		guint8 pad;
-		emem_chunk_t *free_list;
+	size_t asize = size;
+	gboolean use_canary = mem->debug_use_canary;
+	guint8 pad;
+	emem_chunk_t *free_list;
 
-		/* Round up to an 8 byte boundary. Make sure we have at least
-		 * 8 pad bytes for our canary.
-		 */
-		 if (use_canary)
-			pad = emem_canary_pad(asize);
-		 else
-			pad = (G_MEM_ALIGN - (asize & (G_MEM_ALIGN-1))) & (G_MEM_ALIGN-1);
+	/* Round up to an 8 byte boundary. Make sure we have at least
+	 * 8 pad bytes for our canary.
+	 */
+	 if (use_canary)
+		pad = emem_canary_pad(asize);
+	 else
+		pad = (G_MEM_ALIGN - (asize & (G_MEM_ALIGN-1))) & (G_MEM_ALIGN-1);
 
-		asize += pad;
+	asize += pad;
 
 #ifdef SHOW_EMEM_STATS
-		/* Do this check here so we can include the canary size */
-		if (mem == &se_packet_mem) {
-			if (asize < 32)
-				allocations[0]++;
-			else if (asize < 64)
-				allocations[1]++;
-			else if (asize < 128)
-				allocations[2]++;
-			else if (asize < 256)
-				allocations[3]++;
-			else if (asize < 512)
-				allocations[4]++;
-			else if (asize < 1024)
-				allocations[5]++;
-			else if (asize < 2048)
-				allocations[6]++;
-			else if (asize < 4096)
-				allocations[7]++;
-			else if (asize < 8192)
-				allocations[8]++;
-			else if (asize < 16384)
-				allocations[8]++;
-			else
-				allocations[(NUM_ALLOC_DIST-1)]++;
-		}
+	/* Do this check here so we can include the canary size */
+	if (mem == &se_packet_mem) {
+		if (asize < 32)
+			allocations[0]++;
+		else if (asize < 64)
+			allocations[1]++;
+		else if (asize < 128)
+			allocations[2]++;
+		else if (asize < 256)
+			allocations[3]++;
+		else if (asize < 512)
+			allocations[4]++;
+		else if (asize < 1024)
+			allocations[5]++;
+		else if (asize < 2048)
+			allocations[6]++;
+		else if (asize < 4096)
+			allocations[7]++;
+		else if (asize < 8192)
+			allocations[8]++;
+		else if (asize < 16384)
+			allocations[8]++;
+		else
+			allocations[(NUM_ALLOC_DIST-1)]++;
+	}
 #endif
 
-		/* make sure we dont try to allocate too much (arbitrary limit) */
-		DISSECTOR_ASSERT(asize<(EMEM_PACKET_CHUNK_SIZE>>2));
+	/* make sure we dont try to allocate too much (arbitrary limit) */
+	DISSECTOR_ASSERT(asize<(EMEM_PACKET_CHUNK_SIZE>>2));
+
+	if (!mem->free_list)
+		emem_create_chunk(&mem->free_list, use_canary);
+
+	/* oops, we need to allocate more memory to serve this request
+	 * than we have free. move this node to the used list and try again
+	 */
+	if(asize > mem->free_list->amount_free ||
+	   (use_canary &&
+		mem->free_list->canary_info->c_count >= EMEM_ALLOCS_PER_CHUNK)) {
+		emem_chunk_t *npc;
+		npc=mem->free_list;
+		mem->free_list=mem->free_list->next;
+		npc->next=mem->used_list;
+		mem->used_list=npc;
 
 		if (!mem->free_list)
 			emem_create_chunk(&mem->free_list, use_canary);
-
-		/* oops, we need to allocate more memory to serve this request
-		 * than we have free. move this node to the used list and try again
-		 */
-		if(asize > mem->free_list->amount_free ||
-		   (use_canary &&
-			mem->free_list->canary_info->c_count >= EMEM_ALLOCS_PER_CHUNK)) {
-			emem_chunk_t *npc;
-			npc=mem->free_list;
-			mem->free_list=mem->free_list->next;
-			npc->next=mem->used_list;
-			mem->used_list=npc;
-
-			if (!mem->free_list)
-				emem_create_chunk(&mem->free_list, use_canary);
-		}
-
-		free_list = mem->free_list;
-
-		buf = free_list->buf + free_list->free_offset;
-
-		free_list->amount_free -= (unsigned int) asize;
-		free_list->free_offset += (unsigned int) asize;
-
-		if (use_canary) {
-			void *cptr = (char *)buf + asize - pad;
-			memcpy(cptr, canary, pad);
-			free_list->canary_info->canary[free_list->canary_info->c_count] = cptr;
-			free_list->canary_info->cmp_len[free_list->canary_info->c_count] = pad;
-			free_list->canary_info->c_count++;
-		}
-	} else {
-		emem_chunk_t *npc;
-
-		npc=g_new(emem_chunk_t, 1);
-		npc->next=mem->used_list;
-		npc->buf=g_malloc(size);
-		npc->canary_info = NULL;
-		buf = npc->buf;
-		mem->used_list=npc;
-		/* There's no padding/alignment involved (from our point of view) when
-		 * we fetch the memory directly from the system pool, so WYSIWYG */
-		npc->free_offset = npc->free_offset_init = 0;
-		npc->amount_free = npc->amount_free_init = (unsigned int) size;
 	}
+
+	free_list = mem->free_list;
+
+	buf = free_list->buf + free_list->free_offset;
+
+	free_list->amount_free -= (unsigned int) asize;
+	free_list->free_offset += (unsigned int) asize;
+
+	if (use_canary) {
+		void *cptr = (char *)buf + size;
+		memcpy(cptr, mem->canary, pad);
+		free_list->canary_info->canary[free_list->canary_info->c_count] = cptr;
+		free_list->canary_info->cmp_len[free_list->canary_info->c_count] = pad;
+		free_list->canary_info->c_count++;
+	}
+
+	return buf;
+}
+
+static void *
+emem_alloc_glib(size_t size, emem_header_t *mem)
+{
+	emem_chunk_t *npc;
+
+	npc=g_new(emem_chunk_t, 1);
+	npc->next=mem->used_list;
+	npc->buf=g_malloc(size);
+	npc->canary_info = NULL;
+	mem->used_list=npc;
+	/* There's no padding/alignment involved (from our point of view) when
+	 * we fetch the memory directly from the system pool, so WYSIWYG */
+	npc->free_offset = npc->free_offset_init = 0;
+	npc->amount_free = npc->amount_free_init = (unsigned int) size;
+
+	return npc->buf;
+}
+
+/* allocate 'size' amount of memory. */
+static void *
+emem_alloc(size_t size, emem_header_t *mem)
+{
+	void *buf = mem->memory_alloc(size, mem);
 
 	/*  XXX - this is a waste of time if the allocator function is going to
 	 *  memset this straight back to 0.
@@ -755,13 +783,7 @@ emem_alloc(size_t size, emem_header_t *mem, gboolean use_chunks, guint8 *canary)
 void *
 ep_alloc(size_t size)
 {
-	if (ep_debug_use_chunks)
-		if (ep_debug_use_canary)
-			return emem_alloc(size, &ep_packet_mem, TRUE, ep_canary);
-		else
-			return emem_alloc(size, &ep_packet_mem, TRUE, NULL);
-	else
-		return emem_alloc(size, &ep_packet_mem, FALSE, NULL);
+	return emem_alloc(size, &ep_packet_mem);
 }
 
 /* allocate 'size' amount of memory with an allocation lifetime until the
@@ -770,20 +792,18 @@ ep_alloc(size_t size)
 void *
 se_alloc(size_t size)
 {
-	if (se_debug_use_chunks)
-		if (se_debug_use_canary)
-			return emem_alloc(size, &se_packet_mem, TRUE, se_canary);
-		else
-			return emem_alloc(size, &se_packet_mem, TRUE, NULL);
-	else
-		return emem_alloc(size, &se_packet_mem, FALSE, NULL);
+	return emem_alloc(size, &se_packet_mem);
 }
 
-void* ep_alloc0(size_t size) {
+void *
+ep_alloc0(size_t size)
+{
 	return memset(ep_alloc(size),'\0',size);
 }
 
-gchar* ep_strdup(const gchar* src) {
+gchar *
+ep_strdup(const gchar* src)
+{
 	guint len = (guint) strlen(src);
 	gchar* dst;
 
@@ -792,7 +812,9 @@ gchar* ep_strdup(const gchar* src) {
 	return dst;
 }
 
-gchar* ep_strndup(const gchar* src, size_t len) {
+gchar *
+ep_strndup(const gchar* src, size_t len)
+{
 	gchar* dst = ep_alloc(len+1);
 
 	g_strlcpy(dst, src, len+1);
@@ -800,11 +822,15 @@ gchar* ep_strndup(const gchar* src, size_t len) {
 	return dst;
 }
 
-void* ep_memdup(const void* src, size_t len) {
+void *
+ep_memdup(const void* src, size_t len)
+{
 	return memcpy(ep_alloc(len), src, len);
 }
 
-gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap) {
+gchar *
+ep_strdup_vprintf(const gchar* fmt, va_list ap)
+{
 	va_list ap2;
 	gsize len;
 	gchar* dst;
@@ -820,7 +846,9 @@ gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap) {
 	return dst;
 }
 
-gchar* ep_strdup_printf(const gchar* fmt, ...) {
+gchar *
+ep_strdup_printf(const gchar* fmt, ...)
+{
 	va_list ap;
 	gchar* dst;
 
@@ -830,7 +858,9 @@ gchar* ep_strdup_printf(const gchar* fmt, ...) {
 	return dst;
 }
 
-gchar** ep_strsplit(const gchar* string, const gchar* sep, int max_tokens) {
+gchar **
+ep_strsplit(const gchar* string, const gchar* sep, int max_tokens)
+{
 	gchar* splitted;
 	gchar* s;
 	guint tokens;
@@ -907,14 +937,18 @@ gchar** ep_strsplit(const gchar* string, const gchar* sep, int max_tokens) {
 
 
 
-void* se_alloc0(size_t size) {
+void *
+se_alloc0(size_t size)
+{
 	return memset(se_alloc(size),'\0',size);
 }
 
 /* If str is NULL, just return the string "<NULL>" so that the callers dont
  * have to bother checking it.
  */
-gchar* se_strdup(const gchar* src) {
+gchar *
+se_strdup(const gchar* src)
+{
 	guint len;
 	gchar* dst;
 
@@ -927,7 +961,9 @@ gchar* se_strdup(const gchar* src) {
 	return dst;
 }
 
-gchar* se_strndup(const gchar* src, size_t len) {
+gchar *
+se_strndup(const gchar* src, size_t len)
+{
 	gchar* dst = se_alloc(len+1);
 
 	g_strlcpy(dst, src, len+1);
@@ -935,11 +971,15 @@ gchar* se_strndup(const gchar* src, size_t len) {
 	return dst;
 }
 
-void* se_memdup(const void* src, size_t len) {
+void *
+se_memdup(const void* src, size_t len)
+{
 	return memcpy(se_alloc(len), src, len);
 }
 
-gchar* se_strdup_vprintf(const gchar* fmt, va_list ap) {
+gchar *
+se_strdup_vprintf(const gchar* fmt, va_list ap)
+{
 	va_list ap2;
 	gsize len;
 	gchar* dst;
@@ -955,7 +995,9 @@ gchar* se_strdup_vprintf(const gchar* fmt, va_list ap) {
 	return dst;
 }
 
-gchar* se_strdup_printf(const gchar* fmt, ...) {
+gchar *
+se_strdup_printf(const gchar* fmt, ...)
+{
 	va_list ap;
 	gchar* dst;
 
@@ -967,8 +1009,11 @@ gchar* se_strdup_printf(const gchar* fmt, ...) {
 
 /* release all allocated memory back to the pool. */
 static void
-emem_free_all(emem_header_t *mem, gboolean use_chunks, guint8 *canary, emem_tree_t *trees)
+emem_free_all(emem_header_t *mem)
 {
+	gboolean use_chunks = mem->debug_use_chunks;
+	guint8 *canary = (mem->debug_use_canary) ? mem->canary : NULL;
+
 	emem_chunk_t *npc;
 	emem_tree_t *tree_list;
 	guint i;
@@ -1012,7 +1057,7 @@ emem_free_all(emem_header_t *mem, gboolean use_chunks, guint8 *canary, emem_tree
 	}
 
 	/* release/reset all allocated trees */
-	for(tree_list=trees;tree_list;tree_list=tree_list->next){
+	for(tree_list=mem->trees;tree_list;tree_list=tree_list->next){
 		tree_list->tree=NULL;
 	}
 }
@@ -1021,20 +1066,11 @@ emem_free_all(emem_header_t *mem, gboolean use_chunks, guint8 *canary, emem_tree
 void
 ep_free_all(void)
 {
-	if (ep_debug_use_chunks)
-		if (ep_debug_use_canary)
-			emem_free_all(&ep_packet_mem, TRUE, ep_canary, NULL /* trees */);
-		else
-			emem_free_all(&ep_packet_mem, TRUE, NULL, NULL /* trees */);
-	else
-		emem_free_all(&ep_packet_mem, FALSE, NULL, NULL /* trees */);
+	emem_free_all(&ep_packet_mem);
 
-	if (!ep_debug_use_chunks)
+	if (!ep_packet_mem.debug_use_chunks)
 		ep_init_chunk();
 }
-
-/* routines to manage se allocated red-black trees */
-static emem_tree_t *se_trees=NULL;
 
 /* release all allocated memory back to the pool. */
 void
@@ -1045,15 +1081,9 @@ se_free_all(void)
 	print_alloc_stats();
 #endif
 
-	if (se_debug_use_chunks)
-		if (se_debug_use_canary)
-			emem_free_all(&se_packet_mem, TRUE, se_canary, se_trees);
-		else
-			emem_free_all(&se_packet_mem, TRUE, NULL, se_trees);
-	else
-		emem_free_all(&se_packet_mem, FALSE, NULL, se_trees);
+	emem_free_all(&se_packet_mem);
 
-	if (!se_debug_use_chunks)
+	if (!se_packet_mem.debug_use_chunks)
 		se_init_chunk();
 }
 
@@ -1068,7 +1098,9 @@ of allocating new ones.
 */
 
 
-void* ep_stack_push(ep_stack_t stack, void* data) {
+void *
+ep_stack_push(ep_stack_t stack, void* data)
+{
 	struct _ep_stack_frame_t* frame;
 	struct _ep_stack_frame_t* head = (*stack);
 
@@ -1087,7 +1119,9 @@ void* ep_stack_push(ep_stack_t stack, void* data) {
 	return data;
 }
 
-void* ep_stack_pop(ep_stack_t stack) {
+void *
+ep_stack_pop(ep_stack_t stack)
+{
 
 	if ((*stack)->below) {
 		(*stack) = (*stack)->below;
@@ -1103,12 +1137,12 @@ se_tree_create(int type, const char *name)
 	emem_tree_t *tree_list;
 
 	tree_list=g_malloc(sizeof(emem_tree_t));
-	tree_list->next=se_trees;
+	tree_list->next=se_packet_mem.trees;
 	tree_list->type=type;
 	tree_list->tree=NULL;
 	tree_list->name=name;
 	tree_list->malloc=se_alloc;
-	se_trees=tree_list;
+	se_packet_mem.trees=tree_list;
 
 	return tree_list;
 }
@@ -1246,6 +1280,7 @@ emem_tree_grandparent(emem_tree_node_t *node)
 	}
 	return NULL;
 }
+
 static inline emem_tree_node_t *
 emem_tree_uncle(emem_tree_node_t *node)
 {
@@ -1477,7 +1512,9 @@ emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data)
 	}
 }
 
-static void* lookup_or_insert32(emem_tree_t *se_tree, guint32 key, void*(*func)(void*),void* ud, int is_subtree) {
+static void *
+lookup_or_insert32(emem_tree_t *se_tree, guint32 key, void*(*func)(void*),void* ud, int is_subtree)
+{
 	emem_tree_node_t *node;
 
 	node=se_tree->tree;
@@ -1610,7 +1647,9 @@ emem_tree_create_subtree(emem_tree_t *parent_tree, const char *name)
 	return tree_list;
 }
 
-static void* create_sub_tree(void* d) {
+static void *
+create_sub_tree(void* d)
+{
 	emem_tree_t *se_tree = d;
 	return emem_tree_create_subtree(se_tree, "subtree");
 }
@@ -1873,7 +1912,8 @@ emem_print_tree(emem_tree_t* emem_tree)
 #define MAX_STRBUF_LEN 65536
 
 static gsize
-next_size(gsize cur_alloc_len, gsize wanted_alloc_len, gsize max_alloc_len) {
+next_size(gsize cur_alloc_len, gsize wanted_alloc_len, gsize max_alloc_len)
+{
 	if (max_alloc_len < 1 || max_alloc_len > MAX_STRBUF_LEN) {
 		max_alloc_len = MAX_STRBUF_LEN;
 	}
@@ -1890,7 +1930,8 @@ next_size(gsize cur_alloc_len, gsize wanted_alloc_len, gsize max_alloc_len) {
 }
 
 static void
-ep_strbuf_grow(emem_strbuf_t *strbuf, gsize wanted_alloc_len) {
+ep_strbuf_grow(emem_strbuf_t *strbuf, gsize wanted_alloc_len)
+{
 	gsize new_alloc_len;
 	gchar *new_str;
 
@@ -1907,7 +1948,8 @@ ep_strbuf_grow(emem_strbuf_t *strbuf, gsize wanted_alloc_len) {
 }
 
 emem_strbuf_t *
-ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len) {
+ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len)
+{
 	emem_strbuf_t *strbuf;
 
 	strbuf = ep_alloc(sizeof(emem_strbuf_t));
@@ -1930,7 +1972,8 @@ ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len) {
 }
 
 emem_strbuf_t *
-ep_strbuf_new(const gchar *init) {
+ep_strbuf_new(const gchar *init)
+{
 	emem_strbuf_t *strbuf;
 
 	strbuf = ep_strbuf_sized_new(next_size(0, init?strlen(init):0, 0), 0);
@@ -1944,7 +1987,8 @@ ep_strbuf_new(const gchar *init) {
 }
 
 emem_strbuf_t *
-ep_strbuf_new_label(const gchar *init) {
+ep_strbuf_new_label(const gchar *init)
+{
 	emem_strbuf_t *strbuf;
 	gsize full_len;
 
@@ -1972,7 +2016,8 @@ ep_strbuf_new_label(const gchar *init) {
 }
 
 emem_strbuf_t *
-ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str) {
+ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str)
+{
 	gsize add_len, full_len;
 
 	if (!strbuf || !str || str[0] == '\0') {
@@ -1997,7 +2042,8 @@ ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str) {
 }
 
 void
-ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap) {
+ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap)
+{
 	va_list ap2;
 	gsize add_len, full_len;
 
@@ -2021,7 +2067,8 @@ ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap)
 }
 
 void
-ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...) {
+ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
+{
 	va_list ap;
 
 	va_start(ap, format);
@@ -2030,7 +2077,8 @@ ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...) {
 }
 
 void
-ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...) {
+ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
+{
 	va_list ap;
 	if (!strbuf) {
 		return;
@@ -2044,7 +2092,8 @@ ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...) {
 }
 
 emem_strbuf_t *
-ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c) {
+ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c)
+{
 	if (!strbuf) {
 		return strbuf;
 	}
@@ -2063,7 +2112,8 @@ ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c) {
 }
 
 emem_strbuf_t *
-ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len) {
+ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len)
+{
 	if (!strbuf || len >= strbuf->len) {
 		return strbuf;
 	}
