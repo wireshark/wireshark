@@ -130,7 +130,7 @@ typedef struct _pointer_item_t {
 #define BI_BITMAP32		0x00000200
 #define BI_SWITCH_TYPE		0x00000400
 typedef struct _bracket_item_t {
-	unsigned long flags;
+	unsigned int flags;
 	char *case_name;
 	pointer_item_t *pointer_list;
 	int union_tag_size;
