@@ -297,7 +297,6 @@ main(int argc, char *argv[])
   wtap *wth;
   int err;
   gchar *err_info;
-  extern int optind;
   int opt;
   int status = 0;
 #ifdef HAVE_PLUGINS
