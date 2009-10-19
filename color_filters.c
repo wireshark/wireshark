@@ -92,7 +92,7 @@ color_filter_new(const gchar *name,    /* The name of the filter to create */
 }
 
 /* Add ten empty (temporary) colorfilters for easy coloring */
-void
+static void
 color_filters_add_tmp(GSList **cfl)
 {
 	gchar  *name = NULL;
@@ -291,8 +291,8 @@ color_filters_init(void)
 	/* delete all currently existing filters */
 	color_filter_list_delete(&color_filter_list);
 
-        /* start the list with the temporary colorizing rules */
-        color_filters_add_tmp(&color_filter_list);
+	/* start the list with the temporary colorizing rules */
+	color_filters_add_tmp(&color_filter_list);
 
 	/* try to read the users filters */
 	if (!read_users_filters(&color_filter_list))

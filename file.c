@@ -457,7 +457,7 @@ cf_close(capture_file *cf)
 }
 
 /* an out of memory exception occured, wait for a user button press to exit */
-void outofmemory_cb(gpointer dialog _U_, gint btn _U_, gpointer data _U_)
+static void outofmemory_cb(gpointer dialog _U_, gint btn _U_, gpointer data _U_)
 {
     main_window_exit();
 }

@@ -88,7 +88,7 @@ static GList *display_edited_filters = NULL;
 
 #define INIT_BUF_SIZE	128
 
-GList *
+static GList *
 add_filter_entry(GList *fl, const char *filt_name, const char *filt_expr)
 {
     filter_def *filt;
@@ -99,7 +99,7 @@ add_filter_entry(GList *fl, const char *filt_name, const char *filt_expr)
     return g_list_append(fl, filt);
 }
 
-GList *
+static GList *
 remove_filter_entry(GList *fl, GList *fl_entry)
 {
   filter_def *filt;
