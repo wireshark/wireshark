@@ -2648,14 +2648,14 @@ get_values(void)		/* collect values from ASN.1 tree */
 		sd.key = "TBLTypeId";
 		sd.here = 0;
 		g_node_traverse(data_nodes, G_PRE_ORDER, G_TRAVERSE_ALL, -1, is_typedef, (gpointer)&sd);
-		if (asn1_verbose) g_message("%s %sfound, %p", sd.key, sd.here?empty:"not ", sd.here);
+		if (asn1_verbose) g_message("%s %sfound, %p", sd.key, sd.here?empty:"not ", (void *)sd.here);
 		if (sd.here) {
 			nd.max = 8;
 			nd.used = 0;
 			nd.info = g_malloc0(nd.max * sizeof(TypeRef));
 			g_node_traverse(sd.here, G_PRE_ORDER, G_TRAVERSE_ALL, -1, is_named,
 						(gpointer)&nd);
-			if (asn1_verbose) g_message("tbltypenames: max=%d, info=%p", nd.max, nd.info);
+			if (asn1_verbose) g_message("tbltypenames: max=%d, info=%p", nd.max, (void *)nd.info);
 			E = empty;
 			for (i=0; i<=nd.used; i++) { /* we have entries in addition to snacc's */
 				X = 'X';
@@ -2679,7 +2679,7 @@ get_values(void)		/* collect values from ASN.1 tree */
 	nd.used = 0;
 	nd.info = g_malloc0(nd.max * sizeof(TypeRef));
 	g_node_traverse(data_nodes, G_PRE_ORDER, G_TRAVERSE_ALL, -1, index_typedef, (gpointer)&nd);
-	if (asn1_verbose) g_message("tbltypedefs: max=%d, info=%p", nd.max, nd.info);
+	if (asn1_verbose) g_message("tbltypedefs: max=%d, info=%p", nd.max, (void *)nd.info);
 
 	for (i=0; i<=nd.used; i++) { /* show what we have in the index now */
 		TypeRef *ref = &(nd.info[i]);
@@ -2692,7 +2692,7 @@ get_values(void)		/* collect values from ASN.1 tree */
 						    tag_class[ref->defclass], ref->deftag);
 		}
 		if (ref->pdu) { /* should be 0 */
-			if (asn1_verbose) g_message("* %3d %s pdu=%p", i, t, ref->pdu);
+			if (asn1_verbose) g_message("* %3d %s pdu=%p", i, t, (void *)ref->pdu);
 		}
 	}
 	typeDef_names = nd.info;
@@ -2772,7 +2772,7 @@ showGNode(GNode *p, int n)
 	} else {	/* just show tree */
 		if (asn1_verbose)
 			g_message("%*snode=%p, data=%p, next=%p, prev=%p, parent=%p, child=%p",
-				  n, empty, p, p->data, p->next, p->prev, p->parent, p->children);
+				  n, empty, (void *)p, (void *)p->data, (void *)p->next, (void *)p->prev, (void *)p->parent, (void *)p->children);
 	}
 }
 
@@ -3021,7 +3021,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 			tr = &typeDef_names[i];
 			if (asn1_verbose)
 				g_message("%*s*refer2 to type#%d %s, %p", n*2, empty,
-					  p->tag, tr->name, tr->pdu);
+					  p->tag, tr->name, (void *)tr->pdu);
 
 			tbl_typeref(n+1, pdu, tr->type, fullindex);
 
@@ -3031,7 +3031,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 
 	if (asn1_verbose)
 		g_message("%*sinclude typedef %d %s %s [%p:%s, tag %c%d]", n*2, empty, p->typenum,
-			  p->name, p->typename, p, TBLTYPE(p->type), tag_class[p->tclass], p->tag);
+			  p->name, p->typename, (void *)p, TBLTYPE(p->type), tag_class[p->tclass], p->tag);
 
 	switch(p->type) {
 	case TBL_BITSTRING:
@@ -3134,7 +3134,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 	while (list) {		/* handle all entries */
 		if (asn1_verbose)
 			g_message("%*s+handle a %s, list=%p", n*2, empty,
-				  data_types[((TBLTag *)list->data)->type], list);
+				  data_types[((TBLTag *)list->data)->type], (void *)list);
 
 		if (((TBLTag *)list->data)->type == TBLTYPE_Range) { /* ignore this ..... */
 			list = g_node_next_sibling(list);
@@ -3297,7 +3297,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 			p->mytype = i;
 			tr = &typeDef_names[i];
 			if (asn1_verbose)
-				g_message("%*s*type#%d %s, %p", n*2, empty, i, tr->name, tr->pdu);
+				g_message("%*s*type#%d %s, %p", n*2, empty, i, tr->name, (void *)tr->pdu);
 			p->typename = tr->name;
 
 			if (tr->defclass == CLASSREF) {
@@ -3307,7 +3307,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 				tr =  &typeDef_names[i];
 				if (asn1_verbose)
 					g_message("%*s*refer to type#%d %s, %p", n*2, empty,
-						  i, tr->name, tr->pdu);
+						  i, tr->name, (void *)tr->pdu);
 			}
 			/* evaluate reference if not done before or when below recursion limit */
 			if ((tr->pdu == 0) || (tr->level < type_recursion_level)) {
@@ -3321,13 +3321,13 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 						  p->name,
 						  ((TBLTypeRef *)q->data)->implicit?"implicit ":empty,
 						  tr->name,
-						  pdu);
+						  (void *)pdu);
 				tbl_typeref(n+1, pdu, tr->type, ni);
 				tr->level--;
 			} else {
 				if (asn1_verbose)
 					g_message("%*s*typeref %s > %s already at %p", n*2, empty,
-						  p->name, tr->name, tr->pdu);
+						  p->name, tr->name, (void *)tr->pdu);
 				p->flags |= PDU_REFERENCE;
 				p->reference = tr->pdu;
 			}
@@ -3340,7 +3340,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 
 		if (asn1_verbose)
 			g_message("%*sinclude type %s %s [%p:%s, tag %c%d]",
-				  n*2, empty, p->name, p->typename, p, TBLTYPE(p->type),
+				  n*2, empty, p->name, p->typename, (void *)p, TBLTYPE(p->type),
 				  tag_class[p->tclass], p->tag);
 
 		if (p->value_id == -1) { /* not registered before, do it now */
@@ -3458,7 +3458,7 @@ build_pdu_tree(const char *pduname)
 	g_node_traverse(data_nodes, G_PRE_ORDER, G_TRAVERSE_ALL, -1, is_typedef, (gpointer)&sd);
 	if (sd.here) {
 		pdudef = ((TBLTypeDef *)(sd.here->data))->typeDefId;
-		if (asn1_verbose) g_message("%s found, %p, typedef %d", sd.key, sd.here, pdudef);
+		if (asn1_verbose) g_message("%s found, %p, typedef %d", sd.key, (void *)sd.here, pdudef);
 	} else {
 		if (asn1_verbose) g_message("%s not found, ignored", sd.key);
 		return FALSE;
@@ -4164,7 +4164,7 @@ showstack(statestack *pos, char *txt, int n)
 	if (typef & TBL_CONSTRUCTED)    con  = "[constr]";
 
 	i = g_sprintf(buf, "%s sp=%d,pos=%p,%s%s%s%s%s%s%s%s%s%s:%s,%d", txt, PDUstatec,
-		    pos->node, stype, rep, chs, done, ref, pop, chr, rch, sch, con,
+		    (void *)pos->node, stype, rep, chs, done, ref, pop, chr, rch, sch, con,
 		    pos->name, pos->offset);
 
 	for(j=1, n--; n>0; j++, n--) {
@@ -4182,7 +4182,7 @@ showstack(statestack *pos, char *txt, int n)
 		con  = (typef & TBL_CONSTRUCTED)    ? "[constr]"  : empty;
 
 		i += g_sprintf(&buf[i], "| sp=%d,st=%p,%s%s%s%s%s%s%s%s%s%s:%s,%d", PDUstatec-j,
-			p->node, stype, rep, chs, done, ref, pop, chr, rch, sch, con,
+			(void *)p->node, stype, rep, chs, done, ref, pop, chr, rch, sch, con,
 			p->name, p->offset);
 	}
 	g_message("%s", buf);
@@ -4793,7 +4793,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				out->data = pos.node;
 				out->flags |= OUT_FLAG_data;
 				if (asn1_verbose)
-					g_message("  typeref set named number list node %p", pos.node);
+					g_message("  typeref set named number list node %p", (void *)pos.node);
 
 				if ( ! cons) {
 					pos = POPSTATE;
