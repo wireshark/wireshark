@@ -1,3 +1,27 @@
+/* idl2wrs.c
+ * IDL to Wireshark dissector compiler 
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
 /*
 TODO
    check that every cnf defined type,hffield,rename,... has been referenced
@@ -69,7 +93,7 @@ TODO
 
 #undef IDL2WRS_DEBUG
 
-static FILE *fh, *tfh, *eth_code, *eth_hdr, *eth_hf, *eth_hfarr, *eth_ett, *eth_ettarr, *eth_ft, *eth_handoff;
+static FILE *tfh, *eth_code, *eth_hdr, *eth_hf, *eth_hfarr, *eth_ett, *eth_ettarr, *eth_ft, *eth_handoff;
 static char *uuid=NULL;
 static char *version=NULL;
 static char *pointer_default=NULL;
@@ -78,7 +102,7 @@ static char hf_status[256];
 static int lineno,linepos;
 static char line[1024];
 
-void FPRINTF(FILE *fh, const char *format, ...)
+static void FPRINTF(FILE *fh, const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -106,7 +130,7 @@ typedef struct _pointer_item_t {
 #define BI_BITMAP32		0x00000200
 #define BI_SWITCH_TYPE		0x00000400
 typedef struct _bracket_item_t {
-	long int flags;
+	unsigned long flags;
 	char *case_name;
 	pointer_item_t *pointer_list;
 	int union_tag_size;
@@ -173,8 +197,9 @@ typedef struct _dissector_param_value_t {
 static dissector_param_value_t *dissector_param_list=NULL;
 
 static type_item_t *find_type(char *name);
+static int Exit(int code);
 
-void
+static void
 register_dissector_param_value(char *name, char *value)
 {
 	dissector_param_value_t *dpv;
@@ -185,7 +210,7 @@ register_dissector_param_value(char *name, char *value)
 	dpv->value=strdup(value);
 }
 
-char *
+static char *
 find_dissector_param_value(char *name)
 {
 	dissector_param_value_t *dpv;
@@ -197,7 +222,7 @@ find_dissector_param_value(char *name)
 	return "0";
 }
 
-pointer_item_t *
+static pointer_item_t *
 prepend_pointer_list(pointer_item_t *ptrs, int num_pointers)
 {
 	pointer_item_t *pi;
@@ -219,7 +244,7 @@ prepend_pointer_list(pointer_item_t *ptrs, int num_pointers)
 	return ptrs;
 }
 
-char *
+static char *
 ptr_to_define(char *pointer_type)
 {
 	if(!strcmp(pointer_type, "unique")){
@@ -234,7 +259,7 @@ ptr_to_define(char *pointer_type)
 	exit(10);
 }
 
-int
+static int
 get_union_tag_size(char *name)
 {
 	union_tag_size_item_t *utsi;
@@ -244,13 +269,13 @@ get_union_tag_size(char *name)
 		}
 	}
 	fprintf(stderr, "ERROR: size of tag for union:%s is not known\n", name);
-	fprintf(stderr, "  use the UNION_TAG_SIZE directive to specify it in teh conformance file\n", name);
+	fprintf(stderr, "  use the UNION_TAG_SIZE directive to specify it in teh conformance file\n");
 	exit(10);
 }
 
 
 /* this function will add an entry to the hf_rename list */
-void
+static void
 register_hf_rename(char *old_name, char *new_name)
 {
 	hf_rename_item_t *new_item;
@@ -265,7 +290,7 @@ register_hf_rename(char *old_name, char *new_name)
 /* this function checks that all hf_rename fields have actually been referenced
    if not	out conformance file is stale
 */
-void
+static void
 check_hf_rename_refcount(void)
 {
 	hf_rename_item_t *hri;
@@ -279,18 +304,22 @@ check_hf_rename_refcount(void)
 	}
 }
 
-hf_field_item_t *
+static hf_field_item_t *
 find_hf_field(char *name)
 {
 	hf_field_item_t *hfi;
 
 	for(hfi=hf_field_list;hfi;hfi=hfi->next){
 		if(!strcmp(hfi->name, name)){
-			return hfi;
+			break;
 		}
 	}
-	fprintf(stderr, "find_hf_field:  unknown hf_field:%s\n",name);
-	Exit(10);
+	if (!hfi) {
+		fprintf(stderr, "find_hf_field:  unknown hf_field:%s\n",name);
+		Exit(10);
+	}
+
+	return hfi;
 }
 
 
@@ -299,7 +328,7 @@ find_hf_field(char *name)
    from this function.
    for fields that are to be renamed  no code is generated
 */
-char *
+static char *
 register_hf_field(char *hf_name, char *title, char *filter_name, char *ft_type, char *base_type, char *valsstring, char *mask, char *blurb)
 {
 	hf_field_item_t *hfi;
@@ -340,7 +369,7 @@ register_hf_field(char *hf_name, char *title, char *filter_name, char *ft_type, 
 /* this function will parse the no emit list and decide whether code should
    be generated for this dissector or if we should only register the type.
 */
-int
+static int
 check_if_to_emit(char *name)
 {
 	no_emit_item_t *nel;
@@ -354,11 +383,11 @@ check_if_to_emit(char *name)
 	return 1;
 }
 
-
-void
+#if 0
+static void
 prune_keywords(char *name)
 {
-	token_item_t *ti, *prevti;
+	token_item_t *ti;
 
 	for(ti=token_list;ti;ti=ti->next){
 		if(!ti->next){
@@ -373,7 +402,9 @@ prune_keywords(char *name)
 		}
 	}
 }
-void
+#endif
+
+static void
 rename_tokens(char *old_name, char *new_name)
 {
 	token_item_t *ti;
@@ -385,7 +416,7 @@ rename_tokens(char *old_name, char *new_name)
 	}
 }
 
-void
+static void
 prune_keyword_parameters(char *name)
 {
 	token_item_t *ti, *tmpti;
@@ -410,7 +441,7 @@ prune_keyword_parameters(char *name)
 	   [ ... ]
    it will return the token of the next item following the ']'
 */
-token_item_t *
+static token_item_t *
 parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 	bracket_item_t *br;
 	type_item_t *type_item;
@@ -700,6 +731,8 @@ parsebrackets(token_item_t *ti, bracket_item_t **bracket){
 		fprintf(stderr, "ERROR: parsebrackets should not be reached  unknown tag:%s\n", ti->str);
 		Exit(10);
 	}
+	
+	return NULL;
 }
 
 /* this function will register a new type learnt from the IDL file
@@ -727,7 +760,7 @@ FPRINTF(NULL,"XXX new type:%s dissector:%s Type:%s Base:%s Mask:%s Vals:%s align
 
 /* this function will print the remaining content of the token list
 */
-void printtokenlist(int count)
+static void printtokenlist(int count)
 {
 	token_item_t *ti;
 	fprintf(stderr, "TOKENLIST:\n");
@@ -752,7 +785,7 @@ void printtokenlist(int count)
  *
  * this function will also remove the header from the token list
  */
-void parseheader(void)
+static void parseheader(void)
 {
 	char filter_name[256];
 	token_item_t *ti;
@@ -761,7 +794,7 @@ void parseheader(void)
 
 	ti=token_list;
 	if(!ti){
-		fprintf(stderr, "ERRO: no tokens\n");
+		fprintf(stderr, "ERROR: no tokens\n");
 		Exit(10);
 	}
 
@@ -866,7 +899,7 @@ void parseheader(void)
 /* this helper function is called by the tokenizer and will just append the
    current token to the linked list
 */
-void pushtoken(char *token)
+static void pushtoken(char *token)
 {
 	token_item_t *new_token_item;
 	new_token_item=malloc(sizeof(token_item_t));
@@ -883,17 +916,17 @@ void pushtoken(char *token)
 /* this function reads the idl file and translates it into tokens.
    the tokens are stored in a linked list  token_list of type token_item_t
 */
-void tokenize(void)
+static void tokenize(FILE *fh)
 {
 	int ch;
 	int fullinecomment=0;
 	int normalcomment=0;
 	int insidequote=0;
 	char qs[1024];
-	int qspos;
+	int qspos=0;
 	int insidetoken=0;
 	char token[1024];
-	int tokenpos;
+	int tokenpos=0;
 
 	while(!feof(fh)){
 		ch=fgetc(fh);
@@ -1069,8 +1102,10 @@ find_type(char *name)
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
-			tmptype=register_new_type("int32", dissectorname, "FT_INT32", "BASE_DEC", "0", "NULL", 4);
-			tmptype=register_new_type("long", dissectorname, "FT_INT32", "BASE_DEC", "0", "NULL", 4);
+			if (!strcmp(name,"int32"))
+				tmptype=register_new_type("int32", dissectorname, "FT_INT32", "BASE_DEC", "0", "NULL", 4);
+			else
+				tmptype=register_new_type("long", dissectorname, "FT_INT32", "BASE_DEC", "0", "NULL", 4);
 		} else if( (!strcmp(name,"uint8")) ){
 			sprintf(dissectorname, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
@@ -1095,8 +1130,10 @@ find_type(char *name)
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
-			tmptype=register_new_type("int8", dissectorname, "FT_INT8", "BASE_DEC", "0", "NULL", 1);
-			tmptype=register_new_type("char", dissectorname, "FT_INT8", "BASE_DEC", "0", "NULL", 1);
+			if (!strcmp(name,"int8"))
+				tmptype=register_new_type("int8", dissectorname, "FT_INT8", "BASE_DEC", "0", "NULL", 1);
+			else
+				tmptype=register_new_type("char", dissectorname, "FT_INT8", "BASE_DEC", "0", "NULL", 1);
 		} else if(!strcmp(name,"bool8")){
 			sprintf(dissectorname, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);
@@ -1309,7 +1346,7 @@ find_type(char *name)
 
 
 /* this function will skip past an entire declare ... ; statement */
-void skipdeclare(void)
+static void skipdeclare(void)
 {
 	token_item_t *ti;
 
@@ -1334,10 +1371,9 @@ void skipdeclare(void)
    the const will later be removed from the token list
    the function assumes that the const is the first object in the token_list
 */
-void parseconst(void)
+static void parseconst(void)
 {
 	token_item_t *ti;
-	type_item_t *type_item;
 	char *name, *value;
 
 	/* first must be the keyword const */
@@ -1395,7 +1431,7 @@ void parseconst(void)
    which controls whether subdissectors are to be generated or whether the
    struct dissector itself is to be generated
 */
-void parsetypedefstruct(int pass)
+static void parsetypedefstruct(int pass)
 {
 	token_item_t *ti, *tmpti;
 	char *struct_name;
@@ -1456,6 +1492,11 @@ void parsetypedefstruct(int pass)
 			continue;
 		}
 	}
+	if(!tmpti || !tmpti->next){
+		fprintf(stderr, "ERROR: typedefstruct  missing matching '}'\n");
+		Exit(10);
+	}
+
 	struct_name=tmpti->next->str;
 	sprintf(dissectorname, "%s_dissect_%s", ifname, struct_name);
 
@@ -1818,7 +1859,7 @@ typedef_struct_finished:
 	   ti now points to the '}' token
 	*/
 	if(pass==1){
-		if(strcmp(ti->str,"}")){
+		if(!ti || strcmp(ti->str,"}")){
 			fprintf(stderr, "ERROR: struct does not end with '}'\n");
 			Exit(10);
 		}
@@ -1827,7 +1868,7 @@ typedef_struct_finished:
 		/* just skip the name */
 		ti=ti->next;
 
-		if(strcmp(ti->str,";")){
+		if(!ti || strcmp(ti->str,";")){
 			fprintf(stderr, "ERROR: struct does not end with ';'\n");
 			Exit(10);
 		}
@@ -1848,18 +1889,15 @@ typedef_struct_finished:
 
    bitmaps are by default 32 bits
 */
-void parsetypedefbitmap(int pass)
+static void parsetypedefbitmap(int pass)
 {
 	token_item_t *ti, *tmpti;
 	char *bitmap_name;
 	char dissectorname[256], hf_bitname[256];
-	int alignment, val;
+	int alignment;
+	unsigned int val;
 	char *name, *value;
 	bracket_item_t *bi=NULL;
-
-	char tmpstr[256], *ptmpstr;
-	type_item_t *type_item;
-	char hf_index[256];
 
 	ti=token_list;
 	if(strcmp(ti->str, "typedef")){
@@ -1909,6 +1947,10 @@ void parsetypedefbitmap(int pass)
 		if(!strcmp(tmpti->str, "}")){
 			break;
 		}
+	}
+	if (!tmpti || !tmpti->next){
+		fprintf(stderr, "ERROR: typedefbitmap missing matching '}'\n");
+		Exit(10);
 	}
 	bitmap_name=tmpti->next->str;
 	sprintf(dissectorname, "%s_dissect_%s", ifname, bitmap_name);
@@ -1984,6 +2026,7 @@ void parsetypedefbitmap(int pass)
 
 		value=ti->str;
 		ti=ti->next;
+		val=0;
 		if(!strncmp(value, "0x", 2)){
 			sscanf(value, "0x%x", &val);
 		} else {
@@ -1998,11 +2041,11 @@ void parsetypedefbitmap(int pass)
 
 		if(pass==0){
 			char filter_name[256], base_name[256], tfs_name[256];
-			char *hf;
+
 			sprintf(filter_name, "%s.%s.%s", ifname, bitmap_name, name);
 			sprintf(base_name, "%d", alignment*8);
 			sprintf(tfs_name, "TFS(&%s_tfs)", name);
-			hf=register_hf_field(hf_bitname, name, filter_name, "FT_BOOLEAN", base_name, tfs_name, value, "");
+			register_hf_field(hf_bitname, name, filter_name, "FT_BOOLEAN", base_name, tfs_name, value, "");
 
 			FPRINTF(eth_code, "static const true_false_string %s_tfs = {\n",name);
 			FPRINTF(eth_code, "    \"%s is SET\",\n", name);
@@ -2052,7 +2095,7 @@ void parsetypedefbitmap(int pass)
 	   ti now points to the '}' token
 	*/
 	if(pass==1){
-		if(strcmp(ti->str,"}")){
+		if(!ti || strcmp(ti->str,"}")){
 			fprintf(stderr, "ERROR: bitmap does not end with '}'\n");
 			Exit(10);
 		}
@@ -2061,7 +2104,7 @@ void parsetypedefbitmap(int pass)
 		/* just skip the name */
 		ti=ti->next;
 
-		if(strcmp(ti->str,";")){
+		if(!ti || strcmp(ti->str,";")){
 			fprintf(stderr, "ERROR: bitmap does not end with ';'\n");
 			Exit(10);
 		}
@@ -2074,7 +2117,7 @@ void parsetypedefbitmap(int pass)
 /* a case tag might be a negative number, i.e. contain a '-' sign which
    is not valid inside a symbol name in c.
 */
-char *
+static char *
 case2str(char *str)
 {
   char *newstr;
@@ -2095,7 +2138,7 @@ case2str(char *str)
    which controls whether subdissectors are to be generated or whether the
    union dissector itself is to be generated
 */
-void parsetypedefunion(int pass)
+static void parsetypedefunion(int pass)
 {
 	char *union_name;
 	token_item_t *ti, *tmpti;
@@ -2151,6 +2194,11 @@ void parsetypedefunion(int pass)
 			level--;
 			continue;
 		}
+	}
+	
+	if (!tmpti || !tmpti->next){
+		fprintf(stderr, "ERROR: typedefunion  missing matching '}'\n");
+		Exit(10);
 	}
 	union_name=tmpti->next->str;
 	sprintf(dissectorname, "%s_dissect_union_%s", ifname, union_name);
@@ -2414,7 +2462,7 @@ void parsetypedefunion(int pass)
 	   ti now points to the '}' token
 	*/
 	if(pass==1){
-		if(strcmp(ti->str,"}")){
+		if(!ti || strcmp(ti->str,"}")){
 			fprintf(stderr, "ERROR: union does not end with '}'\n");
 			Exit(10);
 		}
@@ -2423,7 +2471,7 @@ void parsetypedefunion(int pass)
 		/* just skip the name */
 		ti=ti->next;
 
-		if(strcmp(ti->str,";")){
+		if(!ti || strcmp(ti->str,";")){
 			fprintf(stderr, "ERROR: union does not end with ';'\n");
 			Exit(10);
 		}
@@ -2444,7 +2492,7 @@ void parsetypedefunion(int pass)
 	 pass=1   generate code for the REQUEST
 	 pass=2   generate code for the REPLY
 */
-void parsefunction(int pass)
+static void parsefunction(int pass)
 {
 	char *function_name;
 	static int funcno=0;
@@ -2688,13 +2736,13 @@ void parsefunction(int pass)
 	   ti now points to the ')' token
 	*/
 	if(pass==2){
-		if(strcmp(ti->str,")")){
+		if(!ti || strcmp(ti->str,")")){
 			fprintf(stderr, "ERROR: function does not end with ')'\n");
 			Exit(10);
 		}
 		ti=ti->next;
 
-		if(strcmp(ti->str,";")){
+		if(!ti || strcmp(ti->str,";")){
 			fprintf(stderr, "ERROR: function does not end with ';'\n");
 			Exit(10);
 		}
@@ -2713,7 +2761,7 @@ void parsefunction(int pass)
    the typedef will be removed from the token_list once it has been processed
    the function assumes that the typedef is the first object in the token_list
 */
-void parsetypedefenum(void)
+static void parsetypedefenum(void)
 {
 	token_item_t *ti;
 	enum_list_t *enum_list, *el, *lastel;
@@ -2893,7 +2941,7 @@ typedef struct _trimmed_prefixes_t {
 } trimmed_prefixes_t;
 static trimmed_prefixes_t *prefixes_to_trim=NULL;
 
-void preparetrimprefix(char *prefix_name)
+static void preparetrimprefix(char *prefix_name)
 {
 	trimmed_prefixes_t *new_prefix;
 	new_prefix=malloc(sizeof(trimmed_prefixes_t));
@@ -2901,12 +2949,13 @@ void preparetrimprefix(char *prefix_name)
 	prefixes_to_trim=new_prefix;
 	new_prefix->name=strdup(prefix_name);
 }
-void
+
+static void
 trimprefix(void)
 {
 	token_item_t *ti;
 	trimmed_prefixes_t *pfx;
-	int len;
+	size_t len;
 
 	for(pfx=prefixes_to_trim;pfx;pfx=pfx->next){
 		len=strlen(pfx->name);
@@ -2918,7 +2967,7 @@ trimprefix(void)
 	}
 }
 
-int Exit(int code)
+static int Exit(int code)
 {
 	fprintf(stderr, "The tokens remaining when aborting:\n");
 	printtokenlist(10);
@@ -2926,12 +2975,12 @@ int Exit(int code)
 	exit(code);
 }
 
-void usage(void)
+static void usage(void)
 {
 	fprintf(stderr, "Usage: idl2wrs <interface>\n");
 }
 
-void
+static void
 mergefile(char *name, FILE *outfile)
 {
 	FILE *infile;
@@ -2951,7 +3000,7 @@ mergefile(char *name, FILE *outfile)
 
 
 
-char *
+static char *
 str_read_string(char *str, char **name)
 {
 	char tmpstr[256], *strptr;
@@ -2998,7 +3047,7 @@ str_read_string(char *str, char **name)
 	return NULL;
 }
 
-void
+static void
 readcnffile(FILE *fh)
 {
 	char cnfline[1024];
@@ -3110,10 +3159,10 @@ readcnffile(FILE *fh)
 int main(int argc, char *argv[])
 {
 	char idlfile[256];
-	char cnffile[256];
 	char tmplfile[256];
 	char prefix_str[256];
 	bracket_item_t *bi;
+	FILE *fh;
 
 	if(argc!=2){
 		usage();
@@ -3145,7 +3194,7 @@ int main(int argc, char *argv[])
 
 	lineno=0;
 	linepos=0;
-	tokenize();
+	tokenize(fh);
 	prune_keyword_parameters("size_is");
 	prune_keyword_parameters("length_is");
 	rename_tokens("NTSTATUS", "WERROR");
