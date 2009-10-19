@@ -609,7 +609,7 @@ CALC_TYPE_AVG	5
 	}
 }
 
-void
+static void
 iostat_init(const char *optarg, void* userdata _U_)
 {
 	float interval_float;
