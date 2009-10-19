@@ -369,6 +369,8 @@ reassemble_cleanup(void)
 #else
 	if (fragment_key_chunk != NULL)
 		g_mem_chunk_destroy(fragment_key_chunk);
+	if (dcerpc_fragment_key_chunk != NULL)
+		g_mem_chunk_destroy(dcerpc_fragment_key_chunk);
 	if (fragment_data_chunk != NULL)
 		g_mem_chunk_destroy(fragment_data_chunk);
 
@@ -385,6 +387,10 @@ reassemble_init(void)
 	fragment_key_chunk = g_mem_chunk_new("fragment_key_chunk",
 		sizeof(fragment_key),
 		fragment_init_count * sizeof(fragment_key),
+		G_ALLOC_AND_FREE);
+	dcerpc_fragment_key_chunk = g_mem_chunk_new("dcerpc_fragment_key_chunk",
+		sizeof(dcerpc_fragment_key),
+		fragment_init_count * sizeof(dcerpc_fragment_key),
 		G_ALLOC_AND_FREE);
 	fragment_data_chunk = g_mem_chunk_new("fragment_data_chunk",
 		sizeof(fragment_data),
