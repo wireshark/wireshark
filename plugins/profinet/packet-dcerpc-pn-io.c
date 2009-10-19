@@ -3343,7 +3343,7 @@ dissect_PDPortData_Check_Adjust_block(tvbuff_t *tvb, int offset,
 {
     guint16 u16SlotNr;
     guint16 u16SubslotNr;
-    tvbuff_t *tvb_new;
+    tvbuff_t *new_tvb;
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -3365,11 +3365,11 @@ dissect_PDPortData_Check_Adjust_block(tvbuff_t *tvb, int offset,
 
     u16BodyLength -= 6;
 
-    tvb_new = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
-    dissect_blocks(tvb_new, 0, pinfo, tree, drep);
+    new_tvb = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
+    dissect_blocks(new_tvb, 0, pinfo, tree, drep);
     offset += u16BodyLength;
 
-    /* XXX - do we have to free the tvb_new somehow? */
+    /* XXX - do we have to free the new_tvb somehow? */
 
     return offset;
 }
@@ -5254,7 +5254,7 @@ dissect_PDInterfaceFSUDataAdjust_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
 	guint16 u16BodyLength)
 {
-    tvbuff_t *tvb_new;
+    tvbuff_t *new_tvb;
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -5269,8 +5269,8 @@ dissect_PDInterfaceFSUDataAdjust_block(tvbuff_t *tvb, int offset,
     u16BodyLength -= 2;
 
     /* sub blocks */
-    tvb_new = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
-    dissect_blocks(tvb_new, 0, pinfo, tree, drep);
+    new_tvb = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
+    dissect_blocks(new_tvb, 0, pinfo, tree, drep);
     offset += u16BodyLength;
 
 	return offset;
@@ -5283,7 +5283,7 @@ dissect_ARFSUDataAdjust_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
 	guint16 u16BodyLength)
 {
-    tvbuff_t *tvb_new;
+    tvbuff_t *new_tvb;
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -5298,8 +5298,8 @@ dissect_ARFSUDataAdjust_block(tvbuff_t *tvb, int offset,
     u16BodyLength -= 2;
 
     /* sub blocks */
-    tvb_new = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
-    dissect_blocks(tvb_new, 0, pinfo, tree, drep);
+    new_tvb = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
+    dissect_blocks(new_tvb, 0, pinfo, tree, drep);
     offset += u16BodyLength;
 
 	return offset;
@@ -6271,7 +6271,7 @@ dissect_MultipleBlockHeader_block(tvbuff_t *tvb, int offset,
     guint32 u32Api;
     guint16 u16SlotNr;
     guint16 u16SubslotNr;
-    tvbuff_t *tvb_new;
+    tvbuff_t *new_tvb;
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -6292,8 +6292,8 @@ dissect_MultipleBlockHeader_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": Api:0x%x Slot:%u Subslot:0x%x",
         u32Api, u16SlotNr, u16SubslotNr);
 
-    tvb_new = tvb_new_subset(tvb, offset, u16BodyLength-10, u16BodyLength-10);
-    offset = dissect_blocks(tvb_new, 0, pinfo, tree, drep);
+    new_tvb = tvb_new_subset(tvb, offset, u16BodyLength-10, u16BodyLength-10);
+    offset = dissect_blocks(new_tvb, 0, pinfo, tree, drep);
 
     /*offset += u16BodyLength;*/
 

@@ -311,7 +311,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
     guint8 type;
     guint8 length;
     gint i;
-    tvbuff_t *tvb_new;
+    tvbuff_t *new_tvb;
 
 
     /* MRP_Version */
@@ -319,15 +319,15 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
 
     /* the rest of the packet has 4byte alignment regarding to the beginning of the next TLV block! */
     /* XXX - do we have to free this new tvb below? */
-    tvb_new = tvb_new_subset_remaining(tvb, offset);
+    new_tvb = tvb_new_subset_remaining(tvb, offset);
     offset = 0;
 
     for(i=0; tvb_length_remaining(tvb, offset) > 0; i++) {
         /* MRP_TLVHeader.Type */
-        offset = dissect_pn_uint8(tvb_new, offset, pinfo, tree, hf_pn_mrp_type, &type);
+        offset = dissect_pn_uint8(new_tvb, offset, pinfo, tree, hf_pn_mrp_type, &type);
 
         /* MRP_TLVHeader.Length */
-        offset = dissect_pn_uint8(tvb_new, offset, pinfo, tree, hf_pn_mrp_length, &length);
+        offset = dissect_pn_uint8(new_tvb, offset, pinfo, tree, hf_pn_mrp_length, &length);
 
         if(i != 0) {
             col_append_str(pinfo->cinfo, COL_INFO, ", ");
@@ -343,22 +343,22 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             return offset;
             break;
         case(0x01):
-            offset = dissect_PNMRP_Common(tvb_new, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_Common(new_tvb, offset, pinfo, tree, item);
             break;
         case(0x02):
-            offset = dissect_PNMRP_Test(tvb_new, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_Test(new_tvb, offset, pinfo, tree, item);
             break;
         case(0x03):
-            offset = dissect_PNMRP_TopologyChange(tvb_new, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_TopologyChange(new_tvb, offset, pinfo, tree, item);
             break;
         case(0x04):
-            offset = dissect_PNMRP_LinkDown(tvb_new, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_LinkDown(new_tvb, offset, pinfo, tree, item);
             break;
         case(0x05):
-            offset = dissect_PNMRP_LinkUp(tvb_new, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_LinkUp(new_tvb, offset, pinfo, tree, item);
             break;
         case(0x7f):
-            offset = dissect_PNMRP_Option(tvb_new, offset, pinfo, tree, item, length);
+            offset = dissect_PNMRP_Option(new_tvb, offset, pinfo, tree, item, length);
             break;
         default:
             offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
