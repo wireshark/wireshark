@@ -1002,13 +1002,13 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       break;
 
     case WPS_TLV_TYPE_RADIO_ENABLED:
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_radio_enabled, tvb, offset+4, 2, FALSE);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_radio_enabled, tvb, offset+4, 1, FALSE);
       hfindex = hf_eapwps_tlv_radio_enabled;
 
       break;
 
     case WPS_TLV_TYPE_REBOOT:
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_reboot, tvb, offset+4, 2, FALSE);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_reboot, tvb, offset+4, 1, FALSE);
       hfindex = hf_eapwps_tlv_reboot;
 
       break;
@@ -1020,7 +1020,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       break;
 
     case WPS_TLV_TYPE_REGISTRAR_ESTABLISHED:
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_registrar_established, tvb, offset+4, 2, FALSE);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_registrar_established, tvb, offset+4, 1, FALSE);
       hfindex = hf_eapwps_tlv_registrar_established;
 
       break;
@@ -1234,13 +1234,13 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       break;
 
     case WPS_TLV_TYPE_PORTABLE_DEVICE:
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_portable_device, tvb, offset+4, 2, FALSE);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_portable_device, tvb, offset+4, 1, FALSE);
       hfindex = hf_eapwps_tlv_portable_device;
 
       break;
 
     case WPS_TLV_TYPE_AP_SETUP_LOCKED:
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_ap_setup_locked, tvb, offset+4, 2, FALSE);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_ap_setup_locked, tvb, offset+4, 1, FALSE);
       hfindex = hf_eapwps_tlv_ap_setup_locked;
 
       break;
@@ -1270,13 +1270,13 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       break;
 
     case WPS_TLV_TYPE_KEY_PROVIDED_AUTOMATICALLY:
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_key_provided_automatically, tvb, offset+4, 2, FALSE);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_key_provided_automatically, tvb, offset+4, 1, FALSE);
       hfindex = hf_eapwps_tlv_key_provided_automatically;
 
       break;
 
     case WPS_TLV_TYPE_8021X_ENABLED:
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_8021x_enabled, tvb, offset+4, 2, FALSE);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_8021x_enabled, tvb, offset+4, 1, FALSE);
       hfindex = hf_eapwps_tlv_8021x_enabled;
 
       break;
@@ -1671,17 +1671,17 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_radio_enabled, /* Add info  */
       { "Radio Enabled", "wps.radio_enabled", 
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_reboot, /* Add info  */
       { "Reboot", "wps.reboot", 
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_registrar_current, 
       { "Registrar current", "wps.registrar_current", 
         FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_registrar_established, /* Add info  */
       { "Registrar established", "wps.registrar_established", 
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_registrar_list, 
       { "Registrar list", "wps.registrar_list", 
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1822,10 +1822,10 @@ proto_register_wps(void)
 
     { &hf_eapwps_tlv_key_provided_automatically, /* Add info  */
       { "Key Provided Automatically", "wps.key_provided_automatically", 
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_eapwps_tlv_8021x_enabled, /* Add info  */
       { "8021x Enabled", "wps.8021x_enabled", 
-        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_tlv_appsessionkey, 
       { "AppSessionKey", "wps.appsessionkey", 
