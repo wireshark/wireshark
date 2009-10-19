@@ -207,12 +207,6 @@ extern AVPL* new_avpl_exact_match(const gchar* name,AVPL* src, AVPL* op, gboolea
 extern AVPL* new_avpl_from_match(avpl_match_mode mode, const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
 
 
-
-/*
- * avplist destructor
- */
-extern void delete_avpl(AVPL* avpl, gboolean avps_too);
-
 /*
  * functions on avpls
  */
