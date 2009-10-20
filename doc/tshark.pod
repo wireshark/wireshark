@@ -18,8 +18,8 @@ S<[ B<-E> E<lt>field print optionE<gt> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-h> ]>
-S<[ B<-i> E<lt>capture interfaceE<gt>|- ]> 
-S<[ B<-K> E<lt>keytabE<gt> ]> 
+S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
+S<[ B<-K> E<lt>keytabE<gt> ]>
 S<[ B<-l> ]>
 S<[ B<-L> ]>
 S<[ B<-n> ]>
@@ -49,27 +49,27 @@ data from a live network, or read packets from a previously saved
 capture file, either printing a decoded form of those packets to the
 standard output or writing the packets to a file.  B<TShark>'s native
 capture file format is B<libpcap> format, which is also the format used
-by B<tcpdump> and various other tools.  
+by B<tcpdump> and various other tools.
 
-Without any options set, B<TShark> will work much like B<tcpdump>. It will 
-use the pcap library to capture traffic from the first available network 
-interface and displays a summary line on stdout for each received packet. 
+Without any options set, B<TShark> will work much like B<tcpdump>. It will
+use the pcap library to capture traffic from the first available network
+interface and displays a summary line on stdout for each received packet.
 
-B<TShark> is able to detect, read and write the same capture files that 
+B<TShark> is able to detect, read and write the same capture files that
 are supported by B<Wireshark>.
-The input file doesn't need a specific filename extension; the file 
+The input file doesn't need a specific filename extension; the file
 format and an optional gzip compression will be automatically detected.
 Near the beginning of the DESCRIPTION section of wireshark(1) or
 L<http://www.wireshark.org/docs/man-pages/wireshark.html>
 is a detailed description of the way B<Wireshark> handles this, which is
 the same way B<Tshark> handles this.
 
-Compressed file support uses (and therefore requires) the zlib library. 
+Compressed file support uses (and therefore requires) the zlib library.
 If the zlib library is not present, B<TShark> will compile, but will
 be unable to read compressed files.
 
 If the B<-w> option is not specified, B<TShark> writes to the standard
-output the text of a decoded form of the packets it captures or reads. 
+output the text of a decoded form of the packets it captures or reads.
 If the B<-w> option is specified, B<TShark> writes to the file
 specified by that option the raw data of the packets, along with the
 packets' time stamps.
@@ -90,7 +90,7 @@ the file (do I<not> use the B<-w> option).
 When writing packets to a file, B<TShark>, by default, writes the
 file in B<libpcap> format, and writes all of the packets it sees to the
 output file.  The B<-F> option can be used to specify the format in which
-to write the file. This list of available file formats is displayed by 
+to write the file. This list of available file formats is displayed by
 the B<-F> flag without a value. However, you can't specify a file format
 for a live capture.
 
@@ -138,8 +138,8 @@ where I<test> is one of:
 B<duration>:I<value> Stop writing to a capture file after I<value> seconds have elapsed.
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of I<value>
-kilobytes (where a kilobyte is 1024 bytes). If this option 
-is used together with the -b option, B<TShark> will stop writing to the 
+kilobytes (where a kilobyte is 1024 bytes). If this option
+is used together with the -b option, B<TShark> will stop writing to the
 current capture file and switch to the next one if filesize is reached. When reading a capture file,
 B<TShark> will stop reading the file after the number of bytes read exceeds this number
 (the complete packet will be read, so more bytes than this number may be read).
@@ -148,37 +148,37 @@ B<files>:I<value> Stop writing to capture files after I<value> number of files w
 
 =item -b  E<lt>capture ring buffer optionE<gt>
 
-Cause B<TShark> to run in "multiple files" mode.  In "multiple files" mode, 
-B<TShark> will write to several capture files. When the first capture file 
+Cause B<TShark> to run in "multiple files" mode.  In "multiple files" mode,
+B<TShark> will write to several capture files. When the first capture file
 fills up, B<TShark> will switch writing to the next file and so on.
 
-The created filenames are based on the filename given with the B<-w> option, the number of 
-the file and on the creation date and time, 
+The created filenames are based on the filename given with the B<-w> option, the number of
+the file and on the creation date and time,
 e.g. outfile_00001_20050604120117.pcap, outfile_00001_20050604120523.pcap, ...
 
-With the I<files> option it's also possible to form a "ring buffer". 
-This will fill up new files until the number of files specified, 
-at which point B<TShark> will discard the data in the first file and start 
+With the I<files> option it's also possible to form a "ring buffer".
+This will fill up new files until the number of files specified,
+at which point B<TShark> will discard the data in the first file and start
 writing to that file and so on. If the I<files> option is not set,
-new files filled up until one of the capture stop conditions match (or 
+new files filled up until one of the capture stop conditions match (or
 until the disk if full).
 
 The criterion is of the form I<key>B<:>I<value>,
 where I<key> is one of:
 
-B<duration>:I<value> switch to the next file after I<value> seconds have 
+B<duration>:I<value> switch to the next file after I<value> seconds have
 elapsed, even if the current file is not completely filled up.
 
-B<filesize>:I<value> switch to the next file after it reaches a size of 
-I<value> kilobytes (where a kilobyte is 1024 bytes). 
+B<filesize>:I<value> switch to the next file after it reaches a size of
+I<value> kilobytes (where a kilobyte is 1024 bytes).
 
-B<files>:I<value> begin again with the first file after I<value> number of 
+B<files>:I<value> begin again with the first file after I<value> number of
 files were written (form a ring buffer).
 
 =item -B  E<lt>capture buffer sizeE<gt> (Win32 only)
 
 Win32 only: set capture buffer size (in MB, default is 1MB). This is used by the
-the capture driver to buffer packet data until that data can be written to 
+the capture driver to buffer packet data until that data can be written to
 disk. If you encounter packet drops while capturing, try to increase this size.
 
 =item -c  E<lt>capture packet countE<gt>
@@ -216,7 +216,7 @@ interface name, possibly followed by a text description of the
 interface, is printed.  The interface name or the number can be supplied
 to the B<-i> option to specify an interface on which to capture.
 
-This can be useful on systems that don't have a command to list them  
+This can be useful on systems that don't have a command to list them
 (e.g., Windows systems, or UNIX systems lacking B<ifconfig -a>);
 the number can be useful on Windows 2000 and later systems, where the
 interface name is a somewhat complex string.
@@ -230,7 +230,7 @@ from such an account, it will not list any interfaces.
 =item -e  E<lt>fieldE<gt>
 
 Add a field to the list of fields to display if B<-T fields> is
-selected.  This option can be used multiple times on the command line. 
+selected.  This option can be used multiple times on the command line.
 At least one field must be provided if the B<-T fields> option is
 selected.
 
@@ -278,7 +278,7 @@ Print the version and options and exits.
 =item -i  E<lt>capture interfaceE<gt> | -
 
 Set the name of the network interface or pipe to use for live packet
-capture. 
+capture.
 
 Network interface names should match one of the names listed in
 "B<tshark -D>" (described above); a number, as reported by
@@ -338,8 +338,8 @@ names); the B<-N> flag might override this one.
 
 Turn on name resolving only for particular types of addresses and port
 numbers, with name resolving for other types of addresses and port
-numbers turned off. This flag overrides B<-n> if both B<-N> and B<-n> are 
-present. If both B<-N> and B<-n> flags are not present, all name resolutions are 
+numbers turned off. This flag overrides B<-n> if both B<-N> and B<-n> are
+present. If both B<-N> and B<-n> flags are not present, all name resolutions are
 turned on.
 
 The argument is a string that may contain the letters:
@@ -375,7 +375,7 @@ When capturing packets, don't display the continuous count of packets
 captured that is normally shown when saving a capture to a file;
 instead, just display, at the end of the capture, a count of packets
 captured.  On systems that support the SIGINFO signal, such as various
-BSDs, you can cause the current count to be displayed by typing your 
+BSDs, you can cause the current count to be displayed by typing your
 "status" character (typically control-T, although it
 might be set to "disabled" by default on at least some BSDs, so you'd
 have to explicitly set it to use it).
@@ -387,8 +387,8 @@ printed, just the statistics.
 
 =item -r  E<lt>infileE<gt>
 
-Read packet data from I<infile>, can be any supported capture file format 
-(including gzipped files). It's B<not> possible to use named pipes 
+Read packet data from I<infile>, can be any supported capture file format
+(including gzipped files). It's B<not> possible to use named pipes
 or stdin here!
 
 =item -R  E<lt>read (display) filterE<gt>
@@ -400,7 +400,7 @@ matching the filter are discarded rather than being printed or written.
 
 =item -s  E<lt>capture snaplenE<gt>
 
-Set the default snapshot length to use when capturing live data. 
+Set the default snapshot length to use when capturing live data.
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
 65535, so that the full packet is captured; this is the default.
@@ -415,13 +415,13 @@ B<-w> option.
 Set the format of the packet timestamp printed in summary lines.
 The format can be one of:
 
-B<ad> absolute with date: The absolute date and time is the actual time and 
+B<ad> absolute with date: The absolute date and time is the actual time and
 date the packet was captured
 
-B<a> absolute: The absolute time is the actual time the packet was captured, 
+B<a> absolute: The absolute time is the actual time the packet was captured,
 with no date displayed
 
-B<r> relative: The relative time is the time elapsed between the first packet 
+B<r> relative: The relative time is the time elapsed between the first packet
 and the current packet
 
 B<d> delta: The delta time is the time since the previous packet was
@@ -432,7 +432,7 @@ previous displayed packet was captured
 
 B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
 
-The default format is relative. 
+The default format is relative.
 
 =item -T  pdml|psml|ps|text|fields
 
@@ -476,10 +476,10 @@ than a one-line summary of the packet.
 =item -w  E<lt>outfileE<gt> | -
 
 Write raw packet data to I<outfile> or to the standard output if
-I<outfile> is '-'.  
+I<outfile> is '-'.
 
-NOTE: -w provides raw packet data, not text. If you want text output 
-you need to redirect stdout (e.g. using '>'), don't use the B<-w> 
+NOTE: -w provides raw packet data, not text. If you want text output
+you need to redirect stdout (e.g. using '>'), don't use the B<-w>
 option for this.
 
 =item -x
@@ -522,12 +522,12 @@ Currently implemented statistics are:
 
 =item B<-z> dcerpc,rtt,I<uuid>,I<major>.I<minor>[,I<filter>]
 
-Collect call/reply RTT data for DCERPC interface I<uuid>, 
+Collect call/reply RTT data for DCERPC interface I<uuid>,
 version I<major>.I<minor>.
-Data collected is the number of calls for each procedure, MinRTT, MaxRTT 
-and AvgRTT. 
+Data collected is the number of calls for each procedure, MinRTT, MaxRTT
+and AvgRTT.
 
-Example: S<B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will collect data for the CIFS SAMR Interface.  
+Example: S<B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will collect data for the CIFS SAMR Interface.
 
 If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
@@ -535,7 +535,7 @@ on those calls that match that filter.
 Example: S<B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>> willcollect SAMR
 RTT statistics for a specific host.
 
-This option can be used multiple times on the command line. 
+This option can be used multiple times on the command line.
 
 =item B<-z> io,phs[,I<filter>]
 
@@ -544,7 +544,7 @@ If no I<filter> is specified the statistics will be calculated for all packets.
 If a I<filter> is specified statistics will be only calculated for those
 packets that match the filter.
 
-This option can be used multiple times on the command line. 
+This option can be used multiple times on the command line.
 
 =item B<-z> io,stat,I<interval>[,I<filter>][,I<filter>][,I<filter>]...
 
@@ -557,7 +557,7 @@ If no I<filter> is specified the statistics will be calculated for all packets.
 If one or more I<filters> are specified statistics will be calculated for
 all filters and presented with one column of statistics for each filter.
 
-This option can be used multiple times on the command line. 
+This option can be used multiple times on the command line.
 
 Example: B<-z io,stat,1,ip.addr==1.2.3.4> will generate 1 second
 statistics for all traffic to/from host 1.2.3.4.
@@ -573,20 +573,20 @@ MIN(), MAX(), and AVG() using a slightly different filter syntax:
 
   [COUNT|SUM|MIN|MAX|AVG](<field>)<filter>
 
-NOTE: One important thing to note here is that the field that the 
-calculation is based on MUST also be part of the filter string or 
+NOTE: One important thing to note here is that the field that the
+calculation is based on MUST also be part of the filter string or
 else the calculation will fail.
 
 So: B<-z io,stat,0.010,AVG(smb.time)> does not work.  Use B<-z
 io,stat,0.010,AVG(smb.time)smb.time> instead.  Also be aware that a field
 can exist multiple times inside the same packet and will then be counted
-multiple times in those packets. 
+multiple times in those packets.
 
-NOTE: A second important thing to note is that the system setting for 
-decimal separator is set to "."! If it is set to "," the statistics 
+NOTE: A second important thing to note is that the system setting for
+decimal separator is set to "."! If it is set to "," the statistics
 will not be displayed per filter.
 
-COUNT(<field>) can be used on any type which has a display filter name. 
+COUNT(<field>) can be used on any type which has a display filter name.
 It will count how many times this particular field is encountered in the
 filtered packet list.
 
@@ -619,7 +619,7 @@ time and average response time.
 =item B<-z> conv,I<type>[,I<filter>]
 
 Create a table that lists all conversations that could be seen in the capture.
-I<type> specifies which type of conversation we want to generate the 
+I<type> specifies which type of conversation we want to generate the
 statistics for; currently the supported ones are
 
   "eth"   Ethernet
@@ -635,7 +635,7 @@ If the optional I<filter> is specified, only those packets that match the
 filter will be used in the calculations.
 
 The table is presented with one line for each conversation and displays
-number of packets/bytes in each direction as well as total number of 
+number of packets/bytes in each direction as well as total number of
 packets/bytes.
 The table is sorted according to total number of bytes.
 
@@ -665,12 +665,12 @@ host 1.2.3.4 use:
 
 B<-z "proto,colinfo,nfs.fh.hash && ip.src==1.2.3.4,nfs.fh.hash">
 
-This option can be used multiple times on the command line. 
+This option can be used multiple times on the command line.
 
 =item B<-z> rpc,rtt,I<program>,I<version>[,I<filter>]
 
 Collect call/reply RTT data for I<program>/I<version>.  Data collected
-is number of calls for each procedure, MinRTT, MaxRTT and AvgRTT. 
+is number of calls for each procedure, MinRTT, MaxRTT and AvgRTT.
 Example: B<-z rpc,rtt,100003,3> will collect data for NFS v3.
 
 If the optional I<filter> is provided, the stats will only be calculated
@@ -679,13 +679,13 @@ on those calls that match that filter.
 Example: B<-z rpc,rtt,100003,3,nfs.fh.hash==0x12345678> will collect NFS v3
 RTT statistics for a specific file.
 
-This option can be used multiple times on the command line. 
+This option can be used multiple times on the command line.
 
 =item B<-z> rpc,programs
 
-Collect call/reply RTT data for all known ONC-RPC programs/versions.  
-Data collected is number of calls for each protocol/version, MinRTT, 
-MaxRTT and AvgRTT. 
+Collect call/reply RTT data for all known ONC-RPC programs/versions.
+Data collected is number of calls for each protocol/version, MinRTT,
+MaxRTT and AvgRTT.
 This option can only be used once on the command line.
 
 =item B<-z> rtp,streams
@@ -696,7 +696,7 @@ mean jitter and packet loss percentages.
 =item B<-z> smb,rtt[,I<filter>]
 
 Collect call/reply RTT data for SMB.  Data collected
-is number of calls for each SMB command, MinRTT, MaxRTT and AvgRTT. 
+is number of calls for each SMB command, MinRTT, MaxRTT and AvgRTT.
 Example: B<-z smb,rtt>.
 The data will be presented as separate tables for all normal SMB commands,
 all Transaction2 commands and all NT Transaction commands.
@@ -707,7 +707,7 @@ calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
 only the SessionSetupAndX call will be used in the statistics.
 This is a flaw that might be fixed in the future.
 
-This option can be used multiple times on the command line. 
+This option can be used multiple times on the command line.
 
 If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
@@ -731,15 +731,15 @@ is relatively restricted with a hope of future expansion.
 
 =item B<-z> mgcp,rtd[I<,filter>]
 
-Collect requests/response RTD (Response Time Delay) data for MGCP. 
+Collect requests/response RTD (Response Time Delay) data for MGCP.
 (This is similar to B<-z smb,rtt>). Data collected is the number of calls
 for each known MGCP Type, MinRTD, MaxRTD and AvgRTD.
-Additionally you get the number of duplicate requests/responses, 
+Additionally you get the number of duplicate requests/responses,
 unresponded requests, responses ,which don't match with
-any request. 
+any request.
 Example: B<-z mgcp,rtd>.
 
-This option can be used multiple times on the command line. 
+This option can be used multiple times on the command line.
 
 If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
@@ -748,12 +748,12 @@ MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
 =item B<-z> megaco,rtd[I<,filter>]
 
-Collect requests/response RTD (Response Time Delay) data for MEGACO. 
+Collect requests/response RTD (Response Time Delay) data for MEGACO.
 (This is similar to B<-z smb,rtt>). Data collected is the number of calls
 for each known MEGACO Type, MinRTD, MaxRTD and AvgRTD.
-Additionally you get the number of duplicate requests/responses, 
+Additionally you get the number of duplicate requests/responses,
 unresponded requests, responses ,which don't match with
-any request. 
+any request.
 Example: B<-z megaco,rtd>.
 
 If the optional I<filter> is provided, the stats will only be calculated
@@ -761,13 +761,13 @@ on those calls that match that filter.
 Example: B<-z "megaco,rtd,ip.addr==1.2.3.4"> will only collect stats for
 MEGACO packets exchanged by the host at IP address 1.2.3.4 .
 
-This option can be used multiple times on the command line. 
+This option can be used multiple times on the command line.
 
 =item B<-z> h225,counter[I<,filter>]
 
-Count ITU-T H.225 messages and their reasons. In the first column you get a 
+Count ITU-T H.225 messages and their reasons. In the first column you get a
 list of H.225 messages and H.225 message reasons, which occur in the current
-capture file. The number of occurences of each message or reason is displayed 
+capture file. The number of occurences of each message or reason is displayed
 in the second column.
 
 Example: B<-z h225,counter>.
@@ -777,14 +777,14 @@ on those calls that match that filter.
 Example: use B<-z "h225,counter,ip.addr==1.2.3.4"> to only collect stats for
 H.225 packets exchanged by the host at IP address 1.2.3.4 .
 
-This option can be used multiple times on the command line. 
+This option can be used multiple times on the command line.
 
 =item B<-z> h225,srt[I<,filter>]
 
-Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS. 
+Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS.
 Data collected is number of calls of each ITU-T H.225 RAS Message Type,
-Minimum SRT, Maximum SRT, Average SRT, Minimum in Frame, and Maximum in Frame. 
-You will also get the number of Open Requests (Unresponded Requests), 
+Minimum SRT, Maximum SRT, Average SRT, Minimum in Frame, and Maximum in Frame.
+You will also get the number of Open Requests (Unresponded Requests),
 Discarded Responses (Responses without matching request) and Duplicate Messages.
 Example: B<-z h225,srt>.
 
@@ -793,17 +793,17 @@ on those calls that match that filter.
 Example: B<-z "h225,srt,ip.addr==1.2.3.4"> will only collect stats for
 ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
-This option can be used multiple times on the command line. 
+This option can be used multiple times on the command line.
 
 =item B<-z> sip,stat[I<,filter>]
 
-This option will activate a counter for SIP messages. You will get the number 
-of occurences of each SIP Method and of each SIP Status-Code. Additionally you 
-also get the number of resent SIP Messages (only for SIP over UDP).  
+This option will activate a counter for SIP messages. You will get the number
+of occurences of each SIP Method and of each SIP Status-Code. Additionally you
+also get the number of resent SIP Messages (only for SIP over UDP).
 
 Example: B<-z sip,stat>.
 
-This option can be used multiple times on the command line. 
+This option can be used multiple times on the command line.
 
 If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
@@ -914,9 +914,9 @@ preferences file.
 
 =item Name Resolution (manuf)
 
-The F<manuf> file is used to match the 3-byte vendor portion of a 6-byte 
-hardware address with the manufacturer's name; it can also contain well-known 
-MAC addresses and address ranges specified with a netmask.  The format of the 
+The F<manuf> file is used to match the 3-byte vendor portion of a 6-byte
+hardware address with the manufacturer's name; it can also contain well-known
+MAC addresses and address ranges specified with a netmask.  The format of the
 file is the same as the F<ethers> files, except that entries of the form:
 
   00:00:0C      Cisco
@@ -937,8 +937,8 @@ preferences file.
 
 =item Name Resolution (ipxnets)
 
-The F<ipxnets> files are used to correlate 4-byte IPX network numbers to 
-names. First the global F<ipxnets> file is tried and if that address is not 
+The F<ipxnets> files are used to correlate 4-byte IPX network numbers to
+names. First the global F<ipxnets> file is tried and if that address is not
 found there the personal one is tried next.
 
 The format is the same as the F<ethers>
@@ -958,6 +958,45 @@ example, F<C:\Program Files\Wireshark>) on Windows systems.
 
 The personal F<ipxnets> file is looked for in the same directory as the
 personal preferences file.
+
+=back
+
+=head1 ENVIRONMENT VARIABLES
+
+=over 4
+
+=item WIRESHARK_DEBUG_EP_NO_CHUNKS
+
+Normally per-packet memory is allocated in large "chunks."  This behavior
+doesn't work well with debugging tools such as Valgrind or ElectricFence.
+Export this environment variable to force individual allocations.
+Note: disabling chunks also disables canaries (see below).
+
+=item WIRESHARK_DEBUG_SE_NO_CHUNKS
+
+Normally per-file memory is allocated in large "chunks."  This behavior
+doesn't work well with debugging tools such as Valgrind or ElectricFence.
+Export this environment variable to force individual allocations.
+Note: disabling chunks also disables canaries (see below).
+
+=item WIRESHARK_DEBUG_EP_NO_CANARY
+
+Normally per-packet memory allocations are separated by "canaries" which
+allow detection of memory overruns.  This comes at the expense of some extra
+memory usage.  Exporting this environment variable disables these canaries.
+
+=item WIRESHARK_DEBUG_SE_USE_CANARY
+
+Exporting this environment variable causes per-file memory allocations to be
+protected with "canaries" which allow for detection of memory overruns.
+This comes at the expense of significant extra memory usage.
+
+=item WIRESHARK_DEBUG_SCRUB_MEMORY
+
+If this environment variable is exported, the contents of per-packet and
+per-file memory is initialized to 0xBADDCAFE when the memory is allocated
+and is reset to 0xDEADBEEF when the memory is freed.  This functionality is
+useful mainly to developers looking for bugs in the way memory is handled.
 
 =back
 

@@ -19,7 +19,7 @@ S<[ B<-h> ]>
 S<[ B<-H> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
 S<[ B<-k> ]>
-S<[ B<-K> E<lt>keytabE<gt> ]> 
+S<[ B<-K> E<lt>keytabE<gt> ]>
 S<[ B<-l> ]>
 S<[ B<-L> ]>
 S<[ B<-m> E<lt>fontE<gt> ]>
@@ -432,7 +432,7 @@ Automatically update the packet display as packets are coming in.
 
 =item -s  E<lt>capture snaplenE<gt>
 
-Set the default snapshot length to use when capturing live data. 
+Set the default snapshot length to use when capturing live data.
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
 65535, so that the full packet is captured; this is the default.
@@ -459,7 +459,7 @@ previous displayed packet was captured
 
 B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
 
-The default format is relative. 
+The default format is relative.
 
 =item -v
 
@@ -830,17 +830,17 @@ Exit the application.
 
 =item Edit:Copy:Description
 
-Copies the description of the selected field in the protocol tree to 
+Copies the description of the selected field in the protocol tree to
 the clipboard.
 
 =item Edit:Copy:Fieldname
 
-Copies the fieldname of the selected field in the protocol tree to 
+Copies the fieldname of the selected field in the protocol tree to
 the clipboard.
 
 =item Edit:Copy:Value
 
-Copies the value of the selected field in the protocol tree to 
+Copies the value of the selected field in the protocol tree to
 the clipboard.
 
 =item Edit:Copy:As Filter
@@ -1609,7 +1609,7 @@ Graphs: Round Trip; Thoughput; Time-Sequence (Stevens); Time-Sequence (tcptrace)
 
 =item Statistics:UDP Multicast streams
 
-Multicast Streams Counts/Rates/... by Source/Destination Address/Port pairs 
+Multicast Streams Counts/Rates/... by Source/Destination Address/Port pairs
 
 =item Statistics:WLAN Traffic
 
@@ -2554,6 +2554,45 @@ preferences file.
 =item Plugins
 
 See above in the description of the About:Plugins page.
+
+=back
+
+=head1 ENVIRONMENT VARIABLES
+
+=over 4
+
+=item WIRESHARK_DEBUG_EP_NO_CHUNKS
+
+Normally per-packet memory is allocated in large "chunks."  This behavior
+doesn't work well with debugging tools such as Valgrind or ElectricFence.
+Export this environment variable to force individual allocations.
+Note: disabling chunks also disables canaries (see below).
+
+=item WIRESHARK_DEBUG_SE_NO_CHUNKS
+
+Normally per-file memory is allocated in large "chunks."  This behavior
+doesn't work well with debugging tools such as Valgrind or ElectricFence.
+Export this environment variable to force individual allocations.
+Note: disabling chunks also disables canaries (see below).
+
+=item WIRESHARK_DEBUG_EP_NO_CANARY
+
+Normally per-packet memory allocations are separated by "canaries" which
+allow detection of memory overruns.  This comes at the expense of some extra
+memory usage.  Exporting this environment variable disables these canaries.
+
+=item WIRESHARK_DEBUG_SE_USE_CANARY
+
+Exporting this environment variable causes per-file memory allocations to be
+protected with "canaries" which allow for detection of memory overruns.
+This comes at the expense of significant extra memory usage.
+
+=item WIRESHARK_DEBUG_SCRUB_MEMORY
+
+If this environment variable is exported, the contents of per-packet and
+per-file memory is initialized to 0xBADDCAFE when the memory is allocated
+and is reset to 0xDEADBEEF when the memory is freed.  This functionality is
+useful mainly to developers looking for bugs in the way memory is handled.
 
 =back
 

@@ -358,6 +358,45 @@ personal preferences file.
 
 =back
 
+=head1 ENVIRONMENT VARIABLES
+
+=over 4
+
+=item WIRESHARK_DEBUG_EP_NO_CHUNKS
+
+Normally per-packet memory is allocated in large "chunks."  This behavior
+doesn't work well with debugging tools such as Valgrind or ElectricFence.
+Export this environment variable to force individual allocations.
+Note: disabling chunks also disables canaries (see below).
+
+=item WIRESHARK_DEBUG_SE_NO_CHUNKS
+
+Normally per-file memory is allocated in large "chunks."  This behavior
+doesn't work well with debugging tools such as Valgrind or ElectricFence.
+Export this environment variable to force individual allocations.
+Note: disabling chunks also disables canaries (see below).
+
+=item WIRESHARK_DEBUG_EP_NO_CANARY
+
+Normally per-packet memory allocations are separated by "canaries" which
+allow detection of memory overruns.  This comes at the expense of some extra
+memory usage.  Exporting this environment variable disables these canaries.
+
+=item WIRESHARK_DEBUG_SE_USE_CANARY
+
+Exporting this environment variable causes per-file memory allocations to be
+protected with "canaries" which allow for detection of memory overruns.
+This comes at the expense of significant extra memory usage.
+
+=item WIRESHARK_DEBUG_SCRUB_MEMORY
+
+If this environment variable is exported, the contents of per-packet and
+per-file memory is initialized to 0xBADDCAFE when the memory is allocated
+and is reset to 0xDEADBEEF when the memory is freed.  This functionality is
+useful mainly to developers looking for bugs in the way memory is handled.
+
+=back
+
 =head1 SEE ALSO
 
 wireshark-filter(4), wireshark(1), tshark(1), editcap(1), tcpdump(8),
