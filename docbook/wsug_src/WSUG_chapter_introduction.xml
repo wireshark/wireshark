@@ -209,16 +209,14 @@
 	<section><title>Microsoft Windows</title>
     <para>
 	<itemizedlist>
-	<listitem><para>Windows 2000, XP Home, XP Pro, XP Tablet PC, XP Media
-	Center, Server 2003, Vista or Windows 2008 (XP Pro recommended)
+	<listitem><para>Windows XP Home, XP Pro, XP Tablet PC, XP Media
+	Center, Server 2003, Vista, 2008, 7, or 2008 R2
 	</para></listitem>
-	<listitem><para>32-bit Pentium or alike (recommended: 400MHz or greater),
-	64-bit processors in WoW64 emulation - see remarks below
+	<listitem><para>Any modern 32-bit x86 or 64-bit AMD64/x86-64 processor.
 	</para></listitem>
-	<listitem><para>128MB RAM system memory (recommended: 256MBytes or more)
+	<listitem><para>128MB available RAM. Larger capture files require more RAM.
 	</para></listitem>
-	<listitem><para>75MB available disk space (plus size of user's capture
-	files, e.g. 100MB extra)
+	<listitem><para>75MB available disk space. Capture files require additional disk space.
 	</para></listitem>
 	<listitem><para>800*600 (1280*1024 or higher recommended) resolution with
 	at least 65536 (16bit) colors (256 colors should work if Wireshark is
@@ -227,14 +225,22 @@
 	<listitem><para>A supported network card for capturing:
 	</para>
 	<itemizedlist>
-	<listitem><para>Ethernet: any card supported by Windows should do
+	<listitem><para>
+	  Ethernet: Any card supported by Windows should work. See the wiki
+	  pages on <ulink
+	  url="http://wiki.wireshark.org/CaptureSetup/Ethernet">Ethernet
+	  capture</ulink> and <ulink
+	  url="http://wiki.wireshark.org/CaptureSetup/Offloading">offloading</ulink>
+	  for issues that may affect your environment.
 	</para></listitem>
-	<listitem><para>WLAN: see the <ulink
-	url="http://www.micro-logix.com/WinPcap/Supported.asp">MicroLogix support
-	list</ulink>, no capturing of 802.11 headers and non-data frames
+	<listitem><para>
+	  802.11: See the <ulink
+	  url="http://wiki.wireshark.org/CaptureSetup/WLAN#head-02456742c655394c9e948a4c9a59d3441c92782f">Wireshark
+	  wiki page</ulink>. Capturing raw 802.11 information may be difficult without special equipment.
 	</para></listitem>
-	<listitem><para>Other media: See <ulink
-	url="http://wiki.wireshark.org/CaptureSetup/NetworkMedia"/>
+	<listitem><para>
+	  Other media: See <ulink
+	  url="http://wiki.wireshark.org/CaptureSetup/NetworkMedia"/>
 	</para></listitem>
 	</itemizedlist>
 	</listitem>
@@ -243,37 +249,41 @@
 	Remarks:
 
 	<itemizedlist>
-	<listitem><para>Older Windows versions are no longer supported because of
-	three reasons:
-	None of the developers actively use those systems any longer which
-	makes support difficult.
-	The libraries Wireshark depends on (GTK, WinPCap, ...) are also dropping support
-	for these systems.
-	Microsoft also dropped support for these systems.
+	<listitem><para>
+	  Many older Windows versions are no longer supported for three reasons:
+	  None of the developers use those systems which makes support
+	  difficult. The libraries Wireshark depends on (GTK, WinPcap, …) have
+	  dropped support for older releases. Microsoft <ulink
+	  url="http://support.microsoft.com/gp/lifeselect">has also dropped
+	  support for these systems</ulink>.
 	</para></listitem>
-	<listitem><para>Windows 95, 98 and ME will no longer work with Wireshark.
-	The last known version to work was Ethereal 0.99.0 (which includes
-	WinPcap 3.1). You can get it from <ulink
-	url="http://ethereal.com/download.html" />.
-	According to <ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=1130">this
-	bug report</ulink>, you may need to install Ethereal 0.10.0 on some
-	systems.
-	BTW: Microsoft no longer supports 98/ME since July 11, 2006!
+	<listitem><para>
+	  Windows 95, 98 and ME are no longer supported. The "old technology"
+	  releases of Windows lack memory protection (specifically <ulink
+	  url="http://msdn.microsoft.com/en-us/library/aa366898.aspx">VirutalProtect</ulink>)
+	  which we use to improve program safety and security. The last known
+	  version to work was Ethereal 0.99.0 (which includes WinPcap 3.1). You
+	  can get it from <ulink url="http://ethereal.com/download.html" />.
+	  According to <ulink
+	  url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1130">this
+	  bug report</ulink>, you may need to install Ethereal 0.10.0 on some
+	  systems.
+          Microsoft retired support for Windows 98 and ME in 2006.
 	</para></listitem>
-	<listitem><para>Windows NT 4.0 will no longer work with Wireshark.
-	The last known version to work was Wireshark 0.99.4 (which includes
-	WinPcap 3.1), you still can get it from: <ulink
-	url="http://prdownloads.sourceforge.net/wireshark/wireshark-setup-0.99.4.exe" />.
-	BTW: Microsoft no longer supports NT 4.0 since December 31, 2005!
+	<listitem><para>
+	  Windows NT 4.0 no longer works with Wireshark. The last known version
+	  to work was Wireshark 0.99.4 (which includes WinPcap 3.1). You still
+	  can get it from <ulink
+	  url="http://www.wireshark.org/download/win32/all-versions/wireshark-setup-0.99.4.exe"
+	  />.
+	  Microsoft retired support for Windows NT 4.0 in 2005.
 	</para></listitem>
-	<listitem><para>Windows CE and the embedded (NT/XP) versions are not
-	supported!
+	<listitem><para>
+	  Windows CE and the embedded versions of Windows are not currently supported.
 	</para></listitem>
-	<listitem><para>64-bit processors run Wireshark in 32 bit emulation
-	(called WoW64), at least WinPcap 4.0 is required for that
-	</para></listitem>
-	<listitem><para>Multi monitor setups are supported but may behave a bit
-	strangely
+	<listitem><para>
+	  Multiple monitor setups are supported but may behave a bit
+  	  strangely.
 	</para></listitem>
 	</itemizedlist>
     </para>
@@ -302,6 +312,7 @@
 	<listitem><para>rPath Linux</para></listitem>
 	<listitem><para>Sun Solaris/i386</para></listitem>
 	<listitem><para>Sun Solaris/Sparc</para></listitem>
+	<listitem><para>Canonical Ubuntu</para></listitem>
 	</itemizedlist>
 	</para>
     <para>
@@ -364,13 +375,13 @@
       dissectors and contributing patches.
     </para>
     <para>
-      The list of people who have contributed to Ethereal has become very long
-	  since then, and almost all of them started with a protocol that they
-	  needed that Ethereal did not already handle. So they copied an existing
-	  dissector and contributed the code back to the team.
+      The list of people who have contributed to the project has become very
+      long since then, and almost all of them started with a protocol that they
+      needed that Wireshark or Ethereal did not already handle. So they copied
+      an existing dissector and contributed the code back to the team.
     </para>
     <para>
-	In 2006 the project moved house and re-emerged under a new name: Wireshark.
+      In 2006 the project moved house and re-emerged under a new name: Wireshark.
     </para>
   </section>
 
