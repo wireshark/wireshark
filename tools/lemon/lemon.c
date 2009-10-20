@@ -74,9 +74,6 @@ extern int access();
 
 static char *msort(char *, char **, int (*)(const void *, const void *));
 
-static struct action *Action_new(void);
-static struct action *Action_sort(struct action *);
-
 /********** From the file "struct.h" *************************************/
 /*
 ** Principal data structures for the LEMON parser generator.
@@ -987,7 +984,6 @@ void FindActions(struct lemon *lemp)
   /* Resolve conflicts */
   for(i=0; i<lemp->nstate; i++){
     struct action *ap, *nap;
-    struct state *stp;
     stp = lemp->sorted[i];
     /* assert( stp->ap ); */
     stp->ap = Action_sort(stp->ap);
@@ -3647,9 +3643,9 @@ void ReportTable(
   /* Generate the include code, if any */
   tplt_print(out,lemp,lemp->include,&lineno);
   if( mhflag ){
-    char *name = file_makename_using_basename(lemp, ".h");
-    fprintf(out,"#include \"%s\"\n", name); lineno++;
-    free(name);
+    char *makename = file_makename_using_basename(lemp, ".h");
+    fprintf(out,"#include \"%s\"\n", makename); lineno++;
+    free(makename);
   }
   tplt_xfer(lemp->name,in,out,&lineno);
 
@@ -3690,7 +3686,6 @@ void ReportTable(
   }
   name = lemp->name ? lemp->name : "Parse";
   if( lemp->arg && lemp->arg[0] ){
-    int i;
     i = (int) strlen(lemp->arg);
     while( i>=1 && safe_isspace(lemp->arg[i-1]) ) i--;
     while( i>=1 && (safe_isalnum(lemp->arg[i-1]) || lemp->arg[i-1]=='_') ) i--;
