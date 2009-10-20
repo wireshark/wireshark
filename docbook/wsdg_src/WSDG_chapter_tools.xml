@@ -638,7 +638,7 @@ PARTICULAR PURPOSE.]]>
           required support libraries (MSVCR71.DLL) does not ship
           with the Windows operating system. This is also a
           wrongful interpretation, and the&#160;
-          <ulink url="http://www.gnu.org/licenses/gpl-faq.xml#WindowsRuntimeAndGPL">
+          <ulink url="http://www.gnu.org/licenses/gpl-faq.html#WindowsRuntimeAndGPL">
           GPL FAQ</ulink> explicitly addresses this issue.</para>
         </listitem>
       </orderedlist>Similar applies to Visual Studio 2005 and
