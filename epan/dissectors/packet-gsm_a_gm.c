@@ -25,6 +25,12 @@
  *   (3GPP TS 24.008 version 6.7.0 Release 6)
  *	 (3GPP TS 24.008 version 6.8.0 Release 6)
  *
+ *   Reference [9]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 8.6.0 Release 8)
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -219,6 +225,7 @@ static int hf_gsm_a_gm_acc_cap_struct_len = -1;
 static int hf_gsm_a_gm_sms_value = -1;
 static int hf_gsm_a_gm_sm_value = -1;
 static int hf_gsm_a_gm_sm_ext = -1;
+static int hf_gsm_a_gm_cause = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -2514,79 +2521,77 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 }
 
 /*
- * [7] 10.5.5.14
+ * [9] 10.5.5.14
  */
+static const range_string gmm_cause_vals[] = {
+	{ 0x00, 0x01, "Protocol error, unspecified(Not def in v8.6.0)"},
+	{ 0x02, 0x02, "IMSI unknown in HLR"},
+	{ 0x03, 0x03, "Illegal MS"},
+	{ 0x04, 0x04, "IMSI unknown in VLR"}, /* Annex G.1 */
+	{ 0x05, 0x05, "IMEI not accepted"}, /* Annex G.1 */
+	{ 0x06, 0x06, "Illegal ME"},
+	{ 0x07, 0x07, "GPRS services not allowed"},
+	{ 0x08, 0x08, "GPRS services and non-GPRS services not allowed"},
+	{ 0x09, 0x09, "MS identity cannot be derived by the network"},
+	{ 0x0a, 0x0a, "Implicitly detached"},
+	{ 0x0b, 0x0b, "PLMN not allowed"},
+	{ 0x0c, 0x0c, "Location Area not allowed"},
+	{ 0x0d, 0x0d, "Roaming not allowed in this location area"},
+	{ 0x0e, 0x0e, "GPRS services not allowed in this PLMN"},
+	{ 0x0f, 0x0f, "No Suitable Cells In Location Area"},
+	{ 0x10, 0x10, "MSC temporarily not reachable"},
+	{ 0x11, 0x11, "Network failure"},
+	{ 0x12, 0x13, "Protocol error, unspecified(Not def in v8.6.0)"},
+	{ 0x14, 0x14, "MAC failure"},
+	{ 0x15, 0x15, "Synch failure"},
+	{ 0x16, 0x16, "Congestion"},
+	{ 0x17, 0x17, "GSM authentication unacceptable"},
+	{ 0x18, 0x18, "Protocol error, unspecified(Not def in v8.6.0)"},
+	{ 0x19, 0x19, "Not authorized for this CSG"},
+	{ 0x20, 0x20, "Service option not supported"},						/* Annex G.4 */
+	{ 0x21, 0x21, "Requested service option not subscribed"},			/* Annex G.4 */
+	{ 0x22, 0x22, "Service option temporarily out of order"},			/* Annex G.4 */
+
+	{ 0x23, 0x25, "Protocol error, unspecified(Not def in v8.6.0)"},
+
+	{ 0x26, 0x26, "Call cannot be identified(non-GPRS services only)"},	/* Annex G.4 */
+	{ 0x27, 0x27, "Protocol error, unspecified(Not def in v8.6.0)"},
+	{ 0x28, 0x28, "No PDP context activated"},
+	{ 0x29, 0x2f, "Protocol error, unspecified(Not def in v8.6.0)"},
+	{ 0x30, 0x3f, "Retry upon entry into a new cell"},
+
+	{ 0x40, 0x5e, "Protocol error, unspecified(Not def in v8.6.0)"},
+
+	{ 0x5f, 0x5f, "Semantically incorrect message"},
+	{ 0x60, 0x60, "Invalid mandatory information"},
+	{ 0x61, 0x61, "Message type non-existent or not implemented"},
+	{ 0x62, 0x62, "Message type not compatible with the protocol state"},
+	{ 0x63, 0x63, "Information element non-existent or notimplemented"},
+	{ 0x64, 0x64, "Conditional IE error"},
+	{ 0x65, 0x65, "Message not compatible with the protocol state"},
+
+	{ 0x66, 0x6e, "Protocol error, unspecified(Not def in v8.6.0)"},
+
+	{ 0x6f, 0x6f, "Protocol error, unspecified"},
+	{ 0x70, 0xff, "Protocol error, unspecified(Not def in v8.6.0)"},
+	{ 0, 0, NULL }
+};
+/* NOTE 1 TS 124 008 V8.6.0 (2009-07) 
+	"Any other value received by the mobile station shall be treated as 0110 1111, "Protocol
+	error, unspecified". Any other value received by the network shall be treated as
+	0110 1111, "Protocol error, unspecified".
+ */
+
+/* NOTE: The listed reject cause values are defined in annex G. */
+
 static guint16
 de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8        oct;
 	guint32       curr_offset;
-	const gchar  *str;
 
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch ( oct )
-	{
-		/* additional causes can be found in annex g */
-		case 0x02: str="IMSI unknown in HLR";                                 break;
-		case 0x03: str="Illegal MS";                                          break;
-		case 0x04: str="IMSI unknown in VLR";                                 break;
-		case 0x05: str="IMEI not accepted";                                   break;
-		case 0x06: str="Illegal ME";                                          break;
-		case 0x07: str="GPRS services not allowed";                           break;
-		case 0x08: str="GPRS services and non-GPRS services not allowed";     break;
-		case 0x09: str="MS identity cannot be derived by the network";        break;
-		case 0x0a: str="Implicitly detached";                                 break;
-		case 0x0b: str="PLMN not allowed";                                    break;
-		case 0x0c: str="Location Area not allowed";                           break;
-		case 0x0d: str="Roaming not allowed in this location area";           break;
-		case 0x0e: str="GPRS services not allowed in this PLMN";              break;
-		case 0x0f: str="No Suitable Cells In Location Area";                  break;
-		case 0x10: str="MSC temporarily not reachable";                       break;
-		case 0x11: str="Network failure";                                     break;
-		case 0x14: str="MAC failure";                                         break;
-		case 0x15: str="Synch failure";                                       break;
-		case 0x16: str="Congestion";                                          break;
-		case 0x17: str="GSM authentication unacceptable";                     break;
-		case 0x20: str="Service option not supported";                        break;
-		case 0x21: str="Requested service option not subscribed";             break;
-		case 0x22: str="Service option temporarily out of order";             break;
-		case 0x26: str="Call cannot be identified";                           break;
-		case 0x28: str="No PDP context activated";                            break;
-		case 0x30: str="retry upon entry into a new cell";                    break;
-		case 0x31: str="retry upon entry into a new cell";                    break;
-		case 0x32: str="retry upon entry into a new cell";                    break;
-		case 0x33: str="retry upon entry into a new cell";                    break;
-		case 0x34: str="retry upon entry into a new cell";                    break;
-		case 0x35: str="retry upon entry into a new cell";                    break;
-		case 0x36: str="retry upon entry into a new cell";                    break;
-		case 0x37: str="retry upon entry into a new cell";                    break;
-		case 0x38: str="retry upon entry into a new cell";                    break;
-		case 0x39: str="retry upon entry into a new cell";                    break;
-		case 0x3a: str="retry upon entry into a new cell";                    break;
-		case 0x3b: str="retry upon entry into a new cell";                    break;
-		case 0x3c: str="retry upon entry into a new cell";                    break;
-		case 0x3d: str="retry upon entry into a new cell";                    break;
-		case 0x3e: str="retry upon entry into a new cell";                    break;
-		case 0x3f: str="retry upon entry into a new cell";                    break;
-		case 0x5f: str="Semantically incorrect message";                      break;
-		case 0x60: str="Invalid mandatory information";                       break;
-		case 0x61: str="Message type non-existent or not implemented";        break;
-		case 0x62: str="Message type not compatible with the protocol state"; break;
-		case 0x63: str="Information element non-existent or not implemented"; break;
-		case 0x64: str="Conditional IE error";                                break;
-		case 0x65: str="Message not compatible with the protocol state";      break;
-		case 0x6f: str="Protocol error, unspecified";                         break;
-		default:   str="Protocol error, unspecified";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"gmm Cause: (%u) %s",
-		oct,
-		str);
+	proto_tree_add_item(tree, hf_gsm_a_gm_cause, tvb, curr_offset, 1, FALSE);
 
 	curr_offset++;
 
@@ -6114,6 +6119,11 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_sm_ext,
 		{ "Ext", "gsm_a.gm.sm.ext",
 		  FT_UINT8, BASE_HEX, NULL, 0x80,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_cause,
+		{ "gmm Cause", "gsm_a.gm.cause",
+		  FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmm_cause_vals), 0x0,
 		NULL, HFILL }
 	},
 	};
