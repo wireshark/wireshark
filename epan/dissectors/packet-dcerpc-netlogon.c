@@ -6819,13 +6819,14 @@ netlogon_dissect_netrserverauthenticate3_rqst(tvbuff_t *tvb, int offset,
 
 static guint32 get_keytab_as_list(md4_pass **p_pass_list)
 {
+#if HAVE_KERBEROS
 	enc_key_t *ek;
 	md4_pass* pass_list;
 	int i = 0;
 	guint32 nb_pass = 0;
 
 	if(!krb_decrypt){
-		pass_list=NULL;
+		*p_pass_list=NULL;
 		return 0;
 	}
 	read_keytab_file_from_preferences();
@@ -6846,7 +6847,10 @@ static guint32 get_keytab_as_list(md4_pass **p_pass_list)
 		}
 	}
 	return nb_pass;
-
+#else
+	*p_pass_list = NULL;
+	return 0;
+#endif
 }
 
 static int
