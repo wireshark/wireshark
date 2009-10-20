@@ -381,6 +381,13 @@ static int hf_gsm_a_dtap_msg_tp_type = -1;
 int hf_gsm_a_dtap_elem_id = -1;
 static int hf_gsm_a_cld_party_bcd_num = -1;
 static int hf_gsm_a_clg_party_bcd_num = -1;
+static int hf_gsm_a_conn_num	= -1;
+static int hf_gsm_a_red_party_bcd_num = -1;
+static int hf_gsm_a_present_ind = -1;
+static int hf_gsm_a_screening_ind = -1;
+static int hf_gsm_a_type_of_sub_addr	= -1;
+static int hf_gsm_a_odd_even_ind	= -1;
+
 static int hf_gsm_a_dtap_cause = -1;
 static int hf_gsm_a_dtap_cause_ss_diagnostics	= -1;
 static int hf_gsm_a_dtap_emergency_bcd_num	= -1;
@@ -408,6 +415,7 @@ static int hf_gsm_a_dtap_ccbs_activation = -1;
 static int hf_gsm_a_dtap_stream_identifier = -1;
 static int hf_gsm_a_dtap_mcs = -1;
 static int hf_gsm_a_dtap_cause_of_no_cli = -1;
+static int hf_gsm_a_dtap_signal_value = -1;
 
 static int hf_gsm_a_codec_tdma_efr = -1;
 static int hf_gsm_a_codec_umts_amr_2 = -1;
@@ -425,6 +433,7 @@ static int hf_gsm_a_codec_fr_amr_wb = -1;
 static int hf_gsm_a_codec_pdc_efr = -1;
 
 static int hf_gsm_a_notification_description = -1;
+static int hf_gsm_a_dtap_recall_type	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -2301,6 +2310,9 @@ static const true_false_string gsm_a_extension_value = {
 	"Extended"
 };
 
+/*
+ * Helper function for BCD address decoding
+ */
 const value_string gsm_a_type_of_number_values[] = {
 	{ 0x00,	"unknown" },
 	{ 0x01,	"International Number" },
@@ -2326,48 +2338,121 @@ const value_string gsm_a_numbering_plan_id_values[] = {
 	{ 0, NULL }
 };
 
+const value_string gsm_a_present_ind_values[] = {
+	{ 0x00,	"Presentation allowed" },
+	{ 0x01,	"Presentation restricted" },
+	{ 0x02,	"Number not available due to interworking" },
+	{ 0x03,	"Reserved" },
+	{ 0, NULL }
+};
+
+const value_string gsm_a_screening_ind_values[] = {
+	{ 0x00,	"User-provided, not screened" },
+	{ 0x01,	"User-provided, verified and passed" },
+	{ 0x02,	"User-provided, verified and failed" },
+	{ 0x03,	"Network provided" },
+	{ 0, NULL }
+};
+
+static guint16
+de_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, int header_field, gboolean *address_extracted)
+{
+	guint8	*poctets;
+	guint8	extension;
+	guint32	curr_offset;
+
+	*address_extracted = FALSE;
+	curr_offset = offset;
+
+	extension = tvb_get_guint8(tvb, curr_offset) & 0x80;
+	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_type_of_number, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_numbering_plan_id, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
+
+	if (!extension)
+	{
+		proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_present_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+3, 3, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_screening_ind, tvb, curr_offset, 1, FALSE);
+		curr_offset++;
+	}
+
+	NO_MORE_DATA_CHECK(len);
+
+	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+
+	*address_extracted = TRUE;
+	my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
+		&Dgt_mbcd);
+
+	proto_tree_add_string_format(tree, header_field,
+		tvb, curr_offset, len - (curr_offset - offset),
+		a_bigbuf,
+		"BCD Digits: %s",
+		a_bigbuf);
+
+	return(len);
+}
+
+/*
+ * Helper function for sub address decoding
+ */
+const value_string gsm_a_type_of_sub_addr_values[] = {
+	{ 0x00,	"NSAP (X.213/ISO 8348 AD2)" },
+	{ 0x02,	"User specified" },
+	{ 0, NULL }
+};	
+
+const value_string gsm_a_odd_even_ind_values[] = {
+	{ 0x00,	"even number of address signals" },
+	{ 0x01,	"odd number of address signals" },
+	{ 0, NULL }
+};
+
+static guint16
+de_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_type_of_sub_addr, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+5, 3, FALSE);
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	proto_tree_add_text(tree,
+		tvb, curr_offset, len - (curr_offset - offset),
+		"Subaddress information");
+
+	return(len);
+}
+
 /*
  * [3] 10.5.4.7 Called party BCD number
  */
 guint16
 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-	guint8	*poctets;
-	guint32	curr_offset;
+	gboolean	addr_extr;
 
-	curr_offset = offset;
+	de_bcd_num(tvb, tree, offset, len, hf_gsm_a_cld_party_bcd_num, &addr_extr);
 
-	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_type_of_number , tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_numbering_plan_id , tvb, curr_offset, 1, FALSE);
+	if(addr_extr) {
+		if (sccp_assoc && ! sccp_assoc->called_party) {
+			sccp_assoc->called_party = se_strdup(a_bigbuf);
+		}
 
-	curr_offset++;
-
-	NO_MORE_DATA_CHECK(len);
-
-	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
-
-	my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
-		&Dgt_mbcd);
-
-	proto_tree_add_string_format(tree, hf_gsm_a_cld_party_bcd_num,
-		tvb, curr_offset, len - (curr_offset - offset),
-		a_bigbuf,
-		"BCD Digits: %s",
-		a_bigbuf);
-
-	if (sccp_assoc && ! sccp_assoc->called_party) {
-		sccp_assoc->called_party = se_strdup(a_bigbuf);
+		if (add_string)
+			g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
 	}
 
-	curr_offset += len - (curr_offset - offset);
-
-	if (add_string)
-		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
-
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-	return(curr_offset - offset);
+	return(len);
 }
 
 /*
@@ -2376,55 +2461,9 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 static guint16
 de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar *str;
+	de_sub_addr(tvb, tree, offset, len);
 
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
-
-	switch ((oct & 0x70) >> 4)
-	{
-	case 0: str = "NSAP (X.213/ISO 8348 AD2)"; break;
-	case 2: str = "User specified"; break;
-	default:
-		str = "Reserved";
-		break;
-	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Type of subaddress: %s",
-		a_bigbuf,
-		str);
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Odd/Even indicator: %s",
-		a_bigbuf,
-		(oct & 0x08) ?
-			"odd number of address signals" : "even number of address signals");
-
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+5, 3, FALSE);
-
-	curr_offset++;
-
-	NO_MORE_DATA_CHECK(len);
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, len - (curr_offset - offset),
-		"Subaddress information");
-
-	curr_offset += len - (curr_offset - offset);
-
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-	return(curr_offset - offset);
+	return(len);
 }
 
 /* 3GPP TS 24.008
@@ -2433,82 +2472,14 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 static guint16
 de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-	guint8	oct;
-	guint8	*poctets;
-	guint32	curr_offset;
-	const gchar *str;
+	gboolean	addr_extr;
 
-	curr_offset = offset;
+	de_bcd_num(tvb, tree, offset, len, hf_gsm_a_clg_party_bcd_num, &addr_extr);
 
-	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_type_of_number , tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_numbering_plan_id , tvb, curr_offset, 1, FALSE);
+	if (addr_extr && add_string)
+		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
 
-	curr_offset++;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
-
-	switch ((oct & 0x60) >> 5)
-	{
-	case 0: str = "Presentation allowed"; break;
-	case 1: str = "Presentation restricted"; break;
-	case 2: str = "Number not available due to interworking"; break;
-	default:
-		str = "Reserved";
-		break;
-	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Presentation indicator: %s",
-		a_bigbuf,
-		str);
-
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+3, 3, FALSE);
-
-	switch (oct & 0x03)
-	{
-	case 0: str = "User-provided, not screened"; break;
-	case 1: str = "User-provided, verified and passed"; break;
-	case 2: str = "User-provided, verified and failed"; break;
-	default:
-		str = "Network provided";
-		break;
-	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Screening indicator: %s",
-		a_bigbuf,
-		str);
-
-	curr_offset++;
-
-	NO_MORE_DATA_CHECK(len);
-
-	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
-
-	my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
-		&Dgt_mbcd);
-
-	proto_tree_add_string_format(tree, hf_gsm_a_clg_party_bcd_num,
-		tvb, curr_offset, len - (curr_offset - offset),
-		a_bigbuf,
-		"BCD Digits: %s",
-		a_bigbuf);
-
-	curr_offset += len - (curr_offset - offset);
-
-	if (add_string)
-	g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
-
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-	return(curr_offset - offset);
+	return(len);
 }
 
 /*
@@ -2517,54 +2488,9 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 static guint16
 de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-	const gchar *str;
+	de_sub_addr(tvb, tree, offset, len);
 
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
-
-	switch ((oct & 0x70) >> 4)
-	{
-	case 0: str = "NSAP (X.213/ISO 8348 AD2)"; break;
-	case 2: str = "User specified"; break;
-	default:
-		str = "Reserved";
-		break;
-	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Type of subaddress: %s",
-		a_bigbuf,
-		str);
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Odd/Even indicator: %s",
-		a_bigbuf,
-		(oct & 0x08) ?
-			"odd number of address signals" : "even number of address signals");
-
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+5, 3, FALSE);
-	curr_offset++;
-
-	NO_MORE_DATA_CHECK(len);
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, len - (curr_offset - offset),
-		"Subaddress information");
-
-	curr_offset += len - (curr_offset - offset);
-
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-	return(curr_offset - offset);
+	return(len);
 }
 
 /*
@@ -2792,9 +2718,30 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 /*
  * 10.5.4.13 Connected number
  */
+static guint16
+de_conn_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	gboolean	addr_extr;
+
+	de_bcd_num(tvb, tree, offset, len, hf_gsm_a_conn_num, &addr_extr);
+
+	if (addr_extr && add_string)
+		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
+
+	return(len);
+}
+
 /*
  * 10.5.4.14 Connected subaddress
  */
+static guint16
+de_conn_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	de_sub_addr(tvb, tree, offset, len);
+
+	return(len);
+}
+
 /*
  * 10.5.4.15 Facility
  */
@@ -3036,12 +2983,52 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 
 	return(curr_offset - offset);
 }
+
+/*
+ * 10.5.4.21a Recall type $(CCBS)$
+ */
+static const range_string gsm_a_dtap_recall_type_vals[] = {
+	{ 0x00, 0x00, "CCBS" },
+	{ 0x01, 0x06, "shall be treated as CCBS (intended for other similar type of Recall)" },
+	{ 0, 0, NULL }
+};
+
+static guint16
+de_recall_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (offset<<3), 5, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_recall_type, tvb, offset, 1, FALSE);
+
+	return(1);
+}
+
 /*
  * 10.5.4.21b Redirecting party BCD number
  */
+static guint16
+de_red_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+	gboolean	addr_extr;
+
+	de_bcd_num(tvb, tree, offset, len, hf_gsm_a_red_party_bcd_num, &addr_extr);
+
+	if (addr_extr && add_string)
+		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
+
+	return(len);
+}
+
 /*
  * 10.5.4.21c Redirecting party subaddress
  */
+static guint16
+de_red_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	de_sub_addr(tvb, tree, offset, len);
+
+	return(len);
+}
+
 /*
  * [3] 10.5.4.22 Repeat indicator
  */
@@ -3086,9 +3073,43 @@ de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 /*
  * 10.5.4.22b SETUP Container $(CCBS)$
  */
+static void
+dtap_cc_setup(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+
+static guint16
+de_setup_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	dtap_cc_setup(tvb, tree, offset, len);
+
+	return (len);
+}
+
 /*
  * 10.5.4.23 Signal
  */
+static const value_string gsm_a_dtap_signal_value_vals[] = {
+	{ 0x00, "dial tone on" },
+	{ 0x01, "ring back tone on" },
+	{ 0x02, "intercept tone on" },
+	{ 0x03, "network congestion tone on" },
+	{ 0x04, "busy tone on" },
+	{ 0x05, "confirm tone on" },
+	{ 0x06, "answer tone on" },
+	{ 0x07, "call waiting tone on" },
+	{ 0x08, "off-hook warning tone on" },
+	{ 0x3f, "tones off" },
+	{ 0x4f, "alerting off" },
+	{ 0, NULL }
+};
+
+static guint16
+de_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_item(tree, hf_gsm_a_dtap_signal_value, tvb, offset, 1, FALSE);
+	
+	return 1;
+}
+
 /*
  * 10.5.4.24 SS Version Indicator
  */
@@ -3904,8 +3925,8 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	NULL /* no associated data */,	/* CLIR Suppression */
 	NULL /* no associated data */,	/* CLIR Invocation */
 	NULL /* handled inline */,	/* Congestion Level */
-	NULL,	/* Connected Number */
-	NULL,	/* Connected Subaddress */
+	de_conn_num,	/* Connected Number */
+	de_conn_sub_addr,	/* Connected Subaddress */
 	de_facility,	/* Facility */
 	de_hlc,	/* High Layer Compatibility */
 	de_keypad_facility,	/* Keypad Facility */
@@ -3913,13 +3934,13 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	NULL,	/* More Data */
 	de_notif_ind,	/* Notification Indicator */
 	de_prog_ind,	/* Progress Indicator */
-	NULL,	/* Recall type $(CCBS)$ */
-	NULL,	/* Redirecting Party BCD Number */
-	NULL,	/* Redirecting Party Subaddress */
+	de_recall_type,	/* 10.5.4.21a Recall type $(CCBS)$ */
+	de_red_party_bcd_num,	/* Redirecting Party BCD Number */
+	de_red_party_sub_addr,	/* Redirecting Party Subaddress */
 	de_repeat_ind,	/* Repeat Indicator */
 	NULL /* no associated data */,	/* Reverse Call Setup Direction */
-	NULL,	/* SETUP Container $(CCBS)$ */
-	NULL,	/* Signal */
+	de_setup_cont,	/* SETUP Container $(CCBS)$ */
+	de_signal,				/* Signal */
 	de_ss_ver_ind,			/* SS Version Indicator */
 	de_u2u,					/* User-user */
 	de_alert_pat,			/* Alerting Pattern $(NIA)$ */
@@ -5837,10 +5858,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hf_idx = -1;
 	msg_fcn = NULL;
 	nsd = FALSE;
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",val_to_str(pd,gsm_a_pd_short_str_vals,"unknown"));
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",val_to_str(pd,gsm_a_pd_short_str_vals,"unknown"));
 
 	/*
 	 * octet 1
@@ -5948,10 +5966,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			sccp_msg->data.co.label = se_strdup(msg_str);
 		}
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
 	}
 
 	oct_1_item =
@@ -6118,6 +6133,16 @@ proto_register_gsm_a_dtap(void)
 		FT_STRING, BASE_NONE, 0, 0,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_conn_num,
+		{ "Connected Number", "gsm_a.conn_num",
+		FT_STRING, BASE_NONE, 0, 0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_red_party_bcd_num,
+		{ "Redirecting Party BCD Number", "gsm_a.red_party_bcd_num",
+		FT_STRING, BASE_NONE, 0, 0,
+		NULL, HFILL }
+	},
 	{ &hf_gsm_a_dtap_cause,
 		{ "DTAP Cause", "gsm_a_dtap.cause",
 		FT_UINT8, BASE_HEX, 0, 0x0,
@@ -6136,6 +6161,26 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_numbering_plan_id,
 		{ "Numbering plan identification", "gsm_a.numbering_plan_id",
 		FT_UINT8, BASE_HEX, VALS(gsm_a_numbering_plan_id_values), 0x0f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_present_ind,
+		{ "Presentation indicator", "gsm_a.present_ind",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_present_ind_values), 0x60,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_screening_ind,
+		{ "Screening indicator", "gsm_a.screening_ind",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_screening_ind_values), 0x03,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_type_of_sub_addr,
+		{ "Type of subaddress", "gsm_a.type_of_sub_addr",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_type_of_sub_addr_values), 0x70,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_odd_even_ind,
+		{ "Odd/even indicator", "gsm_a.odd_even_ind",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_odd_even_ind_values), 0x08,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_lsa_id,
@@ -6316,6 +6361,16 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_emergency_bcd_num,
 		{ "Emergency BCD Number", "gsm_a.dtap.emergency_bcd_num",
 		FT_STRING, BASE_NONE, 0, 0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_signal_value,
+		{ "Signal value", "gsm_a.dtap.signal_value",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_signal_value_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_recall_type,
+		{ "Recall type", "gsm_a.dtap.recall_type",
+		FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(gsm_a_dtap_recall_type_vals), 0x07,
 		NULL, HFILL }
 	},
 	};
