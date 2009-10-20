@@ -3081,6 +3081,12 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	    /* Start out assuming we won't succeed in decrypting. */
 	    decrypted_tvb = NULL;
+      /* Schannel needs informations into the footer (verifier) in order to setup decryptions keys 
+       * so we call it in order to have a chance to decypher the data 
+       */
+      if (DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN == auth_info->auth_type) {
+        dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, TRUE, auth_info);
+      }
 
 	    if ((auth_fns = get_auth_subdissector_fns(
 			 auth_info->auth_level, auth_info->auth_type))) {

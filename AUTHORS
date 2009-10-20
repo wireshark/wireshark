@@ -2939,7 +2939,7 @@ Ivan Sy Jr.             <ivan_jr [AT] yahoo.com> {
 Matthieu Patou		<mat [AT] matws.net> {
 	NTLM v1 and v2 decryption.
 	LDAP fixes.
-	Netlogon/Schannel.
+	Netlogon/Schannel decryption.
 }
 
 Kovarththanan Rajaratnam <kovarththanan.rajaratnam [AT] gmail.com> {

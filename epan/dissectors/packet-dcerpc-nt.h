@@ -265,5 +265,8 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 
 void dcerpc_smb_init(int proto_dcerpc);
 
+/* Used into packet-dcerpc-netlogon.c*/
+int hf_nt_cs_len;
+int hf_nt_cs_size;
 
 #endif /* packet-dcerpc-nt.h */

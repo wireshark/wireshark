@@ -40,8 +40,8 @@
 #include "packet-windows-common.h"
 
 
-static int hf_nt_cs_len = -1;
-static int hf_nt_cs_size = -1;
+int hf_nt_cs_len = -1;
+int hf_nt_cs_size = -1;
 static int hf_lsa_String_name_len = -1;
 static int hf_lsa_String_name_size = -1;
 
