@@ -933,7 +933,6 @@ static int lsarpc_dissect_element_lsa_DomainInfoKerberos_unknown6(tvbuff_t *tvb 
 static int lsarpc_dissect_element_lsa_DomainInfoEfs_blob_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 const value_string lsarpc_lsa_DomainInfoEnum_vals[] = {
 	{ LSA_DOMAIN_INFO_POLICY_QOS, "LSA_DOMAIN_INFO_POLICY_QOS" },
 	{ LSA_DOMAIN_INFO_POLICY_EFS, "LSA_DOMAIN_INFO_POLICY_EFS" },

@@ -1154,7 +1154,6 @@ static int srvsvc_dissect_element_NetShareInfo502_password_(tvbuff_t *tvb _U_, i
 static int srvsvc_dissect_element_NetShareInfo502_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetShareInfo502_sd(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetShareInfo502_sd_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int srvsvc_dissect_element_NetShareInfo502_sd__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetShareInfo1004_comment(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetShareInfo1004_comment_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int srvsvc_dissect_element_NetShareInfo1006_max_users(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);

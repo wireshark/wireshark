@@ -52,7 +52,6 @@ HF_FIELD hf_lsarpc_names "Names" "lsarpc.lookup.names" FT_NONE BASE_NONE NULL 0 
 
 
 MANUAL lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob_
-MANUAL lsarpc_dissect_element_lsa_DomainInfoEfs_efs_blob__
 HF_FIELD hf_lsarpc_efs_blob_len "EFS blob size" "lsarpc.efs.blob_size" FT_UINT32 BASE_DEC NULL 0 "" "" ""
 
 CODE START
