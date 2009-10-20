@@ -3,15 +3,15 @@
 **
 ** Copyright (C) 2006-2007 ascolab GmbH. All Rights Reserved.
 ** Web: http://www.ascolab.com
-** 
+**
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public License
 ** as published by the Free Software Foundation; either version 2
 ** of the License, or (at your option) any later version.
-** 
+**
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-** 
+**
 ** Project: OpcUa Wireshark Plugin
 **
 ** Description: Implementation of OpcUa built-in type parsers.
@@ -364,7 +364,7 @@ void parseString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 
 void parseStatusCode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, TRUE); 
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, TRUE);
     *pOffset += 4;
 }
 
@@ -630,7 +630,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldN
         case OpcUaType_Variant: parseVariant(subtree, tvb, &iOffset, "Value"); break;
         }
     }
-    
+
     if (EncodingMask & VARIANT_ARRAYDIMENSIONS)
     {
         proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "Array Dimensions");
@@ -646,8 +646,10 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldN
         }
         else
         {
+	    proto_item *pi;
             /* XXX - This should be expert_add_info_format, but we need pinfo for that */
-            PROTO_ITEM_SET_GENERATED(proto_tree_add_text(tree, tvb, iOffset, 4, "Array length %d too large to process", ArrayLength));
+            pi = proto_tree_add_text(tree, tvb, iOffset, 4, "Array length %d too large to process", ArrayLength);
+	    PROTO_ITEM_SET_GENERATED(pi);
         }
     }
 
@@ -675,7 +677,9 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfInde
 
     if (iLen > MAX_ARRAY_LEN)
     {
-        PROTO_ITEM_SET_GENERATED(proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen));
+	proto_item *pi;
+        pi = proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
+	PROTO_ITEM_SET_GENERATED(pi);
         return;
     }
 
@@ -707,7 +711,9 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, fctEnumParse
 
     if (iLen > MAX_ARRAY_LEN)
     {
-        PROTO_ITEM_SET_GENERATED(proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen));
+	proto_item *pi;
+        pi = proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
+	PROTO_ITEM_SET_GENERATED(pi);
         return;
     }
 
@@ -738,7 +744,9 @@ void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
 
     if (iLen > MAX_ARRAY_LEN)
     {
-        PROTO_ITEM_SET_GENERATED(proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen));
+	proto_item *pi;
+        pi = proto_tree_add_text(tree, tvb, *pOffset, 4, "Array length %d too large to process", iLen);
+	PROTO_ITEM_SET_GENERATED(pi);
         return;
     }
 
