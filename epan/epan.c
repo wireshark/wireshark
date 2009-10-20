@@ -82,8 +82,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	    report_read_failure, report_write_failure);
 
 	/* initialize memory allocation subsystem */
-	ep_init_chunk();
-	se_init_chunk();
+	emem_init();
 
 	/* initialize the GUID to name mapping table */
 	guids_init();

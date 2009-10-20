@@ -257,7 +257,7 @@ emem_init_chunk(emem_header_t *mem)
  * This function should be called only once when Wireshark or TShark starts
  * up.
  */
-void
+static void
 ep_init_chunk(void)
 {
 	ep_packet_mem.free_list=NULL;
@@ -272,6 +272,37 @@ ep_init_chunk(void)
 #endif
 
 	emem_init_chunk(&ep_packet_mem);
+}
+
+/* Initialize the capture-lifetime memory allocation pool.
+ * This function should be called only once when Wireshark or TShark starts
+ * up.
+ */
+static void
+se_init_chunk(void)
+{
+	se_packet_mem.free_list = NULL;
+	se_packet_mem.used_list = NULL;
+	ep_packet_mem.trees = NULL;
+
+	se_packet_mem.debug_use_chunks = (getenv("WIRESHARK_DEBUG_SE_NO_CHUNKS") == NULL);
+	se_packet_mem.debug_use_canary = se_packet_mem.debug_use_chunks && (getenv("WIRESHARK_DEBUG_SE_USE_CANARY") != NULL);
+
+	emem_init_chunk(&se_packet_mem);
+}
+
+/*  Initialize all the allocators here.
+ *  This function should be called only once when Wireshark or TShark starts
+ *  up.
+ */
+void
+emem_init(void)
+{
+	ep_init_chunk();
+	se_init_chunk();
+
+	if (getenv("WIRESHARK_DEBUG_SCRUB_MEMORY"))
+		debug_use_memory_scrubber  = TRUE;
 
 #if defined (_WIN32)
 	/* Set up our guard page info for Win32 */
@@ -296,27 +327,6 @@ ep_init_chunk(void)
 	g_assert(dev_zero_fd != -1);
 #endif
 #endif /* _WIN32 / USE_GUARD_PAGES */
-}
-
-/* Initialize the capture-lifetime memory allocation pool.
- * This function should be called only once when Wireshark or TShark starts
- * up.
- */
-void
-se_init_chunk(void)
-{
-	se_packet_mem.free_list = NULL;
-	se_packet_mem.used_list = NULL;
-	ep_packet_mem.trees = NULL;
-
-	se_packet_mem.debug_use_chunks = (getenv("WIRESHARK_DEBUG_SE_NO_CHUNKS") == NULL);
-	se_packet_mem.debug_use_canary = se_packet_mem.debug_use_chunks && (getenv("WIRESHARK_DEBUG_SE_USE_CANARY") != NULL);
-
-	emem_init_chunk(&se_packet_mem);
-
-	/* This isn't specific to se_ memory, but need to init it somewhere.. */
-	if (getenv("WIRESHARK_DEBUG_SCRUB_MEMORY"))
-		debug_use_memory_scrubber  = TRUE;
 }
 
 #ifdef SHOW_EMEM_STATS

@@ -28,6 +28,12 @@
 
 #include "gnuc_format_check.h"
 
+/*  Initialize all the memory allocation pools described below.
+ *  This function must be called once when *shark initialize to set up the
+ *  required structures.
+ */
+void emem_init(void);
+
 /* Functions for handling memory allocation and garbage collection with
  * a packet lifetime scope.
  * These functions are used to allocate memory that will only remain persistent
@@ -39,10 +45,6 @@
  * Everytime a new packet is dissected, all memory allocations done in
  * the previous packet is freed.
  */
-/* Initialize packet-lifetime memory allocation pool. This function is called
- * once when [t]Wireshark is initialized to set up the required structures.
- */
-void ep_init_chunk(void);
 
 /* Allocate memory with a packet lifetime scope */
 void *ep_alloc(size_t size);
@@ -128,10 +130,6 @@ void* ep_stack_pop(ep_stack_t stack);
  *
  * These functions are very fast and offer automatic garbage collection.
  */
-/* Initialize capture-lifetime memory allocation pool. This function is called
- * once when [t]Wireshark is initialized to set up the required structures.
- */
-void se_init_chunk(void);
 
 /* Allocate memory with a capture lifetime scope */
 void *se_alloc(size_t size);

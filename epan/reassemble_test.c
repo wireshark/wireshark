@@ -1030,8 +1030,7 @@ main(int argc _U_, char **argv _U_)
     };
 
     /* initialise stuff */
-    ep_init_chunk();
-    se_init_chunk();
+    emem_init();
     tvbuff_init();
     reassemble_init();
 
