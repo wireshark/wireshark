@@ -377,7 +377,7 @@ guint32
 dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint *start_bit_offset, h264_golomb_descriptors descriptor)
 /*(tvbuff_t *tvb, gint *start_bit_offset) */
 {
-	gint		leading_zero_bits, bit_offset;
+	gint		leading_zero_bits, bit_offset, start_offset;
 	guint32		codenum, mask, value, tmp;
 	gint32		se_value=0;		
 	gint		b;
@@ -385,6 +385,8 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 	int bit;
 	int i;
 	header_field_info *hf_field = NULL;
+
+	start_offset = *start_bit_offset>>3;
 
 	if(hf_index > -1)
 		hf_field = proto_registrar_get_nth(hf_index);
@@ -441,7 +443,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 				 */
 				if(hf_field->type==FT_INT32){
 					if (hf_field->strings) {
-						proto_tree_add_int_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+						proto_tree_add_int_format(tree, hf_index, tvb, start_offset, 1, codenum,
 							  "%s: %s (%d)",
 							  str,
 							  val_to_str(codenum, cVALS(hf_field->strings), "Unknown "),
@@ -449,7 +451,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 					}else{
 						switch(hf_field->display){
 							case BASE_DEC:
-								proto_tree_add_int_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+								proto_tree_add_int_format(tree, hf_index, tvb, start_offset, 1, codenum,
 							         "%s: %d",
 									  str,
 									  codenum);
@@ -466,7 +468,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 			}
 			if(hf_field->type==FT_UINT32){
 				if (hf_field->strings) {
-					proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+					proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
 						  "%s: %s (%u)",
 						  str,
 						  val_to_str(codenum, cVALS(hf_field->strings), "Unknown "),
@@ -474,13 +476,13 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 				}else{
 					switch(hf_field->display){
 						case BASE_DEC:
-							proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+							proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
 						         "%s: %u",
 								  str,
 								  codenum);
 							break;
 						case BASE_HEX:
-							proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+							proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
 					             "%s: 0x%x",
 								  str,
 								  codenum);
@@ -580,7 +582,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 		}
 		if((hf_field->type==FT_UINT32)&&(descriptor==H264_UE_V)){
 			if (hf_field->strings) {
-				proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+				proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
 						  "%s: %s (%u)",
 						  str,
 						  val_to_str(codenum, cVALS(hf_field->strings), "Unknown "),
@@ -588,13 +590,13 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 			}else{
 				switch(hf_field->display){
 					case BASE_DEC:
-						proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+						proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
 					         "%s: %u",
 							  str,
 							  codenum);
 						break;
 					case BASE_HEX:
-						proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+						proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
 				             "%s: 0x%x",
 							  str,
 							  codenum);
@@ -606,7 +608,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 			}
 		}else if((hf_field->type==FT_INT32)&&(descriptor==H264_SE_V)){
 			if (hf_field->strings) {
-				proto_tree_add_int_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+				proto_tree_add_int_format(tree, hf_index, tvb, start_offset, 1, codenum,
 						  "%s: %s (%d)",
 						  str,
 						  val_to_str(codenum, cVALS(hf_field->strings), "Unknown "),
@@ -614,7 +616,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 			}else{
 				switch(hf_field->display){
 					case BASE_DEC:
-						proto_tree_add_int_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+						proto_tree_add_int_format(tree, hf_index, tvb, start_offset, 1, codenum,
 					         "%s: %d",
 							  str,
 							  se_value);
@@ -802,6 +804,20 @@ dissect_h264_hrd_parameters(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
 #define EXTENDED_SAR 255
 
 /* E.1.1 VUI parameters syntax */
+
+/* Table E-2 – Meaning of video_format */
+static const value_string h264_video_format_vals[] = {
+	{ 22,	"reserved_sei_message)" },
+	{ 0,	"Component" },
+	{ 1,	"PAL" },
+	{ 2,	"NTSC" },
+	{ 3,	"SECAM" },
+	{ 4,	"MAC" },
+	{ 5,	"Unspecified video format" },
+	{ 6,	"Reserved" },
+	{ 7,	"Reserved" },
+	{ 0,	NULL }
+};
 static int
 dissect_h264_vui_parameters(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint bit_offset)
 {
@@ -2454,7 +2470,7 @@ proto_register_h264(void)
 		},
 		{ &hf_h264_video_format,
 			{ "video_format",           "h264.video_format",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, VALS(h264_video_format_vals), 0x0,          
 			NULL, HFILL }
 		},
 		{ &hf_h264_video_full_range_flag,
