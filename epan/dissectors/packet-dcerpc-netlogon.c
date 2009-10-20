@@ -2488,7 +2488,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
   /*int oldoffset = offset;*/
-  unsigned int txt_len = 0;
+  size_t txt_len = 0;
   netlogon_auth_vars *vars;
   netlogon_auth_vars *existing_vars;
   netlogon_auth_key *key = se_alloc(sizeof(netlogon_auth_key));
