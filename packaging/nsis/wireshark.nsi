@@ -790,21 +790,10 @@ IfErrors lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not inst
 ;DetailPrint "WinPcap uninstaller returned $0"
 lbl_winpcap_notinstalled:
 SetOutPath $INSTDIR
-File "WinPcap_4_1_beta5.exe"
-ExecWait '"$INSTDIR\WinPcap_4_1_beta5.exe"' $0
+File "WinPcap_4_1.exe"
+ExecWait '"$INSTDIR\WinPcap_4_1.exe"' $0
 DetailPrint "WinPcap installer returned $0"
 SecRequired_skip_Winpcap:
-
-; Load Winpcap NPF service at startup (depending on winpcap page)
-ReadINIStr $0 "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "State"
-StrCmp $0 "0" SecRequired_no_WinpcapService
-WriteRegDWORD HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start" 2 ;set NPF to (SERVICE_AUTO_START)
-!insertmacro SERVICE "start" "NPF" ""
-Goto SecRequired_done_WinpcapService
-SecRequired_no_WinpcapService:
-WriteRegDWORD HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start" 3 ;set NPF to (SERVICE_DEMAND_START)
-!insertmacro SERVICE "stop" "NPF" ""
-SecRequired_done_WinpcapService:
 
 ; If no user profile exists for Wireshark but for Ethereal, copy it over
 SetShellVarContext current
@@ -1312,7 +1301,7 @@ lbl_winversion_unsupported_nt4:
 lbl_winversion_supported:
 
 	; detect if WinPcap should be installed
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.1 beta5"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.1"
 	ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
 	IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
@@ -1325,7 +1314,7 @@ lbl_winpcap_installed:
 	; Compare the installed build against the one we have.
 	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion"
 	StrCmp $WINPCAP_VERSION "" lbl_winpcap_do_install ; WinPcap is really old(?) or installed improperly.
-	${VersionCompare} $WINPCAP_VERSION "4.0.0.1452" $1 ; WinPcap 4.1 beta5
+	${VersionCompare} $WINPCAP_VERSION "4.1.0.1752" $1 ; WinPcap 4.1
 	StrCmp $1 "2" lbl_winpcap_do_install
 
 ;lbl_winpcap_dont_install:
@@ -1338,7 +1327,7 @@ lbl_winpcap_installed:
 	; force the user to upgrade by hand
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 4.1 beta5, please uninstall $WINPCAP_NAME manually first."
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 4.1, please uninstall $WINPCAP_NAME manually first."
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
 	Goto lbl_winpcap_done
 
