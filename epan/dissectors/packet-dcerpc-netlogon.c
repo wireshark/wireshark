@@ -2488,7 +2488,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
   /*int oldoffset = offset;*/
-  int txt_len = 0;
+  unsigned int txt_len = 0;
   netlogon_auth_vars *vars;
   netlogon_auth_vars *existing_vars;
   netlogon_auth_key *key = se_alloc(sizeof(netlogon_auth_key));
@@ -2527,7 +2527,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
   existing_vars = NULL;
   existing_vars = g_hash_table_lookup(netlogon_auths, key);
   if (!existing_vars) {
-    g_hash_table_insert(netlogon_auths,(gconstpointer*) key,vars);
+    g_hash_table_insert(netlogon_auths, key, vars);
   }
   else {
     while(existing_vars->next != NULL && existing_vars->start <= vars->start) {
@@ -2548,7 +2548,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
   existing_vars = g_hash_table_lookup(schannel_auths, key);
   if (!existing_vars)
   {
-    g_hash_table_insert(schannel_auths,(gconstpointer*) key,vars);
+    g_hash_table_insert(schannel_auths, key, vars);
   }
   else
   {
