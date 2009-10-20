@@ -990,11 +990,12 @@ static guint16
 de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-	guint8 en_len;
+	guint8 en_len, oct, i;
 	guint8 count;
 	guint8	*poctets;
 	proto_tree	*subtree;
 	proto_item	*item;
+	gboolean	malformed_number;
 
 	curr_offset = offset;
 
@@ -1030,11 +1031,29 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 		my_dgt_tbcd_unpack(a_bigbuf, poctets, en_len, &Dgt_mbcd);
 
-		proto_tree_add_string_format(subtree, hf_gsm_a_dtap_emergency_bcd_num,
+		item = proto_tree_add_string_format(subtree, hf_gsm_a_dtap_emergency_bcd_num,
 			tvb, curr_offset, en_len,
 			a_bigbuf,
 			"BCD Digits: %s",
 			a_bigbuf);
+
+		malformed_number = FALSE;
+		for(i = 0; i < en_len - 1; i++)
+		{
+			oct = poctets[i];
+			if (((oct & 0xf0) == 0xf0) || ((oct & 0x0f) == 0x0f))
+			{
+				malformed_number = TRUE;
+				break;
+			}
+		}
+
+		oct = poctets[en_len - 1];
+		if ((oct & 0x0f) == 0x0f)
+			malformed_number = TRUE;
+
+		if(malformed_number)
+			expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");	
 
 		curr_offset = curr_offset + en_len;
 		count++;
@@ -2358,8 +2377,10 @@ static guint16
 de_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, int header_field, gboolean *address_extracted)
 {
 	guint8	*poctets;
-	guint8	extension;
-	guint32	curr_offset;
+	guint8	extension, oct;
+	guint32	curr_offset, i, num_string_len;
+	proto_item *item;
+	gboolean malformed_number;
 
 	*address_extracted = FALSE;
 	curr_offset = offset;
@@ -2381,17 +2402,36 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, int heade
 
 	NO_MORE_DATA_CHECK(len);
 
-	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
+	num_string_len = len - (curr_offset - offset);
+	poctets = tvb_get_ephemeral_string(tvb, curr_offset, num_string_len);
 
 	*address_extracted = TRUE;
-	my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
+	my_dgt_tbcd_unpack(a_bigbuf, poctets, num_string_len,
 		&Dgt_mbcd);
 
-	proto_tree_add_string_format(tree, header_field,
-		tvb, curr_offset, len - (curr_offset - offset),
+	item = proto_tree_add_string_format(tree, header_field,
+		tvb, curr_offset, num_string_len,
 		a_bigbuf,
 		"BCD Digits: %s",
 		a_bigbuf);
+
+	malformed_number = FALSE;
+	for(i = 0; i < num_string_len - 1; i++)
+	{
+		oct = poctets[i];
+		if (((oct & 0xf0) == 0xf0) || ((oct & 0x0f) == 0x0f))
+		{
+			malformed_number = TRUE;
+			break;
+		}
+	}
+
+	oct = poctets[num_string_len - 1];
+	if ((oct & 0x0f) == 0x0f)
+		malformed_number = TRUE;
+
+	if(malformed_number)
+		expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");	
 
 	return(len);
 }
