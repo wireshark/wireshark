@@ -375,6 +375,7 @@ reassemble_cleanup(void)
 		g_mem_chunk_destroy(fragment_data_chunk);
 
 	fragment_key_chunk = NULL;
+	dcerpc_fragment_key_chunk = NULL;
 	fragment_data_chunk = NULL;
 #endif
 }
