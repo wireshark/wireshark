@@ -685,6 +685,7 @@ DISSECTOR_SRC = \
 	packet-oicq.c		\
 	packet-olsr.c		\
 	packet-omapi.c		\
+	packet-omron-fins.c	\
 	packet-osi-options.c	\
 	packet-osi.c		\
 	packet-ositp.c		\

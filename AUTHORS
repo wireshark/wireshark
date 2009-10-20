@@ -2936,7 +2936,7 @@ Ivan Sy Jr.             <ivan_jr [AT] yahoo.com> {
         Miscellaneous IPv6 enhancements.
 }
 
-Matthieu Patou		<mat@matws.net> {
+Matthieu Patou		<mat [AT] matws.net> {
 	NTLM v1 and v2 decryption.
 	LDAP fixes.
 	Netlogon/Schannel.
@@ -2946,6 +2946,11 @@ Kovarththanan Rajaratnam <kovarththanan.rajaratnam [AT] gmail.com> {
 	Work on the new packet list.
 	Miscellaneous fixes and enhancements.
 }
+
+Matt Watchinski		<mwatchinski [AT] sourcefire.com> {
+	OMRON-FINS dissector
+}
+
 
 and by:
 
