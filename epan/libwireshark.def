@@ -341,7 +341,6 @@ elem_v_short
 ep_alloc
 ep_alloc0
 ep_free_all
-ep_init_chunk
 ep_memdup
 ep_stack_new
 ep_stack_pop
@@ -876,7 +875,6 @@ scsi_smc_vals					DATA
 scsi_ssc_vals					DATA
 se_alloc
 se_alloc0
-se_init_chunk
 se_memdup
 se_strdup
 se_strdup_printf
