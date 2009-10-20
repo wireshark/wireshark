@@ -1056,6 +1056,11 @@ emem_free_all(emem_header_t *mem)
 		}
 	}
 
+	if (!use_chunks) {
+		/* We've freed all this memory already */
+		mem->free_list = NULL;
+	}
+
 	/* release/reset all allocated trees */
 	for(tree_list=mem->trees;tree_list;tree_list=tree_list->next){
 		tree_list->tree=NULL;
@@ -1067,27 +1072,21 @@ void
 ep_free_all(void)
 {
 	emem_free_all(&ep_packet_mem);
-
-	if (!ep_packet_mem.debug_use_chunks)
-		ep_init_chunk();
 }
 
 /* release all allocated memory back to the pool. */
 void
 se_free_all(void)
 {
-
 #ifdef SHOW_EMEM_STATS
 	print_alloc_stats();
 #endif
 
 	emem_free_all(&se_packet_mem);
-
-	if (!se_packet_mem.debug_use_chunks)
-		se_init_chunk();
 }
 
-ep_stack_t ep_stack_new(void) {
+ep_stack_t
+ep_stack_new(void) {
 	ep_stack_t s = ep_new(struct _ep_stack_frame_t*);
 	*s = ep_new0(struct _ep_stack_frame_t);
 	return s;
@@ -1096,7 +1095,6 @@ ep_stack_t ep_stack_new(void) {
 /*  for ep_stack_t we'll keep the popped frames so we reuse them instead
 of allocating new ones.
 */
-
 
 void *
 ep_stack_push(ep_stack_t stack, void* data)
