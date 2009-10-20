@@ -55,7 +55,8 @@
 
 int failure = 0;
 
-void do_test(int condition, char *format, ...)
+void
+do_test(int condition, char *format, ...)
 {
     va_list ap;
 
@@ -94,7 +95,8 @@ GHashTable *fragment_table = NULL, *reassembled_table = NULL;
  * Adds three fragments (out of order, with one for a different datagram in between),
  * and checks that they are reassembled correctly.
  */
-static void test_simple_fragment_add_seq(void)
+static void
+test_simple_fragment_add_seq(void)
 {
     fragment_data *fd_head, *fdh0;
 
@@ -214,7 +216,8 @@ static void test_simple_fragment_add_seq(void)
  *      2       4       20      100   false
  *      3       5        0       40   false
  */
-static void test_fragment_add_seq_partial_reassembly(void)
+static void
+test_fragment_add_seq_partial_reassembly(void)
 {
     fragment_data *fd_head, *fd;
 
@@ -470,7 +473,8 @@ static void test_fragment_add_seq_partial_reassembly(void)
 /* This can afford to be reasonably minimal, as it's just the same logic with a
  * different hash key to fragment_add_seq
  */
-static void test_fragment_add_dcerpc_dg(void)
+static void
+test_fragment_add_dcerpc_dg(void)
 {
     e_uuid_t act_id = {1,2,3,{4,5,6,7,8,9,10,11}};
 
@@ -552,9 +556,10 @@ static void test_fragment_add_dcerpc_dg(void)
  *
  * Adds a couple of out-of-order fragments and checks their reassembly.
  */
-static void test_fragment_add_seq_check_work(
-    fragment_data *(*fn)(tvbuff_t *, int, packet_info *, guint32, GHashTable *,
-                        GHashTable *, guint32, guint32, gboolean))
+static void
+test_fragment_add_seq_check_work(fragment_data *(*fn)(tvbuff_t *, int,
+				 packet_info *, guint32, GHashTable *,
+				 GHashTable *, guint32, guint32, gboolean))
 {
     fragment_data *fd_head;
 
@@ -632,7 +637,8 @@ static void test_fragment_add_seq_check_work(
 
 /* Simple test case for fragment_add_seq_check
  */
-static void test_fragment_add_seq_check(void)
+static void
+test_fragment_add_seq_check(void)
 {
     printf("Starting test test_fragment_add_seq_check\n");
 
@@ -643,7 +649,8 @@ static void test_fragment_add_seq_check(void)
 /* This tests the case that the 802.11 hack does something different for: when
  * the terminal segment in a fragmented datagram arrives first.
  */
-static void test_fragment_add_seq_check_1(void)
+static void
+test_fragment_add_seq_check_1(void)
 {
     fragment_data *fd_head;
 
@@ -703,7 +710,8 @@ static void test_fragment_add_seq_check_1(void)
 
 /* Tests the 802.11 hack.
  */
-static void test_fragment_add_seq_802_11_0(void)
+static void
+test_fragment_add_seq_802_11_0(void)
 {
     fragment_data *fd_head;
 
@@ -748,7 +756,8 @@ static void test_fragment_add_seq_802_11_1(void)
  * Adds a couple of fragments (with one for a different datagram in between),
  * and checks that they are reassembled correctly.
  */
-static void test_simple_fragment_add_seq_next(void)
+static void
+test_simple_fragment_add_seq_next(void)
 {
     fragment_data *fd_head;
 
@@ -823,7 +832,8 @@ static void test_simple_fragment_add_seq_next(void)
 /* This tests the case where some data is missing from one of the fragments.
  * It should prevent reassembly.
  */
-static void test_missing_data_fragment_add_seq_next(void)
+static void
+test_missing_data_fragment_add_seq_next(void)
 {
     fragment_data *fd_head;
 
@@ -894,7 +904,8 @@ static void test_missing_data_fragment_add_seq_next(void)
  * we're going to do something similar now, but this time it is the second
  * fragment which has something missing.
  */
-static void test_missing_data_fragment_add_seq_next_2(void)
+static void
+test_missing_data_fragment_add_seq_next_2(void)
 {
     fragment_data *fd_head;
 
@@ -946,7 +957,8 @@ static void test_missing_data_fragment_add_seq_next_2(void)
 /*
  * This time, our datagram only has one segment, but it has data missing.
  */
-static void test_missing_data_fragment_add_seq_next_3(void)
+static void
+test_missing_data_fragment_add_seq_next_3(void)
 {
     fragment_data *fd_head;
 
@@ -997,7 +1009,8 @@ static void test_missing_data_fragment_add_seq_next_3(void)
  *
  *********************************************************************************/
 
-int main(int argc, char **argv)
+int
+main(int argc _U_, char **argv _U_)
 {
     frame_data fd;
     char src[] = {1,2,3,4}, dst[] = {5,6,7,8};
@@ -1016,11 +1029,9 @@ int main(int argc, char **argv)
         test_missing_data_fragment_add_seq_next_3
     };
 
-    /* we don't use our params */
-    argc=argc; argv=argv;
-
     /* initialise stuff */
     ep_init_chunk();
+    se_init_chunk();
     tvbuff_init();
     reassemble_init();
 
@@ -1099,9 +1110,4 @@ gint check_col(column_info *cinfo _U_, gint col _U_)
 void col_add_fstr(column_info *cinfo _U_, gint col _U_, const gchar *format _U_,
                        ...)
 {}
-
-
-
-
-
 
