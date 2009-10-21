@@ -1435,7 +1435,7 @@ dissect_q931_change_status_ie(tvbuff_t *tvb, int offset, int len _U_, proto_tree
 /*
  * Dissect a Call state information element.
  */
-static const value_string q931_call_state_vals[] = {
+const value_string q931_call_state_vals[] = {
 	{ 0x00, "Null" },
 	{ 0x01, "Call initiated" },
 	{ 0x02, "Overlap sending" },
@@ -1449,7 +1449,7 @@ static const value_string q931_call_state_vals[] = {
 	{ 0x0B, "Disconnect request" },
 	{ 0x0C, "Disconnect indication" },
 	{ 0x0F, "Suspend request" },
-	{ 0x12, "Resume request" },
+	{ 0x11, "Resume request" },
 	{ 0x13, "Release request" },
 	{ 0x16, "Call abort"},
 	{ 0x19, "Overlap receiving" },

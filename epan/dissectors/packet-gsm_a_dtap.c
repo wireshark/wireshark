@@ -434,6 +434,8 @@ static int hf_gsm_a_codec_pdc_efr = -1;
 
 static int hf_gsm_a_notification_description = -1;
 static int hf_gsm_a_dtap_recall_type	= -1;
+static int hf_gsm_a_dtap_coding_standard	= -1;
+static int hf_gsm_a_dtap_call_state	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -2245,83 +2247,83 @@ de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 /*
  * [3] 10.5.4.6 Call state
  */
+static const value_string gsm_a_dtap_coding_standard_vals[] = {
+	{ 0x00, "standardized coding as described in ITU-T Rec. Q.931" },
+	{ 0x01, "reserved for other international standards" },
+	{ 0x02, "national standard" },
+	{ 0x03, "standard defined for the GSM PLMNS as described below" },
+	{ 0, NULL }
+};
+
+static const value_string gsm_a_dtap_call_state_vals[] = {
+	{ 0x00, "U0/N0 - null" },
+	{ 0x02, "U0.1/N0.1 - MM connection pending" },
+	{ 0x22, "U0.2 - CC prompt present / N0.2 - CC connection pending" },
+	{ 0x23, "U0.3 - Wait for network information / N0.3 - Network answer pending" },
+	{ 0x24, "U0.4/N0.4 - CC-Establishment present" },
+	{ 0x25, "U0.5/N0.5 - CC-Establishment confirmed" },
+	{ 0x26, "U0.6/N0.6 - Recall present" },
+	{ 0x01, "U1/N1 - call initiated" },
+	{ 0x03, "U3/N3 - mobile originating call proceeding" },
+	{ 0x04, "U4/N4 - call delivered" },
+	{ 0x06, "U6/N6 - call present" },
+	{ 0x07, "U7/N7 - call received" },
+	{ 0x08, "U8/N8 - connect request" },
+	{ 0x09, "U9/N9 - mobile terminating call confirmed" },
+	{ 0x0a, "U10/N10 - active" },
+	{ 0x0b, "U11 - disconnect request" },
+	{ 0x0c, "U12/N12 - disconnect indication" },
+	{ 0x13, "U19/N19 - release request" },
+	{ 0x1a, "U26/N26 - mobile originating modify" },
+	{ 0x1b, "U27/N27 - mobile terminating modify" },
+	{ 0x1c, "N28 - connect indication" },
+	{ 0, NULL }
+};
+
+extern const value_string q931_call_state_vals[];
+
 static guint16
 de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
+	guint8	oct, coding_standard, call_state;
 	proto_tree	*subtree;
 	proto_item	*item;
-	const gchar *str;
-
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
 
 	item =
 	proto_tree_add_text(tree,
-		tvb, curr_offset, 1, "%s",
+		tvb, offset, 1, "%s",
 		gsm_dtap_elem_strings[DE_CALL_STATE].strptr);
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_CALL_STATE]);
+	proto_tree_add_item(subtree, hf_gsm_a_dtap_coding_standard, tvb, offset, 1, FALSE);
 
-	switch ((oct & 0xc0) >> 6)
+	oct = tvb_get_guint8(tvb, offset);
+	coding_standard = (oct & 0xc0) >> 6;
+	call_state = oct & 0x3f;
+
+	switch (coding_standard)
 	{
-	case 0: str = "Coding as specified in ITU-T Rec. Q.931"; break;
-	case 1: str = "Reserved for other international standards"; break;
-	case 2: str = "National standard"; break;
+	case 0:
+		proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_call_state, tvb,
+				offset, 1, call_state, "%s (%u)",
+				val_to_str(call_state, q931_call_state_vals, "Reserved"),
+				call_state);
+		break;
+	case 1:
+	case 2:
+		proto_tree_add_item(subtree, hf_gsm_a_dtap_call_state, tvb, offset, 1, FALSE);
+		break;
 	default:
-		str = "Standard defined for the GSM PLMNS";
+		proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_call_state, tvb,
+				offset, 1, call_state, "%s (%u)",
+				val_to_str(call_state, gsm_a_dtap_call_state_vals, "Reserved"),
+				call_state);
 		break;
 	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
-	proto_tree_add_text(subtree,
-		tvb, curr_offset, 1,
-		"%s :  Coding standard: %s",
-		a_bigbuf,
-		str);
-
-	switch (oct & 0x3f)
-	{
-	case 0x00: str = "UO - null                                 NO - null"; break;
-	case 0x02: str = "U0.1- MM connection pending               N0.1- MM connection pending"; break;
-	case 0x22: str = "U0.2- CC prompt present                   N0.2- CC connection pending"; break;
-	case 0x23: str = "U0.3- Wait for network information        N0.3- Network answer pending"; break;
-	case 0x24: str = "U0.4- CC-Establishment present            N0.4- CC-Establishment present"; break;
-	case 0x25: str = "U0.5- CC-Establishment confirmed          N0.5- CC-Establishment confirmed"; break;
-	case 0x26: str = "U0.6- Recall present                      N0.6- Recall present"; break;
-	case 0x01: str = "U1 - call initiated                       N1 - call initiated"; break;
-	case 0x03: str = "U3 - mobile originating call proceeding   N3 - mobile originating call proceeding"; break;
-	case 0x04: str = "U4 - call delivered                       N4 - call delivered"; break;
-	case 0x06: str = "U6 - call present                         N6 - call present"; break;
-	case 0x07: str = "U7 - call received                        N7 - call received"; break;
-	case 0x08: str = "U8 - connect request                      N8 - connect request"; break;
-	case 0x09: str = "U9 - mobile terminating call confirmed    N9 - mobile terminating call confirmed"; break;
-	case 0x0a: str = "U10- active                               N10- active"; break;
-	case 0x0b: str = "U11- disconnect request"; break;
-	case 0x0c: str = "U12- disconnect indication                N12-disconnect indication"; break;
-	case 0x13: str = "U19- release request                      N19- release request"; break;
-	case 0x1a: str = "U26- mobile originating modify            N26- mobile originating modify"; break;
-	case 0x1b: str = "U27- mobile terminating modify            N27- mobile terminating modify"; break;
-	case 0x1c: str = "                                          N28- connect indication"; break;
-	default:
-		str = "Unknown";
-		break;
-	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
-	proto_tree_add_text(subtree,
-		tvb, curr_offset, 1,
-		"%s :  Call state value: %s",
-		a_bigbuf,
-		str);
-
-	curr_offset++;
 
 	/* no length check possible */
 
-	return(curr_offset - offset);
+	return(1);
 }
 
 static const true_false_string gsm_a_extension_value = {
@@ -6411,6 +6413,16 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_recall_type,
 		{ "Recall type", "gsm_a.dtap.recall_type",
 		FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(gsm_a_dtap_recall_type_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_coding_standard,
+		{ "Coding standard", "gsm_a.dtap.coding_standard",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_coding_standard_vals), 0xc0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_call_state,
+		{ "Call state", "gsm_a.dtap.call_state",
+		FT_UINT8, BASE_DEC, NULL, 0x3f,
 		NULL, HFILL }
 	},
 	};
