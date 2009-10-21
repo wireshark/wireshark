@@ -153,11 +153,6 @@ Page custom DisplayWinPcapPage
 !macroend
 
 ; ============================================================================
-; Services
-; ============================================================================
-!include "servicelib.nsh"
-
-; ============================================================================
 ; Command Line
 ; ============================================================================
 !include "FileFunc.nsh"
@@ -790,8 +785,8 @@ IfErrors lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not inst
 ;DetailPrint "WinPcap uninstaller returned $0"
 lbl_winpcap_notinstalled:
 SetOutPath $INSTDIR
-File "WinPcap_4_1.exe"
-ExecWait '"$INSTDIR\WinPcap_4_1.exe"' $0
+File "WinPcap_4_1_1.exe"
+ExecWait '"$INSTDIR\WinPcap_4_1_1.exe"' $0
 DetailPrint "WinPcap installer returned $0"
 SecRequired_skip_Winpcap:
 
@@ -1269,7 +1264,6 @@ FunctionEnd
 !include WinMessages.nsh
 !include "VersionCompare.nsh"
 
-Var NPF_START ; NPF service registry key
 Var WINPCAP_NAME ; DisplayName from WinPcap installation
 Var WINPCAP_VERSION ; DisplayVersion from WinPcap installation
 
@@ -1287,21 +1281,20 @@ Function myShowCallback
 	Goto lbl_winversion_supported
 lbl_winversion_unsupported:
 	MessageBox MB_OK \
-            "Windows $R0 is no longer supported. The last known version working with 98/ME was Ethereal 0.99.0!" \
+            "Windows $R0 is no longer supported. The last known version working with 98/ME was Ethereal 0.99.0." \
             /SD IDOK
-            
 	Quit
 
 lbl_winversion_unsupported_nt4:
 	MessageBox MB_OK \
-            "Windows $R0 is no longer supported. The last known version working with NT 4.0 was Wireshark 0.99.4!" \
+            "Windows $R0 is no longer supported. The last known version working with NT 4.0 was Wireshark 0.99.4." \
             /SD IDOK
 	Quit
 
 lbl_winversion_supported:
 
 	; detect if WinPcap should be installed
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.1"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.1.1"
 	ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
 	IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
@@ -1314,7 +1307,7 @@ lbl_winpcap_installed:
 	; Compare the installed build against the one we have.
 	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion"
 	StrCmp $WINPCAP_VERSION "" lbl_winpcap_do_install ; WinPcap is really old(?) or installed improperly.
-	${VersionCompare} $WINPCAP_VERSION "4.1.0.1752" $1 ; WinPcap 4.1
+	${VersionCompare} $WINPCAP_VERSION "4.1.0.1753" $1 ; WinPcap 4.1.1
 	StrCmp $1 "2" lbl_winpcap_do_install
 
 ;lbl_winpcap_dont_install:
@@ -1327,7 +1320,7 @@ lbl_winpcap_installed:
 	; force the user to upgrade by hand
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 4.1, please uninstall $WINPCAP_NAME manually first."
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 4.1.1, please uninstall $WINPCAP_NAME manually first."
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
 	Goto lbl_winpcap_done
 
@@ -1337,27 +1330,6 @@ lbl_winpcap_do_install:
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_NAME will be uninstalled first."
 
 lbl_winpcap_done:
-
-	; Disable NPF service setting for Win OT
-	StrCmp $R0 '95' lbl_npf_disable
-	StrCmp $R0 '98' lbl_npf_disable
-	StrCmp $R0 'ME' lbl_npf_disable
-	; Enable NPF by default under Vista.
-	StrCmp $R0 'Vista' lbl_npf_enable
-	ReadRegDWORD $NPF_START HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start"
-	; (Winpcap may not be installed already, so no regKey is no error here)
-	IfErrors lbl_npf_done ;RegKey not available, so do not set it
-	IntCmp $NPF_START 2 0 lbl_npf_done lbl_npf_done
-lbl_npf_enable:
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "State" "1"
-	Goto lbl_npf_done
-	;disable
-lbl_npf_disable:
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "State" "0"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 9" "Flags" "DISABLED"
-lbl_npf_done:
-
 
 	; if Wireshark was previously installed, unselect previously not installed icons etc.
 	; detect if Wireshark is already installed ->
