@@ -114,6 +114,11 @@ static int hf_fcels_rscn_addrfmt     = -1;
 static int hf_fcels_rscn_domain      = -1;
 static int hf_fcels_rscn_area        = -1;
 static int hf_fcels_rscn_port        = -1;
+static int hf_fcels_rec_fc4 = -1;
+static int hf_fcels_estat = -1;
+static int hf_fcels_estat_resp = -1;
+static int hf_fcels_estat_seq_init = -1;
+static int hf_fcels_estat_compl = -1;
 static int hf_fcels_nodeidfmt = -1;
 static int hf_fcels_spidlen = -1;
 static int hf_fcels_vendoruniq = -1;
@@ -196,6 +201,7 @@ static gint ett_fcels_logo = -1;
 static gint ett_fcels_abtx = -1;
 static gint ett_fcels_rsi = -1;
 static gint ett_fcels_rrq = -1;
+static gint ett_fcels_rec = -1;
 static gint ett_fcels_prli = -1;
 static gint ett_fcels_prli_svcpg = -1;
 static gint ett_fcels_adisc = -1;
@@ -206,6 +212,7 @@ static gint ett_fcels_rplpb = -1;
 static gint ett_fcels_fan = -1;
 static gint ett_fcels_rscn = -1;
 static gint ett_fcels_rscn_rec = -1;
+static gint ett_fcels_estat = -1;
 static gint ett_fcels_scr = -1;
 static gint ett_fcels_rnft = -1;
 static gint ett_fcels_rnft_fc4 = -1;
@@ -223,6 +230,32 @@ static gint ett_fcels_rcptctl = -1;
 static gint ett_fcels_fcpflags = -1;
 static gint ett_fcels_prliloflags = -1;
 static gint ett_fcels_speedflags = -1;
+
+static const int *hf_fcels_estat_fields[] = {
+    &hf_fcels_estat_resp,
+    &hf_fcels_estat_seq_init,
+    &hf_fcels_estat_compl,
+    NULL
+};
+
+static const true_false_string tfs_fcels_estat_resp = {
+        "Responding to Exchange",
+        "Originator of Exchange"
+};
+
+static const true_false_string tfs_fcels_estat_seq_init = {
+        "Seq Initiative held by REC responder",
+        "Seq Initiative not held by REC responder"
+};
+
+static const true_false_string tfs_fcels_estat_compl = {
+        "Exchange Complete",
+        "Exchange Incomplete"
+};
+
+#define FC_ESB_ST_RESP      (1 << 31)   /* responder to exchange */
+#define FC_ESB_ST_SEQ_INIT  (1 << 30)   /* holds sequence initiative */
+#define FC_ESB_ST_COMPLETE  (1 << 29)   /* exchange is complete */
 
 static const value_string fc_prli_fc4_val[] = {
     {FC_TYPE_SCSI    , "FCP"},
@@ -1116,6 +1149,47 @@ dissect_fcels_rrq (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                fc_to_str (tvb_get_ptr (tvb, offset+5, 3)));
         proto_tree_add_item (rrq_tree, hf_fcels_oxid, tvb, offset+8, 2, FALSE);
         proto_tree_add_item (rrq_tree, hf_fcels_rxid, tvb, offset+10, 2, FALSE);
+    }
+}
+
+static void
+dissect_fcels_rec (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                   guint8 isreq, proto_item *ti)
+{
+    /* Set up structures needed to add the protocol subtree and manage it */
+    int offset = 0;
+    proto_tree *rec_tree;
+
+    if (tree) {
+        rec_tree = proto_item_add_subtree (ti, ett_fcels_rec);
+
+        proto_tree_add_item (rec_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
+
+        if (isreq) {
+            proto_tree_add_string (rec_tree, hf_fcels_nportid, tvb,
+                                   offset+5, 3,
+                                   fc_to_str (tvb_get_ptr (tvb, offset+5, 3)));
+            proto_tree_add_item (rec_tree, hf_fcels_oxid, tvb,
+                                 offset+8, 2, FALSE);
+            proto_tree_add_item (rec_tree, hf_fcels_rxid, tvb,
+                                 offset+10, 2, FALSE);
+        } else {
+            proto_tree_add_item (rec_tree, hf_fcels_oxid, tvb,
+                                 offset+4, 2, FALSE);
+            proto_tree_add_item (rec_tree, hf_fcels_rxid, tvb,
+                                 offset+6, 2, FALSE);
+            proto_tree_add_string (rec_tree, hf_fcels_nportid, tvb,
+                                   offset+9, 3,
+                                   fc_to_str (tvb_get_ptr (tvb, offset+9, 3)));
+            proto_tree_add_string (rec_tree, hf_fcels_resportid, tvb,
+                                   offset+13, 3,
+                                   fc_to_str (tvb_get_ptr (tvb, offset+13, 3)));
+            proto_tree_add_item (rec_tree, hf_fcels_rec_fc4, tvb,
+                                 offset+16, 4, FALSE);
+            proto_tree_add_bitmask (rec_tree, tvb, offset+20, hf_fcels_estat,
+                                    ett_fcels_estat, hf_fcels_estat_fields,
+                                    FALSE);
+        }
     }
 }
 
@@ -2087,6 +2161,9 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case FC_ELS_RRQ:
         dissect_fcels_rrq (tvb, pinfo, tree, isreq, ti);
         break;
+    case FC_ELS_REC:
+        dissect_fcels_rec (tvb, pinfo, tree, isreq, ti);
+        break;
     case FC_ELS_PRLI:
         dissect_fcels_prli (tvb, pinfo, tree, isreq, ti);
         break;
@@ -2328,6 +2405,24 @@ proto_register_fcels (void)
         { &hf_fcels_rscn_port,
           {"Affected Port", "fcels.rscn.port", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL}},
+        { &hf_fcels_rec_fc4,
+          {"FC4 value", "fcels.rec.fc4value", FT_UINT32, BASE_HEX,
+           NULL, 0x0, NULL, HFILL}},
+        { &hf_fcels_estat,
+          {"Exchange Status", "fcels.estat", FT_UINT32, BASE_HEX,
+           NULL, 0x0, NULL, HFILL}},
+        { &hf_fcels_estat_resp,
+          {"Sequence Responder", "fcels.estat.resp", FT_BOOLEAN, 32,
+           TFS(&tfs_fcels_estat_resp),
+           FC_ESB_ST_RESP, "Seq responder?", HFILL}},
+        { &hf_fcels_estat_seq_init,
+          {"Sequence Initiative", "fcels.estat.seq_init", FT_BOOLEAN, 32,
+           TFS(&tfs_fcels_estat_seq_init),
+           FC_ESB_ST_SEQ_INIT, "Responder has Sequence Initiative?", HFILL}},
+        { &hf_fcels_estat_compl,
+          {"Exchange Complete", "fcels.estat.complete", FT_BOOLEAN, 32,
+           TFS(&tfs_fcels_estat_compl),
+           FC_ESB_ST_COMPLETE, "Exchange complete?", HFILL}},
         { &hf_fcels_nodeidfmt,
           {"Node Identification Format", "fcels.rnid.nodeidfmt", FT_UINT8,
            BASE_HEX, VALS (fc_els_nodeid_val), 0x0, NULL, HFILL}},
@@ -2554,6 +2649,7 @@ proto_register_fcels (void)
         &ett_fcels_abtx,
         &ett_fcels_rsi,
         &ett_fcels_rrq,
+        &ett_fcels_rec,
         &ett_fcels_prli,
         &ett_fcels_prli_svcpg,
         &ett_fcels_adisc,
@@ -2564,6 +2660,7 @@ proto_register_fcels (void)
         &ett_fcels_fan,
         &ett_fcels_rscn,
         &ett_fcels_rscn_rec,
+        &ett_fcels_estat,
         &ett_fcels_scr,
         &ett_fcels_rnft,
         &ett_fcels_rnft_fc4,
