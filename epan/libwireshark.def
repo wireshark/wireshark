@@ -12,6 +12,7 @@ EXPORTS
 abs_time_secs_to_str
 abs_time_to_str
 add_new_data_source
+emem_init
 ep_address_to_str
 address_to_str_buf
 AdmissionRejectReason_vals      DATA
