@@ -28,13 +28,17 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include <gmodule.h>
 #include <epan/packet.h>
 
 #include "packet-tcp.h"
 
-#define PALTALK_SERVERS_ADDRESS 0x00006ac7U /* 199.106.0.0 */
-#define PALTALK_SERVERS_NETMASK 0x0000feffU /* /15 */
+#define INET_IPV4_ADDRESS_FROM_BYTES(a,b,c,d) g_htonl(((a)<<24) | ((b)<<16) | ((c)<<8) | (d)) /* *network* order */
+
+#define PALTALK_SERVERS_ADDRESS INET_IPV4_ADDRESS_FROM_BYTES(199,106,0,0)      /* 199.106.0.0 in *network* order */
+#define PALTALK_SERVERS_NETMASK INET_IPV4_ADDRESS_FROM_BYTES(0xFF, 0xFE, 0x00, 0x00)  /* /15  in *network* order */
 
 #define PALTALK_HEADER_LENGTH 6
 
@@ -54,14 +58,27 @@ static gint ett_paltalk = -1;
 static gboolean
 dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	guint32 src32, dst32;
+
 	/* Detect if this TCP session is a Paltalk one */
 	/* TODO: Optimize detection logic if possible */
-	if (pinfo->net_src.type != AT_IPv4 || pinfo->net_dst.type != AT_IPv4
-			|| pinfo->net_src.len != 4 || pinfo->net_dst.len != 4
-			|| !pinfo->net_src.data || !pinfo->net_dst.data
-			|| (((*(guint32*) pinfo->net_src.data) & PALTALK_SERVERS_NETMASK) != PALTALK_SERVERS_ADDRESS
-			 && ((*(guint32*) pinfo->net_dst.data) & PALTALK_SERVERS_NETMASK) != PALTALK_SERVERS_ADDRESS))
+
+	if ((pinfo->net_src.type != AT_IPv4) 
+	    || (pinfo->net_dst.type != AT_IPv4)
+	    || (pinfo->net_src.len != 4)
+	    || (pinfo->net_dst.len != 4)
+	    || !pinfo->net_src.data 
+	    || !pinfo->net_dst.data)
 		return FALSE;
+
+	memcpy((guint8 *)&src32, pinfo->net_src.data, 4); /* *Network* order */
+	memcpy((guint8 *)&dst32, pinfo->net_dst.data, 4); /* *Network* order */
+
+	if ( ((src32 & PALTALK_SERVERS_NETMASK) != PALTALK_SERVERS_ADDRESS) 
+	     &&
+	     ((dst32 & PALTALK_SERVERS_NETMASK) != PALTALK_SERVERS_ADDRESS))
+		return FALSE;
+
 	/* Dissect result of desegmented TCP data */
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PALTALK_HEADER_LENGTH
 			, dissect_paltalk_get_len, dissect_paltalk_desegmented);

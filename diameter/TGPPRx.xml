@@ -4,8 +4,8 @@
     <application id="16777236" name="3GPP Rx" uri="http://www.3gpp.org/ftp/Specs/html-info/29211.htm">
         
     <!-- ************************** Rx AVPS ********************* -->
-		<!-- 3GPP TS 29.214 V7.5.0 (2008-05) ------------------------ -->
-		<!--    AVP as defined in Section 5.3 ----------------------- -->
+		<!-- 3GPP TS 29.214 V7.5.0 (2008-05)                          -->
+		<!--    AVP as defined in Section 5.3                         -->
 <!--
 From 3GPP TS 29.214 version 7.5.0 Release 7:
 Table 5.3.1 describes the Diameter AVPs defined for the Rx interface protocol, 

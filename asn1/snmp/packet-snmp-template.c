@@ -1427,7 +1427,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 	usm_p.msg_tvb = tvb;
-	usm_p.start_offset = offset_from_real_beginning(tvb,0) ;
+	usm_p.start_offset = tvb_offset_from_real_beginning(tvb);
 	usm_p.engine_tvb = NULL;
 	usm_p.user_tvb = NULL;
 	usm_p.auth_item = NULL;

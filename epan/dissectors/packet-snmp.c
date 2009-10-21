@@ -2038,7 +2038,7 @@ dissect_snmp_T_msgAuthenticationParameters(gboolean implicit_tag _U_, tvbuff_t *
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
 		usm_p.auth_item = actx->created_item;
-		usm_p.auth_offset = offset_from_real_beginning(usm_p.auth_tvb,0);
+		usm_p.auth_offset = tvb_offset_from_real_beginning(usm_p.auth_tvb);
 	}
 
 
@@ -2619,7 +2619,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 	usm_p.msg_tvb = tvb;
-	usm_p.start_offset = offset_from_real_beginning(tvb,0) ;
+	usm_p.start_offset = tvb_offset_from_real_beginning(tvb);
 	usm_p.engine_tvb = NULL;
 	usm_p.user_tvb = NULL;
 	usm_p.auth_item = NULL;

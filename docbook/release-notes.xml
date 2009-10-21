@@ -31,51 +31,19 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-06.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-07.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            The GSM A RR dissector could crash.
-            <!-- Fixed in trunk: r29403 -->
-            <!-- Fixed in trunk-1.2: r29099 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3893">Bug
-            3893</ulink>)
+            The Paltalk dissector could crash on alignment-sensitive processors.
+            <!-- Fixed in trunk: r29064 -->
+            <!-- Fixed in trunk-1.2: r -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3689">Bug
+            3689</ulink>)
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.1</para>
-          <!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
-          </para>
-          -->
-        </listitem>
-
-        <listitem>
-          <para>
-            The OpcUa dissector could use excessive CPU and memory.
-            <!-- Fixed in trunk: r29813 -->
-            <!-- Fixed in trunk-1.2: r29826 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3986">Bug
-            3986</ulink>)
-          </para>
-          <para>Versions affected: 0.99.6 to 1.0.8, 1.2.0 to 1.2.1</para>
-          <!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
-          </para>
-          -->
-        </listitem>
-
-        <listitem>
-          <para>
-            The TLS dissector could crash on some platforms.
-            <!-- Fixed in trunk: r29906 -->
-            <!-- Fixed in trunk-1.2: r29907 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4008">Bug
-            4008</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.1</para>
+          <para>Versions affected: ? to ?</para>
           <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
@@ -94,160 +62,15 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          The "Capture->Interfaces" window can't be closed.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1740">Bug
-          1740</ulink>)
+          DHCP Dissector displays negative lease time.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2733">Bug
+          2733</ulink>)
         </para></listitem>
 
         <listitem><para>
-          tshark-1.0.2 (dumpcap) signal abort core saved.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2767">Bug
-          2767</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Memory leak fixes.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3330">Bug
-          3330</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Display filter autocompletion doesn't work for some RADIUS and WiMAX ASNCP fields.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3538">Bug
-          3538</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark Portable includes wrong WinPcap installer.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3547">Bug
-          3547</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash when loading a profile.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3640">Bug
-          3640</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The proto,colinfo tap doesn't work if the INFO column isn't being printed.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3675">Bug
-          3675</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Flow Graph adds too much unnecessary garbage.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3693">Bug
-          3693</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The EAP Diameter dictionary file was missing in the distribution.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3761">Bug
-          3761</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Graph analysis window is behind other window.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3773">Bug
-          3773</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          IKEv2 Cert Request payload dissection error.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3782">Bug
-          3782</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          DNS NAPTR RR (RFC 3403) replacement MUST be a fully qualified domain-name.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3792">Bug
-          3792</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Malformed RTCP Packet error while sending Payload specific RTCP feedback packet( as per RFC 4585).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3800">Bug
-          3800</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          802.11n Block Ack packet Bitmap field missing.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3806">Bug
-          3806</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark doesn't decode WBXML/ActiveSync information correctly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3811">Bug
-          3811</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Malformed packet when IPv6 packet has Next Header == 59.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3820">Bug
-          3820</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark could crash while reading an ERF file.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3849">Bug
-          3849</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Minor errors in gsm rr dissectors.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3889">Bug
-          3889</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          WPA Decryption Issues.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3890">Bug
-          3890</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          GSM A RR sys info dissection problem.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3901">Bug
-          3901</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          GSM A RR inverts MEAS-VALID values.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3915">Bug
-          3915</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          PDML output leaks ~300 bytes / packet.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3913">Bug
-          3913</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect station identifier parsing in Kingfisher dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3946">Bug
-          3946</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          DHCPv6, Vendor-Specific Informantion, SubOption"Option Request" parser incorrect.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3987">Bug
-          3987</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark could leak memory while analyzing SSL.
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark could crash while updating menu items after reading a file
-          in some cases.
-        </para></listitem>
-
-        <listitem><para>
-          The Mac OS X ChmodBPF script now works correctly under Snow Leopard.
+          Typos in Diameter XML files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3878">Bug
+          3878</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -274,27 +97,10 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
-DCERPC,
-DHCPv6,
-DNS,
-E.212,
-GSM A RR,
-GTPv2,
-H.248,
-IEEE 802.11,
-IPMI,
-ISAKMP/IKE,
-ISUP,
-Kingfisher,
-LDAP,
-OpcUA,
-RTCP,
-SCTP,
-SIP,
+DHCP,
+Diameter,
+Paltalk,
 SSL,
-TCP,
-WBXML,
-ZRTP
 
     </para>
     </section>
@@ -302,7 +108,7 @@ ZRTP
     <section id="NewCapture"><title>Updated Capture File Support</title>
     <para>
 
-ERF
+<none>
 
     </para>
     </section>
