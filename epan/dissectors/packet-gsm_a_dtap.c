@@ -436,6 +436,9 @@ static int hf_gsm_a_notification_description = -1;
 static int hf_gsm_a_dtap_recall_type	= -1;
 static int hf_gsm_a_dtap_coding_standard	= -1;
 static int hf_gsm_a_dtap_call_state	= -1;
+static int hf_gsm_a_dtap_prog_coding_standard	 = -1;
+static int hf_gsm_a_dtap_location	= -1;
+static int hf_gsm_a_dtap_progress_description	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -2280,8 +2283,6 @@ static const value_string gsm_a_dtap_call_state_vals[] = {
 	{ 0, NULL }
 };
 
-extern const value_string q931_call_state_vals[];
-
 static guint16
 de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
@@ -2926,99 +2927,67 @@ de_notif_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 /*
  * [3] 10.5.4.21 Progress indicator
  */
+static const value_string gsm_a_dtap_location_vals[] = {
+	{ 0x00, "User" },
+	{ 0x01, "Private network serving the local user" },
+	{ 0x02, "Public network serving the local user" },
+	{ 0x04, "Public network serving the remote user" },
+	{ 0x05, "Private network serving the remote user" },
+	{ 0x0a, "Network beyond interworking point" },
+	{ 0, NULL }
+};
+
+static const value_string gsm_a_dtap_progress_description_vals[] = {
+	{ 0x01, "Call is not end-to-end PLMN/ISDN, further call progress information may be available in-band" },
+	{ 0x02, "Destination address in non-PLMN/ISDN" },
+	{ 0x03, "Origination address in non-PLMN/ISDN" },
+	{ 0x04, "Call has returned to the PLMN/ISDN" },
+	{ 0x08, "In-band information or appropriate pattern now available" },
+	{ 0x09, "In-band multimedia CAT available" },
+	{ 0x20, "Call is end-to-end PLMN/ISDN" },
+	{ 0x40, "Queueing" },
+	{ 0, NULL }
+};
+
 static guint16
-de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
+	guint8	oct, coding_standard, progress_description;
 	guint32	curr_offset;
-	const gchar *str;
 
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Extension: %s",
-		a_bigbuf,
-		(oct & 0x80) ? "extended" : "not extended");
-
-	switch ((oct & 0x60) >> 5)
-	{
-	case 0: str = "Coding as specified in ITU-T Rec. Q.931"; break;
-	case 1: str = "Reserved for other international standards"; break;
-	case 2: str = "National standard"; break;
-	default:
-		str = "Standard defined for the GSM PLMNS";
-		break;
-	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Coding standard: %s",
-		a_bigbuf,
-		str);
-
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+3, 1, FALSE);
-
-	switch (oct & 0x0f)
-	{
-	case 0: str = "User"; break;
-	case 1: str = "Private network serving the local user"; break;
-	case 2: str = "Public network serving the local user"; break;
-	case 4: str = "Public network serving the remote user"; break;
-	case 5: str = "Private network serving the remote user"; break;
-	case 10: str = "Network beyond interworking point"; break;
-	default:
-		str = "Reserved";
-		break;
-	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Location: %s",
-		a_bigbuf,
-		str);
-
+	coding_standard = (oct & 0x60) >> 5;
+	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_prog_coding_standard, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset << 3) + 3, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_location, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Extension: %s",
-		a_bigbuf,
-		(oct & 0x80) ? "extended" : "not extended");
-
-	switch (oct & 0x7f)
+	progress_description = oct & 0x7f;
+	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+	
+	switch (coding_standard)
 	{
-	case 1: str = "Call is not end-to-end PLMN/ISDN, further call progress information may be available in-band"; break;
-	case 2: str = "Destination address in non-PLMN/ISDN"; break;
-	case 3: str = "Origination address in non-PLMN/ISDN"; break;
-	case 4: str = "Call has returned to the PLMN/ISDN"; break;
-	case 8: str = "In-band information or appropriate pattern now available"; break;
-	case 32: str = "Call is end-to-end PLMN/ISDN"; break;
-	case 64: str = "Queueing"; break;
+	case 0:
+		proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_progress_description, tvb,
+				curr_offset, 1, progress_description, "%s (%u)",
+				val_to_str(progress_description, q931_progress_description_vals, "Reserved"),
+				progress_description);
+		break;
+	case 1:
+	case 2:
+		proto_tree_add_item(tree, hf_gsm_a_dtap_progress_description, tvb, curr_offset, 1, FALSE);
+		break;
 	default:
-		str = "Unspecific";
+		proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_progress_description, tvb,
+				curr_offset, 1, progress_description, "%s (%u)",
+				val_to_str(progress_description, gsm_a_dtap_progress_description_vals, "Unspecific"),
+				progress_description);
 		break;
 	}
-
-	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Progress Description: %s (%d)",
-		a_bigbuf,
-		str,
-		oct & 0x7f);
-
-	if (add_string)
-		g_snprintf(add_string, string_len, " - %d", oct & 0x7f);
-
 	curr_offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -6423,6 +6392,21 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_call_state,
 		{ "Call state", "gsm_a.dtap.call_state",
 		FT_UINT8, BASE_DEC, NULL, 0x3f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_prog_coding_standard,
+		{ "Coding standard", "gsm_a.dtap.coding_standard",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_coding_standard_vals), 0x60,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_location,
+		{ "Location", "gsm_a.dtap.location",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_location_vals), 0x0f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_progress_description,
+		{ "Progress description", "gsm_a.dtap.progress_description",
+		FT_UINT8, BASE_DEC, NULL, 0x7f,
 		NULL, HFILL }
 	},
 	};

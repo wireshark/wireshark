@@ -1617,7 +1617,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 /*
  * Dissect a Progress indicator information element.
  */
-static const value_string q931_progress_description_vals[] = {
+const value_string q931_progress_description_vals[] = {
 	{ 0x01, "Call is not end-to-end ISDN - progress information available in-band" },
 	{ 0x02, "Destination address is non-ISDN" },
 	{ 0x03, "Origination address is non-ISDN" },

@@ -61,49 +61,51 @@ WS_VAR_IMPORT const value_string q931_cause_code_vals[];
 WS_VAR_IMPORT const value_string q931_message_type_vals[];
 
 extern const value_string q931_protocol_discriminator_vals[];
+extern const value_string q931_progress_description_vals[];
+extern const value_string q931_call_state_vals[];
 
 /*
  * Q.931 message types.
  */
-#define	Q931_ESCAPE		0x00
-#define	Q931_ALERTING		0x01
+#define	Q931_ESCAPE				0x00
+#define	Q931_ALERTING			0x01
 #define	Q931_CALL_PROCEEDING	0x02
-#define	Q931_CONNECT		0x07
-#define	Q931_CONNECT_ACK	0x0F
-#define	Q931_PROGRESS		0x03
-#define	Q931_SETUP		0x05
-#define	Q931_SETUP_ACK		0x0D
-#define	Q931_HOLD		0x24
-#define	Q931_HOLD_ACK		0x28
-#define	Q931_HOLD_REJECT	0x30
-#define	Q931_RESUME		0x26
-#define	Q931_RESUME_ACK		0x2E
-#define	Q931_RESUME_REJECT	0x22
-#define	Q931_RETRIEVE		0x31
-#define	Q931_RETRIEVE_ACK	0x33
+#define	Q931_CONNECT			0x07
+#define	Q931_CONNECT_ACK		0x0F
+#define	Q931_PROGRESS			0x03
+#define	Q931_SETUP				0x05
+#define	Q931_SETUP_ACK			0x0D
+#define	Q931_HOLD				0x24
+#define	Q931_HOLD_ACK			0x28
+#define	Q931_HOLD_REJECT		0x30
+#define	Q931_RESUME				0x26
+#define	Q931_RESUME_ACK			0x2E
+#define	Q931_RESUME_REJECT		0x22
+#define	Q931_RETRIEVE			0x31
+#define	Q931_RETRIEVE_ACK		0x33
 #define	Q931_RETRIEVE_REJECT	0x37
-#define	Q931_SUSPEND		0x25
-#define	Q931_SUSPEND_ACK	0x2D
-#define	Q931_SUSPEND_REJECT	0x21
+#define	Q931_SUSPEND			0x25
+#define	Q931_SUSPEND_ACK		0x2D
+#define	Q931_SUSPEND_REJECT		0x21
 #define	Q931_USER_INFORMATION	0x20
-#define	Q931_DISCONNECT		0x45
-#define	Q931_RELEASE		0x4D
+#define	Q931_DISCONNECT			0x45
+#define	Q931_RELEASE			0x4D
 #define	Q931_RELEASE_COMPLETE	0x5A
-#define	Q931_RESTART		0x46
-#define	Q931_RESTART_ACK	0x4E
+#define	Q931_RESTART			0x46
+#define	Q931_RESTART_ACK		0x4E
 #define	Q931_CONGESTION_CONTROL	0x79
-#define	Q931_FACILITY		0x62
-#define	Q931_INFORMATION	0x7B
-#define	Q931_NOTIFY		0x6E
-#define	Q931_REGISTER		0x64
-#define	Q931_SEGMENT		0x60
-#define	Q931_STATUS		0x7D
-#define	Q931_STATUS_ENQUIRY	0x75
-#define	Q931_VERSION		0x0a
-#define	Q931_GROUIP_SERVICE	0x06
+#define	Q931_FACILITY			0x62
+#define	Q931_INFORMATION		0x7B
+#define	Q931_NOTIFY				0x6E
+#define	Q931_REGISTER			0x64
+#define	Q931_SEGMENT			0x60
+#define	Q931_STATUS				0x7D
+#define	Q931_STATUS_ENQUIRY		0x75
+#define	Q931_VERSION			0x0a
+#define	Q931_GROUIP_SERVICE		0x06
 #define	Q931_GROUIP_SERVICE_ACK	0x0b
-#define	Q931_RESYNC_REQ		0x08
-#define	Q931_RESYNC_RESP	0x09
+#define	Q931_RESYNC_REQ			0x08
+#define	Q931_RESYNC_RESP		0x09
 
 /*
  * Maintenance message types.
