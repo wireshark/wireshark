@@ -557,6 +557,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 /* Heuristic dissection */
 static gboolean global_mac_lte_heur = FALSE;
 
+/* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree)
 {
@@ -700,7 +701,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* Timing Advance */
     timing_advance = (tvb_get_ntohs(tvb, offset) & 0x7ff0) >> 4;
-    proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ta, tvb, offset, 2, FALSE);
+    ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ta, tvb, offset, 2, FALSE);
     if (timing_advance != 0) {
         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
                                "RAR Timing advance not zero (%u)", timing_advance);
@@ -1045,7 +1046,7 @@ static int is_bsr_lcid(guint8 lcid)
 }
 
 
-
+/* Helper function to call RLC dissector for SDUs (where channel params are known) */
 static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                int offset, guint16 data_length,
                                guint8 mode, guint8 direction, guint16 ueid,
@@ -1516,13 +1517,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             expert_add_info_format(pinfo, reserved_ti, PI_MALFORMED, PI_ERROR,
                                                    "Timing Advance Reserved bits not zero (found 0x%x)", reserved);
                         }
+
+                        /* TA value */
                         ta_value = tvb_get_guint8(tvb, offset) & 0x3f;
                         ta_ti = proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
                                                     tvb, offset, 1, FALSE);
                         expert_add_info_format(pinfo, ta_ti, PI_SEQUENCE, PI_WARN,
                                                "Timing Advance control element received (%u)",
                                                ta_value);
-                        
                         offset++;
                     }
                     break;
@@ -1618,6 +1620,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     {
                         proto_tree *bsr_tree;
                         proto_item *bsr_ti;
+                        guint8     buffer_size[4];
                         bsr_ti = proto_tree_add_string_format(tree,
                                                               hf_mac_lte_control_bsr,
                                                               tvb, offset, 3,
@@ -1627,15 +1630,25 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                         proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_1,
                                             tvb, offset, 1, FALSE);
+                        buffer_size[0] = (tvb_get_guint8(tvb, offset) & 0xfc) >> 2;
                         proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_2,
-                                            tvb, offset, 1, FALSE);
+                                            tvb, offset, 2, FALSE);
+                        buffer_size[1] = ((tvb_get_guint8(tvb, offset) & 0x03) << 4) | ((tvb_get_guint8(tvb, offset+1) & 0xf0 >> 4));
                         offset++;
                         proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_3,
-                                            tvb, offset, 1, FALSE);
+                                            tvb, offset, 2, FALSE);
+                        buffer_size[2] = ((tvb_get_guint8(tvb, offset) & 0x0f) << 2) | ((tvb_get_guint8(tvb, offset+1) & 0xc0) >> 4);
                         offset++;
                         proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_4,
                                             tvb, offset, 1, FALSE);
+                        buffer_size[3] = tvb_get_guint8(tvb, offset) & 0x3f;
                         offset++;
+
+                        proto_item_append_text(bsr_ti, " (0:%s  1:%s  2:%s  3:%s)",
+                                               val_to_str(buffer_size[0], buffer_size_vals, "Unknown"),
+                                               val_to_str(buffer_size[1], buffer_size_vals, "Unknown"),
+                                               val_to_str(buffer_size[2], buffer_size_vals, "Unknown"),
+                                               val_to_str(buffer_size[3], buffer_size_vals, "Unknown"));
                     }
                     break;
                 case PADDING_LCID:
@@ -2430,7 +2443,7 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_control_bsr_buffer_size_2,
             { "Buffer Size 2",
-              "mac-lte.control.bsr.buffer-size-2", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x03c0,
+              "mac-lte.control.bsr.buffer-size-2", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x03f0,
               "Buffer Size available in for 2nd channel in group", HFILL
             }
         },
