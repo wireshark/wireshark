@@ -115,10 +115,10 @@ static int hf_mac_lte_rar_temporary_crnti = -1;
 static int hf_mac_lte_control_bsr = -1;
 static int hf_mac_lte_control_bsr_lcg_id = -1;
 static int hf_mac_lte_control_bsr_buffer_size = -1;
+static int hf_mac_lte_control_bsr_buffer_size_0 = -1;
 static int hf_mac_lte_control_bsr_buffer_size_1 = -1;
 static int hf_mac_lte_control_bsr_buffer_size_2 = -1;
 static int hf_mac_lte_control_bsr_buffer_size_3 = -1;
-static int hf_mac_lte_control_bsr_buffer_size_4 = -1;
 static int hf_mac_lte_control_crnti = -1;
 static int hf_mac_lte_control_timing_advance = -1;
 static int hf_mac_lte_control_timing_advance_reserved = -1;
@@ -1628,23 +1628,23 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                               "Long BSR");
                         bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
 
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_1,
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_0,
                                             tvb, offset, 1, FALSE);
                         buffer_size[0] = (tvb_get_guint8(tvb, offset) & 0xfc) >> 2;
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_1,
+                                            tvb, offset, 2, FALSE);
+                        buffer_size[1] = ((tvb_get_guint8(tvb, offset) & 0x03) << 4) | ((tvb_get_guint8(tvb, offset+1) & 0xf0) >> 4);
+                        offset++;
                         proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_2,
                                             tvb, offset, 2, FALSE);
-                        buffer_size[1] = ((tvb_get_guint8(tvb, offset) & 0x03) << 4) | ((tvb_get_guint8(tvb, offset+1) & 0xf0 >> 4));
+                        buffer_size[2] = ((tvb_get_guint8(tvb, offset) & 0x0f) << 2) | ((tvb_get_guint8(tvb, offset+1) & 0xc0) >> 6);
                         offset++;
                         proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_3,
-                                            tvb, offset, 2, FALSE);
-                        buffer_size[2] = ((tvb_get_guint8(tvb, offset) & 0x0f) << 2) | ((tvb_get_guint8(tvb, offset+1) & 0xc0) >> 4);
-                        offset++;
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_4,
                                             tvb, offset, 1, FALSE);
                         buffer_size[3] = tvb_get_guint8(tvb, offset) & 0x3f;
                         offset++;
 
-                        proto_item_append_text(bsr_ti, " (0:%s  1:%s  2:%s  3:%s)",
+                        proto_item_append_text(bsr_ti, "   0:(%s)  1:(%s)  2:(%s)  3:(%s)",
                                                val_to_str(buffer_size[0], buffer_size_vals, "Unknown"),
                                                val_to_str(buffer_size[1], buffer_size_vals, "Unknown"),
                                                val_to_str(buffer_size[2], buffer_size_vals, "Unknown"),
@@ -2435,28 +2435,28 @@ void proto_register_mac_lte(void)
               "Buffer Size available in all channels in group", HFILL
             }
         },
+        { &hf_mac_lte_control_bsr_buffer_size_0,
+            { "Buffer Size 0",
+              "mac-lte.control.bsr.buffer-size-0", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0xfc,
+              "Buffer Size available in logical channel group 0", HFILL
+            }
+        },
         { &hf_mac_lte_control_bsr_buffer_size_1,
             { "Buffer Size 1",
-              "mac-lte.control.bsr.buffer-size-1", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0xfc,
-              "Buffer Size available in for 1st channel in group", HFILL
+              "mac-lte.control.bsr.buffer-size-1", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x03f0,
+              "Buffer Size available in logical channel group 1", HFILL
             }
         },
         { &hf_mac_lte_control_bsr_buffer_size_2,
             { "Buffer Size 2",
-              "mac-lte.control.bsr.buffer-size-2", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x03f0,
-              "Buffer Size available in for 2nd channel in group", HFILL
+              "mac-lte.control.bsr.buffer-size-2", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x0fc0,
+              "Buffer Size available in logical channel group 2", HFILL
             }
         },
         { &hf_mac_lte_control_bsr_buffer_size_3,
             { "Buffer Size 3",
-              "mac-lte.control.bsr.buffer-size-3", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x0fc0,
-              "Buffer Size available in for 3rd channel in group", HFILL
-            }
-        },
-        { &hf_mac_lte_control_bsr_buffer_size_4,
-            { "Buffer Size 4",
-              "mac-lte.control.bsr.buffer-size-4", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0x3f,
-              "Buffer Size available in for 4th channel in group", HFILL
+              "mac-lte.control.bsr.buffer-size-3", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0x3f,
+              "Buffer Size available in logical channel group 3", HFILL
             }
         },
         { &hf_mac_lte_control_crnti,
