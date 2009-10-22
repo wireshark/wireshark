@@ -253,10 +253,21 @@ static const value_string profinet_subtypes[] = {
 	{ 0, NULL }
 };
 
+/* 802.3 Power Type */
+static const value_string power_type_802_3[] = {
+	{ 0,	"Type 2" },
+	{ 1,	"Type 2" },
+	{ 2,	"Type 1" },
+	{ 3,	"Type 1" },
+	{ 0, NULL }
+};
+
 /* Power Type */
 static const value_string media_power_type[] = {
 	{ 0,	"PSE Device" },
 	{ 1,	"PD Device" },
+	{ 2,	"PSE Device" },
+	{ 3,	"PD Device" },
 	{ 0, NULL }
 };
 
@@ -1562,6 +1573,8 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 	case 0x02:	/* MDI Power Support */
 	{
+		const char *strPtr;
+
 		/* Get MDI power support info */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
@@ -1605,6 +1618,70 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Class: %u", tempByte);
 
 		tempOffset++;
+
+		/* Get first byte */
+		tempByte = tvb_get_guint8(tvb, tempOffset);
+
+		/* Determine power type */
+		subType = ((tempByte & 0xC0) >> 6);
+		if (tree)
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s %s",
+				decode_boolean_bitfield(tempByte, 0xC0, 8, "Power Type:", "Power Type:"),
+				val_to_str(subType, power_type_802_3, "Unkown"),
+				val_to_str(subType, media_power_type, "Unknown"));
+
+		/* Determine power source */
+		switch (subType)
+		{
+		case 0:
+		case 2:
+		{
+			subType = ((tempByte & 0x30) >> 4);
+			strPtr = val_to_str(subType, media_power_pse_device, "Reserved");
+
+			break;
+		}
+		case 1:
+		case 3:
+		{
+			subType = ((tempByte & 0x30) >> 4);
+			strPtr = val_to_str(subType, media_power_pd_device, "Reserved");
+
+			break;
+		}
+		default:
+		{
+			strPtr = "Unknown";
+			break;
+		}
+		}
+		if (tree)
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
+				decode_boolean_bitfield(tempByte, 0x30, 8, "Power Source:", "Power Source:"),
+				strPtr);
+
+		/* Determine power priority */
+		subType = (tempByte & 0x0F);
+		if (tree)
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
+				decode_boolean_bitfield(tempByte, 0x0F, 8, "Power Priority:", "Power Priority:"),
+				val_to_str(subType, media_power_priority, "Reserved"));
+
+		tempOffset++;
+
+		/* Power Value: 1 to 255 expected  */
+		tempShort = tvb_get_ntohs(tvb, tempOffset);
+		if (tree)
+			proto_tree_add_text(tree, tvb, tempOffset, 2, "PD Requested Power Value: %u.%u Watt", tempShort/10, tempShort%10);
+
+		tempOffset+=2;
+
+		/* Power Value: 1 to 255 expected */
+		tempShort = tvb_get_ntohs(tvb, tempOffset);
+		if (tree)
+			proto_tree_add_text(tree, tvb, tempOffset, 2, "PSE Allocated Power Value: %u.%u Watt", tempShort/10, tempShort%10);
+
+		tempOffset+=2;
 
 		break;
 	}
