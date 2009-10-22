@@ -1098,6 +1098,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                   proto_item *pdu_ti,
                                    volatile int offset, guint8 direction,
                                    mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
@@ -1853,6 +1854,15 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    p_mac_lte_info->length, offset);
         }
     }
+    else {
+        /* There is no padding at the end of the frame */
+        if (offset < p_mac_lte_info->length) {
+            /* There is a problem if we haven't used all of the PDU */
+            expert_add_info_format(pinfo, pdu_ti, PI_MALFORMED, PI_ERROR,
+                                   "MAC PDU is shorter than reported length (reported=%u, actual=%u)",
+                                   p_mac_lte_info->length, offset);
+        }
+    }
 
 }
 
@@ -1863,6 +1873,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree             *mac_lte_tree;
+    proto_item             *pdu_ti;
     proto_item             *ti;
     gint                   offset = 0;
     struct mac_lte_info    *p_mac_lte_info = NULL;
@@ -1875,8 +1886,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
 
     /* Create protocol tree. */
-    ti = proto_tree_add_item(tree, proto_mac_lte, tvb, offset, -1, FALSE);
-    mac_lte_tree = proto_item_add_subtree(ti, ett_mac_lte);
+    pdu_ti = proto_tree_add_item(tree, proto_mac_lte, tvb, offset, -1, FALSE);
+    mac_lte_tree = proto_item_add_subtree(pdu_ti, ett_mac_lte);
 
 
     /* Look for packet info! */
@@ -2034,8 +2045,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case C_RNTI:
         case SPS_RNTI:
             /* Can be UL-SCH or DL-SCH */
-            dissect_ulsch_or_dlsch(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info->direction,
-                                   p_mac_lte_info, &tap_info);
+            dissect_ulsch_or_dlsch(tvb, pinfo, mac_lte_tree, pdu_ti, offset,
+                                   p_mac_lte_info->direction, p_mac_lte_info, &tap_info);
             break;
 
         case SI_RNTI:
