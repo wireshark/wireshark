@@ -419,9 +419,16 @@ dlg_window_new(const gchar *title)
    * to capture, and might also simplify the job of having the GUI main
    * loop wait both for user input and packet arrival.
    */
+  /*
+   * On Windows, making the dialogs transient to top_level behaves strangely.
+   * It is not possible any more to bring the top level window to front easily.
+   * So we don't do this on Windows.
+   */
+#ifndef _WIN32
   if (top_level) {
     gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
   }
+#endif /*_WIN32*/
 
   return win;
 }
