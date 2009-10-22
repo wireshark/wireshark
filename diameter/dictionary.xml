@@ -1002,7 +1002,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Vodafone Gx+" code="16777234"/>
 			<enum name="ITU-T Rs" code="16777235"/>
 			<enum name="3GPP Rx" code="16777236"/>
-			<enum name="TGPP2 Ty" code="16777237"/>
+			<enum name="3GPP2 Ty" code="16777237"/>
 			<enum name="3GPP Gx" code="16777238"/>
 			<enum name="Juniper Cluster" code="16777239"/>
 			<enum name="Juniper Policy-Control-AAA" code="16777240"/>
@@ -1012,9 +1012,9 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Juniper Policy-Control-JSRC" code="16777244"/>   
 			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 -->
       <enum name="NSN Unified Charging Trigger Function (UCTF)" code="16777246"/>
-      <enum name="TGPP2 CAN Access Authentication and Authorization" code="16777247"/>
-      <enum name="TGPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
-      <enum name="TGPP2 WLAN Interworking Accounting" code="16777249"/>
+      <enum name="3GPP2 CAN Access Authentication and Authorization" code="16777247"/>
+      <enum name="3GPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
+      <enum name="3GPP2 WLAN Interworking Accounting" code="16777249"/>
       <enum name="3GPP STaMIP" code="16777250"/>
       <enum name="3GPP S6a" code="16777251"/>
       <enum name="3GPP S13" code="16777252"/>
@@ -1051,7 +1051,7 @@ http://www.iana.org/assignments/radius-types
 			<enum name="Vodafone Gx+" code="16777234"/>
 			<enum name="ITU-T Rs" code="16777235"/>
 			<enum name="3GPP Rx" code="16777236"/>
-			<enum name="TGPP2 Ty" code="16777237"/>
+			<enum name="3GPP2 Ty" code="16777237"/>
 			<enum name="3GPP Gx" code="16777238"/>
 			<enum name="Juniper Cluster" code="16777239"/>
 			<enum name="Juniper Policy-Control-AAA" code="16777240"/>
@@ -1062,9 +1062,9 @@ http://www.iana.org/assignments/radius-types
 			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 --> 
 			<enum name="Relay" code="4294967295"/>
       <enum name="NSN Unified Charging Trigger Function (UCTF)" code="16777246"/>
-      <enum name="TGPP2 CAN Access Authentication and Authorization" code="16777247"/>
-      <enum name="TGPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
-      <enum name="TGPP2 WLAN Interworking Accounting" code="16777249"/>
+      <enum name="3GPP2 CAN Access Authentication and Authorization" code="16777247"/>
+      <enum name="3GPP2 WLAN Interworking Access Authentication and Authorization" code="16777248"/>
+      <enum name="3GPP2 WLAN Interworking Accounting" code="16777249"/>
       <enum name="3GPP STaMIP" code="16777250"/>
       <enum name="3GPP S6a" code="16777251"/>
       <enum name="3GPP S13" code="16777252"/>
@@ -1384,6 +1384,16 @@ http://www.iana.org/assignments/radius-types
 492 MIP-MN-HA-MSA [RFC-ietf-dime-mip6-split-17] 
 493 Service-Selection [RFC-ietf-dime-mip6-split-17] 
 494 MIP6-Auth-Mode [RFC-ietf-dime-mip6-split-17] 
+495 TMOD-1 [RFC5624] 
+496 Token-Rate [RFC5624] 
+497 Bucket-Depth [RFC5624] 
+498 Peak-Traffic-Rate [RFC5624] 
+499 Minimum-Policed-Unit [RFC5624] 
+500 Maximum-Packet-Size [RFC5624] 
+501 TMOD-2 [RFC5624] 
+502 Bandwidth [RFC5624] 
+503 PHB-Class [RFC5624] 
+504-0xffffff Unassigned 
 
 -->
     <avp name="Example-AVP" code="999999" mandatory="mustnot" vendor-bit="may">
@@ -2324,7 +2334,7 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
       <enum name="DOCSIS" 	code="1"/>
       <enum name="xDSL" 	code="2"/>
       <enum name="WiMAX" 	code="3"/>
-      <enum name="TGPP2" 	code="4"/>
+      <enum name="3GPP2" 	code="4"/>
       <enum name="3GPP-EPS" 	code="5"/>
     </avp>
 		<avp name="QoS-Class-Identifier" code="1028" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -3789,49 +3799,212 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
       <type type-name="UTF8String"/>
 		</avp>
 		<avp name="SDP-Type" code="2036" vendor-bit="must" vendor-id="TGPP"> 
-       <type type-name="Enumerated"/>
+      <type type-name="Enumerated"/>
       <enum name="SDP Offer" code="0"/>
       <enum name="SDP Answer" code="1"/>
 		</avp>
- <!--  
-2037 Change-Condition Integer32
-2038 Change-Time Time
-2039 Diagnostics Integer32
-2040 Service-Data-Container Grouped
-2041 Start-Time Time
-2042 Stop-Time Time
-2043 Time-First-Usage Time
-2044 Time-Last-Usage Time
-2045 Time-Usage Unsigned32
-2046 Traffic-Data-Volumes Grouped
-2047 Serving-Node-Type Enumerated
-2048 Supplementary-Service Grouped
-2049 Participant-Action-Type Enumerated
-2050 Reserved -
-2051 Dynamic-Address-Flag Enumerated
-2052 Accumulated-Cost Grouped
-2053 AoC-Cost-Information Grouped
-2054 AoC-Information Grouped
-2055 AoC-Request-Type Enumerated
-2056 Current-Tariff Grouped
-2057 Next-Tariff Grouped
-2058 Rate-Element Grouped
-2059 Scale-Factor Grouped
-2060 Tariff-Information Grouped
-2061 Unit-Cost Grouped
-2062 Incremental-Cost Grouped
-2063 Local-Sequence-Number Unsigned32
-Note: The AVP codes from 2064 to 2099 are reserved for TS 32.299
+		<avp name="Change-Condition" code="2037" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="Integer32"/>
+		</avp>
+		<avp name="Change-Time" code="2038" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="Time"/>
+		</avp>
+		<avp name="Diagnostics" code="2039" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="Time"/>
+		</avp>
+		<avp name="Service-Data-Container" code="2040" vendor-bit="must" vendor-id="TGPP"> 
+     <grouped>
+      <gavp name="QoS-Information"/>
+      <gavp name="AF-Correlation-Information"/>
+      <gavp name="Charging-Rule-Base-Name "/>
+      <gavp name="Accounting-Input-Octets "/>
+      <gavp name="Accounting-Output-Octets "/>
+      <gavp name="Accounting-Input-Packets "/>
+      <gavp name="Accounting-Output-Packets "/>
+      <gavp name="Local-Sequence-Number "/>
+      <gavp name="QoS-Information "/>
+      <gavp name="Rating-Group "/>
+      <gavp name="Change-Time "/>
+      <gavp name="Service-Identifier "/>
+      <gavp name="Service-Specific-Info "/>
+      <gavp name="SGSN-Address "/>
+      <gavp name="Time-First-Usage "/>
+      <gavp name="Time-Last-Usage "/>
+      <gavp name="Time-Usage "/>
+      <gavp name="Change-Condition"/>
+      <gavp name="3GPP-User-Location-Info "/>
+    </grouped>
+    </avp>
+		<avp name="Start-Time" code="2041" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="Time"/>
+		</avp>
+		<avp name="Stop-Time" code="2042" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="Time"/>
+		</avp>
+		<avp name="Time-First-Usage" code="2043" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="Time"/>
+		</avp>
+		<avp name="Time-Last-Usage" code="2044" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="Time"/>
+		</avp>
+		<avp name="Time-Usage" code="2045" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Traffic-Data-Volumes" code="2046" vendor-bit="must" vendor-id="TGPP"> 
+     <grouped>
+      <gavp name="QoS-Information"/>
+      <gavp name="Accounting-Input-Octets"/>
+      <gavp name="Accounting-Input-Packets"/>
+      <gavp name="Accounting-Output-Octets"/>
+      <gavp name="Accounting-Output-Packets"/>
+      <gavp name="Change-condition"/>
+      <gavp name="Change-Time"/>
+      <gavp name="3GPP-User-Location-Info"/>
+     </grouped>
+    </avp>
+		<avp name="Serving-Node-Type" code="2047" vendor-bit="must" vendor-id="TGPP"> 
+       <type type-name="Enumerated"/>
+      <enum name="SGSN" code="0"/>
+      <enum name="PMIPSGW" code="1"/>
+      <enum name="GTPSGW" code="2"/>
+      <enum name="ePDG" code="3"/>
+      <enum name="hSGW" code="4"/>
+      <enum name="MME" code="5"/>
+		</avp>
+		<avp name="Supplementary-Service" code="2048" vendor-bit="must" vendor-id="TGPP"> 
+     <grouped>
+      <gavp name="Service-Type"/>
+      <gavp name="Service-Mode"/>
+      <gavp name="Number-Of-Diversions"/>
+      <gavp name="Associated-Party-Address"/>
+      <gavp name="Service-ID"/>
+      <gavp name="Change-Time"/>
+      <gavp name="Number-Of-Participants"/>
+      <gavp name="Participant-Action-Type"/>
+     </grouped>
+    </avp>
+		<avp name="Participant-Action-Type" code="2049" vendor-bit="must" vendor-id="TGPP"> 
+       <type type-name="Enumerated"/>
+      <enum name="CREATE_CONF" code="0"/>
+      <enum name="JOIN_CONF" code="1"/>
+      <enum name="INVITE_INTO_CONF" code="2"/>
+      <enum name="QUIT_CONF" code="3"/>
+		</avp>
+		<avp name="PDN-Conncetion-ID" code="2050" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Dynamic-Address-Flag" code="2051" vendor-bit="must" vendor-id="TGPP"> 
+       <type type-name="Enumerated"/>
+      <enum name="Static" code="0"/>
+      <enum name="Dynamic" code="1"/>
+		</avp>
+		<avp name="Accumulated-Cost" code="2052" vendor-bit="must" vendor-id="TGPP"> 
+     <grouped>
+      <gavp name="Value-Digits"/>
+      <gavp name="Exponent"/>
+     </grouped>
+    </avp>
+		<avp name="AoC-Cost-Information" code="2053" vendor-bit="must" vendor-id="TGPP"> 
+     <grouped>
+      <gavp name="Accumulated-Cost"/>
+      <gavp name="Incremental-Cost"/>
+      <gavp name="Currency-Code"/>
+     </grouped>
+    </avp>
+		<avp name="AoC-Information" code="2054" vendor-bit="must" vendor-id="TGPP"> 
+     <grouped>
+      <gavp name="AoC-Cost-Information"/>
+      <gavp name="Incremental-Cost"/>
+      <gavp name="Tariff Information"/>
+     </grouped>
+    </avp>
+		<avp name="AoC-Request-Type" code="2055" vendor-bit="must" vendor-id="TGPP"> 
+       <type type-name="Enumerated"/>
+      <enum name="AoC_NOT_REQUESTED" code="0"/>
+      <enum name="AoC_FULL" code="1"/>
+      <enum name="AoC_COST_ONLY" code="2"/>
+      <enum name="AoC_TARIFF_ONLY" code="3"/>
+		</avp>
+		<avp name="Current-Tariff" code="2056" vendor-bit="must" vendor-id="TGPP"> 
+     <grouped>
+      <gavp name="Value-Digits"/>
+      <gavp name="Exponent"/>
+     </grouped>
+    </avp>
+    <avp name="Next-Tariff" code="2057" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Currency-Code"/>
+        <gavp name="Scale-Factor"/>
+        <gavp name="Rate-Element"/>
+      </grouped>
+    </avp>
+    <avp name="Rate-Element" code="2058" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="CC-Unit-Type"/>
+        <gavp name="Unit-Value"/>
+        <gavp name="Unit-Cost"/>
+        <gavp name="Unit-Threshold"/>
+      </grouped>
+    </avp>
+    <avp name="Scale-Factor" code="2059" vendor-bit="must" vendor-id="TGPP"> 
+     <grouped>
+      <gavp name="Value-Digits"/>
+      <gavp name="Exponent"/>
+     </grouped>
+    </avp>
+    <avp name="Tariff-Information" code="2060" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Current-Tariff"/>
+        <gavp name="Tariff-Time-Change"/>
+        <gavp name="Next-Tariff"/>
+      </grouped>
+    </avp>
+    <avp name="Unit-Cost" code="2061" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Value-Digits"/>
+        <gavp name="Exponent"/>
+      </grouped>
+    </avp>
+    <avp name="Incremental-Cost" code="2062" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="Value-Digits"/>
+        <gavp name="Exponent"/>
+      </grouped>
+    </avp>
+    <avp name="Local-Sequence-Number" code="2063" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <!--  
+      Note: The AVP codes from 2064 to 2099 are reserved for TS 32.299
+      -->
+    <!--
 2100	reserved	-	32.299 [5]
-2101	Application-Server-ID	UTF8String	
-2102	Application-Service-Type	Enumerated	
-2103	Application-Session-ID	Unsigned32	
-2104	Delivery-Status	UTF8String	
+-->
+    <avp name="Application-Server-ID" code="2101" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+		<avp name="Application-Service-Type" code="2102" vendor-bit="must" vendor-id="TGPP"> 
+       <type type-name="Enumerated"/>
+      <enum name="SENDING" code="100"/>
+      <enum name="RECEIVING" code="101"/>
+      <enum name="RETRIEVAL" code="102"/>
+      <enum name="INVITING" code="103"/>
+      <enum name="LEAVING" code="104"/>
+      <enum name="JOINING" code="105"/>
+		</avp>
+    <avp name="Application-Session-ID" code="2103" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Delivery-Status" code="2104" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <!--
 2105	reserved	-	
 2106	reserved	-	
 2107	reserved	-	
 2108	reserved	-	
 2109	reserved	-	
+-->
 		<avp name="IM-Information" code="2110" vendor-bit="must" vendor-id="TGPP"> 
      <grouped>
       <gavp name="Interface-Id"/>
@@ -3840,11 +4013,18 @@ Note: The AVP codes from 2064 to 2099 are reserved for TS 32.299
       <gavp name="Interface-Type"/>
       </grouped>
     </avp>
-
-2111	Number-Of-Messages-Successfully-Exploded	Unsigned32	
-2112	Number-Of-Messages-Successfully-Sent	Unsigned32	
-2113	Total-Number-Of-Messages-Exploded	Unsigned32	
-2114	Total-Number-Of-Messages-Sent	Unsigned32	
+    <avp name="Number-Of-Messages-Successfully-Exploded" code="2111" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Number-Of-Messages-Successfully-Sent" code="2112" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Total-Number-Of-Messages-Exploded" code="2113" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Total-Number-Of-Messages-Sen" code="2114" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
 		<avp name="MMTel-Information" code="2026" vendor-bit="must" vendor-id="TGPP"> 
      <grouped>
       <gavp name="Service-type"/>
@@ -3854,11 +4034,13 @@ Note: The AVP codes from 2064 to 2099 are reserved for TS 32.299
       <gavp name="Associated-Party-Address"/>
      </grouped>
 		</avp>
+    <!--
 2115 DCD-Information Grouped
 2116 Content-ID UTF8String
 2117 Content-provider-ID UTF8String
 32.299 [5]
-Note: The AVP codes from 2118 to 2199 are reserved for TS 32.2992200 Subsession-Decision-Info Grouped
+Note: The AVP codes from 2118 to 2199 are reserved for TS 32.299
+2200 Subsession-Decision-Info Grouped
 2201 Subsession-Enforcement-Info Grouped
 2202 Subsession-Id Unsigned32
 2203 Subsession-Operation Enumerated
