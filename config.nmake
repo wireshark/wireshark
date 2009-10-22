@@ -437,7 +437,7 @@ GETTEXT_PKG=_0.17-1_win64
 #
 PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 # This macro is used by the nsis installer script, by the u3/portable apps and by the setup target.
-PCAP_VERSION=4_1_beta5
+PCAP_VERSION=4_1_1
 
 #
 # Optional: WinPcap remote capture support and new API
