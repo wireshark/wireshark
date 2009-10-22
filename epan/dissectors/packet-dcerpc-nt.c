@@ -39,6 +39,14 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 
+
+/* This is used to safely walk the decode tree up, one item at a time safely.
+   This is used by dcerpc dissectors that want to push the display of a string
+   higher up in the tree for greater visibility.
+*/
+#define GET_ITEM_PARENT(x) \
+	((x->parent!=NULL)?x->parent:x)
+
 /*
  * This file contains helper routines that are used by the DCERPC over SMB
  * dissectors for wireshark.
@@ -245,15 +253,15 @@ static void cb_byte_array_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 
 	if (levels > 0 && item && s && s[0]) {
 		proto_item_append_text(item, ": %s", s);
-		item = item->parent;
+		item = GET_ITEM_PARENT(item);
 		levels--;
 		if (levels > 0) {
 			proto_item_append_text(item, ": %s", s);
-			item = item->parent;
+			item = GET_ITEM_PARENT(item);
 			levels--;
 			while (levels > 0) {
 				proto_item_append_text(item, " %s", s);
-				item = item->parent;
+				item = GET_ITEM_PARENT(item);
 				levels--;
 			}
 		}
@@ -1132,18 +1140,17 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	}
 
 	/* Append string to upper-level proto_items */
-
 	if (levels > 0 && item && s && s[0]) {
 		proto_item_append_text(item, ": %s", s);
-		item = item->parent;
+		item = GET_ITEM_PARENT(item);
 		levels--;
 		if (levels > 0) {
 			proto_item_append_text(item, ": %s", s);
-			item = item->parent;
+			item = GET_ITEM_PARENT(item);
 			levels--;
 			while (levels > 0) {
 				proto_item_append_text(item, " %s", s);
-				item = item->parent;
+				item = GET_ITEM_PARENT(item);
 				levels--;
 			}
 		}
@@ -1198,15 +1205,15 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 
 	if (levels > 0 && item && s && s[0]) {
 		proto_item_append_text(item, ": %s", s);
-		item = item->parent;
+		item = GET_ITEM_PARENT(item);
 		levels--;
 		if (levels > 0) {
 			proto_item_append_text(item, ": %s", s);
-			item = item->parent;
+			item = GET_ITEM_PARENT(item);
 			levels--;
 			while (levels > 0) {
 				proto_item_append_text(item, " %s", s);
-				item = item->parent;
+				item = GET_ITEM_PARENT(item);
 				levels--;
 			}
 		}
@@ -1311,15 +1318,15 @@ dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 		if (levels > 0 && item && s && s[0]) {
 			proto_item_append_text(item, ": %s", s);
-			item = item->parent;
+			item = GET_ITEM_PARENT(item);
 			levels--;
 			if (levels > 0) {
 				proto_item_append_text(item, ": %s", s);
-				item = item->parent;
+				item = GET_ITEM_PARENT(item);
 				levels--;
 				while (levels > 0) {
 					proto_item_append_text(item, " %s", s);
-					item = item->parent;
+					item = GET_ITEM_PARENT(item);
 					levels--;
 				}
 			}

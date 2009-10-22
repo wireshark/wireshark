@@ -489,7 +489,7 @@ const value_string mcc_mnc_codes[] = {
 	{  250044, "Stuvtelesot" },
 	{  250092, "Printelefone" },
 	{  250093, "Telecom XXI" },
-	{  250099, "Bec Line GSM" },
+	{  250099, "Beeline, OJSC VimpelCom" },
 	{  255001, "Ukrainian Mobile Communication, UMC" },
 	{  255002, "Ukranian Radio Systems, URS" },
 	{  255003, "Kyivstar GSM" },
