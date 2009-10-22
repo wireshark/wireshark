@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -3120,7 +3120,7 @@ void proto_register_snmp(void) {
         "snmp.Version", HFILL }},
     { &hf_snmp_community,
       { "community", "snmp.community",
-        FT_STRING, BASE_HEX, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "snmp.OCTET_STRING", HFILL }},
     { &hf_snmp_data,
       { "data", "snmp.data",
@@ -3156,7 +3156,7 @@ void proto_register_snmp(void) {
         "snmp.T_msgAuthoritativeEngineTime", HFILL }},
     { &hf_snmp_msgUserName,
       { "msgUserName", "snmp.msgUserName",
-        FT_STRING, BASE_HEX, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "snmp.T_msgUserName", HFILL }},
     { &hf_snmp_msgAuthenticationParameters,
       { "msgAuthenticationParameters", "snmp.msgAuthenticationParameters",

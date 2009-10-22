@@ -94,7 +94,7 @@ gint pdu_type=-1;
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
 		usm_p.auth_item = %(ACTX)s->created_item;
-		usm_p.auth_offset = offset_from_real_beginning(usm_p.auth_tvb,0);
+		usm_p.auth_offset = tvb_offset_from_real_beginning(usm_p.auth_tvb);
 	}
 #.FN_PARS UsmSecurityParameters/msgPrivacyParameters
 	VAL_PTR = &usm_p.priv_tvb
@@ -227,7 +227,7 @@ gint pdu_type=-1;
 
 #.TYPE_ATTR
 NetworkAddress TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL  
-Message/community  TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
+Message/community  TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL
 HeaderData/msgSecurityModel TYPE = FT_UINT32 DISPLAY = BASE_DEC STRINGS = VALS(sec_models)
-UsmSecurityParameters/msgUserName TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
+UsmSecurityParameters/msgUserName TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL
 #.END
