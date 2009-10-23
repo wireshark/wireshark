@@ -50,6 +50,7 @@
 
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/strutil.h>
 
 
 static const char *ansi_proto_name_tele = "ANSI IS-637-A (SMS) Teleservice Layer";
@@ -247,27 +248,6 @@ static gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
 };
 
 
-static gunichar IA5_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
-
-    /*ITU-T recommendation T.50 specifies International Reference Alphabet 5 (IA5) */
-
-    '?', '?', '?', '?', '?', '?', '?', '?',
-    '?', '?', '?', '?', '?', '?', '?', '?',
-    '?', '?', '?', '?', '?', '?', '?', '?',
-    '?', '?', '?', '?', '?', '?', '?', '?',
-    ' ', '!', '\"','#', '$', '%', '&', '\'',
-    '(', ')', '*', '+', ',', '-', '.', '/',
-    '0', '1', '2', '3', '4', '5', '6', '7',
-    '8', '9', ':', ';', '<', '=', '>', '?',
-    '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
-    'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
-    'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',
-    'X',  'Y',  'Z',  '[',  '\\',  ']',  '^',  '_',
-    '`', 'a',  'b',  'c',  'd',  'e',  'f',  'g',
-    'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
-    'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
-    'x',  'y',  'z',  '{',  '|',  '}',  '~',  '?'
-};
 
 static gboolean
 char_is_escape(unsigned char value)
@@ -331,34 +311,6 @@ gsm_sms_char_7bit_ascii_decode(unsigned char * dest, const unsigned char* src, i
 
 
 
-static gunichar 
-char_def_ia5_alphabet_decode(unsigned char value)
-{
-    if (value < GN_CHAR_ALPHABET_SIZE)
-    {
-		return IA5_default_alphabet[value];
-    }
-    else
-    {
-		return '?';
-    }
-}
-
-static void
-IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len)
-{
-    int i, j;
-    gunichar buf;
-
-
-    for (i = 0, j = 0; j < len;  j++)
-    {
-	    buf = char_def_ia5_alphabet_decode(src[j]);
-	    i += g_unichar_to_utf8(buf,&(dest[i]));
-    }
-    dest[i]=0;
-    return;
-}
 
 
 static int

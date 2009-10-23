@@ -225,4 +225,7 @@ const char * string_or_null(const char *string);
 int escape_string_len(const char *string);
 char * escape_string(char *dst, const char *string);
 
+
+void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
+
 #endif /* __STRUTIL_H__ */
