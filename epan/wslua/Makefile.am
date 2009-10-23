@@ -78,6 +78,7 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	declare_wslua.h \
+	init_wslua.h \
 	register_wslua.c \
 	taps \
 	make-reg.pl \
