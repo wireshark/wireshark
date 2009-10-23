@@ -8,5 +8,5 @@ EXTRA_DIST = \
 	VersionCompare.nsh \
 	AdditionalTasksPage.ini \
 	WinPcapPage.ini \
-	WinPcap_4_1.exe \
+	WinPcap_4_1_1.exe \
 	Makefile.nmake

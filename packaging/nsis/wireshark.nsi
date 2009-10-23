@@ -725,8 +725,8 @@ IfErrors lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not inst
 ;DetailPrint "WinPcap uninstaller returned $0"
 lbl_winpcap_notinstalled:
 SetOutPath $INSTDIR
-File "WinPcap_4_1.exe"
-ExecWait '"$INSTDIR\WinPcap_4_1.exe"' $0
+File "WinPcap_4_1_1.exe"
+ExecWait '"$INSTDIR\WinPcap_4_1_1.exe"' $0
 DetailPrint "WinPcap installer returned $0"
 SecRequired_skip_Winpcap:
 
