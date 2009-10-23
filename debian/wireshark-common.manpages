@@ -1,7 +1,7 @@
-dumpcap.1
-editcap.1
-mergecap.1
-text2pcap.1
-wireshark-filter.4
-capinfos.1
-rawshark.1
+doc/dumpcap.1
+doc/editcap.1
+doc/mergecap.1
+doc/text2pcap.1
+doc/wireshark-filter.4
+doc/capinfos.1
+doc/rawshark.1
