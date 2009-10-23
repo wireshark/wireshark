@@ -2461,9 +2461,6 @@ const value_string gsm_a_odd_even_ind_values[] = {
 	{ 0, NULL }
 };
 
-/* Definition in packet-ansi_637.c */
-void
-IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 
 static guint16
 de_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gboolean *address_extracted)
