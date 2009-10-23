@@ -552,6 +552,11 @@ emem_scrub_memory(char *buf, size_t size, gboolean alloc)
 	 *  memory).
 	 */
 
+	/* XXX - We might want to use memset here in order to avoid problems on
+	 * alignment-sensitive platforms, e.g.
+	 * http://stackoverflow.com/questions/108866/is-there-memset-that-accepts-integers-larger-than-char
+	 */
+
 	for (offset = 0; offset + sizeof(guint) <= size; offset += sizeof(guint))
 		*(guint*)(buf+offset) = scrubbed_value;
 
