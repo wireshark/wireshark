@@ -2502,7 +2502,7 @@ dissect_isup_access_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 
 /* dissect x.213 NSAP coded Address */
 
-static const value_string x213_afi_value[] = {
+const value_string x213_afi_value[] = {
 	{ 0x34, "IANA ICP"},
 	{ 0x35, "IANA ICP"},
 	{ 0x36, "X.121"},

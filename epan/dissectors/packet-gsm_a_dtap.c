@@ -18,6 +18,10 @@
  * Copyright 2005 - 2009, Anders Broman [AT] ericsson.com
  * Small bugfixes, mainly in Qos and TFT by Nils Ljungberg and Stefan Boman [AT] ericsson.com
  *
+ * Various updates, enhancements and fixes
+ * Copyright 2009, Gerasimos Dimitriadis <dimeg [AT] intracom.gr>
+ * In association with Intracom Telecom SA
+ * 
  * Title		3GPP			Other
  *
  *   Reference [3]
@@ -90,6 +94,7 @@
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
+#include <epan/strutil.h>
 
 #include "packet-bssap.h"
 #include "packet-sccp.h"
@@ -101,6 +106,7 @@
 #include "packet-ppp.h"
 #include "packet-gsm_sms.h"
 #include "expert.h"
+#include "packet-isup.h"
 
 /* PROTOTYPES/FORWARDS */
 
@@ -439,6 +445,7 @@ static int hf_gsm_a_dtap_call_state	= -1;
 static int hf_gsm_a_dtap_prog_coding_standard	 = -1;
 static int hf_gsm_a_dtap_location	= -1;
 static int hf_gsm_a_dtap_progress_description	= -1;
+static int hf_gsm_a_dtap_afi	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -2454,20 +2461,69 @@ const value_string gsm_a_odd_even_ind_values[] = {
 	{ 0, NULL }
 };
 
+/* Definition in packet-ansi_637.c */
+void
+IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
+
 static guint16
-de_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+de_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gboolean *address_extracted)
 {
-	guint32	curr_offset;
+	guint32	curr_offset, ia5_string_len, i;
+	guint8 type_of_sub_addr, afi, dig1, dig2, oct;
+	gchar *ia5_string;
+	gboolean invalid_ia5_char;
+	proto_item *item;
 
 	curr_offset = offset;
 
+	*address_extracted = FALSE;
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_type_of_sub_addr, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+5, 3, FALSE);
+	type_of_sub_addr = (tvb_get_guint8(tvb, curr_offset) & 0x70) >> 4;
 	curr_offset++;
 
 	NO_MORE_DATA_CHECK(len);
+
+	if(!type_of_sub_addr)
+	{
+		afi = tvb_get_guint8(tvb, curr_offset);
+		proto_tree_add_item(tree, hf_gsm_a_dtap_afi, tvb, curr_offset, 1, FALSE);
+		curr_offset++;
+
+		NO_MORE_DATA_CHECK(len);
+
+		if (afi == 0x50)
+		{
+			ia5_string_len = len - (curr_offset - offset);
+			ia5_string = tvb_get_ephemeral_string(tvb, curr_offset, ia5_string_len);
+
+			invalid_ia5_char = FALSE;
+			for(i = 0; i < ia5_string_len; i++)
+			{
+				dig1 = (ia5_string[i] & 0xf0) >> 4;
+				dig2 = ia5_string[i] & 0x0f;
+				oct = (dig1 * 10) + dig2 + 32;
+				if (oct > 127)
+					invalid_ia5_char = TRUE;
+				ia5_string[i] = oct;
+
+			}
+
+			IA5_7BIT_decode(a_bigbuf, ia5_string, ia5_string_len);
+			*address_extracted = TRUE;
+
+			item = proto_tree_add_text(tree,
+				tvb, curr_offset, len - (curr_offset - offset),
+				"Subaddress: %s", a_bigbuf);
+
+			if(invalid_ia5_char)
+				expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN, "Invalid IA5 character(s) in string (value > 127)");
+
+			return(len);
+		}	
+	}
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, len - (curr_offset - offset),
@@ -2504,7 +2560,12 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 static guint16
 de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	de_sub_addr(tvb, tree, offset, len);
+	gboolean	addr_extr;
+
+	de_sub_addr(tvb, tree, offset, len, &addr_extr);
+
+	if (addr_extr && add_string)
+		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
 
 	return(len);
 }
@@ -2531,7 +2592,12 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 static guint16
 de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	de_sub_addr(tvb, tree, offset, len);
+	gboolean	addr_extr;
+
+	de_sub_addr(tvb, tree, offset, len, &addr_extr);
+
+	if (addr_extr && add_string)
+		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
 
 	return(len);
 }
@@ -2780,7 +2846,12 @@ de_conn_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 static guint16
 de_conn_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	de_sub_addr(tvb, tree, offset, len);
+	gboolean	addr_extr;
+
+	de_sub_addr(tvb, tree, offset, len, &addr_extr);
+
+	if (addr_extr && add_string)
+		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
 
 	return(len);
 }
@@ -3035,7 +3106,12 @@ de_red_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 static guint16
 de_red_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	de_sub_addr(tvb, tree, offset, len);
+	gboolean	addr_extr;
+
+	de_sub_addr(tvb, tree, offset, len, &addr_extr);
+
+	if (addr_extr && add_string)
+		g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
 
 	return(len);
 }
@@ -6407,6 +6483,11 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_progress_description,
 		{ "Progress description", "gsm_a.dtap.progress_description",
 		FT_UINT8, BASE_DEC, NULL, 0x7f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_afi,
+		{ "Authority and Format Identifier", "gsm_a.dtap.afi",
+		FT_UINT8, BASE_HEX, VALS(x213_afi_value), 0x0,
 		NULL, HFILL }
 	},
 	};

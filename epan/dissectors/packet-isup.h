@@ -164,6 +164,7 @@ extern const value_string isup_parameter_type_value[];
 extern const value_string isup_transmission_medium_requirement_value[];
 extern const value_string isup_calling_partys_category_value[];
 extern const value_string bearer_network_connection_characteristics_vals[];
+extern const value_string x213_afi_value[];
 /*
  * Export dissection of some parameters
  */
