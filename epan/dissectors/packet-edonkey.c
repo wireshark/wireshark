@@ -1243,14 +1243,14 @@ static int dissect_emule_sourceOBFU(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree *sourceOBFU_tree;
     guint8 settings = tvb_get_guint8(tvb, offset+6);
     /* Add subtree for client info */
-    ti = proto_tree_add_item(tree, hf_emule_sourceOBFU, tvb, offset, 7 + ((settings & 0x08) ? 16 : 0), FALSE);
+    ti = proto_tree_add_item(tree, hf_emule_sourceOBFU, tvb, offset, 7 + ((settings & 0x80) ? 16 : 0), FALSE);
     sourceOBFU_tree = proto_item_add_subtree(ti, ett_emule_sourceOBFU);
 
     proto_tree_add_item(sourceOBFU_tree, hf_edonkey_ip, tvb, offset, 4, FALSE);
     proto_tree_add_item(sourceOBFU_tree, hf_edonkey_port, tvb, offset+4, 2, TRUE);
     proto_tree_add_text(sourceOBFU_tree, tvb, offset+6, 1, "Obfuscation Settings: %u", settings);
     offset += 7;
-    if (settings & 0x08)
+    if (settings & 0x80)
         offset = dissect_edonkey_client_hash(tvb, pinfo, offset, sourceOBFU_tree);
     return offset;
 }

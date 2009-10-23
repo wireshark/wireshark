@@ -65,6 +65,20 @@ Wireshark Info
           -->
         </listitem>
 
+        <listitem>
+          <para>
+            The SMB dissector could crash.
+            <!-- Fixed in trunk: r30595 -->
+            <!-- Fixed in trunk-1.2: r30673 -->
+          </para>
+          <para>Versions affected: ? to 1.2.2</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+          -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -82,16 +96,33 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Invalid advertised window line on tcptrace style graph.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3417">Bug
+          3417</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           SMB get_dfs_referral referral entry is not dissected correctly.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3542">Bug
           3542</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Error dissecting eMule sourceOBFU message.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3848">Bug
+          3848</ulink>)
+        </para></listitem>
 
         <listitem><para>
           Typos in Diameter XML files.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3878">Bug
           3878</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          RSL dissector for MS Power IE is broken.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4017">Bug
+          4017</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -135,7 +166,7 @@ Wireshark Info
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
 
-There are no new or updated features in this release.
+The 32-bit and 64-bit Windows packages now include WinPcap 4.1.1. .
 
     </para>
     </section>
@@ -148,16 +179,22 @@ There are no new protocols in this release.
     </para>
     </section>
 
-    <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
+    <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
+    <para>
 
 DHCP,
 Diameter,
 E.212,
+eDonkey,
 FIP,
 IPsec,
 Paltalk,
+RSL,
 SMB,
+SNMP,
 SSL,
+TCP,
+WPS
 
     </para>
     </section>
@@ -165,7 +202,7 @@ SSL,
     <section id="NewCapture"><title>Updated Capture File Support</title>
     <para>
 
-<none>
+Capture file support is unchanged in this release.
 
     </para>
     </section>

@@ -2206,7 +2206,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 	if (si->sip && si->sip->extra_info_type==SMB_EI_DIALECTS) {
 		dialects = si->sip->extra_info;
-		if (dialect <= dialects->num) {
+		if (dialect < dialects->num) {
 			dialect_name = dialects->name[dialect];
 		}
 	}

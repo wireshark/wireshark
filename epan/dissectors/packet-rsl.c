@@ -65,10 +65,11 @@ static int hf_rsl_req_ref_T3		= -1;
 static int hf_rsl_req_ref_T2		= -1;
 static int hf_rsl_timing_adv		= -1;
 static int hf_rsl_ho_ref			= -1;
+static int hf_rsl_l1inf_power_lev		= -1;
+static int hf_rsl_l1inf_fpc			= -1;
 static int hf_rsl_ms_power_lev		= -1;
 static int hf_rsl_ms_fpc			= -1;
 static int hf_rsl_act_timing_adv	= -1;
-static int hf_rsl_power_lev			= -1;
 static int hf_rsl_phy_ctx			= -1;
 static int hf_rsl_na				= -1;
 static int hf_rsl_ch_type			= -1;
@@ -1087,9 +1088,9 @@ dissect_rsl_ie_l1_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, i
 	 * The information fields and codings are as defined in 3GPP TS 44.004.
 	 */
 	/* Power level */
-	proto_tree_add_item(ie_tree, hf_rsl_ms_power_lev, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ie_tree, hf_rsl_l1inf_power_lev, tvb, offset, 1, FALSE);
 	/* FPC */
-	proto_tree_add_item(ie_tree, hf_rsl_ms_fpc, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ie_tree, hf_rsl_l1inf_fpc, tvb, offset, 1, FALSE);
 	offset++;
 	/* Actual Timing Advance */
 	proto_tree_add_item(ie_tree, hf_rsl_act_timing_adv, tvb, offset, 1, FALSE);
@@ -3623,27 +3624,31 @@ void proto_register_rsl(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Hand-over reference", HFILL }
 		},
-		{ &hf_rsl_ms_power_lev,
+		{ &hf_rsl_l1inf_power_lev,
 			{ "MS power level",           "rsl.ms_power_lev",
 			FT_UINT8, BASE_DEC, NULL, 0xf8,
 			"MS power level", HFILL }
 		},
-		{ &hf_rsl_ms_fpc,
+		{ &hf_rsl_l1inf_fpc,
 			{ "FPC/EPC",           "rsl.ms_fpc",
 			FT_BOOLEAN, 8, TFS(&rsl_ms_fpc_epc_mode_vals), 0x04,
 			"FPC/EPC", HFILL }
+		},
+		{ &hf_rsl_ms_power_lev,
+			{ "MS power level",           "rsl.ms_power_lev",
+			FT_UINT8, BASE_DEC, NULL, 0x1f,
+			NULL, HFILL }
+		},
+		{ &hf_rsl_ms_fpc,
+			{ "FPC/EPC",           "rsl.ms_fpc",
+			FT_BOOLEAN, 8, TFS(&rsl_ms_fpc_epc_mode_vals), 0x20,
+			NULL, HFILL }
 		},
 		{ &hf_rsl_act_timing_adv,
 			{ "Actual Timing Advance",           "rsl.act_timing_adv",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Actual Timing Advance", HFILL }
 		},
-		{ &hf_rsl_power_lev,
-			{ "Power level",           "rsl.power_lev",
-			FT_UINT8, BASE_DEC, NULL, 0x1f,
-			"Power level", HFILL }
-		},
-
 		{ &hf_rsl_dtxd,
 			{ "DTXd",           "rsl.dtxd",
 			FT_BOOLEAN, 8, TFS(&rsl_dtxd_vals), 0x40,
