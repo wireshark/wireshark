@@ -54,10 +54,10 @@ static gint64 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
 static int dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, int bundle_offset, int *lastheader);
 static int display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int bundle_offset, int *lastheader);
 static int dissect_contact_header(tvbuff_t *tvb, packet_info *pinfo,
-				proto_tree *conv_tree, proto_item *conv_item);
+				  proto_tree *conv_tree, proto_item *conv_item);
 static int dissect_tcp_convergence_data_header(tvbuff_t *tvb, proto_tree *tree);
 static int dissect_version_5_primary_header(packet_info *pinfo,
-					proto_tree *primary_tree, tvbuff_t *tvb);
+					    proto_tree *primary_tree, tvbuff_t *tvb);
 static int add_sdnv_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id);
 static int add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id);
 static int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id);
@@ -265,7 +265,8 @@ static const fragment_items msg_frag_items = {
 };
 
 
-static void dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
     proto_item *ti = NULL;
@@ -539,19 +540,22 @@ dissect_udp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     lasthdrflag = 0;
     while((hdr_offset > 0) && (buffer_size > hdr_offset)) {
+	gint payload_size;
+
 	next_header_type = tvb_get_guint8(tvb, hdr_offset);
 	if(next_header_type == PAYLOAD_HEADER_TYPE) {
-	    hdr_offset +=
+	    payload_size =
 		dissect_payload_header(bundle_tree, tvb, hdr_offset, &lasthdrflag);
 	}
 	else {	/*Assume anything else is a Metadata Block*/
-	    hdr_offset += display_metadata_block(bundle_tree, tvb,
-							hdr_offset, &lasthdrflag);
+	    payload_size = display_metadata_block(bundle_tree, tvb,
+						 hdr_offset, &lasthdrflag);
 	}
-	if(hdr_offset == 0) {
+	if(payload_size == 0) {
 	    col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 	    return;
 	}
+	hdr_offset += payload_size;
 	if(lasthdrflag) {
 	    return;
 	}
