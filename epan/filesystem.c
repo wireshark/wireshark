@@ -77,6 +77,8 @@
 #include <wiretap/wtap.h>	/* for WTAP_ERR_SHORT_WRITE */
 
 #define PROFILES_DIR    "profiles"
+#define PLUGINS_DIR_NAME    "plugins"
+
 #define U3_MY_CAPTURES  "\\My Captures"
 
 char *persconffile_dir = NULL;
@@ -765,7 +767,7 @@ get_wspython_dir(void)
 }
 
 
-#ifdef HAVE_PLUGINS
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
 /*
  * Find the directory where the plugins are stored.
  *
@@ -844,7 +846,7 @@ init_plugin_dir(void)
 	}
 #endif
 }
-#endif /* HAVE_PLUGINS */
+#endif /* HAVE_PLUGINS || HAVE_LUA_5_1 */
 
 /*
  * Get the directory in which the plugins are stored.
@@ -852,7 +854,7 @@ init_plugin_dir(void)
 const char *
 get_plugin_dir(void)
 {
-#ifdef HAVE_PLUGINS
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
 	if (!plugin_dir) init_plugin_dir();
 	return plugin_dir;
 #else
@@ -1489,6 +1491,14 @@ get_datafile_path(const char *filename)
 
 	return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(),
 		filename);
+}
+
+/* Get the personal plugin dir */
+/* Return value is malloced so the caller should g_free() it. */
+char *
+get_plugins_pers_dir(void)
+{
+    return get_persconffile_path(PLUGINS_DIR_NAME, FALSE, FALSE);
 }
 
 /* Delete a file */

@@ -78,6 +78,11 @@ extern const char *get_datafile_dir(void);
  */
 extern char *get_datafile_path(const char *filename);
 
+/* 
+ * Get the personal plugin dir.
+ */
+extern char *get_plugins_pers_dir(void);
+
 /*
  * Get the directory in which files that, at least on UNIX, are
  * system files (such as "/etc/ethers") are stored; on Windows,

@@ -5,7 +5,7 @@
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
- * Copyright 1999 Gerald Combs
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,9 +55,7 @@
 #include "report_err.h"
 
 /* linked list of all plugins */
-plugin *plugin_list;
-
-#define PLUGINS_DIR_NAME    "plugins"
+plugin *plugin_list = NULL;
 
 /*
  * add a new plugin to the list
@@ -333,12 +331,6 @@ plugins_scan_dir(const char *dirname)
     }
 }
 
-/* get the personal plugin dir */
-/* Return value is malloced so the caller should g_free() it. */
-char *get_plugins_pers_dir(void)
-{
-    return get_persconffile_path(PLUGINS_DIR_NAME, FALSE, FALSE);
-}
 
 /*
  * init plugins

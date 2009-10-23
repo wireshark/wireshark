@@ -5,7 +5,7 @@
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
- * Copyright 1999 Gerald Combs
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,7 +28,10 @@
 
 #include <gtk/gtk.h>
 
-#include <epan/plugins.h>
+#include "epan/plugins.h"
+#ifdef HAVE_LUA_5_1
+#include "epan/wslua/init_wslua.h"
+#endif
 
 #include "../globals.h"
 
@@ -37,7 +40,7 @@
 #include "gtk/plugins_dlg.h"
 
 
-#ifdef HAVE_PLUGINS
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
 
 /*
  * Fill the list widget with a list of the plugin modules.
@@ -45,10 +48,16 @@
 static void
 plugins_scan(GtkWidget *list)
 {
+#ifdef HAVE_PLUGINS
     plugin     *pt_plug;
+    const char *sep;
+#endif
+#ifdef HAVE_LUA_5_1
+    wslua_plugin  *lua_plug;
+#endif
     GString    *type;
-    const char       *sep;
 
+#ifdef HAVE_PLUGINS
     for (pt_plug = plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
     {
         type = g_string_new("");
@@ -79,6 +88,18 @@ plugins_scan(GtkWidget *list)
                            2, type->str, -1);
         g_string_free(type, TRUE);
     }
+#endif
+
+#ifdef HAVE_LUA_5_1
+    for (lua_plug = wslua_plugin_list; lua_plug != NULL; lua_plug = lua_plug->next)
+    {
+        type = g_string_new("");
+        type = g_string_append(type, "lua script");
+
+        simple_list_append(list, 0, lua_plug->name, 1, lua_plug->version, 2, type->str, -1);
+        g_string_free(type, TRUE);
+    }
+#endif
 }
 
 
@@ -102,4 +123,4 @@ about_plugins_page_new(void)
     return scrolledwindow;
 }
 
-#endif /* HAVE_PLUGINS */
+#endif /* HAVE_PLUGINS || HAVE_LUA_5_1 */

@@ -6,7 +6,7 @@
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
- * Copyright 2000 Gerald Combs
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -420,7 +420,7 @@ about_folders_page_new(void)
   about_folders_row(table, "Program", constpath,
       "program files");
 
-#ifdef HAVE_PLUGINS
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
   /* pers plugins */
   path = get_plugins_pers_dir();
   about_folders_row(table, "Personal Plugins", path,
@@ -487,7 +487,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   GtkWidget   *main_vb, *main_nb, *bbox, *ok_btn;
   GtkWidget   *page_lb, *about_page, *folders_page;
 
-#ifdef HAVE_PLUGINS
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
   GtkWidget   *plugins_page;
 #endif
 
@@ -531,7 +531,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   page_lb = gtk_label_new("Folders");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), folders_page, page_lb);
 
-#ifdef HAVE_PLUGINS
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
   plugins_page = about_plugins_page_new();
   page_lb = gtk_label_new("Plugins");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), plugins_page, page_lb);

@@ -34,6 +34,7 @@
 #include <epan/ex-opt.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
+#include "init_wslua.h"
 
 static lua_State* L = NULL;
 
@@ -42,6 +43,7 @@ struct _wslua_treeitem* lua_tree;
 tvbuff_t* lua_tvb;
 int lua_malformed;
 int lua_dissectors_table_ref;
+wslua_plugin *wslua_plugin_list = NULL;
 
 dissector_handle_t lua_data_handle;
 
@@ -197,34 +199,60 @@ static int lua_main_error_handler(lua_State* LS) {
     return 0;
 }
 
-static void lua_load_script(const gchar* filename) {
+static void wslua_add_plugin(gchar *name, gchar *version)
+{
+    wslua_plugin *new_plug, *lua_plug;
+
+    lua_plug = wslua_plugin_list;
+    new_plug = (wslua_plugin *)g_malloc(sizeof(wslua_plugin));
+
+    if (!lua_plug) { /* the list is empty */
+        wslua_plugin_list = new_plug;
+    } else {
+        while (lua_plug->next != NULL) {
+            lua_plug = lua_plug->next;
+        }
+        lua_plug->next = new_plug;
+    }
+
+    new_plug->name = name;
+    new_plug->version = version;
+    new_plug->next = NULL;
+}
+
+static gboolean lua_load_script(const gchar* filename) {
     FILE* file;
+    int error;
 
     if (! ( file = ws_fopen(filename,"r")) ) {
         report_open_failure(filename,errno,FALSE);
-        return;
+        return FALSE;
     }
 
     lua_settop(L,0);
 
     lua_pushcfunction(L,lua_main_error_handler);
 
-    switch (lua_load(L,getF,file,filename)) {
+    error = lua_load(L,getF,file,filename);
+    switch (error) {
         case 0:
             lua_pcall(L,0,0,1);
             fclose(file);
-            return;
+            return TRUE;
         case LUA_ERRSYNTAX: {
             report_failure("Lua: syntax error during precompilation of `%s':\n%s",filename,lua_tostring(L,-1));
             fclose(file);
-            return;
+            return FALSE;
         }
         case LUA_ERRMEM:
             report_failure("Lua: memory allocation error during execution of %s",filename);
             fclose(file);
-            return;
+            return FALSE;
     }
 
+    report_failure("Lua: unknown error during execution of %s: %d",filename,error);
+    fclose(file);
+    return FALSE;
 }
 
 static void basic_logger(const gchar *log_domain _U_,
@@ -237,6 +265,47 @@ static void basic_logger(const gchar *log_domain _U_,
 static int wslua_panic(lua_State* LS) {
     g_error("LUA PANIC: %s",lua_tostring(LS,-1));
     return 0;
+}
+
+static void lua_load_plugins (gboolean global)
+{
+    WS_DIR        *dir;             /* scanned directory */
+    WS_DIRENT     *file;            /* current file */
+    gchar         *persdir, *filename, *dot;
+    const gchar   *dirname, *name;
+
+    if (global) {
+        persdir = NULL;
+        dirname = get_plugin_dir();
+    } else {
+        persdir = get_plugins_pers_dir();
+        dirname = persdir;
+    }
+
+    if ((dir = ws_dir_open(dirname, 0, NULL)) != NULL) {
+        while ((file = ws_dir_read_name(dir)) != NULL) {
+            name = ws_dir_get_name(file);
+
+            if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+                continue;        /* skip "." and ".." */
+
+            /* skip anything but files with .lua suffix */
+            dot = strrchr(name, '.');
+            if (dot == NULL || strcmp(dot+1, "lua") != 0)
+                continue;
+
+            filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
+            if (file_exists(filename)) {
+                if (lua_load_script(filename)) {
+                    wslua_add_plugin(g_strdup(name), g_strdup(""));
+                }
+            }
+            g_free (filename);
+        }
+    }
+
+    if (persdir)
+      g_free(persdir);
 }
 
 int wslua_init(lua_State* LS) {
@@ -300,6 +369,9 @@ int wslua_init(lua_State* LS) {
         return 0;
     }
 
+    /* load global scripts */
+    lua_load_plugins(TRUE);
+
     /* check whether we should run other scripts even if running superuser */
     lua_pushstring(L,"run_user_scripts_when_superuser");
     lua_gettable(L, LUA_GLOBALSINDEX);
@@ -315,10 +387,15 @@ int wslua_init(lua_State* LS) {
 
         if (( file_exists(filename))) {
             lua_load_script(filename);
-            g_free(filename);
-            filename = NULL;
         }
 
+        g_free(filename);
+        filename = NULL;
+
+        /* load user scripts */
+        lua_load_plugins(FALSE);
+
+        /* load scripts from command line */
         while((filename = (gchar *)ex_opt_get_next("lua_script"))) {
             lua_load_script(filename);
         }

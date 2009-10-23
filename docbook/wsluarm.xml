@@ -27,6 +27,10 @@
 	  directory.
 	</para>
 	<para>
+	  Wireshark will also load all files with <command>.lua</command> suffix from both the
+	  global and the personal plugins directory.
+	</para>
+	<para>
 	  The command line option <command>-X lua_script:&lt;file.lua&gt;</command> can be used to
 	  load lua scripts as well.	  
 	</para>
