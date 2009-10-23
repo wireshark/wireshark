@@ -35,15 +35,6 @@
 #include <epan/stream.h>
 #include <epan/tvbuff.h>
 
-/* number of streams to allocate memory for at once */
-#define MEMCHUNK_STREAM_COUNT 20
-
-/* ditto pdus */
-#define MEMCHUNK_PDU_COUNT 100
-
-/* ditto fragments */
-#define MEMCHUNK_FRAGMENT_COUNT 100
-
 
 typedef struct {
     fragment_data *fd_head;          /* the reassembled data, NULL
@@ -100,7 +91,7 @@ typedef struct stream_key {
 
 
 /* hash func */
-guint stream_hash_func(gconstpointer k)
+static guint stream_hash_func(gconstpointer k)
 {
     const stream_key_t *key = (const stream_key_t *)k;
 
@@ -109,7 +100,7 @@ guint stream_hash_func(gconstpointer k)
 }
 
 /* compare func */
-gboolean stream_compare_func(gconstpointer a,
+static gboolean stream_compare_func(gconstpointer a,
 			     gconstpointer b)
 {
     const stream_key_t *key1 = (const stream_key_t *)a;
@@ -124,11 +115,6 @@ gboolean stream_compare_func(gconstpointer a,
 	return (key1 -> circ.conv == key2 -> circ.conv );
 }
 
-/* memory pools */
-static GMemChunk *stream_keys = NULL;
-static GMemChunk *streams = NULL;
-
-
 /* the hash table */
 static GHashTable *stream_hash;
 
@@ -139,24 +125,6 @@ static void init_stream_hash( void ) {
 	g_hash_table_destroy( stream_hash );
 	stream_hash = NULL;
     }
-
-    if( stream_keys != NULL ) {
-	g_mem_chunk_destroy( stream_keys );
-	stream_keys = NULL;
-    }
-
-    if( streams != NULL ) {
-	g_mem_chunk_destroy( streams );
-	streams = NULL;
-    }
-
-    streams = g_mem_chunk_create(stream_t,
-				 MEMCHUNK_STREAM_COUNT,
-				 G_ALLOC_ONLY);
-
-    stream_keys = g_mem_chunk_create(stream_key_t,
-				     MEMCHUNK_STREAM_COUNT,
-				     G_ALLOC_ONLY);
 
     stream_hash = g_hash_table_new(stream_hash_func,
 				   stream_compare_func);
@@ -187,7 +155,7 @@ static stream_t *new_stream( stream_key_t *key )
 {
     stream_t *val;
     
-    val = g_mem_chunk_alloc(streams);
+    val = se_alloc(sizeof(stream_t));
     val -> key = key;
     val -> pdu_counter = 0;
     val -> current_pdu = NULL;
@@ -204,7 +172,7 @@ static stream_t *stream_hash_insert_circ( const struct circuit *circuit, int p2p
 {
     stream_key_t *key;
 
-    key = g_mem_chunk_alloc(stream_keys);
+    key = se_alloc(sizeof(stream_key_t));
     key->is_circuit = TRUE;
     key->circ.circuit = circuit;
     key->p2p_dir = p2p_dir;
@@ -216,7 +184,7 @@ static stream_t *stream_hash_insert_conv( const struct conversation *conv, int p
 {
     stream_key_t *key;
 
-    key = g_mem_chunk_alloc(stream_keys);
+    key = se_alloc(sizeof(stream_key_t));
     key->is_circuit = FALSE;
     key->circ.conv = conv;
     key->p2p_dir = p2p_dir;
@@ -229,7 +197,6 @@ static stream_t *stream_hash_insert_conv( const struct conversation *conv, int p
  *
  * PDU data
  */
-static GMemChunk *pdus = NULL;
 
 /* pdu counter, for generating unique pdu ids */
 static guint32 pdu_counter;
@@ -237,14 +204,6 @@ static guint32 pdu_counter;
 
 static void stream_init_pdu_data(void)
 {
-    if( pdus != NULL ) {
-	g_mem_chunk_destroy( pdus );
-	pdus = NULL;
-    }
-
-    pdus = g_mem_chunk_create(stream_pdu_t,
-			      MEMCHUNK_PDU_COUNT,
-			      G_ALLOC_ONLY);
     pdu_counter = 0;
 }
 
@@ -253,7 +212,7 @@ static void stream_init_pdu_data(void)
 static stream_pdu_t *stream_new_pdu(stream_t *stream)
 {
     stream_pdu_t *pdu;
-    pdu = g_mem_chunk_alloc(pdus);
+    pdu = se_alloc(sizeof(stream_pdu_t));
     pdu -> fd_head = NULL;
     pdu -> pdu_number = stream -> pdu_counter++;
     pdu -> id = pdu_counter++;
@@ -274,14 +233,14 @@ typedef struct fragment_key {
 
 
 /* hash func */
-guint fragment_hash_func(gconstpointer k)
+static guint fragment_hash_func(gconstpointer k)
 {
     const fragment_key_t *key = (const fragment_key_t *)k;
     return ((guint)(unsigned long)key->stream) + ((guint)key -> framenum) + ((guint)key->offset);
 }
 
 /* compare func */
-gboolean fragment_compare_func(gconstpointer a,
+static gboolean fragment_compare_func(gconstpointer a,
 			       gconstpointer b)
 {
     const fragment_key_t *key1 = (const fragment_key_t *)a;
@@ -291,10 +250,6 @@ gboolean fragment_compare_func(gconstpointer a,
 	    key1 -> offset == key2 -> offset );
 }
 	    
-/* memory pools */
-static GMemChunk *fragment_keys = NULL;
-static GMemChunk *fragment_vals = NULL;
-
 /* the hash table */
 static GHashTable *fragment_hash;
 
@@ -305,24 +260,6 @@ static void init_fragment_hash( void ) {
 	g_hash_table_destroy( fragment_hash );
 	fragment_hash = NULL;
     }
-
-    if( fragment_vals != NULL ) {
-	g_mem_chunk_destroy( fragment_vals );
-	fragment_vals = NULL;
-    }
-
-    if( fragment_keys != NULL ) {
-	g_mem_chunk_destroy( fragment_keys );
-	fragment_keys = NULL;
-    }
-
-    fragment_keys = g_mem_chunk_create(fragment_key_t,
-				       MEMCHUNK_FRAGMENT_COUNT,
-				       G_ALLOC_ONLY);
-    
-    fragment_vals = g_mem_chunk_create(stream_pdu_fragment_t,
-				       MEMCHUNK_FRAGMENT_COUNT,
-				       G_ALLOC_ONLY);
 
     fragment_hash = g_hash_table_new(fragment_hash_func,
 				     fragment_compare_func);
@@ -351,12 +288,12 @@ static stream_pdu_fragment_t *fragment_hash_insert( const stream_t *stream, guin
     fragment_key_t *key;
     stream_pdu_fragment_t *val;
 
-    key = g_mem_chunk_alloc(fragment_keys);
+    key = se_alloc(sizeof(fragment_key_t));
     key->stream = stream;
     key->framenum = framenum;
     key->offset = offset;
 
-    val = g_mem_chunk_alloc(fragment_vals);
+    val = se_alloc(sizeof(stream_pdu_fragment_t));
     val->len = length;
     val->pdu = NULL;
     val->final_fragment = FALSE;
@@ -401,8 +338,6 @@ stream_t *stream_new_conv ( const struct conversation *conv, int p2p_dir )
 }
 
 
-
-
 /* retrieve a previously-created stream.
  *
  * Returns null if no matching stream was found.
@@ -416,6 +351,10 @@ stream_t *find_stream_conv ( const struct conversation *conv, int p2p_dir )
     return stream_hash_lookup_conv(conv,p2p_dir);
 }
 
+/* Note: stream_init must only be called when seasonal memory
+ *       is also freed since the hash tables countain pointers to 
+ *       se_alloc'd memory.
+ */
 
 /* initialise the stream routines */
 void stream_init( void )

@@ -205,8 +205,6 @@ typedef struct _radius_call_info_key
 	nstime_t req_time;
 } radius_call_info_key;
 
-static GMemChunk *radius_call_info_key_chunk;
-static GMemChunk *radius_call_info_value_chunk;
 static GHashTable *radius_calls;
 
 typedef struct _radius_vsa_buffer_key
@@ -1311,7 +1309,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	conversation_t* conversation;
 	radius_call_info_key radius_call_key;
-	radius_call_info_key *new_radius_call_key = NULL;
+	radius_call_info_key *new_radius_call_key;
 	radius_call_t *radius_call = NULL;
 	nstime_t delta;
 	static address null_address = { AT_NONE, 0, NULL };
@@ -1475,9 +1473,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					   frame numbers are 1-origin, so we use 0
 					   to mean "we don't yet know in which frame
 					   the reply for this call appears". */
-					new_radius_call_key = g_mem_chunk_alloc(radius_call_info_key_chunk);
+					new_radius_call_key = se_alloc(sizeof(radius_call_info_key));
 					*new_radius_call_key = radius_call_key;
-					radius_call = g_mem_chunk_alloc(radius_call_info_value_chunk);
+					radius_call = se_alloc(sizeof(radius_call_t));
 					radius_call->req_num = pinfo->fd->num;
 					radius_call->rsp_num = 0;
 					radius_call->ident = rh.rh_ident;
@@ -1826,26 +1824,8 @@ radius_init_protocol(void)
 		g_hash_table_destroy(radius_calls);
 		radius_calls = NULL;
 	}
-	if (radius_call_info_key_chunk != NULL)
-	{
-		g_mem_chunk_destroy(radius_call_info_key_chunk);
-		radius_call_info_key_chunk = NULL;
-	}
-	if (radius_call_info_value_chunk != NULL)
-	{
-		g_mem_chunk_destroy(radius_call_info_value_chunk);
-		radius_call_info_value_chunk = NULL;
-	}
 
 	radius_calls = g_hash_table_new(radius_call_hash, radius_call_equal);
-	radius_call_info_key_chunk = g_mem_chunk_new("call_info_key_chunk",
-	                                           sizeof(radius_call_info_key),
-	                                           200 * sizeof(radius_call_info_key),
-	                                           G_ALLOC_ONLY);
-	radius_call_info_value_chunk = g_mem_chunk_new("call_info_value_chunk",
-	                                             sizeof(radius_call_t),
-	                                             200 * sizeof(radius_call_t),
-	                                             G_ALLOC_ONLY);
 }
 
 static void register_radius_fields(const char* unused _U_) {

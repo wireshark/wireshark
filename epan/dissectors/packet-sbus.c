@@ -27,17 +27,12 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <glib.h>
-#include <gmodule.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
-/* Number of entries in the memeory chunk array (for conversation)*/
-#define SBUS_MEMCHUNKSIZE      20
-/* Attribut values*/
+/* Attribute values*/
 #define SBUS_REQUEST                 0x00
 #define SBUS_RESPONSE                 0x01
 #define SBUS_ACKNAK                          0x02
@@ -452,10 +447,8 @@ typedef struct {
        guint8 sysinfo;                      /*system information number (or command in other telegrams)*/
 } sbus_request_val;
 
-/* The GMemChunk base structure (for conversations)*/
+/* The hash structure (for conversations)*/
 static GHashTable *sbus_request_hash = NULL;
-static GMemChunk *sbus_request_keys = NULL;
-static GMemChunk *sbus_request_vals = NULL;
 
 static guint crc_calc (guint crc, guint val) 
 {
@@ -494,21 +487,7 @@ static void sbus_init_protocol(void){
        if (sbus_request_hash){
               g_hash_table_destroy(sbus_request_hash);
        }
-       if (sbus_request_keys){
-              g_mem_chunk_destroy(sbus_request_keys);
-       }      
-       if (sbus_request_vals){
-              g_mem_chunk_destroy(sbus_request_vals);
-       }
        sbus_request_hash = g_hash_table_new(sbus_hash, sbus_equal);
-       sbus_request_keys = g_mem_chunk_new("sbus_request_keys",
-              sizeof(sbus_request_key),
-              SBUS_MEMCHUNKSIZE * sizeof(sbus_request_key),
-              G_ALLOC_AND_FREE);
-       sbus_request_vals = g_mem_chunk_new("sbus_request_vals",
-              sizeof(sbus_request_val),
-              SBUS_MEMCHUNKSIZE * sizeof(sbus_request_val),
-              G_ALLOC_AND_FREE);
 }
 
 /* check whether the packet looks like SBUS or not */
@@ -603,10 +582,10 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        sbus_attribut = tvb_get_guint8(tvb,8); 
         
        if ( !request_val && sbus_attribut == 0 ) {/* request telegram */
-              new_request_key = g_mem_chunk_alloc(sbus_request_keys);
+              new_request_key = se_alloc(sizeof(sbus_request_key));
               *new_request_key = request_key;
               
-              request_val = g_mem_chunk_alloc(sbus_request_vals);
+              request_val = se_alloc(sizeof(sbus_request_val));
               request_val->cmd_code=tvb_get_guint8(tvb,10);
               
               if (((request_val->cmd_code) == SBUS_RD_USER_EEPROM_REGISTER) || 
@@ -1606,7 +1585,8 @@ proto_register_sbus(void)
               },
 
               { &hf_sbus_crc_bad,
-                     { "Bad Checksum",      "sbus.crc_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                     { "Bad Checksum",      "sbus.crc_bad",
+                     FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                      "A bad checksum in the telegram", HFILL }},                  
               
               { &hf_sbus_flags_accu,
@@ -1659,3 +1639,15 @@ proto_reg_handoff_sbus(void)
        dissector_add("udp.port", 5050, sbus_handle);
 }
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 7
+ * tab-width: 7
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=3 expandtab
+ * :indentSize=7:tabSize=7:noTabs=true:
+ */

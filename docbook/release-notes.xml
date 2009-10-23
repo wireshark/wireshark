@@ -90,6 +90,12 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
+          Wireshark memory leak with each file open and/or display filter change.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2375">Bug
+          2375</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           DHCP Dissector displays negative lease time.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2733">Bug
           2733</ulink>)
@@ -188,12 +194,17 @@ E.212,
 eDonkey,
 FIP,
 IPsec,
+MGCP,
+NCP,
 Paltalk,
+RADIUS,
 RSL,
+SBus,
 SMB,
 SNMP,
 SSL,
 TCP,
+Teamspeak2,
 WPS
 
     </para>
