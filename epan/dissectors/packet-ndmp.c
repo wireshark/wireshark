@@ -225,6 +225,12 @@ static int hf_ndmp_data_halted = -1;
 static int hf_ndmp_data_bytes_processed = -1;
 static int hf_ndmp_data_est_bytes_remain = -1;
 static int hf_ndmp_data_est_time_remain = -1;
+static int hf_ndmp_ex_class_id = -1;
+static int hf_ndmp_class_list = -1;
+static int hf_ndmp_ext_version = -1;
+static int hf_ndmp_ext_version_list = -1;
+static int hf_ndmp_class_version = -1;
+static int hf_ndmp_ex_class_version = -1;
 
 static int hf_ndmp_fragments = -1;
 static int hf_ndmp_fragment = -1;
@@ -387,6 +393,13 @@ static const value_string msg_type_vals[] = {
 #define NDMP_XDR_ENCODE_ERR		0x15
 #define NDMP_NO_MEM_ERR			0x16
 #define NDMP_CONNECT_ERR		0x17
+#define NDMP_SEQUENCE_NUM_ERR           0x18  
+#define NDMP_READ_IN_PROGRESS_ERR       0x19
+#define NDMP_PRECONDITION_ERR           0x1a
+#define NDMP_CLASS_NOT_SUPPORTED_ERR    0x1b
+#define NDMP_VERSION_NOT_SUPPORTED_ERR  0x1c
+#define NDMP_EXT_DUPL_CLASSES_ERR       0x1d
+#define NDMP_EXT_DANDN_ILLEGAL_ERR      0x1e
 
 static const value_string error_vals[] = {
 	{NDMP_NO_ERR,			"NO_ERR"},
@@ -413,6 +426,13 @@ static const value_string error_vals[] = {
 	{NDMP_XDR_ENCODE_ERR,		"XDR_ENCODE_ERR"},
 	{NDMP_NO_MEM_ERR,		"NO_MEM_ERR"},
 	{NDMP_CONNECT_ERR,		"CONNECT_ERR"},
+        {NDMP_SEQUENCE_NUM_ERR,         "NDMP_SEQUENCE_NUM_ERR"},
+        {NDMP_READ_IN_PROGRESS_ERR,     "NDMP_READ_IN_PROGRESS_ERR"}, 
+        {NDMP_PRECONDITION_ERR,         "NDMP_PRECONDITION_ERR"},
+        {NDMP_CLASS_NOT_SUPPORTED_ERR,  "NDMP_CLASS_NOT_SUPPORTED_ERR"},
+        {NDMP_VERSION_NOT_SUPPORTED_ERR,"NDMP_VERSION_NOT_SUPPORTED_ERR"},
+        {NDMP_EXT_DUPL_CLASSES_ERR,     "NDMP_EXT_DUPL_CLASSES_ERR"},
+        {NDMP_EXT_DANDN_ILLEGAL_ERR,    "NDMP_EXT_DANDN_ILLEGAL_ERR"},
 	{0, NULL}
 };
 
@@ -426,6 +446,8 @@ static const value_string error_vals[] = {
 #define NDMP_CONFIG_GET_TAPE_INFO 	0x106
 #define NDMP_CONFIG_GET_SCSI_INFO 	0x107
 #define NDMP_CONFIG_GET_SERVER_INFO 	0x108
+#define NDMP_CONFIG_SET_EXT_LIST        0x109
+#define NDMP_CONFIG_GET_EXT_LIST        0x10a
 #define NDMP_SCSI_OPEN 			0x200
 #define NDMP_SCSI_CLOSE 		0x201
 #define NDMP_SCSI_GET_STATE 		0x202
@@ -485,6 +507,8 @@ static const value_string msg_vals[] = {
 	{NDMP_CONFIG_GET_TAPE_INFO, 	"CONFIG_GET_TAPE_INFO"},
 	{NDMP_CONFIG_GET_SCSI_INFO, 	"CONFIG_GET_SCSI_INFO"},
 	{NDMP_CONFIG_GET_SERVER_INFO, 	"CONFIG_GET_SERVER_INFO"},
+	{NDMP_CONFIG_GET_EXT_LIST, 	"CONFIG_GET_EXT_LIST"},
+	{NDMP_CONFIG_SET_EXT_LIST, 	"CONFIG_SET_EXT_LIST"},
 	{NDMP_SCSI_OPEN, 		"SCSI_OPEN"},
 	{NDMP_SCSI_CLOSE, 		"SCSI_CLOSE"},
 	{NDMP_SCSI_GET_STATE, 		"SCSI_GET_STATE"},
@@ -1175,6 +1199,85 @@ dissect_get_server_info_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* server */
 	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
 			dissect_auth_type, hf_ndmp_auth_types);
+
+	return offset;
+}
+
+static int
+dissect_ext_version(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree) {
+
+	/* extension version */
+	proto_tree_add_item(tree, hf_ndmp_ext_version, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	return offset;
+}
+
+
+static int
+dissect_class_list(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		proto_tree *tree) {
+
+	/* class id */
+	proto_tree_add_item(tree, hf_ndmp_ex_class_id, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* ext version */
+	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
+			dissect_ext_version, hf_ndmp_ext_version_list);
+
+	return offset;
+}
+
+static int
+dissect_get_ext_list_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		proto_tree *tree, guint32 seq)
+{
+	/* error */
+	offset=dissect_error(tvb, offset, pinfo, tree, seq);
+
+	/* Class list */
+	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
+			dissect_class_list, hf_ndmp_class_list);
+
+	return offset;
+}
+
+
+static int
+dissect_class_version(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree) {
+
+	/* class id */
+	proto_tree_add_item(tree, hf_ndmp_ex_class_id, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* ext version */
+	proto_tree_add_item(tree, hf_ndmp_ex_class_version, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	return offset;
+}
+
+static int 
+dissect_set_ext_list_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		proto_tree *tree, guint32 seq _U_)
+{
+	/* class version */
+	offset = dissect_rpc_array(tvb, pinfo, tree, offset,
+			dissect_class_version, hf_ndmp_class_version);
+
+	return offset;
+}
+
+
+static int 
+dissect_set_ext_list_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		proto_tree *tree, guint32 seq _U_)
+{
+	/* error */
+	offset=dissect_error(tvb, offset, pinfo, tree, seq);
 
 	return offset;
 }
@@ -2788,6 +2891,10 @@ static const ndmp_command ndmp_commands[] = {
 		NULL, dissect_get_scsi_info_reply},
 	{NDMP_CONFIG_GET_SERVER_INFO,
 		NULL, dissect_get_server_info_reply},
+	{NDMP_CONFIG_GET_EXT_LIST,
+		NULL, dissect_get_ext_list_reply},
+	{NDMP_CONFIG_SET_EXT_LIST,
+		dissect_set_ext_list_request, dissect_set_ext_list_reply},
 	{NDMP_SCSI_OPEN,
 		dissect_scsi_open_request, dissect_error},
 	{NDMP_SCSI_CLOSE,
@@ -4119,6 +4226,24 @@ proto_register_ndmp(void)
 	{ &hf_ndmp_fraglen, {
 		"Fragment Length", "ndmp.fraglen", FT_UINT32, BASE_DEC,
 		NULL, RPC_RM_FRAGLEN, NULL, HFILL }},
+	{ &hf_ndmp_class_list, {
+		"Ext Class List", "ndmp_class_list", FT_NONE, BASE_NONE,
+		NULL, 0, "List of extension classes", HFILL }},
+	{ &hf_ndmp_ex_class_id, {
+		"Class ID", "ndmp.class.id", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_ndmp_ext_version_list, {
+		"Ext Version List", "ndmp.ext_version_list", FT_NONE, BASE_NONE,
+		NULL, 0, "List of extension versions", HFILL }},
+	{ &hf_ndmp_ext_version, {
+		"Ext Version", "ndmp.ext_version_list.version", FT_UINT32, BASE_HEX,
+		NULL, 0, "Extension version", HFILL }},
+	{ &hf_ndmp_class_version, {
+		"Class and version", "ndmp.ext_version", FT_NONE, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_ndmp_ex_class_version, {
+		"Class Version", "ndmp.class.version", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
 	{&hf_ndmp_fragments, {
 		"NDMP fragments", "ndmp.fragments", FT_NONE, BASE_NONE, 
 		NULL, 0x00, NULL, HFILL } },
