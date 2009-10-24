@@ -324,7 +324,7 @@ ndmp_conv_data_t *ndmp_conv_data=NULL;
 static proto_tree *top_tree;
 
 static itl_nexus_t *
-get_itl_nexus(ndmp_conv_data_t *ndmp_conv_data, packet_info *pinfo, gboolean create_new)
+get_itl_nexus(packet_info *pinfo, gboolean create_new)
 {
 	itl_nexus_t *itl;
 
@@ -338,7 +338,7 @@ get_itl_nexus(ndmp_conv_data_t *ndmp_conv_data, packet_info *pinfo, gboolean cre
 }
 
 static guint8
-get_ndmp_protocol_version(ndmp_conv_data_t *ndmp_conv_data)
+get_ndmp_protocol_version(void)
 {
 	if(!ndmp_conv_data || (ndmp_conv_data->version==NDMP_PROTOCOL_UNKNOWN)){
 		return ndmp_default_protocol_version;
@@ -558,7 +558,7 @@ static const value_string msg_vals[] = {
 	{0, NULL}
 };
 
-gboolean
+static gboolean
 check_ndmp_rm(tvbuff_t *tvb, packet_info *pinfo)
 {
 	guint len;
@@ -584,7 +584,7 @@ check_ndmp_rm(tvbuff_t *tvb, packet_info *pinfo)
 	return TRUE;
 }
 
-gboolean
+static gboolean
 check_ndmp_hdr(tvbuff_t *tvb )
 {
 	guint len;
@@ -1293,7 +1293,7 @@ dissect_scsi_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if(!pinfo->fd->flags.visited){
 		/* new scsi device addressed, create a new itl structure */
-		get_itl_nexus(ndmp_conv_data, pinfo, TRUE);
+		get_itl_nexus(pinfo, TRUE);
 	}
 
 	return offset;
@@ -1416,7 +1416,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ndmp_conv_data->task->itlq->extra_data=NULL;
 		}
 		if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
-			dissect_scsi_cdb(cdb_tvb, pinfo, top_tree, devtype, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE));
+			dissect_scsi_cdb(cdb_tvb, pinfo, top_tree, devtype, ndmp_conv_data->task->itlq, get_itl_nexus(pinfo, FALSE));
 		}
 		offset += cdb_len_full;
 	}
@@ -1468,7 +1468,7 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 			ndmp_conv_data->task->itlq->bidir_data_length=payload_len;
 			dissect_scsi_payload(data_tvb, pinfo, top_tree, isreq,
 				   ndmp_conv_data->task->itlq,
-				   get_itl_nexus(ndmp_conv_data, pinfo, FALSE),
+				   get_itl_nexus(pinfo, FALSE),
 				   0);
 		}
 		offset += payload_len_full;
@@ -1556,7 +1556,7 @@ dissect_execute_cdb_sns(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 	if (sns_len != 0) {
 		if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
-			dissect_scsi_snsinfo(tvb, pinfo, top_tree, offset, sns_len, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE));
+			dissect_scsi_snsinfo(tvb, pinfo, top_tree, offset, sns_len, ndmp_conv_data->task->itlq, get_itl_nexus(pinfo, FALSE));
 		}
 		offset += sns_len_full;
 	}
@@ -1577,7 +1577,7 @@ dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree_add_item(tree, hf_ndmp_execute_cdb_status, tvb, offset, 4, FALSE);
 	status=tvb_get_ntohl(tvb, offset);
 	if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
-		dissect_scsi_rsp(tvb, pinfo, top_tree, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE), (guint8)status);
+		dissect_scsi_rsp(tvb, pinfo, top_tree, ndmp_conv_data->task->itlq, get_itl_nexus(pinfo, FALSE), (guint8)status);
 	}
 	offset += 4;
 
@@ -1618,7 +1618,7 @@ dissect_tape_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if(!pinfo->fd->flags.visited){
 		/* new scsi device addressed, create a new itl structure */
-		get_itl_nexus(ndmp_conv_data, pinfo, TRUE);
+		get_itl_nexus(pinfo, TRUE);
 	}
 
 	return offset;
@@ -1770,7 +1770,7 @@ dissect_tape_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset);
 
 	/* NDMP Version 4 does not have a partition field here, so just return now. */
-	if (get_ndmp_protocol_version(ndmp_conv_data) == NDMP_PROTOCOL_V4)
+	if (get_ndmp_protocol_version() == NDMP_PROTOCOL_V4)
 		return offset;
 
 	/* partition */
@@ -1929,7 +1929,7 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		break;
 	case NDMP_ADDR_TCP:
 	  	/* this became an array in version 4 and beyond */
-		if(get_ndmp_protocol_version(ndmp_conv_data)<NDMP_PROTOCOL_V4){
+		if(get_ndmp_protocol_version()<NDMP_PROTOCOL_V4){
 			/* IP addr */
 			proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, FALSE);
 			offset+=4;
@@ -1977,7 +1977,7 @@ dissect_mover_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset=dissect_error(tvb, offset, pinfo, tree, seq);
 
 	/* mode is only present in version 4 and beyond */
-	if(get_ndmp_protocol_version(ndmp_conv_data)>=NDMP_PROTOCOL_V4){
+	if(get_ndmp_protocol_version()>=NDMP_PROTOCOL_V4){
 		proto_tree_add_item(tree, hf_ndmp_mover_mode, tvb, offset, 4, FALSE);
 		offset += 4;
 	}
@@ -2023,7 +2023,7 @@ dissect_mover_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset += 8;
 
 	/* this is where v2 ends */
-	if(get_ndmp_protocol_version(ndmp_conv_data)==NDMP_PROTOCOL_V2){
+	if(get_ndmp_protocol_version()==NDMP_PROTOCOL_V2){
 		return offset;
 	}
 
@@ -2165,7 +2165,7 @@ dissect_notify_data_halted_request(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, FALSE);
 	offset += 4;
 
-	switch(get_ndmp_protocol_version(ndmp_conv_data)){
+	switch(get_ndmp_protocol_version()){
 	case NDMP_PROTOCOL_V2:
 	case NDMP_PROTOCOL_V3:
 		/* reason : only in version 2, 3 */
@@ -2185,7 +2185,7 @@ dissect_notify_mover_halted_request(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, FALSE);
 	offset += 4;
 
-	switch(get_ndmp_protocol_version(ndmp_conv_data)){
+	switch(get_ndmp_protocol_version()){
 	case NDMP_PROTOCOL_V2:
 	case NDMP_PROTOCOL_V3:
 		/* reason : only in version 2, 3 */
@@ -2680,7 +2680,7 @@ dissect_nlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_rpc_string(tvb, tree,
 			hf_ndmp_bu_destination_dir, offset, NULL);
 
-	if(get_ndmp_protocol_version(ndmp_conv_data)==NDMP_PROTOCOL_V2){
+	if(get_ndmp_protocol_version()==NDMP_PROTOCOL_V2){
 		/* just 2 reserved bytes (4 with padding) */
 		offset += 4;
 	} else {
@@ -2709,7 +2709,7 @@ static int
 dissect_data_start_recover_request(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint32 seq _U_)
 {
-	if(get_ndmp_protocol_version(ndmp_conv_data)==NDMP_PROTOCOL_V2){
+	if(get_ndmp_protocol_version()==NDMP_PROTOCOL_V2){
 		/* ndmp addr */
 		offset=dissect_ndmp_addr(tvb, offset, pinfo, tree);
 	}
