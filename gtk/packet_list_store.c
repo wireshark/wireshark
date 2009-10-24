@@ -917,11 +917,11 @@ packet_list_compare_records(gint sort_id, PacketListRecord *a,
 	g_assert(a->fdata->col_text[sort_id]);
 	g_assert(b->fdata->col_text[sort_id]);
 
+	if(a->fdata->col_text[sort_id] == b->fdata->col_text[sort_id])
+		return 0; /* not always NULL, but anyway no need to call strcmp() */
+
 	if((a->fdata->col_text[sort_id]) && (b->fdata->col_text[sort_id]))
 		return strcmp(a->fdata->col_text[sort_id], b->fdata->col_text[sort_id]);
-
-	if(a->fdata->col_text[sort_id] == b->fdata->col_text[sort_id])
-		return 0; /* both are NULL */
 	else
 		return (a->fdata->col_text[sort_id] == NULL) ? -1 : 1;
 
