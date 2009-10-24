@@ -267,20 +267,12 @@ static int wslua_panic(lua_State* LS) {
     return 0;
 }
 
-static void lua_load_plugins (gboolean global)
+static void lua_load_plugins (const char *dirname)
 {
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
-    gchar         *persdir, *filename, *dot;
-    const gchar   *dirname, *name;
-
-    if (global) {
-        persdir = NULL;
-        dirname = get_plugin_dir();
-    } else {
-        persdir = get_plugins_pers_dir();
-        dirname = persdir;
-    }
+    gchar         *filename, *dot;
+    const gchar   *name;
 
     if ((dir = ws_dir_open(dirname, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
@@ -289,23 +281,29 @@ static void lua_load_plugins (gboolean global)
             if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
                 continue;        /* skip "." and ".." */
 
+            filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
+            if (test_for_directory(filename) == EISDIR) {
+                lua_load_plugins(filename);
+                g_free(filename);
+                continue;
+            }
+
             /* skip anything but files with .lua suffix */
             dot = strrchr(name, '.');
-            if (dot == NULL || strcmp(dot+1, "lua") != 0)
+            if (dot == NULL || strcmp(dot+1, "lua") != 0) {
+                g_free(filename);
                 continue;
+            }
 
-            filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
             if (file_exists(filename)) {
                 if (lua_load_script(filename)) {
                     wslua_add_plugin(g_strdup(name), g_strdup(""));
                 }
             }
-            g_free (filename);
+            g_free(filename);
         }
+        ws_dir_close(dir);
     }
-
-    if (persdir)
-      g_free(persdir);
 }
 
 int wslua_init(lua_State* LS) {
@@ -370,7 +368,7 @@ int wslua_init(lua_State* LS) {
     }
 
     /* load global scripts */
-    lua_load_plugins(TRUE);
+    lua_load_plugins(get_plugin_dir());
 
     /* check whether we should run other scripts even if running superuser */
     lua_pushstring(L,"run_user_scripts_when_superuser");
@@ -385,15 +383,16 @@ int wslua_init(lua_State* LS) {
     if ( (!started_with_special_privs()) || run_anyway ) {
         filename = get_persconffile_path("init.lua", FALSE, FALSE);
 
-        if (( file_exists(filename))) {
+        if ((file_exists(filename))) {
             lua_load_script(filename);
         }
 
         g_free(filename);
-        filename = NULL;
 
         /* load user scripts */
-        lua_load_plugins(FALSE);
+        filename = get_plugins_pers_dir();
+        lua_load_plugins(filename);
+        g_free(filename);
 
         /* load scripts from command line */
         while((filename = (gchar *)ex_opt_get_next("lua_script"))) {
