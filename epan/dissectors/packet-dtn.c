@@ -667,6 +667,11 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
     int dest_scheme_offset, dest_ssp_offset, source_scheme_offset, source_ssp_offset;
     int report_scheme_offset, report_ssp_offset, cust_scheme_offset, cust_ssp_offset;
     int fragment_offset, total_adu_length;
+    int dst_scheme_pos, src_scheme_pos, rpt_scheme_pos, cust_scheme_pos;
+    int dst_scheme_len, src_scheme_len, rpt_scheme_len, cust_scheme_len;
+    int dst_ssp_len, src_ssp_len, rpt_ssp_len, cust_ssp_len;
+    gchar *src_node;
+    gchar *dst_node;
 
     guint8 srrflags;
     guint8 version;
@@ -763,41 +768,53 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
      */
 
     dest_scheme_offset = tvb_get_ntohs(tvb, offset);
+    dst_scheme_pos = offset;
+    dst_scheme_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_dest_scheme_offset,
 							tvb, offset, 2, FALSE);
     offset += 2;
 
     dest_ssp_offset = tvb_get_ntohs(tvb, offset);
+    dst_ssp_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_dest_ssp_offset,
 							tvb, offset, 2, FALSE);
     offset += 2;
 
     source_scheme_offset = tvb_get_ntohs(tvb, offset);
+    src_scheme_pos = offset;
+    src_scheme_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_source_scheme_offset,
 							tvb, offset, 2, FALSE);
     offset += 2;
 
     source_ssp_offset = tvb_get_ntohs(tvb, offset);
+    src_ssp_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_source_ssp_offset,
 							tvb, offset, 2, FALSE);
     offset += 2;
 
     report_scheme_offset = tvb_get_ntohs(tvb, offset);
+    rpt_scheme_pos = offset;
+    rpt_scheme_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_report_scheme_offset,
 							tvb, offset, 2, FALSE);
     offset += 2;
 
     report_ssp_offset = tvb_get_ntohs(tvb, offset);
+    rpt_ssp_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_report_ssp_offset,
 							tvb, offset, 2, FALSE);
     offset += 2;
 
     cust_scheme_offset = tvb_get_ntohs(tvb, offset);
+    cust_scheme_pos = offset;
+    cust_scheme_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_cust_scheme_offset,
 							tvb, offset, 2, FALSE);
     offset += 2;
 
     cust_ssp_offset = tvb_get_ntohs(tvb, offset);
+    cust_ssp_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_cust_ssp_offset,
 							tvb, offset, 2, FALSE);
     offset += 2;
@@ -829,80 +846,179 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
 					bundle_header_dict_length, "Dictionary");
     dict_tree = proto_item_add_subtree(dict_item, ett_dictionary);
     dict_ptr = (guint8 *) tvb_get_ptr(tvb, offset, bundle_header_dict_length);
+    /*
+     * If the dictionary length is 0, then the CBHE block compression method is applied.
+     * So the scheme offset is the node number and the ssp offset is the service number.
+     * If destination scheme offset is 2 and destination ssp offset is 1, then the EID is
+     * ipn:2.1
+     */
+    if(bundle_header_dict_length == 0)
+    {
+	/*
+ 	 * Destination info
+ 	 */
+	proto_tree_add_text(dict_tree, tvb, 0,
+			 	0, "Destination Scheme: %s",IPN_SCHEME_STR);
+	if(dest_scheme_offset == 0 && dest_ssp_offset == 0)
+	{
+		proto_tree_add_text(dict_tree, tvb, dst_scheme_pos,
+				dst_scheme_len + dst_ssp_len, "Destination: Null");
+	}
+	else
+	{
+		proto_tree_add_text(dict_tree, tvb, dst_scheme_pos,
+				dst_scheme_len + dst_ssp_len,
+				"Destination: %d.%d",dest_scheme_offset,dest_ssp_offset);
+	}
+	
+	/*
+ 	 * Source info
+ 	 */ 
+	proto_tree_add_text(dict_tree, tvb, 0,
+			 		0, "Source Scheme: %s",IPN_SCHEME_STR);
+	if(source_scheme_offset == 0 && source_ssp_offset == 0)
+	{
+		proto_tree_add_text(dict_tree, tvb, src_scheme_pos,
+				src_scheme_len + src_ssp_len, "Source: Null");
+	}
+	else
+	{
+		proto_tree_add_text(dict_tree, tvb, src_scheme_pos,
+				src_scheme_len + src_ssp_len,
+				"Source: %d.%d",source_scheme_offset,source_ssp_offset);
+	}
+
+	/*
+ 	 * Report to info
+ 	 */ 
+	proto_tree_add_text(dict_tree, tvb, 0,
+			 		0, "Report Scheme: %s",IPN_SCHEME_STR);
+	if(report_scheme_offset == 0 && report_ssp_offset == 0)
+	{
+		proto_tree_add_text(dict_tree, tvb, rpt_scheme_pos,
+				rpt_scheme_len + rpt_ssp_len, "Report: Null");
+	}
+	else
+	{
+		proto_tree_add_text(dict_tree, tvb, rpt_scheme_pos,
+				rpt_scheme_len + rpt_ssp_len,
+				"Report: %d.%d",report_scheme_offset,report_ssp_offset);
+	}
+
+	/*
+ 	 * Custodian info
+ 	 */ 
+	proto_tree_add_text(dict_tree, tvb, 0,
+			 		0, "Custodian Scheme: %s",IPN_SCHEME_STR);
+	if(cust_scheme_offset == 0 && cust_ssp_offset == 0)
+	{
+		proto_tree_add_text(dict_tree, tvb, cust_scheme_pos,
+				cust_scheme_len + cust_ssp_len, "Custodian: Null");
+	}
+	else
+	{
+		proto_tree_add_text(dict_tree, tvb, cust_scheme_pos,
+				cust_scheme_len + cust_ssp_len,
+				"Custodian: %d.%d",cust_scheme_offset,cust_ssp_offset);
+	}
+	src_node = ep_alloc(NODE_NAME_STR_SIZE);
+	dst_node = ep_alloc(NODE_NAME_STR_SIZE);
+
+	if(source_scheme_offset == 0 && source_ssp_offset == 0)
+	{
+		g_snprintf(src_node,5,"Null");
+	}
+	else
+	{
+		g_snprintf(src_node,NODE_NAME_STR_SIZE,"%s:%d.%d",IPN_SCHEME_STR, source_scheme_offset, source_ssp_offset);
+	}
+	if(dest_scheme_offset == 0 && dest_ssp_offset == 0)
+	{
+		g_snprintf(dst_node,5,"Null");
+	}
+	else
+	{
+		g_snprintf(dst_node,NODE_NAME_STR_SIZE,"%s:%d.%d",IPN_SCHEME_STR, dest_scheme_offset, dest_ssp_offset);
+	}
+
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s", src_node,dst_node);
+    }
 
     /*
      * This pointer can be made to address outside the packet boundaries so we
      * need to check for improperly formatted strings (no null termination).
      */
 
+    else
+    {
     /*
      * Destination info
      */
+	    string_ptr = tvb_get_ephemeral_stringz(tvb, offset + dest_scheme_offset, &string_length);
 
-    string_ptr = tvb_get_ephemeral_stringz(tvb, offset + dest_scheme_offset, &string_length);
+	    proto_tree_add_text(dict_tree, tvb, offset + dest_scheme_offset,
+					(gint)strlen((char *) (dict_ptr + dest_scheme_offset)),
+							"Destination Scheme: %s", string_ptr);
+	    string_ptr = tvb_get_ephemeral_stringz(tvb, offset + dest_ssp_offset, &string_length);
+	    dest_item = proto_tree_add_text(dict_tree, tvb, offset + dest_ssp_offset,
+					(gint)strlen((char *) (dict_ptr + dest_ssp_offset)), " ");
+	    proto_item_set_text(dest_item, "Destination: %s", string_ptr);
 
-    proto_tree_add_text(dict_tree, tvb, offset + dest_scheme_offset,
-				(gint)strlen((char *) (dict_ptr + dest_scheme_offset)),
-						"Destination Scheme: %s", string_ptr);
-    string_ptr = tvb_get_ephemeral_stringz(tvb, offset + dest_ssp_offset, &string_length);
-    dest_item = proto_tree_add_text(dict_tree, tvb, offset + dest_ssp_offset,
-				(gint)strlen((char *) (dict_ptr + dest_ssp_offset)), " ");
-    proto_item_set_text(dest_item, "Destination: %s", string_ptr);
+	    /*
+	     * Source info
+	     */
+			
+	    string_ptr = tvb_get_ephemeral_stringz(tvb,
+					offset + source_scheme_offset, &string_length);
+	    source_scheme_item = proto_tree_add_text(dict_tree, tvb, offset+source_scheme_offset,
+					(gint)strlen((char *) (dict_ptr + source_scheme_offset)), " ");
+	    proto_item_set_text(source_scheme_item, "Source Scheme: %s", string_ptr);
+	    string_ptr = tvb_get_ephemeral_stringz(tvb,
+					offset + source_ssp_offset, &string_length);
+	    source_item = proto_tree_add_text(dict_tree, tvb, offset + source_ssp_offset,
+					(gint)strlen((char *) (dict_ptr + source_ssp_offset)), " ");
+	    proto_item_set_text(source_item, "Source: %s", string_ptr);
 
-    /*
-     * Source info
-     */
+	    /*
+	     * Report to info
+	     */
 
-    string_ptr = tvb_get_ephemeral_stringz(tvb,
-				offset + source_scheme_offset, &string_length);
-    source_scheme_item = proto_tree_add_text(dict_tree, tvb, offset+source_scheme_offset,
-				(gint)strlen((char *) (dict_ptr + source_scheme_offset)), " ");
-    proto_item_set_text(source_scheme_item, "Source Scheme: %s", string_ptr);
-    string_ptr = tvb_get_ephemeral_stringz(tvb,
-				offset + source_ssp_offset, &string_length);
-    source_item = proto_tree_add_text(dict_tree, tvb, offset + source_ssp_offset,
-				(gint)strlen((char *) (dict_ptr + source_ssp_offset)), " ");
-    proto_item_set_text(source_item, "Source: %s", string_ptr);
+	    string_ptr = tvb_get_ephemeral_stringz(tvb,
+					offset + report_scheme_offset, &string_length);
+	    rpt_scheme_item = proto_tree_add_text(dict_tree, tvb, offset + report_scheme_offset,
+					(gint)strlen((char *) (dict_ptr + report_scheme_offset)), " ");
+	    proto_item_set_text(rpt_scheme_item, "Report To Scheme: %s", string_ptr);
+	    string_ptr = tvb_get_ephemeral_stringz(tvb,
+					offset + report_ssp_offset, &string_length);
+	    rpt_item = proto_tree_add_text(dict_tree, tvb, offset + report_ssp_offset,
+					(gint)strlen((char *) (dict_ptr + report_ssp_offset)), " ");
+	    proto_item_set_text(rpt_item, "Report To: %s", string_ptr);
 
-    /*
-     * Report to info
-     */
+	    /*
+	     * Custodian info
+	     */
+			
+	    string_ptr = tvb_get_ephemeral_stringz(tvb,
+					offset + cust_scheme_offset, &string_length);
+	    cust_scheme_item = proto_tree_add_text(dict_tree, tvb, offset + cust_scheme_offset,
+					(gint)strlen((char *) (dict_ptr + cust_scheme_offset)), " ");
+	    proto_item_set_text(cust_scheme_item, "Custodian Scheme: %s", string_ptr);
+	    string_ptr = tvb_get_ephemeral_stringz(tvb,
+					offset + cust_ssp_offset, &string_length);
+	    cust_item = proto_tree_add_text(dict_tree, tvb, offset + cust_ssp_offset,
+					(gint)strlen((char *) (dict_ptr + cust_ssp_offset)), " ");
+	    proto_item_set_text(cust_item, "Custodian: %s", string_ptr);
 
-    string_ptr = tvb_get_ephemeral_stringz(tvb,
-				offset + report_scheme_offset, &string_length);
-    rpt_scheme_item = proto_tree_add_text(dict_tree, tvb, offset + report_scheme_offset,
-				(gint)strlen((char *) (dict_ptr + report_scheme_offset)), " ");
-    proto_item_set_text(rpt_scheme_item, "Report To Scheme: %s", string_ptr);
-    string_ptr = tvb_get_ephemeral_stringz(tvb,
-				offset + report_ssp_offset, &string_length);
-    rpt_item = proto_tree_add_text(dict_tree, tvb, offset + report_ssp_offset,
-				(gint)strlen((char *) (dict_ptr + report_ssp_offset)), " ");
-    proto_item_set_text(rpt_item, "Report To: %s", string_ptr);
+	    /* 
+	     * Add Source/Destination to INFO Field 
+	     */
 
-    /*
-     * Custodian info
-     */
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
+					dict_ptr + source_scheme_offset, dict_ptr + source_ssp_offset,
+					dict_ptr + dest_scheme_offset, dict_ptr + dest_ssp_offset);
 
-    string_ptr = tvb_get_ephemeral_stringz(tvb,
-				offset + cust_scheme_offset, &string_length);
-    cust_scheme_item = proto_tree_add_text(dict_tree, tvb, offset + cust_scheme_offset,
-				(gint)strlen((char *) (dict_ptr + cust_scheme_offset)), " ");
-    proto_item_set_text(cust_scheme_item, "Custodian Scheme: %s", string_ptr);
-    string_ptr = tvb_get_ephemeral_stringz(tvb,
-				offset + cust_ssp_offset, &string_length);
-    cust_item = proto_tree_add_text(dict_tree, tvb, offset + cust_ssp_offset,
-				(gint)strlen((char *) (dict_ptr + cust_ssp_offset)), " ");
-    proto_item_set_text(cust_item, "Custodian: %s", string_ptr);
-
-    /*
-     * Add Source/Destination to INFO Field
-     */
-
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
-				dict_ptr + source_scheme_offset, dict_ptr + source_ssp_offset,
-				dict_ptr + dest_scheme_offset, dict_ptr + dest_ssp_offset);
+    }
     offset += bundle_header_dict_length;	/*Skip over dictionary*/
-
     /*
      * Do this only if Fragment Flag is set
      */
@@ -940,16 +1056,23 @@ dissect_version_5_primary_header(packet_info *pinfo,
     int bundle_processing_control_flags;
     guint8 cosflags;
     guint8 *dict_ptr;
+    gchar  *string_ptr;
+    gint   string_length;
     int offset;		/*Total offset into frame (frame_offset + convergence layer size)*/
     int sdnv_length;
     int dest_scheme_offset, dest_ssp_offset, source_scheme_offset, source_ssp_offset;
     int report_scheme_offset, report_ssp_offset, cust_scheme_offset, cust_ssp_offset;
+    int dst_scheme_pos, src_scheme_pos, rpt_scheme_pos, cust_scheme_pos;
+    int dst_scheme_len, src_scheme_len, rpt_scheme_len, cust_scheme_len;
+    int dst_ssp_len, src_ssp_len, rpt_ssp_len, cust_ssp_len;
     int fragment_offset, total_adu_length;
     int timestamp;
     time_t time_since_2000;
     int timestamp_sequence;
     int lifetime;
     char *time_string;
+    gchar *src_node;
+    gchar *dst_node;
     guint8 srrflags;
     proto_item *srr_flag_item = NULL;
     proto_tree *srr_flag_tree = NULL;
@@ -1065,6 +1188,8 @@ dissect_version_5_primary_header(packet_info *pinfo,
      */
 
     dest_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    dst_scheme_pos = offset;
+    dst_scheme_len = sdnv_length;
     dest_scheme_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
     if((dest_scheme_offset < 0) || (dest_scheme_offset > bundle_header_length)) {
 	proto_item_set_text(dest_scheme_offset_item, "Destination Scheme Offset: Error");
@@ -1075,6 +1200,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     offset += sdnv_length;
 
     dest_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    dst_ssp_len = sdnv_length;
     dest_ssp_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
     if((dest_ssp_offset < 0) || (dest_ssp_offset > bundle_header_length)) {
 	proto_item_set_text(dest_ssp_offset_item, "Destination SSP Offset: Error");
@@ -1085,6 +1211,8 @@ dissect_version_5_primary_header(packet_info *pinfo,
     offset += sdnv_length;
 
     source_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    src_scheme_pos = offset;
+    src_scheme_len = sdnv_length;
     source_scheme_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
     if((source_scheme_offset < 0) || (source_scheme_offset > bundle_header_length)) {
 	proto_item_set_text(source_scheme_offset_item, "Source Scheme Offset: Error");
@@ -1095,6 +1223,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     offset += sdnv_length;
 
     source_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    src_ssp_len = sdnv_length;
     source_ssp_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
     if((source_ssp_offset < 0) || (source_ssp_offset > bundle_header_length)) {
 	proto_item_set_text(source_ssp_offset_item, "Source SSP Offset: Error");
@@ -1105,6 +1234,8 @@ dissect_version_5_primary_header(packet_info *pinfo,
     offset += sdnv_length;
 
     report_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    rpt_scheme_pos = offset;
+    rpt_scheme_len = sdnv_length;
     report_scheme_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
     if((report_scheme_offset < 0) || (report_scheme_offset > bundle_header_length)) {
 	proto_item_set_text(report_scheme_offset_item, "Report Scheme Offset: Error");
@@ -1115,6 +1246,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     offset += sdnv_length;
 
     report_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    rpt_ssp_len = sdnv_length;
     report_ssp_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
     if((report_ssp_offset < 0) || (report_ssp_offset > bundle_header_length)) {
 	proto_item_set_text(report_ssp_offset_item, "Report SSP Offset: Error");
@@ -1125,6 +1257,8 @@ dissect_version_5_primary_header(packet_info *pinfo,
     offset += sdnv_length;
 
     cust_scheme_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    cust_scheme_pos = offset;
+    cust_scheme_len = sdnv_length;
     cust_scheme_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
     if((cust_scheme_offset < 0) || (cust_scheme_offset > bundle_header_length)) {
 	proto_item_set_text(cust_scheme_offset_item, "Custodian Scheme Offset: Error");
@@ -1135,6 +1269,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     offset += sdnv_length;
 
     cust_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
+    cust_ssp_len = sdnv_length;
     cust_ssp_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
     if((cust_ssp_offset < 0) || (cust_ssp_offset > bundle_header_length)) {
 	proto_item_set_text(cust_ssp_offset_item, "Custodian SSP Offset: Error");
@@ -1169,10 +1304,12 @@ dissect_version_5_primary_header(packet_info *pinfo,
 	}
 	proto_item_set_text(timestamp_sequence_item,
 		"Timestamp Sequence Number: 0x%" G_GINT64_MODIFIER "x", ts_seq);
+	proto_item_set_text(timestamp_sequence_item, "Timestamp Sequence Number: Error");
+	return 0;
     }
     else {
-	proto_item_set_text(timestamp_sequence_item,
-				"Timestamp Sequence Number: %d", timestamp_sequence);
+    	proto_item_set_text(timestamp_sequence_item,
+ 				"Timestamp Sequence Number: %d", timestamp_sequence);
     }
     offset += sdnv_length;
 
@@ -1206,62 +1343,156 @@ dissect_version_5_primary_header(packet_info *pinfo,
     dict_tree = proto_item_add_subtree(dict_item, ett_dictionary);
     dict_ptr = (guint8 *) tvb_get_ptr(tvb, offset, bundle_header_dict_length);
 
-    /*
-     * This pointer can be made to address outside the packet boundaries so we
-     * need to check for improperly formatted strings (no null termination).
-     */
+    if(bundle_header_dict_length == 0)
+    {
+	/*
+ 	 * Destination info
+ 	 */ 
+	proto_tree_add_text(dict_tree, tvb, 0,
+			 	0, "Destination Scheme: %s",IPN_SCHEME_STR);
+	if(dest_scheme_offset == 0 && dest_ssp_offset == 0)
+	{
+		proto_tree_add_text(dict_tree, tvb, dst_scheme_pos,
+				dst_scheme_len + dst_ssp_len, "Destination: Null");
+	}
+	else
+	{
+		proto_tree_add_text(dict_tree, tvb, dst_scheme_pos,
+				dst_scheme_len + dst_ssp_len,
+				"Destination: %d.%d",dest_scheme_offset,dest_ssp_offset);
+	}
+	
+	/*
+ 	 * Source info
+ 	 */ 
+	proto_tree_add_text(dict_tree, tvb, 0,
+			 		0, "Source Scheme: %s",IPN_SCHEME_STR);
+	if(source_scheme_offset == 0 && source_ssp_offset == 0)
+	{
+		proto_tree_add_text(dict_tree, tvb, src_scheme_pos,
+				src_scheme_len + src_ssp_len, "Source: Null");
+	}
+	else
+	{
+		proto_tree_add_text(dict_tree, tvb, src_scheme_pos,
+				src_scheme_len + src_ssp_len,
+				"Source: %d.%d",source_scheme_offset,source_ssp_offset);
+	}
 
-    /*
-     * Destination info
-     */
+	/*
+ 	 * Report to info
+ 	 */ 
+	proto_tree_add_text(dict_tree, tvb, 0,
+			 		0, "Report Scheme: %s",IPN_SCHEME_STR);
+	if(report_scheme_offset == 0 && report_ssp_offset == 0)
+	{
+		proto_tree_add_text(dict_tree, tvb, rpt_scheme_pos,
+				rpt_scheme_len + rpt_ssp_len, "Report: Null");
+	}
+	else
+	{
+		proto_tree_add_text(dict_tree, tvb, rpt_scheme_pos,
+				rpt_scheme_len + rpt_ssp_len,
+				"Report: %d.%d",report_scheme_offset,report_ssp_offset);
+	}
 
-    tvb_ensure_bytes_exist(tvb, offset, dest_scheme_offset);
-    proto_tree_add_item(dict_tree, hf_bundle_dest_scheme, tvb, offset + dest_scheme_offset,
-				(gint)strlen((char *) (dict_ptr + dest_scheme_offset)), FALSE);
-    tvb_ensure_bytes_exist(tvb, offset, dest_ssp_offset);
-    proto_tree_add_item(dict_tree, hf_bundle_dest_ssp, tvb, offset + dest_ssp_offset,
-				(gint)strlen((char *) (dict_ptr + dest_ssp_offset)), FALSE);
+	/*
+ 	 * Custodian info
+ 	 */ 
+	proto_tree_add_text(dict_tree, tvb, 0,
+			 		0, "Custodian Scheme: %s",IPN_SCHEME_STR);
+	if(cust_scheme_offset == 0 && cust_ssp_offset == 0)
+	{
+		proto_tree_add_text(dict_tree, tvb, cust_scheme_pos,
+				cust_scheme_len + cust_ssp_len, "Custodian: Null");
+	}
+	else
+	{
+		proto_tree_add_text(dict_tree, tvb, cust_scheme_pos,
+				cust_scheme_len + cust_ssp_len,
+				"Custodian: %d.%d",cust_scheme_offset,cust_ssp_offset);
+	}
+	src_node = ep_alloc(NODE_NAME_STR_SIZE);
+	dst_node = ep_alloc(NODE_NAME_STR_SIZE);
 
-    /*
-     * Destination info
-     */
+	if(source_scheme_offset == 0 && source_ssp_offset == 0)
+	{
+		g_snprintf(src_node,5,"Null");
+	}
+	else
+	{
+		g_snprintf(src_node,NODE_NAME_STR_SIZE,"%s:%d.%d",IPN_SCHEME_STR, source_scheme_offset, source_ssp_offset);
+	}
+	if(dest_scheme_offset == 0 && dest_ssp_offset == 0)
+	{
+		g_snprintf(dst_node,5,"Null");
+	}
+	else
+	{
+		g_snprintf(dst_node,NODE_NAME_STR_SIZE,"%s:%d.%d",IPN_SCHEME_STR, dest_scheme_offset, dest_ssp_offset);
+	}
 
-    tvb_ensure_bytes_exist(tvb, offset, source_scheme_offset);
-    proto_tree_add_item(dict_tree, hf_bundle_source_scheme, tvb, offset + source_scheme_offset,
-				(gint)strlen((char *) (dict_ptr + source_scheme_offset)), FALSE);
-    tvb_ensure_bytes_exist(tvb, offset, source_ssp_offset);
-    proto_tree_add_item(dict_tree, hf_bundle_source_ssp, tvb, offset + source_ssp_offset,
-				(gint)strlen((char *) (dict_ptr + source_ssp_offset)), FALSE);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s", src_node, dst_node);
+    }
+    else
+    {
+	    /*
+	     * This pointer can be made to address outside the packet boundaries so we
+	     * need to check for improperly formatted strings (no null termination).
+	     */
 
-    /*
-     * Report to info
-     */
+	    /*
+	     * Destination info
+	     */
 
-    tvb_ensure_bytes_exist(tvb, offset, report_scheme_offset);
-    proto_tree_add_item(dict_tree, hf_bundle_report_scheme, tvb, offset + report_scheme_offset,
-				(gint)strlen((char *) (dict_ptr + report_scheme_offset)), FALSE);
-    tvb_ensure_bytes_exist(tvb, offset, report_ssp_offset);
-    proto_tree_add_item(dict_tree, hf_bundle_report_ssp, tvb, offset + report_ssp_offset,
-				(gint)strlen((char *) (dict_ptr + report_ssp_offset)), FALSE);
+	    tvb_ensure_bytes_exist(tvb, offset, dest_scheme_offset);
+	    proto_tree_add_item(dict_tree, hf_bundle_dest_scheme, tvb, offset + dest_scheme_offset,
+					(gint)strlen((char *) (dict_ptr + dest_scheme_offset)), FALSE);
+	    tvb_ensure_bytes_exist(tvb, offset, dest_ssp_offset);
+	    string_ptr = tvb_get_ephemeral_stringz(tvb, offset + dest_ssp_offset, &string_length);
+	    proto_tree_add_item(dict_tree, hf_bundle_dest_ssp, tvb, offset + dest_ssp_offset,
+					(gint)strlen((char *) (dict_ptr + dest_ssp_offset)), FALSE);
 
-    /*
-     * Custodian info
-     */
+	    /*
+	     * Destination info
+	     */
 
-    tvb_ensure_bytes_exist(tvb, offset, cust_scheme_offset);
-    proto_tree_add_item(dict_tree, hf_bundle_custodian_scheme, tvb, offset + cust_scheme_offset,
-				(gint)strlen((char *) (dict_ptr + cust_scheme_offset)), FALSE);
+	    tvb_ensure_bytes_exist(tvb, offset, source_scheme_offset);
+	    proto_tree_add_item(dict_tree, hf_bundle_source_scheme, tvb, offset + source_scheme_offset,
+					(gint)strlen((char *) (dict_ptr + source_scheme_offset)), FALSE);
+	    tvb_ensure_bytes_exist(tvb, offset, source_ssp_offset);
+	    string_ptr = tvb_get_ephemeral_stringz(tvb, offset + source_ssp_offset, &string_length);
+	    proto_tree_add_item(dict_tree, hf_bundle_source_ssp, tvb, offset + source_ssp_offset,
+					(gint)strlen((char *) (dict_ptr + source_ssp_offset)), FALSE);
 
-    tvb_ensure_bytes_exist(tvb, offset, cust_ssp_offset);
-    proto_tree_add_item(dict_tree, hf_bundle_custodian_ssp, tvb, offset + cust_ssp_offset,
-				(gint)strlen((char *) (dict_ptr + cust_ssp_offset)), FALSE);
+	    /*
+	     * Report to info
+	     */
 
-    /*
-     * Add Source/Destination to INFO Field
-     */
+	    tvb_ensure_bytes_exist(tvb, offset, report_scheme_offset);
+	    proto_tree_add_item(dict_tree, hf_bundle_report_scheme, tvb, offset + report_scheme_offset,
+					(gint)strlen((char *) (dict_ptr + report_scheme_offset)), FALSE);
+	    tvb_ensure_bytes_exist(tvb, offset, report_ssp_offset);
+	    proto_tree_add_item(dict_tree, hf_bundle_report_ssp, tvb, offset + report_ssp_offset,
+					(gint)strlen((char *) (dict_ptr + report_ssp_offset)), FALSE);
 
-    if(check_col(pinfo->cinfo, COL_INFO)) {
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
+	    /*
+	     * Custodian info
+	     */
+
+	    tvb_ensure_bytes_exist(tvb, offset, cust_scheme_offset);
+	    proto_tree_add_item(dict_tree, hf_bundle_custodian_scheme, tvb, offset + cust_scheme_offset,
+					(gint)strlen((char *) (dict_ptr + cust_scheme_offset)), FALSE);
+
+	    tvb_ensure_bytes_exist(tvb, offset, cust_ssp_offset);
+	    proto_tree_add_item(dict_tree, hf_bundle_custodian_ssp, tvb, offset + cust_ssp_offset,
+					(gint)strlen((char *) (dict_ptr + cust_ssp_offset)), FALSE);
+
+	    /* 
+	     * Add Source/Destination to INFO Field 
+	     */
+
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
 			dict_ptr + source_scheme_offset, dict_ptr + source_ssp_offset,
 			dict_ptr + dest_scheme_offset, dict_ptr + dest_ssp_offset);
     }
