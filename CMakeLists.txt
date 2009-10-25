@@ -79,7 +79,6 @@ option(ENABLE_ADNS       "Build with adns support" ON)
 option(ENABLE_PCRE       "Build with pcre support" ON)
 option(ENABLE_PORTAUDIO  "Build with portaudio support" ON)
 option(ENABLE_Z          "Build with zlib compression support" ON)
-# todo wslua currently seems to be broken
 option(ENABLE_LUA	 "Build with lua dissector support" ON)
 option(ENABLE_PYTHON	 "Build with python dissector support" ON)
 option(ENABLE_SMI	 "Build with smi snmp support" ON)
