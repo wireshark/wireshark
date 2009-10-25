@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-10-17)
+(last updated 2009-10-25)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -40332,7 +40332,7 @@ Decimal
 10094
   University of Novi Sad
     Zora Konjovic
-      armuns&uns.ns.ac.yu
+      armuns&uns.ac.rs
 10095
   Wickander & Associates
     James Richardson
@@ -41699,8 +41699,8 @@ Decimal
       a.janciukas&omnitel.net
 10436
   Oxford university
-    Cioffi Carmine
-      c.cioffi1&physics.ox.ac.uk
+    Dominic Hargreaves
+      oids&rt.oucs.ox.ac.uk
 10437
   Peppercon AG
     Christian Krause
@@ -60804,8 +60804,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       Janez.Jezersek&ijs.si
 15313
   REDLINK Mediendienste GmbH
-    Jens Vonderheide
-      vonderheide&redlink.de
+    Olav Roth
+      roth&redlink.de
 15314
   IT+ A/S
     Soeren Hilmer
@@ -98286,9 +98286,9 @@ Bahia
     Zhang Yaoxin
       hilsonchang&gmail.com
 24680
-  Bradmark Technologies
-    Steve Hayward
-      shayward&bradmark.com
+  Bradmark Technologies, Inc.
+    Edward Stangler
+      netadmin&bradmark.com
 24681
   QNAP SYSTEMS, INC
     Nike Chen
@@ -110322,8 +110322,8 @@ Decentralization / Helenic Public Administra
       dimitri.langlois&idopte.fr
 27685
   Trent University
-    Scott Williamson
-      scottwilliamson2&trentu.ca
+    Andrew Bell
+      andrewbell&trentu.ca
 27686
   Refactored Networks, LLC
     Michael mealling
@@ -137341,8 +137341,8 @@ Decentralization / Helenic Public Administra
       frank.herzog&dhp-gmbh.de
 34439
   West Virginia State University
-    Patrick Moore
-      patrick&wvstateu.edu
+    Eugene Stowers
+      estowers&wvstateu.edu
 34440
   Velocix Limited
     David Ferguson
@@ -137554,9 +137554,9 @@ Decentralization / Helenic Public Administra
 34492
   Aryaka Networks
     Steve Jankowski
-      steve&aryaka.com
+      aryaka-IANA&aryaka.com
 34493
-  CPSG/ZXE
+  CPSG
     Hyrum Mills
       CPSG.IANA&LACKLAND.AF.MIL
 34494
@@ -137607,6 +137607,146 @@ Decentralization / Helenic Public Administra
   SIEGNETZ-IT GmbH
     Ralf Zimmermann
       technik&siegnetz.de
+34506
+  Twinfalls Technologies
+    Eric Bond
+      eric.bond&telus.net
+34507
+  Safe Consulting AS
+    Øystein Tusvik
+      oidadmin&safeinnovations.com
+34508
+  Wyatt Tarrant & Combs LLP
+    Rick Humphrey
+      rhumphrey&wyattfirm.com
+34509
+  Portland State University
+    Jim Stapleton
+      hostmaster&pdx.edu
+34510
+  Optimum Path Systems, Inc
+    Steven Webel
+      steven&visualdatacenter.com
+34511
+  Trinity County Office of Education
+    Robert Jackson
+      ctech&tcoek12.org
+34512
+  graphische Informationstechnik Beratungsgesellschaft mbH (grit)
+    Stephan Reichhelm
+      iana.contact&grit.de
+34513
+  RMT INC
+    John Saley
+      John.Saley&rmtinc.com
+34514
+  Australian College of Remote and Rural Medicine
+    David Warring
+      david.warring&gmail.com
+34515
+  Whitemice Consulting
+    Adam Tauno Williams
+      awilliam&whitemiceconsulting.com
+34516
+  Network Applied Communication Laboratory
+    Hiroshi Inoue
+      support&netlab.jp
+34517
+  Eastcom Systems Pte Ltd
+    Charles Madapa
+      charles&eastcom-systems.com
+34518
+  Movianto GmbH
+    Michael Rocktäschel
+      michael.rocktaeschel&movianto.com
+34519
+  UK Border Agency
+    Vincent Blake
+      vincent.blake&trustedborders.co.uk
+34520
+  Mudra Communications Pvt. Ltd.
+    Chirag A. Gandhi
+      it&mudra.com
+34521
+  Comlink Telecommunication Services Inc
+    Arshad Patel
+      awp&comlinkinc.com
+34522
+  Pinnacle Wireless 
+    Doug Ehlers
+      dehlers&idsmindshare.com
+34523
+  BlueKrypt
+    Damien Giry
+      damien.giry&bluekrypt.com
+34524
+  RIS2048, Lda
+    Pedro Leite
+      pedro.leite&ris2048.pt
+34525
+  Yesin.NET
+    Erol Yesin
+      erol&yesin.net
+34526
+  Techsologic
+    Michael Stapleton
+      michael.stapleton&techsologic.com
+34527
+  Matrix Telecom Pvt. Ltd.
+    Rakesh Rathod
+      rakesh.rathod&matrixtelesol.com
+34528
+  SecureWare
+    Vassilis Poursalidis
+      poursal&csd.uoc.gr
+34529
+  Iuniperus S.r.l.
+    Filippo Solinas
+      netmgm&iuniperus.it
+34530
+  Netpioneer GmbH
+    Ulrich Hochholdinger
+      admins&netpioneer.de
+34531
+  landofnever.net
+    Dario Turchetti
+      support&landofnever.net
+34532
+  mkbdoos
+    L.B. Sparreboom
+      luuk.sparreboom&mkbdoos.nl
+34533
+  Compuvisor Lab
+    Vadim Kataev
+      vm&compuvisor.net
+34534
+  Trimble MRM
+    Erol Yesin
+      erol_yesin&trimble.com
+34535
+  JetTek LLC
+    Gregory Orsini
+      greg.orsini&jettekfix.com
+34536
+  fdXtended
+    Anton Van Cauteren
+      anton&fdxtended.com
+34537
+  The Moses H. Cone Memorial Hospital
+    Dee Davis
+      webadministrator&mosescone.com
+34538
+  s.a. D'Ieteren n.v.
+    Fabrice Coppens
+      servercorp&dieteren.be
+34539
+  Netcom XXI Informatica y Comunicaciones, S.L.
+    Emilio Hernandez
+      eh&netcom-xxi.com
+34540
+  azeti Networks GmbH
+    Uwe Holz
+      uwe.holz&azeti.net
 
 
 End of Document
