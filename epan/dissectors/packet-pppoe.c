@@ -48,6 +48,7 @@ static gint hf_pppoe_payload_length = -1;
 static gint hf_pppoed_tags = -1;
 static gint hf_pppoed_tag = -1;
 static gint hf_pppoed_tag_length = -1;
+static gint hf_pppoed_tag_length_8 = -1;
 static gint hf_pppoed_tag_unknown_data = -1;
 static gint hf_pppoed_tag_service_name = -1;
 static gint hf_pppoed_tag_ac_name = -1;
@@ -55,6 +56,26 @@ static gint hf_pppoed_tag_host_uniq = -1;
 static gint hf_pppoed_tag_ac_cookie = -1;
 static gint hf_pppoed_tag_vendor_id = -1;
 static gint hf_pppoed_tag_vendor_unspecified = -1;
+static gint hf_pppoed_tag_vspec_tags = -1;
+static gint hf_pppoed_tag_vspec_tag = -1;
+static gint hf_pppoed_tag_vspec_act_data_rate_up = -1;
+static gint hf_pppoed_tag_vspec_act_data_rate_down = -1;
+static gint hf_pppoed_tag_vspec_min_data_rate_up = -1;
+static gint hf_pppoed_tag_vspec_min_data_rate_down = -1;
+static gint hf_pppoed_tag_vspec_attainable_data_rate_up = -1;
+static gint hf_pppoed_tag_vspec_attainable_data_rate_down = -1;
+static gint hf_pppoed_tag_vspec_max_data_rate_up = -1;
+static gint hf_pppoed_tag_vspec_max_data_rate_down = -1;
+static gint hf_pppoed_tag_vspec_min_data_rate_up_lp = -1;
+static gint hf_pppoed_tag_vspec_min_data_rate_down_lp = -1;
+static gint hf_pppoed_tag_vspec_max_int_delay_up = -1;
+static gint hf_pppoed_tag_vspec_act_int_delay_up = -1;
+static gint hf_pppoed_tag_vspec_max_int_delay_down = -1;
+static gint hf_pppoed_tag_vspec_act_int_delay_down = -1;
+static gint hf_pppoed_tag_vspec_access_loop_encapsulation = -1;
+static gint hf_pppoed_tag_vspec_access_loop_encap_data_link = -1;
+static gint hf_pppoed_tag_vspec_access_loop_encap_encap_1 = -1;
+static gint hf_pppoed_tag_vspec_access_loop_encap_encap_2 = -1;
 static gint hf_pppoed_tag_credits = -1;
 static gint hf_pppoed_tag_credits_fcn = -1;
 static gint hf_pppoed_tag_credits_bcn = -1;
@@ -89,6 +110,7 @@ static gint hf_pppoes_tag_credits_bcn = -1;
 
 static gint ett_pppoed = -1;
 static gint ett_pppoed_tags = -1;
+static gint ett_pppoed_tag_vspec_dslf_access_loop_encaps = -1;
 
 static int proto_pppoes = -1;
 
@@ -140,6 +162,41 @@ static gboolean global_pppoe_show_tags_and_lengths = FALSE;
 #define PPPOE_TAG_AC_ERR      0x0202
 #define PPPOE_TAG_GENERIC_ERR 0x0203
 
+#define PPPOE_VENDOR_ID_DSLF  3561
+
+#define PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP          0x81
+#define PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN        0x82
+#define PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP          0x83
+#define PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN        0x84
+#define PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_UP   0x85
+#define PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_DOWN 0x86
+#define PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_UP          0x87
+#define PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_DOWN        0x88
+#define PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP_LP       0x89
+#define PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN_LP     0x8a
+#define PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_UP          0x8b
+#define PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_UP          0x8c
+#define PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_DOWN        0x8d
+#define PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_DOWN        0x8e
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAPSULATION 0x90
+
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_DATA_LINK_ATM 0x00
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_DATA_LINK_ETH 0x01
+
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_NA               0x00
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_UNTAGGED_ETH     0x01
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_SINLE_TAGGED_ETH 0x02
+
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_NA                             0x00
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_PPPOA_LLC                      0x01
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_PPPOA_NULL                     0x02
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_IPOA_LLC                       0x03
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_IPOA_NULL                      0x04
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_LLC_WITH_FCS     0x05
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_LLC_WITHOUT_FCS  0x06
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_NULL_WITH_FCS    0x07
+#define PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_NULL_WITHOUT_FCS 0x08
+
 #define PPPOE_CDR_MASK        0x06
 #define PPPOE_MDR_MASK        0x18
 #define PPPOE_RCV_ONLY_MASK   0x01
@@ -188,6 +245,51 @@ static const value_string tag_vals[] = {
 		{0,                    NULL                }
 };
 
+static const value_string vspec_tag_vals[] = {
+		{PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP,          "Actual-Data-Rate-Up"           },
+		{PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN,        "Actual-Data-Rate-Down"         },
+		{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP,          "Min-Data-Rate-Up"              },
+		{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN,        "Min-Data-Rate-Down"            },
+		{PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_UP,   "Attainable-Data-Rate-Up"       },
+		{PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_DOWN, "Attainable-Data-Rate-Down"     },
+		{PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_UP,          "Max-Data-Rate-Up"              },
+		{PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_DOWN,        "Max-Data-Rate-Down"            },
+		{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP_LP,       "Min-Data-Rate-Up-Low-Power"    },
+		{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN_LP,     "Min-Data-Rate-Down-Low-Power"  },
+		{PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_UP,          "Max-Interleaving-Delay-Up"     },
+		{PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_UP,          "Actual-Interleaving-Delay-Up"  },
+		{PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_DOWN,        "Max-Interleaving-Delay-Down"   },
+		{PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_DOWN,        "Actual-Interleaving-Delay-Down"},
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAPSULATION, "Access-Loop-Encapsulation"     },
+		{0,                                              NULL                            }
+};
+
+static const value_string vspec_tag_dslf_access_loop_encap_data_link_vals[] = {
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_DATA_LINK_ATM, "ATM AAL5"},
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_DATA_LINK_ETH, "Ethernet"},
+		{0,                                                     NULL     }
+};
+
+static const value_string vspec_tag_dslf_access_loop_encap_encap_1_vals[] = {
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_NA,               "NA"                    },
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_UNTAGGED_ETH,     "Untagged Ethernet"     },
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_1_SINLE_TAGGED_ETH, "Single-tagged Ethernet"},
+		{0,                                                     NULL                               }
+};
+
+static const value_string vspec_tag_dslf_access_loop_encap_encap_2_vals[] = {
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_NA,                            "NA"                             },
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_PPPOA_LLC,                     "PPPoA LLC"                      },
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_PPPOA_NULL,                    "PPPoA Null"                     },
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_IPOA_LLC,                      "IPoA LLC"                       },
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_IPOA_NULL,                     "IPoA Null"                      },
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_LLC_WITH_FCS,    "Ethernet over AAL5 LLC w FCS"   },
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_LLC_WITHOUT_FCS, "Ethernet over AAL5 LLC w/o FCS" },
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_NULL_WITH_FCS,   "Ethernet over AAL5 Null w FCS"  },
+		{PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAP_ENCAPS_2_ETH_OVER_AAL5_NULL_WITHOUT_FCS,"Ethernet over AAL5 Null w/o FCS"},
+		{0,                                                     NULL                               }
+};
+
 const value_string datarate_scale_vals[] = {
                 {PPPOE_SCALE_KBPS,	"kilobits per second"},
                 {PPPOE_SCALE_MBPS,	"megabits per second"},
@@ -195,6 +297,116 @@ const value_string datarate_scale_vals[] = {
                 {PPPOE_SCALE_TBPS,	"terabits per second"},
 		{0,			NULL                 }
 };
+
+
+#define CASE_VSPEC_DSLF_TAG(tag_name, length, hf_var) case tag_name: \
+		ti = proto_tree_add_item(pppoe_tree, hf_var, tvb, \
+		tagstart+2, length, FALSE); \
+		if (poe_tag_length != length) \
+			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN, "%s: Wrong length: %u (expected %d)", \
+					val_to_str(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, length); \
+	break;
+
+/* Dissect Vendor-Specific Tags introduced by the DSLF */
+static void
+dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree,
+                   int payload_length)
+{
+	guint8 poe_tag;
+	guint8 poe_tag_length;
+	int tagstart;
+
+	proto_tree  *pppoe_tree, *ti, *encaps_tree;
+
+	/* Start Decoding Here. */
+	if (tree)
+	{
+		/* Create tags subtree */
+		ti = proto_tree_add_item(tree, hf_pppoed_tag_vspec_tags, tvb, offset, payload_length, FALSE);
+		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed_tags);
+
+		tagstart = offset;
+
+		/* Loop until all data seen or End-Of-List tag found */
+		while (tagstart <= offset + payload_length-2)
+		{
+			poe_tag = tvb_get_guint8(tvb, tagstart);
+			poe_tag_length = tvb_get_guint8(tvb, tagstart + 1);
+
+			/* Tag value and data length */
+			if (global_pppoe_show_tags_and_lengths)
+			{
+				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vspec_tag, tvb, tagstart, 1, FALSE);
+				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length_8, tvb, tagstart+1, 1, FALSE);
+			}
+
+			/* Show tag data */
+			switch (poe_tag)
+			{
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP, 4, 
+						hf_pppoed_tag_vspec_act_data_rate_up)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN, 4, 
+						hf_pppoed_tag_vspec_act_data_rate_down)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP, 4, 
+						hf_pppoed_tag_vspec_min_data_rate_up)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN, 4, 
+						hf_pppoed_tag_vspec_min_data_rate_down)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_UP, 4, 
+						hf_pppoed_tag_vspec_attainable_data_rate_up)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_DOWN, 4, 
+						hf_pppoed_tag_vspec_attainable_data_rate_down)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_UP, 4, 
+						hf_pppoed_tag_vspec_max_data_rate_up)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_DOWN, 4, 
+						hf_pppoed_tag_vspec_max_data_rate_down)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP_LP, 4, 
+						hf_pppoed_tag_vspec_min_data_rate_up_lp)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN_LP, 4, 
+						hf_pppoed_tag_vspec_min_data_rate_down_lp)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_UP, 4, 
+						hf_pppoed_tag_vspec_max_int_delay_up)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_UP, 4, 
+						hf_pppoed_tag_vspec_act_int_delay_up)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_DOWN, 4, 
+						hf_pppoed_tag_vspec_max_int_delay_down)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_DOWN, 4, 
+						hf_pppoed_tag_vspec_act_int_delay_down)
+				case PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAPSULATION:
+					ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vspec_access_loop_encapsulation, tvb,
+							tagstart+2, 3, FALSE);
+					if (poe_tag_length != 3) {
+						expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+								"%s: Wrong length: %u (expected 3)",
+								val_to_str(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length);
+					}
+					encaps_tree = proto_item_add_subtree(ti, ett_pppoed_tag_vspec_dslf_access_loop_encaps);
+					proto_tree_add_item(encaps_tree, hf_pppoed_tag_vspec_access_loop_encap_data_link,
+							tvb, tagstart+2, 1, FALSE);
+					proto_tree_add_item(encaps_tree, hf_pppoed_tag_vspec_access_loop_encap_encap_1,
+							tvb, tagstart+3, 1, FALSE);
+					proto_tree_add_item(encaps_tree, hf_pppoed_tag_vspec_access_loop_encap_encap_2,
+							tvb, tagstart+4, 1, FALSE);
+					
+					break;
+				default:
+					if (poe_tag_length > 0 )
+					{
+						/* Presumably unknown tag;
+						   show tag value if we didn't do it above */
+						if (!global_pppoe_show_tags_and_lengths)
+						{
+							proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 1, FALSE);
+							proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length_8, tvb, tagstart+1, 1, FALSE);
+						}
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_unknown_data, tvb,
+								tagstart+1, poe_tag_length, FALSE);
+					}
+			}
+
+			tagstart += (2 + poe_tag_length);
+		}
+	}
+}
 
 
 /* Dissect discovery protocol tags */
@@ -271,8 +483,17 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					}
 					if (poe_tag_length > 4)
 					{
-						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vendor_unspecified, tvb,
-						                    tagstart+4+4, poe_tag_length-4, FALSE);
+						guint32 vendor_id = tvb_get_ntohl(tvb, tagstart+4);
+						switch (vendor_id)
+						{
+							case PPPOE_VENDOR_ID_DSLF:
+								dissect_pppoe_subtags_dslf(tvb,pinfo,tagstart+4+4,pppoe_tree,poe_tag_length-4);
+								break;
+							default:
+								proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vendor_unspecified, tvb,
+										    tagstart+4+4, poe_tag_length-4, FALSE);
+								
+						}
 					}
 					break;
 				case PPPOE_TAG_CREDITS:
@@ -440,7 +661,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 							proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, FALSE);
 						}
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_unknown_data, tvb,
-						                    tagstart+4, poe_tag_length, FALSE);
+								tagstart+2, poe_tag_length, FALSE);
 					}
 			}
 
@@ -514,6 +735,11 @@ void proto_register_pppoed(void)
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
+		{ &hf_pppoed_tag_length_8,
+			{ "Tag Length", "pppoed.tag_length_8", FT_UINT8, BASE_DEC,
+				 NULL, 0x0, "", HFILL
+			}
+		},
 		{ &hf_pppoed_tag_unknown_data,
 			{ "Unknown Data", "pppoed.tag.unknown_data", FT_BYTES, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
@@ -540,13 +766,113 @@ void proto_register_pppoed(void)
 			}
 		},
 		{ &hf_pppoed_tag_vendor_id,
-			{ "Vendor id", "pppoed.tags.vendor_id", FT_UINT32, BASE_HEX,
+			{ "Vendor id", "pppoed.tags.vendor_id", FT_UINT32, BASE_DEC,
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_vendor_unspecified,
 			{ "Vendor unspecified", "pppoed.tags.vendor_unspecified", FT_BYTES, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_pppoed_tag_vspec_tags,
+			{ "Vendor Specific PPPoE Tags", "pppoed.tags.vendorspecific.tags", FT_NONE, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_vspec_tag,
+			{ "Tag", "pppoed.tags.vendorspecific.tag", FT_UINT8, BASE_HEX,
+				 VALS(vspec_tag_vals), 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_vspec_act_data_rate_up,
+		        { "Actual Data Rate Upstream", "pppoed.tags.act_data_rate_up", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_act_data_rate_down,
+		        { "Actual Data Rate Downstream", "pppoed.tags.act_data_rate_down", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_min_data_rate_up,
+		        { "Minimum Data Rate Upstream", "pppoed.tags.min_data_rate_up", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_min_data_rate_down,
+		        { "Minimum Data Rate Downstream", "pppoed.tags.min_data_rate_down", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_attainable_data_rate_up,
+		        { "Attainable DataRate Upstream", "pppoed.tags.attainable_data_rate_up", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_attainable_data_rate_down,
+		        { "Attainable DataRate Downstream", "pppoed.tags.attainable_data_rate_down", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_max_data_rate_up,
+		        { "Maximum Data Rate Upstream", "pppoed.tags.max_data_rate_up", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_max_data_rate_down,
+		        { "Maximum Data Rate Downstream", "pppoed.tags.max_data_rate_down", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_min_data_rate_up_lp,
+		        { "Min DataRate Upstream in low power state", "pppoed.tags.min_data_rate_up_lp", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_min_data_rate_down_lp,
+		        { "Minimum Data Rate Downstream in low power state", "pppoed.tags.min_data_rate_down_lp", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_max_int_delay_up,
+		        { "Max Interleaving Delay Upstream", "pppoed.tags.max_int_delay_up", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_act_int_delay_up,
+		        { "Actual Interleaving Delay Upstream", "pppoed.tags.act_int_delay_up", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_max_int_delay_down,
+		        { "Maximum Interleaving Delay Downstream", "pppoed.tags.max_int_delay_down", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_act_int_delay_down,
+		        { "Actual Interleaving Delay Downstream", "pppoed.tags.act_int_delay_down", FT_UINT32, BASE_DEC,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_access_loop_encapsulation,
+		        { "Access-Loop-Encapsulation", "pppoed.tags.access_loop_encap", FT_NONE, BASE_NONE,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_access_loop_encap_data_link,
+			{ "Data link", "pppoed.tags.access_loop_encap.data_link", FT_UINT8, BASE_HEX,
+				 VALS(vspec_tag_dslf_access_loop_encap_data_link_vals), 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_pppoed_tag_vspec_access_loop_encap_encap_1,
+			{ "Encaps 1", "pppoed.tags.access_loop_encap.encap_1", FT_UINT8, BASE_HEX,
+				 VALS(vspec_tag_dslf_access_loop_encap_encap_1_vals), 0x0, NULL, HFILL
+			}
+		},
+		{ &hf_pppoed_tag_vspec_access_loop_encap_encap_2,
+			{ "Encaps 1", "pppoed.tags.access_loop_encap.encap_2", FT_UINT8, BASE_HEX,
+				 VALS(vspec_tag_dslf_access_loop_encap_encap_2_vals), 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_credits,
@@ -663,7 +989,8 @@ void proto_register_pppoed(void)
 
 	static gint *ett[] = {
 		&ett_pppoed,
-		&ett_pppoed_tags
+		&ett_pppoed_tags,
+		&ett_pppoed_tag_vspec_dslf_access_loop_encaps
 	};
 
 	module_t *pppoed_module;
