@@ -57,13 +57,14 @@ WindowIcon Off
 SilentInstall Silent
 AutoCloseWindow True
 RequestExecutionLevel user
+XPStyle on
 
 ;=== Include
 !include "FileFunc.nsh"
 !insertmacro GetParameters
 
 ;=== Program Icon
-Icon "Files/App/AppInfo/${APP}.ico"
+Icon "Files\App\AppInfo\appicon.ico"
 
 Var PROGRAMDIRECTORY
 Var ADDITIONALPARAMETERS

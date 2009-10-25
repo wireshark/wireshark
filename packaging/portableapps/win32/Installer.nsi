@@ -74,10 +74,10 @@ RequestExecutionLevel user
 !insertmacro GetSize
 
 ;=== Program Icon
-Icon "Files\App\AppInfo\${APP}.ico"
+Icon "Files\App\AppInfo\appicon.ico"
 
 ;=== Icon & Stye ===
-!define MUI_ICON "Files\App\AppInfo\wireshark.ico"
+!define MUI_ICON "Files\App\AppInfo\appicon.ico"
 BrandingText "PortableApps.com - Your Digital Life, Anywhere™"
 
 ;=== Pages
