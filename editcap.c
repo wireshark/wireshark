@@ -336,6 +336,11 @@ set_time_adjustment(char *optarg)
   /* now collect the partial seconds, if any */
   if (*frac != '\0') {             /* chars left, so get fractional part */
     val = strtol(&(frac[1]), &end, 10);
+    /* if more than 6 fractional digits truncate to 6 */
+    if((end - &(frac[1])) > 6) {
+        frac[7] = 't'; /* 't' for truncate */
+        val = strtol(&(frac[1]), &end, 10);
+    }
     if (*frac != '.' || end == NULL || end == frac
         || val < 0 || val > ONE_MILLION || val == LONG_MIN || val == LONG_MAX) {
       fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
@@ -401,6 +406,11 @@ set_rel_time(char *optarg)
   /* now collect the partial seconds, if any */
   if (*frac != '\0') {             /* chars left, so get fractional part */
     val = strtol(&(frac[1]), &end, 10);
+    /* if more than 9 fractional digits truncate to 9 */
+    if((end - &(frac[1])) > 9) {
+        frac[10] = 't'; /* 't' for truncate */
+        val = strtol(&(frac[1]), &end, 10);
+    }
     if (*frac != '.' || end == NULL || end == frac
         || val < 0 || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
       fprintf(stderr, "3: editcap: \"%s\" isn't a valid rel time value\n",
