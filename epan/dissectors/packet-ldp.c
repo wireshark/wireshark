@@ -853,11 +853,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 					break;
 				}
 
-				if( (addr=ep_alloc0(addr_size)) == NULL ){
-					/*big big trouble, no mem or bad addr_size*/
-					fprintf(stderr, "packet-ldp: dissect_tlv_fec() malloc failed\n");
-					return;
-				}
+				addr=ep_alloc0(addr_size);
 
 				for(ax=0; ax+1 <= prefix_len_octets; ax++)
 					addr[ax]=tvb_get_guint8(tvb, offset+ax);
@@ -930,11 +926,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 					break;
 				}
 
-				if( (addr=ep_alloc0(addr_size)) == NULL ){
-					/*big big xtrouble, no mem or bad addr_size*/
-					fprintf(stderr, "packet-ldp: dissect_tlv_fec() malloc failed\n");
-					return;
-				}
+				addr=ep_alloc0(addr_size);
 
 				for(ax=0; ax+1 <= host_len; ax++)
 					addr[ax]=tvb_get_guint8(tvb, offset+ax);
@@ -1149,11 +1141,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
 		if(val_tree == NULL) return;
-		if( (addr=ep_alloc(addr_size)) == NULL ){
-			/*big big trouble*/
-			fprintf(stderr, "packet-ldp: dissect_tlv_address_list() malloc failed\n");
-			return;
-		}
+		addr=ep_alloc(addr_size);
 
 		for(ix=1; rem >= addr_size; ix++, offset += addr_size,
 							 rem -= addr_size) {

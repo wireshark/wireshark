@@ -588,8 +588,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 printf("woohoo decrypted keytype:%d in frame:%u\n", ek->keytype, pinfo->fd->num);
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			/* return a private g_malloced blob to the caller */
-			user_data=g_malloc(data.length);
-			memcpy(user_data, data.data, data.length);
+			user_data=g_memdup(data.data, data.length);
 			if (datalen) {
 				*datalen = data.length;
 			}

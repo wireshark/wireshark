@@ -1003,15 +1003,12 @@ static void
 dissect_amqp_field_table(tvbuff_t *tvb, int offset, int bound, int length, proto_item *item)
 {
     proto_item *field_table_tree;
-    char *buff;
     guint namelen, vallen;
     guint8 type;
     const char *name;
     const char *typename;
     const char *value;
     int field_start;
-
-    buff = ep_alloc(64);
 
     field_table_tree = proto_item_add_subtree(item, ett_amqp);
 
@@ -1038,8 +1035,7 @@ dissect_amqp_field_table(tvbuff_t *tvb, int offset, int bound, int length, proto
             break;
         case 'I':
             typename = "integer";
-            g_snprintf(buff, 64, "%ld", (long) tvb_get_ntohl(tvb, offset));
-            value = buff;
+            value = ep_strdup_printf("%ld", (long) tvb_get_ntohl(tvb, offset));
             AMQP_INCREMENT(offset, 4, bound);
             length -= 4;  
             break;

@@ -216,8 +216,7 @@ double asn1_get_real(const guint8 *real_ptr, gint real_len) {
       case 0x01: val = -HUGE_VAL; break;
     }
   } else {  /* decimal encoding */
-    buf = ep_alloc0(real_len + 1);
-    memcpy(buf, p, real_len);
+    buf = ep_strndup(p, real_len);
     val = atof(buf);
   }
 

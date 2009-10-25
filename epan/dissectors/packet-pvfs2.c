@@ -3089,12 +3089,10 @@ pvfs2_io_tracking_new_with_tag(guint64 tag, guint32 num)
 	pvfs2_io_tracking_value_t *value;
 	pvfs2_io_tracking_key_t *newkey;
 
-	newkey = (pvfs2_io_tracking_key_t *) se_alloc(sizeof(*newkey));
-	memset(newkey, 0, sizeof(*newkey));
+	newkey = (pvfs2_io_tracking_key_t *) se_alloc0(sizeof(*newkey));
 	newkey->tag = tag;
 
-	value = se_alloc(sizeof(*value));
-	memset(value, 0, sizeof(*value));
+	value = se_alloc0(sizeof(*value));
 
 	g_hash_table_insert(pvfs2_io_tracking_value_table, newkey, value);
 

@@ -114,7 +114,6 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 	proto_item	*ti;
 	int		length;
 	gchar		rid = 0, sid = 0, did = 0;
-	gchar		*msg_msg;
 	int		offset			= 0;
 	int		header_length		= -1;
 	int		ack_start		= 0;
@@ -132,9 +131,6 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 
 	enum	{ NOTRAFFIC, OTHER }	msg_type = OTHER;
 
-	msg_msg		= ep_alloc(MAX_POLL_TYPE_MSG_SIZE);
-	msg_msg[0]	= 0;
-
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) /* set the protocol column on summary display */
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "UTS");
 
@@ -142,7 +138,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 		testchar(tvb, pinfo, 1, MATCH, EOT, NULL) &&
 		testchar(tvb, pinfo, 2, MATCH, ETX, NULL)) {
 		msg_type = NOTRAFFIC;
-		g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "No Traffic");
+		col_add_str(pinfo->cinfo, COL_INFO, "No Traffic");
 	} else {
 		if (testchar(tvb, pinfo, 0, MATCH, SOH, NULL)		&&
 		    testchar(tvb, pinfo, 1, FETCH, 0, (gchar *)&rid)	&&
@@ -150,23 +146,23 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 		    testchar(tvb, pinfo, 3, FETCH, 0, (gchar *)&did)) {
 			offset = 4;
 			if (testchar(tvb, pinfo, offset, MATCH, ETX, NULL)) {
-				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "General Poll");
+				col_add_str(pinfo->cinfo, COL_INFO, "General Poll");
 				set_addr(pinfo, DST, rid, sid, did);
 			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)	&&
 				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
 				ack_start = offset;
 				if (sid == GSID && did == GDID) {
-					g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "General Poll + ACK");
+					col_add_str(pinfo->cinfo, COL_INFO, "General Poll + ACK");
 					set_addr(pinfo, DST, rid, sid, did);
 				} else if (sid != GSID && did == GDID) {
-					g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Specific Poll + ACK");
+					col_add_str(pinfo->cinfo, COL_INFO, "Specific Poll + ACK");
 					set_addr(pinfo, DST, rid, sid, did);
 				} else if (sid != GSID && did != GDID) {
-					g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "No Traffic + ACK");
+					col_add_str(pinfo->cinfo, COL_INFO, "No Traffic + ACK");
 					set_addr(pinfo, SRC, rid, sid, did);
 				} else {
-					g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Unknown Message Format");
+					col_add_str(pinfo->cinfo, COL_INFO, "Unknown Message Format");
 					if ((pinfo->pseudo_header->sita.flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) {
 						set_addr(pinfo, DST, rid, sid, did);	/* if the ACN sent it, the address is of the destination... the terminal */
 					} else {
@@ -178,14 +174,14 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)	&&
 				   sid != GSID && did == GDID) {
 				nak_start = offset;
-				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Retransmit Request");
+				col_add_str(pinfo->cinfo, COL_INFO, "Retransmit Request");
 				set_addr(pinfo, DST, rid, sid, did);
 			} else if (testchar(tvb, pinfo, offset, MATCH, BEL, NULL)		&&
 				   testchar(tvb, pinfo, offset+1, MATCH, STX, NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
 				header_length = offset+2;
 				msgwaiting_start = offset;
-				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Message Waiting");
+				col_add_str(pinfo->cinfo, COL_INFO, "Message Waiting");
 				set_addr(pinfo, DST, rid, sid, did);
 			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
 				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
@@ -193,12 +189,12 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				ack_start = offset;
 				header_length = offset+3;		
 				stx_start = offset+2;
-				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Text + ACK");
+				col_add_str(pinfo->cinfo, COL_INFO, "Text + ACK");
 				set_addr(pinfo, SRC, rid, sid, did);
 			} else if (testchar(tvb, pinfo, offset, MATCH, STX, NULL)) {
 				header_length = offset+1;
 				stx_start = offset;
-				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Text");
+				col_add_str(pinfo->cinfo, COL_INFO, "Text");
 				if ((pinfo->pseudo_header->sita.flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) {
 					set_addr(pinfo, DST, rid, sid, did);		/* if the ACN sent it, the address is of the destination... the terminal */
 				} else {
@@ -208,19 +204,19 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				   testchar(tvb, pinfo, offset+1, MATCH, ENQ, NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
 				replyrequest_start = offset;
-				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Reply Request");
+				col_add_str(pinfo->cinfo, COL_INFO, "Reply Request");
 				set_addr(pinfo, SRC, rid, sid, did);
 			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
 				   testchar(tvb, pinfo, offset+1, MATCH, '?', NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
 				busy_start = offset;
-				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Busy");
+				col_add_str(pinfo->cinfo, COL_INFO, "Busy");
 				set_addr(pinfo, SRC, rid, sid, did);
 			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
 				   testchar(tvb, pinfo, offset+1, MATCH, ';', NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, ETX, NULL)) {
 				notbusy_start = offset;
-				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Not Busy");
+				col_add_str(pinfo->cinfo, COL_INFO, "Not Busy");
 				set_addr(pinfo, SRC, rid, sid, did);
 			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)		&&
 				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
@@ -229,7 +225,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				   testchar(tvb, pinfo, offset+4, MATCH, ETX, NULL)) {
 				notbusy_start = offset+2;
 				ack_start = offset;
-				g_snprintf(msg_msg, MAX_POLL_TYPE_MSG_SIZE, "Not Busy + ACK");
+				col_add_str(pinfo->cinfo, COL_INFO, "Not Busy + ACK");
 				set_addr(pinfo, SRC, rid, sid, did);
 			} else if (testchar(tvb, pinfo, offset, MATCH, DLE, NULL)				&&
 				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)			&&
@@ -237,20 +233,16 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				   testchar(tvb, pinfo, offset+3, MATCH, ETX, NULL)) {
 				ack_start = offset;
 				function_start = offset + 2;
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c' + ACK", function_code);
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c' + ACK", function_code);
 				set_addr(pinfo, SRC, rid, sid, did);
 			} else if (testchar(tvb, pinfo, offset, FETCH, 0, &function_code)		&&
 				   testchar(tvb, pinfo, offset+1, MATCH, ETX, NULL)) {
 				function_start = offset;
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c'", function_code);
+				col_add_fstr(pinfo->cinfo, COL_INFO, "Function Message '%c'", function_code);
 				set_addr(pinfo, SRC, rid, sid, did);
 			}
 		}
 	}
-	if ((check_col(pinfo->cinfo, COL_INFO)) && strlen(msg_msg))
-		col_add_str(pinfo->cinfo, COL_INFO, msg_msg);
 
 	while (tvb_length_remaining(tvb, offset)) {					/* now look for the ETX */
 		if ((tvb_get_guint8(tvb, offset) & 0x7f) == ETX) {

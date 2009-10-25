@@ -56,7 +56,6 @@
 #define BASE_TPNCP_DATA_LEN 256
 #define MAX_TPNCP_DAT_FILE_PATH_LEN BASE_TPNCP_DATA_LEN
 #define MAX_TPNCP_DB_ENTRY_LEN BASE_TPNCP_DATA_LEN
-#define MAX_TPNCP_HEADER_LEN BASE_TPNCP_DATA_LEN
 
 #define MAX_TPNCP_DB_SIZE 3000
 #define MAX_ENUMS_NUM 500
@@ -253,7 +252,7 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     gint offset = 0;
     guint32 id, cid = 0;
     guint16 seq_number, len, ver, reserved;
-    gchar *tpncp_header = NULL;
+    gchar *tpncp_header;
 
     ver = tvb_get_ntohs(tvb, 0);
     len = tvb_get_ntohs(tvb, 2);
@@ -289,16 +288,13 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_uint(tpncp_tree, hf_tpncp_seq_number, tvb, 4, 2, seq_number);
         proto_tree_add_uint(tpncp_tree, hf_tpncp_reserved, tvb, 6, 2, reserved);
 
-        tpncp_header = ep_alloc(MAX_TPNCP_HEADER_LEN);
-        tpncp_header[0] = 0;
-
         if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK) {
             if (match_strval(id, tpncp_events_id_vals)) {
                 proto_tree_add_uint(tpncp_tree, hf_tpncp_event_id, tvb, 8, 4, id);
                 proto_tree_add_int(tpncp_tree, hf_tpncp_cid, tvb, 12, 4, cid);
                 offset += 16;
                 if (tpncp_events_info_db[id].tpncp_data_field_size) {
-                    g_snprintf(tpncp_header, MAX_TPNCP_HEADER_LEN, "TPNCP Event: %s (%d)", val_to_str(id, tpncp_events_id_vals, "Unknown"), id);
+                    tpncp_header = ep_strdup_printf("TPNCP Event: %s (%d)", val_to_str(id, tpncp_events_id_vals, "Unknown"), id);
                     tpncp_item = proto_tree_add_text(tree, tvb, offset, -1, "%s", tpncp_header);
                     dissect_tpncp_event(id, tvb, tpncp_item, &offset);
                 }
@@ -309,7 +305,7 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 proto_tree_add_uint(tpncp_tree, hf_tpncp_command_id, tvb, 8, 4, id);
                 offset += 12;
                 if (tpncp_commands_info_db[id].tpncp_data_field_size) {
-                    g_snprintf(tpncp_header, MAX_TPNCP_HEADER_LEN, "TPNCP Command: %s (%d)", val_to_str(id, tpncp_commands_id_vals, "Unknown"), id);
+                    tpncp_header = ep_strdup_printf("TPNCP Command: %s (%d)", val_to_str(id, tpncp_commands_id_vals, "Unknown"), id);
                     tpncp_item = proto_tree_add_text(tree, tvb, offset, -1, "%s", tpncp_header);
                     dissect_tpncp_command(id, tvb, tpncp_item, &offset);
                 }

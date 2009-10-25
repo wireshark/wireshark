@@ -395,9 +395,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
 
   if(suffix_len <  IPSEC_STRLEN_IPV6)
     {
-      prefix_addr = ep_alloc(strlen(ipv6_addr) - suffix_cpt + 1);
-      memcpy(prefix_addr,ipv6_addr,strlen(ipv6_addr) - suffix_cpt);
-      prefix_addr[strlen(ipv6_addr) - suffix_cpt] = '\0';
+      prefix_addr = ep_strndup(ipv6_addr,strlen(ipv6_addr) - suffix_cpt);
       prefix_remaining = get_ipv6_suffix(prefix,prefix_addr);
       prefix_len = strlen(prefix);
       memcpy(ipv6_addr_expanded,prefix,prefix_len);
@@ -588,8 +586,7 @@ esp_sa_parse_ipv6addr(const gchar *sa, guint index_start, gchar **pt_ipv6addr, g
 
   if(done_flag)
     {
-      *pt_ipv6addr = (gchar *)g_malloc((strlen(addr_string) + 1) * sizeof(gchar));
-      memcpy(*pt_ipv6addr,addr_string,strlen(addr_string) + 1);
+      *pt_ipv6addr = g_strdup(addr_string);
     }
 
   return done_flag;
@@ -644,8 +641,7 @@ esp_sa_parse_ipv4addr(const gchar *sa, guint index_start, gchar **pt_ipv4addr, g
 
   if(done_flag)
     {
-      *pt_ipv4addr = (gchar *)g_malloc((strlen(addr_string) + 1) * sizeof(gchar));
-      memcpy(*pt_ipv4addr,addr_string,strlen(addr_string) + 1);
+      *pt_ipv4addr = g_strdup(addr_string);
     }
 
   return done_flag;
@@ -698,8 +694,7 @@ esp_sa_parse_spi(const gchar *sa, guint index_start, gchar **pt_spi, guint *inde
 	}
 
       *index_end = cpt + index_start - 1;
-      *pt_spi = (gchar *)g_malloc((strlen(spi_string) + 1) * sizeof(gchar));
-      memcpy(*pt_spi, spi_string, strlen(spi_string) + 1);
+      *pt_spi = g_strdup(spi_string);
 
       done_flag = TRUE;
     }
@@ -851,7 +846,7 @@ esp_sa_remove_white(const gchar *sa, gchar **sa_bis)
     }
 
   sa_tmp = ep_alloc(strlen(sa) + 1);
-  for(i = 0; i < strlen(sa); i++)
+  for(i = 0; sa[i]; i++)
     {
 
       if((sa[i] != ' ') && (sa[i] != '\t'))
@@ -863,9 +858,7 @@ esp_sa_remove_white(const gchar *sa, gchar **sa_bis)
   sa_tmp[cpt] = '\0';
 
   /* XXX - Should this be se_allocated instead? */
-  *sa_bis = (gchar *)g_malloc((cpt +1) * sizeof(gchar));
-  memcpy(*sa_bis,sa_tmp,cpt);
-  (*sa_bis)[cpt] = '\0';
+  *sa_bis = g_strdup(sa_tmp);
 }
 #endif
 
@@ -1153,7 +1146,7 @@ filter_spi_match(gchar *spi, gchar *filter)
     return FALSE;
   }
 
-  for(i = 0; i < strlen(filter); i++)
+  for(i = 0; filter[i]; i++)
     {
       if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != spi[i])) return FALSE;
     }
@@ -1254,8 +1247,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
       else
 	{
 	  key_len = strlen(key);
-	  *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
-	  memcpy(*ascii_key, key, key_len + 1);
+	  *ascii_key = g_strdup(key);
 	}
     }
 
@@ -1939,12 +1931,10 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 
 		      /* Allocate Buffers for Authenticator Field  */
-		      authenticator_data = (guint8 *) g_malloc (( esp_auth_len + 1) * sizeof(guint8));
-		      memset(authenticator_data,0, esp_auth_len + 1);
+		      authenticator_data = (guint8 *) g_malloc0 (( esp_auth_len + 1) * sizeof(guint8));
 		      tvb_memcpy(tvb, authenticator_data, len - esp_auth_len, esp_auth_len);
 
-		      esp_data = (guint8 *) g_malloc (( len - esp_auth_len + 1) * sizeof(guint8));
-		      memset(esp_data,0,  len - esp_auth_len + 1);
+		      esp_data = (guint8 *) g_malloc0 (( len - esp_auth_len + 1) * sizeof(guint8));
 		      tvb_memcpy(tvb, esp_data, 0, len - esp_auth_len);
 
 		      err = gcry_md_open (&md_hd, auth_algo_libgcrypt, GCRY_MD_FLAG_HMAC);
@@ -2387,8 +2377,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  if(decrypt_using_libgcrypt)
 		    {
 		      /* Allocate Buffers for Encrypted and Decrypted data  */
-		      encrypted_data = (guint8 *) g_malloc ((decrypted_len_alloc) * sizeof(guint8));
-		      memset(encrypted_data,0,decrypted_len_alloc);
+		      encrypted_data = (guint8 *) g_malloc0 ((decrypted_len_alloc) * sizeof(guint8));
 		      decrypted_data = (guint8 *) g_malloc ((decrypted_len_alloc + esp_iv_len)* sizeof(guint8));
 		      tvb_memcpy(tvb, encrypted_data , sizeof(struct newesp), decrypted_len);
 

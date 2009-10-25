@@ -329,12 +329,10 @@ print_eui64_oui(guint64 addr)
     }
     else {
         /* Found an address string. */
-        gchar       *output_str = ep_alloc(64);
-        g_snprintf(output_str, 64, "%s_%02x:%02x:%02x:%02x:%02x", manuf_name,
+        return ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", manuf_name,
             ((guint8 *)(eui64addr.data))[3], ((guint8 *)(eui64addr.data))[4],
             ((guint8 *)(eui64addr.data))[5], ((guint8 *)(eui64addr.data))[6],
             ((guint8 *)(eui64addr.data))[7]);
-        return output_str;
     }
 } /* print_eui64_oui */
 

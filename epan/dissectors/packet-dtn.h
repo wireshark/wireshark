@@ -133,4 +133,3 @@
 #define BLOCK_CONTROL_EID_REFERENCE     0x40
 
 #define IPN_SCHEME_STR			"ipn"
-#define NODE_NAME_STR_SIZE		24

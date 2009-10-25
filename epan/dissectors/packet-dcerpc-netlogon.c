@@ -2510,9 +2510,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 
   txt_len = strlen(dcv->private_data);
   debugprintf("1)Len %d offset %d txt %s\n",txt_len,offset,(char*)dcv->private_data);
-  vars->client_name = se_alloc(txt_len+1);
-  memcpy(vars->client_name,dcv->private_data,txt_len+1);
-  vars->client_name[txt_len] = '\0';
+  vars->client_name = se_strdup(dcv->private_data);
   debugprintf("2)Len %d offset %d txt %s\n",txt_len,offset,vars->client_name);
 
   offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,

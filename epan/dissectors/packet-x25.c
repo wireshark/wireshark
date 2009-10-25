@@ -290,8 +290,6 @@ x25_hash_add_proto_end(guint16 vc, guint32 frame)
 
 static const char *clear_code(unsigned char code)
 {
-    static char *buffer;
-
     if (code == 0x00 || (code & 0x80) == 0x80)
 	return "DTE Originated";
     if (code == 0x01)
@@ -321,16 +319,11 @@ static const char *clear_code(unsigned char code)
     if (code == 0x39)
 	return "Destination Absent";
 
-    buffer=ep_alloc(32);
-    g_snprintf(buffer, 32, "Unknown %02X", code);
-
-    return buffer;
+    return ep_strdup_printf("Unknown %02X", code);
 }
 
 static const char *clear_diag(unsigned char code)
 {
-    static char *buffer;
-
     if (code == 0)
 	return "No additional information";
     if (code == 1)
@@ -549,16 +542,11 @@ static const char *clear_diag(unsigned char code)
     if (code == 250)
 	return "Reset - user resynchronization";
 
-    buffer=ep_alloc(32);
-    g_snprintf(buffer, 32, "Unknown %d", code);
-
-    return buffer;
+    return ep_strdup_printf("Unknown %d", code);
 }
 
 static const char *reset_code(unsigned char code)
 {
-    static char *buffer;
-
     if (code == 0x00 || (code & 0x80) == 0x80)
 	return "DTE Originated";
     if (code == 0x01)
@@ -578,16 +566,11 @@ static const char *reset_code(unsigned char code)
     if (code == 0x1D)
 	return "Network out of order";
 
-    buffer=ep_alloc(32);
-    g_snprintf(buffer, 32, "Unknown %02X", code);
-
-    return buffer;
+    return ep_strdup_printf("Unknown %02X", code);
 }
 
 static const char *restart_code(unsigned char code)
 {
-    static char *buffer;
-
     if (code == 0x00 || (code & 0x80) == 0x80)
 	return "DTE Originated";
     if (code == 0x01)
@@ -599,16 +582,11 @@ static const char *restart_code(unsigned char code)
     if (code == 0x7F)
 	return "Registration/cancellation confirmed";
 
-    buffer=ep_alloc(32);
-    g_snprintf(buffer, 32, "Unknown %02X", code);
-
-    return buffer;
+    return ep_strdup_printf("Unknown %02X", code);
 }
 
 static const char *registration_code(unsigned char code)
 {
-    static char *buffer;
-
     if (code == 0x03)
 	return "Invalid facility request";
     if (code == 0x05)
@@ -618,10 +596,7 @@ static const char *registration_code(unsigned char code)
     if (code == 0x7F)
 	return "Registration/cancellation confirmed";
 
-    buffer=ep_alloc(32);
-    g_snprintf(buffer, 32, "Unknown %02X", code);
-
-    return buffer;
+    return ep_strdup_printf("Unknown %02X", code);
 }
 
 static void

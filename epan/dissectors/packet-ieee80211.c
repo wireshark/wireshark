@@ -12188,9 +12188,7 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
     }
 
     /* allocate buffer for decrypted payload                      */
-    if ((tmp = g_malloc(dec_caplen-offset)) == NULL)
-      return NULL;  /* krap! */
-    memcpy(tmp, dec_data+offset, dec_caplen-offset);
+    tmp = g_memdup(dec_data+offset, dec_caplen-offset);
 
     len=dec_caplen-offset;
 

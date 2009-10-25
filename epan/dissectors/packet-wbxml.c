@@ -7630,8 +7630,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				tag_new_known = 0; /* invalidate known tag_new */
 			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;
-				tag_new_buf=ep_alloc(10);
-				g_snprintf (tag_new_buf, 10, "Tag_0x%02X",
+				tag_new_buf=ep_strdup_printf("Tag_0x%02X",
 					    tag_new_known);
 				tag_new_literal = tag_new_buf;
 				/* Stored looked up tag name string */
@@ -7659,8 +7658,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						tag_save_known = 0;
 					} else { /* Known tag */
 						tag_save_known = tag_new_known;
-						tag_save_buf=ep_alloc(10);
-						g_snprintf (tag_save_buf, 10, "Tag_0x%02X",
+						tag_save_buf=ep_strdup_printf("Tag_0x%02X",
 							    tag_new_known);
 						tag_save_literal = tag_save_buf;
 						/* The last statement avoids needless lookups */

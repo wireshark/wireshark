@@ -589,9 +589,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		THROW(ReportedBoundsError);
         }
 
-	dccph=ep_alloc(sizeof(e_dccphdr));
-
-	memset(dccph, 0, sizeof(e_dccphdr));
+	dccph=ep_alloc0(sizeof(e_dccphdr));
 
 	SET_ADDRESS(&dccph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
 	SET_ADDRESS(&dccph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);

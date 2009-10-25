@@ -676,8 +676,7 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 
 	fhlen=nfs_fh->len/4;
 	/* align the file handle data */
-	fhdata=g_malloc(fhlen*4);
-	memcpy(fhdata, nfs_fh->fh, fhlen*4);
+	fhdata=g_memdup(nfs_fh->fh, fhlen*4);
 	fhkey[0].length=1;
 	fhkey[0].key=&fhlen;
 	fhkey[1].length=fhlen;
@@ -963,8 +962,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 			fhlen=nns->fh_length;
 			/* align it */
-			fhdata=g_malloc(fhlen);
-			memcpy(fhdata, nns->fh, fhlen);
+			fhdata=g_memdup(nns->fh, fhlen);
 			fhkey[0].length=1;
 			fhkey[0].key=&fhlen;
 			fhkey[1].length=fhlen/4;

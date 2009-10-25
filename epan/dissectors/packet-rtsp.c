@@ -1129,9 +1129,7 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 	while (url < lineend && !isspace(*url))
 		url++;
 	/* Create a URL-sized buffer and copy contents */
-	tmp_url = ep_alloc(url - url_start + 1);
-	memcpy(tmp_url, url_start, url - url_start);
-	tmp_url[url - url_start] = '\0';
+	tmp_url = ep_strndup(url_start, url - url_start);
 	
 	/* Add URL to tree */
 	proto_tree_add_string(sub_tree, hf_rtsp_url, tvb,

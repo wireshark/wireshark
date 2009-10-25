@@ -2781,8 +2781,7 @@ ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, 
 
   assoc->tcp = tcp;
   assoc->ssl_port = port;
-  assoc->info=g_malloc(strlen(protocol)+1);
-  g_strlcpy(assoc->info, protocol, strlen(protocol)+1);
+  assoc->info=g_strdup(protocol);
   assoc->handle = find_dissector(protocol);
   assoc->from_key_list = from_key_list;
 

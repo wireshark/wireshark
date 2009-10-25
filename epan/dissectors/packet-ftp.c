@@ -193,9 +193,7 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip,
 	/*
 	 * Copy the rest of the line into a null-terminated buffer.
 	 */
-	args = ep_alloc(linelen + 1);
-	memcpy(args, line, linelen);
-	args[linelen] = '\0';
+	args = ep_strndup(line, linelen);
 	p = args;
 
 	for (;;) {
@@ -253,9 +251,7 @@ parse_extended_pasv_response(const guchar *line, int linelen, guint16 *ftp_port)
 	/*
 	 * Copy the rest of the line into a null-terminated buffer.
 	 */
-	args = ep_alloc(linelen + 1);
-	memcpy(args, line, linelen);
-	args[linelen] = '\0';
+	args = ep_strndup(line, linelen);
 	p = args;
 
 	/*

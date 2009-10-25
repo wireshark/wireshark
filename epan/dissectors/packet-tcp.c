@@ -251,20 +251,22 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 struct tcp_analysis *
 init_tcp_conversation_data(packet_info *pinfo)
 {
-	struct tcp_analysis *tcpd=NULL;
+	struct tcp_analysis *tcpd;
 
 	/* Initialize the tcp protocol datat structure to add to the tcp conversation */
 	tcpd=se_alloc0(sizeof(struct tcp_analysis));
-	memset(&tcpd->flow1, 0, sizeof(tcp_flow_t));
-	memset(&tcpd->flow2, 0, sizeof(tcp_flow_t));
 	tcpd->flow1.win_scale=-1;
 	tcpd->flow1.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
+	/*
 	tcpd->flow1.username = NULL;
 	tcpd->flow1.command = NULL;
+	*/
 	tcpd->flow2.win_scale=-1;
 	tcpd->flow2.multisegment_pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_multisegment_pdus");
+	/*
 	tcpd->flow2.username = NULL;
 	tcpd->flow2.command = NULL;
+	*/
 	tcpd->acked_table=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "tcp_analyze_acked_table");
 	tcpd->ts_first.secs=pinfo->fd->abs_ts.secs;
 	tcpd->ts_first.nsecs=pinfo->fd->abs_ts.nsecs;
@@ -291,7 +293,7 @@ struct tcp_analysis *
 get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
 {
 	int direction;
-	struct tcp_analysis *tcpd=NULL;
+	struct tcp_analysis *tcpd;
 
 	/* Did the caller supply the conversation pointer? */
 	if( conv==NULL )
@@ -2327,7 +2329,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
 		    int offset, guint optlen, packet_info *pinfo,
 		    proto_tree *opt_tree)
 {
-  struct tcp_analysis *tcpd=NULL;
+  struct tcp_analysis *tcpd;
   proto_tree *field_tree = NULL;
   tcp_flow_t *flow;
   int         direction;

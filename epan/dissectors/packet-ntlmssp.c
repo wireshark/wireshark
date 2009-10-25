@@ -1872,8 +1872,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
   if (packet_ntlmssp_info == NULL) {
     /* We don't have any packet state, so create one */
-    packet_ntlmssp_info = se_alloc(sizeof(ntlmssp_packet_info));
-    memset(packet_ntlmssp_info, 0, sizeof(ntlmssp_packet_info));
+    packet_ntlmssp_info = se_alloc0(sizeof(ntlmssp_packet_info));
     p_add_proto_data(pinfo->fd, proto_ntlmssp, packet_ntlmssp_info);
   }
   if (!packet_ntlmssp_info->payload_decrypted) {
@@ -1947,9 +1946,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
          it's usefull when we have only one key for both conversation
          in case of KEY_EXCH we have independant key so this is not needed*/
       if( !(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags)) {
-        peer_block = ep_alloc(encrypted_block_length);
-        memcpy(peer_block, packet_ntlmssp_info->decrypted_payload,
-  	      encrypted_block_length);
+        peer_block = ep_memdup(packet_ntlmssp_info->decrypted_payload, encrypted_block_length);
         crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
       }
 
@@ -2169,9 +2166,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
          This is not needed when we just have EXTENDED SECURITY because the signature is not crypted
          and it's also not needed when we have key exchange because server and client have independant keys */
       if( !(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags) && !(NTLMSSP_NEGOTIATE_EXTENDED_SECURITY & conv_ntlmssp_info->flags)) {
-        peer_block = ep_alloc(encrypted_block_length);
-        memcpy(peer_block, packet_ntlmssp_info->verifier,
-  	      encrypted_block_length);
+        peer_block = ep_memdup(packet_ntlmssp_info->verifier, encrypted_block_length);
         crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
       }
 
@@ -2380,8 +2375,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
   packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
   if (packet_ntlmssp_info == NULL) {
     / * We don't have any packet state, so create one * /
-    packet_ntlmssp_info = se_alloc(sizeof(ntlmssp_packet_info));
-    memset(packet_ntlmssp_info, 0, sizeof(ntlmssp_packet_info));
+    packet_ntlmssp_info = se_alloc0(sizeof(ntlmssp_packet_info));
     p_add_proto_data(pinfo->fd, proto_ntlmssp, packet_ntlmssp_info);
   }
 
@@ -2430,9 +2424,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 
     / * We setup a temporary buffer so we can re-encrypt the payload after
        decryption.  This is to update the opposite peer's RC4 state * /
-    peer_block = ep_alloc(encrypted_block_length);
-    memcpy(peer_block, packet_ntlmssp_info->decrypted_payload,
-	   encrypted_block_length);
+    peer_block = ep_memdup(packet_ntlmssp_info->decrypted_payload, encrypted_block_length);
     crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
 
     packet_ntlmssp_info->payload_decrypted = TRUE;

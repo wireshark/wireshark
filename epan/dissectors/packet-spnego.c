@@ -1218,8 +1218,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_, packet_info *pinfo _U_, tvbuff
 	if (output) {
 		char *outdata;
 
-		outdata = g_malloc(tvb_length(tvb));
-		memcpy(outdata, output, tvb_length(tvb));
+		outdata = g_memdup(output, tvb_length(tvb));
 		g_free(output);
 
 		pinfo->gssapi_decrypted_tvb=tvb_new_child_real_data(tvb,

@@ -582,14 +582,10 @@ dns_type_description (guint type)
   };
   const char *short_name;
   const char *long_name;
-#define MAX_STRBUF_LEN 1024
-  char *strbuf;
 
-  strbuf=ep_alloc(MAX_STRBUF_LEN);
   short_name = dns_type_name(type);
   if (short_name == NULL) {
-    g_snprintf(strbuf, MAX_STRBUF_LEN, "Unknown (%u)", type);
-    return strbuf;
+    return ep_strdup_printf("Unknown (%u)", type);
   }
   if (type < sizeof(type_names)/sizeof(type_names[0]))
     long_name = type_names[type];
@@ -627,10 +623,9 @@ dns_type_description (guint type)
   }
 
   if (long_name != NULL)
-    g_snprintf(strbuf, MAX_STRBUF_LEN, "%s (%s)", short_name, long_name);
+    return ep_strdup_printf("%s (%s)", short_name, long_name);
   else
-    g_snprintf(strbuf, MAX_STRBUF_LEN, "%s", short_name);
-  return strbuf;
+    return ep_strdup(short_name);
 }
 
 static const value_string dns_classes[] = {

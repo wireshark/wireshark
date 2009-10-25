@@ -130,7 +130,6 @@
 
 /* Maximum lengths */
 #define MAX_SIC_LEN         30
-#define MAX_MSG_TYPE_LEN    46
 #define MAX_SEC_CAT_LEN     33
 #define MAX_ENV_FLAGS_LEN  100
 #define MAX_STRUCT_ID_LEN  128
@@ -822,14 +821,14 @@ static enum_val_t struct_id_options[] = {
 
 static const gchar *msg_type_to_str (void)
 {
-  gchar    *msg_type = ep_alloc (MAX_MSG_TYPE_LEN);
-  gboolean  have_msg = FALSE;
+  const gchar *msg_type;
+  gboolean     have_msg = FALSE;
   
   switch (dmp.msg_type) {
 
   case STANAG:
     /* Include message type and precedence */
-    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "%s (%s) [%s]",
+    msg_type = ep_strdup_printf ("%s (%s) [%s]",
 		val_to_str (dmp.msg_type, type_vals, "Unknown"),
 		val_to_str (dmp.st_type, message_type_vals, "Unknown"),
 		(dmp.prec == 0x6 || dmp.prec == 0x7) ?
@@ -839,35 +838,34 @@ static const gchar *msg_type_to_str (void)
     
   case IPM:
     /* Include importance */
-    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "%s [%s]",
+    msg_type = ep_strdup_printf ("%s [%s]",
 		val_to_str (dmp.msg_type, type_vals, "Unknown"),
 		val_to_str (dmp.prec, importance, "Unknown"));
     break;
     
   case REPORT:
     /* Include report types included */
-    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "Report (%s%s%s)",
+    msg_type = ep_strdup_printf ("Report (%s%s%s)",
 		dmp.dr ? "DR" : "", (dmp.dr && dmp.ndr) ? " and " : "",
 		dmp.ndr ? "NDR" : "");
     break;
     
   case NOTIF:
-    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "%s",
-		val_to_str (dmp.notif_type, notif_type, "Unknown"));
+    msg_type = val_to_str (dmp.notif_type, notif_type, "Unknown");
     break;
     
   case ACK:
     /* If we have msg_time we have a matching packet */
     have_msg = (dmp.id_val &&
 		(dmp.id_val->msg_time.secs>0 || dmp.id_val->msg_time.nsecs>0));
-    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "Acknowledgement%s%s",
+    msg_type = ep_strdup_printf ( "Acknowledgement%s%s",
 		have_msg ? val_to_str (dmp.id_val->msg_type, ack_msg_type,
 				       " (unknown:%d)") : "",
 		dmp.ack_reason ? " [negative]" : "");
     break;
     
   default:
-    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "Unknown");
+    msg_type = "Unknown";
     break;
   }
   
@@ -1190,8 +1188,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
       }
     } else {
       /* New message */
-      dmp_data = se_alloc (sizeof (dmp_id_val));
-      memset (dmp_data, 0, sizeof (dmp_id_val));
+      dmp_data = se_alloc0 (sizeof (dmp_id_val));
       dmp_data->msg_type = dmp.msg_type;
 
       if (dmp.msg_type == ACK) {

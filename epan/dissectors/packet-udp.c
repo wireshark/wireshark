@@ -107,16 +107,16 @@ static gboolean try_heuristic_first = FALSE;
 static struct udp_analysis *
 init_udp_conversation_data(void)
 {
-  struct udp_analysis *udpd=NULL;
+  struct udp_analysis *udpd;
 
   /* Initialize the udp protocol data structure to add to the udp conversation */
   udpd = se_alloc0(sizeof(struct udp_analysis));
-  memset(&udpd->flow1, 0, sizeof(udp_flow_t));
-  memset(&udpd->flow2, 0, sizeof(udp_flow_t));
+  /*
   udpd->flow1.username = NULL;
   udpd->flow1.command = NULL;
   udpd->flow2.username = NULL;
   udpd->flow2.command = NULL;
+  */
 
   return udpd;
 }

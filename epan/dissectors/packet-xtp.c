@@ -657,8 +657,7 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return;
 	}
 	/* spans(16n) */
-	spans = ep_alloc(spans_len);
-	memset(spans, 0, spans_len);
+	spans = ep_alloc0(spans_len);
 	p = spans;
 	for (i = 0; i < ecntl->nspan*2; i++) {
 		guint64 span = tvb_get_ntohl(tvb, offset);

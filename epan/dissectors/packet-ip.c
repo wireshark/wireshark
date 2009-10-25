@@ -658,7 +658,6 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 	    if (val_ptr[byte_spot] & bitmask) {
 	      g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN, "%u",
 		       byte_spot * 8 + bit_spot);
-	      cat_str_tmp[USHRT_MAX_STRLEN - 1] = '\0';
 	      if (cat_str_len < (strlen(cat_str) + 2 + USHRT_MAX_STRLEN)) {
 		char *cat_str_new;
 		while (cat_str_len < (strlen(cat_str) + 2 + USHRT_MAX_STRLEN))
@@ -717,7 +716,6 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 	  g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN, "%u",
 		   tvb_get_ntohs(tvb, offset));
 	  offset += 2;
-	  cat_str_tmp[USHRT_MAX_STRLEN - 1] = '\0';
 	  if (cat_str[0] != '\0')
 	    g_strlcat(cat_str, ",", USHRT_MAX_STRLEN * 15);
 	  g_strlcat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 15);

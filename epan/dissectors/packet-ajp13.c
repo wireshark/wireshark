@@ -291,8 +291,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
    */
   mcode = tvb_get_guint8(tvb, pos);
   msg_code = val_to_str(mcode, mtype_codes, "UNKNOWN");
-  mcode_buf=ep_alloc(32);
-  g_snprintf(mcode_buf, 32, "(%d) %s", mcode, msg_code);
+  mcode_buf=ep_strdup_printf("(%d) %s", mcode, msg_code);
   if (ajp13_tree)
     proto_tree_add_string(ajp13_tree, hf_ajp13_code, tvb, pos, 1, mcode_buf);
   pos+=1;
@@ -494,8 +493,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     const gchar* msg_code = NULL;
     char *mcode_buf;
     msg_code = val_to_str(cod, mtype_codes, "UNKNOWN");
-    mcode_buf=ep_alloc(32);
-    g_snprintf(mcode_buf, 32, "(%d) %s", cod, msg_code);
+    mcode_buf=ep_strdup_printf("(%d) %s", cod, msg_code);
     proto_tree_add_string(ajp13_tree, hf_ajp13_code, tvb, pos, 1, mcode_buf);
   }
   pos+=1;
@@ -512,8 +510,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     meth_code = val_to_str(meth, http_method_codes, "UNKNOWN");
     if (ajp13_tree) {
       char *mcode_buf;
-      mcode_buf=ep_alloc(32);
-      g_snprintf(mcode_buf, 32, "(%d) %s", meth, meth_code);
+      mcode_buf=ep_strdup_printf("(%d) %s", meth, meth_code);
       proto_tree_add_string(ajp13_tree, hf_ajp13_method, tvb, pos, 1, mcode_buf);
     }
     if(check_col(pinfo->cinfo, COL_INFO))

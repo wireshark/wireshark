@@ -354,7 +354,6 @@ rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
 	rpc_proc_info_value *value;
 	char *procname;
 
-	procname=ep_alloc(20);
 	key.prog = prog;
 	key.vers = vers;
 	key.proc = proc;
@@ -364,7 +363,7 @@ rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
 	else {
 		/* happens only with strange program versions or
 		   non-existing dissectors */
-		g_snprintf(procname, 20, "proc-%u", key.proc);
+		procname = ep_strdup_printf("proc-%u", key.proc);
 	}
 	return procname;
 }
@@ -1564,16 +1563,14 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			procname = (char *)rpc_call->proc_info->name;
 		}
 		else {
-			procname=ep_alloc(20);
-			g_snprintf(procname, 20, "proc-%u", rpc_call->proc);
+			procname=ep_strdup_printf("proc-%u", rpc_call->proc);
 		}
 	}
 	else {
 #if 0
 		dissect_function = NULL;
 #endif
-		procname=ep_alloc(20);
-		g_snprintf(procname, 20, "proc-%u", rpc_call->proc);
+		procname=ep_strdup_printf("proc-%u", rpc_call->proc);
 	}
 
 	if ( tree )
@@ -2007,8 +2004,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #if 0
 			dissect_function = NULL;
 #endif
-			procname=ep_alloc(20);
-			g_snprintf(procname, 20, "proc-%u", proc);
+			procname=ep_strdup_printf("proc-%u", proc);
 		}
 
 		/* Check for RPCSEC_GSS and AUTH_GSSAPI */
@@ -2235,16 +2231,14 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				procname = (char *)rpc_call->proc_info->name;
 			}
 			else {
-				procname=ep_alloc(20);
-				g_snprintf(procname, 20, "proc-%u", proc);
+				procname=ep_strdup_printf("proc-%u", proc);
 			}
 		}
 		else {
 #if 0
 			dissect_function = NULL;
 #endif
-			procname=ep_alloc(20);
-			g_snprintf(procname, 20, "proc-%u", proc);
+			procname=ep_strdup_printf("proc-%u", proc);
 		}
 
 		/*

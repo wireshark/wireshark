@@ -1695,7 +1695,6 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 		     int keycodes_per_modifier,
 		     guint32 keycode, guint32 bitmask)
 {
-	static char *buf;
 	int *syms;
 	int groupmodkc, numlockkc, numlockmod, groupmod;
 	int lockmod_is_capslock = 0, lockmod_is_shiftlock = 0;
@@ -1865,9 +1864,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 	if (keysym == XK_VoidSymbol)
 		keysym = NoSymbol;
 
-	buf=ep_alloc(32);
-	g_snprintf(buf, 32, "%d, \"%s\"", keysym, keysymString(keysym));
-	return buf;
+	return ep_strdup_printf("%d, \"%s\"", keysym, keysymString(keysym));
 #endif
 }
 

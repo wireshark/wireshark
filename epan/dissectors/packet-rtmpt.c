@@ -335,8 +335,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		conversation_data = (rtmpt_conversation_data_t*)conversation_get_proto_data(current_conversation, proto_rtmpt);
 		if (NULL == conversation_data)
 		{
-			conversation_data = se_alloc(sizeof(rtmpt_conversation_data_t));
-			memset((void*)conversation_data, 0, sizeof(rtmpt_conversation_data_t));
+			conversation_data = se_alloc0(sizeof(rtmpt_conversation_data_t));
 			conversation_add_proto_data(current_conversation, proto_rtmpt, conversation_data);
 			conversation_data->current_chunks = g_hash_table_new(g_direct_hash, g_direct_equal);
 			conversation_data->previous_frame_number = -1;
@@ -347,8 +346,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		packet_data = p_get_proto_data(pinfo->fd, proto_rtmpt);
 		if (NULL == packet_data)
 		{
-			packet_data = se_alloc(sizeof(rtmpt_packet_data_t));
-			memset((void*)packet_data, 0, sizeof(rtmpt_packet_data_t));
+			packet_data = se_alloc0(sizeof(rtmpt_packet_data_t));
 			p_add_proto_data(pinfo->fd, proto_rtmpt, packet_data);
 			packet_data->initial_chunks = g_hash_table_new(g_direct_hash, g_direct_equal);
 			packet_data->initial_chunk_size = conversation_data->current_chunk_size;
@@ -398,8 +396,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					iCommand = tvb_get_guint8(tvb, offset + 7);
 					if (NULL == current_chunk_data)
 					{
-						current_chunk_data = se_alloc(sizeof(rtmpt_chunk_data_t));
-						memset((void*)current_chunk_data, 0, sizeof(rtmpt_chunk_data_t));
+						current_chunk_data = se_alloc0(sizeof(rtmpt_chunk_data_t));
 						g_hash_table_insert(conversation_data->current_chunks, GUINT_TO_POINTER(rtmp_index), current_chunk_data);
 					}
 
@@ -563,8 +560,7 @@ get_rtmpt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 		conversation_data = (rtmpt_conversation_data_t*)conversation_get_proto_data(current_conversation, proto_rtmpt);
 		if (NULL == conversation_data)
 		{
-			conversation_data = se_alloc(sizeof(rtmpt_conversation_data_t));
-			memset((void*)conversation_data, 0, sizeof(rtmpt_conversation_data_t));
+			conversation_data = se_alloc0(sizeof(rtmpt_conversation_data_t));
 			conversation_add_proto_data(current_conversation, proto_rtmpt, conversation_data);
 			conversation_data->current_chunks = g_hash_table_new(g_direct_hash, g_direct_equal);
 			conversation_data->previous_frame_number = -1;
@@ -580,8 +576,7 @@ get_rtmpt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 		packet_data = p_get_proto_data(pinfo->fd, proto_rtmpt);
 		if (NULL == packet_data)
 		{
-			packet_data = se_alloc(sizeof(rtmpt_packet_data_t));
-			memset((void*)packet_data, 0, sizeof(rtmpt_packet_data_t));
+			packet_data = se_alloc0(sizeof(rtmpt_packet_data_t));
 			p_add_proto_data(pinfo->fd, proto_rtmpt, packet_data);
 			packet_data->initial_chunks = g_hash_table_new(g_direct_hash, g_direct_equal);
 			packet_data->initial_chunk_size = conversation_data->current_chunk_size;
@@ -642,14 +637,12 @@ get_rtmpt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 					{
 						if (NULL == current_chunk_data)
 						{
-							current_chunk_data = se_alloc(sizeof(rtmpt_chunk_data_t));
-							memset((void*)current_chunk_data, 0, sizeof(rtmpt_chunk_data_t));
+							current_chunk_data = se_alloc0(sizeof(rtmpt_chunk_data_t));
 							g_hash_table_insert(conversation_data->current_chunks, GUINT_TO_POINTER(rtmp_index), current_chunk_data);
 						}
 						else if (NULL == initial_chunk_data)
 						{
-							initial_chunk_data = se_alloc(sizeof(rtmpt_chunk_data_t));
-							memset((void*)initial_chunk_data, 0, sizeof(rtmpt_chunk_data_t));
+							initial_chunk_data = se_alloc0(sizeof(rtmpt_chunk_data_t));
 							g_hash_table_insert(packet_data->initial_chunks, GUINT_TO_POINTER(rtmp_index), initial_chunk_data);
 							initial_chunk_data->amf_num = current_chunk_data->amf_num;
 							initial_chunk_data->length_remaining = current_chunk_data->length_remaining;
@@ -692,8 +685,7 @@ get_rtmpt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 					{
 						if (NULL == initial_chunk_data)
 						{
-							initial_chunk_data = se_alloc(sizeof(rtmpt_chunk_data_t));
-							memset((void*)initial_chunk_data, 0, sizeof(rtmpt_chunk_data_t));
+							initial_chunk_data = se_alloc0(sizeof(rtmpt_chunk_data_t));
 							g_hash_table_insert(packet_data->initial_chunks, GUINT_TO_POINTER(rtmp_index), initial_chunk_data);
 							initial_chunk_data->amf_num = current_chunk_data->amf_num;
 							initial_chunk_data->length_remaining = current_chunk_data->length_remaining;

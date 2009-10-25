@@ -4386,11 +4386,11 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
     guint32	pdv_combined_len = 0;
     guint32	dcm_header_len = 0;
     guint16	cnt_same_pkt = 1;
-    gchar      *filename = NULL;
-    gchar      *hostname = NULL;
+    gchar      *filename;
+    const gchar *hostname;
 
-    gchar	*sop_class_uid = NULL;
-    gchar	*sop_instance_uid = NULL;
+    gchar	*sop_class_uid;
+    gchar	*sop_instance_uid;
 
     /* Calculate total PDV length, i.e. all packets until last PDV without continuation  */
     pdv_curr = pdv;
@@ -4410,44 +4410,37 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 
     pctx=dcm_state_pctx_get(assoc, pdv_curr->pctx_id, FALSE);
 
-    sop_class_uid = ep_alloc0(MAX_BUF_LEN);
-    sop_instance_uid = ep_alloc0(MAX_BUF_LEN);
-
-    hostname = ep_alloc0(MAX_BUF_LEN);
-    filename = ep_alloc0(MAX_BUF_LEN);
-
     if (assoc->ae_calling && strlen(assoc->ae_calling)>0 &&
 	assoc->ae_called  && strlen(assoc->ae_called)>0 ) {
-	g_snprintf(hostname, MAX_BUF_LEN, "%s <-> %s", assoc->ae_calling, assoc->ae_called);
+	hostname = ep_strdup_printf("%s <-> %s", assoc->ae_calling, assoc->ae_called);
     }
     else {
-	g_snprintf(hostname, MAX_BUF_LEN, "AE title(s) unknown");
+	hostname = "AE title(s) unknown";
     }
 
     if (pdv->is_storage &&
 	pdv_curr->sop_class_uid    && strlen(pdv_curr->sop_class_uid)>0 &&
 	pdv_curr->sop_instance_uid && strlen(pdv_curr->sop_instance_uid)>0) {
 
-	g_snprintf(sop_class_uid, MAX_BUF_LEN, "%s", pdv_curr->sop_class_uid);
-	g_snprintf(sop_instance_uid, MAX_BUF_LEN, "%s", pdv_curr->sop_instance_uid);
+	sop_class_uid = ep_strndup(pdv_curr->sop_class_uid, MAX_BUF_LEN);
+	sop_instance_uid = ep_strndup(pdv_curr->sop_instance_uid, MAX_BUF_LEN);
 
 	/* Make sure filename does not contain invalid character. Rather conservative.
 	   Eventhough this should be a valid DICOM UID, apply the same filter rules
 	   in case of bogus data.
 	*/
-	g_snprintf(filename, MAX_BUF_LEN, "%06d-%d-%s.dcm", pinfo->fd->num, cnt_same_pkt,
+	filename = ep_strdup_printf("%06d-%d-%s.dcm", pinfo->fd->num, cnt_same_pkt,
 	    g_strcanon(pdv_curr->sop_instance_uid, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-.", '-'));
     }
     else {
 	/* No SOP Instance or SOP Class UID found in PDV. Use wireshark ones */
 
-    	g_snprintf(sop_class_uid, MAX_BUF_LEN, "%s", WIRESHARK_MEDIA_STORAGE_SOP_CLASS_UID);
-
-	g_snprintf(sop_instance_uid, MAX_BUF_LEN, "%s.%d.%d",
+    	sop_class_uid = ep_strdup(WIRESHARK_MEDIA_STORAGE_SOP_CLASS_UID);
+	sop_instance_uid = ep_strdup_printf("%s.%d.%d",
 	    WIRESHARK_MEDIA_STORAGE_SOP_INSTANCE_UID_PREFIX, pinfo->fd->num, cnt_same_pkt);
 
 	/* Make sure filename does not contain invalid character. Rather conservative.*/
-	g_snprintf(filename, MAX_BUF_LEN, "%06d-%d-%s.dcm", pinfo->fd->num, cnt_same_pkt,
+	filename = ep_strdup_printf("%06d-%d-%s.dcm", pinfo->fd->num, cnt_same_pkt,
 	    g_strcanon(pdv->desc, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-.", '-'));
 
     }
@@ -4473,8 +4466,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 	   export_object.c -> eo_win_destroy_cb() using g_free()
 	*/
 
-	pdv_combined = g_malloc(dcm_header_len + pdv_combined_len);
-	memset(pdv_combined, 0, dcm_header_len + pdv_combined_len);
+	pdv_combined = g_malloc0(dcm_header_len + pdv_combined_len);
 
 	pdv_combined_curr = pdv_combined;
 
@@ -4496,8 +4488,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 	g_free(pdv_curr->data);
 
 	/* Add to list */
-	eo_info = g_malloc(sizeof(dicom_eo_t));
-	memset(eo_info, 0, sizeof(dicom_eo_t));
+	eo_info = g_malloc0(sizeof(dicom_eo_t));
 	eo_info->hostname = g_strdup(hostname);
 	eo_info->filename = g_strdup(filename);
 	eo_info->content_type = g_strdup(pdv->desc);
@@ -5458,30 +5449,26 @@ dcm_tag_summary(guint16 grp, guint16 elm, guint32 vl, gchar *tag_desc, gchar *vr
 		gboolean is_retired, gboolean is_implicit)
 {
 
-    gchar *desc_mod = NULL;
-    gchar *tag_vl  = NULL;
-    gchar *tag_sum = NULL;
-
-    desc_mod = ep_alloc0(MAX_BUF_LEN);
-    tag_vl   = ep_alloc0(MAX_BUF_LEN);
-    tag_sum  = ep_alloc0(MAX_BUF_LEN);
+    gchar *desc_mod;
+    gchar *tag_vl;
+    gchar *tag_sum;
 
     if (is_retired) {
-	g_snprintf(desc_mod, MAX_BUF_LEN, "(Retired) %-35.35s", tag_desc);
+	desc_mod = ep_strdup_printf("(Retired) %-35.35s", tag_desc);
     }
     else {
-	g_snprintf(desc_mod, MAX_BUF_LEN, "%-45.45s", tag_desc);
+	desc_mod = ep_strdup_printf("%-45.45s", tag_desc);
     }
 
     if (vl == 0xFFFFFFFF) {
-	g_snprintf(tag_vl, MAX_BUF_LEN, "%10.10s", "<udef>");
+	tag_vl = ep_strdup_printf("%10.10s", "<udef>");
     }
     else {
-	g_snprintf(tag_vl, MAX_BUF_LEN, "%10u", vl);		/* Show as dec */
+	tag_vl = ep_strdup_printf("%10u", vl);		/* Show as dec */
     }
 
-    if (is_implicit)	g_snprintf(tag_sum, MAX_BUF_LEN, "(%04x,%04x) %s %s",      grp, elm, tag_vl, desc_mod);
-    else		g_snprintf(tag_sum, MAX_BUF_LEN, "(%04x,%04x) %s %s [%s]", grp, elm, tag_vl, desc_mod, vr);
+    if (is_implicit)	tag_sum = ep_strdup_printf("(%04x,%04x) %s %s",      grp, elm, tag_vl, desc_mod);
+    else		tag_sum = ep_strdup_printf("(%04x,%04x) %s %s [%s]", grp, elm, tag_vl, desc_mod, vr);
 
     return tag_sum;
 }
@@ -5891,8 +5878,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item_append_text(tag_pitem, " %s", tag_value);
 
     if (tag_def->add_to_summary) {
-	*tag_description = ep_alloc0(MAX_BUF_LEN);
-	g_snprintf(*tag_description, MAX_BUF_LEN, "%s", g_strstrip(tag_value));
+	*tag_description = ep_strdup(g_strstrip(tag_value));
     }
 
     return offset;
@@ -6338,7 +6324,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     gboolean	valid_pdutype=TRUE;
 
-    gchar *info_str = NULL;
+    gchar *info_str;
 
     /* Get or create converstation. Used to store context IDs and xfer Syntax */
 
@@ -6360,8 +6346,6 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 	return offset;
     }
 
-    info_str = ep_alloc0(MAX_BUF_LEN);
-
     pdu_type = tvb_get_guint8(tvb, offset);
     pdu_len = tvb_get_ntohl(tvb, offset + 2);
 
@@ -6371,7 +6355,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 	tvb_memcpy(tvb, assoc->ae_calling, 26, 16);
 	assoc->ae_called[AEEND] = 0;
 	assoc->ae_calling[AEEND] = 0;
-	g_snprintf(info_str, 128, "A-ASSOCIATE request %s --> %s",
+	info_str = ep_strdup_printf("A-ASSOCIATE request %s --> %s",
 	    g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called));
 	assoc_header = 74;
 	break;
@@ -6380,7 +6364,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 	tvb_memcpy(tvb, assoc->ae_calling_resp, 26, 16);
 	assoc->ae_called_resp[AEEND] = 0;
 	assoc->ae_calling_resp[AEEND] = 0;
-	g_snprintf(info_str, MAX_BUF_LEN, "A-ASSOCIATE accept  %s <-- %s",
+	info_str = ep_strdup_printf("A-ASSOCIATE accept  %s <-- %s",
 	    g_strstrip(assoc->ae_calling_resp), g_strstrip(assoc->ae_called_resp));
 	assoc_header = 74;
 	break;
@@ -6388,7 +6372,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 	assoc->result = tvb_get_guint8(tvb, 7);
 	assoc->source = tvb_get_guint8(tvb, 8);
 	assoc->reason = tvb_get_guint8(tvb, 9);
-	g_snprintf(info_str, 128, "A-ASSOCIATE reject  %s <-- %s %s %s %s",
+	info_str = ep_strdup_printf("A-ASSOCIATE reject  %s <-- %s %s %s %s",
 	    g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called),
 	    dcm_result2str(assoc->result),
 	    dcm_source2str(assoc->source),
@@ -6406,7 +6390,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     case 7:					/* ABORT */
 	assoc->source = tvb_get_guint8(tvb, 8);
 	assoc->reason = tvb_get_guint8(tvb, 9);
-	g_snprintf(info_str, 128, "ABORT %s <-- %s %s %s",
+	info_str = ep_strdup_printf("ABORT %s <-- %s %s %s",
 	    assoc->ae_called, assoc->ae_calling,
 	    (assoc->source == 1) ? "USER" :
 		(assoc->source == 2) ? "PROVIDER" : "",

@@ -670,8 +670,8 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
     int dst_scheme_pos, src_scheme_pos, rpt_scheme_pos, cust_scheme_pos;
     int dst_scheme_len, src_scheme_len, rpt_scheme_len, cust_scheme_len;
     int dst_ssp_len, src_ssp_len, rpt_ssp_len, cust_ssp_len;
-    gchar *src_node;
-    gchar *dst_node;
+    const gchar *src_node;
+    const gchar *dst_node;
 
     guint8 srrflags;
     guint8 version;
@@ -921,24 +921,22 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
 				cust_scheme_len + cust_ssp_len,
 				"Custodian: %d.%d",cust_scheme_offset,cust_ssp_offset);
 	}
-	src_node = ep_alloc(NODE_NAME_STR_SIZE);
-	dst_node = ep_alloc(NODE_NAME_STR_SIZE);
 
 	if(source_scheme_offset == 0 && source_ssp_offset == 0)
 	{
-		g_snprintf(src_node,5,"Null");
+		src_node = "Null";
 	}
 	else
 	{
-		g_snprintf(src_node,NODE_NAME_STR_SIZE,"%s:%d.%d",IPN_SCHEME_STR, source_scheme_offset, source_ssp_offset);
+		src_node = ep_strdup_printf("%s:%d.%d",IPN_SCHEME_STR, source_scheme_offset, source_ssp_offset);
 	}
 	if(dest_scheme_offset == 0 && dest_ssp_offset == 0)
 	{
-		g_snprintf(dst_node,5,"Null");
+		dst_node = "Null";
 	}
 	else
 	{
-		g_snprintf(dst_node,NODE_NAME_STR_SIZE,"%s:%d.%d",IPN_SCHEME_STR, dest_scheme_offset, dest_ssp_offset);
+		dst_node = ep_strdup_printf("%s:%d.%d",IPN_SCHEME_STR, dest_scheme_offset, dest_ssp_offset);
 	}
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s", src_node,dst_node);
@@ -1412,24 +1410,22 @@ dissect_version_5_primary_header(packet_info *pinfo,
 				cust_scheme_len + cust_ssp_len,
 				"Custodian: %d.%d",cust_scheme_offset,cust_ssp_offset);
 	}
-	src_node = ep_alloc(NODE_NAME_STR_SIZE);
-	dst_node = ep_alloc(NODE_NAME_STR_SIZE);
 
 	if(source_scheme_offset == 0 && source_ssp_offset == 0)
 	{
-		g_snprintf(src_node,5,"Null");
+		src_node = "Null";
 	}
 	else
 	{
-		g_snprintf(src_node,NODE_NAME_STR_SIZE,"%s:%d.%d",IPN_SCHEME_STR, source_scheme_offset, source_ssp_offset);
+		src_node = ep_strdup_printf("%s:%d.%d",IPN_SCHEME_STR, source_scheme_offset, source_ssp_offset);
 	}
 	if(dest_scheme_offset == 0 && dest_ssp_offset == 0)
 	{
-		g_snprintf(dst_node,5,"Null");
+		dst_node = "Null";
 	}
 	else
 	{
-		g_snprintf(dst_node,NODE_NAME_STR_SIZE,"%s:%d.%d",IPN_SCHEME_STR, dest_scheme_offset, dest_ssp_offset);
+		dst_node = ep_strdup_printf("%s:%d.%d",IPN_SCHEME_STR, dest_scheme_offset, dest_ssp_offset);
 	}
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s", src_node, dst_node);

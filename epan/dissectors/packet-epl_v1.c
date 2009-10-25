@@ -240,7 +240,6 @@ static gboolean
 dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8  epl_v1_service, epl_v1_dest, epl_v1_src, epl_v1_ainv_ch, epl_v1_asnd_ch;
-	gchar   *info_str;
 	gint    offset;
 	proto_item *ti=NULL;
 	proto_tree *epl_v1_tree=NULL;
@@ -252,12 +251,10 @@ dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	offset = 0;
-	info_str = ep_alloc(200);
-	info_str[0] = 0;
 
 	/* make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPL_V1");
-
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* get service type */
 	epl_v1_service = tvb_get_guint8(tvb, EPL_V1_SERVICE_OFFSET) & 0x7F;
@@ -268,48 +265,40 @@ dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* get source */
 	epl_v1_src = tvb_get_guint8(tvb, EPL_V1_SRC_OFFSET);
 
-
 	/* choose the right string for "Info" column */
 	switch(epl_v1_service){
 	case EPL_V1_SOC:
-		g_snprintf(info_str, 200, "SoC    dest = %3d   src = %3d   ", epl_v1_dest, epl_v1_src);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "SoC    dest = %3d   src = %3d   ", epl_v1_dest, epl_v1_src);
 		break;
 
 	case EPL_V1_EOC:
-		g_snprintf(info_str, 200, "EoC    dest = %3d   src = %3d   ", epl_v1_dest, epl_v1_src);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "EoC    dest = %3d   src = %3d   ", epl_v1_dest, epl_v1_src);
 		break;
 
 	case EPL_V1_PREQ:
-		g_snprintf(info_str, 200, "PReq   dest = %3d   src = %3d   ", epl_v1_dest, epl_v1_src);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "PReq   dest = %3d   src = %3d   ", epl_v1_dest, epl_v1_src);
 		break;
 
 	case EPL_V1_PRES:
-		g_snprintf(info_str, 200, "PRes   dest = %3d   src = %3d   ", epl_v1_dest, epl_v1_src);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "PRes   dest = %3d   src = %3d   ", epl_v1_dest, epl_v1_src);
 		break;
 
 	case EPL_V1_AINV:
 		/* get AInv channel */
 		epl_v1_ainv_ch = tvb_get_guint8(tvb, EPL_V1_AINV_CHANNEL_OFFSET);
-		g_snprintf(info_str, 200, "AInv   dest = %3d   src = %3d   channel = %s   ",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "AInv   dest = %3d   src = %3d   channel = %s   ",
 			epl_v1_dest, epl_v1_src, val_to_str(epl_v1_ainv_ch, ainv_channel_number_vals, "unknown Channel (%d)"));
 		break;
 
 	case EPL_V1_ASND:
 		/* get ASnd channel */
 		epl_v1_asnd_ch = tvb_get_guint8(tvb, EPL_V1_ASND_CHANNEL_OFFSET);
-		g_snprintf(info_str, 200, "ASnd   dest = %3d   src = %3d   channel = %s   ",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "ASnd   dest = %3d   src = %3d   channel = %s   ",
 			epl_v1_dest, epl_v1_src, val_to_str(epl_v1_asnd_ch, asnd_channel_number_vals, "unknown Channel (%d)"));
 		break;
 
 	default:     /* no valid EPL packet */
 		return FALSE;
-	}
-
-	col_clear(pinfo->cinfo, COL_INFO);
-
-
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_add_str(pinfo->cinfo, COL_INFO, info_str);
 	}
 
 	if(tree){

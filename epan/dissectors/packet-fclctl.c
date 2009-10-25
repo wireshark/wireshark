@@ -136,29 +136,22 @@ fclctl_get_typestr (guint8 linkctl_type, guint8 type)
         (linkctl_type == FC_LCTL_FBSYL)) {
         return (val_to_str ((type & 0xF0), fc_lctl_fbsy_val, "0x%x")); 
     }
-    else return ("\0");
+    return "";
 }
 
-gchar *
+const gchar *
 fclctl_get_paramstr (guint32 linkctl_type, guint32 param)
 {
-    gchar *errstr;
-
-#define MAX_ERRSTR_LEN 64
-    errstr=ep_alloc(MAX_ERRSTR_LEN);    
-    errstr[0] = '\0';
-    
     if (linkctl_type == FC_LCTL_PBSY) {
-      g_snprintf(errstr, MAX_ERRSTR_LEN, "%s, %s", 
+      return g_strdup_printf("%s, %s", 
                  val_to_str (((param & 0xFF000000) >> 24), fc_lctl_pbsy_acode_val, "0x%x"),
 		 val_to_str (((param & 0x00FF0000) >> 16), fc_lctl_pbsy_rjt_val, "0x%x"));
     }
-    else if ((linkctl_type == FC_LCTL_FRJT) ||
+    if ((linkctl_type == FC_LCTL_FRJT) ||
              (linkctl_type == FC_LCTL_PRJT)) {
-      g_snprintf(errstr, MAX_ERRSTR_LEN, "%s, %s", 
+      return g_strdup_printf("%s, %s", 
                  val_to_str (((param & 0xFF000000) >> 24), fc_lctl_rjt_acode_val, "0x%x"),
                  val_to_str (((param & 0x00FF0000) >> 16), fc_lctl_rjt_val, "%x"));
     }
-
-    return (errstr);
+    return "";
 }

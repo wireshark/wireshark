@@ -425,7 +425,7 @@ static const gchar* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_
      */
     
     guint coding;
-    gchar* ret_str = NULL;
+    const gchar* ret_str;
     proto_item* pi;
     
     if (len < 2) {
@@ -446,7 +446,7 @@ static const gchar* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_
         if ( msg_info->release_cause && msg_info->release_cause != 31 )
             expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, PI_WARN, "Abnormal Release");
         
-        ret_str = ep_strdup(val_to_str(msg_info->release_cause, cause_values_itu, "Unknown(%u)"));
+        ret_str = val_to_str(msg_info->release_cause, cause_values_itu, "Unknown(%u)");
     } else {
         proto_tree_add_item(tree, hf_alcap_cau_value_non_itu, tvb, offset+1 , 1, FALSE);
         ret_str = ep_strdup_printf("%u", msg_info->release_cause);

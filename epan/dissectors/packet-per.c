@@ -1018,8 +1018,7 @@ DEBUG_ENTRY("dissect_per_boolean");
 	if(hf_index!=-1){
 		char *str;
 		hfi = proto_registrar_get_nth(hf_index);
-		str=ep_alloc(256);
-		g_snprintf(str, 256, "%c%c%c%c %c%c%c%c %s: %s",
+		str=ep_strdup_printf("%c%c%c%c %c%c%c%c %s: %s",
 			mask&0x80?'0'+value:'.',
 			mask&0x40?'0'+value:'.',
 			mask&0x20?'0'+value:'.',

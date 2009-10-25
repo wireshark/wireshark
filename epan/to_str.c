@@ -312,9 +312,6 @@ abs_time_to_str(nstime_t *abs_time)
         struct tm *tmp;
         gchar *buf;
 
-        buf=ep_alloc(3+1+2+2+4+1+2+1+2+1+2+1+9+1);
-
-
 #ifdef _MSC_VER
         /* calling localtime() on MSVC 2005 with huge values causes it to crash */
         /* XXX - find the exact value that still does work */
@@ -325,8 +322,7 @@ abs_time_to_str(nstime_t *abs_time)
 #endif
         tmp = localtime(&abs_time->secs);
         if (tmp) {
-		g_snprintf(buf, 3+1+2+2+4+1+2+1+2+1+2+1+9+1,
-		    "%s %2d, %d %02d:%02d:%02d.%09ld",
+		buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld",
 		    mon_names[tmp->tm_mon],
 		    tmp->tm_mday,
 		    tmp->tm_year + 1900,
@@ -335,7 +331,7 @@ abs_time_to_str(nstime_t *abs_time)
 		    tmp->tm_sec,
 		    (long)abs_time->nsecs);
         } else
-		strncpy(buf, "Not representable", 3+1+2+2+4+1+2+1+2+1+2+1+9+1);
+		buf = ep_strdup("Not representable");
         return buf;
 }
 
@@ -345,12 +341,9 @@ abs_time_secs_to_str(time_t abs_time)
         struct tm *tmp;
         gchar *buf;
 
-	buf=ep_alloc(3+1+2+2+4+1+2+1+2+1+2+1);
-
         tmp = localtime(&abs_time);
         if (tmp) {
-		g_snprintf(buf, 3+1+2+2+4+1+2+1+2+1+2+1,
-		    "%s %2d, %d %02d:%02d:%02d",
+		buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d",
 		    mon_names[tmp->tm_mon],
 		    tmp->tm_mday,
 		    tmp->tm_year + 1900,
@@ -358,7 +351,7 @@ abs_time_secs_to_str(time_t abs_time)
 		    tmp->tm_min,
 		    tmp->tm_sec);
         } else
-		strncpy(buf, "Not representable", 3+1+2+2+4+1+2+1+2+1+2+1);
+		buf = ep_strdup("Not representable");
         return buf;
 }
 
@@ -791,14 +784,13 @@ ipx_addr_to_str(guint32 net, const guint8 *ad)
 	gchar	*buf;
 	char	*name;
 
-	buf=ep_alloc(8+1+MAXNAMELEN+1); /* 8 digits, 1 period, NAME, 1 null */
 	name = get_ether_name_if_known(ad);
 
 	if (name) {
-		g_snprintf(buf, 8+1+MAXNAMELEN+1, "%s.%s", get_ipxnet_name(net), name);
+		buf = ep_strdup_printf("%s.%s", get_ipxnet_name(net), name);
 	}
 	else {
-		g_snprintf(buf, 8+1+MAXNAMELEN+1, "%s.%s", get_ipxnet_name(net),
+		buf = ep_strdup_printf("%s.%s", get_ipxnet_name(net),
 		    bytestring_to_str(ad, 6, '\0'));
 	}
 	return buf;

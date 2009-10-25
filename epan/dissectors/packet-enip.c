@@ -50,8 +50,6 @@
 #include "packet-enip.h"
 #include "packet-cip.h"
 
-#define se_new(type) ((type*)se_alloc(sizeof(type)))
-
 /* Communication Ports */
 #define ENIP_ENCAP_PORT    44818 /* EtherNet/IP located on port 44818    */
 #define ENIP_IO_PORT       2222  /* EtherNet/IP IO located on port 2222  */
@@ -358,8 +356,7 @@ enip_request_info_t *request_info = NULL;
       {
          if ( request_val == NULL )
          {
-            new_request_key = se_alloc(sizeof(enip_request_key_t));
-            memcpy( new_request_key, prequest_key, sizeof(enip_request_key_t) );
+            new_request_key = se_memdup(prequest_key, sizeof(enip_request_key_t));
 
             request_val = se_alloc(sizeof(enip_request_val_t));
             request_val->frames = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "enip_frames");
