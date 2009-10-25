@@ -354,7 +354,8 @@ enum field_type {
 	val_u_short_list,
 	val_u_le_short,
 	val_u_long,
-	time_in_secs,
+	time_in_s_secs,		/* Signed */
+	time_in_u_secs,		/* Unsigned (not micro) */
 	fqdn,
 	ipv4_or_fqdn
 };
@@ -488,7 +489,7 @@ static struct opt_info bootp_opt[BOOTP_OPT_NUM];
 static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*   0 */ { "Padding",					none, NULL },
 /*   1 */ { "Subnet Mask",				ipv4, NULL },
-/*   2 */ { "Time Offset",				time_in_secs, NULL },
+/*   2 */ { "Time Offset",				time_in_s_secs, NULL },
 /*   3 */ { "Router",					ipv4_list, NULL },
 /*   4 */ { "Time Server",				ipv4_list, NULL },
 /*   5 */ { "Name Server",				ipv4_list, NULL },
@@ -510,7 +511,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*  21 */ { "Policy Filter",				special, NULL },
 /*  22 */ { "Maximum Datagram Reassembly Size",		val_u_short, NULL },
 /*  23 */ { "Default IP Time-to-Live",			val_u_byte, NULL },
-/*  24 */ { "Path MTU Aging Timeout",			time_in_secs, NULL },
+/*  24 */ { "Path MTU Aging Timeout",			time_in_u_secs, NULL },
 /*  25 */ { "Path MTU Plateau Table",			val_u_short_list, NULL },
 /*  26 */ { "Interface MTU",				val_u_short, NULL },
 /*  27 */ { "All Subnets are Local",			val_boolean, TFS(&tfs_yes_no) },
@@ -521,10 +522,10 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*  32 */ { "Router Solicitation Address",		ipv4, NULL },
 /*  33 */ { "Static Route",				special, NULL },
 /*  34 */ { "Trailer Encapsulation",			val_boolean, TFS(&tfs_enabled_disabled) },
-/*  35 */ { "ARP Cache Timeout",			time_in_secs, NULL },
+/*  35 */ { "ARP Cache Timeout",			time_in_u_secs, NULL },
 /*  36 */ { "Ethernet Encapsulation",			val_boolean, TFS(&tfs_enabled_disabled) },
 /*  37 */ { "TCP Default TTL", 				val_u_byte, NULL },
-/*  38 */ { "TCP Keepalive Interval",			time_in_secs, NULL },
+/*  38 */ { "TCP Keepalive Interval",			time_in_u_secs, NULL },
 /*  39 */ { "TCP Keepalive Garbage",			val_boolean, TFS(&tfs_enabled_disabled) },
 /*  40 */ { "Network Information Service Domain",	string, NULL },
 /*  41 */ { "Network Information Service Servers",	ipv4_list, NULL },
@@ -537,15 +538,15 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*  48 */ { "X Window System Font Server",		ipv4_list, NULL },
 /*  49 */ { "X Window System Display Manager",		ipv4_list, NULL },
 /*  50 */ { "Requested IP Address",			ipv4, NULL },
-/*  51 */ { "IP Address Lease Time",			time_in_secs, NULL },
+/*  51 */ { "IP Address Lease Time",			time_in_u_secs, NULL },
 /*  52 */ { "Option Overload",				special, NULL },
 /*  53 */ { "DHCP Message Type",			special, NULL },
 /*  54 */ { "DHCP Server Identifier",			ipv4, NULL },
 /*  55 */ { "Parameter Request List",			special, NULL },
 /*  56 */ { "Message",					string, NULL },
 /*  57 */ { "Maximum DHCP Message Size",		val_u_short, NULL },
-/*  58 */ { "Renewal Time Value",			time_in_secs, NULL },
-/*  59 */ { "Rebinding Time Value",			time_in_secs, NULL },
+/*  58 */ { "Renewal Time Value",			time_in_u_secs, NULL },
+/*  59 */ { "Rebinding Time Value",			time_in_u_secs, NULL },
 /*  60 */ { "Vendor class identifier",			special, NULL },
 /*  61 */ { "Client identifier",			special, NULL },
 /*  62 */ { "Novell/Netware IP domain",			string, NULL },
@@ -784,7 +785,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	guchar			byte;
 	int			i, consumed;
 	int			optoff, optleft, optend;
-	gulong			time_secs;
+	guint32			time_u_secs;
+	gint32			time_s_secs;
 	proto_tree		*v_tree, *ft;
 	proto_item		*vti;
 	guint8			protocol;
@@ -1814,17 +1816,28 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		    tvb_get_ntohl(tvb, optoff));
 		break;
 
-	case time_in_secs:
+	case time_in_s_secs:
 		if (optlen != 4) {
 			proto_item_append_text(vti,
 			    " - length isn't 4");
 			break;
 		}
-		time_secs = tvb_get_ntohl(tvb, optoff);
+		time_s_secs = (gint32) tvb_get_ntohl(tvb, optoff);
 		proto_item_append_text(vti, " = %s",
-		    ((time_secs == 0xffffffff) ?
+		      time_secs_to_str(time_s_secs));
+		break;
+
+	case time_in_u_secs:
+		if (optlen != 4) {
+			proto_item_append_text(vti,
+			    " - length isn't 4");
+			break;
+		}
+		time_u_secs = tvb_get_ntohl(tvb, optoff);
+		proto_item_append_text(vti, " = %s",
+		    ((time_u_secs == 0xffffffff) ?
 		      "infinity" :
-		      time_secs_to_str_unsigned(time_secs)));
+		      time_secs_to_str_unsigned(time_u_secs)));
 		break;
 
 	default:
