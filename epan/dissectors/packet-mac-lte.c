@@ -114,11 +114,11 @@ static int hf_mac_lte_rar_temporary_crnti = -1;
 /* Common channel control values */
 static int hf_mac_lte_control_bsr = -1;
 static int hf_mac_lte_control_bsr_lcg_id = -1;
-static int hf_mac_lte_control_bsr_buffer_size = -1;
-static int hf_mac_lte_control_bsr_buffer_size_0 = -1;
-static int hf_mac_lte_control_bsr_buffer_size_1 = -1;
-static int hf_mac_lte_control_bsr_buffer_size_2 = -1;
-static int hf_mac_lte_control_bsr_buffer_size_3 = -1;
+static int hf_mac_lte_control_short_bsr_buffer_size = -1;
+static int hf_mac_lte_control_long_bsr_buffer_size_0 = -1;
+static int hf_mac_lte_control_long_bsr_buffer_size_1 = -1;
+static int hf_mac_lte_control_long_bsr_buffer_size_2 = -1;
+static int hf_mac_lte_control_long_bsr_buffer_size_3 = -1;
 static int hf_mac_lte_control_crnti = -1;
 static int hf_mac_lte_control_timing_advance = -1;
 static int hf_mac_lte_control_timing_advance_reserved = -1;
@@ -762,7 +762,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 
 /* Dissect Random Access Reponse (RAR) PDU */
-static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *pdu_ti,
                         gint offset, mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
     gint     number_of_rars = 0;   /* No of RAR bodies expected following headers */
@@ -895,7 +895,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Warn if we don't seem to have reached the end of the frame yet */
     if (tvb_length_remaining(tvb, offset) != 0) {
-           expert_add_info_format(pinfo, rar_headers_ti, PI_MALFORMED, PI_ERROR,
+           expert_add_info_format(pinfo, pdu_ti, PI_MALFORMED, PI_ERROR,
                                   "%u bytes remaining after RAR PDU dissected",
                                   tvb_length_remaining(tvb, offset));
     }
@@ -1599,7 +1599,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                               hf_mac_lte_control_bsr,
                                                               tvb, offset, 1,
                                                               "",
-                                                              "BSR");
+                                                              "Short BSR");
                         bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
 
                         /* LCG ID */
@@ -1608,7 +1608,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                     tvb, offset, 1, FALSE);
                         /* Buffer Size */
                         buffer_size = tvb_get_guint8(tvb, offset) & 0x3f;
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size,
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_short_bsr_buffer_size,
                                             tvb, offset, 1, FALSE);
                         offset++;
 
@@ -1629,18 +1629,18 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                               "Long BSR");
                         bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
 
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_0,
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_0,
                                             tvb, offset, 1, FALSE);
                         buffer_size[0] = (tvb_get_guint8(tvb, offset) & 0xfc) >> 2;
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_1,
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_1,
                                             tvb, offset, 2, FALSE);
                         buffer_size[1] = ((tvb_get_guint8(tvb, offset) & 0x03) << 4) | ((tvb_get_guint8(tvb, offset+1) & 0xf0) >> 4);
                         offset++;
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_2,
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_2,
                                             tvb, offset, 2, FALSE);
                         buffer_size[2] = ((tvb_get_guint8(tvb, offset) & 0x0f) << 2) | ((tvb_get_guint8(tvb, offset+1) & 0xc0) >> 6);
                         offset++;
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_buffer_size_3,
+                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_3,
                                             tvb, offset, 1, FALSE);
                         buffer_size[3] = tvb_get_guint8(tvb, offset) & 0x3f;
                         offset++;
@@ -2039,7 +2039,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case RA_RNTI:
             /* RAR PDU */
-            dissect_rar(tvb, pinfo, mac_lte_tree, offset, p_mac_lte_info, &tap_info);
+            dissect_rar(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info, &tap_info);
             break;
 
         case C_RNTI:
@@ -2440,31 +2440,31 @@ void proto_register_mac_lte(void)
               NULL, HFILL
             }
         },
-        { &hf_mac_lte_control_bsr_buffer_size,
+        { &hf_mac_lte_control_short_bsr_buffer_size,
             { "Buffer Size",
               "mac-lte.control.bsr.buffer-size", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0x3f,
               "Buffer Size available in all channels in group", HFILL
             }
         },
-        { &hf_mac_lte_control_bsr_buffer_size_0,
+        { &hf_mac_lte_control_long_bsr_buffer_size_0,
             { "Buffer Size 0",
               "mac-lte.control.bsr.buffer-size-0", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0xfc,
               "Buffer Size available in logical channel group 0", HFILL
             }
         },
-        { &hf_mac_lte_control_bsr_buffer_size_1,
+        { &hf_mac_lte_control_long_bsr_buffer_size_1,
             { "Buffer Size 1",
               "mac-lte.control.bsr.buffer-size-1", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x03f0,
               "Buffer Size available in logical channel group 1", HFILL
             }
         },
-        { &hf_mac_lte_control_bsr_buffer_size_2,
+        { &hf_mac_lte_control_long_bsr_buffer_size_2,
             { "Buffer Size 2",
               "mac-lte.control.bsr.buffer-size-2", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x0fc0,
               "Buffer Size available in logical channel group 2", HFILL
             }
         },
-        { &hf_mac_lte_control_bsr_buffer_size_3,
+        { &hf_mac_lte_control_long_bsr_buffer_size_3,
             { "Buffer Size 3",
               "mac-lte.control.bsr.buffer-size-3", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0x3f,
               "Buffer Size available in logical channel group 3", HFILL
