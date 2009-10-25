@@ -735,7 +735,7 @@ setup: verify_tools clean_setup process_libs
 # (The choice is determined by the value of the macro WIN_SETUP_OPT).
 process_libs:
     @if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
-!IF "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
+!IF "$(GTK_INST_VERSION)" == "2.18" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk$(GTK_INST_VERSION)/glib_$(GLIB_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -803,7 +803,7 @@ process_libs:
 !ENDIF
 
 !IFDEF GTK_DIR
-!IF "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
+!IF "$(GTK_INST_VERSION)" == "2.18" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk$(GTK_INST_VERSION)/gtk+_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -825,7 +825,7 @@ process_libs:
 !ELSE
 !ERROR ? Unknown or invalid GTK_INST_VERSION
 !ENDIF
-!IF "$(PANGO_INST_VERSION)" == "1.24" || "$(PANGO_INST_VERSION)" == "1.22"
+!IF "$(PANGO_INST_VERSION)" == "1.26" || "$(PANGO_INST_VERSION)" == "1.24" || "$(PANGO_INST_VERSION)" == "1.22"
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk$(GTK_INST_VERSION)/pango_$(PANGO_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -834,7 +834,7 @@ process_libs:
 !ERROR ? Unknown or invalid PANGO_INST_VERSION
 !ENDIF
 !ENDIF
-# PANGO 1.24.5 needs these DLL:s
+# PANGO >=1.24.5 needs these DLL:s
 !IFDEF NEED_FREETYPE_DLL
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		expat gtk$(GTK_INST_VERSION)/expat_$(EXPAT_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
