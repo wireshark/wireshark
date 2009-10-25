@@ -162,10 +162,14 @@ static const value_string usb_interfaceclass_vals[] = {
 
 
 static const value_string usb_transfer_type_vals[] = {
-    {URB_CONTROL, "URB_CONTROL"},
-    {URB_ISOCHRONOUS,"URB_ISOCHRONOUS"},
-    {URB_INTERRUPT,"URB_INTERRUPT"},
-    {URB_BULK,"URB_BULK"},
+    {URB_CONTROL, "URB_CONTROL out"},
+    {URB_ISOCHRONOUS,"URB_ISOCHRONOUS out"},
+    {URB_INTERRUPT,"URB_INTERRUPT out"},
+    {URB_BULK,"URB_BULK out"},
+    {URB_CONTROL | URB_TRANSFER_IN, "URB_CONTROL in"},
+    {URB_ISOCHRONOUS | URB_TRANSFER_IN,"URB_ISOCHRONOUS in"},
+    {URB_INTERRUPT | URB_TRANSFER_IN,"URB_INTERRUPT in"},
+    {URB_BULK | URB_TRANSFER_IN,"URB_BULK in"},
     {0, NULL}
 };
 
@@ -1775,6 +1779,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     switch(type){
     case URB_BULK:
+    case URB_BULK | URB_TRANSFER_IN:
         {
         proto_item *item;
 
@@ -1810,6 +1815,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
         break;
     case URB_CONTROL:
+    case URB_CONTROL | URB_TRANSFER_IN:
         {
         const usb_setup_dissector_table_t *tmp;
         usb_setup_dissector dissector;
@@ -2091,7 +2097,7 @@ proto_register_usb(void)
                 NULL, HFILL }},
 
         { &hf_usb_transfer_type,
-        { "URB transfer type", "usb.transfer_type", FT_UINT8, BASE_DEC,
+        { "URB transfer type", "usb.transfer_type", FT_UINT8, BASE_HEX,
                 VALS(usb_transfer_type_vals), 0x0,
                 NULL, HFILL }},
 
