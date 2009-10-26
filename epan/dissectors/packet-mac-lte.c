@@ -2277,7 +2277,7 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_context_rach_attempt_number,
             { "RACH Attempt Number",
-              "mac-lte.preamble-send.attempt", FT_UINT8, BASE_DEC, 0, 0x0,
+              "mac-lte.preamble-sent.attempt", FT_UINT8, BASE_DEC, 0, 0x0,
               "RACH attempt number", HFILL
             }
         },
