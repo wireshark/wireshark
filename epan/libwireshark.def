@@ -923,6 +923,7 @@ t38_T30_data_vals                   DATA
 t38_T30_indicator_vals		DATA
 T_h323_message_body_vals	DATA
 tap_push_tapped_queue
+tap_build_interesting
 tap_queue_init
 tap_queue_packet
 tcp_dissect_pdus

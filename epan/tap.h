@@ -41,6 +41,7 @@ extern void tap_init(void);
 extern int register_tap(const char *name);
 extern int find_tap_id(const char *name);
 extern void tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data);
+extern void tap_build_interesting(epan_dissect_t *edt);
 extern void tap_queue_init(epan_dissect_t *edt);
 extern void tap_push_tapped_queue(epan_dissect_t *edt);
 extern void reset_tap_listeners(void);
