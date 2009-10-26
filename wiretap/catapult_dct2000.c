@@ -91,31 +91,8 @@ typedef struct dct2000_file_externals
     GHashTable *packet_prefix_table;
 } dct2000_file_externals_t;
 
-/* This global table maps wtap -> dct2000_file_externals_t structs */
-static GHashTable *file_externals_table = NULL;
-
-
-/***********************************************************/
-/* Transient data used for parsing                         */
-
-/* Buffer to hold a single text line read from the file */
-static gchar linebuff[MAX_LINE_LENGTH];
-
-/* Buffer for separate AAL header */
-static gchar aal_header_chars[AAL_HEADER_CHARS];
-
 /* 'Magic number' at start of Catapult DCT2000 .out files. */
 static const gchar catapult_dct2000_magic[] = "Session Transcript";
-
-/* Context name + port that the packet was captured at */
-static gchar context_name[MAX_CONTEXT_NAME];
-static guint8 context_port;
-
-/* The DCT2000 protocol name of the packet, plus variant number */
-static gchar protocol_name[MAX_PROTOCOL_NAME+1];
-static gchar variant_name[MAX_VARIANT_DIGITS+1];
-static gchar outhdr_name[MAX_OUTHDR_NAME+1];
-
 
 /************************************************************/
 /* Functions called from wiretap core                       */
@@ -135,15 +112,24 @@ static gboolean catapult_dct2000_dump_close(wtap_dumper *wdh, int *err);
 
 /************************************************************/
 /* Private helper functions                                 */
-static gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length);
-static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
+static gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length,
+                              gchar *buf, size_t bufsize);
+static gboolean parse_line(char *linebuff, gint line_length,
+                           gint *seconds, gint *useconds,
                            long *before_time_offset, long *after_time_offset,
                            long *data_offset,
                            gint *data_chars,
                            packet_direction_t *direction,
-                           int *encap, int *is_comment);
+                           int *encap, int *is_comment,
+                           gchar *aal_header_chars,
+                           gchar *context_name, guint8 *context_portp,
+                           gchar *protocol_name, gchar *variant_name,
+                           gchar *outhdr_name);
 static int write_stub_header(guchar *frame_buffer, char *timestamp_string,
-                             packet_direction_t direction, int encap);
+                             packet_direction_t direction, int encap,
+                             gchar *context_name, guint8 context_port,
+                             gchar *protocol_name, gchar *variant_name,
+                             gchar *outhdr_name);
 static guchar hex_from_char(gchar c);
 static gchar char_from_hex(guchar hex);
 
@@ -151,20 +137,20 @@ static void set_pseudo_header_info(wtap *wth,
                                    int pkt_encap,
                                    gint64 file_offset,
                                    union wtap_pseudo_header *pseudo_header,
-                                   packet_direction_t direction);
+                                   packet_direction_t direction,
+                                   gchar *aal_header_chars);
 static void set_aal_info(union wtap_pseudo_header *pseudo_header,
-                         packet_direction_t direction);
+                         packet_direction_t direction,
+                         gchar *aal_header_chars);
 static void set_isdn_info(union wtap_pseudo_header *pseudo_header,
                           packet_direction_t direction);
 static void set_ppp_info(union wtap_pseudo_header *pseudo_header,
                          packet_direction_t direction);
 
-static gint wth_equal(gconstpointer v, gconstpointer v2);
-static guint wth_hash_func(gconstpointer v);
 static gint packet_offset_equal(gconstpointer v, gconstpointer v2);
 static guint packet_offset_hash_func(gconstpointer v);
 
-static gboolean get_file_time_stamp(time_t *secs, guint32 *usecs);
+static gboolean get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs);
 static gboolean free_line_prefix_info(gpointer key, gpointer value, gpointer user_data);
 
 
@@ -179,6 +165,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     guint32 usecs;
     gint firstline_length = 0;
     dct2000_file_externals_t *file_externals;
+    gchar linebuff[MAX_LINE_LENGTH];
 
     /* Clear errno before reading from the file */
     errno = 0;
@@ -187,7 +174,8 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     /********************************************************************/
     /* First line needs to contain at least as many characters as magic */
 
-    read_new_line(wth->fh, &offset, &firstline_length);
+    read_new_line(wth->fh, &offset, &firstline_length, linebuff,
+                  sizeof linebuff);
     if (((size_t)firstline_length < strlen(catapult_dct2000_magic)) ||
         firstline_length >= MAX_FIRST_LINE_LENGTH) {
 
@@ -203,11 +191,6 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     /*********************************************************************/
     /* Need entry in file_externals table                                */
 
-    /* Create file externals table if it doesn't yet exist */
-    if (file_externals_table == NULL) {
-        file_externals_table = g_hash_table_new(wth_hash_func, wth_equal);
-    }
-
     /* Allocate a new file_externals structure for this file */
     file_externals = g_malloc(sizeof(dct2000_file_externals_t));
     memset((void*)file_externals, '\0', sizeof(dct2000_file_externals_t));
@@ -221,9 +204,10 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     /* Second line contains file timestamp                     */
     /* Store this offset in in wth->capture->catapult_dct2000  */
 
-    read_new_line(wth->fh, &offset, &(file_externals->secondline_length));
+    read_new_line(wth->fh, &offset, &(file_externals->secondline_length),
+                  linebuff, sizeof linebuff);
     if ((file_externals->secondline_length >= MAX_TIMESTAMP_LINE_LENGTH) ||
-        (!get_file_time_stamp(&timestamp, &usecs))) {
+        (!get_file_time_stamp(linebuff, &timestamp, &usecs))) {
 
         /* Give up if file time line wasn't valid */
         g_free(file_externals);
@@ -262,9 +246,8 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     file_externals->packet_prefix_table =
         g_hash_table_new(packet_offset_hash_func, packet_offset_equal);
 
-    /* Add file_externals for this wtap into the global table */
-    g_hash_table_insert(file_externals_table,
-                        (void*)wth, (void*)file_externals);
+    /* Set this wtap to point to the file_externals */
+    wth->capture.generic = (void*)file_externals;
 
     *err = errno;
     return 1;
@@ -284,9 +267,9 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
     packet_direction_t direction;
     int encap;
 
-    /* Find wtap external structure for this wtap */
+    /* Get wtap external structure for this wtap */
     dct2000_file_externals_t *file_externals =
-        (dct2000_file_externals_t*)g_hash_table_lookup(file_externals_table, wth);
+        (dct2000_file_externals_t*)wth->capture.generic;
 
     /* There *has* to be an entry for this wth */
     if (!file_externals) {
@@ -298,6 +281,13 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         int line_length, seconds, useconds, data_chars;
         int is_comment = FALSE;
         gint64 this_offset = offset;
+        gchar linebuff[MAX_LINE_LENGTH+1];
+        gchar aal_header_chars[AAL_HEADER_CHARS];
+        gchar context_name[MAX_CONTEXT_NAME];
+        guint8 context_port;
+        gchar protocol_name[MAX_PROTOCOL_NAME+1];
+        gchar variant_name[MAX_VARIANT_DIGITS+1];
+        gchar outhdr_name[MAX_OUTHDR_NAME+1];
 
         /* Are looking for first packet after 2nd line */
         if (wth->data_offset == 0) {
@@ -309,16 +299,20 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         errno = 0;
 
         /* Read a new line from file into linebuff */
-        if (read_new_line(wth->fh, &offset, &line_length) == FALSE) {
+        if (read_new_line(wth->fh, &offset, &line_length, linebuff,
+                          sizeof linebuff) == FALSE) {
             /* Get out if no more lines can be read */
             break;
         }
 
         /* Try to parse the line as a frame record */
-        if (parse_line(line_length, &seconds, &useconds,
+        if (parse_line(linebuff, line_length, &seconds, &useconds,
                        &before_time_offset, &after_time_offset,
                        &dollar_offset,
-                       &data_chars, &direction, &encap, &is_comment)) {
+                       &data_chars, &direction, &encap, &is_comment,
+                       aal_header_chars,
+                       context_name, &context_port,
+                       protocol_name, variant_name, outhdr_name)) {
             guchar *frame_buffer;
             int n;
             int stub_offset = 0;
@@ -364,7 +358,10 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             /*********************/
             /* Write stub header */
             stub_offset = write_stub_header(frame_buffer, timestamp_string,
-                                            direction, encap);
+                                            direction, encap, context_name,
+                                            context_port,
+                                            protocol_name, variant_name,
+                                            outhdr_name);
 
             /* Binary data length is half bytestring length + stub header */
             wth->phdr.len = stub_offset + (is_comment ? data_chars : (data_chars/2));
@@ -419,7 +416,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
 
             /* Set pseudo-header if necessary */
             set_pseudo_header_info(wth, encap, this_offset, &wth->pseudo_header,
-                                   direction);
+                                   direction, aal_header_chars);
 
             /* OK, we have packet details to return */
             *err = errno;
@@ -443,6 +440,13 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 {
     gint64 offset = wth->data_offset;
     long dollar_offset, before_time_offset, after_time_offset;
+    gchar linebuff[MAX_LINE_LENGTH+1];
+    gchar aal_header_chars[AAL_HEADER_CHARS];
+    gchar context_name[MAX_CONTEXT_NAME];
+    guint8 context_port;
+    gchar protocol_name[MAX_PROTOCOL_NAME+1];
+    gchar variant_name[MAX_VARIANT_DIGITS+1];
+    gchar outhdr_name[MAX_OUTHDR_NAME+1];
     int  is_comment = FALSE;
     packet_direction_t direction;
     int encap;
@@ -457,15 +461,19 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     }
 
     /* Re-read whole line (this really should succeed) */
-    if (read_new_line(wth->random_fh, &offset, &length) == FALSE) {
+    if (read_new_line(wth->random_fh, &offset, &length, linebuff,
+                      sizeof linebuff) == FALSE) {
         return FALSE;
     }
 
     /* Try to parse this line again (should succeed as re-reading...) */
-    if (parse_line(length, &seconds, &useconds,
+    if (parse_line(linebuff, length, &seconds, &useconds,
                    &before_time_offset, &after_time_offset,
                    &dollar_offset,
-                   &data_chars, &direction, &encap, &is_comment)) {
+                   &data_chars, &direction, &encap, &is_comment,
+                   aal_header_chars,
+                   context_name, &context_port,
+                   protocol_name, variant_name, outhdr_name)) {
         int n;
         int stub_offset = 0;
         char timestamp_string[32];
@@ -477,8 +485,11 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 
         /*********************/
         /* Write stub header */
-        stub_offset = write_stub_header((guchar*)pd, timestamp_string,
-                                        direction, encap);
+        stub_offset = write_stub_header(pd, timestamp_string,
+                                        direction, encap, context_name,
+                                        context_port,
+                                        protocol_name, variant_name,
+                                        outhdr_name);
 
 
         if (!is_comment) {
@@ -498,7 +509,8 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
         }
 
         /* Set packet pseudo-header if necessary */
-        set_pseudo_header_info(wth, encap, seek_off, pseudo_header, direction);
+        set_pseudo_header_info(wth, encap, seek_off, pseudo_header, direction,
+                               aal_header_chars);
 
         *err = errno = 0;
         return TRUE;
@@ -518,9 +530,9 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 /***************************************************************************/
 void catapult_dct2000_close(wtap *wth)
 {
-    /* Look up externals for this file */
+    /* Get externals for this file */
     dct2000_file_externals_t *file_externals =
-        (dct2000_file_externals_t*)g_hash_table_lookup(file_externals_table, wth);
+        (dct2000_file_externals_t*)wth->capture.generic;
 
     /* The entry *has* to be found */
     if (!file_externals) {
@@ -532,9 +544,6 @@ void catapult_dct2000_close(wtap *wth)
                                 free_line_prefix_info, NULL);
     /* Free up its line prefix table */
     g_hash_table_destroy(file_externals->packet_prefix_table);
-
-    /* And remove the externals entry from the global table */
-    g_hash_table_remove(file_externals_table, (void*)wth);
 
     /* And free up file_externals itself */
     g_free(file_externals);
@@ -613,11 +622,10 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     gboolean is_comment;
 
     /******************************************************/
-    /* Look up the file_externals structure for this file */
+    /* Get the file_externals structure for this file */
     /* Find wtap external structure for this wtap */
     dct2000_file_externals_t *file_externals =
-        (dct2000_file_externals_t*)g_hash_table_lookup(file_externals_table,
-                                                       pseudo_header->dct2000.wth);
+        (dct2000_file_externals_t*)pseudo_header->dct2000.wth->capture.generic;
 
     if (wdh->dump.dct2000 == NULL) {
         /* Allocate the dct2000-specific dump structure */
@@ -787,18 +795,19 @@ static gboolean catapult_dct2000_dump_close(wtap_dumper *wdh _U_, int *err _U_)
 
 /**********************************************************************/
 /* Read a new line from the file, starting at offset.                 */
-/* - writes data to static var linebuff                               */
+/* - writes data to its argument linebuff                             */
 /* - on return 'offset' will point to the next position to read from  */
 /* - return TRUE if this read is successful                           */
 /**********************************************************************/
-gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length)
+gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length,
+                       gchar *linebuff, size_t linebuffsize)
 {
     char *result;
 
     /* Read in a line */
-    result = file_gets(linebuff, MAX_LINE_LENGTH, fh);
+    result = file_gets(linebuff, linebuffsize - 1, fh);
     if (result == NULL) {
-        /* No characters found */
+        /* No characters found, or error */
         return FALSE;
     }
 
@@ -823,11 +832,16 @@ gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length)
 /* - data position and length                                         */
 /* Return TRUE if this packet looks valid and can be displayed        */
 /**********************************************************************/
-static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
+static gboolean parse_line(gchar *linebuff, gint line_length,
+                           gint *seconds, gint *useconds,
                            long *before_time_offset, long *after_time_offset,
                            long *data_offset, gint *data_chars,
                            packet_direction_t *direction,
-                           int *encap, int *is_comment)
+                           int *encap, int *is_comment,
+                           gchar *aal_header_chars,
+                           gchar *context_name, guint8 *context_portp,
+                           gchar *protocol_name, gchar *variant_name,
+                           gchar *outhdr_name)
 {
     int  n = 0;
     int  port_digits = 0;
@@ -905,7 +919,7 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
             return FALSE;
         }
         port_number_string[port_digits] = '\0';
-        context_port = atoi(port_number_string);
+        *context_portp = atoi(port_number_string);
         /* Skip it */
         n++;
 
@@ -1224,8 +1238,11 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
 /*****************************************************************/
 /* Write the stub info to the data buffer while reading a packet */
 /*****************************************************************/
-int write_stub_header(guchar *frame_buffer, char *timestamp_string,
-                      packet_direction_t direction, int encap)
+static int write_stub_header(guchar *frame_buffer, char *timestamp_string,
+                             packet_direction_t direction, int encap,
+                             gchar *context_name, guint8 context_port,
+                             gchar *protocol_name, gchar *variant_name,
+                             gchar *outhdr_name)
 {
     int stub_offset = 0;
 
@@ -1267,18 +1284,19 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
 /**************************************************************/
 /* Set pseudo-header info depending upon packet encapsulation */
 /**************************************************************/
-void set_pseudo_header_info(wtap *wth,
-                            int pkt_encap,
-                            gint64 file_offset,
-                            union wtap_pseudo_header *pseudo_header,
-                            packet_direction_t direction)
+static void set_pseudo_header_info(wtap *wth,
+                                   int pkt_encap,
+                                   gint64 file_offset,
+                                   union wtap_pseudo_header *pseudo_header,
+                                   packet_direction_t direction,
+                                   gchar *aal_header_chars)
 {
     pseudo_header->dct2000.seek_off = file_offset;
     pseudo_header->dct2000.wth = wth;
 
     switch (pkt_encap) {
         case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
-            set_aal_info(pseudo_header, direction);
+            set_aal_info(pseudo_header, direction, aal_header_chars);
             break;
         case WTAP_ENCAP_ISDN:
             set_isdn_info(pseudo_header, direction);
@@ -1297,7 +1315,9 @@ void set_pseudo_header_info(wtap *wth,
 /*********************************************/
 /* Fill in atm pseudo-header with known info */
 /*********************************************/
-void set_aal_info(union wtap_pseudo_header *pseudo_header, packet_direction_t direction)
+static void set_aal_info(union wtap_pseudo_header *pseudo_header,
+                         packet_direction_t direction,
+                         gchar *aal_header_chars)
 {
     /* 'aal_head_chars' has this format (for AAL2 at least):
        Global Flow Control (4 bits) | VPI (8 bits) | VCI (16 bits) |
@@ -1412,23 +1432,6 @@ gchar char_from_hex(guchar hex)
     return hex_lookup[hex];
 }
 
-/***************************************************/
-/* Equality function for file_externals hash table */
-/***************************************************/
-gint wth_equal(gconstpointer v, gconstpointer v2)
-{
-    return (v == v2);
-}
-
-/***********************************************/
-/* Hash function for file_externals hash table */
-/***********************************************/
-guint wth_hash_func(gconstpointer v)
-{
-    return (guint)(unsigned long)v;
-}
-
-
 /***********************************************/
 /* Equality test for packet prefix hash tables */
 /***********************************************/
@@ -1454,7 +1457,7 @@ guint packet_offset_hash_func(gconstpointer v)
 /* Set secs and usecs as output                                         */
 /* Return FALSE if no valid time can be read                            */
 /************************************************************************/
-gboolean get_file_time_stamp(time_t *secs, guint32 *usecs)
+gboolean get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs)
 {
     int n;
     struct tm tm;
