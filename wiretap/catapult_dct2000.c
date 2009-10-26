@@ -189,14 +189,13 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
 
     read_new_line(wth->fh, &offset, &firstline_length);
     if (((size_t)firstline_length < strlen(catapult_dct2000_magic)) ||
-        firstline_length >= MAX_FIRST_LINE_LENGTH)
-    {
+        firstline_length >= MAX_FIRST_LINE_LENGTH) {
+
         return 0;
     }
 
     /* This file is not for us if it doesn't match our signature */
-    if (memcmp(catapult_dct2000_magic, linebuff, strlen(catapult_dct2000_magic)) != 0)
-    {
+    if (memcmp(catapult_dct2000_magic, linebuff, strlen(catapult_dct2000_magic)) != 0) {
         return 0;
     }
 
@@ -205,8 +204,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     /* Need entry in file_externals table                                */
 
     /* Create file externals table if it doesn't yet exist */
-    if (file_externals_table == NULL)
-    {
+    if (file_externals_table == NULL) {
         file_externals_table = g_hash_table_new(wth_hash_func, wth_equal);
     }
 
@@ -225,8 +223,8 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
 
     read_new_line(wth->fh, &offset, &(file_externals->secondline_length));
     if ((file_externals->secondline_length >= MAX_TIMESTAMP_LINE_LENGTH) ||
-        (!get_file_time_stamp(&timestamp, &usecs)))
-    {
+        (!get_file_time_stamp(&timestamp, &usecs))) {
+
         /* Give up if file time line wasn't valid */
         g_free(file_externals);
         return 0;
@@ -291,21 +289,18 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         (dct2000_file_externals_t*)g_hash_table_lookup(file_externals_table, wth);
 
     /* There *has* to be an entry for this wth */
-    if (!file_externals)
-    {
+    if (!file_externals) {
         return FALSE;
     }
 
     /* Search for a line containing a usable packet */
-    while (1)
-    {
+    while (1) {
         int line_length, seconds, useconds, data_chars;
         int is_comment = FALSE;
         gint64 this_offset = offset;
 
         /* Are looking for first packet after 2nd line */
-        if (wth->data_offset == 0)
-        {
+        if (wth->data_offset == 0) {
             this_offset += (file_externals->firstline_length+1+
                             file_externals->secondline_length+1);
         }
@@ -314,8 +309,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         errno = 0;
 
         /* Read a new line from file into linebuff */
-        if (read_new_line(wth->fh, &offset, &line_length) == FALSE)
-        {
+        if (read_new_line(wth->fh, &offset, &line_length) == FALSE) {
             /* Get out if no more lines can be read */
             break;
         }
@@ -324,8 +318,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         if (parse_line(line_length, &seconds, &useconds,
                        &before_time_offset, &after_time_offset,
                        &dollar_offset,
-                       &data_chars, &direction, &encap, &is_comment))
-        {
+                       &data_chars, &direction, &encap, &is_comment)) {
             guchar *frame_buffer;
             int n;
             int stub_offset = 0;
@@ -348,8 +341,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
 
             /* Fill in timestamp (capture base + packet offset) */
             wth->phdr.ts.secs = wth->capture.catapult_dct2000->start_secs + seconds;
-            if ((wth->capture.catapult_dct2000->start_usecs + useconds) >= 1000000)
-            {
+            if ((wth->capture.catapult_dct2000->start_usecs + useconds) >= 1000000) {
                 wth->phdr.ts.secs++;
             }
             wth->phdr.ts.nsecs =
@@ -379,26 +371,21 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             wth->phdr.caplen = stub_offset + (is_comment ? data_chars : (data_chars/2));
 
 
-            if (!is_comment)
-            {
+            if (!is_comment) {
                 /****************************************************/
                 /* Copy data into buffer, converting from ascii hex */
-                for (n=0; n <= data_chars; n+=2)
-                {
+                for (n=0; n <= data_chars; n+=2) {
                     frame_buffer[stub_offset + n/2] =
                         (hex_from_char(linebuff[dollar_offset+n]) << 4) |
                          hex_from_char(linebuff[dollar_offset+n+1]);
                 }
             }
-            else
-            {
+            else {
                 /***********************************************************/
                 /* Copy packet data into buffer, just copying ascii chars  */
-                for (n=0; n <= data_chars; n++)
-                {
+                for (n=0; n <= data_chars; n++) {
                     frame_buffer[stub_offset + n] = linebuff[dollar_offset+n];
                 }
-
             }
 
             /* Store the packet prefix in the hash table */
@@ -413,12 +400,11 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                Do this only if it doesn't correspond to " l ", which is by far the most
                common case. */
             if (((size_t)(dollar_offset - after_time_offset -1) == strlen(" l ")) &&
-                (strncmp(linebuff+after_time_offset, " l ", strlen(" l ")) == 0))
-            {
+                (strncmp(linebuff+after_time_offset, " l ", strlen(" l ")) == 0)) {
+
                 line_prefix_info->after_time = NULL;
             }
-            else
-            {
+            else {
                 /* Allocate & write buffer for line between timestamp and data */
                 line_prefix_info->after_time = g_malloc(dollar_offset - after_time_offset);
                 g_strlcpy(line_prefix_info->after_time, linebuff+after_time_offset,
@@ -466,14 +452,12 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     *err = errno = 0;
 
     /* Seek to beginning of packet */
-    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-    {
+    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
         return FALSE;
     }
 
     /* Re-read whole line (this really should succeed) */
-    if (read_new_line(wth->random_fh, &offset, &length) == FALSE)
-    {
+    if (read_new_line(wth->random_fh, &offset, &length) == FALSE) {
         return FALSE;
     }
 
@@ -481,8 +465,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     if (parse_line(length, &seconds, &useconds,
                    &before_time_offset, &after_time_offset,
                    &dollar_offset,
-                   &data_chars, &direction, &encap, &is_comment))
-    {
+                   &data_chars, &direction, &encap, &is_comment)) {
         int n;
         int stub_offset = 0;
         char timestamp_string[32];
@@ -498,22 +481,18 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                                         direction, encap);
 
 
-        if (!is_comment)
-        {
+        if (!is_comment) {
             /***********************************************************/
             /* Copy packet data into buffer, converting from ascii hex */
-            for (n=0; n <= data_chars; n+=2)
-            {
+            for (n=0; n <= data_chars; n+=2) {
                 pd[stub_offset + n/2] = (hex_from_char(linebuff[dollar_offset+n]) << 4) |
                                          hex_from_char(linebuff[dollar_offset+n+1]);
             }
         }
-        else
-        {
+        else {
             /***********************************************************/
             /* Copy packet data into buffer, just copying ascii chars  */
-            for (n=0; n <= data_chars; n++)
-            {
+            for (n=0; n <= data_chars; n++) {
                 pd[stub_offset+n] = linebuff[dollar_offset+n];
             }
         }
@@ -544,8 +523,7 @@ void catapult_dct2000_close(wtap *wth)
         (dct2000_file_externals_t*)g_hash_table_lookup(file_externals_table, wth);
 
     /* The entry *has* to be found */
-    if (!file_externals)
-    {
+    if (!file_externals) {
         return;
     }
 
@@ -591,8 +569,7 @@ gboolean catapult_dct2000_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, in
 /*********************************************************/
 int catapult_dct2000_dump_can_write_encap(int encap)
 {
-    switch (encap)
-    {
+    switch (encap) {
         case WTAP_ENCAP_CATAPULT_DCT2000:
             /* We support this */
             return 0;
@@ -614,12 +591,10 @@ static gboolean do_fwrite(const void *data, size_t size, size_t count, FILE *str
 
     nwritten = fwrite(data, size, count, stream);
     if (nwritten != count) {
-        if (nwritten == 0 && ferror(stream))
-        {
+        if (nwritten == 0 && ferror(stream)) {
             *err_p = errno;
         }
-        else
-        {
+        else {
             *err_p = WTAP_ERR_SHORT_WRITE;
         }
 
@@ -644,30 +619,25 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         (dct2000_file_externals_t*)g_hash_table_lookup(file_externals_table,
                                                        pseudo_header->dct2000.wth);
 
-    if (wdh->dump.dct2000 == NULL)
-    {
+    if (wdh->dump.dct2000 == NULL) {
         /* Allocate the dct2000-specific dump structure */
         wdh->dump.dct2000 = g_malloc(sizeof(catapult_dct2000_t));
 
         /* Write out saved first line */
-        if (! do_fwrite(file_externals->firstline, 1, file_externals->firstline_length, wdh->fh, err))
-        {
+        if (! do_fwrite(file_externals->firstline, 1, file_externals->firstline_length, wdh->fh, err)) {
             return FALSE;
         }
-        if (! do_fwrite("\n", 1, 1, wdh->fh, err))
-        {
+        if (! do_fwrite("\n", 1, 1, wdh->fh, err)) {
             return FALSE;
         }
 
         /* Also write out saved second line with timestamp corresponding to the
            opening time of the log.
         */
-        if (! do_fwrite(file_externals->secondline, 1, file_externals->secondline_length, wdh->fh, err))
-        {
+        if (! do_fwrite(file_externals->secondline, 1, file_externals->secondline_length, wdh->fh, err)) {
             return FALSE;
         }
-        if (! do_fwrite("\n", 1, 1, wdh->fh, err))
-        {
+        if (! do_fwrite("\n", 1, 1, wdh->fh, err)) {
             return FALSE;
         }
 
@@ -693,8 +663,7 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                                                       (const void*)&(pseudo_header->dct2000.seek_off));
 
     /* Write out text before timestamp */
-    if (! do_fwrite(prefix->before_time, 1, strlen(prefix->before_time), wdh->fh, err))
-    {
+    if (! do_fwrite(prefix->before_time, 1, strlen(prefix->before_time), wdh->fh, err)) {
         return FALSE;
     }
 
@@ -702,37 +671,30 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     is_comment = (strstr(prefix->before_time, "/////") != NULL);
 
     /* Calculate time of this packet to write, relative to start of dump */
-    if (phdr->ts.nsecs >= wdh->dump.dct2000->start_time.nsecs)
-    {
+    if (phdr->ts.nsecs >= wdh->dump.dct2000->start_time.nsecs) {
         g_snprintf(time_string, 16, "%ld.%04d",
                  (long)(phdr->ts.secs - wdh->dump.dct2000->start_time.secs),
                  (phdr->ts.nsecs - wdh->dump.dct2000->start_time.nsecs) / 100000);
     }
-    else
-    {
+    else {
         g_snprintf(time_string, 16, "%ld.%04u",
                  (long)(phdr->ts.secs - wdh->dump.dct2000->start_time.secs-1),
                  ((1000000000 + (phdr->ts.nsecs / 100000)) - (wdh->dump.dct2000->start_time.nsecs / 100000)) % 10000);
     }
 
     /* Write out the calculated timestamp */
-    if (! do_fwrite(time_string, 1, strlen(time_string), wdh->fh, err))
-    {
+    if (! do_fwrite(time_string, 1, strlen(time_string), wdh->fh, err)) {
         return FALSE;
     }
 
     /* Write out text between timestamp and start of hex data */
-    if (prefix->after_time == NULL)
-    {
-        if (!do_fwrite(" l ", 1, strlen(" l "), wdh->fh, err))
-        {
+    if (prefix->after_time == NULL) {
+        if (!do_fwrite(" l ", 1, strlen(" l "), wdh->fh, err)) {
             return FALSE;
         }
     }
-    else
-    {
-        if (!do_fwrite(prefix->after_time, 1, strlen(prefix->after_time), wdh->fh, err))
-        {
+    else {
+        if (!do_fwrite(prefix->after_time, 1, strlen(prefix->after_time), wdh->fh, err)) {
             return FALSE;
         }
     }
@@ -770,45 +732,37 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /**************************************/
     /* Remainder is encapsulated protocol */
-    if (! do_fwrite("$", 1, 1, wdh->fh, err))
-    {
+    if (! do_fwrite("$", 1, 1, wdh->fh, err)) {
         return FALSE;
     }
 
-    if (!is_comment)
-    {
+    if (!is_comment) {
         /* Each binary byte is written out as 2 hex string chars */ 
-        for (; n < phdr->len; n++)
-        {
+        for (; n < phdr->len; n++) {
             gchar c[2];
             c[0] = char_from_hex((guchar)(pd[n] >> 4));
             c[1] = char_from_hex((guchar)(pd[n] & 0x0f));
 
             /* Write both hex chars of byte together */
-            if (! do_fwrite(c, 1, 2, wdh->fh, err))
-            {
+            if (! do_fwrite(c, 1, 2, wdh->fh, err)) {
                 return FALSE;
             }
         }
     }
-    else
-    {
-        for (; n < phdr->len; n++)
-        {
+    else {
+        for (; n < phdr->len; n++) {
             char c[1];
             c[0] = pd[n];
 
             /* Write both hex chars of byte together */
-            if (!do_fwrite(c, 1, 1, wdh->fh, err))
-            {
+            if (!do_fwrite(c, 1, 1, wdh->fh, err)) {
                 return FALSE;
             }
         }
     }
 
     /* End the line */
-    if (! do_fwrite("\n", 1, 1, wdh->fh, err))
-    {
+    if (! do_fwrite("\n", 1, 1, wdh->fh, err)) {
         return FALSE;
     }
 
@@ -843,8 +797,7 @@ gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length)
 
     /* Read in a line */
     result = file_gets(linebuff, MAX_LINE_LENGTH, fh);
-    if (result == NULL)
-    {
+    if (result == NULL) {
         /* No characters found */
         return FALSE;
     }
@@ -854,8 +807,7 @@ gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length)
     *offset = *offset + *length;
 
     /* ...but don't want to include newline in line length */
-    if (linebuff[*length-1] == '\n')
-    {
+    if (linebuff[*length-1] == '\n') {
         linebuff[*length-1] = '\0';
         *length = *length - 1;
     }
@@ -895,8 +847,7 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     *is_comment = FALSE;
 
     /* Read context name until find '.' */
-    for (n=0; (linebuff[n] != '.') && (n < MAX_CONTEXT_NAME) && (n+1 < line_length); n++)
-    {
+    for (n=0; (linebuff[n] != '.') && (n < MAX_CONTEXT_NAME) && (n+1 < line_length); n++) {
         if (linebuff[n] == '/') {
             context_name[n] = '\0';
 
@@ -906,31 +857,28 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
             }
 
             /* There is no variant, outhdr, etc.  Set protocol to be a comment */
-			g_snprintf(protocol_name, MAX_PROTOCOL_NAME, "comment");
+            g_snprintf(protocol_name, MAX_PROTOCOL_NAME, "comment");
             *is_comment = TRUE;
             break;
         }
-        if (!isalnum((guchar)linebuff[n]) && (linebuff[n] != '_') && (linebuff[n] != '-'))
-        {
+        if (!isalnum((guchar)linebuff[n]) && (linebuff[n] != '_') && (linebuff[n] != '-')) {
             return FALSE;
         }
         context_name[n] = linebuff[n];
     }
-    if (n == MAX_CONTEXT_NAME || (n+1 >= line_length))
-    {
+    if (n == MAX_CONTEXT_NAME || (n+1 >= line_length)) {
         return FALSE;
     }
 
     /* Reset strings (that won't be set be comments) */
-	g_strlcpy(variant_name, "0", MAX_VARIANT_DIGITS);
-	g_strlcpy(outhdr_name, "", MAX_OUTHDR_NAME);
+    g_strlcpy(variant_name, "0", MAX_VARIANT_DIGITS);
+    g_strlcpy(outhdr_name, "", MAX_OUTHDR_NAME);
     port_digits = 1;
-	g_strlcpy(port_number_string, "0", MAX_PORT_DIGITS);
+    g_strlcpy(port_number_string, "0", MAX_PORT_DIGITS);
 
     if (!(*is_comment)) {
         /* '.' must follow context name */
-        if (linebuff[n] != '.')
-        {
+        if (linebuff[n] != '.') {
             return FALSE;
         }
         context_name[n] = '\0';
@@ -940,16 +888,14 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         /* Now read port number */
         for (port_digits = 0;
              (linebuff[n] != '/') && (port_digits <= MAX_PORT_DIGITS) && (n+1 < line_length);
-             n++, port_digits++)
-        {
-            if (!isdigit((guchar)linebuff[n]))
-            {
+             n++, port_digits++) {
+
+            if (!isdigit((guchar)linebuff[n])) {
                 return FALSE;
             }
             port_number_string[port_digits] = linebuff[n];
         }
-        if (port_digits > MAX_PORT_DIGITS || (n+1 >= line_length))
-        {
+        if (port_digits > MAX_PORT_DIGITS || (n+1 >= line_length)) {
             return FALSE;
         }
 
@@ -966,24 +912,21 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         /* Now for the protocol name */
         for (protocol_chars = 0;
              (linebuff[n] != '/') && (protocol_chars < MAX_PROTOCOL_NAME) && (n < line_length);
-             n++, protocol_chars++)
-        {
-            if (!isalnum((guchar)linebuff[n]) && linebuff[n] != '_')
-            {
+             n++, protocol_chars++) {
+
+            if (!isalnum((guchar)linebuff[n]) && linebuff[n] != '_') {
                 return FALSE;
             }
             protocol_name[protocol_chars] = linebuff[n];
         }
-        if (protocol_chars == MAX_PROTOCOL_NAME || n >= line_length)
-        {
+        if (protocol_chars == MAX_PROTOCOL_NAME || n >= line_length) {
             /* If doesn't fit, fail rather than truncate */
             return FALSE;
         }
         protocol_name[protocol_chars] = '\0';
 
         /* Slash char must follow protocol name */
-        if (linebuff[n] != '/')
-        {
+        if (linebuff[n] != '/') {
             return FALSE;
         }
         /* Skip it */
@@ -993,49 +936,42 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         /* Following the / is the variant number.  No digits indicate 1 */
         for (variant_digits = 0;
              (isdigit((guchar)linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
-             n++, variant_digits++)
-        {
-            if (!isdigit((guchar)linebuff[n]))
-            {
+             n++, variant_digits++) {
+
+            if (!isdigit((guchar)linebuff[n])) {
                 return FALSE;
             }
             variant_name[variant_digits] = linebuff[n];
         }
-        if (variant_digits > MAX_VARIANT_DIGITS || (n+1 >= line_length))
-        {
+        if (variant_digits > MAX_VARIANT_DIGITS || (n+1 >= line_length)) {
             return FALSE;
         }
-        if (variant_digits > 0)
-        {
+        if (variant_digits > 0) {
             variant_name[variant_digits] = '\0';
             variant = atoi(variant_name);
         }
-        else
-        {
+        else {
             g_strlcpy(variant_name, "1", MAX_VARIANT_DIGITS+1);
         }
 
 
         /* Outheader values may follow */
         outhdr_name[0] = '\0';
-        if (linebuff[n] == ',')
-        {
+        if (linebuff[n] == ',') {
             /* Skip , */
             n++;
 
             for (outhdr_chars = 0;
                  (isdigit((guchar)linebuff[n]) || linebuff[n] == ',') &&
                  (outhdr_chars <= MAX_OUTHDR_NAME) && (n+1 < line_length);
-                 n++, outhdr_chars++)
-            {
-                if (!isdigit((guchar)linebuff[n]) && (linebuff[n] != ','))
-                {
+                 n++, outhdr_chars++) {
+
+                if (!isdigit((guchar)linebuff[n]) && (linebuff[n] != ',')) {
                     return FALSE;
                 }
                 outhdr_name[outhdr_chars] = linebuff[n];
             }
-            if (outhdr_chars > MAX_OUTHDR_NAME || (n+1 >= line_length))
-            {
+            if (outhdr_chars > MAX_OUTHDR_NAME || (n+1 >= line_length)) {
                 return FALSE;
             }
             /* Terminate (possibly empty) string */
@@ -1051,8 +987,8 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         (strcmp(protocol_name, "sctp") == 0) ||
         (strcmp(protocol_name, "gre") == 0) ||
         (strcmp(protocol_name, "mipv6") == 0) ||
-        (strcmp(protocol_name, "igmp") == 0))
-    {
+        (strcmp(protocol_name, "igmp") == 0)) {
+
         *encap = WTAP_ENCAP_RAW_IP;
     }
     else
@@ -1062,22 +998,19 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         (strcmp(protocol_name, "fp_r4") == 0) ||
         (strcmp(protocol_name, "fp_r5") == 0) ||
         (strcmp(protocol_name, "fp_r6") == 0) ||
-        (strcmp(protocol_name, "fp_r7") == 0))
-    {
-        if ((variant > 256) && (variant % 256 == 3))
-        {
+        (strcmp(protocol_name, "fp_r7") == 0)) {
+
+        if ((variant > 256) && (variant % 256 == 3)) {
             /* FP over udp is contained in IPPrim... */
             *encap = 0;
         }
-        else
-        {
+        else {
             /* FP over AAL0 or AAL2 */
             *encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
             atm_header_present = TRUE;
         }
     }
-    else if (strcmp(protocol_name, "fpiur_r5") == 0)
-    {
+    else if (strcmp(protocol_name, "fpiur_r5") == 0) {
         /* FP (IuR) over AAL2 */
         *encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
         atm_header_present = TRUE;
@@ -1085,53 +1018,46 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
 
 
     else
-    if (strcmp(protocol_name, "ppp") == 0)
-    {
+    if (strcmp(protocol_name, "ppp") == 0) {
         *encap = WTAP_ENCAP_PPP;
     }
     else
-    if (strcmp(protocol_name, "isdn_l3") == 0)
-    {
+    if (strcmp(protocol_name, "isdn_l3") == 0) {
        /* TODO: find out what this byte means... */
         skip_first_byte = TRUE;
         *encap = WTAP_ENCAP_ISDN;
     }
     else
-    if (strcmp(protocol_name, "isdn_l2") == 0)
-    {
+    if (strcmp(protocol_name, "isdn_l2") == 0) {
         *encap = WTAP_ENCAP_ISDN;
     }
     else
-    if (strcmp(protocol_name, "ethernet") == 0)
-    {
+    if (strcmp(protocol_name, "ethernet") == 0) {
         *encap = WTAP_ENCAP_ETHERNET;
     }
     else
     if ((strcmp(protocol_name, "saalnni_sscop") == 0) ||
-        (strcmp(protocol_name, "saaluni_sscop") == 0))
-    {
+        (strcmp(protocol_name, "saaluni_sscop") == 0)) {
+
         *encap = DCT2000_ENCAP_SSCOP;
     }
     else
-    if (strcmp(protocol_name, "frelay_l2") == 0)
-    {
+    if (strcmp(protocol_name, "frelay_l2") == 0) {
         *encap = WTAP_ENCAP_FRELAY;
     }
     else
-    if (strcmp(protocol_name, "ss7_mtp2") == 0)
-    {
+    if (strcmp(protocol_name, "ss7_mtp2") == 0) {
         *encap = DCT2000_ENCAP_MTP2;
     }
     else
     if ((strcmp(protocol_name, "nbap") == 0) ||
         (strcmp(protocol_name, "nbap_r4") == 0) ||
-        (strncmp(protocol_name, "nbap_sscfuni", strlen("nbap_sscfuni")) == 0))
-    {
+        (strncmp(protocol_name, "nbap_sscfuni", strlen("nbap_sscfuni")) == 0)) {
+
         /* The entire message in these cases is nbap, so use an encap value. */
         *encap = DCT2000_ENCAP_NBAP;
     }
-    else
-    {
+    else {
         /* Not a supported board port protocol/encap, but can show as raw data or
            in some cases find protocol embedded inside primitive */
         *encap = DCT2000_ENCAP_UNHANDLED;
@@ -1139,16 +1065,14 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
 
 
     /* Find separate ATM header if necessary */
-    if (atm_header_present)
-    {
+    if (atm_header_present) {
         int header_chars_seen = 0;
 
         /* Scan ahead to the next $ */
         for (; (linebuff[n] != '$') && (n+1 < line_length); n++);
         /* Skip it */
         n++;
-        if (n+1 >= line_length)
-        {
+        if (n+1 >= line_length) {
             return FALSE;
         }
 
@@ -1157,45 +1081,38 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
              ((linebuff[n] >= '0') && (linebuff[n] <= '?') &&
               (n < line_length) &&
               (header_chars_seen < AAL_HEADER_CHARS));
-             n++, header_chars_seen++)
-        {
+             n++, header_chars_seen++) {
+
             aal_header_chars[header_chars_seen] = linebuff[n];
             /* Next 6 characters after '9' are mapped to a->f */
-            if (!isdigit((guchar)linebuff[n]))
-            {
+            if (!isdigit((guchar)linebuff[n])) {
                 aal_header_chars[header_chars_seen] = 'a' + (linebuff[n] - '9') -1;
             }
         }
 
-        if (header_chars_seen != AAL_HEADER_CHARS || n >= line_length)
-        {
+        if (header_chars_seen != AAL_HEADER_CHARS || n >= line_length) {
             return FALSE;
         }
     }
 
     /* Scan ahead to the next space */
     for (; (linebuff[n] != ' ') && (n+1 < line_length); n++);
-    if (n+1 >= line_length)
-    {
+    if (n+1 >= line_length) {
         return FALSE;
     }
     /* Skip it */
     n++;
 
     /* Next character gives direction of message (must be 's' or 'r') */
-    if (!(*is_comment))
-    {
-        if (linebuff[n] == 's')
-        {
+    if (!(*is_comment)) {
+        if (linebuff[n] == 's') {
             *direction = sent;
         }
         else
-        if (linebuff[n] == 'r')
-        {
+        if (linebuff[n] == 'r') {
             *direction = received;
         }
-        else
-        {
+        else {
             return FALSE;
         }
         /* Skip it */
@@ -1213,14 +1130,12 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     /* This will involve skipping " tm "                                      */
 
     for (; ((linebuff[n] != 't') || (linebuff[n+1] != 'm')) && (n+1 < line_length); n++);
-    if (n >= line_length)
-    {
+    if (n >= line_length) {
         return FALSE;
     }
 
     for (; !isdigit((guchar)linebuff[n]) && (n < line_length); n++);
-    if (n >= line_length)
-    {
+    if (n >= line_length) {
         return FALSE;
     }
 
@@ -1231,17 +1146,15 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (linebuff[n] != '.') &&
          (seconds_chars <= MAX_SECONDS_CHARS) &&
          (n < line_length);
-         n++, seconds_chars++)
-    {
-        if (!isdigit((guchar)linebuff[n]))
-        {
+         n++, seconds_chars++) {
+
+        if (!isdigit((guchar)linebuff[n])) {
             /* Found a non-digit before decimal point. Fail */
             return FALSE;
         }
         seconds_buff[seconds_chars] = linebuff[n];
     }
-    if (seconds_chars > MAX_SECONDS_CHARS || n >= line_length)
-    {
+    if (seconds_chars > MAX_SECONDS_CHARS || n >= line_length) {
         /* Didn't fit in buffer.  Fail rather than use truncated */
         return FALSE;
     }
@@ -1251,8 +1164,7 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     *seconds = atoi(seconds_buff);
 
     /* The decimal point must follow the last of the seconds digits */
-    if (linebuff[n] != '.')
-    {
+    if (linebuff[n] != '.') {
         return FALSE;
     }
     /* Skip it */
@@ -1263,16 +1175,14 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (linebuff[n] != ' ') &&
          (subsecond_decimals_chars <= MAX_SUBSECOND_DECIMALS) &&
          (n < line_length);
-         n++, subsecond_decimals_chars++)
-    {
-        if (!isdigit((guchar)linebuff[n]))
-        {
+         n++, subsecond_decimals_chars++) {
+
+        if (!isdigit((guchar)linebuff[n])) {
             return FALSE;
         }
         subsecond_decimals_buff[subsecond_decimals_chars] = linebuff[n];
     }
-    if (subsecond_decimals_chars > MAX_SUBSECOND_DECIMALS || n >= line_length)
-    {
+    if (subsecond_decimals_chars > MAX_SUBSECOND_DECIMALS || n >= line_length) {
         /* More numbers than expected - give up */
         return FALSE;
     }
@@ -1281,8 +1191,7 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     *useconds = atoi(subsecond_decimals_buff) * 100;
 
     /* Space character must follow end of timestamp */
-    if (linebuff[n] != ' ')
-    {
+    if (linebuff[n] != ' ') {
         return FALSE;
     }
 
@@ -1291,8 +1200,7 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     /* Now skip ahead to find start of data (marked by '$') */
     /* Want to avoid matching with normal sprint command output at the moment... */
     for (; (linebuff[n] != '$') && (linebuff[n] != '\'') && (n+1 < line_length); n++);
-    if ((linebuff[n] == '\'') || (n+1 >= line_length))
-    {
+    if ((linebuff[n] == '\'') || (n+1 >= line_length)) {
         return FALSE;
     }
     /* Skip it */
@@ -1305,8 +1213,7 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     *data_chars = line_length - n;
 
     /* May need to skip first byte (2 hex string chars) */
-    if (skip_first_byte)
-    {
+    if (skip_first_byte) {
         *data_offset += 2;
         *data_chars -= 2;
     }
@@ -1369,8 +1276,7 @@ void set_pseudo_header_info(wtap *wth,
     pseudo_header->dct2000.seek_off = file_offset;
     pseudo_header->dct2000.wth = wth;
 
-    switch (pkt_encap)
-    {
+    switch (pkt_encap) {
         case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
             set_aal_info(pseudo_header, direction);
             break;
@@ -1431,18 +1337,15 @@ void set_aal_info(union wtap_pseudo_header *pseudo_header, packet_direction_t di
 
     /* cid is usually last byte.  Unless last char is not hex digit, in which
        case cid is derived from last char in ascii */
-    if (isalnum((guchar)aal_header_chars[11]))
-    {
+    if (isalnum((guchar)aal_header_chars[11])) {
         pseudo_header->dct2000.inner_pseudo_header.atm.aal2_cid =
             ((hex_from_char(aal_header_chars[10]) << 4) |
               hex_from_char(aal_header_chars[11]));
     }
-    else
-    {
+    else {
         pseudo_header->dct2000.inner_pseudo_header.atm.aal2_cid =
             (int)aal_header_chars[11] - 48;
     }
-
 }
 
 
@@ -1481,13 +1384,11 @@ static void set_ppp_info(union wtap_pseudo_header *pseudo_header,
 /********************************************************/
 guchar hex_from_char(gchar c)
 {
-    if ((c >= '0') && (c <= '9'))
-    {
+    if ((c >= '0') && (c <= '9')) {
         return c - '0';
     }
 
-    if ((c >= 'a') && (c <= 'f'))
-    {
+    if ((c >= 'a') && (c <= 'f')) {
         return 0x0a + (c - 'a');
     }
 
@@ -1504,8 +1405,7 @@ gchar char_from_hex(guchar hex)
     static char hex_lookup[16] =
     { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
-    if (hex > 15)
-    {
+    if (hex > 15) {
         return '?';
     }
 
@@ -1565,15 +1465,13 @@ gboolean get_file_time_stamp(time_t *secs, guint32 *usecs)
     int scan_found;
 
     /* If line longer than expected, file is probably not correctly formatted */
-    if (strlen(linebuff) > MAX_TIMESTAMP_LINE_LENGTH)
-    {
+    if (strlen(linebuff) > MAX_TIMESTAMP_LINE_LENGTH) {
         return FALSE;
     }
 
     /**************************************************************/
     /* First is month. Read until get a space following the month */
-    for (n=0; (linebuff[n] != ' ') && (n < MAX_MONTH_LETTERS); n++)
-    {
+    for (n=0; (linebuff[n] != ' ') && (n < MAX_MONTH_LETTERS); n++) {
         month[n] = linebuff[n];
     }
     month[n] = '\0';
@@ -1590,8 +1488,7 @@ gboolean get_file_time_stamp(time_t *secs, guint32 *usecs)
     else if (strcmp(month, "October"  ) == 0)  tm.tm_mon = 9;
     else if (strcmp(month, "November" ) == 0)  tm.tm_mon = 10;
     else if (strcmp(month, "December" ) == 0)  tm.tm_mon = 11;
-    else
-    {
+    else {
         /* Give up if not found a properly-formatted date */
         return FALSE;
     }
@@ -1602,8 +1499,7 @@ gboolean get_file_time_stamp(time_t *secs, guint32 *usecs)
     /* Scan for remaining numerical fields                  */
     scan_found = sscanf(linebuff+n, "%d, %d     %d:%d:%d.%u",
                         &day, &year, &hour, &minute, &second, usecs);
-    if (scan_found != 6)
-    {
+    if (scan_found != 6) {
         /* Give up if not all found */
         return FALSE;
     }
@@ -1637,8 +1533,7 @@ gboolean free_line_prefix_info(gpointer key, gpointer value,
 
     /* Free the strings inside */
     g_free(info->before_time);
-    if (info->after_time)
-    {
+    if (info->after_time) {
         g_free(info->after_time);
     }
 
