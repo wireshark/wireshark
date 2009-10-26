@@ -11570,10 +11570,11 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
   switch(ProcedureCode){
 	  case id_RelocationPreparation:
 		  if((ProtocolIE_ID == id_Source_ToTarget_TransparentContainer)||(ProtocolIE_ID == id_Target_ToSource_TransparentContainer)){
-			  key = SPECIAL || ProtocolIE_ID;
+			  key = SPECIAL | ProtocolIE_ID;
 			  ret = (dissector_try_port_new(ranap_ies_dissector_table, key, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+			  break;
 		  }
-		  break;
+		  /* Fall trough */
 	  default:
 		  /* no special handling */
 		  ret = (dissector_try_port_new(ranap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
@@ -14206,7 +14207,7 @@ void proto_register_ranap(void) {
         "ranap.T_value", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 293 "packet-ranap-template.c"
+#line 294 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -14510,7 +14511,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 300 "packet-ranap-template.c"
+#line 301 "packet-ranap-template.c"
   };
 
 
@@ -14863,7 +14864,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 344 "packet-ranap-template.c"
+#line 345 "packet-ranap-template.c"
 	} else {
 		dissector_delete("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
 	}

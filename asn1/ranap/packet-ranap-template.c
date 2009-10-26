@@ -146,10 +146,11 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
   switch(ProcedureCode){
 	  case id_RelocationPreparation:
 		  if((ProtocolIE_ID == id_Source_ToTarget_TransparentContainer)||(ProtocolIE_ID == id_Target_ToSource_TransparentContainer)){
-			  key = SPECIAL || ProtocolIE_ID;
+			  key = SPECIAL | ProtocolIE_ID;
 			  ret = (dissector_try_port_new(ranap_ies_dissector_table, key, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
+			  break;
 		  }
-		  break;
+		  /* Fall trough */
 	  default:
 		  /* no special handling */
 		  ret = (dissector_try_port_new(ranap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
