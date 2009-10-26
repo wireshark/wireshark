@@ -28,6 +28,7 @@
 
 #include <glib.h>
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -1415,6 +1416,81 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 
+/* Scan the log comment looking for notable out-of-band MAC events that should
+   be sent to the MAC dissector */
+static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
+                                         const char *string)
+{
+    guint ueid;
+    guint rnti;
+    guint rapid;
+    guint rach_attempt_number;
+    mac_lte_oob_event oob_event;
+    struct mac_lte_info *p_mac_lte_info;
+    tvbuff_t *mac_lte_tvb = NULL;
+
+    /* Look for strings matching expected formats */
+    if (sscanf(string, ">> RACH Preamble Request[UE =  %u]    [RAPID =  %u]    [Attempt = %u]",
+               &ueid, &rapid, &rach_attempt_number) == 3) {
+        oob_event = ltemac_send_preamble;
+    }
+    else
+    if (sscanf(string, ">> Schedule Request[UE =  %u] [RNTI = %u]", &ueid, &rnti) == 2) {
+        oob_event = ltemac_send_sr;
+    }
+    else
+    if (sscanf(string, ">> INFO MAC:    ProcessSRInd - CRNTI=%u", &rnti) == 1) {
+        oob_event = ltemac_sr_failure;
+    }
+    else {
+        /* No events found */
+        return;
+    }
+
+    /* We have an event */
+    /* Only need to set info once per session. */
+    p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
+    if (p_mac_lte_info == NULL) {
+
+        /* Allocate & zero struct */
+        p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
+        if (p_mac_lte_info == NULL) {
+            return;
+        }
+
+        /* This indicates to MAC dissector that it has an oob event */
+        p_mac_lte_info->length = 0;
+
+        switch (oob_event) {
+            case ltemac_send_preamble:
+                p_mac_lte_info->ueid = ueid;
+                p_mac_lte_info->rapid = rapid;
+                p_mac_lte_info->rach_attempt_number = rach_attempt_number;
+                p_mac_lte_info->direction = DIRECTION_UPLINK;
+                break;
+            case ltemac_send_sr:
+                p_mac_lte_info->ueid = ueid;
+                p_mac_lte_info->rnti = rnti;
+                p_mac_lte_info->direction = DIRECTION_UPLINK;
+                break;
+            case ltemac_sr_failure:
+                p_mac_lte_info->rnti = rnti;
+                p_mac_lte_info->direction = DIRECTION_DOWNLINK;
+                break;
+        }
+
+        p_mac_lte_info->oob_event = oob_event;
+
+        /* Store info in packet */
+        p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
+    }
+
+    /* Call MAC dissector */
+    mac_lte_tvb = tvb_new_subset(tvb, 0, 0, 0);
+    call_dissector_only(mac_lte_handle, mac_lte_tvb, pinfo, tree);
+}
+
+
 /*****************************************/
 /* Main dissection function.             */
 /*****************************************/
@@ -1695,7 +1771,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     offset, -1, FALSE);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", string);
 
-                /* TODO: look into string for out-of-band MAC events, such as SRReq, SRInd */
+                /* Look into string for out-of-band MAC events, such as SRReq, SRInd */
+                check_for_oob_mac_lte_events(pinfo, tvb, tree, string);
                 return;
             }
 

@@ -65,6 +65,12 @@
 #define SPS_RNTI 5
 
 
+typedef enum mac_lte_oob_event {
+    ltemac_send_preamble,
+    ltemac_send_sr,
+    ltemac_sr_failure
+} mac_lte_oob_event;
+
 /* Context info attached to each LTE MAC frame */
 typedef struct mac_lte_info
 {
@@ -82,6 +88,11 @@ typedef struct mac_lte_info
     guint8          reTxCount;
     guint8          crcStatusValid;
     guint8          crcStatus;
+
+    /* Relating to out-of-band events */
+    mac_lte_oob_event  oob_event;
+    guint8             rapid;
+    guint8             rach_attempt_number;
 } mac_lte_info;
 
 

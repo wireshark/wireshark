@@ -65,6 +65,13 @@ static int hf_mac_lte_context_ul_grant_size = -1;
 static int hf_mac_lte_context_bch_transport_channel = -1;
 static int hf_mac_lte_context_retx_count = -1;
 static int hf_mac_lte_context_crc_status = -1;
+static int hf_mac_lte_context_rapid = -1;
+static int hf_mac_lte_context_rach_attempt_number = -1;
+
+/* Out-of-band events */
+static int hf_mac_lte_oob_send_preamble = -1;
+static int hf_mac_lte_oob_send_sr = -1;
+static int hf_mac_lte_oob_sr_failure = -1;
 
 /* MAC SCH header fields */
 static int hf_mac_lte_ulsch_header = -1;
@@ -1923,6 +1930,72 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
+    /* There are several out-of-band MAC events that may be indicated in the context info. */
+    /* Handle them here */
+    if (p_mac_lte_info->length == 0) {
+        switch (p_mac_lte_info->oob_event) {
+            case ltemac_send_preamble:
+                ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rapid,
+                                         tvb, 0, 0, p_mac_lte_info->rapid);
+                PROTO_ITEM_SET_GENERATED(ti);
+                ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rach_attempt_number,
+                                         tvb, 0, 0, p_mac_lte_info->rach_attempt_number);
+                PROTO_ITEM_SET_GENERATED(ti);
+                ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_preamble,
+                                         tvb, 0, 0, FALSE);
+                PROTO_ITEM_SET_GENERATED(ti);
+
+                /* Info column */
+                col_append_fstr(pinfo->cinfo, COL_INFO, "RACH Preamble sent (RAPID=%u, attempt=%u)",
+                                p_mac_lte_info->rapid, p_mac_lte_info->rach_attempt_number);
+
+                /* Add expert info (an note) */
+                expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_NOTE,
+                                       "RACH Preamble sent for ueid %u (RAPID=%u, attempt=%u)",
+                                       p_mac_lte_info->ueid, p_mac_lte_info->rapid,
+                                       p_mac_lte_info->rach_attempt_number);
+                break;
+            case ltemac_send_sr:
+                ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti,
+                                         tvb, 0, 0, p_mac_lte_info->rnti);
+                PROTO_ITEM_SET_GENERATED(ti);
+                ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_sr,
+                                         tvb, 0, 0, FALSE);
+                PROTO_ITEM_SET_GENERATED(ti);
+
+                /* Info column */
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Scheduling Request sent (C-RNTI=%u)",
+                                p_mac_lte_info->rnti);
+
+                /* Add expert info (an note) */
+                expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_NOTE,
+                                       "Scheduling Request send to RNTI %u (UEId %u)",
+                                       p_mac_lte_info->rnti, p_mac_lte_info->ueid);
+                break;
+            case ltemac_sr_failure:
+                ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti,
+                                         tvb, 0, 0, p_mac_lte_info->rnti);
+                PROTO_ITEM_SET_GENERATED(ti);
+                ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_sr_failure,
+                                         tvb, 0, 0, FALSE);
+                PROTO_ITEM_SET_GENERATED(ti);
+
+                /* Info column */
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Scheduling Request FAILED (C-RNTI=%u)!",
+                                p_mac_lte_info->rnti);
+
+                /* Add expert info (an error) */
+                expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
+                                       "Scheduling Request failed for RNTI %u",
+                                       p_mac_lte_info->rnti);
+                break;
+        }
+
+        /* Our work here is done */
+        return;
+    }
+
+
     ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_subframe_number,
                              tvb, 0, 0, p_mac_lte_info->subframeNumber);
     PROTO_ITEM_SET_GENERATED(ti);
@@ -2196,7 +2269,38 @@ void proto_register_mac_lte(void)
               "CRC Status as reported by PHY", HFILL
             }
         },
+        { &hf_mac_lte_context_rapid,
+            { "RAPID",
+              "mac-lte.preamble-sent.rapid", FT_UINT8, BASE_DEC, 0, 0x0,
+              "RAPID sent in RACH preamble", HFILL
+            }
+        },
+        { &hf_mac_lte_context_rach_attempt_number,
+            { "RACH Attempt Number",
+              "mac-lte.preamble-send.attempt", FT_UINT8, BASE_DEC, 0, 0x0,
+              "RACH attempt number", HFILL
+            }
+        },
 
+        /* Out-of-band events */
+        { &hf_mac_lte_oob_send_preamble,
+            { "RACH Preamble sent",
+              "mac-lte.preamble-sent", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_oob_send_sr,
+            { "Scheduling Request sent",
+              "mac-lte.sr-req", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_oob_sr_failure,
+            { "Scheduling Request Failure",
+              "mac-lte.sr-failure", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
 
         /*******************************************/
         /* MAC shared channel header fields        */
