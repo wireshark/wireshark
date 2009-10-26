@@ -73,9 +73,21 @@ typedef struct
 
 
 /*******************************************************************/
-/* Information stored external to a file (wtap) needed for dumping */
+/* Information stored external to a file (wtap) needed for reading and dumping */
 typedef struct dct2000_file_externals
 {
+    /* Remember the time at the start of capture */
+    time_t  start_secs;
+    guint32 start_usecs;
+
+    /*
+     * The following information is needed only for dumping.
+     *
+     * XXX - Wiretap is not *supposed* to require that a packet being
+     * dumped come from a file of the same type that you currently have
+     * open; this should be fixed.
+     */
+
     /* Buffer to hold first line, including magic and format number */
     gchar firstline[MAX_FIRST_LINE_LENGTH];
     gint  firstline_length;
@@ -84,13 +96,8 @@ typedef struct dct2000_file_externals
     gchar secondline[MAX_TIMESTAMP_LINE_LENGTH];
     gint  secondline_length;
 
-    /* Remember the time at the start of capture */
-    time_t  start_secs;
-    guint32 start_usecs;
-
     /* Hash table to store text prefix data part of displayed packets.
        Records (file offset -> line_prefix_info_t)
-       N.B. This is only needed for dumping
     */
     GHashTable *packet_prefix_table;
 } dct2000_file_externals_t;
