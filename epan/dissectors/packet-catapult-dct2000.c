@@ -102,6 +102,7 @@ static gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
 static gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
 static gboolean catapult_dct2000_dissect_lte_rrc = TRUE;
 static gboolean catapult_dct2000_dissect_lte_s1ap = TRUE;
+static gboolean catapult_dct2000_dissect_mac_lte_oob_messages = TRUE;
 
 /* Protocol subtree. */
 static int ett_catapult_dct2000 = -1;
@@ -1771,8 +1772,10 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     offset, -1, FALSE);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", string);
 
-                /* Look into string for out-of-band MAC events, such as SRReq, SRInd */
-                check_for_oob_mac_lte_events(pinfo, tvb, tree, string);
+                if (catapult_dct2000_dissect_mac_lte_oob_messages) {
+                    /* Look into string for out-of-band MAC events, such as SRReq, SRInd */
+                    check_for_oob_mac_lte_events(pinfo, tvb, tree, string);
+                }
                 return;
             }
 
@@ -2461,5 +2464,13 @@ void proto_register_catapult_dct2000(void)
                                    "Note that this won't affect other protocols "
                                    "that also call the LTE S1AP dissector",
                                    &catapult_dct2000_dissect_lte_s1ap);
+
+    /* Determines whether out-of-band messages should dissected */
+    prefs_register_bool_preference(catapult_dct2000_module, "decode_mac_lte_oob_messages",
+                                   "Look for out-of-band LTE MAC events messages in comments",
+                                   "When set, look for formatted messages indicating "
+                                   "specific events.  This may be quite slow, so should "
+                                   "be disabled if LTE MAC is not being analysed",
+                                   &catapult_dct2000_dissect_mac_lte_oob_messages);
 }
 
