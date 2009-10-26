@@ -84,6 +84,10 @@ typedef struct dct2000_file_externals
     gchar secondline[MAX_TIMESTAMP_LINE_LENGTH];
     gint  secondline_length;
 
+    /* Remember the time at the start of capture */
+    time_t  start_secs;
+    guint32 start_usecs;
+
     /* Hash table to store text prefix data part of displayed packets.
        Records (file offset -> line_prefix_info_t)
        N.B. This is only needed for dumping
@@ -202,7 +206,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
 
     /***********************************************************/
     /* Second line contains file timestamp                     */
-    /* Store this offset in in wth->capture->catapult_dct2000  */
+    /* Store this offset in in file_externals                  */
 
     read_new_line(wth->fh, &offset, &(file_externals->secondline_length),
                   linebuff, sizeof linebuff);
@@ -214,10 +218,9 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
         return 0;
     }
 
-    /* Allocate struct and fill in timestamp */
-    wth->capture.catapult_dct2000 = g_malloc(sizeof(catapult_dct2000_t));
-    wth->capture.catapult_dct2000->start_secs = timestamp;
-    wth->capture.catapult_dct2000->start_usecs = usecs;
+    /* Fill in timestamp */
+    file_externals->start_secs = timestamp;
+    file_externals->start_usecs = usecs;
 
     /* Copy this second line into buffer so could write out later */
     g_strlcpy(file_externals->secondline, linebuff, file_externals->secondline_length+1);
@@ -320,7 +323,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             char timestamp_string[MAX_TIMESTAMP_LEN+1];
             gint64 *pkey = NULL;
 
-            g_snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
+            g_snprintf(timestamp_string, MAX_TIMESTAMP_LEN, "%d.%04d", seconds, useconds/100);
 
             /* All packets go to Catapult DCT2000 stub dissector */
             wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
@@ -334,12 +337,12 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             wth->data_offset = this_offset + line_length + 1;
 
             /* Fill in timestamp (capture base + packet offset) */
-            wth->phdr.ts.secs = wth->capture.catapult_dct2000->start_secs + seconds;
-            if ((wth->capture.catapult_dct2000->start_usecs + useconds) >= 1000000) {
+            wth->phdr.ts.secs = file_externals->start_secs + seconds;
+            if ((file_externals->start_usecs + useconds) >= 1000000) {
                 wth->phdr.ts.secs++;
             }
             wth->phdr.ts.nsecs =
-                ((wth->capture.catapult_dct2000->start_usecs + useconds) % 1000000) *1000;
+                ((file_externals->start_usecs + useconds) % 1000000) *1000;
 
             /* Get buffer pointer ready */
             buffer_assure_space(wth->frame_buffer,
@@ -476,8 +479,8 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                    protocol_name, variant_name, outhdr_name)) {
         int n;
         int stub_offset = 0;
-        char timestamp_string[32];
-        g_snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
+        char timestamp_string[MAX_TIMESTAMP_LEN+1];
+        g_snprintf(timestamp_string, MAX_TIMESTAMP_LEN, "%d.%04d", seconds, useconds/100);
 
         /* Make sure all packets go to catapult dct2000 dissector */
         wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
@@ -545,11 +548,8 @@ void catapult_dct2000_close(wtap *wth)
     /* Free up its line prefix table */
     g_hash_table_destroy(file_externals->packet_prefix_table);
 
-    /* And free up file_externals itself */
+    /* Can now free this too */
     g_free(file_externals);
-
-    /* Also free this capture info */
-    g_free(wth->capture.catapult_dct2000);
 }
 
 
@@ -628,35 +628,32 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         (dct2000_file_externals_t*)pseudo_header->dct2000.wth->capture.generic;
 
     if (wdh->dump.dct2000 == NULL) {
-        /* Allocate the dct2000-specific dump structure */
-        wdh->dump.dct2000 = g_malloc(sizeof(catapult_dct2000_t));
 
         /* Write out saved first line */
-        if (! do_fwrite(file_externals->firstline, 1, file_externals->firstline_length, wdh->fh, err)) {
+        if (!do_fwrite(file_externals->firstline, 1, file_externals->firstline_length, wdh->fh, err)) {
             return FALSE;
         }
-        if (! do_fwrite("\n", 1, 1, wdh->fh, err)) {
+        if (!do_fwrite("\n", 1, 1, wdh->fh, err)) {
             return FALSE;
         }
 
         /* Also write out saved second line with timestamp corresponding to the
            opening time of the log.
         */
-        if (! do_fwrite(file_externals->secondline, 1, file_externals->secondline_length, wdh->fh, err)) {
+        if (!do_fwrite(file_externals->secondline, 1, file_externals->secondline_length, wdh->fh, err)) {
             return FALSE;
         }
-        if (! do_fwrite("\n", 1, 1, wdh->fh, err)) {
+        if (!do_fwrite("\n", 1, 1, wdh->fh, err)) {
             return FALSE;
         }
 
         /* Allocate the dct2000-specific dump structure */
-        wdh->dump.dct2000 = g_malloc(sizeof(catapult_dct2000_t));
+        wdh->dump.dct2000 = g_malloc(sizeof(dct2000_dump_t));
 
         /* Copy time of beginning of file */
-        wdh->dump.dct2000->start_time.secs =
-            pseudo_header->dct2000.wth->capture.catapult_dct2000->start_secs;
+        wdh->dump.dct2000->start_time.secs = file_externals->start_secs;
         wdh->dump.dct2000->start_time.nsecs =
-            (pseudo_header->dct2000.wth->capture.catapult_dct2000->start_usecs * 1000);
+            (file_externals->start_usecs * 1000);
 
         /* Set flag do don't write header out again */
         wdh->dump.dct2000->first_packet_written = TRUE;
@@ -671,7 +668,7 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                                                       (const void*)&(pseudo_header->dct2000.seek_off));
 
     /* Write out text before timestamp */
-    if (! do_fwrite(prefix->before_time, 1, strlen(prefix->before_time), wdh->fh, err)) {
+    if (!do_fwrite(prefix->before_time, 1, strlen(prefix->before_time), wdh->fh, err)) {
         return FALSE;
     }
 
@@ -681,17 +678,17 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     /* Calculate time of this packet to write, relative to start of dump */
     if (phdr->ts.nsecs >= wdh->dump.dct2000->start_time.nsecs) {
         g_snprintf(time_string, 16, "%ld.%04d",
-                 (long)(phdr->ts.secs - wdh->dump.dct2000->start_time.secs),
-                 (phdr->ts.nsecs - wdh->dump.dct2000->start_time.nsecs) / 100000);
+                  (long)(phdr->ts.secs - wdh->dump.dct2000->start_time.secs),
+                  (phdr->ts.nsecs - wdh->dump.dct2000->start_time.nsecs) / 100000);
     }
     else {
         g_snprintf(time_string, 16, "%ld.%04u",
-                 (long)(phdr->ts.secs - wdh->dump.dct2000->start_time.secs-1),
-                 ((1000000000 + (phdr->ts.nsecs / 100000)) - (wdh->dump.dct2000->start_time.nsecs / 100000)) % 10000);
+                  (long)(phdr->ts.secs - wdh->dump.dct2000->start_time.secs-1),
+                  ((1000000000 + (phdr->ts.nsecs / 100000)) - (wdh->dump.dct2000->start_time.nsecs / 100000)) % 10000);
     }
 
     /* Write out the calculated timestamp */
-    if (! do_fwrite(time_string, 1, strlen(time_string), wdh->fh, err)) {
+    if (!do_fwrite(time_string, 1, strlen(time_string), wdh->fh, err)) {
         return FALSE;
     }
 
@@ -740,7 +737,7 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /**************************************/
     /* Remainder is encapsulated protocol */
-    if (! do_fwrite("$", 1, 1, wdh->fh, err)) {
+    if (!do_fwrite("$", 1, 1, wdh->fh, err)) {
         return FALSE;
     }
 
@@ -752,7 +749,7 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             c[1] = char_from_hex((guchar)(pd[n] & 0x0f));
 
             /* Write both hex chars of byte together */
-            if (! do_fwrite(c, 1, 2, wdh->fh, err)) {
+            if (!do_fwrite(c, 1, 2, wdh->fh, err)) {
                 return FALSE;
             }
         }
@@ -770,7 +767,7 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     }
 
     /* End the line */
-    if (! do_fwrite("\n", 1, 1, wdh->fh, err)) {
+    if (!do_fwrite("\n", 1, 1, wdh->fh, err)) {
         return FALSE;
     }
 

@@ -149,11 +149,6 @@ typedef struct {
 typedef struct _k12_t k12_t;
 
 typedef struct {
-	time_t	start_secs;
-	guint32	start_usecs;
-} catapult_dct2000_t;
-
-typedef struct {
 	struct wtap_nstime now;
 	time_t t0;
 } mpeg_t;
@@ -200,7 +195,6 @@ struct wtap {
 		etherpeek_t		*etherpeek;
 		airopeek9_t		*airopeek9;
 		k12_t			*k12;
-		catapult_dct2000_t	*catapult_dct2000;
 		mpeg_t			*mpeg;
 		nstrace_t		*nstrace;
 		void			*generic;
