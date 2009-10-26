@@ -57,6 +57,7 @@ static int hf_catapult_dct2000_outhdr = -1;
 static int hf_catapult_dct2000_direction = -1;
 static int hf_catapult_dct2000_encap = -1;
 static int hf_catapult_dct2000_unparsed_data = -1;
+static int hf_catapult_dct2000_comment = -1;
 static int hf_catapult_dct2000_tty = -1;
 static int hf_catapult_dct2000_tty_line = -1;
 static int hf_catapult_dct2000_dissected_length = -1;
@@ -1440,6 +1441,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissector_handle_t heur_protocol_handle = 0;
     int sub_dissector_result = 0;
     char        *protocol_name;
+    gboolean    is_comment;
 
     /* Set Protocol */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCT2000");
@@ -1493,12 +1495,15 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_protocol, tvb,
                             offset, protocol_length, FALSE);
     }
+    protocol_name = (char*)tvb_get_ptr(tvb, protocol_start, protocol_length);
+    is_comment = (strcmp(protocol_name, "comment") == 0);
     offset += protocol_length;
+
 
     /* Protocol Variant */
     variant_start = offset;
     variant_length = tvb_strsize(tvb, offset);
-    if (dct2000_tree) {
+    if (!is_comment) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
                             offset, variant_length, FALSE);
     }
@@ -1507,8 +1512,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Outhdr (shown as string) */
     outhdr_start = offset;
     outhdr_length = tvb_strsize(tvb, offset);
-    if ((outhdr_length > 1) && dct2000_tree)
-    {
+    if (!is_comment && (outhdr_length > 1)) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_outhdr, tvb,
                             offset, outhdr_length, FALSE);
     }
@@ -1524,28 +1528,23 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset++;
 
     /* Read frame encapsulation set by wiretap */
-    if (dct2000_tree) {
+    if (!is_comment) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_encap, tvb, offset, 1, FALSE);
     }
     encap = tvb_get_guint8(tvb, offset);
     offset++;
 
-    if (dct2000_tree) {
-        /* Set selection length of dct2000 tree */
-        proto_item_set_len(dct2000_tree, offset);
-    }
+    /* Set selection length of dct2000 tree */
+    proto_item_set_len(dct2000_tree, offset);
 
     /* Add useful details to protocol tree label */
-    protocol_name = (char*)tvb_get_ptr(tvb, protocol_start, protocol_length);
-    if (tree) {
-        proto_item_append_text(ti, "   context=%s.%u   t=%s   %c   prot=%s (v=%s)",
-                               tvb_get_ptr(tvb, 0, context_length),
-                               port_number,
-                               tvb_get_ptr(tvb, timestamp_start, timestamp_length),
-                               (direction == 0) ? 'S' : 'R',
-                               protocol_name,
-                               tvb_get_ptr(tvb, variant_start, variant_length));
-    }
+    proto_item_append_text(ti, "   context=%s.%u   t=%s   %c   prot=%s (v=%s)",
+                           tvb_get_ptr(tvb, 0, context_length),
+                           port_number,
+                           tvb_get_ptr(tvb, timestamp_start, timestamp_length),
+                           (direction == 0) ? 'S' : 'R',
+                           protocol_name,
+                           tvb_get_ptr(tvb, variant_start, variant_length));
 
 
 
@@ -1685,6 +1684,21 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (strcmp(protocol_name, "sipprim") == 0) {
                 protocol_handle = find_dissector("sipprim");
             }
+
+            else
+            if (strcmp(protocol_name, "comment") == 0) {
+                /* Extract & add the string. */
+                char *string = (char*)tvb_get_ephemeral_string(tvb, offset, tvb_length_remaining(tvb, offset));
+
+                /* Show comment string */
+                proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_comment, tvb,
+                                    offset, -1, FALSE);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", string);
+
+                /* TODO: look into string for out-of-band MAC events, such as SRReq, SRInd */
+                return;
+            }
+
 
             else
             if (catapult_dct2000_dissect_lte_rrc &&
@@ -2094,6 +2108,12 @@ void proto_register_catapult_dct2000(void)
             { "Unparsed protocol data",
               "dct2000.unparsed_data", FT_BYTES, BASE_NONE, NULL, 0x0,
               "Unparsed DCT2000 protocol data", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_comment,
+            { "Comment",
+              "dct2000.comment", FT_STRING, BASE_NONE, NULL, 0x0,
+              "Comment", HFILL
             }
         },
         { &hf_catapult_dct2000_dissected_length,

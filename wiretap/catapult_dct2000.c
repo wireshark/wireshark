@@ -141,7 +141,7 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
                            long *data_offset,
                            gint *data_chars,
                            packet_direction_t *direction,
-                           int *encap);
+                           int *encap, int *is_comment);
 static int write_stub_header(guchar *frame_buffer, char *timestamp_string,
                              packet_direction_t direction, int encap);
 static guchar hex_from_char(gchar c);
@@ -300,6 +300,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
     while (1)
     {
         int line_length, seconds, useconds, data_chars;
+        int is_comment = FALSE;
         gint64 this_offset = offset;
 
         /* Are looking for first packet after 2nd line */
@@ -323,7 +324,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         if (parse_line(line_length, &seconds, &useconds,
                        &before_time_offset, &after_time_offset,
                        &dollar_offset,
-                       &data_chars, &direction, &encap))
+                       &data_chars, &direction, &encap, &is_comment))
         {
             guchar *frame_buffer;
             int n;
@@ -364,7 +365,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                                 strlen(protocol_name)+1 +    /* Protocol name */
                                 1 +                          /* direction */
                                 1 +                          /* encap */
-                                (data_chars/2));
+                                is_comment ? data_chars : (data_chars/2));
             frame_buffer = buffer_start_ptr(wth->frame_buffer);
 
 
@@ -374,17 +375,30 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                                             direction, encap);
 
             /* Binary data length is half bytestring length + stub header */
-            wth->phdr.len = data_chars/2 + stub_offset;
-            wth->phdr.caplen = data_chars/2 + stub_offset;
+            wth->phdr.len = stub_offset + (is_comment ? data_chars : (data_chars/2));
+            wth->phdr.caplen = stub_offset + (is_comment ? data_chars : (data_chars/2));
 
 
-            /*************************/
-            /* Copy data into buffer */
-            for (n=0; n <= data_chars; n+=2)
+            if (!is_comment)
             {
-                frame_buffer[stub_offset + n/2] =
-                    (hex_from_char(linebuff[dollar_offset+n]) << 4) |
-                     hex_from_char(linebuff[dollar_offset+n+1]);
+                /****************************************************/
+                /* Copy data into buffer, converting from ascii hex */
+                for (n=0; n <= data_chars; n+=2)
+                {
+                    frame_buffer[stub_offset + n/2] =
+                        (hex_from_char(linebuff[dollar_offset+n]) << 4) |
+                         hex_from_char(linebuff[dollar_offset+n+1]);
+                }
+            }
+            else
+            {
+                /***********************************************************/
+                /* Copy packet data into buffer, just copying ascii chars  */
+                for (n=0; n <= data_chars; n++)
+                {
+                    frame_buffer[stub_offset + n] = linebuff[dollar_offset+n];
+                }
+
             }
 
             /* Store the packet prefix in the hash table */
@@ -443,6 +457,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 {
     gint64 offset = wth->data_offset;
     long dollar_offset, before_time_offset, after_time_offset;
+    int  is_comment = FALSE;
     packet_direction_t direction;
     int encap;
     int seconds, useconds, data_chars;
@@ -466,7 +481,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     if (parse_line(length, &seconds, &useconds,
                    &before_time_offset, &after_time_offset,
                    &dollar_offset,
-                   &data_chars, &direction, &encap))
+                   &data_chars, &direction, &encap, &is_comment))
     {
         int n;
         int stub_offset = 0;
@@ -483,12 +498,24 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                                         direction, encap);
 
 
-        /********************************/
-        /* Copy packet data into buffer */
-        for (n=0; n <= data_chars; n+=2)
+        if (!is_comment)
         {
-            pd[stub_offset + n/2] = (hex_from_char(linebuff[dollar_offset+n]) << 4) |
-                                     hex_from_char(linebuff[dollar_offset+n+1]);
+            /***********************************************************/
+            /* Copy packet data into buffer, converting from ascii hex */
+            for (n=0; n <= data_chars; n+=2)
+            {
+                pd[stub_offset + n/2] = (hex_from_char(linebuff[dollar_offset+n]) << 4) |
+                                         hex_from_char(linebuff[dollar_offset+n+1]);
+            }
+        }
+        else
+        {
+            /***********************************************************/
+            /* Copy packet data into buffer, just copying ascii chars  */
+            for (n=0; n <= data_chars; n++)
+            {
+                pd[stub_offset+n] = linebuff[dollar_offset+n];
+            }
         }
 
         /* Set packet pseudo-header if necessary */
@@ -608,6 +635,7 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     guint32 n;
     line_prefix_info_t *prefix = NULL;
     gchar time_string[16];
+    gboolean is_comment;
 
     /******************************************************/
     /* Look up the file_externals structure for this file */
@@ -670,6 +698,9 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         return FALSE;
     }
 
+    /* Can infer from prefix if this is a comment (whose payload is displayed differently) */
+    is_comment = (strstr(prefix->before_time, "/////") != NULL);
+
     /* Calculate time of this packet to write, relative to start of dump */
     if (phdr->ts.nsecs >= wdh->dump.dct2000->start_time.nsecs)
     {
@@ -693,14 +724,14 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     /* Write out text between timestamp and start of hex data */
     if (prefix->after_time == NULL)
     {
-        if (! do_fwrite(" l ", 1, strlen(" l "), wdh->fh, err))
+        if (!do_fwrite(" l ", 1, strlen(" l "), wdh->fh, err))
         {
             return FALSE;
         }
     }
     else
     {
-        if (! do_fwrite(prefix->after_time, 1, strlen(prefix->after_time), wdh->fh, err))
+        if (!do_fwrite(prefix->after_time, 1, strlen(prefix->after_time), wdh->fh, err))
         {
             return FALSE;
         }
@@ -744,17 +775,34 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         return FALSE;
     }
 
-    /* Each binary byte is written out as 2 hex string chars */ 
-    for (; n < phdr->len; n++)
+    if (!is_comment)
     {
-        gchar c[2];
-        c[0] = char_from_hex((guchar)(pd[n] >> 4));
-        c[1] = char_from_hex((guchar)(pd[n] & 0x0f));
-
-        /* Write both hex chars of byte together */
-        if (! do_fwrite(c, 1, 2, wdh->fh, err))
+        /* Each binary byte is written out as 2 hex string chars */ 
+        for (; n < phdr->len; n++)
         {
-            return FALSE;
+            gchar c[2];
+            c[0] = char_from_hex((guchar)(pd[n] >> 4));
+            c[1] = char_from_hex((guchar)(pd[n] & 0x0f));
+
+            /* Write both hex chars of byte together */
+            if (! do_fwrite(c, 1, 2, wdh->fh, err))
+            {
+                return FALSE;
+            }
+        }
+    }
+    else
+    {
+        for (; n < phdr->len; n++)
+        {
+            char c[1];
+            c[0] = pd[n];
+
+            /* Write both hex chars of byte together */
+            if (!do_fwrite(c, 1, 1, wdh->fh, err))
+            {
+                return FALSE;
+            }
         }
     }
 
@@ -823,11 +871,11 @@ gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length)
 /* - data position and length                                         */
 /* Return TRUE if this packet looks valid and can be displayed        */
 /**********************************************************************/
-gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
-                    long *before_time_offset, long *after_time_offset,
-                    long *data_offset, gint *data_chars,
-                    packet_direction_t *direction,
-                    int *encap)
+static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
+                           long *before_time_offset, long *after_time_offset,
+                           long *data_offset, gint *data_chars,
+                           packet_direction_t *direction,
+                           int *encap, int *is_comment)
 {
     int  n = 0;
     int  port_digits = 0;
@@ -842,12 +890,26 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     char subsecond_decimals_buff[MAX_SUBSECOND_DECIMALS+1];
     int  subsecond_decimals_chars;
     int  skip_first_byte = FALSE;
-
     gboolean atm_header_present = FALSE;
 
+    *is_comment = FALSE;
+
     /* Read context name until find '.' */
-    for (n=0; linebuff[n] != '.' && (n < MAX_CONTEXT_NAME) && (n+1 < line_length); n++)
+    for (n=0; (linebuff[n] != '.') && (n < MAX_CONTEXT_NAME) && (n+1 < line_length); n++)
     {
+        if (linebuff[n] == '/') {
+            context_name[n] = '\0';
+
+            /* If not a comment (/////), not a valid line */
+            if (strncmp(linebuff+n, "/////", 5) != 0) {
+                return FALSE;
+            }
+
+            /* There is no variant, outhdr, etc.  Set protocol to be a comment */
+            sprintf(protocol_name, "comment");
+            *is_comment = TRUE;
+            break;
+        }
         if (!isalnum((guchar)linebuff[n]) && (linebuff[n] != '_') && (linebuff[n] != '-'))
         {
             return FALSE;
@@ -859,123 +921,127 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         return FALSE;
     }
 
-    /* '.' must follow context name */
-    if (linebuff[n] != '.')
-    {
-        return FALSE;
-    }
-    context_name[n] = '\0';
-    /* Skip it */
-    n++;
+    /* Reset strings (that won't be set be comments) */
+    strcpy(variant_name, "0");
+    strcpy(outhdr_name, "");
+    port_digits = 1;
+    strcpy(port_number_string, "0");
 
-
-    /* Now read port number */
-    for (port_digits = 0;
-         (linebuff[n] != '/') && (port_digits <= MAX_PORT_DIGITS) && (n+1 < line_length);
-         n++, port_digits++)
-    {
-        if (!isdigit((guchar)linebuff[n]))
+    if (!(*is_comment)) {
+        /* '.' must follow context name */
+        if (linebuff[n] != '.')
         {
             return FALSE;
         }
-        port_number_string[port_digits] = linebuff[n];
-    }
-    if (port_digits > MAX_PORT_DIGITS || (n+1 >= line_length))
-    {
-        return FALSE;
-    }
-
-    /* Slash char must follow port number */
-    if (linebuff[n] != '/')
-    {
-        return FALSE;
-    }
-    port_number_string[port_digits] = '\0';
-    context_port = atoi(port_number_string);
-    /* Skip it */
-    n++;
-
-
-    /* Now for the protocol name */
-    for (protocol_chars = 0;
-         (linebuff[n] != '/') && (protocol_chars < MAX_PROTOCOL_NAME) && (n < line_length);
-         n++, protocol_chars++)
-    {
-        if (!isalnum((guchar)linebuff[n]) && linebuff[n] != '_')
-        {
-            return FALSE;
-        }
-        protocol_name[protocol_chars] = linebuff[n];
-    }
-    if (protocol_chars == MAX_PROTOCOL_NAME || n >= line_length)
-    {
-        /* If doesn't fit, fail rather than truncate */
-        return FALSE;
-    }
-    protocol_name[protocol_chars] = '\0';
-
-    /* Slash char must follow protocol name */
-    if (linebuff[n] != '/')
-    {
-        return FALSE;
-    }
-    /* Skip it */
-    n++;
-
-
-    /* Following the / is the variant number.  No digits indicate 1 */
-    for (variant_digits = 0;
-         (isdigit((guchar)linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
-         n++, variant_digits++)
-    {
-        if (!isdigit((guchar)linebuff[n]))
-        {
-            return FALSE;
-        }
-        variant_name[variant_digits] = linebuff[n];
-    }
-    if (variant_digits > MAX_VARIANT_DIGITS || (n+1 >= line_length))
-    {
-        return FALSE;
-    }
-    if (variant_digits > 0)
-    {
-        variant_name[variant_digits] = '\0';
-        variant = atoi(variant_name);
-    }
-    else
-    {
-        g_strlcpy(variant_name, "1", MAX_VARIANT_DIGITS+1);
-    }
-
-
-    /* Outheader values may follow */
-    outhdr_name[0] = '\0';
-    if (linebuff[n] == ',')
-    {
-        /* Skip , */
+        context_name[n] = '\0';
+        /* Skip it */
         n++;
 
-        for (outhdr_chars = 0;
-             (isdigit((guchar)linebuff[n]) || linebuff[n] == ',') &&
-             (outhdr_chars <= MAX_OUTHDR_NAME) && (n+1 < line_length);
-             n++, outhdr_chars++)
+        /* Now read port number */
+        for (port_digits = 0;
+             (linebuff[n] != '/') && (port_digits <= MAX_PORT_DIGITS) && (n+1 < line_length);
+             n++, port_digits++)
         {
-            if (!isdigit((guchar)linebuff[n]) && (linebuff[n] != ','))
+            if (!isdigit((guchar)linebuff[n]))
             {
                 return FALSE;
             }
-            outhdr_name[outhdr_chars] = linebuff[n];
+            port_number_string[port_digits] = linebuff[n];
         }
-        if (outhdr_chars > MAX_OUTHDR_NAME || (n+1 >= line_length))
+        if (port_digits > MAX_PORT_DIGITS || (n+1 >= line_length))
         {
             return FALSE;
         }
-        /* Terminate (possibly empty) string */
-        outhdr_name[outhdr_chars] = '\0';
+
+        /* Slash char must follow port number */
+        if (linebuff[n] != '/')
+        {
+            return FALSE;
+        }
+        port_number_string[port_digits] = '\0';
+        context_port = atoi(port_number_string);
+        /* Skip it */
+        n++;
+
+        /* Now for the protocol name */
+        for (protocol_chars = 0;
+             (linebuff[n] != '/') && (protocol_chars < MAX_PROTOCOL_NAME) && (n < line_length);
+             n++, protocol_chars++)
+        {
+            if (!isalnum((guchar)linebuff[n]) && linebuff[n] != '_')
+            {
+                return FALSE;
+            }
+            protocol_name[protocol_chars] = linebuff[n];
+        }
+        if (protocol_chars == MAX_PROTOCOL_NAME || n >= line_length)
+        {
+            /* If doesn't fit, fail rather than truncate */
+            return FALSE;
+        }
+        protocol_name[protocol_chars] = '\0';
+
+        /* Slash char must follow protocol name */
+        if (linebuff[n] != '/')
+        {
+            return FALSE;
+        }
+        /* Skip it */
+        n++;
+
+
+        /* Following the / is the variant number.  No digits indicate 1 */
+        for (variant_digits = 0;
+             (isdigit((guchar)linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
+             n++, variant_digits++)
+        {
+            if (!isdigit((guchar)linebuff[n]))
+            {
+                return FALSE;
+            }
+            variant_name[variant_digits] = linebuff[n];
+        }
+        if (variant_digits > MAX_VARIANT_DIGITS || (n+1 >= line_length))
+        {
+            return FALSE;
+        }
+        if (variant_digits > 0)
+        {
+            variant_name[variant_digits] = '\0';
+            variant = atoi(variant_name);
+        }
+        else
+        {
+            g_strlcpy(variant_name, "1", MAX_VARIANT_DIGITS+1);
+        }
+
+
+        /* Outheader values may follow */
+        outhdr_name[0] = '\0';
+        if (linebuff[n] == ',')
+        {
+            /* Skip , */
+            n++;
+
+            for (outhdr_chars = 0;
+                 (isdigit((guchar)linebuff[n]) || linebuff[n] == ',') &&
+                 (outhdr_chars <= MAX_OUTHDR_NAME) && (n+1 < line_length);
+                 n++, outhdr_chars++)
+            {
+                if (!isdigit((guchar)linebuff[n]) && (linebuff[n] != ','))
+                {
+                    return FALSE;
+                }
+                outhdr_name[outhdr_chars] = linebuff[n];
+            }
+            if (outhdr_chars > MAX_OUTHDR_NAME || (n+1 >= line_length))
+            {
+                return FALSE;
+            }
+            /* Terminate (possibly empty) string */
+            outhdr_name[outhdr_chars] = '\0';
+        }
     }
-
-
 
 
     /******************************************************************/
@@ -1107,7 +1173,6 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         }
     }
 
-
     /* Scan ahead to the next space */
     for (; (linebuff[n] != ' ') && (n+1 < line_length); n++);
     if (n+1 >= line_length)
@@ -1118,21 +1183,27 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     n++;
 
     /* Next character gives direction of message (must be 's' or 'r') */
-    if (linebuff[n] == 's')
+    if (!(*is_comment))
     {
-        *direction = sent;
+        if (linebuff[n] == 's')
+        {
+            *direction = sent;
+        }
+        else
+        if (linebuff[n] == 'r')
+        {
+            *direction = received;
+        }
+        else
+        {
+            return FALSE;
+        }
+        /* Skip it */
+        n++;
     }
-    else
-    if (linebuff[n] == 'r')
-    {
+    else {
         *direction = received;
     }
-    else
-    {
-        return FALSE;
-    }
-    /* Skip it */
-    n++;
 
 
     /*********************************************************************/
@@ -1140,6 +1211,13 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
 
     /* Now scan to the next digit, which should be the start of the timestamp */
     /* This will involve skipping " tm "                                      */
+
+    for (; ((linebuff[n] != 't') || (linebuff[n+1] != 'm')) && (n+1 < line_length); n++);
+    if (n >= line_length)
+    {
+        return FALSE;
+    }
+
     for (; !isdigit((guchar)linebuff[n]) && (n < line_length); n++);
     if (n >= line_length)
     {
@@ -1211,8 +1289,9 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     *after_time_offset = n;
 
     /* Now skip ahead to find start of data (marked by '$') */
-    for (; (linebuff[n] != '$') && (n+1 < line_length); n++);
-    if (n+1 >= line_length)
+    /* Want to avoid matching with normal sprint command output at the moment... */
+    for (; (linebuff[n] != '$') && (linebuff[n] != '\'') && (n+1 < line_length); n++);
+    if ((linebuff[n] == '\'') || (n+1 >= line_length))
     {
         return FALSE;
     }
@@ -1231,7 +1310,6 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         *data_offset += 2;
         *data_chars -= 2;
     }
-
 
     return TRUE;
 }
