@@ -34,7 +34,7 @@
 
 #include "pinfo_stats_tree.h"
 
-G_MODULE_EXPORT const gchar version[] = "0.0";
+G_MODULE_EXPORT const gchar version[] = "0.0.1";
 
 G_MODULE_EXPORT void plugin_register_tap_listener(void)
 {
