@@ -84,7 +84,10 @@ WiresharkPortable.ini: WiresharkPortable.tmpl $(TOPDIR)\config.nmake
 
 appinfo: appinfo.ini
 	$(COPY) appinfo.ini $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\image\wireshark.ico $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)
+	$(COPY) installer.ini $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)
+	copy $(TOPDIR)\image\wireshark.ico $(FILES)\$(APP)\$(APPINFO)\appicon.ico /y
+	copy $(TOPDIR)\image\wsicon16.png $(FILES)\$(APP)\$(APPINFO)\appicon_16.png /y
+	copy $(TOPDIR)\image\wsicon32.png $(FILES)\$(APP)\$(APPINFO)\appicon_32.png /y
 
 source:  WiresharkPortable.ini
 	$(COPY) WiresharkPortable.ini $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
