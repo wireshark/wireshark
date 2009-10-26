@@ -96,3 +96,41 @@ Changed paths:
 
 [Automatic manuf and enterprise-numbers update for 2009-10-25]
 ------------------------------------------------------------------------
+r30715 | gerald | 2009-10-26 11:39:51 -0700 (Mon, 26 Oct 2009) | 31 lines
+Changed paths:
+   M /trunk-1.0/ChangeLog
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-dcerpc-nt.c
+
+Copy over r30208 from the trunk:
+
+------------------------------------------------------------------------
+r30208 | sahlberg | 2009-09-30 00:53:12 -0700 (Wed, 30 Sep 2009) | 28 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-dcerpc-nt.c
+
+The dcerpc dissectors used to walk the list of items upward parent by 
+parent in order to push teh display of extra interesting fields in the 
+packet to higher up in the decode tree. This was useful for making sure 
+that things like DomainNames etc are clearly visible without having to 
+drill down 500 layers of NDR.
+
+This code used to just blindly walk the indicated number of parents, and 
+then attach the string to that item.
+This relied on the "unsafe" assumption that the topmost item would have 
+pointer point to itself, so this was "safe".
+
+This is no longer safe since the root object in the tree now has NULL as 
+parent, and thus some of these dcerpc interfaces can now cause a SEGV 
+trying to dereference NULL->parent.
+
+I added a macro to safely walk to the parent object, or remain at the 
+current object if parent is NULL.
+
+This was a serious bug, where dcerpc traffic could cause a SEGV.
+Please merge into all stable versions.
+------------------------------------------------------------------------
+
+Update the release notes and changelog.
+
+------------------------------------------------------------------------
