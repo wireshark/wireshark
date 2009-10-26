@@ -802,7 +802,7 @@ gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length,
     char *result;
 
     /* Read in a line */
-    result = file_gets(linebuff, linebuffsize - 1, fh);
+    result = file_gets(linebuff, (int)linebuffsize - 1, fh);
     if (result == NULL) {
         /* No characters found, or error */
         return FALSE;
