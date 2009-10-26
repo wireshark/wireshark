@@ -906,7 +906,7 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
             }
 
             /* There is no variant, outhdr, etc.  Set protocol to be a comment */
-            sprintf(protocol_name, "comment");
+			g_snprintf(protocol_name, MAX_PROTOCOL_NAME, "comment");
             *is_comment = TRUE;
             break;
         }
@@ -922,10 +922,10 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     }
 
     /* Reset strings (that won't be set be comments) */
-    strcpy(variant_name, "0");
-    strcpy(outhdr_name, "");
+	g_strlcpy(variant_name, "0", MAX_VARIANT_DIGITS);
+	g_strlcpy(outhdr_name, "", MAX_OUTHDR_NAME);
     port_digits = 1;
-    strcpy(port_number_string, "0");
+	g_strlcpy(port_number_string, "0", MAX_PORT_DIGITS);
 
     if (!(*is_comment)) {
         /* '.' must follow context name */
