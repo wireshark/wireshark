@@ -909,6 +909,11 @@ static void dissect_eigrp_ip6_int(tvbuff_t *tvb, proto_tree *tree, proto_item *t
 		} else {
 			proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
 			offset += 1;
+
+			if ((length < 128) && (length % 8 == 0)) {
+				addr_len++;
+			}
+
 			proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip6_to_str(&addr));
 			proto_item_append_text(ti, "  %c   %s/%u%s", offset == 33 ? '=':',',
 				ip6_to_str(&addr), length, ((tvb_get_ntohl(tvb, 16) == 0xffffffff) ? " - Destination unreachable":""));
@@ -971,13 +976,18 @@ static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *t
 		addr_len = ipv6_addr_and_mask(tvb, offset + 1, &addr, length);
 
 		if (addr_len < 0) {
-			prefixlenti = proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
+			prefixlenti = proto_tree_add_item(tree, hf_eigrp_ip6_ext_prefixlen, tvb, offset, 1, FALSE);
 			proto_item_append_text(prefixlenti, " (invalid, must be <= 128)");
 			proto_item_append_text(ti, "  [Invalid prefix length %u > 128]", length);
 			addr_len = 16; /* assure we can exit the loop */
 		} else {
-			proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_eigrp_ip6_ext_prefixlen, tvb, offset, 1, FALSE);
 			offset += 1;
+
+			if ((length < 128) && (length % 8 == 0)) {
+				addr_len++;
+			}
+
 			proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip6_to_str(&addr));
 			proto_item_append_text(eigrp_ip6_ext_ti, "  %c   %s/%u%s", offset == 53 ? '=':',',
 				ip6_to_str(&addr), length, ((tvb_get_ntohl(tvb, 36) == 0xffffffff) ? " - Destination unreachable":""));
