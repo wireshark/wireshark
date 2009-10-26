@@ -1,536 +1,98 @@
 ------------------------------------------------------------------------
-r28494 | gerald | 2009-05-26 13:43:12 -0700 (Tue, 26 May 2009) | 2 lines
+r29911 | gerald | 2009-09-14 16:25:38 -0700 (Mon, 14 Sep 2009) | 2 lines
 Changed paths:
+   M /trunk-1.0/ChangeLog
    M /trunk-1.0/NEWS
+
+Update release files.
+
+------------------------------------------------------------------------
+r29935 | gerald | 2009-09-15 11:54:32 -0700 (Tue, 15 Sep 2009) | 2 lines
+Changed paths:
    M /trunk-1.0/config.nmake
    M /trunk-1.0/configure.in
    M /trunk-1.0/debian/changelog
    M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/version.conf
 
-Move to 1.0.9pre1
-
-------------------------------------------------------------------------
-r28541 | gerald | 2009-05-31 08:04:47 -0700 (Sun, 31 May 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-05-31]
-------------------------------------------------------------------------
-r28652 | gerald | 2009-06-07 08:04:02 -0700 (Sun, 07 Jun 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-06-07]
-------------------------------------------------------------------------
-r28725 | gerald | 2009-06-14 08:04:03 -0700 (Sun, 14 Jun 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-06-14]
-------------------------------------------------------------------------
-r28786 | gerald | 2009-06-21 08:04:14 -0700 (Sun, 21 Jun 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-06-21]
-------------------------------------------------------------------------
-r28870 | gerald | 2009-06-28 08:04:01 -0700 (Sun, 28 Jun 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-06-28]
-------------------------------------------------------------------------
-r28942 | gerald | 2009-07-05 08:04:09 -0700 (Sun, 05 Jul 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-07-05]
-------------------------------------------------------------------------
-r29071 | gerald | 2009-07-12 08:04:13 -0700 (Sun, 12 Jul 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-07-12]
-------------------------------------------------------------------------
-r29139 | gerald | 2009-07-19 08:04:26 -0700 (Sun, 19 Jul 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-07-19]
-------------------------------------------------------------------------
-r29197 | gerald | 2009-07-26 08:04:04 -0700 (Sun, 26 Jul 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-07-26]
-------------------------------------------------------------------------
-r29263 | gerald | 2009-08-02 08:04:13 -0700 (Sun, 02 Aug 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-08-02]
-------------------------------------------------------------------------
-r29349 | gerald | 2009-08-09 08:04:05 -0700 (Sun, 09 Aug 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-08-09]
-------------------------------------------------------------------------
-r29448 | gerald | 2009-08-16 08:04:00 -0700 (Sun, 16 Aug 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-08-16]
-------------------------------------------------------------------------
-r29526 | gerald | 2009-08-23 08:04:02 -0700 (Sun, 23 Aug 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-08-23]
-------------------------------------------------------------------------
-r29628 | gerald | 2009-08-30 08:03:55 -0700 (Sun, 30 Aug 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-08-30]
-------------------------------------------------------------------------
-r29702 | gerald | 2009-09-04 14:26:50 -0700 (Fri, 04 Sep 2009) | 210 lines
-Changed paths:
-   M /trunk-1.0/Makefile.am
-   M /trunk-1.0/Makefile.nmake
-   M /trunk-1.0/capture_ui_utils.c
-   M /trunk-1.0/capture_ui_utils.h
-   M /trunk-1.0/config.nmake
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/docbook/wsug_src/WSUG_chapter_use.xml
-   M /trunk-1.0/dumpcap.c
-   M /trunk-1.0/epan/dfilter/semcheck.c
-   M /trunk-1.0/epan/dissectors/packet-afs.c
-   M /trunk-1.0/epan/dissectors/packet-edonkey.c
-   M /trunk-1.0/epan/dissectors/packet-ff.c
-   M /trunk-1.0/epan/dissectors/packet-ftp.c
-   M /trunk-1.0/epan/dissectors/packet-ieee80211.c
-   M /trunk-1.0/epan/dissectors/packet-mip6.c
-   M /trunk-1.0/epan/dissectors/packet-mip6.h
-   M /trunk-1.0/epan/wslua/wslua_proto.c
-   M /trunk-1.0/file.c
-   M /trunk-1.0/gtk/about_dlg.c
-   M /trunk-1.0/gtk/capture_if_dlg.c
-   M /trunk-1.0/gtk/dfilter_expr_dlg.c
-   M /trunk-1.0/gtk/expert_comp_dlg.c
-   M /trunk-1.0/gtk/main.c
-   M /trunk-1.0/gtk/menu.c
-   M /trunk-1.0/gtk/sctp_chunk_stat_dlg.c
-   M /trunk-1.0/packaging/nsis/wireshark.nsi
-   M /trunk-1.0/services
-   M /trunk-1.0/tools/win32-setup.sh
-   M /trunk-1.0/wiretap/ascend-grammar.y
-   M /trunk-1.0/wiretap/netscreen.c
-   M /trunk-1.0/wiretap/pcapng.c
-
-Copy over revisions from the trunk:
+Bump the versions.
 
 ------------------------------------------------------------------------
-r25183 | stig | 2008-04-27 03:54:25 -0700 (Sun, 27 Apr 2008) | 3 lines
-Changed paths:
-   M /trunk/Makefile.am
-
-Add adns_dll.dep and adns_dll.rc to the tarball, as requested by Sake
-and indicated by Anders.
-------------------------------------------------------------------------
-r25871 | morriss | 2008-07-30 06:34:23 -0700 (Wed, 30 Jul 2008) | 1 line
-Changed paths:
-   M /trunk/epan/dissectors/packet-ftp.c
-
-Register the FTP and ftp-data dissectors by name
-------------------------------------------------------------------------
-r28471 | sake | 2009-05-25 12:59:17 -0700 (Mon, 25 May 2009) | 9 lines
-Changed paths:
-   M /trunk/wiretap/netscreen.c
-
-Fix for bug 3469:
-
-In Juniper NetScreen snoop output files, the encapsulation type of
-traffic on ADSL interfaces can be ethernet or PPP. Check whether the
-first 6 bytes of the data are the same as the destination mac-address
-in the packet header. If they are, assume ethernet. If not, assume PPP.
-------------------------------------------------------------------------
-r28550 | stig | 2009-05-31 12:46:31 -0700 (Sun, 31 May 2009) | 4 lines
-Changed paths:
-   M /trunk/epan/dfilter/semcheck.c
-
-From yami (bug 3361):
-Try to resolve a crash issue when having a function on the RHS
-of a filter test which does not return the same type as the LHS.
-------------------------------------------------------------------------
-r28555 | stig | 2009-06-01 07:51:09 -0700 (Mon, 01 Jun 2009) | 5 lines
-Changed paths:
-   M /trunk/file.c
-
-From Kovarththanan Rajaratnam via bug 3429:
-This patch downgrades the g_assert() to a proper if statement. This is needed
-because we can end up with a match but _without_ any valid row attached to it.
-This is the case when the user has aborted while dissecting.
-------------------------------------------------------------------------
-r28556 | stig | 2009-06-01 08:26:15 -0700 (Mon, 01 Jun 2009) | 3 lines
-Changed paths:
-   M /trunk/file.c
-
-Popup a dialog in case we match a row outside the loaded frame area.
-This adds some information for bug 3429.
-------------------------------------------------------------------------
-r28620 | stig | 2009-06-03 03:38:07 -0700 (Wed, 03 Jun 2009) | 4 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ieee80211.c
-
-Fixed bit position for wlan_mgt.fixed.delba.param.initiator.
-
-This fixes bug 3505.
-------------------------------------------------------------------------
-r28633 | stig | 2009-06-04 01:21:51 -0700 (Thu, 04 Jun 2009) | 4 lines
-Changed paths:
-   M /trunk/epan/wslua/wslua_proto.c
-
-From Sam Roberts:
-The value_string_from_table()'s use of the lua stack is not balanced,
-if a table is iterated, it pops one more time than it should.
-------------------------------------------------------------------------
-r28640 | jake | 2009-06-04 10:37:48 -0700 (Thu, 04 Jun 2009) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-edonkey.c
-
-From Jakub Zawadzki:
-Fix edonkey dissector a little, by using gint type for tvb_length_remaining() result.
-------------------------------------------------------------------------
-r28696 | tuexen | 2009-06-11 04:24:29 -0700 (Thu, 11 Jun 2009) | 3 lines
-Changed paths:
-   M /trunk/wiretap/pcapng.c
-
-When writing pcapng files use correct interface index
-of 0 instead of 1.
-------------------------------------------------------------------------
-r28917 | stig | 2009-07-01 23:51:27 -0700 (Wed, 01 Jul 2009) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-mip6.c
-   M /trunk/epan/dissectors/packet-mip6.h
-
-From Albert Chin:
-Small patch to make it compile on AIX.
-------------------------------------------------------------------------
-r29051 | stig | 2009-07-10 02:12:13 -0700 (Fri, 10 Jul 2009) | 3 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-ff.c
-
-Use correct length for "Version OD Calling".
-This fixes bug 3694.
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-------------------------------------------------------------------------
-r28482 | stig | 2009-05-26 06:52:03 -0700 (Tue, 26 May 2009) | 3 lines
-Changed paths:
-   M /trunk/gtk/capture_if_dlg.c
-
-From Carlos G Mendioroz:
-Use the user defined comment in the Capture Interfaces dialog box.
-------------------------------------------------------------------------
-r28503 | stig | 2009-05-27 07:13:55 -0700 (Wed, 27 May 2009) | 3 lines
-Changed paths:
-   M /trunk/gtk/about_dlg.c
-   M /trunk/gtk/main.c
-
-From Siddhes (bug 3483):
-Throttle splash screen updates when running remote.
-------------------------------------------------------------------------
-r28538 | jake | 2009-05-31 04:31:40 -0700 (Sun, 31 May 2009) | 2 lines
-Changed paths:
-   M /trunk/file.c
-
-Fix bug 3489:
-Array overrun at copy of filter expression on GTK1 build.
-------------------------------------------------------------------------
-r28549 | rbalint | 2009-05-31 11:38:28 -0700 (Sun, 31 May 2009) | 3 lines
-Changed paths:
-   M /trunk/dumpcap.c
-
-Set SIGPIPE handler every time the program starts.
-This hopefully fixes bug 1740.
-------------------------------------------------------------------------
-r28592 | stig | 2009-06-02 03:40:58 -0700 (Tue, 02 Jun 2009) | 3 lines
-Changed paths:
-   M /trunk/gtk/expert_comp_dlg.c
-   M /trunk/gtk/expert_comp_table.h
-
-From Jim Young (bug 2504):
-Quick fix to sync expert_tapdata_s.
-------------------------------------------------------------------------
-r28670 | sake | 2009-06-08 23:23:37 -0700 (Mon, 08 Jun 2009) | 14 lines
-Changed paths:
-   M /trunk/docbook/wsug_src/WSUG_chapter_use.xml
-   M /trunk/gtk/main_menu.c
-
-Reverted part of SVN 27411. The "home" and "end" key bindings overruled
-the use of these keys while editing a filter in the filter toolbar.
-The keys "ctrl-home" and "ctrl-end" already provide the functionality to 
-go to the first or last packet in the packet-list. I added these as
-accelerator keys and updated the users guide accordingly.
-
-Of course we can also make "home" and "end" work, without breaking 
-functionality in the filter toolbar, but that takes a little more
-work (at least for me... maybe not after going to Steve's session
-at Sharkfest :-)).
-
-(will add this to inclusion list for 1.0.9 and 1.2.0)
-------------------------------------------------------------------------
-r28684 | gerald | 2009-06-09 18:30:49 -0700 (Tue, 09 Jun 2009) | 2 lines
-Changed paths:
-   M /trunk/Makefile.nmake
-   M /trunk/config.nmake
-   M /trunk/packaging/nsis/wireshark.nsi
-
-Upgrade to KFW 3.2.2.
-------------------------------------------------------------------------
-r28749 | gerald | 2009-06-15 15:25:05 -0700 (Mon, 15 Jun 2009) | 7 lines
-Changed paths:
-   M /trunk/wiretap/ascend.y
-
-From Ben Winslow via bug 3535:
-
-Because Lucent/Ascend equipment will sometimes omit the hex dump for a packet
-or send two headers followed by two hex dumps, Wireshark needs to be very
-lenient when parsing a Lucent/Ascend trace.  On a busy access server, a packet
-like this is pretty likely to appear within a few minutes.
-------------------------------------------------------------------------
-r28815 | gerald | 2009-06-22 15:38:29 -0700 (Mon, 22 Jun 2009) | 5 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-afs.c
-
-Instead of tvb_get_ptr + ep_alloc + proto_tree_add_string to fetch a string and
-add it to the tree, just call proto_tree_add_item. Fixes bug 3564.
-
-Replace another tvb_get_ptr call with tvb_format_text.
-------------------------------------------------------------------------
-r28839 | stig | 2009-06-24 18:50:56 -0700 (Wed, 24 Jun 2009) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-infiniband.c
-
-Remove a tvb_free() call.
-------------------------------------------------------------------------
-r28931 | wmeier | 2009-07-02 18:11:23 -0700 (Thu, 02 Jul 2009) | 12 lines
-Changed paths:
-   M /trunk/epan/dfilter/semcheck.c
-   M /trunk/gtk/dfilter_expr_dlg.c
-
-From  Kovarththanan Rajaratnam: Fixes for bug #3536
-(plus some additional changes by me).
-
-Handle BASE_RANGE_STRING display types properly
-
-We always treat header field info strings as value_string's undiscriminated.
-However, if the header field info display is marked as BASE_RANGE_STRING, we
-need to treat them as range_string's. This wasn't properly handled in the
-filter expression dialog and in the filter toolbar which would cause a crash
-upon referencing any fields marked as BASE_RANGE_STRING.
-------------------------------------------------------------------------
-
-
-Copy over services from /trunk. Update the release notes. Use the latest
-wireshark-win32-libs tag.
-
-------------------------------------------------------------------------
-r29751 | gerald | 2009-09-06 08:04:01 -0700 (Sun, 06 Sep 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-09-06]
-------------------------------------------------------------------------
-r29801 | gerald | 2009-09-08 09:25:57 -0700 (Tue, 08 Sep 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/epan/dissectors/packet-kerberos.c
-   M /trunk-1.0/gtk/dfilter_expr_dlg.c
-
-Try to fix the Windows build.
-
-------------------------------------------------------------------------
-r29809 | gerald | 2009-09-08 13:53:59 -0700 (Tue, 08 Sep 2009) | 2 lines
-Changed paths:
-   M /trunk-1.0/epan/dissectors/packet-kerberos.c
-
-Another try at fixing the build.
-
-------------------------------------------------------------------------
-r29829 | gerald | 2009-09-09 13:32:30 -0700 (Wed, 09 Sep 2009) | 17 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/plugins/opcua/opcua.c
-   M /trunk-1.0/plugins/opcua/opcua_simpletypes.c
-   M /trunk-1.0/plugins/opcua/opcua_transport_layer.c
-
-Back-port r29813:
-
-------------------------------------------------------------------------
-r29813 | gerald | 2009-09-08 17:18:15 -0700 (Tue, 08 Sep 2009) | 4 lines
-Changed paths:
-   M /trunk/plugins/opcua/opcua.c
-   M /trunk/plugins/opcua/opcua_simpletypes.c
-   M /trunk/plugins/opcua/opcua_transport_layer.c
-
-Check our array lengths and refuse to process them if they're too large.
-Fixes bug 3986. Use tvb_memeql and proto_tree_add_item instead of
-digging around in tvb->real_data.
-
-------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r29850 | gerald | 2009-09-10 14:05:59 -0700 (Thu, 10 Sep 2009) | 18 lines
-Changed paths:
-   M /trunk-1.0/AUTHORS
-   M /trunk-1.0/gtk/sctp_graph_dlg.c
-   M /trunk-1.0/gtk/sctp_stat.c
-   M /trunk-1.0/gtk/sctp_stat.h
-
-Copy over bits of r28642 (AUTHORS and stability fixes).
-------------------------------------------------------------------------
-r28642 | tuexen | 2009-06-05 06:33:18 -0700 (Fri, 05 Jun 2009) | 4 lines
-Changed paths:
-   M /trunk/AUTHORS
-   M /trunk/epan/dissectors/packet-sctp.c
-   M /trunk/gtk/sctp_chunk_stat.c
-   M /trunk/gtk/sctp_chunk_stat_dlg.c
-   M /trunk/gtk/sctp_graph_dlg.c
-   M /trunk/gtk/sctp_stat.c
-   M /trunk/gtk/sctp_stat.h
-
-* Fix name of Irene in AUTHORS.
-* Add Varun Notibala to AUTHORS.
-* Add support for NR-SACK and fix stability problems.
-------------------------------------------------------------------------
-
-
-------------------------------------------------------------------------
-r29851 | gerald | 2009-09-10 14:14:47 -0700 (Thu, 10 Sep 2009) | 49 lines
-Changed paths:
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/epan/dissectors/packet-isup.c
-   M /trunk-1.0/packaging/macosx/ChmodBPF/README.macosx
-   M /trunk-1.0/packaging/macosx/ChmodBPF/StartupParameters.plist
-
-Copy over revisions from the trunk:
-
-------------------------------------------------------------------------
-r29830 | guy | 2009-09-09 16:56:27 -0700 (Wed, 09 Sep 2009) | 21 lines
-Changed paths:
-   M /trunk/packaging/macosx/ChmodBPF/StartupParameters.plist
-
-To quote
-    
-        http://developer.apple.com/mac/library/documentation/MacOSX/Conceptual/BPSystemStartup/Articles/StartupItems.html
-
-"Table 1  StartupParameters.plist key-value pairs
-
-Key             Type    Value
-Description     String  A short description of the startup item,
-                        used by administrative tools.
-
-Provides        Array   The names of the services provided by this
-                        startup item.  Although a startup item can
-                        potentially provide multiple services, it is
-                        recommended that you limit your startup items
-                        to only one service each."
-
-Fix "Provides" to be the name of the service, not a description of the
-helpful operations that it provides.
-
-(Propagated from tcpdump.org git repository.)
-------------------------------------------------------------------------
-r29831 | guy | 2009-09-09 17:37:16 -0700 (Wed, 09 Sep 2009) | 3 lines
-Changed paths:
-   M /trunk/packaging/macosx/ChmodBPF/README.macosx
-
-Put in a note about the Snow Leopard bug that requires that you have BPF
-devices open for writing in order to capture outgoing traffic.
-------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-------------------------------------------------------------------------
-r29839 | tuexen | 2009-09-10 02:50:30 -0700 (Thu, 10 Sep 2009) | 2 lines
-Changed paths:
-   M /trunk/epan/dissectors/packet-isup.c
-
-Fix handling of BEARER_CONTROL_UNIT_IDENTIFIER.
-------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r29875 | gerald | 2009-09-13 08:04:04 -0700 (Sun, 13 Sep 2009) | 1 line
-Changed paths:
-   M /trunk-1.0/epan/enterprise-numbers
-   M /trunk-1.0/manuf
-
-[Automatic manuf and enterprise-numbers update for 2009-09-13]
-------------------------------------------------------------------------
-r29905 | gerald | 2009-09-14 11:53:27 -0700 (Mon, 14 Sep 2009) | 29 lines
-Changed paths:
-   M /trunk-1.0/capture_sync.c
-   M /trunk-1.0/docbook/release-notes.xml
-   M /trunk-1.0/dumpcap.c
-
-Copy over with manual intervention:
-
-------------------------------------------------------------------------
-r29881 | morriss | 2009-09-13 10:46:10 -0700 (Sun, 13 Sep 2009) | 17 lines
-Changed paths:
-   M /trunk/capture_sync.c
-   M /trunk/dumpcap.c
-
-Don't use SIGUSR1 to tell dumpcap to exit, use SIGINT: SIGINT is traditionally
-used for this purpose and using it also prevents the 2 signals the child gets:
-        - the user's Ctrl-C (which is sent as a SIGINT to both *shark and its
-          child dumpcap)
-        - the signal *shark generates to shut down the child
-
-from colliding (and running 2 signal handlers in the child).
-
-It might be possible for tshark to not send the signal at all when it gets
-SIGINT, but it doesn't do any harm now.
-
-Also, do not call g_log() within the signal handler: doing so can cause
-aborts (if g_log is being called by the process when the signal comes, the
-2nd entrance into g_log is detected as a recursion).
-
-This fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2767
-------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r29908 | gerald | 2009-09-14 16:14:42 -0700 (Mon, 14 Sep 2009) | 2 lines
+r29936 | gerald | 2009-09-15 12:02:10 -0700 (Tue, 15 Sep 2009) | 2 lines
 Changed paths:
    M /trunk-1.0/version.conf
 
-Build 1.0.9.
+Switch back to development versions.
 
+------------------------------------------------------------------------
+r29939 | gerald | 2009-09-15 14:11:36 -0700 (Tue, 15 Sep 2009) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+Update some bug IDs.
+
+------------------------------------------------------------------------
+r30015 | gerald | 2009-09-20 08:04:03 -0700 (Sun, 20 Sep 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-09-20]
+------------------------------------------------------------------------
+r30172 | gerald | 2009-09-27 08:04:11 -0700 (Sun, 27 Sep 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-09-27]
+------------------------------------------------------------------------
+r30219 | gerald | 2009-09-30 11:41:55 -0700 (Wed, 30 Sep 2009) | 17 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-radius.c
+
+Copy over r28891 by hand:
+
+------------------------------------------------------------------------
+r28891 | wmeier | 2009-06-30 06:57:26 -0700 (Tue, 30 Jun 2009) | 6 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-radius.c
+
+packet-radius: Fix exception CLEANUP handling when malformed attribute list/pair seen;
+Fixes crash reported in Bug #3578. [https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3578]
+Essentially: CLEANUP_CALL_AND_POP wasn't being executed for certain error exits from
+ dissect_attribute_pairs() thus leaving a CLEANUP entry on the exception stack.
+Also: vsa_buffer_table wasn't being destroyed if an exception occurred in dissect_attribute_pairs.
+
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r30303 | gerald | 2009-10-04 08:03:58 -0700 (Sun, 04 Oct 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-10-04]
+------------------------------------------------------------------------
+r30514 | gerald | 2009-10-11 08:04:03 -0700 (Sun, 11 Oct 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-10-11]
+------------------------------------------------------------------------
+r30597 | gerald | 2009-10-18 08:04:00 -0700 (Sun, 18 Oct 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-10-18]
+------------------------------------------------------------------------
+r30693 | gerald | 2009-10-25 08:04:24 -0700 (Sun, 25 Oct 2009) | 1 line
+Changed paths:
+   M /trunk-1.0/epan/enterprise-numbers
+   M /trunk-1.0/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-10-25]
 ------------------------------------------------------------------------
