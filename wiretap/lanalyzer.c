@@ -33,7 +33,7 @@
 /* The LANalyzer format is documented (at least in part) in Novell document
    TID022037, which can be found at, among other places:
 
-	http://secinf.net/info/nw/lan/trace.txt
+	http://www.windowsecurity.com/whitepapers/Description_of_the_LANalysers_output_file.html
  */
 
 /* LANalyzer board types (which indicate the type of network on which
