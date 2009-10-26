@@ -535,11 +535,22 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 			/* Convert to a FT_PCRE */
 			fvalue = fvalue_from_unparsed(FT_PCRE, s, FALSE, dfilter_fail);
 		} else {
-			fvalue = fvalue_from_unparsed(ftype1, s, allow_partial_value, dfilter_fail);
-			if (!fvalue) {
-				/* check value_string */
-				fvalue = mk_fvalue_from_val_string(hfinfo1, s);
-			}
+			do {
+				fvalue = fvalue_from_unparsed(ftype1, s, allow_partial_value, dfilter_fail);
+				if (!fvalue) {
+					/* check value_string */
+					fvalue = mk_fvalue_from_val_string(hfinfo1, s);
+				}
+				if (!fvalue) {
+					/* Try another field with the same name */
+					if (hfinfo1->same_name_prev) {
+						hfinfo1 = hfinfo1->same_name_prev;
+						ftype1 = hfinfo1->type;
+					} else {
+						break;
+					}
+				}
+			} while (!fvalue);
 		}
 		if (!fvalue) {
 			THROW(TypeError);
