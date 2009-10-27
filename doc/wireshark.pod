@@ -299,11 +299,9 @@ there are no non-loopback interfaces. If there are no interfaces at all,
 B<Wireshark> reports an error and doesn't start the capture.
 
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
-read data from the standard input.  Data read from pipes must be in
+read data from the standard input. On Windows systems, pipe names must be
+of the form ``\\pipe\.\B<pipename>''. Data read from pipes must be in
 standard libpcap format.
-
-Note: the Win32 version of B<Wireshark> doesn't support capturing from
-pipes or stdin!
 
 =item -k
 
