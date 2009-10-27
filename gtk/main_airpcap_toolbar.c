@@ -182,9 +182,7 @@ toolbar_display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
 
 GtkWidget *airpcap_toolbar_new()
 {
-    GtkWidget     *key_management_bt = NULL,
-    		  *advanced_bt = NULL,
-    		  *channel_lb = NULL,
+    GtkWidget *channel_lb = NULL,
     		  *channel_cb = NULL,
     		  *channel_offset_lb = NULL,
     		  *channel_offset_cb = NULL,
@@ -196,6 +194,9 @@ GtkWidget *airpcap_toolbar_new()
     GtkWidget     *decryption_mode_cb;
 
     GtkTooltips	  *airpcap_tooltips;
+	GtkToolItem	  *key_management_bt = NULL, 
+				  *advanced_bt = NULL,
+				  *tool_item;
 
     /* airpcap toolbar */
     airpcap_tooltips = gtk_tooltips_new();
@@ -203,31 +204,23 @@ GtkWidget *airpcap_toolbar_new()
     gtk_toolbar_set_orientation(GTK_TOOLBAR(airpcap_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
 
-    /* Interface Label */
-    /*if(airpcap_if_active != NULL) {
-        if_label_text = g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_active));
-        interface_lb = gtk_label_new(if_label_text);
-        g_free(if_label_text);
-    } else {
-        interface_lb = gtk_label_new("No Wireless Interface Found  ");
-    }*/
-
-    /* Add the label to the toolbar */
-    /*gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), interface_lb,
-                              "Current Wireless Interface", "Private");
-    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY,interface_lb);
-    gtk_widget_show(interface_lb);
-    gtk_toolbar_insert_space(GTK_TOOLBAR(airpcap_tb),1);*/
-
-
     /* Create the "802.11 Channel:" label */
     channel_lb = gtk_label_new("802.11 Channel: ");
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY,channel_lb);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_lb,
-                              "Current 802.11 Channel", "Private");
     gtk_widget_show(channel_lb);
 
-    gtk_widget_set_size_request(channel_lb, 85, 28);
+    gtk_widget_set_size_request(channel_lb, 85, -1);
+
+	tool_item = gtk_tool_item_new ();
+	gtk_container_add (GTK_CONTAINER (tool_item), channel_lb);
+	gtk_widget_show (GTK_WIDGET (tool_item));
+	gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb),
+		tool_item,
+		-1);
+
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(airpcap_tooltips), GTK_WIDGET(tool_item),
+		"Current 802.11 Channel",
+		"Private");
 
     /* Create the channel combo box */
     channel_cb = gtk_combo_box_new_text();
@@ -236,26 +229,38 @@ GtkWidget *airpcap_toolbar_new()
     /* Select the current channel */
     airpcap_update_channel_combo(GTK_WIDGET(channel_cb), airpcap_if_selected);
 
-    gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(channel_cb),
-		"Change the 802.11 RF channel", NULL);
-
-    gtk_widget_set_size_request(channel_cb, 120, 28);
+    gtk_widget_set_size_request(channel_cb, 120, -1);
 
     gtk_widget_show(channel_cb);
 
-    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_cb,
-                              "802.11 Channel", "Private");
+	tool_item = gtk_tool_item_new ();
+	gtk_container_add (GTK_CONTAINER (tool_item), channel_cb);
+	gtk_widget_show (GTK_WIDGET (tool_item));
+	gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb),
+		tool_item,
+		-1);
 
-    /* gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb)); */
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(airpcap_tooltips), GTK_WIDGET(tool_item),
+		"802.11 Channel",
+		"Private");
+
 
     /* Create the "Channel Offset:" label */
     channel_offset_lb = gtk_label_new("Channel Offset: ");
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY,channel_offset_lb);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_offset_lb,
-                              "Current 802.11 Channel Offset", "Private");
     gtk_widget_show(channel_offset_lb);
 
-    gtk_widget_set_size_request(channel_offset_lb, 80, 28);
+    gtk_widget_set_size_request(channel_offset_lb, 90, -1);
+	tool_item = gtk_tool_item_new ();
+	gtk_container_add (GTK_CONTAINER (tool_item), channel_offset_lb);
+	gtk_widget_show (GTK_WIDGET (tool_item));
+	gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb),
+		tool_item,
+		-1);
+
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(airpcap_tooltips), GTK_WIDGET(tool_item),
+		"Current 802.11 Channel Offset",
+		"Private");
 
     /* Start: Channel offset combo box */
     channel_offset_cb = gtk_combo_box_new_text();
@@ -268,16 +273,18 @@ GtkWidget *airpcap_toolbar_new()
     }
 
     gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(channel_offset_cb),
-		"Change channel offset", NULL);
+		"802.11 Channel Offset", "Private");
 
-    gtk_widget_set_size_request(channel_offset_cb, 50, 28);
+    gtk_widget_set_size_request(channel_offset_cb, 50, -1);
 
     gtk_widget_show(channel_offset_cb);
 
-    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_offset_cb,
-                              "802.11 Channel Offset", "Private");
-
-    gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
+	tool_item = gtk_tool_item_new ();
+	gtk_container_add (GTK_CONTAINER (tool_item), channel_offset_cb);
+	gtk_widget_show (GTK_WIDGET (tool_item));
+	gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb),
+		tool_item,
+		-1);
 
     /* callback for channel combo box */
     g_signal_connect(channel_cb,"changed", G_CALLBACK(airpcap_channel_changed_set_cb), channel_offset_cb);
@@ -288,15 +295,19 @@ GtkWidget *airpcap_toolbar_new()
     /* Wrong CRC Label */
     fcs_filter_lb = gtk_label_new(" FCS Filter: ");
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY,fcs_filter_lb);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), fcs_filter_lb,
-                              "", "Private");
     gtk_widget_show(fcs_filter_lb);
+    gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(fcs_filter_lb),
+		"", "Private");
+	tool_item = gtk_tool_item_new ();
+	gtk_container_add (GTK_CONTAINER (tool_item), fcs_filter_lb);
+	gtk_widget_show (GTK_WIDGET (tool_item));
+	gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb),
+		tool_item,
+		-1);
 
     /* FCS filter combo box */
     fcs_filter_cb = gtk_combo_box_new_text();
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY,fcs_filter_cb);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), fcs_filter_cb,
-                              "", "Private");
 
     gtk_widget_set_size_request(fcs_filter_cb, 100, -1);
 
@@ -307,7 +318,7 @@ GtkWidget *airpcap_toolbar_new()
 
     gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(fcs_filter_cb),
 	"Select the 802.11 FCS filter that the wireless adapter will apply.",
-        NULL);
+        "Private");
 
     if (airpcap_if_selected != NULL)
     {
@@ -317,15 +328,18 @@ GtkWidget *airpcap_toolbar_new()
     g_signal_connect (fcs_filter_cb, "changed", G_CALLBACK(airpcap_toolbar_fcs_filter_combo_cb), NULL);
     gtk_widget_show(fcs_filter_cb);
 
-    gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
+	tool_item = gtk_tool_item_new ();
+	gtk_container_add (GTK_CONTAINER (tool_item), fcs_filter_cb);
+	gtk_widget_show (GTK_WIDGET (tool_item));
+	gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb),
+		tool_item,
+		-1);
 
     /* Decryption mode combo box */
     decryption_mode_lb = gtk_label_new ("Decryption Mode: ");
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY,decryption_mode_lb);
     gtk_widget_set_name (decryption_mode_lb, "decryption_mode_lb");
     gtk_widget_show (decryption_mode_lb);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), decryption_mode_lb,
-        NULL, "Private");
 
     decryption_mode_cb = gtk_combo_box_new_text();
     gtk_widget_set_name (decryption_mode_cb, "decryption_mode_cb");
@@ -333,35 +347,48 @@ GtkWidget *airpcap_toolbar_new()
     gtk_widget_set_size_request(decryption_mode_cb, 83, -1);
     update_decryption_mode_list(decryption_mode_cb);
 
-    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), decryption_mode_cb,
-        "Choose a Decryption Mode", "Private");
+	tool_item = gtk_tool_item_new ();
+	gtk_container_add (GTK_CONTAINER (tool_item), decryption_mode_cb);
+	gtk_widget_show (GTK_WIDGET (tool_item));
+	gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb),
+		tool_item,
+		-1);
+
+	gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(fcs_filter_lb),
+		"Choose a Decryption Mode", "Private");
 
     /* Set current decryption mode!!!! */
     update_decryption_mode(decryption_mode_cb);
     g_signal_connect(decryption_mode_cb, "changed", G_CALLBACK(on_decryption_mode_cb_changed), airpcap_tb);
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY,decryption_mode_cb);
 
-    gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
-
     /* Advanced button */
-    advanced_bt = gtk_button_new_with_label("Wireless Settings...");
+	advanced_bt = gtk_tool_button_new(NULL, /* a widget that will be used as icon widget, or NULL */
+		"Wireless Settings...");
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY,advanced_bt);
 
     g_signal_connect(advanced_bt, "clicked", G_CALLBACK(toolbar_display_airpcap_advanced_cb), airpcap_tb);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), advanced_bt,
-        "Set Advanced Wireless Settings", "Private");
-
-
-    gtk_widget_show(advanced_bt);
-
+    gtk_widget_show(GTK_WIDGET(advanced_bt));
+	gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb),
+                           advanced_bt,
+                           -1);
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(airpcap_tooltips), GTK_WIDGET(advanced_bt),
+		"Set Advanced Wireless Settings",
+		"Private");
     /* Key Management button */
-    key_management_bt = gtk_button_new_with_label("Decryption Keys...");
+	key_management_bt = gtk_tool_button_new(NULL, /* a widget that will be used as icon widget, or NULL */
+		"Decryption Keys...");
+
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY,key_management_bt);
 
     g_signal_connect(key_management_bt, "clicked", G_CALLBACK(toolbar_display_airpcap_key_management_cb), airpcap_tb);
-    gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), key_management_bt,
-                              "Manage Decryption Keys", "Private");
-    gtk_widget_show(key_management_bt);
+    gtk_widget_show(GTK_WIDGET(key_management_bt));
+	gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb),
+                           key_management_bt,
+                           -1);
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(airpcap_tooltips), GTK_WIDGET(key_management_bt),
+		"Manage Decryption Keys",
+		"Private");
 
     /* If no airpcap interface is present, gray everything */
     if(airpcap_if_active == NULL) {
