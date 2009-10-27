@@ -1506,7 +1506,7 @@ color_global_cb(GtkWidget *widget _U_, gpointer data)
 
   gtk_file_chooser_select_filename(GTK_FILE_CHOOSER(fs_widget), path);
 
-  g_free((gchar *)path);
+  g_free(path);
 }
 
 /* Import color filters */
