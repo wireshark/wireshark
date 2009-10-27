@@ -1244,7 +1244,7 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 
 	io=g_malloc(sizeof(io_stat_t));
 	io->needs_redraw=TRUE;
-	io->interval=1000;
+	io->interval=tick_interval_values[DEFAULT_TICK_VALUE];
 	io->window=NULL;
 	io->draw_area=NULL;
 	io->pixmap=NULL;
@@ -1569,8 +1569,8 @@ static GtkWidget *
 create_tick_interval_menu_items(io_stat_t *io)
 {
 	GtkWidget *combo_box;
-    char str[15];
-    int i;
+	char str[15];
+	int i;
 
 	combo_box = gtk_combo_box_new_text ();
 
@@ -1584,9 +1584,9 @@ create_tick_interval_menu_items(io_stat_t *io)
             } else {
                     g_snprintf(str, sizeof(str), "0.%03u sec", (tick_interval_values[i])%10);
             }
-			gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
+	    gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
 	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_TICK_VALUE);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(tick_interval_select), (gpointer)io);
 
 	return combo_box;
