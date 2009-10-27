@@ -62,6 +62,10 @@
  * June 9, 2007: added support for draft-ietf-ccamp-ethernet-traffic-parameters-02
  * and draft-ietf-ccamp-lsp-hierarchy-bis-02; added support for NOTIFY_REQUEST
  * and RECOVERY_LABEL objects (Roberto Morro) * <roberto.morro[AT]tilab.com>
+ *
+ * Oct 21, 2009: add support for RFC4328, new G.709 traffic parameters,
+ * update gpid, switching and encoding type values to actual IANA numbers.
+ * (FF) <francesco.fondelli[AT]gmail.com>
  */
 
 
@@ -761,29 +765,117 @@ static const value_string adspec_params[] = {
     { 0, NULL }
 };
 
-const value_string gmpls_lsp_enc_str[] = {
-    { 1, "Packet"},
-    { 2, "Ethernet v2/DIX"},
-    { 3, "ANSI PDH"},
-    { 5, "SONET/SDH"},
-    { 6, "VCAT"},		/* provisional value */
-    { 7, "Digital Wrapper"},
-    { 8, "Lambda (photonic)"},
-    { 9, "Fiber"},
-    {11, "FiberChannel"},
-    { 0, NULL }
+/* 
+ * FF: please keep this list in sync with 
+ * http://www.iana.org/assignments/gmpls-sig-parameters
+ * Registry Name: 'LSP Encoding Types' 
+ */
+const range_string gmpls_lsp_enc_rvals[] = {
+    {   1,   1, "Packet" },
+    {   2,   2, "Ethernet" },
+    {   3,   3, "ANSI/ETSI PDH" },
+    {   4,   4, "Reserved" },
+    {   5,   5, "SDH ITU-T G.707 / SONET ANSI T1.105" },
+    {   6,   6, "Reserved" },
+    {   7,   7, "Digital Wrapper" },
+    {   8,   8, "Lambda (photonic)" },
+    {   9,   9, "Fiber" },
+    {  10,  10, "Reserved" },
+    {  11,  11, "FiberChannel" },
+    {  12,  12, "G.709 ODUk (Digital Path)" },
+    {  13,  13, "G.709 Optical Channel" },
+    {  14, 239, "Unassigned" },
+    { 240, 255, "Experimental Usage/temporarily" },
+    {   0,   0, NULL }
 };
 
-const value_string gmpls_switching_type_str[] = {
-    {  1, "Packet-Switch Capable-1 (PSC-1)"},
-    {  2, "Packet-Switch Capable-2 (PSC-2)"},
-    {  3, "Packet-Switch Capable-3 (PSC-3)"},
-    {  4, "Packet-Switch Capable-4 (PSC-4)"},
-    { 51, "Layer-2 Switch Capable (L2SC)"},
-    {100, "Time-Division-Multiplex Capable (TDM)"},
-    {150, "Lambda-Switch Capable (LSC)"},
-    {200, "Fiber-Switch Capable (FSC)"},
-    { 0, NULL }
+/* 
+ * FF: please keep this list in sync with 
+ * http://www.iana.org/assignments/gmpls-sig-parameters
+ * Registry Name: 'Switching Types'
+ */
+const range_string gmpls_switching_type_rvals[] = {
+    {   1,   1, "Packet-Switch Capable-1 (PSC-1)" },
+    {   2,   2, "Packet-Switch Capable-2 (PSC-2)" },
+    {   3,   3, "Packet-Switch Capable-3 (PSC-3)" },
+    {   4,   4, "Packet-Switch Capable-4 (PSC-4)" },
+    {   5,  50, "Unassigned" },
+    {  51,  51, "Layer-2 Switch Capable (L2SC)" },
+    {  52,  99, "Unassigned" },
+    { 100, 100, "Time-Division-Multiplex Capable (TDM)" },
+    { 101, 149, "Unassigned" },
+    { 150, 150, "Lambda-Switch Capable (LSC)" },
+    { 151, 169, "Unassigned" },
+    { 200, 200, "Fiber-Switch Capable (FSC)" },
+    { 201, 255, "Unassigned" },
+    {   0,   0, NULL }
+};
+
+/* 
+ * FF: please keep this list in sync with 
+ * http://www.iana.org/assignments/gmpls-sig-parameters
+ * Registry Name: 'Generalized PID (G-PID)'
+ */
+static const range_string gmpls_gpid_rvals[] = {
+    {      0,     0, "Unknown" },
+    {      1,     4, "Reserved" },
+    {      5,     5, "Asynchronous mapping of E4" },
+    {      6,     6, "Asynchronous mapping of DS3/T3" },
+    {      7,     7, "Asynchronous mapping of E3" },
+    {      8,     8, "Bit synchronous mapping of E3" },
+    {      9,     9, "Byte synchronous mapping of E3" },
+    {     10,    10, "Asynchronous mapping of DS2/T2" },
+    {     11,    11, "Bit synchronous mapping of DS2/T2" },
+    {     12,    12, "Reserved" },
+    {     13,    13, "Asynchronous mapping of E1" },
+    {     14,    14, "Byte synchronous mapping of E1" },
+    {     15,    15, "Byte synchronous mapping of 31 * DS0" },
+    {     16,    16, "Asynchronous mapping of DS1/T1" },
+    {     17,    17, "Bit synchronous mapping of DS1/T1" },
+    {     18,    18, "Byte synchronous mapping of DS1/T1" },
+    {     19,    19, "VC-11 in VC-12" },
+    {     20,    21, "Reserved" },
+    {     22,    22, "DS1 SF Asynchronous" },
+    {     23,    23, "DS1 ESF Asynchronous" },
+    {     24,    24, "DS3 M23 Asynchronous" },
+    {     25,    25, "DS3 C-Bit Parity Asynchronous" },
+    {     26,    26, "VT/LOVC" },
+    {     27,    27, "STS SPE/HOVC" },
+    {     28,    28, "POS - No Scrambling, 16 bit CRC" },
+    {     29,    29, "POS - No Scrambling, 32 bit CRC" },
+    {     30,    30, "POS - Scrambling, 16 bit CRC" },
+    {     31,    31, "POS - Scrambling, 32 bit CRC" },
+    {     32,    32, "ATM mapping" },
+    {     33,    33, "Ethernet PHY" },
+    {     34,    34, "SONET/SDH" },
+    {     35,    35, "Reserved (SONET deprecated)" },
+    {     36,    36, "Digital Wrapper" },
+    {     37,    37, "Lambda" },
+    {     38,    38, "ANSI/ETSI PDH" },
+    {     39,    39, "Reserved" },
+    {     40,    40, "Link Access Protocol SDH (LAPS - X.85 and X.86)" },
+    {     41,    41, "FDDI" },
+    {     42,    42, "DQDB (ETSI ETS 300 216)" },
+    {     43,    43, "FiberChannel-3 (Services)" },
+    {     44,    44, "HDLC" },
+    {     45,    45, "Ethernet V2/DIX (only)" },
+    {     46,    46, "Ethernet 802.3 (only)" },
+    {     47,    47, "G.709 ODUj" },
+    {     48,    48, "G.709 OTUk(v)" },
+    {     49,    49, "CBR/CBRa" },
+    {     50,    50, "CBRb" },
+    {     51,    51, "BSOT" },
+    {     52,    52, "BSNT" },
+    {     53,    53, "IP/PPP (GFP)" },
+    {     54,    54, "Ethernet MAC (framed GFP)" },
+    {     55,    55, "Ethernet PHY (transparent GFP" },
+    {     56,    56, "ESCON" },
+    {     57,    57, "FICON" },
+    {     58,    58, "Fiber Channel" },
+    {     59, 31743, "Unassigned" },
+    {  31744, 32767, "Experimental Usage/temporarily" },
+    {  32768, 65535, "Reserved" },
+    {      0,     0, NULL },
 };
 
 const value_string gmpls_protection_cap_str[] = {
@@ -796,47 +888,6 @@ const value_string gmpls_protection_cap_str[] = {
     {64, "Reserved"},
     {128,"Reserved"},
     { 0, NULL }
-};
-
-static const value_string gmpls_gpid_str[] = {
-    { 5, "Asynchronous mapping of E3 (SDH)"},
-    { 8, "Bit synchronous mapping of E3 (SDH)"},
-    { 9, "Byte synchronous mapping of E3 (SDH)"},
-    {10, "Asynchronous mapping of DS2/T2 (SDH)"},
-    {11, "Bit synchronous mapping of DS2/T2 (SONET, SDH)"},
-    {13, "Asynchronous mapping of E1 (SONET, SDH)"},
-    {14, "Byte synchronous mapping of E1 (SONET, SDH)"},
-    {15, "Byte synchronous mapping of 31 * DS0 (SONET, SDH)"},
-    {16, "Asynchronous mapping of DS1/T1 (SONET, SDH)"},
-    {17, "Bit synchronous mapping of DS1/T1 (SONET, SDH)"},
-    {18, "Byte synchronous mapping of DS1/T1 (SONET, SDH)"},
-    {19, "VC-11 in VC-12 (SDH)"},
-    {22, "DS1 SF Asynchronous (SONET)"},
-    {23, "DS1 ESF Asynchronous (SONET)"},
-    {24, "DS3 M23 Asynchronous (SONET)"},
-    {25, "DS3 C-Bit Parity Asynchronous (SONET)"},
-    {26, "VT/LOVC (SONET, SDH)"},
-    {27, "STS SPE/HOVC (SONET, SDH)"},
-    {28, "POS - No Scrambling, 16 bit CRC (SONET, SDH)"},
-    {29, "POS - No Scrambling, 32 bit CRC (SONET, SDH)"},
-    {30, "POS - Scrambling, 16 bit CRC (SONET, SDH)"},
-    {31, "POS - Scrambling, 32 bit CRC (SONET, SDH)"},
-    {32, "ATM Mapping (SONET, SDH)"},
-    {33, "Ethernet (SDH, Lambda, Fiber)"},
-    {34, "SDH (Lambda, Fiber)"},
-    {35, "SONET (Lambda, Fiber)"},
-    {36, "Digital Wrapper (Lambda, Fiber)"},
-    {37, "Lambda (Fiber)"},
-    {38, "ETSI PDH (SDH)"},
-    {39, "ANSI PDH (SONET, SDH)"},
-    {40, "Link Access Protocol SDH: LAPS - X.85 and X.86 (SONET, SDH)"},
-    {41, "FDDI (SONET, SDH, Lambda, Fiber)"},
-    {42, "DQDB: ETSI ETS 300 216 (SONET, SDH)"},
-    {43, "FiberChannel-3 Services (FiberChannel)"},
-    {44, "HDLC"},
-    {45, "Ethernet V2/DIX (only)"},
-    {46, "Ethernet 802.3 (only)"},
-    { 0, NULL },
 };
 
 const value_string gmpls_sonet_signal_type_str[] = {
@@ -877,6 +928,20 @@ static const value_string ouni_guni_diversity_str[] = {
     {0, NULL}
 };
 
+/* FF: RFC 4328 G.709 signal type */
+const range_string gmpls_g709_signal_type_rvals[] = {
+    { 0,   0, "Not significant"},
+    { 1,   1, "ODU1 (i.e., 2.5 Gbps)"},
+    { 2,   2, "ODU2 (i.e., 10  Gbps)"},
+    { 3,   3, "ODU3 (i.e., 40  Gbps)"},
+    { 4,   5, "Reserved (for future use)"},
+    { 6,   6, "OCh at 2.5 Gbps"},
+    { 7,   7, "OCh at 10  Gbps"},
+    { 8,   8, "OCh at 40  Gbps"},
+    { 9, 255, "Reserved (for future use)"},
+    { 0,   0, NULL}
+};
+
 /* -------------------- Stuff for MPLS/TE objects -------------------- */
 
 static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
@@ -887,7 +952,7 @@ static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
                                            {0,             NULL  } };
 
 /* Filter keys */
-enum rsvp_filter_keys {
+enum hf_rsvp_filter_keys {
 
     /* Message types */
     RSVPF_MSG,          /* Message type */
@@ -1001,7 +1066,7 @@ enum rsvp_filter_keys {
     RSVPF_MAX
 };
 
-static int rsvp_filter[RSVPF_MAX];
+static int hf_rsvp_filter[RSVPF_MAX];
 
 /* RSVP Conversation related Hash functions */
 
@@ -1426,17 +1491,17 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 1 - IPv4");
 	proto_tree_add_item(rsvp_object_tree,
-			    rsvp_filter[RSVPF_SESSION_IP],
+			    hf_rsvp_filter[RSVPF_SESSION_IP],
 			    tvb, offset2, 4, FALSE);
 
 	proto_tree_add_item(rsvp_object_tree,
-			    rsvp_filter[RSVPF_SESSION_PROTO], tvb,
+			    hf_rsvp_filter[RSVPF_SESSION_PROTO], tvb,
 			    offset2+4, 1, FALSE);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+5, 1,
 			    "Flags: %x",
 			    tvb_get_guint8(tvb, offset2+5));
 	proto_tree_add_item(rsvp_object_tree,
-			    rsvp_filter[RSVPF_SESSION_PORT], tvb,
+			    hf_rsvp_filter[RSVPF_SESSION_PORT], tvb,
 			    offset2+6, 2, FALSE);
 
 	/*
@@ -1479,11 +1544,11 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 7 - IPv4 LSP");
 	proto_tree_add_item(rsvp_object_tree,
-			    rsvp_filter[RSVPF_SESSION_IP],
+			    hf_rsvp_filter[RSVPF_SESSION_IP],
 			    tvb, offset2, 4, FALSE);
 
 	proto_tree_add_item(rsvp_object_tree,
-			    rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
+			    hf_rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
 			    tvb, offset2+6, 2, FALSE);
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
@@ -1491,7 +1556,7 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 			    tvb_get_ntohl(tvb, offset2+8),
 			    ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
 	hidden_item = proto_tree_add_item(rsvp_object_tree,
-				   rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
+				   hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 				   tvb, offset2+8, 4, FALSE);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
@@ -1510,7 +1575,7 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 9 - IPv4 Aggregate");
 	proto_tree_add_item(rsvp_object_tree,
-			    rsvp_filter[RSVPF_SESSION_IP],
+			    hf_rsvp_filter[RSVPF_SESSION_IP],
 			    tvb, offset2, 4, FALSE);
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+7, 1,
@@ -1533,18 +1598,18 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 11 - IPv4 UNI");
 	proto_tree_add_item(rsvp_object_tree,
-			    rsvp_filter[RSVPF_SESSION_IP],
+			    hf_rsvp_filter[RSVPF_SESSION_IP],
 			    tvb, offset2, 4, FALSE);
 
 	proto_tree_add_item(rsvp_object_tree,
-			    rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
+			    hf_rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
 			    tvb, offset2+6, 2, FALSE);
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
 			    "Extended IPv4 Address: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
 	hidden_item = proto_tree_add_item(rsvp_object_tree,
-				   rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
+				   hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 				   tvb, offset2+8, 4, FALSE);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
@@ -1564,18 +1629,18 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 15 - IPv4 E-NNI");
 	proto_tree_add_item(rsvp_object_tree,
-			    rsvp_filter[RSVPF_SESSION_IP],
+			    hf_rsvp_filter[RSVPF_SESSION_IP],
 			    tvb, offset2, 4, FALSE);
 
 	proto_tree_add_item(rsvp_object_tree,
-			    rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
+			    hf_rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
 			    tvb, offset2+6, 2, FALSE);
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
 			    "Extended IPv4 Address: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
 	hidden_item = proto_tree_add_item(rsvp_object_tree,
-				   rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
+				   hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 				   tvb, offset2+8, 4, FALSE);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
@@ -2079,10 +2144,10 @@ dissect_rsvp_template_filter (proto_item *ti, proto_tree *rsvp_object_tree,
 	 proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			     "C-type: 1 - IPv4");
 	 proto_tree_add_item(rsvp_object_tree,
-			     rsvp_filter[RSVPF_SENDER_IP],
+			     hf_rsvp_filter[RSVPF_SENDER_IP],
 			     tvb, offset2, 4, FALSE);
 	 proto_tree_add_item(rsvp_object_tree,
-			     rsvp_filter[RSVPF_SENDER_PORT],
+			     hf_rsvp_filter[RSVPF_SENDER_PORT],
 			     tvb, offset2+6, 2, FALSE);
 
 	 /*
@@ -2107,10 +2172,10 @@ dissect_rsvp_template_filter (proto_item *ti, proto_tree *rsvp_object_tree,
 	 proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			     "C-type: 7 - IPv4 LSP");
 	 proto_tree_add_item(rsvp_object_tree,
-			     rsvp_filter[RSVPF_SENDER_IP],
+			     hf_rsvp_filter[RSVPF_SENDER_IP],
 			     tvb, offset2, 4, FALSE);
 	 proto_tree_add_item(rsvp_object_tree,
-			     rsvp_filter[RSVPF_SENDER_LSP_ID],
+			     hf_rsvp_filter[RSVPF_SENDER_LSP_ID],
 			     tvb, offset2+6, 2, FALSE);
 
 	 /*
@@ -2124,7 +2189,7 @@ dissect_rsvp_template_filter (proto_item *ti, proto_tree *rsvp_object_tree,
 	 proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			     "C-type: 9 - IPv4 Aggregate");
 	 proto_tree_add_item(rsvp_object_tree,
-			     rsvp_filter[RSVPF_SENDER_IP],
+			     hf_rsvp_filter[RSVPF_SENDER_IP],
 			     tvb, offset2, 4, FALSE);
 
 	 /*
@@ -2267,7 +2332,7 @@ dissect_rsvp_tspec (proto_item *ti, proto_tree *rsvp_object_tree,
 	mylen -= 4;
 	offset2 += 4;
 
-	proto_item_set_text(ti, "SENDER TSPEC: IntServ: ");
+	proto_item_set_text(ti, "SENDER TSPEC: IntServ, ");
 
 	while (mylen > 0) {
 	    guint8 service_num;
@@ -2420,7 +2485,7 @@ dissect_rsvp_tspec (proto_item *ti, proto_tree *rsvp_object_tree,
 	break;
 
     case 4: /* SONET/SDH Tspec */
-	proto_item_set_text(ti, "SENDER TSPEC: SONET/SDH: ");
+	proto_item_set_text(ti, "SENDER TSPEC: SONET/SDH, ");
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 4 - SONET/SDH");
@@ -2515,8 +2580,38 @@ dissect_rsvp_tspec (proto_item *ti, proto_tree *rsvp_object_tree,
 			       tvb_get_ntohl(tvb, offset2+8), tvb_get_ntohl(tvb, offset2+12));
 	break;
 
+    case 5: /* FF: G.709 TSPEC, RFC 4328 */
+        proto_item_set_text(ti, "SENDER TSPEC: G.709, ");
+
+        proto_tree_add_text(rsvp_object_tree, tvb, offset + 3, 1,
+                            "C-type: 5 - G.709");
+        signal_type = tvb_get_guint8(tvb, offset2);
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+                            "Signal Type: %d - %s", signal_type,
+                            rval_to_str(signal_type,
+                                        gmpls_g709_signal_type_rvals, 
+                                        "Unknown"));
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 2, 2,
+                            "Number of Multiplexed Components (NMC): %d", 
+                            tvb_get_ntohs(tvb, offset2 + 2));
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 4, 2,
+                            "Number of Virtual Components (NVC): %d", 
+                            tvb_get_ntohs(tvb, offset2 + 4));
+
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 6, 2,
+                            "Multiplier (MT): %d", 
+                            tvb_get_ntohs(tvb, offset2 + 6));
+        proto_item_append_text(ti, "Signal [%s], NMC %d, NVC %d, MT %d",
+                               rval_to_str(signal_type, 
+                                           gmpls_g709_signal_type_rvals, 
+                                           "Unknown"),
+                               tvb_get_ntohs(tvb, offset2 + 2),
+                               tvb_get_ntohs(tvb, offset2 + 4), 
+                               tvb_get_ntohs(tvb, offset2 + 6));
+        break;
+
     case 6:   /* Ethernet TSPEC  draft-ietf-ccamp-ethernet-traffic-parameters-02 */
-	proto_item_set_text(ti, "SENDER TSPEC: Ethernet: ");
+	proto_item_set_text(ti, "SENDER TSPEC: Ethernet, ");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 6 - Ethernet");
         switch_gran = tvb_get_ntohs(tvb, offset2);
@@ -2751,7 +2846,7 @@ dissect_rsvp_flowspec (proto_item *ti, proto_tree *rsvp_object_tree,
 	break;
 
     case 4:
-	proto_item_set_text(ti, "FLOWSPEC: SONET/SDH: ");
+	proto_item_set_text(ti, "FLOWSPEC: SONET/SDH, ");
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 4 - SONET/SDH");
@@ -2846,8 +2941,38 @@ dissect_rsvp_flowspec (proto_item *ti, proto_tree *rsvp_object_tree,
 			       tvb_get_ntohl(tvb, offset2+8), tvb_get_ntohl(tvb, offset2+12));
 	break;
 
+    case 5: /* FF: G.709 FLOWSPEC, RFC 4328 */
+        proto_item_set_text(ti, "FLOWSPEC: G.709, ");
+
+        proto_tree_add_text(rsvp_object_tree, tvb, offset + 3, 1,
+                            "C-type: 5 - G.709");
+        signal_type = tvb_get_guint8(tvb, offset2);
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+                            "Signal Type: %d - %s", signal_type,
+                            rval_to_str(signal_type,
+                                        gmpls_g709_signal_type_rvals, 
+                                        "Unknown"));
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 2, 2,
+                            "Number of Multiplexed Components (NMC): %d", 
+                            tvb_get_ntohs(tvb, offset2 + 2));
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 4, 2,
+                            "Number of Virtual Components (NVC): %d", 
+                            tvb_get_ntohs(tvb, offset2 + 4));
+
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 6, 2,
+                            "Multiplier (MT): %d", 
+                            tvb_get_ntohs(tvb, offset2 + 6));
+        proto_item_append_text(ti, "Signal [%s], NMC %d, NVC %d, MT %d",
+                               rval_to_str(signal_type, 
+                                           gmpls_g709_signal_type_rvals, 
+                                           "Unknown"),
+                               tvb_get_ntohs(tvb, offset2 + 2),
+                               tvb_get_ntohs(tvb, offset2 + 4), 
+                               tvb_get_ntohs(tvb, offset2 + 6));
+        break;
+
     case 6:   /* Ethernet FLOWSPEC  draft-ietf-ccamp-ethernet-traffic-parameters-02 */
-	proto_item_set_text(ti, "FLOWSPEC: Ethernet: ");
+	proto_item_set_text(ti, "FLOWSPEC: Ethernet, ");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 6 - Ethernet");
         switch_gran = tvb_get_ntohs(tvb, offset2);
@@ -3133,23 +3258,23 @@ dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
 			    "C-type: 4 (Generalized Label Request)");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
 			    "LSP Encoding Type: %s",
-			    val_to_str(lsp_enc, gmpls_lsp_enc_str, "Unknown (%d)"));
+			    rval_to_str(lsp_enc, gmpls_lsp_enc_rvals, "Unknown (%d)"));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 1,
 			    "Switching Type: %s",
-			    val_to_str(tvb_get_guint8(tvb,offset2+1),
-				       gmpls_switching_type_str, "Unknown (%d)"));
+			    rval_to_str(tvb_get_guint8(tvb,offset2+1),
+				       gmpls_switching_type_rvals, "Unknown (%d)"));
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
 			    "G-PID: %s (0x%0x)",
-			    val_to_str(l3pid, gmpls_gpid_str,
+			    rval_to_str(l3pid, gmpls_gpid_rvals,
 				       val_to_str(l3pid, etype_vals,
 						  "Unknown G-PID(0x%04x)")),
 			    l3pid);
 	proto_item_set_text(ti, "LABEL REQUEST: Generalized: LSP Encoding=%s, "
 			    "Switching Type=%s, G-PID=%s ",
-			    val_to_str(lsp_enc, gmpls_lsp_enc_str, "Unknown (%d)"),
-			    val_to_str(tvb_get_guint8(tvb,offset2+1),
-				       gmpls_switching_type_str, "Unknown (%d)"),
-			    val_to_str(l3pid, gmpls_gpid_str,
+			    rval_to_str(lsp_enc, gmpls_lsp_enc_rvals, "Unknown (%d)"),
+			    rval_to_str(tvb_get_guint8(tvb,offset2+1),
+				       gmpls_switching_type_rvals, "Unknown (%d)"),
+			    rval_to_str(l3pid, gmpls_gpid_rvals,
 				       val_to_str(l3pid, etype_vals,
 						  "Unknown (0x%04x)")));
 	break;
@@ -4149,12 +4274,12 @@ dissect_rsvp_lsp_tunnel_if_id_tlv(proto_tree *rsvp_object_tree,
 				"Length: %u", tlv_len);
 	    proto_tree_add_text(rsvp_lsp_tunnel_if_id_subtree, tvb, offset+tlv_off+4, 1,
 				"LSP Encoding Type: %s",
-				val_to_str(tvb_get_guint8(tvb,offset+tlv_off+4),
-					   gmpls_lsp_enc_str, "Unknown (%d)"));
+				rval_to_str(tvb_get_guint8(tvb,offset+tlv_off+4),
+					   gmpls_lsp_enc_rvals, "Unknown (%d)"));
 	    proto_tree_add_text(rsvp_lsp_tunnel_if_id_subtree, tvb, offset+tlv_off+5, 1,
 				"Switching Type: %s",
-				val_to_str(tvb_get_guint8(tvb,offset+tlv_off+5),
-					   gmpls_switching_type_str, "Unknown (%d)"));
+				rval_to_str(tvb_get_guint8(tvb,offset+tlv_off+5),
+					   gmpls_switching_type_rvals, "Unknown (%d)"));
 	    proto_tree_add_text(rsvp_lsp_tunnel_if_id_subtree, tvb, offset+tlv_off+6, 1,
 				"Signal Type: %s",
 				val_to_str(tvb_get_guint8(tvb,offset+tlv_off+6),
@@ -4170,10 +4295,10 @@ dissect_rsvp_lsp_tunnel_if_id_tlv(proto_tree *rsvp_object_tree,
 				"SC PC SCN Address: %s",
 				ip_to_str(tvb_get_ptr(tvb, offset+tlv_off+20, 4)));
 	    proto_item_append_text(ti, "LSP Encoding=%s, Switching Type=%s, Signal Type=%s",
-				   val_to_str(tvb_get_guint8(tvb,offset+tlv_off+4),
-					      gmpls_lsp_enc_str, "Unknown (%d)"),
-				   val_to_str(tvb_get_guint8(tvb,offset+tlv_off+5),
-					      gmpls_switching_type_str, "Unknown (%d)"),
+				   rval_to_str(tvb_get_guint8(tvb,offset+tlv_off+4),
+					      gmpls_lsp_enc_rvals, "Unknown (%d)"),
+				   rval_to_str(tvb_get_guint8(tvb,offset+tlv_off+5),
+					      gmpls_switching_type_rvals, "Unknown (%d)"),
 				   val_to_str(tvb_get_guint8(tvb,offset+tlv_off+6),
 					      gmpls_sonet_signal_type_str, "Unknown (%d)"));
 	    break;
@@ -4392,10 +4517,10 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 					"Length: %u",
 					tvb_get_ntohs(tvb, offset2+l));
 		    if (j==1)
-		      proto_tree_add_item(rsvp_gen_uni_subtree, rsvp_filter[RSVPF_GUNI_SRC_IPV4],
+		      proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_filter[RSVPF_GUNI_SRC_IPV4],
 				          tvb, offset2+l+4, 4, FALSE);
 		    else
-		      proto_tree_add_item(rsvp_gen_uni_subtree, rsvp_filter[RSVPF_GUNI_DST_IPV4],
+		      proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_filter[RSVPF_GUNI_DST_IPV4],
 				          tvb, offset2+l+4, 4, FALSE);
 		    if (i < 4) {
 			proto_item_append_text(ti, "%s IPv4 TNA: %s", c,
@@ -4417,10 +4542,10 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 					"Length: %u",
 					tvb_get_ntohs(tvb, offset2+l));
 		    if (j==1)
-		      proto_tree_add_item(rsvp_gen_uni_subtree, rsvp_filter[RSVPF_GUNI_SRC_IPV6],
+		      proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_filter[RSVPF_GUNI_SRC_IPV6],
 				          tvb, offset2+l+4, 16, FALSE);
 		    else
-		      proto_tree_add_item(rsvp_gen_uni_subtree, rsvp_filter[RSVPF_GUNI_DST_IPV6],
+		      proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_filter[RSVPF_GUNI_DST_IPV6],
 				          tvb, offset2+l+4, 16, FALSE);
 		    if (i < 4) {
 			proto_item_append_text(ti, "%s IPv6 %s", c,
@@ -4508,7 +4633,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		    }
 		    proto_tree_add_text(rsvp_session_subtree, tvb, offset2+l+8, 2,
 				"Length: %u", s_len);
-		    proto_tree_add_uint(rsvp_session_subtree, rsvp_filter[RSVPF_OBJECT], tvb,
+		    proto_tree_add_uint(rsvp_session_subtree, hf_rsvp_filter[RSVPF_OBJECT], tvb,
 				offset2+8+l+10, 1, s_class);
 		    dissect_rsvp_session(ti2, rsvp_session_subtree, tvb, offset2+l+8,
 					 s_len, s_class, s_type, rsvph);
@@ -4527,7 +4652,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		    }
 		    proto_tree_add_text(rsvp_template_subtree, tvb, offset3+l+8, 2,
 				"Length: %u", s_len);
-		    proto_tree_add_uint(rsvp_template_subtree, rsvp_filter[RSVPF_OBJECT], tvb,
+		    proto_tree_add_uint(rsvp_template_subtree, hf_rsvp_filter[RSVPF_OBJECT], tvb,
 				offset3+8+l+10, 1, s_class);
 		    dissect_rsvp_template_filter(ti2, rsvp_template_subtree, tvb, offset3+l+8,
 						 s_len, s_class, s_type, rsvph);
@@ -4727,14 +4852,14 @@ dissect_rsvp_call_id (proto_tree *ti, proto_tree *rsvp_object_tree,
 	switch(type) {
 	case 1:
             offset4 = offset3 + 4;
-            proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV4],
+            proto_tree_add_item(rsvp_object_tree, hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV4],
                                 tvb, offset3, 4, FALSE);
             proto_item_append_text(ti, "Src: %s. ", ip_to_str(tvb_get_ptr(tvb, offset3, 4)));
             break;
 
 	case 2:
             offset4 = offset3 + 16;
-            proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV6],
+            proto_tree_add_item(rsvp_object_tree, hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV6],
                                 tvb, offset3, 16, FALSE);
             proto_item_append_text(ti, "Src: %s. ",
                                    ip6_to_str((const struct e_in6_addr *) tvb_get_ptr(tvb, offset3, 16)));
@@ -5019,13 +5144,13 @@ dissect_rsvp_diffserv (proto_tree *ti, proto_tree *rsvp_object_tree,
 {
     int mapnb, count;
     int *hfindexes[] = {
-	&rsvp_filter[RSVPF_DIFFSERV_MAP],
-	&rsvp_filter[RSVPF_DIFFSERV_MAP_EXP],
-	&rsvp_filter[RSVPF_DIFFSERV_PHBID],
-	&rsvp_filter[RSVPF_DIFFSERV_PHBID_DSCP],
-	&rsvp_filter[RSVPF_DIFFSERV_PHBID_CODE],
-	&rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT14],
-	&rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT15]
+	&hf_rsvp_filter[RSVPF_DIFFSERV_MAP],
+	&hf_rsvp_filter[RSVPF_DIFFSERV_MAP_EXP],
+	&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID],
+	&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_DSCP],
+	&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_CODE],
+	&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT14],
+	&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT15]
     };
     gint *etts[] = {
 	&TREE(TT_DIFFSERV_MAP),
@@ -5038,7 +5163,7 @@ dissect_rsvp_diffserv (proto_tree *ti, proto_tree *rsvp_object_tree,
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset, 1,
 			    "C-type: 1 - E-LSP");
-	proto_tree_add_uint(rsvp_object_tree, rsvp_filter[RSVPF_DIFFSERV_MAPNB],
+	proto_tree_add_uint(rsvp_object_tree, hf_rsvp_filter[RSVPF_DIFFSERV_MAPNB],
 			    tvb, offset + 4, 1,
 			    mapnb = tvb_get_guint8(tvb, offset + 4) & 15);
 	proto_item_append_text(ti, "E-LSP, %u MAP%s", mapnb,
@@ -5080,7 +5205,7 @@ dissect_rsvp_diffserv_aware_te(proto_tree *ti, proto_tree *rsvp_object_tree,
     guint8 ct = 0;
 
     hidden_item = proto_tree_add_item(rsvp_object_tree,
-			       rsvp_filter[RSVPF_DSTE],
+			       hf_rsvp_filter[RSVPF_DSTE],
 			       tvb, offset, 8, FALSE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
@@ -5089,7 +5214,7 @@ dissect_rsvp_diffserv_aware_te(proto_tree *ti, proto_tree *rsvp_object_tree,
 	ct = tvb_get_guint8(tvb, offset2+3);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, "C-type: 1");
 	proto_tree_add_item(rsvp_object_tree,
-			    rsvp_filter[RSVPF_DSTE_CLASSTYPE],
+			    hf_rsvp_filter[RSVPF_DSTE_CLASSTYPE],
 			    tvb, offset2+3, 1, FALSE);
 	proto_item_set_text(ti, "CLASSTYPE: CT %u", ct);
 	break;
@@ -5157,7 +5282,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			(ver_flags & 0xf0)>>4);
     proto_tree_add_text(rsvp_header_tree, tvb, offset, 1, "Flags: %02x",
 			ver_flags & 0xf);
-    proto_tree_add_uint(rsvp_header_tree, rsvp_filter[RSVPF_MSG], tvb,
+    proto_tree_add_uint(rsvp_header_tree, hf_rsvp_filter[RSVPF_MSG], tvb,
 			offset+1, 1, message_type);
     switch (RSVPF_MSG + message_type) {
 
@@ -5174,7 +5299,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case RSVPF_SREFRESH:
     case RSVPF_HELLO:
     case RSVPF_NOTIFY:
-	hidden_item = proto_tree_add_boolean(rsvp_header_tree, rsvp_filter[RSVPF_MSG + message_type], tvb,
+	hidden_item = proto_tree_add_boolean(rsvp_header_tree, hf_rsvp_filter[RSVPF_MSG + message_type], tvb,
 				      offset+1, 1, 1);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	break;
@@ -5242,7 +5367,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	obj_length = tvb_get_ntohs(tvb, offset);
 	class = tvb_get_guint8(tvb, offset+2);
 	type = tvb_get_guint8(tvb, offset+3);
-	ti = proto_tree_add_item(rsvp_tree, rsvp_filter[rsvp_class_to_filter_num(class)],
+	ti = proto_tree_add_item(rsvp_tree, hf_rsvp_filter[rsvp_class_to_filter_num(class)],
 				 tvb, offset, obj_length, FALSE);
 	rsvp_object_tree = proto_item_add_subtree(ti, TREE(rsvp_class_to_tree_type(class)));
 	if (obj_length < 4) {
@@ -5252,7 +5377,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
 			    "Length: %u", obj_length);
-	proto_tree_add_uint(rsvp_object_tree, rsvp_filter[RSVPF_OBJECT], tvb,
+	proto_tree_add_uint(rsvp_object_tree, hf_rsvp_filter[RSVPF_OBJECT], tvb,
 			    offset+2, 1, class);
 
 	offset2 = offset+4;
@@ -5436,7 +5561,6 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct rsvp_request_key request_key, *new_request_key;
     struct rsvp_request_val *request_val = NULL;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL,
 		    (pinfo->ipproto == IP_PROTO_RSVPE2EI) ? "RSVP-E2EI" : "RSVP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -5451,17 +5575,15 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     SET_ADDRESS(&rsvph->source, pinfo->src.type, pinfo->src.len, pinfo->src.data);
     SET_ADDRESS(&rsvph->destination, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_str(pinfo->cinfo, COL_INFO,
-            val_to_str(message_type, message_type_vals, "Unknown (%u). "));
+    col_add_str(pinfo->cinfo, COL_INFO,
+          val_to_str(message_type, message_type_vals, "Unknown (%u). "));
 	find_rsvp_session_tempfilt(tvb, 0, &session_off, &tempfilt_off);
 	if (session_off)
 	    col_append_str(pinfo->cinfo, COL_INFO, summary_session(tvb, session_off));
 	if (tempfilt_off)
 	    col_append_str(pinfo->cinfo, COL_INFO, summary_template(tvb, tempfilt_off));
-    }
+    
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(message_type, message_type_vals, "Unknown (%u). "));
 	if (message_type == RSVP_MSG_BUNDLE) {
@@ -5472,14 +5594,13 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 	    find_rsvp_session_tempfilt(tvb, 0, &session_off, &tempfilt_off);
 	    if (session_off)
-		col_append_str(pinfo->cinfo, COL_INFO, summary_session(tvb, session_off));
+			col_append_str(pinfo->cinfo, COL_INFO, summary_session(tvb, session_off));
 	    if (tempfilt_off)
-		col_append_str(pinfo->cinfo, COL_INFO, summary_template(tvb, tempfilt_off));
+			col_append_str(pinfo->cinfo, COL_INFO, summary_template(tvb, tempfilt_off));
 	}
-    }
 
     if (tree) {
-	dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP), rsvph);
+		dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP), rsvph);
     }
 
     /* Find out what conversation this packet is part of. */
@@ -5561,12 +5682,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* If not, insert the new request key into the hash table */
     if (!request_val) {
-	new_request_key = se_memdup(&request_key, sizeof(struct rsvp_request_key));
+		new_request_key = se_memdup(&request_key, sizeof(struct rsvp_request_key));
 
-	request_val = se_alloc(sizeof(struct rsvp_request_val));
-	request_val->value = conversation->index;
+		request_val = se_alloc(sizeof(struct rsvp_request_val));
+		request_val->value = conversation->index;
 
-	g_hash_table_insert(rsvp_request_hash, new_request_key, request_val);
+		g_hash_table_insert(rsvp_request_hash, new_request_key, request_val);
     }
 
     tap_queue_packet(rsvp_tap, pinfo, rsvph);
@@ -5593,324 +5714,324 @@ proto_register_rsvp(void)
 	static hf_register_info rsvpf_info[] = {
 
 		/* Message type number */
-		{&rsvp_filter[RSVPF_MSG],
+		{&hf_rsvp_filter[RSVPF_MSG],
 		 { "Message Type", "rsvp.msg", FT_UINT8, BASE_DEC, VALS(message_type_vals), 0x0,
 			NULL, HFILL }},
 
 		/* Message type shorthands */
-		{&rsvp_filter[RSVPF_PATH],
+		{&hf_rsvp_filter[RSVPF_PATH],
 		 { "Path Message", "rsvp.path", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_RESV],
+		{&hf_rsvp_filter[RSVPF_RESV],
 		 { "Resv Message", "rsvp.resv", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_PATHERR],
+		{&hf_rsvp_filter[RSVPF_PATHERR],
 		 { "Path Error Message", "rsvp.perr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_RESVERR],
+		{&hf_rsvp_filter[RSVPF_RESVERR],
 		 { "Resv Error Message", "rsvp.rerr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_PATHTEAR],
+		{&hf_rsvp_filter[RSVPF_PATHTEAR],
 		 { "Path Tear Message", "rsvp.ptear", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_RESVTEAR],
+		{&hf_rsvp_filter[RSVPF_RESVTEAR],
 		 { "Resv Tear Message", "rsvp.rtear", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_RCONFIRM],
+		{&hf_rsvp_filter[RSVPF_RCONFIRM],
 		 { "Resv Confirm Message", "rsvp.resvconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_RTEARCONFIRM],
+		{&hf_rsvp_filter[RSVPF_RTEARCONFIRM],
 		 { "Resv Tear Confirm Message", "rsvp.rtearconf", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_BUNDLE],
+		{&hf_rsvp_filter[RSVPF_BUNDLE],
 		 { "Bundle Message", "rsvp.bundle", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_ACK],
+		{&hf_rsvp_filter[RSVPF_ACK],
 		 { "Ack Message", "rsvp.ack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_SREFRESH],
+		{&hf_rsvp_filter[RSVPF_SREFRESH],
 		 { "Srefresh Message", "rsvp.srefresh", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_HELLO],
+		{&hf_rsvp_filter[RSVPF_HELLO],
 		 { "HELLO Message", "rsvp.hello", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		/* Object class */
-		{&rsvp_filter[RSVPF_OBJECT],
+		{&hf_rsvp_filter[RSVPF_OBJECT],
 		 { "Object class", "rsvp.object", FT_UINT8, BASE_DEC, VALS(rsvp_class_vals), 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_NOTIFY],
+		{&hf_rsvp_filter[RSVPF_NOTIFY],
 		 { "Notify Message", "rsvp.notify", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		   NULL, HFILL }},
 
 		/* Object present shorthands */
-		{&rsvp_filter[RSVPF_SESSION],
+		{&hf_rsvp_filter[RSVPF_SESSION],
 		 { "SESSION", "rsvp.session", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_HOP],
+		{&hf_rsvp_filter[RSVPF_HOP],
 		 { "HOP", "rsvp.hop", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_HELLO_OBJ],
+		{&hf_rsvp_filter[RSVPF_HELLO_OBJ],
 		 { "HELLO Request/Ack", "rsvp.hello_obj", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_INTEGRITY],
+		{&hf_rsvp_filter[RSVPF_INTEGRITY],
 		 { "INTEGRITY", "rsvp.integrity", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_TIME_VALUES],
+		{&hf_rsvp_filter[RSVPF_TIME_VALUES],
 		 { "TIME VALUES", "rsvp.time", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_ERROR],
+		{&hf_rsvp_filter[RSVPF_ERROR],
 		 { "ERROR", "rsvp.error", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_SCOPE],
+		{&hf_rsvp_filter[RSVPF_SCOPE],
 		 { "SCOPE", "rsvp.scope", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_STYLE],
+		{&hf_rsvp_filter[RSVPF_STYLE],
 		 { "STYLE", "rsvp.style", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_FLOWSPEC],
+		{&hf_rsvp_filter[RSVPF_FLOWSPEC],
 		 { "FLOWSPEC", "rsvp.flowspec", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_FILTER_SPEC],
+		{&hf_rsvp_filter[RSVPF_FILTER_SPEC],
 		 { "FILTERSPEC", "rsvp.filter", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_SENDER],
+		{&hf_rsvp_filter[RSVPF_SENDER],
 		 { "SENDER TEMPLATE", "rsvp.sender", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_TSPEC],
+		{&hf_rsvp_filter[RSVPF_TSPEC],
 		 { "SENDER TSPEC", "rsvp.tspec", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_ADSPEC],
+		{&hf_rsvp_filter[RSVPF_ADSPEC],
 		 { "ADSPEC", "rsvp.adspec", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_POLICY],
+		{&hf_rsvp_filter[RSVPF_POLICY],
 		 { "POLICY", "rsvp.policy", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_CONFIRM],
+		{&hf_rsvp_filter[RSVPF_CONFIRM],
 		 { "CONFIRM", "rsvp.confirm", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_LABEL],
+		{&hf_rsvp_filter[RSVPF_LABEL],
 		 { "LABEL", "rsvp.label", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_RECOVERY_LABEL],
+		{&hf_rsvp_filter[RSVPF_RECOVERY_LABEL],
 		 { "RECOVERY LABEL", "rsvp.recovery_label", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_UPSTREAM_LABEL],
+		{&hf_rsvp_filter[RSVPF_UPSTREAM_LABEL],
 		 { "UPSTREAM LABEL", "rsvp.upstream_label", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_SUGGESTED_LABEL],
+		{&hf_rsvp_filter[RSVPF_SUGGESTED_LABEL],
 		 { "SUGGESTED LABEL", "rsvp.suggested_label", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_LABEL_SET],
+		{&hf_rsvp_filter[RSVPF_LABEL_SET],
 		 { "LABEL SET", "rsvp.label_set", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_ACCEPTABLE_LABEL_SET],
+		{&hf_rsvp_filter[RSVPF_ACCEPTABLE_LABEL_SET],
 		 { "ACCEPTABLE LABEL SET", "rsvp.acceptable_label_set", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_PROTECTION],
+		{&hf_rsvp_filter[RSVPF_PROTECTION],
 		 { "PROTECTION", "rsvp.protection", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_DIFFSERV],
+		{&hf_rsvp_filter[RSVPF_DIFFSERV],
 		 { "DIFFSERV", "rsvp.diffserv", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_DSTE],
+		{&hf_rsvp_filter[RSVPF_DSTE],
 		 { "CLASSTYPE", "rsvp.dste", FT_NONE, BASE_NONE, NULL, 0x0,
 		   NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_RESTART_CAP],
+		{&hf_rsvp_filter[RSVPF_RESTART_CAP],
 		 { "RESTART CAPABILITY", "rsvp.restart", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_LABEL_REQUEST],
+		{&hf_rsvp_filter[RSVPF_LABEL_REQUEST],
 		 { "LABEL REQUEST", "rsvp.label_request", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_SESSION_ATTRIBUTE],
+		{&hf_rsvp_filter[RSVPF_SESSION_ATTRIBUTE],
 		 { "SESSION ATTRIBUTE", "rsvp.session_attribute", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_EXPLICIT_ROUTE],
+		{&hf_rsvp_filter[RSVPF_EXPLICIT_ROUTE],
 		 { "EXPLICIT ROUTE", "rsvp.explicit_route", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_RECORD_ROUTE],
+		{&hf_rsvp_filter[RSVPF_RECORD_ROUTE],
 		 { "RECORD ROUTE", "rsvp.record_route", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_MESSAGE_ID],
+		{&hf_rsvp_filter[RSVPF_MESSAGE_ID],
 		 { "MESSAGE-ID", "rsvp.msgid", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_MESSAGE_ID_ACK],
+		{&hf_rsvp_filter[RSVPF_MESSAGE_ID_ACK],
 		 { "MESSAGE-ID ACK", "rsvp.ack", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_MESSAGE_ID_LIST],
+		{&hf_rsvp_filter[RSVPF_MESSAGE_ID_LIST],
 		 { "MESSAGE-ID LIST", "rsvp.msgid_list", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_DCLASS],
+		{&hf_rsvp_filter[RSVPF_DCLASS],
 		 { "DCLASS", "rsvp.dclass", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_LSP_TUNNEL_IF_ID],
+		{&hf_rsvp_filter[RSVPF_LSP_TUNNEL_IF_ID],
 		 { "LSP INTERFACE-ID", "rsvp.lsp_tunnel_if_id", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_ADMIN_STATUS],
+		{&hf_rsvp_filter[RSVPF_ADMIN_STATUS],
 		 { "ADMIN STATUS", "rsvp.admin_status", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_ASSOCIATION],
+		{&hf_rsvp_filter[RSVPF_ASSOCIATION],
 		 { "ASSOCIATION", "rsvp.association", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_NOTIFY_REQUEST],
+		{&hf_rsvp_filter[RSVPF_NOTIFY_REQUEST],
 		 { "NOTIFY REQUEST", "rsvp.notify_request", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_GENERALIZED_UNI],
+		{&hf_rsvp_filter[RSVPF_GENERALIZED_UNI],
 		 { "GENERALIZED UNI", "rsvp.generalized_uni", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_CALL_ID],
+		{&hf_rsvp_filter[RSVPF_CALL_ID],
 		 { "CALL ID", "rsvp.call_id", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_UNKNOWN_OBJ],
+		{&hf_rsvp_filter[RSVPF_UNKNOWN_OBJ],
 		 { "Unknown object", "rsvp.obj_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		/* Session fields */
-		{&rsvp_filter[RSVPF_SESSION_IP],
+		{&hf_rsvp_filter[RSVPF_SESSION_IP],
 		 { "Destination address", "rsvp.session.ip", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_SESSION_PORT],
+		{&hf_rsvp_filter[RSVPF_SESSION_PORT],
 		 { "Port number", "rsvp.session.port", FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_SESSION_PROTO],
+		{&hf_rsvp_filter[RSVPF_SESSION_PROTO],
 		 { "Protocol", "rsvp.session.proto", FT_UINT8, BASE_DEC, VALS(proto_vals), 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
+		{&hf_rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
 		 { "Tunnel ID", "rsvp.session.tunnel_id", FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
+		{&hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 		 { "Extended tunnel ID", "rsvp.session.ext_tunnel_id", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
 		/* Sender template/Filterspec fields */
-		{&rsvp_filter[RSVPF_SENDER_IP],
+		{&hf_rsvp_filter[RSVPF_SENDER_IP],
 		 { "Sender IPv4 address", "rsvp.sender.ip", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_SENDER_PORT],
+		{&hf_rsvp_filter[RSVPF_SENDER_PORT],
 		 { "Sender port number", "rsvp.sender.port", FT_UINT16, BASE_DEC, NULL, 0x0,
 		   NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_SENDER_LSP_ID],
+		{&hf_rsvp_filter[RSVPF_SENDER_LSP_ID],
 		 { "Sender LSP ID", "rsvp.sender.lsp_id", FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
 		/* Diffserv object fields */
-		{&rsvp_filter[RSVPF_DIFFSERV_MAPNB],
+		{&hf_rsvp_filter[RSVPF_DIFFSERV_MAPNB],
 		 { "MAPnb", "rsvp.diffserv.mapnb", FT_UINT8, BASE_DEC, NULL, 0x0,
 		   MAPNB_DESCRIPTION, HFILL }},
 
-		{&rsvp_filter[RSVPF_DIFFSERV_MAP],
+		{&hf_rsvp_filter[RSVPF_DIFFSERV_MAP],
 		 { "MAP", "rsvp.diffserv.map", FT_NONE, BASE_NONE, NULL, 0x0,
 		   MAP_DESCRIPTION, HFILL }},
 
-		{&rsvp_filter[RSVPF_DIFFSERV_MAP_EXP],
+		{&hf_rsvp_filter[RSVPF_DIFFSERV_MAP_EXP],
 		 { "EXP", "rsvp.diffserv.map.exp", FT_UINT8, BASE_DEC, NULL, 0x0,
 		   EXP_DESCRIPTION, HFILL }},
 
-		{&rsvp_filter[RSVPF_DIFFSERV_PHBID],
+		{&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID],
 		 { PHBID_DESCRIPTION, "rsvp.diffserv.phbid", FT_NONE, BASE_NONE, NULL, 0x0,
 		   NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_DIFFSERV_PHBID_DSCP],
+		{&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_DSCP],
 		 { PHBID_DSCP_DESCRIPTION, "rsvp.diffserv.phbid.dscp", FT_UINT16,
 		   BASE_DEC, NULL, PHBID_DSCP_MASK, NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_DIFFSERV_PHBID_CODE],
+		{&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_CODE],
 		 { PHBID_CODE_DESCRIPTION, "rsvp.diffserv.phbid.code", FT_UINT16,
 		   BASE_DEC, NULL, PHBID_CODE_MASK, NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT14],
+		{&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT14],
 		 { PHBID_BIT14_DESCRIPTION, "rsvp.diffserv.phbid.bit14", FT_UINT16,
 		   BASE_DEC, VALS(phbid_bit14_vals), PHBID_BIT14_MASK, NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT15],
+		{&hf_rsvp_filter[RSVPF_DIFFSERV_PHBID_BIT15],
 		 { PHBID_BIT15_DESCRIPTION, "rsvp.diffserv.phbid.bit15", FT_UINT16,
 		   BASE_DEC, VALS(phbid_bit15_vals), PHBID_BIT15_MASK, NULL, HFILL }},
 
 		/* Diffserv-aware TE object field */
-		{&rsvp_filter[RSVPF_DSTE_CLASSTYPE],
+		{&hf_rsvp_filter[RSVPF_DSTE_CLASSTYPE],
 		 { "CT", "rsvp.dste.classtype", FT_UINT8, BASE_DEC, NULL, 0x0,
 		   NULL, HFILL }},
 
 		/* Generalized UNI object field */
-		{&rsvp_filter[RSVPF_GUNI_SRC_IPV4],
+		{&hf_rsvp_filter[RSVPF_GUNI_SRC_IPV4],
 		 { "Source TNA", "rsvp.guni.srctna.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_GUNI_DST_IPV4],
+		{&hf_rsvp_filter[RSVPF_GUNI_DST_IPV4],
 		 { "Destination TNA", "rsvp.guni.dsttna.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_GUNI_SRC_IPV6],
+		{&hf_rsvp_filter[RSVPF_GUNI_SRC_IPV6],
 		 { "Source TNA", "rsvp.guni.srctna.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_GUNI_DST_IPV6],
+		{&hf_rsvp_filter[RSVPF_GUNI_DST_IPV6],
 		 { "Destination TNA", "rsvp.guni.dsttna.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		/* Generalized UNI object field */
-		{&rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV4],
+		{&hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV4],
 		 { "Source Transport Network Address", "rsvp.callid.srcaddr.ipv4", FT_IPv4,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-		{&rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV6],
+		{&hf_rsvp_filter[RSVPF_CALL_ID_SRC_ADDR_IPV6],
 		 { "Source Transport Network Address", "rsvp.callid.srcaddr.ipv6", FT_IPv6,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};

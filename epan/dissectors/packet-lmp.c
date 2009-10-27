@@ -291,7 +291,7 @@ static const value_string lmp_trace_type_str[] = {
  * LMP Filter values
  */
 
-enum lmp_filter_keys {
+enum hf_lmp_filter_keys {
 
   /* Message types ---------------- */
   LMPF_MSG,
@@ -499,7 +499,7 @@ enum lmp_filter_keys {
   LMPF_MAX
 };
 
-static int lmp_filter[LMPF_MAX];
+static int hf_lmp_filter[LMPF_MAX];
 
 static int
 lmp_valid_class(int class)
@@ -695,10 +695,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     version = (tvb_get_guint8(tvb, offset+0)) >> 4;
     flags = tvb_get_guint8(tvb, offset+2);
     message_type = tvb_get_guint8(tvb, offset+3);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_str(pinfo->cinfo, COL_INFO,
-            val_to_str(message_type, message_type_vals, "Unknown (%u). "));
-    }
+    col_add_str(pinfo->cinfo, COL_INFO,
+         val_to_str(message_type, message_type_vals, "Unknown (%u). "));
 
     if (tree) {
 	msg_length = tvb_get_ntohs(tvb, offset+4);
@@ -714,11 +712,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_text(lmp_header_tree, tvb, offset+2, 1, "Flags: %02x",
 				 flags);
 	lmp_header_flags_tree = proto_item_add_subtree(ti, lmp_subtree[LMP_TREE_HEADER_FLAGS]);
-	proto_tree_add_boolean(lmp_header_flags_tree, lmp_filter[LMPF_HDR_FLAGS_CC_DOWN],
+	proto_tree_add_boolean(lmp_header_flags_tree, hf_lmp_filter[LMPF_HDR_FLAGS_CC_DOWN],
 			       tvb, offset+2, 1, flags);
-	proto_tree_add_boolean(lmp_header_flags_tree, lmp_filter[LMPF_HDR_FLAGS_REBOOT],
+	proto_tree_add_boolean(lmp_header_flags_tree, hf_lmp_filter[LMPF_HDR_FLAGS_REBOOT],
 			       tvb, offset+2, 1, flags);
-	proto_tree_add_uint(lmp_header_tree, lmp_filter[LMPF_MSG], tvb,
+	proto_tree_add_uint(lmp_header_tree, hf_lmp_filter[LMPF_MSG], tvb,
 			    offset+3, 1, message_type);
 	proto_tree_add_text(lmp_header_tree, tvb, offset+4, 2, "Length: %d bytes",
 			    msg_length);
@@ -728,7 +726,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (message_type >= LMP_MSG_SERVICE_CONFIG && message_type <= LMP_MSG_SERVICE_CONFIG_NACK) ||
         (message_type >= LMP_MSG_DISCOVERY_RESP && message_type <= LMP_MSG_DISCOVERY_RESP_NACK) ) {
 	    hidden_item = proto_tree_add_boolean(lmp_header_tree,
-                                          lmp_filter[lmp_msg_to_filter_num(message_type)],
+                                          hf_lmp_filter[lmp_msg_to_filter_num(message_type)],
                                           tvb, offset+3, 1, 1);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	} else {
@@ -778,13 +776,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  type = tvb_get_guint8(tvb, offset);
 	  negotiable = (type >> 7); type &= 0x7f;
 	  object_type = val_to_str(class, lmp_class_vals, "Unknown");
-	  hidden_item = proto_tree_add_uint(lmp_tree, lmp_filter[LMPF_OBJECT], tvb,
+	  hidden_item = proto_tree_add_uint(lmp_tree, hf_lmp_filter[LMPF_OBJECT], tvb,
 				     offset, 1, class);
 	  PROTO_ITEM_SET_HIDDEN(hidden_item);
 	  if (lmp_valid_class(class)) {
 
 	      ti = proto_tree_add_item(lmp_tree, 
-				       lmp_filter[lmp_class_to_filter_num(class)],
+				       hf_lmp_filter[lmp_class_to_filter_num(class)],
 				       tvb, offset, obj_length, FALSE);
 	  } else {
 	      proto_tree_add_protocol_format(lmp_tree, proto_malformed, tvb, 
@@ -809,7 +807,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_text(lmp_object_header_tree, tvb, offset+1, 1,
 			      "Object Class: %u - %s",
 			      class, object_type);
-	  proto_tree_add_item(lmp_object_header_tree, lmp_filter[LMPF_VAL_CTYPE],
+	  proto_tree_add_item(lmp_object_header_tree, hf_lmp_filter[LMPF_VAL_CTYPE],
 			      tvb, offset, 1, type);
 	  offset2 = offset+4;
 	  mylen = obj_length - 4;
@@ -825,14 +823,14 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      case 1:
 		  l = LMPF_VAL_LOCAL_CCID;
 		  proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
-		  proto_tree_add_uint(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_uint(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, tvb_get_ntohl(tvb, offset2));
 		  break;
 		  
 	      case 2:
 		  l = LMPF_VAL_REMOTE_CCID;
 		  proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
-		  proto_tree_add_uint(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_uint(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, tvb_get_ntohl(tvb, offset2));
 	      default:
 		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
@@ -848,7 +846,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  l = LMPF_VAL_LOCAL_NODE_ID;
 		  proto_item_append_text(ti, ": %s",
 					 ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		  proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, FALSE);
 		  break;
 		  
@@ -856,7 +854,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  l = LMPF_VAL_REMOTE_NODE_ID;
 		  proto_item_append_text(ti, ": %s",
 					 ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		  proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, FALSE);
 		  break;
 		  
@@ -877,7 +875,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      LMPF_VAL_REMOTE_LINK_ID_IPV4;
 		  proto_item_append_text(ti, ": IPv4 %s",
 					 ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		  proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, FALSE);
 		  break;
 		  
@@ -896,7 +894,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      LMPF_VAL_REMOTE_LINK_ID_UNNUM;
 		  proto_item_append_text(ti, ": Unnumbered %d", 
 					 tvb_get_ntohl(tvb, offset2));
-		  proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, FALSE);
 		  break;
 
@@ -917,7 +915,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      LMPF_VAL_REMOTE_INTERFACE_ID_IPV4;
 		  proto_item_append_text(ti, ": IPv4 %s",
 					 ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		  proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, FALSE);
 		  break;
   
@@ -937,7 +935,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      LMPF_VAL_REMOTE_INTERFACE_ID_UNNUM;
 		  proto_item_append_text(ti, ": Unnumbered %d", 
 					 tvb_get_ntohl(tvb, offset2));
-		  proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, FALSE);
 		  break;
 
@@ -956,14 +954,14 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  
 		  l = LMPF_VAL_MESSAGE_ID;
 		  proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
-		  proto_tree_add_uint(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_uint(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, tvb_get_ntohl(tvb, offset2));
 		  break;
 		  
 	      case 2:
 		  l = LMPF_VAL_MESSAGE_ID_ACK;
 		  proto_item_append_text(ti, ": %d", tvb_get_ntohl(tvb, offset2));
-		  proto_tree_add_uint(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_uint(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, tvb_get_ntohl(tvb, offset2));
 		  break;
 		  
@@ -983,10 +981,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 tvb_get_ntohs(tvb, offset2), 
 					 tvb_get_ntohs(tvb, offset2+2));
 		  proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_CONFIG_HELLO],
+				      hf_lmp_filter[LMPF_VAL_CONFIG_HELLO],
 				      tvb, offset2, 2, tvb_get_ntohs(tvb, offset2));
 		  proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_CONFIG_HELLO_DEAD],
+				      hf_lmp_filter[LMPF_VAL_CONFIG_HELLO_DEAD],
 				      tvb, offset2+2, 2, 
 				      tvb_get_ntohs(tvb, offset2+2));
 		  break;
@@ -1007,11 +1005,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 tvb_get_ntohl(tvb, offset2),
 					 tvb_get_ntohl(tvb, offset2+4));
 		  proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_HELLO_TXSEQ],
+				      hf_lmp_filter[LMPF_VAL_HELLO_TXSEQ],
 				      tvb, offset2, 4, 
 				      tvb_get_ntohl(tvb, offset2));
 		  proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_HELLO_RXSEQ],
+				      hf_lmp_filter[LMPF_VAL_HELLO_RXSEQ],
 				      tvb, offset2+4, 4, 
 				      tvb_get_ntohl(tvb, offset2+4));
 		  break;
@@ -1030,16 +1028,16 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      case 1:
 		  l = tvb_get_ntohs(tvb, offset2);
 		  ti2 = proto_tree_add_item(lmp_object_tree, 
-					    lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS],
+					    hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS],
 					    tvb, offset2, 2, FALSE);
 		  
 		  lmp_flags_tree = proto_item_add_subtree(ti2, 
 							  lmp_subtree[LMP_TREE_BEGIN_VERIFY_FLAGS]);
 		  proto_tree_add_boolean(lmp_flags_tree, 
-					 lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_ALL_LINKS],
+					 hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_ALL_LINKS],
 					 tvb, offset2, 2, l);
 		  proto_tree_add_boolean(lmp_flags_tree, 
-					 lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_LINK_TYPE],
+					 hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_LINK_TYPE],
 					 tvb, offset2, 2, l);
 		  proto_tree_add_text(lmp_object_tree, tvb, offset2+2, 2,
 				      "Verify Interval: %d ms", 
@@ -1048,7 +1046,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				      "Number of Data Links: %d", 
 				      tvb_get_ntohl(tvb, offset2+4));
 		  proto_tree_add_item(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_BEGIN_VERIFY_ENCTYPE],
+				      hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_ENCTYPE],
 				      tvb, offset2+8, 1, FALSE);
 		  proto_tree_add_text(lmp_object_tree, tvb, offset2+10, 2,
 				      "Verify Transport Mechanism: 0x%0x", 
@@ -1099,7 +1097,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  proto_item_append_text(ti, ": %d", 
 					 tvb_get_ntohl(tvb, offset2));
 		  proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_VERIFY_ID], 
+				      hf_lmp_filter[LMPF_VAL_VERIFY_ID], 
 				      tvb, offset2, 4,
 				      tvb_get_ntohl(tvb, offset2));
 		  break;
@@ -1113,7 +1111,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  case LMP_CLASS_TE_LINK:
 	      l = tvb_get_guint8(tvb, offset2);
 	      ti2 = proto_tree_add_uint(lmp_object_tree, 
-					lmp_filter[LMPF_VAL_TE_LINK_FLAGS],
+					hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS],
 					tvb, offset2, 1, l);
 	      
 	      proto_item_append_text(ti2, ": %s%s",
@@ -1123,10 +1121,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      lmp_flags_tree = proto_item_add_subtree(ti2, 
 						      lmp_subtree[LMP_TREE_TE_LINK_FLAGS]);
 	      proto_tree_add_boolean(lmp_flags_tree,
-				     lmp_filter[LMPF_VAL_TE_LINK_FLAGS_FAULT_MGMT],
+				     hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS_FAULT_MGMT],
 				     tvb, offset2, 1, l);
 	      proto_tree_add_boolean(lmp_flags_tree,
-				     lmp_filter[LMPF_VAL_TE_LINK_FLAGS_LINK_VERIFY],
+				     hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS_LINK_VERIFY],
 				     tvb, offset2, 1, l);
 	      switch(type) {
 
@@ -1135,10 +1133,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 ip_to_str(tvb_get_ptr(tvb, offset2+4, 4)),
 					 ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
 		  proto_tree_add_item(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_TE_LINK_LOCAL_IPV4],
+				      hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_IPV4],
 				      tvb, offset2+4, 4, FALSE);
 		  proto_tree_add_item(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_TE_LINK_REMOTE_IPV4],
+				      hf_lmp_filter[LMPF_VAL_TE_LINK_REMOTE_IPV4],
 				      tvb, offset2+8, 4, FALSE);
 		  break;
 		  
@@ -1160,11 +1158,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 tvb_get_ntohl(tvb, offset2+8));
 		  
 		  proto_tree_add_item(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_TE_LINK_LOCAL_UNNUM],
+				      hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_UNNUM],
 				      tvb, offset2+4, 4, FALSE);
 		  
 		  proto_tree_add_item(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_TE_LINK_REMOTE_UNNUM],
+				      hf_lmp_filter[LMPF_VAL_TE_LINK_REMOTE_UNNUM],
 				      tvb, offset2+8, 4, FALSE);
 		  break;
 	      default:
@@ -1178,7 +1176,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	      l = tvb_get_guint8(tvb, offset2);
 	      ti2 = proto_tree_add_uint(lmp_object_tree, 
-					lmp_filter[LMPF_VAL_DATA_LINK_FLAGS],
+					hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS],
 					tvb, offset2, 1, l);
 	      proto_item_append_text(ti2, ": %s%s",
 				     (l&0x01) ? "Interface-Type-Port " : "Interface-Type-Component-Link ",
@@ -1187,10 +1185,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      lmp_flags_tree = proto_item_add_subtree(ti2, 
 						      lmp_subtree[LMP_TREE_DATA_LINK_FLAGS]);
 	      proto_tree_add_boolean(lmp_flags_tree,
-				     lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_PORT],
+				     hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_PORT],
 				     tvb, offset2, 1, l);
 	      proto_tree_add_boolean(lmp_flags_tree,
-				     lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_ALLOCATED],
+				     hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_ALLOCATED],
 				     tvb, offset2, 1, l);
 	      switch(type) {
 
@@ -1200,11 +1198,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
 
 		  proto_tree_add_item(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_IPV4],
+				      hf_lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_IPV4],
 				      tvb, offset2+4, 4, FALSE);
 
 		  proto_tree_add_item(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_IPV4],
+				      hf_lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_IPV4],
 				      tvb, offset2+8, 4, FALSE);
 		  l = 12;
 		  break;
@@ -1227,9 +1225,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 tvb_get_ntohl(tvb, offset2+4), 
 					 tvb_get_ntohl(tvb, offset2+8));
 		  proto_tree_add_item(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_UNNUM],
+				      hf_lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_UNNUM],
 				      tvb, offset2+4, 4, FALSE);
-		  proto_tree_add_item(lmp_object_tree, lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_UNNUM],
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_UNNUM],
 				      tvb, offset2+8, 4, FALSE);
 		  l = 12;
 		  break;
@@ -1243,7 +1241,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      while (l < obj_length - 4) {
 		  mylen = tvb_get_guint8(tvb, offset2+l+1);
 		  ti2 = proto_tree_add_item(lmp_object_tree, 
-					    lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ],
+					    hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ],
 					    tvb, offset2+l, mylen, FALSE);
 		  lmp_subobj_tree = proto_item_add_subtree(ti2, 
 							   lmp_subtree[LMP_TREE_DATA_LINK_SUBOBJ]);
@@ -1260,17 +1258,17 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      proto_item_set_text(ti2, "Interface Switching Capability: "
 					  "Switching Cap: %s, Encoding Type: %s, "
 					  "Min BW: %.3f Mbps, Max BW: %.3f Mbps",
-					  val_to_str(tvb_get_guint8(tvb, offset2+l+2),
-						     gmpls_switching_type_str, "Unknown (%d)"),
-					  val_to_str(tvb_get_guint8(tvb, offset2+l+3),
-						     gmpls_lsp_enc_str, "Unknown (%d)"),
+					  rval_to_str(tvb_get_guint8(tvb, offset2+l+2),
+						     gmpls_switching_type_rvals, "Unknown (%d)"),
+					  rval_to_str(tvb_get_guint8(tvb, offset2+l+3),
+						     gmpls_lsp_enc_rvals, "Unknown (%d)"),
 					  tvb_get_ntohieee_float(tvb, offset2+l+4)*8/1000000,
 					  tvb_get_ntohieee_float(tvb, offset2+l+8)*8/1000000);
 		      proto_tree_add_item(lmp_subobj_tree,
-					  lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_SWITCHING_TYPE],
+					  hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_SWITCHING_TYPE],
 					  tvb, offset2+l+2, 1, FALSE);
 		      proto_tree_add_item(lmp_subobj_tree,
-					  lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_LSP_ENCODING],
+					  hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_LSP_ENCODING],
 					  tvb, offset2+l+3, 1, FALSE);
 		      proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4,
 					  "Minimum Reservable Bandwidth: %.3f Mbps",
@@ -1428,7 +1426,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      
 	  case LMP_CLASS_ERROR:
 	      l = tvb_get_ntohl(tvb, offset2);
-	      ti2 = proto_tree_add_uint(lmp_object_tree, lmp_filter[LMPF_VAL_ERROR],
+	      ti2 = proto_tree_add_uint(lmp_object_tree, hf_lmp_filter[LMPF_VAL_ERROR],
 					tvb, offset2, 4, l);
 
 	      switch(type) {
@@ -1442,16 +1440,16 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  lmp_flags_tree = proto_item_add_subtree(ti2, 
 							  lmp_subtree[LMP_TREE_ERROR_FLAGS]);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK],
+					 hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK],
 					 tvb, offset, 4, l);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_VERIFY_UNWILLING],
+					 hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_UNWILLING],
 					 tvb, offset, 4, l);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_VERIFY_TRANSPORT],
+					 hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_TRANSPORT],
 					 tvb, offset, 4, l);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_VERIFY_TE_LINK_ID],
+					 hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_TE_LINK_ID],
 					 tvb, offset, 4, l);
 		  break;
 
@@ -1466,22 +1464,22 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    lmp_flags_tree = proto_item_add_subtree(ti2, 
 							    lmp_subtree[LMP_TREE_ERROR_FLAGS]);
 		    proto_tree_add_boolean(lmp_flags_tree,
-					   lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
+					   hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
 					   tvb, offset, 4, l);
 		    proto_tree_add_boolean(lmp_flags_tree,
-					   lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE],
+					   hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE],
 					   tvb, offset, 4, l);
 		    proto_tree_add_boolean(lmp_flags_tree,
-					   lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK],
+					   hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK],
 					   tvb, offset, 4, l);
 		    proto_tree_add_boolean(lmp_flags_tree,
-					   lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK],
+					   hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK],
 					   tvb, offset, 4, l);
 		    proto_tree_add_boolean(lmp_flags_tree,
-					   lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_TEL_CTYPE],
+					   hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_TEL_CTYPE],
 					   tvb, offset, 4, l);
 		    proto_tree_add_boolean(lmp_flags_tree,
-					   lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_DL_CTYPE],
+					   hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_DL_CTYPE],
 					   tvb, offset, 4, l);
 		    break;
 		    
@@ -1493,13 +1491,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  lmp_flags_tree = proto_item_add_subtree(ti2, 
 							  lmp_subtree[LMP_TREE_ERROR_FLAGS]);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_TRACE_UNSUPPORTED_TYPE],
+					 hf_lmp_filter[LMPF_VAL_ERROR_TRACE_UNSUPPORTED_TYPE],
 					 tvb, offset, 4, l);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_TRACE_INVALID_MSG],
+					 hf_lmp_filter[LMPF_VAL_ERROR_TRACE_INVALID_MSG],
 					 tvb, offset, 4, l);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_TRACE_UNKNOWN_CTYPE],
+					 hf_lmp_filter[LMPF_VAL_ERROR_TRACE_UNKNOWN_CTYPE],
 					 tvb, offset, 4, l);
 		  break;
 
@@ -1513,19 +1511,19 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  lmp_flags_tree = proto_item_add_subtree(ti2, 
 							  lmp_subtree[LMP_TREE_ERROR_FLAGS]);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_LAD_AREA_ID_MISMATCH],
+					 hf_lmp_filter[LMPF_VAL_ERROR_LAD_AREA_ID_MISMATCH],
 					 tvb, offset, 4, l);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_LAD_TCP_ID_MISMATCH],
+					 hf_lmp_filter[LMPF_VAL_ERROR_LAD_TCP_ID_MISMATCH],
 					 tvb, offset, 4, l);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_LAD_DA_DCN_MISMATCH],
+					 hf_lmp_filter[LMPF_VAL_ERROR_LAD_DA_DCN_MISMATCH],
 					 tvb, offset, 4, l);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_LAD_CAPABILITY_MISMATCH],
+					 hf_lmp_filter[LMPF_VAL_ERROR_LAD_CAPABILITY_MISMATCH],
 					 tvb, offset, 4, l);
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_ERROR_LAD_UNKNOWN_CTYPE],
+					 hf_lmp_filter[LMPF_VAL_ERROR_LAD_UNKNOWN_CTYPE],
 					 tvb, offset, 4, l);
 		  break;
 
@@ -1542,20 +1540,20 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      case 1:
 	          l = tvb_get_ntohs(tvb, offset2);
 	          proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_TRACE_LOCAL_TYPE],
+				      hf_lmp_filter[LMPF_VAL_TRACE_LOCAL_TYPE],
 				      tvb, offset2, 2, l);
 		  proto_item_append_text(lmp_object_tree, ": %s",
 					 val_to_str(l, lmp_trace_type_str, "Unknown (%d)"));
 
 	          l = tvb_get_ntohs(tvb, offset2+2);
 	          proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_TRACE_LOCAL_LEN],
+				      hf_lmp_filter[LMPF_VAL_TRACE_LOCAL_LEN],
 				      tvb, offset2+2, 2, l);
 		  if (l && l <= obj_length - 8) {
 		    proto_item_append_text(lmp_object_tree, " = %s",
 					   tvb_format_text(tvb, offset2+4, l));
 		    proto_tree_add_string(lmp_object_tree, 
-					  lmp_filter[LMPF_VAL_TRACE_LOCAL_MSG],
+					  hf_lmp_filter[LMPF_VAL_TRACE_LOCAL_MSG],
 					  tvb, offset2+4, l, tvb_format_text(tvb,
 									     offset2+4,l));
 		  }
@@ -1567,19 +1565,19 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      case 2:
 	          l = tvb_get_ntohs(tvb, offset2);
 	          proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_TRACE_REMOTE_TYPE],
+				      hf_lmp_filter[LMPF_VAL_TRACE_REMOTE_TYPE],
 				      tvb, offset2, 2, l);
 		  proto_item_append_text(lmp_object_tree, ": %s",
 					 val_to_str(l, lmp_trace_type_str, "Unknown (%d)"));
 
 	          l = tvb_get_ntohs(tvb, offset2+2);
 	          proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_TRACE_REMOTE_LEN],
+				      hf_lmp_filter[LMPF_VAL_TRACE_REMOTE_LEN],
 				      tvb, offset2+2, 2, l);
 		  proto_item_append_text(lmp_object_tree, " = %s",
 			                 tvb_format_text(tvb, offset2+4, l));
 	          proto_tree_add_string(lmp_object_tree, 
-				        lmp_filter[LMPF_VAL_TRACE_REMOTE_MSG],
+				        hf_lmp_filter[LMPF_VAL_TRACE_REMOTE_MSG],
 				        tvb, offset2+4, l, tvb_format_text(tvb, offset2+4,l));
 		  break;
 
@@ -1596,7 +1594,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      case 1:
 	          l = tvb_get_ntohs(tvb, offset2);
 	          proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_TRACE_REQ_TYPE],
+				      hf_lmp_filter[LMPF_VAL_TRACE_REQ_TYPE],
 				      tvb, offset2, 2, l);
 		  proto_item_append_text(lmp_object_tree, ": %s",
 					 val_to_str(l, lmp_trace_type_str, "Unknown (%d)"));
@@ -1622,7 +1620,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  l = tvb_get_guint8(tvb, offset2);
 		  
 		  ti2 = proto_tree_add_uint(lmp_object_tree, 
-					    lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS],
+					    hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS],
 					    tvb, offset2, 1, l);
 		  proto_item_append_text(ti2, ": %s %s",
 					 (l & 0x01) ? "RSVP-based UNI signaling supported " : "",
@@ -1632,11 +1630,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							  lmp_subtree[LMP_TREE_SERVICE_CONFIG_SP_FLAGS]);
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_RSVP],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_RSVP],
 					 tvb, offset2, 1, l);
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_LDP],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_LDP],
 					 tvb, offset2, 1, l);
 		  
 		  /* UNI version */
@@ -1693,7 +1691,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  /* TP Transparency */
 		  l = tvb_get_guint8(tvb, offset2+2);
 		  ti2 = proto_tree_add_uint(lmp_object_tree, 
-					    lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS],
+					    hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS],
 					    tvb, offset2+2, 1, l);
 		  
 		  proto_item_append_text(ti2, ": %s%s%s",
@@ -1705,28 +1703,28 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							  lmp_subtree[LMP_TREE_SERVICE_CONFIG_CPSA_TP_FLAGS]);
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_PATH_OVERHEAD],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_PATH_OVERHEAD],
 					 tvb, offset2+2, 1, l);
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_LINE_OVERHEAD],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_LINE_OVERHEAD],
 					 tvb, offset2+2, 1, l);
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_SECTION_OVERHEAD],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_SECTION_OVERHEAD],
 					 tvb, offset2+2, 1, l);
 		  
 		  /* Contiguous Concatentation Types */
 		  l = tvb_get_guint8(tvb, offset2+3);
 		  ti2 = proto_tree_add_uint(lmp_object_tree, 
-					    lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS],
+					    hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS],
 					    tvb, offset2+3, 1, l);
 		  
 		  lmp_flags_tree = proto_item_add_subtree(ti2, 
 							  lmp_subtree[LMP_TREE_SERVICE_CONFIG_CPSA_CCT_FLAGS]);
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS_CC_SUPPORTED],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS_CC_SUPPORTED],
 					 tvb, offset2+3, 1, l);
 		  
 		  /* Min and Max NCC */
@@ -1735,12 +1733,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 tvb_get_ntohs(tvb, offset2+6));
 		  
 		  proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MIN_NCC],
+				      hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MIN_NCC],
 				      tvb, offset2+4, 2, 
 				      tvb_get_ntohs(tvb, offset2+4));
 		  
 		  proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MAX_NCC],
+				      hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MAX_NCC],
 				      tvb, offset2+6, 2, 
 				      tvb_get_ntohs(tvb, offset2+6));
 		  
@@ -1750,12 +1748,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 tvb_get_ntohs(tvb, offset2+10));
 		  
 		  proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MIN_NVC],
+				      hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MIN_NVC],
 				      tvb, offset2+8, 2, 
 				      tvb_get_ntohs(tvb, offset2+8));
 		  
 		  proto_tree_add_uint(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MAX_NVC],
+				      hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MAX_NVC],
 				      tvb, offset2+10, 2, 
 				      tvb_get_ntohs(tvb, offset2+10));
 		  
@@ -1764,7 +1762,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 ip_to_str(tvb_get_ptr(tvb, offset2+12, 4)));
 		  
 		  proto_tree_add_item(lmp_object_tree, 
-				      lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_INTERFACE_ID],
+				      hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_INTERFACE_ID],
 				      tvb, offset2+12, 4, FALSE);
 		  
 		  break;
@@ -1776,7 +1774,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  /* Transparency */
 		  l = tvb_get_ntohl(tvb, offset2);
 		  ti2 = proto_tree_add_uint(lmp_object_tree, 
-					    lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS],
+					    hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS],
 					    tvb, offset2, 4, l);
 		  
 		  proto_item_append_text(ti2, ": %s %s",
@@ -1787,25 +1785,25 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							  lmp_subtree[LMP_TREE_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS]);
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_SOH],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_SOH],
 					 tvb, offset2, 4, l);
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_LOH],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_LOH],
 					 tvb, offset2, 4, l);
 		  
 		  /* TCM Monitoring */
 		  l = tvb_get_guint8(tvb, offset2+7);
 		  
 		  ti2 = proto_tree_add_uint(lmp_object_tree,
-					    lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS],
+					    hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS],
 					    tvb, offset2+7, 1, l);
 		  
 		  proto_item_append_text(ti2, ": %s",
 					 (l & 0x01) ? "Transparent Support of TCM available " :  "");
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS_TCM_SUPPORTED],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS_TCM_SUPPORTED],
 					 tvb, offset2+7, 1, l);
 		  
 		  break;
@@ -1816,7 +1814,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  l = tvb_get_guint8(tvb,offset2+3);
 		  
 		  ti2 = proto_tree_add_uint(lmp_object_tree, 
-					    lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS],
+					    hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS],
 					    tvb, offset2+3, 1, l);
 		  
 		  proto_item_append_text(ti2, ": %s%s%s",
@@ -1829,15 +1827,15 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							  lmp_subtree[LMP_TREE_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS]);
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_NODE],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_NODE],
 					 tvb, offset2+3, 1, l);
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_LINK],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_LINK],
 					 tvb, offset2+3, 1, l);
 		  
 		  proto_tree_add_boolean(lmp_flags_tree,
-					 lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_SRLG],
+					 hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_SRLG],
 					 tvb, offset2+3, 1, l);
 		  break;
 		  
@@ -1855,7 +1853,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  l = LMPF_VAL_LOCAL_DA_DCN_ADDR;
 		  proto_item_append_text(ti, ": %s",
 					 ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		  proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, FALSE);
 		  break;
 		  
@@ -1863,7 +1861,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  l = LMPF_VAL_REMOTE_DA_DCN_ADDR;
 		  proto_item_append_text(ti, ": %s",
 					 ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-		  proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, 
+		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb, 
 				      offset2, 4, FALSE);
 		  break;
 		  
@@ -1880,28 +1878,28 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        case 1:
 		  proto_item_append_text(ti, ": IPv4");
 		  proto_tree_add_item(lmp_object_tree,
-				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_NODE_ID],
+				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_NODE_ID],
 				      tvb, offset2, 4, FALSE);
 		  proto_tree_add_item(lmp_object_tree,
-				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_AREA_ID],
+				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_AREA_ID],
 				      tvb, offset2+4, 4, FALSE);
 		  proto_tree_add_item(lmp_object_tree,
-				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_TE_LINK_ID],
+				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_TE_LINK_ID],
 				      tvb, offset2+8, 4, FALSE);
 		  proto_tree_add_item(lmp_object_tree,
-				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_COMPONENT_ID],
+				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_COMPONENT_ID],
 				      tvb, offset2+12, 4, FALSE);
 		  proto_tree_add_item(lmp_object_tree,
-				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ID],
+				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ID],
 				      tvb, offset2+16, 4, FALSE);
 		  proto_tree_add_item(lmp_object_tree,
-				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ADDR],
+				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ADDR],
 				      tvb, offset2+20, 4, FALSE);
 		  l = 24;
 		  while (l < obj_length - 4) {
 		    mylen = tvb_get_guint8(tvb, offset2+l+1);
 		    ti2 = proto_tree_add_item(lmp_object_tree, 
-					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ],
+					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ],
 					    tvb, offset2+l, mylen, FALSE);
 		    lmp_subobj_tree = proto_item_add_subtree(ti2, 
 							     lmp_subtree[LMP_TREE_LAD_INFO_SUBOBJ]);
@@ -1927,13 +1925,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    ip_to_str(tvb_get_ptr(tvb, offset2+l+8, 4)),
 					    ip_to_str(tvb_get_ptr(tvb, offset2+l+12, 4)));
 			proto_tree_add_item(lmp_subobj_tree,
-					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_AREA_ID],
+					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_AREA_ID],
 					    tvb, offset2+l+4, 4, FALSE);
 			proto_tree_add_item(lmp_subobj_tree,
-					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ID],
+					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ID],
 					    tvb, offset2+l+8, 4, FALSE);
 			proto_tree_add_item(lmp_subobj_tree,
-					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ADDR],
+					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ADDR],
 					    tvb, offset2+l+12, 4, FALSE);
 			break;
 		      
@@ -1945,28 +1943,28 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    ip_to_str(tvb_get_ptr(tvb, offset2+l+8, 4)),
 					    ip_to_str(tvb_get_ptr(tvb, offset2+l+12, 4)));
 			proto_tree_add_item(lmp_subobj_tree,
-					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_AREA_ID],
+					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_AREA_ID],
 					    tvb, offset2+l+4, 4, FALSE);
 			proto_tree_add_item(lmp_subobj_tree,
-					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ID],
+					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ID],
 					    tvb, offset2+l+8, 4, FALSE);
 			proto_tree_add_item(lmp_subobj_tree,
-					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ADDR],
+					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ADDR],
 					    tvb, offset2+l+12, 4, FALSE);
 			break;
 		      
 		      case 252:
 			proto_item_set_text(ti2, "SONET/SDH Layer Capability: "
 					    "Switching Cap: %s, Encoding Type: %s",
-					    val_to_str(tvb_get_guint8(tvb, offset2+l+4),
-						       gmpls_switching_type_str, "Unknown (%d)"),
-					    val_to_str(tvb_get_guint8(tvb, offset2+l+5),
-						       gmpls_lsp_enc_str, "Unknown (%d)"));
+					    rval_to_str(tvb_get_guint8(tvb, offset2+l+4),
+						       gmpls_switching_type_rvals, "Unknown (%d)"),
+					    rval_to_str(tvb_get_guint8(tvb, offset2+l+5),
+						       gmpls_lsp_enc_rvals, "Unknown (%d)"));
 			proto_tree_add_item(lmp_subobj_tree,
-					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SWITCHING_TYPE],
+					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SWITCHING_TYPE],
 					    tvb, offset2+l+4, 1, FALSE);
 			proto_tree_add_item(lmp_subobj_tree,
-					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING],
+					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING],
 					    tvb, offset2+l+5, 1, FALSE);
 
 			for (j = 0; j < (mylen - 8) / 4; j++) {
@@ -2054,646 +2052,647 @@ proto_register_lmp(void)
 	static hf_register_info lmpf_info[] = {
 
 	   /* Message type number */
-	   {&lmp_filter[LMPF_MSG],
+	   {&hf_lmp_filter[LMPF_MSG],
 		{ "Message Type", "lmp.msg", FT_UINT8, BASE_DEC, VALS(message_type_vals), 0x0,
 			NULL, HFILL }},
 
 	   /* Message type shorthands */
-	   {&lmp_filter[LMPF_MSG_CONFIG],
+	   {&hf_lmp_filter[LMPF_MSG_CONFIG],
 		{ "Config Message", "lmp.msg.config", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_CONFIG_ACK],
+	   {&hf_lmp_filter[LMPF_MSG_CONFIG_ACK],
 		{ "ConfigAck Message", "lmp.msg.configack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_CONFIG_NACK],
+	   {&hf_lmp_filter[LMPF_MSG_CONFIG_NACK],
 		{ "ConfigNack Message", "lmp.msg.confignack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_HELLO],
+	   {&hf_lmp_filter[LMPF_MSG_HELLO],
 		{ "HELLO Message", "lmp.msg.hello", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_BEGIN_VERIFY],
+	   {&hf_lmp_filter[LMPF_MSG_BEGIN_VERIFY],
 		{ "BeginVerify Message", "lmp.msg.beginverify", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_BEGIN_VERIFY_ACK],
+	   {&hf_lmp_filter[LMPF_MSG_BEGIN_VERIFY_ACK],
 		{ "BeginVerifyAck Message", "lmp.msg.beginverifyack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_BEGIN_VERIFY_NACK],
+	   {&hf_lmp_filter[LMPF_MSG_BEGIN_VERIFY_NACK],
 		{ "BeginVerifyNack Message", "lmp.msg.beginverifynack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_END_VERIFY],
+	   {&hf_lmp_filter[LMPF_MSG_END_VERIFY],
 		{ "EndVerify Message", "lmp.msg.endverify", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_END_VERIFY_ACK],
+	   {&hf_lmp_filter[LMPF_MSG_END_VERIFY_ACK],
 		{ "EndVerifyAck Message", "lmp.msg.endverifyack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TEST],
+	   {&hf_lmp_filter[LMPF_MSG_TEST],
 		{ "Test Message", "lmp.msg.test", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TEST_STATUS_SUCCESS],
+	   {&hf_lmp_filter[LMPF_MSG_TEST_STATUS_SUCCESS],
 		{ "TestStatusSuccess Message", "lmp.msg.teststatussuccess", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TEST_STATUS_FAILURE],
+	   {&hf_lmp_filter[LMPF_MSG_TEST_STATUS_FAILURE],
 		{ "TestStatusFailure Message", "lmp.msg.teststatusfailure", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TEST_STATUS_ACK],
+	   {&hf_lmp_filter[LMPF_MSG_TEST_STATUS_ACK],
 		{ "TestStatusAck Message", "lmp.msg.teststatusack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_LINK_SUMMARY],
+	   {&hf_lmp_filter[LMPF_MSG_LINK_SUMMARY],
 		{ "LinkSummary Message", "lmp.msg.linksummary", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_LINK_SUMMARY_ACK],
+	   {&hf_lmp_filter[LMPF_MSG_LINK_SUMMARY_ACK],
 		{ "LinkSummaryAck Message", "lmp.msg.linksummaryack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_LINK_SUMMARY_NACK],
+	   {&hf_lmp_filter[LMPF_MSG_LINK_SUMMARY_NACK],
 		{ "LinkSummaryNack Message", "lmp.msg.linksummarynack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_CHANNEL_STATUS],
+	   {&hf_lmp_filter[LMPF_MSG_CHANNEL_STATUS],
 		{ "ChannelStatus Message", "lmp.msg.channelstatus", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_CHANNEL_STATUS_ACK],
+	   {&hf_lmp_filter[LMPF_MSG_CHANNEL_STATUS_ACK],
 		{ "ChannelStatusAck Message", "lmp.msg.channelstatusack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_CHANNEL_STATUS_REQ],
+	   {&hf_lmp_filter[LMPF_MSG_CHANNEL_STATUS_REQ],
 		{ "ChannelStatusRequest Message", "lmp.msg.channelstatusrequest", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_CHANNEL_STATUS_RESP],
+	   {&hf_lmp_filter[LMPF_MSG_CHANNEL_STATUS_RESP],
 		{ "ChannelStatusResponse Message", "lmp.msg.channelstatusresponse", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TRACE_MONITOR],
+	   {&hf_lmp_filter[LMPF_MSG_TRACE_MONITOR],
 		{ "TraceMonitor Message", "lmp.msg.tracemonitor", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TRACE_MONITOR_ACK],
+	   {&hf_lmp_filter[LMPF_MSG_TRACE_MONITOR_ACK],
 		{ "TraceMonitorAck Message", "lmp.msg.tracemonitorack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TRACE_MONITOR_NACK],
+	   {&hf_lmp_filter[LMPF_MSG_TRACE_MONITOR_NACK],
 		{ "TraceMonitorNack Message", "lmp.msg.tracemonitornack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TRACE_MISMATCH],
+	   {&hf_lmp_filter[LMPF_MSG_TRACE_MISMATCH],
 		{ "TraceMismatch Message", "lmp.msg.tracemismatch", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TRACE_MISMATCH_ACK],
+	   {&hf_lmp_filter[LMPF_MSG_TRACE_MISMATCH_ACK],
 		{ "TraceMismatchAck Message", "lmp.msg.tracemismatchack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TRACE_REQUEST],
+	   {&hf_lmp_filter[LMPF_MSG_TRACE_REQUEST],
 		{ "TraceRequest Message", "lmp.msg.tracerequest", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TRACE_REPORT],
+	   {&hf_lmp_filter[LMPF_MSG_TRACE_REPORT],
 		{ "TraceReport Message", "lmp.msg.tracereport", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_TRACE_REQUEST_NACK],
+	   {&hf_lmp_filter[LMPF_MSG_TRACE_REQUEST_NACK],
 		{ "TraceRequestNack Message", "lmp.msg.tracerequestnack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_INSERT_TRACE],
+	   {&hf_lmp_filter[LMPF_MSG_INSERT_TRACE],
 		{ "InsertTrace Message", "lmp.msg.inserttrace", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_INSERT_TRACE_ACK],
+	   {&hf_lmp_filter[LMPF_MSG_INSERT_TRACE_ACK],
 		{ "InsertTraceAck Message", "lmp.msg.inserttraceack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_INSERT_TRACE_NACK],
+	   {&hf_lmp_filter[LMPF_MSG_INSERT_TRACE_NACK],
 		{ "InsertTraceNack Message", "lmp.msg.inserttracenack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_SERVICE_CONFIG],
+	   {&hf_lmp_filter[LMPF_MSG_SERVICE_CONFIG],
 		{ "ServiceConfig Message", "lmp.msg.serviceconfig", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_SERVICE_CONFIG_ACK],
+	   {&hf_lmp_filter[LMPF_MSG_SERVICE_CONFIG_ACK],
 		{ "ServiceConfigAck Message", "lmp.msg.serviceconfigack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_SERVICE_CONFIG_NACK],
+	   {&hf_lmp_filter[LMPF_MSG_SERVICE_CONFIG_NACK],
 		{ "ServiceConfigNack Message", "lmp.msg.serviceconfignack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_DISCOVERY_RESP],
+	   {&hf_lmp_filter[LMPF_MSG_DISCOVERY_RESP],
 		{ "DiscoveryResponse Message", "lmp.msg.discoveryresp", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_DISCOVERY_RESP_ACK],
+	   {&hf_lmp_filter[LMPF_MSG_DISCOVERY_RESP_ACK],
 		{ "DiscoveryResponseAck Message", "lmp.msg.discoveryrespack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_MSG_DISCOVERY_RESP_NACK],
+	   {&hf_lmp_filter[LMPF_MSG_DISCOVERY_RESP_NACK],
 		{ "DiscoveryResponseNack Message", "lmp.msg.discoveryrespnack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 	   /* LMP Message Header Fields ------------------- */
 
-	   {&lmp_filter[LMPF_HDR_FLAGS],
+	   {&hf_lmp_filter[LMPF_HDR_FLAGS],
 		{ "LMP Header - Flags", "lmp.hdr.flags", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_HDR_FLAGS_CC_DOWN],
+	   {&hf_lmp_filter[LMPF_HDR_FLAGS_CC_DOWN],
 		{ "ControlChannelDown", "lmp.hdr.ccdown", FT_BOOLEAN, 8, NULL, 0x01,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_HDR_FLAGS_REBOOT],
+	   {&hf_lmp_filter[LMPF_HDR_FLAGS_REBOOT],
 		{ "Reboot", "lmp.hdr.reboot", FT_BOOLEAN, 8, NULL, 0x02,
 			NULL, HFILL }},
 
 	   /* LMP object class filters ------------------------------- */
 
-	   {&lmp_filter[LMPF_OBJECT],
+	   {&hf_lmp_filter[LMPF_OBJECT],
 		{ "LOCAL_CCID", "lmp.object", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_CLASS_CCID],
+	   {&hf_lmp_filter[LMPF_CLASS_CCID],
 		{ "CCID", "lmp.obj.ccid", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_CLASS_NODE_ID],
+	   {&hf_lmp_filter[LMPF_CLASS_NODE_ID],
 		{ "NODE_ID", "lmp.obj.Nodeid", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_CLASS_LINK_ID],
+	   {&hf_lmp_filter[LMPF_CLASS_LINK_ID],
 		{ "LINK_ID", "lmp.obj.linkid", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_CLASS_INTERFACE_ID],
+	   {&hf_lmp_filter[LMPF_CLASS_INTERFACE_ID],
 		{ "INTERFACE_ID", "lmp.obj.interfaceid", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_CLASS_MESSAGE_ID],
+	   {&hf_lmp_filter[LMPF_CLASS_MESSAGE_ID],
 		{ "MESSAGE_ID", "lmp.obj.messageid", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_CLASS_CONFIG],
+	   {&hf_lmp_filter[LMPF_CLASS_CONFIG],
 		{ "CONFIG", "lmp.obj.config", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_CLASS_HELLO],
+	   {&hf_lmp_filter[LMPF_CLASS_HELLO],
 		{ "HELLO", "lmp.obj.hello", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_CLASS_BEGIN_VERIFY],
+	   {&hf_lmp_filter[LMPF_CLASS_BEGIN_VERIFY],
 		{ "BEGIN_VERIFY", "lmp.obj.begin_verify", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_CLASS_BEGIN_VERIFY_ACK],
+	   {&hf_lmp_filter[LMPF_CLASS_BEGIN_VERIFY_ACK],
 		{ "BEGIN_VERIFY_ACK", "lmp.obj.begin_verify_ack", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_CLASS_VERIFY_ID],
+	   {&hf_lmp_filter[LMPF_CLASS_VERIFY_ID],
 		{ "VERIFY_ID", "lmp.obj.verifyid", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_CLASS_TE_LINK],
+	   {&hf_lmp_filter[LMPF_CLASS_TE_LINK],
 		{ "TE_LINK", "lmp.obj.te_link", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_CLASS_DATA_LINK],
+	   {&hf_lmp_filter[LMPF_CLASS_DATA_LINK],
 		{ "DATA_LINK", "lmp.obj.data_link", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_CLASS_CHANNEL_STATUS],
+	   {&hf_lmp_filter[LMPF_CLASS_CHANNEL_STATUS],
 		{ "CHANNEL_STATUS", "lmp.obj.channel_status", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_CLASS_CHANNEL_STATUS_REQUEST],
+	   {&hf_lmp_filter[LMPF_CLASS_CHANNEL_STATUS_REQUEST],
 		{ "CHANNEL_STATUS_REQUEST", "lmp.obj.channel_status_request", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_CLASS_ERROR],
+	   {&hf_lmp_filter[LMPF_CLASS_ERROR],
 		{ "ERROR", "lmp.obj.error", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_CLASS_TRACE],
+	   {&hf_lmp_filter[LMPF_CLASS_TRACE],
 		{ "TRACE", "lmp.obj.trace", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_CLASS_TRACE_REQ],
+	   {&hf_lmp_filter[LMPF_CLASS_TRACE_REQ],
 		{ "TRACE REQ", "lmp.obj.trace_req", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_CLASS_SERVICE_CONFIG],
+	   {&hf_lmp_filter[LMPF_CLASS_SERVICE_CONFIG],
 		{ "SERVICE_CONFIG", "lmp.obj.serviceconfig", FT_NONE, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_CLASS_DA_DCN_ADDRESS],
+	   {&hf_lmp_filter[LMPF_CLASS_DA_DCN_ADDRESS],
 		{ "DA_DCN_ADDRESS", "lmp.obj.dadcnaddr", FT_NONE, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_CLASS_LOCAL_LAD_INFO],
+	   {&hf_lmp_filter[LMPF_CLASS_LOCAL_LAD_INFO],
 		{ "LOCAL_LAD_INFO", "lmp.obj.localladinfo", FT_NONE, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL }},
 
 	   /* Other LMP Value Filters ------------------------------ */
 
-	   {&lmp_filter[LMPF_VAL_CTYPE],
+	   {&hf_lmp_filter[LMPF_VAL_CTYPE],
 		{ "Object C-Type", "lmp.obj.ctype", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_LOCAL_CCID],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_CCID],
 		{ "Local CCID Value", "lmp.local_ccid", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_REMOTE_CCID],
+	   {&hf_lmp_filter[LMPF_VAL_REMOTE_CCID],
 		{ "Remote CCID Value", "lmp.remote_ccid", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_LOCAL_NODE_ID],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_NODE_ID],
 		{ "Local Node ID Value", "lmp.local_nodeid", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_REMOTE_NODE_ID],
+	   {&hf_lmp_filter[LMPF_VAL_REMOTE_NODE_ID],
 		{ "Remote Node ID Value", "lmp.remote_nodeid", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_LOCAL_LINK_ID_IPV4],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_LINK_ID_IPV4],
 		{ "Local Link ID - IPv4", "lmp.local_linkid_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LOCAL_LINK_ID_UNNUM],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_LINK_ID_UNNUM],
 		{ "Local Link ID - Unnumbered", "lmp.local_linkid_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_REMOTE_LINK_ID_IPV4],
+	   {&hf_lmp_filter[LMPF_VAL_REMOTE_LINK_ID_IPV4],
 		{ "Remote Link ID - IPv4", "lmp.remote_linkid_ipv4", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_REMOTE_LINK_ID_UNNUM],
+	   {&hf_lmp_filter[LMPF_VAL_REMOTE_LINK_ID_UNNUM],
 		{ "Remote Link ID - Unnumbered", "lmp.remote_linkid_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_LOCAL_INTERFACE_ID_IPV4],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_INTERFACE_ID_IPV4],
 		{ "Local Interface ID - IPv4", "lmp.local_interfaceid_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LOCAL_INTERFACE_ID_UNNUM],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_INTERFACE_ID_UNNUM],
 		{ "Local Interface ID - Unnumbered", "lmp.local_interfaceid_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_REMOTE_INTERFACE_ID_IPV4],
+	   {&hf_lmp_filter[LMPF_VAL_REMOTE_INTERFACE_ID_IPV4],
 		{ "Remote Interface ID - IPv4", "lmp.remote_interfaceid_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_REMOTE_INTERFACE_ID_UNNUM],
+	   {&hf_lmp_filter[LMPF_VAL_REMOTE_INTERFACE_ID_UNNUM],
 		{ "Remote Interface ID - Unnumbered", "lmp.remote_interfaceid_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_MESSAGE_ID],
+	   {&hf_lmp_filter[LMPF_VAL_MESSAGE_ID],
 		{ "Message-ID Value", "lmp.messageid", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_MESSAGE_ID_ACK],
+	   {&hf_lmp_filter[LMPF_VAL_MESSAGE_ID_ACK],
 		{ "Message-ID Ack Value", "lmp.messageid_ack", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_CONFIG_HELLO],
+	   {&hf_lmp_filter[LMPF_VAL_CONFIG_HELLO],
 		{ "HelloInterval", "lmp.hellointerval", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_CONFIG_HELLO_DEAD],
+	   {&hf_lmp_filter[LMPF_VAL_CONFIG_HELLO_DEAD],
 		{ "HelloDeadInterval", "lmp.hellodeadinterval", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_HELLO_TXSEQ],
+	   {&hf_lmp_filter[LMPF_VAL_HELLO_TXSEQ],
 		{ "TxSeqNum", "lmp.txseqnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_HELLO_RXSEQ],
+	   {&hf_lmp_filter[LMPF_VAL_HELLO_RXSEQ],
 		{ "RxSeqNum", "lmp.rxseqnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS],
+	   {&hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS],
 		{ "Flags", "lmp.begin_verify.flags", FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_ALL_LINKS],
+	   {&hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_ALL_LINKS],
 		{ "Verify All Links", "lmp.begin_verify.all_links",
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_LINK_TYPE],
+	   {&hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS_LINK_TYPE],
 		{ "Data Link Type", "lmp.begin_verify.link_type",
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_BEGIN_VERIFY_ENCTYPE],
-		{ "Encoding Type", "lmp.begin_verify.enctype", FT_UINT8, BASE_DEC, VALS(gmpls_lsp_enc_str), 0x0,
+	   {&hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_ENCTYPE],
+		{ "Encoding Type", "lmp.begin_verify.enctype", 
+		  FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(&gmpls_lsp_enc_rvals), 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_VERIFY_ID],
+	   {&hf_lmp_filter[LMPF_VAL_VERIFY_ID],
 		{ "Verify-ID", "lmp.verifyid", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_TE_LINK_FLAGS],
+	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS],
 		{ "TE-Link Flags", "lmp.te_link_flags", FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_TE_LINK_FLAGS_FAULT_MGMT],
+	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS_FAULT_MGMT],
 		{ "Fault Management Supported", "lmp.te_link.fault_mgmt",
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_TE_LINK_FLAGS_LINK_VERIFY],
+	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_FLAGS_LINK_VERIFY],
 		{ "Link Verification Supported", "lmp.te_link.link_verify",
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_TE_LINK_LOCAL_IPV4],
+	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_IPV4],
 		{ "TE-Link Local ID - IPv4", "lmp.te_link.local_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_TE_LINK_LOCAL_UNNUM],
+	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_UNNUM],
 		{ "TE-Link Local ID - Unnumbered", "lmp.te_link.local_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_TE_LINK_REMOTE_IPV4],
+	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_REMOTE_IPV4],
 		{ "TE-Link Remote ID - IPv4", "lmp.te_link.remote_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_TE_LINK_REMOTE_UNNUM],
+	   {&hf_lmp_filter[LMPF_VAL_TE_LINK_REMOTE_UNNUM],
 		{ "TE-Link Remote ID - Unnumbered", "lmp.te_link.remote_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_DATA_LINK_FLAGS],
+	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS],
 		{ "Data-Link Flags", "lmp.data_link_flags", FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_PORT],
+	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_PORT],
 		{ "Data-Link is Individual Port", "lmp.data_link.port",
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_ALLOCATED],
+	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_FLAGS_ALLOCATED],
 		{ "Data-Link is Allocated", "lmp.data_link.link_verify",
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_IPV4],
+	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_IPV4],
 		{ "Data-Link Local ID - IPv4", "lmp.data_link.local_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_UNNUM],
+	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_UNNUM],
 		{ "Data-Link Local ID - Unnumbered", "lmp.data_link.local_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_IPV4],
+	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_IPV4],
 		{ "Data-Link Remote ID - IPv4", "lmp.data_link.remote_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_UNNUM],
+	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_UNNUM],
 		{ "Data-Link Remote ID - Unnumbered", "lmp.data_link.remote_unnum", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ],
+	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ],
 		{ "Subobject", "lmp.data_link_subobj", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_SWITCHING_TYPE],
-		{ "Interface Switching Capability", "lmp.data_link_switching", FT_UINT8, BASE_DEC,
-		  VALS(gmpls_switching_type_str), 0x0, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_LSP_ENCODING],
-		{ "LSP Encoding Type", "lmp.data_link_encoding", FT_UINT8, BASE_DEC,
-		  VALS(gmpls_lsp_enc_str), 0x0, NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_SWITCHING_TYPE],
+		{ "Interface Switching Capability", "lmp.data_link_switching", FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
+		  RVALS(&gmpls_switching_type_rvals), 0x0, NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_LSP_ENCODING],
+		{ "LSP Encoding Type", "lmp.data_link_encoding", FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
+		  RVALS(&gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_ERROR],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR],
 		{ "Error Code", "lmp.error", FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_UNSUPPORTED_LINK],
 		{ "Verification - Unsupported for this TE-Link", "lmp.error.verify_unsupported_link",
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_VERIFY_UNWILLING],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_UNWILLING],
 		{ "Verification - Unwilling to Verify at this time", "lmp.error.verify_unwilling",
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_VERIFY_TRANSPORT],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_TRANSPORT],
 		{ "Verification - Transport Unsupported", "lmp.error.verify_unsupported_transport",
 		  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_VERIFY_TE_LINK_ID],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_TE_LINK_ID],
 		{ "Verification - TE Link ID Configuration Error", "lmp.error.verify_te_link_id",
 		  FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_ERROR_VERIFY_UNKNOWN_CTYPE],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_VERIFY_UNKNOWN_CTYPE],
 		{ "Verification - Unknown Object C-Type", "lmp.error.verify_unknown_ctype",
 		  FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_PARAMETERS],
 		{ "Summary - Unacceptable non-negotiable parameters", "lmp.error.summary_bad_params",
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE],
 		{ "Summary - Renegotiate Parametere", "lmp.error.summary_renegotiate",
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK],
 		{ "Summary - Bad TE Link Object", "lmp.error.summary_bad_te_link",
 		  FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_DATA_LINK],
 		{ "Summary - Bad Data Link Object", "lmp.error.summary_bad_data_link",
 		  FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_TEL_CTYPE],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_TEL_CTYPE],
 		{ "Summary - Bad TE Link C-Type", "lmp.error.summary_unknown_tel_ctype",
 		  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_DL_CTYPE],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_UNKNOWN_DL_CTYPE],
 		{ "Summary - Bad Data Link C-Type", "lmp.error.summary_unknown_dl_ctype",
 		  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_REMOTE_LINK_ID],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_REMOTE_LINK_ID],
 		{ "Summary - Bad Remote Link ID", "lmp.error.summary_bad_remote_link_id",
 		  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_PARAMETERS],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_PARAMETERS],
 		{ "Config - Unacceptable non-negotiable parameters", "lmp.error.config_bad_params",
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_CONFIG_RENEGOTIATE],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_CONFIG_RENEGOTIATE],
 		{ "Config - Renegotiate Parameter", "lmp.error.config_renegotiate",
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_CCID],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_CCID],
 		{ "Config - Bad CC ID", "lmp.error.config_bad_ccid",
 		  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_TRACE_UNSUPPORTED_TYPE],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_TRACE_UNSUPPORTED_TYPE],
 		{ "Trace - Unsupported trace type", "lmp.error.trace_unsupported_type",
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_TRACE_INVALID_MSG],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_TRACE_INVALID_MSG],
 		{ "Trace - Invalid Trace Message", "lmp.error.trace_invalid_msg",
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_TRACE_UNKNOWN_CTYPE],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_TRACE_UNKNOWN_CTYPE],
 		{ "Trace - Unknown Object C-Type", "lmp.error.trace_unknown_ctype",
 		  FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_LAD_AREA_ID_MISMATCH],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_LAD_AREA_ID_MISMATCH],
 		{ "LAD - Domain Routing Area ID Mismatch detected", "lmp.error.lad_area_id_mismatch",
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_LAD_TCP_ID_MISMATCH],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_LAD_TCP_ID_MISMATCH],
 		{ "LAD - TCP ID Mismatch detected", "lmp.error.lad_tcp_id_mismatch",
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_LAD_DA_DCN_MISMATCH],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_LAD_DA_DCN_MISMATCH],
 		{ "LAD - DA DCN Mismatch detected", "lmp.error.lad_da_dcn_mismatch",
 		  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_LAD_CAPABILITY_MISMATCH],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_LAD_CAPABILITY_MISMATCH],
 		{ "LAD - Capability Mismatch detected", "lmp.error.lad_capability_mismatch",
 		  FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_ERROR_LAD_UNKNOWN_CTYPE],
+	   {&hf_lmp_filter[LMPF_VAL_ERROR_LAD_UNKNOWN_CTYPE],
 		{ "LAD - Unknown Object C-Type", "lmp.error.lad_unknown_ctype",
 		  FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_TRACE_LOCAL_TYPE],
+	   {&hf_lmp_filter[LMPF_VAL_TRACE_LOCAL_TYPE],
 		{ "Local Trace Type", "lmp.trace.local_type", FT_UINT16, BASE_DEC,
 		  VALS(lmp_trace_type_str), 0x0, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_TRACE_LOCAL_LEN],
+	   {&hf_lmp_filter[LMPF_VAL_TRACE_LOCAL_LEN],
 		{ "Local Trace Length", "lmp.trace.local_length", FT_UINT16, BASE_DEC,
 		  NULL, 0x0, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_TRACE_LOCAL_MSG],
+	   {&hf_lmp_filter[LMPF_VAL_TRACE_LOCAL_MSG],
 		{ "Local Trace Message", "lmp.trace.local_msg", FT_STRING, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_TRACE_REMOTE_TYPE],
+	   {&hf_lmp_filter[LMPF_VAL_TRACE_REMOTE_TYPE],
 		{ "Remote Trace Type", "lmp.trace.remote_type", FT_UINT16, BASE_DEC,
 		  VALS(lmp_trace_type_str), 0x0, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_TRACE_REMOTE_LEN],
+	   {&hf_lmp_filter[LMPF_VAL_TRACE_REMOTE_LEN],
 		{ "Remote Trace Length", "lmp.trace.remote_length", FT_UINT16, BASE_DEC,
 		  NULL, 0x0, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_TRACE_REMOTE_MSG],
+	   {&hf_lmp_filter[LMPF_VAL_TRACE_REMOTE_MSG],
 		{ "Remote Trace Message", "lmp.trace.remote_msg", FT_STRING, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_TRACE_REQ_TYPE],
+	   {&hf_lmp_filter[LMPF_VAL_TRACE_REQ_TYPE],
 		{ "Trace Type", "lmp.trace_req.type", FT_UINT16, BASE_DEC,
 		  VALS(lmp_trace_type_str), 0x0, NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS],
 		{ "Service Config - Supported Signalling Protocols", 
 		"lmp.service_config.sp", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_RSVP],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_RSVP],
 	   { "RSVP is supported", "lmp.service_config.sp.rsvp", 
 		 FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_LDP],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_LDP],
 		{ "LDP is supported", "lmp.service_config.sp.ldp", 
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS],
 		{ "Client Port Service Attributes", "lmp.service_config.cpsa", 
 		  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_PATH_OVERHEAD],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_PATH_OVERHEAD],
 		{ "Path/VC Overhead Transparency Supported", 
 		  "lmp.service_config.cpsa.path_overhead", 
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_LINE_OVERHEAD],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_LINE_OVERHEAD],
 		{ "Line/MS Overhead Transparency Supported", 
 		  "lmp.service_config.cpsa.line_overhead", 
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_SECTION_OVERHEAD],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_TP_FLAGS_SECTION_OVERHEAD],
 		{ "Section/RS Overhead Transparency Supported", 
 		  "lmp.service_config.cpsa.section_overhead", 
 		  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS],
 		{ "Contiguous Concatenation Types", "lmp.service_config.cct", 
 		  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS_CC_SUPPORTED],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS_CC_SUPPORTED],
 		{ "Contiguous Concatenation Types Supported", 
 		  "lmp.service_config.cpsa.line_overhead", 
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MIN_NCC], 
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MIN_NCC], 
 		{ "Minimum Number of Contiguously Concatenated Components", 
 		  "lmp.service_config.cpsa.min_ncc",
 		  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}}, 
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MAX_NCC], 
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MAX_NCC], 
 		{ "Maximum Number of Contiguously Concatenated Components", 
 		  "lmp.service_config.cpsa.max_ncc",
 		  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}}, 
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MIN_NVC], 
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MIN_NVC], 
 		{ "Maximum Number of Contiguously Concatenated Components", 
 		  "lmp.service_config.cpsa.min_nvc",
 		  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}}, 
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MAX_NVC], 
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_MAX_NVC], 
 		{ "Minimum Number of Virtually Concatenated Components", 
 		  "lmp.service_config.cpsa.max_nvc",
 		  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_INTERFACE_ID], 
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_INTERFACE_ID], 
 		{ "Local interface id of the client interface referred to", 
 		  "lmp.service_config.cpsa.local_ifid",
 		  FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS],
 		{ "Network Transparency Flags",
 		  "lmp.service_config.nsa.transparency",
 		  FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_SOH],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_SOH],
 		{ "Standard SOH/RSOH transparency supported",
 		  "lmp.service_config.nsa.transparency.soh",
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_LOH],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS_LOH],
 		{ "Standard LOH/MSOH transparency supported",
 		  "lmp.service_config.nsa.transparency.loh",
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS],
 		{ "TCM Monitoring", 
 		"lmp.service_config.nsa.tcm", 
 		  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS_TCM_SUPPORTED],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_TCM_FLAGS_TCM_SUPPORTED],
 		{ "TCM Monitoring Supported",
 		  "lmp.service_config.nsa.transparency.tcm",
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS],
 		{ "Network Diversity Flags", 
 		"lmp.service_config.nsa.diversity", 
 		  FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 	   
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_NODE],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_NODE],
 		{ "Node diversity supported",
 		  "lmp.service_config.nsa.diversity.node",
 		  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_LINK],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_LINK],
 		{ "Link diversity supported",
 		  "lmp.service_config.nsa.diversity.link",
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_SRLG],
+	   {&hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_SRLG],
 		{ "SRLG diversity supported",
 		  "lmp.service_config.nsa.diversity.srlg",
 		  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}},
 
-	   {&lmp_filter[LMPF_VAL_LOCAL_DA_DCN_ADDR],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_DA_DCN_ADDR],
 		{ "Local DA DCN Address", "lmp.local_da_dcn_addr", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_REMOTE_DA_DCN_ADDR],
+	   {&hf_lmp_filter[LMPF_VAL_REMOTE_DA_DCN_ADDR],
 		{ "Remote DA DCN Address", "lmp.remote_da_dcn_addr", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-	   {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_NODE_ID],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_NODE_ID],
 		{ "Node ID", "lmp.local_lad_node_id", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_AREA_ID],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_AREA_ID],
 		{ "Area ID", "lmp.local_lad_area_id", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_TE_LINK_ID],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_TE_LINK_ID],
 		{ "TE Link ID", "lmp.local_lad_telink_id", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_COMPONENT_ID],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_COMPONENT_ID],
 		{ "Component Link ID", "lmp.local_lad_comp_id", FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ID],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ID],
 		{ "SC PC ID", "lmp.local_lad_sc_pc_id", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ADDR],
+	   {&hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ADDR],
 		{ "SC PC Address", "lmp.local_lad_sc_pc_addr", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ],
+	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ],
 		{ "Subobject", "lmp.lad_info_subobj", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_AREA_ID],
+	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_AREA_ID],
 		{ "SC PC Address", "lmp.lad_pri_area_id", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ID],
+	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ID],
 		{ "SC PC Address", "lmp.lad_pri_rc_pc_id", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ADDR],
+	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ADDR],
 		{ "SC PC Address", "lmp.lad_pri_rc_pc_addr", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_AREA_ID],
+	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_AREA_ID],
 		{ "SC PC Address", "lmp.lad_sec_area_id", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ID],
+	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ID],
 		{ "SC PC Address", "lmp.lad_sec_rc_pc_id", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ADDR],
+	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ADDR],
 		{ "SC PC Address", "lmp.lad_sec_rc_pc_addr", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SWITCHING_TYPE],
-		{ "Interface Switching Capability", "lmp.lad_switching", FT_UINT8, BASE_DEC,
-		  VALS(gmpls_switching_type_str), 0x0, NULL, HFILL }},
-	   {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING],
-		{ "LSP Encoding Type", "lmp.lad_encoding", FT_UINT8, BASE_DEC,
-		  VALS(gmpls_lsp_enc_str), 0x0, NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SWITCHING_TYPE],
+		{ "Interface Switching Capability", "lmp.lad_switching", FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
+		  RVALS(&gmpls_switching_type_rvals), 0x0, NULL, HFILL }},
+	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING],
+		{ "LSP Encoding Type", "lmp.lad_encoding", FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
+		  RVALS(&gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
 	};
 
     for (i=0; i<NUM_LMP_SUBTREES; i++) {

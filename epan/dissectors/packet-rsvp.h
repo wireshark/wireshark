@@ -38,8 +38,8 @@ typedef struct rsvp_conversation_info
     guint8 dscp;
 } rsvp_conversation_info;
 
-extern const value_string gmpls_switching_type_str[];
-extern const value_string gmpls_lsp_enc_str[];
+extern const range_string gmpls_switching_type_rvals[];
+extern const range_string gmpls_lsp_enc_rvals[];
 extern const value_string gmpls_protection_cap_str[];
 extern const value_string gmpls_sonet_signal_type_str[];
 

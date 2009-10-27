@@ -2320,6 +2320,8 @@ Francesco Fondelli	<francesco.fondelli [AT] gmail.com> {
 	Ethernet PW (with/without CW) support, RFC 4448
 	ATM PW (with/without CW) support, RFC 4717
 	LMP, update to RFC 4204
+	RSVP extensions for G.709 Optical Transport Networks Control, RFC 4328
+	Update GMPLS GPID, Switching and Encoding type values
 }
 
 Artem Tamazov           <artem.tamazov [AT] tellabs.com> {
