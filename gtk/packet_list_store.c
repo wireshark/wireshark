@@ -728,10 +728,19 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 		/* !! FALL-THROUGH!! */
 
 		default:
+			record->fdata->col_text_len[col] = (guint) strlen(cinfo->col_data[col]);
+
+			if (!record->fdata->col_text_len[col]) {
+				record->fdata->col_text[col] = "";
+#ifdef NEW_PACKET_LIST_STATISTICS
+				++packet_list->const_strings;
+#endif
+				break;
+			}
+
 			if(!packet_list->string_pool)
 				packet_list->string_pool = g_string_chunk_new(32);
 
-			record->fdata->col_text_len[col] = (guint) strlen(cinfo->col_data[col]);
 			str = g_string_chunk_insert_const (packet_list->string_pool,  (const gchar *)cinfo->col_data[col]);
 			record->fdata->col_text[col] = str;
 			break;
