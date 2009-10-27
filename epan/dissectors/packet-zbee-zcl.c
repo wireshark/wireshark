@@ -785,7 +785,7 @@ static void dissect_zcl_read_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
         /* Dissect the status and optionally the data type and value */
         if ( dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_status)
-                        == ZBEE_ZCL_STAT_SUCCESS ) {
+            == ZBEE_ZCL_STAT_SUCCESS ) {
 
             /* Dissect the attribute data type and data */
             dissect_zcl_attr_data_type_val(tvb, sub_tree, offset);
@@ -869,10 +869,12 @@ static void dissect_zcl_write_attr_resp(tvbuff_t *tvb, packet_info *pinfo _U_, p
         }
 
         /* Dissect the status */
-        dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_status);
+        if ( dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_status) !=
+            ZBEE_ZCL_STAT_SUCCESS ) {
 
-        /* Dissect the attribute identifier */
-        dissect_zcl_attr_id(tvb, sub_tree, offset);
+            /* Dissect the failed attribute identifier */
+            dissect_zcl_attr_id(tvb, sub_tree, offset);
+        }
     }
 
     return;
@@ -900,6 +902,7 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
     guint i = 0;
     guint data_type;
     guint attr_status;
+    guint attr_dir;
 
     tvb_len = tvb_length(tvb);
     while ( *offset < tvb_len && i < ZBEE_ZCL_NUM_ATTR_ETT ) {
@@ -914,29 +917,33 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
         attr_status = dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_status);
 
         /* Dissect the direction and any reported configuration */
-        dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dir);
+        attr_dir = dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dir);
 
         /* Dissect the attribute id */
         dissect_zcl_attr_id(tvb, sub_tree, offset);
 
         if ( attr_status == ZBEE_ZCL_STAT_SUCCESS ) {
+            if ( attr_dir == ZBEE_ZCL_DIR_REPORTED ) {
 
-            /* Dissect the attribute data type */
-            data_type = dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_data_type);
+                /* Dissect the attribute data type */
+                data_type = dissect_zcl_attr_uint8(tvb, sub_tree, offset,
+                        &hf_zbee_zcl_attr_data_type);
 
-            /* Dissect minimum reporting interval */
-            dissect_zcl_attr_uint16(tvb, sub_tree, offset, &hf_zbee_zcl_attr_minint);
+                /* Dissect minimum reporting interval */
+                dissect_zcl_attr_uint16(tvb, sub_tree, offset, &hf_zbee_zcl_attr_minint);
 
-            /* Dissect maximum reporting interval */
-            dissect_zcl_attr_uint16(tvb, sub_tree, offset, &hf_zbee_zcl_attr_maxint);
+                /* Dissect maximum reporting interval */
+                dissect_zcl_attr_uint16(tvb, sub_tree, offset, &hf_zbee_zcl_attr_maxint);
 
-            if ( IS_ANALOG_SUBTYPE(data_type) ) {
-                /* Dissect reportable change */
-                dissect_zcl_attr_data(tvb, sub_tree, offset, data_type);
+                if ( IS_ANALOG_SUBTYPE(data_type) ) {
+                    /* Dissect reportable change */
+                    dissect_zcl_attr_data(tvb, sub_tree, offset, data_type);
+                }
+
+            } else {
+                /* Dissect timeout period */
+                dissect_zcl_attr_uint16(tvb, sub_tree, offset, &hf_zbee_zcl_attr_timeout);
             }
-
-            /* Dissect timeout period */
-            dissect_zcl_attr_uint16(tvb, sub_tree, offset, &hf_zbee_zcl_attr_timeout);
         }
     }
 
@@ -1041,13 +1048,14 @@ static void dissect_zcl_config_report_resp(tvbuff_t *tvb, packet_info *pinfo _U_
         }
 
         /* Dissect the status */
-        dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_status);
+        if ( dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_status) !=
+            ZBEE_ZCL_STAT_SUCCESS ) {
+                /* Dissect the direction on error */
+                dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dir);
 
-        /* Dissect the direction */
-        dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_dir);
-
-        /* Dissect the attribute identifier */
-        dissect_zcl_attr_id(tvb, sub_tree, offset);
+                /* Dissect the attribute identifier on error */
+                dissect_zcl_attr_id(tvb, sub_tree, offset);
+        }
     }
 
     return;
