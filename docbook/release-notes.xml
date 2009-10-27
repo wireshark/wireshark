@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.3.0">
+  <!ENTITY WiresharkCurrentVersion "1.3.1">
 
 ]>
 
@@ -91,6 +91,12 @@ Wireshark Info
         <listitem>
           <para>
             Capturing from pipes on Windows has been improved.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Many memory leaks have been fixed.
           </para>
         </listitem>
 
