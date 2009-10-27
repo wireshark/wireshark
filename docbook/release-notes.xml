@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.0.10">
+  <!ENTITY WiresharkCurrentVersion "1.0.11">
 
 ]>
 
@@ -39,8 +39,8 @@ Wireshark Info
           <para>
             The RADIUS dissector could crash.
             <!-- Fixed in trunk: r28891 -->
-            <!-- Fixed in trunk-1.0: r29101 -->
-            <!-- Fixed in trunk-1.2: r30219 -->
+            <!-- Fixed in trunk-1.0: r30219 -->
+            <!-- Fixed in trunk-1.2: r29101 -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3578">Bug
             3578</ulink>) -->
           </para>
