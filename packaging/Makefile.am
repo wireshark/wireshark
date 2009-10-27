@@ -11,6 +11,7 @@ EXTRA_DIST = \
 	portableapps/win32/WiresharkPortable.tmpl	\
 	portableapps/win32/WiresharkPortable.nsi	\
 	portableapps/win32/appinfo.tmpl			\
+	portableapps/win32/installer.ini		\
 	portableapps/win32/makefile.nmake		\
 	portableapps/win32/makenmake.pl			\
 	portableapps/win32/readme.txt			\
