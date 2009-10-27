@@ -5453,11 +5453,11 @@ fReadAccessResult (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 
 		switch (tag_no) {
 		case 0:	/* objectSpecifier */
-			offset = fObjectIdentifier (tvb, subtree, offset);
+			offset = fObjectIdentifier (tvb, tree, offset);
 			break;
 		case 1:	/* list of Results */
 			if (tag_is_opening(tag_info)) {
-				tt = proto_tree_add_text(subtree, tvb, offset, 1, "listOfResults");
+				tt = proto_tree_add_text(tree, tvb, offset, 1, "listOfResults");
 				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				break;
@@ -5469,7 +5469,7 @@ fReadAccessResult (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 			break;
 		case 5:	/* propertyAccessError */
 			if (tag_is_opening(tag_info)) {
-				tt = proto_tree_add_text(subtree, tvb, offset, 1, "propertyAccessError");
+				tt = proto_tree_add_text(tree, tvb, offset, 1, "propertyAccessError");
 				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				/* Error Code follows */
