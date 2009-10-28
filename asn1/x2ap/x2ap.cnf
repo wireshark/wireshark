@@ -15,11 +15,9 @@ ALIGNED
 #.PDU
 X2AP-PDU
 
-#.MAKE_DEFINES
-ProcedureCode
-
 #.MAKE_ENUM
 ProtocolIE-ID
+ProcedureCode
 
 #.TYPE_RENAME
 
@@ -48,6 +46,11 @@ ProtocolIE-ContainerPairList
 #.END
 
 #.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
+#.FN_FTR ProtocolIE-ID
+  if (tree) {
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(x2ap_ProtocolIE_ID_vals), "unknown (%d)"));
+  }
+#.END
 
 #.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
 
@@ -55,10 +58,9 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, x2ap_ProcedureCode_vals,
-                              "unknown message"));
+    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                val_to_str(ProcedureCode, x2ap_ProcedureCode_vals,
+                           "unknown message"));
 #.END
 
 #.FN_HDR ProcedureCode
@@ -72,9 +74,21 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
+#.FN_BODY PLMN-Identity  VAL_PTR = parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
 
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       3, 3, FALSE, &parameter_tvb);
+	if(tvb_length(tvb)==0) 
+		return offset;
+		
+	if (!parameter_tvb)
+		return offset;
+	dissect_e212_mcc_mnc(parameter_tvb, tree, 0);
+#.END
 
 #.TYPE_ATTR
+ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(x2ap_ProtocolIE_ID_vals)
 #.END
 
 # Handle 64 bit constraint
@@ -188,36 +202,36 @@ Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
-HandoverRequest						S x2ap.proc.imsg "id-handoverPreparation"
-HandoverRequestAcknowledge			S x2ap.proc.sout "id-handoverPreparation"
-HandoverPreparationFailure			S x2ap.proc.uout "id-handoverPreparation"
+HandoverRequest						N x2ap.proc.imsg id-handoverPreparation
+HandoverRequestAcknowledge			N x2ap.proc.sout id-handoverPreparation
+HandoverPreparationFailure			N x2ap.proc.uout id-handoverPreparation
 
-SNStatusTransfer					S x2ap.proc.imsg "id-snStatusTransfer"
+SNStatusTransfer					N x2ap.proc.imsg id-snStatusTransfer
 
-UEContextRelease					S x2ap.proc.imsg "id-uEContextRelease"
+UEContextRelease					N x2ap.proc.imsg id-uEContextRelease
 
-HandoverCancel						S x2ap.proc.imsg "id-handoverCancel"
+HandoverCancel						N x2ap.proc.imsg id-handoverCancel
 
-ErrorIndication						S x2ap.proc.imsg "id-errorIndication"
+ErrorIndication						N x2ap.proc.imsg id-errorIndication
 
-ResetRequest						S x2ap.proc.imsg "id-reset"
-ResetResponse						S x2ap.proc.sout "id-reset"
+ResetRequest						N x2ap.proc.imsg id-reset
+ResetResponse						N x2ap.proc.sout id-reset
 
-X2SetupRequest						S x2ap.proc.imsg "id-x2Setup"
-X2SetupResponse						S x2ap.proc.sout "id-x2Setup"
-X2SetupFailure						S x2ap.proc.uout "id-x2Setup"
+X2SetupRequest						N x2ap.proc.imsg id-x2Setup
+X2SetupResponse						N x2ap.proc.sout id-x2Setup
+X2SetupFailure						N x2ap.proc.uout id-x2Setup
 
-LoadInformation						S x2ap.proc.imsg "id-loadIndication"
+LoadInformation						N x2ap.proc.imsg id-loadIndication
 
-ENBConfigurationUpdate				S x2ap.proc.imsg "id-eNBConfigurationUpdate"
-ENBConfigurationUpdateAcknowledge	S x2ap.proc.sout "id-eNBConfigurationUpdate"
-ENBConfigurationUpdateFailure		S x2ap.proc.uout "id-eNBConfigurationUpdate"
+ENBConfigurationUpdate				N x2ap.proc.imsg id-eNBConfigurationUpdate
+ENBConfigurationUpdateAcknowledge	N x2ap.proc.sout id-eNBConfigurationUpdate
+ENBConfigurationUpdateFailure		N x2ap.proc.uout id-eNBConfigurationUpdate
 
-ResourceStatusRequest				S x2ap.proc.imsg "id-resourceStatusReportingInitiation"
-ResourceStatusResponse				S x2ap.proc.sout "id-resourceStatusReportingInitiation"
-ResourceStatusFailure				S x2ap.proc.uout "id-resourceStatusReportingInitiation"
+ResourceStatusRequest				N x2ap.proc.imsg id-resourceStatusReportingInitiation
+ResourceStatusResponse				N x2ap.proc.sout id-resourceStatusReportingInitiation
+ResourceStatusFailure				N x2ap.proc.uout id-resourceStatusReportingInitiation
 
-ResourceStatusUpdate				S x2ap.proc.imsg "id-resourceStatusReporting"
+ResourceStatusUpdate				N x2ap.proc.imsg id-resourceStatusReporting
 
-PrivateMessage				S x2ap.proc.imsg "id-privateMessage"
+PrivateMessage						N x2ap.proc.imsg id-privateMessage
 #.END

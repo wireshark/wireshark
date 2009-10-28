@@ -80,10 +80,9 @@ ProtocolIE-Field/value ie_field_value
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, s1ap_ProcedureCode_vals,
-                              "unknown message"));
+     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                 val_to_str(ProcedureCode, s1ap_ProcedureCode_vals,
+                            "unknown message"));
 #.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
@@ -555,11 +554,11 @@ ConcurrentWarningMessageIndicator		N s1ap.ies id-ConcurrentWarningMessageIndicat
 #RAB-SetupOrModifyItemFirst				N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
 #RAB-SetupOrModifyItemSecond			N s1ap.ies.pair.second id-RAB-SetupOrModifyItem
 
-#NBAP-PROTOCOL-EXTENSION
+#S1AP-PROTOCOL-EXTENSION
 #RAB-Parameters							N s1ap.extension id-AlternativeRABConfiguration
 #Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf N s1ap.extension id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf
 
-#NBAP-ELEMENTARY-PROCEDURE
+#S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired						N s1ap.proc.imsg id-HandoverPreparation
 HandoverCommand							N s1ap.proc.sout id-HandoverPreparation
 HandoverPreparationFailure				N s1ap.proc.uout id-HandoverPreparation
