@@ -32,7 +32,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/emem.h>
 #include <epan/proto.h>
 #include <epan/ipproto.h>
@@ -1480,6 +1482,7 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
                 break;
         }
 
+        p_mac_lte_info->radioType = FDD_RADIO;
         p_mac_lte_info->oob_event = oob_event;
 
         /* Store info in packet */
@@ -1765,16 +1768,23 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
             if (strcmp(protocol_name, "comment") == 0) {
                 /* Extract & add the string. */
+                proto_item *string_ti;
                 char *string = (char*)tvb_get_ephemeral_string(tvb, offset, tvb_length_remaining(tvb, offset));
 
                 /* Show comment string */
-                proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_comment, tvb,
-                                    offset, -1, FALSE);
+                string_ti = proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_comment, tvb,
+                                                offset, -1, FALSE);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", string);
 
                 if (catapult_dct2000_dissect_mac_lte_oob_messages) {
                     /* Look into string for out-of-band MAC events, such as SRReq, SRInd */
                     check_for_oob_mac_lte_events(pinfo, tvb, tree, string);
+                }
+
+                /* Look for and flag generic error messages */
+                if (strncmp(string, ">> ERR", 6) == 0) {
+                    expert_add_info_format(pinfo, string_ti, PI_SEQUENCE, PI_ERROR,
+                                          "%s", string);
                 }
                 return;
             }
