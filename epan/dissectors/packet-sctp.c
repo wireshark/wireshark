@@ -351,6 +351,9 @@ static const value_string sctp_payload_proto_id_values[] = {
   { FORCES_MP_PAYLOAD_PROTOCOL_ID,       "ForCES-MP" },
   { FORCES_LP_PAYLOAD_PROTOCOL_ID,       "ForCES-LP" },
   { SBC_AP_PAYLOAD_PROTOCOL_ID,          "SBc-AP" },
+  { NBAP_PAYLOAD_PROTOCOL_ID,            "NBAP" },
+/* Unassigned 26 */
+  { X2AP_PAYLOAD_PROTOCOL_ID,            "X2AP" },
   { 0,                                   NULL } };
 
 

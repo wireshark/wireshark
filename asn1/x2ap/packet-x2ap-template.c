@@ -171,6 +171,7 @@ proto_reg_handoff_x2ap(void)
 	dissector_handle_t x2ap_handle;
 
 	x2ap_handle = find_dissector("x2ap");
+	dissector_add("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
 	dissector_add_handle("sctp.port", x2ap_handle);  /* for "decode-as" */
 
 #include "packet-x2ap-dis-tab.c"
