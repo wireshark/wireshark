@@ -79,7 +79,7 @@ static void show_cell_data_func(GtkTreeViewColumn *col,
 				GtkTreeModel *model,
 				GtkTreeIter *iter,
 				gpointer data);
-static guint row_number_from_iter(GtkTreeIter *iter);
+static gint row_number_from_iter(GtkTreeIter *iter);
 
 void new_packet_list_set_sel_browse(gboolean val, gboolean force_set);
 
@@ -551,10 +551,10 @@ new_packet_list_set_selected_row(gint row)
 	gtk_tree_path_free(path);
 }
 
-static guint
+static gint
 row_number_from_iter(GtkTreeIter *iter)
 {
-	guint row;
+	gint row;
 	gint *indices;
 	GtkTreePath *path;
 	GtkTreeModel *model;
@@ -576,17 +576,21 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 {
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
-	guint row;
+	gint row;
 
 	selection = gtk_tree_view_get_selection(tree_view);
 	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
 		return;
 
+	row = row_number_from_iter(&iter);
+
+	/* Check if already selected */
+	if (cfile.current_frame && cfile.current_row == row)
+		return;
+
 	/* Remove the hex display tab pages */
 	while(gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr), 0))
 		gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
-
-	row = row_number_from_iter(&iter);
 
 	cf_select_packet(&cfile, row);
 	gtk_widget_grab_focus(packetlist->view);
