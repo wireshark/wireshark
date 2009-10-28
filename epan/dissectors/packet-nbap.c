@@ -38,11 +38,11 @@
 #endif
 
 #include <glib.h>
-#include <epan/packet.h>
-
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/packet.h>
+#include <epan/sctpppids.h>
 #include <epan/asn1.h>
 
 #include "packet-per.h"

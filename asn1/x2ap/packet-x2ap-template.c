@@ -39,6 +39,7 @@
 #include <string.h>
 
 #include <epan/asn1.h>
+#include <epan/sctpppids.h>
 
 #include "packet-per.h"
 
