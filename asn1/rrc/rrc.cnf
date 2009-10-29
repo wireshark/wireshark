@@ -11,6 +11,7 @@ UNALIGNED
 #.EXPORTS
 InterRATHandoverInfo
 InterRATHandoverInfo_PDU
+ToTargetRNC-Container_PDU
 
 #.OMIT_ASSIGNMENT
 #.END
