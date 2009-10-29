@@ -59,7 +59,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 6.7.0 Release 6)
  *	 (3GPP TS 24.008 version 6.8.0 Release 6)
- *
+ *   Reference [9]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 8.6.0 Release 8)
+ * 
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -446,6 +451,7 @@ static int hf_gsm_a_dtap_prog_coding_standard	 = -1;
 static int hf_gsm_a_dtap_location	= -1;
 static int hf_gsm_a_dtap_progress_description	= -1;
 static int hf_gsm_a_dtap_afi	= -1;
+static int hf_gsm_a_dtap_rej_cause	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -753,73 +759,65 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 }
 
 /* 3GPP TS 24.008
- * [3] 10.5.3.6 Reject cause
+ * [9] 10.5.3.6 Reject cause
  */
+static const range_string gsm_a_dtap_rej_cause_vals[] = {
+	{ 0x02, 0x02, "IMSI unknown in HLR"},
+	{ 0x03, 0x03, "Illegal MS"},
+	{ 0x04, 0x04, "IMSI unknown in VLR"},
+	{ 0x05, 0x05, "IMEI not accepted"},
+	{ 0x06, 0x06, "Illegal ME"},
+	{ 0x0b, 0x0b, "PLMN not allowed"},
+	{ 0x0c, 0x0c, "Location Area not allowed"},
+	{ 0x0d, 0x0d, "Roaming not allowed in this location area"},
+	{ 0x0f, 0x0f, "No Suitable Cells In Location Area"},
+	{ 0x11, 0x11, "Network failure"},
+	{ 0x14, 0x14, "MAC failure"},
+	{ 0x15, 0x15, "Synch failure"},
+	{ 0x16, 0x16, "Congestion"},
+	{ 0x17, 0x17, "GSM authentication unacceptable"},
+	{ 0x19, 0x19, "Not authorized for this CSG"},
+	{ 0x20, 0x20, "Service option not supported"},
+	{ 0x21, 0x21, "Requested service option not subscribed"},
+	{ 0x22, 0x22, "Service option temporarily out of order"},
+	{ 0x26, 0x26, "Call cannot be identified"},
+	{ 0x30, 0x3f, "Retry upon entry into a new cell"},
+	{ 0x5f, 0x5f, "Semantically incorrect message"},
+	{ 0x60, 0x60, "Invalid mandatory information"},
+	{ 0x61, 0x61, "Message type non-existent or not implemented"},
+	{ 0x62, 0x62, "Message type not compatible with the protocol state"},
+	{ 0x63, 0x63, "Information element non-existent or not implemented"},
+	{ 0x64, 0x64, "Conditional IE error"},
+	{ 0x65, 0x65, "Message not compatible with the protocol state"},
+	{ 0x6f, 0x6f, "Protocol error, unspecified"},
+	{ 0, 0, NULL }
+};
+
 guint16
 de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
-	guint32	curr_offset;
 	const gchar *str;
 
-	curr_offset = offset;
+	oct = tvb_get_guint8(tvb, offset);
 
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch (oct)
+	str = match_strrval(oct, gsm_a_dtap_rej_cause_vals);
+	if(!str)
 	{
-	case 0x02: str = "IMSI unknown in HLR"; break;
-	case 0x03: str = "Illegal MS"; break;
-	case 0x04: str = "IMSI unknown in VLR"; break;
-	case 0x05: str = "IMEI not accepted"; break;
-	case 0x06: str = "Illegal ME"; break;
-	case 0x0b: str = "PLMN not allowed"; break;
-	case 0x0c: str = "Location Area not allowed"; break;
-	case 0x0d: str = "Roaming not allowed in this location area"; break;
-	case 0x0f: str = "No Suitable Cells In Location Area"; break;
-	case 0x11: str = "Network failure"; break;
-	case 0x14: str = "MAC failure"; break;
-	case 0x15: str = "Synch failure"; break;
-	case 0x16: str = "Congestion"; break;
-	case 0x17: str = "GSM authentication unacceptable"; break;
-	case 0x20: str = "Service option not supported"; break;
-	case 0x21: str = "Requested service option not subscribed"; break;
-	case 0x22: str = "Service option temporarily out of order"; break;
-	case 0x26: str = "Call cannot be identified"; break;
-	case 0x5f: str = "Semantically incorrect message"; break;
-	case 0x60: str = "Invalid mandatory information"; break;
-	case 0x61: str = "Message type non-existent or not implemented"; break;
-	case 0x62: str = "Message type not compatible with the protocol state"; break;
-	case 0x63: str = "Information element non-existent or not implemented"; break;
-	case 0x64: str = "Conditional IE error"; break;
-	case 0x65: str = "Message not compatible with the protocol state"; break;
-	case 0x6f: str = "Protocol error, unspecified"; break;
-	default:
-		switch (is_uplink)
-		{
-		case IS_UPLINK_FALSE:
-			str = "Service option temporarily out of order";
-			break;
-		default:
+		if(is_uplink == IS_UPLINK_TRUE)
 			str = "Protocol error, unspecified";
-			break;
-		}
-		break;
+		else
+			str = "Service option temporarily out of order";
 	}
 
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Reject Cause value: 0x%02x (%u) %s",
-		oct,
-		oct,
-		str);
-
-	curr_offset++;
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_rej_cause, tvb,
+				offset, 1, oct, "%s (%u)", str, oct);
 
 	/* no length check possible */
 
-	return(curr_offset - offset);
+	return(1);
 }
+
 /*
  * 10.5.3.7 Follow-on Proceed
  *  No data
@@ -6479,6 +6477,11 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_afi,
 		{ "Authority and Format Identifier", "gsm_a.dtap.afi",
 		FT_UINT8, BASE_HEX, VALS(x213_afi_value), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_rej_cause,
+		{ "Reject cause", "gsm_a.dtap.rej_cause",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	};
