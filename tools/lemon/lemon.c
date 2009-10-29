@@ -2575,6 +2575,7 @@ void Parse(struct lemon *gp)
   if( filebuf==0 ){
     ErrorMsg(ps.filename,0,"Can't allocate %ld of memory to hold this file.",
       filesize+1);
+    fclose(fp);
     gp->errorcnt++;
     return;
   }
@@ -2582,6 +2583,7 @@ void Parse(struct lemon *gp)
     ErrorMsg(ps.filename,0,"Can't read in all %ld bytes of this file.",
       filesize);
     free(filebuf);
+    fclose(fp);
     gp->errorcnt++;
     return;
   }
