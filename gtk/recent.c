@@ -675,13 +675,19 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
 	cfmt->cfield = g_strdup(&fmt[cust_format_len+1]);  /* add 1 for ':' */
       }
       g_free (fmt);
-      if (cfmt->cfmt == -1)
+      if (cfmt->cfmt == -1) {
+        g_free(cfmt->cfield);
+	g_free(cfmt);
 	return PREFS_SET_SYNTAX_ERR;   /* string was bad */
+      }
 
       col_l_elt      = col_l_elt->next;
       cfmt->width    = strtol(col_l_elt->data, &p, 0);
-      if (p == col_l_elt->data || *p != '\0')
+      if (p == col_l_elt->data || *p != '\0') {
+	g_free(cfmt->cfield);
+	g_free(cfmt);
 	return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+      }
 
       col_l_elt      = col_l_elt->next;
       recent.col_width_list = g_list_append(recent.col_width_list, cfmt);
