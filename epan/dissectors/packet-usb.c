@@ -833,6 +833,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
     proto_item *item=NULL;
     proto_tree *tree=NULL;
     int old_offset=offset;
+    guint8 len;
 
     if(parent_tree){
         item=proto_tree_add_text(parent_tree, tvb, offset, -1, "INTERFACE DESCRIPTOR");
@@ -841,6 +842,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
 
     /* bLength */
     proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, TRUE);
+    len = tvb_get_guint8(tvb, offset);
     offset++;
 
     /* bDescriptorType */
@@ -883,8 +885,12 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
     offset++;
 
     if(item){
-        proto_item_set_len(item, offset-old_offset);
+        proto_item_set_len(item, len);
     }
+    if (offset != old_offset + len) {
+        /* unknown records */
+    }
+    offset = old_offset + len;
 
     return offset;
 }
@@ -905,6 +911,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
     proto_tree *ep_attrib_tree=NULL;
     int old_offset=offset;
     guint8 endpoint;
+    guint8 len;
 
     if(parent_tree){
         item=proto_tree_add_text(parent_tree, tvb, offset, -1, "ENDPOINT DESCRIPTOR");
@@ -913,6 +920,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
 
     /* bLength */
     proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, TRUE);
+    len = tvb_get_guint8(tvb, offset);
     offset++;
 
     /* bDescriptorType */
@@ -990,8 +998,12 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
     offset++;
 
     if(item){
-        proto_item_set_len(item, offset-old_offset);
+        proto_item_set_len(item, len);
     }
+    if (offset != old_offset + len) {
+        /* unknown records */
+    }
+    offset = old_offset + len;
 
     return offset;
 }
