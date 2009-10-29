@@ -831,12 +831,14 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                         bit_offset, 15, &so_end, FALSE);
             bit_offset += 15;
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  (SOstart=%u SOend=%u)",
-                            (guint16)so_start, (guint16)so_end);
 
             if ((guint16)so_end == 0x7fff) {
-                col_append_str(pinfo->cinfo, COL_INFO, " (missing portion reaches end of AMD PDU)");
-                proto_item_append_text(top_ti, " (missing portion reaches end of AMD PDU)");
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  (SOstart=%u SOend=<END-OF_PDU>)",
+                                (guint16)so_start);
+            }
+            else {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  (SOstart=%u SOend=%u)",
+                                (guint16)so_start, (guint16)so_end);
             }
 
             /* Reset this flag here */
