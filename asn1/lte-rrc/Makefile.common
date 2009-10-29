@@ -23,8 +23,10 @@
 PROTOCOL_NAME = lte-rrc
 
 DISSECTOR_FILES = \
-	packet-$(PROTOCOL_NAME).c
-
+	packet-$(PROTOCOL_NAME).c \
+	packet-$(PROTOCOL_NAME).h
+	
+EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf	
 
 EXT_ASN_FILE_LIST = 
 
@@ -37,13 +39,14 @@ EXTRA_DIST = \
 	Makefile.nmake \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
+	packet-$(PROTOCOL_NAME)-template.h \
 	$(PROTOCOL_NAME).cnf
 
 SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS = -L
+A2W_FLAGS = -e -L
 
 EXTRA_CNF = 
 

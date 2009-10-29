@@ -11,7 +11,12 @@ UNALIGNED
 #.OMIT_ASSIGNMENT
 #.END
 
+#.EXPORTS
+HandoverCommand
+HandoverCommand_PDU
+
 #.PDU_NEW
+HandoverCommand
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch
 PCCH-Message                 @pcch

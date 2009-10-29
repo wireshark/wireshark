@@ -1,3 +1,6 @@
+-- 3GPP TS 36.331 V8.5.0 (2009-03)
+-- $Id$
+--
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
  
 BEGIN
@@ -813,7 +816,7 @@ ULInformationTransfer ::=			SEQUENCE {
 }
 
 ULInformationTransfer-r8-IEs ::=	SEQUENCE {
-	dedicatedInfoType			CHOICE {
+	dedicatedInformationType			CHOICE {
 		dedicatedInfoNAS					DedicatedInfoNAS,
 		dedicatedInfoCDMA2000-1XRTT			DedicatedInfoCDMA2000,
 		dedicatedInfoCDMA2000-HRPD			DedicatedInfoCDMA2000
@@ -944,7 +947,11 @@ InterFreqNeighCellInfo ::=			SEQUENCE {
 	q-OffsetCell						Q-OffsetRange
 }
 
-InterFreqBlackCellList ::=			SEQUENCE (SIZE (1..maxCellBlack)) OF PhysCellIdRange
+InterFreqBlackCellList ::=			SEQUENCE (SIZE (1..maxCellBlack)) OF InterFreqBlackCellInfo 
+
+InterFreqBlackCellInfo ::=			SEQUENCE {
+	physCellIdRange					PhysCellIdRange
+}
 
 
 SystemInformationBlockType6 ::=		SEQUENCE {
@@ -1012,7 +1019,7 @@ SystemInformationBlockType8 ::=		SEQUENCE {
 		cellReselectionParametersHRPD		CellReselectionParametersCDMA2000	OPTIONAL -- Need OR
 	}																		OPTIONAL,	-- Need OR
 	parameters1XRTT						SEQUENCE {
-		csfb-RegistrationParam1XRTT			CSFB-RegistrationParam1XRTT		OPTIONAL,	-- Need OP
+		csfb-RegistrationParam1XRTT			CSFB-RegistrationParam1XRTT		OPTIONAL,	-- Need OR
 		longCodeState1XRTT					BIT STRING (SIZE (42))			OPTIONAL,	-- Need OR
 		cellReselectionParameters1XRTT		CellReselectionParametersCDMA2000	OPTIONAL -- Need OR
 	}																		OPTIONAL,	-- Need OR
@@ -1411,21 +1418,21 @@ RACH-ConfigDedicated ::=		SEQUENCE {
 
 
 RadioResourceConfigCommonSIB ::=	SEQUENCE {
-	rach-ConfigCommon					RACH-ConfigCommon,
+	rach-Config							RACH-ConfigCommon,
 	bcch-Config 						BCCH-Config,
 	pcch-Config 						PCCH-Config,
 	prach-Config						PRACH-ConfigSIB,
-	pdsch-ConfigCommon					PDSCH-ConfigCommon,
-	pusch-ConfigCommon					PUSCH-ConfigCommon,
-	pucch-ConfigCommon					PUCCH-ConfigCommon,
-	soundingRS-UL-ConfigCommon			SoundingRS-UL-ConfigCommon,
-	uplinkPowerControlCommon			UplinkPowerControlCommon,
+	pdsch-Config						PDSCH-ConfigCommon,
+	pusch-Config						PUSCH-ConfigCommon,
+	pucch-Config						PUCCH-ConfigCommon,
+	soundingRS-UL-Config				SoundingRS-UL-ConfigCommon,
+	uplinkPowerControl					UplinkPowerControlCommon,
 	ul-CyclicPrefixLength				UL-CyclicPrefixLength,
 	...
 }
 
 RadioResourceConfigCommon ::=		SEQUENCE {
-	rach-ConfigCommon					RACH-ConfigCommon					OPTIONAL,	-- Need ON
+	rach-Config							RACH-ConfigCommon					OPTIONAL,	-- Need ON
 	prach-Config						PRACH-Config,
 	pdsch-ConfigCommon					PDSCH-ConfigCommon					OPTIONAL,	-- Need ON
 	pusch-ConfigCommon					PUSCH-ConfigCommon,
@@ -1462,7 +1469,7 @@ RadioResourceConfigDedicated ::=		SEQUENCE {
 	mac-MainConfig						CHOICE {
 			explicitValue					MAC-MainConfig,
 			defaultValue					NULL
-	}		OPTIONAL,																-- Cond HO-toEUTRA2
+	}		OPTIONAL,																-- Need ON
 	sps-Config							SPS-Config 					OPTIONAL,		-- Need ON
 	physicalConfigDedicated				PhysicalConfigDedicated		OPTIONAL,		-- Need ON
 	...
@@ -1842,9 +1849,9 @@ CellGlobalIdCDMA2000 ::=				CHOICE {
 
 MobilityControlInfo ::=		SEQUENCE {
 	targetPhysCellId					PhysCellId,
-	carrierFreq							CarrierFreqEUTRA					OPTIONAL,	-- Cond HO-toEUTRA
-	carrierBandwidth					CarrierBandwidthEUTRA				OPTIONAL,	-- Cond HO-toEUTRA
-	additionalSpectrumEmission			AdditionalSpectrumEmission			OPTIONAL,	-- Cond HO-toEUTRA
+	carrierFreq							CarrierFreqEUTRA					OPTIONAL,	-- Need ON
+	carrierBandwidth					CarrierBandwidthEUTRA				OPTIONAL,	-- Need ON
+	additionalSpectrumEmission			AdditionalSpectrumEmission			OPTIONAL,	-- Need ON
 	t304								ENUMERATED {
 											ms50, ms100, ms150, ms200, ms500, ms1000,
 											ms2000, spare1},
