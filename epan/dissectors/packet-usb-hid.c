@@ -87,6 +87,16 @@ static int hf_usb_hid_localitem_delimiter = -1;
 
 static gint ett_usb_hid_report = -1;
 static gint ett_usb_hid_item_header = -1;
+static gint ett_usb_hid_wValue = -1;
+
+static int hf_usb_hid_request = -1;
+static int hf_usb_hid_value = -1;
+static int hf_usb_hid_index = -1;
+static int hf_usb_hid_length = -1;
+static int hf_usb_hid_report_type = -1;
+static int hf_usb_hid_report_id = -1;
+static int hf_usb_hid_duration = -1;
+static int hf_usb_hid_zero = -1;
 
 static const true_false_string tfs_mainitem_bit0 = {"Data", "Constant"};
 static const true_false_string tfs_mainitem_bit1 = {"Array", "Variable"};
@@ -552,6 +562,246 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
 	return offset;
 }
 
+/* Dissector for HID GET_REPORT request. See USBHID 1.11, Chapter 7.2.1 Get_Report Request */
+static void
+dissect_usb_hid_get_report(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *subtree = NULL;
+
+	if (is_request) {
+		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		subtree = proto_item_add_subtree(item, ett_usb_hid_wValue);
+
+		/* Report Type in the high byte, Report ID in the low byte */
+		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, TRUE);
+		offset++;
+		proto_tree_add_item(subtree, hf_usb_hid_report_type, tvb, offset, 1, TRUE);
+		offset++;
+
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		offset += 2;
+	} else {
+	}
+}
+
+/* Dissector for HID SET_REPORT request. See USBHID 1.11, Chapter 7.2.2 Set_Report Request */
+static void
+dissect_usb_hid_set_report(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *subtree = NULL;
+
+	if (is_request) {
+		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		subtree = proto_item_add_subtree(item, ett_usb_hid_wValue);
+
+		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, TRUE);
+		offset++;
+		proto_tree_add_item(subtree, hf_usb_hid_report_type, tvb, offset, 1, TRUE);
+		offset++;
+
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		offset += 2;
+	} else {
+	}
+}
+
+
+/* Dissector for HID GET_IDLE request. See USBHID 1.11, Chapter 7.2.3 Get_Idle Request */
+static void
+dissect_usb_hid_get_idle(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *subtree = NULL;
+
+	if (is_request) {
+		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		subtree = proto_item_add_subtree(item, ett_usb_hid_wValue);
+
+		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, TRUE);
+		offset++;
+		proto_tree_add_item(subtree, hf_usb_hid_zero, tvb, offset, 1, TRUE);
+		offset++;
+
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		offset += 2;
+	} else {
+	}
+}
+
+/* Dissector for HID SET_IDLE request. See USBHID 1.11, Chapter 7.2.4 Set_Idle Request */
+static void
+dissect_usb_hid_set_idle(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *subtree = NULL;
+
+	if (is_request) {
+		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		subtree = proto_item_add_subtree(item, ett_usb_hid_wValue);
+
+		/* Duration in the high byte, Report ID in the low byte */
+		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, TRUE);
+		offset++;
+		proto_tree_add_item(subtree, hf_usb_hid_duration, tvb, offset, 1, TRUE);
+		offset++;
+
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		offset += 2;
+	} else {
+	}
+}
+
+/* Dissector for HID GET_PROTOCOL request. See USBHID 1.11, Chapter 7.2.5 Get_Protocol Request */
+static void
+dissect_usb_hid_get_protocol(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+	if (is_request) {
+		proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		offset += 2;
+	} else {
+	}
+}
+
+/* Dissector for HID SET_PROTOCOL request. See USBHID 1.11, Chapter 7.2.6 Set_Protocol Request */
+static void
+dissect_usb_hid_set_protocol(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+	if (is_request) {
+		proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		offset += 2;
+		
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		offset += 2;
+		
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		offset += 2;
+	} else {
+	}
+}
+
+
+typedef void (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info);
+
+typedef struct _usb_setup_dissector_table_t {
+	guint8 request;
+	usb_setup_dissector dissector;
+} usb_setup_dissector_table_t;
+
+
+/* USBHID 1.11, Chapter 7.2 Class-Specific Requests */
+#define USB_HID_SETUP_GET_REPORT      0x01
+#define USB_HID_SETUP_GET_IDLE        0x02
+#define USB_HID_SETUP_GET_PROTOCOL    0x03
+/* 0x04..0x08: Reserved */
+#define USB_HID_SETUP_SET_REPORT      0x09
+#define USB_HID_SETUP_SET_IDLE        0x0A
+#define USB_HID_SETUP_SET_PROTOCOL    0x0B
+
+static const usb_setup_dissector_table_t setup_dissectors[] = {
+	{ USB_HID_SETUP_GET_REPORT,   dissect_usb_hid_get_report },
+	{ USB_HID_SETUP_GET_IDLE,     dissect_usb_hid_get_idle },
+	{ USB_HID_SETUP_GET_PROTOCOL, dissect_usb_hid_get_protocol },
+	{ USB_HID_SETUP_SET_REPORT,   dissect_usb_hid_set_report },
+	{ USB_HID_SETUP_SET_IDLE,     dissect_usb_hid_set_idle },
+	{ USB_HID_SETUP_SET_PROTOCOL, dissect_usb_hid_set_protocol },
+	{ 0, NULL }
+};
+
+static const value_string setup_request_names_vals[] = {
+	{ USB_HID_SETUP_GET_REPORT,   "GET_REPORT" },
+	{ USB_HID_SETUP_GET_IDLE,     "GET_IDLE" },
+	{ USB_HID_SETUP_GET_PROTOCOL, "GET_PROTOCOL" },
+	{ USB_HID_SETUP_SET_REPORT,   "SET_REPORT" },
+	{ USB_HID_SETUP_SET_IDLE,     "SET_IDLE" },
+	{ USB_HID_SETUP_SET_PROTOCOL, "SET_PROTOCOL" },
+	{ 0, NULL }
+};
+
+static const value_string usb_hid_report_type_vals[] = {
+	{ 1, "Input" },
+	{ 2, "Output" },
+	{ 3, "Feature" },
+	{ 0, NULL }
+};
+
+/* Dissector for HID class-specific control request as defined in
+ * USBHID 1.11, Chapter 7.2.
+ * Returns TRUE if a class specific dissector was found
+ * and FALSE otherwise.
+ */
+static gint
+dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	gboolean is_request;
+	usb_conv_info_t *usb_conv_info;
+	usb_trans_info_t *usb_trans_info;
+	int offset = 0;
+	usb_setup_dissector dissector;
+	const usb_setup_dissector_table_t *tmp;
+
+	is_request = (pinfo->srcport==NO_ENDPOINT);
+
+	usb_conv_info = pinfo->usb_conv_info;
+	usb_trans_info = usb_conv_info->usb_trans_info;
+
+	/* See if we can find a class specific dissector for this request */
+	dissector = NULL;
+
+	/* Check valid values for bmRequestType. See Chapter 7.2 in USBHID 1.11 */
+	if ((usb_trans_info->requesttype & 0x7F) ==
+	    ((RQT_SETUP_TYPE_CLASS << 5) | RQT_SETUP_RECIPIENT_INTERFACE)) {
+		for (tmp = setup_dissectors; tmp->dissector; tmp++) {
+			if (tmp->request == usb_trans_info->request) {
+				dissector = tmp->dissector;
+				break;
+			}
+		}
+	}
+	/* No, we could not find any class specific dissector for this request
+	 * return FALSE and let USB try any of the standard requests.
+	 */
+	if (!dissector) {
+		return FALSE;
+	}
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBHID");
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+		val_to_str(usb_trans_info->request, setup_request_names_vals, "Unknown type %x"),
+			is_request ? "Request" : "Response");
+	}
+
+	if (is_request) {
+		proto_tree_add_item(tree, hf_usb_hid_request, tvb, offset, 1, TRUE);
+		offset += 1;
+	}
+
+	dissector(pinfo, tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
+	return TRUE;
+}
+
 void
 proto_register_usb_hid(void)
 {
@@ -755,14 +1005,55 @@ proto_register_usb_hid(void)
 			{ "Item data", "usbhid.item.data", FT_BYTES, BASE_NONE,
 				NULL, 0, NULL, HFILL }},
 
+		/* USB HID specific requests */
+		{ &hf_usb_hid_request,
+		{ "bRequest", "usbhid.setup.bRequest", FT_UINT8, BASE_HEX, VALS(setup_request_names_vals), 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_usb_hid_value,
+		{ "wValue", "usbhid.setup.wValue", FT_UINT16, BASE_HEX, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_usb_hid_index,
+		{ "wIndex", "usbhid.setup.wIndex", FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_usb_hid_length,
+		{ "wLength", "usbhid.setup.wLength", FT_UINT16, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_usb_hid_report_type,
+		{ "ReportType", "usbhid.setup.ReportType", FT_UINT8, BASE_DEC,
+		  VALS(usb_hid_report_type_vals), 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_usb_hid_report_id,
+		{ "ReportID", "usbhid.setup.ReportID", FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_usb_hid_duration,
+		{ "Duration", "usbhid.setup.Duration", FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_usb_hid_zero,
+		{ "(zero)", "usbhid.setup.zero", FT_UINT8, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }}
+
 	};
 
 	static gint *usb_hid_subtrees[] = {
 		&ett_usb_hid_report,
 		&ett_usb_hid_item_header,
+		&ett_usb_hid_wValue
 	};
+
+	dissector_handle_t usb_hid_control_handle;
 
 	proto_usb_hid = proto_register_protocol("USB HID", "USBHID", "usbhid");
 	proto_register_field_array(proto_usb_hid, hf, array_length(hf));
 	proto_register_subtree_array(usb_hid_subtrees, array_length(usb_hid_subtrees));
+
+	usb_hid_control_handle = new_create_dissector_handle(dissect_usb_hid_control, proto_usb_hid);
+	dissector_add("usb.control", IF_CLASS_HID, usb_hid_control_handle);
+
 }
