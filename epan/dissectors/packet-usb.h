@@ -100,4 +100,19 @@ typedef struct _usb_tap_data_t {
 #define IF_CLASS_APPLICATION_SPECIFIC	0xfe
 #define IF_CLASS_VENDOR_SPECIFIC	0xff
 
+
+/* bmRequestType values */
+#define USB_DIR_OUT                     0               /* to device */
+#define USB_DIR_IN                      0x80            /* to host */
+
+#define USB_TYPE_MASK                   (0x03 << 5)
+#define RQT_SETUP_TYPE_STANDARD	0
+#define RQT_SETUP_TYPE_CLASS	1
+#define RQT_SETUP_TYPE_VENDOR	2
+
+#define RQT_SETUP_RECIPIENT_DEVICE      0
+#define RQT_SETUP_RECIPIENT_INTERFACE   1
+#define RQT_SETUP_RECIPIENT_ENDPOINT    2
+#define RQT_SETUP_RECIPIENT_OTHER       3
+
 #endif

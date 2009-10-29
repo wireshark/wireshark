@@ -1525,18 +1525,10 @@ static const value_string setup_request_names_vals[] = {
 };
 
 
-#define USB_DIR_OUT                     0               /* to device */
-#define USB_DIR_IN                      0x80            /* to host */
-
 static const true_false_string tfs_bmrequesttype_direction = {
 	"Device-to-host",
 	"Host-to-device"
 };
-
-#define USB_TYPE_MASK                   (0x03 << 5)
-#define RQT_SETUP_TYPE_STANDARD	0
-#define RQT_SETUP_TYPE_CLASS	1
-#define RQT_SETUP_TYPE_VENDOR	2
 
 static const value_string bmrequesttype_type_vals[] = {
     {RQT_SETUP_TYPE_STANDARD, "Standard"},
@@ -1544,12 +1536,13 @@ static const value_string bmrequesttype_type_vals[] = {
     {RQT_SETUP_TYPE_VENDOR,   "Vendor"},
     {0, NULL}
 };
+
 static const value_string bmrequesttype_recipient_vals[] = {
-    {0, "Device"},
-    {1, "Interface"},
-    {2, "Endpoint"},
-    {3, "Other"},
-    {0, NULL}
+    { RQT_SETUP_RECIPIENT_DEVICE, "Device" },
+    { RQT_SETUP_RECIPIENT_INTERFACE, "Interface" },
+    { RQT_SETUP_RECIPIENT_INTERFACE, "Endpoint" },
+    { RQT_SETUP_RECIPIENT_INTERFACE, "Other" },
+    { 0, NULL }
 };
 
 static int
