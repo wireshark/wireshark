@@ -1484,7 +1484,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 	return offset;
 }
 
-static void
+static int
 dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
     unsigned int count )
 {
@@ -1587,6 +1587,8 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 
 		chunk++;
 	}
+	
+	return offset;
 }
 
 static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block_type, proto_tree *tree)
@@ -2659,8 +2661,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 offset++;
                 /* Packet length in 32 bit words MINUS one, 16 bits */
                 offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
-                dissect_rtcp_sdes( tvb, offset, rtcp_tree, elem_count );
-                offset += packet_length - 4;
+                offset = dissect_rtcp_sdes( tvb, offset, rtcp_tree, elem_count );
                 break;
             case RTCP_BYE:
                 /* Source count, 5 bits */
