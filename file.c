@@ -1178,40 +1178,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   /* just add some value here until we know if it is being displayed or not */
   fdata->cum_bytes  = cum_bytes + fdata->pkt_len;
 
-  /* If we don't have the time stamp of the first packet in the
-     capture, it's because this is the first packet.  Save the time
-     stamp of this packet as the time stamp of the first packet. */
-  if (nstime_is_unset(&first_ts)) {
-    first_ts  = fdata->abs_ts;
-  }
-  /* if this frames is marked as a reference time frame, reset
-     firstsec and firstusec to this frame */
-  if(fdata->flags.ref_time){
-    first_ts = fdata->abs_ts;
-  }
-
-  /* If we don't have the time stamp of the previous displayed packet,
-     it's because this is the first displayed packet.  Save the time
-     stamp of this packet as the time stamp of the previous displayed
-     packet. */
-  if (nstime_is_unset(&prev_dis_ts)) {
-    prev_dis_ts = fdata->abs_ts;
-  }
-
-  /* Get the time elapsed between the first packet and this packet. */
-  nstime_delta(&fdata->rel_ts, &fdata->abs_ts, &first_ts);
-
-  /* If it's greater than the current elapsed time, set the elapsed time
-     to it (we check for "greater than" so as not to be confused by
-     time moving backwards). */
-  if ((gint32)cf->elapsed_time.secs < fdata->rel_ts.secs
-  || ((gint32)cf->elapsed_time.secs == fdata->rel_ts.secs && (gint32)cf->elapsed_time.nsecs < fdata->rel_ts.nsecs)) {
-    cf->elapsed_time = fdata->rel_ts;
-  }
-
-  /* Get the time elapsed between the previous displayed packet and
-     this packet. */
-  nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
+  frame_data_set_before_dissect(fdata, &cf->elapsed_time,
+                                &first_ts, &prev_dis_ts, &prev_cap_ts);
 
   /* If either
 
@@ -1262,17 +1230,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   if( (fdata->flags.passed_dfilter) || (fdata->flags.ref_time) )
   {
-    /* This frame either passed the display filter list or is marked as
-       a time reference frame.  All time reference frames are displayed
-       even if they dont pass the display filter */
-    if(fdata->flags.ref_time){
-      /* if this was a TIME REF frame we should reset the cul bytes field */
-      cum_bytes = fdata->pkt_len;
-      fdata->cum_bytes =  cum_bytes;
-    } else {
-      /* increase cum_bytes with this packets length */
-      cum_bytes += fdata->pkt_len;
-    }
+    frame_data_set_after_dissect(fdata, &cum_bytes, &prev_dis_ts);
 
     epan_dissect_fill_in_columns(&edt, FALSE, TRUE);
 
@@ -1306,10 +1264,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      if (fdata->flags.marked) {
        packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
      }
-
-    /* Set the time of the previous displayed frame to the time of this
-       frame. */
-    prev_dis_ts = fdata->abs_ts;
 
     cf->displayed_count++;
   }
@@ -2121,6 +2075,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
      the display list. */
   nstime_set_unset(&first_ts);
   nstime_set_unset(&prev_dis_ts);
+  nstime_set_unset(&prev_cap_ts);
   cum_bytes = 0;
 
   /* Update the progress bar when it gets to this value. */
