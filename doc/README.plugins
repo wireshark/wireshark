@@ -23,6 +23,7 @@ contain minimally the following files:
 AUTHORS
 COPYING
 ChangeLog
+CMakeLists.txt
 Makefile.am
 Makefile.common
 Makefile.nmake
@@ -38,13 +39,19 @@ Examples of these files can be found in plugins/gryphon.
 The AUTHORS, COPYING, and ChangeLog are the standard sort of GPL project
 files.
 
-2.2 Makefile.am
+2.2 CMakeLists.txt
+
+For your plugins/xxx/CMakeLists.txt file, see the corresponding file in
+plugins/gryphon. Replace all occurrences of "gryphon" in those files
+with "xxx" and add your source files to the DISSECTOR_SRC variable.
+
+2.3 Makefile.am
 
 For your plugins/xxx/Makefile.am file, see the corresponding file in
 plugins/gryphon. Replace all occurrences of "gryphon" in those files
 with "xxx".
 
-2.3 Makefile.common
+2.4 Makefile.common
 
 Your plugins/xxx/Makefile.common should only list the main source file(s),
 which exports register_*() and handoff_*(), for your dissector in the
@@ -54,22 +61,22 @@ The header files for your dissector, if any, must be listed in the
 DISSECTOR_INCLUDES variable. The DISSECTOR_INCLUDES variable should not
 include moduleinfo.h.
 
-2.4 Makefile.nmake
+2.5 Makefile.nmake
 
 For your plugins/xxx/Makefile.nmake file, see the corresponding file in
 plugins/gryphon. No modifications are needed here.
 
-2.5 moduleinfo.h
+2.6 moduleinfo.h
 
 Your plugins/xxx/moduleinfo.h file is used to set the version information
 for the plugin.
 
-2.6 moduleinfo.nmake
+2.7 moduleinfo.nmake
 
 Your plugins/xxx/moduleinfo.nmake is used to set the version information
 for building the plugin. Its contents should match that in moduleinfo.h
 
-2.7 plugin.rc.in
+2.8 plugin.rc.in
 
 Your plugins/xxx/plugin.rc.in is the Windows resource template file
 used to add the plugin specific information as resources to the DLL.
@@ -79,6 +86,7 @@ No modifications are needed here.
 
 You will also need to change the following files:
 	configure.in
+	CMakeLists.txt
 	epan/Makefile.am
 	Makefile.am
 	Makefile.nmake
@@ -159,7 +167,20 @@ plugin_src = \
 	../plugins/xxx/packet-xxx.c \
         ...
 
-3.6  Changes to the installers
+3.6  Changes to CMakeLists.txt
+
+Add your plugin (in alphabetical order) to the PLUGIN_SRC_DIRS:
+
+if(ENABLE_PLUGINS)
+        ...
+        set(PLUGIN_SRC_DIRS
+                ...
+                plugins/gryphon
+                plugins/irda
+                plugins/xxx
+                ...
+
+3.7  Changes to the installers
 
 If you want to include your plugin in an installer you have to add lines
 in the NSIS installer Makefile.nmake and wireshark.nsi files.
