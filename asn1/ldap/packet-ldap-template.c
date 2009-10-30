@@ -515,9 +515,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 
 	/* convert the string into a printable string */
 	if(is_ascii){
-		ldapvalue_string=ep_alloc(len+1);
-		memcpy(ldapvalue_string,str,len);
-		ldapvalue_string[i]=0;
+		ldapvalue_string=ep_strndup(str, len);
 	} else {
 		ldapvalue_string=ep_alloc(3*len);
 		for(i=0;i<len;i++){
