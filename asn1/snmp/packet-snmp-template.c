@@ -2055,6 +2055,8 @@ void proto_reg_handoff_snmp(void) {
 
 	data_handle = find_dissector("data");
 
+	register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp);
+
 	/*
 	 * Process preference settings.
 	 *
