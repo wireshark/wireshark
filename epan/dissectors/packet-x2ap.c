@@ -2439,22 +2439,7 @@ dissect_x2ap_TargeteNBtoSource_eNBTransparentContainer(tvbuff_t *tvb _U_, int of
 	if (!parameter_tvb)
 		return offset;
 	  
-	TRY {
-            dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, tree);
-        }
-        CATCH(BoundsError) {
-			g_warning("BoundsError");
-            show_exception(parameter_tvb,  actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-        }
-        CATCH(ReportedBoundsError) {
-			g_warning("ReportedBoundsError");
-            show_exception(parameter_tvb,  actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-        }
-        CATCH_ALL{
-			g_warning("CATCH_ALL");        
-			show_exception(parameter_tvb,  actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-        }
-        ENDTRY;	
+     dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, tree);
 	
 
 
