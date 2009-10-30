@@ -42,7 +42,7 @@
 #include "packet-x411.h" 
 #include "packet-x420.h" 
 
-#define PNAME  "STANAG 4406 Military Message"
+#define PNAME  "STANAG 4406 Message"
 #define PSNAME "STANAG 4406"
 #define PFNAME "s4406"
 
@@ -112,9 +112,9 @@ void proto_register_s4406(void) {
 void proto_reg_handoff_s4406(void) {
 #include "packet-s4406-dis-tab.c"
 
-  register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_s4406, proto_s4406, "Military Message");
+  register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_s4406, proto_s4406, "STANAG 4406");
 
-  register_ber_syntax_dissector("MilitaryMessage", proto_s4406, dissect_s4406); 
-  register_ber_oid_syntax(".p772", NULL, "MilitaryMessage");
+  register_ber_syntax_dissector("STANAG 4406", proto_s4406, dissect_s4406); 
+  register_ber_oid_syntax(".p772", NULL, "STANAG 4406");
 
 }
