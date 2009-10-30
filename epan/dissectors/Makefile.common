@@ -876,6 +876,7 @@ DISSECTOR_SRC = \
 	packet-usb.c		\
 	packet-usb-masstorage.c	\
 	packet-usb-hid.c	\
+	packet-usb-hub.c	\
 	packet-umts_fp.c	\
 	packet-user_encap.c	\
 	packet-uts.c		\
