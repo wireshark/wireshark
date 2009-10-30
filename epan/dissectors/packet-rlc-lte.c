@@ -1353,7 +1353,7 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_am_fixed_sn,
             { "Sequence Number",
-              "rlc-lte.am.fixed.sn", FT_UINT16, BASE_HEX, 0, 0x03ff,
+              "rlc-lte.am.fixed.sn", FT_UINT16, BASE_DEC, 0, 0x03ff,
               "AM Fixed Sequence Number", HFILL
             }
         },
