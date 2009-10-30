@@ -1919,6 +1919,15 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, TRUE);
                     offset += 2;
                     break;
+                default:
+                    proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, TRUE);
+                    offset += 1;
+                    proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, TRUE);
+                    offset += 2;
+                    proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, TRUE);
+                    offset += 2;
+                    proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, TRUE);
+                    offset += 2;
                 }
             } else {
                 /* Skip setup header - it's not present */
