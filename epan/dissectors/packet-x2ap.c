@@ -51,6 +51,8 @@
 
 #include "packet-per.h"
 #include "packet-e212.h"
+#include "packet-frame.h"
+#include "packet-lte-rrc.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -145,7 +147,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
-#line 59 "packet-x2ap-template.c"
+#line 61 "packet-x2ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_x2ap = -1;
@@ -379,7 +381,7 @@ static int hf_x2ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_x2ap_value = -1;                    /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-x2ap-hf.c ---*/
-#line 64 "packet-x2ap-template.c"
+#line 66 "packet-x2ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_x2ap = -1;
@@ -489,7 +491,7 @@ static gint ett_x2ap_SuccessfulOutcome = -1;
 static gint ett_x2ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-x2ap-ett.c ---*/
-#line 69 "packet-x2ap-template.c"
+#line 71 "packet-x2ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -929,6 +931,8 @@ dissect_x2ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
+
+
 	if(tvb_length(tvb)==0) 
 		return offset;
 		
@@ -2426,8 +2430,33 @@ dissect_x2ap_SubscriberProfileIDforRFP(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_x2ap_TargeteNBtoSource_eNBTransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 91 "x2ap.cnf"
+  tvbuff_t *parameter_tvb=NULL;
+  
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
+	if (!parameter_tvb)
+		return offset;
+	  
+	TRY {
+            dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, tree);
+        }
+        CATCH(BoundsError) {
+			g_warning("BoundsError");
+            show_exception(parameter_tvb,  actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+        }
+        CATCH(ReportedBoundsError) {
+			g_warning("ReportedBoundsError");
+            show_exception(parameter_tvb,  actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+        }
+        CATCH_ALL{
+			g_warning("CATCH_ALL");        
+			show_exception(parameter_tvb,  actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+        }
+        ENDTRY;	
+	
+
 
   return offset;
 }
@@ -3754,7 +3783,7 @@ static void dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-x2ap-fn.c ---*/
-#line 89 "packet-x2ap-template.c"
+#line 91 "packet-x2ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -4276,19 +4305,19 @@ void proto_register_x2ap(void) {
         "x2ap.LAC", HFILL }},
     { &hf_x2ap_e_RAB_MaximumBitrateDL,
       { "e-RAB-MaximumBitrateDL", "x2ap.e_RAB_MaximumBitrateDL",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "x2ap.BitRate", HFILL }},
     { &hf_x2ap_e_RAB_MaximumBitrateUL,
       { "e-RAB-MaximumBitrateUL", "x2ap.e_RAB_MaximumBitrateUL",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "x2ap.BitRate", HFILL }},
     { &hf_x2ap_e_RAB_GuaranteedBitrateDL,
       { "e-RAB-GuaranteedBitrateDL", "x2ap.e_RAB_GuaranteedBitrateDL",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "x2ap.BitRate", HFILL }},
     { &hf_x2ap_e_RAB_GuaranteedBitrateUL,
       { "e-RAB-GuaranteedBitrateUL", "x2ap.e_RAB_GuaranteedBitrateUL",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "x2ap.BitRate", HFILL }},
     { &hf_x2ap_eNB_ID,
       { "eNB-ID", "x2ap.eNB_ID",
@@ -4508,11 +4537,11 @@ void proto_register_x2ap(void) {
         "x2ap.LastVisitedCell_Item", HFILL }},
     { &hf_x2ap_uEaggregateMaximumBitRateDownlink,
       { "uEaggregateMaximumBitRateDownlink", "x2ap.uEaggregateMaximumBitRateDownlink",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "x2ap.BitRate", HFILL }},
     { &hf_x2ap_uEaggregateMaximumBitRateUplink,
       { "uEaggregateMaximumBitRateUplink", "x2ap.uEaggregateMaximumBitRateUplink",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "x2ap.BitRate", HFILL }},
     { &hf_x2ap_encryptionAlgorithms,
       { "encryptionAlgorithms", "x2ap.encryptionAlgorithms",
@@ -4704,7 +4733,7 @@ void proto_register_x2ap(void) {
         "x2ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-x2ap-hfarr.c ---*/
-#line 138 "packet-x2ap-template.c"
+#line 140 "packet-x2ap-template.c"
   };
 
   /* List of subtrees */
@@ -4815,7 +4844,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-x2ap-ettarr.c ---*/
-#line 144 "packet-x2ap-template.c"
+#line 146 "packet-x2ap-template.c"
   };
 
 
@@ -4915,7 +4944,7 @@ proto_reg_handoff_x2ap(void)
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
-#line 177 "packet-x2ap-template.c"
+#line 179 "packet-x2ap-template.c"
 }
 
 

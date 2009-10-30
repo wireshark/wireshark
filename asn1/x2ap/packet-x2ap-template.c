@@ -43,6 +43,8 @@
 
 #include "packet-per.h"
 #include "packet-e212.h"
+#include "packet-frame.h"
+#include "packet-lte-rrc.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
