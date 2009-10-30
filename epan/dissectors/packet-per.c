@@ -178,52 +178,64 @@ static const guint16 bit_mask16_unalligned[] = {
 /* Fetch a number of bits to a new tvb right adjusted to the nearest number of bytes.
  * (add proceeding zeros in case of aligned PER)
  */
-tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, guint32 no_of_bits)
+tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx_t *actx, guint32 no_of_bits)
 {
   tvbuff_t *sub_tvb = NULL;
-  guint32 boffset = offset >> 3;
+  /* offset is offset in bytes boffset is in bits */
+  guint32 offset = boffset >> 3;
   unsigned int i, shift0, shift1;
   guint8 octet0, octet1, *buf;
   guint16	word;
 
-  guint32	length;
-  guint32	remainder;
+  guint32	new_length, check_length;
+  guint32	remainder, tvb_bits;
 
   /* Calculate the size reqired */
 
-  length = no_of_bits/8;
+  new_length = no_of_bits/8;
   remainder = no_of_bits % 8;
+  
   if(remainder){
-	  length++;
+	  new_length++;
   }else{
 	  /* Number of bits = even number of octets */
-	return new_octet_aligned_subset(tvb, offset, actx, length);
+	return new_octet_aligned_subset(tvb, offset, actx, new_length);
   }
+
+  /* The bits can be contained in two "extra octets" .... .xxx [xxxx]*n xx... ....*/
+  tvb_bits = (boffset & 7)+ no_of_bits;
+  check_length = tvb_bits/8;
+  remainder = no_of_bits % 8;
+  if(remainder){
+	  check_length++;
+  }
+
 
   /*  Throw an exception if we're asked to display more bits than exist.
    *  We check now to ensure we don't cause g_malloc() to abort because
    *  we asked for entirely too much memory.
    */
-  tvb_ensure_bytes_exist(tvb, offset, length);
-  buf = g_malloc(length);
+  assert(new_length <= check_length);
+  tvb_ensure_bytes_exist(tvb, offset, check_length);
+  buf = g_malloc(new_length);
 
   if (actx->aligned)
   {
     /* get the 'odd' bits */
     shift1 = offset & 0x07;
-    word = tvb_get_ntohs(tvb,boffset) & bit_mask16[offset & 0x07];
+    word = tvb_get_ntohs(tvb, offset) & bit_mask16[offset & 0x07];
     word = word >> (16-(shift1+remainder));
     buf[0] = word & 0x00ff;
 
-    offset = offset + remainder;
-    boffset = offset >> 3;
-    if (length >1){
+    boffset = boffset + remainder;
+    offset = boffset >> 3;
+    if (new_length >1){
       shift1 = offset & 0x07;
       shift0 = 8 - shift1;
-      octet0 = tvb_get_guint8(tvb, boffset);
-      for (i=1; i<length; i++) {
+      octet0 = tvb_get_guint8(tvb, offset);
+      for (i=1; i<new_length; i++) {
         octet1 = octet0;
-        octet0 = tvb_get_guint8(tvb, boffset + i);
+        octet0 = tvb_get_guint8(tvb, offset + i);
         buf[i] = (octet1 << shift1) | (octet0 >> shift0);
       }
     }
@@ -232,28 +244,28 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_
   {
     /* Do not preceed with zeros in case of PER unaligned */
     i = 0;
-    shift1 = offset & 0x07;
+    shift1 = boffset & 0x07;
     shift0 = 8 - shift1;
 
-    if (length > 1){
-      octet0 = tvb_get_guint8(tvb, boffset);
-      for (; i < length-1; i++) {
+    if (new_length > 1){
+      octet0 = tvb_get_guint8(tvb, offset);
+      for (; i < new_length-1; i++) {
         octet1 = octet0;
-        octet0 = tvb_get_guint8(tvb, boffset + i + 1);
+        octet0 = tvb_get_guint8(tvb, offset + i + 1);
         buf[i] = (octet1 << shift1) | (octet0 >> shift0);
       }
     }
     /* get the 'odd' bits */
     if ((no_of_bits - 8*i) > shift0){
-      word = tvb_get_ntohs(tvb,boffset+i) << shift1;
+      word = tvb_get_ntohs(tvb,offset+i) << shift1;
     }else{
-      word = tvb_get_guint8(tvb,boffset+i) << (shift1 + 8);
+      word = tvb_get_guint8(tvb,offset+i) << (shift1 + 8);
     }
     word = word & bit_mask16_unalligned[remainder];
     word = word >> 8;
     buf[i] = (guint8) (word & 0x00ff);
   }
-  sub_tvb = tvb_new_child_real_data(tvb, buf, length, length);
+  sub_tvb = tvb_new_child_real_data(tvb, buf, new_length, new_length);
   tvb_set_free_cb(sub_tvb, g_free);
   add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
 
