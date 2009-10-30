@@ -2279,9 +2279,15 @@ host_name_lookup_init(void) {
   g_free(hostspath);
 
 #ifdef HAVE_C_ARES
+#ifdef CARES_HAVE_ARES_LIBRARY_INIT
+  if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
+#endif
   if (ares_init(&alchan) == ARES_SUCCESS) {
     async_dns_initialized = TRUE;
   }
+#ifdef CARES_HAVE_ARES_LIBRARY_INIT
+  }
+#endif
 #else
 #ifdef HAVE_GNU_ADNS
   /*
@@ -2386,8 +2392,12 @@ host_name_lookup_cleanup(void) {
 
   g_list_free(async_dns_queue_head);
 
-  if (async_dns_initialized)
+  if (async_dns_initialized) {
     ares_destroy(alchan);
+  }
+#ifdef CARES_HAVE_ARES_LIBRARY_INIT
+  ares_library_cleanup();
+#endif
   async_dns_initialized = FALSE;
 }
 
