@@ -567,8 +567,7 @@ dissect_usb_hub_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBHUB");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 		val_to_str(usb_trans_info->request, setup_request_names_vals, "Unknown type %x"),
 			is_request ? "Request" : "Response");
 	}
@@ -664,14 +663,17 @@ proto_register_usb_hub(void)
 		&ett_usb_hub_wIndex,
 		&ett_usb_hub_wLength
 	};
-	dissector_handle_t usb_hub_control_handle;
 
 	proto_usb_hub = proto_register_protocol("USB HUB", "USBHUB", "usbhub");
 	proto_register_field_array(proto_usb_hub, hf, array_length(hf));
 	proto_register_subtree_array(usb_hub_subtrees, array_length(usb_hub_subtrees));
+}
+
+void
+proto_reg_handoff_usb_hub(void) {
+	dissector_handle_t usb_hub_control_handle;
 
 	usb_hub_control_handle = new_create_dissector_handle(dissect_usb_hub_control, proto_usb_hub);
 	dissector_add("usb.control", IF_CLASS_HUB, usb_hub_control_handle);
 	dissector_add("usb.control", IF_CLASS_UNKNOWN, usb_hub_control_handle);
-
 }

@@ -787,8 +787,7 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBHID");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 		val_to_str(usb_trans_info->request, setup_request_names_vals, "Unknown type %x"),
 			is_request ? "Request" : "Response");
 	}
@@ -1047,13 +1046,15 @@ proto_register_usb_hid(void)
 		&ett_usb_hid_wValue
 	};
 
-	dissector_handle_t usb_hid_control_handle;
-
 	proto_usb_hid = proto_register_protocol("USB HID", "USBHID", "usbhid");
 	proto_register_field_array(proto_usb_hid, hf, array_length(hf));
 	proto_register_subtree_array(usb_hid_subtrees, array_length(usb_hid_subtrees));
+}
+
+void
+proto_reg_handoff_usb_hid(void) {
+	dissector_handle_t usb_hid_control_handle;
 
 	usb_hid_control_handle = new_create_dissector_handle(dissect_usb_hid_control, proto_usb_hid);
 	dissector_add("usb.control", IF_CLASS_HID, usb_hid_control_handle);
-
 }
