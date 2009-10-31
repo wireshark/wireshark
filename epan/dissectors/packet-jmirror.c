@@ -111,14 +111,14 @@ dissect_jmirror(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( !( dissector_handle = get_heuristic_handle(tvb) ) )
 		return 0;
 
+  /* Populate the Protocol field in the Wireshark packet display */
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "Jmirror");
+
 	/* Build the Jmirror Identifier value and store the string in a buffer */
 	midval = tvb_get_ntohl(tvb, offset);
 
 	/* Build the Session Identifier value and store the string in a buffer */
 	sidval = tvb_get_ntohl(tvb, offset+MIRROR_ID_SZ);
-
-	/* Populate the Protocol field in the Wireshark packet display */
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Jmirror");
 
 	/* Populate the Info field in the Wireshark packet display */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "MID: 0X%08x (%d), SID: 0x%08x (%d)", midval, midval, sidval, sidval);
