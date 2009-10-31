@@ -51,7 +51,6 @@ static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t hdlc_handle;
 
-/* Value to hold the UDP port number - default 30030 defined in header file */
 static guint global_jmirror_udp_port = DEF_JMIRROR_UDP_PORT;
 
 /* Forward declaration */
@@ -61,8 +60,8 @@ void proto_reg_handoff_jmirror(void);
 static dissector_handle_t
 get_heuristic_handle(tvbuff_t *tvb)
 {
-	int             offset = MIRROR_HDR_SZ;            /* Point past the 8 byte mirror header */
-	int             byte0, byte1, byte2, byte3;
+	int offset = MIRROR_HDR_SZ;            /* Point past the 8 byte mirror header */
+	int byte0, byte1, byte2, byte3;
 
 	/* The follow section is designed to determine the nature of the mirrored packet.
 	 *
@@ -101,12 +100,12 @@ get_heuristic_handle(tvbuff_t *tvb)
 static int
 dissect_jmirror(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int             offset = 0;
+	int offset = 0;
 	dissector_handle_t dissector_handle;
-	unsigned int    midval, sidval;
-	proto_item      *ti = NULL;
-	proto_tree      *jmirror_tree = NULL;
-	tvbuff_t        *next_tvb = NULL;
+	unsigned int midval, sidval;
+	proto_item *ti = NULL;
+	proto_tree *jmirror_tree = NULL;
+	tvbuff_t *next_tvb = NULL;
 
 	if ( !( dissector_handle = get_heuristic_handle(tvb) ) )
 		return 0;
