@@ -14,6 +14,7 @@
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -99,7 +100,7 @@ static int hf_mpeg_pes_frame_type = -1;           /* T_frame_type */
 static int hf_mpeg_pes_vbv_delay = -1;            /* BIT_STRING_SIZE_16 */
 
 /*--- End of included file: packet-mpeg-pes-hf.c ---*/
-#line 40 "packet-mpeg-pes-template.c"
+#line 41 "packet-mpeg-pes-template.c"
 
 /*--- Included file: packet-mpeg-pes-ett.c ---*/
 #line 1 "packet-mpeg-pes-ett.c"
@@ -111,7 +112,7 @@ static gint ett_mpeg_pes_Group_of_pictures = -1;
 static gint ett_mpeg_pes_Picture = -1;
 
 /*--- End of included file: packet-mpeg-pes-ett.c ---*/
-#line 41 "packet-mpeg-pes-template.c"
+#line 42 "packet-mpeg-pes-template.c"
 
 /*--- Included file: packet-mpeg-pes-fn.c ---*/
 #line 1 "packet-mpeg-pes-fn.c"
@@ -479,13 +480,14 @@ dissect_mpeg_pes_Picture(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 /*--- End of included file: packet-mpeg-pes-fn.c ---*/
-#line 42 "packet-mpeg-pes-template.c"
+#line 43 "packet-mpeg-pes-template.c"
 
 static int proto_mpeg = -1;
 static int proto_mpeg_pes = -1;
 
 static int ett_mpeg_pes_pack_header = -1;
 static int ett_mpeg_pes_header_data = -1;
+static int ett_mpeg_pes_trick_mode = -1;
 
 static int hf_mpeg_pes_pack_header = -1;
 static int hf_mpeg_pes_scr = -1;
@@ -498,6 +500,12 @@ static int hf_mpeg_pes_pts = -1;
 static int hf_mpeg_pes_dts = -1;
 static int hf_mpeg_pes_escr = -1;
 static int hf_mpeg_pes_es_rate = -1;
+static int hf_mpeg_pes_dsm_trick_mode = -1;
+static int hf_mpeg_pes_dsm_trick_mode_control = -1;
+static int hf_mpeg_pes_dsm_trick_mode_field_id = -1;
+static int hf_mpeg_pes_dsm_trick_mode_intra_slice_refresh = -1;
+static int hf_mpeg_pes_dsm_trick_mode_frequency_truncation = -1;
+static int hf_mpeg_pes_dsm_trick_mode_rep_cntrl = -1;
 static int hf_mpeg_pes_copy_info = -1;
 static int hf_mpeg_pes_crc = -1;
 static int hf_mpeg_pes_extension_flags = -1;
@@ -552,6 +560,48 @@ enum {
 	PSTD_BUFFER_FLAG = 0x10,
 	MUST_BE_ONES = 0x07,
 	EXTENSION_FLAG2 = 0x01
+};
+
+enum {
+	FAST_FORWARD_CONTROL = 0x00,
+	SLOW_MOTION_CONTROL = 0x01,
+	FREEZE_FRAME_CONTROL = 0x02,
+	FAST_REVERSE_CONTROL = 0x03,
+	SLOW_REVERSE_CONTROL = 0x04
+};
+
+static const value_string mpeg_pes_TrickModeControl_vals[] = {
+  { FAST_FORWARD_CONTROL, "fast-forward" },
+  { SLOW_MOTION_CONTROL,  "slow-motion" },
+  { FREEZE_FRAME_CONTROL, "freeze-frame" },
+  { FAST_REVERSE_CONTROL, "fast-reverse" },
+  { SLOW_REVERSE_CONTROL, "slow-reverse" },
+  {   5, "reserved" },
+  {   6, "reserved" },
+  {   7, "reserved" },
+  {   0, NULL }
+};
+
+static const value_string mpeg_pes_TrickModeFieldId_vals[] = {
+  {   0, "display-from-top-field-only" },
+  {   1, "display-from-bottom-field-only" },
+  {   2, "display-complete-frame" },
+  {   3, "reserved" },
+  {   0, NULL }
+};
+
+static const value_string mpeg_pes_TrickModeIntraSliceRefresh_vals[] = {
+  {   0, "macroblocks-may-not-be-missing" },
+  {   1, "macroblocks-may-be-missing" },
+  {   0, NULL }
+};
+
+static const value_string mpeg_pes_TrickModeFrequencyTruncation_vals[] = {
+  {   0, "only-DC-coefficients-are-non-zero" },
+  {   1, "only-the-first-three-coefficients-are-non-zero" },
+  {   2, "only-the-first-six-coefficients-are-non-zero" },
+  {   3, "all-coefficients-may-be-non-zero" },
+  {   0, NULL }
 };
 
 static guint64 tvb_get_ntoh40(tvbuff_t *tvb, unsigned offset)
@@ -648,6 +698,62 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_uint(tree, hf_mpeg_pes_es_rate, tvb,
 				offset, 3, es_rate);
 		offset += 3;
+	}
+	if (flags & DSM_TRICK_MODE_FLAG)
+	{
+		guint8 value = tvb_get_guint8(tvb, offset);
+		guint8 control;
+		proto_tree *trick_tree;
+		proto_item *trick_item;
+		
+		trick_item = proto_tree_add_item(item,
+			hf_mpeg_pes_dsm_trick_mode, tvb,
+				offset, 1, FALSE);
+
+		trick_tree = proto_item_add_subtree(trick_item,
+			ett_mpeg_pes_trick_mode);
+
+		control = (value >> 5);
+		proto_tree_add_uint(trick_tree,
+			hf_mpeg_pes_dsm_trick_mode_control, tvb,
+			offset, 1,
+			control);
+	
+		if (control == FAST_FORWARD_CONTROL
+			|| control == FAST_REVERSE_CONTROL)
+		{
+			proto_tree_add_uint(trick_tree,
+				hf_mpeg_pes_dsm_trick_mode_field_id, tvb,
+				offset, 1,
+				(value & 0x18) >> 3);
+
+			proto_tree_add_uint(trick_tree,
+				hf_mpeg_pes_dsm_trick_mode_intra_slice_refresh, tvb,
+				offset, 1,
+				(value & 0x04) >> 2);
+
+			proto_tree_add_uint(trick_tree,
+				hf_mpeg_pes_dsm_trick_mode_frequency_truncation, tvb,
+				offset, 1,
+				(value & 0x03));
+		}
+		else if (control == SLOW_MOTION_CONTROL
+			|| control == SLOW_REVERSE_CONTROL)
+		{
+			proto_tree_add_uint(trick_tree,
+				hf_mpeg_pes_dsm_trick_mode_rep_cntrl, tvb,
+				offset, 1,
+				(value & 0x1F));
+		}
+		else if (control == FREEZE_FRAME_CONTROL)
+		{
+			proto_tree_add_uint(trick_tree,
+				hf_mpeg_pes_dsm_trick_mode_field_id, tvb,
+				offset, 1,
+				(value & 0x18) >> 3);
+		}
+
+		offset += 1;
 	}
 	if (flags & COPY_INFO_FLAG) {
 		proto_tree_add_item(tree, hf_mpeg_pes_copy_info, tvb,
@@ -1121,7 +1227,7 @@ proto_register_mpeg_pes(void)
         "mpeg_pes.BIT_STRING_SIZE_16", HFILL }},
 
 /*--- End of included file: packet-mpeg-pes-hfarr.c ---*/
-#line 479 "packet-mpeg-pes-template.c"
+#line 585 "packet-mpeg-pes-template.c"
 		{ &hf_mpeg_pes_pack_header,
 			{ "Pack header", "mpeg-pes.pack",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -1155,6 +1261,28 @@ proto_register_mpeg_pes(void)
 		{ &hf_mpeg_pes_es_rate,
 			{ "elementary stream rate", "mpeg-pes.es-rate",
 				FT_UINT24, BASE_DEC, NULL, 0x7ffe, NULL, HFILL }},
+		{ &hf_mpeg_pes_dsm_trick_mode,
+			{ "Trick mode", "mpeg-pes.trick-mode",
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_pes_dsm_trick_mode_control,
+			{ "control", "mpeg-pes.trick-mode-control",
+				FT_UINT8, BASE_HEX, VALS(mpeg_pes_TrickModeControl_vals), 0,
+				"mpeg_pes trick mode control", HFILL }},
+		{ &hf_mpeg_pes_dsm_trick_mode_field_id,
+			{ "field id", "mpeg-pes.trick-mode-field-id",
+				FT_UINT8, BASE_HEX, VALS(mpeg_pes_TrickModeFieldId_vals), 0,
+				"mpeg_pes trick mode field id", HFILL }},
+		{ &hf_mpeg_pes_dsm_trick_mode_intra_slice_refresh,
+			{ "intra slice refresh", "mpeg-pes.trick-mode-intra-slice-refresh",
+				FT_UINT8, BASE_HEX, VALS(mpeg_pes_TrickModeIntraSliceRefresh_vals), 0,
+				"mpeg_pes trick mode intra slice refresh", HFILL }},
+		{ &hf_mpeg_pes_dsm_trick_mode_frequency_truncation,
+			{ "frequency truncation", "mpeg-pes.trick-mode-frequeny-truncation",
+				FT_UINT8, BASE_HEX, VALS(mpeg_pes_TrickModeFrequencyTruncation_vals), 0,
+				"mpeg_pes trick mode frequency truncation", HFILL }},
+		{ &hf_mpeg_pes_dsm_trick_mode_rep_cntrl,
+			{ "rep cntrl", "mpeg-pes.trick-mode-rep-cntrl",
+				FT_UINT8, BASE_HEX, NULL, 0, "mpeg_pes trick mode rep cntrl", HFILL }},
 		{ &hf_mpeg_pes_copy_info,
 			{ "copy info", "mpeg-pes.copy-info",
 				FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
@@ -1217,9 +1345,10 @@ proto_register_mpeg_pes(void)
     &ett_mpeg_pes_Picture,
 
 /*--- End of included file: packet-mpeg-pes-ettarr.c ---*/
-#line 564 "packet-mpeg-pes-template.c"
+#line 692 "packet-mpeg-pes-template.c"
 		&ett_mpeg_pes_pack_header,
 		&ett_mpeg_pes_header_data,
+		&ett_mpeg_pes_trick_mode
 	};
 
 	proto_mpeg = proto_register_protocol(
