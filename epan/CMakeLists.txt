@@ -660,6 +660,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-iwarp-ddp-rdmap.c
 	dissectors/packet-iwarp-mpa.c
 	dissectors/packet-jabber.c
+	dissectors/packet-jmirror.c
 	dissectors/packet-jpeg.c
 	dissectors/packet-juniper.c
 	dissectors/packet-jxta.c
