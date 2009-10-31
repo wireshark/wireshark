@@ -196,7 +196,7 @@ proto_reg_handoff_jmirror(void)
 {
 	static int jmirror_inited = FALSE;
 	static guint jmirror_udp_port;
-	dissector_handle_t jmirror_handle;
+	static dissector_handle_t jmirror_handle;
 
 	if ( !jmirror_inited )
 	{
