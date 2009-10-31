@@ -97,6 +97,9 @@ static unsigned int ieee802154_ethertype = 0x809A;
 /* boolean value set if the FCS field is using the TI CC24xx format */
 static gboolean ieee802154_cc24xx = FALSE;
 
+/* boolean value set if the FCS must be oke before data is dissected */
+static gboolean ieee802154_fcs_ok = TRUE;
+
 /*  Function declarations */
 /* Register Functions. Loads the dissector into Wireshark. */
 void proto_reg_handoff_ieee802154   (void);
@@ -920,7 +923,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 dissect_ieee802154_cmd(payload_tvb, pinfo, ieee802154_tree, packet);
                 break;
             case IEEE802154_FCF_DATA:
-                if (fcs_ok && (tvb_reported_length(payload_tvb)>0)) {
+                if ((fcs_ok || !ieee802154_fcs_ok) && (tvb_reported_length(payload_tvb)>0)) {
                     /* Attempt heuristic subdissection. */
                     if (dissector_try_heuristic(ieee802154_heur_subdissector_list, payload_tvb, pinfo, tree)) {
                         /* found a sub-dissector! */
@@ -1910,6 +1913,10 @@ void proto_register_ieee802154(void)
                                    "TI CC24xx FCS format",
                                    "Set if the FCS field is in TI CC24xx format.",
                                    &ieee802154_cc24xx);
+    prefs_register_bool_preference(ieee802154_module, "802154_fcs_ok",
+                                   "Dissect data only if FCS is ok",
+                                   "Dissect data only if FCS is ok.",
+                                   &ieee802154_fcs_ok);
 
     /* Register the subdissector list */
     register_heur_dissector_list("wpan", &ieee802154_heur_subdissector_list);
