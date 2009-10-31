@@ -63,7 +63,7 @@ get_heuristic_handle(tvbuff_t *tvb)
 	int offset = MIRROR_HDR_SZ;            /* Point past the 8 byte mirror header */
 	int byte0, byte1, byte2, byte3;
 
-	/* The follow section is designed to determine the nature of the mirrored packet.
+	/* The following section is designed to determine the nature of the mirrored packet.
 	 *
 	 * The first four bytes will be inspected to deduce the type of traffic.
 	 * The bit pattern shown below is the basis.  A bit of "x" is a variable field.
@@ -72,6 +72,9 @@ get_heuristic_handle(tvbuff_t *tvb)
 	 * IPv6 Header: 0110 xxxx xxxx 0000 0000 0000 0000 0000 ==> Pattern for standard IPv6 header with no flow label
 	 * PPP/HDLC:    1111 1111 0000 0011 xx00 0000 0010 0001 ==> HDLC-like framing for PPP (FF 03 x0 21)
 	 */
+
+	if (!tvb_bytes_exist(tvb, offset, 4))
+		return NULL;   /* Not enough bytes for heuristic test */
 
 	/* Filter for IPv4 and IPv6 packets */
 	byte0 = tvb_get_guint8(tvb, offset + 0);
@@ -110,8 +113,8 @@ dissect_jmirror(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( !( dissector_handle = get_heuristic_handle(tvb) ) )
 		return 0;
 
-  /* Populate the Protocol field in the Wireshark packet display */
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "Jmirror");
+	/* Populate the Protocol field in the Wireshark packet display */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Jmirror");
 
 	/* Build the Jmirror Identifier value and store the string in a buffer */
 	midval = tvb_get_ntohl(tvb, offset);
@@ -184,9 +187,6 @@ proto_register_jmirror(void)
 	/* Register the Jmirror subfields for filters */
 	proto_register_field_array(proto_jmirror, jmirror_hf, array_length(jmirror_hf));
 	proto_register_subtree_array(jmirror_ett, array_length(jmirror_ett));
-
-	/* Register the Jmirror dissector with Wireshark */
-	new_register_dissector("jmirror", dissect_jmirror, proto_jmirror);
 }
 
 /* Create attachment point for dissector in Wireshark */
