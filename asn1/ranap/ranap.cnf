@@ -275,6 +275,15 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
     return offset;
   proto_tree_add_item(tree, saved_hf, parameter_tvb, 0, 4, FALSE);  
 
+#.FN_BODY Source-ToTarget-TransparentContainer VAL_PTR = &parameter_tvb
+# -- Note: In the current version of this specification, this IE may either carry the Source RNC to
+#-- Target RNC Transparent Container or the Source eNB to Target eNB Transparent Container IE as
+# -- defined in [49]
+# [49] 3GPP TS 36.413: "Evolved Universal Terrestrial Radio Access Network (E-UTRAN); S1
+# Application Protocol (S1AP)".
+
+dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU );
+    
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(ranap_ProtocolIE_ID_vals)
 GTP-TEI TYPE = FT_UINT32  DISPLAY = BASE_HEX_DEC STRINGS = NULL

@@ -132,6 +132,9 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static int dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+
 void proto_reg_handoff_ranap(void);
 
 #include "packet-ranap-fn.c"
@@ -155,7 +158,7 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
 		  /* no special handling */
 		  ret = (dissector_try_port_new(ranap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 		  if (ret == 0) {
-			  key = pdu_type || ProtocolIE_ID;
+			  key = pdu_type | ProtocolIE_ID;
 			  ret = (dissector_try_port_new(ranap_ies_dissector_table, key, tvb, pinfo, tree, FALSE)) ? tvb_length(tvb) : 0;
 		  }
 		  break;
