@@ -215,7 +215,8 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
    *  We check now to ensure we don't cause g_malloc() to abort because
    *  we asked for entirely too much memory.
    */
-  assert(new_length <= check_length);
+  if (new_length > check_length)
+    THROW(ReportedBoundsError);	/* indicate that the packet is malformed */
   tvb_ensure_bytes_exist(tvb, offset, check_length);
   buf = g_malloc(new_length);
 
