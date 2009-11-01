@@ -1,8 +1,8 @@
 -- $Id$
 -- Constant-definitions.asn
 --
--- Taken from 3GPP TS 25.331 V8.2.0 (2008-04-21)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.331/25331-820.zip
+-- 3GPP TS 25.331 V8.8.0 (2009-09)
+-- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.4	Constant definitions
 --
@@ -26,17 +26,28 @@ maxCNdomains				INTEGER ::= 4
 maxCommonHRNTI				INTEGER ::= 4
 maxCommonQueueID			INTEGER ::= 2
 maxCPCHsets					INTEGER ::= 16
+maxDedicatedCSGFreq			INTEGER ::= 4
 maxDPCH-DLchan				INTEGER ::= 8
 maxDPDCH-UL					INTEGER ::= 6
 maxDRACclasses				INTEGER ::= 8
 maxE-DCHMACdFlow			INTEGER ::= 8
 maxE-DCHMACdFlow-1			INTEGER ::= 7
+maxEUTRACellPerFreq			INTEGER ::= 16
+maxEUTRATargetFreqs			INTEGER ::= 8
 maxEDCHRL					INTEGER ::= 4
+maxEDCHs					INTEGER ::= 32
+maxEDCHTxPattern-TDD128		INTEGER ::= 4 -- maxEDCHTxPattern-TDD128	should be 3
+maxEDCHTxPattern-TDD128-1	INTEGER ::= 3 -- maxEDCHTxPattern-TDD128-1	should be 2
+maxERNTIgroup				INTEGER ::= 32
+maxERNTIperGroup			INTEGER ::= 2
+maxERUCCH					INTEGER ::= 256
 maxFACHPCH					INTEGER ::= 8
 maxFreq						INTEGER ::= 8
+maxFreqBandsEUTRA			INTEGER ::= 16
 maxFreqBandsFDD				INTEGER ::= 8
 maxFreqBandsFDD-ext			INTEGER ::= 15	-- maxFreqBandsFDD-ext ::= 22 - (maxFreqBandsFDD - 1)
 maxFreqBandsTDD				INTEGER ::= 4
+maxFreqBandsTDD-ext			INTEGER ::= 16
 maxFreqBandsGSM				INTEGER ::= 16
 maxGANSS					INTEGER ::= 8
 maxGANSS-1					INTEGER ::= 7
@@ -44,12 +55,16 @@ maxGANSSSat					INTEGER ::= 64
 maxGANSSSat-1				INTEGER ::= 63
 maxGERAN-SI					INTEGER ::= 8
 maxGSMTargetCells			INTEGER ::= 32
+maxHNBNameSize				INTEGER ::= 48
 maxHProcesses 				INTEGER ::= 8
 maxHS-SCCHLessTrBlk			INTEGER ::= 4
 maxHSDSCHTBIndex			INTEGER ::= 64
 maxHSDSCHTBIndex-tdd384		INTEGER ::= 512
 maxHSSCCHs					INTEGER ::= 4
-maxInterSysMessages 		INTEGER ::= 4
+maxHSSCCHs-1				INTEGER ::= 3
+maxHSSICH-TDD128			INTEGER ::= 4
+maxHSSICH-TDD128-1			INTEGER ::= 3
+maxInterSysMessages			INTEGER ::= 4
 maxLoCHperRLC				INTEGER ::= 2
 maxMAC-d-PDUsizes			INTEGER ::= 8
 maxMBMS-CommonCCTrCh		INTEGER ::= 32
@@ -71,6 +86,8 @@ maxMeasParEvent				INTEGER ::= 2
 maxNumCDMA2000Freqs			INTEGER ::=  8
 maxNumE-AGCH				INTEGER ::= 4
 maxNumE-HICH				INTEGER ::= 4
+maxNumEUTRAFreqs			INTEGER ::= 8
+maxNumGSMCellGroup			INTEGER ::= 16
 maxNumGSMFreqRanges			INTEGER ::= 32
 maxNumFDDFreqs				INTEGER ::=  8
 maxNumTDDFreqs				INTEGER ::=  8
@@ -90,6 +107,8 @@ maxPDSCH-TFCIgroups	 		INTEGER ::= 256
 maxPRACH					INTEGER ::= 16
 maxPRACH-FPACH				INTEGER ::= 8
 maxPredefConfig				INTEGER ::= 16
+maxPrio						INTEGER ::= 8
+maxPrio-1					INTEGER ::= 7
 maxPUSCH					INTEGER ::= 8
 maxQueueIDs					INTEGER ::= 8
 maxRABsetup					INTEGER ::= 16
@@ -99,6 +118,8 @@ maxRBallRABs				INTEGER ::= 27
 maxRBMuxOptions				INTEGER ::= 8
 maxRBperRAB					INTEGER ::= 8
 maxRBperTrCh				INTEGER ::= 16
+maxReportedEUTRACellPerFreq	INTEGER ::= 4
+maxReportedEUTRAFreqs		INTEGER ::= 4
 maxReportedGSMCells			INTEGER ::= 8
 maxRL						INTEGER ::= 8
 maxRL-1						INTEGER ::= 7
@@ -106,6 +127,8 @@ maxRLCPDUsizePerLogChan		INTEGER ::= 32
 maxRFC3095-CID				INTEGER ::= 16384
 maxROHC-PacketSizes-r4		INTEGER ::= 16
 maxROHC-Profile-r4			INTEGER ::= 8
+maxRxPatternForHSDSCH-TDD128	INTEGER ::= 4 -- maxRxPatternForHSDSCH-TDD128	should be 3
+maxRxPatternForHSDSCH-TDD128-1	INTEGER ::= 3 -- maxRxPatternForHSDSCH-TDD128-1 should be 2
 maxSat						INTEGER ::= 16
 maxSatClockModels			INTEGER ::= 4
 maxSCCPCH					INTEGER ::= 16
@@ -116,6 +139,8 @@ maxSIBperMsg				INTEGER ::= 16
 maxSRBsetup					INTEGER ::= 8
 maxSystemCapability			INTEGER ::= 16
 maxTDD128Carrier			INTEGER ::= 6
+maxTbsForHSDSCH-TDD128		INTEGER ::= 4
+maxTbsForHSDSCH-TDD128-1	INTEGER ::= 3
 maxTF						INTEGER ::= 32
 maxTF-CPCH					INTEGER ::= 16
 maxTFC						INTEGER ::= 1024

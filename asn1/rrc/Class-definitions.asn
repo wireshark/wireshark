@@ -1,8 +1,8 @@
 -- $Id$
 -- Class-definitions.asn
 --
--- Taken from 3GPP TS 25.331 V8.2.0 (2008-04-21)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.331/25331-820.zip
+-- 3GPP TS 25.331 V8.8.0 (2009-09)
+-- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.1 General message structure
 --
@@ -25,8 +25,10 @@ IMPORTS
 	CounterCheck,
 	CounterCheckResponse,
 	DownlinkDirectTransfer,
+	ETWSPrimaryNotificationWithSecurity,
 	HandoverToUTRANComplete,
 	InitialDirectTransfer,
+	HandoverFromUTRANCommand-EUTRA,
 	HandoverFromUTRANCommand-GERANIu,
 	HandoverFromUTRANCommand-GSM,
 	HandoverFromUTRANCommand-CDMA2000,
@@ -136,8 +138,8 @@ DL-DCCH-MessageType ::= CHOICE {
 	utranMobilityInformation			UTRANMobilityInformation,
 	handoverFromUTRANCommand-GERANIu	HandoverFromUTRANCommand-GERANIu,
 	mbmsModifiedServicesInformation		MBMSModifiedServicesInformation,
-	spare5								NULL,
-	spare4								NULL,
+	etwsPrimaryNotificationWithSecurity	ETWSPrimaryNotificationWithSecurity,
+	handoverFromUTRANCommand-EUTRA		HandoverFromUTRANCommand-EUTRA,
 	spare3								NULL,
 	spare2								NULL,
 	spare1								NULL
@@ -206,13 +208,13 @@ DL-CCCH-Message ::= SEQUENCE {
 	message					DL-CCCH-MessageType
 }
 
-DL-CCCH-MessageType ::= CHOICE {	
+DL-CCCH-MessageType ::= CHOICE {
 	cellUpdateConfirm					CellUpdateConfirm-CCCH,
 	rrcConnectionReject					RRCConnectionReject,
 	rrcConnectionRelease				RRCConnectionRelease-CCCH,
 	rrcConnectionSetup					RRCConnectionSetup,
 	uraUpdateConfirm					URAUpdateConfirm-CCCH,
-	spare3								NULL,
+	etwsPrimaryNotificationWithSecurity	ETWSPrimaryNotificationWithSecurity,
 	spare2								NULL,
 	spare1								NULL
 }

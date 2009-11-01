@@ -1,8 +1,8 @@
 -- $Id$
 -- Internode-definitions.asn
 --
--- Taken from 3GPP TS 25.331 V8.2.0 (2008-04-21)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.331/25331-820.zip
+-- 3GPP TS 25.331 V8.8.0 (2009-09)
+-- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.5	RRC information between network nodes
 --
@@ -89,6 +89,7 @@ FROM PDU-definitions
 	UE-RadioAccessCapability-v4b0ext,
 	UE-RadioAccessCapability-v590ext,
 	UE-RadioAccessCapability-v5c0ext,
+	UE-RadioAccessCapability-v7e0ext,
 	UL-PhysChCapabilityFDD,
 	UL-PhysChCapabilityFDD-r6,
 	UL-PhysChCapabilityTDD,
@@ -133,6 +134,7 @@ FROM PDU-definitions
 	TGCFN,
 	TGPSI,
 	TGPS-ConfigurationParams,
+	TGPS-ConfigurationParams-r8,
 -- Measurement IEs :
 	Event1j-r6,
 	Hysteresis,
@@ -148,6 +150,7 @@ FROM PDU-definitions
 	MeasurementType-r4,
 	MeasurementType-r6,
 	MeasurementType-r7,
+	MeasurementType-r8,
 	AdditionalMeasurementID-List,
 	PositionEstimate,
 	ReportingCellStatus,
@@ -162,12 +165,15 @@ FROM PDU-definitions
 	InterRAT-UE-RadioAccessCapabilityList,
 	InterRAT-UE-RadioAccessCapability-v590ext,
 	InterRAT-UE-RadioAccessCapability-v690ext,
+	InterRAT-UE-RadioAccessCapability-v860ext,
+	UE-HistoryInformation,
 	UESpecificBehaviourInformation1idle,
 	UESpecificBehaviourInformation1interRAT
 
 FROM InformationElements
 
 	maxCNdomains,
+	maxEDCHRL,
 	maxGANSS,
 	maxNoOfMeas,
 	maxRB,
@@ -236,7 +242,11 @@ InterRATHandoverInfoWithInterRATCapabilities-r3 ::= CHOICE {
 			v690NonCriticalExtensions		SEQUENCE {
 				interRATHandoverInfoWithInterRATCapabilities-v690ext
 										InterRATHandoverInfoWithInterRATCapabilities-v690ext-IEs,
-				nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+				v860NonCriticalExtensions		SEQUENCE {
+					interRATHandoverInfoWithInterRATCapabilities-v860ext
+										InterRATHandoverInfoWithInterRATCapabilities-v860ext-IEs,
+					nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+				}		OPTIONAL
 			}		OPTIONAL
 		}		OPTIONAL
 	},
@@ -264,6 +274,11 @@ InterRATHandoverInfoWithInterRATCapabilities-v390ext-IEs ::= SEQUENCE {
 InterRATHandoverInfoWithInterRATCapabilities-v690ext-IEs ::= SEQUENCE {
 	-- Other IEs
 		ue-RATSpecificCapability-v690ext	InterRAT-UE-RadioAccessCapability-v690ext	OPTIONAL
+}
+
+InterRATHandoverInfoWithInterRATCapabilities-v860ext-IEs ::= SEQUENCE {
+	-- Other IEs
+		ue-RATSpecificCapability			InterRAT-UE-RadioAccessCapability-v860ext	OPTIONAL
 }
 
 -- ***************************************************
@@ -309,7 +324,7 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 								sRNC-RelocationInfo-v3d0ext			SRNC-RelocationInfo-v3d0ext-IEs,
 								-- Container for additional R99 extensions
 								sRNC-RelocationInfo-r3-add-ext		BIT STRING
-												(CONTAINING	SRNC-RelocationInfo-v3h0ext-IEs)		OPTIONAL,
+												(CONTAINING	SRNC-RelocationInfo-v3h0ext-IEs)	OPTIONAL,
 								v3g0NonCriticalExtensions			SEQUENCE {
 									sRNC-RelocationInfo-v3g0ext			SRNC-RelocationInfo-v3g0ext-IEs,
 									v4b0NonCriticalExtensions			SEQUENCE {
@@ -335,10 +350,14 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 																v770NonCriticalExtensions	SEQUENCE {
 																	sRNC-RelocationInfo-v770ext
 																			SRNC-RelocationInfo-v770ext-IEs,
-																	-- Reserved for future non critical
-																	-- extension
-																	nonCriticalExtensions
+																	v7e0NonCriticalExtensions	SEQUENCE {
+																		sRNC-RelocationInfo-v7e0ext
+																			SRNC-RelocationInfo-v7e0ext-IEs,
+																		-- Reserved for future non critical
+																		-- extension
+																		nonCriticalExtensions
 																						SEQUENCE {}	OPTIONAL
+																	}		OPTIONAL
 																}		OPTIONAL
 															}		OPTIONAL
 														}		OPTIONAL
@@ -378,7 +397,11 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 										v770NonCriticalExtensions			SEQUENCE {
 											sRNC-RelocationInfo-v770ext
 																	SRNC-RelocationInfo-v770ext-IEs,
+											v7e0NonCriticalExtensions			SEQUENCE {
+												sRNC-RelocationInfo-v7e0ext
+																	SRNC-RelocationInfo-v7e0ext-IEs,
 												nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+											}	OPTIONAL
 										}	OPTIONAL
 									}	OPTIONAL
 								}	OPTIONAL
@@ -405,7 +428,11 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 										v770NonCriticalExtensions		SEQUENCE {
 											sRNC-RelocationInfo-v770ext
 																	SRNC-RelocationInfo-v770ext-IEs,
-											nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+											v7e0NonCriticalExtensions			SEQUENCE {
+												sRNC-RelocationInfo-v7e0ext
+																	SRNC-RelocationInfo-v7e0ext-IEs,
+												nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+										}	OPTIONAL
 									}	OPTIONAL
 								}	OPTIONAL
 							}	OPTIONAL
@@ -416,14 +443,18 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 			criticalExtensions				CHOICE {
 				r6								SEQUENCE {
 					sRNC-RelocationInfo-r6			SRNC-RelocationInfo-r6-IEs,
-					sRNC-RelocationInfo-r6-add-ext	BIT STRING		OPTIONAL,
+					sRNC-RelocationInfo-r6-add-ext	BIT STRING
+									(CONTAINING SRNC-RelocationInfo-r6-add-ext-IEs)		OPTIONAL,
 					v6b0NonCriticalExtensions		SEQUENCE {
 						sRNC-RelocationInfo-v6b0ext		SRNC-RelocationInfo-v6b0ext-IEs,
 						v770NonCriticalExtensions		SEQUENCE {
 							sRNC-RelocationInfo-v770ext		SRNC-RelocationInfo-v770ext-IEs,
 							v820NonCriticalExtensions		SEQUENCE {
 								srnc-RelocationInfo-v820ext		SRNC-RelocationInfo-v820ext-IEs,
-								nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								v860NonCriticalExtensions		SEQUENCE {
+									sRNC-RelocationInfo-v860ext		SRNC-RelocationInfo-v860ext-IEs,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								}	OPTIONAL
 							}	OPTIONAL
 						}	OPTIONAL
 					}	OPTIONAL
@@ -431,19 +462,26 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 				criticalExtensions				CHOICE {
 					r7								SEQUENCE {
 						sRNC-RelocationInfo-r7			SRNC-RelocationInfo-r7-IEs,
-						sRNC-RelocationInfo-r7-add-ext	BIT STRING		OPTIONAL,
+						sRNC-RelocationInfo-r7-add-ext	BIT STRING
+									(CONTAINING SRNC-RelocationInfo-r7-add-ext-IEs)		OPTIONAL,
 						v820NonCriticalExtensions		SEQUENCE {
 							srnc-RelocationInfo-v820ext		SRNC-RelocationInfo-v820ext-IEs,
-							nonCriticalExtensions			SEQUENCE {}	OPTIONAL
-						}
+							v860NonCriticalExtensions		SEQUENCE {
+								sRNC-RelocationInfo-v860ext		SRNC-RelocationInfo-v860ext-IEs,
+								nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+							}	OPTIONAL
+						}	OPTIONAL
 					},
 					criticalExtensions				CHOICE {
 						r8								SEQUENCE {
 							sRNC-RelocationInfo-r8			SRNC-RelocationInfo-r8-IEs,
 							sRNC-RelocationInfo-r8-add-ext	BIT STRING		OPTIONAL,
-							nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+							v7e0NonCriticalExtensions		SEQUENCE {
+								sRNC-RelocationInfo-v7e0ext		SRNC-RelocationInfo-v7e0ext-IEs,
+								nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+							}	OPTIONAL
 						},
-					criticalExtensions				SEQUENCE {}
+						criticalExtensions				SEQUENCE {}
 					}
 				}
 			}
@@ -549,13 +587,13 @@ SRNC-RelocationInfo-v3c0ext-IEs ::= SEQUENCE {
 		-- IE rb-IdentityForHOMessage includes the identity of the RB used by the source SRNC
 		-- to send the message contained in the IE "TargetRNC-ToSourceRNC-Container".
 		-- Only included if type is "UE involved"
-		rb-IdentityForHOMessage				RB-Identity		OPTIONAL
+		rb-IdentityForHOMessage				RB-Identity								OPTIONAL
 }
 
 SRNC-RelocationInfo-v3d0ext-IEs ::= SEQUENCE {
 	-- User equipment IEs
 		uESpecificBehaviourInformation1idle		UESpecificBehaviourInformation1idle		OPTIONAL,
-		uESpecificBehaviourInformation1interRAT		UESpecificBehaviourInformation1interRAT		OPTIONAL
+		uESpecificBehaviourInformation1interRAT	UESpecificBehaviourInformation1interRAT	OPTIONAL
 }
 
 SRNC-RelocationInfo-v3g0ext-IEs ::= SEQUENCE {
@@ -623,8 +661,16 @@ StoredCompressedModeInfo ::= SEQUENCE {
 		codeChangeStatusList		CodeChangeStatusList	OPTIONAL
 }
 
+StoredCompressedModeInfo-r8 ::=		SEQUENCE {
+		storedTGP-SequenceList			StoredTGP-SequenceList-r8,
+		codeChangeStatusList			CodeChangeStatusList				OPTIONAL
+}
+
 StoredTGP-SequenceList ::=			SEQUENCE (SIZE (1..maxTGPS)) OF
 										StoredTGP-Sequence
+
+StoredTGP-SequenceList-r8 ::=		SEQUENCE (SIZE (1..maxTGPS)) OF
+										StoredTGP-Sequence-r8
 
 StoredTGP-Sequence ::=				SEQUENCE {
 	tgpsi								TGPSI,
@@ -635,6 +681,17 @@ StoredTGP-Sequence ::=				SEQUENCE {
 		inactive							NULL
 	},
 	tgps-ConfigurationParams			TGPS-ConfigurationParams			OPTIONAL
+}
+
+StoredTGP-Sequence-r8 ::=			SEQUENCE {
+	tgpsi								TGPSI,
+	current-tgps-Status					CHOICE {
+		active								SEQUENCE {
+			tgcfn								TGCFN
+		},
+		inactive							NULL
+	},
+	tgps-ConfigurationParams			TGPS-ConfigurationParams-r8			OPTIONAL
 }
 
 SRNC-RelocationInfo-r4-IEs ::=			SEQUENCE {
@@ -664,7 +721,7 @@ SRNC-RelocationInfo-r4-IEs ::=			SEQUENCE {
 		ue-RadioAccessCapability-ext	UE-RadioAccessCapabBandFDDList		OPTIONAL,
 		ue-Positioning-LastKnownPos		UE-Positioning-LastKnownPos			OPTIONAL,
 		uESpecificBehaviourInformation1idle		UESpecificBehaviourInformation1idle		OPTIONAL,
-		uESpecificBehaviourInformation1interRAT		UESpecificBehaviourInformation1interRAT		OPTIONAL,
+		uESpecificBehaviourInformation1interRAT	UESpecificBehaviourInformation1interRAT	OPTIONAL,
 	-- Other IEs
 		ue-RATSpecificCapability		InterRAT-UE-RadioAccessCapabilityList	OPTIONAL,
 	-- UTRAN mobility IEs
@@ -863,6 +920,11 @@ SRNC-RelocationInfo-r6-IEs ::=			SEQUENCE {
 		mbms-JoinedInformation			MBMS-JoinedInformation-r6			OPTIONAL
 }
 
+SRNC-RelocationInfo-r6-add-ext-IEs ::= SEQUENCE {
+		sRNC-RelocationInfo-v7e0ext		SRNC-RelocationInfo-v7e0ext-IEs,
+		nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+}
+
 SRNC-RelocationInfo-v6b0ext-IEs ::=	SEQUENCE {
 		-- The order of the RABs in IE rab-InformationSetupListExt is the same as
 		-- in IE rab-InformationSetupList that is included in this message
@@ -949,9 +1011,19 @@ SRNC-RelocationInfo-r7-IEs ::=			SEQUENCE {
 		mbmsSelectedServiceInfo			MBMS-SelectedServiceInfo			OPTIONAL
 }
 
+SRNC-RelocationInfo-r7-add-ext-IEs ::= SEQUENCE {
+		sRNC-RelocationInfo-v7e0ext		SRNC-RelocationInfo-v7e0ext-IEs,
+		nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+}
+
 SRNC-RelocationInfo-v770ext-IEs ::= SEQUENCE {
 		thresholdSFN-GPS-TOW-us				ThresholdSFN-GPS-TOW-us					OPTIONAL,
 		srns-t-305							T-305									OPTIONAL
+}
+
+SRNC-RelocationInfo-v7e0ext-IEs ::=	SEQUENCE {
+	-- User equipment IEs
+		ue-RadioAccessCapability			UE-RadioAccessCapability-v7e0ext
 }
 
 SRNC-RelocationInfo-r8-IEs ::=			SEQUENCE {
@@ -1009,7 +1081,7 @@ SRNC-RelocationInfo-r8-IEs ::=			SEQUENCE {
 		cn-CommonGSM-MAP-NAS-SysInfo	NAS-SystemInformationGSM-MAP,
 		cn-DomainInformationList		CN-DomainInformationListFull		OPTIONAL,
 	-- Measurement IEs
-		ongoingMeasRepList				OngoingMeasRepList-r7				OPTIONAL,
+		ongoingMeasRepList				OngoingMeasRepList-r8				OPTIONAL,
 		interRATCellInfoIndication		InterRATCellInfoIndication			OPTIONAL,
 	-- Radio bearer IEs
 		predefinedConfigStatusList		PredefinedConfigStatusList,
@@ -1017,17 +1089,19 @@ SRNC-RelocationInfo-r8-IEs ::=			SEQUENCE {
 		rab-InformationList				RAB-InformationSetupList-r8			OPTIONAL,
 	-- Transport channel IEs
 		ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
-		ul-TransChInfoList				UL-AddReconfTransChInfoList-r7		OPTIONAL,
+		ul-TransChInfoList				UL-AddReconfTransChInfoList-r8		OPTIONAL,
 		dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
 		dl-TransChInfoList				DL-AddReconfTransChInfoList-r7		OPTIONAL,
 	-- PhyCH IEs
 		tpc-CombinationInfoList			TPC-CombinationInfoList				OPTIONAL,
-		storedCompressedModeInfo		StoredCompressedModeInfo			OPTIONAL,
+		e-RGCH-CombinationInfoList		E-RGCH-CombinationInfoList			OPTIONAL,
+		storedCompressedModeInfo		StoredCompressedModeInfo-r8			OPTIONAL,
 	-- Measurement report
 		measurementReport				BIT STRING
 							(CONTAINING MeasurementReport)					OPTIONAL,
 	-- Other IEs
 		failureCause					FailureCauseWithProtErr				OPTIONAL,
+		ue-HistoryInformation			UE-HistoryInformation				OPTIONAL,
 	-- MBMS IEs
 		mbms-JoinedInformation			MBMS-JoinedInformation-r6			OPTIONAL,
 		mbmsSelectedServiceInfo			MBMS-SelectedServiceInfo			OPTIONAL
@@ -1036,6 +1110,11 @@ SRNC-RelocationInfo-r8-IEs ::=			SEQUENCE {
 SRNC-RelocationInfo-v820ext-IEs ::=	SEQUENCE {
 	-- Radio bearer IEs
 		rab-InformationList				RAB-InformationSetupList-v820ext	OPTIONAL
+}
+
+SRNC-RelocationInfo-v860ext-IEs ::=	SEQUENCE {
+	-- PhyCH IEs
+		e-RGCH-CombinationInfoList		E-RGCH-CombinationInfoList			OPTIONAL
 }
 
 -- IE definitions
@@ -1174,8 +1253,15 @@ DL-RFC3095-Context ::=				SEQUENCE {
 	dl-dyn-changed						BOOLEAN
 }
 
-ImplementationSpecificParams ::=	BIT STRING (SIZE (1..512))
+E-RGCH-Combination-Info ::=			SEQUENCE{
+	primaryCPICH-Info					PrimaryCPICH-Info,
+	rg-CombinationIndex					INTEGER (0..5)
+}
 
+E-RGCH-CombinationInfoList ::=		SEQUENCE (SIZE (1..maxEDCHRL)) OF
+										E-RGCH-Combination-Info
+
+ImplementationSpecificParams ::=	BIT STRING (SIZE (1..512))
 
 IntegrityProtectionStatus ::=		ENUMERATED {
 										started, notStarted }
@@ -1229,6 +1315,12 @@ MeasurementCommandWithType-r7 ::=	CHOICE {
 	release								NULL
 }
 
+MeasurementCommandWithType-r8 ::=	CHOICE {
+	setup								MeasurementType-r8,
+	modify								NULL,
+	release								NULL
+}
+
 OngoingMeasRep ::=					SEQUENCE {
 	measurementIdentity					MeasurementIdentity,
 	-- TABULAR: The CHOICE Measurement in the tabular description is included
@@ -1278,6 +1370,13 @@ OngoingMeasRep-r7 ::=				SEQUENCE {
 	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL
 }
 
+OngoingMeasRep-r8 ::=				SEQUENCE {
+	measurementIdentity					MeasurementIdentity,
+	measurementCommandWithType			MeasurementCommandWithType-r8,
+	measurementReportingMode			MeasurementReportingMode			OPTIONAL,
+	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL
+}
+
 OngoingMeasRepList ::=				SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 										OngoingMeasRep
 
@@ -1292,6 +1391,9 @@ OngoingMeasRepList-r6 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 
 OngoingMeasRepList-r7 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 										OngoingMeasRep-r7
+
+OngoingMeasRepList-r8 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
+										OngoingMeasRep-r8
 
 PDCP-Capability-r4 ::=				SEQUENCE {
 	losslessSRNS-RelocationSupport		BOOLEAN,
