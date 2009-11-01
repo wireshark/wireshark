@@ -143,11 +143,20 @@ static snmp_usm_decoder_t priv_protos[] = {snmp_usm_priv_des, snmp_usm_priv_aes}
 
 static snmp_ue_assoc_t* ueas = NULL;
 static guint num_ueas = 0;
-static uat_t* assocs_uat = NULL;
 static snmp_ue_assoc_t* localized_ues = NULL;
 static snmp_ue_assoc_t* unlocalized_ues = NULL;
 /****/
 
+/* Variabled used for handling enterprise spesific trap types */
+typedef struct _snmp_st_assoc_t {
+	char *enterprise;
+	guint trap;
+	char *desc;
+} snmp_st_assoc_t;
+static guint num_specific_traps = 0;
+static snmp_st_assoc_t *specific_traps = NULL;
+static char *enterprise_oid = NULL;
+static guint generic_trap = 0;
 
 
 static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,FALSE};
@@ -284,6 +293,26 @@ static const value_string smux_types[] = {
 
 
 dissector_table_t value_sub_dissectors_table;
+
+
+static const gchar *
+snmp_lookup_specific_trap (guint specific_trap)
+{
+	guint8 *enterprise = NULL;
+	guint i;
+   
+	for (i = 0; i < num_specific_traps; i++) {
+		snmp_st_assoc_t *u = &(specific_traps[i]);
+
+		if ((u->trap == specific_trap) &&
+		    (strcmp (u->enterprise, enterprise_oid) == 0))
+		{
+			return u->desc;
+		}
+	}
+
+	return NULL;
+}
 
 /*
  *  dissect_snmp_VarBind
@@ -820,7 +849,7 @@ set_label:
 
 	proto_item_set_text(pi_varbind,"%s: %s",repr,valstr);
 
-	if (display_oid && info_oid && check_col(actx->pinfo->cinfo, COL_INFO)) {
+	if (display_oid && info_oid) {
 	  col_append_fstr (actx->pinfo->cinfo, COL_INFO, " %s", info_oid);
 	}
 
@@ -1538,10 +1567,8 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	next_tvb_init(&var_list);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL,
-		    proto_get_protocol_short_name(find_protocol_by_id(proto)));
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL,
+	    proto_get_protocol_short_name(find_protocol_by_id(proto)));
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto, tvb, start_offset,
@@ -1876,6 +1903,32 @@ UAT_BUFFER_CB_DEF(snmp_users,engine_id,snmp_ue_assoc_t,engine.data,engine.len)
 UAT_VS_DEF(snmp_users,auth_model,snmp_ue_assoc_t,0,"MD5")
 UAT_VS_DEF(snmp_users,priv_proto,snmp_ue_assoc_t,0,"DES")
 
+static void *
+snmp_specific_trap_copy_cb(void *dest, const void *orig, unsigned len _U_)
+{
+	snmp_st_assoc_t *u = dest;
+	const snmp_st_assoc_t *o = orig;
+
+	u->enterprise = g_strdup(o->enterprise);
+	u->trap = o->trap;
+	u->desc = g_strdup(o->desc);
+
+	return dest;
+}
+
+static void
+snmp_specific_trap_free_cb(void *r)
+{
+	snmp_st_assoc_t *u = r;
+
+	g_free(u->enterprise);
+	g_free(u->desc);
+}
+
+UAT_CSTRING_CB_DEF(specific_traps, enterprise, snmp_st_assoc_t)
+UAT_DEC_CB_DEF(specific_traps, trap, snmp_st_assoc_t)
+UAT_CSTRING_CB_DEF(specific_traps, desc, snmp_st_assoc_t)
+
 	/*--- proto_register_snmp -------------------------------------------*/
 void proto_register_snmp(void) {
   /* List of fields */
@@ -1965,6 +2018,7 @@ void proto_register_snmp(void) {
 #include "packet-snmp-ettarr.c"
   };
   module_t *snmp_module;
+
   static uat_field_t users_fields[] = {
 	  UAT_FLD_BUFFER(snmp_users,engine_id,"Engine ID","Engine-id for this entry (empty = any)"),
 	  UAT_FLD_LSTRING(snmp_users,userName,"Username","The username"),
@@ -1975,7 +2029,7 @@ void proto_register_snmp(void) {
 	  UAT_END_FIELDS
   };
 
-  assocs_uat = uat_new("SNMP Users",
+  uat_t *assocs_uat = uat_new("SNMP Users",
 					   sizeof(snmp_ue_assoc_t),
 					   "snmp_users",
 					   TRUE,
@@ -1987,6 +2041,26 @@ void proto_register_snmp(void) {
 					   snmp_users_update_cb,
 					   snmp_users_free_cb,
 					   users_fields);
+
+  static uat_field_t specific_traps_flds[] = {
+    UAT_FLD_CSTRING(specific_traps,enterprise,"Enterprise OID","Enterprise Object Identifier"),
+    UAT_FLD_DEC(specific_traps,trap,"Trap Id","The specific-trap value"),
+    UAT_FLD_CSTRING(specific_traps,desc,"Description","Trap type description"),
+    UAT_END_FIELDS
+  };
+
+  uat_t* specific_traps_uat = uat_new("SNMP Enterprise Specific Trap Types",
+                                      sizeof(snmp_st_assoc_t),
+                                      "snmp_specific_traps",
+                                      TRUE,
+                                      (void**) &specific_traps,
+                                      &num_specific_traps,
+                                      UAT_CAT_GENERAL,
+                                      "ChSNMPEnterpriseSpecificTrapTypes",
+                                      snmp_specific_trap_copy_cb,
+                                      NULL,
+                                      snmp_specific_trap_free_cb,
+                                      specific_traps_flds);
 
   /* Register protocol */
   proto_snmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -2019,9 +2093,14 @@ void proto_register_snmp(void) {
 		&snmp_var_in_tree);
 
   prefs_register_uat_preference(snmp_module, "users_table",
-								"Users Table",
-								"Table of engine-user associations used for authentication and decryption",
-								assocs_uat);
+				"Users Table",
+				"Table of engine-user associations used for authentication and decryption",
+				assocs_uat);
+
+  prefs_register_uat_preference(snmp_module, "specific_traps_table",
+				"Enterprise Specific Trap Types",
+				"Table of enterprise specific-trap type descriptions",
+				specific_traps_uat);
 
 #ifdef HAVE_LIBSMI
   prefs_register_static_text_preference(snmp_module, "info_mibs",
@@ -2055,7 +2134,7 @@ void proto_reg_handoff_snmp(void) {
 
 	data_handle = find_dissector("data");
 
-	register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp);
+	register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp_tcp);
 
 	/*
 	 * Process preference settings.

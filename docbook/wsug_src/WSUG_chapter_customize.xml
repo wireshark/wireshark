@@ -1059,6 +1059,11 @@ standard libpcap format.
 	      </listitem>
 	      <listitem>
 		<para>
+		  SNMP Enterprise Specific Trap Types (snmp_specific_traps) (<xref linkend="ChSNMPEnterpriseSpecificTrapTypes"/>)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
 		  SNMP Users (snmp_users) (<xref linkend="ChSNMPUsersSection"/>)
 		</para>
 	      </listitem>
@@ -1380,6 +1385,39 @@ standard libpcap format.
     </variablelist>
   </section>
 
+
+  <section id="ChSNMPEnterpriseSpecificTrapTypes"><title>SNMP Enterprise Specific Trap Types</title>
+  <para>
+    Wireshark uses this table to map specific-trap values to user defined descriptions in a Trap PDU.
+    The description is shown in the packet details specific-trap element.
+  </para>
+  <para>
+    This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
+  </para>
+  <variablelist>
+      <varlistentry><term><command>Enterprise OID</command></term>
+      <listitem>
+          <para>
+            The object identifier representing the object generating the trap.
+          </para>
+      </listitem>
+      </varlistentry>
+      <varlistentry><term><command>Trap Id</command></term>
+      <listitem>
+          <para>
+            An Integer representing the specific-trap code.
+          </para>
+      </listitem>
+      </varlistentry>
+      <varlistentry><term><command>Description</command></term>
+      <listitem>
+          <para>
+            The description to show in the packet details.
+          </para>
+      </listitem>
+      </varlistentry>
+  </variablelist>
+  </section>
 
   <section id="ChSNMPUsersSection"><title>SNMP users Table</title>
     <para>

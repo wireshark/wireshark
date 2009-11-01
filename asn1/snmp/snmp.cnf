@@ -24,32 +24,47 @@ BulkPDU/request-id bulkPDU_request-id
 #.FN_BODY PDUs
 gint pdu_type=-1;
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO))
-    col_clear(actx->pinfo->cinfo, COL_INFO);
+  col_clear(actx->pinfo->cinfo, COL_INFO);
 
 %(DEFAULT_BODY)s
   if( (pdu_type!=-1) && snmp_PDUs_vals[pdu_type].strptr ){
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", snmp_PDUs_vals[pdu_type].strptr);
+	col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", snmp_PDUs_vals[pdu_type].strptr);
   }
 
 #.END
 
-
-#.FN_PARS EnterpriseOID
-
-	VAL_PTR = &param_tvb 
-
-#.FN_BODY EnterpriseOID
-  tvbuff_t* param_tvb = NULL;
-  const gchar* name;
-  gint len;
+#.FN_BODY Trap-PDU/_untag
+  generic_trap = 0;
+  enterprise_oid = NULL;
 
 %(DEFAULT_BODY)s
-  if (display_oid && param_tvb) {
-    len = tvb_length_remaining (param_tvb, 0);
-    name = oid_resolved_from_encoded(tvb_get_ptr(param_tvb, 0, len), len);
-    if (name && check_col(actx->pinfo->cinfo, COL_INFO)) {
+
+#.FN_PARS Trap-PDU/_untag/generic-trap    VAL_PTR = &generic_trap
+
+#.FN_BODY Trap-PDU/_untag/specific-trap   VAL_PTR = &specific_trap
+  guint specific_trap;
+  
+%(DEFAULT_BODY)s
+
+  if (generic_trap == 6) { /* enterprise specific */
+    const gchar *specific_str = snmp_lookup_specific_trap (specific_trap);
+    if (specific_str) {
+      proto_item_append_text(actx->created_item, " (%%s)", specific_str);
+    }
+  }
+#.END
+
+
+#.FN_PARS EnterpriseOID  FN_VARIANT = _str  VAL_PTR = &enterprise_oid
+
+#.FN_BODY EnterpriseOID
+  const gchar* name;
+
+%(DEFAULT_BODY)s
+
+  if (display_oid && enterprise_oid) {
+    name = oid_resolved_from_string(enterprise_oid);
+    if (name) {
       col_append_fstr (actx->pinfo->cinfo, COL_INFO, " %%s", name);
     }
   }
@@ -118,8 +133,7 @@ gint pdu_type=-1;
 			expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
 				"Failed to decrypt encryptedPDU: %%s", error);
 
-			if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
+			col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
 				
 			return offset;
 		} else {
@@ -133,8 +147,7 @@ gint pdu_type=-1;
 				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
 									   "Decrypted data not formatted as expected");
 
-				if (check_col(actx->pinfo->cinfo, COL_INFO))
-					col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formatted as expected");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formatted as expected");
 				
 				return offset;
 			}
@@ -147,8 +160,7 @@ gint pdu_type=-1;
 			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, actx, decrypted_tree, -1);
 		 }
 	} else {
-			if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: privKey Unknown");
+			col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: privKey Unknown");
 	}
 
 #.FN_BODY SNMPv3Message/msgSecurityParameters

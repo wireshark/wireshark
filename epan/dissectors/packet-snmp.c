@@ -151,11 +151,20 @@ static snmp_usm_decoder_t priv_protos[] = {snmp_usm_priv_des, snmp_usm_priv_aes}
 
 static snmp_ue_assoc_t* ueas = NULL;
 static guint num_ueas = 0;
-static uat_t* assocs_uat = NULL;
 static snmp_ue_assoc_t* localized_ues = NULL;
 static snmp_ue_assoc_t* unlocalized_ues = NULL;
 /****/
 
+/* Variabled used for handling enterprise spesific trap types */
+typedef struct _snmp_st_assoc_t {
+	char *enterprise;
+	guint trap;
+	char *desc;
+} snmp_st_assoc_t;
+static guint num_specific_traps = 0;
+static snmp_st_assoc_t *specific_traps = NULL;
+static char *enterprise_oid = NULL;
+static guint generic_trap = 0;
 
 
 static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,FALSE};
@@ -267,7 +276,7 @@ static int hf_snmp_max_repetitions = -1;          /* INTEGER_0_2147483647 */
 static int hf_snmp_enterprise = -1;               /* EnterpriseOID */
 static int hf_snmp_agent_addr = -1;               /* NetworkAddress */
 static int hf_snmp_generic_trap = -1;             /* T_generic_trap */
-static int hf_snmp_specific_trap = -1;            /* INTEGER */
+static int hf_snmp_specific_trap = -1;            /* T_specific_trap */
 static int hf_snmp_time_stamp = -1;               /* TimeTicks */
 static int hf_snmp_name = -1;                     /* ObjectName */
 static int hf_snmp_valueType = -1;                /* NULL */
@@ -289,7 +298,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 215 "packet-snmp-template.c"
+#line 224 "packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -332,7 +341,7 @@ static gint ett_snmp_SimpleOpen_U = -1;
 static gint ett_snmp_RReqPDU_U = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 234 "packet-snmp-template.c"
+#line 243 "packet-snmp-template.c"
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -386,6 +395,26 @@ static const value_string smux_types[] = {
 
 
 dissector_table_t value_sub_dissectors_table;
+
+
+static const gchar *
+snmp_lookup_specific_trap (guint specific_trap)
+{
+	guint8 *enterprise = NULL;
+	guint i;
+   
+	for (i = 0; i < num_specific_traps; i++) {
+		snmp_st_assoc_t *u = &(specific_traps[i]);
+
+		if ((u->trap == specific_trap) &&
+		    (strcmp (u->enterprise, enterprise_oid) == 0))
+		{
+			return u->desc;
+		}
+	}
+
+	return NULL;
+}
 
 /*
  *  dissect_snmp_VarBind
@@ -922,7 +951,7 @@ set_label:
 
 	proto_item_set_text(pi_varbind,"%s: %s",repr,valstr);
 
-	if (display_oid && info_oid && check_col(actx->pinfo->cinfo, COL_INFO)) {
+	if (display_oid && info_oid) {
 	  col_append_fstr (actx->pinfo->cinfo, COL_INFO, " %s", info_oid);
 	}
 
@@ -1523,17 +1552,15 @@ gboolean check_ScopedPdu(tvbuff_t* tvb) {
 
 static int
 dissect_snmp_EnterpriseOID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 44 "snmp.cnf"
-  tvbuff_t* param_tvb = NULL;
+#line 61 "snmp.cnf"
   const gchar* name;
-  gint len;
 
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, &param_tvb);
+  offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &enterprise_oid);
 
-  if (display_oid && param_tvb) {
-    len = tvb_length_remaining (param_tvb, 0);
-    name = oid_resolved_from_encoded(tvb_get_ptr(param_tvb, 0, len), len);
-    if (name && check_col(actx->pinfo->cinfo, COL_INFO)) {
+
+  if (display_oid && enterprise_oid) {
+    name = oid_resolved_from_string(enterprise_oid);
+    if (name) {
       col_append_fstr (actx->pinfo->cinfo, COL_INFO, " %s", name);
     }
   }
@@ -1769,7 +1796,29 @@ static const value_string snmp_T_generic_trap_vals[] = {
 static int
 dissect_snmp_T_generic_trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+                                                &generic_trap);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_T_specific_trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 45 "snmp.cnf"
+  guint specific_trap;
+  
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                &specific_trap);
+
+
+  if (generic_trap == 6) { /* enterprise specific */
+    const gchar *specific_str = snmp_lookup_specific_trap (specific_trap);
+    if (specific_str) {
+      proto_item_append_text(actx->created_item, " (%s)", specific_str);
+    }
+  }
+
 
   return offset;
 }
@@ -1779,7 +1828,7 @@ static const ber_sequence_t Trap_PDU_U_sequence[] = {
   { &hf_snmp_enterprise     , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_snmp_EnterpriseOID },
   { &hf_snmp_agent_addr     , BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_snmp_NetworkAddress },
   { &hf_snmp_generic_trap   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_snmp_T_generic_trap },
-  { &hf_snmp_specific_trap  , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_snmp_INTEGER },
+  { &hf_snmp_specific_trap  , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_snmp_T_specific_trap },
   { &hf_snmp_time_stamp     , BER_CLASS_APP, 3, BER_FLAGS_NOOWNTAG, dissect_snmp_TimeTicks },
   { &hf_snmp_variable_bindings, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_snmp_VarBindList },
   { NULL, 0, 0, 0, NULL }
@@ -1787,8 +1836,15 @@ static const ber_sequence_t Trap_PDU_U_sequence[] = {
 
 static int
 dissect_snmp_Trap_PDU_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 37 "snmp.cnf"
+  generic_trap = 0;
+  enterprise_oid = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Trap_PDU_U_sequence, hf_index, ett_snmp_Trap_PDU_U);
+
+
+
 
   return offset;
 }
@@ -1902,16 +1958,14 @@ dissect_snmp_PDUs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 #line 25 "snmp.cnf"
 gint pdu_type=-1;
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO))
-    col_clear(actx->pinfo->cinfo, COL_INFO);
+  col_clear(actx->pinfo->cinfo, COL_INFO);
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  PDUs_choice, hf_index, ett_snmp_PDUs,
                                  &pdu_type);
 
   if( (pdu_type!=-1) && snmp_PDUs_vals[pdu_type].strptr ){
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%s", snmp_PDUs_vals[pdu_type].strptr);
+	col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%s", snmp_PDUs_vals[pdu_type].strptr);
   }
 
 
@@ -1977,7 +2031,7 @@ dissect_snmp_Messagev2u(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_snmp_SnmpEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 81 "snmp.cnf"
+#line 96 "snmp.cnf"
 	tvbuff_t* param_tvb = NULL;
 
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1996,7 +2050,7 @@ dissect_snmp_SnmpEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_snmp_T_msgAuthoritativeEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 72 "snmp.cnf"
+#line 87 "snmp.cnf"
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &usm_p.engine_tvb);
@@ -2044,7 +2098,7 @@ dissect_snmp_T_msgUserName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_snmp_T_msgAuthenticationParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 94 "snmp.cnf"
+#line 109 "snmp.cnf"
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
 		usm_p.auth_item = actx->created_item;
@@ -2098,7 +2152,7 @@ dissect_snmp_INTEGER_484_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 212 "snmp.cnf"
+#line 224 "snmp.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2153,7 +2207,7 @@ dissect_snmp_HeaderData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 155 "snmp.cnf"
+#line 167 "snmp.cnf"
 
 	switch(MsgSecurityModel){
 		case SNMP_SEC_USM:	/* 3 */		
@@ -2195,7 +2249,7 @@ dissect_snmp_ScopedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 103 "snmp.cnf"
+#line 118 "snmp.cnf"
 	tvbuff_t* crypt_tvb;
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_snmp_encryptedPDU, &crypt_tvb);
 
@@ -2214,8 +2268,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 			expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
 				"Failed to decrypt encryptedPDU: %s", error);
 
-			if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
+			col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Failed to decrypt");
 				
 			return offset;
 		} else {
@@ -2229,8 +2282,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
 									   "Decrypted data not formatted as expected");
 
-				if (check_col(actx->pinfo->cinfo, COL_INFO))
-					col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formatted as expected");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: Decrypted data not formatted as expected");
 				
 				return offset;
 			}
@@ -2243,8 +2295,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, actx, decrypted_tree, -1);
 		 }
 	} else {
-			if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: privKey Unknown");
+			col_set_str(actx->pinfo->cinfo, COL_INFO, "encryptedPDU: privKey Unknown");
 	}
 
 
@@ -2288,7 +2339,7 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SNMPv3Message_sequence, hf_index, ett_snmp_SNMPv3Message);
 
-#line 170 "snmp.cnf"
+#line 182 "snmp.cnf"
 
 	if( usm_p.authenticated
 		&& usm_p.user_assoc
@@ -2605,7 +2656,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1417 "packet-snmp-template.c"
+#line 1446 "packet-snmp-template.c"
 
 
 guint
@@ -2730,10 +2781,8 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	next_tvb_init(&var_list);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL,
-		    proto_get_protocol_short_name(find_protocol_by_id(proto)));
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL,
+	    proto_get_protocol_short_name(find_protocol_by_id(proto)));
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto, tvb, start_offset,
@@ -3068,6 +3117,32 @@ UAT_BUFFER_CB_DEF(snmp_users,engine_id,snmp_ue_assoc_t,engine.data,engine.len)
 UAT_VS_DEF(snmp_users,auth_model,snmp_ue_assoc_t,0,"MD5")
 UAT_VS_DEF(snmp_users,priv_proto,snmp_ue_assoc_t,0,"DES")
 
+static void *
+snmp_specific_trap_copy_cb(void *dest, const void *orig, unsigned len _U_)
+{
+	snmp_st_assoc_t *u = dest;
+	const snmp_st_assoc_t *o = orig;
+
+	u->enterprise = g_strdup(o->enterprise);
+	u->trap = o->trap;
+	u->desc = g_strdup(o->desc);
+
+	return dest;
+}
+
+static void
+snmp_specific_trap_free_cb(void *r)
+{
+	snmp_st_assoc_t *u = r;
+
+	g_free(u->enterprise);
+	g_free(u->desc);
+}
+
+UAT_CSTRING_CB_DEF(specific_traps, enterprise, snmp_st_assoc_t)
+UAT_DEC_CB_DEF(specific_traps, trap, snmp_st_assoc_t)
+UAT_CSTRING_CB_DEF(specific_traps, desc, snmp_st_assoc_t)
+
 	/*--- proto_register_snmp -------------------------------------------*/
 void proto_register_snmp(void) {
   /* List of fields */
@@ -3324,7 +3399,7 @@ void proto_register_snmp(void) {
     { &hf_snmp_specific_trap,
       { "specific-trap", "snmp.specific_trap",
         FT_INT32, BASE_DEC, NULL, 0,
-        "snmp.INTEGER", HFILL }},
+        "snmp.T_specific_trap", HFILL }},
     { &hf_snmp_time_stamp,
       { "time-stamp", "snmp.time_stamp",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -3403,7 +3478,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1950 "packet-snmp-template.c"
+#line 2003 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3443,9 +3518,10 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1966 "packet-snmp-template.c"
+#line 2019 "packet-snmp-template.c"
   };
   module_t *snmp_module;
+
   static uat_field_t users_fields[] = {
 	  UAT_FLD_BUFFER(snmp_users,engine_id,"Engine ID","Engine-id for this entry (empty = any)"),
 	  UAT_FLD_LSTRING(snmp_users,userName,"Username","The username"),
@@ -3456,7 +3532,7 @@ void proto_register_snmp(void) {
 	  UAT_END_FIELDS
   };
 
-  assocs_uat = uat_new("SNMP Users",
+  uat_t *assocs_uat = uat_new("SNMP Users",
 					   sizeof(snmp_ue_assoc_t),
 					   "snmp_users",
 					   TRUE,
@@ -3468,6 +3544,26 @@ void proto_register_snmp(void) {
 					   snmp_users_update_cb,
 					   snmp_users_free_cb,
 					   users_fields);
+
+  static uat_field_t specific_traps_flds[] = {
+    UAT_FLD_CSTRING(specific_traps,enterprise,"Enterprise OID","Enterprise Object Identifier"),
+    UAT_FLD_DEC(specific_traps,trap,"Trap Id","The specific-trap value"),
+    UAT_FLD_CSTRING(specific_traps,desc,"Description","Trap type description"),
+    UAT_END_FIELDS
+  };
+
+  uat_t* specific_traps_uat = uat_new("SNMP Enterprise Specific Trap Types",
+                                      sizeof(snmp_st_assoc_t),
+                                      "snmp_specific_traps",
+                                      TRUE,
+                                      (void**) &specific_traps,
+                                      &num_specific_traps,
+                                      UAT_CAT_GENERAL,
+                                      "ChSNMPEnterpriseSpecificTrapTypes",
+                                      snmp_specific_trap_copy_cb,
+                                      NULL,
+                                      snmp_specific_trap_free_cb,
+                                      specific_traps_flds);
 
   /* Register protocol */
   proto_snmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -3500,9 +3596,14 @@ void proto_register_snmp(void) {
 		&snmp_var_in_tree);
 
   prefs_register_uat_preference(snmp_module, "users_table",
-								"Users Table",
-								"Table of engine-user associations used for authentication and decryption",
-								assocs_uat);
+				"Users Table",
+				"Table of engine-user associations used for authentication and decryption",
+				assocs_uat);
+
+  prefs_register_uat_preference(snmp_module, "specific_traps_table",
+				"Enterprise Specific Trap Types",
+				"Table of enterprise specific-trap type descriptions",
+				specific_traps_uat);
 
 #ifdef HAVE_LIBSMI
   prefs_register_static_text_preference(snmp_module, "info_mibs",
@@ -3536,7 +3637,7 @@ void proto_reg_handoff_snmp(void) {
 
 	data_handle = find_dissector("data");
 
-	register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp);
+	register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp_tcp);
 
 	/*
 	 * Process preference settings.
