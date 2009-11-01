@@ -283,6 +283,16 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # Application Protocol (S1AP)".
 
 dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU );
+
+#.FN_BODY Target-ToSource-TransparentContainer VAL_PTR = &parameter_tvb
+#-- This IE is a transparent container, the IE shall be encoded not as an OCTET STRING but according to the type specifications of the target system.
+#-- Note: In the current version of this specification, this IE may either carry the Target RNC to
+#-- Source RNC Transparent Container or the Target eNB to Source eNB Transparent Container IE as
+#-- defined in [49]
+# [49] 3GPP TS 36.413: "Evolved Universal Terrestrial Radio Access Network (E-UTRAN); S1
+# Application Protocol (S1AP)".
+
+dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU );
     
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(ranap_ProtocolIE_ID_vals)
@@ -560,6 +570,9 @@ id-IntegrityProtectionKey									ProtocolIE-ID
 id-SRVCC-HO-Indication										ProtocolIE-ID
 id-SRVCC-Information										ProtocolIE-ID
 id-SRVCC-Operation-Possible									ProtocolIE-ID
+id-CSG-Id-List												ProtocolIE-ID
+id-PSRABtobeReplaced										ProtocolIE-ID
+id-E-UTRAN-Service-Handover									ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -797,9 +810,12 @@ SupportedRAB-ParameterBitrateList						N ranap.extension id-RAB-Parameter-Suppor
 SupportedRAB-ParameterBitrateList						N ranap.extension id-Requested-RAB-Parameter-SupportedMaxBitrateList
 SupportedRAB-ParameterBitrateList						N ranap.extension id-Requested-RAB-Parameter-SupportedGuaranteedBitrateList
 SRVCC-HO-Indication										N ranap.extension id-SRVCC-HO-Indication
-#N ranap.extension id-SRVCC-Operation-Possible
+SRVCC-Operation-Possible								N ranap.extension id-SRVCC-Operation-Possible
+CSG-Id-List												N ranap.extension id-CSG-Id-List
+RAB-ID													N ranap.extension id-PSRABtobeReplaced
+E-UTRAN-Service-Handover								N ranap.extension id-E-UTRAN-Service-Handover
 
-#NBAP-ELEMENTARY-PROCEDURE
+#RANAP-ELEMENTARY-PROCEDURE
 Iu-ReleaseCommand							N ranap.proc.imsg id-Iu-Release
 Iu-ReleaseComplete							N ranap.proc.sout id-Iu-Release
 RelocationRequired							N ranap.proc.imsg id-RelocationPreparation

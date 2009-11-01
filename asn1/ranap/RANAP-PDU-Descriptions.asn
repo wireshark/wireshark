@@ -1,7 +1,7 @@
 -- RANAP-PDU-Descriptions.asn
 --
--- Taken from 3GPP TS 25.413 V8.2.1 (2009-03)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-821.zip
+-- 3GPP TS 25.413 V8.4.0 (2009-09)
+-- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.2	Elementary Procedure Definitions
 --
@@ -14,11 +14,11 @@
 --
 -- **************************************************************
 
-RANAP-PDU-Descriptions { 
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+RANAP-PDU-Descriptions {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 umts-Access (20) modules (3) ranap (0) version1 (1) ranap-PDU-Descriptions (0)}
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -73,7 +73,7 @@ FROM RANAP-CommonDataTypes
 	SRNS-DataForwardCommand,
 	ForwardSRNS-Context,
 	RAB-AssignmentRequest,
-	RAB-AssignmentResponse, 
+	RAB-AssignmentResponse,
 	RAB-ModifyRequest,
 	PrivateMessage,
 	ResetResource,
@@ -133,7 +133,7 @@ FROM RANAP-PDU-Contents
 	id-Paging,
 	id-privateMessage,
 	id-RAB-Assignment,
-	id-RAB-ReleaseRequest, 
+	id-RAB-ReleaseRequest,
 	id-RAB-ModifyRequest,
 	id-RANAP-Relocation,
 	id-RANAPenhancedRelocation,
@@ -614,6 +614,7 @@ sRVCCPreparation RANAP-ELEMENTARY-PROCEDURE ::= {
 }
 
 END
+
 
 
 

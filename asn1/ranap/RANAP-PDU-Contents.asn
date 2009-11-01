@@ -1,7 +1,7 @@
 -- RANAP-PDU-Contents.asn
 --
--- Taken from 3GPP TS 25.413 V8.2.1 (2009-03)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-821.zip
+-- 3GPP TS 25.413 V8.4.0 (2009-09)
+-- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.3	PDU Definitions
 --
@@ -14,11 +14,11 @@
 --
 -- **************************************************************
 
-RANAP-PDU-Contents { 
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+RANAP-PDU-Contents {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 umts-Access (20) modules (3) ranap (0) version1 (1) ranap-PDU-Contents (1) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -46,6 +46,7 @@ IMPORTS
 	ClassmarkInformation2,
 	ClassmarkInformation3,
 	CSG-Id,
+	CSG-Id-List,
 	DL-GTP-PDU-SequenceNumber,
 	DL-N-PDU-SequenceNumber,
 	DataVolumeReportingIndication,
@@ -53,6 +54,7 @@ IMPORTS
 	DRX-CycleLengthCoefficient,
 	EncryptionInformation,
 	EncryptionKey,
+	E-UTRAN-Service-Handover,
 	ExtendedRNC-ID,
 	FrequenceLayerConvergenceFlag,
 	GERAN-BSC-Container,
@@ -116,7 +118,7 @@ IMPORTS
 	RejectCauseValue,
 	RelocationType,
 	RequestedGANSSAssistanceData,
-	RequestType, 
+	RequestType,
 	Requested-RAB-Parameter-Values,
 	ResponseTime,
 	RRC-Container,
@@ -181,7 +183,7 @@ FROM RANAP-Containers
 
 	id-AccuracyFulfilmentIndicator,
 	id-APN,
-	id-AreaIdentity, 
+	id-AreaIdentity,
 	id-Alt-RAB-Parameters,
 	id-Ass-RAB-Parameters,
 	id-BroadcastAssistanceDataDecipheringKeys,
@@ -196,6 +198,7 @@ FROM RANAP-Containers
 	id-CNMBMSLinkingInformation,
 	id-CriticalityDiagnostics,
 	id-CSG-Id,
+	id-CSG-Id-List,
 	id-DeltaRAListofIdleModeUEs,
 	id-DRX-CycleLengthCoefficient,
 	id-DirectTransferInformationItem-RANAP-RelocInf,
@@ -257,7 +260,7 @@ FROM RANAP-Containers
 	id-OMC-ID,
 	id-OldBSS-ToNewBSS-Information,
 	id-PagingAreaID,
-	id-PagingCause, 
+	id-PagingCause,
 	id-PDP-TypeInformation,
 	id-PermanentNAS-UE-ID,
 	id-PositionData,
@@ -284,7 +287,7 @@ FROM RANAP-Containers
 	id-RAB-FailedItem-EnhRelocInfoRes,
 	id-RAB-FailedtoReportItem,
 	id-RAB-FailedtoReportList,
-	id-RAB-ID, 
+	id-RAB-ID,
 	id-RAB-ModifyList,
 	id-RAB-ModifyItem,
 	id-RAB-Parameters,
@@ -366,7 +369,9 @@ FROM RANAP-Containers
 	id-VerticalAccuracyCode,
 	id-PeriodicLocationInfo,
 	id-BroadcastGANSSAssistanceDataDecipheringKeys,
-	id-SubscriberProfileIDforRFP
+	id-SubscriberProfileIDforRFP,
+	id-E-UTRAN-Service-Handover
+
 FROM RANAP-Constants;
 
 -- **************************************************************
@@ -579,7 +584,9 @@ RelocationCommandExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 5 to enable Inter RAN Load Information Exchange over Iu --
 	{ ID id-InterSystemInformation-TransparentContainer		CRITICALITY ignore	EXTENSION InterSystemInformation-TransparentContainer					PRESENCE optional	} |
 -- Extension for Release 6 to enable Inter-RAT PS Handover between UTRAN and GERAN A/Gb --
-	{ ID id-TargetBSS-ToSourceBSS-TransparentContainer		CRITICALITY	ignore	EXTENSION TargetBSS-ToSourceBSS-TransparentContainer		PRESENCE optional	},
+	{ ID id-TargetBSS-ToSourceBSS-TransparentContainer		CRITICALITY	ignore	EXTENSION TargetBSS-ToSourceBSS-TransparentContainer		PRESENCE optional	}|
+-- Extension for Release 8 for SRVCC operation --
+	{ ID id-SRVCC-Information					CRITICALITY reject	EXTENSION SRVCC-Information			PRESENCE optional	},
 	...
 }
 
@@ -640,7 +647,7 @@ RelocationRequestIEs RANAP-PROTOCOL-IES ::= {
 
 RAB-SetupList-RelocReq 					::= RAB-IE-ContainerList { {RAB-SetupItem-RelocReq-IEs} }
 
-RAB-SetupItem-RelocReq-IEs RANAP-PROTOCOL-IES ::= { 
+RAB-SetupItem-RelocReq-IEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-RAB-SetupItem-RelocReq			CRITICALITY reject	TYPE RAB-SetupItem-RelocReq			PRESENCE mandatory 	},
 	...
 }
@@ -665,7 +672,9 @@ RAB-SetupItem-RelocReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 4 to enable RAB Quality of Service negotiation over Iu --
 	{ID id-Alt-RAB-Parameters	CRITICALITY ignore		EXTENSION Alt-RAB-Parameters		PRESENCE optional} |
 -- Extension for Release 5 to enable GERAN support over Iu-cs --
-	{ ID id-GERAN-BSC-Container					CRITICALITY ignore	EXTENSION GERAN-BSC-Container			PRESENCE optional	},
+	{ ID id-GERAN-BSC-Container					CRITICALITY ignore	EXTENSION GERAN-BSC-Container			PRESENCE optional	}|
+-- Extension for Release 8 to enable handover restriction to E-UTRAN --
+	{ ID id-E-UTRAN-Service-Handover			CRITICALITY ignore	EXTENSION E-UTRAN-Service-Handover			PRESENCE optional	},
 	...
 }
 
@@ -741,7 +750,7 @@ RelocationRequestAcknowledgeIEs RANAP-PROTOCOL-IES ::= {
 
 RAB-SetupList-RelocReqAck 				::= RAB-IE-ContainerList { {RAB-SetupItem-RelocReqAck-IEs} }
 
-RAB-SetupItem-RelocReqAck-IEs RANAP-PROTOCOL-IES ::= { 
+RAB-SetupItem-RelocReqAck-IEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-RAB-SetupItem-RelocReqAck		CRITICALITY reject	TYPE RAB-SetupItem-RelocReqAck			PRESENCE mandatory 	},
 	...
 }
@@ -1441,7 +1450,7 @@ EnhancedRelocationCompleteRequestIEs RANAP-PROTOCOL-IES ::= {
 
 RAB-SetupList-EnhancedRelocCompleteReq 				::= RAB-IE-ContainerList { { RAB-SetupItem-EnhancedRelocCompleteReq-IEs} }
 
-RAB-SetupItem-EnhancedRelocCompleteReq-IEs RANAP-PROTOCOL-IES ::= { 
+RAB-SetupItem-EnhancedRelocCompleteReq-IEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-RAB-SetupItem-EnhancedRelocCompleteReq		CRITICALITY reject	TYPE RAB-SetupItem-EnhancedRelocCompleteReq			PRESENCE mandatory 	},
 	...
 }
@@ -1460,6 +1469,8 @@ RAB-SetupItem-EnhancedRelocCompleteReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 }
 
 EnhancedRelocationCompleteRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-ChosenIntegrityProtectionAlgorithm	CRITICALITY ignore	EXTENSION ChosenIntegrityProtectionAlgorithm		PRESENCE optional	} |
+	{ ID id-ChosenEncryptionAlgorithm		CRITICALITY ignore	EXTENSION ChosenEncryptionAlgorithm			PRESENCE optional	},
 	...
 }
 
@@ -1484,7 +1495,7 @@ EnhancedRelocationCompleteResponseIEs RANAP-PROTOCOL-IES ::= {
 
 RAB-SetupList-EnhancedRelocCompleteRes ::= RAB-IE-ContainerList { {RAB-SetupItem-EnhancedRelocCompleteRes-IEs} }
 
-RAB-SetupItem-EnhancedRelocCompleteRes-IEs RANAP-PROTOCOL-IES ::= { 
+RAB-SetupItem-EnhancedRelocCompleteRes-IEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-RAB-SetupItem-EnhancedRelocCompleteRes		CRITICALITY reject	TYPE RAB-SetupItem-EnhancedRelocCompleteRes		PRESENCE mandatory 	},
 	...
 }
@@ -1506,7 +1517,7 @@ RAB-SetupItem-EnhancedRelocCompleteRes-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 
 RAB-ToBeReleasedList-EnhancedRelocCompleteRes ::= RAB-IE-ContainerList { {RAB-ToBeReleasedItem-EnhancedRelocCompleteRes-IEs} }
 
-RAB-ToBeReleasedItem-EnhancedRelocCompleteRes-IEs RANAP-PROTOCOL-IES ::= { 
+RAB-ToBeReleasedItem-EnhancedRelocCompleteRes-IEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-RAB-ToBeReleasedItem-EnhancedRelocCompleteRes		CRITICALITY ignore	TYPE RAB-ToBeReleasedItem-EnhancedRelocCompleteRes		PRESENCE mandatory 	},
 	...
 }
@@ -1601,7 +1612,9 @@ PagingIEs RANAP-PROTOCOL-IES ::= {
 
 PagingExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 5 to enable NNSF --
-	{ ID id-GlobalCN-ID				CRITICALITY ignore	EXTENSION GlobalCN-ID				PRESENCE optional	} ,
+	{ ID id-GlobalCN-ID				CRITICALITY ignore	EXTENSION GlobalCN-ID				PRESENCE optional	} |
+-- Extension for Release 8 to support CSG --
+	{ ID id-CSG-Id-List				CRITICALITY ignore	EXTENSION CSG-Id-List				PRESENCE optional	},
 	...
 }
 
@@ -1636,7 +1649,9 @@ CommonIDExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 6 to indicate the selected plmn in GWCN configuration for network sharing non-supporting UEs --
 	{ ID id-SelectedPLMN-ID	 	CRITICALITY ignore	EXTENSION PLMNidentity		PRESENCE optional 	}|
 -- Extension for Release 8 to indicate the Subscriber Profile ID for RAT/Frequency Selection Priority --
-	{ID id-SubscriberProfileIDforRFP		CRITICALITY ignore		EXTENSION SubscriberProfileIDforRFP					PRESENCE optional},
+	{ID id-SubscriberProfileIDforRFP		CRITICALITY ignore		EXTENSION SubscriberProfileIDforRFP					PRESENCE optional}|
+-- Extension for Release 8 for SRVCC operation --
+	{ ID id-SRVCC-Operation-Possible		CRITICALITY ignore	EXTENSION SRVCC-Operation-Possible			PRESENCE optional	},
 	...
 }
 
@@ -1827,7 +1842,7 @@ InitialUE-MessageExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 6 to indicate rerouting in MOCN configuration for network sharing non-supporting UEs --
 	{ ID id-RedirectAttemptFlag				CRITICALITY ignore	EXTENSION RedirectAttemptFlag		PRESENCE optional	} |
 -- Extension for Release 7 to indicate extended RNC-ID --
-	{ ID id-ExtendedRNC-ID					CRITICALITY reject	EXTENSION ExtendedRNC-ID			PRESENCE optional	} | 
+	{ ID id-ExtendedRNC-ID					CRITICALITY reject	EXTENSION ExtendedRNC-ID			PRESENCE optional	} |
 -- Extension for Release 8 to support CSG --
 	{ ID id-CSG-Id							CRITICALITY reject	EXTENSION CSG-Id					PRESENCE optional	},
 	...
@@ -2060,6 +2075,8 @@ TransportLayerInformation-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 }
 
 RAB-SetupOrModifyItemFirst-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 8 to enable handover restriction to E-UTRAN --
+	{ ID id-E-UTRAN-Service-Handover			CRITICALITY ignore	EXTENSION E-UTRAN-Service-Handover			PRESENCE optional	},
 	...
 }
 
@@ -2314,7 +2331,7 @@ RANAP-EnhancedRelocationInformationRequestIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-OldIuSigConIdCS	CRITICALITY ignore TYPE IuSignallingConnectionIdentifier	PRESENCE optional } |
 	{ ID id-GlobalCN-IDCS				CRITICALITY reject		TYPE GlobalCN-ID				PRESENCE optional} |
 	{ ID id-OldIuSigConIdPS	CRITICALITY ignore TYPE IuSignallingConnectionIdentifier	PRESENCE optional } |
-	{ ID id-GlobalCN-IDCS				CRITICALITY reject		TYPE GlobalCN-ID				PRESENCE optional} |
+	{ ID id-GlobalCN-IDPS				CRITICALITY reject		TYPE GlobalCN-ID				PRESENCE optional} |
 	{ ID id-RAB-SetupList-EnhRelocInfoReq			CRITICALITY reject	TYPE RAB-SetupList-EnhRelocInfoReq			PRESENCE optional	} |
 	{ ID id-SNA-Access-Information	CRITICALITY ignore		TYPE SNA-Access-Information	PRESENCE optional} |
 	{ ID id-UESBI-Iu	CRITICALITY ignore		TYPE UESBI-Iu	PRESENCE optional}|
@@ -2325,7 +2342,7 @@ RANAP-EnhancedRelocationInformationRequestIEs RANAP-PROTOCOL-IES ::= {
 
 RAB-SetupList-EnhRelocInfoReq 					::= RAB-IE-ContainerList { { RAB-SetupItem-EnhRelocInfoReq-IEs} }
 
-RAB-SetupItem-EnhRelocInfoReq-IEs RANAP-PROTOCOL-IES ::= { 
+RAB-SetupItem-EnhRelocInfoReq-IEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-RAB-SetupItem-EnhRelocInfoReq			CRITICALITY reject	TYPE RAB-SetupItem-EnhRelocInfoReq			PRESENCE mandatory 	},
 	...
 }
@@ -2349,6 +2366,8 @@ RAB-SetupItem-EnhRelocInfoReq ::= SEQUENCE {
 }
 
 RAB-SetupItem-EnhRelocInfoReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 8 to enable handover restriction to E-UTRAN --
+	{ ID id-E-UTRAN-Service-Handover			CRITICALITY ignore	EXTENSION E-UTRAN-Service-Handover			PRESENCE optional	},
 	...
 }
 
@@ -2365,6 +2384,8 @@ TNLInformationEnhRelInfoReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 
 
 RANAP-EnhancedRelocationInformationRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-IntegrityProtectionInformation		CRITICALITY ignore	EXTENSION IntegrityProtectionInformation 		PRESENCE optional	} |
+	{ ID id-EncryptionInformation			CRITICALITY ignore	EXTENSION EncryptionInformation 			PRESENCE optional	},
 	...
 }
 
@@ -2381,7 +2402,7 @@ RANAP-EnhancedRelocationInformationResponse ::= SEQUENCE {
 }
 
 RANAP-EnhancedRelocationInformationResponseIEs RANAP-PROTOCOL-IES ::= {
-	{ ID id-Target-ToSource-TransparentContainer 
+	{ ID id-Target-ToSource-TransparentContainer
 							CRITICALITY ignore	TYPE TargetRNC-ToSourceRNC-TransparentContainer PRESENCE optional	} |
 	{ ID id-RAB-SetupList-EnhRelocInfoRes		CRITICALITY ignore	TYPE RAB-SetupList-EnhRelocInfoRes			PRESENCE optional} |
 	{ ID id-RAB-FailedList-EnhRelocInfoRes		CRITICALITY ignore	TYPE RAB-FailedList-EnhRelocInfoRes			PRESENCE optional }|
@@ -2391,7 +2412,7 @@ RANAP-EnhancedRelocationInformationResponseIEs RANAP-PROTOCOL-IES ::= {
 
 RAB-SetupList-EnhRelocInfoRes 				::= RAB-IE-ContainerList { { RAB-SetupItem-EnhRelocInfoRes-IEs} }
 
-RAB-SetupItem-EnhRelocInfoRes-IEs RANAP-PROTOCOL-IES ::= { 
+RAB-SetupItem-EnhRelocInfoRes-IEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-RAB-SetupItem-EnhRelocInfoRes		CRITICALITY reject	TYPE RAB-SetupItem-EnhRelocInfoRes			PRESENCE mandatory 	},
 	...
 }
@@ -2411,7 +2432,7 @@ RAB-SetupItem-EnhRelocInfoRes-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 
 RAB-FailedList-EnhRelocInfoRes 				::= RAB-IE-ContainerList { { RAB-FailedItem-EnhRelocInfoRes-IEs} }
 
-RAB-FailedItem-EnhRelocInfoRes-IEs RANAP-PROTOCOL-IES ::= { 
+RAB-FailedItem-EnhRelocInfoRes-IEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-RAB-FailedItem-EnhRelocInfoRes		CRITICALITY reject	TYPE RAB-FailedItem-EnhRelocInfoRes			PRESENCE mandatory 	},
 	...
 }
@@ -2936,7 +2957,7 @@ MBMSSessionUpdateResponse ::= SEQUENCE {
 
 MBMSSessionUpdateResponseIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-SessionUpdateID					CRITICALITY ignore	TYPE SessionUpdateID				PRESENCE mandatory	} |
-	{ ID id-TransportLayerInformation		CRITICALITY ignore	TYPE TransportLayerInformation		PRESENCE optional		} | 
+	{ ID id-TransportLayerInformation		CRITICALITY ignore	TYPE TransportLayerInformation		PRESENCE optional		} |
 	{ ID id-Cause							CRITICALITY ignore	TYPE Cause							PRESENCE optional		} |
 	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional		} ,
 	...
@@ -3378,6 +3399,3 @@ SRVCC-CSKeysResponseExtensions RANAP-PROTOCOL-EXTENSION ::= {
 
 
 END
-
-
-

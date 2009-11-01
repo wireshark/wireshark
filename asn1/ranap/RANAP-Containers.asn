@@ -1,7 +1,7 @@
 -- RANAP-Containers.asn
 --
--- Taken from 3GPP TS 25.413 V8.2.1 (2009-03)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-821.zip
+-- 3GPP TS 25.413 V8.4.0 (2009-09)
+-- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.7	Container Definitions
 --
@@ -15,10 +15,10 @@
 -- **************************************************************
 
 RANAP-Containers {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 umts-Access (20) modules (3) ranap (0) version1 (1) ranap-Containers (5) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -127,7 +127,7 @@ WITH SYNTAX {
 --
 -- **************************************************************
 
-ProtocolIE-Container {RANAP-PROTOCOL-IES : IEsSetParam} ::= 
+ProtocolIE-Container {RANAP-PROTOCOL-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-Field {{IEsSetParam}}
 
@@ -143,7 +143,7 @@ ProtocolIE-Field {RANAP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 --
 -- **************************************************************
 
-ProtocolIE-ContainerPair {RANAP-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
+ProtocolIE-ContainerPair {RANAP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-FieldPair {{IEsSetParam}}
 
@@ -175,7 +175,7 @@ ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, RANAP-
 --
 -- **************************************************************
 
-ProtocolExtensionContainer {RANAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
+ProtocolExtensionContainer {RANAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
 	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
 	ProtocolExtensionField {{ExtensionSetParam}}
 
@@ -191,7 +191,7 @@ ProtocolExtensionField {RANAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUEN
 --
 -- **************************************************************
 
-PrivateIE-Container {RANAP-PRIVATE-IES : IEsSetParam } ::= 
+PrivateIE-Container {RANAP-PRIVATE-IES : IEsSetParam } ::=
 	SEQUENCE (SIZE (1.. maxPrivateIEs)) OF
 	PrivateIE-Field {{IEsSetParam}}
 
@@ -202,5 +202,3 @@ PrivateIE-Field {RANAP-PRIVATE-IES : IEsSetParam} ::= SEQUENCE {
 }
 
 END
-
-

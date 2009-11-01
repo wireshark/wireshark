@@ -1,7 +1,7 @@
 -- RANAP-Constants.asn
 --
--- Taken from 3GPP TS 25.413 V8.2.1 (2009-03)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-821.zip
+-- 3GPP TS 25.413 V8.4.0 (2009-09)
+-- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.6	Constant Definitions
 --
@@ -13,11 +13,11 @@
 --
 -- **************************************************************
 
-RANAP-Constants { 
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
-umts-Access (20) modules (3) ranap (0) version1 (1) ranap-Constants (4) } 
+RANAP-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+umts-Access (20) modules (3) ranap (0) version1 (1) ranap-Constants (4) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -70,9 +70,9 @@ id-MBMSCNDe-Registration-Procedure	INTEGER ::= 40
 id-MBMSRABEstablishmentIndication	INTEGER ::= 41
 id-MBMSRABRelease					INTEGER ::= 42
 id-enhancedRelocationComplete		INTEGER ::= 43
-id-enhancedRelocationCompleteConfirm		INTEGER ::= 44
+id-enhancedRelocationCompleteConfirm	INTEGER ::= 44
 id-RANAPenhancedRelocation			INTEGER ::= 45
-id-SRVCCPreparation					INTEGER ::= 256
+id-SRVCCPreparation					INTEGER ::= 46
 
 
 
@@ -101,7 +101,7 @@ maxNrOfRABs							INTEGER ::= 256
 maxNrOfSeparateTrafficDirections	INTEGER ::= 2
 maxNrOfSRBs							INTEGER ::= 8
 maxNrOfVol							INTEGER ::= 2
-maxNrOfLevels						INTEGER ::= 256 
+maxNrOfLevels						INTEGER ::= 256
 maxNrOfAltValues					INTEGER ::= 16
 maxNrOfPLMNsSN						INTEGER ::= 32
 maxNrOfLAs							INTEGER ::= 65536
@@ -118,6 +118,7 @@ maxMBMSSA							INTEGER ::= 256
 maxMBMSRA							INTEGER ::= 65536
 maxNrOfEDCHMACdFlows-1				INTEGER ::= 7
 maxGANSSSet							INTEGER ::= 9
+maxNrOfCSGs							INTEGER ::= 256
 
 -- **************************************************************
 --
@@ -184,9 +185,9 @@ id-RequestType 									INTEGER ::= 57
 id-SAI 											INTEGER ::= 58
 id-SAPI 										INTEGER ::= 59
 id-SourceID 									INTEGER ::= 60
-id-Source-ToTarget-TransparentContainer 	INTEGER ::= 61
+id-Source-ToTarget-TransparentContainer 		INTEGER ::= 61
 id-TargetID 									INTEGER ::= 62
-id-Target-ToSource-TransparentContainer 	INTEGER ::= 63
+id-Target-ToSource-TransparentContainer 		INTEGER ::= 63
 id-TemporaryUE-ID 								INTEGER ::= 64
 id-TraceReference 								INTEGER ::= 65
 id-TraceType 									INTEGER ::= 66
@@ -348,8 +349,9 @@ id-IntegrityProtectionKey								INTEGER ::= 225
 id-SRVCC-HO-Indication									INTEGER ::= 226
 id-SRVCC-Information									INTEGER ::= 227
 id-SRVCC-Operation-Possible								INTEGER ::= 228
+id-CSG-Id-List											INTEGER ::= 229
+id-PSRABtobeReplaced									INTEGER ::= 230
+id-E-UTRAN-Service-Handover								INTEGER ::= 231
+
 
 END
-
-
-

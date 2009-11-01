@@ -100,6 +100,7 @@
 #define maxMBMSRA                      65536
 #define maxNrOfEDCHMACdFlows_1         7
 #define maxGANSSSet                    9
+#define maxNrOfCSGs                    256
 #define id_170_not_to_be_used_for_IE_ids 170
 #define id_183_not_to_be_used_for_IE_ids 183
 
@@ -149,7 +150,7 @@ typedef enum _ProcedureCode_enum {
   id_enhancedRelocationComplete =  43,
   id_enhancedRelocationCompleteConfirm =  44,
   id_RANAPenhancedRelocation =  45,
-  id_SRVCCPreparation = 256
+  id_SRVCCPreparation =  46
 } ProcedureCode_enum;
 
 typedef enum _ProtocolIE_ID_enum {
@@ -373,7 +374,10 @@ typedef enum _ProtocolIE_ID_enum {
   id_IntegrityProtectionKey = 225,
   id_SRVCC_HO_Indication = 226,
   id_SRVCC_Information = 227,
-  id_SRVCC_Operation_Possible = 228
+  id_SRVCC_Operation_Possible = 228,
+  id_CSG_Id_List = 229,
+  id_PSRABtobeReplaced = 230,
+  id_E_UTRAN_Service_Handover = 231
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-ranap-val.h ---*/
@@ -416,11 +420,13 @@ static int hf_ranap_ClassmarkInformation2_PDU = -1;  /* ClassmarkInformation2 */
 static int hf_ranap_ClassmarkInformation3_PDU = -1;  /* ClassmarkInformation3 */
 static int hf_ranap_CN_DomainIndicator_PDU = -1;  /* CN_DomainIndicator */
 static int hf_ranap_CSG_Id_PDU = -1;              /* CSG_Id */
+static int hf_ranap_CSG_Id_List_PDU = -1;         /* CSG_Id_List */
 static int hf_ranap_DeltaRAListofIdleModeUEs_PDU = -1;  /* DeltaRAListofIdleModeUEs */
 static int hf_ranap_DRX_CycleLengthCoefficient_PDU = -1;  /* DRX_CycleLengthCoefficient */
 static int hf_ranap_E_DCH_MAC_d_Flow_ID_PDU = -1;  /* E_DCH_MAC_d_Flow_ID */
 static int hf_ranap_EncryptionInformation_PDU = -1;  /* EncryptionInformation */
 static int hf_ranap_EncryptionKey_PDU = -1;       /* EncryptionKey */
+static int hf_ranap_E_UTRAN_Service_Handover_PDU = -1;  /* E_UTRAN_Service_Handover */
 static int hf_ranap_ExtendedRNC_ID_PDU = -1;      /* ExtendedRNC_ID */
 static int hf_ranap_FrequenceLayerConvergenceFlag_PDU = -1;  /* FrequenceLayerConvergenceFlag */
 static int hf_ranap_GANSS_PositioningDataSet_PDU = -1;  /* GANSS_PositioningDataSet */
@@ -475,6 +481,7 @@ static int hf_ranap_PositioningPriority_PDU = -1;  /* PositioningPriority */
 static int hf_ranap_PositionData_PDU = -1;        /* PositionData */
 static int hf_ranap_PositionDataSpecificToGERANIuMode_PDU = -1;  /* PositionDataSpecificToGERANIuMode */
 static int hf_ranap_ProvidedData_PDU = -1;        /* ProvidedData */
+static int hf_ranap_RAB_ID_PDU = -1;              /* RAB_ID */
 static int hf_ranap_RAB_Parameter_ExtendedGuaranteedBitrateList_PDU = -1;  /* RAB_Parameter_ExtendedGuaranteedBitrateList */
 static int hf_ranap_RAB_Parameter_ExtendedMaxBitrateList_PDU = -1;  /* RAB_Parameter_ExtendedMaxBitrateList */
 static int hf_ranap_RAB_Parameters_PDU = -1;      /* RAB_Parameters */
@@ -762,6 +769,7 @@ static int hf_ranap_MessageStructure_item = -1;   /* MessageStructure_item */
 static int hf_ranap_item_repetitionNumber = -1;   /* RepetitionNumber1 */
 static int hf_ranap_lAC = -1;                     /* LAC */
 static int hf_ranap_cI = -1;                      /* CI */
+static int hf_ranap_CSG_Id_List_item = -1;        /* CSG_Id */
 static int hf_ranap_newRAListofIdleModeUEs = -1;  /* NewRAListofIdleModeUEs */
 static int hf_ranap_rAListwithNoIdleModeUEsAnyMore = -1;  /* RAListwithNoIdleModeUEsAnyMore */
 static int hf_ranap_NewRAListofIdleModeUEs_item = -1;  /* RAC */
@@ -920,6 +928,7 @@ static int hf_ranap_d_RNTI = -1;                  /* D_RNTI */
 static int hf_ranap_targetCellId = -1;            /* TargetCellId */
 static int hf_ranap_rAB_TrCH_Mapping = -1;        /* RAB_TrCH_Mapping */
 static int hf_ranap_SupportedRAB_ParameterBitrateList_item = -1;  /* SupportedBitrate */
+static int hf_ranap_uTRANcellID = -1;             /* TargetCellId */
 static int hf_ranap_SRB_TrCH_Mapping_item = -1;   /* SRB_TrCH_MappingItem */
 static int hf_ranap_sRB_ID = -1;                  /* SRB_ID */
 static int hf_ranap_trCH_ID = -1;                 /* TrCH_ID */
@@ -1073,6 +1082,7 @@ static gint ett_ranap_CriticalityDiagnostics_IE_List_item = -1;
 static gint ett_ranap_MessageStructure = -1;
 static gint ett_ranap_MessageStructure_item = -1;
 static gint ett_ranap_CGI = -1;
+static gint ett_ranap_CSG_Id_List = -1;
 static gint ett_ranap_DeltaRAListofIdleModeUEs = -1;
 static gint ett_ranap_NewRAListofIdleModeUEs = -1;
 static gint ett_ranap_RAListwithNoIdleModeUEsAnyMore = -1;
@@ -1375,6 +1385,7 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 static int dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static int dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 void proto_reg_handoff_ranap(void);
 
@@ -1738,6 +1749,9 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_SRVCC_HO_Indication, "id-SRVCC-HO-Indication" },
   { id_SRVCC_Information, "id-SRVCC-Information" },
   { id_SRVCC_Operation_Possible, "id-SRVCC-Operation-Possible" },
+  { id_CSG_Id_List, "id-CSG-Id-List" },
+  { id_PSRABtobeReplaced, "id-PSRABtobeReplaced" },
+  { id_E_UTRAN_Service_Handover, "id-E-UTRAN-Service-Handover" },
   { 0, NULL }
 };
 
@@ -3275,8 +3289,19 @@ dissect_ranap_CellLoadInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
+
+static int
+dissect_ranap_TargetCellId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 268435455U, NULL, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t SourceUTRANCellID_sequence[] = {
   { &hf_ranap_pLMNidentity  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ranap_PLMNidentity },
+  { &hf_ranap_uTRANcellID   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ranap_TargetCellId },
   { &hf_ranap_iE_Extensions , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ranap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -3580,6 +3605,20 @@ static int
 dissect_ranap_CSG_Id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      27, 27, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CSG_Id_List_sequence_of[1] = {
+  { &hf_ranap_CSG_Id_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ranap_CSG_Id },
+};
+
+static int
+dissect_ranap_CSG_Id_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ranap_CSG_Id_List, CSG_Id_List_sequence_of,
+                                                  1, maxNrOfCSGs, FALSE);
 
   return offset;
 }
@@ -4004,6 +4043,21 @@ dissect_ranap_EquipmentsToBeTraced(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_ranap_EquipmentsToBeTraced, EquipmentsToBeTraced_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string ranap_E_UTRAN_Service_Handover_vals[] = {
+  {   0, "handover-to-E-UTRAN-shall-not-be-performed" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ranap_E_UTRAN_Service_Handover(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6194,7 +6248,7 @@ dissect_ranap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset
 #line 284 "ranap.cnf"
 
 dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU );
-    
+
 
 
   return offset;
@@ -6244,16 +6298,6 @@ dissect_ranap_SourceID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_ranap_SourceID, SourceID_choice,
                                  NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_ranap_TargetCellId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 268435455U, NULL, FALSE);
 
   return offset;
 }
@@ -6379,8 +6423,11 @@ dissect_ranap_SRVCC_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ranap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+#line 294 "ranap.cnf"
+
+dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU );
+    
+
 
   return offset;
 }
@@ -9505,6 +9552,14 @@ static int dissect_CSG_Id_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CSG_Id_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_CSG_Id_List(tvb, offset, &asn1_ctx, tree, hf_ranap_CSG_Id_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_DeltaRAListofIdleModeUEs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -9542,6 +9597,14 @@ static int dissect_EncryptionKey_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_ranap_EncryptionKey(tvb, offset, &asn1_ctx, tree, hf_ranap_EncryptionKey_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_E_UTRAN_Service_Handover_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_E_UTRAN_Service_Handover(tvb, offset, &asn1_ctx, tree, hf_ranap_E_UTRAN_Service_Handover_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -9974,6 +10037,14 @@ static int dissect_ProvidedData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_ranap_ProvidedData(tvb, offset, &asn1_ctx, tree, hf_ranap_ProvidedData_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RAB_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_ranap_RAB_ID(tvb, offset, &asn1_ctx, tree, hf_ranap_RAB_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -11564,7 +11635,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 141 "packet-ranap-template.c"
+#line 142 "packet-ranap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -11819,6 +11890,10 @@ void proto_register_ranap(void) {
       { "CSG-Id", "ranap.CSG_Id",
         FT_BYTES, BASE_NONE, NULL, 0,
         "ranap.CSG_Id", HFILL }},
+    { &hf_ranap_CSG_Id_List_PDU,
+      { "CSG-Id-List", "ranap.CSG_Id_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ranap.CSG_Id_List", HFILL }},
     { &hf_ranap_DeltaRAListofIdleModeUEs_PDU,
       { "DeltaRAListofIdleModeUEs", "ranap.DeltaRAListofIdleModeUEs",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11839,6 +11914,10 @@ void proto_register_ranap(void) {
       { "EncryptionKey", "ranap.EncryptionKey",
         FT_BYTES, BASE_NONE, NULL, 0,
         "ranap.EncryptionKey", HFILL }},
+    { &hf_ranap_E_UTRAN_Service_Handover_PDU,
+      { "E-UTRAN-Service-Handover", "ranap.E_UTRAN_Service_Handover",
+        FT_UINT32, BASE_DEC, VALS(ranap_E_UTRAN_Service_Handover_vals), 0,
+        "ranap.E_UTRAN_Service_Handover", HFILL }},
     { &hf_ranap_ExtendedRNC_ID_PDU,
       { "ExtendedRNC-ID", "ranap.ExtendedRNC_ID",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -12055,6 +12134,10 @@ void proto_register_ranap(void) {
       { "ProvidedData", "ranap.ProvidedData",
         FT_UINT32, BASE_DEC, VALS(ranap_ProvidedData_vals), 0,
         "ranap.ProvidedData", HFILL }},
+    { &hf_ranap_RAB_ID_PDU,
+      { "RAB-ID", "ranap.RAB_ID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ranap.RAB_ID", HFILL }},
     { &hf_ranap_RAB_Parameter_ExtendedGuaranteedBitrateList_PDU,
       { "RAB-Parameter-ExtendedGuaranteedBitrateList", "ranap.RAB_Parameter_ExtendedGuaranteedBitrateList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -13203,6 +13286,10 @@ void proto_register_ranap(void) {
       { "cI", "ranap.cI",
         FT_BYTES, BASE_NONE, NULL, 0,
         "ranap.CI", HFILL }},
+    { &hf_ranap_CSG_Id_List_item,
+      { "CSG-Id", "ranap.CSG_Id",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ranap.CSG_Id", HFILL }},
     { &hf_ranap_newRAListofIdleModeUEs,
       { "newRAListofIdleModeUEs", "ranap.newRAListofIdleModeUEs",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -13835,6 +13922,10 @@ void proto_register_ranap(void) {
       { "SupportedBitrate", "ranap.SupportedBitrate",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ranap.SupportedBitrate", HFILL }},
+    { &hf_ranap_uTRANcellID,
+      { "uTRANcellID", "ranap.uTRANcellID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ranap.TargetCellId", HFILL }},
     { &hf_ranap_SRB_TrCH_Mapping_item,
       { "SRB-TrCH-MappingItem", "ranap.SRB_TrCH_MappingItem",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -14213,7 +14304,7 @@ void proto_register_ranap(void) {
         "ranap.T_value", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 297 "packet-ranap-template.c"
+#line 298 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -14271,6 +14362,7 @@ void proto_register_ranap(void) {
     &ett_ranap_MessageStructure,
     &ett_ranap_MessageStructure_item,
     &ett_ranap_CGI,
+    &ett_ranap_CSG_Id_List,
     &ett_ranap_DeltaRAListofIdleModeUEs,
     &ett_ranap_NewRAListofIdleModeUEs,
     &ett_ranap_RAListwithNoIdleModeUEsAnyMore,
@@ -14517,7 +14609,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 304 "packet-ranap-template.c"
+#line 305 "packet-ranap-template.c"
   };
 
 
@@ -14787,6 +14879,9 @@ proto_reg_handoff_ranap(void)
   dissector_add("ranap.extension", id_Requested_RAB_Parameter_SupportedMaxBitrateList, new_create_dissector_handle(dissect_SupportedRAB_ParameterBitrateList_PDU, proto_ranap));
   dissector_add("ranap.extension", id_Requested_RAB_Parameter_SupportedGuaranteedBitrateList, new_create_dissector_handle(dissect_SupportedRAB_ParameterBitrateList_PDU, proto_ranap));
   dissector_add("ranap.extension", id_SRVCC_HO_Indication, new_create_dissector_handle(dissect_SRVCC_HO_Indication_PDU, proto_ranap));
+  dissector_add("ranap.extension", id_CSG_Id_List, new_create_dissector_handle(dissect_CSG_Id_List_PDU, proto_ranap));
+  dissector_add("ranap.extension", id_PSRABtobeReplaced, new_create_dissector_handle(dissect_RAB_ID_PDU, proto_ranap));
+  dissector_add("ranap.extension", id_E_UTRAN_Service_Handover, new_create_dissector_handle(dissect_E_UTRAN_Service_Handover_PDU, proto_ranap));
   dissector_add("ranap.proc.imsg", id_Iu_Release, new_create_dissector_handle(dissect_Iu_ReleaseCommand_PDU, proto_ranap));
   dissector_add("ranap.proc.sout", id_Iu_Release, new_create_dissector_handle(dissect_Iu_ReleaseComplete_PDU, proto_ranap));
   dissector_add("ranap.proc.imsg", id_RelocationPreparation, new_create_dissector_handle(dissect_RelocationRequired_PDU, proto_ranap));
@@ -14870,7 +14965,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 348 "packet-ranap-template.c"
+#line 349 "packet-ranap-template.c"
 	} else {
 		dissector_delete("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
 	}
