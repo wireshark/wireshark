@@ -348,6 +348,16 @@ static const value_string bssmap_location_information_vals[] = {
     { 0, NULL}
 };
 
+static const true_false_string bssmap_chan_type_extension_value = {
+	"Additional Octet",
+	"Last Octet"
+};
+
+static const true_false_string bssmap_cause_extension_value = {
+	"Two Octets",
+	"One Octet"
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_a_bssmap = -1;
 
@@ -420,6 +430,8 @@ static int hf_gsm_a_bssmap_positioning_method = -1;
 static int hf_gsm_a_bssmap_positioning_method_usage = -1;
 static int hf_gsm_a_bssmap_location_type_location_information = -1;
 static int hf_gsm_a_bssmap_location_type_positioning_method = -1;
+static int hf_gsm_a_bssmap_chan_type_extension = -1;
+static int hf_gsm_a_bssmap_cause_extension = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -645,7 +657,7 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_bssmap_cause_extension, tvb, curr_offset, 1, FALSE);
 
 	if (oct & 0x80)
 	{
@@ -1042,7 +1054,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 		{
 			oct = tvb_get_guint8(tvb, curr_offset);
 
-			proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_bssmap_chan_type_extension, tvb, curr_offset, 1, FALSE);
 
 			switch (oct & 0x7f)
 			{
@@ -1132,7 +1144,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 		oct = tvb_get_guint8(tvb, curr_offset);
 
-		proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_bssmap_chan_type_extension, tvb, curr_offset, 1, FALSE);
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
 		proto_tree_add_text(tree,
@@ -1231,7 +1243,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 		oct = tvb_get_guint8(tvb, curr_offset);
 
-		proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_bssmap_chan_type_extension, tvb, curr_offset, 1, FALSE);
 
 		proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, (curr_offset<<3)+1, 3, FALSE);
 
@@ -6202,6 +6214,16 @@ proto_register_gsm_a_bssmap(void)
 	{ &hf_gsm_a_bssmap_location_type_positioning_method,
         { "Positioning Method", "gsm_a_bssmap.locationType.positioningMethod", 
 		FT_UINT8, BASE_HEX, VALS(bssmap_positioning_method_vals), 0x0, 
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_bssmap_chan_type_extension,
+	{ "Extension", "gsm_a_bssmap.chanType.permittedIndicator.extension",
+		FT_BOOLEAN, 8, TFS(&bssmap_chan_type_extension_value), 0x80,
+		NULL, HFILL}
+	},
+	{ &hf_gsm_a_bssmap_cause_extension,
+	{ "Extension", "gsm_a_bssmap.causeType.extension",
+		FT_BOOLEAN, 8, TFS(&bssmap_cause_extension_value), 0x80,
 		NULL, HFILL}
 	},
 	};
