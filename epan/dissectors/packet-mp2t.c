@@ -52,6 +52,7 @@ static int proto_mp2t = -1;
 static gint ett_mp2t = -1;
 static gint ett_mp2t_header = -1;
 static gint ett_mp2t_af = -1;
+static gint ett_mp2t_analysis = -1;
 
 static int hf_mp2t_header = -1;
 static int hf_mp2t_sync_byte = -1;
@@ -63,6 +64,10 @@ static int hf_mp2t_tsc = -1;
 static int hf_mp2t_afc = -1;
 static int hf_mp2t_cc = -1;
 static int hf_mp2t_cc_drop = -1;
+
+static int hf_mp2t_analysis_flags = -1;
+static int hf_mp2t_analysis_skips = -1;
+static int hf_mp2t_analysis_drops = -1;
 
 #define MP2T_SYNC_BYTE_MASK	0xFF000000
 #define MP2T_TEI_MASK		0x00800000
@@ -198,21 +203,21 @@ static const value_string mp2t_afc_vals[] = {
  *    |
  *    +-> mp2t_analysis_data
  *          |
- *          +-> pid_table (RB tree)
+ *          +-> pid_table (RB tree) (key: pid)
  *          |     |
  *          |     +-> pid_analysis_data (per pid)
  *          |     +-> pid_analysis_data
  *          |     +-> pid_analysis_data
  *          |
- *          +-> frame_table (RB tree)
+ *          +-> frame_table (RB tree) (key: pinfo->fd->num)
  *                |
  *                +-> frame_analysis_data (only created if drop detected)
  *                      |
  *                      +-> ts_table (RB tree)
  *                            |
- *                            +-> pid_analysis_data (per TS subframe)
- *                            +-> pid_analysis_data
- *                            +-> pid_analysis_data
+ *                            +-> ts_analysis_data (per TS subframe)
+ *                            +-> ts_analysis_data
+ *                            +-> ts_analysis_data
  */
 
 typedef struct mp2t_analysis_data {
@@ -232,14 +237,25 @@ typedef struct mp2t_analysis_data {
 	 */
 	emem_tree_t	*frame_table;
 
-	guint32 cc_drops;	/* Number of detected CC losses per conv */
+	/* Total counters per conversation / multicast stream */
+	guint32 total_skips;
+	guint32 total_discontinuity;
 
 } mp2t_analysis_data_t;
 
+/* Analysis TS frame info needed during sequential processing */
 typedef struct pid_analysis_data {
 	guint16 pid;
-	gint16  cc_prev;  	/* Previous CC number */
+	gint8   cc_prev;  	/* Previous CC number */
 } pid_analysis_data_t;
+
+/* Analysis info stored for a TS frame */
+typedef struct ts_analysis_data {
+	guint16 pid;
+	gint8   cc_prev;  	/* Previous CC number */
+	guint8  skips;          /* Skips between CCs max 14 */
+} ts_analysis_data_t;
+
 
 typedef struct frame_analysis_data {
 
@@ -280,7 +296,9 @@ init_mp2t_conversation_data(void)
 	mp2t_data->frame_table =
 		se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
 					      "mp2t_frame_table");
-	mp2t_data->cc_drops = 0;
+
+	mp2t_data->total_skips = 0;
+	mp2t_data->total_discontinuity = 0;
 
 	return mp2t_data;
 }
@@ -343,20 +361,47 @@ get_pid_analysis(guint32 pid, conversation_t *conv)
 	return pid_data;
 }
 
+/* Calc the number of skipped CC numbers. Note that this can easy
+ * overflow, and a value above 7 indicate several network packets
+ * could be lost.
+ */
+static guint32
+calc_skips(gint32 curr, gint32 prev)
+{
+	int res = 0;
+
+	/* Only count the missing TS frames in between prev and curr.
+	 * The "prev" frame CC number seen is confirmed received, its
+	 * the next frames CC counter which is the first known missing
+	 * TS frame
+	 */
+	prev += 1;
+
+	/* Calc missing TS frame 'skips' */
+	res = curr - prev;
+
+	/* Handle wrap around */
+	if (res < 0)
+		res += 16;
+
+	return res;
+}
+
 #define KEY(pid, cc) ((pid << 4)|cc)
 
-static void
+static guint32
 detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 		guint32 pid, gint32 cc_curr, conversation_t *conv)
 {
 	gint32 cc_prev = -1;
 	pid_analysis_data_t   *pid_data   = NULL;
-	pid_analysis_data_t   *ts_data    = NULL;
+	ts_analysis_data_t    *ts_data    = NULL;
 	mp2t_analysis_data_t  *mp2t_data  = NULL;
 	frame_analysis_data_t *frame_data = NULL;
 	proto_item            *flags_item;
 
 	guint32 detected_drop = 0;
+	guint32 skips = 0;
 
 	mp2t_data = get_mp2t_conversation_data(conv);
 
@@ -371,20 +416,25 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
 		/* Null packet always have a CC value equal 0 */
 		if (pid == 0x1fff)
-			return;
+			return 0;
 
 		/* Its allowed that (cc_prev == cc_curr) if adaptation field */
 		if (cc_prev == cc_curr)
-			return;
+			return 0;
 
 		/* Have not seen this pid before */
 		if (cc_prev == -1)
-			return;
+			return 0;
 
 		/* Detect if CC is not increasing by one all the time */
 		if (cc_curr != ((cc_prev+1) & MP2T_CC_MASK)) {
 			detected_drop = 1;
-			mp2t_data->cc_drops++;
+
+			skips = calc_skips(cc_curr, cc_prev);
+
+			mp2t_data->total_skips += skips;
+			mp2t_data->total_discontinuity++;
+			/* TODO: if (skips > 7) signal_loss++; ??? */
 		}
 	}
 
@@ -399,9 +449,10 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 		/* Create and store a new TS frame pid_data object.
 		   This indicate that we have a drop
 		 */
-		ts_data = se_alloc0(sizeof(struct pid_analysis_data));
+		ts_data = se_alloc0(sizeof(struct ts_analysis_data));
 		ts_data->cc_prev = cc_prev;
 		ts_data->pid = pid;
+		ts_data->skips = skips;
 		se_tree_insert32(frame_data->ts_table, KEY(pid, cc_curr),
 				 (void *)ts_data);
 	}
@@ -412,12 +463,18 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 		/* Lookup frame data, contains TS pid data objects */
 		frame_data = get_frame_analysis_data(mp2t_data, pinfo);
 		if (!frame_data)
-			return; /* No stored frame data -> no drops*/
+			return 0; /* No stored frame data -> no drops*/
 		else {
 			ts_data = se_tree_lookup32(frame_data->ts_table,
 						   KEY(pid, cc_curr));
-			if (ts_data)
-				detected_drop = 1;
+
+			if (ts_data) {
+				if (ts_data->skips > 0) {
+					detected_drop = 1;
+					cc_prev = ts_data->cc_prev;
+					skips   = ts_data->skips;
+				}
+			}
 		}
 
 	}
@@ -428,16 +485,27 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 		flags_item =
 			proto_tree_add_none_format(
 				tree, hf_mp2t_cc_drop, tvb, 0, 0,
-				"Detected missing CC frame before this"
-				" (accumulated CC loss count:%d)",
-				mp2t_data->cc_drops
+				"Detected %d missing TS frames before this"
+				" (last_cc:%d total skips:%d discontinuity:%d)",
+				skips, cc_prev,
+				mp2t_data->total_skips,
+				mp2t_data->total_discontinuity
 				);
 
 		PROTO_ITEM_SET_GENERATED(flags_item);
 		expert_add_info_format(pinfo, flags_item, PI_MALFORMED,
-				       PI_ERROR, "Detected CC loss");
+				       PI_ERROR, "Detected TS frame loss");
+
+		flags_item = proto_tree_add_uint(tree, hf_mp2t_analysis_skips,
+					       tvb, 0, 0, skips);
+		PROTO_ITEM_SET_GENERATED(flags_item);
+
+		flags_item = proto_tree_add_uint(tree, hf_mp2t_analysis_drops,
+					       tvb, 0, 0, 1);
+		PROTO_ITEM_SET_GENERATED(flags_item);
 
 	}
+	return skips;
 }
 
 
@@ -450,25 +518,26 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	gint start_offset = offset;
 	volatile gint payload_len;
 
+	guint32 skips;
 	guint32 pid;
 	guint32 cc;
 
 	proto_item *ti = NULL;
 	proto_item *hi = NULL;
+	proto_item *item = NULL;
 	proto_tree *mp2t_tree = NULL;
 	proto_tree *mp2t_header_tree = NULL;
 	proto_tree *mp2t_af_tree = NULL;
+	proto_tree *mp2t_analysis_tree = NULL;
 
 	ti = proto_tree_add_item( tree, proto_mp2t, tvb, offset, MP2T_PACKET_SIZE, FALSE );
 	mp2t_tree = proto_item_add_subtree( ti, ett_mp2t );
-	
+
 	header = tvb_get_ntohl(tvb, offset);
 
 	pid = (header & MP2T_PID_MASK) >> MP2T_PID_SHIFT;
 	cc  = (header & MP2T_CC_MASK)  >> MP2T_CC_SHIFT;
 	proto_item_append_text(ti, " PID=0x%x CC=%d", pid, cc);
-
-	detect_cc_drops(tvb, tree, pinfo, pid, cc, conv);
 
 	hi = proto_tree_add_item( mp2t_tree, hf_mp2t_header, tvb, offset, 4, FALSE);
 	mp2t_header_tree = proto_item_add_subtree( hi, ett_mp2t_header );
@@ -482,6 +551,16 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	proto_tree_add_item( mp2t_header_tree, hf_mp2t_afc, tvb, offset, 4, FALSE);
 	proto_tree_add_item( mp2t_header_tree, hf_mp2t_cc, tvb, offset, 4, FALSE);
 	offset += 4;
+
+	/* Create a subtree for analysis stuff */
+	item = proto_tree_add_text(mp2t_tree, tvb, 0, 0, "MPEG2 PCR Analysis");
+	PROTO_ITEM_SET_GENERATED(item);
+	mp2t_analysis_tree = proto_item_add_subtree(item, ett_mp2t_analysis);
+
+	skips = detect_cc_drops(tvb, mp2t_analysis_tree, pinfo, pid, cc, conv);
+	if (skips > 0)
+		proto_item_append_text(ti, " skips=%d", skips);
+
 
 	afc = (header & MP2T_AFC_MASK) >> MP2T_AFC_SHIFT;
 
@@ -784,6 +863,21 @@ proto_register_mp2t(void)
 			"Continuity Counter Drops", "mp2t.cc.drop",
 			FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL
 		} } ,
+		{ &hf_mp2t_analysis_flags, {
+			"MPEG2-TS Analysis Flags", "mp2t.analysis.flags",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"This frame has some of the MPEG2 analysis flags set", HFILL
+		} } ,
+		{ &hf_mp2t_analysis_skips, {
+			"TS Continuity Counter Skips", "mp2t.analysis.skips",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Missing TS frames accoding to CC counter values", HFILL
+		} } ,
+		{ &hf_mp2t_analysis_drops, {
+			"Some frames dropped", "mp2t.analysis.drops",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Discontinuity: A number of TS frames were dropped", HFILL
+		} } ,
 		{ &hf_mp2t_af, {
 			"Adaption field", "mp2t.af",
 			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
@@ -930,7 +1024,8 @@ proto_register_mp2t(void)
 	{
 		&ett_mp2t,
 		&ett_mp2t_header,
-		&ett_mp2t_af
+		&ett_mp2t_af,
+		&ett_mp2t_analysis
 	};
 
 	proto_mp2t = proto_register_protocol("ISO/IEC 13818-1", "MP2T", "mp2t");
