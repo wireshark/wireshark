@@ -2807,7 +2807,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             conv = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                      pinfo->srcport, pinfo->destport, 0);
         }
-
+      }
 
 	/* if this is the first time we see this packet, we need to
 	   update the dcerpc_binds table so that any later calls can
@@ -2836,7 +2836,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		}
         	g_hash_table_insert (dcerpc_binds, key, value);
 	}
-
+      if (!saw_ctx_item) {
         if (check_col (pinfo->cinfo, COL_INFO)) {
 	  if (num_ctx_items > 1)
 		  col_append_fstr(pinfo->cinfo, COL_INFO, ", %u context items, 1st", num_ctx_items);
