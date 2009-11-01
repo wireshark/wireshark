@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V8.6.0 (2009-06)
+-- 3GPP TS 36.423 V9.0.0 (2009-09)
 -- 9.3.7	Constant Definitions
 -- **************************************************************
 --
@@ -61,7 +61,7 @@ maxnoofForbTACs							    INTEGER ::= 4096
 maxnoofBPLMNs								INTEGER ::= 6
 maxnoofNeighbours							INTEGER ::= 512
 maxnoofPRBs									INTEGER ::= 110		
-maxPools									INTEGER ::= 16		-- FFS Value to be checked
+maxPools									INTEGER ::= 16
 maxnoofCells								INTEGER ::= 16
 
 
@@ -118,4 +118,3 @@ id-Number-of-Antennaports													ProtocolIE-ID ::= 41
 
 
 END
-
