@@ -2194,14 +2194,12 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	 */
 	l3_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 
-    /* although not obvious in 48.008, the L3 contents here are 
-       the contents of the 44.018 CIPHER MODE COMPLETE PDU */
-    dtap_rr_cip_mode_cpte(l3_tvb, tree, 0, len);
+    /* Octet j (j = 3, 4, ..., n) is the unchanged octet j of a radio interface layer 3 message 
+	 * as defined in 3GPP TS 24.008, n is equal to the length of that radio interface layer 3 message. */
+	call_dissector(dtap_handle, l3_tvb, g_pinfo, g_tree);
 	curr_offset += len;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-	return(curr_offset - offset);
+	return(len);
 }
 
 /*
