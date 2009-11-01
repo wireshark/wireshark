@@ -12,6 +12,9 @@ NotificationName
 VarBind
 
 #.TYPE_RENAME
+Message/community               Community
+Trap-PDU/_untag/generic-trap    GenericTrap
+Trap-PDU/_untag/specific-trap   SpecificTrap
 
 #.FIELD_RENAME
 Messagev2u/datav2u/plaintext v2u_plaintext
