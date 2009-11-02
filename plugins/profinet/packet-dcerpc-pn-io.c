@@ -488,6 +488,20 @@ static int hf_pn_io_check_sync_mode_reserved = -1;
 static int hf_pn_io_check_sync_mode_sync_master = -1;
 static int hf_pn_io_check_sync_mode_cable_delay = -1;
 
+static int hf_pn_io_profisafe_f_prm_flag1 = -1;
+static int hf_pn_io_profisafe_f_prm_flag1_chck_seq = -1;
+static int hf_pn_io_profisafe_f_prm_flag1_chck_ipar = -1;
+static int hf_pn_io_profisafe_f_prm_flag1_sil = -1;
+static int hf_pn_io_profisafe_f_prm_flag1_crc_len = -1;
+static int hf_pn_io_profisafe_f_prm_flag1_reserved = -1;
+static int hf_pn_io_profisafe_f_prm_flag2 = -1;
+static int hf_pn_io_profisafe_f_src_addr = -1;
+static int hf_pn_io_profisafe_f_dst_addr = -1;
+static int hf_pn_io_profisafe_f_wd_time = -1;
+static int hf_pn_io_profisafe_f_par_crc = -1;
+static int hf_pn_io_profisafe_f_prm_flag2_reserved = -1;
+static int hf_pn_io_profisafe_f_prm_flag2_f_block_id = -1;
+static int hf_pn_io_profisafe_f_prm_flag2_f_par_version = -1;
 
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
@@ -524,6 +538,9 @@ static gint ett_pn_io_ar_info = -1;
 static gint ett_pn_io_ir_begin_end_port = -1;
 static gint ett_pn_io_subframe_data =-1;
 static gint ett_pn_io_frame_defails = -1;
+static gint ett_pn_io_profisafe_f_parameter = -1;
+static gint ett_pn_io_profisafe_f_parameter_prm_flag1 = -1;
+static gint ett_pn_io_profisafe_f_parameter_prm_flag2 = -1;
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -1455,6 +1472,9 @@ static const value_string pn_io_submodule_state_detail[] = {
 static const value_string pn_io_index[] = {
     /*0x0008 - 0x7FFF user specific */
 
+    /* PROFISafe */
+    { 0x0100, "PROFISafe" },
+
     /* subslot specific */
 	{ 0x8000, "ExpectedIdentificationData for one subslot" },
 	{ 0x8001, "RealIdentificationData for one subslot" },
@@ -1898,6 +1918,48 @@ static const value_string pn_io_frame_details_meaning_frame_send_offset_vals[] =
     { 0, NULL }
 };
 
+static const value_string pn_io_f_check_seqnr[] = {
+    { 0x00, "consecutive number not included in crc" },
+    { 0x01, "consecutive number included in crc" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_f_check_ipar[] = {
+    { 0x00, "no check" },
+    { 0x01, "check" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_f_sil[] = {
+    { 0x00, "SIL1" },
+    { 0x01, "SIL2" },
+    { 0x02, "SIL3" },
+    { 0x03, "NoSIL" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_f_crc_len[] = {
+    { 0x00, "3 octet CRC" },
+    { 0x01, "2 octet CRC" },
+    { 0x02, "4 octet CRC" },
+    { 0x03, "reserved" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_f_block_id[] = {
+    { 0x00, "Parameter set for F-Host/F-Device relationship" },
+    { 0x01, "Additional F_Address parameter block" },
+    /* 0x02..0x07 reserved */
+    { 0, NULL }
+};
+
+static const value_string pn_io_f_par_version[] = {
+    { 0x00, "Valid for V1-mode" },
+    { 0x01, "Valid for V2-mode" },
+    /* 0x02..0x03 reserved */
+    { 0, NULL }
+};
+
 GList *pnio_ars;
 
 typedef struct pnio_ar_s {
@@ -2250,8 +2312,7 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
             val_to_str(u8ErrorDecode, pn_io_error_decode, "(0x%x)"),
             val_to_str(u8ErrorCode1, error_code1_vals, "(0x%x)"),
             val_to_str(u8ErrorCode2, error_code2_vals, "(0x%x)"));
-        if (check_col(pinfo->cinfo, COL_INFO))
-	        col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: \"%s\", \"%s\", \"%s\", \"%s\"",
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: \"%s\", \"%s\", \"%s\", \"%s\"",
             val_to_str(u8ErrorCode, pn_io_error_code, "(0x%x)"),
             val_to_str(u8ErrorDecode, pn_io_error_decode, "(0x%x)"),
             val_to_str(u8ErrorCode1, error_code1_vals, "(0x%x)"),
@@ -2328,8 +2389,7 @@ dissect_Alarm_header(tvbuff_t *tvb, int offset,
         val_to_str(u16AlarmType, pn_io_alarm_type, "(0x%x)"),
         u32Api, u16SlotNr, u16SubslotNr);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Slot: 0x%x/0x%x",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Slot: 0x%x/0x%x",
         val_to_str(u16AlarmType, pn_io_alarm_type, "(0x%x)"),
         u16SlotNr, u16SubslotNr);
 
@@ -3027,10 +3087,9 @@ dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": Seq:%u, Api:0x%x, Slot:0x%x/0x%x",
         u16SeqNr, u32Api, u16SlotNr, u16SubslotNr);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Api:0x%x, Slot:0x%x/0x%x, Index:%s",
-            u32Api, u16SlotNr, u16SubslotNr,
-            val_to_str(*u16Index, pn_io_index, "(0x%x)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Api:0x%x, Slot:0x%x/0x%x, Index:%s",
+        u32Api, u16SlotNr, u16SubslotNr,
+        val_to_str(*u16Index, pn_io_index, "(0x%x)"));
 
     return offset;
 }
@@ -3071,7 +3130,7 @@ dissect_IODWriteReqHeader_block(tvbuff_t *tvb, int offset,
 
     proto_item_append_text(item, ", Len:%u", *u32RecDataLen);
 
-    if (check_col(pinfo->cinfo, COL_INFO) && *u32RecDataLen != 0)
+    if (*u32RecDataLen != 0)
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %u bytes",
             *u32RecDataLen);
 
@@ -3115,7 +3174,7 @@ dissect_IODReadReqHeader_block(tvbuff_t *tvb, int offset,
 
     proto_item_append_text(item, ", Len:%u", *u32RecDataLen);
 
-    if (check_col(pinfo->cinfo, COL_INFO) && *u32RecDataLen != 0)
+    if (*u32RecDataLen != 0)
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %u bytes",
             *u32RecDataLen);
 
@@ -3168,7 +3227,7 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
 	proto_item_append_text(item, ", Len:%u, Index:0x%x, Status:0x%x, Val1:%u, Val2:%u",
         *u32RecDataLen, *u16Index, u32Status, u16AddVal1, u16AddVal2);
 
-    if (check_col(pinfo->cinfo, COL_INFO) && *u32RecDataLen != 0)
+    if (*u32RecDataLen != 0)
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %u bytes",
             *u32RecDataLen);
 
@@ -3214,7 +3273,7 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ", Len:%u, AddVal1:%u, AddVal2:%u",
         *u32RecDataLen, u16AddVal1, u16AddVal2);
 
-    if (check_col(pinfo->cinfo, COL_INFO) && *u32RecDataLen != 0)
+    if (*u32RecDataLen != 0)
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %u bytes",
             *u32RecDataLen);
 
@@ -6400,8 +6459,7 @@ dissect_block(tvbuff_t *tvb, int offset,
 	proto_item_set_text(sub_item, "%s",
 		val_to_str(u16BlockType, pn_io_block_type, "Unknown (0x%04x)"));
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
         val_to_str(u16BlockType, pn_io_block_type, "Unknown"));
 
     /* block length is without type and length fields, but with version field */
@@ -6736,8 +6794,7 @@ dissect_IPNIO_rqst_header(tvbuff_t *tvb, int offset,
 	guint32 u32SubStart;
 
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-CM");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-CM");
 
     /* args_max */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -6781,8 +6838,7 @@ dissect_IPNIO_resp_header(tvbuff_t *tvb, int offset,
 	guint32 u32SubStart;
 
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-CM");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-CM");
 
     offset = dissect_PNIO_status(tvb, offset, pinfo, tree, drep);
 
@@ -7025,7 +7081,84 @@ dissect_IPNIO_Read_resp(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/* F-Parameter record data object */
+static int
+dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    proto_item *f_item;
+    proto_tree *f_tree;
+    proto_item *flags1_item;
+    proto_tree *flags1_tree;
+    proto_item *flags2_item;
+    proto_tree *flags2_tree;
+    guint16 src_addr;
+    guint16 dst_addr;
+    guint16 wd_time;
+    guint16 par_crc;
+    guint8 prm_flag1;
+    guint8 prm_flag1_chck_seq;
+    guint8 prm_flag1_chck_ipar;
+    guint8 prm_flag1_sil;
+    guint8 prm_flag1_crc_len;
+    guint8 prm_flag1_reserved;
+    guint8 prm_flag2;
+    guint8 prm_flag2_reserved;
+    guint8 prm_flag2_f_block_id;
+    guint8 prm_flag2_f_par_version;
 
+    prm_flag1 = prm_flag2 = 0;
+    
+    f_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, FALSE);
+    f_tree = proto_item_add_subtree(f_item, ett_pn_io_profisafe_f_parameter); 
+    proto_item_set_text(f_item, "F-Parameter: ");        
+
+    
+    flags1_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag1, tvb, offset, 1, FALSE);
+    flags1_tree = proto_item_add_subtree(flags1_item, ett_pn_io_profisafe_f_parameter_prm_flag1);
+
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+        hf_pn_io_profisafe_f_prm_flag1_chck_seq, &prm_flag1_chck_seq); 
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+        hf_pn_io_profisafe_f_prm_flag1_chck_ipar, &prm_flag1_chck_ipar); 
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+        hf_pn_io_profisafe_f_prm_flag1_sil, &prm_flag1_sil); 
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+        hf_pn_io_profisafe_f_prm_flag1_crc_len, &prm_flag1_crc_len); 
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+        hf_pn_io_profisafe_f_prm_flag1_reserved, &prm_flag1_reserved); 
+    prm_flag1 = prm_flag1_chck_seq|prm_flag1_chck_ipar|prm_flag1_sil|prm_flag1_reserved;
+    offset++;
+
+    flags2_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag2, tvb, offset, 1, FALSE);
+    flags2_tree = proto_item_add_subtree(flags2_item, ett_pn_io_profisafe_f_parameter_prm_flag2);
+
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
+        hf_pn_io_profisafe_f_prm_flag2_reserved, &prm_flag2_reserved);
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
+        hf_pn_io_profisafe_f_prm_flag2_f_block_id, &prm_flag2_f_block_id);
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
+        hf_pn_io_profisafe_f_prm_flag2_f_par_version, &prm_flag2_f_par_version);
+    prm_flag2 = prm_flag2_reserved|prm_flag2_f_block_id|prm_flag2_f_par_version;
+    offset++;
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
+                    hf_pn_io_profisafe_f_src_addr, &src_addr); 
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
+                    hf_pn_io_profisafe_f_dst_addr, &dst_addr); 
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
+                    hf_pn_io_profisafe_f_wd_time, &wd_time); 
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
+                    hf_pn_io_profisafe_f_par_crc, &par_crc); 
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", F-Parameter record, prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x, dst:0x%04x, wd_time:%d, crc:0x%04x",
+        prm_flag1, prm_flag2, src_addr, dst_addr, wd_time, par_crc);
+
+    proto_item_append_text(f_item, "prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x, dst:0x%04x, wd_time:%d, crc:0x%04x",
+            prm_flag1, prm_flag2, src_addr, dst_addr, wd_time, par_crc);
+
+    return offset;
+}
 static int
 dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16Index, guint32 u32RecDataLen)
@@ -7033,6 +7166,10 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     const gchar *userProfile;
     pnio_ar_t *ar = NULL;
 
+    /* PROFISafe */
+    if(u16Index == 0x0100) {
+        return dissect_ProfiSafeParameterRequest(tvb, offset, pinfo, tree, drep);
+    }
 
     /* user specified format? */
     if(u16Index < 0x8000) {
@@ -7211,8 +7348,7 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
 	proto_tree *data_tree;
 
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");
 
     if(tree) {
 	    data_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, offset, tvb_length(tvb),
@@ -7259,8 +7395,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
 	proto_tree *sub_tree;
 
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-AL");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO-AL");
 
 	rta_item = proto_tree_add_protocol_format(tree, proto_pn_io, tvb, offset, tvb_length(tvb),
         "PROFINET IO Alarm");
@@ -7271,8 +7406,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, rta_tree, drep,
                     hf_pn_io_alarm_src_endpoint, &u16AlarmSrcEndpoint);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: 0x%x, Dst: 0x%x",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: 0x%x, Dst: 0x%x",
         u16AlarmSrcEndpoint, u16AlarmDstEndpoint);
 
     /* PDU type */
@@ -7381,8 +7515,7 @@ dissect_PNIO_heur(tvbuff_t *tvb,
 
     /* is this a PNIO high priority alarm packet? */
     if(u16FrameID == 0xfc01) {
-    	if (check_col(pinfo->cinfo, COL_INFO))
-	        col_set_str(pinfo->cinfo, COL_INFO, "Alarm High");
+        col_set_str(pinfo->cinfo, COL_INFO, "Alarm High");
 
         dissect_PNIO_RTA(tvb, 0, pinfo, tree, drep);
         return TRUE;
@@ -7390,8 +7523,7 @@ dissect_PNIO_heur(tvbuff_t *tvb,
 
     /* is this a PNIO low priority alarm packet? */
     if(u16FrameID == 0xfe01) {
-    	if (check_col(pinfo->cinfo, COL_INFO))
-	        col_set_str(pinfo->cinfo, COL_INFO, "Alarm Low");
+        col_set_str(pinfo->cinfo, COL_INFO, "Alarm Low");
 
         dissect_PNIO_RTA(tvb, 0, pinfo, tree, drep);
         return TRUE;
@@ -8266,6 +8398,35 @@ proto_register_pn_io (void)
     { &hf_pn_io_check_sync_mode_cable_delay,
       { "CableDelay", "pn_io.check_sync_mode.cable_delay", FT_UINT16, BASE_HEX, NULL, 0x0001, NULL, HFILL }},
 
+    /* profisafe parameter */
+    { &hf_pn_io_profisafe_f_prm_flag1,
+      { "F_Prm_Flag1", "pn_io.profisafe.f_prm_flag1", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_prm_flag1_chck_seq,
+      { "F_Check_SeqNr", "pn_io.profisafe.f_prm_flag1.f_check_seqnr", FT_UINT8, BASE_HEX, VALS(pn_io_f_check_seqnr), 0x01, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_prm_flag1_chck_ipar,
+      { "F_Check_iPar", "pn_io.profisafe.f_prm_flag1.f_check_ipar", FT_UINT8, BASE_HEX, VALS(pn_io_f_check_ipar), 0x02, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_prm_flag1_sil,
+      { "F_SIL", "pn_io.profisafe.f_prm_flag1.f_sil", FT_UINT8, BASE_HEX, VALS(pn_io_f_sil), 0xc, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_prm_flag1_crc_len,
+      { "F_CRC_Length", "pn_io.profisafe.f_prm_flag1.f_crc_len", FT_UINT8, BASE_HEX, VALS(pn_io_f_crc_len), 0x30, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_prm_flag1_reserved,
+      { "Reserved", "pn_io.profisafe.f_prm_flag1.reserved", FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_prm_flag2,
+      { "F_Prm_Flag2", "pn_io.profisafe.f_prm_flag2", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_prm_flag2_reserved,
+      { "Reserved", "pn_io.profisafe.f_prm_flag2.reserved", FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_prm_flag2_f_block_id,
+      { "F_BlockId", "pn_io.profisafe.f_prm_flag2.f_block_id", FT_UINT8, BASE_HEX, VALS(pn_io_f_block_id), 0x38, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_prm_flag2_f_par_version,
+      { "F_ParVersion", "pn_io.profisafe.f_prm_flag2.f_par_version", FT_UINT8, BASE_HEX, VALS(pn_io_f_par_version), 0xC0, NULL, HFILL }},
+      { &hf_pn_io_profisafe_f_src_addr,
+      { "F_Source_Address", "pn_io.profisafe.f_src_addr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_dst_addr,
+      { "F_Destination_Address", "pn_io.profisafe.f_dst_addr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_wd_time,
+      { "F_WD_Time", "pn_io.profisafe._f_wd_time", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_profisafe_f_par_crc,
+      { "F_Par_CRC", "pn_io.profisafe._f_par_crc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }}
     };
 
 	static gint *ett[] = {
@@ -8301,9 +8462,12 @@ proto_register_pn_io (void)
         &ett_pn_io_check_sync_mode,
         &ett_pn_io_ir_frame_data,
         &ett_pn_io_ar_info,
-		&ett_pn_io_ir_begin_end_port,
-		&ett_pn_io_subframe_data,
-		&ett_pn_io_frame_defails
+        &ett_pn_io_ir_begin_end_port,
+        &ett_pn_io_subframe_data,
+        &ett_pn_io_frame_defails,
+        &ett_pn_io_profisafe_f_parameter,
+        &ett_pn_io_profisafe_f_parameter_prm_flag1,
+        &ett_pn_io_profisafe_f_parameter_prm_flag2
 	};
 
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
