@@ -878,7 +878,7 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 			break;
 		case 3:
 			/* IMEI */
-			new_tvb = tvb_new_subset(tvb, curr_offset, len-1, len-1 );
+			new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
 			digit_str = unpack_eps_mid_digits(new_tvb);
 			proto_tree_add_string(tree, hf_nas_eps_emm_imei, new_tvb, 0, -1, digit_str);
 			break;
