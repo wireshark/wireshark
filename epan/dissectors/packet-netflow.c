@@ -4074,6 +4074,26 @@ proto_register_netflow(void)
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
 		  "Count of dropped packets", HFILL}
 		},
+		{&hf_cflow_drop_total_octets,
+		 {"Dropped Total Octets", "cflow.drop_total_octets",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Count of total dropped bytes", HFILL}
+		},
+		{&hf_cflow_drop_total_octets64,
+		 {"Dropped Total Octets", "cflow.drop_total_octets64",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  "Count of total dropped bytes", HFILL}
+		},
+		{&hf_cflow_drop_total_packets,
+		 {"Dropped Total Packets", "cflow.drop_total_packets",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Count of total dropped packets", HFILL}
+		},
+		{&hf_cflow_drop_total_packets64,
+		 {"Dropped Total Packets", "cflow.drop_total_packets64",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  "Count of total dropped packets", HFILL}
+		},
 		{&hf_cflow_flow_end_reason,
 		 {"Flow End Reason", "cflow.flow_end_reason",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
