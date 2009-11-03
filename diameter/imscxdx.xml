@@ -279,17 +279,17 @@
 		</avp>
 		<avp name="User-Data-Request-Type" code="627" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
-                        <enum name="Complete-Profile" code="0"/>
-                        <enum name="Registered-Profile" code="1"/>
-                        <enum name="Unregistered-Profile" code="2"/>
+        <enum name="Complete-Profile" code="0"/>
+        <enum name="Registered-Profile" code="1"/>
+        <enum name="Unregistered-Profile" code="2"/>
 		</avp>
 		<!-- GROUPED -->
 		<avp name="Supported-Features" code="628" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
-                        <grouped>
-                                <gavp name="Vendor-ID"/>
-                                <gavp name="Feature-List-ID"/>
-                                <gavp name="Feature-List"/>
-                        </grouped>
+        <grouped>
+                <gavp name="Vendor-ID"/>
+                <gavp name="Feature-List-ID"/>
+                <gavp name="Feature-List"/>
+        </grouped>
 		</avp>
 		<avp name="Feature-List-ID" code="629" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
@@ -299,22 +299,22 @@
 		</avp>
 		<!-- GROUPED -->
 		<avp name="Supported-Applications" code="631" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
-                        <grouped>
-                                <gavp name="Auth-Application-Id"/>
-                                <gavp name="Acct-Application-Id"/>
-                                <gavp name="Vendor-Specific-Application-Id"/>
-                                <gavp name="Secondary-Charging-Collection-Function-Name"/>
-                        </grouped>
+      <grouped>
+          <gavp name="Auth-Application-Id"/>
+          <gavp name="Acct-Application-Id"/>
+          <gavp name="Vendor-Specific-Application-Id"/>
+          <gavp name="Secondary-Charging-Collection-Function-Name"/>
+      </grouped>
 		</avp>
 		<!-- GROUPED -->
 		<avp name="Associated-Identities" code="632" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
-                        <grouped>
-                                <gavp name="User-Name"/>
-                        </grouped>
+      <grouped>
+        <gavp name="User-Name"/>
+      </grouped>
 		</avp>
 		<avp name="Originating-Request" code="633" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Enumerated"/>
-                        <enum name="ORIGINATING" code="0"/>
+          <enum name="ORIGINATING" code="0"/>
 		</avp>
 		<avp name="Wildcarded-PSI" code="634" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="UTF8String"/>
@@ -331,7 +331,64 @@
     <avp name="Wildcarded-IMPU" code="636" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
       <type type-name="UTF8String"/>
     </avp>
-
+    <avp name="UAR-Flags" code="637" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Loose-Route-Indication" code="638" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="Enumerated"/>
+        <enum name="LOOSE_ROUTE_NOT_REQUIRED" code="0"/>
+        <enum name="LOOSE_ROUTE_REQUIRED" code="1"/>
+    </avp>
+    <avp name="SCSCF-Restoration-Info" code="639" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <grouped>
+        <gavp name="User-Name"/>
+        <gavp name="Restoration-Info"/>
+      </grouped>
+    </avp>      
+    <avp name="Path" code="640" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Contact" code="641" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Subscription-Info" code="642" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <grouped>
+        <gavp name="Call-ID-SIP-Header"/>
+        <gavp name="From-SIP-Header"/>
+        <gavp name="To-SIP-Header"/>
+        <gavp name="Record-Route"/>
+        <gavp name="Contact"/>
+      </grouped>
+    </avp>
+    <avp name="Call-ID-SIP-Header" code="643" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="From-SIP-Header" code="644" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="To-SIP-Header" code="645" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Record-Route" code="646" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Associated-Registered-Identities" code="647" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <grouped>
+        <gavp name="User-Name"/>
+      </grouped>
+    </avp>
+    <avp name="Multiple-Registration-Indication" code="648" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="Enumerated"/>
+        <enum name="NOT_MULTIPLE_REGISTRATION" code="0"/>
+        <enum name="MULTIPLE_REGISTRATION" code="1"/>
+    </avp>
+    <avp name="Restoration-Info" code="649" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <grouped>
+        <gavp name="Path"/>
+        <gavp name="Contact"/>
+        <gavp name="Subscription-Info"/>
+      </grouped>
+    </avp>      
     <!-- ************************ END IMS Cx Dx AVPS ******************* -->
 
 	</application>
