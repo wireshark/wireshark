@@ -2526,7 +2526,7 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
         if(u16UserStructureIdentifier >= 0x8000) {
             offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, *body_length);
         } else {
-            offset = dissect_pn_user_data(tvb, offset, pinfo, tree, *body_length, "UserStructureIdentifier");
+            offset = dissect_pn_user_data(tvb, offset, pinfo, tree, *body_length, "UserData");
         }
 
         *body_length = 0;
