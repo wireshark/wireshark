@@ -802,6 +802,47 @@ static const value_string nas_eps_emm_eps_att_type_vals[] = {
 /*
  * 9.9.3.12	EPS mobile identity
  */
+static char *
+unpack_eps_mid_digits(tvbuff_t *tvb) {
+
+	int length;
+	guint8 octet;
+	int i=0;
+	int offset = 0;
+	char *digit_str;
+
+	length = tvb_length(tvb);
+
+	digit_str = ep_alloc(length*2);
+
+	/* Get identity digit 1 */
+	octet = tvb_get_guint8(tvb,offset);
+	digit_str[i++] = (((octet>>4) & 0x0f) + '0');
+	offset++;
+
+	/* Loop on following octets to retrieve other identity digits */
+	while ( offset < length ){
+
+		octet = tvb_get_guint8(tvb,offset);
+		digit_str[i] = ((octet & 0x0f) + '0');
+		i++;
+
+		/*
+		 * unpack second value in byte
+		 */
+		octet = octet >> 4;
+
+		if (octet == 0x0f)	/* odd number bytes - hit filler */
+			break;
+
+		digit_str[i] = ((octet & 0x0f) + '0');
+		i++;
+		offset++;
+
+	}
+	digit_str[i]= '\0';
+	return digit_str;
+}
 
 static const value_string nas_eps_emm_type_of_id_vals[] = {
 	{ 0,	"reserved"},
@@ -828,22 +869,22 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	/* Type of identity (octet 3) */
 	proto_tree_add_item(tree, hf_nas_eps_emm_odd_even, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_nas_eps_emm_type_of_id, tvb, curr_offset, 1, FALSE);
-	curr_offset++;
 	switch (octet&0x7){
 		case 1:
 			/* IMSI */
-			new_tvb = tvb_new_subset(tvb, curr_offset, len-1, len-1 );
-			digit_str = unpack_digits(new_tvb, 0);
+			new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
+			digit_str = unpack_eps_mid_digits(new_tvb);
 			proto_tree_add_string(tree, hf_nas_eps_emm_imsi, new_tvb, 0, -1, digit_str);
 			break;
 		case 3:
 			/* IMEI */
 			new_tvb = tvb_new_subset(tvb, curr_offset, len-1, len-1 );
-			digit_str = unpack_digits(new_tvb, 0);
+			digit_str = unpack_eps_mid_digits(new_tvb);
 			proto_tree_add_string(tree, hf_nas_eps_emm_imei, new_tvb, 0, -1, digit_str);
 			break;
 		case 6:
 			/* GUTI */
+			curr_offset++;
 			curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
 			/* MME Group ID octet 7 - 8 */
 			proto_tree_add_item(tree, hf_nas_eps_emm_mme_grp_id, tvb, curr_offset, 2, FALSE);
@@ -2341,6 +2382,11 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	curr_len = len;
 
 	bit_offset = curr_offset<<3;
+
+	/* NAS key set identifier	NAS key set identifier 9.9.3.21	M	V	1/2 */
+	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, NULL);
+	bit_offset+=4;
+
 	/* EPS attach type	EPS attach type 9.9.3.11	M	V	1/2  
 	 * Inline:
 	 */
@@ -2349,9 +2395,6 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	proto_tree_add_bits_item(tree, hf_nas_eps_emm_eps_att_type, tvb, bit_offset, 3, FALSE);
 	bit_offset+=3;
 	
-	/* NAS key set identifier	NAS key set identifier 9.9.3.21	M	V	1/2 */
-	de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, NULL);
-	bit_offset+=4;
 	/* Fix the lengths */
 	curr_len--;
 	curr_offset++;
