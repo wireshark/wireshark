@@ -753,6 +753,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 {
     guint8     cpt;
     guint64    ack_sn, nack_sn;
+    guint      nack_count = 0;
     guint64    e1 = 0, e2 = 0;
     guint64    so_start, so_end;
     int        bit_offset = offset * 8;
@@ -784,6 +785,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
     bit_offset += 10;
     col_append_fstr(pinfo->cinfo, COL_INFO, "  ACK_SN=%u", (guint16)ack_sn);
     proto_item_append_text(top_ti, "  ACK_SN=%u", (guint16)ack_sn);
+    proto_item_append_text(status_ti, "  ACK_SN=%u", (guint16)ack_sn);
 
     /* E1 */
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
@@ -803,6 +805,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             /* NACK_SN */
             nack_ti = proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_nack_sn, tvb,
                                                   bit_offset, 10, &nack_sn, FALSE);
+            nack_count++;
             bit_offset += 10;
             col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK_SN=%u", (guint16)nack_sn);
             proto_item_append_text(top_ti, "  NACK_SN=%u", (guint16)nack_sn);
@@ -845,6 +848,10 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             e2 = 0;
         }
     } while (e1 || e2);
+
+    if (nack_count > 0) {
+        proto_item_append_text(status_ti, "  (%u NACKs)", nack_count);
+    }
 
     /* Check that we've reached the end of the PDU. If not, show malformed */
     offset = (bit_offset+7) / 8;
