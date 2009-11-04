@@ -590,8 +590,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
      */
     bytes = convert_string_to_hex(filter_text, &nbytes);
     if (bytes == NULL) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-           "You didn't specify a valid hex string.");
+      simple_status("That's not a valid hex string.");
       return;
     }
   } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (string_rb))) {
@@ -600,8 +599,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
      * Make sure we're searching for something, first.
      */
     if (strcmp(filter_text, "") == 0) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-           "You didn't specify any text for which to search.");
+      simple_status("You didn't specify any text for which to search.");
       return;
     }
 
@@ -615,7 +613,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     else if (string_type == SCS_UNICODE)
       scs_type = SCS_UNICODE;
     else {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You didn't choose a valid character set.");
+      simple_status("You didn't choose a valid character set.");
       return;
     }
     string = convert_string_case(filter_text, case_type);
@@ -632,8 +630,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     /* Was it empty? */
     if (sfcode == NULL) {
       /* Yes - complain. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-         "You specified a filter that doesn't test anything.");
+      simple_status("That filter doesn't test anything.");
       return;
     }
   }
@@ -656,10 +653,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     g_free(bytes);
     if (!found_packet) {
       /* We didn't find a packet */
-      simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-            "%sNo match found!%s\n\n"
-            "No packet contained those bytes.",
-            simple_dialog_primary_start(), simple_dialog_primary_end());
+      simple_status("No packet contained those bytes.");
       return;
     }
   } else if (cfile.string) {
@@ -672,10 +666,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       }
       if (!found_packet) {
         /* We didn't find the packet. */
-        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-            "%sNo match found!%s\n\n"
-            "No packet contained that string in its dissected display.",
-            simple_dialog_primary_start(), simple_dialog_primary_end());
+        simple_status("No packet contained that string in its dissected display.");
         return;
       }
     } else if (cfile.summary_data) {
@@ -700,10 +691,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       }
       if (!found_packet) {
         /* We didn't find the packet. */
-        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-            "%sNo match found!%s\n\n"
-            "No packet contained that string in its data.",
-            simple_dialog_primary_start(), simple_dialog_primary_end());
+        simple_status("No packet contained that string in its data.");
         return;
       }
     }
@@ -712,10 +700,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     dfilter_free(sfcode);
     if (!found_packet) {
       /* We didn't find a packet */
-      simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-          "%sNo match found!%s\n\n"
-          "No packet matched that filter.",
-          simple_dialog_primary_start(), simple_dialog_primary_end());
+      simple_status("No packet matched that filter.");
       g_free(bytes);
       return;
     }
