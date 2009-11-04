@@ -522,6 +522,15 @@ GtkWidget *xpm_to_widget(const char ** xpm) {
     return xpm_to_widget_from_parent(top_level, xpm);
 }
 
+/* Convert an pixbuf data to a GtkWidget */
+/* Data should be created with "gdk-pixbuf-csource --raw" */
+GtkWidget *pixbuf_to_widget(const char * pb_data) {
+    GdkPixbuf *pixbuf;
+    
+    pixbuf = gdk_pixbuf_new_from_inline (-1, pb_data, FALSE, NULL);
+    return gtk_image_new_from_pixbuf(pixbuf);
+}
+
 /*
  * Key to attach the "un-decorated" title to the window, so that if the
  * user-specified decoration changes, we can correctly update the

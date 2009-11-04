@@ -56,11 +56,16 @@
 #include "gtk/profile_dlg.h"
 #include "gtk/main_welcome.h"
 
-#include "../image/expert_error.xpm"
-#include "../image/expert_warn.xpm"
-#include "../image/expert_note.xpm"
-#include "../image/expert_chat.xpm"
-#include "../image/expert_none.xpm"
+/* Created with
+ * for elevel in chat error none note warn ; do
+ *   gdk-pixbuf-csource --raw --name=expert_${elevel}_pb_data expert_$elevel.png > expert_$elevel.h
+ * done
+ */
+#include "../image/expert_error.h"
+#include "../image/expert_warn.h"
+#include "../image/expert_note.h"
+#include "../image/expert_chat.h"
+#include "../image/expert_none.h"
 
 /*
  * The order below defines the priority of info bar contexts.
@@ -106,9 +111,11 @@ static void status_expert_new(void);
 static void
 statusbar_reset_colors(void)
 {
+    GtkWidget *w = GTK_WIDGET_NO_WINDOW(info_bar) ? info_bar_event : info_bar; 
     /* Extra credit for adding a fade effect */
-    gtk_widget_modify_text(info_bar, GTK_STATE_NORMAL, NULL);
-    gtk_widget_modify_bg(info_bar_event, GTK_STATE_NORMAL, NULL);
+    gtk_widget_modify_text(w, GTK_STATE_NORMAL, NULL);
+    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, NULL);
+    gtk_widget_modify_base(w, GTK_STATE_NORMAL, NULL);
 }
 
 /*
@@ -223,14 +230,16 @@ statusbar_remove_temporary_msg(gpointer data)
 void
 statusbar_push_temporary_msg(const gchar *msg)
 {
+    GtkWidget *w = GTK_WIDGET_NO_WINDOW(info_bar) ? info_bar_event : info_bar; 
     guint msg_id;
     GdkColor black = { 0, 0, 0, 0 };
     GdkColor yellow = { 0, 0xFFFF, 0xFFFF, 0xAFFF };
 
     msg_id = gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, msg);
-    gtk_widget_modify_text(info_bar, GTK_STATE_NORMAL, &black);
-    gtk_widget_modify_bg(info_bar_event, GTK_STATE_NORMAL, &yellow);
-    
+    gtk_widget_modify_text(w, GTK_STATE_NORMAL, &black);
+    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &yellow);
+    gtk_widget_modify_base(w, GTK_STATE_NORMAL, &yellow);
+
     g_timeout_add(TEMPORARY_MSG_TIMEOUT, statusbar_remove_temporary_msg, GUINT_TO_POINTER(msg_id));
 }
 
@@ -315,11 +324,11 @@ statusbar_widgets_emptying(GtkWidget *statusbar)
 void
 statusbar_widgets_pack(GtkWidget *statusbar)
 {
-    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_error, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_warn, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_note, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_chat, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_none, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_error, FALSE, FALSE, 2);
+    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_warn, FALSE, FALSE, 2);
+    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_note, FALSE, FALSE, 2);
+    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_chat, FALSE, FALSE, 2);
+    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_none, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), status_pane_left, TRUE, TRUE, 0);
     gtk_paned_pack1(GTK_PANED(status_pane_left), info_bar_event, FALSE, FALSE);
     gtk_paned_pack2(GTK_PANED(status_pane_left), status_pane_right, TRUE, FALSE);
@@ -474,35 +483,35 @@ status_expert_new(void)
 
     tooltips = gtk_tooltips_new();
 
-    expert_image = xpm_to_widget_from_parent(top_level, expert_error_xpm);
+    expert_image = pixbuf_to_widget(expert_error_pb_data);
     gtk_tooltips_set_tip(tooltips, expert_image, "ERROR is the highest expert info level", NULL);
     gtk_widget_show(expert_image);
     expert_info_error = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_error), expert_image);
     g_signal_connect(expert_info_error, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
 
-    expert_image = xpm_to_widget_from_parent(top_level, expert_warn_xpm);
+    expert_image = pixbuf_to_widget(expert_warn_pb_data);
     gtk_tooltips_set_tip(tooltips, expert_image, "WARNING is the highest expert info level", NULL);
     gtk_widget_show(expert_image);
     expert_info_warn = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_warn), expert_image);
     g_signal_connect(expert_info_warn, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
 
-    expert_image = xpm_to_widget_from_parent(top_level, expert_note_xpm);
+    expert_image = pixbuf_to_widget(expert_note_pb_data);
     gtk_tooltips_set_tip(tooltips, expert_image, "NOTE is the highest expert info level", NULL);
     gtk_widget_show(expert_image);
     expert_info_note = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_note), expert_image);
     g_signal_connect(expert_info_note, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
 
-    expert_image = xpm_to_widget_from_parent(top_level, expert_chat_xpm);
+    expert_image = pixbuf_to_widget(expert_chat_pb_data);
     gtk_tooltips_set_tip(tooltips, expert_image, "CHAT is the highest expert info level", NULL);
     gtk_widget_show(expert_image);
     expert_info_chat = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_chat), expert_image);
     g_signal_connect(expert_info_chat, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
 
-    expert_image = xpm_to_widget_from_parent(top_level, expert_none_xpm);
+    expert_image = pixbuf_to_widget(expert_none_pb_data);
     gtk_tooltips_set_tip(tooltips, expert_image, "No expert info", NULL);
     gtk_widget_show(expert_image);
     expert_info_none = gtk_event_box_new();

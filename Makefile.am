@@ -675,11 +675,11 @@ EXTRA_DIST = \
 	image/dn_arrow.xpm	\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
-	image/expert_chat.xpm	\
-	image/expert_error.xpm	\
-	image/expert_none.xpm	\
-	image/expert_note.xpm	\
-	image/expert_warn.xpm	\
+	image/expert_chat.h	\
+	image/expert_error.h	\
+	image/expert_none.h	\
+	image/expert_note.h	\
+	image/expert_warn.h	\
 	image/file_dlg_win32.rc \
 	image/hi16-app-wireshark.png	\
 	image/hi32-app-wireshark.png	\

@@ -129,6 +129,7 @@ WIRESHARK_GTK_SRC = \
 	webbrowser.c
 
 about_dlg.c main_welcome.c: ../image/wssplash.xpm ../image/wssplash-dev.xpm
+main_statusbar.c: ../image/expert_chat.h ../image/expert_error.h ../image/expert_none.h ../image/expert_note.h ../image/expert_warn.h
 
 WIRESHARK_TAP_SRC = \
 	afp_stat.c	\

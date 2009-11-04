@@ -1414,7 +1414,7 @@ set_ptree_font_all(PangoFontDescription *font)
 
 
 gboolean colors_ok = FALSE;
-GdkColor	expert_color_chat	= { 0, 0xcc00, 0xcc00, 0xe000 };	/* a pale bluegrey */
+GdkColor	expert_color_chat	= { 0, 0x8080, 0xb7b7, 0xf7f7 };	/* a light blue */
 GdkColor	expert_color_note	= { 0, 0xa000, 0xff00, 0xff00 };	/* a bright turquoise */
 GdkColor	expert_color_warn	= { 0, 0xff00, 0xff00, 0 };			/* yellow */
 GdkColor	expert_color_error	= { 0, 0xff00, 0x5c00, 0x5c00 };	/* pale red */

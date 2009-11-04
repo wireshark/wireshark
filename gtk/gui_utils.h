@@ -282,6 +282,12 @@ extern GtkWidget *xpm_to_widget(const char ** xpm);
  */
 extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm);
 
+/** Convert an pixbuf data to a GtkWidget
+ *
+ * @param pb_data Inline pixbuf data. This should be created with "gdk-pixbuf-csource --raw"
+ */
+extern GtkWidget *pixbuf_to_widget(const char * pb_data);
+
 /** Copy a GString to the clipboard.
  *
  * @param str GString that is to be copied to the clipboard.
