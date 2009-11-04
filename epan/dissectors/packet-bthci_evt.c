@@ -19,12 +19,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -284,7 +284,7 @@ static const value_string evt_code_vals[] = {
 	{0x23, "Read Remote Extended Features Complete"},
 	{0x2c, "Synchronous Connection Complete"},
 	{0x2d, "Synchronous Connection Changed"},
-	{0x2e, "Sniff Subrate"},
+	{0x2e, "Sniff Subrating"},
 	{0x2f, "Extended Inquiry Result"},
 	{0x30, "Encryption Key Refresh Complete"},
 	{0x31, "IO Capability Request"},
@@ -604,7 +604,7 @@ static const value_string evt_notification_type_vals[] = {
 	{0, NULL }
 };
 
-static int 
+static int
 dissect_bthci_evt_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 i, bd_addr[6];
@@ -617,13 +617,13 @@ dissect_bthci_evt_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 	proto_item_append_text(handle_item, "%02x%02x:%02x:%02x%02x%02x (%s)",
 							bd_addr[0], bd_addr[1], bd_addr[2], bd_addr[3], bd_addr[4], bd_addr[5],
 							get_ether_name(bd_addr));
-	
+
 	offset+=6;
 
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_cod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 cod1, cod2;
@@ -664,16 +664,16 @@ dissect_bthci_evt_cod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	return offset+3;
 }
 
-static int 
+static int
 dissect_bthci_evt_inq_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE); 
+	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
 	offset++;
 
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -693,20 +693,20 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_conn_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
-	
+
 	offset = dissect_bthci_evt_cod(tvb, offset, pinfo, tree);
-	
+
 	proto_tree_add_item(tree, hf_bthci_evt_link_type, tvb, offset, 1, TRUE);
 	offset++;
 
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_disconn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -721,7 +721,7 @@ dissect_bthci_evt_disconn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_auth_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -733,7 +733,7 @@ dissect_bthci_evt_auth_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_lmp_features(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 fc_lag;
@@ -745,7 +745,7 @@ dissect_bthci_evt_lmp_features(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 		ti_lmp_features=proto_tree_add_text(tree, tvb, offset, 8, "LMP_Features");
 		ti_lmp_subtree=proto_item_add_subtree(ti_lmp_features, ett_lmp_subtree);
 	}
-	
+
 	proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_00, tvb, offset, 1, TRUE);
 	proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_01, tvb, offset, 1, TRUE);
 	proto_tree_add_item(ti_lmp_subtree,hf_bthci_evt_lmp_feature_02, tvb, offset, 1, TRUE);
@@ -818,7 +818,7 @@ dissect_bthci_evt_lmp_features(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_pin_code_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
@@ -826,7 +826,7 @@ dissect_bthci_evt_pin_code_request(tvbuff_t *tvb, int offset, packet_info *pinfo
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_link_key_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
@@ -834,7 +834,7 @@ dissect_bthci_evt_link_key_request(tvbuff_t *tvb, int offset, packet_info *pinfo
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_link_key_notification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
@@ -848,7 +848,7 @@ dissect_bthci_evt_link_key_notification(tvbuff_t *tvb, int offset, packet_info *
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_return_link_keys(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 evt_num_keys;
@@ -863,12 +863,12 @@ dissect_bthci_evt_return_link_keys(tvbuff_t *tvb, int offset, packet_info *pinfo
 		proto_tree_add_item(tree, hf_bthci_evt_link_key, tvb, offset, 16, TRUE);
 		offset+=16;
 
-	} 
+	}
 
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_read_remote_support_features_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -882,7 +882,7 @@ dissect_bthci_evt_read_remote_support_features_complete(tvbuff_t *tvb, int offse
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -896,7 +896,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_inf
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_read_remote_version_information_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -917,7 +917,7 @@ dissect_bthci_evt_read_remote_version_information_complete(tvbuff_t *tvb, int of
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_flush_occured(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, TRUE);
@@ -926,7 +926,7 @@ dissect_bthci_evt_flush_occured(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_number_of_completed_packets(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 evt_num_handles;
@@ -942,12 +942,12 @@ dissect_bthci_evt_number_of_completed_packets(tvbuff_t *tvb, int offset, packet_
 		proto_tree_add_item(tree, hf_bthci_evt_num_compl_packets, tvb, offset, 2, TRUE);
 		offset+=2;
 
-	}  
+	}
 
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item *handle_item;
@@ -962,13 +962,13 @@ dissect_bthci_evt_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset++;
 
 	handle_item = proto_tree_add_item(tree, hf_bthci_evt_interval, tvb, offset, 2, TRUE);
-	proto_item_append_text(handle_item, " Baseband slots (%f msec)", tvb_get_letohs(tvb, offset)*0.625); 
+	proto_item_append_text(handle_item, " Baseband slots (%f msec)", tvb_get_letohs(tvb, offset)*0.625);
 	offset+=2;
 
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_role_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -982,7 +982,7 @@ dissect_bthci_evt_role_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_hardware_error(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_hardware_code, tvb, offset, 1, TRUE);
@@ -991,7 +991,7 @@ dissect_bthci_evt_hardware_error(tvbuff_t *tvb, int offset, packet_info *pinfo _
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_loopback_command(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
@@ -1005,7 +1005,7 @@ dissect_bthci_evt_loopback_command(tvbuff_t *tvb, int offset, packet_info *pinfo
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_data_buffer_overflow(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_link_type, tvb, offset, 1, TRUE);
@@ -1014,7 +1014,7 @@ dissect_bthci_evt_data_buffer_overflow(tvbuff_t *tvb, int offset, packet_info *p
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_read_clock_offset_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item *handle_item;
@@ -1034,7 +1034,7 @@ dissect_bthci_evt_read_clock_offset_complete(tvbuff_t *tvb, int offset, packet_i
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_max_slots_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, TRUE);
@@ -1046,7 +1046,7 @@ dissect_bthci_evt_max_slots_change(tvbuff_t *tvb, int offset, packet_info *pinfo
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_qos_violation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, TRUE);
@@ -1055,7 +1055,7 @@ dissect_bthci_evt_qos_violation(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_conn_packet_type_changed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint16 flags;
@@ -1106,28 +1106,28 @@ dissect_bthci_evt_conn_packet_type_changed(tvbuff_t *tvb, int offset, packet_inf
 	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_2dh1, tvb, offset, 2, TRUE);
 	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_3dh1, tvb, offset, 2, TRUE);
 	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dm1, tvb, offset, 2, TRUE);
-	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dh1, tvb, offset, 2, TRUE); 
+	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dh1, tvb, offset, 2, TRUE);
 	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_2dh3, tvb, offset, 2, TRUE);
 	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_3dh3, tvb, offset, 2, TRUE);
-	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dm3, tvb, offset, 2, TRUE); 
-	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dh3, tvb, offset, 2, TRUE); 
+	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dm3, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dh3, tvb, offset, 2, TRUE);
 	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_2dh5, tvb, offset, 2, TRUE);
 	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_3dh5, tvb, offset, 2, TRUE);
-	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dm5, tvb, offset, 2, TRUE); 
-	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dh5, tvb, offset, 2, TRUE); 
-	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_hv1, tvb, offset, 2, TRUE); 
-	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_hv2, tvb, offset, 2, TRUE); 
-	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_hv3, tvb, offset, 2, TRUE); 
+	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dm5, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_dh5, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_hv1, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_hv2, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_ptype_subtree, hf_bthci_evt_link_type_hv3, tvb, offset, 2, TRUE);
 	offset+=2;
 
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 status_code;
-	
+
 	status_code = tvb_get_guint8(tvb, offset);
 
 	if( status_code != 0) {
@@ -1147,7 +1147,7 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo _
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_page_scan_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
@@ -1158,7 +1158,7 @@ dissect_bthci_evt_page_scan_mode_change(tvbuff_t *tvb, int offset, packet_info *
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_page_scan_repetition_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
@@ -1169,7 +1169,7 @@ dissect_bthci_evt_page_scan_repetition_mode_change(tvbuff_t *tvb, int offset, pa
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_inq_result_with_rssi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 num, evt_num_responses;
@@ -1200,7 +1200,7 @@ dissect_bthci_evt_inq_result_with_rssi(tvbuff_t *tvb, int offset, packet_info *p
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 i, j, length, type;
@@ -1211,7 +1211,7 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
 		ti_eir=proto_tree_add_text(tree, tvb, offset, 240, "Extended Inquiry Response Data");
 		ti_eir_subtree=proto_item_add_subtree(ti_eir, ett_eir_subtree);
 	}
-	
+
 	i=0;
 	while(i<240){
 		length = tvb_get_guint8(tvb, offset+i);
@@ -1224,7 +1224,7 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
 			ti_eir_struct_subtree = proto_item_add_subtree(ti_eir_struct, ett_eir_struct_subtree);
 
 			type = tvb_get_guint8(tvb, offset+i+1);
-			
+
 			proto_item_append_text(ti_eir_struct,"%s", val_to_str(type, bthci_cmd_eir_data_type_vals, "Unknown"));
 
 			proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_evt_eir_struct_length, tvb, offset+i, 1, TRUE);
@@ -1280,7 +1280,7 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
 	return offset+240;
 }
 
-static int 
+static int
 dissect_bthci_evt_io_capability_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
@@ -1298,14 +1298,14 @@ dissect_bthci_evt_io_capability_response(tvbuff_t *tvb, int offset, packet_info 
 
 	proto_tree_add_item(tree, hf_bthci_evt_oob_data_present, tvb, offset, 1, TRUE);
 	offset++;
-	
+
 	proto_tree_add_item(tree, hf_bthci_evt_auth_requirements, tvb, offset, 1, TRUE);
 	offset++;
 
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_user_confirmation_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
@@ -1332,7 +1332,7 @@ dissect_bthci_evt_remote_oob_data_request(tvbuff_t *tvb, int offset, packet_info
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_simple_pairing_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -1376,7 +1376,7 @@ dissect_bthci_evt_remote_host_sup_feat_notification(tvbuff_t *tvb, int offset, p
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item *ti_opcode=NULL;
@@ -1424,7 +1424,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 		case 0x0c2f: /* Write SCO Flow Control Enable */
 		case 0x0c31: /* Set Host Controller To Host Flow Control */
 		case 0x0c33: /* Host Buffer Size */
-		case 0x0c3a: /* Write Current IAC LAP */	    
+		case 0x0c3a: /* Write Current IAC LAP */
 		case 0x0c3c: /* Write Page Scan Period Mode */
 		case 0x0c3e: /* Write Page Scan Mode */
 		case 0x0c3f: /* Set AFH Host Channel Classification */
@@ -1722,7 +1722,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 			proto_tree_add_item(tree, hf_bthci_evt_num_supp_iac, tvb, offset, 1, TRUE);
 			offset++;
 
-			break; 
+			break;
 
 		case 0x0c39: /* Read Current IAC LAP */
 			proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -1811,7 +1811,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 			proto_tree_add_item(tree, hf_bthci_evt_power_level_type, tvb, offset, 1, TRUE);
 			offset++;
 			break;
-			
+
 
 		case 0x0c5a: /* Read Default Erroneous Data Reporting */
 			proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -1821,7 +1821,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 			offset++;
 
 			break;
-			
+
 		case 0x1001: /* Read Local Version Information */
 			proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
 			offset++;
@@ -1849,7 +1849,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 			proto_tree_add_item(tree, hf_bthci_evt_local_supported_cmds, tvb, offset, 64, TRUE);
 			offset+=64;
-			
+
 			break;
 
 		case 0x1003: /* Read Local Supported Features */
@@ -1867,7 +1867,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 				proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
 				offset++;
 
-				page_number = tvb_get_guint8(tvb, offset);			
+				page_number = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(tree, hf_bthci_evt_page_number, tvb, offset, 1, TRUE);
 				offset++;
 
@@ -1914,7 +1914,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 		case 0x1401: /* Read Failed Contact Counter */
 			proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
-			offset++; 
+			offset++;
 
 			proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, TRUE);
 			offset+=2;
@@ -1960,9 +1960,9 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 			proto_tree_add_item(tree, hf_bthci_evt_afh_channel_map, tvb, offset, 10, TRUE);
 			offset+=10;
-	
+
 			break;
-		
+
 		case 0x1407: /* Read Clock */
 			proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
 			offset++;
@@ -1977,7 +1977,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 			item = proto_tree_add_item(tree, hf_bthci_evt_clock_accuracy, tvb, offset, 2, TRUE);
 			proto_item_append_text(item, " %g msec", accuracy*0.3125);
 			offset+=2;
-	
+
 			break;
 
 		case 0x1801: /* Read Loopback Mode */
@@ -1998,7 +1998,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_qos_setup_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -2028,7 +2028,7 @@ dissect_bthci_evt_qos_setup_complete(tvbuff_t *tvb, int offset, packet_info *pin
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_change_conn_link_key_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -2040,7 +2040,7 @@ dissect_bthci_evt_change_conn_link_key_complete(tvbuff_t *tvb, int offset, packe
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_master_link_key_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -2055,7 +2055,7 @@ dissect_bthci_evt_master_link_key_complete(tvbuff_t *tvb, int offset, packet_inf
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_encryption_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, TRUE);
@@ -2070,7 +2070,7 @@ dissect_bthci_evt_encryption_change(tvbuff_t *tvb, int offset, packet_info *pinf
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_read_remote_ext_features_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 page_number;
@@ -2111,10 +2111,10 @@ dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset, packet_inf
 	offset+=2;
 
 	offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
-	
+
 	proto_tree_add_item(tree, hf_bthci_evt_sync_link_type, tvb, offset, 1, TRUE);
 	offset++;
-	
+
 	item = proto_tree_add_item(tree, hf_bthci_evt_sync_tx_interval, tvb, offset, 1, TRUE);
 	proto_item_append_text(item, " slots (%g msec)",  tvb_get_guint8(tvb, offset)*0.625);
 	offset++;
@@ -2262,7 +2262,7 @@ dissect_bthci_evt_link_supervision_timeout_changed(tvbuff_t *tvb, int offset, pa
 	return offset;
 }
 
-static int 
+static int
 dissect_bthci_evt_inq_result(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 num, evt_num_responses;
@@ -2294,7 +2294,7 @@ dissect_bthci_evt_inq_result(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
 
 /* Code to actually dissect the packets */
-static void 
+static void
 dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
@@ -2398,7 +2398,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset=dissect_bthci_evt_role_change(tvb, offset, pinfo, bthci_evt_tree);
 			break;
 
-		case 0x13: /* Number Of Completed Packets */ 
+		case 0x13: /* Number Of Completed Packets */
 			offset=dissect_bthci_evt_number_of_completed_packets(tvb, offset, pinfo, bthci_evt_tree);
 			break;
 
@@ -2526,13 +2526,13 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x3c: /* Enhanced Flush Complete */
 			offset=dissect_bthci_evt_keypress_notification(tvb, offset, pinfo, bthci_evt_tree);
 			break;
-			
+
 		case 0x3d: /* Remote Host Supported Features Notification */
 			offset=dissect_bthci_evt_remote_host_sup_feat_notification(tvb, offset, pinfo, bthci_evt_tree);
 			break;
 
 		default:
-			proto_tree_add_item(bthci_evt_tree, hf_bthci_evt_params, tvb, 2, -1, TRUE);    
+			proto_tree_add_item(bthci_evt_tree, hf_bthci_evt_params, tvb, 2, -1, TRUE);
 			break;
 		}
 
@@ -2548,33 +2548,33 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_bthci_evt(void)
-{                 
+{
 
 	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_bthci_evt_code,
 			{ "Event Code",           "bthci_evt.code",
-				FT_UINT8, BASE_HEX, VALS(evt_code_vals), 0x0,          
+				FT_UINT8, BASE_HEX, VALS(evt_code_vals), 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_param_length,
 			{ "Parameter Total Length",           "bthci_evt.param_length",
-				FT_UINT8, BASE_DEC, NULL, 0x0,          
+				FT_UINT8, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_params,
 			{ "Event Parameter",           "bthci_evt.params",
-				FT_NONE, BASE_NONE, NULL, 0x0,          
+				FT_NONE, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_num_command_packets,
 			{ "Number of Allowed Command Packets",           "bthci_evt.num_command_packets",
-				FT_UINT8, BASE_DEC, NULL, 0x0,          
+				FT_UINT8, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_num_handles,
 			{ "Number of Connection Handles",           "bthci_evt.num_handles",
-				FT_UINT8, BASE_DEC, NULL, 0x0,          
+				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"Number of Connection Handles and Num_HCI_Data_Packets parameter pairs", HFILL }
 		},
 		{ &hf_bthci_evt_connection_handle,
@@ -2591,32 +2591,32 @@ proto_register_bthci_evt(void)
 
 		{ &hf_bthci_evt_com_opcode,
 			{ "Command Opcode",           "bthci_evt.com_opcode",
-				FT_UINT16, BASE_HEX, VALS(bthci_cmd_opcode_vals), 0x0,          
+				FT_UINT16, BASE_HEX, VALS(bthci_cmd_opcode_vals), 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_ogf,
 			{ "ogf",           "bthci_evt.ogf",
-				FT_UINT16, BASE_HEX, VALS(bthci_ogf_vals), 0xfc00,          
+				FT_UINT16, BASE_HEX, VALS(bthci_ogf_vals), 0xfc00,
 				"Opcode Group Field", HFILL }
 		},
 		{ &hf_bthci_evt_ocf,
 			{ "ocf",           "bthci_evt.ocf",
-				FT_UINT16, BASE_HEX, NULL, 0x03ff,          
+				FT_UINT16, BASE_HEX, NULL, 0x03ff,
 				"Opcode Command Field", HFILL }
 		},
 		{ &hf_bthci_evt_ret_params,
 			{ "Return Parameter",           "bthci_evt.ret_params",
-				FT_NONE, BASE_NONE, NULL, 0x0,          
+				FT_NONE, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_status,
 			{ "Status",           "bthci_evt.status",
-				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,          
+				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_status_pending,
 			{ "Status", "bthci_evt.status",
-				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_pending_vals), 0x0,          
+				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_pending_vals), 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_bd_addr,
@@ -2641,12 +2641,12 @@ proto_register_bthci_evt(void)
 		},
 		{ &hf_bthci_evt_reason,
 			{ "Reason",           "bthci_evt.reason",
-				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,          
+				FT_UINT8, BASE_HEX, VALS(bthci_cmd_status_vals), 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_bthci_evt_remote_name,
 			{ "Remote Name",           "bthci_evt.remote_name",
-				FT_STRINGZ, BASE_NONE, NULL, 0x0,          
+				FT_STRINGZ, BASE_NONE, NULL, 0x0,
 				"Userfriendly descriptive name for the remote device", HFILL }
 		},
 		{ &hf_bthci_evt_encryption_enable,
@@ -3128,7 +3128,7 @@ proto_register_bthci_evt(void)
 			{ "Enable Master Slave Switch", "bthci_evt.link_policy_switch",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0001,
 				NULL, HFILL }
-		}, 
+		},
 		{ &hf_bthci_evt_link_policy_setting_hold,
 			{ "Enable Hold Mode", "bthci_evt.link_policy_hold",
 				FT_UINT16, BASE_DEC, VALS(evt_boolean), 0x0002,
@@ -3156,7 +3156,7 @@ proto_register_bthci_evt(void)
 		},
 		{ &hf_bthci_evt_device_name,
 			{ "Device Name",           "bthci_evt.device_name",
-				FT_STRINGZ, BASE_NONE, NULL, 0x0,          
+				FT_STRINGZ, BASE_NONE, NULL, 0x0,
 				"Userfriendly descriptive name for the device", HFILL }
 		},
 		{ &hf_bthci_evt_timeout,
@@ -3193,12 +3193,12 @@ proto_register_bthci_evt(void)
 			{ "Input Data Format", "bthci_evt.input_data_format",
 				FT_UINT16, BASE_DEC, VALS(evt_input_data_format_values), 0x00c0,
 				NULL, HFILL }
-		},  
+		},
 		{ &hf_bthci_evt_input_sample_size,
 			{ "Input Sample Size", "bthci_evt.input_sample_size",
 				FT_UINT16, BASE_DEC, VALS(evt_input_sample_size_values), 0x0020,
 				NULL, HFILL }
-		}, 
+		},
 		{ &hf_bthci_evt_num_broadcast_retransm,
 			{ "Num Broadcast Retran", "bthci_evt.num_broad_retran",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -3251,12 +3251,12 @@ proto_register_bthci_evt(void)
 		},
 		{ &hf_bthci_evt_failed_contact_counter,
 			{"Failed Contact Counter", "bthci_evt.failed_contact_counter",
-				FT_UINT16, BASE_DEC, NULL, 0x0,  
+				FT_UINT16, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }
-		},   
+		},
 		{ &hf_bthci_evt_link_quality,
 			{"Link Quality", "bthci_evt.link_quality",
-				FT_UINT8, BASE_DEC, NULL, 0x0,  
+				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"Link Quality (0x00 - 0xFF Higher Value = Better Link)", HFILL }
 		},
 		{ &hf_bthci_evt_rssi,
@@ -3268,22 +3268,22 @@ proto_register_bthci_evt(void)
 			{"Host ACL Data Packet Length (bytes)", "bthci_evt.max_data_length_acl",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"Max Host ACL Data Packet length of data portion host is able to accept", HFILL }
-		}, 
+		},
 		{ &hf_bthci_evt_host_data_packet_length_sco,
 			{"Host SCO Data Packet Length (bytes)", "bthci_evt.max_data_length_sco",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"Max Host SCO Data Packet length of data portion host is able to accept", HFILL }
-		}, 
+		},
 		{ &hf_bthci_evt_host_total_num_acl_data_packets,
 			{"Host Total Num ACL Data Packets", "bthci_evt.max_data_num_acl",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"Total Number of HCI ACL Data Packets that can be stored in the data buffers of the Host", HFILL }
-		}, 
+		},
 		{ &hf_bthci_evt_host_total_num_sco_data_packets,
 			{"Host Total Num SCO Data Packets", "bthci_evt.max_data_num_sco",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"Total Number of HCI SCO Data Packets that can be stored in the data buffers of the Host", HFILL }
-		}, 
+		},
 		{ &hf_bthci_evt_page_number,
 			{"Page Number", "bthci_evt.page_number",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -3353,7 +3353,7 @@ proto_register_bthci_evt(void)
 			{"Tx Packet Length", "bthci_evt.sync_tx_pkt_len",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				NULL, HFILL}
-		},	
+		},
 		{ &hf_bthci_evt_air_mode,
 			{"Air Mode", "bthci_evt.air_mode",
 				FT_UINT8, BASE_DEC, VALS(evt_air_mode_values), 0x0,
@@ -3476,27 +3476,27 @@ proto_register_bthci_evt(void)
 		},
 		{ &hf_bthci_evt_eir_struct_length,
 			{ "Length",           "bthci_cmd.eir_struct_length",
-				FT_UINT8, BASE_DEC, NULL, 0x0,          
+				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"Structure Length", HFILL }
 		},
 		{ &hf_bthci_evt_eir_struct_type,
 			{ "Type",           "bthci_cmd.eir_data_type",
-				FT_UINT8, BASE_HEX, VALS(bthci_cmd_eir_data_type_vals), 0x0,          
+				FT_UINT8, BASE_HEX, VALS(bthci_cmd_eir_data_type_vals), 0x0,
 				"Data Type", HFILL }
 		},
 		{ &hf_bthci_evt_sc_uuid16,
 			{ "UUID",           "bthci_cmd.service_class_uuid16",
-				FT_UINT16, BASE_HEX, VALS(bthci_cmd_service_class_type_vals), 0x0,          
+				FT_UINT16, BASE_HEX, VALS(bthci_cmd_service_class_type_vals), 0x0,
 				"16-bit Service Class UUID", HFILL }
 		},
 		{ &hf_bthci_evt_sc_uuid32,
 			{ "UUID",           "bthci_cmd.service_class_uuid32",
-				FT_UINT32, BASE_HEX, NULL, 0x0,          
+				FT_UINT32, BASE_HEX, NULL, 0x0,
 				"32-bit Service Class UUID", HFILL }
 		},
 		{ &hf_bthci_evt_sc_uuid128,
 			{ "UUID",           "bthci_cmd.service_class_uuid128",
-				FT_BYTES, BASE_NONE, NULL, 0x0,          
+				FT_BYTES, BASE_NONE, NULL, 0x0,
 				"128-bit Service Class UUID", HFILL }
 		}
 	};
