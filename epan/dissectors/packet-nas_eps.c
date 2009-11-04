@@ -2873,6 +2873,9 @@ nas_emm_sec_mode_comp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 	curr_offset = offset;
 	curr_len = len;
 
+	if (curr_len == 0)
+		return;
+
 	/* 23	IMEISV	Mobile identity 9.9.2.3	O	TLV	11 */
 	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_MOB_ID, "IMEISV");
  
