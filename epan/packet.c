@@ -724,8 +724,9 @@ dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
 	dtbl_entry_t *dtbl_entry;
 
 	sub_dissectors = find_dissector_table(name);
-/* sanity checks */
+	/* sanity checks */
 	g_assert(sub_dissectors);
+	g_assert(handle!=NULL);
 	switch (sub_dissectors->type) {
 
 	case FT_UINT8:
