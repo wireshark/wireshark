@@ -1402,6 +1402,8 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 	proto_tree_add_item(opcode_tree, hf_bthci_evt_ocf, tvb, offset, 2, TRUE);
 	offset+=2;
 
+	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+						val_to_str(com_opcode, bthci_cmd_opcode_vals, "Unknown 0x%08x"));
 
 	switch(com_opcode) {
 		/* This is a list of Commands that all return just the status */
