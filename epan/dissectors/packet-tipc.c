@@ -2917,6 +2917,9 @@ proto_register_tipc(void)
 	/* make heuristic dissectors possible */
 	register_heur_dissector_list("tipc", &tipc_heur_subdissector_list);
 
+	/* Register by name */
+	register_dissector("tipc", dissect_tipc, proto_tipc);
+
 	register_init_routine(tipc_defragment_init);
 
 	/* Register configuration options */
