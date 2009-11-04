@@ -199,7 +199,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
 	  new_length++;
   }else{
 	  /* Number of bits = even number of octets */
-	return new_octet_aligned_subset(tvb, offset, actx, new_length);
+	return new_octet_aligned_subset(tvb, boffset, actx, new_length);
   }
 
   /* The bits can be contained in two "extra octets" .... .xxx [xxxx]*n xx... ....*/
