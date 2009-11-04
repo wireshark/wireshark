@@ -438,7 +438,6 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				offset += 2;
 				proto_tree_add_text(edp_tuples_leaf_tree, tvb, offset, 2,
 					"Tuple Length: %d", tuple_length);
-				tuple_length -= 4;
 				offset += 2;
 				
 				if (tvb_reported_length_remaining(tvb, offset) >= tuple_length)
