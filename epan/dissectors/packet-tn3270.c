@@ -3489,7 +3489,7 @@ dissect_field_attribute_pair(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
       offset++;
       break;
     case T3270_FIELD_ATTRIBUTE:
-      dissect_3270_field_attribute(tn3270_tree, tvb, offset);
+      offset += dissect_3270_field_attribute(tn3270_tree, tvb, offset);
       break;
     case EXTENDED_HIGHLIGHTING:
       proto_tree_add_item(tn3270_tree,
@@ -3533,7 +3533,7 @@ dissect_field_attribute_pair(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
       offset++;
       break;
     case FIELD_VALIDATION:
-      dissect_3270_field_validation(tn3270_tree, tvb, offset);
+      offset += dissect_3270_field_validation(tn3270_tree, tvb, offset);
       break;
   }
 
