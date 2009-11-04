@@ -1579,10 +1579,13 @@ static const value_string pn_io_index[] = {
 	{ 0xAFFD, "I&M13" },
 	{ 0xAFFE, "I&M14" },
 	{ 0xAFFF, "I&M15" },
+    /*0xB000 - 0xB02D reserved for profiles */
     
-    /* PROFIDrive */
+	/* PROFIDrive */
     { 0xB02E, "PROFIDrive Parameter Access - Local"},
     { 0xB02F, "PROFIDrive Parameter Access - Global"},
+        
+    /*0xB030 - 0xBFFF reserved for profiles */
 
     /* slot specific */
 	{ 0xC000, "ExpectedIdentificationData for one slot" },
@@ -2358,7 +2361,7 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
 
     if(u8ErrorCode == 0 && u8ErrorDecode == 0 && u8ErrorCode1 == 0 && u8ErrorCode2 == 0) {
         proto_item_append_text(sub_item, ": OK");
-        col_append_str(pinfo->cinfo, COL_INFO, ", OK");
+	        col_append_str(pinfo->cinfo, COL_INFO, ", OK");
     } else {
         proto_item_append_text(sub_item, ": Error: \"%s\", \"%s\", \"%s\", \"%s\"",
             val_to_str(u8ErrorCode, pn_io_error_code, "(0x%x)"),
@@ -3058,7 +3061,7 @@ dissect_Alarm_ack_block(tvbuff_t *tvb, int offset,
         return offset;
 	}
 
-    col_append_str(pinfo->cinfo, COL_INFO, ", Alarm Ack");
+	    col_append_str(pinfo->cinfo, COL_INFO, ", Alarm Ack");
 
     offset = dissect_Alarm_header(tvb, offset, pinfo, tree, item, drep);
 
@@ -6978,11 +6981,11 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_append_fstr(pinfo->cinfo, COL_INFO, "PROFIDrive Write Request, ReqRef:0x%02x, %s DO:%u", 
-        request_reference,
-        request_id==0x01 ? "Read" : 
-        request_id==0x02 ? "Change" :
-                           "", 
-        do_id);
+            request_reference,
+            request_id==0x01 ? "Read" : 
+            request_id==0x02 ? "Change" :
+                               "", 
+            do_id);
 
     /* Parameter address list */
     for(addr_idx=0; addr_idx<no_of_parameters; addr_idx++) {
@@ -7010,13 +7013,13 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
             val_to_str(attribute, pn_io_profidrive_attribute_vals, "Unknown"), no_of_elems,
             parameter, index);
             
-        if(no_of_elems>1) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", P%d[%d..%d]", parameter, index, index+no_of_elems-1); 
+            if(no_of_elems>1) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", P%d[%d..%d]", parameter, index, index+no_of_elems-1); 
+            }
+            else {
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", P%d[%d]", parameter, index); 
+            }
         }
-        else {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", P%d[%d]", parameter, index); 
-        }
-    }
     
     /* in case of change request parameter value list */
     if(request_id == 0x02) {
@@ -7674,19 +7677,19 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
 
     switch(u8PDUType & 0x0F) {
     case(1):    /* Data-RTA */
-    	col_append_str(pinfo->cinfo, COL_INFO, ", Data-RTA");
+	        col_append_str(pinfo->cinfo, COL_INFO, ", Data-RTA");
         offset = dissect_block(tvb, offset, pinfo, rta_tree, drep, &u16Index, &u32RecDataLen, &ar);
         break;
     case(2):    /* NACK-RTA */
-    	col_append_str(pinfo->cinfo, COL_INFO, ", NACK-RTA");
+	        col_append_str(pinfo->cinfo, COL_INFO, ", NACK-RTA");
         /* no additional data */
         break;
     case(3):    /* ACK-RTA */
-    	col_append_str(pinfo->cinfo, COL_INFO, ", ACK-RTA");
+	        col_append_str(pinfo->cinfo, COL_INFO, ", ACK-RTA");
         /* no additional data */
         break;
     case(4):    /* ERR-RTA */
-    	col_append_str(pinfo->cinfo, COL_INFO, ", ERR-RTA");
+	        col_append_str(pinfo->cinfo, COL_INFO, ", ERR-RTA");
         offset = dissect_PNIO_status(tvb, offset, pinfo, rta_tree, drep);
         break;
     default:
