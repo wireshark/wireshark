@@ -2112,14 +2112,11 @@ tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
   gint len = size;
 
   if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
-
-	len = tvb_length_remaining(tvb, offset);
-	ptr = ensure_contiguous(tvb, offset, len);
-
+    len = tvb_length_remaining(tvb, offset);
+    ptr = ensure_contiguous(tvb, offset, len);
   }
 
   return format_text(ptr, len);
-
 }
 
 /*

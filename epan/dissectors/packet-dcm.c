@@ -5112,8 +5112,8 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	/* 15 ways to represent a string ... */
 
 	gchar	*vals;
-	dcm_uid_t  *uid = NULL;
-	guint8	val8;
+	dcm_uid_t *uid = NULL;
+	guint8 val8;
 
 	val8 = tvb_get_guint8(tvb, offset + vl_max - 1);
 	if (val8 == 0x00) {
@@ -5124,7 +5124,7 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 	    vals = tvb_format_text(tvb, offset, vl_max);
 	}
 
-	if ((strncmp(vr, "UI", 2) == 0) && vals != NULL) {
+	if ((strncmp(vr, "UI", 2) == 0)) {
 	    /* This is a UID. Attempt a lookup. Will only return something for classes of course */
 
 	    uid = g_hash_table_lookup(dcm_uid_table, (gpointer) vals);
