@@ -1339,7 +1339,7 @@ filter_te_syntax_check_cb(GtkWidget *w)
                  */
                 msg = g_strdup_printf(" \"%s\" may have unexpected results (see the User's Guide)",
                                       (const char *) g_ptr_array_index(depr, 0));
-                statusbar_push_filter_msg(msg);
+                statusbar_push_temporary_msg(msg);
                 g_free(msg);
             }
         } else {

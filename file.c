@@ -3716,18 +3716,12 @@ find_packet(capture_file *cf,
 
           if (prefs.gui_find_wrap)
           {
-              simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-                            "%sBeginning of capture exceeded!%s\n\n"
-                            "Search is continued from the end of the capture.",
-                            simple_dialog_primary_start(), simple_dialog_primary_end());
+              simple_status("Search reached the beginning. Continuing at end.");
               fdata = cf->plist_end;    /* wrap around */
           }
           else
           {
-              simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-                            "%sBeginning of capture exceeded!%s\n\n"
-                            "Try searching forwards.",
-                            simple_dialog_primary_start(), simple_dialog_primary_end());
+              simple_status("Search reached the beginning.");
               fdata = start_fd;        /* stay on previous packet */
           }
         }
@@ -3737,18 +3731,12 @@ find_packet(capture_file *cf,
         if (fdata == NULL) {
           if (prefs.gui_find_wrap)
           {
-              simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-                            "%sEnd of capture exceeded!%s\n\n"
-                            "Search is continued from the start of the capture.",
-                            simple_dialog_primary_start(), simple_dialog_primary_end());
+              simple_status("Search reached the end. Continuing at beginning.");
               fdata = cf->plist_start;    /* wrap around */
           }
           else
           {
-              simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-                            "%sEnd of capture exceeded!%s\n\n"
-                            "Try searching backwards.",
-                            simple_dialog_primary_start(), simple_dialog_primary_end());
+              simple_status("Search reached the end.");
               fdata = start_fd;     /* stay on previous packet */
           }
         }
@@ -3828,15 +3816,13 @@ cf_goto_frame(capture_file *cf, guint fnumber)
 
   if (fdata == NULL) {
     /* we didn't find a packet with that packet number */
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-          "There is no packet with the packet number %u.", fnumber);
+    simple_status("There is no packet number %u.", fnumber);
     return FALSE;   /* we failed to go to that packet */
   }
   if (!fdata->flags.passed_dfilter) {
     /* that packet currently isn't displayed */
     /* XXX - add it to the set of displayed packets? */
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-          "The packet number %u isn't currently being displayed.", fnumber);
+    simple_status("Packet number %u isn't displayed.", fnumber);
     return FALSE;   /* we failed to go to that packet */
   }
 

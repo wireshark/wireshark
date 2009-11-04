@@ -38,6 +38,8 @@
 #include "gtk/gui_utils.h"
 #include "gtk/stock_icons.h"
 
+#include "main_statusbar.h"
+
 #include "image/stock_dialog_error_48.xpm"
 #include "image/stock_dialog_info_48.xpm"
 #include "image/stock_dialog_warning_48.xpm"
@@ -429,4 +431,22 @@ simple_dialog_format_message(const char *msg)
 	str = NULL;
     }
     return str;
+}
+
+/*
+ * This doesn't create a window, but it falls into the realm of "telling the
+ * user what happened" and having it here means it can be called from file.c.
+ */
+void
+simple_status(const gchar *msg_format, ...)
+{
+    va_list ap;
+    gchar *msg;
+    
+    va_start(ap, msg_format);
+    msg = g_strdup_vprintf(msg_format, ap);
+    va_end(ap);
+    
+    statusbar_push_temporary_msg(msg);
+    g_free(msg);
 }

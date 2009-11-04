@@ -90,6 +90,7 @@ typedef enum {
 extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
     const gchar *msg_format, ...)
     GNUC_FORMAT_CHECK(printf, 3, 4);
+
 /** Create and show a simple dialog using a va_list.
  *
  * @param type type of dialog
@@ -159,6 +160,15 @@ extern char *simple_dialog_format_message(const char *msg);
  * up dialogs are displayed on top of those windows.
  */
 extern void display_queued_messages(void);
+
+/** Show a message in the status bar.
+ *
+ * @param msg Status message
+ */
+extern void simple_status(const gchar *msg_format, ...)
+    GNUC_FORMAT_CHECK(printf, 1, 2);
+
+
 
 #ifdef __cplusplus
 }

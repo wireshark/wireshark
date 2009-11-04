@@ -82,7 +82,7 @@ typedef enum {
 
 
 static GtkWidget    *status_pane_left, *status_pane_right;
-static GtkWidget    *info_bar, *packets_bar, *profile_bar, *profile_bar_event;
+static GtkWidget    *info_bar, *info_bar_event, *packets_bar, *profile_bar, *profile_bar_event;
 static GtkWidget    *expert_info_error, *expert_info_warn, *expert_info_note;
 static GtkWidget    *expert_info_chat, *expert_info_none;
 
@@ -97,7 +97,19 @@ static void packets_bar_new(void);
 static void profile_bar_new(void);
 static void status_expert_new(void);
 
+/* Temporary message timeout */
+#define TEMPORARY_MSG_TIMEOUT (7 * 1000)
 
+/*
+ * Reset the statusbar foreground and background colors
+ */
+static void
+statusbar_reset_colors(void)
+{
+    /* Extra credit for adding a fade effect */
+    gtk_widget_modify_text(info_bar, GTK_STATE_NORMAL, NULL);
+    gtk_widget_modify_bg(info_bar_event, GTK_STATE_NORMAL, NULL);
+}
 
 /*
  * Push a message referring to file access onto the statusbar.
@@ -113,6 +125,8 @@ statusbar_push_file_msg(const gchar *msg)
             return;
     }
     status_levels[STATUS_LEVEL_FILE]++;
+
+    statusbar_reset_colors();
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, msg);
 }
 
@@ -143,6 +157,7 @@ statusbar_push_field_msg(const gchar *msg)
     }
     status_levels[STATUS_LEVEL_HELP]++;
 
+    statusbar_reset_colors();
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, msg);
 }
 
@@ -172,6 +187,7 @@ statusbar_push_filter_msg(const gchar *msg)
     }
     status_levels[STATUS_LEVEL_FILTER]++;
 
+    statusbar_reset_colors();
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), filter_ctx, msg);
 }
 
@@ -185,6 +201,37 @@ statusbar_pop_filter_msg(void)
         status_levels[STATUS_LEVEL_FILTER]--;
     }
     gtk_statusbar_pop(GTK_STATUSBAR(info_bar), filter_ctx);
+}
+
+/*
+ * Timeout callback for statusbar_push_temporary_msg
+ */
+static gboolean
+statusbar_remove_temporary_msg(gpointer data)
+{
+    guint msg_id = GPOINTER_TO_UINT(data);
+    
+    gtk_statusbar_remove(GTK_STATUSBAR(info_bar), main_ctx, msg_id);
+    statusbar_reset_colors();
+
+    return FALSE;
+}
+
+/*
+ * Push a temporary message onto the statusbar.
+ */
+void
+statusbar_push_temporary_msg(const gchar *msg)
+{
+    guint msg_id;
+    GdkColor black = { 0, 0, 0, 0 };
+    GdkColor yellow = { 0, 0xFFFF, 0xFFFF, 0xAFFF };
+
+    msg_id = gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, msg);
+    gtk_widget_modify_text(info_bar, GTK_STATE_NORMAL, &black);
+    gtk_widget_modify_bg(info_bar_event, GTK_STATE_NORMAL, &yellow);
+    
+    g_timeout_add(TEMPORARY_MSG_TIMEOUT, statusbar_remove_temporary_msg, GUINT_TO_POINTER(msg_id));
 }
 
 
@@ -247,6 +294,7 @@ void
 statusbar_widgets_emptying(GtkWidget *statusbar)
 {
     g_object_ref(G_OBJECT(info_bar));
+    g_object_ref(G_OBJECT(info_bar_event));
     g_object_ref(G_OBJECT(packets_bar));
     g_object_ref(G_OBJECT(profile_bar));
     g_object_ref(G_OBJECT(profile_bar_event));
@@ -273,7 +321,7 @@ statusbar_widgets_pack(GtkWidget *statusbar)
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_chat, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_none, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(statusbar), status_pane_left, TRUE, TRUE, 0);
-    gtk_paned_pack1(GTK_PANED(status_pane_left), info_bar, FALSE, FALSE);
+    gtk_paned_pack1(GTK_PANED(status_pane_left), info_bar_event, FALSE, FALSE);
     gtk_paned_pack2(GTK_PANED(status_pane_left), status_pane_right, TRUE, FALSE);
     gtk_paned_pack1(GTK_PANED(status_pane_right), packets_bar, TRUE, FALSE);
     gtk_paned_pack2(GTK_PANED(status_pane_right), profile_bar_event, FALSE, FALSE);
@@ -312,8 +360,9 @@ info_bar_new(void)
 {
     int i;
 
-    /* tip: tooltips don't work on statusbars! */
+    info_bar_event = gtk_event_box_new();
     info_bar = gtk_statusbar_new();
+    gtk_container_add(GTK_CONTAINER(info_bar_event), info_bar);
     main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
     file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
     help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
@@ -326,6 +375,7 @@ info_bar_new(void)
     }
 
     gtk_widget_show(info_bar);
+    gtk_widget_show(info_bar_event);
 }
 
 static void
