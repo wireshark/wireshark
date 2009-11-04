@@ -1124,9 +1124,10 @@ dissect_bthci_evt_conn_packet_type_changed(tvbuff_t *tvb, int offset, packet_inf
 }
 
 static int
-dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 status_code;
+	guint16 opcode;
 
 	status_code = tvb_get_guint8(tvb, offset);
 
@@ -1141,8 +1142,12 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo _
 	proto_tree_add_item(tree, hf_bthci_evt_num_command_packets, tvb, offset, 1, TRUE);
 	offset++;
 
+	opcode = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_bthci_evt_com_opcode, tvb, offset, 2, TRUE);
 	offset+=2;
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+						val_to_str(opcode, bthci_cmd_opcode_vals, "Unknown 0x%08x"));
 
 	return offset;
 }
