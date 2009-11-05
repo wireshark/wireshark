@@ -790,7 +790,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_text(tree, tvb, 0, sizeof(guint16), "HC1 Encoding");
         hc_tree = proto_item_add_subtree(ti, ett_6lowpan_hc1);
 
-	/* Get and display the pattern. */
+        /* Get and display the pattern. */
         proto_tree_add_bits_item(hc_tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_HC1_BITS, FALSE);
     }
     offset += sizeof(guint8);
@@ -926,6 +926,8 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset>>3,
                 BITS_TO_BYTE_LEN(offset, (bit_offset-offset)), (guint8 *)&ipv6.ip6_src);
     }
+    SET_ADDRESS(&pinfo->src, AT_IPv6, sizeof(struct e_in6_addr), &ipv6.ip6_src);
+    SET_ADDRESS(&pinfo->net_src, AT_IPv6, sizeof(struct e_in6_addr), &ipv6.ip6_src);
 
     /*=====================================================
      * Parse/Decompress IPv6 Destination Address
@@ -958,6 +960,8 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset>>3,
                 BITS_TO_BYTE_LEN(offset, (bit_offset-offset)), (guint8 *)&ipv6.ip6_dst);
     }
+    SET_ADDRESS(&pinfo->dst, AT_IPv6, sizeof(struct e_in6_addr), &ipv6.ip6_dst);
+    SET_ADDRESS(&pinfo->net_dst, AT_IPv6, sizeof(struct e_in6_addr), &ipv6.ip6_dst);
 
     /*=====================================================
      * Parse and Reconstruct the UDP Header
@@ -1237,8 +1241,8 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (!(iphc_flags & LOWPAN_IPHC_FLAG_SRC_COMP)) {
         /* Load the link-local prefix. */
-        ipv6.ip6_src.bytes[0] = 0xff;
-        ipv6.ip6_src.bytes[1] = 0xfe;
+        ipv6.ip6_src.bytes[0] = 0xfe;
+        ipv6.ip6_src.bytes[1] = 0x80;
         /* Full Address inline. */
         if (iphc_src_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
             length = sizeof(ipv6.ip6_src);
@@ -1286,6 +1290,8 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Failed to recover source IPv6 address");
     }
     offset += length;
+    SET_ADDRESS(&pinfo->src, AT_IPv6, sizeof(struct e_in6_addr), &ipv6.ip6_src);
+    SET_ADDRESS(&pinfo->net_src, AT_IPv6, sizeof(struct e_in6_addr), &ipv6.ip6_src);
 
     /*=====================================================
      * Parse and decompress the destination address.
@@ -1300,8 +1306,8 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (!(iphc_flags & LOWPAN_IPHC_FLAG_DST_COMP) && !(iphc_flags & LOWPAN_IPHC_FLAG_MCAST_COMP)) {
         /* Load the link-local prefix. */
-        ipv6.ip6_dst.bytes[0] = 0xff;
-        ipv6.ip6_dst.bytes[1] = 0xfe;
+        ipv6.ip6_dst.bytes[0] = 0xfe;
+        ipv6.ip6_dst.bytes[1] = 0x80;
         /* Full Address inline. */
         if (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
             length = sizeof(ipv6.ip6_dst);
@@ -1411,6 +1417,8 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Failed to recover destination IPv6 address");
     }
     offset += length;
+    SET_ADDRESS(&pinfo->dst, AT_IPv6, sizeof(struct e_in6_addr), &ipv6.ip6_dst);
+    SET_ADDRESS(&pinfo->net_dst, AT_IPv6, sizeof(struct e_in6_addr), &ipv6.ip6_dst);
 
     /*=====================================================
      * Decompress extension headers.
@@ -1605,43 +1613,36 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         /* Get and display the ports. */
         switch (udp_flags & (LOWPAN_NHC_UDP_SRCPORT | LOWPAN_NHC_UDP_DSTPORT)) {
             case (LOWPAN_NHC_UDP_SRCPORT | LOWPAN_NHC_UDP_DSTPORT):
-                udp.src_port = LOWPAN_PORT_12BIT_OFFSET;
-                udp.dst_port = LOWPAN_PORT_12BIT_OFFSET;
+                udp.src_port = LOWPAN_PORT_12BIT_OFFSET + (tvb_get_guint8(tvb, offset) >> 4);
+                udp.dst_port = LOWPAN_PORT_12BIT_OFFSET + tvb_get_guint8(tvb, offset) & 0x0f;
                 src_bitlen = 4;
                 dst_bitlen = 4;
                 break;
 
             case LOWPAN_NHC_UDP_SRCPORT:
-                udp.src_port = LOWPAN_PORT_8BIT_OFFSET;
-                udp.dst_port = 0;
+                udp.src_port = LOWPAN_PORT_8BIT_OFFSET + tvb_get_guint8(tvb, offset);
+                udp.dst_port = tvb_get_ntohs(tvb, offset + 1);
                 src_bitlen = 8;
                 dst_bitlen = 16;
                 break;
 
             case LOWPAN_NHC_UDP_DSTPORT:
-                udp.src_port = 0;
-                udp.dst_port = LOWPAN_PORT_8BIT_OFFSET;
+                udp.src_port = tvb_get_ntohs(tvb, offset);
+                udp.dst_port = LOWPAN_PORT_8BIT_OFFSET + tvb_get_guint8(tvb, offset + 2);
                 src_bitlen = 16;
                 dst_bitlen = 8;
                 break;
 
             default:
-                udp.src_port = 0;
-                udp.dst_port = 0;
+                udp.src_port = tvb_get_ntohs(tvb, offset);
+                udp.dst_port = tvb_get_ntohs(tvb, offset+2);
                 src_bitlen = 16;
                 dst_bitlen = 16;
                 break;
         } /* switch */
-
-        /* Source port */
-        udp.src_port += tvb_get_bits16(tvb, offset<<3, src_bitlen, FALSE);
         if (tree) {
             proto_tree_add_uint(tree, hf_6lowpan_udp_src, tvb, offset, BITS_TO_BYTE_LEN(offset<<3, src_bitlen), udp.src_port);
-        }
-        /* Destination port */
-        udp.dst_port += tvb_get_bits16(tvb, (offset<<3)+src_bitlen, dst_bitlen, FALSE);
-        if (tree) {
-            proto_tree_add_uint(tree, hf_6lowpan_udp_dst, tvb, offset, BITS_TO_BYTE_LEN((offset<<3)+src_bitlen, dst_bitlen), udp.dst_port);
+            proto_tree_add_uint(tree, hf_6lowpan_udp_dst, tvb, offset+(src_bitlen>>3), BITS_TO_BYTE_LEN((offset<<3)+src_bitlen, dst_bitlen), udp.dst_port);
         }
         offset += ((src_bitlen + dst_bitlen)>>3);
         udp.src_port = g_ntohs(udp.src_port);
@@ -1663,7 +1664,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 
         /* Compute the datagram length. */
         length = tvb_reported_length_remaining(tvb, offset);
-        udp.length = g_ntohs(length + sizeof(struct udp_hdr));
+        udp.length = g_htons(length + sizeof(struct udp_hdr));
 
         /*
          * Although rfc768 (udp) allows a packet to be sent with a checksum of
@@ -1671,25 +1672,24 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
          * disallows sending UDP datagrams without checksums. Likewise, 6LoWPAN
          * requires that we recompute the checksum.
          *
-         * Although, if the datagram is incomplete, then leave the checsum at 0.
+         * If the datagram is incomplete, then leave the checsum at 0.
          */
         if ((udp_flags & LOWPAN_NHC_UDP_CHECKSUM) && tvb_bytes_exist(tvb, offset, length)) {
             vec_t      cksum_vec[3];
             struct {
                 struct e_in6_addr   src;
                 struct e_in6_addr   dst;
-                guint8              zero;
+                guint32             length;
+                guint8              zero[3];
                 guint8              proto;
-                guint16             length;
             } cksum_phdr;
-            guint16                 cksum;
 
             /* Fill in the pseudo-header. */
             memcpy(&cksum_phdr.src, pinfo->src.data, sizeof(struct e_in6_addr));
             memcpy(&cksum_phdr.dst, pinfo->dst.data, sizeof(struct e_in6_addr));
-            cksum_phdr.zero = 0;
+            cksum_phdr.length = g_htonl(length + sizeof(struct udp_hdr));
+            memset(cksum_phdr.zero, 0, sizeof(cksum_phdr.zero));
             cksum_phdr.proto = IP_PROTO_UDP;
-            cksum_phdr.length = udp.length;
 
             /* Compute the checksum. */
             cksum_vec[0].ptr = (const guint8 *)&cksum_phdr;
@@ -1698,8 +1698,8 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             cksum_vec[1].len = sizeof(struct udp_hdr);
             cksum_vec[2].ptr = tvb_get_ptr(tvb, offset, length);
             cksum_vec[2].len = length;
-            cksum = in_cksum(cksum_vec, 3);
-            udp.checksum = g_ntohs((cksum)?(cksum):(~cksum));
+            udp.checksum = in_cksum(cksum_vec, 3);
+            if (udp.checksum == 0) udp.checksum = 0xffff;
         }
 
         /* Create the next header structure for the UDP datagram. */
@@ -1746,11 +1746,11 @@ dissect_6lowpan_bc0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
         ti = proto_tree_add_text(tree, tvb, 0, sizeof(guint16), "Broadcast Header");
         bcast_tree = proto_item_add_subtree(ti, ett_6lowpan_bcast);
 
-	/* Get and display the pattern. */
+        /* Get and display the pattern. */
         proto_tree_add_bits_item(bcast_tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_BC0_BITS, FALSE);
 
-	/* Get and display the sequence number. */
-	seqnum = tvb_get_guint8(tvb, sizeof(guint8));
+        /* Get and display the sequence number. */
+        seqnum = tvb_get_guint8(tvb, sizeof(guint8));
         proto_tree_add_uint(bcast_tree, hf_6lowpan_bcast_seqnum, tvb, sizeof(guint8), sizeof(guint8), seqnum);
     }
 
@@ -1894,7 +1894,7 @@ dissect_6lowpan_frag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     gint                frag_size;
     guint16             dgram_size;
     guint16             dgram_tag;
-    guint8              dgram_offset = 0;
+    guint16             dgram_offset = 0;
     proto_tree *        frag_tree = NULL;
     proto_item *        ti = NULL;
     /* Reassembly parameters. */
@@ -1932,7 +1932,7 @@ dissect_6lowpan_frag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     }
 
     /* Adjust the fragmentation header length. */
-    frag_size = tvb_length_remaining(tvb, offset);
+    frag_size = tvb_reported_length_remaining(tvb, offset);
     if (tree) {
         proto_item_set_end(ti, tvb, offset);
     }
