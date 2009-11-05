@@ -754,10 +754,8 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name, gboole
   gtk_widget_set_size_request(popup_win, filter_te->allocation.width, (requisition.height<200? requisition.height+8:200));
   gtk_window_resize(GTK_WINDOW(popup_win), filter_te->allocation.width, (requisition.height<200? requisition.height+8:200));
 
-  gtk_window_get_position(GTK_WINDOW(w_toplevel), &x_pos, &y_pos); 
-  x_pos = x_pos + filter_te->allocation.x;
-  y_pos = y_pos + filter_te->allocation.y + filter_te->allocation.height + 22;
-
+  gdk_window_get_origin(filter_te->window, &x_pos, &y_pos);
+  y_pos = y_pos + filter_te->allocation.height;
   gtk_window_move(GTK_WINDOW(popup_win), x_pos, y_pos);
 
   gtk_widget_show_all (popup_win);
