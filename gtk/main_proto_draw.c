@@ -1117,11 +1117,13 @@ static void
 packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 			int bend, int astart, int aend, int encoding)
 {
-  int            i = 0, j, k = 0, cur;
+  int            i = 0, j, k = 0, b, cur;
   guchar         line[MAX_LINES_LEN + 1];
   static guchar  hexchars[16] = {
       '0', '1', '2', '3', '4', '5', '6', '7',
       '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+  static const guint8 bitmask[8] = {
+      0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
   guchar         c = '\0';
   unsigned int   use_digits;
   gboolean       reverse, newreverse;
@@ -1267,24 +1269,25 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	  line[cur++] = hexchars[pd[i] & 0x0f];
 	  break;
 	case BYTES_BITS:
-	  line[cur++] = (pd[i] & 0x80) ? '1' : '0';
-	  line[cur++] = (pd[i] & 0x40) ? '1' : '0';
-	  line[cur++] = (pd[i] & 0x20) ? '1' : '0';
-	  line[cur++] = (pd[i] & 0x10) ? '1' : '0';
-	  line[cur++] = (pd[i] & 0x08) ? '1' : '0';
-	  line[cur++] = (pd[i] & 0x04) ? '1' : '0';
-	  line[cur++] = (pd[i] & 0x02) ? '1' : '0';
-	  line[cur++] = (pd[i] & 0x01) ? '1' : '0';
+	  for (b = 0; b < 8; b++) {
+	    line[cur++] = (pd[i] & bitmask[b]) ? '1' : '0';
+	  }
 	  break;
 	default:
 	  g_assert_not_reached();
 	}
       } else {
-        line[cur++] = ' '; line[cur++] = ' ';
-	if (recent.gui_bytes_view == BYTES_BITS) {
+	switch (recent.gui_bytes_view) {
+	case BYTES_HEX:
 	  line[cur++] = ' '; line[cur++] = ' ';
-	  line[cur++] = ' '; line[cur++] = ' ';
-	  line[cur++] = ' '; line[cur++] = ' ';
+	  break;
+	case BYTES_BITS:
+	  for (b = 0; b < 8; b++) {
+	    line[cur++] = ' ';
+	  }
+	  break;
+	default:
+	  g_assert_not_reached();
 	}
       }
       i++;
