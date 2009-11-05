@@ -1533,13 +1533,17 @@ set_ptree_font_all(PangoFontDescription *font)
 }
 
 
+/*
+ * Each expert_color_* level below should match the light gradient
+ * colors in image/expert_indicators.svg.
+ */
 gboolean colors_ok = FALSE;
-GdkColor	expert_color_chat	= { 0, 0x8080, 0xb7b7, 0xf7f7 };	/* a light blue */
-GdkColor	expert_color_note	= { 0, 0xa000, 0xff00, 0xff00 };	/* a bright turquoise */
-GdkColor	expert_color_warn	= { 0, 0xff00, 0xff00, 0 };			/* yellow */
-GdkColor	expert_color_error	= { 0, 0xff00, 0x5c00, 0x5c00 };	/* pale red */
+GdkColor	expert_color_chat	= { 0, 0x8080, 0xb7b7, 0xf7f7 };	/* light blue */
+GdkColor	expert_color_note	= { 0, 0xa0a0, 0xffff, 0xffff };	/* bright turquoise */
+GdkColor	expert_color_warn	= { 0, 0xf7f7, 0xf2f2, 0x5353 };	/* yellow */
+GdkColor	expert_color_error	= { 0, 0xffff, 0x5c5c, 0x5c5c };	/* pale red */
 GdkColor	expert_color_foreground	= { 0, 0x0000, 0x0000, 0x0000 };	/* black */
-GdkColor	hidden_proto_item	= { 0, 0x4400, 0x4400, 0x4400 };	/* gray */
+GdkColor	hidden_proto_item	= { 0, 0x4444, 0x4444, 0x4444 };	/* gray */
 
 gchar *expert_color_chat_str;
 gchar *expert_color_note_str;

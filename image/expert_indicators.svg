@@ -36,7 +36,7 @@
     <linearGradient
        id="linearGradient3866">
       <stop
-         style="stop-color:#2fd0f2;stop-opacity:1;"
+         style="stop-color:#a0ffff;stop-opacity:1;"
          offset="0"
          id="stop3868" />
       <stop
@@ -47,7 +47,7 @@
     <linearGradient
        id="linearGradient3860">
       <stop
-         style="stop-color:#e91400;stop-opacity:1;"
+         style="stop-color:#ff5c5c;stop-opacity:0.94117647;"
          offset="0"
          id="stop3862" />
       <stop
@@ -93,7 +93,7 @@
       <stop
          id="stop1698"
          offset="0"
-         style="stop-color:#57a0f5;stop-opacity:1;" />
+         style="stop-color:#80b7f7;stop-opacity:1;" />
       <stop
          id="stop1699"
          offset="1"
@@ -213,7 +213,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="4"
-     inkscape:cx="40.615664"
+     inkscape:cx="44.365664"
      inkscape:cy="8.3960288"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -412,16 +412,16 @@
        xml:space="preserve"
        style="font-size:4.00000477px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Helvetica;-inkscape-font-specification:Helvetica"
        x="0.84374857"
-       y="22.115261"
+       y="30.115269"
        id="text4583"
        transform="scale(1.0000012,0.9999988)"><tspan
          sodipodi:role="line"
          x="0.84374857"
-         y="22.115261"
+         y="30.115269"
          id="tspan4595">Originally from the public domain image at </tspan><tspan
          sodipodi:role="line"
          x="0.84374857"
-         y="27.115269"
+         y="35.115276"
          id="tspan4599">http://openclipart.org/Xiph/files/Anonymous/13273</tspan></text>
   </g>
 </svg>
