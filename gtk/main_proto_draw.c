@@ -358,14 +358,18 @@ hex_view_get_byte(guint ndigits, int row, int column)
      * The column of the last "text dump" character in the first half.
      * There are BYTES_PER_LINE/2 bytes displayed in the first
      * half; there is 1 character per byte.
+     *
+     * Then subtract 1 to get the last column of the first half
+     * rather than the first column after the first half.
      */
-    text_end_1 = text_start_1 + BYTES_PER_LINE/2;
+    text_end_1 = text_start_1 + BYTES_PER_LINE/2 - 1;
 
     /*
      * The column of the first "text dump" character in the second half.
-     * Add 1 for the separating blank between the halves.
+     * Add back the 1 to get the first column after the first half,
+     * and then add 1 for the separating blank between the halves.
      */
-    text_start_2 = text_end_1 + 1;
+    text_start_2 = text_end_1 + 2;
 
     /*
      * The column of the last "text dump" character in second half.
