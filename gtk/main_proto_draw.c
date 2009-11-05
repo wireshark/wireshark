@@ -340,20 +340,15 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
      * There are BYTES_PER_LINE/2 bytes displayed in the first
      * half; there are 2 characters per byte, plus a separating
      * blank after all but the last byte's characters.
-     *
-     * Then subtract 1 to get the last column of the first half
-     * rather than the first column after the first half.
      */
     digits_end_1 = digits_start_1 + (BYTES_PER_LINE/2)*2 +
-        (BYTES_PER_LINE/2 - 1) - 1;
+        (BYTES_PER_LINE/2 - 1);
 
     /*
      * The column of the first hex digit in the second half.
-     * Add back the 1 to get the first column after the first
-     * half, and then add 2 for the 2 separating blanks between
-     * the halves.
+     * Add 2 for the 2 separating blanks between the halves.
      */
-    digits_start_2 = digits_end_1 + 3;
+    digits_start_2 = digits_end_1 + 2;
 
     /*
      * The column of the last hex digit in the second half.
@@ -361,15 +356,13 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
      * "digits_start_1".
      */
     digits_end_2 = digits_start_2 + (BYTES_PER_LINE/2)*2 +
-        (BYTES_PER_LINE/2 - 1) - 1;
+        (BYTES_PER_LINE/2 - 1);
 
     /*
      * The column of the first "text dump" character in the first half.
-     * Add back the 1 to get the first column after the second
-     * half's hex dump, and then add 3 for the 3 separating blanks
-     * between the hex and text dummp.
+     * Add 3 for the 3 separating blanks between the hex and text dump.
      */
-    text_start_1 = digits_end_2 + 4;
+    text_start_1 = digits_end_2 + 3;
 
     /*
      * The column of the last "text dump" character in the first half.
