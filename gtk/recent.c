@@ -71,6 +71,7 @@
 #define RECENT_GUI_TIME_FORMAT              "gui.time_format"
 #define RECENT_GUI_TIME_PRECISION           "gui.time_precision"
 #define RECENT_GUI_ZOOM_LEVEL               "gui.zoom_level"
+#define RECENT_GUI_BYTES_VIEW               "gui.bytes_view"
 #define RECENT_GUI_GEOMETRY_MAIN_X          "gui.geometry_main_x"
 #define RECENT_GUI_GEOMETRY_MAIN_Y          "gui.geometry_main_y"
 #define RECENT_GUI_GEOMETRY_MAIN_WIDTH      "gui.geometry_main_width"
@@ -362,6 +363,11 @@ write_profile_recent(void)
   fprintf(rf, RECENT_GUI_ZOOM_LEVEL ": %d\n",
 		  recent.gui_zoom_level);
 
+  fprintf(rf, "\n# Bytes view.\n");
+  fprintf(rf, "# A decimal number.\n");
+  fprintf(rf, RECENT_GUI_BYTES_VIEW ": %d\n",
+		  recent.gui_bytes_view);
+
   fprintf(rf, "\n# Main window upper (or leftmost) pane size.\n");
   fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_main_upper_pane != 0) {
@@ -602,6 +608,11 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
     recent.gui_zoom_level = num;
+  } else if (strcmp(key, RECENT_GUI_BYTES_VIEW) == 0) {
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    recent.gui_bytes_view = num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.gui_geometry_main_maximized = TRUE;
@@ -832,6 +843,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
   recent.gui_time_format        = TS_RELATIVE;
   recent.gui_time_precision     = TS_PREC_AUTO;
   recent.gui_zoom_level         = 0;
+  recent.gui_bytes_view         = 0;
 
   /* pane size of zero will autodetect */
   recent.gui_geometry_main_upper_pane   = 0;

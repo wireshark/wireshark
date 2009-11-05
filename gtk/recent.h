@@ -59,6 +59,7 @@ typedef struct recent_settings_tag {
     gint        gui_time_format;
     gint        gui_time_precision;
     gint        gui_zoom_level;
+    gint        gui_bytes_view;
 
     gint        gui_geometry_main_x;
     gint        gui_geometry_main_y;

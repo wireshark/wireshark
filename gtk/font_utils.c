@@ -287,8 +287,8 @@ user_font_apply(void) {
     old_b_font = m_b_font;
     set_fonts(new_r_font, new_b_font);
 
-    /* Redraw the hex dump windows. */
-    redraw_hex_dump_all();
+    /* Redraw the packet bytes windows. */
+    redraw_packet_bytes_all();
 
     /* Redraw the "Follow TCP Stream" windows. */
     follow_tcp_redraw_all();

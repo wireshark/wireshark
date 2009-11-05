@@ -41,7 +41,7 @@ extern void new_window_cb(GtkWidget *widget);
  */
 void destroy_packet_wins(void);
 
-/** Redraw the hex dump panes of all packet windows. */
-void redraw_hex_dump_packet_wins(void);
+/** Redraw the packet bytes panes of all packet windows. */
+void redraw_packet_bytes_packet_wins(void);
 
 #endif

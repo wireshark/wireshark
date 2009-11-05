@@ -1534,7 +1534,7 @@ main_cf_cb_packet_selected(gpointer data)
 {
     capture_file *cf = data;
 
-    /* Display the GUI protocol tree and hex dump.
+    /* Display the GUI protocol tree and packet bytes.
       XXX - why do we dump core if we call "proto_tree_draw()"
       before calling "add_byte_views()"? */
     add_main_byte_views(cf->edt);
@@ -3342,7 +3342,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(byte_nb_ptr);
 
     g_signal_connect(byte_nb_ptr, "button_press_event", G_CALLBACK(popup_menu_handler),
-                   g_object_get_data(G_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
+                   g_object_get_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY));
 
     /* Panes for the packet list, tree, and byte view */
     main_pane_v1 = gtk_vpaned_new();

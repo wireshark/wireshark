@@ -470,7 +470,7 @@ gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
 #endif
 
 	if (font_changed) {
-		/* This redraws the hex dump windows. */
+		/* This redraws the packet bytes windows. */
 		switch (user_font_apply()) {
 
 		case FA_SUCCESS:
@@ -492,10 +492,10 @@ gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
 			break;
 		}
 	} else if (!redissect) {
-		/* Redraw the hex dump windows, in case the
+		/* Redraw the packet bytes windows, in case the
 		   highlight style changed, only if we aren't redissecting the whole file.
 		   XXX - do it only if the highlight style *did* change. */
-		redraw_hex_dump_all();
+		redraw_packet_bytes_all();
 	}
 
 	/* Redraw the help window(s). */

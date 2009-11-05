@@ -74,10 +74,10 @@ extern void set_notebook_page(GtkWidget *nb_ptr, tvbuff_t *tvb);
  * @param fd selected frame
  * @param finfo selected field_info
  */
-extern void redraw_hex_dump(GtkWidget *nb_ptr, frame_data *fd, field_info *finfo);
+extern void redraw_packet_bytes(GtkWidget *nb_ptr, frame_data *fd, field_info *finfo);
 
 /** Redraw all byte view windows. */
-extern void redraw_hex_dump_all(void);
+extern void redraw_packet_bytes_all(void);
 
 /** Create a new byte view (packet details pane).
  *
@@ -221,6 +221,11 @@ extern gboolean tree_view_select(GtkWidget *widget, GdkEventButton *event);
  */
 extern void set_ptree_sel_browse_all(gboolean val);
 
+typedef enum {
+  BYTES_HEX,
+  BYTES_BITS
+} bytes_view_type;
+extern void select_bytes_view (GtkWidget *widget, gpointer data, gint view);
 
 /** init the expert colors */
 extern void proto_draw_colors_init(void);

@@ -293,16 +293,16 @@ destroy_packet_wins(void)
 }
 
 static void
-redraw_hex_dump_cb(gpointer data, gpointer user_data _U_)
+redraw_packet_bytes_cb(gpointer data, gpointer user_data _U_)
 {
 	struct PacketWinData *DataPtr = (struct PacketWinData *)data;
 
-	redraw_hex_dump(DataPtr->bv_nb_ptr, DataPtr->frame, DataPtr->finfo_selected);
+	redraw_packet_bytes(DataPtr->bv_nb_ptr, DataPtr->frame, DataPtr->finfo_selected);
 }
 
-/* Redraw the hex dump part of all the popup packet windows. */
+/* Redraw the packet bytes part of all the popup packet windows. */
 void
-redraw_hex_dump_packet_wins(void)
+redraw_packet_bytes_packet_wins(void)
 {
-	g_list_foreach(detail_windows, redraw_hex_dump_cb, NULL);
+	g_list_foreach(detail_windows, redraw_packet_bytes_cb, NULL);
 }

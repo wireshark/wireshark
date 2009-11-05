@@ -105,7 +105,7 @@ static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, GtkTooltips *too
 
     radio_pbytes_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet Bytes");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_pbytes_rb), content == layout_pane_content_pbytes);
-    gtk_tooltips_set_tip (tooltips, radio_pbytes_rb, "Put the packet bytes hexdump in this pane.", NULL);
+    gtk_tooltips_set_tip (tooltips, radio_pbytes_rb, "Put the packet bytes dump in this pane.", NULL);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_pbytes_rb);
 
     g_object_set_data(G_OBJECT(radio_vb), LAYOUT_NONE_RB_KEY,       radio_none_rb);
@@ -402,10 +402,10 @@ layout_prefs_show(void)
         altern_colors_vals, prefs.gui_altern_colors);
     g_object_set_data(G_OBJECT(main_vb), ALTERN_COLORS_KEY, altern_colors_om);
 
-    /* Hex Dump highlight style */
+    /* Packet Bytes Dump highlight style */
     highlight_style_om = create_preference_option_menu(main_tb, pos++,
-        "Hex display highlight style:", 
-        "Select the style in which the hex dump will be displayed.",
+        "Packet bytes highlight style:", 
+        "Select the style in which the packet bytes dump will be displayed.",
         highlight_style_vals, prefs.gui_hex_dump_highlight_style);
     g_object_set_data(G_OBJECT(main_vb), HEX_DUMP_HIGHLIGHT_STYLE_KEY, highlight_style_om);
 

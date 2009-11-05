@@ -1069,12 +1069,18 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     {"/_Go to Corresponding Packet", NULL, GTK_MENU_FUNC(goto_framenum_cb), 0, NULL, NULL,}
 };
 
+static GtkItemFactoryEntry bytes_menu_items[] =
+{
+    {"/Hex View", NULL, GTK_MENU_FUNC(select_bytes_view), BYTES_HEX, "<RadioItem>", NULL,},
+    {"/Bits View", NULL, GTK_MENU_FUNC(select_bytes_view), BYTES_BITS, "/Hex View", NULL,}
+};
+
 
 static int initialize = TRUE;
 static GtkItemFactory *main_menu_factory = NULL;
 static GtkItemFactory *packet_list_menu_factory = NULL;
 static GtkItemFactory *tree_view_menu_factory = NULL;
-static GtkItemFactory *hexdump_menu_factory = NULL;
+static GtkItemFactory *bytes_menu_factory = NULL;
 
 static GSList *popup_menu_list = NULL;
 
@@ -1209,10 +1215,11 @@ menus_init(void) {
      * We provide our own empty menu to suppress the default pop-up menu
      * for text widgets.
      */
-    hexdump_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-    g_object_set_data(G_OBJECT(popup_menu_object), PM_HEXDUMP_KEY,
-                    hexdump_menu_factory->widget);
-    popup_menu_list = g_slist_append((GSList *)popup_menu_list, hexdump_menu_factory);
+    bytes_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+    gtk_item_factory_create_items_ac(bytes_menu_factory, sizeof(bytes_menu_items)/sizeof(bytes_menu_items[0]), bytes_menu_items, popup_menu_object, 2);
+    g_object_set_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY,
+                    bytes_menu_factory->widget);
+    popup_menu_list = g_slist_append((GSList *)popup_menu_list, bytes_menu_factory);
 
     /* main */
     main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
@@ -2282,6 +2289,18 @@ menu_recent_read_finished(void) {
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
 
     menu_colorize_changed(recent.packet_list_colorize);
+
+    switch (recent.gui_bytes_view) {
+    case BYTES_HEX:
+        menu = gtk_item_factory_get_widget(bytes_menu_factory, "/Hex View");
+        break;
+    case BYTES_BITS:
+        menu = gtk_item_factory_get_widget(bytes_menu_factory, "/Bits View");
+        break;
+    default:
+        g_assert_not_reached();
+    }
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
 }
 
 
@@ -2333,11 +2352,6 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
         tree_view_select(widget, (GdkEventButton *) event);
     }
 
-    /* Check if we are on byte_view object */
-    if(widget == get_notebook_bv_ptr(byte_nb_ptr)) {
-        byte_view_select(widget, (GdkEventButton *) event);
-    }
-
     /* context menu handler */
     if(event->type == GDK_BUTTON_PRESS) {
         event_button = (GdkEventButton *) event;
@@ -2345,16 +2359,19 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
         /* To qoute the "Gdk Event Structures" doc:
          * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
         if(event_button->button == 3) {
-            /* No popup window in the byte view */
-            if(widget != get_notebook_bv_ptr(byte_nb_ptr)) {
-                gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
-                               event_button->button,
-                               event_button->time);
-            }
+            gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
+                           event_button->button,
+                           event_button->time);
             g_signal_stop_emission_by_name(widget, "button_press_event");
             return TRUE;
         }
     }
+
+    /* Check if we are on byte_view object */
+    if(widget == get_notebook_bv_ptr(byte_nb_ptr)) {
+        byte_view_select(widget, (GdkEventButton *) event);
+    }
+
     /* GDK_2BUTTON_PRESS is a doubleclick -> expand/collapse tree row */
     /* GTK version 1 seems to be doing this automatically */
     if (widget == tree_view && event->type == GDK_2BUTTON_PRESS) {

@@ -70,6 +70,7 @@
 #include "gtk/main.h"
 #include "gtk/menus.h"
 #include "gtk/main_proto_draw.h"
+#include "gtk/recent.h"
 
 #if _WIN32
 #include <gdk/gdkwin32.h>
@@ -80,6 +81,8 @@
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
+
+#define BIT_VIEW_WIDTH     8
 
 #define E_BYTE_VIEW_TREE_PTR      "byte_view_tree_ptr"
 #define E_BYTE_VIEW_TREE_VIEW_PTR "byte_view_tree_view_ptr"
@@ -158,7 +161,7 @@ set_notebook_page(GtkWidget *nb_ptr, tvbuff_t *tvb)
 
 /* Redraw a given byte view window. */
 void
-redraw_hex_dump(GtkWidget *nb, frame_data *fd, field_info *finfo)
+redraw_packet_bytes(GtkWidget *nb, frame_data *fd, field_info *finfo)
 {
   GtkWidget *bv;
   const guint8 *data;
@@ -174,12 +177,12 @@ redraw_hex_dump(GtkWidget *nb, frame_data *fd, field_info *finfo)
 
 /* Redraw all byte view windows. */
 void
-redraw_hex_dump_all(void)
+redraw_packet_bytes_all(void)
 {
     if (cfile.current_frame != NULL)
-            redraw_hex_dump( byte_nb_ptr, cfile.current_frame, cfile.finfo_selected);
+            redraw_packet_bytes( byte_nb_ptr, cfile.current_frame, cfile.finfo_selected);
 
-  redraw_hex_dump_packet_wins();
+  redraw_packet_bytes_packet_wins();
 
   /* XXX - this is a hack, to workaround a bug in GTK2.x!
      when changing the font size, even refilling of the corresponding
@@ -238,6 +241,7 @@ collapse_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
 
 #define MAX_OFFSET_LEN	8	/* max length of hex offset of bytes */
 #define BYTES_PER_LINE	16	/* max byte values in a line */
+#define BITS_PER_LINE	8	/* max bit values in a line */
 #define HEX_DUMP_LEN	(BYTES_PER_LINE*3 + 1)
 				/* max number of characters hex dump takes -
 				   2 digits plus trailing blank
@@ -261,6 +265,11 @@ static int
 byte_num(int offset, int start_point)
 {
 	return (offset - start_point) / 3;
+}
+static int
+bit_num(int offset, int start_point)
+{
+	return (offset - start_point) / 9;
 }
 
 struct field_lookup_info {
@@ -296,23 +305,10 @@ GtkTreePath *tree_find_by_field_info(GtkTreeView *tree_view, field_info *finfo) 
   return gtk_tree_model_get_path(model, &fli.iter);
 }
 
-/* If the user selected a certain byte in the byte view, try to find
- * the item in the GUI proto_tree that corresponds to that byte, and:
- *
- *	if we succeed, select it, and return TRUE;
- *	if we fail, return FALSE. */
-gboolean
-byte_view_select(GtkWidget *widget, GdkEventButton *event)
+static gboolean
+hex_view_get_byte(guint ndigits, int row, int column)
 {
-    proto_tree   *tree;
-    GtkTreeView  *tree_view;
-    GtkTextView  *bv = GTK_TEXT_VIEW(widget);
-    gint          x, y;
-    GtkTextIter   iter;
-    int           row, column;
     int           byte;
-    tvbuff_t     *tvb;
-    guint         ndigits;
     int           digits_start_1;
     int           digits_end_1;
     int           digits_start_2;
@@ -321,12 +317,6 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     int           text_end_1;
     int           text_start_2;
     int           text_end_2;
-
-    /*
-     * Get the number of digits of offset being displayed, and
-     * compute the columns of various parts of the display.
-     */
-    ndigits = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY));
 
     /*
      * The column of the first hex digit in the first half.
@@ -368,18 +358,14 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
      * The column of the last "text dump" character in the first half.
      * There are BYTES_PER_LINE/2 bytes displayed in the first
      * half; there is 1 character per byte.
-     *
-     * Then subtract 1 to get the last column of the first half
-     * rather than the first column after the first half.
      */
-    text_end_1 = text_start_1 + BYTES_PER_LINE/2 - 1;
+    text_end_1 = text_start_1 + BYTES_PER_LINE/2;
 
     /*
      * The column of the first "text dump" character in the second half.
-     * Add back the 1 to get the first column after the first half,
-     * and then add 1 for the separating blank between the halves.
+     * Add 1 for the separating blank between the halves.
      */
-    text_start_2 = text_end_1 + 2;
+    text_start_2 = text_end_1 + 1;
 
     /*
      * The column of the last "text dump" character in second half.
@@ -387,6 +373,119 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
      * "text_start_1".
      */
     text_end_2 = text_start_2 + BYTES_PER_LINE/2 - 1;
+
+    /* Given the column and row, determine which byte offset
+     * the user clicked on. */
+    if (column >= digits_start_1 && column <= digits_end_1) {
+        byte = byte_num(column, digits_start_1);
+        if (byte == -1) {
+            return byte;
+        }
+    }
+    else if (column >= digits_start_2 && column <= digits_end_2) {
+        byte = byte_num(column, digits_start_2);
+        if (byte == -1) {
+            return byte;
+        }
+        byte += 8;
+    }
+    else if (column >= text_start_1 && column <= text_end_1) {
+        byte = column - text_start_1;
+    }
+    else if (column >= text_start_2 && column <= text_end_2) {
+        byte = 8 + column - text_start_2;
+    }
+    else {
+        /* The user didn't select a hex digit or
+         * text-dump character. */
+        return -1;
+    }
+
+    /* Add the number of bytes from the previous rows. */
+    byte += row * BYTES_PER_LINE;
+
+    return byte;
+}
+
+static int
+bit_view_get_byte(guint ndigits, int row, int column)
+{
+    int           byte;
+    int           digits_start;
+    int           digits_end;
+    int           text_start;
+    int           text_end;
+
+    /*
+     * The column of the first bit digit.
+     * That starts after "ndigits" digits of offset and two
+     * separating blanks.
+     */
+    digits_start = ndigits + 2;
+
+    /*
+     * The column of the last bit digit.
+     * There are BITS_PER_LINE bytes displayed; there are
+     * 8 characters per byte, plus a separating blank
+     * after all but the last byte's characters.
+     */
+    digits_end = digits_start + (BITS_PER_LINE)*8 +
+        (BITS_PER_LINE - 1);
+
+    /*
+     * The column of the first "text dump" character.
+     * Add 3 for the 3 separating blanks between the bit and text dump.
+     */
+    text_start = digits_end + 3;
+
+    /*
+     * The column of the last "text dump" character.
+     * There are BITS_PER_LINE bytes displayed; there is 1 character per byte.
+     *
+     * Then subtract 1 to get the last column.
+     */
+    text_end = text_start + BITS_PER_LINE - 1;
+
+    /* Given the column and row, determine which byte offset
+     * the user clicked on. */
+    if (column >= digits_start && column <= digits_end) {
+        byte = bit_num(column, digits_start);
+        if (byte == -1) {
+            return byte;
+        }
+    }
+    else if (column >= text_start && column <= text_end) {
+        byte = column - text_start;
+    }
+    else {
+        /* The user didn't select a hex digit or
+         * text-dump character. */
+        return -1;
+    }
+
+    /* Add the number of bytes from the previous rows. */
+    byte += row * BITS_PER_LINE;
+
+    return byte;
+}
+
+/* If the user selected a certain byte in the byte view, try to find
+ * the item in the GUI proto_tree that corresponds to that byte, and:
+ *
+ *	if we succeed, select it, and return TRUE;
+ *	if we fail, return FALSE. */
+gboolean
+byte_view_select(GtkWidget *widget, GdkEventButton *event)
+{
+    GtkTextView  *bv = GTK_TEXT_VIEW(widget);
+    proto_tree   *tree;
+    GtkTreeView  *tree_view;
+    GtkTextIter   iter;
+    int           row, column;
+    guint         ndigits;
+    gint          x, y;
+    int           byte;
+    tvbuff_t     *tvb;
 
     tree = g_object_get_data(G_OBJECT(widget), E_BYTE_VIEW_TREE_PTR);
     if (tree == NULL) {
@@ -406,35 +505,26 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     row = gtk_text_iter_get_line(&iter);
     column = gtk_text_iter_get_line_offset(&iter);
 
-    /* Given the column and row, determine which byte offset
-     * the user clicked on. */
-    if (column >= digits_start_1 && column <= digits_end_1) {
-        byte = byte_num(column, digits_start_1);
-        if (byte == -1) {
-            return FALSE;
-        }
-    }
-    else if (column >= digits_start_2 && column <= digits_end_2) {
-        byte = byte_num(column, digits_start_2);
-        if (byte == -1) {
-            return FALSE;
-        }
-        byte += 8;
-    }
-    else if (column >= text_start_1 && column <= text_end_1) {
-        byte = column - text_start_1;
-    }
-    else if (column >= text_start_2 && column <= text_end_2) {
-        byte = 8 + column - text_start_2;
-    }
-    else {
-        /* The user didn't select a hex digit or
-         * text-dump character. */
-        return FALSE;
+    /*
+     * Get the number of digits of offset being displayed, and
+     * compute the byte position in the buffer.
+     */
+    ndigits = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY));
+
+    switch (recent.gui_bytes_view) {
+    case BYTES_HEX:
+        byte = hex_view_get_byte(ndigits, row, column);
+	break;
+    case BYTES_BITS:
+        byte = bit_view_get_byte(ndigits, row, column);
+	break;
+    default:
+        g_assert_not_reached();
     }
 
-    /* Add the number of bytes from the previous rows. */
-    byte += row * 16;
+    if (byte == -1) {
+        return FALSE;
+    }
 
     /* Get the data source tvbuff */
     tvb = g_object_get_data(G_OBJECT(widget), E_BYTE_VIEW_TVBUFF_KEY);
@@ -600,7 +690,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 
   g_signal_connect(byte_view, "show", G_CALLBACK(byte_view_realize_cb), NULL);
   g_signal_connect(byte_view, "button_press_event", G_CALLBACK(byte_view_button_press_cb),
-                 g_object_get_data(G_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
+                 g_object_get_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY));
 
   g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_PTR, tree);
   g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_VIEW_PTR, tree_view);
@@ -1023,7 +1113,7 @@ static void
 packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 			int bend, int astart, int aend, int encoding)
 {
-  int            i = 0, j, k, cur;
+  int            i = 0, j, k = 0, cur;
   guchar         line[MAX_LINES_LEN + 1];
   static guchar  hexchars[16] = {
       '0', '1', '2', '3', '4', '5', '6', '7',
@@ -1149,7 +1239,16 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     /* Do we start in reverse? */
     reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
     j   = i;
-    k   = i + BYTE_VIEW_WIDTH;
+    switch (recent.gui_bytes_view) {
+    case BYTES_HEX:
+      k = i + BYTE_VIEW_WIDTH;
+      break;
+    case BYTES_BITS:
+      k = i + BIT_VIEW_WIDTH;
+      break;
+    default:
+      g_assert_not_reached();
+    }
     if (reverse) {
       gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
 					     "plain", NULL);
@@ -1158,10 +1257,31 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     /* Print the hex bit */
     while (i < k) {
       if (i < len) {
-        line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
-        line[cur++] = hexchars[pd[i] & 0x0f];
+	switch (recent.gui_bytes_view) {
+	case BYTES_HEX:
+	  line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
+	  line[cur++] = hexchars[pd[i] & 0x0f];
+	  break;
+	case BYTES_BITS:
+	  line[cur++] = (pd[i] & 0x80) ? '1' : '0';
+	  line[cur++] = (pd[i] & 0x40) ? '1' : '0';
+	  line[cur++] = (pd[i] & 0x20) ? '1' : '0';
+	  line[cur++] = (pd[i] & 0x10) ? '1' : '0';
+	  line[cur++] = (pd[i] & 0x08) ? '1' : '0';
+	  line[cur++] = (pd[i] & 0x04) ? '1' : '0';
+	  line[cur++] = (pd[i] & 0x02) ? '1' : '0';
+	  line[cur++] = (pd[i] & 0x01) ? '1' : '0';
+	  break;
+	default:
+	  g_assert_not_reached();
+	}
       } else {
         line[cur++] = ' '; line[cur++] = ' ';
+	if (recent.gui_bytes_view == BYTES_BITS) {
+	  line[cur++] = ' '; line[cur++] = ' ';
+	  line[cur++] = ' '; line[cur++] = ' ';
+	  line[cur++] = ' '; line[cur++] = ' ';
+	}
       }
       i++;
       newreverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
@@ -1787,3 +1907,11 @@ clear_tree_and_hex_views(void)
   gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view))));
 }
 
+void
+select_bytes_view (GtkWidget *w _U_, gpointer data _U_, gint view)
+{
+  if (recent.gui_bytes_view != view) {
+    recent.gui_bytes_view = view;
+    redraw_packet_bytes_all();
+  }
+}
