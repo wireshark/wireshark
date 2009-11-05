@@ -73,8 +73,9 @@ typedef struct _chandle_data_t {
 static emem_tree_t *chandle_tree=NULL;
 
 static const value_string pb_flag_vals[] = {
-	{1, "Continuing Fragment"},
-	{2, "Start Fragment"},
+    {0, "First Non-automatically Flushable Packet"},
+    {1, "Continuing Fragment"},
+    {2, "First Automatically Flushable Packet"},
 	{0, NULL }
 };
 
