@@ -15,7 +15,7 @@
    sodipodi:version="0.32"
    inkscape:version="0.46"
    version="1.0"
-   sodipodi:docname="Expert Indicators.svg"
+   sodipodi:docname="expert_indicators.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/tmp/expert_none.png"
    inkscape:export-xdpi="90"
@@ -58,11 +58,11 @@
     <linearGradient
        id="linearGradient3824">
       <stop
-         style="stop-color:#a1a1a1;stop-opacity:1;"
+         style="stop-color:#d3d3d3;stop-opacity:1;"
          offset="0"
          id="stop3826" />
       <stop
-         style="stop-color:#565656;stop-opacity:1;"
+         style="stop-color:#adadad;stop-opacity:1;"
          offset="1"
          id="stop3828" />
     </linearGradient>
@@ -81,8 +81,8 @@
        id="linearGradient1702">
       <stop
          id="stop1703"
-         offset="0.0000000"
-         style="stop-color: rgb(255, 255, 255); stop-opacity: 0.690722;" />
+         offset="0"
+         style="stop-color:#ffffff;stop-opacity:0.81960785;" />
       <stop
          id="stop1704"
          offset="1.0000000"
@@ -93,11 +93,11 @@
       <stop
          id="stop1698"
          offset="0"
-         style="stop-color:#246cf1;stop-opacity:1;" />
+         style="stop-color:#57a0f5;stop-opacity:1;" />
       <stop
          id="stop1699"
          offset="1"
-         style="stop-color:#0917a3;stop-opacity:1;" />
+         style="stop-color:#0b63c9;stop-opacity:1;" />
     </linearGradient>
     <inkscape:perspective
        sodipodi:type="inkscape:persp3d"
@@ -213,15 +213,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="4"
-     inkscape:cx="43.625"
+     inkscape:cx="40.615664"
      inkscape:cy="8.3960288"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1044"
+     inkscape:window-width="1303"
      inkscape:window-height="674"
-     inkscape:window-x="1498"
-     inkscape:window-y="0" />
+     inkscape:window-x="0"
+     inkscape:window-y="464" />
   <metadata
      id="metadata7">
     <rdf:RDF>
