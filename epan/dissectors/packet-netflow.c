@@ -162,7 +162,7 @@ static const value_string v8_agg[] = {
 /* Version 9 template cache structures */
 #define V9TEMPLATE_CACHE_MAX_ENTRIES	100
 /* Max number of entries/scopes per template */
-#define V9TEMPLATE_MAX_FIELDS 20
+#define V9TEMPLATE_MAX_FIELDS 30
 
 struct v9_template_entry {
 	guint16	type;
