@@ -12,6 +12,7 @@ ALIGNED
 
 #.PDU_NEW
 S1AP-PDU
+SourceeNB-ToTargeteNB-TransparentContainer
 
 #.MAKE_ENUM
 ProcedureCode
@@ -31,14 +32,10 @@ Presence
 L3-Information
 OldBSS-ToNewBSS-Information
 SourceBSS-ToTargetBSS-TransparentContainer
-SourceeNB-ToTargeteNB-TransparentContainer
 SourceRNC-ToTargetRNC-TransparentContainer
 TargeteNB-ToSourceeNB-TransparentContainer
 TargetRNC-ToSourceRNC-TransparentContainer
 TargetBSS-ToSourceBSS-TransparentContainer
-RRC-Container
-E-RABInformationList
-UE-HistoryInformation
 #.END
 
 
@@ -243,6 +240,67 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #.FN_HDR UplinkNASTransport
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_UL;
+
+#.FN_BODY HandoverType VAL_PTR = &handover_type_value
+
+%(DEFAULT_BODY)s
+
+#Zero the value before use
+#.FN_HDR HandoverRequired
+	handover_type_value = 0;
+#.FN_HDR HandoverCommand
+	handover_type_value = 0;
+#.FN_HDR HandoverRequest
+	handover_type_value = 0;
+	
+#.FN_BODY Source-ToTarget-TransparentContainer
+ 
+# Annex A
+# ...Therefore the container content is encoded according to the
+# rules which are specified for the target radio system. In section 8.4.1.2,
+# it is described how the container shall be encoded with respect to the scenario 
+# in which it is used.    
+    switch(handover_type_value){
+   /*  
+    HandoverType ::= ENUMERATED {
+    intralte,
+    ltetoutran,
+    ltetogeran,
+    utrantolte,
+    gerantolte,
+    ...
+    } */ 
+		case 0:
+		/* intralte 
+			Intra E-UTRAN handover Source eNB to Target eNB
+			Transparent Container 36.413	
+		 */
+		dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer(tvb , offset, actx ,tree , hf_s1ap_SourceeNB_ToTargeteNB_TransparentContainer_PDU );
+		break;
+		case 1:
+		/* ltetoutran 
+			Source RNC to Target RNC
+			Transparent Container 25.413
+		*/
+		break;
+		case 2:
+		/* ltetogeran 
+			Source BSS to Target BSS
+			Transparent Container 48.018
+		*/
+		break;
+		case 3:
+		/* utrantolte */
+		break;
+		case 4:
+		/* gerantolte */
+		break;
+		default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+		break;
+	}
+
+
 	
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(s1ap_ProtocolIE_ID_vals)
