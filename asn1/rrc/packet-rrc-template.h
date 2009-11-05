@@ -25,6 +25,22 @@
 #ifndef PACKET_RRC_H
 #define PACKET_RRC_H
 
+extern int proto_rrc;
 #include "packet-rrc-exp.h"
+
+enum rrc_message_type {
+	RRC_MESSAGE_TYPE_INVALID	= 0,
+	RRC_MESSAGE_TYPE_PCCH		= 1,
+	RRC_MESSAGE_TYPE_UL_CCCH,
+	RRC_MESSAGE_TYPE_DL_CCCH,
+	RRC_MESSAGE_TYPE_UL_DCCH,
+	RRC_MESSAGE_TYPE_DL_DCCH,
+};
+
+#define MAX_RRC_FRAMES	64
+typedef struct rrc_info
+{
+	enum rrc_message_type msgtype[MAX_RRC_FRAMES];
+} rrc_info;
 
 #endif  /* PACKET_RRC_H */

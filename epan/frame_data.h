@@ -44,6 +44,7 @@ typedef struct _frame_data {
   guint32      pkt_len;     /* Packet length */
   guint32      cap_len;     /* Amount actually captured */
   guint32      cum_bytes;   /* Cumulative bytes into the capture */
+  guint16      subnum;      /* subframe number, for protocols that require this */
   gint64       file_off;    /* File offset */
   gint8        lnk_t;       /* Per-packet encapsulation/data-link type */
   struct {

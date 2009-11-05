@@ -26,6 +26,7 @@
 #endif
 
 #include <string.h>
+#include <stdio.h>
 
 #include <glib.h>
 #include <epan/packet.h>
@@ -409,6 +410,7 @@ static dissector_handle_t *dxt_get_dissector(guint16 proto, packet_info *pinfo)
 		default:
 			next_dissector = &data_handle;
 	}
+	if (!*next_dissector) next_dissector = &data_handle;
 	return next_dissector;
 }
 
@@ -482,7 +484,7 @@ proto_register_meta(void)
 		{ &hf_meta_item_id, { "Item ID", "meta.item.id", FT_UINT16, BASE_HEX, VALS(meta_id_vals), 0x0, NULL, HFILL } },
 		{ &hf_meta_item_type, { "Item Type", "meta.item.type", FT_UINT8, BASE_HEX, VALS(meta_type_vals), 0x0, NULL, HFILL } },
 		{ &hf_meta_item_len, { "Item Length", "meta.item.len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
-		{ &hf_meta_item_data, { "Item Data", "meta.item.data", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+		{ &hf_meta_item_data, { "Item Data", "meta.item.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		/* specific meta items */
 		{ &hf_meta_item_direction, { "Direction", "meta.direction", FT_UINT8, BASE_DEC, VALS(meta_direction_vals), 0, NULL, HFILL } },

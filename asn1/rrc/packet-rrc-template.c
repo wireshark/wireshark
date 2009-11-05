@@ -54,13 +54,17 @@
 
 static dissector_handle_t gsm_a_dtap_handle;
 static dissector_handle_t rrc_ue_radio_access_cap_info_handle=NULL;
+static dissector_handle_t rrc_pcch_handle=NULL;
+static dissector_handle_t rrc_ul_ccch_handle=NULL;
+static dissector_handle_t rrc_dl_ccch_handle=NULL;
+static dissector_handle_t rrc_ul_dcch_handle=NULL;
 static dissector_handle_t rrc_dl_dcch_handle=NULL;
 
 /* Include constants */
 #include "packet-rrc-val.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_rrc = -1;
+int proto_rrc = -1;
 static int hf_test;
 #include "packet-rrc-hf.c"
 
@@ -73,6 +77,8 @@ static int ett_rrc = -1;
 static proto_tree *top_tree;
 
 #include "packet-rrc-fn.c"
+
+#include "packet-rrc.h"
 
 /* 
 TODO: Remove the dummy function when these functions are taken into use
@@ -106,8 +112,10 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	proto_item	*rrc_item = NULL;
 	proto_tree	*rrc_tree = NULL;
+	struct rrc_info *rrcinf;
 
 	top_tree = tree;
+	rrcinf = p_get_proto_data(pinfo->fd, proto_rrc);
 
 	/* make entry in the Protocol column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
@@ -116,6 +124,27 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rrc_item = proto_tree_add_item(tree, proto_rrc, tvb, 0, -1, FALSE);
 	rrc_tree = proto_item_add_subtree(rrc_item, ett_rrc);
 
+	if (rrcinf) {
+		switch (rrcinf->msgtype[pinfo->fd->subnum]) {
+			case RRC_MESSAGE_TYPE_PCCH:
+				call_dissector(rrc_pcch_handle, tvb, pinfo, rrc_tree);
+				break;
+			case RRC_MESSAGE_TYPE_UL_CCCH:
+				call_dissector(rrc_ul_ccch_handle, tvb, pinfo, rrc_tree);
+				break;
+			case RRC_MESSAGE_TYPE_DL_CCCH:
+				call_dissector(rrc_dl_ccch_handle, tvb, pinfo, rrc_tree);
+				break;
+			case RRC_MESSAGE_TYPE_UL_DCCH:
+				call_dissector(rrc_ul_dcch_handle, tvb, pinfo, rrc_tree);
+				break;
+			case RRC_MESSAGE_TYPE_DL_DCCH:
+				call_dissector(rrc_dl_dcch_handle, tvb, pinfo, rrc_tree);
+				break;
+			default:
+				;
+		}
+	}
 }
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_rrc(void) {
@@ -157,6 +186,11 @@ proto_reg_handoff_rrc(void)
 {
 
 	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+	rrc_pcch_handle = find_dissector("rrc.pcch");
+	rrc_ul_ccch_handle = find_dissector("rrc.ul.ccch");
+	rrc_dl_ccch_handle = find_dissector("rrc.dl.ccch");
+	rrc_ul_dcch_handle = find_dissector("rrc.ul.dcch");
+	rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
 	rrc_ue_radio_access_cap_info_handle = find_dissector("rrc.ue_radio_access_cap_info");
 	rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
 }

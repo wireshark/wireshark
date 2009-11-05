@@ -391,18 +391,32 @@ static int rlc_cmp_seq(gconstpointer a, gconstpointer b)
 			0;
 }
 
+/* callback function to use for g_hash_table_foreach_remove()
+ * always return TRUE (=always delete the entry)
+ * this is required for backwards compatibility
+ * with older versions of glib which do not have
+ * a g_hash_table_remove_all() (because of this,
+ * hashtables are emptied using g_hash_table_foreach_remove()
+ * in conjunction with this funcion)
+ */
+static gboolean free_table_entry(gpointer key _U_,
+	gpointer value _U_, gpointer user_data _U_)
+{
+	return TRUE;
+}
+
 static void fragment_table_init(void)
 {
 	if (fragment_table) {
-		g_hash_table_remove_all(fragment_table);
+		g_hash_table_foreach_remove(fragment_table, free_table_entry, NULL);
 		g_hash_table_destroy(fragment_table);
 	}
 	if (reassembled_table) {
-		g_hash_table_remove_all(reassembled_table);
+		g_hash_table_foreach_remove(reassembled_table, free_table_entry, NULL);
 		g_hash_table_destroy(reassembled_table);
 	}
 	if (sequence_table) {
-		g_hash_table_remove_all(sequence_table);
+		g_hash_table_foreach_remove(sequence_table, free_table_entry, NULL);
 		g_hash_table_destroy(sequence_table);
 	}
 	fragment_table = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal,
@@ -745,6 +759,8 @@ static void rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
 			return; /* abort */
 	}
 	if (msgtype != RRC_MESSAGE_TYPE_INVALID) {
+#if 0
+		/* TODO: call rrc dissector correctly */
 		struct rrc_info *rrcinf;
 		fp_info *fpinf;
 		fpinf = p_get_proto_data(pinfo->fd, proto_fp);
@@ -754,6 +770,7 @@ static void rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
 			p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
 		}
 		rrcinf->msgtype[fpinf->cur_tb] = msgtype;
+#endif
 		call_dissector(rrc_handle, tvb, pinfo, tree);
 		/* once the packet has been dissected, protect it from further changes */
 		col_set_writable(pinfo->cinfo, FALSE);
@@ -1330,7 +1347,7 @@ proto_register_rlc(void)
 		{ &hf_rlc_ext, { "Extension Bit", "rlc.ext", FT_BOOLEAN, BASE_DEC, TFS(&rlc_ext_val), 0x01, NULL, HFILL } },
 		{ &hf_rlc_he, { "Header Extension Type", "rlc.he", FT_UINT8, BASE_DEC, VALS(rlc_he_vals), 0, NULL, HFILL } },
 		{ &hf_rlc_p, { "Polling Bit", "rlc.p", FT_BOOLEAN, 8, TFS(&rlc_p_val), 0x04, NULL, HFILL } },
-		{ &hf_rlc_pad, { "Padding", "rlc.padding", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+		{ &hf_rlc_pad, { "Padding", "rlc.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 		{ &hf_rlc_frags, { "Reassembled Fragments", "rlc.fragments", FT_NONE, BASE_NONE, NULL, 0, "Fragments", HFILL } },
 		{ &hf_rlc_frag, { "RLC Fragment", "rlc.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_duplicate_of, { "Duplicate of", "rlc.duplicate_of", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
@@ -1350,7 +1367,7 @@ proto_register_rlc(void)
 		{ &hf_rlc_sufi_l, { "L", "rlc.sufi.l", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_sufi_len, { "Length", "rlc.sufi.len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_sufi_fsn, { "FSN", "rlc.sufi.fsn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-		{ &hf_rlc_sufi_bitmap, { "Bitmap", "rlc.sufi.bitmap", FT_BYTES, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+		{ &hf_rlc_sufi_bitmap, { "Bitmap", "rlc.sufi.bitmap", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 		{ &hf_rlc_sufi_cw, { "CW", "rlc.sufi.cw", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_sufi_n, { "N", "rlc.sufi.n", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_sufi_sn_ack, { "SN ACK", "rlc.sufi.sn_ack", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },

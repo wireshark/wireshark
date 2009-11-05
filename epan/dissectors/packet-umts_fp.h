@@ -63,6 +63,13 @@ enum fp_hsdsch_entity
     ehs=2
 };
 
+enum fp_link_type
+{
+    FP_Link_Unknown,
+    FP_Link_ATM,
+    FP_Link_Ethernet,
+};
+
 /* Info attached to each FP packet */
 typedef struct fp_info
 {
@@ -85,6 +92,10 @@ typedef struct fp_info
     guint8 edch_ddi[MAX_EDCH_DDIS];
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
 
+    gint cur_tb;	/* current transport block (required for dissecting of single TBs */
+    gint cur_chan;  /* current channel, required to retrieve the correct channel configuration for UMTS MAC */
+
     enum   fp_hsdsch_entity hsdsch_entity;
+    enum   fp_link_type link_type;
 } fp_info;
 

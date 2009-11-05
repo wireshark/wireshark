@@ -450,6 +450,7 @@ DISSECTOR_SRC = \
 	packet-fmp.c		\
 	packet-fmp_notify.c	\
 	packet-force10-oui.c	\
+	packet-fp_hint.c	\
 	packet-fr.c		\
 	packet-fractalgeneratorprotocol.c \
 	packet-frame.c		\
@@ -618,6 +619,7 @@ DISSECTOR_SRC = \
 	packet-megaco.c		\
 	packet-memcache.c	\
 	packet-mesh.c		\
+	packet-meta.c		\
 	packet-mgcp.c		\
 	packet-mikey.c		\
 	packet-miop.c		\
@@ -745,6 +747,7 @@ DISSECTOR_SRC = \
 	packet-rgmp.c		\
 	packet-rip.c		\
 	packet-ripng.c		\
+	packet-rlc.c		\
 	packet-rlc-lte.c		\
 	packet-rlm.c		\
 	packet-rlogin.c		\
@@ -879,6 +882,7 @@ DISSECTOR_SRC = \
 	packet-usb-hid.c	\
 	packet-usb-hub.c	\
 	packet-umts_fp.c	\
+	packet-umts_mac.c	\
 	packet-user_encap.c	\
 	packet-uts.c		\
 	packet-v120.c		\
@@ -1106,6 +1110,7 @@ DISSECTOR_INCLUDES =	\
 	packet-logotypecertextn.h	\
 	packet-lte-rrc.h	\
 	packet-mac-lte.h		\
+	packet-meta.h	\
 	packet-mgcp.h		\
 	packet-mikey.h	\
 	packet-mip6.h	\
@@ -1167,6 +1172,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rdt.h	\
 	packet-rgmp.h	\
 	packet-ripng.h	\
+	packet-rlc.h	\
 	packet-rlc-lte.h		\
 	packet-rmi.h	\
 	packet-rmt-alc.h	\
@@ -1229,6 +1235,7 @@ DISSECTOR_INCLUDES =	\
 	packet-tte.h \
 	packet-udp.h	\
 	packet-umts_fp.h	\
+	packet-umts_mac.c	\
 	packet-usb.h	\
 	packet-usb-hid.h	\
 	packet-vines.h	\
