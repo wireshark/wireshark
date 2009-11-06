@@ -342,22 +342,26 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
    *
    * by making some NDIS request.
    */
-  if ( strstr(if_info->description,"generic dialup") != NULL ||
-       strstr(if_info->description,"PPP/SLIP") != NULL) {
+  if ( if_info->description && ( strstr(if_info->description,"generic dialup") != NULL ||
+       strstr(if_info->description,"PPP/SLIP") != NULL ) ) {
     return xpm_to_widget(modem_16_xpm);
   }
 
-  if ( strstr(if_info->description,"Wireless") != NULL || strstr(if_info->description,"802.11") != NULL ||
-       strstr(if_info->description,"AirPcap") != NULL || strstr(if_info->name,"airpcap") != NULL) {
+  if ( if_info->description && ( strstr(if_info->description,"Wireless") != NULL ||
+       strstr(if_info->description,"802.11") != NULL || strstr(if_info->description,"AirPcap") != NULL ) ) {
+    return xpm_to_widget(network_wireless_16_xpm);
+  }
+
+  if ( strstr(if_info->name,"airpcap") != NULL ) {
     return xpm_to_widget(network_wireless_16_xpm);
   }
 
   /* TODO: find a better icon! */
-  if ( strstr(if_info->description,"VMware") != NULL) {
+  if ( if_info->description && strstr(if_info->description,"VMware") != NULL ) {
     return xpm_to_widget(network_virtual_16_xpm);
   }
 
-  if ( strstr(if_info->description,"Bluetooth") != NULL) {
+  if ( if_info->description && strstr(if_info->description,"Bluetooth") != NULL ) {
     return xpm_to_widget(network_bluetooth_16_xpm);
   }
 #elif defined(__APPLE__)
