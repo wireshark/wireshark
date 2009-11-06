@@ -542,6 +542,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-fmp_notify.c
 	dissectors/packet-force10-oui.c
 	dissectors/packet-fr.c
+	dissectors/packet-fp_hint.c  
 	dissectors/packet-fractalgeneratorprotocol.c
 	dissectors/packet-frame.c
 	dissectors/packet-ftp.c
@@ -709,6 +710,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-megaco.c
 	dissectors/packet-memcache.c
 	dissectors/packet-mesh.c
+	dissectors/packet-meta.c
 	dissectors/packet-mgcp.c
 	dissectors/packet-mikey.c
 	dissectors/packet-miop.c
@@ -836,6 +838,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rgmp.c
 	dissectors/packet-rip.c
 	dissectors/packet-ripng.c
+	dissectors/packet-rlc.c
 	dissectors/packet-rlc-lte.c
 	dissectors/packet-rlm.c
 	dissectors/packet-rlogin.c
@@ -968,7 +971,9 @@ set(DISSECTOR_SRC
 	dissectors/packet-usb.c
 	dissectors/packet-usb-masstorage.c
 	dissectors/packet-usb-hid.c
+	dissectors/packet-usb-hub.c
 	dissectors/packet-umts_fp.c
+	dissectors/packet-umts_mac.c
 	dissectors/packet-user_encap.c
 	dissectors/packet-uts.c
 	dissectors/packet-v120.c
