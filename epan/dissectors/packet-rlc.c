@@ -722,17 +722,7 @@ static gboolean rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16
 static void rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
 	packet_info *pinfo,	proto_tree *tree)
 {
-
-	typedef enum {
-		RRC_MESSAGE_TYPE_INVALID,
-		RRC_MESSAGE_TYPE_UL_CCCH,
-		RRC_MESSAGE_TYPE_DL_CCCH,
-		RRC_MESSAGE_TYPE_UL_DCCH,
-		RRC_MESSAGE_TYPE_DL_DCCH,
-		RRC_MESSAGE_TYPE_PCCH
-	} rrc_message_type_t;
-
-	rrc_message_type_t msgtype; 
+	enum rrc_message_type msgtype; 
 
 	switch (channel) {
 		case UL_CCCH:
@@ -759,8 +749,6 @@ static void rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
 			return; /* abort */
 	}
 	if (msgtype != RRC_MESSAGE_TYPE_INVALID) {
-#if 0
-		/* TODO: call rrc dissector correctly */
 		struct rrc_info *rrcinf;
 		fp_info *fpinf;
 		fpinf = p_get_proto_data(pinfo->fd, proto_fp);
@@ -770,7 +758,6 @@ static void rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
 			p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
 		}
 		rrcinf->msgtype[fpinf->cur_tb] = msgtype;
-#endif
 		call_dissector(rrc_handle, tvb, pinfo, tree);
 		/* once the packet has been dissected, protect it from further changes */
 		col_set_writable(pinfo->cinfo, FALSE);
