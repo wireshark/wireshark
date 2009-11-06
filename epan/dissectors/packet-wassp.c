@@ -26,6 +26,9 @@
  */
 
 /*
+  http://ietfreport.isoc.org/all-ids/draft-singh-capwap-ctp-02.txt
+  looks very similar (but not always identical).
+
   TODO:
   - Improve heuristics!!!
   - Verify TLV descriptions/types
