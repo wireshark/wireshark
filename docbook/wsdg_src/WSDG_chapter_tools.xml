@@ -654,10 +654,10 @@ PARTICULAR PURPOSE.]]>
       versions "ordered by release date":</para>
       <informaltable frame="all">
         <tgroup cols="4">
-          <colspec colname="c1" colwidth="25*" />
-          <colspec colname="c2" colwidth="25*" />
-          <colspec colname="c3" colwidth="25*" />
-          <colspec colname="c4" colwidth="25*" />
+          <colspec colname="c1" colwidth="55*" />
+          <colspec colname="c2" colwidth="10*" />
+          <colspec colname="c3" colwidth="15*" />
+          <colspec colname="c4" colwidth="20*" />
           <tbody>
             <row>
               <entry>
@@ -667,10 +667,10 @@ PARTICULAR PURPOSE.]]>
                 <para>cl.exe</para>
               </entry>
               <entry>
-                <para>#define _MSC_VER</para>
+                <para>_MSC_VER</para>
               </entry>
               <entry>
-                <para>required C-Runtime DLL</para>
+                <para>CRT DLL</para>
               </entry>
             </row>
             <row>
@@ -684,8 +684,7 @@ PARTICULAR PURPOSE.]]>
                 <para>1200</para>
               </entry>
               <entry align="center">
-                <para>msvcrt.dll</para>
-                <para>(Version 6)</para>
+                <para>msvcrt.dll (Version 6)</para>
               </entry>
             </row>
             <row>
@@ -752,29 +751,27 @@ PARTICULAR PURPOSE.]]>
             </row>
             <row>
               <entry>
-                <para>Windows SDK for Windows Vista and</para>
-                <para>.NET Framework 3.0 Runtime Components</para>
+                <para>Windows SDK for Windows Vista and
+                .NET Framework 3.0 Runtime Components</para>
               </entry>
             </row>
             <row>
               <entry>
                 <para>Visual Studio 2008</para>
-                <para>(Code Name "Orcas")</para>
               </entry>
-              <entry align="center" morerows="2" valign="middle">
+              <entry align="center" morerows="1" valign="middle">
                 <para>9.0</para>
               </entry>
-              <entry align="center" morerows="2" valign="middle">
+              <entry align="center" morerows="1" valign="middle">
                 <para>1500</para>
               </entry>
-              <entry align="center" morerows="2" valign="middle">
+              <entry align="center" morerows="1" valign="middle">
                 <para>msvcr90.dll</para>
               </entry>
             </row>
             <row>
               <entry>
                 <para>Visual Studio 2008 Express Edition</para>
-                <para>(Code Name "Orcas")</para>
               </entry>
             </row>
           </tbody>
