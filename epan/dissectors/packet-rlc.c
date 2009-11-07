@@ -576,17 +576,18 @@ static struct rlc_frag *add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_i
 {
 	struct rlc_channel ch_lookup;
 	struct rlc_frag frag_lookup, *frag = NULL, *tmp;
+	gpointer orig_frag, orig_sdu;
 	struct rlc_sdu *sdu;
-	gboolean found;
 
 	rlc_channel_assign(&ch_lookup, mode, pinfo);
 	rlc_frag_assign(&frag_lookup, mode, pinfo, seq, num_li);
 
 	/* look for an already assembled SDU */
-	found = g_hash_table_lookup_extended(reassembled_table, &frag_lookup,
-		(gpointer*)&frag, (gpointer*)&sdu);
-	if (found == TRUE) {
+	if (g_hash_table_lookup_extended(reassembled_table, &frag_lookup,
+	    &orig_frag, &orig_sdu)) {
 		/* this fragment is already reassembled somewhere */
+		frag = orig_frag;
+		sdu = orig_sdu;
 		if (tree) {
 			/* mark the fragment, if reassembly happened somewhere else */
 			if (frag->seq != sdu->reassembled_in->seq ||
