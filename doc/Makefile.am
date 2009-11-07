@@ -98,21 +98,21 @@ AUTHORS-SHORT: $(top_srcdir)/AUTHORS $(srcdir)/make-authors-short.pl
 AUTHORS-SHORT-FORMAT: ../AUTHORS-SHORT $(srcdir)/make-authors-format.pl
 	$(PERL) $(srcdir)/perlnoutf.pl $(srcdir)/make-authors-format.pl < AUTHORS-SHORT > AUTHORS-SHORT-FORMAT
 
-wireshark-tmp.pod: $(srcdir)/wireshark.pod AUTHORS-SHORT-FORMAT
-	cat $(srcdir)/wireshark.pod AUTHORS-SHORT-FORMAT > wireshark-tmp.pod
+wireshark.pod: $(srcdir)/wireshark.pod.template AUTHORS-SHORT-FORMAT
+	cat $(srcdir)/wireshark.pod.template AUTHORS-SHORT-FORMAT > wireshark.pod
 
-wireshark.1: wireshark-tmp.pod ../config.h
+wireshark.1: wireshark.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
-	wireshark-tmp.pod | sed 's/WIRESHARK-TMP/WIRESHARK/' > wireshark.1
+	wireshark.pod  > wireshark.1
 
-wireshark.html: wireshark-tmp.pod ../config.h $(top_srcdir)/docbook/ws.css
+wireshark.html: wireshark.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)						\
 	--title="The Wireshark Network Analyzer $(VERSION)"	\
 	--css=$(top_srcdir)/docbook/ws.css						\
 	--noindex						\
-	wireshark-tmp.pod > wireshark.html
+	wireshark.pod > wireshark.html
 
 tshark.1: tshark.pod ../config.h
 	$(POD2MAN)					\
@@ -238,7 +238,7 @@ rawshark.html: rawshark.pod ../config.h $(top_srcdir)/docbook/ws.css
 
 CLEANFILES =		\
 	wireshark-filter.pod \
-	wireshark-tmp.pod \
+	wireshark.pod \
 	wireshark-filter.4 \
 	wireshark-filter.html \
 	wireshark.1	\
