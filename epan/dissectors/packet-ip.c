@@ -203,6 +203,12 @@ static dissector_handle_t tapa_handle;
 /* Minimum IP header length. */
 #define	IPH_MIN_LEN	20
 
+/* Width (in bits) of the fragment offset IP header field */
+#define IP_OFFSET_WIDTH   13
+
+/* Width (in bits) of the flags IP header field */
+#define IP_FLAGS_WIDTH    3
+
 /* IP flags. */
 #define IP_RF		0x8000		/* Flag: "Reserved bit"		*/
 #define IP_DF		0x4000		/* Flag: "Don't Fragment"	*/
@@ -1428,13 +1434,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   iph->ip_off = tvb_get_ntohs(tvb, offset + 6);
   if (tree) {
-    flags = (iph->ip_off & (IP_RF | IP_DF | IP_MF)) >> 12;
+    flags = (iph->ip_off & (IP_RF | IP_DF | IP_MF)) >> IP_OFFSET_WIDTH;
     tf = proto_tree_add_uint(ip_tree, hf_ip_flags, tvb, offset + 6, 1, flags);
     field_tree = proto_item_add_subtree(tf, ett_ip_off);
     proto_tree_add_boolean(field_tree, hf_ip_flags_rf, tvb, offset + 6, 1, flags);
-    if (flags & (IP_DF>>12)) proto_item_append_text(tf, " (Don't Fragment)");
+    if (flags & (IP_DF >> IP_OFFSET_WIDTH)) proto_item_append_text(tf, " (Don't Fragment)");
     proto_tree_add_boolean(field_tree, hf_ip_flags_df, tvb, offset + 6, 1, flags);
-    if (flags & (IP_MF>>12)) proto_item_append_text(tf, " (More Fragments)");
+    if (flags & (IP_MF >> IP_OFFSET_WIDTH)) proto_item_append_text(tf, " (More Fragments)");
     proto_tree_add_boolean(field_tree, hf_ip_flags_mf, tvb, offset + 6, 1, flags);
 
     proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2,
@@ -1684,6 +1690,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 void
 proto_register_ip(void)
 {
+#define ARG_TO_STR(ARG) #ARG
+#define FRAG_OFFSET_WIDTH_MSG(WIDTH) \
+    "Fragment offset (" ARG_TO_STR(WIDTH) " bits)"
+
 	static hf_register_info hf[] = {
 
 		{ &hf_ip_version,
@@ -1843,20 +1853,20 @@ proto_register_ip(void)
 			NULL, HFILL }},
 
 		{ &hf_ip_flags_rf,
-		{ "Reserved bit",	"ip.flags.rb", FT_BOOLEAN, 4, TFS(&tfs_set_notset), IP_RF >> 12,
-			NULL, HFILL }},
+		{ "Reserved bit", "ip.flags.rb", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&tfs_set_notset),
+			IP_RF >> IP_OFFSET_WIDTH, NULL, HFILL }},
 
 		{ &hf_ip_flags_df,
-		{ "Don't fragment",	"ip.flags.df", FT_BOOLEAN, 4, TFS(&tfs_set_notset), IP_DF >> 12,
-			NULL, HFILL }},
+		{ "Don't fragment", "ip.flags.df", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&tfs_set_notset),
+			IP_DF >> IP_OFFSET_WIDTH, NULL, HFILL }},
 
 		{ &hf_ip_flags_mf,
-		{ "More fragments",	"ip.flags.mf", FT_BOOLEAN, 4, TFS(&tfs_set_notset), IP_MF >> 12,
-			NULL, HFILL }},
+		{ "More fragments", "ip.flags.mf", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&tfs_set_notset),
+			IP_MF >> IP_OFFSET_WIDTH, NULL, HFILL }},
 
 		{ &hf_ip_frag_offset,
 		{ "Fragment offset",	"ip.frag_offset", FT_UINT16, BASE_DEC, NULL, 0x0,
-			"Fragment offset (13 bits)", HFILL }},
+			FRAG_OFFSET_WIDTH_MSG(IP_OFFSET_WIDTH), HFILL }},
 
 		{ &hf_ip_ttl,
 		{ "Time to live",	"ip.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
