@@ -125,6 +125,8 @@ set(WIRESHARK_EXTRA_C_FLAGS
 	-Wpragmas
 	-Wredundant-decls
 	-Wvla
+	-Wc++-compat
+	-Wjump-misses-init
 	# packet-ncp2222.inc prevents this from going into all warnings
 	-Wwrite-strings
 	-Wstrict-prototypes
@@ -173,6 +175,10 @@ endif()
 # todo
 # Same for linker flags, but it looks like it's do-it-yourself here
 # AC_WIRESHARK_GCC_LDFLAGS_CHECK([-Wl,--as-needed])
+# AC_WIRESHARK_GCC_LDFLAGS_CHECK([-flto])
+# AC_WIRESHARK_GCC_LDFLAGS_CHECK([-fwhopr])
+# AC_WIRESHARK_GCC_LDFLAGS_CHECK([-fwhole-program])
+
 
 #The minimum package list
 set(PACKAGELIST GLIB2 PCAP M LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGELIST})
