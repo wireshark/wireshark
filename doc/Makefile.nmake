@@ -33,8 +33,8 @@ doc: wireshark.html tshark.html wireshark-filter.html capinfos.html \
 man: wireshark.1 tshark.1 wireshark-filter.4 capinfos.1 editcap.1 \
 	idl2wrs.1 mergecap.1 text2pcap.1 dumpcap.1 rawshark.1
 
-wireshark-tmp.pod: wireshark.pod AUTHORS-SHORT-FORMAT
-	copy /B wireshark.pod + AUTHORS-SHORT-FORMAT wireshark-tmp.pod
+wireshark.pod: wireshark.pod.template AUTHORS-SHORT-FORMAT
+	copy /B wireshark.pod.template + AUTHORS-SHORT-FORMAT wireshark.pod
 
 #
 # Build the short version of the authors file for the about dialog
@@ -56,14 +56,14 @@ wireshark.1: wireshark.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Wireshark Network Analyzer" \
 	--release=$(VERSION)			 \
-	wireshark-tmp.pod > wireshark.1
+	wireshark.pod > wireshark.1
 
-wireshark.html: wireshark-tmp.pod ../config.h ws.css
+wireshark.html: wireshark.pod ../config.h ws.css
 	$(POD2HTML)                    \
 	--title="The Wireshark Network Analyzer $(VERSION)" \
 	--css=ws.css \
 	--noindex                                 \
-	wireshark-tmp.pod > wireshark.html
+	wireshark.pod > wireshark.html
 
 tshark.1: tshark.pod ../config.h
 	$(POD2MAN)                     \
@@ -196,7 +196,7 @@ rawshark.html: rawshark.pod ../config.h ws.css
 	rawshark.pod > rawshark.html
 
 clean:
-	rm -f wireshark.html wireshark.1 wireshark-tmp.pod
+	rm -f wireshark.html wireshark.1 wireshark.pod
 	rm -f tshark.html tshark.1
 	rm -f wireshark-filter.html wireshark-filter.4 wireshark-filter.pod
 	rm -f capinfos.html capinfos.1
