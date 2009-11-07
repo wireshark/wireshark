@@ -546,7 +546,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     udpd=get_udp_conversation_data(conv,pinfo);
   }
 
-  if (udpd && (udpd->fwd || udpd->rev) && (udpd->fwd->command || udpd->rev->command)) {
+  if (udpd && ((udpd->fwd && udpd->fwd->command) || (udpd->rev && udpd->rev->command))) {
     ti = proto_tree_add_text(udp_tree, tvb, offset, 0, "Process Information");
 	PROTO_ITEM_SET_GENERATED(ti);
     process_tree = proto_item_add_subtree(ti, ett_udp_process_info);
