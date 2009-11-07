@@ -41,18 +41,22 @@
 #include <epan/emem.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
 
 /* The MPEG2 TS packet size */
 #define MP2T_PACKET_SIZE 188
 #define MP2T_SYNC_BYTE 0x47
 
 static dissector_handle_t pes_handle;
+static dissector_handle_t docsis_handle;
+static dissector_handle_t data_handle;
 
 static int proto_mp2t = -1;
 static gint ett_mp2t = -1;
 static gint ett_mp2t_header = -1;
 static gint ett_mp2t_af = -1;
 static gint ett_mp2t_analysis = -1;
+static gint ett_dmpt = -1; 
 
 static int hf_mp2t_header = -1;
 static int hf_mp2t_sync_byte = -1;
@@ -154,11 +158,11 @@ static int hf_mp2t_af_e_m_3 = -1;
 static int hf_mp2t_payload = -1;
 static int hf_mp2t_malformed_payload = -1;
 
+
 static const value_string mp2t_sync_byte_vals[] = {
 	{ MP2T_SYNC_BYTE, "Correct" },
 	{ 0, NULL }
 };
-
 
 static const value_string mp2t_pid_vals[] = {
 	{ 0x0000, "Program Association Table" },
@@ -177,6 +181,7 @@ static const value_string mp2t_pid_vals[] = {
 	{ 0x000D, "Reserved" },
 	{ 0x000E, "Reserved" },
 	{ 0x000F, "Reserved" },
+	{ 0x1FFE, "DOCSIS Data-over-cable well-known PID" },
 	{ 0x1FFF, "Null packet" },
 	{ 0, NULL }
 };
@@ -196,6 +201,262 @@ static const value_string mp2t_afc_vals[] = {
 	{ 3, "Adaptation Field and Payload" },
 	{ 0, NULL }
 };
+
+static gint ett_depi_msg_fragment = -1;
+static gint ett_depi_msg_fragments = -1;
+static int hf_depi_msg_fragments = -1;
+static int hf_depi_msg_fragment = -1;
+static int hf_depi_msg_fragment_overlap = -1;
+static int hf_depi_msg_fragment_overlap_conflicts = -1;
+static int hf_depi_msg_fragment_multiple_tails = -1;
+static int hf_depi_msg_fragment_too_long_fragment = -1;
+static int hf_depi_msg_fragment_error = -1;
+static int hf_depi_msg_reassembled_in = -1;
+
+static const fragment_items depi_msg_frag_items = {
+    /* Fragment subtrees */
+    &ett_depi_msg_fragment,
+    &ett_depi_msg_fragments,
+    /* Fragment fields */
+    &hf_depi_msg_fragments,
+    &hf_depi_msg_fragment,
+    &hf_depi_msg_fragment_overlap,
+    &hf_depi_msg_fragment_overlap_conflicts,
+    &hf_depi_msg_fragment_multiple_tails,
+    &hf_depi_msg_fragment_too_long_fragment,
+    &hf_depi_msg_fragment_error,
+    /* Reassembled in field */
+    &hf_depi_msg_reassembled_in,
+    /* Tag */
+    "Message fragments"
+};
+
+/* Structures to handle DOCSIS-DEPI packets, spanned across
+ * multiple MPEG packets
+ */
+static GHashTable *mp2t_depi_fragment_table = NULL;
+static GHashTable *mp2t_depi_reassembled_table = NULL;
+
+/*****************   DOCSIS defragmentation support *******************/
+/* definitions of DOCSIS payload type - from plugins/docsis/packet-docsis.c  */
+#define DOCSIS_FC_TYPE_DATA         0x00
+#define DOCSIS_FC_TYPE_ATM          0x01
+#define DOCSIS_FC_TYPE_RESERVED     0x02
+#define DOCSIS_FC_TYPE_MAC          0x03
+
+static guint16
+get_docsis_packet_length(tvbuff_t * tvb, gint offset)
+{
+    guint16 len;
+    guint8  fc;
+    guint8  fctype;
+
+    /* Extract FC_TYPE and FC_PARM */
+    fc = tvb_get_guint8 (tvb, offset);  /* Frame Control Byte */
+    fctype = (fc >> 6) & 0x03;  /* Frame Control Type: 2 MSB Bits */
+
+    if((fctype == DOCSIS_FC_TYPE_ATM) ||
+       (fctype == DOCSIS_FC_TYPE_RESERVED)) {
+        /* add text - this FC type is not supported */
+        return 0;
+    }
+
+    /* The only case when this field is used for SID is for
+     * request frames, but they are in upstream direction.
+     */
+    len = tvb_get_ntohs(tvb, offset + 2)  +  6;
+
+    return (len);
+}
+
+static void
+mp2t_depi_docsis_fragmentation_handle(tvbuff_t *tvb, guint offset,
+					 packet_info *pinfo, proto_tree *tree,
+					 guint frag_offset, guint frag_len,
+					 gboolean fragment_last)
+{
+    fragment_data *frag_msg = NULL;
+    tvbuff_t *new_tvb = NULL;
+    tvbuff_t *next_tvb = NULL;
+    proto_item *ti;
+    proto_tree *dmpt_tree;
+
+    pinfo->fragmented = TRUE;
+
+    /* check length; send frame for reassembly */
+    frag_msg = fragment_add_check(tvb, offset, pinfo,
+                   0, mp2t_depi_fragment_table,
+                   mp2t_depi_reassembled_table,
+                   frag_offset,
+                   frag_len,
+                   !fragment_last);
+
+    new_tvb = process_reassembled_data(tvb, offset, pinfo,
+                  "Reassembled Message",
+                  frag_msg, &depi_msg_frag_items,
+                  NULL, tree);
+
+    if (frag_msg) { /* Reassembled */
+        col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+    } else { /* Not last packet of reassembled Short Message */
+        col_append_fstr(pinfo->cinfo, COL_INFO," (Message fragment %u)", 0);
+    }
+
+    /* put DOCSIS handler here */
+    if (new_tvb) { /* take it all */
+        next_tvb = new_tvb;
+
+        ti = proto_tree_add_text(tree, tvb, offset, 0, "DOCSIS MAC Frame (reassembled)");
+        dmpt_tree = proto_item_add_subtree(ti, ett_dmpt);
+
+        if (docsis_handle)
+            call_dissector(docsis_handle, next_tvb, pinfo, dmpt_tree);
+        else
+            call_dissector(data_handle, next_tvb, pinfo, dmpt_tree);
+    } else { /* make a new subset */
+        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    }
+
+    return;
+}
+
+/*  Decoding of DOCSIS MAC frames within MPEG packets. MAC frames may begin anywhere
+ *  within an MPEG packet or span multiple MPEG packets.
+ *  payload_unit_start_indicator bit in MPEG header, and pointer field are used to
+ *  decode fragmented DOCSIS frames within MPEG packet.
+ *-------------------------------------------------------------------------------
+ *MPEG Header | pointer_field | stuff_bytes | Start of MAC Frame #1              |
+ *(PUSI = 1)  | (= 0)         | (0 or more) |(up to 183 bytes)                   |
+ *-------------------------------------------------------------------------------
+ *-------------------------------------------------------------------------------
+ *MPEG Header |  Continuation of MAC Frame #1                                    |
+ *(PUSI = 0)  |  (up to 183 bytes)                                               |
+ *-------------------------------------------------------------------------------
+ *-------------------------------------------------------------------------------
+ *MPEG Header | pointer_field |Tail of MAC Frame| stuff_bytes |Start of MAC Frame|
+ *(PUSI = 1)  | (= M)         | #1  (M bytes)   | (0 or more) |# 2 (N bytes)     |
+ *-------------------------------------------------------------------------------
+ *  Source - Data-Over-Cable Service Interface Specifications
+ *  CM-SP-DRFI-I07-081209
+ */
+static void
+mp2t_depi_docsis_process_payload(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                                 proto_tree *tree, proto_tree *header_tree)
+{
+    guint32  pusi_flag;
+    tvbuff_t *next_tvb;
+    guint8   pointer;
+    proto_item *ti;
+    proto_tree *dmpt_tree;
+    static gboolean fragmentation = FALSE;
+    static guint32 mac_frame_len, cumulative_len;
+
+    pusi_flag = (tvb_get_ntohl(tvb, offset) & 0x00400000);
+
+    offset += 4;
+
+    if (pusi_flag) {
+        pointer = tvb_get_guint8(tvb, offset);
+        proto_tree_add_text(header_tree, tvb, offset, 1,
+            "Pointer: %u", tvb_get_guint8(tvb, offset));
+        offset += 1;
+    }
+
+    /* get tail of MAC frame */
+    if (pusi_flag && fragmentation) {
+        fragmentation = FALSE;
+
+        /* check length; send frame for reassembly */
+        mp2t_depi_docsis_fragmentation_handle(tvb, offset, pinfo,
+            tree,
+            cumulative_len,
+            pointer,
+            TRUE);
+        cumulative_len += pointer;
+
+        if (cumulative_len != mac_frame_len) {
+            proto_tree_add_text(tree, tvb, offset, mac_frame_len,
+                "Invalid cumulative length %u",
+                cumulative_len);
+            return;
+        }
+    }
+
+    /* Get start of MAC frame or get complete frame */
+    if (pusi_flag && !fragmentation) {
+        guint16 remaining_length;
+
+        remaining_length = 183 - pointer;
+        offset += pointer;
+
+        while (remaining_length > 0) {
+            while ((tvb_get_guint8(tvb, offset) == 0xFF)) {
+                remaining_length--;
+                if (remaining_length == 0)
+                    return;
+                offset += 1;
+            }
+
+            /* Here, we start DOCSIS frame */
+            mac_frame_len = get_docsis_packet_length(tvb, offset);
+            cumulative_len = 0;
+
+            if (!mac_frame_len) {
+                proto_tree_add_text(tree, tvb, offset, mac_frame_len,
+                    "Invalid DOCSIS length %u", mac_frame_len);
+                return;
+            }
+
+            if (mac_frame_len <= remaining_length) {
+                fragmentation = FALSE;
+                /* send for processing */
+                ti = proto_tree_add_text(tree, tvb, offset,
+                    mac_frame_len,
+                    "DOCSIS MAC Frame: %u bytes", mac_frame_len);
+                dmpt_tree = proto_item_add_subtree(ti, ett_dmpt);
+                next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+                call_dissector(docsis_handle, next_tvb, pinfo, dmpt_tree);
+
+                offset += mac_frame_len;
+                remaining_length -= mac_frame_len;
+            } else {
+                fragmentation = TRUE;
+
+                mp2t_depi_docsis_fragmentation_handle(tvb, offset, pinfo,
+                    tree, 0, remaining_length, FALSE);
+                cumulative_len = remaining_length;
+                return;
+            }
+        }
+    }
+
+    /* if PUSI flag == 0 - check fragmentation flag */
+    if (!pusi_flag) {
+        gboolean last_fragment = FALSE;
+
+        if (fragmentation == FALSE) {
+            /* Error - fragmentation should be TRUE */
+            proto_tree_add_text(tree, tvb, offset, mac_frame_len,
+                "Error - PUSI is 0 in unfragmented DOCSIS packet");
+            return;
+        }
+
+        /* If packet length is consistent with MAC frame length -
+         * call function to handle all fragments
+         */
+        if ((cumulative_len + 184) == mac_frame_len) {
+            last_fragment = TRUE;
+            fragmentation = FALSE;
+        }
+
+        mp2t_depi_docsis_fragmentation_handle(tvb, offset, pinfo,
+            tree, cumulative_len, 184, last_fragment);
+        cumulative_len += 184;
+
+        return;
+    }
+}
+
 
 /* Data structure used for detecting CC drops
  *
@@ -550,6 +811,12 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	proto_tree_add_item( mp2t_header_tree, hf_mp2t_tsc, tvb, offset, 4, FALSE);
 	proto_tree_add_item( mp2t_header_tree, hf_mp2t_afc, tvb, offset, 4, FALSE);
 	proto_tree_add_item( mp2t_header_tree, hf_mp2t_cc, tvb, offset, 4, FALSE);
+
+	/* If this is a DOCSIS packet - reassemble MPEG frames and call DOCSIS dissector */
+	if (((header & MP2T_PID_MASK) >> MP2T_PID_SHIFT) == 0x1FFE) {
+		mp2t_depi_docsis_process_payload(tvb, offset, pinfo, tree, mp2t_tree);
+	}
+
 	offset += 4;
 
 	/* Create a subtree for analysis stuff */
@@ -1017,20 +1284,61 @@ proto_register_mp2t(void)
 		{ &hf_mp2t_malformed_payload, {
 			"Malformed Payload", "mp2t.malformed_payload",
 			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
+		} },
+		{  &hf_depi_msg_fragments, {
+			"Message fragments", "mp2t.depi_msg.fragments",
+			FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL
+		} },
+		{  &hf_depi_msg_fragment, {
+			"Message fragment", "mp2t.depi_msg.fragment",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL
+		} },
+		{  &hf_depi_msg_fragment_overlap, {
+			"Message fragment overlap", "mp2t.depi_msg.fragment.overlap",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL
+		} },
+		{  &hf_depi_msg_fragment_overlap_conflicts, {
+			"Message fragment overlapping with conflicting data",
+			"mp2t.depi_msg.fragment.overlap.conflicts",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL
+		} },
+		{  &hf_depi_msg_fragment_multiple_tails, {
+			"Message has multiple tail fragments",
+			"mp2t.depi_msg.fragment.multiple_tails",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL
+		} },
+		{  &hf_depi_msg_fragment_too_long_fragment, {
+			"Message fragment too long", "mp2t.depi_msg.fragment.too_long_fragment",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL
+		} },
+		{  &hf_depi_msg_fragment_error, {
+			"Message defragmentation error", "mp2t.depi_msg.fragment.error",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL
+		} },
+		{  &hf_depi_msg_reassembled_in, {
+			"Reassembled in", "mp2t.depi_msg.reassembled.in",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL
 		} }
 	};
-
+	
 	static gint *ett[] =
 	{
 		&ett_mp2t,
 		&ett_mp2t_header,
 		&ett_mp2t_af,
-		&ett_mp2t_analysis
+		&ett_mp2t_analysis,
+		&ett_dmpt,
+		&ett_depi_msg_fragment,
+		&ett_depi_msg_fragments
 	};
 
 	proto_mp2t = proto_register_protocol("ISO/IEC 13818-1", "MP2T", "mp2t");
+	register_dissector("mp2t", dissect_mp2t, proto_mp2t);
 	proto_register_field_array(proto_mp2t, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	/* Register processing of fragmented DEPI packets */
+	fragment_table_init(&mp2t_depi_fragment_table);
+	reassembled_table_init(&mp2t_depi_reassembled_table);
 }
 
 
@@ -1047,5 +1355,7 @@ proto_reg_handoff_mp2t(void)
 	dissector_add_handle("udp.port", mp2t_handle);  /* for decode-as */
 
 	pes_handle = find_dissector("mpeg-pes");
+	docsis_handle = find_dissector("docsis");
+	data_handle = find_dissector("data");
 }
 

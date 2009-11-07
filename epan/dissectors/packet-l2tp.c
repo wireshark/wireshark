@@ -79,7 +79,10 @@ static int hf_l2tp_ccid = -1;
 static int hf_l2tp_cookie = -1;
 static int hf_l2tp_l2_spec_def = -1;
 static int hf_l2tp_l2_spec_atm = -1;
+static int hf_l2tp_l2_spec_docsis_dmpt = -1;
+static int hf_l2tp_l2_spec_v = -1;
 static int hf_l2tp_l2_spec_s = -1;
+static int hf_l2tp_l2_spec_flow_id = -1;
 static int hf_l2tp_l2_spec_sequence = -1;
 static int hf_l2tp_l2_spec_t = -1;
 static int hf_l2tp_l2_spec_g = -1;
@@ -121,6 +124,9 @@ static int hf_l2tp_cisco_avp_type = -1;
 #define CIRCUIT_STATUS_BIT(msg_info) (msg_info & 0x0001)	/* Circuit Status */
 #define CIRCUIT_TYPE_BIT(msg_info) (msg_info & 0x0001)		/* Circuit Condition */
 
+/* DOCSIS DMPT Sub-Layer Header definitions */
+#define FLOW_ID_MASK  0x0E
+
 static gint ett_l2tp = -1;
 static gint ett_l2tp_ctrl = -1;
 static gint ett_l2tp_avp = -1;
@@ -142,7 +148,8 @@ static enum_val_t l2tpv3_cookies[] = {
 #define L2TPv3_PROTOCOL_IP      4
 #define L2TPv3_PROTOCOL_MPLS    5
 #define L2TPv3_PROTOCOL_AAL5    6
-#define L2TPv3_PROTOCOL_LAPD	7
+#define L2TPv3_PROTOCOL_LAPD    7
+#define L2TPv3_PROTOCOL_DOCSIS_DMPT 8
 
 static enum_val_t l2tpv3_protocols[] = {
     {"eth",     "Ethernet",     L2TPv3_PROTOCOL_ETH},
@@ -152,7 +159,8 @@ static enum_val_t l2tpv3_protocols[] = {
     {"ip",      "IP",           L2TPv3_PROTOCOL_IP},
     {"mpls",    "MPLS",         L2TPv3_PROTOCOL_MPLS},
     {"aal5",    "AAL5",         L2TPv3_PROTOCOL_AAL5},
-    {"lapd",	"LAPD",         L2TPv3_PROTOCOL_LAPD},
+    {"lapd",    "LAPD",         L2TPv3_PROTOCOL_LAPD},
+    {"docsis-dmpt", "DOCSIS-DMPT", L2TPv3_PROTOCOL_DOCSIS_DMPT},
     {NULL, NULL, 0}
 };
 
@@ -160,12 +168,14 @@ static enum_val_t l2tpv3_protocols[] = {
 #define L2TPv3_L2_SPECIFIC_DEFAULT      1
 #define L2TPv3_L2_SPECIFIC_ATM          2
 #define L2TPv3_L2_SPECIFIC_LAPD         3
+#define L2TPv3_L2_SPECIFIC_DOCSIS_DMPT  4
 
 static enum_val_t l2tpv3_l2_specifics[] = {
     {"none",    "None",                 L2TPv3_L2_SPECIFIC_NONE},
     {"default", "Default L2-Specific",  L2TPv3_L2_SPECIFIC_DEFAULT},
     {"atm",     "ATM-Specific",         L2TPv3_L2_SPECIFIC_ATM},
     {"lapd",    "LAPD-Specific",        L2TPv3_L2_SPECIFIC_LAPD},
+    {"dmpt",    "DOCSIS DMPT-Specific", L2TPv3_L2_SPECIFIC_DOCSIS_DMPT},
     {NULL, NULL, 0}
 };
 
@@ -574,6 +584,7 @@ static dissector_handle_t mpls_handle;
 static dissector_handle_t atm_oam_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t lapd_handle;
+static dissector_handle_t mp2t_handle;
 static dissector_handle_t data_handle;
 
 /*
@@ -1395,6 +1406,26 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		next_tvb = tvb_new_subset_remaining(tvb, index + l2tpv3_cookie + 4);
 		break;
+	case L2TPv3_L2_SPECIFIC_DOCSIS_DMPT:
+		if (tree) {
+			ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_docsis_dmpt,
+						tvb, index + l2tpv3_cookie, 4, FALSE);
+			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
+
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_v, tvb, 
+						index + l2tpv3_cookie,1, FALSE);
+		
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, 
+						index + l2tpv3_cookie,1, FALSE);
+		
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_flow_id, tvb, 
+						index + l2tpv3_cookie,1, FALSE);
+		
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb, 
+						index + l2tpv3_cookie + 2,2, FALSE);
+		}
+		next_tvb = tvb_new_subset_remaining(tvb, index + l2tpv3_cookie + 4);
+		break;
 	case L2TPv3_L2_SPECIFIC_ATM:
 		if (tree) {
 			ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_atm,
@@ -1455,6 +1486,9 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 	case L2TPv3_PROTOCOL_MPLS:
 		call_dissector(mpls_handle, next_tvb, pinfo, tree);
+		break;
+	case L2TPv3_PROTOCOL_DOCSIS_DMPT:
+		call_dissector(mp2t_handle, next_tvb, pinfo, tree);
 		break;
 	case L2TPv3_PROTOCOL_AAL5:
 		if (oam_cell) {
@@ -2024,6 +2058,14 @@ proto_register_l2tp(void)
 		{ "ATM-Specific Sublayer","lt2p.l2_spec_atm", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
+		{ &hf_l2tp_l2_spec_docsis_dmpt,
+		{ "DOCSIS DMPT - Specific Sublayer","lt2p.l2_spec_docsis_dmpt", FT_NONE, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_l2tp_l2_spec_v,
+		{ "V-bit","lt2p.l2_spec_v", FT_BOOLEAN, 8, NULL, 0x80,
+			"VCCV Bit", HFILL }},
+
 		{ &hf_l2tp_l2_spec_s,
 		{ "S-bit","lt2p.l2_spec_s", FT_BOOLEAN, 8, NULL, 0x40,
 			"Sequence Bit", HFILL }},
@@ -2043,6 +2085,10 @@ proto_register_l2tp(void)
 		{ &hf_l2tp_l2_spec_u,
 		{ "U-bit","lt2p.l2_spec_u", FT_BOOLEAN, 8, NULL, 0x01,
 			"C/R Bit", HFILL }},
+
+		{ &hf_l2tp_l2_spec_flow_id,
+		{ "Flow ID","lt2p.l2_spec_flow_id", FT_UINT8, BASE_HEX, NULL, FLOW_ID_MASK,
+			NULL, HFILL }},
 
 		{ &hf_l2tp_l2_spec_sequence,
 		{ "Sequence Number","lt2p.l2_spec_sequence", FT_UINT24, BASE_DEC, NULL, 0x0,
@@ -2127,6 +2173,6 @@ proto_reg_handoff_l2tp(void)
 	atm_oam_handle = find_dissector("atm_oam_cell");
 	llc_handle = find_dissector("llc");
 	lapd_handle = find_dissector("lapd");
-
+	mp2t_handle = find_dissector("mp2t");
 	data_handle = find_dissector("data");
 }
