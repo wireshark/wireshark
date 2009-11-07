@@ -33,12 +33,12 @@ set(DISSECTOR_SUPPORT_SRC
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-#mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
-#        $(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/mate_grammar.lemon || \
-#                (rm -f grammar.c grammar.h ; false)
+set(DISSECTOR_SUPPORT_CLEAN_SRC
+	${DISSECTOR_SUPPORT_SRC}
+)
 
 add_lemon_files(DISSECTOR_SUPPORT_SRC
-        mate_grammar.lemon
+	mate_grammar.lemon
 )
 
 add_lex_files(DISSECTOR_SUPPORT_SRC
@@ -50,6 +50,20 @@ set(PLUGIN_FILES
 	${DISSECTOR_SRC}
 	${DISSECTOR_SUPPORT_SRC}
 )
+
+set(CLEAN_FILES
+	plugin.c
+	${DISSECTOR_SRC}
+	${DISSECTOR_SUPPORT_CLEAN_SRC}
+)
+
+if (WERROR)
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
+endif()
 
 register_dissector_files(plugin.c
 	plugin
@@ -67,8 +81,8 @@ add_library(mate MODULE
 target_link_libraries(mate epan)
 
 install(TARGETS mate
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
 )
 

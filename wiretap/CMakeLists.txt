@@ -71,6 +71,18 @@ set(WIRETAP_FILES
 	wtap.c
 )
 
+set(CLEAN_FILES
+	${WIRETAP_FILES}
+)
+
+if (WERROR) 
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
+endif()
+
 add_lex_files(WIRETAP_FILES
 	ascend_scanner.l
 	k12text.l

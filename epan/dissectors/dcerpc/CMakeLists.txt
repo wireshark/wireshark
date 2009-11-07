@@ -1,6 +1,6 @@
 # CMakeLists.txt
 #
-# $Id$
+# $Id: $
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -28,4 +28,20 @@ set(PIDL_DISSECTOR_AUTOGEN_NAMES
   PARENT_SCOPE
 ) 
 
-add_executable(idl2wrs idl2wrs.c)
+set(IDL2WRS_FILES
+	idl2wrs.c
+)
+
+set(CLEAN_FILES
+	${IDL2WRS_FILES}
+)
+
+if (WERROR)
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
+endif()
+
+add_executable(idl2wrs ${IDL2WRS_FILES})

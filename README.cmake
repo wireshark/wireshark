@@ -80,8 +80,7 @@ What needs to be done?
 - Fix places in the cmake files marked as todo.
 - Add back (working) install target.
   Currently, directories are created with user umask
-- Add back -Werror
-- Add back compiler flags test
+- Add back linker flags test
 - Build source package (using CPack).
 - Build rpm package (using CPack).
 - Build dpkg package (using CPack).

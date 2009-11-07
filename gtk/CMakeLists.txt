@@ -200,6 +200,19 @@ set(WIRESHARK_TAP_SRC
 # todo
 # about_dlg.c main_welcome.c: ../image/wssplash.xpm ../image/wssplash-dev.xpm
 
+set(CLEAN_FILES
+	${WIRESHARK_GTK_SRC}
+	${WIRESHARK_TAP_SRC}
+)
+
+if (WERROR)
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
+endif()
+
 register_tap_files(wireshark-tap-register.c
 	${WIRESHARK_TAP_SRC}
 )

@@ -31,6 +31,18 @@ set(WSPYTHON_FILES
 	wspy_proto.c
 )
 
+set(CLEAN_FILES
+	${WSPYTHON_FILES}
+)
+
+if (WERROR)
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
+endif()
+
 set(wspython_LIBS
 	${PYTHON_LIBRARIES}
 )
@@ -54,6 +66,6 @@ install(DIRECTORY
 		wspy_dissectors
 	DESTINATION	
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}/python/${CPACK_PACKAGE_VERSION}
-        PATTERN ".svn" EXCLUDE
+	PATTERN ".svn" EXCLUDE
 )
 

@@ -46,6 +46,18 @@ set(WSLUA_FILES
 	init_wslua.c
 )
 
+set(CLEAN_FILES
+	${WSLUA_FILES}
+)
+
+if (WERROR)
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
+endif()
+
 # Used with untypical CWD
 set(WSLUA_TAPS_USED
 	${CMAKE_SOURCE_DIR}/epan/dissectors/packet-http.h

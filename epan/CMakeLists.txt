@@ -84,6 +84,10 @@ set(DFILTER_FILES
 	dfilter/syntax-tree.c
 )
 
+set(DFILTER_CLEAN_FILES
+	${DFILTER_FILES}
+)
+
 add_lex_files(DFILTER_FILES
 	dfilter/scanner.l
 )
@@ -1075,16 +1079,6 @@ set(DISSECTOR_FILES
 	${DIRTY_ASN1_DISSECTOR_SRC}
 )
 
-set_source_files_properties(
-	${DISSECTOR_SRC}
-	${PIDL_DISSECTOR_SRC}
-	${PIDL_DISSECTOR_AUTOGEN_SRC}
-	${ASN1_DISSECTOR_SRC}
-    PROPERTIES
-	# FIXME: -Werror and -pedantic exclude each other: test for -pedantic
-	# COMPILE_FLAGS -Werror
-)
-
 register_dissector_files(register.c
 	dissectors
 	${DISSECTOR_FILES}
@@ -1190,6 +1184,10 @@ set(LIBWIRESHARK_FILES
 	xdlc.c
 )
 
+set(LIBWIRESHARK_CLEAN_FILES
+	${LIBWIRESHARK_FILES}
+)
+
 add_lex_files(LIBWIRESHARK_FILES
 	diam_dict.l
 	dtd_parse.l
@@ -1225,6 +1223,33 @@ set(epan_LIBS
 	${M_LIBRARIES}
 )
 
+set(CLEAN_FILES
+	# Needed to trigger build of the include files for x11
+	#x11-declarations.h
+	#x11-register-info.h
+	${LIBWIRESHARK_CLEAN_FILES}
+	${CRC_FILES}
+	${CRYPT_FILES}
+	${DFILTER_CLEAN_FILES}
+	${FTYPE_FILES}
+	# ${DISSECTOR_FILES} contains dirty files
+	${DISSECTOR_SRC}
+	${PIDL_DISSECTOR_SRC}
+	${PIDL_DISSECTOR_AUTOGEN_SRC}
+	${ASN1_DISSECTOR_SRC}
+	# ${DISSECTOR_FILES } end
+	${DISSECTOR_SUPPORT_SRC}
+	${LIBWIRESHARK_ASM_FILES}
+)
+
+if (WERROR)
+        set_source_files_properties(
+                ${CLEAN_FILES}
+                PROPERTIES
+                COMPILE_FLAGS -Werror
+        )
+endif()
+
 add_library(epan SHARED
 	# Needed to trigger build of the include files for x11
 	#x11-declarations.h
@@ -1238,6 +1263,7 @@ add_library(epan SHARED
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
 )
+
 # In case we want the libwireshark name back
 # SET_TARGET_PROPERTIES(epan PROPERTIES OUTPUT_NAME "wireshark")
 

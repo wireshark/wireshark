@@ -69,7 +69,7 @@ option(AUTOGEN_dcerpc    "Autogenerate dcerpc dissectors" OFF)
 option(AUTOGEN_pidl      "Autogenerate pidl dissectors" OFF)
 
 option(DISABLE_WERROR	 "Do not treat Warnings as errors" OFF)
-option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC (disables -Werror)" ON)
+option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC (disables -Werror)" OFF)
 option(ENABLE_AIRPCAP	 "Enable Airpcap support" ON)
 # todo
 option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
@@ -93,7 +93,6 @@ option(ENABLE_KERBEROS	 "Build with Kerberos support" ON)
 
 set(WIRESHARK_C_FLAGS
 	-O2
-	-Werror
 	-Wall
 	-W
 	-Wextra
@@ -161,8 +160,8 @@ foreach(THIS_FLAG ${WIRESHARK_C_FLAGS})
 	math(EXPR C "${C} + 1")
 endforeach()
 
-if(DISABLE_WERROR OR ENABLE_EXTRA_GCC_CHECKS)
-	remove_definitions( -Werror )
+if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_GCC_CHECKS)
+	check_c_compiler_flag(-Werror WERROR)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCC)
@@ -650,6 +649,9 @@ if(BUILD_text2pcap)
 	set(text2pcap_FILES
 		text2pcap.c
 	)
+	set(text2pcap_CLEAN_FILES
+		${text2pcap_FILES}
+	)
 	add_lex_files(text2pcap_FILES
 		text2pcap-scanner.l
 	)
@@ -757,6 +759,27 @@ add_custom_target(
 		AUTHORS-SHORT
 		# todo: Add manpages and onlinedocs and generate them
 )
+
+set(CLEAN_FILES
+	${wireshark_FILES}
+	${tshark_FILES}
+	${rawshark_FILES}
+	${dftest_FILES}
+	${randpkt_FILES}
+	${text2pcap_CLEAN_FILES}
+	${mergecap_FILES}
+	${capinfos_FILES}
+	${editcap_FILES}
+	${dumpcap_FILES}
+)
+
+if (WERROR)
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
+endif()
 
 install(
 	FILES

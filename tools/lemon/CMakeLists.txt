@@ -25,6 +25,18 @@ set(lemon_FILES
 	lemon.c
 )
 
+set(CLEAN_FILES
+	${lemon_FILES}
+)
+
+if (WERROR)
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
+endif()
+
 set(lemon_LIBS
 	# Do we need something here on any platform?
 )
