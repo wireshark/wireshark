@@ -164,6 +164,8 @@ endforeach()
 
 if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_GCC_CHECKS)
 	check_c_compiler_flag(-Werror WERROR)
+else()
+	set(WERROR 0)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCC)
