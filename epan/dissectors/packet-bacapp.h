@@ -96,6 +96,7 @@ fConfirmedRequestPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
 /**
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @param ack - indocates whether working on request or ack
@@ -104,7 +105,7 @@ fConfirmedRequestPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
  * @return modified offset
  */
 static guint
-fStartConfirmed(tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 ack,
+fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 ack,
 				gint *svc, proto_item **tt);
 
 /**
@@ -131,12 +132,13 @@ fUnconfirmedRequestPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
  *  service-ACK-choice	[3] BACnetUnconfirmedServiceChoice -- Context-specific tags 0..3 are NOT used in header encoding
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fSimpleAckPDU(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fSimpleAckPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * ComplexACK-PDU ::= SEQUENCE {
@@ -170,12 +172,13 @@ fComplexAckPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
  *  actual-window-size		[6] Unsigned (0..127)
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fSegmentAckPDU(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fSegmentAckPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * Error-PDU ::= SEQUENCE {
@@ -202,12 +205,13 @@ fErrorPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
  *  reject-reason			[3] BACnetRejectReason
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fRejectPDU(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fRejectPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * Abort-PDU ::= SEQUENCE {
@@ -218,12 +222,13 @@ fRejectPDU(tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  abort-reason			[4] BACnetAbortReason
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fAbortPDU(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fAbortPDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * 20.2.4, adds the label with max 64Bit unsigned Integer Value to tree
@@ -285,12 +290,13 @@ fTime (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
  * 20.2.14, adds Object Identifier to tree
  * use BIG ENDIAN: Bits 31..22 Object Type, Bits 21..0 Instance Number
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fObjectIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fObjectIdentifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * BACnet-Confirmed-Service-Request ::= CHOICE {
@@ -328,12 +334,13 @@ fConfirmedServiceAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
  *  timeOfAcknowledgement	[5] BACnetTimeStamp
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fAcknowledgeAlarmRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fAcknowledgeAlarmRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * ConfirmedCOVNotification-Request ::= SEQUENCE {
@@ -384,12 +391,13 @@ fConfirmedEventNotificationRequest (tvbuff_t *tvb, packet_info *pinfo,  proto_tr
  * 	acknowledgedTransitions	 BACnetEventTransitionBits
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fGetAlarmSummaryAck (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fGetAlarmSummaryAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * GetEnrollmentSummary-Request ::= SEQUENCE {
@@ -414,12 +422,13 @@ fGetAlarmSummaryAck (tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  notificationClassFilter	[5] Unsigned OPTIONAL
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fGetEnrollmentSummaryRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fGetEnrollmentSummaryRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * GetEnrollmentSummary-ACK ::= SEQUENCE OF SEQUENCE {
@@ -430,24 +439,26 @@ fGetEnrollmentSummaryRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  notificationClass   Unsigned OPTIONAL
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fGetEnrollmentSummaryAck (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fGetEnrollmentSummaryAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * GetEventInformation-Request ::= SEQUENCE {
  * 	lastReceivedObjectIdentifier	[0] BACnetObjectIdentifer
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fGetEventInformationRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fGetEventInformationRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * GetEventInformation-ACK ::= SEQUENCE {
@@ -455,12 +466,13 @@ fGetEventInformationRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  moreEvents  [1] BOOLEAN
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fGetEventInformationACK (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fGetEventInformationACK (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * LifeSafetyOperation-Request ::= SEQUENCE {
@@ -470,12 +482,13 @@ fGetEventInformationACK (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * 	objectIdentifier	[3] BACnetObjectIdentifier OPTIONAL
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fLifeSafetyOperationRequest(tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
+fLifeSafetyOperationRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * SubscribeCOV-Request ::= SEQUENCE {
@@ -485,6 +498,7 @@ fLifeSafetyOperationRequest(tvbuff_t *tvb, proto_tree *tree, guint offset, const
  * 	lifetime	[3] Unsigned OPTIONAL
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @param label
@@ -492,7 +506,7 @@ fLifeSafetyOperationRequest(tvbuff_t *tvb, proto_tree *tree, guint offset, const
  * @return modified offset
  */
 static guint
-fSubscribeCOVRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fSubscribeCOVRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * SubscribeCOVProperty-Request ::= SEQUENCE {
@@ -504,12 +518,13 @@ fSubscribeCOVRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
  * 	covIncrement	[5] Unsigned OPTIONAL
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fSubscribeCOVPropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fSubscribeCOVPropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * AtomicReadFile-Request ::= SEQUENCE {
@@ -526,12 +541,13 @@ fSubscribeCOVPropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
  * 		}
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fAtomicReadFileRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fAtomicReadFileRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * AtomicWriteFile-ACK ::= SEQUENCE {
@@ -549,12 +565,13 @@ fAtomicReadFileRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
  * 		}
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fAtomicReadFileAck (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fAtomicReadFileAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * AtomicWriteFile-Request ::= SEQUENCE {
@@ -572,12 +589,13 @@ fAtomicReadFileAck (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * 		}
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fAtomicWriteFileRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fAtomicWriteFileRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * AtomicWriteFile-ACK ::= SEQUENCE {
@@ -625,24 +643,26 @@ fCreateObjectRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gui
 /**
  * CreateObject-Request ::= BACnetObjectIdentifier
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fCreateObjectAck (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fCreateObjectAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * DeleteObject-Request ::= SEQUENCE {
  * 	ObjectIdentifier	BACnetObjectIdentifer
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fDeleteObjectRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fDeleteObjectRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * ReadProperty-Request ::= SEQUENCE {
@@ -651,12 +671,13 @@ fDeleteObjectRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
  * 	propertyArrayIndex	[2] Unsigned OPTIONAL, -- used only with array datatype
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fReadPropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fReadPropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * ReadProperty-ACK ::= SEQUENCE {
@@ -706,12 +727,13 @@ fReadPropertyConditionalAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  *  listOfReadAccessSpecs	SEQUENCE OF ReadAccessSpecification
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return offset modified
  */
 static guint
-fReadPropertyMultipleRequest(tvbuff_t *tvb, proto_tree *subtree, guint offset);
+fReadPropertyMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint offset);
 
 /**
  * ReadPropertyMultiple-Ack ::= SEQUENCE {
@@ -747,12 +769,13 @@ fReadPropertyMultipleAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
  * 		} OPTIONAL
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fReadRangeRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fReadRangeRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * ReadRange-ACK ::= SEQUENCE {
@@ -879,12 +902,13 @@ fConfirmedPrivateTransferAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  *  message [3] CharacterString
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fConfirmedTextMessageRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fConfirmedTextMessageRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * ReinitializeDevice-Request ::= SEQUENCE {
@@ -913,36 +937,39 @@ fReinitializeDeviceRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  localVTSessionIdentifier	Unsigned8
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fVtOpenRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fVtOpenRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * VTOpen-ACK ::= SEQUENCE {
  *  remoteVTSessionIdentifier	Unsigned8
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fVtOpenAck (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fVtOpenAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * VTClose-Request ::= SEQUENCE {
  *  listOfRemoteVTSessionIdentifiers	SEQUENCE OF Unsigned8
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fVtCloseRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fVtCloseRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * VTData-Request ::= SEQUENCE {
@@ -951,12 +978,13 @@ fVtCloseRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  vtDataFlag	Unsigned (0..1)
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fVtDataRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fVtDataRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * VTData-ACK ::= SEQUENCE {
@@ -992,12 +1020,13 @@ fAuthenticateRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  modifiedRandomNumber	Unsigned32,
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fAuthenticateAck (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fAuthenticateAck (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * RequestKey-Request ::= SEQUENCE {
@@ -1007,12 +1036,13 @@ fAuthenticateAck (tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  remoteDeviceAddress	BACnetAddress
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fRequestKeyRequest (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fRequestKeyRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * Unconfirmed-Service-Request ::= CHOICE {
@@ -1093,12 +1123,13 @@ fIAmRequest  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
  * 	objectName	CharacterString
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fIHaveRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fIHaveRequest  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * UnconfirmedPrivateTransfer-Request ::= SEQUENCE {
@@ -1129,12 +1160,13 @@ fUnconfirmedPrivateTransferRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  *  message [3] CharacterString
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fUnconfirmedTextMessageRequest(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fUnconfirmedTextMessageRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * TimeSynchronization-Request ::=  SEQUENCE {
@@ -1172,12 +1204,13 @@ fUTCTimeSynchronizationRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset);
  *      }
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fWhoHas (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fWhoHas (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * Who-Is-Request ::= SEQUENCE {
@@ -1216,11 +1249,12 @@ fBACnetError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, 
  * Dissect a BACnetError in a context tag
  *
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
-static guint fContextTaggedError(tvbuff_t *tvb, proto_tree *tree, guint offset);
+static guint fContextTaggedError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * ChangeList-Error ::= SEQUENCE {
@@ -1229,12 +1263,13 @@ static guint fContextTaggedError(tvbuff_t *tvb, proto_tree *tree, guint offset);
  *    }
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fChangeListError(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fChangeListError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * CreateObject-Error ::= SEQUENCE {
@@ -1243,12 +1278,13 @@ fChangeListError(tvbuff_t *tvb, proto_tree *tree, guint offset);
  *    }
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fCreateObjectError(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fCreateObjectError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * ConfirmedPrivateTransfer-Error ::= SEQUENCE {
@@ -1274,12 +1310,13 @@ fConfirmedPrivateTransferError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  *    }
  * }
  * @param tvb
+ * @pram pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fWritePropertyMultipleError(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fWritePropertyMultipleError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * VTClose-Error ::= SEQUENCE {
@@ -1288,23 +1325,25 @@ fWritePropertyMultipleError(tvbuff_t *tvb, proto_tree *tree, guint offset);
  *    }
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fVTCloseError(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fVTCloseError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * BACnet Application Types chapter 20.2.1
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @param label
  * @return modified offset
  */
 static guint
-fApplicationTypes   (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
+fApplicationTypes   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * BACnetActionCommand ::= SEQUENCE {
@@ -1359,12 +1398,13 @@ fAddress (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * 	deviceAddress   BacnetAddress
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fAddressBinding (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fAddressBinding (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * BACnetCalendaryEntry ::= CHOICE {
@@ -1400,24 +1440,26 @@ fClientCOV (tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  day-schedule    [0] SENQUENCE OF BACnetTimeValue
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fDailySchedule (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fDailySchedule (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * BACnetWeeklySchedule ::= SEQUENCE {
  *  week-schedule    SENQUENCE SIZE (7) OF BACnetDailySchedule
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fWeeklySchedule (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fWeeklySchedule (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * BACnetDateRange ::= SEQUENCE {
@@ -1475,12 +1517,13 @@ fDestination (tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  deviceIdentifier    [3] BACnetObjectIdentifier OPTIONAL
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fDeviceObjectPropertyReference (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * BACnetDeviceObjectReference ::= SEQUENCE {
@@ -1488,12 +1531,13 @@ fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  objectIdentifier    [1] BACnetObjectIdentifier
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fDeviceObjectReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fDeviceObjectReference (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 #if 0
 /**
@@ -1645,12 +1689,13 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
  * 	propertyArrayIndex	[2] Unsigned OPTIONAL, -- used only with array datatype
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fBACnetObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fBACnetObjectPropertyReference (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 #if 0
 /**
@@ -1674,15 +1719,16 @@ fObjectPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset);
 /**
  * BACnetPriorityArray ::= SEQUENCE SIZE (16) OF BACnetPriorityValue
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fPriorityArray (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fPriorityArray (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 static guint
-fPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoffset, guint8 list);
+fPropertyReference (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 tagoffset, guint8 list);
 
 /**
  * BACnetPropertyReference ::= SEQUENCE {
@@ -1690,18 +1736,19 @@ fPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoff
  * 	propertyArrayIndex	[1] Unsigned OPTIONAL, -- used only with array datatype
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fBACnetPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 list);
+fBACnetPropertyReference (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 list);
+
+/* static guint
+fBACnetObjectPropertyReference (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset); */
 
 static guint
-fBACnetObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
-
-static guint
-fLOPR (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fLOPR (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 static guint
 fRestartReason (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
@@ -1733,12 +1780,13 @@ fPropertyValue (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
  * 	address	[1] BACnetAddress
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fRecipient (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fRecipient (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * BACnet Application PDUs chapter 21
@@ -1747,12 +1795,13 @@ fRecipient (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * 	processID	[1] Unsigned32
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fRecipientProcess (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fRecipientProcess (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 #if 0
 /**
@@ -1794,12 +1843,13 @@ fSetpointReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * 		eventPriority		[3] Unsigned (1..16)
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fSpecialEvent (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fSpecialEvent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * BACnetTimeStamp ::= CHOICE {
@@ -1822,12 +1872,13 @@ fTimeStamp (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
  * 	value	ABSTRACT-SYNTAX.&Type -- any primitive datatype, complex types cannot be decoded
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fTimeValue (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fTimeValue (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 #if 0
 /**
@@ -1893,12 +1944,13 @@ fReadAccessResult (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
  * 	listOfPropertyReferences	[1] SEQUENCE OF BACnetPropertyReference
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fReadAccessSpecification (tvbuff_t *tvb, proto_tree *subtree, guint offset);
+fReadAccessSpecification (tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, guint offset);
 
 /**
  * WriteAccessSpecification ::= SEQUENCE {
@@ -1966,13 +2018,14 @@ fTimeSpan (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
  * 	 @see bacapp_property_identifier
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @param tt returnvalue of this item
  * @return modified offset
  */
 static guint
-fPropertyIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fPropertyIdentifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * BACnet Application PDUs chapter 21
@@ -1999,12 +2052,13 @@ fPropertyArrayIndex (tvbuff_t *tvb, proto_tree *tree, guint offset);
  *  eventPriorities [6] SEQUENCE SIZE (3) OF Unsigned
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-flistOfEventSummaries (tvbuff_t *tvb, proto_tree *tree, guint offset);
+flistOfEventSummaries (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * SelectionCriteria ::= SEQUENCE {
@@ -2043,12 +2097,13 @@ fObjectSelectionCriteria (tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree
  *    }
  * }
  * @param tvb
+ * @param pinfo
  * @param tree
  * @param offset
  * @return modified offset
  */
 static guint
-fError(tvbuff_t *tvb, proto_tree *tree, guint offset);
+fError(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 
 /**
  * Generic handler for context tagged values.  Mostly for handling
