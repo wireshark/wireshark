@@ -30,11 +30,11 @@
 #endif
 
 #include <glib.h>
-#include <epan/packet.h>
-
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/packet.h>
+#include <epan/sctpppids.h>
 #include <epan/asn1.h>
 
 #include "packet-per.h"
@@ -119,8 +119,7 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*nbap_tree = NULL;
 
 	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBAP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBAP");
 
 	/* create the nbap protocol tree */
 	nbap_item = proto_tree_add_item(tree, proto_nbap, tvb, 0, -1, FALSE);
@@ -181,7 +180,7 @@ proto_reg_handoff_nbap(void)
 	dissector_handle_t nbap_handle;
 
 	nbap_handle = find_dissector("nbap");
-	/*dissector_add("sctp.ppi",  Add ppid here, nbap_handle); */
+	dissector_add("sctp.ppi", NBAP_PAYLOAD_PROTOCOL_ID, nbap_handle);
 	dissector_add_handle("sctp.port", nbap_handle);  /* for "decode-as" */
 
 #include "packet-nbap-dis-tab.c"

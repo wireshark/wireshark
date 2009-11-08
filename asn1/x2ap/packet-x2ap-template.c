@@ -39,8 +39,11 @@
 #include <string.h>
 
 #include <epan/asn1.h>
+#include <epan/sctpppids.h>
 
 #include "packet-per.h"
+#include "packet-e212.h"
+#include "packet-frame.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -97,20 +100,17 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (!ProcedureID) return 0;
-  return (dissector_try_string(x2ap_proc_imsg_dissector_table, ProcedureID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_port(x2ap_proc_imsg_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (!ProcedureID) return 0;
-  return (dissector_try_string(x2ap_proc_sout_dissector_table, ProcedureID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_port(x2ap_proc_sout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (!ProcedureID) return 0;
-  return (dissector_try_string(x2ap_proc_uout_dissector_table, ProcedureID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+  return (dissector_try_port(x2ap_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static void
@@ -120,8 +120,7 @@ dissect_x2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*x2ap_tree = NULL;
 
 	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "X2AP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X2AP");
 
 	/* create the x2ap protocol tree */
 	x2ap_item = proto_tree_add_item(tree, proto_x2ap, tvb, 0, -1, FALSE);
@@ -158,9 +157,9 @@ void proto_register_x2ap(void) {
   /* Register dissector tables */
   x2ap_ies_dissector_table = register_dissector_table("x2ap.ies", "X2AP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
   x2ap_extension_dissector_table = register_dissector_table("x2ap.extension", "X2AP-PROTOCOL-EXTENSION", FT_UINT32, BASE_DEC);
-  x2ap_proc_imsg_dissector_table = register_dissector_table("x2ap.proc.imsg", "X2AP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_STRING, BASE_NONE);
-  x2ap_proc_sout_dissector_table = register_dissector_table("x2ap.proc.sout", "X2AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_STRING, BASE_NONE);
-  x2ap_proc_uout_dissector_table = register_dissector_table("x2ap.proc.uout", "X2AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_STRING, BASE_NONE);
+  x2ap_proc_imsg_dissector_table = register_dissector_table("x2ap.proc.imsg", "X2AP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_UINT32, BASE_DEC);
+  x2ap_proc_sout_dissector_table = register_dissector_table("x2ap.proc.sout", "X2AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
+  x2ap_proc_uout_dissector_table = register_dissector_table("x2ap.proc.uout", "X2AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
 
 }
 
@@ -172,6 +171,7 @@ proto_reg_handoff_x2ap(void)
 	dissector_handle_t x2ap_handle;
 
 	x2ap_handle = find_dissector("x2ap");
+	dissector_add("sctp.ppi", X2AP_PAYLOAD_PROTOCOL_ID, x2ap_handle);
 	dissector_add_handle("sctp.port", x2ap_handle);  /* for "decode-as" */
 
 #include "packet-x2ap-dis-tab.c"

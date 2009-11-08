@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-s1ap.c                                                              */
-/* ../../tools/asn2wrs.py -p s1ap -c ./s1ap.cnf -s ./packet-s1ap-template -D . S1AP-CommonDataTypes.asn S1AP-Constants.asn S1AP-Containers.asn S1AP-IEs.asn S1AP-PDU-Contents.asn S1AP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p s1ap -c s1ap.cnf -s packet-s1ap-template S1AP-CommonDataTypes.asn S1AP-Constants.asn S1AP-Containers.asn S1AP-IEs.asn S1AP-PDU-Contents.asn S1AP-PDU-Descriptions.asn */
 
 /* Input file: packet-s1ap-template.c */
 
@@ -975,10 +975,9 @@ dissect_s1ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                                             0U, 255U, &ProcedureCode, FALSE);
 
 #line 85 "s1ap.cnf"
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, s1ap_ProcedureCode_vals,
-                              "unknown message"));
+     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                 val_to_str(ProcedureCode, s1ap_ProcedureCode_vals,
+                            "unknown message"));
 
   return offset;
 }
@@ -1205,7 +1204,7 @@ static const per_sequence_t ProtocolIE_ContainerList_sequence_of[1] = {
 
 static int
 dissect_s1ap_ProtocolIE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 107 "s1ap.cnf"
+#line 106 "s1ap.cnf"
   static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
     { "lowerBound", ASN1_PAR_INTEGER },
     { "upperBound", ASN1_PAR_INTEGER },
@@ -1468,7 +1467,7 @@ dissect_s1ap_BitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_s1ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 169 "s1ap.cnf"
+#line 168 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2405,7 +2404,7 @@ dissect_s1ap_ENB_UE_S1AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 182 "s1ap.cnf"
+#line 181 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   int length;
   int p_offset;
@@ -2438,7 +2437,7 @@ dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_s1ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 217 "s1ap.cnf"
+#line 216 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
@@ -2913,7 +2912,7 @@ dissect_s1ap_MSClassmark3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_s1ap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 208 "s1ap.cnf"
+#line 207 "s1ap.cnf"
 
   tvbuff_t *parameter_tvb=NULL;
   
@@ -3864,7 +3863,7 @@ dissect_s1ap_WarningMessageContents(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_s1ap_E_RAB_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 134 "s1ap.cnf"
+#line 133 "s1ap.cnf"
   asn1_stack_frame_push(actx, "ProtocolIE-ContainerList");
   asn1_param_push_integer(actx, 1);
   asn1_param_push_integer(actx, maxNrOfE_RABs);
@@ -4698,7 +4697,7 @@ static const per_sequence_t DownlinkNASTransport_sequence[] = {
 
 static int
 dissect_s1ap_DownlinkNASTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 244 "s1ap.cnf"
+#line 243 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_DL;
 
@@ -4717,7 +4716,7 @@ static const per_sequence_t InitialUEMessage_sequence[] = {
 
 static int
 dissect_s1ap_InitialUEMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 240 "s1ap.cnf"
+#line 239 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_UL;
 
@@ -4736,7 +4735,7 @@ static const per_sequence_t UplinkNASTransport_sequence[] = {
 
 static int
 dissect_s1ap_UplinkNASTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 248 "s1ap.cnf"
+#line 247 "s1ap.cnf"
 	/* Set the direction of the message */
 	actx->pinfo->link_dir=P2P_DIR_UL;
 	

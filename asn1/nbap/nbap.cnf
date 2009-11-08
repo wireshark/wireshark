@@ -76,10 +76,9 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, nbap_ProcedureCode_vals,
-                              "unknown message"));
+     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                 val_to_str(ProcedureCode, nbap_ProcedureCode_vals,
+                            "unknown message"));
 #.END
 #.FN_PARS ProcedureID/ddMode VAL_PTR = &ddMode
 
@@ -344,41 +343,41 @@ RL-InformationResponse-RL-AdditionRspTDD N nbap.ies id-RL-InformationResponse-RL
 CauseLevel-RL-AdditionFailureFDD   N nbap.ies id-CauseLevel-RL-AdditionFailureFDD
 Unsuccessful-RL-InformationRespItem-RL-AdditionFailureFDD N nbap.ies id-Unsuccessful-RL-InformationRespItem-RL-AdditionFailureFDD
 Successful-RL-InformationRespItem-RL-AdditionFailureFDD N nbap.ies id-Successful-RL-InformationRespItem-RL-AdditionFailureFDD
-CauseLevel-RL-AdditionFailureTDD   N nbap.ies id-CauseLevel-RL-AdditionFailureTDD
+CauseLevel-RL-AdditionFailureTDD					N nbap.ies id-CauseLevel-RL-AdditionFailureTDD
 Unsuccessful-RL-InformationResp-RL-AdditionFailureTDD N nbap.ies id-Unsuccessful-RL-InformationResp-RL-AdditionFailureTDD
-UL-DPCH-Information-RL-ReconfPrepFDD N nbap.ies id-UL-DPCH-Information-RL-ReconfPrepFDD
-DL-DPCH-Information-RL-ReconfPrepFDD N nbap.ies id-DL-DPCH-Information-RL-ReconfPrepFDD
-FDD-DCHs-to-Modify                 N nbap.ies id-FDD-DCHs-to-Modify
-DCH-FDD-Information                N nbap.ies id-DCHs-to-Add-FDD
-DCH-DeleteList-RL-ReconfPrepFDD    N nbap.ies id-DCH-DeleteList-RL-ReconfPrepFDD
-RL-InformationList-RL-ReconfPrepFDD N nbap.ies id-RL-InformationList-RL-ReconfPrepFDD
-RL-InformationItem-RL-ReconfPrepFDD N nbap.ies id-RL-InformationItem-RL-ReconfPrepFDD
-UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD N nbap.ies id-UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD
-UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD N nbap.ies id-UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD
-UL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD N nbap.ies id-UL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD
-DL-CCTrCH-InformationAddList-RL-ReconfPrepTDD N nbap.ies id-DL-CCTrCH-InformationAddList-RL-ReconfPrepTDD
-DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD N nbap.ies id-DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD
-DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD N nbap.ies id-DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD
-TDD-DCHs-to-Modify                 N nbap.ies id-TDD-DCHs-to-Modify
-DCH-TDD-Information                N nbap.ies id-DCHs-to-Add-TDD
-DCH-DeleteList-RL-ReconfPrepTDD    N nbap.ies id-DCH-DeleteList-RL-ReconfPrepTDD
-DSCH-Information-ModifyList-RL-ReconfPrepTDD N nbap.ies id-DSCH-Information-ModifyList-RL-ReconfPrepTDD
-DSCH-TDD-Information               N nbap.ies id-DSCHs-to-Add-TDD
-DSCH-Information-DeleteList-RL-ReconfPrepTDD N nbap.ies id-DSCH-Information-DeleteList-RL-ReconfPrepTDD
-USCH-Information-ModifyList-RL-ReconfPrepTDD N nbap.ies id-USCH-Information-ModifyList-RL-ReconfPrepTDD
-USCH-Information                   N nbap.ies id-USCH-Information-Add
-USCH-Information-DeleteList-RL-ReconfPrepTDD N nbap.ies id-USCH-Information-DeleteList-RL-ReconfPrepTDD
-RL-Information-RL-ReconfPrepTDD    N nbap.ies id-RL-Information-RL-ReconfPrepTDD
-UL-DPCH-InformationAddItem-RL-ReconfPrepTDD N nbap.ies id-UL-DPCH-InformationAddListIE-RL-ReconfPrepTDD
-UL-DPCH-InformationModify-AddItem-RL-ReconfPrepTDD N nbap.ies id-UL-DPCH-InformationModify-AddListIE-RL-ReconfPrepTDD
+UL-DPCH-Information-RL-ReconfPrepFDD				N nbap.ies id-UL-DPCH-Information-RL-ReconfPrepFDD
+DL-DPCH-Information-RL-ReconfPrepFDD				N nbap.ies id-DL-DPCH-Information-RL-ReconfPrepFDD
+FDD-DCHs-to-Modify									N nbap.ies id-FDD-DCHs-to-Modify
+DCH-FDD-Information									N nbap.ies id-DCHs-to-Add-FDD
+DCH-DeleteList-RL-ReconfPrepFDD						N nbap.ies id-DCH-DeleteList-RL-ReconfPrepFDD
+RL-InformationList-RL-ReconfPrepFDD					N nbap.ies id-RL-InformationList-RL-ReconfPrepFDD
+RL-InformationItem-RL-ReconfPrepFDD					N nbap.ies id-RL-InformationItem-RL-ReconfPrepFDD
+UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD		N nbap.ies id-UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD
+UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD	N nbap.ies id-UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD
+UL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD	N nbap.ies id-UL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD
+DL-CCTrCH-InformationAddList-RL-ReconfPrepTDD		N nbap.ies id-DL-CCTrCH-InformationAddList-RL-ReconfPrepTDD
+DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD	N nbap.ies id-DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD
+DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD	N nbap.ies id-DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD
+TDD-DCHs-to-Modify									N nbap.ies id-TDD-DCHs-to-Modify
+DCH-TDD-Information									N nbap.ies id-DCHs-to-Add-TDD
+DCH-DeleteList-RL-ReconfPrepTDD						N nbap.ies id-DCH-DeleteList-RL-ReconfPrepTDD
+DSCH-Information-ModifyList-RL-ReconfPrepTDD		N nbap.ies id-DSCH-Information-ModifyList-RL-ReconfPrepTDD
+DSCH-TDD-Information								N nbap.ies id-DSCHs-to-Add-TDD
+DSCH-Information-DeleteList-RL-ReconfPrepTDD		N nbap.ies id-DSCH-Information-DeleteList-RL-ReconfPrepTDD
+USCH-Information-ModifyList-RL-ReconfPrepTDD		N nbap.ies id-USCH-Information-ModifyList-RL-ReconfPrepTDD
+USCH-Information									N nbap.ies id-USCH-Information-Add
+USCH-Information-DeleteList-RL-ReconfPrepTDD		N nbap.ies id-USCH-Information-DeleteList-RL-ReconfPrepTDD
+RL-Information-RL-ReconfPrepTDD						N nbap.ies id-RL-Information-RL-ReconfPrepTDD
+UL-DPCH-InformationAddItem-RL-ReconfPrepTDD			N nbap.ies id-UL-DPCH-InformationAddListIE-RL-ReconfPrepTDD
+UL-DPCH-InformationModify-AddItem-RL-ReconfPrepTDD	N nbap.ies id-UL-DPCH-InformationModify-AddListIE-RL-ReconfPrepTDD
 UL-DPCH-InformationModify-ModifyItem-RL-ReconfPrepTDD N nbap.ies id-UL-DPCH-InformationModify-ModifyListIE-RL-ReconfPrepTDD
 UL-DPCH-InformationModify-DeleteListIE-RL-ReconfPrepTDD N nbap.ies id-UL-DPCH-InformationModify-DeleteListIE-RL-ReconfPrepTDD
-DL-DPCH-InformationAddItem-RL-ReconfPrepTDD N nbap.ies id-DL-DPCH-InformationAddListIE-RL-ReconfPrepTDD
-DL-DPCH-InformationModify-AddItem-RL-ReconfPrepTDD N nbap.ies id-DL-DPCH-InformationModify-AddListIE-RL-ReconfPrepTDD
+DL-DPCH-InformationAddItem-RL-ReconfPrepTDD			N nbap.ies id-DL-DPCH-InformationAddListIE-RL-ReconfPrepTDD
+DL-DPCH-InformationModify-AddItem-RL-ReconfPrepTDD	N nbap.ies id-DL-DPCH-InformationModify-AddListIE-RL-ReconfPrepTDD
 DL-DPCH-InformationModify-ModifyItem-RL-ReconfPrepTDD N nbap.ies id-DL-DPCH-InformationModify-ModifyListIE-RL-ReconfPrepTDD
 DL-DPCH-InformationModify-DeleteListIE-RL-ReconfPrepTDD N nbap.ies id-DL-DPCH-InformationModify-DeleteListIE-RL-ReconfPrepTDD
-RL-InformationResponseList-RL-ReconfReady N nbap.ies id-RL-InformationResponseList-RL-ReconfReady
-RL-InformationResponseItem-RL-ReconfReady N nbap.ies id-RL-InformationResponseItem-RL-ReconfReady
+RL-InformationResponseList-RL-ReconfReady			N nbap.ies id-RL-InformationResponseList-RL-ReconfReady
+RL-InformationResponseItem-RL-ReconfReady			N nbap.ies id-RL-InformationResponseItem-RL-ReconfReady
 CauseLevel-RL-ReconfFailure							N nbap.ies id-CauseLevel-RL-ReconfFailure
 RL-ReconfigurationFailureItem-RL-ReconfFailure		N nbap.ies id-RL-ReconfigurationFailureItem-RL-ReconfFailure
 CFN													N nbap.ies id-CFN

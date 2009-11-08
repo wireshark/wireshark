@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-nbap.c                                                              */
-/* ../../tools/asn2wrs.py -p nbap -c ./nbap.cnf -s ./packet-nbap-template -D . NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p nbap -c nbap.cnf -s packet-nbap-template NBAP-CommonDataTypes.asn NBAP-Constants.asn NBAP-Containers.asn NBAP-IEs.asn NBAP-PDU-Contents.asn NBAP-PDU-Descriptions.asn */
 
 /* Input file: packet-nbap-template.c */
 
@@ -38,11 +38,11 @@
 #endif
 
 #include <glib.h>
-#include <epan/packet.h>
-
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/packet.h>
+#include <epan/sctpppids.h>
 #include <epan/asn1.h>
 
 #include "packet-per.h"
@@ -5866,10 +5866,9 @@ dissect_nbap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                                             0U, 255U, &ProcedureCode, FALSE);
 
 #line 79 "nbap.cnf"
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, nbap_ProcedureCode_vals,
-                              "unknown message"));
+     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                 val_to_str(ProcedureCode, nbap_ProcedureCode_vals,
+                            "unknown message"));
 
   return offset;
 }
@@ -5900,7 +5899,7 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_nbap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 87 "nbap.cnf"
+#line 86 "nbap.cnf"
   ProcedureCode = 0xFFFF;
   ddMode = 0xFFFF;
   ProcedureID = NULL;
@@ -5908,7 +5907,7 @@ dissect_nbap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_ProcedureID, ProcedureID_sequence);
 
-#line 93 "nbap.cnf"
+#line 92 "nbap.cnf"
   ProcedureID = ep_strdup_printf("%s/%s", 
                                  val_to_str(ProcedureCode, VALS(nbap_ProcedureCode_vals), "unknown(%u)"),
                                  val_to_str(ddMode, VALS(nbap_DdMode_vals), "unknown(%u)"));      
@@ -8942,7 +8941,7 @@ dissect_nbap_TransportBearerRequestIndicator(tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 105 "nbap.cnf"
+#line 104 "nbap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
@@ -47798,8 +47797,7 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*nbap_tree = NULL;
 
 	/* make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBAP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBAP");
 
 	/* create the nbap protocol tree */
 	nbap_item = proto_tree_add_item(tree, proto_nbap, tvb, 0, -1, FALSE);
@@ -59868,7 +59866,7 @@ void proto_register_nbap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 148 "packet-nbap-template.c"
+#line 147 "packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -61369,7 +61367,7 @@ void proto_register_nbap(void) {
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 155 "packet-nbap-template.c"
+#line 154 "packet-nbap-template.c"
   };
 
 
@@ -61399,7 +61397,7 @@ proto_reg_handoff_nbap(void)
 	dissector_handle_t nbap_handle;
 
 	nbap_handle = find_dissector("nbap");
-	/*dissector_add("sctp.ppi",  Add ppid here, nbap_handle); */
+	dissector_add("sctp.ppi", NBAP_PAYLOAD_PROTOCOL_ID, nbap_handle);
 	dissector_add_handle("sctp.port", nbap_handle);  /* for "decode-as" */
 
 
@@ -62393,7 +62391,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 188 "packet-nbap-template.c"
+#line 187 "packet-nbap-template.c"
 }
 
 
