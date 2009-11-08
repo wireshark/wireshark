@@ -304,4 +304,4 @@ EXTRA_DIST = \
 	text2pcap.pod	\
 	tshark.pod		\
 	wireshark-filter.pod.template \
-	wireshark.pod
+	wireshark.pod.template
