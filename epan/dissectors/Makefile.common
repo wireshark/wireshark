@@ -1235,6 +1235,7 @@ DISSECTOR_INCLUDES =	\
 	packet-tte.h \
 	packet-udp.h	\
 	packet-umts_fp.h	\
+	packet-umts_mac.h	\
 	packet-usb.h	\
 	packet-usb-hid.h	\
 	packet-vines.h	\
