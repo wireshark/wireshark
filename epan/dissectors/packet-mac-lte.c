@@ -1125,7 +1125,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     gboolean   have_seen_data_header = FALSE;
     gboolean   have_seen_bsr = FALSE;
     gboolean   expecting_body_data = FALSE;
-    guint32    is_truncated = FALSE;
+    volatile   guint32    is_truncated = FALSE;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s: (SF=%u) UEId=%u ",
                     (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
@@ -1863,7 +1863,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
     else {
         /* There is no padding at the end of the frame */
-        if (offset < p_mac_lte_info->length) {
+        if (!is_truncated && (offset < p_mac_lte_info->length)) {
             /* There is a problem if we haven't used all of the PDU */
             expert_add_info_format(pinfo, pdu_ti, PI_MALFORMED, PI_ERROR,
                                    "MAC PDU is shorter than reported length (reported=%u, actual=%u)",
@@ -1946,12 +1946,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 PROTO_ITEM_SET_GENERATED(ti);
 
                 /* Info column */
-                col_append_fstr(pinfo->cinfo, COL_INFO, "RACH Preamble sent (RAPID=%u, attempt=%u)",
-                                p_mac_lte_info->rapid, p_mac_lte_info->rach_attempt_number);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "RACH Preamble sent for UE %u (RAPID=%u, attempt=%u)",
+                                p_mac_lte_info->ueid, p_mac_lte_info->rapid, p_mac_lte_info->rach_attempt_number);
 
                 /* Add expert info (an note) */
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_NOTE,
-                                       "RACH Preamble sent for ueid %u (RAPID=%u, attempt=%u)",
+                                       "RACH Preamble sent for UE %u (RAPID=%u, attempt=%u)",
                                        p_mac_lte_info->ueid, p_mac_lte_info->rapid,
                                        p_mac_lte_info->rach_attempt_number);
                 break;
@@ -1964,13 +1964,13 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 PROTO_ITEM_SET_GENERATED(ti);
 
                 /* Info column */
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Scheduling Request sent (C-RNTI=%u)",
-                                p_mac_lte_info->rnti);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Scheduling Request sent for UE %u (C-RNTI=%u)",
+                                p_mac_lte_info->ueid, p_mac_lte_info->rnti);
 
                 /* Add expert info (an note) */
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_NOTE,
-                                       "Scheduling Request send to RNTI %u (UEId %u)",
-                                       p_mac_lte_info->rnti, p_mac_lte_info->ueid);
+                                       "Scheduling Request send for UE %u (RNTI %u)",
+                                       p_mac_lte_info->ueid, p_mac_lte_info->rnti);
                 break;
             case ltemac_sr_failure:
                 ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti,
