@@ -642,16 +642,19 @@ static struct rlc_frag *add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_i
 static tvbuff_t *get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16 seq, guint16 num_li)
 {
+	gpointer orig_frag, orig_sdu;
 	struct rlc_sdu *sdu;
 	struct rlc_frag lookup, *frag;
-	gboolean found;
 
 	rlc_frag_assign(&lookup, mode, pinfo, seq, num_li);
 
-	found = g_hash_table_lookup_extended(reassembled_table, &lookup, (gpointer*)&frag,
-		(gpointer*)&sdu);
+	if (!g_hash_table_lookup_extended(reassembled_table, &lookup,
+	    &orig_frag, &orig_sdu))
+		return NULL;
 
-	if (found == FALSE || !sdu || !sdu->data)
+	frag = orig_frag;
+	sdu = orig_sdu;
+	if (!sdu || !sdu->data)
 		return NULL;
 
 	/* TODO */
