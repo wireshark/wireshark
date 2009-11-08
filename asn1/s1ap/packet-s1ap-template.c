@@ -46,6 +46,7 @@
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-sccp.h"
+#include "packet-lte-rrc.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -73,8 +74,17 @@ static int hf_s1ap_transportLayerAddressIPv6 = -1;
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
 static int ett_s1ap_TransportLayerAddress = -1;
+static int ett_s1ap_ToTargetTransparentContainer = -1;
+static int ett_s1ap_ToSourceTransparentContainer = -1;
+static int ett_s1ap_RRCContainer = -1;
 
 #include "packet-s1ap-ett.c"
+
+enum{
+	INITIATING_MESSAGE,
+	SUCCESSFUL_OUTCOME,
+	UNSUCCESSFUL_OUTCOME
+};
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -82,6 +92,7 @@ static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
 static guint gbl_s1apSctpPort=SCTP_PORT_S1AP;
 static guint32 handover_type_value;
+static guint32 message_type;
 
 /* Dissector tables */
 static dissector_table_t s1ap_ies_dissector_table;
@@ -102,7 +113,12 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static int dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static int dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SourceRNC_ToTargetRNC_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_TargetRNC_ToSourceRNC_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SourceBSS_ToTargetBSS_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_TargetBSS_ToSourceBSS_TransparentContainer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 #include "packet-s1ap-fn.c"
 
@@ -208,6 +224,9 @@ void proto_register_s1ap(void) {
   static gint *ett[] = {
 		  &ett_s1ap,
 		  &ett_s1ap_TransportLayerAddress,
+		  &ett_s1ap_ToTargetTransparentContainer,
+		  &ett_s1ap_ToSourceTransparentContainer,
+		  &ett_s1ap_RRCContainer,
 #include "packet-s1ap-ettarr.c"
   };
 

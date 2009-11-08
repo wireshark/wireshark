@@ -103,6 +103,7 @@ static int hf_lte_rrc_DL_DCCH_Message_PDU = -1;   /* DL_DCCH_Message */
 static int hf_lte_rrc_UL_CCCH_Message_PDU = -1;   /* UL_CCCH_Message */
 static int hf_lte_rrc_UL_DCCH_Message_PDU = -1;   /* UL_DCCH_Message */
 static int hf_lte_rrc_lte_rrc_HandoverCommand_PDU = -1;  /* HandoverCommand */
+static int hf_lte_rrc_lte_rrc_HandoverPreparationInformation_PDU = -1;  /* HandoverPreparationInformation */
 static int hf_lte_rrc_UECapabilityInformation_PDU = -1;  /* UECapabilityInformation */
 static int hf_lte_rrc_message = -1;               /* BCCH_BCH_MessageType */
 static int hf_lte_rrc_message_01 = -1;            /* BCCH_DL_SCH_MessageType */
@@ -15363,7 +15364,7 @@ static const per_sequence_t HandoverPreparationInformation_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lte_rrc_HandoverPreparationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_HandoverPreparationInformation, HandoverPreparationInformation_sequence);
@@ -15558,6 +15559,14 @@ int dissect_lte_rrc_HandoverCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_lte_rrc_HandoverPreparationInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_lte_rrc_HandoverPreparationInformation(tvb, offset, &asn1_ctx, tree, hf_lte_rrc_lte_rrc_HandoverPreparationInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -15612,6 +15621,10 @@ void proto_register_lte_rrc(void) {
       { "HandoverCommand", "lte-rrc.HandoverCommand",
         FT_NONE, BASE_NONE, NULL, 0,
         "lte_rrc.HandoverCommand", HFILL }},
+    { &hf_lte_rrc_lte_rrc_HandoverPreparationInformation_PDU,
+      { "HandoverPreparationInformation", "lte-rrc.HandoverPreparationInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "lte_rrc.HandoverPreparationInformation", HFILL }},
     { &hf_lte_rrc_UECapabilityInformation_PDU,
       { "UECapabilityInformation", "lte-rrc.UECapabilityInformation",
         FT_NONE, BASE_NONE, NULL, 0,

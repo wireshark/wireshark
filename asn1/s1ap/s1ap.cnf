@@ -13,6 +13,11 @@ ALIGNED
 #.PDU_NEW
 S1AP-PDU
 SourceeNB-ToTargeteNB-TransparentContainer
+TargeteNB-ToSourceeNB-TransparentContainer
+SourceRNC-ToTargetRNC-TransparentContainer
+TargetRNC-ToSourceRNC-TransparentContainer
+SourceBSS-ToTargetBSS-TransparentContainer
+TargetBSS-ToSourceBSS-TransparentContainer
 
 #.MAKE_ENUM
 ProcedureCode
@@ -31,11 +36,6 @@ E-RAB-IE-ContainerPairList
 Presence
 L3-Information
 OldBSS-ToNewBSS-Information
-SourceBSS-ToTargetBSS-TransparentContainer
-SourceRNC-ToTargetRNC-TransparentContainer
-TargeteNB-ToSourceeNB-TransparentContainer
-TargetRNC-ToSourceRNC-TransparentContainer
-TargetBSS-ToSourceBSS-TransparentContainer
 #.END
 
 
@@ -83,10 +83,14 @@ ProtocolIE-Field/value ie_field_value
 #.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
-
+#.FN_HDR InitiatingMessage/value
+	message_type = INITIATING_MESSAGE;
 #.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
-
+#.FN_HDR SuccessfulOutcome/value
+	message_type = SUCCESSFUL_OUTCOME;
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+#.FN_HDR UnsuccessfulOutcome/value
+	message_type = UNSUCCESSFUL_OUTCOME;
 
 #--- Parameterization is not supported in asn2wrs ---
 
@@ -253,13 +257,23 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #.FN_HDR HandoverRequest
 	handover_type_value = 0;
 	
-#.FN_BODY Source-ToTarget-TransparentContainer
- 
+#.FN_BODY Source-ToTarget-TransparentContainer 
+#VAL_PTR = &parameter_tvb
 # Annex A
 # ...Therefore the container content is encoded according to the
 # rules which are specified for the target radio system. In section 8.4.1.2,
 # it is described how the container shall be encoded with respect to the scenario 
-# in which it is used.    
+# in which it is used.
+ gint32 start_offset;
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree;
+ 
+ start_offset = offset;
+%(DEFAULT_BODY)s
+
+	parameter_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
+	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
+
     switch(handover_type_value){
    /*  
     HandoverType ::= ENUMERATED {
@@ -275,19 +289,21 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 			Intra E-UTRAN handover Source eNB to Target eNB
 			Transparent Container 36.413	
 		 */
-		dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer(tvb , offset, actx ,tree , hf_s1ap_SourceeNB_ToTargeteNB_TransparentContainer_PDU );
+		dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
 		break;
 		case 1:
 		/* ltetoutran 
 			Source RNC to Target RNC
 			Transparent Container 25.413
 		*/
+		dissect_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
 		break;
 		case 2:
 		/* ltetogeran 
 			Source BSS to Target BSS
 			Transparent Container 48.018
 		*/
+		dissect_SourceBSS_ToTargetBSS_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
 		break;
 		case 3:
 		/* utrantolte */
@@ -300,7 +316,125 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 		break;
 	}
 
+#.FN_BODY Target-ToSource-TransparentContainer 
+#VAL_PTR = &parameter_tvb
 
+ gint32 start_offset;
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree;
+  
+ start_offset = offset;
+%(DEFAULT_BODY)s
+
+	parameter_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
+	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
+
+    switch(handover_type_value){
+   /*  
+    HandoverType ::= ENUMERATED {
+    intralte,
+    ltetoutran,
+    ltetogeran,
+    utrantolte,
+    gerantolte,
+    ...
+    } */ 
+		case 0:
+		/* intralte 
+			Intra E-UTRAN handover Target eNB to Source eNB
+			Transparent Container 36.413	
+		 */
+		dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+		break;
+		case 1:
+		/* ltetoutran 
+			Target RNC to Source RNC
+			Transparent Container 25.413
+		*/
+		dissect_TargetRNC_ToSourceRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+		break;
+		case 2:
+		/* ltetogeran 
+			Target BSS to Source BSS
+			Transparent Container 48.018
+		*/
+		dissect_TargetBSS_ToSourceBSS_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+		break;
+		case 3:
+		/* utrantolte */
+		break;
+		case 4:
+		/* gerantolte */
+		break;
+		default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+		break;
+	}
+#SourceBSS-ToTargetBSS-TransparentContainer
+#SourceRNC-ToTargetRNC-TransparentContainer
+#TargetRNC-ToSourceRNC-TransparentContainer
+#TargetBSS-ToSourceBSS-TransparentContainer
+
+#.FN_BODY RRC-Container 
+#VAL_PTR = &parameter_tvb
+
+# Extracts from the standard:
+# Includes the RRC Handover Preparation Information message as defined
+# in subclause 10.2.2 of [16].
+# [16] 3GPP TS 36.331: "Evolved Universal Terrestrial Radio Access (E-UTRAN); Radio Resource
+#  Control (RRC) Protocol Specification3GPP TS 36.331: 
+# "Evolved Universal Terrestrial Radio Access (E-UTRAN); Radio Resource
+# Control (RRC) Protocol Specification.
+# : 
+# 9.2.1.7 Source eNB to Target eNB Transparent Container
+# The Source eNB to target eNB Transparent Container IE is an information element
+# that is produced by the source eNB and is transmitted to the target eNB. 
+# For inter-system handovers to E-UTRAN, the IE is transmitted from the external
+# handover source to the target eNB. This IE is transparent to the EPC.
+#
+# RRC Container M OCTET STRING Includes the RRC Handover Preparation Information 
+# message as defined in subclause 10.2.2 of [16].
+# :
+# 9.2.1.8 Target eNB to Source eNB Transparent Container
+# The Target eNB to Source eNB Transparent Container IE is an information element 
+# that is produced by the target eNB and is transmitted to the source eNB. 
+# For inter-system handovers to E-UTRAN, the IE is transmitted from the target
+# eNB to the external relocation source.
+# :
+# RRC Container M OCTET STRING Includes the RRC E-UTRA Handover Command message
+# as defined in subclause 10.2.2 of [16].
+# --- End quote ---
+# Source eNB to Target eNB Transparent Container is present in 
+# HandoverRequired and HandoverRequest.
+# Target eNB to Source eNB Transparent Container is present in
+# HandoverCommand and HandoverRequestAcknowledge. 
+
+# I think the message id "directly encoded" into the octest string(no "double encoding")
+ gint32 start_offset;
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree;
+  
+ start_offset = offset;
+%(DEFAULT_BODY)s
+
+	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RRCContainer);
+
+	/* Make the new tvb to the end of the tvb as we don't (need to)know the length */
+	parameter_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
+	switch(message_type){
+		case INITIATING_MESSAGE:
+		/* 9.2.1.7 Source eNB to Target eNB Transparent Container */
+			dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+		case SUCCESSFUL_OUTCOME:
+		/* 9.2.1.7 Source eNB to Target eNB Transparent Container */
+			dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+		default:
+			break;
+	}
+			
+		
 	
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(s1ap_ProtocolIE_ID_vals)
