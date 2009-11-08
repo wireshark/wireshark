@@ -58,14 +58,14 @@ static const char *Vendor_Proprietary_Fmt = "(%d) Vendor Proprietary Value";
 
 static const value_string
 BACnetTypeName[] = {
-	{0, "Confirmed-REQ   "},
-	{1, "Unconfirmed-REQ "},
-	{2, "Simple-ACK      "},
-	{3, "Complex-ACK     "},
-	{4, "Segment-ACK     "},
-	{5, "Error           "},
-	{6, "Reject          "},
-	{7, "Abort           "},
+	{0, "Confirmed-REQ"},
+	{1, "Unconfirmed-REQ"},
+	{2, "Simple-ACK"},
+	{3, "Complex-ACK"},
+	{4, "Segment-ACK"},
+	{5, "Error"},
+	{6, "Reject"},
+	{7, "Abort"},
 	{0, NULL }
 };
 
@@ -6447,8 +6447,8 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* show some descriptive text in the INFO column */
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(bacapp_type, BACnetTypeName, "#### unknown APDU ##### "));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%-16s",
+			val_to_str(bacapp_type, BACnetTypeName, "# unknown APDU #"));
 	}
 	switch (bacapp_type)
 	{
