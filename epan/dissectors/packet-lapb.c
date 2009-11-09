@@ -99,7 +99,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
 	col_set_str(pinfo->cinfo, COL_INFO, "Invalid LAPB frame");
 	if (tree)
-	    ti = proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0, -1,
+	    proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0, -1,
 			    "Invalid LAPB frame");
 	return;
     }
