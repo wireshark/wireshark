@@ -494,19 +494,11 @@ static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *actrace_tree)
 {
 	/* Declare variables */
-	gint sectionlen;
-	gint tvb_sectionend,tvb_sectionbegin;
 	gint32 value, function, trunk, bchannel, source, event, curr_state, next_state;
 	gint32 par0, par1, par2;
 	gchar *frame_label = NULL;
 	int direction = 0;
 	int offset = 0;
-
-	/* Initialize variables */
-	tvb_sectionend = 0;
-	tvb_sectionbegin = tvb_sectionend;
-	sectionlen = 0;
-	value = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_CAS");
 
