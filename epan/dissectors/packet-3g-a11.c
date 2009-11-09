@@ -540,7 +540,6 @@ decode_sse(proto_tree* ext_tree, tvbuff_t* tvb, int offset, guint ext_len)
         }
 
         odd_even_ind = (msid_digits[0] == '1');
-        msid_num_digits = 0;
 
         if(odd_even_ind)
         {
@@ -880,7 +879,6 @@ static void dissect_rqi_entry_flags
 static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
 {
     int clen = 0; /* consumed length */
-    guint8 srid;
     guint8 flow_count;
     guint8 flow_index;
     guint8 dscp_enabled = 0;
@@ -893,7 +891,6 @@ static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
     clen = clen + 2;
 
     /* SR Id */
-    srid = tvb_get_guint8(tvb, offset+clen);
     proto_tree_add_item(ext_tree, hf_a11_fqi_srid, tvb, offset+clen, 1, FALSE);
     clen++;
 
@@ -967,7 +964,6 @@ static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
 static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
 {
     int clen = 0; /* consumed length */
-    guint8 srid;
     guint8 flow_count;
     guint8 flow_index;
 
@@ -979,7 +975,6 @@ static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
     clen = clen + 2;
 
     /* SR Id */
-    srid = tvb_get_guint8(tvb, offset+clen);
     proto_tree_add_item(ext_tree, hf_a11_rqi_srid, tvb, offset+clen, 1, FALSE);
     clen++;
 
