@@ -58,6 +58,8 @@ static gint hf_pppoed_tag_vendor_id = -1;
 static gint hf_pppoed_tag_vendor_unspecified = -1;
 static gint hf_pppoed_tag_vspec_tags = -1;
 static gint hf_pppoed_tag_vspec_tag = -1;
+static gint hf_pppoed_tag_vspec_circuit_id = -1;
+static gint hf_pppoed_tag_vspec_remote_id = -1;
 static gint hf_pppoed_tag_vspec_act_data_rate_up = -1;
 static gint hf_pppoed_tag_vspec_act_data_rate_down = -1;
 static gint hf_pppoed_tag_vspec_min_data_rate_up = -1;
@@ -164,6 +166,8 @@ static gboolean global_pppoe_show_tags_and_lengths = FALSE;
 
 #define PPPOE_VENDOR_ID_DSLF  3561
 
+#define PPPOE_TAG_VSPEC_DSLF_CIRCUIT_ID                0x01
+#define PPPOE_TAG_VSPEC_DSLF_REMOTE_ID                 0x02
 #define PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP          0x81
 #define PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN        0x82
 #define PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP          0x83
@@ -246,6 +250,8 @@ static const value_string tag_vals[] = {
 };
 
 static const value_string vspec_tag_vals[] = {
+		{PPPOE_TAG_VSPEC_DSLF_CIRCUIT_ID,                "Circuit-ID"                    },
+		{PPPOE_TAG_VSPEC_DSLF_REMOTE_ID,                 "Remote-ID"                     },
 		{PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP,          "Actual-Data-Rate-Up"           },
 		{PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN,        "Actual-Data-Rate-Down"         },
 		{PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP,          "Min-Data-Rate-Up"              },
@@ -299,12 +305,14 @@ const value_string datarate_scale_vals[] = {
 };
 
 
-#define CASE_VSPEC_DSLF_TAG(tag_name, length, hf_var) case tag_name: \
-		ti = proto_tree_add_item(pppoe_tree, hf_var, tvb, \
-		tagstart+2, length, FALSE); \
-		if (poe_tag_length != length) \
-			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN, "%s: Wrong length: %u (expected %d)", \
-					val_to_str(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, length); \
+#define CASE_VSPEC_DSLF_TAG(tag_name, relation, length, hf_var) case tag_name: \
+		if (!(poe_tag_length relation length)) { \
+			expert_add_info_format(pinfo, pppoe_tree, PI_MALFORMED, PI_WARN, "%s: Wrong length: %u (expected %s %d)", \
+					val_to_str(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, #relation, length); \
+		} else { \
+			proto_tree_add_item(pppoe_tree, hf_var, tvb, \
+				tagstart+2, poe_tag_length, FALSE); \
+		} \
 	break;
 
 /* Dissect Vendor-Specific Tags introduced by the DSLF */
@@ -343,33 +351,37 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 			/* Show tag data */
 			switch (poe_tag)
 			{
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_CIRCUIT_ID, <=, 63, 
+						hf_pppoed_tag_vspec_circuit_id)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_REMOTE_ID, <=, 63, 
+						hf_pppoed_tag_vspec_remote_id)
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP, ==, 4, 
 						hf_pppoed_tag_vspec_act_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN, ==, 4, 
 						hf_pppoed_tag_vspec_act_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP, ==, 4, 
 						hf_pppoed_tag_vspec_min_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN, ==, 4, 
 						hf_pppoed_tag_vspec_min_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_UP, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_UP, ==, 4, 
 						hf_pppoed_tag_vspec_attainable_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_DOWN, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_DOWN, ==, 4, 
 						hf_pppoed_tag_vspec_attainable_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_UP, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_UP, ==, 4, 
 						hf_pppoed_tag_vspec_max_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_DOWN, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_DOWN, ==, 4, 
 						hf_pppoed_tag_vspec_max_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP_LP, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP_LP, ==, 4, 
 						hf_pppoed_tag_vspec_min_data_rate_up_lp)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN_LP, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN_LP, ==, 4, 
 						hf_pppoed_tag_vspec_min_data_rate_down_lp)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_UP, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_UP, ==, 4, 
 						hf_pppoed_tag_vspec_max_int_delay_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_UP, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_UP, ==, 4, 
 						hf_pppoed_tag_vspec_act_int_delay_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_DOWN, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_DOWN, ==, 4, 
 						hf_pppoed_tag_vspec_max_int_delay_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_DOWN, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_DOWN, ==, 4, 
 						hf_pppoed_tag_vspec_act_int_delay_down)
 				case PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAPSULATION:
 					ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vspec_access_loop_encapsulation, tvb,
@@ -784,6 +796,16 @@ void proto_register_pppoed(void)
 			{ "Tag", "pppoed.tags.vendorspecific.tag", FT_UINT8, BASE_HEX,
 				 VALS(vspec_tag_vals), 0x0, "", HFILL
 			}
+		},
+		{ &hf_pppoed_tag_vspec_circuit_id,
+		        { "Circuit ID", "pppoed.tags.circuit_id", FT_STRING, BASE_NONE,
+		                 NULL, 0x0, "", HFILL
+		        }
+		},
+		{ &hf_pppoed_tag_vspec_remote_id,
+		        { "Remote ID", "pppoed.tags.remote_id", FT_STRING, BASE_NONE,
+		                 NULL, 0x0, "", HFILL
+		        }
 		},
 		{ &hf_pppoed_tag_vspec_act_data_rate_up,
 		        { "Actual Data Rate Upstream", "pppoed.tags.act_data_rate_up", FT_UINT32, BASE_DEC,
