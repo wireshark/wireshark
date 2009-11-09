@@ -255,7 +255,6 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
 
         if (length < 4) {
                	*offset += length;
-                length = 0;
                 return;
         }
         proto_tree_add_item(tree, hf_msdp_sa_rp_addr, tvb, *offset, 4, FALSE);
@@ -271,7 +270,6 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
 
                 if (length < 12) {
                 	*offset += length;
-                        length = 0;
                         return;
                 }
                 ei = proto_tree_add_text(tree, tvb, *offset, 12, "(S,G) block: %s/%u -> %s",
