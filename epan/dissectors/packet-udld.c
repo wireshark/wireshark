@@ -125,7 +125,7 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(udld_tree, hf_udld_opcode, tvb, offset, 1, FALSE);
 	offset += 1;
 	flags_ti = proto_tree_add_item(udld_tree, hf_udld_flags, tvb, offset, 1, FALSE);
-	flags_tree = proto_item_add_subtree(ti, ett_udld_flags);
+	flags_tree = proto_item_add_subtree(flags_ti, ett_udld_flags);
 	proto_tree_add_item(flags_tree, hf_udld_flags_rt, tvb, offset, 1, FALSE);
 	proto_tree_add_item(flags_tree, hf_udld_flags_rsy, tvb, offset, 1, FALSE);
 	offset += 1;
