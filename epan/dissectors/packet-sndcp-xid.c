@@ -481,15 +481,14 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	/* Set up structures needed to add the protocol subtree and manage it 
 	*/
 	proto_item *ti, *version_item, *dcomp_item, *pcomp_item;
-	proto_tree *version_tree = NULL, *dcomp_tree, *pcomp_tree = NULL;
+	proto_tree *sndcp_tree, *version_tree, *dcomp_tree, *pcomp_tree;
 	guint16 offset = 0, l3_param_len;
 	guint8 parameter_type, parameter_len;
 
 	/* create display subtree for the protocol 
 	*/
-	if (tree) {
-		ti         = proto_tree_add_item(tree, proto_sndcp_xid, tvb, 0, -1, FALSE);
-	}
+	ti = proto_tree_add_item(tree, proto_sndcp_xid, tvb, 0, -1, FALSE);
+	sndcp_tree = proto_item_add_subtree(ti, ett_sndcp_xid);
 	l3_param_len = tvb_reported_length(tvb);
 
 	while (offset < l3_param_len-1)
@@ -500,7 +499,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		if (parameter_type == SNDCP_VERSION_PAR_TYPE)
 		{
 			guint8 value = tvb_get_guint8(tvb, offset+2);
-			version_item = proto_tree_add_text(tree, tvb, offset, parameter_len+2,
+			version_item = proto_tree_add_text(sndcp_tree, tvb, offset, parameter_len+2,
 					"Version (SNDCP version number) - Value %d", value);
 		
 			version_tree = proto_item_add_subtree(version_item, ett_sndcp_xid_version_field);
@@ -517,7 +516,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		{
 			tvbuff_t * dcomp_tvb;
 
-			dcomp_item = proto_tree_add_text(tree, tvb, offset, parameter_len+2,
+			dcomp_item = proto_tree_add_text(sndcp_tree, tvb, offset, parameter_len+2,
 				"Data Compression");
 			dcomp_tree = proto_item_add_subtree(dcomp_item, ett_sndcp_comp_field);
 			proto_tree_add_uint(dcomp_tree, hf_sndcp_xid_type, tvb, offset,
@@ -536,7 +535,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		{
 			tvbuff_t * pcomp_tvb;
 
-			pcomp_item = proto_tree_add_text(tree, tvb, offset, parameter_len+2,
+			pcomp_item = proto_tree_add_text(sndcp_tree, tvb, offset, parameter_len+2,
 				"Protocol Control Information Compression");
 			pcomp_tree = proto_item_add_subtree(pcomp_item, ett_sndcp_comp_field);
 			proto_tree_add_uint(pcomp_tree, hf_sndcp_xid_type, tvb, offset,
