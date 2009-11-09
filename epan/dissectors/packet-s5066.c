@@ -842,7 +842,7 @@ dissect_s5066_address(tvbuff_t *tvb, guint offset, proto_tree *tree, gint source
 	address = address & 0x1FFFFFFF;
 	proto_tree_add_ipv4(s5066_tree_address, hf_s5066_ad_address, tvb, offset, 4, g_htonl(address));
 
-	return offset += 4;
+	return offset + 4;
 }
 
 static guint
