@@ -283,7 +283,6 @@ static void dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_
     int offset = 24;
     guint8 auth_type;
     guint8 auth_len;
-    guint32 seq_num;
     proto_item *ti;
     proto_item *auth_item;
     proto_tree *auth_tree;
@@ -323,7 +322,6 @@ static void dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_
 			val_to_str(auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
 	    }
 
-	    seq_num = tvb_get_ntohl(tvb, offset+4);
 	    proto_tree_add_item(auth_tree, hf_bfd_auth_seq_num, tvb, offset+4, 4, FALSE);
 
 	    proto_tree_add_text(auth_tree, tvb, offset+8, get_bfd_checksum_len(auth_type), "Checksum: 0x%s",
