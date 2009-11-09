@@ -1154,7 +1154,6 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 u32LowBound;
 	gchar cData[100];
 	guint32 u32ArraySize;
-	guint32 u32Tmp;
 	guint32 u32VariableOffset;
 	guint32 u32Data;
 	guint16 u16Data;
@@ -1233,7 +1232,6 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		sacb(tvb, offset, pinfo, tree, drep, u32VarType, u32ArraySize);
         }
 
-	u32Tmp = u32ArraySize;
 	while(u32ArraySize--) {
 		switch(u32VarType) {
 			case(WIRESHARK_VT_ERROR):
