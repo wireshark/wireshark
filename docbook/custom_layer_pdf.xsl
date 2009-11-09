@@ -9,7 +9,7 @@
 
 <!-- create pdf bookmarks -->
 <!-- Disable this since FOP 0.93 doesn't handle them, yet -->
-<xsl:param name="fop.extensions" select="1"/>
+<xsl:param name="fop1.extensions" select="1"/>
 
 <!-- don't use the draft mode (no loading of image from the web) -->
 <xsl:param name="draft.mode" select="no"/>

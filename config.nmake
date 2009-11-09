@@ -867,7 +867,7 @@ See the developer's guide section "C-Runtime "Redistributable" files" for detail
 # Comment this out if you don't have fop installed or you don't want the docs
 # in PDF format.
 !IFNDEF FOP
-FOP=fop-0.20.5\fop.bat
+FOP=fop-0.95\fop.bat
 !ENDIF
 
 # Additional options to fop.
