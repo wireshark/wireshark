@@ -3437,7 +3437,7 @@ PRIVATE void print_stack_union(
     int *plineno,           /* Pointer to the line number */
     int mhflag)             /* True if generating makeheaders output */
 {
-  int lineno = *plineno;    /* The line number of the output */
+  int lineno;               /* The line number of the output */
   char **types;             /* A hash table of datatypes */
   int arraysize;            /* Size of the "types" array */
   int maxdtlength;          /* Maximum length of any ".datatype" field. */
