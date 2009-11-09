@@ -83,7 +83,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
   guint32 mc_hdr;
   guint16 eth_hdr;
   guint32 packet_size;
-  guint16 rlen,wlen;
+  guint16 rlen;
   guint64 erf_ext_header;
   guint8 type;
   size_t r;
@@ -125,7 +125,6 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     }
 
     rlen=g_ntohs(header.rlen);
-    wlen=g_ntohs(header.wlen);
 
     /* fail on invalid record type, invalid rlen, timestamps decreasing, or incrementing too far */
     
