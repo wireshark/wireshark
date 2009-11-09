@@ -266,8 +266,8 @@ dissect_mount_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static int
 dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	int len,str_len;
-	len=tvb_get_ntohl(tvb,offset);
+	int str_len;
+
 	if (group_names_len < MAX_GROUP_NAME_LIST - 5) {
 		str_len=tvb_get_nstringz(tvb,offset+4,
 			MAX_GROUP_NAME_LIST-5-group_names_len,
@@ -422,12 +422,10 @@ static const true_false_string tos_error_vdisable = {
 static int
 dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	int saved_offset;
 	guint32 pc_mask;
 	proto_item *lock_item;
 	proto_tree *lock_tree;
 
-	saved_offset=offset;
 	/*
 	 * Extract the mask first, so we know which other fields the
 	 * server was able to return to us.
@@ -591,7 +589,6 @@ dissect_sgi_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	proto_item* exportlist_item = NULL;
 	proto_tree* exportlist_tree = NULL;
 	int old_offset = offset;
-	int options_offset;
 	char* directory, *options;
 
 	if (tree) {
@@ -607,7 +604,6 @@ dissect_sgi_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 
 	offset = dissect_rpc_bool(tvb, exportlist_tree,
 			hf_mount_has_options, offset);
-	options_offset = offset;
 
 	offset = dissect_rpc_string(tvb, exportlist_tree, hf_mount_options,
 			 offset, &options);
