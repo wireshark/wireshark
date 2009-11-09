@@ -155,7 +155,7 @@ typedef struct _snmp_st_assoc_t {
 } snmp_st_assoc_t;
 static guint num_specific_traps = 0;
 static snmp_st_assoc_t *specific_traps = NULL;
-static char *enterprise_oid = NULL;
+static const char *enterprise_oid = NULL;
 static guint generic_trap = 0;
 
 
