@@ -235,7 +235,6 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int new_offset=0;
         int ccsds_tree_added = 0;
 
-	int apid = 0;
 	int ccsds_len = 0;
 
 	proto_item *smex_header = NULL;
@@ -433,10 +432,6 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    {
                            ccsds_tree_added = 1;
                            ccsds_len=tvb_get_ntohs(tvb, new_offset+4);
-
-			   apid=tvb_get_ntohs(tvb, new_offset);
-			   apid=apid & 0x07ff;
-			   /* printf ( "new_ptr=%d new_offset=%d apid=%d ccsds_len=%d\n", new_ptr, new_offset, apid, ccsds_len );  fflush(stdout); */
 
 			   new_tvb = tvb_new_subset_remaining(tvb, new_offset);
 			   call_dissector(ccsds_handle, new_tvb, pinfo, vcdu_tree);
