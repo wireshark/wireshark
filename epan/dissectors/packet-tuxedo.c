@@ -137,7 +137,7 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");		
 			if (tree)
 			{
-				ti = proto_tree_add_item(tree, proto_tuxedo, tvb, 0, -1, FALSE);
+				proto_tree_add_item(tree, proto_tuxedo, tvb, 0, -1, FALSE);
 			}
 		}
 	}
