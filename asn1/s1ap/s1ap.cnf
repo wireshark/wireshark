@@ -259,6 +259,8 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 	
 #.FN_BODY Source-ToTarget-TransparentContainer 
 #VAL_PTR = &parameter_tvb
+# I think the message is "directly encoded" into the octest string(no "double encoding")
+# (Compare RANAP)
 # Annex A
 # ...Therefore the container content is encoded according to the
 # rules which are specified for the target radio system. In section 8.4.1.2,
@@ -318,6 +320,8 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
 #.FN_BODY Target-ToSource-TransparentContainer 
 #VAL_PTR = &parameter_tvb
+# I think the message is "directly encoded" into the octest string(no "double encoding")
+# See Target-ToSource-TransparentContainer in RANAP
 
  gint32 start_offset;
  tvbuff_t *parameter_tvb;
@@ -375,8 +379,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #TargetRNC-ToSourceRNC-TransparentContainer
 #TargetBSS-ToSourceBSS-TransparentContainer
 
-#.FN_BODY RRC-Container 
-#VAL_PTR = &parameter_tvb
+#.FN_BODY RRC-Container VAL_PTR = &parameter_tvb
 
 # Extracts from the standard:
 # Includes the RRC Handover Preparation Information message as defined
@@ -409,18 +412,17 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # Target eNB to Source eNB Transparent Container is present in
 # HandoverCommand and HandoverRequestAcknowledge. 
 
-# I think the message id "directly encoded" into the octest string(no "double encoding")
  gint32 start_offset;
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
   
  start_offset = offset;
 %(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
 
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RRCContainer);
 
-	/* Make the new tvb to the end of the tvb as we don't (need to)know the length */
-	parameter_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
 	switch(message_type){
 		case INITIATING_MESSAGE:
 		/* 9.2.1.7 Source eNB to Target eNB Transparent Container */

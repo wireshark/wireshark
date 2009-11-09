@@ -3521,7 +3521,7 @@ dissect_s1ap_RNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_s1ap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 380 "s1ap.cnf"
+#line 383 "s1ap.cnf"
 
 
  gint32 start_offset;
@@ -3530,13 +3530,13 @@ dissect_s1ap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   
  start_offset = offset;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
+  if (!parameter_tvb)
+    return offset;
 
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RRCContainer);
 
-	/* Make the new tvb to the end of the tvb as we don't (need to)know the length */
-	parameter_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
 	switch(message_type){
 		case INITIATING_MESSAGE:
 		/* 9.2.1.7 Source eNB to Target eNB Transparent Container */
@@ -3742,7 +3742,7 @@ dissect_s1ap_SONConfigurationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_s1ap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 267 "s1ap.cnf"
+#line 269 "s1ap.cnf"
  gint32 start_offset;
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
@@ -4090,7 +4090,7 @@ dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer(tvbuff_t *tvb _U_, int o
 
 static int
 dissect_s1ap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 321 "s1ap.cnf"
+#line 325 "s1ap.cnf"
 
  gint32 start_offset;
  tvbuff_t *parameter_tvb;
