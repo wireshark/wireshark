@@ -153,30 +153,23 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   SET_ADDRESS(&pinfo->dl_dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
   SET_ADDRESS(&pinfo->dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
 
-  if (tree)
-    {
-      ti =
-	proto_tree_add_item (tree, proto_arcnet, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item (tree, proto_arcnet, tvb, 0, -1, FALSE);
 
-      arcnet_tree = proto_item_add_subtree (ti, ett_arcnet);
+  arcnet_tree = proto_item_add_subtree (ti, ett_arcnet);
 
-      proto_tree_add_uint (tree, hf_arcnet_src, tvb, offset, 1, src);
-    }
+  proto_tree_add_uint (arcnet_tree, hf_arcnet_src, tvb, offset, 1, src);
   offset++;
 
-  if (tree)
-      proto_tree_add_uint (tree, hf_arcnet_dst, tvb, offset, 1, dst);
+  proto_tree_add_uint (arcnet_tree, hf_arcnet_dst, tvb, offset, 1, dst);
   offset++;
 
   if (has_offset) {
-    if (tree)
-        proto_tree_add_item (tree, hf_arcnet_offset, tvb, offset, 2, FALSE);
+    proto_tree_add_item (arcnet_tree, hf_arcnet_offset, tvb, offset, 2, FALSE);
     offset += 2;
   }
 
   protID = tvb_get_guint8 (tvb, offset);
-  if (tree)
-      proto_tree_add_uint (tree, hf_arcnet_protID, tvb, offset, 1, protID);
+  proto_tree_add_uint (arcnet_tree, hf_arcnet_protID, tvb, offset, 1, protID);
   offset++;
 
   switch (protID) {
@@ -220,40 +213,33 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       /* This is an exception packet.  The flag value there is the
          "this is an exception flag" packet; the next two bytes
          after it are padding. */
-      if (tree) {
-	proto_tree_add_uint (tree, hf_arcnet_exception_flag, tvb, offset, 1,
+	  proto_tree_add_uint (arcnet_tree, hf_arcnet_exception_flag, tvb, offset, 1,
 			     split_flag);
-      }
       offset++;  
 
-      if (tree)
-	proto_tree_add_text (tree, tvb, offset, 2, "Padding");
+      proto_tree_add_text (arcnet_tree, tvb, offset, 2, "Padding");
       offset += 2;
 
       /* Another copy of the packet type appears after the padding. */
-      if (tree)
-	proto_tree_add_item (tree, hf_arcnet_protID, tvb, offset, 1, FALSE);
+      proto_tree_add_item (arcnet_tree, hf_arcnet_protID, tvb, offset, 1, FALSE);
       offset++;
 
       /* And after that comes the real split flag. */
       split_flag = tvb_get_guint8 (tvb, offset);
     } 
-    if (tree) {
-      proto_tree_add_uint (tree, hf_arcnet_split_flag, tvb, offset, 1,
+
+    proto_tree_add_uint (arcnet_tree, hf_arcnet_split_flag, tvb, offset, 1,
 			   split_flag);
-    }
     offset++;
 			  
-    if (tree)
-      proto_tree_add_item (tree, hf_arcnet_sequence, tvb, offset, 2, FALSE);
+    proto_tree_add_item (arcnet_tree, hf_arcnet_sequence, tvb, offset, 2, FALSE);
     offset += 2;
 
     break;
   }
 
   /* Set the length of the ARCNET header protocol tree item. */
-  if (tree)
-    proto_item_set_len(ti, offset);
+  proto_item_set_len(ti, offset);
   
   next_tvb = tvb_new_subset_remaining (tvb, offset);
 
