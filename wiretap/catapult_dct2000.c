@@ -848,7 +848,7 @@ static gboolean parse_line(gchar *linebuff, gint line_length,
                            gchar *outhdr_name)
 {
     int  n = 0;
-    int  port_digits = 0;
+    int  port_digits;
     char port_number_string[MAX_PORT_DIGITS+1];
     int  variant_digits = 0;
     int  variant = 1;
@@ -891,7 +891,6 @@ static gboolean parse_line(gchar *linebuff, gint line_length,
     /* Reset strings (that won't be set be comments) */
     g_strlcpy(variant_name, "0", MAX_VARIANT_DIGITS);
     g_strlcpy(outhdr_name, "", MAX_OUTHDR_NAME);
-    port_digits = 1;
     g_strlcpy(port_number_string, "0", MAX_PORT_DIGITS);
 
     if (!(*is_comment)) {
