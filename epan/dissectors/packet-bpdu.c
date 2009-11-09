@@ -278,8 +278,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        dstaddr[2] == 0xC2 && dstaddr[3] == 0x00 &&
        dstaddr[4] == 0x00 && ((dstaddr[5] & 0xF0) == 0x20)) {
 
-      protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
-
       switch (dstaddr[5]) {
 
       case 0x20:
