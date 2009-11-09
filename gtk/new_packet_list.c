@@ -584,9 +584,13 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 
 	row = row_number_from_iter(&iter);
 
-	/* Check if already selected */
-	if (cfile.current_frame && cfile.current_row == row)
-		return;
+	/* Check if already selected 
+	 * XXX This does not work as before filtering selected row can be 1
+	 * but the filtered list will start on row 1 as well cusing the
+	 * bytes pane not to be updated.
+	 */
+	/*if (cfile.current_frame && cfile.current_row == row)
+		return;*/
 
 	/* Remove the hex display tab pages */
 	while(gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr), 0))
