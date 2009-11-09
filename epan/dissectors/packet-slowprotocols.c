@@ -1681,7 +1681,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     }
                     if (NULL != match_strval(ql, esmc_quality_level_opt_1_vals))
                     {
-                        item = proto_tree_add_item(tree, hf_esmc_quality_level_opt_1, tvb, offset, 1, FALSE);
+                        proto_tree_add_item(tree, hf_esmc_quality_level_opt_1, tvb, offset, 1, FALSE);
                     }
                     else
                     {
@@ -2052,8 +2052,6 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
 
       offset = OAMPDU_HEADER_SIZE;
-
-      bytes = tvb_length_remaining(tvb, offset);
 
       while (1)
       {
