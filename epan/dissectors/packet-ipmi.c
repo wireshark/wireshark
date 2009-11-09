@@ -755,9 +755,9 @@ ipmi_add_typelen(proto_tree *tree, const char *desc, tvbuff_t *tvb,
 	ti = proto_tree_add_text(tree, tvb, offs, 1, "%s Type/Length byte: %s, %d %s",
 			desc, ptr->desc, len, unit);
 	s_tree = proto_item_add_subtree(ti, ett_typelen);
-	proto_tree_add_text(ti, tvb, offs, 1, "%sType: %s (0x%02x)",
+	proto_tree_add_text(s_tree, tvb, offs, 1, "%sType: %s (0x%02x)",
 			ipmi_dcd8(typelen, 0xc0), ptr->desc, type);
-	proto_tree_add_text(ti, tvb, offs, 1, "%sLength: %d %s",
+	proto_tree_add_text(s_tree, tvb, offs, 1, "%sLength: %d %s",
 			ipmi_dcd8(typelen, msk), len, unit);
 
 	proto_tree_add_text(tree, tvb, offs + 1, blen, "%s: [%s] '%s'",
