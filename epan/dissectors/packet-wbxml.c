@@ -6853,7 +6853,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* The WBXML BODY starts here */
 		if (disable_wbxml_token_parsing) {
-			ti = proto_tree_add_text (wbxml_tree, tvb, offset, -1,
+			proto_tree_add_text (wbxml_tree, tvb, offset, -1,
 						  "Data representation not shown "
 						  "(edit WBXML preferences to show)");
 			return;
