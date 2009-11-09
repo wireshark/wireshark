@@ -250,7 +250,6 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint op;
     guint sub;
     guint rlen;
-    guint flags;
     proto_item *ti;
     proto_item *item;
     proto_tree *fip_tree;
@@ -299,7 +298,6 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_INFO, info);
 
     rlen = tvb_get_ntohs(tvb, 6);
-    flags = tvb_get_ntohs(tvb, 8);
 
     ti = proto_tree_add_protocol_format(tree, proto_fip, tvb, 0,
                                         FIP_HEADER_LEN + rlen * FIP_BPW,
