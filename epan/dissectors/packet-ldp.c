@@ -2010,7 +2010,6 @@ dissect_tlv_er(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
 		if(val_tree != NULL) {
-			len = 0;
 			while (rem > 0) {
 				len = dissect_tlv (tvb, offset, val_tree, rem);
 				offset += len;
