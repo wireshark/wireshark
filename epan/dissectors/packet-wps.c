@@ -653,7 +653,6 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     tlv_item = NULL;
     tlv_root = NULL;
     tmp_item = NULL;
-    hfindex = -1;
 
     tlv_type = tvb_get_ntohs(tvb, offset);                                    
     tlv_len = tvb_get_ntohs(tvb, offset+2); 
