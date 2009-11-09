@@ -400,7 +400,6 @@ dissector_table_t value_sub_dissectors_table;
 static const gchar *
 snmp_lookup_specific_trap (guint specific_trap)
 {
-	guint8 *enterprise = NULL;
 	guint i;
    
 	for (i = 0; i < num_specific_traps; i++) {
@@ -2666,7 +2665,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1446 "packet-snmp-template.c"
+#line 1445 "packet-snmp-template.c"
 
 
 guint
@@ -3488,7 +3487,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2003 "packet-snmp-template.c"
+#line 2002 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3528,7 +3527,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2019 "packet-snmp-template.c"
+#line 2018 "packet-snmp-template.c"
   };
   module_t *snmp_module;
 

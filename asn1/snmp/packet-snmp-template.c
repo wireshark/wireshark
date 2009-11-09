@@ -298,7 +298,6 @@ dissector_table_t value_sub_dissectors_table;
 static const gchar *
 snmp_lookup_specific_trap (guint specific_trap)
 {
-	guint8 *enterprise = NULL;
 	guint i;
    
 	for (i = 0; i < num_specific_traps; i++) {
