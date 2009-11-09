@@ -13,6 +13,7 @@ FIND_PROGRAM(HTML_VIEWER_EXECUTABLE
     xdg-open
     mozilla
     htmlview
+    open
     ENV{HTML_VIEWER}
   PATHS
     ${CYGWIN_INSTALL_PATH}/bin
