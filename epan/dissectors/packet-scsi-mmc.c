@@ -1122,7 +1122,6 @@ dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 {
     guint8 flags;
-    gint16 len;
 
     if (tree && isreq && iscdb) {
         cdata->itlq->flags=0;
@@ -1141,7 +1140,6 @@ dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
     }
     if(tree && (!isreq)) {
-        len=tvb_get_ntohs(tvb, offset);
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb, offset, 2, 0);
         if(cdata->itlq->flags){
             proto_tree_add_item (tree, hf_scsi_mmc_rbc_lob_blocks, tvb, offset+4, 4, 0);
