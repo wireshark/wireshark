@@ -102,21 +102,12 @@ static void packets_bar_new(void);
 static void profile_bar_new(void);
 static void status_expert_new(void);
 
-/* Temporary message timeout */
+/* Temporary message timeouts */
 #define TEMPORARY_MSG_TIMEOUT (7 * 1000)
-
-/*
- * Reset the statusbar foreground and background colors
- */
-static void
-statusbar_reset_colors(void)
-{
-    GtkWidget *w = GTK_WIDGET_NO_WINDOW(info_bar) ? info_bar_event : info_bar; 
-    /* Extra credit for adding a fade effect */
-    gtk_widget_modify_text(w, GTK_STATE_NORMAL, NULL);
-    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, NULL);
-    gtk_widget_modify_base(w, GTK_STATE_NORMAL, NULL);
-}
+#define TEMPORARY_FLASH_TIMEOUT (1 * 1000)
+#define TEMPORARY_FLASH_INTERVAL (TEMPORARY_FLASH_TIMEOUT / 4)
+static gint flash_time;
+static gboolean flash_highlight = FALSE;
 
 /*
  * Push a message referring to file access onto the statusbar.
@@ -133,7 +124,6 @@ statusbar_push_file_msg(const gchar *msg)
     }
     status_levels[STATUS_LEVEL_FILE]++;
 
-    statusbar_reset_colors();
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, msg);
 }
 
@@ -164,7 +154,6 @@ statusbar_push_field_msg(const gchar *msg)
     }
     status_levels[STATUS_LEVEL_HELP]++;
 
-    statusbar_reset_colors();
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, msg);
 }
 
@@ -194,7 +183,6 @@ statusbar_push_filter_msg(const gchar *msg)
     }
     status_levels[STATUS_LEVEL_FILTER]++;
 
-    statusbar_reset_colors();
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), filter_ctx, msg);
 }
 
@@ -211,7 +199,7 @@ statusbar_pop_filter_msg(void)
 }
 
 /*
- * Timeout callback for statusbar_push_temporary_msg
+ * Timeout callbacks for statusbar_push_temporary_msg
  */
 static gboolean
 statusbar_remove_temporary_msg(gpointer data)
@@ -219,9 +207,35 @@ statusbar_remove_temporary_msg(gpointer data)
     guint msg_id = GPOINTER_TO_UINT(data);
     
     gtk_statusbar_remove(GTK_STATUSBAR(info_bar), main_ctx, msg_id);
-    statusbar_reset_colors();
 
     return FALSE;
+}
+
+static gboolean
+statusbar_flash_temporary_msg(gpointer data _U_)
+{
+    gboolean retval = TRUE;
+
+    if (flash_time > 0) {
+        flash_highlight = !flash_highlight;
+    } else {
+        flash_highlight = FALSE;
+        retval = FALSE;
+    }
+
+    /*
+     * As of 2.18.3 gtk_drag_highlight just draws a border around the widget
+     * so we can abuse it here.
+     */
+    if (flash_highlight) {
+        gtk_drag_highlight(info_bar);
+    } else {
+        gtk_drag_unhighlight(info_bar);
+    }
+
+    flash_time -= TEMPORARY_FLASH_INTERVAL;    
+
+    return retval;
 }
 
 /*
@@ -230,15 +244,12 @@ statusbar_remove_temporary_msg(gpointer data)
 void
 statusbar_push_temporary_msg(const gchar *msg)
 {
-    GtkWidget *w = GTK_WIDGET_NO_WINDOW(info_bar) ? info_bar_event : info_bar; 
     guint msg_id;
-    GdkColor black = { 0, 0, 0, 0 };
-    GdkColor yellow = { 0, 0xFFFF, 0xFFFF, 0xAFFF };
-
+    
     msg_id = gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, msg);
-    gtk_widget_modify_text(w, GTK_STATE_NORMAL, &black);
-    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &yellow);
-    gtk_widget_modify_base(w, GTK_STATE_NORMAL, &yellow);
+    
+    flash_time = TEMPORARY_FLASH_TIMEOUT - 1;
+    g_timeout_add(TEMPORARY_FLASH_INTERVAL, statusbar_flash_temporary_msg, NULL);
 
     g_timeout_add(TEMPORARY_MSG_TIMEOUT, statusbar_remove_temporary_msg, GUINT_TO_POINTER(msg_id));
 }
