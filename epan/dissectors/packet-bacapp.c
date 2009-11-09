@@ -1783,7 +1783,7 @@ fGetMaxAPDUSize(guint8 index)
 	/* only 16 values are defined, so use & 0x0f */
 	/* check the size of the Array, deliver either the entry 
 	   or the first entry if index is outside of the array (bug 3736 comment#7) */
-	if ((index & 0x0f) >= (sizeof(MaxAPDUSize)/sizeof(guint)))
+	if ((index & 0x0f) >= (gint)(sizeof(MaxAPDUSize)/sizeof(guint)))
 		return MaxAPDUSize[0];
 	else
 		return MaxAPDUSize[index & 0x0f];
