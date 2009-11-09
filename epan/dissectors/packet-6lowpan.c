@@ -1402,7 +1402,6 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         else {
             /* Illegal destination address compression mode. */
-            addr_err = TRUE;
             expert_add_info_format(pinfo, ti_dam, PI_MALFORMED, PI_ERROR, "Illegal destination address mode");
             return NULL;
         }
