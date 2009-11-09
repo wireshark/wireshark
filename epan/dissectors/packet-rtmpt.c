@@ -742,14 +742,15 @@ get_rtmpt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static void
 dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+#if 0
 	conversation_t * conversation;
 
-	conversation = NULL;
 	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conversation == NULL)
 	{
 		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
+#endif
 
 	tcp_dissect_pdus(tvb, pinfo, tree, 1, 1, get_rtmpt_pdu_len, dissect_rtmpt);
 }
