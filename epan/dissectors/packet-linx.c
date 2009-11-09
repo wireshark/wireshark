@@ -218,12 +218,10 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int	offset = 0;
 	int	nexthdr;
 	int	thishdr;
-	int	paircount;
 	int	size;
 	int	pkgsize;
 	int	payloadsize;
 	int	version;
-	int	nackcount;
 	int     conntype;
 	proto_item *item;
 	proto_tree *main_header_tree;
@@ -325,7 +323,6 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 					*/
 
-					paircount = dword & 0xff;
 					size = (dword >>21) & 0x7;
 					item = proto_tree_add_text(linx_tree, linx_tvb, offset, (4+2*size), "Connection Header");
 					conn_header_tree = proto_item_add_subtree(item, ett_linx_main);
@@ -367,7 +364,6 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* longer seqence numbers. */
 					/* guess there will be padding if the Seqno doesn't reach */
 					/* a 32bit boundary */
-					nackcount = (dword >> 16) & 0xff;
 
 					item = proto_tree_add_text(linx_tree, linx_tvb, offset, 4, "NACK Header");
 					nack_header_tree = proto_item_add_subtree(item, ett_linx_main);
