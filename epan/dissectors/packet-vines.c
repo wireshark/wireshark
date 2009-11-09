@@ -290,7 +290,6 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	const guint8     *dst_addr, *src_addr;
 	gboolean is_broadcast = FALSE;
-	int  hops = 0;
 	tvbuff_t *next_tvb;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IP");
@@ -321,7 +320,6 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  	/* helpers to transport control */
 	if (memcmp(viph.vip_dst, bcast_addr, VINES_ADDR_LEN) == 0)
  		is_broadcast = TRUE;
- 	hops = viph.vip_tctl & 0xf;
 
 	/*
 	 * Adjust the length of this tvbuff to include only the Vines IP
