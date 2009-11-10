@@ -51,15 +51,6 @@
 # define RESOLVE_CONCURRENCY_KEY "resolve_concurrency"
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
 
-#ifdef HAVE_LIBSMI
-# define SP_RESOLVE_KEY	"sp_resolve"
-# define SM_RESOLVE_KEY	"sm_resolve"
-#endif /* HAVE_LIBSMI */
-
-#ifdef HAVE_GEOIP
-# define GEOIP_RESOLVE_KEY "geoip_resolve"
-#endif /* HAVE_GEOIP */
-
 #define BASE_TABLE_ROWS 3
 
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
@@ -99,13 +90,10 @@ nameres_prefs_show(void)
 	GtkWidget	*resolv_concurrency_te;
 	char		concur_str[10+1];
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
-	GtkWidget	*sm_resolv_bt;
 #ifdef HAVE_LIBSMI
-	GtkWidget	*sp_resolv_bt;
 	uat_t *smi_paths_uat;
 	uat_t *smi_modules_uat;
 #endif
-	GtkWidget	*geoip_resolv_bt;
 #ifdef HAVE_GEOIP
 	uat_t		*geoip_db_paths_uat;
 #endif
@@ -178,28 +166,26 @@ nameres_prefs_show(void)
 	smi_paths_uat = uat_get_table_by_name("SMI Paths");
 	if (smi_paths_uat) {
 		table_row++;
-		sp_resolv_bt = create_preference_uat(main_tb, table_row,
+		create_preference_uat(main_tb, table_row,
 		    "SMI (MIB and PIB) paths",
                     "Search paths for SMI (MIB and PIB) modules. You must\n"
                     "restart Wireshark for these changes to take effect.",
                     smi_paths_uat);
-		g_object_set_data(G_OBJECT(main_vb), SP_RESOLVE_KEY, sp_resolv_bt);
 	}
 
 	/* SMI modules UAT */
 	smi_modules_uat = uat_get_table_by_name("SMI Modules");
 	if (smi_modules_uat) {
 		table_row++;
-		sm_resolv_bt = create_preference_uat(main_tb, table_row,
+		create_preference_uat(main_tb, table_row,
 		    "SMI (MIB and PIB) modules",
                     "List of enabled SMI (MIB and PIB) modules. You must\n"
                     "restart Wireshark for these changes to take effect.",
                     smi_modules_uat);
-		g_object_set_data(G_OBJECT(main_vb), SM_RESOLVE_KEY, sm_resolv_bt);
 	}
 #else /* HAVE_LIBSMI */
 	table_row++;
-	sm_resolv_bt = create_preference_static_text(main_tb, table_row,
+	create_preference_static_text(main_tb, table_row,
 	    "SMI (MIB and PIB) modules and paths: N/A",
 	    "Support for this feature was not compiled into this version of Wireshark");
 #endif /* HAVE_LIBSMI */
@@ -210,7 +196,7 @@ nameres_prefs_show(void)
 
 	if (geoip_db_paths_uat) {
 		table_row++;
-		geoip_resolv_bt = create_preference_uat(main_tb, table_row,
+		create_preference_uat(main_tb, table_row,
 		    "GeoIP database directories",
 		    "Search paths for GeoIP address mapping databases.\n"
 		    "Wireshark will look in each directory for files beginning\n"
@@ -218,11 +204,10 @@ nameres_prefs_show(void)
 		    "You must restart Wireshark for these changes to take\n"
 		    "effect.",
                     geoip_db_paths_uat);
-		g_object_set_data(G_OBJECT(main_vb), GEOIP_RESOLVE_KEY, geoip_resolv_bt);
 	}
 #else /* HAVE_GEOIP */
 	table_row++;
-	geoip_resolv_bt = create_preference_static_text(main_tb, table_row,
+	create_preference_static_text(main_tb, table_row,
 	    "GeoIP database search paths: N/A",
 	    "Support for this feature was not compiled into this version of Wireshark");
 #endif /* HAVE_GEOIP */
@@ -240,12 +225,6 @@ nameres_prefs_fetch(GtkWidget *w)
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 	GtkWidget *c_resolv_cb, *resolv_concurrency_te;
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
-#ifdef HAVE_LIBSMI
-	GtkWidget *sp_resolv_bt, *sm_resolv_bt;
-#endif
-#ifdef HAVE_GEOIP
-	GtkWidget *geoip_resolv_bt;
-#endif
 
 	m_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), M_RESOLVE_KEY);
 	n_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), N_RESOLVE_KEY);
@@ -255,13 +234,6 @@ nameres_prefs_fetch(GtkWidget *w)
 
 	resolv_concurrency_te = (GtkWidget *)g_object_get_data(G_OBJECT(w), RESOLVE_CONCURRENCY_KEY);
 #endif /* HAVE_C_ARES || HAVE_GNU_ADNS */
-#ifdef HAVE_LIBSMI
-	sp_resolv_bt = (GtkWidget *)g_object_get_data(G_OBJECT(w), SP_RESOLVE_KEY);
-	sm_resolv_bt = (GtkWidget *)g_object_get_data(G_OBJECT(w), SM_RESOLVE_KEY);
-#endif
-#ifdef HAVE_GEOIP
-	geoip_resolv_bt = (GtkWidget *)g_object_get_data(G_OBJECT(w), GEOIP_RESOLVE_KEY);
-#endif
 
 	prefs.name_resolve = RESOLV_NONE;
 	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? RESOLV_MAC : RESOLV_NONE);
