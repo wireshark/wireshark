@@ -246,7 +246,6 @@ fileset_add_dir(const char *fname)
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
     const char    *name;
-    fileset_entry *entry;
     GString       *dirname;
     gchar         *fname_dup;
 
@@ -275,7 +274,7 @@ fileset_add_dir(const char *fname)
         } /* if */
     } else {
         /* no, this is a "standalone file", just add this one */
-        entry = fileset_add_file(dirname->str, get_basename(fname), TRUE /* current */);
+        fileset_add_file(dirname->str, get_basename(fname), TRUE /* current */);
         /* don't add the file to the dialog here, this will be done in fileset_update_dlg() below */
     }
 

@@ -143,7 +143,7 @@ gboolean cnd_register_class(const char* class_id,
   /* check if hash table is already initialized */
   _cnd_init();
   /* check for unique class id */
-  if((cls = (_cnd_class*)g_hash_table_lookup(classes, class_id)) != NULL) {
+  if(g_hash_table_lookup(classes, class_id) != NULL) {
     g_warning("cnd_register_class: Duplicate class ID \"%s\"", class_id);
     return FALSE;
   }
