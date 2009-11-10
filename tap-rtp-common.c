@@ -446,7 +446,6 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	double expected_time;
 	double absskew;
 	guint32 clock_rate;
-	guint32 old_flags;
 
 	/* Store the current time */
 	current_time = nstime_to_msec(&pinfo->fd->rel_ts);
@@ -481,8 +480,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		return 0;
 	}
 
-	/* Save old flags and reset flags */
-	old_flags = statinfo->flags;
+	/* Reset flags */
 	statinfo->flags = 0;
 
 	/* When calculating expected rtp packets the seq number can wrap around
