@@ -858,7 +858,7 @@ See the developer's guide section "C-Runtime "Redistributable" files" for detail
 # Guide, ...), you'll need some additional tools / libraries compared to the
 # rest of the build process.
 #
-# FOR DETAILED INSTRUCTIONS TO GENERATE THE DOCS, SEE: docbook\readme.txt.
+# FOR DETAILED INSTRUCTIONS TO GENERATE THE DOCS, SEE: docbook\README.txt.
 #
 # If you don't call the Makefile.nmake in the docbook dir to generate the
 # docs, the following settings in this section will have no effect.
@@ -866,6 +866,9 @@ See the developer's guide section "C-Runtime "Redistributable" files" for detail
 # formatting objects processor executable
 # Comment this out if you don't have fop installed or you don't want the docs
 # in PDF format.
+#
+# You may want to install the FOP hyphenation patterns from
+# http://offo.sourceforge.net/hyphenation/
 !IFNDEF FOP
 FOP=fop-0.95\fop.bat
 !ENDIF

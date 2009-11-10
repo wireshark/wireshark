@@ -13,8 +13,8 @@ but see the requirements below.
 
 
 The guides are written in Docbook/XML (formerly Docbook/SGML). This format is 
-now used by many other documentation projects, e.g. "the linux documentation 
-project" uses it too.
+now used by many other documentation projects, e.g. "the Linux Documentation 
+Project."
 
 To get HTML, PDF or other output formats, conversions are done using XSL 
 stylesheets, which provides a flexible way for these conversions.
@@ -69,19 +69,24 @@ FOP processor (for PDF generation only)
 ---------------------------------------
 FOP processor from the apache project:
 http://xml.apache.org/fop/
-FOP is a JAVA program, so you need to have a JAVA environment installed.
-I have put the fop-0.20.5 dir right into the docbook sources dir. If you have 
-it somewhere else, you'll have to change the setting in the Makefile 
-(or config.nmake for Win32).
 
-As I got OutOfMemoryException when running fop, I had to insert -Xmx256m into 
-the last line of the fop.bat file from:
-java -cp "%LOCALCLASSPATH%" org.apache.fop.apps.Fop %1 %2 %3 %4 %5 %6 %7 %8
-to:
-java -Xmx256m -cp "%LOCALCLASSPATH%" org.apache.fop.apps.Fop %1 %2 %3 %4 %5 %6 %7 %8
-This should be added automatically on unixish systems.
+FOP is a Java program, so you need to have a Java environment installed.
+The makefiles look for fop-0.95 in the docbook directory. You can change
+this location by setting the FOP environment variable or by changing
+config.nmake.
 
-JIMI (for PDF generation only)
+FOP might return an OutOfMemoryException. You can limit its memory usage
+by adding " -Xmx256m" to the FOP_OPTS environment variable. The Windows
+makefile does this by default.
+
+Hyphenation Patterns
+------------------------------
+Hyphenation patterns for FOP can be found at
+http://offo.sourceforge.net/hyphenation/. Different pattern files have
+different licenses. The English patterns may have restrictions on
+commercial use.
+
+JIMI (for PDF generation with fop 0.20.5 only)
 ------------------------------
 Jimi is a JAVA class library for managing images. 
 In addition to FOP, be sure to also have installed JAI and/or jimi to be able 
