@@ -84,6 +84,9 @@ static gboolean ip_tso_supported = FALSE;
 static gboolean ip_use_geoip = FALSE;
 #endif /* HAVE_GEOIP */
 
+/* Interpret the reserved flag as security flag (RFC 3514) */
+static gboolean ip_security_flag = FALSE;
+
 static int proto_ip = -1;
 static int hf_ip_version = -1;
 static int hf_ip_hdr_len = -1;
@@ -106,6 +109,7 @@ static int hf_ip_src_host = -1;
 static int hf_ip_addr = -1;
 static int hf_ip_host = -1;
 static int hf_ip_flags = -1;
+static int hf_ip_flags_sf = -1;
 static int hf_ip_flags_rf = -1;
 static int hf_ip_flags_df = -1;
 static int hf_ip_flags_mf = -1;
@@ -1286,6 +1290,11 @@ static const true_false_string tos_set_high = {
   "Normal"
 };
 
+static const true_false_string flags_sf_set_evil = {
+  "Evil",
+  "Not evil"
+};
+
 guint16 ip_checksum(const guint8 *ptr, int len)
 {
 	vec_t cksum_vec[1];
@@ -1437,7 +1446,16 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     flags = (iph->ip_off & (IP_RF | IP_DF | IP_MF)) >> IP_OFFSET_WIDTH;
     tf = proto_tree_add_uint(ip_tree, hf_ip_flags, tvb, offset + 6, 1, flags);
     field_tree = proto_item_add_subtree(tf, ett_ip_off);
-    proto_tree_add_boolean(field_tree, hf_ip_flags_rf, tvb, offset + 6, 1, flags);
+    if (ip_security_flag) {
+      proto_item *sf;
+      sf = proto_tree_add_boolean(field_tree, hf_ip_flags_sf, tvb, offset + 6, 1, flags);
+      if (flags & (IP_RF >> IP_OFFSET_WIDTH)) {
+        proto_item_append_text(tf, " (Evil packet!)");
+        expert_add_info_format(pinfo, sf, /* PI_SECURITY */ 0, PI_WARN, "This is an Evil packet (RFC 3514)");
+      }
+    } else {
+      proto_tree_add_boolean(field_tree, hf_ip_flags_rf, tvb, offset + 6, 1, flags);
+    }
     if (flags & (IP_DF >> IP_OFFSET_WIDTH)) proto_item_append_text(tf, " (Don't Fragment)");
     proto_tree_add_boolean(field_tree, hf_ip_flags_df, tvb, offset + 6, 1, flags);
     if (flags & (IP_MF >> IP_OFFSET_WIDTH)) proto_item_append_text(tf, " (More Fragments)");
@@ -1852,6 +1870,10 @@ proto_register_ip(void)
 		{ "Flags",		"ip.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
+		{ &hf_ip_flags_sf,
+		{ "Security flag", "ip.flags.sf", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&flags_sf_set_evil),
+			IP_RF >> IP_OFFSET_WIDTH, "Security flag (RFC 3514)", HFILL }},
+
 		{ &hf_ip_flags_rf,
 		{ "Reserved bit", "ip.flags.rb", FT_BOOLEAN, IP_FLAGS_WIDTH, TFS(&tfs_set_notset),
 			IP_RF >> IP_OFFSET_WIDTH, NULL, HFILL }},
@@ -1975,6 +1997,10 @@ proto_register_ip(void)
 		  "Whether to look up IP addresses in each GeoIP database we have loaded",
 		  &ip_use_geoip);
 #endif /* HAVE_GEOIP */
+	prefs_register_bool_preference(ip_module, "security_flag" ,
+		  "Interpret Reserved flag as Security flag (RFC 3514)",
+		  "Whether to interpret the originally reserved flag as security flag",
+		  &ip_security_flag);
 
 	register_dissector("ip", dissect_ip, proto_ip);
 	register_init_routine(ip_defragment_init);
