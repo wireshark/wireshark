@@ -279,13 +279,12 @@ dlg_destroy(void)
 	struct sctp_analyse *child_data;
 
 	j=n_children;
-	list=g_list_last(sctp_assocs->children);
 	for (i=0; i<j; i++)
 	{
+		list=g_list_last(sctp_assocs->children);
 		child_data=(struct sctp_analyse *)list->data;
 		gtk_grab_remove(GTK_WIDGET(child_data->window));
 		gtk_widget_destroy(GTK_WIDGET(child_data->window));
-		list=g_list_previous(list);
 	}
 	g_list_free(sctp_assocs->children);
 	sctp_assocs->children = NULL;
