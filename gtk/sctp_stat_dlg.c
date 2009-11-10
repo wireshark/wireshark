@@ -124,7 +124,6 @@ GtkWidget *create_list(void)
 	GtkWidget * list;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
-	GtkTreeSortable *sortable;
 	GtkTreeView *list_view;
 	GtkTreeSelection *selection;
 	
@@ -143,7 +142,6 @@ GtkWidget *create_list(void)
     list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
 
 	list_view = GTK_TREE_VIEW(list);
-	sortable = GTK_TREE_SORTABLE(list_store);
 
 #if GTK_CHECK_VERSION(2,6,0)
 	/* Speed up the list display */
@@ -281,9 +279,9 @@ dlg_destroy(void)
 	struct sctp_analyse *child_data;
 
 	j=n_children;
+	list=g_list_last(sctp_assocs->children);
 	for (i=0; i<j; i++)
 	{
-		list=g_list_last(sctp_assocs->children);
 		child_data=(struct sctp_analyse *)list->data;
 		gtk_grab_remove(GTK_WIDGET(child_data->window));
 		gtk_widget_destroy(GTK_WIDGET(child_data->window));
@@ -394,13 +392,12 @@ sctp_stat_on_apply_filter (GtkButton *button _U_, gpointer user_data _U_)
 	GList *list;
 	sctp_assoc_info_t* assoc;
 	guint16 port1, port2;
-	guint32 checksum, data_chunks, data_bytes, packets, vtag1, vtag2;
+	guint32 data_chunks, data_bytes, packets, vtag1, vtag2;
 
 	if (filter_string != NULL)
 	{
 		port1 = selected_stream->port1;
 		port2 = selected_stream->port2;	
-		checksum = selected_stream->n_checksum_errors;
 		data_chunks = selected_stream->n_data_chunks;
 		data_bytes = selected_stream->n_data_bytes;
 		packets = selected_stream->n_packets;
