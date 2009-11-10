@@ -206,7 +206,6 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
     int       err;
     gchar     *cf_name;
     int       in_files;
-    gpointer  dialog;
     GString   *dialog_text;
     int       files_work;
     char      **in_filenames;
@@ -270,7 +269,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
             g_string_append(dialog_text, "\n");
         }
         g_string_append(dialog_text, "\nThe packets in these files will be merged chronologically into a new temporary file.");
-        dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
+        simple_dialog(ESD_TYPE_CONFIRMATION,
                     ESD_BTN_OK, "%s", 
                     dialog_text->str);
         g_string_free(dialog_text, TRUE);
@@ -322,7 +321,7 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
 #ifdef HAVE_LIBPCAP
         /* if a capture is running, do nothing but warn the user */
         if((global_capture_opts.state != CAPTURE_STOPPED)) {
-            dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
+            simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTN_OK,
                         "%sDrag and Drop currently not possible!%s\n\n"
                         "Dropping a file isn't possible while a capture is in progress.",
@@ -333,7 +332,7 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
 
         /* if another file read is still in progress, do nothing but warn the user */
         if((cfile.state == FILE_READ_IN_PROGRESS)) {
-            dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
+            simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTN_OK,
                         "%sDrag and Drop currently not possible!%s\n\n"
                         "Dropping a file isn't possible while loading another capture file.",

@@ -263,7 +263,6 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
   GtkRequisition requisition;
   GtkListStore *store;
   GtkTreeIter iter;
-  GtkTreeSelection *selection;
   gchar *curr_str;
   unsigned int str_len = (unsigned int) strlen(str);
   gchar *first = NULL;
@@ -274,8 +273,6 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
   store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
 
   if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
 
     do {
 

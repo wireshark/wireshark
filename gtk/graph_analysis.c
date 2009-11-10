@@ -496,10 +496,6 @@ static void save_to_file_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
 static void overwrite_existing_file_cb(gpointer dialog _U_, gint btn, gpointer user_data)
 {
-	graph_analysis_data_t *user_data_p;
-
-	user_data_p = user_data;
-
 	switch(btn) {
 	case(ESD_BTN_YES):
 	    /* overwrite the file*/
@@ -625,7 +621,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	guint32 bottom_y_border;
 	graph_analysis_item_t *gai;
 	guint16 first_conv_num;
-	gboolean several_convs = FALSE;
 	gboolean first_packet = TRUE;
 
 	GdkGC *frame_fg_color;
@@ -680,7 +675,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 
 	first_item = user_data->dlg.first_item;
 	display_items = draw_height/ITEM_HEIGHT;
-	last_item = first_item+display_items-1;
 
 	/* get the items to display and fill the matrix array */
 	list = g_list_first(user_data->graph_info->list);
@@ -709,10 +703,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 				if (first_packet){
 					first_conv_num = gai->conv_num;
 					first_packet=FALSE;
-				}
-
-				if (user_data->dlg.items[current_item].conv_num != first_conv_num){
-					several_convs = TRUE;
 				}
 
 				user_data->dlg.items[current_item].src_node = gai->src_node;

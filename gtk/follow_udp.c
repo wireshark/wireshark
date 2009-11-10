@@ -256,7 +256,6 @@ follow_read_udp_stream(follow_info_t *follow_info,
 		       gboolean (*print_line)(char *, size_t, gboolean, void *),
 		       void *arg)
 {
-	int iplen;
 	guint32 global_client_pos = 0, global_server_pos = 0;
 	guint32 server_packet_count = 0;
 	guint32 client_packet_count = 0;
@@ -267,8 +266,7 @@ follow_read_udp_stream(follow_info_t *follow_info,
 	follow_record_t *follow_record;
 	char *buffer;
 
-	iplen = (follow_info->is_ipv6) ? 16 : 4;
-    
+
 	for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
 		follow_record = cur->data;
 		skip = FALSE;

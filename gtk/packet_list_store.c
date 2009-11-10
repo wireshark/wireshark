@@ -336,13 +336,10 @@ packet_list_get_path(GtkTreeModel *tree_model, GtkTreeIter *iter)
 {
 	GtkTreePath *path;
 	PacketListRecord *record;
-	PacketList *packet_list;
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), NULL);
 	g_return_val_if_fail(iter != NULL, NULL);
 	g_return_val_if_fail(iter->user_data != NULL, NULL);
-
-	packet_list = PACKET_LIST(tree_model);
 
 	record = (PacketListRecord*) iter->user_data;
 

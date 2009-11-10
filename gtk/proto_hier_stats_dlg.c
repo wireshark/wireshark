@@ -144,7 +144,6 @@ fill_in_tree_node(GNode *node, gpointer data)
     ph_stats_node_t *stats = node->data;
     draw_info_t     *di = data;
     ph_stats_t      *ps = di->ps;
-    gboolean	is_leaf;
     draw_info_t     child_di;
     double          seconds;
     gchar           *text[NUM_STAT_COLUMNS];
@@ -153,12 +152,6 @@ fill_in_tree_node(GNode *node, gpointer data)
     GtkTreeIter     *iter = di->iter;
     GtkTreeStore    *store;
     GtkTreeIter      new_iter;
-
-    if (g_node_n_children(node) > 0) {
-        is_leaf = FALSE;
-    } else {
-        is_leaf = TRUE;
-    }
 
     seconds = ps->last_time - ps->first_time;
 

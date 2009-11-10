@@ -129,8 +129,7 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data _U_)
     parent_filter_te = g_object_get_data(G_OBJECT(w), E_FILT_TE_PTR_KEY);
 
     /* Now create a new dialog, without an "Add Expression..." button. */
-    filter_browse_w = filter_dialog_new(w, parent_filter_te,
-        CFILTER_LIST, &args);
+    filter_dialog_new(w, parent_filter_te, CFILTER_LIST, &args);
 }
 #endif
 
@@ -167,8 +166,7 @@ display_filter_construct_cb(GtkWidget *w, gpointer construct_args_ptr)
 
     /* Now create a new dialog, possibly with an "Apply" button, and
        definitely with an "Add Expression..." button. */
-    filter_browse_w = filter_dialog_new(w, parent_filter_te,
-                                        DFILTER_LIST, construct_args);
+    filter_dialog_new(w, parent_filter_te, DFILTER_LIST, construct_args);
 }
 
 /* Should be called when a button that creates filters is destroyed; it

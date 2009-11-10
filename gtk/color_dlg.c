@@ -705,13 +705,11 @@ static void
 select_row(GtkWidget *color_filters, int row)
 {
   GtkTreeModel     *model;
-  gint              num_filters;
   GtkTreeIter       iter;
   GtkTreeSelection *sel;
 
   /* select the new row */
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
-  num_filters = gtk_tree_model_iter_n_children(model, NULL);
   gtk_tree_model_iter_nth_child(model, &iter, NULL, row);
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(color_filters));
   gtk_tree_selection_select_iter(sel, &iter);

@@ -532,7 +532,7 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
   GdkColor new_color; /* Color from color selection dialog */
   GtkWidget *color_dialog;
   GtkWidget *parent;
-  GtkWidget *color_selection_fg, *color_selection_bg;
+  GtkWidget *color_selection_bg;
   gboolean is_bg;
 
   color_dialog = (GtkWidget *)user_data;
@@ -550,7 +550,6 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 
 	/* Find that dialog box's foreground and background color selection
 	   boxes, if any. */
-	color_selection_fg = g_object_get_data(G_OBJECT(parent), COLOR_SELECTION_FG);
 	color_selection_bg = g_object_get_data(G_OBJECT(parent), COLOR_SELECTION_BG);
 	is_bg = (color_dialog == color_selection_bg);
 
@@ -559,7 +558,7 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 	/* now apply the change to the fore/background */
 	if (is_bg)
 	  gtk_widget_modify_base(filt_name_entry, GTK_STATE_NORMAL, &new_color);
-        else
+	else
 	  gtk_widget_modify_text(filt_name_entry, GTK_STATE_NORMAL, &new_color);
   }
 }

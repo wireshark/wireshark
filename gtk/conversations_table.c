@@ -1840,7 +1840,6 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
     guint32 port1, port2;
     conv_t *conversation=NULL;
     unsigned int conversation_idx=0;
-    gboolean new_conversation;
 
     if(src_port>dst_port){
         addr1=src;
@@ -1864,11 +1863,9 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         port1=dst_port;
     }
 
-    new_conversation=FALSE;
     /* if we dont have any entries at all yet */
     if(ct->conversations==NULL){
         ct->conversations= g_array_sized_new(FALSE, FALSE, sizeof(conv_t), 10000);
-        conversation_idx=0;
 
         ct->hashtable = g_hash_table_new_full(conversation_hash,
 			conversation_match, /* key_equal_func */
@@ -1896,7 +1893,6 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
     if(conversation==NULL){
 	conv_key_t *new_key;
         conv_t conv;
-        new_conversation=TRUE;
         
         COPY_ADDRESS(&conv.src_address, addr1);
         COPY_ADDRESS(&conv.dst_address, addr2);

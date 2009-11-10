@@ -296,7 +296,6 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
   /* First validate all profile names */
   fl1 = g_list_first(edited_profiles);
   while (fl1) {
-    found = FALSE;
     profile1 = (profile_def *) fl1->data;
     g_strstrip(profile1->name);
     if (profile_is_invalid_name(profile1->name)) {
@@ -308,7 +307,6 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
   /* Then create new and rename changed */
   fl1 = g_list_first(edited_profiles);
   while (fl1) {
-    found = FALSE;
     profile1 = (profile_def *) fl1->data;
     g_strstrip(profile1->name);
     if (profile1->status == PROF_STAT_NEW) {

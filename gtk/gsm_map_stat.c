@@ -329,7 +329,6 @@ gsm_map_stat_draw(
     int			i;
     GtkListStore *list_store;
 	GtkTreeIter  iter;
-	guint id;
 
     if (dlg.win && tapdata)
     {
@@ -341,7 +340,6 @@ gsm_map_stat_draw(
 			float avrage_bytes_rev;
 			float avrage_bytes_tot;
 
-			id = gsm_map_opr_code_strings[i].value;
 			if (stat_p->opr_code[i] >0){
 				avrage_bytes_fwd =(float)stat_p->size[i]/(float)stat_p->opr_code[i];
 			}else{

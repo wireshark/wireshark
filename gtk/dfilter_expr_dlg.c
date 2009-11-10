@@ -455,13 +455,6 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 	 *
 	 * so we hide the value entry.
 	 */
-	show_value_list = is_comparison;
-	if (is_comparison) {
-		/*
-		 * If we're showing the entry; show the label as well.
-		 */
-		show_value_label = TRUE;
-	}
 
 	switch (hfinfo->type) {
 

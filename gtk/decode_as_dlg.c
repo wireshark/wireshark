@@ -1012,7 +1012,6 @@ decode_add_yes_no (void)
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Do not decode");
-    format_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_button));
     g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_update_action),
                    GINT_TO_POINTER(E_DECODE_NO));
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
@@ -1585,7 +1584,6 @@ decode_sctp_add_port_ppid (GtkWidget *page)
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Port");
-    format_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_button));
     g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_srcdst_menu), page);
 
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);

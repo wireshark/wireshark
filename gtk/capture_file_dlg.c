@@ -1192,7 +1192,6 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   win32_save_as_file(GDK_WINDOW_HWND(top_level->window), action_after_save, action_after_save_data);
 #else /* _WIN32 */
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *range_fr, *compressed_cb;
-  GtkTooltips   *tooltips;
 
   if (file_save_as_w != NULL) {
     /* There's already an "Save Capture File As" dialog box; reactivate it. */
@@ -1205,9 +1204,6 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 
   /* init the packet range */
   packet_range_init(&range);
-
-  /* Enable tooltips */
-  tooltips = gtk_tooltips_new();
 
   /* build the file selection */
   file_save_as_w = file_selection_new ("Wireshark: Save Capture File As",

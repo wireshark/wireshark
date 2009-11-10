@@ -219,7 +219,6 @@ font_zoom(char *gui_font_name)
     }
 
     font_name_dup = g_strdup(gui_font_name);
-    font_name_p = font_name_dup;
 
     /* find the start of the font_size string */
     font_name_p = strrchr(font_name_dup, ' ');

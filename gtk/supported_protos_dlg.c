@@ -236,7 +236,6 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 	    if ((len = (int) strlen(filter_name)) > filter_namel)
 		    filter_namel = len;
     }
-    maxlen = namel + short_namel + filter_namel;
 
     len = g_snprintf(buffer, BUFF_LEN, proto_supported, count);
     insert_text(w, buffer, len);
@@ -254,7 +253,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 			   -short_namel,  short_name,
 			   -namel,	  name,
 			   -filter_namel, filter_name);
-	    insert_text(w, buffer, (int) strlen(buffer));
+	    insert_text(w, buffer, len);
     }
 
     break;
@@ -327,7 +326,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 					     -maxlen2, hfinfo->name,
 					     type_name);
 		    }
-		    insert_text(w, buffer, (int) strlen(buffer));
+		    insert_text(w, buffer, len);
 	    }
     }
     len = g_snprintf(buffer, BUFF_LEN, "\n-- Total %d fields\n", fcount);

@@ -967,7 +967,6 @@ ifopts_if_liststore_add(void)
 
 	/* We have an interface list.                            */
 	/* add OS description + interface name text to ListStore */
-	ifl_p = if_list;
 	for (ifl_p = if_list; ifl_p != NULL; ifl_p = g_list_next(ifl_p)) {
 		/* should never happen, but just in case */
 		if ((ifl_p->data) == NULL)

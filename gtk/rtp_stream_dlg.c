@@ -275,7 +275,6 @@ rtpstream_on_findrev		       (GtkButton	*button _U_,
 	}
 
 	start_row = gtk_clist_find_row_from_data(GTK_CLIST(clist), pstream);
-	row = start_row+1;
 
 	for (row=start_row+1;
 		(pstream = gtk_clist_get_row_data(GTK_CLIST(clist), row));
