@@ -28,60 +28,6 @@ Wireshark Info
 
   <section id="WhatsNew"><title>What's New</title>
     <section id="BugFixes"><title>Bug Fixes</title>
-    <para>
-
-      The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-07.html">security advisory</ulink> for details and a workaround.
-
-      <itemizedlist>
-
-        <listitem>
-          <para>
-            The Paltalk dissector could crash on alignment-sensitive processors.
-            <!-- Fixed in trunk: r29064 -->
-            <!-- Fixed in trunk-1.2: r30657 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3689">Bug
-            3689</ulink>)
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.2</para>
-          <!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
-          </para>
-          -->
-        </listitem>
-
-        <listitem>
-          <para>
-            The DCERPC/NT dissector could crash.
-            <!-- Fixed in trunk: r30208 -->
-            <!-- Fixed in trunk-1.2: r30658 -->
-          </para>
-          <para>Versions affected: 0.10.10 to 1.2.2</para>
-          <!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
-          </para>
-          -->
-        </listitem>
-
-        <listitem>
-          <para>
-            The SMB dissector could crash.
-            <!-- Fixed in trunk: r30595 -->
-            <!-- Fixed in trunk-1.2: r30673 -->
-          </para>
-          <para>Versions affected: 1.2.0 to 1.2.2</para>
-          <!--
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
-          </para>
-          -->
-        </listitem>
-
-      </itemizedlist>
-
-    </para>
 
     <para>
 
@@ -90,84 +36,10 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          Wireshark memory leak with each file open and/or display filter change.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2375">Bug
-          2375</ulink>)
+          Wireshark could crash at startup on Windows.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4155">Bug
+          4155</ulink>)
         </para></listitem>
-
-        <listitem><para>
-          DHCP Dissector displays negative lease time.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2733">Bug
-          2733</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Invalid advertised window line on tcptrace style graph.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3417">Bug
-          3417</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SMB get_dfs_referral referral entry is not dissected correctly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3542">Bug
-          3542</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Error dissecting eMule sourceOBFU message.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3848">Bug
-          3848</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Typos in Diameter XML files.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3878">Bug
-          3878</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          RSL dissector for MS Power IE is broken.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4017">Bug
-          4017</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Manifest problem in 1.2.2 Win64 build.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4024">Bug
-          4024</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          FIP dissector throws assertion.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4046">Bug
-          4046</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          TCAP problem with indefinite length 'components' SEQ OF.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4053">Bug
-          4053</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          GSM MAP: an-APDU not decoded.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4095">Bug
-          4095</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Add "Drag and Drop entries..." message on Columns preferences page.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4099">Bug
-          4099</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Editcap -t and -w option parses fractional digits incorrectly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4162">Bug
-          4162</ulink>)
-        </para></listitem>
-
-        The IPSec dissector could crash when trying to decrypt a malformed payload.
 
       </itemizedlist>
 
@@ -178,8 +50,7 @@ Wireshark Info
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
 
-The 32-bit and 64-bit Windows packages now include WinPcap 4.1.1. .
-
+There are no new features in this release.
     </para>
     </section>
 
@@ -194,25 +65,12 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-DCERPC NT,
-DHCP,
-Diameter,
-E.212,
-eDonkey,
-FIP,
-IPsec,
-MGCP,
-NCP,
-Paltalk,
-RADIUS,
-RSL,
-SBus,
-SMB,
-SNMP,
-SSL,
-TCP,
-Teamspeak2,
-WPS
+DCERPC,
+IPFIX/Netflow,
+IPv4,
+NAS EPS,
+RTCP,
+TIPC
 
     </para>
     </section>
@@ -317,6 +175,8 @@ Capture file support is unchanged in this release.
     <para>
       The 64-bit Windows installer does not ship with the same libraries as the
       32-bit installer.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3610">Bug
+      3610</ulink>)
     </para>
 
   </section>

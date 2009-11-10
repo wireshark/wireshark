@@ -163,7 +163,7 @@ or
 	guint byte_after_greet;
 	
 	i = (gint) strlen(greeting);
-	byte_after_greet = tvb_get_guint8(tvb, i); /* Compiler warning */
+	byte_after_greet = tvb_get_guint8(tvb, i); /* OK */
 
 See http://www.unix.org/version2/whatsnew/lp64_wp.html for more
 information on the sizes of common types in different data models.
