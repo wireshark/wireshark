@@ -903,7 +903,6 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
     ptr += bytes_read;
   }
 
-  bytes_read = 0;
   phdr->ts.secs = hdr.ts_sec;
   phdr->ts.nsecs = hdr.ts_usec * 1000;
   phdr->caplen = bytes_needed = hdr.incl_len;
