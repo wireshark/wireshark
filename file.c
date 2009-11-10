@@ -1975,6 +1975,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     /* Either the frame that was selected passed the filter, or we've
        found the nearest displayed frame to that frame.  Select it, make
        it the focus row, and make it visible. */
+    /* Set to invalid to force update of packet list and packet details */
+    cf->current_row = -1;
     if (selected_frame_num == 0) {
       new_packet_list_select_first_row();
     }else{
