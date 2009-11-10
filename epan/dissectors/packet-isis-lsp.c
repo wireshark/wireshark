@@ -1455,6 +1455,12 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 				case 3 :
 					dissect_subclv_admin_group(tvb, ntree, offset+13+i);
 					break;
+				case 4 :
+					proto_tree_add_text(ntree, tvb, offset+13+i, 4,
+						"Link Local Identifier: %d", tvb_get_ntohl(tvb, offset+13+i));
+					proto_tree_add_text(ntree, tvb, offset+17+i, 4,
+						"Link Remote Identifier: %d", tvb_get_ntohl(tvb, offset+17+i));
+					break;
 				case 6 :
 					proto_tree_add_text (ntree, tvb, offset+11+i, 6,
 						"IPv4 interface address: %s", ip_to_str (tvb_get_ptr(tvb, offset+13+i, 4)) );
