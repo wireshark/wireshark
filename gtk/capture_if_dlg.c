@@ -65,6 +65,7 @@
 #include "gtk/keys.h"
 #include "gtk/webbrowser.h"
 #include "gtk/capture_globals.h"
+#include "gtk/network_icons.h"
 
 #ifdef HAVE_AIRPCAP
 #include "../image/toolbar/capture_airpcap_16.xpm"
@@ -74,16 +75,7 @@
 
 #include "../image/toolbar/modem_16.xpm"
 #endif
-#if defined(_WIN32) || defined(__APPLE__) || defined(__linux__)
-#include "../image/toolbar/network_wireless_16.xpm"
-#endif
-#include "../image/toolbar/network_wired_16.xpm"
-#if defined(_WIN32) || defined(__APPLE__)
 #include "../image/toolbar/network_virtual_16.xpm"
-#endif
-#if defined(_WIN32) || defined(__linux__)
-#include "../image/toolbar/network_bluetooth_16.xpm"
-#endif
 
 /* new buttons to be used instead of labels for 'Capture','Prepare',' */
 /*#include "../image/toolbar/capture_capture_16.xpm"*/
@@ -349,11 +341,11 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
 
   if ( if_info->description && ( strstr(if_info->description,"Wireless") != NULL ||
        strstr(if_info->description,"802.11") != NULL || strstr(if_info->description,"AirPcap") != NULL ) ) {
-    return xpm_to_widget(network_wireless_16_xpm);
+    return pixbuf_to_widget(network_wireless_pb_data);
   }
 
   if ( strstr(if_info->name,"airpcap") != NULL ) {
-    return xpm_to_widget(network_wireless_16_xpm);
+    return pixbuf_to_widget(network_wireless_pb_data);
   }
 
   /* TODO: find a better icon! */
@@ -362,7 +354,7 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
   }
 
   if ( if_info->description && strstr(if_info->description,"Bluetooth") != NULL ) {
-    return xpm_to_widget(network_bluetooth_16_xpm);
+    return pixbuf_to_widget(network_bluetooth_pb_data);
   }
 #elif defined(__APPLE__)
   /*
@@ -381,7 +373,7 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
    * IOKit.
    */
   if ( strcmp(if_info->name, "en1") == 0) {
-    return xpm_to_widget(network_wireless_16_xpm);
+    return pixbuf_to_widget(network_wireless_pb_data);
   }
 
   /*
@@ -419,7 +411,7 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
   if (wireless_path != NULL) {
     if (ws_stat(wireless_path, &statb) == 0) {
       g_free(wireless_path);
-      return xpm_to_widget(network_wireless_16_xpm);
+      return pixbuf_to_widget(network_wireless_pb_data);
     }
     g_free(wireless_path);
   }
@@ -433,11 +425,11 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
    * devices?
    */
   if ( strstr(if_info->name,"bluetooth") != NULL) {
-    return xpm_to_widget(network_bluetooth_16_xpm);
+    return pixbuf_to_widget(network_bluetooth_pb_data);
   }
 #endif
 
-  return xpm_to_widget(network_wired_16_xpm);
+  return pixbuf_to_widget(network_wired_pb_data);
 }
 
 

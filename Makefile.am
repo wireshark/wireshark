@@ -675,11 +675,6 @@ EXTRA_DIST = \
 	image/dn_arrow.xpm	\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
-	image/expert_chat.h	\
-	image/expert_error.h	\
-	image/expert_none.h	\
-	image/expert_note.h	\
-	image/expert_warn.h	\
 	image/file_dlg_win32.rc \
 	image/hi16-app-wireshark.png	\
 	image/hi32-app-wireshark.png	\
@@ -746,12 +741,9 @@ EXTRA_DIST = \
 	image/toolbar/modem_16.png	\
 	image/toolbar/modem_16.xpm	\
 	image/toolbar/network_bluetooth_16.png	\
-	image/toolbar/network_bluetooth_16.xpm	\
 	image/toolbar/network_virtual_16.xpm	\
 	image/toolbar/network_wired_16.png	\
-	image/toolbar/network_wired_16.xpm	\
 	image/toolbar/network_wireless_16.png	\
-	image/toolbar/network_wireless_16.xpm	\
 	image/toolbar/resize_columns_24.xpm	\
 	image/toolbar/telephony_16.xpm	\
 	image/toolbar/time_24.xpm	\

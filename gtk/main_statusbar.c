@@ -55,17 +55,7 @@
 #include "gtk/expert_comp_dlg.h"
 #include "gtk/profile_dlg.h"
 #include "gtk/main_welcome.h"
-
-/* Created with
- * for elevel in chat error none note warn ; do
- *   gdk-pixbuf-csource --raw --name=expert_${elevel}_pb_data expert_$elevel.png > expert_$elevel.h
- * done
- */
-#include "../image/expert_error.h"
-#include "../image/expert_warn.h"
-#include "../image/expert_note.h"
-#include "../image/expert_chat.h"
-#include "../image/expert_none.h"
+#include "gtk/expert_indicators.h"
 
 /*
  * The order below defines the priority of info bar contexts.

@@ -129,7 +129,8 @@ WIRESHARK_GTK_SRC = \
 	webbrowser.c
 
 about_dlg.c main_welcome.c: ../image/wssplash.xpm ../image/wssplash-dev.xpm
-main_statusbar.c: ../image/expert_chat.h ../image/expert_error.h ../image/expert_none.h ../image/expert_note.h ../image/expert_warn.h
+main_statusbar.c: expert_indicators.h
+capture_if_dlg.c: network_icons.h
 
 WIRESHARK_TAP_SRC = \
 	afp_stat.c	\
@@ -232,6 +233,7 @@ noinst_HEADERS = \
 	expert_comp_dlg.h	\
 	expert_comp_table.h	\
 	expert_dlg.h	\
+	expert_indicators.h	\
 	export_object.h	\
 	file_dlg.h	\
 	fileset_dlg.h	\
@@ -271,6 +273,7 @@ noinst_HEADERS = \
 	mcast_stream.h  \
 	mcast_stream_dlg.h \
 	mtp3_stat.h	\
+	network_icons.h	\
 	new_packet_list.h \
 	packet_history.h	\
 	packet_list_store.h	\
