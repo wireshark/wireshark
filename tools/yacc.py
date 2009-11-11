@@ -1,26 +1,35 @@
 # -----------------------------------------------------------------------------
 # ply: yacc.py
 #
-# Author(s): David M. Beazley (dave@dabeaz.com)
+# Copyright (C) 2001-2009,
+# David M. Beazley (Dabeaz LLC)
+# All rights reserved.
 #
-# Copyright (C) 2001-2009, David M. Beazley
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+# 
+# * Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.  
+# * Redistributions in binary form must reproduce the above copyright notice, 
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.  
+# * Neither the name of the David Beazley or Dabeaz LLC may be used to
+#   endorse or promote products derived from this software without
+#  specific prior written permission. 
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-# See the file COPYING for a complete copy of the LGPL.
-#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# -----------------------------------------------------------------------------
 #
 # This implements an LR parser that is constructed from grammar rules defined
 # as Python functions. The grammer is specified by supplying the BNF inside
@@ -50,8 +59,8 @@
 # own risk!
 # ----------------------------------------------------------------------------
 
-__version__    = "3.0"
-__tabversion__ = "3.0"       # Table version
+__version__    = "3.3"
+__tabversion__ = "3.2"       # Table version
 
 #-----------------------------------------------------------------------------
 #                     === User configurable parameters ===
@@ -72,6 +81,8 @@ yaccdevel   = 0                # Set to True if developing yacc.  This turns off
                                # implementations of certain functions.
 
 resultlimit = 40               # Size limit of results when running in debug mode.
+
+pickle_protocol = 0            # Protocol to use when writing pickle files
 
 import re, types, sys, os.path
 
@@ -200,7 +211,7 @@ class YaccProduction:
         return getattr(self.slice[n],"lineno",0)
 
     def set_lineno(self,n,lineno):
-        self.slice[n].lineno = n
+        self.slice[n].lineno = lineno
 
     def linespan(self,n):
         startline = getattr(self.slice[n],"lineno",0)
@@ -1139,6 +1150,7 @@ _is_identifier = re.compile(r'^[a-zA-Z0-9_-]+$')
 # -----------------------------------------------------------------------------
 
 class Production(object):
+    reduced = 0
     def __init__(self,number,name,prod,precedence=('right',0),func=None,file='',line=0):
         self.name     = name
         self.prod     = tuple(prod)
@@ -1275,12 +1287,6 @@ class LRItem(object):
 
     def __repr__(self):
         return "LRItem("+str(self)+")"
-
-    def __len__(self):
-        return len(self.prod)
-
-    def __getitem__(self,index):
-        return self.prod[index]
 
 # -----------------------------------------------------------------------------
 # rightmost_terminal()
@@ -1429,7 +1435,7 @@ class Grammar(object):
         if map in self.Prodmap:
             m = self.Prodmap[map]
             raise GrammarError("%s:%d: Duplicate rule %s. " % (file,line, m) +
-                               "Previous definition at %s:%d" % (file,line, m.file, m.line))
+                               "Previous definition at %s:%d" % (m.file, m.line))
 
         # From this point on, everything is valid.  Create a new Production instance
         pnumber  = len(self.Productions)
@@ -1835,6 +1841,30 @@ class LRTable(object):
 
         self.lr_method = parsetab._lr_method
         return parsetab._lr_signature
+
+    def read_pickle(self,filename):
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+
+        in_f = open(filename,"rb")
+
+        tabversion = pickle.load(in_f)
+        if tabversion != __tabversion__:
+            raise VersionError("yacc table file version is out of date")
+        self.lr_method = pickle.load(in_f)
+        signature      = pickle.load(in_f)
+        self.lr_action = pickle.load(in_f)
+        self.lr_goto   = pickle.load(in_f)
+        productions    = pickle.load(in_f)
+
+        self.lr_productions = []
+        for p in productions:
+            self.lr_productions.append(MiniProduction(*p))
+
+        in_f.close()
+        return signature
 
     # Bind all production function names to callable objects in pdict
     def bind_callables(self,pdict):
@@ -2330,12 +2360,14 @@ class LRGeneratedTable(LRTable):
     # This function constructs the parse tables for SLR or LALR
     # -----------------------------------------------------------------------------
     def lr_parse_table(self):
+        Productions = self.grammar.Productions
+        Precedence  = self.grammar.Precedence
         goto   = self.lr_goto         # Goto array
         action = self.lr_action       # Action array
         log    = self.log             # Logger for output
 
         actionp = { }                 # Action production array (temporary)
-
+        
         log.info("Parsing method: %s", self.lr_method)
 
         # Step 1: Construct C = { I0, I1, ... IN}, collection of LR(0) items
@@ -2382,8 +2414,8 @@ class LRGeneratedTable(LRTable):
                                         # Need to decide on shift or reduce here
                                         # By default we favor shifting. Need to add
                                         # some precedence rules here.
-                                        sprec,slevel = self.grammar.Productions[st_actionp[a].number].prec
-                                        rprec,rlevel = self.grammar.Precedence.get(a,('right',0))
+                                        sprec,slevel = Productions[st_actionp[a].number].prec
+                                        rprec,rlevel = Precedence.get(a,('right',0))
                                         if (slevel < rlevel) or ((slevel == rlevel) and (rprec == 'left')):
                                             # We really need to reduce here.
                                             st_action[a] = -p.number
@@ -2391,6 +2423,7 @@ class LRGeneratedTable(LRTable):
                                             if not slevel and not rlevel:
                                                 log.info("  ! shift/reduce conflict for %s resolved as reduce",a)
                                                 self.sr_conflicts.append((st,a,'reduce'))
+                                            Productions[p.number].reduced += 1
                                         elif (slevel == rlevel) and (rprec == 'nonassoc'):
                                             st_action[a] = None
                                         else:
@@ -2401,12 +2434,14 @@ class LRGeneratedTable(LRTable):
                                     elif r < 0:
                                         # Reduce/reduce conflict.   In this case, we favor the rule
                                         # that was defined first in the grammar file
-                                        oldp = self.grammar.Productions[-r]
-                                        pp = self.grammar.Productions[p.number]
+                                        oldp = Productions[-r]
+                                        pp = Productions[p.number]
                                         if oldp.line > pp.line:
                                             st_action[a] = -p.number
                                             st_actionp[a] = p
                                             chosenp,rejectp = pp,oldp
+                                            Productions[p.number].reduced += 1
+                                            Productions[oldp.number].reduced -= 1
                                         else:
                                             chosenp,rejectp = oldp,pp
                                         self.rr_conflicts.append((st,chosenp,rejectp))
@@ -2416,6 +2451,7 @@ class LRGeneratedTable(LRTable):
                                 else:
                                     st_action[a] = -p.number
                                     st_actionp[a] = p
+                                    Productions[p.number].reduced += 1
                     else:
                         i = p.lr_index
                         a = p.prod[i+1]       # Get symbol right after the "."
@@ -2436,10 +2472,11 @@ class LRGeneratedTable(LRTable):
                                         #   -  if precedence of reduce rule is higher, we reduce.
                                         #   -  if precedence of reduce is same and left assoc, we reduce.
                                         #   -  otherwise we shift
-                                        rprec,rlevel = self.grammar.Productions[st_actionp[a].number].prec
-                                        sprec,slevel = self.grammar.Precedence.get(a,('right',0))
+                                        rprec,rlevel = Productions[st_actionp[a].number].prec
+                                        sprec,slevel = Precedence.get(a,('right',0))
                                         if (slevel > rlevel) or ((slevel == rlevel) and (rprec == 'right')):
                                             # We decide to shift here... highest precedence to shift
+                                            Productions[st_actionp[a].number].reduced -= 1
                                             st_action[a] = j
                                             st_actionp[a] = p
                                             if not rlevel:
@@ -2620,6 +2657,33 @@ del _lr_goto_items
             return
 
 
+    # -----------------------------------------------------------------------------
+    # pickle_table()
+    #
+    # This function pickles the LR parsing tables to a supplied file object
+    # -----------------------------------------------------------------------------
+
+    def pickle_table(self,filename,signature=""):
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+        outf = open(filename,"wb")
+        pickle.dump(__tabversion__,outf,pickle_protocol)
+        pickle.dump(self.lr_method,outf,pickle_protocol)
+        pickle.dump(signature,outf,pickle_protocol)
+        pickle.dump(self.lr_action,outf,pickle_protocol)
+        pickle.dump(self.lr_goto,outf,pickle_protocol)
+
+        outp = []
+        for p in self.lr_productions:
+            if p.func:
+                outp.append((p.str,p.name, p.len, p.func,p.file,p.line))
+            else:
+                outp.append((str(p),p.name,p.len,None,None,None))
+        pickle.dump(outp,outf,pickle_protocol)
+        outf.close()
+
 # -----------------------------------------------------------------------------
 #                            === INTROSPECTION ===
 #
@@ -2730,21 +2794,24 @@ class ParserReflect(object):
 
     # Compute a signature over the grammar
     def signature(self):
-        from binascii import crc32
-        sig = 0
         try:
+            from hashlib import md5
+        except ImportError:
+            from md5 import md5
+        try:
+            sig = md5()
             if self.start:
-                sig = crc32(self.start.encode('latin-1'),sig)
+                sig.update(self.start.encode('latin-1'))
             if self.prec:
-                sig = crc32("".join(["".join(p) for p in self.prec]).encode('latin-1'),sig)
+                sig.update("".join(["".join(p) for p in self.prec]).encode('latin-1'))
             if self.tokens:
-                sig = crc32(" ".join(self.tokens).encode('latin-1'),sig)
+                sig.update(" ".join(self.tokens).encode('latin-1'))
             for f in self.pfuncs:
                 if f[3]:
-                    sig = crc32(f[3].encode('latin-1'),sig)
+                    sig.update(f[3].encode('latin-1'))
         except (TypeError,ValueError):
             pass
-        return sig
+        return sig.digest()
 
     # -----------------------------------------------------------------------------
     # validate_file()
@@ -2968,9 +3035,14 @@ class ParserReflect(object):
 
 def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, start=None, 
          check_recursion=1, optimize=0, write_tables=1, debugfile=debug_file,outputdir='',
-         debuglog=None, errorlog = None):
+         debuglog=None, errorlog = None, picklefile=None):
 
     global parse                 # Reference to the parsing method of the last built parser
+
+    # If pickling is enabled, table files are not created
+
+    if picklefile:
+        write_tables = 0
 
     if errorlog is None:
         errorlog = PlyLogger(sys.stderr)
@@ -2995,7 +3067,10 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
     # Read the tables
     try:
         lr = LRTable()
-        read_signature = lr.read_table(tabmodule)
+        if picklefile:
+            read_signature = lr.read_pickle(picklefile)
+        else:
+            read_signature = lr.read_table(tabmodule)
         if optimize or (read_signature == signature):
             try:
                 lr.bind_callables(pinfo.pdict)
@@ -3052,7 +3127,10 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
 
     # Set the grammar start symbols
     try:
-        grammar.set_start(pinfo.start)
+        if start is None:
+            grammar.set_start(pinfo.start)
+        else:
+            grammar.set_start(start)
     except GrammarError:
         e = sys.exc_info()[1]
         errorlog.error(str(e))
@@ -3082,7 +3160,7 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
         debuglog.info("Grammar")
         debuglog.info("")
         for n,p in enumerate(grammar.Productions):
-            debuglog.info("Rule %-5d %s", n+1, p)
+            debuglog.info("Rule %-5d %s", n, p)
 
     # Find unused non-terminals
     unused_rules = grammar.unused_rules()
@@ -3141,19 +3219,20 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
             
     lr = LRGeneratedTable(grammar,method,debuglog)
 
-    num_sr = len(lr.sr_conflicts)
+    if debug:
+        num_sr = len(lr.sr_conflicts)
 
-    # Report shift/reduce and reduce/reduce conflicts
-    if num_sr == 1:
-        errorlog.warning("1 shift/reduce conflict")
-    elif num_sr > 1:
-        errorlog.warning("%d shift/reduce conflicts", num_sr)
+        # Report shift/reduce and reduce/reduce conflicts
+        if num_sr == 1:
+            errorlog.warning("1 shift/reduce conflict")
+        elif num_sr > 1:
+            errorlog.warning("%d shift/reduce conflicts", num_sr)
 
-    num_rr = len(lr.rr_conflicts)
-    if num_rr == 1:
-        errorlog.warning("1 reduce/reduce conflict")
-    elif num_rr > 1:
-        errorlog.warning("%d reduce/reduce conflicts", num_rr)
+        num_rr = len(lr.rr_conflicts)
+        if num_rr == 1:
+            errorlog.warning("1 reduce/reduce conflict")
+        elif num_rr > 1:
+            errorlog.warning("%d reduce/reduce conflicts", num_rr)
 
     # Write out conflicts to the output file
     if debug and (lr.sr_conflicts or lr.rr_conflicts):
@@ -3163,17 +3242,32 @@ def yacc(method='LALR', debug=yaccdebug, module=None, tabmodule=tab_module, star
 
         for state, tok, resolution in lr.sr_conflicts:
             debuglog.warning("shift/reduce conflict for %s in state %d resolved as %s",  tok, state, resolution)
-            
+        
+        already_reported = {}
         for state, rule, rejected in lr.rr_conflicts:
+            if (state,id(rule),id(rejected)) in already_reported:
+                continue
             debuglog.warning("reduce/reduce conflict in state %d resolved using rule (%s)", state, rule)
-            debuglog.warning("rejected rule (%s)", rejected)
+            debuglog.warning("rejected rule (%s) in state %d", rejected,state)
             errorlog.warning("reduce/reduce conflict in state %d resolved using rule (%s)", state, rule)
-            errorlog.warning("rejected rule (%s)", rejected)
+            errorlog.warning("rejected rule (%s) in state %d", rejected, state)
+            already_reported[state,id(rule),id(rejected)] = 1
+        
+        warned_never = []
+        for state, rule, rejected in lr.rr_conflicts:
+            if not rejected.reduced and (rejected not in warned_never):
+                debuglog.warning("Rule (%s) is never reduced", rejected)
+                errorlog.warning("Rule (%s) is never reduced", rejected)
+                warned_never.append(rejected)
 
     # Write the table file if requested
     if write_tables:
         lr.write_table(tabmodule,outputdir,signature)
-    
+
+    # Write a pickled version of the tables
+    if picklefile:
+        lr.pickle_table(picklefile,signature)
+
     # Build the parser
     lr.bind_callables(pinfo.pdict)
     parser = LRParser(lr,pinfo.error_func)
