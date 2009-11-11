@@ -70,11 +70,12 @@
 #ifdef HAVE_AIRPCAP
 #include "../image/toolbar/capture_airpcap_16.xpm"
 #endif
+
 #ifdef _WIN32
 #include "../image/toolbar/capture_ethernet_16.xpm"
-
 #include "../image/toolbar/modem_16.xpm"
 #endif
+
 #include "../image/toolbar/network_virtual_16.xpm"
 
 /* new buttons to be used instead of labels for 'Capture','Prepare',' */
@@ -348,12 +349,7 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
     return pixbuf_to_widget(network_wireless_pb_data);
   }
 
-  /* TODO: find a better icon! */
-  if ( if_info->description && strstr(if_info->description,"VMware") != NULL ) {
-    return xpm_to_widget(network_virtual_16_xpm);
-  }
-
-  if ( if_info->description && strstr(if_info->description,"Bluetooth") != NULL ) {
+  if ( if_info->description && strstr(if_info->description, "Bluetooth") != NULL ) {
     return pixbuf_to_widget(network_bluetooth_pb_data);
   }
 #elif defined(__APPLE__)
@@ -384,17 +380,6 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
    */
 
   /*
-   * TODO: find a better icon!
-   * These devices have an IFT_ of IFT_ETHER, so we have to check the name.
-   * XXX - are these supposed to be for VMware interfaces on the host
-   * machine, for talking to the guest, or for VMware-supplied interfaces
-   * on the guest machine, or both?
-   */
-  if ( strncmp(if_info->name,"vmnet",5) == 0) {
-    return xpm_to_widget(network_virtual_16_xpm);
-  }
-
-  /*
    * XXX - there's currently no support for raw Bluetooth capture,
    * and IP-over-Bluetooth devices just look like fake Ethernet
    * devices.  There's also Bluetooth modem support, but that'll
@@ -416,8 +401,6 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
     g_free(wireless_path);
   }
 
-  /* XXX - "vmnet" again, for VMware interfaces? */
-
   /*
    * Bluetooth devices.
    *
@@ -428,6 +411,25 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
     return pixbuf_to_widget(network_bluetooth_pb_data);
   }
 #endif
+
+  /*
+   * TODO: find a better icon!
+   * Bridge, NAT, or host-only interfaces on VMWare hosts have the name
+   * vmnet[0-9]+ or VMnet[0-9+ on Windows. Guests might use a native
+   * (LANCE or E1000) driver or the vmxnet driver. These devices have an
+   * IFT_ of IFT_ETHER, so we have to check the name.
+   */
+  if ( g_ascii_strncasecmp(if_info->name, "vmnet", 5) == 0) {
+    return xpm_to_widget(network_virtual_16_xpm);
+  }
+
+  if ( g_ascii_strncasecmp(if_info->name, "vmxnet", 6) == 0) {
+    return xpm_to_widget(network_virtual_16_xpm);
+  }
+
+  if ( if_info->description && strstr(if_info->description, "VMware") != NULL ) {
+    return xpm_to_widget(network_virtual_16_xpm);
+  }
 
   return pixbuf_to_widget(network_wired_pb_data);
 }
