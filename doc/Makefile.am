@@ -110,7 +110,7 @@ wireshark.1: wireshark.pod ../config.h
 wireshark.html: wireshark.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)						\
 	--title="The Wireshark Network Analyzer $(VERSION)"	\
-	--css=$(top_srcdir)/docbook/ws.css						\
+	--css=$(top_srcdir)/docbook/ws.css			\
 	--noindex						\
 	wireshark.pod > wireshark.html
 
@@ -123,7 +123,7 @@ tshark.1: tshark.pod ../config.h
 tshark.html: tshark.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)							\
 	--title="tshark - The Wireshark Network Analyzer $(VERSION)"	\
-	--css=$(top_srcdir)/docbook/ws.css							\
+	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/tshark.pod > tshark.html
 
@@ -137,7 +137,7 @@ wireshark-filter.4: wireshark-filter.pod ../config.h
 wireshark-filter.html: wireshark-filter.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)								\
 	--title="wireshark-filter - The Wireshark Network Analyzer $(VERSION)"	\
-	--css=$(top_srcdir)/docbook/ws.css								\
+	--css=$(top_srcdir)/docbook/ws.css					\
 	--noindex								\
 	wireshark-filter.pod > wireshark-filter.html
 
@@ -154,7 +154,7 @@ capinfos.1: capinfos.pod ../config.h
 capinfos.html: capinfos.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)							\
 	--title="capinfos - The Wireshark Network Analyzer $(VERSION)"	\
-	--css=$(top_srcdir)/docbook/ws.css							\
+	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/capinfos.pod > capinfos.html
 
@@ -167,7 +167,7 @@ editcap.1: editcap.pod ../config.h
 editcap.html: editcap.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)							\
 	--title="editcap - The Wireshark Network Analyzer $(VERSION)"	\
-	--css=$(top_srcdir)/docbook/ws.css							\
+	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/editcap.pod > editcap.html
 
@@ -180,7 +180,7 @@ idl2wrs.1: idl2wrs.pod ../config.h
 idl2wrs.html: idl2wrs.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)							\
 	--title="idl2wrs - The Wireshark Network Analyzer $(VERSION)"	\
-	--css=$(top_srcdir)/docbook/ws.css							\
+	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/idl2wrs.pod > idl2wrs.html
 
@@ -193,7 +193,7 @@ mergecap.1: mergecap.pod ../config.h
 mergecap.html: mergecap.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)							\
 	--title="mergecap - The Wireshark Network Analyzer $(VERSION)"	\
-	--css=$(top_srcdir)/docbook/ws.css							\
+	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/mergecap.pod > mergecap.html
 
@@ -206,7 +206,7 @@ text2pcap.1: text2pcap.pod ../config.h
 text2pcap.html: text2pcap.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)                     \
 	--title="text2pcap - The Wireshark Network Analyzer $(VERSION)"	\
-	--css=$(top_srcdir)/docbook/ws.css							\
+	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/text2pcap.pod > text2pcap.html
 
@@ -219,7 +219,7 @@ dumpcap.1: dumpcap.pod ../config.h
 dumpcap.html: dumpcap.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)                     \
 	--title="dumpcap - The Wireshark Network Analyzer $(VERSION)"	\
-	--css=$(top_srcdir)/docbook/ws.css							\
+	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/dumpcap.pod > dumpcap.html
 
@@ -232,7 +232,7 @@ rawshark.1: rawshark.pod ../config.h
 rawshark.html: rawshark.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(POD2HTML)                     \
 	--title="rawshark - The Wireshark Network Analyzer $(VERSION)"	\
-	--css=$(top_srcdir)/docbook/ws.css							\
+	--css=$(top_srcdir)/docbook/ws.css				\
 	--noindex							\
 	$(srcdir)/rawshark.pod > rawshark.html
 
