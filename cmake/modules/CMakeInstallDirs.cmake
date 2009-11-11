@@ -55,7 +55,7 @@ SET(CMAKE_INSTALL_DATADIR_DOC       "read-only architecture-independent data [PR
 SET(CMAKE_INSTALL_SYSCONFDIR_DOC    "read-only single-machine data [PREFIX/etc]")
 SET(CMAKE_INSTALL_LOCALSTATEDIR_DOC "modifiable single-machine data [PREFIX/var]")
 SET(CMAKE_INSTALL_LIBDIR_DOC         "object code libraries [PREFIX/lib]")
-SET(CMAKE_INSTALL_MANDIR_DOC        "man documentation [PREFIX/man]")
+SET(CMAKE_INSTALL_MANDIR_DOC        "man documentation [PREFIX/share/man]")
 
 #Special case for /etc and /var when prefix is /usr
 IF(${CMAKE_INSTALL_PREFIX} STREQUAL "/usr")
@@ -76,7 +76,7 @@ SET(CMAKE_INSTALL_LOCALSTATEDIR "var"
     CACHE PATH ${CMAKE_INSTALL_LOCALSTATEDIR_DOC})
 SET(CMAKE_INSTALL_LIBDIR "lib"
     CACHE PATH ${CMAKE_INSTALL_LIBDIR_DOC})
-SET(CMAKE_INSTALL_MANDIR "man"
+SET(CMAKE_INSTALL_MANDIR "share/man"
     CACHE PATH ${CMAKE_INSTALL_MANDIR_DOC})
 
 

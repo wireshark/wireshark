@@ -197,9 +197,6 @@ set(WIRESHARK_TAP_SRC
 	wsp_stat.c
 )
 
-# todo
-# about_dlg.c main_welcome.c: ../image/wssplash.xpm ../image/wssplash-dev.xpm
-
 set(CLEAN_FILES
 	${WIRESHARK_GTK_SRC}
 	${WIRESHARK_TAP_SRC}

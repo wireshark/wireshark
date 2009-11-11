@@ -1058,6 +1058,7 @@ set(DISSECTOR_SUPPORT_SRC
 
 set(LIBWIRESHARK_ASM_FILES
 	asm_utils.c
+# todo
 #	!IFDEF NASM
 #	asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
 #	        $(NASM) -f $(WIRESHARK_TARGET_PLATFORM) -o $@ $?

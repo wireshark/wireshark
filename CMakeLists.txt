@@ -270,7 +270,7 @@ find_package(YAPP)
 
 if(HAVE_LIBPYTHON)
 	set(HAVE_PYTHON 1)
-	set(PYTHON_DIR "${CMAKE_INSTALL_PREFIX}/lib/wireshark/python/${VERSION}")
+	set(PYTHON_DIR "${CMAKE_INSTALL_PREFIX}/lib/wireshark/python/${CPACK_PACKAGE_VERSION}")
 endif()
 if(HAVE_LIBLUA)
 	set(HAVE_LUA_H 1)
@@ -502,27 +502,24 @@ set(INSTALL_DIRS
 set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 	COPYING
-#	capinfos.html
+	${CMAKE_BINARY_DIR}/capinfos.html
 	cfilters
 	colorfilters
-#	console.lua
 	dfilters
-#	dtd_gen.lua
-#	dumpcap.html
-#	editcap.html
-#	idl2wrs.html
-#	init.lua
-#	ipmap.html
+	${CMAKE_BINARY_DIR}/dumpcap.html
+	${CMAKE_BINARY_DIR}/editcap.html
+	${CMAKE_BINARY_DIR}/idl2wrs.html
+	ipmap.html
 	manuf
-#	mergecap.html
-#	rawshark.html
+	${CMAKE_BINARY_DIR}/mergecap.html
+	${CMAKE_BINARY_DIR}/rawshark.html
 	services
 	smi_modules
-#	text2pcap.html
-#	tshark.html
-#	wireshark-filter.html
-#	wireshark.html
-#	ws.css
+	${CMAKE_BINARY_DIR}/text2pcap.html
+	${CMAKE_BINARY_DIR}/tshark.html
+	${CMAKE_BINARY_DIR}/wireshark-filter.html
+	${CMAKE_BINARY_DIR}/wireshark.html
+	docbook/ws.css
 )
 
 set(LIBEPAN_LIBS
@@ -761,11 +758,82 @@ ADD_CUSTOM_COMMAND(
 		${CMAKE_SOURCE_DIR}/AUTHORS
 )
 
+ADD_CUSTOM_COMMAND(
+	OUTPUT	AUTHORS-SHORT-FORMAT
+		wireshark.pod
+	COMMAND ${PERL}
+		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
+		${CMAKE_SOURCE_DIR}/doc/make-authors-format.pl
+		< AUTHORS-SHORT
+		> AUTHORS-SHORT-FORMAT
+	COMMAND cat
+		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
+		AUTHORS-SHORT-FORMAT
+		> wireshark.pod
+	DEPENDS
+		${CMAKE_SOURCE_DIR}/doc/perlnoutf.pl
+		${CMAKE_SOURCE_DIR}/doc/make-authors-format.pl
+		AUTHORS-SHORT
+		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
+)
+
+ADD_CUSTOM_COMMAND(
+	OUTPUT	wireshark-filter.pod
+	COMMAND tshark
+		-G fields |
+		${PERL}
+		${CMAKE_SOURCE_DIR}/doc/dfilter2pod.pl
+		${CMAKE_SOURCE_DIR}/doc/wireshark-filter.pod.template
+		> wireshark-filter.pod
+	DEPENDS
+		${CMAKE_SOURCE_DIR}/doc/dfilter2pod.pl
+		${CMAKE_SOURCE_DIR}/doc/wireshark-filter.pod.template
+		tshark
+)
+
+find_package(POD)
+
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/capinfos 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dumpcap 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/editcap 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/idl2wrs 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/mergecap 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/rawshark 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/text2pcap 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/tshark 1 )
+pod2manhtml( wireshark 1 )
+pod2manhtml( wireshark-filter 4 )
+
 add_custom_target(
 	auxiliary ALL
 	DEPENDS
 		AUTHORS-SHORT
-		# todo: Add manpages and onlinedocs and generate them
+		capinfos.html
+		dumpcap.html
+		editcap.html
+		idl2wrs.html
+		mergecap.html
+		rawshark.html
+		text2pcap.html
+		tshark.html
+		wireshark.html
+		wireshark-filter.html
+)
+
+set(MAN1_FILES
+	${CMAKE_BINARY_DIR}/capinfos.1
+	${CMAKE_BINARY_DIR}/dumpcap.1
+	${CMAKE_BINARY_DIR}/editcap.1
+	${CMAKE_BINARY_DIR}/idl2wrs.1
+	${CMAKE_BINARY_DIR}/mergecap.1
+	${CMAKE_BINARY_DIR}/rawshark.1
+	${CMAKE_BINARY_DIR}/text2pcap.1
+	${CMAKE_BINARY_DIR}/tshark.1
+	${CMAKE_BINARY_DIR}/wireshark.1
+)
+
+set(MAN4_FILES
+	${CMAKE_BINARY_DIR}/wireshark-filter.4
 )
 
 set(CLEAN_FILES
@@ -794,6 +862,20 @@ install(
 		${INSTALL_FILES}
 	DESTINATION
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
+)
+
+install(
+	FILES
+		${MAN1_FILES}
+	DESTINATION
+		${CMAKE_INSTALL_MANDIR}/man1
+)
+
+install(
+	FILES
+		${MAN4_FILES}
+	DESTINATION
+		${CMAKE_INSTALL_MANDIR}/man4
 )
 
 install(
