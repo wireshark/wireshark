@@ -1,4 +1,4 @@
-Wireshark 1.2.3 Release Notes
+Wireshark 1.2.4 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,60 +12,13 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed. See the security
-   advisory for details and a workaround.
-
-     o The Paltalk dissector could crash on alignment-sensitive
-       processors. (Bug 3689)
-
-       Versions affected: 1.2.0 to 1.2.2
-
-     o The DCERPC/NT dissector could crash.
-
-       Versions affected: 0.10.10 to 1.2.2
-
-     o The SMB dissector could crash.
-
-       Versions affected: 1.2.0 to 1.2.2
-
    The following bugs have been fixed:
 
-     o Wireshark memory leak with each file open and/or display
-       filter change. (Bug 2375)
-
-     o DHCP Dissector displays negative lease time. (Bug 2733)
-
-     o Invalid advertised window line on tcptrace style graph. (Bug
-       3417)
-
-     o SMB get_dfs_referral referral entry is not dissected
-       correctly. (Bug 3542)
-
-     o Error dissecting eMule sourceOBFU message. (Bug 3848)
-
-     o Typos in Diameter XML files. (Bug 3878)
-
-     o RSL dissector for MS Power IE is broken. (Bug 4017)
-
-     o Manifest problem in 1.2.2 Win64 build. (Bug 4024)
-
-     o FIP dissector throws assertion. (Bug 4046)
-
-     o TCAP problem with indefinite length 'components' SEQ OF. (Bug
-       4053)
-
-     o GSM MAP: an-APDU not decoded. (Bug 4095)
-
-     o Add "Drag and Drop entries..." message on Columns preferences
-       page. (Bug 4099)
-
-     o Editcap -t and -w option parses fractional digits incorrectly.
-       (Bug 4162)
+     o Wireshark could crash at startup on Windows. (Bug 4155)
 
   New and Updated Features
 
-   The 32-bit and 64-bit Windows packages now include WinPcap 4.1.1.
-   .
+   There are no new features in this release.
 
   New Protocol Support
 
@@ -73,8 +26,7 @@ What's New
 
   Updated Protocol Support
 
-   DCERPC NT, DHCP, Diameter, E.212, eDonkey, FIP, IPsec, MGCP, NCP,
-   Paltalk, RADIUS, RSL, SBus, SMB, SNMP, SSL, TCP, Teamspeak2, WPS
+   DCERPC, IPFIX/Netflow, IPv4, NAS EPS, RTCP, TIPC
 
   Updated Capture File Support
 
@@ -83,7 +35,7 @@ What's New
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   the download page on the main web site.
+   http://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
@@ -125,7 +77,7 @@ Known Problems
    works. (Bug 2234)
 
    The 64-bit Windows installer does not ship with the same libraries
-   as the 32-bit installer.
+   as the 32-bit installer. (Bug 3610)
 
 Getting Help
 
