@@ -223,6 +223,13 @@ Wireshark Info
       2234</ulink>)
     </para>
 
+    <para>
+      The 64-bit Windows installer does not ship with the same libraries as the
+      32-bit installer.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3610">Bug
+      3610</ulink>)
+    </para>
+
   </section>
 
   <section id="GettingHelp"><title>Getting Help</title>
