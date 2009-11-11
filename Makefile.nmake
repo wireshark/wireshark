@@ -787,7 +787,7 @@ process_libs:
 
 !IFDEF GNUTLS_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. gnutls-2.8.1-1.zip
+		. gnutls-2.8.5-1.zip
 !ENDIF
 !IFDEF PORTAUDIO_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -875,7 +875,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.17-1            # win64
     rm -r -f $(WIRESHARK_LIBS)/glib
     rm -r -f $(WIRESHARK_LIBS)/gnutls-2.8.1-1
-    rm -r -f $(WIRESHARK_LIBS)/gnutls-2.6.4-1
+    rm -r -f $(WIRESHARK_LIBS)/gnutls-2.8.5-1
     rm -r -f $(WIRESHARK_LIBS)/gtk2
     rm -r -f $(WIRESHARK_LIBS)/gtk+
     rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
