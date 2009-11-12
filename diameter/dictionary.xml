@@ -1404,7 +1404,7 @@ http://www.iana.org/assignments/radius-types
 		</avp>
 		<!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
 <!--
-3GPP TS 29.230 version 8.4.0 Release 8  Table 7.1: 3GPP specific AVP codes
+3GPP TS 29.230 version 8.7.0 Release 8  Table 7.1: 3GPP specific AVP codes
 100 3GPP-WLAN-APN-Id OctetString 29.234 [6]
 Note: The AVP codes from 1 to 255 are reserved for backwards compatibility with 3GPP RADIUS Vendor
 Specific Attributes (See TS 29.061 [13])
@@ -1470,17 +1470,6 @@ Note: The AVP codes from 320 to 399 are reserved for TS 29.234
 			<enum name="2G GBA" code="1"/>
 		</avp>
 <!--
-400 GBA-UserSecSettings OctedString
-401 Transaction-Identifier OctetString
-402 NAF-Hostname OctetString
-403 GAA-Service-Identifier OctedString
-404 Key-ExpiryTime Time
-405 ME-Key-Material OctedString
-406 UICC-Key-Material OctedString
-407 GBA_U-Awareness-Indicator Enumerated
-408 BootstrapInfoCreationTime Time
-409 GUSS-Timestamp Time
-410 GBA-Type Enumerated
 411 UE-Id OctectString
 412 UE-Id-Type Enumerated
 413 UICC-App-Label OctectString
@@ -1496,86 +1485,8 @@ Note: TThe AVP codes from 419 to 499 are reserved for TS 29.109
  NOTE AVP 500 - 523 is in gqpolicy.xml
       AVP 524 - 527 is in TGPPRx.xml (3GPP TS 29.214)
 Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
--->
-		<avp name="Visited-Network-Identifier" code="600" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Public-Identity" code="601" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
-		</avp>
-    <avp name="Server-Name" code="602" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>    
-<!--
-603 Server-Capabilities Grouped
-604 Mandatory-Capability Unsigned32
-605 Optional-Capability Unsigned32
-606 User-Data OctetString
-607 SIP-Number-Auth-Items Unsigned32
-608 SIP-Authentication-Scheme UTF8String
-609 SIP-Authenticate OctetString
-610 SIP-Authorization OctetString
-611 SIP-Authentication-Context OctetString
-612 SIP-Auth-Data-Item Grouped
-613 SIP-Item-Number Unsigned32
-614 Server-Assignment-Type Enumerated
-615 Deregistration-Reason Grouped
-616 Reason-Code Enumerated
-617 Reason-Info UTF8String
+ NOTE AVP 600 - 649 is in imscxdx.xml
 
--->
-		<avp name="Charging-Information" code="618" vendor-id="TGPP" mandatory="must" may-encrypt="no" vendor-bit="must">
-			<grouped>
-				<gavp name="Primary-Event-Charging-Function-Name"/>
-				<gavp name="Secondary-Event-Charging-Function-Name"/>
-				<gavp name="Primary-Charging-Collection-Function-Name"/>
-				<gavp name="Secondary-Charging-Collection-Function-Name"/>
-			</grouped>
-		</avp>		
-		
-		<avp name="Primary-Event-Charging-Function-Name" code="619" vendor-id="TGPP" mandatory="must" may-encrypt="no" vendor-bit="must">
-			<type type-name="UTF8String"/>
-		</avp>
-		
-		<avp name="Secondary-Event-Charging-Function-Name" code="620" vendor-id="TGPP" mandatory="must"	may-encrypt="no" vendor-bit="must">
-			<type type-name="UTF8String"/>
-		</avp>
-		
-		<avp name="Primary-Charging-Collection-Function-Name" code="621" vendor-id="TGPP" mandatory="must" may-encrypt="no" vendor-bit="must">
-			<type type-name="UTF8String"/>
-		</avp>
-		
-		<avp name="Secondary-Charging-Collection-Function-Name"	code="622" vendor-id="TGPP" mandatory="must" may-encrypt="no" vendor-bit="must">
-			<type type-name="UTF8String"/>
-		</avp>
-<!--
-623 User-Authorization-Type Enumerated
-624 User-Data-Already-Available Enumerated
-625 Confidentiality-Key OctetString
-626 Integrity-Key OctetString
-627 User-Data-Request-Type Enumerated
-628 Supported-Features Grouped
-629 Feature-List-ID Unsigned32
-630 Feature-List Unsigned32
-631 Supported-Applications Grouped
-632 Associated-Identities Grouped
-633 Originating-Request Enumerated
-634 Wildcarded-PSI UTF8String
-635	SIP-Digest-Authenticate	Grouped	
-636	Wildcarded-IMPU	UTF8String	
-637	UAR-Flags	Unsigned32	
-638	Loose-Route-Indication	Enumerated	
-639	SCSCF-Restoration-Info	Grouped	
-640	Path	OctetString	
-641	Contact	OctetString	
-642	Subscription-Info	Grouped	
-643	Call-ID-SIP-Header	OctetString	
-644	From-SIP-Header	OctetString	
-645	To-SIP-Header	OctetString	
-646	Record-Route	OctetString	
-647	Associated-Registered-Identities	Grouped
-648 Multiple-Registration-Indication Enumerated
-649 Restoration-Info Grouped
 Note: The AVP codes from 650 to 699 are reserved for TS 29.229.
  ************************** 3GPP Sh AVPS        **************************
  ************************** NOTE see TGPPSh.xml **************************
@@ -2531,7 +2442,10 @@ Note: The AVP codes from 920 to 999 are reserved for TS 29.061
       <enum name="ADDITION" 	code="1"/>
       <enum name="MODIFICATION" 	code="2"/>
     </avp>
-    <!-- Note: The AVP codes from 1051 to 1099 are reserved for TS 29.210 -->
+    <!-- 
+    1063 Resource-Allocation-Notification Enumerated
+    -->
+    <!-- Note: The AVP codes from 1064 to 1099 are reserved for TS 29.212 -->
 <!-- ETSI TS 129 140 V6.3.0 (2005-12) -->
 		<avp name="Served-User-Identity" code="1100" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
@@ -3606,8 +3520,9 @@ Note: The AVP codes from 1485 to 1499 are reserved for TS 29.272.
 1501	Non-3GPP-IP-Access	Enumerated	
 1502	Non-3GPP-IP-Access-APN	Enumerated	
 1503	SGW-Address	Address	
-1504	ANID	UTF8String	
-Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
+1504	ANID	UTF8String
+1505 Trace-Info Grouped
+Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
 -->
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP"> 
      <grouped>
@@ -4025,15 +3940,6 @@ Note: The AVP codes from 1505 to 1599 are reserved for TS 29.273
     <avp name="Total-Number-Of-Messages-Sen" code="2114" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
-		<avp name="MMTel-Information" code="2026" vendor-bit="must" vendor-id="TGPP"> 
-     <grouped>
-      <gavp name="Service-type"/>
-      <gavp name="Service-mode"/>
-      <gavp name="Subscriber-Role"/>
-      <gavp name="Number-Of-Diversions"/>
-      <gavp name="Associated-Party-Address"/>
-     </grouped>
-		</avp>
     <!--
 2115 DCD-Information Grouped
 2116 Content-ID UTF8String
