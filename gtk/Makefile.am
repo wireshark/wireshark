@@ -76,6 +76,6 @@ expert_indicators.h:
 network_icons.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
-	for icon in bluetooth wired wireless ; do \
+	for icon in bluetooth usb wired wireless ; do \
 		gdk-pixbuf-csource --raw --name=network_$${icon}_pb_data ../image/toolbar/network_$${icon}_16.png >> $@ ;\
 	done
