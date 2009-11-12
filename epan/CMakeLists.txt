@@ -760,6 +760,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-netbios.c
 	dissectors/packet-netdump.c
 	dissectors/packet-netflow.c
+	dissectors/packet-netperfmeter.c
 	dissectors/packet-netsync.c
 	dissectors/packet-nettl.c
 	dissectors/packet-newmail.c
@@ -789,6 +790,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ositp.c
 	dissectors/packet-ospf.c
 	dissectors/packet-p_mul.c
+	dissectors/packet-packetbb.c
 	dissectors/packet-packetlogger.c
 	dissectors/packet-pagp.c
 	dissectors/packet-paltalk.c

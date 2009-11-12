@@ -72,8 +72,10 @@ option(DISABLE_WERROR	 "Do not treat Warnings as errors" OFF)
 option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC (disables -Werror)" OFF)
 option(ENABLE_AIRPCAP	 "Enable Airpcap support" ON)
 # todo
-option(ENABLE_STATIC     "Build a static version of Wireshark" OFF)
+option(ENABLE_STATIC     "Build a static version of Wireshark (not implemented)" OFF)
 option(ENABLE_PLUGINS    "Build with plugins" ON)
+# todo
+option(ENABLE_GUIDES     "Build Guides (not yet implemented)" OFF)
 
 option(ENABLE_ADNS       "Build with adns support" ON)
 option(ENABLE_PCRE       "Build with pcre support" ON)
@@ -137,7 +139,7 @@ set(WIRESHARK_EXTRA_C_FLAGS
 	-Wshorten-64-to-32
 )
 
-if(ENABLE_EXTRA_GCC_CHECKS)
+if(ENABLE_EXTRA_GCC_CHECKS)   # This overrides -Werror
 	set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_C_FLAGS})
 endif()
 
@@ -361,6 +363,11 @@ add_subdirectory( tools/lemon )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
+if(ENABLE_GUIDES)
+# todo
+#	add_subdirectory( docbook )
+endif()
+
 #Platform specific
 if(UNIX)
 	set(WS_VAR_IMPORT "extern")
@@ -523,20 +530,23 @@ set(INSTALL_FILES
 )
 
 set(LIBEPAN_LIBS
-#		$(wireshark_optional_objects)
+#		@GETOPT_O@	# wsgetopt.c
+#		@INET_ATON_LO@	# epan/inet_aton.c
+#		@INET_NTOP_LO@	# inet_ntop.c
+#		@INET_PTON_LO@	# inet_pton.c
+#		@NSL_LIBS@	# -lnsl
+#		@SOCKET_LIBS@	# -lsocket
+#		@SSL_LIBS@	# -lcrypto
+#		@STRERROR_O@	# strerror.c
+#		@STRNCASECMP_O@	# strncasecmp.c
+#		@STRPTIME_O@	# strptime.c
 		epan
-#		@INET_PTON_LO@
-#		@INET_NTOP_LO@
-#		@SSL_LIBS@
-#		$(plugin_ldadd)
+#		$(plugin_ldadd)	# in case of static
 		${PCRE_LIBRARIES}
 		${PCAP_LIBRARIES}
-#		@SOCKET_LIBS@
-#		@NSL_LIBS@
 		${CARES_LIBRARIES}
 		${ADNS_LIBRARIES}
 		${KERBEROS_LIBRARIES}
-#		@FRAMEWORKS@
 		${LUA_LIBRARIES}
 		${PYTHON_LIBRARIES}
 		${GEOIP_LIBRARIES}
@@ -719,7 +729,6 @@ if(BUILD_dumpcap)
 		${CAP_LIBRARIES}
 #		@SOCKET_LIBS@
 #		@NSL_LIBS@
-#		@FRAMEWORKS@
 		${GCRYPT_LIBRARIES}
 		${GNUTLS_LIBRARIES}
 		${Z_LIBRARIES}
