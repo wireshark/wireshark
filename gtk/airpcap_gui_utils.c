@@ -625,7 +625,7 @@ airpcap_channel_offset_changed_cb(GtkWidget *channel_offset_cb, gpointer data _U
  * Update the channel offset of the given combobox according to the given frequency.
  */
 void
-airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint32 chan_freq, GtkWidget *channel_offset_cb, gboolean set)
+airpcap_update_channel_offset_combo(airpcap_if_info_t* if_info, guint chan_freq, GtkWidget *channel_offset_cb, gboolean set)
 {
     gint current_offset;
     gint new_offset;
@@ -754,7 +754,7 @@ airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info _U_)
     guint i, j;
     gchar s[3];
     PAirpcapKeysCollection KeysCollection;
-    guint32 KeysCollectionSize;
+    guint KeysCollectionSize;
     guint8 KeyByte;
 
     guint keys_in_list = 0;
@@ -808,7 +808,7 @@ airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info _U_)
 	/* Retrieve the Item corresponding to the i-th key */
 	new_key = g_string_new(row_key);
 
-	KeysCollection->Keys[i].KeyLen = new_key->len / 2;
+	KeysCollection->Keys[i].KeyLen = (guint) new_key->len / 2;
 	memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
 
 	for(j = 0 ; j < new_key->len; j += 2)
@@ -848,7 +848,7 @@ airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_i
     guint i, j;
     gchar s[3];
     PAirpcapKeysCollection KeysCollection;
-    guint32 KeysCollectionSize;
+    guint KeysCollectionSize;
     guint8 KeyByte;
 
     guint keys_in_list = 0;
@@ -905,7 +905,7 @@ airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_i
 	/* Retrieve the Item corresponding to the i-th key */
 	new_key = g_string_new(row_key);
 
-	KeysCollection->Keys[i].KeyLen = new_key->len / 2;
+	KeysCollection->Keys[i].KeyLen = (guint) new_key->len / 2;
 	memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
 
 	/* Key must be saved in adifferent way, depending on its type... */
@@ -978,7 +978,7 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
 	    tmp_dk->key = g_string_new(tmp_key);
 	    tmp_dk->ssid = NULL;
 	    tmp_dk->type = AIRPDCAP_KEY_TYPE_WEP;
-	    tmp_dk->bits = tmp_dk->key->len * 4;
+	    tmp_dk->bits = (guint) tmp_dk->key->len * 4;
 	    key_list = g_list_append(key_list,tmp_dk);
 	}
 	else if(g_ascii_strcasecmp(tmp_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)

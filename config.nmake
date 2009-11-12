@@ -341,7 +341,7 @@ PORTAUDIO_VERSION=19
 # If you don't have the AirPcap developer's pack, comment this line out,
 # so that AIRPCAP_DIR isn't defined.
 #
-AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_1_0_0_594\AirPcap_Devpack
+AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_4_1_0_1622\AirPcap_Devpack
 
 #
 # Optional: LIBSMI, System Management Interface
@@ -573,7 +573,7 @@ PORTAUDIO_VERSION=19
 # If you don't have the AirPcap developer's pack, comment this line out,
 # so that AIRPCAP_DIR isn't defined.
 #
-#AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_1_0_0_594\AirPcap_Devpack
+AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_4_1_0_1622\AirPcap_Devpack
 
 #
 # Optional: LIBSMI, System Management Interface

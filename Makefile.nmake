@@ -760,7 +760,7 @@ process_libs:
 !ENDIF
 !IFDEF AIRPCAP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		AirPcap_Devpack_1_0_0_594 AirPcap_Devpack_1_0_0_594.zip
+		AirPcap_Devpack_4_1_0_1622 AirPcap_Devpack_4_1_0_1622.zip
 !ENDIF
 !IFDEF C_ARES_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -895,6 +895,8 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/user-guide
     rm -r -f $(WIRESHARK_LIBS)/WpdPack
     rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_1_0_0_594
+    rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_4_0_0_1480
+    rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_4_1_0_1622
     rm -r -f $(WIRESHARK_LIBS)/zlib123
     rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
     rm -r -f $(WIRESHARK_LIBS)/upx301w

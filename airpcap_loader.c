@@ -120,7 +120,7 @@ airpcap_if_info_t *airpcap_if_active = NULL;
 module_t *wlan_prefs = NULL;
 
 Dot11Channel *pSupportedChannels;
-guint32 numSupportedChannels;
+guint numSupportedChannels;
 
 static AirpcapChannelInfo LegacyChannels[] =
 {
@@ -140,7 +140,7 @@ static AirpcapChannelInfo LegacyChannels[] =
 	{2484, 0, {0,0,0}},
 };
 
-static guint32 num_legacy_channels = 14;
+static guint num_legacy_channels = 14;
 
 /*
  * Callback used by the load_wlan_keys() routine in order to read a WEP decryption key
@@ -325,7 +325,7 @@ write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list)
     GString *new_key;
     gchar s[3];
     PAirpcapKeysCollection KeysCollection;
-    guint32 KeysCollectionSize;
+    guint KeysCollectionSize;
     guint8 KeyByte;
     guint keys_in_list = 0;
     decryption_key_t* key_item = NULL;
@@ -364,7 +364,7 @@ write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list)
 	key_item = (decryption_key_t*)g_list_nth_data(key_list,i);
 	new_key = g_string_new(key_item->key->str);
 
-	KeysCollection->Keys[i].KeyLen = new_key->len / 2;
+	KeysCollection->Keys[i].KeyLen = (guint) new_key->len / 2;
 	memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
 
 	for(j = 0 ; j < new_key->len; j += 2)
@@ -415,7 +415,7 @@ write_wlan_driver_wep_keys_to_registry(GList* key_list)
     GString *new_key;
     gchar s[3];
     PAirpcapKeysCollection KeysCollection;
-    guint32 KeysCollectionSize;
+    guint KeysCollectionSize;
     guint8 KeyByte;
     guint keys_in_list = 0;
     decryption_key_t* key_item = NULL;
@@ -485,7 +485,7 @@ write_wlan_driver_wep_keys_to_registry(GList* key_list)
 
 	    new_key = g_string_new(key_item->key->str);
 
-	    KeysCollection->Keys[y].KeyLen = new_key->len / 2;
+	    KeysCollection->Keys[y].KeyLen = (guint) new_key->len / 2;
 	    memset(&KeysCollection->Keys[y].KeyData, 0, sizeof(KeysCollection->Keys[y].KeyData));
 
 	    for(j = 0 ; j < new_key->len; j += 2)
@@ -758,7 +758,7 @@ airpcap_if_get_device_channel(PAirpcapHandle ah, guint * ch)
  * Airpcap wrapper, used to get the supported channels of an airpcap adapter
  */
 gboolean
-airpcap_if_get_device_supported_channels(PAirpcapHandle ah, AirpcapChannelInfo **cInfo, guint32 * nInfo)
+airpcap_if_get_device_supported_channels(PAirpcapHandle ah, AirpcapChannelInfo **cInfo, guint * nInfo)
 {
     if (!AirpcapLoaded) return FALSE;
     if (airpcap_get_dll_state() == AIRPCAP_DLL_OLD){
@@ -776,10 +776,10 @@ airpcap_if_get_device_supported_channels(PAirpcapHandle ah, AirpcapChannelInfo *
  * Airpcap wrapper, used to get the supported channels of an airpcap adapter
  */
 Dot11Channel*
-airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint32 * pNumSupportedChannels)
+airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint * pNumSupportedChannels)
 {
     AirpcapChannelInfo *chanInfo;
-    guint32 i=0, j=0, numInfo = 0;
+    guint i=0, j=0, numInfo = 0;
 
     if (!AirpcapLoaded)
         return NULL;
@@ -797,7 +797,7 @@ airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint32 * pNum
 
     for (i = 0; i < numInfo; i++)
     {
-        guint32 supportedChannel = 0xFFFFFFFF;
+        guint supportedChannel = G_MAXUINT;
 
         /*
          * search if we have it already
@@ -811,7 +811,7 @@ airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint32 * pNum
             }
         }
 
-        if (supportedChannel == 0xFFFFFFFF)
+        if (supportedChannel == G_MAXUINT)
         {
             /*
              * not found, create a new item
@@ -933,7 +933,7 @@ airpcap_if_get_device_channel_ex(PAirpcapHandle ah, PAirpcapChannelInfo pChannel
 
     if (airpcap_get_dll_state() == AIRPCAP_DLL_OLD){
       guint channel = 0;
-      guint32 chan_freq = 0;
+      guint chan_freq = 0;
 
       if (!airpcap_if_get_device_channel(ah, &channel)) return FALSE;
 
@@ -1103,7 +1103,7 @@ airpcap_if_info_new(char *name, char *description)
     ad = airpcap_if_open(name, ebuf);
     if(ad)
     {
-  		if_info = g_malloc(sizeof (airpcap_if_info_t));
+  		if_info = g_malloc0(sizeof (airpcap_if_info_t));
   		if_info->name = g_strdup(name);
   		if (description == NULL){
   			if_info->description = NULL;
@@ -1369,9 +1369,11 @@ get_airpcap_interface_list(int *err, char **err_str)
 {
     GList  *il = NULL;
     airpcap_if_info_t *if_info;
-    int i, n_adapts;
+    int n_adapts;
     AirpcapDeviceDescription *devsList, *adListEntry;
     char errbuf[PCAP_ERRBUF_SIZE];
+
+    *err = 0;
 
     if (!AirpcapLoaded)
     {
@@ -1413,7 +1415,7 @@ get_airpcap_interface_list(int *err, char **err_str)
      * Insert the adapters in our list
      */
     adListEntry = devsList;
-    for(i = 0; i < n_adapts; i++)
+    while(adListEntry)
     {
 		if_info = airpcap_if_info_new(adListEntry->Name, adListEntry->Description);
 		if (if_info != NULL){
@@ -1425,7 +1427,6 @@ get_airpcap_interface_list(int *err, char **err_str)
 
     g_PAirpcapFreeDeviceList(devsList);
 
-    *err = 0;
     return il;
 }
 
@@ -1473,7 +1474,6 @@ gchar*
 airpcap_get_key_string(AirpcapKey key)
 {
     unsigned int j = 0;
-    unsigned int l = 0;
     gchar *dst,*src;
 
     dst = NULL;
@@ -1494,7 +1494,7 @@ airpcap_get_key_string(AirpcapKey key)
 		/*
 		 * XXX - use g_strconcat() or GStrings instead ???
 		 */
-		l = g_strlcat(dst,src,WEP_KEY_MAX_CHAR_SIZE+1);
+		g_strlcat(dst, src, WEP_KEY_MAX_CHAR_SIZE+1);
 	    }
 	    g_free(src);
 	}
@@ -1808,7 +1808,7 @@ get_airpcap_device_keys(airpcap_if_info_t* info_if)
 	    g_free(tmp_key);
 
 	    /* BITS */
-	    new_key->bits = new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an hexadecimal number) */
+	    new_key->bits = (guint) new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an hexadecimal number) */
 
 	    /* SSID not used in WEP keys */
 	    new_key->ssid = NULL;
@@ -1880,7 +1880,7 @@ get_airpcap_driver_keys(void)
 	    if(tmp_key != NULL) g_free(tmp_key);
 
 	    /* BITS */
-	    new_key->bits = new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an hexadecimal number) */
+	    new_key->bits = (guint) new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an hexadecimal number) */
 
 	    /* SSID not used in WEP keys */
 	    new_key->ssid = NULL;
