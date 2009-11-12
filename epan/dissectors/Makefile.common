@@ -665,6 +665,7 @@ DISSECTOR_SRC = \
 	packet-netbios.c	\
 	packet-netdump.c	\
 	packet-netflow.c	\
+	packet-netperfmeter.c	\
 	packet-netsync.c 	\
 	packet-nettl.c		\
 	packet-newmail.c	\
