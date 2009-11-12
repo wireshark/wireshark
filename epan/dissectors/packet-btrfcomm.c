@@ -692,6 +692,12 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* len */
 		offset = get_le_multi_byte_value(tvb, offset, ctrl_tree, &length, hf_mcc_len);
 
+
+		if (length > (guint32) tvb_length_remaining(tvb, offset)) {
+			expert_add_info_format(pinfo, ctrl_tree, PI_MALFORMED, PI_ERROR, "Huge MCC length: %u", length);
+			return;
+		}
+
 		switch(mcc_type) {
 		case 0x20: /* Parameter Negotiation */
 			col_append_str(pinfo->cinfo, COL_INFO, "Parameter Negotiation ");
@@ -703,11 +709,6 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 		offset += length;
-
-		if (offset < start_offset) {
-			expert_add_info_format(pinfo, ctrl_tree, PI_MALFORMED, PI_ERROR, "Huge MCC length: %u", length);
-			return;
-		}
 
 		proto_item_set_len(mcc_ti, offset-start_offset);
 	}
