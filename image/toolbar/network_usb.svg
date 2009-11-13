@@ -93,7 +93,7 @@
        x="5.25"
        y="0.25000003" />
     <rect
-       style="fill:#3465a4;fill-opacity:1;stroke:#204a87;stroke-width:0.5;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.99588479"
+       style="fill:#729fcf;fill-opacity:1;stroke:#204a87;stroke-width:0.50000000000000000;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.99588478999999996"
        id="rect3260"
        width="7.5"
        height="10"
@@ -102,19 +102,19 @@
        rx="1"
        ry="1" />
     <rect
-       style="fill:#555753;fill-opacity:1;stroke:none;stroke-width:0.50000000000000000;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#555753;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect3262"
-       width="1"
+       width="1.25"
        height="1"
        x="6"
        y="2" />
     <rect
        y="2"
-       x="9"
+       x="8.75"
        height="1"
-       width="1"
+       width="1.25"
        id="rect3264"
-       style="fill:#555753;fill-opacity:1;stroke:none;stroke-width:0.50000000000000000;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:#555753;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <rect
        style="fill:#555753;fill-opacity:1;stroke:none;stroke-width:0.50000000000000000;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect3266"
