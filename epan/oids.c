@@ -547,19 +547,16 @@ static void register_mibs(void) {
 		return;
 	}
 
+	smi_errors = g_string_new("");
+	smiSetErrorHandler(smi_error_handler);
+
 	path_str = oid_get_default_mib_path();
 	D(1,("SMI Path: '%s'",path_str));
 
 	smiSetPath(path_str);
 
-
-
-	smi_errors = g_string_new("");
-	smiSetErrorHandler(smi_error_handler);
-
 	for(i=0;i<num_smi_modules;i++) {
 		if (!smi_modules[i].name) continue;
-
 
 		if (smiIsLoaded(smi_modules[i].name)) {
 			continue;
@@ -1081,6 +1078,12 @@ oid_get_default_mib_path(void) {
 #else
 #define PATH_SEPARATOR ":"
 	path = smiGetPath();
+#ifdef __APPLE__
+	g_string_append(path_str, "/usr/share/snmp/mibs");
+	if (strlen(path) > 0 ) {
+		g_string_append(path_str, PATH_SEPARATOR);
+	}
+#endif
 	g_string_append_printf(path_str, "%s", path);
 	free (path);
 #endif
