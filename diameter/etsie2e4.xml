@@ -124,7 +124,27 @@
 				<enum name="QOS-PROFILE" code="9"/>
 				<enum name="IP-CONNECTIVITY-STATUS" code="10"/>
 		</avp>
-		<!--- ETSI ES 283 026 V1.6.0 (2008-02) -->
+    <avp name="Event-Type" code="354" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+      <type type-name="Enumerated"/>
+      <enum name="USER-LOGON" code="0"/>
+      <enum name="LOCATION-INFORMATION-CHANGED" code="1"/>
+      <enum name="RACS-CONTACT-POINT-CHANGED" code="2"/>
+      <enum name="ACCESS-NETWORK-TYPE" code="3"/>
+      <enum name="TERMINAL-TYPE-CHANGED" code="4"/>
+      <enum name="LOGICAL-ACCESS-ID-CHANGED" code="5"/>
+      <enum name="PHYSICAL-ACCESS-ID-CHANGED" code="6"/>
+      <enum name="IP-ADDRESS-CHANGED" code="7"/>
+      <enum name="INITIAL-GATE-SETTING-CHANGED" code="8"/>
+      <enum name="QOS-PROFILE-CHANGED" code="9"/>
+      <enum name="USER-LOGOFF" code="10"/>
+    </avp>
+    <avp name="Civic-Location" code="355" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Geospatial-Location " code="356" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+      <type type-name="OctetString"/>
+    </avp>
+    <!--- ETSI ES 283 026 V1.6.0 (2008-02) -->
 		<avp name="Session-Bundle-Id" code="400" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -175,15 +195,15 @@
       <enum name="DEFAULT" code="0"/>
       <enum name="PRIORITY-ONE" code="1"/>
       <enum name="PRIORITY-TWO" code="2"/>
-				<enum name="PRIORITY-THREE" code="3"/>
-				<enum name="PRIORITY-FOUR" code="4"/>
-				<enum name="PRIORITY-FIVE" code="5"/>
-				<enum name="PRIORITY-SIX" code="6"/>
-				<enum name="PRIORITY-SEVEN" code="7"/>
+			<enum name="PRIORITY-THREE" code="3"/>
+			<enum name="PRIORITY-FOUR" code="4"/>
+			<enum name="PRIORITY-FIVE" code="5"/>
+			<enum name="PRIORITY-SIX" code="6"/>
+			<enum name="PRIORITY-SEVEN" code="7"/>
 		</avp>
-        <avp name="Service-Class" code="459" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
-            <type type-name="UTF8String"/>
-        </avp>
+    <avp name="Service-Class" code="459" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+       <type type-name="UTF8String"/>
+    </avp>
 		<!--- ETSI TS 183 033 V1.2.0 (2007-10) -->
 		<!-- The Line-Identifier AVP has a Vendor-Id header set to ETSI (13019). 
 		6.3.34 Line-Identifier AVP
