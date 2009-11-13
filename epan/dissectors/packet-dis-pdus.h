@@ -29,15 +29,43 @@
 
 #include "packet-dis-fields.h"
 
+/* DIS Entity Information / Interaction PDUs */
 extern DIS_ParserNode DIS_PARSER_ENTITY_STATE_PDU[];
 
+/* DIS Warfare PDUs */
 extern DIS_ParserNode DIS_PARSER_FIRE_PDU[];
-
 extern DIS_ParserNode DIS_PARSER_DETONATION_PDU[];
 
+/* DIS Simulation Management PDUs */
+extern DIS_ParserNode DIS_PARSER_START_RESUME_PDU[];
+extern DIS_ParserNode DIS_PARSER_STOP_FREEZE_PDU[];
+extern DIS_ParserNode DIS_PARSER_ACKNOWLEDGE_PDU[];
+extern DIS_ParserNode DIS_PARSER_ACTION_REQUEST_PDU[];
+extern DIS_ParserNode DIS_PARSER_ACTION_RESPONSE_PDU[];
 extern DIS_ParserNode DIS_PARSER_DATA_PDU[];
-
 extern DIS_ParserNode DIS_PARSER_DATA_QUERY_PDU[];
+extern DIS_ParserNode DIS_PARSER_COMMENT_PDU[];
+extern DIS_ParserNode DIS_PARSER_SIMAN_ENTITY_PDU[];
+
+/* DIS Simulation Management with Reliability PDUs */
+extern DIS_ParserNode DIS_PARSER_START_RESUME_R_PDU[];
+extern DIS_ParserNode DIS_PARSER_STOP_FREEZE_R_PDU[];
+extern DIS_ParserNode DIS_PARSER_ACTION_REQUEST_R_PDU[];
+extern DIS_ParserNode DIS_PARSER_DATA_R_PDU[];
+extern DIS_ParserNode DIS_PARSER_DATA_QUERY_R_PDU[];
+extern DIS_ParserNode DIS_PARSER_SIMAN_ENTITY_R_PDU[];
+
+/* DIS Experimental V-DIS PDUs */
+extern DIS_ParserNode DIS_PARSER_APPLICATION_CONTROL_PDU[];
+
+/* Persistent Object (PO) Family PDUs */
+extern DIS_ParserNode DIS_PARSER_SIMULATOR_PRESENT_PO_PDU[];
+extern DIS_ParserNode DIS_PARSER_DESCRIBE_OBJECT_PO_PDU[];
+extern DIS_ParserNode DIS_PARSER_OBJECTS_PRESENT_PO_PDU[];
+extern DIS_ParserNode DIS_PARSER_OBJECT_REQUEST_PO_PDU[];
+extern DIS_ParserNode DIS_PARSER_DELETE_OBJECTS_PO_PDU[];
+extern DIS_ParserNode DIS_PARSER_SET_WORLD_STATE_PO_PDU[];
+extern DIS_ParserNode DIS_PARSER_NOMINATION_PO_PDU[];
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
@@ -75,10 +103,5 @@ void initializeParser(DIS_ParserNode parserNodes[]);
 void initializeParsers(void);
 
 gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNodes[]);
-
-extern guint32 numArticulations;
-extern int ettArticulations[];
-
-#define DIS_PDU_MAX_ARTICULATIONS 16
 
 #endif /* packet-dis-pduparsers.h */

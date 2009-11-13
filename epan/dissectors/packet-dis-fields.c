@@ -32,122 +32,232 @@
 #include <epan/packet.h>
 #include "packet-dis-fields.h"
 #include "packet-dis-enums.h"
+#include "packet-dis-pdus.h"
 
+guint32 protocolVersion;
 guint32 pduType;
+guint32 protocolFamily;
+guint32 persistentObjectPduType;
 guint32 entityKind;
 guint32 entityDomain;
+guint32 numFixed;
+guint32 numVariable;
 guint32 variableDatumLength;
+guint32 variableParameterType;
+guint32 variableRecordLength;
+guint32 variableRecordType;
 
+/* Headers
+ */
 DIS_ParserNode DIS_FIELDS_PDU_HEADER[] =
 {
-    { DIS_FIELDTYPE_PROTOCOL_VERSION, "Protocol Version",0,0,0 },
-    { DIS_FIELDTYPE_UINT8,            "Exercise ID",0,0,0 },
-    { DIS_FIELDTYPE_PDU_TYPE,         "PDU Type",0,0,&pduType },
-    { DIS_FIELDTYPE_PROTOCOL_FAMILY,  "Protocol Family",0,0,0 },
-    { DIS_FIELDTYPE_TIMESTAMP,        "Timestamp",0,0,0 },
-    { DIS_FIELDTYPE_UINT16,           "Length",0,0,0 },
-    { DIS_FIELDTYPE_PAD16,            "Padding",0,0,0 },
-    { DIS_FIELDTYPE_END,              NULL,0,0,0 }
+    { DIS_FIELDTYPE_PROTOCOL_VERSION, "Protocol Version",0,0,0,&protocolVersion },
+    { DIS_FIELDTYPE_UINT8,            "Exercise ID",0,0,0,0 },
+    { DIS_FIELDTYPE_PDU_TYPE,         "PDU Type",0,0,0,&pduType },
+    { DIS_FIELDTYPE_PROTOCOL_FAMILY,  "Protocol Family",0,0,0,&protocolFamily },
+    { DIS_FIELDTYPE_TIMESTAMP,        "Timestamp",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16,           "Length",0,0,0,0 },
+    { DIS_FIELDTYPE_PAD16,            "Padding",0,0,0,0 },
+    { DIS_FIELDTYPE_END,              NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_PERSISTENT_OBJECT_HEADER[] =
+{
+    { DIS_FIELDTYPE_UINT8,                  "Protocol Version",0,0,0,0 },
+    { DIS_FIELDTYPE_PERSISTENT_OBJECT_TYPE, "PO PDU Type",0,0,0,&persistentObjectPduType },
+    { DIS_FIELDTYPE_UINT8,                  "Exercise ID",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                  "PO Database ID",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16,                 "Length",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16,                 "PDU Count",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
+};
+
+/* Composite types
+ */
+DIS_ParserNode DIS_FIELDS_BURST_DESCRIPTOR[] =
+{
+    { DIS_FIELDTYPE_ENTITY_TYPE, "Munition",0,0,0,0 },
+    { DIS_FIELDTYPE_WARHEAD,     "Warhead",0,0,0,0 },
+    { DIS_FIELDTYPE_FUSE,        "Fuse",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16,      "Quantity",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16,      "Rate",0,0,0,0 },
+    { DIS_FIELDTYPE_END,         NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_CLOCK_TIME[] =
+{
+    { DIS_FIELDTYPE_UINT32,                 "Hour",0,0,0,0 },
+    { DIS_FIELDTYPE_TIMESTAMP,              "Time Past The Hour",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
 };
 
 DIS_ParserNode DIS_FIELDS_ENTITY_ID[] =
 {
-    { DIS_FIELDTYPE_UINT16, "Site",0,0,0 },
-    { DIS_FIELDTYPE_UINT16, "Application",0,0,0 },
-    { DIS_FIELDTYPE_UINT16, "Entity",0,0,0 },
-    { DIS_FIELDTYPE_END,    NULL,0,0,0 }
+    { DIS_FIELDTYPE_UINT16, "Site",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16, "Application",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16, "Entity",0,0,0,0 },
+    { DIS_FIELDTYPE_END,    NULL,0,0,0,0 }
 };
 
 DIS_ParserNode DIS_FIELDS_ENTITY_TYPE[] =
 {
-    { DIS_FIELDTYPE_ENTITY_KIND, "Entity Kind",0,0,&entityKind },
-    { DIS_FIELDTYPE_DOMAIN,      "Domain",0,0,&entityDomain },
-    { DIS_FIELDTYPE_COUNTRY,     "Country",0,0,0 },
-    { DIS_FIELDTYPE_CATEGORY,    "Category",0,0,0 },
-    { DIS_FIELDTYPE_SUBCATEGORY, "Subcategory",0,0,0 },
-    { DIS_FIELDTYPE_SPECIFIC,    "Specific",0,0,0 },
-    { DIS_FIELDTYPE_EXTRA,       "Extra",0,0,0 },
-    { DIS_FIELDTYPE_END,         NULL,0,0,0 }
+    { DIS_FIELDTYPE_ENTITY_KIND, "Entity Kind",0,0,0,&entityKind },
+    { DIS_FIELDTYPE_DOMAIN,      "Domain",0,0,0,&entityDomain },
+    { DIS_FIELDTYPE_COUNTRY,     "Country",0,0,0,0 },
+    { DIS_FIELDTYPE_CATEGORY,    "Category",0,0,0,0 },
+    { DIS_FIELDTYPE_SUBCATEGORY, "Subcategory",0,0,0,0 },
+    { DIS_FIELDTYPE_SPECIFIC,    "Specific",0,0,0,0 },
+    { DIS_FIELDTYPE_EXTRA,       "Extra",0,0,0,0 },
+    { DIS_FIELDTYPE_END,         NULL,0,0,0,0 }
 };
 
 DIS_ParserNode DIS_FIELDS_EVENT_ID[] =
 {
-    { DIS_FIELDTYPE_UINT16, "Site",0,0,0 },
-    { DIS_FIELDTYPE_UINT16, "Application",0,0,0 },
-    { DIS_FIELDTYPE_UINT16, "Event Number",0,0,0 },
-    { DIS_FIELDTYPE_END,    NULL,0,0,0 }
-};
-
-DIS_ParserNode DIS_FIELDS_LINEAR_VELOCITY[] =
-{
-    { DIS_FIELDTYPE_FLOAT32, "X",0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32, "Y",0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32, "Z",0,0,0 },
-    { DIS_FIELDTYPE_END,     NULL,0,0,0 }
-};
-
-DIS_ParserNode DIS_FIELDS_LOCATION_WORLD[] =
-{
-    { DIS_FIELDTYPE_FLOAT64, "X",0,0,0 },
-    { DIS_FIELDTYPE_FLOAT64, "Y",0,0,0 },
-    { DIS_FIELDTYPE_FLOAT64, "Z",0,0,0 },
-    { DIS_FIELDTYPE_END,     NULL,0,0,0 }
-};
-
-DIS_ParserNode DIS_FIELDS_LOCATION_ENTITY[] =
-{
-    { DIS_FIELDTYPE_FLOAT32, "X",0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32, "Y",0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32, "Z",0,0,0 },
-    { DIS_FIELDTYPE_END,     NULL,0,0,0 }
+    { DIS_FIELDTYPE_UINT16, "Site",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16, "Application",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16, "Event Number",0,0,0,0 },
+    { DIS_FIELDTYPE_END,    NULL,0,0,0,0 }
 };
 
 DIS_ParserNode DIS_FIELDS_ORIENTATION[] =
 {
-    { DIS_FIELDTYPE_FLOAT32, "Psi",0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32, "Theta",0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32, "Phi",0,0,0 },
-    { DIS_FIELDTYPE_END,     NULL,0,0,0 }
+    { DIS_FIELDTYPE_FLOAT32, "Psi",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32, "Theta",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32, "Phi",0,0,0,0 },
+    { DIS_FIELDTYPE_END,     NULL,0,0,0,0 }
 };
 
-DIS_ParserNode DIS_FIELDS_BURST_DESCRIPTOR[] =
+DIS_ParserNode DIS_FIELDS_SIMULATION_ADDRESS[] =
 {
-    { DIS_FIELDTYPE_ENTITY_TYPE, "Munition",0,0,0 },
-    { DIS_FIELDTYPE_WARHEAD,     "Warhead",0,0,0 },
-    { DIS_FIELDTYPE_FUSE,        "Fuse",0,0,0 },
-    { DIS_FIELDTYPE_UINT16,      "Quantity",0,0,0 },
-    { DIS_FIELDTYPE_UINT16,      "Rate",0,0,0 },
-    { DIS_FIELDTYPE_END,         NULL,0,0,0 }
+    { DIS_FIELDTYPE_UINT16, "Site",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16, "Application",0,0,0,0 },
+    { DIS_FIELDTYPE_END,    NULL,0,0,0,0 }
 };
 
-DIS_ParserNode DIS_FIELDS_ARTICULATION_PARAMETER[] =
+DIS_ParserNode DIS_FIELDS_VECTOR_FLOAT_32[] =
 {
-    { DIS_FIELDTYPE_ARTIC_PARAM_TYPE_DESIGNATOR, "Parameter Type Designator",0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                       "Change",0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                      "Part Attached To ID",0,0,0 },
-    { DIS_FIELDTYPE_ARTIC_PARAM_TYPE,            "Parameter Type",0,0,0 },
-    { DIS_FIELDTYPE_UINT64,                      "Parameter Value",0,0,0 },
-    { DIS_FIELDTYPE_END,                         NULL,0,0,0 }
+    { DIS_FIELDTYPE_FLOAT32, "X",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32, "Y",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT32, "Z",0,0,0,0 },
+    { DIS_FIELDTYPE_END,     NULL,0,0,0,0 }
 };
 
-DIS_ParserNode DIS_FIELDS_NONE[] =
+DIS_ParserNode DIS_FIELDS_VECTOR_FLOAT_64[] =
 {
-    { DIS_FIELDTYPE_END, NULL, 0,0,0 }
+    { DIS_FIELDTYPE_FLOAT64, "X",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT64, "Y",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT64, "Z",0,0,0,0 },
+    { DIS_FIELDTYPE_END,     NULL,0,0,0,0 }
 };
 
+/* Array records
+ */
 DIS_ParserNode DIS_FIELDS_FIXED_DATUM[] =
 {
-    { DIS_FIELDTYPE_DATUM_ID,                "Datum ID",0,0,0 },
-    { DIS_FIELDTYPE_FIXED_DATUM_VALUE,       "Datum value",0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0 }
+    { DIS_FIELDTYPE_DATUM_ID,                "Datum ID",0,0,0,0 },
+    { DIS_FIELDTYPE_FIXED_DATUM_VALUE,       "Datum value",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
 };
 
 DIS_ParserNode DIS_FIELDS_VARIABLE_DATUM[] =
 {
-    { DIS_FIELDTYPE_DATUM_ID,                "Datum ID",0,0,0 },
-    { DIS_FIELDTYPE_DATUM_LENGTH,            "Datum length",0,0,&variableDatumLength },
-    { DIS_FIELDTYPE_VARIABLE_DATUM_VALUE,    "Datum value",0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0 }
+    { DIS_FIELDTYPE_DATUM_ID,                "Datum ID",0,0,0,0 },
+    { DIS_FIELDTYPE_DATUM_LENGTH,            "Datum length",0,0,0,&variableDatumLength },
+    { DIS_FIELDTYPE_VARIABLE_DATUM_VALUE,    "Datum value",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_DATUM_IDS[] =
+{
+    { DIS_FIELDTYPE_DATUM_ID,                "Datum ID",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+/* Variable Parameters
+ */
+DIS_ParserNode DIS_FIELDS_VP_TYPE[] =
+{
+    { DIS_FIELDTYPE_PARAMETER_TYPE_DESIGNATOR,   "Variable Parameter Type",0,0,0,&variableParameterType },
+    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
+};
+
+/* Array record contents - variable parameter records
+ */
+DIS_ParserNode DIS_FIELDS_VP_GENERIC[] =
+{
+    { DIS_FIELDTYPE_FIXED_LEN_STR,               "Data",15,0,0,0 },
+    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_VP_ARTICULATED_PART[] =
+{
+    { DIS_FIELDTYPE_UINT8,                       "Change",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16,                      "Part Attached To ID",0,0,0,0 },
+    { DIS_FIELDTYPE_ARTIC_PARAM_TYPE,            "Parameter Type",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT64,                      "Parameter Value",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_VP_ATTACHED_PART[] =
+{
+    { DIS_FIELDTYPE_UINT8,                       "Attached Indicator",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT16,                      "Part Attached To ID",0,0,0,0 },
+    { DIS_FIELDTYPE_ARTIC_PARAM_TYPE,            "Parameter Type",0,0,0,0 },
+    { DIS_FIELDTYPE_ENTITY_TYPE,                 "Part Type",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_VP_ENTITY_OFFSET[] =
+{
+    { DIS_FIELDTYPE_UINT8,                       "Offset Type",0,0,0,0 },
+    { DIS_FIELDTYPE_PAD8,                        "Padding",2,0,0,0 },
+    { DIS_FIELDTYPE_VECTOR_32,                   "Offset",0,0,0,0 },
+    { DIS_FIELDTYPE_ORIENTATION,                 "Orientation",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
+};
+
+/* Variable Records
+ */
+DIS_ParserNode DIS_FIELDS_VR_TYPE[] =
+{
+    { DIS_FIELDTYPE_UINT32,   "Record Type",0,0,0,&variableRecordType },
+    { DIS_FIELDTYPE_UINT16,   "Record Length",0,0,0,&variableRecordLength },
+    { DIS_FIELDTYPE_END,      NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_VR_APPLICATION_HEALTH_STATUS[] =
+{
+    { DIS_FIELDTYPE_PAD8,                       "Padding",2,0,0,0 },
+    { DIS_FIELDTYPE_APPLICATION_STATUS_TYPE,    "Status Type",0,0,0,0 },
+    { DIS_FIELDTYPE_APPLICATION_GENERAL_STATUS, "General Status",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,                      "Specific Status",0,0,0,0 },
+    { DIS_FIELDTYPE_INT32,                      "Status Value Int",0,0,0,0 },
+    { DIS_FIELDTYPE_FLOAT64,                    "Status Value Float",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                        NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_VR_APPLICATION_INITIALIZATION[] =
+{
+    { DIS_FIELDTYPE_UINT8,                   "Exercise ID",0,0,0,0 },
+    { DIS_FIELDTYPE_PAD8,                    "Padding",0,0,0,0 },
+    { DIS_FIELDTYPE_FIXED_LEN_STR,           "Exercise File Path",256,0,0,0 },
+    { DIS_FIELDTYPE_FIXED_LEN_STR,           "Exercise File Name",128,0,0,0 },
+    { DIS_FIELDTYPE_FIXED_LEN_STR,           "Application Role",64,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_VR_DATA_QUERY[] =
+{
+    { DIS_FIELDTYPE_UINT16,                  "Num Records",0,0,0,&numFixed },
+    { DIS_FIELDTYPE_FIXED_DATUM_IDS,         "Record",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
+};
+
+/* Bit fields
+ */
+DIS_ParserNode DIS_FIELDS_NONE[] =
+{
+    { DIS_FIELDTYPE_END, NULL, 0,0,0,0 }
 };
 
 DIS_BitMask DIS_APPEARANCE_LANDPLATFORM[] =
@@ -197,6 +307,22 @@ DIS_BitMask DIS_APPEARANCE_LIFEFORM[] =
         { 0, 0 }
     } }
 };
+
+/* Initialize the field parsers that are not explicitly included in any
+ * specific PDU.  These fields are only accessed and used if a variant
+ * field indicates they are to be used.
+ */
+void initializeFieldParsers()
+{
+    initializeParser(DIS_FIELDS_VP_GENERIC);
+    initializeParser(DIS_FIELDS_VP_ARTICULATED_PART);
+    initializeParser(DIS_FIELDS_VP_ATTACHED_PART);
+    initializeParser(DIS_FIELDS_VP_ENTITY_OFFSET);
+
+    initializeParser(DIS_FIELDS_VR_APPLICATION_HEALTH_STATUS);
+    initializeParser(DIS_FIELDS_VR_APPLICATION_INITIALIZATION);
+    initializeParser(DIS_FIELDS_VR_DATA_QUERY);
+}
 
 /* Adjust an offset variable for proper alignment for a specified field length.
  */
@@ -401,6 +527,24 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
 
     switch(parserNode.fieldType)
     {
+    case DIS_FIELDTYPE_ACKNOWLEDGE_FLAG:
+        enumStrings = DIS_PDU_AcknowledgeFlag_Strings;
+        break;
+    case DIS_FIELDTYPE_ACTION_ID:
+        enumStrings = DIS_PDU_ActionId_Strings;
+        break;
+    case DIS_FIELDTYPE_APPLICATION_GENERAL_STATUS:
+        enumStrings = DIS_PDU_ApplicationGeneralStatus_Strings;
+        break;
+    case DIS_FIELDTYPE_APPLICATION_STATUS_TYPE:
+        enumStrings = DIS_PDU_ApplicationStatusType_Strings;
+        break;
+    case DIS_FIELDTYPE_APPLICATION_TYPE:
+        enumStrings = DIS_PDU_ApplicationType_Strings;
+        break;
+    case DIS_FIELDTYPE_CONTROL_ID:
+        enumStrings = DIS_PDU_ControlId_Strings;
+        break;
     case DIS_FIELDTYPE_PROTOCOL_VERSION:
         enumStrings = DIS_PDU_ProtocolVersion_Strings;
         break;
@@ -418,6 +562,9 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
         break;
     case DIS_FIELDTYPE_DETONATION_RESULT:
         enumStrings = DIS_PDU_DetonationResult_Strings;
+        break;
+    case DIS_FIELDTYPE_FROZEN_BEHAVIOR:
+        enumStrings = DIS_PDU_FrozenBehavior_Strings;
         break;
     case DIS_FIELDTYPE_CATEGORY:
         if (entityKind == DIS_ENTITYKIND_PLATFORM)
@@ -445,6 +592,27 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
             }
         }
         break;
+    case DIS_FIELDTYPE_PARAMETER_TYPE_DESIGNATOR:
+        enumStrings = DIS_PDU_ParameterTypeDesignator_Strings;
+        break;
+    case DIS_FIELDTYPE_PERSISTENT_OBJECT_TYPE:
+        enumStrings = DIS_PDU_PersistentObjectType_Strings;
+        break;
+    case DIS_FIELDTYPE_PERSISTENT_OBJECT_CLASS:
+        enumStrings = DIS_PDU_PO_ObjectClass_Strings;
+        break;
+    case DIS_FIELDTYPE_REASON:
+        enumStrings = DIS_PDU_Reason_Strings;
+        break;
+    case DIS_FIELDTYPE_REQUEST_STATUS:
+        enumStrings = DIS_PDU_RequestStatus_Strings;
+        break;
+    case DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE:
+        enumStrings = DIS_PDU_RequiredReliabilityService_Strings;
+        break;
+    case DIS_FIELDTYPE_RESPONSE_FLAG:
+        enumStrings = DIS_PDU_DisResponseFlag_Strings;
+        break;
     default:
         enumStrings = 0;
         break; 
@@ -468,7 +636,7 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
 
     if (enumStrings != 0)
     {
-        enumStr = val_to_str(enumVal, enumStrings, "Unknown Enum Value");
+        enumStr = val_to_str(enumVal, enumStrings, "Unknown Enum Value (%d)");
     }
     else
     {
@@ -573,4 +741,85 @@ gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_Pars
 
    offset += 4;
    return offset;
+}
+
+/* Parse a variable parameter field.
+ */
+gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    DIS_ParserNode *paramParser = 0;
+
+    /* Determine the parser to use based on the type */
+    switch (variableParameterType) {
+    case DIS_PARAM_TYPE_DESIG_ARTICULATED_PART:
+        paramParser = DIS_FIELDS_VP_ARTICULATED_PART;
+        break;
+    case DIS_PARAM_TYPE_DESIG_ATTACHED_PART:
+        paramParser = DIS_FIELDS_VP_ATTACHED_PART;
+        break;
+    case DIS_PARAM_TYPE_DESIG_ENTITY_OFFSET:
+        paramParser = DIS_FIELDS_VP_ENTITY_OFFSET;
+        break;
+    default:
+        paramParser = DIS_FIELDS_VP_GENERIC;
+        break;
+    }
+
+    /* Parse the variable parameter fields */
+    if (paramParser)
+    {
+        offset = parseFields(tvb, tree, offset, paramParser);
+    }
+
+    return offset;
+}
+
+/* Parse a variable record field.
+ */
+gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    DIS_ParserNode *paramParser = 0;
+
+    /* Determine the parser to use based on the type */
+    switch (variableRecordType) {
+    case 47200:
+        paramParser = DIS_FIELDS_VR_APPLICATION_HEALTH_STATUS;
+        break;
+    case 47300:
+        paramParser = DIS_FIELDS_VR_APPLICATION_INITIALIZATION;
+        break;
+    case 47600:
+        paramParser = DIS_FIELDS_VR_DATA_QUERY;
+        break;
+    default:
+        {
+            guint32 dataLength = variableRecordLength - 6;
+
+            if (dataLength > 0)
+            {
+                proto_tree_add_text(tree, tvb, offset, dataLength,
+                    "Record Data (%d bytes)", dataLength);
+                offset += dataLength;
+            }
+        }
+        break;
+    }
+
+    /* Parse the variable record fields */
+    if (paramParser)
+    {
+        offset = parseFields(tvb, tree, offset, paramParser);
+    }
+
+    /* Should alignment padding be added */
+    if (variableRecordLength % 8)
+    {
+        guint32 alignmentPadding = (8 - (variableRecordLength % 8));
+
+        proto_tree_add_text(tree, tvb, offset, alignmentPadding,
+            "Alignment Padding (%d bytes)", alignmentPadding);
+        offset += alignmentPadding;
+    }
+
+    return offset;
 }

@@ -55,6 +55,7 @@
 static gint proto_dis = -1;
 static gint ett_dis = -1;
 static gint ett_dis_header = -1;
+static gint ett_dis_po_header = -1;
 static gint ett_dis_payload = -1;
 
 static guint dis_udp_port = DEFAULT_DIS_UDP_PORT;
@@ -90,7 +91,8 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * the DIS header.
      */
     pduType = DIS_PDUTYPE_OTHER;
-    numArticulations = 0;
+    protocolFamily = DIS_PROTOCOLFAMILY_OTHER;
+    persistentObjectPduType = DIS_PERSISTENT_OBJECT_TYPE_OTHER;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
@@ -113,38 +115,175 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Locate the appropriate PDU parser, if type is known.
      */
-    switch (pduType)
+    switch (protocolFamily)
     {
-    case DIS_PDUTYPE_ENTITY_STATE:
-        pduParser = DIS_PARSER_ENTITY_STATE_PDU;
-        break;
-    case DIS_PDUTYPE_FIRE:
-        pduParser = DIS_PARSER_FIRE_PDU;
-        break;
-    case DIS_PDUTYPE_DETONATION:
-        pduParser = DIS_PARSER_DETONATION_PDU;
-        break;
-    case DIS_PDUTYPE_DATA_QUERY:
-        pduParser = DIS_PARSER_DATA_QUERY_PDU;
-        break;
-    case DIS_PDUTYPE_SET_DATA:
-    case DIS_PDUTYPE_DATA:
-        pduParser = DIS_PARSER_DATA_PDU;
+    case DIS_PROTOCOLFAMILY_PERSISTENT_OBJECT:
+        {
+            proto_item *dis_po_header_tree = 0;
+            proto_item *dis_po_header_node = 0;
+
+            dis_po_header_node = proto_tree_add_text
+                (dis_header_tree, tvb, offset, -1, "PO Header");
+            dis_po_header_tree = proto_item_add_subtree
+                (dis_po_header_node, ett_dis_po_header);
+            offset = parseFields
+                (tvb, dis_po_header_tree, offset,
+                 DIS_FIELDS_PERSISTENT_OBJECT_HEADER);
+            proto_item_set_end(dis_po_header_node, tvb, offset);
+
+            /* Locate the appropriate PO PDU parser, if type is known.
+             */
+            switch (persistentObjectPduType)
+            {
+            case DIS_PERSISTENT_OBJECT_TYPE_SIMULATOR_PRESENT:
+                pduParser = DIS_PARSER_SIMULATOR_PRESENT_PO_PDU;
+                break;
+            case DIS_PERSISTENT_OBJECT_TYPE_DESCRIBE_OBJECT:
+                pduParser = DIS_PARSER_DESCRIBE_OBJECT_PO_PDU;
+                break;
+            case DIS_PERSISTENT_OBJECT_TYPE_OBJECTS_PRESENT:
+                pduParser = DIS_PARSER_OBJECTS_PRESENT_PO_PDU;
+                break;
+            case DIS_PERSISTENT_OBJECT_TYPE_OBJECT_REQUEST:
+                pduParser = DIS_PARSER_OBJECT_REQUEST_PO_PDU;
+                break;
+            case DIS_PERSISTENT_OBJECT_TYPE_DELETE_OBJECTS:
+                pduParser = DIS_PARSER_DELETE_OBJECTS_PO_PDU;
+                break;
+            case DIS_PERSISTENT_OBJECT_TYPE_SET_WORLD_STATE:
+                pduParser = DIS_PARSER_SET_WORLD_STATE_PO_PDU;
+                break;
+            case DIS_PERSISTENT_OBJECT_TYPE_NOMINATION:
+                pduParser = DIS_PARSER_NOMINATION_PO_PDU;
+                break;
+            default:
+                pduParser = 0;
+                break;
+            }
+
+            /* Locate the string name for the PO PDU type enumeration,
+             * or default to "Unknown".
+             */
+            pduString = val_to_str
+                (persistentObjectPduType,
+                 DIS_PDU_PersistentObjectType_Strings, "Unknown"); 
+
+            /* Add a node to contain the DIS PDU fields.
+             */
+            dis_payload_node = proto_tree_add_text(dis_tree, tvb, offset, -1,
+                "%s PO PDU", pduString);
+
+        }
         break;
     default:
-        pduParser = 0;
-	break;
+        /* Locate the string name for the PDU type enumeration,
+         * or default to "Unknown".
+         */
+        pduString = val_to_str(pduType, DIS_PDU_Type_Strings, "Unknown"); 
+
+        /* Add a node to contain the DIS PDU fields.
+         */
+        dis_payload_node = proto_tree_add_text(dis_tree, tvb, offset, -1,
+            "%s PDU", pduString);
+
+        switch (pduType)
+        {
+        /* DIS Entity Information / Interaction PDUs */
+        case DIS_PDUTYPE_ENTITY_STATE:
+            pduParser = DIS_PARSER_ENTITY_STATE_PDU;
+            break;
+
+        /* DIS Warfare PDUs */
+        case DIS_PDUTYPE_FIRE:
+            pduParser = DIS_PARSER_FIRE_PDU;
+            break;
+        case DIS_PDUTYPE_DETONATION:
+            if ( protocolVersion < DIS_VERSION_IEEE_1278_1_200X )
+            {
+                pduParser = DIS_PARSER_DETONATION_PDU;
+            }
+            else
+            {
+                /* TODO: Version 7 changed the Detonation PDU format
+                 *       Need a different parser
+                 */
+                pduParser = DIS_PARSER_DETONATION_PDU;
+            }
+            break;
+
+        /* DIS Simulation Management PDUs */
+        case DIS_PDUTYPE_START_RESUME:
+            pduParser = DIS_PARSER_START_RESUME_PDU;
+            break;
+        case DIS_PDUTYPE_STOP_FREEZE:
+            pduParser = DIS_PARSER_STOP_FREEZE_PDU;
+            break;
+        case DIS_PDUTYPE_ACKNOWLEDGE:
+            pduParser = DIS_PARSER_ACKNOWLEDGE_PDU;
+            break;
+        case DIS_PDUTYPE_ACTION_REQUEST:
+            pduParser = DIS_PARSER_ACTION_REQUEST_PDU;
+            break;
+        case DIS_PDUTYPE_ACTION_RESPONSE:
+            pduParser = DIS_PARSER_ACTION_RESPONSE_PDU;
+            break;
+        case DIS_PDUTYPE_DATA:
+        case DIS_PDUTYPE_SET_DATA:
+            pduParser = DIS_PARSER_DATA_PDU;
+            break;
+        case DIS_PDUTYPE_DATA_QUERY:
+            pduParser = DIS_PARSER_DATA_QUERY_PDU;
+            break;
+        case DIS_PDUTYPE_COMMENT:
+            pduParser = DIS_PARSER_COMMENT_PDU;
+            break;
+        case DIS_PDUTYPE_CREATE_ENTITY:
+        case DIS_PDUTYPE_REMOVE_ENTITY:
+            pduParser = DIS_PARSER_SIMAN_ENTITY_PDU;
+            break;
+
+        /* DIS Simulation Management with Reliability PDUs */
+        case DIS_PDUTYPE_START_RESUME_R:
+            pduParser = DIS_PARSER_START_RESUME_R_PDU;
+            break;
+        case DIS_PDUTYPE_STOP_FREEZE_R:
+            pduParser = DIS_PARSER_STOP_FREEZE_R_PDU;
+            break;
+        case DIS_PDUTYPE_ACKNOWLEDGE_R:
+            pduParser = DIS_PARSER_ACKNOWLEDGE_PDU;
+            break;
+        case DIS_PDUTYPE_ACTION_REQUEST_R:
+            pduParser = DIS_PARSER_ACTION_REQUEST_R_PDU;
+            break;
+        case DIS_PDUTYPE_ACTION_RESPONSE_R:
+            pduParser = DIS_PARSER_ACTION_RESPONSE_PDU;
+            break;
+        case DIS_PDUTYPE_DATA_R:
+        case DIS_PDUTYPE_SET_DATA_R:
+            pduParser = DIS_PARSER_DATA_R_PDU;
+            break;
+        case DIS_PDUTYPE_DATA_QUERY_R:
+            pduParser = DIS_PARSER_DATA_QUERY_R_PDU;
+            break;
+        case DIS_PDUTYPE_COMMENT_R:
+            pduParser = DIS_PARSER_COMMENT_PDU;
+            break;
+        case DIS_PDUTYPE_CREATE_ENTITY_R:
+        case DIS_PDUTYPE_REMOVE_ENTITY_R:
+            pduParser = DIS_PARSER_SIMAN_ENTITY_R_PDU;
+            break;
+
+        /* DIS Experimental V-DIS PDUs */
+        case DIS_PDUTYPE_APPLICATION_CONTROL:
+            pduParser = DIS_PARSER_APPLICATION_CONTROL_PDU;
+            break;
+
+        default:
+            pduParser = 0;
+            break;
+        }
+        break;
     }
-
-    /* Locate the string name for the PDU type enumeration, or default to
-     * "Unknown".
-     */
-    pduString = val_to_str(pduType, DIS_PDU_Type_Strings, "Unknown"); 
-
-    /* Add a node to contain the DIS PDU fields.
-     */
-    dis_payload_node = proto_tree_add_text(dis_tree, tvb, offset, -1,
-        "%s PDU", pduString);
 
     /* If a parser was located, invoke it on the data packet.
      */
@@ -170,14 +309,14 @@ void proto_register_dis(void)
     static gint *ett[] =
     {
         &ett_dis,
-	&ett_dis_header,
+        &ett_dis_header,
+        &ett_dis_po_header,
         &ett_dis_payload
     };
 
     module_t *dis_module;
 
-    proto_dis = proto_register_protocol(dis_proto_name, dis_proto_name_short,
-        "dis");
+    proto_dis = proto_register_protocol(dis_proto_name, dis_proto_name_short, "dis");
     proto_register_subtree_array(ett, array_length(ett));
 
     dis_module = prefs_register_protocol(proto_dis, proto_reg_handoff_dis);
@@ -193,6 +332,7 @@ void proto_register_dis(void)
     /* Perform the one-time initialization of the DIS parsers.
      */
     initializeParsers();
+    initializeFieldParsers();
 }
 
 /* Register handoff routine for DIS dissector.  This will be invoked initially
