@@ -59,6 +59,36 @@
 #define TEST_FINALHDR
  */
 
+/* Differentiated Services Field. See RFCs 2474, 2597 and 2598. */
+#define IPDSFIELD_DSCP_MASK     0xFC
+#define IPDSFIELD_ECN_MASK     0x03
+#define IPDSFIELD_DSCP_SHIFT	2
+#define IPDSFIELD_DSCP(dsfield)	(((dsfield)&IPDSFIELD_DSCP_MASK)>>IPDSFIELD_DSCP_SHIFT)
+#define IPDSFIELD_ECN(dsfield)	((dsfield)&IPDSFIELD_ECN_MASK)
+#define IPDSFIELD_DSCP_DEFAULT  0x00
+#define IPDSFIELD_DSCP_CS1      0x08
+#define IPDSFIELD_DSCP_CS2      0x10
+#define IPDSFIELD_DSCP_CS3      0x18
+#define IPDSFIELD_DSCP_CS4      0x20
+#define IPDSFIELD_DSCP_CS5      0x28
+#define IPDSFIELD_DSCP_CS6      0x30
+#define IPDSFIELD_DSCP_CS7      0x38
+#define IPDSFIELD_DSCP_AF11     0x0A
+#define IPDSFIELD_DSCP_AF12     0x0C
+#define IPDSFIELD_DSCP_AF13     0x0E
+#define IPDSFIELD_DSCP_AF21     0x12
+#define IPDSFIELD_DSCP_AF22     0x14
+#define IPDSFIELD_DSCP_AF23     0x16
+#define IPDSFIELD_DSCP_AF31     0x1A
+#define IPDSFIELD_DSCP_AF32     0x1C
+#define IPDSFIELD_DSCP_AF33     0x1E
+#define IPDSFIELD_DSCP_AF41     0x22
+#define IPDSFIELD_DSCP_AF42     0x24
+#define IPDSFIELD_DSCP_AF43     0x26
+#define IPDSFIELD_DSCP_EF       0x2E
+#define IPDSFIELD_ECT_MASK	0x02
+#define IPDSFIELD_CE_MASK	0x01
+
 static int proto_ipv6		  = -1;
 static int hf_ipv6_version	  = -1;
 static int hf_ip_version      = -1;
@@ -136,6 +166,9 @@ static int hf_ipv6_shim6_loc_weight   = -1;
 static int hf_ipv6_shim6_opt_locnum   = -1;
 static int hf_ipv6_shim6_opt_elemlen  = -1;
 static int hf_ipv6_shim6_opt_fii      = -1;
+static int hf_ipv6_traffic_class_dscp = -1;
+static int hf_ipv6_traffic_class_ect  = -1;
+static int hf_ipv6_traffic_class_ce   = -1;
 
 static gint ett_ipv6			  = -1;
 static gint ett_ipv6_version	= -1;
@@ -151,6 +184,7 @@ static gint ett_ipv6_shim6_probe_rcvd	  = -1;
 static gint ett_ipv6_shim6_cksum	  = -1;
 static gint ett_ipv6_fragments		  = -1;
 static gint ett_ipv6_fragment		  = -1;
+static gint ett_ipv6_traffic_class        = -1;
 
 static const fragment_items ipv6_frag_items = {
 	&ett_ipv6_fragment,
@@ -756,6 +790,30 @@ static const value_string shim6_protocol[] = {
   { 0, NULL }
 };
 
+static const value_string dscp_vals[] = {
+		  { IPDSFIELD_DSCP_DEFAULT, "Default"               },
+		  { IPDSFIELD_DSCP_CS1,     "Class Selector 1"      },
+		  { IPDSFIELD_DSCP_CS2,     "Class Selector 2"      },
+		  { IPDSFIELD_DSCP_CS3,     "Class Selector 3"      },
+		  { IPDSFIELD_DSCP_CS4,     "Class Selector 4"      },
+		  { IPDSFIELD_DSCP_CS5,     "Class Selector 5"      },
+		  { IPDSFIELD_DSCP_CS6,     "Class Selector 6"      },
+		  { IPDSFIELD_DSCP_CS7,     "Class Selector 7"      },
+		  { IPDSFIELD_DSCP_AF11,    "Assured Forwarding 11" },
+		  { IPDSFIELD_DSCP_AF12,    "Assured Forwarding 12" },
+		  { IPDSFIELD_DSCP_AF13,    "Assured Forwarding 13" },
+		  { IPDSFIELD_DSCP_AF21,    "Assured Forwarding 21" },
+		  { IPDSFIELD_DSCP_AF22,    "Assured Forwarding 22" },
+		  { IPDSFIELD_DSCP_AF23,    "Assured Forwarding 23" },
+		  { IPDSFIELD_DSCP_AF31,    "Assured Forwarding 31" },
+		  { IPDSFIELD_DSCP_AF32,    "Assured Forwarding 32" },
+		  { IPDSFIELD_DSCP_AF33,    "Assured Forwarding 33" },
+		  { IPDSFIELD_DSCP_AF41,    "Assured Forwarding 41" },
+		  { IPDSFIELD_DSCP_AF42,    "Assured Forwarding 42" },
+		  { IPDSFIELD_DSCP_AF43,    "Assured Forwarding 43" },
+		  { IPDSFIELD_DSCP_EF,      "Expedited Forwarding"  },
+		  { 0,                      NULL                    } };
+
 static void
 dissect_shim6_opt_loclist(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset)
 {
@@ -1291,12 +1349,14 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     proto_tree* pt;
     proto_item* pi;
+    proto_tree *ipv6_tc_tree;
+    proto_item *ipv6_tc;
 
     /* !!! specify length */
     ti = proto_tree_add_item(tree, proto_ipv6, tvb, offset, 40, FALSE);
     ipv6_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-    /* !!! warning: version also contains 4 Bit priority */
+    /* !!! warning: (4-bit) version, (6-bit) DSCP, (1-bit) ECN-ECT, (1-bit) ECN-CE and (20-bit) Flow */
     pi = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb,
  			offset + offsetof(struct ip6_hdr, ip6_vfc), 1, FALSE);
 	pt = proto_item_add_subtree(pi,ett_ipv6_version);
@@ -1304,7 +1364,18 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						offset + offsetof(struct ip6_hdr, ip6_vfc), 1, FALSE);
 	PROTO_ITEM_SET_GENERATED(pi);
 
-    proto_tree_add_item(ipv6_tree, hf_ipv6_class, tvb,
+    ipv6_tc = proto_tree_add_item(ipv6_tree, hf_ipv6_class, tvb,
+			offset + offsetof(struct ip6_hdr, ip6_flow), 4, FALSE);
+
+    ipv6_tc_tree = proto_item_add_subtree(ipv6_tc, ett_ipv6_traffic_class);
+
+    proto_tree_add_item(ipv6_tc_tree, hf_ipv6_traffic_class_dscp, tvb,
+			offset + offsetof(struct ip6_hdr, ip6_flow), 4, FALSE);
+
+    proto_tree_add_item(ipv6_tc_tree, hf_ipv6_traffic_class_ect, tvb,
+			offset + offsetof(struct ip6_hdr, ip6_flow), 4, FALSE);
+
+    proto_tree_add_item(ipv6_tc_tree, hf_ipv6_traffic_class_ce, tvb,
 			offset + offsetof(struct ip6_hdr, ip6_flow), 4, FALSE);
 
     proto_tree_add_item(ipv6_tree, hf_ipv6_flow, tvb,
@@ -1885,6 +1956,18 @@ proto_register_ipv6(void)
       { "Final next header",	"ipv6.final",
 				FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
 #endif
+
+    { &hf_ipv6_traffic_class_dscp,
+      { "Differentiated Services Field", 	"ipv6.traffic_class.dscp",
+				FT_UINT32, BASE_HEX, VALS(dscp_vals), 0x0FC00000, NULL, HFILL }},
+
+    { &hf_ipv6_traffic_class_ect,
+      { "ECN-Capable Transport (ECT)", "ipv6.traffic_class.ect",
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x0200000, NULL, HFILL }},
+
+    { &hf_ipv6_traffic_class_ce,
+      { "ECN-CE", 		"ipv6.traffic_class.ce",
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x0100000, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_ipv6,
@@ -1900,7 +1983,8 @@ proto_register_ipv6(void)
     &ett_ipv6_shim6_probe_rcvd,
     &ett_ipv6_shim6_cksum,
     &ett_ipv6_fragments,
-    &ett_ipv6_fragment
+    &ett_ipv6_fragment,
+    &ett_ipv6_traffic_class
   };
   module_t *ipv6_module;
 
