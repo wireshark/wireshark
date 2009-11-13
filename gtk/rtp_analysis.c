@@ -2274,11 +2274,11 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 				 * we have to write some silence information for one channel */
 				if (user_data->forward.statinfo.start_time > user_data->reversed.statinfo.start_time) {
 					f_write_silence = (guint32)
-						((user_data->forward.statinfo.start_time-user_data->reversed.statinfo.start_time)*8000);
+						((user_data->forward.statinfo.start_time-user_data->reversed.statinfo.start_time)*(8000/1000));
 				}
 				else if (user_data->forward.statinfo.start_time < user_data->reversed.statinfo.start_time) {
 					r_write_silence = (guint32)
-						((user_data->reversed.statinfo.start_time-user_data->forward.statinfo.start_time)*8000);
+						((user_data->reversed.statinfo.start_time-user_data->forward.statinfo.start_time)*(8000/1000));
 				}
 				for(;;) {
 					if(stop_flag)
