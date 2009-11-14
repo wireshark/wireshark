@@ -496,7 +496,6 @@ static gint ett_x2ap_UnsuccessfulOutcome = -1;
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
-static const gchar *ProcedureID;
 
 /* Dissector tables */
 static dissector_table_t x2ap_ies_dissector_table;
