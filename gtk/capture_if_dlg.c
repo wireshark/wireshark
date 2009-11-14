@@ -410,6 +410,13 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info _U_)
   if ( strstr(if_info->name,"bluetooth") != NULL) {
     return pixbuf_to_widget(network_bluetooth_pb_data);
   }
+
+  /*
+   * USB devices.
+   */
+  if ( strstr(if_info->name,"usbmon") != NULL ) {
+    return pixbuf_to_widget(network_usb_pb_data);
+  }
 #endif
 
   /*
