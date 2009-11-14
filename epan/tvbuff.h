@@ -349,6 +349,13 @@ extern guint16 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, g
 extern guint32 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian);
 extern guint64 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian);
 
+/* Fetch a specified number of bits from bit offset in a tvb, but allow number
+ * of bits to range between 1 and 32. If the requested number of bits is known
+ * beforehand, or its range can be handled by a single function of the group
+ * above, use one of them instead.
+ */
+extern guint32 tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian);
+
 /** Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough
  * to copy data in chunks if the request range actually exists in

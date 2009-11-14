@@ -1179,7 +1179,7 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
    
                     while (idx > 0)
                     {
-                        w[i] = tvb_get_bits16(tvb, bit_offset, wsize, FALSE);
+                        w[i] = tvb_get_bits(tvb, bit_offset, wsize, FALSE);
                         bit_offset += wsize;
                         idx -= wsize;
                         if (w[i] == 0)
@@ -1265,7 +1265,7 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
    
                     while (idx > 0)
                     {
-                        w[i] = tvb_get_bits16(tvb, bit_offset, wsize, FALSE);
+                        w[i] = tvb_get_bits(tvb, bit_offset, wsize, FALSE);
                         bit_offset += wsize;
                         idx -= wsize;
                         if (w[i] == 0)
@@ -4112,7 +4112,7 @@ de_rr_si2quater_meas_info_utran_fdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
 
             while (idx > 0)
             {
-                w[i] = tvb_get_bits16(tvb, curr_bit_offset, wsize, FALSE);
+                w[i] = tvb_get_bits(tvb, curr_bit_offset, wsize, FALSE);
                 curr_bit_offset += wsize;
                 idx -= wsize;
                 if (w[i] == 0)
@@ -4201,7 +4201,7 @@ de_rr_si2quater_meas_info_utran_tdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
 
             while (idx > 0)
             {
-                w[i] = tvb_get_bits16(tvb, curr_bit_offset, wsize, FALSE);
+                w[i] = tvb_get_bits(tvb, curr_bit_offset, wsize, FALSE);
                 curr_bit_offset += wsize;
                 idx -= wsize;
                 if (w[i] == 0)

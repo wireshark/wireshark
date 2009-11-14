@@ -1761,6 +1761,28 @@ tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_
 	return value;
 }
 
+guint32
+tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian)
+{
+	/* This function can handle only up to 32 requested bits */
+	if (no_of_bits > 32)
+		DISSECTOR_ASSERT_NOT_REACHED();
+
+	if (no_of_bits == 0)
+		return 0;
+
+	/* Number of requested bits is in range [17, 32] */
+	if (no_of_bits > 16)
+		return tvb_get_bits32(tvb, bit_offset, no_of_bits, little_endian);
+
+	/* Number of requested bits is in range [9, 16] */
+	if (no_of_bits > 8)
+		return tvb_get_bits16(tvb, bit_offset, no_of_bits, little_endian);
+
+	/* Number of requested bits is in range [1, 8] */
+	return tvb_get_bits8(tvb, bit_offset, no_of_bits);
+}
+
 /* Find first occurence of needle in tvbuff, starting at offset. Searches
  * at most maxlength number of bytes; if maxlength is -1, searches to
  * end of tvbuff.
