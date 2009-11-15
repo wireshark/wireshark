@@ -71,6 +71,11 @@
 #include "../image/toolbar/icon_color_8.xpm"
 #include "../image/toolbar/icon_color_9.xpm"
 #include "../image/toolbar/icon_color_0.xpm"
+#include "../image/toolbar/decode_24.xpm"
+#include "../image/toolbar/audio_player_24.xpm"
+#include "../image/toolbar/voip_flow_24.xpm"
+#include "../image/toolbar/telephone_16.xpm"
+#include "../image/toolbar/analyze_24.xpm"
 
 
 typedef struct stock_pixmap_tag{
@@ -145,7 +150,13 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_COLOR7,                "Color 7",                0, 0, NULL },
         { WIRESHARK_STOCK_COLOR8,                "Color 8",                0, 0, NULL },
         { WIRESHARK_STOCK_COLOR9,                "Color 9",                0, 0, NULL },
-        { WIRESHARK_STOCK_COLOR0,                "Color 10",                0, 0, NULL }
+        { WIRESHARK_STOCK_COLOR0,                "Color 10",               0, 0, NULL },
+        { WIRESHARK_STOCK_DECODE,                "Decode",                 0, 0, NULL },
+        { WIRESHARK_STOCK_AUDIO_PLAYER,          "Player",                 0, 0, NULL },
+        { WIRESHARK_STOCK_VOIP_FLOW,             "Flow",                   0, 0, NULL },
+        { WIRESHARK_STOCK_TELEPHONE,             "Telephone",              0, 0, NULL },
+        { WIRESHARK_STOCK_PREPARE_FILTER,        "Prepare Filter",         0, 0, NULL },
+        { WIRESHARK_STOCK_ANALYZE,               "Analyze",                0, 0, NULL }
     };
 
     static const stock_pixmap_t pixmaps[] = {
@@ -195,6 +206,12 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_COLOR8,                icon_color_8_xpm},
         { WIRESHARK_STOCK_COLOR9,                icon_color_9_xpm},
         { WIRESHARK_STOCK_COLOR0,                icon_color_0_xpm},
+        { WIRESHARK_STOCK_DECODE,                decode_24_xpm},
+        { WIRESHARK_STOCK_AUDIO_PLAYER,          audio_player_24_xpm},
+        { WIRESHARK_STOCK_VOIP_FLOW,             voip_flow_24_xpm},
+        { WIRESHARK_STOCK_TELEPHONE,             telephone_16_xpm},
+        { WIRESHARK_STOCK_PREPARE_FILTER,        display_filter_24_xpm},
+        { WIRESHARK_STOCK_ANALYZE,               analyze_24_xpm},
         { NULL, NULL }
     };
 

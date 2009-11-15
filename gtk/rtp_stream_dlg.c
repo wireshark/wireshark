@@ -51,6 +51,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/rtp_stream.h"
 #include "gtk/rtp_analysis.h"
+#include "gtk/stock_icons.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -811,7 +812,7 @@ static void rtpstream_dlg_create (void)
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_mark);
     gtk_tooltips_set_tip (tooltips, bt_mark, "Mark packets of the selected stream(s)", NULL);
 
-    bt_filter = gtk_button_new_with_label ("Prepare Filter");
+    bt_filter = gtk_button_new_from_stock(WIRESHARK_STOCK_PREPARE_FILTER);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
     gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected stream(s)", NULL);
 
@@ -822,7 +823,7 @@ static void rtpstream_dlg_create (void)
     gtk_tooltips_set_tip(tooltips, bt_copy,
         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
 
-    bt_analyze = gtk_button_new_with_label ("Analyze");
+    bt_analyze = gtk_button_new_from_stock(WIRESHARK_STOCK_ANALYZE);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyze);
     gtk_tooltips_set_tip (tooltips, bt_analyze, "Open an analyze window of the selected stream(s)", NULL);
 

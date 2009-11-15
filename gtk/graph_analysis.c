@@ -61,7 +61,8 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/main.h"
 #include "gtk/graph_analysis.h"
-
+#include "../image/voip_select.xpm"
+#include "../image/voip_bg.xpm"
 
 /****************************************************************************/
 
@@ -115,7 +116,9 @@ static void graph_analysis_reset(graph_analysis_data_t* user_data)
 static void graph_analysis_init_dlg(graph_analysis_data_t* user_data)
 {
 	int i;
+	/*const char **   xpm_data;
 
+	xpm_data*/ 
 	user_data->num_nodes = 0;
 	user_data->num_items = 0;
 	user_data->on_destroy_user_data = NULL;
@@ -134,7 +137,7 @@ static void graph_analysis_init_dlg(graph_analysis_data_t* user_data)
 	user_data->dlg.needs_redraw=TRUE;
 	user_data->dlg.draw_area_time=NULL;
 	user_data->dlg.draw_area=NULL;
-	user_data->dlg.pixmap=NULL;
+	user_data->dlg.pixmap_main=NULL;
 	user_data->dlg.pixmap_time=NULL;
 	user_data->dlg.draw_area_comments=NULL;
 	user_data->dlg.pixmap_comments=NULL;
@@ -626,10 +629,16 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	GdkGC *frame_fg_color;
 	GdkGC *frame_bg_color;
 	GdkGC *div_line_color;
+	GdkGC *column_header_gc;
 
 	PangoLayout  *layout;
-	PangoLayout  *big_layout;
+	PangoLayout  *middle_layout;
 	PangoLayout  *small_layout;
+	PangoFontDescription *middle_font_desc;
+	gint middle_font_size;
+	PangoFontDescription *small_font_desc;
+	gint small_font_size;
+
 	gint label_width, label_height;
 	guint32 draw_width, draw_height;
 	char label_string[MAX_COMMENT];
@@ -642,6 +651,10 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	}
 	user_data->dlg.needs_redraw=FALSE;
 
+	column_header_gc = gdk_gc_new(user_data->dlg.pixmap_time);
+	gdk_gc_set_fill(column_header_gc,GDK_TILED);
+	gdk_gc_set_tile(column_header_gc, gdk_pixmap_create_from_xpm_d(user_data->dlg.pixmap_time,NULL,NULL,(gchar **)voip_bg_xpm));
+
 	/* Clear out old plt */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) )
 		gdk_draw_rectangle(user_data->dlg.pixmap_time,
@@ -651,8 +664,8 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 						   user_data->dlg.draw_area_time->allocation.width,
 						   user_data->dlg.draw_area_time->allocation.height);
 
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap) )
-		gdk_draw_rectangle(user_data->dlg.pixmap,
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) )
+		gdk_draw_rectangle(user_data->dlg.pixmap_main,
 						   user_data->dlg.draw_area->style->white_gc,
 						   TRUE,
 						   0, 0,
@@ -735,38 +748,41 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	/* We use time from the last display item to calcultate the x left border */
 	g_snprintf(label_string, MAX_LABEL, "%.3f", user_data->dlg.items[display_items-1].time);
 	layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
-	big_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
+	middle_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 	small_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 
-	/* XXX - to prevent messages like "Couldn't load font x, falling back to y", I've changed font
-	         description from "Helvetica-Bold 8" to "Helvetica,Sans,Bold 8", this seems to be
-	         conforming to the API, see http://developer.gnome.org/doc/API/2.0/pango/pango-Fonts.html */
-	pango_layout_set_font_description(big_layout, pango_font_description_from_string("Helvetica,Sans,Bold 8"));
-	pango_layout_set_font_description(small_layout, pango_font_description_from_string("Helvetica,Sans,Bold 7"));
+        middle_font_desc = pango_font_description_copy(pango_context_get_font_description(pango_layout_get_context(middle_layout))); 
+        middle_font_size = pango_font_description_get_size(middle_font_desc);
+	pango_font_description_set_size(middle_font_desc,(gint)(middle_font_size*0.8));
+	pango_layout_set_font_description(middle_layout,middle_font_desc);	
+
+        small_font_desc = pango_font_description_copy(pango_context_get_font_description(pango_layout_get_context(small_layout))); 
+        small_font_size = pango_font_description_get_size(small_font_desc);
+	pango_font_description_set_size(small_font_desc,(gint)(small_font_size*0.7));
+	pango_layout_set_font_description(small_layout,small_font_desc);	
 
 	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 
 	/* resize the "time" draw area */
-
-	left_x_border=3;
+	left_x_border=0;
 	user_data->dlg.left_x_border = left_x_border;
 
-	right_x_border=2;
+	right_x_border=0;
 	draw_width=user_data->dlg.pixmap_width-right_x_border-left_x_border;
 
 	/* Paint time title background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) )
 		gdk_draw_rectangle(user_data->dlg.pixmap_time,
-						   user_data->dlg.draw_area_time->style->bg_gc[2],
+					   	   column_header_gc,
 						   TRUE,
 						   0,
 						   0,
 						   user_data->dlg.draw_area_time->allocation.width,
 						   top_y_border);
 	/* Paint main title background */
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap) )
-		gdk_draw_rectangle(user_data->dlg.pixmap,
-						   user_data->dlg.draw_area->style->bg_gc[2],
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) )
+		gdk_draw_rectangle(user_data->dlg.pixmap_main,
+					   	   column_header_gc,
 						   TRUE,
 						   0,
 						   0,
@@ -775,7 +791,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	/* Paint main comment background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments) )
 		gdk_draw_rectangle(user_data->dlg.pixmap_comments,
-						   user_data->dlg.draw_area_comments->style->bg_gc[2],
+					   	   column_header_gc,
 						   TRUE,
 						   0,
 						   0,
@@ -784,7 +800,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 
 
 	/* Draw the word "Time" on top of time column */
-	g_snprintf(label_string, label_width, "%s", "Time");
+	g_snprintf(label_string, label_width, "%s", "  Time");
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 	if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_time)) {
@@ -811,14 +827,15 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	for (current_item=0; current_item<display_items; current_item++){
 		/*select the color. if it is the selected item select blue color */
 		if ( current_item+first_item == user_data->dlg.selected_item ) {
+			gdk_gc_set_ts_origin(user_data->dlg.bg_gc[0],left_x_border,top_y_border+current_item*ITEM_HEIGHT);
 			frame_bg_color = user_data->dlg.bg_gc[0];
 		} else {
 			frame_bg_color = user_data->dlg.bg_gc[1+user_data->dlg.items[current_item].conv_num%MAX_NUM_COL_CONV];
 		}
 
 		/* Paint background */
-		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap)) {
-			gdk_draw_rectangle(user_data->dlg.pixmap,
+		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
+			gdk_draw_rectangle(user_data->dlg.pixmap_main,
 							   frame_bg_color,
 							   TRUE,
 							   left_x_border,
@@ -834,8 +851,8 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		g_strlcpy(label_string, get_addr_name(&(user_data->nodes[i])), NODE_WIDTH/5);
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);
-		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap)) {
-			gdk_draw_layout(user_data->dlg.pixmap,
+		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
+			gdk_draw_layout(user_data->dlg.pixmap_main,
 							user_data->dlg.draw_area->style->black_gc,
 							left_x_border+NODE_WIDTH/2-label_width/2+NODE_WIDTH*i,
 							top_y_border/2-((i&1)?0:label_height),
@@ -843,8 +860,8 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		}
 
 		/* draw the node division lines */
-		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap) ) {
-			gdk_draw_line(user_data->dlg.pixmap, user_data->dlg.div_line_gc[0],
+		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ) {
+			gdk_draw_line(user_data->dlg.pixmap_main, user_data->dlg.div_line_gc[0],
 						  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
 						  top_y_border,
 						  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
@@ -869,14 +886,14 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 
 		/*draw the comments */
 		g_snprintf(label_string, MAX_COMMENT, "%s", user_data->dlg.items[current_item].comment);
-		pango_layout_set_text(small_layout, label_string, -1);
-		pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
+		pango_layout_set_text(middle_layout, label_string, -1);
+		pango_layout_get_pixel_size(middle_layout, &label_width, &label_height);
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments)) {
 			gdk_draw_layout(user_data->dlg.pixmap_comments,
 							user_data->dlg.draw_area->style->black_gc,
 							2,
 							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2,
-							small_layout);
+							middle_layout);
 		}
 		/* select colors */
 		if ( current_item+first_item == user_data->dlg.selected_item ){
@@ -890,8 +907,8 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		start_arrow = left_x_border+(user_data->dlg.items[current_item].src_node)*NODE_WIDTH+NODE_WIDTH/2;
 		end_arrow = left_x_border+(user_data->dlg.items[current_item].dst_node)*NODE_WIDTH+NODE_WIDTH/2;
 
-		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap) ) {
-			gdk_draw_line(user_data->dlg.pixmap, frame_fg_color,
+		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ) {
+			gdk_draw_line(user_data->dlg.pixmap_main, frame_fg_color,
 				start_arrow,
 				top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7,
 				end_arrow,
@@ -899,7 +916,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 
 			/* draw the additional line when line style is 2 pixels width */
 			if (user_data->dlg.items[current_item].line_style == 2) {
-				gdk_draw_line(user_data->dlg.pixmap, frame_fg_color,
+				gdk_draw_line(user_data->dlg.pixmap_main, frame_fg_color,
 					start_arrow,
 					top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-6,
 					end_arrow,
@@ -909,14 +926,14 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 
 		/* draw the arrow */
 		if (start_arrow<end_arrow)
-			draw_arrow(user_data->dlg.pixmap, frame_fg_color, end_arrow-WIDTH_ARROW,top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7, RIGHT_ARROW);
+			draw_arrow(user_data->dlg.pixmap_main, frame_fg_color, end_arrow-WIDTH_ARROW,top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7, RIGHT_ARROW);
 		else
-			draw_arrow(user_data->dlg.pixmap, frame_fg_color, end_arrow+WIDTH_ARROW,top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7, LEFT_ARROW);
+			draw_arrow(user_data->dlg.pixmap_main, frame_fg_color, end_arrow+WIDTH_ARROW,top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7, LEFT_ARROW);
 
 		/* draw the frame comment */
 		g_snprintf(label_string, MAX_LABEL, "%s", user_data->dlg.items[current_item].frame_label);
-		pango_layout_set_text(big_layout, label_string, -1);
-		pango_layout_get_pixel_size(big_layout, &label_width, &label_height);
+		pango_layout_set_text(layout, label_string, -1);
+		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 		if (start_arrow<end_arrow){
 			arrow_width = end_arrow-start_arrow;
 			label_x = arrow_width/2+start_arrow;
@@ -931,12 +948,12 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		if ((int)left_x_border > ((int)label_x-(int)label_width/2))
 			label_x = left_x_border + label_width/2;
 
-		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap)) {
-			gdk_draw_layout(user_data->dlg.pixmap,
+		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
+			gdk_draw_layout(user_data->dlg.pixmap_main,
 							frame_fg_color,
 							label_x - label_width/2,
 							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2-3,
-							big_layout);
+							layout);
 		}
 
 		/* draw the source port number */
@@ -949,8 +966,8 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		else {
 			src_port_x = start_arrow + 2;
 		}
-		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap)) {
-			gdk_draw_layout(user_data->dlg.pixmap,
+		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
+			gdk_draw_layout(user_data->dlg.pixmap_main,
 							div_line_color,
 							src_port_x,
 							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2,
@@ -967,8 +984,8 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		else {
 			dst_port_x = end_arrow - label_width - 2;
 		}
-		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap)) {
-			gdk_draw_layout(user_data->dlg.pixmap,
+		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
+			gdk_draw_layout(user_data->dlg.pixmap_main,
 							div_line_color,
 							dst_port_x,
 							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2,
@@ -977,8 +994,8 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 		/* draw the div line of the selected item with soft gray*/
 		if ( current_item+first_item == user_data->dlg.selected_item )
 			for (i=0; i<user_data->num_nodes; i++){
-				if (GDK_IS_DRAWABLE(user_data->dlg.pixmap) ) {
-					gdk_draw_line(user_data->dlg.pixmap, user_data->dlg.div_line_gc[1],
+				if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ) {
+					gdk_draw_line(user_data->dlg.pixmap_main, user_data->dlg.div_line_gc[1],
 								  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
 								  (user_data->dlg.selected_item-first_item)*ITEM_HEIGHT+TOP_Y_BORDER,
 								  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
@@ -1001,7 +1018,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	if (GDK_IS_DRAWABLE(user_data->dlg.draw_area->window) )
 		gdk_draw_pixmap(user_data->dlg.draw_area->window,
 						user_data->dlg.draw_area->style->fg_gc[GTK_WIDGET_STATE(user_data->dlg.draw_area)],
-						user_data->dlg.pixmap,
+						user_data->dlg.pixmap_main,
 						0, 0,
 						0, 0,
 						user_data->dlg.draw_area->allocation.width, user_data->dlg.draw_area->allocation.height);
@@ -1063,10 +1080,12 @@ static gint scroll_event(GtkWidget *widget, GdkEventScroll *event)
 	graph_analysis_data_t *user_data;
 
 	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
+printf("scroll_event\n");
 
 	/* Up scroll */
 	switch(event->direction) {
 	case(GDK_SCROLL_UP):
+printf("GDK_SCROLL_UP\n");
 		if (user_data->dlg.first_item == 0) return TRUE;
 		if (user_data->dlg.first_item < 3)
 			user_data->dlg.first_item = 0;
@@ -1074,6 +1093,7 @@ static gint scroll_event(GtkWidget *widget, GdkEventScroll *event)
 			user_data->dlg.first_item -= 3;
 		break;
 	case(GDK_SCROLL_DOWN):
+printf("GDK_SCROLL_DOWN\n");
 		if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1 == user_data->num_items)) return TRUE;
 		if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1) > (user_data->num_items-3))
 			user_data->dlg.first_item = user_data->num_items-(guint32)user_data->dlg.v_scrollbar_adjustment->page_size-1;
@@ -1081,7 +1101,9 @@ static gint scroll_event(GtkWidget *widget, GdkEventScroll *event)
 			user_data->dlg.first_item += 3;
 	    break;
 	case(GDK_SCROLL_LEFT):
+printf("GDK_SCROLL_LEFT\n");
 	case(GDK_SCROLL_RIGHT):
+printf("GDK_SCROLL_RIGTH\n");
 		/* nothing to do */
 		break;
 	}
@@ -1138,7 +1160,7 @@ static gint expose_event(GtkWidget *widget, GdkEventExpose *event)
 	if (GDK_IS_DRAWABLE(widget->window))
 		gdk_draw_pixmap(widget->window,
 			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-			user_data->dlg.pixmap,
+			user_data->dlg.pixmap_main,
 			event->area.x, event->area.y,
 			event->area.x, event->area.y,
 			event->area.width, event->area.height);
@@ -1197,22 +1219,23 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	/* gray and soft gray colors */
 	static GdkColor color_div_line[2] = {
 		{0, 0x64ff, 0x64ff, 0x64ff},
-		{0, 0x7fff, 0x7fff, 0x7fff}
+		{0, 0x25ff, 0x25ff, 0x25ff},
+		/*{0, 0x7fff, 0x7fff, 0x7fff}*/
 	};
 
 	/* the first color is blue to highlight the selected item */
 	static GdkColor col[MAX_NUM_COL_CONV+1] = {
 		{0,     0x00FF, 0x00FF, 0xFFFF},
-		{0,     0x33FF, 0xFFFF, 0x33FF},
-		{0,     0x00FF, 0xCCFF, 0xCCFF},
-		{0,     0x66FF, 0xFFFF, 0xFFFF},
-		{0,     0x99FF, 0x66FF, 0xFFFF},
+		{0,     0x90FF, 0xEEFF, 0x90FF},
+		{0,     0xFFFF, 0xA0FF, 0x7AFF},
+		{0,     0xFFFF, 0xB6FF, 0xC1FF},
+		{0,     0xFAFF, 0xFAFF, 0xD2FF},
 		{0,     0xFFFF, 0xFFFF, 0x33FF},
-		{0,     0xCCFF, 0x99FF, 0xFFFF},
-		{0,     0xCCFF, 0xFFFF, 0x33FF},
-		{0,     0xFFFF, 0xCCFF, 0xCCFF},
-		{0,     0xFFFF, 0x99FF, 0x66FF},
-		{0,     0xFFFF, 0xFFFF, 0x99FF}
+		{0,     0x66FF, 0xCDFF, 0xAAFF},
+		{0,     0xE0FF, 0xFFFF, 0xFFFF},
+		{0,     0xB0FF, 0xC4FF, 0xDEFF},
+		{0,     0x87FF, 0xCEFF, 0xFAFF},
+		{0,     0xD3FF, 0xD3FF, 0xD3FF}
 	};
 
 	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
@@ -1221,18 +1244,18 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 		exit(10);
 	}
 
-	if(user_data->dlg.pixmap){
-		gdk_pixmap_unref(user_data->dlg.pixmap);
-		user_data->dlg.pixmap=NULL;
+	if(user_data->dlg.pixmap_main){
+		gdk_pixmap_unref(user_data->dlg.pixmap_main);
+		user_data->dlg.pixmap_main=NULL;
 	}
 
-	user_data->dlg.pixmap=gdk_pixmap_new(widget->window,
+	user_data->dlg.pixmap_main=gdk_pixmap_new(widget->window,
 		widget->allocation.width,
 		widget->allocation.height,
 		-1);
 
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap) )
-			gdk_draw_rectangle(user_data->dlg.pixmap,
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) )
+			gdk_draw_rectangle(user_data->dlg.pixmap_main,
 				widget->style->white_gc,
 				TRUE,
 				0, 0,
@@ -1241,15 +1264,22 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 
 	/* create gc for division lines and set the line stype to dash */
 	for (i=0; i<2; i++){
-		user_data->dlg.div_line_gc[i]=gdk_gc_new(user_data->dlg.pixmap);
+		user_data->dlg.div_line_gc[i]=gdk_gc_new(user_data->dlg.pixmap_main);
 		gdk_gc_set_line_attributes(user_data->dlg.div_line_gc[i], 1, GDK_LINE_ON_OFF_DASH, 0, 0);
 		gdk_gc_set_rgb_fg_color(user_data->dlg.div_line_gc[i], &color_div_line[i]);
 	}
 
 	/* create gcs for the background items */
 	for (i=0; i<MAX_NUM_COL_CONV+1; i++){
-		user_data->dlg.bg_gc[i]=gdk_gc_new(user_data->dlg.pixmap);
-		gdk_gc_set_rgb_fg_color(user_data->dlg.bg_gc[i], &col[i]);
+		if (i==0) {
+			user_data->dlg.pixmap_tile_select=gdk_pixmap_create_from_xpm_d(user_data->dlg.pixmap_main,NULL,NULL,(gchar **)voip_select_xpm);
+			user_data->dlg.bg_gc[i]=gdk_gc_new(user_data->dlg.pixmap_tile_select);
+			gdk_gc_set_fill(user_data->dlg.bg_gc[i], GDK_TILED);
+			gdk_gc_set_tile(user_data->dlg.bg_gc[i], user_data->dlg.pixmap_tile_select);
+		} else {
+			user_data->dlg.bg_gc[i]=gdk_gc_new(user_data->dlg.pixmap_main);
+			gdk_gc_set_rgb_fg_color(user_data->dlg.bg_gc[i], &col[i]);
+		}
 	}
 
 	dialog_graph_redraw(user_data);
@@ -1278,7 +1308,7 @@ static gint configure_event_comments(GtkWidget *widget, GdkEventConfigure *event
 						widget->allocation.height,
 						-1);
 
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap) )
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) )
 		gdk_draw_rectangle(user_data->dlg.pixmap_comments,
 						widget->style->white_gc,
 						TRUE,
@@ -1353,6 +1383,7 @@ static gint pane_callback(GtkWidget *widget, GParamSpec *pspec _U_, gpointer dat
 static gint v_scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 {
 	graph_analysis_data_t *user_data=(graph_analysis_data_t *)data;
+
 	if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1 == user_data->num_items)
 		&& (user_data->dlg.v_scrollbar_adjustment->value >= user_data->dlg.first_item ))
 		return TRUE;
@@ -1375,6 +1406,11 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	GtkWidget *viewport;
 	GtkWidget *scroll_window_comments;
 	GtkWidget *viewport_comments;
+	GtkWidget *frame_time;
+	GtkWidget *scroll_vbox;
+	GtkWidget *frame_box;
+	GtkRequisition scroll_requisition;
+	GtkWidget *frame;
 
 	hbox=gtk_hbox_new(FALSE, 0);
 	gtk_widget_show(hbox);
@@ -1386,13 +1422,17 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	user_data->dlg.draw_area_time=gtk_drawing_area_new();
 	gtk_widget_set_size_request(user_data->dlg.draw_area_time, TIME_WIDTH, user_data->dlg.pixmap_height);
 	g_object_set_data(G_OBJECT(user_data->dlg.draw_area_time), "graph_analysis_data_t", user_data);
+        frame_time = gtk_frame_new(NULL);
+        gtk_widget_show(frame_time);
+        gtk_container_add(GTK_CONTAINER(frame_time),user_data->dlg.draw_area_time);
 
 	/* create "comments" draw area */
 	user_data->dlg.draw_area_comments=gtk_drawing_area_new();
 	gtk_widget_set_size_request(user_data->dlg.draw_area_comments, COMMENT_WIDTH, user_data->dlg.pixmap_height);
 	scroll_window_comments=gtk_scrolled_window_new(NULL, NULL);
-	gtk_widget_set_size_request(scroll_window_comments, COMMENT_WIDTH/2, user_data->dlg.pixmap_height);
+	gtk_widget_set_size_request(scroll_window_comments, (gint)(COMMENT_WIDTH/1.5), user_data->dlg.pixmap_height);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (scroll_window_comments), GTK_POLICY_ALWAYS, GTK_POLICY_NEVER);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll_window_comments), GTK_SHADOW_ETCHED_IN);
 	viewport_comments = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)), gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)));
 	gtk_container_add(GTK_CONTAINER(viewport_comments), user_data->dlg.draw_area_comments);
 	gtk_container_add(GTK_CONTAINER(scroll_window_comments), viewport_comments);
@@ -1414,6 +1454,7 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	else
 		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.pixmap_height);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window), GTK_POLICY_ALWAYS, GTK_POLICY_NEVER);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window), GTK_SHADOW_ETCHED_IN);
 	viewport = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window)), gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window)));
 	gtk_container_add(GTK_CONTAINER(viewport), user_data->dlg.draw_area);
 	gtk_container_add(GTK_CONTAINER(user_data->dlg.scroll_window), viewport);
@@ -1448,7 +1489,7 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	gtk_widget_show(user_data->dlg.scroll_window);
 	gtk_widget_show(scroll_window_comments);
 
-	gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.draw_area_time, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), frame_time, FALSE, FALSE, 3);
 
 	user_data->dlg.hpane = gtk_hpaned_new();
 	gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window, FALSE, TRUE);
@@ -1458,14 +1499,35 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 
 	gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.hpane, TRUE, TRUE, 0);
 
+	/* Create the vbox to include the vertical scroll and a box at the bottom */
+        scroll_vbox=gtk_vbox_new(FALSE, 0);
+        gtk_widget_show(scroll_vbox);
+
 	/* create the associated v_scrollbar */
 	user_data->dlg.v_scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
 	user_data->dlg.v_scrollbar=gtk_vscrollbar_new(user_data->dlg.v_scrollbar_adjustment);
 	gtk_widget_show(user_data->dlg.v_scrollbar);
-	gtk_box_pack_end(GTK_BOX(hbox), user_data->dlg.v_scrollbar, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(scroll_vbox), user_data->dlg.v_scrollbar, TRUE, TRUE, 0);
 	g_signal_connect(user_data->dlg.v_scrollbar_adjustment, "value_changed", G_CALLBACK(v_scrollbar_changed), user_data);
 
-	gtk_box_pack_start(GTK_BOX(box), hbox, TRUE, TRUE, 0);
+        frame_box = gtk_frame_new(NULL);
+	gtk_widget_size_request(user_data->dlg.v_scrollbar, &scroll_requisition);
+        gtk_widget_set_size_request(frame_box, 1, scroll_requisition.width+2);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame_box), GTK_SHADOW_NONE);
+        gtk_widget_show(frame_box);
+        gtk_box_pack_end(GTK_BOX(scroll_vbox), frame_box, FALSE, FALSE, 0);
+	gtk_box_pack_end(GTK_BOX(hbox), scroll_vbox, FALSE, FALSE, 3);
+
+	/* Frame around the main area */
+        frame = gtk_frame_new(NULL);
+        gtk_widget_show(frame);
+        gtk_container_add(GTK_CONTAINER(frame),hbox);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox),3);
+
+	/*gtk_box_pack_start(GTK_BOX(box), hbox, TRUE, TRUE, 15);*/
+	/*gtk_box_pack_start(GTK_BOX(box), frame, TRUE, TRUE, 15);*/
+	gtk_box_pack_start(GTK_BOX(box), frame, TRUE, TRUE, 0);
+	gtk_container_set_border_width(GTK_CONTAINER(box),10);
 }
 /****************************************************************************/
 /* PUBLIC */
@@ -1498,7 +1560,7 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 
 	/* button row */
 	hbuttonbox = gtk_hbutton_box_new ();
-	gtk_box_pack_start (GTK_BOX (vbox), hbuttonbox, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (vbox), hbuttonbox, FALSE, FALSE, 10);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
 	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 30);
 	gtk_widget_show(hbuttonbox);

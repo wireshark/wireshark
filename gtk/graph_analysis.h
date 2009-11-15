@@ -88,8 +88,9 @@ typedef struct _graph_analysis_dialog_data_t {
     GtkWidget *draw_area;
 	GtkWidget *draw_area_comments;
     GdkPixmap *pixmap_time;
-    GdkPixmap *pixmap;
+    GdkPixmap *pixmap_main;
     GdkPixmap *pixmap_comments;
+	GdkPixmap *pixmap_tile_select;
 	GtkWidget *scroll_window;
 	GtkWidget *v_scrollbar;
 	GtkAdjustment *v_scrollbar_adjustment;

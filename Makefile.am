@@ -702,6 +702,8 @@ EXTRA_DIST = \
 	image/stock_dialog_stop_48.xpm	\
 	image/stock_dialog_warning_48.xpm	\
 	image/text2pcap.rc.in	\
+	image/voip_select.xpm	\
+	image/voip_bg.xpm	\
 	image/toolbar/autoscroll_24.xpm	\
 	image/toolbar/capture_airpcap_16.xpm \
 	image/toolbar/capture_capture_16.xpm \
@@ -752,6 +754,11 @@ EXTRA_DIST = \
 	image/toolbar/web_support_24.xpm	\
 	image/toolbar/wep_closed_24.xpm \
 	image/toolbar/wiki_24.xpm	\
+	image/toolbar/decode_24.xpm	\
+	image/toolbar/audio_player_24.xpm	\
+	image/toolbar/voip_flow_24.xpm	\
+	image/toolbar/telephone_16.xpm	\
+	image/toolbar/analyze_24.xpm \
 	image/tshark.rc.in	\
 	image/up_arrow.xpm	\
 	image/wiresharkdoc.ico	\

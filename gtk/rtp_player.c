@@ -81,7 +81,7 @@
 #include "gtk/voip_calls.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/rtp_player.h"
-
+#include "gtk/stock_icons.h"
 
 #ifndef min
 #define min(a,b) (((a)<(b))?(a):(b))
@@ -358,7 +358,7 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 	rtp_packet_t *new_rtp_packet;
 	GString *key_str = NULL;
 
-	/* create the the streams hash if it doen't exist */
+	/* create the streams hash if it doen't exist */
 	if (!rtp_streams_hash)
 		rtp_streams_hash = g_hash_table_new_full( g_str_hash, g_str_equal, rtp_key_destroy, rtp_stream_value_destroy);
 
@@ -458,6 +458,16 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
 	}
 }
 
+/****************************************************************************/
+/* Mark the ALL RTP stream to be played. This is called when calling the 
+ * RTP player from the "RTP Analysis" window
+ */
+static void 
+mark_all_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U_)
+{
+	rsi->play = TRUE;
+	total_packets += rsi->num_packets;
+}
 
 /****************************************************************************/
 /* Decode a RTP packet 
@@ -1373,19 +1383,19 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_)
 	 * the other collors are the same as in the Voip Graph analysys
 	 * to match the same calls 
 	 */
-	static GdkColor col[MAX_NUM_COL_CONV+1] = {
-		{0,     0x00FF, 0x00FF, 0xFFFF},
-		{0,     0x33FF, 0xFFFF, 0x33FF},
-		{0,     0x00FF, 0xCCFF, 0xCCFF},
-		{0,     0x66FF, 0xFFFF, 0xFFFF},
-		{0,     0x99FF, 0x66FF, 0xFFFF},
-		{0,     0xFFFF, 0xFFFF, 0x33FF},
-		{0,     0xCCFF, 0x99FF, 0xFFFF},
-		{0,     0xCCFF, 0xFFFF, 0x33FF},
-		{0,     0xFFFF, 0xCCFF, 0xCCFF},
-		{0,     0xFFFF, 0x99FF, 0x66FF},
-		{0,     0xFFFF, 0xFFFF, 0x99FF}
-	};
+        static GdkColor col[MAX_NUM_COL_CONV+1] = {
+                {0,     0x00FF, 0x00FF, 0xFFFF},
+                {0,     0x90FF, 0xEEFF, 0x90FF},
+                {0,     0xFFFF, 0xA0FF, 0x7AFF},
+                {0,     0xFFFF, 0xB6FF, 0xC1FF},
+                {0,     0xFAFF, 0xFAFF, 0xD2FF},
+                {0,     0xFFFF, 0xFFFF, 0x33FF},
+                {0,     0x66FF, 0xCDFF, 0xAAFF},
+                {0,     0xE0FF, 0xFFFF, 0xFFFF},
+                {0,     0xB0FF, 0xC4FF, 0xDEFF},
+                {0,     0x87FF, 0xCEFF, 0xFAFF},
+                {0,     0xD3FF, 0xD3FF, 0xD3FF}
+        };
 
 	rci=(rtp_channel_info_t *)g_object_get_data(G_OBJECT(widget), "rtp_channel_info_t");
 	if(!rci){
@@ -1844,9 +1854,14 @@ decode_streams(void)
 	/* reset the Progress Bar count */
 	progbar_count = 0;
 
-	/* Mark the RTP streams to be played using the selected VoipCalls*/
-	if (rtp_streams_hash)
-		g_hash_table_foreach( rtp_streams_hash, (GHFunc)mark_rtp_stream_to_play, NULL);
+	/* Mark the RTP streams to be played using the selected VoipCalls. If voip_calls is NULL 
+           then this was called from "RTP Analysis" so mark all strams */
+	if (rtp_streams_hash) {
+		if (voip_calls)          
+			g_hash_table_foreach( rtp_streams_hash, (GHFunc)mark_rtp_stream_to_play, NULL);
+		else
+			g_hash_table_foreach( rtp_streams_hash, (GHFunc)mark_all_rtp_stream_to_play, NULL);
+	}
 
 	/* Decode the RTP streams and add them to the RTP channels to be played */
 	g_list_foreach( rtp_streams_list, (GFunc)decode_rtp_stream, NULL);
@@ -2034,22 +2049,22 @@ rtp_player_dlg_create(void)
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
 	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 10);
 
-	bt_decode = gtk_button_new_with_label("Decode");
+	bt_decode = gtk_button_new_from_stock(WIRESHARK_STOCK_DECODE);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_decode);
 	g_signal_connect(bt_decode, "clicked", G_CALLBACK(on_bt_decode_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_decode, "Decode the RTP stream(s)", NULL);
 
-	bt_play = gtk_button_new_with_label("Play");
+	bt_play = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PLAY);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_play);
 	g_signal_connect(bt_play, "clicked", G_CALLBACK(on_bt_play_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_play, "Play the RTP channel(s)", NULL);
 
-	bt_pause = gtk_button_new_with_label("Pause");
+        bt_pause = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PAUSE);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_pause);
 	g_signal_connect(bt_pause, "clicked", G_CALLBACK(on_bt_pause_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_pause, "Pause the RTP channel(s)", NULL);
 
-	bt_stop = gtk_button_new_with_label("Stop");
+        bt_stop = gtk_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_stop);
 	g_signal_connect(bt_stop, "clicked", G_CALLBACK(on_bt_stop_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_stop, "Stop the RTP channel(s)", NULL);

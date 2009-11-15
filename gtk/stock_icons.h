@@ -85,7 +85,12 @@
 #define WIRESHARK_STOCK_COLOR8                   "Wireshark_Stock_Color_8"
 #define WIRESHARK_STOCK_COLOR9                   "Wireshark_Stock_Color_9"
 #define WIRESHARK_STOCK_COLOR0                   "Wireshark_Stock_Color_10"
-
+#define WIRESHARK_STOCK_DECODE                   "Wireshark_Stock_Decode"
+#define WIRESHARK_STOCK_AUDIO_PLAYER             "Wireshark_Audio_Player"
+#define WIRESHARK_STOCK_VOIP_FLOW                "Wireshark_Voip_Flow"
+#define WIRESHARK_STOCK_TELEPHONE                "Wireshark_Telephone"
+#define WIRESHARK_STOCK_PREPARE_FILTER           "Wireshark_Prepare_Filter"
+#define WIRESHARK_STOCK_ANALYZE                  "Wireshark_Analyze"
 
 void stock_icons_init(void);
 

@@ -82,6 +82,13 @@
 #include "gtk/rtp_analysis.h"
 #include "gtk/rtp_stream.h"
 #include "gtk/rtp_stream_dlg.h"
+#include "gtk/stock_icons.h"
+
+#ifdef HAVE_LIBPORTAUDIO
+#include "gtk/graph_analysis.h"
+#include "gtk/voip_calls.h"
+#include "gtk/rtp_player.h"
+#endif /* HAVE_LIBPORTAUDIO */
 
 enum
 {
@@ -349,6 +356,10 @@ rtp_reset(void *user_data_arg)
 	/* reset graph info */
 	dialog_graph_reset(user_data);
 
+#ifdef HAVE_LIBPORTAUDIO
+	/* reset the RTP player */
+	reset_rtp_player();
+#endif
 	/* XXX check for error at fclose? */
 	if (user_data->forward.saveinfo.fp != NULL)
 		fclose(user_data->forward.saveinfo.fp);
@@ -447,6 +458,7 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 {
 	user_data_t *user_data = user_data_arg;
 	const struct _rtp_info *rtpinfo = rtpinfo_arg;
+	gboolean rtp_selected = FALSE;
 
 	/* we ignore packets that are not displayed */
 	if (pinfo->fd->flags.passed_dfilter == 0)
@@ -467,6 +479,7 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 			&(user_data->forward.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->forward.saveinfo),
 			&(user_data->forward.statinfo), pinfo, rtpinfo);
+		rtp_selected = TRUE;
 	}
 	/* is it the reversed direction? */
 	else if (user_data->ssrc_rev == rtpinfo->info_sync_src
@@ -481,7 +494,13 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 			&(user_data->reversed.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->reversed.saveinfo),
 			&(user_data->reversed.statinfo), pinfo, rtpinfo);
+		rtp_selected = TRUE;
 	}
+	/* add this RTP for future listening using the RTP Player*/
+#ifdef HAVE_LIBPORTAUDIO
+	if (rtp_selected)
+		add_rtp_packet(rtpinfo, pinfo);
+#endif
 
 	return 0;
 }
@@ -1729,6 +1748,16 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data)
 	draw_stat(user_data);
 
 }
+
+#ifdef HAVE_LIBPORTAUDIO
+/****************************************************************************/
+static void
+on_player_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
+{
+        /*rtp_player_init(voip_calls_get_info());*/
+        rtp_player_init(NULL);
+}
+#endif /* HAVE_LIBPORTAUDIO */
 
 static void on_next_bt_clicked_list(GtkWidget *bt _U_, user_data_t *user_data _U_)
 {
@@ -3188,7 +3217,9 @@ static void create_rtp_dialog(user_data_t* user_data)
 	GtkWidget *label;
 	GtkWidget *scrolled_window, *scrolled_window_r/*, *frame, *text, *label4, *page_help*/;
 	GtkWidget *box4, *voice_bt, *refresh_bt, *goto_bt, *close_bt, *csv_bt, *next_bt;
-
+#ifdef HAVE_LIBPORTAUDIO
+	GtkWidget *player_bt = NULL;
+#endif /* HAVE_LIBPORTAUDIO */
 	GtkWidget *graph_bt;
 	gchar label_forward[150];
 	gchar label_forward_tree[150];
@@ -3323,11 +3354,18 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(goto_bt);
 	g_signal_connect(goto_bt, "clicked", G_CALLBACK(on_goto_bt_clicked_lst), user_data);
 
-    graph_bt = gtk_button_new_with_label("Graph");
+	graph_bt = gtk_button_new_with_label("Graph");
 	gtk_container_add(GTK_CONTAINER(box4), graph_bt);
 	gtk_widget_show(graph_bt);
 	g_signal_connect(graph_bt, "clicked", G_CALLBACK(on_graph_bt_clicked), user_data);
 
+#ifdef HAVE_LIBPORTAUDIO
+	player_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_AUDIO_PLAYER);
+	gtk_container_add(GTK_CONTAINER(box4), player_bt);
+	gtk_widget_show(player_bt);
+	g_signal_connect(player_bt, "clicked", G_CALLBACK(on_player_bt_clicked), NULL);
+	/*gtk_tooltips_set_tip (tooltips, player_bt, "Launch the RTP player to listen the audio stream", NULL);*/
+#endif /* HAVE_LIBPORTAUDIO */
 
 	next_bt = gtk_button_new_with_label("Next non-Ok");
 	gtk_container_add(GTK_CONTAINER(box4), next_bt);

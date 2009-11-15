@@ -64,6 +64,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"
 #include "gtk/gtkglobals.h"
+#include "gtk/stock_icons.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -771,25 +772,26 @@ static void voip_calls_dlg_create (void)
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
 	gtk_tooltips_set_tip (tooltips, bt_unselect, "Unselect this conversation", NULL);*/
 
-	bt_filter = gtk_button_new_with_label ("Prepare Filter");
+        bt_filter = gtk_button_new_from_stock(WIRESHARK_STOCK_PREPARE_FILTER);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
 	gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected conversation", NULL);
 
-	bt_graph = gtk_button_new_with_label("Graph");
+        bt_graph = gtk_button_new_from_stock(WIRESHARK_STOCK_VOIP_FLOW);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_graph);
 	gtk_widget_show(bt_graph);
 	g_signal_connect(bt_graph, "clicked", G_CALLBACK(on_graph_bt_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_graph, "Show a flow graph of the selected calls.", NULL);
 
 #ifdef HAVE_LIBPORTAUDIO
-	bt_player = gtk_button_new_with_label("Player");
+        bt_player = gtk_button_new_from_stock(WIRESHARK_STOCK_AUDIO_PLAYER);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_player);
 	gtk_widget_show(bt_player);
 	g_signal_connect(bt_player, "clicked", G_CALLBACK(on_player_bt_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_player, "Launch the RTP player to listen the selected calls.", NULL);
 #endif /* HAVE_LIBPORTAUDIO */
 
-	bt_select_all = gtk_button_new_with_label("Select All");
+	/*bt_select_all = gtk_button_new_with_label("Select All");*/
+        bt_select_all = gtk_button_new_from_stock(GTK_STOCK_SELECT_ALL);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_select_all);
 	GTK_WIDGET_SET_FLAGS(bt_select_all, GTK_CAN_DEFAULT);
 	gtk_tooltips_set_tip (tooltips, bt_select_all, "Select all the calls", NULL);
@@ -971,6 +973,10 @@ void
 register_tap_listener_voip_calls_dlg(void)
 {
 	register_stat_cmd_arg("voip,calls",voip_calls_init_tap,NULL);
-	register_stat_menu_item("_VoIP Calls", REGISTER_STAT_GROUP_TELEPHONY,
-	    voip_calls_launch, NULL, NULL, NULL);    
+	/*register_stat_menu_item("_VoIP Calls", REGISTER_STAT_GROUP_TELEPHONY,
+	    voip_calls_launch, NULL, NULL, NULL);*/   
+        register_stat_menu_item_stock("_VoIP Calls...",
+        REGISTER_STAT_GROUP_TELEPHONY, WIRESHARK_STOCK_TELEPHONE,
+            voip_calls_launch, NULL, NULL, NULL);
+ 
 }
