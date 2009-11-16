@@ -174,3 +174,88 @@ Attached to this bug report, you can find a patch to fix the issue.
 
 
 ------------------------------------------------------------------------
+r30935 | gerald | 2009-11-11 15:07:19 -0800 (Wed, 11 Nov 2009) | 2 lines
+Changed paths:
+   M /trunk-1.2/ChangeLog
+   M /trunk-1.2/NEWS
+
+Updates for 1.2.4.
+
+------------------------------------------------------------------------
+r30938 | etxrab | 2009-11-12 01:02:42 -0800 (Thu, 12 Nov 2009) | 1 line
+Changed paths:
+   M /trunk-1.2/diameter/dictionary.xml
+   M /trunk-1.2/diameter/imscxdx.xml
+
+3GPP AVP updates.
+------------------------------------------------------------------------
+r30949 | etxrab | 2009-11-13 00:35:19 -0800 (Fri, 13 Nov 2009) | 1 line
+Changed paths:
+   M /trunk-1.2/diameter/etsie2e4.xml
+
+Update ETSI AVP:s
+------------------------------------------------------------------------
+r30952 | gerald | 2009-11-13 09:58:16 -0800 (Fri, 13 Nov 2009) | 11 lines
+Changed paths:
+   M /trunk-1.2/epan/oids.c
+
+Copy over r30951 from the trunk:
+
+------------------------------------------------------------------------
+r30951 | gerald | 2009-11-13 09:55:55 -0800 (Fri, 13 Nov 2009) | 3 lines
+Changed paths:
+   M /trunk/epan/oids.c
+
+On OS X, prepend /usr/share/snmp/mibs to the SMI path. Partial fix for
+bug 3163.
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r30954 | gerald | 2009-11-13 12:20:40 -0800 (Fri, 13 Nov 2009) | 17 lines
+Changed paths:
+   M /trunk-1.2/Makefile.nmake
+   M /trunk-1.2/airpcap_loader.c
+   M /trunk-1.2/config.nmake
+   M /trunk-1.2/gtk/airpcap_gui_utils.c
+   M /trunk-1.2/tools/win32-setup.sh
+   M /trunk-1.2/tools/win64-setup.sh
+
+Copy over r30945:
+
+------------------------------------------------------------------------
+r30945 | gerald | 2009-11-12 15:48:11 -0800 (Thu, 12 Nov 2009) | 2 lines
+Changed paths:
+   M /trunk/Makefile.nmake
+   M /trunk/airpcap_loader.c
+   M /trunk/config.nmake
+   M /trunk/gtk/airpcap_gui_utils.c
+   M /trunk/tools/win32-setup.sh
+   M /trunk/tools/win64-setup.sh
+
+Update the AirPcap code for Win64 and enable AirPcap for the 64-bit build.
+------------------------------------------------------------------------
+
+Adjust tools/win{32|64}-setup.sh to use the latest tag.
+
+------------------------------------------------------------------------
+r30958 | gerald | 2009-11-13 14:59:32 -0800 (Fri, 13 Nov 2009) | 2 lines
+Changed paths:
+   M /trunk-1.2/packaging/nsis/Makefile.nmake
+   M /trunk-1.2/packaging/nsis/wireshark.nsi
+
+Copy over more WinPcap 4.1.1 updates.
+
+------------------------------------------------------------------------
+r30966 | gerald | 2009-11-15 08:04:31 -0800 (Sun, 15 Nov 2009) | 1 line
+Changed paths:
+   M /trunk-1.2/epan/enterprise-numbers
+   M /trunk-1.2/manuf
+
+[Automatic manuf and enterprise-numbers update for 2009-11-15]
+------------------------------------------------------------------------
+r30972 | etxrab | 2009-11-16 08:17:35 -0800 (Mon, 16 Nov 2009) | 1 line
+Changed paths:
+   M /trunk-1.2/diameter/gqpolicy.xml
+
+Update 3GPP/ETSI AVP:s
+------------------------------------------------------------------------
