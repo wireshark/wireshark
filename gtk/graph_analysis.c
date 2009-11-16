@@ -116,9 +116,6 @@ static void graph_analysis_reset(graph_analysis_data_t* user_data)
 static void graph_analysis_init_dlg(graph_analysis_data_t* user_data)
 {
 	int i;
-	/*const char **   xpm_data;
-
-	xpm_data*/ 
 	user_data->num_nodes = 0;
 	user_data->num_items = 0;
 	user_data->on_destroy_user_data = NULL;
@@ -751,13 +748,13 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	middle_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 	small_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 
-        middle_font_desc = pango_font_description_copy(pango_context_get_font_description(pango_layout_get_context(middle_layout))); 
-        middle_font_size = pango_font_description_get_size(middle_font_desc);
+	middle_font_desc = pango_font_description_copy(pango_context_get_font_description(pango_layout_get_context(middle_layout)));
+	middle_font_size = pango_font_description_get_size(middle_font_desc);
 	pango_font_description_set_size(middle_font_desc,(gint)(middle_font_size*0.8));
 	pango_layout_set_font_description(middle_layout,middle_font_desc);	
 
-        small_font_desc = pango_font_description_copy(pango_context_get_font_description(pango_layout_get_context(small_layout))); 
-        small_font_size = pango_font_description_get_size(small_font_desc);
+	small_font_desc = pango_font_description_copy(pango_context_get_font_description(pango_layout_get_context(small_layout)));
+	small_font_size = pango_font_description_get_size(small_font_desc);
 	pango_font_description_set_size(small_font_desc,(gint)(small_font_size*0.7));
 	pango_layout_set_font_description(small_layout,small_font_desc);	
 
@@ -773,7 +770,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	/* Paint time title background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) )
 		gdk_draw_rectangle(user_data->dlg.pixmap_time,
-					   	   column_header_gc,
+						   column_header_gc,
 						   TRUE,
 						   0,
 						   0,
@@ -782,7 +779,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	/* Paint main title background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) )
 		gdk_draw_rectangle(user_data->dlg.pixmap_main,
-					   	   column_header_gc,
+						   column_header_gc,
 						   TRUE,
 						   0,
 						   0,
@@ -791,7 +788,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 	/* Paint main comment background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments) )
 		gdk_draw_rectangle(user_data->dlg.pixmap_comments,
-					   	   column_header_gc,
+						   column_header_gc,
 						   TRUE,
 						   0,
 						   0,
@@ -1080,12 +1077,10 @@ static gint scroll_event(GtkWidget *widget, GdkEventScroll *event)
 	graph_analysis_data_t *user_data;
 
 	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
-printf("scroll_event\n");
 
 	/* Up scroll */
 	switch(event->direction) {
 	case(GDK_SCROLL_UP):
-printf("GDK_SCROLL_UP\n");
 		if (user_data->dlg.first_item == 0) return TRUE;
 		if (user_data->dlg.first_item < 3)
 			user_data->dlg.first_item = 0;
@@ -1093,7 +1088,6 @@ printf("GDK_SCROLL_UP\n");
 			user_data->dlg.first_item -= 3;
 		break;
 	case(GDK_SCROLL_DOWN):
-printf("GDK_SCROLL_DOWN\n");
 		if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1 == user_data->num_items)) return TRUE;
 		if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1) > (user_data->num_items-3))
 			user_data->dlg.first_item = user_data->num_items-(guint32)user_data->dlg.v_scrollbar_adjustment->page_size-1;
@@ -1101,9 +1095,7 @@ printf("GDK_SCROLL_DOWN\n");
 			user_data->dlg.first_item += 3;
 	    break;
 	case(GDK_SCROLL_LEFT):
-printf("GDK_SCROLL_LEFT\n");
 	case(GDK_SCROLL_RIGHT):
-printf("GDK_SCROLL_RIGTH\n");
 		/* nothing to do */
 		break;
 	}
@@ -1219,7 +1211,7 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	/* gray and soft gray colors */
 	static GdkColor color_div_line[2] = {
 		{0, 0x64ff, 0x64ff, 0x64ff},
-		{0, 0x25ff, 0x25ff, 0x25ff},
+		{0, 0x25ff, 0x25ff, 0x25ff}
 		/*{0, 0x7fff, 0x7fff, 0x7fff}*/
 	};
 
@@ -1422,9 +1414,9 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	user_data->dlg.draw_area_time=gtk_drawing_area_new();
 	gtk_widget_set_size_request(user_data->dlg.draw_area_time, TIME_WIDTH, user_data->dlg.pixmap_height);
 	g_object_set_data(G_OBJECT(user_data->dlg.draw_area_time), "graph_analysis_data_t", user_data);
-        frame_time = gtk_frame_new(NULL);
-        gtk_widget_show(frame_time);
-        gtk_container_add(GTK_CONTAINER(frame_time),user_data->dlg.draw_area_time);
+	frame_time = gtk_frame_new(NULL);
+	gtk_widget_show(frame_time);
+	gtk_container_add(GTK_CONTAINER(frame_time),user_data->dlg.draw_area_time);
 
 	/* create "comments" draw area */
 	user_data->dlg.draw_area_comments=gtk_drawing_area_new();
@@ -1510,18 +1502,18 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	gtk_box_pack_start(GTK_BOX(scroll_vbox), user_data->dlg.v_scrollbar, TRUE, TRUE, 0);
 	g_signal_connect(user_data->dlg.v_scrollbar_adjustment, "value_changed", G_CALLBACK(v_scrollbar_changed), user_data);
 
-        frame_box = gtk_frame_new(NULL);
+	frame_box = gtk_frame_new(NULL);
 	gtk_widget_size_request(user_data->dlg.v_scrollbar, &scroll_requisition);
-        gtk_widget_set_size_request(frame_box, 1, scroll_requisition.width+2);
+	gtk_widget_set_size_request(frame_box, 1, scroll_requisition.width+2);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame_box), GTK_SHADOW_NONE);
-        gtk_widget_show(frame_box);
-        gtk_box_pack_end(GTK_BOX(scroll_vbox), frame_box, FALSE, FALSE, 0);
+	gtk_widget_show(frame_box);
+	gtk_box_pack_end(GTK_BOX(scroll_vbox), frame_box, FALSE, FALSE, 0);
 	gtk_box_pack_end(GTK_BOX(hbox), scroll_vbox, FALSE, FALSE, 3);
 
 	/* Frame around the main area */
-        frame = gtk_frame_new(NULL);
-        gtk_widget_show(frame);
-        gtk_container_add(GTK_CONTAINER(frame),hbox);
+	frame = gtk_frame_new(NULL);
+	gtk_widget_show(frame);
+	gtk_container_add(GTK_CONTAINER(frame),hbox);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox),3);
 
 	/*gtk_box_pack_start(GTK_BOX(box), hbox, TRUE, TRUE, 15);*/
