@@ -227,6 +227,9 @@ static int hf_gsm_a_gm_sm_value = -1;
 static int hf_gsm_a_gm_sm_ext = -1;
 static int hf_gsm_a_gm_cause = -1;
 
+static int hf_gsm_a_gm_fop = -1;
+static int hf_gsm_a_gm_res_of_attach = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
 static gint ett_tc_invoke_id = -1;
@@ -257,37 +260,22 @@ gint ett_gsm_gm_elem[NUM_GSM_GM_ELEM];
 static const gchar *pdp_str[2]={ "PDP-INACTIVE", "PDP-ACTIVE" };
 
 /*
- * [7] 10.5.5.1
+ * [9] 10.5.5.1 Attach result
  */
+static const value_string gsm_a_gm_res_of_attach_vals[] = {
+	{ 0x01, "GPRS only attached" },
+	{ 0x03, "Combined GPRS/IMSI attached" },
+	{ 0, NULL }
+};
+
 static guint16
 de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8        oct;
-	guint32	      curr_offset;
-	const gchar  *str;
-
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch(oct&7)
-	{
-		case 1:  str="GPRS only attached";          break;
-		case 3:  str="Combined GPRS/IMSI attached"; break;
-		default: str="reserved";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Attach Result: (%u) %s",
-		oct&7,
-		str);
-
-	curr_offset++;
+	proto_tree_add_item(tree, hf_gsm_a_gm_fop, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_res_of_attach, tvb, offset, 1, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
@@ -6124,6 +6112,16 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_cause,
 		{ "gmm Cause", "gsm_a.gm.cause",
 		  FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmm_cause_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_fop,
+		{ "Follow-on proceed", "gsm_a.gm.fop",
+		FT_BOOLEAN, 8, NULL, 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_res_of_attach,
+		{ "Result of attach", "gsm_a.gm.res_of_attach",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_res_of_attach_vals), 0x07,
 		NULL, HFILL }
 	},
 	};
