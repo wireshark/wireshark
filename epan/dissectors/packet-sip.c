@@ -206,7 +206,7 @@ static const char *sip_methods[] = {
 
 /* from RFC 3261
  * Updated with info from http://www.iana.org/assignments/sip-parameters
- * (last updated 2007-12-10)
+ * (last updated 2009-11-11)
  * Updated with: http://www.ietf.org/internet-drafts/draft-ietf-sip-resource-priority-05.txt
  */
 typedef struct {
@@ -236,16 +236,13 @@ static const sip_header_t sip_headers[] = {
                 { "Content-Type", 				"c"  },
                 { "CSeq", 						NULL },
                 { "Date", 						NULL },  /*  21 */
-/*
-Encryption (Deprecated)       [RFC3261]
-*/
+/*				Encryption (Deprecated)       [RFC3261]	*/
                 { "Error-Info", 				NULL },
                 { "Event", 						"o"  },
                 { "Expires", 					NULL },
+				/* Flow-Timer                    [RFC5626]*/
                 { "From", 						"f"  },  /*  25 */
-/*
-Hide                          [RFC3261] (deprecated)
-*/
+/*				Hide                          [RFC3261] (deprecated)*/
                 { "History-Info", 				NULL },  /*  26 RFC4244  */
                 { "Identity", 					"y"  },  /*	 27 RFC4474  */
                 { "Identity-Info", 				"n"  },  /*	 28 RFC4474  */
@@ -264,63 +261,65 @@ Hide                          [RFC3261] (deprecated)
                 { "P-Called-Party-ID",          NULL },	 /*  41 RFC3455  */
                 { "P-Charging-Function-Addresses",NULL },/*  42 RFC3455  */
                 { "P-Charging-Vector",          NULL },  /*  43 RFC3455  */
-                { "P-DCS-Trace-Party-ID",       NULL },  /*  44 RFC3603  */
-                { "P-DCS-OSPS",                 NULL },  /*  45 RFC3603  */
-                { "P-DCS-Billing-Info",         NULL },  /*  46 RFC3603  */
-                { "P-DCS-LAES",                 NULL },  /*  47 RFC3603  */
-                { "P-DCS-Redirect",             NULL },  /*  48 RFC3603  */
+                { "P-DCS-Trace-Party-ID",       NULL },  /*  44 RFC5503  */
+                { "P-DCS-OSPS",                 NULL },  /*  45 RFC5503  */
+                { "P-DCS-Billing-Info",         NULL },  /*  46 RFC5503  */
+                { "P-DCS-LAES",                 NULL },  /*  47 RFC5503  */
+                { "P-DCS-Redirect",             NULL },  /*  48 RFC5503  */
                 { "P-Early-Media",				NULL },  /*  49 RFC5009  */
                 { "P-Media-Authorization",      NULL },  /*  50 RFC3313  */
                 { "P-Preferred-Identity",       NULL },  /*  51 RFC3325  */
                 { "P-Profile-Key",				NULL },  /*  52 RFC5002  */
-                { "P-User-Database",			NULL },  /*  53 RFC4457  */
-                { "P-Visited-Network-ID",       NULL },  /*  54 RFC3455  */
-                { "Path",                       NULL },  /*  55 RFC3327  */
-                { "Permission-Missing",         NULL },  /*  56 RFC5360  */
-                { "Priority", 					NULL },  /*  57 RFC3261  */
-                { "Priv-Answer-Mode",           NULL },  /*  58 RFC5373  */
-                { "Privacy",                    NULL },  /*  59 RFC3323  */
-                { "Proxy-Authenticate", 		NULL },	 /*  60 */
-                { "Proxy-Authorization", 		NULL },	 /*  61 */
-                { "Proxy-Require", 				NULL },	 /*  62 */
-                { "RAck", 						NULL },  /*  63 RFC3262  */
-                { "Reason",                     NULL },  /*  64 RFC3326  */
-                { "Record-Route", 				NULL },	 /*  65 */
-                { "Refer-Sub", 					NULL },  /*  66 RFC4488  */
-                { "Refer-To",					"r"  },  /*  67 RFC3515  */
-                { "Referred-By",				"b"  },  /*  68 RFC3892  */
-                { "Reject-Contact",				"j"  },  /*  69 RFC3841  */
-                { "Replaces",					NULL },  /*  70 RFC3891  */
-                { "Reply-To", 					NULL },  /*  71 RFC3261  */
-                { "Request-Disposition",		"d"  },  /*  72 RFC3841  */
-                { "Require", 					NULL },  /*  73 RFC3261  */
-                { "Resource-Priority",			NULL },	 /*  74 RFC4412  */
+                { "P-Refused-URI-List",			NULL },  /*  53 RFC5318  */
+                { "P-Served-User",				NULL },  /*  54 RFC5502  */
+                { "P-User-Database",			NULL },  /*  55 RFC4457  */
+                { "P-Visited-Network-ID",       NULL },  /*  56 RFC3455  */
+                { "Path",                       NULL },  /*  57 RFC3327  */
+                { "Permission-Missing",         NULL },  /*  58 RFC5360  */
+                { "Priority", 					NULL },  /*  59 RFC3261  */
+                { "Priv-Answer-Mode",           NULL },  /*  60 RFC5373  */
+                { "Privacy",                    NULL },  /*  61 RFC3323  */
+                { "Proxy-Authenticate", 		NULL },	 /*  62 */
+                { "Proxy-Authorization", 		NULL },	 /*  63 */
+                { "Proxy-Require", 				NULL },	 /*  64 */
+                { "RAck", 						NULL },  /*  65 RFC3262  */
+                { "Reason",                     NULL },  /*  66 RFC3326  */
+                { "Record-Route", 				NULL },	 /*  67 */
+                { "Refer-Sub", 					NULL },  /*  68 RFC4488  */
+                { "Refer-To",					"r"  },  /*  69 RFC3515  */
+                { "Referred-By",				"b"  },  /*  70 RFC3892  */
+                { "Reject-Contact",				"j"  },  /*  71 RFC3841  */
+                { "Replaces",					NULL },  /*  72 RFC3891  */
+                { "Reply-To", 					NULL },  /*  73 RFC3261  */
+                { "Request-Disposition",		"d"  },  /*  74 RFC3841  */
+                { "Require", 					NULL },  /*  75 RFC3261  */
+                { "Resource-Priority",			NULL },	 /*  76 RFC4412  */
                 /*
                 { "Response-Key (Deprecated)     [RFC3261]
                 */
-                { "Retry-After", 				NULL },  /*  75 RFC3261  */
-                { "Route", 						NULL },  /*  76 RFC3261  */
-                { "RSeq", 						NULL },  /*  77 RFC3262  */
-                { "Security-Client",			NULL },  /*  78 RFC3329  */
-                { "Security-Server",			NULL },  /*  79 RFC3329  */
-                { "Security-Verify",			NULL },  /*  80 RFC3329  */
-                { "Server",			 			NULL },  /*  81 RFC3261  */
-                { "Service-Route",				NULL },  /*  82 RFC3608  */
-                { "Session-Expires",			"x"  },  /*  83 RFC4028  */
-                { "SIP-ETag",					NULL },  /*  84 RFC3903  */
-                { "SIP-If-Match",				NULL },  /*  85 RFC3903  */
-                { "Subject",					"s"  },  /*  86 RFC3261  */
-                { "Subscription-State", 		NULL },  /*  87 RFC3265  */
-                { "Supported",					"k"	 },  /*  88 RFC3261  */
-                { "Target-Dialog",				NULL },  /*  89 RFC4538  */
-                { "Timestamp",					NULL },  /*  90 RFC3261  */
-                { "To",							"t"  },  /*  91 RFC3261  */
-                { "Trigger-Consent",            NULL },  /*  92 RFC5360  */
-                { "Unsupported",				NULL },  /*  93 RFC3261  */
-                { "User-Agent", 				NULL },  /*  94 RFC3261  */
-                { "Via",			 			"v"  },  /*  95 RFC3261  */
-                { "Warning",		 			NULL },  /*  96 RFC3261  */
-                { "WWW-Authenticate",			NULL },  /*  97 RFC3261  */
+                { "Retry-After", 				NULL },  /*  77 RFC3261  */
+                { "Route", 						NULL },  /*  78 RFC3261  */
+                { "RSeq", 						NULL },  /*  79 RFC3262  */
+                { "Security-Client",			NULL },  /*  80 RFC3329  */
+                { "Security-Server",			NULL },  /*  81 RFC3329  */
+                { "Security-Verify",			NULL },  /*  82 RFC3329  */
+                { "Server",			 			NULL },  /*  83 RFC3261  */
+                { "Service-Route",				NULL },  /*  84 RFC3608  */
+                { "Session-Expires",			"x"  },  /*  85 RFC4028  */
+                { "SIP-ETag",					NULL },  /*  86 RFC3903  */
+                { "SIP-If-Match",				NULL },  /*  87 RFC3903  */
+                { "Subject",					"s"  },  /*  88 RFC3261  */
+                { "Subscription-State", 		NULL },  /*  89 RFC3265  */
+                { "Supported",					"k"	 },  /*  90 RFC3261  */
+                { "Target-Dialog",				NULL },  /*  81 RFC4538  */
+                { "Timestamp",					NULL },  /*  92 RFC3261  */
+                { "To",							"t"  },  /*  93 RFC3261  */
+                { "Trigger-Consent",            NULL },  /*  94 RFC5360  */
+                { "Unsupported",				NULL },  /*  95 RFC3261  */
+                { "User-Agent", 				NULL },  /*  96 RFC3261  */
+                { "Via",			 			"v"  },  /*  97 RFC3261  */
+                { "Warning",		 			NULL },  /*  98 RFC3261  */
+                { "WWW-Authenticate",			NULL },  /*  99 RFC3261  */
 };
 
 
@@ -376,51 +375,53 @@ Hide                          [RFC3261] (deprecated)
 #define POS_P_MEDIA_AUTHORIZATION			50
 #define POS_P_PREFERRED_IDENTITY			51
 #define POS_P_PROFILE_KEY					52
-#define POS_P_USER_DATABASE					53
-#define POS_P_VISITED_NETWORK_ID			54
-#define POS_PATH							55
-#define POS_PERMISSION_MISSING				56
-#define POS_PRIORITY						57
-#define POS_PRIV_ANSWER_MODE				58
-#define POS_PRIVACY							59
-#define POS_PROXY_AUTHENTICATE				60
-#define POS_PROXY_AUTHORIZATION				61
-#define POS_PROXY_REQUIRE					62
-#define POS_RACK							63
-#define POS_REASON							64
-#define POS_RECORD_ROUTE					65
-#define POS_REFER_SUB						66
-#define POS_REFER_TO						67
-#define POS_REFERED_BY						68
-#define POS_REJECT_CONTACT					69
-#define POS_REPLACES						70
-#define POS_REPLY_TO						71
-#define POS_REQUEST_DISPOSITION				72
-#define POS_REQUIRE							73
-#define POS_RESOURCE_PRIORITY				74
-#define POS_RETRY_AFTER						75
-#define POS_ROUTE							76
-#define POS_RSEQ							77
-#define POS_SECURITY_CLIENT					78
-#define POS_SECURITY_SERVER					79
-#define POS_SECURITY_VERIFY					80
-#define POS_SERVER							81
-#define POS_SERVICE_ROUTE					82
-#define POS_SESSION_EXPIRES					83
-#define POS_SIP_ETAG						84
-#define POS_SIP_IF_MATCH					85
-#define POS_SUBJECT							86
-#define POS_SUBSCRIPTION_STATE				87
-#define POS_SUPPORTED						88
-#define POS_TARGET_DALOG					89
-#define POS_TIMESTAMP						90
-#define POS_TO								91
-#define POS_TRIGGER_CONSENT					92
-#define POS_UNSUPPORTED						93
-#define POS_USER_AGENT						94
-#define POS_VIA								95
-#define POS_WARNING							96
-#define POS_WWW_AUTHENTICATE				97
+#define POS_P_REFUSED_URI_LST				53
+#define POS_P_SERVED_USER					54
+#define POS_P_USER_DATABASE					55
+#define POS_P_VISITED_NETWORK_ID			56
+#define POS_PATH							57
+#define POS_PERMISSION_MISSING				58
+#define POS_PRIORITY						59
+#define POS_PRIV_ANSWER_MODE				60
+#define POS_PRIVACY							61
+#define POS_PROXY_AUTHENTICATE				62
+#define POS_PROXY_AUTHORIZATION				63
+#define POS_PROXY_REQUIRE					64
+#define POS_RACK							65
+#define POS_REASON							66
+#define POS_RECORD_ROUTE					67
+#define POS_REFER_SUB						68
+#define POS_REFER_TO						69
+#define POS_REFERED_BY						70
+#define POS_REJECT_CONTACT					71
+#define POS_REPLACES						72
+#define POS_REPLY_TO						73
+#define POS_REQUEST_DISPOSITION				74
+#define POS_REQUIRE							75
+#define POS_RESOURCE_PRIORITY				76
+#define POS_RETRY_AFTER						77
+#define POS_ROUTE							78
+#define POS_RSEQ							79
+#define POS_SECURITY_CLIENT					80
+#define POS_SECURITY_SERVER					81
+#define POS_SECURITY_VERIFY					82
+#define POS_SERVER							83
+#define POS_SERVICE_ROUTE					84
+#define POS_SESSION_EXPIRES					85
+#define POS_SIP_ETAG						86
+#define POS_SIP_IF_MATCH					87
+#define POS_SUBJECT							88
+#define POS_SUBSCRIPTION_STATE				89
+#define POS_SUPPORTED						90
+#define POS_TARGET_DALOG					91
+#define POS_TIMESTAMP						92
+#define POS_TO								93
+#define POS_TRIGGER_CONSENT					94
+#define POS_UNSUPPORTED						95
+#define POS_USER_AGENT						96
+#define POS_VIA								97
+#define POS_WARNING							98
+#define POS_WWW_AUTHENTICATE				99
 
 
 static gint hf_header_array[] = {
@@ -477,51 +478,53 @@ static gint hf_header_array[] = {
                 -1, /* 50"P-Media-Authorization",				RFC3313 */
                 -1, /* 51"P-Preferred-Identity",				RFC3325 */
                 -1, /* 52"P-Profile-Key",								*/
-                -1, /* 53"P-User-Database						RFC4457 */
-                -1, /* 54"P-Visited-Network-ID",				RFC3455 */
-                -1, /* 55"Path",								RFC3327 */
-                -1, /* 56"Permission-Missing"					RFC5360	*/
-                -1, /* 57"Priority"										*/
-                -1, /* 58"Priv-Answer-mode"						RFC5373	*/
-                -1, /* 59"Privacy",								RFC3323 */
-                -1, /* 60"Proxy-Authenticate",							*/
-                -1, /* 61"Proxy-Authorization",							*/
-                -1, /* 62"Proxy-Require",								*/
-                -1, /* 63"RAck",								RFC3262 */
-                -1, /* 64"Reason",								RFC3326 */
-                -1, /* 65"Record-Route",								*/
-                -1, /* 66"Refer-Sub",",							RFC4488 */
-                -1, /* 67"Refer-To",							RFC3515 */
-                -1, /* 68"Referred-By",									*/
-                -1, /* 69"Reject-Contact",						RFC3841 */
-                -1, /* 70"Replaces",							RFC3891 */
-                -1, /* 71"Reply-To",							RFC3261 */
-                -1, /* 72"Request-Disposition",					RFC3841 */
-                -1, /* 73"Require",								RFC3261 */
-                -1, /* 74"Resource-Priority",					RFC4412 */
-                -1, /* 75"Retry-After",							RFC3261 */
-                -1, /* 76"Route",								RFC3261 */
-                -1, /* 77"RSeq",								RFC3262 */
-                -1, /* 78"Security-Client",						RFC3329 */
-                -1, /* 79"Security-Server",						RFC3329 */
-                -1, /* 80"Security-Verify",						RFC3329 */
-                -1, /* 81"Server",								RFC3261 */
-                -1, /* 82"Service-Route",						RFC3608 */
-                -1, /* 83"Session-Expires",						RFC4028 */
-                -1, /* 84"SIP-ETag",							RFC3903 */
-                -1, /* 85"SIP-If-Match",						RFC3903 */
-                -1, /* 86"Subject",								RFC3261 */
-                -1, /* 87"Subscription-State",					RFC3265 */
-                -1, /* 88"Supported",							RFC3261 */
-                -1, /* 89"Target-Dialog",						RFC4538 */
-                -1, /* 90"Timestamp",							RFC3261 */
-                -1, /* 91"To",									RFC3261 */
-                -1, /* 92"Trigger-Consent"						RFC5380	*/
-                -1, /* 93"Unsupported",							RFC3261 */
-                -1, /* 94"User-Agent",							RFC3261 */
-                -1, /* 95"Via",									RFC3261 */
-                -1, /* 96"Warning",								RFC3261 */
-                -1, /* 97"WWW-Authenticate",					RFC3261 */
+                -1, /* 53"P-Refused-URI-List",					RFC5318 */
+                -1, /* 54"P-Served-User",						RFC5502 */
+                -1, /* 55"P-User-Database						RFC4457 */
+                -1, /* 56"P-Visited-Network-ID",				RFC3455 */
+                -1, /* 57"Path",								RFC3327 */
+                -1, /* 58"Permission-Missing"					RFC5360	*/
+                -1, /* 59"Priority"										*/
+                -1, /* 60"Priv-Answer-mode"						RFC5373	*/
+                -1, /* 61"Privacy",								RFC3323 */
+                -1, /* 62"Proxy-Authenticate",							*/
+                -1, /* 63"Proxy-Authorization",							*/
+                -1, /* 64"Proxy-Require",								*/
+                -1, /* 65"RAck",								RFC3262 */
+                -1, /* 66"Reason",								RFC3326 */
+                -1, /* 67"Record-Route",								*/
+                -1, /* 68"Refer-Sub",",							RFC4488 */
+                -1, /* 69"Refer-To",							RFC3515 */
+                -1, /* 70"Referred-By",									*/
+                -1, /* 71"Reject-Contact",						RFC3841 */
+                -1, /* 72"Replaces",							RFC3891 */
+                -1, /* 73"Reply-To",							RFC3261 */
+                -1, /* 74"Request-Disposition",					RFC3841 */
+                -1, /* 75"Require",								RFC3261 */
+                -1, /* 76"Resource-Priority",					RFC4412 */
+                -1, /* 77"Retry-After",							RFC3261 */
+                -1, /* 78"Route",								RFC3261 */
+                -1, /* 79"RSeq",								RFC3262 */
+                -1, /* 80"Security-Client",						RFC3329 */
+                -1, /* 81"Security-Server",						RFC3329 */
+                -1, /* 82"Security-Verify",						RFC3329 */
+                -1, /* 83"Server",								RFC3261 */
+                -1, /* 84"Service-Route",						RFC3608 */
+                -1, /* 85"Session-Expires",						RFC4028 */
+                -1, /* 86"SIP-ETag",							RFC3903 */
+                -1, /* 87"SIP-If-Match",						RFC3903 */
+                -1, /* 88"Subject",								RFC3261 */
+                -1, /* 89"Subscription-State",					RFC3265 */
+                -1, /* 90"Supported",							RFC3261 */
+                -1, /* 91"Target-Dialog",						RFC4538 */
+                -1, /* 92"Timestamp",							RFC3261 */
+                -1, /* 93"To",									RFC3261 */
+                -1, /* 94"Trigger-Consent"						RFC5380	*/
+                -1, /* 95"Unsupported",							RFC3261 */
+                -1, /* 96"User-Agent",							RFC3261 */
+                -1, /* 97"Via",									RFC3261 */
+                -1, /* 98"Warning",								RFC3261 */
+                -1, /* 99"WWW-Authenticate",					RFC3261 */
 
 };
 
@@ -4164,7 +4167,16 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-Profile-Key Header", HFILL }
 		},
-
+		{ &hf_header_array[POS_P_REFUSED_URI_LST],
+		       { "P-Refused-URI-List",  	"sip.P-Refused-URI-List",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-Refused-URI-List Header", HFILL }
+		},
+		{ &hf_header_array[POS_P_SERVED_USER],
+		       { "P-Served-User",  	"sip.P-Served-User",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"P-Served-User", HFILL }
+		},
 		{ &hf_header_array[POS_P_USER_DATABASE],
 		       { "P-User-Database",  	"sip.P-User-Database",
 		       FT_STRING, BASE_NONE,NULL,0x0,
