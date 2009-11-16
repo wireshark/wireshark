@@ -46,6 +46,7 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/tap.h>
+#include <epan/expert.h>
 #include <epan/crypt/crypt-rc4.h>
 #include <epan/crypt/crypt-md4.h>
 #include <epan/crypt/crypt-md5.h>
@@ -69,6 +70,8 @@ static int ntlmssp_tap = -1;
 #define SERVER_SIGN_TEXT "session key to server-to-client signing key magic constant"
 #define SERVER_SEAL_TEXT "session key to server-to-client sealing key magic constant"
 
+#define NTLMSSP_KEY_LEN 16
+
 static const value_string ntlmssp_message_types[] = {
   { NTLMSSP_NEGOTIATE, "NTLMSSP_NEGOTIATE" },
   { NTLMSSP_CHALLENGE, "NTLMSSP_CHALLENGE" },
@@ -78,7 +81,7 @@ static const value_string ntlmssp_message_types[] = {
 };
 
 typedef struct _md4_pass {
-  guint8 md4[16];
+  guint8 md4[NTLMSSP_KEY_LEN];
 } md4_pass;
 
 static unsigned char zeros[24] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
@@ -259,8 +262,8 @@ typedef struct _ntlmssp_info {
   int is_auth_ntlm_v2;
   rc4_state_struct rc4_state_client;
   rc4_state_struct rc4_state_server;
-  guint8 sign_key_client[16];
-  guint8 sign_key_server[16];
+  guint8 sign_key_client[NTLMSSP_KEY_LEN];
+  guint8 sign_key_server[NTLMSSP_KEY_LEN];
   guint32 server_dest_port;
   unsigned char server_challenge[8];
   unsigned char client_challenge[8];
@@ -274,7 +277,7 @@ typedef struct _ntlmssp_info {
 typedef struct _ntlmssp_packet_info {
   guint8 *decrypted_payload;
   guint8 payload_len;
-  guint8 verifier[16];
+  guint8 verifier[NTLMSSP_KEY_LEN];
   gboolean payload_decrypted;
   gboolean verifier_decrypted;
 } ntlmssp_packet_info;
@@ -393,13 +396,13 @@ static void str_to_unicode(const char *nt_password, char *nt_password_unicode)
  * Exported session key is the key that will be used for sealing and signing communication*/
 
 static void
-get_keyexchange_key(unsigned char keyexchangekey[16],const unsigned char sessionbasekey[16],const unsigned char lm_challenge_response[24],int flags)
+get_keyexchange_key(unsigned char keyexchangekey[NTLMSSP_KEY_LEN],const unsigned char sessionbasekey[NTLMSSP_KEY_LEN],const unsigned char lm_challenge_response[24],int flags)
 {
-  guint8 basekey[16];
+  guint8 basekey[NTLMSSP_KEY_LEN];
   guint8 zeros[24];
 
-  memset(keyexchangekey,0,16);
-  memset(basekey,0,16);
+  memset(keyexchangekey,0,NTLMSSP_KEY_LEN);
+  memset(basekey,0,NTLMSSP_KEY_LEN);
   /* sessionbasekey is either derived from lm_password_hash or from nt_password_hash depending on the key type negotiated */
   memcpy(basekey,sessionbasekey,8);
   memset(basekey,0xBD,8);
@@ -427,7 +430,7 @@ get_keyexchange_key(unsigned char keyexchangekey[16],const unsigned char session
       /* it is stated page 65 of NTLM SSP spec that sessionbasekey should be encrypted with hmac_md5 using the concact of both challenge
        * when it's NTLM v1 + extended security but it turns out to be wrong !
        */
-      memcpy(keyexchangekey,sessionbasekey,16);
+      memcpy(keyexchangekey,sessionbasekey,NTLMSSP_KEY_LEN);
     }
   }
 }
@@ -438,7 +441,7 @@ get_md4pass_list(md4_pass** p_pass_list,const char* nt_password)
 	
 	guint32 nb_pass = 0;
 	enc_key_t *ek;
-	unsigned char nt_password_hash[16];
+	unsigned char nt_password_hash[NTLMSSP_KEY_LEN];
 	int password_len = 0;
 	char nt_password_unicode[256];
 	md4_pass* pass_list;
@@ -450,11 +453,11 @@ get_md4pass_list(md4_pass** p_pass_list,const char* nt_password)
 	read_keytab_file_from_preferences();
 
 	for(ek=enc_key_list;ek;ek=ek->next){
-		if( ek->keylength == 16 ) {
+		if( ek->keylength == NTLMSSP_KEY_LEN ) {
 			nb_pass++;
 		}
 	}
-	memset(nt_password_hash,0,16);
+	memset(nt_password_hash,0,NTLMSSP_KEY_LEN);
 	if (nt_password[0] != '\0' && ( strlen(nt_password) < 129 )) {
 		nb_pass++;
 		password_len = strlen(nt_password);
@@ -469,13 +472,13 @@ get_md4pass_list(md4_pass** p_pass_list,const char* nt_password)
 	*p_pass_list = ep_alloc(nb_pass*sizeof(md4_pass));
 	pass_list=*p_pass_list;
 
-	if( memcmp(nt_password_hash,zeros,16) != 0 ) {
-		memcpy(pass_list[i].md4,nt_password_hash,16);
+	if( memcmp(nt_password_hash,zeros,NTLMSSP_KEY_LEN) != 0 ) {
+		memcpy(pass_list[i].md4,nt_password_hash,NTLMSSP_KEY_LEN);
 		i = 1;
 	}
 	for(ek=enc_key_list;ek;ek=ek->next){
-		if( ek->keylength == 16 ) {
-			memcpy(pass_list[i].md4,ek->keyvalue,16);
+		if( ek->keylength == NTLMSSP_KEY_LEN ) {
+			memcpy(pass_list[i].md4,ek->keyvalue,NTLMSSP_KEY_LEN);
 			i++;
 		}
 	}
@@ -490,12 +493,12 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
   char domain_name_unicode[256];
   char user_uppercase[256];
   char buf[512];
-  /*guint8 md4[16];*/
-  unsigned char nt_password_hash[16];
-  unsigned char nt_proof[16];
-  unsigned char ntowf[16];
-  guint8 sessionbasekey[16];
-  guint8 keyexchangekey[16];
+  /*guint8 md4[NTLMSSP_KEY_LEN];*/
+  unsigned char nt_password_hash[NTLMSSP_KEY_LEN];
+  unsigned char nt_proof[NTLMSSP_KEY_LEN];
+  unsigned char ntowf[NTLMSSP_KEY_LEN];
+  guint8 sessionbasekey[NTLMSSP_KEY_LEN];
+  guint8 keyexchangekey[NTLMSSP_KEY_LEN];
   guint8 lm_challenge_response[24];
   guint32 i;
   guint32 j;
@@ -509,7 +512,7 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
   /* We are going to try password encrypted in keytab as well, it's an idean of Stefan Metzmacher <metze@samba.org>
    * The idea is to be able to test all the key of domain in once and to be able to decode the NTLM dialogs */
 
-  memset(sessionkey, 0, 16);
+  memset(sessionkey, 0, NTLMSSP_KEY_LEN);
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
   nb_pass = get_md4pass_list(&pass_list,nt_password);
 #endif
@@ -539,29 +542,29 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
   }
   while (i < nb_pass ) {
     /*fprintf(stderr,"Turn %d, ",i);*/
-    memcpy(nt_password_hash,pass_list[i].md4,16);
-    /*printnbyte(nt_password_hash,16,"Current NT password hash: ","\n");*/
+    memcpy(nt_password_hash,pass_list[i].md4,NTLMSSP_KEY_LEN);
+    /*printnbyte(nt_password_hash,NTLMSSP_KEY_LEN,"Current NT password hash: ","\n");*/
     i++;
     /* ntowf computation */
     memset(buf,0,512);
     memcpy(buf,user_uppercase,user_len*2);
     memcpy(buf+user_len*2,domain_name_unicode,domain_len*2);
-    md5_hmac(buf,domain_len*2+user_len*2,nt_password_hash,16,ntowf);
+    md5_hmac(buf,domain_len*2+user_len*2,nt_password_hash,NTLMSSP_KEY_LEN,ntowf);
     /* LM response */
     memset(buf,0,512);
     memcpy(buf,serverchallenge,8);
     memcpy(buf+8,clientchallenge,8);
-    md5_hmac(buf,16,ntowf,16,lm_challenge_response);
-    memcpy(lm_challenge_response+16,clientchallenge,8);
+    md5_hmac(buf,NTLMSSP_KEY_LEN,ntowf,NTLMSSP_KEY_LEN,lm_challenge_response);
+    memcpy(lm_challenge_response+NTLMSSP_KEY_LEN,clientchallenge,8);
     printnbyte(lm_challenge_response,24,"LM Response: ","\n");
 
-    /* NT proof = First 16 bytes of NT response */
+    /* NT proof = First NTLMSSP_KEY_LEN bytes of NT response */
     memset(buf,0,512);
     memcpy(buf,serverchallenge,8);
-    memcpy(buf+8,ntlm_response.contents+16,ntlm_response.length-16);
-    md5_hmac(buf,ntlm_response.length-8,ntowf,16,nt_proof);
-    printnbyte(nt_proof,16,"NT proof: ","\n");
-    if( !memcmp(nt_proof,ntlm_response.contents,16) ) {
+    memcpy(buf+8,ntlm_response.contents+NTLMSSP_KEY_LEN,ntlm_response.length-NTLMSSP_KEY_LEN);
+    md5_hmac(buf,ntlm_response.length-8,ntowf,NTLMSSP_KEY_LEN,nt_proof);
+    printnbyte(nt_proof,NTLMSSP_KEY_LEN,"NT proof: ","\n");
+    if( !memcmp(nt_proof,ntlm_response.contents,NTLMSSP_KEY_LEN) ) {
       found = 1;
       break;
     }
@@ -572,18 +575,18 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
     return;
   }
 
-  md5_hmac(nt_proof,16,ntowf,16,sessionbasekey);
+  md5_hmac(nt_proof,NTLMSSP_KEY_LEN,ntowf,NTLMSSP_KEY_LEN,sessionbasekey);
   get_keyexchange_key(keyexchangekey,sessionbasekey,lm_challenge_response,flags);
   /* now decrypt session key if needed and setup sessionkey for decrypting further communications */
   if (flags & NTLMSSP_NEGOTIATE_KEY_EXCH)
   {
-    memcpy(sessionkey,encryptedsessionkey,16);
-    crypt_rc4_init(&rc4state,keyexchangekey,16);
-    crypt_rc4(&rc4state,sessionkey,16);
+    memcpy(sessionkey,encryptedsessionkey,NTLMSSP_KEY_LEN);
+    crypt_rc4_init(&rc4state,keyexchangekey,NTLMSSP_KEY_LEN);
+    crypt_rc4(&rc4state,sessionkey,NTLMSSP_KEY_LEN);
   }
   else
   {
-    memcpy(sessionkey,keyexchangekey,16);
+    memcpy(sessionkey,keyexchangekey,NTLMSSP_KEY_LEN);
   }
 
 }
@@ -596,16 +599,16 @@ static void
 create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, const guint8 *clientchallenge,
 		      guint8 *sessionkey,const  guint8 *encryptedsessionkey, int flags, const guint8 *ref_nt_challenge_response,const guint8 *ref_lm_challenge_response)
 {
-  unsigned char lm_password_upper[16];
-  unsigned char lm_password_hash[16];
-  unsigned char nt_password_hash[16];
-  unsigned char challenges_hash[16];
+  unsigned char lm_password_upper[NTLMSSP_KEY_LEN];
+  unsigned char lm_password_hash[NTLMSSP_KEY_LEN];
+  unsigned char nt_password_hash[NTLMSSP_KEY_LEN];
+  unsigned char challenges_hash[NTLMSSP_KEY_LEN];
   unsigned char challenges_hash_first8[8];
-  unsigned char challenges[16];
-  guint8 md4[16];
+  unsigned char challenges[NTLMSSP_KEY_LEN];
+  guint8 md4[NTLMSSP_KEY_LEN];
   guint8 nb_pass = 0;
-  guint8 sessionbasekey[16];
-  guint8 keyexchangekey[16];
+  guint8 sessionbasekey[NTLMSSP_KEY_LEN];
+  guint8 keyexchangekey[NTLMSSP_KEY_LEN];
   guint8 lm_challenge_response[24];
   guint8 nt_challenge_response[24];
   rc4_state_struct rc4state;
@@ -618,7 +621,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
   unsigned char lmhash_key[] =
     {0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25};
 
-  memset(sessionkey, 0, 16);
+  memset(sessionkey, 0, NTLMSSP_KEY_LEN);
   memset(lm_password_upper, 0, sizeof(lm_password_upper));
   /* lm auth/lm session == (!NTLM_NEGOTIATE_NT_ONLY && NTLMSSP_NEGOTIATE_LM_KEY) || ! (EXTENDED_SECURITY) || ! NTLMSSP_NEGOTIATE_NTLM*/
   /* Create a Lan Manager hash of the input password */
@@ -628,8 +631,8 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
     str_to_unicode(nt_password,nt_password_unicode);
     crypt_md4(nt_password_hash,nt_password_unicode,password_len*2);
     /* Truncate password if too long */
-    if (password_len > 16)
-      password_len = 16;
+    if (password_len > NTLMSSP_KEY_LEN)
+      password_len = NTLMSSP_KEY_LEN;
     for (i = 0; i < password_len; i++) {
       lm_password_upper[i] = toupper(nt_password[i]);
     }
@@ -646,7 +649,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
     crypt_des_ecb(lm_password_hash+8, lmhash_key, lm_password_upper+7, 1);
     ntlmssp_generate_challenge_response(lm_challenge_response,
 				      lm_password_hash, serverchallenge);
-    memcpy(sessionbasekey,lm_password_hash,16);
+    memcpy(sessionbasekey,lm_password_hash,NTLMSSP_KEY_LEN);
   }
   else {
 
@@ -658,8 +661,8 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
       i=0;
       while (i < nb_pass ) {
         /*fprintf(stderr,"Turn %d, ",i);*/
-        memcpy(nt_password_hash,pass_list[i].md4,16);
-        /*printnbyte(nt_password_hash,16,"Current NT password hash: ","\n");*/
+        memcpy(nt_password_hash,pass_list[i].md4,NTLMSSP_KEY_LEN);
+        /*printnbyte(nt_password_hash,NTLMSSP_KEY_LEN,"Current NT password hash: ","\n");*/
         i++;
         memcpy(lm_challenge_response,clientchallenge,8);
         md5_init(&md5state);
@@ -689,15 +692,15 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
     /* So it's clearly not like this that's put into NTLMSSP doc but after some digging into samba code I'm quite confident
      * that sessionbasekey should be based md4(nt_password_hash) only in the case of some NT auth
      * Otherwise it should be lm_password_hash ...*/
-    crypt_md4(md4,nt_password_hash,16);
+    crypt_md4(md4,nt_password_hash,NTLMSSP_KEY_LEN);
     if (flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY) {
      memcpy(challenges,serverchallenge,8);
      memcpy(challenges+8,clientchallenge,8);
      /*md5_hmac(text,text_len,key,key_len,digest);*/
-     md5_hmac(challenges,16,md4,16,sessionbasekey);
+     md5_hmac(challenges,NTLMSSP_KEY_LEN,md4,NTLMSSP_KEY_LEN,sessionbasekey);
     }
     else {
-     memcpy(sessionbasekey,md4,16);
+     memcpy(sessionbasekey,md4,NTLMSSP_KEY_LEN);
     }
   }
 
@@ -707,28 +710,28 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
 
 
   get_keyexchange_key(keyexchangekey,sessionbasekey,lm_challenge_response,flags);
-  memset(sessionkey, 0, 16);
+  memset(sessionkey, 0, NTLMSSP_KEY_LEN);
   /*printnbyte(nt_challenge_response,24,"NT challenge response","\n");
   printnbyte(lm_challenge_response,24,"LM challenge response","\n");*/
   /* now decrypt session key if needed and setup sessionkey for decrypting further communications */
   if (flags & NTLMSSP_NEGOTIATE_KEY_EXCH)
   {
-    memcpy(sessionkey,encryptedsessionkey,16);
-    crypt_rc4_init(&rc4state,keyexchangekey,16);
-    crypt_rc4(&rc4state,sessionkey,16);
+    memcpy(sessionkey,encryptedsessionkey,NTLMSSP_KEY_LEN);
+    crypt_rc4_init(&rc4state,keyexchangekey,NTLMSSP_KEY_LEN);
+    crypt_rc4(&rc4state,sessionkey,NTLMSSP_KEY_LEN);
   }
   else
   {
-    memcpy(sessionkey,keyexchangekey,16);
+    memcpy(sessionkey,keyexchangekey,NTLMSSP_KEY_LEN);
   }
 }
 static void
-get_siging_key(guint8 *sign_key_server,guint8* sign_key_client,const guint8 key[16], int keylen)
+get_siging_key(guint8 *sign_key_server,guint8* sign_key_client,const guint8 key[NTLMSSP_KEY_LEN], int keylen)
 {
   md5_state_t md5state;
   md5_state_t md5state2;
-  memset(sign_key_client,0,16);
-  memset(sign_key_server,0,16);
+  memset(sign_key_client,0,NTLMSSP_KEY_LEN);
+  memset(sign_key_server,0,NTLMSSP_KEY_LEN);
   md5_init(&md5state);
   md5_append(&md5state,key,keylen);
   md5_append(&md5state,CLIENT_SIGN_TEXT,strlen(CLIENT_SIGN_TEXT)+1);
@@ -743,13 +746,13 @@ get_siging_key(guint8 *sign_key_server,guint8* sign_key_client,const guint8 key[
 /* We return either a 128 or 64 bit key
  */
 static void
-get_sealing_rc4key(const guint8 exportedsessionkey[16] ,const int flags ,int *keylen ,guint8 *clientsealkey ,guint8 *serversealkey)
+get_sealing_rc4key(const guint8 exportedsessionkey[NTLMSSP_KEY_LEN] ,const int flags ,int *keylen ,guint8 *clientsealkey ,guint8 *serversealkey)
 {
   md5_state_t md5state;
   md5_state_t md5state2;
-  memset(clientsealkey,0,16);
-  memset(serversealkey,0,16);
-  memcpy(clientsealkey,exportedsessionkey,16);
+  memset(clientsealkey,0,NTLMSSP_KEY_LEN);
+  memset(serversealkey,0,NTLMSSP_KEY_LEN);
+  memcpy(clientsealkey,exportedsessionkey,NTLMSSP_KEY_LEN);
   if (flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY)
   {
     if (flags & NTLMSSP_NEGOTIATE_128)
@@ -770,7 +773,7 @@ get_sealing_rc4key(const guint8 exportedsessionkey[16] ,const int flags ,int *ke
         *keylen = 5;
       }
     }
-    memcpy(serversealkey,clientsealkey,16);
+    memcpy(serversealkey,clientsealkey,NTLMSSP_KEY_LEN);
     md5_init(&md5state);
     md5_append(&md5state,clientsealkey,*keylen);
     md5_append(&md5state,CLIENT_SEAL_TEXT,strlen(CLIENT_SEAL_TEXT)+1);
@@ -809,7 +812,7 @@ get_sealing_rc4key(const guint8 exportedsessionkey[16] ,const int flags ,int *ke
  * password points to the ANSI password to encrypt, challenge points to
  * the 8 octet challenge string, key128 will do a 128 bit key if set to 1,
  * otherwise it will do a 40 bit key.  The result is stored in
- * sspkey (expected to be 16 octets)
+ * sspkey (expected to be NTLMSSP_KEY_LEN octets)
  */
 /* dissect a string - header area contains:
      two byte len
@@ -920,7 +923,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
     if (blob_length < MAX_BLOB_SIZE)
     {
       tvb_memcpy(tvb, result->contents, blob_offset, blob_length);
-      if (blob_hf == hf_ntlmssp_auth_lmresponse && !(memcmp(tvb->real_data+blob_offset+8,"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",16)))
+      if (blob_hf == hf_ntlmssp_auth_lmresponse && !(memcmp(tvb->real_data+blob_offset+8,"\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0",NTLMSSP_KEY_LEN)))
       {
         proto_tree_add_item (ntlmssp_tree,
 		       hf_ntlmssp_ntlm_client_challenge,
@@ -1397,14 +1400,14 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   guint32 negotiate_flags;
   int item_start, item_end;
   int data_start, data_end;
-  guint8 clientkey[16]; /* NTLMSSP cipher key for client */
-  guint8 serverkey[16]; /* NTLMSSP cipher key for server*/
+  guint8 clientkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key for client */
+  guint8 serverkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key for server*/
   ntlmssp_info *conv_ntlmssp_info = NULL;
   conversation_t *conversation;
   gboolean unicode_strings = FALSE;
   guint8 challenge[8];
   guint8 tmp[8];
-  guint8 sspkey[16]; /* NTLMSSP cipher key */
+  guint8 sspkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key */
   int ssp_key_len; /* Either 8 or 16 (40 bit or 128) */
 
   /* need to find unicode flag */
@@ -1464,7 +1467,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     {
       conv_ntlmssp_info->rc4_state_initialized = 0;
       create_ntlmssp_v1_key(nt_password, conv_ntlmssp_info->server_challenge,NULL, sspkey,NULL,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response.contents,conv_ntlmssp_info->lm_response.contents);
-      if( memcmp(sspkey,zeros,16) != 0 ) {
+      if( memcmp(sspkey,zeros,NTLMSSP_KEY_LEN) != 0 ) {
         get_sealing_rc4key(sspkey,conv_ntlmssp_info->flags,&ssp_key_len,clientkey,serverkey);
         crypt_rc4_init(&conv_ntlmssp_info->rc4_state_client, sspkey, ssp_key_len);
         crypt_rc4_init(&conv_ntlmssp_info->rc4_state_server, sspkey, ssp_key_len);
@@ -1519,10 +1522,10 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   int item_start, item_end;
   int data_start, data_end = 0;
   guint32 negotiate_flags;
-  guint8 sspkey[16]; /* exported session key */
-  guint8 clientkey[16]; /* NTLMSSP cipher key for client */
-  guint8 serverkey[16]; /* NTLMSSP cipher key for server*/
-  guint8 encryptedsessionkey[16];
+  guint8 sspkey[NTLMSSP_KEY_LEN]; /* exported session key */
+  guint8 clientkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key for client */
+  guint8 serverkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key for server*/
+  guint8 encryptedsessionkey[NTLMSSP_KEY_LEN];
   ntlmssp_blob sessionblob;
   gboolean unicode_strings = FALSE;
   ntlmssp_info *conv_ntlmssp_info = NULL;
@@ -1659,7 +1662,9 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 				  &item_end, &sessionblob);
     data_end = MAX(data_end, item_end);
   }
-  if( sessionblob.length != 0 ) {
+  if ( sessionblob.length > NTLMSSP_KEY_LEN ) {
+    expert_add_info_format(pinfo, NULL, PI_WARN, PI_UNDECODED, "Session blob length too long: %u", sessionblob.length);
+  } else if( sessionblob.length != 0 ) {
     memcpy(encryptedsessionkey,sessionblob.contents,sessionblob.length);
     if (offset < data_start) {
       /* NTLMSSP Negotiate Flags */
@@ -1684,7 +1689,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
           create_ntlmssp_v1_key(nt_password, conv_ntlmssp_info->server_challenge,conv_ntlmssp_info->client_challenge, sspkey,encryptedsessionkey,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response.contents,conv_ntlmssp_info->lm_response.contents);
         }
         /* ssp is the exported session key */
-        if( memcmp(sspkey,zeros,16) != 0) {
+        if( memcmp(sspkey,zeros,NTLMSSP_KEY_LEN) != 0) {
           get_sealing_rc4key(sspkey,conv_ntlmssp_info->flags,&ssp_key_len,clientkey,serverkey);
           get_siging_key((guint8*)&conv_ntlmssp_info->sign_key_server,(guint8*)&conv_ntlmssp_info->sign_key_client,sspkey,ssp_key_len);
           crypt_rc4_init(&conv_ntlmssp_info->rc4_state_server, serverkey, ssp_key_len);
@@ -1793,7 +1798,7 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   proto_item *tf = NULL;
   guint32 length;
   guint32 encrypted_block_length;
-  guint8 key[16];
+  guint8 key[NTLMSSP_KEY_LEN];
   /* the magic ntlm is the identifier of a NTLMSSP packet that's 00 00 00 01
    */
   guint32 ntlm_magic_size = 4;
@@ -1901,7 +1906,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
     }
     if( stored_packet_ntlmssp_info != NULL && stored_packet_ntlmssp_info->payload_decrypted == TRUE)
     {
-      /* Mat TBD fprintf(stderr,"Found a already decrypted packet\n");*/
+      /* Mat TBD (stderr,"Found a already decrypted packet\n");*/
       memcpy(packet_ntlmssp_info,stored_packet_ntlmssp_info,sizeof(ntlmssp_packet_info));
       /* Mat TBD printnbyte(packet_ntlmssp_info->decrypted_payload,encrypted_block_length,"Data: ","\n");*/
     }
@@ -2064,7 +2069,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   tvbuff_t *decr_tvb; /* Used to display decrypted buffer */
   guint8 *peer_block;
   guint8 *check_buf;
-  guint8 calculated_md5[16];
+  guint8 calculated_md5[NTLMSSP_KEY_LEN];
   ntlmssp_info *conv_ntlmssp_info = NULL;
   ntlmssp_packet_info *packet_ntlmssp_info = NULL;
   int decrypted_offset = 0;
@@ -2145,7 +2150,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
           tvb_memcpy(tvb, &sequence,offset+8,4);
           memcpy(check_buf,&sequence,4);
           memcpy(check_buf+4,packet_ntlmssp_info->decrypted_payload,packet_ntlmssp_info->payload_len);
-          md5_hmac(check_buf,(int)(packet_ntlmssp_info->payload_len+4),sign_key,16,calculated_md5);
+          md5_hmac(check_buf,(int)(packet_ntlmssp_info->payload_len+4),sign_key,NTLMSSP_KEY_LEN,calculated_md5);
           /*
           printnbyte(packet_ntlmssp_info->verifier,8,"HMAC from packet: ","\n");
           printnbyte(calculated_md5,8,"HMAC            : ","\n");
@@ -2447,7 +2452,7 @@ free_payload(gpointer decrypted_payload, gpointer user_data _U_)
 }
 
 guint g_header_hash(gconstpointer pointer) {
-  guint32 crc =  ~crc32c_calculate(pointer,16,CRC32C_PRELOAD);
+  guint32 crc =  ~crc32c_calculate(pointer,NTLMSSP_KEY_LEN,CRC32C_PRELOAD);
   /* Mat TBD fprintf(stderr,"Val: %u\n",crc);*/
   return crc;
 }
@@ -2793,3 +2798,16 @@ proto_reg_handoff_ntlmssp(void)
 				    &ntlmssp_seal_fns);
   ntlmssp_tap = register_tap("ntlmssp");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
