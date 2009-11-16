@@ -1344,6 +1344,15 @@ static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_lte_info  *p_p
                     break;
             }
             break;
+        case Channel_DCCH:
+            if (p_pdcp_info->direction == DIRECTION_UPLINK) {
+                rrc_handle = find_dissector("lte-rrc.ul.dcch");
+            }
+            else {
+                rrc_handle = find_dissector("lte-rrc.dl.dcch");
+            }
+            break;
+
 
         default:
             break;

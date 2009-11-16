@@ -34,6 +34,7 @@
 #include <epan/prefs.h>
 
 #include "packet-rlc-lte.h"
+#include "packet-pdcp-lte.h"
 
 
 /* Described in:
@@ -49,6 +50,9 @@
 /* By default try to analyse the sequence of messages for UM channels */
 static gboolean global_rlc_lte_sequence_analysis = TRUE;
 
+/* By default don't call PDCP/RRC dissectors for SDU data */
+static gboolean global_rlc_lte_call_pdcp = FALSE;
+static gboolean global_rlc_lte_call_rrc = FALSE;
 
 
 /* Initialize the protocol and registered fields. */
@@ -230,6 +234,8 @@ static const value_string am_e2_vals[] =
 };
 
 
+extern int proto_pdcp_lte;
+
 
 /**********************************************************************************/
 /* These are for keeping track of UM/AM extension headers, and the lengths found  */
@@ -332,6 +338,51 @@ static void show_PDU_in_info(packet_info *pinfo,
                           (last_includes_end) ? "]" : "..");
 }
 
+
+static void show_AM_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
+                                rlc_lte_info *rlc_info)
+{
+    proto_item *data_ti = proto_tree_add_item(tree, hf_rlc_lte_am_data, tvb, offset, length, FALSE);
+
+    /* Decode signalling PDUs as PDCP */
+    if (global_rlc_lte_call_pdcp) {
+        if ((rlc_info->channelType == CHANNEL_TYPE_SRB) && (rlc_info->channelId == 1)) {
+            /* Attempt to decode payload using LTE PDCP dissector */
+            tvbuff_t *pdcp_tvb = tvb_new_subset(tvb, offset, length, length);
+            volatile dissector_handle_t protocol_handle;
+
+            struct pdcp_lte_info *p_pdcp_lte_info;
+
+            /* Allocate & zero struct */
+            p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
+            if (p_pdcp_lte_info == NULL) {
+                return;
+            }
+
+            p_pdcp_lte_info->channelType = Channel_DCCH;
+            p_pdcp_lte_info->direction = rlc_info->direction;
+            p_pdcp_lte_info->no_header_pdu = FALSE;
+            p_pdcp_lte_info->plane = SIGNALING_PLANE;
+
+            p_pdcp_lte_info->rohc_compression = FALSE;
+
+            /* Store info in packet */
+            p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
+
+            /* Get dissector handle */
+            protocol_handle = find_dissector("pdcp-lte");
+
+            TRY {
+                call_dissector_only(protocol_handle, pdcp_tvb, pinfo, tree);
+            }
+            CATCH_ALL {
+            }
+            ENDTRY
+
+            PROTO_ITEM_SET_HIDDEN(data_ti);
+        }
+    }
+}
 
 
 /*********************************************************************/
@@ -603,6 +654,59 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
 
 
+/***************************************************/
+/* Unacknowledged mode PDU                         */
+static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
+                               proto_tree *tree,
+                               int offset,
+                               rlc_lte_info *p_rlc_lte_info,
+                               proto_item *top_ti _U_)
+{
+    proto_item *raw_tm_ti;
+
+    /* Remaining bytes are all data */
+    raw_tm_ti = proto_tree_add_item(tree, hf_rlc_lte_tm_data, tvb, offset, -1, FALSE);
+    if (!global_rlc_lte_call_rrc) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "   [%u-bytes]",
+                        tvb_length_remaining(tvb, offset));
+    }
+
+    if (global_rlc_lte_call_rrc) {
+        tvbuff_t *rrc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+        volatile dissector_handle_t protocol_handle = 0;
+
+        switch (p_rlc_lte_info->channelType) {
+            case CHANNEL_TYPE_CCCH:
+                if (p_rlc_lte_info->direction == DIRECTION_UPLINK) {
+                    protocol_handle = find_dissector("lte-rrc.ul.ccch");
+                }
+                else {
+                    protocol_handle = find_dissector("lte-rrc.dl.ccch");
+                }
+                break;
+
+            case CHANNEL_TYPE_BCCH:
+                /* TODO: */
+                return;
+
+            case CHANNEL_TYPE_PCCH:
+                protocol_handle = find_dissector("lte-rrc.pcch");
+                break;
+        }
+
+        /* Hide raw view of bytes */
+        PROTO_ITEM_SET_HIDDEN(raw_tm_ti);
+
+        /* Call it (catch exceptions) */
+        TRY {
+            call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
+        }
+        CATCH_ALL {
+        }
+        ENDTRY
+    }
+}
+
 
 
 /***************************************************/
@@ -871,7 +975,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree,
                                int offset,
-                               rlc_lte_info *p_rlc_lte_info _U_,
+                               rlc_lte_info *p_rlc_lte_info,
                                proto_item *top_ti)
 {
     guint8 is_data;
@@ -996,7 +1100,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         /* Show each data segment separately */
         int n;
         for (n=0; n < s_number_of_extensions; n++) {
-            proto_tree_add_item(tree, hf_rlc_lte_am_data, tvb, offset, s_lengths[n], FALSE);
+            show_AM_PDU_in_tree(pinfo, tree, tvb, offset, s_lengths[n], p_rlc_lte_info);
             show_PDU_in_info(pinfo, top_ti, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
@@ -1007,7 +1111,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Final data element */
     if (tvb_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_item(tree, hf_rlc_lte_am_data, tvb, offset, -1, FALSE);
+        show_AM_PDU_in_tree(pinfo, tree, tvb, offset, -1, p_rlc_lte_info);
         show_PDU_in_info(pinfo, top_ti, (guint16)tvb_length_remaining(tvb, offset),
                          (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                          last_includes_end);
@@ -1140,10 +1244,7 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (p_rlc_lte_info->rlcMode) {
 
         case RLC_TM_MODE:
-            /* Remaining bytes are all data */
-            proto_tree_add_item(rlc_lte_tree, hf_rlc_lte_tm_data, tvb, offset, -1, FALSE);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "   [%u-bytes]",
-                            tvb_length_remaining(tvb, offset));
+            dissect_rlc_lte_tm(tvb, pinfo, rlc_lte_tree, offset, p_rlc_lte_info, top_ti);
             break;
 
         case RLC_UM_MODE:
@@ -1486,6 +1587,18 @@ void proto_register_rlc_lte(void)
         "Do sequence analysis for UM channels",
         "Attempt to keep track of PDUs for UM channels, and point out problems",
         &global_rlc_lte_sequence_analysis);
+
+    prefs_register_bool_preference(rlc_lte_module, "call_pdcp_for_srb",
+        "Call PDCP dissector for SRB PDUs",
+        "Call PDCP dissector for signalling PDUs.  Note that without reassembly, it can"
+        "only be called for complete PDus (i.e. not segmented over RLC)",
+        &global_rlc_lte_call_pdcp);
+
+    prefs_register_bool_preference(rlc_lte_module, "call_rrc_for_ccch",
+        "Call RRC dissector for CCCH PDUs",
+        "Call RRC dissector for CCCH PDUs",
+        &global_rlc_lte_call_rrc);
+
 
     register_init_routine(&rlc_lte_init_protocol);
 }
