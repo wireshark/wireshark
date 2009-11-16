@@ -790,8 +790,11 @@ static void voip_calls_dlg_create (void)
 	gtk_tooltips_set_tip (tooltips, bt_player, "Launch the RTP player to listen the selected calls.", NULL);
 #endif /* HAVE_LIBPORTAUDIO */
 
-	/*bt_select_all = gtk_button_new_with_label("Select All");*/
-        bt_select_all = gtk_button_new_from_stock(GTK_STOCK_SELECT_ALL);
+#if GTK_CHECK_VERSION(2,10,0)
+    bt_select_all = gtk_button_new_from_stock(GTK_STOCK_SELECT_ALL);
+#else
+	bt_select_all = gtk_button_new_with_label("Select All");
+#endif
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_select_all);
 	GTK_WIDGET_SET_FLAGS(bt_select_all, GTK_CAN_DEFAULT);
 	gtk_tooltips_set_tip (tooltips, bt_select_all, "Select all the calls", NULL);
