@@ -4361,7 +4361,7 @@ de_rr_bsic_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_octets
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_frequency_scrolling, tvb, curr_bit_offset, 1, FALSE);
         curr_bit_offset += 1;
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bsic, tvb, bit_offset, 6, FALSE);
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bsic, tvb, curr_bit_offset, 6, FALSE);
         curr_bit_offset += 6;
         idx -= 1;
     }
