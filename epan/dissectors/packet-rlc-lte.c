@@ -340,12 +340,13 @@ static void show_PDU_in_info(packet_info *pinfo,
 
 
 static void show_AM_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
-                                rlc_lte_info *rlc_info)
+                                rlc_lte_info *rlc_info, gboolean whole_pdu)
 {
     proto_item *data_ti = proto_tree_add_item(tree, hf_rlc_lte_am_data, tvb, offset, length, FALSE);
 
     /* Decode signalling PDUs as PDCP */
-    if (global_rlc_lte_call_pdcp) {
+    if (global_rlc_lte_call_pdcp && whole_pdu) {
+        /* TODO: remove channelId == 1 test to do NAS channel too? */
         if ((rlc_info->channelType == CHANNEL_TYPE_SRB) && (rlc_info->channelId == 1)) {
             /* Attempt to decode payload using LTE PDCP dissector */
             tvbuff_t *pdcp_tvb = tvb_new_subset(tvb, offset, length, length);
@@ -1100,7 +1101,8 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         /* Show each data segment separately */
         int n;
         for (n=0; n < s_number_of_extensions; n++) {
-            show_AM_PDU_in_tree(pinfo, tree, tvb, offset, s_lengths[n], p_rlc_lte_info);
+            show_AM_PDU_in_tree(pinfo, tree, tvb, offset, s_lengths[n], p_rlc_lte_info,
+                                first_includes_start && last_includes_end);
             show_PDU_in_info(pinfo, top_ti, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
@@ -1111,13 +1113,14 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Final data element */
     if (tvb_length_remaining(tvb, offset) > 0) {
-        show_AM_PDU_in_tree(pinfo, tree, tvb, offset, -1, p_rlc_lte_info);
+        show_AM_PDU_in_tree(pinfo, tree, tvb, offset, -1, p_rlc_lte_info,
+                            first_includes_start && last_includes_end);
         show_PDU_in_info(pinfo, top_ti, (guint16)tvb_length_remaining(tvb, offset),
                          (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                          last_includes_end);
     }
     else {
-        expert_add_info_format(pinfo, am_header_ti, PI_MALFORMED, PI_WARN,
+        expert_add_info_format(pinfo, am_header_ti, PI_MALFORMED, PI_ERROR,
                                "AM data PDU doesn't contain any data");
 
     }
