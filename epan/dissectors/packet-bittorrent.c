@@ -169,27 +169,95 @@ static gboolean decode_client_information = FALSE;
 
 struct client_information {
    char id[4];
+   char ver_len;
    const char *name;
 };
 
 static struct client_information peer_id[] = {
-   {"-AZ", "Azureus"},
-   {"-BB", "BitBuddy"},
-   {"-CT", "CTorrent"},
-   {"-MT", "MoonlightTorrent"},
-   {"-LT", "libtorrent"},
-   {"-BX", "Bittorrent X"},
-   {"-TS", "Torrentstorm"},
-   {"-TN", "TorrentDotNET"},
-   {"-SS", "SwarmScope"},
-   {"-XT", "XanTorrent"},
-   {"-BS", "BTSlave"},
-   {"-ZT", "ZipTorrent"},
-   {"S",   "Shadow's client"},
-   {"U",   "UPnP NAT Bit Torrent"},
-   {"T",   "BitTornado"},
-   {"A",   "ABC"},
-   {"",    NULL}
+   {"-AG",  4, "Ares"},
+   {"-A~",  4, "Ares"},
+   {"-AR",  4, "Arctic"},
+   {"-AT",  4, "Artemis"},
+   {"-AV",  4, "Avicora"},
+   {"-AX",  4, "BitPump"},
+   {"-AZ",  4, "Azureus"},
+   {"-BB",  4, "BitBuddy"},
+   {"-BC",  4, "BitComet"},
+   {"-BF",  4, "Bitflu"},
+   {"-BG",  4, "BTG (uses Rasterbar libtorrent)"},
+   {"-BOW", 3, "Bits on Wheels"},
+   {"-BP",  4, "BitTorrent Pro (Azereus + spyware)"},
+   {"-BR",  4, "BitRocket"},
+   {"-BS",  4, "BTSlave"},
+   {"-BW",  4, "BitWombat"},
+   {"-BX",  4, "Bittorrent X"},
+   {"-CD",  4, "Enhanced CTorrent"},
+   {"-CT",  4, "CTorrent"},
+   {"-DE",  4, "DelugeTorrent"},
+   {"-DP",  4, "Propagate Data Client"},
+   {"-EB",  4, "EBit"},
+   {"-ES",  4, "electric sheep"},
+   {"-FC",  4, "FileCroc"},
+   {"-FG",  4, "FlashGet"},
+   {"-FT",  4, "FoxTorrent"},
+   {"-GS",  4, "GSTorrent"},
+   {"-HK",  4, "Hekate"},
+   {"-HL",  4, "Halite"},
+   {"-HN",  4, "Hydranode"},
+   {"-KG",  4, "KGet"},
+   {"-KT",  4, "KTorrent"},
+   {"-LC",  4, "LeechCraft"},
+   {"-LH",  4, "LH-ABC"},
+   {"-LP",  4, "Lphant"},
+   {"-LT",  4, "libtorrent"},
+   {"-lt",  4, "libTorrent"},
+   {"-LW",  4, "LimeWire"},
+   {"-MO",  4, "MonoTorrent"},
+   {"-MP",  4, "MooPolice"},
+   {"-MR",  4, "Miro"},
+   {"-MT",  4, "MoonlightTorrent"},
+   {"-NE",  4, "BT Next Evolution"},
+   {"-NX",  4, "Net Transport"},
+   {"-OS",  4, "OneSwarm"},
+   {"-OT",  4, "OmegaTorrent"},
+   {"-PD",  4, "Pando"},
+   {"-qB",  4, "qBittorrent"},
+   {"-QD",  4, "QQDownload"},
+   {"-QT",  4, "Qt 4 Torrent example"},
+   {"-RT",  4, "Retriever"},
+   {"-S~",  4, "Shareaza alpha/beta"},
+   {"-SB",  4, "Swiftbit"},
+   {"-SD",  4, "Thunder (aka XunLei)"},
+   {"-SS",  4, "SwarmScope"},
+   {"-ST",  4, "SymTorrent"},
+   {"-st",  4, "sharktorrent"},
+   {"-SZ",  4, "Shareaza"},
+   {"-TN",  4, "TorrentDotNET"},
+   {"-TR",  4, "Transmission"},
+   {"-TS",  4, "Torrentstorm"},
+   {"-TT",  4, "TuoTu"},
+   {"-UL",  4, "uLeecher!"},
+   {"-UM",  4, "(my)Torrent for Mac"},
+   {"-UT",  4, "(my)Torrent"},
+   {"-VG",  4, "Vagaa"},
+   {"-WT",  4, "BitLet"},
+   {"-WY",  4, "FireTorrent"},
+   {"-XL",  4, "Xunlei"},
+   {"-XT",  4, "XanTorrent"},
+   {"-XX",  4, "Xtorrent"},
+   {"-ZT",  4, "ZipTorrent"},
+   {"exbc", 2, "BitComet"},
+   {"OP",   4, "Opera"},
+   {"QVOD", 4, "Qvod"},
+   {"XBT",  3, "XBT Client"},
+   {"A",    3, "ABC"},
+   {"O",    3, "Osprey Permaseed"},
+   {"Q",    3, "BTQueue"},
+   {"R",    3, "Tribler"},
+   {"S",    3, "Shadow's client"},
+   {"T",    3, "BitTornado"},
+   {"U",    3, "UPnP NAT Bit Torrent"},
+   {"",     0, NULL}
 };
 
 static guint get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -696,14 +764,11 @@ static void dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, p
       for(i = 0; peer_id[i].id[0] != '\0'; ++i)
       {
 	 if(tvb_memeql(tvb, offset, peer_id[i].id, (int)strlen(peer_id[i].id)) == 0) {
-            /* The version number is 4 numeric characters for the
-               client ids beginning with '-' and 3 characters for the
-               rest. */
 	    version = tvb_get_ephemeral_string(tvb, offset + (int)strlen(peer_id[i].id),
-	       (peer_id[i].id[0] == '-') ? 4 : 3);
+	       peer_id[i].ver_len);
             proto_tree_add_text(tree, tvb, offset, 20, "Client is %s v%s",
                peer_id[i].name,
-	       format_text((guchar*)version, (peer_id[i].id[0] == '-') ? 4 : 3));
+	       format_text((guchar*)version, peer_id[i].ver_len));
             break;
          }
       }
