@@ -15509,7 +15509,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         offset = dissect_ansi_map_FacilitiesDirective(TRUE, tvb, offset, actx, tree, hf_ansi_map_facilitiesDirective);
         break;
     case 3: /*Mobile On Channel*/
-        proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+        proto_tree_add_text(tree, tvb, offset, -1, "[Carries no data]");
         break;
     case 4: /*Handoff Back*/
         offset = dissect_ansi_map_HandoffBack(TRUE, tvb, offset, actx, tree, hf_ansi_map_handoffBack);
