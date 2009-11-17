@@ -3847,6 +3847,9 @@ static int hf_bacapp_uservice = -1;
 static int hf_BACnetPropertyIdentifier = -1;
 static int hf_BACnetVendorIdentifier = -1;
 static int hf_BACnetRestartReason = -1;
+static int hf_bacapp_tag_IPV4 = -1;
+static int hf_bacapp_tag_IPV6 = -1;
+static int hf_bacapp_tag_PORT = -1;
 /* some more variables for segmented messages */
 static int hf_msg_fragments = -1;
 static int hf_msg_fragment = -1;
@@ -4618,6 +4621,54 @@ fOctetString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label,
 }
 
 static guint
+fMacAddress (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label, guint32 lvt)
+{
+	gchar *tmp;
+	guint start = offset;
+	guint8 tag_no, tag_info;
+	proto_tree* subtree = tree;
+	proto_item* ti = 0;
+
+	offset += fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+
+	ti = proto_tree_add_text(tree, tvb, offset, 6, label); /* just add the label, with the tagHeader information in its subtree */
+
+	if (lvt > 0)
+	{
+		if (lvt == 6) { /* we have 6 Byte IP Address with 4 Octets IPv4 and 2 Octets Port Information */
+
+			guint32 ip = tvb_get_ipv4(tvb, offset);
+			guint16 port =  tvb_get_ntohs(tvb, offset+4);
+
+			proto_tree_add_ipv4(tree, hf_bacapp_tag_IPV4, tvb, offset, 4, ip);
+			proto_tree_add_uint(tree, hf_bacapp_tag_PORT, tvb, offset+4, 2, port);
+
+		} else {
+			if (lvt == 18) { /* we have 18 Byte IP Address with 16 Octets IPv6 and 2 Octets Port Information */
+			struct e_in6_addr addr;
+			guint16 port =  tvb_get_ntohs(tvb, offset+16);
+			tvb_get_ipv6(tvb, offset, &addr);
+
+			proto_tree_add_ipv6(tree, hf_bacapp_tag_IPV6, tvb, offset, 16, (const guint8 *) &addr);
+			proto_tree_add_uint(tree, hf_bacapp_tag_PORT, tvb, offset+16, 2, port);
+
+			} else { /* we have 1 Byte MS/TP Address or anything else interpreted as an address */
+				tmp = tvb_bytes_to_str(tvb, offset, lvt);
+				ti = proto_tree_add_text(tree, tvb, offset, lvt, "%s", tmp);
+			}
+		}
+		offset += lvt;
+	}
+
+	if (ti)
+		subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+
+	fTagHeaderTree(tvb, subtree, start, &tag_no, &tag_info, &lvt);
+
+	return offset;
+}
+
+static guint
 fAddress (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
@@ -4627,10 +4678,10 @@ fAddress (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	offset = fUnsignedTag (tvb, tree, offset, "network-number");
 	offs = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 	if (lvt == 0) {
-		proto_tree_add_text(tree, tvb, offset, offs, "mac-address: broadcast");
+		proto_tree_add_text(tree, tvb, offset, offs, "MAC-address: broadcast");
 		offset += offs;
 	} else
-		offset = fOctetString (tvb, tree, offset, "mac-address: ", lvt);
+		offset = fMacAddress (tvb, tree, offset, "MAC-address: ", lvt);
 
 	return offset;
 }
@@ -8872,6 +8923,18 @@ proto_register_bacapp(void)
 		{ &hf_bacapp_tag_ProcessId,
 			{ "ProcessIdentifier",           "bacapp.processId",
 			FT_UINT32, BASE_DEC, NULL, 0, "Process Identifier", HFILL }
+		},
+		{ &hf_bacapp_tag_IPV4,
+			{ "IPV4",           "bacapp.IPV4",
+			FT_IPv4, BASE_NONE, NULL, 0, "IP-Address", HFILL }
+		},
+		{ &hf_bacapp_tag_IPV6,
+		{ "IPV6",           "bacapp.IPV6",
+			FT_IPv6, BASE_NONE, NULL, 0, "IP-Address", HFILL }
+		},
+		{ &hf_bacapp_tag_PORT,
+			{ "Port",           "bacapp.Port",
+			FT_UINT16, BASE_DEC, NULL, 0, "Port", HFILL }
 		},
 		{ &hf_bacapp_tag_initiatingObjectType,
 			{ "ObjectType",           "bacapp.objectType",
