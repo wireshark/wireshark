@@ -98,7 +98,7 @@ register_dissector_files(plugin.c
 # Do I need any of this or is this handled by type MODULE?
 # wimax_la_LDFLAGS = -module -avoid-version
 
-add_library(wimax MODULE
+add_library(wimax ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
 

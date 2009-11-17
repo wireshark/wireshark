@@ -98,15 +98,17 @@ set(wiretap_LIBS
 	wsutil
 )
 
-add_library(wiretap SHARED
+add_library(wiretap ${LINK_MODE_LIB}
 	${WIRETAP_FILES}
 )
 
 target_link_libraries(wiretap ${wiretap_LIBS})
 
-install(TARGETS wiretap
-	LIBRARY DESTINATION lib
-	RUNTIME DESTINATION lib
-	ARCHIVE DESTINATION lib
-)
+if(NOT ${ENABLE_STATIC})
+	install(TARGETS wiretap
+		LIBRARY DESTINATION lib
+		RUNTIME DESTINATION lib
+		ARCHIVE DESTINATION lib
+	)
+endif()
 

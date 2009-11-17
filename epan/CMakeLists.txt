@@ -1253,7 +1253,7 @@ if (WERROR)
         )
 endif()
 
-add_library(epan SHARED
+add_library(epan ${LINK_MODE_LIB}
 	# Needed to trigger build of the include files for x11
 	#x11-declarations.h
 	#x11-register-info.h
@@ -1279,9 +1279,11 @@ target_link_libraries(epan ${epan_LIBS})
 
 add_dependencies(epan lemon)
 
-install(TARGETS epan
-	LIBRARY DESTINATION lib
-	RUNTIME DESTINATION lib
-	ARCHIVE DESTINATION lib
-)
+if(NOT ${ENABLE_STATIC})
+	install(TARGETS epan
+		LIBRARY DESTINATION lib
+		RUNTIME DESTINATION lib
+		ARCHIVE DESTINATION lib
+	)
+endif()
 

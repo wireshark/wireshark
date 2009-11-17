@@ -55,7 +55,7 @@ register_dissector_files(plugin.c
 # Do I need any of this or is this handled by type MODULE?
 # asn1_la_LDFLAGS = -module -avoid-version
 
-add_library(irda MODULE
+add_library(irda ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
 

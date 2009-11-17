@@ -57,7 +57,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # Do I need any of this or is this handled by type MODULE?
 # asn1_la_LDFLAGS = -module -avoid-version
 
-add_library(cosnaming MODULE
+add_library(cosnaming ${LINK_MODE_MODULE}
 	${COSNAMING_SRC}
 )
 
@@ -69,7 +69,7 @@ install(TARGETS cosnaming
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
 )
 
-add_library(coseventcomm MODULE
+add_library(coseventcomm ${LINK_MODE_MODULE}
 	${COSEVENTCOMM_SRC}
 )
 
@@ -81,7 +81,7 @@ install(TARGETS coseventcomm
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
 )
 
-add_library(tango MODULE
+add_library(tango ${LINK_MODE_MODULE}
 	${TANGO_SRC}
 )
 
@@ -93,7 +93,7 @@ install(TARGETS tango
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
 )
 
-add_library(parlay MODULE
+add_library(parlay ${LINK_MODE_MODULE}
 	${PARLAY_SRC}
 )
 

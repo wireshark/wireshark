@@ -42,7 +42,7 @@ endif()
 # Do I need any of this or is this handled by type MODULE?
 # asn1_la_LDFLAGS = -module -avoid-version
 
-add_library(stats_tree MODULE
+add_library(stats_tree ${LINK_MODE_MODULE}
 	${TAP_SRC}
 )
 

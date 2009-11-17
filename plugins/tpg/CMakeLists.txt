@@ -74,7 +74,7 @@ ADD_CUSTOM_COMMAND(
 # Do I need any of this or is this handled by type MODULE?
 # asn1_la_LDFLAGS = -module -avoid-version
 
-add_library(tpg MODULE
+add_library(tpg ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
 

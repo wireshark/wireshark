@@ -36,8 +36,6 @@ INCLUDE(UseMakeTapReg)
 # Disable this later. Alternative: "make VERBOSE=1"
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-set(BUILD_SHARED_LIBS ON)
-
 #Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
 include(CMakeInstallDirs)
 
@@ -71,8 +69,7 @@ option(AUTOGEN_pidl      "Autogenerate pidl dissectors" OFF)
 option(DISABLE_WERROR	 "Do not treat Warnings as errors" OFF)
 option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC (disables -Werror)" OFF)
 option(ENABLE_AIRPCAP	 "Enable Airpcap support" ON)
-# todo
-option(ENABLE_STATIC     "Build a static version of Wireshark (not implemented)" OFF)
+option(ENABLE_STATIC     "Build a static version of Wireshark (not yet working)" OFF)
 option(ENABLE_PLUGINS    "Build with plugins" ON)
 # todo
 option(ENABLE_GUIDES     "Build Guides (not yet implemented)" OFF)
@@ -183,6 +180,13 @@ endif()
 # AC_WIRESHARK_GCC_LDFLAGS_CHECK([-fwhopr])
 # AC_WIRESHARK_GCC_LDFLAGS_CHECK([-fwhole-program])
 
+if(ENABLE_STATIC)
+  set(LINK_MODE_LIB STATIC)
+  set(LINK_MODE_MODULE STATIC)
+else()
+  set(LINK_MODE_LIB SHARED)
+  set(LINK_MODE_MODULE MODULE)
+endif()
 
 #The minimum package list
 set(PACKAGELIST GLIB2 PCAP M LEX YACC Perl SH PythonInterp HtmlViewer ${PACKAGELIST})

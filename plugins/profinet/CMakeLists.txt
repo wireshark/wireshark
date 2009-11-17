@@ -65,7 +65,7 @@ register_dissector_files(plugin.c
 # Do I need any of this or is this handled by type MODULE?
 # asn1_la_LDFLAGS = -module -avoid-version
 
-add_library(profinet MODULE
+add_library(profinet ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
 

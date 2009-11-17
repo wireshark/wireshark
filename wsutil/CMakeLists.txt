@@ -40,13 +40,17 @@ set(wsutil_LIBS
   ${GLIB2_LIBRARIES}
 )
 
-add_library(wsutil SHARED
+add_library(wsutil ${LINK_MODE_LIB}
   ${WSUTIL_FILES}
 )
 
 target_link_libraries(wsutil ${wsutil_LIBS})
 
-install(TARGETS wsutil
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION lib
-    ARCHIVE DESTINATION lib)
+if(NOT ${ENABLE_STATIC})
+	install(TARGETS wsutil
+		LIBRARY DESTINATION lib
+		RUNTIME DESTINATION lib
+		ARCHIVE DESTINATION lib
+	)
+endif()
+

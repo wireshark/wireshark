@@ -58,7 +58,7 @@ register_dissector_files(plugin.c
 # Do I need any of this or is this handled by type MODULE?
 # asn1_la_LDFLAGS = -module -avoid-version
 
-add_library(m2m MODULE
+add_library(m2m ${LINK_MODE_MODULE}
 	${PLUGIN_FILES}
 )
 
