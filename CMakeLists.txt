@@ -462,6 +462,7 @@ set(WIRESHARK_COMMON_SRC
 	packet-range.c
 	print.c
 	ps.c
+	svnversion.h
 	sync_pipe_write.c
 	timestats.c
 	util.c
