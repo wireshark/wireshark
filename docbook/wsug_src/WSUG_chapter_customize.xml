@@ -1196,7 +1196,7 @@ standard libpcap format.
       </para>
     <para>
 	Display Filter Macros can be managed with a <xref linkend="ChUserTable"/> by selecting
-	<command>Analyze &rarr; Display Filter Macros</command> from the menu.
+	<command>Analyze &#8594; Display Filter Macros</command> from the menu.
 	The User Table has  the following fields
       </para>
             <variablelist>
