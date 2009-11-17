@@ -773,7 +773,8 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 
 #define TIMEDEFV23(fp,type) \
 	do {\
-		nsg_creltime = (guint64) fp->type##_AbsTimeHighHdr * 1000000;\
+		/* access _AbsTimeHighHdr as a 64bit value */\
+		nsg_creltime = *((guint64*)&(fp->type##_AbsTimeHighHdr));\
 		wth->phdr.ts.secs = (guint32) (nsg_creltime / 1000000000);\
 		wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
 	}while(0)
