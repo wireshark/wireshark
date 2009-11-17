@@ -1,7 +1,9 @@
 /* packet-tte.h
  * Header for Time Triggered Ethernet dissection
  *
- * Author: Valentin Ecker, valentin.ecker (AT) tttech.com
+ * Author: Valentin Ecker
+ * Author: Benjamin Roch, benjamin.roch [AT] tttech.com
+ *
  * TTTech Computertechnik AG, Austria.
  * http://www.tttech.com/solutions/ttethernet/
  *

@@ -1,7 +1,9 @@
 /* packet-tte-pcf.c
  * Routines for Time Triggered Ethernet Protocol Control Frame dissection
  *
- * Author: Valentin Ecker, valentin.ecker (AT) tttech.com
+ * Author: Valentin Ecker
+ * Author: Benjamin Roch, benjamin.roch (AT) tttech.com
+ *
  * TTTech Computertechnik AG, Austria.
  * http://www.tttech.com/solutions/ttethernet/
  *
@@ -174,7 +176,7 @@ proto_register_tte_pcf(void)
         },
         { &hf_tte_pcf_type,
             { "Type", "tte.pcf.type",
-            FT_UINT8, BASE_HEX, NULL, 0xF0,
+            FT_UINT8, BASE_HEX, NULL, 0x0F,
             NULL, HFILL }
         },
         { &hf_tte_pcf_res1,
