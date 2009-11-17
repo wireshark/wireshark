@@ -36,7 +36,7 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          Can't RTP stream in both directions.
+          Can't save RTP stream in both directions.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4120">Bug
           4120</ulink>)
         </para></listitem>
