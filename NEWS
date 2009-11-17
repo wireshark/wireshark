@@ -14,7 +14,7 @@ What's New
 
    The following bugs have been fixed:
 
-     o Can't RTP stream in both directions. (Bug 4120)
+     o Can't save RTP stream in both directions. (Bug 4120)
 
      o Wireshark could crash at startup on Windows. (Bug 4155)
 
