@@ -945,15 +945,12 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    proto_tree *subtree = NULL;
 	    proto_item *tisub;
 
-	    if (PIM_TYPE(pim_typever) != 7) {
-		/* not graft-ack */
 		s = dissect_pim_addr(tvb, offset, pimv2_unicast, &advance);
 		if (s == NULL)
 		    break;
 		proto_tree_add_text(pimopt_tree, tvb, offset, advance,
 		    "Upstream-neighbor: %s", s);
 		offset += advance;
-	    }
 
 	    offset += 1;	/* skip reserved field */
 
@@ -962,13 +959,11 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		"Groups: %u", ngroup);
 	    offset += 1;
 
-	    if (PIM_TYPE(pim_typever) != 7)	{
-		/* not graft-ack */
 		holdtime = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_text(pimopt_tree, tvb, offset, 2,
 		    "Holdtime: %u%s", holdtime,
 		    holdtime == 0xffff ? " (infty)" : "");
-	    }
+
 	    offset += 2;
 
 	    for (i = 0; i < ngroup; i++) {
