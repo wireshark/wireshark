@@ -994,7 +994,7 @@ proto_register_ppi(void)
 
     { &hf_ppi_field_type,
        { "Field type", "ppi.field_type",
-         FT_UINT16, BASE_DEC, VALS(&vs_ppi_field_type), 0x0, "PPI data field type", HFILL } },
+         FT_UINT16, BASE_DEC, VALS(vs_ppi_field_type), 0x0, "PPI data field type", HFILL } },
     { &hf_ppi_field_len,
        { "Field length", "ppi.field_len",
          FT_UINT16, BASE_DEC, NULL, 0x0, "PPI data field length", HFILL } },
@@ -1026,7 +1026,7 @@ proto_register_ppi(void)
         "PPI 802.11-Common Channel Frequency", HFILL } },
     { &hf_80211_common_chan_flags,
        { "Channel type", "ppi.80211-common.chan.type",
-         FT_UINT16, BASE_HEX, VALS(&vs_80211_common_phy_type), 0x0, "PPI 802.11-Common Channel Type", HFILL } },
+         FT_UINT16, BASE_HEX, VALS(vs_80211_common_phy_type), 0x0, "PPI 802.11-Common Channel Type", HFILL } },
 
     { &hf_80211_common_chan_flags_turbo,
        { "Turbo", "ppi.80211-common.chan.type.turbo",
@@ -1141,7 +1141,7 @@ proto_register_ppi(void)
          FT_UINT16, BASE_DEC, NULL, 0x0, "PPI 802.11n MAC+PHY Extended Channel Frequency", HFILL } },
     { &hf_80211n_mac_phy_ext_chan_flags,
        { "Channel type", "ppi.80211-mac-phy.ext-chan.type",
-         FT_UINT16, BASE_HEX, VALS(&vs_80211_common_phy_type), 0x0, "PPI 802.11n MAC+PHY Channel Type", HFILL } },
+         FT_UINT16, BASE_HEX, VALS(vs_80211_common_phy_type), 0x0, "PPI 802.11n MAC+PHY Channel Type", HFILL } },
     { &hf_80211n_mac_phy_ext_chan_flags_turbo,
        { "Turbo", "ppi.80211-mac-phy.ext-chan.type.turbo",
          FT_BOOLEAN, 16, NULL, 0x0010, "PPI 802.11n MAC+PHY Channel Type Turbo", HFILL } },

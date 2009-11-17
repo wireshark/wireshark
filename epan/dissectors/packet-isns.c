@@ -1468,7 +1468,7 @@ void proto_register_isns(void)
 	},
 	{ &hf_isns_function_id,
 	  { "Function ID","isns.functionid",	    
-	    FT_UINT16, BASE_DEC,VALS(&isns_function_ids),0,          
+	    FT_UINT16, BASE_DEC,VALS(isns_function_ids),0,          
 	    "iSNS Function ID" ,HFILL}
 	},
 	{ &hf_isns_pdu_length,

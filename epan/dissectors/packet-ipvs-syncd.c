@@ -261,7 +261,7 @@ proto_register_ipvs_syncd(void)
 
 		{ &hf_proto,
 			{ "Protocol", "ipvs.proto", FT_UINT8, BASE_HEX,
-			  VALS(&proto_strings), 0, NULL, HFILL }},
+			  VALS(proto_strings), 0, NULL, HFILL }},
 
 		{ &hf_cport,
 			{ "Client Port", "ipvs.cport", FT_UINT16, BASE_DEC,
@@ -293,7 +293,7 @@ proto_register_ipvs_syncd(void)
 
 		{ &hf_state,
 			{ "State", "ipvs.state", FT_UINT16, BASE_HEX,
-			  VALS(&state_strings), 0, NULL, HFILL }},
+			  VALS(state_strings), 0, NULL, HFILL }},
 	
 		{ &hf_in_seq_init,
 			{ "Input Sequence (Initial)", "ipvs.in_seq.initial", FT_UINT32, 

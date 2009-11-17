@@ -3197,7 +3197,7 @@ proto_register_slow_protocols(void)
 
     { &hf_oampdu_info_state_parser,
       { "Parser Action",        "slow.oam.info.state.parser",
-        FT_UINT8,    BASE_HEX,    VALS(&parser_vals),    0x03,
+        FT_UINT8,    BASE_HEX,    VALS(parser_vals),    0x03,
         NULL, HFILL }},
 
     { &hf_oampdu_info_state_mux,

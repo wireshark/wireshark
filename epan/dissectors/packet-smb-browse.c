@@ -909,7 +909,7 @@ proto_register_smb_browse(void)
 
 		{ &hf_mb_reset_command,
 		  { "ResetBrowserState Command", "browser.reset_cmd", FT_UINT8,
-		    BASE_HEX, VALS(&resetbrowserstate_command_names), 0,
+		    BASE_HEX, VALS(resetbrowserstate_command_names), 0,
 		    NULL, HFILL }},
 		{ &hf_mb_reset_demote,
 		  { "Demote LMB", "browser.reset_cmd.demote", FT_BOOLEAN, 

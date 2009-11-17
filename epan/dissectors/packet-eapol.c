@@ -332,7 +332,7 @@ proto_register_eapol(void)
 	{ &hf_eapol_wpa_keydes_keyinfo_keydes_ver, {
 		"Key Descriptor Version",
 		"eapol.keydes.key_info.keydes_ver",
-		FT_UINT16, BASE_DEC, VALS(&keydes_ver),
+		FT_UINT16, BASE_DEC, VALS(keydes_ver),
 		KEY_INFO_KEYDES_VER_MASK,
 		"Key Descriptor Version Type", HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_key_type, {

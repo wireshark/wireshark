@@ -705,11 +705,11 @@ proto_register_njack(void)
                         0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_snmpwrite,
-                { "TlvTypeSnmpwrite",   "njack.tlv.snmpwrite", FT_UINT8, BASE_DEC, VALS(&njack_snmpwrite),
+                { "TlvTypeSnmpwrite",   "njack.tlv.snmpwrite", FT_UINT8, BASE_DEC, VALS(njack_snmpwrite),
                         0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_dhcpcontrol,
-                { "TlvTypeDhcpControl",   "njack.tlv.dhcpcontrol", FT_UINT8, BASE_DEC, VALS(&njack_dhcpcontrol),
+                { "TlvTypeDhcpControl",   "njack.tlv.dhcpcontrol", FT_UINT8, BASE_DEC, VALS(njack_dhcpcontrol),
                         0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_devicemac,
@@ -727,27 +727,27 @@ proto_register_njack(void)
 
 		/* 1st tab */
                 { &hf_njack_tlv_scheduling,
-                { "TlvTypeScheduling",   "njack.tlv.scheduling", FT_UINT8, BASE_DEC, VALS(&njack_scheduling),
+                { "TlvTypeScheduling",   "njack.tlv.scheduling", FT_UINT8, BASE_DEC, VALS(njack_scheduling),
                         0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_addtagscheme,
-                { "TlvAddTagScheme",   "njack.tlv.addtagscheme", FT_UINT8, BASE_DEC, VALS(&njack_addtagscheme),
+                { "TlvAddTagScheme",   "njack.tlv.addtagscheme", FT_UINT8, BASE_DEC, VALS(njack_addtagscheme),
                         0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_portingressmode,
-                { "TlvTypePortingressmode",   "njack.tlv.portingressmode", FT_UINT8, BASE_DEC, VALS(&njack_portingressmode),
+                { "TlvTypePortingressmode",   "njack.tlv.portingressmode", FT_UINT8, BASE_DEC, VALS(njack_portingressmode),
                         0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_maxframesize,
-                { "TlvTypeMaxframesize",   "njack.tlv.maxframesize", FT_UINT8, BASE_DEC, VALS(&njack_maxframesize),
+                { "TlvTypeMaxframesize",   "njack.tlv.maxframesize", FT_UINT8, BASE_DEC, VALS(njack_maxframesize),
                         0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_countermode,
-                { "TlvTypeCountermode",   "njack.tlv.countermode", FT_UINT8, BASE_DEC, VALS(&njack_countermode),
+                { "TlvTypeCountermode",   "njack.tlv.countermode", FT_UINT8, BASE_DEC, VALS(njack_countermode),
                         0x0, NULL, HFILL }},
 
                 { &hf_njack_tlv_powerforwarding,
-                { "TlvTypePowerforwarding",   "njack.tlv.powerforwarding", FT_UINT8, BASE_DEC, VALS(&njack_powerforwarding),
+                { "TlvTypePowerforwarding",   "njack.tlv.powerforwarding", FT_UINT8, BASE_DEC, VALS(njack_powerforwarding),
                         0x0, NULL, HFILL }},
 
 	/* Type 0x07: set */

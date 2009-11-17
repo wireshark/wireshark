@@ -9916,12 +9916,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_psi1_repeat_period,
               { "PSI1 Repeat Period", "gsm_a.rr.psi1_repeat_period",
-		FT_UINT8, BASE_DEC, VALS(&gsm_a_rr_psi1_repeat_period_vals), 0x0,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_psi1_repeat_period_vals), 0x0,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_pbcch_pb,
               { "Pb", "gsm_a.rr.pbcch_pb",
-		FT_UINT8, BASE_DEC, VALS(&gsm_a_rr_pbcch_pb_vals), 0x0,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_rr_pbcch_pb_vals), 0x0,
 		"Power reduction on PBCCH/PCCCH (Pb)", HFILL }
             },
             { &hf_gsm_a_rr_pbcch_tsc,

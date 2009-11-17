@@ -6327,7 +6327,7 @@ proto_register_gsm_a_dtap(void)
 	},
 	{ &hf_gsm_a_dtap_alerting_pattern,
 		{ "Alerting Pattern", "gsm_a.dtap.alerting_pattern",
-		FT_UINT8, BASE_DEC, VALS(&gsm_a_alerting_pattern_vals), 0x0f,
+		FT_UINT8, BASE_DEC, VALS(gsm_a_alerting_pattern_vals), 0x0f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_dtap_ccbs_activation,

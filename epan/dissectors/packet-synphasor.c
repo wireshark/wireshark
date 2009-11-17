@@ -1350,7 +1350,7 @@ void proto_register_synphasor(void)
 	/* Data type for command frame */
 		{ &hf_command,
 		{ "Command", PROTOCOL_ABBREV ".command", FT_UINT16, BASE_HEX,
-		  VALS(&command_names), 0x000F, NULL, HFILL }}
+		  VALS(command_names), 0x000F, NULL, HFILL }}
 	};
 
 	/* protocol subtree array */

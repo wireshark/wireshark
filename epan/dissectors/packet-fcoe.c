@@ -288,10 +288,10 @@ proto_register_fcoe(void)
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_fcoe_sof,
-          {"SOF", "fcoe.sof", FT_UINT8, BASE_HEX, VALS(&fcoe_sof_vals), 0,
+          {"SOF", "fcoe.sof", FT_UINT8, BASE_HEX, VALS(fcoe_sof_vals), 0,
            NULL, HFILL}},
         { &hf_fcoe_eof,
-          {"EOF", "fcoe.eof", FT_UINT8, BASE_HEX, VALS(&fcoe_eof_vals), 0,
+          {"EOF", "fcoe.eof", FT_UINT8, BASE_HEX, VALS(fcoe_eof_vals), 0,
            NULL, HFILL}},
         { &hf_fcoe_ver,
           {"Version", "fcoe.ver", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},

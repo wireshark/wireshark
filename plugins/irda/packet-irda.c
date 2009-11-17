@@ -2030,7 +2030,7 @@ void proto_register_irda(void)
                 NULL, HFILL }},
         { &hf_xid_s,
             { "Number of Slots", "irlap.xid.s",
-                FT_UINT8, BASE_DEC, VALS(&xid_slot_numbers), S_MASK,
+                FT_UINT8, BASE_DEC, VALS(xid_slot_numbers), S_MASK,
                 NULL, HFILL }},
         { &hf_xid_conflict,
             { "Conflict", "irlap.xid.conflict",

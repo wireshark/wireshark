@@ -9435,11 +9435,11 @@ proto_register_ieee80211 (void)
 
     {&hf_block_ack_request_type,
      {"Block Ack Request Type", "wlan.bar.type",
-      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_request_type_flags), 0, "Block Ack Request (BAR) Type", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(hf_block_ack_request_type_flags), 0, "Block Ack Request (BAR) Type", HFILL }},
 
     {&hf_block_ack_type,
      {"Block Ack Type", "wlan.ba.type",
-      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS(hf_block_ack_type_flags), 0, NULL, HFILL }},
 
     {&hf_block_ack_bitmap,
      {"Block Ack Bitmap", "wlan.ba.bm",
@@ -11247,7 +11247,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_measurement_mode,
      {"Measurement Mode", "wlan_mgt.measure.req.measurementmode",
-      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_measurement_mode_flags), 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS(hf_tag_measure_request_measurement_mode_flags), 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_bssid,
      {"BSSID", "wlan_mgt.measure.req.bssid",
@@ -11255,7 +11255,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_reporting_condition,
      {"Reporting Condition", "wlan_mgt.measure.req.repcond",
-      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_reporting_condition_flags), 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS(hf_tag_measure_request_reporting_condition_flags), 0, NULL, HFILL }},
 
     {&hf_tag_measure_request_threshold_offset_unsigned,
      {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
@@ -11271,7 +11271,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_group_id,
      {"Group ID", "wlan_mgt.measure.req.groupid",
-      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_group_id_flags), 0, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, VALS(hf_tag_measure_request_group_id_flags), 0, NULL, HFILL }},
     /*** End: Measurement Request Tag  - Dustin Johnson***/
 
     /*** Start: Measurement Report Tag  - Dustin Johnson***/

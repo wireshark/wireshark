@@ -233,7 +233,7 @@ void
 proto_register_sita(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_proto,		{ "Protocol",		"sita.errors.protocol",		FT_UINT8,   BASE_HEX, VALS(&tfs_sita_proto),	0,					"Protocol value",						HFILL }},
+		{ &hf_proto,		{ "Protocol",		"sita.errors.protocol",		FT_UINT8,   BASE_HEX, VALS(tfs_sita_proto),	0,					"Protocol value",						HFILL }},
 
 		{ &hf_dir,			{ "Direction",		"sita.flags.flags",			FT_BOOLEAN, 8, TFS(&tfs_sita_flags),	SITA_FRAME_DIR,			"TRUE 'from Remote', FALSE 'from Local'",	HFILL }},
 		{ &hf_droppedframe,	{ "No Buffers",		"sita.flags.droppedframe",	FT_BOOLEAN, 8, TFS(&tfs_sita_error),	SITA_ERROR_NO_BUFFER,			"TRUE if Buffer Failure",		HFILL }},

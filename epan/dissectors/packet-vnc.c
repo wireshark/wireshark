@@ -2628,42 +2628,42 @@ proto_register_vnc(void)
 		/* Client Pointer Event */
 		{ &hf_vnc_button_1_pos,
 		  { "Mouse button #1 position", "vnc.button_1_pos",
-		    FT_UINT8, BASE_DEC, VALS(&button_mask_vs), 0x1,
+		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x1,
 		    "Whether mouse button #1 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_2_pos,
 		  { "Mouse button #2 position", "vnc.button_2_pos",
-		    FT_UINT8, BASE_DEC, VALS(&button_mask_vs), 0x2,
+		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x2,
 		    "Whether mouse button #2 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_3_pos,
 		  { "Mouse button #3 position", "vnc.button_3_pos",
-		    FT_UINT8, BASE_DEC, VALS(&button_mask_vs), 0x4,
+		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x4,
 		    "Whether mouse button #3 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_4_pos,
 		  { "Mouse button #4 position", "vnc.button_4_pos",
-		    FT_UINT8, BASE_DEC, VALS(&button_mask_vs), 0x8,
+		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x8,
 		    "Whether mouse button #4 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_5_pos,
 		  { "Mouse button #5 position", "vnc.button_5_pos",
-		    FT_UINT8, BASE_DEC, VALS(&button_mask_vs), 0x10,
+		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x10,
 		    "Whether mouse button #5 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_6_pos,
 		  { "Mouse button #6 position", "vnc.button_6_pos",
-		    FT_UINT8, BASE_DEC, VALS(&button_mask_vs), 0x20,
+		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x20,
 		    "Whether mouse button #6 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_7_pos,
 		  { "Mouse button #7 position", "vnc.button_7_pos",
-		    FT_UINT8, BASE_DEC, VALS(&button_mask_vs), 0x40,
+		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x40,
 		    "Whether mouse button #7 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_8_pos,
 		  { "Mouse button #8 position", "vnc.button_8_pos",
-		    FT_UINT8, BASE_DEC, VALS(&button_mask_vs), 0x80,
+		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x80,
 		    "Whether mouse button #8 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_pointer_x_pos,

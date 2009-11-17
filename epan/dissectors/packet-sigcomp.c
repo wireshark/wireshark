@@ -2312,7 +2312,7 @@ proto_register_sigcomp(void)
 		},
 		{ &hf_sigcomp_len,
 			{ "Partial state id length","sigcomp.length",
-			FT_UINT8, BASE_HEX, VALS(&length_encoding_vals), 0x03,          
+			FT_UINT8, BASE_HEX, VALS(length_encoding_vals), 0x03,          
 			"Sigcomp length", HFILL }
 		},
 		{ &hf_sigcomp_returned_feedback_item,
@@ -2347,7 +2347,7 @@ proto_register_sigcomp(void)
 		},
 		{ &hf_sigcomp_destination,
 			{ "Destination","sigcomp.destination",
-			FT_UINT8, BASE_HEX, VALS(&destination_address_encoding_vals), 0xf,          
+			FT_UINT8, BASE_HEX, VALS(destination_address_encoding_vals), 0xf,          
 			NULL, HFILL }
 		},
 		{ &hf_sigcomp_udvm_bytecode,
@@ -2357,7 +2357,7 @@ proto_register_sigcomp(void)
 		},
 		{ &hf_sigcomp_udvm_instr,
 			{ "UDVM instruction code","sigcomp.udvm.instr",
-			FT_UINT8, BASE_DEC, VALS(&udvm_instruction_code_vals), 0x0,          
+			FT_UINT8, BASE_DEC, VALS(udvm_instruction_code_vals), 0x0,          
 			NULL, HFILL }
 		},
 		{ &hf_udvm_execution_trace,
@@ -2367,17 +2367,17 @@ proto_register_sigcomp(void)
 		},
 		{ &hf_udvm_multitype_bytecode,
 			{ "UDVM bytecode", "sigcomp.udvm.multyt.bytecode",
-			FT_UINT8, BASE_HEX, VALS(&display_bytecode_vals), 0x0,          
+			FT_UINT8, BASE_HEX, VALS(display_bytecode_vals), 0x0,          
 			NULL, HFILL }
 		},
 		{ &hf_udvm_reference_bytecode,
 			{ "UDVM bytecode", "sigcomp.udvm.ref.bytecode",
-			FT_UINT8, BASE_HEX, VALS(&display_ref_bytecode_vals), 0x0,          
+			FT_UINT8, BASE_HEX, VALS(display_ref_bytecode_vals), 0x0,          
 			NULL, HFILL }
 		},
 		{ &hf_udvm_literal_bytecode,
 			{ "UDVM bytecode", "sigcomp.udvm.lit.bytecode",
-			FT_UINT8, BASE_HEX, VALS(&display_lit_bytecode_vals), 0x0,          
+			FT_UINT8, BASE_HEX, VALS(display_lit_bytecode_vals), 0x0,          
 			NULL, HFILL }
 		},
 		{ &hf_udvm_operand,

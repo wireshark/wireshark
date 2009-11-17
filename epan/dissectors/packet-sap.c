@@ -327,7 +327,7 @@ void proto_register_sap(void)
 
     { &hf_auth_flags_v,
       { "Version Number",         "sap.auth.flags.v",
-	FT_UINT8, BASE_DEC, VALS(&mcast_sap_auth_ver), MCAST_SAP_VERSION_MASK,
+	FT_UINT8, BASE_DEC, VALS(mcast_sap_auth_ver), MCAST_SAP_VERSION_MASK,
       	"Version", HFILL }},
 
     { &hf_auth_flags_p,
@@ -337,7 +337,7 @@ void proto_register_sap(void)
 
     { &hf_auth_flags_t,
       { "Authentication Type",         "sap.auth.flags.t",
-	FT_UINT8, BASE_DEC, VALS(&mcast_sap_auth_type), MCAST_SAP_AUTH_TYPE_MASK,
+	FT_UINT8, BASE_DEC, VALS(mcast_sap_auth_type), MCAST_SAP_AUTH_TYPE_MASK,
       	"Auth type", HFILL }}
   };
   static gint *ett[] = {

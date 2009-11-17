@@ -1699,7 +1699,7 @@ proto_register_ipv6(void)
 				"Routing Header Option", HFILL }},
     { &hf_ipv6_routing_hdr_type,
       { "Type",			"ipv6.routing_hdr.type",
-				FT_UINT8, BASE_DEC, VALS(&routing_header_type), 0x0,
+				FT_UINT8, BASE_DEC, VALS(routing_header_type), 0x0,
 				"Routeing Header Type", HFILL }},
     { &hf_ipv6_routing_hdr_left,
       { "Left Segments",	"ipv6.routing_hdr.left",

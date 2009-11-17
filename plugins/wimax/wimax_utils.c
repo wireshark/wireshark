@@ -834,7 +834,7 @@ void proto_register_wimax_utility_decoders(void)
 		},
 		{	/* 23 ARQ Sync Loss Timeout */
 			&hf_sfe_arq_sync_loss_timeout,
-			{"ARQ Sync Loss Timeout (10us granularity)", "wmx.arq.sync_loss_timeout", FT_UINT16, BASE_DEC, VALS(&vals_arq_sync_loss_timeout), 0x0, NULL, HFILL}
+			{"ARQ Sync Loss Timeout (10us granularity)", "wmx.arq.sync_loss_timeout", FT_UINT16, BASE_DEC, VALS(vals_arq_sync_loss_timeout), 0x0, NULL, HFILL}
 		},
 		{	/* 20 ARQ Transmitter Delay */
 			&hf_sfe_arq_transmitter_delay_cor2,
@@ -850,15 +850,15 @@ void proto_register_wimax_utility_decoders(void)
 		},
 		{	/* 23 ARQ Sync Loss Timeout */
 			&hf_sfe_arq_sync_loss_timeout_cor2,
-			{"ARQ Sync Loss Timeout (100us granularity)", "wmx.arq.sync_loss_timeout", FT_UINT16, BASE_DEC, VALS(&vals_arq_sync_loss_timeout), 0x0, NULL, HFILL}
+			{"ARQ Sync Loss Timeout (100us granularity)", "wmx.arq.sync_loss_timeout", FT_UINT16, BASE_DEC, VALS(vals_arq_sync_loss_timeout), 0x0, NULL, HFILL}
 		},
 		{	/* 24 ARQ Deliver In Order */
 			&hf_sfe_arq_deliver_in_order,
-			{"ARQ Deliver In Order", "wmx.arq.deliver_in_order", FT_UINT8, BASE_DEC, VALS(&vals_arq_deliver_in_order), 0x0, NULL, HFILL}
+			{"ARQ Deliver In Order", "wmx.arq.deliver_in_order", FT_UINT8, BASE_DEC, VALS(vals_arq_deliver_in_order), 0x0, NULL, HFILL}
 		},
 		{	/* 25 ARQ Purge Timeout */
 			&hf_sfe_arq_rx_purge_timeout,
-			{"ARQ RX Purge Timeout (100us granularity)", "wmx.arq.rx_purge_timeout", FT_UINT16, BASE_DEC, VALS(&vals_arq_rx_purge_timeout), 0x0, NULL, HFILL}
+			{"ARQ RX Purge Timeout (100us granularity)", "wmx.arq.rx_purge_timeout", FT_UINT16, BASE_DEC, VALS(vals_arq_rx_purge_timeout), 0x0, NULL, HFILL}
 		},
 		{	/* 26 ARQ Block Size */
 			&hf_sfe_arq_block_size,

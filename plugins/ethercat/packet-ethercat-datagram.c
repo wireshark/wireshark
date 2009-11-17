@@ -1666,15 +1666,15 @@ void proto_register_ecat(void)
       },
       { &hf_ecat_length_r,
       { "Reserved", "ecat.subframe.reserved",
-      FT_UINT16, BASE_DEC, VALS(&ecat_subframe_reserved_vals), 0x3800, NULL, HFILL}
+      FT_UINT16, BASE_DEC, VALS(ecat_subframe_reserved_vals), 0x3800, NULL, HFILL}
       },
       { &hf_ecat_length_c,
       { "Round trip", "ecat.subframe.circulating",
-      FT_UINT16, BASE_DEC, VALS(&ecat_subframe_circulating_vals), 0x4000, NULL, HFILL}
+      FT_UINT16, BASE_DEC, VALS(ecat_subframe_circulating_vals), 0x4000, NULL, HFILL}
       },
       { &hf_ecat_length_m,
       { "Last indicator", "ecat.subframe.more",
-      FT_UINT16, BASE_DEC, VALS(&ecat_subframe_more_vals), 0x8000, NULL, HFILL}
+      FT_UINT16, BASE_DEC, VALS(ecat_subframe_more_vals), 0x8000, NULL, HFILL}
       },
       { &hf_ecat_padding,
       { "Pad bytes", "ecat.subframe.pad_bytes",

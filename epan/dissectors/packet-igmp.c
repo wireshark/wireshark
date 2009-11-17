@@ -1173,7 +1173,7 @@ proto_register_igmp(void)
 
 		{ &hf_mtrace_q_rtg_proto,
 			{ "Rtg Protocol", "igmp.mtrace.q_rtg_proto", FT_UINT8, BASE_DEC,
-			VALS(&mtrace_rtg_vals), 0, "Routing protocol between this and previous hop rtr", HFILL }},
+			VALS(mtrace_rtg_vals), 0, "Routing protocol between this and previous hop rtr", HFILL }},
 
 		{ &hf_mtrace_q_fwd_ttl,
 			{ "FwdTTL", "igmp.mtrace.q_fwd_ttl", FT_UINT8, BASE_DEC,
@@ -1193,7 +1193,7 @@ proto_register_igmp(void)
 
 		{ &hf_mtrace_q_fwd_code,
 			{ "Forwarding Code", "igmp.mtrace.q_fwd_code", FT_UINT8, BASE_HEX,
-			VALS(&mtrace_fwd_code_vals), 0, "Forwarding information/error code", HFILL }},
+			VALS(mtrace_fwd_code_vals), 0, "Forwarding information/error code", HFILL }},
 
 	};
 	static gint *ett[] = {

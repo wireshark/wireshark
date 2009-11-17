@@ -19508,7 +19508,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_posix_ace_type,
 	  { "ACE Type", "smb.posix_acl.ace_type", FT_UINT8, BASE_DEC,
-		VALS(&ace_type_vals), 0, NULL, HFILL }},
+		VALS(ace_type_vals), 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_flags,
 	  { "Permissions", "smb.posix_acl.ace_perms", FT_UINT8, BASE_HEX,

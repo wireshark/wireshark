@@ -121,7 +121,7 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 			{
 				"Setup/Tear-down long-term precoding with feedback",
 				"wimax.prc_lt_ctrl.precoding",
-				FT_UINT8, BASE_DEC, VALS(&vals_turn_on), 0x80, NULL, HFILL
+				FT_UINT8, BASE_DEC, VALS(vals_turn_on), 0x80, NULL, HFILL
 			}
 		},
 		{

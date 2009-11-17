@@ -255,7 +255,7 @@ void proto_register_roofnet(void)
 
     { &hf_roofnet_type,
       { "Type", "roofnet.type",
-	FT_UINT8, BASE_DEC, VALS(&roofnet_pt_vals), 0x0, "Roofnet Message Type", HFILL }
+	FT_UINT8, BASE_DEC, VALS(roofnet_pt_vals), 0x0, "Roofnet Message Type", HFILL }
     },
 
     { &hf_roofnet_nlinks,
@@ -280,7 +280,7 @@ void proto_register_roofnet(void)
 
     { &hf_roofnet_flags,
       { "Flags", "roofnet.flags",
-	FT_UINT16, BASE_DEC, VALS(&roofnet_flags_vals), 0x0, "Roofnet Flags", HFILL }
+	FT_UINT16, BASE_DEC, VALS(roofnet_flags_vals), 0x0, "Roofnet Flags", HFILL }
     },
 
     { &hf_roofnet_data_length,

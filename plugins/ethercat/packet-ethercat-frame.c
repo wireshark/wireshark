@@ -119,7 +119,7 @@ void proto_register_ethercat_frame(void)
 
       { &hf_ethercat_frame_reserved,
       { "Reserved", "ecatf.reserved",
-      FT_UINT16, BASE_HEX, VALS(&ethercat_frame_reserved_vals), 0x0800,
+      FT_UINT16, BASE_HEX, VALS(ethercat_frame_reserved_vals), 0x0800,
       NULL, HFILL}
       },
 

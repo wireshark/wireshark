@@ -200,11 +200,11 @@ proto_register_dec_bpdu(void)
   static hf_register_info hf[] = {
     { &hf_dec_bpdu_proto_id,
       { "Protocol Identifier",		"dec_stp.protocol",
-	FT_UINT8,	BASE_HEX,	VALS(&protocol_id_vals), 0x0,
+	FT_UINT8,	BASE_HEX,	VALS(protocol_id_vals), 0x0,
       	NULL, HFILL }},
     { &hf_dec_bpdu_type,
       { "BPDU Type",			"dec_stp.type",
-	FT_UINT8,	BASE_DEC,	VALS(&bpdu_type_vals),	0x0,
+	FT_UINT8,	BASE_DEC,	VALS(bpdu_type_vals),	0x0,
       	NULL, HFILL }},
     { &hf_dec_bpdu_version_id,
       { "BPDU Version",			"dec_stp.version",
