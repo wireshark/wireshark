@@ -21,7 +21,7 @@
           <string>PCAP</string>
         </array>
         <key>CFBundleTypeIconFile</key>
-        <string>wsicondoc.icns</string>
+        <string>Wiresharkdoc.icns</string>
         <key>CFBundleTypeMIMETypes</key>
         <array>
           <string>pcap</string>
