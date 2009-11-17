@@ -4631,7 +4631,7 @@ fMacAddress (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label, 
 
 	offset += fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 
-	ti = proto_tree_add_text(tree, tvb, offset, 6, label); /* just add the label, with the tagHeader information in its subtree */
+	ti = proto_tree_add_text(tree, tvb, offset, 6, "%s", label); /* just add the label, with the tagHeader information in its subtree */
 
 	if (lvt > 0)
 	{
