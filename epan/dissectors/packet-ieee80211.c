@@ -6905,7 +6905,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             qos_ps_buf_state_tree = proto_item_add_subtree (qos_ps_buf_state_fields, ett_qos_ps_buf_state);
 
             proto_tree_add_boolean (qos_ps_buf_state_tree, hf_qos_buf_state_indicated,
-                                    tvb, 1, 1, qos_field_content);
+                                    tvb, qosoff + 1, 1, qos_field_content);
 
             if (QOS_PS_BUF_STATE_INDICATED(qos_field_content)) {
               proto_tree_add_uint (qos_ps_buf_state_tree, hf_qos_highest_pri_buf_ac, tvb,
