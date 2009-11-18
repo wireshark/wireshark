@@ -237,6 +237,8 @@ static int hf_gsm_a_gm_serv_type = -1;
 static int hf_gsm_a_gm_ciph_key_seq_num = -1;
 static int hf_gsm_a_gm_for = -1;
 static int hf_gsm_a_gm_type_of_attach = -1;
+static int hf_gsm_a_gm_tmsi_flag = -1;
+static int hf_gsm_a_gm_update_type = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -343,37 +345,21 @@ de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 }
 
 /*
- * [7] 10.5.5.4
+ * [9] 10.5.5.4 TMSI status
  */
+const true_false_string gsm_a_gm_tmsi_flag_value = {
+	"valid TMSI available",
+	"no valid TMSI available"
+};
+
 static guint16
 de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	      oct;
-	guint32	      curr_offset;
-	const gchar  *str;
-
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch(oct&1)
-	{
-		case 0:  str="no valid TMSI available";  break;
-		case 1:  str="valid TMSI available";     break;
-		default: str="This should never happen";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"TMSI Status: (%u) %s",
-		oct&1,
-		str);
-
-	curr_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 3, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_tmsi_flag, tvb, offset, 1, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
@@ -2589,69 +2575,35 @@ de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 }
 
 /*
- * [7] 10.5.5.18
+ * [9] 10.5.5.18 Update Type
  */
+static const value_string gsm_a_gm_update_type_vals[] = {
+	{ 0x00, "RA updating" },
+	{ 0x01, "combined RA/LA updating" },
+	{ 0x02, "combined RA/LA updating with IMSI attach" },
+	{ 0x03, "Periodic updating" },
+	{ 0, NULL }
+};
+
 static guint16
 de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8        oct;
-	guint8        oct_ciph;
-	guint32       curr_offset;
-	const gchar  *str_follow;
-	const gchar  *str_update;
 	proto_item   *tf = NULL;
 	proto_tree   *tf_tree = NULL;
 
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-	oct_ciph = oct>>4;
-
-	oct &= 0x0f;
-
-	switch(oct&7)
-	{
-		case 0:  str_update="RA updating";                              break;
-		case 1:  str_update="combined RA/LA updating";                  break;
-		case 2:  str_update="combined RA/LA updating with IMSI attach"; break;
-		case 3:  str_update="Periodic updating";                        break;
-		default: str_update="reserved";
-	}
-	switch(oct&8)
-	{
-		case 8:  str_follow="Follow-on request pending";    break;
-		default: str_follow="No follow-on request pending";
-	}
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ciph_key_seq_num, tvb, offset << 3, 4, FALSE);
 
 	tf = proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, offset, 1,
 		"Update Type");
 
 	tf_tree = proto_item_add_subtree(tf, ett_gmm_update_type );
 
-	proto_tree_add_text(tf_tree,
-		tvb, curr_offset, 1,
-		"Type: (%u) %s",
-		oct&7,
-		str_update);
-	proto_tree_add_text(tf_tree,
-		tvb, curr_offset, 1,
-		"Follow: (%u) %s",
-		(oct>>3)&1,
-		str_follow);
-
-	/* The ciphering key sequence number is added here */
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Ciphering key sequence number: 0x%02x (%u)",
-		oct_ciph,
-		oct_ciph);
-
-	curr_offset++;
+	proto_tree_add_item(tf_tree, hf_gsm_a_gm_for, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gm_update_type, tvb, offset, 1, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
@@ -6034,6 +5986,16 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_type_of_attach,
 		{ "Type of attach", "gsm_a.gm.type_of_attach",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_attach_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_tmsi_flag,
+		{ "TMSI flag", "gsm_a.gm.tmsi_flag",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_tmsi_flag_value), 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_update_type,
+		{ "Update type", "gsm_a.gm.update_type",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_update_type_vals), 0x07,
 		NULL, HFILL }
 	},
 	};
