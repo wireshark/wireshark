@@ -398,9 +398,11 @@ static gboolean global_mac_lte_dissect_crc_failures = FALSE;
 /* Whether should attempt to decode lcid 1&2 SDUs as srb1/2 (i.e. AM RLC) */
 static gboolean global_mac_lte_attempt_srb_decode = FALSE;
 
-
 /* Whether should attempt to detect and flag DL HARQ resends */
 static gboolean global_mac_lte_attempt_dl_harq_resend_detect = TRUE;
+
+/* Threshold for warning in expert info about high BSR values */
+static gint global_mac_lte_bsr_warn_threshold = 50; /* default is 19325 -> 22624 */
 
 
 /***********************************************************************/
@@ -1599,6 +1601,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     {
                         proto_tree *bsr_tree;
                         proto_item *bsr_ti;
+                        proto_item *buffer_size_ti;
                         guint8 lcgid;
                         guint8 buffer_size;
 
@@ -1615,9 +1618,17 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                     tvb, offset, 1, FALSE);
                         /* Buffer Size */
                         buffer_size = tvb_get_guint8(tvb, offset) & 0x3f;
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_short_bsr_buffer_size,
-                                            tvb, offset, 1, FALSE);
+                        buffer_size_ti = proto_tree_add_item(bsr_tree, hf_mac_lte_control_short_bsr_buffer_size,
+                                                             tvb, offset, 1, FALSE);
                         offset++;
+                        if (buffer_size >= global_mac_lte_bsr_warn_threshold) {
+                            expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
+                                                   "UE %u - BSR for LCG %u exceeds threshold: %u (%s)",
+                                                   p_mac_lte_info->ueid,
+                                                   lcgid,
+                                                   buffer_size, val_to_str(buffer_size, buffer_size_vals, "Unknown"));
+                        }
+
 
                         proto_item_append_text(bsr_ti, " (lcgid=%u  %s)",
                                                lcgid,
@@ -1628,6 +1639,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     {
                         proto_tree *bsr_tree;
                         proto_item *bsr_ti;
+                        proto_item *buffer_size_ti;
                         guint8     buffer_size[4];
                         bsr_ti = proto_tree_add_string_format(tree,
                                                               hf_mac_lte_control_bsr,
@@ -1636,22 +1648,55 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                               "Long BSR");
                         bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
 
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_0,
-                                            tvb, offset, 1, FALSE);
+                        /* LCID Group 0 */
+                        buffer_size_ti = proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_0,
+                                                             tvb, offset, 1, FALSE);
                         buffer_size[0] = (tvb_get_guint8(tvb, offset) & 0xfc) >> 2;
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_1,
-                                            tvb, offset, 2, FALSE);
+                        if (buffer_size[0] >= global_mac_lte_bsr_warn_threshold) {
+                            expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
+                                                   "UE %u - BSR for LCG 0 exceeds threshold: %u (%s)",
+                                                   p_mac_lte_info->ueid,
+                                                   buffer_size[0], val_to_str(buffer_size[0], buffer_size_vals, "Unknown"));
+                        }
+
+                        /* LCID Group 1 */
+                        buffer_size_ti = proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_1,
+                                                             tvb, offset, 2, FALSE);
                         buffer_size[1] = ((tvb_get_guint8(tvb, offset) & 0x03) << 4) | ((tvb_get_guint8(tvb, offset+1) & 0xf0) >> 4);
                         offset++;
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_2,
-                                            tvb, offset, 2, FALSE);
+                        if (buffer_size[1] >= global_mac_lte_bsr_warn_threshold) {
+                            expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
+                                                   "UE %u - BSR for LCG 1 exceeds threshold: %u (%s)",
+                                                   p_mac_lte_info->ueid,
+                                                   buffer_size[1], val_to_str(buffer_size[1], buffer_size_vals, "Unknown"));
+                        }
+
+                        /* LCID Group 2 */
+                        buffer_size_ti = proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_2,
+                                                             tvb, offset, 2, FALSE);
+
                         buffer_size[2] = ((tvb_get_guint8(tvb, offset) & 0x0f) << 2) | ((tvb_get_guint8(tvb, offset+1) & 0xc0) >> 6);
                         offset++;
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_3,
-                                            tvb, offset, 1, FALSE);
+                        if (buffer_size[2] >= global_mac_lte_bsr_warn_threshold) {
+                            expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
+                                                   "UE %u - BSR for LCG 2 exceeds threshold: %u (%s)",
+                                                   p_mac_lte_info->ueid,
+                                                   buffer_size[2], val_to_str(buffer_size[2], buffer_size_vals, "Unknown"));
+                        }
+
+                        /* LCID Group 3 */
+                        buffer_size_ti = proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_3,
+                                                             tvb, offset, 1, FALSE);
                         buffer_size[3] = tvb_get_guint8(tvb, offset) & 0x3f;
                         offset++;
+                        if (buffer_size[3] >= global_mac_lte_bsr_warn_threshold) {
+                            expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
+                                                   "UE %u - BSR for LCG 3 exceeds threshold: %u (%s)",
+                                                   p_mac_lte_info->ueid,
+                                                   buffer_size[3], val_to_str(buffer_size[3], buffer_size_vals, "Unknown"));
+                        }
 
+                        /* Append summary to parent */
                         proto_item_append_text(bsr_ti, "   0:(%s)  1:(%s)  2:(%s)  3:(%s)",
                                                val_to_str(buffer_size[0], buffer_size_vals, "Unknown"),
                                                val_to_str(buffer_size[1], buffer_size_vals, "Unknown"),
@@ -2701,7 +2746,7 @@ void proto_register_mac_lte(void)
     /* Preferences */
     mac_lte_module = prefs_register_protocol(proto_mac_lte, NULL);
 
-    /* Obsolete this preference? (TODO: just delete since never in proper release?) */
+    /* Obsolete this preference (TODO: just delete since never in proper release?) */
     prefs_register_obsolete_preference(mac_lte_module, "single_rar");
 
     prefs_register_bool_preference(mac_lte_module, "check_reserved_bits",
@@ -2763,6 +2808,11 @@ void proto_register_mac_lte(void)
         "Attempt to detect DL HARQ resends",
         "Attempt to detect DL HARQ resends (useful if logging UE side so need to infer)",
         &global_mac_lte_attempt_dl_harq_resend_detect);
+
+    prefs_register_uint_preference(mac_lte_module, "bsr_warn_threshold",
+        "BSR size when warning should be issued (0 - 63)",
+        "If any BSR report is >= this number, an expert warning will be added",
+        10, &global_mac_lte_bsr_warn_threshold);
 
     register_init_routine(&mac_lte_init_protocol);
 }
