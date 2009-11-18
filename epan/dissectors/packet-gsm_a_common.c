@@ -505,10 +505,10 @@ static int hf_gsm_a_mbs_session_id = -1;
 int hf_gsm_a_L3_protocol_discriminator = -1;
 int hf_gsm_a_call_prio = -1;
 int hf_gsm_a_skip_ind = -1;
+int hf_gsm_a_spare_bits = -1;
 
 static int hf_gsm_a_b7spare = -1;
 int hf_gsm_a_b8spare = -1;
-static int hf_gsm_a_spare_bits = -1;
 static int hf_gsm_a_multi_bnd_sup_fields = -1;
 static int hf_gsm_a_pgsm_supported = -1;
 static int hf_gsm_a_egsm_supported = -1;

@@ -229,6 +229,12 @@ static int hf_gsm_a_gm_cause = -1;
 
 static int hf_gsm_a_gm_fop = -1;
 static int hf_gsm_a_gm_res_of_attach = -1;
+static int hf_gsm_a_gm_type_of_ciph_alg = -1;
+static int hf_gsm_a_gm_imeisv_req = -1;
+static int hf_gsm_a_gm_ac_ref_nr = -1;
+static int hf_gsm_a_gm_force_to_standby = -1;
+static int hf_gsm_a_gm_serv_type = -1;
+static int hf_gsm_a_gm_ciph_key_seq_num = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -344,43 +350,28 @@ de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 }
 
 /*
- * [7] 10.5.5.3
+ * [9] 10.5.5.3 Ciphering algorithm
  */
+static const value_string gsm_a_gm_type_of_ciph_alg_vals[] = {
+	{ 0x00, "ciphering not used" },
+	{ 0x01, "GPRS Encryption Algorithm GEA/1" },
+	{ 0x02, "GPRS Encryption Algorithm GEA/2" },
+	{ 0x03, "GPRS Encryption Algorithm GEA/3" },
+	{ 0x04, "GPRS Encryption Algorithm GEA/4" },
+	{ 0x05, "GPRS Encryption Algorithm GEA/5" },
+	{ 0x06, "GPRS Encryption Algorithm GEA/6" },
+	{ 0x07, "GPRS Encryption Algorithm GEA/7" },
+	{ 0, NULL }
+};
+
 static guint16
 de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	      oct;
-	guint32	      curr_offset;
-	const gchar  *str;
-
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch(oct&7)
-	{
-		case 0:  str="ciphering not used";              break;
-		case 1:  str="GPRS Encryption Algorithm GEA/1"; break;
-		case 2:  str="GPRS Encryption Algorithm GEA/2"; break;
-		case 3:  str="GPRS Encryption Algorithm GEA/3"; break;
-		case 4:  str="GPRS Encryption Algorithm GEA/4"; break;
-		case 5:  str="GPRS Encryption Algorithm GEA/5"; break;
-		case 6:  str="GPRS Encryption Algorithm GEA/6"; break;
-		case 7:  str="GPRS Encryption Algorithm GEA/7"; break;
-		default: str="This should never happen";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Ciphering Algorithm: (%u) %s",
-		oct&7,
-		str);
-
-	curr_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_ciph_alg, tvb, offset, 1, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
@@ -618,72 +609,44 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 }
 
 /*
- * [7] 10.5.5.7
+ * [9] 10.5.5.7 Force to standby (lower nibble)
  */
+static const range_string gsm_a_gm_force_to_standby_vals[] = {
+	{ 0x00, 0x00, "Force to standby not indicated" },
+	{ 0x01, 0x01, "Force to standby indicated" },
+	{ 0x02, 0x07, "Unknown, interpreted as Force to standby not indicated" },
+	{ 0, 0, NULL }
+};
+
 static guint16
 de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8        oct;
-	guint32       curr_offset;
-	const gchar  *str;
+	guint32	bit_offset;
 
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch(oct&7)
-	{
-		case 1:  str="Force to standby indicated";     break;
-		default: str="force to standby not indicated";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Force to Standby: (%u) %s",
-		oct&7,
-		str);
-
-	curr_offset++;
+	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE LOWER NIBBLE */
+	bit_offset = (offset << 3) + 4;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_force_to_standby, tvb, bit_offset + 1, 3, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
- * [7] 10.5.5.7
+ * [9] 10.5.5.7 Force to standby (higher nibble)
  */
 static guint16
 de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8         oct;
-	guint32        curr_offset;
-	const gchar   *str;
-
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
+	guint32	bit_offset;
 
 	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
-	oct >>= 4;
-
-	switch(oct&7)
-	{
-		case 1:  str="Force to standby indicated";      break;
-		default: str="force to standby not indicated";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Force to Standby: (%u) %s",
-		oct&7,
-		str);
-
-	curr_offset++;
+	bit_offset = offset << 3;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_force_to_standby, tvb, bit_offset + 1, 3, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
@@ -763,39 +726,27 @@ de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 }
 
 /*
- * [7] 10.5.5.10
+ * [9] 10.5.5.10 IMEISV request
  */
+static const range_string gsm_a_gm_imeisv_req_vals[] = {
+	{ 0x00, 0x00, "IMEISV not requested" },
+	{ 0x01, 0x01, "IMEISV requested" },
+	{ 0x02, 0x07, "Unknown, interpreted as IMEISV not requested" },
+	{ 0, 0, NULL }
+};
+
 static guint16
 de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8        oct;
-	guint32       curr_offset;
-	const gchar  *str;
-
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
+	guint32	bit_offset;
 
 	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
-	oct >>= 4;
-
-	switch ( oct&7 )
-	{
-		case 1:  str="IMEISV requested";     break;
-		default: str="IMEISV not requested";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"IMEISV Request: (%u) %s",
-		oct&7,
-		str);
-
-	curr_offset++;
+	bit_offset = offset << 3;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_imeisv_req, tvb, bit_offset + 1, 3, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
@@ -2736,106 +2687,59 @@ de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 }
 
 /*
- * [7] 10.5.5.19
+ * [9] 10.5.5.19 A&C reference number (lower nibble)
  */
 static guint16
 de_gmm_ac_ref_nr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"A&C reference number: 0x%02x (%u)",
-		oct&0xf,
-		oct&0xf);
-
-	curr_offset++;
+	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE LOWER NIBBLE */
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ac_ref_nr, tvb, (offset << 3) + 4, 4, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
- * [7] 10.5.5.19
+ * [9] 10.5.5.19 A&C reference number (higher nibble)
  */
 static guint16
 de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
-	guint32	curr_offset;
-
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
 	/* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
-	oct >>= 4;
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"A&C reference number: 0x%02x (%u)",
-		oct,
-		oct);
-
-	curr_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ac_ref_nr, tvb, offset << 3, 4, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
- * [8] 10.5.5.20
+ * [9] 10.5.5.20 Service type
  */
+static const value_string gsm_a_gm_serv_type_vals[] = {
+	{ 0x00,	"Signalling" },
+	{ 0x01,	"Data" },
+	{ 0x02,	"Paging response" },
+	{ 0x03,	"MBMS Multicast Service Reception" },
+	{ 0x04,	"MBMS Broadcast Service Reception" },
+	{ 0, NULL }
+};
+
 static guint16
 de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8        oct;
-	guint8        oct_ciph;
-	guint32       curr_offset;
-	const gchar  *str;
+	guint32	bit_offset;
 
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-	oct_ciph = oct;
-	oct_ciph &= 7;
-
-	oct = oct >> 4;
-
-	switch ( oct&7 )
-	{
-		case 0: str="Signalling"; break;
-		case 1: str="Data"; break;
-		case 2: str="Paging Response"; break;
-		case 3: str="MBMS Notification Response"; break;/* reponse->response*/
-		default: str="reserved";
-	}
-
-	/* The ciphering key sequence number is added here */
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Ciphering key sequence number: 0x%02x (%u)",
-		oct_ciph,
-		oct_ciph);
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Service Type: (%u) %s",
-		oct&7,
-		str);
-
-	curr_offset++;
+	bit_offset = offset << 3;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
+	bit_offset += 1;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_serv_type, tvb, bit_offset, 3, FALSE);
+	bit_offset += 3;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
+	bit_offset += 1;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ciph_key_seq_num, tvb, bit_offset, 3, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
@@ -6122,6 +6026,36 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_res_of_attach,
 		{ "Result of attach", "gsm_a.gm.res_of_attach",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_res_of_attach_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_type_of_ciph_alg,
+		{ "Type of ciphering algorithm", "gsm_a.gm.type_of_ciph_alg",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_ciph_alg_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_imeisv_req,
+		{ "IMEISV request", "gsm_a.gm.imeisv_req",
+		FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_gm_imeisv_req_vals), 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_ac_ref_nr,
+		{ "A&C reference number", "gsm_a.gm.ac_ref_nr",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_force_to_standby,
+		{ "Force to standby", "gsm_a.gm.force_to_standby",
+		FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_gm_force_to_standby_vals), 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_ciph_key_seq_num,
+		{ "Ciphering key sequence number", "gsm_a.gm.ciph_key_seq_num",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_serv_type,
+		{ "Service type", "gsm_a.gm.serv_type",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_serv_type_vals), 0x00,
 		NULL, HFILL }
 	},
 	};

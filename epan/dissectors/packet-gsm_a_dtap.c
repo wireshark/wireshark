@@ -411,7 +411,6 @@ static int hf_gsm_a_numbering_plan_id = -1;
 static int hf_gsm_a_lsa_id = -1;
 static int hf_gsm_a_speech_vers_ind = -1;
 static int hf_gsm_a_itc = -1;
-static int hf_gsm_a_dtap_spare_bits = -1;
 static int hf_gsm_a_sysid = -1;
 static int hf_gsm_a_bitmap_length = -1;
 static int hf_gsm_a_dtap_serv_cat_b7 = -1;
@@ -968,7 +967,7 @@ de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 6, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 6, FALSE);
 
 	switch (oct & 0x03)
 	{
@@ -1028,7 +1027,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 		 *       Table 10.5.135d/3GPP TS 24.008
 		 * Table 10.5.135d/3GPP TS 24.008: Service Category information element
 		 */
-		proto_tree_add_bits_item(subtree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 3, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 3, FALSE);
 		proto_tree_add_item(subtree, hf_gsm_a_dtap_serv_cat_b5, tvb, curr_offset, 1, FALSE);
 		proto_tree_add_item(subtree, hf_gsm_a_dtap_serv_cat_b4, tvb, curr_offset, 1, FALSE);
 		proto_tree_add_item(subtree, hf_gsm_a_dtap_serv_cat_b3, tvb, curr_offset, 1, FALSE);
@@ -1089,7 +1088,7 @@ de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+1, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+1, 3, FALSE);
 
 	switch ((oct & 0x0c) >> 2)
 	{
@@ -1332,7 +1331,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 				(oct & 0x40) ? "other extension of octet 3" :
 				"extension of information transfer capability");
 
-			proto_tree_add_bits_item(subtree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+2, 2, FALSE);
+			proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+2, 2, FALSE);
 
 			proto_tree_add_item(subtree, hf_gsm_a_speech_vers_ind, tvb, curr_offset, 1, FALSE);
 			curr_offset++;
@@ -1521,7 +1520,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 		a_bigbuf,
 		str);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+5, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+5, 3, FALSE);
 
 	curr_offset++;
 
@@ -1588,7 +1587,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 		"with USER INFORMATION messages on a temporary signalling connection" :
 		"in-band using logical link zero");
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+7, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+7, 1, FALSE);
 
 	curr_offset++;
 
@@ -2115,7 +2114,7 @@ bc_octet_6:
 		a_bigbuf);
 	}
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+6, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+6, 2, FALSE);
 
 	curr_offset++;
 
@@ -2212,7 +2211,7 @@ de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	break;
 	}
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+4, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 2, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 		proto_tree_add_text(tree,
@@ -2236,7 +2235,7 @@ de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(tree,
@@ -2403,7 +2402,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, int heade
 	{
 		proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 		proto_tree_add_item(tree, hf_gsm_a_present_ind, tvb, curr_offset, 1, FALSE);
-		proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+3, 3, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+3, 3, FALSE);
 		proto_tree_add_item(tree, hf_gsm_a_screening_ind, tvb, curr_offset, 1, FALSE);
 		curr_offset++;
 	}
@@ -2475,7 +2474,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gboolean
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_type_of_sub_addr, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+5, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+5, 3, FALSE);
 	type_of_sub_addr = (tvb_get_guint8(tvb, curr_offset) & 0x70) >> 4;
 	curr_offset++;
 
@@ -2651,7 +2650,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	a_bigbuf,
 	str);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+3, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+3, 1, FALSE);
 
 	switch (oct & 0x0f)
 	{
@@ -2927,7 +2926,7 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 	proto_tree_add_text(tree,
@@ -3021,7 +3020,7 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 	coding_standard = (oct & 0x60) >> 5;
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_dtap_prog_coding_standard, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset << 3) + 3, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3) + 3, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_dtap_location, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
@@ -3067,7 +3066,7 @@ static const range_string gsm_a_dtap_recall_type_vals[] = {
 static guint16
 de_recall_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (offset<<3), 5, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset<<3), 5, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_dtap_recall_type, tvb, offset, 1, FALSE);
 
 	return(1);
@@ -3284,7 +3283,7 @@ de_alert_pat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	curr_offset = offset;
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset << 3), 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 4, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_dtap_alerting_pattern, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
@@ -3307,7 +3306,7 @@ de_allowed_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 	curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_dtap_ccbs_activation, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset << 3) + 1, 7, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3) + 1, 7, FALSE);
 
 	curr_offset++;
 
@@ -3365,7 +3364,7 @@ de_nw_call_ctrl_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 
 	curr_offset = offset;
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset << 3), 7, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 7, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_dtap_mcs, tvb, curr_offset, 1, FALSE);
 
 	curr_offset++;
@@ -3490,7 +3489,7 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 				/*
 				 * We can proceed with the second octet of the bitmap
 				 */
-				proto_tree_add_bits_item(subtree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset << 3, 2, FALSE);
+				proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 2, FALSE);
 				proto_tree_add_item(subtree, hf_gsm_a_codec_ohr_amr_wb, tvb, curr_offset, 1, FALSE);
 				proto_tree_add_item(subtree, hf_gsm_a_codec_ofr_amr_wb, tvb, curr_offset, 1, FALSE);
 				proto_tree_add_item(subtree, hf_gsm_a_codec_ohr_amr, tvb, curr_offset, 1, FALSE);
@@ -3531,7 +3530,7 @@ de_serv_cat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 
 	curr_offset = offset;
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_dtap_serv_cat_b7, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_dtap_serv_cat_b6, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_dtap_serv_cat_b5, tvb, curr_offset, 1, FALSE);
@@ -4072,7 +4071,7 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 
 	item =
 	proto_tree_add_text(tree,
@@ -4081,7 +4080,7 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 
@@ -4182,7 +4181,7 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 
 	item =
 	proto_tree_add_text(tree,
@@ -4191,7 +4190,7 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 
@@ -4318,7 +4317,7 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, FALSE);
 	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
 
 	switch ((oct & 0x70) >> 4)
@@ -4405,7 +4404,7 @@ dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 
 	item =
 	proto_tree_add_text(tree,
@@ -4414,7 +4413,7 @@ dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_ID_TYPE]);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
 
 	switch (oct & 0x07)
 	{
@@ -4566,7 +4565,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
 
@@ -4602,7 +4601,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 		a_bigbuf,
 		(oct & 0x08) ? "Follow-on request pending" : "No follow-on request pending");
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, (curr_offset<<3)+5, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+5, 1, FALSE);
 
 	switch (oct & 0x03)
 	{
@@ -4837,7 +4836,7 @@ dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_spare_bits, tvb, curr_offset<<3, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, FALSE);
 
 	item =
 		proto_tree_add_text(tree,
@@ -6273,11 +6272,6 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_itc,
 		{ "Information transfer capability", "gsm_a.itc",
 		FT_UINT8, BASE_HEX, VALS(gsm_a_itc_values), 0x07,
-		NULL, HFILL }
-	},
-	{ &hf_gsm_a_dtap_spare_bits,
-		{ "Spare bit(s)","gsm_a.spare_bits",
-		FT_UINT8,BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_sysid,
