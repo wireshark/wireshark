@@ -249,8 +249,8 @@ typedef	struct	nspr_pktracefull_v23
 {
 	NSPR_HEADER3B_V22(fp);	/* long performance header */
 	guint8	fp_DevNo;	/* Network Device (NIC) number */
-	guint32 fp_AbsTimeHighHdr; /* Higher value of the absolute time */
 	guint32	fp_AbsTimeLowHdr;	/* High resolution low time */
+	guint32 fp_AbsTimeHighHdr; /* Higher value of the absolute time */
 	guint32	fp_PcbDevNo;	/* PCB devno */
 	guint32	fp_lPcbDevNo;	/* link PCB devno */
 	guint16 fp_VlanTag; /* vlan tag */
@@ -315,8 +315,8 @@ typedef	struct	nspr_pktracepart_v23
 {
 	NSPR_HEADER3B_V22(pp);	/* long performance header */
 	guint8	pp_DevNo;	/* Network Device (NIC) number */
-	guint32 pp_AbsTimeHighHdr; /* Higher value of the absolute time */
 	guint32	pp_AbsTimeLowHdr;	/* High resolution low time */
+	guint32 pp_AbsTimeHighHdr; /* Higher value of the absolute time */
 	guint16	pp_PktSizeOrg;	/* Original packet size */
 	guint16	pp_PktOffset;	/* starting offset in packet */
 	guint32	pp_PcbDevNo;	/* PCB devno */
