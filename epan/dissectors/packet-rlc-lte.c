@@ -690,7 +690,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case CHANNEL_TYPE_BCCH:
-                /* TODO: */
+                /* TODO: Problem is don't know which transport channel... */
                 return;
 
             case CHANNEL_TYPE_PCCH:
@@ -1166,7 +1166,6 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*****************************************/
     /* Show context information              */
-    /* TODO: hide inside own tree?           */
 
     ti = proto_tree_add_uint(rlc_lte_tree, hf_rlc_lte_context_direction,
                              tvb, 0, 0, p_rlc_lte_info->direction);
