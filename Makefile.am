@@ -702,8 +702,8 @@ EXTRA_DIST = \
 	image/stock_dialog_stop_48.xpm	\
 	image/stock_dialog_warning_48.xpm	\
 	image/text2pcap.rc.in	\
-	image/voip_select.xpm	\
-	image/voip_bg.xpm	\
+	image/toolbar/analyze_24.xpm \
+	image/toolbar/audio_player_24.xpm	\
 	image/toolbar/autoscroll_24.xpm	\
 	image/toolbar/capture_airpcap_16.xpm \
 	image/toolbar/capture_capture_16.xpm \
@@ -720,6 +720,7 @@ EXTRA_DIST = \
 	image/toolbar/checkbox_16.xpm	\
 	image/toolbar/colorize_24.xpm	\
 	image/toolbar/conversations_16.xpm	\
+	image/toolbar/decode_24.xpm	\
 	image/toolbar/decode_as_16.xpm	\
 	image/toolbar/display_filter_24.xpm	\
 	image/toolbar/endpoints_16.xpm	\
@@ -749,24 +750,31 @@ EXTRA_DIST = \
 	image/toolbar/network_wired_16.png	\
 	image/toolbar/network_wireless_16.png	\
 	image/toolbar/resize_columns_24.xpm	\
+	image/toolbar/telephone_16.xpm	\
 	image/toolbar/telephony_16.xpm	\
 	image/toolbar/time_24.xpm	\
+	image/toolbar/voip_flow_24.xpm	\
 	image/toolbar/web_support_24.xpm	\
 	image/toolbar/wep_closed_24.xpm \
 	image/toolbar/wiki_24.xpm	\
-	image/toolbar/decode_24.xpm	\
-	image/toolbar/audio_player_24.xpm	\
-	image/toolbar/voip_flow_24.xpm	\
-	image/toolbar/telephone_16.xpm	\
-	image/toolbar/analyze_24.xpm \
 	image/tshark.rc.in	\
 	image/up_arrow.xpm	\
-	image/wiresharkdoc.ico	\
+	image/voip_bg.xpm	\
+	image/voip_select.xpm	\
 	image/wireshark.exe.manifest.in \
 	image/wireshark.ico	\
-	image/wiresharkinst.ico	\
 	image/wireshark.rc.in	\
+	image/WiresharkDoc-128.png	\
+	image/WiresharkDoc-16.png	\
+	image/WiresharkDoc-24.png	\
+	image/WiresharkDoc-256.png	\
+	image/WiresharkDoc-32.png	\
+	image/WiresharkDoc-48.png	\
+	image/WiresharkDoc-64.png	\
+	image/wiresharkdoc.ico	\
+	image/wiresharkinst.ico	\
 	image/wiretap.rc.in	\
+	image/wsicon.svg	\
 	image/wsicon16.png	\
 	image/wsicon16.xpm	\
 	image/wsicon256.png	\
@@ -776,20 +784,17 @@ EXTRA_DIST = \
 	image/wsicon48.xpm	\
 	image/wsicon64.png	\
 	image/wsicon64.xpm	\
+	image/wsiconcap.svg	\
 	image/wsiconcap16.xpm	\
 	image/wsiconcap256.png	\
 	image/wsiconcap32.xpm	\
 	image/wsiconcap48.xpm	\
-	image/wsiconcap.svg	\
-	image/wsicondoc256.png	\
-	image/wsicondoc.svg	\
-	image/wsiconinst256.png	\
 	image/wsiconinst.svg	\
-	image/wsicon.svg	\
+	image/wsiconinst256.png	\
 	image/wslogo.eps	\
 	image/wslogo.svg	\
-	image/wssplash.xpm	\
 	image/wssplash-dev.xpm	\
+	image/wssplash.xpm	\
 	ipmap.html	\
 	make-manuf		\
 	make-version.pl		\
