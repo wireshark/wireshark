@@ -235,6 +235,8 @@ static int hf_gsm_a_gm_ac_ref_nr = -1;
 static int hf_gsm_a_gm_force_to_standby = -1;
 static int hf_gsm_a_gm_serv_type = -1;
 static int hf_gsm_a_gm_ciph_key_seq_num = -1;
+static int hf_gsm_a_gm_for = -1;
+static int hf_gsm_a_gm_type_of_attach = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -285,68 +287,34 @@ de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 }
 
 /*
- * [7] 10.5.5.2
+ * [9] 10.5.5.2 Attach type
  */
+static const value_string gsm_a_gm_type_of_attach_vals[] = {
+	{ 0x01, "GPRS attach" },
+	{ 0x02, "Not used (In earlier versions: GPRS attach while IMSI attached)" },
+	{ 0x03, "Combined GPRS/IMSI attached" },
+	{ 0, NULL }
+};
+
 static guint16
 de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	      oct;
-	guint8	      oct_ciph;
-	guint32	      curr_offset;
-	const gchar  *str_follow;
-	const gchar  *str_attach;
 	proto_item   *tf = NULL;
 	proto_tree   *tf_tree = NULL;
 
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-	oct_ciph = oct>>4;
-
-	oct &= 0x0f;
-
-	switch(oct&7)
-	{
-		case 1:  str_attach="GPRS attach";                     break;
-		case 2:  str_attach="GPRS attach while IMSI attached"; break;
-		case 3:  str_attach="Combined GPRS/IMSI attach";       break;
-		default: str_attach="reserved";
-	}
-	switch(oct&8)
-	{
-		case 8:  str_follow="Follow-on request pending";       break;
-		default: str_follow="No follow-on request pending";
-	}
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ciph_key_seq_num, tvb, offset << 3, 4, FALSE);
 
 	tf = proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+		tvb, offset, 1,
 		"Attach Type");
 
 	tf_tree = proto_item_add_subtree(tf, ett_gmm_attach_type );
 
-	proto_tree_add_text(tf_tree,
-		tvb, curr_offset, 1,
-		"Type: (%u) %s",
-		oct&7,
-		str_attach);
-	proto_tree_add_text(tf_tree,
-		tvb, curr_offset, 1,
-		"Follow: (%u) %s",
-		(oct>>3)&1,
-		str_follow);
-
-	/* The ciphering key sequence number is added here */
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Ciphering key sequence number: 0x%02x (%u)",
-		oct_ciph,
-		oct_ciph);
-
-	curr_offset++;
+	proto_tree_add_item(tf_tree, hf_gsm_a_gm_for, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gm_type_of_attach, tvb, offset, 1, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
@@ -6056,6 +6024,16 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_serv_type,
 		{ "Service type", "gsm_a.gm.serv_type",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_serv_type_vals), 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_for,
+		{ "Follow-on request pending", "gsm_a.gm.for",
+		FT_BOOLEAN, 8, NULL, 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_type_of_attach,
+		{ "Type of attach", "gsm_a.gm.type_of_attach",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_attach_vals), 0x07,
 		NULL, HFILL }
 	},
 	};
