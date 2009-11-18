@@ -673,7 +673,7 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 	nspr_pktracepart_v10_t *pp;
       
 	*err = 0;
-	*err_info = g_strdup_printf("nstrace: no error");
+	*err_info = NULL;
 	do
 	{
 		while ((nstrace_buf_offset < nstrace_buflen) &&
@@ -828,7 +828,7 @@ gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 	nspr_pktracefull_v21_t *fp21;
 		
 	*err = 0;
-	*err_info = g_strdup_printf("nstrace: no error"); 
+	*err_info = NULL;
 	do
 	{
 		while ((nstrace_buf_offset < nstrace_buflen) &&
