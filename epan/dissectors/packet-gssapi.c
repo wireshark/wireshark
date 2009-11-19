@@ -332,7 +332,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 									tvb_new_subset(gss_tvb, start_offset, -1, -1), 
 									pinfo, subtree);
 				}
-				else {
+				else if( pinfo->gssapi_encrypted_tvb ) {
 					return_offset = call_dissector(ntlmssp_data_only_handle,
 									tvb_new_subset(pinfo->gssapi_encrypted_tvb, 0, -1, -1),
 									pinfo, subtree);
