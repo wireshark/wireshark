@@ -3323,10 +3323,8 @@ proto_custom_set(proto_tree* tree, int field_id,
 			result[0] = '\0';
 			break;
 
-		case FT_PROTOCOL: /* We only check if protocol exist in packet */
-			if (strcmp(hfinfo->name, finfo->hfinfo->name) == 0) {
-				g_strlcpy(result, "Yes", size);
-			}
+		case FT_PROTOCOL:
+			g_strlcpy(result, "Yes", size);
 			break;
 
 		case FT_UINT_BYTES:
