@@ -50,6 +50,7 @@ static int hf_pim_version = -1;
 static int hf_pim_type = -1;
 static int hf_pim_code = -1;
 static int hf_pim_cksum = -1;
+static int hf_pim_res_bytes = -1;
 
 static gint ett_pim = -1;
 
@@ -117,14 +118,12 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIMv1");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
 	ti = proto_tree_add_item(tree, proto_pim, tvb, offset, -1, FALSE);
 	pim_tree = proto_item_add_subtree(ti, ett_pim);
 
 	/* Put IGMP type, 0x14, into the tree */
 	proto_tree_add_text(pim_tree, tvb, offset, 1,
 	    "Type: PIM (0x14)");
-    }
     offset += 1;
 
     pim_type = tvb_get_guint8(tvb, offset);
@@ -132,9 +131,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_add_str(pinfo->cinfo, COL_INFO,
 	    val_to_str(pim_type, type1vals, "Unknown (%u)"));
 
-    if (tree) {
 	proto_tree_add_uint(pim_tree, hf_pim_code, tvb, offset, 1, pim_type);
-    }
     offset += 1;
 
     pim_cksum = tvb_get_ntohs(tvb, offset);
@@ -143,13 +140,11 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/*
 	 * Not PIMv1 - what gives?
 	 */
-    	if (tree) {
 	    proto_tree_add_uint(pim_tree, hf_pim_cksum, tvb,
 		    offset, 2, pim_cksum);
-	}
+
 	offset += 2;
-    	if (tree)
-	    proto_tree_add_uint(pim_tree, hf_pim_version, tvb, offset, 1, pim_ver);
+    proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, FALSE);
 	return offset+tvb_length_remaining(tvb, offset);
     }
 
@@ -175,7 +170,6 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	pim_length = tvb_reported_length(tvb);
     }
 
-    if (tree) {
 	if (!pinfo->fragmented && length >= pim_length) {
 	    /*
 	     * The packet isn't part of a fragmented datagram and isn't
@@ -199,11 +193,9 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    proto_tree_add_uint(pim_tree, hf_pim_cksum, tvb,
 		    offset, 2, pim_cksum);
         }
-    }
     offset += 2;
 
-    if (tree)
-	proto_tree_add_uint(pim_tree, hf_pim_version, tvb, offset, 1, pim_ver);
+	proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, FALSE);
     offset += 1;
 
     offset += 3;	/* skip reserved stuff */
@@ -628,15 +620,12 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_str(pinfo->cinfo, COL_INFO, typestr);
 
-    if (tree) {
 	ti = proto_tree_add_item(tree, proto_pim, tvb, offset, -1, FALSE);
 	pim_tree = proto_item_add_subtree(ti, ett_pim);
 
-	proto_tree_add_uint(pim_tree, hf_pim_version, tvb, offset, 1,
-	    PIM_VER(pim_typever));
-	proto_tree_add_uint(pim_tree, hf_pim_type, tvb, offset, 1,
-	    PIM_TYPE(pim_typever));
-
+	proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, FALSE);
+	proto_tree_add_item(pim_tree, hf_pim_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset + 1, 1, FALSE);
 	pim_cksum = tvb_get_ntohs(tvb, offset + 2);
 	length = tvb_length(tvb);
 	if (PIM_VER(pim_typever) == 2) {
@@ -1212,26 +1201,39 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	default:
 	    break;
 	}
-    }
 done:;
 }
 
 void
 proto_register_pim(void)
 {
-    static hf_register_info hf[] = {
-      { &hf_pim_version,
-	{ "Version",		"pim.version",
-				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_pim_type,
-	{ "Type",		"pim.type",
-				FT_UINT8, BASE_DEC, VALS(type2vals), 0x0, NULL, HFILL }},
-      { &hf_pim_code,
-	{ "Code",		"pim.code",
-				FT_UINT8, BASE_DEC, VALS(type1vals), 0x0, NULL, HFILL }},
-      { &hf_pim_cksum,
-	{ "Checksum",		"pim.cksum",
-				FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+	static hf_register_info hf[] =
+	{
+	{ &hf_pim_version,
+		{ "Version", "pim.version",
+		FT_UINT8, BASE_DEC, NULL, 0xf0,
+		NULL, HFILL }
+	},
+	{ &hf_pim_type,
+		{ "Type", "pim.type",
+		FT_UINT8, BASE_DEC, VALS(type2vals), 0x0f,
+		NULL, HFILL }
+	},
+	{ &hf_pim_code,
+		{ "Code", "pim.code",
+		FT_UINT8, BASE_DEC, VALS(type1vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_pim_cksum,
+		{ "Checksum", "pim.cksum",
+		FT_UINT16, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_pim_res_bytes,
+		{ "Reserved byte(s)", "pim.res_bytes",
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }
+	},
     };
     static gint *ett[] = {
         &ett_pim,
