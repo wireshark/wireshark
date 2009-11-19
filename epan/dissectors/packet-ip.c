@@ -1474,8 +1474,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   iph->ip_p = tvb_get_guint8(tvb, offset + 9);
   if (tree) {
-    proto_tree_add_uint_format(ip_tree, hf_ip_proto, tvb, offset + 9, 1, iph->ip_p,
-	"Protocol: %s (0x%02x)", ipprotostr(iph->ip_p), iph->ip_p);
+    proto_tree_add_item(ip_tree, hf_ip_proto, tvb, offset + 9, 1, FALSE);
   }
 
   iph->ip_sum = tvb_get_ntohs(tvb, offset + 10);
@@ -1895,7 +1894,7 @@ proto_register_ip(void)
 			NULL, HFILL }},
 
 		{ &hf_ip_proto,
-		{ "Protocol",		"ip.proto", FT_UINT8, BASE_HEX, NULL, 0x0,
+		{ "Protocol",		"ip.proto", FT_UINT8, BASE_HEX, VALS(ipproto_val), 0x0,
 			NULL, HFILL }},
 
 		{ &hf_ip_checksum,

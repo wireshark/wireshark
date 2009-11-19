@@ -44,7 +44,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
-#include <epan/ipproto.h>
 #include <epan/tap.h>
 
 #include <../color.h>

@@ -31,7 +31,6 @@
 #include <gdk/gdkkeysyms.h>
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <epan/epan_dissect.h>
 
 #include "../globals.h"

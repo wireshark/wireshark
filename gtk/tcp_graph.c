@@ -35,9 +35,8 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
-#include <epan/ipproto.h>
-
 #include <epan/packet.h>
+#include <epan/ipproto.h>
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
 #include <epan/epan_dissect.h>

@@ -29,7 +29,6 @@
 #include <gtk/gtk.h>
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <epan/epan_dissect.h>
 #include <epan/dissectors/packet-dcerpc.h>
 

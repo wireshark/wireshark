@@ -59,7 +59,6 @@
 #include <epan/charsets.h>
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
-#include <epan/ipproto.h>
 #include <epan/dissectors/packet-ipv6.h>
 
 #include <../globals.h>
