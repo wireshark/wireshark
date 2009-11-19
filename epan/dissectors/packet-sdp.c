@@ -282,6 +282,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32     ipaddr[4];
   gint        n,i;
   sdp_packet_info *sdp_pi;
+  gchar       *unknown_encoding = ep_strdup("Unknown");
 
   /* Initialise packet info for passing to tap */
   sdp_pi = ep_alloc(sizeof(sdp_packet_info));
@@ -292,7 +293,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   transport_info.connection_type=NULL;
   transport_info.media_type=NULL;
   for (n=0; n < SDP_NO_OF_PT; n++){
-	  transport_info.encoding_name[n]=NULL;
+	  transport_info.encoding_name[n]=unknown_encoding;
   }
   for (n=0; n < SDP_MAX_RTP_CHANNELS; n++)
   {
