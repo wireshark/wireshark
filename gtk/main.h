@@ -241,6 +241,13 @@ extern void expand_tree_cb(GtkWidget *widget, gpointer data);
  */
 extern void expand_all_cb(GtkWidget *widget, gpointer data);
 
+/** User requested "Apply as a custom column" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void apply_as_custom_column_cb(GtkWidget *widget, gpointer data);
+
 /** User requested "Collapse All" by menu.
  *
  * @param widget parent widget (unused)

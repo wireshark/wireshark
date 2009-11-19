@@ -55,4 +55,13 @@ void                 column_prefs_apply(GtkWidget *widget);
  */
 void                 column_prefs_destroy(GtkWidget *widget);
 
+/** Add a custom column.
+ *
+ * @param fmt column format
+ * @param title column title
+ * @param custom_field column custom field
+ */
+void                 column_prefs_add_custom(gint fmt, const gchar *title,
+					     const gchar *custom_field);
+
 #endif

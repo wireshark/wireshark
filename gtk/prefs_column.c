@@ -259,11 +259,23 @@ column_prefs_show(GtkWidget *prefs_window) {
 }
 
 
+void
+column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
+{	
+  fmt_data *cfmt;
+
+  cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+  cfmt->title = g_strdup(title);
+  cfmt->fmt = g_strdup(col_format_to_string(fmt));
+  cfmt->custom_field = g_strdup(custom_field);
+
+  prefs.col_list = g_list_append(prefs.col_list, cfmt);
+}
+
 /* To do: add input checking to each of these callbacks */
 
 static void
 column_list_new_cb(GtkWidget *w _U_, gpointer data) {
-    fmt_data          *cfmt;
     gint               cur_fmt;
     const gchar       *title = "New Column";
     GtkTreeView       *column_l = GTK_TREE_VIEW(data);
@@ -272,12 +284,8 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data) {
     GtkTreePath       *path;
     GtkTreeViewColumn *title_column;
 
-    cur_fmt        = COL_NUMBER;    /*  Set the default new column type */
-    cfmt           = (fmt_data *) g_malloc(sizeof(fmt_data));
-    cfmt->title    = g_strdup(title);
-    cfmt->fmt      = g_strdup(col_format_to_string(cur_fmt));
-    cfmt->custom_field = NULL;
-    prefs.col_list = g_list_append(prefs.col_list, cfmt);
+    cur_fmt = COL_NUMBER;    /*  Set the default new column type */
+    column_prefs_add_custom (cur_fmt, title, NULL);
 
     model = gtk_tree_view_get_model(column_l);
     gtk_list_store_append(GTK_LIST_STORE(model), &iter);

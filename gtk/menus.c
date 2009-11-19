@@ -388,7 +388,7 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
     if( (action>>8) == 255 ) {
         color_filters_reset_tmp();
 #ifdef NEW_PACKET_LIST
-		new_packet_list_colorize_packets();
+        new_packet_list_colorize_packets();
 #else
         cf_colorize_packets(&cfile);
 #endif
@@ -678,6 +678,9 @@ static GtkItemFactoryEntry menu_items[] =
                        0, "<StockItem>", WIRESHARK_STOCK_DISPLAY_FILTER,},
     {"/Analyze/Display Filter _Macros...", NULL, GTK_MENU_FUNC(macros_dialog_cb), 0, NULL, NULL,},
     {"/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+#ifndef NEW_PACKET_LIST
+    {"/Analyze/Apply as Column", NULL, GTK_MENU_FUNC(apply_as_custom_column_cb), 0, NULL, NULL},
+#endif
     {"/Analyze/Appl_y as Filter", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Analyze/Apply as Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
@@ -986,6 +989,12 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     {"/Collapse All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL, NULL,},
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+
+#ifndef NEW_PACKET_LIST
+    {"/Apply as Column", NULL, GTK_MENU_FUNC(apply_as_custom_column_cb), 0, NULL, NULL},
+
+    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+#endif
 
     {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Apply as Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
@@ -3173,8 +3182,12 @@ set_menus_for_selected_tree_row(capture_file *cf)
                              TRUE);
         set_menu_sensitivity(tree_view_menu_factory, "/Copy/As Filter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Column",
+                             hfinfo->type != FT_NONE);
         set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
+        set_menu_sensitivity(tree_view_menu_factory, "/Apply as Column",
+                             hfinfo->type != FT_NONE);
         set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter",
                              proto_can_match_selected(cf->finfo_selected, cf->edt));
         set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter",
@@ -3215,6 +3228,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
         set_menu_sensitivity(main_menu_factory, "/Edit/Copy/Value", FALSE);
         set_menu_sensitivity(main_menu_factory, "/Edit/Copy/As Filter", FALSE);
         set_menu_sensitivity(tree_view_menu_factory, "/Copy", FALSE);
+        set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Column", FALSE);
+        set_menu_sensitivity(tree_view_menu_factory, "/Apply as Column", FALSE);
         set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter", FALSE);
         set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter", FALSE);
         set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter", FALSE);

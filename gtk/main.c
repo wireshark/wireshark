@@ -154,6 +154,7 @@
 #include "gtk/capture_dlg.h"
 #include "gtk/capture_if_dlg.h"
 #include "gtk/tap_dfilter_dlg.h"
+#include "gtk/prefs_column.h"
 
 #ifdef HAVE_LIBPCAP
 #include "../image/wsicon16.xpm"
@@ -795,6 +796,19 @@ void collapse_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
 void expand_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if (cfile.edt->tree)
     expand_all_tree(cfile.edt->tree, tree_view);
+}
+
+void apply_as_custom_column_cb (GtkWidget *widget _U_, gpointer data _U_)
+{
+  if (cfile.finfo_selected) {
+    column_prefs_add_custom(COL_CUSTOM, cfile.finfo_selected->hfinfo->name, 
+                            cfile.finfo_selected->hfinfo->abbrev);
+#ifndef NEW_PACKET_LIST
+    /* Recreate the packet list according to new preferences */
+    packet_list_recreate ();
+    cfile.cinfo.columns_changed = FALSE; /* Reset value */
+#endif
+  }
 }
 
 void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
