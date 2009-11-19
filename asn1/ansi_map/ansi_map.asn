@@ -118,8 +118,10 @@ AuthenticationFailureReport ::= [PRIVATE 18] SET {
 	-- 	M 6.5.2.112 c optional?
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	--	O 6.5.2.116 d
-	terminalType							[47] IMPLICIT TerminalType OPTIONAL
+	terminalType							[47] IMPLICIT TerminalType OPTIONAL,
 	-- O 6.5.2.154
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 }
 
 -- AuthenticationFailureReport RETURN RESULT Parameters
@@ -193,8 +195,10 @@ AuthenticationRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.do h
 	terminalType							[47] IMPLICIT TerminalType OPTIONAL,
 	-- O 6.5.2.154 g
-	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL
+	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
 	-- O 6.5.2.160
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 
 
@@ -317,8 +321,10 @@ BaseStationChallenge ::= [PRIVATE 18] SET {
 	-- M 6.5.2.102
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	-- O 6.5.2.116 a
-	serviceIndicator						[193] IMPLICIT ServiceIndicator OPTIONAL
+	serviceIndicator						[193] IMPLICIT ServiceIndicator OPTIONAL,
 	-- O 6.5.2.wB b
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 -- BaseStationChallenge RETURN RESULT Parameters
 BaseStationChallengeRes ::= [PRIVATE 18] SET {
@@ -353,6 +359,8 @@ CountRequest ::= [PRIVATE 18] SET {
 	-- M 6.5.2.81
 	senderIdentificationNumber				[103] IMPLICIT SenderIdentificationNumber OPTIONAL,
 	-- O 6.5.2.116 a
+	meid									[390] IMPLICIT MEID OPTIONAL,
+	-- O
 	...
 	}
 
@@ -518,8 +526,10 @@ FacilitiesDirective2 ::= [PRIVATE 18] SET {
 	-- O 6 .5.2.154
 	userZoneData							[209] IMPLICIT UserZoneData OPTIONAL,
 	-- O 6.5.2.am (IS-730) v
-	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL
+	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL,
 	-- O 6.5.2.166 q
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 }
 
 -- FacilitiesDirective2 RETURN RESULT Parameters
@@ -619,8 +629,10 @@ FeatureRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.116
 	systemMyTypeCode						[22] IMPLICIT SystemMyTypeCode OPTIONAL,
 	-- (Originating MSC)
-	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL
+	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
 	-- 6.5.2.160
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 -- FeatureRequest RETURN RESULT Parameters
 FeatureRequestRes ::= [PRIVATE 18] SET {
@@ -1170,8 +1182,10 @@ HandoffToThird2 ::= [PRIVATE 18] SET {
 	-- O 6.5.2.k
 	userZoneData							[209] IMPLICIT UserZoneData OPTIONAL,
 	-- O 6.5.2.am (IS-730)
-	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL
+	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL,
 	-- O 6.5.2.166 p	
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 
 -- HandoffToThird2 RETURN RESULT Parameters
@@ -1270,8 +1284,10 @@ InformationForward ::= [PRIVATE 18] SET {
 	-- O 6.5.2.79 a
 	redirectingNumberString					[101] IMPLICIT RedirectingNumberString OPTIONAL,
 	-- O 6.5.2.108 b
-	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL
+	redirectingSubaddress					[102] IMPLICIT RedirectingSubaddress OPTIONAL,
 	-- O 6.5.2.109 b	
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 
 -- InformationForward RETURN RESULT Parameters
@@ -1573,8 +1589,10 @@ InterSystemSetup ::= [PRIVATE 18] SET {
 	-- O 6.5.2.109 b, g
 	signalingMessageEncryptionKey			[45] IMPLICIT SignalingMessageEncryptionKey OPTIONAL,
 	-- O 6.5.2.120 a
-	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL
+	voicePrivacyMask						[48] IMPLICIT VoicePrivacyMask OPTIONAL,
 	-- O 6.5.2.166 a	
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 
 -- InterSystemSetup RETURN RESULT Parameters
@@ -1700,8 +1718,10 @@ LocationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.156 o
 	terminationTriggers						[122] IMPLICIT TerminationTriggers OPTIONAL,
 	-- O 6.5.2.159 f
-	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL
+	triggerAddressList						[276] IMPLICIT TriggerAddressList OPTIONAL,
 	-- O 6.5.2.de f, t
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 
 -- 6.4.2.28 MobileOnChannel
@@ -1728,8 +1748,10 @@ MSInactive ::= [PRIVATE 18] SET {
 	-- O 6.5.2.116 d
 	servicesResult							[204] IMPLICIT ServicesResult OPTIONAL,
 	-- O 6 .5.2.ah f
-	sms-MessageWaitingIndicator				[118] IMPLICIT SMS-MessageWaitingIndicator OPTIONAL
+	sms-MessageWaitingIndicator				[118] IMPLICIT SMS-MessageWaitingIndicator OPTIONAL,
 	-- O 6.5.2.129 e
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 
 -- MSInactive RETURN RESULT Parameters
@@ -1804,6 +1826,8 @@ OriginationRequest ::= [PRIVATE 18] SET {
 	-- NS0027
 	callingPartyCategory					[355] IMPLICIT CallingPartyCategory OPTIONAL,
 	-- O 6.5.2.gl
+	meid									[390] IMPLICIT MEID OPTIONAL,
+	-- O
 	... }
 
 -- OriginationRequest RETURN RESULT Parameters
@@ -2018,8 +2042,10 @@ QualificationRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.di c
 	nonPublicData							[200] IMPLICIT NonPublicData OPTIONAL,
 	-- O 6 .5.2.a d
-	userZoneData							[209] IMPLICIT UserZoneData OPTIONAL
+	userZoneData							[209] IMPLICIT UserZoneData OPTIONAL,
 	-- O 6 .5.2.am e
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 
 -- QualificationRequest RETURN RESULT Parameters
@@ -2717,8 +2743,10 @@ SMSNotification ::= [PRIVATE 18] SET {
 	-- O 6.5.2.122 a
 	sms-Address								[104] IMPLICIT SMS-Address OPTIONAL,
 	-- O 6.5.2.123 a, b
-	sms-TeleserviceIdentifier				[116] IMPLICIT SMS-TeleserviceIdentifier OPTIONAL
+	sms-TeleserviceIdentifier				[116] IMPLICIT SMS-TeleserviceIdentifier OPTIONAL,
 	-- O 6.5.2.137
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 
 -- SMSNotification RETURN RESULT Parameters
@@ -2804,8 +2832,10 @@ TransferToNumberRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.i
 	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
 	-- O 6.5.2.160 e
-	winCapability							[280] IMPLICIT WINCapability OPTIONAL
+	winCapability							[280] IMPLICIT WINCapability OPTIONAL,
 	-- O 6.5.2.di i
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 
 -- TransferToNumberRequest RETURN RESULT Parameters
@@ -2921,8 +2951,10 @@ UnsolicitedResponse ::= [PRIVATE 18] SET {
 	-- (Border MSC) O 6.5.2.93 a, b
 	systemAccessType						[34] IMPLICIT SystemAccessType OPTIONAL,
 	-- O 6.5.2.145 c
-	tdmaServiceCode							[178] IMPLICIT TDMAServiceCode OPTIONAL
+	tdmaServiceCode							[178] IMPLICIT TDMAServiceCode OPTIONAL,
 	-- O 6.5.2.i
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 
 -- UnsolicitedResponse RETURN RESULT Parameters
@@ -3051,8 +3083,10 @@ TMSIDirectiveRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.63 b
 	mscid									[21] IMPLICIT MSCID OPTIONAL,
 	-- O 6.5.2.bu b
-	reasonList								[218] IMPLICIT ReasonList OPTIONAL
+	reasonList								[218] IMPLICIT ReasonList OPTIONAL,
 	-- O 6.5.2.aw
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 	}
 
 -- 6.4.2.g NumberPortabilityRequest Updated with N.S0023-0 v 1.0
@@ -4857,8 +4891,10 @@ OTASPRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.wB j
 	systemCapabilities						[49] IMPLICIT SystemCapabilities OPTIONAL,
 	-- O 6.5.2.146 k
-	terminalType							[47] IMPLICIT TerminalType OPTIONAL
+	terminalType							[47] IMPLICIT TerminalType OPTIONAL,
 	-- O 6.5.2.154
+	meid									[390] IMPLICIT MEID OPTIONAL
+	-- O
 		}
 -- Table 6.4.2.CCy OTASPRequest RETURN RESULT Parameters
 OTASPRequestRes ::= [PRIVATE 18] SET {
