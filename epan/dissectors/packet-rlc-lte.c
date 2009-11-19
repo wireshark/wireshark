@@ -346,8 +346,7 @@ static void show_AM_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
     /* Decode signalling PDUs as PDCP */
     if (global_rlc_lte_call_pdcp && whole_pdu) {
-        /* TODO: remove channelId == 1 test to do NAS channel too? */
-        if ((rlc_info->channelType == CHANNEL_TYPE_SRB) && (rlc_info->channelId == 1)) {
+        if (rlc_info->channelType == CHANNEL_TYPE_SRB) {
             /* Attempt to decode payload using LTE PDCP dissector */
             tvbuff_t *pdcp_tvb = tvb_new_subset(tvb, offset, length, length);
             volatile dissector_handle_t protocol_handle;
