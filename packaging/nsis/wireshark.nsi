@@ -367,7 +367,7 @@ File "${GTK_DIR}\bin\libgthread-2.0-0.dll"
 !ifdef ICONV_DIR
 File "${GTK_DIR}\bin\iconv.dll"
 !endif
-File "${GTK_DIR}\bin\intl.dll"
+File "${GTK_DIR}\bin\${INTL_DLL}"
 !ifdef ZLIB_DIR
 File "${ZLIB_DIR}\zlib1.dll"
 !endif
