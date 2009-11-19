@@ -359,15 +359,15 @@ File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
 File "..\..\epan\libwireshark.dll"
 !endif
 File "..\..\wsutil\libwsutil.dll"
-File "${GLIB_DIR}\bin\libgio-2.0-0.dll"
-File "${GLIB_DIR}\bin\libglib-2.0-0.dll"
-File "${GLIB_DIR}\bin\libgobject-2.0-0.dll"
-File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
-File "${GLIB_DIR}\bin\libgthread-2.0-0.dll"
+File "${GTK_DIR}\bin\libgio-2.0-0.dll"
+File "${GTK_DIR}\bin\libglib-2.0-0.dll"
+File "${GTK_DIR}\bin\libgobject-2.0-0.dll"
+File "${GTK_DIR}\bin\libgmodule-2.0-0.dll"
+File "${GTK_DIR}\bin\libgthread-2.0-0.dll"
 !ifdef ICONV_DIR
-File "${ICONV_DIR}\bin\iconv.dll"
+File "${GTK_DIR}\bin\iconv.dll"
 !endif
-File "${GETTEXT_DIR}\bin\${GETTEXT_DLL}"
+File "${GTK_DIR}\bin\intl.dll"
 !ifdef ZLIB_DIR
 File "${ZLIB_DIR}\zlib1.dll"
 !endif
@@ -828,13 +828,13 @@ File "${GTK_DIR}\bin\${JPEG_DLL}"
 !endif
 !ifdef NEED_FREETYPE_DLL
 File "${GTK_DIR}\bin\libpangoft2-1.0-0.dll"
-File "${WIRESHARK_LIBS}\freetype\bin\${FREETYPE_DLL}"
+File "${GTK_DIR}\bin\${FREETYPE_DLL}"
 !endif
 !ifdef NEED_FONTCONFIG_DLL
-File "${WIRESHARK_LIBS}\fontconfig\bin\${FONTCONFIG_DLL}"
+File "${GTK_DIR}\bin\${FONTCONFIG_DLL}"
 !endif
 !ifdef NEED_EXPAT_DLL
-File "${WIRESHARK_LIBS}\expat\bin\${EXPAT_DLL}"
+File "${GTK_DIR}\bin\${EXPAT_DLL}"
 !endif
 SetOutPath $INSTDIR\etc\gtk-2.0
 File "${GTK_DIR}\etc\gtk-2.0\*.*"
@@ -850,9 +850,6 @@ SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines
 File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
 SetOutPath $INSTDIR\lib\gtk-2.0\modules
 File "${GTK_DIR}\lib\gtk-2.0\modules\libgail.dll"
-# Not needed with pango 1.14.5
-#SetOutPath $INSTDIR\lib\pango\${PANGO_LIB_DIR}\modules
-#File "${GTK_DIR}\lib\pango\${PANGO_LIB_DIR}\modules\pango-*.dll"
 
 ; GTK MS-Windows Engine (GTK-Wimp)
 SetOutPath $INSTDIR\${GTK_WIMP_DLLDST_DIR}

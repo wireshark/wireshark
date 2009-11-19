@@ -137,16 +137,13 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 # Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
-GLIB_DIR=$(WIRESHARK_LIBS)\glib
-# This macro is used by the setup target.
-GLIB_PKG=2.22.2-1
 
 ##### To Use new packet list uncomment this line ####
 ### Warning Experimental - work in progress
 NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
 
 #
-# Mandatory: GTK (& related libs) settings
+# Mandatory: GLib, GTK & related library settings
 #
 # Please note: Since Wireshark release 1.0.0, we no longer support GTK1.x
 #
@@ -160,17 +157,9 @@ JPEG_DLL=libjpeg-7.dll
 FREETYPE_DLL=freetype6.dll
 FONTCONFIG_DLL=libfontconfig-1.dll
 EXPAT_DLL=libexpat-1.dll
-# These macros are used by the setup target.
-GTK_PKG=2.16.6-1
-CAIRO_PKG=1.8.8-2
-ATK_PKG=1.26.0-1
-LIBPNG_PKG=1.2.39-1
-TIFF_PKG=libtiff_3.9.1-1_win32
-JPEG_PKG=jpeg_7-1_win32
-PANGO_PKG=1.26.0-1
-FREETYPE_PKG=2.3.9-1
-FONTCONFIG_PKG=2.7.3-1
-EXPAT_PKG=2.0.1-1
+INTL_DLL=intl.dll
+# This macro is used by the setup target.
+GTK_PKG=2.16.6-20091013
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -180,19 +169,6 @@ EXPAT_PKG=2.0.1-1
 #
 # GTK 2.12 is the mainline since Wireshark 0.99.7
 GTK_INST_VERSION=2.16
-PANGO_INST_VERSION=1.26
-
-#
-# Mandatory for GTK >= 2: Gettext
-#
-# Set GETTEXT_DIR to the directory in which the
-# GETTEXT include files and library resides.
-#
-GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.17-1
-# This macro is used by the nsis installer script and by the install target.
-GETTEXT_DLL=intl.dll
-# This macro is used by the setup target.
-GETTEXT_PKG=-runtime-0.17-1
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -370,16 +346,13 @@ GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
 # Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
-GLIB_DIR=$(WIRESHARK_LIBS)\glib
-# This macro is used by the setup target.
-GLIB_PKG=2.20.5-1
 
 ##### To Use new packet list uncomment this line ####
 ### Warning Experimental - work in progress
 NEW_PACKET_LIST_CONFIG=^#define NEW_PACKET_LIST 1
 
 #
-# Mandatory: GTK (& related libs) settings
+# Mandatory: GLib, GTK & related library settings
 #
 # Please note: Since Wireshark release 1.0.0, we no longer support GTK1.x
 #
@@ -393,17 +366,10 @@ JPEG_DLL=libjpeg-7.dll
 FREETYPE_DLL=libfreetype-6.dll
 FONTCONFIG_DLL=libfontconfig-1.dll
 EXPAT_DLL=libexpat-1.dll
+INTL_DLL=libintl-8.dll
+
 # These macros are used by the setup target.
-GTK_PKG=2.16.6-1
-CAIRO_PKG=1.8.8-2
-ATK_PKG=1.26.0-2
-LIBPNG_PKG=1.2.40-1
-TIFF_PKG=libtiff_3.9.1-1_win64
-JPEG_PKG=jpeg_7-1_win64
-PANGO_PKG=1.24.5-2
-FREETYPE_PKG=2.3.9-2
-FONTCONFIG_PKG=2.7.3-1
-EXPAT_PKG=2.0.1-2
+GTK_PKG=2.16.6-20090912
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -412,19 +378,6 @@ EXPAT_PKG=2.0.1-2
 # These macros are used by the nsis installer script and by the setup target.
 #
 GTK_INST_VERSION=2.16
-PANGO_INST_VERSION=1.24
-
-#
-# Mandatory for GTK >= 2: Gettext
-#
-# Set GETTEXT_DIR to the directory in which the
-# GETTEXT include files and library resides.
-#
-GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.17-1
-# This macro is used by the nsis installer script and by the install target.
-GETTEXT_DLL=libintl-8.dll
-# This macro is used by the setup target.
-GETTEXT_PKG=_0.17-1_win64
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -934,12 +887,12 @@ WTAP_VERSION=$(WTAP_VERSION_MAJOR).$(WTAP_VERSION_MINOR).$(WTAP_VERSION_MICRO)
 RC_WTAP_VERSION=$(WTAP_VERSION_MAJOR),$(WTAP_VERSION_MINOR),$(WTAP_VERSION_MICRO)
 
 # GLib
-GLIB_CFLAGS=/I$(GLIB_DIR)\include\glib-$(GLIB_VERSION) \
-	/I$(GLIB_DIR)\lib\glib-$(GLIB_VERSION)\include
-GLIB_LIBS=$(GLIB_DIR)\lib\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\lib\gmodule-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\lib\gobject-$(GLIB_VERSION).lib
-GTHREAD_LIBS=$(GLIB_DIR)\lib\gthread-$(GLIB_VERSION).lib \
+GLIB_CFLAGS=/I$(GTK_DIR)\include\glib-$(GLIB_VERSION) \
+	/I$(GTK_DIR)\lib\glib-$(GLIB_VERSION)\include
+GLIB_LIBS=$(GTK_DIR)\lib\glib-$(GLIB_VERSION).lib \
+	$(GTK_DIR)\lib\gmodule-$(GLIB_VERSION).lib \
+	$(GTK_DIR)\lib\gobject-$(GLIB_VERSION).lib
+GTHREAD_LIBS=$(GTK_DIR)\lib\gthread-$(GLIB_VERSION).lib
 
 # GTK+
 GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-2.0 \
@@ -953,12 +906,19 @@ GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
 	$(GTK_DIR)\lib\pango-1.0.lib \
 	$(GLIB_LIBS)
 
+
 !IF "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
 GTK_LIB_DIR=2.10.0
+
 NEED_LIBPNG_DLL=USE
 NEED_LIBJPEG_DLL=USE
 NEED_LIBTIFF_DLL=USE
 NEED_CAIRO_DLL=USE
+# Pango >=1.24.5 Needs these:
+NEED_FREETYPE_DLL=USE
+NEED_FONTCONFIG_DLL=USE
+NEED_EXPAT_DLL=USE
+
 GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
@@ -967,18 +927,7 @@ GTK_WIMP_RCDST_DIR=etc\gtk-2.0
 !ERROR ? Unknown or invalid GTK_INST_VERSION
 !ENDIF
 
-!IF "$(PANGO_INST_VERSION)" == "1.26" || "$(PANGO_INST_VERSION)" == "1.24" || "$(PANGO_INST_VERSION)" == "1.22" || "$(PANGO_INST_VERSION)" == "1.18" || "$(PANGO_INST_VERSION)" == "1.16"
-PANGO_LIB_DIR=1.5.0
-!ELSE
-!ERROR ? Unknown or invalid PANGO_INST_VERSION
-!ENDIF
 
-!IF "$(PANGO_INST_VERSION)" == "1.26" || "$(PANGO_INST_VERSION)" == "1.24"
-#PANGO >=1.24.5 Needs these:
-NEED_FREETYPE_DLL=USE
-NEED_FONTCONFIG_DLL=USE
-NEED_EXPAT_DLL=USE
-!ENDIF
 !IFDEF AIRPCAP_DIR
 AIRPCAP_CONFIG=^#define HAVE_AIRPCAP 1
 AIRPDCAP_CONFIG=^#define HAVE_AIRPDCAP 1
@@ -1182,7 +1131,7 @@ LIBWIRESHARK_CONFIG=
 !ENDIF
 
 # Construct the path
-PATH=$(PATH);$(CYGWIN_PATH);$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
+PATH=$(PATH);$(CYGWIN_PATH);$(GTK_DIR)\bin;$(GETTEXT_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
 
 # We can't use a lot of IPv6 code with plain Visual C++ 6.0
 !IF "$(MSVC_VARIANT)" == "MSVC6" && !DEFINED(MSSDK)

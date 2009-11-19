@@ -735,20 +735,9 @@ setup: verify_tools clean_setup process_libs
 # (The choice is determined by the value of the macro WIN_SETUP_OPT).
 process_libs:
     @if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
-!IF "$(GTK_INST_VERSION)" == "2.18" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
+!IFDEF GTK_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk$(GTK_INST_VERSION)/glib_$(GLIB_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk$(GTK_INST_VERSION)/glib-dev_$(GLIB_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-!ELSE
-!ERROR ? Unknown or invalid GTK_INST_VERSION
-!ENDIF
-!IF "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gettext-runtime-0.17-1 gettext-runtime-0.17-1.zip
-!ELSE
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gettext-0.17-1 gettext$(GETTEXT_PKG).zip
+		gtk2 gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 !ENDIF
 !IFDEF KFW_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -800,48 +789,6 @@ process_libs:
 !IFDEF GEOIP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. GeoIP-1.4.5ws.zip
-!ENDIF
-
-!IFDEF GTK_DIR
-!IF "$(GTK_INST_VERSION)" == "2.18" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/gtk+_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/gtk+-dev_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/cairo_$(CAIRO_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/cairo-dev_$(CAIRO_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/atk_$(ATK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/atk-dev_$(ATK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/libpng_$(LIBPNG_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/$(TIFF_PKG).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/$(JPEG_PKG).zip
-!ELSE
-!ERROR ? Unknown or invalid GTK_INST_VERSION
-!ENDIF
-!IF "$(PANGO_INST_VERSION)" == "1.26" || "$(PANGO_INST_VERSION)" == "1.24" || "$(PANGO_INST_VERSION)" == "1.22"
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/pango_$(PANGO_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk$(GTK_INST_VERSION)/pango-dev_$(PANGO_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-!ELSE
-!ERROR ? Unknown or invalid PANGO_INST_VERSION
-!ENDIF
-!ENDIF
-# PANGO >=1.24.5 needs these DLL:s
-!IFDEF NEED_FREETYPE_DLL
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		expat gtk$(GTK_INST_VERSION)/expat_$(EXPAT_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		fontconfig gtk$(GTK_INST_VERSION)/fontconfig_$(FONTCONFIG_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		freetype gtk$(GTK_INST_VERSION)/freetype_$(FREETYPE_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 !ENDIF
 !IFDEF HHC_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -1014,20 +961,13 @@ install-all: install-generated-files
 	if not exist $(INSTALL_DIR)\lib\gtk-2.0\modules mkdir $(INSTALL_DIR)\lib\gtk-2.0\modules
 	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR) mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)
 	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders
-#	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules
 	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines
-#	if not exist $(INSTALL_DIR)\lib\pango mkdir $(INSTALL_DIR)\lib\pango
-#	if not exist $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR) mkdir $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)
-#	if not exist $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules mkdir $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules
 	xcopy $(GTK_DIR)\etc\gtk-2.0\*.* $(INSTALL_DIR)\etc\gtk-2.0 /d
 	if exist $(GTK_DIR)\etc\pango xcopy $(GTK_DIR)\etc\pango\pango.* $(INSTALL_DIR)\etc\pango /d
 	if exist $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders /d
 	xcopy $(GTK_DIR)\lib\gtk-2.0\modules\libgail.dll $(INSTALL_DIR)\lib\gtk-2.0\modules /d
 	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines\libpixmap.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines /d
-#	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\im-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules /d
-#	xcopy $(GTK_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules /d
 !IFDEF NEED_LIBPNG_DLL
-#	xcopy $(GTK_DIR)\bin\libpng13.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libpng12-0.dll $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NEED_LIBTIFF_DLL
@@ -1042,24 +982,24 @@ install-all: install-generated-files
 !ENDIF
 !IFDEF NEED_FREETYPE_DLL
 	xcopy $(GTK_DIR)\bin\libpangoft2-1.0-0.dll $(INSTALL_DIR) /d
-	xcopy $(WIRESHARK_LIBS)\freetype\bin\$(FREETYPE_DLL) $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\$(FREETYPE_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NEED_FONTCONFIG_DLL
-	xcopy $(WIRESHARK_LIBS)\fontconfig\bin\$(FONTCONFIG_DLL) $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\$(FONTCONFIG_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NEED_EXPAT_DLL
-	xcopy $(WIRESHARK_LIBS)\expat\bin\$(EXPAT_DLL) $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\$(EXPAT_DLL) $(INSTALL_DIR) /d
 !ENDIF
 	if not exist $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR)
 	xcopy "$(GTK_WIMP_DLLSRC_DIR)\libwimp.dll" $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) /d
 	if not exist $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR)
 	xcopy "$(GTK_WIMP_RCSRC_DIR)\gtkrc" $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) /d
-	xcopy $(GLIB_DIR)\bin\libgio-2.0-0.dll $(INSTALL_DIR) /d
-	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d
-	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d
-	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
-	xcopy $(GLIB_DIR)\bin\libgthread-2.0-0.dll $(INSTALL_DIR) /d
-	xcopy $(GETTEXT_DIR)\bin\$(GETTEXT_DLL) $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libgio-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libgthread-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\$(INTL_DLL) $(INSTALL_DIR) /d
 !IFDEF ZLIB_DIR
 	xcopy $(ZLIB_DLL) $(INSTALL_DIR) /d
 !ENDIF
