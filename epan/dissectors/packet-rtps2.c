@@ -5,8 +5,13 @@
  *
  * Copyright 2005, Fabrizio Bertocci <fabrizio@rti.com>
  * Real-Time Innovations, Inc.
- * 3975 Freedom Circle
- * Santa Clara, CA 95054
+ * 385 Moffett Park Drive
+ * Sunnyvale, CA 94089
+ *
+ * Version 2.1 bug fixes to RTPS_DATA provided by
+ * Twin Oaks Computing, Inc.  <contact@twinoakscomputing.com>
+ * 755 Maleta Ln, Ste 203
+ * Castle Rock, CO 80108
  *
  * $Id$
  *
@@ -153,6 +158,7 @@ static gint ett_rtps_rdentity                   = -1;
 static gint ett_rtps_wrentity                   = -1;
 static gint ett_rtps_guid_prefix                = -1;
 static gint ett_rtps_part_message_data          = -1;
+static gint ett_rtps_part_message_guid          = -1;
 static gint ett_rtps_locator_udp_v4             = -1;
 static gint ett_rtps_locator                    = -1;
 static gint ett_rtps_locator_list               = -1;
@@ -163,6 +169,9 @@ static gint ett_rtps_seq_ulong                  = -1;
 static gint ett_rtps_serialized_data            = -1;
 static gint ett_rtps_sample_info_list           = -1;
 static gint ett_rtps_sample_info                = -1;
+static gint ett_rtps_sample_batch_list          = -1;
+static gint ett_rtps_locator_filter_channel     = -1;
+static gint ett_rtps_locator_filter_locator     = -1;
 
 /***************************************************************************/
 /* Value-to-String Tables */
@@ -245,6 +254,9 @@ static const value_string submessage_id_vals[] = {
   { SUBMESSAGE_HEARTBEAT_FRAG,          "HEARTBEAT_FRAG" },
   { SUBMESSAGE_ACKNACK_BATCH,           "ACKNACK_BATCH" },
   { SUBMESSAGE_HEARTBEAT_BATCH,         "HEARTBEAT_BATCH" },
+  { SUBMESSAGE_ACKNACK_SESSION,         "ACKNACK_SESSION" },
+  { SUBMESSAGE_HEARTBEAT_SESSION,       "HEARTBEAT_SESSION" },
+  { SUBMESSAGE_RTPS_DATA_SESSION,       "DATA_SESSION" },
   /* Deprecated submessages */
   { SUBMESSAGE_DATA,                    "DATA_deprecated" },
   { SUBMESSAGE_NOKEY_DATA,              "NOKEY_DATA_deprecated" },
@@ -346,6 +358,8 @@ static const value_string parameter_id_vals[] = {
   { PID_ENTITY_VIRTUAL_GUID,            "PID_ENTITY_VIRTUAL_GUID" },
   { PID_SERVICE_KIND,                   "PID_SERVICE_KIND" },
   { PID_TYPECODE,                       "PID_TYPECODE" },
+  { PID_DISABLE_POSITIVE_ACKS,          "PID_DISABLE_POSITIVE_ACKS" },
+  { PID_LOCATOR_FILTER_LIST,            "PID_LOCATOR_FILTER_LIST" },
 
   /* The following PID are deprecated */
   { PID_DEADLINE_OFFERED,               "PID_DEADLINE_OFFERED [deprecated]" },
@@ -647,7 +661,7 @@ static const struct Flag_definition RTPS_DATA_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
+  { 'K', "Serialized Key"  },                   /* Bit 3 */
   { 'D', "Data present" },                      /* Bit 2 */
   { 'Q', "Inline QoS" },                        /* Bit 1 */
   { 'E', "Endianness bit" }                     /* Bit 0 */
@@ -659,7 +673,7 @@ static const struct Flag_definition RTPS_DATA_FRAG_FLAGS[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 4 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 3 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 2 */
+  { 'K', "Serialized Key"  },                   /* Bit 2 */
   { 'Q', "Inline QoS" },                        /* Bit 1 */
   { 'E', "Endianness bit" }                     /* Bit 0 */
 };
@@ -686,7 +700,7 @@ static const struct Flag_definition RTPS_SAMPLE_INFO_FLAGS16[] = {
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 8 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 7 */
   { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 6 */
-  { RESERVEDFLAG_CHAR, RESERVEDFLAG_STRING },   /* Bit 5 */
+  { 'K', "Serialized Key" },                    /* Bit 5 */
   { 'I', "Invalid sample" },                    /* Bit 4 */
   { 'D', "Data present" },                      /* Bit 3 */
   { 'O', "OffsetSN present" },                  /* Bit 2 */
@@ -803,10 +817,12 @@ DECLARE_DISSECTOR_SUBMESSAGE(INFO_SRC);
 DECLARE_DISSECTOR_SUBMESSAGE(INFO_REPLY_IP4);
 DECLARE_DISSECTOR_SUBMESSAGE(INFO_DST);
 DECLARE_DISSECTOR_SUBMESSAGE(INFO_REPLY);
-DECLARE_DISSECTOR_SUBMESSAGE(RTPS_DATA);
 DECLARE_DISSECTOR_SUBMESSAGE(RTPS_DATA_FRAG);
 DECLARE_DISSECTOR_SUBMESSAGE(RTPS_DATA_BATCH);
 DECLARE_DISSECTOR_SUBMESSAGE(HEARTBEAT_BATCH);
+/* The RTPS_DATA has an extra parameter, can't use the macro... */
+static void dissect_RTPS_DATA(tvbuff_t *, gint, guint8, gboolean, int,
+                proto_tree *, char *, guint16, int);
 #undef DECLARE_DISSECTOR_SUBMESSAGE
 
 /* The main packet dissector */
@@ -826,7 +842,6 @@ static gboolean dissect_rtps(tvbuff_t *, packet_info *, proto_tree *);
 /***************************************************************************/
 /* Global variables controlled by Wireshark preference panel               */
 /***************************************************************************/
-/* static gboolean glob_do_something = TRUE; */
 static guint rtps_max_batch_samples_dissected = 16;
 
 
@@ -1442,7 +1457,8 @@ static void rtps_util_add_guid_prefix(proto_tree *tree,
     ti = proto_tree_add_text(tree,
                         tvb,
                         offset,
-                        12, "%s",
+                        12,
+                        "%s",
                         temp_buff);
 
     guid_tree = proto_item_add_subtree(ti,
@@ -2141,7 +2157,7 @@ static gint rtps_util_add_seq_string(proto_tree *tree,
                         "size: %d", num_strings);
   offset += 4;
 
-  /* Create the string node with a fake string, the replace it later */
+  /* Create the string node with a fake string, then replace it later */
   if (tree) {
     ti = proto_tree_add_text(tree,
                         tvb,
@@ -2627,6 +2643,21 @@ static gint rtps_util_add_typecode(proto_tree *tree,
 
         if (tk_id == RTI_CDR_TK_ENUM) {
             typecode_name = "enum";
+        } else if (tk_id == RTI_CDR_TK_VALUE_PARARM) {
+            guint16 type_modifier;
+            guint32 baseTypeCodeKind;
+            guint32 baseTypeCodeLength;
+            /* Need to read the type modifier and the base type code */
+            typecode_name = "<sparse type>";
+            SHORT_ALIGN(offset);
+            type_modifier = NEXT_guint16(tvb, offset, little_endian);
+            offset += 2;
+            LONG_ALIGN(offset);
+            baseTypeCodeKind = NEXT_guint32(tvb, offset, little_endian);
+            offset += 4;
+            baseTypeCodeLength = NEXT_guint32(tvb, offset, little_endian);
+            offset += 4;
+            offset += baseTypeCodeLength;
         } else {
             typecode_name = "struct";
         }
@@ -2636,7 +2667,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
           g_snprintf(type_name, 40, "%s", struct_name);
           break;
         }
-        /* Prints it */
+        /* Prints the typecode header */
         proto_tree_add_text(tree,
                     tvb,
                     original_offset,
@@ -2845,11 +2876,13 @@ static gint rtps_util_add_typecode(proto_tree *tree,
      * Foreach member: (it's just like a struct)
      *
      */
+    case RTI_CDR_TK_VALUE_PARARM: 
     case RTI_CDR_TK_VALUE: {
         /* Not fully dissected for now */
         /* Pad-align */
         guint32 value_name_len;
         gint8 * value_name;
+        const char * type_id_name = "valuetype";
         LONG_ALIGN(offset);
 
         /* Get structure name length */
@@ -2860,7 +2893,10 @@ static gint rtps_util_add_typecode(proto_tree *tree,
         value_name = tvb_get_ephemeral_string(tvb, offset, value_name_len);
         offset += value_name_len;
 
-        g_snprintf(type_name, 40, "valuetype %s", value_name);
+        if (tk_id == RTI_CDR_TK_VALUE_PARARM) {
+            type_id_name = "valueparam";
+        }
+        g_snprintf(type_name, 40, "%s '%s'", type_id_name, value_name);
         break;
     }
   } /* switch(tk_id) */
@@ -2967,7 +3003,8 @@ static void rtps_util_add_seq_octets(proto_tree *tree,
       proto_tree_add_text(tree,
                         tvb,
                         offset,
-                        param_length, "%s",
+                        param_length,
+                        "%s",
                         buffer);
     }
     return ;
@@ -3069,7 +3106,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
   temp_buff[idx] = '\0';
 
   /* removes all the ending '0' */
-  for (i = (int) strlen(temp_buff) - 1; (i>0 && temp_buff[i] == '0'); --i) {
+  for (i = (int)strlen(temp_buff) - 1; (i>0 && temp_buff[i] == '0'); --i) {
       temp_buff[i] = '\0';
   }
 
@@ -3192,7 +3229,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree,
   temp_buff[idx] = '\0';
 
   /* removes all (but the last one) characters '0' */
-  for (i = (int) strlen(temp_buff) - 1; (i>0 && temp_buff[i] == '0'); --i) {
+  for (i = (int)strlen(temp_buff) - 1; (i>0 && temp_buff[i] == '0'); --i) {
       temp_buff[i] = '\0';
   }
   if (tree) {
@@ -3429,7 +3466,8 @@ static void dissect_serialized_data(proto_tree *tree,
           proto_tree_add_text(rtps_parameter_sequence_tree,
                         tvb,
                         offset,
-                        size, "%s",
+                        size,
+                        "%s",
                         label);
   }
 }
@@ -3597,7 +3635,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
                         tvb,
                         offset,
                         1,
-                        "RTPS PROTOCOL ERROR: not enough bytes to read "
+                        "RTPS PROTOCOL ERROR: not enough bytes to read"
                                                 " the parameter value");
       }
       return 0;
@@ -3725,7 +3763,8 @@ static gint dissect_parameter_sequence(proto_tree *tree,
         proto_tree_add_text(rtps_parameter_tree,
                         tvb,
                         offset,
-                        param_length, "%s",
+                        param_length,
+                        "%s",
                         buffer);
         break;
       }
@@ -5308,6 +5347,111 @@ static gint dissect_parameter_sequence(proto_tree *tree,
                         NULL,   /* not an array */
                         0);     /* ndds 4.0 hack: init to false */
               break;
+
+            /* 0...2...........7...............15.............23...............31
+             * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+             * | PID_DISABLE_POSITIVE_ACKS     |            length             | 
+             * +---------------+---------------+---------------+---------------+
+             * | boolean value | = = = = = = = =  u n u s e d  = = = = = = = = |
+             * +---------------+---------------+---------------+---------------+
+             */
+            case PID_DISABLE_POSITIVE_ACKS:
+              ENSURE_LENGTH(1);
+              rtps_util_add_boolean(rtps_parameter_tree,
+                        tvb,
+                        offset,
+                        "disablePositiveAcks",
+                        buffer,
+                        MAX_PARAM_SIZE);
+              break;
+
+            /* 0...2...........7...............15.............23...............31
+             * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+             * | PID_LOCATOR_FILTER_LIST       |            length             | 
+             * +---------------+---------------+---------------+---------------+
+             * | unsigned long number_of_channels                              |
+             * +---------------+---------------+---------------+---------------+
+             * |                                                               |
+             * ~ String filter_name                                            ~
+             * |                                                               |
+             * +---------------+---------------+---------------+---------------+
+             * |                                                               |
+             * ~ LocatorList                                                   ~ <----------+
+             * |                                                               |    Repeat  |
+             * +---------------+---------------+---------------+---------------+    For each|
+             * |                                                               |    Channel |
+             * ~ String filter_expression                                      ~            |
+             * |                                                               |            |
+             * +---------------+---------------+---------------+---------------+ <----------+
+             */
+            case PID_LOCATOR_FILTER_LIST: {
+              guint32 number_of_channels = 0;
+              proto_tree *channel_tree = NULL;
+              proto_item *ti_channel = NULL;
+              char temp_buff[MAX_LABEL_SIZE];
+              guint32 ch;
+              gint old_offset;
+              guint32 off = offset;
+
+              ENSURE_LENGTH(4);
+              number_of_channels = NEXT_guint32(tvb, off, little_endian);
+              g_snprintf(buffer, MAX_PARAM_SIZE, "%d channels", number_of_channels);
+              off += 4;
+      
+              if (number_of_channels == 0) {
+                /* Do not dissect the rest */
+                proto_tree_add_text(rtps_parameter_tree,
+                        tvb,
+                        off-4,
+                        4,
+                        "numberOfChannels: %d", number_of_channels);
+                break;
+              }
+
+              /* filter name */
+              off = rtps_util_add_string(rtps_parameter_tree,
+                tvb,
+                off,
+                -1,             /* hf_item not set */
+                little_endian,
+                "filterName",   /* label */
+                NULL,           /* buffer not set */
+                0);             /* buffer length */
+
+              /* Foreach channel... */
+              for (ch = 0; ch < number_of_channels; ++ch) {
+                g_snprintf(temp_buff, MAX_LABEL_SIZE, "Channel[%u]", ch);
+                old_offset = off;
+                if (tree) {
+                  ti_channel = proto_tree_add_text(rtps_parameter_tree,
+                    tvb,
+                    off,
+                    0,
+                    "%s",
+                    temp_buff);
+                  channel_tree = proto_item_add_subtree(ti_channel, ett_rtps_locator_filter_channel);
+                }
+                off = rtps_util_add_locator_list(channel_tree,
+                  tvb,
+                  off,
+                  temp_buff,
+                  little_endian);
+                /* Filter expression */
+                off = rtps_util_add_string(channel_tree,
+                  tvb,
+                  off,
+                  -1,                    /* hf_item not set */
+                  little_endian,
+                  "filterExpression",    /* label */
+                  NULL,                  /* buffer not set */
+                  0);                    /* buffer length */
+                /* Now we know the length of the channel data, set the length */
+                if (ti_channel) {
+                  proto_item_set_len(ti_channel, (off - old_offset));
+                }
+              } /* End of for each channel */
+              break;
+            } /* End of case PID_LOCATOR_FILTER_LIST */
 
           } /* End of switch for parameters for vendor RTI */
         } /* End of branch vendor RTI */
@@ -7290,6 +7434,8 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
 
 /* *********************************************************************** */
 /* *                     R T P S _ D A T A                               * */
+/* *                           A N D                                     * */
+/* *             R T P S _ D A T A _ S E S S I O N                       * */
 /* *********************************************************************** */
 static void dissect_RTPS_DATA(tvbuff_t *tvb,
                 gint offset,
@@ -7298,12 +7444,13 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 vendor_id) {
+                guint16 vendor_id,
+                int is_session) {
   /*
    *
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * | RTPS_DATA     |X|X|X|X|X|D|Q|E|      octetsToNextHeader       |
+   * | RTPS_DATA     |X|X|X|X|K|D|Q|E|      octetsToNextHeader       |
    * +---------------+---------------+---------------+---------------+
    * | Flags extraFlags              |      octetsToInlineQos        |
    * +---------------+---------------+---------------+---------------+
@@ -7320,7 +7467,34 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
    * |                                                               |
    * +---------------+---------------+---------------+---------------+
    * |                                                               |
-   * ~ SerializedData serializedData [only if D==1]                  ~
+   * ~ SerializedData serializedData [only if D==1 || K==1]          ~
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   *
+   * 0...2...........7...............15.............23...............31
+   * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+   * |RTPS_DATA_SESSI|X|X|X|X|K|D|Q|E|      octetsToNextHeader       |
+   * +---------------+---------------+---------------+---------------+
+   * | Flags extraFlags              |      octetsToInlineQos        |
+   * +---------------+---------------+---------------+---------------+
+   * | EntityId readerEntityId                                       |
+   * +---------------+---------------+---------------+---------------+
+   * | EntityId writerEntityId                                       |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + SequenceNumber writerSessionSeqNum                            +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * + SequenceNumber writerVirtualSeqNum                            +
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * ~ ParameterList inlineQos [only if Q==1]                        ~
+   * |                                                               |
+   * +---------------+---------------+---------------+---------------+
+   * |                                                               |
+   * ~ SerializedData serializedData [only if D==1 || K==1]          ~
    * |                                                               |
    * +---------------+---------------+---------------+---------------+
    */
@@ -7333,8 +7507,12 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
 
   /* Calculates the minimum length for this submessage */
   min_len = 24;
+  if (is_session) {
+    min_len += 8;
+  }
   if ((flags & FLAG_RTPS_DATA_Q) != 0) min_len += 4;
   if ((flags & FLAG_RTPS_DATA_D) != 0) min_len += 4;
+  if ((flags & FLAG_RTPS_DATA_K) != 0) min_len += 4;
 
   if (octets_to_next_header < min_len) {
     proto_tree_add_uint_format(tree,
@@ -7358,7 +7536,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
     wid = NEXT_guint32(tvb, offset, little_endian);
 
     offset += 12;
-    if ((flags & FLAG_DATA_Q) != 0) {
+    if ((flags & FLAG_RTPS_DATA_Q) != 0) {
       offset = dissect_parameter_sequence(tree,
                         tvb,
                         offset,
@@ -7423,15 +7601,30 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
   offset += 4;
 
   /* Sequence number */
-  rtps_util_add_seq_number(tree,
+  if (is_session) {
+    rtps_util_add_seq_number(tree,
+                        tvb,
+                        offset,
+                        little_endian,
+                        "writerSessionSeqNumber");
+    offset += 8;
+    rtps_util_add_seq_number(tree,
+                        tvb,
+                        offset,
+                        little_endian,
+                        "writerVirtualSeqNumber");
+    offset += 8;
+  } else {
+    rtps_util_add_seq_number(tree,
                         tvb,
                         offset,
                         little_endian,
                         "writerSeqNumber");
-  offset += 8;
+    offset += 8;
+  }
 
   /* InlineQos */
-  if ((flags & FLAG_DATA_Q) != 0) {
+  if ((flags & FLAG_RTPS_DATA_Q) != 0) {
     offset = dissect_parameter_sequence(tree,
                         tvb,
                         offset,
@@ -7443,7 +7636,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
   }
 
   /* SerializedData */
-  if ((flags & FLAG_DATA_D) != 0) {
+  if (((flags & FLAG_RTPS_DATA_D) != 0) || ((flags & FLAG_RTPS_DATA_K) != 0)) {
     if (wid == ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER) {
       /* Dissect the serialized data as ParticipantMessageData:
        *  struct ParticipantMessageData {
@@ -7452,13 +7645,47 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
        *    sequence<octet> data;
        * }
        */
+      proto_tree * rtps_pm_tree;
       proto_tree * guid_tree;
       guint32 kind;
+      guint16 encapsulation_id;
+      guint16 encapsulation_len;
+      int encapsulation_little_endian = 0;
       proto_item * ti = proto_tree_add_text(tree,
                         tvb,
                         offset,
                         octets_to_next_header - (offset - old_offset) + 4,
                         "ParticipantMessageData");
+
+      rtps_pm_tree = proto_item_add_subtree(ti, ett_rtps_part_message_data);
+      /* Encapsulation ID */
+      encapsulation_id =  NEXT_guint16(tvb, offset, 0);   /* Always big endian */
+
+      proto_tree_add_text(rtps_pm_tree,
+                        tvb,
+                        offset,
+                        2,
+                        "encapsulation kind: %s",
+                        val_to_str(encapsulation_id,
+                        encapsulation_id_vals, "unknown (%02x)"));
+      offset += 2;
+
+      /* Sets the correct values for encapsulation_le */
+      if (encapsulation_id == ENCAPSULATION_CDR_LE ||
+          encapsulation_id == ENCAPSULATION_PL_CDR_LE) {
+        encapsulation_little_endian = 1;
+      }
+
+      /* Encapsulation length (or option) */
+      encapsulation_len =  NEXT_guint16(tvb, offset, 0);    /* Always big endian */
+      proto_tree_add_text(rtps_pm_tree,
+                        tvb,
+                        offset,
+                        2,
+                        "encapsulation options: %04x",
+                        encapsulation_len);
+      offset += 2;
+                        
       guid_tree = proto_item_add_subtree(ti,
                         ett_rtps_part_message_data);
 
@@ -7484,17 +7711,27 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
             val_to_str(kind, participant_message_data_kind, "unknown (%04x)"));
       offset += 4;
 
-      dissect_octet_seq(guid_tree,
+      dissect_octet_seq(rtps_pm_tree, /* guid_tree, */
                         tvb,
                         offset,
                         "serializedData");
     } else {
+      const char *label;
+      if (((flags & FLAG_RTPS_DATA_D) != 0) || ((flags & FLAG_RTPS_DATA_K) == 0)) {
+        label = "serializedData";
+      } else if (((flags & FLAG_RTPS_DATA_D) == 0) || ((flags & FLAG_RTPS_DATA_K) != 0)) {
+        label = "serializedKey";
+      } else {
+        /* D==1 && K==1 */
+        label = "<invalid or unknown data type>";
+      }
+
       /* At the end still dissect the rest of the bytes as raw data */
       dissect_serialized_data(tree,
                         tvb,
                         offset,
                         octets_to_next_header - (offset - old_offset) + 4,
-                        "serializedData",
+                        label,
                         vendor_id);
     }
   }
@@ -7520,7 +7757,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb,
    *
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * |RTPS_DATA_FRAG |X|X|X|X|X|X|Q|E|      octetsToNextHeader       |
+   * |RTPS_DATA_FRAG |X|X|X|X|X|K|Q|E|      octetsToNextHeader       | 
    * +---------------+---------------+---------------+---------------+
    * | Flags extraFlags              |      octetsToInlineQos        |
    * +---------------+---------------+---------------+---------------+
@@ -7580,7 +7817,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb,
     wid = NEXT_guint32(tvb, offset, little_endian);
 
     offset += 24;
-    if ((flags & FLAG_DATA_Q) != 0) {
+    if ((flags & FLAG_RTPS_DATA_FRAG_Q) != 0) {
       offset = dissect_parameter_sequence(tree,
                         tvb,
                         offset,
@@ -7718,15 +7955,20 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb,
   }
 
   /* SerializedData */
-  dissect_serialized_data(tree,
-                        tvb,
-                        offset,
+  {
+    const char *label = "serializedData";
+    if ((flags & FLAG_RTPS_DATA_FRAG_K) != 0) {
+      label = "serializedKey";
+    }
+    dissect_serialized_data(tree, 
+                        tvb, 
+                        offset, 
                         octets_to_next_header - (offset - old_offset) + 4,
-                        "serializedData",
+                        label,
                         vendor_id);
+  }
   info_summary_append_ex(info_summary_text, SUBMESSAGE_RTPS_DATA_FRAG, wid, status_info);
 }
-
 
 
 
@@ -7787,7 +8029,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
    * SampleInfo:
    * 0...............8..............16..............24..............32
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   * |X|X|X|X|X|X|X|X|X|X|X|I|D|O|Q|T|       octetsToInlineQoS       |
+   * |X|X|X|X|X|X|X|X|X|X|K|I|D|O|Q|T|       octetsToInlineQoS       |
    * +---------------+---------------+---------------+---------------+
    * |   unsigned long  serializedDataLength                         |
    * +---------------+---------------+---------------+---------------+
@@ -7807,7 +8049,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
    * 0...............8..............16..............24..............32
    * +---------------+---------------+---------------+---------------+
    * |                                                               |
-   * ~   SerializedData   serializedData [only if SampleInfo.D==1 ]  ~
+   * ~   SerializedData   serializedData [sampleInfo D==1 || K==1]   ~
    * |                                                               |
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    */
@@ -7820,6 +8062,11 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
   guint32 batchSampleCount;
   gint32 sampleListOffset;
   guint16 encapsulation_id;
+  guint16 *sample_info_flags = NULL;
+  guint32 *sample_info_length = NULL;
+  gint32  sample_info_count = 0;
+  gint32  sample_info_max = rtps_max_batch_samples_dissected;
+
   rtps_util_decode_flags(tree, tvb, offset + 1, flags, RTPS_DATA_BATCH_FLAGS);
 
   /* Calculates the minimum length for this submessage */
@@ -7986,7 +8233,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
   {
     proto_item * ti;
     proto_tree * sil_tree;
-    guint count = 0;
+    sample_info_count = 0;
 
     ti = proto_tree_add_text(tree,
                         tvb,
@@ -7994,6 +8241,30 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
                         -1,
                         "Sample Info List");
     sil_tree = proto_item_add_subtree(ti, ett_rtps_sample_info_list);
+
+    /* Allocate sample_info_flags and sample_info_length
+     * to store a copy of the flags for each sample info */
+    if (rtps_max_batch_samples_dissected == 0) {
+      sample_info_max = 1024;	/* Max size of sampleInfo shown */
+    }
+    sample_info_flags = (guint16 *)ep_alloc(sizeof(guint16) * sample_info_max);
+    if (sample_info_flags == NULL) {
+      proto_tree_add_text(tree,
+                        tvb,
+                        offset,
+                        2,
+                        "out of memory allocating sample_info_flags");
+      return;
+    }
+    sample_info_length = (guint32 *)ep_alloc(sizeof(guint32) * sample_info_max);
+    if (sample_info_length == NULL) {
+      proto_tree_add_text(tree,
+                        tvb,
+                        offset,
+                        2,
+                        "out of memory allocating sample_info_length");
+      return;
+    }
 
     /* Sample Info List: start decoding the sample info list until the offset
      * is greater or equal than 'sampleListOffset' */
@@ -8004,7 +8275,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
       proto_tree * si_tree;
       gint offset_begin_sampleinfo = offset;
 
-      if (rtps_max_batch_samples_dissected > 0 && count >= rtps_max_batch_samples_dissected) {
+      if (rtps_max_batch_samples_dissected > 0 && (guint)sample_info_count >= rtps_max_batch_samples_dissected) {
         ti = proto_tree_add_text(sil_tree,
                         tvb,
                         offset,
@@ -8018,10 +8289,11 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
                         tvb,
                         offset,
                         -1,
-                        "sampleInfo[%d]", count++);
+                        "sampleInfo[%d]", sample_info_count);
       si_tree = proto_item_add_subtree(ti, ett_rtps_sample_info);
 
       flags = NEXT_guint16(tvb, offset, 0); /* Flags are always big endian */
+      sample_info_flags[sample_info_count] = flags;
       rtps_util_decode_flags_16bit(si_tree, tvb, offset, flags, RTPS_SAMPLE_INFO_FLAGS16);
       offset += 2;
       octetsToInlineQos = rtps_util_add_short(si_tree,
@@ -8047,12 +8319,12 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
                         tvb,
                         offset-4,
                         4,
-                        "Error: not enough bytes to dissect sample inof");
+                        "Error: not enough bytes to dissect sample info");
         return;
       }
 
       /* Serialized data length */
-      rtps_util_add_long(si_tree,
+      sample_info_length[sample_info_count] = rtps_util_add_long(si_tree,
                         tvb,
                         offset,
                         -1,
@@ -8103,6 +8375,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
                         vendor_id);
       }
       proto_item_set_len(ti, offset - offset_begin_sampleinfo);
+      sample_info_count++;
     } /*   while (offset < sampleListOffset) */
   }
 
@@ -8118,16 +8391,56 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
 
   /* The next two bytes are ignored */
   offset += 2;
+  
+  /* Now the list of serialized data:
+   * Serialized data is allocated one after another one.
+   * We need to use the data previously stored in the sampleInfo to detect the
+   * kind and size.
+   *  - sample_info_flags -> Array of guint16 holding the flags for this sample info
+   *  - sample_info_length -> Array of guint32 with the size of this sample info
+   *  - sample_info_count -> size of the above arrays
+   * This section will NEVER dissect more than 'sample_info_count'.
+   * Note, if there are not enough bytes in the buffer, don't dissect it (this
+   * can happen for example when a DISPOSE message is sent, there are sample
+   * info records, but the payload size is zero for all of them)
+   */
+  if (octets_to_next_header - (offset - old_offset) > 0) {
+    proto_item * ti;
+    proto_tree * sil_tree;
+    gint count = 0;
+    const char * label;
 
-  /* Now the list of serialized data: */
-  proto_tree_add_text(tree,
+    ti = proto_tree_add_text(tree, 
+                        tvb, 
+                        offset, 
+                        -1,
+                        "Serialized Sample List");
+    sil_tree = proto_item_add_subtree(ti, ett_rtps_sample_batch_list);
+    for (count = 0; count < sample_info_count; ++count) {
+      /* Ensure there are enough bytes in the buffer to dissect the next sample */
+      if (octets_to_next_header - (offset - old_offset) + 4 < (gint)sample_info_length[count]) {
+        proto_tree_add_text(sil_tree, 
                         tvb,
                         offset,
-                        octets_to_next_header - (offset - old_offset) + 4,
-                        "serializedData");
+                        4,
+                        "Error: not enough bytes to dissect sample");
+        return;
+      }
 
-  /* TODO: enter one entry in the tree per sample (still keep it serialized)
-   */
+      if ((sample_info_flags[count] & FLAG_SAMPLE_INFO_K) != 0) {
+        label = "serializedKey[%d]";
+      } else {
+        label = "serializedData[%d]";
+      }
+      proto_tree_add_text(sil_tree,
+                        tvb,
+                        offset,
+                        sample_info_length[count],
+                        label,
+			count);
+      offset += sample_info_length[count];
+    }
+  }
   info_summary_append_ex(info_summary_text, SUBMESSAGE_RTPS_DATA_BATCH, wid, status_info);
 }
 
@@ -8171,7 +8484,6 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
 
   /* --- Make entries in Protocol column ---*/
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPS2");
-
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* Check if is NDDSPING */
@@ -8217,7 +8529,15 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
 
   if (is_ping) {
     g_strlcpy(info_summary_text, "PING", MAX_SUMMARY_SIZE);
+  } 
+#ifdef RTI_BUILD
+  else {
+    pinfo->guid_prefix_host = tvb_get_ntohl(tvb, offset + 8);
+    pinfo->guid_prefix_app  = tvb_get_ntohl(tvb, offset + 12);
+    pinfo->guid_prefix_count = tvb_get_ntohl(tvb, offset + 16);
+    pinfo->guid_rtps2 = 1;
   }
+#endif
 
   /* Extract the domain id and participant index for the default mapping */
   if (tree) {
@@ -8455,6 +8775,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
         break;
 
 
+      case SUBMESSAGE_ACKNACK_SESSION:
       case SUBMESSAGE_ACKNACK_BATCH:
       case SUBMESSAGE_ACKNACK:
         dissect_ACKNACK(tvb,
@@ -8478,6 +8799,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
                         vendor_id);
         break;
 
+      case SUBMESSAGE_HEARTBEAT_SESSION:
       case SUBMESSAGE_HEARTBEAT_BATCH:
         dissect_HEARTBEAT_BATCH(tvb,
                         offset,
@@ -8566,6 +8888,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
                         vendor_id);
         break;
 
+      case SUBMESSAGE_RTPS_DATA_SESSION:
       case SUBMESSAGE_RTPS_DATA:
         dissect_RTPS_DATA(tvb,
                         offset,
@@ -8574,7 +8897,8 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
                         octets_to_next_header,
                         rtps_submessage_tree,
                         info_summary_text,
-                        vendor_id);
+                        vendor_id,
+                        (submessageId == SUBMESSAGE_RTPS_DATA_SESSION));
         break;
 
       case SUBMESSAGE_RTPS_DATA_FRAG:
@@ -8615,9 +8939,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
   }
 
   /* Compose the content of the 'summary' column */
-  if ((pinfo != NULL) && (pinfo->cinfo != NULL) && (check_col(pinfo->cinfo, COL_INFO))) {
-    col_add_str(pinfo->cinfo, COL_INFO, info_summary_text);
-  }
+  col_add_str(pinfo->cinfo, COL_INFO, info_summary_text);
   return TRUE;
 
 }  /* dissect_rtps(...) */
@@ -9200,6 +9522,7 @@ void proto_register_rtps2(void) {
     &ett_rtps_wrentity,
     &ett_rtps_guid_prefix,
     &ett_rtps_part_message_data,
+    &ett_rtps_part_message_guid,
     &ett_rtps_locator_udp_v4,
     &ett_rtps_locator,
     &ett_rtps_locator_list,
@@ -9209,7 +9532,10 @@ void proto_register_rtps2(void) {
     &ett_rtps_seq_ulong,
     &ett_rtps_serialized_data,
     &ett_rtps_sample_info_list,
-    &ett_rtps_sample_info
+    &ett_rtps_sample_info,
+    &ett_rtps_sample_batch_list,
+    &ett_rtps_locator_filter_channel,
+    &ett_rtps_locator_filter_locator
   };
   module_t *rtps_module;
 

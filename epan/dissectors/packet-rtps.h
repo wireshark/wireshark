@@ -5,8 +5,8 @@
  *
  * Copyright 2005, Fabrizio Bertocci <fabrizio@rti.com>
  * Real-Time Innovations, Inc.
- * 3975 Freedom Circle
- * Santa Clara, CA 95054
+ * 385 Moffett Park Drive, Suite 115
+ * Sunnyvale, CA 94089
  *
  * Copyright 2003, LUKAS POKORNY <maskis@seznam.cz>
  *                 PETR SMOLIK   <petr.smolik@wo.cz>

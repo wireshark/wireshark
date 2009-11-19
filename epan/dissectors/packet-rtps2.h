@@ -5,8 +5,8 @@
  *
  * Copyright 2005, Fabrizio Bertocci <fabrizio@rti.com>
  * Real-Time Innovations, Inc.
- * 3975 Freedom Circle
- * Santa Clara, CA 95054
+ * 385 Moffett Park Drive
+ * Sunnyvale, CA 94089
  *
  * $Id$
  *
@@ -58,7 +58,7 @@ extern "C" {
 
 
 typedef enum {
-    RTI_CDR_TK_NULL,
+    RTI_CDR_TK_NULL=0,
     RTI_CDR_TK_SHORT,
     RTI_CDR_TK_LONG,
     RTI_CDR_TK_USHORT,
@@ -80,7 +80,8 @@ typedef enum {
     RTI_CDR_TK_LONGDOUBLE,
     RTI_CDR_TK_WCHAR,
     RTI_CDR_TK_WSTRING,
-    RTI_CDR_TK_VALUE
+    RTI_CDR_TK_VALUE,
+    RTI_CDR_TK_VALUE_PARARM
 } RTICdrTCKind;
 
 
@@ -120,8 +121,10 @@ typedef enum {
 
 #define FLAG_RTPS_DATA_Q        (0x02)
 #define FLAG_RTPS_DATA_D        (0x04)
+#define FLAG_RTPS_DATA_K        (0x08)
 
 #define FLAG_RTPS_DATA_FRAG_Q   (0x02)
+#define FLAG_RTPS_DATA_FRAG_K   (0x04)
 
 #define FLAG_RTPS_DATA_BATCH_Q  (0x02)
 
@@ -130,6 +133,7 @@ typedef enum {
 #define FLAG_SAMPLE_INFO_O      (0x04)
 #define FLAG_SAMPLE_INFO_D      (0x08)
 #define FLAG_SAMPLE_INFO_I      (0x10)
+#define FLAG_SAMPLE_INFO_K      (0x20)
 
 
 /* The following PIDs are defined since RTPS 1.0 */
@@ -199,6 +203,9 @@ typedef enum {
 #define PID_ENTITY_VIRTUAL_GUID                 (0x8002)
 #define PID_SERVICE_KIND                        (0x8003)
 #define PID_TYPECODE                            (0x8004)        /* Was: 0x47 in RTPS 1.2 */
+#define PID_DISABLE_POSITIVE_ACKS               (0x8005)
+#define PID_LOCATOR_FILTER_LIST                 (0x8006)
+
 
 /* The following QoS are deprecated (used in RTPS 1.0 and older) */
 #define PID_PERSISTENCE                         (0x0003)
@@ -290,11 +297,14 @@ typedef enum {
 #define SUBMESSAGE_NACK_FRAG                            (0x12)  /* RTPS 2.0 Only */
 #define SUBMESSAGE_HEARTBEAT_FRAG                       (0x13)  /* RTPS 2.0 Only */
 
+#define SUBMESSAGE_RTPS_DATA_SESSION                    (0x14)  /* RTPS 2.1 only */
 #define SUBMESSAGE_RTPS_DATA                            (0x15)  /* RTPS 2.1 only */
 #define SUBMESSAGE_RTPS_DATA_FRAG                       (0x16)  /* RTPS 2.1 only */
 #define SUBMESSAGE_ACKNACK_BATCH                        (0x17)  /* RTPS 2.1 only */
 #define SUBMESSAGE_RTPS_DATA_BATCH                      (0x18)  /* RTPS 2.1 Only */
 #define SUBMESSAGE_HEARTBEAT_BATCH                      (0x19)  /* RTPS 2.1 only */
+#define SUBMESSAGE_ACKNACK_SESSION                      (0x1a)  /* RTPS 2.1 only */
+#define SUBMESSAGE_HEARTBEAT_SESSION                    (0x1b)  /* RTPS 2.1 only */
 
 /* Data encapsulation */
 #define ENCAPSULATION_CDR_BE            (0x0000)
