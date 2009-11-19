@@ -72,8 +72,9 @@
 		<vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
 		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
 		<vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
-		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
-		<!-- *********************** End Vendors ************************** -->
+    <vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
+    <vendor vendor-id="Deutsche_Telekom_AG" code="2937" name="Deutsche Telekom AG"/>
+    <!-- *********************** End Vendors ************************** -->
 		<!-- ************************ typedefn's ************************** -->
 		<typedefn type-name="OctetString"/>
 		<!--
