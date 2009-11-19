@@ -31,6 +31,7 @@
 #define RECENT_KEY_COL_WIDTH                "column.width"
 
 GtkWidget *new_packet_list_create(void);
+void new_packet_list_recreate(void);
 void new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
 gboolean new_packet_list_get_event_row_column(GdkEventButton *event_button, gint *physical_row, gint *row, gint *column);
 

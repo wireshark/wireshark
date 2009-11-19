@@ -678,9 +678,7 @@ static GtkItemFactoryEntry menu_items[] =
                        0, "<StockItem>", WIRESHARK_STOCK_DISPLAY_FILTER,},
     {"/Analyze/Display Filter _Macros...", NULL, GTK_MENU_FUNC(macros_dialog_cb), 0, NULL, NULL,},
     {"/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-#ifndef NEW_PACKET_LIST
     {"/Analyze/Apply as Column", NULL, GTK_MENU_FUNC(apply_as_custom_column_cb), 0, NULL, NULL},
-#endif
     {"/Analyze/Appl_y as Filter", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Analyze/Apply as Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL,},
@@ -990,11 +988,9 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
-#ifndef NEW_PACKET_LIST
     {"/Apply as Column", NULL, GTK_MENU_FUNC(apply_as_custom_column_cb), 0, NULL, NULL},
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-#endif
 
     {"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Apply as Filter/_Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),

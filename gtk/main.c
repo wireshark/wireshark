@@ -803,11 +803,13 @@ void apply_as_custom_column_cb (GtkWidget *widget _U_, gpointer data _U_)
   if (cfile.finfo_selected) {
     column_prefs_add_custom(COL_CUSTOM, cfile.finfo_selected->hfinfo->name, 
                             cfile.finfo_selected->hfinfo->abbrev);
-#ifndef NEW_PACKET_LIST
     /* Recreate the packet list according to new preferences */
+#ifdef NEW_PACKET_LIST
+    new_packet_list_recreate ();
+#else
     packet_list_recreate ();
-    cfile.cinfo.columns_changed = FALSE; /* Reset value */
 #endif
+    cfile.cinfo.columns_changed = FALSE; /* Reset value */
   }
 }
 
@@ -3482,11 +3484,13 @@ void change_configuration_profile (const gchar *profile_name)
    /* Reload list of interfaces on welcome page */
    welcome_if_panel_reload();
 
-#ifndef NEW_PACKET_LIST
    /* Recreate the packet list according to new preferences */
+#ifdef NEW_PACKET_LIST
+   new_packet_list_recreate ();
+#else
    packet_list_recreate ();
-   cfile.cinfo.columns_changed = FALSE; /* Reset value */
 #endif
+   cfile.cinfo.columns_changed = FALSE; /* Reset value */
    user_font_apply();
 
    /* Update menus with new recent values */

@@ -39,7 +39,11 @@
 #include "gtk/prefs_column.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/gui_utils.h"
+#ifdef NEW_PACKET_LIST
+#include "gtk/new_packet_list.h"
+#else
 #include "gtk/main_packet_list.h"
+#endif
 #include "gtk/filter_dlg.h"
 #include "gtk/filter_autocomplete.h"
 
@@ -630,7 +634,9 @@ column_prefs_apply(GtkWidget *w _U_)
 {
     /* Redraw the packet list if the columns were changed */
     if(cfile.cinfo.columns_changed) {
-#ifndef NEW_PACKET_LIST
+#ifdef NEW_PACKET_LIST
+        new_packet_list_recreate();
+#else
         packet_list_recreate();
 #endif
         cfile.cinfo.columns_changed = FALSE; /* Reset value */

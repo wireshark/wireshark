@@ -62,6 +62,7 @@
 #include "gtk/capture_file_dlg.h"
 #include "gtk/main_statusbar.h"
 #include "gtk/packet_win.h"
+#include "gtk/main.h"
 
 static PacketList *packetlist;
 static gboolean last_at_end = FALSE;
@@ -99,6 +100,25 @@ new_packet_list_create(void)
 	g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, view);
 
 	return scrollwin;
+}
+
+/* XXX - implement a smarter solution for recreating the packet list */
+void
+new_packet_list_recreate(void)
+{
+	gtk_widget_destroy(pkt_scrollw);
+
+	prefs.num_cols = g_list_length(prefs.col_list);
+
+	build_column_format_array(&cfile.cinfo, prefs.num_cols, FALSE);
+
+	pkt_scrollw = new_packet_list_create();
+	gtk_widget_show_all(pkt_scrollw);
+
+	main_widgets_rearrange();
+
+	if(cfile.state != FILE_CLOSED)
+		redissect_packets();
 }
 
 guint
