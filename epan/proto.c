@@ -3289,6 +3289,8 @@ proto_custom_set(proto_tree* tree, int field_id,
 	gint32		integer;
 	guint8		*bytes;
 	ipv4_addr	*ipv4;
+	struct e_in6_addr *ipv6;
+	address		addr;
 	guint32		n_addr; /* network-order IPv4 address */
 
 	const true_false_string  *tfstring;
@@ -3316,6 +3318,16 @@ proto_custom_set(proto_tree* tree, int field_id,
 		finfo = g_ptr_array_index(finfos, len -1);
 
 		switch(hfinfo->type) {
+
+		case FT_NONE: /* Nothing to add */
+			result[0] = '\0';
+			break;
+
+		case FT_PROTOCOL: /* We only check if protocol exist in packet */
+			if (strcmp(hfinfo->name, finfo->hfinfo->name) == 0) {
+				g_strlcpy(result, "Yes", size);
+			}
+			break;
 
 		case FT_UINT_BYTES:
 		case FT_BYTES:
@@ -3389,6 +3401,12 @@ proto_custom_set(proto_tree* tree, int field_id,
 			g_strlcpy(result, ip_to_str((guint8 *)&n_addr), size);
 			break;
 
+		case FT_IPv6:
+			ipv6 = fvalue_get(&finfo->value);
+			SET_ADDRESS (&addr, AT_IPv6, sizeof(struct e_in6_addr), ipv6);
+			address_to_str_buf(&addr, result, size);
+			break;
+
 		case FT_ETHER:
 			g_strlcpy(result, bytes_to_str_punct(fvalue_get(&finfo->value), 6, ':'), size);
 			break;
@@ -3419,7 +3437,7 @@ proto_custom_set(proto_tree* tree, int field_id,
 			break;
 
 		case FT_IPXNET: /*XXX really No column custom ?*/
-		case FT_IPv6:
+		case FT_PCRE:
 		default:
 			g_error("hfinfo->type %d (%s) not handled\n",
 					hfinfo->type,
