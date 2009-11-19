@@ -3677,7 +3677,20 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+    static gboolean               opCodeKnown = TRUE;
+    static ansi_map_tap_rec_t     tap_rec[16];
+    static ansi_map_tap_rec_t     *tap_p;
+    static int                    tap_current=0;
 
+    /*
+     * set tap record pointer
+     */
+    tap_current++;
+    if (tap_current == array_length(tap_rec))
+    {
+        tap_current = 0;
+    }
+    tap_p = &tap_rec[tap_current];
 
     switch(OperationCode){
     case 1: /*Handoff Measurement Request*/
@@ -4030,14 +4043,36 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 		break;
     default:
         proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+	opCodeKnown = FALSE;
         break;
     }
 
-    return offset;
+    if (opCodeKnown)
+    {
+	tap_p->message_type = OperationCode;
+	tap_p->size = 0;	/* should be number of octets in message */
 
+	tap_queue_packet(ansi_map_tap, g_pinfo, tap_p);
+    }
+
+    return offset;
 }
 
 static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
+    static gboolean               opCodeKnown = TRUE;
+    static ansi_map_tap_rec_t     tap_rec[16];
+    static ansi_map_tap_rec_t     *tap_p;
+    static int                    tap_current=0;
+
+    /*
+     * set tap record pointer
+     */
+    tap_current++;
+    if (tap_current == array_length(tap_rec))
+    {
+        tap_current = 0;
+    }
+    tap_p = &tap_rec[tap_current];
 
     switch(OperationCode){
     case 1: /*Handoff Measurement Request*/
@@ -4271,11 +4306,19 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 		break;
     default:
         proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+	opCodeKnown = FALSE;
         break;
     }
 
-    return offset;
+    if (opCodeKnown)
+    {
+	tap_p->message_type = OperationCode;
+	tap_p->size = 0;	/* should be number of octets in message */
 
+	tap_queue_packet(ansi_map_tap, g_pinfo, tap_p);
+    }
+
+    return offset;
 }
 
 static int
