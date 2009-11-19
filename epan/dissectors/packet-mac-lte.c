@@ -1994,8 +1994,9 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_append_fstr(pinfo->cinfo, COL_INFO, "RACH Preamble sent for UE %u (RAPID=%u, attempt=%u)",
                                 p_mac_lte_info->ueid, p_mac_lte_info->rapid, p_mac_lte_info->rach_attempt_number);
 
-                /* Add expert info (an note) */
-                expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_NOTE,
+                /* Add expert info (a note, unless attempt > 1) */
+                expert_add_info_format(pinfo, ti, PI_SEQUENCE,
+                                       (p_mac_lte_info->rach_attempt_number > 1) ? PI_WARN : PI_NOTE,
                                        "RACH Preamble sent for UE %u (RAPID=%u, attempt=%u)",
                                        p_mac_lte_info->ueid, p_mac_lte_info->rapid,
                                        p_mac_lte_info->rach_attempt_number);
@@ -2082,7 +2083,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (p_mac_lte_info->reTxCount >= global_mac_lte_retx_counter_trigger) {
             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
-                                   "Frame has now been NACK'd %u times",
+                                   "UL MAC frame ReTX no. %u",
                                    p_mac_lte_info->reTxCount);
         }
     }
