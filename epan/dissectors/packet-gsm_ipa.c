@@ -63,7 +63,7 @@ static dissector_handle_t sub_handles[SUB_MAX];
 #define TCP_PORT_ABISIP_INST	 3006
 #define TCP_PORT_AIP_PRIM	 5000
 
-#define ABISIP_RSL	0x00
+#define ABISIP_RSL_MAX	0x20
 #define AIP_SCCP	0xfd
 #define ABISIP_IPACCESS	0xfe
 #define ABISIP_OML	0xff
@@ -206,10 +206,6 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_subset(tvb, offset+3, len, len);
 
 		switch (msg_type) {
-		case ABISIP_RSL:
-			/* hand this off to the standard A-bis RSL dissector */
-			call_dissector(sub_handles[SUB_RSL], next_tvb, pinfo, tree);
-			break;
 		case ABISIP_OML:
 			/* hand this off to the standard A-bis OML dissector */
 			if (sub_handles[SUB_OML])
@@ -222,6 +218,12 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case AIP_SCCP:
 			/* hand this off to the standard SCCP dissector */
 			call_dissector(sub_handles[SUB_SCCP], next_tvb, pinfo, tree);
+			break;
+		default:
+			if (msg_type < ABISIP_RSL_MAX) {
+				/* hand this off to the standard A-bis RSL dissector */
+				call_dissector(sub_handles[SUB_RSL], next_tvb, pinfo, tree);
+			}
 			break;
 		}
 		offset += len + 3;
