@@ -1110,6 +1110,8 @@ print_usage(gboolean print_ver) {
   fprintf(output, "User interface:\n");
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
   fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
+  fprintf(output, "  -G <jump filter>         go to the first packet matching the (display) filter\n");
+  fprintf(output, "  -d                       search backwards for a matching packet after \"-G\"\n"); 
   fprintf(output, "  -m <font>                set the font name used for most text\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see man page for details\n");
@@ -1854,7 +1856,7 @@ main(int argc, char *argv[])
   gboolean             capture_option_specified = FALSE;
 #endif
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
-  gchar               *rc_file, *cf_name = NULL, *rfilter = NULL;
+  gchar               *rc_file, *cf_name = NULL, *rfilter = NULL, *jfilter = NULL;
   dfilter_t           *rfcode = NULL;
   gboolean             rfilter_parse_failed = FALSE;
   e_prefs             *prefs;
@@ -1863,6 +1865,8 @@ main(int argc, char *argv[])
   gpointer             priv_warning_dialog;
   GLogLevelFlags       log_flags;
   guint                go_to_packet = 0;
+  gboolean             jump_backwards = FALSE, saved_bw = FALSE;
+  dfilter_t           *jump_to_filter = NULL;
   int                  optind_initial;
   int                  status;
   gchar               *cur_user, *cur_group;
@@ -1873,7 +1877,7 @@ main(int argc, char *argv[])
 #endif
 #endif
 
-#define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:kK:lLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
+#define OPTSTRING_INIT "a:b:c:C:dDf:g:G:Hhi:kK:lLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
 
 #if defined HAVE_LIBPCAP && defined _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -2282,9 +2286,15 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
-      case 'g':        /* Go to packet */
+      case 'd':        /* Search backwards for a matching packet from filter in option G */
+        jump_backwards = TRUE;
+        break;
+      case 'g':        /* Go to packet with the given packet number */
         go_to_packet = get_positive_int(optarg, "go to packet");
         break;
+      case 'G':        /* Go to the first packet which matches the filter criteria */
+        jfilter = optarg;
+        break;            
       case 'l':        /* Automatic scrolling in live capture mode */
 #ifdef HAVE_LIBPCAP
         auto_scroll_live = TRUE;
@@ -2687,7 +2697,23 @@ main(int argc, char *argv[])
              file. */
           /* if the user told us to jump to a specific packet, do it now */
           if(go_to_packet != 0) {
+            /* Jump to the specified frame number, kept for backward 
+               compatibility. */
             cf_goto_frame(&cfile, go_to_packet);
+          } else if (jfilter != NULL) {
+            /* try to compile given filter */
+            if (!dfilter_compile(jfilter, &jump_to_filter)) {
+              bad_dfilter_alert_box(jfilter);
+            } else
+            {
+              /* Filter ok, jump to the first packet matching the filter
+                 conditions. Default search direction is forward, but if
+                 option d was given, search backwards */
+              saved_bw = cfile.sbackward;
+              cfile.sbackward = jump_backwards;
+              cf_find_packet_dfilter(&cfile, jump_to_filter);
+              cfile.sbackward = saved_bw;
+            }
           }
           break;
 
