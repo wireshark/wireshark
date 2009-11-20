@@ -3729,7 +3729,7 @@ dissect_s1ap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset 
                                        NO_BOUND, NO_BOUND, FALSE, NULL);
 
 
-	parameter_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
+	parameter_tvb = tvb_new_subset(tvb, start_offset>>3, -1, -1);
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
 
     switch(handover_type_value){
@@ -4078,7 +4078,7 @@ dissect_s1ap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset 
                                        NO_BOUND, NO_BOUND, FALSE, NULL);
 
 
-	parameter_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
+	parameter_tvb = tvb_new_subset(tvb, start_offset>>3, -1, -1);
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
 
     switch(handover_type_value){

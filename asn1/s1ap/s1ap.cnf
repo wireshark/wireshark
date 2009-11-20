@@ -248,7 +248,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
  start_offset = offset;
 %(DEFAULT_BODY)s
 
-	parameter_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
+	parameter_tvb = tvb_new_subset(tvb, start_offset>>3, -1, -1);
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
 
     switch(handover_type_value){
@@ -305,7 +305,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
  start_offset = offset;
 %(DEFAULT_BODY)s
 
-	parameter_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
+	parameter_tvb = tvb_new_subset(tvb, start_offset>>3, -1, -1);
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
 
     switch(handover_type_value){
