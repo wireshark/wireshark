@@ -1110,8 +1110,8 @@ print_usage(gboolean print_ver) {
   fprintf(output, "User interface:\n");
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
   fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
-  fprintf(output, "  -G <jump filter>         go to the first packet matching the (display) filter\n");
-  fprintf(output, "  -d                       search backwards for a matching packet after \"-G\"\n"); 
+  fprintf(output, "  -J <jump filter>         jump to the first packet matching the (display) filter\n");
+  fprintf(output, "  -j                       search backwards for a matching packet after \"-J\"\n"); 
   fprintf(output, "  -m <font>                set the font name used for most text\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see man page for details\n");
@@ -1877,7 +1877,7 @@ main(int argc, char *argv[])
 #endif
 #endif
 
-#define OPTSTRING_INIT "a:b:c:C:dDf:g:G:Hhi:kK:lLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
+#define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
 
 #if defined HAVE_LIBPCAP && defined _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -2286,13 +2286,13 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
-      case 'd':        /* Search backwards for a matching packet from filter in option G */
+      case 'j':        /* Search backwards for a matching packet from filter in option J */
         jump_backwards = TRUE;
         break;
       case 'g':        /* Go to packet with the given packet number */
         go_to_packet = get_positive_int(optarg, "go to packet");
         break;
-      case 'G':        /* Go to the first packet which matches the filter criteria */
+      case 'J':        /* Jump to the first packet which matches the filter criteria */
         jfilter = optarg;
         break;            
       case 'l':        /* Automatic scrolling in live capture mode */
