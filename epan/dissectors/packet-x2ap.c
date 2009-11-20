@@ -151,7 +151,8 @@ typedef enum _ProtocolIE_ID_enum {
 
 /* Initialize the protocol and registered fields */
 static int proto_x2ap = -1;
-
+static int hf_x2ap_transportLayerAddressIPv4 = -1;
+static int hf_x2ap_transportLayerAddressIPv6 = -1;
 
 /*--- Included file: packet-x2ap-hf.c ---*/
 #line 1 "packet-x2ap-hf.c"
@@ -381,11 +382,11 @@ static int hf_x2ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_x2ap_value = -1;                    /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-x2ap-hf.c ---*/
-#line 66 "packet-x2ap-template.c"
+#line 67 "packet-x2ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_x2ap = -1;
-
+static int ett_x2ap_TransportLayerAddress = -1;
 
 /*--- Included file: packet-x2ap-ett.c ---*/
 #line 1 "packet-x2ap-ett.c"
@@ -491,7 +492,7 @@ static gint ett_x2ap_SuccessfulOutcome = -1;
 static gint ett_x2ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-x2ap-ett.c ---*/
-#line 71 "packet-x2ap-template.c"
+#line 72 "packet-x2ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -1753,8 +1754,29 @@ dissect_x2ap_GlobalENB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_x2ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 111 "x2ap.cnf"
+  tvbuff_t *parameter_tvb=NULL;
+  proto_tree *subtree;
+  gint tvb_len;
+  
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 160, TRUE, NULL);
+                                     1, 160, TRUE, &parameter_tvb);
+
+  if (!parameter_tvb)
+    return offset;
+	/* Get the length */
+	tvb_len = tvb_length(parameter_tvb);
+	subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TransportLayerAddress);
+	if (tvb_len==4){
+		/* IPv4 */
+		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, tvb_len, FALSE);
+	}
+	if (tvb_len==16){
+		/* IPv6 */
+		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 0, tvb_len, FALSE);
+	}
+
+
 
   return offset;
 }
@@ -2249,8 +2271,20 @@ dissect_x2ap_ReportCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_x2ap_RRC_Context(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 136 "x2ap.cnf"
+  tvbuff_t *parameter_tvb=NULL;
+  gint32 start_offset;
+  
+  start_offset = offset;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, NULL);
+
+  parameter_tvb = tvb_new_subset(tvb, start_offset>>3, -1, -1);	
+  if (!parameter_tvb)
+    return offset;
+  dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, tree);
+
+
 
   return offset;
 }
@@ -3816,6 +3850,15 @@ void proto_register_x2ap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
+    { &hf_x2ap_transportLayerAddressIPv4,
+      { "transportLayerAddress(IPv4)", "x2ap.transportLayerAddressIPv4",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x2ap_transportLayerAddressIPv6,
+      { "transportLayerAddress(IPv6)", "x2ap.transportLayerAddressIPv6",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
 
 /*--- Included file: packet-x2ap-hfarr.c ---*/
 #line 1 "packet-x2ap-hfarr.c"
@@ -4717,12 +4760,13 @@ void proto_register_x2ap(void) {
         "x2ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-x2ap-hfarr.c ---*/
-#line 140 "packet-x2ap-template.c"
+#line 149 "packet-x2ap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 		  &ett_x2ap,
+		  &ett_x2ap_TransportLayerAddress,
 
 /*--- Included file: packet-x2ap-ettarr.c ---*/
 #line 1 "packet-x2ap-ettarr.c"
@@ -4828,7 +4872,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-x2ap-ettarr.c ---*/
-#line 146 "packet-x2ap-template.c"
+#line 156 "packet-x2ap-template.c"
   };
 
 
@@ -4928,7 +4972,7 @@ proto_reg_handoff_x2ap(void)
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
-#line 179 "packet-x2ap-template.c"
+#line 189 "packet-x2ap-template.c"
 }
 
 

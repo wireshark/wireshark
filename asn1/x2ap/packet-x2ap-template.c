@@ -61,12 +61,13 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_x2ap = -1;
-
+static int hf_x2ap_transportLayerAddressIPv4 = -1;
+static int hf_x2ap_transportLayerAddressIPv6 = -1;
 #include "packet-x2ap-hf.c"
 
 /* Initialize the subtree pointers */
 static int ett_x2ap = -1;
-
+static int ett_x2ap_TransportLayerAddress = -1;
 #include "packet-x2ap-ett.c"
 
 /* Global variables */
@@ -135,12 +136,22 @@ void proto_register_x2ap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
+    { &hf_x2ap_transportLayerAddressIPv4,
+      { "transportLayerAddress(IPv4)", "x2ap.transportLayerAddressIPv4",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x2ap_transportLayerAddressIPv6,
+      { "transportLayerAddress(IPv6)", "x2ap.transportLayerAddressIPv6",
+        FT_IPv4, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+
 #include "packet-x2ap-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 		  &ett_x2ap,
+		  &ett_x2ap_TransportLayerAddress,
 #include "packet-x2ap-ettarr.c"
   };
 
