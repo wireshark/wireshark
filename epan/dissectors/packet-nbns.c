@@ -80,6 +80,8 @@ static gint ett_nbdgm = -1;
 static int proto_nbss = -1;
 static int hf_nbss_type = -1;
 static int hf_nbss_flags = -1;
+static int hf_nbss_length = -1;
+static int hf_nbss_cifs_length = -1;
 
 static gint ett_nbss = -1;
 static gint ett_nbss_flags = -1;
@@ -1502,7 +1504,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (is_cifs) {
 		if (tree) {
-		  proto_tree_add_text(nbss_tree, tvb, offset, 3, "Length: %u", length);
+		  proto_tree_add_item(nbss_tree, hf_nbss_cifs_length, tvb, offset, 3, FALSE);
 		}
 		offset += 3;
 	} else {
@@ -1516,7 +1518,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 1;
 
 		if (tree) {
-		  proto_tree_add_text(nbss_tree, tvb, offset, 2, "Length: %u", length);
+		  proto_tree_add_item(nbss_tree, hf_nbss_length, tvb, offset, 2, FALSE);
 		}
 
 		offset += 2;
@@ -1919,7 +1921,15 @@ proto_register_nbt(void)
     { &hf_nbss_flags,
       { "Flags",		"nbss.flags",
 	FT_UINT8, BASE_HEX, NULL, 0x0,
-	"NBSS message flags", HFILL }}
+	"NBSS message flags", HFILL }},
+    { &hf_nbss_length,
+      { "Length",		"nbss.length",
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"NBSS message length", HFILL }},
+    { &hf_nbss_cifs_length,
+      { "Length",		"nbss.length",
+	FT_UINT24, BASE_DEC, NULL, 0x0,
+	"NBSS message length", HFILL }}
   };
   static gint *ett[] = {
     &ett_nbns,
