@@ -1518,7 +1518,8 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 1;
 
 		if (tree) {
-		  proto_tree_add_item(nbss_tree, hf_nbss_length, tvb, offset, 2, FALSE);
+		  proto_tree_add_uint_format(nbss_tree, hf_nbss_length, tvb, offset, 2,
+					     length, "Length: %u", length);
 		}
 
 		offset += 2;
