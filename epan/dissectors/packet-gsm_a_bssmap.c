@@ -1506,6 +1506,7 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 			 */
 			value = tvb_get_ntohs(tvb, curr_offset);
 			proto_tree_add_item(tree, hf_gsm_a_bssmap_be_rnc_id, tvb, curr_offset, 2, FALSE);
+			curr_offset += 2;
 
 			if (add_string)
 			{
