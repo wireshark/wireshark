@@ -50,11 +50,11 @@
 	<example id="ChCustEx1">
 	  <title>Help information available from Wireshark</title>
 	  <programlisting>
-Wireshark 0.99.6
+Wireshark 1.3.2
 Interactively dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
-Copyright 1998-2007 Gerald Combs &lt;gerald@wireshark.org> and contributors.
+Copyright 1998-2009 Gerald Combs &lt;gerald@wireshark.org> and contributors.
 This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -92,7 +92,10 @@ Processing:
   -N &lt;name resolve flags>  enable specific name resolution(s): "mntC"
 
 User interface:
+  -C &lt;config profile>      start with specified configuration profile
   -g &lt;packet number>       go to specified packet number after "-r"
+  -J &lt;jump filter>         jump to the first packet matching the (display) filter
+  -j                       search backwards for a matching packet after "-J"
   -m &lt;font>                set the font name used for most text
   -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
   -X &lt;key>:&lt;value>         eXtension options, see man page for details
@@ -104,9 +107,10 @@ Output:
 Miscellaneous:
   -h                       display this help and exit
   -v                       display version info and exit
-  -P &lt;key:path>            persconf:path - personal configuration files
+  -P &lt;key>:&lt;path>          persconf:path - personal configuration files
                            persdata:path - personal data files
   -o &lt;name>:&lt;value> ...    override preference or recent setting
+  -K &lt;keytab>              keytab file to use for kerberos decryption
 
 </programlisting>
 	</example>
@@ -288,6 +292,24 @@ Wireshark reports an error and doesn't start the capture.
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input.  Data read from pipes must be in
 standard libpcap format.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>-J &lt;jump filter></command></term>
+	  <listitem>
+	    <para>
+	      After reading in a capture file using the <command>-r</command>
+	      flag, jump to the first packet which matches the filter expression.
+	      The filter expression is in display filter format. If an exact match
+	      cannot be found the first packet afterwards is selected.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>-j</command></term>
+	  <listitem>
+	    <para>
+	      Use this option after the <command>-J</command> option to search
+	      backwards for a first packet to go to.
 	    </para>
 	  </listitem>
 	</varlistentry>

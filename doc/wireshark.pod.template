@@ -18,6 +18,8 @@ S<[ B<-g> E<lt>packet numberE<gt> ]>
 S<[ B<-h> ]>
 S<[ B<-H> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
+S<[ B<-J> E<lt>jump filterE<gt> ]>
+S<[ B<-j> ]>
 S<[ B<-k> ]>
 S<[ B<-K> E<lt>keytabE<gt> ]>
 S<[ B<-l> ]>
@@ -302,6 +304,17 @@ Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input. On Windows systems, pipe names must be
 of the form ``\\pipe\.\B<pipename>''. Data read from pipes must be in
 standard libpcap format.
+
+=item -J  E<lt>jump filterE<gt>
+
+After reading in a capture file using the B<-r> flag, jump to the packet
+matching the filter (display filter syntax). If no exact match is found
+the first packet after that is selected.
+
+=item -j
+
+Use after B<-J> to change the behaviour when no exact match is found for
+the filter. With this option select the first packet before.
 
 =item -k
 
