@@ -2792,6 +2792,7 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 
 		case special:
 			if (subopt == 4) {
+			  val = tvb_get_guint8(tvb, suboptoff);
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 					"Suboption %d: %s%s", subopt,
 					o125_cl_opt[subopt].text,
