@@ -255,6 +255,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Prefs__newindex_NAME);
     Pref pref = checkPref(L,WSLUA_ARG_Prefs__newindex_PREF);
     Pref p;
+    const gchar *c;
 
     if (! prefs ) return 0;
 
@@ -277,6 +278,18 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
             luaL_error(L,"a preference named %s exists already",name);
             return 0;
         }
+	/*
+         * Make sure that only lower-case ASCII letters, numbers,
+         * underscores, and dots appear in the preference name.
+	 */
+	for (c = name; *c != '\0'; c++) {
+	  if (!isascii((guchar)*c) ||
+	      (!islower((guchar)*c) && !isdigit((guchar)*c) && *c != '_' && *c != '.'))
+	    {
+	      luaL_error(L,"illegal preference name \"%s\", only lower-case ASCII letters, numbers, underscores and dots may be used",name);
+	      return 0;
+	    }
+	}
         
         if ( ! p->next) {
             p->next = pref;
