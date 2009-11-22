@@ -619,16 +619,16 @@ DEBUG_ENTRY("dissect_per_sequence_of");
    i.e. no FROM stuff limiting the alphabet
 */
 guint32
-dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
 {
-	offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, FALSE, NULL);
+	offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, NULL);
 
 	return offset;
 }
 
 /* XXX we dont do >64k length strings   yet */
 static guint32
-dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
+dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_,const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
 {
 	guint32 length;
 	gboolean byte_aligned;
@@ -684,6 +684,25 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 			bits_per_char=7;
 		} else {
 			bits_per_char=8;
+		}
+	}
+	/* 27.4	If the type is extensible for PER encodings (see 9.3.16), 
+	 * then a bit-field consisting of a single bit shall be added to the field-list. 
+	 * The single bit shall be set to zero if the value is within the range of the extension root,
+	 * and to one otherwise. If the value is outside the range of the extension root, 
+	 * then the following encoding shall be as if there was no effective size constraint, 
+	 * and shall have an effective permitted-alphabet constraint that consists of the set of characters 
+	 * of the unconstrained type.
+	 * 	NOTE – Only the known-multiplier character string types can be extensible for PER encodings. 
+	 * Extensibility markers on other character string types do not affect the PER encoding.
+	 */
+
+	if (has_extension) {
+		gboolean extension_present;
+		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
+		if(extension_present){
+			min_len = NO_BOUND;
+			max_len = NO_BOUND;
 		}
 	}
 
@@ -778,7 +797,7 @@ sort_alphabet(char *sorted_alphabet, const char *alphabet, int alphabet_length)
 }
 
 guint32
-dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
+dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
 {
   const char *alphabet_ptr;
   char sorted_alphabet[128];
@@ -788,33 +807,33 @@ dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_
   } else {
     alphabet_ptr = sort_alphabet(sorted_alphabet, alphabet, alphabet_length);
   }
-  return dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, alphabet_ptr, alphabet_length, value_tvb);
+  return dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, alphabet_ptr, alphabet_length, value_tvb);
 }
 
 guint32
-dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
 {
-	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len,
+	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension,
 		" 0123456789", 11, NULL);
 
 	return offset;
 }
 guint32
-dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
 {
-	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len,
+	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension,
 		" '()+,-.*0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 74, NULL);
 	return offset;
 }
 guint32
-dissect_per_VisibleString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_VisibleString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
 {
-	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len,
+	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension,
 		" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~", 95, NULL);
 	return offset;
 }
 guint32
-dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_)
 {
 	guint32 length;
 	static char *str;

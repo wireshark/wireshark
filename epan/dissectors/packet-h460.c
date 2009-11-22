@@ -789,7 +789,7 @@ dissect_h460_4_CallPriorityInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_h460_4_X121CountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      3, 3, "0123456789", 10,
+                                                      3, 3, FALSE, "0123456789", 10,
                                                       NULL);
 
   return offset;
@@ -814,7 +814,7 @@ dissect_h460_4_T_x121(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_h460_4_E164CountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      3, 3, "0123456789", 10,
+                                                      3, 3, FALSE, "0123456789", 10,
                                                       NULL);
 
   return offset;
@@ -825,7 +825,7 @@ dissect_h460_4_E164CountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_h460_4_T_identificationCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      1, 4, "0123456789", 10,
+                                                      1, 4, FALSE, "0123456789", 10,
                                                       NULL);
 
   return offset;
