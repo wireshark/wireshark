@@ -693,7 +693,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	 * then the following encoding shall be as if there was no effective size constraint, 
 	 * and shall have an effective permitted-alphabet constraint that consists of the set of characters 
 	 * of the unconstrained type.
-	 * 	NOTE – Only the known-multiplier character string types can be extensible for PER encodings. 
+	 * 	NOTE - Only the known-multiplier character string types can be extensible for PER encodings. 
 	 * Extensibility markers on other character string types do not affect the PER encoding.
 	 */
 
