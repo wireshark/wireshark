@@ -1078,12 +1078,10 @@ oid_get_default_mib_path(void) {
 #else
 #define PATH_SEPARATOR ":"
 	path = smiGetPath();
-#ifdef __APPLE__
 	g_string_append(path_str, "/usr/share/snmp/mibs");
 	if (strlen(path) > 0 ) {
 		g_string_append(path_str, PATH_SEPARATOR);
 	}
-#endif
 	g_string_append_printf(path_str, "%s", path);
 	free (path);
 #endif
