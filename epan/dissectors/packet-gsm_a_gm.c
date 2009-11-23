@@ -2663,23 +2663,9 @@ de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 }
 
 /*
- * [7] 10.5.5.21
+ * [9] 10.5.5.21 Cell Notification
+ * No data
  */
-static guint16
-de_gmm_cell_notfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
-{
-	guint32	curr_offset;
-
-	curr_offset = offset;
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 0,
-		"Cell Notification");
-
-	/* no length check possible */
-
-	return(curr_offset - offset);
-}
 
 /*
  * [7] 10.5.5.22
@@ -4484,7 +4470,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	de_gmm_ac_ref_nr,	/* A&C Reference Number */
 	de_gmm_ac_ref_nr_h, 	/* A&C Reference Numer - Info is in the high nibble */
 	de_gmm_service_type,	/* Service Type */
-	de_gmm_cell_notfi,	/* Cell Notification */
+	NULL /* no associated data */,	/* Cell Notification */
 	de_gmm_ps_lcs_cap,	/* PS LCS Capability */
 	de_gmm_net_feat_supp,	/* Network Feature Support */
 	de_gmm_rat_info_container, /* Inter RAT information container */
