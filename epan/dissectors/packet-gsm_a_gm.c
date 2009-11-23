@@ -239,6 +239,8 @@ static int hf_gsm_a_gm_for = -1;
 static int hf_gsm_a_gm_type_of_attach = -1;
 static int hf_gsm_a_gm_tmsi_flag = -1;
 static int hf_gsm_a_gm_update_type = -1;
+static int hf_gsm_a_gm_gprs_timer_unit = -1;
+static int hf_gsm_a_gm_gprs_timer_value = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -256,6 +258,7 @@ static gint ett_gmm_context_stat = -1;
 static gint ett_gmm_update_type = -1;
 static gint ett_gmm_radio_cap = -1;
 static gint ett_gmm_rai = -1;
+static gint ett_gmm_gprs_timer = -1;
 
 static gint ett_sm_tft = -1;
 
@@ -2862,20 +2865,26 @@ de_gc_radio_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 }
 
 /*
- * [7] 10.5.7.3
+ * [9] 10.5.7.3 GPRS Timer
  */
+static const value_string gsm_a_gm_gprs_timer_unit_vals[] = {
+	{ 0x00, "value is incremented in multiples of 2 seconds" },
+	{ 0x01, "value is incremented in multiples of 1 minute" },
+	{ 0x02, "value is incremented in multiples of decihours" },
+	{ 0x07, "value indicates that the timer is deactivated" },
+	{ 0, NULL }
+};
+
 static guint16
 de_gc_timer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
 	guint16	val;
-	guint32	curr_offset;
 	const gchar	*str;
+	proto_tree	*subtree;
+	proto_item	*item;
 
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
+	oct = tvb_get_guint8(tvb, offset);
 	val = oct&0x1f;
 
 	switch(oct>>5)
@@ -2885,23 +2894,24 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 		case 2: str="min"; val*=6; break;
 		case 7:
 			proto_tree_add_text(tree,
-				tvb, curr_offset, 1,
+				tvb, offset, 1,
 				"GPRS Timer: timer is deactivated");
 
 		default: str="min";
 	}
 
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"GPRS Timer: (%u) %u %s",
-		oct, val,
+	item = proto_tree_add_text(tree,
+		tvb, offset, 1,
+		"GPRS Timer: %u %s",
+		val,
 		str);
 
-	curr_offset++;
+	subtree = proto_item_add_subtree(item, ett_gmm_gprs_timer);
+	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer_unit, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer_value, tvb, offset, 1, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
@@ -5984,10 +5994,20 @@ proto_register_gsm_a_gm(void)
 		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_update_type_vals), 0x07,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_gm_gprs_timer_unit,
+		{ "Unit", "gsm_a.gm.gprs_timer_unit",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_gprs_timer_unit_vals), 0xe0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_gprs_timer_value,
+		{ "Timer value", "gsm_a.gm.gprs_timer_value",
+		FT_UINT8, BASE_DEC, NULL, 0x1f,
+		NULL, HFILL }
+	},
 	};
 
 	/* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	15
+#define	NUM_INDIVIDUAL_ELEMS	16
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SM +
 		  NUM_GSM_GM_ELEM];
@@ -6007,6 +6027,7 @@ proto_register_gsm_a_gm(void)
 	ett[12] = &ett_gmm_radio_cap;
 	ett[13] = &ett_gmm_rai;
 	ett[14] = &ett_sm_tft;
+	ett[15] = &ett_gmm_gprs_timer;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
