@@ -2311,7 +2311,8 @@ tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
 	size = tvb_strsize(tvb, offset);
 	strptr = g_malloc(size);
 	tvb_memcpy(tvb, strptr, offset, size);
-	*lengthp = size;
+	if (lengthp)
+		*lengthp = size;
 	return strptr;
 }
 /*
@@ -2337,7 +2338,8 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
 	size = tvb_strsize(tvb, offset);
 	strptr = ep_alloc(size);
 	tvb_memcpy(tvb, strptr, offset, size);
-	*lengthp = size;
+	if (lengthp)
+		*lengthp = size;
 	return strptr;
 }
 
@@ -2362,7 +2364,8 @@ tvb_get_seasonal_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
 	size = tvb_strsize(tvb, offset);
 	strptr = se_alloc(size);
 	tvb_memcpy(tvb, strptr, offset, size);
-	*lengthp = size;
+	if (lengthp)
+		*lengthp = size;
 	return strptr;
 }
 
@@ -2555,7 +2558,8 @@ tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset,
 			 * Pretend the line runs to the end of the tvbuff.
 			 */
 			linelen = eob_offset - offset;
-			*next_offset = eob_offset;
+			if (next_offset)
+				*next_offset = eob_offset;
 		}
 	} else {
 		/*
@@ -2609,7 +2613,8 @@ tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset,
 		 * character in the line, skipping over the last character
 		 * in the line terminator.
 		 */
-		*next_offset = eol_offset + 1;
+		if (next_offset)
+			*next_offset = eol_offset + 1;
 	}
 	return linelen;
 }
@@ -2676,7 +2681,8 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 			 * We pretend the line runs to the end of the tvbuff.
 			 */
 			linelen = eob_offset - offset;
-			*next_offset = eob_offset;
+			if (next_offset)
+				*next_offset = eob_offset;
 			break;
 		}
 
@@ -2732,7 +2738,8 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 				 * over the last character in the line
 				 * terminator, and quit.
 				 */
-				*next_offset = char_offset + 1;
+				if (next_offset)
+					*next_offset = char_offset + 1;
 				break;
 			}
 		}
@@ -2749,7 +2756,8 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 			 * We pretend the line runs to the end of the tvbuff.
 			 */
 			linelen = eob_offset - offset;
-			*next_offset = eob_offset;
+			if (next_offset)
+				*next_offset = eob_offset;
 			break;
 		}
 	}
