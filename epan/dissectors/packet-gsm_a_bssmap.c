@@ -48,11 +48,13 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/asn1.h>
 
 #include "packet-bssap.h"
 #include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
+#include "packet-ranap.h"
 
 /* PROTOTYPES/FORWARDS */
 
@@ -2947,15 +2949,17 @@ be_serv_ho(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 static guint16
 be_src_rnc_to_tar_rnc_umts(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
+	tvbuff_t	*container_tvb;
 	guint32	curr_offset;
 
 	curr_offset = offset;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
 	/* The Source RNC to Target RNC transparent Information value is encoded as 
 	 * the Source RNC to Target RNC Transparent Container IE as defined in relevant 
 	 * RANAP specification 3GPP TS 25.413, excluding RANAP tag 
 	 */
+	container_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+	dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(container_tvb, g_pinfo , tree);
 
 	return(len);
 }

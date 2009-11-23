@@ -66,7 +66,8 @@
 static int proto_ranap = -1;
 
 /* initialise sub-dissector handles */
-static dissector_handle_t rrc_handle = NULL;
+static dissector_handle_t rrc_s_to_trnc_handle = NULL;
+static dissector_handle_t rrc_t_to_srnc_handle = NULL;
 
 static int hf_ranap_imsi_digits = -1;
 static int hf_ranap_transportLayerAddress_ipv4 = -1;
@@ -343,7 +344,8 @@ proto_reg_handoff_ranap(void)
 
 	if (!initialized) {
 		ranap_handle = find_dissector("ranap");
-		rrc_handle = find_dissector("rrc.s_to_trnc_cont");
+		rrc_s_to_trnc_handle = find_dissector("rrc.s_to_trnc_cont");
+		rrc_t_to_srnc_handle = find_dissector("rrc.t_to_srnc_cont");
 		initialized = TRUE;
 #include "packet-ranap-dis-tab.c"
 	} else {
