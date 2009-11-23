@@ -594,14 +594,14 @@ be_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *ad
 	other_decode_bitfield_value(a_bigbuf, value, 0xffe0, 16);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 2,
-		"%s :  PCM Multiplexer: %u",
+		"%s = PCM Multiplexer: %u",
 		a_bigbuf,
 		(value & 0xffe0) >> 5);
 
 	other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 2,
-		"%s :  Timeslot: %u",
+		"%s = Timeslot: %u",
 		a_bigbuf,
 		value & 0x001f);
 
@@ -683,14 +683,14 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 			other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
 			proto_tree_add_text(tree,
 				tvb, curr_offset, 1,
-				"%s :  Cause Class: %s",
+				"%s = Cause Class: %s",
 				a_bigbuf,
 				str);
 
 			other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 			proto_tree_add_text(tree,
 				tvb, curr_offset, 1,
-				"%s :  National Cause",
+				"%s = National Cause",
 				a_bigbuf);
 
 			curr_offset++;
@@ -710,7 +710,7 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 			other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 			proto_tree_add_text(tree,
 				tvb, curr_offset, 1,
-				"%s :  Cause (MSB): %u",
+				"%s = Cause (MSB): %u",
 				a_bigbuf,
 				((oct & 0x7f) << 8) | value);
 
@@ -718,7 +718,7 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 			other_decode_bitfield_value(a_bigbuf, value, 0xff, 8);
 			proto_tree_add_text(tree, tvb, curr_offset, 1,
-				"%s :  Cause (LSB)",
+				"%s = Cause (LSB)",
 				a_bigbuf);
 
 			curr_offset++;
@@ -807,7 +807,7 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 		other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 		proto_tree_add_uint_format(tree, hf_gsm_a_bssmap_cause,
 			tvb, curr_offset, 1, oct & 0x7f,
-			"%s :  Cause: (%u) %s",
+			"%s = Cause: (%u) %s",
 			a_bigbuf,
 			oct & 0x7f,
 			str);
@@ -902,14 +902,14 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  TI flag: %s",
+		"%s = TI flag: %s",
 		a_bigbuf,
 		((oct & 0x08) ?  "allocated by receiver" : "allocated by sender"));
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  TIO: %u",
+		"%s = TIO: %u",
 		a_bigbuf,
 		oct & 0x07);
 
@@ -943,7 +943,7 @@ be_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 		other_decode_bitfield_value(a_bigbuf, oct, mask, 8);
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"%s :  GSM A5/%u: %spermitted",
+			"%s = GSM A5/%u: %spermitted",
 			a_bigbuf,
 			alg_id,
 			(mask & oct) ? "" : "not ");
@@ -956,7 +956,7 @@ be_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 	other_decode_bitfield_value(a_bigbuf, oct, mask, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  No encryption: %spermitted",
+		"%s = No encryption: %spermitted",
 		a_bigbuf,
 		(mask & oct) ? "" : "not ");
 
@@ -1009,7 +1009,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Speech/Data Indicator: %s",
+		"%s = Speech/Data Indicator: %s",
 		a_bigbuf,
 		str);
 
@@ -1078,7 +1078,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 			other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 			proto_tree_add_text(tree,
 				tvb, curr_offset, 1,
-				"%s :  Speech version identifier: %s",
+				"%s = Speech version identifier: %s",
 				a_bigbuf,
 				str);
 
@@ -1149,7 +1149,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 		other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"%s :  %sTransparent service",
+			"%s = %sTransparent service",
 			a_bigbuf,
 			(oct & 0x40) ? "Non-" : "");
 
@@ -1233,7 +1233,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 		other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"%s :  Rate: %s",
+			"%s = Rate: %s",
 			a_bigbuf,
 			str);
 
@@ -1252,7 +1252,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 			other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 			proto_tree_add_text(tree,
 				tvb, curr_offset, 1,
-				"%s :  14.5 kbit/s (TCH/F14.4) %sallowed",
+				"%s = 14.5 kbit/s (TCH/F14.4) %sallowed",
 				a_bigbuf,
 				(oct & 0x08) ? "" : "not ");
 
@@ -1261,14 +1261,14 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 			other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 			proto_tree_add_text(tree,
 				tvb, curr_offset, 1,
-				"%s :  12.0 kbit/s (TCH F/9.6) %sallowed",
+				"%s = 12.0 kbit/s (TCH F/9.6) %sallowed",
 				a_bigbuf,
 				(oct & 0x02) ? "" : "not ");
 
 			other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 			proto_tree_add_text(tree,
 				tvb, curr_offset, 1,
-				"%s :  6.0 kbit/s (TCH F/4.8) %sallowed",
+				"%s = 6.0 kbit/s (TCH F/4.8) %sallowed",
 				a_bigbuf,
 				(oct & 0x01) ? "" : "not ");
 		}
@@ -1277,7 +1277,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 			other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 			proto_tree_add_text(tree,
 				tvb, curr_offset, 1,
-				"%s :  14.5/14.4 kbit/s (TCH/F14.4) %sallowed",
+				"%s = 14.5/14.4 kbit/s (TCH/F14.4) %sallowed",
 				a_bigbuf,
 				(oct & 0x08) ? "" : "not ");
 
@@ -1286,14 +1286,14 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 			other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 			proto_tree_add_text(tree,
 				tvb, curr_offset, 1,
-				"%s :  12.0/9.6 kbit/s (TCH F/9.6) %sallowed",
+				"%s = 12.0/9.6 kbit/s (TCH F/9.6) %sallowed",
 				a_bigbuf,
 				(oct & 0x02) ? "" : "not ");
 
 			other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 			proto_tree_add_text(tree,
 				tvb, curr_offset, 1,
-				"%s :  6.0/4.8 kbit/s (TCH F/4.8) %sallowed",
+				"%s = 6.0/4.8 kbit/s (TCH F/4.8) %sallowed",
 				a_bigbuf,
 				(oct & 0x01) ? "" : "not ");
 		}
@@ -1609,7 +1609,7 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Preemption Capability Indicator (PCI): this allocation request %s preempt an existing connection",
+		"%s = Preemption Capability Indicator (PCI): this allocation request %s preempt an existing connection",
 		a_bigbuf,
 		(oct & 0x40) ? "may" : "shall not");
 
@@ -1625,7 +1625,7 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 	other_decode_bitfield_value(a_bigbuf, oct, 0x3c, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Priority Level: (%u) %s",
+		"%s = Priority Level: (%u) %s",
 		a_bigbuf,
 		(oct & 0x3c) >> 2,
 		str);
@@ -1636,14 +1636,14 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
 	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Queuing Allowed Indicator (QA): queuing %sallowed",
+		"%s = Queuing Allowed Indicator (QA): queuing %sallowed",
 		a_bigbuf,
 		(oct & 0x02) ? "" : "not ");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Preemption Vulnerability Indicator (PVI): this connection %s be preempted by another allocation request",
+		"%s = Preemption Vulnerability Indicator (PVI): this connection %s be preempted by another allocation request",
 		a_bigbuf,
 		(oct & 0x01) ? "might" : "shall not");
 
@@ -1800,7 +1800,7 @@ be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  BSS is %s to activate DTX in the downlink direction",
+		"%s = BSS is %s to activate DTX in the downlink direction",
 		a_bigbuf,
 		(oct & 0x01) ? "forbidden" : "allowed");
 
@@ -2164,7 +2164,7 @@ be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  IMEISV must %sbe included by the mobile station",
+		"%s = IMEISV must %sbe included by the mobile station",
 		a_bigbuf,
 		(oct & 0x01) ? "" : "not ");
 
@@ -2358,7 +2358,7 @@ be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  %s",
+		"%s = %s",
 		a_bigbuf,
 		str);
 
@@ -2503,7 +2503,7 @@ be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  qri: it is recommended %sto allow queuing",
+		"%s = qri: it is recommended %sto allow queuing",
 		a_bigbuf,
 		(oct & 0x02) ? "" : "not ");
 
@@ -2562,7 +2562,7 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Speech version identifier: %s",
+		"%s = Speech version identifier: %s",
 		a_bigbuf,
 		str);
 

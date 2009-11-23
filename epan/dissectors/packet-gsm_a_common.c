@@ -1187,7 +1187,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type
 		other_decode_bitfield_value(buf, oct, 0xf0, 8);
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Element ID",
+			"%s = Element ID",
 			buf);
 
 		if (elem_funcs[idx] == NULL)
@@ -1752,7 +1752,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 		other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"%s :  Unused",
+			"%s = Unused",
 			a_bigbuf);
 
 		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
@@ -1780,7 +1780,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 		other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"%s :  Identity Digit 1: %c",
+			"%s = Identity Digit 1: %c",
 			a_bigbuf,
 			Dgt1_9_bcd.out[(oct & 0xf0) >> 4]);
 
@@ -1825,7 +1825,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 			other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 			proto_tree_add_text(tree,
 				tvb, curr_offset - 1, 1,
-				"%s :  Filler",
+				"%s = Filler",
 				a_bigbuf);
 		}
 		break;
@@ -1834,7 +1834,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 		other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"%s :  Identity Digit 1: %c",
+			"%s = Identity Digit 1: %c",
 			a_bigbuf,
 			Dgt1_9_bcd.out[(oct & 0xf0) >> 4]);
 
@@ -1867,7 +1867,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 		other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"%s :  Unused",
+			"%s = Unused",
 			a_bigbuf);
 
 		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
@@ -2722,21 +2722,21 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	other_decode_bitfield_value(a_bigbuf, value, 0xffffffe0, 32);
 	proto_tree_add_text(tree, tvb, curr_offset, 4,
-		"%s :  Group or Broadcast call reference: %u (0x%04x)",
+		"%s = Group or Broadcast call reference: %u (0x%04x)",
 		a_bigbuf,
 		(value & 0xffffffe0) >> 5,
 		(value & 0xffffffe0) >> 5);
 
 	other_decode_bitfield_value(a_bigbuf, value, 0x00000010, 32);
 	proto_tree_add_text(tree, tvb, curr_offset, 4,
-		"%s :  SF Service Flag: %s",
+		"%s = SF Service Flag: %s",
 		a_bigbuf,
 		(value & 0x00000010) ?
 		"VGCS (Group call reference)" : "VBS (Broadcast call reference)");
 
 	other_decode_bitfield_value(a_bigbuf, value, 0x00000008, 32);
 	proto_tree_add_text(tree, tvb, curr_offset, 4,
-		"%s :  AF Acknowledgement Flag: acknowledgment is %srequired",
+		"%s = AF Acknowledgement Flag: acknowledgment is %srequired",
 		a_bigbuf,
 		(value & 0x00000008) ? "" : "not ");
 
@@ -2756,7 +2756,7 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	other_decode_bitfield_value(a_bigbuf, value, 0x00000007, 32);
 	proto_tree_add_text(tree, tvb, curr_offset, 4,
-		"%s :  Call Priority: %s",
+		"%s = Call Priority: %s",
 		a_bigbuf,
 		str);
 
@@ -2766,7 +2766,7 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
-		"%s :  Ciphering Information",
+		"%s = Ciphering Information",
 		a_bigbuf);
 
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 4, FALSE);
@@ -2813,7 +2813,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x30, 8);
 	proto_tree_add_text(subtree, tvb, curr_offset, 1,
-		"%s :  SAPI (Service Access Point Identifier): %s",
+		"%s = SAPI (Service Access Point Identifier): %s",
 		a_bigbuf,
 		str);
 

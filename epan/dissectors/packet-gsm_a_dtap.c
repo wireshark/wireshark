@@ -58,7 +58,8 @@
  *   Core network protocols;
  *   Stage 3
  *   (3GPP TS 24.008 version 6.7.0 Release 6)
- *	 (3GPP TS 24.008 version 6.8.0 Release 6)
+ *   (3GPP TS 24.008 version 6.8.0 Release 6)
+ *
  *   Reference [9]
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
@@ -451,6 +452,7 @@ static int hf_gsm_a_dtap_location	= -1;
 static int hf_gsm_a_dtap_progress_description	= -1;
 static int hf_gsm_a_dtap_afi	= -1;
 static int hf_gsm_a_dtap_rej_cause	= -1;
+static int hf_gsm_a_dtap_u2u_prot_discr	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -666,14 +668,14 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Coding Scheme: %s",
+		"%s = Coding Scheme: %s",
 		a_bigbuf,
 		str);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Add CI: The MS should %s",
+		"%s = Add CI: The MS should %s",
 		a_bigbuf,
 		(oct & 0x08) ?
 			"add the letters for the Country's Initials and a separator (e.g. a space) to the text string" :
@@ -697,7 +699,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 	item = proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Number of spare bits in last octet: %s",
+		"%s = Number of spare bits in last octet: %s",
 		a_bigbuf,
 		str);
 
@@ -982,7 +984,7 @@ de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 	other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  %s",
+		"%s = %s",
 		a_bigbuf,
 		str);
 
@@ -1103,7 +1105,7 @@ de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0c, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Hold auxiliary state: %s",
+		"%s = Hold auxiliary state: %s",
 		a_bigbuf,
 		str);
 
@@ -1120,7 +1122,7 @@ de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Multi party auxiliary state: %s",
+		"%s = Multi party auxiliary state: %s",
 		a_bigbuf,
 		str);
 
@@ -1274,21 +1276,21 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Radio channel requirement: %s",
+		"%s = Radio channel requirement: %s",
 		a_bigbuf,
 		str);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Coding standard: %s",
+		"%s = Coding standard: %s",
 		a_bigbuf,
 		(oct & 0x10) ? "reserved" : "GSM standardized coding");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Transfer mode: %s",
+		"%s = Transfer mode: %s",
 		a_bigbuf,
 		(oct & 0x08) ? "packet" : "circuit");
 	
@@ -1326,7 +1328,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 			other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
 			proto_tree_add_text(subtree,
 				tvb, curr_offset, 1,
-				"%s :  Coding: octet used for %s",
+				"%s = Coding: octet used for %s",
 				a_bigbuf,
 				(oct & 0x40) ? "other extension of octet 3" :
 				"extension of information transfer capability");
@@ -1361,7 +1363,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Compression: data compression %s%s",
+			"%s = Compression: data compression %s%s",
 			a_bigbuf,
 			(oct & 0x40) ? "" : "not ",
 			is_uplink ? "allowed" : "possible");
@@ -1378,28 +1380,28 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x30, 8);
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Structure: %s",
+			"%s = Structure: %s",
 			a_bigbuf,
 			str);
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Duplex mode: %s",
+			"%s = Duplex mode: %s",
 			a_bigbuf,
 			(oct & 0x08) ? "Full" : "Half");
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Configuration: %s",
+			"%s = Configuration: %s",
 			a_bigbuf,
 			(oct & 0x04) ? "Reserved" : "Point-to-point");
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  NIRR: %s",
+			"%s = NIRR: %s",
 			a_bigbuf,
 			(oct & 0x02) ?
 			"Data up to and including 4.8 kb/s, full rate, non-transparent, 6 kb/s radio interface rate is requested" :
@@ -1408,7 +1410,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Establishment: %s",
+			"%s = Establishment: %s",
 			a_bigbuf,
 			(oct & 0x01) ? "Reserved" : "Demand");
 
@@ -1434,7 +1436,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Access Identity: %s",
+		"%s = Access Identity: %s",
 		a_bigbuf,
 		(oct & 0x60) ? "Reserved" : "Octet identifier");
 
@@ -1451,7 +1453,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x18, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Rate Adaption: %s",
+		"%s = Rate Adaption: %s",
 		a_bigbuf,
 		str);
 
@@ -1471,7 +1473,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Signalling Access Protocol: %s",
+		"%s = Signalling Access Protocol: %s",
 		a_bigbuf,
 		str);
 
@@ -1499,7 +1501,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Other ITC: %s",
+		"%s = Other ITC: %s",
 		a_bigbuf,
 		(oct & 0x60) ? "Reserved" : "Restricted digital information");
 
@@ -1516,7 +1518,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x18, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Other Rate Adaption: %s",
+		"%s = Other Rate Adaption: %s",
 		a_bigbuf,
 		str);
 
@@ -1546,42 +1548,42 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Rate Adaption Header: %sincluded",
+		"%s = Rate Adaption Header: %sincluded",
 		a_bigbuf,
 		(oct & 0x40) ? "" : "not ");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Multiple frame establishment support in data link: %s",
+		"%s = Multiple frame establishment support in data link: %s",
 		a_bigbuf,
 		(oct & 0x20) ? "Supported" : "Not supported, only UI frames allowed");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Mode of operation: %s",
+		"%s = Mode of operation: %s",
 		a_bigbuf,
 		(oct & 0x10) ? "Protocol sensitive" : "Bit transparent");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Logical link identifier negotiation: %s",
+		"%s = Logical link identifier negotiation: %s",
 		a_bigbuf,
 		(oct & 0x08) ? "Full protocol negotiation" : "Default, LLI=256 only");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Assignor/Assignee: Message originator is '%s'",
+		"%s = Assignor/Assignee: Message originator is '%s'",
 		a_bigbuf,
 		(oct & 0x04) ? "assignor only" : "default assignee");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  In band/Out of band negotiation: Negotiation is done %s",
+		"%s = In band/Out of band negotiation: Negotiation is done %s",
 		a_bigbuf,
 		(oct & 0x02) ?
 		"with USER INFORMATION messages on a temporary signalling connection" :
@@ -1613,21 +1615,21 @@ bc_octet_6:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Layer 1 Identity: %s",
+		"%s = Layer 1 Identity: %s",
 		a_bigbuf,
 		((oct & 0x60) == 0x20) ? "Octet identifier" : "Reserved");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x1e, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  User information layer 1 protocol: %s",
+		"%s = User information layer 1 protocol: %s",
 		a_bigbuf,
 		(oct & 0x1e) ? "Reserved" : "Default layer 1 protocol");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Synchronous/asynchronous: %s",
+		"%s = Synchronous/asynchronous: %s",
 		a_bigbuf,
 		(oct & 0x01) ? "Asynchronous" : "Synchronous");
 
@@ -1655,21 +1657,21 @@ bc_octet_6:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Number of Stop Bits: %s",
+		"%s = Number of Stop Bits: %s",
 		a_bigbuf,
 		(oct & 0x40) ? "2" : "1");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Negotiation: %s",
+		"%s = Negotiation: %s",
 		a_bigbuf,
 		(oct & 0x20) ? "Reserved" : "In-band negotiation not possible");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Number of data bits excluding parity bit if present: %s",
+		"%s = Number of data bits excluding parity bit if present: %s",
 		a_bigbuf,
 		(oct & 0x10) ? "8" : "7");
 
@@ -1690,7 +1692,7 @@ bc_octet_6:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  User rate: %s",
+		"%s = User rate: %s",
 		a_bigbuf,
 		str);
 
@@ -1727,21 +1729,21 @@ bc_octet_6:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  V.110/X.30 rate adaptation Intermediate rate: %s",
+		"%s = V.110/X.30 rate adaptation Intermediate rate: %s",
 		a_bigbuf,
 		str);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Network independent clock (NIC) on transmission (Tx): %s to send data with network independent clock",
+		"%s = Network independent clock (NIC) on transmission (Tx): %s to send data with network independent clock",
 		a_bigbuf,
 		(oct & 0x10) ? "requires" : "does not require");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Network independent clock (NIC) on reception (Rx): %s accept data with network independent clock",
+		"%s = Network independent clock (NIC) on reception (Rx): %s accept data with network independent clock",
 		a_bigbuf,
 		(oct & 0x08) ? "can" : "cannot");
 
@@ -1760,7 +1762,7 @@ bc_octet_6:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Parity information: %s",
+		"%s = Parity information: %s",
 		a_bigbuf,
 		str);
 
@@ -1798,7 +1800,7 @@ bc_octet_6:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Connection element: %s",
+		"%s = Connection element: %s",
 		a_bigbuf,
 		str);
 
@@ -1821,7 +1823,7 @@ bc_octet_6:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Modem type: %s",
+		"%s = Modem type: %s",
 		a_bigbuf,
 		str);
 
@@ -1858,7 +1860,7 @@ bc_octet_6:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Other modem type: %s",
+		"%s = Other modem type: %s",
 		a_bigbuf,
 		str);
 
@@ -1884,7 +1886,7 @@ bc_octet_6:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Fixed network user rate: %s",
+		"%s = Fixed network user rate: %s",
 		a_bigbuf,
 		str);
 
@@ -1914,34 +1916,34 @@ bc_octet_6:
 		other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Acceptable channel codings: TCH/F14.4 %sacceptable",
+		"%s = Acceptable channel codings: TCH/F14.4 %sacceptable",
 		a_bigbuf,
 		(oct & 0x40) ? "" : "not ");
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Acceptable channel codings: Spare",
+		"%s = Acceptable channel codings: Spare",
 		a_bigbuf);
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Acceptable channel codings: TCH/F9.6 %sacceptable",
+		"%s = Acceptable channel codings: TCH/F9.6 %sacceptable",
 		a_bigbuf,
 		(oct & 0x10) ? "" : "not ");
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Acceptable channel codings: TCH/F4.8 %sacceptable",
+		"%s = Acceptable channel codings: TCH/F4.8 %sacceptable",
 		a_bigbuf,
 		(oct & 0x08) ? "" : "not ");
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Maximum number of traffic channels: %u TCH",
+		"%s = Maximum number of traffic channels: %u TCH",
 		a_bigbuf,
 		(oct & 0x07) + 1);
 	}
@@ -1950,13 +1952,13 @@ bc_octet_6:
 		other_decode_bitfield_value(a_bigbuf, oct, 0x78, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Acceptable channel codings: Spare",
+		"%s = Acceptable channel codings: Spare",
 		a_bigbuf);
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Maximum number of traffic channels: Spare",
+		"%s = Maximum number of traffic channels: Spare",
 		a_bigbuf);
 	}
 
@@ -1996,7 +1998,7 @@ bc_octet_6:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  UIMI, User initiated modification indication: %s",
+		"%s = UIMI, User initiated modification indication: %s",
 		a_bigbuf,
 		str);
 
@@ -2024,7 +2026,7 @@ bc_octet_6:
 		other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Wanted air interface user rate: %s",
+		"%s = Wanted air interface user rate: %s",
 		a_bigbuf,
 		str);
 	}
@@ -2033,7 +2035,7 @@ bc_octet_6:
 		other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Wanted air interface user rate: Spare",
+		"%s = Wanted air interface user rate: Spare",
 		a_bigbuf);
 	}
 
@@ -2063,28 +2065,28 @@ bc_octet_6:
 		other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Acceptable channel codings extended: TCH/F28.8 %sacceptable",
+		"%s = Acceptable channel codings extended: TCH/F28.8 %sacceptable",
 		a_bigbuf,
 		(oct & 0x40) ? "" : "not ");
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Acceptable channel codings extended: TCH/F32.0 %sacceptable",
+		"%s = Acceptable channel codings extended: TCH/F32.0 %sacceptable",
 		a_bigbuf,
 		(oct & 0x20) ? "" : "not ");
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Acceptable channel codings extended: TCH/F43.2 %sacceptable",
+		"%s = Acceptable channel codings extended: TCH/F43.2 %sacceptable",
 		a_bigbuf,
 		(oct & 0x10) ? "" : "not ");
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Acceptable channel codings extended: TCH/F43.2 %sacceptable",
+		"%s = Acceptable channel codings extended: TCH/F43.2 %sacceptable",
 		a_bigbuf,
 		(oct & 0x10) ? "" : "not ");
 
@@ -2101,7 +2103,7 @@ bc_octet_6:
 		other_decode_bitfield_value(a_bigbuf, oct, 0x0c, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Channel Coding Asymmetry Indication: %s",
+		"%s = Channel Coding Asymmetry Indication: %s",
 		a_bigbuf,
 		str);
 	}
@@ -2110,7 +2112,7 @@ bc_octet_6:
 		other_decode_bitfield_value(a_bigbuf, oct, 0x7c, 8);
 		proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  EDGE Channel Codings: Spare",
+		"%s = EDGE Channel Codings: Spare",
 		a_bigbuf);
 	}
 
@@ -2137,7 +2139,7 @@ bc_octet_7:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Layer 2 Identity: %s",
+		"%s = Layer 2 Identity: %s",
 		a_bigbuf,
 		((oct & 0x60) == 0x40) ? "Octet identifier" : "Reserved");
 
@@ -2157,7 +2159,7 @@ bc_octet_7:
 	other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  User information layer 2 protocol: %s",
+		"%s = User information layer 2 protocol: %s",
 		a_bigbuf,
 		str);
 	break;
@@ -2198,14 +2200,14 @@ de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	case 0:
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Maximum number of supported bearers: 1",
+		"%s = Maximum number of supported bearers: 1",
 		a_bigbuf);
 	break;
 
 	default:
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Maximum number of supported bearers: %u",
+		"%s =  Maximum number of supported bearers: %u",
 		a_bigbuf,
 		(oct & 0xf0) >> 4);
 	break;
@@ -2216,14 +2218,14 @@ de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 		proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  PCP: the mobile station %s the Prolonged Clearing Procedure",
+		"%s = PCP: the mobile station %s the Prolonged Clearing Procedure",
 		a_bigbuf,
 		(oct & 0x02) ? "supports" : "does not support");
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  DTMF: %s",
+		"%s = DTMF: %s",
 		a_bigbuf,
 		(oct & 0x01) ?
 			"the mobile station supports DTMF as specified in subclause 5.5.7 of TS 24.008" :
@@ -2240,7 +2242,7 @@ de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Maximum number of speech bearers: %u",
+		"%s = Maximum number of speech bearers: %u",
 		a_bigbuf,
 		oct & 0x0f);
 
@@ -2626,12 +2628,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"%s :  Extension: %s",
-		a_bigbuf,
-		(oct & 0x80) ? "not extended" : "extended");
+	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, FALSE);
 
 	switch ((oct & 0x60) >> 5)
 	{
@@ -2646,7 +2643,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
 	proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
-	"%s :  Coding standard: %s",
+	"%s = Coding standard: %s",
 	a_bigbuf,
 	str);
 
@@ -2670,7 +2667,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Location: %s",
+		"%s = Location: %s",
 		a_bigbuf,
 		str);
 
@@ -2685,7 +2682,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Recommendation",
+		"%s = Recommendation",
 		a_bigbuf);
 
 	curr_offset++;
@@ -2761,7 +2758,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 	proto_tree_add_uint_format(tree, hf_gsm_a_dtap_cause,
 		tvb, curr_offset, 1, cause,
-		"%s :  Cause: (%u) %s",
+		"%s = Cause: (%u) %s",
 		a_bigbuf,
 		cause,
 		str);
@@ -2931,7 +2928,7 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  Keypad information: %c",
+		"%s = Keypad information: %c",
 		a_bigbuf,
 		oct & 0x7f);
 
@@ -3131,7 +3128,7 @@ de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"%s :  %s",
+		"%s = %s",
 		a_bigbuf,
 		str);
 
@@ -3249,15 +3246,36 @@ through		layer or layer 3 protocols
 									
 All other values are reserved.
 */
+static const range_string gsm_a_dtap_u2u_prot_discr_vals[] = {
+	{ 0x00, 0x00, "User specific protocol" },
+	{ 0x01, 0x01, "OSI high layer protocols" },
+	{ 0x02, 0x02, "X.244" },
+	{ 0x03, 0x03, "Reserved for system management convergence function" },
+	{ 0x04, 0x04, "IA5 characters" },
+	{ 0x07, 0x07, "Rec.V.120 rate adaption" },
+	{ 0x08, 0x08, "Q.931 (I.451) user-network call control messages" },
+	{ 0x10, 0x3F, "Reserved for other network layer or layer 3 protocols" },
+	{ 0x40, 0x4E, "National use" },
+	{ 0x4F, 0x4F, "3GPP capability exchange protocol" },
+	{ 0x50, 0xFE, "Reserved for other network layer or layer 3 protocols" },
+	{ 0, 0, NULL }
+};
+
 static guint16
 de_u2u(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
+	proto_tree	*subtree;
+	proto_item	*item;
 
 	curr_offset = offset;
+	proto_tree_add_item(tree, hf_gsm_a_dtap_u2u_prot_discr, tvb, curr_offset, 1, FALSE);
+	curr_offset++;
 
-	proto_tree_add_text(tree, tvb, curr_offset, len, "Not decoded yet");
-
+	item = proto_tree_add_text(tree, tvb, curr_offset, len - 1, "User-user information");
+	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_USER_USER]);
+	proto_tree_add_text(subtree, tvb, curr_offset, len - 1, 
+			"Data: %s", tvb_bytes_to_str(tvb, curr_offset, len - 1));
 
 	return(len);
 }
@@ -4089,14 +4107,14 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	case 0x07:
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Ciphering Key Sequence Number: No key is available",
+			"%s = Ciphering Key Sequence Number: No key is available",
 			a_bigbuf);
 		break;
 
 	default:
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Ciphering Key Sequence Number: %u",
+			"%s = Ciphering Key Sequence Number: %u",
 			a_bigbuf,
 			oct & 0x07);
 		break;
@@ -4199,14 +4217,14 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	case 0x07:
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Ciphering Key Sequence Number: No key is available",
+			"%s = Ciphering Key Sequence Number: No key is available",
 			a_bigbuf);
 		break;
 
 	default:
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Ciphering Key Sequence Number: %u",
+			"%s = Ciphering Key Sequence Number: %u",
 			a_bigbuf,
 			oct & 0x07);
 		break;
@@ -4325,14 +4343,14 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	case 0x07:
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Ciphering Key Sequence Number: No key is available",
+			"%s = Ciphering Key Sequence Number: No key is available",
 			a_bigbuf);
 		break;
 
 	default:
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Ciphering Key Sequence Number: %u",
+			"%s = Ciphering Key Sequence Number: %u",
 			a_bigbuf,
 			(oct & 0x70) >> 4);
 		break;
@@ -4362,7 +4380,7 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Service Type: (%u) %s",
+		"%s = Service Type: (%u) %s",
 		a_bigbuf,
 		oct & 0x0f,
 		str);
@@ -4429,7 +4447,7 @@ dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Type of identity: %s",
+		"%s = Type of identity: %s",
 		a_bigbuf,
 		str);
 
@@ -4574,14 +4592,14 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	case 0x07:
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Ciphering Key Sequence Number: No key is available",
+			"%s = Ciphering Key Sequence Number: No key is available",
 			a_bigbuf);
 		break;
 
 	default:
 		proto_tree_add_text(subtree,
 			tvb, curr_offset, 1,
-			"%s :  Ciphering Key Sequence Number: %u",
+			"%s = Ciphering Key Sequence Number: %u",
 			a_bigbuf,
 			(oct & 0x70) >> 4);
 		break;
@@ -4597,7 +4615,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Follow-On Request (FOR): %s",
+		"%s = Follow-On Request (FOR): %s",
 		a_bigbuf,
 		(oct & 0x08) ? "Follow-on request pending" : "No follow-on request pending");
 
@@ -4616,7 +4634,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Updating Type: %s",
+		"%s = Updating Type: %s",
 		a_bigbuf,
 		str);
 
@@ -4857,7 +4875,7 @@ dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
 	proto_tree_add_text(subtree,
 		tvb, curr_offset, 1,
-		"%s :  Congestion level: %s",
+		"%s = Congestion level: %s",
 		a_bigbuf,
 		str);
 
@@ -6062,7 +6080,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		other_decode_bitfield_value(a_bigbuf, oct_1, 0x80, 8);
 		proto_tree_add_text(pd_tree,
 			tvb, 0, 1,
-			"%s :  TI flag: %s",
+			"%s = TI flag: %s",
 			a_bigbuf,
 			((oct_1 & 0x80) ?  "allocated by receiver" : "allocated by sender"));
 
@@ -6073,7 +6091,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			other_decode_bitfield_value(a_bigbuf, oct_1, 0x70, 8);
 			proto_tree_add_text(pd_tree,
 				tvb, 0, 1,
-				"%s :  TIO: The TI value is given by the TIE in octet 2",
+				"%s = TIO: The TI value is given by the TIE in octet 2",
 				a_bigbuf);
 		}
 		else
@@ -6081,7 +6099,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			other_decode_bitfield_value(a_bigbuf, oct_1, 0x70, 8);
 			proto_tree_add_text(pd_tree,
 				tvb, 0, 1,
-				"%s :  TIO: %u",
+				"%s = TIO: %u",
 				a_bigbuf,
 				ti & DTAP_TIE_PRES_MASK);
 		}
@@ -6097,7 +6115,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		other_decode_bitfield_value(a_bigbuf, oct_2, DTAP_TIE_MASK, 8);
 		proto_tree_add_text(pd_tree,
 			tvb, 1, 1,
-			"%s :  TIE: %u",
+			"%s = TIE: %u",
 			a_bigbuf,
 			oct_2 & DTAP_TIE_MASK);
 	}
@@ -6477,6 +6495,11 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_rej_cause,
 		{ "Reject cause", "gsm_a.dtap.rej_cause",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_u2u_prot_discr,
+		{ "User-user protocol discriminator", "gsm_a.dtap.u2u_prot_discr",
+		FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(gsm_a_dtap_u2u_prot_discr_vals), 0x00,
 		NULL, HFILL }
 	},
 	};
