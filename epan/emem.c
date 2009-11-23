@@ -61,7 +61,9 @@
 /* Add guard pages at each end of our allocated memory */
 #if defined(HAVE_SYSCONF) && defined(HAVE_MMAP) && defined(HAVE_MPROTECT) && defined(HAVE_STDINT_H)
 #include <stdint.h>
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
 #include <sys/mman.h>
 #if defined(MAP_ANONYMOUS)
 #define ANON_PAGE_MODE	(MAP_ANONYMOUS|MAP_PRIVATE)

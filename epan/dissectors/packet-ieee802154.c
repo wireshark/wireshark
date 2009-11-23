@@ -75,7 +75,10 @@
 #include <gmodule.h>
 #include <glib.h>
 
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+
 #include <sys/stat.h>
 #include <epan/emem.h>
 #include <epan/packet.h>
