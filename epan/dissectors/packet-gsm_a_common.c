@@ -232,7 +232,7 @@ static const value_string true_false_vals[] = {
     { 0, NULL}
 };
 
-static const value_string gsm_a_sms_vals[] = {
+const value_string gsm_a_sms_vals[] = {
     {0, "1/4 timeslot (~144 microseconds)" },
     {1, "2/4 timeslot (~288 microseconds)" },
     {2, "3/4 timeslot (~433 microseconds)" },

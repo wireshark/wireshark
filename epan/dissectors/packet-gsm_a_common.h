@@ -642,6 +642,7 @@ extern const value_string gsm_a_qos_traff_hdl_pri_vals[];
 
 extern const value_string gsm_a_type_of_number_values[];
 extern const value_string gsm_a_numbering_plan_id_values[]; 
+extern const value_string gsm_a_sms_vals[];
 
 typedef enum
 {

@@ -241,6 +241,7 @@ static int hf_gsm_a_gm_tmsi_flag = -1;
 static int hf_gsm_a_gm_update_type = -1;
 static int hf_gsm_a_gm_gprs_timer_unit = -1;
 static int hf_gsm_a_gm_gprs_timer_value = -1;
+static int hf_gsm_a_gm_type_of_identity = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -464,24 +465,14 @@ static const value_string gsm_a_gmm_non_drx_timer_strings[] = {
  * NOTE: In Iu mode this field (octet 3 bits 8 to 5) is used, but was spare in earlier
  * versions of this protocol.
  */
-static const value_string gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings[] = {
-	{ 0x00,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x01,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x02,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x03,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x04,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x05,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x06,	"CN Specific DRX cycle length coefficient 6" },
-	{ 0x07,	"CN Specific DRX cycle length coefficient 7" },
-	{ 0x08,	"CN Specific DRX cycle length coefficient 8" },
-	{ 0x09,	"CN Specific DRX cycle length coefficient 9" },
-	{ 0x0a,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x0b,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x0c,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x0d,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x0e,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x0f,	"CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0, NULL },
+static const range_string gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings[] = {
+	{ 0x00,	0x05, "CN Specific DRX cycle length coefficient not specified by the MS" },
+	{ 0x06,	0x06, "CN Specific DRX cycle length coefficient 6" },
+	{ 0x07,	0x07, "CN Specific DRX cycle length coefficient 7" },
+	{ 0x08,	0x08, "CN Specific DRX cycle length coefficient 8" },
+	{ 0x09,	0x09, "CN Specific DRX cycle length coefficient 9" },
+	{ 0x0a, 0x0f, "CN Specific DRX cycle length coefficient not specified by the MS" },
+	{ 0, 0, NULL },
 };
 guint16
 de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -489,7 +480,6 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 	guint8        oct;
 	guint32	      curr_offset;
 	const gchar  *str;
-	gchar         str_val[3];
 	proto_item   *tf = NULL;
 	proto_tree   *tf_tree = NULL;
 
@@ -540,11 +530,7 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 		case 96: str="288"; break;
 		case 97: str="320"; break;
 		case 98: str="352"; break;
-		default:
-			 str_val[0]=oct/10+'0';
-			 str_val[1]=oct%10+'0';
-			 str_val[2]=0;
-			 str=str_val;
+		default: str="Reserved, interpreted as 1";
 	}
 
 	proto_tree_add_text(tf_tree,
@@ -648,38 +634,24 @@ de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 }
 
 /*
- * [7] 10.5.5.9
+ * [9] 10.5.5.9 Identity type 2
  */
+static const value_string gsm_a_gm_type_of_identity_vals[] = {
+	{ 0x01, "IMSI" },
+	{ 0x02, "IMEI" },
+	{ 0x03, "IMEISV" },
+	{ 0x04, "TMSI" },
+	{ 0, NULL }
+};
+
 static guint16
 de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8        oct;
-	guint32       curr_offset;
-	const gchar  *str;
-
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch ( oct&7 )
-	{
-		case 2:  str="IMEI";   break;
-		case 3:  str="IMEISV"; break;
-		case 4:  str="TMSI";   break;
-		default: str="IMSI";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Identity Type 2: (%u) %s",
-		oct&7,
-		str);
-
-	curr_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_type_of_identity, tvb, offset, 1, FALSE);
 
 	/* no length check possible */
-
-	return(curr_offset - offset);
+	return(1);
 }
 
 /*
@@ -977,27 +949,6 @@ static const value_string gsm_a_gm_acc_tech_type_vals[] = {
 	{ 0, NULL }
 };
 
-/* SMS_VALUE (Switch-Measure-Switch) (4 bit field) */
-
-static const value_string gsm_a_gm_sm_vals[] = {
-	{ 0x00, "1/4 timeslot (~144 microseconds)" },
-	{ 0x01, "2/4 timeslot (~288 microseconds)" },
-	{ 0x02, "3/4 timeslot (~433 microseconds)" },
-	{ 0x03, "4/4 timeslot (~577 microseconds)" },
-	{ 0x04, "5/4 timeslot (~721 microseconds)" },
-	{ 0x05, "6/4 timeslot (~865 microseconds)" },
-	{ 0x06, "7/4 timeslot (~1009 microseconds)" },
-	{ 0x07, "8/4 timeslot (~1154 microseconds)" },
-	{ 0x08, "9/4 timeslot (~1297 microseconds)" },
-	{ 0x09, "10/4 timeslot (~1441 microseconds)" },
-	{ 0x0a, "11/4 timeslot (~1586 microseconds)" },
-	{ 0x0b, "12/4 timeslot (~1730 microseconds)" },
-	{ 0x0c, "13/4 timeslot (~1874 microseconds)" },
-	{ 0x0d, "14/4 timeslot (~2018 microseconds)" },
-	{ 0x0e, "15/4 timeslot (~2163 microseconds)" },
-	{ 0x0f, "16/4 timeslot (~2307 microseconds)" },
-	{ 0, NULL }
-};
 guint16
 de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -5826,7 +5777,7 @@ proto_register_gsm_a_gm(void)
 	},
 	{ &hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef,
 		{ "CN Specific DRX cycle length coefficient","gsm_a.gmm.cn_spec_drs_cycle_len_coef",
-		  FT_UINT8, BASE_DEC, VALS(gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings), 0xf0,
+		  FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings), 0xf0,
 		  NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_op_code,
@@ -5916,12 +5867,12 @@ proto_register_gsm_a_gm(void)
 	},
 	{ &hf_gsm_a_gm_sms_value,
 		{ "SMS_VALUE (Switch-Measure-Switch)", "gsm_a.gm.sms",
-		  FT_UINT8, BASE_DEC, VALS(gsm_a_gm_sm_vals), 0x0,
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_gm_sm_value,
 		{ "(SM_VALUE) Switch-Measure", "gsm_a.gm.sm",
-		  FT_UINT8, BASE_DEC, VALS(gsm_a_gm_sm_vals), 0x0,
+		  FT_UINT8, BASE_DEC, VALS(gsm_a_sms_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_gm_sm_ext,
@@ -6002,6 +5953,11 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_gprs_timer_value,
 		{ "Timer value", "gsm_a.gm.gprs_timer_value",
 		FT_UINT8, BASE_DEC, NULL, 0x1f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_type_of_identity,
+		{ "Type of identity", "gsm_a.gm.type_of_identity",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_identity_vals), 0x07,
 		NULL, HFILL }
 	},
 	};
