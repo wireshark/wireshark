@@ -1294,6 +1294,21 @@ colorize_filter_te_as_valid(GtkWidget *w)
     color_filter_te(w, 0xAFFF, 0xFFFF, 0xAFFF);
 }
 
+/*
+ * XXX This calls dfilter_compile, which might call get_host_ipaddr or
+ * get_host_ipaddr6. Either of of these will freeze the UI if the host
+ * name resolution takes a long time to complete. We need to work
+ * around this, either by disabling host name resolution or by doing
+ * the resolution asynchronously.
+ *
+ * We could use a separate thread but we have be careful to only call
+ * GTK+/GDK routines from the main thread. From the GDK threads
+ * documentation:
+ *
+ * "With the Win32 backend, GDK calls should not be attempted from
+ * multiple threads at all."
+ */
+
 void
 filter_te_syntax_check_cb(GtkWidget *w)
 {
