@@ -20,6 +20,7 @@ EXTRA_DIST = \
 	u3/win32/makenmake.pl		\
 	u3/win32/manifest.tmpl		\
 	u3/win32/u3util.c		\
+	u3/win32/u3util.exe.manifest	\
 	u3/win32/wireshark.bat		\
 	u3/tools/README.txt		\
 	u3/tools/makefile.nmake		\
