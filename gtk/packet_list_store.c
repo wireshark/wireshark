@@ -1158,54 +1158,54 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 					fdata.cum_bytes = record->fdata->cum_bytes;
 				break;
 			case COL_ABS_TIME:
-				if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts))
+				if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts) > 0)
 					fdata.abs_ts = record->fdata->abs_ts;
 				break;
 			case COL_ABS_DATE_TIME:
-				if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts))
+				if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts) > 0)
 					fdata.abs_ts = record->fdata->abs_ts;
 				break;
 			case COL_REL_TIME:
-				if (nstime_cmp(&record->fdata->rel_ts, &fdata.rel_ts))
+				if (nstime_cmp(&record->fdata->rel_ts, &fdata.rel_ts) > 0)
 					fdata.rel_ts = record->fdata->rel_ts;
 				break;
 			case COL_DELTA_TIME:
-				if (nstime_cmp(&record->fdata->del_cap_ts, &fdata.del_cap_ts))
+				if (nstime_cmp(&record->fdata->del_cap_ts, &fdata.del_cap_ts) > 0)
 					fdata.del_cap_ts = record->fdata->del_cap_ts;
 				break;
 			case COL_DELTA_TIME_DIS:
-				if (nstime_cmp(&record->fdata->del_dis_ts, &fdata.del_dis_ts))
+				if (nstime_cmp(&record->fdata->del_dis_ts, &fdata.del_dis_ts) > 0)
 					fdata.del_dis_ts = record->fdata->del_dis_ts;
 				break;
 			case COL_CLS_TIME:
 				switch (timestamp_get_type()) {
 				case TS_ABSOLUTE:
-				  if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts))
+				  if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts) > 0)
 					  fdata.abs_ts = record->fdata->abs_ts;
 				  break;
 
 				case TS_ABSOLUTE_WITH_DATE:
-				  if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts))
+				  if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts) > 0)
 					  fdata.abs_ts = record->fdata->abs_ts;
 				  break;
 
 				case TS_RELATIVE:
-				  if (nstime_cmp(&record->fdata->rel_ts, &fdata.rel_ts))
+				  if (nstime_cmp(&record->fdata->rel_ts, &fdata.rel_ts) > 0)
 					  fdata.rel_ts = record->fdata->rel_ts;
 				  break;
 
 				case TS_DELTA:
-				  if (nstime_cmp(&record->fdata->del_cap_ts, &fdata.del_cap_ts))
+				  if (nstime_cmp(&record->fdata->del_cap_ts, &fdata.del_cap_ts) > 0)
 					  fdata.del_cap_ts = record->fdata->del_cap_ts;
 				  break;
 
 				case TS_DELTA_DIS:
-				  if (nstime_cmp(&record->fdata->del_dis_ts, &fdata.del_dis_ts))
+				  if (nstime_cmp(&record->fdata->del_dis_ts, &fdata.del_dis_ts) > 0)
 					  fdata.del_dis_ts = record->fdata->del_dis_ts;
 				  break;
 
 				case TS_EPOCH:
-				  if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts))
+				  if (nstime_cmp(&record->fdata->abs_ts, &fdata.abs_ts) > 0)
 					  fdata.abs_ts = record->fdata->abs_ts;
 				  break;
 
