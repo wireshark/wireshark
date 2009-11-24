@@ -391,6 +391,10 @@
 #define ETHERTYPE_PRP		0x88FB	/* Parallel Redundancy Protocol (IEC62439 Chapter 6) */
 #endif
 
+#ifndef ETHERTYPE_FLIP
+#define ETHERTYPE_FLIP		0x8901	/* Nokia Siemens Networks */
+#endif								/* Flow Layer Internal Protocol */
+
 #ifndef ETHERTYPE_CFM
 #define ETHERTYPE_CFM		0x8902	/* IEEE 802.1ag Connectivity Fault Management */
 #endif								/* (CFM) protocol. */

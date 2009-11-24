@@ -152,6 +152,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_FIP,				"FCoE Initialization Protocol" },
     {ETHERTYPE_PTP,				"PTPv2 over Ethernet (IEEE1588)"},
     {ETHERTYPE_PRP,				"Parallel Redundancy Protocol (IEC62439 Chapter 6)"},
+    {ETHERTYPE_FLIP,				"Flow Layer Internal Protocol"},
     {0,						NULL } };
 
 static void add_dix_trailer(packet_info *pinfo, proto_tree *fh_tree,

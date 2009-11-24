@@ -447,6 +447,7 @@ DISSECTOR_SRC = \
 	packet-ff.c		\
 	packet-fip.c		\
 	packet-fix.c		\
+	packet-flip.c		\
 	packet-fmp.c		\
 	packet-fmp_notify.c	\
 	packet-force10-oui.c	\
