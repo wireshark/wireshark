@@ -993,7 +993,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     gint   start_offset = offset;
     guint16    sn;
 
-    /* Add UM header subtree */
+    /* Add AM header subtree */
     am_header_ti = proto_tree_add_string_format(tree,
                                                 hf_rlc_lte_am_header,
                                                 tvb, offset, 0,
@@ -1056,7 +1056,6 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Show SN in AM header root */
     proto_item_append_text(am_header_ti, " (SN=%u)", sn);
-    proto_item_set_len(am_header_ti, offset-start_offset);
 
     /***************************************/
     /* Dissect extra segment header fields */
@@ -1081,6 +1080,8 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         offset = dissect_rlc_lte_extension_header(tvb, pinfo, tree, offset);
     }
 
+    /* Head is now complete */
+    proto_item_set_len(am_header_ti, offset-start_offset);
 
     /* Extract these 2 flags from framing_info */
     first_includes_start = (framing_info & 0x02) == 0;
@@ -1122,9 +1123,15 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                          last_includes_end);
     }
     else {
-        expert_add_info_format(pinfo, am_header_ti, PI_MALFORMED, PI_ERROR,
-                               "AM data PDU doesn't contain any data");
+        if (s_number_of_extensions > 0) {
+            expert_add_info_format(pinfo, am_header_ti, PI_MALFORMED, PI_ERROR,
+                                  "AM data PDU doesn't contain any data beyond extensions");
+        }
+        else {
+            expert_add_info_format(pinfo, am_header_ti, PI_MALFORMED, PI_ERROR,
+                                  "AM data PDU doesn't contain any data");
 
+        }
     }
 }
 
