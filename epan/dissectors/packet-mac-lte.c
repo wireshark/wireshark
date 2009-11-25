@@ -2215,8 +2215,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (p_mac_lte_info->reTxCount >= global_mac_lte_retx_counter_trigger) {
             expert_add_info_format(pinfo, retx_ti, PI_SEQUENCE, PI_ERROR,
-                                   "UL MAC frame ReTX no. %u",
-                                   p_mac_lte_info->reTxCount);
+                                   "UE %u: UL MAC frame ReTX no. %u",
+                                   p_mac_lte_info->ueid, p_mac_lte_info->reTxCount);
         }
     }
 
