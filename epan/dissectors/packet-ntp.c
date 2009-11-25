@@ -1128,7 +1128,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 		case NTPCTRL_OP_READCLOCK:
 		case NTPCTRL_OP_WRITECLOCK:
 			tt = tvbparse_init(tvb, data_offset, datalen, NULL, want_ignore);
-			while( element = tvbparse_get(tt, want) ) {
+			while( (element = tvbparse_get(tt, want)) != NULL ) {
 				tvbparse_tree_add_elem(data_tree, element);
 			}
 			break;
