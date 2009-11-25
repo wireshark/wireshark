@@ -39,6 +39,9 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/emem.h>
+
+#include <epan/tvbparse.h>
+
 #include "packet-ntp.h"
 
 /*
@@ -79,6 +82,32 @@
  * NTP timestamps are represented as a 64-bit unsigned fixed-point number,
  * in seconds relative to 0h on 1 January 1900. The integer part is in the
  * first 32 bits and the fraction part in the last 32 bits.
+ *
+ *
+ * NTP Control messages as defined in version 2, 3 and 4 (RFC1119, RFC1305) use
+ * the following structure:
+ *                      1                   2                   3
+ *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |00 | VN  | 110 |R E M| OpCode  |           Sequence            |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |            Status             |        Association ID         |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |            Offset             |             Count             |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                                                               |
+ * |                     Data (468 octets max)                     |
+ * |                                                               |
+ * |                               |        Padding (zeros)        |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |                 Authenticator (optional) (96)                 |
+ * |                                                               |
+ * |                                                               |
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ * Not yet implemented: complete dissection of TPCTRL_OP_SETTRAP,
+ * NTPCTRL_OP_ASYNCMSG, NTPCTRL_OP_UNSETTRAPSETTRAP Control-Messages
+ *
  */
 
 #define UDP_PORT_NTP	123
@@ -230,18 +259,144 @@ static const value_string ext_op_types[] = {
 #define NTPCTRL_MORE_MASK 0x20
 #define NTPCTRL_OP_MASK 0x1f
 
+#define NTPCTRL_OP_UNSPEC 0
+#define NTPCTRL_OP_READSTAT 1
+#define NTPCTRL_OP_READVAR 2
+#define NTPCTRL_OP_WRITEVAR 3
+#define NTPCTRL_OP_READCLOCK 4
+#define NTPCTRL_OP_WRITECLOCK 5
+#define NTPCTRL_OP_SETTRAP 6
+#define NTPCTRL_OP_ASYNCMSG 7
+#define NTPCTRL_OP_UNSETTRAP 31
+
 static const value_string ctrl_op_types[] = {
-	{ 0,		"UNSPEC" },
-	{ 1,		"READSTAT" },
-	{ 2,		"READVAR" },
-	{ 3,		"WRITEVAR" },
-	{ 4,		"READCLOCK" },
-	{ 5,		"WRITECLOCK" },
-	{ 6,		"SETTRAP" },
-	{ 7,		"ASYNCMSG" },
-	{ 31,		"UNSETTRAP" },
+	{ NTPCTRL_OP_UNSPEC,		"UNSPEC" },
+	{ NTPCTRL_OP_READSTAT,		"READSTAT" },
+	{ NTPCTRL_OP_READVAR,		"READVAR" },
+	{ NTPCTRL_OP_WRITEVAR,		"WRITEVAR" },
+	{ NTPCTRL_OP_READCLOCK,		"READCLOCK" },
+	{ NTPCTRL_OP_WRITECLOCK,	"WRITECLOCK" },
+	{ NTPCTRL_OP_SETTRAP,		"SETTRAP" },
+	{ NTPCTRL_OP_ASYNCMSG,		"ASYNCMSG" },
+	{ NTPCTRL_OP_UNSETTRAP,		"UNSETTRAP" },
 	{ 0,		NULL}
 };
+
+#define NTPCTRL_SYSSTATUS_LI_MASK		0xC000
+#define NTPCTRL_SYSSTATUS_CLK_MASK		0x3F00
+#define NTPCTRL_SYSSTATUS_COUNT_MASK	0x00F0
+#define NTPCTRL_SYSSTATUS_CODE_MASK		0x000F
+
+static const value_string ctrl_sys_status_clksource_types[] = {
+	{ 0,		"unspecified or unknown" },
+	{ 1,		"Calibrated atomic clock (e.g. HP 5061)" },
+	{ 2,		"VLF (band 4) or LF (band 5) radio (e.g. OMEGA, WWVB)" },
+	{ 3,		"HF (band 7) radio (e.g. CHU, MSF, WWV/H)" },
+	{ 4,		"UHF (band 9) satellite (e.g. GOES, GPS)" },
+	{ 5,		"local net (e.g. DCN, TSP, DTS)" },
+	{ 6,		"UDP/NTP" },
+	{ 7,		"UDP/TIME" },
+	{ 8,		"eyeball-and-wristwatch" },
+	{ 9,		"telephone modem (e.g. NIST)" },
+	{ 0,		NULL}
+};
+
+static const value_string ctrl_sys_status_event_types[] = {
+	{ 0,		"unspecified" },
+	{ 1,		"system restart" },
+	{ 2,		"system or hardware fault" },
+	{ 3,		"system new status word (leap bits or synchronization change)" },
+	{ 4,		"system new synchronization source or stratum (sys.peer or sys.stratum change)" },
+	{ 5,		"system clock reset (offset correction exceeds CLOCK.MAX)" },
+	{ 6,		"system invalid time or date (see NTP spec.)" },
+	{ 7,		"system clock exception (see system clock status word)" },
+	{ 0,		NULL}
+};
+
+#define NTPCTRL_PEERSTATUS_STATUS_MASK		0xF800
+#define NTPCTRL_PEERSTATUS_CONFIG_MASK		0x8000
+#define NTPCTRL_PEERSTATUS_AUTHENABLE_MASK	0x4000
+#define NTPCTRL_PEERSTATUS_AUTHENTIC_MASK	0x2000
+#define NTPCTRL_PEERSTATUS_REACH_MASK		0x1000
+#define NTPCTRL_PEERSTATUS_RESERVED_MASK	0x0800
+#define NTPCTRL_PEERSTATUS_SEL_MASK			0x0700
+#define NTPCTRL_PEERSTATUS_COUNT_MASK		0x00F0
+#define NTPCTRL_PEERSTATUS_CODE_MASK		0x000F
+
+static const value_string ctrl_peer_status_config_types[] = {
+	{ 0,		"not configured (peer.config)" },
+	{ 1,		"configured (peer.config)" },
+	{ 0,		NULL}
+};
+
+static const value_string ctrl_peer_status_authenable_types[] = {
+	{ 0,		"authentication disabled (peer.authenable" },
+	{ 1,		"authentication enabled (peer.authenable" },
+	{ 0,		NULL}
+};
+	
+static const value_string ctrl_peer_status_authentic_types[] = {
+	{ 0,		"authentication not okay (peer.authentic)" },
+	{ 1,		"authentication okay (peer.authentic)" },
+	{ 0,		NULL}
+};
+	
+static const value_string ctrl_peer_status_reach_types[] = {
+	{ 0,		"reachability not okay (peer.reach != 0)" },
+	{ 1,		"reachability okay (peer.reach != 0)" },
+	{ 0,		NULL}
+};
+
+static const value_string ctrl_peer_status_selection_types[] = {
+	{ 0,		"rejected" },
+	{ 1,		"passed sanity checks (tests 1 trough 8 in Section 3.4.3)" },
+	{ 2,		"passed correctness checks (intersection algorithm in Section 4.2.1)" },
+	{ 3,		"passed candidate checks (if limit check implemented)" },
+	{ 4,		"passed outlyer checks (clustering algorithm in Section 4.2.2)" },
+	{ 5,		"current synchronization source; max distance exceeded (if limit check implemented)" },
+	{ 6,		"current synchronization source; max distance okay" },
+	{ 7,		"reserved" },
+	{ 0,		NULL}
+};
+
+static const value_string ctrl_peer_status_event_types[] = {
+	{ 0,		"unspecified" },
+	{ 1,		"peer IP error" },
+	{ 2,		"peer authentication failure (peer.authentic bit was one now zero)" },
+	{ 3,		"peer unreachable (peer.reach was nonzero now zero)" },
+	{ 4,		"peer reachable (peer.reach was zero now nonzero)" },
+	{ 5,		"peer clock exception (see peer clock status word)" },
+	{ 0,		NULL}
+};
+
+#define NTPCTRL_CLKSTATUS_STATUS_MASK	0xFF00
+#define NTPCTRL_CLKSTATUS_CODE_MASK		0x00FF
+
+static const value_string ctrl_clk_status_types[] = {
+	{ 0,		"clock operating within nominals" },
+	{ 1,		"reply timeout" },
+	{ 2,		"bad reply format" },
+	{ 3,		"hardware or software fault" },
+	{ 4,		"propagation failure" },
+	{ 5,		"bad date format or value" },
+	{ 6,		"bad time format or value" },
+	{ 0,		NULL}
+};
+
+#define NTP_CTRL_ERRSTATUS_CODE_MASK	0xFF00
+
+static const value_string ctrl_err_status_types[] = {
+	{ 0,		"unspecified" },
+	{ 1,		"authentication failure" },
+	{ 2,		"invalid message length or format" },
+	{ 3,		"invalid opcode" },
+	{ 4,		"unknown association identifier" },
+	{ 5,		"unknown variable name" },
+	{ 6,		"invalid variable value" },
+	{ 7,		"administratively prohibited" },
+	{ 0,		NULL}
+};
+
 
 #define NTPPRIV_R_MASK 0x80
 
@@ -344,6 +499,29 @@ static int hf_ntpctrl_flags2_r = -1;
 static int hf_ntpctrl_flags2_error = -1;
 static int hf_ntpctrl_flags2_more = -1;
 static int hf_ntpctrl_flags2_opcode = -1;
+static int hf_ntpctrl_sequence = -1;
+static int hf_ntpctrl_status = -1;
+static int hf_ntpctrl_error_status_word = -1;
+static int hf_ntpctrl_sys_status_li = -1;
+static int hf_ntpctrl_sys_status_clksrc = -1;
+static int hf_ntpctrl_sys_status_count = -1;
+static int hf_ntpctrl_sys_status_code = -1;
+static int hf_ntpctrl_peer_status_b0 = -1;
+static int hf_ntpctrl_peer_status_b1 = -1;
+static int hf_ntpctrl_peer_status_b2 = -1;
+static int hf_ntpctrl_peer_status_b3 = -1;
+static int hf_ntpctrl_peer_status_b4 = -1;
+static int hf_ntpctrl_peer_status_selection = -1;
+static int hf_ntpctrl_peer_status_count = -1;
+static int hf_ntpctrl_peer_status_code = -1;
+static int hf_ntpctrl_clk_status = -1;
+static int hf_ntpctrl_clk_status_code = -1;
+static int hf_ntpctrl_associd = -1;
+static int hf_ntpctrl_offset = -1;
+static int hf_ntpctrl_count = -1;
+static int hf_ntpctrl_data = -1;
+static int hf_ntpctrl_item = -1;
+static int hf_ntpctrl_trapmsg = -1;
 
 static int hf_ntppriv_flags_r = -1;
 static int hf_ntppriv_flags_more = -1;
@@ -358,6 +536,9 @@ static gint ett_ntp_flags = -1;
 static gint ett_ntp_ext = -1;
 static gint ett_ntp_ext_flags = -1;
 static gint ett_ntpctrl_flags2 = -1;
+static gint ett_ntpctrl_status = -1;
+static gint ett_ntpctrl_data = -1;
+static gint ett_ntpctrl_item = -1;
 static gint ett_ntppriv_auth_seq = -1;
 
 static void dissect_ntp_std(tvbuff_t *, proto_tree *, guint8);
@@ -379,6 +560,12 @@ static const char *mon_names[12] = {
 	"Nov",
 	"Dec"
 };
+
+
+/* parser definitions */
+static tvbparse_wanted_t* want;
+static tvbparse_wanted_t* want_ignore;
+
 
 /* ntp_fmt_ts - converts NTP timestamp to human readable string.
  * reftime - 64bit timestamp (IN)
@@ -449,9 +636,8 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
+	col_add_str(pinfo->cinfo, COL_INFO,
+		val_to_str(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
 	if (tree) {
 		/* Adding NTP item and subtree */
@@ -765,11 +951,88 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 }
 
 static void
+dissect_ntp_ctrl_peerstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 offset, guint16 status)
+{
+	/*
+	 * dissect peer status word:
+	 *                      1
+	 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 * | Status  | Sel | Count | Code  |
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 */
+	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b0, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b1, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b2, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b3, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_b4, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_selection, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_count, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_peer_status_code, tvb, offset, 2, status);
+}
+
+static void
+dissect_ntp_ctrl_systemstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 offset, guint16 status)
+{
+	/*
+	 * dissect system status word:
+	 *                      1
+	 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 * |LI | ClkSource | Count | Code  |
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 */
+	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_li, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_clksrc, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_count, tvb, offset, 2, status);
+	proto_tree_add_uint(status_tree, hf_ntpctrl_sys_status_code, tvb, offset, 2, status);
+}
+
+static void
+dissect_ntp_ctrl_errorstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 offset, guint16 status)
+{
+	/*
+	 * if error bit is set: dissect error status word
+	 *                      1
+	 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 * |  Error Code   |   reserved    |
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 */
+	proto_tree_add_uint(status_tree, hf_ntpctrl_error_status_word, tvb, offset, 2, status);
+}
+
+static void
+dissect_ntp_ctrl_clockstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 offset, guint16 status)
+{
+	/*
+	 * dissect clock status word:
+	 *                      1
+	 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 * | Clock Status  |  Event Code   |
+	 * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	 */
+	proto_tree_add_uint(status_tree, hf_ntpctrl_clk_status, tvb, offset, 2, status); 
+	proto_tree_add_uint(status_tree, hf_ntpctrl_clk_status_code, tvb, offset, 2, status);
+}
+
+static void
 dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 {
-	proto_tree      *flags_tree;
-	proto_item	*tf;
+	proto_tree *flags_tree;
+	proto_item *tf;
 	guint8 flags2;
+	
+	proto_tree *status_tree, *data_tree, *item_tree;
+	proto_item *ts, *td, *ti;
+	guint16 status;
+	guint16 associd;
+	guint16 datalen;
+	guint16 data_offset;
+	
+	tvbparse_t *tt;
+	tvbparse_elem_t *element;
 
 	tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1, flags);
 
@@ -780,17 +1043,139 @@ dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	proto_tree_add_uint(flags_tree, hf_ntp_flags_mode, tvb, 0, 1, flags);
 
 	flags2 = tvb_get_guint8(tvb, 1);
-	tf = proto_tree_add_uint(ntp_tree, hf_ntpctrl_flags2, tvb, 1, 1,
-				 flags2);
+	tf = proto_tree_add_uint(ntp_tree, hf_ntpctrl_flags2, tvb, 1, 1, flags2);
 	flags_tree = proto_item_add_subtree(tf, ett_ntpctrl_flags2);
-	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_r, tvb, 1, 1,
-			    flags2);
-	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_error, tvb, 1, 1,
-			    flags2);
-	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_more, tvb, 1, 1,
-			    flags2);
-	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_opcode, tvb, 1, 1,
-			    flags2);
+	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_r, tvb, 1, 1, flags2);
+	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_error, tvb, 1, 1, flags2);
+	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_more, tvb, 1, 1, flags2);
+	proto_tree_add_uint(flags_tree, hf_ntpctrl_flags2_opcode, tvb, 1, 1, flags2);
+
+	proto_tree_add_uint(ntp_tree, hf_ntpctrl_sequence, tvb, 2, 2, tvb_get_ntohs(tvb, 2));
+	
+	status = tvb_get_ntohs(tvb, 4);
+	associd = tvb_get_ntohs(tvb, 6);
+	ts = proto_tree_add_uint(ntp_tree, hf_ntpctrl_status, tvb, 4, 2, status);
+	status_tree = proto_item_add_subtree(ts, ett_ntpctrl_status);
+	/*
+	 * further processing of status is only necessary in server responses
+	 */
+	if (flags2 & NTPCTRL_R_MASK) {
+		if (flags2 & NTPCTRL_ERROR_MASK) {
+			/* Check if this is an error response... */
+			dissect_ntp_ctrl_errorstatus(tvb, status_tree, 4, status);
+		} else {
+			/* ...otherwise status word depends on OpCode */
+			switch (flags2 & NTPCTRL_OP_MASK) {
+			case NTPCTRL_OP_READSTAT:
+			case NTPCTRL_OP_READVAR:
+			case NTPCTRL_OP_WRITEVAR:
+			case NTPCTRL_OP_ASYNCMSG:
+				if (associd)
+					dissect_ntp_ctrl_peerstatus(tvb, status_tree, 4, status);
+				else
+					dissect_ntp_ctrl_systemstatus(tvb, status_tree, 4, status);
+				break;
+			case NTPCTRL_OP_READCLOCK:
+			case NTPCTRL_OP_WRITECLOCK:
+				dissect_ntp_ctrl_clockstatus(tvb, status_tree, 4, status);
+				break;
+			case NTPCTRL_OP_SETTRAP:	
+			case NTPCTRL_OP_UNSETTRAP:
+				break;
+			}
+		}
+	}
+	proto_tree_add_uint(ntp_tree, hf_ntpctrl_associd, tvb, 6, 2, associd);
+	proto_tree_add_uint(ntp_tree, hf_ntpctrl_offset, tvb, 8, 2, tvb_get_ntohs(tvb, 8));
+	datalen = tvb_get_ntohs(tvb, 10);
+	proto_tree_add_uint(ntp_tree, hf_ntpctrl_count, tvb, 10, 2, datalen);
+	
+	/*
+	 * dissect Data part of the NTP control message
+	 */
+	if (datalen) {
+		data_offset = 12;
+		td = proto_tree_add_item(ntp_tree, hf_ntpctrl_data, tvb, data_offset, datalen, TRUE);
+		data_tree = proto_item_add_subtree(td, ett_ntpctrl_data);
+		switch(flags2 & NTPCTRL_OP_MASK) {
+		case NTPCTRL_OP_READSTAT:
+			if (!associd) {
+				/* 
+				 * if associd == 0 then data part contains a list of the form
+				 * <association identifier><status word>,
+				 */
+				while(datalen) {
+					ti = proto_tree_add_item(data_tree, hf_ntpctrl_item, tvb, data_offset, 4, TRUE);
+					item_tree = proto_item_add_subtree(ti, ett_ntpctrl_item);
+					proto_tree_add_uint(item_tree, hf_ntpctrl_associd, tvb, data_offset, 2, tvb_get_ntohs(tvb, data_offset));
+					data_offset += 2;
+					status = tvb_get_ntohs(tvb, data_offset);
+					ts = proto_tree_add_uint(item_tree, hf_ntpctrl_status, tvb, data_offset, 2, status);
+					status_tree = proto_item_add_subtree(ts, ett_ntpctrl_status);
+					dissect_ntp_ctrl_peerstatus( tvb, status_tree, 4, status );
+					data_offset += 2;
+					datalen -= 4;
+				}
+				break;
+			}
+			/*
+			 * but if associd != 0,
+			 * then data part could be the same as if opcode is NTPCTRL_OP_READVAR
+			 * --> so, no "break" here!
+			 */
+		case NTPCTRL_OP_READVAR:
+		case NTPCTRL_OP_WRITEVAR:
+		case NTPCTRL_OP_READCLOCK:
+		case NTPCTRL_OP_WRITECLOCK:
+			tt = tvbparse_init(tvb, data_offset, datalen, NULL, want_ignore);
+			while( element = tvbparse_get(tt, want) ) {
+				tvbparse_tree_add_elem(data_tree, element);
+			}
+			break;
+		case NTPCTRL_OP_ASYNCMSG:
+			proto_tree_add_item(data_tree, hf_ntpctrl_trapmsg, tvb, data_offset, datalen, TRUE);
+			break;
+		/* these opcodes doesn't carry any data: NTPCTRL_OP_SETTRAP, NTPCTRL_OP_UNSETTRAP, NTPCTRL_OP_UNSPEC */
+		}
+	}
+}
+
+/*
+ * Initialize tvb-parser, which is used to dissect data part of NTP control
+ * messages
+ *
+ * Here some constants are defined, which describes character groups used for
+ * various purposes. These groups are then used to configure the two global
+ * variables "want_ignore" and "want" that we use for dissection
+ */
+static void
+init_parser(void)
+{
+	/* specify what counts as character */
+	tvbparse_wanted_t* want_identifier = tvbparse_chars(-1, 1, 0,
+		"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ.0123456789", NULL, NULL, NULL);
+	/* this is the equal sign used in assignments */
+	tvbparse_wanted_t* want_equalsign = tvbparse_chars(-1, 1, 0, "=", NULL, NULL, NULL);
+	/* possible characters allowed for values */
+	tvbparse_wanted_t* want_value = tvbparse_set_oneof(0, NULL, NULL, NULL,
+		tvbparse_quoted(-1, NULL, NULL, tvbparse_shrink_token_cb, '\"', '\\'),
+		tvbparse_quoted(-1, NULL, NULL, tvbparse_shrink_token_cb, '\'', '\\'),
+		tvbparse_chars(-1, 1, 0, "abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ.0123456789 ", NULL, NULL, NULL),
+		NULL);
+	/* the following specifies an assignment of the form identifier=value */
+	tvbparse_wanted_t* want_assignment = tvbparse_set_seq(-1, NULL, NULL, NULL,
+		want_identifier,  
+		want_equalsign,
+		want_value,
+		NULL);
+		
+	/* we ignore white space characters */
+	want_ignore = tvbparse_chars(-1, 1, 0, ", \t\r\n", NULL, NULL, NULL);
+	/* data part of control messages consists of either identifiers or assignments */
+	want = tvbparse_set_oneof(-1, NULL, NULL, NULL,
+		want_assignment,
+		want_identifier,
+		NULL);
 }
 
 static void
@@ -935,7 +1320,76 @@ proto_register_ntp(void)
 		{ &hf_ntpctrl_flags2_opcode, {
 			"Opcode", "ntpctrl.flags2.opcode", FT_UINT8, BASE_DEC,
 			VALS(ctrl_op_types), NTPCTRL_OP_MASK, NULL, HFILL }},
-
+		{ &hf_ntpctrl_sequence, {
+			"Sequence", "ntpctrl.sequence", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntpctrl_status, {
+			"Status", "ntpctrl.status", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntpctrl_error_status_word, {
+			"Error Status Word", "ntpctrl.err_status", FT_UINT16, BASE_DEC,
+			VALS(ctrl_err_status_types), NTP_CTRL_ERRSTATUS_CODE_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_sys_status_li, {
+			"Leap Indicator", "ntpctrl.sys_status.li", FT_UINT16, BASE_DEC,
+			VALS(li_types), NTPCTRL_SYSSTATUS_LI_MASK, NULL, HFILL }},	
+		{ &hf_ntpctrl_sys_status_clksrc, {
+			"Clock Source", "ntpctrl.sys_status.clksrc", FT_UINT16, BASE_DEC,
+			VALS(ctrl_sys_status_clksource_types), NTPCTRL_SYSSTATUS_CLK_MASK, NULL, HFILL }},	
+		{ &hf_ntpctrl_sys_status_count, {
+			"System Event Counter", "ntpctrl.sys_status.count", FT_UINT16, BASE_DEC,
+			NULL, NTPCTRL_SYSSTATUS_COUNT_MASK, NULL, HFILL }},	
+		{ &hf_ntpctrl_sys_status_code, {
+			"System Event Code", "ntpctrl.sys_status.code", FT_UINT16, BASE_DEC,
+			VALS(ctrl_sys_status_event_types), NTPCTRL_SYSSTATUS_CODE_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_peer_status_b0, {
+			"Peer Status", "ntpctrl.peer_status.config", FT_UINT16, BASE_DEC,
+			VALS(ctrl_peer_status_config_types), NTPCTRL_PEERSTATUS_CONFIG_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_peer_status_b1, {
+			"Peer Status", "ntpctrl.peer_status.authenable", FT_UINT16, BASE_DEC,
+			VALS(ctrl_peer_status_authenable_types), NTPCTRL_PEERSTATUS_AUTHENABLE_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_peer_status_b2, {
+			"Peer Status", "ntpctrl.peer_status.authentic", FT_UINT16, BASE_DEC,
+			VALS(ctrl_peer_status_authentic_types), NTPCTRL_PEERSTATUS_AUTHENTIC_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_peer_status_b3, {
+			"Peer Status", "ntpctrl.peer_status.reach", FT_UINT16, BASE_DEC,
+			VALS(ctrl_peer_status_reach_types), NTPCTRL_PEERSTATUS_REACH_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_peer_status_b4, {
+			"Peer Status: reserved", "", FT_UINT16, BASE_DEC,
+			NULL, NTPCTRL_PEERSTATUS_RESERVED_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_peer_status_selection, {
+			"Peer Selection", "ntpctrl.peer_status.selection", FT_UINT16, BASE_DEC,
+			VALS(ctrl_peer_status_selection_types), NTPCTRL_PEERSTATUS_SEL_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_peer_status_count, {
+			"Peer Event Counter", "ntpctrl.peer_status.count", FT_UINT16, BASE_DEC,
+			NULL, NTPCTRL_PEERSTATUS_COUNT_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_peer_status_code, {
+			"Peer Event Code", "ntpctrl.peer_status.code", FT_UINT16, BASE_DEC,
+			VALS(ctrl_peer_status_event_types), NTPCTRL_PEERSTATUS_CODE_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_clk_status, {
+			"Clock Status", "ntpctrl.clock_status.status", FT_UINT16, BASE_DEC,
+			VALS(ctrl_clk_status_types), NTPCTRL_CLKSTATUS_STATUS_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_clk_status_code, {
+			"Clock Event Code", "ntpctrl.clock_status.code", FT_UINT16, BASE_DEC,
+			NULL, NTPCTRL_CLKSTATUS_CODE_MASK, NULL, HFILL }},
+		{ &hf_ntpctrl_data, {
+			"Data", "ntpctrl.data", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntpctrl_item, {
+			"Item", "ntpctrl.item", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntpctrl_associd, {
+			"AssociationID", "ntpctrl.associd", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntpctrl_offset, {
+			"Offset", "ntpctrl.offset", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntpctrl_count, {
+			"Count", "ntpctrl.count", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_ntpctrl_trapmsg, {
+			"Trap message", "ntpctrl.trapmsg", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+			
 		{ &hf_ntppriv_flags_r, {
 			"Response bit", "ntppriv.flags.r", FT_UINT8, BASE_DEC,
 			VALS(priv_r_types), NTPPRIV_R_MASK, NULL, HFILL }},
@@ -964,6 +1418,9 @@ proto_register_ntp(void)
 		&ett_ntp_ext,
 		&ett_ntp_ext_flags,
 		&ett_ntpctrl_flags2,
+		&ett_ntpctrl_status,
+		&ett_ntpctrl_data,
+		&ett_ntpctrl_item,
 		&ett_ntppriv_auth_seq
 	};
 
@@ -971,6 +1428,8 @@ proto_register_ntp(void)
 	    "ntp");
 	proto_register_field_array(proto_ntp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	
+	init_parser();	
 }
 
 void
