@@ -116,10 +116,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item	*volatile ti = NULL;
 	nstime_t	ts;
-	int		cap_len = 0, frame_len = 0;
+	guint		cap_len = 0, frame_len = 0;
 	proto_tree	*volatile tree;
         proto_item  *item;
 	guint32 frame_number;
+	gchar *cap_plurality, *frame_plurality;
 
 	frame_number=pinfo->fd->num; /* dummy so that the buildbot crashdumps
 					will show the packetnumber where the
@@ -194,8 +195,13 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  cap_len = tvb_length(tvb);
 	  frame_len = tvb_reported_length(tvb);
 
+	  cap_plurality = plurality(cap_len, "", "s");
+	  frame_plurality = plurality(frame_len, "", "s");
+
 	  ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
-	    "Frame %u (%u bytes on wire, %u bytes captured)", pinfo->fd->num, frame_len, cap_len);
+	    "Frame %u: %u byte%s on wire (%u bits), %u byte%s captured (%u bits)",
+		pinfo->fd->num, frame_len, frame_plurality, frame_len * 8,
+		cap_len, cap_plurality, cap_len * 8);
 
 	  fh_tree = proto_item_add_subtree(ti, ett_frame);
 
@@ -237,12 +243,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		0, 0, pinfo->fd->num);
 
 	  proto_tree_add_uint_format(fh_tree, hf_frame_len, tvb,
-		0, 0, frame_len, "Frame Length: %d byte%s", frame_len,
-		plurality(frame_len, "", "s"));
+		0, 0, frame_len, "Frame Length: %u byte%s (%u bits)",
+		frame_len, frame_plurality, frame_len * 8);
 
 	  proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, tvb,
-		0, 0, cap_len, "Capture Length: %d byte%s", cap_len,
-		plurality(cap_len, "", "s"));
+		0, 0, cap_len, "Capture Length: %u byte%s (%u bits)",
+		cap_len, cap_plurality, cap_len * 8);
 
 	  if (generate_md5_hash) {
 		  const guint8 *cp;
