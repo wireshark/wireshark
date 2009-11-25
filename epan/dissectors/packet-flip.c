@@ -145,7 +145,7 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
         /* ETYPE: 8 bits */
         proto_tree_add_uint_format_value(chksum_hdr_tree, hf_flip_chksum_etype,
                                          tvb, offset + 0, 1, dw,
-                                         val_to_str(chksum_hdr_etype,
+                                         "%s", val_to_str(chksum_hdr_etype,
                                                     flip_etype,
                                                     "Unknown"));
         /* SPARE: 7 bits */
@@ -157,7 +157,7 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
         /* EXT HDR: 1 bit */
         proto_tree_add_uint_format_value(chksum_hdr_tree, hf_flip_chksum_e,
                                          tvb, offset + 1, 1, dw,
-                                         val_to_str(chksum_hdr_ext,
+                                         "%s", val_to_str(chksum_hdr_ext,
                                                     flip_boolean,
                                                     "Unknown"));
         /* CHKSUM: 16 bits. */
@@ -309,7 +309,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format_value(basic_hdr_tree,
                                          hf_flip_basic_e,
                                          flip_tvb, offset + 0, 1, dw1,
-                                         val_to_str(basic_hdr_ext,
+                                         "%s", val_to_str(basic_hdr_ext,
                                                     flip_boolean,
                                                     "Unknown"));
         /* Reserved: 3 bits. */
@@ -518,7 +518,7 @@ proto_reg_handoff_flip(void)
 {
     dissector_handle_t flip_handle;
 
-    flip_handle = create_dissector_handle(dissect_flip, proto_flip);
+    flip_handle = new_create_dissector_handle(dissect_flip, proto_flip);
     dissector_add("ethertype", ETHERTYPE_FLIP, flip_handle);
 
 } /* proto_reg_handoff_flip() */
