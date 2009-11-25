@@ -266,6 +266,26 @@ const value_string gsm_bssmap_elem_strings[] = {
 	{ 0, NULL }
 };
 
+#if 0
+/* 3.2.3 Signalling Field Element Coding */
+static const value_string bssap_sig_field_values[] = {
+
+	{ 0x1,	"Extra information" },						/* 3.2.3.1  */
+	{ 0x2,	"Current Channel Type 2" },					/* 3.2.2.2  */
+	{ 0x3,	"Target cell radio information" },			/* 3.2.3.3  */
+	{ 0x4,	"GPRS Suspend information" },				/* 3.2.3.4  */
+	{ 0x5,	"MultiRate configuration information" },	/* 3.2.3.5  */
+	{ 0x6,	"Dual Transfer Mode information" },			/* 3.2.3.6  */
+	{ 0x7,	"Inter RAT Handover Info" },				/* 3.2.3.7  */
+	/*{ 0x7,	"UE Capability information" },*/				/* 3.2.3.7  */
+	{ 0x8,	"cdma2000 Capability Information" },		/* 3.2.3.8  */
+	{ 0x9,	"Downlink Cell Load Information" },			/* 3.2.3.9  */
+	{ 0xa,	"Uplink Cell Load Information" },			/* 3.2.3.10 */
+	{ 0xb,	"Cell Load Information Group" },			/* 3.2.3.11 */
+	{ 0xc,	"Cell Load Information" },					/* 3.2.3.12 */
+	{ 0, NULL }
+};
+#endif
 static const value_string bssap_cc_values[] = {
 	{ 0x00,		"not further specified" },
 	{ 0x80,		"FACCH or SDCCH" },
@@ -2641,6 +2661,23 @@ be_conf_evo_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 }
 /*
  * 3.2.2.58 Old BSS to New BSS information
+ */
+static guint16
+be_old_bss_to_new_bss_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	if (len == 0)
+		return len;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len , "Not decoded yet");
+
+
+	return(len);
+}
+/*
  * 3.2.2.59 (void)
  * 3.2.2.60 LCS QoS 
  * (The QoS octets 3 to n are coded in the same way as the equivalent octets
@@ -3642,7 +3679,7 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, gu
 	de_d_gb_call_ref,	/* Group Call Reference */
 	NULL,				/* eMLPP Priority */
 	be_conf_evo_ind,	/* Configuration Evolution Indication */
-	NULL				/* no decode required */,	/* Old BSS to New BSS Information */
+	be_old_bss_to_new_bss_inf,	/* Old BSS to New BSS Information */
 	be_lsa_id,			/* LSA Identifier */
 	be_lsa_id_list,		/* LSA Identifier List */
 	be_lsa_info,		/* LSA Information */
