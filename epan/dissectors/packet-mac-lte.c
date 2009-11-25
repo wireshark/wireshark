@@ -141,6 +141,8 @@ static int hf_mac_lte_control_padding = -1;
 static int hf_mac_lte_suspected_dl_harq_resend = -1;
 static int hf_mac_lte_suspected_dl_harq_resend_original_frame = -1;
 
+static int hf_mac_lte_ul_harq_resend_original_frame = -1;
+
 
 /* Subtrees. */
 static int ett_mac_lte = -1;
@@ -401,6 +403,9 @@ static gboolean global_mac_lte_attempt_srb_decode = FALSE;
 /* Whether should attempt to detect and flag DL HARQ resends */
 static gboolean global_mac_lte_attempt_dl_harq_resend_detect = TRUE;
 
+/* Whether should attempt to track UL HARQ resends */
+static gboolean global_mac_lte_attempt_ul_harq_resend_track = TRUE;
+
 /* Threshold for warning in expert info about high BSR values */
 static gint global_mac_lte_bsr_warn_threshold = 50; /* default is 19325 -> 22624 */
 
@@ -526,21 +531,21 @@ static guint mac_lte_framenum_hash_func(gconstpointer v)
 /* Could be bigger, but more than enough to flag suspected resends */
 #define MAX_EXPECTED_PDU_LENGTH 2048
 
-typedef struct DLLastFrameData {
+typedef struct LastFrameData {
     gboolean inUse;
     guint32  framenum;
     guint    subframeNumber;
     nstime_t received_time;
     gint     length;
     guint8   data[MAX_EXPECTED_PDU_LENGTH];
-} DLLastFrameData;
+} LastFrameData;
 
-typedef struct DLLastFrameDataAllSubframes {
-    DLLastFrameData subframe[10];
-} DLLastFrameDataAllSubframes;
+typedef struct LastFrameDataAllSubframes {
+    LastFrameData subframe[10];
+} LastFrameDataAllSubframes;
 
 
-/* This table stores (RNTI -> DLLastFrameDataAllSubframes*).  Will be populated when
+/* This table stores (RNTI -> LastFrameDataAllSubframes*).  Will be populated when
    DL frames are first read.  */
 static GHashTable *mac_lte_dl_harq_hash = NULL;
 
@@ -555,6 +560,29 @@ typedef struct DLHARQResult {
 static GHashTable *mac_lte_dl_harq_result_hash = NULL;
 
 /**************************************************************************/
+
+
+/*****************************************************************/
+/* Keeping track of last UL frames per C-RNTI so can verify when */
+/* told that a frame is a retx                                   */
+
+/* This table stores (RNTI -> LastFrameDataAllSubframes*).  Will be populated when
+   UL frames are first read.  */
+static GHashTable *mac_lte_ul_harq_hash = NULL;
+
+typedef struct ULHARQResult {
+    guint       previousFrameNum;
+} ULHARQResult;
+
+
+/* This table stores (CRFrameNum -> ULHARQResult).  It is assigned during the first
+   pass and used thereafter */
+static GHashTable *mac_lte_ul_harq_result_hash = NULL;
+
+/**************************************************************************/
+
+
+
 
 
 
@@ -1102,6 +1130,177 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 
+/* Track DL frames, and look for likely cases of likely HARQ retx */
+static void DetectIfDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int offset,
+                                 proto_tree *tree, mac_lte_info *p_mac_lte_info)
+{
+    DLHARQResult *result = NULL;
+    proto_item *result_ti;
+
+    if (!pinfo->fd->flags.visited) {
+        /* First time, so set result and update DL harq table */
+        LastFrameData *lastData = NULL;
+        LastFrameData *thisData = NULL;
+
+        /* Look up entry for this UE/RNTI */
+        LastFrameDataAllSubframes *ueData =
+            g_hash_table_lookup(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
+        if (ueData != NULL) {
+            /* Looking for a frame sent 8 subframes previously */
+            lastData = &(ueData->subframe[(p_mac_lte_info->subframeNumber+2) % 10]);
+            if (lastData->inUse) {
+                /* Compare time, sf, data to see if this looks like a retx */
+                if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
+                    (memcmp(lastData->data,
+                            tvb_get_ptr(tvb, offset, lastData->length),
+                            MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
+
+                    /* Work out gap between frames */
+                    gint seconds_between_packets = (gint)
+                          (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
+                    gint nseconds_between_packets =
+                          pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
+
+                    gint total_gap = (seconds_between_packets*1000) +
+                                     (nseconds_between_packets / 1000000);
+
+                    /* Should be 8 ms apart, but allow some leeway */
+                    if ((total_gap >= 7) && (total_gap <= 9)) {
+                        /* Resend detected!!! Store result */
+                        result = se_alloc(sizeof(DLHARQResult));
+                        result->previousFrameNum = lastData->framenum;
+                        g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
+
+                    }
+                }
+            }
+        }
+        else {
+            /* Allocate entry in table for this UE/RNTI */
+            ueData = se_alloc0(sizeof(LastFrameDataAllSubframes));
+            g_hash_table_insert(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti), ueData);
+        }
+
+        /* Store this frame's details in table */
+        thisData = &(ueData->subframe[p_mac_lte_info->subframeNumber]);
+        thisData->inUse = TRUE;
+        thisData->length = tvb_length_remaining(tvb, offset);
+        memcpy(thisData->data, tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)), thisData->length);
+        thisData->subframeNumber = p_mac_lte_info->subframeNumber;
+        thisData->framenum = pinfo->fd->num;
+        thisData->received_time = pinfo->fd->abs_ts;
+    }
+    else {
+        /* Not first time, so just set whats already stored in result */
+        result = g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+    }
+
+    /* Show result, with link back to original frame */
+    result_ti = proto_tree_add_boolean(tree, hf_mac_lte_suspected_dl_harq_resend,
+                                       tvb, 0, 0, (result != NULL));
+    if (result != NULL) {
+        proto_item *original_ti;
+        expert_add_info_format(pinfo, result_ti, PI_SEQUENCE, PI_WARN,
+                               "Suspected DL HARQ resend (UE=%u)", p_mac_lte_info->ueid);
+        original_ti = proto_tree_add_uint(tree, hf_mac_lte_suspected_dl_harq_resend_original_frame,
+                                         tvb, 0, 0, result->previousFrameNum);
+        PROTO_ITEM_SET_GENERATED(original_ti);
+    }
+    else {
+        /* Don't show negatives */
+        PROTO_ITEM_SET_HIDDEN(result_ti);
+    }
+    PROTO_ITEM_SET_GENERATED(result_ti);
+}
+
+/* Track UL frames, so that when a retx is indicated, we can search for
+   the original tx.  We will either find it, and provide a link back to it,
+   or flag that we couldn't find as an expert error */
+static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int offset,
+                                      proto_tree *tree, mac_lte_info *p_mac_lte_info,
+                                      proto_item *retx_ti)
+{
+    ULHARQResult *result = NULL;
+
+    if (!pinfo->fd->flags.visited) {
+        /* First time, so set result and update UL harq table */
+        LastFrameData *lastData = NULL;
+        LastFrameData *thisData = NULL;
+
+        /* Look up entry for this UE/RNTI */
+        LastFrameDataAllSubframes *ueData =
+            g_hash_table_lookup(mac_lte_ul_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
+        if (ueData != NULL) {
+
+            if (p_mac_lte_info->reTxCount >= 1) {
+                /* Looking for a frame sent 8 subframes previously */
+                lastData = &(ueData->subframe[(p_mac_lte_info->subframeNumber+2) % 10]);
+                if (lastData->inUse) {
+                    /* Compare time, sf, data to see if this looks like a retx */
+                    if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
+                        (memcmp(lastData->data,
+                                tvb_get_ptr(tvb, offset, lastData->length),
+                                MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
+
+                        /* Work out gap between frames */
+                        gint seconds_between_packets = (gint)
+                              (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
+                        gint nseconds_between_packets =
+                              pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
+
+                        gint total_gap = (seconds_between_packets*1000) +
+                                         (nseconds_between_packets / 1000000);
+
+                        /* Should be 8 ms apart, but allow some leeway */
+                        if ((total_gap >= 7) && (total_gap <= 9)) {
+                            /* Original detected!!! Store result */
+                            result = se_alloc(sizeof(ULHARQResult));
+                            result->previousFrameNum = lastData->framenum;
+                            g_hash_table_insert(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            /* Allocate entry in table for this UE/RNTI */
+            ueData = se_alloc0(sizeof(LastFrameDataAllSubframes));
+            g_hash_table_insert(mac_lte_ul_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti), ueData);
+        }
+
+        /* Store this frame's details in table */
+        thisData = &(ueData->subframe[p_mac_lte_info->subframeNumber]);
+        thisData->inUse = TRUE;
+        thisData->length = tvb_length_remaining(tvb, offset);
+        memcpy(thisData->data, tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)), thisData->length);
+        thisData->subframeNumber = p_mac_lte_info->subframeNumber;
+        thisData->framenum = pinfo->fd->num;
+        thisData->received_time = pinfo->fd->abs_ts;
+    }
+    else {
+        /* Not first time, so just set whats already stored in result */
+        result = g_hash_table_lookup(mac_lte_ul_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+    }
+
+    if (retx_ti != NULL) {
+        if (result != NULL) {
+            proto_item *original_ti;
+
+            original_ti = proto_tree_add_uint(tree, hf_mac_lte_ul_harq_resend_original_frame,
+                                              tvb, 0, 0, result->previousFrameNum);
+            PROTO_ITEM_SET_GENERATED(original_ti);
+        }
+        else {
+            expert_add_info_format(pinfo, retx_ti, PI_SEQUENCE, PI_ERROR,
+                                   "Original Tx of UL frame not found (UE %u) !!", p_mac_lte_info->ueid);
+        }
+    }
+}
+
+
+
+
+
 #define MAX_HEADERS_IN_PDU 1024
 
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
@@ -1109,7 +1308,8 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    proto_item *pdu_ti,
                                    volatile int offset, guint8 direction,
-                                   mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
+                                   mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info,
+                                   proto_item *retx_ti)
 {
     guint8          extension;
     volatile guint8 n;
@@ -1136,85 +1336,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
     /* For downlink frames, can try to work out if this looks like a HARQ resend */
-    if (global_mac_lte_attempt_dl_harq_resend_detect && (direction == DIRECTION_DOWNLINK)) {
-        DLHARQResult *result = NULL;
-        proto_item *result_ti;
-
-        if (!pinfo->fd->flags.visited) {
-            /* First time, so set result and update DL harq table */
-            DLLastFrameData *lastData = NULL;
-            DLLastFrameData *thisData = NULL;
-
-            /* Look up entry for this UE/RNTI */
-            DLLastFrameDataAllSubframes *ueData =
-                g_hash_table_lookup(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti));
-            if (ueData != NULL) {
-                /* Looking for a frame sent 8 subframes previously */
-                lastData = &(ueData->subframe[(p_mac_lte_info->subframeNumber+2) % 10]);
-                if (lastData->inUse) {
-                    /* Compare time, sf, data to see if this looks like a retx */
-                    if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
-                        (memcmp(lastData->data,
-                                tvb_get_ptr(tvb, offset, lastData->length),
-                                MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0)) {
-
-                        /* Work out gap between frames */
-                        gint seconds_between_packets = (gint)
-                              (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
-                        gint nseconds_between_packets =
-                              pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
-
-                        gint total_gap = (seconds_between_packets*1000) +
-                                         (nseconds_between_packets / 1000000);
-
-                        /* Should be 8 ms apart, but allow some leeway */
-                        if ((total_gap >= 7) && (total_gap <= 9)) {
-                            /* Resend detected!!! Store result */
-                            result = se_alloc(sizeof(DLHARQResult));
-                            result->previousFrameNum = lastData->framenum;
-                            g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
-
-                        }
-                    }
-                }
-            }
-            else {
-                /* Allocate entry in table for this UE/RNTI */
-                ueData = se_alloc0(sizeof(DLLastFrameDataAllSubframes));
-                g_hash_table_insert(mac_lte_dl_harq_hash, GUINT_TO_POINTER((guint)p_mac_lte_info->rnti), ueData);
-            }
-
-            /* Store this frame's details in table */
-            thisData = &(ueData->subframe[p_mac_lte_info->subframeNumber]);
-            thisData->inUse = TRUE;
-            thisData->length = tvb_length_remaining(tvb, offset);
-            memcpy(thisData->data, tvb_get_ptr(tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH)), thisData->length);
-            thisData->subframeNumber = p_mac_lte_info->subframeNumber;
-            thisData->framenum = pinfo->fd->num;
-            thisData->received_time = pinfo->fd->abs_ts;
-        }
-        else {
-            /* Not first time, so just set whats already stored in result */
-            result = g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
-        }
-
-        /* Show result, with link back to original frame */
-        result_ti = proto_tree_add_boolean(tree, hf_mac_lte_suspected_dl_harq_resend,
-                                           tvb, 0, 0, (result != NULL));
-        if (result != NULL) {
-            proto_item *original_ti;
-            expert_add_info_format(pinfo, result_ti, PI_SEQUENCE, PI_WARN,
-                                   "Suspected DL HARQ resend (UE=%u)", p_mac_lte_info->ueid);
-            original_ti = proto_tree_add_uint(tree, hf_mac_lte_suspected_dl_harq_resend_original_frame,
-                                             tvb, 0, 0, result->previousFrameNum);
-            PROTO_ITEM_SET_GENERATED(original_ti);
-        }
-        else {
-            /* Don't show negatives */
-            PROTO_ITEM_SET_HIDDEN(result_ti);
-        }
-        PROTO_ITEM_SET_GENERATED(result_ti);
+    if ((direction == DIRECTION_DOWNLINK) && global_mac_lte_attempt_dl_harq_resend_detect) {
+        DetectIfDLHARQResend(pinfo, tvb, offset, tree, p_mac_lte_info);
     }
+
+
+    /* For uplink frames, if this is logged as a resend, look for original tx */
+    if ((direction == DIRECTION_UPLINK) && global_mac_lte_attempt_ul_harq_resend_track) {
+        TrackReportedULHARQResend(pinfo, tvb, offset, tree, p_mac_lte_info, retx_ti);
+    }
+
 
     /* Add PDU block header subtree */
     pdu_header_ti = proto_tree_add_string_format(tree,
@@ -1926,6 +2057,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree             *mac_lte_tree;
     proto_item             *pdu_ti;
+    proto_item             *retx_ti = NULL;
     proto_item             *ti;
     gint                   offset = 0;
     struct mac_lte_info    *p_mac_lte_info = NULL;
@@ -2077,12 +2209,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if (p_mac_lte_info->reTxCount) {
-        ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_retx_count,
+        retx_ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_retx_count,
                                  tvb, 0, 0, p_mac_lte_info->reTxCount);
-        PROTO_ITEM_SET_GENERATED(ti);
+        PROTO_ITEM_SET_GENERATED(retx_ti);
 
         if (p_mac_lte_info->reTxCount >= global_mac_lte_retx_counter_trigger) {
-            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
+            expert_add_info_format(pinfo, retx_ti, PI_SEQUENCE, PI_ERROR,
                                    "UL MAC frame ReTX no. %u",
                                    p_mac_lte_info->reTxCount);
         }
@@ -2165,7 +2297,8 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case SPS_RNTI:
             /* Can be UL-SCH or DL-SCH */
             dissect_ulsch_or_dlsch(tvb, pinfo, mac_lte_tree, pdu_ti, offset,
-                                   p_mac_lte_info->direction, p_mac_lte_info, &tap_info);
+                                   p_mac_lte_info->direction, p_mac_lte_info, &tap_info,
+                                   retx_ti);
             break;
 
         case SI_RNTI:
@@ -2211,6 +2344,13 @@ mac_lte_init_protocol(void)
     if (mac_lte_dl_harq_result_hash) {
         g_hash_table_destroy(mac_lte_dl_harq_result_hash);
     }
+    if (mac_lte_ul_harq_hash) {
+        g_hash_table_destroy(mac_lte_ul_harq_hash);
+    }
+    if (mac_lte_ul_harq_result_hash) {
+        g_hash_table_destroy(mac_lte_ul_harq_result_hash);
+    }
+
 
 
     /* Now create them over */
@@ -2219,6 +2359,9 @@ mac_lte_init_protocol(void)
 
     mac_lte_dl_harq_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
     mac_lte_dl_harq_result_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
+
+    mac_lte_ul_harq_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
+    mac_lte_ul_harq_result_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
 }
 
 
@@ -2702,7 +2845,12 @@ void proto_register_mac_lte(void)
             }
         },
 
-
+        { &hf_mac_lte_ul_harq_resend_original_frame,
+            { "Frame with previous tx",
+              "mac-lte.ulsch.harq-resend-original_frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
     };
 
     static gint *ett[] =
@@ -2809,6 +2957,11 @@ void proto_register_mac_lte(void)
         "Attempt to detect DL HARQ resends",
         "Attempt to detect DL HARQ resends (useful if logging UE side so need to infer)",
         &global_mac_lte_attempt_dl_harq_resend_detect);
+
+    prefs_register_bool_preference(mac_lte_module, "attempt_to_track_ul_harq_resend",
+        "Attempt to track UL HARQ resends",
+        "When logging at UE side, will look for original transmission",
+        &global_mac_lte_attempt_ul_harq_resend_track);
 
     prefs_register_uint_preference(mac_lte_module, "bsr_warn_threshold",
         "BSR size when warning should be issued (0 - 63)",
