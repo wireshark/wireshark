@@ -1004,7 +1004,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         udp.dst_port = g_ntohs(udp.dst_port);
 
         /* Parse the length, if present. */
-        if (!(hc1_encoding & LOWPAN_HC2_UDP_LENGTH)) {
+        if (!(hc_udp_encoding & LOWPAN_HC2_UDP_LENGTH)) {
             udp.length = tvb_get_bits16(tvb, bit_offset, LOWPAN_UDP_LENGTH_BITS, FALSE);
             if (tree) {
                 proto_tree_add_uint(tree, hf_6lowpan_udp_len, tvb, bit_offset>>3,
