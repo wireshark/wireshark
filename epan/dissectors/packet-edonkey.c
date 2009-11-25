@@ -1881,13 +1881,20 @@ static void dissect_edonkey_tcp_message(guint8 msg_type,
             break;
 
         case EDONKEY_MSG_REQUEST_PARTS:  /* Request Parts: <File hash> <Start offset>(3) <End offset>(3) */
-            offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
-            offset = dissect_edonkey_start_offset(tvb, pinfo, offset, tree);
-            offset = dissect_edonkey_start_offset(tvb, pinfo, offset, tree);
-            offset = dissect_edonkey_start_offset(tvb, pinfo, offset, tree);
-            offset = dissect_edonkey_end_offset(tvb, pinfo, offset, tree);
-            offset = dissect_edonkey_end_offset(tvb, pinfo, offset, tree);
-            offset = dissect_edonkey_end_offset(tvb, pinfo, offset, tree);
+            {
+              int pairs, count;
+              offset = dissect_edonkey_file_hash(tvb, pinfo, offset, tree);
+              pairs = (msg_end - offset) / 8;
+
+              for (count=0; count < pairs; count++)
+              {
+                offset = dissect_edonkey_start_offset(tvb, pinfo, offset, tree);
+              }
+              for (count=0; count < pairs; count++)
+              {
+                offset = dissect_edonkey_end_offset(tvb, pinfo, offset, tree);
+              }
+            }
             break;
 
         case EDONKEY_MSG_SENDING_PART:  /* Sending Part: <File hash> <Start offset> <End offset> DATA */
