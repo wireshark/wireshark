@@ -24,7 +24,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * Ref: 3GPP TS 25.423 version 6.7.0 Release 6
+ * Ref: 3GPP TS 25.331 V8.8.0 (2009-09)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -40,6 +40,8 @@
 
 #include "packet-ber.h"
 #include "packet-per.h"
+#include "packet-rrc.h"
+#include "packet-gsm_a_common.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4049: compiler limit : terminating line number emission" */
@@ -59,6 +61,9 @@ static dissector_handle_t rrc_ul_ccch_handle=NULL;
 static dissector_handle_t rrc_dl_ccch_handle=NULL;
 static dissector_handle_t rrc_ul_dcch_handle=NULL;
 static dissector_handle_t rrc_dl_dcch_handle=NULL;
+
+/* Forward declarations */
+static void dissect_UE_RadioAccessCapabilityInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Include constants */
 #include "packet-rrc-val.h"
