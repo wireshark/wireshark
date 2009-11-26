@@ -868,15 +868,9 @@ get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_t
 
 	return TRUE;
 }
-/* XXX fore some reason this does not work in th .h file XXX*/
-/* Different modes of copying summary data */
-typedef enum {
-	CS_TEXT, /* Packet summary data (tab separated) */
-	CS_CSV	 /* Packet summary data (comma separated) */
-} copy_summary_type;
 
 void
-new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, gint copy_type)
+new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summary_type copy_type)
 {
 	gint col;
 	gchar *celltext;

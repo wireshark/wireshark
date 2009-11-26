@@ -25,8 +25,8 @@
 /* Uncomment to track some statistics (const strings, etc.) */
 /* #define NEW_PACKET_LIST_STATISTICS */
 
-#ifndef __NEW_PACKET_LIST_H__
-#define __NEW_PACKET_LIST_H__
+#ifndef __PACKET_LIST_STORE_H__
+#define __PACKET_LIST_STORE_H__
 
 #ifdef NEW_PACKET_LIST
 
@@ -118,4 +118,4 @@ const char* packet_list_get_widest_column_string(PacketList *packet_list, gint c
 
 #endif /* NEW_PACKET_LIST */
 
-#endif /* __NEW_PACKET_LIST_H__ */
+#endif /* __PACKET_LIST_STORE_H__ */
