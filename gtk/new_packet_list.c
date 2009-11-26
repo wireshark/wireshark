@@ -63,6 +63,10 @@
 #include "gtk/main_statusbar.h"
 #include "gtk/packet_win.h"
 #include "gtk/main.h"
+#include "gtk/prefs_column.h"
+#include "gtk/dlg_utils.h"
+
+#define COLUMN_WIDTH_MIN 40
 
 static PacketList *packetlist;
 static gboolean last_at_end = FALSE;
@@ -166,6 +170,139 @@ right_justify_column (gint col)
 	return right_justify;
 }
 
+static void
+col_title_change_ok (GtkWidget *w, gpointer parent_w)
+{
+	GtkTreeViewColumn *col = g_object_get_data (G_OBJECT(w), "column");
+	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_ID_KEY));
+	GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
+	const gchar *title =  gtk_entry_get_text(GTK_ENTRY(entry));
+
+	gtk_tree_view_column_set_title(col, title);
+	column_prefs_rename(col_id, title);
+
+	window_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+col_title_change_cancel (GtkWidget *w _U_, gpointer parent_w)
+{
+	window_destroy(GTK_WIDGET(parent_w));
+}
+
+static void 
+col_title_edit_dlg (GtkTreeViewColumn *col)
+{
+	const gchar *value = gtk_tree_view_column_get_title(col);
+
+	GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
+	GtkWidget *entry, *label;
+
+	win = dlg_window_new("Column Title");
+
+	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
+	gtk_window_resize(GTK_WINDOW(win), 400, 100);
+
+	main_vb = gtk_vbox_new(FALSE, 5);
+	gtk_container_add(GTK_CONTAINER(win), main_vb);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
+
+	main_tb = gtk_table_new(2, 2, FALSE);
+	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
+	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
+
+	label = gtk_label_new(ep_strdup_printf("Title:"));
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
+	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
+
+	entry = gtk_entry_new();
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, 1, 2);
+	gtk_entry_set_text(GTK_ENTRY(entry), value);
+
+	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
+	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+
+	ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+	g_object_set_data (G_OBJECT(ok_bt), "column", col);
+	g_object_set_data (G_OBJECT(ok_bt), "entry", entry);
+	g_signal_connect(ok_bt, "clicked", G_CALLBACK(col_title_change_ok), win);
+
+	dlg_set_activate(entry, ok_bt);
+
+	cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	g_signal_connect(cancel_bt, "clicked", G_CALLBACK(col_title_change_cancel), win);
+	window_set_cancel_button(win, cancel_bt, NULL);
+
+	gtk_widget_grab_default(ok_bt);
+	gtk_widget_show_all(win);
+}
+
+static void
+new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType order)
+{
+	GtkTreeViewColumn *prev_col = (GtkTreeViewColumn *) 
+	  g_object_get_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_PREV_COL_KEY);
+
+	if (prev_col) {
+		gtk_tree_view_column_set_sort_indicator(prev_col, FALSE);
+	}
+	gtk_tree_view_column_set_sort_indicator(col, TRUE);
+	gtk_tree_view_column_set_sort_order (col, order);
+	g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_PREV_COL_KEY, col);
+	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), col_id, order);
+}
+
+static void
+new_packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
+{
+	column_prefs_remove(col_id);
+
+	if (!prefs.gui_use_pref_save) {
+		prefs_main_write();
+	}
+
+	new_packet_list_recreate();
+}
+
+void
+new_packet_list_column_clicked (GtkWidget *w _U_, gpointer user_data _U_, COLUMN_SELECTED_E action)
+{
+	GtkTreeViewColumn *col = (GtkTreeViewColumn *)
+	  g_object_get_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COL_KEY);
+	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_ID_KEY));
+
+	switch (action) {
+	case COLUMN_SELECTED_SORT_ASCENDING:
+		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING);
+		break;
+	case COLUMN_SELECTED_SORT_DESCENDING:
+		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING);
+		break;
+	case COLUMN_SELECTED_RESIZE:
+		new_packet_list_resize_column (col_id);
+		break;
+	case COLUMN_SELECTED_RENAME:
+		col_title_edit_dlg (col);
+		break;
+	case COLUMN_SELECTED_REMOVE:
+		new_packet_list_remove_column (col_id, col);
+		break;
+	default:
+		g_assert_not_reached();
+		break;
+	}
+}
+
+static void
+new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U_)
+{
+	GtkWidget *menu;
+
+	menu = g_object_get_data (G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);
+	g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COL_KEY, col);
+	gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL, 1, gtk_get_current_event_time());
+}
+
 static GtkWidget *
 create_view_and_model(void)
 {
@@ -216,15 +353,18 @@ create_view_and_model(void)
 							GINT_TO_POINTER(i),
 							NULL);
 		gtk_tree_view_column_set_title(col, cfile.cinfo.col_title[i]);
-		gtk_tree_view_column_set_sort_column_id(col, i);
+		gtk_tree_view_column_set_clickable(col, TRUE);
 		gtk_tree_view_column_set_resizable(col, TRUE);
 		gtk_tree_view_column_set_sizing(col,GTK_TREE_VIEW_COLUMN_FIXED);
 		gtk_tree_view_column_set_reorderable(col, TRUE); /* XXX - Should this be saved in the prefs? */
 
+		g_object_set_data(G_OBJECT(col), E_MPACKET_LIST_COL_ID_KEY, GINT_TO_POINTER(i));
+		g_signal_connect(col, "clicked", G_CALLBACK(new_packet_list_column_clicked_cb), NULL);
+
 		/* The column can't be adjusted to a size smaller than this
 		 * XXX Should we use a different value for different column formats?
 		 */
-		gtk_tree_view_column_set_min_width(col, 40);
+		gtk_tree_view_column_set_min_width(col, COLUMN_WIDTH_MIN);
 
 		/* Set the size the column will be displayed with */
 		col_width = recent_get_column_width(i);
@@ -249,6 +389,12 @@ create_view_and_model(void)
 			gtk_tree_view_column_set_fixed_width(col, col_width);
 		}
 		gtk_tree_view_append_column(GTK_TREE_VIEW(packetlist->view), col);
+
+		if (i == 0) {  /* Default sort on first column */
+			g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COL_KEY, col);
+			g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_PREV_COL_KEY, col);
+		}
+
 	}
 
 	return packetlist->view;

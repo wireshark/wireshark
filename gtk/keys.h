@@ -31,6 +31,9 @@
 
 #define E_DFILTER_TE_KEY				"display_filter_entry"
 #define E_RFILTER_TE_KEY				"read_filter_te"
+#define E_MPACKET_LIST_COL_KEY	       		"menu_packet_list_col"
+#define E_MPACKET_LIST_COL_ID_KEY	       		"menu_packet_list_col_id"
+#define E_MPACKET_LIST_PREV_COL_KEY	       		"menu_packet_list_prev_col"
 #define E_MPACKET_LIST_KEY				"menu_packet_list"
 #define E_MPACKET_LIST_ROW_KEY			"menu_packet_list_row"
 #define E_MPACKET_LIST_COL_KEY			"menu_packet_list_col"
@@ -43,6 +46,7 @@
 #define PLUGINS_DFILTER_TE				"plugins_dfilter_te"
 
 #define PM_MENU_LIST_KEY				"popup_menu_menu_list"
+#define PM_PACKET_LIST_COL_KEY			"popup_menu_packet_list_column"
 #define PM_PACKET_LIST_KEY				"popup_menu_packet_list"
 #define PM_TREE_VIEW_KEY				"popup_menu_tree_view"
 #define PM_BYTES_VIEW_KEY				"popup_menu_bytes_view"

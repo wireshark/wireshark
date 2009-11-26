@@ -532,7 +532,7 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/_Configuration Profiles...", "<shift><control>A", GTK_MENU_FUNC(profile_dialog_cb), 0, NULL, NULL,},
     {"/Edit/_Preferences...", "<shift><control>P", GTK_MENU_FUNC(prefs_cb),
-                             0, "<StockItem>", GTK_STOCK_PREFERENCES,},
+                             PREFS_PAGE_USER_INTERFACE, "<StockItem>", GTK_STOCK_PREFERENCES,},
     {"/_View", NULL, NULL, 0, "<Branch>", NULL,},
     {"/View/_Main Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_MAIN_TOOLBAR, "<CheckItem>", NULL,},
     {"/View/_Filter Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_FILTER_TOOLBAR, "<CheckItem>", NULL,},
@@ -759,6 +759,25 @@ static GtkItemFactoryEntry menu_items[] =
 
 /* calculate the number of menu_items */
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
+
+#ifdef NEW_PACKET_LIST
+/* packet list heading popup */
+static GtkItemFactoryEntry packet_list_heading_items[] =
+{
+    {"/Sort Ascending", NULL, GTK_MENU_FUNC(new_packet_list_column_clicked), COLUMN_SELECTED_SORT_ASCENDING, "<StockItem>", GTK_STOCK_SORT_ASCENDING,},
+    {"/Sort Descending", NULL, GTK_MENU_FUNC(new_packet_list_column_clicked), COLUMN_SELECTED_SORT_DESCENDING, "<StockItem>", GTK_STOCK_SORT_DESCENDING,},
+
+    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+
+    {"/Column Preferences", NULL, GTK_MENU_FUNC(prefs_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
+    {"/Resize Column", NULL, GTK_MENU_FUNC(new_packet_list_column_clicked), COLUMN_SELECTED_RESIZE, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
+    {"/Rename Column", NULL, GTK_MENU_FUNC(new_packet_list_column_clicked), COLUMN_SELECTED_RENAME, "<StockItem>", GTK_STOCK_BOLD,},
+
+    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+
+    {"/Remove Column", NULL, GTK_MENU_FUNC(new_packet_list_column_clicked), COLUMN_SELECTED_REMOVE, "<StockItem>", GTK_STOCK_DELETE,}
+};
+#endif
 
 /* packet list popup */
 static GtkItemFactoryEntry packet_list_menu_items[] =
@@ -1083,6 +1102,7 @@ static GtkItemFactoryEntry bytes_menu_items[] =
 
 static int initialize = TRUE;
 static GtkItemFactory *main_menu_factory = NULL;
+static GtkItemFactory *packet_list_heading_factory = NULL;
 static GtkItemFactory *packet_list_menu_factory = NULL;
 static GtkItemFactory *tree_view_menu_factory = NULL;
 static GtkItemFactory *bytes_menu_factory = NULL;
@@ -1200,9 +1220,17 @@ menus_init(void) {
     if (initialize) {
         initialize = FALSE;
 
+    popup_menu_object = gtk_menu_new();
+
+    /* packet list heading pop-up menu */
+    packet_list_heading_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+    gtk_item_factory_create_items_ac(packet_list_heading_factory, sizeof(packet_list_heading_items)/sizeof(packet_list_heading_items[0]), packet_list_heading_items, popup_menu_object, 2);
+    g_object_set_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY,
+                    packet_list_heading_factory->widget);
+    popup_menu_list = g_slist_append((GSList *)popup_menu_list, packet_list_heading_factory);
+
     /* packet list pop-up menu */
     packet_list_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-    popup_menu_object = gtk_menu_new();
     gtk_item_factory_create_items_ac(packet_list_menu_factory, sizeof(packet_list_menu_items)/sizeof(packet_list_menu_items[0]), packet_list_menu_items, popup_menu_object, 2);
     g_object_set_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY,
                     packet_list_menu_factory->widget);

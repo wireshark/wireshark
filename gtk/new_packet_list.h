@@ -30,8 +30,17 @@
 
 #define RECENT_KEY_COL_WIDTH                "column.width"
 
+typedef enum {
+  COLUMN_SELECTED_SORT_ASCENDING,
+  COLUMN_SELECTED_SORT_DESCENDING,
+  COLUMN_SELECTED_RESIZE,
+  COLUMN_SELECTED_RENAME,
+  COLUMN_SELECTED_REMOVE
+} COLUMN_SELECTED_E;
+
 GtkWidget *new_packet_list_create(void);
 void new_packet_list_recreate(void);
+void new_packet_list_column_clicked (GtkWidget *w, gpointer data, COLUMN_SELECTED_E action);
 void new_packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_);
 gboolean new_packet_list_get_event_row_column(GdkEventButton *event_button, gint *physical_row, gint *row, gint *column);
 
