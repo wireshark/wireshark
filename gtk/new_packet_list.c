@@ -64,6 +64,7 @@
 #include "gtk/packet_win.h"
 #include "gtk/main.h"
 #include "gtk/prefs_column.h"
+#include "gtk/prefs_dlg.h"
 #include "gtk/dlg_utils.h"
 
 #define COLUMN_WIDTH_MIN 40
@@ -180,6 +181,10 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 
 	gtk_tree_view_column_set_title(col, title);
 	column_prefs_rename(col_id, title);
+
+	if (!prefs.gui_use_pref_save) {
+		prefs_main_write();
+	}
 
 	window_destroy(GTK_WIDGET(parent_w));
 }

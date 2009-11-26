@@ -155,6 +155,7 @@
 #include "gtk/capture_if_dlg.h"
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/prefs_column.h"
+#include "gtk/prefs_dlg.h"
 
 #ifdef HAVE_LIBPCAP
 #include "../image/wsicon16.xpm"
@@ -809,6 +810,9 @@ void apply_as_custom_column_cb (GtkWidget *widget _U_, gpointer data _U_)
 #else
     packet_list_recreate ();
 #endif
+    if (!prefs.gui_use_pref_save) {
+      prefs_main_write();
+    }
     cfile.cinfo.columns_changed = FALSE; /* Reset value */
   }
 }
