@@ -405,15 +405,15 @@ de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 
 	proto_tree_add_text(tf_tree,
 		tvb, curr_offset, 1,
-		"Type: (%u) %s",
-		oct&7,
-		str);
+		"Type: %s (%u)",
+		str,
+		oct&7);
 
 	proto_tree_add_text(tf_tree,
 		tvb, curr_offset, 1,
-		"Power: (%u) %s",
-		(oct>>3)&1,
-		str_power);
+		"Power: %s (%u)",
+		str_power,
+		(oct>>3)&1);
 
 	curr_offset++;
 
@@ -535,9 +535,9 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	proto_tree_add_text(tf_tree,
 		tvb, curr_offset, 1,
-		"Split PG Cycle Code: (%u) %s",
-		oct,
-		str);
+		"Split PG Cycle Code: %s (%u)",
+		str, 
+		oct);
 
 	curr_offset++;
 	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef, tvb, curr_offset, 1, FALSE);
@@ -794,57 +794,57 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	/* bit 8 */
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"GEA1: (%u) %s",
-		oct>>7,
-		answer_gea[oct>>7]);
+		"GEA1: %s (%u)",
+		answer_gea[oct>>7],
+		oct>>7);
 	oct<<=1;
 
 	/* bit 7 */
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"SM capabilities via dedicated channels: (%u) %s",
-		oct>>7,
-		answer_smdch[oct>>7]);
+		"SM capabilities via dedicated channels: %s (%u)",
+		answer_smdch[oct>>7],
+		oct>>7);
 	oct<<=1;
 
 	/* bit 6 */
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"SM capabilities via GPRS channels: (%u) %s",
-		oct>>7,
-		answer_smgprs[oct>>7]);
+		"SM capabilities via GPRS channels: %s (%u)",
+		answer_smgprs[oct>>7],
+		oct>>7);
 	oct<<=1;
 
 	/* bit 5 */
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"UCS2 support: (%u) %s",
-		oct>>7,
-		answer_ucs2[oct>>7]);
+		"UCS2 support: %s (%u)",
+		answer_ucs2[oct>>7],
+		oct>>7);
 	oct<<=1;
 
 	/* bit 4 3 */
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"SS Screening Indicator: (%u) %s",
-		oct>>6,
-		answer_ssid[oct>>6]);
+		"SS Screening Indicator: %s (%u)",
+		answer_ssid[oct>>6],
+		oct>>6);
 	oct<<=2;
 
 	/* bit 2 */
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"SoLSA Capability: (%u) %s",
-		oct>>7,
-		answer_solsa[oct>>7]);
+		"SoLSA Capability: %s (%u)",
+		answer_solsa[oct>>7],
+		oct>>7);
 	oct<<=1;
 
 	/* bit 1 */
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Revision level indicator: (%u) %s",
-		oct>>7,
-		answer_rev[oct>>7]);
+		"Revision level indicator: %s (%u)",
+		answer_rev[oct>>7],
+		oct>>7);
 
 	curr_offset++;
 
@@ -854,26 +854,26 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"PFC feature mode: (%u) %s",
-		oct>>7,
-		answer_pfc[oct>>7]);
+		"PFC feature mode: %s (%u)",
+		answer_pfc[oct>>7],
+		oct>>7);
 	oct<<=1;
 
 	for( gea_val=2; gea_val<8 ; gea_val++ )
 	{
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"GEA%d: (%u) %s", gea_val,
-			oct>>7,
-			answer_gea[oct>>7]);
+			"GEA%d: %s (%u)", gea_val,
+			answer_gea[oct>>7],
+			oct>>7);
 		oct<<=1;
 	}
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"LCS VA capability: (%u) %s",
-		oct>>7,
-		answer_lcs[oct>>7]);
+		"LCS VA capability: %s (%u)",
+		answer_lcs[oct>>7],
+		oct>>7);
 
 	curr_offset++;
 
@@ -883,9 +883,9 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"PS inter-RAT HO to UTRAN Iu mode capability: (%u) %s",
-			oct & 0x1,                    /* XXX: There's only 2 entries in the ..._irat array  */
-			answer_ps_irat[oct & 0x1]);   /*      so we'll assume that this is a 1 bit value.   */
+			"PS inter-RAT HO to UTRAN Iu mode capability: %s (%u)",
+			answer_ps_irat[oct & 0x1],       /* XXX: There's only 2 entries in the ..._irat array  */
+			oct & 0x1);                      /*      so we'll assume that this is a 1 bit value.   */
 
 
     proto_tree_add_text(tree,
@@ -1145,7 +1145,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"Presence: (%u) %s",oct>>(32-bits_needed),str);
+					"Presence: %s (%u)", str, oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1242,7 +1242,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				/* decode_bits_in_field(gint bit_offset, gint no_of_bits, guint64 value)*/
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"%s RF Power Capability, GMSK Power Class: (%u) %s", decode_bits_in_field(bit_offset, 3, value), value, str);
+					"%s RF Power Capability, GMSK Power Class: %s (%u)", decode_bits_in_field(bit_offset, 3, value), str, value);
 				bit_offset+=3;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1267,7 +1267,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"8PSK Power Class: (%u) %s",value,str);
+					"8PSK Power Class: %s (%u)",str,value);
 				bit_offset+=2;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1322,7 +1322,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"%s RF Power Capability, GMSK Power Class: (%u) %s", decode_bits_in_field(bit_offset, 3, value), value,str);
+			"%s RF Power Capability, GMSK Power Class: %s (%u)", decode_bits_in_field(bit_offset, 3, value),str,value);
 
 		bit_offset+=3;
 		curr_bits_length -= bits_needed;
@@ -1377,7 +1377,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"A5/%d: (%u) %s",i,oct>>(32-bits_needed),str);
+					"A5/%d: %s (%u)",i,str,oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1401,7 +1401,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Controlled early Classmark Sending: (%u) %s",oct>>(32-bits_needed),str);
+			"Controlled early Classmark Sending: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -1423,7 +1423,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Pseudo Synchronisation: (%u) %s",oct>>(32-bits_needed),str);
+			"Pseudo Synchronisation: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -1445,7 +1445,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Voice Group Call Service: (%u) %s",oct>>(32-bits_needed),str);
+			"Voice Group Call Service: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -1467,7 +1467,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Voice Broadcast Service: (%u) %s",oct>>(32-bits_needed),str);
+			"Voice Broadcast Service: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -1534,7 +1534,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				/* analyse bits */
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"HSCSD multislot class: (%u) %s",oct>>(32-bits_needed),multi_slot_str[oct>>(32-bits_needed)]);
+					"HSCSD multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
 				bit_offset+=5;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1574,7 +1574,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				/* analyse bits */
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"GPRS multislot class: (%u) %s",oct>>(32-bits_needed),multi_slot_str[oct>>(32-bits_needed)]);
+					"GPRS multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
 				bit_offset+=5;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1595,7 +1595,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				}
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"GPRS Extended Dynamic Allocation Capability: (%u) %s",oct>>(32-bits_needed),str);
+					"GPRS Extended Dynamic Allocation Capability: %s (%u)",str,oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1686,7 +1686,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				/* analyse bits */
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"ECSD multislot class: (%u) %s",oct>>(32-bits_needed),multi_slot_str[oct>>(32-bits_needed)]);
+					"ECSD multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
 				bit_offset+=5;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1726,7 +1726,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				/* analyse bits */
 				proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"EGPRS multislot class: (%u) %s",oct>>(32-bits_needed),multi_slot_str[oct>>(32-bits_needed)]);
+				"EGPRS multislot class: %s (%u)",multi_slot_str[oct>>(32-bits_needed)],oct>>(32-bits_needed));
 				bit_offset+=5;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1747,7 +1747,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				}
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"EGPRS Extended Dynamic Allocation Capability: (%u) %s",oct>>(32-bits_needed),str);
+					"EGPRS Extended Dynamic Allocation Capability: %s (%u)",str, oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1798,7 +1798,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"DTM GPRS Multi Slot Class: (%u) %s",oct>>(32-bits_needed),str);
+					"DTM GPRS Multi Slot Class: %s (%u)",str,oct>>(32-bits_needed));
 				bit_offset+=2;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1819,7 +1819,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				}
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"Single Slot DTM: (%u) %s",oct>>(32-bits_needed),str);
+					"Single Slot DTM: %s (%u)",str,oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1869,7 +1869,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 					proto_tree_add_text(tf_tree,
 						tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-						"DTM EGPRS Multi Slot Class: (%u) %s",oct>>(32-bits_needed),str);
+						"DTM EGPRS Multi Slot Class: %s (%u)",str,oct>>(32-bits_needed));
 					bit_offset+=2;
 					curr_bits_length -= bits_needed;
 					oct <<= bits_needed;
@@ -1920,7 +1920,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"8PSK Power Capability: (%u) %s",oct>>(32-bits_needed),str);
+				"8PSK Power Capability: %s (%u)",str,oct>>(32-bits_needed));
 			bit_offset+=2;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
@@ -1943,7 +1943,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"COMPACT Interference Measurement Capability: (%u) %s",oct>>(32-bits_needed),str);
+			"COMPACT Interference Measurement Capability: %s (%u)", str, oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -1965,7 +1965,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Revision Level Indicator: (%u) %s",oct>>(32-bits_needed),str);
+			"Revision Level Indicator: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -1987,7 +1987,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"UMTS FDD Radio Access Technology Capability: (%u) %s",oct>>(32-bits_needed),str);
+			"UMTS FDD Radio Access Technology Capability: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2009,7 +2009,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"UMTS 3.84 Mcps TDD Radio Access Technology Capability: (%u) %s",oct>>(32-bits_needed),str);
+			"UMTS 3.84 Mcps TDD Radio Access Technology Capability: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2031,7 +2031,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"CDMA 2000 Radio Access Technology Capability: (%u) %s",oct>>(32-bits_needed),str);
+			"CDMA 2000 Radio Access Technology Capability: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2053,7 +2053,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"UMTS 1.28 Mcps TDD Radio Access Technology Capability: (%u) %s",oct>>(32-bits_needed),str);
+			"UMTS 1.28 Mcps TDD Radio Access Technology Capability: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2075,7 +2075,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 		tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-		"GERAN Feature Package 1: (%u) %s",oct>>(32-bits_needed),str);
+		"GERAN Feature Package 1: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2134,7 +2134,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"Extended DTM GPRS Multi Slot Class: (%u) %s",oct>>(32-bits_needed),str);
+				"Extended DTM GPRS Multi Slot Class: %s (%u)",str,oct>>(32-bits_needed));
 			bit_offset+=2;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
@@ -2172,7 +2172,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"Extended DTM EGPRS Multi Slot Class: (%u) %s",oct>>(32-bits_needed),str);
+					"Extended DTM EGPRS Multi Slot Class: %s (%u)",str, oct>>(32-bits_needed));
 				bit_offset+=2;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -2196,7 +2196,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Modulation based multislot class support: (%u) %s",oct>>(32-bits_needed),str);
+			"Modulation based multislot class support: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2263,7 +2263,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"GERAN Iu Mode Capability: (%u) %s",oct>>(32-bits_needed),str);
+			"GERAN Iu Mode Capability: %s (%u)",str,oct>>(32-bits_needed));
 		bit_offset++;
 		curr_bits_length -= bits_needed;
 		oct <<= bits_needed;
@@ -2311,7 +2311,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"GMSK Multislot Power Profile: (%u) %s",oct>>(32-bits_needed),str);
+				"GMSK Multislot Power Profile: %s (%u)",str,oct>>(32-bits_needed));
 			bit_offset+=2;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
@@ -2335,7 +2335,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 	
 			proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"8-PSK Multislot Power Profile: (%u) %s",oct>>(32-bits_needed),str);
+			"8-PSK Multislot Power Profile: %s (%u)",str,oct>>(32-bits_needed));
 			bit_offset+=2;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
@@ -2517,9 +2517,9 @@ de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Update Result: (%u) %s",
-		oct&7,
-		str);
+		"Update Result: %s (%u)",
+		str,
+		oct&7);
 
 	curr_offset++;
 
@@ -2645,34 +2645,34 @@ de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"OTD-A: (%u) %s",
-		oct>>7,
-		str_otd[oct>>7]);
+		"OTD-A: %s (%u)",
+		str_otd[oct>>7],
+		oct>>7);
 		oct <<=1;
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"OTD-B: (%u) %s",
-		oct>>7,
-		str_otd[oct>>7]);
+		"OTD-B: %s (%u)",
+		str_otd[oct>>7],
+		oct>>7);
 		oct <<=1;
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"GPS-A: (%u) %s",
-		oct>>7,
-		str_gps[oct>>7]);
+		"GPS-A: %s (%u)",
+		str_gps[oct>>7],
+		oct>>7);
 		oct <<=1;
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"GPS-B: (%u) %s",
-		oct>>7,
-		str_gps[oct>>7]);
+		"GPS-B: %s (%u)",
+		str_gps[oct>>7],
+		oct>>7);
 		oct <<=1;
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"GPS-C: (%u) %s",
-		oct>>7,
-		str_gps[oct>>7]);
+		"GPS-C: %s (%u)",
+		str_gps[oct>>7],
+		oct>>7);
 
 	curr_offset++;
 
@@ -2703,9 +2703,9 @@ de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len 
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Network Feature Support: (%u) %s",
-		(oct>>3)&1,
-		str);
+		"Network Feature Support: %s (%u)",
+		str,
+		(oct>>3)&1);
 
 	curr_offset++;
 
@@ -2768,9 +2768,9 @@ de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U
 		}
 		proto_tree_add_text(tf_tree,
 			tvb, curr_offset, 1,
-			"NSAPI %d: (%u) %s",pdp_nr,
-			oct&1,
-			pdp_str[oct&1]);
+			"NSAPI %d: %s (%u)",pdp_nr,
+			pdp_str[oct&1],
+			oct&1);
 		oct>>=1;
 	}
 
@@ -2806,9 +2806,9 @@ de_gc_radio_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_,
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Radio Priority (PDP or SMS): (%u) %s",
-		oct&7,
-		str);
+		"Radio Priority (PDP or SMS): %s (%u)",
+		str,
+		oct&7);
 
 	curr_offset++;
 
@@ -2934,9 +2934,9 @@ de_gc_radio_prio2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Radio Priority (TOM8): (%u) %s",
-		oct&7,
-		str);
+		"Radio Priority (TOM8): %s (%u)",
+		str,
+		oct&7);
 
 	curr_offset++;
 
@@ -2972,9 +2972,9 @@ de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		{
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset, 1,
-				"NSAPI %d: (%u) %s",128+i*8+j,
-				oct&1,
-				pdp_str[oct&1]);
+				"NSAPI %d: %s (%u)",128+i*8+j,
+				pdp_str[oct&1],
+				oct&1);
 			oct>>=1;
 		}
 		curr_offset++;
@@ -3157,8 +3157,8 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 				handle = dissector_get_port_handle ( gprs_sm_pco_subdissector_table , prot );
 				if ( handle != NULL )
 				{
-					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) %s" ,
-					prot , val_to_str(prot, ppp_vals, "Unknown"));
+					proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: %s (%u)" ,
+					val_to_str(prot, ppp_vals, "Unknown"), prot);
 					proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 					/*
 					 * dissect the embedded message
@@ -3217,7 +3217,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"PDP type organisation: (%u) %s",oct&0x0f,str);
+		"PDP type organisation: %s (%u)",str,oct&0x0f);
 
 	oct2 = tvb_get_guint8(tvb, curr_offset+1);
 
@@ -3246,7 +3246,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset+1, 1,
-		"PDP type number: (%u) %s",oct2,str);
+		"PDP type number: %s (%u)",str,oct2);
 
 	if (( len == 2 ) && (( oct2 == 0x21 ) || ( oct2 == 0x57 )))
 	{
@@ -3466,7 +3466,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Peak throughput: (%u) %s",oct>>4,str);
+		"Peak throughput: %s (%u)",str,oct>>4);
 
 	switch ( oct&0x7 )
 	{
@@ -3480,7 +3480,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Precedence class: (%u) %s",oct&7,str);
+		"Precedence class: %s (%u)",str,oct&7);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3522,7 +3522,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Mean throughput: (%u) %s",oct&0x1f,str);
+		"Mean throughput: %s (%u)",str,oct&0x1f);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3567,7 +3567,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum SDU size: (%u) %s",oct,str);
+			"Maximum SDU size: %s (%u)",str, oct);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3591,19 +3591,19 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	if (( oct >= 1 ) && ( oct <= 0x3f ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink: (%u) %ukbps",oct,oct);
+			"Maximum bit rate for uplink: %ukbps (%u)",oct,oct);
 	else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink: (%u) %ukbps",oct,(oct-0x40)*8+64); /* - was (oct-0x40)*8  */
+			"Maximum bit rate for uplink: %ukbps (%u)",(oct-0x40)*8+64,oct); /* - was (oct-0x40)*8  */
 	else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink: (%u) %ukbps",oct,(oct-0x80)*64+576); /* - was (oct-0x80)*64 */
+			"Maximum bit rate for uplink: %ukbps (%u)",(oct-0x80)*64+576,oct); /* - was (oct-0x80)*64 */
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink: (%u) %s",oct,str);
+			"Maximum bit rate for uplink: %s (%u)",str,oct);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3627,19 +3627,19 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	if (( oct >= 1 ) && ( oct <= 0x3f ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-		"Maximum bit rate for downlink: (%u) %ukbps",oct,oct);
+		"Maximum bit rate for downlink: %ukbps (%u)",oct,oct);
 	else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink: (%u) %ukbps",oct,(oct-0x40)*8+64);/*same as above*/
+			"Maximum bit rate for downlink: %ukbps (%u)",(oct-0x40)*8+64,oct);/*same as above*/
 	else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink: (%u) %ukbps",oct,(oct-0x80)*64+576);/*same as above*/
+			"Maximum bit rate for downlink: %ukbps (%u)",(oct-0x80)*64+576,oct);/*same as above*/
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink: (%u) %s",oct,str);
+			"Maximum bit rate for downlink: %s (%u)",str,oct);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3680,19 +3680,19 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	if (( tmp_oct >= 1 ) && ( tmp_oct <= 0x0f ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Transfer Delay: (%u) %ums",oct>>2,(oct>>2)*10);
+			"Transfer Delay: %ums (%u)",(oct>>2)*10,oct>>2);
 	else if (( tmp_oct >= 0x10 ) && ( tmp_oct <= 0x1f ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Transfer Delay: (%u) %ums",oct>>2,((oct>>2)-0x10)*50+200);
+			"Transfer Delay: %ums (%u)",((oct>>2)-0x10)*50+200,oct>>2);
 	else if (( tmp_oct >= 0x20 ) && ( tmp_oct <= 0x3e ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Transfer Delay: (%u) %ums",oct>>2,((oct>>2)-0x20)*100+1000);
+			"Transfer Delay: %ums (%u)",((oct>>2)-0x20)*100+1000,oct>>2);
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Transfer Delay: (%u) %s",oct>>2,str);
+			"Transfer Delay: %s (%u)",str,oct>>2);
 
 	switch ( oct&0x03 )
 	{
@@ -3705,7 +3705,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Traffic Handling priority: (%u) %s",oct&0x03,str);
+		"Traffic Handling priority: %s (%u)",str,oct&0x03);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3730,19 +3730,19 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	if (( oct >= 1 ) && ( oct <= 0x3f ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink: (%u) %ukbps",oct,oct);
+			"Guaranteed bit rate for uplink: %ukbps (%u)",oct,oct);
 	else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink: (%u) %ukbps",oct,(oct-0x40)*8+64);/*same as for max bit rate*/
+			"Guaranteed bit rate for uplink: %ukbps (%u)",(oct-0x40)*8+64,oct);/*same as for max bit rate*/
 	else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink: (%u) %ukbps",oct,(oct-0x80)*64+576);/*same as for max bit rate*/
+			"Guaranteed bit rate for uplink: %ukbps (%u)",(oct-0x80)*64+576,oct);/*same as for max bit rate*/
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink: (%u) %s",oct,str);
+			"Guaranteed bit rate for uplink: %s (%u)",str,oct);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3766,19 +3766,19 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	if (( oct >= 1 ) && ( oct <= 0x3f ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink: (%u) %ukbps",oct,oct);
+			"Guaranteed bit rate for downlink: %ukbps (%u)",oct,oct);
 	else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink: (%u) %ukbps",oct,(oct-0x40)*8+64);/*same as above*/
+			"Guaranteed bit rate for downlink: %ukbps (%u)",(oct-0x40)*8+64,oct);/*same as above*/
 	else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink: (%u) %ukbps",oct,(oct-0x80)*64+576);/*same as above*/
+			"Guaranteed bit rate for downlink: %ukbps (%u)",(oct-0x80)*64+576,oct);/*same as above*/
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink: (%u) %s",oct,str);
+			"Guaranteed bit rate for downlink: %s (%u)",str,oct);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3802,7 +3802,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Signalling Indication: (%u) %s",(oct>>4)&1,str);
+		"Signalling Indication: %s (%u)",str,(oct>>4)&1);
 
 	switch ( oct&7 )
 	{
@@ -3813,7 +3813,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Source Statistics Descriptor: (%u) %s",oct&7,str);
+		"Source Statistics Descriptor: %s (%u)",str,oct&7);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3838,19 +3838,19 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	if (( oct >= 1 ) && ( oct <= 0x4a ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink (extended): (%u) %ukbps",oct,oct*100);
+			"Maximum bit rate for downlink (extended): %ukbps (%u)",oct*100,oct);
 	if (( oct >= 0x4b ) && ( oct <= 0xba ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink (extended): (%u) %uMbps",oct,16 + oct- 0x4a);
+			"Maximum bit rate for downlink (extended): %uMbps (%u)",16 + oct- 0x4a,oct);
 	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink (extended): (%u) %uMbps",oct,128 + oct - 0xba * 2);
+			"Maximum bit rate for downlink (extended): %uMbps (%u)",128 + oct - 0xba * 2,oct);
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink (extended): (%u) %s",oct,str);
+			"Maximum bit rate for downlink (extended): %s (%u)",str,oct);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3874,19 +3874,19 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	if (( oct >= 1 ) && ( oct <= 0x4a ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink (extended): (%u) %ukbps",oct,oct*100);
+			"Guaranteed bit rate for downlink (extended): %ukbps (%u)",oct*100, oct);
 	if (( oct >= 0x4b ) && ( oct <= 0xba ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink (extended): (%u) %uMbps",oct,16 + oct- 0x4a);
+			"Guaranteed bit rate for downlink (extended): %uMbps (%u)",16 + oct- 0x4a, oct);
 	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink (extended): (%u) %uMbps",oct,128 + oct - 0xba * 2);
+			"Guaranteed bit rate for downlink (extended): %uMbps (%u)",128 + oct - 0xba * 2, oct);
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink (extended): (%u) %s",oct,str);
+			"Guaranteed bit rate for downlink (extended): %s (%u)",str,oct);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3909,19 +3909,19 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	if (( oct >= 1 ) && ( oct <= 0x4a ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink (extended): (%u) %ukbps",oct,oct*100);
+			"Maximum bit rate for uplink (extended): %ukbps (%u)",oct*100,oct);
 	if (( oct >= 0x4b ) && ( oct <= 0xba ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink (extended): (%u) %uMbps",oct,16 + oct- 0x4a);
+			"Maximum bit rate for uplink (extended): %uMbps (%u)",16 + oct- 0x4a,oct);
 	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink (extended): (%u) %uMbps",oct,128 + oct - 0xba * 2);
+			"Maximum bit rate for uplink (extended): %uMbps (%u)",128 + oct - 0xba * 2,oct);
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink (extended): (%u) %s",oct,str);
+			"Maximum bit rate for uplink (extended): %s (%u)",str,oct);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -3945,19 +3945,19 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	if (( oct >= 1 ) && ( oct <= 0x4a ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink (extended): (%u) %ukbps",oct,oct*100);
+			"Guaranteed bit rate for uplink (extended): %ukbps (%u)",oct*100,oct);
 	if (( oct >= 0x4b ) && ( oct <= 0xba ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink (extended): (%u) %uMbps",oct,16 + oct- 0x4a);
+			"Guaranteed bit rate for uplink (extended): %uMbps (%u)",16 + oct- 0x4a,oct);
 	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink (extended): (%u) %uMbps",oct,128 + oct - 0xba * 2);
+			"Guaranteed bit rate for uplink (extended): %uMbps (%u)",128 + oct - 0xba * 2,oct);
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink (extended): (%u) %s",oct,str);
+			"Guaranteed bit rate for uplink (extended): %s (%u)",str,oct);
 
 	curr_offset+= 1;
 	curr_len-= 1;
@@ -4022,8 +4022,8 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Cause: (%u) %s %s",
-		oct, str,add_string ? add_string : "");
+		"Cause: %s (%u) %s",
+		str, oct,add_string ? add_string : "");
 
 	curr_offset++;
 
@@ -4051,7 +4051,7 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"TI flag: (%u) %s",oct>>7,ti_flag[oct>>7]);
+		"TI flag: %s (%u)",ti_flag[oct>>7],oct>>7);
 
 	if ( curr_len > 1 )
 	{
@@ -4121,8 +4121,8 @@ de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Tear Down Indicator: (%u) %s %s",
-		oct&1, str[oct&1],add_string ? add_string : "");
+		"Tear Down Indicator: %s (%u) %s",
+		str[oct&1],oct&1, add_string ? add_string : "");
 
 	curr_offset++;
 
@@ -4158,8 +4158,8 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"Packet Flow Identifier: (%u) %s",oct&0x7f,
-		val_to_str(oct&0x7f, gsm_a_packet_flow_id_vals, "dynamically assigned (%u)"));
+		"Packet Flow Identifier: %s (%u)",
+		val_to_str(oct&0x7f, gsm_a_packet_flow_id_vals, "dynamically assigned (%u)"),oct&0x7f);
 
 	curr_offset+= curr_len;
 	   
@@ -4391,7 +4391,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 				default:
 					str="not specified";
 				}
-				proto_item_append_text(tf, "(%u) %s", pack_component_type, str );
+				proto_item_append_text(tf, "%s (%u)", str, pack_component_type);
 				count++;
 			}
 		}
