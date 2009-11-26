@@ -409,7 +409,7 @@ prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, cons
 
 /* show the dialog */
 void
-prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
+prefs_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
 {
   GtkWidget         *top_hb, *bbox, *prefs_nb, *ct_sb,
                     *ok_bt, *apply_bt, *save_bt, *cancel_bt, *help_bt;
@@ -421,7 +421,8 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
   gint              col_offset;
-  prefs_tree_iter   gui_iter;
+  prefs_tree_iter   gui_iter, layout_iter, columns_iter;
+  gint              layout_page, columns_page;
 
 
   if (prefs_w != NULL) {
@@ -509,14 +510,14 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   /* GUI layout prefs */
   g_strlcpy(label_str, "Layout", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, layout_prefs_show(), E_GUI_LAYOUT_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
-  cts.page++;
+  layout_iter = prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
+  layout_page = cts.page++;
 
   /* GUI Column prefs */
   g_strlcpy(label_str, "Columns", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, column_prefs_show(prefs_w), E_GUI_COLUMN_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
-  cts.page++;
+  columns_iter = prefs_tree_page_add(label_str, cts.page, store, &gui_iter);
+  columns_page = cts.page++;
 
   /* GUI Font prefs */
   g_strlcpy(label_str, "Font", MAX_TREE_NODE_NAME_LEN);
@@ -621,6 +622,20 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   }
 
   window_present(prefs_w);
+
+  switch (prefs_page) {
+  case PREFS_PAGE_LAYOUT:
+    gtk_tree_selection_select_iter(selection, &layout_iter);
+    gtk_notebook_set_current_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), layout_page);
+    break;
+  case PREFS_PAGE_COLUMNS:
+    gtk_tree_selection_select_iter(selection, &columns_iter);
+    gtk_notebook_set_current_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), columns_page);
+    break;
+  default:
+    /* Not implemented yet */
+    break;
+  }
 
   g_object_unref(G_OBJECT(store));
 }
@@ -1749,7 +1764,7 @@ properties_cb(GtkWidget *w, gpointer dummy)
   if (prefs_w != NULL) {
     reactivate_window(prefs_w);
   } else {
-    prefs_cb(w, dummy);
+    prefs_cb(w, dummy, PREFS_PAGE_USER_INTERFACE);
   }
 
   /* Search all the pages in that window for the one with the specified

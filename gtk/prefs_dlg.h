@@ -63,12 +63,18 @@
  *  @ingroup prefs_group
  */
 
+typedef enum {
+  PREFS_PAGE_USER_INTERFACE,
+  PREFS_PAGE_LAYOUT,
+  PREFS_PAGE_COLUMNS
+} PREFS_PAGE_E;
+
 /** Show the preferences dialog.
  * 
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void prefs_cb(GtkWidget *widget, gpointer data);
+extern void prefs_cb(GtkWidget *widget, gpointer data, PREFS_PAGE_E prefs_page);
 
 /** Show the protocol properties dialog.
  * 
