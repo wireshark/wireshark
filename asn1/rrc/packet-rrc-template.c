@@ -101,8 +101,6 @@ dissect_rrc_dummy_remove_unused_code_warnings(tvbuff_t *tvb _U_, int offset _U_,
 		case 0:
 			dissect_rrc_UL_PhysChCapabilityFDD_r6( tvb, offset, actx , tree, hf_index);
 			dissect_rrc_UE_Positioning_GANSS_Data( tvb, offset, actx , tree, hf_index);
-			dissect_rrc_ToTargetRNC_Container( tvb, offset, actx , tree, hf_index);
-			dissect_rrc_TargetRNC_ToSourceRNC_Container( tvb, offset, actx , tree, hf_index);
 			break;
 		default:
 			break;

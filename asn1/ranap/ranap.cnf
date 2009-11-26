@@ -222,7 +222,11 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 		 */
 			call_dissector(rrc_s_to_trnc_handle,rrc_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
 		}else{
-		/* XXX Unsure what to do here */
+			if(pdu_type == SOUT){
+				if(ProcedureCode==id_RelocationResourceAllocation){
+					call_dissector(rrc_ho_to_utran_cmd,rrc_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+				}
+			}
 		}
 	}
 

@@ -388,7 +388,7 @@ static int proto_ranap = -1;
 
 /* initialise sub-dissector handles */
 static dissector_handle_t rrc_s_to_trnc_handle = NULL;
-static dissector_handle_t rrc_t_to_srnc_handle = NULL;
+static dissector_handle_t rrc_ho_to_utran_cmd = NULL;
 
 static int hf_ranap_imsi_digits = -1;
 static int hf_ranap_transportLayerAddress_ipv4 = -1;
@@ -2475,7 +2475,7 @@ dissect_ranap_APN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
 static int
 dissect_ranap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 237 "ranap.cnf"
+#line 241 "ranap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4229,7 +4229,7 @@ dissect_ranap_GlobalRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_ranap_GTP_TEI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 278 "ranap.cnf"
+#line 282 "ranap.cnf"
   tvbuff_t *parameter_tvb=NULL;	
   int saved_hf;
   
@@ -6169,7 +6169,11 @@ dissect_ranap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 		 */
 			call_dissector(rrc_s_to_trnc_handle,rrc_message_tvb,actx->pinfo, proto_tree_get_root(tree));
 		}else{
-		/* XXX Unsure what to do here */
+			if(pdu_type == SOUT){
+				if(ProcedureCode==id_RelocationResourceAllocation){
+					call_dissector(rrc_ho_to_utran_cmd,rrc_message_tvb,actx->pinfo, proto_tree_get_root(tree));
+				}
+			}
 		}
 	}
 
@@ -6255,7 +6259,7 @@ dissect_ranap_Service_Handover(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_ranap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 304 "ranap.cnf"
+#line 308 "ranap.cnf"
 
 dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU );
 
@@ -6332,7 +6336,7 @@ static const per_sequence_t SourceRNC_ToTargetRNC_TransparentContainer_sequence[
 
 static int
 dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 290 "ranap.cnf"
+#line 294 "ranap.cnf"
 /* If SourceRNC-ToTargetRNC-TransparentContainer is called trough 
    dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU
    ProtocolIE_ID may be unset
@@ -6443,7 +6447,7 @@ dissect_ranap_SRVCC_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ranap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 314 "ranap.cnf"
+#line 318 "ranap.cnf"
 
 dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU );
     
@@ -6628,7 +6632,7 @@ dissect_ranap_UnsuccessfullyTransmittedDataVolume(tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_ranap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 256 "ranap.cnf"
+#line 260 "ranap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
@@ -11730,6 +11734,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*ranap_tree = NULL;
 
 	pdu_type = 0;
+	ProtocolIE_ID = 0;
 
 	/* make entry in the Protocol column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RANAP");
@@ -14324,7 +14329,7 @@ void proto_register_ranap(void) {
         "ranap.T_value", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 299 "packet-ranap-template.c"
+#line 300 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -14629,7 +14634,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 306 "packet-ranap-template.c"
+#line 307 "packet-ranap-template.c"
   };
 
 
@@ -14672,7 +14677,7 @@ proto_reg_handoff_ranap(void)
 	if (!initialized) {
 		ranap_handle = find_dissector("ranap");
 		rrc_s_to_trnc_handle = find_dissector("rrc.s_to_trnc_cont");
-		rrc_t_to_srnc_handle = find_dissector("rrc.t_to_srnc_cont");
+		rrc_ho_to_utran_cmd = find_dissector("rrc.irat.ho_to_utran_cmd");
 		initialized = TRUE;
 
 /*--- Included file: packet-ranap-dis-tab.c ---*/
@@ -14986,7 +14991,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 351 "packet-ranap-template.c"
+#line 352 "packet-ranap-template.c"
 	} else {
 		dissector_delete("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
 	}
