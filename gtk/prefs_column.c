@@ -265,15 +265,23 @@ column_prefs_show(GtkWidget *prefs_window) {
 
 void
 column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
-{	
-  fmt_data *cfmt;
+{
+  GList *clp;
+  fmt_data *cfmt, *last_cfmt;
 
   cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
   cfmt->title = g_strdup(title);
   cfmt->fmt = g_strdup(col_format_to_string(fmt));
   cfmt->custom_field = g_strdup(custom_field);
 
-  prefs.col_list = g_list_append(prefs.col_list, cfmt);
+  clp = g_list_last(prefs.col_list);
+  last_cfmt = (fmt_data *) clp->data;
+  if (strcmp(last_cfmt->fmt, "%i") == 0) {
+    /* Last column is COL_INFO, add custom column before this */
+    prefs.col_list = g_list_insert(prefs.col_list, cfmt, g_list_length(prefs.col_list)-1);
+  } else {
+    prefs.col_list = g_list_append(prefs.col_list, cfmt);
+  }
 }
 
 void
