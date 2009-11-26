@@ -48,6 +48,10 @@
 #include <unistd.h>
 #endif
 
+#if defined(__APPLE__) && defined(__LP64__)
+#include <sys/utsname.h>
+#endif
+
 #include <signal.h>
 #include <errno.h>
 
@@ -251,16 +255,24 @@ static loop_data   global_ld;
 
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.
+ *
+ * A bug in Mac OS X 10.6 and 10.6.1 causes calls to pcap_open_live(), in
+ * 64-bit applications, with sub-second timeouts not to work.  The bug is
+ * fixed in 10.6.2.
  */
 #if defined(__APPLE__) && defined(__LP64__)
-#define	CAP_READ_TIMEOUT	1000
+static int need_timeout_workaround;
+
+#define	CAP_READ_TIMEOUT	(need_timeout_workaround ? 1000 : 250)
 #else
 #define	CAP_READ_TIMEOUT	250
 #endif
+
 /*
  * Timeout, in microseconds, for threaded reads from a pipe.
  */
 #define THREAD_READ_TIMEOUT   100
+
 static char *cap_pipe_err_str;
 
 static void
@@ -2563,6 +2575,9 @@ main(int argc, char *argv[])
   gboolean             print_statistics = FALSE;
   int                  status, run_once_args = 0;
   gint                 i;
+#if defined(__APPLE__) && defined(__LP64__)
+  struct utsname       osinfo;
+#endif
 
 #ifdef HAVE_PCAP_REMOTE
 #define OPTSTRING_INIT "a:A:b:c:Df:hi:Lm:MnprSs:uvw:y:Z:"
@@ -2583,6 +2598,22 @@ main(int argc, char *argv[])
   if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
           fprintf (stderr, "Unable to open debug log file !\n");
           exit (1);
+  }
+#endif
+
+#if defined(__APPLE__) && defined(__LP64__)
+  /*
+   * Is this Mac OS X 10.6 or 10.6.1?  If so, we need a bug workaround.
+   */
+  if (uname(&osinfo) == 0) {
+    /*
+     * Mac OS X 10.x uses Darwin x.0.0.  Mac OS X 10.x.y uses Darwin
+     * x.y.0 (except that 10.6.1 appears to have a uname version
+     * number of 10.0.0, not 10.1.0 - go figure).
+     */
+    if (strcmp(osinfo.release, "10.0.0") == 0 ||
+        strcmp(osinfo.release, "10.1.0") == 0)
+      need_timeout_workaround = 1;
   }
 #endif
 
