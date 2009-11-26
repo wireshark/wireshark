@@ -64,4 +64,17 @@ void                 column_prefs_destroy(GtkWidget *widget);
 void                 column_prefs_add_custom(gint fmt, const gchar *title,
 					     const gchar *custom_field);
 
+/** Rename a column title.
+ *
+ * @param col column id
+ * @param title column title
+ */
+void                 column_prefs_rename(gint col, const gchar *title);
+
+/** Remove a column.
+ *
+ * @param col column id
+ */
+void                 column_prefs_remove(gint col);
+
 #endif

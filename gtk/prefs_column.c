@@ -276,6 +276,29 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
   prefs.col_list = g_list_append(prefs.col_list, cfmt);
 }
 
+void
+column_prefs_rename(gint col, const gchar *title)
+{
+  GList    *clp = g_list_nth(prefs.col_list, col);
+  fmt_data *cfmt = (fmt_data *) clp->data;
+
+  g_free (cfmt->title);
+  cfmt->title = g_strdup(title);
+}
+
+void
+column_prefs_remove(gint col)
+{
+  GList    *clp = g_list_nth(prefs.col_list, col);
+  fmt_data *cfmt = (fmt_data *) clp->data;
+
+  g_free(cfmt->title);
+  g_free(cfmt->fmt);
+  g_free(cfmt->custom_field);
+  g_free(cfmt);
+  prefs.col_list = g_list_remove_link(prefs.col_list, clp);
+}
+
 /* To do: add input checking to each of these callbacks */
 
 static void
