@@ -181,7 +181,7 @@ static void
 col_title_change_ok (GtkWidget *w, gpointer parent_w)
 {
       GtkWidget *column_lb = g_object_get_data (G_OBJECT(w), "column");
-      gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(packet_list), E_MPACKET_LIST_COL_ID_KEY));
+      gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(packet_list), E_MPACKET_LIST_COL_KEY));
       GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
       const gchar *title =  gtk_entry_get_text(GTK_ENTRY(entry));
 
@@ -303,7 +303,7 @@ packet_list_sort_column(gint column, gpointer data, GtkSortType order)
 void
 packet_list_column_clicked (GtkWidget *w _U_, gpointer user_data _U_, COLUMN_SELECTED_E action)
 {
-      gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(packet_list), E_MPACKET_LIST_COL_ID_KEY));
+      gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(packet_list), E_MPACKET_LIST_COL_KEY));
       gpointer data = g_object_get_data (G_OBJECT(packet_list), E_MPACKET_LIST_COL_ARROWS_KEY);
 
       switch (action) {
@@ -334,7 +334,7 @@ packet_list_click_column_cb (GtkCList *clist,  gint column, gpointer data)
       GtkWidget *menu;
 
       menu = g_object_get_data (G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);
-      g_object_set_data(G_OBJECT(clist), E_MPACKET_LIST_COL_ID_KEY, GINT_TO_POINTER(column));
+      g_object_set_data(G_OBJECT(clist), E_MPACKET_LIST_COL_KEY, GINT_TO_POINTER(column));
       g_object_set_data(G_OBJECT(clist), E_MPACKET_LIST_COL_ARROWS_KEY, data);
       gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL, 1, gtk_get_current_event_time());
 }
