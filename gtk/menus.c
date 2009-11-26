@@ -760,10 +760,10 @@ static GtkItemFactoryEntry menu_items[] =
 /* calculate the number of menu_items */
 static int nmenu_items = sizeof(menu_items) / sizeof(menu_items[0]);
 
-#ifdef NEW_PACKET_LIST
 /* packet list heading popup */
 static GtkItemFactoryEntry packet_list_heading_items[] =
 {
+#ifdef NEW_PACKET_LIST
     {"/Sort Ascending", NULL, GTK_MENU_FUNC(new_packet_list_column_clicked), COLUMN_SELECTED_SORT_ASCENDING, "<StockItem>", GTK_STOCK_SORT_ASCENDING,},
     {"/Sort Descending", NULL, GTK_MENU_FUNC(new_packet_list_column_clicked), COLUMN_SELECTED_SORT_DESCENDING, "<StockItem>", GTK_STOCK_SORT_DESCENDING,},
 
@@ -776,8 +776,21 @@ static GtkItemFactoryEntry packet_list_heading_items[] =
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
     {"/Remove Column", NULL, GTK_MENU_FUNC(new_packet_list_column_clicked), COLUMN_SELECTED_REMOVE, "<StockItem>", GTK_STOCK_DELETE,}
-};
+#else
+    {"/Sort Ascending", NULL, GTK_MENU_FUNC(packet_list_column_clicked), COLUMN_SELECTED_SORT_ASCENDING, "<StockItem>", GTK_STOCK_SORT_ASCENDING,},
+    {"/Sort Descending", NULL, GTK_MENU_FUNC(packet_list_column_clicked), COLUMN_SELECTED_SORT_DESCENDING, "<StockItem>", GTK_STOCK_SORT_DESCENDING,},
+
+    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+
+    {"/Column Preferences", NULL, GTK_MENU_FUNC(prefs_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
+    {"/Resize Column", NULL, GTK_MENU_FUNC(packet_list_column_clicked), COLUMN_SELECTED_RESIZE, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
+    {"/Rename Column", NULL, GTK_MENU_FUNC(packet_list_column_clicked), COLUMN_SELECTED_RENAME, "<StockItem>", GTK_STOCK_BOLD,},
+
+    {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+
+    {"/Remove Column", NULL, GTK_MENU_FUNC(packet_list_column_clicked), COLUMN_SELECTED_REMOVE, "<StockItem>", GTK_STOCK_DELETE,}
 #endif
+};
 
 /* packet list popup */
 static GtkItemFactoryEntry packet_list_menu_items[] =

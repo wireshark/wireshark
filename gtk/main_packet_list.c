@@ -58,6 +58,9 @@
 #include "gtk/main_packet_list.h"
 #include "gtk/main_statusbar.h"
 #include "gtk/packet_win.h"
+#include "gtk/prefs_column.h"
+#include "gtk/prefs_dlg.h"
+#include "gtk/dlg_utils.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -66,6 +69,7 @@
 
 typedef struct column_arrows {
   GtkWidget *table;
+  GtkWidget *label;
   GtkWidget *ascend_pm;
   GtkWidget *descend_pm;
 } column_arrows;
@@ -173,11 +177,105 @@ packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
   }
 }
 
+static void
+col_title_change_ok (GtkWidget *w, gpointer parent_w)
+{
+      GtkWidget *column_lb = g_object_get_data (G_OBJECT(w), "column");
+      gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(packet_list), E_MPACKET_LIST_COL_ID_KEY));
+      GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
+      const gchar *title =  gtk_entry_get_text(GTK_ENTRY(entry));
+
+      gtk_label_set_text (GTK_LABEL(column_lb), title);
+      column_prefs_rename(col_id, title);
+
+      if (!prefs.gui_use_pref_save) {
+              prefs_main_write();
+      }
+
+      window_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+col_title_change_cancel (GtkWidget *w _U_, gpointer parent_w)
+{
+      window_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+col_title_edit_dlg (gint col_id, gpointer data)
+{
+      column_arrows *col_arrows = (column_arrows *) data;
+      const gchar *value = gtk_label_get_text (GTK_LABEL(col_arrows[col_id].label));
+
+      GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
+      GtkWidget *entry, *label;
+
+      win = dlg_window_new("Column Title");
+
+      gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
+      gtk_window_resize(GTK_WINDOW(win), 400, 100);
+
+      main_vb = gtk_vbox_new(FALSE, 5);
+      gtk_container_add(GTK_CONTAINER(win), main_vb);
+      gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
+
+      main_tb = gtk_table_new(2, 2, FALSE);
+      gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
+      gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
+
+      label = gtk_label_new(ep_strdup_printf("Title:"));
+      gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, 1, 2);
+      gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
+
+      entry = gtk_entry_new();
+      gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, 1, 2);
+      gtk_entry_set_text(GTK_ENTRY(entry), value);
+
+      bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
+      gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+
+      ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+      g_object_set_data (G_OBJECT(ok_bt), "column", col_arrows[col_id].label);
+      g_object_set_data (G_OBJECT(ok_bt), "entry", entry);
+      g_signal_connect(ok_bt, "clicked", G_CALLBACK(col_title_change_ok), win);
+
+      dlg_set_activate(entry, ok_bt);
+
+      cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+      g_signal_connect(cancel_bt, "clicked", G_CALLBACK(col_title_change_cancel), win);
+      window_set_cancel_button(win, cancel_bt, NULL);
+
+      gtk_widget_grab_default(ok_bt);
+      gtk_widget_show_all(win);
+}
+
+
+static void
+packet_list_resize_column (gint col_id)
+{
+      gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), col_id, TRUE);
+      gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), col_id, TRUE);
+}
+
+
+static void
+packet_list_remove_column (gint col_id)
+{
+      column_prefs_remove(col_id);
+
+      if (!prefs.gui_use_pref_save) {
+              prefs_main_write();
+      }
+
+      packet_list_recreate();
+}
+
 /* What to do when a column is clicked */
 static void
-packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
+packet_list_sort_column(gint column, gpointer data, GtkSortType order)
 {
   column_arrows *col_arrows = (column_arrows *) data;
+  GtkCList *clist = GTK_CLIST(packet_list);
   int i;
 
   gtk_clist_freeze(clist);
@@ -187,24 +285,60 @@ packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
     gtk_widget_hide(col_arrows[i].descend_pm);
   }
 
-  if (column == clist->sort_column) {
-    if (clist->sort_type == GTK_SORT_ASCENDING) {
-      clist->sort_type = GTK_SORT_DESCENDING;
-      gtk_widget_show(col_arrows[column].descend_pm);
-    } else {
-      clist->sort_type = GTK_SORT_ASCENDING;
-      gtk_widget_show(col_arrows[column].ascend_pm);
-    }
+  clist->sort_type = order;
+  if (clist->sort_type == GTK_SORT_ASCENDING) {
+     gtk_widget_show(col_arrows[column].ascend_pm);
+  } else {
+     gtk_widget_show(col_arrows[column].descend_pm);
   }
-  else {
-    clist->sort_type = GTK_SORT_ASCENDING;
-    gtk_widget_show(col_arrows[column].ascend_pm);
+  if (column != clist->sort_column) {
     gtk_clist_set_sort_column(clist, column);
   }
   gtk_clist_thaw(clist);
 
   gtk_clist_sort(clist);
 }
+
+
+void
+packet_list_column_clicked (GtkWidget *w _U_, gpointer user_data _U_, COLUMN_SELECTED_E action)
+{
+      gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(packet_list), E_MPACKET_LIST_COL_ID_KEY));
+      gpointer data = g_object_get_data (G_OBJECT(packet_list), E_MPACKET_LIST_COL_ARROWS_KEY);
+
+      switch (action) {
+      case COLUMN_SELECTED_SORT_ASCENDING:
+              packet_list_sort_column (col_id, data, GTK_SORT_ASCENDING);
+              break;
+      case COLUMN_SELECTED_SORT_DESCENDING:
+              packet_list_sort_column (col_id, data, GTK_SORT_DESCENDING);
+              break;
+      case COLUMN_SELECTED_RESIZE:
+              packet_list_resize_column (col_id);
+              break;
+      case COLUMN_SELECTED_RENAME:
+              col_title_edit_dlg (col_id, data);
+              break;
+      case COLUMN_SELECTED_REMOVE:
+              packet_list_remove_column (col_id);
+              break;
+      default:
+              g_assert_not_reached();
+              break;
+      }
+}
+
+static void
+packet_list_click_column_cb (GtkCList *clist,  gint column, gpointer data)
+{
+      GtkWidget *menu;
+
+      menu = g_object_get_data (G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);
+      g_object_set_data(G_OBJECT(clist), E_MPACKET_LIST_COL_ID_KEY, GINT_TO_POINTER(column));
+      g_object_set_data(G_OBJECT(clist), E_MPACKET_LIST_COL_ARROWS_KEY, data);
+      gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL, 1, gtk_get_current_event_time());
+}
+
 
 static void
 packet_list_resize_column_cb(GtkCList *clist _U_, gint column, gint width, gpointer data _U_)
@@ -531,7 +665,6 @@ packet_list_set_column_titles(void)
     GdkBitmap     *ascend_bm, *descend_bm;
     column_arrows *col_arrows;
     int            i;
-    GtkWidget     *column_lb;
 
     win_style = gtk_widget_get_style(top_level);
     ascend_pm = gdk_pixmap_create_from_xpm_d(top_level->window, &ascend_bm,
@@ -546,10 +679,10 @@ packet_list_set_column_titles(void)
     for (i = 0; i < cfile.cinfo.num_cols; i++) {
         col_arrows[i].table = gtk_table_new(2, 2, FALSE);
         gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-        column_lb = gtk_label_new(cfile.cinfo.col_title[i]);
-        gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2,
+        col_arrows[i].label = gtk_label_new(cfile.cinfo.col_title[i]);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].label, 0, 1, 0, 2,
                          GTK_SHRINK, GTK_SHRINK, 0, 0);
-        gtk_widget_show(column_lb);
+        gtk_widget_show(col_arrows[i].label);
         col_arrows[i].ascend_pm = gtk_image_new_from_pixmap(ascend_pm, ascend_bm);
         gtk_table_attach(GTK_TABLE(col_arrows[i].table),
                          col_arrows[i].ascend_pm,

@@ -34,6 +34,14 @@
  *  @ingroup main_window_group
  */
 
+typedef enum {
+   COLUMN_SELECTED_SORT_ASCENDING,
+   COLUMN_SELECTED_SORT_DESCENDING,
+   COLUMN_SELECTED_RESIZE,
+   COLUMN_SELECTED_RENAME,
+   COLUMN_SELECTED_REMOVE
+} COLUMN_SELECTED_E;
+
 /** Create a new packet list.
  *
  * @param prefs current preferences
@@ -50,6 +58,8 @@ extern void packet_list_recreate(void);
  * @todo is that still true, with fixed-width columns?
  */
 extern void packet_list_set_column_titles(void);
+
+extern void packet_list_column_clicked (GtkWidget *w, gpointer data, COLUMN_SELECTED_E action);
 
 /** Resize columns
  *

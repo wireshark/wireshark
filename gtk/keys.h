@@ -31,9 +31,12 @@
 
 #define E_DFILTER_TE_KEY				"display_filter_entry"
 #define E_RFILTER_TE_KEY				"read_filter_te"
-#define E_MPACKET_LIST_COL_KEY	       		"menu_packet_list_col"
 #define E_MPACKET_LIST_COL_ID_KEY	       		"menu_packet_list_col_id"
+#ifdef NEW_PACKET_LIST
 #define E_MPACKET_LIST_PREV_COL_KEY	       		"menu_packet_list_prev_col"
+#else
+#define E_MPACKET_LIST_COL_ARROWS_KEY	       		"menu_packet_list_col_arrows"
+#endif
 #define E_MPACKET_LIST_KEY				"menu_packet_list"
 #define E_MPACKET_LIST_ROW_KEY			"menu_packet_list_row"
 #define E_MPACKET_LIST_COL_KEY			"menu_packet_list_col"
