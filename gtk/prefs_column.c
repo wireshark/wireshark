@@ -274,11 +274,15 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
   cfmt->fmt = g_strdup(col_format_to_string(fmt));
   cfmt->custom_field = g_strdup(custom_field);
 
-  clp = g_list_last(prefs.col_list);
-  last_cfmt = (fmt_data *) clp->data;
-  if (strcmp(last_cfmt->fmt, "%i") == 0) {
-    /* Last column is COL_INFO, add custom column before this */
-    prefs.col_list = g_list_insert(prefs.col_list, cfmt, g_list_length(prefs.col_list)-1);
+  if (custom_field) {
+    clp = g_list_last(prefs.col_list);
+    last_cfmt = (fmt_data *) clp->data;
+    if (strcmp(last_cfmt->fmt, "%i") == 0) {
+      /* Last column is COL_INFO, add custom column before this */
+      prefs.col_list = g_list_insert(prefs.col_list, cfmt, g_list_length(prefs.col_list)-1);
+    } else {
+      prefs.col_list = g_list_append(prefs.col_list, cfmt);
+    }
   } else {
     prefs.col_list = g_list_append(prefs.col_list, cfmt);
   }
