@@ -160,6 +160,7 @@ extern int hf_gsm_a_b8spare;
 extern int hf_gsm_a_skip_ind;
 extern int hf_gsm_a_rr_chnl_needed_ch1;
 extern int hf_gsm_a_spare_bits;
+extern int hf_gsm_a_lac;
 
 /* for the nasty hack below */
 #define GSM_BSSMAP_APDU_IE	0x49

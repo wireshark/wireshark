@@ -506,6 +506,7 @@ int hf_gsm_a_L3_protocol_discriminator = -1;
 int hf_gsm_a_call_prio = -1;
 int hf_gsm_a_skip_ind = -1;
 int hf_gsm_a_spare_bits = -1;
+int hf_gsm_a_lac = -1;
 
 static int hf_gsm_a_b7spare = -1;
 int hf_gsm_a_b8spare = -1;
@@ -1708,11 +1709,7 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *ad
 
 	value = tvb_get_ntohs(tvb, curr_offset);
 
-	proto_tree_add_text(subtree,
-		tvb, curr_offset, 2,
-		"Location Area Code (LAC): 0x%04x (%u)",
-		value,
-		value);
+	proto_tree_add_item(subtree, hf_gsm_a_lac, tvb, curr_offset, 2, FALSE);
 
 	proto_item_append_text(item, " - %s/%s/%u", mcc,mnc,value);
 
@@ -3633,6 +3630,11 @@ proto_register_gsm_a_common(void)
 	{ &hf_gsm_a_key_seq,
 		{ "key sequence","gsm_a.key_seq",
 		FT_UINT8,BASE_DEC, VALS(gsm_a_key_seq_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_lac,
+		{ "Location Area Code (LAC)","gsm_a.lac",
+		FT_UINT16, BASE_HEX_DEC, NULL, 0x00,
 		NULL, HFILL }
 	},
 	};

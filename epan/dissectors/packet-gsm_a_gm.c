@@ -242,6 +242,7 @@ static int hf_gsm_a_gm_update_type = -1;
 static int hf_gsm_a_gm_gprs_timer_unit = -1;
 static int hf_gsm_a_gm_gprs_timer_value = -1;
 static int hf_gsm_a_gm_type_of_identity = -1;
+static int hf_gsm_a_gm_rac = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -2472,18 +2473,20 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 	if ((mnc&0x000f) == 0x000f)
 		 mnc = mnc>>4;
 
-	lac = tvb_get_guint8(tvb, curr_offset+3);
-	lac <<= 8;
-	lac |= tvb_get_guint8(tvb, curr_offset+4);
+	lac = tvb_get_ntohs(tvb, curr_offset+3);
 	rac = tvb_get_guint8(tvb, curr_offset+5);
 
 	item = proto_tree_add_text(tree,
 		tvb, curr_offset, 6,
-		"Routing area identification: %x-%x-%x-%x",
+		"Routing area identification: %x-%x-%u-%u",
 		mcc,mnc,lac,rac);
 
 	subtree = proto_item_add_subtree(item, ett_gmm_rai);
 	dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, subtree, offset);
+
+	proto_tree_add_item(subtree, hf_gsm_a_lac, tvb, curr_offset+3, 2, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_gm_rac, tvb, curr_offset+5, 1, FALSE);
+
 	curr_offset+=6;
 
 	/* no length check possible */
@@ -5958,6 +5961,11 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_type_of_identity,
 		{ "Type of identity", "gsm_a.gm.type_of_identity",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_identity_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_rac,
+		{ "Routing Area Code (RAC)","gsm_a.gm.rac",
+		FT_UINT8, BASE_HEX_DEC, NULL, 0x00,
 		NULL, HFILL }
 	},
 	};
