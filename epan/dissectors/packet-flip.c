@@ -45,9 +45,6 @@
 #include <epan/etypes.h>
 #include <epan/in_cksum.h>
 
-/* forward reference */
-static int dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static int proto_flip = -1;
 
 /* BASIC */
@@ -174,7 +171,6 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
 
     /* Show faulty checksums. */
     if (computed_chksum != chksum_hdr_chksum) {
-        col_clear(pinfo->cinfo, COL_INFO);
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "Checksum 0x%04x [%s] (computed 0x%04x)",
                      chksum_hdr_chksum,
@@ -269,7 +265,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     basic_hdr_reserved = ((dw1 & 0x70000000) >> 24);
     basic_hdr_flow_id  = (dw1 & 0x0FFFFFFF);
 
-    /* Process the seconds 32 bits of the basic header. */
+    /* Process the second 32 bits of the basic header. */
     dw2 = tvb_get_ntohl(tvb, offset + 4);
     basic_hdr_seqnum = (guint16) ((dw2 & 0xFFFF0000) >> 16);
     basic_hdr_len    = (guint16) (dw2 & 0x0000FFFF);
@@ -289,8 +285,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         is_faulty_frame = TRUE;
     }
 
-    /* Clear out stuff in the info column. */
-    col_clear(pinfo->cinfo, COL_INFO);
+    /* Fill in the info column. */
     col_add_fstr(pinfo->cinfo, COL_INFO,
                  "FlowID %s", val_to_str(basic_hdr_flow_id, NULL, "0x%08x"));
 
@@ -340,13 +335,11 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (is_faulty_frame == TRUE) {
         if (flip_len > frame_len) {
-            col_clear(pinfo->cinfo, COL_INFO);
             col_add_fstr(pinfo->cinfo, COL_INFO,
                          "Length mismatch: frame %d bytes, hdr %d bytes",
                          frame_len, flip_len);
         }
         else if (flip_len < FLIP_BASIC_HDR_LEN) {                
-            col_clear(pinfo->cinfo, COL_INFO);
             col_add_fstr(pinfo->cinfo, COL_INFO,
                          "Invalid length in basic header: %d bytes", flip_len);
         }
@@ -364,7 +357,6 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * Dissect extension headers (if any).
      */
     if ((ext_hdr == TRUE) && (payload_len < FLIP_EXTENSION_HDR_MIN_LEN)) {
-        col_clear(pinfo->cinfo, COL_INFO);
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "Extension header indicated, but not enough data");
         goto DISSECT_FLIP_EXIT;
@@ -414,7 +406,6 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         default:
             /* Unknown header type. */
-            col_clear(pinfo->cinfo, COL_INFO);
             col_add_fstr(pinfo->cinfo, COL_INFO,
                          "Invalid extension header type 0x%02x", ext_hdr_type);
             goto DISSECT_FLIP_EXIT;
