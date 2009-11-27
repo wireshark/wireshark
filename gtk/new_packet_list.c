@@ -178,8 +178,9 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
 	GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
 	const gchar *title =  gtk_entry_get_text(GTK_ENTRY(entry));
+	GtkWidget *title_lb = gtk_tree_view_column_get_widget(col);
 
-	gtk_tree_view_column_set_title(col, title);
+	gtk_label_set_text(GTK_LABEL(title_lb), title);
 	column_prefs_rename(col_id, title);
 
 	if (!prefs.gui_use_pref_save) {
@@ -315,6 +316,10 @@ create_view_and_model(void)
 	GtkCellRenderer *renderer;
 	PangoLayout *layout;
 	gint i, col_width;
+	GtkWidget *title_lb;
+	gchar *tooltip_text;
+	header_field_info *hfi;
+	GtkTooltips *tooltips = gtk_tooltips_new ();
 
 	packetlist = new_packet_list_new();
 
@@ -357,7 +362,17 @@ create_view_and_model(void)
 							show_cell_data_func,
 							GINT_TO_POINTER(i),
 							NULL);
-		gtk_tree_view_column_set_title(col, cfile.cinfo.col_title[i]);
+		title_lb = gtk_label_new(cfile.cinfo.col_title[i]);
+		if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
+			hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
+			tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
+		} else {
+			tooltip_text = g_strdup(col_format_desc(cfile.cinfo.col_fmt[i]));
+		}
+		gtk_tooltips_set_tip(tooltips, title_lb, tooltip_text, NULL);
+		g_free(tooltip_text);
+		gtk_widget_show(title_lb);
+		gtk_tree_view_column_set_widget(col, title_lb);
 		gtk_tree_view_column_set_clickable(col, TRUE);
 		gtk_tree_view_column_set_resizable(col, TRUE);
 		gtk_tree_view_column_set_sizing(col,GTK_TREE_VIEW_COLUMN_FIXED);

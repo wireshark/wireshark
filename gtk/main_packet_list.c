@@ -664,6 +664,9 @@ packet_list_set_column_titles(void)
     GdkPixmap     *ascend_pm, *descend_pm;
     GdkBitmap     *ascend_bm, *descend_bm;
     column_arrows *col_arrows;
+    gchar         *tooltip_text;
+    header_field_info *hfi;
+    GtkTooltips   *tooltips = gtk_tooltips_new ();
     int            i;
 
     win_style = gtk_widget_get_style(top_level);
@@ -682,6 +685,14 @@ packet_list_set_column_titles(void)
         col_arrows[i].label = gtk_label_new(cfile.cinfo.col_title[i]);
         gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].label, 0, 1, 0, 2,
                          GTK_SHRINK, GTK_SHRINK, 0, 0);
+        if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
+            hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
+            tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
+        } else {
+            tooltip_text = g_strdup(col_format_desc(cfile.cinfo.col_fmt[i]));
+        }
+        gtk_tooltips_set_tip(tooltips, col_arrows[i].label, tooltip_text, NULL);
+        g_free(tooltip_text);
         gtk_widget_show(col_arrows[i].label);
         col_arrows[i].ascend_pm = gtk_image_new_from_pixmap(ascend_pm, ascend_bm);
         gtk_table_attach(GTK_TABLE(col_arrows[i].table),
