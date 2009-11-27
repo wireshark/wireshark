@@ -365,7 +365,12 @@ create_view_and_model(void)
 		title_lb = gtk_label_new(cfile.cinfo.col_title[i]);
 		if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
 			hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
-			tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
+			if (hfi->parent != -1) {
+				/* Prefix with protocol name */
+				tooltip_text = g_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
+			} else {
+				tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
+			}
 		} else {
 			tooltip_text = g_strdup(col_format_desc(cfile.cinfo.col_fmt[i]));
 		}
