@@ -912,6 +912,38 @@ packet_list_sortable_has_default_sort_func(GtkTreeSortable *sortable _U_)
 }
 
 static gint
+packet_list_compare_custom(gint sort_id, PacketListRecord *a, PacketListRecord *b)
+{
+	header_field_info *hfi;
+
+	hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[sort_id]);
+
+	if (hfi == NULL) {
+		return frame_data_compare(a->fdata, b->fdata, COL_NUMBER);
+	} else if ((hfi->strings == NULL) &&
+		   (((IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)) &&
+		     ((hfi->display == BASE_DEC) || (hfi->display == BASE_DEC_HEX) ||
+		      (hfi->display == BASE_OCT))) ||
+		    (hfi->type == FT_DOUBLE) || (hfi->type == FT_FLOAT) ||
+		    (hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
+		    (hfi->type == FT_RELATIVE_TIME)))
+	  {
+		/* Attempt to convert to numbers */
+		double num_a = atof(a->fdata->col_text[sort_id]);
+		double num_b = atof(b->fdata->col_text[sort_id]);
+		
+		if (num_a < num_b)
+			return -1;
+		else if (num_a > num_b)
+			return 1;
+		else
+			return frame_data_compare(a->fdata, b->fdata, COL_NUMBER);
+	  }
+
+	return strcmp(a->fdata->col_text[sort_id], b->fdata->col_text[sort_id]);
+}
+
+static gint
 packet_list_compare_records(gint sort_id, PacketListRecord *a,
 				PacketListRecord *b)
 {
@@ -926,9 +958,12 @@ packet_list_compare_records(gint sort_id, PacketListRecord *a,
 	if(a->fdata->col_text[sort_id] == b->fdata->col_text[sort_id])
 		return 0; /* not always NULL, but anyway no need to call strcmp() */
 
-	if((a->fdata->col_text[sort_id]) && (b->fdata->col_text[sort_id]))
+	if((a->fdata->col_text[sort_id]) && (b->fdata->col_text[sort_id])) {
+		if (cfile.cinfo.col_fmt[sort_id] == COL_CUSTOM) {
+			return packet_list_compare_custom (sort_id, a, b);
+		}
 		return strcmp(a->fdata->col_text[sort_id], b->fdata->col_text[sort_id]);
-	else
+	} else
 		return (a->fdata->col_text[sort_id] == NULL) ? -1 : 1;
 
 	g_return_val_if_reached(0);
