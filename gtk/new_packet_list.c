@@ -199,7 +199,8 @@ col_title_change_cancel (GtkWidget *w _U_, gpointer parent_w)
 static void 
 col_title_edit_dlg (GtkTreeViewColumn *col)
 {
-	const gchar *value = gtk_tree_view_column_get_title(col);
+	GtkWidget *title_lb = gtk_tree_view_column_get_widget(col);
+	const gchar *value = gtk_label_get_text(GTK_LABEL(title_lb));
 
 	GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
 	GtkWidget *entry, *label;
