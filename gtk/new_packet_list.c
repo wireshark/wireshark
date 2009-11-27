@@ -260,6 +260,24 @@ new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType or
 }
 
 static void
+new_packet_list_xalign_column (GtkTreeViewColumn *col, gdouble value)
+{
+	GList *renderers = gtk_cell_layout_get_cells (GTK_CELL_LAYOUT(col));
+	GList *entry;
+	GtkCellRenderer *renderer;
+
+	entry = g_list_first(renderers);
+	while (entry) {
+		renderer = (GtkCellRenderer *)entry->data;
+		g_object_set(G_OBJECT(renderer), "xalign", value, NULL);
+		entry = g_list_next (entry);
+	}
+	g_list_free (renderers);
+
+	gtk_widget_queue_draw (packetlist->view);
+}
+
+static void
 new_packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
 {
 	column_prefs_remove(col_id);
@@ -284,6 +302,12 @@ new_packet_list_column_clicked (GtkWidget *w _U_, gpointer user_data _U_, COLUMN
 		break;
 	case COLUMN_SELECTED_SORT_DESCENDING:
 		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING);
+		break;
+	case COLUMN_SELECTED_ALIGN_LEFT:
+		new_packet_list_xalign_column (col, 0.0);
+		break;
+	case COLUMN_SELECTED_ALIGN_RIGHT:
+		new_packet_list_xalign_column (col, 1.0);
 		break;
 	case COLUMN_SELECTED_RESIZE:
 		new_packet_list_resize_column (col_id);
