@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 
 #include "packet-e212.h"
+#include "expert.h"
 
 
 /*
@@ -1594,20 +1595,25 @@ static int hf_E212_mnc						= -1;
 static int hf_E212_msin						= -1;
 
 /*
- *	8   7   6   5   4   3   2   1
- *	MCC digit 2     MCC digit 1    octet x
- *	MNC digit 3     MCC digit 3    octet x+1
- *	MNC digit 2     MNC digit 1    octet x+2
+ *	 8   7   6   5   4   3   2   1
+ * +---+---+---+---+---+---+---+---+
+ * |  MCC digit 2  |  MCC digit 1  |  octet x
+ * +---------------+---------------+
+ * |  MNC digit 3  |  MCC digit 3  |  octet x+1
+ * +---------------+---------------+
+ * |  MNC digit 2  |  MNC digit 1  |  octet x+2
+ * +---------------+---------------+
  */
 
 
 int
-dissect_e212_mcc_mnc(tvbuff_t *tvb, proto_tree *tree, int offset){
+dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset){
 
 	int			start_offset;	
 	guint8		octet;
 	guint16		mcc, mnc;
 	guint8		mcc1, mcc2, mcc3, mnc1, mnc2, mnc3;
+	proto_item	*item;
 
 	start_offset = offset;
 	/* Mobile country code MCC */
@@ -1629,11 +1635,17 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, proto_tree *tree, int offset){
 	if (mnc3 != 0xf) {
 		mnc = 10 * mnc + mnc3;
 	}
-	proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
-	proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+	item = proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
+	if ((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9))
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MCC contains non-decimal digits");
+
+	item = proto_tree_add_uint_format(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
 				   "Mobile Network Code (MNC): %s (%u)",
 				   val_to_str(mcc * 1000 + mnc, mcc_mnc_codes, "Unknown"),
 				   mnc);
+	if ((mnc1 > 9) || (mnc2 > 9) || ((mnc3 > 9) && (mnc3 != 0x0f)))
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "MNC contains non-decimal digits");
+
 	offset++;
 	return offset;
 }

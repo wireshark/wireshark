@@ -1599,7 +1599,7 @@ dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.27 Global CN-Id */
 static int
-dissect_bssap_global_cn_id(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_global_cn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	proto_item	*item = NULL;
 	proto_tree	*ie_tree = NULL;
@@ -1631,7 +1631,7 @@ dissect_bssap_global_cn_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 	 */
 	plmn_item = proto_tree_add_item(global_cn_id_tree, hf_bssap_plmn_id, tvb, offset, 3, FALSE);
 	plmn_tree = proto_item_add_subtree(plmn_item, ett_bssap_plmn);
-	dissect_e212_mcc_mnc(tvb, plmn_tree, offset);
+	dissect_e212_mcc_mnc(tvb, pinfo, plmn_tree, offset);
 	offset = offset + 3;
 
 	/* Octet 6 - 7 CN-Id (INTEGER 0..4095) */
@@ -1709,7 +1709,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 		/* Global CN-Id Global CN-Id 18.4.27 O TLV 7 */
 		if ( check_optional_ie(tvb, offset, BSSAP_GLOBAL_CN_ID))
-			offset = dissect_bssap_global_cn_id(tvb, bssap_tree, offset);
+			offset = dissect_bssap_global_cn_id(tvb, pinfo, bssap_tree, offset);
 		if (tvb_length_remaining(tvb,offset) == 0)
 			return;
 

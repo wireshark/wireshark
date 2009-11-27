@@ -570,7 +570,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
          if (!parameter_tvb) 
                 return offset; 
         subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LAIFixedLength); 
-        dissect_e212_mcc_mnc(parameter_tvb, subtree, 0); 
+        dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0); 
 
 #.FN_BODY RadioResourceInformation VAL_PTR = &parameter_tvb 
     tvbuff_t        *parameter_tvb; 

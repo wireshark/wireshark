@@ -2483,7 +2483,7 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar
 		mcc,mnc,lac,rac);
 
 	subtree = proto_item_add_subtree(item, ett_gmm_rai);
-	dissect_e212_mcc_mnc(tvb, subtree, offset);
+	dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, subtree, offset);
 	curr_offset+=6;
 
 	/* no length check possible */

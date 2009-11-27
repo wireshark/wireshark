@@ -885,7 +885,7 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
 		case 6:
 			/* GUTI */
 			curr_offset++;
-			curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+			curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset);
 			/* MME Group ID octet 7 - 8 */
 			proto_tree_add_item(tree, hf_nas_eps_emm_mme_grp_id, tvb, curr_offset, 2, FALSE);
 			curr_offset+=2;
@@ -1272,7 +1272,7 @@ de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
 
 	curr_offset = offset;
 
-	curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+	curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset);
 	proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, FALSE);
 	curr_offset+=2;
 
@@ -1324,7 +1324,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			 * MNC digit 3 MCC digit 3 octet 3
 			 * MNC digit 2 MNC digit 1 octet 4
 			 */
-			curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+			curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset);
 			/* type of list = "000" */
 			/* TAC 1             octet 5
 			 * TAC 1 (continued) octet 6
@@ -1347,7 +1347,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			 * MNC digit 3 MCC digit 3 octet 3
 			 * MNC digit 2 MNC digit 1 octet 4
 			 */
-			curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+			curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset);
 			proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, FALSE);
 			curr_offset+=2;
 			break;
@@ -1363,7 +1363,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				 * MNC digit 3 MCC digit 3 octet 3
 				 * MNC digit 2 MNC digit 1 octet 4
 				 */
-				curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+				curr_offset = dissect_e212_mcc_mnc(tvb, gpinfo, tree, curr_offset);
 				proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, FALSE);
 				curr_offset+=2;
 			}

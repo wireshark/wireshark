@@ -1090,7 +1090,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 }
 
 static void
-dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
+dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length,
 			  guint8 gti, gboolean called)
 {
   proto_item *gt_item = 0;
@@ -1194,7 +1194,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
 	case GT_NP_LAND_MOBILE:
 		digits_tree = proto_item_add_subtree(digits_item,
 						     ett_sccp_digits);
-		dissect_e212_mcc_mnc(signals_tvb, digits_tree, 0);
+		dissect_e212_mcc_mnc(signals_tvb, pinfo, digits_tree, 0);
 	break;
 	default:
 	break;
@@ -1411,7 +1411,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
       gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			      (length - offset));
-      dissect_sccp_global_title(gt_tvb, call_tree, (length - offset), gti,
+      dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
 				called);
     }
 
@@ -1472,7 +1472,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
 	return;
       gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			      (length - offset));
-      dissect_sccp_global_title(gt_tvb, call_tree, (length - offset), gti,
+      dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
 				called);
     }
 

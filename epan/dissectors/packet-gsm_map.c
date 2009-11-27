@@ -2602,7 +2602,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  if ((na == 1) && (np==1))/*International Number & E164*/
 	dissect_e164_cc(tvb, tree, 1, TRUE);
  else if(np==6)
-	dissect_e212_mcc_mnc(tvb, tree, 1);
+	dissect_e212_mcc_mnc(tvb, pinfo, tree, 1);
 
 }
 
@@ -3521,7 +3521,7 @@ dissect_gsm_map_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
          if (!parameter_tvb) 
                 return offset; 
         subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LAIFixedLength); 
-        dissect_e212_mcc_mnc(parameter_tvb, subtree, 0); 
+        dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0); 
 
 
 

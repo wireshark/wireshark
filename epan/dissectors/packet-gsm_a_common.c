@@ -1704,7 +1704,7 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *ad
 
 	mcc_mnc_aux(octs, mcc, mnc);
 
-	curr_offset = dissect_e212_mcc_mnc(tvb, subtree, curr_offset);
+	curr_offset = dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, subtree, curr_offset);
 
 	value = tvb_get_ntohs(tvb, curr_offset);
 
@@ -1907,7 +1907,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 			/* MCC/MNC*/
 			/* MCC, Mobile country code (octet 6a, octet 6b bits 1 to 4)*/
 			/* MNC, Mobile network code (octet 6b bits 5 to 8, octet 6c) */
-			curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+			curr_offset = dissect_e212_mcc_mnc(tvb, gsm_a_dtap_pinfo, tree, curr_offset);
 		}
 		if((oct&0x20)==0x20){
 			/* MBMS Session Identity (octet 7)

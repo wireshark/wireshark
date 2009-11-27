@@ -1503,7 +1503,7 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
 	case 0x08:  /* For intersystem handover from GSM to UMTS or cdma2000: */
 	case 0x0c:  /* For identification of a UTRAN cell for cell load information: */
-		curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
+		curr_offset = dissect_e212_mcc_mnc(tvb, g_pinfo, tree, curr_offset);
 		/* FALLTHRU */
 
 	case 0x01:
