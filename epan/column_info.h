@@ -40,21 +40,21 @@ typedef struct {
 } col_expr_t;
 
 typedef struct _column_info {
-  gint                num_cols;    /* Number of columns */
-  gint               *col_fmt;     /* Format of column */
-  gboolean          **fmt_matx;    /* Specifies which formats apply to a column */
-  gint               *col_first;   /* First column number with a given format */
-  gint               *col_last;    /* Last column number with a given format */
-  gchar             **col_title;   /* Column titles */
-  gchar             **col_custom_field;   /* Custom column field */
-  gint		         *col_custom_field_id; /* Custom column field id*/
-  struct _dfilter_t **col_custom_dfilter; /* Compiled custom column field */
-  const gchar       **col_data;    /* Column data */
-  gchar             **col_buf;     /* Buffer into which to copy data for column */
-  int                *col_fence;    /* Stuff in column buffer before this index is immutable */
-  col_expr_t          col_expr;     /* Column expressions and values */
-  gboolean            writable;     /* Are we still writing to the columns? */
-  gboolean            columns_changed;  /* Have the columns been changed in the prefs? */
+  gint                num_cols;             /* Number of columns */
+  gint               *col_fmt;              /* Format of column */
+  gboolean          **fmt_matx;             /* Specifies which formats apply to a column */
+  gint               *col_first;            /* First column number with a given format */
+  gint               *col_last;             /* Last column number with a given format */
+  gchar             **col_title;            /* Column titles */
+  gchar             **col_custom_field;     /* Custom column field */
+  gint               *col_custom_field_id;  /* Custom column field id*/
+  struct _dfilter_t **col_custom_dfilter;   /* Compiled custom column field */
+  const gchar       **col_data;             /* Column data */
+  gchar             **col_buf;              /* Buffer into which to copy data for column */
+  int                *col_fence;            /* Stuff in column buffer before this index is immutable */
+  col_expr_t          col_expr;             /* Column expressions and values */
+  gboolean            writable;             /* Are we still writing to the columns? */
+  gboolean            columns_changed;      /* Have the columns been changed in the prefs? */
 } column_info;
 
 /*
