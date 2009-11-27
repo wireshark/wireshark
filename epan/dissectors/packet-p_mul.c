@@ -684,6 +684,13 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
       en = proto_tree_add_time (analysis_tree, hf_analysis_addr_pdu_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (en);
+
+      if (pkg_data->prev_pdu_id == pkg_data->addr_id) {
+        /* Previous pdu time is the same as time since address pdu */
+        en = proto_tree_add_time (analysis_tree, hf_analysis_prev_pdu_time,
+                                  tvb, 0, 0, &ns);
+        PROTO_ITEM_SET_GENERATED (en);
+      }
       item_added = TRUE;
     } else if (!pkg_data->msg_resend_count) {
       en = proto_tree_add_item (analysis_tree,
