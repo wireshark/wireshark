@@ -27,18 +27,12 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
-#include <epan/emem.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-tcp.h>
 
 #include "packet-assa_r3_public.h"
-
-#include <string.h>
 
 /*
  *  Wireshark ID of the R3 protocol 
@@ -1851,12 +1845,6 @@ static const value_string r3_powertablenames [] =
   {  0, NULL }
 };
 
-static const true_false_string tfs_enableddisabled_flags = 
-{
-  "Enabled",
-  "Disabled"
-};
-
 static const true_false_string tfs_rmtauthretry_flags = 
 {
   "Retry",
@@ -1873,12 +1861,6 @@ static const true_false_string tfs_errornoerror_flags =
 {
   "Error",
   "No Error"
-};
-
-static const true_false_string tfs_truefalse_flags = 
-{
-  "True",
-  "False"
 };
 
 static const string_string r3_snmanufacturernames [] =
@@ -2257,38 +2239,38 @@ static hf_register_info hf [] =
   { &hf_r3_configitemdata_32,     { "Configuration Item 32-bit",  "r3.configitem.data_32",      FT_UINT32,  BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_configitemdata_string, { "Configuration Item String",  "r3.configitem.data_string",  FT_STRING,  BASE_NONE,    NULL, 0x0, NULL, HFILL }},
 
-  { &hf_r3_timezonearray [ 0], { "Timezone  0", "r3.timezone.0",  FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000001, NULL, HFILL }},
-  { &hf_r3_timezonearray [ 1], { "Timezone  1", "r3.timezone.1",  FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000002, NULL, HFILL }},
-  { &hf_r3_timezonearray [ 2], { "Timezone  2", "r3.timezone.2",  FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000004, NULL, HFILL }},
-  { &hf_r3_timezonearray [ 3], { "Timezone  3", "r3.timezone.3",  FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000008, NULL, HFILL }},
-  { &hf_r3_timezonearray [ 4], { "Timezone  4", "r3.timezone.4",  FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000010, NULL, HFILL }},
-  { &hf_r3_timezonearray [ 5], { "Timezone  5", "r3.timezone.5",  FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000020, NULL, HFILL }},
-  { &hf_r3_timezonearray [ 6], { "Timezone  6", "r3.timezone.6",  FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000040, NULL, HFILL }},
-  { &hf_r3_timezonearray [ 7], { "Timezone  7", "r3.timezone.7",  FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000080, NULL, HFILL }},
-  { &hf_r3_timezonearray [ 8], { "Timezone  8", "r3.timezone.8",  FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000100, NULL, HFILL }},
-  { &hf_r3_timezonearray [ 9], { "Timezone  9", "r3.timezone.9",  FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000200, NULL, HFILL }},
-  { &hf_r3_timezonearray [10], { "Timezone 10", "r3.timezone.10", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000400, NULL, HFILL }},
-  { &hf_r3_timezonearray [11], { "Timezone 11", "r3.timezone.11", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00000800, NULL, HFILL }},
-  { &hf_r3_timezonearray [12], { "Timezone 12", "r3.timezone.12", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00001000, NULL, HFILL }},
-  { &hf_r3_timezonearray [13], { "Timezone 13", "r3.timezone.13", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00002000, NULL, HFILL }},
-  { &hf_r3_timezonearray [14], { "Timezone 14", "r3.timezone.14", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00004000, NULL, HFILL }},
-  { &hf_r3_timezonearray [15], { "Timezone 15", "r3.timezone.15", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00008000, NULL, HFILL }},
-  { &hf_r3_timezonearray [16], { "Timezone 16", "r3.timezone.16", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00010000, NULL, HFILL }},
-  { &hf_r3_timezonearray [17], { "Timezone 17", "r3.timezone.17", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00020000, NULL, HFILL }},
-  { &hf_r3_timezonearray [18], { "Timezone 18", "r3.timezone.18", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00040000, NULL, HFILL }},
-  { &hf_r3_timezonearray [19], { "Timezone 19", "r3.timezone.19", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00080000, NULL, HFILL }},
-  { &hf_r3_timezonearray [20], { "Timezone 20", "r3.timezone.20", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00100000, NULL, HFILL }},
-  { &hf_r3_timezonearray [21], { "Timezone 21", "r3.timezone.21", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00200000, NULL, HFILL }},
-  { &hf_r3_timezonearray [22], { "Timezone 22", "r3.timezone.22", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00400000, NULL, HFILL }},
-  { &hf_r3_timezonearray [23], { "Timezone 23", "r3.timezone.23", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x00800000, NULL, HFILL }},
-  { &hf_r3_timezonearray [24], { "Timezone 24", "r3.timezone.24", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x01000000, NULL, HFILL }},
-  { &hf_r3_timezonearray [25], { "Timezone 25", "r3.timezone.25", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x02000000, NULL, HFILL }},
-  { &hf_r3_timezonearray [26], { "Timezone 26", "r3.timezone.26", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x04000000, NULL, HFILL }},
-  { &hf_r3_timezonearray [27], { "Timezone 27", "r3.timezone.27", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x08000000, NULL, HFILL }},
-  { &hf_r3_timezonearray [28], { "Timezone 28", "r3.timezone.28", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x10000000, NULL, HFILL }},
-  { &hf_r3_timezonearray [29], { "Timezone 29", "r3.timezone.29", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x20000000, NULL, HFILL }},
-  { &hf_r3_timezonearray [30], { "Timezone 30", "r3.timezone.30", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x40000000, NULL, HFILL }},
-  { &hf_r3_timezonearray [31], { "Timezone 31", "r3.timezone.31", FT_BOOLEAN, 32, TFS (&tfs_enableddisabled_flags), 0x80000000, NULL, HFILL }},
+  { &hf_r3_timezonearray [ 0], { "Timezone  0", "r3.timezone.0",  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000001, NULL, HFILL }},
+  { &hf_r3_timezonearray [ 1], { "Timezone  1", "r3.timezone.1",  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000002, NULL, HFILL }},
+  { &hf_r3_timezonearray [ 2], { "Timezone  2", "r3.timezone.2",  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000004, NULL, HFILL }},
+  { &hf_r3_timezonearray [ 3], { "Timezone  3", "r3.timezone.3",  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000008, NULL, HFILL }},
+  { &hf_r3_timezonearray [ 4], { "Timezone  4", "r3.timezone.4",  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000010, NULL, HFILL }},
+  { &hf_r3_timezonearray [ 5], { "Timezone  5", "r3.timezone.5",  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000020, NULL, HFILL }},
+  { &hf_r3_timezonearray [ 6], { "Timezone  6", "r3.timezone.6",  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000040, NULL, HFILL }},
+  { &hf_r3_timezonearray [ 7], { "Timezone  7", "r3.timezone.7",  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000080, NULL, HFILL }},
+  { &hf_r3_timezonearray [ 8], { "Timezone  8", "r3.timezone.8",  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000100, NULL, HFILL }},
+  { &hf_r3_timezonearray [ 9], { "Timezone  9", "r3.timezone.9",  FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000200, NULL, HFILL }},
+  { &hf_r3_timezonearray [10], { "Timezone 10", "r3.timezone.10", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000400, NULL, HFILL }},
+  { &hf_r3_timezonearray [11], { "Timezone 11", "r3.timezone.11", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00000800, NULL, HFILL }},
+  { &hf_r3_timezonearray [12], { "Timezone 12", "r3.timezone.12", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00001000, NULL, HFILL }},
+  { &hf_r3_timezonearray [13], { "Timezone 13", "r3.timezone.13", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00002000, NULL, HFILL }},
+  { &hf_r3_timezonearray [14], { "Timezone 14", "r3.timezone.14", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00004000, NULL, HFILL }},
+  { &hf_r3_timezonearray [15], { "Timezone 15", "r3.timezone.15", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00008000, NULL, HFILL }},
+  { &hf_r3_timezonearray [16], { "Timezone 16", "r3.timezone.16", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00010000, NULL, HFILL }},
+  { &hf_r3_timezonearray [17], { "Timezone 17", "r3.timezone.17", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00020000, NULL, HFILL }},
+  { &hf_r3_timezonearray [18], { "Timezone 18", "r3.timezone.18", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00040000, NULL, HFILL }},
+  { &hf_r3_timezonearray [19], { "Timezone 19", "r3.timezone.19", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00080000, NULL, HFILL }},
+  { &hf_r3_timezonearray [20], { "Timezone 20", "r3.timezone.20", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00100000, NULL, HFILL }},
+  { &hf_r3_timezonearray [21], { "Timezone 21", "r3.timezone.21", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00200000, NULL, HFILL }},
+  { &hf_r3_timezonearray [22], { "Timezone 22", "r3.timezone.22", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00400000, NULL, HFILL }},
+  { &hf_r3_timezonearray [23], { "Timezone 23", "r3.timezone.23", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x00800000, NULL, HFILL }},
+  { &hf_r3_timezonearray [24], { "Timezone 24", "r3.timezone.24", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x01000000, NULL, HFILL }},
+  { &hf_r3_timezonearray [25], { "Timezone 25", "r3.timezone.25", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x02000000, NULL, HFILL }},
+  { &hf_r3_timezonearray [26], { "Timezone 26", "r3.timezone.26", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x04000000, NULL, HFILL }},
+  { &hf_r3_timezonearray [27], { "Timezone 27", "r3.timezone.27", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x08000000, NULL, HFILL }},
+  { &hf_r3_timezonearray [28], { "Timezone 28", "r3.timezone.28", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x10000000, NULL, HFILL }},
+  { &hf_r3_timezonearray [29], { "Timezone 29", "r3.timezone.29", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x20000000, NULL, HFILL }},
+  { &hf_r3_timezonearray [30], { "Timezone 30", "r3.timezone.30", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x40000000, NULL, HFILL }},
+  { &hf_r3_timezonearray [31], { "Timezone 31", "r3.timezone.31", FT_BOOLEAN, 32, TFS (&tfs_enabled_disabled), 0x80000000, NULL, HFILL }},
 
   { &hf_r3_expireon_year,  { "Expiration Year",  "r3.expireon.year",  FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_expireon_month, { "Expiration Month", "r3.expireon.month", FT_UINT8, BASE_DEC_HEX, VALS (r3_monthnames), 0x0, NULL, HFILL }},
@@ -2369,13 +2351,13 @@ static hf_register_info hf [] =
   { &hf_r3_definetimezone_starttime_minutes, { "Start Minutes",    "r3.definetimezone.start.minutes",    FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_definetimezone_endtime_hours,     { "End Hours",        "r3.definetimezone.end.hours",        FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_definetimezone_endtime_minutes,   { "End Minutes",      "r3.definetimezone.end.minutes",      FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
-  { &hf_r3_definetimezone_daymap [0],        { "Sunday",           "r3.definetimezone.daymap.sunday",    FT_BOOLEAN, 8,            TFS (&tfs_enableddisabled_flags), 0x00000001, NULL, HFILL }},
-  { &hf_r3_definetimezone_daymap [1],        { "Monday",           "r3.definetimezone.daymap.monday",    FT_BOOLEAN, 8,            TFS (&tfs_enableddisabled_flags), 0x00000002, NULL, HFILL }},
-  { &hf_r3_definetimezone_daymap [2],        { "Tuesday",          "r3.definetimezone.daymap.tuesday",   FT_BOOLEAN, 8,            TFS (&tfs_enableddisabled_flags), 0x00000004, NULL, HFILL }},
-  { &hf_r3_definetimezone_daymap [3],        { "Wednesday",        "r3.definetimezone.daymap.wednesday", FT_BOOLEAN, 8,            TFS (&tfs_enableddisabled_flags), 0x00000008, NULL, HFILL }},
-  { &hf_r3_definetimezone_daymap [4],        { "Thursday",         "r3.definetimezone.daymap.thursday",  FT_BOOLEAN, 8,            TFS (&tfs_enableddisabled_flags), 0x00000010, NULL, HFILL }},
-  { &hf_r3_definetimezone_daymap [5],        { "Friday",           "r3.definetimezone.daymap.friday",    FT_BOOLEAN, 8,            TFS (&tfs_enableddisabled_flags), 0x00000020, NULL, HFILL }},
-  { &hf_r3_definetimezone_daymap [6],        { "Saturday",         "r3.definetimezone.daymap.saturday",  FT_BOOLEAN, 8,            TFS (&tfs_enableddisabled_flags), 0x00000040, NULL, HFILL }},
+  { &hf_r3_definetimezone_daymap [0],        { "Sunday",           "r3.definetimezone.daymap.sunday",    FT_BOOLEAN, 8,            TFS (&tfs_enabled_disabled), 0x00000001, NULL, HFILL }},
+  { &hf_r3_definetimezone_daymap [1],        { "Monday",           "r3.definetimezone.daymap.monday",    FT_BOOLEAN, 8,            TFS (&tfs_enabled_disabled), 0x00000002, NULL, HFILL }},
+  { &hf_r3_definetimezone_daymap [2],        { "Tuesday",          "r3.definetimezone.daymap.tuesday",   FT_BOOLEAN, 8,            TFS (&tfs_enabled_disabled), 0x00000004, NULL, HFILL }},
+  { &hf_r3_definetimezone_daymap [3],        { "Wednesday",        "r3.definetimezone.daymap.wednesday", FT_BOOLEAN, 8,            TFS (&tfs_enabled_disabled), 0x00000008, NULL, HFILL }},
+  { &hf_r3_definetimezone_daymap [4],        { "Thursday",         "r3.definetimezone.daymap.thursday",  FT_BOOLEAN, 8,            TFS (&tfs_enabled_disabled), 0x00000010, NULL, HFILL }},
+  { &hf_r3_definetimezone_daymap [5],        { "Friday",           "r3.definetimezone.daymap.friday",    FT_BOOLEAN, 8,            TFS (&tfs_enabled_disabled), 0x00000020, NULL, HFILL }},
+  { &hf_r3_definetimezone_daymap [6],        { "Saturday",         "r3.definetimezone.daymap.saturday",  FT_BOOLEAN, 8,            TFS (&tfs_enabled_disabled), 0x00000040, NULL, HFILL }},
   { &hf_r3_definetimezone_exceptiongroup,    { "Exception Group",  "r3.definetimezone.exceptiongroup",   FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_definetimezone_mode,              { "Mode",             "r3.definetimezone.mode",             FT_UINT8,   BASE_DEC_HEX, VALS (r3_timezonemodenames), 0x0, NULL, HFILL }},
   { &hf_r3_definetimezone_calendar,          { "Calendar",         "r3.definetimezone.calendar",         FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }},
@@ -2417,22 +2399,22 @@ static hf_register_info hf [] =
   { &hf_r3_alarmlogdump_endtime_hours,     { "End Hours",     "r3.alarmlogdump.end.hours",     FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_alarmlogdump_endtime_minutes,   { "End Minutes",   "r3.alarmlogdump.end.minutes",   FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
 
-  { &hf_r3_nvramclearoptions [ 0], { "NVRAMCLEAROPTIONS_CFGINSTALLER",    "r3.nvramclear.cfginstaller",    FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000001, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [ 1], { "NVRAMCLEAROPTIONS_CFGADMIN",        "r3.nvramclear.cfgadmin",        FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000002, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [ 2], { "NVRAMCLEAROPTIONS_EXCEPTIONS",      "r3.nvramclear.exceptions",      FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000004, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [ 3], { "NVRAMCLEAROPTIONS_EXCEPTIONGROUPS", "r3.nvramclear.exceptiongroups", FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000008, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [ 4], { "NVRAMCLEAROPTIONS_CALENDARS",       "r3.nvramclear.calendars",       FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000010, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [ 5], { "NVRAMCLEAROPTIONS_TIMEZONES",       "r3.nvramclear.timezones",       FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000020, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [ 6], { "NVRAMCLEAROPTIONS_FILTERS",         "r3.nvramclear.filters",         FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000040, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [ 7], { "NVRAMCLEAROPTIONS_EVENTLOG",        "r3.nvramclear.eventlog",        FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000080, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [ 8], { "NVRAMCLEAROPTIONS_USERDATA",        "r3.nvramclear.userdata",        FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000100, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [ 9], { "NVRAMCLEAROPTIONS_DECLINEDLOG",     "r3.nvramclear.declinedlog",     FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000200, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [10], { "NVRAMCLEAROPTIONS_ALARMLOG",        "r3.nvramclear.alarmlog",        FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000400, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [11], { "NVRAMCLEAROPTIONS_LRUCACHE",        "r3.nvramclear.lrucache",        FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00000800, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [12], { "NVRAMCLEAROPTIONS_DBHASH",          "r3.nvramclear.dbhash",          FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00001000, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [13], { "NVRAMCLEAROPTIONS_CFGSYSTEM",       "r3.nvramclear.cfgsystem",       FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00002000, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [14], { "NVRAMCLEAROPTIONS_UNUSED",          "r3.nvramclear.unused",          FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00004000, NULL, HFILL }},
-  { &hf_r3_nvramclearoptions [15], { "NVRAMCLEAROPTIONS_USEBACKUP",       "r3.nvramclear.usebackup",       FT_BOOLEAN, 16, TFS (&tfs_enableddisabled_flags), 0x00008000, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [ 0], { "NVRAMCLEAROPTIONS_CFGINSTALLER",    "r3.nvramclear.cfginstaller",    FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000001, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [ 1], { "NVRAMCLEAROPTIONS_CFGADMIN",        "r3.nvramclear.cfgadmin",        FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000002, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [ 2], { "NVRAMCLEAROPTIONS_EXCEPTIONS",      "r3.nvramclear.exceptions",      FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000004, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [ 3], { "NVRAMCLEAROPTIONS_EXCEPTIONGROUPS", "r3.nvramclear.exceptiongroups", FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000008, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [ 4], { "NVRAMCLEAROPTIONS_CALENDARS",       "r3.nvramclear.calendars",       FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000010, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [ 5], { "NVRAMCLEAROPTIONS_TIMEZONES",       "r3.nvramclear.timezones",       FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000020, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [ 6], { "NVRAMCLEAROPTIONS_FILTERS",         "r3.nvramclear.filters",         FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000040, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [ 7], { "NVRAMCLEAROPTIONS_EVENTLOG",        "r3.nvramclear.eventlog",        FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000080, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [ 8], { "NVRAMCLEAROPTIONS_USERDATA",        "r3.nvramclear.userdata",        FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000100, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [ 9], { "NVRAMCLEAROPTIONS_DECLINEDLOG",     "r3.nvramclear.declinedlog",     FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000200, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [10], { "NVRAMCLEAROPTIONS_ALARMLOG",        "r3.nvramclear.alarmlog",        FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000400, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [11], { "NVRAMCLEAROPTIONS_LRUCACHE",        "r3.nvramclear.lrucache",        FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00000800, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [12], { "NVRAMCLEAROPTIONS_DBHASH",          "r3.nvramclear.dbhash",          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00001000, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [13], { "NVRAMCLEAROPTIONS_CFGSYSTEM",       "r3.nvramclear.cfgsystem",       FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00002000, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [14], { "NVRAMCLEAROPTIONS_UNUSED",          "r3.nvramclear.unused",          FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00004000, NULL, HFILL }},
+  { &hf_r3_nvramclearoptions [15], { "NVRAMCLEAROPTIONS_USEBACKUP",       "r3.nvramclear.usebackup",       FT_BOOLEAN, 16, TFS (&tfs_enabled_disabled), 0x00008000, NULL, HFILL }},
 
   { &hf_r3_writeeventlog_user,  { "User",  "r3.writeeventlog.user",  FT_UINT16, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_writeeventlog_event, { "Event", "r3.writeeventlog.event", FT_UINT8,  BASE_DEC_HEX, VALS (r3_eventnames), 0x0, NULL, HFILL }},
@@ -2444,7 +2426,7 @@ static hf_register_info hf [] =
 
   { &hf_r3_alarm_length, { "Length", "r3.alarm.length", FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_alarm_id,     { "ID",     "r3.alarm.id",     FT_UINT8,   BASE_DEC_HEX, VALS (r3_alarmidnames), 0x0, NULL, HFILL }},
-  { &hf_r3_alarm_state,  { "State",  "r3.alarm.state",  FT_BOOLEAN, 8,            TFS (&tfs_enableddisabled_flags), 0x0, NULL, HFILL }},
+  { &hf_r3_alarm_state,  { "State",  "r3.alarm.state",  FT_BOOLEAN, 8,            TFS (&tfs_enabled_disabled), 0x0, NULL, HFILL }},
 
   { &hf_r3_mfgfield_length, { "Field Length", "r3.mfgfield.length",  FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mfgfield,        { "Field",        "r3.mfgfield.field",   FT_UINT8, BASE_DEC_HEX, VALS (r3_mfgfieldnames), 0x0, NULL, HFILL }},
@@ -2497,7 +2479,7 @@ static hf_register_info hf [] =
 
   { &hf_r3_forceoptions_item,      { "Item",   "r3.forceoptions.item",   FT_UINT8,   BASE_HEX_DEC, VALS (r3_forceitemnames), 0x0, NULL, HFILL }},
   { &hf_r3_forceoptions_length,    { "Length", "r3.forceoptions.length", FT_UINT8,   BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-  { &hf_r3_forceoptions_state_8,   { "State",  "r3.forceoptions.state",  FT_BOOLEAN, 8,            TFS (&tfs_enableddisabled_flags), 0x0, NULL, HFILL }},
+  { &hf_r3_forceoptions_state_8,   { "State",  "r3.forceoptions.state",  FT_BOOLEAN, 8,            TFS (&tfs_enabled_disabled), 0x0, NULL, HFILL }},
   { &hf_r3_forceoptions_state_16,  { "State",  "r3.forceoptions.state",  FT_UINT16,  BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_forceoptions_state_24,  { "State",  "r3.forceoptions.state",  FT_UINT24,  BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_forceoptions_state_32,  { "State",  "r3.forceoptions.state",  FT_UINT32,  BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2556,7 +2538,7 @@ static hf_register_info hf [] =
   { &hf_r3_mortisestatelog,             { "Mortise State Log",       "r3.mortisestatelog",             FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mortisestatelog_pointer,     { "Event Pointer",           "r3.mortisestatelog.pointer",     FT_UINT8,   BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mortisestatelog_mortisetype, { "Mortise Type",            "r3.mortisestatelog.mortisetype", FT_UINT8,   BASE_HEX_DEC, VALS (r3_mortisetypenames), 0x0, NULL, HFILL }},
-  { &hf_r3_mortisestatelog_waiting,     { "Waiting For Door Closed", "r3.mortisestatelog.waiting",     FT_BOOLEAN, 8,            TFS (&tfs_truefalse_flags ), 0x00, NULL, HFILL }},
+  { &hf_r3_mortisestatelog_waiting,     { "Waiting For Door Closed", "r3.mortisestatelog.waiting",     FT_BOOLEAN, 8,            TFS (&tfs_true_false ), 0x00, NULL, HFILL }},
   { &hf_r3_mortisestatelog_state,       { "State",                   "r3.mortisestatelog.state",       FT_UINT8,   BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mortisestatelog_last,        { "Last State",              "r3.mortisestatelog.laststate",   FT_UINT8,   BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mortisestatelog_event,       { "Event",                   "r3.mortisestatelog.event",       FT_UINT8,   BASE_HEX_DEC, VALS (r3_mortiseeventnames), 0x0, NULL, HFILL }},
@@ -5671,15 +5653,20 @@ void proto_register_r3 (void)
 
 void proto_reg_handoff_r3 (void)
 {
-  static gint initialized = FALSE;
-
-  if (!initialized)
-  {
-    dissector_handle_t r3_handle = find_dissector ("r3");
-    dissector_add ("tcp.port", 2571, r3_handle);
-    dissector_add ("tcp.port", 8023, r3_handle);
-    initialized = TRUE;
-  }
+  dissector_handle_t r3_handle = find_dissector ("r3");
+  dissector_add ("tcp.port", 2571, r3_handle);
+  dissector_add ("tcp.port", 8023, r3_handle);
 }
 
-/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 expandtab: */
+
+/*
+ * Editor modelines
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vim: set tabstop=2 softtabstop=2 shiftwidth=2 expandtab:
+ */
