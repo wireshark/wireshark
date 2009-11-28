@@ -1,8 +1,8 @@
--- 3GPP TS 36.331 V8.5.0 (2009-03)
+-- 3GPP TS 36.331 V8.7.0 (2009-09)
 -- $Id$
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
- 
+
 BEGIN
 
 
@@ -20,7 +20,7 @@ VarMeasConfig ::=					SEQUENCE {
 		release								NULL,
 		setup								SEQUENCE {
 			mobilityStateParameters				MobilityStateParameters,
-			speedStateScaleFactors				SpeedStateScaleFactors
+			timeToTrigger-SF					SpeedStateScaleFactors
 		}
 	}																		OPTIONAL
 }
@@ -47,4 +47,3 @@ VarShortMAC-Input ::=					SEQUENCE {
 
 
 END
-

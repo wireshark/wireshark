@@ -64,6 +64,23 @@ static int ett_lte_rrc = -1;
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 #include "packet-lte-rrc-fn.c"
 
+static void
+dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *lte_rrc_tree;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_CCCH");
+	col_clear(pinfo->cinfo, COL_INFO);
+	if (tree) {
+
+		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, FALSE);
+		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+		dissect_DL_CCCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+	}
+
+}
+
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_lte_rrc(void) {
 
@@ -82,6 +99,7 @@ void proto_register_lte_rrc(void) {
 
   /* Register protocol */
   proto_lte_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  register_dissector("lte_rrc.dl_ccch", dissect_lte_rrc_DL_CCCH, proto_lte_rrc);
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -96,7 +114,10 @@ void proto_register_lte_rrc(void) {
 void
 proto_reg_handoff_lte_rrc(void)
 {
+	static dissector_handle_t lte_rrc_dl_ccch_handle;
 
+	lte_rrc_dl_ccch_handle = find_dissector("lte_rrc.dl_ccch");
+	dissector_add_handle("udp.port", lte_rrc_dl_ccch_handle);
 	nas_eps_handle = find_dissector("nas-eps");
 }
 

@@ -1,8 +1,8 @@
--- 3GPP TS 36.331 V8.5.0 (2009-03)
+-- 3GPP TS 36.331 V8.7.0 (2009-09)
 -- $Id$
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
- 
+
 BEGIN
 
 
