@@ -335,6 +335,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-asap.c
 	dissectors/packet-ascend.c
 	dissectors/packet-asf.c
+	dissectors/packet-assa_r3.c
 	dissectors/packet-atalk.c
 	dissectors/packet-atm.c
 	dissectors/packet-auto_rp.c

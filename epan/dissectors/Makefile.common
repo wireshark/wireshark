@@ -240,6 +240,7 @@ DISSECTOR_SRC = \
 	packet-asap.c		\
 	packet-ascend.c		\
 	packet-asf.c		\
+	packet-assa_r3.c	\
 	packet-atalk.c		\
 	packet-atm.c		\
 	packet-auto_rp.c	\
@@ -963,6 +964,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ap1394.h	\
 	packet-arcnet.h	\
 	packet-arp.h	\
+	packet-assa_r3_public.h	\
 	packet-atalk.h	\
 	packet-atm.h	\
 	packet-bat.h	\
