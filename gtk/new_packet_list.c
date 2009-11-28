@@ -262,7 +262,11 @@ new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType or
 static void
 new_packet_list_xalign_column (GtkTreeViewColumn *col, gdouble value)
 {
+#if GTK_CHECK_VERSION(2,18,0)
 	GList *renderers = gtk_cell_layout_get_cells (GTK_CELL_LAYOUT(col));
+#else
+	GList *renderers = gtk_tree_view_column_get_cell_renderers (col);
+#endif
 	GList *entry;
 	GtkCellRenderer *renderer;
 
