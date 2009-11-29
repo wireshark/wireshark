@@ -701,6 +701,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-loop.c
 	dissectors/packet-lpd.c
 	dissectors/packet-lsc.c
+	dissectors/packet-ltp.c
 	dissectors/packet-lwapp.c
 	dissectors/packet-lwres.c
 	dissectors/packet-m2pa.c

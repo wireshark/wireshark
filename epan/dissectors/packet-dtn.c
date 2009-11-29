@@ -46,11 +46,8 @@
 void proto_reg_handoff_bundle(void);
 static void dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_udp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_complete_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *tvb);
 static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset);
-static int evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount);
-static gint64 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount);
 static int dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, int bundle_offset, int *lastheader);
 static int display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int bundle_offset, int *lastheader);
 static int dissect_contact_header(tvbuff_t *tvb, packet_info *pinfo,
@@ -600,7 +597,7 @@ dissect_tcp_convergence_data_header(tvbuff_t *tvb, proto_tree *tree)
  * otherwise the length of the bundle.
  */
 
-static int
+int
 dissect_complete_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *primary_item = NULL;
@@ -1994,7 +1991,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, int *lasthea
 #define SDNV_MASK	0x7f
 
 /*3rd arg is number of bytes in field (returned)*/
-static int
+int
 evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount)
 {
     int value = 0;
@@ -2028,7 +2025,7 @@ evaluate_sdnv(tvbuff_t *tvb, int offset, int *bytecount)
 }
 
 /* Special Function to evaluate 64 bit SDNVs */
-static gint64
+gint64
 evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount)
 {
     gint64 value = 0;
