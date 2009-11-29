@@ -47,6 +47,7 @@
 
 int proto_frame = -1;
 int hf_frame_arrival_time = -1;
+int hf_frame_arrival_time_epoch = -1;
 static int hf_frame_time_invalid = -1;
 static int hf_frame_time_delta = -1;
 static int hf_frame_time_delta_displayed = -1;
@@ -79,6 +80,7 @@ static dissector_handle_t docsis_handle;
 static gboolean show_file_off = FALSE;
 static gboolean force_docsis_encap = FALSE;
 static gboolean generate_md5_hash = FALSE;
+static gboolean generate_epoch_time = TRUE;
 
 static const value_string p2p_dirs[] = {
 	{ P2P_DIR_UNKNOWN, "Unknown" },
@@ -214,6 +216,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  	  0, 0, "Arrival Time: Fractional second %09ld is invalid, the valid range is 0-1000000000", (long) ts.nsecs);
 	    PROTO_ITEM_SET_GENERATED(item);
 	    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
+	  }
+
+	  if(generate_epoch_time) {
+	  	proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
+			0, 0, &ts);
 	  }
 
 	  ts = pinfo->fd->del_cap_ts;
@@ -530,6 +537,10 @@ proto_register_frame(void)
 		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
 			"Absolute time when this frame was captured", HFILL }},
 
+		{ &hf_frame_arrival_time_epoch,
+		{ "Epoch Time",			"frame.time_epoch", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+			"Epoch time when this frame was captured", HFILL }},
+
 		{ &hf_frame_time_invalid,
 		{ "Arrival Timestamp invalid",		"frame.time_invalid", FT_NONE, BASE_NONE, NULL, 0x0,
 			"The timestamp from the capture is out of the valid range", HFILL }},
@@ -638,6 +649,10 @@ proto_register_frame(void)
 	    "Generate an MD5 hash of each frame",
 	    "Whether or not MD5 hashes should be generated for each frame, useful for finding duplicate frames.",
 	    &generate_md5_hash);
+	prefs_register_bool_preference(frame_module, "generate_epoch_time",
+	    "Generate an epoch time entry for each frame",
+	    "Whether or not an Epoch time entry should be generated for each frame.",
+	    &generate_epoch_time);
 
 	frame_tap=register_tap("frame");
 }
