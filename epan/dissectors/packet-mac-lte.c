@@ -380,19 +380,12 @@ static const value_string predefined_frame_vals[] =
 };
 
 
-/* By default check and warn about reserved bits not being zero.
-   December '08 spec says they should be ignored... */
-static gboolean global_mac_lte_check_reserved_bits = TRUE;
-
 /* If this PDU has been NACK'd (by HARQ) more than a certain number of times,
    we trigger an expert warning. */
 static gint global_mac_lte_retx_counter_trigger = 3;
 
 /* By default try to decode transparent data (BCH, PCH and CCCH) data using LTE RRC dissector */
 static gboolean global_mac_lte_attempt_rrc_decode = TRUE;
-
-/* Control whether decoding details of RAR UL grant or not */
-static gboolean global_mac_lte_decode_rar_ul_grant = TRUE;
 
 /* Whether should attempt to dissect frames failing CRC check */
 static gboolean global_mac_lte_dissect_crc_failures = FALSE;
@@ -715,6 +708,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_item *ti;
     proto_item *rar_body_ti;
     proto_tree *rar_body_tree;
+    proto_tree *ul_grant_tree;
     proto_item *ul_grant_ti;
     guint16 timing_advance;
     guint32 ul_grant;
@@ -731,7 +725,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Check reserved bit */
     reserved = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
     ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_reserved2, tvb, offset, 1, FALSE);
-    if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
+    if (reserved != 0) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                       "RAR body Reserved bit not zero (found 0x%x)", reserved);
     }
@@ -750,34 +744,32 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     ul_grant_ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ul_grant, tvb, offset, 3, FALSE);
 
     /* Break these 20 bits down as described in 36.213, section 6.2 */
-    if (global_mac_lte_decode_rar_ul_grant) {
-        /* Create subtree for UL grant break-down */
-        proto_tree *ul_grant_tree = proto_item_add_subtree(ul_grant_ti, ett_mac_lte_rar_ul_grant);
+    /* Create subtree for UL grant break-down */
+    ul_grant_tree = proto_item_add_subtree(ul_grant_ti, ett_mac_lte_rar_ul_grant);
 
-        /* Hopping flag (1 bit) */
-        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_hopping,
-                            tvb, offset, 1, FALSE);
+    /* Hopping flag (1 bit) */
+    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_hopping,
+                        tvb, offset, 1, FALSE);
 
-        /* Fixed sized resource block assignment (10 bits) */
-        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_fsrba,
-                            tvb, offset, 2, FALSE);
+    /* Fixed sized resource block assignment (10 bits) */
+    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_fsrba,
+                        tvb, offset, 2, FALSE);
 
-        /* Truncated Modulation and coding scheme (4 bits) */
-        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tmcs,
-                            tvb, offset+1, 2, FALSE);
+    /* Truncated Modulation and coding scheme (4 bits) */
+    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tmcs,
+                        tvb, offset+1, 2, FALSE);
 
-        /* TPC command for scheduled PUSCH (3 bits) */
-        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tcsp,
-                            tvb, offset+2, 1, FALSE);
+    /* TPC command for scheduled PUSCH (3 bits) */
+    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_tcsp,
+                        tvb, offset+2, 1, FALSE);
 
-        /* UL delay (1 bit) */
-        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_ul_delay,
-                            tvb, offset+2, 1, FALSE);
+    /* UL delay (1 bit) */
+    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_ul_delay,
+                        tvb, offset+2, 1, FALSE);
 
-        /* CQI request (1 bit) */
-        proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_cqi_request,
-                            tvb, offset+2, 1, FALSE);
-    }
+    /* CQI request (1 bit) */
+    proto_tree_add_item(ul_grant_tree, hf_mac_lte_rar_ul_grant_cqi_request,
+                        tvb, offset+2, 1, FALSE);
 
     offset += 3;
 
@@ -860,7 +852,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             /* 2 Reserved bits */
             reserved = (tvb_get_guint8(tvb, offset) & 0x30) >> 4;
             ti = proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_reserved, tvb, offset, 1, FALSE);
-            if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
+            if (reserved != 0) {
                 expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                        "RAR header Reserved bits not zero (found 0x%x)", reserved);
             }
@@ -1386,7 +1378,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         reserved = (first_byte & 0xc0) >> 6;
         ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_sch_reserved,
                                  tvb, offset, 1, FALSE);
-        if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
+        if (reserved != 0) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                    "U/DL-SCH header Reserved bits not zero");
         }
@@ -1654,7 +1646,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* Check 2 reserved bits */
                         reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
                         reserved_ti = proto_tree_add_item(tree, hf_mac_lte_control_timing_advance_reserved, tvb, offset, 1, FALSE);
-                        if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
+                        if (reserved != 0) {
                             expert_add_info_format(pinfo, reserved_ti, PI_MALFORMED, PI_ERROR,
                                                    "Timing Advance Reserved bits not zero (found 0x%x)", reserved);
                         }
@@ -1705,7 +1697,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
                         ti = proto_tree_add_item(phr_tree, hf_mac_lte_control_power_headroom_reserved,
                                                  tvb, offset, 1, FALSE);
-                        if (global_mac_lte_check_reserved_bits && (reserved != 0)) {
+                        if (reserved != 0) {
                             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                                    "Power Headroom Reserved bits not zero (found 0x%x)", reserved);
                         }
@@ -2895,13 +2887,10 @@ void proto_register_mac_lte(void)
     /* Preferences */
     mac_lte_module = prefs_register_protocol(proto_mac_lte, NULL);
 
-    /* Obsolete this preference (TODO: just delete since never in proper release?) */
+    /* Obsolete preferences */
     prefs_register_obsolete_preference(mac_lte_module, "single_rar");
-
-    prefs_register_bool_preference(mac_lte_module, "check_reserved_bits",
-        "Warn if reserved bits are not 0",
-        "When set, an expert warning will indicate if reserved bits are not zero",
-        &global_mac_lte_check_reserved_bits);
+    prefs_register_obsolete_preference(mac_lte_module, "check_reserved_bits");
+    prefs_register_obsolete_preference(mac_lte_module, "decode_rar_ul_grant");
 
     prefs_register_uint_preference(mac_lte_module, "retx_count_warn",
         "Number of Re-Transmits before expert warning triggered",
@@ -2912,11 +2901,6 @@ void proto_register_mac_lte(void)
         "Attempt to decode BCH, PCH and CCCH data using LTE RRC dissector",
         "Attempt to decode BCH, PCH and CCCH data using LTE RRC dissector",
         &global_mac_lte_attempt_rrc_decode);
-
-    prefs_register_bool_preference(mac_lte_module, "decode_rar_ul_grant",
-        "Attempt to decode details of RAR UL grant field",
-        "Attempt to decode details of RAR UL grant field",
-        &global_mac_lte_decode_rar_ul_grant);
 
     prefs_register_bool_preference(mac_lte_module, "attempt_to_dissect_crc_failures",
         "Dissect frames that have failed CRC check",
