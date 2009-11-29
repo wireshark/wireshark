@@ -5724,7 +5724,7 @@
 00:16:4D	AlcatelNor             # Alcatel North America IP Division
 00:16:4E	NokiaDanma             # Nokia Danmark A/S
 00:16:4F	WorldEthni             # World Ethnic Broadcastin Inc.
-00:16:50	EyalMicrow             # EYAL MICROWAVE
+00:16:50	HerleyGene             # Herley General Microwave Israel. 
 00:16:51	Exeo                   # Exeo Systems
 00:16:52	HoatechTec             # Hoatech Technologies, Inc.
 00:16:53	LegoSystem             # LEGO System A/S IE Electronics Division
@@ -13694,6 +13694,15 @@
 00:50:C2:B9:90:00/36	Greenlight             # Greenlight Innovation Corp.
 00:50:C2:B9:A0:00/36	TaloNv                 # Talo, NV Inc
 00:50:C2:B9:B0:00/36	TelventyEn             # Telventy Energia S.A.
+00:50:C2:B9:C0:00/36	DaveSrl                # Dave srl
+00:50:C2:B9:D0:00/36	WVershoven             # W. Vershoven GmbH
+00:50:C2:B9:E0:00/36	Saia-Burge             # Saia-Burgess Controls AG
+00:50:C2:B9:F0:00/36	Audioscope             # AUDIOSCOPE 2K SRL
+00:50:C2:BA:00:00/36	Txtr                   # txtr GmbH
+00:50:C2:BA:10:00/36	Transtechn             # Transtechnik GmbH &amp; Co.KG
+00:50:C2:BA:20:00/36	LogicalToo             # Logical Tools s.r.l.
+00:50:C2:BA:30:00/36	DspDesign              # DSP DESIGN LTD
+00:50:C2:BA:40:00/36	CustosMobi             # CUSTOS MOBILE S.L.
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -15839,7 +15848,9 @@
 24:BF:74	Private
 24:CF:21	ShenzhenSt             # Shenzhen State Micro Technology Co., Ltd
 24:D2:CC	Smartdrive             # SmartDrive Systems Inc.
+24:DB:AD	Shoppertra             # ShopperTrak RCT Corporation
 28:72:C5	Smartmatic             # Smartmatic Corp
+28:E7:94	MicrotimeC             # Microtime Computer Inc.
 28:FB:D3	ShanghaiRa             # Shanghai RagenTek Communication Technology Co.,Ltd.
 2C:06:23	WinLeader              # Win Leader Inc.
 2C:19:84	IdnTelecom             # IDN Telecom, Inc.
@@ -15892,6 +15903,7 @@
 48:44:87	CiscoSpvtg             # Cisco SPVTG
 48:4C:00	NetworkSol             # Network Solutions
 48:54:E8	Winbond?
+48:6F:D2	Storsimple             # StorSimple Inc
 48:71:19	SgbGroup               # SGB GROUP LTD.
 48:EB:30	EternaTech             # ETERNA TECHNOLOGY, INC.
 4C:32:2D	TeledataNe             # TELEDATA NETWORKS
@@ -15910,6 +15922,7 @@
 52:54:4C	Novell2000             # Novell 2000
 52:54:AB	RealtekARe             # REALTEK (a Realtek 8029 based PCI Card)
 54:03:F5	EbnTechnol             # EBN Technology Corp.
+54:42:49	Sony                   # Sony Corporation
 54:9A:16	UzushioEle             # Uzushio Electric Co.,Ltd.
 54:B6:20	SuhdolE&C              # SUHDOL E&C Co.Ltd.
 54:D4:6F	CiscoSpvtg             # Cisco SPVTG
@@ -15970,6 +15983,7 @@
 70:72:CF	EdgecoreNe             # EdgeCore Networks
 70:82:8E	Oleumtech              # OleumTech Corporation
 74:32:56	Nt-WareSys             # NT-ware Systemprg GmbH
+74:6B:82	Movek                  # MOVEK 
 74:7E:1A	RedEmbedde             # Red Embedded Design Limited
 74:D8:50	Evrisko                # Evrisko Systems
 74:E5:37	Radspin
@@ -16009,9 +16023,11 @@
 90:3D:6B	ZiconTechn             # Zicon Technology Corp.
 90:4C:E5	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd.
 90:6D:C8	DlgAutomaã             # DLG AutomaÃ§Ã£o Industrial Ltda
+90:7F:61	ChiconyEle             # Chicony Electronics Co., Ltd.
 90:84:0D	Apple                  # Apple, Inc
 90:E6:BA	AsustekCom             # ASUSTek COMPUTER INC.
 90:FB:A6	HonHaiPrec             # Hon Hai Precision Ind.Co.Ltd
+94:0C:6D	Tp-LinkTec             # TP-LINK Technologies Co.,Ltd.
 94:2E:63	Finsã©Cur
 94:44:52	BelkinInte             # Belkin International, Inc.
 94:59:2D	EkeBuildin             # EKE Building Technology Systems Ltd
@@ -16032,6 +16048,7 @@
 A0:07:98	SamsungEle             # Samsung Electronics
 A0:23:1B	TelecompR&             # TeleComp R&amp;D Corp.
 A0:2E:F3	UnitedInte             # United Integrated Services Co., Led.
+A0:3A:75	PssBelgium             # PSS Belgium N.V.
 A0:40:25	Actioncabl             # Actioncable, Inc.
 A0:59:3A	VDSVideoDi             # V.D.S. Video Display Systems srl
 A0:5D:E7	Directv                # DIRECTV, Inc.
@@ -16061,6 +16078,7 @@ AA:00:01	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:02	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:03	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:04	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
+AC:46:9B	Qrion
 AC:58:3B	HumanAssem             # Human Assembler, Inc.
 AC:83:17	ShenzhenFu             # Shenzhen Furtunetel Communication Co., Ltd
 AC:86:7E	CreateNewT             # Create New Technology (HK) Limited Company
@@ -16074,6 +16092,7 @@ B0:C6:9A	JuniperNet             # Juniper Networks
 B0:E9:7E	AdvancedMi             # Advanced Micro Peripherals
 B4:41:7A	ShenzhenGo             # ShenZhen Gongjin Electronics Co.,Ltd
 B4:B5:AF	MinsungEle             # Minsung Electronics
+B4:ED:54	WohlerTech             # Wohler Technologies
 B8:94:D2	RetailInno             # Retail Innovation HTT AB
 B8:A3:E0	BenruiTech             # BenRui Technology Co.,Ltd
 B8:B1:C7	Bt&Com                 # BT&COM CO.,LTD
@@ -16120,6 +16139,7 @@ D4:C7:66	Acentic                # Acentic GmbH
 D4:F1:43	Iproad                 # IPROAD.,Inc
 D8:42:AC	FreecommDa             # FreeComm Data Communication Co.,Ltd.
 D8:C3:FB	Detracom
+D8:D3:85	HewlettPac             # Hewlett Packard
 D8:D6:7E	GskCncEqui             # GSK CNC EQUIPMENT CO.,LTD
 DC:02:65	MeditechKf             # Meditech Kft
 DC:2C:26	ItonTechno             # Iton Technology Limited
@@ -16171,6 +16191,7 @@ F8:DC:7A	Variscite              # Variscite LTD
 F8:E9:68	EgkerKft               # Egker Kft.
 FC:08:77	PrentkeRom             # Prentke Romich Company
 FC:61:98	NecPersona             # NEC Personal Products, Ltd
+FC:68:3E	DirectedPe             # Directed Perception, Inc
 
 #
 # Well-known addresses.
