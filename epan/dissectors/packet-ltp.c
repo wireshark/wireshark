@@ -225,7 +225,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	}
 
 	/* Adding size of the data */
-	segment_offset+= length;
+	segment_offset+= (int)length;
 	if((unsigned)(frame_offset + segment_offset) > tvb_length(tvb)){
 	/* This would mean the data segment is incomplete */
 		return 0;
@@ -255,7 +255,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		ltp_data_data_item = proto_tree_add_text(ltp_data_tree, tvb,frame_offset, 0, "Data[%d]",data_count);
 		ltp_data_data_tree = proto_item_add_subtree(ltp_data_data_item, ett_data_data_segm);
 
-		datatvb = tvb_new_subset(tvb, frame_offset, length - dissected_data_size, tvb_length(tvb));
+		datatvb = tvb_new_subset(tvb, frame_offset, (int)length - dissected_data_size, tvb_length(tvb));
 		bundle_size = dissect_complete_bundle(datatvb, pinfo, ltp_data_data_tree);
 		if(bundle_size == 0) {  /*Couldn't parse bundle*/
 			col_set_str(pinfo->cinfo, COL_INFO, "Dissection Failed");
