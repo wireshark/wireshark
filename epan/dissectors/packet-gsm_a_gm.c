@@ -243,6 +243,12 @@ static int hf_gsm_a_gm_gprs_timer_unit = -1;
 static int hf_gsm_a_gm_gprs_timer_value = -1;
 static int hf_gsm_a_gm_type_of_identity = -1;
 static int hf_gsm_a_gm_rac = -1;
+static int hf_gsm_a_gm_apc = -1;
+static int hf_gsm_a_gm_otd_a = -1;
+static int hf_gsm_a_gm_otd_b = -1;
+static int hf_gsm_a_gm_gps_a = -1;
+static int hf_gsm_a_gm_gps_b = -1;
+static int hf_gsm_a_gm_gps_c = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -1341,7 +1347,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		{
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"A5 Bits: (%u) same values apply for parameters as in the immediately preceding Access capabilities field within this IE",oct>>(32-bits_needed));
+				"A5 Bits: Same values apply for parameters as in the immediately preceding Access capabilities field within this IE (%u)",oct>>(32-bits_needed));
 			bit_offset++;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
@@ -1353,7 +1359,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"A5 Bits: (%u) A5 bits follows",oct>>(32-bits_needed));
+				"A5 Bits: A5 bits follow (%u)",oct>>(32-bits_needed));
 
 			bit_offset++;
 			curr_bits_length -= bits_needed;
@@ -1485,7 +1491,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		{
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"Multislot capability: (%u) same values apply for parameters as in the immediately preceding Access capabilities field within this IE",oct>>(32-bits_needed));
+				"Multislot capability: Same values apply for parameters as in the immediately preceding Access capabilities field within this IE (%u)",oct>>(32-bits_needed));
 			bit_offset++;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
@@ -1495,7 +1501,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		{
 			proto_tree_add_text(tf_tree,
 			tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-			"Multislot capability: (%u) Multislot capability struct available",oct>>(32-bits_needed));
+			"Multislot capability: Multislot capability struct available (%u)",oct>>(32-bits_needed));
 			bit_offset++;
 
 			curr_bits_length -= bits_needed;
@@ -1513,7 +1519,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			{
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"HSCSD multislot class: (%u) Bits are not available",oct>>(32-bits_needed));
+					"HSCSD multislot class: Bits are not available (%u)",oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1553,7 +1559,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			{
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"GPRS multislot class: (%u) Bits are not available",oct>>(32-bits_needed));
+					"GPRS multislot class: Bits are not available (%u)",oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1614,7 +1620,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			{
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"SMS/SM values: (%u) Bits are not available",oct>>(32-bits_needed));
+					"SMS/SM values: Bits are not available (%u)",oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1665,7 +1671,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			{
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"ECSD multislot class: (%u) Bits are not available",oct>>(32-bits_needed));
+					"ECSD multislot class: Bits are not available (%u)",oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1705,7 +1711,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			{
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"EGPRS multislot class: (%u) Bits are not available",oct>>(32-bits_needed));
+					"EGPRS multislot class: Bits are not available (%u)",oct>>(32-bits_needed));
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
 				bits_in_oct -= bits_needed;
@@ -1766,7 +1772,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 			{
 				proto_tree_add_text(tf_tree,
 					tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-					"DTM GPRS Multi Slot Class: (%u) Bits are not available",oct>>(32-bits_needed));
+					"DTM GPRS Multi Slot Class: Bits are not available (%u)",oct>>(32-bits_needed));
 				bit_offset++;
 				curr_bits_length -= bits_needed;
 				oct <<= bits_needed;
@@ -1839,7 +1845,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 				{
 					proto_tree_add_text(tf_tree,
 						tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-						"DTM EGPRS Multi Slot Class: (%u) Bits are not available",oct>>(32-bits_needed));
+						"DTM EGPRS Multi Slot Class: Bits are not available (%u)",oct>>(32-bits_needed));
 					bit_offset++;
 					curr_bits_length -= bits_needed;
 					oct <<= bits_needed;
@@ -1890,7 +1896,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		{
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"8PSK Power Capability: (%u) Bits are not available",oct>>(32-bits_needed));
+				"8PSK Power Capability: Bits are not available (%u)",oct>>(32-bits_needed));
 			bit_offset++;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
@@ -2093,7 +2099,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		{
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"Extended DTM (E)GPRS Multi Slot Class: (%u) Bits are not available",oct>>(32-bits_needed));
+				"Extended DTM (E)GPRS Multi Slot Class: Bits are not available (%u)",oct>>(32-bits_needed));
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
 			bits_in_oct -= bits_needed;
@@ -2214,7 +2220,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		{
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"High Multislot Capability: (%u) Bits are not available",oct>>(32-bits_needed));
+				"High Multislot Capability: Bits are not available (%u)",oct>>(32-bits_needed));
 			bit_offset++;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
@@ -2281,7 +2287,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		{
 			proto_tree_add_text(tf_tree,
 				tvb, curr_offset-1-add_ocetets, 1+add_ocetets,
-				"GMSK/8-PSK Multislot Power Profile: (%u) Bits are not available",oct>>(32-bits_needed));
+				"GMSK/8-PSK Multislot Power Profile: Bits are not available (%u)",oct>>(32-bits_needed));
 			bit_offset++;
 			curr_bits_length -= bits_needed;
 			oct <<= bits_needed;
@@ -2625,57 +2631,51 @@ de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _
  */
 
 /*
- * [7] 10.5.5.22
+ * [9] 10.5.5.22 PS LCS Capability
  */
+static const true_false_string gsm_a_gm_apc_vals = {
+	"Additional Positioning Capabilities which can be retrieved by RRLP are supported",
+	"Additional Positioning Capabilities which can be retrieved by RRLP are not supported"
+};
+
+static const true_false_string gsm_a_gm_otd_a_vals = {
+	"MS assisted E-OTD supported",
+	"MS assisted E-OTD not supported"
+};
+
+static const true_false_string gsm_a_gm_otd_b_vals = {
+	"MS based E-OTD supported",
+	"MS based E-OTD not supported"
+};
+
+static const true_false_string gsm_a_gm_gps_a_vals = {
+	"MS assisted GPS supported",
+	"MS assisted GPS not supported"
+};
+
+static const true_false_string gsm_a_gm_gps_b_vals = {
+	"MS based GPS supported",
+	"MS based GPS not supported"
+};
+
+static const true_false_string gsm_a_gm_gps_c_vals = {
+	"Conventional GPS supported",
+	"Conventional GPS not supported"
+};
+
 static guint16
 de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
 	guint32	curr_offset;
 
-	static const gchar *str_otd[2]={
-		"MS assisted E-OTD not supported",
-		"MS assisted E-OTD supported" };
-	static const gchar *str_gps[2]={
-		"MS assisted GPS not supported",
-		"MS assisted GPS supported" };
-
 	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	oct <<=3;   /* move away the spare bits */
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"OTD-A: %s (%u)",
-		str_otd[oct>>7],
-		oct>>7);
-		oct <<=1;
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"OTD-B: %s (%u)",
-		str_otd[oct>>7],
-		oct>>7);
-		oct <<=1;
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"GPS-A: %s (%u)",
-		str_gps[oct>>7],
-		oct>>7);
-		oct <<=1;
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"GPS-B: %s (%u)",
-		str_gps[oct>>7],
-		oct>>7);
-		oct <<=1;
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"GPS-C: %s (%u)",
-		str_gps[oct>>7],
-		oct>>7);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset << 3, 2, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_apc, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_otd_a, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_otd_b, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_gps_a, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_gps_b, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_gm_gps_c, tvb, curr_offset, 1, FALSE);
 
 	curr_offset++;
 
@@ -2900,9 +2900,9 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
 
 	proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
-		"GPRS Timer: (%u) %u %s %s",
-		oct, val,
-		str, add_string ? add_string : "");
+		"GPRS Timer: %u %s %s (%u)",
+		val,
+		str, add_string ? add_string : "", oct);
 
 	curr_offset++;
 
@@ -5966,6 +5966,36 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_rac,
 		{ "Routing Area Code (RAC)","gsm_a.gm.rac",
 		FT_UINT8, BASE_HEX_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_apc,
+		{ "APC","gsm_a.gm.apc",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_apc_vals), 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_otd_a,
+		{ "OTD-A","gsm_a.gm.otd_a",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_otd_a_vals), 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_otd_b,
+		{ "OTD-B","gsm_a.gm.otd_b",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_otd_b_vals), 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_gps_a,
+		{ "GPS-A","gsm_a.gm.gps_a",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_gps_a_vals), 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_gps_b,
+		{ "GPS-B","gsm_a.gm.gps_b",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_gps_b_vals), 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gm_gps_c,
+		{ "GPS-C","gsm_a.gm.gps_c",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gm_gps_c_vals), 0x01,
 		NULL, HFILL }
 	},
 	};
