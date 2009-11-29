@@ -79,6 +79,10 @@
 
 #define WINDOW_TITLE_LENGTH 256
 
+#define MOUSE_BUTTON_LEFT	1
+#define MOUSE_BUTTON_MIDDLE	2
+#define MOUSE_BUTTON_RIGHT	3
+
 struct segment {
 	struct segment *next;
 	guint32 num;
@@ -330,6 +334,10 @@ struct graph {
 		struct style_tput tput;
 		struct style_rtt rtt;
 	} s;
+	/* This allows keyboard to set the radio button */
+	struct {
+		GtkToggleButton *graph_rtt, *graph_tput, *graph_tseqstevens, *graph_tseqttrace;
+	} gt;
 };
 
 static GdkGC *xor_gc = NULL;
@@ -426,8 +434,10 @@ static void axis_ticks_up (int * , int * );
 static void axis_ticks_down (int * , int * );
 static void axis_destroy (struct axis * );
 static int get_label_dim (struct axis * , int , double );
+static void toggle_crosshairs (struct graph *g);
 static void toggle_time_origin (struct graph * );
 static void toggle_seq_origin (struct graph * );
+static void restore_initial_graph_view (struct graph *g);
 static void cross_xor (struct graph * , int , int );
 static void cross_draw (struct graph * , int , int );
 static void cross_erase (struct graph * );
@@ -471,32 +481,101 @@ static void rtt_toggle_seq_origin (struct graph * );
 static int rint (double );	/* compiler template for Windows */
 #endif
 
+/* 
+ * Uncomment the following define to revert WIN32 to 
+ * use original mouse button controls 
+ */
+
+/* #define ORIGINAL_WIN32_BUTTONS 1 */
+
 /* XXX - what about OS X? */
 static char helptext[] =
-#ifndef _WIN32
-"Here's what you can do:\n\
-- Left Mouse Button selects segment in Wireshark's packet list\n\
-- Middle Mouse Button zooms in\n\
-- <shift>-Middle Button zooms out\n\
-- Right Mouse Button moves the graph (if zoomed in)\n\
-- <ctrl>-Right Mouse Button displays a portion of graph magnified\n\
-- Space toggles crosshairs\n\
-- 's' toggles relative/absolute sequence numbers\n\
-- 't' toggles time origin\n\
-";
-#else /* _WIN32 */
-"Here's what you can do:\n\
-- <ctrl>-Left  Mouse Button selects segment in Wireshark's packet list\n\
-- Left         Mouse Button zooms in\n\
-- <shift>-Left Mouse Button zooms out\n\
-- Right        Mouse Button moves the graph (if zoomed in)\n\
-- <ctrl>-Right Mouse Button displays a portion of graph magnified\n\
-\n\
-- Space bar toggles crosshairs\n\
-- 's' - Toggles relative/absolute sequence numbers\n\
-- 't' - Toggles time origin\n\
-";
+	"Here's what you can do:\n"
+	"\n"
+#ifdef ORIGINAL_WIN32_BUTTONS
+	"   <Ctrl>-Left Mouse Button		selects segment under cursor in Wireshark's packet list\n"
+	"\n"
+	"   Left Mouse Button			zooms in (towards area under mouse pointer)\n"
+	"   <Shift>-Left Mouse Button		zooms out\n"
+	"\n"
+	"   Right Mouse Button			moves the graph (if zoomed in)\n"
+	"   <Ctrl>-Right Mouse Button		displays a portion of graph under cursor magnified\n"
+#else /* !ORIGINAL_WIN32_BUTTONS */
+	"   Left Mouse Button			selects segment under cursor in Wireshark's packet list\n"
+	"\n"
+	"   Middle Mouse Button			zooms in (towards area under cousor)\n"
+	"   <Shift>-Middle Mouse Button	zooms out\n"
+	"\n"
+	"   Right Mouse Button			moves the graph (if zoomed in)\n"
+	"   <Ctrl>-Right Mouse Button		displays a portion of graph under cursor magnified\n"
 #endif
+	"\n"
+	"\n"
+	"   '1'				display Round Trip Time Graph\n"
+	"   '2'				display Throughput Graph\n"
+	"   '3'				display Time/Sequence Graph (Stevens)\n"
+	"   '4'				display Time/Sequence Graph (tcptrace)\n"
+	"\n"
+	"   <Space bar>	toggles crosshairs on/off\n"
+	"\n"
+	"   'i' or '+'			zoom in (towards area under mouse pointer)\n"
+	"   'o' or '-'			zoom out\n"
+	"   'r' or <Home>	restore graph to initial state (zoom out max)\n"
+	"   's'				toggles relative/absolute sequence numbers\n"
+	"   't'				toggles time origin\n"
+	"   'g'				go to frame under cursor in Wireshark's packet list (if possible)\n"
+	"\n"
+	"   <Left>			move view left by 100 pixels (if zoomed in)\n"
+	"   <Right>		move view right 100 pixels (if zoomed in)\n"
+	"   <Up>			move view up by 100 pixels (if zoomed in)\n"
+	"   <Down>		move view down by 100 pixels (if zoomed in)\n"
+	"\n"
+	"   <Shift><Left>	move view left by 10 pixels (if zoomed in)\n"
+	"   <Shift><Right>	move view right 10 pixels (if zoomed in)\n"
+	"   <Shift><Up>	move view up by 10 pixels (if zoomed in)\n"
+	"   <Shift><Down>	move view down by 10 pixels (if zoomed in)\n"
+	"\n"
+	"   <Ctrl><Left>	move view left by 1 pixel (if zoomed in)\n"
+	"   <Ctrl><Right>	move view right 1 pixel (if zoomed in)\n"
+	"   <Ctrl><Up>	move view up by 1 pixel (if zoomed in)\n"
+	"   <Ctrl><Down>	move view down by 1 pixel (if zoomed in)\n"
+;
+
+#if 0
+static void debug_coord (struct graph *g, const char *c)
+{
+	static unsigned count = 0;
+	
+	count++;
+	printf("%u: %s\n", count, c);
+	printf("%u:  g->geom.width %d\n", count, g->geom.width);
+	printf("%u: g->geom.height %d\n", count, g->geom.height);
+	printf("%u:      g->geom.x %d\n", count, g->geom.x);
+	printf("%u:      g->geom.y %d\n", count, g->geom.y);
+
+	printf("%u:    g->wp.width %d\n", count, g->wp.width);
+	printf("%u:   g->wp.height %d\n", count, g->wp.height);
+	printf("%u:        g->wp.x %d\n", count, g->wp.x);
+	printf("%u:        g->wp.y %d\n", count, g->wp.y);
+	printf("---------------\n");
+}
+#endif
+
+static void set_busy_cursor(GdkWindow *w)
+{
+	GdkCursor* cursor;
+
+	cursor = gdk_cursor_new(GDK_WATCH);
+	gdk_window_set_cursor(w, cursor);
+  	gdk_flush(); 
+	gdk_cursor_destroy(cursor);
+}
+
+static void unset_busy_cursor(GdkWindow *w)
+{
+	gdk_window_set_cursor(w, NULL);
+  	gdk_flush(); 
+}
 
 static void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*graph_type*/ _U_)
 {
@@ -567,7 +646,7 @@ static void create_drawing_area (struct graph *g)
 	g->drawing_area = gtk_drawing_area_new ();
 	g_object_set_data(G_OBJECT(g->drawing_area), "graph", g);
 	g->x_axis->drawing_area = g->y_axis->drawing_area = g->drawing_area;
-	gtk_drawing_area_size (GTK_DRAWING_AREA (g->drawing_area),
+	gtk_widget_set_size_request (g->drawing_area,
 					g->wp.width + g->wp.x + RMARGIN_WIDTH,
 					g->wp.height + g->wp.y + g->x_axis->s.height);
 	gtk_widget_show (g->drawing_area);
@@ -872,11 +951,11 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 	gtk_window_set_default_size(GTK_WINDOW(toplevel), 500, 400);
 
 	vbox = gtk_vbox_new (FALSE, 3);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 	gtk_container_add (GTK_CONTAINER (toplevel), vbox);
 
 	scroll = scrolled_window_new (NULL, NULL);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll),
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll),
                                    GTK_SHADOW_IN);
 	gtk_box_pack_start (GTK_BOX (vbox), scroll, TRUE, TRUE, 0);
         text = gtk_text_view_new();
@@ -886,17 +965,17 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 	gtk_container_add (GTK_CONTAINER (scroll), text);
 
 	/* Button row. */
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_start (GTK_BOX (vbox), bbox, FALSE, FALSE, 0);
-    gtk_widget_show(bbox);
+	gtk_widget_show(bbox);
 
-    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
-    window_set_cancel_button(toplevel, close_bt, window_cancel_button_cb);
+	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+	window_set_cancel_button(toplevel, close_bt, window_cancel_button_cb);
 
-    g_signal_connect(toplevel, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(toplevel, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
 	gtk_widget_show_all (toplevel);
-    window_present(toplevel);
+	window_present(toplevel);
 }
 
 static void callback_time_origin (GtkWidget *toggle _U_, gpointer data)
@@ -1404,10 +1483,10 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	graph_init = gtk_check_button_new_with_label ("Init on change");
 	graph_sep = gtk_hseparator_new ();
 	graph_box = gtk_vbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (graph_box), graph_tseqttrace, TRUE, TRUE, 0);
-	gtk_box_pack_start (GTK_BOX (graph_box), graph_tseqstevens, TRUE, TRUE, 0);
-	gtk_box_pack_start (GTK_BOX (graph_box), graph_tput, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_rtt, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (graph_box), graph_tput, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (graph_box), graph_tseqstevens, TRUE, TRUE, 0);
+	gtk_box_pack_start (GTK_BOX (graph_box), graph_tseqttrace, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_sep, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_init, TRUE, TRUE, 0);
 	graph_frame = gtk_frame_new ("Graph type:");
@@ -1419,12 +1498,16 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	g_object_set_data(G_OBJECT(graph_tput), "new-graph-type", GINT_TO_POINTER(2));
 	g_object_set_data(G_OBJECT(graph_rtt), "new-graph-type", GINT_TO_POINTER(3));
 
+	g->gt.graph_rtt = (GtkToggleButton * )graph_rtt;
+	g->gt.graph_tput = (GtkToggleButton * )graph_tput;
+	g->gt.graph_tseqstevens = (GtkToggleButton * )graph_tseqstevens;
+	g->gt.graph_tseqttrace = (GtkToggleButton * )graph_tseqttrace;
+
         g_signal_connect(graph_tseqttrace, "toggled", G_CALLBACK(callback_graph_type), g);
         g_signal_connect(graph_tseqstevens, "toggled", G_CALLBACK(callback_graph_type), g);
         g_signal_connect(graph_tput, "toggled", G_CALLBACK(callback_graph_type), g);
         g_signal_connect(graph_rtt, "toggled", G_CALLBACK(callback_graph_type), g);
-        g_signal_connect(graph_init, "toggled", G_CALLBACK(callback_graph_init_on_typechg),
-                       g);
+        g_signal_connect(graph_init, "toggled", G_CALLBACK(callback_graph_init_on_typechg), g);
 
 	return graph_frame;
 }
@@ -1911,7 +1994,9 @@ static void graph_pixmaps_create (struct graph *g)
 
 static void graph_display (struct graph *g)
 {
+	set_busy_cursor (g->drawing_area->window);
 	graph_pixmap_draw (g);
+	unset_busy_cursor (g->drawing_area->window);
 	graph_pixmaps_switch (g);
 	graph_pixmap_display (g);
 }
@@ -1942,7 +2027,6 @@ static void graph_pixmap_draw (struct graph *g)
 
 	gdk_draw_rectangle (g->pixmap[not_disp], g->bg_gc, TRUE,
 							0, 0, g->wp.width, g->wp.height);
-
 	for (list=g->elists; list; list=list->next)
 		for (e=list->elements; e->type != ELMT_NONE; e++) {
 			switch (e->type) {
@@ -2391,11 +2475,14 @@ static void graph_select_segment (struct graph *g, int x, int y)
 {
 	struct element_list *list;
 	struct element *e;
+	guint num = 0;
 
 	debug(DBS_FENTRY) puts ("graph_select_segment()");
 
 	x -= g->geom.x;
 	y = g->geom.height-1 - (y - g->geom.y);
+
+	set_busy_cursor (g->drawing_area->window);
 
 	for (list=g->elists; list; list=list->next)
 		for (e=list->elements; e->type != ELMT_NONE; e++) {
@@ -2403,17 +2490,24 @@ static void graph_select_segment (struct graph *g, int x, int y)
 			case ELMT_RECT:
 				break;
 			case ELMT_LINE:
-				if (line_detect_collision (e, x, y))
-					cf_goto_frame(&cfile, e->parent->num);
-				break;
+				if (line_detect_collision (e, x, y)) {
+					num = e->parent->num;
+				}
 			case ELMT_ARC:
-				if (arc_detect_collision (e, x, y))
-					cf_goto_frame(&cfile, e->parent->num);
+				if (arc_detect_collision (e, x, y)) {
+					num = e->parent->num;
+				}
 				break;
 			default:
 				break;
 			}
 		}
+
+
+	if (num) {
+		cf_goto_frame(&cfile, num);
+	}
+	unset_busy_cursor (g->drawing_area->window);
 }
 
 static int line_detect_collision (struct element *e, int x, int y)
@@ -2532,7 +2626,7 @@ static void magnify_create (struct graph *g, int x, int y)
 	offsetpos.x = offsetpos.x >= 0 ? offsetpos.x : 0;
 	offsetpos.y = g->magnify.y + g->magnify.offset.y;
 	offsetpos.y = offsetpos.y >= 0 ? offsetpos.y : 0;
-	gtk_widget_set_uposition (mg->drawing_area, offsetpos.x, offsetpos.y);
+	gtk_window_set_position (GTK_WINDOW(mg->drawing_area), GTK_WIN_POS_NONE);	
 	magnify_get_geom (g, x, y);
 
 	gtk_widget_show (mg->drawing_area);
@@ -2568,8 +2662,6 @@ static void magnify_move (struct graph *g, int x, int y)
 	offsetpos.y = g->magnify.y + g->magnify.offset.y;
 	offsetpos.y = offsetpos.y >= 0 ? offsetpos.y : 0;
 	magnify_get_geom (g, x, y);
-	gtk_widget_set_uposition (g->magnify.g->drawing_area, offsetpos.x,
-								offsetpos.y);
 	magnify_draw (g);
 }
 
@@ -2720,95 +2812,262 @@ static gint expose_event (GtkWidget *widget, GdkEventExpose *event)
 	return TRUE;
 }
 
+static void do_zoom_mouse (struct graph *g, GdkEventButton *event)
+{
+	int cur_width = g->geom.width, cur_height = g->geom.height;
+	struct { double x, y; } factor;
+
+	if (g->zoom.flags & ZOOM_OUT) {
+		if (g->zoom.flags & ZOOM_HLOCK)
+			factor.x = 1.0;
+		else
+			factor.x = 1 / g->zoom.step_x;
+		if (g->zoom.flags & ZOOM_VLOCK)
+			factor.y = 1.0;
+		else
+			factor.y = 1 / g->zoom.step_y;
+	} else {
+		if (g->zoom.flags & ZOOM_HLOCK)
+			factor.x = 1.0;
+		else
+			factor.x = g->zoom.step_x;
+		if (g->zoom.flags & ZOOM_VLOCK)
+			factor.y = 1.0;
+		else
+			factor.y = g->zoom.step_y;
+	}
+
+	g->geom.width = (int )rint (g->geom.width * factor.x);
+	g->geom.height = (int )rint (g->geom.height * factor.y);
+	if (g->geom.width < g->wp.width)
+		g->geom.width = g->wp.width;
+	if (g->geom.height < g->wp.height)
+		g->geom.height = g->wp.height;
+	g->zoom.x = (g->geom.width - 1) / g->bounds.width;
+	g->zoom.y = (g->geom.height- 1) / g->bounds.height;
+
+	g->geom.x -= (int )rint ((g->geom.width - cur_width) *
+			((event->x-g->geom.x)/(double )cur_width));
+	g->geom.y -= (int )rint ((g->geom.height - cur_height) *
+			((event->y-g->geom.y)/(double )cur_height));
+
+	if (g->geom.x > g->wp.x)
+		g->geom.x = g->wp.x;
+	if (g->geom.y > g->wp.y)
+		g->geom.y = g->wp.y;
+	if (g->wp.x + g->wp.width > g->geom.x + g->geom.width)
+		g->geom.x = g->wp.width + g->wp.x - g->geom.width;
+	if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
+		g->geom.y = g->wp.height + g->wp.y - g->geom.height;
+#if 0
+	printf ("button press: graph: (%d,%d), (%d,%d); viewport: (%d,%d), "
+			"(%d,%d); zooms: (%f,%f)\n", g->geom.x, g->geom.y,
+			g->geom.width, g->geom.height, g->wp.x, g->wp.y, g->wp.width,
+			g->wp.height, g->zoom.x, g->zoom.y);
+#endif
+	graph_element_lists_make (g);
+	g->cross.erase_needed = 0;
+	graph_display (g);
+	axis_display (g->y_axis);
+	axis_display (g->x_axis);
+	update_zoom_spins (g);
+	if (g->cross.draw)
+		cross_draw (g, (int) event->x, (int) event->y);
+}
+
+static void do_zoom_keyboard (struct graph *g)
+{
+	int cur_width = g->geom.width, cur_height = g->geom.height;
+	struct { double x, y; } factor;
+	int pointer_x, pointer_y;
+
+	gdk_window_get_pointer (g->drawing_area->window, &pointer_x, &pointer_y, 0);
+
+	if (g->zoom.flags & ZOOM_OUT) {
+		if (g->zoom.flags & ZOOM_HLOCK)
+			factor.x = 1.0;
+		else
+			factor.x = 1 / g->zoom.step_x;
+		if (g->zoom.flags & ZOOM_VLOCK)
+			factor.y = 1.0;
+		else
+			factor.y = 1 / g->zoom.step_y;
+	} else {
+		if (g->zoom.flags & ZOOM_HLOCK)
+			factor.x = 1.0;
+		else
+			factor.x = g->zoom.step_x;
+		if (g->zoom.flags & ZOOM_VLOCK)
+			factor.y = 1.0;
+		else
+			factor.y = g->zoom.step_y;
+	}
+
+	g->geom.width = (int )rint (g->geom.width * factor.x);
+	g->geom.height = (int )rint (g->geom.height * factor.y);
+	if (g->geom.width < g->wp.width)
+		g->geom.width = g->wp.width;
+	if (g->geom.height < g->wp.height)
+		g->geom.height = g->wp.height;
+	g->zoom.x = (g->geom.width - 1) / g->bounds.width;
+	g->zoom.y = (g->geom.height- 1) / g->bounds.height;
+
+	g->geom.x -= (int )rint ((g->geom.width - cur_width) *
+			((pointer_x - g->geom.x)/(double )cur_width));
+	g->geom.y -= (int )rint ((g->geom.height - cur_height) *
+			((pointer_y - g->geom.y)/(double )cur_height));
+
+	if (g->geom.x > g->wp.x)
+		g->geom.x = g->wp.x;
+	if (g->geom.y > g->wp.y)
+		g->geom.y = g->wp.y;
+	if (g->wp.x + g->wp.width > g->geom.x + g->geom.width)
+		g->geom.x = g->wp.width + g->wp.x - g->geom.width;
+	if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
+		g->geom.y = g->wp.height + g->wp.y - g->geom.height;
+#if 0
+	printf ("key press: graph: (%d,%d), (%d,%d); viewport: (%d,%d), "
+			"(%d,%d); zooms: (%f,%f)\n", g->geom.x, g->geom.y,
+			g->geom.width, g->geom.height, g->wp.x, g->wp.y, g->wp.width,
+			g->wp.height, g->zoom.x, g->zoom.y);
+#endif
+
+	graph_element_lists_make (g);
+	g->cross.erase_needed = 0;
+	graph_display (g);
+	axis_display (g->y_axis);
+	axis_display (g->x_axis);
+	update_zoom_spins (g);
+	if (g->cross.draw)
+		cross_draw (g, pointer_x, pointer_y);
+}
+
+static void do_zoom_in_keyboard (struct graph *g)
+{
+	gtk_toggle_button_set_active (g->zoom.widget.in_toggle, TRUE);
+	do_zoom_keyboard (g);
+}
+
+static void do_zoom_out_keyboard (struct graph *g)
+{
+	gtk_toggle_button_set_active (g->zoom.widget.out_toggle, TRUE);
+	do_zoom_keyboard (g);
+	gtk_toggle_button_set_active (g->zoom.widget.in_toggle, TRUE);
+}
+
+static void do_select_segment (struct graph *g)
+{
+	int pointer_x, pointer_y;
+
+	gdk_window_get_pointer (g->drawing_area->window, &pointer_x, &pointer_y, 0);
+	graph_select_segment (g, pointer_x, pointer_y);
+}
+
+static void do_rtt_graph (struct graph *g)
+{
+        gtk_toggle_button_set_active (g->gt.graph_rtt, TRUE); 
+}
+
+static void do_throughput_graph (struct graph *g)
+{
+        gtk_toggle_button_set_active (g->gt.graph_tput, TRUE);
+}
+
+static void do_ts_graph_stevens (struct graph *g)
+{
+        gtk_toggle_button_set_active (g->gt.graph_tseqstevens, TRUE);
+}
+
+static void do_ts_graph_tcptrace (struct graph *g)
+{
+        gtk_toggle_button_set_active (g->gt.graph_tseqttrace, TRUE);
+}
+
+static void do_magnify_create (struct graph *g)
+{
+	int pointer_x, pointer_y;
+
+	gdk_window_get_pointer (g->drawing_area->window, &pointer_x, &pointer_y, 0);
+
+	magnify_create (g, (int )rint (pointer_x), (int )rint (pointer_y));
+}
+
+static void do_key_motion (struct graph *g)
+{
+	if (g->geom.x > g->wp.x)
+		g->geom.x = g->wp.x;
+	if (g->geom.y > g->wp.y)
+		g->geom.y = g->wp.y;
+	if (g->wp.x + g->wp.width > g->geom.x + g->geom.width)
+		g->geom.x = g->wp.width + g->wp.x - g->geom.width;
+	if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
+		g->geom.y = g->wp.height + g->wp.y - g->geom.height;
+	g->cross.erase_needed = 0;
+	graph_display (g);
+	axis_display (g->y_axis);
+	axis_display (g->x_axis);
+	if (g->cross.draw) {
+		int pointer_x, pointer_y;
+		gdk_window_get_pointer (g->drawing_area->window, &pointer_x, &pointer_y, 0);
+		cross_draw (g, pointer_x, pointer_y);
+	}
+}
+
+static void do_key_motion_up (struct graph *g, int step)
+{
+	g->geom.y += step;
+	do_key_motion (g);
+}
+
+static void do_key_motion_down (struct graph *g, int step)
+{
+	g->geom.y -= step;
+	do_key_motion (g);
+}
+
+static void do_key_motion_left (struct graph *g, int step)
+{
+	g->geom.x += step;
+	do_key_motion (g);
+}
+
+static void do_key_motion_right (struct graph *g, int step)
+{
+	g->geom.x -= step;
+	do_key_motion (g);
+}
+
 static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
         struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
 	debug(DBS_FENTRY) puts ("button_press_event()");
 
-	if (event->button == 3) {
-		if (event->state & GDK_CONTROL_MASK)
+	if (event->button == MOUSE_BUTTON_RIGHT) {
+		if (event->state & GDK_CONTROL_MASK) {
 			magnify_create (g, (int )rint (event->x), (int )rint (event->y));
-		else {
+		} else {
 			g->grab.x = (int )rint (event->x) - g->geom.x;
 			g->grab.y = (int )rint (event->y) - g->geom.y;
 			g->grab.grabbed = TRUE;
 		}
-#ifdef _WIN32
+#ifdef ORIGINAL_WIN32_BUTTONS
 				/* Windows mouse control:        */
 				/* [<ctrl>-left] - select packet */
 				/* [left] - zoom in              */
 				/* [<shift>-left] - zoom out     */
-	} else if (event->button == 1) {
+	} else if (event->button == MOUSE_BUTTON_LEFT) {
 		if (event->state & GDK_CONTROL_MASK) {
 			graph_select_segment (g, (int)event->x, (int)event->y);
 		} else {
-#else /* _WIN32 */
-	} else if (event->button == 2) {
+#else /* !ORIGINAL_WIN32_BUTTONS */
+	} else if (event->button == MOUSE_BUTTON_MIDDLE) {
 #endif
-		int cur_width = g->geom.width, cur_height = g->geom.height;
-		struct { double x, y; } factor;
-
-		if (g->zoom.flags & ZOOM_OUT) {
-			if (g->zoom.flags & ZOOM_HLOCK)
-				factor.x = 1.0;
-			else
-				factor.x = 1 / g->zoom.step_x;
-			if (g->zoom.flags & ZOOM_VLOCK)
-				factor.y = 1.0;
-			else
-				factor.y = 1 / g->zoom.step_y;
-		} else {
-			if (g->zoom.flags & ZOOM_HLOCK)
-				factor.x = 1.0;
-			else
-				factor.x = g->zoom.step_x;
-			if (g->zoom.flags & ZOOM_VLOCK)
-				factor.y = 1.0;
-			else
-				factor.y = g->zoom.step_y;
-		}
-
-		g->geom.width = (int )rint (g->geom.width * factor.x);
-		g->geom.height = (int )rint (g->geom.height * factor.y);
-		if (g->geom.width < g->wp.width)
-			g->geom.width = g->wp.width;
-		if (g->geom.height < g->wp.height)
-			g->geom.height = g->wp.height;
-		g->zoom.x = (g->geom.width - 1) / g->bounds.width;
-		g->zoom.y = (g->geom.height- 1) / g->bounds.height;
-
-		g->geom.x -= (int )rint ((g->geom.width - cur_width) *
-						((event->x-g->geom.x)/(double )cur_width));
-		g->geom.y -= (int )rint ((g->geom.height - cur_height) *
-						((event->y-g->geom.y)/(double )cur_height));
-
-		if (g->geom.x > g->wp.x)
-			g->geom.x = g->wp.x;
-		if (g->geom.y > g->wp.y)
-			g->geom.y = g->wp.y;
-		if (g->wp.x + g->wp.width > g->geom.x + g->geom.width)
-			g->geom.x = g->wp.width + g->wp.x - g->geom.width;
-		if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
-			g->geom.y = g->wp.height + g->wp.y - g->geom.height;
-#if 0
-		printf ("button press: graph: (%d,%d), (%d,%d); viewport: (%d,%d), "
-				"(%d,%d); zooms: (%f,%f)\n", g->geom.x, g->geom.y,
-				g->geom.width, g->geom.height, g->wp.x, g->wp.y, g->wp.width,
-				g->wp.height, g->zoom.x, g->zoom.y);
-#endif
-		graph_element_lists_make (g);
-		g->cross.erase_needed = 0;
-		graph_display (g);
-		axis_display (g->y_axis);
-		axis_display (g->x_axis);
-		update_zoom_spins (g);
-		if (g->cross.draw)
-			cross_draw (g, (int) event->x, (int) event->y);
-#ifndef _WIN32
-	} else if (event->button == 1) {
+		do_zoom_mouse(g, event);
+#ifndef ORIGINAL_WIN32_BUTTONS
+	} else if (event->button == MOUSE_BUTTON_LEFT) {
 		graph_select_segment (g, (int )event->x, (int )event->y);
-#else /* _WIN32 */
+#else /* ORIGINAL_WIN32_BUTTONS*/
 		}
 #endif
 	}
@@ -2878,7 +3137,7 @@ static gint button_release_event (GtkWidget *widget, GdkEventButton *event)
 
 	debug(DBS_FENTRY) puts ("button_release_event()");
 
-	if (event->button == 3)
+	if (event->button == MOUSE_BUTTON_RIGHT)
 		g->grab.grabbed = FALSE;
 
 	if (g->magnify.active)
@@ -2889,33 +3148,76 @@ static gint button_release_event (GtkWidget *widget, GdkEventButton *event)
 static gint key_press_event (GtkWidget *widget, GdkEventKey *event)
 {
         struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+	int step;
 
 	debug(DBS_FENTRY) puts ("key_press_event()");
 
-	if (event->keyval == 32 /*space*/) {
-		g->cross.draw ^= 1;
-#if 0
-		if (g->cross.draw) {
-			int x, y;
-			gdk_window_get_pointer (g->drawing_area->window, &x, &y, 0);
-			cross_draw (g);
-		} else if (g->cross.erase_needed) {
-			cross_erase (g);
-		}
-#endif
-		/* toggle buttons emit their "toggled" signals so don't bother doing
-		 * any real work here, it will be done in signal handlers */
-		if (g->cross.draw)
-			gtk_toggle_button_set_active (g->cross.on_toggle, TRUE);
-		else
-			gtk_toggle_button_set_active (g->cross.off_toggle, TRUE);
-	} else if (event->keyval == 't')
+	if((event->state & GDK_CONTROL_MASK) && (event->state & GDK_SHIFT_MASK))
+		step = 0;
+	else if (event->state & GDK_CONTROL_MASK)
+		step = 1;
+	else if (event->state & GDK_SHIFT_MASK)
+		step = 10;
+	else
+		step = 100;
+
+	switch (event->keyval) {
+	case ' ':
+		toggle_crosshairs (g);
+		break;
+	case 't':
 		toggle_time_origin (g);
-	else if (event->keyval == 's')
+		break;
+	case 's':
 		toggle_seq_origin (g);
-	else if (event->keyval == GDK_Shift_L) {
-		/* g->zoom.flags |= ZOOM_OUT; */
-		gtk_toggle_button_set_active (g->zoom.widget.out_toggle, TRUE);
+		break;
+	case 'r':
+	case GDK_Home:
+		restore_initial_graph_view (g);
+		break;
+	case 'i':
+	case '+':
+		do_zoom_in_keyboard (g);
+		break;
+	case 'o':
+	case '-':
+		do_zoom_out_keyboard (g);
+		break;
+	case 'm':
+		do_magnify_create (g);
+		break;
+	case 'g':
+		do_select_segment (g);
+		break;
+        case '1':
+		do_rtt_graph (g);
+		break;
+	case '2':
+		do_throughput_graph (g);
+		break;
+	case '3':
+		do_ts_graph_stevens (g);
+		break;
+	case '4':
+		do_ts_graph_tcptrace (g);
+		break;
+	case GDK_Left:
+		do_key_motion_left (g, step);
+		break;
+	case GDK_Up:
+		do_key_motion_up (g, step);
+		break;
+	case GDK_Right:
+		do_key_motion_right (g, step);
+		break;
+	case GDK_Down:
+		do_key_motion_down (g, step);
+		break;
+	case GDK_F1:
+	        callback_create_help (NULL, NULL);	
+		break;
+	default:
+		break;
 	}
 	return TRUE;
 }
@@ -2956,6 +3258,26 @@ static gint enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
 	return TRUE;
 }
 
+static void toggle_crosshairs (struct graph *g)
+{
+	g->cross.draw ^= 1;
+#if 0
+	if (g->cross.draw) {
+		int x, y;
+		gdk_window_get_pointer (g->drawing_area->window, &x, &y, 0);
+		cross_draw (g);
+	} else if (g->cross.erase_needed) {
+		cross_erase (g);
+	}
+#endif
+	/* toggle buttons emit their "toggled" signals so don't bother doing
+	 * any real work here, it will be done in signal handlers */
+	if (g->cross.draw)
+		gtk_toggle_button_set_active (g->cross.on_toggle, TRUE);
+	else
+		gtk_toggle_button_set_active (g->cross.off_toggle, TRUE);
+}
+
 static void toggle_time_origin (struct graph *g)
 {
 	switch (g->type) {
@@ -2992,6 +3314,15 @@ static void toggle_seq_origin (struct graph *g)
 	default:
 		break;
 	}
+}
+
+static void restore_initial_graph_view (struct graph *g)
+{
+	g->geom.width = g->wp.width;
+	g->geom.height = g->wp.height;
+	g->geom.x = g->wp.x;
+	g->geom.y = g->wp.y;
+	graph_init_sequence (g);
 }
 
 static int get_num_dsegs (struct graph *g)
@@ -3041,7 +3372,7 @@ static void tseq_stevens_read_config (struct graph *g)
 	g->s.tseq_stevens.flags = 0;
 
 	g->title = (const char ** )g_malloc (2 * sizeof (char *));
-	g->title[0] = "Time/Sequence Graph";
+	g->title[0] = "Time/Sequence Graph (Stevens)";
 	g->title[1] = NULL;
 	g->y_axis->label = (const char ** )g_malloc (3 * sizeof (char * ));
 	g->y_axis->label[0] = "number[B]";
@@ -3302,7 +3633,7 @@ static void tseq_tcptrace_read_config (struct graph *g)
 	g->elists->next->elements = NULL;
 
 	g->title = (const char ** )g_malloc (2 * sizeof (char *));
-	g->title[0] = "Time/Sequence Graph";
+	g->title[0] = "Time/Sequence Graph (tcptrace)";
 	g->title[1] = NULL;
 	g->y_axis->label = (const char ** )g_malloc (3 * sizeof (char * ));
 	g->y_axis->label[0] = "number[B]";
