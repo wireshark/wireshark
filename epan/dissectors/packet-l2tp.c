@@ -1751,8 +1751,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return 0;
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))	/* build output for closed L2tp frame displayed  */
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	switch (L2TP_VERSION(control)) {
