@@ -95,6 +95,8 @@ typedef struct fp_info
     gint cur_tb;	/* current transport block (required for dissecting of single TBs */
     gint cur_chan;  /* current channel, required to retrieve the correct channel configuration for UMTS MAC */
 
+    guint16 srcport, destport;
+
     enum   fp_hsdsch_entity hsdsch_entity;
     enum   fp_link_type link_type;
 } fp_info;

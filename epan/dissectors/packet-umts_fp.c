@@ -2939,6 +2939,34 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
     }
 }
 
+static gboolean heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    struct fp_info *p_fp_info;
+
+    p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
+
+    /* if no FP info is present, assume this is not FP over UDP */
+    if (!p_fp_info) return FALSE;
+
+	/* if FP info is present, check that it really is an ethernet link */
+    if (p_fp_info->link_type != FP_Link_Ethernet) return FALSE;
+
+	/* remember 'lower' UDP layer port information */
+    if (!p_fp_info->srcport || !p_fp_info->destport) {
+        p_fp_info->srcport = pinfo->srcport;
+        p_fp_info->destport = pinfo->destport;
+    }    
+
+	/* discriminate 'lower' UDP layer from 'user data' UDP layer
+	 * (i.e. if an FP over UDP packet contains a user UDP packet */
+    if (p_fp_info->srcport != pinfo->srcport ||
+        p_fp_info->destport != pinfo->destport)
+        return FALSE;
+
+    /* assume this is FP */
+    dissect_fp(tvb, pinfo, tree);
+    return TRUE;
+}
 
 
 /*****************************/
@@ -3927,5 +3955,7 @@ void proto_reg_handoff_fp(void)
 	mac_fdd_dch_handle = find_dissector("mac.fdd.dch");
 	mac_fdd_edch_handle = find_dissector("mac.fdd.edch");
 	mac_fdd_hsdsch_handle = find_dissector("mac.fdd.hsdsch");
+
+	heur_dissector_add("udp", heur_dissect_fp, proto_fp);
 }
 
