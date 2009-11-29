@@ -6059,6 +6059,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 			case 1:
 				offset = fBitStringTagVS (tvb, subtree, offset,
 					"status-flags: ", BACnetStatusFlags);
+	        	lastoffset = offset;
 				break;
 			default:
 				break;
@@ -6107,6 +6108,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 			case 1:
 				offset = fBitStringTagVS (tvb, subtree, offset,
 					"status-flags: ", BACnetStatusFlags);
+	        	lastoffset = offset;
 				break;
 			default:
 				break;
@@ -6134,6 +6136,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				offset = fAbstractSyntaxNType (tvb, pinfo, subtree, offset);
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+	        	lastoffset = offset;
 				break;
 			default:
 				break;
@@ -6156,6 +6159,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 				break;
 			case 3:
 				offset = fRealTag (tvb, subtree, offset, "error-limit: ");
+	        	lastoffset = offset;
 				break;
 			default:
 				break;
@@ -6178,6 +6182,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 				break;
 			case 3:
 				offset = fRealTag (tvb, subtree, offset, "exceeded-limit: ");
+	        	lastoffset = offset;
 				break;
 			default:
 				break;
@@ -6209,6 +6214,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				offset = fDateTime (tvb, subtree, offset, "current-notification: ");
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+	        	lastoffset = offset;
 				break;
 			default:
 				break;
@@ -6234,6 +6240,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 			case 3:
 				offset = fEnumeratedTagSplit (tvb, subtree, offset,
 					"operation-expected: ", BACnetLifeSafetyOperation, 64);
+	        	lastoffset = offset;
 				break;
 			default:
 				break;
@@ -6256,6 +6263,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 				offset = fApplicationTypes(tvb, pinfo, subtree, offset, "parameters: ");
 				offset = fDeviceObjectPropertyValue(tvb, pinfo, subtree, offset);
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+	        	lastoffset = offset;
 				break;
 			default:
 				break;
@@ -6278,6 +6286,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 			case 2:
 				offset = fUnsignedTag (tvb, subtree, offset,
 					"current-notification: ");
+	        	lastoffset = offset;
 				break;
 			default:
 				break;
@@ -6299,6 +6308,7 @@ fNotificationParameters (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 			case 2:
 				offset = fUnsignedTag (tvb, subtree, offset,
 					"exceeded-limit: ");
+	        	lastoffset = offset;
 				break;
 			default:
 				break;
