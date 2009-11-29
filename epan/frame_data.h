@@ -29,6 +29,9 @@
 #include <epan/tvbuff.h>
 #include <epan/nstime.h>
 
+#define PINFO_FD_NUM(pinfo)       ((pinfo)->fd->num)
+#define PINFO_FD_VISITED(pinfo)   ((pinfo)->fd->flags.visited)
+
 /* XXX - some of this stuff is used only while a packet is being dissected;
    should we keep that stuff in the "packet_info" structure, instead, to
    save memory? */
