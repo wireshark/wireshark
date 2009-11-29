@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-11-21)
+(last updated 2009-11-29)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -1170,9 +1170,9 @@ Decimal
     EDS NNAM
       hostmaster&eds.com
 289
-  McData Corporation
-    Glenn Levitt
-      gpl0363&mcmail.mcdata.com
+  Brocade Communications Systems, Inc. (previous was 'McData Corporation')
+    Scott Kipp
+      skipp&brocade.com
 290
   Harris Corporation
     Matthew Porath
@@ -6367,8 +6367,8 @@ Decimal
       bstein&sntc.com
 1588
   Brocade Communications Systems, Inc.
-    Mr. Kha-Sin Teow
-      khasin&brocadesys.com
+    Scott Kipp
+      skipp&brocade.com
 1589
   Computer Resources International A/S (CRI)
     Ole Rieck Sorensen
@@ -7978,9 +7978,9 @@ Decimal
     Mario Godin
       mgodin&inware.com
 1991
-  Foundry Networks, Inc.
-    Raymond Kwong
-      rkwong&foundrynet.com
+  Brocade Communication Systems, Inc. (previous was 'Foundry Networks, Inc.')
+    Scott Kipp
+      skipp&brocade.com
 1992
   Deutsche Bank
     Michael Doyle
@@ -9714,9 +9714,9 @@ Decimal
     John Osanitsch
       josanitsch&mariposa-atm.com
 2427
-  NuView Inc.
-    Stephen W. Wolfe
-      steve&nuview.com
+  Brocade Communications Systems, Inc. (previous was 'NuView Inc.')
+    Scott Kipp
+      skipp&brocade.com
 2428
   Uninett
     Alf Hansen
@@ -17474,9 +17474,9 @@ Decimal
     Klaus Kaltwasser
       kaltwasser&hand-gmbh.de
 4369
-  McDATA,Inc
-    G. D. Ramkumar
-      G.Ramkumar&McDATA.com
+  Brocade Communications Systems, Inc. (previous was 'McDATA,Inc')
+    Scott Kipp
+      skipp&brocade.com
 4370
   Tokyo DisneySea
     Joseph C. Hu
@@ -20195,7 +20195,7 @@ Decimal
       scott&intermine.com.au
 5053
   Agilent Technologies
-    Catherine Costas
+    Florence Claros
       pdl-agilent-iana-oid&agilent.com
 5054
   will
@@ -27574,9 +27574,9 @@ Decimal
     Eric Hameleers
       eric.hameleers&nl.ibm.com
 6905
-  Rhapsody Networks Inc.
-    Venkat Rangan
-      venkat&rhapsodynetworks.com
+  Brocade Communication Systems, Inc. (previous was 'Rhapsody Networks Inc.')
+    Scott Kipp
+      skipp&brocade.com
 6906
   Asiana Communications
     Bin Li
@@ -32930,9 +32930,9 @@ Decimal
     Jim Underwood
       junderwo&ipass.com
 8244
-  McDATA Corp.
-    G D Ramkumar
-      g.ramkumar&MCDATA.com
+  Brocade Communications Systems, Inc. (previous was 'McDATA Corp.')
+    Scott Kipp
+      skipp&brocade.com
 8245
   Vsovt Ltd.
     Eyal Sayag
@@ -43078,9 +43078,9 @@ Decimal
     Peter Hudak
       peter.hudak&swan.sk
 10781
-  TAC AB
+  Schneider Electric Buildings AB (previous was 'TAC AB')
     Allan Bjorck
-      albj&tac.se
+      allan.bjorck&buildings.schneider-electric.com
 10782
   TAZZ Networks
     Erika Hart
@@ -73223,9 +73223,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Morgan Nelson
       maillist1&argontech.net
 18418
-  Endace Inc Ltd.
-    Joerg Micheel
-      joerg&endace.com
+  Endace Technology
+    Stephen Donnelly
+      stephen&endace.com
 18419
   glaven.org
     Adam Bultman
@@ -92178,9 +92178,9 @@ Urzêdzie Wojewódzkim w Olsztynie
     Takeo Sato
       ts-iana&cloanto.com
 23154
-  ARC Seibersdorf research GmbH
+  AIT Austrian Institute of Technology GmbH
     Andreas Zoufal
-      andreas.zoufal&arcs.ac.at
+      andreas.zoufal&ait.ac.at
 23155
   SOFTWISE DEVELOPMENT
     Dan Iulian Trutia
@@ -100835,8 +100835,8 @@ de Bruxelles, asbl
       flydelong&tom.com
 25316
   Karolinska Institutet
-    Carl Jarnling
-      carl.jarnling&admin.ki.se
+    Hans Nordlof
+      Hans.Nordlof&ki.se
 25317
   Ixanon AB
     Thomas Sparr
@@ -138487,6 +138487,154 @@ Decentralization / Helenic Public Administra
   Vasc-Alert
     Larry Mills-Gahl
       lmg&vasc-alert.com
+34726
+  Works Systems
+    Joseph Chen
+      climaxl&workssys.com.cn
+34727
+  Burda Digital Systems GmbH
+    Daniel Hansert
+      daniel.hansert&burdadigital.de
+34728
+  INSA de Lyon
+    Frederic Jacquot
+      frederic.jacquot&insa-lyon.fr
+34729
+  OOO PS Yandex.Dengi
+    Andrey V. Kovalev
+      licensing&yamoney.ru
+34730
+  FRANCILIENNE D'INGENIERIE ET DE SERVICES INFORMATIQUES SAS
+    COQUEL, JEAN
+      jeancoquel&fisi.fr
+34731
+  Sloan Valve Company
+    Mark Chapin
+      mark.chapin&sloanvalve.com
+34732
+  Spb Software Inc.
+    Nikolay V. Krasko
+      n.krasko&spbsoftware.com
+34733
+  Zinnia Systems
+    Akhilesh Singh
+      akhilesh&zinniasystems.com
+34734
+  University of Macerata
+    Marco Principi
+      marco.principi&unimc.it
+34735
+  Cellfish
+    Thomas Dupont
+      thomas.dupont&cellfishmedia.fr
+34736
+  Universidade Estadual Vale do Acaraú - UVA
+    Pedro Roger M Vasconcelos
+      roger&uvanet.br
+34737
+  CIMNE
+    Felip Moll
+      fmoll&cimne.upc.edu
+34738
+  MassiveSolutions Ltd
+    Viktor Sovietov
+      victor&massivesolutions.co.uk
+34739
+  lihnidos.org
+    Damjan Sirnik
+      damjan&lihnidos.org
+34740
+  University of Ottawa
+    Luc Lepine
+      lalepine&uottawa.ca
+34741
+  Binet Réseau
+    Raphaël Barrois
+      oid&frankiz.polytechnique.fr
+34742
+  LevelMobile, Inc.
+    Ryan Nideffer
+      rnideffer&gmail.com
+34743
+  Teleperformance
+    Joshua Miller
+      joshua.miller&teleperformance.com
+34744
+  QC Technology B.V.
+    Eduard Karel de Jong
+      eduard&dejongfrz.nl
+34745
+  METADYS
+    Cyril VELTER
+      cyril.velter&metadys.com
+34746
+  Kevinsnet Limited
+    Kevin C. Leacock
+      leacockk&kevinsnet.com
+34747
+  Infineta Systems, Inc
+    Ramesh Pavadai
+      ramesh&infineta.com
+34748
+  Twitter, Inc.
+    John Adams
+      jna&twitter.com
+34749
+  SubscriberMail, LLC
+    Bob Ziuchkovski
+      sysadmin&subscribermail.com
+34750
+  Truenorthlogic
+    Nathan Dykman
+      ndykman&truenorthlogic.com
+34751
+  Shanghai Meridian Technologies, Co. Ltd.
+    Tie Yu
+      mrd454&gmail.com
+34752
+  ITDiv.com
+    Johan Wasserman
+      johan.wasserman&gmail.com
+34753
+  OnTime Networks AS
+    Øyvind Holmeier
+      contact&ontimenet.com
+34754
+  PowerTrunk Inc.
+    A. L. Kilbourne
+      akilbourne&teltronic.es
+34755
+  Res Ingenium s.r.l.
+    Placidi Fabio
+      fplacidi&res-ingenium.com
+34756
+  Inoa
+    Frederik Vermeulen
+      frederik.vermeulen&inoa.net
+34757
+  Gorilla Concept GmbH
+    Markus Schütze
+      schuetze&gorilla-concept.de
+34758
+  Univerza v  Ljubljani
+    Anton Jagodic
+      anton.jagodic&uni-lj.si
+34759
+  Thames Valley Police
+    Tim Nicholls
+      tim.nicholls&thamesvalley.pnn.police.uk
+34760
+  AMiT s.r.o.
+    Martin Vosahlo
+      vosahlo&amit.cz
+34761
+  SSC-IT
+    Sven Gertsch
+      sven.gertsch&kssg.ch
+34762
+  DartIT
+    Boris B. Rudakov
+      support&dartit.ru
 
 
 End of Document
