@@ -2583,10 +2583,13 @@ static void magnify_destroy (struct graph *g)
 	gdk_pixmap_unref (mg->pixmap[1]);
 	for (list=mg->elists; list; list=list->next)
 		g_free (list->elements);
-	while (mg->elists->next) {
-		list = mg->elists->next->next;
-		g_free (mg->elists->next);
-		mg->elists->next = list;
+
+	if (mg->elists) {
+    while (mg->elists->next) {
+      list = mg->elists->next->next;
+      g_free (mg->elists->next);
+      mg->elists->next = list;
+    }
 	}
 	g_free (g->magnify.g);
 	g->magnify.active = 0;
