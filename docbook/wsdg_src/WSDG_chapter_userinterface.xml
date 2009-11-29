@@ -1,4 +1,4 @@
-<!-- WSDG Chapter User Interface -->
+﻿<!-- WSDG Chapter User Interface -->
 <!-- $Id$ -->
 
 <chapter id="ChapterUserInterface">
@@ -24,7 +24,7 @@
 	  TShark, console based
 	  </para></listitem>
 	  <listitem><para>
-	  Wireshark, GTK 1.x based (was removed after the Wireshark 1.0.0 release)
+	  Wireshark, GTK 1.x based (was removed with the Wireshark 1.2.0 release)
 	  </para></listitem>
 	</itemizedlist>
 	There exist other Wireshark frontends, not developed nor
@@ -33,7 +33,7 @@
 	  <listitem><para>
 	  Packetyzer (Win32 native interface, written in Delphi and released
 	  under the GPL, see: 
-	  <ulink url="http://www.networkchemistry.com/products/packetyzer/"/>)
+	  <ulink url="http://www.paglo.com/opensource/packetyzer"/>)
 	  </para></listitem>
 	  <listitem><para>
 	  hethereal (web based frontend, not actively maintained and not
@@ -49,8 +49,7 @@
 	<title>The GTK library</title>
 	<para>
 	Wireshark is based on the GTK toolkit, see: <ulink url="http://www.gtk.org"/>
-	for
-	details. GTK is designed to hide the details of the underlying GUI in
+	for details. GTK is designed to hide the details of the underlying GUI in
 	a platform independent way. As this is appreciated for a
 	multiplatform tool, this has some drawbacks, as it will result in a
 	somewhat "non native" look and feel.
@@ -66,8 +65,7 @@
 	</para>
 	<para>
 	There are other similar toolkits like Qt, wxwidgets, ..., which could
-	also
-	be used for Wireshark. There's no "one and only" reason for or against
+	also be used for Wireshark. There's no "one and only" reason for or against
 	any of these toolkits. However, the decision towards GTK was made a
 	long time ago :-)
 	</para>
@@ -80,8 +78,8 @@
 	<section id="ChUIGTK1x">
 	<title>GTK Version 1.x</title>
 	<para>
-	Please note: The HEAD (development) branch after the Wireshark release 
-	1.0.0 does no longer contain code to support GTK 1.x!
+	Please note: After the creation of the 1.0 branch further development 
+	removed support for GTK 1.x!
 	</para>
 	<para>
 	GTK 1.x was the first major release. Today there are 1.2.x and 1.3.x
@@ -199,9 +197,8 @@
 	<para>
 	The GTK library itself defines some values which makes it easy to
 	distinguish between the versions, e.g.:
-	GTK_MAJOR_VERSION GTK_MINOR_VERSION
-	will be set to the GTK version at compile time somewhere inside the
-	gtk.h headers.
+	GTK_MAJOR_VERSION and GTK_MINOR_VERSION
+	will be set to the GTK version at compile time inside the gtkversion.h header.
 	</para>
 	</section>
 
@@ -213,27 +210,20 @@
 	<para>
 	First of all, have a look at: <ulink url="http://www.gtk.org"/> as this 
 	will be the first place to look at. If you want to develop GTK related 
-	things for Wireshark, the most important place might 
-	be the GTK API documentation at: <ulink url="http://gtk.org/api/"/>.
+	things for Wireshark, the most important place might be the GTK API 
+	documentation at: <ulink url="http://library.gnome.org/devel/gtk/stable/"/>.
 	</para>
 	<para>
 	Several mailing lists are available about GTK development, see <ulink 
-	url="http://gtk.org/mailinglists.html"/>, the gtk-app-devel-list
+	url="http://mail.gnome.org/mailman/listinfo"/>, the gtk-app-devel-list
 	may be your friend.
 	</para>
-	<para>
-	There's no Win32 specific GTK mailing list. If you want to post 
-	a Win32 specific problem (e.g. a problem in the GtkFileChooser dialog)
-	and you are sure that it's really Win32 specific, you 
-	could send it to GIMPwin-users at <ulink 
-	url="http://www.gimp.org/mail_lists.html"/>.
-	</para>
-	<para>
+  <para>
 	As it's often done wrong: You should post a mail to *help* the developers 
 	there instead of only complaining. Posting such a thing like "I don't like 
 	your dialog, it looks ugly" won't be of much help. You might think about 
-	what you dislike and describe why you dislike it and provide a suggestion for a 
-	better way.
+	what you dislike and describe why you dislike it and provide a suggestion 
+	for a better way.
 	</para>
 	</section>
 
@@ -253,14 +243,15 @@
 	<itemizedlist>
 	  <listitem><para>
 	  GNOME Human Interface Guidelines at:
-	  <ulink url="http://developer.gnome.org/projects/gup/hig/"/>
+	  <ulink url="http://library.gnome.org/devel/hig-book/stable/"/>
 	  </para></listitem>
 	  <listitem><para>
 	  KDE user interface related documents at:
-	  <ulink url="http://developer.kde.org/documentation/library/ui.html"/>
+	  <ulink url="http://developer.kde.org/documentation/standards/kde/style/basics/index.html"/>
 	  </para></listitem>
 	  <listitem><para>
-	  Win32 XXX - where are good Win32 styleguides available?
+	  Win32 styleguides available at:
+	  <ulink url="http://msdn.microsoft.com/en-us/library/aa511258.aspx"/>
 	  </para></listitem>
 	</itemizedlist>
 	</para>
@@ -311,8 +302,7 @@
 	</para>
 	<para>
 	It isn't necessary to do this for each and every widget created. A call
-	to
-	gtk_widget_show_all() on the parent of all the widgets in question
+	to gtk_widget_show_all() on the parent of all the widgets in question
 	(e.g. a dialog window) can be done, so all of its child widgets will
 	be shown too.
 	</para>
