@@ -2088,7 +2088,7 @@ dissect_rsl_ie_full_bcch_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	proto_tree_add_text(ie_tree, tvb,offset,length,"Layer 3 message");
 	next_tvb = tvb_new_subset(tvb, offset, length, length);
-	/* call_dissector(gsm_a_dtap_handle, next_tvb, pinfo, top_tree);*/
+	call_dissector(gsm_a_ccch_handle, next_tvb, pinfo, top_tree);
 
 	offset = offset + length;
 
