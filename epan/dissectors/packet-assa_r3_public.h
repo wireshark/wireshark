@@ -983,4 +983,14 @@ userType_e;
 
 #endif
 
-/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 expandtab: */
+/*
+ * Editor modelines
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vim: set tabstop=2 softtabstop=2 shiftwidth=2 expandtab:
+ */
