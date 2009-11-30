@@ -322,6 +322,9 @@ dissect_report_segment(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset){
 	}
 
 	rcpt_clm_cnt = evaluate_sdnv(tvb,frame_offset + segment_offset, &rcpt_clm_cnt_size);
+	if (rcpt_clm_cnt < 0){
+		return 0;
+	}
 	segment_offset += rcpt_clm_cnt_size;
 	if((unsigned)(frame_offset + segment_offset) > tvb_length(tvb)){
 		return 0;

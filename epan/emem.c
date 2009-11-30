@@ -723,7 +723,7 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 #endif
 
 	/* make sure we dont try to allocate too much (arbitrary limit) */
-	DISSECTOR_ASSERT(asize<(EMEM_PACKET_CHUNK_SIZE>>2));
+	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
 	if (!mem->free_list)
 		emem_create_chunk(&mem->free_list, use_canary);
