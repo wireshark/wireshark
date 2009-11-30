@@ -1174,14 +1174,18 @@ gint
 get_default_col_size(GtkWidget *view, const gchar *str)
 {
     PangoLayout *layout;
-    gint col_width;
+    gint col_width, char_width;
+	gint str_len = strlen(str);
 
     layout = gtk_widget_create_pango_layout(view, str);
     pango_layout_get_pixel_size(layout, 
 				&col_width, /* width */
 				NULL); /* height */
+	/* Calculate the width of one character */
+	char_width = col_width/str_len;
     g_object_unref(G_OBJECT(layout));
-    return col_width;
+	/* Add a single characters width to get some spacing between rows */
+    return col_width+char_width;
 }
 
 
