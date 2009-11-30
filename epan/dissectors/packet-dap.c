@@ -1151,7 +1151,7 @@ dissect_dap_FamilyReturn(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static const ber_sequence_t EntryInformationSelection_set[] = {
-  { &hf_dap_attributes      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_dap_T_attributes },
+  { &hf_dap_attributes      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_dap_T_attributes },
   { &hf_dap_infoTypes       , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dap_T_infoTypes },
   { &hf_dap_extraAttributes , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_dap_T_extraAttributes },
   { &hf_dap_contextSelection, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_dap_ContextSelection },
@@ -3163,7 +3163,7 @@ dissect_dap_T_joinType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static const ber_sequence_t SearchArgumentData_set[] = {
   { &hf_dap_baseObject      , BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_dap_Name },
   { &hf_dap_subset          , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_dap_T_subset },
-  { &hf_dap_filter          , BER_CLASS_CON, 2, BER_FLAGS_NOTCHKTAG, dissect_dap_Filter },
+  { &hf_dap_filter          , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_Filter },
   { &hf_dap_searchAliases   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { &hf_dap_selection       , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_dap_EntryInformationSelection },
   { &hf_dap_pagedResults    , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_PagedResultsRequest },
