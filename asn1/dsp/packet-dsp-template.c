@@ -287,9 +287,6 @@ void proto_register_dsp(void) {
   /* Register protocol */
   proto_dsp = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  /* initially disable the protocol */
-  proto_set_decoding(proto_dsp, FALSE);
-
   register_dissector("dsp", dissect_dsp, proto_dsp);
 
   /* Register fields and subtrees */
