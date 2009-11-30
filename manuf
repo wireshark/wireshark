@@ -1412,7 +1412,7 @@
 00:05:4D	BransTechn             # Brans Technologies, Inc.
 00:05:4E	Philips
 00:05:4F	Private
-00:05:50	Vcomms                 # Vcomms Limited
+00:05:50	VcommsConn             # Vcomms Connect Limited
 00:05:51	FSElektron             # F & S Elektronik Systeme GmbH
 00:05:52	XycotecCom             # Xycotec Computer GmbH
 00:05:53	Dvc                    # DVC Company, Inc.
@@ -11682,7 +11682,7 @@
 00:50:C2:3B:80:00/36	KeithKoep              # Keith & Koep GmbH
 00:50:C2:3B:90:00/36	GilbarcoAu             # Gilbarco Autotank AB
 00:50:C2:3B:A0:00/36	PhytecMess             # PHYTEC Messtechnik GmbH
-00:50:C2:3B:B0:00/36	StrampeSys             # Strampe Systemelektronik GmbH & Co. KG
+00:50:C2:3B:B0:00/36	ImagoTechn             # IMAGO Technologies GmbH
 00:50:C2:3B:C0:00/36	Tyzx                   # Tyzx, Inc.
 00:50:C2:3B:D0:00/36	BigbangLTD             # Bigbang L.T.D.
 00:50:C2:3B:E0:00/36	PaulySteue             # Pauly Steuer- und Regelanlagen GmbH & Co. KG
