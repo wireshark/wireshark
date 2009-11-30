@@ -294,7 +294,7 @@ new_packet_list_remove_column (gint col_id, GtkTreeViewColumn *col _U_)
 }
 
 void
-new_packet_list_column_clicked (GtkWidget *w _U_, gpointer user_data _U_, COLUMN_SELECTED_E action)
+new_packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN_SELECTED_E action)
 {
 	GtkTreeViewColumn *col = (GtkTreeViewColumn *)
 	  g_object_get_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY);

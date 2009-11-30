@@ -301,7 +301,7 @@ packet_list_sort_column(gint column, gpointer data, GtkSortType order)
 
 
 void
-packet_list_column_clicked (GtkWidget *w _U_, gpointer user_data _U_, COLUMN_SELECTED_E action)
+packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN_SELECTED_E action)
 {
       gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(packet_list), E_MPACKET_LIST_COL_KEY));
       gpointer data = g_object_get_data (G_OBJECT(packet_list), E_MPACKET_LIST_COL_ARROWS_KEY);

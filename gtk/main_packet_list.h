@@ -59,7 +59,7 @@ extern void packet_list_recreate(void);
  */
 extern void packet_list_set_column_titles(void);
 
-extern void packet_list_column_clicked (GtkWidget *w, gpointer data, COLUMN_SELECTED_E action);
+extern void packet_list_column_menu_cb (GtkWidget *w, gpointer data, COLUMN_SELECTED_E action);
 
 /** Resize columns
  *
