@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 #include "packet-dtn.h"
 
@@ -271,7 +272,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 
   
 static int 
-dissect_report_segment(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset){
+dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, int frame_offset) {
 	guint64 rpt_sno;
 	guint64 chkp_sno;
 	guint64 upper_bound;
@@ -323,6 +324,7 @@ dissect_report_segment(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset){
 
 	rcpt_clm_cnt = evaluate_sdnv(tvb,frame_offset + segment_offset, &rcpt_clm_cnt_size);
 	if (rcpt_clm_cnt < 0){
+		expert_add_info_format(pinfo, ltp_tree, PI_UNDECODED, PI_ERROR, "Negative reception claim count: %d", rcpt_clm_cnt);
 		return 0;
 	}
 	segment_offset += rcpt_clm_cnt_size;
@@ -649,7 +651,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 	else if(ltp_type == 8){
-		segment_offset = dissect_report_segment(ltp_tree,tvb,frame_offset);
+		segment_offset = dissect_report_segment(tvb, pinfo, ltp_tree,frame_offset);
 		if(segment_offset == 0){
 			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 			return 0;
