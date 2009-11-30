@@ -259,6 +259,23 @@ new_packet_list_sort_column (gint col_id, GtkTreeViewColumn *col, GtkSortType or
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), col_id, order);
 }
 
+/* 
+ * We have our own functionality to toggle sort order on a column to avoid
+ * having empty sorting arrow widgets in the column header.
+ */
+static void
+new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U_)
+{
+	GtkSortType order = gtk_tree_view_column_get_sort_order (col);
+	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
+
+	if (order == GTK_SORT_DESCENDING || !gtk_tree_view_column_get_sort_indicator(col)) {
+		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING);
+	} else {
+		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING);
+	}
+}
+
 static void
 new_packet_list_xalign_column (GtkTreeViewColumn *col, gdouble value)
 {
@@ -329,13 +346,13 @@ new_packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN
 }
 
 static void
-new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U_)
+new_packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-	GtkWidget *menu;
+	GtkWidget *col = (GtkWidget *) data;
+	GtkWidget *menu = g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);
 
-	menu = g_object_get_data (G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);
 	g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY, col);
-	gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL, 1, gtk_get_current_event_time());
+	popup_menu_handler (widget, event, menu);
 }
 
 static GtkWidget *
@@ -444,11 +461,16 @@ create_view_and_model(void)
 		}
 		gtk_tree_view_append_column(GTK_TREE_VIEW(packetlist->view), col);
 
+		/* XXX Breaks the GTK+ API, but this is the only way to attach a signal to
+		 * a GtkTreeView column header. See GTK bug #141937.
+		 */
+		g_signal_connect(col->button, "button_press_event", 
+				 G_CALLBACK(new_packet_list_column_button_pressed_cb), col);
+
 		if (i == 0) {  /* Default sort on first column */
 			g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY, col);
 			g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_PREV_COLUMN_KEY, col);
 		}
-
 	}
 
 	return packetlist->view;
