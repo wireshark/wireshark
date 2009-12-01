@@ -1182,7 +1182,7 @@ get_default_col_size(GtkWidget *view, const gchar *str)
                                 &col_width, /* width */
                                 NULL); /* height */
     g_object_unref(G_OBJECT(layout));
-    /* Add a single characters width to get some spacing between rows */
+    /* Add a single character's width to get some spacing between columns */
     return col_width + (pango_font_description_get_size(user_font_get_regular()) / PANGO_SCALE);
 }
 
