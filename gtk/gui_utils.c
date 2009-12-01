@@ -282,40 +282,40 @@ window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpointer user_data _
 void
 window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 {
-	gint desk_x, desk_y;
+    gint desk_x, desk_y;
     GdkWindowState state;
 
-	/* Try to grab our geometry.
+    /* Try to grab our geometry.
 
-	   GTK+ provides two routines to get a window's position relative
-	   to the X root window.  If I understand the documentation correctly,
-	   gdk_window_get_deskrelative_origin applies mainly to Enlightenment
-	   and gdk_window_get_root_origin applies for all other WMs.
+       GTK+ provides two routines to get a window's position relative
+       to the X root window.  If I understand the documentation correctly,
+       gdk_window_get_deskrelative_origin applies mainly to Enlightenment
+       and gdk_window_get_root_origin applies for all other WMs.
 
-	   The code below tries both routines, and picks the one that returns
-	   the upper-left-most coordinates.
+       The code below tries both routines, and picks the one that returns
+       the upper-left-most coordinates.
 
-	   More info at:
+       More info at:
 
-	http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
-	http://www.gtk.org/faq/#AEN606
-    */
+        http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
+        http://www.gtk.org/faq/#AEN606
+     */
 
-	gdk_window_get_root_origin(widget->window,
+    gdk_window_get_root_origin(widget->window,
         &geom->x,
         &geom->y);
-	if (gdk_window_get_deskrelative_origin(widget->window,
+    if (gdk_window_get_deskrelative_origin(widget->window,
 				&desk_x, &desk_y)) {
-		if (desk_x <= geom->x &&
+        if (desk_x <= geom->x &&
             desk_y <= geom->y)
         {
-			geom->x = desk_x;
-			geom->y = desk_y;
-		}
-	}
+            geom->x = desk_x;
+            geom->y = desk_y;
+        }
+    }
 
-	/* XXX - Is this the "approved" method? */
-	gdk_window_get_size(widget->window,
+    /* XXX - Is this the "approved" method? */
+    gdk_window_get_size(widget->window,
         &geom->width,
         &geom->height);
 
