@@ -66,7 +66,7 @@ svn_version_check: FORCE
 
 svn_version.xml: svn_version_check
 
-
+# Wireshark User Guide
 wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf 
 
 # validate the content
@@ -99,7 +99,7 @@ wsug_html_chunked/index.html: $(WSUG_SOURCE)
 	$(XSLTPROC) --stringparam base.dir wsug_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
 	-chmod -R og+rX wsug_html_chunked
 
-# create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
+# create pdf file (through XSL-FO), portrait pages on US letter paper
 # you will get lot's of errors, but that's ok
 user-guide-us.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 ifdef FOP
@@ -115,7 +115,12 @@ ifdef FOP
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
+wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
+	$(PERL) make-wsluarm.pl $(WSLUA_MODULES)
+	touch wsluarm
 
+
+# Wireshark Developer Guide
 wsdg: wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf
 
 # validate the content
@@ -140,14 +145,13 @@ wsdg_html_chunked: wsdg_html_chunked/index.html
 
 wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML CHUNKED ---
-	mkdir -p wsdg_html_chunked
 	mkdir -p wsdg_html_chunked/wsdg_graphics
 	cp wsdg_graphics/* wsdg_html_chunked/wsdg_graphics
 	cp ws.css wsdg_html_chunked
 	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
 	-chmod -R og+rX wsdg_html_chunked
 
-# create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
+# create pdf file (through XSL-FO), portrait pages on US letter paper
 # you will get lot's of errors, but that's ok
 developer-guide-us.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 ifdef FOP
@@ -185,7 +189,7 @@ release-notes.txt: $(RELEASE_NOTES_SOURCE)
 news: release-notes.txt
 	cp release-notes.txt ../NEWS 
 
-# create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
+# create pdf file (through XSL-FO), portrait pages on US letter paper
 # you will get lot's of errors, but that's ok
 release-notes-us.fo: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 ifdef FOP
@@ -200,9 +204,5 @@ ifdef FOP
 	@ echo --- RELEASE NOTES - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
-
-wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
-	$(PERL) make-wsluarm.pl $(WSLUA_MODULES)
-	touch wsluarm
 
 
