@@ -279,14 +279,43 @@ new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U
 	}
 }
 
+static gdouble
+get_xalign_value (gchar xalign, gint col_id)
+{
+	double value;
+
+	switch (xalign) {
+	case COLUMN_XALIGN_RIGHT:
+		value = 1.0f;
+		break;
+	case COLUMN_XALIGN_CENTER:
+		value = 0.5f;
+		break;
+	case COLUMN_XALIGN_LEFT:
+		value = 0.0f;
+		break;
+	case COLUMN_XALIGN_DEFAULT:
+	default:
+		if (right_justify_column (col_id)) {
+			value = 1.0f;
+		} else {
+			value = 0.0f;
+		}
+		break;
+	}
+
+	return value;
+}
+
 static void
-new_packet_list_xalign_column (GtkTreeViewColumn *col, gdouble value)
+new_packet_list_xalign_column (gint col_id, GtkTreeViewColumn *col, gchar xalign)
 {
 #if GTK_CHECK_VERSION(2,18,0)
 	GList *renderers = gtk_cell_layout_get_cells (GTK_CELL_LAYOUT(col));
 #else
 	GList *renderers = gtk_tree_view_column_get_cell_renderers (col);
 #endif
+	gdouble value = get_xalign_value (xalign, col_id);
 	GList *entry;
 	GtkCellRenderer *renderer;
 
@@ -298,6 +327,7 @@ new_packet_list_xalign_column (GtkTreeViewColumn *col, gdouble value)
 	}
 	g_list_free (renderers);
 
+	recent_set_column_xalign (col_id, xalign);
 	gtk_widget_queue_draw (packetlist->view);
 }
 
@@ -332,10 +362,16 @@ new_packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN
 		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), 0, GTK_SORT_ASCENDING);
 		break;
 	case COLUMN_SELECTED_ALIGN_LEFT:
-		new_packet_list_xalign_column (col, 0.0);
+		new_packet_list_xalign_column (col_id, col, COLUMN_XALIGN_LEFT);
+		break;
+	case COLUMN_SELECTED_ALIGN_CENTER:
+		new_packet_list_xalign_column (col_id, col, COLUMN_XALIGN_CENTER);
 		break;
 	case COLUMN_SELECTED_ALIGN_RIGHT:
-		new_packet_list_xalign_column (col, 1.0);
+		new_packet_list_xalign_column (col_id, col, COLUMN_XALIGN_RIGHT);
+		break;
+	case COLUMN_SELECTED_ALIGN_DEFAULT:
+		new_packet_list_xalign_column (col_id, col, COLUMN_XALIGN_DEFAULT);
 		break;
 	case COLUMN_SELECTED_RESIZE:
 		new_packet_list_resize_column (col_id);
@@ -369,6 +405,8 @@ create_view_and_model(void)
 	GtkCellRenderer *renderer;
 	PangoLayout *layout;
 	gint i, col_width;
+	gchar xalign;
+	gdouble value;
 	GtkWidget *title_lb;
 	gchar *tooltip_text;
 	header_field_info *hfi;
@@ -400,7 +438,13 @@ create_view_and_model(void)
 	/* We need one extra column to store the entire PacketListRecord */
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
 		renderer = gtk_cell_renderer_text_new();
-		if (right_justify_column (i)) {
+		xalign = recent_get_column_xalign(i);
+		col = gtk_tree_view_column_new();
+		gtk_tree_view_column_pack_start(col, renderer, TRUE);
+		if (xalign != COLUMN_XALIGN_DEFAULT) {
+			value = get_xalign_value(xalign, i);
+			g_object_set(G_OBJECT(renderer), "xalign", value, NULL);
+		} else if (right_justify_column (i)) {
 			g_object_set(G_OBJECT(renderer),
 				"xalign",
 				1.0,
@@ -409,8 +453,6 @@ create_view_and_model(void)
 		g_object_set(renderer,
 				 "ypad", 0,
 				 NULL);
-		col = gtk_tree_view_column_new();
-		gtk_tree_view_column_pack_start(col, renderer, TRUE);
 		gtk_tree_view_column_set_cell_data_func(col, renderer,
 							show_cell_data_func,
 							GINT_TO_POINTER(i),
@@ -1141,14 +1183,12 @@ new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summa
 	g_string_free(text,TRUE);
 }
 
-/* XXX for some reason this does not work in the .h file XXX*/
-#define RECENT_KEY_COL_WIDTH				"column.width"
-
 void
 new_packet_list_recent_write_all(FILE *rf)
 {
 	gint col, width, num_cols, col_fmt;
 	GtkTreeViewColumn *tree_column;
+	gchar xalign;
 
 	fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
 	num_cols = g_list_length(prefs.col_list);
@@ -1161,11 +1201,15 @@ new_packet_list_recent_write_all(FILE *rf)
 		}
 		tree_column = gtk_tree_view_get_column(GTK_TREE_VIEW(GTK_TREE_VIEW(packetlist->view)), col);
 		width = gtk_tree_view_column_get_width(tree_column);
+		xalign = recent_get_column_xalign (col);
 		if (width == 0) {
 			/* We have not initialized the packet list yet, use old values */
 			width = recent_get_column_width (col);
 		}
 		fprintf (rf, " %d", width);
+		if (xalign != COLUMN_XALIGN_DEFAULT) {
+			fprintf (rf, ":%c", xalign);
+		}
 		if (col != num_cols-1) {
 			fprintf (rf, ",");
 		}

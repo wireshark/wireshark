@@ -770,14 +770,16 @@ static GtkItemFactoryEntry packet_list_heading_items[] =
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
+    {"/Default Alignment", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_DEFAULT, NULL, NULL,},
     {"/Align Left", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_LEFT, "<StockItem>", GTK_STOCK_JUSTIFY_LEFT,},
+    {"/Align Center", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_CENTER, "<StockItem>", GTK_STOCK_JUSTIFY_CENTER,},
     {"/Align Right", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_RIGHT, "<StockItem>", GTK_STOCK_JUSTIFY_RIGHT,},
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
-    {"/Column Preferences", NULL, GTK_MENU_FUNC(prefs_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
+    {"/Column Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
     {"/Resize Column", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_RESIZE, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
-    {"/Rename Column Title", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_RENAME, "<StockItem>", GTK_STOCK_BOLD,},
+    {"/Rename Column Title...", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_RENAME, "<StockItem>", GTK_STOCK_BOLD,},
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
@@ -788,9 +790,9 @@ static GtkItemFactoryEntry packet_list_heading_items[] =
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
-    {"/Column Preferences", NULL, GTK_MENU_FUNC(prefs_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
+    {"/Column Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
     {"/Resize Column", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_RESIZE, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
-    {"/Rename Column Title", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_RENAME, "<StockItem>", GTK_STOCK_BOLD,},
+    {"/Rename Column Title...", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_RENAME, "<StockItem>", GTK_STOCK_BOLD,},
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 

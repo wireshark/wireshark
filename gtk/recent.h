@@ -43,6 +43,7 @@ typedef struct _col_width_data {
   gint   cfmt;
   gchar *cfield;
   gint   width;
+  gchar  xalign;
 } col_width_data;
 
 /** Recent settings. */
@@ -148,5 +149,18 @@ extern gint recent_get_column_width(gint col);
  * @param width column width
  */
 extern void recent_set_column_width(gint col, gint width);
+
+/** Get the column xalign for the given column
+ * 
+ * @param col column number
+ */
+extern gchar recent_get_column_xalign(gint col);
+
+/** Set the column xalign for the given column
+ *
+ * @param col column number
+ * @param xalign column alignment
+ */
+extern void recent_set_column_xalign(gint col, gchar xalign);
 
 #endif /* recent.h */

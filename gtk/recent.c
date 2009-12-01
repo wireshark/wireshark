@@ -694,10 +694,16 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
 
       col_l_elt      = col_l_elt->next;
       cfmt->width    = strtol(col_l_elt->data, &p, 0);
-      if (p == col_l_elt->data || *p != '\0') {
+      if (p == col_l_elt->data || (*p != '\0' && *p != ':')) {
 	g_free(cfmt->cfield);
 	g_free(cfmt);
 	return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+      }
+
+      if (*p == ':') {
+        cfmt->xalign = *(++p);
+      } else {
+        cfmt->xalign = 0;
       }
 
       col_l_elt      = col_l_elt->next;
@@ -996,6 +1002,76 @@ recent_set_column_width(gint col, gint width)
       col_w->cfield = NULL;
     }
     col_w->width = width;
+    col_w->xalign = 0;
     recent.col_width_list = g_list_append(recent.col_width_list, col_w);
   }
 }
+
+gchar
+recent_get_column_xalign(gint col)
+{
+  GList *col_l;
+  col_width_data *col_w;
+  gint cfmt;
+  const gchar *cfield = NULL;
+
+  cfmt = get_column_format(col);
+  if (cfmt == COL_CUSTOM) {
+    cfield = get_column_custom_field(col);
+  }
+
+  col_l = g_list_first(recent.col_width_list);
+  while (col_l) {
+    col_w = (col_width_data *) col_l->data;
+    if (col_w->cfmt == cfmt) {
+      if (cfmt != COL_CUSTOM || strcmp (cfield, col_w->cfield) == 0) {
+        return col_w->xalign;
+      }
+    }
+    col_l = col_l->next;
+  }
+
+  return 0;
+}
+
+void
+recent_set_column_xalign(gint col, gchar xalign)
+{
+  GList *col_l;
+  col_width_data *col_w;
+  gint cfmt;
+  const gchar *cfield = NULL;
+  gboolean found = FALSE;
+
+  cfmt = get_column_format(col);
+  if (cfmt == COL_CUSTOM) {
+    cfield = get_column_custom_field(col);
+  }
+
+  col_l = g_list_first(recent.col_width_list);
+  while (col_l) {
+    col_w = (col_width_data *) col_l->data;
+    if (col_w->cfmt == cfmt) {
+      if (cfmt != COL_CUSTOM || strcmp (cfield, col_w->cfield) == 0) {
+        col_w->xalign = xalign;
+        found = TRUE;
+        break;
+      }
+    }
+    col_l = col_l->next;
+  }
+
+  if (!found) {
+    col_w = (col_width_data *) g_malloc(sizeof(col_width_data));
+    col_w->cfmt = cfmt;
+    if (cfield) {
+      col_w->cfield = g_strdup(cfield);
+    } else {
+      col_w->cfield = NULL;
+    }
+    col_w->width = 40;
+    col_w->xalign = xalign;
+    recent.col_width_list = g_list_append(recent.col_width_list, col_w);
+  }
+}
+
