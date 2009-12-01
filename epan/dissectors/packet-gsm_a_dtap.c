@@ -4097,7 +4097,7 @@ dtap_mm_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 
@@ -4207,7 +4207,7 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
 
@@ -4334,7 +4334,7 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, FALSE);
 	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
 
 	switch ((oct & 0x70) >> 4)
@@ -4430,7 +4430,7 @@ dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_ID_TYPE]);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
 
 	switch (oct & 0x07)
 	{
@@ -4582,7 +4582,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM]);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
 
@@ -4618,7 +4618,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 		a_bigbuf,
 		(oct & 0x08) ? "Follow-on request pending" : "No follow-on request pending");
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+5, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+5, 1, FALSE);
 
 	switch (oct & 0x03)
 	{
