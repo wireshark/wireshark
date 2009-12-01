@@ -269,10 +269,13 @@ new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U
 	GtkSortType order = gtk_tree_view_column_get_sort_order (col);
 	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
 
-	if (order == GTK_SORT_DESCENDING || !gtk_tree_view_column_get_sort_indicator(col)) {
+	if (!gtk_tree_view_column_get_sort_indicator(col)) {
 		new_packet_list_sort_column (col_id, col, GTK_SORT_ASCENDING);
-	} else {
+	} else if (order == GTK_SORT_ASCENDING) {
 		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING);
+	} else {
+		gtk_tree_view_column_set_sort_indicator(col, FALSE);
+		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), 0, GTK_SORT_ASCENDING);
 	}
 }
 
@@ -323,6 +326,10 @@ new_packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN
 		break;
 	case COLUMN_SELECTED_SORT_DESCENDING:
 		new_packet_list_sort_column (col_id, col, GTK_SORT_DESCENDING);
+		break;
+	case COLUMN_SELECTED_SORT_NONE:
+		gtk_tree_view_column_set_sort_indicator(col, FALSE);
+		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(packetlist), 0, GTK_SORT_ASCENDING);
 		break;
 	case COLUMN_SELECTED_ALIGN_LEFT:
 		new_packet_list_xalign_column (col, 0.0);

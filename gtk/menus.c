@@ -766,6 +766,7 @@ static GtkItemFactoryEntry packet_list_heading_items[] =
 #ifdef NEW_PACKET_LIST
     {"/Sort Ascending", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_SORT_ASCENDING, "<StockItem>", GTK_STOCK_SORT_ASCENDING,},
     {"/Sort Descending", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_SORT_DESCENDING, "<StockItem>", GTK_STOCK_SORT_DESCENDING,},
+    {"/No Sorting", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_SORT_NONE, NULL, NULL,},
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
