@@ -3831,7 +3831,7 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
      <grouped>
       <gavp name="AoC-Cost-Information"/>
       <gavp name="Incremental-Cost"/>
-      <gavp name="Tariff Information"/>
+      <gavp name="Tariff-Information"/>
      </grouped>
     </avp>
 		<avp name="AoC-Request-Type" code="2055" vendor-bit="must" vendor-id="TGPP"> 
@@ -3900,7 +3900,7 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
       <type type-name="Unsigned32"/>
     </avp>
 		<avp name="Application-Service-Type" code="2102" vendor-bit="must" vendor-id="TGPP"> 
-       <type type-name="Enumerated"/>
+      <type type-name="Enumerated"/>
       <enum name="SENDING" code="100"/>
       <enum name="RECEIVING" code="101"/>
       <enum name="RETRIEVAL" code="102"/>
@@ -3953,7 +3953,40 @@ Note: The AVP codes from 2118 to 2199 are reserved for TS 32.299
 2203 Subsession-Operation Enumerated
 29.215 [22]
 Note: The AVP codes from 2204 to 2299 are reserved for TS 29.215
-
+-->
+    <avp name="SIP-Request-Timestamp-Fraction" code="2301" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="SIP-Response-Timestamp-Fraction" code="2302" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+		<avp name="Online-Charging-Flag" code="2303" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="Enumerated"/>
+      <enum name="ECF address not provided" code="0"/>
+      <enum name="ECF address provided" code="1"/>
+		</avp>
+    <avp name="CUG-Information" code="2304" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+		<avp name="Real-Time-Tariff-Information" code="2305" vendor-bit="must" vendor-id="TGPP"> 
+     <grouped>
+      <gavp name="Tariff-Information"/>
+      <gavp name="Tariff-XML"/>
+      </grouped>
+    </avp>
+    <avp name="Tariff-XML" code="2306" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="MBMS-GW-Address" code="2307" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Address"/>
+    </avp>
+		<avp name="IMSI-Unauthenticated-Flag" code="2308" vendor-bit="must" vendor-id="TGPP"> 
+      <type type-name="Enumerated"/>
+      <enum name="Authenticated" code="0"/>
+      <enum name="Unauthenticated" code="1"/>
+		</avp>
+<!--
+Note: The AVP codes from 2300 to 2399 are reserved for TS 32.299
 -->
 <!--- TGPP2 AVP's X.S0013-014-0 
 http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S0013-014%20v0.3.0%20SBBC%20Ty%20Stage-3.doc
