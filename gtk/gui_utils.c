@@ -1175,16 +1175,16 @@ get_default_col_size(GtkWidget *view, const gchar *str)
 {
     PangoLayout *layout;
     gint col_width, char_width;
-	gint str_len = strlen(str);
+    gint str_len = (gint)strlen(str);
 
     layout = gtk_widget_create_pango_layout(view, str);
     pango_layout_get_pixel_size(layout, 
-				&col_width, /* width */
-				NULL); /* height */
-	/* Calculate the width of one character */
-	char_width = col_width/str_len;
+                                &col_width, /* width */
+                                NULL); /* height */
+    /* Calculate the width of one character */
+    char_width = col_width/str_len;
     g_object_unref(G_OBJECT(layout));
-	/* Add a single characters width to get some spacing between rows */
+    /* Add a single characters width to get some spacing between rows */
     return col_width+char_width;
 }
 
@@ -1196,137 +1196,135 @@ get_default_col_size(GtkWidget *view, const gchar *str)
  */
 void
 float_data_func (GtkTreeViewColumn *column _U_,
-                           GtkCellRenderer   *renderer,
-                           GtkTreeModel      *model,
-                           GtkTreeIter       *iter,
-                           gpointer           user_data)
-   {
-     gfloat  float_val;
-     gchar   buf[20];
-	 char *savelocale;
+                 GtkCellRenderer   *renderer,
+                 GtkTreeModel      *model,
+                 GtkTreeIter       *iter,
+                 gpointer           user_data)
+{
+    gfloat  float_val;
+    gchar   buf[20];
+    char *savelocale;
 
-	 /* the col to get data from is in userdata */
-	 gint float_col = GPOINTER_TO_INT(user_data);
+    /* the col to get data from is in userdata */
+    gint float_col = GPOINTER_TO_INT(user_data);
 
-     gtk_tree_model_get(model, iter, float_col, &float_val, -1);
+    gtk_tree_model_get(model, iter, float_col, &float_val, -1);
 
-	 /* save the current locale */
-	 savelocale = setlocale(LC_NUMERIC, NULL);
-	 /* switch to "C" locale to avoid problems with localized decimal separators
-	  * in g_snprintf("%f") functions
-	  */
-	 setlocale(LC_NUMERIC, "C");
+    /* save the current locale */
+    savelocale = setlocale(LC_NUMERIC, NULL);
+    /* switch to "C" locale to avoid problems with localized decimal separators
+     * in g_snprintf("%f") functions
+     */
+    setlocale(LC_NUMERIC, "C");
 
-     g_snprintf(buf, sizeof(buf), "%.2f", float_val);
-	 /* restore previous locale setting */
-	 setlocale(LC_NUMERIC, savelocale);
+    g_snprintf(buf, sizeof(buf), "%.2f", float_val);
+    /* restore previous locale setting */
+    setlocale(LC_NUMERIC, savelocale);
 
-     g_object_set(renderer, "text", buf, NULL);
-   }
+    g_object_set(renderer, "text", buf, NULL);
+}
+
 /* 
  * This function can be called from gtk_tree_view_column_set_cell_data_func()
  * the user data must be the colum number.
  * Present value as hexadecimal. 
  */
-
 void
 present_as_hex_func (GtkTreeViewColumn *column _U_,
-                           GtkCellRenderer   *renderer,
-                           GtkTreeModel      *model,
-                           GtkTreeIter       *iter,
-                           gpointer           user_data)
-   {
-     guint  val;
-     gchar   buf[35];
+                     GtkCellRenderer   *renderer,
+                     GtkTreeModel      *model,
+                     GtkTreeIter       *iter,
+                     gpointer           user_data)
+{
+    guint  val;
+    gchar   buf[35];
 
-	 /* the col to get data from is in userdata */
-	 gint col = GPOINTER_TO_INT(user_data);
+    /* the col to get data from is in userdata */
+    gint col = GPOINTER_TO_INT(user_data);
 
-     gtk_tree_model_get(model, iter, col, &val, -1);
+    gtk_tree_model_get(model, iter, col, &val, -1);
 
-     g_snprintf(buf, sizeof(buf), "0x%02x", val);
+    g_snprintf(buf, sizeof(buf), "0x%02x", val);
 
-     g_object_set(renderer, "text", buf, NULL);
-   }
+    g_object_set(renderer, "text", buf, NULL);
+}
 
 void
 u64_data_func (GtkTreeViewColumn *column _U_,
-                           GtkCellRenderer   *renderer,
-                           GtkTreeModel      *model,
-                           GtkTreeIter       *iter,
-                           gpointer           user_data)
-   {
-     guint64 val;
-     int i = 0;
-     gchar *bp;
-     gchar   buf[35];
+               GtkCellRenderer   *renderer,
+               GtkTreeModel      *model,
+               GtkTreeIter       *iter,
+               gpointer           user_data)
+{
+    guint64 val;
+    int i = 0;
+    gchar *bp;
+    gchar   buf[35];
 
-	 /* the col to get data from is in userdata */
-	 gint col = GPOINTER_TO_INT(user_data);
+    /* the col to get data from is in userdata */
+    gint col = GPOINTER_TO_INT(user_data);
 
-     gtk_tree_model_get(model, iter, col, &val, -1);
+    gtk_tree_model_get(model, iter, col, &val, -1);
 
-     bp = &buf[34];
-     *bp = 0;
-     do {
+    bp = &buf[34];
+    *bp = 0;
+    do {
         *--bp = (gchar)(val % 10) +'0';
         if (!(++i % 3)) {
             *--bp = ' ';
         }
-	 } while ((val /= 10) != 0 && bp > buf);
-     g_object_set(renderer, "text", bp, NULL);
-   }
+    } while ((val /= 10) != 0 && bp > buf);
+    g_object_set(renderer, "text", bp, NULL);
+}
 
 /* 
  * This function can be called from gtk_tree_view_column_set_cell_data_func()
  * the user data must be the colum number.
  * Renders the const static string whos pointer is stored 
  */
-
 void
 str_ptr_data_func (GtkTreeViewColumn *column _U_,
-                           GtkCellRenderer   *renderer,
-                           GtkTreeModel      *model,
-                           GtkTreeIter       *iter,
-                           gpointer           user_data)
- {	
-	 const gchar *str = NULL;
+                   GtkCellRenderer   *renderer,
+                   GtkTreeModel      *model,
+                   GtkTreeIter       *iter,
+                   gpointer           user_data)
+{	
+    const gchar *str = NULL;
 
-	 /* The col to get data from is in userdata */
-	 gint data_column = GPOINTER_TO_INT(user_data);
+    /* The col to get data from is in userdata */
+    gint data_column = GPOINTER_TO_INT(user_data);
 
-     gtk_tree_model_get(model, iter, data_column, &str, -1);
-	 /* XXX should we check that str is non NULL and print a warning or do assert? */
+    gtk_tree_model_get(model, iter, data_column, &str, -1);
+    /* XXX should we check that str is non NULL and print a warning or do assert? */
 
-     g_object_set(renderer, "text", str, NULL);
- }
+    g_object_set(renderer, "text", str, NULL);
+}
 
 gint
 str_ptr_sort_func(GtkTreeModel *model,
-							GtkTreeIter *a,
-							GtkTreeIter *b,
-							gpointer user_data)
+                  GtkTreeIter *a,
+                  GtkTreeIter *b,
+                  gpointer user_data)
 {
-	 const gchar *str_a = NULL;
-	 const gchar *str_b = NULL;
-	 gint ret = 0;
+    const gchar *str_a = NULL;
+    const gchar *str_b = NULL;
+    gint ret = 0;
 
-	 /* The col to get data from is in userdata */
-	 gint data_column = GPOINTER_TO_INT(user_data);
+    /* The col to get data from is in userdata */
+    gint data_column = GPOINTER_TO_INT(user_data);
 
-     gtk_tree_model_get(model, a, data_column, &str_a, -1);
-     gtk_tree_model_get(model, b, data_column, &str_b, -1);
+    gtk_tree_model_get(model, a, data_column, &str_a, -1);
+    gtk_tree_model_get(model, b, data_column, &str_b, -1);
 
-	if (str_a == str_b) {
-		/* it's worth testing because a lot of row point to 
-		   the same data */
-		return 0;
-	} 
-	else if (str_a == NULL || str_b == NULL) {
-		ret = (str_a == NULL) ? -1 : 1;
-	} 
-	else {
-		ret = g_ascii_strcasecmp(str_a,str_b);
-	}
-	return ret;
+    if (str_a == str_b) {
+        /* it's worth testing because a lot of rows point to the same data */
+        return 0;
+    } 
+    else if (str_a == NULL || str_b == NULL) {
+        ret = (str_a == NULL) ? -1 : 1;
+    } 
+    else {
+        ret = g_ascii_strcasecmp(str_a,str_b);
+    }
+    return ret;
 }
