@@ -43,6 +43,7 @@
 
 #include "gtk/gtkglobals.h"
 #include "gtk/gui_utils.h"
+#include "gtk/font_utils.h"
 #include "gtk/recent.h"
 
 #include "image/wsicon16.xpm"
@@ -1174,18 +1175,15 @@ gint
 get_default_col_size(GtkWidget *view, const gchar *str)
 {
     PangoLayout *layout;
-    gint col_width, char_width;
-    gint str_len = (gint)strlen(str);
+    gint col_width;
 
     layout = gtk_widget_create_pango_layout(view, str);
     pango_layout_get_pixel_size(layout, 
                                 &col_width, /* width */
                                 NULL); /* height */
-    /* Calculate the width of one character */
-    char_width = col_width/str_len;
     g_object_unref(G_OBJECT(layout));
     /* Add a single characters width to get some spacing between rows */
-    return col_width+char_width;
+    return col_width + (pango_font_description_get_size(user_font_get_regular()) / PANGO_SCALE);
 }
 
 
