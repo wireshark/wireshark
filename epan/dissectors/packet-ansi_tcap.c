@@ -502,9 +502,21 @@ guint8 len;
 
 
 if(next_tvb) {
-	if(tvb_length(next_tvb) !=0)
-		ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 0,tvb_length(next_tvb));
 	len = tvb_length_remaining(next_tvb, 0);
+	if(len !=0){
+		/* 0 octets for the Unidirectional, 
+		 * 4 octets for Query, Response & Abort
+		 * 8 octets for Conversation in the order Originating then Responding TID
+		 * 
+		 * In order to match this it seems like we should only use the last 4 octets
+		 * in the 8 octets case.
+		 */
+		if (len > 4){
+			ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 4,len-4);
+		}else{
+			ansi_tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 0,len);
+		}
+	}
 	switch(len) {
 	case 1:
 		gp_tcapsrt_info->src_tid=tvb_get_guint8(next_tvb, 0);
