@@ -273,7 +273,7 @@ wireshark -i eth0 -k
       </para>
       <figure id="ChCapCaptureOptionsDialog">
 	<title>The "Capture Options" dialog box</title>
-	<graphic entityref="WiresharkCaptureOptionsDialog" format="JPG"/>
+	<graphic entityref="WiresharkCaptureOptionsDialog"/>
       </figure>
 	<tip><title>Tip!</title>
 	<para>
@@ -286,20 +286,32 @@ wireshark -i eth0 -k
 	</para>
 	<section><title>Capture frame</title>
 	<variablelist>
+	  <varlistentry><term><command>Interface (Windows only)</command></term>
+	    <listitem>
+	      <para>
+		The drop down list allows you to select the group of interfaces you
+		want look at. Normally that would be the local interfaces, but here you
+		can also select a remote interface. Any previously opened remote
+		interfaces will be added to this list also.
+	      </para>
+	    </listitem>
+	  </varlistentry>
 	  <varlistentry><term><command>Interface</command></term>
 	    <listitem>
 	      <para>
-		This field specifies the interface you want to capture on. 
-		You can only capture on one interface, and you can only 
-		capture on interfaces that Wireshark has found on the 
-		system. It is a drop-down list, so simply click on the 
-		button on the right hand side and select the interface you 
-		want. It defaults to the first non-loopback interface that 
-		supports capturing, and if there are none, the first 
-		loopback interface. On some systems, loopback interfaces 
-		cannot be used for capturing (loopback interfaces are not available 
-		on Windows platforms).
+		This field specifies the interface you want to capture on. You can
+		only capture on one interface, and you can only capture on interfaces
+		that Wireshark has found on the system, either local or remote. It is
+		a drop-down list, so simply click on the button on the right hand side
+		and select the interface you want. It defaults to the first
+		non-loopback interface that supports capturing, and if there are none,
+		the first loopback interface. On some systems, loopback interfaces
+		cannot be used for capturing
 	      </para>
+		  <note>
+		  <title>Note</title>
+		  <para>loopback interfaces are not available on Windows platforms.</para>
+		  </note>
 	      <para>
 		This field performs the same function as the 
 		<command>-i &lt;interface></command> command line option.
@@ -322,6 +334,14 @@ wireshark -i eth0 -k
 		  <xref linkend="ChCapLinkLayerHeader"/>
 	      </para>
 	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Remote setting (Windows only)</command></term>
+	    <listitem>
+	      <para>
+		Here you can set the settings for remote capture.
+		For a detailed description, see  <xref linkend="ChCapInterfaceRemoteSection"/>
+	      </para>
+      </listitem>
 	  </varlistentry>
 	  <varlistentry><term><command>Buffer size: n megabyte(s)</command></term>
 	    <listitem>
@@ -354,7 +374,7 @@ wireshark -i eth0 -k
 		<para>
 		  If some other process has put the interface in 
 		  promiscuous mode you may be capturing in promiscuous 
-		  mode even if you turn off this option
+		  mode even if you turn off this option.
 		</para>
 	      </note>
 	      <note>
@@ -367,13 +387,33 @@ wireshark -i eth0 -k
 	      </note>
 	    </listitem>
 	  </varlistentry>
+	  <varlistentry>
+	    <term>
+	      <command>Capture packets in pcap-ng format</command>
+	    </term>
+	    <listitem>
+	      <para>
+		This checkbox allows you to specify that Wireshark saves the captured
+		packets in pcap-ng format. This next generation capture file format is
+		currently in development.
+	      </para>
+	      <warning>
+		<title>Warning</title>
+		<para>
+		This is an experimental feature. The resulting saved file may or may
+		not be valid. See <ulink url="&WiresharkWikiPcapNgPage;"/> for more
+		details on pcap-ng.
+		</para>
+	      </warning>
+	    </listitem>
+	  </varlistentry>
 	  <varlistentry><term><command>Limit each packet to n bytes</command></term>
 	    <listitem>
 	      <para>
 		This field allows you to specify the maximum amount of 
 		data that will be captured for each packet, and is 
 		sometimes referred to as the <command>snaplen</command>. If disabled, 
-		the default is 65535, which will be sufficient for most 
+		the value is set to the maximum 65535, which will be sufficient for most
 		protocols. Some rules of thumb:
 	      </para>
 		<itemizedlist>
@@ -606,7 +646,174 @@ wireshark -i eth0 -k
       </para>
     </section>
     </section>
-	
+
+    <section id="ChCapInterfaceRemoteSection">
+      <title>The "Remote Capture Interfaces" dialog box</title>
+      <para>
+	  Besides doing capture on local interfaces Wireshark is capable of
+	  reaching out across the network to a so called capture daemon or service
+	  processes to receive captured data from.
+      </para>
+      <note><title>Microsoft Windows only</title>
+      <para>
+	  This dialog and capability is only available on Microsoft Windows. On
+	  Linux/Unix you can achieve the same effect (securely) through an SSH
+	  tunnel.
+      </para>
+      </note>
+      <para>
+	  The Remote Packet Capture Protocol service must first be running on the
+	  target platform before Wireshark can connect to it. The easiest way is
+	  to install WinPcap from <ulink url="&WinPcapDownloadWebsite;"/> on the
+	  target. Once installation is completed go to the Services control panel,
+	  find the Remote Packet Capture Protocol service and start it.
+      </para>
+      <note><title>Note</title>
+      <para>
+	  Make sure you have outside access to port 2002 on the target platform.
+	  This is the port where the Remote Packet Capture Protocol service can
+	  be reached, by default.
+      </para>
+      </note>
+      <para>
+	  To access the Remote Capture Interfaces dialog use the Interfaces
+	  dropdown list on the "Capture Options" dialog, see
+	  <xref linkend="ChCapCaptureOptionsDialog"/>, and select "Remote...".
+      </para>
+      <section><title>Remote Capture Interfaces</title>
+      <figure id="ChCapInterfaceRemoteDialog">
+	<title>The "Remote Capture Interfaces" dialog box</title>
+	<graphic entityref="WiresharkCaptureOptionsRemoteInterfacesDialog" format="PNG"/>
+      </figure>
+      <para>
+	  You have to set the following parameter in this dialog:
+      </para>
+
+	<variablelist>
+	  <varlistentry><term><command>Host</command></term>
+	    <listitem>
+	      <para>
+		  Enter the IP address or host name of the target platform where the
+		  Remote Packet Capture Protocol service is listening.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Port</command></term>
+	    <listitem>
+	      <para>
+		  Set the port number where the Remote Packet Capture Protocol service
+		  is listening on. Leave open to use the default port (2002).
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Null authentication</command></term>
+	    <listitem>
+	      <para>
+		  Select this if you don't need authentication to take place for a
+		  remote capture to be started. This depends on the target platform.
+		  Configuring the target platform like this makes it insecure.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Password authentication</command></term>
+	    <listitem>
+	      <para>
+		  This is the normal way of connecting to a target platform. Set the
+		  credentials needed to connect to the Remote Packet Capture Protocol
+		  service.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </section>
+      <section><title>Remote Capture</title>
+      <para>
+	  When the connection to the Remote Packet Capture Protocol service is
+	  successfully established the "Capture Options" dialog looks like this,
+	  see <xref linkend="ChCapInterfaceRemoteCapDialog"/>.
+      </para>
+      <figure id="ChCapInterfaceRemoteCapDialog">
+	<title>The "Remote Capture" dialog box</title>
+	<graphic entityref="WiresharkCaptureOptionsRemoteCaptureDialog" format="PNG"/>
+      </figure>
+      <para>
+	  The Interface dropdown list now shows the IP address or host name of the
+	  Remote Packet Capture Protocol service and the other field shows the
+	  interfaces on the remote target. After selecting the desired interface
+	  just click <command>Start</command> to start the remote capture.
+      </para>
+      </section>
+      <section><title>Remote Capture Settings</title>
+      <para>
+	  The remote capture can be furhter fine tuned to match your situation.
+	  The <command>Remote Settings</command> button gives you this option.
+	  It pops up the dialog shown in
+	  <xref linkend="ChCapInterfaceRemoteSettingsDialog"/>.
+      </para>
+      <figure id="ChCapInterfaceRemoteSettingsDialog">
+	<title>The "Remote Capture Settings" dialog box</title>
+	<graphic entityref="WiresharkCaptureOptionsRemoteSettingsDialog" format="PNG"/>
+      </figure>
+      <para>
+	  You can set the following parameters in this dialog:
+      </para>
+	<variablelist>
+	  <varlistentry><term><command>Do not capture own RPCAP traffic</command></term>
+	    <listitem>
+	      <para>
+		  This option sets a capture filter so that the traffic flowing back
+		  from the Remote Packet Capture Protocol service to Wireshark isn't
+		  captured as well and also send back. The recursion in this saturates
+		  the link with duplicate traffic.
+	      </para>
+	      <para>
+		  You only should switch this off when capturing on an interface other
+		  then the interface connecting back to Wireshark.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Use UDP for data transfer</command></term>
+	    <listitem>
+	      <para>
+		  Remote capture control and data flows over a TCP connection. This
+		  option allows you to choose an UDP stream for data transfer.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Sampling option None</command></term>
+	    <listitem>
+	      <para>
+		  This option instructs the Remote Packet Capture Protocol service to
+		  send back all captured packets which have passed the capture filter.
+		  This is usually not a problem on a remote capture session with
+		  sufficient bandwidth.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Sampling option 1 of x packets</command></term>
+	    <listitem>
+	      <para>
+		  This option limits the Remote Packet Capture Protocol service to send
+		  only a sub sampling of the captured data, in terms of number of
+		  packets. This allows capture over a narrow band remote capture
+		  session of a higher bandwidth interface.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Sampling option 1 every x milliseconds</command></term>
+	    <listitem>
+	      <para>
+		  This option limits the Remote Packet Capture Protocol service to send
+		  only a sub sampling of the captured data, in terms of time. This
+		  allows capture over a narrow band capture session of a higher
+		  bandwidth interface.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </section>
+    </section>
+
     <section id="ChCapInterfaceDetailsSection">
       <title>The "Interface Details" dialog box</title>
       <para>

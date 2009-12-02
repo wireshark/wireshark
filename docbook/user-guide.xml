@@ -30,7 +30,6 @@ BIOGRAPHICAL SECTION
   <!ENTITY AuthorOtherName4 "Enrique">
   <!ENTITY AuthorSurname4 "Garcia Ontanon">
 
-
 <!--Author's Affiliation -->
   <!ENTITY AuthorShortAffiliation "">
   <!ENTITY AuthorJobTitle "">
@@ -55,10 +54,6 @@ BIOGRAPHICAL SECTION
   <!ENTITY AuthorOrgName4 "">
   <!ENTITY AuthorOrgDiv4 "">
   <!ENTITY AuthorEmail4 "luis [at] ontanon.org">
-
-
-
-  
 
 <!--
 DOCUMENT SECTION
@@ -85,7 +80,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.0">
+  <!ENTITY WiresharkCurrentVersion "1.2">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">
@@ -100,11 +95,11 @@ Wireshark Info
   <!ENTITY WiresharkWikiDisplayFiltersPage "&WiresharkWikiPage;/DisplayFilters">
   <!ENTITY WiresharkWikiColoringRulesPage "&WiresharkWikiPage;/ColoringRules">
   <!ENTITY WiresharkWikiPreferencesPage "&WiresharkWikiPage;/Preferences">
+  <!ENTITY WiresharkWikiPcapNgPage "&WiresharkWikiPage;/Development/PcapNg">
 
   <!ENTITY WiresharkDevMailList "wireshark-dev[AT]wireshark.org">
   <!ENTITY WiresharkUsersMailList "wireshark-users[AT]wireshark.org">
 
-  
 <!--
 Winpcap Info
 -->
@@ -198,11 +193,6 @@ FILE SECTION
   <!ENTITY WiresharkBytesPanePopupMenu SYSTEM "./wsug_graphics/ws-bytes-pane-popup-menu.png" NDATA PNG>
   <!ENTITY WiresharkFilterAddExpression SYSTEM "./wsug_graphics/ws-filter-add-expression.png" NDATA PNG>
   <!ENTITY WiresharkFilters2 SYSTEM "./wsug_graphics/ws-filters-2.png" NDATA PNG>
-  <!ENTITY WiresharkCaptureInterfacesDialog SYSTEM "./wsug_graphics/ws-capture-interfaces.png" NDATA PNG>
-  <!ENTITY WiresharkCaptureInterfacesDialogWin32 SYSTEM "./wsug_graphics/ws-capture-interfaces-win32.png" NDATA PNG>
-  <!ENTITY WiresharkCaptureOptionsDialog SYSTEM "./wsug_graphics/ws-capture-options.png" NDATA PNG>
-  <!ENTITY WiresharkCaptureInterfaceDetailsDialog SYSTEM "./wsug_graphics/ws-capture-interface-details.png" NDATA PNG>
-  <!ENTITY WiresharkCaptureInfoDialog SYSTEM "./wsug_graphics/ws-capture-info.png" NDATA PNG>
   <!ENTITY WiresharkTimeReference SYSTEM "./wsug_graphics/ws-time-reference.png" NDATA PNG>
   <!ENTITY WiresharkEnabledProtocols SYSTEM "./wsug_graphics/ws-enabled-protocols.png" NDATA PNG>
   <!ENTITY WiresharkDecodeAs SYSTEM "./wsug_graphics/ws-decode-as.png" NDATA PNG>
@@ -254,6 +244,16 @@ FILE SECTION
   <!ENTITY WiresharkStatsSrtDcerpcFilter SYSTEM "./wsug_graphics/ws-stats-srt-dcerpc-filter.png" NDATA PNG>
   <!ENTITY WiresharkStatsSrtDcerpc SYSTEM "./wsug_graphics/ws-stats-srt-dcerpc.png" NDATA PNG>
 
+  <!-- Fourth Chapter -->
+  <!ENTITY WiresharkCaptureInterfacesDialog SYSTEM "./wsug_graphics/ws-capture-interfaces.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureInterfacesDialogWin32 SYSTEM "./wsug_graphics/ws-capture-interfaces-win32.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureOptionsDialog SYSTEM "./wsug_graphics/ws-capture-options.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureInterfaceDetailsDialog SYSTEM "./wsug_graphics/ws-capture-interface-details.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureInfoDialog SYSTEM "./wsug_graphics/ws-capture-info.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureOptionsRemoteInterfacesDialog SYSTEM "./wsug_graphics/ws-capture-options-remote-interface.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureOptionsRemoteCaptureDialog SYSTEM "./wsug_graphics/ws-capture-options-remote-capture.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureOptionsRemoteSettingsDialog SYSTEM "./wsug_graphics/ws-capture-options-remote-settings.png" NDATA PNG>
+
   <!-- Fifth Chapter -->
   <!ENTITY WiresharkOpenDialog20 SYSTEM "./wsug_graphics/ws-open-gtk20.png" NDATA PNG> 
   <!ENTITY WiresharkSaveAsDialog20 SYSTEM "./wsug_graphics/ws-save-as-gtk20.png" NDATA PNG>
@@ -274,6 +274,7 @@ FILE SECTION
   <!ENTITY WiresharkPrint SYSTEM "./wsug_graphics/ws-print.png" NDATA PNG>
   <!ENTITY WiresharkPacketRangeFrame SYSTEM "./wsug_graphics/ws-packet-range.png" NDATA PNG>
   <!ENTITY WiresharkPacketFormatFrame SYSTEM "./wsug_graphics/ws-packet-format.png" NDATA PNG>
+
   <!-- Sixth Chapter -->
 
   <!-- Appendices etc -->
@@ -300,31 +301,27 @@ FILE SECTION
   <!ENTITY AppProtocols SYSTEM   "wsug_src/WSUG_app_protocols.xml">
   <!ENTITY AppHowItWorks SYSTEM "wsug_src/WSUG_app_howitworks.xml">
   <!ENTITY AppTools SYSTEM "wsug_src/WSUG_app_tools.xml">
-  <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
-
+  <!ENTITY AppGPL SYSTEM "GPL_appendix.xml">
 
 <!--
 WSLua Reference Manual
 -->
-
-  	<!ENTITY WsLuaRm SYSTEM "wsluarm.xml">
-  	<!ENTITY WsLuaDumper SYSTEM "wsluarm_src/wslua_dumper.xml">
-	<!ENTITY WsLuaField SYSTEM "wsluarm_src/wslua_field.xml">
-	<!ENTITY WsLuaGui SYSTEM "wsluarm_src/wslua_gui.xml">
-	<!ENTITY WsLuaListener SYSTEM "wsluarm_src/wslua_listener.xml">
-	<!ENTITY WsLuaPinfo SYSTEM "wsluarm_src/wslua_pinfo.xml">
-	<!ENTITY WsLuaProto SYSTEM "wsluarm_src/wslua_proto.xml">
-	<!ENTITY WsLuaTree SYSTEM "wsluarm_src/wslua_tree.xml">
-	<!ENTITY WsLuaTvb SYSTEM "wsluarm_src/wslua_tvb.xml">
-	<!ENTITY WsLuaUtility SYSTEM "wsluarm_src/wslua_util.xml">
+  <!ENTITY WsLuaRm SYSTEM "wsluarm.xml">
+  <!ENTITY WsLuaDumper SYSTEM "wsluarm_src/wslua_dumper.xml">
+  <!ENTITY WsLuaField SYSTEM "wsluarm_src/wslua_field.xml">
+  <!ENTITY WsLuaGui SYSTEM "wsluarm_src/wslua_gui.xml">
+  <!ENTITY WsLuaListener SYSTEM "wsluarm_src/wslua_listener.xml">
+  <!ENTITY WsLuaPinfo SYSTEM "wsluarm_src/wslua_pinfo.xml">
+  <!ENTITY WsLuaProto SYSTEM "wsluarm_src/wslua_proto.xml">
+  <!ENTITY WsLuaTree SYSTEM "wsluarm_src/wslua_tree.xml">
+  <!ENTITY WsLuaTvb SYSTEM "wsluarm_src/wslua_tvb.xml">
+  <!ENTITY WsLuaUtility SYSTEM "wsluarm_src/wslua_util.xml">
 
 ]>
 
 <book>
   <title>&DocumentTitle;</title>
   <subtitle>&DocumentSubTitle;</subtitle>
-  <!--
-  -->
   &BookMetaInformation;
   &Preface;
   &ChapterIntroduction;
@@ -345,15 +342,11 @@ WSLua Reference Manual
   &AppTools;
   
   &AppGPL;
-  <!-- 
-  Removed, as these chapters must be reworked
+
+  <!--  Removed, as these chapters must be reworked
   &Glossary;
   &Index;
-  Removed, as this chapter is not finished 
   &AppHowItWorks;
-  Removed, as this chapter has to be reworked
   &ChapterTroubleshoot;   
   -->
-  
-
 </book>

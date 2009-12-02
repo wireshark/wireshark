@@ -31,6 +31,9 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-capture-interfaces-win32.png	\
 	wsug_graphics/ws-capture-menu.png		\
 	wsug_graphics/ws-capture-options.png		\
+	wsug_graphics/ws-capture-options-remote-capture.png	\
+	wsug_graphics/ws-capture-options-remote-interface.png	\
+	wsug_graphics/ws-capture-options-remote-settings.png	\
 	wsug_graphics/ws-capture-preferences.png	\
 	wsug_graphics/ws-choose-color-rule.png		\
 	wsug_graphics/ws-coloring-fields.png		\
