@@ -101,12 +101,13 @@ typedef enum {
 #define PARAM_VIA_RVS			65502
 /* RFC 5206 */
 #define PARAM_LOCATOR			193
-/* draft-ietf-hip-nat-raversal-06.txt */
+/* RFC-ietf-hip-nat-traversal-09.txt */
 #define PARAM_NAT_TRAVERSAL_MODE        608
 #define PARAM_TRANSACTION_PACING        610
 #define PARAM_REG_FROM                  950
 #define PARAM_RELAY_FROM                63998
 #define PARAM_RELAY_TO                  64002
+#define PARAM_RELAY_HMAC                65520
  
 /* Bit masks */
 #define PARAM_CRITICAL_BIT		0x0001
@@ -164,6 +165,7 @@ static const value_string hip_param_vals[] = {
 	{ PARAM_TRANSACTION_PACING, "TRANSACTION_PACING" },
         { PARAM_RELAY_FROM, "RELAY_FROM" },
         { PARAM_RELAY_TO, "RELAY_TO" },
+        { PARAM_RELAY_HMAC, "RELAY_HMAC" },
 	{ PARAM_REG_INFO, "REG_INFO" },
 	{ PARAM_REG_REQUEST, "REG_REQUEST" },
         { PARAM_REG_RESPONSE, "REG_RESPONSE" },
@@ -1018,7 +1020,8 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 		break;
 	case PARAM_HMAC: 
 	case PARAM_HMAC_2: 
-	case PARAM_RVS_HMAC: 
+       case PARAM_RVS_HMAC:
+       case PARAM_RELAY_HMAC:
 		t = proto_item_add_subtree(ti, ett_hip_tlv_data);
 		/* HMAC */
 		proto_tree_add_item(t, hf_hip_tlv_hmac, tvb, offset+4,
@@ -1510,5 +1513,5 @@ proto_reg_handoff_hip(void)
 	dissector_add("ip.proto", IP_PROTO_HIP, hip_handle);
 
 	hip_handle2 = create_dissector_handle(dissect_hip_in_udp, proto_hip);
-	dissector_add("udp.port", 50500, hip_handle2);
+       dissector_add("udp.port", 10500, hip_handle2);
 }
