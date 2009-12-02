@@ -143,6 +143,9 @@ static int hf_mac_lte_suspected_dl_harq_resend_original_frame = -1;
 
 static int hf_mac_lte_ul_harq_resend_original_frame = -1;
 
+static int hf_mac_lte_grant_answering_sr = -1;
+static int hf_mac_lte_failure_answering_sr = -1;
+
 
 /* Subtrees. */
 static int ett_mac_lte = -1;
@@ -380,6 +383,10 @@ static const value_string predefined_frame_vals[] =
 };
 
 
+/**************************************************************************/
+/* Preferences state                                                      */
+/**************************************************************************/
+
 /* If this PDU has been NACK'd (by HARQ) more than a certain number of times,
    we trigger an expert warning. */
 static gint global_mac_lte_retx_counter_trigger = 3;
@@ -401,6 +408,9 @@ static gboolean global_mac_lte_attempt_ul_harq_resend_track = TRUE;
 
 /* Threshold for warning in expert info about high BSR values */
 static gint global_mac_lte_bsr_warn_threshold = 50; /* default is 19325 -> 22624 */
+
+/* Whether or not to track SRs and related frames */
+static gint global_mac_lte_track_sr = TRUE;
 
 
 /***********************************************************************/
@@ -575,7 +585,56 @@ static GHashTable *mac_lte_ul_harq_result_hash = NULL;
 /**************************************************************************/
 
 
+/**************************************************************************/
+/* Tracking of Scheduling Requests (SRs).                                 */
+/* Keep track of:                                                         */
+/* - last grant before SR                                                 */
+/* - SR failures following request                                        */
+/* - grant following SR                                                   */
 
+typedef enum SREvent {
+    SR_Grant,
+    SR_Request,
+    SR_Failure
+} SREvent;
+
+typedef enum SRStatus {
+    None,
+    SR_Outstanding,
+    SR_Failed
+} SRStatus;
+
+typedef struct SRState {
+     SRStatus status;
+     guint32  lastSRFramenum;
+     guint32  lastGrantFramenum;
+} SRState;
+
+
+/* This table keeps track of the SR state for each UE.
+   (RNTI -> SRState) */
+static GHashTable *mac_lte_ue_sr_state = NULL;
+
+
+typedef enum SRResultType {
+    GrantAnsweringSR,
+    FailureAnsweringSR
+} SRResultType;
+
+typedef struct SRResult {
+    SRResultType type;
+    guint32      frameNum;
+} SRResult;
+
+/* Entries in this table are created during the first pass
+   It maps (SRFrameNum -> SRResult) */
+static GHashTable *mac_lte_sr_request_hash = NULL;
+
+
+/* TODO: another table (set on second pass) that stores info that SR frames
+   should display.  i.e. previous grant, next grant, SR failure frame */
+
+/**************************************************************************/
 
 
 
@@ -1290,6 +1349,149 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
 }
 
 
+/* Look up SRResult associated with a given frame. Will create one if necessary
+   if can_create is set */
+static SRResult *GetSRResult(guint32 frameNum, gboolean can_create)
+{
+    SRResult *result;
+    result = g_hash_table_lookup(mac_lte_sr_request_hash, GUINT_TO_POINTER(frameNum));
+
+    if ((result == NULL) && can_create) {
+        result = se_alloc0(sizeof(SRResult));
+        g_hash_table_insert(mac_lte_sr_request_hash, GUINT_TO_POINTER((guint)frameNum), result);
+    }
+    return result;
+}
+
+
+/* Keep track of SR requests, failures and related grants, in order to show them
+   as generated fields in these frames.
+   TODO:
+   - also record times of previous frames so can show time differences
+   - on second pass, set up result info for SR frames themselves */
+static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
+                        tvbuff_t *tvb, guint16 rnti)
+{
+    SRResult *result = NULL;
+    proto_item *ti;
+
+    /* Create state for this RNTI if necessary */
+    SRState *state = g_hash_table_lookup(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)rnti));
+    if (state == NULL) {
+        /* Allocate status for this RNTI */
+        state = se_alloc(sizeof(SRStatus));
+        state->status = None;
+        g_hash_table_insert(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)rnti), state);
+    }
+
+
+    /* First time through - update state with new info */
+    if (!pinfo->fd->flags.visited) {
+
+        switch (state->status) {
+            case None:
+                switch (event) {
+                    case SR_Grant:
+                        /* Got another grant - fine */
+
+                        /* update state */
+                        state->lastGrantFramenum = pinfo->fd->num;
+                        break;
+
+                    case SR_Request:
+                        /* Sent an SR - fine */
+
+                        /* Update state */
+                        state->status = SR_Outstanding;
+                        state->lastSRFramenum = pinfo->fd->num;
+                        break;
+
+                    case SR_Failure:
+                        /* This is an error, since we hadn't send an SR... */
+                        /* TODO: unexpected */
+                        break;
+                }
+                break;
+
+            case SR_Outstanding:
+                switch (event) {
+                    case SR_Grant:
+                        /* Got grant we were waiting for, so state goes to None */
+
+                        /* Update state */
+                        state->status = None;
+
+                        /* Set result info */
+                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result->type = GrantAnsweringSR;
+                        result->frameNum = state->lastSRFramenum;
+                        break;
+
+                    case SR_Request:
+                        /* Another request when already have one pending */
+                        /* TODO: error */
+                        break;
+
+                    case SR_Failure:
+                        /* We sent an SR but it failed */
+
+                        /* Update state */
+                        state->status = SR_Failed;
+
+                        /* Set result info */
+                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result->type = FailureAnsweringSR;
+                        result->frameNum = state->lastSRFramenum;
+                        break;
+                }
+                break;
+
+            case SR_Failed:
+                switch (event) {
+                    case SR_Grant:
+                        /* Got a grant, presumably after a subsequent RACH - fine */
+
+                        /* Update state */
+                        state->status = None;
+                        break;
+
+                    case SR_Request:
+                        /* Tried another SR after a failure, and presumbly no
+                           successul subsequent RACH */
+                        /* TODO: unexpected */
+                        break;
+
+                    case SR_Failure:
+                        /* 2 failures in a row.... */
+                        /* TODO: unexpected */
+                        break;
+                }
+                break;
+        }
+    }
+
+    /* Get current result */
+    result = GetSRResult(pinfo->fd->num, FALSE);
+    if (result == NULL) {
+        return;
+    }
+
+    /* Show result info */
+    switch (result->type) {
+        case GrantAnsweringSR:
+            ti = proto_tree_add_uint(tree, hf_mac_lte_grant_answering_sr,
+                                     tvb, 0, 0, result->frameNum);
+            PROTO_ITEM_SET_GENERATED(ti);
+            break;
+        case FailureAnsweringSR:
+            ti = proto_tree_add_uint(tree, hf_mac_lte_failure_answering_sr,
+                                     tvb, 0, 0, result->frameNum);
+            PROTO_ITEM_SET_GENERATED(ti);
+            break;
+    }
+}
+
+
 
 
 
@@ -1338,6 +1540,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         TrackReportedULHARQResend(pinfo, tvb, offset, tree, p_mac_lte_info, retx_ti);
     }
 
+    /* For uplink grants, update SR status */
+    if ((direction == DIRECTION_UPLINK) && global_mac_lte_track_sr) {
+        TrackSRInfo(SR_Grant, pinfo, tree, tvb, p_mac_lte_info->rnti);
+    }
 
     /* Add PDU block header subtree */
     pdu_header_ti = proto_tree_add_string_format(tree,
@@ -1845,7 +2051,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (is_truncated) {
         PROTO_ITEM_SET_GENERATED(truncated_ti);
         expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
-                               "MAC PDU SDUs have been ommitted");
+                               "MAC PDU SDUs have been omitted");
         return;
     }
     else {
@@ -2141,6 +2347,11 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_NOTE,
                                        "Scheduling Request send for UE %u (RNTI %u)",
                                        p_mac_lte_info->ueid, p_mac_lte_info->rnti);
+
+                /* Update SR status */
+                if (global_mac_lte_track_sr) {
+                    TrackSRInfo(SR_Request, pinfo, mac_lte_tree, tvb, p_mac_lte_info->rnti);
+                }
                 break;
             case ltemac_sr_failure:
                 ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_rnti,
@@ -2158,6 +2369,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
                                        "Scheduling Request failed for RNTI %u",
                                        p_mac_lte_info->rnti);
+
+                /* Update SR status */
+                if (global_mac_lte_track_sr) {
+                    TrackSRInfo(SR_Failure, pinfo, mac_lte_tree, tvb, p_mac_lte_info->rnti);
+                }
+
                 break;
         }
 
@@ -2342,8 +2559,12 @@ mac_lte_init_protocol(void)
     if (mac_lte_ul_harq_result_hash) {
         g_hash_table_destroy(mac_lte_ul_harq_result_hash);
     }
-
-
+    if (mac_lte_ue_sr_state) {
+        g_hash_table_destroy(mac_lte_ue_sr_state);
+    }
+    if (mac_lte_sr_request_hash) {
+        g_hash_table_destroy(mac_lte_sr_request_hash);
+    }
 
     /* Now create them over */
     mac_lte_msg3_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
@@ -2354,6 +2575,9 @@ mac_lte_init_protocol(void)
 
     mac_lte_ul_harq_hash = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
     mac_lte_ul_harq_result_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
+
+    mac_lte_ue_sr_state = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
+    mac_lte_sr_request_hash = g_hash_table_new(mac_lte_framenum_hash_func, mac_lte_framenum_hash_equal);
 }
 
 
@@ -2843,6 +3067,20 @@ void proto_register_mac_lte(void)
               NULL, HFILL
             }
         },
+
+        { &hf_mac_lte_grant_answering_sr,
+            { "First Grant Following SR",
+              "mac-lte.ulsch.grant-answering-sr", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_failure_answering_sr,
+            { "Failure Answering SR",
+              "mac-lte.ulsch.failure-answering-sr", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+
     };
 
     static gint *ett[] =
@@ -2951,6 +3189,11 @@ void proto_register_mac_lte(void)
         "BSR size when warning should be issued (0 - 63)",
         "If any BSR report is >= this number, an expert warning will be added",
         10, &global_mac_lte_bsr_warn_threshold);
+
+    prefs_register_bool_preference(mac_lte_module, "track_sr",
+        "Track status of SRs within UEs",
+        "Track status of SRs, providing links between requests, failure indications and grants",
+        &global_mac_lte_track_sr);
 
     register_init_routine(&mac_lte_init_protocol);
 }
