@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+﻿<?xml version='1.0'?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
@@ -42,10 +42,11 @@
   <xsl:attribute name="hyphenate">false</xsl:attribute>
 </xsl:attribute-set>
 
-<!-- put a page break after each section -->
+<!-- put a page break after each section 
 <xsl:attribute-set name="section.level1.properties">
   <xsl:attribute name="break-after">page</xsl:attribute>
 </xsl:attribute-set>
+-->
 
 <!-- set link style to blue and underlined -->
 <xsl:attribute-set name="xref.properties">
