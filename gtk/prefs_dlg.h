@@ -74,7 +74,15 @@ typedef enum {
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void prefs_cb(GtkWidget *widget, gpointer data, PREFS_PAGE_E prefs_page);
+extern void prefs_cb(GtkWidget *widget, gpointer data);
+
+/** Show the preferences dialog in given page.
+ * 
+ * @param widget parent widget (unused)
+ * @param data unused
+ * @param prefs_page page to show
+ */
+extern void prefs_page_cb(GtkWidget *widget, gpointer data, PREFS_PAGE_E prefs_page);
 
 /** Show the protocol properties dialog.
  * 

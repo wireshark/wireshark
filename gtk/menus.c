@@ -531,7 +531,7 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Find Previous Reference", "<alt><shift><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/_Configuration Profiles...", "<shift><control>A", GTK_MENU_FUNC(profile_dialog_cb), 0, NULL, NULL,},
-    {"/Edit/_Preferences...", "<shift><control>P", GTK_MENU_FUNC(prefs_cb),
+    {"/Edit/_Preferences...", "<shift><control>P", GTK_MENU_FUNC(prefs_page_cb),
                              PREFS_PAGE_USER_INTERFACE, "<StockItem>", GTK_STOCK_PREFERENCES,},
     {"/_View", NULL, NULL, 0, "<Branch>", NULL,},
     {"/View/_Main Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_MAIN_TOOLBAR, "<CheckItem>", NULL,},
@@ -777,7 +777,7 @@ static GtkItemFactoryEntry packet_list_heading_items[] =
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
-    {"/Column Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
+    {"/Column Preferences...", NULL, GTK_MENU_FUNC(prefs_page_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
     {"/Resize Column", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_RESIZE, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
     {"/Rename Column Title...", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_RENAME, "<StockItem>", GTK_STOCK_BOLD,},
 
@@ -790,7 +790,7 @@ static GtkItemFactoryEntry packet_list_heading_items[] =
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
-    {"/Column Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
+    {"/Column Preferences...", NULL, GTK_MENU_FUNC(prefs_page_cb), PREFS_PAGE_COLUMNS, "<StockItem>", GTK_STOCK_PREFERENCES,},
     {"/Resize Column", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_RESIZE, "<StockItem>", WIRESHARK_STOCK_RESIZE_COLUMNS,},
     {"/Rename Column Title...", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_RENAME, "<StockItem>", GTK_STOCK_BOLD,},
 

@@ -409,7 +409,13 @@ prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, cons
 
 /* show the dialog */
 void
-prefs_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
+prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
+{
+  prefs_page_cb (w, dummy, PREFS_PAGE_USER_INTERFACE);
+}
+
+void
+prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
 {
   GtkWidget         *top_hb, *bbox, *prefs_nb, *ct_sb,
                     *ok_bt, *apply_bt, *save_bt, *cancel_bt, *help_bt;
@@ -1764,7 +1770,7 @@ properties_cb(GtkWidget *w, gpointer dummy)
   if (prefs_w != NULL) {
     reactivate_window(prefs_w);
   } else {
-    prefs_cb(w, dummy, PREFS_PAGE_USER_INTERFACE);
+    prefs_cb(w, dummy);
   }
 
   /* Search all the pages in that window for the one with the specified
