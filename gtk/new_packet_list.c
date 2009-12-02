@@ -1,7 +1,7 @@
 /* new_packet_list.c
  * Routines to implement a new GTK2 packet list using our custom model
  * Copyright 2008-2009, Stephen Fisher (see AUTHORS file)
- * Co-authors Anders Broman and Kovarththanan Rajaratnam.
+ * Co-authors Anders Broman, Kovarththanan Rajaratnam and Stig Bjorlykke.
  *
  * $Id$
  *
@@ -178,9 +178,8 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
 	GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
 	const gchar *title =  gtk_entry_get_text(GTK_ENTRY(entry));
-	GtkWidget *title_lb = gtk_tree_view_column_get_widget(col);
 
-	gtk_label_set_text(GTK_LABEL(title_lb), title);
+	gtk_tree_view_column_set_title(col, title);
 	column_prefs_rename(col_id, title);
 
 	if (!prefs.gui_use_pref_save) {
@@ -199,8 +198,7 @@ col_title_change_cancel (GtkWidget *w _U_, gpointer parent_w)
 static void 
 col_title_edit_dlg (GtkTreeViewColumn *col)
 {
-	GtkWidget *title_lb = gtk_tree_view_column_get_widget(col);
-	const gchar *value = gtk_label_get_text(GTK_LABEL(title_lb));
+	const gchar *value = gtk_tree_view_column_get_title(col);
 
 	GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
 	GtkWidget *entry, *label;
@@ -418,7 +416,6 @@ create_view_and_model(void)
 	gchar xalign;
 	gdouble value;
 	gboolean right_justify;
-	GtkWidget *title_lb;
 	gchar *tooltip_text;
 	header_field_info *hfi;
 	GtkTooltips *tooltips = gtk_tooltips_new ();
@@ -469,7 +466,6 @@ create_view_and_model(void)
 							show_cell_data_func,
 							GINT_TO_POINTER(i),
 							NULL);
-		title_lb = gtk_label_new(cfile.cinfo.col_title[i]);
 		if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
 			hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
 			if (hfi->parent != -1) {
@@ -481,10 +477,7 @@ create_view_and_model(void)
 		} else {
 			tooltip_text = g_strdup(col_format_desc(cfile.cinfo.col_fmt[i]));
 		}
-		gtk_tooltips_set_tip(tooltips, title_lb, tooltip_text, NULL);
-		g_free(tooltip_text);
-		gtk_widget_show(title_lb);
-		gtk_tree_view_column_set_widget(col, title_lb);
+		gtk_tree_view_column_set_title(col, cfile.cinfo.col_title[i]);
 		gtk_tree_view_column_set_clickable(col, TRUE);
 		gtk_tree_view_column_set_resizable(col, TRUE);
 		gtk_tree_view_column_set_sizing(col,GTK_TREE_VIEW_COLUMN_FIXED);
@@ -525,6 +518,8 @@ create_view_and_model(void)
 		/* XXX Breaks the GTK+ API, but this is the only way to attach a signal to
 		 * a GtkTreeView column header. See GTK bug #141937.
 		 */
+		gtk_tooltips_set_tip(tooltips, col->button, tooltip_text, NULL);
+		g_free(tooltip_text);
 		g_signal_connect(col->button, "button_press_event", 
 				 G_CALLBACK(new_packet_list_column_button_pressed_cb), col);
 
