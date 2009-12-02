@@ -3194,7 +3194,7 @@ menus_set_column_align_default (gboolean right_justify)
     GtkWidget   *submenu, *menu_item_child;
     GList       *child_list, *child_list_item;
     const gchar *menu_item_name;
-    gint         menu_item_len;
+    size_t       menu_item_len;
     
     /* get the submenu container item */
     submenu = packet_list_heading_factory->widget;
