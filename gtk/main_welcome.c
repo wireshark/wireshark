@@ -74,11 +74,13 @@ extern gint if_list_comparator_alph (const void *first_arg, const void *second_a
 
 static GtkWidget *welcome_hb = NULL;
 static GtkWidget *header_lb = NULL;
-static GdkColor header_bar_bg;
-static GdkColor topic_header_bg;
-static GdkColor topic_content_bg;
+/* Foreground colors are set using Pango markup */
+static GdkColor welcome_bg = { 0, 0xe6e6, 0xe6e6, 0xe6e6 };
+static GdkColor header_bar_bg = { 0, 0x1818, 0x5c5c, 0xcaca };
+static GdkColor topic_header_bg = { 0, 0x0101, 0x3939, 0xbebe };
+static GdkColor topic_content_bg = { 0, 0xffff, 0xffff, 0xffff };
 static GdkColor topic_item_idle_bg;
-static GdkColor topic_item_entered_bg;
+static GdkColor topic_item_entered_bg = { 0, 0xd3d3, 0xd8d8, 0xdada };
 
 static GtkWidget *welcome_file_panel_vb = NULL;
 #ifdef HAVE_LIBPCAP
@@ -258,7 +260,7 @@ welcome_header_set_message(gchar *msg) {
     time_t secs = time(NULL);
     struct tm *now = localtime(&secs);
     
-    message = g_string_new("<span weight=\"bold\" size=\"x-large\" foreground=\"black\">");
+    message = g_string_new("<span weight=\"bold\" size=\"x-large\" foreground=\"white\">");
     
     if (msg) {
 	g_string_append(message, msg);
@@ -270,7 +272,7 @@ welcome_header_set_message(gchar *msg) {
 	}
     
 	if (prefs.gui_version_in_start_page) {
-	    g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"black\">Version " VERSION "%s",
+	    g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"white\">Version " VERSION "%s",
 				   wireshark_svnversion);
 	}
     }
@@ -354,7 +356,7 @@ welcome_topic_header_new(const char *header)
 
 
     w = gtk_label_new(header);
-    formatted_message = g_strdup_printf("<span weight=\"bold\" size=\"x-large\" foreground=\"black\">%s</span>", header);
+    formatted_message = g_strdup_printf("<span weight=\"bold\" size=\"x-large\" foreground=\"white\">%s</span>", header);
     gtk_label_set_markup(GTK_LABEL(w), formatted_message);
     g_free(formatted_message);
 
@@ -701,6 +703,7 @@ GtkWidget *
 welcome_new(void)
 {
     GtkWidget *welcome_scrollw;
+    GtkWidget *welcome_eb;
     GtkWidget *welcome_vb;
     GtkWidget *column_vb;
     GtkWidget *item_hb;
@@ -720,59 +723,31 @@ welcome_new(void)
 #endif
 
     /* prepare colors */
+
+    /* "page" background */
+    get_color(&welcome_bg);
+
     /* header bar background color */
-    header_bar_bg.pixel = 0;
-    header_bar_bg.red = 154 * 255;
-    header_bar_bg.green = 210 * 255;
-    header_bar_bg.blue = 229 * 255;
     get_color(&header_bar_bg);
 
     /* topic header background color */
-    topic_header_bg.pixel = 0;
-    topic_header_bg.red = 24 * 255;
-    topic_header_bg.green = 151 * 255;
-    topic_header_bg.blue = 192 * 255;
     get_color(&topic_header_bg);
 
     /* topic content background color */
-    topic_content_bg.pixel = 0;
-    topic_content_bg.red = 221 * 255;
-    topic_content_bg.green = 226 * 255;
-    topic_content_bg.blue = 228 * 255;
     get_color(&topic_content_bg);
-
-    /* topic item idle background color */
-    /*topic_item_idle_bg.pixel = 0;
-    topic_item_idle_bg.red = 216 * 255;
-    topic_item_idle_bg.green = 221 * 255;
-    topic_item_idle_bg.blue = 223 * 255;
-    get_color(&topic_item_idle_bg);*/
 
     topic_item_idle_bg = topic_content_bg;
 
     /* topic item entered color */
-    topic_item_entered_bg.pixel = 0;
-    topic_item_entered_bg.red = 211 * 255;
-    topic_item_entered_bg.green = 216 * 255;
-    topic_item_entered_bg.blue = 218 * 255;
     get_color(&topic_item_entered_bg);
-
-    /*topic_item_entered_bg.pixel = 0;
-    topic_item_entered_bg.red = 216 * 255;
-    topic_item_entered_bg.green = 221 * 255;
-    topic_item_entered_bg.blue = 223 * 255;
-    get_color(&topic_item_entered_bg);*/
-
-    /*topic_item_entered_bg.pixel = 0;
-    topic_item_entered_bg.red = 154 * 255;
-    topic_item_entered_bg.green = 210 * 255;
-    topic_item_entered_bg.blue = 229 * 255;
-    get_color(&topic_item_entered_bg);*/
-
 
     welcome_scrollw = scrolled_window_new(NULL, NULL);
 
     welcome_vb = gtk_vbox_new(FALSE, 0);
+
+    welcome_eb = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(welcome_eb), welcome_vb);
+    gtk_widget_modify_bg(welcome_eb, GTK_STATE_NORMAL, &welcome_bg);
 
     /* header */
     header = welcome_header_new();
@@ -786,6 +761,7 @@ welcome_new(void)
 
     /* column capture */
     column_vb = gtk_vbox_new(FALSE, 10);
+    gtk_widget_modify_bg(column_vb, GTK_STATE_NORMAL, &welcome_bg);
     gtk_box_pack_start(GTK_BOX(welcome_hb), column_vb, TRUE, TRUE, 0);
 
     /* capture topic */
@@ -948,10 +924,10 @@ welcome_new(void)
 
 
     /* the end */
-    gtk_widget_show_all(welcome_vb);
+    gtk_widget_show_all(welcome_eb);
 
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(welcome_scrollw),
-                                          welcome_vb);
+                                          welcome_eb);
     gtk_widget_show_all(welcome_scrollw);
 
     return welcome_scrollw;
