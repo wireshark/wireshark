@@ -280,7 +280,7 @@ new_packet_list_column_clicked_cb (GtkTreeViewColumn *col, gpointer user_data _U
 }
 
 static gdouble
-get_xalign_value (gchar xalign, gint col_id)
+get_xalign_value (gchar xalign, gboolean right_justify)
 {
 	double value;
 
@@ -296,7 +296,7 @@ get_xalign_value (gchar xalign, gint col_id)
 		break;
 	case COLUMN_XALIGN_DEFAULT:
 	default:
-		if (right_justify_column (col_id)) {
+		if (right_justify) {
 			value = 1.0f;
 		} else {
 			value = 0.0f;
@@ -315,7 +315,8 @@ new_packet_list_xalign_column (gint col_id, GtkTreeViewColumn *col, gchar xalign
 #else
 	GList *renderers = gtk_tree_view_column_get_cell_renderers (col);
 #endif
-	gdouble value = get_xalign_value (xalign, col_id);
+	gboolean right_justify = right_justify_column(col_id);
+	gdouble value = get_xalign_value (xalign, right_justify);
 	GList *entry;
 	GtkCellRenderer *renderer;
 
@@ -326,6 +327,12 @@ new_packet_list_xalign_column (gint col_id, GtkTreeViewColumn *col, gchar xalign
 		entry = g_list_next (entry);
 	}
 	g_list_free (renderers);
+
+	if ((xalign == COLUMN_XALIGN_LEFT && !right_justify) ||
+	    (xalign == COLUMN_XALIGN_RIGHT && right_justify)) {
+		/* Default value selected, save default in the recent settings */
+		xalign = COLUMN_XALIGN_DEFAULT;
+	}
 
 	recent_set_column_xalign (col_id, xalign);
 	gtk_widget_queue_draw (packetlist->view);
@@ -393,7 +400,10 @@ new_packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gp
 {
 	GtkWidget *col = (GtkWidget *) data;
 	GtkWidget *menu = g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);
+	gint       col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
+	gboolean   right_justify = right_justify_column (col_id);
 
+	menus_set_column_align_default (right_justify);
 	g_object_set_data(G_OBJECT(packetlist->view), E_MPACKET_LIST_COLUMN_KEY, col);
 	popup_menu_handler (widget, event, menu);
 }
@@ -407,6 +417,7 @@ create_view_and_model(void)
 	gint i, col_width;
 	gchar xalign;
 	gdouble value;
+	gboolean right_justify;
 	GtkWidget *title_lb;
 	gchar *tooltip_text;
 	header_field_info *hfi;
@@ -441,10 +452,11 @@ create_view_and_model(void)
 		xalign = recent_get_column_xalign(i);
 		col = gtk_tree_view_column_new();
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
+		right_justify = right_justify_column (i);
 		if (xalign != COLUMN_XALIGN_DEFAULT) {
-			value = get_xalign_value(xalign, i);
+			value = get_xalign_value(xalign, right_justify);
 			g_object_set(G_OBJECT(renderer), "xalign", value, NULL);
-		} else if (right_justify_column (i)) {
+		} else if (right_justify) {
 			g_object_set(G_OBJECT(renderer),
 				"xalign",
 				1.0,

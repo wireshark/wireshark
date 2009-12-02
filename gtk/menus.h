@@ -111,6 +111,9 @@ extern void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gb
 /** The popup menu. */
 extern GtkWidget           *popup_menu_object;
 
+/* Update the packet list heading menu to indicate default
+   column justification. */
+void menus_set_column_align_default (gboolean right_justify);
 
 /* Enable or disable menu items based on whether a tree row is selected
    and and on whether a "Match Selected" can be done. */

@@ -770,7 +770,6 @@ static GtkItemFactoryEntry packet_list_heading_items[] =
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
-    {"/Default Alignment", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_DEFAULT, NULL, NULL,},
     {"/Align Left", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_LEFT, "<StockItem>", GTK_STOCK_JUSTIFY_LEFT,},
     {"/Align Center", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_CENTER, "<StockItem>", GTK_STOCK_JUSTIFY_CENTER,},
     {"/Align Right", NULL, GTK_MENU_FUNC(new_packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_RIGHT, "<StockItem>", GTK_STOCK_JUSTIFY_RIGHT,},
@@ -3187,6 +3186,44 @@ rebuild_protocol_prefs_menu (module_t *prefs, gboolean preferences)
         gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), NULL);
     }
 
+}
+
+void
+menus_set_column_align_default (gboolean right_justify)
+{
+    GtkWidget   *submenu, *menu_item_child;
+    GList       *child_list, *child_list_item;
+    const gchar *menu_item_name;
+    gint         menu_item_len;
+    
+    /* get the submenu container item */
+    submenu = packet_list_heading_factory->widget;
+
+    /* find the corresponding menu items to update */
+    child_list = gtk_container_get_children(GTK_CONTAINER(submenu));
+    child_list_item = child_list;
+    while(child_list_item) {
+        menu_item_child = (GTK_BIN(child_list_item->data))->child;
+        if (menu_item_child != NULL) {
+            menu_item_name = gtk_label_get_text(GTK_LABEL(menu_item_child));
+            menu_item_len = strlen (menu_item_name);
+            if(strncmp(menu_item_name, "Align Left", 10) == 0) {
+                if (!right_justify && menu_item_len == 10) {
+                    gtk_label_set_text(GTK_LABEL(menu_item_child), "Align Left\t(default)");
+                } else if (right_justify && menu_item_len > 10) {
+                    gtk_label_set_text(GTK_LABEL(menu_item_child), "Align Left");
+                }
+            } else if (strncmp (menu_item_name, "Align Right", 11) == 0) {
+                if (right_justify && menu_item_len == 11) {
+                    gtk_label_set_text(GTK_LABEL(menu_item_child), "Align Right\t(default)");
+                } else if (!right_justify && menu_item_len > 11) {
+                    gtk_label_set_text(GTK_LABEL(menu_item_child), "Align Right");
+                }
+            }
+        }
+        child_list_item = g_list_next(child_list_item);
+    }
+    g_list_free(child_list);
 }
 
 void
