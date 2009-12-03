@@ -166,8 +166,8 @@ extern "C" {
 #define WTAP_ENCAP_NETTL_UNKNOWN                74
 #define WTAP_ENCAP_MTP2_WITH_PHDR               75
 #define WTAP_ENCAP_JUNIPER_PPPOE                76
-#define WTAP_GCOM_TIE1                          77
-#define WTAP_GCOM_SERIAL                        78
+#define WTAP_ENCAP_GCOM_TIE1                    77
+#define WTAP_ENCAP_GCOM_SERIAL                  78
 #define WTAP_ENCAP_NETTL_X25                    79
 #define WTAP_ENCAP_K12                          80
 #define WTAP_ENCAP_JUNIPER_MLPPP                81

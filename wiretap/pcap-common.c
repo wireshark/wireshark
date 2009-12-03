@@ -295,8 +295,8 @@ static const struct {
 	 */
 
 	/* Registered by Gcom, Inc. */
-	{ 172,		WTAP_GCOM_TIE1 },
-	{ 173,		WTAP_GCOM_SERIAL },
+	{ 172,		WTAP_ENCAP_GCOM_TIE1 },
+	{ 173,		WTAP_ENCAP_GCOM_SERIAL },
 
 	{ 177,		WTAP_ENCAP_LINUX_LAPD },
 
