@@ -387,7 +387,7 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_ERF */
 	{ "Endace Record File", "erf" },
 
-	/* WTAP_ENCAP_BT_H4 */
+	/* WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR */
 	{ "Bluetooth H4 with linux header", "bluetooth-h4" },
 
 	/* WTAP_ENCAP_SITA */
@@ -435,11 +435,17 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_TNEF */
 	{ "Transport-Neutral Encapsulation Format", "tnef" },
 
-	/* WTAP_ENCAP_USB_LINUX_MMAP */
+	/* WTAP_ENCAP_USB_LINUX_MMAPPED */
 	{ "USB packets with Linux header and padding", "usb-linux-mmap" },
 
 	/* WTAP_ENCAP_GSM_UM */
 	{ "GSM Um Interface", "gsm_um" },
+
+	/* WTAP_ENCAP_DPNSS */
+	{ "Digital Private Signalling System No 1 Link Layer", "dpnss_link" },
+
+	/* WTAP_ENCAP_PACKETLOGGER */
+	{ "PacketLogger", "packetlogger" },
 
 	/* WTAP_ENCAP_NSTRACE_1_0 */
 	{ "NetScaler Encapsulation 1.0 of Ethernet", "nstrace10" },
