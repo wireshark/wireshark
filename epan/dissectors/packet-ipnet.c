@@ -27,6 +27,7 @@
 #endif
 
 #include <glib.h>
+#include <epan/aftypes.h>
 #include <epan/packet.h>
 
 static int proto_ipnet   = -1;
@@ -43,6 +44,19 @@ static gint ett_raw = -1;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
+
+static const value_string solaris_family_vals[] = {
+  { SOLARIS_AF_INET,  "Solaris AF_INET"  },
+  { SOLARIS_AF_INET6, "Solaris AF_INET6" },
+  { 0, NULL }
+};
+
+static const value_string htype_vals[] = {
+  { 0, "Inbound"  },
+  { 1, "Outbound" },
+  { 2, "Local"    },
+  { 0, NULL }
+};
 
 static void
 dissect_ipnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -78,10 +92,10 @@ dissect_ipnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   family = tvb_get_guint8(tvb, 1);
   switch (family) {
-  case 2: /* AF_INET */
+  case SOLARIS_AF_INET:
     call_dissector(ip_handle, next_tvb, pinfo, tree);
     break;
-  case 26: /* AF_INET6 */
+  case SOLARIS_AF_INET6:
     call_dissector(ipv6_handle, next_tvb, pinfo, tree);
     break;
   default:
@@ -97,10 +111,10 @@ proto_register_ipnet(void)
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_family,	{ "Address family",		"ipnet.family",
-      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      FT_UINT8, BASE_DEC, VALS(solaris_family_vals), 0x0, NULL, HFILL }},
 
     { &hf_htype,	{ "Hook type",			"ipnet.htype",
-      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, VALS(htype_vals), 0x0, NULL, HFILL }},
 
     { &hf_pktlen,	{ "Data length",		"ipnet.pktlen",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
