@@ -534,9 +534,22 @@ get_filter_from_packet_list_row_and_column(gpointer data)
 
         if (strlen(cfile.cinfo.col_expr.col_expr[column]) != 0 &&
             strlen(cfile.cinfo.col_expr.col_expr_val[column]) != 0) {
-            /* leak a little but safer than ep_ here*/
-            buf = se_strdup_printf("%s == %s", cfile.cinfo.col_expr.col_expr[column],
-                 cfile.cinfo.col_expr.col_expr_val[column]);
+            /* leak a little but safer than ep_ here */
+            if (cfile.cinfo.col_fmt[column] == COL_CUSTOM) {
+                header_field_info *hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[column]);
+                if (hfi->parent == -1) {
+                    /* Protocol only */
+                    buf = se_strdup(cfile.cinfo.col_expr.col_expr[column]);
+                } else if (hfi->type == FT_STRING) {
+                    /* Custom string, add quotes */
+                    buf = se_strdup_printf("%s == \"%s\"", cfile.cinfo.col_expr.col_expr[column],
+                                           cfile.cinfo.col_expr.col_expr_val[column]);
+                }
+            }
+	    if (buf == NULL) {
+                buf = se_strdup_printf("%s == %s", cfile.cinfo.col_expr.col_expr[column],
+                                       cfile.cinfo.col_expr.col_expr_val[column]);
+            }
         }
 
         epan_dissect_cleanup(&edt);
