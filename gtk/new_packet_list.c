@@ -411,13 +411,13 @@ create_view_and_model(void)
 {
 	GtkTreeViewColumn *col;
 	GtkCellRenderer *renderer;
-	PangoLayout *layout;
 	gint i, col_width;
 	gchar xalign;
 	gdouble value;
 	gboolean right_justify;
 	gchar *tooltip_text;
 	header_field_info *hfi;
+	gint col_min_width;
 	GtkTooltips *tooltips = gtk_tooltips_new ();
 
 	packetlist = new_packet_list_new();
@@ -486,10 +486,17 @@ create_view_and_model(void)
 		g_object_set_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY, GINT_TO_POINTER(i));
 		g_signal_connect(col, "clicked", G_CALLBACK(new_packet_list_column_clicked_cb), NULL);
 
-		/* The column can't be adjusted to a size smaller than this
-		 * XXX Should we use a different value for different column formats?
+		/* 
+		 * The column can't be adjusted to a size smaller than this
+		 * XXX The minimum size will be the size of the title
+		 * should that be limited for long titles?
 		 */
-		gtk_tree_view_column_set_min_width(col, COLUMN_WIDTH_MIN);
+		col_min_width = get_default_col_size (packetlist->view, cfile.cinfo.col_title[i]);
+		if(col_min_width<COLUMN_WIDTH_MIN){
+			gtk_tree_view_column_set_min_width(col, COLUMN_WIDTH_MIN);
+		}else{
+			gtk_tree_view_column_set_min_width(col, col_min_width);
+		}
 
 		/* Set the size the column will be displayed with */
 		col_width = recent_get_column_width(i);
@@ -499,17 +506,12 @@ create_view_and_model(void)
 
 			fmt = get_column_format(i);
 			long_str = get_column_width_string(fmt, i);
-			layout = gtk_widget_create_pango_layout(packetlist->view, long_str);
-			/*  the logical width and height of a PangoLayout in device units */
-			pango_layout_get_pixel_size(layout,
-				&col_width, /* width */
-				NULL); /* height */
-			if (col_width < 1){
-				g_warning("*** Error: A column width of %u passed to gtk_tree_view_column_set_fixed_width()\n"
-					"column %u Long string  %s format %u",col_width,i,long_str, fmt );
+			if(long_str){
+				col_width = get_default_col_size (packetlist->view, long_str);
+			}else{
+				col_width = COLUMN_WIDTH_MIN;
 			}
 			gtk_tree_view_column_set_fixed_width(col, col_width);
-			g_object_unref(G_OBJECT(layout));
 		}else{
 			gtk_tree_view_column_set_fixed_width(col, col_width);
 		}
