@@ -454,7 +454,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Fibre Channel FC-2 With Frame Delimiter", "fc2sof"},
 
 	/* WTAP_ENCAP_JPEG_JFIF */
-	{ "JPEG/JFIF", "jfif" }
+	{ "JPEG/JFIF", "jfif" },
+
+	/* WTAP_ENCAP_IPNET */
+	{ "Solaris IPNET", "ipnet" }
 
 };
 

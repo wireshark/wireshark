@@ -213,6 +213,18 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 		WTAP_ENCAP_UNKNOWN,	/* 100BaseT (but that's just Ethernet) */
 	};
 	#define NUM_SNOOP_ENCAPS (sizeof snoop_encap / sizeof snoop_encap[0])
+	#define SNOOP_PRIVATE_BIT 0x80000000
+	static const int snoop_private_encap[] = {
+		WTAP_ENCAP_UNKNOWN,	/* Not Used */
+		WTAP_ENCAP_UNKNOWN,	/* IPv4 Tunnel Link */
+		WTAP_ENCAP_UNKNOWN,	/* IPv6 Tunnel Link */
+		WTAP_ENCAP_UNKNOWN,	/* Virtual network interface */
+		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.11 */
+		WTAP_ENCAP_IPNET,	/* ipnet(7D) link */
+		WTAP_ENCAP_UNKNOWN,	/* IPMP stub interface */
+		WTAP_ENCAP_UNKNOWN,	/* 6to4 Tunnel Link */
+	};
+	#define NUM_SNOOP_PRIVATE_ENCAPS (sizeof snoop_private_encap / sizeof snoop_private_encap[0])
 	static const int shomiti_encap[] = {
 		WTAP_ENCAP_ETHERNET,	/* IEEE 802.3 */
 		WTAP_ENCAP_UNKNOWN,	/* IEEE 802.4 Token Bus */
@@ -382,6 +394,18 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 
 		/* This is a Shomiti file */
 		wth->file_type = WTAP_FILE_SHOMITI;
+	} else if (hdr.network & SNOOP_PRIVATE_BIT) {
+		if ((hdr.network^SNOOP_PRIVATE_BIT) >= NUM_SNOOP_PRIVATE_ENCAPS
+		    || snoop_private_encap[hdr.network^SNOOP_PRIVATE_BIT] == WTAP_ENCAP_UNKNOWN) {
+			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err_info = g_strdup_printf("snoop: private network type %u unknown or unsupported",
+			    hdr.network);
+			return -1;
+		}
+		file_encap = snoop_private_encap[hdr.network^SNOOP_PRIVATE_BIT];
+
+		/* This is a snoop file */
+		wth->file_type = WTAP_FILE_SNOOP;
 	} else {
 		if (hdr.network >= NUM_SNOOP_ENCAPS
 		    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
