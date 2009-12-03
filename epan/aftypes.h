@@ -45,6 +45,10 @@ extern "C" {
 #define LINUX_AF_INET		2
 #define LINUX_AF_INET6		10
 
+/* Solaris AF_ values. */
+#define SOLARIS_AF_INET		2
+#define SOLARIS_AF_INET6       	26
+
 /* Winsock AF_ values. */
 #define WINSOCK_AF_INET		2
 #define WINSOCK_AF_IPX		6
