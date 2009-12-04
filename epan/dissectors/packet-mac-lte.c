@@ -2121,7 +2121,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                              data_length);
         /* Show bytes too.  There must be a nicer way of doing this! */
         pdu_data = tvb_get_ptr(tvb, offset, pdu_lengths[n]);
-        for (i=0; i < pdu_lengths[n]; i++) {
+        for (i=0; i < data_length; i++) {
             proto_item_append_text(sdu_ti, "%02x",  pdu_data[i]);
             if (i >= 30) {
                 proto_item_append_text(sdu_ti, "...");
