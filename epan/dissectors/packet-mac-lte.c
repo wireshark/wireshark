@@ -145,6 +145,8 @@ static int hf_mac_lte_ul_harq_resend_original_frame = -1;
 
 static int hf_mac_lte_grant_answering_sr = -1;
 static int hf_mac_lte_failure_answering_sr = -1;
+static int hf_mac_lte_sr_leading_to_failure = -1;
+static int hf_mac_lte_sr_leading_to_grant = -1;
 
 
 /* Subtrees. */
@@ -618,9 +620,14 @@ static GHashTable *mac_lte_ue_sr_state = NULL;
 
 typedef enum SRResultType {
     GrantAnsweringSR,
-    FailureAnsweringSR
+    FailureAnsweringSR,
+    SRLeadingToGrant,
+    SRLeadingToFailure
 } SRResultType;
 
+
+/* TODO: add another result type to capture illegal state/event pairs,
+   which could be displayed as expert info errors */
 typedef struct SRResult {
     SRResultType type;
     guint32      frameNum;
@@ -630,9 +637,6 @@ typedef struct SRResult {
    It maps (SRFrameNum -> SRResult) */
 static GHashTable *mac_lte_sr_request_hash = NULL;
 
-
-/* TODO: another table (set on second pass) that stores info that SR frames
-   should display.  i.e. previous grant, next grant, SR failure frame */
 
 /**************************************************************************/
 
@@ -1370,9 +1374,10 @@ static SRResult *GetSRResult(guint32 frameNum, gboolean can_create)
    - also record times of previous frames so can show time differences
    - on second pass, set up result info for SR frames themselves */
 static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
-                        tvbuff_t *tvb, guint16 rnti)
+                        tvbuff_t *tvb, guint16 rnti, proto_item *event_ti)
 {
     SRResult *result = NULL;
+    SRResult *resultForSRFrame = NULL;
     proto_item *ti;
 
     /* Create state for this RNTI if necessary */
@@ -1425,6 +1430,11 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         result = GetSRResult(pinfo->fd->num, TRUE);
                         result->type = GrantAnsweringSR;
                         result->frameNum = state->lastSRFramenum;
+
+                        /* Also set forward link for SR */
+                        resultForSRFrame = GetSRResult(state->lastSRFramenum, TRUE);
+                        resultForSRFrame->type = SRLeadingToGrant;
+                        resultForSRFrame->frameNum = pinfo->fd->num;
                         break;
 
                     case SR_Request:
@@ -1438,10 +1448,15 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         /* Update state */
                         state->status = SR_Failed;
 
-                        /* Set result info */
+                        /* Set result info for failure frame */
                         result = GetSRResult(pinfo->fd->num, TRUE);
                         result->type = FailureAnsweringSR;
                         result->frameNum = state->lastSRFramenum;
+
+                        /* Also set forward link for SR */
+                        resultForSRFrame = GetSRResult(state->lastSRFramenum, TRUE);
+                        resultForSRFrame->type = SRLeadingToFailure;
+                        resultForSRFrame->frameNum = pinfo->fd->num;
                         break;
                 }
                 break;
@@ -1473,8 +1488,15 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
     /* Get current result */
     result = GetSRResult(pinfo->fd->num, FALSE);
     if (result == NULL) {
+        /* For an SR frame, there should always be either a PDCCH grant or indication
+           that the SR has failed */
+        if (event == SR_Request) {
+            expert_add_info_format(pinfo, event_ti, PI_SEQUENCE, PI_ERROR,
+                                  "SR results in neither a grant or a failure indication");
+        }
         return;
     }
+
 
     /* Show result info */
     switch (result->type) {
@@ -1485,6 +1507,16 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
             break;
         case FailureAnsweringSR:
             ti = proto_tree_add_uint(tree, hf_mac_lte_failure_answering_sr,
+                                     tvb, 0, 0, result->frameNum);
+            PROTO_ITEM_SET_GENERATED(ti);
+            break;
+        case SRLeadingToGrant:
+            ti = proto_tree_add_uint(tree, hf_mac_lte_sr_leading_to_grant,
+                                     tvb, 0, 0, result->frameNum);
+            PROTO_ITEM_SET_GENERATED(ti);
+            break;
+        case SRLeadingToFailure:
+            ti = proto_tree_add_uint(tree, hf_mac_lte_sr_leading_to_failure,
                                      tvb, 0, 0, result->frameNum);
             PROTO_ITEM_SET_GENERATED(ti);
             break;
@@ -1542,7 +1574,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* For uplink grants, update SR status */
     if ((direction == DIRECTION_UPLINK) && global_mac_lte_track_sr) {
-        TrackSRInfo(SR_Grant, pinfo, tree, tvb, p_mac_lte_info->rnti);
+        TrackSRInfo(SR_Grant, pinfo, tree, tvb, p_mac_lte_info->rnti, NULL);
     }
 
     /* Add PDU block header subtree */
@@ -2350,7 +2382,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Update SR status */
                 if (global_mac_lte_track_sr) {
-                    TrackSRInfo(SR_Request, pinfo, mac_lte_tree, tvb, p_mac_lte_info->rnti);
+                    TrackSRInfo(SR_Request, pinfo, mac_lte_tree, tvb, p_mac_lte_info->rnti, ti);
                 }
                 break;
             case ltemac_sr_failure:
@@ -2372,7 +2404,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Update SR status */
                 if (global_mac_lte_track_sr) {
-                    TrackSRInfo(SR_Failure, pinfo, mac_lte_tree, tvb, p_mac_lte_info->rnti);
+                    TrackSRInfo(SR_Failure, pinfo, mac_lte_tree, tvb, p_mac_lte_info->rnti, ti);
                 }
 
                 break;
@@ -3048,6 +3080,7 @@ void proto_register_mac_lte(void)
             }
         },
 
+        /* Generated fields */
         { &hf_mac_lte_suspected_dl_harq_resend,
             { "Suspected DL HARQ resend",
               "mac-lte.dlsch.suspected-harq-resend", FT_BOOLEAN, BASE_NONE, 0, 0x0,
@@ -3069,14 +3102,26 @@ void proto_register_mac_lte(void)
         },
 
         { &hf_mac_lte_grant_answering_sr,
-            { "First Grant Following SR",
+            { "First Grant Following SR from",
               "mac-lte.ulsch.grant-answering-sr", FT_FRAMENUM, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },
         { &hf_mac_lte_failure_answering_sr,
-            { "Failure Answering SR",
+            { "SR which failed",
               "mac-lte.ulsch.failure-answering-sr", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_sr_leading_to_failure,
+            { "This SR fails",
+              "mac-lte.ulsch.failure-answering-sr-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_sr_leading_to_grant,
+            { "This SR results in a grant here",
+              "mac-lte.ulsch.grant-answering-sr-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },
