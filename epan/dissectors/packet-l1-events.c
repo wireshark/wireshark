@@ -83,7 +83,7 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tvb_ensure_length_remaining(tvb, 0),
 					&next_offset, FALSE);
 	        if(len>0) 
-		        col_set_str(pinfo->cinfo, COL_INFO, 
+		        col_add_str(pinfo->cinfo, COL_INFO, 
 				    tvb_format_text(tvb, 0, len));
 	}
 	if (tree) {
