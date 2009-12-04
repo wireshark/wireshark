@@ -916,9 +916,6 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             bit_offset += 10;
             col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK_SN=%u", (guint16)nack_sn);
             proto_item_append_text(top_ti, "  NACK_SN=%u", (guint16)nack_sn);
-            expert_add_info_format(pinfo, nack_ti, PI_SEQUENCE, PI_WARN,
-                                   "Status PDU reports NACK for SN=%u", (guint16)nack_sn);
-
 
             /* E1 */
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
@@ -928,6 +925,17 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             /* E2 */
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e2, tvb,
                                         bit_offset, 1, &e2, FALSE);
+
+            /* Report as expert info */
+            if (e2) {
+                expert_add_info_format(pinfo, nack_ti, PI_SEQUENCE, PI_WARN,
+                                       "Status PDU reports NACK for SN=%u (partial)", (guint16)nack_sn);
+            }
+            else {
+                expert_add_info_format(pinfo, nack_ti, PI_SEQUENCE, PI_WARN,
+                                       "Status PDU reports NACK for SN=%u", (guint16)nack_sn);
+            }
+
             bit_offset++;
         }
 
