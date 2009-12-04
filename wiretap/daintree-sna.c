@@ -76,16 +76,18 @@ static const char daintree_magic_text[] =
 
 #define DAINTREE_MAGIC_TEXT_SIZE (sizeof daintree_magic_text)
 #define DAINTREE_MAX_LINE_SIZE 512
+#define READDATA_BUF_SIZE (DAINTREE_MAX_LINE_SIZE/2)
+#define SEEKDATA_BUF_SIZE (DAINTREE_MAX_LINE_SIZE/2)
+#define READDATA_MAX_FIELD_SIZE "255"  /* DAINTREE_MAX_LINE_SIZE/2 -1 */
+#define SEEKDATA_MAX_FIELD_SIZE "255"  /* DAINTREE_MAX_LINE_SIZE/2 -1 */
 
 #define COMMENT_LINE daintree_magic_text[0]
 
 static char readLine[DAINTREE_MAX_LINE_SIZE];
 static char seekLine[DAINTREE_MAX_LINE_SIZE];
 
-static char readData[DAINTREE_MAX_LINE_SIZE/2];
-static char seekData[DAINTREE_MAX_LINE_SIZE/2];
-#define READDATA_MAX_FIELD_SIZE "255"  /* DAINTREE_MAX_LINE_SIZE/2 -1 */
-#define SEEKDATA_MAX_FIELD_SIZE "255"  /* DAINTREE_MAX_LINE_SIZE/2 -1 */
+static char readData[READDATA_BUF_SIZE];
+static char seekData[SEEKDATA_BUF_SIZE];
 
 static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_,
 	gint64 *data_offset);
