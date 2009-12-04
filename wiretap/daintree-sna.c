@@ -76,12 +76,16 @@ static const char daintree_magic_text[] =
 
 #define DAINTREE_MAGIC_TEXT_SIZE (sizeof daintree_magic_text)
 #define DAINTREE_MAX_LINE_SIZE 512
+
 #define COMMENT_LINE daintree_magic_text[0]
 
 static char readLine[DAINTREE_MAX_LINE_SIZE];
 static char seekLine[DAINTREE_MAX_LINE_SIZE];
+
 static char readData[DAINTREE_MAX_LINE_SIZE/2];
 static char seekData[DAINTREE_MAX_LINE_SIZE/2];
+#define READDATA_MAX_FIELD_SIZE "255"  /* DAINTREE_MAX_LINE_SIZE/2 -1 */
+#define SEEKDATA_MAX_FIELD_SIZE "255"  /* DAINTREE_MAX_LINE_SIZE/2 -1 */
 
 static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_,
 	gint64 *data_offset);
@@ -146,7 +150,7 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset
 	} while (readLine[0] == COMMENT_LINE);
 
 	/* parse one line of capture data */
-	if (sscanf(readLine, "%*s %" G_GINT64_MODIFIER "u.%d %u %s",
+	if (sscanf(readLine, "%*s %" G_GINT64_MODIFIER "u.%d %u %" READDATA_MAX_FIELD_SIZE "s",
 		&seconds, &wth->phdr.ts.nsecs,
 		&wth->phdr.len, readData) != 4) {
 			*err = WTAP_ERR_BAD_RECORD;
@@ -202,7 +206,7 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 	} while (seekLine[0] == COMMENT_LINE);
 
 	/* ignore all but packet data, since the sequential read pass stored everything else */
-	if (sscanf(seekLine, "%*s %*u.%*u %*u %s", seekData) != 1) {
+	if (sscanf(seekLine, "%*s %*u.%*u %*u %" SEEKDATA_MAX_FIELD_SIZE "s", seekData) != 1) {
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup("daintree_sna: corrupted seek record");
 		return FALSE;
