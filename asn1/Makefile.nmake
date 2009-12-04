@@ -208,9 +208,6 @@ clean:
 	cd lte-rrc
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd kerberos
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
 	cd logotypecertextn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -507,11 +504,6 @@ h501::
 
 inap::
 	cd inap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
-	cd ..
-
-kerberos::
-	cd kerberos
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
