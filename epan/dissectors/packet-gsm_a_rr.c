@@ -461,6 +461,7 @@ static int hf_gsm_a_rr_sync_ind_nci = -1;
 static int hf_gsm_a_rr_sync_ind_rot = -1;
 static int hf_gsm_a_rr_sync_ind_si = -1;
 static int hf_gsm_a_rr_format_id = -1;
+static int hf_gsm_a_rr_format_id2 = -1;
 static int hf_gsm_a_rr_channel_mode = -1;
 static int hf_gsm_a_rr_channel_mode2 = -1;
 static int hf_gsm_a_rr_sc = -1;
@@ -920,21 +921,16 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, guint3
 }
 
 static guint16
-dissect_arfcn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+dissect_arfcn_list_core(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_, guint8 format)
 {
-    guint32	curr_offset;
+	guint32	curr_offset;
     guint8  oct,bit,byte;
     guint16 arfcn;
     proto_item	*item;
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    /* FORMAT-ID, Format Identifier (part of octet 3)*/
-    proto_tree_add_item(tree, hf_gsm_a_rr_format_id, tvb, curr_offset, 1, FALSE);
-
-    if ((oct & 0xc0) == 0x00)
+	if ((format & 0xc0) == 0x00)
     {
         /* bit map 0 */
         item = proto_tree_add_text(tree,tvb, curr_offset, len, "List of ARFCNs =");
@@ -955,34 +951,34 @@ dissect_arfcn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
             curr_offset++;
         }
     }
-    else if ((oct & 0xc8) == 0x80)
+    else if ((format & 0xc8) == 0x80)
     {
         /* 1024 range */
         dissect_channel_list_n_range(tvb, tree, curr_offset, len, 1024);
         curr_offset = curr_offset + len;
     }
-    else if ((oct & 0xce) == 0x88)
+    else if ((format & 0xce) == 0x88)
     {
         /* 512 range */
         dissect_channel_list_n_range(tvb, tree, curr_offset, len, 512);
         curr_offset = curr_offset + len;
     }
-    else if ((oct & 0xce) == 0x8a)
+    else if ((format & 0xce) == 0x8a)
     {
         /* 256 range */
         dissect_channel_list_n_range(tvb, tree, curr_offset, len, 256);
         curr_offset = curr_offset + len;
     }
-    else if ((oct & 0xce) == 0x8c)
+    else if ((format & 0xce) == 0x8c)
     {
         /* 128 range */
         dissect_channel_list_n_range(tvb, tree, curr_offset, len, 128);
         curr_offset = curr_offset + len;
     }
-    else if ((oct & 0xce) == 0x8e)
+    else if ((format & 0xce) == 0x8e)
     {
         /* variable bit map */
-        arfcn = ((oct & 0x01) << 9) | (tvb_get_guint8(tvb, curr_offset+1) << 1) | ((tvb_get_guint8(tvb, curr_offset + 2) & 0x80) >> 7);
+        arfcn = ((format & 0x01) << 9) | (tvb_get_guint8(tvb, curr_offset+1) << 1) | ((tvb_get_guint8(tvb, curr_offset + 2) & 0x80) >> 7);
         item = proto_tree_add_text(tree,tvb,curr_offset,len,"List of ARFCNs = %d",arfcn);
         curr_offset = curr_offset + 2;
         bit = 7;
@@ -1002,7 +998,52 @@ dissect_arfcn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
         }
     }
 
-    return(curr_offset - offset);
+	return(curr_offset - offset);
+}
+
+/*
+ * Format ID is in bits:
+ * 128 127 124 123 122 (hf_gsm_a_rr_format_id)
+ */
+static guint16
+dissect_arfcn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guint8  oct;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    /* FORMAT-ID, Format Identifier (part of octet 3)*/
+    proto_tree_add_item(tree, hf_gsm_a_rr_format_id, tvb, curr_offset, 1, FALSE);
+
+    curr_offset += dissect_arfcn_list_core(tvb, tree, offset, len, add_string, string_len, oct);
+
+	return(curr_offset - offset);
+}
+
+/*
+ * Format ID is in bits:
+ * 128 124 123 122 (hf_gsm_a_rr_format_id2)
+ */
+static guint16
+dissect_arfcn_list2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+    guint8  oct;
+
+    curr_offset = offset;
+
+	/* Turn bit 127 off, in order to reuse the ARFCN dissection code */
+    oct = tvb_get_guint8(tvb, curr_offset) & 0xbf;
+
+    /* FORMAT-ID, Format Identifier (part of octet 3)*/
+    proto_tree_add_item(tree, hf_gsm_a_rr_format_id2, tvb, curr_offset, 1, FALSE);
+
+    curr_offset += dissect_arfcn_list_core(tvb, tree, offset, len, add_string, string_len, oct);
+
+	return(curr_offset - offset);
 }
 
 guint16
@@ -2180,6 +2221,7 @@ static const value_string gsm_a_rr_freq_list_format_id_vals[] = {
     { 0x47, "variable bit map"},
     { 0x00, NULL }
 };
+
 static guint16
 de_rr_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -2991,7 +3033,7 @@ de_rr_neigh_cell_desc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_multiband_reporting, tvb, (curr_offset<<3)+1, 2, FALSE);
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_ba_ind, tvb, (curr_offset<<3)+3, 1, FALSE);
 
-    return dissect_arfcn_list(tvb, tree, offset, 16, add_string, string_len);
+    return dissect_arfcn_list2(tvb, tree, offset, 16, add_string, string_len);
 }
 
 /*
@@ -9021,6 +9063,11 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_format_id,
               { "Format Identifier","gsm_a.rr_format_id",
 		FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_freq_list_format_id_vals), 0xce,
+		NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_format_id2,
+              { "Format Identifier","gsm_a.rr_format_id",
+		FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_freq_list_format_id_vals), 0x8e,
 		NULL, HFILL }
             },
             { &hf_gsm_a_rr_channel_mode,
