@@ -745,13 +745,12 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                 /* It must be a recognised tag */
                 return FALSE;
         }
-
-        if (!infoAlreadySet) {
-            /* Store info in packet */
-            p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
-        }
     }
 
+    if (!infoAlreadySet) {
+        /* Store info in packet */
+        p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
+    }
 
     /**************************************/
     /* OK, now dissect as MAC LTE         */
@@ -2096,7 +2095,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Data SDUs treated identically for Uplink or downlink channels */
         proto_item *sdu_ti;
+        const guint8 *pdu_data;
         volatile guint16 data_length;
+        int i;
 
         /* Break out if meet padding */
         if (lcids[n] == PADDING_LCID) {
@@ -2111,13 +2112,23 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Dissect SDU as raw bytes */
         sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_sch_sdu, tvb, offset, pdu_lengths[n],
                                              tvb_get_ptr(tvb, offset, pdu_lengths[n]),
-                                             "SDU (%s, length=%u bytes)",
+                                             "SDU (%s, length=%u bytes): ",
                                              val_to_str(lcids[n],
                                                         (direction == DIRECTION_UPLINK) ?
                                                             ulsch_lcid_vals :
                                                             dlsch_lcid_vals,
                                                         "Unknown"),
                                              data_length);
+        /* Show bytes too.  There must be a nicer way of doing this! */
+        pdu_data = tvb_get_ptr(tvb, offset, pdu_lengths[n]);
+        for (i=0; i < pdu_lengths[n]; i++) {
+            proto_item_append_text(sdu_ti, "%02x",  pdu_data[i]);
+            if (i >= 30) {
+                proto_item_append_text(sdu_ti, "...");
+                break;
+            }
+        }
+
 
         /* Look for Msg3 data so that it may be compared with later
            Contention Resolution body */
