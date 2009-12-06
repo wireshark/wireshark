@@ -2363,7 +2363,7 @@ host_name_lookup_process(gpointer data _U_) {
       async_dns_in_flight++;
     } else if (caqm->family == AF_INET6) {
       ares_gethostbyaddr(alchan, &caqm->addr.ip6, sizeof(struct e_in6_addr),
-        AF_INET, c_ares_ghba_cb, caqm);
+        AF_INET6, c_ares_ghba_cb, caqm);
       async_dns_in_flight++;
     }
   }
