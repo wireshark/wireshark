@@ -74,6 +74,11 @@
 #include "wtap.h"
 #include <wsutil/privileges.h>
 
+#ifdef HAVE_LIBGCRYPT
+#include <gcrypt.h>
+#include <wsutil/file_util.h>
+#endif
+
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #else
@@ -128,12 +133,34 @@ static gboolean cap_data_rate_byte = TRUE;  /* Report data rate bytes/sec */
 static gboolean cap_data_rate_bit = TRUE;   /* Report data rate bites/sec */
 static gboolean cap_packet_size = TRUE;     /* Report average packet size */
 static gboolean cap_packet_rate = TRUE;     /* Report average packet rate */
+#ifdef HAVE_LIBGCRYPT
+static gboolean cap_file_hashes = TRUE;     /* Calculate file hashes */
+#endif
+
+#ifdef HAVE_LIBGCRYPT
+#define HASH_SIZE_SHA1 20
+#define HASH_SIZE_RMD160 20
+#define HASH_SIZE_MD5 16
+
+#define HASH_STR_SIZE (41) /* Max hash size * 2 + '\0' */
+#define HASH_BUF_SIZE (1024 * 1024)
+
+
+static gchar file_sha1[HASH_STR_SIZE];
+static gchar file_rmd160[HASH_STR_SIZE];
+static gchar file_md5[HASH_STR_SIZE];
+
+#define FILE_HASH_OPT "H"
+#else
+#define FILE_HASH_OPT ""
+#endif /* HAVE_LIBGCRYPT */
 
 typedef struct _capture_info {
 	const char		*filename;
 	guint16			file_type;
 	int			file_encap;
 	gint64			filesize;
+
 	guint64			packet_bytes;
 	double			start_time;
 	double			stop_time;
@@ -168,6 +195,10 @@ enable_all_infos(void)
   cap_data_rate_bit = TRUE;
   cap_packet_size = TRUE;
   cap_packet_rate = TRUE;
+
+#ifdef HAVE_LIBGCRYPT
+  cap_file_hashes = TRUE;
+#endif /* HAVE_LIBGCRYPT */
 }
 
 static void
@@ -189,6 +220,10 @@ disable_all_infos(void)
   cap_data_rate_bit = FALSE;
   cap_packet_size = FALSE;
   cap_packet_rate = FALSE;
+
+#ifdef HAVE_LIBGCRYPT
+  cap_file_hashes = FALSE;
+#endif /* HAVE_LIBGCRYPT */
 }
 
 /*
@@ -251,6 +286,13 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (cap_data_rate_bit)  print_value("Data bit rate:       ", 2, " bits/sec",    cf_info->data_rate*8);
   if (cap_packet_size)    printf     ("Average packet size: %.2f bytes\n",        cf_info->packet_size);
   if (cap_packet_rate)    print_value("Average packet rate: ", 2, " packets/sec", cf_info->packet_rate);
+#ifdef HAVE_LIBGCRYPT
+  if (cap_file_hashes) {
+                          printf     ("SHA1:                %s\n", file_sha1);
+                          printf     ("RIPEMD160:           %s\n", file_rmd160);
+                          printf     ("MD5:                 %s\n", file_md5);
+  }
+#endif /* HAVE_LIBGCRYPT */
 }
 
 static void
@@ -293,6 +335,13 @@ print_stats_table_header(void)
   if (cap_data_rate_bit)  print_stats_table_header_label("Data bit rate (bits/sec)");
   if (cap_packet_size)    print_stats_table_header_label("Average packet size (bytes)");
   if (cap_packet_rate)    print_stats_table_header_label("Average packet rate (packets/sec)");
+#ifdef HAVE_LIBGCRYPT
+  if (cap_packet_rate) {
+                          print_stats_table_header_label("SHA1");
+                          print_stats_table_header_label("RIPEMD160");
+                          print_stats_table_header_label("MD5");
+  }
+#endif /* HAVE_LIBGCRYPT */
 
   printf("\n");
 }
@@ -399,6 +448,25 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
     printf("%.2f", cf_info->packet_rate);
     putquote();
   }
+
+#ifdef HAVE_LIBGCRYPT
+  if (cap_file_hashes) {
+    putsep();
+    putquote();
+    printf("%s", file_sha1);
+    putquote();
+
+    putsep();
+    putquote();
+    printf("%s", file_rmd160);
+    putquote();
+
+    putsep();
+    putquote();
+    printf("%s", file_md5);
+    putquote();
+  }
+#endif /* HAVE_LIBGCRYPT */
 
   printf("\n");
 }
@@ -528,6 +596,9 @@ usage(gboolean is_error)
   fprintf(output, "General infos:\n");
   fprintf(output, "  -t display the capture file type\n");
   fprintf(output, "  -E display the capture file encapsulation\n");
+#ifdef HAVE_LIBGCRYPT
+  fprintf(output, "  -H display the SHA1, RMD160, and MD5 hashes of the file\n");
+#endif
   fprintf(output, "\n");
   fprintf(output, "Size infos:\n");
   fprintf(output, "  -c display the number of packets\n");
@@ -571,6 +642,9 @@ usage(gboolean is_error)
   fprintf(output, "\n");
   fprintf(output, "If no options are given the default is to display all infos in long report\n");
   fprintf(output, "output format.\n");
+#ifndef HAVE_LIBGCRYPT
+  fprintf(output, "\nFile hashing support (-H) is not present.\n");
+#endif
 }
 
 #ifdef HAVE_PLUGINS
@@ -586,6 +660,16 @@ failure_message(const char *msg_format _U_, va_list ap _U_)
 }
 #endif
 
+#ifdef HAVE_LIBGCRYPT
+static void
+hash_to_str(const unsigned char *hash, size_t length, char *str) {
+  int i;
+  
+  for (i = 0; i < (int) length; i++) {
+    sprintf(str+(i*2), "%02x", hash[i]);
+  }
+}
+#endif /* HAVE_LIBGCRYPT */
 
 int
 main(int argc, char *argv[])
@@ -597,6 +681,12 @@ main(int argc, char *argv[])
   int status = 0;
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
+#endif
+#ifdef HAVE_LIBGCRYPT
+  FILE *fh;
+  char hash_buf[HASH_BUF_SIZE];
+  gcry_md_hd_t hd;
+  size_t hash_bytes;
 #endif
 
   /*
@@ -618,7 +708,7 @@ main(int argc, char *argv[])
 
   /* Process the options */
 
-  while ((opt = getopt(argc, argv, "tEcsduaeyizvhxCALTRrNqQBmb")) !=-1) {
+  while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "duaeyizvhxCALTRrNqQBmb")) !=-1) {
 
     switch (opt) {
 
@@ -681,6 +771,13 @@ main(int argc, char *argv[])
       if (report_all_infos) disable_all_infos();
       cap_packet_rate = TRUE;
       break;
+
+#ifdef HAVE_LIBGCRYPT
+    case 'H':
+      if (report_all_infos) disable_all_infos();
+      cap_file_hashes = TRUE;
+      break;
+#endif
 
     case 'C':
       continue_after_wtap_open_offline_failure = FALSE;
@@ -751,7 +848,39 @@ main(int argc, char *argv[])
     print_stats_table_header();
   }
 
+#ifdef HAVE_LIBGCRYPT
+  if (cap_file_hashes) {
+    gcry_check_version(NULL);
+    gcry_md_open(&hd, GCRY_MD_SHA1, 0);
+    if (hd) {
+      gcry_md_enable(hd, GCRY_MD_RMD160);
+      gcry_md_enable(hd, GCRY_MD_MD5);
+    }
+  }
+#endif
+
   for (opt = optind; opt < argc; opt++) {
+
+#ifdef HAVE_LIBGCRYPT
+    strcpy(file_sha1, "<unknown>");
+    strcpy(file_rmd160, "<unknown>");
+    strcpy(file_md5, "<unknown>");
+
+    if (cap_file_hashes) {
+      fh = ws_fopen(argv[opt], "r");
+      if (fh && hd) {
+        while((hash_bytes = fread(hash_buf, 1, HASH_BUF_SIZE, fh)) > 0) {
+          gcry_md_write(hd, hash_buf, hash_bytes);
+        }
+        gcry_md_final(hd);
+        hash_to_str(gcry_md_read(hd, GCRY_MD_SHA1), HASH_SIZE_SHA1, file_sha1);
+        hash_to_str(gcry_md_read(hd, GCRY_MD_RMD160), HASH_SIZE_RMD160, file_rmd160);
+        hash_to_str(gcry_md_read(hd, GCRY_MD_MD5), HASH_SIZE_MD5, file_md5);
+      }
+      fclose(fh);
+      gcry_md_reset(hd);
+    }
+#endif /* HAVE_LIBGCRYPT */
 
     wth = wtap_open_offline(argv[opt], &err, &err_info, FALSE);
 

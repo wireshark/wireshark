@@ -17,6 +17,8 @@ S<[ B<-e> ]>
 S<[ B<-y> ]>
 S<[ B<-i> ]>
 S<[ B<-z> ]>
+S<[ B<-x> ]>
+S<[ B<-H> ]>
 S<[ B<-L> ]>
 S<[ B<-T> ]>
 S<[ B<-R> ]>
@@ -123,11 +125,15 @@ Displays the average data rate, in bits/sec
 
 =item -z
 
-displays the average packet size, in bytes
+Displays the average packet size, in bytes
 
 =item -x
 
-displays the average packet rate, in packets/sec
+Displays the average packet rate, in packets/sec
+
+=item -H
+
+Displays the SHA1, RIPEMD160, and MD5 hashes for the file.
 
 =item -L 
 

@@ -428,7 +428,8 @@ mergecap_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 capinfos_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
-	@GLIB_LIBS@
+	@GLIB_LIBS@			\
+	@LIBGCRYPT_LIBS@
 capinfos_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries with which to link editcap.
