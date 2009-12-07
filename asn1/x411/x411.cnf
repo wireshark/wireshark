@@ -702,6 +702,19 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
 	}
 
+#.FN_PARS TeletexOrganizationName
+	VAL_PTR=&string
+
+#.FN_BODY TeletexOrganizationName
+	tvbuff_t	*string = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/O=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
 #.FN_PARS OrganizationalUnitName
 	VAL_PTR=&string
 
@@ -715,10 +728,36 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
 	}
 
+#.FN_PARS TeletexOrganizationalUnitName
+	VAL_PTR=&string
+
+#.FN_BODY TeletexOrganizationalUnitName
+	tvbuff_t	*string = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/OU=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
 #.FN_PARS CommonName
 	VAL_PTR=&string
 
 #.FN_BODY CommonName
+	tvbuff_t	*string = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && string) {
+		g_strlcat(oraddress, "/CN=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
+	}
+
+#.FN_PARS TeletexCommonName
+	VAL_PTR=&string
+
+#.FN_BODY TeletexCommonName
 	tvbuff_t	*string = NULL;
 
 	%(DEFAULT_BODY)s
@@ -750,17 +789,37 @@ AddrNumericString  	UserAddress/x121/x121-address CountryName/_untag/x121-dcc-co
 	if(doing_address && nstring)
 		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
 
-#.VIRTUAL_ASSGN
-AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name TeletexPersonalName/initials TeletexPersonalName/generation-qualifier TeletexDomainDefinedAttribute/type TeletexDomainDefinedAttribute/value
 
-#.FN_BODY AddrTeletexString  VAL_PTR=&tstring
+#.FN_BODY TeletexDomainDefinedAttribute/type  VAL_PTR=&tstring
 	tvbuff_t	*tstring = NULL;
 
 	%(DEFAULT_BODY)s
 
-	if(doing_address && tstring) 
+	if(doing_address && tstring) {
+		g_strlcat(oraddress, "/DD.", MAX_ORA_STR_LEN);
 		g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
+		g_strlcat(ddatype, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
+	}
 
+
+#.FN_BODY TeletexDomainDefinedAttribute/value  VAL_PTR=&tstring
+	tvbuff_t	*tstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && tstring) {
+		g_strlcat(oraddress, "=", MAX_ORA_STR_LEN);
+		g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
+		if (*ddatype) {
+		   proto_item_append_text (tree, " (%%s=%%s)", ddatype, tvb_format_text(tstring, 0, tvb_length(tstring)));
+		}
+	}
+
+
+#.FN_BODY TeletexDomainDefinedAttribute
+        ddatype = ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
+
+	%(DEFAULT_BODY)s
 
 #.FN_BODY PersonalName/surname  VAL_PTR=&pstring
 	tvbuff_t	*pstring = NULL;
@@ -771,6 +830,7 @@ AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name Tel
 	    g_strlcat(oraddress, "/S=", MAX_ORA_STR_LEN);
 	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
 	}
+
 #.FN_BODY PersonalName/given-name  VAL_PTR=&pstring
 	tvbuff_t	*pstring = NULL;
 
@@ -780,6 +840,7 @@ AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name Tel
 	    g_strlcat(oraddress, "/G=", MAX_ORA_STR_LEN);
 	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
 	}
+
 #.FN_BODY PersonalName/initials  VAL_PTR=&pstring
 	tvbuff_t	*pstring = NULL;
 
@@ -789,14 +850,55 @@ AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name Tel
 	    g_strlcat(oraddress, "/I=", MAX_ORA_STR_LEN);
 	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
 	}
+
 #.FN_BODY PersonalName/generation-qualifier  VAL_PTR=&pstring
 	tvbuff_t	*pstring = NULL;
 
 	%(DEFAULT_BODY)s
 
 	if(doing_address && pstring) {
-	    g_strlcat(oraddress, "/GQ=", MAX_ORA_STR_LEN);
+	    g_strlcat(oraddress, "/Q=", MAX_ORA_STR_LEN);
 	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+	}
+
+#.FN_BODY TeletexPersonalName/surname  VAL_PTR=&tstring
+	tvbuff_t	*tstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && tstring) {
+	    g_strlcat(oraddress, "/S=", MAX_ORA_STR_LEN);
+	  g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
+	}
+
+#.FN_BODY TeletexPersonalName/given-name  VAL_PTR=&tstring
+	tvbuff_t	*tstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && tstring) {
+	    g_strlcat(oraddress, "/G=", MAX_ORA_STR_LEN);
+	  g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
+	}
+
+#.FN_BODY TeletexPersonalName/initials  VAL_PTR=&tstring
+	tvbuff_t	*tstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && tstring) {
+	    g_strlcat(oraddress, "/I=", MAX_ORA_STR_LEN);
+	  g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
+	}
+
+#.FN_BODY TeletexPersonalName/generation-qualifier  VAL_PTR=&tstring
+	tvbuff_t	*tstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && tstring) {
+	    g_strlcat(oraddress, "/Q=", MAX_ORA_STR_LEN);
+	  g_strlcat(oraddress, tvb_format_text(tstring, 0, tvb_length(tstring)), MAX_ORA_STR_LEN);
 	}
 
 #.FN_BODY BuiltInDomainDefinedAttribute/type  VAL_PTR=&pstring
