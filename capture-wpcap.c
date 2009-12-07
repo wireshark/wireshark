@@ -213,7 +213,9 @@ load_wpcap(void)
 char*
 pcap_lookupdev (char *a)
 {
-	g_assert(has_wpcap);
+	if (!has_wpcap) {
+		return NULL;
+	}
 	return p_pcap_lookupdev(a);
 }
 
