@@ -4865,7 +4865,7 @@
 00:12:F2	BrocadeCom             # Brocade Communications Systems, Inc
 00:12:F3	Connectblu             # connectBlue AB
 00:12:F4	BelcoInter             # Belco International Co.,Ltd.
-00:12:F5	Prolificx              # Prolificx Ltd
+00:12:F5	ImardaNewZ             # Imarda New Zealand Limited
 00:12:F6	Mdk                    # MDK CO.,LTD.
 00:12:F7	XiamenXing             # Xiamen Xinglian Electronics Co., Ltd.
 00:12:F8	WniResourc             # WNI Resources, LLC
@@ -11206,7 +11206,7 @@
 00:50:C2:1D:90:00/36	Edc
 00:50:C2:1D:A0:00/36	GfiChronoT             # GFI Chrono Time
 00:50:C2:1D:B0:00/36	AppliedEng             # Applied Systems Engineering, Inc.
-00:50:C2:1D:C0:00/36	Prolificx              # Prolificx Ltd
+00:50:C2:1D:C0:00/36	ImardaNewZ             # Imarda New Zealand Limited
 00:50:C2:1D:D0:00/36	PeikerAcus             # Peiker acustic GmbH & Co. KG
 00:50:C2:1D:E0:00/36	Relion                 # ReliOn Inc.
 00:50:C2:1D:F0:00/36	LuleaUnive             # Lulea University of Technology
@@ -11524,7 +11524,7 @@
 00:50:C2:31:A0:00/36	In-SnecZod             # IN-SNEC ZODIAC
 00:50:C2:31:B0:00/36	Datacon
 00:50:C2:31:C0:00/36	Casa                   # Casa Systems Inc.
-00:50:C2:31:D0:00/36	Prolificx              # Prolificx Ltd
+00:50:C2:31:D0:00/36	ImardaNewZ             # Imarda New Zealand Limited
 00:50:C2:31:E0:00/36	C3-IlexLlc             # C3-ilex, LLC
 00:50:C2:31:F0:00/36	GeotechIns             # Geotech Instruments, LLC
 00:50:C2:32:00:00/36	DtasensorS             # DTASENSOR S.p.A.
