@@ -951,7 +951,8 @@ dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 	}
 
 	ioctl_function=tvb_get_letohl(tvb, offset);
-	*ioctlfunc=ioctl_function;
+	if (ioctlfunc) 
+		*ioctlfunc=ioctl_function;
 	if(ioctl_function){
 		/* device */
 		proto_tree_add_item(tree, hf_smb2_ioctl_function_device, tvb, offset, 4, TRUE);

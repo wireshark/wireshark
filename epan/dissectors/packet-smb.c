@@ -8443,7 +8443,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	proto_tree *tree = NULL;
 	int old_offset = offset;
 	smb_info_t *si;
-	smb_nt_transact_info_t *nti;
+	smb_nt_transact_info_t *nti = NULL;
 	smb_saved_info_t *sip;
 
 
@@ -8451,8 +8451,9 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	DISSECTOR_ASSERT(si);
 	sip = si->sip;
 	DISSECTOR_ASSERT(sip);
-	nti=sip->extra_info;
-
+	if (sip->extra_info_type == SMB_EI_NTI) {
+	  nti=sip->extra_info;
+	}
 
 	if(parent_tree){
 		tvb_ensure_bytes_exist(tvb, offset, len);
@@ -8469,7 +8470,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		guint16 fid;
 
 		/* function code */
-		offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, &nti->ioctl_function);
+		offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, nti ? &nti->ioctl_function : NULL);
 
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
