@@ -58,3 +58,61 @@ typedef struct rlc_lte_info
     guint8          UMSequenceNumberLength;
 } rlc_lte_info;
 
+
+
+/*****************************************************************/
+/* UDP framing format                                            */
+/* -----------------------                                       */
+/* Several people have asked about dissecting RLC by framing     */
+/* PDUs over IP.  A suggested format over UDP has been defined   */
+/* and implemented by this dissector, using the definitions      */
+/* below.                                                        */
+/*                                                               */
+/* A heuristic dissecter (enabled by a preference) will          */
+/* recognise a signature at the beginning of these frames.       */
+/* Until someone is using this format, suggestions for changes   */
+/* are welcome.                                                  */
+/*****************************************************************/
+
+
+/* Signature.  Rather than try to define a port for this, or make the
+   port number a preference, frames will start with this string (with no
+   terminating NULL */
+#define RLC_LTE_START_STRING "rlc-lte"
+
+/* Fixed field.  This is followed by the following 1 mandatory field:
+   - rlcMode (1 byte)
+   (where the allowed values are defined above */
+
+/* Conditional field. This field is mandatory in case of RLC Unacknowledged mode.
+   The format is to have the tag, followed by the value (there is no length field,
+   its implicit from the tag). The allowed values are defined above. */
+
+#define RLC_LTE_UM_SN_LENGTH_TAG    0x02
+/* 1 byte */
+
+/* Optional fields. Attaching this info to frames will allow you
+   to show you display/filter/plot/add-custom-columns on these fields, so should
+   be added if available.
+   The format is to have the tag, followed by the value (there is no length field,
+   its implicit from the tag) */
+
+#define RLC_LTE_DIRECTION_TAG       0x03
+/* 1 byte */
+
+#define RLC_LTE_PRIORITY_TAG        0x04
+/* 1 byte */
+
+#define RLC_LTE_UEID_TAG            0x05
+/* 2 bytes, network order */
+
+#define RLC_LTE_CHANNEL_TYPE_TAG    0x06
+/* 2 bytes, network order */
+
+#define RLC_LTE_CHANNEL_ID_TAG      0x07
+/* 2 bytes, network order */
+
+
+/* RLC PDU. Following this tag comes the actual RLC PDU (there is no length, the PDU
+   continues until the end of the frame) */
+#define RLC_LTE_PAYLOAD_TAG         0x01

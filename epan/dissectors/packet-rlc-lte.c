@@ -1144,6 +1144,128 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
+/* Forwad declarations */
+void proto_reg_handoff_rlc_lte(void);
+void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* Heuristic dissection */
+static gboolean global_rlc_lte_heur = FALSE;
+
+/* Heuristic dissector looks for supported framing protocol (see wiki page)  */
+static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
+                                     proto_tree *tree)
+{
+    gint                 offset = 0;
+    struct rlc_lte_info  *p_rlc_lte_info;
+    tvbuff_t             *rlc_tvb;
+    guint8               tag = 0;
+    gboolean             infoAlreadySet = FALSE;
+    gboolean             umSeqNumLengthTagPresent = FALSE;
+
+    /* This is a heuristic dissector, which means we get all the UDP
+     * traffic not sent to a known dissector and not claimed by
+     * a heuristic dissector called before us!
+     */
+
+    if (!global_rlc_lte_heur) {
+        return FALSE;
+    }
+
+    /* If redissecting, use previous info struct (if available) */
+    p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
+    if (p_rlc_lte_info == NULL) {
+        /* Allocate new info struct for this frame */
+        p_rlc_lte_info = se_alloc0(sizeof(struct rlc_lte_info));
+        if (p_rlc_lte_info == NULL) {
+            return FALSE;
+        }
+        infoAlreadySet = FALSE;
+    }
+    else {
+        infoAlreadySet = TRUE;
+    }
+
+    /* Do this again on re-dissection to re-discover offset of actual PDU */
+    
+    /* Needs to be at least as long as:
+       - the signature string
+       - fixed header bytes
+       - tag for data
+       - at least one byte of RLC PDU payload */
+    if ((size_t)tvb_length_remaining(tvb, offset) < (strlen(RLC_LTE_START_STRING)+1+2)) {
+        return FALSE;
+    }
+
+    /* OK, compare with signature string */
+    if (tvb_strneql(tvb, offset, RLC_LTE_START_STRING, (gint)strlen(RLC_LTE_START_STRING)) != 0) {
+        return FALSE;
+    }
+    offset += (gint)strlen(RLC_LTE_START_STRING);
+
+    /* Read fixed fields */
+    p_rlc_lte_info->rlcMode = tvb_get_guint8(tvb, offset++);
+
+    /* Read optional fields */
+    while (tag != RLC_LTE_PAYLOAD_TAG) {
+        /* Process next tag */
+        tag = tvb_get_guint8(tvb, offset++);
+        switch (tag) {
+            case RLC_LTE_UM_SN_LENGTH_TAG:
+                p_rlc_lte_info->UMSequenceNumberLength = tvb_get_guint8(tvb, offset);
+                offset++;
+                umSeqNumLengthTagPresent = TRUE;
+                break;
+            case RLC_LTE_DIRECTION_TAG:
+                p_rlc_lte_info->direction = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case RLC_LTE_PRIORITY_TAG:
+                p_rlc_lte_info->priority = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case RLC_LTE_UEID_TAG:
+                p_rlc_lte_info->ueid = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
+            case RLC_LTE_CHANNEL_TYPE_TAG:
+                p_rlc_lte_info->channelType = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
+            case RLC_LTE_CHANNEL_ID_TAG:
+                p_rlc_lte_info->channelId = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
+
+            case RLC_LTE_PAYLOAD_TAG:
+                /* Have reached data, so set payload length and get out of loop */
+                p_rlc_lte_info->pduLength= tvb_length_remaining(tvb, offset);
+                continue;
+
+            default:
+                /* It must be a recognised tag */
+                return FALSE;
+        }
+    }
+
+    if ((p_rlc_lte_info->rlcMode == RLC_UM_MODE) && (umSeqNumLengthTagPresent == FALSE)) {
+        /* Conditional field is not present */
+        return FALSE;
+    }
+
+    if (!infoAlreadySet) {
+        /* Store info in packet */
+        p_add_proto_data(pinfo->fd, proto_rlc_lte, p_rlc_lte_info);
+    }
+
+    /**************************************/
+    /* OK, now dissect as RLC LTE         */
+
+    /* Create tvb that starts at actual RLC PDU */
+    rlc_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
+    dissect_rlc_lte(rlc_tvb, pinfo, tree);
+    return TRUE;
+}
+
 
 /*****************************/
 /* Main dissection function. */
@@ -1618,8 +1740,23 @@ void proto_register_rlc_lte(void)
         "Call RRC dissector for CCCH PDUs",
         &global_rlc_lte_call_rrc);
 
+    prefs_register_bool_preference(rlc_lte_module, "heuristic_rlc_lte_over_udp",
+        "Try Heuristic LTE-RLC over UDP framing",
+        "When enabled, use heuristic dissector to find RLC-LTE frames sent with "
+        "UDP framing",
+        &global_rlc_lte_heur);
 
     register_init_routine(&rlc_lte_init_protocol);
 }
 
+void
+proto_reg_handoff_rlc_lte(void)
+{
+    static dissector_handle_t rlc_lte_handle;
+    if (!rlc_lte_handle) {
+        rlc_lte_handle = find_dissector("rlc-lte");
 
+        /* Add as a heuristic UDP dissector */
+        heur_dissector_add("udp", dissect_rlc_lte_heur, proto_rlc_lte);
+    }
+}
