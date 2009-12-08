@@ -699,6 +699,7 @@ if(BUILD_capinfos)
 	set(capinfos_LIBS
 		wiretap
 		${Z_LIBRARIES}
+		${GCRYPT_LIBRARIES}
 		${APPLE_COCOA_LIBRARY}
 	)
 	set(capinfos_FILES
