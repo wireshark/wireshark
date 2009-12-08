@@ -113,6 +113,7 @@ my %APIs = (
 	'deprecated' => { 'count_errors' => 1, 'functions' => [
 		'perror',                            # Use strerror() and report messages in whatever
 		                                     #  fashion is appropriate for the code in question.
+		'ctime',                             # Use abs_time_secs_to_str()
 		### Deprecated glib functions
 		# (The list is based upon the GLib 2.20.1 documentation; Some of 
 		#  the entries are are commented out since they are currently 
