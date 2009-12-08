@@ -1,7 +1,8 @@
 /* packet-socketcan.c
  * Routines for disassembly of packets from SocketCAN
- * 
  * Felix Obenhuber <felix@obenhuber.de>
+ *
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
