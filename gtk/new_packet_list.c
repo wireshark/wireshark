@@ -577,11 +577,26 @@ new_packet_list_freeze(void)
 void
 new_packet_list_thaw(void)
 {
+	GtkTreePath *path;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+
 	/* Apply model */
 	gtk_tree_view_set_model( GTK_TREE_VIEW(packetlist->view), GTK_TREE_MODEL(packetlist));
 
 	/* Remove extra reference added by new_packet_list_freeze() */
 	g_object_unref(packetlist);
+
+	/* Selection may have been lost, reselect the current row */
+	if (cfile.current_row!=0){
+		path = gtk_tree_path_new_from_indices(cfile.current_row-1, -1);
+
+		if (gtk_tree_model_get_iter(gtk_tree_view_get_model(GTK_TREE_VIEW(packetlist->view)), &iter, path)){
+			/* Select the row */
+			selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+			gtk_tree_selection_select_iter (selection, &iter);
+		}
+	}
 
 	packets_bar_update();
 }
@@ -720,6 +735,7 @@ new_packet_list_select_first_row(void)
 		return;
 
 	scroll_to_and_select_iter(model, NULL, &iter);
+	gtk_widget_grab_focus(packetlist->view);
 }
 
 void
@@ -766,7 +782,7 @@ new_packet_list_moveto_end(void)
 			0); 	/* The horizontal alignment of the column */
 
 	gtk_tree_path_free(path);
-	gtk_widget_grab_focus(packetlist->view);
+
 }
 
 gboolean
