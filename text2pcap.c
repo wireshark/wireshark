@@ -1328,6 +1328,7 @@ parse_options (int argc, char *argv[])
 
     ts_sec = time(0);		/* initialize to current time */
     timecode_default = *localtime(&ts_sec);
+    timecode_default.tm_isdst = -1;	/* Unknown for now, depends on time given to the strptime() function */
 
     /* Display summary of our state */
     if (!quiet) {
