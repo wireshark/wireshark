@@ -38,7 +38,7 @@ class Field:
         self.parent = data[4]
         self.blurb = data[5]
         self.base = data[6]
-        self.bitmask = int(data[7])
+        self.bitmask = int(data[7],0)
 
     
 
