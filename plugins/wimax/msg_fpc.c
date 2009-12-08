@@ -151,15 +151,15 @@ void proto_register_mac_mgmt_msg_fpc(void)
 		{
 			&hf_fpc_power_adjust,
 			{
-				"Power Adjust.	Signed change in power level (incr of 0.25dB) that the SS shall apply to its current power setting", "wmx.fpc.power_adjust",
-				FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL
+				"Power Adjust", "wmx.fpc.power_adjust",
+				FT_FLOAT, BASE_NONE, NULL, 0x0, "Signed change in power level (incr of 0.25dB) that the SS shall apply to its current power setting", HFILL
 			}
 		},
 		{
 			&hf_fpc_power_measurement_frame,
 			{
-				"Power measurement frame.  The 8 LSB of the frame number in which the BS measured the power corrections referred to in the message", "wmx.fpc.power_measurement_frame",
-				FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+				"Power measurement frame", "wmx.fpc.power_measurement_frame",
+				FT_INT8, BASE_DEC, NULL, 0x0, "The 8 LSB of the frame number in which the BS measured the power corrections referred to in the message", HFILL
 			}
 		}
 	};
