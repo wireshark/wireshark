@@ -75,7 +75,9 @@
 #include <wsutil/privileges.h>
 
 #ifdef HAVE_LIBGCRYPT
+#ifdef _WIN32
 #include <winposixtype.h>
+#endif
 #include <gcrypt.h>
 #include <wsutil/file_util.h>
 #endif
