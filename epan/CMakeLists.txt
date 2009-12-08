@@ -923,6 +923,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-sndcp.c
 	dissectors/packet-sndcp-xid.c
 	dissectors/packet-socks.c
+	dissectors/packet-socketcan.c
 	dissectors/packet-nasdaq-soup.c
 	dissectors/packet-spp.c
 	dissectors/packet-spray.c
