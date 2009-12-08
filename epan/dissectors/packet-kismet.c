@@ -249,12 +249,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						/*
 						 * Format ascii representaion of time
 						 */
-						ptr = ctime(&t);
-						/*
-						 * Delete final '\n'
-						 */
-						ptr[strlen(ptr) - 1] = 0;
-
+						ptr = abs_time_secs_to_str(t);
 						proto_tree_add_text(reqresp_tree, tvb, offset,
 							tokenlen, "Time: %s", ptr);
 					}

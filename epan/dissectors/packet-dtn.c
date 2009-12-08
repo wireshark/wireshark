@@ -1286,8 +1286,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
 	return 0;
     }
     time_since_2000 = (time_t) (timestamp + 946684800);
-    time_string = ctime(&time_since_2000);
-    time_string[strlen(time_string) - 1] = 0; /*Remove Newline at enc*/
+    time_string = abs_time_secs_to_str(time_since_2000);
     proto_item_set_text(timestamp_item,
 			"Timestamp: 0x%x [%s]", timestamp, time_string);
     offset += sdnv_length;
@@ -2094,8 +2093,7 @@ add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_id
 	return 0;
     }
     time_since_2000 = (time_t) (sdnv_value + 946684800);
-    time_string = ctime(&time_since_2000);
-    time_string[strlen(time_string) - 1] = 0; /*Remove Newline at enc*/
+    time_string = abs_time_secs_to_str(time_since_2000);
     proto_tree_add_text(tree, tvb, offset, sdnv_length,
 			"%s (sec): %d [%s]", field_id, sdnv_value, time_string);
     offset += sdnv_length;
@@ -2126,8 +2124,7 @@ add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, char *field_i
 	return 0;
     }
     time_since_2000 = (time_t) (sdnv_value + 946684800);
-    time_string = ctime(&time_since_2000);
-    time_string[strlen(time_string) - 1] = 0; /*Remove Newline at enc*/
+    time_string = abs_time_secs_to_str(time_since_2000);
     proto_tree_add_text(tree, tvb, offset, sdnv_length,
 			"%s: %d [%s]", field_id, sdnv_value, time_string);
     return sdnv_length;
