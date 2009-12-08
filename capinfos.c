@@ -339,7 +339,7 @@ print_stats_table_header(void)
   if (cap_packet_size)    print_stats_table_header_label("Average packet size (bytes)");
   if (cap_packet_rate)    print_stats_table_header_label("Average packet rate (packets/sec)");
 #ifdef HAVE_LIBGCRYPT
-  if (cap_packet_rate) {
+  if (cap_file_hashes) {
                           print_stats_table_header_label("SHA1");
                           print_stats_table_header_label("RIPEMD160");
                           print_stats_table_header_label("MD5");
