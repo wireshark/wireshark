@@ -2577,9 +2577,12 @@ Stephen Fisher		<steve [AT] stephen-fisher.com> {
 	Initial work on custom columns
 	VNC protocol support
 	WoW protocol support
+	Daytime protocol support
 	Part of WLCCP support
 	commview and packetlogger wiretap support
 	Export Object support
+	Pixmap saving routines
+	Work on the initial version of the new packet list
 	Miscellaneous enhancements and fixes
 }
 
