@@ -990,23 +990,64 @@ se_address_to_str(const address *addr)
   return str;
 }
 
+static inline char *
+byte_to_hex(char *out, guint8 octet) {
+  /* At least one version of Apple's C compiler/linker is buggy, causing
+     a complaint from the linker about the "literal C string section"
+     not ending with '\0' if we initialize a 16-element "char" array with
+     a 16-character string, the fact that initializing such an array with
+     such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
+     '\0' byte in the string nonwithstanding. */
+  static const gchar hex_digits[16] =
+      { '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+
+  *out++ = hex_digits[octet >> 4];
+  *out++ = hex_digits[octet & 0xF];
+  return out;
+}
+
+/* buffer need to be at least len * 2 size */
+static inline char *
+bytes_to_hexstr(char *out, const guint8 *ad, guint32 len) {
+   guint32 i;
+
+   for (i = 0; i < len; i++)
+	out = byte_to_hex(out, ad[i]);
+   return out;
+}
+
+/* buffer need to be at least len * 3 - 1 size */
+static inline char *
+bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct) {
+   guint32 i;
+
+   out = byte_to_hex(out, ad[0]);
+   for (i = 1; i < len; i++) {
+   	*out++ = punct;
+	out = byte_to_hex(out, ad[i]);
+   }
+   return out;
+}
+
 void
 address_to_str_buf(const address *addr, gchar *buf, int buf_len)
 {
   const guint8 *addrdata;
-  const char *addrstr;
   struct atalk_ddp_addr ddp_addr;
 
-  if (!buf)
+  char temp[32];
+  char *tempptr = temp;
+
+  if (!buf || !buf_len)
     return;
 
   switch(addr->type){
   case AT_NONE:
-    g_snprintf(buf, buf_len, "%s", "");
+    buf[0] = '\0';
     break;
-  case AT_ETHER:
-    addrdata = addr->data;
-    g_snprintf(buf, buf_len, "%02x:%02x:%02x:%02x:%02x:%02x", addrdata[0], addrdata[1], addrdata[2], addrdata[3], addrdata[4], addrdata[5]);
+  case AT_ETHER:					/* 18 bytes */
+    tempptr = bytes_to_hexstr_punct(tempptr, addr->data, 6, ':');	/* 17 bytes */
     break;
   case AT_IPv4:
     ip_to_str_buf(addr->data, buf, buf_len);
@@ -1015,9 +1056,11 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     if ( inet_ntop(AF_INET6, addr->data, buf, buf_len) == NULL ) /* Returns NULL if no space and does not touch buf */
     	g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR );                 /* Let the unexpected value alert user */
     break;
-  case AT_IPX:
+  case AT_IPX:						/* 22 bytes */
     addrdata = addr->data;
-    g_snprintf(buf, buf_len, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addrdata[0], addrdata[1], addrdata[2], addrdata[3], addrdata[4], addrdata[5], addrdata[6], addrdata[7], addrdata[8], addrdata[9]);
+    tempptr = bytes_to_hexstr(tempptr, &addrdata[0], 4);		/*  8 bytes */
+    *tempptr++ = '.';							/*  1 byte  */
+    tempptr = bytes_to_hexstr(tempptr, &addrdata[4], 6);		/* 12 bytes */
     break;
   case AT_SNA:
     sna_fid_to_str_buf(addr, buf, buf_len);
@@ -1035,26 +1078,21 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
   case AT_OSI:
     print_nsap_net_buf(addr->data, addr->len, buf, buf_len);
     break;
-  case AT_ARCNET:
-    addrdata = addr->data;
-    g_snprintf(buf, buf_len, "0x%02X", addrdata[0]);
+  case AT_ARCNET:					/* 5 bytes */
+    tempptr = g_stpcpy(tempptr, "0x");					/* 2 bytes */
+    tempptr = bytes_to_hexstr(tempptr, addr->data, 1);			/* 2 bytes */
     break;
-  case AT_FC:
-    addrdata = addr->data;
-    g_snprintf(buf, buf_len, "%02x.%02x.%02x", addrdata[0], addrdata[1], addrdata[2]);
+  case AT_FC:						/* 9 bytes */
+    tempptr = bytes_to_hexstr_punct(tempptr, addr->data, 3, '.');	/* 8 bytes */
     break;
   case AT_SS7PC:
     mtp3_addr_to_str_buf((const mtp3_addr_pc_t *)addr->data, buf, buf_len);
     break;
   case AT_STRINGZ:
-    addrstr = addr->data;
-    g_snprintf(buf, buf_len, "%s", addrstr);
+    g_strlcpy(buf, addr->data, buf_len);
     break;
-  case AT_EUI64:
-    addrdata = addr->data;
-    g_snprintf(buf, buf_len, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
-            addrdata[0], addrdata[1], addrdata[2], addrdata[3],
-            addrdata[4], addrdata[5], addrdata[6], addrdata[7]);
+  case AT_EUI64:					/* 24 bytes */
+    tempptr = bytes_to_hexstr_punct(tempptr, addr->data, 8, ':');	/* 23 bytes */
     break;
   case AT_URI: {
     int copy_len = addr->len < (buf_len - 1) ? addr->len : (buf_len - 1);
@@ -1067,6 +1105,17 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     break;
   default:
     g_assert_not_reached();
+  }
+
+  /* copy to output buffer */
+  *tempptr = '\0';
+  if (temp[0]) {
+    int temp_len = (tempptr - temp) + 1;
+    
+    if (temp_len <= buf_len)
+      g_strlcpy(buf, temp, buf_len);	/* memcpy(), strcpy() ? */
+    else
+     g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);/* Let the unexpected value alert user */
   }
 }
 
