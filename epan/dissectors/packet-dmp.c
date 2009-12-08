@@ -59,8 +59,12 @@
 /* Default UDP Port Number */
 #define DEFAULT_DMP_PORT_RANGE "5031"
 
+/* Protocol Identifier */
+#define PROT_NAT 0x0D
+#define PROT_DMP 0x1D
+
 /* Version supported */
-#define DMP_VERSION  1
+#define DMP_VERSION_1  1
 
 /* Message Type (dmp.msg_type) */
 #define STANAG   0x0
@@ -188,6 +192,7 @@ static int hf_addr_dir_address3 = -1;
 static int hf_addr_dir_address_generated = -1;
 
 static int hf_addr_ext_form = -1;
+static int hf_addr_ext_form_orig = -1;
 static int hf_addr_ext_action = -1;
 static int hf_addr_ext_rep_req = -1;
 static int hf_addr_ext_not_req = -1;
@@ -435,6 +440,7 @@ static GHashTable *dmp_id_hash_table = NULL;
 /* Global values used in several functions */
 static struct dmp_data {
   gint     version;
+  gint     prot_id;
   gint     addr_enc;
   gint     checksum;
   gint     msg_type;
@@ -543,6 +549,7 @@ static const value_string notif_type [] = {
   { 0x3, "Unknown Notification"           },
   { 0,   NULL } };
 
+/* Note the space behind these values */
 static const value_string addr_type_str [] = {
   { ORIGINATOR, ""         },
   { P1_ADDRESS, "P1 "      },
@@ -550,20 +557,20 @@ static const value_string addr_type_str [] = {
   { 0,          NULL } };
 
 static const value_string addr_form [] = {
-  { 0x0, "P1 address only, Direct Address"                             },
-  { 0x1, "P22/P722 address only, Direct Address"                       },
-  { 0x2, "P1 address only, Extended Address"                           },
-  { 0x3, "P22/P722 address only, Extended Address"                     },
-  { 0x4, "P1 and P22/P722 addresses, Direct Address"                   },
-  { 0x5, "P1, Direct Address and P22/P722 addresses, Extended Address" },
-  { 0x6, "P1, Extended Address and P22/P722 addresses, Direct Address" },
-  { 0x7, "P1 and P22/P722 addresses, Extended Address"                 },
+  { 0x0, "P1 Direct"                       },
+  { 0x1, "P22/P722 Direct"                 },
+  { 0x2, "P1 Extended"                     },
+  { 0x3, "P22/P722 Extended"               },
+  { 0x4, "P1 and P22/P722 Direct"          },
+  { 0x5, "P1 Direct and P22/P722 Extended" },
+  { 0x6, "P1 Extended and P22/P722 Direct" },
+  { 0x7, "P1 and P22/P722 Extended"        },
   { 0,   NULL } };
 
 static const value_string addr_form_orig [] = {
-  { 0x0, "Direct Address"   },
+  { 0x0, "Direct"           },
   { 0x1, "Reserved"         },
-  { 0x2, "Extended Address" },
+  { 0x2, "Extended"         },
   { 0x3, "Reserved"         },
   { 0x4, "Reserved"         },
   { 0x5, "Reserved"         },
@@ -1876,13 +1883,13 @@ static gint dissect_dmp_originator (tvbuff_t *tvb, packet_info *pinfo,
     value = tvb_get_guint8 (tvb, offset);
     dmp_addr_form = (value & 0xE0) >> 5;
 
-    en = proto_tree_add_uint_format (field_tree, hf_addr_ext_form, tvb,
+    en = proto_tree_add_uint_format (field_tree, hf_addr_ext_form_orig, tvb,
 				     offset, 1, value,
 				     "Address Form: %s",
 				     val_to_str (dmp_addr_form,
 						 addr_form_orig, "Reserved"));
     rec_tree = proto_item_add_subtree (en, ett_address_ext_form);
-    proto_tree_add_item (rec_tree, hf_addr_ext_form, tvb, offset,
+    proto_tree_add_item (rec_tree, hf_addr_ext_form_orig, tvb, offset,
 			 1, FALSE);
     en = proto_tree_add_item (rec_tree, hf_reserved_0x1F, tvb, offset,
 			      1, FALSE);
@@ -2327,7 +2334,7 @@ static gint dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
   dmp.subj_id = tvb_get_ntohs (tvb, offset);
   proto_tree_add_item (ack_tree, hf_message_subj_id, tvb, offset, 2, FALSE);
   hidden_item = proto_tree_add_item (ack_tree, hf_dmp_id, tvb, offset, 2, FALSE);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  PROTO_ITEM_SET_HIDDEN (hidden_item);
   offset += 2;
 
   if (use_seq_ack_analysis) {
@@ -2366,7 +2373,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *field_tree = NULL;
   proto_item *en = NULL, *tf = NULL, *vf = NULL;
   proto_item *hidden_item;
-  guint8      envelope, prot_id, time_diff;
+  guint8      envelope, time_diff;
   guint16     subm_time, no_rec, value16;
   gint32      secs = 0;
   gchar      *env_flags = NULL;
@@ -2377,7 +2384,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   envelope_tree = proto_item_add_subtree (en, ett_envelope);
 
   envelope = tvb_get_guint8 (tvb, offset);
-  prot_id = (envelope & 0xF8) >> 3;
+  dmp.prot_id = (envelope & 0xF8) >> 3;
   dmp.version = (envelope & 0x07) + 1;
 
   /* Protocol Version */
@@ -2388,9 +2395,10 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   field_tree = proto_item_add_subtree (tf, ett_envelope_version);
   vf = proto_tree_add_item (field_tree, hf_envelope_protocol_id, tvb,
 			    offset, 1, FALSE);
-  if (prot_id == 0x0D) {
+  if (dmp.prot_id == PROT_NAT) {
     proto_item_append_text (vf, " (national version of DMP)");
-  } else if (prot_id == 0x1D) {
+    proto_item_append_text (tf, " (national)");
+  } else if (dmp.prot_id == PROT_DMP) {
     proto_item_append_text (vf, " (correct)");
   } else {
     proto_item_append_text (vf, " (incorrect, should be 0x1d)");
@@ -2399,7 +2407,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
 			    offset, 1, FALSE);
   offset += 1;
 
-  if (dmp.version > DMP_VERSION) {
+  if (dmp.version > DMP_VERSION_1) {
     /* Unsupported DMP Version */
     proto_item_append_text (vf, " (unsupported)");
     proto_item_append_text (tf, " (unsupported)");
@@ -2478,7 +2486,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
 		       2, FALSE);
   hidden_item = proto_tree_add_item (envelope_tree, hf_dmp_id, tvb, offset,
 			      2, FALSE);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  PROTO_ITEM_SET_HIDDEN (hidden_item);
   offset += 2;
 
   /* Submission Time */
@@ -2652,7 +2660,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
   tvbuff_t   *next_tvb = NULL;
   proto_tree *message_tree = NULL;
   proto_tree *field_tree = NULL;
-  proto_item *en = NULL, *tf = NULL;
+  proto_item *en = NULL, *tf = NULL, *tr = NULL;
   guint8      message, eit = 0, compr_alg = ALGORITHM_NONE;
   guint8     *subject = NULL;
   gint        len, boffset = offset;
@@ -2693,10 +2701,13 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
 				     val_to_str (compr_alg, compression_vals,
 						 "Unknown"), compr_alg);
     field_tree = proto_item_add_subtree (tf, ett_message_compr);
-    proto_tree_add_item (field_tree, hf_message_compr, tvb,
-			 offset, 1, FALSE);
+    tr = proto_tree_add_item (field_tree, hf_message_compr, tvb,
+			      offset, 1, FALSE);
     if (compr_alg == ALGORITHM_ZLIB) {
       proto_item_append_text (en, " (compressed)");
+    } else if (compr_alg != ALGORITHM_NONE) {
+      expert_add_info_format (pinfo, tr, PI_UNDECODED, PI_WARN,
+			      "Unknown compression algorithm");
     }
 
     if (message & 0x07) {
@@ -3390,7 +3401,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
 			 2, FALSE);
     hidden_item = proto_tree_add_item (message_tree, hf_dmp_id, tvb, offset,
 				2, FALSE);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    PROTO_ITEM_SET_HIDDEN (hidden_item);
     offset += 2;
   }
 
@@ -3443,7 +3454,7 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
 
   offset = dissect_dmp_envelope (tvb, pinfo, dmp_tree, offset);
 
-  if (dmp.version > DMP_VERSION) {
+  if (dmp.version > DMP_VERSION_1) {
     /* Unsupported DMP Version, no point to continue */
     col_add_fstr (pinfo->cinfo, COL_INFO, "Unsupported Version: %d", dmp.version);
     return;
@@ -3554,7 +3565,8 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
     }
   }
 
-  proto_item_append_text (ti, ", Version: %d, %s", dmp.version,
+  proto_item_append_text (ti, ", Version: %d%s, %s", dmp.version,
+			  (dmp.prot_id == PROT_NAT ? " (national)" : ""),
 			  msg_type_to_str());
 }
 
@@ -3733,6 +3745,9 @@ void proto_register_dmp (void)
     { &hf_addr_ext_form,
       { "Address Form", "dmp.addr_form", FT_UINT8, BASE_DEC,
 	VALS (&addr_form), 0xE0, NULL, HFILL } },
+    { &hf_addr_ext_form_orig,
+      { "Address Form", "dmp.addr_form", FT_UINT8, BASE_DEC,
+	VALS (&addr_form_orig), 0xE0, NULL, HFILL } },
     { &hf_addr_ext_action,
       { "Action", "dmp.action", FT_BOOLEAN, 8,
 	TFS (&tfs_yes_no), 0x10, NULL, HFILL } },
@@ -4367,7 +4382,7 @@ void proto_reg_handoff_dmp (void)
   static gboolean dmp_prefs_initialized = FALSE;
 
   if (!dmp_prefs_initialized) {
-    dmp_handle = find_dissector(PFNAME);
+    dmp_handle = find_dissector (PFNAME);
     dmp_prefs_initialized = TRUE;
   } else {
     range_foreach (dmp_port_range, range_delete_callback);
