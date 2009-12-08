@@ -827,6 +827,7 @@ DISSECTOR_SRC = \
 	packet-snaeth.c		\
 	packet-sndcp.c		\
 	packet-sndcp-xid.c	\
+	packet-socketcan.c	\
 	packet-socks.c		\
 	packet-nasdaq-soup.c	\
 	packet-spp.c		\

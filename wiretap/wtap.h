@@ -214,6 +214,7 @@ extern "C" {
 #define WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS 122
 #define WTAP_ENCAP_JPEG_JFIF                    123
 #define WTAP_ENCAP_IPNET                        124
+#define WTAP_ENCAP_SOCKETCAN                    125
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 

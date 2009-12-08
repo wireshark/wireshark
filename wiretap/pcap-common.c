@@ -356,6 +356,9 @@ static const struct {
 	/* Solaris DLPI */
 	{ 226,          WTAP_ENCAP_IPNET },
 
+	/* SocketCAN frame */
+	{ 227,          WTAP_ENCAP_SOCKETCAN },
+
 	/*
 	 * To repeat:
 	 *
