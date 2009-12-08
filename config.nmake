@@ -1047,10 +1047,11 @@ NETTLE_CONFIG=
 GNUTLS_PATH=$(GNUTLS_DIR)
 # /DNOCRYPT avoids inclusion of Wincrypt.h, avoiding a X509_NAME define clash
 GNUTLS_CFLAGS=/I$(GNUTLS_DIR)\include /DNOCRYPT /DIMPORT_LIGNUTLSDLL
+GCRYPT_LIBS = $(GNUTLS_DIR)\bin\libgcrypt-11.lib
 GNUTLS_LIBS=\
 	$(GNUTLS_DIR)\bin\libtasn1-3.lib	\
 	$(GNUTLS_DIR)\bin\libgpg-error-0.lib	\
-	$(GNUTLS_DIR)\bin\libgcrypt-11.lib	\
+	$(GCRYPT_LIBS) \
 	$(GNUTLS_DIR)\bin\libgnutls-26.lib
 # Nmake uses carets to escape special characters
 GNUTLS_CONFIG=^#define HAVE_LIBGNUTLS 1

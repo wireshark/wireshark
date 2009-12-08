@@ -29,19 +29,19 @@
  *
  * New capinfos features
  *
- * Continue processing additional files after 
- * a wiretap open failure.  The new -C option 
- * reverts to capinfos' original behavior which 
- * is to cancels any further file processing at 
+ * Continue processing additional files after
+ * a wiretap open failure.  The new -C option
+ * reverts to capinfos' original behavior which
+ * is to cancels any further file processing at
  * first file open failure.
  *
- * Change the behavior of how the default display 
- * of all infos is initiated.  This gets rid of a 
+ * Change the behavior of how the default display
+ * of all infos is initiated.  This gets rid of a
  * special post getopt() argument count test.
  *
  * Add new table output format (with related options)
- * This feature allows outputting the various infos 
- * into a tab delimited text file, or to a comma 
+ * This feature allows outputting the various infos
+ * into a tab delimited text file, or to a comma
  * separated variables file (*.csv) instead of the
  * original "long" format.
  */
@@ -75,6 +75,7 @@
 #include <wsutil/privileges.h>
 
 #ifdef HAVE_LIBGCRYPT
+#include <winposixtype.h>
 #include <gcrypt.h>
 #include <wsutil/file_util.h>
 #endif
@@ -87,11 +88,11 @@
 
 /*
  * By default capinfos now continues processing
- * the next filename if and when wiretap detects 
- * a problem opening a file.  
+ * the next filename if and when wiretap detects
+ * a problem opening a file.
  * Use the '-C' option to revert back to original
- * capinfos behavior which is to abort any 
- * additional file processing at first open file 
+ * capinfos behavior which is to abort any
+ * additional file processing at first open file
  * failure.
  */
 
@@ -107,13 +108,13 @@ static gchar field_separator = '\t';        /* Use TAB as field separator by def
 static gchar quote_char = '\0';             /* Do NOT quote fields by default        */
 
 /*
- * capinfos has the ability to report on a number of 
- * various characteristics ("infos") for each input file.  
- * 
- * By default reporting of all info fields is enabled. 
+ * capinfos has the ability to report on a number of
+ * various characteristics ("infos") for each input file.
  *
- * Optionally the reporting of any specific info field 
- * or combination of info fields can be enabled with 
+ * By default reporting of all info fields is enabled.
+ *
+ * Optionally the reporting of any specific info field
+ * or combination of info fields can be enabled with
  * individual options.
  */
 
@@ -229,8 +230,8 @@ disable_all_infos(void)
 /*
  * ctime_no_lf()
  *
- * This function simply truncates the string returned 
- * from the ctime() function to remove the trailing 
+ * This function simply truncates the string returned
+ * from the ctime() function to remove the trailing
  * '\n' character.
  *
  * The ctime() function returns a string formatted as:
@@ -244,7 +245,7 @@ ctime_no_lf(const time_t* timer)
   gchar *time_string;
   time_string = ctime(timer);
   time_string[24] = '\0';
-  return(time_string);  
+  return(time_string);
 }
 
 static double
@@ -279,7 +280,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (cap_packet_count)   printf     ("Number of packets:   %u\n", cf_info->packet_count);
   if (cap_file_size)      printf     ("File size:           %" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
   if (cap_data_size)      printf     ("Data size:           %" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
-  if (cap_duration)       print_value("Capture duration:    ", 0, " seconds",   cf_info->duration); 
+  if (cap_duration)       print_value("Capture duration:    ", 0, " seconds",   cf_info->duration);
   if (cap_start_time)     printf     ("Start time:          %s", (cf_info->packet_count>0) ? ctime (&start_time_t) : "n/a\n");
   if (cap_end_time)       printf     ("End time:            %s", (cf_info->packet_count>0) ? ctime (&stop_time_t)  : "n/a\n");
   if (cap_data_rate_byte) print_value("Data byte rate:      ", 2, " bytes/sec",   cf_info->data_rate);
@@ -554,7 +555,7 @@ process_cap_file(wtap *wth, const char *filename)
   cf_info.packet_size = 0.0;
 
   if (packet > 0) {
-    if (cf_info.duration > 0.0) { 
+    if (cf_info.duration > 0.0) {
       cf_info.data_rate   = (double)bytes  / (stop_time-start_time); /* Data rate per second */
       cf_info.packet_rate = (double)packet / (stop_time-start_time); /* packet rate per second */
     }
@@ -664,7 +665,7 @@ failure_message(const char *msg_format _U_, va_list ap _U_)
 static void
 hash_to_str(const unsigned char *hash, size_t length, char *str) {
   int i;
-  
+
   for (i = 0; i < (int) length; i++) {
     sprintf(str+(i*2), "%02x", hash[i]);
   }
@@ -684,7 +685,7 @@ main(int argc, char *argv[])
 #endif
 #ifdef HAVE_LIBGCRYPT
   FILE *fh;
-  char hash_buf[HASH_BUF_SIZE];
+  char *hash_buf = NULL;
   gcry_md_hd_t hd;
   size_t hash_bytes;
 #endif
@@ -856,6 +857,7 @@ main(int argc, char *argv[])
       gcry_md_enable(hd, GCRY_MD_RMD160);
       gcry_md_enable(hd, GCRY_MD_MD5);
     }
+    hash_buf = g_malloc(HASH_BUF_SIZE);
   }
 #endif
 
@@ -867,7 +869,7 @@ main(int argc, char *argv[])
     strcpy(file_md5, "<unknown>");
 
     if (cap_file_hashes) {
-      fh = ws_fopen(argv[opt], "r");
+      fh = ws_fopen(argv[opt], "rb");
       if (fh && hd) {
         while((hash_bytes = fread(hash_buf, 1, HASH_BUF_SIZE, fh)) > 0) {
           gcry_md_write(hd, hash_buf, hash_bytes);

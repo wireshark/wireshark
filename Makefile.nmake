@@ -138,7 +138,8 @@ rawshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 capinfos_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib \
 	wsutil\libwsutil.lib \
-	$(GLIB_LIBS)
+	$(GLIB_LIBS) \
+	$(GCRYPT_LIBS)
 
 editcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib shell32.lib \
