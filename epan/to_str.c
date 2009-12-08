@@ -1108,13 +1108,13 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
   }
 
   /* copy to output buffer */
-  *tempptr = '\0';
-  if (temp[0]) {
-    int temp_len = (tempptr - temp) + 1;
+  if (tempptr != temp) {
+    size_t temp_len = (size_t) (tempptr - temp);
     
-    if (temp_len <= buf_len)
-      g_strlcpy(buf, temp, buf_len);	/* memcpy(), strcpy() ? */
-    else
+    if (temp_len < (size_t) buf_len) {
+      memcpy(buf, temp, temp_len);
+      buf[temp_len] = '\0';
+    } else
      g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);/* Let the unexpected value alert user */
   }
 }
