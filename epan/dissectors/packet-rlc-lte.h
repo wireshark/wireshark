@@ -66,7 +66,9 @@ typedef struct rlc_lte_info
 /* Several people have asked about dissecting RLC by framing     */
 /* PDUs over IP.  A suggested format over UDP has been defined   */
 /* and implemented by this dissector, using the definitions      */
-/* below.                                                        */
+/* below. A link to an example program showing you how to encode */
+/* these headers and send LTE RLC PDUs on a UDP socket is        */
+/* provided at http://wiki.wireshark.org/RLC-LTE                 */
 /*                                                               */
 /* A heuristic dissecter (enabled by a preference) will          */
 /* recognise a signature at the beginning of these frames.       */
