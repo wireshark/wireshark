@@ -990,6 +990,12 @@ se_address_to_str(const address *addr)
   return str;
 }
 
+/*
+ * XXX - see also bytes_to_str() and bytes_to_str_punct() in strutil.c.
+ * They fill in an ep_allocated buffer, rather than a buffer supplied
+ * to them, and put in "..." if the string is "too long".
+ */
+
 static inline char *
 byte_to_hex(char *out, guint8 octet) {
   /* At least one version of Apple's C compiler/linker is buggy, causing
