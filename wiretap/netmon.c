@@ -207,7 +207,16 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = netmon_seek_read;
 	wth->subtype_sequential_close = netmon_sequential_close;
 	wth->subtype_close = netmon_close;
-	wth->file_encap = netmon_encap[hdr.network];
+
+	/* NetMon capture file formats v2.1+ use per-packet encapsulation types.  NetMon 3 sets the value in
+	 * the header to 1 (Ethernet) for backwards compability. */
+	/* XXX - It would be better if we could set this to WTAP_ENCAP_PER_PACKET and show a message for
+	 * that, but the wtap_read() routine asserts on that value to catch errors. */
+	if((hdr.ver_major == 2 && hdr.ver_minor >= 1) || hdr.ver_major > 2)
+		wth->file_encap = WTAP_ENCAP_UNKNOWN;
+	else
+		wth->file_encap = netmon_encap[hdr.network];
+
 	wth->snapshot_length = 0;	/* not available in header */
 	/*
 	 * Convert the time stamp to a "time_t" and a number of
