@@ -2193,12 +2193,6 @@ proto_reg_handoff_ldap(void)
 	oid_add_from_string("LDAP_SERVER_SHUTDOWN_NOTIFY_OID","1.2.840.113556.1.4.1907");
 	oid_add_from_string("LDAP_SERVER_RANGE_RETRIEVAL_NOERR_OID","1.2.840.113556.1.4.1948");
 
-	/* RFC 4533 */
-	oid_add_from_string("LDAP_CONTROL_SYNC","1.3.6.1.4.1.4203.1.9.1.1");
-	oid_add_from_string("LDAP_CONTROL_SYNC_STATE","1.3.6.1.4.1.4203.1.9.1.2");
-	oid_add_from_string("LDAP_CONTROL_SYNC_DONE","1.3.6.1.4.1.4203.1.9.1.3");
-	oid_add_from_string("LDAP_SYNC_INFO","1.3.6.1.4.1.4203.1.9.1.4");
-
 	register_ldap_name_dissector("netlogon", dissect_NetLogon_PDU, proto_cldap);
 	register_ldap_name_dissector("objectGUID", dissect_ldap_guid, proto_ldap);
 	register_ldap_name_dissector("supportedControl", dissect_ldap_oid, proto_ldap);
