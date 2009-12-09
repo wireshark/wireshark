@@ -43,11 +43,6 @@ typedef enum {
   COLUMN_SELECTED_REMOVE
 } COLUMN_SELECTED_E;
 
-#define COLUMN_XALIGN_DEFAULT  0
-#define COLUMN_XALIGN_LEFT    'L'
-#define COLUMN_XALIGN_CENTER  'C'
-#define COLUMN_XALIGN_RIGHT   'R'
-
 GtkWidget *new_packet_list_create(void);
 void new_packet_list_recreate(void);
 void new_packet_list_column_menu_cb (GtkWidget *w, gpointer data, COLUMN_SELECTED_E action);

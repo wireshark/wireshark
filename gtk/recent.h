@@ -46,6 +46,12 @@ typedef struct _col_width_data {
   gchar  xalign;
 } col_width_data;
 
+/** Defines used in col_width_data.xalign */
+#define COLUMN_XALIGN_DEFAULT  0
+#define COLUMN_XALIGN_LEFT    'L'
+#define COLUMN_XALIGN_CENTER  'C'
+#define COLUMN_XALIGN_RIGHT   'R'
+
 /** Recent settings. */
 typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
