@@ -942,10 +942,17 @@ call_sohelper:
 	}
 	tree=proto_item_add_subtree(item, ett_index);
 
+	old_offset = offset;
 	offset=dissect_per_sequence_of_helper(tvb, offset, actx, tree, seq->func, *seq->p_id, length);
 
+	if (offset == old_offset)
+		length = 0;
+	else if (offset >> 3 == old_offset >> 3)
+			length = 1;
+		else
+			length = (offset >> 3) - (old_offset >> 3);
 
-	proto_item_set_len(item, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1);
+	proto_item_set_len(item, length);
 	return offset;
 }
 
