@@ -333,6 +333,49 @@ packet_list_sort_column(gint column, gpointer data, GtkSortType order)
   gtk_clist_sort(clist);
 }
 
+static GtkJustification
+get_xalign_value (gchar xalign, gboolean right_justify)
+{
+        GtkJustification value;
+
+        switch (xalign) {
+        case COLUMN_XALIGN_RIGHT:
+                value = GTK_JUSTIFY_RIGHT;
+                break;
+        case COLUMN_XALIGN_CENTER:
+                value = GTK_JUSTIFY_CENTER;
+                break;
+        case COLUMN_XALIGN_LEFT:
+                value = GTK_JUSTIFY_LEFT;
+                break;
+        case COLUMN_XALIGN_DEFAULT:
+        default:
+                if (right_justify) {
+                        value = GTK_JUSTIFY_RIGHT;
+                } else {
+                        value = GTK_JUSTIFY_LEFT;
+                }
+                break;
+        }
+
+        return value;
+}
+
+static void
+packet_list_xalign_column (gint col_id, gchar xalign)
+{
+        gboolean right_justify = right_justify_column(col_id);
+        GtkJustification justify = get_xalign_value (xalign, right_justify);
+
+        if ((xalign == COLUMN_XALIGN_LEFT && !right_justify) ||
+            (xalign == COLUMN_XALIGN_RIGHT && right_justify)) {
+                /* Default value selected, save default in the recent settings */
+                xalign = COLUMN_XALIGN_DEFAULT;
+        }
+
+	gtk_clist_set_column_justification (GTK_CLIST(packet_list), col_id, justify);
+        recent_set_column_xalign (col_id, xalign);
+}
 
 void
 packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN_SELECTED_E action)
@@ -351,16 +394,13 @@ packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN_SEL
               packet_list_sort_column (0, data, GTK_SORT_ASCENDING);
               break;
       case COLUMN_SELECTED_ALIGN_LEFT:
-              gtk_clist_set_column_justification(GTK_CLIST(packet_list), col_id,
-                                            GTK_JUSTIFY_LEFT);
+              packet_list_xalign_column (col_id, COLUMN_XALIGN_LEFT);
               break;
       case COLUMN_SELECTED_ALIGN_CENTER:
-              gtk_clist_set_column_justification(GTK_CLIST(packet_list), col_id,
-                                            GTK_JUSTIFY_CENTER);
+              packet_list_xalign_column (col_id, COLUMN_XALIGN_CENTER);
               break;
       case COLUMN_SELECTED_ALIGN_RIGHT:
-              gtk_clist_set_column_justification(GTK_CLIST(packet_list), col_id,
-                                            GTK_JUSTIFY_RIGHT);
+              packet_list_xalign_column (col_id, COLUMN_XALIGN_RIGHT);
               break;
       case COLUMN_SELECTED_RESIZE:
               packet_list_resize_column (col_id);
@@ -623,6 +663,7 @@ GtkWidget *
 packet_list_new(e_prefs *prefs)
 {
     GtkWidget *pkt_scrollw;
+    GtkJustification justify;
     int      i;
 
     /* Packet list */
@@ -655,10 +696,10 @@ packet_list_new(e_prefs *prefs)
         gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, FALSE);
         gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), i, TRUE);
 
-        /* Right-justify some special columns. */
-        if (right_justify_column(i))
-            gtk_clist_set_column_justification(GTK_CLIST(packet_list), i,
-                                               GTK_JUSTIFY_RIGHT);
+        /* Justify columns. */
+	justify = get_xalign_value (recent_get_column_xalign(i), right_justify_column(i));
+	if (justify != GTK_JUSTIFY_LEFT)
+            gtk_clist_set_column_justification(GTK_CLIST(packet_list), i, justify);
     }
     g_signal_connect(packet_list, "button_press_event", G_CALLBACK(popup_menu_handler),
                    g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
@@ -1107,6 +1148,7 @@ void
 packet_list_recent_write_all(FILE *rf)
 {
   gint col;
+  gchar xalign;
 
   fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
   for (col = 0; col < cfile.cinfo.num_cols; col++) {
@@ -1116,6 +1158,10 @@ packet_list_recent_write_all(FILE *rf)
        fprintf (rf, " %s,", col_format_to_string(cfile.cinfo.col_fmt[col]));
      }
      fprintf (rf, " %d", GTK_CLIST(packet_list)->column[col].width);
+     xalign = recent_get_column_xalign (col);
+     if (xalign != COLUMN_XALIGN_DEFAULT) {
+       fprintf (rf, ":%c", xalign);
+     }
      if (col != cfile.cinfo.num_cols-1) {
        fprintf (rf, ",");
      }
