@@ -267,7 +267,7 @@ get_nstring(tvbuff_t *tvb, gint offset, guint8* cbuf, size_t cbuflen)
 /* dissect a response. more work to do here.
  */
 static void
-display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
+display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_conv_data* cd)
 {
   const gchar* msg_code = NULL;
   int pos = 0;
@@ -390,9 +390,13 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
     }
 
   } else if (mcode == 6) {
+	guint16 rlen;
+	rlen = tvb_get_ntohs(tvb, pos);
+	cd->content_length = rlen;
     if (ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_rlen, tvb, pos, 2, 0);
     pos+=2;
+	
 
   } else if ( mcode == 9 ) {
 
@@ -415,16 +419,11 @@ static void
 display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
 {
   /*printf("ajp13:display_req_body()\n");*/
-
   /*
    * In a resued connection this is never reset.
    */
-  guint16 content_length;
-
-  content_length = tvb_get_ntohs( tvb, 4 );
-  cd->content_length -= content_length;
-
-  if (ajp13_tree) {
+    guint16 content_length;
+    guint16 packet_length;
 
     guint8 body_bytes[128*1024]; /* DANGER WILL ROBINSON */
     int pos = 0;
@@ -437,14 +436,27 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
 
     /* PACKET LENGTH
      */
+    packet_length = tvb_get_ntohs(tvb, pos);
     proto_tree_add_item(ajp13_tree, hf_ajp13_len, tvb, pos, 2, 0);
     pos+=2;
 
+    if (packet_length == 0)
+    {
+        /*
+         * We've got an empty packet:
+         * 0x12 0x34 0x00 0x00
+         * It signals that there is no more data in the body
+         */
+        cd->content_length = 0;
+        return;
+    }
+
     /* BODY (AS STRING)
      */
+    content_length = tvb_get_ntohs( tvb, pos);
+    cd->content_length -= content_length;
     body_len = get_nstring(tvb, pos, body_bytes, sizeof body_bytes);
     proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, body_len-1, 0);
-  }
 }
 
 
@@ -729,7 +741,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   } else if (mag == 0x4142) {
 
-    display_rsp(tvb, pinfo, ajp13_tree);
+    display_rsp(tvb, pinfo, ajp13_tree, cd);
 
   }
 }
