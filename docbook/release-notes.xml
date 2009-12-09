@@ -31,20 +31,74 @@ Wireshark Info
 
     <para>
 
+      The following vulnerabilities have been fixed. See the
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2009-09.html">security advisory</ulink> for details and a workaround.
+
+      <itemizedlist>
+
+        <listitem>
+          <para>
+            The Daintree SNA file parser could overflow a buffer.
+            <!-- Fixed in trunk: r31172, r31173 -->
+            <!-- Fixed in trunk-1.2: r31211 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4294">Bug
+            4294</ulink>)
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.4</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+          -->
+        </listitem>
+
+        <listitem>
+          <para>
+            The SMB and SMB2 dissectors could crash.
+            <!-- Fixed in trunk: r31187 -->
+            <!-- Fixed in trunk-1.2: r31211 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4301">Bug
+            4301</ulink>)
+          </para>
+          <para>Versions affected: 0.9.0 to 1.2.4</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+          -->
+        </listitem>
+
+      </itemizedlist>
+
+    </para>
+
+    <para>
     The following bugs have been fixed:
 
       <itemizedlist>
 
         <listitem><para>
-          Can't save RTP stream in both directions.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4120">Bug
-          4120</ulink>)
+           Wrong decoding of gtp.target identification.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3974">Bug
+          3974</ulink>)
         </para></listitem>
 
         <listitem><para>
-          Wireshark could crash at startup on Windows.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4155">Bug
-          4155</ulink>)
+           TTE dissector bug.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4247">Bug
+          4247</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+           Upper case in Lua pref symbol causes Wireshark to crash.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4255">Bug
+          4255</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+            OpenBSD 4.5 build fails at epan/dissectors/packet-rpcap.c.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4258">Bug
+          4258</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -71,12 +125,14 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
-DCERPC,
-IPFIX/Netflow,
-IPv4,
-NAS EPS,
-RTCP,
-TIPC
+DAP,
+eDonkey,
+GTP,
+RANAP,
+SMB,
+SMB2,
+TTE,
+X.509sat
 
     </para>
     </section>
@@ -84,7 +140,7 @@ TIPC
     <section id="NewCapture"><title>Updated Capture File Support</title>
     <para>
 
-Capture file support is unchanged in this release.
+Daintree SNA.
 
     </para>
     </section>

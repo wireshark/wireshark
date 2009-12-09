@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <errno.h>
 #include <string.h>
+#include <ctype.h>
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>

@@ -88,7 +88,7 @@ void proto_reg_handoff_x509sat(void) {
   oid_add_from_string("country","2.5.6.2");
   oid_add_from_string("locality","2.5.6.3");
   oid_add_from_string("organization","2.5.6.4");
-  oid_add_from_string("organizationalUnit","2.5.6.1");
+  oid_add_from_string("organizationalUnit","2.5.6.5");
   oid_add_from_string("person","2.5.6.6");
   oid_add_from_string("organizationalPerson","2.5.6.7");
   oid_add_from_string("organizationalRole","2.5.6.8");

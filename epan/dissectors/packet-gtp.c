@@ -9,7 +9,7 @@
  *
  * $Id$
  *
- * Control Plane Request-Response tracking code Largely based on similar routines in 
+ * Control Plane Request-Response tracking code Largely based on similar routines in
  * packet-ldap.c by Ronnie Sahlberg
  * Added by Kari Tiirikainen <kari.tiirikainen@nsn.com>
  *
@@ -213,7 +213,7 @@ static int hf_gtp_ext_rat_type = -1;
 static int hf_gtp_ext_geo_loc_type = -1;
 static int hf_gtp_ext_sac = -1;
 static int hf_gtp_ext_imeisv = -1;
-static int hf_gtp_targetid = -1;
+static int hf_gtp_targetRNC_ID = -1;
 static int hf_gtp_bssgp_cause = -1;
 static int hf_gtp_sapi = -1;
 static int hf_gtp_xid_par_len = -1;
@@ -308,7 +308,7 @@ static gint ett_gtp_utran_cont = -1;
 static gboolean g_gtp_tpdu = TRUE;
 static gboolean g_gtp_etsi_order = FALSE;
 
-static int gtp_tap = -1;    
+static int gtp_tap = -1;
 
 /* Definition of flags masks */
 #define GTP_VER_MASK 0xE0
@@ -453,7 +453,7 @@ static const value_string message_type[] = {
     {GTP_MBMS_SES_STOP_RES, "MBMS Session Stop Response"},
     {GTP_MBMS_SES_UPD_REQ, "MBMS Session Update Request"},
     {GTP_MBMS_SES_UPD_RES, "MBMS Session Update Response"},
-/* 122-127	For future use. Shall not be sent. 
+/* 122-127	For future use. Shall not be sent.
  * If received, shall be treated as an Unknown message.
  */
     {GTP_MS_INFO_CNG_NOT_REQ, "MS Info Change Notification Request"},
@@ -690,7 +690,7 @@ static const value_string gtp_val[] = {
     {0, NULL}
 };
 
-/* It seems like some IE's are renamed in gtpv1 at least reading 
+/* It seems like some IE's are renamed in gtpv1 at least reading
  * 3GPP TS 29.060 version 6.11.0 Release 6
  */
 static const value_string gtpv1_val[] = {
@@ -2396,7 +2396,7 @@ static _gtp_mess_items umts_mess_items[] = {
 			      {0, 0}
 			      }
      },
-/* 7.5A MBMS Messages 
+/* 7.5A MBMS Messages
  * 7.5A.1 UE Specific MBMS Messages
  */
     {
@@ -2698,7 +2698,7 @@ static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, p
 
     } else {
 
-	/*no match, let's try to make one*/	
+	/*no match, let's try to make one*/
 	switch (msgtype) {
         case GTP_MSG_ECHO_REQ:
 	case GTP_MSG_CREATE_PDP_REQ:
@@ -2735,7 +2735,7 @@ static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, p
                     g_hash_table_remove(gtp_info->unmatched, gcrp);
                     gcrp->rep_frame=pinfo->fd->num;
                     gcrp->is_request=FALSE;
-                    g_hash_table_insert(gtp_info->matched, gcrp, gcrp);			
+                    g_hash_table_insert(gtp_info->matched, gcrp, gcrp);
                 }
             }
             break;
@@ -2743,7 +2743,7 @@ static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, p
 	break;
         }
     }
-    
+
     /* we have found a match */
     if (gcrp) {
 	proto_item *it;
@@ -3874,7 +3874,7 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
     if (length > 4) {
 
         /* See above for the need of wrapping
-         * 
+         *
          */
         /* Octet 6 */
         traf_class = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & 0xE0;
@@ -3994,7 +3994,7 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
             proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (11 - 1) * utf8_type + 1, utf8_type, gd,
 				       "Guaranteed bit rate for downlink : %u kbps", gd);
         }
-		
+
         if(length > 13){
             proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_src_stat_desc, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, src_stat_desc);
             proto_tree_add_boolean(ext_tree_qos, hf_gtp_qos_sig_ind, tvb, offset + (12 - 1) * utf8_type + 1, utf8_type, sig_ind);
@@ -4642,7 +4642,7 @@ static int decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
 /* GPRS:	not present
  * UMTS:	29.060 v4.0, chapter 7.7.37
  * Type = 138 (Decimal)
- * 		25.413(RANAP) TargetID 
+ * 		25.413(RANAP) TargetID
  */
 static int decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
@@ -4662,7 +4662,7 @@ static int decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
     next_tvb = tvb_new_subset(tvb, offset, length, length);
-    dissect_ranap_TargetID(next_tvb, 0, &asn1_ctx, ext_tree, hf_gtp_targetid);
+    dissect_ranap_TargetRNC_ID(next_tvb, 0, &asn1_ctx, ext_tree, hf_gtp_targetRNC_ID);
 
     return 3 + length;
 }
@@ -5033,7 +5033,7 @@ static int decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo _
 }
 
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.51 
+ * UMTS:	29.060 v6.11.0, chapter 7.7.51
  * User Location Information
  * Type = 152 (Decimal)
  */
@@ -5108,11 +5108,11 @@ static const value_string daylight_saving_time_vals[] = {
 };
 
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.52 
+ * UMTS:	29.060 v6.11.0, chapter 7.7.52
  * MS Time Zone
  * Type = 153 (Decimal)
- * The ' MS Time Zone' IE is used to indicate the offset between universal time and local time 
- * in steps of 15 minutes of where the MS currently resides. The 'Time Zone' field uses the same 
+ * The ' MS Time Zone' IE is used to indicate the offset between universal time and local time
+ * in steps of 15 minutes of where the MS currently resides. The 'Time Zone' field uses the same
  * format as the 'Time Zone' IE in 3GPP TS 24.008 (10.5.3.8)
  * its value shall be set as defined in 3GPP TS 22.042
  */
@@ -5136,8 +5136,8 @@ static int decode_gtp_ms_time_zone(tvbuff_t * tvb, int offset, packet_info * pin
     /* 3GPP TS 23.040 version 6.6.0 Release 6
      * 9.2.3.11 TP-Service-Centre-Time-Stamp (TP-SCTS)
      * :
-     * The Time Zone indicates the difference, expressed in quarters of an hour, 
-     * between the local time and GMT. In the first of the two semi-octets, 
+     * The Time Zone indicates the difference, expressed in quarters of an hour,
+     * between the local time and GMT. In the first of the two semi-octets,
      * the first bit (bit 3 of the seventh octet of the TP-Service-Centre-Time-Stamp field)
      * represents the algebraic sign of this difference (0: positive, 1: negative).
      */
@@ -5179,7 +5179,7 @@ static int decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
     proto_tree_add_item(ext_imeisv, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
 
-    /* IMEI(SV) 
+    /* IMEI(SV)
      * The structure of the IMEI and IMEISV are defined in sub-clause 6.2 of 3GPP TS 23.003 [2].
      * The 'IMEI(SV)' field shall contain the IMEISV if it is available. If only the IMEI is available,
      * then the IMEI shall be placed in the IMEI(SV) field and the last semi-octet of octet 11 shall be
@@ -5193,7 +5193,7 @@ static int decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
 }
 
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.54 
+ * UMTS:	29.060 v6.11.0, chapter 7.7.54
  * CAMEL Charging Information Container
  * Type = 155 (Decimal)
  */
@@ -5219,7 +5219,7 @@ static int decode_gtp_camel_chg_inf_con(tvbuff_t * tvb, int offset, packet_info 
 }
 
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.55 
+ * UMTS:	29.060 v6.11.0, chapter 7.7.55
  * MBMS UE Context
  */
 static int decode_gtp_mbms_ue_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -5296,7 +5296,7 @@ static int decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
     offset = offset + 2;
     /* TODO add decoding of data */
     proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
-    /*  
+    /*
      * Octets 4-n are coded according to 3GPP TS 48.018 [20] 11.3.77 RIM Routing Information IE octets 4-n.
      */
 
@@ -5406,7 +5406,7 @@ static int decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo _U
      * which the Multimedia Broadcast/Multicast Service is to be distributed.
      * The payload shall be encoded as per the MBMS-Service-Area AVP defined
      * in 3GPP TS 29.061 [27], excluding the AVP Header fields (as defined in
-     * IETF RFC 3588 [36], section 4.1). 
+     * IETF RFC 3588 [36], section 4.1).
      */
     /* Number N of MBMS service area codes coded as:
      * 1 binary value is '00000000'
@@ -5420,7 +5420,7 @@ static int decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo _U
     }
     proto_tree_add_uint(ext_tree, hf_gtp_no_of_mbms_sa_codes, tvb, offset, 1, no_of_mbms_sa_codes);
     offset++;
-    /* A consecutive list of N MBMS service area codes 
+    /* A consecutive list of N MBMS service area codes
      * The MBMS Service Area Identity and its semantics are defined in 3GPP TS 23.003
      * The length of an MBMS service area code is 2 octets.
      */
@@ -5459,7 +5459,7 @@ static int decode_gtp_src_rnc_pdp_ctx_inf(tvbuff_t * tvb, int offset, packet_inf
 }
 
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.62 
+ * UMTS:	29.060 v6.11.0, chapter 7.7.62
  * Additional Trace Info
  */
 static int decode_gtp_add_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -5484,7 +5484,7 @@ static int decode_gtp_add_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinf
 }
 
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.63 
+ * UMTS:	29.060 v6.11.0, chapter 7.7.63
  * Hop Counter
  */
 static int decode_gtp_hop_count(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -5509,7 +5509,7 @@ static int decode_gtp_hop_count(tvbuff_t * tvb, int offset, packet_info * pinfo 
 }
 
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.64 
+ * UMTS:	29.060 v6.11.0, chapter 7.7.64
  * Selected PLMN ID
  */
 static int decode_gtp_sel_plmn_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -5698,12 +5698,12 @@ static int decode_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, int offset, packet_in
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
-    /* TODO add decoding of data 
+    /* TODO add decoding of data
      * The MBMS Time To Data Transfer is defined in 3GPP TS 23.246 [26].
-     * The MBMS Time To Data Transfer information element contains a 
-     * MBMS Time To Data Transfer allocated by the BM-SC. 
-     * The payload shall be encoded as per the MBMS-Time-To-Data-Transfer AVP 
-     * defined in 3GPP TS 29.061 [27], excluding the AVP Header fields 
+     * The MBMS Time To Data Transfer information element contains a
+     * MBMS Time To Data Transfer allocated by the BM-SC.
+     * The payload shall be encoded as per the MBMS-Time-To-Data-Transfer AVP
+     * defined in 3GPP TS 29.061 [27], excluding the AVP Header fields
      * (as defined in IETF RFC 3588 [36], section 4.1).
      */
     /* The coding is specified as per the Time to MBMS Data Transfer Value Part Coding
@@ -5727,7 +5727,7 @@ static int decode_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, int offset, packet_in
  * UMTS:	29.060 v6.11.0, chapter 7.7.71
  * PS Handover Request Context
  */
-static int 
+static int
 decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
@@ -5753,7 +5753,7 @@ decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
  * UMTS:	29.060 v6.11.0, chapter 7.7.72
  * BSS Container
  */
-static int 
+static int
 decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
@@ -5782,7 +5782,7 @@ decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * UMTS:	29.060 v6.11.0, chapter 7.7.73
  * Cell Identification
  */
-static int 
+static int
 decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
@@ -5815,7 +5815,7 @@ decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
  * UMTS:	29.060 v6.11.0, chapter 7.7.74
  * PDU Numbers
  */
-static int 
+static int
 decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
@@ -5841,7 +5841,7 @@ decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
  * UMTS:	29.060 v6.11.0, chapter 7.7.75
  * BSSGP Cause
  */
-static int 
+static int
 decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
@@ -5857,7 +5857,7 @@ decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
 
-    /*      
+    /*
      * The BSSGP Cause information element contains the cause as defined in 3GPP TS 48.018
      */
     proto_tree_add_item(ext_tree, hf_gtp_bssgp_cause, tvb, offset, 2, FALSE);
@@ -5869,7 +5869,7 @@ decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
 /*
  * Required MBMS bearer capabilities	7.7.76
  */
-static int 
+static int
 decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
     guint16 length;
@@ -5883,7 +5883,7 @@ decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
     offset = offset + 2;
-    /* The payload shall be encoded as per the 
+    /* The payload shall be encoded as per the
      * Required-MBMS-Bearer-Capabilities AVP defined in 3GPP TS 29.061 [27],
      * excluding the AVP Header fields (as defined in IETF RFC 3588 [36], section 4.1).
      */
@@ -5894,7 +5894,7 @@ decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
 /*
  * RIM Routing Address Discriminator	7.7.77
  */
-static int 
+static int
 decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
@@ -5918,7 +5918,7 @@ decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
 /*
  * List of set-up PFCs	7.7.78
  */
-static int 
+static int
 decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
 
@@ -6231,7 +6231,7 @@ static int decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo 
 
 /* GPRS:	9.60 v7.6.0, chapter 7.9.26
  * UMTS:	29.060 v4.0, chapter 7.7.46 Private Extension
- * 
+ *
  */
 
 static int decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -6290,8 +6290,8 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     gtp_conv_info_t *gtp_info=(gtp_conv_info_t *)pinfo->private_data;
     void* pd_save;
 
-	/* 
-	 * If this is GTPv2-C call the gtpv2 dissector if present 
+	/*
+	 * If this is GTPv2-C call the gtpv2 dissector if present
 	 * Should this be moved to after the conversation stuff to retain that functionality for GTPv2 ???
 	 */
 	version = tvb_get_guint8(tvb,0)>>5;
@@ -6340,7 +6340,7 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
     pd_save = pinfo->private_data;
     pinfo->private_data = gtp_info;
-	
+
     tvb_memcpy(tvb, (guint8 *) & gtp_hdr, 0, 4);
 
     if (!(gtp_hdr.flags & 0x10))
@@ -6371,7 +6371,7 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
 
 	proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
-	
+
 	if(version>=2){
 		proto_tree_add_text(tree, tvb, 0, -1, "No WS dissector for GTP version %u %s", version, val_to_str(version, ver_types, "Unknown"));
 		pinfo->private_data = pd_save;
@@ -6536,7 +6536,7 @@ static void dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             }
         }
     }
-    
+
     if ((gtp_hdr.message == GTP_MSG_TPDU) && g_gtp_tpdu) {
 
 	if (gtp_prime)
@@ -6863,10 +6863,10 @@ void proto_register_gtp(void)
 	  FT_STRING, BASE_NONE, NULL, 0x0,
 	  "IMEI(SV)", HFILL}
 	 },
-	{&hf_gtp_targetid,
-	 {"TargetID", "gtp.targetid",
-	  FT_UINT32, BASE_DEC, VALS(ranap_TargetID_vals), 0,
-	  "TargetID", HFILL}},
+	{ &hf_gtp_targetRNC_ID,
+	 { "targetRNC-ID", "gtp.targetRNC_ID",
+	  FT_NONE, BASE_NONE, NULL, 0,
+	  NULL, HFILL}},
 	{&hf_gtp_bssgp_cause,
 	 {"BSSGP Cause", "gtp.bssgp_cause",
 	  FT_UINT8, BASE_DEC, VALS(tab_cause), 0,

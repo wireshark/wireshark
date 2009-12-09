@@ -213,7 +213,7 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_CHDLC_WITH_PHDR */
 	{ "Cisco HDLC with Directional Info", "chdlc-with-direction" },
 
-	/* WTAP_ENCAP_BLUETOOTH_H4 */
+	/* WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR */
 	{ "Bluetooth H4", "bluetooth-h4" },
 
 	/* WTAP_ENCAP_MTP2 */
@@ -435,11 +435,18 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_TNEF */
 	{ "Transport-Neutral Encapsulation Format", "tnef" },
 
-	/* WTAP_ENCAP_USB_LINUX_MMAP */
+	/* WTAP_ENCAP_USB_LINUX_MMAPPED */
 	{ "USB packets with Linux header and padding", "usb-linux-mmap" },
 
 	/* WTAP_ENCAP_GSM_UM */
-	{ "GSM Um Interface", "gsm_um" }
+	{ "GSM Um Interface", "gsm_um" },
+
+	/* WTAP_ENCAP_DPNSS */
+	{ "Digital Private Signalling System No 1 Link Layer", "dpnss_link" },
+
+	/* WTAP_ENCAP_PACKETLOGGER */
+	{ "PacketLogger", "packetlogger" }
+
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
