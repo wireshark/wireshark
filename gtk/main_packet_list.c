@@ -177,6 +177,41 @@ packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
   }
 }
 
+static gboolean
+right_justify_column (gint col)
+{
+        header_field_info *hfi;
+        gboolean right_justify = FALSE;
+
+        switch (cfile.cinfo.col_fmt[col]) {
+
+        case COL_NUMBER:
+        case COL_PACKET_LENGTH:
+        case COL_CUMULATIVE_BYTES:
+        case COL_DCE_CALL:
+                right_justify = TRUE;
+                break;
+
+        case COL_CUSTOM:
+                hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[col]);
+                /* Check if this is a valid field and we have no strings lookup table */
+                if ((hfi != NULL) && (hfi->strings == NULL)) {
+                        /* Check for bool, framenum and decimal/octal integer types */
+                        if ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
+                                (((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
+                                 (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)))) {
+                                right_justify = TRUE;
+                        }
+                }
+                break;
+
+        default:
+                break;
+        }
+
+        return right_justify;
+}
+
 static void
 col_title_change_ok (GtkWidget *w, gpointer parent_w)
 {
@@ -257,7 +292,6 @@ packet_list_resize_column (gint col_id)
       gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), col_id, TRUE);
 }
 
-
 static void
 packet_list_remove_column (gint col_id)
 {
@@ -313,6 +347,21 @@ packet_list_column_menu_cb (GtkWidget *w _U_, gpointer user_data _U_, COLUMN_SEL
       case COLUMN_SELECTED_SORT_DESCENDING:
               packet_list_sort_column (col_id, data, GTK_SORT_DESCENDING);
               break;
+      case COLUMN_SELECTED_SORT_NONE:
+              packet_list_sort_column (0, data, GTK_SORT_ASCENDING);
+              break;
+      case COLUMN_SELECTED_ALIGN_LEFT:
+              gtk_clist_set_column_justification(GTK_CLIST(packet_list), col_id,
+                                            GTK_JUSTIFY_LEFT);
+              break;
+      case COLUMN_SELECTED_ALIGN_CENTER:
+              gtk_clist_set_column_justification(GTK_CLIST(packet_list), col_id,
+                                            GTK_JUSTIFY_CENTER);
+              break;
+      case COLUMN_SELECTED_ALIGN_RIGHT:
+              gtk_clist_set_column_justification(GTK_CLIST(packet_list), col_id,
+                                            GTK_JUSTIFY_RIGHT);
+              break;
       case COLUMN_SELECTED_RESIZE:
               packet_list_resize_column (col_id);
               break;
@@ -332,6 +381,9 @@ static void
 packet_list_click_column_cb (GtkCList *clist,  gint column, gpointer data)
 {
       GtkWidget *menu;
+      gboolean   right_justify = right_justify_column (column);
+ 
+      menus_set_column_align_default (right_justify);
 
       menu = g_object_get_data (G_OBJECT(popup_menu_object), PM_PACKET_LIST_COL_KEY);
       g_object_set_data(G_OBJECT(clist), E_MPACKET_LIST_COL_KEY, GINT_TO_POINTER(column));
@@ -571,8 +623,6 @@ GtkWidget *
 packet_list_new(e_prefs *prefs)
 {
     GtkWidget *pkt_scrollw;
-    header_field_info *hfi;
-    gboolean custom_right_justify;
     int      i;
 
     /* Packet list */
@@ -605,24 +655,8 @@ packet_list_new(e_prefs *prefs)
         gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, FALSE);
         gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), i, TRUE);
 
-        custom_right_justify = FALSE;
-        if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
-          hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
-          if ((hfi != NULL) && (hfi->strings == NULL) &&
-              ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
-               (((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
-                (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  ||
-                 (hfi->type == FT_INT64) || (hfi->type == FT_UINT64))))) {
-            custom_right_justify = TRUE;
-          }
-        }
-
         /* Right-justify some special columns. */
-        if (cfile.cinfo.col_fmt[i] == COL_NUMBER ||
-            cfile.cinfo.col_fmt[i] == COL_PACKET_LENGTH ||
-            cfile.cinfo.col_fmt[i] == COL_CUMULATIVE_BYTES ||
-            cfile.cinfo.col_fmt[i] == COL_DCE_CALL ||
-            custom_right_justify)
+        if (right_justify_column(i))
             gtk_clist_set_column_justification(GTK_CLIST(packet_list), i,
                                                GTK_JUSTIFY_RIGHT);
     }

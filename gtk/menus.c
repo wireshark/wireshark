@@ -786,6 +786,13 @@ static GtkItemFactoryEntry packet_list_heading_items[] =
 #else
     {"/Sort Ascending", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_SORT_ASCENDING, "<StockItem>", GTK_STOCK_SORT_ASCENDING,},
     {"/Sort Descending", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_SORT_DESCENDING, "<StockItem>", GTK_STOCK_SORT_DESCENDING,},
+    {"/No Sorting", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_SORT_NONE, NULL, NULL,},
+
+     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+
+     {"/Align Left", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_LEFT, "<StockItem>", GTK_STOCK_JUSTIFY_LEFT,},
+     {"/Align Center", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_CENTER, "<StockItem>", GTK_STOCK_JUSTIFY_CENTER,},
+     {"/Align Right", NULL, GTK_MENU_FUNC(packet_list_column_menu_cb), COLUMN_SELECTED_ALIGN_RIGHT, "<StockItem>", GTK_STOCK_JUSTIFY_RIGHT,},
 
     {"/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 
