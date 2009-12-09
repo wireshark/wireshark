@@ -703,7 +703,7 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
       if (*p == ':') {
         cfmt->xalign = *(++p);
       } else {
-        cfmt->xalign = 0;
+        cfmt->xalign = COLUMN_XALIGN_DEFAULT;
       }
 
       col_l_elt      = col_l_elt->next;
@@ -1002,7 +1002,7 @@ recent_set_column_width(gint col, gint width)
       col_w->cfield = NULL;
     }
     col_w->width = width;
-    col_w->xalign = 0;
+    col_w->xalign = COLUMN_XALIGN_DEFAULT;
     recent.col_width_list = g_list_append(recent.col_width_list, col_w);
   }
 }

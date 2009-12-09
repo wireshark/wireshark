@@ -412,9 +412,7 @@ create_view_and_model(void)
 	GtkTreeViewColumn *col;
 	GtkCellRenderer *renderer;
 	gint i, col_width;
-	gchar xalign;
 	gdouble value;
-	gboolean right_justify;
 	gchar *tooltip_text;
 	header_field_info *hfi;
 	gint col_min_width;
@@ -446,22 +444,15 @@ create_view_and_model(void)
 	/* We need one extra column to store the entire PacketListRecord */
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
 		renderer = gtk_cell_renderer_text_new();
-		xalign = recent_get_column_xalign(i);
 		col = gtk_tree_view_column_new();
 		gtk_tree_view_column_pack_start(col, renderer, TRUE);
-		right_justify = right_justify_column (i);
-		if (xalign != COLUMN_XALIGN_DEFAULT) {
-			value = get_xalign_value(xalign, right_justify);
-			g_object_set(G_OBJECT(renderer), "xalign", value, NULL);
-		} else if (right_justify) {
-			g_object_set(G_OBJECT(renderer),
-				"xalign",
-				1.0,
-				NULL);
-		}
+		value = get_xalign_value(recent_get_column_xalign(i), right_justify_column(i));
+		g_object_set(G_OBJECT(renderer), 
+			     "xalign", value, 
+			     NULL);
 		g_object_set(renderer,
-				 "ypad", 0,
-				 NULL);
+			     "ypad", 0,
+			     NULL);
 		gtk_tree_view_column_set_cell_data_func(col, renderer,
 							show_cell_data_func,
 							GINT_TO_POINTER(i),
