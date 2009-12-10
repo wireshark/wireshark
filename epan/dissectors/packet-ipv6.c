@@ -52,6 +52,7 @@
 #include <epan/value_string.h>
 #include <epan/expert.h>
 #include <epan/emem.h>
+#include <epan/tap.h>
 
 /*
  * NOTE: ipv6.nxt is not very useful as we will have chained header.
@@ -88,6 +89,8 @@
 #define IPDSFIELD_DSCP_EF       0x2E
 #define IPDSFIELD_ECT_MASK	0x02
 #define IPDSFIELD_CE_MASK	0x01
+
+static int ipv6_tap = -1;
 
 static int proto_ipv6		  = -1;
 static int hf_ipv6_version	  = -1;
@@ -1550,6 +1553,8 @@ again:
   PROTO_ITEM_SET_HIDDEN(ti);
 #endif
 
+  tap_queue_packet(ipv6_tap, pinfo, &ipv6);
+
   /* collect packet info */
   pinfo->ipproto = nxt;
   pinfo->iplen = sizeof(ipv6) + plen + offset;
@@ -2001,6 +2006,7 @@ proto_register_ipv6(void)
 
   register_dissector("ipv6", dissect_ipv6, proto_ipv6);
   register_init_routine(ipv6_reassemble_init);
+  ipv6_tap = register_tap("ipv6");
 }
 
 void
