@@ -307,7 +307,7 @@ static const char *mon_names[12] = {
 };
 
 gchar *
-abs_time_to_str(nstime_t *abs_time)
+abs_time_to_str(nstime_t *abs_time, gboolean show_as_utc)
 {
         struct tm *tmp;
         gchar *buf;
@@ -320,7 +320,10 @@ abs_time_to_str(nstime_t *abs_time)
             tmp = NULL;
         } else
 #endif
-        tmp = localtime(&abs_time->secs);
+	if (show_as_utc)
+	        tmp = gmtime(&abs_time->secs);
+	else
+	        tmp = localtime(&abs_time->secs);
         if (tmp) {
 		buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld",
 		    mon_names[tmp->tm_mon],
@@ -336,12 +339,23 @@ abs_time_to_str(nstime_t *abs_time)
 }
 
 gchar *
-abs_time_secs_to_str(time_t abs_time)
+abs_time_secs_to_str(time_t abs_time, gboolean show_as_utc)
 {
         struct tm *tmp;
         gchar *buf;
 
-        tmp = localtime(&abs_time);
+#ifdef _MSC_VER
+        /* calling localtime() on MSVC 2005 with huge values causes it to crash */
+        /* XXX - find the exact value that still does work */
+        /* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
+        if(abs_time > 2000000000) {
+            tmp = NULL;
+        } else
+#endif
+	if (show_as_utc)
+		tmp = gmtime(&abs_time);
+	else
+	        tmp = localtime(&abs_time);
         if (tmp) {
 		buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d",
 		    mon_names[tmp->tm_mon],

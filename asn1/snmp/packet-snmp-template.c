@@ -998,9 +998,10 @@ int dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len) 
 	    proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, 4, FALSE);
 	    seconds = tvb_get_letohl(tvb, offset+4);
 	    ts.secs = seconds;
-	    proto_tree_add_time_format(tree, hf_snmp_engineid_time, tvb, offset+4, 4,
-                                  &ts, "Engine ID Data: Creation Time: %s",
-                                  abs_time_secs_to_str(seconds));
+	    ts.nsecs = 0;
+	    proto_tree_add_time_format_value(tree, hf_snmp_engineid_time, tvb, offset+4, 4,
+                                  &ts, "%s",
+                                  abs_time_secs_to_str(seconds, FALSE));
 	    offset+=8;
 	    len_remain=0;
 	  }
@@ -1963,7 +1964,7 @@ void proto_register_snmp(void) {
 		    "Engine ID Data: Text", "snmp.engineid.text", FT_STRING, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
 		{ &hf_snmp_engineid_time, {
-		    "Engine ID Data: Time", "snmp.engineid.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		    "Engine ID Data: Creation Time", "snmp.engineid.time", FT_ABSOLUTE_TIME, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
 		{ &hf_snmp_engineid_data, {
 		    "Engine ID Data", "snmp.engineid.data", FT_BYTES, BASE_NONE,

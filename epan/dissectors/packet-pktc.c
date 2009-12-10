@@ -517,7 +517,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
        proto_tree_add_time_format(tree, hf_pktc_mtafqdn_manu_cert_revoked, tvb, offset, 4,
                                   &ts, "%s: %s",
                                   proto_registrar_get_name(hf_pktc_mtafqdn_manu_cert_revoked),
-                                  (bignum==0) ? "not revoked" : abs_time_secs_to_str(bignum));
+                                  (bignum==0) ? "not revoked" : abs_time_secs_to_str(bignum, FALSE));
        break;
 
     case PKTC_MTAFQDN_REP:

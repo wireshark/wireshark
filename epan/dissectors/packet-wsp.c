@@ -1738,7 +1738,6 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 	proto_item *ti, *hidden_item;
 	guint8 ok;
 	guint32 val = 0;
-	nstime_t tv;
 
 	if (! tree)
 		return;
@@ -1799,9 +1798,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 									tvb, hdr_start, hdr_len + val_len,
 									"Requesting Time Of Day");
 						} else {
-							tv.secs = val;
-							tv.nsecs = 0;
-							val_str = abs_time_to_str(&tv);
+							val_str = abs_time_secs_to_str(val, FALSE);
 							ti = proto_tree_add_string (wsp_headers,
 									hf_hdr_x_wap_tod,
 									tvb, hdr_start, hdr_len + val_len, val_str);
@@ -2834,7 +2831,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 { \
 	wkh_0_Declarations; \
 	guint32 val = 0, off = val_start, len; \
-	nstime_t tv; \
 	gchar *str; /* may not be freed! */ \
 	\
 	wkh_1_WellKnownValue; \
@@ -2848,15 +2844,12 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
 			get_date_value(val, tvb, off, len, ok); \
 			if (ok) { \
-				tv.secs = val; \
-				tv.nsecs = 0; \
-				str = abs_time_to_str(&tv); \
+				str = abs_time_secs_to_str(val, FALSE); \
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, str); \
-				/* BEHOLD: do NOT try to free str, as this generates a core
-				 * dump!  It looks like abs_time_to_str() is buggy or works
-				 * with static data. */ \
+				/* BEHOLD: do NOT try to free str, as \
+				 * abs_time_secs_to_str() returns ep_allocated data */ \
 			} \
 		} \
 	wkh_4_End(hf_hdr_ ## underscored); \
@@ -2876,7 +2869,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 { \
 	wkh_0_Declarations; \
 	guint32 val = 0, off = val_start, len; \
-	nstime_t tv; \
 	gchar *str; /* may not be freed! */ \
 	\
 	wkh_1_WellKnownValue; \
@@ -2887,15 +2879,12 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
 			get_date_value(val, tvb, off, len, ok); \
 			if (ok) { \
-				tv.secs = val; \
-				tv.nsecs = 0; \
-				str = abs_time_to_str(&tv); \
+				str = abs_time_secs_to_str(val, FALSE); \
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, str); \
-				/* BEHOLD: do NOT try to free str, as this generates a core
-				 * dump!  It looks like abs_time_to_str() is buggy or works
-				 * with static data. */ \
+				/* BEHOLD: do NOT try to free str, as \
+				 * abs_time_secs_to_str() returns ep_allocated data */ \
 			} \
 		} \
 	wkh_4_End(hf_hdr_ ## underscored); \
@@ -2916,7 +2905,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 { \
 	wkh_0_Declarations; \
 	guint32 val = 0, off = val_start, len; \
-	nstime_t tv; \
 	gchar *str; /* may not be freed! */ \
 	\
 	wkh_1_WellKnownValue; \
@@ -2944,9 +2932,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 							tvb, hdr_start, offset - hdr_start, \
 							"Requesting Time Of Day"); \
 				} else { \
-					tv.secs = val; \
-					tv.nsecs = 0; \
-					str = abs_time_to_str(&tv); \
+					str = abs_time_secs_to_str(val, FALSE); \
 					tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 					ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 							tvb, hdr_start, offset - hdr_start, str); \
@@ -3582,7 +3568,6 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 {
 	wkh_0_Declarations;
 	guint32 off, len, val = 0;
-	nstime_t tv;
 	guint8 warn_code;
 	gchar *str;
 
@@ -3617,16 +3602,12 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 						get_date_value(val, tvb, off, len, ok);
 						if (ok) { /* Valid warn-text string */
 							off += len;
-							tv.secs = val;
-							tv.nsecs = 0;
-							val_str = abs_time_to_str(&tv);
+							val_str = abs_time_secs_to_str(val, FALSE);
 							str = g_strdup_printf("; date=%s", val_str);
 							proto_item_append_string(ti, str);
 							g_free(str); /* proto_XXX creates a copy */
-							/* BEHOLD: do NOT try to free val_str, as this
-							 * generates a core dump!
-							 * It looks like abs_time_to_str() is
-							 * buggy or works with static data. */
+							/* BEHOLD: do NOT try to free str, as \
+							 * abs_time_secs_to_str() returns ep_allocated data */ \
 						}
 					}
 				}

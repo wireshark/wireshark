@@ -1114,7 +1114,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				pkt_errors++;
 			else
 			{
-				vdispatch.time_str = abs_time_secs_to_str ((time_t) vdispatch.time);
+				vdispatch.time_str = abs_time_secs_to_str ((time_t) vdispatch.time, FALSE);
 
 				ndispatch.time = vdispatch.time;
 				ndispatch.time_str = vdispatch.time_str;
