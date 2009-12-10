@@ -789,7 +789,7 @@ ipmi_add_timestamp(proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset)
 				d, h, m, s);
 	} else {
 		time_t t = ts;
-		strftime(buf, sizeof(buf), "%F %T", gmtime(&t));
+		strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", gmtime(&t));
 		proto_tree_add_uint_format_value(tree, hf, tvb, offset, 4,
 				ts, "%s", buf);
 	}
