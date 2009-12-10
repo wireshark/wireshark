@@ -437,6 +437,7 @@ decode_epl_address_abbrev (guchar adr)
 gint
 dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
+    nstime_t nettime;
     guint8  flags;
 
     offset += 1;
@@ -457,7 +458,9 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
 
     if (epl_tree)
     {
-        proto_tree_add_item(epl_tree, hf_epl_soc_nettime, tvb, offset, 8, TRUE);
+        nettime.secs  = tvb_get_letohl(tvb, offset);
+        nettime.nsecs = tvb_get_letohl(tvb, offset+4);
+        proto_tree_add_time(epl_tree, hf_epl_soc_nettime, tvb, offset, 8, &nettime);
         offset += 8;
 
         proto_tree_add_item(epl_tree, hf_epl_soc_relativetime, tvb, offset, 8, TRUE);
