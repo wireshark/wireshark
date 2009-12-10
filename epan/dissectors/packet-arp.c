@@ -1062,7 +1062,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(arp_tree, hf_arp_hard_size, tvb, AR_HLN, 1, ar_hln);
     proto_tree_add_uint(arp_tree, hf_arp_proto_size, tvb, AR_PLN, 1, ar_pln);
     proto_tree_add_uint(arp_tree, hf_arp_opcode, tvb, AR_OP,  2, ar_op);
-    item = proto_tree_add_boolean(arp_tree, hf_arp_isgratuitous, tvb, AR_OP, 2, is_gratuitous);
+    item = proto_tree_add_boolean(arp_tree, hf_arp_isgratuitous, tvb, 0, 0, is_gratuitous);
     PROTO_ITEM_SET_GENERATED(item);
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,
