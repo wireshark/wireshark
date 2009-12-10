@@ -144,6 +144,7 @@ WIRESHARK_TAP_SRC = \
 	conversations_fc.c	\
 	conversations_fddi.c	\
 	conversations_ip.c	\
+	conversations_ipv6.c	\
 	conversations_ipx.c	\
 	conversations_jxta.c		\
 	conversations_ncp.c     \
@@ -171,6 +172,7 @@ WIRESHARK_TAP_SRC = \
 	hostlist_fc.c	\
 	hostlist_fddi.c \
 	hostlist_ip.c	\
+	hostlist_ipv6.c	\
 	hostlist_ipx.c	\
 	hostlist_jxta.c	\
 	hostlist_ncp.c	\
