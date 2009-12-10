@@ -1810,6 +1810,7 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 		dictionary_entry->hf_tag = -1;
 		dictionary_entry->hf_len = no_dictionary_entry.hf_len;
 		dictionary_entry->ett = no_dictionary_entry.ett;
+		dictionary_entry->tlvs_by_id = NULL;
 
 		g_hash_table_insert(by_id,GUINT_TO_POINTER(dictionary_entry->code),dictionary_entry);
 	}
