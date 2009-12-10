@@ -771,27 +771,17 @@ void
 ipmi_add_timestamp(proto_tree *tree, gint hf, tvbuff_t *tvb, guint offset)
 {
 	guint32 ts = tvb_get_letohl(tvb, offset);
-	guint32 d, h, m, s;
-	char buf[64];
 
 	if (ts == 0xffffffff) {
 		proto_tree_add_uint_format_value(tree, hf, tvb, offset, 4,
 				ts, "Unspecified/Invalid");
 	} else if (ts <= 0x20000000) {
-		s = ts % 60;
-		m = ts / 60;
-		h = m / 60;
-		m %= 60;
-		d = h / 24;
-		h %= 24;
 		proto_tree_add_uint_format_value(tree, hf, tvb, offset, 4,
-				ts, "%d days, %02d:%02d:%02d since SEL device's initialization",
-				d, h, m, s);
+				ts, "%s since SEL device's initialization",
+				time_secs_to_str_unsigned(ts));
 	} else {
-		time_t t = ts;
-		strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", gmtime(&t));
 		proto_tree_add_uint_format_value(tree, hf, tvb, offset, 4,
-				ts, "%s", buf);
+				ts, "%s", abs_time_secs_to_str(ts));
 	}
 }
 
