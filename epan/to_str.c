@@ -310,7 +310,7 @@ gchar *
 abs_time_to_str(nstime_t *abs_time, gboolean show_as_utc)
 {
         struct tm *tmp;
-        char *zonename;
+        const char *zonename;
         gchar *buf;
 
 #ifdef _MSC_VER
@@ -355,7 +355,7 @@ gchar *
 abs_time_secs_to_str(time_t abs_time, gboolean show_as_utc)
 {
         struct tm *tmp;
-        char *zonename;
+        const char *zonename;
         gchar *buf;
 
 #ifdef _MSC_VER
