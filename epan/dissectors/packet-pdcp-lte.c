@@ -27,6 +27,8 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -1362,6 +1364,150 @@ static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_lte_info  *p_p
 }
 
 
+/* Forwad declarations */
+void proto_reg_handoff_pdcp_lte(void);
+static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* Heuristic dissection */
+static gboolean global_pdcp_lte_heur = FALSE;
+
+/* Heuristic dissector looks for supported framing protocol (see wiki page)  */
+static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
+                                     proto_tree *tree)
+{
+    gint                 offset = 0;
+    struct pdcp_lte_info *p_pdcp_lte_info;
+    tvbuff_t             *pdcp_tvb;
+    guint8               tag = 0;
+    gboolean             infoAlreadySet = FALSE;
+    gboolean             seqnumLengthTagPresent = FALSE;
+
+    /* This is a heuristic dissector, which means we get all the UDP
+     * traffic not sent to a known dissector and not claimed by
+     * a heuristic dissector called before us!
+     */
+
+    if (!global_pdcp_lte_heur) {
+        return FALSE;
+    }
+
+    /* If redissecting, use previous info struct (if available) */
+    p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+    if (p_pdcp_lte_info == NULL) {
+        /* Allocate new info struct for this frame */
+        p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
+        if (p_pdcp_lte_info == NULL) {
+            return FALSE;
+        }
+        infoAlreadySet = FALSE;
+    }
+    else {
+        infoAlreadySet = TRUE;
+    }
+
+    /* Do this again on re-dissection to re-discover offset of actual PDU */
+    
+    /* Needs to be at least as long as:
+       - the signature string
+       - fixed header bytes
+       - tag for data
+       - at least one byte of PDCP PDU payload */
+    if ((size_t)tvb_length_remaining(tvb, offset) < (strlen(PDCP_LTE_START_STRING)+3+2)) {
+        return FALSE;
+    }
+
+    /* OK, compare with signature string */
+    if (tvb_strneql(tvb, offset, PDCP_LTE_START_STRING, (gint)strlen(PDCP_LTE_START_STRING)) != 0) {
+        return FALSE;
+    }
+    offset += (gint)strlen(PDCP_LTE_START_STRING);
+
+    /* Read fixed fields */
+    p_pdcp_lte_info->no_header_pdu = tvb_get_guint8(tvb, offset++);
+    p_pdcp_lte_info->plane = tvb_get_guint8(tvb, offset++);
+    p_pdcp_lte_info->rohc_compression = tvb_get_guint8(tvb, offset++);
+
+    /* Read optional fields */
+    while (tag != PDCP_LTE_PAYLOAD_TAG) {
+        /* Process next tag */
+        tag = tvb_get_guint8(tvb, offset++);
+        switch (tag) {
+            case PDCP_LTE_SEQNUM_LENGTH_TAG:
+                p_pdcp_lte_info->seqnum_length = tvb_get_guint8(tvb, offset);
+                offset++;
+                seqnumLengthTagPresent = TRUE;
+                break;
+            case PDCP_LTE_DIRECTION_TAG:
+                p_pdcp_lte_info->direction = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case PDCP_LTE_LOG_CHAN_TYPE_TAG:
+                p_pdcp_lte_info->channelType = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case PDCP_LTE_BCCH_TRANSPORT_TYPE_TAG:
+                p_pdcp_lte_info->BCCHTransport = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case PDCP_LTE_ROHC_IP_VERSION_TAG:
+                p_pdcp_lte_info->rohc_ip_version = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
+            case PDCP_LTE_ROHC_CID_INC_INFO_TAG:
+                p_pdcp_lte_info->cid_inclusion_info = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case PDCP_LTE_ROHC_LARGE_CID_PRES_TAG:
+                p_pdcp_lte_info->large_cid_present = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case PDCP_LTE_ROHC_MODE_TAG:
+                p_pdcp_lte_info->mode = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case PDCP_LTE_ROHC_RND_TAG:
+                p_pdcp_lte_info->rnd = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case PDCP_LTE_ROHC_UDP_CHECKSUM_PRES_TAG:
+                p_pdcp_lte_info->udp_checkum_present = tvb_get_guint8(tvb, offset);
+                offset++;
+                break;
+            case PDCP_LTE_ROHC_PROFILE_TAG:
+                p_pdcp_lte_info->profile = tvb_get_ntohs(tvb, offset);
+                offset += 2;
+                break;
+
+            case PDCP_LTE_PAYLOAD_TAG:
+                /* Have reached data, so get out of loop */
+                continue;
+
+            default:
+                /* It must be a recognised tag */
+                return FALSE;
+        }
+    }
+
+    if ((p_pdcp_lte_info->plane == USER_PLANE) && (seqnumLengthTagPresent == FALSE)) {
+        /* Conditional field is not present */
+        return FALSE;
+    }
+
+    if (!infoAlreadySet) {
+        /* Store info in packet */
+        p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
+    }
+
+    /**************************************/
+    /* OK, now dissect as PDCP LTE        */
+
+    /* Create tvb that starts at actual PDCP PDU */
+    pdcp_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
+    dissect_pdcp_lte(pdcp_tvb, pinfo, tree);
+    return TRUE;
+}
+
+
 /******************************/
 /* Main dissection function.  */
 static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -2426,10 +2572,23 @@ void proto_register_pdcp(void)
         "Show ROHC feedback option tag & length",
         "Show ROHC feedback option tag & length",
         &global_pdcp_show_feedback_option_tag_length);
+
+    prefs_register_bool_preference(pdcp_lte_module, "heuristic_pdcp_lte_over_udp",
+        "Try Heuristic LTE-PDCP over UDP framing",
+        "When enabled, use heuristic dissector to find PDCP-LTE frames sent with "
+        "UDP framing",
+        &global_pdcp_lte_heur);
 }
 
 void proto_reg_handoff_pdcp_lte(void)
 {
+    static dissector_handle_t pdcp_lte_handle;
+    if (!pdcp_lte_handle) {
+        pdcp_lte_handle = find_dissector("pdcp-lte");
+
+        /* Add as a heuristic UDP dissector */
+        heur_dissector_add("udp", dissect_pdcp_lte_heur, proto_pdcp_lte);
+    }
     ip_handle = find_dissector("ip");
 }
 
