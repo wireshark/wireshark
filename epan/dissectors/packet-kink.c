@@ -329,7 +329,6 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   guint payload_length;
   guint16 krb_ap_req_length;
   time_t timer;                  /* For showing utc */
-  struct tm *tp;                 /* For showing utc */
   int start_payload_offset = 0;  /* Keep begining of payload offset */
 
   start_payload_offset = offset;
@@ -355,11 +354,10 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   }
   offset += 2;
 
-  /* Analize time by the utc. */
+  /* Show time as UTC, not local time. */
   timer = tvb_get_ntohl(tvb, offset);
-  tp = gmtime(&timer);
-  proto_tree_add_text(payload_kink_ap_req_tree, tvb, offset, 4, "EPOCH: month %u. day %u. year %u.%u.%u.%u by UTC", 
-		      (tp->tm_mon)+1, tp->tm_mday, (tp->tm_year)+1900, tp->tm_hour, tp->tm_min, tp->tm_sec);
+  proto_tree_add_text(payload_kink_ap_req_tree, tvb, offset, 4, "EPOCH: %s", 
+		      abs_time_secs_to_str(timer, TRUE));
   offset += 4;
   
   if(payload_length > PAYLOAD_HEADER){
@@ -393,7 +391,6 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   guint payload_length;
   guint16 krb_ap_rep_length;
   time_t timer;
-  struct tm *tp;
   int start_payload_offset = 0; /* Keep begining of payload offset */
 
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
@@ -419,15 +416,10 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   }
   offset += 2;
 
-  /* Analize time by the utc. */ 
+  /* Show time as UTC, not local time. */
   timer = tvb_get_ntohl(tvb, offset);
-  tp = gmtime(&timer);
-  if(tp){
-    proto_tree_add_text(payload_kink_ap_rep_tree, tvb, offset, 4, "EPOCH: month  %u. day %u. year %u.%u.%u.%u by UTC", 
-		      (tp->tm_mon)+1, tp->tm_mday, (tp->tm_year)+1900, tp->tm_hour, tp->tm_min, tp->tm_sec);
-  } else {
-    proto_tree_add_text(payload_kink_ap_rep_tree, tvb, offset, 4, "EPOCH: value invalid");
-  }
+  proto_tree_add_text(payload_kink_ap_rep_tree, tvb, offset, 4, "EPOCH: %s", 
+		      abs_time_secs_to_str(timer, TRUE));
   offset += 4;
 
   if(payload_length > PAYLOAD_HEADER){
