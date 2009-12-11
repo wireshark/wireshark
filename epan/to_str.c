@@ -326,15 +326,18 @@ abs_time_to_str(nstime_t *abs_time, gboolean show_as_utc)
                 zonename = "UTC";
         } else {
                 tmp = localtime(&abs_time->secs);
+                if (tmp) {
 #if defined(HAVE_TM_ZONE)
-                zonename = tmp->tm_zone;
+                        zonename = tmp->tm_zone;
 #elif defined(HAVE_TZNAME)
-                zonename = tzname[tmp->tm_isdst];
+                        zonename = tzname[tmp->tm_isdst];
 #elif _WIN32
-                zonename = _tzname[tmp->tm_isdst];
+                        zonename = _tzname[tmp->tm_isdst];
 #else
-                zonename = tmp->tm_isdst ? "?ST" : "?DT";
+                        zonename = tmp->tm_isdst ? "?ST" : "?DT";
 #endif
+                } else
+                        zonename = NULL;
         }
         if (tmp) {
                 buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld %s",
@@ -371,15 +374,18 @@ abs_time_secs_to_str(time_t abs_time, gboolean show_as_utc)
                 zonename = "UTC";
         } else {
                 tmp = localtime(&abs_time);
+                if (tmp) {
 #if defined(HAVE_TM_ZONE)
-                zonename = tmp->tm_zone;
+                        zonename = tmp->tm_zone;
 #elif defined(HAVE_TZNAME)
-                zonename = tzname[tmp->tm_isdst];
+                        zonename = tzname[tmp->tm_isdst];
 #elif _WIN32
-                zonename = _tzname[tmp->tm_isdst];
+                        zonename = _tzname[tmp->tm_isdst];
 #else
-                zonename = tmp->tm_isdst ? "?ST" : "?DT";
+                        zonename = tmp->tm_isdst ? "?ST" : "?DT";
 #endif
+                } else
+                        zonename = NULL;
         }
         if (tmp) {
                 buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d %s",
