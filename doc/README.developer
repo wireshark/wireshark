@@ -961,6 +961,16 @@ proto_register_PROTOABBREV(void)
 	PROTOABBREV_module = prefs_register_protocol(proto_PROTOABBREV,
 	    proto_reg_handoff_PROTOABBREV);
 
+/* Register preferences module under preferences subtree.
+   Use this function instead of prefs_register_protocol if you want to group
+   preferences of several protocols under one preferences subtree.
+   Argument subtree identifies grouping tree node name, several subnodes can be
+   specified usign slash '/' (e.g. "OSI/X.500" - protocol preferences will be
+   accessible under Protocols->OSI->X.500-><PROTOSHORTNAME> preferences node.
+*/
+  PROTOABBREV_module = prefs_register_protocol_subtree(const char *subtree,
+       proto_PROTOABBREV, proto_reg_handoff_PROTOABBREV);
+
 /* Register a sample preference */
 	prefs_register_bool_preference(PROTOABBREV_module, "show_hex",
 	     "Display numbers in Hex",
@@ -3387,11 +3397,17 @@ to a configuration dialog.
 You must register the module with the preferences routine with -
 
        module_t *prefs_register_protocol(proto_id, void (*apply_cb)(void))
+       or
+       module_t *prefs_register_protocol_subtree(const char *subtree, int id,
+              void (*apply_cb)(void));
+
 
 Where: proto_id   - the value returned by "proto_register_protocol()" when
                     the protocol was registered.
        apply_cb   - Callback routine that is called when preferences are
                     applied. It may be NULL, which inhibits the callback.
+       subtree    - grouping preferences tree node name (several protocols can
+                    be grouped under one preferences subtree)
 
 Then you can register the fields that can be configured by the user with these
 routines -
