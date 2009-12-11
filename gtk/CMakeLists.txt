@@ -34,6 +34,7 @@ set(WIRESHARK_GTK_SRC
 	color_dlg.c
 	color_edit_dlg.c
 	color_utils.c
+	conversations_ipv6.c
 	conversations_table.c
 	decode_as_ber.c
 	decode_as_dcerpc.c
@@ -63,6 +64,7 @@ set(WIRESHARK_GTK_SRC
 	gui_stat_util.c
 	gui_utils.c
 	help_dlg.c
+	hostlist_ipv6.c
 	hostlist_table.c
 	macros_dlg.c
 	main.c
