@@ -532,8 +532,8 @@ Example: S<B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will colle
 If the optional I<filter> is provided, the stats will only be calculated
 on those calls that match that filter.
 
-Example: S<B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>> willcollect SAMR
-RTT statistics for a specific host.
+Example: S<B<-z dcerpc,rtt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>>
+will collect SAMR RTT statistics for a specific host.
 
 This option can be used multiple times on the command line.
 
@@ -618,27 +618,27 @@ time and average response time.
 
 =item B<-z> conv,I<type>[,I<filter>]
 
-Create a table that lists all conversations that could be seen in the capture.
-I<type> specifies which type of conversation we want to generate the
-statistics for; currently the supported ones are
+Create a table that lists all conversations that could be seen in the
+capture.  I<type> specifies the conversation endpoint types for which we
+want to generate the statistics; currently the supported ones are:
 
-  "eth"   Ethernet
-  "fc"    Fibre Channel
-  "fddi"  FDDI
+  "eth"   Ethernet addresses
+  "fc"    Fibre Channel addresses
+  "fddi"  FDDI addresses
   "ip"    IPv4 addresses
   "ipv6"  IPv6 addresses
   "ipx"   IPX addresses
   "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
-  "tr"    Token Ring
+  "tr"    Token Ring addresses
   "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
 
 If the optional I<filter> is specified, only those packets that match the
 filter will be used in the calculations.
 
 The table is presented with one line for each conversation and displays
-number of packets/bytes in each direction as well as total number of
-packets/bytes.
-The table is sorted according to total number of bytes.
+the number of packets/bytes in each direction as well as the total
+number of packets/bytes.  The table is sorted according to the total
+number of bytes.
 
 =item B<-z> proto,colinfo,I<filter>,I<field>
 

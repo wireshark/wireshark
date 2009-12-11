@@ -683,25 +683,26 @@ MEGACO packets exchanged by the host at IP address 1.2.3.4 .
 =item B<-z> conv,I<type>[,I<filter>]
 
 Create a table that lists all conversations that could be seen in the
-capture.  I<type> specifies for which type of conversation we want to
-generate the statistics; currently the supported ones are:
+capture.  I<type> specifies the conversation endpoint types for which we
+want to generate the statistics; currently the supported ones are:
 
-  "eth"   Ethernet
+  "eth"   Ethernet addresses
   "fc"    Fibre Channel addresses
   "fddi"  FDDI addresses
-  "ip"    IP addresses
+  "ip"    IPv4 addresses
+  "ipv6"  IPv6 addresses
   "ipx"   IPX addresses
   "tcp"   TCP/IP socket pairs   Both IPv4 and IPv6 are supported
-  "tr"    TokenRing
+  "tr"    Token Ring addresses
   "udp"   UDP/IP socket pairs   Both IPv4 and IPv6 are supported
 
 If the optional I<filter> is specified, only those packets that match the
 filter will be used in the calculations.
 
 The table is presented with one line for each conversation and displays
-the number of packets/bytes in each direction as well as total number of
-packets/bytes.  By default, the table is sorted according to total number
-of packets.
+the number of packets/bytes in each direction as well as the total
+number of packets/bytes.  By default, the table is sorted according to
+the total number of packets.
 
 These tables can also be generated at runtime by selecting the appropriate
 conversation type from the menu "Tools/Statistics/Conversation List/".
