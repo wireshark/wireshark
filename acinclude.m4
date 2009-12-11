@@ -69,6 +69,40 @@ case "$host_os" in
 esac
 ])
 
+#
+# AC_WIRESHARK_TIMEZONE_ABBREV
+#
+
+AC_DEFUN([AC_WIRESHARK_TIMEZONE_ABBREV],
+[
+  AC_CACHE_CHECK([for tm_zone in struct tm],
+    ac_cv_wireshark_have_tm_zone,
+    [
+      AC_TRY_COMPILE(
+        [#include <time.h>],
+        [struct tm t; t.tm_zone;],
+        ac_cv_wireshark_have_tm_zone=yes,
+        ac_cv_wireshark_have_tm_zone=no)
+    ])
+  if test $ac_cv_wireshark_have_tm_zone = yes; then
+    AC_DEFINE(HAVE_TM_ZONE, 1, [Define if tm_zone field exists in struct tm])
+  else
+    AC_CACHE_CHECK([for tzname],
+      ac_cv_wireshark_have_tzname,
+      [
+        AC_TRY_LINK(
+[#include <time.h>
+#include <stdio.h>],
+          [printf("%s", tzname[0]);]
+          ac_cv_wireshark_have_tzname=yes,
+          ac_cv_wireshark_have_tzname=no)
+      ])
+    if test $ac_cv_wireshark_have_tzname = yes; then
+      AC_DEFINE(HAVE_TZNAME, 1, [Define if tzname array exists])
+    fi
+  fi
+])
+
 
 #
 # AC_WIRESHARK_STRUCT_SA_LEN

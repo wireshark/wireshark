@@ -310,6 +310,7 @@ gchar *
 abs_time_to_str(nstime_t *abs_time, gboolean show_as_utc)
 {
         struct tm *tmp;
+        char *zonename;
         gchar *buf;
 
 #ifdef _MSC_VER
@@ -320,21 +321,33 @@ abs_time_to_str(nstime_t *abs_time, gboolean show_as_utc)
             tmp = NULL;
         } else
 #endif
-	if (show_as_utc)
-	        tmp = gmtime(&abs_time->secs);
-	else
-	        tmp = localtime(&abs_time->secs);
+        if (show_as_utc) {
+                tmp = gmtime(&abs_time->secs);
+                zonename = "UTC";
+        } else {
+                tmp = localtime(&abs_time->secs);
+#if defined(HAVE_TM_ZONE)
+                zonename = tmp->tm_zone;
+#elif defined(HAVE_TZNAME)
+                zonename = tzname[tm->tm_isdst];
+#elif _WIN32
+                zonename = _tzname[tm->tm_isdst];
+#else
+                zonename = tm->tm_isdst ? "?ST" : "?DT";
+#endif
+        }
         if (tmp) {
-		buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld",
-		    mon_names[tmp->tm_mon],
-		    tmp->tm_mday,
-		    tmp->tm_year + 1900,
-		    tmp->tm_hour,
-		    tmp->tm_min,
-		    tmp->tm_sec,
-		    (long)abs_time->nsecs);
+                buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d.%09ld %s",
+                    mon_names[tmp->tm_mon],
+                    tmp->tm_mday,
+                    tmp->tm_year + 1900,
+                    tmp->tm_hour,
+                    tmp->tm_min,
+                    tmp->tm_sec,
+                    (long)abs_time->nsecs,
+                    zonename);
         } else
-		buf = ep_strdup("Not representable");
+                buf = ep_strdup("Not representable");
         return buf;
 }
 
@@ -342,6 +355,7 @@ gchar *
 abs_time_secs_to_str(time_t abs_time, gboolean show_as_utc)
 {
         struct tm *tmp;
+        char *zonename;
         gchar *buf;
 
 #ifdef _MSC_VER
@@ -352,20 +366,32 @@ abs_time_secs_to_str(time_t abs_time, gboolean show_as_utc)
             tmp = NULL;
         } else
 #endif
-	if (show_as_utc)
-		tmp = gmtime(&abs_time);
-	else
-	        tmp = localtime(&abs_time);
+        if (show_as_utc) {
+                tmp = gmtime(&abs_time);
+                zonename = "UTC";
+        } else {
+                tmp = localtime(&abs_time);
+#if defined(HAVE_TM_ZONE)
+                zonename = tmp->tm_zone;
+#elif defined(HAVE_TZNAME)
+                zonename = tzname[tm->tm_isdst];
+#elif _WIN32
+                zonename = _tzname[tm->tm_isdst];
+#else
+                zonename = tm->tm_isdst ? "?ST" : "?DT";
+#endif
+        }
         if (tmp) {
-		buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d",
-		    mon_names[tmp->tm_mon],
-		    tmp->tm_mday,
-		    tmp->tm_year + 1900,
-		    tmp->tm_hour,
-		    tmp->tm_min,
-		    tmp->tm_sec);
+                buf = ep_strdup_printf("%s %2d, %d %02d:%02d:%02d %s",
+                    mon_names[tmp->tm_mon],
+                    tmp->tm_mday,
+                    tmp->tm_year + 1900,
+                    tmp->tm_hour,
+                    tmp->tm_min,
+                    tmp->tm_sec,
+                    zonename);
         } else
-		buf = ep_strdup("Not representable");
+                buf = ep_strdup("Not representable");
         return buf;
 }
 

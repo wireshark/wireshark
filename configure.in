@@ -1423,6 +1423,9 @@ AC_DEFINE(HAVE_AIRPDCAP, 1, [Enable AirPDcap (WPA/WPA2 decryption)])
 dnl Checks for typedefs, structures, and compiler characteristics.
 # AC_C_CONST
 
+# Check how we can get the time zone abbreviation
+AC_WIRESHARK_TIMEZONE_ABBREV
+
 # We need to know whether "struct sockaddr" has an "sa_len" member
 # for get_interface_list().
 
