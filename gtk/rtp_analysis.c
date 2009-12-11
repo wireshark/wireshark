@@ -375,40 +375,42 @@ rtp_reset(void *user_data_arg)
 }
 
 /****************************************************************************/
-static int rtp_packet_add_graph(dialog_graph_graph_t *dgg, tap_rtp_stat_t *statinfo, packet_info *pinfo, guint32 value)
+static gboolean rtp_packet_add_graph(dialog_graph_graph_t *dgg, tap_rtp_stat_t *statinfo, packet_info *pinfo, guint32 value)
 {
 	dialog_graph_graph_item_t *it;
-	int idx;
+	guint32 idx;
 	double rtp_time;
 
-	/* we sometimes get called when dgg is disabled.
-	this is a bug since the tap listener should be removed first */
+	/*
+	* We sometimes get called when dgg is disabled.
+	* This is a bug since the tap listener should be removed first
+	*/
 	if(!dgg->display){
-		return 0;
+		return FALSE;
 	}
 
 	dgg->ud->dlg.dialog_graph.needs_redraw=TRUE;
 
 	/*
-	* Find which interval this is supposed to to in and store the
+	* Find which interval this is supposed to go in and store the
 	* interval index as idx
 	*/
 	if (dgg->ud->dlg.dialog_graph.start_time == -1){ /* it is the first */
 		dgg->ud->dlg.dialog_graph.start_time = statinfo->start_time;
 	}
-	rtp_time = nstime_to_sec(&pinfo->fd->rel_ts) - dgg->ud->dlg.dialog_graph.start_time;
+	rtp_time = nstime_to_msec(&pinfo->fd->rel_ts) - dgg->ud->dlg.dialog_graph.start_time;
 	if(rtp_time<0){
 		return FALSE;
 	}
-	idx = (guint32)(rtp_time*1000)/dgg->ud->dlg.dialog_graph.interval;
+	idx = (guint32)(rtp_time)/dgg->ud->dlg.dialog_graph.interval;
 
 	/* some sanity checks */
-	if((idx<0)||(idx>=NUM_GRAPH_ITEMS)){
+	if(idx>=NUM_GRAPH_ITEMS){
 		return FALSE;
 	}
 
 	/* update num_items */
-	if((guint32)idx > dgg->ud->dlg.dialog_graph.num_items){
+	if(idx > dgg->ud->dlg.dialog_graph.num_items){
 		dgg->ud->dlg.dialog_graph.num_items=idx;
 		dgg->ud->dlg.dialog_graph.max_interval=idx*dgg->ud->dlg.dialog_graph.interval;
 	}
@@ -473,8 +475,12 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		&& CMP_ADDRESS(&(user_data->ip_dst_fwd), &(pinfo->net_dst)) == 0
 		&& user_data->port_dst_fwd == pinfo->destport)  {
 		rtp_packet_analyse(&(user_data->forward.statinfo), pinfo, rtpinfo);
-		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]), &(user_data->forward.statinfo), pinfo, (guint32)(user_data->forward.statinfo.jitter*1000000));
-		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_DIFF]), &(user_data->forward.statinfo), pinfo, (guint32)(user_data->forward.statinfo.diff*1000000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]),
+			&(user_data->forward.statinfo), pinfo,
+			(guint32)(user_data->forward.statinfo.jitter*1000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_DIFF]),
+			&(user_data->forward.statinfo), pinfo,
+			(guint32)(user_data->forward.statinfo.diff*1000));
 		rtp_packet_add_info(user_data->dlg.list_fwd, user_data,
 			&(user_data->forward.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->forward.saveinfo),
@@ -488,8 +494,12 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		&& CMP_ADDRESS(&(user_data->ip_dst_rev), &(pinfo->net_dst)) == 0
 		&& user_data->port_dst_rev == pinfo->destport)  {
 		rtp_packet_analyse(&(user_data->reversed.statinfo), pinfo, rtpinfo);
-		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]), &(user_data->reversed.statinfo), pinfo, (guint32)(user_data->reversed.statinfo.jitter*1000000));
-		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_DIFF]), &(user_data->reversed.statinfo), pinfo, (guint32)(user_data->reversed.statinfo.diff*1000000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]),
+			&(user_data->reversed.statinfo), pinfo,
+			(guint32)(user_data->reversed.statinfo.jitter*1000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_DIFF]),
+			&(user_data->reversed.statinfo), pinfo,
+			(guint32)(user_data->reversed.statinfo.diff*1000));
 		rtp_packet_add_info(user_data->dlg.list_rev, user_data,
 			&(user_data->reversed.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->reversed.saveinfo),
@@ -1480,7 +1490,7 @@ static void yscale_select(GtkWidget *item, gpointer key)
         user_data=(user_data_t *)key;
 		i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
-        user_data->dlg.dialog_graph.max_y_units=yscale_max[i]/1000;
+        user_data->dlg.dialog_graph.max_y_units=yscale_max[i];
         dialog_graph_redraw(user_data);
 }
 
@@ -1525,7 +1535,7 @@ create_yscale_max_menu_items(user_data_t* user_data)
 					g_strlcpy(str,"Auto",sizeof(str));
                 } else {
 					g_snprintf(str, sizeof(str), "%u ms", yscale_max[i]/1000);
-                }
+				}
                 gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
         }
 		gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);
