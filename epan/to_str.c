@@ -329,11 +329,11 @@ abs_time_to_str(nstime_t *abs_time, gboolean show_as_utc)
 #if defined(HAVE_TM_ZONE)
                 zonename = tmp->tm_zone;
 #elif defined(HAVE_TZNAME)
-                zonename = tzname[tm->tm_isdst];
+                zonename = tzname[tmp->tm_isdst];
 #elif _WIN32
-                zonename = _tzname[tm->tm_isdst];
+                zonename = _tzname[tmp->tm_isdst];
 #else
-                zonename = tm->tm_isdst ? "?ST" : "?DT";
+                zonename = tmp->tm_isdst ? "?ST" : "?DT";
 #endif
         }
         if (tmp) {
@@ -374,11 +374,11 @@ abs_time_secs_to_str(time_t abs_time, gboolean show_as_utc)
 #if defined(HAVE_TM_ZONE)
                 zonename = tmp->tm_zone;
 #elif defined(HAVE_TZNAME)
-                zonename = tzname[tm->tm_isdst];
+                zonename = tzname[tmp->tm_isdst];
 #elif _WIN32
-                zonename = _tzname[tm->tm_isdst];
+                zonename = _tzname[tmp->tm_isdst];
 #else
-                zonename = tm->tm_isdst ? "?ST" : "?DT";
+                zonename = tmp->tm_isdst ? "?ST" : "?DT";
 #endif
         }
         if (tmp) {
