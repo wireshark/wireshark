@@ -93,7 +93,7 @@ AC_DEFUN([AC_WIRESHARK_TIMEZONE_ABBREV],
         AC_TRY_LINK(
 [#include <time.h>
 #include <stdio.h>],
-          [printf("%s", tzname[0]);]
+          [printf("%s", tzname[0]);],
           ac_cv_wireshark_have_tzname=yes,
           ac_cv_wireshark_have_tzname=no)
       ])
