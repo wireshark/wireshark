@@ -625,7 +625,8 @@ statistics for; currently the supported ones are
   "eth"   Ethernet
   "fc"    Fibre Channel
   "fddi"  FDDI
-  "ip"    IP addresses
+  "ip"    IPv4 addresses
+  "ipv6"  IPv6 addresses
   "ipx"   IPX addresses
   "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
   "tr"    Token Ring

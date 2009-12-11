@@ -41,6 +41,7 @@
 #include <epan/stat_cmd_args.h>
 #include "register.h"
 #include <epan/dissectors/packet-ip.h>
+#include <epan/dissectors/packet-ipv6.h>
 #include <epan/dissectors/packet-ipx.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-udp.h>
@@ -287,6 +288,61 @@ iousers_ip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	}
 
 	if(!CMP_ADDRESS(&iph->ip_dst, &iui->addr1)){
+		iui->frames1++;
+		iui->bytes1+=pinfo->fd->pkt_len;
+	} else {
+		iui->frames2++;
+		iui->bytes2+=pinfo->fd->pkt_len;
+	}
+
+	return 1;
+}
+
+static int
+iousers_ipv6_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+	io_users_t *iu=arg;
+	const struct ip6_hdr *ip6h=vip;
+	address src, dst;
+	const address *addr1, *addr2;
+	io_users_item_t *iui;
+
+	/* Addresses aren't implemented as 'address' type in struct ip6_hdr */
+	src.type = dst.type = AT_IPv6;
+	src.len  = dst.len = sizeof(struct e_in6_addr);
+	src.data = &ip6h->ip6_src;
+	dst.data = &ip6h->ip6_dst;
+
+	if(CMP_ADDRESS(&src, &dst)>0){
+		addr1=&src;
+		addr2=&dst;
+	} else {
+		addr2=&src;
+		addr1=&dst;
+	}
+
+	for(iui=iu->items;iui;iui=iui->next){
+		if((!CMP_ADDRESS(&iui->addr1, addr1))
+		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
+			break;
+		}
+	}
+
+	if(!iui){
+		iui=g_malloc(sizeof(io_users_item_t));
+		iui->next=iu->items;
+		iu->items=iui;
+		COPY_ADDRESS(&iui->addr1, addr1);
+		iui->name1=g_strdup(ep_address_to_str(addr1));
+		COPY_ADDRESS(&iui->addr2, addr2);
+		iui->name2=g_strdup(ep_address_to_str(addr2));
+		iui->frames1=0;
+		iui->frames2=0;
+		iui->bytes1=0;
+		iui->bytes2=0;
+	}
+
+	if(!CMP_ADDRESS(&dst, &iui->addr1)){
 		iui->frames1++;
 		iui->bytes1+=pinfo->fd->pkt_len;
 	} else {
@@ -661,6 +717,15 @@ iousers_init(const char *optarg, void* userdata _U_)
 		tap_type="ip";
 		tap_type_name="IPv4";
 		packet_func=iousers_ip_packet;
+	} else if(!strncmp(optarg,"conv,ipv6",7)){
+		if(optarg[7]==','){
+			filter=optarg+10;
+		} else {
+			filter=NULL;
+		}
+		tap_type="ipv6";
+		tap_type_name="IPv6";
+		packet_func=iousers_ipv6_packet;
 	} else if(!strncmp(optarg,"conv,sctp",9)) {
 		if(optarg[9]==','){
 				filter=optarg+10;
