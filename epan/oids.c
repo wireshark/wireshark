@@ -571,7 +571,10 @@ static void register_mibs(void) {
 
 	if (smi_errors->len) {
 		report_failure("The following errors were found while loading the MIBS:\n%s\n\n"
-					   "The Current Path is: %s\n" , smi_errors->str , path_str);
+					   "The Current Path is: %s\n\nYou can avoid this error message "
+					   "by removing the missing MIB modules at Edit -> Preferences"
+					   " -> Name Resolution -> SMI (MIB and PIB) modules or by "
+					   "installing them.\n" , smi_errors->str , path_str);
 		D(1,("Errors while loading:\n%s\n",smi_errors->str));
 	}
 
