@@ -59,20 +59,6 @@
 #include "packet-x11-keysym.h" /* This contains the X11 value_string
 				* "keysym_vals_source" that VNC also uses. */
 
-
-static const value_string security_types_vs[] = {
-	{ 0,  "Invalid"  },
-	{ 1,  "None"     },
-	{ 2,  "VNC"      },
-	{ 5,  "RA2"      },
-	{ 6,  "RA2ne"    },
-	{ 16, "Tight"    },
-	{ 17, "Ultra"    },
-	{ 18, "TLS"      },
-	{ 19, "VeNCrypt" },
-	{ 0,  NULL       }
-};
-
 typedef enum {
 	INVALID  = 0,
 	NONE     = 1,
@@ -84,6 +70,19 @@ typedef enum {
 	TLS      = 18,
 	VENCRYPT = 19
 } security_types_e;
+
+static const value_string security_types_vs[] = {
+	{ INVALID,  "Invalid"  },
+	{ NONE,  "None"     },
+	{ VNC,  "VNC"      },
+	{ RA2,  "RA2"      },
+	{ RA2ne,  "RA2ne"    },
+	{ TIGHT, "Tight"    },
+	{ ULTRA, "Ultra"    },
+	{ TLS, "TLS"      },
+	{ VENCRYPT, "VeNCrypt" },
+	{ 0,  NULL       }
+};
 
 static const value_string auth_result_vs[] = {
 	{ 0, "OK"     },
@@ -547,6 +546,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		per_conversation_info = se_alloc(sizeof(vnc_conversation_t));
 		
 		per_conversation_info->vnc_next_state = SERVER_VERSION;
+		per_conversation_info->security_type_selected = INVALID;
 
       		conversation_add_proto_data(conversation, proto_vnc,
 					    per_conversation_info);
@@ -752,15 +752,37 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 						offset, 1, FALSE);
 				}
 			}
+			per_conversation_info->vnc_next_state =	SECURITY_TYPES;	
 		} else {
 			/* Version < 3.007: The server decides the
 			 * authentication type for us to use */
 			proto_tree_add_item(tree,
 				hf_vnc_server_security_type, tvb,
 				offset, 4, FALSE);
+			/* The cast below is possible since in older versions of the protocol the only possible values are 0,1,2 */
+			per_conversation_info->security_type_selected = (guint8)tvb_get_ntohl(tvb, offset);
+			switch(per_conversation_info->security_type_selected) {
+
+			case INVALID:
+				/* TODO: In this case (INVALID) the connection has failed */
+				/* and there should be an error string describing the error */
+				per_conversation_info->vnc_next_state = SECURITY_TYPES;
+				break;
+
+			case NONE:
+				per_conversation_info->vnc_next_state = CLIENT_INIT;
+				break;
+
+			case VNC:
+				per_conversation_info->vnc_next_state = VNC_AUTHENTICATION_CHALLENGE;
+				break;
+
+			default:
+				/* Security type not supported by this dissector */
+				break;
+			}
 		}
 
-		per_conversation_info->vnc_next_state =	SECURITY_TYPES;
 		break;
 
 	case SECURITY_TYPES :
@@ -769,10 +791,10 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 							offset, 1, FALSE);
 		per_conversation_info->security_type_selected =
 			tvb_get_guint8(tvb, offset);
-	
+
 		switch(per_conversation_info->security_type_selected) {
 
-		case 1 : /* None */
+		case NONE :
 			if(per_conversation_info->client_proto_ver >= 3.008)
 				per_conversation_info->vnc_next_state =
 					SECURITY_RESULT;
@@ -782,15 +804,16 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 			break;
 
-		case 2 : /* VNC */
+		case VNC :
 			per_conversation_info->vnc_next_state =
 				VNC_AUTHENTICATION_CHALLENGE;
 			break;
 
-		case 16 : /* Tight */
+		case TIGHT :
 			per_conversation_info->vnc_next_state =
 				TIGHT_TUNNELING_CAPABILITIES;
-			
+			break;
+
 		default :
 			/* Security type not supported by this dissector */
 			break;
@@ -2449,12 +2472,12 @@ proto_register_vnc(void)
 		},
 		{ &hf_vnc_auth_challenge,
 		  { "Authentication challenge", "vnc.auth_challenge",
-		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Random authentication challenge from server to client", HFILL }
 		},
 		{ &hf_vnc_auth_response,
 		  { "Authentication response", "vnc.auth_response",
-		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Client's encrypted response to the server's authentication challenge", HFILL }
 		},
 		{ &hf_vnc_auth_result,
