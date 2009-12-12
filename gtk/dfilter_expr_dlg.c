@@ -558,7 +558,7 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
          * selected item, and display it in the base for this
          * field.
          */
-        switch ((hfinfo->display) & BASE_STRUCTURE_RESET) {
+        switch ((hfinfo->display) & BASE_DISPLAY_E_MASK) {
 
         case BASE_NONE:
         case BASE_DEC:

@@ -4815,9 +4815,8 @@ hfinfo_uint_vals_format(header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
-	/* bit operation to reset the potential BASE_RANGE_STRING (or others in
-	 * the future?) */
-	switch(hfinfo->display & BASE_STRUCTURE_RESET) {
+	/* Get the underlying BASE_ value */
+	switch(hfinfo->display & BASE_DISPLAY_E_MASK) {
 		case BASE_NONE:
 			format = "%s: %s";
 			break;
@@ -5028,9 +5027,8 @@ hfinfo_int_vals_format(header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
-	/* bit operation to reset the potential BASE_RANGE_STRING (or others in
-	 * the future?)*/
-	switch(hfinfo->display & BASE_STRUCTURE_RESET) {
+	/* Get the underlying BASE_ value */
+	switch(hfinfo->display & BASE_DISPLAY_E_MASK) {
 		case BASE_NONE:
 			format = "%s: %s";
 			break;
@@ -5600,7 +5598,7 @@ proto_registrar_dump_values(void)
 			range = NULL;
 			tfs   = NULL;
 
-			if ((hfinfo->display & BASE_STRUCTURE_RESET) != BASE_CUSTOM &&
+			if ((hfinfo->display & BASE_DISPLAY_E_MASK) != BASE_CUSTOM &&
 				(hfinfo->type == FT_UINT8 ||
 				hfinfo->type == FT_UINT16 ||
 				hfinfo->type == FT_UINT24 ||
@@ -5648,7 +5646,7 @@ proto_registrar_dump_values(void)
 				vi = 0;
 				while (range[vi].strptr) {
 					/* Print in the proper base */
-					if ((hfinfo->display & BASE_STRUCTURE_RESET) == BASE_HEX) {
+					if ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_HEX) {
 						printf("R\t%s\t0x%x\t0x%x\t%s\n",
 								hfinfo->abbrev,
 								range[vi].value_min,
@@ -5778,7 +5776,7 @@ proto_registrar_dump_fields(int format)
 					hfinfo->type == FT_INT64) {
 
 
-					switch(hfinfo->display & BASE_STRUCTURE_RESET) {
+					switch(hfinfo->display & BASE_DISPLAY_E_MASK) {
 						case BASE_NONE:
 							base_name = "BASE_NONE";
 							break;
@@ -5850,8 +5848,8 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 		 */
 		format = "%s == %u";
 	} else {
-		/* Pick the proper format string, ignoring BASE_RANGE_STRING flag */
-		switch(hfinfo->display & ~BASE_RANGE_STRING) {
+		/* Get the underlying BASE_ value */
+		switch(hfinfo->display & BASE_DISPLAY_E_MASK) {
 			case BASE_DEC:
 			case BASE_DEC_HEX:
 			case BASE_OCT: /* I'm lazy */
@@ -5937,7 +5935,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	DISSECTOR_ASSERT(hfinfo);
 	abbrev_len = (int) strlen(hfinfo->abbrev);
 
-	if (hfinfo->strings && (hfinfo->display & BASE_STRUCTURE_RESET) == BASE_NONE) {
+	if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
 		const gchar *str = NULL;
 
 		switch(hfinfo->type) {
