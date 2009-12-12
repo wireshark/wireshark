@@ -1089,7 +1089,8 @@ FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_UINT_STRING,	FT_ETHER, FT_BYTES, FT_UINT_BYTES, FT_IPv4,
 		FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
 FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX,
-		BASE_HEX_DEC, BASE_RANGE_STRING, BASE_CUSTOM
+		BASE_HEX_DEC, or BASE_CUSTOM, possibly ORed with
+		BASE_RANGE_STRING
 FIELDCONVERT	VALS(x), RVALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
 FIELDDESCR	A brief description of the field, or NULL.
@@ -1736,7 +1737,10 @@ in the 'display' field.  You may not use BASE_NONE for integers.
 It is possible that in the future we will record the endianness of
 integers. If so, it is likely that we'll use a bitmask on the display field
 so that integers would be represented as BEND|BASE_DEC or LEND|BASE_HEX.
-But that has not happened yet.
+But that has not happened yet; note that there are protocols for which
+no endianness is specified, such as the X11 protocol and the DCE RPC
+protocol, so it would not be possible to record the endianness of all
+integral fields.
 
 strings
 -------
