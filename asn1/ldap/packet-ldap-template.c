@@ -75,6 +75,13 @@
  * Gary Reynolds <gazzadownunder@yahoo.co.uk>
  */
 
+/*
+ * 09-DEC-2009 - Added support for RFC4533
+ *               Content Synchronization Operation (aka syncrepl)
+ * 11-DEC-2009 - Added support for IntermediateResponse (LDAP v3 from RFC 4511)
+ * Mathieu Parent <math.parent@gmail.com>
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -244,6 +251,7 @@ static const value_string ldap_ProtocolOp_choice_vals[] = {
   {  17, "abandonRequest" },
   {  18, "extendedReq" },
   {  19, "extendedResp" },
+  {  20, "intermediateResponse" },
   { 0, NULL }
 };
 /*
@@ -601,6 +609,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         case LDAP_RES_MODRDN:
         case LDAP_RES_COMPARE:
         case LDAP_RES_EXTENDED:
+        case LDAP_RES_INTERMEDIATE:
           lcr.is_request=FALSE;
           lcr.req_frame=0;
           lcr.rep_frame=pinfo->fd->num;
@@ -659,6 +668,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
       case LDAP_RES_MODRDN:
       case LDAP_RES_COMPARE:
       case LDAP_RES_EXTENDED:
+      case LDAP_RES_INTERMEDIATE:
 
 		/* this is a result - it should be in our unmatched list */
 

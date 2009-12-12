@@ -39,7 +39,8 @@ ProtocolOp ::=     CHOICE {
             compareResponse  CompareResponse,
             abandonRequest   AbandonRequest,
             extendedReq      ExtendedRequest,
-            extendedResp     ExtendedResponse
+            extendedResp     ExtendedResponse,
+            intermediateResponse     IntermediateResponse
 			}
 
 
@@ -370,6 +371,11 @@ ExtendedResponse ::= [APPLICATION 24]  SEQUENCE {
 -- end of COMPONENTS
   responseName  [10]  ResponseName OPTIONAL,
   response      [11]  OCTET STRING OPTIONAL
+}
+
+IntermediateResponse ::= [APPLICATION 25] SEQUENCE {
+    responseName     [0] ResponseName OPTIONAL,
+    responseValue    [1] OCTET STRING OPTIONAL
 }
 
 ResponseName ::= LDAPOID

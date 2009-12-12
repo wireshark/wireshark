@@ -21,6 +21,7 @@ SearchResultEntry/_untag/attributes searchResultEntry_attributes
 ModifyRequest/_untag/modification modifyRequest_modification
 SubstringFilter/substrings substringFilter_substrings
 BindResponse/_untag/matchedDN bindResponse_matchedDN
+IntermediateResponse/_untag/responseValue intermediateResponse_responseValue
 
 #.TYPE_ATTR
 LDAPString TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
@@ -742,6 +743,23 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 
 #.FN_BODY ExtendedRequest/_untag/requestValue
 
+	if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	} else {
+		%(DEFAULT_BODY)s
+	}
+
+#.FN_HDR IntermediateResponse/_untag/responseValue
+
+	const gchar *name;
+
+#.FN_BODY IntermediateResponse/_untag/responseValue
+	if(ldm_tree) {
+		proto_item_set_text(ldm_tree, "%%s %%s", "IntermediateResponse", object_identifier_id);
+		name = oid_resolved_from_string(object_identifier_id);
+		if(name)
+			proto_item_append_text(ldm_tree, " (%%s)", name);
+	}
 	if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 	} else {

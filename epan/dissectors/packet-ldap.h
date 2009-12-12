@@ -60,6 +60,7 @@
 #define LDAP_RES_MODRDN             13
 #define LDAP_RES_COMPARE            15
 #define LDAP_RES_EXTENDED           24	/* LDAP V3 only */
+#define LDAP_RES_INTERMEDIATE       25	/* LDAP V3 only */
 
 /*
  * These are all CONTEXT types; the value is the type tag.
