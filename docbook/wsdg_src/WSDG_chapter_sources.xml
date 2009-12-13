@@ -1136,6 +1136,24 @@ $Id&#36;
 	</para>
 	</tip>
 	</section>
+
+	<section id="ChSrcOSX">
+	<title>MAC OS X: .dmg packages</title>
+	<para>
+	The MAC OS X Package is built using OS X packaging tools, based on information
+	found in the source tree under <filename>packaging/macosx</filename>.
+	</para>
+	<para>
+	In the wireshark directory, type:
+	</para>
+	<para>
+	<prompt>$</prompt> <userinput>make osx-package</userinput>
+	</para>
+	<para>
+	to build the MAC OS X Package.
+	</para>
+	</section>
+
 	<section id="ChSrcNSIS">
 	<title>Win32: NSIS .exe installer</title>
 	<para>

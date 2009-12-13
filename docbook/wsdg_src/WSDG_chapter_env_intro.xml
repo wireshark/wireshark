@@ -67,6 +67,7 @@
 	<para>
 	<itemizedlist>
 	<listitem><para>Debian GNU/Linux</para></listitem>
+	<listitem><para>Ubuntu</para></listitem>
 	<listitem><para>Gentoo Linux</para></listitem>
 	<listitem><para>IBM S/390 Linux (Red Hat)</para></listitem>
 	<listitem><para>Mandrake Linux</para></listitem>
@@ -88,8 +89,20 @@
 	As Windows CE differs a lot compared to the other Windows platforms
 	mentioned, Wireshark will not run on Windows CE and there are no plans to
 	support it.
+	</para>
+	<para>
+	Also the 64 bit Windows version are now supported by Wireshark. Although
+	not all libraries are made 64 bit ready yet, basic operations are all
+	available.
+	</para>
+	<para>
 	<itemizedlist>
-	<listitem><para>Windows Server 2003 / XP / 2000</para></listitem>
+	<listitem><para>Windows Server 2000</para></listitem>
+	<listitem><para>Windows XP</para></listitem>
+	<listitem><para>Windows Server 2003</para></listitem>
+	<listitem><para>Windows Vista</para></listitem>
+	<listitem><para>Windows 7</para></listitem>
+	<listitem><para>Windows Server 2008</para></listitem>
 	</itemizedlist>
     </para>
 	</section>
@@ -102,22 +115,22 @@
     </title>
     <para>
       Wireshark was initially developed by Gerald Combs. Ongoing development
-      and maintenance of Wireshark is handled by the Wireshark team, a loose
-      group of individuals who fix bugs and provide new functionality.
+      and maintenance of Wireshark is handled by the Wireshark core developers,
+      a loose group of individuals who fix bugs and provide new functionality.
     </para>
     <para>
       There have also been a large number of people who have contributed
-      protocol dissectors to Wireshark, and it is expected that this will
-      continue.  You can find a list of the people who have contributed
-      code to Wireshark by checking the about dialog box of Wireshark, or have
-	  a look at the <ulink url="&WiresharkAuthorsPage;"/> page on the Wireshark
-	  web site.
+      protocol dissectors and oher improvements to Wireshark, and it is
+      expected that this will continue.  You can find a list of the people who
+      have contributed code to Wireshark by checking the About dialog box of
+      Wireshark, or have a look at the <ulink url="&WiresharkAuthorsPage;"/>
+      page on the Wireshark web site.
     </para>
     <para>
 	The
 	communication between the developers is usually done through the developer
 	mailing list, which can be joined by anyone interested in the development
-	process. At the time this document was written, more than 500 persons were
+	activities. At the time this document was written, more than 500 persons were
 	subscribed to this mailing list!
     </para>
     <para>
@@ -138,7 +151,7 @@
 	will be sufficient for Wireshark development in almost any case.
     </para>
     <para>
-	So unless you are going to change the development process of Wireshark
+	So unless you are going to change the build process of Wireshark
 	itself, you won't come in touch with any other programming language than
 	ANSI C (such as Perl or Python, which are used only in the Wireshark build
 	process).
@@ -147,8 +160,8 @@
 	Beside the usual tools for developing a program in C (compiler, make, ...),
 	the build process uses some additional helper tools (Perl, Python, Sed,
 	...), which are needed for the build process when Wireshark
-	is to be installed from the released source packages. If Wireshark is
-	installed from a binary package, none of these helper tools are needed on
+	is to be build and installed from the released source packages. If Wireshark
+	is installed from a binary package, none of these helper tools are needed on
 	the target system.
 	</para>
 	</section>
@@ -156,7 +169,7 @@
 
 	<section><title>Open Source Software</title>
     <para>
-      Wireshark is an open source software project, and is released under
+      Wireshark is an open source software (OSS) project, and is released under
       the <ulink url="&GPLWebsite;">GNU General Public License</ulink> (GPL).
 	  You can freely use Wireshark on any number of computers you like, without
 	  worrying about license keys or fees or such. In addition, all source
@@ -167,7 +180,7 @@
     <para>
 	  You are welcome to
       modify Wireshark to suit your own needs, and it would be appreciated
-      if you contribute your improvements back to the Wireshark team.
+      if you contribute your improvements back to the Wireshark community.
     </para>
     <para>
       You gain three benefits by contributing your improvements back to the
@@ -177,13 +190,14 @@
 	  <para>
 	    Other people who find your contributions useful will appreciate
 	    them, and you will know that you have helped people in the
-	    same way that the developers of Wireshark have helped people.
+	    same way that the developers of Wireshark have helped you and other
+	    people.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
 	    The developers of Wireshark might improve your changes even more,
-		as there's always room for improvements. Or they may implement some
+		as there's always room for improvement. Or they may implement some
 		advanced things on top of your code, which can be useful for yourself
 		too.
 	  </para>
@@ -201,7 +215,7 @@
       </itemizedlist>
     </para>
     <para>
-      The Wireshark source code and binary kits for some platforms are all
+      The Wireshark source code and binary packages for some platforms are all
       available on the download page of the Wireshark website:
       <ulink url="&WiresharkDownloadPage;">&WiresharkDownloadPage;</ulink>.
     </para>
@@ -233,13 +247,19 @@
 	<itemizedlist>
 	<listitem>
     <para>
-	Win32 (.exe file). The typical Windows end user method is used to get a setup.exe
+	Windows (.exe file). The typical Windows end user is used to get a setup.exe
 	file which will install all the required things for him.
     </para>
 	</listitem>
 	<listitem>
     <para>
 	Win32 U3 (.u3 file). Special distribution for U3 capable USB memory sticks.
+    </para>
+	</listitem>
+	<listitem>
+    <para>
+	Win32 PAF (.paf.exe file). Another Windows end user method is to get a portable
+	application file which will install all the required things for him.
     </para>
 	</listitem>
 	<listitem>
@@ -254,6 +274,13 @@
 	Red Hat (.rpm file). A user of a Red Hat Package Manager (RPM) based system
 	obtains an .rpm file from which the package manager checks the
 	dependencies and installs the software.
+    </para>
+	</listitem>
+	<listitem>
+    <para>
+	MAC OS X (.dmg file). The typical MAC OS X end user is used to get a .dmg
+	file which will install all the required things for him. The other
+	requirement is to have the X11.app installed.
     </para>
 	</listitem>
 	<listitem>
@@ -365,16 +392,22 @@
 	"platform specialties" quite well:
 	<itemizedlist>
 	<listitem><para>
-	Windows XP x86 (Win32, little endian, MSVC)
+	Windows XP x86 (Win32, little endian, VS 9)
 	</para></listitem>
 	<listitem><para>
-	Ubuntu x86 (Linux, little endian, gcc)
+	Windows XP x86-64 (Win64, little endian, VS 9)
+	</para></listitem>
+	<listitem><para>
+	Ubuntu x86-64 (Linux, little endian, gcc)
 	</para></listitem>
 	<listitem><para>
 	Solaris SPARC (Solaris, big endian, gcc)
 	</para></listitem>
 	<listitem><para>
 	Mac OS-X PPC (BSD, big endian, gcc)
+	</para></listitem>
+	<listitem><para>
+	Mac OS-X x86 (BSD, little endian, gcc)
 	</para></listitem>
 	</itemizedlist>
 	Each platform is represented at the status page by a single column, the
@@ -418,14 +451,14 @@
     <para>
 	The "Frequently Asked Questions" will list often asked questions and
 	the corresponding answers.
-	<note><title>Read the FAQ!</title>
+	</para>
 	<para>
 	Before sending any mail to the mailing lists below, be sure to read the
 	FAQ, as it will often answer the question(s) you might have. This will save
 	yourself and others a lot of time (keep in mind that a lot of people are
 	subscribed to the mailing lists).
     </para>
-    </note>
+	<para>
 	You will find the FAQ inside Wireshark by clicking the menu item
 	Help/Contents and selecting the FAQ page in the upcoming dialog.
     </para>
@@ -437,8 +470,7 @@
     </para>
 	</section>
 
-    <section id="ChIntroOtherSources"><title>Other sources
-    </title>
+    <section id="ChIntroOtherSources"><title>Other sources</title>
     <para>
 	If you don't find the information you need inside this book, there are
 	various other sources of information:
@@ -449,6 +481,14 @@
 	all the other README.xxx files in the source code - these are various
 	documentation files on different topics
 	</para>
+	<note><title>Read the README!</title>
+	<para>
+	The README.developer is packed full with all kinds of details relevant
+	to the developer of Wireshark source code. It advices you around common
+	pitfalls, shows you basic layout of dissector code, shows details of the
+	API's available to the dissector developer, etc.  
+	</para>
+	</note>
 	</listitem>
 	<listitem>
 	<para>
@@ -548,7 +588,7 @@
 	The Wireshark community collects bug reports in a Bugzilla database at
 	<ulink url="&WiresharkBugsSite;">&WiresharkBugsSite;</ulink>.
 	This database is filled with manually filed bug reports, usually after some
-	discussion on wireshark-dev, and bug reports from the QA build tools.
+	discussion on wireshark-dev, and automatic bug reports from the buildbot tools.
 	</para>
 	</section>
 
@@ -556,7 +596,8 @@
 	<note><title>Note!</title>
 	<para>
 	Before reporting any problems, please make sure you have installed the
-	latest version of Wireshark.
+	latest version of Wireshark. Reports on older maintainance releases are
+	usually met with an upgrade request.
 	</para>
 	</note>
     <para>
@@ -611,7 +652,8 @@
 	<para>
 	If you send captured data to the mailing lists, or add it to your bug report,
 	be sure it doesn't contain any sensitive or confidential information,
-	such as passwords.
+	such as passwords.  Visibility of such files can be limited to certain
+	groups in the Bugzilla database though. 
 	</para>
 	</note>
   </section>
@@ -660,7 +702,7 @@ $
 	  <para>
 	    You should mail the traceback to the
 		<ulink url="mailto:&WiresharkDevMailList;">&WiresharkDevMailList;</ulink>
-	    mailing list, or append it to your bug report.
+	    mailing list, or attach it to your bug report.
 	  </para>
   </section>
 

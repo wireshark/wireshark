@@ -16,10 +16,10 @@
 	File I/O - using Wireshark's own wiretap library
 	</para></listitem>
 	<listitem><para>
-	Capture - using the libpcap/winpcap library
+	Capture - using the libpcap/winpcap library, in /wiretap
 	</para></listitem>
 	<listitem><para>
-	User interface - using the GTK (and corresponding) libraries
+	User interface - using the GTK+ (and corresponding) libraries
 	</para></listitem>
 	<listitem><para>
 	Help - using an external webbrowser and GTK text output
@@ -29,7 +29,8 @@
 	</para>
 	<para>
 	Currently there's no clean separation of the modules in the code. 
-	However, as the development team switched from CVS to SVN some time ago, 
+	However, as the development team switched from Concurrent Versions System
+	(CVS) to Subversion (SVN) some time ago,
 	directory cleanup is much easier now. So there's a chance that
 	the directory structure will become clean in the future.
 	</para>

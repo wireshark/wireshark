@@ -45,7 +45,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.0">
+  <!ENTITY WiresharkCurrentVersion "1.2">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download/">
   <!ENTITY WiresharkAuthorsPage "http://anonsvn.wireshark.org/wireshark/trunk/AUTHORS">
@@ -87,7 +87,7 @@ FILE SECTION
   <!ENTITY Dissection SYSTEM "wsdg_src/WSDG_chapter_dissection.xml">
   <!ENTITY UserInterface SYSTEM "wsdg_src/WSDG_chapter_userinterface.xml">
 
-  <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
+  <!ENTITY AppGPL SYSTEM "GPL_appendix.xml">
 
 ]>
 
@@ -147,8 +147,4 @@ to change the sources (e.g. adding a new dissector).</command>
 </part>
 
 &AppGPL;
-<!--
-
-&Glossary;
-&Index;  -->
 </book>
