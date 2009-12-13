@@ -29,11 +29,18 @@
 	</orderedlist>
 	<tip><title>Tip!</title>
 	<para>
-	Win32: All required libraries for the MSVC
-	generation are available at: 
+	Win32: All libraries for the VS9 generation are available at:
 	<ulink	url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/>,
 	but see <xref linkend="ChLibsSetup"/> for an easier way to install the 
 	libraries.
+	</para>
+	</tip>
+	<tip><title>Tip!</title>
+	<para>
+	Win64: All required libraries for the VS9 generation are available at:
+	<ulink	url="http://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/"/>,
+	but see <xref linkend="ChLibsSetup"/> for an easier way to install the
+	libraries. Not all libraries are available, yet.
 	</para>
 	</tip>
 	</para>
@@ -192,10 +199,9 @@
 	development. 
 	</para>
 	<para>
-	As the requirements for the GLib/GTK libraries have increased in the past, 
-        the required additional libraries depend on the GLib/GTK versions you have. 
-	The 1.x versions only needed GLib/GDK/GTK+, while the 2.x 
-	versions require all mentioned libs.
+	As the requirements for the GLib/GTK libraries have increased in the past,
+	the required additional libraries depend on the GLib/GTK versions you have.
+	The 2.x versions require all mentioned libs.
 	</para>
 
 	<section id="ChLibsUnixGTK">
@@ -207,7 +213,7 @@
 	<para>
 	If these libraries aren't already installed and also aren't available as a 
 	package for your platform, you can get them at: 
-	<ulink url="http://www.gtk.org"/>.
+	<ulink url="http://www.gtk.org/download.html"/>.
 	</para>
 	</section>
 
@@ -215,7 +221,7 @@
 	<title>Win32 MSVC</title>
 	<para>
 	You can get the latest version at: 
-	<ulink url="http://www.gimp.org/%7Etml/gimp/win32/downloads.html"/>.
+	<ulink url="http://www.gtk.org/download.html"/>.
 	</para>
 	</section>
   </section>
@@ -247,6 +253,30 @@
 		
   </section>
   
+  <section id="ChLibsCares">
+    <title>c-ares (optional)</title>
+	<para>
+	"Library for asynchronous name resolves."
+	</para>
+	<para>
+	This is the primary name resolving library for Wireshark. It replaces ADNS.
+	</para>
+	<section id="ChLibsUnixCares">
+	<title>Unix</title>
+	<para>
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
+	<ulink url="http://c-ares.haxx.se/"/>.
+	</para>
+	</section>
+	<section id="ChLibsWin32Cares">
+	<title>Win32 MSVC</title>
+	<para>
+	You can get the latest version at:
+	<ulink url="http://c-ares.haxx.se/"/>.
+	</para>
+	</section>
+  </section>
 
   <section id="ChLibsADNS">
 	<title>GNU adns (optional)</title>
@@ -490,6 +520,31 @@ utilities."
 	</section>
 
   </section>
-  
+
+  <section id="ChLibsGeoIP">
+	<title>GeoIP (optional)</title>
+	<para>
+	MaxMind Inc. publishes a GeoIP database for use in open source software.
+	It can be used to map IP addresses to geographical locations.
+	</para>
+
+	<section id="ChLibsUnixGeoIP">
+	<title>Unix</title>
+	<para>
+	If this library isn't already installed or available as a
+	package for your platform, you can get it at:
+	<ulink url="http://www.maxmind.com/app/c"/>.
+	</para>
+	</section>
+
+	<section id="ChLibsWin32GeoIP">
+	<title>Win32 MSVC</title>
+	<para>
+	You can get the latest version at:
+	<ulink url="http://www.maxmind.com/app/c"/>
+	</para>
+	</section>
+  </section>
+
 </chapter>
 <!-- End of WSDG Chapter Libraries -->
