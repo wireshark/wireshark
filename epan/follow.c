@@ -56,6 +56,7 @@ FILE* data_out_file = NULL;
 gboolean empty_tcp_stream;
 gboolean incomplete_tcp_stream;
 
+static guint32 tcp_stream_to_follow;
 static guint8  ip_address[2][MAX_IPADDR_LEN];
 static guint   port[2];
 static guint   bytes_written[2];
@@ -95,6 +96,7 @@ build_follow_filter( packet_info *pi ) {
     buf = g_strdup_printf("tcp.stream eq %d", conv->index);
     len = 4;
     is_ipv6 = FALSE;
+    tcp_stream_to_follow = conv->index;
   }
   else if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
 	   && pi->ipproto == IP_PROTO_UDP ) {
@@ -115,6 +117,7 @@ build_follow_filter( packet_info *pi ) {
     buf = g_strdup_printf("tcp.stream eq %d", conv->index);
     len = 16;
     is_ipv6 = TRUE;
+    tcp_stream_to_follow = conv->index;
   }
   else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
 	&& pi->ipproto == IP_PROTO_UDP ) {
@@ -147,9 +150,9 @@ static guint8 src_addr[2][MAX_IPADDR_LEN];
 static guint src_port[2] = { 0, 0 };
 
 void
-reassemble_tcp( gulong sequence, gulong acknowledgement, gulong length,
-                const char* data, gulong data_length, int synflag,
-                address *net_src, address *net_dst, 
+reassemble_tcp( guint32 tcp_stream, gulong sequence, gulong acknowledgement,
+                gulong length, const char* data, gulong data_length, 
+                int synflag, address *net_src, address *net_dst, 
                 guint srcport, guint dstport) {
   guint8 srcx[MAX_IPADDR_LEN], dstx[MAX_IPADDR_LEN];
   int src_index, j, first = 0, len;
@@ -160,6 +163,8 @@ reassemble_tcp( gulong sequence, gulong acknowledgement, gulong length,
   src_index = -1;
 
   /* First, check if this packet should be processed. */
+  if ( tcp_stream != tcp_stream_to_follow )
+    return;
 
   if ((net_src->type != AT_IPv4 && net_src->type != AT_IPv6) ||
       (net_dst->type != AT_IPv4 && net_dst->type != AT_IPv6))
