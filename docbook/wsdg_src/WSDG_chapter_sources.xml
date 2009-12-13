@@ -434,19 +434,61 @@ make
 	installed version first.
 	</para>
 	</tip>
+	<section id="ChSrcRunFirstTimeUnix">
+	<title>Unix/Linux</title>
 	<para>
-	XXX - add more info here.
+	After a successful build you can run Wireshark right from the build
+	directory. Still the program would need to know that it's being run from
+	the build directory and not from its install location. This has inpact
+	on the directories where the program can find the other parts and
+	relevant data files.
 	</para>
+	<para>
+	In order to run the Wireshark from the build directory set the environment
+	variable <command>WIRESHARK_RUN_FROM_BUILD_DIRECTORY</command> and run
+	Wireshark. If your platform is properly setup, your build directory and
+	current working directory are not in your PATH, so the commandline to
+	launch Wireshark would be:
+	<command>WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ./wireshark</command>.
+	</para>
+	<para>
+	There's no need to run Wireshark as root user, you just won't be able to
+	capture. When you opt to run Wireshark this way, your terminal output can
+	be informative when things don't work as expected.
+	</para>
+	</section>
+	<section id="ChSrcRunFirstTimeWin32">
+	<title>Win32 native</title>
+	<para>
+	During the build all relevant program files are collected in a subdirectory
+	<command>wireshark-gtk2</command>. You can run the program from there by
+	launching the wireshark.exe executable.
+	</para>
+	</section>
   </section>
 
   <section id="ChSrcDebug">
 	<title>Debug your generated Wireshark</title>
+	<section id="ChSrcUnixDebug">
+	<title>Unix/Linux</title>
 	<para>
-	See the above info on running Wireshark.
+	When you want to investigate a problem with Wireshark you want to load
+	the program into your debugger. But loading wireshark into debugger fails
+	because of the libtool build environment. You'll have to wrap loading
+	wireshark into a libtool command:
+	<command>libtool --mode=execute gdb wireshark</command>
 	</para>
 	<para>
-	XXX - add more info here.
+	If you prefer a graphic debugger you can use the Data Display Debugger
+	(ddd) instead of GNU debugger (gdb).
 	</para>
+	<para>
+	Additional traps can be set on GLib by setting the <command>G_DEBUG</command>
+	environment variable:<command>G_DEBUG=fatal_criticals libtool --mode=execute
+	ddd wireshark</command>. 
+	See <ulink>http://library.gnome.org/devel/glib/stable/glib-running.html</ulink>
+	</para>
+	</section>
 
 	<section id="ChSrcWin32Debug">
 	<title>Win32 native</title>
