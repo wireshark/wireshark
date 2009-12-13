@@ -2915,7 +2915,7 @@ static void draw_stat(user_data_t *user_data)
 		"Max skew = %.2f ms.\n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u \n"
-		"Duration %.0f s (%.0f ms clock drift, corresponding to %.0f Hz (%+.2f%%)",
+		"Duration %.2f s (%.0f ms clock drift, corresponding to %.0f Hz (%+.2f%%)",
 		user_data->reversed.statinfo.max_delta, user_data->reversed.statinfo.max_nr,
 		user_data->reversed.statinfo.max_jitter,user_data->reversed.statinfo.mean_jitter,
 		user_data->reversed.statinfo.max_skew,
