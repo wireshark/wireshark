@@ -175,24 +175,8 @@ reassemble_tcp( guint32 tcp_stream, gulong sequence, gulong acknowledgement,
   else
     len = 16;
 
-  /* Now check if the packet is for this connection. */
   memcpy(srcx, net_src->data, len);
   memcpy(dstx, net_dst->data, len);
-  if (
-      ! (
-	 memcmp(srcx, ip_address[0], len) == 0 &&
-	 memcmp(dstx, ip_address[1], len) == 0 &&
-	 srcport == port[0] &&
-	 dstport == port[1]
-	) &&
-      ! (
-	 memcmp(srcx, ip_address[1], len) == 0 &&
-	 memcmp(dstx, ip_address[0], len) == 0 &&
-	 srcport == port[1] &&
-	 dstport == port[0]
-	)
-     )
-    return;
 
   /* Check to see if we have seen this source IP and port before.
      (Yes, we have to check both source IP and port; the connection
