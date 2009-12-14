@@ -34,7 +34,6 @@ set(WIRESHARK_GTK_SRC
 	color_dlg.c
 	color_edit_dlg.c
 	color_utils.c
-	conversations_ipv6.c
 	conversations_table.c
 	decode_as_ber.c
 	decode_as_dcerpc.c
@@ -64,7 +63,6 @@ set(WIRESHARK_GTK_SRC
 	gui_stat_util.c
 	gui_utils.c
 	help_dlg.c
-	hostlist_ipv6.c
 	hostlist_table.c
 	macros_dlg.c
 	main.c
@@ -131,6 +129,7 @@ set(WIRESHARK_TAP_SRC
 	conversations_fc.c
 	conversations_fddi.c
 	conversations_ip.c
+	conversations_ipv6.c
 	conversations_ipx.c
 	conversations_jxta.c
 	conversations_ncp.c
@@ -158,6 +157,7 @@ set(WIRESHARK_TAP_SRC
 	hostlist_fc.c
 	hostlist_fddi.c
 	hostlist_ip.c
+	hostlist_ipv6.c
 	hostlist_ipx.c
 	hostlist_jxta.c
 	hostlist_ncp.c
