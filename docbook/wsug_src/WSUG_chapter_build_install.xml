@@ -22,7 +22,7 @@
       </itemizedlist>
     </para>
     <para>
-      Currently, only two or three Linux distributions ship Wireshark, and 
+      Currently, several Linux distributions ship Wireshark, but
       they are commonly shipping an out-of-date version.  No other versions 
       of UNIX ship Wireshark so far, and Microsoft does not ship it with any 
       version of Windows.  For that reason, you will need to know where to 
@@ -360,12 +360,20 @@ rpm -ivh wireshark-&WiresharkCurrentVersion;.i386.rpm
 
   <section> 
     <title>Installing from deb's under Debian</title>
-    <para> 
-      Use the following command to install Wireshark under Debian:
+    <para>
+      If you can just install from the repository then use:
       <programlisting>
 aptitude install wireshark
       </programlisting>
       aptitude should take care of all of the dependency issues for you.
+    </para>
+    <para>
+      Use the following command to install downloaded Wireshark deb's under
+      Debian:
+      <programlisting>
+dpkg -i wireshark-common_&WiresharkCurrentVersion;.0-1_i386.deb wireshark_&WiresharkCurrentVersion;.0-1_i386.deb
+      </programlisting>
+      dpkg doesn't take care of all dependencies, but reports what's missing.
     </para>
   </section>
 
@@ -418,10 +426,10 @@ pkg_add -r wireshark
       used by the <command>libtool</command> script to construct the final 
       link command, this leads to mysterious problems.  This can be 
       resolved by downloading a recent version of sed from 
-      <ulink url="http://directory.fsf.org/GNU/sed.html"/>.
+      <ulink url="http://directory.fsf.org/project/sed/"/>.
     </para>
     <para>
-      If you cannot determine what the problems are, send mail to the 
+      If you cannot determine what the problems are, send an email to the 
       <command>wireshark-dev</command> mailing list explaining your problem, 
       and including the output from <filename>config.log</filename> and 
       anything else you think is relevant, like a trace of the 
@@ -437,7 +445,11 @@ pkg_add -r wireshark
     </para>
     <para>
 	  For further information how to build Wireshark for Windows from the 
-	  sources, have a look at the Development Wiki:
+	  sources, have a look at the Developer's Guide on the 
+	  <ulink url="&WiresharkWebSite;/docs/">Documentation Page</ulink>.
+    </para>
+    <para>
+	  You may also want to have a look at the Development Wiki:
 	  <ulink url="&WiresharkWikiPage;/Development">&WiresharkWikiPage;/Development</ulink>
 	  for the latest available development documentation.
     </para>
@@ -453,7 +465,7 @@ pkg_add -r wireshark
     <title>Install Wireshark</title>
 	<para>
 	You may acquire a binary installer of Wireshark named something like: 
-	<filename>wireshark-setup-x.y.z.exe</filename>.
+	<filename>wireshark-winxx-&WiresharkCurrentVersion;.x.exe</filename>.
 	The Wireshark installer includes WinPcap, so you don't need to download 
 	and install two separate packages.
 	</para>
@@ -477,10 +489,6 @@ pkg_add -r wireshark
 	<listitem><para>
 	<command>Wireshark GTK</command> - Wireshark is a GUI network protocol 
 	analyzer.
-	</para></listitem>
-	<listitem><para>
-	<command>GTK MS Windows Engine</command> - GTK MS Windows Engine
-	(native Win32 look and feel, recommended).
 	</para></listitem>
 	</itemizedlist>
 	</para>
@@ -527,6 +535,9 @@ pkg_add -r wireshark
 	<listitem><para>
 	<command>Capinfos</command> - Capinfos is a program that provides 
 	information on capture files.
+	</para></listitem>
+	<listitem><para>
+	<command>Rawshark</command> - Rawshark is a raw packet filter.
 	</para></listitem>
 	</itemizedlist>
     </para>
@@ -647,7 +658,7 @@ pkg_add -r wireshark
 	</itemizedlist>
 	<para> Example:
     <programlisting>
-wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes 
+wireshark-win32-&WiresharkCurrentVersion;.0.exe /NCRC /S /desktopicon=yes
   /quicklaunchicon=no /D=C:\Program Files\Foo
 	</programlisting>
 	</para>
@@ -686,7 +697,7 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
     <para>
 	At the download page you will find a single installer exe called something 
 	like "auto-installer", which can be installed under various Windows 
-	systems, including NT4.0/2000/XP/Vista.
+	systems, including NT4.0/2000/XP/2003/Vista/7/2008.
 	</para>
   </section>
   
