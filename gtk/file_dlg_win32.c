@@ -230,7 +230,7 @@ win32_open_file (HWND h_wnd) {
             cf_set_rfcode(&cfile, dfp);
         }
 
-        switch (cf_read(&cfile)) {
+        switch (cf_read(&cfile, FALSE)) {
             case CF_READ_OK:
             case CF_READ_ERROR:
                 dirname = get_dirname(utf_16to8(file_name));
@@ -484,7 +484,7 @@ win32_merge_file (HWND h_wnd) {
             cf_set_rfcode(&cfile, dfp);
         }
 
-        switch (cf_read(&cfile)) {
+        switch (cf_read(&cfile, FALSE)) {
             case CF_READ_OK:
             case CF_READ_ERROR:
                 dirname = get_dirname(utf_16to8(file_name));

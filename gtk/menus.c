@@ -1858,7 +1858,7 @@ menu_open_filename(gchar *cf_name)
 
     /* open and read the capture file (this will close an existing file) */
     if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
-        cf_read(&cfile);
+        cf_read(&cfile, FALSE);
     } else {
         /* the capture file apparently no longer exists; remove menu item    */
         /* XXX: ask user to remove item, it's maybe only a temporary problem */
@@ -1886,7 +1886,7 @@ menu_open_recent_file_cmd(GtkWidget *w)
 
     /* open and read the capture file (this will close an existing file) */
     if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
-        cf_read(&cfile);
+        cf_read(&cfile, FALSE);
     } else {
         /* the capture file apparently no longer exists; remove menu item    */
         /* XXX: ask user to remove item, it's maybe only a temporary problem */

@@ -58,15 +58,15 @@ typedef enum {
 typedef enum {
     cf_cb_file_closing,
     cf_cb_file_closed,
-    cf_cb_file_read_start,
+    cf_cb_file_read_started,
     cf_cb_file_read_finished,
     cf_cb_packet_selected,
     cf_cb_packet_unselected,
     cf_cb_field_unselected,
-    cf_cb_file_safe_started,
-    cf_cb_file_safe_finished,
-    cf_cb_file_safe_reload_finished,
-    cf_cb_file_safe_failed
+    cf_cb_file_save_started,
+    cf_cb_file_save_finished,
+    cf_cb_file_save_reload_finished,
+    cf_cb_file_save_failed
 } cf_cbs;
 
 typedef void (*cf_callback_t) (gint event, gpointer data, gpointer user_data);
@@ -105,9 +105,10 @@ void cf_reload(capture_file *cf);
  * Read all packets of a capture file into the internal structures.
  * 
  * @param cf the capture file to be read
+ * @param from_save reread asked from cf_save
  * @return one of cf_read_status_t
  */
-cf_read_status_t cf_read(capture_file *cf);
+cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
 
 /**
  * Start reading from the end of a capture file.

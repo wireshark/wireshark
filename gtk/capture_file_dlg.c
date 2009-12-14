@@ -669,7 +669,7 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
   /* We've crossed the Rubicon; get rid of the file selection box. */
   window_destroy(GTK_WIDGET (fs));
 
-  switch (cf_read(&cfile)) {
+  switch (cf_read(&cfile, FALSE)) {
 
   case CF_READ_OK:
   case CF_READ_ERROR:
@@ -1007,7 +1007,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
      previous read filter attached to "cf"). */
   cfile.rfcode = rfcode;
 
-  switch (cf_read(&cfile)) {
+  switch (cf_read(&cfile, FALSE)) {
 
   case CF_READ_OK:
   case CF_READ_ERROR:

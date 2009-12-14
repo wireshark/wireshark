@@ -289,7 +289,7 @@ guint32 drops)
   }
 
   /* read in the packet data */
-  switch (cf_read(capture_opts->cf)) {
+  switch (cf_read(capture_opts->cf, FALSE)) {
 
   case CF_READ_OK:
   case CF_READ_ERROR:

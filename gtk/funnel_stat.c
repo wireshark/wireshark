@@ -515,7 +515,7 @@ static gboolean funnel_open_file(const char* fname, const char* filter, const ch
 
 	cfile.rfcode = rfcode;
 	
-	switch (cf_read(&cfile)) {
+	switch (cf_read(&cfile, FALSE)) {
 		case CF_READ_OK:
 		case CF_READ_ERROR:
 			break;

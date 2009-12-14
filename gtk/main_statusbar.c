@@ -609,7 +609,7 @@ statusbar_cf_file_closed_cb(capture_file *cf _U_)
 
 
 static void
-statusbar_cf_file_read_start_cb(capture_file *cf)
+statusbar_cf_file_read_started_cb(capture_file *cf)
 {
   const gchar *name_ptr;
   gchar       *load_msg;
@@ -763,24 +763,25 @@ statusbar_cf_field_unselected_cb(capture_file *cf _U_)
 }
 
 static void
-statusbar_cf_file_safe_started_cb(gchar * filename)
+statusbar_cf_file_save_started_cb(gchar *filename)
 {
     gchar        *save_msg;
 
+    statusbar_pop_file_msg();
     save_msg = g_strdup_printf(" Saving: %s...", get_basename(filename));
     statusbar_push_file_msg(save_msg);
     g_free(save_msg);
 }
 
 static void
-statusbar_cf_file_safe_finished_cb(gpointer data _U_)
+statusbar_cf_file_save_finished_cb(gpointer data _U_)
 {
     /* Pop the "Saving:" message off the status bar. */
     statusbar_pop_file_msg();
 }
 
 static void
-statusbar_cf_file_safe_failed_cb(gpointer data _U_)
+statusbar_cf_file_save_failed_cb(gpointer data _U_)
 {
     /* Pop the "Saving:" message off the status bar. */
     statusbar_pop_file_msg();
@@ -798,8 +799,8 @@ statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_file_closed):
         statusbar_cf_file_closed_cb(data);
         break;
-    case(cf_cb_file_read_start):
-        statusbar_cf_file_read_start_cb(data);
+    case(cf_cb_file_read_started):
+        statusbar_cf_file_read_started_cb(data);
         break;
     case(cf_cb_file_read_finished):
         statusbar_cf_file_read_finished_cb(data);
@@ -811,16 +812,16 @@ statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_field_unselected):
         statusbar_cf_field_unselected_cb(data);
         break;
-    case(cf_cb_file_safe_started):
-        statusbar_cf_file_safe_started_cb(data);
+    case(cf_cb_file_save_started):
+        statusbar_cf_file_save_started_cb(data);
         break;
-    case(cf_cb_file_safe_finished):
-        statusbar_cf_file_safe_finished_cb(data);
+    case(cf_cb_file_save_finished):
+        statusbar_cf_file_save_finished_cb(data);
         break;
-    case(cf_cb_file_safe_reload_finished):
+    case(cf_cb_file_save_reload_finished):
         break;
-    case(cf_cb_file_safe_failed):
-        statusbar_cf_file_safe_failed_cb(data);
+    case(cf_cb_file_save_failed):
+        statusbar_cf_file_save_failed_cb(data);
         break;
     default:
         g_warning("statusbar_cf_callback: event %u unknown", event);

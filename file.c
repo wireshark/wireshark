@@ -484,7 +484,7 @@ static float calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos){
 }
 
 cf_read_status_t
-cf_read(capture_file *cf)
+cf_read(capture_file *cf, gboolean from_save)
 {
   int         err;
   gchar       *err_info;
@@ -524,9 +524,12 @@ cf_read(capture_file *cf)
 
   reset_tap_listeners();
 
-  cf_callback_invoke(cf_cb_file_read_start, cf);
-
   name_ptr = get_basename(cf->filename);
+
+  if (from_save == FALSE)
+    cf_callback_invoke(cf_cb_file_read_started, cf);
+  else
+    cf_callback_invoke(cf_cb_file_save_started, (gpointer)name_ptr);
 
   /* Find the size of the file. */
   size = wtap_file_size(cf->wth, NULL);
@@ -561,8 +564,12 @@ cf_read(capture_file *cf)
        */
       if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)){
         progbar_val = calc_progbar_val( cf, size, data_offset);
-        progbar = delayed_create_progress_dlg("Loading", name_ptr,
-          TRUE, &stop_flag, &start_time, progbar_val);
+        if (from_save == FALSE)
+           progbar = delayed_create_progress_dlg("Loading", name_ptr,
+             TRUE, &stop_flag, &start_time, progbar_val);
+        else
+           progbar = delayed_create_progress_dlg("Saving", name_ptr,
+             TRUE, &stop_flag, &start_time, progbar_val);
       }
 
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -673,8 +680,10 @@ cf_read(capture_file *cf)
 #else
   packet_list_thaw();
 #endif
-
-  cf_callback_invoke(cf_cb_file_read_finished, cf);
+   if (from_save == FALSE)
+     cf_callback_invoke(cf_cb_file_read_finished, cf);
+   else
+     cf_callback_invoke(cf_cb_file_save_finished, cf);
 
   /* If we have any displayed packets to select, select the first of those
      packets by making the first row the selected row. */
@@ -4130,7 +4139,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
   wtap_dumper  *pdh;
   save_callback_args_t callback_args;
 
-  cf_callback_invoke(cf_cb_file_safe_started, (gpointer) fname);
+  cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
 
   /* don't write over an existing file. */
   /* this should've been already checked by our caller, just to be sure... */
@@ -4143,7 +4152,6 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
   }
 
   packet_range_process_init(range);
-
 
   if (packet_range_process_all(range) && save_format == cf->cd_t) {
     /* We're not filtering packets, and we're saving it in the format
@@ -4243,7 +4251,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
     }
   }
 
-  cf_callback_invoke(cf_cb_file_safe_finished, NULL);
+  cf_callback_invoke(cf_cb_file_save_finished, NULL);
 
   if (packet_range_process_all(range)) {
     /* We saved the entire capture, not just some packets from it.
@@ -4261,7 +4269,8 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
     if ((cf_open(cf, fname, FALSE, &err)) == CF_OK) {
       /* XXX - report errors if this fails?
          What should we return if it fails or is aborted? */
-      switch (cf_read(cf)) {
+
+      switch (cf_read(cf, TRUE)) {
 
       case CF_READ_OK:
       case CF_READ_ERROR:
@@ -4277,13 +4286,13 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
        correctly for the "no capture file open" state). */
     break;
       }
-      cf_callback_invoke(cf_cb_file_safe_reload_finished, NULL);
+      cf_callback_invoke(cf_cb_file_save_reload_finished, NULL);
     }
   }
   return CF_OK;
 
 fail:
-  cf_callback_invoke(cf_cb_file_safe_failed, NULL);
+  cf_callback_invoke(cf_cb_file_save_failed, NULL);
   return CF_ERROR;
 }
 
@@ -4542,7 +4551,7 @@ cf_reload(capture_file *cf) {
   is_tempfile = cf->is_tempfile;
   cf->is_tempfile = FALSE;
   if (cf_open(cf, filename, is_tempfile, &err) == CF_OK) {
-    switch (cf_read(cf)) {
+    switch (cf_read(cf, FALSE)) {
 
     case CF_READ_OK:
     case CF_READ_ERROR:

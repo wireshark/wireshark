@@ -84,7 +84,7 @@ fs_open_entry(fileset_entry *entry)
     /* close the old and open the new file */
     cf_close(&cfile);
     if (cf_open(&cfile, fname, FALSE, &err) == CF_OK) {
-        cf_read(&cfile);
+        cf_read(&cfile, FALSE);
     }
 
     g_free(fname);

@@ -1370,7 +1370,7 @@ main_cf_cb_file_closed(capture_file *cf _U_)
 
 
 static void
-main_cf_cb_file_read_start(capture_file *cf _U_)
+main_cf_cb_file_read_started(capture_file *cf _U_)
 {
   tap_dfilter_dlg_update();
 
@@ -1604,7 +1604,7 @@ main_cf_cb_field_unselected(capture_file *cf)
 }
 
 static void
-main_cf_cb_file_safe_reload_finished(gpointer data _U_)
+main_cf_cb_file_save_reload_finished(gpointer data _U_)
 {
     set_menus_for_capture_file(&cfile);
 }
@@ -1621,9 +1621,9 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
         main_cf_cb_file_closed(data);
         break;
-    case(cf_cb_file_read_start):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read start");
-        main_cf_cb_file_read_start(data);
+    case(cf_cb_file_read_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read started");
+        main_cf_cb_file_read_started(data);
         break;
     case(cf_cb_file_read_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
@@ -1638,18 +1638,18 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_field_unselected):
         main_cf_cb_field_unselected(data);
         break;
-    case(cf_cb_file_safe_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe started");
+    case(cf_cb_file_save_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save started");
         break;
-    case(cf_cb_file_safe_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe finished");
+    case(cf_cb_file_save_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save finished");
         break;
-    case(cf_cb_file_safe_reload_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: reload finished");
-        main_cf_cb_file_safe_reload_finished(data);
+    case(cf_cb_file_save_reload_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
+        main_cf_cb_file_save_reload_finished(data);
         break;
-    case(cf_cb_file_safe_failed):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe failed");
+    case(cf_cb_file_save_failed):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save failed");
         break;
     default:
         g_warning("main_cf_callback: event %u unknown", event);
@@ -2705,7 +2705,7 @@ main(int argc, char *argv[])
         start_requested_stats();
 
         /* Read the capture file. */
-        switch (cf_read(&cfile)) {
+        switch (cf_read(&cfile, FALSE)) {
 
         case CF_READ_OK:
         case CF_READ_ERROR:

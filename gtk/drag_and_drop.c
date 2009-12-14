@@ -177,7 +177,7 @@ dnd_merge_files(int in_file_count, char **in_filenames)
     }
     g_free(tmpname);
 
-    switch (cf_read(&cfile)) {
+    switch (cf_read(&cfile, FALSE)) {
 
     case CF_READ_OK:
     case CF_READ_ERROR:
@@ -252,7 +252,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
         /* open and read the capture file (this will close an existing file) */
         if (cf_open(&cfile, in_filenames[0], FALSE, &err) == CF_OK) {
           /* XXX - add this to the menu if the read fails? */
-          cf_read(&cfile);
+          cf_read(&cfile, FALSE);
           add_menu_recent_capture_file(in_filenames[0]);
 	} else {
           /* the capture file couldn't be read (doesn't exist, file format unknown, ...) */
