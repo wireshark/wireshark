@@ -1022,9 +1022,12 @@ static int foo_tap = -1;
 struct FooTap {
 	gint packet_type;
 	gint priority;
-	...
+	   ...
 };
-...
+
+void proto_register_foo(void)
+{
+	   ...
 	foo_tap = register_tap("foo");]]>
    </programlisting></example>
 	<para>
@@ -1032,27 +1035,30 @@ struct FooTap {
 	is generally not very useful. Therefore it's a good idea
 	to declare a structure that can be passed through the tap.
 	This needs to be a static structure as it will be used after the
-	dissection routine has returned. Its generally best to pick out some
+	dissection routine has returned. It's generally best to pick out some
 	generic parts of the protocol you are dissecting into the tap data.
-	A packet type, a priority, a status code maybe.
+	A packet type, a priority or a status code maybe.
 	The structure really needs to be included in a header file so
 	that it can be included by other components that want to listen in
 	to the tap.
 	</para>
 	<para>
 	Once you have these defined, it's simply a case of populating the
-	protocol specific structure and then calling tap_queue_packet probably
+	protocol specific structure and then calling tap_queue_packet, probably
 	as the last part of the dissector.
 	</para>
 	   <example><title>Calling a protocol tap</title>
 	   <programlisting>
 <![CDATA[
-	static struct FooTap pinfo;
-
-	pinfo.packet_type = tvb_get_guint8(tvb, 0);
-	pinfo.priority = tvb_get_ntohs(tvb, 8);
+void dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
 	   ...
-	tap_queue_packet(foo_tap, pinfo, &pinfo);
+	fooinfo = ep_alloc(sizeof(struct FooTap));
+	fooinfo->packet_type = tvb_get_guint8(tvb, 0);
+	fooinfo->priority = tvb_get_ntohs(tvb, 8);
+	   ...
+	tap_queue_packet(foo_tap, pinfo, fooinfo);
+}
 ]]>
    </programlisting></example>
 	<para>
@@ -1080,11 +1086,11 @@ struct FooTap {
 	   <programlisting>
 <![CDATA[/* register all http trees */
 static void register_foo_stat_trees(void) {
-	stats_tree_register("foo","foo","Foo/Packet Types",
-		foo_stats_tree_packet, foo_stats_tree_init, NULL );
+	stats_tree_register("foo", "foo", "Foo/Packet Types",
+		foo_stats_tree_packet, foo_stats_tree_init, NULL);
 }
-#ifndef ENABLE_STATIC
-//G_MODULE_EXPORT const gchar version[] = "0.0";
+
+G_MODULE_EXPORT const gchar version[] = "0.0";
 
 G_MODULE_EXPORT void plugin_register_tap_listener(void)
 {
@@ -1132,7 +1138,8 @@ static const guint8* st_str_packet_types = "FOO Packet Types";
 static int st_node_packets = -1;
 static int st_node_packet_types = -1;
 
-static void foo_stats_tree_init(stats_tree* st) {
+static void foo_stats_tree_init(stats_tree* st)
+{
 	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
 	st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
 }]]>
@@ -1144,8 +1151,8 @@ static void foo_stats_tree_init(stats_tree* st) {
    	</para>
 	   <example><title>Generating the stats</title>
 	   <programlisting>
-<![CDATA[static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo,
-epan_dissect_t* edt, const void* p) {
+<![CDATA[static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt, const void* p)
+{
 	struct FooTap *pi = (struct FooTap *)p;
 	tick_stat_node(st, st_str_packets, 0, FALSE);
 	stats_tree_tick_pivot(st, st_node_packet_types,
