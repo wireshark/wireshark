@@ -118,8 +118,8 @@ xmllint:            Doc/libxml2             M
 xsl stylesheets:    Doc/docbook-xsl         M           docbook.xsl, chunk.xsl and htmlhelp.xsl
 docbookx.dtd:       Doc/docbook_xml42       M
 lynx:               Web/lynx                M
-fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into fop-0.20.5 to keep defaults from config.nmake
-jimi:               -                       O           URL: http://java.sun.com/products/jimi/ - see above
+fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into docbook\fop-0.95 to keep defaults from config.nmake
+jimi:               -                       O           (fop 0.20.5 only) URL: http://java.sun.com/products/jimi/ - see above
 hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp 
 zip:                Archive/zip             O
 
@@ -133,7 +133,7 @@ xmllint:            libxml2                 M
 xsl stylesheets:    docbook-xsl-stylesheets M           docbook.xsl and chunk.xsl
 docbookx.dtd:       docbook_4               M
 fop:                fop                     O
-jimi:               -                       O           get it from http://java.sun.com/products/jimi/ - see above
+jimi:               -                       O           (fop 0.20.5 only) get it from http://java.sun.com/products/jimi/ - see above
 
 
 Packages for Gentoo
@@ -152,7 +152,7 @@ xsl stylesheets:    docbook-xsl-stylesheets  M            docbook.xsl and chunk.
                                                             So docbook runs out of the box on Gentoo.
 docbookx.dtd:       docbook-xml-dtd          M
 fop:                fop                      O            Has a lot of JAVA dependencies.
-jimi:               sun-jimi                 O            Used by fop.
+jimi:               sun-jimi                 O            (fop 0.20.5 ony) Used by fop.
 Quanta+             quanta or kdewebdev      O            Nice HTML/XML/SGML and Docbook editor with Syntaxhighlighting, Autocompletion, etc.
 
 Tip: The actual DTD version of Gentoo is 4.4, but wireshark docs still use 4.2.
@@ -171,7 +171,7 @@ xsl stylesheets:    docbook-style-xsl       M           docbook.xsl and chunk.xs
 docbookx.dtd:       docbook-dtds            M           provides v4.1, v4.2, v4.3, v4.4 DTDs
 
 fop:                fop                     O           See above
-jimi:               -                       O           get it from http://java.sun.com/products/jimi/ - see above
+jimi:               -                       O           (fop 0.20.5 ony) get it from http://java.sun.com/products/jimi/ - see above
 
 Note: There are required dependencies (such as xml-common and sgml-common); 
       yum is your friend for doing package installs including required  dependencies.
@@ -188,7 +188,7 @@ chunk.xsl:          docbook-xsl
 htmlhelp.xsl:       docbook-xsl
 docbookx.dtd:       docbook-xml
 fop:                fop
-jimi:               http://java.sun.com/products/jimi/ - see above
+jimi:               (fop 0.20.5 ony) http://java.sun.com/products/jimi/ - see above
 
 
 
