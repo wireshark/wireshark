@@ -527,7 +527,7 @@ dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int tr
 	for(i = 0; i < trl_extn_cnt; i++){
 		proto_tree_add_uint_format_value(ltp_trl_extn_tree, hf_ltp_trl_extn_tag, tvb, frame_offset, 1, extn_type[i], "%x (%s)", extn_type[i], val_to_str(extn_type[i],extn_tag_codes,"Unassigned/Reserved"));
 
-		proto_tree_add_uint64_format(ltp_trl_extn_tree, hf_ltp_trl_extn_tag, tvb, frame_offset, length_size[i], length[i], "Length [%d]: %"G_GINT64_MODIFIER"d",i+1,length[i]);
+		proto_tree_add_uint64_format(ltp_trl_extn_tree, hf_ltp_trl_extn_len, tvb, frame_offset, length_size[i], length[i], "Length [%d]: %"G_GINT64_MODIFIER"d",i+1,length[i]);
 		frame_offset += length_size[i];
 
 		proto_tree_add_uint64_format(ltp_trl_extn_tree, hf_ltp_trl_extn_val, tvb, frame_offset, value_size[i], value[i], "Value [%d]: %"G_GINT64_MODIFIER"d",i+0,value[i]);
