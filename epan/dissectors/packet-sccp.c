@@ -2,7 +2,7 @@
  * Routines for Signalling Connection Control Part (SCCP) dissection
  *
  * It is hopefully compliant to:
- *   ANSI T1.112.3-1996
+ *   ANSI T1.112.3-2001
  *   ITU-T Q.713 7/1996
  *   YDN 038-1997 (Chinese ITU variant)
  *   JT-Q713 and NTT-Q713 (Japan)
@@ -91,8 +91,8 @@ static const value_string sccp_message_type_values[] = {
   { SCCP_MSG_TYPE_IT,     "Inactivity Timer" },
   { SCCP_MSG_TYPE_XUDT,   "Extended Unitdata" },
   { SCCP_MSG_TYPE_XUDTS,  "Extended Unitdata Service" },
-  { SCCP_MSG_TYPE_LUDT,   "Long Unitdata (ITU)" },
-  { SCCP_MSG_TYPE_LUDTS,  "Long Unitdata Service (ITU)" },
+  { SCCP_MSG_TYPE_LUDT,   "Long Unitdata" },
+  { SCCP_MSG_TYPE_LUDTS,  "Long Unitdata Service" },
   { 0,			 NULL } };
 
 /* Same as above but in acronym form (for the Info column) */
@@ -141,7 +141,7 @@ const value_string sccp_message_type_acro_values[] = {
 #define PARAMETER_DATA				0x0f
 #define PARAMETER_SEGMENTATION			0x10
 #define PARAMETER_HOP_COUNTER			0x11
-/* The below 2 are ITU only */
+/* Importance is ITU only */
 #define PARAMETER_IMPORTANCE			0x12
 #define PARAMETER_LONG_DATA			0x13
 /* ISNI is ANSI only */
@@ -167,7 +167,7 @@ static const value_string sccp_parameter_values[] = {
   { PARAMETER_SEGMENTATION,			"Segmentation" },
   { PARAMETER_HOP_COUNTER,			"Hop Counter" },
   { PARAMETER_IMPORTANCE,			"Importance (ITU)" },
-  { PARAMETER_LONG_DATA,			"Long Data (ITU)" },
+  { PARAMETER_LONG_DATA,			"Long Data" },
   { PARAMETER_ISNI,				"Intermediate Signaling Network Identification (ANSI)" },
   { 0,						 NULL } };
 
@@ -2021,11 +2021,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_LONG_DATA:
-      if (decode_mtp3_standard != ANSI_STANDARD)
-		  dissect_sccp_data_param(parameter_tvb, pinfo, tree);
-      else
-		  dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
-				   parameter_length);
+      dissect_sccp_data_param(parameter_tvb, pinfo, tree);
       break;
 
     case PARAMETER_ISNI:
@@ -2673,63 +2669,56 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case SCCP_MSG_TYPE_LUDT:
-     pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
-   if (decode_mtp3_standard != ANSI_STANDARD)
-    {
-      offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
-				       PARAMETER_CLASS, offset,
-				       PROTOCOL_CLASS_LENGTH);
-      offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
-				       PARAMETER_HOP_COUNTER, offset,
-				       HOP_COUNTER_LENGTH);
+    pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
 
-      VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH_LONG)
-      VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH_LONG)
-      VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG)
-      OPTIONAL_POINTER(POINTER_LENGTH_LONG)
+    offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
+				     PARAMETER_CLASS, offset,
+				     PROTOCOL_CLASS_LENGTH);
+    offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
+				     PARAMETER_HOP_COUNTER, offset,
+				     HOP_COUNTER_LENGTH);
 
-      assoc = get_sccp_assoc(pinfo, msg_offset,  slr, dlr, message_type);
+    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH_LONG)
+    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH_LONG)
+    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG)
+    OPTIONAL_POINTER(POINTER_LENGTH_LONG)
 
-      dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-				      PARAMETER_CALLED_PARTY_ADDRESS,
-				      variable_pointer1);
-      dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-				      PARAMETER_CALLING_PARTY_ADDRESS,
-				      variable_pointer2);
-      dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-				      PARAMETER_LONG_DATA, variable_pointer3);
-    } else
-      dissect_sccp_unknown_message(tvb, sccp_tree);
+    assoc = get_sccp_assoc(pinfo, msg_offset,  slr, dlr, message_type);
+
+    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+				    PARAMETER_CALLED_PARTY_ADDRESS,
+				    variable_pointer1);
+    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+				    PARAMETER_CALLING_PARTY_ADDRESS,
+				    variable_pointer2);
+    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+				    PARAMETER_LONG_DATA, variable_pointer3);
     break;
 
   case SCCP_MSG_TYPE_LUDTS:
-     pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
-   if (decode_mtp3_standard != ANSI_STANDARD)
-    {
-      offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
-				       PARAMETER_RETURN_CAUSE, offset,
-				       RETURN_CAUSE_LENGTH);
-      offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
-				       PARAMETER_HOP_COUNTER, offset,
-				       HOP_COUNTER_LENGTH);
+    pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
+    offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
+				     PARAMETER_RETURN_CAUSE, offset,
+				     RETURN_CAUSE_LENGTH);
+    offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
+				     PARAMETER_HOP_COUNTER, offset,
+				     HOP_COUNTER_LENGTH);
 
-      VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH_LONG)
-      VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH_LONG)
-      VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG)
-      OPTIONAL_POINTER(POINTER_LENGTH_LONG)
+    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH_LONG)
+    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH_LONG)
+    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG)
+    OPTIONAL_POINTER(POINTER_LENGTH_LONG)
 
-      assoc = get_sccp_assoc(pinfo, msg_offset,  slr, dlr, message_type);
+    assoc = get_sccp_assoc(pinfo, msg_offset,  slr, dlr, message_type);
 
-      dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-				      PARAMETER_CALLED_PARTY_ADDRESS,
-				      variable_pointer1);
-      dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-				      PARAMETER_CALLING_PARTY_ADDRESS,
-				      variable_pointer2);
-      dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
-				      PARAMETER_LONG_DATA, variable_pointer3);
-    } else
-      dissect_sccp_unknown_message(tvb, sccp_tree);
+    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+				    PARAMETER_CALLED_PARTY_ADDRESS,
+				    variable_pointer1);
+    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+				    PARAMETER_CALLING_PARTY_ADDRESS,
+				    variable_pointer2);
+    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+				    PARAMETER_LONG_DATA, variable_pointer3);
     break;
 
   default:
