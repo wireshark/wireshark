@@ -1449,8 +1449,8 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                 break;
 
             case SR_Outstanding:
-                timeSinceRequest = ((pinfo->fd->abs_ts.secs - state->requestTime.secs) * 1000) +
-                                   ((pinfo->fd->abs_ts.nsecs - state->requestTime.nsecs) / 1000000);
+                timeSinceRequest = (guint32)(((pinfo->fd->abs_ts.secs - state->requestTime.secs) * 1000) +
+                                             ((pinfo->fd->abs_ts.nsecs - state->requestTime.nsecs) / 1000000));
 
                 switch (event) {
                     case SR_Grant:
