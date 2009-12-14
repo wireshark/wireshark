@@ -147,6 +147,7 @@ static int hf_mac_lte_grant_answering_sr = -1;
 static int hf_mac_lte_failure_answering_sr = -1;
 static int hf_mac_lte_sr_leading_to_failure = -1;
 static int hf_mac_lte_sr_leading_to_grant = -1;
+static int hf_mac_lte_sr_invalid_event = -1;
 
 
 /* Subtrees. */
@@ -600,11 +601,29 @@ typedef enum SREvent {
     SR_Failure
 } SREvent;
 
+static const value_string sr_event_vals[] =
+{
+    { SR_Grant,        "Grant"},
+    { SR_Request,      "SR Request"},
+    { SR_Failure,      "SR Failure"},
+    { 0,               NULL}
+};
+
+
 typedef enum SRStatus {
     None,
     SR_Outstanding,
     SR_Failed
 } SRStatus;
+
+static const value_string sr_status_vals[] =
+{
+    { None,                "Receiving grants"},
+    { SR_Outstanding,      "SR Request outstanding"},
+    { SR_Failed,           "SR has Failed"},
+    { 0,                   NULL}
+};
+
 
 typedef struct SRState {
      SRStatus status;
@@ -622,7 +641,8 @@ typedef enum SRResultType {
     GrantAnsweringSR,
     FailureAnsweringSR,
     SRLeadingToGrant,
-    SRLeadingToFailure
+    SRLeadingToFailure,
+    InvalidSREvent
 } SRResultType;
 
 
@@ -631,6 +651,10 @@ typedef enum SRResultType {
 typedef struct SRResult {
     SRResultType type;
     guint32      frameNum;
+
+    /* These 2 are only used with InvalidSREvent */
+    SRStatus     status;
+    SREvent      event;
 } SRResult;
 
 /* Entries in this table are created during the first pass
@@ -1388,7 +1412,6 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
         g_hash_table_insert(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)rnti), state);
     }
 
-
     /* First time through - update state with new info */
     if (!pinfo->fd->flags.visited) {
 
@@ -1412,7 +1435,10 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
                     case SR_Failure:
                         /* This is an error, since we hadn't send an SR... */
-                        /* TODO: unexpected */
+                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result->type = InvalidSREvent;
+                        result->status = None;
+                        result->event = SR_Failure;
                         break;
                 }
                 break;
@@ -1438,7 +1464,10 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
                     case SR_Request:
                         /* Another request when already have one pending */
-                        /* TODO: error */
+                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result->type = InvalidSREvent;
+                        result->status = SR_Outstanding;
+                        result->event = SR_Grant;
                         break;
 
                     case SR_Failure:
@@ -1471,13 +1500,19 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
                     case SR_Request:
                         /* Tried another SR after a failure, and presumbly no
-                           successul subsequent RACH */
-                        /* TODO: unexpected */
+                           successful subsequent RACH */
+                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result->type = InvalidSREvent;
+                        result->status = SR_Failed;
+                        result->event = SR_Request;
                         break;
 
                     case SR_Failure:
                         /* 2 failures in a row.... */
-                        /* TODO: unexpected */
+                        result = GetSRResult(pinfo->fd->num, TRUE);
+                        result->type = InvalidSREvent;
+                        result->status = SR_Failed;
+                        result->event = SR_Failure;
                         break;
                 }
                 break;
@@ -1519,6 +1554,15 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                                      tvb, 0, 0, result->frameNum);
             PROTO_ITEM_SET_GENERATED(ti);
             break;
+        case InvalidSREvent:
+            ti = proto_tree_add_item(tree, hf_mac_lte_sr_invalid_event,
+                                     tvb, 0, 0, FALSE);
+            PROTO_ITEM_SET_GENERATED(ti);
+            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
+                                   "Invalid SR event - state=(%s), event=(%s)",
+                                   val_to_str(result->status, sr_status_vals, "Unknown"),
+                                   val_to_str(result->event,  sr_event_vals,  "Unknown"));
+
     }
 }
 
@@ -3133,6 +3177,12 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_sr_leading_to_grant,
             { "This SR results in a grant here",
               "mac-lte.ulsch.grant-answering-sr-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_sr_invalid_event,
+            { "Invalid event",
+              "mac-lte.ulsch.sr-invalid-event", FT_NONE, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },
