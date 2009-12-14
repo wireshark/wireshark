@@ -486,7 +486,7 @@ make
 	Additional traps can be set on GLib by setting the <command>G_DEBUG</command>
 	environment variable:<command>G_DEBUG=fatal_criticals libtool --mode=execute
 	ddd wireshark</command>. 
-	See <ulink>http://library.gnome.org/devel/glib/stable/glib-running.html</ulink>
+	See <ulink url="http://library.gnome.org/devel/glib/stable/glib-running.html"/>
 	</para>
 	</section>
 
