@@ -148,6 +148,8 @@ static int hf_mac_lte_failure_answering_sr = -1;
 static int hf_mac_lte_sr_leading_to_failure = -1;
 static int hf_mac_lte_sr_leading_to_grant = -1;
 static int hf_mac_lte_sr_invalid_event = -1;
+static int hf_mac_lte_sr_time_since_request = -1;
+static int hf_mac_lte_sr_time_until_answer = -1;
 
 
 /* Subtrees. */
@@ -629,6 +631,7 @@ typedef struct SRState {
      SRStatus status;
      guint32  lastSRFramenum;
      guint32  lastGrantFramenum;
+     nstime_t requestTime;
 } SRState;
 
 
@@ -646,11 +649,10 @@ typedef enum SRResultType {
 } SRResultType;
 
 
-/* TODO: add another result type to capture illegal state/event pairs,
-   which could be displayed as expert info errors */
 typedef struct SRResult {
     SRResultType type;
     guint32      frameNum;
+    guint32      timeDifference;
 
     /* These 2 are only used with InvalidSREvent */
     SRStatus     status;
@@ -1392,10 +1394,7 @@ static SRResult *GetSRResult(guint32 frameNum, gboolean can_create)
 
 
 /* Keep track of SR requests, failures and related grants, in order to show them
-   as generated fields in these frames.
-   TODO:
-   - also record times of previous frames so can show time differences
-   - on second pass, set up result info for SR frames themselves */
+   as generated fields in these frames */
 static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         tvbuff_t *tvb, guint16 rnti, proto_item *event_ti)
 {
@@ -1414,6 +1413,12 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
     /* First time through - update state with new info */
     if (!pinfo->fd->flags.visited) {
+        guint32 timeSinceRequest;
+
+        /* Store time of request */
+        if (event == SR_Request) {
+            state->requestTime = pinfo->fd->abs_ts;
+        }
 
         switch (state->status) {
             case None:
@@ -1444,6 +1449,9 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                 break;
 
             case SR_Outstanding:
+                timeSinceRequest = ((pinfo->fd->abs_ts.secs - state->requestTime.secs) * 1000) +
+                                   ((pinfo->fd->abs_ts.nsecs - state->requestTime.nsecs) / 1000000);
+
                 switch (event) {
                     case SR_Grant:
                         /* Got grant we were waiting for, so state goes to None */
@@ -1455,11 +1463,13 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         result = GetSRResult(pinfo->fd->num, TRUE);
                         result->type = GrantAnsweringSR;
                         result->frameNum = state->lastSRFramenum;
+                        result->timeDifference = timeSinceRequest;
 
                         /* Also set forward link for SR */
                         resultForSRFrame = GetSRResult(state->lastSRFramenum, TRUE);
                         resultForSRFrame->type = SRLeadingToGrant;
                         resultForSRFrame->frameNum = pinfo->fd->num;
+                        resultForSRFrame->timeDifference = timeSinceRequest;
                         break;
 
                     case SR_Request:
@@ -1480,11 +1490,13 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         result = GetSRResult(pinfo->fd->num, TRUE);
                         result->type = FailureAnsweringSR;
                         result->frameNum = state->lastSRFramenum;
+                        result->timeDifference = timeSinceRequest;
 
                         /* Also set forward link for SR */
                         resultForSRFrame = GetSRResult(state->lastSRFramenum, TRUE);
                         resultForSRFrame->type = SRLeadingToFailure;
                         resultForSRFrame->frameNum = pinfo->fd->num;
+                        resultForSRFrame->timeDifference = timeSinceRequest;
                         break;
                 }
                 break;
@@ -1538,20 +1550,33 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
             ti = proto_tree_add_uint(tree, hf_mac_lte_grant_answering_sr,
                                      tvb, 0, 0, result->frameNum);
             PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_uint(tree, hf_mac_lte_sr_time_since_request,
+                                     tvb, 0, 0, result->timeDifference);
+            PROTO_ITEM_SET_GENERATED(ti);
             break;
         case FailureAnsweringSR:
             ti = proto_tree_add_uint(tree, hf_mac_lte_failure_answering_sr,
                                      tvb, 0, 0, result->frameNum);
+            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_uint(tree, hf_mac_lte_sr_time_since_request,
+                                     tvb, 0, 0, result->timeDifference);
             PROTO_ITEM_SET_GENERATED(ti);
             break;
         case SRLeadingToGrant:
             ti = proto_tree_add_uint(tree, hf_mac_lte_sr_leading_to_grant,
                                      tvb, 0, 0, result->frameNum);
             PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_uint(tree, hf_mac_lte_sr_time_until_answer,
+                                     tvb, 0, 0, result->timeDifference);
+            PROTO_ITEM_SET_GENERATED(ti);
+
             break;
         case SRLeadingToFailure:
             ti = proto_tree_add_uint(tree, hf_mac_lte_sr_leading_to_failure,
                                      tvb, 0, 0, result->frameNum);
+            PROTO_ITEM_SET_GENERATED(ti);
+            ti = proto_tree_add_uint(tree, hf_mac_lte_sr_time_until_answer,
+                                     tvb, 0, 0, result->timeDifference);
             PROTO_ITEM_SET_GENERATED(ti);
             break;
         case InvalidSREvent:
@@ -3183,6 +3208,18 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_sr_invalid_event,
             { "Invalid event",
               "mac-lte.ulsch.sr-invalid-event", FT_NONE, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_sr_time_since_request,
+            { "Time since SR (ms)",
+              "mac-lte.ulsch.time-since-sr", FT_UINT32, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_sr_time_until_answer,
+            { "Time until answer (ms)",
+              "mac-lte.ulsch.time-until-sr-answer", FT_UINT32, BASE_DEC, 0, 0x0,
               NULL, HFILL
             }
         },
