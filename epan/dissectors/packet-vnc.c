@@ -479,6 +479,7 @@ static int hf_vnc_cursor_encoding_pixels = -1;
 static int hf_vnc_cursor_encoding_bitmask = -1;
 
 /* Server Set Colormap Entries */
+static int hf_vnc_color_groups = -1;
 static int hf_vnc_colormap_first_color = -1;
 static int hf_vnc_colormap_num_colors = -1;
 static int hf_vnc_colormap_red = -1;
@@ -2171,15 +2172,10 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	number_of_colors = tvb_get_ntohs(tvb, 4);
 
-	bytes_needed = (number_of_colors * 6) + 6;
+	bytes_needed = (number_of_colors * 6) + 5;
 	VNC_BYTES_NEEDED(bytes_needed);
 
-	ti = proto_tree_add_item(tree, hf_vnc_server_message_type, tvb,
-				 *offset, 1, FALSE);
-	tree = proto_item_add_subtree(ti, ett_vnc_server_message_type);
-	*offset += 1;
-
-	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 1, FALSE);
+	ti = proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 1, FALSE);
 	*offset += 1; /* Skip over 1 byte of padding */
 
 	proto_tree_add_item(tree,
@@ -2194,6 +2190,11 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	*offset += 2;
 
+	ti = proto_tree_add_item(tree, hf_vnc_color_groups, tvb,
+				*offset, number_of_colors * 6, FALSE);
+	vnc_colormap_num_groups =
+		proto_item_add_subtree(ti, ett_vnc_colormap_num_groups);
+	
 	for(counter = 1; counter <= number_of_colors; counter++) {
 		ti = proto_tree_add_text(vnc_colormap_num_groups, tvb,
 					 *offset, 6,
@@ -2218,7 +2219,7 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 				    *offset, 2, FALSE);
 		*offset += 2;
 	}
-	return *offset;
+	return 0;
 }
 
 
@@ -3004,6 +3005,13 @@ proto_register_vnc(void)
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    "First color that should be mapped to given RGB intensities", HFILL }
 		},
+		
+		{ &hf_vnc_color_groups,
+		  { "Color groups", "vnc.color_groups",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    "Color groups", HFILL }
+		},
+		
 		{ &hf_vnc_colormap_num_colors,
 		  { "Number of color groups", "vnc.colormap_groups",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
