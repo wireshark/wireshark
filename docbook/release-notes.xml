@@ -100,6 +100,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+           Wireshark showing extraneous data in a TCP stream.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3955">Bug
+          3955</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wrong decoding of gtp.target identification.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3974">Bug
           3974</ulink>)
@@ -121,6 +127,12 @@ Wireshark Info
           OpenBSD 4.5 build fails at epan/dissectors/packet-rpcap.c.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4258">Bug
           4258</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+           Incorrect display of stream data using "Follow tcp stream" option.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4288">Bug
+          4288</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -162,7 +174,9 @@ RADIUS,
 RANAP,
 SMB,
 SMB2,
+TCP,
 TTE,
+VNC,
 X.509sat
 
     </para>

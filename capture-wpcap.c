@@ -309,15 +309,19 @@ pcap_open_live(const char *a, int b, int c, int d, char *e)
 pcap_open_live(char *a, int b, int c, int d, char *e)
 #endif
 {
-	g_assert(has_wpcap);
-	return p_pcap_open_live(a, b, c, d, e);
+    if (!has_wpcap) {
+	return NULL;
+    }
+    return p_pcap_open_live(a, b, c, d, e);
 }
 
 #ifdef HAVE_PCAP_REMOTE
 pcap_t*
 pcap_open(const char *a, int b, int c, int d, struct pcap_rmtauth *e, char *f)
 {
-    g_assert(has_wpcap);
+    if (!has_wpcap) {
+	return NULL;
+    }
     return p_pcap_open(a, b, c, d, e, f);
 }
 
