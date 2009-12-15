@@ -295,15 +295,19 @@ pcap_lookupnet(const char *a, bpf_u_int32 *b, bpf_u_int32 *c, char *d)
 pcap_t*
 pcap_open_live(const char *a, int b, int c, int d, char *e)
 {
-	g_assert(has_wpcap);
-	return p_pcap_open_live(a, b, c, d, e);
+    if (!has_wpcap) {
+	return NULL;
+    }
+    return p_pcap_open_live(a, b, c, d, e);
 }
 
 #ifdef HAVE_PCAP_REMOTE
 pcap_t*
 pcap_open(const char *a, int b, int c, int d, struct pcap_rmtauth *e, char *f)
 {
-    g_assert(has_wpcap);
+    if (!has_wpcap) {
+	return NULL;
+    }
     return p_pcap_open(a, b, c, d, e, f);
 }
 
