@@ -76,6 +76,7 @@ static int inap_opcode_type;
 /* Initialize the subtree pointers */
 static gint ett_inap = -1;
 static gint ett_inapisup_parameter = -1;
+static gint ett_inap_HighLayerCompatibility = -1;
 #include "packet-inap-ett.c"
 
 #include "packet-inap-table.c"
@@ -201,6 +202,7 @@ void proto_register_inap(void) {
   static gint *ett[] = {
     &ett_inap,
 	&ett_inapisup_parameter,
+	&ett_inap_HighLayerCompatibility,
 #include "packet-inap-ettarr.c"
   };
 

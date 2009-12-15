@@ -288,6 +288,19 @@ dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
 	return offset;
  dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
 
+#.FN_BODY HighLayerCompatibility VAL_PTR = &parameter_tvb
+/*
+ * -- Indicates the teleservice. For encoding, DSS1 (Q.931) is used.
+ */
+ tvbuff_t       *parameter_tvb;
+ proto_tree     *subtree;
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+        return offset;
+
+ subtree = proto_item_add_subtree(actx->created_item, ett_inap_HighLayerCompatibility);
+ dissect_q931_high_layer_compat_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree);
 
 #.TYPE_ATTR
 CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(isup_calling_partys_category_value)
