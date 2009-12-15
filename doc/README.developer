@@ -967,6 +967,16 @@ proto_register_PROTOABBREV(void)
 	PROTOABBREV_module = prefs_register_protocol(proto_PROTOABBREV,
 	    proto_reg_handoff_PROTOABBREV);
 
+/* Register preferences module under preferences subtree.
+   Use this function instead of prefs_register_protocol if you want to group
+   preferences of several protocols under one preferences subtree.
+   Argument subtree identifies grouping tree node name, several subnodes can be
+   specified usign slash '/' (e.g. "OSI/X.500" - protocol preferences will be
+   accessible under Protocols->OSI->X.500-><PROTOSHORTNAME> preferences node.
+*/
+  PROTOABBREV_module = prefs_register_protocol_subtree(const char *subtree,
+       proto_PROTOABBREV, proto_reg_handoff_PROTOABBREV);
+
 /* Register a sample preference */
 	prefs_register_bool_preference(PROTOABBREV_module, "show_hex",
 	     "Display numbers in Hex",
@@ -1083,7 +1093,8 @@ FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_UINT_STRING,	FT_ETHER, FT_BYTES, FT_UINT_BYTES, FT_IPv4,
 		FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
 FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX,
-		BASE_HEX_DEC, BASE_RANGE_STRING, BASE_CUSTOM
+		BASE_HEX_DEC, or BASE_CUSTOM, possibly ORed with
+		BASE_RANGE_STRING
 FIELDCONVERT	VALS(x), RVALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
 FIELDDESCR	A brief description of the field, or NULL.
@@ -1734,7 +1745,10 @@ in the 'display' field.  You may not use BASE_NONE for integers.
 It is possible that in the future we will record the endianness of
 integers. If so, it is likely that we'll use a bitmask on the display field
 so that integers would be represented as BEND|BASE_DEC or LEND|BASE_HEX.
-But that has not happened yet.
+But that has not happened yet; note that there are protocols for which
+no endianness is specified, such as the X11 protocol and the DCE RPC
+protocol, so it would not be possible to record the endianness of all
+integral fields.
 
 strings
 -------
@@ -3395,11 +3409,17 @@ to a configuration dialog.
 You must register the module with the preferences routine with -
 
        module_t *prefs_register_protocol(proto_id, void (*apply_cb)(void))
+       or
+       module_t *prefs_register_protocol_subtree(const char *subtree, int id,
+              void (*apply_cb)(void));
+
 
 Where: proto_id   - the value returned by "proto_register_protocol()" when
                     the protocol was registered.
        apply_cb   - Callback routine that is called when preferences are
                     applied. It may be NULL, which inhibits the callback.
+       subtree    - grouping preferences tree node name (several protocols can
+                    be grouped under one preferences subtree)
 
 Then you can register the fields that can be configured by the user with these
 routines -

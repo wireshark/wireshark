@@ -395,7 +395,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	proto_tree_add_item(ext_tree, hf_mip_ext_type, tvb, offset, 1, ext_type);
 	offset++;
-	if (ext_type != GEN_AUTH_EXT || ext_type != PMIPv4_NON_SKIP_EXT) {
+	if (ext_type != GEN_AUTH_EXT && ext_type != PMIPv4_NON_SKIP_EXT) {
 	  /* Another nasty hack since GEN_AUTH_EXT and PMIPv4_NON_SKIP_EXT broke everything */
 	  proto_tree_add_uint(ext_tree, hf_mip_ext_len, tvb, offset, 1, ext_len);
 	  offset++;

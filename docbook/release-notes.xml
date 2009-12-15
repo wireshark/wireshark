@@ -68,6 +68,22 @@ Wireshark Info
           -->
         </listitem>
 
+        <listitem>
+          <para>
+            The IPMI dissector could crash on Windows.
+            <!-- Fixed in trunk: r31187 -->
+            <!-- Fixed in trunk-1.2: r31211 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4319">Bug
+            4319</ulink>)
+          </para>
+          <para>Versions affected: 1.2.0 to 1.2.4</para>
+          <!--
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
+          </para>
+          -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -76,29 +92,41 @@ Wireshark Info
     The following bugs have been fixed:
 
       <itemizedlist>
+ 
+        <listitem><para>
+          Wireshark does not graph rtp streams.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3801">Bug
+          3801</ulink>)
+        </para></listitem>
 
         <listitem><para>
-           Wrong decoding of gtp.target identification.
+          Wrong decoding of gtp.target identification.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3974">Bug
           3974</ulink>)
         </para></listitem>
 
         <listitem><para>
-           TTE dissector bug.
+          TTE dissector bug.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4247">Bug
           4247</ulink>)
         </para></listitem>
 
         <listitem><para>
-           Upper case in Lua pref symbol causes Wireshark to crash.
+          Upper case in Lua pref symbol causes Wireshark to crash.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4255">Bug
           4255</ulink>)
         </para></listitem>
 
         <listitem><para>
-            OpenBSD 4.5 build fails at epan/dissectors/packet-rpcap.c.
+          OpenBSD 4.5 build fails at epan/dissectors/packet-rpcap.c.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4258">Bug
           4258</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Custom RADIUS dictionary can cause a crash.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4316">Bug
+          4316</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -128,6 +156,9 @@ There are no new protocols in this release.
 DAP,
 eDonkey,
 GTP,
+IPMI,
+MIP,
+RADIUS,
 RANAP,
 SMB,
 SMB2,

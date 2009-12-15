@@ -380,40 +380,42 @@ rtp_reset(void *user_data_arg)
 }
 
 /****************************************************************************/
-static int rtp_packet_add_graph(dialog_graph_graph_t *dgg, tap_rtp_stat_t *statinfo, packet_info *pinfo, guint32 value)
+static gboolean rtp_packet_add_graph(dialog_graph_graph_t *dgg, tap_rtp_stat_t *statinfo, packet_info *pinfo, guint32 value)
 {
 	dialog_graph_graph_item_t *it;
-	int idx;
+	guint32 idx;
 	double rtp_time;
 
-	/* we sometimes get called when dgg is disabled.
-	this is a bug since the tap listener should be removed first */
+	/*
+	* We sometimes get called when dgg is disabled.
+	* This is a bug since the tap listener should be removed first
+	*/
 	if(!dgg->display){
-		return 0;
+		return FALSE;
 	}
 
 	dgg->ud->dlg.dialog_graph.needs_redraw=TRUE;
 
 	/*
-	* Find which interval this is supposed to to in and store the
+	* Find which interval this is supposed to go in and store the
 	* interval index as idx
 	*/
 	if (dgg->ud->dlg.dialog_graph.start_time == -1){ /* it is the first */
 		dgg->ud->dlg.dialog_graph.start_time = statinfo->start_time;
 	}
-	rtp_time = nstime_to_sec(&pinfo->fd->rel_ts) - dgg->ud->dlg.dialog_graph.start_time;
+	rtp_time = nstime_to_msec(&pinfo->fd->rel_ts) - dgg->ud->dlg.dialog_graph.start_time;
 	if(rtp_time<0){
 		return FALSE;
 	}
-	idx = (guint32)(rtp_time*1000)/dgg->ud->dlg.dialog_graph.interval;
+	idx = (guint32)(rtp_time)/dgg->ud->dlg.dialog_graph.interval;
 
 	/* some sanity checks */
-	if((idx<0)||(idx>=NUM_GRAPH_ITEMS)){
+	if(idx>=NUM_GRAPH_ITEMS){
 		return FALSE;
 	}
 
 	/* update num_items */
-	if((guint32)idx > dgg->ud->dlg.dialog_graph.num_items){
+	if(idx > dgg->ud->dlg.dialog_graph.num_items){
 		dgg->ud->dlg.dialog_graph.num_items=idx;
 		dgg->ud->dlg.dialog_graph.max_interval=idx*dgg->ud->dlg.dialog_graph.interval;
 	}
@@ -484,8 +486,12 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		g_array_append_val(user_data->series_fwd.value_pairs, vp);
 #endif
 		rtp_packet_analyse(&(user_data->forward.statinfo), pinfo, rtpinfo);
-		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]), &(user_data->forward.statinfo), pinfo, (guint32)(user_data->forward.statinfo.jitter*1000000));
-		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_DIFF]), &(user_data->forward.statinfo), pinfo, (guint32)(user_data->forward.statinfo.diff*1000000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]),
+			&(user_data->forward.statinfo), pinfo,
+			(guint32)(user_data->forward.statinfo.jitter*1000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_DIFF]),
+			&(user_data->forward.statinfo), pinfo,
+			(guint32)(user_data->forward.statinfo.diff*1000));
 		rtp_packet_add_info(user_data->dlg.list_fwd, user_data,
 			&(user_data->forward.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->forward.saveinfo),
@@ -503,8 +509,12 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		g_array_append_val(user_data->series_rev.value_pairs, vp);
 #endif
 		rtp_packet_analyse(&(user_data->reversed.statinfo), pinfo, rtpinfo);
-		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]), &(user_data->reversed.statinfo), pinfo, (guint32)(user_data->reversed.statinfo.jitter*1000000));
-		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_DIFF]), &(user_data->reversed.statinfo), pinfo, (guint32)(user_data->reversed.statinfo.diff*1000000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]),
+			&(user_data->reversed.statinfo), pinfo,
+			(guint32)(user_data->reversed.statinfo.jitter*1000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_DIFF]),
+			&(user_data->reversed.statinfo), pinfo,
+			(guint32)(user_data->reversed.statinfo.diff*1000));
 		rtp_packet_add_info(user_data->dlg.list_rev, user_data,
 			&(user_data->reversed.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->reversed.saveinfo),
