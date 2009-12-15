@@ -2332,7 +2332,7 @@ proto_register_vnc(void)
 		    "Security type mandated by the server", HFILL }
 		},
 		{ &hf_vnc_client_security_type,
-		  { "Security type selected", "vnc.security_type",
+		  { "Security type selected", "vnc.client_security_type",
 		    FT_UINT8, BASE_DEC, VALS(security_types_vs), 0x0,
 		    "Security type selected by the client", HFILL }
 		},
@@ -2357,7 +2357,7 @@ proto_register_vnc(void)
 		    "Authentication type specific to TightVNC", HFILL }
 		},
 		{ &hf_vnc_tight_server_message_type,
-		  { "Server message type", "vnc.server_message_type",
+		  { "Server message type (TightVNC)", "vnc.tight_server_message_type",
 		    FT_INT32, BASE_DEC, NULL, 0x0,
 		    "Server message type specific to TightVNC", HFILL }
 		},
@@ -2372,7 +2372,7 @@ proto_register_vnc(void)
 		    "Server name specific to TightVNC", HFILL }
 		},
 		{ &hf_vnc_tight_client_message_type,
-		  { "Client message type", "vnc.client_message_type",
+		  { "Client message type (TightVNC)", "vnc.tight_client_message_type",
 		    FT_INT32, BASE_DEC, NULL, 0x0,
 		    "Client message type specific to TightVNC", HFILL }
 		},
@@ -2407,17 +2407,17 @@ proto_register_vnc(void)
 		    "Tight compression, reset compression stream 0", HFILL }
 		},
 		{ &hf_vnc_tight_reset_stream1,
-		  { "Reset compression stream 1", "vnc.tight_reset_stream0",
+		  { "Reset compression stream 1", "vnc.tight_reset_stream1",
 		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    "Tight compression, reset compression stream 1", HFILL }
 		},
 		{ &hf_vnc_tight_reset_stream2,
-		  { "Reset compression stream 2", "vnc.tight_reset_stream0",
+		  { "Reset compression stream 2", "vnc.tight_reset_stream2",
 		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    "Tight compression, reset compression stream 2", HFILL }
 		},
 		{ &hf_vnc_tight_reset_stream3,
-		  { "Reset compression stream 3", "vnc.tight_reset_stream0",
+		  { "Reset compression stream 3", "vnc.tight_reset_stream3",
 		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    "Tight compression, reset compression stream 3", HFILL }
 		},
@@ -2502,7 +2502,7 @@ proto_register_vnc(void)
 		    "Width of the framebuffer (screen) in pixels", HFILL }
 		},
 		{ &hf_vnc_height,
-		  { "Framebuffer height", "vnc.width",
+		  { "Framebuffer height", "vnc.height",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    "Height of the framebuffer (screen) in pixels", HFILL }
 		},
@@ -2758,7 +2758,7 @@ proto_register_vnc(void)
 		},
 
 		{ &hf_vnc_fb_update_y_pos,
-		  { "Y position", "vnc.fb_update_x_pos",
+		  { "Y position", "vnc.fb_update_y_pos",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    "Y position of this server framebuffer update", HFILL }
 		},
