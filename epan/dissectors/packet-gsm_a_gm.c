@@ -210,10 +210,10 @@ static int hf_gsm_a_ptmsi_sig2 =-1;
 static int hf_gsm_a_tft_op_code = -1;
 static int hf_gsm_a_tft_e_bit = -1;
 static int hf_gsm_a_tft_pkt_flt = -1;
-static int hf_gsm_a_tft_ip4_address = -1;
-static int hf_gsm_a_tft_ip4_mask = -1;
-static int hf_gsm_a_tft_ip6_address = -1;
-static int hf_gsm_a_tft_ip6_mask = -1;
+static int hf_gsm_a_sm_ip4_address = -1;
+static int hf_gsm_a_sm_ip4_mask = -1;
+static int hf_gsm_a_sm_ip6_address = -1;
+static int hf_gsm_a_sm_ip6_mask = -1;
 static int hf_gsm_a_tft_protocol_header = -1;
 static int hf_gsm_a_tft_port = -1;
 static int hf_gsm_a_tft_port_low = -1;
@@ -249,6 +249,7 @@ static int hf_gsm_a_gm_otd_b = -1;
 static int hf_gsm_a_gm_gps_a = -1;
 static int hf_gsm_a_gm_gps_b = -1;
 static int hf_gsm_a_gm_gps_c = -1;
+static int hf_gsm_a_sm_pdp_type_org = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -3193,138 +3194,98 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 }
 
 /*
- * [7] 10.5.6.4
+ * [9] 10.5.6.4 Packet data protocol address
  */
+static const value_string gsm_a_sm_pdp_type_org_vals[] = {
+	{ 0x00, "ETSI allocated address" },
+	{ 0x01, "IETF allocated address" },
+	{ 0x0f, "Empty PDP type" },
+	{ 0, NULL }
+};
+
 static guint16
 de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint	curr_len;
 	const gchar	*str;
-	guchar	  oct;
-	guchar	  oct2;
-	struct e_in6_addr ipv6_addr;
+	guchar	  pdp_type_org, pdp_type_num;
 
 	curr_len = len;
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 4, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_sm_pdp_type_org, tvb, curr_offset, 1, FALSE);
 
-	switch ( oct&0x0f )
+	pdp_type_org = tvb_get_guint8(tvb, curr_offset) & 0x0f;
+	curr_offset += 1;
+	pdp_type_num = tvb_get_guint8(tvb, curr_offset);
+
+	if (pdp_type_org == 0 )
 	{
-		case 0x00: str="ETSI allocated address"; break;
-		case 0x01: str="IETF allocated address"; break;
-		case 0x0f: str="Empty PDP type"; break;
-		default: str="reserved";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"PDP type organisation: %s (%u)",str,oct&0x0f);
-
-	oct2 = tvb_get_guint8(tvb, curr_offset+1);
-
-	if (( oct&0x0f ) == 0 )
-	{
-		switch ( oct2 )
+		switch (pdp_type_num)
 		{
 			case 0x00: str="Reserved, used in earlier version of this protocol"; break;
 			case 0x01: str="PDP-type PPP"; break;
 			default: str="reserved";
 		}
 	}
-	else if (( oct&0x0f) == 1 )
+	else if (pdp_type_org == 1)
 	{
-		switch ( oct2 )
+		switch (pdp_type_num)
 		{
 			case 0x21: str="IPv4 address"; break;
 			case 0x57: str="IPv6 address"; break;
-			default: str="IPv4 address";
+			case 0x8d: str="IPv4v6 address"; break;
+			default: str="Unknown, interpreted as IPv4 address";
 		}
 	}
-	else if ((oct2==0) && (( oct&0x0f) == 0x0f ))
+	else if ((pdp_type_num == 0) && (pdp_type_org == 0x0f))
 		str="Empty";
 	else
 		str="Not specified";	
 
 	proto_tree_add_text(tree,
-		tvb, curr_offset+1, 1,
-		"PDP type number: %s (%u)",str,oct2);
+		tvb, curr_offset, 1,
+		"PDP type number: %s (%u)",str,pdp_type_num);
 
-	if (( len == 2 ) && (( oct2 == 0x21 ) || ( oct2 == 0x57 )))
+	if (( len == 2 ) && (( pdp_type_num == 0x21 ) || ( pdp_type_num == 0x57 ) || (pdp_type_num == 0x8d)))
 	{
 		proto_tree_add_text(tree,
-			tvb, curr_offset+1, 1,
+			tvb, curr_offset, 1,
 			"Dynamic addressing");
-
-		curr_offset+= curr_len;
-
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 		return(curr_offset - offset);
 	}
 	else if ( len == 2 )
 	{
 		proto_tree_add_text(tree,
-			tvb, curr_offset+1, 1,
+			tvb, curr_offset, 1,
 			"No PDP address is included");
 
-		curr_offset+= curr_len;
-
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
-	else if ( len < 2 )
-	{
-		proto_tree_add_text(tree,
-			tvb, curr_offset+1, 1,
-			"Length is bogus - should be >= 2");
-
-		curr_offset+= curr_len;
-
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
 		return(curr_offset - offset);
 	}
 
-	if ((( oct2 == 0x21 ) && ( len != 6 )) ||
-	   (( oct2 == 0x57 ) && ( len != 18 )))
+	curr_offset += 1;
+	if (pdp_type_org == 1)	
+	switch (pdp_type_num)
 	{
-		proto_tree_add_text(tree,
-			tvb, curr_offset+2, len-2,
-			"Can't display address");
-	}
-
-	switch ( oct2 )
-	{
-		case 0x21:
-			if (len-2 != 4) {
-				proto_tree_add_text(tree,
-				tvb, curr_offset+2, 0,
-					"IPv4: length is wrong");
-			} else {
-				proto_tree_add_text(tree,
-					tvb, curr_offset+2, len-2,
-					"IPv4: %s", ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
-			}
-			break;
-
 		case 0x57:
-			if (len-2 != 16) {
-				proto_tree_add_text(tree,
-					tvb, curr_offset+2, 0,
-					"IPv6: length is wrong");
-			} else {
-				tvb_get_ipv6(tvb, curr_offset+2, &ipv6_addr);
-				proto_tree_add_text(tree,
-					tvb, curr_offset+2, len-2,
-					"IPv6: %s", ip6_to_str(&ipv6_addr));
-			}
+			proto_tree_add_item(tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,FALSE);
+			curr_offset+=16;
 			break;
-	}
 
-	curr_offset+= curr_len;
+		case 0x8d:
+			proto_tree_add_item(tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,FALSE);
+			curr_offset+=4;
+			proto_tree_add_item(tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,FALSE);
+			curr_offset+=16;
+			break;
+
+		default:
+			proto_tree_add_item(tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,FALSE);
+			curr_offset+=4;
+	}
 	
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -4314,20 +4275,20 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 			
 				case 0x10:
 					str="IPv4 source address type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_ip4_address,tvb,curr_offset,4,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,FALSE);
 					curr_offset+=4;
 					curr_len-=4;
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_ip4_mask,tvb,curr_offset,4,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip4_mask,tvb,curr_offset,4,FALSE);
 					curr_offset+=4;
 					curr_len-=4;
 					break;
 
 				case 0x20:
 					str="IPv6 source address type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_ip6_address,tvb,curr_offset,16,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,FALSE);
 					curr_offset+=16;
 					curr_len-=16;
-					proto_tree_add_item(comp_tree,hf_gsm_a_tft_ip6_mask,tvb,curr_offset,16,FALSE);
+					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_mask,tvb,curr_offset,16,FALSE);
 					curr_offset+=16;
 					curr_len-=16;
 					break;
@@ -5798,23 +5759,23 @@ proto_register_gsm_a_gm(void)
 		  FT_UINT8, BASE_DEC, NULL, 0x0f,
 		  NULL, HFILL }
 	},
-	{ &hf_gsm_a_tft_ip4_address,
-		{ "IPv4 adress", "gsm_a.tft.ip4_address",
+	{ &hf_gsm_a_sm_ip4_address,
+		{ "IPv4 adress", "gsm_a.sm.ip4_address",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_tft_ip4_mask,
-		{ "IPv4 address mask", "gsm_a.tft.ip4_mask",
+	{ &hf_gsm_a_sm_ip4_mask,
+		{ "IPv4 address mask", "gsm_a.sm.ip4_mask",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_tft_ip6_address,
-		{ "IPv6 adress", "gsm_a.tft.ip6_address",
+	{ &hf_gsm_a_sm_ip6_address,
+		{ "IPv6 adress", "gsm_a.sm.ip6_address",
 		  FT_IPv6, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }
 	},
-	{ &hf_gsm_a_tft_ip6_mask,
-		{ "IPv6 adress mask", "gsm_a.tft.ip6_mask",
+	{ &hf_gsm_a_sm_ip6_mask,
+		{ "IPv6 adress mask", "gsm_a.sm.ip6_mask",
 		  FT_IPv6, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }
 	},
@@ -5996,6 +5957,11 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_gm_gps_c,
 		{ "GPS-C","gsm_a.gm.gps_c",
 		FT_BOOLEAN, 8, TFS(&gsm_a_gm_gps_c_vals), 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_sm_pdp_type_org,
+		{ "PDP type organization", "gsm_a.sm.pdp_type_org",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_sm_pdp_type_org_vals), 0x0f,
 		NULL, HFILL }
 	},
 	};
