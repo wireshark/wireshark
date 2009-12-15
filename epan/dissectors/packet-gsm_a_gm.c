@@ -5631,11 +5631,11 @@ static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	NULL,						/* Reserved: was allocated in earlier phases of the protocol */
 	NULL,						/* Reserved: was allocated in earlier phases of the protocol */
 	dtap_sm_status,				/* SM Status */
-								/* Activate MBMS Context Request */
-								/* Activate MBMS Context Accept */
-								/* Activate MBMS Context Reject */
-								/* Request MBMS Context Activation */
-								/* Request MBMS Context Activation Reject */
+	NULL,						/* Activate MBMS Context Request */
+	NULL,						/* Activate MBMS Context Accept */
+	NULL,						/* Activate MBMS Context Reject */
+	NULL,						/* Request MBMS Context Activation */
+	NULL,						/* Request MBMS Context Activation Reject */
 	NULL,	/* NONE */
 };
 
