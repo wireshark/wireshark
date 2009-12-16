@@ -1,4 +1,4 @@
-Wireshark 1.2.4 Release Notes
+Wireshark 1.2.5 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,11 +12,42 @@ What's New
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed. See the security
+   advisory for details and a workaround.
+
+     o The Daintree SNA file parser could overflow a buffer. (Bug
+       4294)
+
+       Versions affected: 1.2.0 to 1.2.4
+
+     o The SMB and SMB2 dissectors could crash. (Bug 4301)
+
+       Versions affected: 0.9.0 to 1.2.4
+
+     o The IPMI dissector could crash on Windows. (Bug 4319)
+
+       Versions affected: 1.2.0 to 1.2.4
+
    The following bugs have been fixed:
 
-     o Can't save RTP stream in both directions. (Bug 4120)
+     o Wireshark does not graph rtp streams. (Bug 3801)
 
-     o Wireshark could crash at startup on Windows. (Bug 4155)
+     o Wireshark showing extraneous data in a TCP stream. (Bug 3955)
+
+     o Wrong decoding of gtp.target identification. (Bug 3974)
+
+     o TTE dissector bug. (Bug 4247)
+
+     o Upper case in Lua pref symbol causes Wireshark to crash. (Bug
+       4255)
+
+     o OpenBSD 4.5 build fails at epan/dissectors/packet-rpcap.c.
+       (Bug 4258)
+
+     o Incorrect display of stream data using "Follow tcp stream"
+       option. (Bug 4288)
+
+     o Custom RADIUS dictionary can cause a crash. (Bug 4316)
 
   New and Updated Features
 
@@ -28,11 +59,12 @@ What's New
 
   Updated Protocol Support
 
-   DCERPC, IPFIX/Netflow, IPv4, NAS EPS, RTCP, TIPC
+   DAP, eDonkey, GTP, IPMI, MIP, RADIUS, RANAP, SMB, SMB2, TCP, TTE,
+   VNC, X.509sat
 
   Updated Capture File Support
 
-   Capture file support is unchanged in this release.
+   Daintree SNA.
 
 Getting Wireshark
 
