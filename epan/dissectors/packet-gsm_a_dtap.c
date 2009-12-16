@@ -2927,26 +2927,32 @@ de_hlc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 static guint16
 de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
-	guint8	oct;
+	guint8	oct, keypad_char;
 	guint32	curr_offset;
+	proto_item *item;
 
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
+	keypad_char = oct & 0x7f;
 
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 1, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-	proto_tree_add_text(tree,
+	item = proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
 		"%s = Keypad information: %c",
 		a_bigbuf,
-		oct & 0x7f);
+		keypad_char);
 
+	if (((keypad_char < '0') || (keypad_char > '9')) &&
+		((keypad_char < 'A') || (keypad_char > 'D')) &&
+		(keypad_char != '*') && (keypad_char != '#'))
+		expert_add_info_format(gsm_a_dtap_pinfo, item, PI_MALFORMED, PI_WARN, "Keypad information contains character that is not a DTMF digit");
 	curr_offset++;
 
 	if (add_string)
-		g_snprintf(add_string, string_len, " - %c", oct & 0x7f);
+		g_snprintf(add_string, string_len, " - %c", keypad_char);
 
 	/* no length check possible */
 
