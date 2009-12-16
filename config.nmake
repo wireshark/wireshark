@@ -159,7 +159,7 @@ FONTCONFIG_DLL=libfontconfig-1.dll
 EXPAT_DLL=libexpat-1.dll
 INTL_DLL=intl.dll
 # This macro is used by the setup target.
-GTK_PKG=2.16.6-20091013
+GTK_PKG=2.16.6-20091215
 
 #
 # Mandatory: Version numbers of GTK and pango.

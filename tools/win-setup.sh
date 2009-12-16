@@ -18,12 +18,11 @@ if [ -z "$WIRESHARK_TARGET_PLATFORM" ]; then
     err_exit "WIRESHARK_TARGET_PLATFORM not defined (internal error)"
 fi
 
+# Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
+#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/trunk/packages/"
 DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages/"
 
 TAG_FILE="current_tag.txt"
-
-# Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
-#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"
 
 err_exit () {
 	echo ""
