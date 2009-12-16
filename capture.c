@@ -759,12 +759,12 @@ capture_pcap_linktype_list(const gchar *ifname, char **err_str)
     gchar    **raw_list, **lt_parts;
     data_link_info_t *data_link_info;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List ...");
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Linktype List ...");
 
     /* Try to get our interface list */
     err = sync_linktype_list_open(ifname, &msg);
     if (err != 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface List failed!");
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Linktype List failed!");
         if (err_str) {
             *err_str = msg;
         } else {
