@@ -229,7 +229,7 @@ void proto_register_pkcs1(void) {
         "pkcs1.DigestAlgorithmIdentifier", HFILL }},
     { &hf_pkcs1_digest,
       { "digest", "pkcs1.digest",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "pkcs1.Digest", HFILL }},
 
 /*--- End of included file: packet-pkcs1-hfarr.c ---*/

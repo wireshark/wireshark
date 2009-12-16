@@ -986,7 +986,7 @@ void proto_register_s4406(void) {
         "s4406.OriginatorPlad", HFILL }},
     { &hf_s4406_Acp127NotificationType_PDU,
       { "Acp127NotificationType", "s4406.Acp127NotificationType",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "s4406.Acp127NotificationType", HFILL }},
     { &hf_s4406_SecurityInformationLabels_PDU,
       { "SecurityInformationLabels", "s4406.SecurityInformationLabels",
@@ -1135,15 +1135,15 @@ void proto_register_s4406(void) {
     { &hf_s4406_Acp127NotificationType_negative,
       { "negative", "s4406.negative",
         FT_BOOLEAN, 8, NULL, 0x80,
-        "", HFILL }},
+        NULL, HFILL }},
     { &hf_s4406_Acp127NotificationType_positive,
       { "positive", "s4406.positive",
         FT_BOOLEAN, 8, NULL, 0x40,
-        "", HFILL }},
+        NULL, HFILL }},
     { &hf_s4406_Acp127NotificationType_transfer,
       { "transfer", "s4406.transfer",
         FT_BOOLEAN, 8, NULL, 0x20,
-        "", HFILL }},
+        NULL, HFILL }},
 
 /*--- End of included file: packet-s4406-hfarr.c ---*/
 #line 95 "packet-s4406-template.c"

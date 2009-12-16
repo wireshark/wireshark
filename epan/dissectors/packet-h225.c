@@ -1581,7 +1581,7 @@ dissect_h225_DialedDigits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   guint len = 0;
 
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      1, 128, "0123456789#*,", 13,
+                                                      1, 128, FALSE, "0123456789#*,", 13,
                                                       &value_tvb);
 
   if (h225_pi && h225_pi->is_destinationInfo == TRUE) {
@@ -1605,7 +1605,7 @@ dissect_h225_DialedDigits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_h225_BMPString_SIZE_1_256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
-                                          1, 256);
+                                          1, 256, FALSE);
 
   return offset;
 }
@@ -1615,7 +1615,7 @@ dissect_h225_BMPString_SIZE_1_256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_h225_IA5String_SIZE_1_512(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 512);
+                                          1, 512, FALSE);
 
   return offset;
 }
@@ -1795,7 +1795,7 @@ dissect_h225_PublicTypeOfNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_h225_NumberDigits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      1, 128, "0123456789#*,", 13,
+                                                      1, 128, FALSE, "0123456789#*,", 13,
                                                       NULL);
 
   return offset;
@@ -1900,7 +1900,7 @@ dissect_h225_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   get_size_constraint_from_stack(actx, "TBCD_STRING", &min_len, &max_len, &has_extension);
 
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      min_len, max_len, "0123456789#*abc", 15,
+                                                      min_len, max_len, has_extension, "0123456789#*abc", 15,
                                                       NULL);
 
   return offset;
@@ -2093,7 +2093,7 @@ dissect_h225_NatureOfAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_h225_IsupDigits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      1, 128, "0123456789ABCDE", 15,
+                                                      1, 128, FALSE, "0123456789ABCDE", 15,
                                                       NULL);
 
   return offset;
@@ -2641,7 +2641,7 @@ dissect_h225_T_tunnelledProtocolObjectID(tvbuff_t *tvb _U_, int offset _U_, asn1
 static int
 dissect_h225_IA5String_SIZE_1_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 64);
+                                          1, 64, FALSE);
 
   return offset;
 }
@@ -3018,7 +3018,7 @@ dissect_h225_T_cryptoEPPwdHash(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 int
 dissect_h225_GatekeeperIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
-                                          1, 128);
+                                          1, 128, FALSE);
 
   return offset;
 }
@@ -3129,7 +3129,7 @@ dissect_h225_FastStart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_h225_EndpointIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
-                                          1, 128);
+                                          1, 128, FALSE);
 
   return offset;
 }
@@ -3217,7 +3217,7 @@ dissect_h225_T_connectionParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_h225_IA5String_SIZE_1_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 32);
+                                          1, 32, FALSE);
 
   return offset;
 }
@@ -3292,7 +3292,7 @@ dissect_h225_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_h225_IA5String_SIZE_0_512(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          0, 512);
+                                          0, 512, FALSE);
 
   return offset;
 }
@@ -3312,7 +3312,7 @@ dissect_h225_H248SignalsDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_h225_BMPString_SIZE_1_512(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
-                                          1, 512);
+                                          1, 512, FALSE);
 
   return offset;
 }
@@ -3483,7 +3483,7 @@ dissect_h225_INTEGER_0_4294967295(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_h225_IA5String_SIZE_1_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 128);
+                                          1, 128, FALSE);
 
   return offset;
 }
@@ -3762,7 +3762,7 @@ dissect_h225_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_h225_IA5String(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          NO_BOUND, NO_BOUND);
+                                          NO_BOUND, NO_BOUND, FALSE);
 
   return offset;
 }
@@ -3772,7 +3772,7 @@ dissect_h225_IA5String(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_h225_BMPString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
-                                          NO_BOUND, NO_BOUND);
+                                          NO_BOUND, NO_BOUND, FALSE);
 
   return offset;
 }
@@ -5496,7 +5496,7 @@ dissect_h225_CallCreditCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_h225_PrintableString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_PrintableString(tvb, offset, actx, tree, hf_index,
-                                          NO_BOUND, NO_BOUND);
+                                          NO_BOUND, NO_BOUND, FALSE);
 
   return offset;
 }
@@ -7604,7 +7604,7 @@ void proto_register_h225(void) {
         "h225.INTEGER_0_255", HFILL }},
     { &hf_h225_user_information,
       { "user-information", "h225.user_information",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_1_131", HFILL }},
     { &hf_h225_h323_message_body,
       { "h323-message-body", "h225.h323_message_body",
@@ -7676,7 +7676,7 @@ void proto_register_h225(void) {
         "h225.T_h4501SupplementaryService_item", HFILL }},
     { &hf_h225_h245Tunneling,
       { "h245Tunneling", "h225.h245Tunneling",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.T_h245Tunneling", HFILL }},
     { &hf_h225_H245Control_item,
       { "H245Control item", "h225.H245Control_item",
@@ -7744,7 +7744,7 @@ void proto_register_h225(void) {
         "h225.NULL", HFILL }},
     { &hf_h225_h248Message,
       { "h248Message", "h225.h248Message",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING", HFILL }},
     { &hf_h225_protocolIdentifier,
       { "protocolIdentifier", "h225.protocolIdentifier",
@@ -7788,11 +7788,11 @@ void proto_register_h225(void) {
         "h225.FastStart", HFILL }},
     { &hf_h225_multipleCalls,
       { "multipleCalls", "h225.multipleCalls",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_maintainConnection,
       { "maintainConnection", "h225.maintainConnection",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_alertingAddress,
       { "alertingAddress", "h225.alertingAddress",
@@ -8004,7 +8004,7 @@ void proto_register_h225(void) {
         "h225.CallReferenceValue", HFILL }},
     { &hf_h225_activeMC,
       { "activeMC", "h225.activeMC",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_conferenceGoal,
       { "conferenceGoal", "h225.conferenceGoal",
@@ -8060,11 +8060,11 @@ void proto_register_h225(void) {
         "h225.FastStart_item", HFILL }},
     { &hf_h225_mediaWaitForConnect,
       { "mediaWaitForConnect", "h225.mediaWaitForConnect",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_canOverlapSend,
       { "canOverlapSend", "h225.canOverlapSend",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_endpointIdentifier,
       { "endpointIdentifier", "h225.endpointIdentifier",
@@ -8296,7 +8296,7 @@ void proto_register_h225(void) {
         "h225.T_h245IpSourceRoute", HFILL }},
     { &hf_h225_ip,
       { "ip", "h225.ip",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_4", HFILL }},
     { &hf_h225_port,
       { "port", "h225.port",
@@ -8308,7 +8308,7 @@ void proto_register_h225(void) {
         "h225.T_h245Route", HFILL }},
     { &hf_h225_h245Route_item,
       { "route item", "h225.route_item",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_4", HFILL }},
     { &hf_h225_h245Routing,
       { "routing", "h225.routing",
@@ -8328,15 +8328,15 @@ void proto_register_h225(void) {
         "h225.T_h245IpxAddress", HFILL }},
     { &hf_h225_node,
       { "node", "h225.node",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_6", HFILL }},
     { &hf_h225_netnum,
       { "netnum", "h225.netnum",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_4", HFILL }},
     { &hf_h225_h245IpxPort,
       { "port", "h225.port",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_2", HFILL }},
     { &hf_h225_h245Ip6Address,
       { "ip6Address", "h225.ip6Address",
@@ -8348,11 +8348,11 @@ void proto_register_h225(void) {
         "h225.OCTET_STRING_SIZE_16", HFILL }},
     { &hf_h225_netBios,
       { "netBios", "h225.netBios",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_16", HFILL }},
     { &hf_h225_nsap,
       { "nsap", "h225.nsap",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_1_20", HFILL }},
     { &hf_h225_nonStandardAddress,
       { "nonStandardAddress", "h225.nonStandardAddress",
@@ -8376,7 +8376,7 @@ void proto_register_h225(void) {
         "h225.T_ipSourceRoute", HFILL }},
     { &hf_h225_src_route_ipV4,
       { "ip", "h225.ip",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_4", HFILL }},
     { &hf_h225_ipV4_src_port,
       { "port", "h225.port",
@@ -8388,7 +8388,7 @@ void proto_register_h225(void) {
         "h225.T_route", HFILL }},
     { &hf_h225_route_item,
       { "route item", "h225.route_item",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_4", HFILL }},
     { &hf_h225_routing,
       { "routing", "h225.routing",
@@ -8400,7 +8400,7 @@ void proto_register_h225(void) {
         "h225.T_ipxAddress", HFILL }},
     { &hf_h225_ipx_port,
       { "port", "h225.port",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_2", HFILL }},
     { &hf_h225_ip6Address,
       { "ip6Address", "h225.ip6Address",
@@ -8436,15 +8436,15 @@ void proto_register_h225(void) {
         "h225.TerminalInfo", HFILL }},
     { &hf_h225_mc,
       { "mc", "h225.mc",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_undefinedNode,
       { "undefinedNode", "h225.undefinedNode",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_set,
       { "set", "h225.set",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.BIT_STRING_SIZE_32", HFILL }},
     { &hf_h225_supportedTunnelledProtocols,
       { "supportedTunnelledProtocols", "h225.supportedTunnelledProtocols",
@@ -8764,15 +8764,15 @@ void proto_register_h225(void) {
         "h225.TBCD_STRING_SIZE_1_4", HFILL }},
     { &hf_h225_systemMyTypeCode,
       { "systemMyTypeCode", "h225.systemMyTypeCode",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_1", HFILL }},
     { &hf_h225_systemAccessType,
       { "systemAccessType", "h225.systemAccessType",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_1", HFILL }},
     { &hf_h225_qualificationInformationCode,
       { "qualificationInformationCode", "h225.qualificationInformationCode",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_1", HFILL }},
     { &hf_h225_sesn,
       { "sesn", "h225.sesn",
@@ -8784,7 +8784,7 @@ void proto_register_h225(void) {
         "h225.TBCD_STRING_SIZE_3_16", HFILL }},
     { &hf_h225_tmsi,
       { "tmsi", "h225.tmsi",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_1_4", HFILL }},
     { &hf_h225_imei,
       { "imei", "h225.imei",
@@ -8924,7 +8924,7 @@ void proto_register_h225(void) {
         "h225.GatekeeperIdentifier", HFILL }},
     { &hf_h225_needToRegister,
       { "needToRegister", "h225.needToRegister",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_alternateGatekeeper,
       { "alternateGatekeeper", "h225.alternateGatekeeper",
@@ -8936,7 +8936,7 @@ void proto_register_h225(void) {
         "h225.AlternateGK", HFILL }},
     { &hf_h225_altGKisPermanent,
       { "altGKisPermanent", "h225.altGKisPermanent",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_default,
       { "default", "h225.default",
@@ -9032,31 +9032,31 @@ void proto_register_h225(void) {
         "h225.SecurityCapabilities", HFILL }},
     { &hf_h225_q932Full,
       { "q932Full", "h225.q932Full",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_q951Full,
       { "q951Full", "h225.q951Full",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_q952Full,
       { "q952Full", "h225.q952Full",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_q953Full,
       { "q953Full", "h225.q953Full",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_q955Full,
       { "q955Full", "h225.q955Full",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_q956Full,
       { "q956Full", "h225.q956Full",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_q957Full,
       { "q957Full", "h225.q957Full",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_q954Info,
       { "q954Info", "h225.q954Info",
@@ -9064,11 +9064,11 @@ void proto_register_h225(void) {
         "h225.Q954Details", HFILL }},
     { &hf_h225_conferenceCalling,
       { "conferenceCalling", "h225.conferenceCalling",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_threePartyService,
       { "threePartyService", "h225.threePartyService",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_guid,
       { "guid", "h225.guid",
@@ -9112,7 +9112,7 @@ void proto_register_h225(void) {
         "h225.OBJECT_IDENTIFIER", HFILL }},
     { &hf_h225_icv,
       { "icv", "h225.icv",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.BIT_STRING", HFILL }},
     { &hf_h225_cryptoEPPwdHash,
       { "cryptoEPPwdHash", "h225.cryptoEPPwdHash",
@@ -9184,7 +9184,7 @@ void proto_register_h225(void) {
         "h225.AliasAddress", HFILL }},
     { &hf_h225_canReportCallCapacity,
       { "canReportCallCapacity", "h225.canReportCallCapacity",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_capacityReportingSpecification_when,
       { "when", "h225.when",
@@ -9336,11 +9336,11 @@ void proto_register_h225(void) {
         "h225.T_cic_2_4", HFILL }},
     { &hf_h225_cic_2_4_item,
       { "cic item", "h225.cic_item",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_2_4", HFILL }},
     { &hf_h225_pointCode,
       { "pointCode", "h225.pointCode",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_2_5", HFILL }},
     { &hf_h225_member,
       { "member", "h225.member",
@@ -9352,7 +9352,7 @@ void proto_register_h225(void) {
         "h225.INTEGER_0_65535", HFILL }},
     { &hf_h225_carrierIdentificationCode,
       { "carrierIdentificationCode", "h225.carrierIdentificationCode",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_3_4", HFILL }},
     { &hf_h225_carrierName,
       { "carrierName", "h225.carrierName",
@@ -9364,7 +9364,7 @@ void proto_register_h225(void) {
         "h225.IA5String_SIZE_0_512", HFILL }},
     { &hf_h225_signal,
       { "signal", "h225.signal",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.H248SignalsDescriptor", HFILL }},
     { &hf_h225_callCreditServiceControl,
       { "callCreditServiceControl", "h225.callCreditServiceControl",
@@ -9468,15 +9468,15 @@ void proto_register_h225(void) {
         "h235.TimeStamp", HFILL }},
     { &hf_h225_releaseCompleteCauseIE,
       { "releaseCompleteCauseIE", "h225.releaseCompleteCauseIE",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING_SIZE_2_32", HFILL }},
     { &hf_h225_sender,
       { "sender", "h225.sender",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_multicast,
       { "multicast", "h225.multicast",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_bandwidth,
       { "bandwidth", "h225.bandwidth",
@@ -9488,11 +9488,11 @@ void proto_register_h225(void) {
         "h225.TransportChannelInfo", HFILL }},
     { &hf_h225_canDisplayAmountString,
       { "canDisplayAmountString", "h225.canDisplayAmountString",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_canEnforceDurationLimit,
       { "canEnforceDurationLimit", "h225.canEnforceDurationLimit",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_amountString,
       { "amountString", "h225.amountString",
@@ -9516,7 +9516,7 @@ void proto_register_h225(void) {
         "h225.INTEGER_1_4294967295", HFILL }},
     { &hf_h225_enforceCallDurationLimit,
       { "enforceCallDurationLimit", "h225.enforceCallDurationLimit",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_callStartingPoint,
       { "callStartingPoint", "h225.callStartingPoint",
@@ -9552,7 +9552,7 @@ void proto_register_h225(void) {
         "h225.Content", HFILL }},
     { &hf_h225_raw,
       { "raw", "h225.raw",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING", HFILL }},
     { &hf_h225_text,
       { "text", "h225.text",
@@ -9564,7 +9564,7 @@ void proto_register_h225(void) {
         "h225.BMPString", HFILL }},
     { &hf_h225_bool,
       { "bool", "h225.bool",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_number8,
       { "number8", "h225.number8",
@@ -9600,7 +9600,7 @@ void proto_register_h225(void) {
         "h225.GenericData", HFILL }},
     { &hf_h225_replacementFeatureSet,
       { "replacementFeatureSet", "h225.replacementFeatureSet",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_sendAddress,
       { "sendAddress", "h225.sendAddress",
@@ -9844,7 +9844,7 @@ void proto_register_h225(void) {
         "h225.NULL", HFILL }},
     { &hf_h225_supportsAssignedGK,
       { "supportsAssignedGK", "h225.supportsAssignedGK",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_assignedGatekeeper,
       { "assignedGatekeeper", "h225.assignedGatekeeper",
@@ -9888,7 +9888,7 @@ void proto_register_h225(void) {
         "h225.SecurityErrors", HFILL }},
     { &hf_h225_discoveryComplete,
       { "discoveryComplete", "h225.discoveryComplete",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_terminalType,
       { "terminalType", "h225.terminalType",
@@ -9912,11 +9912,11 @@ void proto_register_h225(void) {
         "h225.TimeToLive", HFILL }},
     { &hf_h225_keepAlive,
       { "keepAlive", "h225.keepAlive",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_willSupplyUUIEs,
       { "willSupplyUUIEs", "h225.willSupplyUUIEs",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_additiveRegistration,
       { "additiveRegistration", "h225.additiveRegistration",
@@ -9940,7 +9940,7 @@ void proto_register_h225(void) {
         "h225.SEQUENCE_OF_H248PackagesDescriptor", HFILL }},
     { &hf_h225_supportedH248Packages_item,
       { "H248PackagesDescriptor", "h225.H248PackagesDescriptor",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.H248PackagesDescriptor", HFILL }},
     { &hf_h225_callCreditCapability,
       { "callCreditCapability", "h225.callCreditCapability",
@@ -9964,7 +9964,7 @@ void proto_register_h225(void) {
         "h225.TransportQOS", HFILL }},
     { &hf_h225_willRespondToIRR,
       { "willRespondToIRR", "h225.willRespondToIRR",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_preGrantedARQ,
       { "preGrantedARQ", "h225.preGrantedARQ",
@@ -9972,19 +9972,19 @@ void proto_register_h225(void) {
         "h225.T_preGrantedARQ", HFILL }},
     { &hf_h225_makeCall,
       { "makeCall", "h225.makeCall",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_useGKCallSignalAddressToMakeCall,
       { "useGKCallSignalAddressToMakeCall", "h225.useGKCallSignalAddressToMakeCall",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_answerCall,
       { "answerCall", "h225.answerCall",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_useGKCallSignalAddressToAnswer,
       { "useGKCallSignalAddressToAnswer", "h225.useGKCallSignalAddressToAnswer",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_irrFrequencyInCall,
       { "irrFrequencyInCall", "h225.irrFrequencyInCall",
@@ -10156,7 +10156,7 @@ void proto_register_h225(void) {
         "h225.CallReferenceValue", HFILL }},
     { &hf_h225_canMapAlias,
       { "canMapAlias", "h225.canMapAlias",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_srcAlternatives,
       { "srcAlternatives", "h225.srcAlternatives",
@@ -10184,7 +10184,7 @@ void proto_register_h225(void) {
         "h225.TunnelledProtocol", HFILL }},
     { &hf_h225_canMapSrcAlias,
       { "canMapSrcAlias", "h225.canMapSrcAlias",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_pointToPoint,
       { "pointToPoint", "h225.pointToPoint",
@@ -10260,55 +10260,55 @@ void proto_register_h225(void) {
         "h225.AliasAddress", HFILL }},
     { &hf_h225_setup_bool,
       { "setup", "h225.setup",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_callProceeding_flg,
       { "callProceeding", "h225.callProceeding",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_connect_bool,
       { "connect", "h225.connect",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_alerting_bool,
       { "alerting", "h225.alerting",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_information_bool,
       { "information", "h225.information",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_releaseComplete_bool,
       { "releaseComplete", "h225.releaseComplete",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_facility_bool,
       { "facility", "h225.facility",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_progress_bool,
       { "progress", "h225.progress",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_empty,
       { "empty", "h225.empty",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_status_bool,
       { "status", "h225.status",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_statusInquiry_bool,
       { "statusInquiry", "h225.statusInquiry",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_setupAcknowledge_bool,
       { "setupAcknowledge", "h225.setupAcknowledge",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_notify_bool,
       { "notify", "h225.notify",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_rejectReason,
       { "rejectReason", "h225.rejectReason",
@@ -10368,7 +10368,7 @@ void proto_register_h225(void) {
         "h225.NULL", HFILL }},
     { &hf_h225_answeredCall,
       { "answeredCall", "h225.answeredCall",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_usageInformation,
       { "usageInformation", "h225.usageInformation",
@@ -10504,7 +10504,7 @@ void proto_register_h225(void) {
         "h225.T_perCallInfo_item", HFILL }},
     { &hf_h225_originator,
       { "originator", "h225.originator",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_audio,
       { "audio", "h225.audio",
@@ -10560,11 +10560,11 @@ void proto_register_h225(void) {
         "h225.H323_UU_PDU", HFILL }},
     { &hf_h225_sent,
       { "sent", "h225.sent",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_needResponse,
       { "needResponse", "h225.needResponse",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_irrStatus,
       { "irrStatus", "h225.irrStatus",
@@ -10572,7 +10572,7 @@ void proto_register_h225(void) {
         "h225.InfoRequestResponseStatus", HFILL }},
     { &hf_h225_unsolicited,
       { "unsolicited", "h225.unsolicited",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_complete,
       { "complete", "h225.complete",
@@ -10596,7 +10596,7 @@ void proto_register_h225(void) {
         "h225.InfoRequestNakReason", HFILL }},
     { &hf_h225_messageNotUnderstood,
       { "messageNotUnderstood", "h225.messageNotUnderstood",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h225.OCTET_STRING", HFILL }},
     { &hf_h225_delay,
       { "delay", "h225.delay",
@@ -10612,7 +10612,7 @@ void proto_register_h225(void) {
         "h225.SupportedProtocols", HFILL }},
     { &hf_h225_almostOutOfResources,
       { "almostOutOfResources", "h225.almostOutOfResources",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h225.BOOLEAN", HFILL }},
     { &hf_h225_callSpecific,
       { "callSpecific", "h225.callSpecific",

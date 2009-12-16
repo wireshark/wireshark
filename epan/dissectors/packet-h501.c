@@ -438,7 +438,7 @@ void proto_reg_handoff_h501(void);
 static int
 dissect_h501_ElementIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
-                                          1, 128);
+                                          1, 128, FALSE);
 
   return offset;
 }
@@ -822,7 +822,7 @@ dissect_h501_DescriptorRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_h501_GlobalTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          14, 14);
+                                          14, 14, FALSE);
 
   return offset;
 }
@@ -923,7 +923,7 @@ dissect_h501_T_messageType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_h501_IA5String_SIZE_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          3, 3);
+                                          3, 3, FALSE);
 
   return offset;
 }
@@ -943,7 +943,7 @@ dissect_h501_INTEGER_M127_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_h501_IA5String_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          6, 6);
+                                          6, 6, FALSE);
 
   return offset;
 }
@@ -1022,7 +1022,7 @@ dissect_h501_SEQUENCE_OF_PriceElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_h501_IA5String_SIZE_1_2048(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_IA5String(tvb, offset, actx, tree, hf_index,
-                                          1, 2048);
+                                          1, 2048, FALSE);
 
   return offset;
 }
@@ -3006,7 +3006,7 @@ void proto_register_h501(void) {
         "h501.AddressTemplate", HFILL }},
     { &hf_h501_partialResponse,
       { "partialResponse", "h501.partialResponse",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h501.BOOLEAN", HFILL }},
     { &hf_h501_supportedProtocols,
       { "supportedProtocols", "h501.supportedProtocols",
@@ -3106,7 +3106,7 @@ void proto_register_h501(void) {
         "h501.OBJECT_IDENTIFIER", HFILL }},
     { &hf_h501_value,
       { "value", "h501.value",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h501.OCTET_STRING", HFILL }},
     { &hf_h501_invalidCall,
       { "invalidCall", "h501.invalidCall",
@@ -3166,7 +3166,7 @@ void proto_register_h501(void) {
         "h501.NULL", HFILL }},
     { &hf_h501_unknownMessage,
       { "unknownMessage", "h501.unknownMessage",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h501.OCTET_STRING", HFILL }},
     { &hf_h501_reason_09,
       { "reason", "h501.reason",
@@ -3178,7 +3178,7 @@ void proto_register_h501(void) {
         "h501.NULL", HFILL }},
     { &hf_h501_applicationMessage,
       { "applicationMessage", "h501.applicationMessage",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h501.ApplicationMessage", HFILL }},
     { &hf_h501_reason_10,
       { "reason", "h501.reason",
@@ -3262,7 +3262,7 @@ void proto_register_h501(void) {
         "h501.NULL", HFILL }},
     { &hf_h501_callSpecific,
       { "callSpecific", "h501.callSpecific",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h501.BOOLEAN", HFILL }},
     { &hf_h501_priceInfo,
       { "priceInfo", "h501.priceInfo",
@@ -3318,7 +3318,7 @@ void proto_register_h501(void) {
         "h501.SecurityMode", HFILL }},
     { &hf_h501_multipleCalls,
       { "multipleCalls", "h501.multipleCalls",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h501.BOOLEAN", HFILL }},
     { &hf_h501_currency,
       { "currency", "h501.currency",
@@ -3414,7 +3414,7 @@ void proto_register_h501(void) {
         "h501.AlternatePE", HFILL }},
     { &hf_h501_alternateIsPermanent,
       { "alternateIsPermanent", "h501.alternateIsPermanent",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h501.BOOLEAN", HFILL }},
     { &hf_h501_contactAddress,
       { "contactAddress", "h501.contactAddress",

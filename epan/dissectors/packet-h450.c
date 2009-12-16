@@ -1209,7 +1209,7 @@ dissect_h450_2_DummyRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_h450_2_CallIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_NumericString(tvb, offset, actx, tree, hf_index,
-                                          0, 4);
+                                          0, 4, FALSE);
 
   return offset;
 }
@@ -1333,7 +1333,7 @@ dissect_h450_2_CTIdentifyRes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_h450_2_BMPString_SIZE_1_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
-                                          1, 128);
+                                          1, 128, FALSE);
 
   return offset;
 }
@@ -1955,7 +1955,7 @@ dissect_h450_3_SubscriptionOption(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_h450_3_BMPString_SIZE_1_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
-                                          1, 128);
+                                          1, 128, FALSE);
 
   return offset;
 }
@@ -3231,7 +3231,7 @@ dissect_h450_7_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_h450_7_NumericString_SIZE_1_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_NumericString(tvb, offset, actx, tree, hf_index,
-                                          1, 10);
+                                          1, 10, FALSE);
 
   return offset;
 }
@@ -3275,7 +3275,7 @@ dissect_h450_7_NbOfMessages(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_h450_7_TimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                        12, 19);
+                                        12, 19, FALSE);
 
   return offset;
 }
@@ -3501,7 +3501,7 @@ dissect_h450_8_SimpleName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_h450_8_ExtendedName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_BMPString(tvb, offset, actx, tree, hf_index,
-                                          1, 256);
+                                          1, 256, FALSE);
 
   return offset;
 }
@@ -4944,15 +4944,15 @@ void proto_register_h450(void) {
         "h450.UserSpecifiedSubaddress", HFILL }},
     { &hf_h450_nsapSubaddress,
       { "nsapSubaddress", "h450.nsapSubaddress",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h450.NSAPSubaddress", HFILL }},
     { &hf_h450_subaddressInformation,
       { "subaddressInformation", "h450.subaddressInformation",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h450.SubaddressInformation", HFILL }},
     { &hf_h450_oddCountIndicator,
       { "oddCountIndicator", "h450.oddCountIndicator",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h450.BOOLEAN", HFILL }},
     { &hf_h450_extensionId,
       { "extensionId", "h450.extensionId",
@@ -5047,7 +5047,7 @@ void proto_register_h450(void) {
         "h450_2.BMPString_SIZE_1_128", HFILL }},
     { &hf_h450_2_basicCallInfoElements,
       { "basicCallInfoElements", "h450.2.basicCallInfoElements",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h450.H225InformationElement", HFILL }},
     { &hf_h450_2_cTUpdateArg_argumentExtension,
       { "argumentExtension", "h450.2.argumentExtension",
@@ -5238,7 +5238,7 @@ void proto_register_h450(void) {
         "h450_3.INTEGER_1_15", HFILL }},
     { &hf_h450_3_h225InfoElement,
       { "h225InfoElement", "h450.3.h225InfoElement",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h450.H225InformationElement", HFILL }},
     { &hf_h450_3_lastReroutingNr,
       { "lastReroutingNr", "h450.3.lastReroutingNr",
@@ -5310,7 +5310,7 @@ void proto_register_h450(void) {
         "h450_3.DivertingLegInformation2Arg_extension", HFILL }},
     { &hf_h450_3_presentationAllowedIndicator,
       { "presentationAllowedIndicator", "h450.3.presentationAllowedIndicator",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h450.PresentationAllowedIndicator", HFILL }},
     { &hf_h450_3_redirectionNr,
       { "redirectionNr", "h450.3.redirectionNr",
@@ -5338,7 +5338,7 @@ void proto_register_h450(void) {
         "h450_3.IntResult", HFILL }},
     { &hf_h450_3_remoteEnabled,
       { "remoteEnabled", "h450.3.remoteEnabled",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h450_3.BOOLEAN", HFILL }},
     { &hf_h450_3_intResult_extension,
       { "extension", "h450.3.extension",
@@ -5730,7 +5730,7 @@ void proto_register_h450(void) {
         "h450_4.MixedExtension", HFILL }},
     { &hf_h450_7_callbackReq,
       { "callbackReq", "h450.7.callbackReq",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h450_7.BOOLEAN", HFILL }},
     { &hf_h450_7_mWIDeactivateArg_extensionArg,
       { "extensionArg", "h450.7.extensionArg",
@@ -5821,7 +5821,7 @@ void proto_register_h450(void) {
         "h450_8.NULL", HFILL }},
     { &hf_h450_8_simpleName,
       { "simpleName", "h450.8.simpleName",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h450_8.SimpleName", HFILL }},
     { &hf_h450_8_extendedName,
       { "extendedName", "h450.8.extendedName",
@@ -5868,11 +5868,11 @@ void proto_register_h450(void) {
         "h450_7.BasicService", HFILL }},
     { &hf_h450_9_can_retain_service,
       { "can-retain-service", "h450.9.can_retain_service",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h450_9.BOOLEAN", HFILL }},
     { &hf_h450_9_retain_sig_connection,
       { "retain-sig-connection", "h450.9.retain_sig_connection",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h450_9.BOOLEAN", HFILL }},
     { &hf_h450_9_ccRequestArg_extension,
       { "extension", "h450.9.extension",
@@ -5884,7 +5884,7 @@ void proto_register_h450(void) {
         "h450_4.MixedExtension", HFILL }},
     { &hf_h450_9_retain_service,
       { "retain-service", "h450.9.retain_service",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h450_9.BOOLEAN", HFILL }},
     { &hf_h450_9_ccRequestRes_extension,
       { "extension", "h450.9.extension",

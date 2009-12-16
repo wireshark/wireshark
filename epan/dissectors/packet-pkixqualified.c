@@ -409,7 +409,7 @@ void proto_register_pkixqualified(void) {
         "x509af.AlgorithmIdentifier", HFILL }},
     { &hf_pkixqualified_biometricDataHash,
       { "biometricDataHash", "pkixqualified.biometricDataHash",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "pkixqualified.OCTET_STRING", HFILL }},
     { &hf_pkixqualified_sourceDataUri,
       { "sourceDataUri", "pkixqualified.sourceDataUri",

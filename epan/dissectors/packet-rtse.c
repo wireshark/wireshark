@@ -875,7 +875,7 @@ void proto_register_rtse(void) {
         "rtse.RTTPapdu", HFILL }},
     { &hf_rtse_rttr_apdu,
       { "rttr-apdu", "rtse.rttr_apdu",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "rtse.RTTRapdu", HFILL }},
     { &hf_rtse_rtab_apdu,
       { "rtab-apdu", "rtse.rtab_apdu",
@@ -919,7 +919,7 @@ void proto_register_rtse(void) {
         "rtse.AbortReason", HFILL }},
     { &hf_rtse_reflectedParameter,
       { "reflectedParameter", "rtse.reflectedParameter",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "rtse.BIT_STRING", HFILL }},
     { &hf_rtse_userdataAB,
       { "userdataAB", "rtse.userdataAB",
@@ -951,7 +951,7 @@ void proto_register_rtse(void) {
         "rtse.T_t61String", HFILL }},
     { &hf_rtse_octetString,
       { "octetString", "rtse.octetString",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "rtse.T_octetString", HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/

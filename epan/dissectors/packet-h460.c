@@ -789,7 +789,7 @@ dissect_h460_4_CallPriorityInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_h460_4_X121CountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      3, 3, "0123456789", 10,
+                                                      3, 3, FALSE, "0123456789", 10,
                                                       NULL);
 
   return offset;
@@ -814,7 +814,7 @@ dissect_h460_4_T_x121(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_h460_4_E164CountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      3, 3, "0123456789", 10,
+                                                      3, 3, FALSE, "0123456789", 10,
                                                       NULL);
 
   return offset;
@@ -825,7 +825,7 @@ dissect_h460_4_E164CountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_h460_4_T_identificationCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      1, 4, "0123456789", 10,
+                                                      1, 4, FALSE, "0123456789", 10,
                                                       NULL);
 
   return offset;
@@ -2245,7 +2245,7 @@ void proto_register_h460(void) {
         "h460_2.INTEGER_1_255", HFILL }},
     { &hf_h460_2_regionalData,
       { "regionalData", "h460.2.regionalData",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h460_2.OCTET_STRING", HFILL }},
 
 /* --- Module CIRCUIT-STATUS-MAP --- --- ---                                  */
@@ -2276,7 +2276,7 @@ void proto_register_h460(void) {
         "h460_3.INTEGER_0_4095", HFILL }},
     { &hf_h460_3_status,
       { "status", "h460.3.status",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h460_3.OCTET_STRING", HFILL }},
     { &hf_h460_3_serviceStatus,
       { "serviceStatus", "h460.3.serviceStatus",
@@ -2394,7 +2394,7 @@ void proto_register_h460(void) {
         "h225.GenericIdentifier", HFILL }},
     { &hf_h460_9_extensionContent,
       { "extensionContent", "h460.9.extensionContent",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h460_9.OCTET_STRING", HFILL }},
     { &hf_h460_9_rtpAddress,
       { "rtpAddress", "h460.9.rtpAddress",
@@ -2759,7 +2759,7 @@ void proto_register_h460(void) {
         "h225.TransportAddress", HFILL }},
     { &hf_h460_15_immediateResume,
       { "immediateResume", "h460.15.immediateResume",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h460_15.BOOLEAN", HFILL }},
     { &hf_h460_15_resetH245,
       { "resetH245", "h460.15.resetH245",
@@ -2767,7 +2767,7 @@ void proto_register_h460(void) {
         "h460_15.NULL", HFILL }},
     { &hf_h460_15_okToSuspend,
       { "okToSuspend", "h460.15.okToSuspend",
-        FT_BOOLEAN, 8, NULL, 0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
         "h460_15.BOOLEAN", HFILL }},
     { &hf_h460_15_randomNumber,
       { "randomNumber", "h460.15.randomNumber",
@@ -2860,7 +2860,7 @@ void proto_register_h460(void) {
         "h460_21.INTEGER_1_65535", HFILL }},
     { &hf_h460_21_groupIdentifer,
       { "groupIdentifer", "h460.21.groupIdentifer",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "h460_21.GloballyUniqueID", HFILL }},
     { &hf_h460_21_capability,
       { "capability", "h460.21.capability",

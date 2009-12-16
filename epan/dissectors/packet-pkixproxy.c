@@ -175,7 +175,7 @@ void proto_register_pkixproxy(void) {
         "pkixproxy.OBJECT_IDENTIFIER", HFILL }},
     { &hf_pkixproxy_policy,
       { "policy", "pkixproxy.policy",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "pkixproxy.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-pkixproxy-hfarr.c ---*/

@@ -1301,7 +1301,7 @@ proto_register_t38(void)
         "t38.T_field_type", HFILL }},
     { &hf_t38_field_data,
       { "field-data", "t38.field_data",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "t38.T_field_data", HFILL }},
     { &hf_t38_seq_number,
       { "seq-number", "t38.seq_number",
@@ -1337,7 +1337,7 @@ proto_register_t38(void)
         "t38.T_fec_data", HFILL }},
     { &hf_t38_fec_data_item,
       { "fec-data item", "t38.fec_data_item",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         "t38.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
