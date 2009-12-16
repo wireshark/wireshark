@@ -27,6 +27,7 @@ DL-CCCH-Message              @dl.ccch
 DL-DCCH-Message              @dl.dcch
 UL-CCCH-Message              @ul.ccch
 UL-DCCH-Message              @ul.dcch
+UECapabilityInformation      @ue_cap_info
 #.END
 
 #.FN_BODY DedicatedInfoNAS VAL_PTR = &nas_eps_tvb

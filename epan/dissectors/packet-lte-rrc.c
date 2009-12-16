@@ -102,9 +102,9 @@ static int hf_lte_rrc_DL_CCCH_Message_PDU = -1;   /* DL_CCCH_Message */
 static int hf_lte_rrc_DL_DCCH_Message_PDU = -1;   /* DL_DCCH_Message */
 static int hf_lte_rrc_UL_CCCH_Message_PDU = -1;   /* UL_CCCH_Message */
 static int hf_lte_rrc_UL_DCCH_Message_PDU = -1;   /* UL_DCCH_Message */
+static int hf_lte_rrc_UECapabilityInformation_PDU = -1;  /* UECapabilityInformation */
 static int hf_lte_rrc_lte_rrc_HandoverCommand_PDU = -1;  /* HandoverCommand */
 static int hf_lte_rrc_lte_rrc_HandoverPreparationInformation_PDU = -1;  /* HandoverPreparationInformation */
-static int hf_lte_rrc_UECapabilityInformation_PDU = -1;  /* UECapabilityInformation */
 static int hf_lte_rrc_message = -1;               /* BCCH_BCH_MessageType */
 static int hf_lte_rrc_message_01 = -1;            /* BCCH_DL_SCH_MessageType */
 static int hf_lte_rrc_c1 = -1;                    /* T_c1 */
@@ -1654,12 +1654,10 @@ static gint ett_lte_rrc_RRM_Config = -1;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
+static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 /*--- Included file: packet-lte-rrc-fn.c ---*/
 #line 1 "packet-lte-rrc-fn.c"
-/*--- PDUs declarations ---*/
-static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
-
 
 static const value_string lte_rrc_T_dl_Bandwidth_vals[] = {
   {   0, "n6" },
@@ -15530,6 +15528,14 @@ static int dissect_UL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_lte_rrc_UECapabilityInformation(tvb, offset, &asn1_ctx, tree, hf_lte_rrc_UECapabilityInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_lte_rrc_HandoverCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -15546,18 +15552,10 @@ int dissect_lte_rrc_HandoverPreparationInformation_PDU(tvbuff_t *tvb _U_, packet
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  offset = dissect_lte_rrc_UECapabilityInformation(tvb, offset, &asn1_ctx, tree, hf_lte_rrc_UECapabilityInformation_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 66 "packet-lte-rrc-template.c"
+#line 67 "packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -15613,6 +15611,10 @@ void proto_register_lte_rrc(void) {
       { "UL-DCCH-Message", "lte-rrc.UL_DCCH_Message",
         FT_NONE, BASE_NONE, NULL, 0,
         "lte_rrc.UL_DCCH_Message", HFILL }},
+    { &hf_lte_rrc_UECapabilityInformation_PDU,
+      { "UECapabilityInformation", "lte-rrc.UECapabilityInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "lte_rrc.UECapabilityInformation", HFILL }},
     { &hf_lte_rrc_lte_rrc_HandoverCommand_PDU,
       { "HandoverCommand", "lte-rrc.HandoverCommand",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -15621,10 +15623,6 @@ void proto_register_lte_rrc(void) {
       { "HandoverPreparationInformation", "lte-rrc.HandoverPreparationInformation",
         FT_NONE, BASE_NONE, NULL, 0,
         "lte_rrc.HandoverPreparationInformation", HFILL }},
-    { &hf_lte_rrc_UECapabilityInformation_PDU,
-      { "UECapabilityInformation", "lte-rrc.UECapabilityInformation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "lte_rrc.UECapabilityInformation", HFILL }},
     { &hf_lte_rrc_message,
       { "message", "lte-rrc.message",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19615,7 +19613,7 @@ void proto_register_lte_rrc(void) {
         "lte_rrc.T_ue_InactiveTime", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 91 "packet-lte-rrc-template.c"
+#line 92 "packet-lte-rrc-template.c"
   };
 
   /* List of subtrees */
@@ -20162,7 +20160,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRM_Config,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 97 "packet-lte-rrc-template.c"
+#line 98 "packet-lte-rrc-template.c"
   };
 
 
@@ -20184,10 +20182,11 @@ void proto_register_lte_rrc(void) {
   new_register_dissector("lte-rrc.dl.dcch", dissect_DL_DCCH_Message_PDU, proto_lte_rrc);
   new_register_dissector("lte-rrc.ul.ccch", dissect_UL_CCCH_Message_PDU, proto_lte_rrc);
   new_register_dissector("lte-rrc.ul.dcch", dissect_UL_DCCH_Message_PDU, proto_lte_rrc);
+  new_register_dissector("lte-rrc.ue_cap_info", dissect_UECapabilityInformation_PDU, proto_lte_rrc);
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 109 "packet-lte-rrc-template.c"
+#line 110 "packet-lte-rrc-template.c"
 
 }
 
