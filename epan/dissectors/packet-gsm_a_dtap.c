@@ -452,6 +452,8 @@ static int hf_gsm_a_dtap_progress_description	= -1;
 static int hf_gsm_a_dtap_afi	= -1;
 static int hf_gsm_a_dtap_rej_cause	= -1;
 static int hf_gsm_a_dtap_u2u_prot_discr	= -1;
+static int hf_gsm_a_dtap_mcat	= -1;
+static int hf_gsm_a_dtap_enicm	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -2179,8 +2181,17 @@ de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 }
 
 /*
- * [3] 10.5.4.5a Call Control Capabilities
+ * [9] 10.5.4.5a Call Control Capabilities
  */
+const true_false_string gsm_a_dtap_mcat_value = {
+	"The mobile station supports Multimedia CAT during the alerting phase of a mobile originated multimedia call establishment",
+	"The mobile station does not support Multimedia CAT"
+};
+
+const true_false_string gsm_a_dtap_enicm_value = {
+	"The mobile station supports the Enhanced Network-initiated In-Call Modification procedure",
+	"The mobile station does not support the Enhanced Network-initiated In-Call Modification procedure"
+};
 
 static guint16
 de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
@@ -2212,7 +2223,8 @@ de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	break;
 	}
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 2, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_mcat, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_dtap_enicm, tvb, curr_offset, 1, FALSE);
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
 		proto_tree_add_text(tree,
@@ -6499,6 +6511,16 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_u2u_prot_discr,
 		{ "User-user protocol discriminator", "gsm_a.dtap.u2u_prot_discr",
 		FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(gsm_a_dtap_u2u_prot_discr_vals), 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_mcat,
+		{ "MCAT", "gsm_a.dtap.mcat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_dtap_mcat_value), 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_enicm,
+		{ "ENICM", "gsm_a.dtap.mcat",
+		FT_BOOLEAN, 8, TFS(&gsm_a_dtap_enicm_value), 0x04,
 		NULL, HFILL }
 	},
 	};
