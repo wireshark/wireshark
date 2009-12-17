@@ -2030,7 +2030,7 @@ rtp_player_dlg_create(void)
 	label = gtk_label_new("Jitter buffer [ms] ");
 	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), label, FALSE, FALSE, 0);
 	
-	jitter_spinner_adj = (GtkAdjustment *) gtk_adjustment_new (50, 0, 500, 5, 10, 10);
+	jitter_spinner_adj = (GtkAdjustment *) gtk_adjustment_new (50, 0, 500, 5, 10, 0);
 	jitter_spinner = gtk_spin_button_new (jitter_spinner_adj, 5, 0);
 	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), jitter_spinner, FALSE, FALSE, 0);
 	gtk_tooltips_set_tip (tooltips, jitter_spinner, "The simulated jitter buffer in [ms]", NULL);
