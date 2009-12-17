@@ -96,6 +96,16 @@ extern void packet_list_unmark_all_frames_cb(GtkWidget *widget, gpointer data);
 /** Update packet marks. */
 extern void packet_list_update_marked_frames(void);
 
+/** Ignore the currently selected packet.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_);
+
+/** Update ignored packages. */
+extern void packet_list_update_ignored_frames(void);
+
 /** Gdk button click appeared, get row and column number in packet list from that position.
  *
  * @param widget the packet list widget from packet_list_new()

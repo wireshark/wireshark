@@ -811,8 +811,10 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 {
 #ifdef NEW_PACKET_LIST
     {"/Mark Packet (toggle)", NULL, GTK_MENU_FUNC(new_packet_list_mark_frame_cb), 0, NULL, NULL,},
+    {"/Ignore Packet (toggle)", NULL, GTK_MENU_FUNC(new_packet_list_ignore_frame_cb), 0, NULL, NULL,},
 #else
     {"/Mark Packet (toggle)", NULL, GTK_MENU_FUNC(packet_list_mark_frame_cb), 0, NULL, NULL,},
+    {"/Ignore Packet (toggle)", NULL, GTK_MENU_FUNC(packet_list_ignore_frame_cb), 0, NULL, NULL,},
 #endif /* NEW_PACKET_LIST */
     {"/Set Time Reference (toggle)", NULL, GTK_MENU_FUNC(reftime_frame_cb), REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
 

@@ -997,11 +997,15 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 
 	g_assert(cell_text);
 
-	if((fdata->color_filter)||(fdata->flags.marked)){
+	if((fdata->color_filter)||(fdata->flags.marked)||(fdata->flags.ignored)){
 		gboolean color_on = enable_color;
 		GdkColor fg_gdk;
 		GdkColor bg_gdk;
-		if(fdata->flags.marked){
+		if(fdata->flags.ignored){
+			color_t_to_gdkcolor(&fg_gdk, &prefs.gui_ignored_fg);
+			color_t_to_gdkcolor(&bg_gdk, &prefs.gui_ignored_bg);
+			color_on = TRUE;
+		}else if(fdata->flags.marked){
 			color_t_to_gdkcolor(&fg_gdk, &prefs.gui_marked_fg);
 			color_t_to_gdkcolor(&bg_gdk, &prefs.gui_marked_bg);
 			color_on = TRUE;
@@ -1058,6 +1062,15 @@ set_frame_mark(gboolean set, frame_data *fdata)
 		cf_mark_frame(&cfile, fdata);
 	else
 		cf_unmark_frame(&cfile, fdata);
+}
+
+static void
+set_frame_ignored(gboolean set, frame_data *fdata)
+{
+	if (set)
+		cf_ignore_frame(&cfile, fdata);
+	else
+		cf_unignore_frame(&cfile, fdata);
 }
 
 static void mark_all_frames(gboolean set)
@@ -1142,6 +1155,22 @@ void new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 
 	set_frame_mark(!record->fdata->flags.marked, record->fdata);
 	mark_frames_ready();
+}
+
+void new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	PacketListRecord *record;
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	/* model is filled with the current model as a convenience. */
+	gtk_tree_selection_get_selected(selection, &model, &iter);
+	record = new_packet_list_get_record(model, &iter);
+
+	set_frame_ignored(!record->fdata->flags.ignored, record->fdata);
+	redissect_packets();
 }
 
 static gboolean

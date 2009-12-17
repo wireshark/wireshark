@@ -457,6 +457,22 @@ void cf_mark_frame(capture_file *cf, frame_data *frame);
 void cf_unmark_frame(capture_file *cf, frame_data *frame);
 
 /**
+ * Ignore a particular frame in a particular capture.
+ *
+ * @param cf the capture file
+ * @param frame the frame to be ignored
+ */
+void cf_ignore_frame(capture_file *cf, frame_data *frame);
+
+/**
+ * Unignore a particular frame in a particular capture.
+ *
+ * @param cf the capture file
+ * @param frame the frame to be unignored
+ */
+void cf_unignore_frame(capture_file *cf, frame_data *frame);
+
+/**
  * Convert error number and info to a complete message.
  *
  * @param err the error number

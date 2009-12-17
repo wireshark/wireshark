@@ -41,16 +41,19 @@
 #include "gtk/main_packet_list.h"
 
 
-#define SAMPLE_MARKED_TEXT "Sample marked packet text\n"
-#define SAMPLE_CLIENT_TEXT "Sample TCP stream client text\n"
-#define SAMPLE_SERVER_TEXT "Sample TCP stream server text\n"
+#define SAMPLE_MARKED_TEXT  "Sample marked packet text\n"
+#define SAMPLE_IGNORED_TEXT "Sample ignored packet text\n"
+#define SAMPLE_CLIENT_TEXT  "Sample TCP stream client text\n"
+#define SAMPLE_SERVER_TEXT  "Sample TCP stream server text\n"
 #define MFG_IDX 0
 #define MBG_IDX 1
-#define CFG_IDX 2
-#define CBG_IDX 3
-#define SFG_IDX 4
-#define SBG_IDX 5
-#define MAX_IDX 6 /* set this to the number of IDX values */
+#define IFG_IDX 2
+#define IBG_IDX 3
+#define CFG_IDX 4
+#define CBG_IDX 5
+#define SFG_IDX 6
+#define SBG_IDX 7
+#define MAX_IDX 8 /* set this to the number of IDX values */
 #define STREAM_SAMPLE_KEY "stream_entry"
 #define STREAM_CS_KEY "stream_colorselection"
 #define CS_RED 0
@@ -72,10 +75,12 @@ stream_prefs_show()
   const gchar     *mt[] = { 
 	  "Marked packet foreground",		/* MFG_IDX 0*/
 	  "Marked packet background",		/* MBG_IDX 1*/
-	  "TCP stream client foreground",	/* CFG_IDX 2*/
-	  "TCP stream client background",	/* CBG_IDX 3*/
-	  "TCP stream server foreground",	/* SFG_IDX 4*/
-	  "TCP stream server background"	/* SBG_IDX 5*/
+	  "Ignored packet foreground",		/* IFG_IDX 2*/
+	  "Ignored packet background",		/* IBG_IDX 3*/
+	  "TCP stream client foreground",	/* CFG_IDX 4*/
+	  "TCP stream client background",	/* CBG_IDX 5*/
+	  "TCP stream server foreground",	/* SFG_IDX 6*/
+	  "TCP stream server background"	/* SBG_IDX 7*/
   };
   int mcount = sizeof(mt) / sizeof (gchar *);
   GtkTextBuffer *buf;
@@ -84,6 +89,8 @@ stream_prefs_show()
 
   color_t_to_gdkcolor(&tcolors[MFG_IDX], &prefs.gui_marked_fg);
   color_t_to_gdkcolor(&tcolors[MBG_IDX], &prefs.gui_marked_bg);
+  color_t_to_gdkcolor(&tcolors[IFG_IDX], &prefs.gui_ignored_fg);
+  color_t_to_gdkcolor(&tcolors[IBG_IDX], &prefs.gui_ignored_bg);
   color_t_to_gdkcolor(&tcolors[CFG_IDX], &prefs.st_client_fg);
   color_t_to_gdkcolor(&tcolors[CBG_IDX], &prefs.st_client_bg);
   color_t_to_gdkcolor(&tcolors[SFG_IDX], &prefs.st_server_fg);
@@ -130,6 +137,9 @@ stream_prefs_show()
   gtk_text_buffer_create_tag(buf, "marked",
                              "foreground-gdk", &tcolors[MFG_IDX],
                              "background-gdk", &tcolors[MBG_IDX], NULL);
+  gtk_text_buffer_create_tag(buf, "ignored",
+                             "foreground-gdk", &tcolors[IFG_IDX],
+                             "background-gdk", &tcolors[IBG_IDX], NULL);
   gtk_text_buffer_create_tag(buf, "client",
                              "foreground-gdk", &tcolors[CFG_IDX],
                              "background-gdk", &tcolors[CBG_IDX], NULL);
@@ -138,6 +148,8 @@ stream_prefs_show()
                              "background-gdk", &tcolors[SBG_IDX], NULL);
   gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_MARKED_TEXT, -1,
                                            "marked", NULL);
+  gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_IGNORED_TEXT, -1,
+                                           "ignored", NULL);
   gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_CLIENT_TEXT, -1,
                                            "client", NULL);
   gtk_text_buffer_insert_with_tags_by_name(buf, &iter, SAMPLE_SERVER_TEXT, -1,
@@ -170,6 +182,9 @@ update_text_color(GtkWidget *w, gpointer data _U_) {
   tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), "marked");
   g_object_set(tag, "foreground-gdk", &tcolors[MFG_IDX], "background-gdk",
                &tcolors[MBG_IDX], NULL);
+  tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), "ignored");
+  g_object_set(tag, "foreground-gdk", &tcolors[IFG_IDX], "background-gdk",
+               &tcolors[IBG_IDX], NULL);
   tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), "client");
   g_object_set(tag, "foreground-gdk", &tcolors[CFG_IDX], "background-gdk",
                &tcolors[CBG_IDX], NULL);
@@ -195,6 +210,8 @@ stream_prefs_fetch(GtkWidget *w _U_)
 {
   gdkcolor_to_color_t(&prefs.gui_marked_fg, &tcolors[MFG_IDX]);
   gdkcolor_to_color_t(&prefs.gui_marked_bg, &tcolors[MBG_IDX]);
+  gdkcolor_to_color_t(&prefs.gui_ignored_fg, &tcolors[IFG_IDX]);
+  gdkcolor_to_color_t(&prefs.gui_ignored_bg, &tcolors[IBG_IDX]);
   gdkcolor_to_color_t(&prefs.st_client_fg, &tcolors[CFG_IDX]);
   gdkcolor_to_color_t(&prefs.st_client_bg, &tcolors[CBG_IDX]);
   gdkcolor_to_color_t(&prefs.st_server_fg, &tcolors[SFG_IDX]);
@@ -208,6 +225,7 @@ stream_prefs_apply(GtkWidget *w _U_)
 
 #ifndef NEW_PACKET_LIST
 	packet_list_update_marked_frames();
+	packet_list_update_ignored_frames();
 #endif
 }
 

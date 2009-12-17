@@ -499,6 +499,37 @@ set_frame_mark(gboolean set, frame_data *frame, gint row)
   }
 }
 
+/* ignore packet */
+static void
+set_frame_ignore(gboolean set, frame_data *frame, gint row)
+{
+  GdkColor fg, bg;
+
+  if (row == -1)
+    return;
+  if (set) {
+    cf_ignore_frame(&cfile, frame);
+    color_t_to_gdkcolor(&fg, &prefs.gui_ignored_fg);
+    color_t_to_gdkcolor(&bg, &prefs.gui_ignored_bg);
+    gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
+    gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
+  } else {
+    const color_filter_t *cfilter = frame->color_filter;
+
+    cf_unignore_frame(&cfile, frame);
+    /* Restore the color from the matching color filter if any */
+    if (cfilter) { /* The packet matches a color filter */
+      color_t_to_gdkcolor(&fg, &cfilter->fg_color);
+      color_t_to_gdkcolor(&bg, &cfilter->bg_color);
+      gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
+      gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
+    } else { /* No color filter match */
+      gtk_clist_set_foreground(GTK_CLIST(packet_list), row, NULL);
+      gtk_clist_set_background(GTK_CLIST(packet_list), row, NULL);
+    }
+  }
+}
+
 /* call this after last set_frame_mark is done */
 static void mark_frames_ready(void)
 {
@@ -554,7 +585,31 @@ void packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
   mark_all_frames(FALSE);
 }
 
-#ifndef NEW_PACKET_LIST
+void packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+  if (cfile.current_frame) {
+    set_frame_ignore(!cfile.current_frame->flags.ignored,
+                   cfile.current_frame, cfile.current_row);
+    redissect_packets();
+  }
+}
+
+void packet_list_update_ignored_frames(void)
+{
+  frame_data *fdata;
+
+  if (cfile.plist_start == NULL) return;
+
+  /* XXX: we might need a progressbar here */
+  for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
+    if (fdata->flags.ignored)
+      set_frame_ignore(TRUE, fdata,
+                     gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
+                                                  fdata));
+  }
+  mark_frames_ready();
+}
+
 gboolean
 packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button,
                                  gint *row, gint *column)
@@ -563,7 +618,6 @@ packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button,
                                  (gint) event_button->x, (gint) event_button->y,
                                   row, column);
 }
-#endif /* NEW_PACKET_LIST */
 
 static gint
 packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)

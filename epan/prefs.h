@@ -119,6 +119,8 @@ typedef struct _e_prefs {
   gchar   *gui_font_name;
   color_t  gui_marked_fg;
   color_t  gui_marked_bg;
+  color_t  gui_ignored_fg;
+  color_t  gui_ignored_bg;
   gchar   *gui_colorized_fg;
   gchar   *gui_colorized_bg;
   gboolean gui_geometry_save_position;

@@ -1154,6 +1154,14 @@ init_prefs(void) {
   prefs.gui_marked_bg.red          =         0;
   prefs.gui_marked_bg.green        =         0;
   prefs.gui_marked_bg.blue         =         0;
+  prefs.gui_ignored_fg.pixel       =     32767;
+  prefs.gui_ignored_fg.red         =     32767;
+  prefs.gui_ignored_fg.green       =     32767;
+  prefs.gui_ignored_fg.blue        =     32767;
+  prefs.gui_ignored_bg.pixel       =     65535;
+  prefs.gui_ignored_bg.red         =     65535;
+  prefs.gui_ignored_bg.green       =     65535;
+  prefs.gui_ignored_bg.blue        =     65535;
   prefs.gui_colorized_fg           = g_strdup("000000,000000,000000,000000,000000,000000,000000,000000,000000,000000");
   prefs.gui_colorized_bg           = g_strdup("ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0");
   prefs.gui_geometry_save_position =         FALSE;
@@ -1617,6 +1625,8 @@ prefs_is_capture_device_hidden(const char *name)
 #define PRS_GUI_FONT_NAME_2              "gui.gtk2.font_name"
 #define PRS_GUI_MARKED_FG                "gui.marked_frame.fg"
 #define PRS_GUI_MARKED_BG                "gui.marked_frame.bg"
+#define PRS_GUI_IGNORED_FG               "gui.ignored_frame.fg"
+#define PRS_GUI_IGNORED_BG               "gui.ignored_frame.bg"
 #define PRS_GUI_COLORIZED_FG             "gui.colorized_frame.fg"
 #define PRS_GUI_COLORIZED_BG             "gui.colorized_frame.bg"
 #define PRS_GUI_CONSOLE_OPEN             "gui.console_open"
@@ -1987,6 +1997,18 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     prefs.gui_marked_bg.red   = RED_COMPONENT(cval);
     prefs.gui_marked_bg.green = GREEN_COMPONENT(cval);
     prefs.gui_marked_bg.blue  = BLUE_COMPONENT(cval);
+  } else if (strcmp(pref_name, PRS_GUI_IGNORED_FG) == 0) {
+    cval = strtoul(value, NULL, 16);
+    prefs.gui_ignored_fg.pixel = 0;
+    prefs.gui_ignored_fg.red   = RED_COMPONENT(cval);
+    prefs.gui_ignored_fg.green = GREEN_COMPONENT(cval);
+    prefs.gui_ignored_fg.blue  = BLUE_COMPONENT(cval);
+  } else if (strcmp(pref_name, PRS_GUI_IGNORED_BG) == 0) {
+    cval = strtoul(value, NULL, 16);
+    prefs.gui_ignored_bg.pixel = 0;
+    prefs.gui_ignored_bg.red   = RED_COMPONENT(cval);
+    prefs.gui_ignored_bg.green = GREEN_COMPONENT(cval);
+    prefs.gui_ignored_bg.blue  = BLUE_COMPONENT(cval);
   } else if (strcmp(pref_name, PRS_GUI_COLORIZED_FG) == 0) {
     g_free(prefs.gui_colorized_fg);
     prefs.gui_colorized_fg = g_strdup(value);
@@ -2895,6 +2917,17 @@ write_prefs(char **pf_path_return)
     (prefs.gui_marked_bg.green * 255 / 65535),
     (prefs.gui_marked_bg.blue * 255 / 65535));
 
+  fprintf (pf, "\n# Color preferences for a ignored frame.\n");
+  fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_IGNORED_FG,
+    (prefs.gui_ignored_fg.red * 255 / 65535),
+    (prefs.gui_ignored_fg.green * 255 / 65535),
+    (prefs.gui_ignored_fg.blue * 255 / 65535));
+  fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_IGNORED_BG,
+    (prefs.gui_ignored_bg.red * 255 / 65535),
+    (prefs.gui_ignored_bg.green * 255 / 65535),
+    (prefs.gui_ignored_bg.blue * 255 / 65535));
+
   /* Don't write the colors of the 10 easy-access-colorfilters to the preferences
    * file until the colors can be changed in the GUI. Currently this is not really
    * possible since the STOCK-icons for these colors are hardcoded.
@@ -3099,6 +3132,8 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_font_name = g_strdup(src->gui_font_name);
   dest->gui_marked_fg = src->gui_marked_fg;
   dest->gui_marked_bg = src->gui_marked_bg;
+  dest->gui_ignored_fg = src->gui_ignored_fg;
+  dest->gui_ignored_bg = src->gui_ignored_bg;
   dest->gui_geometry_save_position = src->gui_geometry_save_position;
   dest->gui_geometry_save_size = src->gui_geometry_save_size;
   dest->gui_geometry_save_maximized = src->gui_geometry_save_maximized;

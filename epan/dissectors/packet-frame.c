@@ -60,6 +60,7 @@ static int hf_frame_p2p_dir = -1;
 static int hf_frame_file_off = -1;
 static int hf_frame_md5_hash = -1;
 static int hf_frame_marked = -1;
+static int hf_frame_ignored = -1;
 static int hf_link_number = -1;
 static int hf_frame_protocols = -1;
 static int hf_frame_color_filter_name = -1;
@@ -277,6 +278,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  ti = proto_tree_add_boolean(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->flags.marked);
 	  PROTO_ITEM_SET_GENERATED(ti);
 
+	  ti = proto_tree_add_boolean(fh_tree, hf_frame_ignored, tvb, 0, 0,pinfo->fd->flags.ignored);
+	  PROTO_ITEM_SET_GENERATED(ti);
+
 	  if(proto_field_is_referenced(tree, hf_frame_protocols)) {
 		  /* we are going to be using proto_item_append_string() on
 		   * hf_frame_protocols, and we must therefore disable the
@@ -323,6 +327,13 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		    0, 0, color_filter->filter_text);
 	      PROTO_ITEM_SET_GENERATED(item);
 	  }
+    }
+
+    if (pinfo->fd->flags.ignored) {
+        /* Ignored package, stop handling here */
+        col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
+        proto_tree_add_text (tree, tvb, 0, -1, "This frame is marked as ignored");
+        return;
     }
 
     /* Portable Exception Handling to trap Wireshark specific exceptions like BoundsError exceptions */
@@ -595,6 +606,10 @@ proto_register_frame(void)
 		{ &hf_frame_marked,
 		{ "Frame is marked",	"frame.marked", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"Frame is marked in the GUI", HFILL }},
+
+		{ &hf_frame_ignored,
+		{ "Frame is ignored",	"frame.ignored", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Frame is ignored by the dissectors", HFILL }},
 
 		{ &hf_frame_protocols,
 		{ "Protocols in frame",	"frame.protocols", FT_STRING, BASE_NONE, NULL, 0x0,

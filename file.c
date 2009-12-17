@@ -310,6 +310,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   cf->count     = 0;
   cf->displayed_count = 0;
   cf->marked_count = 0;
+  cf->ignored_count = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);
@@ -1272,6 +1273,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      fdata->color_filter = color_filters_colorize_packet(row, &edt);
      if (fdata->flags.marked) {
        packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
+     }
+     if (fdata->flags.ignored) {
+       packet_list_set_colors(row, &prefs.gui_ignored_fg, &prefs.gui_ignored_bg);
      }
 
     cf->displayed_count++;
@@ -4069,6 +4073,32 @@ cf_unmark_frame(capture_file *cf, frame_data *frame)
     frame->flags.marked = FALSE;
     if (cf->marked_count > 0)
       cf->marked_count--;
+  }
+}
+
+/*
+ * Ignore a particular frame.
+ */
+void
+cf_ignore_frame(capture_file *cf, frame_data *frame)
+{
+  if (! frame->flags.ignored) {
+    frame->flags.ignored = TRUE;
+    if (cf->count > cf->ignored_count)
+      cf->ignored_count++;
+  }
+}
+
+/*
+ * Un-ignore a particular frame.
+ */
+void
+cf_unignore_frame(capture_file *cf, frame_data *frame)
+{
+  if (frame->flags.ignored) {
+    frame->flags.ignored = FALSE;
+    if (cf->ignored_count > 0)
+      cf->ignored_count--;
   }
 }
 

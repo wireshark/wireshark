@@ -439,6 +439,9 @@ packets_bar_update(void)
             if(cfile.drops_known) {
                 packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Dropped: %u",
                     cfile.count, cfile.displayed_count, cfile.marked_count, cfile.drops);
+	    } else if (cfile.ignored_count > 0) {
+                packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Ignored: %u",
+                    cfile.count, cfile.displayed_count, cfile.marked_count, cfile.ignored_count);
             } else {
                 gulong computed_elapsed = cf_get_computed_elapsed();
 
