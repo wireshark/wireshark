@@ -159,7 +159,7 @@ FONTCONFIG_DLL=libfontconfig-1.dll
 EXPAT_DLL=libexpat-1.dll
 INTL_DLL=intl.dll
 # This macro is used by the setup target.
-GTK_PKG=2.16.6-20091215
+GTK_PKG=2.18.5-20091215
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -907,7 +907,7 @@ GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
 	$(GLIB_LIBS)
 
 
-!IF "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14" || "$(GTK_INST_VERSION)" == "2.12"
+!IF "$(GTK_INST_VERSION)" == "2.18" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14"
 GTK_LIB_DIR=2.10.0
 
 NEED_LIBPNG_DLL=USE
