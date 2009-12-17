@@ -1395,8 +1395,8 @@ static SRResult *GetSRResult(guint32 frameNum, gboolean can_create)
 
 /* Keep track of SR requests, failures and related grants, in order to show them
    as generated fields in these frames */
-static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
-                        tvbuff_t *tvb, guint16 rnti, proto_item *event_ti)
+static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
+                        tvbuff_t *tvb _U_, guint16 rnti, proto_item *event_ti)
 {
     SRResult *result = NULL;
     SRResult *resultForSRFrame = NULL;
@@ -1545,6 +1545,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
 
     /* Show result info */
+#if 1
     switch (result->type) {
         case GrantAnsweringSR:
             ti = proto_tree_add_uint(tree, hf_mac_lte_grant_answering_sr,
@@ -1580,14 +1581,17 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
             PROTO_ITEM_SET_GENERATED(ti);
             break;
         case InvalidSREvent:
-            ti = proto_tree_add_item(tree, hf_mac_lte_sr_invalid_event,
-                                     tvb, 0, 0, FALSE);
+            ti = proto_tree_add_none_format(tree, hf_mac_lte_sr_invalid_event,
+                                            tvb, 0, 0, "Invalid SR event - state=(%s), event=(%s)",
+                                            val_to_str(result->status, sr_status_vals, "Unknown"),
+                                            val_to_str(result->event,  sr_event_vals,  "Unknown"));
             PROTO_ITEM_SET_GENERATED(ti);
             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
                                    "Invalid SR event - state=(%s), event=(%s)",
                                    val_to_str(result->status, sr_status_vals, "Unknown"),
                                    val_to_str(result->event,  sr_event_vals,  "Unknown"));
 
+            break;
     }
 }
 
