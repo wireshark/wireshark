@@ -192,7 +192,7 @@ static int hf_gsm_a_dtap_msg_gmm_type = -1;
 static int hf_gsm_a_dtap_msg_sm_type = -1;
 int hf_gsm_a_gm_elem_id = -1;
 static int hf_gsm_a_qos_delay_cls	= -1;
-static int hf_gsm_a_qos_qos_reliability_cls = -1;
+static int hf_gsm_a_qos_reliability_cls = -1;
 static int hf_gsm_a_qos_traffic_cls = -1;
 static int hf_gsm_a_qos_del_order = -1;
 static int hf_gsm_a_qos_del_of_err_sdu = -1;
@@ -250,6 +250,21 @@ static int hf_gsm_a_gm_gps_a = -1;
 static int hf_gsm_a_gm_gps_b = -1;
 static int hf_gsm_a_gm_gps_c = -1;
 static int hf_gsm_a_sm_pdp_type_org = -1;
+static int hf_gsm_a_qos_mean_thr = -1;
+static int hf_gsm_a_qos_peak_thr = -1;
+static int hf_gsm_a_qos_prec_class = -1;
+static int hf_gsm_a_qos_traf_handl_prio = -1;
+static int hf_gsm_a_qos_trans_delay = -1;
+static int hf_gsm_a_qos_signalling_ind = -1;
+static int hf_gsm_a_qos_source_stat_desc = -1;
+static int hf_gsm_a_qos_max_bitrate_upl = -1;
+static int hf_gsm_a_qos_max_bitrate_downl = -1;
+static int hf_gsm_a_qos_guar_bitrate_upl = -1;
+static int hf_gsm_a_qos_guar_bitrate_downl = -1;
+static int hf_gsm_a_qos_max_bitrate_upl_ext = -1;
+static int hf_gsm_a_qos_max_bitrate_downl_ext = -1;
+static int hf_gsm_a_qos_guar_bitrate_upl_ext = -1;
+static int hf_gsm_a_qos_guar_bitrate_downl_ext = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -3293,9 +3308,8 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 }
 
 /*
- * [7] 10.5.6.5 3GPP TS 24.008 version 7.8.0 Release 7
+ * [9] 10.5.6.5 Quality of service
  */
-
 static const value_string gsm_a_qos_delay_cls_vals[] = {
 	{ 0x00, "Subscribed delay class (in MS to network direction)" },
 	{ 0x01, "Delay class 1" },
@@ -3384,134 +3398,126 @@ const value_string gsm_a_qos_traff_hdl_pri_vals[] = {
 	{ 0, NULL }
 };
 
+const range_string gsm_a_qos_peak_thr_vals[] = {
+	{ 0x00, 0x00, "Subscribed peak throughput/reserved" },
+	{ 0x01, 0x01, "Up to 1 000 octet/s" },
+	{ 0x02, 0x02, "Up to 2 000 octet/s" },
+	{ 0x03, 0x03, "Up to 4 000 octet/s" },
+	{ 0x04, 0x04, "Up to 8 000 octet/s" },
+	{ 0x05, 0x05, "Up to 16 000 octet/s" },
+	{ 0x06, 0x06, "Up to 32 000 octet/s" },
+	{ 0x07, 0x07, "Up to 64 000 octet/s" },
+	{ 0x08, 0x08, "Up to 128 000 octet/s" },
+	{ 0x09, 0x09, "Up to 256 000 octet/s" },
+	{ 0x0a, 0x0e, "Interpreted as Up to 1 000 octet/s" },
+	{ 0x0f, 0x0f, "Reserved" },
+	{ 0, 0, NULL }
+};
+
+const range_string gsm_a_qos_mean_thr_vals[] = {
+	{ 0x00, 0x00, "Subscribed peak throughput/reserved" },
+	{ 0x01, 0x01, "100 octet/h" },
+	{ 0x02, 0x02, "200 octet/h" },
+	{ 0x03, 0x03, "500 octet/h" },
+	{ 0x04, 0x04, "1 000 octet/h" },
+	{ 0x05, 0x05, "2 000 octet/h" },
+	{ 0x06, 0x06, "5 000 octet/h" },
+	{ 0x07, 0x07, "10 000 octet/h" },
+	{ 0x08, 0x08, "20 000 octet/h" },
+	{ 0x09, 0x09, "50 000 octet/h" },
+	{ 0x0a, 0x0a, "100 000 octet/h" },
+	{ 0x0b, 0x0b, "200 000 octet/h" },
+	{ 0x0c, 0x0c, "500 000 octet/h" },
+	{ 0x0d, 0x0d, "1 000 000 octet/h" },
+	{ 0x0e, 0x0e, "2 000 000 octet/h" },
+	{ 0x0f, 0x0f, "5 000 000 octet/h" },
+	{ 0x10, 0x10, "10 000 000 octet/h" },
+	{ 0x11, 0x11, "20 000 000 octet/h" },
+	{ 0x12, 0x12, "50 000 000 octet/h" },
+	{ 0x13, 0x1d, "Interpreted as Best effort" },
+	{ 0x1e, 0x1e, "Reserved" },
+	{ 0x1f, 0x1f, "Best effort" },
+	{ 0, 0, NULL }
+};
+
+const range_string gsm_a_qos_prec_class_vals[] = {
+	{ 0x00, 0x00, "Subscribed precedence/reserved" },
+	{ 0x01, 0x01, "High priority" },
+	{ 0x02, 0x02, "Normal priority" },
+	{ 0x03, 0x03, "Low priority" },
+	{ 0x04, 0x06, "Interpreted as Normal priority" },
+	{ 0x07, 0x07, "Reserved" },
+	{ 0, 0, NULL }
+};
+
+const true_false_string gsm_a_qos_signalling_ind_value = {
+	"Optimised for signalling traffic",
+	"Not optimised for signalling traffic"
+};
+
+/* Helper function returning the main bitrates in kbps */
+static guint32
+qos_calc_bitrate(guint8 oct)
+{
+	if (oct <= 0x3f)
+		return oct;
+	if (oct <= 0x7f)
+		return 64 + (oct-0x40) * 8;
+
+	return 576 + (oct-0x80) * 64;
+}
+
+/* Helper function returning the extended bitrates in kbps */
+static guint32
+qos_calc_ext_bitrate(guint8 oct)
+{
+	if (oct <= 0x4a)
+		return 8600 + oct * 100;
+	if (oct <= 0xba)
+		return 16000 + (oct-0x4a) * 1000;
+
+	return 128000 + (oct - 0xba) * 2000;
+}
+
 guint16
 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-	guint	curr_len;
 	guchar	   oct, tmp_oct;
 	const gchar	*str;
+	guint32	temp32;
 
-	curr_len = len;
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
-
+	/* Octet 3 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 2, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_qos_delay_cls, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_qos_qos_reliability_cls, tvb, curr_offset, 1, FALSE);
-
+	proto_tree_add_item(tree, hf_gsm_a_qos_reliability_cls, tvb, curr_offset, 1, FALSE);
 	curr_offset+= 1;
-	curr_len-= 1;
 
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
-
+	/* Octet 4 */
 	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch ( oct>>4 )
-	{
-		case 0x00: str="Subscribed peak throughput/reserved"; break;
-		case 0x01: str="Up to 1 000 octet/s"; break;
-		case 0x02: str="Up to 2 000 octet/s"; break;
-		case 0x03: str="Up to 4 000 octet/s"; break;
-		case 0x04: str="Up to 8 000 octet/s"; break;
-		case 0x05: str="Up to 16 000 octet/s"; break;
-		case 0x06: str="Up to 32 000 octet/s"; break;
-		case 0x07: str="Up to 64 000 octet/s"; break;
-		case 0x08: str="Up to 128 000 octet/s"; break;
-		case 0x09: str="Up to 256 000 octet/s"; break;
-		case 0x0f: str="Reserved"; break;
-		default: str="Up to 1 000 octet/s";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Peak throughput: %s (%u)",str,oct>>4);
-
-	switch ( oct&0x7 )
-	{
-		case 0x00: str="Subscribed precedence/reserved"; break;
-		case 0x01: str="High priority"; break;
-		case 0x02: str="Normal priority"; break;
-		case 0x03: str="Low priority"; break;
-		case 0x07: str="Reserved"; break;
-		default: str="Normal priority";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Precedence class: %s (%u)",str,oct&7);
-
+	proto_tree_add_item(tree, hf_gsm_a_qos_peak_thr, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3) + 4, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_qos_prec_class, tvb, curr_offset, 1, FALSE);
 	curr_offset+= 1;
-	curr_len-= 1;
 
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch ( oct&0x1f )
-	{
-		case 0x00: str="Subscribed peak throughput/reserved"; break;
-		case 0x01: str="100 octet/h"; break;
-		case 0x02: str="200 octet/h"; break;
-		case 0x03: str="500 octet/h"; break;
-		case 0x04: str="1 000 octet/h"; break;
-		case 0x05: str="2 000 octet/h"; break;
-		case 0x06: str="5 000 octet/h"; break;
-		case 0x07: str="10 000 octet/h"; break;
-		case 0x08: str="20 000 octet/h"; break;
-		case 0x09: str="50 000 octet/h"; break;
-		case 0x0a: str="100 000 octet/h"; break;
-		case 0x0b: str="200 000 octet/h"; break;
-		case 0x0c: str="500 000 octet/h"; break;
-		case 0x0d: str="1 000 000 octet/h"; break;
-		case 0x0e: str="2 000 000 octet/h"; break;
-		case 0x0f: str="5 000 000 octet/h"; break;
-		case 0x10: str="10 000 000 octet/h"; break;
-		case 0x11: str="20 000 000 octet/h"; break;
-		case 0x12: str="50 000 000 octet/h"; break;
-		case 0x1e: str="Reserved"; break;
-		case 0x1f: str="Best effort"; break;
-		default: str="Best effort";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Mean throughput: %s (%u)",str,oct&0x1f);
-
+	/* Octet 5 */
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 3, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_qos_mean_thr, tvb, curr_offset, 1, FALSE);
 	curr_offset+= 1;
-	curr_len-= 1;
 
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	NO_MORE_DATA_CHECK(len);
 
-		return(curr_offset - offset);
-	}
-
+	/* Octet 6 */
 	proto_tree_add_item(tree, hf_gsm_a_qos_traffic_cls, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_qos_del_order, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_qos_del_of_err_sdu, tvb, curr_offset, 1, FALSE);
-
 	curr_offset+= 1;
-	curr_len-= 1;
 
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	NO_MORE_DATA_CHECK(len);
 
-		return(curr_offset - offset);
-	}
-
+	/* Octet 7 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	switch ( oct )
@@ -3527,159 +3533,87 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	if (( oct >= 1 ) && ( oct <= 0x96 ))
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
-			"Maximum SDU size: (%u) %u octets",oct,oct*10);
+			"Maximum SDU size: %u octets (%u)",oct*10, oct);
 	else
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
 			"Maximum SDU size: %s (%u)",str, oct);
 
 	curr_offset+= 1;
-	curr_len-= 1;
 
-	if ( curr_len == 0 )
+	NO_MORE_DATA_CHECK(len);
+
+	/* Octet 8 */
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	switch (oct)
 	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
+		case 0x00: str = "Subscribed maximum bit rate for uplink/reserved"; break;
+		case 0xff: str = "0 kbps"; break;
+		default: str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_upl, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, oct);
+	curr_offset+= 1;
+
+	NO_MORE_DATA_CHECK(len);
+
+	/* Octet 9 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	switch ( oct )
 	{
-		case 0x00: str="Subscribed maximum bit rate for uplink/reserved"; break;
-		case 0xff: str="0kbps"; break;
-		default: str="This should not happen - BUG";
+		case 0x00: str="Subscribed maximum bit rate for downlink/reserved"; break;
+		case 0xff: str="0 kbps"; break;
+		default: str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	if (( oct >= 1 ) && ( oct <= 0x3f ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink: %ukbps (%u)",oct,oct);
-	else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink: %ukbps (%u)",(oct-0x40)*8+64,oct); /* - was (oct-0x40)*8  */
-	else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink: %ukbps (%u)",(oct-0x80)*64+576,oct); /* - was (oct-0x80)*64 */
-	else
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink: %s (%u)",str,oct);
-
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, oct);
 	curr_offset+= 1;
-	curr_len-= 1;
 
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	switch ( oct )
-	{
-		case 0x00: str="Subscribed maximum bit rate for uplink/reserved"; break;
-		case 0xff: str="0kbps"; break;
-		default: str="This should not happen - BUG";
-	}
-
-	if (( oct >= 1 ) && ( oct <= 0x3f ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-		"Maximum bit rate for downlink: %ukbps (%u)",oct,oct);
-	else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink: %ukbps (%u)",(oct-0x40)*8+64,oct);/*same as above*/
-	else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink: %ukbps (%u)",(oct-0x80)*64+576,oct);/*same as above*/
-	else
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink: %s (%u)",str,oct);
-
-	curr_offset+= 1;
-	curr_len-= 1;
-
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
+	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 10 */
 	proto_tree_add_item(tree, hf_gsm_a_qos_ber, tvb, curr_offset, 1, FALSE);
 	proto_tree_add_item(tree, hf_gsm_a_qos_sdu_err_rat, tvb, curr_offset, 1, FALSE);
 
 	curr_offset+= 1;
-	curr_len-= 1;
-
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
+	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 11 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch ( oct>>2 )
+	tmp_oct = oct >> 2;
+	switch (tmp_oct)
 	{
 		case 0x00: str="Subscribed transfer delay/reserved"; break;
 		case 0x3f: str="Reserved"; break;
-		default: str="This should not happen - BUG";
+		default:
+			if (tmp_oct <= 0x0f)
+				temp32 = tmp_oct * 10;
+			else if (tmp_oct <= 0x1f)
+				temp32 = (tmp_oct - 0x10) * 50 + 200;
+			else
+				temp32 = (tmp_oct - 0x20) * 100 + 1000;
+			str = ep_strdup_printf("%u ms", temp32);
 	}
 
-	tmp_oct = oct>>2;
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_trans_delay, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, tmp_oct);
 
-	if (( tmp_oct >= 1 ) && ( tmp_oct <= 0x0f ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Transfer Delay: %ums (%u)",(oct>>2)*10,oct>>2);
-	else if (( tmp_oct >= 0x10 ) && ( tmp_oct <= 0x1f ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Transfer Delay: %ums (%u)",((oct>>2)-0x10)*50+200,oct>>2);
-	else if (( tmp_oct >= 0x20 ) && ( tmp_oct <= 0x3e ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Transfer Delay: %ums (%u)",((oct>>2)-0x20)*100+1000,oct>>2);
+	tmp_oct = oct & 0x03;
+	if (tmp_oct == 0)
+		str = "Subscribed traffic handling priority/reserved";
 	else
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Transfer Delay: %s (%u)",str,oct>>2);
+		str = ep_strdup_printf("Priority level %u", tmp_oct);
 
-	switch ( oct&0x03 )
-	{
-		case 0x00: str="Subscribed traffic handling priority/reserved"; break;
-		case 0x01: str="Priority level 1"; break;
-		case 0x02: str="Priority level 2"; break;
-		case 0x03: str="Priority level 3"; break;
-		default: str="This should not happen - BUG";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Traffic Handling priority: %s (%u)",str,oct&0x03);
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_traf_handl_prio, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, tmp_oct);
 
 	curr_offset+= 1;
-	curr_len-= 1;
-
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
+	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 12 */
 	oct = tvb_get_guint8(tvb, curr_offset);
@@ -3687,244 +3621,124 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	switch ( oct )
 	{
 		case 0x00: str="Subscribed guaranteed bit rate for uplink/reserved"; break;
-		case 0xff: str="0kbps"; break;
-		default: str="This should not happen - BUG";
+		case 0xff: str="0 kbps"; break;
+		default: str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	if (( oct >= 1 ) && ( oct <= 0x3f ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink: %ukbps (%u)",oct,oct);
-	else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink: %ukbps (%u)",(oct-0x40)*8+64,oct);/*same as for max bit rate*/
-	else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink: %ukbps (%u)",(oct-0x80)*64+576,oct);/*same as for max bit rate*/
-	else
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink: %s (%u)",str,oct);
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_upl, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
-	curr_len-= 1;
+	NO_MORE_DATA_CHECK(len);
 
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
-
+	/* Octet 13 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
 	switch ( oct )
 	{
-		case 0x00: str="Subscribed guaranteed bit rate for uplink/reserved"; break;
-		case 0xff: str="0kbps"; break;
-		default: str="This should not happen - BUG";
+		case 0x00: str="Subscribed guaranteed bit rate for downlink/reserved"; break;
+		case 0xff: str="0 kbps"; break;
+		default: str = ep_strdup_printf("%u kbps", qos_calc_bitrate(oct));
 	}
 
-	if (( oct >= 1 ) && ( oct <= 0x3f ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink: %ukbps (%u)",oct,oct);
-	else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink: %ukbps (%u)",(oct-0x40)*8+64,oct);/*same as above*/
-	else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink: %ukbps (%u)",(oct-0x80)*64+576,oct);/*same as above*/
-	else
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink: %s (%u)",str,oct);
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_downl, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
-	curr_len-= 1;
-
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
+	NO_MORE_DATA_CHECK(len);
 
 	/* Ocet 14 */
 	oct = tvb_get_guint8(tvb, curr_offset);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3), 3, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_qos_signalling_ind, tvb , curr_offset, 1, FALSE);
 
-	switch ( (oct>>4)&1 )
-	{
-		case 0x00: str="Not optimised for signalling traffic"; break;
-		case 0x01: str="Optimised for signalling traffic"; break;
-		default: str="This should not happen - BUG";
-	}
+	tmp_oct = oct & 7;
+	if (tmp_oct == 0x01)
+		str = "speech";
+	else
+		str = "unknown";
 
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Signalling Indication: %s (%u)",str,(oct>>4)&1);
-
-	switch ( oct&7 )
-	{
-		case 0x00: str="unknown"; break;
-		case 0x01: str="speech"; break;
-		default: str="unknown";
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Source Statistics Descriptor: %s (%u)",str,oct&7);
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_source_stat_desc, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, tmp_oct);
 
 	curr_offset+= 1;
-	curr_len-= 1;
-
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
+	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 15 */
-
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch ( oct )
-	{
-		case 0x00: str="Use the value indicated by the Maximum bit rate for downlink"; break;
-		default: str="Unspecified";
-	}
-
-	if (( oct >= 1 ) && ( oct <= 0x4a ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink (extended): %ukbps (%u)",oct*100,oct);
-	if (( oct >= 0x4b ) && ( oct <= 0xba ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink (extended): %uMbps (%u)",16 + oct- 0x4a,oct);
-	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink (extended): %uMbps (%u)",128 + oct - 0xba * 2,oct);
+	if (oct == 0x00)
+		str = "Use the value indicated by the Maximum bit rate for downlink";
 	else
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for downlink (extended): %s (%u)",str,oct);
+	{
+		temp32 = qos_calc_ext_bitrate(oct);
+		if (temp32 % 1000 == 0)
+			str = ep_strdup_printf("%u Mbps", temp32 / 1000);
+		else
+			str = ep_strdup_printf("%u kbps", temp32);
+	}
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_downl_ext, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
-	curr_len-= 1;
-
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
+	NO_MORE_DATA_CHECK(len);
 
 	/* Octet 16 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch ( oct )
-	{
-		case 0x00: str="Use the value indicated by the Guaranteed bit rate for downlink"; break;
-		default: str="Unspecified";
-	}
-
-	if (( oct >= 1 ) && ( oct <= 0x4a ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink (extended): %ukbps (%u)",oct*100, oct);
-	if (( oct >= 0x4b ) && ( oct <= 0xba ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink (extended): %uMbps (%u)",16 + oct- 0x4a, oct);
-	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink (extended): %uMbps (%u)",128 + oct - 0xba * 2, oct);
+	if (oct == 0x00)
+		str = "Use the value indicated by the Guaranteed bit rate for downlink";
 	else
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for downlink (extended): %s (%u)",str,oct);
+	{
+		temp32 = qos_calc_ext_bitrate(oct);
+		if (temp32 % 1000 == 0)
+			str = ep_strdup_printf("%u Mbps", temp32 / 1000);
+		else
+			str = ep_strdup_printf("%u kbps", temp32);
+	}
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_downl_ext, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
-	curr_len-= 1;
+	NO_MORE_DATA_CHECK(len);
 
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
 	/* Maximum bit rate for uplink (extended) Octet 17 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch ( oct )
-	{
-		case 0x00: str="Use the value indicated by the Maximum bit rate for uplink"; break;
-		default: str="Unspecified";
-	}
-
-	if (( oct >= 1 ) && ( oct <= 0x4a ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink (extended): %ukbps (%u)",oct*100,oct);
-	if (( oct >= 0x4b ) && ( oct <= 0xba ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink (extended): %uMbps (%u)",16 + oct- 0x4a,oct);
-	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink (extended): %uMbps (%u)",128 + oct - 0xba * 2,oct);
+	if (oct == 0x00)
+		str = "Use the value indicated by the Maximum bit rate for uplink";
 	else
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Maximum bit rate for uplink (extended): %s (%u)",str,oct);
+	{
+		temp32 = qos_calc_ext_bitrate(oct);
+		if (temp32 % 1000 == 0)
+			str = ep_strdup_printf("%u Mbps", temp32 / 1000);
+		else
+			str = ep_strdup_printf("%u kbps", temp32);
+	}
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_max_bitrate_upl_ext, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
-	curr_len-= 1;
-
-	if ( curr_len == 0 )
-	{
-		EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
-
-		return(curr_offset - offset);
-	}
+	NO_MORE_DATA_CHECK(len);
 
 	/* Guaranteed bit rate for uplink (extended) Octet 18 */
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	switch ( oct )
-	{
-		case 0x00: str="Use the value indicated by the Guaranteed bit rate for uplink"; break;
-		default: str="Unspecified";
-	}
-
-	if (( oct >= 1 ) && ( oct <= 0x4a ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink (extended): %ukbps (%u)",oct*100,oct);
-	if (( oct >= 0x4b ) && ( oct <= 0xba ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink (extended): %uMbps (%u)",16 + oct- 0x4a,oct);
-	if (( oct >= 0xbb ) && ( oct <= 0xfa ))
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink (extended): %uMbps (%u)",128 + oct - 0xba * 2,oct);
+	if (oct == 0x00)
+		str = "Use the value indicated by the Guaranteed bit rate for uplink";
 	else
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Guaranteed bit rate for uplink (extended): %s (%u)",str,oct);
+	{
+		temp32 = qos_calc_ext_bitrate(oct);
+		if (temp32 % 1000 == 0)
+			str = ep_strdup_printf("%u Mbps", temp32 / 1000);
+		else
+			str = ep_strdup_printf("%u kbps", temp32);
+	}
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_qos_guar_bitrate_upl_ext, tvb, 
+		curr_offset, 1, oct, "%s (%u)", str, oct);
 
 	curr_offset+= 1;
-	curr_len-= 1;
+
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(curr_offset - offset);
@@ -5694,7 +5508,7 @@ proto_register_gsm_a_gm(void)
 		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_delay_cls_vals), 0x38,
 		  NULL, HFILL }
 	},
-	{ &hf_gsm_a_qos_qos_reliability_cls,
+	{ &hf_gsm_a_qos_reliability_cls,
 		{ "Reliability class", "gsm_a.qos.delay_cls",
 		  FT_UINT8, BASE_DEC, VALS(gsm_a_qos_delay_cls_vals), 0x07,
 		  NULL, HFILL }
@@ -5962,6 +5776,81 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_sm_pdp_type_org,
 		{ "PDP type organization", "gsm_a.sm.pdp_type_org",
 		FT_UINT8, BASE_DEC, VALS(gsm_a_sm_pdp_type_org_vals), 0x0f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_mean_thr,
+		{ "Mean throughput", "gsm_a.qos.mean_throughput",
+		FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_qos_mean_thr_vals), 0x1f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_peak_thr,
+		{ "Peak throughput", "gsm_a.qos.peak_throughput",
+		FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_qos_peak_thr_vals), 0xf0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_prec_class,
+		{ "Precedence class", "gsm_a.qos.prec_class",
+		FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_qos_prec_class_vals), 0x07,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_traf_handl_prio,
+		{ "Traffic handling priority", "gsm_a.qos.traf_handl_prio",
+		FT_UINT8, BASE_DEC, NULL, 0x03,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_trans_delay,
+		{ "Transfer delay", "gsm_a.qos.trans_delay",
+		FT_UINT8, BASE_DEC, NULL, 0xfc,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_signalling_ind,
+		{ "Signalling indication", "gsm_a.qos.signalling_ind",
+		FT_BOOLEAN, 8, TFS(&gsm_a_qos_signalling_ind_value), 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_source_stat_desc,
+		{ "Source statistics description", "gsm_a.qos.source_stat_desc",
+		FT_UINT8, BASE_DEC, NULL, 0x0f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_max_bitrate_upl,
+		{ "Maximum bitrate for uplink", "gsm_a.qos.max_bitrate_upl",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_max_bitrate_downl,
+		{ "Maximum bitrate for downlink", "gsm_a.qos.max_bitrate_downl",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_guar_bitrate_upl,
+		{ "Guaranteed bitrate for uplink", "gsm_a.qos.guar_bitrate_upl",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_guar_bitrate_downl,
+		{ "Guaranteed bitrate for downlink", "gsm_a.qos.guar_bitrate_downl",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_max_bitrate_upl_ext,
+		{ "Maximum bitrate for uplink (extended)", "gsm_a.qos.max_bitrate_upl_ext",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_max_bitrate_downl_ext,
+		{ "Maximum bitrate for downlink (extended)", "gsm_a.qos.max_bitrate_downl_ext",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_guar_bitrate_upl_ext,
+		{ "Guaranteed bitrate for uplink (extended)", "gsm_a.qos.guar_bitrate_upl_ext",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_qos_guar_bitrate_downl_ext,
+		{ "Guaranteed bitrate for downlink (extended)", "gsm_a.qos.guar_bitrate_downl_ext",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	};
