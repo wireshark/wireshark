@@ -372,7 +372,7 @@ File "${GTK_DIR}\bin\${INTL_DLL}"
 File "${ZLIB_DIR}\zlib1.dll"
 !endif
 !ifdef C_ARES_DIR
-File "${C_ARES_DIR}\cares.dll"
+File "${C_ARES_DIR}\bin\libcares-2.dll"
 !endif
 !ifdef ADNS_DIR
 File "${ADNS_DIR}\..\${MSVC_VARIANT}\adns\adns_dll.dll"
@@ -842,8 +842,9 @@ File "${GTK_DIR}\etc\gtk-2.0\*.*"
 !if ${WIRESHARK_TARGET_PLATFORM} == "win32"
 SetOutPath $INSTDIR\etc\pango
 File "${GTK_DIR}\etc\pango\pango.*"
-SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\loaders
-File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\loaders\libpixbufloader-*.dll"
+; Not needed for GTK+ >= 2.18
+;SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\loaders
+;File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\loaders\libpixbufloader-*.dll"
 !endif
 
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines

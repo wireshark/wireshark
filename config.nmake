@@ -229,7 +229,7 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # If you don't have c-ares, comment this line out, so that C_ARES_DIR
 # isn't defined.
 #
-C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.6.0ws
+C_ARES_PKG=1.7.0
 
 #
 # Optional: the PCRE (Perl Compatible Regular Expressions) library
@@ -335,7 +335,7 @@ SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
 # However, the Microsoft Platform SDK for Windows Server 2003 R2 provides
 # these definitions. The SDK's SetEnv.bat script defines INETSDK.
 !IF "$(MSVC_VARIANT)" != "MSVC6" || DEFINED(INETSDK)
-GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
+GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.6-win32ws\libGeoIP
 !ENDIF
 
 !else
@@ -438,7 +438,7 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # If you don't have c-ares, comment this line out, so that C_ARES_DIR
 # isn't defined.
 #
-#C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.5.2ws
+C_ARES_PKG=1.7.0
 
 #
 # Optional: the PCRE (Perl Compatible Regular Expressions) library
@@ -540,12 +540,7 @@ AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_4_1_0_1622\AirPcap_Devpack
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
 #
-# GeoIP requires IPv6 definitions that don't ship with Visual C++ 6.0.
-# However, the Microsoft Platform SDK for Windows Server 2003 R2 provides
-# these definitions. The SDK's SetEnv.bat script defines INETSDK.
-!IF "$(MSVC_VARIANT)" != "MSVC6" || DEFINED(INETSDK)
-#GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
-!ENDIF
+GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.6-win64ws\libGeoIP
 
 !endif
 
@@ -983,11 +978,12 @@ ZLIB_DLL=
 ZLIB_CONFIG=
 !ENDIF
 
-!IFDEF C_ARES_DIR
+!IFDEF C_ARES_PKG
 !UNDEF ADNS_DIR
-C_ARES_CFLAGS=/I$(C_ARES_DIR)
-C_ARES_LIBS=$(C_ARES_DIR)\cares.lib
-C_ARES_DLL=$(C_ARES_DIR)\cares.dll
+C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-$(C_ARES_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws
+C_ARES_CFLAGS=/I$(C_ARES_DIR)/include
+C_ARES_LIBS=$(C_ARES_DIR)\lib\libcares-2.lib
+C_ARES_DLL=$(C_ARES_DIR)\bin\libcares-2.dll
 # Nmake uses carets to escape special characters
 C_ARES_CONFIG=^#define HAVE_C_ARES 1
 !else
@@ -1115,8 +1111,8 @@ SMI_CONFIG=
 
 !IFDEF GEOIP_DIR
 GEOIP_CONFIG=^#define HAVE_GEOIP 1
-GEOIP_CFLAGS=/I$(GEOIP_DIR)\libGeoIP
-GEOIP_LIBS=$(GEOIP_DIR)\libGeoIP\GeoIP.lib
+GEOIP_CFLAGS=/I$(GEOIP_DIR)
+GEOIP_LIBS=$(GEOIP_DIR)\GeoIP.lib
 !ELSE
 GeoIP_LIBS=
 GeoIP_CFLAGS=

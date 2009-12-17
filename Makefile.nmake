@@ -755,7 +755,7 @@ process_libs:
 !ENDIF
 !IFDEF C_ARES_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. c-ares-1.6.0ws.zip
+		. c-ares-$(C_ARES_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip
 !ENDIF
 !IFDEF ADNS_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -790,7 +790,7 @@ process_libs:
 !ENDIF
 !IFDEF GEOIP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. GeoIP-1.4.5ws.zip
+		. GeoIP-1.4.6-$(WIRESHARK_TARGET_PLATFORM)ws.zip
 !ENDIF
 !IFDEF HHC_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -818,6 +818,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/adns-1.0-win32-05ws
     rm -r -f $(WIRESHARK_LIBS)/c-ares-1.5.3ws
     rm -r -f $(WIRESHARK_LIBS)/c-ares-1.6.0ws
+    rm -r -f $(WIRESHARK_LIBS)/c-ares-1.7.0-win??ws
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.14.5
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17-1
@@ -851,6 +852,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/upx301w
     rm -r -f $(WIRESHARK_LIBS)/upx303w
     rm -r -f $(WIRESHARK_LIBS)/GeoIP-1.4.5ws
+    rm -r -f $(WIRESHARK_LIBS)/GeoIP-1.4.6-win??ws
 
 ################################################################################
 # Prepare the debug trees for running Wireshark/Tshark from there.
