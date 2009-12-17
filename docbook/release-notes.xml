@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.2.5">
+  <!ENTITY WiresharkCurrentVersion "1.2.6">
 
 ]>
 
@@ -92,7 +92,7 @@ Wireshark Info
     The following bugs have been fixed:
 
       <itemizedlist>
- 
+
         <listitem><para>
           Wireshark does not graph rtp streams.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3801">Bug
