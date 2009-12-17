@@ -688,7 +688,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBGCRYPT
   FILE *fh;
   char *hash_buf = NULL;
-  gcry_md_hd_t hd;
+  gcry_md_hd_t hd = NULL;
   size_t hash_bytes;
 #endif
 
