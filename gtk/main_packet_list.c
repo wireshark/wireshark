@@ -594,6 +594,19 @@ void packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 }
 
+void packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+  frame_data *fdata;
+
+  /* XXX: we might need a progressbar here */
+  for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
+    set_frame_ignore(FALSE,
+                   fdata,
+                   gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata));
+  }
+  redissect_packets();
+}
+
 void packet_list_update_ignored_frames(void)
 {
   frame_data *fdata;
@@ -607,7 +620,6 @@ void packet_list_update_ignored_frames(void)
                      gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
                                                   fdata));
   }
-  mark_frames_ready();
 }
 
 gboolean

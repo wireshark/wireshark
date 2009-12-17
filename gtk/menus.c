@@ -525,6 +525,18 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
 #endif /* NEW_PACKET_LIST */
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
+#ifdef NEW_PACKET_LIST
+    {"/Edit/Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb),
+                       0, NULL, NULL,},
+    {"/Edit/Un-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb),
+                       0, NULL, NULL,},
+#else
+    {"/Edit/Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
+                       0, NULL, NULL,},
+    {"/Edit/Un-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
+                       0, NULL, NULL,},
+#endif /* NEW_PACKET_LIST */
+    {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/Set Time Reference (toggle)", "<control>T", GTK_MENU_FUNC(reftime_frame_cb),
                         REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
     {"/Edit/Find Next Reference", "<alt><shift><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
@@ -2718,6 +2730,12 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Packets",
                          cf->current_frame != NULL);
     set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Ignore Packet (toggle)",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Un-Ignore All Packets",
+                         cf->current_frame != NULL);
+    set_menu_sensitivity(packet_list_menu_factory, "/Ignore Packet (toggle)",
                          cf->current_frame != NULL);
     set_menu_sensitivity(main_menu_factory, "/Edit/Set Time Reference (toggle)",
                          cf->current_frame != NULL);

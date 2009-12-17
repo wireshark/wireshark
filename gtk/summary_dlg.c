@@ -282,6 +282,10 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     add_string_to_table(table, &row, "Display filter:", "none");
   }
 
+  /* Ignored packet count */
+  g_snprintf(string_buff, SUM_STR_MAX, "%i", summary.ignored_count);
+  add_string_to_table(table, &row, "Ignored packets:", string_buff);
+
   /* Traffic */
   list = simple_list_new(4, titles);
   gtk_container_add(GTK_CONTAINER(main_vb), list);

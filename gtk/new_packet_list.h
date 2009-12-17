@@ -83,6 +83,13 @@ void new_packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
  */
 extern void new_packet_list_ignore_frame_cb(GtkWidget *widget, gpointer data);
 
+/** Un-ignore all packets in the list.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_);
+
 /* Different modes of copying summary data */
 typedef enum {
     CS_TEXT, /* Packet summary data (tab separated) */

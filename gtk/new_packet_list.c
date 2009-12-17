@@ -1065,7 +1065,7 @@ set_frame_mark(gboolean set, frame_data *fdata)
 }
 
 static void
-set_frame_ignored(gboolean set, frame_data *fdata)
+set_frame_ignore(gboolean set, frame_data *fdata)
 {
 	if (set)
 		cf_ignore_frame(&cfile, fdata);
@@ -1169,7 +1169,18 @@ void new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 	gtk_tree_selection_get_selected(selection, &model, &iter);
 	record = new_packet_list_get_record(model, &iter);
 
-	set_frame_ignored(!record->fdata->flags.ignored, record->fdata);
+	set_frame_ignore(!record->fdata->flags.ignored, record->fdata);
+	redissect_packets();
+}
+
+void new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+	frame_data *fdata;
+
+	/* XXX: we might need a progressbar here */
+	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
+		set_frame_ignore(FALSE, fdata);
+	}
 	redissect_packets();
 }
 

@@ -40,6 +40,7 @@ typedef struct _summary_tally {
     guint64	marked_bytes;	/* total bytes in the marked packets */
     double 	marked_start;	/* time in seconds, with msec resolution */
     double 	marked_stop;	/* time in seconds, with msec resolution */
+    int		ignored_count;	/* number of ignored packets */
     int		packet_count;	/* total number of packets in trace */
     int		filtered_count; /* number of filtered packets */
     guint64	filtered_bytes;	/* total bytes in the filtered packets */

@@ -82,6 +82,9 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
     sum_tally->marked_count++;
     sum_tally->marked_bytes += cur_frame->pkt_len ;
   }
+  if (cur_frame->flags.ignored){
+    sum_tally->ignored_count++;
+  }
 }
 
 void
@@ -103,6 +106,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->marked_start = 0;
   st->marked_stop = 0;
   st->marked_bytes = 0;
+  st->ignored_count = 0;
 
   /* initialize the tally */
   if (cf->plist_start != NULL) {
