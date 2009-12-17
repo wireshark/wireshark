@@ -1545,7 +1545,6 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
 
 
     /* Show result info */
-#if 1
     switch (result->type) {
         case GrantAnsweringSR:
             ti = proto_tree_add_uint(tree, hf_mac_lte_grant_answering_sr,
