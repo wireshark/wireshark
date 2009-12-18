@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x420.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -p x420 -c ./x420.cnf -s ./packet-x420-template -D . IPMSInformationObjects.asn IPMSHeadingExtensions.asn IPMSExtendedBodyPartTypes2.asn IPMSFileTransferBodyPartType.asn IPMSExtendedVoiceBodyPartType.asn IPMSForwardedContentBodyPartType.asn IPMSMessageStoreAttributes.asn IPMSSecurityExtensions.asn IPMSObjectIdentifiers.asn */
+/* ../../tools/asn2wrs.py -b -e -C -p x420 -c ./x420.cnf -s ./packet-x420-template -D . IPMSInformationObjects.asn IPMSHeadingExtensions.asn IPMSExtendedBodyPartTypes2.asn IPMSFileTransferBodyPartType.asn IPMSExtendedVoiceBodyPartType.asn IPMSForwardedContentBodyPartType.asn IPMSMessageStoreAttributes.asn IPMSSecurityExtensions.asn IPMSObjectIdentifiers.asn IPMSUpperBounds.asn */
 
 /* Input file: packet-x420-template.c */
 
@@ -92,6 +92,260 @@ static const value_string charsetreg_vals [] = {
   { 203, "Gn: Latin Alphabet No.9, European Rim Supplementary Set (GR area of ISO-8859-15)"},
   { 0, NULL}
 };
+
+
+/*--- Included file: packet-x420-val.h ---*/
+#line 1 "packet-x420-val.h"
+#define id_ipms                        "2.6.1"
+#define id_mod                         id_ipms".0"
+#define id_ot                          id_ipms".1"
+#define id_pt                          id_ipms".2"
+#define id_et                          id_ipms".4"
+#define id_hex                         id_ipms".5"
+#define id_sat                         id_ipms".6"
+#define id_hat                         id_ipms".7"
+#define id_bat                         id_ipms".8"
+#define id_nat                         id_ipms".9"
+#define id_mct                         id_ipms".10"
+#define id_ep                          id_ipms".11"
+#define id_eit                         id_ipms".12"
+#define id_cat                         id_ipms".13"
+#define id_mr                          id_ipms".14"
+#define id_aa                          id_ipms".15"
+#define id_aae                         id_ipms".16"
+#define id_mst                         id_ipms".17"
+#define id_sec                         id_ipms".18"
+#define id_on                          id_ipms".19"
+#define id_rex                         id_ipms".20"
+#define id_mod_object_identifiers      id_mod".0"
+#define id_mod_functional_objects      id_mod".1"
+#define id_mod_information_objects     id_mod".2"
+#define id_mod_abstract_service        id_mod".3"
+#define id_mod_heading_extensions      id_mod".6"
+#define id_mod_extended_body_part_types id_mod".7"
+#define id_mod_message_store_attributes id_mod".8"
+#define id_mod_file_transfer_body_part_type id_mod".9"
+#define id_mod_upper_bounds            id_mod".10"
+#define id_mod_extended_voice_body_part_type id_mod".11"
+#define id_mod_forwarded_report_body_part_type id_mod".12"
+#define id_mod_auto_actions            id_mod".13"
+#define id_mod_ipm_security_extensions id_mod".14"
+#define id_mod_forwarded_content_body_part_type id_mod".15"
+#define id_mod_pkcs7_body_part_type    id_mod".16"
+#define id_ot_ipms_user                id_ot".1"
+#define id_ot_ipms                     id_ot".2"
+#define id_pt_origination              id_pt".0"
+#define id_pt_reception                id_pt".1"
+#define id_pt_management               id_pt".2"
+#define id_et_ia5_text                 id_et".0"
+#define id_et_g3_facsimile             id_et".2"
+#define id_et_g4_class1                id_et".3"
+#define id_et_teletex                  id_et".4"
+#define id_et_videotex                 id_et".5"
+#define id_et_encrypted                id_et".6"
+#define id_et_message                  id_et".7"
+#define id_et_mixed_mode               id_et".8"
+#define id_et_bilaterally_defined      id_et".9"
+#define id_et_nationally_defined       id_et".10"
+#define id_et_general_text             id_et".11"
+#define id_et_file_transfer            id_et".12"
+#define id_et_report                   id_et".14"
+#define id_et_notification             id_et".15"
+#define id_et_voice                    id_et".16"
+#define id_et_content                  id_et".17"
+#define id_et_pkcs7                    id_et".18"
+#define id_hex_incomplete_copy         id_hex".0"
+#define id_hex_languages               id_hex".1"
+#define id_hex_auto_submitted          id_hex".2"
+#define id_hex_body_part_signatures    id_hex".3"
+#define id_hex_ipm_security_label      id_hex".4"
+#define id_hex_authorization_time      id_hex".5"
+#define id_hex_circulation_list_recipients id_hex".6"
+#define id_hex_distribution_codes      id_hex".7"
+#define id_hex_extended_subject        id_hex".8"
+#define id_hex_information_category    id_hex".9"
+#define id_hex_manual_handling_instructions id_hex".10"
+#define id_hex_originators_reference   id_hex".11"
+#define id_hex_precedence_policy_id    id_hex".12"
+#define id_sat_ipm_entry_type          id_sat".0"
+#define id_sat_ipm_synopsis            id_sat".1"
+#define id_sat_body_parts_summary      id_sat".2"
+#define id_sat_ipm_auto_discarded      id_sat".3"
+#define id_hat_heading                 id_hat".0"
+#define id_hat_this_ipm                id_hat".1"
+#define id_hat_originator              id_hat".2"
+#define id_hat_replied_to_IPM          id_hat".3"
+#define id_hat_subject                 id_hat".4"
+#define id_hat_expiry_time             id_hat".5"
+#define id_hat_reply_time              id_hat".6"
+#define id_hat_importance              id_hat".7"
+#define id_hat_sensitivity             id_hat".8"
+#define id_hat_auto_forwarded          id_hat".9"
+#define id_hat_authorizing_users       id_hat".10"
+#define id_hat_primary_recipients      id_hat".11"
+#define id_hat_copy_recipients         id_hat".12"
+#define id_hat_blind_copy_recipients   id_hat".13"
+#define id_hat_obsoleted_IPMs          id_hat".14"
+#define id_hat_related_IPMs            id_hat".15"
+#define id_hat_reply_recipients        id_hat".16"
+#define id_hat_incomplete_copy         id_hat".17"
+#define id_hat_languages               id_hat".18"
+#define id_hat_rn_requestors           id_hat".19"
+#define id_hat_nrn_requestors          id_hat".20"
+#define id_hat_reply_requestors        id_hat".21"
+#define id_hat_auto_submitted          id_hat".22"
+#define id_hat_body_part_signatures    id_hat".23"
+#define id_hat_ipm_security_label      id_hat".24"
+#define id_hat_body_part_security_label id_hat".25"
+#define id_hat_body_part_encryption_token id_hat".26"
+#define id_hat_authorization_time      id_hat".27"
+#define id_hat_circulation_list_recipients id_hat".28"
+#define id_hat_distribution_codes      id_hat".29"
+#define id_hat_extended_subject        id_hat".30"
+#define id_hat_information_category    id_hat".31"
+#define id_hat_manual_handling_instructions id_hat".32"
+#define id_hat_originators_reference   id_hat".33"
+#define id_hat_precedence_policy_id    id_hat".34"
+#define id_hat_forwarded_content_token id_hat".35"
+#define id_hat_forwarding_token        id_hat".36"
+#define id_hat_precedence              id_hat".37"
+#define id_hat_body_part_signature_verification_status id_hat".38"
+#define id_bat_body                    id_bat".0"
+#define id_bat_ia5_text_body_parts     id_bat".1"
+#define id_bat_g3_facsimile_body_parts id_bat".3"
+#define id_bat_g4_class1_body_parts    id_bat".4"
+#define id_bat_teletex_body_parts      id_bat".5"
+#define id_bat_videotex_body_parts     id_bat".6"
+#define id_bat_encrypted_body_parts    id_bat".7"
+#define id_bat_message_body_parts      id_bat".8"
+#define id_bat_mixed_mode_body_parts   id_bat".9"
+#define id_bat_bilaterally_defined_body_parts id_bat".10"
+#define id_bat_nationally_defined_body_parts id_bat".11"
+#define id_bat_extended_body_part_types id_bat".12"
+#define id_bat_ia5_text_parameters     id_bat".13"
+#define id_bat_g3_facsimile_parameters id_bat".15"
+#define id_bat_teletex_parameters      id_bat".16"
+#define id_bat_videotex_parameters     id_bat".17"
+#define id_bat_encrypted_parameters    id_bat".18"
+#define id_bat_message_parameters      id_bat".19"
+#define id_bat_ia5_text_data           id_bat".20"
+#define id_bat_g3_facsimile_data       id_bat".22"
+#define id_bat_teletex_data            id_bat".23"
+#define id_bat_videotex_data           id_bat".24"
+#define id_bat_encrypted_data          id_bat".25"
+#define id_bat_message_data            id_bat".26"
+#define id_nat_subject_ipm             id_nat".0"
+#define id_nat_ipn_originator          id_nat".1"
+#define id_nat_ipm_intended_recipient  id_nat".2"
+#define id_nat_conversion_eits         id_nat".3"
+#define id_nat_non_receipt_reason      id_nat".4"
+#define id_nat_discard_reason          id_nat".5"
+#define id_nat_auto_forward_comment    id_nat".6"
+#define id_nat_returned_ipm            id_nat".7"
+#define id_nat_receipt_time            id_nat".8"
+#define id_nat_acknowledgment_mode     id_nat".9"
+#define id_nat_suppl_receipt_info      id_nat".10"
+#define id_nat_notification_extensions id_nat".11"
+#define id_nat_nrn_extensions          id_nat".12"
+#define id_nat_rn_extensions           id_nat".13"
+#define id_nat_other_notification_type_fields id_nat".14"
+#define id_cat_correlated_delivered_ipns id_cat".0"
+#define id_cat_correlated_delivered_replies id_cat".1"
+#define id_cat_delivered_ipn_summary   id_cat".2"
+#define id_cat_delivered_replies_summary id_cat".3"
+#define id_cat_forwarded_ipms          id_cat".4"
+#define id_cat_forwarding_ipms         id_cat".5"
+#define id_cat_ipm_recipients          id_cat".6"
+#define id_cat_obsoleted_ipms          id_cat".7"
+#define id_cat_obsoleting_ipms         id_cat".8"
+#define id_cat_related_ipms            id_cat".9"
+#define id_cat_relating_ipms           id_cat".10"
+#define id_cat_replied_to_ipm          id_cat".11"
+#define id_cat_replying_ipms           id_cat".12"
+#define id_cat_revised_reply_time      id_cat".13"
+#define id_cat_submitted_ipn_status    id_cat".14"
+#define id_cat_submitted_ipns          id_cat".15"
+#define id_cat_submitted_reply_status  id_cat".16"
+#define id_cat_subject_ipm             id_cat".17"
+#define id_cat_recipient_category      id_cat".18"
+#define id_mct_p2_1984                 id_mct".0"
+#define id_mct_p2_1988                 id_mct".1"
+#define id_ep_ia5_text                 id_ep".0"
+#define id_ep_g3_facsimile             id_ep".2"
+#define id_ep_teletex                  id_ep".4"
+#define id_ep_videotex                 id_ep".5"
+#define id_ep_encrypted                id_ep".6"
+#define id_ep_message                  id_ep".7"
+#define id_ep_general_text             id_ep".11"
+#define id_ep_file_transfer            id_ep".12"
+#define id_ep_notification             id_ep".15"
+#define id_ep_voice                    id_ep".16"
+#define id_ep_content                  id_ep".17"
+#define id_eit_file_transfer           id_eit".0"
+#define id_eit_voice                   id_eit".1"
+#define id_voice_11khz_sample          id_eit_voice".0"
+#define id_voice_22khz_sample          id_eit_voice".1"
+#define id_voice_cd_quality            id_eit_voice".2"
+#define id_voice_g711_mu_law           id_eit_voice".3"
+#define id_voice_g726_32k_adpcm        id_eit_voice".4"
+#define id_voice_g728_16k_ld_celp      id_eit_voice".5"
+#define id_mr_ipm_identifier           id_mr".0"
+#define id_mr_or_descriptor            id_mr".1"
+#define id_mr_or_descriptor_elements   id_mr".2"
+#define id_mr_or_descriptor_substring_elements id_mr".3"
+#define id_mr_recipient_specifier      id_mr".4"
+#define id_mr_recipient_specifier_elements id_mr".5"
+#define id_mr_recipient_specifier_substring_elements id_mr".6"
+#define id_mr_ipm_location             id_mr".7"
+#define id_mr_or_descriptor_single_element id_mr".8"
+#define id_mr_recipient_specifier_single_element id_mr".9"
+#define id_mr_circulation_member       id_mr".10"
+#define id_mr_circulation_member_elements id_mr".11"
+#define id_mr_circulation_member_substring_elements id_mr".12"
+#define id_mr_circulation_member_single_element id_mr".13"
+#define id_mr_circulation_member_checkmark id_mr".14"
+#define id_mr_distribution_code        id_mr".15"
+#define id_mr_information_category     id_mr".16"
+#define id_aa_ipm_auto_acknowledgement id_aa".0"
+#define id_aa_ipm_auto_correlate       id_aa".1"
+#define id_aa_ipm_auto_discard         id_aa".2"
+#define id_aa_ipm_auto_advise          id_aa".3"
+#define id_aae_auto_discard_error      id_aae".0"
+#define id_aae_auto_forwarding_loop    id_aae".1"
+#define id_aae_duplicate_ipn           id_aae".2"
+#define id_mst_invalid_assembly_instructions id_mst".0"
+#define id_mst_invalid_ipn             id_mst".1"
+#define id_mst_assembly_instructions   id_mst".2"
+#define id_mst_suspend_auto_acknowledgement id_mst".3"
+#define id_mst_prevent_nrn_generation  id_mst".4"
+#define id_mst_originator_body_part_encryption_token id_mst".5"
+#define id_mst_originator_forwarded_content_token id_mst".6"
+#define id_mst_assembly_capability     id_mst".7"
+#define id_sec_ipm_security_request    id_sec".0"
+#define id_sec_security_common_fields  id_sec".1"
+#define id_on_absence_advice           id_on".0"
+#define id_on_change_of_address_advice id_on".1"
+#define id_rex_circulation_list_indicator id_rex".0"
+#define id_rex_precedence              id_rex".1"
+#define ub_alpha_code_length           16
+#define ub_auto_forward_comment        256
+#define ub_circulation_list_members    256
+#define ub_distribution_codes          16
+#define ub_extended_subject_length     256
+#define ub_free_form_name              64
+#define ub_information_categories      16
+#define ub_information_category_length 64
+#define ub_ipm_identifier_suffix       2
+#define ub_local_ipm_identifier        64
+#define ub_manual_handling_instruction_length 128
+#define ub_manual_handling_instructions 16
+#define ub_originators_reference_length 64
+#define ub_precedence                  127
+#define ub_subject_field               128
+#define ub_telephone_number            32
+
+/*--- End of included file: packet-x420-val.h ---*/
+#line 89 "packet-x420-template.c"
 
 
 /*--- Included file: packet-x420-hf.c ---*/
@@ -476,7 +730,7 @@ static int hf_x420_RecipientSecurityRequest_ipn_non_repudiation = -1;
 static int hf_x420_RecipientSecurityRequest_ipn_proof = -1;
 
 /*--- End of included file: packet-x420-hf.c ---*/
-#line 89 "packet-x420-template.c"
+#line 91 "packet-x420-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_x420 = -1;
@@ -610,7 +864,7 @@ static gint ett_x420_T_body_part_token_choice = -1;
 static gint ett_x420_T_choice = -1;
 
 /*--- End of included file: packet-x420-ett.c ---*/
-#line 93 "packet-x420-template.c"
+#line 95 "packet-x420-template.c"
 
 
 /*--- Included file: packet-x420-fn.c ---*/
@@ -643,9 +897,9 @@ dissect_x420_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_x420_LocalIPMIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                                        actx, tree, tvb, offset,
+                                                        0, ub_local_ipm_identifier, hf_index, NULL);
 
   return offset;
 }
@@ -688,9 +942,9 @@ dissect_x420_ThisIPMField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_x420_FreeFormName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+                                                        actx, tree, tvb, offset,
+                                                        0, ub_free_form_name, hf_index, NULL);
 
   return offset;
 }
@@ -699,9 +953,9 @@ dissect_x420_FreeFormName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_x420_TelephoneNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                                        actx, tree, tvb, offset,
+                                                        0, ub_telephone_number, hf_index, NULL);
 
   return offset;
 }
@@ -983,9 +1237,9 @@ dissect_x420_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 #line 236 "x420.cnf"
   tvbuff_t *subject=NULL;
 
-    offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
-                                            actx, tree, tvb, offset, hf_index,
-                                            &subject);
+    offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+                                                        actx, tree, tvb, offset,
+                                                        0, ub_subject_field, hf_index, &subject);
 
 
   if(subject && check_col(actx->pinfo->cinfo, COL_INFO))
@@ -1702,9 +1956,9 @@ dissect_x420_DiscardReasonField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x420_AutoForwardComment(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                                        actx, tree, tvb, offset,
+                                                        0, ub_auto_forward_comment, hf_index, NULL);
 
   return offset;
 }
@@ -1959,8 +2213,8 @@ dissect_x420_ChangeOfAddressAdvice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_x420_INTEGER_1_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, NO_BOUND, hf_index, NULL);
 
   return offset;
 }
@@ -1969,8 +2223,8 @@ dissect_x420_INTEGER_1_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_x420_BodyPartNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, NO_BOUND, hf_index, NULL);
 
   return offset;
 }
@@ -2056,9 +2310,9 @@ dissect_x420_IncompleteCopy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_x420_Language(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                                        actx, tree, tvb, offset,
+                                                        2, 5, hf_index, NULL);
 
   return offset;
 }
@@ -2312,8 +2566,8 @@ static const ber_sequence_t CirculationList_sequence_of[1] = {
 
 static int
 dissect_x420_CirculationList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      CirculationList_sequence_of, hf_index, ett_x420_CirculationList);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  2, ub_circulation_list_members, CirculationList_sequence_of, hf_index, ett_x420_CirculationList);
 
   return offset;
 }
@@ -2368,8 +2622,8 @@ static const ber_sequence_t DistributionCodes_sequence_of[1] = {
 
 static int
 dissect_x420_DistributionCodes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      DistributionCodes_sequence_of, hf_index, ett_x420_DistributionCodes);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, ub_distribution_codes, DistributionCodes_sequence_of, hf_index, ett_x420_DistributionCodes);
 
   return offset;
 }
@@ -2414,8 +2668,8 @@ static const ber_sequence_t InformationCategories_sequence_of[1] = {
 
 static int
 dissect_x420_InformationCategories(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      InformationCategories_sequence_of, hf_index, ett_x420_InformationCategories);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, ub_information_categories, InformationCategories_sequence_of, hf_index, ett_x420_InformationCategories);
 
   return offset;
 }
@@ -2436,8 +2690,8 @@ static const ber_sequence_t ManualHandlingInstructions_sequence_of[1] = {
 
 static int
 dissect_x420_ManualHandlingInstructions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      ManualHandlingInstructions_sequence_of, hf_index, ett_x420_ManualHandlingInstructions);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, ub_manual_handling_instructions, ManualHandlingInstructions_sequence_of, hf_index, ett_x420_ManualHandlingInstructions);
 
   return offset;
 }
@@ -2464,8 +2718,8 @@ dissect_x420_PrecedencePolicyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_x420_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, ub_precedence, hf_index, NULL);
 
   return offset;
 }
@@ -2476,8 +2730,8 @@ static int
 dissect_x420_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 247 "x420.cnf"
   guint32 crs;
-    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                &crs);
+    offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 32767U, hf_index, &crs);
 
 
   if(actx->created_item)
@@ -4277,7 +4531,7 @@ static void dissect_ForwardedContentToken_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-x420-fn.c ---*/
-#line 95 "packet-x420-template.c"
+#line 97 "packet-x420-template.c"
 
 /*
 * Dissect X420 PDUs inside a PPDU.
@@ -5822,7 +6076,7 @@ void proto_register_x420(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x420-hfarr.c ---*/
-#line 127 "packet-x420-template.c"
+#line 129 "packet-x420-template.c"
   };
 
   /* List of subtrees */
@@ -5958,7 +6212,7 @@ void proto_register_x420(void) {
     &ett_x420_T_choice,
 
 /*--- End of included file: packet-x420-ettarr.c ---*/
-#line 133 "packet-x420-template.c"
+#line 135 "packet-x420-template.c"
   };
 
   /* Register protocol */
@@ -6078,7 +6332,7 @@ void proto_reg_handoff_x420(void) {
 
 
 /*--- End of included file: packet-x420-dis-tab.c ---*/
-#line 149 "packet-x420-template.c"
+#line 151 "packet-x420-template.c"
 
   register_ber_oid_dissector("2.6.1.10.0", dissect_x420, proto_x420, "InterPersonal Message (1984)");
   register_ber_oid_dissector("2.6.1.10.1", dissect_x420, proto_x420, "InterPersonal Message (1988)");

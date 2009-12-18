@@ -85,6 +85,8 @@ static const value_string charsetreg_vals [] = {
   { 0, NULL}
 };
 
+#include "packet-x420-val.h"
+
 #include "packet-x420-hf.c"
 
 /* Initialize the subtree pointers */
