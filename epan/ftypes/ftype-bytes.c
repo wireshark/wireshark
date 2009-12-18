@@ -527,8 +527,8 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 		regex,		/* Compiled PCRE */
 		a->data,	/* The data to check for the pattern... */
 		(int)a->len,	/* ... and its length */
-		0,			/* Start offset within data */
-		G_REGEX_RAW,	/* GRegexMatchFlags */
+		0,		/* Start offset within data */
+		0,		/* GRegexMatchFlags */
 		NULL,		/* We are not interested in the match information */
 		NULL		/* We don't want error information */
 		);
