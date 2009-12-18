@@ -79,6 +79,9 @@ static int (*p_pcap_datalink_name_to_val) (const char *);
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
 static const char *(*p_pcap_datalink_val_to_name) (int);
 #endif
+#ifdef HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION
+static const char *(*p_pcap_datalink_val_to_description) (int);
+#endif
 #ifdef HAVE_PCAP_BREAKLOOP
 static void    (*p_pcap_breakloop) (pcap_t *);
 #endif
@@ -154,6 +157,9 @@ load_wpcap(void)
 #endif
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
 		SYM(pcap_datalink_val_to_name, TRUE),
+#endif
+#ifdef HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION
+		SYM(pcap_datalink_val_to_description, TRUE),
 #endif
 #ifdef HAVE_PCAP_BREAKLOOP
 		/*
@@ -371,7 +377,7 @@ pcap_freealldevs(pcap_if_t *a)
 }
 #endif
 
-#if defined(HAVE_PCAP_DATALINK_NAME_TO_VAL) || defined(HAVE_PCAP_DATALINK_VAL_TO_NAME)
+#if defined(HAVE_PCAP_DATALINK_NAME_TO_VAL) || defined(HAVE_PCAP_DATALINK_VAL_TO_NAME) || defined(HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION)
 /*
  * Table of DLT_ types, names, and descriptions, for use if the version
  * of WinPcap we have installed lacks "pcap_datalink_name_to_val()"
@@ -465,9 +471,12 @@ static struct dlt_choice dlt_choices[] = {
 #ifdef DLT_HDLC
 	DLT_CHOICE(DLT_HDLC, "Cisco HDLC"),
 #endif
+#ifdef DLT_PPI
+	DLT_CHOICE(DLT_PPI, "Per-Packet Information"),
+#endif
 	DLT_CHOICE_SENTINEL
 };
-#endif /* defined(HAVE_PCAP_DATALINK_NAME_TO_VAL) || defined(HAVE_PCAP_DATALINK_VAL_TO_NAME) */
+#endif /* defined(HAVE_PCAP_DATALINK_NAME_TO_VAL) || defined(HAVE_PCAP_DATALINK_VAL_TO_NAME) || defined(HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION */
 
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
 int
@@ -538,6 +547,29 @@ pcap_datalink_val_to_name(int dlt)
 		for (i = 0; dlt_choices[i].name != NULL; i++) {
 			if (dlt_choices[i].dlt == dlt)
 				return dlt_choices[i].name + sizeof("DLT_") - 1;
+		}
+		return NULL;
+	}
+}
+#endif
+
+#ifdef HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION
+const char *
+pcap_datalink_val_to_description(int dlt)
+{
+	int i;
+
+	g_assert(has_wpcap);
+
+	if (p_pcap_datalink_val_to_description != NULL)
+		return p_pcap_datalink_val_to_description(dlt);
+	else {
+		/*
+		 * We don't have it in WinPcap; do it ourselves.
+		 */
+		for (i = 0; dlt_choices[i].name != NULL; i++) {
+			if (dlt_choices[i].dlt == dlt)
+				return (dlt_choices[i].description);
 		}
 		return NULL;
 	}
