@@ -526,14 +526,14 @@ static GtkItemFactoryEntry menu_items[] =
 #endif /* NEW_PACKET_LIST */
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 #ifdef NEW_PACKET_LIST
-    {"/Edit/Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb),
+    {"/Edit/_Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb),
                        0, NULL, NULL,},
-    {"/Edit/Un-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb),
+    {"/Edit/U_n-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb),
                        0, NULL, NULL,},
 #else
-    {"/Edit/Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
+    {"/Edit/_Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
                        0, NULL, NULL,},
-    {"/Edit/Un-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
+    {"/Edit/U_n-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
                        0, NULL, NULL,},
 #endif /* NEW_PACKET_LIST */
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
