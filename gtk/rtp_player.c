@@ -28,12 +28,12 @@
  *  - The VoipCalls will call add_rtp_packet() every time there is an RTP
  *    packet
  *  - add_rtp_packet() will add the RTP packet in a RTP stream struct, and
- *    create the RTP stream if it is the  first RTP in the stream.
+ *    create the RTP stream if it is the first RTP packet in the stream.
  *  - Each new RTP stream will be added to a list of RTP streams, called
  *    rtp_streams_list
  *  - When the user clicks "Player" in the VoipCall dialogue,
  *    rtp_player_init() is called.
- *  - rtp_player_init() create the main dialog, and it calls:
+ *  - rtp_player_init() creates the main dialog, and it calls:
  *    + mark_rtp_stream_to_play() to mark the RTP streams that needs to be
  *      displayed. These are the RTP streams that match the selected calls in
  *      the VoipCall dlg.
@@ -46,7 +46,7 @@
  *    + add_channel_to_window() will create and add the Audio graphic
  *      representation in the main window
  *  - When the user clicks the check box to listen one of the Audio channels,
- *    the structure rtp_channels is filled  to play one or two RTP channels
+ *    the structure rtp_channels is filled to play one or two RTP channels
  *    (a max of two channels can be listened at a given moment)
  */
 
@@ -131,7 +131,7 @@ static int new_jitter_buff;
 /* a hash table with the RTP streams to play per audio channel */
 static GHashTable *rtp_channels_hash = NULL;
 
-/* Port Audio staff */
+/* Port Audio stuff */
 #define SAMPLE_RATE  (8000)
 #define NUM_CHANNELS    (2)
 
@@ -236,7 +236,7 @@ typedef struct _rtp_play_channles {
 #endif /* PORTAUDIO_API_1 */
 } rtp_play_channels_t;
 
-/* The two RTP channles to play */
+/* The two RTP channels to play */
 static rtp_play_channels_t *rtp_channels = NULL;
 
 typedef struct _rtp_decoder_t {
@@ -370,7 +370,7 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 		pinfo->srcport, get_addr_name(&(pinfo->dst)),
 		pinfo->destport, rtp_info->info_sync_src );
 
-	/* lookup for this rtp packet in the stream hash table*/
+	/* lookup for this RTP packet in the stream hash table */
 	stream_info =  g_hash_table_lookup( rtp_streams_hash, key_str->str);
 
 	/* if it is not in the hash table, create a new stream */
@@ -394,7 +394,7 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 		rtp_streams_list = g_list_append(rtp_streams_list, stream_info);
 	}
 
-	/* increment the number of packets in this stream, this is used for the progress bar and statistics*/
+	/* increment the number of packets in this stream, this is used for the progress bar and statistics */
 	stream_info->num_packets++;
 
 	/* Add the RTP packet to the list */
@@ -429,11 +429,11 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
 	voip_calls_info_t *tmp_voip_call;
 
 	/* Reset the "to be play" value because the user can close and reopen the RTP Player window
-	 * and the streams are nor reset in that case
+	 * and the streams are not reset in that case
 	 */
 	rsi->play = FALSE;
 
-	/* and associate the RTP stream with a call using the first RTP in the stream*/
+	/* and associate the RTP stream with a call using the first RTP packet in the stream */
 	graph_list = g_list_first(voip_calls->graph_analysis->list);
 	while (graph_list)
 	{
@@ -784,12 +784,12 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 					silence.status = status;
 					g_array_append_val(rci->samples, silence);
 
-					/* only mark the fisrt in the silence that has the previos problem (S_DROP_BY_JITT  or S_WRONG_SEQ ) */
+					/* only mark the first in the silence that has the previous problem (S_DROP_BY_JITT or S_WRONG_SEQ) */
 					status = S_NORMAL;
 				}
 
 				decoded_bytes_prev = 0;
-				start_timestamp = rp->info->info_timestamp; /* defined start_timestmp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
+				start_timestamp = rp->info->info_timestamp; /* defined start_timestamp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
 				start_rtp_time = 0;
 				start_time = (double)rp->arrive_offset/1000;
 				rtp_time_prev = 0;
@@ -805,7 +805,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 				silence.status = status;
 				g_array_append_val(rci->samples, silence);
 
-				/* only mark the fisrt in the silence that has the previos problem (S_DROP_BY_JITT  or S_WRONG_SEQ ) */
+				/* only mark the first in the silence that has the previous problem (S_DROP_BY_JITT or S_WRONG_SEQ) */
 				status = S_NORMAL;
 			}
 
@@ -980,15 +980,15 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	g_signal_handlers_disconnect_by_func(rci->h_scrollbar_adjustment, h_scrollbar_changed, rci);
 
 	/* Move the horizontal scroll bar */
-/*	if ( (rci->cursor_prev/MULT < (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) && 
+#if 0
+	if ( (rci->cursor_prev/MULT < (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) &&
 		(index/MULT >= (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){		
 		for (i=1; i<10; i++) {
 			rci->h_scrollbar_adjustment->value += rci->h_scrollbar_adjustment->page_size/10;
 			gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
 		}
-
 	}
- */
+#endif
 	if (!rci->cursor_catch) {
 		if (index/MULT < rci->h_scrollbar_adjustment->page_size/2) {
 			rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->lower;
@@ -1013,8 +1013,8 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	/* Connect back the "value" scroll signal */
 	g_signal_connect(rci->h_scrollbar_adjustment, "value_changed", G_CALLBACK(h_scrollbar_changed), rci);
 
-
-/*	if (index/MULT < rci->h_scrollbar_adjustment->page_increment) {
+#if 0
+	if (index/MULT < rci->h_scrollbar_adjustment->page_increment) {
 		rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->lower;
 	} else if (index/MULT > (rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size + rci->h_scrollbar_adjustment->page_increment)) {
 		rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size;
@@ -1023,18 +1023,21 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 			rci->h_scrollbar_adjustment->value = index/MULT;
 		}
 	}
- */
+#endif
 
-/*	if (index/MULT < rci->h_scrollbar_adjustment->page_size/2) {
+#if 0
+	if (index/MULT < rci->h_scrollbar_adjustment->page_size/2) {
 		rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->lower;
 	} else if (index/MULT > (rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size/2)) {
 		rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size;
 	} else {
 		rci->h_scrollbar_adjustment->value = index/MULT - rci->h_scrollbar_adjustment->page_size/2;
 	}
- */
-/*	gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
- */
+#endif
+
+#if 0
+	gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
+#endif
 	rci->cursor_prev = index;
 }
 
@@ -1380,7 +1383,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_)
 	rtp_channel_info_t *rci;
 	int i;
 
-	/* the first calor is blue to highlight the selected item 
+	/* the first color is blue to highlight the selected item
 	 * the other collors are the same as in the Voip Graph analysys
 	 * to match the same calls 
 	 */
@@ -1421,7 +1424,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_)
 			widget->allocation.width,
 			widget->allocation.height);
 
-	/* create gcs for the background color of each channel */
+	/* create gc's for the background color of each channel */
 	for (i=0; i<MAX_NUM_COL_CONV+1; i++){
 		rci->bg_gc[i]=gdk_gc_new(rci->pixmap);
 		gdk_gc_set_rgb_fg_color(rci->bg_gc[i], &col[i]);
@@ -1602,7 +1605,7 @@ play_channels(void)
 		exit(10);
 	}
 
-	/* if we are in PAUSE change the sate */
+	/* if we are in PAUSE change the state */
 	if (rtp_channels->pause) {
 		rtp_channels->pause = FALSE;
 		/* set the sensitive state of the buttons (decode, play, pause, stop) */
@@ -1621,26 +1624,14 @@ play_channels(void)
 			  NUM_CHANNELS,   /* Stereo output */
 			  PA_SAMPLE_TYPE, /* 16 bit Integer output */
 			  NULL,
-			  SAMPLE_RATE,
+			  SAMPLE_RATE,    /* 8 kHz */
 			  FRAMES_PER_BUFFER,
 			  0,              /* number of buffers, if zero then use default minimum */
 			  paClipOff,      /* we won't output out of range samples so don't bother clipping them */
 			  paCallback,
 			  rtp_channels );
-#else /* PORTAUDIO_API_1 */
-		err = Pa_OpenDefaultStream( 
-				&pa_stream,
-				0,
-				NUM_CHANNELS,
-				PA_SAMPLE_TYPE,
-				SAMPLE_RATE,
-				FRAMES_PER_BUFFER,
-				paCallback,
-				rtp_channels );
-#endif /* PORTAUDIO_API_1 */
 
 		if( err != paNoError ) {
-#if PORTAUDIO_API_1
 			const char *deviceName = "No Device";
 
 			PaDeviceID device = Pa_GetDefaultOutputDeviceID();
@@ -1660,7 +1651,75 @@ play_channels(void)
 							  " Default deviceName: %s (%d)", deviceName, device);
 			gtk_dialog_run (GTK_DIALOG (dialog));
 			gtk_widget_destroy (dialog);
-#else
+
+			dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
+								  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
+								  "Can not Open Stream in PortAudio Library.\n Error: %s", Pa_GetErrorText( err ));
+			gtk_dialog_run (GTK_DIALOG (dialog));
+			gtk_widget_destroy (dialog);
+			return;
+		}
+#else /* PORTAUDIO_API_1 */
+		if (Pa_GetDefaultOutputDevice() != paNoDevice) {
+			err = Pa_OpenDefaultStream( 
+				&pa_stream,
+				0,
+				NUM_CHANNELS,     /* Stereo output */
+				PA_SAMPLE_TYPE,   /* 16 bit Integer output */
+				SAMPLE_RATE,      /* 8 kHz */
+				FRAMES_PER_BUFFER,
+				paCallback,
+				rtp_channels );
+		} else {
+			/* If the Default Host API doesn't even provide a device
+			 * we might as well go look for another.
+			 */
+			PaHostApiIndex host_api_count = Pa_GetHostApiCount();
+			PaHostApiIndex default_host_api_index = Pa_GetDefaultHostApi();
+
+			PaHostApiIndex host_api_index;
+			const PaHostApiInfo *host_api_info;
+				
+			for (host_api_index=0; host_api_index<host_api_count; host_api_index++)
+			{
+				/* Skip the default host API, that didn't work before */
+				if (host_api_index == default_host_api_index)
+					continue;
+				
+				/* If we find a host API with a device, then take it. */
+				host_api_info = Pa_GetHostApiInfo(host_api_index);
+				if (host_api_info->deviceCount > 0)
+					break;
+			}
+
+			if (host_api_index<host_api_count)
+			{
+				PaStreamParameters stream_parameters;
+				stream_parameters.device = host_api_info->defaultOutputDevice;
+				stream_parameters.channelCount = NUM_CHANNELS;       /* Stereo output */
+				stream_parameters.sampleFormat = PA_SAMPLE_TYPE;     /* 16 bit Integer output */
+				stream_parameters.suggestedLatency = 0;
+				stream_parameters.hostApiSpecificStreamInfo = NULL;
+#if DEBUG
+				g_print("Trying Host API: %s\n", host_api_info->name);
+#endif
+				err = Pa_OpenStream(
+					&pa_stream,
+					NULL,           /* no input */
+					&stream_parameters,
+					SAMPLE_RATE,    /* 8 kHz */
+					FRAMES_PER_BUFFER,
+					paClipOff,      /* we won't output out of range samples so don't bother clipping them */
+					paCallback,
+					rtp_channels );
+			}
+			else
+			{
+				err = paNoDevice;
+			}
+		}
+
+		if( err != paNoError ) {
 			PaHostApiIndex hostApi = Pa_GetDefaultHostApi();
 			if (hostApi < 0)
 			{
@@ -1708,7 +1767,7 @@ play_channels(void)
 					gtk_widget_destroy (dialog);
 				}
 			}
-#endif
+
 			dialog = gtk_message_dialog_new ((GtkWindow *) rtp_player_dlg_w,
 								  GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,
 								  "Can not Open Stream in PortAudio Library.\n Error: %s", Pa_GetErrorText( err ));
@@ -1716,6 +1775,7 @@ play_channels(void)
 			gtk_widget_destroy (dialog);
 			return;
 		}
+#endif
 
 		err = Pa_StartStream( pa_stream );
 		if( err != paNoError ) {
@@ -2141,6 +2201,36 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 	}
 
 	reset_rtp_channels();
+
+#if DEBUG
+	g_print("Pa_GetHostApiCount() = %d\n", Pa_GetHostApiCount());
+	g_print("Pa_GetDefaultHostApi() = %d\n", Pa_GetDefaultHostApi());
+	
+	if ((Pa_GetHostApiCount() >= 0) && (Pa_GetDefaultHostApi() >= 0))
+	{
+		unsigned int i;
+		PaHostApiIndex api_index;
+		const PaHostApiInfo *api_info = Pa_GetHostApiInfo( (unsigned int)Pa_GetDefaultHostApi() );
+		g_print("Default PaHostApiInfo.type = %d (%s)\n", api_info->type, api_info->name);
+		
+		for (i=0; i<(unsigned int)Pa_GetHostApiCount(); i++)
+		{
+			api_info = Pa_GetHostApiInfo( i );
+			g_print("PaHostApiInfo[%u].type = %d (%s)\n", i, api_info->type, api_info->name);
+		}
+		
+		api_index = Pa_HostApiTypeIdToHostApiIndex( paALSA );
+		if (api_index < 0)
+		{
+			g_print("api_index for paALSA not found (%d)\n", api_index);
+		}
+		else
+		{
+			api_info = Pa_GetHostApiInfo( (unsigned int)api_index );
+			g_print("This should be ALSA: %s\n", api_info->name);
+		}
+	}
+#endif
 
 	/* create the dialog window */
 	rtp_player_dlg_create();
