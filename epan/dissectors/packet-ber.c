@@ -319,6 +319,46 @@ void ber_set_filename(gchar *filename)
   }
 }
 
+static void
+ber_check_length (guint32 length, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item)
+{
+  if (min_len != -1 && length < (guint32)min_len) {
+    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: string too short: %d (%d .. %d)", length, min_len, max_len);
+  } else if (max_len != -1 && length > (guint32)max_len) {
+    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: string too long: %d (%d .. %d)", length, min_len, max_len);
+  }
+}
+
+static void
+ber_check_value64 (gint64 value, gint64 min_len, gint64 max_len, asn1_ctx_t *actx, proto_item *item)
+{
+  if (min_len != -1 && value < min_len) {
+    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too small: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)", value, min_len, max_len);
+  } else if (max_len != -1 && value > max_len) {
+    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too big: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)", value, min_len, max_len);
+  }
+}
+
+static void
+ber_check_value (guint32 value, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item)
+{
+  if (min_len != -1 && value < (guint32)min_len) {
+    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too small: %d (%d .. %d)", value, min_len, max_len);
+  } else if (max_len != -1 && value > (guint32)max_len) {
+    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: value too big: %d (%d .. %d)", value, min_len, max_len);
+  }
+}
+
+static void
+ber_check_items (int cnt, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item)
+{
+  if (min_len != -1 && cnt < min_len) {
+    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: too few items: %d (%d .. %d)", cnt, min_len, max_len);
+  } else if (max_len != -1 && cnt > max_len) {
+    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: too many items: %d (%d .. %d)", cnt, min_len, max_len);
+  }
+}
+
 int dissect_ber_tagged_type(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint8 tag_cls, gint32 tag_tag, gboolean tag_impl, ber_type_fn type)
 {
  gint8 tmp_cls;
@@ -670,8 +710,6 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
 	return offset;
 }
 
-static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
-static int dissect_ber_old_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id);
 
 /* 8.1 General rules for encoding */
 
@@ -947,7 +985,7 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int o
 
 /* 8.7 Encoding of an octetstring value */
 int
-dissect_ber_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb) {
+dissect_ber_constrained_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb) {
 	gint8 class;
 	gboolean pc, ind;
 	gint32 tag;
@@ -1030,6 +1068,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		if(hf_id >= 0) {
 			it = proto_tree_add_item(tree, hf_id, tvb, offset, length_remaining, FALSE);
 			actx->created_item = it;
+			ber_check_length(length_remaining, min_len, max_len, actx, it);
 		} else {
 			proto_item *pi;
 
@@ -1047,6 +1086,11 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		}
 	}
 	return end_offset;
+}
+
+int
+dissect_ber_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb) {
+  return dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset, NO_BOUND, NO_BOUND, hf_id, out_tvb);
 }
 
 int dissect_ber_octet_string_wcb(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_callback func)
@@ -1215,10 +1259,25 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 			}
 		}
 	}
-	
+
 	if(value){
 		*value=val;
 	}
+
+	return offset;
+}
+
+int
+dissect_ber_constrained_integer64(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint64 min_len, gint64 max_len, gint hf_id, gint64 *value)
+{
+	gint64 val;
+
+	offset=dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_id, &val);
+	if(value){
+		*value=val;
+	}
+
+	ber_check_value64 (val, min_len, max_len, actx, actx->created_item);
 
 	return offset;
 }
@@ -1236,6 +1295,20 @@ dissect_ber_integer(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 	return offset;
 }
 
+int
+dissect_ber_constrained_integer(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, guint32 *value)
+{
+	gint64 val;
+
+	offset=dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_id, &val);
+	if(value){
+		*value=(guint32)val;
+	}
+
+	ber_check_value ((guint32)val, min_len, max_len, actx, actx->created_item);
+
+	return offset;
+}
 
 int
 dissect_ber_boolean(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gboolean *value)
@@ -3024,7 +3097,8 @@ dissect_ber_GeneralString(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int
 	return end_offset;
 }
 #endif
-int dissect_ber_restricted_string(gboolean implicit_tag, gint32 type,  asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb) {
+
+int dissect_ber_constrained_restricted_string(gboolean implicit_tag, gint32 type,  asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb) {
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
@@ -3072,7 +3146,12 @@ printf("RESTRICTED STRING dissect_ber_octet_string(%s) entered\n",name);
 	}
 
 	/* 8.21.3 */
-	return dissect_ber_octet_string(implicit_tag, actx, tree, tvb, hoffset, hf_id, out_tvb);
+	return dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, hoffset, min_len, max_len, hf_id, out_tvb);
+}
+
+int dissect_ber_restricted_string(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb) 
+{
+	return dissect_ber_constrained_restricted_string(implicit_tag, type, actx, tree, tvb, offset, NO_BOUND, NO_BOUND, hf_id, out_tvb);
 }
 
 int
@@ -3206,7 +3285,7 @@ int dissect_ber_object_identifier_str(gboolean implicit_tag, asn1_ctx_t *actx, p
 #define DEBUG_BER_SQ_OF
 #endif
 
-static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
+static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
 	gint8 classx;
 	gboolean pcx, ind = FALSE, ind_field;
 	gint32 tagx;
@@ -3322,6 +3401,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 				proto_item_append_text(item, (cnt==1)?" item":" items");
 			}
 			tree = proto_item_add_subtree(item, ett_id);
+			ber_check_items (cnt, min_len, max_len, actx, item);
 		}
 	}
 
@@ -3632,12 +3712,20 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 	return end_offset;
 }
 
+int dissect_ber_constrained_sequence_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
+	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SEQUENCE, actx, parent_tree, tvb, offset, min_len, max_len, seq, hf_id, ett_id);
+}
+
 int dissect_ber_sequence_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
-	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SEQUENCE, actx, parent_tree, tvb, offset, seq, hf_id, ett_id);
+	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SEQUENCE, actx, parent_tree, tvb, offset, NO_BOUND, NO_BOUND, seq, hf_id, ett_id);
+}
+
+int dissect_ber_constrained_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
+	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SET, actx, parent_tree, tvb, offset, min_len, max_len, seq, hf_id, ett_id);
 }
 
 int dissect_ber_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
-	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SET, actx, parent_tree, tvb, offset, seq, hf_id, ett_id);
+	return dissect_ber_sq_of(implicit_tag, BER_UNI_TAG_SET, actx, parent_tree, tvb, offset, NO_BOUND, NO_BOUND, seq, hf_id, ett_id);
 }
 
 int dissect_ber_old_sequence_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id) {

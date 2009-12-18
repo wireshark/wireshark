@@ -3865,9 +3865,14 @@ class SequenceOfType (SeqOfType):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
+      if (ectx.constraints_check and self.HasSizeConstraint()):
+        body = ectx.eth_fn_call('dissect_%(ER)s_constrained_sequence_of', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
+      else:
+        body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                     ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per() and not self.HasConstraint()):
       body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
@@ -3917,9 +3922,14 @@ class SetOfType (SeqOfType):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_set_of', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
+      if (ectx.constraints_check and self.HasSizeConstraint()):
+        body = ectx.eth_fn_call('dissect_%(ER)s_constrained_set_of', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
+      else:
+        body = ectx.eth_fn_call('dissect_%(ER)s_set_of', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                     ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per() and not self.HasConstraint()):
       body = ectx.eth_fn_call('dissect_%(ER)s_set_of', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
@@ -4434,9 +4444,14 @@ class EnumeratedType (Type):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
-                                   ('%(VAL_PTR)s',),))
+      if (ectx.constraints_check and self.HasValueConstraint()):
+        body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+      else:
+        body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'), 
+                                     ('%(VAL_PTR)s',),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_enumerated', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
@@ -4733,9 +4748,14 @@ class OctetStringType (Type):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
-                                   ('%(VAL_PTR)s',),))
+      if (ectx.constraints_check and self.HasSizeConstraint()):
+        body = ectx.eth_fn_call('dissect_%(ER)s_constrained_octet_string', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+      else:
+        body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'), 
+                                     ('%(VAL_PTR)s',),))
     elif (ectx.Per()):
       if self.HasContentsConstraint():
         body = ectx.eth_fn_call('dissect_%(ER)s_octet_string_containing%(FN_VARIANT)s', ret='offset',
@@ -4778,10 +4798,16 @@ class RestrictedCharacterStringType (CharacterStringType):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_restricted_string', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(STRING_TAG)s'),
-                                   ('%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
-                                   ('%(VAL_PTR)s',),))
+      if (ectx.constraints_check and self.HasSizeConstraint()):
+        body = ectx.eth_fn_call('dissect_%(ER)s_constrained_restricted_string', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(STRING_TAG)s'),
+                                     ('%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+      else:
+        body = ectx.eth_fn_call('dissect_%(ER)s_restricted_string', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(STRING_TAG)s'),
+                                     ('%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
+                                     ('%(VAL_PTR)s',),))
     elif (ectx.Per() and self.HasPermAlph()):
       body = ectx.eth_fn_call('dissect_%(ER)s_restricted_character_string', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
@@ -5098,9 +5124,14 @@ class IntegerType (Type):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_integer%(FN_VARIANT)s', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
-                                   ('%(VAL_PTR)s',),))
+      if (ectx.constraints_check and self.HasValueConstraint()):
+        body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer%(FN_VARIANT)s', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+      else:
+        body = ectx.eth_fn_call('dissect_%(ER)s_integer%(FN_VARIANT)s', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'), 
+                                     ('%(VAL_PTR)s',),))
     elif (ectx.Per() and not self.HasValueConstraint()):
       body = ectx.eth_fn_call('dissect_%(ER)s_integer%(FN_VARIANT)s', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s'),))
@@ -7503,6 +7534,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c cnf_file] [-e] input_file(s) ...
   -k            : Keep intermediate files though single file output is used
   -L            : Suppress #line directive from .cnf file
   -D dir        : Directory for input_file(s) (default: '.')
+  -C            : Add check for SIZE constraints
   
   input_file(s) : Input ASN.1 file(s)
 
@@ -7524,7 +7556,7 @@ def eth_main():
   global lexer
   print "ASN.1 to Wireshark dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:FTo:O:c:I:eESs:kL");
+    opts, args = getopt.getopt(sys.argv[1:], "h?d:D:buXp:FTo:O:c:I:eESs:kLC");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
   if len(args) < 1:
@@ -7550,6 +7582,7 @@ def eth_main():
   ectx.conform.suppress_line = False;
   ectx.output.outnm = None
   ectx.output.single_file = None
+  ectx.constraints_check = False;
   for o, a in opts:
     if o in ("-h", "-?"):
       eth_usage(); sys.exit(2)
@@ -7562,6 +7595,8 @@ def eth_main():
       ectx.justexpcnf = True
     if o in ("-D",):
       ectx.srcdir = a
+    if o in ("-C",):
+      ectx.constraints_check = True
     if o in ("-X",):
         warnings.warn("Command line option -X is obsolete and can be removed")
     if o in ("-T",):
@@ -7571,7 +7606,7 @@ def eth_main():
     ectx.conform.read(conf_to_read)
 
   for o, a in opts:
-    if o in ("-h", "-?", "-c", "-I", "-E", "-D", "-X", "-T"):
+    if o in ("-h", "-?", "-c", "-I", "-E", "-D", "-C", "-X", "-T"):
       pass  # already processed
     else:
       par = []
