@@ -767,10 +767,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 		g_strlcat(oraddress, tvb_format_text(string, 0, tvb_length(string)), MAX_ORA_STR_LEN);
 	}
 
-#.VIRTUAL_ASSGN
-AddrPrintableString	CountryName/_untag/iso-3166-alpha2-code AdministrationDomainName/_untag/printable PrivateDomainName/printable PrivateDomainIdentifier/printable PhysicalDeliveryCountryName/iso-3166-alpha2-code 
-
-#.FN_BODY AddrPrintableString  VAL_PTR=&nstring
+#.FN_BODY CountryName/_untag/iso-3166-alpha2-code  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s
@@ -778,10 +775,87 @@ AddrPrintableString	CountryName/_untag/iso-3166-alpha2-code AdministrationDomain
 	if(doing_address && nstring)
 		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
 
-#.VIRTUAL_ASSGN
-AddrNumericString  	UserAddress/x121/x121-address CountryName/_untag/x121-dcc-code AdministrationDomainName/_untag/numeric PrivateDomainName/numeric PrivateDomainIdentifier/numeric PhysicalDeliveryCountryName/x121-dcc-code PostalCode/numeric-code
+#.FN_BODY AdministrationDomainName/_untag/printable  VAL_PTR=&nstring
+	tvbuff_t	*nstring = NULL;
 
-#.FN_BODY AddrNumericString  VAL_PTR=&nstring
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.FN_BODY PrivateDomainName/printable  VAL_PTR=&nstring
+	tvbuff_t	*nstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.FN_BODY PrivateDomainIdentifier/printable  VAL_PTR=&nstring
+	tvbuff_t	*nstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.FN_BODY PhysicalDeliveryCountryName/iso-3166-alpha2-code  VAL_PTR=&nstring
+	tvbuff_t	*nstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.FN_BODY UserAddress/x121/x121-address  VAL_PTR=&nstring
+	tvbuff_t	*nstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.FN_BODY CountryName/_untag/x121-dcc-code  VAL_PTR=&nstring
+	tvbuff_t	*nstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.FN_BODY AdministrationDomainName/_untag/numeric  VAL_PTR=&nstring
+	tvbuff_t	*nstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.FN_BODY PrivateDomainName/numeric  VAL_PTR=&nstring
+	tvbuff_t	*nstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.FN_BODY PrivateDomainIdentifier/numeric  VAL_PTR=&nstring
+	tvbuff_t	*nstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.FN_BODY PhysicalDeliveryCountryName/x121-dcc-code  VAL_PTR=&nstring
+	tvbuff_t	*nstring = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(doing_address && nstring)
+		g_strlcat(oraddress, tvb_format_text(nstring, 0, tvb_length(nstring)), MAX_ORA_STR_LEN);
+
+#.FN_BODY PostalCode/numeric-code  VAL_PTR=&nstring
 	tvbuff_t	*nstring = NULL;
 
 	%(DEFAULT_BODY)s

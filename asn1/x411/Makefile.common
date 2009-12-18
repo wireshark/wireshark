@@ -31,7 +31,7 @@ EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = MTAAbstractService.asn \
-	MTSAbstractService.asn MTSAccessProtocol.asn MHSProtocolObjectIdentifiers.asn
+	MTSAbstractService.asn MTSAccessProtocol.asn MHSProtocolObjectIdentifiers.asn MTSUpperBounds.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -46,7 +46,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e 
+A2W_FLAGS= -b -e -C
 
 EXTRA_CNF= \
 	../x509af/x509af-exp.cnf \
