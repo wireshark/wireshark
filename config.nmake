@@ -241,7 +241,7 @@ C_ARES_PKG=1.7.0
 # If you don't have PCRE, comment this line out, so that PCRE_DIR
 # isn't defined.
 #
-PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
+#PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
 
 #
 # Optional: the GNUTLS library enables ssl decryption.
