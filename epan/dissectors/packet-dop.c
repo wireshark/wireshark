@@ -759,8 +759,8 @@ dissect_dop_T_validUntil(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static const ber_sequence_t Validity_sequence[] = {
-  { &hf_dop_validFrom       , BER_CLASS_CON, 0, 0, dissect_dop_T_validFrom },
-  { &hf_dop_validUntil      , BER_CLASS_CON, 1, 0, dissect_dop_T_validUntil },
+  { &hf_dop_validFrom       , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_dop_T_validFrom },
+  { &hf_dop_validUntil      , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_dop_T_validUntil },
   { NULL, 0, 0, 0, NULL }
 };
 

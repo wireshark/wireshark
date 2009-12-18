@@ -134,7 +134,7 @@ EntryInformationSelection ::= SET {
     CHOICE {allUserAttributes  [0]  NULL,
             select             [1]  SET OF AttributeType
             --  empty set implies no attributes are requested 
-  } OPTIONAL --DEFAULT allUserAttributes:NULL--,
+  } DEFAULT allUserAttributes:NULL,
   infoTypes
     [2]  INTEGER {attributeTypesOnly(0), attributeTypesAndValues(1)} 
       DEFAULT attributeTypesAndValues,
@@ -683,7 +683,7 @@ SearchArgumentData ::=
           subset
             [1]  INTEGER {baseObject(0), oneLevel(1), wholeSubtree(2)}
               DEFAULT baseObject,
-          filter                [2]  Filter OPTIONAL --DEFAULT and:{}--,
+          filter                [2]  Filter DEFAULT and:{},
           searchAliases         [3]  BOOLEAN DEFAULT TRUE,
           selection             [4]  EntryInformationSelection DEFAULT {},
           pagedResults          [5]  PagedResultsRequest OPTIONAL,

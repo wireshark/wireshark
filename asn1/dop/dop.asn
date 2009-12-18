@@ -315,11 +315,11 @@ OperationalBindingID ::= SEQUENCE {identifier  INTEGER,
 
 Validity ::= SEQUENCE {
   validFrom   [0]  CHOICE {now   [0]  NULL,
-                           time  [1]  Time} -- DEFAULT now:NULL --,
+                           time  [1]  Time } DEFAULT now:NULL,
   validUntil
     [1]  CHOICE {explicitTermination  [0]  NULL,
                  time                 [1]  Time
-  } -- DEFAULT explicitTermination:NULL 
+  } DEFAULT explicitTermination:NULL 
 }
 
 Time ::= CHOICE {utcTime          UTCTime,
