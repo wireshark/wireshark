@@ -38,6 +38,8 @@ struct _pcre_tuple_t {
     pcre_extra *ex;
     char *error;
 };
+#elif GLIB_CHECK_VERSION(2,14,0) /* No HAVE_LIBPCRE. Try falling back to GRegex. */
+
 #endif /* HAVE_LIBPCRE */
 
 void

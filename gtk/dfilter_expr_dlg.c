@@ -249,7 +249,7 @@ show_relations(GtkWidget *relation_list, ftenum_t ftype)
 	    ftype_can_le(ftype) || (ftype_can_slice(ftype) && ftype_can_le(FT_BYTES)));
 	add_relation_list(relation_list, "contains",
 	    ftype_can_contains(ftype) || (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)));
-#ifdef HAVE_LIBPCRE
+#if defined(HAVE_LIBPCRE) || GLIB_CHECK_VERSION(2,14,0)
 	add_relation_list(relation_list, "matches",
 	    ftype_can_matches(ftype) || (ftype_can_slice(ftype) && ftype_can_matches(FT_BYTES)));
 #endif
@@ -938,7 +938,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkTreeSelection  *l_sel;
 
 	proto_initialize_all_prefixes();
-	
+
     window = dlg_conf_window_new("Wireshark: Filter Expression");
     gtk_window_set_default_size(GTK_WINDOW(window), 500, 400);
     gtk_container_set_border_width(GTK_CONTAINER(window), 5);
@@ -1124,7 +1124,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	    continue;
 	}
 
-	g_snprintf(str, TAG_STRING_LEN, "%s - %s", 
+	g_snprintf(str, TAG_STRING_LEN, "%s - %s",
 		   proto_get_protocol_short_name(protocol),
 		   proto_get_protocol_long_name(protocol));
 	strp=str;

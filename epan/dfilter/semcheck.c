@@ -436,7 +436,7 @@ check_function(stnode_t *st_node)
 	df_func_def_t *funcdef;
 	GSList        *params;
 	guint          iparam;
-	guint          nparams; 
+	guint          nparams;
 
 	funcdef  = sttype_function_funcdef(st_node);
 	params   = sttype_function_params(st_node);
@@ -588,7 +588,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			dfilter_fail("%s (type=%s) and return value of %s() (type=%s) are not of compatible types.",
-					hfinfo1->abbrev, ftype_pretty_name(ftype1), 
+					hfinfo1->abbrev, ftype_pretty_name(ftype1),
 					funcdef->name, ftype_pretty_name(ftype2));
 			THROW(TypeError);
 		}
@@ -674,7 +674,7 @@ check_relation_LHS_STRING(const char* relation_string,
 
 		if (!can_func(ftype2)) {
 			dfilter_fail("Return value of function %s (type=%s) cannot participate in '%s' comparison.",
-				funcdef->name, ftype_pretty_name(ftype2), 
+				funcdef->name, ftype_pretty_name(ftype2),
 				relation_string);
 			THROW(TypeError);
 		}
@@ -770,7 +770,7 @@ check_relation_LHS_UNPARSED(const char* relation_string,
 
 		s =  stnode_data(st_arg1);
 		fvalue = fvalue_from_unparsed(ftype2, s, allow_partial_value, dfilter_fail);
-		
+
 		if (!fvalue) {
 			THROW(TypeError);
 		}
@@ -882,7 +882,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	else if (type2 == STTYPE_FUNCTION) {
 		funcdef = sttype_function_funcdef(st_arg2);
 		ftype2  = funcdef->retval_ftype;
-		
+
 		if (!is_bytes_type(ftype2)) {
 			if (!ftype_can_slice(ftype2)) {
 				dfilter_fail("Return value of function \"%s\" is a %s and cannot be converted into a sequence of bytes.",
@@ -1174,7 +1174,7 @@ check_test(stnode_t *st_node)
 			check_relation("contains", TRUE, ftype_can_contains, st_node, st_arg1, st_arg2);
 			break;
 		case TEST_OP_MATCHES:
-#ifdef HAVE_LIBPCRE
+#if defined(HAVE_LIBPCRE) || GLIB_CHECK_VERSION(2,14,0)
 			check_relation("matches", TRUE, ftype_can_matches, st_node, st_arg1, st_arg2);
 #else
 			dfilter_fail("This Wireshark version does not support the \"matches\" operation.");
@@ -1219,7 +1219,7 @@ dfw_semcheck(dfwork_t *dfw)
 #ifdef DEBUG_dfilter
 	static guint i = 0;
 #endif
-	
+
 	DebugLog(("1 dfw_semcheck(dfwork_t *dfw = %p) [%u]\n", dfw, i));
 	/* Instead of having to check for errors at every stage of
 	 * the semantic-checking, the semantic-checking code will

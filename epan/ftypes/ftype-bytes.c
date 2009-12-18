@@ -32,8 +32,10 @@
 #include <epan/strutil.h>
 #include <epan/oids.h>
 
-#ifdef HAVE_LIBPCRE
-#include <pcre.h>
+#if defined(HAVE_LIBPCRE) || GLIB_CHECK_VERSION(2,14,0)
+# ifdef HAVE_LIBPCRE
+# include <pcre.h>
+# endif
 #define CMP_MATCHES cmp_matches
 #else
 #define CMP_MATCHES NULL
@@ -504,7 +506,35 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	}
 	return FALSE;
 }
-#endif
+#elif GLIB_CHECK_VERSION(2,14,0) /* GRegex */
+static gboolean
+cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	GByteArray *a = fv_a->value.bytes;
+	GRegex *regex = fv_b->value.re;
+
+	/* fv_b is always a FT_PCRE, otherwise the dfilter semcheck() would have
+	 * warned us. For the same reason (and because we're using g_malloc()),
+	 * fv_b->value.re is not NULL.
+	 */
+	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
+		return FALSE;
+	}
+	if (! regex) {
+		return FALSE;
+	}
+	return g_regex_match_full(
+		regex,		/* Compiled PCRE */
+		a->data,	/* The data to check for the pattern... */
+		(int)a->len,	/* ... and its length */
+		0,			/* Start offset within data */
+		G_REGEX_RAW,	/* GRegexMatchFlags */
+		NULL,		/* We are not interested in the match information */
+		NULL		/* We don't want error information */
+		);
+	/* NOTE - DO NOT g_free(data) */
+}
+#endif /* HAVE_LIBPCRE / GRegex */
 
 void
 ftype_register_bytes(void)

@@ -1087,6 +1087,7 @@ AC_ARG_WITH(pcre,
 ],[
 	#
 	# Use libpcre if it's present, otherwise don't.
+	# XXX - Should GLib 2.14 take precedence here?
 	#
 	want_pcre=ifavailable
 	pcre_dir=
