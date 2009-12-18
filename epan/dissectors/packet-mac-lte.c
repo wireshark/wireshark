@@ -1406,7 +1406,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
     SRState *state = g_hash_table_lookup(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)rnti));
     if (state == NULL) {
         /* Allocate status for this RNTI */
-        state = se_alloc(sizeof(SRStatus));
+        state = se_alloc(sizeof(SRState));
         state->status = None;
         g_hash_table_insert(mac_lte_ue_sr_state, GUINT_TO_POINTER((guint)rnti), state);
     }
@@ -1531,7 +1531,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
         }
     }
 
-    /* Get current result */
+    /* Get stored result for this frame */
     result = GetSRResult(pinfo->fd->num, FALSE);
     if (result == NULL) {
         /* For an SR frame, there should always be either a PDCCH grant or indication
@@ -1554,6 +1554,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
                                      tvb, 0, 0, result->timeDifference);
             PROTO_ITEM_SET_GENERATED(ti);
             break;
+
         case FailureAnsweringSR:
             ti = proto_tree_add_uint(tree, hf_mac_lte_failure_answering_sr,
                                      tvb, 0, 0, result->frameNum);
@@ -1562,6 +1563,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
                                      tvb, 0, 0, result->timeDifference);
             PROTO_ITEM_SET_GENERATED(ti);
             break;
+
         case SRLeadingToGrant:
             ti = proto_tree_add_uint(tree, hf_mac_lte_sr_leading_to_grant,
                                      tvb, 0, 0, result->frameNum);
@@ -1571,6 +1573,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
             PROTO_ITEM_SET_GENERATED(ti);
 
             break;
+
         case SRLeadingToFailure:
             ti = proto_tree_add_uint(tree, hf_mac_lte_sr_leading_to_failure,
                                      tvb, 0, 0, result->frameNum);
@@ -1579,6 +1582,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree _U_,
                                      tvb, 0, 0, result->timeDifference);
             PROTO_ITEM_SET_GENERATED(ti);
             break;
+
         case InvalidSREvent:
             ti = proto_tree_add_none_format(tree, hf_mac_lte_sr_invalid_event,
                                             tvb, 0, 0, "Invalid SR event - state=(%s), event=(%s)",
