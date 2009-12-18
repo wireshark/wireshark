@@ -152,6 +152,34 @@ static const struct {
 
 #define NCOMMANDS	(sizeof commands / sizeof commands[0])
 
+/* The following were copied from RFC 2821 */
+static const value_string response_codes_vs[] = {
+	{ 211, "System status, or system help reply" },
+	{ 214, "Help message" },
+	{ 220, "<domain> Service ready" },
+	{ 221, "<domain> Service closing transmission channel" },
+	{ 250, "Requested mail action okay, completed" },
+	{ 251, "User not local; will forward to <forward-path>" },
+	{ 252, "Cannot VRFY user, but will accept message and attempt delivery" },
+	{ 354, "Start mail input; end with <CRLF>.<CRLF>" },
+	{ 421, "<domain> Service not available, closing transmission channel" },
+	{ 450, "Requested mail action not taken: mailbox unavailable" },
+	{ 451, "Requested action aborted: local error in processing" },
+	{ 452, "Requested action not taken: insufficient system storage" },
+	{ 500, "Syntax error, command unrecognized" },
+	{ 501, "Syntax error in parameters or arguments" },
+	{ 502, "Command not implemented" },
+	{ 503, "Bad sequence of commands" },
+	{ 504, "Command parameter not implemented" },
+	{ 550, "Requested action not taken: mailbox unavailable" },
+	{ 551, "User not local; please try <forward-path>" },
+	{ 552, "Requested mail action aborted: exceeded storage allocation" },
+	{ 553, "Requested action not taken: mailbox name not allowed" },
+	{ 554, "Transaction failed" },
+	{ 0, NULL }
+};
+
+
 static gboolean
 line_is_smtp_command(const guchar *command, int commandlen)
 {
@@ -839,7 +867,7 @@ proto_register_smtp(void)
       	NULL, HFILL }},
 
     { &hf_smtp_rsp_code,
-      { "Response code", "smtp.response.code", FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "Response code", "smtp.response.code", FT_UINT32, BASE_DEC, VALS(response_codes_vs), 0x0,
       	NULL, HFILL }},
 
     { &hf_smtp_rsp_parameter,
