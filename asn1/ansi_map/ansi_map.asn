@@ -1,4 +1,4 @@
--- Copyright 2005 - 2007 Anders Broman
+-- Copyright 2005 - 2009 Anders Broman
 -- $Id$
 MAP-Protocol{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-Protocol (4) version5 (5) }
 
@@ -3089,6 +3089,7 @@ TMSIDirectiveRes ::= [PRIVATE 18] SET {
 	-- O
 	}
 
+--X.S0004-540-E v2.0 2.42 NumberPortabilityRequest
 -- 6.4.2.g NumberPortabilityRequest Updated with N.S0023-0 v 1.0
 NumberPortabilityRequest ::= [PRIVATE 18] SET {
 	digits		 							[4] IMPLICIT Digits,
@@ -3101,6 +3102,11 @@ NumberPortabilityRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.82 b
 	msid									MSID OPTIONAL
 	-- (Originating) O 6.5.2.bv c
+	}
+
+NumberPortabilityRequestRes ::= [PRIVATE 18] SET {
+	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL
+	-- O 2.209
 	}
 
 -- 6.4.2.h ServiceRequest Updated with N.S0023-0 v 1.0
@@ -8368,6 +8374,7 @@ ReturnData ::= SEQUENCE {
 	changeServiceRes ChangeServiceRes,
 	parameterRequestRes ParameterRequestRes,
 	tMSIDirectiveRes TMSIDirectiveRes,
+	numberPortabilityRequestRes NumberPortabilityRequestRes,
 	serviceRequestRes ServiceRequestRes,
 	analyzedInformationRes AnalyzedInformationRes,
 	facilitySelectedAndAvailableRes FacilitySelectedAndAvailableRes,

@@ -849,6 +849,7 @@ static int hf_ansi_map_changeFacilitiesRes = -1;  /* ChangeFacilitiesRes */
 static int hf_ansi_map_changeServiceRes = -1;     /* ChangeServiceRes */
 static int hf_ansi_map_parameterRequestRes = -1;  /* ParameterRequestRes */
 static int hf_ansi_map_tMSIDirectiveRes = -1;     /* TMSIDirectiveRes */
+static int hf_ansi_map_numberPortabilityRequestRes = -1;  /* NumberPortabilityRequestRes */
 static int hf_ansi_map_serviceRequestRes = -1;    /* ServiceRequestRes */
 static int hf_ansi_map_analyzedInformationRes = -1;  /* AnalyzedInformationRes */
 static int hf_ansi_map_facilitySelectedAndAvailableRes = -1;  /* FacilitySelectedAndAvailableRes */
@@ -1008,6 +1009,7 @@ static gint ett_ansi_map_ParameterRequestRes_U = -1;
 static gint ett_ansi_map_TMSIDirective_U = -1;
 static gint ett_ansi_map_TMSIDirectiveRes_U = -1;
 static gint ett_ansi_map_NumberPortabilityRequest_U = -1;
+static gint ett_ansi_map_NumberPortabilityRequestRes_U = -1;
 static gint ett_ansi_map_ServiceRequest_U = -1;
 static gint ett_ansi_map_ServiceRequestRes_U = -1;
 static gint ett_ansi_map_AnalyzedInformation_U = -1;
@@ -11734,6 +11736,30 @@ dissect_ansi_map_NumberPortabilityRequest(gboolean implicit_tag _U_, tvbuff_t *t
 }
 
 
+static const ber_sequence_t NumberPortabilityRequestRes_U_set[] = {
+  { &hf_ansi_map_routingDigits, BER_CLASS_CON, 150, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_RoutingDigits },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_NumberPortabilityRequestRes_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              NumberPortabilityRequestRes_U_set, hf_index, ett_ansi_map_NumberPortabilityRequestRes_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_map_NumberPortabilityRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 18, FALSE, dissect_ansi_map_NumberPortabilityRequestRes_U);
+
+  return offset;
+}
+
+
 
 static int
 dissect_ansi_map_ServiceID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -15430,6 +15456,7 @@ static const ber_sequence_t ReturnData_sequence[] = {
   { &hf_ansi_map_changeServiceRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ChangeServiceRes },
   { &hf_ansi_map_parameterRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ParameterRequestRes },
   { &hf_ansi_map_tMSIDirectiveRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_TMSIDirectiveRes },
+  { &hf_ansi_map_numberPortabilityRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_NumberPortabilityRequestRes },
   { &hf_ansi_map_serviceRequestRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_ServiceRequestRes },
   { &hf_ansi_map_analyzedInformationRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_AnalyzedInformationRes },
   { &hf_ansi_map_facilitySelectedAndAvailableRes, BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_ansi_map_FacilitySelectedAndAvailableRes },
@@ -16041,6 +16068,7 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     case  56: /*OTASP Request 6.4.2.CC*/
         offset = dissect_ansi_map_OTASPRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_oTASPRequestRes);
         break;
+	/* 57 Information Backward*/
     case  58: /*Change Facilities*/
         offset = dissect_ansi_map_ChangeFacilitiesRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_changeFacilitiesRes);
         break;
@@ -16053,6 +16081,9 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     case  61: /*TMSI Directive*/
         offset = dissect_ansi_map_TMSIDirectiveRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_tMSIDirectiveRes);
         break;
+    case  62: /*NumberPortabilityRequest */ 
+        offset = dissect_ansi_map_NumberPortabilityRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_numberPortabilityRequestRes);
+		break;
     case  63: /*Service Request*/
         offset = dissect_ansi_map_ServiceRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_serviceRequestRes);
         break;
@@ -16060,9 +16091,13 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     case  64: /*Analyzed Information Request*/
         offset = dissect_ansi_map_AnalyzedInformationRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_analyzedInformationRes);
         break;
+    /* 65 Connection Failure Report*/
+    /* 66 Connect Resource*/
+    /* 67 Disconnect Resource*/
     case  68: /*Facility Selected and Available*/
         offset = dissect_ansi_map_FacilitySelectedAndAvailableRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_facilitySelectedAndAvailableRes);
         break;
+	/* 69 Instruction Request*/
     case  70: /*Modify*/
         offset = dissect_ansi_map_ModifyRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_modifyRes);
         break;
@@ -19194,6 +19229,10 @@ void proto_register_ansi_map(void) {
       { "tMSIDirectiveRes", "ansi_map.tMSIDirectiveRes",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.TMSIDirectiveRes", HFILL }},
+    { &hf_ansi_map_numberPortabilityRequestRes,
+      { "numberPortabilityRequestRes", "ansi_map.numberPortabilityRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.NumberPortabilityRequestRes", HFILL }},
     { &hf_ansi_map_serviceRequestRes,
       { "serviceRequestRes", "ansi_map.serviceRequestRes",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19304,7 +19343,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.QualificationRequest2Res", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5279 "packet-ansi_map-template.c"
+#line 5287 "packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19435,6 +19474,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_TMSIDirective_U,
     &ett_ansi_map_TMSIDirectiveRes_U,
     &ett_ansi_map_NumberPortabilityRequest_U,
+    &ett_ansi_map_NumberPortabilityRequestRes_U,
     &ett_ansi_map_ServiceRequest_U,
     &ett_ansi_map_ServiceRequestRes_U,
     &ett_ansi_map_AnalyzedInformation_U,
@@ -19564,7 +19604,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5312 "packet-ansi_map-template.c"
+#line 5320 "packet-ansi_map-template.c"
     };
 
 

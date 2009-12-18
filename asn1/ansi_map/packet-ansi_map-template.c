@@ -4201,6 +4201,7 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     case  56: /*OTASP Request 6.4.2.CC*/
         offset = dissect_ansi_map_OTASPRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_oTASPRequestRes);
         break;
+	/* 57 Information Backward*/
     case  58: /*Change Facilities*/
         offset = dissect_ansi_map_ChangeFacilitiesRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_changeFacilitiesRes);
         break;
@@ -4213,6 +4214,9 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     case  61: /*TMSI Directive*/
         offset = dissect_ansi_map_TMSIDirectiveRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_tMSIDirectiveRes);
         break;
+    case  62: /*NumberPortabilityRequest */ 
+        offset = dissect_ansi_map_NumberPortabilityRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_numberPortabilityRequestRes);
+		break;
     case  63: /*Service Request*/
         offset = dissect_ansi_map_ServiceRequestRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_serviceRequestRes);
         break;
@@ -4220,9 +4224,13 @@ static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     case  64: /*Analyzed Information Request*/
         offset = dissect_ansi_map_AnalyzedInformationRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_analyzedInformationRes);
         break;
+    /* 65 Connection Failure Report*/
+    /* 66 Connect Resource*/
+    /* 67 Disconnect Resource*/
     case  68: /*Facility Selected and Available*/
         offset = dissect_ansi_map_FacilitySelectedAndAvailableRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_facilitySelectedAndAvailableRes);
         break;
+	/* 69 Instruction Request*/
     case  70: /*Modify*/
         offset = dissect_ansi_map_ModifyRes(TRUE, tvb, offset, actx, tree, hf_ansi_map_modifyRes);
         break;
