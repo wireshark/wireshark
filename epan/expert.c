@@ -55,6 +55,7 @@ const value_string expert_group_vals[] = {
 	{ PI_REASSEMBLE,	"Reassemble" },
 	{ PI_MALFORMED,		"Malformed" },
 	{ PI_DEBUG,		"Debug" },
+	{ PI_PROTOCOL,          "Protocol" },
 /*	{ PI_SECURITY,		"Security" },*/
 	{ 0, NULL }
 };

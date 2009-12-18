@@ -322,8 +322,10 @@ typedef proto_node proto_item;
 #define PI_MALFORMED		0x00020000
 /** A generic debugging message (shouldn't remain in production code!), usually PI_ERROR */
 #define PI_DEBUG		0x00040000
+/** The protocol field violates a protocol specification, usually PI_WARN */
+#define PI_PROTOCOL             0x00080000
 /* The protocol field indicates a security probem (e.g. unsecure implementation) */
-/*#define PI_SECURITY		0x00080000*/
+/*#define PI_SECURITY		0x00100000*/
 
 /* add more, see http://wiki.wireshark.org/Development/ExpertInfo */
 
