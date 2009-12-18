@@ -80,13 +80,13 @@ ExtendedAuthorisationInfo ::= UTCTime
 --	::= id-nato-mmhs-mm-distribution-codes
 
 DistributionCodes ::= SET {
-	sics	[0]	SEQUENCE --SIZE
---				(1..ub-military-number-of-sics)-- OF
+	sics	[0]	SEQUENCE SIZE
+				(1..ub-military-number-of-sics) OF
 				Sic OPTIONAL,
 	dist-Extensions	[1]	SEQUENCE OF
 				DistributionExtensionField OPTIONAL }
 
-Sic ::= PrintableString --(SIZE (lb-military-sic..ub-military-sic))
+Sic ::= PrintableString (SIZE (lb-military-sic..ub-military-sic))
 
 DistributionExtensionField ::= SEQUENCE {
 	dist-type	OBJECT IDENTIFIER,
@@ -101,7 +101,7 @@ DistributionExtensionField ::= SEQUENCE {
 
 HandlingInstructions ::= SEQUENCE OF MilitaryString
 
-MilitaryString ::= PrintableString --(SIZE(1..ub-military-string))
+MilitaryString ::= PrintableString (SIZE(1..ub-military-string))
 
 
 -- Message instructions

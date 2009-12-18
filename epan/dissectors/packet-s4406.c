@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-s4406.c                                                             */
-/* ../../tools/asn2wrs.py -b -p s4406 -c ./s4406.cnf -s ./packet-s4406-template -D . s4406.asn */
+/* ../../tools/asn2wrs.py -b -e -C -p s4406 -c ./s4406.cnf -s ./packet-s4406-template -D . s4406.asn MMSUpperBounds.asn */
 
 /* Input file: packet-s4406-template.c */
 
@@ -58,6 +58,19 @@
 static int proto_s4406 = -1;
 
 
+/*--- Included file: packet-s4406-val.h ---*/
+#line 1 "packet-s4406-val.h"
+#define ub_military_string             69
+#define ub_military_number_of_sics     8
+#define lb_military_sic                3
+#define ub_military_sic                8
+#define ub_military_bigstring          128
+#define ub_data_size                   65535
+
+/*--- End of included file: packet-s4406-val.h ---*/
+#line 53 "packet-s4406-template.c"
+
+
 /*--- Included file: packet-s4406-hf.c ---*/
 #line 1 "packet-s4406-hf.c"
 static int hf_s4406_InformationObject_PDU = -1;   /* InformationObject */
@@ -84,7 +97,7 @@ static int hf_s4406_PriorityLevelQualifier_PDU = -1;  /* PriorityLevelQualifier 
 static int hf_s4406_mm = -1;                      /* IPM */
 static int hf_s4406_mn = -1;                      /* IPN */
 static int hf_s4406_ExemptedAddressSeq_item = -1;  /* ExemptedAddress */
-static int hf_s4406_sics = -1;                    /* SEQUENCE_OF_Sic */
+static int hf_s4406_sics = -1;                    /* SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic */
 static int hf_s4406_sics_item = -1;               /* Sic */
 static int hf_s4406_dist_Extensions = -1;         /* SEQUENCE_OF_DistributionExtensionField */
 static int hf_s4406_dist_Extensions_item = -1;    /* DistributionExtensionField */
@@ -121,7 +134,7 @@ static int hf_s4406_Acp127NotificationType_positive = -1;
 static int hf_s4406_Acp127NotificationType_transfer = -1;
 
 /*--- End of included file: packet-s4406-hf.c ---*/
-#line 53 "packet-s4406-template.c"
+#line 55 "packet-s4406-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_s4406 = -1;
@@ -131,7 +144,7 @@ static gint ett_s4406 = -1;
 static gint ett_s4406_InformationObject = -1;
 static gint ett_s4406_ExemptedAddressSeq = -1;
 static gint ett_s4406_DistributionCodes = -1;
-static gint ett_s4406_SEQUENCE_OF_Sic = -1;
+static gint ett_s4406_SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic = -1;
 static gint ett_s4406_SEQUENCE_OF_DistributionExtensionField = -1;
 static gint ett_s4406_DistributionExtensionField = -1;
 static gint ett_s4406_HandlingInstructions = -1;
@@ -151,7 +164,7 @@ static gint ett_s4406_SEQUENCE_OF_BodyPartSecurityLabel = -1;
 static gint ett_s4406_BodyPartSecurityLabel = -1;
 
 /*--- End of included file: packet-s4406-ett.c ---*/
-#line 57 "packet-s4406-template.c"
+#line 59 "packet-s4406-template.c"
 
 
 /*--- Included file: packet-s4406-fn.c ---*/
@@ -231,22 +244,22 @@ dissect_s4406_ExtendedAuthorisationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_s4406_Sic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                                        actx, tree, tvb, offset,
+                                                        lb_military_sic, ub_military_sic, hf_index, NULL);
 
   return offset;
 }
 
 
-static const ber_sequence_t SEQUENCE_OF_Sic_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic_sequence_of[1] = {
   { &hf_s4406_sics_item     , BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_s4406_Sic },
 };
 
 static int
-dissect_s4406_SEQUENCE_OF_Sic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_Sic_sequence_of, hf_index, ett_s4406_SEQUENCE_OF_Sic);
+dissect_s4406_SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  1, ub_military_number_of_sics, SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic_sequence_of, hf_index, ett_s4406_SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic);
 
   return offset;
 }
@@ -302,7 +315,7 @@ dissect_s4406_SEQUENCE_OF_DistributionExtensionField(gboolean implicit_tag _U_, 
 
 
 static const ber_sequence_t DistributionCodes_set[] = {
-  { &hf_s4406_sics          , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_SEQUENCE_OF_Sic },
+  { &hf_s4406_sics          , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic },
   { &hf_s4406_dist_Extensions, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_s4406_SEQUENCE_OF_DistributionExtensionField },
   { NULL, 0, 0, 0, NULL }
 };
@@ -319,9 +332,9 @@ dissect_s4406_DistributionCodes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_s4406_MilitaryString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                                        actx, tree, tvb, offset,
+                                                        1, ub_military_string, hf_index, NULL);
 
   return offset;
 }
@@ -873,7 +886,7 @@ static void dissect_PriorityLevelQualifier_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-s4406-fn.c ---*/
-#line 59 "packet-s4406-template.c"
+#line 61 "packet-s4406-template.c"
 
 
 /*
@@ -1009,7 +1022,7 @@ void proto_register_s4406(void) {
     { &hf_s4406_sics,
       { "sics", "s4406.sics",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "s4406.SEQUENCE_OF_Sic", HFILL }},
+        "s4406.SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic", HFILL }},
     { &hf_s4406_sics_item,
       { "Sic", "s4406.Sic",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1144,7 +1157,7 @@ void proto_register_s4406(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s4406-hfarr.c ---*/
-#line 93 "packet-s4406-template.c"
+#line 95 "packet-s4406-template.c"
   };
 
   /* List of subtrees */
@@ -1156,7 +1169,7 @@ void proto_register_s4406(void) {
     &ett_s4406_InformationObject,
     &ett_s4406_ExemptedAddressSeq,
     &ett_s4406_DistributionCodes,
-    &ett_s4406_SEQUENCE_OF_Sic,
+    &ett_s4406_SEQUENCE_SIZE_1_ub_military_number_of_sics_OF_Sic,
     &ett_s4406_SEQUENCE_OF_DistributionExtensionField,
     &ett_s4406_DistributionExtensionField,
     &ett_s4406_HandlingInstructions,
@@ -1176,7 +1189,7 @@ void proto_register_s4406(void) {
     &ett_s4406_BodyPartSecurityLabel,
 
 /*--- End of included file: packet-s4406-ettarr.c ---*/
-#line 99 "packet-s4406-template.c"
+#line 101 "packet-s4406-template.c"
   };
 
   /* Register protocol */
@@ -1218,7 +1231,7 @@ void proto_reg_handoff_s4406(void) {
 
 
 /*--- End of included file: packet-s4406-dis-tab.c ---*/
-#line 114 "packet-s4406-template.c"
+#line 116 "packet-s4406-template.c"
 
   register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_s4406, proto_s4406, "STANAG 4406");
 

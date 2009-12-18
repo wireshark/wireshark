@@ -1,0 +1,26 @@
+-- $Id$
+MMSUpperBounds {iso(1) identified-organization(3) nato(26) stanags(0)
+  mmhs(4406) object-identifiers(0) module(0) upper-bounds(0)} DEFINITIONS
+IMPLICIT TAGS ::=
+BEGIN
+
+-- Prologue
+-- Exports Everything
+IMPORTS -- nothing -- ;
+
+-- Upper Bounds
+ub-military-string INTEGER ::= 69
+
+ub-military-number-of-sics INTEGER ::= 8
+
+lb-military-sic INTEGER ::= 3
+
+ub-military-sic INTEGER ::= 8
+
+ub-military-bigstring INTEGER ::= 128
+
+ub-data-size INTEGER ::= 65535
+
+-- size of ACP127DATADATA
+END -- of MMSUpperBounds 
+

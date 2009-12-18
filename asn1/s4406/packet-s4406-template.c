@@ -49,6 +49,8 @@
 /* Initialize the protocol and registered fields */
 static int proto_s4406 = -1;
 
+#include "packet-s4406-val.h"
+
 #include "packet-s4406-hf.c"
 
 /* Initialize the subtree pointers */

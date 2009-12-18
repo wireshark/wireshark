@@ -28,7 +28,7 @@ DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 
 EXT_ASN_FILE_LIST =
 
-ASN_FILE_LIST = $(PROTOCOL_NAME).asn
+ASN_FILE_LIST = $(PROTOCOL_NAME).asn MMSUpperBounds.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -43,7 +43,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b 
+A2W_FLAGS= -b -e -C
 
 EXTRA_CNF= \
 	../x411/x411-exp.cnf \
