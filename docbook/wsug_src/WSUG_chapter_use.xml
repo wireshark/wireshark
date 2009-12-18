@@ -50,11 +50,11 @@
 	<note><title>Note!</title>
 	<para>
 	In the following chapters, a lot of screenshots from Wireshark will be shown.
-	As Wireshark runs on many different platforms and there are different
-	versions of the underlying GUI toolkit (GTK 1.x / 2.x) used, your
-	screen might look different from the provided screenshots. But as there
-	are no real differences in functionality, these screenshots should still
-	be well understandable.
+	As Wireshark runs on many different platforms with many different window
+	managers, different styles applied and there are different versions of the
+	underlying GUI toolkit used, your screen might look different from the provided
+	screenshots. But as there are no real differences in functionality, these
+	screenshots should still be well understandable.
 	</para>
 	</note>
 	</para>
@@ -316,6 +316,16 @@
 		  including a summary of the packets that have been captured,
 		  display protocol hierarchy statistics and much more.
 		  See <xref linkend="ChUseStatisticsMenuSection"/>.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Telephony</command></term>
+	  <listitem>
+	    <para>
+	      This menu contains items to display various telephony related
+		  statistic windows, including a media analysis, flow diagrams,
+		  display protocol hierarchy statistics and much more.
+		  See <xref linkend="ChUseTelephonyMenuSection"/>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -1572,6 +1582,11 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>Packet Lengths...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
 		<entry><command>IO Graphs</command></entry>
 		<entry></entry>
 		<entry><para>
@@ -1616,67 +1631,12 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>ANSI</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>Fax T38 Analysis...</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>GSM</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>H.225...</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>LTE MAC</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatLTEMACTraffic"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>MTP3</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>RTP</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>SCTP</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>SIP</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>VoIP Calls...</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>WAP-WSP...</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>------</command></entry>
-		<entry></entry>
-		<entry></entry>
-	      </row>
-	      <row>
 		<entry><command>BOOTP-DHCP...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>Compare...</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
@@ -1716,22 +1676,7 @@
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
-		<entry><command>Packet Lengths...</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>SMPP Operations...</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
 		<entry><command>TCP Stream Graph</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>UCP Messages...</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
@@ -1744,6 +1689,112 @@
 		<entry><command>WLAN Traffic</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatWLANTraffic"/></para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="ChUseTelephonyMenuSection"><title>The "Telephony" menu</title>
+    <para>
+      The Wireshark Telephony menu contains the fields shown in
+      <xref linkend="ChUseTelephony"/>.
+    </para>
+    <figure id="ChUseWiresharkTelephonyMenu">
+      <title>The "Telephony" Menu</title>
+      <graphic entityref="WiresharkTelephonyMenu" format="PNG"/>
+    </figure>
+    <para>
+	All menu items will bring up a new window showing specific telephony
+	related statistical information.
+    </para>
+    <table id="ChUseTelephony" frame="none">
+      <title>Telephony menu items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Menu Item</entry>
+		<entry>Accelerator</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>ANSI</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>Fax T38 Analysis...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>GSM</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>H.225...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>IAX2</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>ISUP Messages...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>LTE MAC...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatLTEMACTraffic"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>MTP3</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>RTP</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>SCTP</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>SIP...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>SMPP Operations...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>UCP Messages...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>VoIP Calls...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>WAP-WSP...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	    </tbody>
       </tgroup>
