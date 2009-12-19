@@ -685,7 +685,7 @@ proto_register_ipp(void)
 {
         static hf_register_info hf[] = {
                 { &hf_ipp_timestamp,
-                  { "Time", "ipp.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
+                  { "Time", "ipp.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
                     NULL, 0, NULL, HFILL }},
         };
 	static gint *ett[] = {

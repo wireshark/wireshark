@@ -1323,7 +1323,7 @@ static hf_register_info hf[] = {
 /* SoC data fields*/
 { &hf_epl_soc_mc,       { "MC (Multiplexed Cycle Completed)",   "epl.soc.mc",           FT_BOOLEAN,   8, NULL,                 EPL_SOC_MC_MASK, NULL, HFILL }},
 { &hf_epl_soc_ps,       { "PS (Prescaled Slot)",                "epl.soc.ps",           FT_BOOLEAN,   8, NULL,                 EPL_SOC_PS_MASK, NULL, HFILL }},
-{ &hf_epl_soc_nettime,  { "NetTime",                            "epl.soc.nettime",      FT_ABSOLUTE_TIME,   BASE_NONE, NULL,                 0x0,  NULL, HFILL }},
+{ &hf_epl_soc_nettime,  { "NetTime",                            "epl.soc.nettime",      FT_ABSOLUTE_TIME,   ABSOLUTE_TIME_LOCAL, NULL,                 0x0,  NULL, HFILL }},
 { &hf_epl_soc_relativetime,{ "RelativeTime",                    "epl.soc.relativetime", FT_UINT64,  BASE_DEC, NULL,                 0x0,  NULL, HFILL }},
 
 /* PReq data fields*/

@@ -238,11 +238,11 @@ proto_register_who(void)
 			NULL, HFILL }},
 
 		{ &hf_who_sendtime,
-		{ "Send Time",	"who.sendtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		{ "Send Time",	"who.sendtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_who_recvtime,
-		{ "Receive Time", "who.recvtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		{ "Receive Time", "who.recvtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_who_hostname,
@@ -262,7 +262,7 @@ proto_register_who(void)
 			NULL, HFILL }},
 
 		{ &hf_who_boottime,
-		{ "Boot Time", "who.boottime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		{ "Boot Time", "who.boottime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_who_whoent,
@@ -278,7 +278,7 @@ proto_register_who(void)
 			NULL, HFILL }},
 
 		{ &hf_who_timeon,
-		{ "Time On", "who.timeon", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		{ "Time On", "who.timeon", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_who_idle,

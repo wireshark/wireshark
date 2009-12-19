@@ -7017,7 +7017,7 @@ proto_register_dcerpc_spoolss(void)
 		    NULL, 0, NULL, HFILL }},		   
 
 		{ &hf_driverdate,
-		  { "Driver Date", "spoolss.driverdate", FT_ABSOLUTE_TIME, BASE_NONE,
+		  { "Driver Date", "spoolss.driverdate", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		    NULL, 0, "Date of driver creation", HFILL }},	
 
 		{ &hf_padding,

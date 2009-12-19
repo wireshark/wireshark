@@ -1149,7 +1149,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_cli_hello_gmt,
 			{ 	"Time GMT",
 				"wtls.handshake.client_hello.gmt",
-				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+				 FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -1317,7 +1317,7 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_serv_hello_gmt,
 			{ 	"Time GMT",
 				"wtls.handshake.server_hello.gmt",
-				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+				 FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 				NULL, HFILL
 			}
 		},
@@ -1464,14 +1464,14 @@ proto_register_wtls(void)
 		{ &hf_wtls_hands_certificate_wtls_valid_not_before,
 			{ 	"Valid not before",
 				"wtls.handshake.certificate.before",
-				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+				 FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 				NULL, HFILL
 			}
 		},
 		{ &hf_wtls_hands_certificate_wtls_valid_not_after,
 			{ 	"Valid not after",
 				"wtls.handshake.certificate.after",
-				 FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+				 FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 				NULL, HFILL
 			}
 		},

@@ -494,7 +494,7 @@ proto_register_dcc(void)
 				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_date, {
-				"Date", "dcc.date", FT_ABSOLUTE_TIME, BASE_NONE,
+				"Date", "dcc.date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 				NULL, 0, NULL, HFILL }},
 
 			{ &hf_dcc_adminop, {

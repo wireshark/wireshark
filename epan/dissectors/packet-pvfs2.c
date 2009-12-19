@@ -3293,7 +3293,7 @@ proto_register_pvfs(void)
 				VALS(names_pvfs_error), 0, NULL, HFILL }},
 
 		{ &hf_pvfs_atime,
-			{ "atime", "pvfs.atime", FT_ABSOLUTE_TIME, BASE_NONE,
+			{ "atime", "pvfs.atime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 				NULL, 0, "Access Time", HFILL }},
 
 		{ &hf_pvfs_atime_sec,
@@ -3305,7 +3305,7 @@ proto_register_pvfs(void)
 				NULL, 0, "Access Time (microseconds)", HFILL }},
 
 		{ &hf_pvfs_mtime,
-			{ "mtime", "pvfs.mtime", FT_ABSOLUTE_TIME, BASE_NONE,
+			{ "mtime", "pvfs.mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 				NULL, 0, "Modify Time", HFILL }},
 
 		{ &hf_pvfs_mtime_sec,
@@ -3317,7 +3317,7 @@ proto_register_pvfs(void)
 				NULL, 0, "Modify Time (microseconds)", HFILL }},
 
 		{ &hf_pvfs_ctime,
-			{ "ctime", "pvfs.ctime", FT_ABSOLUTE_TIME, BASE_NONE,
+			{ "ctime", "pvfs.ctime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 				NULL, 0, "Creation Time", HFILL }},
 
 		{ &hf_pvfs_ctime_sec,
@@ -3329,7 +3329,7 @@ proto_register_pvfs(void)
 				NULL, 0, "Creation Time (microseconds)", HFILL }},
 
 		{ &hf_pvfs_parent_atime,
-			{ "Parent atime", "pvfs.parent_atime", FT_ABSOLUTE_TIME, BASE_NONE,
+			{ "Parent atime", "pvfs.parent_atime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 				NULL, 0, "Access Time", HFILL }},
 
 		{ &hf_pvfs_parent_atime_sec,
@@ -3341,7 +3341,7 @@ proto_register_pvfs(void)
 				NULL, 0, "Access Time (microseconds)", HFILL }},
 
 		{ &hf_pvfs_parent_mtime,
-			{ "Parent mtime", "pvfs.parent_mtime", FT_ABSOLUTE_TIME, BASE_NONE,
+			{ "Parent mtime", "pvfs.parent_mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 				NULL, 0, "Modify Time", HFILL }},
 
 		{ &hf_pvfs_parent_mtime_sec,
@@ -3353,7 +3353,7 @@ proto_register_pvfs(void)
 				NULL, 0, "Modify Time (microseconds)", HFILL }},
 
 		{ &hf_pvfs_parent_ctime,
-			{ "Parent ctime", "pvfs.parent_ctime", FT_ABSOLUTE_TIME, BASE_NONE,
+			{ "Parent ctime", "pvfs.parent_ctime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 				NULL, 0, "Creation Time", HFILL }},
 
 		{ &hf_pvfs_parent_ctime_sec,

@@ -181,7 +181,7 @@ proto_register_ayiya(void)
 	},
   	{ &hf_epoch,
 		{ "Epoch", "ayiya.epoch", FT_ABSOLUTE_TIME, 
-			BASE_NONE, NULL, 0x0, NULL, HFILL
+			ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL
 		}
 	},
   	{ &hf_identity,

@@ -17462,7 +17462,7 @@ proto_register_smb(void)
 		TFS(&tfs_rm_write), RAWMODE_WRITE, "Is Write Raw supported?", HFILL }},
 
 	{ &hf_smb_server_date_time,
-		{ "Server Date and Time", "smb.server_date_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Server Date and Time", "smb.server_date_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Current date and time at server", HFILL }},
 
 	{ &hf_smb_server_smb_date,
@@ -17550,7 +17550,7 @@ proto_register_smb(void)
 		TFS(&tfs_server_cap_extended_security), SERVER_CAP_EXTENDED_SECURITY, "Are Extended security exchanges supported?", HFILL }},
 
 	{ &hf_smb_system_time,
-		{ "System Time", "smb.system.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "System Time", "smb.system.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unknown,
@@ -17802,15 +17802,15 @@ proto_register_smb(void)
 		TFS(&tfs_da_writetru), 0x4000, "Writethrough mode?", HFILL }},
 
 	{ &hf_smb_create_time,
-		{ "Created", "smb.create.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Created", "smb.create.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Creation Time", HFILL }},
 
 	{ &hf_smb_modify_time,
-	        { "Modified", "smb.modify.time", FT_ABSOLUTE_TIME, BASE_NONE,
+	        { "Modified", "smb.modify.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		  NULL, 0, "Modification Time", HFILL }},
 
 	{ &hf_smb_backup_time,
-	        { "Backed-up", "smb.backup.time", FT_ABSOLUTE_TIME, BASE_NONE,
+	        { "Backed-up", "smb.backup.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		  NULL, 0, "Backup time", HFILL}},
 
 	{ &hf_smb_mac_alloc_block_count,
@@ -17874,7 +17874,7 @@ proto_register_smb(void)
 		NULL, 0, "Create Time, SMB_TIME format", HFILL }},
 
 	{ &hf_smb_last_write_time,
-		{ "Last Write", "smb.last_write.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Last Write", "smb.last_write.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time this file was last written to", HFILL }},
 
 	{ &hf_smb_last_write_dos_date,
@@ -17930,7 +17930,7 @@ proto_register_smb(void)
 		VALS(seek_mode_vals), 0, "Seek Mode, what type of seek", HFILL }},
 
 	{ &hf_smb_access_time,
-		{ "Last Access", "smb.access.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Last Access", "smb.access.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Last Access Time", HFILL }},
 
 	{ &hf_smb_access_dos_date,
@@ -18714,7 +18714,7 @@ proto_register_smb(void)
 		NULL, 0, "Offset to next entry", HFILL }},
 
 	{ &hf_smb_change_time,
-		{ "Change", "smb.change.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Change", "smb.change.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Last Change Time", HFILL }},
 
 	{ &hf_smb_setup_len,
@@ -18734,7 +18734,7 @@ proto_register_smb(void)
 		NULL, 0, "Index of entry after last returned", HFILL }},
 
 	{ &hf_smb_print_queue_date,
-		{ "Queued", "smb.print.queued.date", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Queued", "smb.print.queued.date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Date when this entry was queued", HFILL }},
 
 	{ &hf_smb_print_queue_dos_date,
@@ -19384,15 +19384,15 @@ proto_register_smb(void)
 	    NULL, 0, "Number of bytes used to store the file", HFILL }},
 
 	{ &hf_smb_unix_file_last_status,
-	  { "Last status change", "smb.unix.file.stime", FT_ABSOLUTE_TIME, BASE_NONE,
+	  { "Last status change", "smb.unix.file.stime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_last_access,
-	  { "Last access", "smb.unix.file.atime", FT_ABSOLUTE_TIME, BASE_NONE,
+	  { "Last access", "smb.unix.file.atime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_last_change,
-	  { "Last modification", "smb.unix.file.mtime", FT_ABSOLUTE_TIME, BASE_NONE,
+	  { "Last modification", "smb.unix.file.mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_file_uid,

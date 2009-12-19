@@ -2032,7 +2032,7 @@ proto_register_dtls(void)
     },
     { &hf_dtls_handshake_random_time,
       { "Random.gmt_unix_time", "dtls.handshake.random_time",
-        FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
         "Unix time field of random structure", HFILL }
     },
     { &hf_dtls_handshake_random_bytes,

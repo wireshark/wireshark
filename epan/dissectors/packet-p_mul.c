@@ -1396,7 +1396,7 @@ void proto_register_p_mul (void)
       { "Message ID (MSID)", "p_mul.message_id", FT_UINT32, BASE_DEC,
         NULL, 0x0, "Message ID", HFILL } },
     { &hf_expiry_time,
-      { "Expiry Time", "p_mul.expiry_time", FT_ABSOLUTE_TIME, BASE_NONE,
+      { "Expiry Time", "p_mul.expiry_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
         NULL, 0x0, NULL, HFILL } },
     { &hf_mc_group,
       { "Multicast Group", "p_mul.mc_group", FT_UINT32, BASE_DEC,

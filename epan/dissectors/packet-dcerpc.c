@@ -5356,7 +5356,7 @@ proto_register_dcerpc (void)
         { &hf_dcerpc_dg_seqnum,
           { "Sequence num", "dcerpc.dg_seqnum", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_dg_server_boot,
-          { "Server boot time", "dcerpc.dg_server_boot", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+          { "Server boot time", "dcerpc.dg_server_boot", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_dg_if_ver,
           { "Interface Ver", "dcerpc.dg_if_ver", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_dcerpc_krb5_av_prot_level,

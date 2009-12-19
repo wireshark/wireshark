@@ -10787,7 +10787,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_atime, {
-			"atime", "nfs.atime", FT_ABSOLUTE_TIME, BASE_NONE,
+			"atime", "nfs.atime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "Access Time", HFILL }},
 
 		{ &hf_nfs_atime_sec, {
@@ -10803,7 +10803,7 @@ proto_register_nfs(void)
 			NULL, 0, "Access Time, Micro-seconds", HFILL }},
 
 		{ &hf_nfs_mtime, {
-			"mtime", "nfs.mtime", FT_ABSOLUTE_TIME, BASE_NONE,
+			"mtime", "nfs.mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "Modify Time", HFILL }},
 
 		{ &hf_nfs_mtime_sec, {
@@ -10819,7 +10819,7 @@ proto_register_nfs(void)
 			NULL, 0, "Modify Time, Micro-seconds", HFILL }},
 
 		{ &hf_nfs_ctime, {
-			"ctime", "nfs.ctime", FT_ABSOLUTE_TIME, BASE_NONE,
+			"ctime", "nfs.ctime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "Creation Time", HFILL }},
 
 		{ &hf_nfs_ctime_sec, {

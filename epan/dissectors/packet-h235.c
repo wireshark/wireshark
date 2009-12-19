@@ -1186,7 +1186,7 @@ void proto_register_h235(void) {
         "h235.OBJECT_IDENTIFIER", HFILL }},
     { &hf_h235_timeStamp,
       { "timeStamp", "h235.timeStamp",
-        FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "h235.TimeStamp", HFILL }},
     { &hf_h235_password,
       { "password", "h235.password",

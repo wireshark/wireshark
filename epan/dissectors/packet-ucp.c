@@ -2291,7 +2291,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_CT,
 	    { "CT", "ucp.parm.CT",
-	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+	      FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 	      "Accumulated charges timestamp.",
 	      HFILL
 	    }
@@ -2410,7 +2410,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_DDT,
 	    { "DDT", "ucp.parm.DDT",
-	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+	      FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 	      "Deferred delivery time.",
 	      HFILL
 	    }
@@ -2424,21 +2424,21 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_ST,
 	    { "ST", "ucp.parm.ST",
-	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+	      FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 	      "Start time.",
 	      HFILL
 	    }
 	},
 	{ &hf_ucp_parm_SP,
 	    { "SP", "ucp.parm.SP",
-	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+	      FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 	      "Stop time.",
 	      HFILL
 	    }
 	},
 	{ &hf_ucp_parm_VP,
 	    { "VP", "ucp.parm.VP",
-	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+	      FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 	      "Validity period.",
 	      HFILL
 	    }
@@ -2452,7 +2452,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_SCTS,
 	    { "SCTS", "ucp.parm.SCTS",
-	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+	      FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 	      "Service Centre timestamp.",
 	      HFILL
 	    }
@@ -2473,7 +2473,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_DSCTS,
 	    { "DSCTS", "ucp.parm.DSCTS",
-	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+	      FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 	      "Delivery timestamp.",
 	      HFILL
 	    }
@@ -2676,7 +2676,7 @@ proto_register_ucp(void)
 	},
 	{ &hf_ucp_parm_MVP,
 	    { "MVP", "ucp.parm.MVP",
-	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+	      FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 	      "Modified validity period.",
 	      HFILL
 	    }

@@ -183,11 +183,11 @@ proto_register_conv (void)
         { &hf_conv_who_are_you_rqst_actuid,
             {"Activity UID", "conv.who_are_you_rqst_actuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
         { &hf_conv_who_are_you_rqst_boot_time,
-            {"Boot time", "conv.who_are_you_rqst_boot_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            {"Boot time", "conv.who_are_you_rqst_boot_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
         { &hf_conv_who_are_you2_rqst_actuid,
             {"Activity UID", "conv.who_are_you2_rqst_actuid", FT_GUID, BASE_NONE, NULL, 0x0, "UUID", HFILL }},
         { &hf_conv_who_are_you2_rqst_boot_time,
-            {"Boot time", "conv.who_are_you2_rqst_boot_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            {"Boot time", "conv.who_are_you2_rqst_boot_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
 
         { &hf_conv_who_are_you_resp_seq,
             {"Sequence Number", "conv.who_are_you_resp_seq", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

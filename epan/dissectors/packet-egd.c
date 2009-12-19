@@ -195,7 +195,7 @@ void proto_register_egd(void)
       },
       { &hf_egd_time,
         { "Timestamp", "egd.time",
-          FT_ABSOLUTE_TIME, BASE_NONE,
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0x0,
           NULL, HFILL }
       },

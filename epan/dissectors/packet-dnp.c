@@ -3001,7 +3001,7 @@ proto_register_dnp3(void)
     { "Reserved", "dnp3.al.aoq.b7", FT_BOOLEAN, 8, TFS(&tfs_set_notset), AL_OBJ_AO_FLAG7, NULL, HFILL }},
 
     { &hf_dnp3_al_timestamp,
-    { "Timestamp", "dnp3.al.timestamp", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "Object Timestamp", HFILL }},
+    { "Timestamp", "dnp3.al.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, "Object Timestamp", HFILL }},
 
     { &hf_dnp3_al_rel_timestamp,
     { "Relative Timestamp", "dnp3.al.reltimestamp", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Object Relative Timestamp", HFILL }},

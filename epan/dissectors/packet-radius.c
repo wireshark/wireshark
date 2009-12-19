@@ -1703,7 +1703,7 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 		hfri[0].hfinfo.display = BASE_NONE;
 	} else if (a->type == radius_date) {
 		hfri[0].hfinfo.type = FT_ABSOLUTE_TIME;
-		hfri[0].hfinfo.display = BASE_NONE;
+		hfri[0].hfinfo.display = ABSOLUTE_TIME_LOCAL;
 	} else if (a->type == radius_abinary) {
 		hfri[0].hfinfo.type = FT_BYTES;
 		hfri[0].hfinfo.display = BASE_NONE;

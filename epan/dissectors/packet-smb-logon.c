@@ -1122,7 +1122,7 @@ proto_register_smb_logon( void)
 			  NULL, 0, "SMB NETLOGON Large Serial Number", HFILL }},
 
 		{ &hf_nt_date_time,
-			{ "NT Date/Time", "smb_netlogon.nt_date_time", FT_ABSOLUTE_TIME, BASE_NONE,
+			{ "NT Date/Time", "smb_netlogon.nt_date_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			  NULL, 0, "SMB NETLOGON NT Date/Time", HFILL }},
 
 		{ &hf_unknown8,

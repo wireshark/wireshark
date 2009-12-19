@@ -8731,7 +8731,7 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaCoursorEx_time1,
-          { "time1", "drsuapi.DsReplicaCoursorEx.time1", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "time1", "drsuapi.DsReplicaCoursorEx.time1", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9456,12 +9456,12 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaNeighbour_last_success,
-          { "last_success", "drsuapi.DsReplicaNeighbour.last_success", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "last_success", "drsuapi.DsReplicaNeighbour.last_success", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaNeighbour_last_attempt,
-          { "last_attempt", "drsuapi.DsReplicaNeighbour.last_attempt", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "last_attempt", "drsuapi.DsReplicaNeighbour.last_attempt", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9516,7 +9516,7 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaObjMetaData_originating_last_changed,
-          { "originating_last_changed", "drsuapi.DsReplicaObjMetaData.originating_last_changed", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "originating_last_changed", "drsuapi.DsReplicaObjMetaData.originating_last_changed", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9561,7 +9561,7 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaKccDsaFailure_first_failure,
-          { "first_failure", "drsuapi.DsReplicaKccDsaFailure.first_failure", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "first_failure", "drsuapi.DsReplicaKccDsaFailure.first_failure", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9621,7 +9621,7 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaOp_operation_start,
-          { "operation_start", "drsuapi.DsReplicaOp.operation_start", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "operation_start", "drsuapi.DsReplicaOp.operation_start", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9671,7 +9671,7 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaOpCtr_time,
-          { "time", "drsuapi.DsReplicaOpCtr.time", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "time", "drsuapi.DsReplicaOpCtr.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9706,12 +9706,12 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaAttrValMetaData_deleted,
-          { "deleted", "drsuapi.DsReplicaAttrValMetaData.deleted", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "deleted", "drsuapi.DsReplicaAttrValMetaData.deleted", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaAttrValMetaData_created,
-          { "created", "drsuapi.DsReplicaAttrValMetaData.created", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "created", "drsuapi.DsReplicaAttrValMetaData.created", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9721,7 +9721,7 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaAttrValMetaData_originating_last_changed,
-          { "originating_last_changed", "drsuapi.DsReplicaAttrValMetaData.originating_last_changed", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "originating_last_changed", "drsuapi.DsReplicaAttrValMetaData.originating_last_changed", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9766,7 +9766,7 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaCoursor2_last_sync_success,
-          { "last_sync_success", "drsuapi.DsReplicaCoursor2.last_sync_success", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "last_sync_success", "drsuapi.DsReplicaCoursor2.last_sync_success", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9796,7 +9796,7 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaCoursor3_last_sync_success,
-          { "last_sync_success", "drsuapi.DsReplicaCoursor3.last_sync_success", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "last_sync_success", "drsuapi.DsReplicaCoursor3.last_sync_success", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9831,7 +9831,7 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaObjMetaData2_originating_last_changed,
-          { "originating_last_changed", "drsuapi.DsReplicaObjMetaData2.originating_last_changed", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "originating_last_changed", "drsuapi.DsReplicaObjMetaData2.originating_last_changed", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9891,12 +9891,12 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaAttrValMetaData2_deleted,
-          { "deleted", "drsuapi.DsReplicaAttrValMetaData2.deleted", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "deleted", "drsuapi.DsReplicaAttrValMetaData2.deleted", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaAttrValMetaData2_created,
-          { "created", "drsuapi.DsReplicaAttrValMetaData2.created", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "created", "drsuapi.DsReplicaAttrValMetaData2.created", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9906,7 +9906,7 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaAttrValMetaData2_originating_last_changed,
-          { "originating_last_changed", "drsuapi.DsReplicaAttrValMetaData2.originating_last_changed", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "originating_last_changed", "drsuapi.DsReplicaAttrValMetaData2.originating_last_changed", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -9966,7 +9966,7 @@ proto_register_drsuapi(void)
          NULL, HFILL }},
 
         { &hf_drsuapi_DsReplicaConnection04_bind_time,
-          { "bind_time", "drsuapi.DsReplicaConnection04.bind_time", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "bind_time", "drsuapi.DsReplicaConnection04.bind_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 

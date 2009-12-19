@@ -2088,7 +2088,7 @@ proto_register_fmp(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_fmp_btime, {
-			"Boot Time", "fmp.btime", FT_ABSOLUTE_TIME, BASE_NONE,
+			"Boot Time", "fmp.btime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "Machine Boot Time", HFILL }},
 
 		{ &hf_fmp_time_sec, {

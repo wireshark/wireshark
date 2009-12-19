@@ -701,7 +701,7 @@ proto_register_opsi(void)
 		},
 		{ &hf_smc_receive_time_att,
 			{ "SMC receive time",		"opsi.attr.smc_receive_time",
-			FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+			FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 			NULL, HFILL }
 		},
 		{ &hf_smc_stat_time_att,

@@ -1715,7 +1715,7 @@ void proto_register_cmp(void) {
 				"TCP transport Next Polling Reference", HFILL }},
 		{ &hf_cmp_tcptrans_ttcb,
 			{ "Time to check Back", "cmp.tcptrans.ttcb",
-				FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,
+				FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
 				"TCP transport Time to check Back", HFILL }},
 		{ &hf_cmp_tcptrans10_version,
 			{ "Version", "cmp.tcptrans10.version",

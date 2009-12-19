@@ -173,7 +173,7 @@ proto_register_e100(void)
         { "Packet Capture Timestamp",
             "e100.pkt_ts",
             FT_ABSOLUTE_TIME,
-            BASE_NONE,
+            ABSOLUTE_TIME_LOCAL,
             NULL, 0x0, NULL, HFILL
         }
     },

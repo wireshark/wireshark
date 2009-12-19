@@ -296,7 +296,7 @@ proto_register_sebek(void)
 			"Counter", "sebek.counter", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_time, {
-			"Time", "sebek.time.sec", FT_ABSOLUTE_TIME, BASE_NONE,
+			"Time", "sebek.time.sec", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_sebek_pid, {
 			"Process ID", "sebek.pid", FT_UINT32, BASE_DEC,

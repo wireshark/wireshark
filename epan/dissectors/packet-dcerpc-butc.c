@@ -2270,12 +2270,12 @@ proto_register_butc(void)
          NULL, HFILL }},
 
         { &hf_butc_tc_dumpDesc_date,
-          { "date", "butc.tc_dumpDesc.date", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "date", "butc.tc_dumpDesc.date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
         { &hf_butc_tc_dumpDesc_cloneDate,
-          { "cloneDate", "butc.tc_dumpDesc.cloneDate", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "cloneDate", "butc.tc_dumpDesc.cloneDate", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -2705,7 +2705,7 @@ proto_register_butc(void)
          NULL, HFILL }},
 
         { &hf_butc_tciStatusS_lastPolled,
-          { "lastPolled", "butc.tciStatusS.lastPolled", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "lastPolled", "butc.tciStatusS.lastPolled", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 

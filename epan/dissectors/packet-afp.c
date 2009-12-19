@@ -4948,17 +4948,17 @@ proto_register_afp(void)
 
     { &hf_afp_vol_creation_date,
       { "Creation date",         "afp.vol_creation_date",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
       	"Volume creation date", HFILL }},
 
     { &hf_afp_vol_modification_date,
       { "Modification date",         "afp.vol_modification_date",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
       	"Volume modification date", HFILL }},
 
     { &hf_afp_vol_backup_date,
       { "Backup date",         "afp.vol_backup_date",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
       	"Volume backup date", HFILL }},
 
     { &hf_afp_vol_bytes_free,
@@ -5013,17 +5013,17 @@ proto_register_afp(void)
 
     { &hf_afp_creation_date,
       { "Creation date",         "afp.creation_date",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
       	NULL, HFILL }},
 
     { &hf_afp_modification_date,
       { "Modification date",         "afp.modification_date",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
       	NULL, HFILL }},
 
     { &hf_afp_backup_date,
       { "Backup date",         "afp.backup_date",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
       	NULL, HFILL }},
 
     { &hf_afp_finder_info,
@@ -5468,7 +5468,7 @@ proto_register_afp(void)
 
     { &hf_afp_server_time,
       { "Server time",         "afp.server_time",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
       	NULL, HFILL }},
 
     { &hf_afp_cat_req_matches,

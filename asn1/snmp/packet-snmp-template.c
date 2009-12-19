@@ -1964,7 +1964,7 @@ void proto_register_snmp(void) {
 		    "Engine ID Data: Text", "snmp.engineid.text", FT_STRING, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
 		{ &hf_snmp_engineid_time, {
-		    "Engine ID Data: Creation Time", "snmp.engineid.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		    "Engine ID Data: Creation Time", "snmp.engineid.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		    NULL, 0, NULL, HFILL }},
 		{ &hf_snmp_engineid_data, {
 		    "Engine ID Data", "snmp.engineid.data", FT_BYTES, BASE_NONE,

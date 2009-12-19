@@ -7645,7 +7645,7 @@ proto_register_ncp2222(void)
 	{ "Replica Number", "ncp.nds_replica_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_es_seconds,
-	{ "Seconds", "ncp.nds_es_seconds", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ "Seconds", "ncp.nds_es_seconds", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_event_num,
 	{ "Event Number", "ncp.nds_event_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7672,7 +7672,7 @@ proto_register_ncp2222(void)
 	{ "Replicas", "ncp.nds_replicas", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_purge,
-	{ "Purge Time", "ncp.nds_purge", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ "Purge Time", "ncp.nds_purge", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_local_partition,
 	{ "Local Partition ID", "ncp.nds_local_partition", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -8024,13 +8024,13 @@ proto_register_ncp2222(void)
 	{ "License Flags", "ncp.nds_lic_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_ds_time,
-	{ "DS Time", "ncp.nds_ds_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ "DS Time", "ncp.nds_ds_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_svr_time,
-	{ "Server Time", "ncp.nds_svr_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ "Server Time", "ncp.nds_svr_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_crt_time,
-	{ "Agent Create Time", "ncp.nds_crt_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ "Agent Create Time", "ncp.nds_crt_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_ping_version,
 	{ "Ping Version", "ncp.nds_ping_version", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -8185,7 +8185,7 @@ proto_register_ncp2222(void)
         { "Tune Mark",	"ncp.ndstunemark", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_nds_create_time,
-        { "NDS Creation Time",	"ncp.ndscreatetime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { "NDS Creation Time",	"ncp.ndscreatetime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
         
     { &hf_srvr_param_string,
 	{ "Set Parameter Value", "ncp.srvr_param_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},

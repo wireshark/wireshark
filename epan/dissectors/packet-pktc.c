@@ -768,7 +768,7 @@ proto_register_pktc_mtafqdn(void)
            "MTA Public Key Hash", "pktc.mtafqdn.pub_key_hash", FT_BYTES, BASE_NONE,
            NULL, 0, "MTA Public Key Hash (SHA-1)", HFILL }},
        { &hf_pktc_mtafqdn_manu_cert_revoked, {
-           "Manufacturer Cert Revocation Time", "pktc.mtafqdn.manu_cert_revoked", FT_ABSOLUTE_TIME, BASE_NONE,
+           "Manufacturer Cert Revocation Time", "pktc.mtafqdn.manu_cert_revoked", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
            NULL, 0, "Manufacturer Cert Revocation Time (UTC) or 0 if not revoked", HFILL }},
        /* MTA FQDN REP */
        { &hf_pktc_mtafqdn_fqdn, {

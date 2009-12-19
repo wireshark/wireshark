@@ -325,7 +325,7 @@ proto_register_dcerpc_frsrpc(void)
 		    NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_frsrpc_timestamp,
-		  { "Timestamp", "frsrpc.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
+		  { "Timestamp", "frsrpc.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		    NULL, 0x0, NULL, HFILL }},
 	};
 

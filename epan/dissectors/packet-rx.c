@@ -598,7 +598,7 @@ proto_register_rx(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_rx_epoch, {
-			"Epoch", "rx.epoch", FT_ABSOLUTE_TIME, BASE_NONE,
+			"Epoch", "rx.epoch", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_rx_cid, {

@@ -3398,7 +3398,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_timestamp,
 		 {"Timestamp", "cflow.timestamp",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Current seconds since epoch", HFILL}
 		 },
 		{&hf_cflow_unix_secs,
@@ -4146,12 +4146,12 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_abstimestart,
 		 {"StartTime", "cflow.abstimestart",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Uptime at start of flow", HFILL}
 		 },
 		{&hf_cflow_abstimeend,
 		 {"EndTime", "cflow.abstimeend",
-		  FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		  "Uptime at end of flow", HFILL}
 		 },
 		{&hf_cflow_dstnet_v6,

@@ -1579,7 +1579,7 @@ proto_register_srvloc(void)
 	    "Length of Authentication Block", HFILL}
 	},
 	{ &hf_srvloc_authblkv2_timestamp,
-	  { "Timestamp", "srvloc.authblkv2.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
+	  { "Timestamp", "srvloc.authblkv2.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 	    NULL, 0, "Timestamp on Authentication Block", HFILL }
 	},
 	{ &hf_srvloc_authblkv2_slpspilen,
@@ -1754,7 +1754,7 @@ proto_register_srvloc(void)
 
 	/* collection of helper functions for DA Advertisement */
 	{ &hf_srvloc_daadvert_timestamp,
-	  { "DAADVERT Timestamp", "srvloc.daadvert.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
+	  { "DAADVERT Timestamp", "srvloc.daadvert.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 	    NULL, 0, "Timestamp on DA Advert", HFILL }
 	},
 	{ &hf_srvloc_daadvert_urllen,

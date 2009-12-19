@@ -3959,7 +3959,7 @@ proto_register_ssl(void)
         },
         { &hf_ssl_handshake_random_time,
           { "gmt_unix_time", "ssl.handshake.random_time",
-            FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
             "Unix time field of random structure", HFILL }
         },
         { &hf_ssl_handshake_random_bytes,

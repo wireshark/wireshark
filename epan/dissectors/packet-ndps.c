@@ -9692,7 +9692,7 @@ proto_register_ndps(void)
 
         { &hf_ndps_attribute_time,
         { "Time",    "ndps.attribute_time",
-          FT_ABSOLUTE_TIME,    BASE_NONE,   NULL,   0x0,
+          FT_ABSOLUTE_TIME,    ABSOLUTE_TIME_LOCAL,   NULL,   0x0,
           NULL, HFILL }},
 
         { &hf_print_security,

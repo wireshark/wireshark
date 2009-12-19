@@ -49,7 +49,7 @@ CryptoToken/cryptoEncryptedToken/token encryptedToken
 #.END
 
 #.TYPE_ATTR
-TimeStamp  TYPE = FT_ABSOLUTE_TIME  DISPLAY = BASE_NONE
+TimeStamp  TYPE = FT_ABSOLUTE_TIME  DISPLAY = ABSOLUTE_TIME_LOCAL
 #.END
 
 #.FIELD_ATTR

@@ -2661,7 +2661,7 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_ntlmv2_response_reserved,
       { "Reserved", "ntlmssp.ntlmv2response.reserved", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_ntlmv2_response_time,
-      { "Time", "ntlmssp.ntlmv2response.time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { "Time", "ntlmssp.ntlmv2response.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
     { &hf_ntlmssp_ntlmv2_response_chal,
       { "Client challenge", "ntlmssp.ntlmv2response.chal", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_ntlmv2_response_unknown,
@@ -2675,7 +2675,7 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_ntlmv2_response_restriction,
       { "Encoding restrictions", "ntlmssp.ntlmv2response.name.restrictions", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_ntlmv2_response_client_time,
-      { "Client Time", "ntlmssp.ntlmv2response.client_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, NULL, HFILL }}
+      { "Client Time", "ntlmssp.ntlmv2response.client_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }}
   };
 
 

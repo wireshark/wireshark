@@ -174,7 +174,7 @@ void proto_register_pktgen(void)
 	{ &hf_pktgen_timestamp,
 	  { 
 	      "Timestamp", "pktgen.timestamp", 
-	      FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+	      FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 	      NULL, HFILL
 	  }
 	}		

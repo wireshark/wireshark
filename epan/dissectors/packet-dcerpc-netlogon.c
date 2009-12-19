@@ -8273,7 +8273,7 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Unknown char. If you know what this is, contact wireshark developers.", HFILL }},
 
 	{ &hf_netlogon_acct_expiry_time,
-		{ "Acct Expiry Time", "netlogon.acct.expiry_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Acct Expiry Time", "netlogon.acct.expiry_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0x0, "When this account will expire", HFILL }},
 
 	{ &hf_netlogon_nt_pwd_present,
@@ -8585,7 +8585,7 @@ static hf_register_info hf[] = {
 		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_timestamp,
-		{ "Timestamp", "netlogon.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Timestamp", "netlogon.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_user_rid,
@@ -9049,23 +9049,23 @@ static hf_register_info hf[] = {
 		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_netlogon_logon_time,
-		{ "Logon Time", "netlogon.logon_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Logon Time", "netlogon.logon_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time for last time this user logged on", HFILL }},
 
 	{ &hf_netlogon_kickoff_time,
-		{ "Kickoff Time", "netlogon.kickoff_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Kickoff Time", "netlogon.kickoff_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time when this user will be kicked off", HFILL }},
 
 	{ &hf_netlogon_logoff_time,
-		{ "Logoff Time", "netlogon.logoff_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Logoff Time", "netlogon.logoff_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time for last time this user logged off", HFILL }},
 
 	{ &hf_netlogon_last_logoff_time,
-		{ "Last Logoff Time", "netlogon.last_logoff_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Last Logoff Time", "netlogon.last_logoff_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time for last time this user logged off", HFILL }},
 
 	{ &hf_netlogon_pwd_last_set_time,
-		{ "PWD Last Set", "netlogon.pwd_last_set_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "PWD Last Set", "netlogon.pwd_last_set_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Last time this users password was changed", HFILL }},
 
 	{ &hf_netlogon_pwd_age,
@@ -9073,35 +9073,35 @@ static hf_register_info hf[] = {
 		NULL, 0, "Time since this users password was changed", HFILL }},
 
 	{ &hf_netlogon_pwd_can_change_time,
-		{ "PWD Can Change", "netlogon.pwd_can_change_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "PWD Can Change", "netlogon.pwd_can_change_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "When this users password may be changed", HFILL }},
 
 	{ &hf_netlogon_pwd_must_change_time,
-		{ "PWD Must Change", "netlogon.pwd_must_change_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "PWD Must Change", "netlogon.pwd_must_change_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "When this users password must be changed", HFILL }},
 
 	{ &hf_netlogon_domain_create_time,
-		{ "Domain Create Time", "netlogon.domain_create_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Domain Create Time", "netlogon.domain_create_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time when this domain was created", HFILL }},
 
 	{ &hf_netlogon_domain_modify_time,
-		{ "Domain Modify Time", "netlogon.domain_modify_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Domain Modify Time", "netlogon.domain_modify_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time when this domain was last modified", HFILL }},
 
 	{ &hf_netlogon_db_modify_time,
-		{ "DB Modify Time", "netlogon.db_modify_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "DB Modify Time", "netlogon.db_modify_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time when last modified", HFILL }},
 
 	{ &hf_netlogon_db_create_time,
-		{ "DB Create Time", "netlogon.db_create_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "DB Create Time", "netlogon.db_create_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time when created", HFILL }},
 
 	{ &hf_netlogon_cipher_current_set_time,
-		{ "Cipher Current Set Time", "netlogon.cipher_current_set_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Cipher Current Set Time", "netlogon.cipher_current_set_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time when current cipher was initiated", HFILL }},
 
 	{ &hf_netlogon_cipher_old_set_time,
-		{ "Cipher Old Set Time", "netlogon.cipher_old_set_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Cipher Old Set Time", "netlogon.cipher_old_set_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time when previous cipher was initiated", HFILL }},
 
 	{ &hf_netlogon_audit_retention_period,

@@ -4296,7 +4296,7 @@ proto_register_fileexp (void)
     { &hf_fileexp_tn_string, {"String", "fileexp.string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_tn_size, {"String Size", "fileexp.tn_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_opnum, {"Operation", "fileexp.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    { &hf_fileexp_setcontext_rqst_epochtime, {"EpochTime:", "fileexp.setcontext_rqst_epochtime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    { &hf_fileexp_setcontext_rqst_epochtime, {"EpochTime:", "fileexp.setcontext_rqst_epochtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL}},
     { &hf_fileexp_setcontext_rqst_secobjectid, { "SetObjectid:", "fileexp.setcontext_secobjextid", FT_STRING, BASE_NONE, NULL, 0x0, "UUID", HFILL} } ,
     { &hf_fileexp_setcontext_rqst_clientsizesattrs, { "ClientSizeAttrs:", "fileexp.setcontext_clientsizesattrs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,
     { &hf_fileexp_setcontext_rqst_parm7, { "Parm7:", "fileexp.setcontext.parm7", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL} } ,

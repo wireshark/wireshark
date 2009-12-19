@@ -5270,7 +5270,7 @@ proto_register_kerberos(void)
 	    "Offset", "kerberos.pac.offset", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Offset to W2k PAC entry", HFILL }},
 	{ &hf_krb_pac_clientid, {
-	    "ClientID", "kerberos.pac.clientid", FT_ABSOLUTE_TIME, BASE_NONE,
+	    "ClientID", "kerberos.pac.clientid", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 	    NULL, 0, "ClientID Timestamp", HFILL }},
 	{ &hf_krb_pac_namelen, {
 	    "Name Length", "kerberos.pac.namelen", FT_UINT16, BASE_DEC,

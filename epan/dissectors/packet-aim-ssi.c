@@ -343,7 +343,7 @@ proto_register_aim_ssi(void)
 			{ "SSI Object count", "aim_ssi.fnac.numitems", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_last_change_time,
-			{ "SSI Last Change Time", "aim_ssi.fnac.last_change_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }
+			{ "SSI Last Change Time", "aim_ssi.fnac.last_change_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_aim_fnac_subtype_ssi_buddyname_len,
 			{ "SSI Buddy Name length", "aim_ssi.fnac.buddyname_len", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }

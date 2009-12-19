@@ -2127,7 +2127,7 @@ proto_register_iax2 (void)
       HFILL}},
 
     {&hf_iax2_absts,
-     {"Absolute Time", "iax2.abstime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+     {"Absolute Time", "iax2.abstime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
       "The absoulte time of this packet (calculated by adding the IAX timestamp to  the start time of this call)",
       HFILL}},
 
@@ -2363,7 +2363,7 @@ proto_register_iax2 (void)
      {"Date/Time", "iax2.iax.datetime.raw", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
     {&hf_iax2_ie_datetime,
-     {"Date/Time", "iax2.iax.datetime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+     {"Date/Time", "iax2.iax.datetime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
 
     {&hf_iax2_ies[IAX_IE_DEVICETYPE],
      {"Device type", "iax2.iax.devicetype", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},

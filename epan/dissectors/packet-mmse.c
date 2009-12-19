@@ -1380,7 +1380,7 @@ proto_register_mmse(void)
 	},
 	{   &hf_mmse_date,
 	    {   "Date", "mmse.date",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 		"Arrival timestamp of the message or sending timestamp.",
 		HFILL
 	    }
@@ -1394,7 +1394,7 @@ proto_register_mmse(void)
 	},
 	{   &hf_mmse_delivery_time_abs,
 	    {   "X-Mms-Delivery-Time", "mmse.delivery_time.abs",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 		"The time at which message delivery is desired.",
 		HFILL
 	    }
@@ -1408,7 +1408,7 @@ proto_register_mmse(void)
 	},
 	{   &hf_mmse_expiry_abs,
 	    {   "X-Mms-Expiry", "mmse.expiry.abs",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 		"Time when message expires and need not be delivered anymore.",
 		HFILL
 	    }
@@ -1570,7 +1570,7 @@ proto_register_mmse(void)
 	},
 	{   &hf_mmse_reply_charging_deadline_abs,
 	    {   "X-Mms-Reply-Charging-Deadline", "mmse.reply_charging_deadline.abs",
-		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 		"The latest time of the recipient(s) to submit the Reply MM.",
 		HFILL
 	    }

@@ -2080,7 +2080,7 @@ void proto_register_zbee_zcl(void)
             { "Day of Week", "zbee.zcl.attr.wd", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_utc,
-            { "UTC", "zbee.zcl.attr.utc", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "UTC", "zbee.zcl.attr.utc", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_status,
             { "Status", "zbee.zcl.attr.status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_status_names),

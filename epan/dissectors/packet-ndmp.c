@@ -3574,7 +3574,7 @@ proto_register_ndmp(void)
 		NULL, 0, "Reply Sequence number for NDMP PDU", HFILL }},
 
 	{ &hf_ndmp_timestamp, {
-		"Time", "ndmp.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
+		"Time", "ndmp.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Timestamp for this NDMP PDU", HFILL }},
 
 	{ &hf_ndmp_msgtype, {
@@ -4130,15 +4130,15 @@ proto_register_ndmp(void)
 		TFS(&tfs_ndmp_file_invalid_group), 0x00000004, "invalid_group", HFILL, }},
 
 	{ &hf_ndmp_file_mtime, {
-		"mtime", "ndmp.file.mtime", FT_ABSOLUTE_TIME, BASE_NONE,
+		"mtime", "ndmp.file.mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Timestamp for mtime for this file", HFILL }},
 
 	{ &hf_ndmp_file_atime, {
-		"atime", "ndmp.file.atime", FT_ABSOLUTE_TIME, BASE_NONE,
+		"atime", "ndmp.file.atime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Timestamp for atime for this file", HFILL }},
 
 	{ &hf_ndmp_file_ctime, {
-		"ctime", "ndmp.file.ctime", FT_ABSOLUTE_TIME, BASE_NONE,
+		"ctime", "ndmp.file.ctime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Timestamp for ctime for this file", HFILL }},
 
 	{ &hf_ndmp_file_owner, {

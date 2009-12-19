@@ -5701,7 +5701,7 @@ proto_register_smb2(void)
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_create_timestamp,
-		{ "Create", "smb2.create.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Create", "smb2.create.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time when this object was created", HFILL }},
 
 	{ &hf_smb2_fid,
@@ -5717,15 +5717,15 @@ proto_register_smb2(void)
 		NULL, 0, "SMB2 Data that is read", HFILL }},
 
 	{ &hf_smb2_last_access_timestamp,
-		{ "Last Access", "smb2.last_access.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Last Access", "smb2.last_access.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time when this object was last accessed", HFILL }},
 
 	{ &hf_smb2_last_write_timestamp,
-		{ "Last Write", "smb2.last_write.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Last Write", "smb2.last_write.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time when this object was last written to", HFILL }},
 
 	{ &hf_smb2_last_change_timestamp,
-		{ "Last Change", "smb2.last_change.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Last Change", "smb2.last_change.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Time when this object was last changed", HFILL }},
 
 	{ &hf_smb2_file_all_info,
@@ -5878,11 +5878,11 @@ proto_register_smb2(void)
 		NULL, 0, "Offset to next buffer or 0", HFILL }},
 
 	{ &hf_smb2_current_time,
-		{ "Current Time", "smb2.current_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Current Time", "smb2.current_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Current Time at server", HFILL }},
 
 	{ &hf_smb2_boot_time,
-		{ "Boot Time", "smb2.boot_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Boot Time", "smb2.boot_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Boot Time at server", HFILL }},
 
 	{ &hf_smb2_ea_flags,
@@ -6058,7 +6058,7 @@ proto_register_smb2(void)
 		NULL, 0, "Unknown bytes", HFILL }},
 
 	{ &hf_smb2_unknown_timestamp,
-		{ "Timestamp", "smb2.unknown.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
+		{ "Timestamp", "smb2.unknown.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 		NULL, 0, "Unknown timestamp", HFILL }},
 
 	{ &hf_smb2_ses_flags_guest,

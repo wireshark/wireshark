@@ -1189,7 +1189,19 @@ char* ftenum_to_string(header_field_info *hfi)
 	};
 }
 
-char* base_display_e_to_string(base_display_e bd)
+static char* absolute_time_display_e_to_string(absolute_time_display_e atd)
+{
+	switch(atd) {
+	case ABSOLUTE_TIME_LOCAL:
+			return "ABSOLUTE_TIME_LOCAL";
+	case ABSOLUTE_TIME_UTC:
+			return "ABSOLUTE_TIME_UTC";
+	default:
+			return "n.a.";
+	}
+}
+
+static char* base_display_e_to_string(base_display_e bd)
 {
 	switch(bd) {
 	case BASE_NONE:
@@ -1373,10 +1385,23 @@ protocolinfo_init(char *field)
 		exit(1);
 	}
 
-	printf("%u %s %s - ",
-		g_cmd_line_index,
-		ftenum_to_string(hfi),
-		base_display_e_to_string(hfi->display));
+	switch (hfi->type) {
+
+	case FT_ABSOLUTE_TIME:
+		printf("%u %s %s - ",
+			g_cmd_line_index,
+			ftenum_to_string(hfi),
+			absolute_time_display_e_to_string(hfi->display));
+		break;
+		break;
+
+	default:
+		printf("%u %s %s - ",
+			g_cmd_line_index,
+			ftenum_to_string(hfi),
+			base_display_e_to_string(hfi->display));
+		break;
+	}
 
 	rs=g_malloc(sizeof(pci_t));
 	rs->hf_index=hfi->id;

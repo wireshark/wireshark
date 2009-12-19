@@ -1062,7 +1062,7 @@ proto_register_rpcap (void)
       { "Packet", "rpcap.packet", FT_NONE, BASE_NONE,
 	NULL, 0x0, "Packet data", HFILL } },
     { &hf_timestamp,
-      { "Arrival time", "rpcap.time", FT_ABSOLUTE_TIME, BASE_NONE,
+      { "Arrival time", "rpcap.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 	NULL, 0x0, NULL, HFILL } },
     { &hf_caplen,
       { "Capture length", "rpcap.cap_len", FT_UINT32, BASE_DEC,

@@ -993,7 +993,7 @@ proto_register_dhcpfo(void)
 
 		{ &hf_dhcpfo_time,
 			{ "Time",	   "dhcpfo.time",
-			FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,
+			FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
 			NULL, HFILL }
 		},
 

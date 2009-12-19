@@ -3886,12 +3886,12 @@ proto_register_budb(void)
          NULL, HFILL }},
 
         { &hf_budb_dumpEntry_created,
-          { "created", "budb.dumpEntry.created", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "created", "budb.dumpEntry.created", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
         { &hf_budb_dumpEntry_incTime,
-          { "incTime", "budb.dumpEntry.incTime", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "incTime", "budb.dumpEntry.incTime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -3941,12 +3941,12 @@ proto_register_budb(void)
          NULL, HFILL }},
 
         { &hf_budb_tapeEntry_written,
-          { "written", "budb.tapeEntry.written", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "written", "budb.tapeEntry.written", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
         { &hf_budb_tapeEntry_expires,
-          { "expires", "budb.tapeEntry.expires", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "expires", "budb.tapeEntry.expires", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -4051,12 +4051,12 @@ proto_register_budb(void)
          NULL, HFILL }},
 
         { &hf_budb_volumeEntry_clone,
-          { "clone", "budb.volumeEntry.clone", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "clone", "budb.volumeEntry.clone", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
         { &hf_budb_volumeEntry_incTime,
-          { "incTime", "budb.volumeEntry.incTime", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "incTime", "budb.volumeEntry.incTime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
@@ -4231,12 +4231,12 @@ proto_register_budb(void)
          NULL, HFILL }},
 
         { &hf_budb_dbVolume_clone,
-          { "clone", "budb.dbVolume.clone", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "clone", "budb.dbVolume.clone", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 
         { &hf_budb_dbVolume_incTime,
-          { "incTime", "budb.dbVolume.incTime", FT_ABSOLUTE_TIME, BASE_NONE,
+          { "incTime", "budb.dbVolume.incTime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
           NULL, 0,
          NULL, HFILL }},
 

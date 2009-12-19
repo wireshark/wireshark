@@ -1688,11 +1688,11 @@ proto_register_nis(void)
 			NULL, 0, "Name Of Group Member", HFILL }},
 
 		{ &hf_nisplus_object_ctime, {
-			"ctime", "nisplus.ctime", FT_ABSOLUTE_TIME, BASE_NONE,
+			"ctime", "nisplus.ctime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "Time Of Creation", HFILL }},
 
 		{ &hf_nisplus_object_mtime, {
-			"mtime", "nisplus.mtime", FT_ABSOLUTE_TIME, BASE_NONE,
+			"mtime", "nisplus.mtime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "Time Last Modified", HFILL }},
 
 		{ &hf_nisplus_ib_flags, {
@@ -1736,7 +1736,7 @@ proto_register_nis(void)
 			NULL, 0, "Directory To Dump", HFILL }},
 
 		{ &hf_nisplus_dump_time, {
-			"time", "nisplus.dump.time", FT_ABSOLUTE_TIME, BASE_NONE,
+			"time", "nisplus.dump.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "From This Timestamp", HFILL }},
 
 		{ &hf_nisplus_dummy, {
@@ -1744,7 +1744,7 @@ proto_register_nis(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nisplus_ping_time, {
-			"time", "nisplus.ping.time", FT_ABSOLUTE_TIME, BASE_NONE,
+			"time", "nisplus.ping.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "Timestamp Of The Transaction", HFILL }},
 
 		{ &hf_nisplus_ping_dir, {
@@ -1772,7 +1772,7 @@ proto_register_nis(void)
 			NULL, 0, "Log Entry", HFILL }},
 
 		{ &hf_nisplus_log_time, {
-			"time", "nisplus.log.time", FT_ABSOLUTE_TIME, BASE_NONE,
+			"time", "nisplus.log.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "Time Of Log Entry", HFILL }},
 
 		{ &hf_nisplus_log_type, {
