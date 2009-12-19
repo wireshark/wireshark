@@ -16,7 +16,7 @@ id-mhs-protocols ID ::=
   {joint-iso-itu-t mhs(6) protocols(0)} -- not definitive
 
 --	Categories of Object Identifiers
-id-mod ID ::=
+id-mhs-mod ID ::=
   {id-mhs-protocols  0} -- modules
 
 id-ac ID ::= {id-mhs-protocols  1} -- application contexts
@@ -26,13 +26,13 @@ id-as ID ::= {id-mhs-protocols  2} -- abstract syntaxes
 id-ase ID ::= {id-mhs-protocols  3} -- application service elements (obsolete)
 
 --	Modules
-id-mod-object-identifiers ID ::= {id-mod  0} -- not definitive
+--id-mod-object-identifiers ID ::= {id-mhs-mod  0}-- -- not definitive
 
-id-mod-mts-access-protocol ID ::= {id-mod  1} -- not definitive
+id-mod-mts-access-protocol ID ::= {id-mhs-mod  1} -- not definitive
 
-id-mod-ms-access-protocol ID ::= {id-mod  2} -- not definitive
+id-mod-ms-access-protocol ID ::= {id-mhs-mod  2} -- not definitive
 
-id-mod-mts-transfer-protocol ID ::= {id-mod  3} -- not definitive
+id-mod-mts-transfer-protocol ID ::= {id-mhs-mod  3} -- not definitive
 
 --	Application Contexts
 --	MTS Access Protocol
