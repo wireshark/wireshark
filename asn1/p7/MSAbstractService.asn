@@ -88,7 +88,7 @@ FROM Remote-Operations-Information-Objects
     ub-message-groups, ub-messages, ub-modifications, ub-per-entry,
     ub-per-auto-action, ub-service-information-length, ub-summaries,
     ub-supplementary-info-length, ub-ua-registration-identifier-length,
-    ub-ua-registrations, ub-restrictions
+    ub-ua-registrations, ub-ua-restrictions
     --==
     FROM MSUpperBounds {joint-iso-itu-t mhs(6) ms(4) modules(0) upper-bounds(4)
       version-1994(0)}
@@ -435,7 +435,7 @@ Selector ::= SET {
 
 OverrideRestrictions ::= BIT STRING {
   override-content-types-restriction(0), override-EITs-restriction(1),
-  override-attribute-length-restriction(2)}(SIZE (1..ub-restrictions))
+  override-attribute-length-restriction(2)}(SIZE (1..ub-ua-restrictions))
 
 EntryInformationSelection ::= SET SIZE (0..ub-per-entry) OF AttributeSelection
 

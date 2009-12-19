@@ -99,8 +99,6 @@ static dissector_table_t x411_extension_dissector_table;
 static dissector_table_t x411_extension_attribute_dissector_table;
 static dissector_table_t x411_tokendata_dissector_table;
 
-#include "packet-x411-val.h"
-
 #include "packet-x411-table.c"   /* operation and error codes */
 
 #include "packet-x411-fn.c"

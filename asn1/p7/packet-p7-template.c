@@ -59,13 +59,13 @@ void prefs_register_p7(void); /* forward declaration for use in preferences regi
 /* Initialize the protocol and registered fields */
 static int proto_p7 = -1;
 
+#include "packet-p7-val.h"
+
 #include "packet-p7-hf.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p7 = -1;
 #include "packet-p7-ett.c"
-
-#include "packet-p7-val.h"
 
 #include "packet-p7-table.c"   /* operation and error codes */
 

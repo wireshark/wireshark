@@ -26,6 +26,8 @@
 #ifndef PACKET_X411_H
 #define PACKET_X411_H
 
+#include "packet-x411-val.h"
+
 char* x411_get_last_oraddress(void);
 void dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
 #include "packet-x411-exp.h"

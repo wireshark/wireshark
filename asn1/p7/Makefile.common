@@ -34,7 +34,8 @@ EXT_ASN_FILE_LIST =
 ASN_FILE_LIST = \
 	MSAbstractService.asn \
 	MSGeneralAttributeTypes.asn \
-	MSAccessProtocol.asn
+	MSAccessProtocol.asn \
+	MSUpperBounds.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
@@ -49,7 +50,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e -L
+A2W_FLAGS= -b -e -L -C
 
 EXTRA_CNF= \
 	../x411/x411-exp.cnf \

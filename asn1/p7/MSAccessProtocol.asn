@@ -234,7 +234,7 @@ err-fetch-restriction-error Code ::= local:24
 
 err-range-error Code ::= local:25 -- 1988 Application Contexts only 
 
-err-security-error Code ::= local:26
+err-ub-security-error Code ::= local:26  -- Renamed to avoid duplicate in MTSAccessProtocol.asn
 
 err-service-error Code ::= local:27
 
