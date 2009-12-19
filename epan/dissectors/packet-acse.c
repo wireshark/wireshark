@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-acse.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -p acse -c ./acse.cnf -s ./packet-acse-template -D . acse.asn */
+/* ../../tools/asn2wrs.py -b -e -C -p acse -c ./acse.cnf -s ./packet-acse-template -D . acse.asn */
 
 /* Input file: packet-acse-template.c */
 
@@ -868,8 +868,8 @@ dissect_acse_Syntactic_context_list(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_acse_ASOI_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            1U, 128U, hf_index, NULL);
 
   return offset;
 }
@@ -896,8 +896,8 @@ static const ber_sequence_t ASOI_tag_sequence_of[1] = {
 
 static int
 dissect_acse_ASOI_tag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      ASOI_tag_sequence_of, hf_index, ett_acse_ASOI_tag);
+  offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                                  0, 7, ASOI_tag_sequence_of, hf_index, ett_acse_ASOI_tag);
 
   return offset;
 }
@@ -996,8 +996,8 @@ static const value_string acse_Associate_result_vals[] = {
 
 static int
 dissect_acse_Associate_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 2U, hf_index, NULL);
 
   return offset;
 }
@@ -1025,8 +1025,8 @@ static const value_string acse_T_acse_service_user_vals[] = {
 
 static int
 dissect_acse_T_acse_service_user(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 14U, hf_index, NULL);
 
   return offset;
 }
@@ -1042,8 +1042,8 @@ static const value_string acse_T_acse_service_provider_vals[] = {
 
 static int
 dissect_acse_T_acse_service_provider(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 2U, hf_index, NULL);
 
   return offset;
 }
@@ -1301,8 +1301,8 @@ static const value_string acse_ABRT_source_vals[] = {
 
 static int
 dissect_acse_ABRT_source(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
+  offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, 1U, hf_index, NULL);
 
   return offset;
 }
