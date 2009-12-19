@@ -545,11 +545,7 @@ proto_register_frame(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_frame_arrival_time,
-#if 0
 		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-#else
-		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
-#endif
 			"Absolute time when this frame was captured", HFILL }},
 
 		{ &hf_frame_arrival_time_epoch,
