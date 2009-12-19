@@ -600,9 +600,6 @@ PARTICULAR PURPOSE.]]>
       unclear if the runtime needs to be installed for the C
       compiler to work - or is this only needed to compile / run
       .NET programs?!?</para>
-      <para>
-      <superscript>6</superscript>beta version, not suitable for
-      production use!</para>
       <note>
         <title>Note!</title>
         <para>The "Visual C++ Toolkit 2003" should NOT be used to
