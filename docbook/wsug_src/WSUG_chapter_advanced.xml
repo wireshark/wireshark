@@ -255,6 +255,12 @@
           </listitem>
           <listitem>
             <para>
+            <command>Protocol</command>: violation of protocol specs
+            (e.g. invalid field values or illegal lengths),
+            dissection of this packet is probably continued</para>
+          </listitem>
+          <listitem>
+            <para>
             <command>Malformed</command>: malformed packet or
             dissector has a bug, dissection of this packet
             aborted</para>
