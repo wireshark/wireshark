@@ -158,6 +158,9 @@ id-eNBConfigurationUpdate				ProcedureCode
 id-resourceStatusReportingInitiation	ProcedureCode
 id-resourceStatusReporting				ProcedureCode
 id-privateMessage						ProcedureCode
+id-mobilitySettingsChange				ProcedureCode
+id-rLFIndication						ProcedureCode
+id-handoverReport						ProcedureCode
 
 # ProtocolIE-ID
 
@@ -202,6 +205,21 @@ id-ReportCharacteristics													ProtocolIE-ID
 id-ENB1-Measurement-ID														ProtocolIE-ID
 id-ENB2-Measurement-ID														ProtocolIE-ID
 id-Number-of-Antennaports													ProtocolIE-ID
+id-CompositeAvailableCapacityGroup											ProtocolIE-ID
+id-ENB1-Cell-ID																ProtocolIE-ID
+id-ENB2-Cell-ID																ProtocolIE-ID
+id-ENB2-Proposed-Mobility-Parameters										ProtocolIE-ID
+id-ENB1-Mobility-Parameters													ProtocolIE-ID
+id-ENB2-Mobility-Parameters-Modification-Range								ProtocolIE-ID
+id-FailureCellPCI															ProtocolIE-ID
+id-Re-establishmentCellECGI													ProtocolIE-ID
+id-FailureCellCRNTI															ProtocolIE-ID
+id-ShortMAC-I																ProtocolIE-ID
+id-SourceCellECGI															ProtocolIE-ID
+id-FailureCellECGI															ProtocolIE-ID
+id-HandoverReportType														ProtocolIE-ID
+id-PRACH-Configuration														ProtocolIE-ID
+
 #.REGISTER_NEW
 
 #X2AP-PROTOCOL-IES
@@ -245,9 +263,23 @@ SRVCCOperationPossible						N x2ap.ies id-SRVCCOperationPossible
 ReportCharacteristics						N x2ap.ies id-ReportCharacteristics
 Measurement-ID								N x2ap.ies id-ENB1-Measurement-ID
 Measurement-ID								N x2ap.ies id-ENB2-Measurement-ID
+ECGI										N x2ap.ies id-ENB1-Cell-ID
+ECGI										N x2ap.ies id-ENB2-Cell-ID
+MobilityParametersInformation				N x2ap.ies id-ENB2-Proposed-Mobility-Parameters
+MobilityParametersInformation				N x2ap.ies id-ENB1-Mobility-Parameters
+MobilityParametersModificationRange			N x2ap.ies id-ENB2-Mobility-Parameters-Modification-Range
+PCI											N x2ap.ies id-FailureCellPCI
+ECGI										N x2ap.ies id-Re-establishmentCellECGI
+CRNTI										N x2ap.ies id-FailureCellCRNTI
+ShortMAC-I									N x2ap.ies id-ShortMAC-I
+ECGI										N x2ap.ies id-SourceCellECGI
+ECGI										N x2ap.ies id-FailureCellECGI
+HandoverReportType							N x2ap.ies id-HandoverReportType
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
+CompositeAvailableCapacityGroup				N x2ap.extension id-CompositeAvailableCapacityGroup
+PRACH-Configuration							N x2ap.extension id-PRACH-Configuration
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -283,6 +315,14 @@ ResourceStatusFailure				N x2ap.proc.uout id-resourceStatusReportingInitiation
 ResourceStatusUpdate				N x2ap.proc.imsg id-resourceStatusReporting
 
 PrivateMessage						N x2ap.proc.imsg id-privateMessage
+
+HandoverReport						N x2ap.proc.imsg id-handoverReport
+
+RLFIndication						N x2ap.proc.imsg id-rLFIndication
+
+MobilityChangeRequest				N x2ap.proc.imsg id-mobilitySettingsChange
+MobilityChangeAcknowledge			N x2ap.proc.sout id-mobilitySettingsChange
+MobilityChangeFailure				N x2ap.proc.uout id-mobilitySettingsChange
 
 #.TYPE_ATTR
 BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL

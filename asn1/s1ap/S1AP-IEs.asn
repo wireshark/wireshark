@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V9.0.0 (2009-09)
+-- 3GPP TS 36.413 V9.1.0 (2009-12)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -212,7 +212,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	x2-handover-triggered,
 	...,
 	redirection-towards-1xRTT,
-	not-supported-QCI-value
+	not-supported-QCI-value,
+	invalid-CSG-Id
 
 }
 
@@ -227,6 +228,11 @@ CauseNas ::= ENUMERATED {
 	authentication-failure,
 	detach,
 	unspecified,
+	...
+}
+
+CellAccessMode ::= ENUMERATED {
+	hybrid, 
 	...
 }
 
@@ -334,7 +340,6 @@ CNDomain ::= ENUMERATED {
 ConcurrentWarningMessageIndicator ::= ENUMERATED {
 	true
 }
-
 CSFallbackIndicator ::= ENUMERATED { 
 	cs-fallback-required,
 	...,
@@ -355,6 +360,12 @@ CSG-IdList-Item ::= SEQUENCE {
 CSG-IdList-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+CSGMembershipStatus ::= ENUMERATED { 
+	member, 
+	not-member
+}
+
 
 COUNTvalue ::= SEQUENCE {
 	pDCP-SN			PDCP-SN,
@@ -408,6 +419,10 @@ Direct-Forwarding-Path-Availability ::= ENUMERATED {
 	...
 }
 
+Data-Forwarding-Not-Possible ::= ENUMERATED {
+	data-Forwarding-not-Possible,
+	...
+}
 
 -- E
 
@@ -550,8 +565,6 @@ E-RABItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 }
 
 
-
-
 E-RABLevelQoSParameters ::= SEQUENCE {
 	qCI			QCI,
 	allocationRetentionPriority			AllocationAndRetentionPriority,
@@ -579,6 +592,8 @@ EUTRAN-CGI-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 EUTRANRoundTripDelayEstimationInfo ::= INTEGER (0..255)
 
 ExtendedRNC-ID					::= INTEGER (4096..65535)
+
+ExtendedRepetitionPeriod ::= INTEGER (4096..131071)
 
 -- F
 
@@ -730,6 +745,7 @@ LastVisitedGERANCellInformation ::= CHOICE {
 
 L3-Information				::= OCTET STRING
 
+LPPa-PDU ::=  OCTET STRING
 
 -- M
 
@@ -741,7 +757,7 @@ MME-Group-ID	::= OCTET STRING (SIZE (2))
 
 MME-Code		::= OCTET STRING (SIZE (1))
 
-MME-UE-S1AP-ID				::= INTEGER (0..4294967295)
+MME-UE-S1AP-ID	::= INTEGER (0..4294967295)
 M-TMSI			::= OCTET STRING (SIZE (4))
 
 MSClassmark2	::= OCTET STRING
@@ -831,7 +847,7 @@ RIMTransfer ::= SEQUENCE {
 	rIMInformation					RIMInformation,
 	rIMRoutingAddress				RIMRoutingAddress		OPTIONAL,
 	iE-Extensions			ProtocolExtensionContainer { { RIMTransfer-ExtIEs} }			OPTIONAL,
-...
+	...
 }
 
 RIMTransfer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
@@ -865,6 +881,8 @@ RRC-Establishment-Cause ::= ENUMERATED {
 	mo-Data,
 	...
 }
+
+Routing-ID		::= OCTET STRING (SIZE (4))
 
 -- S
 
@@ -926,6 +944,7 @@ SONConfigurationTransfer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 Source-ToTarget-TransparentContainer ::= OCTET STRING
 
 SourceBSS-ToTargetBSS-TransparentContainer		::= OCTET STRING
+
 SourceeNB-ID ::= SEQUENCE {
 	global-ENB-ID	Global-ENB-ID,
 	selected-TAI	TAI,
@@ -1254,5 +1273,6 @@ X2TNLConfigurationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- Z
 
 END
+
 
 

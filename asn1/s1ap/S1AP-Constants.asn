@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V9.0.0 (2009-09)
+-- 3GPP TS 36.413 V9.1.0 (2009-12)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -78,6 +78,10 @@ id-eNBConfigurationTransfer			ProcedureCode ::= 40
 id-MMEConfigurationTransfer			ProcedureCode ::= 41
 id-CellTrafficTrace					ProcedureCode ::= 42
 id-Kill								ProcedureCode ::= 43
+id-downlinkUEAssociatedLPPaTransport	ProcedureCode ::= 44
+id-uplinkUEAssociatedLPPaTransport		ProcedureCode ::= 45
+id-downlinkNonUEAssociatedLPPaTransport	ProcedureCode ::= 46
+id-uplinkNonUEAssociatedLPPaTransport	ProcedureCode ::= 47
 
 -- **************************************************************
 --
@@ -103,10 +107,10 @@ maxnoofBPLMNs							INTEGER ::= 6
 maxnoofPLMNsPerMME						INTEGER ::= 32
 maxnoofEPLMNs							INTEGER ::= 15
 maxnoofEPLMNsPlusOne					INTEGER ::= 16
-maxnoofForbLACs							INTEGER ::= 4096		
-maxnoofForbTACs							INTEGER ::= 4096		
+maxnoofForbLACs							INTEGER ::= 4096
+maxnoofForbTACs							INTEGER ::= 4096
 maxNrOfIndividualS1ConnectionsToReset	INTEGER ::= 256
-maxnoofCells							INTEGER ::= 16		
+maxnoofCells							INTEGER ::= 16
 maxnoofTAIforWarning					INTEGER ::= 65535 
 maxnoofCellID							INTEGER ::= 65535 
 maxnoofEmergencyAreaID					INTEGER ::= 65535 
@@ -160,11 +164,11 @@ id-E-RABModifyItemBearerModRes				ProtocolIE-ID ::= 37
 id-E-RABReleaseItem							ProtocolIE-ID ::= 38
 id-E-RABSetupItemBearerSURes				ProtocolIE-ID ::= 39
 id-SecurityContext							ProtocolIE-ID ::= 40
-id-HandoverRestrictionList						ProtocolIE-ID ::= 41
-id-UEPagingID 									ProtocolIE-ID ::= 43
-id-pagingDRX 									ProtocolIE-ID ::= 44
-id-TAIList										ProtocolIE-ID ::= 46
-id-TAIItem										ProtocolIE-ID ::= 47
+id-HandoverRestrictionList					ProtocolIE-ID ::= 41
+id-UEPagingID 								ProtocolIE-ID ::= 43
+id-pagingDRX 								ProtocolIE-ID ::= 44
+id-TAIList									ProtocolIE-ID ::= 46
+id-TAIItem									ProtocolIE-ID ::= 47
 id-E-RABFailedToSetupListCtxtSURes			ProtocolIE-ID ::= 48
 id-E-RABReleaseItemHOCmd					ProtocolIE-ID ::= 49
 id-E-RABSetupItemCtxtSURes					ProtocolIE-ID ::= 50
@@ -251,7 +255,14 @@ id-Target-ToSource-TransparentContainer-Secondary	ProtocolIE-ID ::= 139
 id-EUTRANRoundTripDelayEstimationInfo			ProtocolIE-ID ::= 140
 id-BroadcastCancelledAreaList					ProtocolIE-ID ::= 141
 id-ConcurrentWarningMessageIndicator			ProtocolIE-ID ::= 142
+id-Data-Forwarding-Not-Possible                 ProtocolIE-ID ::= 143
+id-ExtendedRepetitionPeriod						ProtocolIE-ID ::= 144
+id-CellAccessMode								ProtocolIE-ID ::= 145
+id-CSGMembershipStatus 							ProtocolIE-ID ::= 146
+id-LPPa-PDU										ProtocolIE-ID ::= 147
+id-Routing-ID									ProtocolIE-ID ::= 148
 
 END
+
 
 

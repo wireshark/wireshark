@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V9.0.0 (2009-09)
+-- 3GPP TS 36.423 V9.1.0 (2009-12)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -26,9 +26,10 @@ IMPORTS
 	AS-SecurityInformation,	
 	
 	Cause,
-	
+	CompositeAvailableCapacityGroup,	
 	COUNTvalue,
-	CriticalityDiagnostics,
+	CriticalityDiagnostics, 
+	CRNTI,
 	DL-Forwarding,
 	ECGI,
 	E-RAB-ID,
@@ -38,10 +39,12 @@ IMPORTS
 	GlobalENB-ID,
 	GTPtunnelEndpoint,
 	GUGroupIDList,
-	GUMMEI,
+	GUMMEI, 
+	HandoverReportType,
 	HandoverRestrictionList,
 	LocationReportingInformation,
-	Neighbour-Information,
+	Neighbour-Information, 
+	PCI,
 	PDCP-SN,
 	PLMN-Identity,
 	ReceiveStatusofULPDCPSDUs,
@@ -50,7 +53,8 @@ IMPORTS
 	RadioResourceStatus,
 	RRC-Context,
 	ServedCell-Information,
-	ServedCells,
+	ServedCells, 
+	ShortMAC-I,
 	SRVCCOperationPossible,
 	SubscriberProfileIDforRFP,
 	TargeteNBtoSource-eNBTransparentContainer,
@@ -69,7 +73,10 @@ IMPORTS
 	HWLoadIndicator,
 	S1TNLLoadIndicator,
 	Measurement-ID,
-	ReportCharacteristics
+	ReportCharacteristics,
+	MobilityParametersInformation,
+	MobilityParametersModificationRange
+
 	
 	
 	
@@ -95,7 +102,8 @@ FROM X2AP-Containers
 	id-CellMeasurementResult,
 	id-CellMeasurementResult-Item,
 	id-CellToReport,
-	id-CellToReport-Item,
+	id-CellToReport-Item, 
+	id-CompositeAvailableCapacityGroup,
 	id-CriticalityDiagnostics,
 	id-E-RABs-Admitted-Item,
 	id-E-RABs-Admitted-List,
@@ -127,8 +135,20 @@ FROM X2AP-Containers
 	id-Measurement-ID,
 	id-ReportCharacteristics,
 	id-ENB1-Measurement-ID,
-	id-ENB2-Measurement-ID,
-	
+	id-ENB2-Measurement-ID, 
+	id-ENB1-Cell-ID,
+	id-ENB2-Cell-ID,
+	id-ENB2-Proposed-Mobility-Parameters,
+	id-ENB1-Mobility-Parameters,
+	id-ENB2-Mobility-Parameters-Modification-Range, 
+	id-FailureCellPCI,
+	id-Re-establishmentCellECGI,
+	id-FailureCellCRNTI,
+	id-ShortMAC-I, 
+	id-SourceCellECGI,
+	id-FailureCellECGI,
+	id-Re-establishmentCellECGI,
+	id-HandoverReportType,
 
 
 	maxCellineNB,	
@@ -257,6 +277,26 @@ HandoverPreparationFailure-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause					PRESENCE mandatory} |
 	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics	PRESENCE optional },
 
+	...
+}
+
+-- **************************************************************
+--
+-- Handover Report
+--
+-- **************************************************************
+
+HandoverReport ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{HandoverReport-IEs}},
+	...
+}
+
+HandoverReport-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-HandoverReportType			CRITICALITY ignore	TYPE HandoverReportType PRESENCE mandatory}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause				PRESENCE mandatory} |
+	{ ID id-SourceCellECGI				CRITICALITY ignore	TYPE ECGI				PRESENCE mandatory}|
+	{ ID id-FailureCellECGI				CRITICALITY ignore	TYPE ECGI				PRESENCE mandatory} |
+	{ ID id-Re-establishmentCellECGI	CRITICALITY ignore	TYPE ECGI				PRESENCE conditional} -- The IE shall be present if the Handover Report Type IE is set to “HO to Wrong Cell” -- ,
 	...
 }
 
@@ -680,6 +720,7 @@ CellMeasurementResult-Item ::= SEQUENCE {
 }
 
 CellMeasurementResult-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+{ ID id-CompositeAvailableCapacityGroup	CRITICALITY ignore   EXTENSION CompositeAvailableCapacityGroup		PRESENCE optional	},
 	...
 }
 
@@ -696,6 +737,80 @@ PrivateMessage ::= SEQUENCE {
 }
 
 PrivateMessage-IEs X2AP-PRIVATE-IES ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- MOBILITY CHANGE REQUEST
+--
+-- **************************************************************
+
+MobilityChangeRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container  {{MobilityChangeRequest-IEs}},
+	...
+}
+
+MobilityChangeRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-ENB1-Cell-ID						CRITICALITY reject	TYPE ECGI											PRESENCE mandatory	}|
+	{ ID id-ENB2-Cell-ID						CRITICALITY reject	TYPE ECGI											PRESENCE mandatory	}|
+	{ ID id-ENB1-Mobility-Parameters			CRITICALITY ignore	TYPE MobilityParametersInformation				PRESENCE optional	}|
+	{ ID id-ENB2-Proposed-Mobility-Parameters	CRITICALITY reject	TYPE MobilityParametersInformation				PRESENCE mandatory	}|
+	{ ID id-Cause								CRITICALITY reject	TYPE Cause											PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- MOBILITY CHANGE ACKNOWLEDGE
+--
+-- **************************************************************
+
+MobilityChangeAcknowledge ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{MobilityChangeAcknowledge-IEs}},
+	...
+}
+
+MobilityChangeAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-CriticalityDiagnostics	CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- MOBILITY CHANGE FAILURE
+--
+-- **************************************************************
+
+MobilityChangeFailure ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{MobilityChangeFailure-IEs}},
+	...
+}
+
+MobilityChangeFailure-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-Cause											CRITICALITY ignore	TYPE Cause												PRESENCE mandatory	}|
+	{ ID id-ENB2-Mobility-Parameters-Modification-Range		CRITICALITY ignore	TYPE MobilityParametersModificationRange		PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- Radio Link Failure Indication
+--
+-- **************************************************************
+
+RLFIndication ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{RLFIndication-IEs}},
+	...
+}
+
+RLFIndication-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-FailureCellPCI				CRITICALITY ignore		TYPE PCI			PRESENCE mandatory}|
+	{ ID id-Re-establishmentCellECGI	CRITICALITY ignore		TYPE ECGI			PRESENCE mandatory}|
+	{ ID id-FailureCellCRNTI			CRITICALITY ignore		TYPE CRNTI			PRESENCE mandatory}|
+	{ ID id-ShortMAC-I					CRITICALITY ignore		TYPE ShortMAC-I		PRESENCE optional},
 	...
 }
 

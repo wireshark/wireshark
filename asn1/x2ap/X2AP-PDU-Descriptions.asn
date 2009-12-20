@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V9.0.0 (2009-09)
+-- 3GPP TS 36.423 V9.1.0 (2009-12)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -31,7 +31,8 @@ FROM X2AP-CommonDataTypes
 	ENBConfigurationUpdateAcknowledge,
 	ENBConfigurationUpdateFailure,
 	ErrorIndication,
-	HandoverCancel,
+	HandoverCancel, 
+	HandoverReport,
 	HandoverPreparationFailure,	
 	HandoverRequest,
 	HandoverRequestAcknowledge,
@@ -42,12 +43,15 @@ FROM X2AP-CommonDataTypes
 	ResourceStatusFailure,
 	ResourceStatusRequest,
 	ResourceStatusResponse,
-	ResourceStatusUpdate,
+	ResourceStatusUpdate, 
+	RLFIndication,
 	SNStatusTransfer,
 	UEContextRelease,
 	X2SetupFailure,	X2SetupRequest,
-	X2SetupResponse
-	
+	X2SetupResponse,
+	MobilityChangeRequest,
+	MobilityChangeAcknowledge,
+	MobilityChangeFailure	
 
 
 
@@ -55,7 +59,8 @@ FROM X2AP-PDU-Contents
 
 	id-eNBConfigurationUpdate,
 	id-errorIndication,
-	id-handoverCancel,
+	id-handoverCancel, 
+	id-handoverReport,
 	id-handoverPreparation,
 	
 	id-loadIndication,
@@ -63,10 +68,12 @@ FROM X2AP-PDU-Contents
 	id-reset,
 	
 	id-resourceStatusReporting,
-	id-resourceStatusReportingInitiation,
+	id-resourceStatusReportingInitiation, 
+	id-rLFIndication,
 	id-snStatusTransfer,
 	id-uEContextRelease,
-	id-x2Setup
+	id-x2Setup,
+	id-mobilitySettingsChange
 
 
 
@@ -143,7 +150,8 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-1 X2AP-ELEMENTARY-PROCEDURE ::= {
 	reset													|
 	x2Setup													|
 	resourceStatusReportingInitiation						|
-	eNBConfigurationUpdate									,
+	eNBConfigurationUpdate									|
+	mobilitySettingsChange									,
 	...
 }
 
@@ -154,7 +162,8 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-2 X2AP-ELEMENTARY-PROCEDURE ::= {
 	errorIndication							|
 	resourceStatusReporting					|
 	loadIndication							|
-	privateMessage							,
+	privateMessage							|
+	rLFIndication							|	handoverReport,
 	...
 
 }
@@ -190,6 +199,12 @@ uEContextRelease X2AP-ELEMENTARY-PROCEDURE ::= {
 handoverCancel X2AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		HandoverCancel
 	PROCEDURE CODE			id-handoverCancel
+	CRITICALITY				ignore
+}
+
+handoverReport X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		HandoverReport
+	PROCEDURE CODE			id-handoverReport
 	CRITICALITY				ignore
 }
 
@@ -243,10 +258,25 @@ resourceStatusReporting X2AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+rLFIndication X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RLFIndication
+	PROCEDURE CODE			id-rLFIndication
+	CRITICALITY				ignore
+}
+
 privateMessage			X2AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		PrivateMessage
 	PROCEDURE CODE			id-privateMessage
 	CRITICALITY				ignore
 }
+
+mobilitySettingsChange	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MobilityChangeRequest
+	SUCCESSFUL OUTCOME		MobilityChangeAcknowledge
+	UNSUCCESSFUL OUTCOME	MobilityChangeFailure
+	PROCEDURE CODE			id-mobilitySettingsChange
+	CRITICALITY				reject
+}
+
 
 END

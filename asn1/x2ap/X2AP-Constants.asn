@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V9.0.0 (2009-09)
+-- 3GPP TS 36.423 V9.1.0 (2009-12)
 -- 9.3.7	Constant Definitions
 -- **************************************************************
 --
@@ -37,7 +37,10 @@ id-reset														ProcedureCode ::= 7
 id-eNBConfigurationUpdate										ProcedureCode ::= 8
 id-resourceStatusReportingInitiation							ProcedureCode ::= 9
 id-resourceStatusReporting										ProcedureCode ::= 10
-id-privateMessage												ProcedureCode ::= 11
+id-privateMessage												ProcedureCode ::= 11 
+id-mobilitySettingsChange										ProcedureCode ::= 12 
+id-rLFIndication												ProcedureCode ::= 13 
+id-handoverReport												ProcedureCode ::= 14
 
 
 
@@ -114,7 +117,19 @@ id-ReportCharacteristics													ProtocolIE-ID ::= 38
 id-ENB1-Measurement-ID														ProtocolIE-ID ::= 39
 id-ENB2-Measurement-ID														ProtocolIE-ID ::= 40
 id-Number-of-Antennaports													ProtocolIE-ID ::= 41
-
-
+id-CompositeAvailableCapacityGroup											ProtocolIE-ID ::= 42
+id-ENB1-Cell-ID																ProtocolIE-ID ::= 43
+id-ENB2-Cell-ID																ProtocolIE-ID ::= 44
+id-ENB2-Proposed-Mobility-Parameters										ProtocolIE-ID ::= 45
+id-ENB1-Mobility-Parameters													ProtocolIE-ID ::= 46
+id-ENB2-Mobility-Parameters-Modification-Range								ProtocolIE-ID ::= 47
+id-FailureCellPCI															ProtocolIE-ID ::= 48
+id-Re-establishmentCellECGI													ProtocolIE-ID ::= 49
+id-FailureCellCRNTI															ProtocolIE-ID ::= 50
+id-ShortMAC-I																ProtocolIE-ID ::= 51
+id-SourceCellECGI															ProtocolIE-ID ::= 52
+id-FailureCellECGI															ProtocolIE-ID ::= 53
+id-HandoverReportType														ProtocolIE-ID ::= 54
+id-PRACH-Configuration														ProtocolIE-ID ::= 55
 
 END

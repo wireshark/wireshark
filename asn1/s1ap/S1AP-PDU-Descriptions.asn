@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V9.0.0 (2009-09)
+-- 3GPP TS 36.413 V9.1.0 (2009-12)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -28,7 +28,9 @@ FROM S1AP-CommonDataTypes
 
 	CellTrafficTrace,
 	DeactivateTrace,
+	DownlinkUEAssociatedLPPaTransport,
 	DownlinkNASTransport,
+	DownlinkNonUEAssociatedLPPaTransport,
 	DownlinkS1cdma2000tunneling,
 	ENBDirectInformationTransfer,
 	ENBStatusTransfer,
@@ -88,7 +90,9 @@ FROM S1AP-CommonDataTypes
 	UEContextReleaseCommand,
 	UEContextReleaseComplete,
 	UEContextReleaseRequest,
+	UplinkUEAssociatedLPPaTransport,
 	UplinkNASTransport,
+	UplinkNonUEAssociatedLPPaTransport,
 	UplinkS1cdma2000tunneling,
 	WriteReplaceWarningRequest,
 	WriteReplaceWarningResponse,
@@ -100,7 +104,9 @@ FROM S1AP-PDU-Contents
 	
 	id-CellTrafficTrace,
 	id-DeactivateTrace,
+	id-downlinkUEAssociatedLPPaTransport,
 	id-downlinkNASTransport,
+	id-downlinkNonUEAssociatedLPPaTransport,
 	id-DownlinkS1cdma2000tunneling,
 	id-eNBStatusTransfer,
 	id-ErrorIndication,
@@ -137,7 +143,9 @@ FROM S1AP-PDU-Contents
 	id-UEContextModification,
 	id-UEContextRelease,
 	id-UEContextReleaseRequest,
+	id-uplinkUEAssociatedLPPaTransport,
 	id-uplinkNASTransport,
+	id-uplinkNonUEAssociatedLPPaTransport,
 	id-UplinkS1cdma2000tunneling,
 	id-WriteReplaceWarning,
 	id-eNBConfigurationTransfer,
@@ -259,7 +267,11 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	eNBConfigurationTransfer		|
 	mMEConfigurationTransfer		|
 	privateMessage					,
-	...
+	...,
+	downlinkUEAssociatedLPPaTransport	|
+	uplinkUEAssociatedLPPaTransport	|
+	downlinkNonUEAssociatedLPPaTransport	|
+	uplinkNonUEAssociatedLPPaTransport
 }
 
 -- **************************************************************
@@ -556,5 +568,29 @@ kill S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY			reject
 }
 
+downlinkUEAssociatedLPPaTransport S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DownlinkUEAssociatedLPPaTransport
+	PROCEDURE CODE			id-downlinkUEAssociatedLPPaTransport
+	CRITICALITY				ignore
+}
+
+uplinkUEAssociatedLPPaTransport S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UplinkUEAssociatedLPPaTransport
+	PROCEDURE CODE			id-uplinkUEAssociatedLPPaTransport
+	CRITICALITY				ignore
+}
+downlinkNonUEAssociatedLPPaTransport S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DownlinkNonUEAssociatedLPPaTransport
+	PROCEDURE CODE			id-downlinkNonUEAssociatedLPPaTransport
+	CRITICALITY				ignore
+}
+
+uplinkNonUEAssociatedLPPaTransport S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UplinkNonUEAssociatedLPPaTransport
+	PROCEDURE CODE			id-uplinkNonUEAssociatedLPPaTransport
+	CRITICALITY				ignore
+}
+
 END
+
 

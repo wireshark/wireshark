@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V9.0.0 (2009-09)
+-- 3GPP TS 36.423 V9.1.0 (2009-12)
 -- 9.3.5	Information Element Definitions
 -- **************************************************************
 --
@@ -19,9 +19,10 @@ IMPORTS
 	
 	id-E-RAB-Item,
 	id-Number-of-Antennaports,
+	id-PRACH-Configuration,
 
-
-	maxnoofBearers,	maxCellineNB,
+	maxnoofBearers,	
+	maxCellineNB,
 	maxEARFCN,
 	maxInterfaces,
 	
@@ -87,6 +88,10 @@ BroadcastPLMNs-Item ::= SEQUENCE (SIZE(1..maxnoofBPLMNs)) OF PLMN-Identity
 
 -- C
 
+CapacityValue ::= INTEGER (0..100)
+
+CellCapacityClassValue ::= INTEGER (1..100, ...)
+
 Cause ::= CHOICE {
 	radioNetwork		CauseRadioNetwork,
 	transport			CauseTransport,
@@ -138,7 +143,10 @@ CauseRadioNetwork ::= ENUMERATED {
 	unknown-eNB-Measurement-ID,
 	measurement-temporarily-not-available,
 	unspecified,
-	...
+	...,
+	load-balancing,
+	handover-optimisation,
+	value-out-of-allowed-range
 
 }
 
@@ -162,6 +170,27 @@ CellType-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+CompositeAvailableCapacityGroup	::= SEQUENCE {
+	dL-CompositeAvailableCapacity					CompositeAvailableCapacity,
+	uL-CompositeAvailableCapacity					CompositeAvailableCapacity,
+	iE-Extensions									ProtocolExtensionContainer { { CompositeAvailableCapacityGroup-ExtIEs} } OPTIONAL,
+	...
+}
+
+CompositeAvailableCapacityGroup-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CompositeAvailableCapacity ::= SEQUENCE {
+	cellCapacityClassValue							CellCapacityClassValue				OPTIONAL,
+	capacityValue									CapacityValue,
+	iE-Extensions									ProtocolExtensionContainer { { CompositeAvailableCapacity-ExtIEs} } OPTIONAL,
+	...
+}
+
+CompositeAvailableCapacity-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 COUNTvalue ::= SEQUENCE {
 	pDCP-SN					PDCP-SN,
@@ -201,6 +230,8 @@ CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE (1..maxNrOfErrors)) OF
 CriticalityDiagnostics-IE-List-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+CRNTI ::= BIT STRING (SIZE (16))
 
 CyclicPrefixDL ::= ENUMERATED { 
 	normal,
@@ -433,6 +464,12 @@ GUMMEI-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 -- H
 
+HandoverReportType  ::= ENUMERATED {
+	hoTooEarly,
+	hoToWrongCell,
+	...
+}
+
 HandoverRestrictionList ::= SEQUENCE {
 	servingPLMN					PLMN-Identity,
 	equivalentPLMNs				EPLMNs					OPTIONAL,
@@ -532,7 +569,19 @@ MME-Group-ID	::= OCTET STRING (SIZE (2))
 
 MME-Code		::= OCTET STRING (SIZE (1))
 
-Measurement-ID	::= INTEGER (1..4095, ...)
+Measurement-ID	::= INTEGER (1..4095, ...) 
+
+MobilityParametersModificationRange ::= SEQUENCE {
+	handoverTriggerChangeLowerLimit		INTEGER (-20..20),
+	handoverTriggerChangeUpperLimit		INTEGER (-20..20),
+	...
+}
+
+MobilityParametersInformation ::= SEQUENCE {
+	handoverTriggerChange			INTEGER (-20..20),
+	...
+}
+
 
 -- N
 
@@ -566,6 +615,20 @@ PCI ::= INTEGER (0..503, ...)
 
 
 PLMN-Identity ::= OCTET STRING (SIZE(3))
+
+PRACH-Configuration  ::= SEQUENCE {
+	rootSequenceIndex						INTEGER (0..837),
+	zeroCorrelationIndex					INTEGER (0..15),
+	highSpeedFlag							BOOLEAN,
+	prach-FreqOffset						INTEGER (0..94),
+	prach-ConfigIndex						INTEGER (0..63)        OPTIONAL,  -- present for TDD --
+	iE-Extensions							ProtocolExtensionContainer { {PRACH-Configuration-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PRACH-Configuration-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 Pre-emptionCapability ::= ENUMERATED {
 	shall-not-trigger-pre-emption,
@@ -705,9 +768,12 @@ ServedCell-Information ::= SEQUENCE {
 }
 
 ServedCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-Number-of-Antennaports			CRITICALITY ignore	EXTENSION Number-of-Antennaports				PRESENCE optional },
+	{ ID id-Number-of-Antennaports			CRITICALITY ignore	EXTENSION Number-of-Antennaports				PRESENCE optional }|
+	{ ID id-PRACH-Configuration				CRITICALITY ignore	EXTENSION PRACH-Configuration				PRESENCE optional },
 	...
 }
+
+ShortMAC-I ::= BIT STRING (SIZE(16))
 
 SRVCCOperationPossible ::= ENUMERATED {
 	possible,
@@ -885,4 +951,3 @@ UL-HighInterferenceIndication ::= BIT STRING (SIZE(1..110, ...))
 -- Z
 
 END
-
