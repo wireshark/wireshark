@@ -976,6 +976,7 @@ typedef enum
 	DE_PD_PRO_ADDR,					/* Packet Data Protocol Address */
 	DE_QOS,							/* Quality Of Service */
 	DE_SM_CAUSE,					/* SM Cause */
+	DE_SM_CAUSE_2,					/* SM Cause 2 */
 	DE_LINKED_TI,					/* Linked TI */
 	DE_LLC_SAPI,					/* LLC Service Access Point Identifier */
 	DE_TEAR_DOWN_IND,				/* Tear Down Indicator */

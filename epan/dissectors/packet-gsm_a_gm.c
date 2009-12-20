@@ -166,6 +166,7 @@ const value_string gsm_gm_elem_strings[] = {
 	{ 0x00,	"Packet Data Protocol Address" },
 	{ 0x00,	"Quality Of Service" },
 	{ 0x00,	"SM Cause" },
+	{ 0x00, "SM Cause 2" },
 	{ 0x00,	"Linked TI" },
 	{ 0x00,	"LLC Service Access Point Identifier" },
 	{ 0x00,	"Tear Down Indicator" },
@@ -265,6 +266,8 @@ static int hf_gsm_a_qos_max_bitrate_upl_ext = -1;
 static int hf_gsm_a_qos_max_bitrate_downl_ext = -1;
 static int hf_gsm_a_qos_guar_bitrate_upl_ext = -1;
 static int hf_gsm_a_qos_guar_bitrate_downl_ext = -1;
+static int hf_gsm_a_sm_cause = -1;
+static int hf_gsm_a_sm_cause_2 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -3745,69 +3748,95 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 }
 
 /*
- * [8] 10.5.6.6 SM cause
+ * [9] 10.5.6.6 SM cause
  */
+static const value_string gsm_a_sm_cause_vals[] = {
+	{ 0x08, "Operator Determined Barring" },
+	{ 0x18, "MBMS bearer capabilities insufficient for the service" },
+	{ 0x19, "LLC or SNDCP failure(GSM only)" },
+	{ 0x1a, "Insufficient resources" },
+	{ 0x1b, "Missing or unknown APN" },
+	{ 0x1c, "Unknown PDP address or PDP type" },
+	{ 0x1d, "User Authentication failed" },
+	{ 0x1e, "Activation rejected by GGSN" },
+	{ 0x1f, "Activation rejected, unspecified" },
+	{ 0x20, "Service option not supported" },
+	{ 0x21, "Requested service option not subscribed" },
+	{ 0x22, "Service option temporarily out of order" },
+	{ 0x23, "NSAPI already used (not sent)" },
+	{ 0x24, "Regular deactivation" },
+	{ 0x25, "QoS not accepted" },
+	{ 0x26, "Network failure" },
+	{ 0x27, "Reactivation required" },
+	{ 0x28, "Feature not supported" },
+	{ 0x29, "Semantic error in the TFT operation" },
+	{ 0x2a, "Syntactical error in the TFT operation" },
+	{ 0x2b, "Unknown PDP context" },
+	{ 0x2c, "Semantic errors in packet filter(s)" },
+	{ 0x2d, "Syntactical errors in packet filter(s)" },
+	{ 0x2e, "PDP context without TFT already activated" },
+	{ 0x2f, "Multicast group membership time-out" },
+	{ 0x2c, "Semantic errors in packet filter(s)" },
+	{ 0x2d, "Syntactical errors in packet filter(s)" },
+	{ 0x30, "Activation rejected, BCM violation" },
+	{ 0x32, "PDP type IPv4 only allowed" },
+	{ 0x33, "PDP type IPv6 only allowed" },
+	{ 0x34, "Single address bearers only allowed" },
+	{ 0x51, "Invalid transaction identifier value" },
+	{ 0x5f, "Semantically incorrect message" },
+	{ 0x60, "Invalid mandatory information" },
+	{ 0x61, "Message type non-existent or not implemented" },
+	{ 0x62, "Message type not compatible with the protocol state" },
+	{ 0x63, "Information element non-existent or not implemented" },
+	{ 0x64, "Conditional IE error" },
+	{ 0x65, "Message not compatible with the protocol state" },
+	{ 0x6f, "Protocol error, unspecified" },
+	{ 0x70, "APN restriction value incompatible with active PDP context" },
+	{ 0, NULL }
+};
+
 static guint16
-de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len _U_)
+de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8	oct;
-	guint32	curr_offset;
 	const gchar	*str;
 
-	curr_offset = offset;
+	oct = tvb_get_guint8(tvb, offset);
+	str = match_strval(oct, gsm_a_sm_cause_vals);
 
-	oct = tvb_get_guint8(tvb, curr_offset);
+	/* SM Cause can be sent in both directions */
+	if (!str)
+		str = "Protocol error, unspecified / Service option temporarily out of order";
 
-	switch ( oct )
-	{
-		case 0x08: str="Operator Determined Barring"; break;
-		case 0x18: str="MBMS bearer capabilities insufficient for the service"; break;
-		case 0x19: str="LLC or SNDCP failure(GSM only)"; break;
-		case 0x1a: str="Insufficient resources"; break;
-		case 0x1b: str="Missing or unknown APN"; break;
-		case 0x1c: str="Unknown PDP address or PDP type"; break;
-		case 0x1d: str="User Authentication failed"; break;
-		case 0x1e: str="Activation rejected by GGSN"; break;
-		case 0x1f: str="Activation rejected, unspecified"; break;
-		case 0x20: str="Service option not supported"; break;
-		case 0x21: str="Requested service option not subscribed"; break;
-		case 0x22: str="Service option temporarily out of order"; break;
-		case 0x23: str="NSAPI already used (not sent)"; break;
-		case 0x24: str="Regular deactivation"; break;
-		case 0x25: str="QoS not accepted"; break;
-		case 0x26: str="Network failure"; break;
-		case 0x27: str="Reactivation required"; break;
-		case 0x28: str="Feature not supported"; break;
-		case 0x29: str="Semantic error in the TFT operation"; break;
-		case 0x2a: str="Syntactical error in the TFT operation"; break;
-		case 0x2b: str="Unknown PDP context"; break;
-		case 0x2e: str="PDP context without TFT already activated"; break;
-		case 0x2f: str="Multicast group membership time-out"; break;
-		case 0x2c: str="Semantic errors in packet filter(s)"; break;
-		case 0x2d: str="Syntactical errors in packet filter(s)"; break;
-		case 0x51: str="Invalid transaction identifier value"; break;
-		case 0x5f: str="Semantically incorrect message"; break;
-		case 0x60: str="Invalid mandatory information"; break;
-		case 0x61: str="Message type non-existent or not implemented"; break;
-		case 0x62: str="Message type not compatible with the protocol state"; break;
-		case 0x63: str="Information element non-existent or not implemented"; break;
-		case 0x64: str="Conditional IE error"; break;
-		case 0x65: str="Message not compatible with the protocol state"; break;
-		case 0x6f: str="Protocol error, unspecified"; break;
-		case 0x70: str="APN restriction value incompatible with active PDP context"; break;
-		default: str="Protocol error, unspecified"; break;
-	}
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_cause, tvb,
+				offset, 1, oct, "%s (%u)", str, oct);
 
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Cause: %s (%u) %s",
-		str, oct,add_string ? add_string : "");
-
-	curr_offset++;
-
-	return(curr_offset - offset);
+	/* no length check possible */
+	return(1);
 }
 
+/*
+ * [9] 10.5.6.6a SM cause 2
+ */
+static guint16
+de_sm_cause_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint8	oct;
+	const gchar	*str;
+
+	oct = tvb_get_guint8(tvb, offset);
+	str = match_strval(oct, gsm_a_sm_cause_vals);
+
+	/* SM Cause 2 is sent only in the Network-to-MS direction */
+	if (!str)
+		str = "Service option temporarily out of order";
+
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_sm_cause_2, tvb,
+				offset, 1, oct, "%s (%u)", str, oct);
+
+	/* no length check possible */
+	return(1);
+}
 /*
  * [7] 10.5.6.7
  */
@@ -4220,6 +4249,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	de_sm_pdp_addr,		/* Packet Data Protocol Address */
 	de_sm_qos,		/* Quality Of Service */
 	de_sm_cause,		/* SM Cause */
+	de_sm_cause_2,		/* SM Cause 2 */
 	de_sm_linked_ti,	/* Linked TI */
 	de_sm_sapi,		/* LLC Service Access Point Identifier */
 	de_sm_tear_down,	/* Tear Down Indicator */
@@ -4971,7 +5001,7 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 /*
- * [8] 9.5.2 Activate PDP context accept
+ * [9] 9.5.2 Activate PDP context accept
  */
 static void
 dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
@@ -5003,6 +5033,8 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL);
 
 	ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL);
+
+	ELEM_OPT_TLV( 0x39 , GSM_A_PDU_TYPE_GM, DE_SM_CAUSE_2, NULL );
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5850,6 +5882,16 @@ proto_register_gsm_a_gm(void)
 	},
 	{ &hf_gsm_a_qos_guar_bitrate_downl_ext,
 		{ "Guaranteed bitrate for downlink (extended)", "gsm_a.qos.guar_bitrate_downl_ext",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_sm_cause,
+		{ "SM Cause", "gsm_a.sm.cause",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_sm_cause_2,
+		{ "SM Cause 2", "gsm_a.sm.cause_2",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
