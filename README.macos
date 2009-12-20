@@ -6,8 +6,8 @@ not work on earlier versions of Mac OS).
 In order to build Wireshark, you must have X11 and the X11 developer
 headers and libraries installed; otherwise, you will not be able to
 build or install GTK+, and will only be able to build TShark.  The X11
-and X11 SDK that come with Mac OS X Panther and Tiger are sufficient to
-build and run Wireshark.
+and X11 SDK that come with Mac OS X releases starting with Panther are
+sufficient to build and run Wireshark.
 
 The changes to enable libwiretap and libwireshark being built as shared
 libraries have broken shared gtk1 builds on Mac OS X.  The GLib 1.x and
@@ -44,11 +44,11 @@ directory:
 	libpng
 	tiff
 
-However, on Tiger, it appears that the libraries built and installed by
-those packages collide with libraries that come with the OS, so you
-might have to configure GTK+ not to support loading those images
-(Wireshark doesn't use the ability to load JPEG, PNG, or TIFF images), by
-using the "--without-libpng", "--without-libjpeg", and
+However, on Tiger and later releases, it appears that the libraries
+built and installed by those packages collide with libraries that come
+with the OS, so you might have to configure GTK+ not to support loading
+those images (Wireshark doesn't use the ability to load JPEG, PNG, or
+TIFF images), by using the "--without-libpng", "--without-libjpeg", and
 "---without-libtiff" flags when running "configure" in the GTK+ source
 directory.
 
@@ -77,7 +77,7 @@ do "sudo ranlib /usr/local/lib/libjpeg.a" after "make install-lib".
 For libpng, use scripts/makefile.darwin, not scripts/makefile.macosx.
 
 Finally run the configure script. By default it will use
-the Glib2 and GTK+2 libraries. If you run Wireshark's configure script
+the GLib2 and GTK+2 libraries. If you run Wireshark's configure script
 with the "--disable-gtk2" argument it'll try to configure with GLib
 1.2[.x] and GTK+ 1.2[.x], in which case:
 
@@ -85,3 +85,63 @@ with the "--disable-gtk2" argument it'll try to configure with GLib
 
 	if they are installed, the configure script will configure
 	Wireshark to build with them.
+
+If you upgrade the major release of Mac OS X on which you are building
+Wireshark, we advise that, before you do any builds after the upgrade,
+you do, in the build directory:
+
+    If you are building from a release tarball:
+	make distclean
+
+    If you are building from SVN:
+	make maintainer-clean
+	./autogen.sh
+
+Then re-run the configure script and rebuild from scratch.
+
+On Snow Leopard, if you are building on a machine with a 64-bit
+processor (with the exception of the early Intel Core Duo and Intel Core
+Solo machines, all Apple machines with Intel processors have 64-bit
+processors), the C/C++/Objective-C compiler will build 64-bit by
+default.
+
+This means that you will, by default, get a 64-bit version of Wireshark.
+
+One consequence of this is that, if you built and installed any required
+or optional libraries for Wireshark on an earlier release of Mac OS X,
+those are probably 32-bit versions of the libraries, and you will need
+to un-install them and rebuild them on Snow Leopard, to get 64-bit
+versions.
+
+Some required and optional libraries require special attention if you
+install them by building from source code on Snow Leopard:
+
+GLib - the GLib configuration script determines whether the system's
+libiconv is GNU iconv or not by checking whether it has libiconv_open(),
+and the compile will fail if that test doesn't correctly indicate
+whether libiconv is GNU iconv.  In Mac OS X, libiconv is GNU iconv, but
+the 64-bit version doesn't have libiconv_open(); a workaround for this
+is to replace all occurrences of "libiconv_open" with "iconv_open" in
+the configure script before running the script.
+
+libgcrypt - the libgcrypt configuration script attempts to determine
+which flavor of assembler-language routines to use based on the platform
+type determined by standard autoconf code.  That code uses uname to
+determine the processor type; however, in Mac OS X, uname always reports
+"i386" as the processor type on Intel machines, even Intel machines with
+64-bit processors, so it will attempt to assemble the 32-bit x86
+assembler-language routines, which will fail.  The workaround for this
+is to run the configure script with the --disable-asm argument, so that
+the assembler-language routines are not used.
+
+PortAudio - when compiling on Darwin (e.g., on Mac OS X), the configure
+script for the pa_stable_v19_20071207 version of PortAudio will cause
+certain platform-dependent build environment #defines to be set in the
+Makefile rules, and to cause a universal build to be done; those
+#defines will be incorrect for all but one of the architectures for
+which the build is being done, and that will cause a compile-time error
+on Snow Leopard.  The current snapshot version of PortAudio still
+defines those values in the Makefile, but it appears to use them in ways
+that don't cause build problems; its configure script also has a
+"--disable-mac-universal" flag that can cause the build not to be done
+universal.
