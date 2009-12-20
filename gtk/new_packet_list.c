@@ -178,9 +178,14 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
 	GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
 	const gchar *title =  gtk_entry_get_text(GTK_ENTRY(entry));
+	gint col_width;
 
 	gtk_tree_view_column_set_title(col, title);
 	column_prefs_rename(col_id, title);
+
+	col_width = get_default_col_size (packetlist->view, title);
+	gtk_tree_view_column_set_min_width(col, col_width);
+	new_packet_list_resize_column (col_id);
 
 	if (!prefs.gui_use_pref_save) {
 		prefs_main_write();
