@@ -459,6 +459,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->timestamp = rtpinfo->info_timestamp;
 		statinfo->first_timestamp = rtpinfo->info_timestamp;
 		statinfo->time = current_time;
+		statinfo->lastnominaltime = 0;
 		statinfo->pt = rtpinfo->info_payload_type;
 		statinfo->reg_pt = rtpinfo->info_payload_type;
 		statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 28;
