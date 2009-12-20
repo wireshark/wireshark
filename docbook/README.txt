@@ -20,7 +20,7 @@ To get HTML, PDF or other output formats, conversions are done using XSL
 stylesheets, which provides a flexible way for these conversions.
 
 By default the Makefile generates HTML in single page and multiple (chunked) 
-formats and PDF.
+formats and two PDF's.
 
 Win32 only: The optional output format CHM has to be enabled by setting 
 HHC_EXE in ..\config.nmake.
@@ -30,13 +30,13 @@ Settings:
 ---------
 
 Unix only: Makefile and catalog.xml
------------------------------------------------
+-----------------------------------
 You have to edit the settings in these files, to point to the DTD/XSL files 
-and fop. (Makefile.auto.am is currently experimental and will probably NOT 
+and FOP. (Makefile.auto.am is currently experimental and will probably NOT
 work - any progress on this would be appreciated!)
 
 Win32 only: ..\config.nmake
----------------------------------------
+---------------------------
 Settings moved to: ..\config.nmake.
 
 
@@ -47,23 +47,23 @@ DocBook XML DTD
 ---------------
 DocBook "official" XML DTD V4.2: 
 http://www.oasis-open.org/docbook/xml/
-(available as a package for Linux / cygwin)
+(available as a package for Linux / Cygwin)
 
 DocBook XSL
 -----------
 The "official" XSL stylesheets from Norman Walsh: 
 http://docbook.sourceforge.net/
-(available as a package for Linux / cygwin)
+(available as a package for Linux / Cygwin)
 
 xsltproc
 --------
 The XSL processor xsltproc. 
-(available as a package for Linux / cygwin)
+(available as a package for Linux / Cygwin)
 
 xmllint
 -------
 Needed to validate if the .xml files conform to the Docbook/XML DTD. 
-(available as a package for Linux / cygwin)
+(available as a package for Linux / Cygwin)
 
 FOP processor (for PDF generation only)
 ---------------------------------------
@@ -80,28 +80,29 @@ by adding " -Xmx256m" to the FOP_OPTS environment variable. The Windows
 makefile does this by default.
 
 Hyphenation Patterns
-------------------------------
+--------------------
 Hyphenation patterns for FOP can be found at
 http://offo.sourceforge.net/hyphenation/. Different pattern files have
 different licenses. The English patterns may have restrictions on
 commercial use.
 
-JIMI (for PDF generation with fop 0.20.5 only)
-------------------------------
+JIMI (for PDF generation)
+-------------------------
 Jimi is a JAVA class library for managing images. 
 In addition to FOP, be sure to also have installed JAI and/or jimi to be able 
-to use/convert the png graphics files. The fop release note webpage tells how 
+to use/convert the PNG graphics files. The FOP release note webpage tells how
 to do it: 
 download jimi from: 
 http://java.sun.com/products/jimi/
-then extract the archive, then copy JimiProClasses.zip to FOP's lib dir and rename it to jimi-1.0.jar.
+then extract the archive, then copy JimiProClasses.zip to FOP's lib dir and
+rename it to jimi-1.0.jar.
 
 Win32 only: HTML help compiler (for .chm generation only)
 ---------------------------------------------------------
-hhc compiler (hhc.exe) from Microsoft:
+HTML Help Compiler (hhc.exe) from Microsoft:
 http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp 
 
-lynx
+Lynx
 ----
 Text based web browser used to convert release_notes.html into plain text 
 format.
@@ -119,7 +120,7 @@ xsl stylesheets:    Doc/docbook-xsl         M           docbook.xsl, chunk.xsl a
 docbookx.dtd:       Doc/docbook_xml42       M
 lynx:               Web/lynx                M
 fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into docbook\fop-0.95 to keep defaults from config.nmake
-jimi:               -                       O           (fop 0.20.5 only) URL: http://java.sun.com/products/jimi/ - see above
+jimi:               -                       O           URL: http://java.sun.com/products/jimi/ - see above
 hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp 
 zip:                Archive/zip             O
 
@@ -133,7 +134,7 @@ xmllint:            libxml2                 M
 xsl stylesheets:    docbook-xsl-stylesheets M           docbook.xsl and chunk.xsl
 docbookx.dtd:       docbook_4               M
 fop:                fop                     O
-jimi:               -                       O           (fop 0.20.5 only) get it from http://java.sun.com/products/jimi/ - see above
+jimi:               -                       O           get it from http://java.sun.com/products/jimi/ - see above
 
 
 Packages for Gentoo
@@ -152,12 +153,12 @@ xsl stylesheets:    docbook-xsl-stylesheets  M            docbook.xsl and chunk.
                                                             So docbook runs out of the box on Gentoo.
 docbookx.dtd:       docbook-xml-dtd          M
 fop:                fop                      O            Has a lot of JAVA dependencies.
-jimi:               sun-jimi                 O            (fop 0.20.5 ony) Used by fop.
+jimi:               sun-jimi                 O            Used by fop.
 Quanta+             quanta or kdewebdev      O            Nice HTML/XML/SGML and Docbook editor with Syntaxhighlighting, Autocompletion, etc.
 
 Tip: The actual DTD version of Gentoo is 4.4, but wireshark docs still use 4.2.
-     To be able to generate the docs, change the version in the second line of developer-guide.xml
-     or install an older version of the DTD.
+     To be able to generate the docs, change the version in the second line of
+     developer-guide.xml or install an older version of the DTD.
      See into the Gentoo handbook howto unmask old versions.
 
 
@@ -171,24 +172,25 @@ xsl stylesheets:    docbook-style-xsl       M           docbook.xsl and chunk.xs
 docbookx.dtd:       docbook-dtds            M           provides v4.1, v4.2, v4.3, v4.4 DTDs
 
 fop:                fop                     O           See above
-jimi:               -                       O           (fop 0.20.5 ony) get it from http://java.sun.com/products/jimi/ - see above
+jimi:               -                       O           get it from http://java.sun.com/products/jimi/ - see above
 
 Note: There are required dependencies (such as xml-common and sgml-common); 
-      yum is your friend for doing package installs including required  dependencies.
+      yum is your friend for doing package installs including required
+      dependencies.
 
 
 Packages for Debian
 -------------------
-Tool/File           Package
----------           -------
-xsltproc:           libxslt
-xmllint:            libxml2-utils
-xsl stylesheets:    docbook-xsl
-chunk.xsl:          docbook-xsl
-htmlhelp.xsl:       docbook-xsl
-docbookx.dtd:       docbook-xml
-fop:                fop
-jimi:               (fop 0.20.5 ony) http://java.sun.com/products/jimi/ - see above
+Tool/File           Package                 Opt./Mand.  Comments
+---------           -------                 ----------  --------
+xsltproc:           libxslt                 M
+xmllint:            libxml2-utils           M
+xsl stylesheets:    docbook-xsl             M
+chunk.xsl:          docbook-xsl             M
+htmlhelp.xsl:       docbook-xsl             M
+docbookx.dtd:       docbook-xml             M
+fop:                fop                     O           See above
+jimi:               -                       O           http://java.sun.com/products/jimi/ - see above
 
 
 
@@ -217,11 +219,11 @@ output: wsug_html_chunked
 make wsug_pdf_us
 make wsug_pdf_a4
 The PDF is generated using an intermediate format named XSL-FO (XSL 
-formatting objects). xsltproc converts the XML to a FO file, and then fop 
-(apache's formatting object processor) is used to generate the PDF document, 
+formatting objects). xsltproc converts the XML to a FO file, and then FOP 
+(Apache's formatting object processor) is used to generate the PDF document,
 in US letter or A4 paper format.
-TIP: You will get lot's of INFO/WARNING/ERROR messages when generating pdf, 
-but conversation works just fine.
+Tip: You will get lot's of INFO/WARNING/ERROR messages when generating PDF,
+but the conversion works just fine.
 output: user-guide-us.pdf user-guide-a4.pdf
 
 make wsug_chm
@@ -233,14 +235,47 @@ output: htmlhelp.chm
 Using the prefix wsdg_ instead of wsug_ will build the same targets but for the 
 Wireshark Developer's Guide.
 
-The makefile is written to be run with gmake on UNIX/Linux platforms. Win32 
-platforms have to use the cygwin environment (Microsoft nmake is not 
-supported).
+The makefile is written to be run with make on UNIX/Linux platforms.
+Win32 platforms have to use nmake -f Makefile.nmake
+
+
+Notes to authors
+----------------
+The docbook DTD provides you with all tags required to mark up a documents
+structure. Please have a look at the existing XML files to see what these
+structural tags are, and look at the DocBook web references below.
+To maintain a consistent look and feel in the documents please use the
+following tags for the indicated purposes.
+
+Tag           Purpose
+---           -------
+<application> to mark application names, like Wireshark.
+<filename>    to mark an individual file or path.
+<command>     to mark a command, with parameters.
+<prompt>      to mark a prompt before user input.
+<userinput>   to mark an example of user input, like an actual command line.
+<function>    to mark a function name, ending with parenthesis.
+<parameter>   to mark (function) parameters.
+<varname>     to mark (environment) variables.
+<literal>     to mark some literal value.
+
+These are all tags for inline text. Wrap literal text output in a CDATA block,
+like so:
+
+       <programlisting>
+<![CDATA[#include <epan/tap.h>
+...
+]]>
+       </programlisting>
+
+Make sure the CDATA clause is at column 1, because prefixed whitespace will be
+present in the verbatim output as well.
 
 
 Docbook web references:
 -----------------------
-Some web references to further documentation about Docbook/XML and Docbook XSL conversions:
+Some web references to further documentation about Docbook/XML and Docbook XSL
+conversions:
 
 DocBook: The Definitive Guide
 by Norman Walsh and Leonard Muellner
@@ -252,7 +287,7 @@ http://www.sagehill.net/docbookxsl/index.html
 
 Documention with DocBook on Win32
 by Jim Crafton
-http://www.codeproject.com/winhelp/docbook_howto.asp
+http://www.codeproject.com/KB/winhelp/docbook_howto.aspx
 
 FO Parameter Reference
 by Norman Walsh

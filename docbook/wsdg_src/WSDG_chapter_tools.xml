@@ -142,11 +142,11 @@
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[gcc (GCC) 3.4.4 (cygwin special) (gdc 0.12, using dmd 0.125)
+<![CDATA[gcc (GCC) 3.4.4 (cygwin special) (gdc 0.12, using dmd 0.125)
 Copyright (C) 2004 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsGDB">
       <title>gdb (GNU project debugger)</title>
@@ -167,14 +167,14 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[GNU gdb 6.5.50.20060706-cvs (cygwin-special)
+<![CDATA[GNU gdb 6.5.50.20060706-cvs (cygwin-special)
 Copyright 2003 Free Software Foundation, Inc.
 GDB is free software, covered by the GNU General Public License, and you are
 welcome to change it and/or distribute copies of it under certain conditions.
 Type "show copying" to see the conditions.
 There is absolutely no warranty for GDB.  Type "show warranty" for details.
 This GDB was configured as "i686-pc-cygwin".]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsDDD">
       <title>ddd (GNU Data Display Debugger)</title>
@@ -208,12 +208,12 @@ This GDB was configured as "i686-pc-cygwin".]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[GNU Make 3.81
+<![CDATA[GNU Make 3.81
 Copyright (C) 2006  Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
   </section>
   <section id="ChToolsMSChain">
@@ -222,31 +222,31 @@ PARTICULAR PURPOSE.]]>
     compiler, you'll need:</para>
     <orderedlist>
       <listitem>
-        <para>C compiler (cl.exe)</para>
+        <para>C compiler (<filename>cl.exe</filename>)</para>
       </listitem>
       <listitem>
-        <para>Linker (link.exe)</para>
+        <para>Linker (<filename>link.exe</filename>)</para>
       </listitem>
       <listitem>
-        <para>Make (nmake.exe)</para>
+        <para>Make (<filename>nmake.exe</filename>)</para>
       </listitem>
       <listitem>
-        <para>C runtime headers and libraries (e.g. stdio.h,
-        msvcrt.lib)</para>
+        <para>C runtime headers and libraries (e.g. <filename>stdio.h,
+        msvcrt.lib</filename>)</para>
       </listitem>
       <listitem>
         <para>Windows platform headers and libraries (e.g.
-        windows.h, WSock32.lib)</para>
+        <filename>windows.h, WSock32.lib</filename>)</para>
       </listitem>
       <listitem>
-        <para>HTML help headers and libraries (htmlhelp.h,
-        htmlhelp.lib)</para>
+        <para>HTML help headers and libraries (<filename>htmlhelp.h,
+        htmlhelp.lib</filename>)</para>
       </listitem>
     </orderedlist>
     <section>
       <title>Toolchain Package Alternatives</title>
       <para>The official Wireshark 1.0.x releases are compiled using Microsoft
-      Visual C++ 6.0. The 1.1.x development releases are compiled using
+      Visual C++ 6.0. The subsequent releases are compiled using
       Microsoft Visual C++ 2008 SP1. Using the release compilers is recommended
       for Wireshark development work. Visual C++ 2008 Express Edition SP1 may
       be used for the development branch, but it cannot create PortableApps
@@ -586,14 +586,16 @@ PARTICULAR PURPOSE.]]>
       install it and don't even need to call a separate environment
       setting batch file for the Platform SDK!</para>
       <para>
-      <superscript>3</superscript>vcredist_x86.exe (3MB free
-      download) is required to build Wireshark-setup.exe. The
-      version of vcredist_x86.exe MUST match the version for
-      your compiler.</para>
+      <superscript>3</superscript><filename>vcredist_x86.exe</filename>
+      (3MB free download) is required to build
+      <filename>Wireshark-win32-&WiresharkCurrentVersion;.x.exe</filename>.
+      The version of <filename>vcredist_x86.exe</filename> MUST match
+      the version for your compiler.</para>
       <para>
-      <superscript>4</superscript>Wireshark-setup.exe cannot be
-      created with this package, as msvcr*.dll is not available or
-      not redistributable!</para>
+      <superscript>4</superscript>
+      <filename>Wireshark-win32-&WiresharkCurrentVersion;.x.exe</filename>
+      cannot be created with this package, as <filename>msvcr*.dll</filename>
+      is not available or not redistributable!</para>
       <para>
       <superscript>5</superscript>MSDN remarks that the
       corresponding .NET runtime is required. It's currently
@@ -611,7 +613,7 @@ PARTICULAR PURPOSE.]]>
       <para>Please note: The following is not legal advice - ask
       your preferred lawyer instead! It's the authors view, but
       this view might be wrong!</para>
-      <para>The myriad of&#160;
+      <para>The myriad of
       <ulink url="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/">
       Win32 support lib</ulink> port projects all seem to believe
       there are legal issues involved in using newer versions of
@@ -623,7 +625,7 @@ PARTICULAR PURPOSE.]]>
           <para>Unfortunately, it is believed by many that the
           Microsoft Visual Studio 2003 EULA explicitly forbids
           linking with GPL'ed programs. This belief is probably due
-          to an improper interpretation of the&#160;
+          to an improper interpretation of the
           <ulink url="http://msdn.microsoft.com/visualc/vctoolkit2003/eula.aspx">
           Visual Studio 2003 Toolkit EULA</ulink>, which places
           redistribution restrictions only on SOURCE CODE SAMPLES
@@ -634,7 +636,7 @@ PARTICULAR PURPOSE.]]>
           forbids using Visual Studio 2003, since one of the
           required support libraries (MSVCR71.DLL) does not ship
           with the Windows operating system. This is also a
-          wrongful interpretation, and the&#160;
+          wrongful interpretation, and the
           <ulink url="http://www.gnu.org/licenses/gpl-faq.html#WindowsRuntimeAndGPL">
           GPL FAQ</ulink> explicitly addresses this issue.</para>
         </listitem>
@@ -782,11 +784,11 @@ PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+<![CDATA[Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
 Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
 
 usage: cl [ option... ] filename... [ /link linkoption... ]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsNMake">
       <title>nmake.exe (Make)</title>
@@ -808,12 +810,12 @@ usage: cl [ option... ] filename... [ /link linkoption... ]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[Microsoft (R) Program Maintenance Utility   Version 6.00.9782.0
+<![CDATA[Microsoft (R) Program Maintenance Utility   Version 6.00.9782.0
 Copyright (C) Microsoft Corp 1988-1998. All rights reserved.
 
 NMAKE : fatal error U1064: MAKEFILE not found and no target specified
 Stop.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
       <para>Documentation on nmake can be found at
       <ulink url="http://msdn2.microsoft.com/en-us/library/dd9y37ha(VS.71).aspx">
       Microsoft MSDN</ulink></para>
@@ -829,7 +831,7 @@ Stop.]]>
       this view might be wrong!</para>
       <para>Depending on the Microsoft compiler version you use,
       some binary files coming from Microsoft might
-      be&#160;required to be installed on Windows machine to run
+      be required to be installed on Windows machine to run
       Wireshark. On a developer machine, the compiler setup
       installs these files so they are available - but they might
       not be available on a user machine!</para>
@@ -888,17 +890,17 @@ Stop.]]>
         <para>"Visual Studio .NET (2002)" - comes with this dll and
         it's mentioned in redist.txt.</para>
         <para>".NET Framework SDK 1.0" doesn't even come with this
-        dll. XXX - Is this file available with the&#160;.NET 1.0
+        dll. XXX - Is this file available with the .NET 1.0
         runtime (dotnetfx.exe) - so it could be shipped instead?!?
         Do we want it that way?</para>
       </section>
       <section>
         <title>msvcr71.dll - Version 7.1 (2003)</title>
-        <para>"Visual Studio .NET&#160;2003" comes with this dll
+        <para>"Visual Studio .NET 2003" comes with this dll
         and it's mentioned in redist.txt.</para>
         <para>".NET Framework SDK 1.1" comes with this dll, but
         it's NOT mentioned in redist.txt. XXX - Is this file
-        available with the&#160;.NET 1.1&#160;runtime
+        available with the .NET 1.1 runtime
         (dotnetfx.exe) - so it could be shipped instead ?!? Do we
         want it that way?</para>
       </section>
@@ -985,7 +987,7 @@ Stop.]]>
     </section>
     <section>
       <title>Windows (Platform) SDK</title>
-      <para>The&#160;Windows Platform SDK (PSDK) is a free (as in
+      <para>The Windows Platform SDK (PSDK) is a free (as in
       beer) download and contains platform specific headers and
       libraries (e.g. windows.h, WSock32.lib, ...). As new Windows
       features evolve in time, updated PSDK's become available that
@@ -1001,8 +1003,8 @@ Stop.]]>
       directory.</para>
       <para>BTW: "Windows SDK" seems to be the new name of the
       Platform SDK for Vista. The current SDK name is misleading:
-      "Microsoft&#174; Windows&#174; Software Development Kit for
-      Windows Vista&#8482; and .NET Framework 3.0 Runtime
+      "Microsoft Windows Software Development Kit for
+      Windows Vista and .NET Framework 3.0 Runtime
       Components" - translated this means: the Windows SDK for
       Windows Vista and Platforms (like WinXP) that have the .NET
       3.0 runtime installed.</para>
@@ -1012,12 +1014,12 @@ Stop.]]>
       <para>The HTML Help is used to create the User's and
       Developer's Guide in .chm format and to show the User's Guide
       as the Wireshark "Online Help".</para>
-      <para>Both&#160;features are currently optional, but might be
+      <para>Both features are currently optional, but might be
       mandatory in future versions.</para>
       <section>
         <title>HTML Help Compiler (hhc.exe)</title>
-        <para>This compiler is used to&#160;generate a .chm file
-        from a bunch&#160;of HTML files - in our case to generate
+        <para>This compiler is used to generate a .chm file
+        from a bunch of HTML files - in our case to generate
         the User's and Developer's Guide in .chm format.</para>
         <para>The compiler is only available as the free (as in
         beer) "HTML Help Workshop" download. If you want to compile
@@ -1034,7 +1036,7 @@ Stop.]]>
         "online help".</para>
         <para>Both files are part of the Platform SDK (standalone
         PSDK or MSVC since 2002). If you still use MSVC 6, you
-        can&#160;get them from the "HTML Help Workshop" mentioned
+        can get them from the "HTML Help Workshop" mentioned
         above.</para>
         <para>The related settings in config.nmake depend on the
         MSVC variant you use:</para>
@@ -1103,9 +1105,9 @@ Stop.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[GNU bash, version 3.1.17(6)-release (i686-pc-cygwin)
+<![CDATA[GNU bash, version 3.1.17(6)-release (i686-pc-cygwin)
 Copyright (C) 2005 Free Software Foundation, Inc.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Bash">
       <title>Win32 native: -</title>
@@ -1158,8 +1160,8 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       </para>
       <para>The output should look something like:
       <programlisting>
-        <![CDATA[Python 2.6]]>
-</programlisting>However, the version string may vary.</para>
+<![CDATA[Python 2.6]]>
+      </programlisting>However, the version string may vary.</para>
     </section>
   </section>
   <section id="ChToolsPerl">
@@ -1185,7 +1187,7 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[This is perl, v5.8.7 built for cygwin-thread-multi-64int
+<![CDATA[This is perl, v5.8.7 built for cygwin-thread-multi-64int
 (with 1 registered patch, see perl -V for more detail)
 
 Copyright 1987-2005, Larry Wall
@@ -1196,7 +1198,7 @@ GNU General Public License, which may be found in the Perl 5 source kit.
 Complete documentation for Perl, including FAQ lists, should be found on
 this system using `man perl' or `perldoc perl'.  If you have access to the
 Internet, point your browser at http://www.perl.com/, the Perl Home Page.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Perl">
       <title>Win32 native: perl</title>
@@ -1211,16 +1213,15 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[This is perl, v5.8.0 built for MSWin32-x86-multi-thread
+<![CDATA[This is perl, v5.8.0 built for MSWin32-x86-multi-thread
 (with 1 registered patch, see perl -V for more detail)
 
 Copyright 1987-2002, Larry Wall
 
 Binary build 805 provided by ActiveState Corp. http://www.ActiveState.com
 Built 18:08:02 Feb  4 2003
-
 ...]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
   </section>
   <section id="ChToolsSed">
@@ -1245,12 +1246,12 @@ Built 18:08:02 Feb  4 2003
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[GNU sed version 4.1.5
+<![CDATA[GNU sed version 4.1.5
 Copyright (C) 2003 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,
 to the extent permitted by law.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Sed">
       <title>Win32 native: sed</title>
@@ -1278,13 +1279,13 @@ to the extent permitted by law.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[bison (GNU Bison) 2.3
+<![CDATA[bison (GNU Bison) 2.3
 Written by Robert Corbett and Richard Stallman.
 
 Copyright (C) 2006 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Yacc">
       <title>Win32 native: bison</title>
@@ -1312,8 +1313,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[flex version 2.5.4]]>
-</programlisting>However, the version string may vary.</para>
+<![CDATA[flex version 2.5.4]]>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Lexx">
       <title>Win32 native: flex</title>
@@ -1355,15 +1356,14 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[svn, version 1.0.5 (r9954)
+<![CDATA[svn, version 1.0.5 (r9954)
    compiled Jun 20 2004, 23:28:30
 
 Copyright (C) 2000-2004 CollabNet.
 Subversion is open source software, see http://subversion.tigris.org/
 This product includes software developed by CollabNet (http://www.Collab.Net/).
-
 ...]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32SVN">
       <title>Win32 native: svn</title>
@@ -1380,11 +1380,11 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[svn, Version 1.4.0 (r21228)
+<![CDATA[svn, Version 1.4.0 (r21228)
 
 Copyright (C) 2000-2006 CollabNet.
 ...]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
   </section>
   <section id="ChToolsSubversionGUI">
@@ -1447,14 +1447,14 @@ Copyright (C) 2000-2006 CollabNet.
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[diff (GNU diffutils) 2.8.7
+<![CDATA[diff (GNU diffutils) 2.8.7
 Written by Paul Eggert, Mike Haertel, David Hayes,
 Richard Stallman, and Len Tower.
 
 Copyright (C) 2004 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Diff">
       <title>Win32 native: diff</title>
@@ -1501,7 +1501,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-        <![CDATA[patch 2.5.8
+<![CDATA[patch 2.5.8
 Copyright (C) 1988 Larry Wall
 Copyright (C) 2002 Free Software Foundation, Inc.
 
@@ -1511,7 +1511,7 @@ under the terms of the GNU General Public License.
 For more information about these matters, see the file named COPYING.
 
 written by Larry Wall and Paul Eggert]]>
-</programlisting>However, the version string may vary.</para>
+      </programlisting>However, the version string may vary.</para>
     </section>
     <section id="ChToolsWin32Patch">
       <title>Win32 native: patch</title>
@@ -1548,8 +1548,7 @@ written by Larry Wall and Paul Eggert]]>
     For example, if you are behind proxy.com which is listening on
     port 8080, you have to set it to something like:</para>
     <para>
-      <programlisting>set
-      HTTP_PROXY=http://proxy.com:8080/</programlisting>
+      <programlisting>set HTTP_PROXY=http://proxy.com:8080/</programlisting>
     </para>
     <para>If you are unsure about the settings, you might ask your
     system administrator.</para>
@@ -1572,11 +1571,11 @@ written by Larry Wall and Paul Eggert]]>
   <section id="ChToolsNSIS">
     <title>Win32: NSIS (optional)</title>
     <para>The NSIS (Nullsoft Scriptable Install System) is used to
-    generate a wireshark-setup-&lt;version&gt;.exe from all the
-    files needed to be installed, including all required DLL's and
+    generate <filename>wireshark-win32-&WiresharkCurrentVersion;.x.exe</filename>
+    from all the files needed to be installed, including all required DLL's and
     such.</para>
     <para>To install it, simply download the latest released
-    version (currently: 2.28) from
+    version (currently: 2.45) from
     <ulink url="http://nsis.sourceforge.net" /> and start the
     downloaded installer. You will need NSIS version 2 final or
     higher.</para>

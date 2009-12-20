@@ -48,13 +48,14 @@ Wireshark Info
   <!ENTITY WiresharkCurrentVersion "1.2">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download/">
-  <!ENTITY WiresharkAuthorsPage "http://anonsvn.wireshark.org/wireshark/trunk/AUTHORS">
+  <!ENTITY WiresharkAuthorsPage "&WiresharkRepositorySite;/wireshark/trunk/AUTHORS">
   <!ENTITY WiresharkFAQPage "&WiresharkWebSite;/faq.html">
   <!ENTITY WiresharkDevMailList "wireshark-dev[AT]wireshark.org">
   <!ENTITY WiresharkDevsGuidePage "&WiresharkWebSite;/docs/">
   <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/">
   <!ENTITY WiresharkWikiSite "http://wiki.wireshark.org">
-  <!ENTITY WiresharkBugsSite "http://bugs.wireshark.org">
+  <!ENTITY WiresharkBugsSite "https://bugs.wireshark.org">
+  <!ENTITY WiresharkRepositorySite "http://anonsvn.wireshark.org">
 
 <!--
 Gnu info
