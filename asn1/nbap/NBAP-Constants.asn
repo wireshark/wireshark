@@ -1,6 +1,6 @@
 -- NBAP-Constants.asn
 --
--- Taken from 3GPP TS 25.433 V8.3.0 (2008-12)
+-- Taken from 3GPP TS 25.433 V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433/
 ---
 -- 9.3.6	Constant Definitions
@@ -87,6 +87,8 @@ id-unSynchronisedRadioLinkReconfiguration 				ProcedureCode ::= 34
 id-radioLinkActivation									ProcedureCode ::= 51
 id-radioLinkParameterUpdate								ProcedureCode ::= 52
 id-uEStatusUpdate										ProcedureCode ::= 54
+id-secondaryULFrequencyReporting						ProcedureCode ::= 55
+id-secondaryULFrequencyUpdate							ProcedureCode ::= 56
 
 -- **************************************************************
 --
@@ -237,6 +239,21 @@ maxnrofERUCCHsLCR				INTEGER ::= 32
 maxNrOfHSDSCH-1					INTEGER ::= 32
 maxNrOfHSDSCH					INTEGER ::= 33
 maxGANSS-1						INTEGER ::= 7
+maxNoOfTBSs-Mapping-HS-DSCH-SPS		INTEGER ::= 4
+maxNoOfTBSs-Mapping-HS-DSCH-SPS-1	INTEGER ::= 3
+maxNoOfHS-DSCH-TBSsLCR				INTEGER ::= 64
+maxNoOfRepetition-Period-LCR		INTEGER ::= 4
+maxNoOfRepetitionPeriod-SPS-LCR-1	INTEGER ::= 3
+maxNoOf-HS-SICH-SPS					INTEGER ::= 4
+maxNoOf-HS-SICH-SPS-1				INTEGER ::= 3
+maxNoOfNon-HS-SCCH-Assosiated-HS-SICH	INTEGER ::= 4
+maxMBMSServiceSelect			INTEGER ::= 256 
+maxNrOfCellPortionsPerCellLCR		INTEGER ::= 256
+maxNrOfCellPortionsPerCellLCR-1		INTEGER ::= 255
+maxNrOfEDCH-1						INTEGER ::= 32
+maxNoOfCommonH-RNTI				INTEGER ::= 256
+maxNrOfCommonMACFlowsLCRExt			INTEGER ::= 248 
+-- maxNrOfCommonMACFlowsLCR-maxNrOfCommonMACFlows
 
 
 -- **************************************************************
@@ -727,7 +744,7 @@ id-Minimum-DL-Power-TimeslotLCR-InformationItem						ProtocolIE-ID ::= 582
 id-HS-DSCHProvidedBitRateValueInformation							ProtocolIE-ID ::= 583
 id-HS-DSCHRequiredPowerValueInformation								ProtocolIE-ID ::= 585
 id-HS-DSCHRequiredPowerValue										ProtocolIE-ID ::= 586
-id-TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmission			ProtocolIE-ID ::= 587
+id-TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmission		ProtocolIE-ID ::= 587
 id-HS-SICH-Reception-Quality 										ProtocolIE-ID ::= 588
 id-HS-SICH-Reception-Quality-Measurement-Value 						ProtocolIE-ID ::= 589
 id-HSSICH-Info-DM-Rprt 												ProtocolIE-ID ::= 590
@@ -760,7 +777,7 @@ id-TnlQos															ProtocolIE-ID ::= 616
 id-Received-total-wide-band-power-For-CellPortion-Value				ProtocolIE-ID ::= 617
 id-Transmitted-Carrier-Power-For-CellPortion						ProtocolIE-ID ::= 618
 id-Transmitted-Carrier-Power-For-CellPortion-Value 					ProtocolIE-ID ::= 619
-id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCH-E-RGCHOrE-HICHTransmissionCellPortion		ProtocolIE-ID ::= 620
+id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCH-E-RGCHOrE-HICHTransmissionCellPortion	ProtocolIE-ID ::= 620
 id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCH-E-RGCHOrE-HICHTransmissionCellPortionValue	ProtocolIE-ID ::= 621
 id-UpPTSInterferenceValue											ProtocolIE-ID ::= 622
 id-PrimaryCCPCH-RSCP-Delta											ProtocolIE-ID ::= 623
@@ -1084,7 +1101,7 @@ id-HSDSCH-TBSizeTableIndicator										ProtocolIE-ID ::= 966
 id-E-DCH-DL-Control-Channel-Change-Information						ProtocolIE-ID ::= 967
 id-E-DCH-DL-Control-Channel-Grant-Information						ProtocolIE-ID ::= 968
 id-DGANSS-Corrections-Req											ProtocolIE-ID ::= 969
-id-UE-without-HS-SCCH-constraint-indicator							ProtocolIE-ID ::= 970
+id-UE-with-enhanced-HS-SCCH-support-indicator							ProtocolIE-ID ::= 970
 id-AdditionalTimeSlotListLCR										ProtocolIE-ID ::= 971
 id-AdditionalMeasurementValueList									ProtocolIE-ID ::= 972
 id-E-AGCH-Table-Choice					 							ProtocolIE-ID ::= 978
@@ -1152,6 +1169,85 @@ id-Additional-HS-Cell-Information-RL-Reconf-Req						ProtocolIE-ID ::= 1042
 id-Additional-HS-Cell-Information-RL-Param-Upd						ProtocolIE-ID ::= 1043
 id-Multi-Cell-Capability-Info										ProtocolIE-ID ::= 1044
 id-IMB-Parameters													ProtocolIE-ID ::= 1045
+id-MACes-Maximum-Bitrate-LCR										ProtocolIE-ID ::= 1046
+id-Semi-PersistentScheduling-CapabilityLCR							ProtocolIE-ID ::= 1047
+id-E-DCH-Semi-PersistentScheduling-Information-LCR					ProtocolIE-ID ::= 1048
+id-HS-DSCH-Semi-PersistentScheduling-Information-LCR				ProtocolIE-ID ::= 1049
+id-Add-To-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst	ProtocolIE-ID ::= 1050
+id-Modify-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst	ProtocolIE-ID ::= 1051
+id-Delete-From-Non-HS-SCCH-Associated-HS-SICH-Resource-Pool-LCR-PSCH-ReconfRqst	ProtocolIE-ID ::= 1052
+id-ContinuousPacketConnectivity-DRX-CapabilityLCR					ProtocolIE-ID ::= 1053
+id-ContinuousPacketConnectivity-DRX-InformationLCR					ProtocolIE-ID ::= 1054
+id-ContinuousPacketConnectivity-DRX-Information-ResponseLCR			ProtocolIE-ID ::= 1055
+id-CPC-InformationLCR												ProtocolIE-ID ::= 1056
+id-HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR		ProtocolIE-ID ::= 1057
+id-E-DCH-Semi-PersistentScheduling-Information-ResponseLCR			ProtocolIE-ID ::= 1058
+id-E-AGCH-UE-Inactivity-Monitor-Threshold							ProtocolIE-ID ::= 1059
+id-IdleIntervalInformation											ProtocolIE-ID ::= 1063
+id-GANSS-alm-keplerianNAVAlmanac									ProtocolIE-ID ::= 1064
+id-GANSS-alm-keplerianReducedAlmanac								ProtocolIE-ID ::= 1065
+id-GANSS-alm-keplerianMidiAlmanac									ProtocolIE-ID ::= 1066
+id-GANSS-alm-keplerianGLONASS										ProtocolIE-ID ::= 1067
+id-GANSS-alm-ecefSBASAlmanac										ProtocolIE-ID ::= 1068
+id-HSSICH-ReferenceSignal-InformationLCR							ProtocolIE-ID ::= 1070
+id-MIMO-ReferenceSignal-InformationListLCR							ProtocolIE-ID ::= 1071
+id-MIMO-SFMode-For-HSPDSCHDualStream								ProtocolIE-ID ::= 1072
+id-MIMO-SFMode-Supported-For-HSPDSCHDualStream						ProtocolIE-ID ::= 1073
+id-UE-Selected-MBMS-Service-Information								ProtocolIE-ID ::= 1074
+id-MultiCarrier-HSDSCH-Physical-Layer-Category 						ProtocolIE-ID ::= 1077
+id-Common-E-DCH-HSDPCCH-Capability									ProtocolIE-ID ::= 1078
+id-DL-RLC-PDU-Size-Format											ProtocolIE-ID ::= 1079
+id-HSSICH-ReferenceSignal-InformationModifyLCR						ProtocolIE-ID ::= 1080
+id-schedulingPriorityIndicator										ProtocolIE-ID ::= 1081
+id-TimeSlotMeasurementValueListLCR									ProtocolIE-ID ::= 1082
+id-UE-SupportIndicatorExtension										ProtocolIE-ID ::= 1085
+id-Single-Stream-MIMO-ActivationIndicator							ProtocolIE-ID ::= 1088
+id-Single-Stream-MIMO-Capability									ProtocolIE-ID ::= 1089
+id-Single-Stream-MIMO-Mode-Indicator								ProtocolIE-ID ::= 1090
+id-Dual-Band-Capability-Info										ProtocolIE-ID ::= 1091
+id-UE-AggregateMaximumBitRate										ProtocolIE-ID ::= 1092
+id-SRB-Indicator													ProtocolIE-ID ::= 1093
+id-CellSpecificHARQMemoryPartitioning								ProtocolIE-ID ::= 1099
+id-HARQ-MemoryPartitioning											ProtocolIE-ID ::= 1100
+id-MIMO-Power-Offset-For-S-CPICH-Capability							ProtocolIE-ID ::= 1101
+id-MIMO-PilotConfigurationExtension									ProtocolIE-ID ::= 1102
+id-TxDiversityOnDLControlChannelsByMIMOUECapability					ProtocolIE-ID ::= 1103 
+id-ULTimeslotISCPValue-For-CellPortion								ProtocolIE-ID ::= 1104
+id-UpPTSInterferenceValue-For-CellPortion							ProtocolIE-ID ::= 1105
+id-Best-Cell-Portions-ValueLCR										ProtocolIE-ID ::= 1106
+id-Transmitted-Carrier-Power-For-CellPortion-ValueLCR				ProtocolIE-ID ::= 1107
+id-Received-total-wide-band-power-For-CellPortion-ValueLCR			ProtocolIE-ID ::= 1108
+id-UL-TimeslotISCP-For-CellPortion-Value							ProtocolIE-ID ::= 1109
+id-HS-DSCHRequiredPowerValueInformation-For-CellPortionLCR			ProtocolIE-ID ::= 1110
+id-HS-DSCHProvidedBitRateValueInformation-For-CellPortionLCR		ProtocolIE-ID ::= 1111
+id-E-DCHProvidedBitRateValueInformation-For-CellPortion				ProtocolIE-ID ::= 1112
+id-UpPTSInterference-For-CellPortion-Value							ProtocolIE-ID ::= 1113
+id-NumberOfReportedCellPortionsLCR									ProtocolIE-ID ::= 1114
+id-CellPortion-CapabilityLCR										ProtocolIE-ID ::= 1115
+id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCHOrE-HICHTransmissionCellPortionValue	ProtocolIE-ID ::= 1116
+id-TransmittedCarrierPowerOfAllCodesNotUsedForHS-PDSCH-HS-SCCH-E-AGCHOrE-HICHTransmissionCellPortion	ProtocolIE-ID ::= 1117id-ActivationInformation											ProtocolIE-ID ::= 1119
+id-Additional-EDCH-Cell-Information-RL-Setup-Req					ProtocolIE-ID ::= 1120
+id-Additional-EDCH-Cell-Information-Response						ProtocolIE-ID ::= 1121
+id-Additional-EDCH-Cell-Information-RL-Add-Req						ProtocolIE-ID ::= 1122
+id-Additional-EDCH-Cell-Change-Information-Response					ProtocolIE-ID ::= 1123
+id-Additional-EDCH-Cell-Information-RL-Reconf-Prep					ProtocolIE-ID ::= 1124
+id-Additional-EDCH-Cell-Information-RL-Reconf-Req					ProtocolIE-ID ::= 1125
+id-Additional-EDCH-Cell-Information-Bearer-Rearrangement			ProtocolIE-ID ::= 1126
+id-Additional-EDCH-Cell-Information-RL-Param-Upd					ProtocolIE-ID ::= 1127
+id-Additional-EDCH-Preconfiguration-Information						ProtocolIE-ID ::= 1128
+id-EDCH-Indicator													ProtocolIE-ID ::= 1129
+id-HS-DSCH-SPS-Reservation-Indicator								ProtocolIE-ID ::= 1131
+id-E-DCH-SPS-Reservation-Indicator									ProtocolIE-ID ::= 1132
+id-MultipleFreq-HARQ-MemoryPartitioning-InformationList				ProtocolIE-ID ::= 1133 
+id-Ul-common-E-DCH-MACflow-Specific-InfoResponseListLCR-Ext			ProtocolIE-ID ::= 1134
+id-RepetitionPeriodIndex											ProtocolIE-ID ::= 1135
+id-MidambleShiftLCR													ProtocolIE-ID ::= 1136
+id-MaxHSDSCH-HSSCCH-Power-per-CELLPORTION							ProtocolIE-ID ::= 1137
+id-DormantModeIndicator												ProtocolIE-ID ::= 1138
+id-DiversityMode													ProtocolIE-ID ::= 1139
+id-TransmitDiversityIndicator										ProtocolIE-ID ::= 1140
+id-NonCellSpecificTxDiversity										ProtocolIE-ID ::= 1141
+id-Cell-Capability-Container										ProtocolIE-ID ::= 1142
 
 END
 

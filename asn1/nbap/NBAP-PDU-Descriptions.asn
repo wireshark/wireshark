@@ -1,6 +1,6 @@
 -- NBAP-PDU-Descriptions.asn
 --
--- Taken from 3GPP TS 25.433 V8.3.0 (2008-12)
+-- Taken from 3GPP TS 25.433 V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433/
 --
 -- 9.3.2	Elementary Procedure Definitions
@@ -140,7 +140,9 @@ FROM NBAP-CommonDataTypes
 	CellSynchronisationTerminationRequestTDD,
 	CellSynchronisationFailureIndicationTDD,
 	MBMSNotificationUpdateCommand,
-	UEStatusUpdateCommand
+	UEStatusUpdateCommand,
+	SecondaryULFrequencyReport,
+	SecondaryULFrequencyUpdateIndication
 
 FROM NBAP-PDU-Contents
 
@@ -172,9 +174,9 @@ FROM NBAP-PDU-Contents
 	id-errorIndicationForDedicated,
 	id-errorIndicationForCommon,
 	id-informationExchangeFailure,
-    id-informationExchangeInitiation,
-    id-informationReporting,
-    id-informationExchangeTermination,
+	id-informationExchangeInitiation,
+	id-informationReporting,
+	id-informationExchangeTermination,
 	id-BearerRearrangement,
 	id-mBMSNotificationUpdate,
 	id-physicalSharedChannelReconfiguration,
@@ -197,7 +199,9 @@ FROM NBAP-PDU-Contents
 	id-systemInformationUpdate,
 	id-unblockResource,
 	id-unSynchronisedRadioLinkReconfiguration,
-	id-uEStatusUpdate
+	id-uEStatusUpdate,
+	id-secondaryULFrequencyReporting,
+	id-secondaryULFrequencyUpdate
 
 FROM NBAP-Constants;
 
@@ -355,7 +359,9 @@ NBAP-ELEMENTARY-PROCEDURES-CLASS-2 NBAP-ELEMENTARY-PROCEDURE ::= {
 	radioLinkParameterUpdateFDD							|
 	radioLinkParameterUpdateTDD							|
 	mBMSNotificationUpdate								|
-	uEStatusUpdate
+	uEStatusUpdate										|
+	secondaryULFrequencyReportingFDD					|
+	secondaryULFrequencyUpdateFDD
 
 }
 
@@ -619,8 +625,8 @@ physicalSharedChannelReconfigurationFDD NBAP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME	PhysicalSharedChannelReconfigurationResponse
 	UNSUCCESSFUL OUTCOME	PhysicalSharedChannelReconfigurationFailure
 	MESSAGE DISCRIMINATOR	common
-	PROCEDURE ID 		{ procedureCode id-physicalSharedChannelReconfiguration, ddMode fdd } 
-	CRITICALITY 		reject
+	PROCEDURE ID 	{ procedureCode id-physicalSharedChannelReconfiguration, ddMode fdd } 
+	CRITICALITY 	reject
 }
 
 -- *** PhysicalSharedChannelReconfiguration (TDD) ***
@@ -629,8 +635,8 @@ physicalSharedChannelReconfigurationTDD NBAP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME	PhysicalSharedChannelReconfigurationResponse
 	UNSUCCESSFUL OUTCOME	PhysicalSharedChannelReconfigurationFailure
 	MESSAGE DISCRIMINATOR	common
-	PROCEDURE ID 		{ procedureCode id-physicalSharedChannelReconfiguration, ddMode tdd } 
-	CRITICALITY 		reject
+	PROCEDURE ID 	{ procedureCode id-physicalSharedChannelReconfiguration, ddMode tdd } 
+	CRITICALITY 	reject
 }
 
 -- *** InformationExchangeInitiation ***
@@ -639,7 +645,7 @@ informationExchangeInitiation NBAP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME		InformationExchangeInitiationResponse
 	UNSUCCESSFUL OUTCOME	InformationExchangeInitiationFailure
 	MESSAGE DISCRIMINATOR	common
-	PROCEDURE ID 			{ procedureCode id-informationExchangeInitiation,	ddMode common } 
+	PROCEDURE ID 			{ procedureCode id-informationExchangeInitiation, ddMode common } 
 	CRITICALITY 			reject
 }
 
@@ -649,8 +655,8 @@ cellSynchronisationInitiationTDD NBAP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME	CellSynchronisationInitiationResponseTDD
 	UNSUCCESSFUL OUTCOME	CellSynchronisationInitiationFailureTDD
 	MESSAGE DISCRIMINATOR	common
-	PROCEDURE ID 		{ procedureCode id-cellSynchronisationInitiation, ddMode tdd } 
-	CRITICALITY 		reject
+	PROCEDURE ID 	{ procedureCode id-cellSynchronisationInitiation, ddMode tdd } 
+	CRITICALITY 	reject
 }
 
 -- *** CellSynchronisationReconfiguration (TDD only) ***
@@ -659,8 +665,8 @@ cellSynchronisationReconfigurationTDD NBAP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME	CellSynchronisationReconfigurationResponseTDD
 	UNSUCCESSFUL OUTCOME	CellSynchronisationReconfigurationFailureTDD
 	MESSAGE DISCRIMINATOR	common
-	PROCEDURE ID 		{ procedureCode id-cellSynchronisationReconfiguration, ddMode tdd } 
-	CRITICALITY 		reject
+	PROCEDURE ID 	{ procedureCode id-cellSynchronisationReconfiguration, ddMode tdd } 
+	CRITICALITY 	reject
 }
 
 -- *** CellSynchronisationAdjustment (TDD only) ***
@@ -669,8 +675,8 @@ cellSynchronisationAdjustmentTDD NBAP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME	CellSynchronisationAdjustmentResponseTDD
 	UNSUCCESSFUL OUTCOME	CellSynchronisationAdjustmentFailureTDD
 	MESSAGE DISCRIMINATOR	common
-	PROCEDURE ID 		{ procedureCode id-cellSynchronisationAdjustment, ddMode tdd } 
-	CRITICALITY 		reject
+	PROCEDURE ID 	{ procedureCode id-cellSynchronisationAdjustment, ddMode tdd } 
+	CRITICALITY 	reject
 }
 
 -- Class 2
@@ -743,8 +749,8 @@ radioLinkFailure NBAP-ELEMENTARY-PROCEDURE ::= {
 radioLinkPreemption NBAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE	RadioLinkPreemptionRequiredIndication
 	MESSAGE DISCRIMINATOR	dedicated
-	PROCEDURE ID		{ procedureCode id-radioLinkPreemption, ddMode common }
-	CRITICALITY		ignore
+	PROCEDURE ID	{ procedureCode id-radioLinkPreemption, ddMode common }
+	CRITICALITY	ignore
 }
 
 -- *** RadioLinkRestoration ***
@@ -943,10 +949,26 @@ mBMSNotificationUpdate NBAP-ELEMENTARY-PROCEDURE ::= {
 uEStatusUpdate NBAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UEStatusUpdateCommand
 	MESSAGE DISCRIMINATOR	common
-	PROCEDURE ID 			{ procedureCode id-uEStatusUpdate, ddMode fdd }
+	PROCEDURE ID 			{ procedureCode id-uEStatusUpdate, ddMode common }
 	CRITICALITY 			ignore
 }
 
+-- *** SecondaryULFrequencyReporting (FDD) ***
+secondaryULFrequencyReportingFDD NBAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SecondaryULFrequencyReport
+	MESSAGE DISCRIMINATOR	dedicated
+	PROCEDURE ID			{ procedureCode id-secondaryULFrequencyReporting, ddMode fdd }
+	CRITICALITY				ignore
+}
+
+-- ***secondaryULFrequencyUpdate (FDD)
+secondaryULFrequencyUpdateFDD NBAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SecondaryULFrequencyUpdateIndication
+	MESSAGE DISCRIMINATOR	dedicated
+	PROCEDURE ID 			{ procedureCode id-secondaryULFrequencyUpdate, ddMode fdd }
+	CRITICALITY 			ignore
+}
 
 END
+
 
