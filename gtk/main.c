@@ -1978,6 +1978,8 @@ main(int argc, char *argv[])
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 #endif  /* _WIN32 */
 
+  profile_store_persconffiles (TRUE);
+
   /* Assemble the compile-time version information string */
   comp_info_str = g_string_new("Compiled ");
 
@@ -2798,6 +2800,8 @@ main(int argc, char *argv[])
 
   /* register our pid if we are being run from a U3 device */
   u3_register_pid();
+
+  profile_store_persconffiles (FALSE);
 
   g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 

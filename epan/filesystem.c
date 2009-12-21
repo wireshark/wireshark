@@ -85,6 +85,9 @@ char *persconffile_dir = NULL;
 char *persdatafile_dir = NULL;
 char *persconfprofile = NULL;
 
+static gboolean do_store_persconffiles = FALSE;
+static GHashTable *profile_files = NULL;
+
 /*
  * Given a pathname, return a pointer to the last pathname separator
  * character in the pathname, or NULL if the pathname contains no
@@ -962,6 +965,15 @@ get_profile_name(void)
 	}
 }
 
+void
+profile_store_persconffiles(gboolean store)
+{
+	if (store) {
+		profile_files = g_hash_table_new (g_str_hash, g_str_equal);
+	}
+	do_store_persconffiles = store;
+}
+
 /*
  * Get the directory in which personal configuration files reside;
  * in UNIX-compatible systems, it's ".wireshark", under the user's home
@@ -1253,6 +1265,42 @@ create_persconffile_dir(char **pf_dir_path_return)
   return create_persconffile_profile(persconfprofile, pf_dir_path_return);
 }
 
+int
+copy_persconffile_profile(const char *toname, const char *fromname, char **pf_filename_return,
+			    char **pf_to_dir_path_return, char **pf_from_dir_path_return)
+{
+	GList *files = g_hash_table_get_keys(profile_files);
+	GList *file = g_list_first(files);
+	gchar *from_dir = g_strdup (get_persconffile_dir(fromname));
+	gchar *to_dir = g_strdup (get_persconffile_dir(toname));
+	gchar *filename, *from_file, *to_file;
+
+	while (file) {
+		filename = (gchar *)file->data;
+		from_file = g_strdup_printf ("%s%s%s", from_dir, G_DIR_SEPARATOR_S, filename);
+		to_file =  g_strdup_printf ("%s%s%s", to_dir, G_DIR_SEPARATOR_S, filename);
+
+		if (file_exists(from_file) && !copy_file_binary_mode(from_file, to_file)) {
+			*pf_filename_return = g_strdup(filename);
+			*pf_to_dir_path_return = to_dir;
+			*pf_from_dir_path_return = from_dir;
+			g_free (from_file);
+			g_free (to_file);
+			return -1;
+		}
+
+		g_free (from_file);
+		g_free (to_file);
+
+		file = g_list_next(file);
+	}
+
+	g_free (from_dir);
+	g_free (to_dir);
+
+	return 0;
+}
+
 /*
  * Get the (default) directory in which personal data is stored.
  *
@@ -1387,6 +1435,10 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
 	struct stat s_buf;
 	char *old_path;
 #endif
+	if (do_store_persconffiles && from_profile && !g_hash_table_lookup (profile_files, filename)) {
+		/* Store filenames so we know which filenames belongs to a configuration profile */
+		g_hash_table_insert (profile_files, g_strdup(filename), g_strdup(filename));
+	}
 
 	if (from_profile) {
 	  path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",

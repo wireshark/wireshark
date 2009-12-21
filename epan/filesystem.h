@@ -109,6 +109,12 @@ extern const char *get_profile_name(void);
 extern const char *get_profiles_dir(void);
 
 /*
+ * Store filenames used for personal config files so we know which
+ * files to copy when duplicate a configuration profile.
+ */
+extern void profile_store_persconffiles(gboolean store);
+
+/*
  * Check if given configuration profile exists.
  */
 extern gboolean profile_exists(const gchar *profilename);
@@ -139,6 +145,14 @@ extern int delete_persconffile_profile(const char *profilename,
 extern int rename_persconffile_profile(const char *fromname, const char *toname,
 				       char **pf_from_dir_path_return, 
 				       char **pf_to_dir_path_return);
+
+/* 
+ * Copy files in one profile to the other.
+ */
+extern int copy_persconffile_profile(const char *toname, const char *fromname,
+				     char **pf_filename_return,
+				     char **pf_to_dir_path_return,
+				     char **pf_from_dir_path_return);
 
 /*
  * Create the directory that holds personal configuration files, if

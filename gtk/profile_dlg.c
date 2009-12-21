@@ -47,7 +47,6 @@
 
 
 #define E_PROF_PROFILE_L_KEY        "profile_profile_l"
-#define E_PROF_COPY_BT_KEY          "profile_copy_bt"
 #define E_PROF_DEL_BT_KEY           "profile_del_bt"
 #define E_PROF_NAME_TE_KEY          "profile_name_te"
 
@@ -89,6 +88,38 @@ remove_profile_entry(GList *fl, GList *fl_entry)
   g_free(profile->reference);
   g_free(profile);
   return g_list_remove_link(fl, fl_entry);
+}
+
+static const gchar *
+get_profile_parent (const gchar *profilename)
+{
+  GList *fl_entry = g_list_first(edited_profiles);
+  guint no_edited = g_list_length(edited_profiles);
+  profile_def *profile;
+  guint i;
+
+  if (fl_entry) {
+    /* We have edited profiles, find parent */
+    for (i = 0; i < no_edited; i++) {
+      while (fl_entry) {
+	profile = (profile_def *) fl_entry->data;
+	if (strcmp (profile->name, profilename) == 0) {
+	  if ((profile->status == PROF_STAT_NEW) ||
+	      (profile->reference == NULL)) {
+	    /* Copy from a new profile */
+	    return NULL;
+	  } else {
+	    /* Found a parent, use this */
+	    profilename = profile->reference;
+	  }
+	}
+	fl_entry = g_list_next(fl_entry);
+      }
+      fl_entry = g_list_first(edited_profiles);
+    }
+  }
+
+  return profilename;
 }
 
 static GList *
@@ -288,7 +319,7 @@ profile_select(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 static void
 profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 {
-  char        *pf_dir_path, *pf_dir_path2;
+  char        *pf_dir_path, *pf_dir_path2, *pf_filename;
   GList       *fl1, *fl2;
   profile_def *profile1, *profile2;
   gboolean     found;
@@ -303,6 +334,41 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
     }
     fl1 = g_list_next(fl1);
   }
+
+  /* Then do all copy profiles */
+  fl1 = g_list_first(edited_profiles);
+  while (fl1) {
+    profile1 = (profile_def *) fl1->data;
+    g_strstrip(profile1->name);
+    if (profile1->status == PROF_STAT_COPY) {
+      if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Can't create directory\n\"%s\":\n%s.",
+                      pf_dir_path, strerror(errno));
+        
+        g_free(pf_dir_path);
+      }
+      profile1->status = PROF_STAT_EXISTS;
+
+      if (profile1->reference) {
+        if (copy_persconffile_profile(profile1->name, profile1->reference, &pf_filename,
+                                      &pf_dir_path, &pf_dir_path2) == -1) {
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                        "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
+                        pf_filename, pf_dir_path2, pf_dir_path, strerror(errno));
+
+          g_free(pf_filename);
+          g_free(pf_dir_path);
+          g_free(pf_dir_path2);
+        }
+      }
+
+      g_free (profile1->reference);
+      profile1->reference = g_strdup(profile1->name);
+    }
+    fl1 = g_list_next(fl1);
+  }
+
 
   /* Then create new and rename changed */
   fl1 = g_list_first(edited_profiles);
@@ -334,6 +400,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 			pf_dir_path, pf_dir_path2, strerror(errno));
 
 	  g_free(pf_dir_path);
+	  g_free(pf_dir_path2);
 	}
 	profile1->status = PROF_STAT_EXISTS;
 	g_free (profile1->reference);
@@ -459,7 +526,6 @@ profile_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
   GtkTreeModel *model;
   GtkTreeIter   iter;
   GtkWidget    *name_te     = g_object_get_data(G_OBJECT(main_w), E_PROF_NAME_TE_KEY);
-  GtkWidget    *copy_bt     = g_object_get_data(G_OBJECT(main_w), E_PROF_COPY_BT_KEY);
   GtkWidget    *del_bt      = g_object_get_data(G_OBJECT(main_w), E_PROF_DEL_BT_KEY);
   profile_def  *profile;
   gchar        *name        = NULL;
@@ -499,8 +565,6 @@ profile_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
     gtk_entry_set_text(GTK_ENTRY(name_te), name ? name : "");
     gtk_widget_set_sensitive(name_te, sensitivity);
   }
-  if (copy_bt != NULL)
-    gtk_widget_set_sensitive(copy_bt, sensitivity);
   if (del_bt != NULL)
     gtk_widget_set_sensitive(del_bt, sensitivity);
   g_free(name);
@@ -530,7 +594,6 @@ profile_new_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
   gtk_widget_grab_focus(name_te);
 }
 
-#if 0
 static void
 profile_copy_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
 {
@@ -546,7 +609,7 @@ profile_copy_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
   new_name = g_strdup_printf ("%s (copy)", name);
 
   /* Add a new entry to the profile list. */
-  fl_entry = add_to_profile_list(new_name, name, PROF_STAT_COPY);
+  fl_entry = add_to_profile_list(new_name, get_profile_parent(name), PROF_STAT_COPY);
 
   store = GTK_LIST_STORE(gtk_tree_view_get_model(profile_l));
   gtk_list_store_append(store, &iter);
@@ -559,7 +622,6 @@ profile_copy_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
 
   g_free (new_name);
 }
-#endif
 
 static void
 profile_name_te_changed_cb(GtkWidget *w, gpointer data _U_)
@@ -588,7 +650,8 @@ profile_name_te_changed_cb(GtkWidget *w, gpointer data _U_)
 	if (profile->status != PROF_STAT_DEFAULT) {
 	  g_free(profile->name);
 	  profile->name = g_strdup(name);
-	  if (profile->status != PROF_STAT_NEW) {
+	  if ((profile->status != PROF_STAT_NEW) &&
+	      (profile->status != PROF_STAT_COPY)) {
 	    profile->status = PROF_STAT_CHANGED;
 	  }
 	  gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, name, -1);
@@ -640,9 +703,7 @@ profile_dialog_new(void)
   GtkWidget  *top_hb,
     *list_bb,
     *new_bt,
-#if 0
     *copy_bt,
-#endif
     *del_bt,
     *profile_sc,
     *profile_l,
@@ -700,16 +761,12 @@ profile_dialog_new(void)
   gtk_tooltips_set_tip (tooltips, new_bt,
 			"Create a new profile (with default properties)", NULL);
 
-#if 0
   copy_bt = gtk_button_new_from_stock(GTK_STOCK_COPY);
-  gtk_widget_set_sensitive(copy_bt, FALSE);
   g_signal_connect(copy_bt, "clicked", G_CALLBACK(profile_copy_bt_clicked_cb), NULL);
-  g_object_set_data(G_OBJECT(main_w), E_PROF_COPY_BT_KEY, copy_bt);
   gtk_widget_show(copy_bt);
   gtk_box_pack_start (GTK_BOX (list_bb), copy_bt, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, copy_bt,
 			"Copy the selected profile", NULL);
-#endif
 
   del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
   gtk_widget_set_sensitive(del_bt, FALSE);
