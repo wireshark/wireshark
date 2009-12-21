@@ -281,7 +281,7 @@ reassemble_tcp( guint32 tcp_stream, gulong sequence, gulong acknowledgement,
   }
   else {
     /* out of order packet */
-    if(data_length > 0 && sequence > seq[src_index] ) {
+    if(data_length > 0 && ((glong)(sequence - seq[src_index]) > 0) ) {
       tmp_frag = (tcp_frag *)g_malloc( sizeof( tcp_frag ) );
       tmp_frag->data = (gchar *)g_malloc( data_length );
       tmp_frag->seq = sequence;
@@ -336,15 +336,19 @@ check_fragments( int index, tcp_stream_chunk *sc, gulong acknowledged ) {
           }
 
           seq[index] += (current->len - new_pos);
-          if( prev ) {
-            prev->next = current->next;
-          } else {
-            frags[index] = current->next;
-          }
-          g_free( current->data );
-          g_free( current );
-          return 1;
+        } 
+
+        /* Remove the fragment from the list as the "new" part of it
+         * has been processed or its data has been seen already in 
+         * another packet. */
+        if( prev ) {
+          prev->next = current->next;
+        } else {
+          frags[index] = current->next;
         }
+        g_free( current->data );
+        g_free( current );
+        return 1;
       }
 
       if( current->seq == seq[index] ) {
