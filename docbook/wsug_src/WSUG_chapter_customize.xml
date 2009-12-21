@@ -1128,6 +1128,16 @@ standard libpcap format.
 	  </para>
 	</listitem>
 	</varlistentry>
+	<varlistentry><term><command>Copy</command></term>
+	<listitem>
+	  <para>
+	    This button adds a new profile to the profiles list, copying all configuration
+	    from the profile currently selected in the list.  The name of the created
+	    profile is the same as the copied profile, with the text "(copy)" applied.
+	    The name can be changed in the Properties field.
+	  </para>
+	</listitem>
+	</varlistentry>
 	<varlistentry><term><command>Delete</command></term>
 	<listitem>
 	  <para>
