@@ -1266,11 +1266,11 @@ create_persconffile_dir(char **pf_dir_path_return)
 }
 
 #if ! GLIB_CHECK_VERSION(2,14,0)
-GList *files = NULL;
 static void
-hash_table_get_keys(gpointer key, gpointer value _U_, gpointer user_data _U_)
+hash_table_get_keys(gpointer key, gpointer value _U_, gpointer user_data)
 {
-	files = g_list_append (files, key);
+	GList **files = ((GList **)user_data);
+	*files = g_list_append (*files, key);
 }
 #endif
 
@@ -1281,12 +1281,13 @@ copy_persconffile_profile(const char *toname, const char *fromname, char **pf_fi
 	gchar *from_dir = g_strdup (get_persconffile_dir(fromname));
 	gchar *to_dir = g_strdup (get_persconffile_dir(toname));
 	gchar *filename, *from_file, *to_file;
-	GList *file;
+	GList *files, *file;
 
 #if GLIB_CHECK_VERSION(2,14,0)
-	GList *files = g_hash_table_get_keys(profile_files);
+	files = g_hash_table_get_keys(profile_files);
 #else
-	g_hash_table_foreach (profile_files, hash_table_get_keys, NULL);
+	files = NULL;
+	g_hash_table_foreach(profile_files, hash_table_get_keys, &files);
 #endif
 
 	file = g_list_first(files);
