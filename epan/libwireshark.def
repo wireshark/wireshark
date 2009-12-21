@@ -679,6 +679,7 @@ prefs_set_pref
 process_reassembled_data
 process_stat_cmd_arg
 profile_exists
+profile_store_persconffiles
 proto_all_finfos
 proto_can_match_selected
 proto_can_toggle_protocol
