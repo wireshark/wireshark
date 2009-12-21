@@ -1265,16 +1265,31 @@ create_persconffile_dir(char **pf_dir_path_return)
   return create_persconffile_profile(persconfprofile, pf_dir_path_return);
 }
 
+#if ! GLIB_CHECK_VERSION(2,14,0)
+GList *files = NULL;
+static void
+hash_table_get_keys(gpointer key, gpointer value _U_, gpointer user_data _U_)
+{
+	files = g_list_append (files, key);
+}
+#endif
+
 int
 copy_persconffile_profile(const char *toname, const char *fromname, char **pf_filename_return,
 			    char **pf_to_dir_path_return, char **pf_from_dir_path_return)
 {
-	GList *files = g_hash_table_get_keys(profile_files);
-	GList *file = g_list_first(files);
 	gchar *from_dir = g_strdup (get_persconffile_dir(fromname));
 	gchar *to_dir = g_strdup (get_persconffile_dir(toname));
 	gchar *filename, *from_file, *to_file;
+	GList *file;
 
+#if GLIB_CHECK_VERSION(2,14,0)
+	GList *files = g_hash_table_get_keys(profile_files);
+#else
+	g_hash_table_foreach (profile_files, hash_table_get_keys, NULL);
+#endif
+
+	file = g_list_first(files);
 	while (file) {
 		filename = (gchar *)file->data;
 		from_file = g_strdup_printf ("%s%s%s", from_dir, G_DIR_SEPARATOR_S, filename);
@@ -1295,6 +1310,7 @@ copy_persconffile_profile(const char *toname, const char *fromname, char **pf_fi
 		file = g_list_next(file);
 	}
 
+	g_list_free (files);
 	g_free (from_dir);
 	g_free (to_dir);
 
