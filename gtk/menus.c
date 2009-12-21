@@ -528,10 +528,14 @@ static GtkItemFactoryEntry menu_items[] =
 #ifdef NEW_PACKET_LIST
     {"/Edit/_Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb),
                        0, NULL, NULL,},
+    {"/Edit/Ignore All Packets", "<alt><shift><control>X", GTK_MENU_FUNC(new_packet_list_ignore_all_frames_cb),
+                       0, NULL, NULL,},
     {"/Edit/U_n-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb),
                        0, NULL, NULL,},
 #else
     {"/Edit/_Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
+                       0, NULL, NULL,},
+    {"/Edit/Ignore All Packets", "<alt><shift><control>X", GTK_MENU_FUNC(packet_list_ignore_all_frames_cb),
                        0, NULL, NULL,},
     {"/Edit/U_n-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
                        0, NULL, NULL,},

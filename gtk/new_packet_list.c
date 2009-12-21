@@ -1178,16 +1178,27 @@ void new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 	redissect_packets();
 }
 
-void new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+static void ignore_all_frames(gboolean set)
 {
 	frame_data *fdata;
 
 	/* XXX: we might need a progressbar here */
 	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
-		set_frame_ignore(FALSE, fdata);
+		set_frame_ignore(set, fdata);
 	}
 	redissect_packets();
 }
+
+void new_packet_list_ignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+	ignore_all_frames(TRUE);
+}
+
+void new_packet_list_unignore_all_frames_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+	ignore_all_frames(FALSE);
+}
+
 
 static gboolean
 get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_text){
