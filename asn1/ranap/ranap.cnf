@@ -37,7 +37,6 @@ LastVisitedUTRANCell-Item
 UTRAN-CellID
 CellType
 Time-UE-StayedInCell
-SRVCC-Operation-Possible
 SourceeNodeB-ToTargeteNodeB-TransparentContainer
 TargeteNodeB-ToSourceeNodeB-TransparentContainer
 #.TYPE_RENAME
@@ -317,6 +316,10 @@ dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvb , offset, actx ,tre
 # Application Protocol (S1AP)".
 
 dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU );
+
+# Handle 64 bit constraint
+#.FN_PARS UE-AggregateMaximumBitRateDownlink FN_VARIANT = _64b
+#.FN_PARS UE-AggregateMaximumBitRateUplink FN_VARIANT = _64b
     
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(ranap_ProtocolIE_ID_vals)
@@ -597,6 +600,9 @@ id-SRVCC-Operation-Possible									ProtocolIE-ID
 id-CSG-Id-List												ProtocolIE-ID
 id-PSRABtobeReplaced										ProtocolIE-ID
 id-E-UTRAN-Service-Handover									ProtocolIE-ID
+id-UE-AggregateMaximumBitRate								ProtocolIE-ID
+id-CSG-Membership-Status 									ProtocolIE-ID
+id-Cell-Access-Mode											ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -838,6 +844,9 @@ SRVCC-Operation-Possible								N ranap.extension id-SRVCC-Operation-Possible
 CSG-Id-List												N ranap.extension id-CSG-Id-List
 RAB-ID													N ranap.extension id-PSRABtobeReplaced
 E-UTRAN-Service-Handover								N ranap.extension id-E-UTRAN-Service-Handover
+UE-AggregateMaximumBitRate								N ranap.extension id-UE-AggregateMaximumBitRate
+CSG-Membership-Status									N ranap.extension id-CSG-Membership-Status
+Cell-Access-Mode										N ranap.extension id-Cell-Access-Mode
 
 #RANAP-ELEMENTARY-PROCEDURE
 Iu-ReleaseCommand							N ranap.proc.imsg id-Iu-Release

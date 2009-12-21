@@ -1,6 +1,6 @@
 -- RANAP-IEs.asn
 --
--- 3GPP TS 25.413 V8.4.0 (2009-09)
+-- 3GPP TS 25.413 V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.4	Information Element Definitions
@@ -86,8 +86,8 @@ IMPORTS
 	id-Requested-RAB-Parameter-SupportedMaxBitrateList,
 	id-Requested-RAB-Parameter-SupportedGuaranteedBitrateList,
 	id-PSRABtobeReplaced,
-    id-SRVCC-Information
-
+    id-SRVCC-Information,
+	id-CSG-Id
 
 
 FROM RANAP-Constants
@@ -425,7 +425,8 @@ CauseRadioNetworkExtension ::= INTEGER {
 	mBMS-no-cell-in-MBMS-service-area(265),
 	no-Iu-CS-UP-relocation(266),
 	successful-MBMS-Session-Start-IP-Multicast-Bearer-established(267),
-	cS-fallback-triggered(268)
+	cS-fallback-triggered(268),
+	invalid-CSG-Id(269)
 } (257..512)
 
 CauseNon-Standard ::= INTEGER (129..256)
@@ -435,6 +436,11 @@ CauseTransmissionNetwork ::= INTEGER {
 	signalling-transport-resource-failure (65),
 	iu-transport-connection-failed-to-establish (66)
 } (65..80)
+
+Cell-Access-Mode::= ENUMERATED {
+	hybrid,
+	... 
+}
 
 Cell-Capacity-Class-Value ::= INTEGER (1..100,...)
 
@@ -559,6 +565,12 @@ CSG-Id		::= BIT STRING (SIZE (27))
 
 CSG-Id-List ::= SEQUENCE (SIZE (1..maxNrOfCSGs)) OF
 	CSG-Id
+
+CSG-Membership-Status ::= ENUMERATED { 
+	member, 
+	non-member,
+	...
+}
 
 -- D
 
@@ -1727,7 +1739,9 @@ SourceRNC-ToTargetRNC-TransparentContainer-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 	{ID id-SubscriberProfileIDforRFP			CRITICALITY ignore		EXTENSION SubscriberProfileIDforRFP				PRESENCE optional}|
 -- Extension for Release 8 to transfer to the Target RNC parameters required for SRVCC operation --
 	{ID id-SRVCC-Information 					CRITICALITY reject		EXTENSION SRVCC-Information							PRESENCE optional}|
-	{ID id-PSRABtobeReplaced 					CRITICALITY reject		EXTENSION RAB-ID										PRESENCE optional},
+	{ID id-PSRABtobeReplaced 					CRITICALITY reject		EXTENSION RAB-ID										PRESENCE optional}|
+-- Extension for Release 9 to transfer to the Target RNC parameters required for CSG ID validation --
+	{ID id-CSG-Id 							CRITICALITY reject 			EXTENSION CSG-Id 										PRESENCE optional},
 	...
 }
 
@@ -1842,7 +1856,9 @@ TargetRNC-ID ::= SEQUENCE {
 
 TargetRNC-ID-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 7 to indicate extended RNC-ID --
-	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	}|
+-- Extension for Release 9 to transfer to the Target RNC parameters required for access control during inbound CSG mobility --
+	{ID id-CSG-Id 							CRITICALITY reject 			EXTENSION CSG-Id 										PRESENCE optional},
 	...
 }
 
@@ -1966,6 +1982,19 @@ TypeOfError ::= ENUMERATED {
 
 
 -- U
+
+UE-AggregateMaximumBitRate ::= SEQUENCE {
+	uE-AggregateMaximumBitRateDownlink		UE-AggregateMaximumBitRateDownlink	OPTIONAL,
+	uE-AggregateMaximumBitRateUplink		UE-AggregateMaximumBitRateUplink	OPTIONAL,
+	...
+}
+
+UE-AggregateMaximumBitRateDownlink			::= INTEGER (1..1000000000)
+-- Unit is bits per sec
+
+UE-AggregateMaximumBitRateUplink			::= INTEGER (1..1000000000)
+-- Unit is bits per sec
+
 
 UE-History-Information ::= OCTET STRING
 

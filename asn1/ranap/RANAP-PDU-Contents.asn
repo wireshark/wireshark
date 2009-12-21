@@ -1,6 +1,6 @@
 -- RANAP-PDU-Contents.asn
 --
--- 3GPP TS 25.413 V8.4.0 (2009-09)
+-- 3GPP TS 25.413 V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.3	PDU Definitions
@@ -39,6 +39,7 @@ IMPORTS
 	AreaIdentity,
 	CN-DomainIndicator,
 	Cause,
+	Cell-Access-Mode,
 	ClientType,
 	CriticalityDiagnostics,
 	ChosenEncryptionAlgorithm,
@@ -47,6 +48,7 @@ IMPORTS
 	ClassmarkInformation3,
 	CSG-Id,
 	CSG-Id-List,
+	CSG-Membership-Status,
 	DL-GTP-PDU-SequenceNumber,
 	DL-N-PDU-SequenceNumber,
 	DataVolumeReportingIndication,
@@ -147,6 +149,7 @@ IMPORTS
 	UnsuccessfullyTransmittedDataVolume,
 	TransportLayerAddress,
 	TriggerID,
+	UE-AggregateMaximumBitRate,
 	UE-ID,
 	UESBI-Iu,
 	UL-GTP-PDU-SequenceNumber,
@@ -190,6 +193,7 @@ FROM RANAP-Containers
 	id-LocationRelatedDataRequestType,
 	id-CN-DomainIndicator,
 	id-Cause,
+	id-Cell-Access-Mode,
 	id-ChosenEncryptionAlgorithm,
 	id-ChosenIntegrityProtectionAlgorithm,
 	id-ClassmarkInformation2,
@@ -199,6 +203,7 @@ FROM RANAP-Containers
 	id-CriticalityDiagnostics,
 	id-CSG-Id,
 	id-CSG-Id-List,
+	id-CSG-Membership-Status,
 	id-DeltaRAListofIdleModeUEs,
 	id-DRX-CycleLengthCoefficient,
 	id-DirectTransferInformationItem-RANAP-RelocInf,
@@ -264,6 +269,13 @@ FROM RANAP-Containers
 	id-PDP-TypeInformation,
 	id-PermanentNAS-UE-ID,
 	id-PositionData,
+	id-PositionDataSpecificToGERANIuMode,
+	id-PositioningPriority,
+	id-ProvidedData,
+	id-RAB-ContextItem,
+	id-RAB-ContextList,
+	id-RAB-ContextFailedtoTransferItem,
+	id-RAB-ContextFailedtoTransferList,
 	id-PositionDataSpecificToGERANIuMode,
 	id-PositioningPriority,
 	id-ProvidedData,
@@ -361,6 +373,7 @@ FROM RANAP-Containers
 	id-TransportLayerAddress,
 	id-TransportLayerInformation,
 	id-TriggerID,
+	id-UE-AggregateMaximumBitRate,
 	id-UE-ID,
 	id-UESBI-Iu,
 	id-UL-GTP-PDU-SequenceNumber,
@@ -515,7 +528,11 @@ RelocationRequiredExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 6 to enable Inter-RAT PS Handover between UTRAN and GERAN A/Gb --
 	{ ID id-SourceBSS-ToTargetBSS-TransparentContainer		CRITICALITY	ignore	EXTENSION SourceBSS-ToTargetBSS-TransparentContainer		PRESENCE optional	}|
 -- Extension for Release 8 for SRVCC operation --
-	{ ID id-SRVCC-HO-Indication					CRITICALITY reject	EXTENSION SRVCC-HO-Indication			PRESENCE optional	},
+	{ ID id-SRVCC-HO-Indication					CRITICALITY reject	EXTENSION SRVCC-HO-Indication			PRESENCE optional	} |
+-- Extension for Release 9 to communicate to the CN the CSG id of the target cell --
+	{ ID id-CSG-Id 								CRITICALITY reject 	EXTENSION CSG-Id 										PRESENCE optional} |
+-- Extension for Release 9 to communicate to the CN the hybrid access status of the target cell --
+	{ ID id-Cell-Access-Mode				CRITICALITY reject	EXTENSION Cell-Access-Mode						PRESENCE optional},
 	...
 }
 
@@ -699,7 +716,12 @@ RelocationRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 6 to convey the selected PLMN id in network sharing mobility scenarios --
 	{ ID id-SelectedPLMN-ID	 	CRITICALITY ignore	EXTENSION PLMNidentity		PRESENCE optional 	}|
 -- Extension for Release 6 to enable MBMS UE linking at relocation --
-	{ ID id-CNMBMSLinkingInformation	CRITICALITY ignore		EXTENSION CNMBMSLinkingInformation	PRESENCE optional},
+	{ ID id-CNMBMSLinkingInformation	CRITICALITY ignore		EXTENSION CNMBMSLinkingInformation	PRESENCE optional} |
+	{ ID id-UE-AggregateMaximumBitRate			CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional	} |
+-- Extension for Release 9 to communicate to the target cell the CSG id reported by the source --
+	{ ID id-CSG-Id 								CRITICALITY reject 	EXTENSION CSG-Id 										PRESENCE optional} |
+-- Extension for Release 9 for enabling UE prioritisation during access to hybrid cells --
+	{ ID id-CSG-Membership-Status		CRITICALITY	 ignore		EXTENSION CSG-Membership-Status		PRESENCE optional	},
 	...
 }
 
@@ -1534,6 +1556,7 @@ RAB-ToBeReleasedItem-EnhancedRelocCompleteRes-ExtIEs RANAP-PROTOCOL-EXTENSION ::
 }
 
 EnhancedRelocationCompleteResponseExtensions RANAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-UE-AggregateMaximumBitRate			CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional	},
 	...
 }
 
@@ -1651,7 +1674,9 @@ CommonIDExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 8 to indicate the Subscriber Profile ID for RAT/Frequency Selection Priority --
 	{ID id-SubscriberProfileIDforRFP		CRITICALITY ignore		EXTENSION SubscriberProfileIDforRFP					PRESENCE optional}|
 -- Extension for Release 8 for SRVCC operation --
-	{ ID id-SRVCC-Operation-Possible		CRITICALITY ignore	EXTENSION SRVCC-Operation-Possible			PRESENCE optional	},
+	{ ID id-SRVCC-Operation-Possible		CRITICALITY ignore	EXTENSION SRVCC-Operation-Possible			PRESENCE optional	}|
+-- Extension for Release 9 to allow for UE prioritisation during access to hybrid cells --
+	{ ID id-CSG-Membership-Status		CRITICALITY	 ignore		EXTENSION CSG-Membership-Status		PRESENCE optional	},
 	...
 }
 
@@ -1844,7 +1869,9 @@ InitialUE-MessageExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 7 to indicate extended RNC-ID --
 	{ ID id-ExtendedRNC-ID					CRITICALITY reject	EXTENSION ExtendedRNC-ID			PRESENCE optional	} |
 -- Extension for Release 8 to support CSG --
-	{ ID id-CSG-Id							CRITICALITY reject	EXTENSION CSG-Id					PRESENCE optional	},
+	{ ID id-CSG-Id							CRITICALITY reject	EXTENSION CSG-Id					PRESENCE optional	} |
+-- Extension for Release 9 to allow communication of the cell access mode -- 
+	{ ID id-Cell-Access-Mode				CRITICALITY reject	EXTENSION Cell-Access-Mode						PRESENCE optional},
 	...
 }
 
@@ -2100,6 +2127,7 @@ RAB-SetupOrModifyItemSecond-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 }
 
 RAB-AssignmentRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-UE-AggregateMaximumBitRate			CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional	},
 	...
 }
 
@@ -2385,7 +2413,8 @@ TNLInformationEnhRelInfoReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 
 RANAP-EnhancedRelocationInformationRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-IntegrityProtectionInformation		CRITICALITY ignore	EXTENSION IntegrityProtectionInformation 		PRESENCE optional	} |
-	{ ID id-EncryptionInformation			CRITICALITY ignore	EXTENSION EncryptionInformation 			PRESENCE optional	},
+	{ ID id-EncryptionInformation			CRITICALITY ignore	EXTENSION EncryptionInformation 			PRESENCE optional	}|
+	{ ID id-UE-AggregateMaximumBitRate			CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional	},
 	...
 }
 
