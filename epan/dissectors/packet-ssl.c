@@ -424,7 +424,7 @@ static gint dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, guint32 offset,
                                guint *conv_version,
                                gboolean *need_desegmentation,
-                               SslDecryptSession* ssl);
+                               SslDecryptSession* ssl, gboolean first_record_in_frame);
 
 /* client hello dissector */
 static void dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
@@ -584,14 +584,6 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     while (tvb_reported_length_remaining(tvb, offset) != 0)
     {
         ssl_debug_printf("  record: offset = %d, reported_length_remaining = %d\n", offset, tvb_reported_length_remaining(tvb, offset));
-        /* on second and subsequent records per frame
-         * add a delimiter on info column
-         */
-        if (!first_record_in_frame
-            && check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_str(pinfo->cinfo, COL_INFO, ", ");
-        }
 
         /*
          * Assume, for now, that this doesn't need desegmentation.
@@ -607,7 +599,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset = dissect_ssl2_record(tvb, pinfo, ssl_tree,
                                          offset, conv_version,
                                          &need_desegmentation,
-                                         ssl_session);
+                                         ssl_session,
+                                         first_record_in_frame);
             break;
 
         case SSL_VER_SSLv3:
@@ -623,7 +616,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset = dissect_ssl2_record(tvb, pinfo, ssl_tree,
                                              offset, conv_version,
                                              &need_desegmentation,
-                                             ssl_session);
+                                             ssl_session,
+                                             first_record_in_frame);
             }
             else
             {
@@ -645,7 +639,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset = dissect_ssl2_record(tvb, pinfo, ssl_tree,
                                              offset, conv_version,
                                              &need_desegmentation,
-                                             ssl_session);
+                                             ssl_session,
+                                             first_record_in_frame);
             }
             else if (ssl_looks_like_sslv3(tvb, offset))
             {
@@ -658,6 +653,13 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             else
             {
+                /* on second and subsequent records per frame
+                 * add a delimiter on info column
+                 */
+                if (!first_record_in_frame) {
+                    col_append_str(pinfo->cinfo, COL_INFO, ", ");
+                }
+
                 /* looks like something unknown, so lump into
                  * continuation data
                  */
@@ -666,11 +668,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    "Continuation Data");
 
                 /* Set the protocol column */
-                if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                {
-                    col_set_str(pinfo->cinfo, COL_PROTOCOL,
+                col_set_str(pinfo->cinfo, COL_PROTOCOL,
                          ssl_version_short_names[*conv_version]);
-                }
             }
             break;
         }
@@ -680,12 +679,12 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           ssl_debug_printf("  need_desegmentation: offset = %d, reported_length_remaining = %d\n", offset, tvb_reported_length_remaining(tvb, offset));
           return;
         }
+
         /* set up for next record in frame, if any */
         first_record_in_frame = FALSE;
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_fence(pinfo->cinfo, COL_INFO);
+    col_set_fence(pinfo->cinfo, COL_INFO);
 
     ssl_debug_flush();
 
@@ -1216,7 +1215,7 @@ static gint
 dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree *tree, guint32 offset,
                     guint *conv_version, gboolean *need_desegmentation,
-                    SslDecryptSession* ssl, gboolean first_record_in_frame _U_)
+                    SslDecryptSession* ssl, gboolean first_record_in_frame)
 {
 
     /*
@@ -1255,9 +1254,14 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     if ((*conv_version==SSL_VER_TLS || *conv_version==SSL_VER_TLSv1DOT1 || *conv_version==SSL_VER_TLSv1DOT2) &&
         (available_bytes >=1 ) && !ssl_is_valid_content_type(tvb_get_guint8(tvb, offset))) {
       proto_tree_add_text(tree, tvb, offset, available_bytes, "Ignored Unknown Record");
+      /* on second and subsequent records per frame
+       * add a delimiter on info column
+       */
+      if (!first_record_in_frame) {
+          col_append_str(pinfo->cinfo, COL_INFO, ", ");
+      }
       col_append_str(pinfo->cinfo, COL_INFO, "Ignored Unknown Record");
-      if (check_col(pinfo->cinfo, COL_PROTOCOL))
-          col_set_str(pinfo->cinfo, COL_PROTOCOL, ssl_version_short_names[*conv_version]);
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, ssl_version_short_names[*conv_version]);
       return offset + available_bytes;
     }
 
@@ -1320,17 +1324,22 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
     } else {
 
+        /* on second and subsequent records per frame
+         * add a delimiter on info column
+         */
+        if (!first_record_in_frame) {
+            col_append_str(pinfo->cinfo, COL_INFO, ", ");
+        }
+
         /* if we don't have a valid content_type, there's no sense
          * continuing any further
          */
         col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
 
         /* Set the protocol column */
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        {
-            col_set_str(pinfo->cinfo, COL_PROTOCOL,
+        col_set_str(pinfo->cinfo, COL_PROTOCOL,
                         ssl_version_short_names[*conv_version]);
-        }
+
         return offset + 5 + record_length;
     }
 
@@ -1422,11 +1431,16 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             /*ssl_set_conv_version(pinfo, ssl->version);*/
         }
     }
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-            col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                        ssl_version_short_names[*conv_version]);
+
+    /* on second and subsequent records per frame
+     * add a delimiter on info column
+     */
+    if (!first_record_in_frame) {
+        col_append_str(pinfo->cinfo, COL_INFO, ", ");
     }
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL,
+                        ssl_version_short_names[*conv_version]);
 
     /*
      * now dissect the next layer
@@ -1590,8 +1604,7 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
     /* now set the text in the record layer line */
     if (level && desc)
     {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO,
+        col_append_fstr(pinfo->cinfo, COL_INFO,
                             "Alert (Level: %s, Description: %s)",
                             level, desc);
     }
@@ -1706,8 +1719,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         /*
          * Update our info string
          */
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
+        col_append_str(pinfo->cinfo, COL_INFO, (msg_type_str != NULL)
                             ? msg_type_str : "Encrypted Handshake Message");
 
         if (tree)
@@ -2421,7 +2433,7 @@ static gint
 dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     guint32 offset, guint* conv_version,
                     gboolean *need_desegmentation,
-                    SslDecryptSession* ssl)
+                    SslDecryptSession* ssl, gboolean first_record_in_frame)
 {
     guint32 initial_offset;
     guint8  byte;
@@ -2513,6 +2525,13 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     offset += record_length_length;
 
+    /* on second and subsequent records per frame
+     * add a delimiter on info column
+     */
+    if (!first_record_in_frame) {
+        col_append_str(pinfo->cinfo, COL_INFO, ", ");
+    }
+
     /* add the record layer subtree header */
     ti = proto_tree_add_item(tree, hf_ssl2_record, tvb, initial_offset,
                              record_length_length + record_length, 0);
@@ -2544,11 +2563,8 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * conversation, then set a version for just this frame
      * (e.g., on a client hello)
      */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL,
+    col_set_str(pinfo->cinfo, COL_PROTOCOL,
                     (*conv_version == SSL_VER_PCT) ? "PCT" : "SSLv2");
-    }
 
     /* see if the msg_type is valid; if not the payload is
      * probably encrypted, so note that fact and bail
@@ -2589,8 +2605,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else
     {
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_str(pinfo->cinfo, COL_INFO, msg_type_str);
+        col_append_str(pinfo->cinfo, COL_INFO, msg_type_str);
 
         if (ssl_record_tree)
         {
