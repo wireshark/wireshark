@@ -1337,7 +1337,7 @@ tls_prf(StringInfo* secret, const gchar *usage,
     }
     if (ssl_data_alloc(&seed, usage_len+rnd1->data_len+rnd2->data_len) < 0) {
         ssl_debug_printf("tls_prf: can't allocate rnd %d\n",
-                         usage_len+rnd1->data_len+rnd2->data_len);
+                         (int) (usage_len+rnd1->data_len+rnd2->data_len));
         goto free_md5;
     }
 
@@ -3217,7 +3217,7 @@ ssl_debug_printf(const gchar* fmt, ...)
 void
 ssl_print_text_data(const gchar* name, const guchar* data, size_t len)
 {
-    gint i;
+    size_t i;
     if (!ssl_debug_file)
         return;
     fprintf(ssl_debug_file,"%s: ",name);
@@ -3230,10 +3230,10 @@ ssl_print_text_data(const gchar* name, const guchar* data, size_t len)
 void
 ssl_print_data(const gchar* name, const guchar* data, size_t len)
 {
-    gint i;
+    size_t i;
     if (!ssl_debug_file)
         return;
-    fprintf(ssl_debug_file,"%s[%d]:\n",name, len);
+    fprintf(ssl_debug_file,"%s[%d]:\n",name, (int) len);
     for (i=0; i< len; i++) {
         if ((i>0) && (i%16 == 0))
             fprintf(ssl_debug_file,"\n");
