@@ -793,14 +793,14 @@ struct _SslDecompress {
 };
 
 static gint
-ssl_data_alloc(StringInfo* str, guint len)
+ssl_data_alloc(StringInfo* str, size_t len)
 {
     str->data = g_malloc(len);
     /* the allocator can return a null pointer for a size equal to 0,
      * and that must be allowed */
     if (len > 0 && !str->data)
         return -1;
-    str->data_len = len;
+    str->data_len = (guint) len;
     return 0;
 }
 
@@ -1118,7 +1118,7 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
     rc = 0;
     for (i = 1; i < decr_len; i++) {
         if (decr_data_ptr[i] == 0) {
-            rc = i+1;
+            rc = (gint) i+1;
             break;
         }
     }
@@ -1167,7 +1167,7 @@ out:
     decr_len -= rc;
 #endif /* SSL_FAST */
     gcry_mpi_release(text);
-    return decr_len;
+    return (int) decr_len;
 }
 
 /* stringinfo interface */
@@ -1322,7 +1322,7 @@ tls_prf(StringInfo* secret, const gchar *usage,
     guint8 *ptr;
     StringInfo s1, s2;
     guint i,s_l, r;
-    gint usage_len;
+    size_t usage_len;
     r=-1;
     usage_len = strlen(usage);
 
@@ -2189,7 +2189,7 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
 	if (ret != 0) {
 		ssl_debug_printf( "gnutls_x509_privkey_get_key_id(ssl_pkey, 0, buf_keyid, &buf_len) - %s\n", gnutls_strerror(ret));
 	} else {
-		ssl_debug_printf( "Private key imported: KeyID %s\n", bytes_to_str_punct(buf_keyid, buf_len, ':'));
+		ssl_debug_printf( "Private key imported: KeyID %s\n", bytes_to_str_punct(buf_keyid, (int) buf_len, ':'));
 	}
 
     /*
@@ -2298,7 +2298,7 @@ ssl_load_key(FILE* fp)
     }
     key.data = g_malloc(size);
     key.size = size;
-    bytes = fread(key.data, 1, key.size, fp);
+    bytes = (guint) fread(key.data, 1, key.size, fp);
     if (bytes < key.size) {
         ssl_debug_printf("ssl_load_key: can't read from file %d bytes, got %d\n",
             key.size, bytes);
@@ -2341,13 +2341,13 @@ const char *BAGTYPE(gnutls_pkcs12_bag_type_t x) {
 Ssl_private_key_t *
 ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
 
-  int i, j, ret, len;
-  size_t rest;
+  int i, j, ret;
+  int rest;
   unsigned char *p;
   gnutls_datum_t data;
   gnutls_pkcs12_bag_t bag = NULL;
   gnutls_pkcs12_bag_type_t bag_type;
-  size_t buf_len;
+  size_t len, buf_len;
   static char buf_name[256];
   static char buf_email[128];
   unsigned char buf_keyid[32];
@@ -2367,7 +2367,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
   p = data.data;
   while ((len = fread(p, 1, rest, fp)) > 0) {
     p += len;
-    rest -= len;
+    rest -= (int) len;
     if (!rest) {
       rest = 1024;
       data.data = g_realloc(data.data, data.size + rest);
@@ -2457,7 +2457,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
           if (ret < 0) { g_strlcpy(buf_keyid, "<ERROR>", 32); }
 
           private_key->x509_cert = ssl_cert;
-          ssl_debug_printf( "Certificate imported: %s <%s>, KeyID %s\n", buf_name, buf_email, bytes_to_str(buf_keyid, buf_len));
+          ssl_debug_printf( "Certificate imported: %s <%s>, KeyID %s\n", buf_name, buf_email, bytes_to_str(buf_keyid, (int) buf_len));
           break;
 
         case GNUTLS_BAG_PKCS8_KEY:
@@ -3215,7 +3215,7 @@ ssl_debug_printf(const gchar* fmt, ...)
 }
 
 void
-ssl_print_text_data(const gchar* name, const guchar* data, gint len)
+ssl_print_text_data(const gchar* name, const guchar* data, size_t len)
 {
     gint i;
     if (!ssl_debug_file)
@@ -3228,7 +3228,7 @@ ssl_print_text_data(const gchar* name, const guchar* data, gint len)
 }
 
 void
-ssl_print_data(const gchar* name, const guchar* data, gint len)
+ssl_print_data(const gchar* name, const guchar* data, size_t len)
 {
     gint i;
     if (!ssl_debug_file)

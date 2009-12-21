@@ -25,10 +25,6 @@
 #include "config.h"
 #endif
 
-#if (defined(HAVE_LIBGCRYPT) || defined(HAVE_LIBGNUTLS)) && defined(_WIN32)
-#include <winposixtype.h>
-#endif
-
 #ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>
 #endif /* HAVE_LIBGCRYPT */

@@ -45,10 +45,7 @@
 #include "config.h"
 #endif
 
-#ifdef _WIN32  
-/* #include <windows.h> */
-#include <winposixtype.h>
-#else
+#ifndef _WIN32
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/sysinfo.h>
@@ -67,7 +64,7 @@
 #define MD5Init(md)                 gcry_md_open(md, GCRY_MD_MD5, 0)
 #define MD5Update(md, data, len)    gcry_md_write(*(md), data, len)
 #define MD5Final(buf, md)           memcpy(buf, gcry_md_read(*(md), GCRY_MD_MD5), gcry_md_get_algo_dlen(GCRY_MD_MD5))
-#endif 
+#endif
 
 /* set the following to the number of 100ns ticks of the actual
    resolution of your system's clock */

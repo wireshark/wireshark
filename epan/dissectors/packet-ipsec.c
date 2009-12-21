@@ -62,7 +62,7 @@ HMAC-RIPEMD160-96 [RFC2857] : any keylen
 CHG: HMAC-SHA256 is now HMAC-SHA-256-96 [draft-ietf-ipsec-ciph-sha-256-00]
      -> It is implemented this way in USAGI/KAME (Linux/BSD).
 ADD: HMAC-SHA-256-128 [RFC4868]
-     ICV length of HMAC-SHA-256 was changed in draft-ietf-ipsec-ciph-sha-256-01 
+     ICV length of HMAC-SHA-256 was changed in draft-ietf-ipsec-ciph-sha-256-01
      to 128 bit. This is "SHOULD" be the standard now!
 ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
      This follows RFC 4868 for the SHA-256+ family.
@@ -88,11 +88,6 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 
 /* If you want to be able to decrypt or Check Authentication of ESP packets you MUST define this : */
 #ifdef HAVE_LIBGCRYPT
-
-#ifdef _WIN32
-#include <winposixtype.h>
-#endif /* _WIN32 */
-
 #include <gcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
@@ -279,7 +274,7 @@ static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
   int ipv6_len = 0;
   gboolean found = FALSE;
 
-  ipv6_len = strlen(ipv6_address);
+  ipv6_len = (int) strlen(ipv6_address);
   if(ipv6_len  == 0)
     {
       /* Found a suffix */
@@ -359,9 +354,9 @@ static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
       - char *ipv6_addr : the valid ipv6 address to parse in char *
       - char *ipv6_addr_expansed : the expanded ipv6 address associated in char *
 
-      ex: if IPv6 address is "3ffe::1" the IPv6 expanded address 
+      ex: if IPv6 address is "3ffe::1" the IPv6 expanded address
             will be "3FFE0000000000000000000000000001" and the function will return 0
-          if IPV6 address is "3ffe::*" the IPv6 expanded address 
+          if IPV6 address is "3ffe::*" the IPv6 expanded address
             will be "3FFE000000000000000000000000****" and the function will return 0
 */
 #ifdef HAVE_LIBGCRYPT
@@ -391,13 +386,13 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
     }
 
   suffix_cpt = get_ipv6_suffix(suffix,ipv6_addr);
-  suffix_len = strlen(suffix);
+  suffix_len = (int) strlen(suffix);
 
   if(suffix_len <  IPSEC_STRLEN_IPV6)
     {
       prefix_addr = ep_strndup(ipv6_addr,strlen(ipv6_addr) - suffix_cpt);
       prefix_remaining = get_ipv6_suffix(prefix,prefix_addr);
-      prefix_len = strlen(prefix);
+      prefix_len = (int) strlen(prefix);
       memcpy(ipv6_addr_expanded,prefix,prefix_len);
     }
 
@@ -412,7 +407,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
   if(suffix_len < IPSEC_STRLEN_IPV6)
     return (prefix_len - prefix_remaining);
   else
-    return strlen(ipv6_addr) - suffix_cpt;
+    return (int) strlen(ipv6_addr) - suffix_cpt;
 }
 #endif
 
@@ -421,7 +416,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
 /*
    Name : static gboolean get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr)
    Description : Get the extended IPv4 Address of an IPv4 Address
-   Return : Return true if it can derive an IPv4 address. It does not mean that 
+   Return : Return true if it can derive an IPv4 address. It does not mean that
             the previous one was valid.
    Params:
       - char *ipv4_addr : the valid ipv4 address to parse in char *
@@ -429,7 +424,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
 
       ex: if IPv4 address is "190.*.*.1" the IPv4 expanded address will be "BE****01" and
             the function will return 0
-          if IPv4 address is "*" the IPv4 expanded address will be "********" and 
+          if IPv4 address is "*" the IPv4 expanded address will be "********" and
             the function will return 0
 */
 #ifdef HAVE_LIBGCRYPT
@@ -629,7 +624,7 @@ esp_sa_parse_ipv4addr(const gchar *sa, guint index_start, gchar **pt_ipv4addr, g
 
       else
 	{
-	  if((cpt == IPSEC_IPV4_ADDR_MAX - 1) 
+	  if((cpt == IPSEC_IPV4_ADDR_MAX - 1)
              && ((cpt  + index_start) < strlen(sa))
              && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR)
              && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR))
@@ -1190,7 +1185,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 	       * first character had a 0 in front of it, making the
 	       * number of characters even.
 	       */
-	      key_len = (strlen(key) - 2) / 2 + 1;
+	      key_len = ((guint) strlen(key) - 2) / 2 + 1;
 	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
 	      hex_digit = g_ascii_xdigit_value(key[i]);
 	      i++;
@@ -1202,17 +1197,17 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 		}
 	      (*ascii_key)[j] = (guchar)hex_digit;
 	      j++;
-	     } 
-	   else 
+	     }
+	   else
 	     {
 	       /*
 	        * Key has an even number of characters, so we treat each
 	        * pair of hex digits as a single byte value.
 	        */
-	       key_len = (strlen(key) - 2) / 2;
+	       key_len = ((guint) strlen(key) - 2) / 2;
 	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
 	     }
-	     
+
 	   while(i < (strlen(key) -1))
 	     {
 	       hex_digit = g_ascii_xdigit_value(key[i]);
@@ -1246,7 +1241,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 
       else
 	{
-	  key_len = strlen(key);
+	  key_len = (guint) strlen(key);
 	  *ascii_key = g_strdup(key);
 	}
     }
@@ -1313,7 +1308,7 @@ get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  
 
 	  /* Debugging Purpose */
 	  /*
-	  fprintf(stderr, 
+	  fprintf(stderr,
                   "VALID SA => <SA : %s> <Filter Source : %s/%i> <Filter Destination : %s/%i> <SPI : %s>\n",
                   g_esp_sad.table[i].sa, g_esp_sad.table[i].src, g_esp_sad.table[i].src_len,
 		  g_esp_sad.table[i].dst, g_esp_sad.table[i].dst_len, g_esp_sad.table[i].spi);
@@ -1735,7 +1730,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if(get_address_ok)
 	{
 	  /* Get the SPI */
-	  if (tvb_length(tvb) >= 4) 
+	  if (tvb_length(tvb) >= 4)
 	    {
 	      spi = tvb_get_ntohl(tvb, 0);
 	    }
@@ -1900,11 +1895,11 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		    case IPSEC_AUTH_HMAC_RIPEMD160_96:
 		      /*
-			RFC 2857 : HMAC-RIPEMD-160-96 produces a 160-bit 
-			authenticator value.  This 160-bit value can be 
-			truncated as described in RFC2104.  For use with 
-			either ESP or AH, a truncated value using the first 
-			96 bits MUST be supported. 
+			RFC 2857 : HMAC-RIPEMD-160-96 produces a 160-bit
+			authenticator value.  This 160-bit value can be
+			truncated as described in RFC2104.  For use with
+			either ESP or AH, a truncated value using the first
+			96 bits MUST be supported.
 		      */
 		      {
 			auth_algo_libgcrypt = GCRY_MD_RMD160;
@@ -1981,7 +1976,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				      authenticator_data_computed = (guint8 *) g_malloc (( esp_auth_len * 2 + 1) * sizeof(guint8));
 				      for (i = 0; i < esp_auth_len; i++)
 					{
-					  g_snprintf((char *)authenticator_data_computed_car, 3, 
+					  g_snprintf((char *)authenticator_data_computed_car, 3,
                                                      "%02X", authenticator_data_computed_md[i] & 0xFF);
 					  authenticator_data_computed[i*2] = authenticator_data_computed_car[0];
 					  authenticator_data_computed[i*2 + 1] = authenticator_data_computed_car[1];
@@ -2122,7 +2117,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   The CAST-128 encryption algorithm has been designed to allow a key
 			   size that can vary from 40 bits to 128 bits, in 8-bit increments
 			   (that is, the allowable key sizes are 40, 48, 56, 64, ..., 112, 120,
-			   and 128 bits. 
+			   and 128 bits.
 			   We support only 128 bits. */
 
 			/* Fix parameters for CAST5-CBC */
@@ -2429,7 +2424,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    {
 				      for(i = 0; i <  esp_auth_len; i++)
 					{
-					  decrypted_data[i + decrypted_len -esp_auth_len] 
+					  decrypted_data[i + decrypted_len -esp_auth_len]
                                             = encrypted_data[i + decrypted_len - esp_auth_len];
 					}
 				    }
@@ -2456,7 +2451,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		      /* Handler to free the Decrypted Data Buffer. */
 		      tvb_set_free_cb(tvb_decrypted,g_free);
-		      
+
 		      if(tvb_bytes_exist(tvb, 8, esp_iv_len))
 			{
 			  if(esp_iv_len > 0)
@@ -2573,7 +2568,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		     pinfo, esp_tree);
 
       if(esp_tree)
-	dissect_esp_authentication(esp_tree, tvb, len , 
+	dissect_esp_authentication(esp_tree, tvb, len ,
                                    esp_auth_len, authenticator_data_computed,
                                    authentication_ok, authentication_checking_ok );
 

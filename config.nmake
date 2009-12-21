@@ -246,14 +246,13 @@ C_ARES_PKG=1.7.0
 #
 # Optional: the GNUTLS library enables ssl decryption.
 #
-# If you have the GNUTLS library, set this to the directory where
-# the lib and include files are stored.
+# If you have the GNUTLS library, set this to the package version.
 #
-# If you don't have GNUTLS, comment this line out, so that GNUTLS_DIR
+# If you don't have GNUTLS, comment this line out, so that GNUTLS_PKG
 # isn't defined.
 #
 # Platform SDK conflicts with openssl.h header
-GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.8.5-1
+GNUTLS_PKG=2.8.5-4.12
 
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
@@ -455,14 +454,13 @@ C_ARES_PKG=1.7.0
 #
 # Optional: the GNUTLS library enables ssl decryption.
 #
-# If you have the GNUTLS library, set this to the directory where
-# the lib and include files are stored.
+# If you have the GNUTLS library, set this to the package version.
 #
-# If you don't have GNUTLS, comment this line out, so that GNUTLS_DIR
+# If you don't have GNUTLS, comment this line out, so that GNUTLS_PKG
 # isn't defined.
 #
 # Platform SDK conflicts with openssl.h header
-#GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.8.1-1
+GNUTLS_PKG=2.8.5-3.16
 
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
@@ -1041,7 +1039,8 @@ NETTLE_LIBS=
 NETTLE_CONFIG=
 !ENDIF
 
-!IFDEF GNUTLS_DIR
+!IFDEF GNUTLS_PKG
+GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-$(GNUTLS_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws
 GNUTLS_PATH=$(GNUTLS_DIR)
 # /DNOCRYPT avoids inclusion of Wincrypt.h, avoiding a X509_NAME define clash
 GNUTLS_CFLAGS=/I$(GNUTLS_DIR)\include /DNOCRYPT /DIMPORT_LIGNUTLSDLL

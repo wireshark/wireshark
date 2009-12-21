@@ -10,7 +10,7 @@
  *
  * Added routines for RFC3947 Negotiation of NAT-Traversal in the IKE
  *   ronnie sahlberg
- * 
+ *
  * 04/2009 Added routines for decryption of IKEv2 Encrypted Payload
  *   Naoyoshi Ueda <piyomaru3141@gmail.com>
  *
@@ -49,9 +49,6 @@
 #include <glib.h>
 
 #ifdef HAVE_LIBGCRYPT
-#ifdef _WIN32
-#include <winposixtype.h>
-#endif /* _WIN32 */
 #include <gcrypt.h>
 #include <epan/strutil.h>
 #include <wsutil/file_util.h>
@@ -286,7 +283,7 @@ typedef struct _ikev2_encr_alg_spec {
   /* Encryption algorithm ID to be passed to gcry_cipher_open() */
   gint gcry_alg;
   /* Cipher mode to be passed to gcry_cipher_open() */
-  gint gcry_mode; 
+  gint gcry_mode;
 } ikev2_encr_alg_spec_t;
 
 #define IKEV2_ENCR_NULL        1
@@ -300,12 +297,12 @@ static ikev2_encr_alg_spec_t ikev2_encr_algs[] = {
   {IKEV2_ENCR_3DES, 24, 8, 8, GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC},
   {IKEV2_ENCR_AES_CBC_128, 16, 16, 16, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC},
   {IKEV2_ENCR_AES_CBC_192, 24, 16, 16, GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CBC},
-  {IKEV2_ENCR_AES_CBC_256, 32, 16, 16, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC}, 
+  {IKEV2_ENCR_AES_CBC_256, 32, 16, 16, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC},
   {0, 0, 0, 0, 0, 0}
 };
 
 /*
- * Specifications of authentication algorithms for 
+ * Specifications of authentication algorithms for
  * decryption and/or ICD (Integrity Checksum Data) checking of IKEv2
  */
 typedef struct _ikev2_auth_alg_spec {
@@ -355,7 +352,7 @@ typedef struct _ikev2_uat_data_key {
   guint spii_len;
   guchar *spir;
   guint spir_len;
-} ikev2_uat_data_key_t; 
+} ikev2_uat_data_key_t;
 
 typedef struct _ikev2_uat_data {
   ikev2_uat_data_key_t key;
@@ -434,8 +431,8 @@ scan_pluto_log(void) {
   gchar   *icookie_pfx = "| ICOOKIE: ";
   gchar   *enc_key_pfx = "| enc key: ";
   gchar   *pos, *endpos;
-  gint     icpfx_len = strlen(icookie_pfx);
-  gint     ec_len = strlen(enc_key_pfx);
+  gint     icpfx_len = (gint) strlen(icookie_pfx);
+  gint     ec_len = (gint) strlen(enc_key_pfx);
   gint     i;
   address  null_addr;
   unsigned long hexval;
@@ -546,7 +543,7 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   }
   if (decr->secret_len < gcry_cipher_get_algo_keylen(gcry_cipher_algo))
     return NULL;
-  cbc_block_size = gcry_cipher_get_algo_blklen(gcry_cipher_algo);
+  cbc_block_size = (guint32) gcry_cipher_get_algo_blklen(gcry_cipher_algo);
 
   switch(decr->hash_alg) {
     case HMAC_MD5:
@@ -630,7 +627,7 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
     return NULL;
   if (gcry_cipher_setkey(decr_ctx, decr->secret, decr->secret_len))
     return NULL;
-      
+
   decrypted_data = g_malloc(buf_len);
 
   if (gcry_cipher_decrypt(decr_ctx, decrypted_data, buf_len, buf, buf_len) != GPG_ERR_NO_ERROR) {
@@ -1904,7 +1901,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
 static void
 dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
-             proto_tree *p _U_, packet_info *pinfo, int isakmp_version, 
+             proto_tree *p _U_, packet_info *pinfo, int isakmp_version,
              int unused _U_, guint8 inner_payload _U_)
 {
   guint8		cert_enc;
@@ -2714,9 +2711,9 @@ dissect_enc(tvbuff_t *tvb,
     }
 
     /*
-     * Add the IV to the tree and store it in a packet scope buffer for later decryption 
+     * Add the IV to the tree and store it in a packet scope buffer for later decryption
      * if the specified encryption algorithm uses IV.
-     */  
+     */
     if (iv_len) {
       proto_tree_add_text(tree, tvb, offset, iv_len, "Initialization Vector (%d bytes): 0x%s",
         iv_len, tvb_bytes_to_str(tvb, offset, iv_len));
@@ -2733,15 +2730,15 @@ dissect_enc(tvbuff_t *tvb,
     offset += encr_data_len;
 
     /*
-     * Add the ICD (Integrity Checksum Data) to the tree before decryption to ensure 
+     * Add the ICD (Integrity Checksum Data) to the tree before decryption to ensure
      * the ICD be displayed even if the decryption fails.
-     */ 
+     */
     if (icd_len) {
       icd_item = proto_tree_add_text(tree, tvb, offset, icd_len, "Integrity Checksum Data (%d bytes) ", icd_len);
 
       /*
        * Recalculate ICD value if the specified authentication algorithm allows it.
-       */ 
+       */
       if (key_info->auth_spec->gcry_alg) {
         err = gcry_md_open(&md_hd, key_info->auth_spec->gcry_alg, key_info->auth_spec->gcry_flag);
         if (err) {
@@ -2779,7 +2776,7 @@ dissect_enc(tvbuff_t *tvb,
 
     /*
      * Confirm encrypted data length is multiple of block size.
-     */ 
+     */
     if (encr_data_len % key_info->encr_spec->block_len != 0) {
       proto_item_append_text(encr_data_item, "[Invalid length, should be a multiple of block size (%u)]",
         key_info->encr_spec->block_len);
@@ -2789,14 +2786,14 @@ dissect_enc(tvbuff_t *tvb,
 
     /*
      * Allocate buffer for decrypted data.
-     */ 
+     */
     decr_data = (guchar*)g_malloc(encr_data_len);
     decr_data_len = encr_data_len;
 
     /*
-     * If the cipher is NULL, just copy the encrypted data to the decrypted data buffer. 
+     * If the cipher is NULL, just copy the encrypted data to the decrypted data buffer.
      * And otherwise perform decryption with libgcrypt.
-     */  
+     */
     if (key_info->encr_spec->number == IKEV2_ENCR_NULL) {
       memcpy(decr_data, encr_data, decr_data_len);
     } else {
@@ -2827,7 +2824,7 @@ dissect_enc(tvbuff_t *tvb,
       gcry_cipher_close(cipher_hd);
     }
 
- 
+
     decr_tvb = tvb_new_real_data(decr_data, decr_data_len, decr_data_len);
     tvb_set_free_cb(decr_tvb, g_free);
     tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
@@ -2859,7 +2856,7 @@ dissect_enc(tvbuff_t *tvb,
     }
 
     /*
-     * We dissect the inner payloads at last in order to ensure displaying Padding, Pad Length and ICD 
+     * We dissect the inner payloads at last in order to ensure displaying Padding, Pad Length and ICD
      * even if the dissection fails. This may occur when the user specify wrong encryption key.
      */
     if (decr_payloads_tree) {
@@ -3708,7 +3705,7 @@ UAT_BUFFER_CB_DEF(ikev2_users, sk_er, ikev2_uat_data_t, sk_er, sk_er_len)
 UAT_VS_DEF(ikev2_users, encr_alg, ikev2_uat_data_t, IKEV2_ENCR_3DES, "3DES")
 UAT_BUFFER_CB_DEF(ikev2_users, sk_ai, ikev2_uat_data_t, sk_ai, sk_ai_len)
 UAT_BUFFER_CB_DEF(ikev2_users, sk_ar, ikev2_uat_data_t, sk_ar, sk_ar_len)
-UAT_VS_DEF(ikev2_users, auth_alg, ikev2_uat_data_t, IKEV2_AUTH_HMAC_SHA1_96, "HMAC_SHA1_96") 
+UAT_VS_DEF(ikev2_users, auth_alg, ikev2_uat_data_t, IKEV2_AUTH_HMAC_SHA1_96, "HMAC_SHA1_96")
 
 static void ikev2_uat_data_update_cb(void* p, const char** err) {
   ikev2_uat_data_t *ud = p;

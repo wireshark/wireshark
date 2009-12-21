@@ -777,9 +777,9 @@ process_libs:
 		lua5.1.4 lua$(LUA_DIST)_lib.zip
 !ENDIF
 
-!IFDEF GNUTLS_DIR
+!IFDEF GNUTLS_PKG
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. gnutls-2.8.5-1.zip
+		. gnutls-$(GNUTLS_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip
 !ENDIF
 !IFDEF PORTAUDIO_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -826,7 +826,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.17-1            # win64
     rm -r -f $(WIRESHARK_LIBS)/glib
     rm -r -f $(WIRESHARK_LIBS)/gnutls-2.8.1-1
-    rm -r -f $(WIRESHARK_LIBS)/gnutls-2.8.5-1
+    rm -r -f $(WIRESHARK_LIBS)/gnutls-2.8.5-*-win??ws
     rm -r -f $(WIRESHARK_LIBS)/gtk2
     rm -r -f $(WIRESHARK_LIBS)/gtk+
     rm -r -f $(WIRESHARK_LIBS)/gtk-wimp

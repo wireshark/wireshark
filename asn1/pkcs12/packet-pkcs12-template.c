@@ -51,11 +51,8 @@
 #endif
 
 #ifdef HAVE_LIBGCRYPT
-#ifdef _WIN32  
-#include <winposixtype.h>
-#endif
 #include <gcrypt.h>
-#endif 
+#endif
 
 #define PNAME  "PKCS#12: Personal Information Exchange"
 #define PSNAME "PKCS12"
@@ -71,7 +68,7 @@ static int proto_pkcs12 = -1;
 static int hf_pkcs12_X509Certificate_PDU = -1;
 static gint ett_decrypted_pbe = -1;
 
-static const char *object_identifier_id = NULL; 
+static const char *object_identifier_id = NULL;
 static int iteration_count = 0;
 static tvbuff_t *salt = NULL;
 static const char *password = NULL;
@@ -91,7 +88,7 @@ static void append_oid(proto_tree *tree, const char *oid)
   	const char *name = NULL;
 
 	name = oid_resolved_from_string(oid);
-	proto_item_append_text(tree, " (%s)", name ? name : oid); 
+	proto_item_append_text(tree, " (%s)", name ? name : oid);
 }
 
 #ifdef HAVE_LIBGCRYPT
@@ -104,7 +101,7 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
   unsigned int i, j;
   gcry_md_hd_t md;
   gcry_mpi_t num_b1 = NULL;
-  unsigned int pwlen;
+  size_t pwlen;
   char hash[20], buf_b[64], buf_i[128], *p;
   char *salt;
   int salt_size;
@@ -153,14 +150,14 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
 		  unsigned char lid = id & 0xFF;
 		  gcry_md_write (md, &lid, 1);
 	  }
-      
+
 	  gcry_md_write(md, buf_i, pw ? 128 : 64);
 
       gcry_md_final (md);
       memcpy (hash, gcry_md_read (md, 0), 20);
-      
+
 	  gcry_md_close (md);
-      
+
 	  for (i = 1; i < iter; i++)
 		  gcry_md_hash_buffer (GCRY_MD_SHA1, hash, hash, 20);
 
@@ -188,17 +185,17 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
 
 	  for (i = 0; i < 128; i += 64)	{
 		  gcry_mpi_t num_ij;
-		  
+
 		  n = 64;
 		  rc = gcry_mpi_scan (&num_ij, GCRYMPI_FMT_USG, buf_i + i, n, &n);
 
 		  if (rc != 0) {
 			  return FALSE;
 		  }
-	  
+
 		  gcry_mpi_add (num_ij, num_ij, num_b1);
 		  gcry_mpi_clear_highbit (num_ij, 64 * 8);
-	  
+
 		  n = 64;
 
 		  rc = gcry_mpi_print (GCRYMPI_FMT_USG, buf_i + i, n, &n, num_ij);
@@ -211,7 +208,7 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
   }
 }
 
-#endif 
+#endif
 
 void PBE_reset_parameters()
 {
@@ -239,7 +236,7 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 	proto_tree	*tree;
 	char		byte;
 	gboolean	decrypt_ok = TRUE;
-	
+
 	if(((password == NULL) || (*password == '\0')) && (try_null_password == FALSE)) {
 		/* we are not configured to decrypt */
 		return FALSE;
@@ -265,12 +262,12 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 		mode = GCRY_CIPHER_MODE_CBC;
 	} else {
 		/* we don't know how to decrypt this */
-	
+
 		proto_item_append_text(item, " [Unsupported encryption algorithm]");
 		return FALSE;
 	}
 
-	if((iteration_count == 0) || (salt == NULL)) {	
+	if((iteration_count == 0) || (salt == NULL)) {
 		proto_item_append_text(item, " [Insufficient parameters]");
 		return FALSE;
 	}
@@ -282,9 +279,9 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 		return FALSE;
 
 	if(ivlen) {
-		
+
 		iv = ep_alloc(ivlen);
-		
+
 		if(!generate_key_or_iv(2 /* IV */, salt, iteration_count, password, ivlen, iv))
 			return FALSE;
 	}
@@ -294,14 +291,14 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 	if (gcry_err_code (err))
 			return FALSE;
 
-	err = gcry_cipher_setkey (cipher, key, keylen);  
+	err = gcry_cipher_setkey (cipher, key, keylen);
 	if (gcry_err_code (err)) {
 			gcry_cipher_close (cipher);
 			return FALSE;
 	}
-	
+
 	if(ivlen) {
-		  err = gcry_cipher_setiv (cipher, iv, ivlen);	  
+		  err = gcry_cipher_setiv (cipher, iv, ivlen);
 		  if (gcry_err_code (err)) {
 			  gcry_cipher_close (cipher);
 			  return FALSE;
@@ -324,7 +321,7 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 	gcry_cipher_close (cipher);
 
 	/* We don't know if we have successfully decrypted the data or not so we:
-		a) check the trailing bytes 
+		a) check the trailing bytes
 		b) see if we start with a sequence or a set (is this too constraining?
 		*/
 
@@ -339,7 +336,7 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 				break;
 			}
 		}
-	} else {	
+	} else {
 		/* XXX: is this a failure? */
 	}
 
@@ -371,13 +368,13 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 
 	/* add it as a new source */
 	add_new_data_source(actx->pinfo, clear_tvb, name->str);
-	
+
 	g_string_free(name, TRUE);
 
 	/* now try and decode it */
 	call_ber_oid_callback(object_identifier_id, clear_tvb, 0, actx->pinfo, tree);
 
-	return TRUE;		
+	return TRUE;
 #else
 	/* we cannot decrypt */
 	return FALSE;
@@ -387,7 +384,7 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 
 #include "packet-pkcs12-fn.c"
 
-static int strip_octet_string(tvbuff_t *tvb) 
+static int strip_octet_string(tvbuff_t *tvb)
 {
   gint8 class;
   gboolean pc, ind;
@@ -420,18 +417,18 @@ static void dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info
 	proto_tree_add_text(tree, tvb, 0, 1, "BER Error: OCTET STRING expected");
 }
 
-static void dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+static void dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
   offset = strip_octet_string(tvb);
-  
+
   dissect_pkcs12_SafeContents(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs12_SafeContents_PDU);
 }
 
-static void dissect_X509Certificate_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+static void dissect_X509Certificate_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -482,7 +479,7 @@ void proto_register_pkcs12(void) {
 	"Whether to try and decrypt the encrypted data within the"
 	" PKCS#12 with a NULL password", &try_null_password);
 
-  register_ber_syntax_dissector("PKCS#12", proto_pkcs12, dissect_PFX_PDU); 
+  register_ber_syntax_dissector("PKCS#12", proto_pkcs12, dissect_PFX_PDU);
   register_ber_oid_syntax(".p12", NULL, "PKCS#12");
   register_ber_oid_syntax(".pfx", NULL, "PKCS#12");
 }

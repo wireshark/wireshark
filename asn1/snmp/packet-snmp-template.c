@@ -82,9 +82,6 @@
 
 
 #ifdef HAVE_LIBGCRYPT
-#ifdef _WIN32
-#include <winposixtype.h>
-#endif /* _WIN32 */
 #include <gcrypt.h>
 #endif
 
@@ -299,7 +296,7 @@ static const gchar *
 snmp_lookup_specific_trap (guint specific_trap)
 {
 	guint i;
-   
+
 	for (i = 0; i < num_specific_traps; i++) {
 		snmp_st_assoc_t *u = &(specific_traps[i]);
 

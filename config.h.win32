@@ -242,3 +242,5 @@
 #pragma message( "_MSC_VER is:" WS_TO_STRING(_MSC_VER) " but required is:" WS_TO_STRING(MSC_VER_REQUIRED) )
 #error Your MSVC_VARIANT setting in config.nmake doesn't match the MS compiler version!
 #endif
+
+typedef int ssize_t;
