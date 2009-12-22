@@ -426,6 +426,9 @@ cygwin*)
 esac
 AC_SUBST(LDFLAGS_SHAREDLIB)
 
+# Control silent compiling
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([no])])
+
 #
 # On OS X, if we find the headers for Core Foundation, Launch Services,
 # and Core Services, add -framework options to link with Application
