@@ -2737,6 +2737,8 @@ set_menus_for_selected_packet(capture_file *cf)
                          cf->current_frame != NULL);
     set_menu_sensitivity(main_menu_factory, "/Edit/Ignore Packet (toggle)",
                          cf->current_frame != NULL);
+    set_menu_sensitivity(main_menu_factory, "/Edit/Ignore All Packets",
+                         cf->current_frame != NULL);
     set_menu_sensitivity(main_menu_factory, "/Edit/Un-Ignore All Packets",
                          cf->current_frame != NULL);
     set_menu_sensitivity(packet_list_menu_factory, "/Ignore Packet (toggle)",
