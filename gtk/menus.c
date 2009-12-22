@@ -518,24 +518,24 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/Find Previous Mark", "<shift><control>B", GTK_MENU_FUNC(find_prev_mark_cb),
                        0, NULL, NULL,},
 #ifdef NEW_PACKET_LIST
-    {"/Edit/Mark _All Packets", "<control>A", GTK_MENU_FUNC(new_packet_list_mark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Mark _All Displayed Packets", "<control>A", GTK_MENU_FUNC(new_packet_list_mark_all_frames_cb), 0, NULL, NULL,},
     {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(new_packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
 #else
-    {"/Edit/Mark _All Packets", "<control>A", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Mark _All Displayed Packets", "<control>A", GTK_MENU_FUNC(packet_list_mark_all_frames_cb), 0, NULL, NULL,},
     {"/Edit/_Unmark All Packets", "<control>D", GTK_MENU_FUNC(packet_list_unmark_all_frames_cb), 0, NULL, NULL,},
 #endif /* NEW_PACKET_LIST */
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
 #ifdef NEW_PACKET_LIST
     {"/Edit/_Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(new_packet_list_ignore_frame_cb),
                        0, NULL, NULL,},
-    {"/Edit/Ignore All Packets", "<alt><shift><control>X", GTK_MENU_FUNC(new_packet_list_ignore_all_frames_cb),
+    {"/Edit/Ignore All Displayed Packets", "<alt><shift><control>X", GTK_MENU_FUNC(new_packet_list_ignore_all_frames_cb),
                        0, NULL, NULL,},
     {"/Edit/U_n-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(new_packet_list_unignore_all_frames_cb),
                        0, NULL, NULL,},
 #else
     {"/Edit/_Ignore Packet (toggle)", "<control>X", GTK_MENU_FUNC(packet_list_ignore_frame_cb),
                        0, NULL, NULL,},
-    {"/Edit/Ignore All Packets", "<alt><shift><control>X", GTK_MENU_FUNC(packet_list_ignore_all_frames_cb),
+    {"/Edit/Ignore All Displayed Packets", "<alt><shift><control>X", GTK_MENU_FUNC(packet_list_ignore_all_frames_cb),
                        0, NULL, NULL,},
     {"/Edit/U_n-Ignore All Packets", "<shift><control>X", GTK_MENU_FUNC(packet_list_unignore_all_frames_cb),
                        0, NULL, NULL,},
@@ -2731,13 +2731,13 @@ set_menus_for_selected_packet(capture_file *cf)
                          cf->current_frame != NULL);
     set_menu_sensitivity(main_menu_factory, "/Edit/Find Previous Mark",
                          cf->current_frame != NULL);
-    set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Packets",
+    set_menu_sensitivity(main_menu_factory, "/Edit/Mark All Displayed Packets",
                          cf->current_frame != NULL);
     set_menu_sensitivity(main_menu_factory, "/Edit/Unmark All Packets",
                          cf->current_frame != NULL);
     set_menu_sensitivity(main_menu_factory, "/Edit/Ignore Packet (toggle)",
                          cf->current_frame != NULL);
-    set_menu_sensitivity(main_menu_factory, "/Edit/Ignore All Packets",
+    set_menu_sensitivity(main_menu_factory, "/Edit/Ignore All Displayed Packets",
                          cf->current_frame != NULL);
     set_menu_sensitivity(main_menu_factory, "/Edit/Un-Ignore All Packets",
                          cf->current_frame != NULL);
