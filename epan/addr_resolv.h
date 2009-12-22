@@ -124,8 +124,14 @@ void get_addr_name_buf(address *addr, gchar *buf, gsize size);
 /* host_name_lookup_init fires up an ADNS socket if we're using ADNS */
 extern void host_name_lookup_init(void);
 
-/* host_name_lookup_process does ADNS processing in GLIB timeouts in Wireshark,
-   and before processing each packet in TShark, if we're using ADNS */
+/** If we're using c-ares or ADNS, process outstanding host name lookups.
+ *  This is called from a GLIB timeout in Wireshark and before processing
+ *  each packet in TShark.
+ *
+ * @param data Ignored.
+ * @return True if any new objects have been resolved since the previous
+ * call. This can be used to trigger a display update, e.g. in Wireshark.
+ */
 extern gboolean host_name_lookup_process(gpointer data);
 
 /* host_name_lookup_cleanup cleans up an ADNS socket if we're using ADNS */

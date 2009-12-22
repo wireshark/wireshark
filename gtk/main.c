@@ -1225,7 +1225,7 @@ cmdarg_err_cont(const char *fmt, ...)
    worry about any locking or critical regions.
  */
 static gboolean
-update_cb(gpointer data _U_)
+tap_update_cb(gpointer data _U_)
 {
 	draw_tap_listeners(FALSE);
 	return TRUE;
@@ -1235,7 +1235,7 @@ update_cb(gpointer data _U_)
 void reset_tap_update_timer(void)
 {
     g_source_remove(tap_update_timer_id);
-    tap_update_timer_id = g_timeout_add(prefs.tap_update_interval, update_cb, NULL);
+    tap_update_timer_id = g_timeout_add(prefs.tap_update_interval, tap_update_cb, NULL);
 }
 
 #else
@@ -1287,6 +1287,26 @@ unprotect_thread_critical_region(void)
     g_static_mutex_unlock(&update_thread_mutex);
 #endif
 }
+
+/*
+ * Periodically process outstanding hostname lookups. If we have new items,
+ * redraw the packet list and tree view.
+ */
+  
+static gboolean
+resolv_update_cb(gpointer data _U_)
+{
+  /* Anything new show up? */
+  if (host_name_lookup_process(NULL)) {
+    gdk_window_invalidate_rect(pkt_scrollw->window, NULL, TRUE);
+    gdk_window_invalidate_rect(tv_scrollw->window, NULL, TRUE);
+  }
+
+  /* Always check. Even if we don't do async lookups we could still get
+     passive updates, e.g. from DNS packets. */
+  return TRUE;   
+}
+
 
 /* Set the file name in the name for the main window and in the name for the main window's icon. */
 static void
@@ -2228,12 +2248,10 @@ main(int argc, char *argv[])
   }
 #else  /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
   /* this is to keep tap extensions updating once every 3 seconds */
-  tap_update_timer_id = g_timeout_add(prefs->tap_update_interval, update_cb, NULL);
+  tap_update_timer_id = g_timeout_add(prefs->tap_update_interval, tap_update_cb, NULL);
 #endif /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
 
-#if HAVE_GNU_ADNS || HAVE_C_ARES
-  g_timeout_add(750, host_name_lookup_process, NULL);
-#endif
+  g_timeout_add(750, resolv_update_cb, NULL);
 
   splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
 

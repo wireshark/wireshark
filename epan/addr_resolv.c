@@ -262,6 +262,7 @@ static gboolean have_subnet_entry = FALSE;
 static int      eth_resolution_initialized = 0;
 static int      ipxnet_resolution_initialized = 0;
 static int      service_resolution_initialized = 0;
+static gboolean new_resolved_objects = FALSE;
 
 static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
 static void add_serv_port_cb(guint32 port);
@@ -447,6 +448,8 @@ static void add_service_name(hashport_t **proto_table, guint port, const char *s
   tp->next = NULL;
 
   g_strlcpy(tp->name, service_name, MAXNAMELEN);
+  
+  new_resolved_objects = TRUE;
 }
 
 
@@ -1484,6 +1487,7 @@ static hashether_t *add_eth_name(const guint8 *addr, const gchar *name)
       tp->next = NULL;
   }
   tp->is_dummy_entry = FALSE;
+  new_resolved_objects = TRUE;
 
   return tp;
 
@@ -1842,9 +1846,9 @@ static hashipxnet_t *add_ipxnet_name(guint addr, const gchar *name)
   } else {
     while(1) {
       if (tp->next == NULL) {
-    tp->next = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
-    tp = tp->next;
-    break;
+        tp->next = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+        tp = tp->next;
+        break;
       }
       tp = tp->next;
     }
@@ -1853,6 +1857,7 @@ static hashipxnet_t *add_ipxnet_name(guint addr, const gchar *name)
   tp->addr = addr;
   g_strlcpy(tp->name, name, MAXNAMELEN);
   tp->next = NULL;
+  new_resolved_objects = TRUE;
 
   return tp;
 
@@ -2347,10 +2352,13 @@ host_name_lookup_process(gpointer data _U_) {
   struct timeval tv = { 0, 0 };
   int nfds;
   fd_set rfds, wfds;
+  gboolean nro = new_resolved_objects;
+
+  new_resolved_objects = FALSE;
 
   if (!async_dns_initialized)
     /* c-ares not initialized. Bail out and cancel timers. */
-    return FALSE;
+    return nro;
 
   async_dns_queue_head = g_list_first(async_dns_queue_head);
 
@@ -2376,8 +2384,8 @@ host_name_lookup_process(gpointer data _U_) {
     ares_process(alchan, &rfds, &wfds);
   }
 
-  /* Keep the timeout in place */
-  return TRUE;
+  /* Any new entries? */
+  return nro;
 }
 
 void
@@ -2415,7 +2423,9 @@ host_name_lookup_process(gpointer data _U_) {
   adns_answer *ans;
   int ret;
   gboolean dequeue;
+  gboolean nro = new_resolved_objects;
 
+  new_resolved_objects = FALSE;
   async_dns_queue_head = g_list_first(async_dns_queue_head);
 
   cur = async_dns_queue_head;
@@ -2455,7 +2465,7 @@ host_name_lookup_process(gpointer data _U_) {
   }
 
   /* Keep the timeout in place */
-  return TRUE;
+  return nro;
 }
 
 void
@@ -2478,8 +2488,11 @@ host_name_lookup_cleanup(void) {
 
 gboolean
 host_name_lookup_process(gpointer data _U_) {
-  /* Kill the timeout, as there's nothing for it to do */
-  return FALSE;
+  gboolean nro = new_resolved_objects;
+  
+  new_resolved_objects = FALSE;
+
+  return nro;
 }
 
 void
@@ -2546,6 +2559,7 @@ extern void add_ipv4_name(guint addr, const gchar *name)
   }
   g_strlcpy(tp->name, name, MAXNAMELEN);
   tp->resolve = TRUE;
+  new_resolved_objects = TRUE;
 } /* add_ipv4_name */
 
 /* -------------------------- */
@@ -2582,6 +2596,7 @@ extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
 
   g_strlcpy(tp->name, name, MAXNAMELEN);
   tp->resolve = TRUE;
+  new_resolved_objects = TRUE;
 
 } /* add_ipv6_name */
 
