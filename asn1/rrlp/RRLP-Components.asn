@@ -1,6 +1,6 @@
 -- RRLP-Components.asn
 -- $Id$
--- Taken from 3GPP TS 44.031 V7.4.0 (2007-03)
+-- Taken from 3GPP TS 44.031  V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/archive/44_series/44.031/44031-740.zip/44031-740.doc
 --
 -- 4 Components
@@ -47,6 +47,7 @@ rel5-MsrPosition-Req-extension			Rel5-MsrPosition-Req-Extension			OPTIONAL,
 rel7-MsrPosition-Req-extension			Rel7-MsrPosition-Req-Extension			OPTIONAL
 }
 
+
 -- Measurement Position response component
 MsrPosition-Rsp ::= SEQUENCE {
 	multipleSets			MultipleSets			OPTIONAL,
@@ -62,9 +63,9 @@ MsrPosition-Rsp ::= SEQUENCE {
 							Rel-98-MsrPosition-Rsp-Extension		OPTIONAL,
 	rel-5-MsrPosition-Rsp-Extension
 							Rel-5-MsrPosition-Rsp-Extension		OPTIONAL,
-	-- rel-5-MsrPosition-Rsp-Extension and other possible future extensions
-	-- are the only information elements that may be included in the 2nd
-	-- MsrPosition-Rsp component when RRLP pseudo-segmentation is used
+	-- When RRLP pseudo-segmentation is used, rel-5-MsrPosition-Rsp-Extension 
+	-- and other possible future extensions should be the ones included in 
+	-- the 2nd MsrPosition-Rsp component.
 	rel-7-MsrPosition-Rsp-Extension
 							Rel-7-MsrPosition-Rsp-Extension		OPTIONAL
 }
@@ -96,6 +97,25 @@ ProtocolError ::= SEQUENCE {
 	rel-5-ProtocolError-Extension Rel-5-ProtocolError-Extension		OPTIONAL
 }
 
+-- Positioning Capability request component
+PosCapability-Req ::= SEQUENCE {
+	extended-reference			Extended-reference,
+	gANSSPositionMethods		GANSSPositionMethods	OPTIONAL,
+	extensionContainer			ExtensionContainer		OPTIONAL,
+	...
+}
+
+-- Positioning Capability response component
+PosCapability-Rsp ::= SEQUENCE {
+	extended-reference		Extended-reference,
+    posCapabilities         PosCapabilities,
+    assistanceSupported     AssistanceSupported     OPTIONAL,
+    assistanceNeeded        AssistanceNeeded        OPTIONAL,
+	extensionContainer		ExtensionContainer		OPTIONAL,
+	...
+}
+
+-- add these defintions to RRLP-Components module
 -- Position instructions
 PositionInstruct ::= SEQUENCE {
 	-- Method type
@@ -121,7 +141,6 @@ AccuracyOpt ::= SEQUENCE {
 
 -- The values of this field are defined in 3GPP TS 23.032 (Uncertainty code)
 Accuracy ::= INTEGER (0..127)
-
 
 -- Position Method
 PositionMethod ::= ENUMERATED {
@@ -515,6 +534,7 @@ AdditionalAssistanceData ::= SEQUENCE {
 	ganssAssistanceData GANSSAssistanceData OPTIONAL
 }
 
+
 GPSAssistanceData ::= OCTET STRING (SIZE (1..maxGPSAssistanceData))
 -- GPSAssistanceData has identical structure and encoding to octets 3 to n of the
 -- GPS Assistance Data IE in 3GPP TS 49.031
@@ -526,7 +546,6 @@ GANSSAssistanceData ::= OCTET STRING (SIZE (1..maxGANSSAssistanceData))
 -- GANSS Assistance Data IE in 3GPP TS 49.031
 
 maxGANSSAssistanceData	INTEGER ::= 40
-
 
 -- Protocol Error Causes
 ErrorCodes ::= ENUMERATED {
@@ -567,9 +586,9 @@ ControlHeader ::= SEQUENCE {
 	refLocation			RefLocation			OPTIONAL,
 	dgpsCorrections		DGPSCorrections		OPTIONAL,
 	navigationModel		NavigationModel		OPTIONAL,
-	ionosphericModel		IonosphericModel		OPTIONAL,
+	ionosphericModel	IonosphericModel	OPTIONAL,
 	utcModel			UTCModel			OPTIONAL,
-	almanac			Almanac			OPTIONAL,
+	almanac				Almanac				OPTIONAL,
 	acquisAssist		AcquisAssist		OPTIONAL,
 	realTimeIntegrity SeqOf-BadSatelliteSet OPTIONAL
 }
@@ -653,7 +672,6 @@ SeqOfSatElement ::= SEQUENCE (SIZE (1..16)) OF SatElement
 -- number of correction for satellites
 SatElement ::= SEQUENCE {
 	satelliteID		SatelliteID,
-
 
 --- Sequence number for ephemeris
 	iode 			INTEGER (0..239),
@@ -937,12 +955,12 @@ ExpOTDUncertainty ::= INTEGER(0..7)
 
 -- Release 98 extensions
 
-GPSReferenceTimeUncertainty ::= INTEGER (0 .. 127) -- Coding according to Annex
+GPSReferenceTimeUncertainty ::= INTEGER (0 .. 127) 		-- Coding according to Annex
 
 GPSTimeAssistanceMeasurements ::= SEQUENCE {
- referenceFrameMSB INTEGER (0 .. 63), -- MSB of frame number
- gpsTowSubms INTEGER (0 .. 9999) OPTIONAL, -- in units of 100ns, for MS based AGPS
- deltaTow INTEGER (0 .. 127) OPTIONAL, -- for MS assisted AGPS
+ referenceFrameMSB INTEGER (0 .. 63)	OPTIONAL, 		-- MSB of frame number
+ gpsTowSubms INTEGER (0 .. 9999) 		OPTIONAL, 		-- in units of 100ns, for MS based AGPS
+ deltaTow INTEGER (0 .. 127) 			OPTIONAL, 		-- for MS assisted AGPS
  gpsReferenceTimeUncertainty GPSReferenceTimeUncertainty OPTIONAL
 }
 
@@ -1032,69 +1050,82 @@ Rel-5-ProtocolError-Extension::= SEQUENCE {
 -- Release 7 Extensions here
 
 Rel7-MsrPosition-Req-Extension ::= SEQUENCE {
-velocityRequested		 NULL		 OPTIONAL,
- ganssPositionMethod GANSSPositioningMethod OPTIONAL,
- ganss-AssistData GANSS-AssistData OPTIONAL,
- ganssCarrierPhaseMeasurementRequest NULL OPTIONAL,
- ganssTODGSMTimeAssociationMeasurementRequest NULL OPTIONAL,
-requiredResponseTime	RequiredResponseTime	OPTIONAL,
+	velocityRequested								NULL					OPTIONAL,
+	ganssPositionMethod								GANSSPositioningMethod	OPTIONAL,
+	ganss-AssistData								GANSS-AssistData		OPTIONAL,
+	ganssCarrierPhaseMeasurementRequest				NULL					OPTIONAL,
+	ganssTODGSMTimeAssociationMeasurementRequest	NULL					OPTIONAL,
+	requiredResponseTime							RequiredResponseTime	OPTIONAL,
+	add-GPS-AssistData								Add-GPS-AssistData		OPTIONAL,
+	ganssMultiFreqMeasurementRequest				NULL					OPTIONAL,
 	...
 	-- Further Release 7 extentions here
 }
 
 -- additional satellite systems may be added in future versions of the protocol
+-- Bit 0 of GANSSPositioningMethod bit map shall not be the only one set to TRUE (‘1’)
 GANSSPositioningMethod ::= BIT STRING {
-	gps (0),
-	galileo (1)} (SIZE (2..16))
+	gps 	 	 	 (0),
+	galileo 	 	 (1),
+	sbas 	 	 	 (2),
+	modernizedGPS 	 (3),
+	qzss 	 	 	 (4),
+	glonass 	 	 (5) } (SIZE (2..16))
 
 GANSS-AssistData ::= SEQUENCE {
 	ganss-controlHeader	GANSS-ControlHeader
 }
-
 GANSS-ControlHeader ::= SEQUENCE {
- ganssCommonAssistData GANSSCommonAssistData OPTIONAL,
- ganssGenericAssistDataList SeqOfGANSSGenericAssistDataElement OPTIONAL
+ ganssCommonAssistData 			GANSSCommonAssistData 				OPTIONAL,
+ ganssGenericAssistDataList 	SeqOfGANSSGenericAssistDataElement 	OPTIONAL
 }
 
 -- GANSS Common Assistance Data Elements
 GANSSCommonAssistData ::= SEQUENCE {
-	ganssReferenceTime		 GANSSReferenceTime		 OPTIONAL,
-	ganssRefLocation			GANSSRefLocation		 OPTIONAL,
-	ganssIonosphericModel		GANSSIonosphericModel	 OPTIONAL,
-	...
+	ganssReferenceTime		 	GANSSReferenceTime		 	OPTIONAL,
+	ganssRefLocation			GANSSRefLocation		 	OPTIONAL,
+	ganssIonosphericModel		GANSSIonosphericModel	 	OPTIONAL,
+	... ,
+	ganssAddIonosphericModel	GANSSAddIonosphericModel	OPTIONAL,
+	ganssEarthOrientParam		GANSSEarthOrientParam		OPTIONAL
 }
 
 -- List of GANSS Generic Assistance Data Elements, up to 8 GANSS
 SeqOfGANSSGenericAssistDataElement ::= SEQUENCE (SIZE (1..8)) OF GANSSGenericAssistDataElement
-
 -- GANSS Generic Assistance Data Elements
 GANSSGenericAssistDataElement ::= SEQUENCE {
- ganssID INTEGER (0..7) OPTIONAL, -- Coding according to Annex
- ganssTimeModel SeqOfGANSSTimeModel OPTIONAL,
-	ganssDiffCorrections		 GANSSDiffCorrections	 OPTIONAL,
-	ganssNavigationModel		 GANSSNavModel OPTIONAL,
-	ganssRealTimeIntegrity	 GANSSRealTimeIntegrity	 OPTIONAL,
-	ganssDataBitAssist			 GANSSDataBitAssist		 OPTIONAL,
-	ganssRefMeasurementAssist	 GANSSRefMeasurementAssist OPTIONAL,
- ganssAlmanacModel GANSSAlmanacModel OPTIONAL,
- ganssUTCModel GANSSUTCModel OPTIONAL,
-	...
+	ganssID 	INTEGER (0..7)	OPTIONAL, -- Coding according to Annex
+	ganssTimeModel	SeqOfGANSSTimeModel	OPTIONAL,
+	ganssDiffCorrections	GANSSDiffCorrections	OPTIONAL,
+	ganssNavigationModel	GANSSNavModel	OPTIONAL,
+	ganssRealTimeIntegrity	GANSSRealTimeIntegrity	OPTIONAL,
+	ganssDataBitAssist	GANSSDataBitAssist	OPTIONAL,
+	ganssRefMeasurementAssist	GANSSRefMeasurementAssist 	OPTIONAL,
+	ganssAlmanacModel	GANSSAlmanacModel	OPTIONAL,
+	ganssUTCModel	GANSSUTCModel	OPTIONAL,
+	ganssEphemerisExtension	GANSSEphemerisExtension	OPTIONAL,
+	ganssEphemerisExtCheck	GANSSEphemerisExtensionCheck	OPTIONAL,
+	... ,
+	sbasID	INTEGER (0..7) 	OPTIONAL, -- Coding according to Annex
+	ganssAddUTCModel	GANSSAddUTCModel	OPTIONAL,
+	ganssAuxiliaryInfo	GANSSAuxiliaryInformation	OPTIONAL,
+	ganssDiffCorrectionsValidityPeriod	GANSSDiffCorrectionsValidityPeriod	OPTIONAL
 }
 
 -- GANSS COMMON ASSISTANCE DATA ELEMENTS
 
 -- GANSS Reference Time IE
 GANSSReferenceTime ::= SEQUENCE {
-	ganssRefTimeInfo			 GANSSRefTimeInfo,
-	ganssTOD-GSMTimeAssociation GANSSTOD-GSMTimeAssociation OPTIONAL
+	ganssRefTimeInfo				GANSSRefTimeInfo,
+	ganssTOD-GSMTimeAssociation 	GANSSTOD-GSMTimeAssociation OPTIONAL
 }
 
 -- GANSS Reference Time includes GANSS TOD, GANSS Day, uncertainty
 GANSSRefTimeInfo ::= SEQUENCE {
-	ganssDay			 INTEGER(0 .. 8191) OPTIONAL,
- ganssTOD GANSSTOD,
-	ganssTODUncertainty	 GANSSTODUncertainty OPTIONAL,
- ganssTimeID INTEGER (0 .. 7) OPTIONAL
+	ganssDay			 INTEGER(0 .. 8191) 	 OPTIONAL,
+ 	ganssTOD			 GANSSTOD,
+	ganssTODUncertainty	 GANSSTODUncertainty	 OPTIONAL,
+ 	ganssTimeID 		 INTEGER (0 .. 7) 		 OPTIONAL
 }
 
 -- GANSS TOD integer seconds
@@ -1110,7 +1141,7 @@ GANSSTOD-GSMTimeAssociation ::= SEQUENCE {
 	frameNumber		FrameNumber,
 	timeSlot		TimeSlot,
 	bitNumber		BitNumber,
- frameDrift FrameDrift OPTIONAL
+ 	frameDrift 		FrameDrift 			OPTIONAL
 }
 
 -- Frame drift
@@ -1123,18 +1154,17 @@ GANSSRefLocation ::= SEQUENCE {
 
 -- GANSS Ionospheric Model IE
 -- GANSS Ionospheric Model consists of NeQuick model parameters and storm flags
-
 GANSSIonosphericModel ::= SEQUENCE {
- ganssIonoModel GANSSIonosphereModel,
- ganssIonoStormFlags GANSSIonoStormFlags OPTIONAL,
- ...
+ 	ganssIonoModel 			GANSSIonosphereModel,
+ 	ganssIonoStormFlags 	GANSSIonoStormFlags 			OPTIONAL,
+ 	...
 }
 
 -- GANSS ionosphere model. Coding according to Annex 
 GANSSIonosphereModel ::= SEQUENCE {
- ai0 INTEGER (0 .. 4095),
- ai1 INTEGER (0 .. 4095),
- ai2 INTEGER (0 .. 4095)
+ 	ai0 INTEGER (0 .. 4095),
+ 	ai1 INTEGER (0 .. 4095),
+ 	ai2 INTEGER (0 .. 4095)
 }
 
 -- GANSS ionosphere storm flags
@@ -1146,6 +1176,24 @@ GANSSIonoStormFlags ::= SEQUENCE {
 	ionoStormFlag5	INTEGER (0 .. 1)
 }
 
+-- GANSS Additional Ionospheric Model IE
+-- GANSS Additional Ionospheric Model consists of Klobuchar model parameters
+GANSSAddIonosphericModel ::= SEQUENCE {
+	dataID		BIT STRING (SIZE (2)), 	 -- Coding according to Annex
+	ionoModel	IonosphericModel
+}
+
+-- GANSS Earth Orientation Paramaters IE
+GANSSEarthOrientParam ::= SEQUENCE {
+	teop				INTEGER (0..65535),
+	pmX					INTEGER (-1048576..1048575),
+	pmXdot				INTEGER (-16384..16383),
+	pmY					INTEGER (-1048576..1048575),
+	pmYdot				INTEGER (-16384..16383),
+	deltaUT1			INTEGER (-1073741824..1073741823),
+	deltaUT1dot			INTEGER (-262144..262143)
+}
+
 -- GANSS GENERIC ASSISTANCE DATA ELEMENTS
 
 -- GANSS Time Model IE consists of time offset and first and second order parameters to relate GNSS
@@ -1154,11 +1202,11 @@ SeqOfGANSSTimeModel ::= SEQUENCE (SIZE(1..7)) OF GANSSTimeModelElement
 
 GANSSTimeModelElement ::= SEQUENCE {
 	ganssTimeModelRefTime		INTEGER(0 .. 65535),
-	tA0		 TA0,
-	tA1		 TA1 OPTIONAL,
-	tA2		 TA2 OPTIONAL,
- gnssTOID INTEGER (0 .. 7),
- weekNumber INTEGER (0 .. 8191) OPTIONAL 
+	tA0		 					TA0,
+	tA1		 					TA1 					OPTIONAL,
+	tA2		 					TA2 					OPTIONAL,
+ 	gnssTOID 					INTEGER (0 .. 7), 		-- coding according to annex
+ 	weekNumber 					INTEGER (0 .. 8191) 	OPTIONAL 
 }
 
 -- GANSS time model parameter A0
@@ -1169,6 +1217,7 @@ TA1 ::= INTEGER (-8388608 .. 8388607)
 
 -- GANSS time model parameter A2
 TA2 ::= INTEGER (-64 .. 63)
+
 
 -- DGANSS Corrections IE
 GANSSDiffCorrections ::= SEQUENCE {
@@ -1182,18 +1231,18 @@ SeqOfSgnTypeElement ::= SEQUENCE (SIZE (1..3)) OF SgnTypeElement -- max three si
 
 -- DGANSS signal type element, once per GNSS signal type included in DGANSS
 SgnTypeElement ::= SEQUENCE {
-	ganssSignalID		 GANSSSignalID OPTIONAL, -- signal type identity
- ganssStatusHealth INTEGER (0 .. 7),
-	-- N_SGN can be read from number of elements of dganssSgnList
- dganssSgnList SeqOfDGANSSSgnElement
+	ganssSignalID		 GANSSSignalID, -- signal type identity
+ 	ganssStatusHealth	 INTEGER (0 .. 7),
+	-- N_SAT can be read from number of elements of dganssSgnList
+ 	dganssSgnList		 SeqOfDGANSSSgnElement
 }
 
-GANSSSignalID ::= INTEGER (0 .. 3)	-- Coding according to Annex
+GANSSSignalID ::= INTEGER (0 .. 7)	-- Coding according to Annex
 SeqOfDGANSSSgnElement ::= SEQUENCE (SIZE (1..16)) OF DGANSSSgnElement
 
 -- number of correction for signals
 DGANSSSgnElement ::= SEQUENCE {
-	svID		 SVID, -- Satellite identity
+	svID		 	SVID, -- Satellite identity
 
 --- Sequence number for GANSS Navigation Model that matches the DGANSS correction set
 	iod 			INTEGER (0 .. 1023),
@@ -1214,42 +1263,45 @@ SVID ::= INTEGER (0 .. 63)	-- Coding according to Annex
 
 -- GANSS Navigation Model IE
 GANSSNavModel ::= SEQUENCE {
- nonBroadcastIndFlag INTEGER (0 .. 1),
- toeMSB INTEGER (0 .. 31) OPTIONAL, -- 5 MSB of toe and toc 
- eMSB INTEGER (0 .. 127) OPTIONAL,
- sqrtAMBS INTEGER (0 .. 63) OPTIONAL,
-	ganssSatelliteList SeqOfGANSSSatelliteElement
+ 	nonBroadcastIndFlag 	INTEGER (0 .. 1), 
+	ganssSatelliteList 		SeqOfGANSSSatelliteElement
 }
 
 SeqOfGANSSSatelliteElement ::= SEQUENCE (SIZE(1..32)) OF GANSSSatelliteElement
 
 GANSSSatelliteElement ::= SEQUENCE {
-	svID SVID,
- svHealth INTEGER (-7 .. 13), -- Coding according to Annex
- iod INTEGER (0 .. 1023), -- Coding according to Annex
- ganssClockModel GANSSClockModel, 
- ganssOrbitModel GANSSOrbitModel, 
- ...
+ svID 				SVID,
+ svHealth 			BIT STRING (SIZE(5)), 	-- Coding according to Annex
+ iod 				INTEGER (0 .. 1023), 	-- Coding according to Annex
+ ganssClockModel 	GANSSClockModel, 
+ ganssOrbitModel 	GANSSOrbitModel,  
+ ...,
+ svHealthMSB		BIT STRING (SIZE(1)) 	OPTIONAL, -- Coding according to Annex
+ iodMSB				INTEGER (0 .. 1) 		OPTIONAL  -- Coding according to Annex
 }
 
 -- GANSS orbit model for the GNSS satellite according to the choice
 GANSSOrbitModel ::= CHOICE {
-	keplerianSet	 NavModel-KeplerianSet,	
- ...
+	keplerianSet	 	NavModel-KeplerianSet,		-- Model-1
+	... ,
+	navKeplerianSet	 	NavModel-NAVKeplerianSet, 	-- Model-2
+	cnavKeplerianSet	NavModel-CNAVKeplerianSet, 	-- Model-3
+	glonassECEF			NavModel-GLONASSecef, 		-- Model-4
+	sbasECEF			NavModel-SBASecef			-- Model-5
 }
 
 -- Navigation model in Keplerian parameters
 NavModel-KeplerianSet ::= SEQUENCE {
- keplerToeLSB INTEGER (0 .. 511), -- 9LSB are given in GANSSNavigationModel
+	keplerToe 		 INTEGER (0 .. 16383), 
 	keplerW			 INTEGER (-2147483648..2147483647),
 	keplerDeltaN	 INTEGER (-32768..32767),
 	keplerM0		 INTEGER (-2147483648..2147483647),
 	keplerOmegaDot	 INTEGER (-8388608..8388607),
-	keplerELSB 	 INTEGER (0..33554431),
+	keplerE 	 	 INTEGER (0..4294967295),
 	keplerIDot		 INTEGER (-8192..8191),
-	keplerAPowerHalfLSB INTEGER (0.. 67108863),
+	keplerAPowerHalf INTEGER (0.. 4294967295),
 	keplerI0		 INTEGER (-2147483648..2147483647),
-	keplerOmega0 INTEGER (-2147483648..2147483647),
+	keplerOmega0 	 INTEGER (-2147483648..2147483647),
 	keplerCrs		 INTEGER (-32768..32767),
 	keplerCis		 INTEGER (-32768..32767),
 	keplerCus		 INTEGER (-32768..32767),
@@ -1258,47 +1310,178 @@ NavModel-KeplerianSet ::= SEQUENCE {
 	keplerCuc		 INTEGER (-32768..32767)
 }
 
+NavModel-NAVKeplerianSet ::= SEQUENCE {
+	navURA			INTEGER (0..15),
+	navFitFlag		INTEGER (0..1),
+	navToe			INTEGER (0..37799),
+	navOmega		INTEGER (-2147483648..2147483647),
+	navDeltaN		INTEGER (-32768..32767),
+	navM0			INTEGER (-2147483648..2147483647),
+	navOmegaADot	INTEGER (-8388608..8388607),
+	navE			INTEGER (0..4294967295),
+	navIDot			INTEGER (-8192..8191),
+	navAPowerHalf	INTEGER (0..4294967295),
+	navI0			INTEGER (-2147483648..2147483647),
+	navOmegaA0		INTEGER (-2147483648..2147483647),
+	navCrs			INTEGER (-32768..32767),
+	navCis			INTEGER (-32768..32767),
+	navCus			INTEGER (-32768..32767),
+	navCrc			INTEGER (-32768..32767),
+	navCic			INTEGER (-32768..32767),
+	navCuc			INTEGER (-32768..32767)
+}
+
+NavModel-CNAVKeplerianSet ::= SEQUENCE {
+	cnavTop				INTEGER (0..2015),
+	cnavURAindex		INTEGER (-16..15),
+	cnavDeltaA			INTEGER (-33554432..33554431),
+	cnavAdot			INTEGER (-16777216..16777215),
+	cnavDeltaNo			INTEGER (-65536..65535),
+	cnavDeltaNoDot		INTEGER (-4194304..4194303),
+	cnavMo				INTEGER (-4294967296..4294967295),
+	cnavE				INTEGER (0..8589934591),
+	cnavOmega			INTEGER (-4294967296..4294967295),
+	cnavOMEGA0			INTEGER (-4294967296..4294967295),
+	cnavDeltaOmegaDot	INTEGER (-65536..65535),
+	cnavIo				INTEGER (-4294967296..4294967295),
+	cnavIoDot			INTEGER (-16384..16383),
+	cnavCis				INTEGER (-32768..32767),
+	cnavCic				INTEGER (-32768..32767),
+	cnavCrs				INTEGER (-8388608..8388607),
+	cnavCrc				INTEGER (-8388608..8388607),
+	cnavCus				INTEGER (-1048576..1048575),
+	cnavCuc				INTEGER (-1048576..1048575)
+}
+
+NavModel-GLONASSecef ::= SEQUENCE {
+	gloEn				INTEGER (0..31),
+	gloP1				BIT STRING (SIZE(2)),
+	gloP2				BOOLEAN,
+	gloM				INTEGER (0..3),
+	gloX				INTEGER (-67108864..67108863),
+	gloXdot				INTEGER (-8388608..8388607),
+	gloXdotdot			INTEGER (-16..15),
+	gloY				INTEGER (-67108864..67108863),
+	gloYdot				INTEGER (-8388608..8388607),
+	gloYdotdot			INTEGER (-16..15),
+	gloZ				INTEGER (-67108864..67108863),
+	gloZdot				INTEGER (-8388608..8388607),
+	gloZdotdot			INTEGER (-16..15)
+}
+
+
+NavModel-SBASecef ::= SEQUENCE {
+	sbasTo				INTEGER (0..5399) 					OPTIONAL,
+	sbasAccuracy		BIT STRING (SIZE(4)),
+	sbasXg				INTEGER (-536870912..536870911),
+	sbasYg				INTEGER (-536870912..536870911),
+	sbasZg				INTEGER (-16777216..16777215),
+	sbasXgDot			INTEGER (-65536..65535),
+	sbasYgDot			INTEGER (-65536..65535),
+	sbasZgDot			INTEGER (-131072..131071),
+	sbasXgDotDot		INTEGER (-512..511),
+	sbagYgDotDot		INTEGER (-512..511),
+	sbasZgDotDot		INTEGER (-512..511)
+}
+
 -- GANSS clock model for the GNSS satellite according to the choice
 GANSSClockModel ::= CHOICE {
-	standardClockModelList	 SeqOfStandardClockModelElement,	
- ...
+	standardClockModelList	 SeqOfStandardClockModelElement,	-- Model-1
+	... ,
+	navClockModel			 NAVclockModel, 					-- Model-2
+	cnavClockModel			 CNAVclockModel, 					-- Model-3
+	glonassClockModel		 GLONASSclockModel, 				-- Model-4
+	sbasClockModel			 SBASclockModel						-- Model-5
 }
 
 SeqOfStandardClockModelElement ::= SEQUENCE (SIZE(1..2)) OF StandardClockModelElement
 
 StandardClockModelElement ::= SEQUENCE {
- stanClockTocLSB INTEGER (0 .. 511), -- 9LSB of time of clock
- stanClockAF2 INTEGER (-2048 .. 2047), 
- stanClockAF1 INTEGER (-131072 .. 131071), 
- stanClockAF0 INTEGER (-134217728 .. 134217727),
- stanClockTgd INTEGER (-512 .. 511) OPTIONAL,
- stanModelID INTEGER (0 .. 1) OPTIONAL,
- ...
+ 	stanClockToc 	INTEGER (0 .. 16383), 
+ 	stanClockAF2 	INTEGER (-2048 .. 2047), 
+ 	stanClockAF1 	INTEGER (-131072 .. 131071), 
+ 	stanClockAF0 	INTEGER (-134217728 .. 134217727),
+ 	stanClockTgd 	INTEGER (-512 .. 511) 				OPTIONAL,
+ 	stanModelID 	INTEGER (0 .. 1) 					OPTIONAL,
+ 	...
 } 
+
+NAVclockModel ::= SEQUENCE {
+	navToc			INTEGER (0.. 37799),
+	navaf2			INTEGER (-128..127),
+	navaf1			INTEGER (-32768..32767),
+	navaf0			INTEGER (-2097152..2097151),
+	navTgd			INTEGER (-128..127)
+}
+
+CNAVclockModel ::= SEQUENCE {
+	cnavToc			INTEGER (0..2015),
+	cnavTop			INTEGER (0..2015),
+	cnavURA0		INTEGER (-16..15),
+	cnavURA1		INTEGER (0..7),
+	cnavURA2		INTEGER (0..7),
+	cnavAf2			INTEGER (-512..511),
+	cnavAf1			INTEGER (-524288..524287),
+	cnavAf0			INTEGER (-33554432..33554431),
+	cnavTgd			INTEGER (-4096..4095),
+	cnavISCl1cp		INTEGER (-4096..4095) 			OPTIONAL,
+	cnavISCl1cd		INTEGER (-4096..4095) 			OPTIONAL,
+	cnavISCl1ca		INTEGER (-4096..4095) 			OPTIONAL,
+	cnavISCl2c		INTEGER (-4096..4095) 			OPTIONAL,
+	cnavISCl5i5		INTEGER (-4096..4095) 			OPTIONAL,
+	cnavISCl5q5		INTEGER (-4096..4095) 			OPTIONAL
+}
+
+GLONASSclockModel ::= SEQUENCE {
+	gloTau			INTEGER (-2097152..2097151),
+	gloGamma		INTEGER (-1024..1023),
+	gloDeltaTau		INTEGER (-16..15) 				OPTIONAL
+}
+
+SBASclockModel ::= SEQUENCE {
+	sbasTo			INTEGER (0..5399),
+	sbasAgfo		INTEGER (-2048..2047),
+	sbasAgf1		INTEGER (-128..127)
+}
 
 -- GANSS Real-Time Integrity IE
 GANSSRealTimeIntegrity ::= SEQUENCE {
- -- list of bad signals
+ -- list of satellites with bad signals
  -- NBS can be read from number of elements in SeqOf-BadSignalSet
- ganssBadSignalList SeqOfBadSignalElement
+ 	ganssBadSignalList 		SeqOfBadSignalElement
 }
 
 SeqOfBadSignalElement ::= SEQUENCE (SIZE(1..16)) OF BadSignalElement
 
 BadSignalElement ::= SEQUENCE {
- badSVID SVID, -- Coding according to Annex
- badSignalID INTEGER (0 .. 3) OPTIONAL -- Coding according to Annex
+ 	badSVID 		SVID, 						 -- Coding according to Annex
+ 	badSignalID 	GANSSSignals 	OPTIONAL	 -- Coding according to Annex
 }
-
 
 -- GANSS Data Bit Assistance IE
 GANSSDataBitAssist ::= SEQUENCE {
- ganssTOD INTEGER (0 .. 59),
- svID SVID,
- ganssDataTypeID INTEGER (0 .. 2), -- Coding according to Annex
- -- list of navigation data bits
- -- N_BIT can be read from number of elements in SeqOf-DataBits
- ganssDataBits SeqOf-GANSSDataBits
+	ganssTOD 					INTEGER (0 .. 59),
+	-- N_SAT can be read from number of elements in SeqOfGanssDataBitsElement
+	ganssDataBitsSatList		SeqOfGanssDataBitsElement,
+	...
+}
+
+SeqOfGanssDataBitsElement ::= SEQUENCE (SIZE(1 .. 32))OF GanssDataBitsElement
+
+GanssDataBitsElement ::= SEQUENCE {
+	svID					SVID,
+	-- N_SGN can be read from number of elements in Seq-OfGANSSDataBitsSgn
+	ganssDataBitsSgnList	Seq-OfGANSSDataBitsSgn,
+	...
+}
+
+Seq-OfGANSSDataBitsSgn ::= SEQUENCE (SIZE(1..8)) OF GANSSDataBitsSgnElement
+
+GANSSDataBitsSgnElement ::= SEQUENCE {
+	ganssSignalType		GANSSSignalID,
+	-- N_BIT can be read from number of elements in SeqOf-DataBits
+	ganssDataBits		SeqOf-GANSSDataBits,
+	...
 }
 
 SeqOf-GANSSDataBits ::= SEQUENCE (SIZE(1 .. 1024)) OF GANSSDataBit
@@ -1307,66 +1490,139 @@ GANSSDataBit ::= INTEGER(0 .. 1)
 -- GANSS Reference Measurement Assistance IE
 -- Code and Doppler assistance from the network. 
 GANSSRefMeasurementAssist ::= SEQUENCE {
- ganssSignalID INTEGER (0 .. 3) OPTIONAL, -- Coding according to Annex
- ganssRefMeasAssitList SeqOfGANSSRefMeasurementElement
+	ganssSignalID			GANSSSignalID,	-- Coding according to Annex
+	ganssRefMeasAssistList	SeqOfGANSSRefMeasurementElement
 }
 
 SeqOfGANSSRefMeasurementElement ::= SEQUENCE (SIZE(1 .. 16)) OF GANSSRefMeasurementElement
 
 GANSSRefMeasurementElement ::= SEQUENCE {
- svID SVID,
+	svID					SVID,
 	-- Doppler 0th order term,
 	-- -1024 m/s to 1023.5 m/s with 0.5 m/s resolution)
-	doppler0				INTEGER (-2048 .. 2047),	-- Coding according to Annex
-	additionalDoppler		AdditionalDopplerFields	 OPTIONAL,
-	codePhase				INTEGER (0 .. 1022),	 -- Code Phase in ms
-	intCodePhase			INTEGER (0 .. 127),	 -- Integer Code Phase in ms
-	codePhaseSearchWindow	INTEGER (0 .. 31),	 -- Code Phase Search Window, see Annex
-	additionalAngle			AddionalAngleFields		 OPTIONAL,
- ...
+	doppler0				INTEGER (-2048 .. 2047),					-- Coding according to Annex
+	additionalDoppler		AdditionalDopplerFields			OPTIONAL,
+	codePhase				INTEGER (0 .. 1022),						-- Code Phase in ms
+	intCodePhase			INTEGER (0 .. 127),							-- Integer Code Phase in ms
+	codePhaseSearchWindow	INTEGER (0 .. 31),				-- Code Phase Search Window, see Annex
+	additionalAngle			AddionalAngleFields		 		OPTIONAL,
+	...
 }
 
 AdditionalDopplerFields ::= SEQUENCE {
 	-- Doppler 1st order term, -0.2 - +0.1 m/s2
+	-- ( = -42 + (0 to 63) with 1/210 m/s2 resolution)
 	doppler1				INTEGER (0..63),
 	dopplerUncertainty		INTEGER (0..4)
 }
 
 -- GANSS Almanac Model IE
 GANSSAlmanacModel ::= SEQUENCE {
- weekNumber INTEGER (0 .. 255),
- svIDMask SVIDMASK,
- toa INTEGER (0 .. 255) OPTIONAL,
- ioda INTEGER (0 .. 3) OPTIONAL,
- ganssAlmanacList SeqOfGANSSAlmanacElement
+ 	weekNumber 			INTEGER (0 .. 255),
+	toa 				INTEGER (0 .. 255) 	OPTIONAL,
+	ioda 				INTEGER (0 .. 3) 	OPTIONAL,
+	ganssAlmanacList 	SeqOfGANSSAlmanacElement
 }
 
--- SV ID Mask, LSB for ID 1 and MSB for ID 36
-SVIDMASK ::= BIT STRING (SIZE (1..36))
 
 SeqOfGANSSAlmanacElement ::= SEQUENCE (SIZE(1 .. 36)) OF GANSSAlmanacElement
 
 -- GANSS Almanac Model 
 GANSSAlmanacElement ::= CHOICE {
-	keplerianAlmanacSet	 Almanac-KeplerianSet,	
- ...
+	keplerianAlmanacSet	 	Almanac-KeplerianSet,			-- Model-1
+ 	...,
+	keplerianNAVAlmanac	 	Almanac-NAVKeplerianSet, 		-- Model-2
+	keplerianReducedAlmanac	Almanac-ReducedKeplerianSet, 	-- Model-3
+	keplerianMidiAlmanac	Almanac-MidiAlmanacSet, 		-- Model-4
+	keplerianGLONASS		Almanac-GlonassAlmanacSet, 		-- Model-5
+	ecefSBASAlmanac			Almanac-ECEFsbasAlmanacSet		-- Model-6
 }
 
 -- Almanac parameters according to Keplerian parameters
 Almanac-KeplerianSet ::= SEQUENCE {
- 	kepAlmanacE			 INTEGER (0 .. 2047),
+	svID					SVID,
+ 	kepAlmanacE			 	INTEGER (0 .. 2047),
 	kepAlmanacDeltaI		INTEGER (-1024 .. 1023),
 	kepAlmanacOmegaDot		INTEGER (-1024 .. 1023),
- kepSVHealth INTEGER (0 .. 15), -- Coding according to Annex
+ 	kepSVHealth 			INTEGER (0 .. 15), 			 -- Coding according to Annex
 	kepAlmanacAPowerHalf	INTEGER (-65536 .. 65535),
 	kepAlmanacOmega0		INTEGER (-32768 .. 32767),
-	kepAlmanacW			 INTEGER (-32768 .. 32767),
+	kepAlmanacW			 	INTEGER (-32768 .. 32767),
 	kepAlmanacM0			INTEGER (-32768 .. 32767),
 	kepAlmanacAF0			INTEGER (-8192 .. 8191),
 	kepAlmanacAF1			INTEGER (-1024..1023)
 }
 
--- GANSS Universal Time Coordinate Model
+Almanac-NAVKeplerianSet ::= SEQUENCE {
+	svID					SVID,
+	navAlmE					INTEGER (0..65535),
+	navAlmDeltaI			INTEGER (-32768..32767),
+	navAlmOMEGADOT			INTEGER (-32768..32767),
+	navAlmSVHealth			INTEGER (0..255),
+	navAlmSqrtA				INTEGER (0..16777215),
+	navAlmOMEGAo			INTEGER (-8388608..8388607),
+	navAlmOmega				INTEGER (-8388608..8388607),
+	navAlmMo				INTEGER (-8388608..8388607),
+	navAlmaf0				INTEGER (-1024..1023),
+	navAlmaf1				INTEGER (-1024..1023)
+}
+
+Almanac-ReducedKeplerianSet ::= SEQUENCE {
+	svID					SVID,
+	redAlmDeltaA			INTEGER (-128..127),
+	redAlmOmega0			INTEGER (-64..63),
+	redAlmPhi0				INTEGER (-64..63),
+	redAlmL1Health			BOOLEAN,
+	redAlmL2Health			BOOLEAN,
+	redAlmL5Health			BOOLEAN
+}
+
+Almanac-MidiAlmanacSet ::= SEQUENCE {
+	svID					SVID,
+	midiAlmE				INTEGER (0..2047),
+	midiAlmDeltaI			INTEGER (-1024..1023),
+	midiAlmOmegaDot			INTEGER (-1024..1023),
+	midiAlmSqrtA			INTEGER (0..131071),
+	midiAlmOmega0			INTEGER (-32768..32767),
+	midiAlmOmega			INTEGER (-32768..32767),
+	midiAlmMo				INTEGER (-32768..32767),
+	midiAlmaf0				INTEGER (-1024..1023),
+	midiAlmaf1				INTEGER (-512..511),
+	midiAlmL1Health			BOOLEAN,
+	midiAlmL2Health			BOOLEAN,
+	midiAlmL5Health			BOOLEAN
+}
+
+Almanac-GlonassAlmanacSet ::= SEQUENCE {
+	gloAlmNA				INTEGER (1..1461),
+	gloAlmnA				INTEGER (1..24),
+	gloAlmHA				INTEGER (0..31),
+	gloAlmLambdaA			INTEGER (-1048576..1048575),
+	gloAlmtlambdaA			INTEGER (0..2097151),
+	gloAlmDeltaIa			INTEGER (-131072..131071),
+	gloAlmDeltaTA			INTEGER (-2097152..2097151),
+	gloAlmDeltaTdotA		INTEGER (-64..63),
+	gloAlmEpsilonA			INTEGER (0..32767),
+	gloAlmOmegaA			INTEGER (-32768..32767),
+	gloAlmTauA				INTEGER (-512..511),
+	gloAlmCA				INTEGER (0..1),
+	gloAlmMA				BIT STRING (SIZE(2)) 			OPTIONAL
+}
+
+Almanac-ECEFsbasAlmanacSet ::= SEQUENCE {
+	sbasAlmDataID			INTEGER (0..3),
+	svID					SVID,
+	sbasAlmHealth			BIT STRING (SIZE(8)),
+	sbasAlmXg				INTEGER (-16384..16383),
+	sbasAlmYg				INTEGER (-16384..16383),
+	sbasAlmZg				INTEGER (-256..255),
+	sbasAlmXgdot			INTEGER (-4..3),
+	sbasAlmYgDot			INTEGER (-4..3),
+	sbasAlmZgDot			INTEGER (-8..7),
+	sbasAlmTo				INTEGER (0..2047)
+}
+
+-- GANSS Universal Time Coordinate Model (Model-1)
 GANSSUTCModel ::= SEQUENCE {
 	ganssUtcA1			INTEGER (-8388608..8388607),
 	ganssUtcA0			INTEGER (-2147483648..2147483647),
@@ -1378,8 +1634,436 @@ GANSSUTCModel ::= SEQUENCE {
 	ganssUtcDeltaTlsf	INTEGER (-128..127)
 }
 
+--GANSS Ephemeris Extension
+GANSSEphemerisExtension ::= SEQUENCE {
+	ganssEphemerisHeader			GANSSEphemerisExtensionHeader			OPTIONAL,
+	ganssReferenceSet				SeqOfGANSSRefOrbit						OPTIONAL,
+	ganssephemerisDeltasMatrix		GANSSEphemerisDeltaMatrix				OPTIONAL,
+...
+}
+
+-- The ganssEphemerisHeader and the ganssReferenceSet are mandatory only once in the delivery of the
+-- GANSS Ephemeris Extension.  The ganssReferenceSet shall include all healthy satellite vehicles 
+-- at the time of message construction.
+
+GANSSEphemerisExtensionHeader ::= SEQUENCE {
+	timeAtEstimation			GANSSEphemerisExtensionTime,
+	validityPeriod				INTEGER(1..8),
+-- The validity period, represented in hours, is the validity period of each individual ephemeris 
+-- delta payload
+	ephemerisExtensionDuration	INTEGER(1..512),
+-- If the ephemerisExtensionDuration does not match the request duration made by the MS, the MS
+-- should regard the provided ephemerisExtensionDuration as the limit of the SMLC ephemeris
+-- extension capability at this time.
+...
+}
+
+GANSSEphemerisExtensionTime ::= SEQUENCE {
+	ganssEphExtDay		INTEGER(0..8191),
+	ganssEphExtTOD		GANSSTOD,
+...
+}
+
+-- Reference Nav Model for Ephepmeris Extension
+ReferenceNavModel ::= SEQUENCE {
+ 	keplerToe			INTEGER (0..37799),
+	keplerW				INTEGER (-2147483648..2147483647),
+	keplerDeltaN		INTEGER (-32768..32767),
+	keplerM0			INTEGER (-2147483648..2147483647),
+	keplerOmegaDot		INTEGER (-8388608..8388607),
+	keplerE				INTEGER (0..4294967295),
+	keplerIDot			INTEGER (-8192..8191),
+	keplerAPowerHalf	INTEGER (0.. 4294967295),
+	keplerI0			INTEGER (-2147483648..2147483647),
+	keplerOmega0		INTEGER (-2147483648..2147483647),
+	keplerCrs			INTEGER (-32768..32767),
+	keplerCis			INTEGER (-32768..32767),
+	keplerCus			INTEGER (-32768..32767),
+	keplerCrc			INTEGER (-32768..32767),
+	keplerCic			INTEGER (-32768..32767),
+	keplerCuc			INTEGER (-32768..32767)
+}
+
+SeqOfGANSSRefOrbit ::= SEQUENCE (SIZE(1..32)) OF GANSSReferenceOrbit
+--The number of reference orbits can be read from number of elements in this sequence
+
+GANSSReferenceOrbit ::= SEQUENCE {
+	svID				SVID,
+	ganssOrbitModel		ReferenceNavModel, 
+	ganssClockModel		GANSSClockModel, 
+...
+}
+
+GANSSEphemerisDeltaMatrix ::= SEQUENCE (SIZE(1 .. 128)) OF GANSSEphemerisDeltaEpoch
+
+GANSSEphemerisDeltaEpoch ::= SEQUENCE {
+	ganssDeltaEpochHeader		GANSSDeltaEpochHeader				OPTIONAL,
+	ganssDeltaElementList		GANSSDeltaElementList,
+...
+}
+-- Each GANSSDeltaEpoch element contains a header and the delta values for a particular time window
+-- for all PRN’s.
+
+GANSSDeltaEpochHeader ::= SEQUENCE {
+	validityPeriod				INTEGER(1..8)					OPTIONAL,
+	ephemerisDeltaSizes			GANSSEphemerisDeltaBitSizes		OPTIONAL,
+	ephemerisDeltaScales		GANSSEphemerisDeltaScales		OPTIONAL,
+...
+}
+-- In each of the GANSSDeltaEpochs, if the optional element, validityPeriod is not included, the
+-- value in GANSSEphemerisExtensionHeader shall be used.  If the optional elements 
+-- ephemerisDeltaSizes or ephemerisDeltaScales are not included, then the default ephemeris delta
+-- sizes and scales shall be used.  The default sizes and scales are found in the annex in the 
+-- table 55.11.
+
+GANSSDeltaElementList ::= SEQUENCE (SIZE(1 .. 32)) OF OCTET STRING(SIZE (1..49))
+-- Each octet string element in GANSSDeltaElementList corresponds to one PRN within one epoch
+
+-- Table 55.11 of the annex shows the organization of the delta ephemeris octet string.
+-- Decoding of each of the octet strings is accomplished by consulting the ephemerisDeltaSizes
+-- table to learn the length and order of each of the parameters in the ephemerisDelta payload.
+
+-- Post decode scaling is accomplished by consulting the ephemerisDeltaScales table to learn the
+-- scale factors to apply to the terms in the delta ephemeris.
+
+-- Ephemeris Delta Bit Sizes.
+
+GANSSEphemerisDeltaBitSizes ::= SEQUENCE {
+
+-- This structure defines the order and sizes of the fields in the GANSSDeltaEpoch octet string 
+-- seqNum and svID are the first two elements of each GANSS Ephemeris Delta Element Structure
+-- seqNum is always 7 bits, and svID is always 6 bits long and are thus not included in
+-- the GANSSEphemerisDeltaBitSizes table.  The value of seqNum indicates the GANSSDeltaEpoch number
+
+-- The Ephemeris delta element payload mimics the bitsize table, but also includes the svID and 
+-- seqNum as the first two elements (in that order),in each block.
+
+	bitsize-delta-omega			INTEGER(1..32),
+	bitsize-delta-deltaN		INTEGER(1..16),
+	bitsize-delta-m0			INTEGER(1..32),
+	bitsize-delta-omegadot		INTEGER(1..24),
+	bitsize-delta-e				INTEGER(1..32),
+	bitsize-delta-idot			INTEGER(1..14),
+	bitsize-delta-sqrtA			INTEGER(1..32),
+	bitsize-delta-i0			INTEGER(1..32),
+	bitsize-delta-omega0		INTEGER(1..32),
+	bitsize-delta-crs			INTEGER(1..16),
+	bitsize-delta-cis			INTEGER(1..16),
+	bitsize-delta-cus			INTEGER(1..16),
+	bitsize-delta-crc			INTEGER(1..16),
+	bitsize-delta-cic			INTEGER(1..16),
+	bitsize-delta-cuc			INTEGER(1..16),
+	bitsize-delta-tgd1			INTEGER(1..10),
+	bitsize-delta-tgd2			INTEGER(1..10),
+...
+}
+
+GANSSEphemerisDeltaScales ::= SEQUENCE {
+
+	scale-delta-omega			INTEGER(-16..15),
+	scale-delta-deltaN			INTEGER(-16..15),
+	scale-delta-m0				INTEGER(-16..15),
+	scale-delta-omegadot		INTEGER(-16..15),
+	scale-delta-e				INTEGER(-16..15),
+	scale-delta-idot			INTEGER(-16..15),
+	scale-delta-sqrtA			INTEGER(-16..15),
+	scale-delta-i0				INTEGER(-16..15),
+	scale-delta-omega0			INTEGER(-16..15),
+	scale-delta-crs				INTEGER(-16..15),
+	scale-delta-cis				INTEGER(-16..15),
+	scale-delta-cus				INTEGER(-16..15),
+	scale-delta-crc				INTEGER(-16..15),
+	scale-delta-cic				INTEGER(-16..15),
+	scale-delta-cuc				INTEGER(-16..15),
+	scale-delta-tgd1			INTEGER(-16..15),
+	scale-delta-tgd2			INTEGER(-16..15),
+...
+}
+
+-- GANSS Ephemeris Extension Check
+GANSSEphemerisExtensionCheck ::= SEQUENCE {
+	ganssBeginTime			GANSSEphemerisExtensionTime,
+	ganssEndTime			GANSSEphemerisExtensionTime,
+	ganssSatEventsInfo		GANSSSatEventsInfo,
+...
+}
+
+GANSSSatEventsInfo ::= SEQUENCE {
+	eventOccured		BIT STRING (SIZE (64)),
+	futureEventNoted	BIT STRING (SIZE (64)),
+...
+}
+-- If a bit is clear in the eventOccured field it indicates that no known errors have occured
+-- between the current time and the ganssBeginTime nor is a maneuver planned for the next sixty
+-- minutes.
+-- If a bit is set in the futureEventNoted field it indicates that a maneuver is planned during the
+-- time period between current time plus sixty minutes and the ganssEndTime
+-- GANSS Additional Universal Time Coordinate Model
+GANSSAddUTCModel ::= CHOICE {
+	utcModel2			UTCmodelSet2,
+	utcModel3			UTCmodelSet3,
+	utcModel4			UTCmodelSet4,
+	...
+}
+
+UTCmodelSet2 ::= SEQUENCE {
+	utcA0				INTEGER (-32768..32767),
+	utcA1				INTEGER (-4096.. 4095),
+	utcA2				INTEGER (-64..63),
+	utcDeltaTls			INTEGER (-128.. 127),
+	utcTot				INTEGER (0..65535),
+	utcWNot				INTEGER (0..8191),
+	utcWNlsf			INTEGER (0..255),
+	utcDN				BIT STRING (SIZE(4)),
+	utcDeltaTlsf		INTEGER (-128..127)
+}
+
+UTCmodelSet3 ::= SEQUENCE {
+	nA					INTEGER (1..1461),
+	tauC				INTEGER (-2147483648..2147483647),
+	b1					INTEGER (-1024..1023) 					OPTIONAL,
+	b2					INTEGER (-512..511) 					OPTIONAL,
+	kp					BIT STRING (SIZE(2)) 					OPTIONAL
+}
+
+UTCmodelSet4 ::= SEQUENCE {
+	utcA1wnt			INTEGER (-8388608..8388607),
+	utcA0wnt			INTEGER (-2147483648..2147483647),
+	utcTot				INTEGER (0..255),
+	utcWNt				INTEGER (0..255),
+	utcDeltaTls			INTEGER (-128..127),
+	utcWNlsf			INTEGER (0..255),
+	utcDN				INTEGER (-128..127),
+	utcDeltaTlsf		INTEGER (-128..127),
+	utcStandardID		INTEGER (0..7) 			-- coding according to annex
+}
+
+-- GANSS Auxiliary Information
+GANSSAuxiliaryInformation ::= CHOICE{
+	ganssID1	GANSS-ID1, 	-- This choice may only be present if GANSS ID indicates Modernized GPS
+	ganssID3	GANSS-ID3, 	-- This choice may only be present if GANSS ID indicates GLONASS
+	...
+}
+
+GANSS-ID1 ::= SEQUENCE (SIZE(1..64)) OF GANSS-ID1-element
+
+GANSS-ID1-element ::= SEQUENCE {
+	svID				SVID,
+	signalsAvailable	GANSSSignals,
+	...
+}
+
+GANSS-ID3 ::= SEQUENCE (SIZE(1..64)) OF GANSS-ID3-element
+
+GANSS-ID3-element  ::= SEQUENCE {
+	svID				SVID,
+	signalsAvailable	GANSSSignals,
+	channelNumber		INTEGER (-7..13),
+	...
+}
+
+-- DGANSS Corrections Validity Period:
+-- This element may only be included if GANSSDiffCorrections IE is included in 
+-- GANSSGenericAssistDataElement element.
+-- GANSSDiffCorrectionsValidityPeriod shall contain the same number of elements as the 
+-- SeqOfSgnTypeElement included in GANSSDiffCorrections IE
+GANSSDiffCorrectionsValidityPeriod ::= SEQUENCE (SIZE (1..3)) OF DGANSSExtensionSgnTypeElement
+
+DGANSSExtensionSgnTypeElement ::= SEQUENCE {
+	ganssSignalID		 		GANSSSignalID, -- signal type identity
+	dganssExtensionSgnList		SeqOfDGANSSExtensionSgnElement
+}
+
+-- SeqOfDGANSSExtensionSgnElement shall contain the same number of elements as the 
+-- SeqOfDGANSSSgnElement included in GANSSDiffCorrections IE
+SeqOfDGANSSExtensionSgnElement ::= SEQUENCE (SIZE (1..16)) OF DGANSSExtensionSgnElement
+
+DGANSSExtensionSgnElement ::= SEQUENCE {
+	svID				SVID, 			-- Satellite identity
+	udreGrowthRate		INTEGER(0..7), 	-- coding according to annex
+	udreValidityTime	INTEGER(0..7), 	-- coding according to annex
+	...
+}
+
 --Required Measurement Request Response Time, range is 1 to 128 seconds. 
 RequiredResponseTime ::= INTEGER  (1..128)
+
+-- Control header for additional GPS assistance data
+Add-GPS-AssistData ::= SEQUENCE {
+	add-GPS-controlHeader	Add-GPS-ControlHeader
+}
+
+Add-GPS-ControlHeader ::= SEQUENCE {
+	gpsEphemerisExtension			GPSEphemerisExtension			OPTIONAL,
+	gpsEphemerisExtensionCheck		GPSEphemerisExtensionCheck		OPTIONAL,
+	... ,
+	dgpsCorrectionsValidityPeriod	DGPSCorrectionsValidityPeriod	OPTIONAL
+}
+
+GPSClockModel ::= SEQUENCE {
+	af2      INTEGER (-128..127),
+	af1      INTEGER (-32768..32767),
+	af0      INTEGER (-2097152..2097151),
+	tgd      INTEGER (-128..127)
+}
+
+--GPS Ephemeris Extension
+GPSEphemerisExtension ::= SEQUENCE {
+	gpsEphemerisHeader			GPSEphemerisExtensionHeader				OPTIONAL,
+	gpsReferenceSet				SeqOfGPSRefOrbit						OPTIONAL,
+	gpsephemerisDeltaMatrix		GPSEphemerisDeltaMatrix					OPTIONAL,
+...
+}
+
+-- The gpsEphemerisHeader and the gpsReferenceSet are mandatory only once in the delivery of the
+-- GPS Ephemeris Extension.  The gpsReferenceSet shall include all healthy satellite vehicles at the
+-- time of message construction
+
+-- The SMLC is required to deliver the gpsReferenceSet for all healthy satellite vehicles
+-- at the time of message construction.
+
+GPSEphemerisExtensionHeader ::= SEQUENCE {
+	timeofEstimation			GPSEphemerisExtensionTime,
+	validityPeriod				INTEGER(1..8),
+-- The validity period, represented in hours is the validity period of each individual ephemeris 
+-- delta payload
+	ephemerisExtensionDuration	INTEGER(1..512),
+-- If the ephemerisExtensionDuration does not match the request duration made by the MS, the MS
+-- should regard the provided ephemerisExtensionDuration as the limit of the SMLC ephemeris
+-- extension capability at this time.
+...
+}
+
+GPSEphemerisExtensionTime ::= SEQUENCE {
+	gpsWeek				GPSWeek,
+	gpsTOW				INTEGER (0..604799),
+...
+}
+
+SeqOfGPSRefOrbit ::= SEQUENCE (SIZE(1..32)) OF GPSReferenceOrbit
+--The number of reference orbits can be read from number of elements in this sequence
+
+GPSReferenceOrbit ::= SEQUENCE {
+	svID				SVID,
+	gpsOrbitModel		ReferenceNavModel,
+	gpsClockModel		GPSClockModel,
+...
+}
+
+GPSEphemerisDeltaMatrix ::= SEQUENCE (SIZE(1 .. 128)) OF GPSEphemerisDeltaEpoch
+
+GPSEphemerisDeltaEpoch ::= SEQUENCE {
+	gpsDeltaEpochHeader		GPSDeltaEpochHeader				OPTIONAL,
+	gpsDeltaElementList		GPSDeltaElementList,
+...
+}
+
+-- Each GPSDeltaEpoch element contains a header and the delta values for a particular time window 
+-- for all PRN’s.
+GPSDeltaEpochHeader ::= SEQUENCE {
+	validityPeriod				INTEGER(1..8)				OPTIONAL,
+	ephemerisDeltaSizes			GPSEphemerisDeltaBitSizes	OPTIONAL,
+	ephemerisDeltaScales		GPSEphemerisDeltaScales	OPTIONAL,
+...
+}
+
+-- In each of the GPSDeltaEpochs, if the optional element validityPeriod is not included,
+-- the value in GPSEphemerisExtensionHeader shall be used.  if the optional elements 
+-- ephemerisDeltaSizes or ephemerisDeltaScales are not included, then the default ephemeris delta
+-- sizes and scales shall be used.  The default sizes and scales are found in the annex in section
+-- A.29.m
+
+GPSDeltaElementList ::= SEQUENCE (SIZE(1 .. 32)) OF OCTET STRING(SIZE (1..47))
+
+-- Each octet string element in GPSDeltaElementList corresponds to one PRN within one epoch
+
+-- Table A.29.m of the annex shows the organization of the delta ephemeris octet string.
+-- Decoding of each of the octet strings is accomplished by consulting the ephemerisDeltaSizes
+-- table to learn the length and order of each of the parameters in the ephemerisDelta payload
+
+-- Post decode scaling is accomplished by consulting the ephemerisDeltaScales table to learn the.
+-- scale factors to apply to the terms in the delta ephemeris
+
+-- Ephemeris Delta Bit Sizes. 
+
+GPSEphemerisDeltaBitSizes ::= SEQUENCE {
+
+-- This structure defines the order and sizes of the fields in the GPSsDeltaEpoch octet string
+-- seqNum and svID are the first two elements of each GPS Ephemeris Delta Element Structure
+-- seqNum is always 7 bits, and svID is always 5 bits long and are thus not included in
+-- the GPSEphemerisDeltaBitSizes table. seqNum indicates the GPSDeltaEpoch number.
+
+-- The Ephemeris delta element payload mimics the bitsize table, but also includes the svID and
+-- seqNum as the first two elements (in that order),in each block.
+
+	bitsize-delta-omega			INTEGER(1..32),
+	bitsize-delta-deltaN		INTEGER(1..16),
+	bitsize-delta-m0			INTEGER(1..32),
+	bitsize-delta-omegadot		INTEGER(1..24),
+	bitsize-delta-e				INTEGER(1..32),
+	bitsize-delta-idot			INTEGER(1..14),
+	bitsize-delta-sqrtA			INTEGER(1..32),
+	bitsize-delta-i0			INTEGER(1..32),
+	bitsize-delta-omega0		INTEGER(1..32),
+	bitsize-delta-crs			INTEGER(1..16),
+	bitsize-delta-cis			INTEGER(1..16),
+	bitsize-delta-cus			INTEGER(1..16),
+	bitsize-delta-crc			INTEGER(1..16),
+	bitsize-delta-cic			INTEGER(1..16),
+	bitsize-delta-cuc			INTEGER(1..16),
+	bitsize-delta-tgd			INTEGER(1..10),
+...
+}
+
+GPSEphemerisDeltaScales ::= SEQUENCE {
+	scale-delta-omega			INTEGER(-16..15),
+	scale-delta-deltaN			INTEGER(-16..15),
+	scale-delta-m0				INTEGER(-16..15),
+	scale-delta-omegadot		INTEGER(-16..15),
+	scale-delta-e				INTEGER(-16..15),
+	scale-delta-idot			INTEGER(-16..15),
+	scale-delta-sqrtA			INTEGER(-16..15),
+	scale-delta-i0				INTEGER(-16..15),
+	scale-delta-omega0			INTEGER(-16..15),
+	scale-delta-crs				INTEGER(-16..15),
+	scale-delta-cis				INTEGER(-16..15),
+	scale-delta-cus				INTEGER(-16..15),
+	scale-delta-crc				INTEGER(-16..15),
+	scale-delta-cic				INTEGER(-16..15),
+	scale-delta-cuc				INTEGER(-16..15),
+	scale-delta-tgd				INTEGER(-16..15),
+...
+}
+
+GPSEphemerisExtensionCheck ::= SEQUENCE {
+	gpsBeginTime			GPSEphemerisExtensionTime,
+	gpsEndTime				GPSEphemerisExtensionTime,
+	gpsSatEventsInfo		GPSSatEventsInfo,
+...
+}
+
+GPSSatEventsInfo ::= SEQUENCE {
+	eventOccured		BIT STRING (SIZE (32)),
+	futureEventNoted	BIT STRING (SIZE (32)),
+...
+}
+-- If a bit is clear in the eventOccured field it indicates that no known errors have occured since 
+-- the gpsBeginTime nor is a maneuver planned for the next sixty minutes.
+-- If a bit is set in the futureEventNoted field it indicates that a maneuver is planned during the
+-- time period between current time plus sixty minutes and gpsEndTime
+
+-- DGPS Corrections Validity Period:
+-- This element may only be included if DGPSCorrections IE is included in ControlHeader element.
+-- DGPSCorrectionsValidityPeriod shall contain the same number of elements as the SeqOfSatElement
+-- included in DGPSCorrections IE
+DGPSCorrectionsValidityPeriod ::= SEQUENCE (SIZE (1..16)) OF DGPSExtensionSatElement
+
+DGPSExtensionSatElement ::= SEQUENCE {
+	satelliteID			SatelliteID,
+	udreGrowthRate		INTEGER(0..7), 	-- coding according to annex
+	udreValidityTime	INTEGER(0..7), 	-- coding according to annex
+	...
+}
 
 Rel-7-MsrPosition-Rsp-Extension ::= SEQUENCE {
 
@@ -1397,28 +2081,34 @@ Rel-7-MsrPosition-Rsp-Extension ::= SEQUENCE {
 -- GANSS Location Information contains location estimate, time stamp with uncertainty 
 -- and optionally Reference Frame field
 GANSSLocationInfo ::= SEQUENCE {
- referenceFrame ReferenceFrame OPTIONAL, -- Reference Frame Number
- ganssTODm GANSSTODm OPTIONAL, -- GNSS TOD modulo
- ganssTODFrac INTEGER (0 .. 16384) OPTIONAL, -- Coding according to Annex
-	ganssTODUncertainty GANSSTODUncertainty OPTIONAL, -- Coding according to Annex
- ganssTimeID INTEGER (0 .. 3) OPTIONAL, -- Coding according to Annex
-	fixType			 FixType,
- posData PositionData,
- stationaryIndication INTEGER(0 .. 1) OPTIONAL, -- '0' if moving or motion not known 
+ 	referenceFrame 				ReferenceFrame 			OPTIONAL, -- Reference Frame Number
+ 	ganssTODm 					GANSSTODm 				OPTIONAL, -- GNSS TOD modulo
+ 	ganssTODFrac 				INTEGER (0 .. 16384) 	OPTIONAL, -- Coding according to Annex
+	-- a value of 16384 shall not be encoded by the sender
+	-- the receiver shall consider a value of 16384 to be invalid data
+	ganssTODUncertainty 		GANSSTODUncertainty 	OPTIONAL, -- Coding according to Annex
+ 	ganssTimeID 				INTEGER (0 .. 7) 		OPTIONAL, -- Coding according to Annex
+	fixType			 			FixType,
+ 	posData 					PositionData,
+ 	stationaryIndication 		INTEGER(0 .. 1) 		OPTIONAL, -- ‘0’ if moving or motion not
+																  -- known 
 	-- Possible shapes carried in posEstimate are
 	-- ellipsoid point,
 	-- ellipsoid point with uncertainty circle
 	-- ellipsoid point with uncertainty ellipse
 	-- ellipsoid point with altitude and uncertainty ellipsoid
-	posEstimate		 Ext-GeographicalInformation,
- ...
+	posEstimate		 			Ext-GeographicalInformation,
+ 	...
 }
 
 PositionData ::= BIT STRING {
- e-otd(0),
-	gps (1),
-	galileo (2) } (SIZE (3..16))
-
+ 	e-otd	 	 	 (0),
+	gps 	 	 	 (1),
+	galileo 	 	 (2),
+	sbas 	 	 	 (3),
+	modernizedGPS 	 (4),
+	qzss 	 	 	 (5),
+	glonass 	 	 (6) } (SIZE (3..16))
 
 -- GANSS TOD modulo 1 hour
 GANSSTODm ::= INTEGER (0 .. 3599999)
@@ -1429,59 +2119,217 @@ ReferenceFrame ::= SEQUENCE {
  referenceFNMSB INTEGER (0 .. 63) OPTIONAL -- MSB of Reference Frame Number
 }
 
-
-
 -- GANSS Measurement Information 
 GANSSMeasureInfo ::= SEQUENCE {
 	-- Measurement info elements
-	-- user has to make sure that in this element is number of elements
-	-- defined in reference BTS identity
- ganssMsrSetList SeqOfGANSS-MsrSetElement
+ganssMsrSetList SeqOfGANSS-MsrSetElement
 }
 SeqOfGANSS-MsrSetElement ::= SEQUENCE (SIZE(1..3)) OF GANSS-MsrSetElement
 
 -- GANSS measurement information 1-3 times in a message
 GANSS-MsrSetElement ::= SEQUENCE {
- referenceFrame ReferenceFrame OPTIONAL, -- Reference Frame Number
- ganssTODm GANSSTODm OPTIONAL, -- GANSS TOD modulo
- deltaGNASSTOD INTEGER (0 .. 127) OPTIONAL,
-	ganssTODUncertainty GANSSTODUncertainty OPTIONAL, -- Coding accoring to Annex
-
- --N_SGN_TYPE can be read from number of elements of SeqOfGANSS-SgnTypeElement
- ganss-SgnTypeList SeqOfGANSS-SgnTypeElement
+ 	referenceFrame 			ReferenceFrame 		OPTIONAL, -- Reference Frame Number
+	-- if ganssTODm is included, it is the GNSS specific system time of the GANSS reported
+	-- first in ganss-SgnTypeList. If GPS Measurement Information element is not included in
+    -- a Measure Position Response component, this field shall be present.
+ 	ganssTODm 				GANSSTODm 			OPTIONAL, -- GANSS TOD modulo 1 hour
+ 	deltaGANSSTOD 			INTEGER (0 .. 127) 	OPTIONAL,
+	ganssTODUncertainty 	GANSSTODUncertainty	OPTIONAL, -- Coding according to Annex
+	--N_GANSS can be read from number of elements of SeqOfGANSS-MsrElement
+	ganss-MsrElementList	SeqOfGANSS-MsrElement 
 }
 
--- Measurements can be returned up to 6 different signal types 
-SeqOfGANSS-SgnTypeElement ::= SEQUENCE (SIZE(1..6)) OF GANSS-SgnTypeElement
+SeqOfGANSS-MsrElement ::= SEQUENCE (SIZE(1..8)) OF GANSS-MsrElement
+
+GANSS-MsrElement ::= SEQUENCE {
+	ganssID		INTEGER (0..7) 	OPTIONAL, --Absence means Galileo
+	ganss-SgnTypeList 		SeqOfGANSS-SgnTypeElement
+}
+
+-- Measurements can be returned up to 8 different signal types
+-- N_SGN_TYPE can be read from number of elements of SeqOfGANSS-SgnTypeElement 
+-- Reporting of multiple signal types as defined in A.2.2.4g  
+SeqOfGANSS-SgnTypeElement ::= SEQUENCE (SIZE(1..8)) OF GANSS-SgnTypeElement
 
 GANSS-SgnTypeElement ::= SEQUENCE {
-	ganssSignalID		INTEGER (0 .. 15), -- Coding accroding to Annex
- --N_SGN can be read from number of elements of SeqOfGANSS-SgnElement
- ganss-SgnList SeqOfGANSS-SgnElement
+	ganssSignalID			GANSSSignalID, -- Coding according to Annex
+	ganssCodePhaseAmbiguity	INTEGER (0 .. 127)				OPTIONAL,
+ 	--N_SGN can be read from number of elements of SeqOfGANSS-SgnElement
+ 	ganss-SgnList SeqOfGANSS-SgnElement,
+ 	...
 }
 
--- Measurements can be returned up to 16 per signal types 
+-- Up to 16 Measurements can be returned per signal type 
 SeqOfGANSS-SgnElement ::= SEQUENCE (SIZE(1..16)) OF GANSS-SgnElement
 
 
 GANSS-SgnElement ::= SEQUENCE {
- svID SVID,
- cNo INTEGER (0 .. 63),
- mpathDet MpathIndic, -- Coding according to Annex
- carrierQualityInd INTEGER (0 .. 3) OPTIONAL, -- Coding according to Annex
- codePhase INTEGER (0 .. 2097151),
- integerCodePhase INTEGER (0 .. 63) OPTIONAL,
- codePhaseRMSError INTEGER (0..63), -- Coding accoring to Annex
- doppler INTEGER (-32768 .. 32767) OPTIONAL,
- adr INTEGER (0 .. 33554431) OPTIONAL
+ 	svID 				SVID,
+	cNo 				INTEGER (0 .. 63),
+	mpathDet 			MpathIndic, 								 -- Coding according to Annex
+	carrierQualityInd 	INTEGER (0 .. 3) 			OPTIONAL, 	 -- Coding according to Annex
+	codePhase 			INTEGER (0 .. 2097151),
+	integerCodePhase 	INTEGER (0 .. 127) 			OPTIONAL,
+	codePhaseRMSError 	INTEGER (0..63), 						 -- Coding according to Annex
+	doppler 			INTEGER (-32768 .. 32767) 	OPTIONAL,
+	adr 				INTEGER (0 .. 33554431) 	OPTIONAL
 }
 
 Rel7-AssistanceData-Extension ::= SEQUENCE {
- ganss-AssistData GANSS-AssistData OPTIONAL,
- ganssCarrierPhaseMeasurementRequest NULL OPTIONAL,
- ganssTODGSMTimeAssociationMeasurementRequest NULL OPTIONAL,
+	ganss-AssistData								GANSS-AssistData	OPTIONAL,
+	ganssCarrierPhaseMeasurementRequest				NULL				OPTIONAL,
+	ganssTODGSMTimeAssociationMeasurementRequest	NULL				OPTIONAL,
+	 add-GPS-AssistData								Add-GPS-AssistData	OPTIONAL,
 	...
 -- Possibly more extensions for Release 7 here
+}
+
+-- Rel-7 Positioning Capability parameters here
+
+PosCapabilities ::= SEQUENCE {
+	nonGANSSpositionMethods		NonGANSSPositionMethods	OPTIONAL,
+	gANSSPositionMethods		GANSSPositionMethods	OPTIONAL,
+	multipleMeasurementSets		MultipleMeasurementSets	OPTIONAL,
+	...
+}
+
+NonGANSSPositionMethods ::= BIT STRING {
+	msAssistedEOTD	 (0),
+	msBasedEOTD	 	 (1),
+	msAssistedGPS	 (2),
+	msBasedGPS	 	 (3),
+	standaloneGPS	 (4) } (SIZE (1..16))
+
+GANSSPositionMethods ::= SEQUENCE (SIZE(1..16)) OF GANSSPositionMethod
+
+GANSSPositionMethod ::= SEQUENCE {
+	ganssID 						INTEGER (0..7) 				OPTIONAL, --Absence means Galileo
+-- gANSSPositioningMethodTypes may be present for PosCapability-Req
+-- and shall be present for PosCapability-Rsp
+	gANSSPositioningMethodTypes		GANSSPositioningMethodTypes OPTIONAL,
+	gANSSSignals					GANSSSignals,
+	... ,
+-- sbasID shall be present if and only if ganssID indicates SBAS
+	sbasID							SBASID						OPTIONAL
+}
+
+GANSSPositioningMethodTypes ::= BIT STRING {
+	msAssisted	(0),
+	msBased	 	(1),
+	standalone	(2) } (SIZE (1..8))
+
+-- indicates MS support for particular GANSS signals and frequencies
+GANSSSignals ::= BIT STRING {
+	signal1 (0),
+	signal2 (1),
+	signal3 (2),
+	signal4 (3),
+	signal5 (4),
+	signal6 (5),
+	signal7 (6),
+	signal8 (7) } (SIZE (1..8))
+
+SBASID ::= BIT STRING {
+	waas 	 (0),
+	egnos 	 (1),
+	masas 	 (2),
+	gagan 	 (3) } (SIZE (1..8))
+
+-- indicates MS support of multiple measurement sets for MS assisted position methods
+MultipleMeasurementSets ::= BIT STRING {
+	eotd	 (0),
+	gps	 	 (1),
+	ganss	 (2) } (SIZE (1..8))
+
+-- indicates MS support of different types of assistance data
+AssistanceSupported ::= SEQUENCE {
+	gpsAssistance						GPSAssistance						OPTIONAL,
+	gANSSAssistanceSet					GANSSAssistanceSet					OPTIONAL,
+	... ,
+	gANSSAdditionalAssistanceChoices	GANSSAdditionalAssistanceChoices	OPTIONAL
+}
+
+-- GPS assistance data supported
+GPSAssistance ::= BIT STRING {
+	almanac					(0),
+	uTCmodel				(1),
+	ionosphericModel		(2),
+	navigationmodel			(3),
+	dGPScorrections			(4),
+	referenceLocation		(5),
+	referenceTime			(6),
+	acquisitionAssistance	(7),
+	realTimeIntegrity		(8),
+	ephemerisExtension		(9),
+	ephemerisExtensionCheck	(10)} (SIZE (1..16))
+
+-- GANSS assistance data supported
+GANSSAssistanceSet ::= SEQUENCE {
+	commonGANSSAssistance		CommonGANSSAssistance,
+	specificGANSSAssistance		SpecificGANSSAssistance,
+	...
+}
+
+-- Common GANSS assistance data supported
+CommonGANSSAssistance ::= BIT STRING {
+	referenceTime			 (0),
+	referenceLocation		 (1),
+	ionosphericModel		 (3),
+	addIonosphericModel		 (4),
+	earthOrientationParam	 (5)  } (SIZE (1..8))
+
+SpecificGANSSAssistance ::= SEQUENCE (SIZE(1..16)) OF GANSSAssistanceForOneGANSS
+
+-- assistance data supported for a particular GANSS system
+GANSSAssistanceForOneGANSS ::= SEQUENCE {
+	ganssID					INTEGER (0..7) 	OPTIONAL, --Absence means Galileo
+	gANSSAssistance			GANSSAssistance,
+	...
+}
+
+-- specific GANSS assistance data supported
+GANSSAssistance ::= BIT STRING {
+	realTimeIntegrity				(0),
+	differentialCorrections			(1),
+	almanac							(2),
+	referenceMeasurementInformation	(3),
+	navigationModel					(4),
+	timeModelGNSS-UTC				(5),
+	timeModelGNSS-GNSS				(6),
+	databitassistance				(7),
+	ephemerisExtension				(8),
+	ephemerisExtensionCheck			(9),
+	addUTCmodel						(10),
+	auxiliaryInformation			(11)  } (SIZE (1..16))
+
+
+GANSSAdditionalAssistanceChoices ::= SEQUENCE (SIZE(1..16)) OF GANSSAdditionalAssistanceChoicesForOneGANSS
+
+GANSSAdditionalAssistanceChoicesForOneGANSS ::= SEQUENCE {
+	ganssID							INTEGER (0..7) 	OPTIONAL, --Absence means Galileo
+	ganssClockModelChoice			GANSSModelID 	OPTIONAL,
+	gannsOrbitModelChoice			GANSSModelID 	OPTIONAL,
+	ganssAlmanacModelChoice			GANSSModelID 	OPTIONAL,
+	ganssAdditionalUTCModelChoice	GANSSModelID 	OPTIONAL,
+	...
+}
+
+GANSSModelID ::= BIT STRING {
+	model1 (0),
+	model2 (1),
+	model3 (2),
+	model4 (3),
+	model5 (4),
+	model6 (5),
+	model7 (6),
+	model8 (7) } (SIZE (1..8))
+
+
+-- indicates assistance data that may be needed by the MS
+AssistanceNeeded ::= SEQUENCE {
+	gpsAssistanceData		GPSAssistanceData		OPTIONAL,
+	ganssAssistanceData		GANSSAssistanceData		OPTIONAL,
+	...
 }
 
 END

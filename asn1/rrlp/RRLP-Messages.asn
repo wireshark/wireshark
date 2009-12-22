@@ -1,6 +1,6 @@
 -- RRLP-Messages.asn
 -- $Id$
--- Taken from 3GPP TS 44.031 V7.4.0 (2007-03)
+-- Taken from 3GPP TS 44.031 V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/archive/44_series/44.031/44031-740.zip/44031-740.doc
 --
 -- 3.1 General Format of RRLP Message
@@ -15,7 +15,7 @@ BEGIN
 
 IMPORTS
 	MsrPosition-Req, MsrPosition-Rsp, AssistanceData,
-	ProtocolError
+	ProtocolError, PosCapability-Req, PosCapability-Rsp
 FROM
 	RRLP-Components 	-- { RRLP-Components }
 ;
@@ -31,8 +31,9 @@ RRLP-Component ::= CHOICE {
 	assistanceData			AssistanceData,
 	assistanceDataAck		NULL,
 	protocolError			ProtocolError,
-	...
-
+	...,
+    posCapabilityReq        PosCapability-Req,
+    posCapabilityRsp        PosCapability-Rsp
 }
 
 END
