@@ -1,6 +1,6 @@
 -- RNSAP-IEs.asn
 --
--- Taken from 3GPP TS 25.423 V7.9.0 (2008-06-13)
+-- Taken from 3GPP TS 25.423 V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.4	Information Element Definitions
@@ -75,8 +75,12 @@ IMPORTS
 	maxNrOfMACdFlows,
 	maxNrOfMACdFlows-1,
 	maxNrOfMACdPDUSize,
+	maxNrOfMBMSL3,
+	maxNrOfMCCHMessages,
 	maxNrOfEDCHMACdFlows,
 	maxNrOfEDCHMACdFlows-1,
+	maxNrOfEDCHMACdFlowsLCR,
+	maxNrOfEDCHMACdFlowsLCR-1,
 	maxNrOfMBMSServices,
 	maxNrOfPDUIndexes,
 	maxNrOfPDUIndexes-1,
@@ -106,7 +110,22 @@ IMPORTS
 	maxGANSSSatAlmanac,
 	maxGANSSClockMod,
 	maxNrOfEDCHRLs,
-
+	maxNrOfEUTRANeighboursPerRNC,
+	maxEARFCN,
+	maxNrOfPreconfiguredNeighbours,
+	maxNrOfHSDSCH-1,
+	maxNrOfHSDSCH,
+	maxGANSS-1,
+	maxlengthMBMSconcatservlists,
+	maxNoOfTBSs-Mapping-HS-DSCH-SPS,
+	maxNoOfTBSs-Mapping-HS-DSCH-SPS-1,
+	maxNoOfHS-DSCH-TBSsLCR,
+	maxNoOfRepetition-Period-LCR,
+	maxNoOfRepetitionPeriod-SPS-LCR-1,
+	maxNoOf-HS-SICH-SPS,
+	maxNoOf-HS-SICH-SPS-1,
+	maxNoOfNon-HS-SCCH-Assosiated-HS-SICH, 
+	maxNrOfEDCH-1,
 
 
 	id-Allowed-Rate-Information,
@@ -118,6 +137,7 @@ IMPORTS
 	id-CellCapabilityContainer-TDD-LCR,
 	id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information,
 	id-Continuous-Packet-Connectivity-HS-SCCH-Less-Information-Response,
+	id-Counting-Information,
 	id-CoverageIndicator,
 	id-DPC-Mode-Change-SupportIndicator,
 	id-E-DCH-Minimum-Set-E-TFCIValidityIndicator,
@@ -159,12 +179,19 @@ IMPORTS
 	id-RestrictionStateIndicator,
 	id-Rx-Timing-Deviation-Value-LCR,
 	id-TransportLayerAddress,
+	id-Transmission-Mode-Information,
 	id-TypeOfError,
 	id-Angle-Of-Arrival-Value-LCR,
 	id-IPDL-TDD-ParametersLCR,
 	id-DSCH-InitialWindowSize,
 	id-Maximum-DL-Power-TimeslotLCR-InformationItem,
 	id-MBMS-Bearer-Service-Full-Address,
+	id-MBMS-Neighbouring-Cell-Information,
+	id-MBMS-RLC-Sequence-Number-Information,
+	id-MBSFN-Cluster-Identity,
+	id-MBSFN-Scheduling-Transmission-Time-Interval-Info-List,
+	id-MCCH-Configuration-Info,
+	id-MCCH-Message-List,
 	id-Minimum-DL-Power-TimeslotLCR-InformationItem,
 	id-HS-SICH-Reception-Quality,
 	id-HS-SICH-Reception-Quality-Measurement-Value,
@@ -173,6 +200,7 @@ IMPORTS
 	id-ExtendedGSMCellIndividualOffset,
 	id-Unidirectional-DCH-Indicator,
 	id-RTLoadValue,
+	id-RLC-Sequence-Number,
 	id-NRTLoadInformationValue,
 	id-Satellite-Almanac-Information-ExtItem,
 	id-TnlQos,
@@ -197,6 +225,7 @@ IMPORTS
 	id-MIMO-Mode-Indicator,
 	id-MIMO-N-M-Ratio,
 	id-SixteenQAM-UL-Operation-Indicator,
+	id-E-AGCH-Table-Choice,
 	id-E-TFCI-Boost-Information,
 	id-E-DPDCH-PowerInterpolation,
 	id-HSDSCH-MACdPDUSizeFormat,
@@ -230,14 +259,67 @@ IMPORTS
 	id-UE-Capabilities-Info,
 	id-Extended-E-DCH-LCRTDD-PhysicalLayerCategory,
 	id-Continuous-Packet-Connectivity-HS-SCCH-Less-Deactivate-Indicator,
+	id-E-DCH-MACdPDUSizeFormat,
 	id-E-PUCH-PowerControlGAP,
 	id-MaximumNumber-Of-Retransmission-For-SchedulingInfo-LCRTDD,
 	id-E-DCH-RetransmissionTimer-For-SchedulingInfo-LCRTDD,
 	id-HSDSCH-TBSizeTableIndicator,
 	id-E-DCH-DL-Control-Channel-Change-Information,
 	id-E-DCH-DL-Control-Channel-Grant-Information,
-	id-DGANSS-Corrections-Req
-
+	id-DGANSS-Corrections-Req,
+	id-UE-with-enhanced-HS-SCCH-support-indicator,
+	id-EnhancedHSServingCC-Abort,
+	id-GANSS-Time-ID,
+	id-GANSS-AddIonoModelReq,
+	id-GANSS-EarthOrientParaReq,
+	id-GANSS-AddNavigationModelsReq,
+	id-GANSS-AddUTCModelsReq,
+	id-GANSS-AuxInfoReq,
+	id-GANSS-SBAS-ID,
+	id-GANSS-ID,
+	id-GANSS-Additional-Ionospheric-Model,
+	id-GANSS-Earth-Orientation-Parameters,
+	id-GANSS-Additional-Time-Models,
+	id-GANSS-Additional-Navigation-Models,
+	id-GANSS-Additional-UTC-Models,
+	id-GANSS-Auxiliary-Information,
+	id-GANSS-alm-keplerianNAVAlmanac,
+	id-GANSS-alm-keplerianReducedAlmanac,
+	id-GANSS-alm-keplerianMidiAlmanac,
+	id-GANSS-alm-keplerianGLONASS,
+	id-GANSS-alm-ecefSBASAlmanac,
+	id-Secondary-Serving-Cell-List,
+	id-MinimumReducedE-DPDCH-GainFactor,
+	id-E-AGCH-UE-Inactivity-Monitor-Threshold,
+	id-MACes-Maximum-Bitrate-LCR,
+	id-MultiCarrier-HSDSCH-Physical-Layer-Category,
+	id-MIMO-SFMode-For-HSPDSCHDualStream,
+	id-MIMO-SFMode-Supported-For-HSPDSCHDualStream,
+	id-MIMO-ReferenceSignal-InformationListLCR,
+	id-DL-RLC-PDU-Size-Format,
+	id-UE-SupportIndicatorExtension,
+	id-power-offset-for-S-CPICH-for-MIMO,
+	id-power-offset-for-S-CPICH-for-MIMO-Request-Indicator,
+	id-Dual-Band-Secondary-Serving-Cell-List,
+	id-Single-Stream-MIMO-ActivationIndicator,
+	id-Single-Stream-MIMO-Mode-Indicator,
+	id-CellSpecificHARQMemoryPartitioning,
+	id-HARQ-MemoryPartitioning,
+	id-Additional-EDCH-Preconfiguration-Information,
+	id-MulticellEDCH-Information,
+	id-Additional-EDCH-FDD-Setup-Cell-Information,
+	id-Additional-EDCH-RL-Specific-Information-Setup-Item1IEs,
+	id-Additional-EDCH-RL-Specific-Information-Setup-Item2IEs,
+	id-Additional-EDCH-RL-Specific-Information-To-Add-Item1IEs,
+	id-Additional-EDCH-RL-Specific-Information-To-Add-Item2IEs,
+	id-Additional-EDCH-RL-Specific-Information-To-Modify-Item1IEs,
+	id-Additional-EDCH-RL-Specific-Information-To-Modify-Item2IEs,
+	id-Additional-EDCH-ConfigurationChange-Info-ItemIEs,
+	id-EDCH-Indicator,
+	id-DiversityMode,
+	id-TransmitDiversityIndicator,
+	id-NonCellSpecificTxDiversity,
+	id-CellCapabilityContainerExtension-FDD
 
 
 
@@ -266,6 +348,18 @@ AckNack-RepetitionFactor ::= INTEGER (1..4,...)
 Ack-Power-Offset ::= INTEGER (0..8,...)
 -- According to mapping in ref. [21] subclause 4.2.1
 
+ActivationInformation ::= SEQUENCE (SIZE (1..maxNrOfEDCH-1)) OF ActivationInformationItem
+
+ActivationInformationItem ::= SEQUENCE {
+	uU-ActivationState	Uu-ActivationState,
+	iE-Extensions									ProtocolExtensionContainer { { ActivationInformationItem-ExtIEs} }				OPTIONAL,
+	...
+}
+
+ActivationInformationItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 Active-MBMS-Bearer-Service-ListFDD	::= SEQUENCE (SIZE (1..maxNrOfActiveMBMSServices)) OF MBMS-Bearer-ServiceItemFDD
 
 Active-MBMS-Bearer-Service-ListFDD-PFL	::= SEQUENCE (SIZE (1..maxNrOfActiveMBMSServices)) OF MBMS-Bearer-ServiceItemFDD-PFL
@@ -284,6 +378,342 @@ Active-Pattern-Sequence-Information ::= SEQUENCE {
 Active-Pattern-Sequence-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+Additional-EDCH-Setup-Info	::=SEQUENCE{
+	multicell-EDCH-Transport-Bearer-Mode									Multicell-EDCH-Transport-Bearer-Mode,
+	additional-EDCH-Cell-Information-Setup									Additional-EDCH-Cell-Information-Setup,
+	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-Setup-Info-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-Setup-Info-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Multicell-EDCH-Transport-Bearer-Mode ::= ENUMERATED {
+	separate-Iub-Transport-Bearer-Mode,
+	uL-Flow-Multiplexing-Mode
+}
+
+Additional-EDCH-Cell-Information-Setup	::= SEQUENCE (SIZE (1..maxNrOfEDCH-1)) OF ProtocolIE-Single-Container {{ Additional-EDCH-Cell-Information-SetupItems }}
+
+
+Additional-EDCH-Cell-Information-SetupItems RNSAP-PROTOCOL-IES ::= {
+	{ ID id-Additional-EDCH-FDD-Setup-Cell-Information 		CRITICALITY reject	TYPE Additional-EDCH-FDD-Setup-Cell-Information		PRESENCE mandatory }|
+	{ ID id-MulticellEDCH-Information	CRITICALITY ignore	TYPE MulticellEDCH-Information	PRESENCE optional}
+}
+
+Additional-EDCH-FDD-Setup-Cell-Information	::=SEQUENCE{
+	additional-EDCH-UL-DPCH-Information-Setup								Additional-EDCH-UL-DPCH-Information-Setup,
+	additional-EDCH-RL-Specific-Information-To-Setup						Additional-EDCH-RL-Specific-Information-To-Setup-List,
+	additional-EDCH-FDD-Information											Additional-EDCH-FDD-Information	 OPTIONAL,
+	additional-EDCH-F-DPCH-Information-Setup								Additional-EDCH-F-DPCH-Information,
+	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-FDD-Setup-Cell-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-FDD-Setup-Cell-Information-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-UL-DPCH-Information-Setup	::=SEQUENCE{
+	ul-ScramblingCode						UL-ScramblingCode,
+	ul-SIR-Target							UL-SIR 		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-UL-DPCH-Information-Setup-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-UL-DPCH-Information-Setup-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-F-DPCH-Information	::=SEQUENCE{
+	fdd-TPC-DownlinkStepSize			FDD-TPC-DownlinkStepSize,
+	limitedPowerIncrease				LimitedPowerIncrease,
+	innerLoopDLPCStatus					InnerLoopDLPCStatus,
+	f-DPCH-SlotFormatSupportRequest		F-DPCH-SlotFormatSupportRequest			OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-F-DPCH-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-F-DPCH-Information-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-RL-Specific-Information-To-Setup-List	::= SEQUENCE (SIZE (1.. maxNrOfEDCHRLs)) OF ProtocolIE-Single-Container {{ Additional-EDCH-RL-Specific-Information-Setup-Items}}
+
+
+Additional-EDCH-RL-Specific-Information-Setup-Items RNSAP-PROTOCOL-IES ::= {
+	{ ID id-Additional-EDCH-RL-Specific-Information-Setup-Item1IEs 		CRITICALITY reject	TYPE Additional-EDCH-RL-Specific-Information-To-Setup-ItemIEs		PRESENCE mandatory }|
+	{ ID id-Additional-EDCH-RL-Specific-Information-Setup-Item2IEs	CRITICALITY ignore	TYPE MulticellEDCH-RL-SpecificInformation	PRESENCE optional}
+}
+
+Additional-EDCH-RL-Specific-Information-To-Setup-ItemIEs	::=SEQUENCE{
+	eDCH-Additional-RL-ID				RL-ID,
+	c-ID								C-ID,
+	firstRLS-indicator					FirstRLS-Indicator,
+	propagationDelay					PropagationDelay				OPTIONAL,
+	initialDL-transmissionPower			DL-Power				OPTIONAL,
+	primaryCPICH-EcNo					PrimaryCPICH-EcNo			OPTIONAL,
+	e-AGCH-PowerOffset					E-AGCH-PowerOffset							OPTIONAL,
+	e-RGCH-PowerOffset					E-RGCH-PowerOffset							OPTIONAL,
+	e-HICH-PowerOffset					E-HICH-PowerOffset							OPTIONAL,
+	additional-EDCH-MAC-d-Flows-Specific-Info-List		Additional-EDCH-MAC-d-Flows-Specific-Info-List		OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { Additional-EDCH-RL-Specific-Information-To-Setup-ItemIEs-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-RL-Specific-Information-To-Setup-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-Cell-Information-To-Add-List	::= SEQUENCE (SIZE (1.. maxNrOfEDCH-1)) OF Additional-EDCH-Cell-Information-To-Add-ItemIEs
+
+Additional-EDCH-Cell-Information-To-Add-ItemIEs::=SEQUENCE{
+	additional-EDCH-UL-DPCH-Information-Setup				Additional-EDCH-UL-DPCH-Information-Addition,
+	additional-EDCH-RL-Specific-Information-To-Add-List		Additional-EDCH-RL-Specific-Information-To-Add-List,
+	iE-Extensions						ProtocolExtensionContainer { { Additional-EDCH-Cell-Information-To-Add-ItemIEs-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-Cell-Information-To-Add-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-UL-DPCH-Information-Addition	::=SEQUENCE{
+	ul-SIR-Target							UL-SIR,
+	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-UL-DPCH-Information-Addition-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-UL-DPCH-Information-Addition-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-RL-Specific-Information-To-Add-List		::= SEQUENCE (SIZE (1.. maxNrOfEDCHRLs)) OF ProtocolIE-Single-Container {{ Additional-EDCH-RL-Specific-Information-To-Add-Items}}
+
+
+Additional-EDCH-RL-Specific-Information-To-Add-Items RNSAP-PROTOCOL-IES ::= {
+	{ ID id-Additional-EDCH-RL-Specific-Information-To-Add-Item1IEs 		CRITICALITY reject	TYPE Additional-EDCH-RL-Specific-Information-To-Add-ItemIEs		PRESENCE mandatory }|
+	{ ID id-Additional-EDCH-RL-Specific-Information-To-Add-Item2IEs		CRITICALITY ignore	TYPE MulticellEDCH-RL-SpecificInformation			PRESENCE optional}
+}
+
+Additional-EDCH-RL-Specific-Information-To-Add-ItemIEs	::=SEQUENCE{
+	eDCH-Additional-RL-ID				RL-ID,
+	c-ID								C-ID,
+	primaryCPICH-EcNo					PrimaryCPICH-EcNo			OPTIONAL,
+	e-AGCH-PowerOffset					E-AGCH-PowerOffset							OPTIONAL, 
+	e-RGCH-PowerOffset					E-RGCH-PowerOffset							OPTIONAL, 
+	e-HICH-PowerOffset					E-HICH-PowerOffset							OPTIONAL,
+	additional-EDCH-MAC-d-Flows-Specific-Info-List		Additional-EDCH-MAC-d-Flows-Specific-Info-List		OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { Additional-EDCH-RL-Specific-Information-To-Add-ItemIEs-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-RL-Specific-Information-To-Add-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-RL-Specific-Information-To-Modify-List	::= SEQUENCE (SIZE (1..maxNrOfEDCHRLs)) OF ProtocolIE-Single-Container {{ Additional-EDCH-RL-Specific-Information-To-Modify-Items}}
+
+Additional-EDCH-RL-Specific-Information-To-Modify-Items RNSAP-PROTOCOL-IES ::= {
+	{ ID id-Additional-EDCH-RL-Specific-Information-To-Modify-Item1IEs 		CRITICALITY reject		TYPE Additional-EDCH-RL-Specific-Information-To-Modify-ItemIEs 		PRESENCE mandatory }|
+	{ ID id-Additional-EDCH-RL-Specific-Information-To-Modify-Item2IEs		CRITICALITY ignore	TYPE MulticellEDCH-RL-SpecificInformation			PRESENCE optional}
+}
+
+Additional-EDCH-RL-Specific-Information-To-Modify-ItemIEs	::=SEQUENCE{
+	eDCH-Additional-RL-ID				RL-ID,
+	e-AGCH-PowerOffset					E-AGCH-PowerOffset							OPTIONAL,
+	e-RGCH-PowerOffset					E-RGCH-PowerOffset							OPTIONAL, 
+	e-HICH-PowerOffset					E-HICH-PowerOffset							OPTIONAL,
+	additional-EDCH-MAC-d-Flows-Specific-Info-List		Additional-EDCH-MAC-d-Flows-Specific-Info-List		OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { Additional-EDCH-RL-Specific-Information-To-Modify-ItemIEs-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-RL-Specific-Information-To-Modify-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-FDD-Information	::=SEQUENCE{
+	hARQ-Process-Allocation-Scheduled-2ms-EDCH		HARQ-Process-Allocation-2ms-EDCH											OPTIONAL,
+	e-DCH-Maximum-Bitrate							E-DCH-Maximum-Bitrate														OPTIONAL,
+	e-DCH-Processing-Overload-Level					E-DCH-Processing-Overload-Level												OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { Additional-EDCH-FDD-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-FDD-Information-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-MAC-d-Flows-Specific-Info-List ::= SEQUENCE (SIZE (1..maxNrOfEDCHMACdFlows)) OF Additional-EDCH-MAC-d-Flows-Specific-Info
+
+Additional-EDCH-MAC-d-Flows-Specific-Info ::= SEQUENCE {
+	e-DCH-MACdFlow-ID								EDCH-MACdFlow-ID,
+	bindingID										BindingID																	OPTIONAL,
+	transportLayerAddress							TransportLayerAddress														OPTIONAL,
+	iE-Extensions									ProtocolExtensionContainer { { Additional-EDCH-MAC-d-Flows-Specific-Info-ExtIEs} }				OPTIONAL,
+	...
+}
+
+Additional-EDCH-MAC-d-Flows-Specific-Info-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-Cell-Information-Response-List	::= SEQUENCE (SIZE (1..maxNrOfEDCH-1)) OF Additional-EDCH-FDD-Information-Response-ItemIEs
+
+Additional-EDCH-FDD-Information-Response-ItemIEs	::=SEQUENCE{
+	eDCH-Additional-RL-Specific-Information-Response						EDCH-Additional-RL-Specific-Information-Response-List,
+	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-FDD-Information-Response-ItemIEs-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-FDD-Information-Response-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EDCH-Additional-RL-Specific-Information-Response-List	::= SEQUENCE (SIZE (1..maxNrOfEDCHRLs)) OF EDCH-Additional-RL-Specific-Information-Response-ItemIEs
+
+EDCH-Additional-RL-Specific-Information-Response-ItemIEs	::=SEQUENCE{
+	eDCH-Additional-RL-ID				RL-ID,
+	received-total-wide-band-power					Received-total-wide-band-power,
+	dL-PowerBalancing-ActivationIndicator			DL-PowerBalancing-ActivationIndicator	OPTIONAL,
+	rL-Set-ID										RL-Set-ID, 
+	e-DCH-RL-Set-ID									RL-Set-ID								OPTIONAL,
+	eDCH-FDD-DL-ControlChannelInformation			EDCH-FDD-DL-ControlChannelInformation		OPTIONAL,
+	dl-CodeInformation								FDD-DL-CodeInformation,
+	eDCH-FDD-InformationResponse	EDCH-FDD-InformationResponse			OPTIONAL,
+	maxUL-SIR						UL-SIR,
+	minUL-SIR						UL-SIR,
+	maximumAllowedULTxPower			MaximumAllowedULTxPower,
+	maximumDL-power						DL-Power,
+	minimumDL-power						DL-Power,
+	primaryScramblingCode			PrimaryScramblingCode					OPTIONAL,
+	uL-UARFCN						UARFCN									OPTIONAL,
+	dL-UARFCN						UARFCN									OPTIONAL,
+	primaryCPICH-Power				PrimaryCPICH-Power,
+	pC-Preamble						PC-Preamble,
+	primary-CPICH-Usage-For-Channel-Estimation					Primary-CPICH-Usage-For-Channel-Estimation				OPTIONAL,
+	secondary-CPICH-Information			Secondary-CPICH-Information						OPTIONAL,
+	f-DPCH-SlotFormat					F-DPCH-SlotFormat 							OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { EDCH-Additional-RL-Specific-Information-Response-ItemIEs-ExtIEs} } OPTIONAL,
+	...
+}
+
+EDCH-Additional-RL-Specific-Information-Response-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-Cell-Information-Response-RLReconf-List::= SEQUENCE (SIZE (1..maxNrOfEDCH-1)) OF Additional-EDCH-FDD-Information-Response-RLReconf-Items
+
+Additional-EDCH-FDD-Information-Response-RLReconf-Items::=SEQUENCE{
+	eDCH-Additional-RL-Specific-Information-Response						EDCH-Additional-RL-Specific-Information-Response-List		OPTIONAL,
+	eDCH-Additional-RL-Specific-Modified-Information-Response		EDCH-Additional-RL-Specific-Modified-Information-Response-List		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-FDD-Information-Response-RLReconf-Items-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-FDD-Information-Response-RLReconf-Items-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EDCH-Additional-RL-Specific-Modified-Information-Response-List	::= SEQUENCE (SIZE (1..maxNrOfEDCHRLs)) OF EDCH-Additional-RL-Specific-Modified-Information-Response-ItemIEs
+
+EDCH-Additional-RL-Specific-Modified-Information-Response-ItemIEs	::=SEQUENCE{
+	eDCH-Additional-RL-ID				RL-ID,
+	dL-PowerBalancing-UpdatedIndicator				DL-PowerBalancing-UpdatedIndicator		OPTIONAL, 
+	e-DCH-RL-Set-ID									RL-Set-ID								OPTIONAL,
+	eDCH-FDD-DL-ControlChannelInformation			EDCH-FDD-DL-ControlChannelInformation		OPTIONAL,
+	eDCH-FDD-InformationResponse	EDCH-FDD-InformationResponse		OPTIONAL,
+	maxUL-SIR						UL-SIR		OPTIONAL,
+	minUL-SIR						UL-SIR		OPTIONAL,
+	maximumDL-power						DL-Power		OPTIONAL,
+	minimumDL-power						DL-Power		OPTIONAL,
+	primary-CPICH-Usage-For-Channel-Estimation					Primary-CPICH-Usage-For-Channel-Estimation				OPTIONAL,
+	secondary-CPICH-Information-Change 		Secondary-CPICH-Information-Change			OPTIONAL,
+	f-DPCH-SlotFormat					F-DPCH-SlotFormat 							OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { EDCH-Additional-RL-Specific-Modified-Information-Response-ItemIEs-ExtIEs} } OPTIONAL,
+	...
+}
+
+EDCH-Additional-RL-Specific-Modified-Information-Response-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-Cell-Information-ConfigurationChange-List	::= SEQUENCE (SIZE (1..maxNrOfEDCH-1)) OF ProtocolIE-Single-Container  {{ Additional-EDCH-Cell-Information-ConfigurationChange-ItemIEs }}
+
+Additional-EDCH-Cell-Information-ConfigurationChange-ItemIEs RNSAP-PROTOCOL-IES ::= {
+	{ ID id-Additional-EDCH-ConfigurationChange-Info-ItemIEs 	CRITICALITY reject	TYPE Additional-EDCH-ConfigurationChange-Info-ItemIEs 		PRESENCE mandatory }|
+	{ ID id-MulticellEDCH-Information	CRITICALITY ignore	TYPE MulticellEDCH-Information	PRESENCE optional}
+}
+
+Additional-EDCH-ConfigurationChange-Info-ItemIEs	::=SEQUENCE{
+	additional-EDCH-UL-DPCH-Information-Modify							Additional-EDCH-UL-DPCH-Information-Modify		OPTIONAL,
+	additional-EDCH-RL-Specific-Information-To-Add						Additional-EDCH-RL-Specific-Information-To-Add-List 		OPTIONAL,
+	additional-EDCH-RL-Specific-Information-To-Modify					Additional-EDCH-RL-Specific-Information-To-Modify-List 	OPTIONAL,
+	additional-EDCH-FDD-Information-To-Modify							Additional-EDCH-FDD-Information		OPTIONAL,
+	additional-EDCH-F-DPCH-Information-Modify							Additional-EDCH-F-DPCH-Information		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-ConfigurationChange-Info-ItemIEs-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-ConfigurationChange-Info-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-UL-DPCH-Information-Modify		::=SEQUENCE{
+	ul-ScramblingCode						UL-ScramblingCode 	OPTIONAL,
+	ul-SIR-Target							UL-SIR 				OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { { Additional-EDCH-UL-DPCH-Information-Modify-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-UL-DPCH-Information-Modify-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Additional-EDCH-Cell-Information-Removal-List	::= SEQUENCE (SIZE (1..maxNrOfEDCH-1)) OF Additional-EDCH-Cell-Information-Removal-Info-ItemIEs
+
+Additional-EDCH-Cell-Information-Removal-Info-ItemIEs	::=SEQUENCE{
+	rL-on-Secondary-UL-Frequency							RL-on-Secondary-UL-Frequency,
+	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-Cell-Information-Removal-Info-ItemIEs-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-Cell-Information-Removal-Info-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RL-on-Secondary-UL-Frequency ::= ENUMERATED {
+	remove,
+	...
+}
+
+Additional-EDCH-FDD-Update-Information	::=SEQUENCE{
+	hARQ-Process-Allocation-Scheduled-2ms-EDCH						HARQ-Process-Allocation-2ms-EDCH					OPTIONAL,
+	additional-EDCH-DL-Control-Channel-Change-Information			Additional-EDCH-DL-Control-Channel-Change-Information-List			OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-FDD-Update-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-FDD-Update-Information-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+Additional-EDCH-DL-Control-Channel-Change-Information-List	::= SEQUENCE (SIZE (1..maxNrOfEDCHRLs)) OF Additional-EDCH-DL-Control-Channel-Change-Info-ItemIEs
+
+Additional-EDCH-DL-Control-Channel-Change-Info-ItemIEs	::=SEQUENCE{
+	eDCH-Additional-RL-ID				RL-ID,
+	iE-Extensions						ProtocolExtensionContainer { { Additional-EDCH-DL-Control-Channel-Change-Info-ItemIEs-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-DL-Control-Channel-Change-Info-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 AdditionalPreferredFrequency	::= SEQUENCE (SIZE (1..maxNrOfAddFreq)) OF AdditionalPreferredFrequencyItem
 
@@ -508,7 +938,41 @@ CauseRadioNetwork ::= ENUMERATED {
 	mimo-not-available,
 	sixteenQAM-UL-not-Supported,
 	hSDSCH-MACdPDU-SizeFormatNotSupported,
-	f-dpch-slot-format-operation-not-supported
+	f-dpch-slot-format-operation-not-supported,
+	e-DCH-MACdPDU-SizeFormat-not-available,
+	e-DPCCH-Power-Boosting-not-supported,
+	trelocprep-expiry,
+	directed-retry,
+	no-Iu-CS-UP-relocation,
+	reduce-load-in-serving-cell,
+	relocation-cancelled,
+	relocation-desirable-for-radio-reasons,
+	resource-optimisation-relocation,
+	time-critical-relocation,
+	traffic-load-in-the-target-cell-higher-than-in-the-source-cell,
+	sixtyfourQAM-DL-and-MIMO-Combined-not-available,
+	multi-Cell-operation-not-available,
+	multi-Cell-operation-not-supported,
+	semi-Persistent-scheduling-not-supported,
+	continuous-Packet-Connectivity-DRX-not-supported,
+	continuous-Packet-Connectivity-DRX-not-available,
+	enhanced-relocation-not-supported,
+	relocation-not-supported-due-to-PUESBINE-feature,
+	relocation-failure-in-target-RNC,
+	relocation-target-not-allowed,
+	requested-ciphering-and-or-integrity-protection-algorithms-not-supported,
+	sixtyfourQAM-DL-and-MIMO-Combined-not-supported,
+	tx-diversity-for-mimo-on-DL-control-channels-not-available,
+	single-Stream-MIMO-not-supported,
+	single-Stream-MIMO-not-available,
+	multi-Cell-operation-with-MIMO-not-supported,
+	multi-Cell-operation-with-MIMO-not-available,
+	multi-Cell-EDCH-operation-not-supported,
+	multi-Cell-EDCH-operation-not-available,
+	multi-Cell-operation-with-Single-Stream-MIMO-not-supported,
+	multi-Cell-operation-with-Single-Stream-MIMO-not-available,
+	cellSpecificTxDiversityHandlingForMultiCellOperationNotAvailable,
+	cellSpecificTxDiversityHandlingForMultiCellOperationNotSupported
 
 }
 
@@ -540,13 +1004,32 @@ CellCapabilityContainer-FDD ::= BIT STRING (SIZE (32))
 -- Nineteenth bit: Flexible MAC-d PDU Size Support Indicator
 -- Twentieth bit: F-DPCH Slot Format Support Indicator
 -- Twentyfirst bit: SixtyfourQAM DL Support Indicator
+-- Twentysecond bit: Flexible E-DCH MAC-d PDU Size Support Indicator
+-- Twentythird bit: E-DPCCH Power Boosting Support Indicator
+-- Twentyfourth bit: SixtyfourQAM DL and MIMO Combined Support Indicator
+-- Twentyfifth bit: Multi Cell Support Indicator Support Indicator
+-- Twentysixth bit: MBMS Support Indicator
+-- Twentyseventh bit: DRNS Support STTD on DL ctrl ch when the RL is in MIMO P-CPICH + S-CPICH cell
+-- Twentyeighth bit: Dual Band Support Indicator
+-- Twentyninth bit: Single Stream MIMO Support Indicator
 -- Note that undefined bits are considered as a spare bit and spare bits shall be set to 0 by the transmitter and shall be ignored by the receiver.
+
+CellCapabilityContainerExtension-FDD ::= BIT STRING (SIZE (128))
+-- First bit: Cell Specific Tx Diversity Handling For Multi Cell Operation Support Indicator
+-- Second bit: Multi Cell and MIMO Support Indicator
+-- Third bit: Multi Cell and Single Stream MIMO Support Indicator
+-- Fourth bit: Multi Cell E-DCH Support Indicator
+-- Fifth bit: Separate Iub Transport Bearer Support Indicator
+-- Sixth bit: E-DCH UL Flow Multiplexing Support Indicator
+-- Note that undefined bits are considered as a spare bit and spare bits shall be set to 0 by the transmitter and shall be ignored by the receiver.
+
 
 CellCapabilityContainer-TDD ::= BIT STRING (SIZE (32))
 -- First bit: Delayed Activation Support Indicator
 -- Second bit: HS-DSCH Support Indicator
 -- Third bit: DSCH Support Indicator
 -- The fourth bit: Flexible MAC-d PDU Size Support Indicator
+-- Fifth bit: MBMS Support Indicator
 -- Note that undefined bits are considered as a spare bit and spare bits shall be set to 0 by the transmitter and shall be ignored by the receiver.
 
 CellCapabilityContainer-TDD-LCR ::= BIT STRING (SIZE (32))
@@ -565,6 +1048,8 @@ CellCapabilityContainer-TDD768 ::= BIT STRING (SIZE (32))
 
 C-ID					::= INTEGER (0..65535)
 
+CellSpecificHARQMemoryPartitioning ::= BOOLEAN
+
 CCTrCH-ID				::= INTEGER (0..15)
 
 Cell-Capacity-Class-Value ::= SEQUENCE {
@@ -577,7 +1062,9 @@ CellIndividualOffset	::= INTEGER (-20..20)
 
 CellParameterID				::= INTEGER (0..127,...)
 
-CellPortionID	::= INTEGER (0..63,...)
+CellPortionID	::= INTEGER (0..63,...) 
+
+CellPortionLCRID	::= INTEGER (0..255,...)
 
 CFN					::= INTEGER (0..255)
 
@@ -698,6 +1185,55 @@ CommonTransportChannelResourcesInitialisationNotRequired ::= ENUMERATED {
 }
 
 
+Common-EDCH-MAC-d-Flow-Specific-InformationFDD ::= SEQUENCE (SIZE (1..maxNrOfEDCHMACdFlows)) OF Common-EDCH-MAC-d-Flow-Specific-InformationFDDItem
+
+Common-EDCH-MAC-d-Flow-Specific-InformationFDDItem ::= SEQUENCE {
+	common-EDCH-MACdFlow-ID							EDCH-MACdFlow-ID,
+	maximum-Number-of-Retransmissions-For-E-DCH		MaxNr-Retransmissions-EDCH,
+	eDCH-HARQ-PO-FDD								E-DCH-HARQ-PO-FDD,
+	eDCH-MACdFlow-Multiplexing-List					E-DCH-MACdFlow-Multiplexing-List							OPTIONAL,
+	common-E-DCHLogicalChannelInformation			Common-E-DCH-LogicalChannelInformation,
+	iE-Extensions									ProtocolExtensionContainer { { Common-EDCH-MAC-d-Flow-Specific-InformationFDDItem-ExtIEs} }				OPTIONAL,
+	...
+}
+
+Common-EDCH-MAC-d-Flow-Specific-InformationFDDItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+Common-EDCH-MAC-d-Flow-Specific-InformationLCR ::= SEQUENCE (SIZE (1..maxNrOfEDCHMACdFlowsLCR)) OF Common-EDCH-MAC-d-Flow-Specific-InformationItemLCR
+
+Common-EDCH-MAC-d-Flow-Specific-InformationItemLCR ::= SEQUENCE {
+	common-EDCH-MACdFlow-ID-LCR						EDCH-MACdFlow-ID-LCR,
+	maximum-Number-of-Retransmissions-For-E-DCH		MaxNr-Retransmissions-EDCH,
+	eDCH-HARQ-PO-TDD								E-DCH-HARQ-PO-TDD,
+	eDCH-MACdFlow-Multiplexing-List					E-DCH-MACdFlow-Multiplexing-List							OPTIONAL,
+	common-E-DCHLogicalChannelInformation			Common-E-DCH-LogicalChannelInformation,
+	iE-Extensions									ProtocolExtensionContainer { { Common-EDCH-MAC-d-Flow-Specific-InformationItemLCR-ExtIEs} }				OPTIONAL,
+	...
+}
+
+Common-EDCH-MAC-d-Flow-Specific-InformationItemLCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Common-E-DCH-LogicalChannelInformation ::= SEQUENCE (SIZE (1..maxNoOfLogicalChannels)) OF Common-E-DCH-LogicalChannelInformationItem
+
+Common-E-DCH-LogicalChannelInformationItem ::= SEQUENCE {
+	logicalChannelId				LogicalChannelID,
+	maximumMACdPDU-SizeExtended		MAC-PDU-SizeExtended, 
+	iE-Extensions					ProtocolExtensionContainer { { Common-E-DCH-LogicalChannelInformationItem-ExtIEs } }			OPTIONAL,
+	...
+}
+
+Common-E-DCH-LogicalChannelInformationItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+Common-EDCH-Support-Indicator ::= NULL
+
 Continuous-Packet-Connectivity-DTX-DRX-Information ::= SEQUENCE {
 	uE-DTX-DRX-Offset							UE-DTX-DRX-Offset,
 	enabling-Delay								Enabling-Delay,
@@ -761,10 +1297,10 @@ CoverageIndicator ::= ENUMERATED {
 
 
 CPC-Information ::= SEQUENCE {
-	continuous-Packet-Connectivity-DTX-DRX-Information						Continuous-Packet-Connectivity-DTX-DRX-Information			OPTIONAL,
-	continuous-Packet-Connectivity-DTX-DRX-Information-to-Modify			Continuous-Packet-Connectivity-DTX-DRX-Information-to-Modify		OPTIONAL,
+	continuous-Packet-Connectivity-DTX-DRX-Information						Continuous-Packet-Connectivity-DTX-DRX-Information						OPTIONAL,
+	continuous-Packet-Connectivity-DTX-DRX-Information-to-Modify			Continuous-Packet-Connectivity-DTX-DRX-Information-to-Modify			OPTIONAL,
 	continuous-Packet-Connectivity-HS-SCCH-Less-Information					Continuous-Packet-Connectivity-HS-SCCH-Less-Information				OPTIONAL,
-	iE-Extensions				ProtocolExtensionContainer { { CPC-Information-ExtIEs} } OPTIONAL,
+	iE-Extensions															ProtocolExtensionContainer { { CPC-Information-ExtIEs} }				OPTIONAL,
 	...
 }
 
@@ -774,6 +1310,22 @@ CPC-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 }
 
 Continuous-Packet-Connectivity-HS-SCCH-less-Deactivate-Indicator ::= NULL
+
+Counting-Information ::= SEQUENCE ( SIZE (1..maxNrOfFDDNeighboursPerRNC,...)) OF Counting-Information-List
+
+Counting-Information-List ::= SEQUENCE {
+	c-ID								C-ID,
+	counting-Result						Counting-Result,
+	iE-Extensions						ProtocolExtensionContainer { { Counting-Information-List-ExtIEs} } OPTIONAL,
+	...
+}
+
+Counting-Information-List-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Counting-Result ::= INTEGER (0..63)
+
 
 CRC-Size 				::= ENUMERATED {
 	v0,
@@ -785,12 +1337,12 @@ CRC-Size 				::= ENUMERATED {
 }
 
 CriticalityDiagnostics ::= SEQUENCE {
-	procedureID					ProcedureID			OPTIONAL,
-	triggeringMessage			TriggeringMessage		OPTIONAL,
-	procedureCriticality		Criticality				OPTIONAL,
-	transactionID				TransactionID			OPTIONAL,
+	procedureID						ProcedureID				OPTIONAL,
+	triggeringMessage				TriggeringMessage		OPTIONAL,
+	procedureCriticality			Criticality				OPTIONAL,
+	transactionID					TransactionID			OPTIONAL,
 	iEsCriticalityDiagnostics		CriticalityDiagnostics-IE-List	OPTIONAL,
-	iE-Extensions				ProtocolExtensionContainer { {CriticalityDiagnostics-ExtIEs} } OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {CriticalityDiagnostics-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -855,8 +1407,6 @@ CNDomainType	::= ENUMERATED {
 }
 -- See in [16]
 
-CommonPhysicalChannelID ::= INTEGER (0..255)
-
 CQI-DTX-Timer ::= ENUMERATED {v0, v1, v2, v4, v8, v16, v32, v64, v128, v256, v512, infinity}
 	-- Unit subframe
 
@@ -875,6 +1425,147 @@ C-RNTI					::= INTEGER (0..65535)
 CodeRate ::= INTEGER (0..63)
 
 CodeRate-short ::= INTEGER (0..10)
+
+CPC-InformationLCR ::= SEQUENCE {
+	continuousPacketConnectivity-DRX-InformationLCR					ContinuousPacketConnectivity-DRX-InformationLCR						OPTIONAL,
+	continuousPacketConnectivity-DRX-Information-to-Modify-LCR		ContinuousPacketConnectivity-DRX-Information-to-Modify-LCR		OPTIONAL,
+	hS-DSCH-Semi-PersistentScheduling-Information-LCR				HS-DSCH-Semi-PersistentScheduling-Information-LCR					OPTIONAL,
+	hS-DSCH-Semi-PersistentScheduling-Information-to-Modify-LCR		HS-DSCH-Semi-PersistentScheduling-Information-to-Modify-LCR		OPTIONAL,
+	hS-DSCH-SPS-Deactivate-Indicator-LCR							NULL		OPTIONAL,
+	e-DCH-Semi-PersistentScheduling-Information-LCR					E-DCH-Semi-PersistentScheduling-Information-LCR						OPTIONAL,
+	e-DCH-Semi-PersistentScheduling-Information-to-Modify-LCR		E-DCH-Semi-PersistentScheduling-Information-to-Modify-LCR		OPTIONAL,
+	e-DCH-SPS-Deactivate-Indicator-LCR								NULL		OPTIONAL,
+	iE-Extensions													ProtocolExtensionContainer { { CPC-InformationLCR-ExtIEs} }		OPTIONAL,
+	...
+}
+
+CPC-InformationLCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ContinuousPacketConnectivity-DRX-InformationLCR ::= SEQUENCE {
+	enabling-Delay					Enabling-Delay,
+	hS-SCCH-DRX-Information-LCR		HS-SCCH-DRX-Information-LCR,
+	e-AGCH-DRX-Information-LCR		E-AGCH-DRX-Information-LCR			OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { ContinuousPacketConnectivity-DRX-InformationLCR-ExtIEs } }			OPTIONAL,
+	...
+}
+
+ContinuousPacketConnectivity-DRX-InformationLCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HS-SCCH-DRX-Information-LCR ::= SEQUENCE {
+	hS-SCCH-UE-DRX-Cycle-LCR									UE-DRX-Cycle-LCR,
+	hS-SCCH-Inactivity-Threshold-for-UE-DRX-Cycle-LCR			Inactivity-Threshold-for-UE-DRX-Cycle-LCR			OPTIONAL,
+	hS-SCCH-UE-DRX-Offset-LCR									UE-DRX-Offset-LCR,
+	iE-Extensions					ProtocolExtensionContainer { { HS-SCCH-DRX-Information-LCR-ExtIEs} } OPTIONAL,
+	...
+}
+
+HS-SCCH-DRX-Information-LCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-AGCH-DRX-Information-LCR ::= CHOICE {
+	sameAsHS-SCCH				NULL,
+	e-AGCH-DRX-Parameters		E-AGCH-DRX-Parameters,
+	...
+}
+
+E-AGCH-DRX-Parameters ::= SEQUENCE {
+	e-AGCH-UE-DRX-Cycle-LCR								UE-DRX-Cycle-LCR,
+	e-AGCH-UE-Inactivity-Monitor-Threshold				E-AGCH-UE-Inactivity-Monitor-Threshold			OPTIONAL,
+	e-AGCH-UE-DRX-Offset-LCR							UE-DRX-Offset-LCR,
+	iE-Extensions										ProtocolExtensionContainer { { E-AGCH-DRX-Parameters-ExtIEs} } OPTIONAL,
+	...
+}
+
+E-AGCH-DRX-Parameters-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UE-DRX-Cycle-LCR ::= ENUMERATED {v1, v2, v4, v8, v16, v32, v64,...}
+	-- Unit subframe
+
+UE-DRX-Offset-LCR ::= INTEGER (0..63)
+	-- Unit subframe
+
+Inactivity-Threshold-for-UE-DRX-Cycle-LCR ::= ENUMERATED {v1, v2, v4, v8, v16, v32, v64,...}
+	-- Unit subframe
+
+E-AGCH-UE-Inactivity-Monitor-Threshold ::= ENUMERATED {v0, v1, v2, v4, v8, v16, v32, v64, v128, v256, v512, infinity,...}
+	-- Unit subframe
+ 
+ContinuousPacketConnectivity-DRX-Information-to-Modify-LCR ::= SEQUENCE {
+	enabling-Delay								Enabling-Delay							OPTIONAL,
+	dRX-Information-to-Modify-LCR				DRX-Information-to-Modify-LCR			OPTIONAL,
+	iE-Extensions								ProtocolExtensionContainer { { ContinuousPacketConnectivity-DRX-Information-to-Modify-LCR-ExtIEs } }				OPTIONAL,
+	...
+}
+
+ContinuousPacketConnectivity-DRX-Information-to-Modify-LCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+DRX-Information-to-Modify-LCR ::= CHOICE {
+	modify			DRX-Information-to-Modify-Items-LCR,
+	deactivate		NULL,
+	...
+}
+
+DRX-Information-to-Modify-Items-LCR ::= SEQUENCE {
+	hS-SCCH-DRX-Information-LCR					HS-SCCH-DRX-Information-LCR			OPTIONAL,
+	e-AGCH-DRX-Information-LCR					E-AGCH-DRX-Information-LCR			OPTIONAL,
+	iE-Extensions								ProtocolExtensionContainer { {DRX-Information-to-Modify-Items-LCR-ExtIEs} } OPTIONAL,
+	...
+}
+
+DRX-Information-to-Modify-Items-LCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ContinuousPacketConnectivity-DRX-Information-ResponseLCR ::= SEQUENCE {
+	enabling-Delay							Enabling-Delay							OPTIONAL,
+	hS-SCCH-DRX-Information-ResponseLCR		HS-SCCH-DRX-Information-ResponseLCR		OPTIONAL,
+	e-AGCH-DRX-Information-ResponseLCR		E-AGCH-DRX-Information-ResponseLCR		OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { { ContinuousPacketConnectivity-DRX-Information-ResponseLCR-ExtIEs } }			OPTIONAL,
+	...
+}
+
+ContinuousPacketConnectivity-DRX-Information-ResponseLCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HS-SCCH-DRX-Information-ResponseLCR ::= SEQUENCE {
+	hS-SCCH-UE-DRX-Cycle-LCR									UE-DRX-Cycle-LCR		OPTIONAL,
+	hS-SCCH-Inactivity-Threshold-for-UE-DRX-Cycle-LCR			Inactivity-Threshold-for-UE-DRX-Cycle-LCR		OPTIONAL,
+	hS-SCCH-UE-DRX-Offset-LCR									UE-DRX-Offset-LCR		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { HS-SCCH-DRX-Information-ResponseLCR-ExtIEs} } OPTIONAL,
+	...
+}
+
+HS-SCCH-DRX-Information-ResponseLCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-AGCH-DRX-Information-ResponseLCR ::= CHOICE {
+	sameAsHS-SCCH						NULL,
+	e-AGCH-DRX-Parameters-Response		E-AGCH-DRX-Parameters-Response,
+	...
+}
+
+E-AGCH-DRX-Parameters-Response ::= SEQUENCE {
+	e-AGCH-UE-DRX-Cycle-LCR							UE-DRX-Cycle-LCR						OPTIONAL,
+	e-AGCH-UE-Inactivity-Monitor-Threshold			E-AGCH-UE-Inactivity-Monitor-Threshold	OPTIONAL,
+	e-AGCH-UE-DRX-Offset-LCR						UE-DRX-Offset-LCR						OPTIONAL,
+	iE-Extensions									ProtocolExtensionContainer { { E-AGCH-DRX-Parameters-Response-ExtIEs} } OPTIONAL,
+	...
+}
+
+E-AGCH-DRX-Parameters-Response-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 -- D
 
@@ -1017,12 +1708,12 @@ DedicatedMeasurementValue ::= CHOICE {
 Extension-DedicatedMeasurementValue	::= ProtocolIE-Single-Container {{ Extension-DedicatedMeasurementValueIE }}
 
 Extension-DedicatedMeasurementValueIE RNSAP-PROTOCOL-IES ::= {
-	{ ID id-Rx-Timing-Deviation-Value-LCR	CRITICALITY reject	TYPE Rx-Timing-Deviation-Value-LCR	PRESENCE mandatory }|
-	{ ID id-Angle-Of-Arrival-Value-LCR		CRITICALITY reject	TYPE Angle-Of-Arrival-Value-LCR	PRESENCE mandatory }|
-	{ ID id-HS-SICH-Reception-Quality		CRITICALITY reject	TYPE HS-SICH-Reception-Quality-Value	PRESENCE mandatory }|
-	{ ID id-Rx-Timing-Deviation-Value-768	CRITICALITY reject	TYPE Rx-Timing-Deviation-Value-768	PRESENCE mandatory }|
-	{ ID id-Rx-Timing-Deviation-Value-ext	CRITICALITY reject	TYPE Rx-Timing-Deviation-Value-ext	PRESENCE mandatory }|
-	{ ID id-Extended-Round-Trip-Time-Value		CRITICALITY reject	TYPE Extended-Round-Trip-Time-Value	PRESENCE mandatory },
+	{ ID id-Rx-Timing-Deviation-Value-LCR		CRITICALITY reject	TYPE Rx-Timing-Deviation-Value-LCR		PRESENCE mandatory }|
+	{ ID id-Angle-Of-Arrival-Value-LCR			CRITICALITY reject	TYPE Angle-Of-Arrival-Value-LCR			PRESENCE mandatory }|
+	{ ID id-HS-SICH-Reception-Quality			CRITICALITY reject	TYPE HS-SICH-Reception-Quality-Value	PRESENCE mandatory }|
+	{ ID id-Rx-Timing-Deviation-Value-768		CRITICALITY reject	TYPE Rx-Timing-Deviation-Value-768		PRESENCE mandatory }|
+	{ ID id-Rx-Timing-Deviation-Value-ext		CRITICALITY reject	TYPE Rx-Timing-Deviation-Value-ext		PRESENCE mandatory }|
+	{ ID id-Extended-Round-Trip-Time-Value		CRITICALITY reject	TYPE Extended-Round-Trip-Time-Value		PRESENCE mandatory },
 	...
 }
 
@@ -1119,6 +1810,7 @@ DGANSS-Corrections-Req ::= SEQUENCE {
 }
 
 DGANSS-Corrections-Req-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ID id-GANSS-ID				CRITICALITY	ignore	EXTENSION	GANSS-ID			PRESENCE	optional},
 	...
 }
 
@@ -1197,7 +1889,7 @@ DL-DPCH-TimingAdjustment ::= ENUMERATED {
 
 DL-Power				::= INTEGER (-350..150)
 -- Value = DL-Power / 10
--- Unit dB, Range -35dB .. +15dB, Step 0.1dB
+-- Unit dB, Range –35dB .. +15dB, Step 0.1dB
 
 DL-PowerBalancing-Information ::= SEQUENCE {
 	powerAdjustmentType					PowerAdjustmentType,
@@ -1549,6 +2241,33 @@ DTX-Information-to-Modify-Items-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 
 -- E
 
+
+EARFCN ::= INTEGER (0..maxEARFCN)
+
+EARFCN-Information ::= CHOICE {
+	fDD		EARFCN-FDD,
+	tDD		EARFCN,
+	...
+}
+
+EARFCN-FDD ::= SEQUENCE {
+	uL-EARFCN		EARFCN,
+	dL-EARFCN		EARFCN
+}
+
+E-AGCH-Table-Choice ::= ENUMERATED{table16B, table16B-1, ...}
+
+ECGI ::= SEQUENCE {
+	pLMN-Identity			PLMN-Identity,
+	e-UTRAN-Cell-ID			BIT STRING (SIZE (28)),
+	iE-Extensions			ProtocolExtensionContainer { {ECGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+ECGI-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 EDCH-DDI-Value ::= INTEGER (0..62)
 
 EDCH-FDD-DL-ControlChannelInformation ::= SEQUENCE {
@@ -1586,8 +2305,10 @@ EDCH-FDD-Information ::= SEQUENCE {
 }
 
 EDCH-FDD-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-{ ID id-E-DCH-PowerOffset-for-SchedulingInfo		CRITICALITY ignore	EXTENSION	E-DCH-PowerOffset-for-SchedulingInfo	PRESENCE  optional}|
-{ ID id-SixteenQAM-UL-Operation-Indicator					CRITICALITY reject	EXTENSION	SixteenQAM-UL-Operation-Indicator		PRESENCE  optional},
+	{ ID id-E-DCH-PowerOffset-for-SchedulingInfo		CRITICALITY ignore	EXTENSION	E-DCH-PowerOffset-for-SchedulingInfo	PRESENCE  optional}|
+	{ ID id-SixteenQAM-UL-Operation-Indicator			CRITICALITY reject	EXTENSION	SixteenQAM-UL-Operation-Indicator		PRESENCE  optional}|
+	{ ID id-E-AGCH-Table-Choice							CRITICALITY ignore	EXTENSION	E-AGCH-Table-Choice		PRESENCE conditional},
+	-- The IE shall be present if the SixteenQAM UL Operation Indicator IE is set to "Activate"--
 	...
 }
 
@@ -1631,10 +2352,13 @@ EDCH-FDD-Information-To-Modify ::= SEQUENCE {
 }
 
 EDCH-FDD-Information-To-Modify-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-{ ID id-E-DCH-PowerOffset-for-SchedulingInfo			CRITICALITY ignore	EXTENSION	E-DCH-PowerOffset-for-SchedulingInfo					PRESENCE optional}|
-{ ID id-SixteenQAM-UL-Operation-Indicator				CRITICALITY reject	EXTENSION	SixteenQAM-UL-Operation-Indicator						PRESENCE optional}|
-{ ID id-E-DCH-DL-Control-Channel-Grant-Information		CRITICALITY ignore	EXTENSION	E-DCH-DL-Control-Channel-Grant-Information			PRESENCE optional},
-	...
+{ ID id-E-DCH-PowerOffset-for-SchedulingInfo		CRITICALITY ignore	EXTENSION	E-DCH-PowerOffset-for-SchedulingInfo			PRESENCE optional}|
+{ ID id-SixteenQAM-UL-Operation-Indicator			CRITICALITY reject	EXTENSION	SixteenQAM-UL-Operation-Indicator				PRESENCE optional}|
+{ ID id-E-DCH-MACdPDUSizeFormat						CRITICALITY reject	EXTENSION	E-DCH-MACdPDUSizeFormat 					PRESENCE optional}|
+{ ID id-E-DCH-DL-Control-Channel-Grant-Information	CRITICALITY ignore	EXTENSION	E-DCH-DL-Control-Channel-Grant-Information	PRESENCE optional}|
+{ ID id-E-AGCH-Table-Choice							CRITICALITY ignore	EXTENSION	E-AGCH-Table-Choice					PRESENCE conditional},
+-- The IE shall be present if the SixteenQAM UL Operation Indicator IE is set to "Activate"--
+...
 }
 E-DCH-FDD-Update-Information ::= SEQUENCE {
 	e-DCH-MACdFlow-Specific-UpdateInformation		E-DCH-MACdFlow-Specific-UpdateInformation									OPTIONAL,
@@ -1687,6 +2411,7 @@ E-DCH-DL-Control-Channel-Grant-Information-Item-ExtIEs RNSAP-PROTOCOL-EXTENSION 
 }
 
 
+
 E-DCH-Grant-Type-Information ::= CHOICE {
 	e-DCH-Non-Scheduled-Transmission-Grant		E-DCH-Non-Scheduled-Transmission-Grant-Items,
 	e-DCH-Scheduled-Transmission-Grant			NULL,
@@ -1710,6 +2435,8 @@ E-DCH-LogicalChannelInformationItem ::= SEQUENCE {
 }
 
 E-DCH-LogicalChannelInformationItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-MaximumMACdPDU-SizeExtended		CRITICALITY reject		EXTENSION	MAC-PDU-SizeExtended		PRESENCE optional}|
+	{ ID id-MACes-Maximum-Bitrate-LCR		CRITICALITY ignore		EXTENSION	MACes-Maximum-Bitrate-LCR		PRESENCE optional},--1.28Mcps TDD only
 	...
 }
 
@@ -1733,6 +2460,10 @@ E-DCH-MACdPDU-SizeListItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+E-DCH-MACdPDUSizeFormat ::= ENUMERATED {
+	fixedMACdPDU-Size,
+	flexibleMACdPDU-Size
+}
 
 
 
@@ -1750,6 +2481,8 @@ E-DCH-LogicalChannelToModifyItem ::= SEQUENCE {
 }
 
 E-DCH-LogicalChannelToModifyItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-MaximumMACdPDU-SizeExtended 	CRITICALITY reject		EXTENSION	MAC-PDU-SizeExtended 	PRESENCE optional}|
+	{ ID id-MACes-Maximum-Bitrate-LCR		CRITICALITY ignore		EXTENSION	MACes-Maximum-Bitrate-LCR		PRESENCE optional},--1.28Mcps TDD only
 	...
 }
 
@@ -1774,6 +2507,7 @@ LogicalChannelID ::= INTEGER (1..15)
 
 
 EDCH-MACdFlow-ID ::= INTEGER (0..maxNrOfEDCHMACdFlows-1)
+EDCH-MACdFlow-ID-LCR ::= INTEGER (0..maxNrOfEDCHMACdFlowsLCR-1)
 
 EDCH-MACdFlows-Information ::= SEQUENCE {
 	eDCH-MACdFlow-Specific-Information				EDCH-MACdFlow-Specific-InfoList,
@@ -1945,6 +2679,7 @@ EDPCH-Information-FDD ::= SEQUENCE {
 }
 
 EDPCH-Information-FDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-MinimumReducedE-DPDCH-GainFactor		CRITICALITY ignore	EXTENSION MinimumReducedE-DPDCH-GainFactor	PRESENCE optional },
 	...
 }
 
@@ -1963,6 +2698,7 @@ EDPCH-Information-RLReconfPrepare-FDD ::= SEQUENCE {
 }
 
 EDPCH-Information-RLReconfPrepare-FDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-MinimumReducedE-DPDCH-GainFactor		CRITICALITY ignore	EXTENSION MinimumReducedE-DPDCH-GainFactor	PRESENCE optional },
 	...
 }
 
@@ -1981,6 +2717,7 @@ EDPCH-Information-RLReconfRequest-FDD ::= SEQUENCE {
 }
 
 EDPCH-Information-RLReconfRequest-FDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-MinimumReducedE-DPDCH-GainFactor		CRITICALITY ignore	EXTENSION MinimumReducedE-DPDCH-GainFactor	PRESENCE optional },
 	...
 }
 
@@ -2037,7 +2774,24 @@ Enhanced-FACH-Information-ResponseFDD-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Enhanced-FACH-Information-ResponseLCR ::= SEQUENCE {
+	common-HS-DSCH-RNTI-priorityQueueInfo-EnhancedFACH					PriorityQueue-InfoList-EnhancedFACH-PCH,
+	dedicated-HS-DSCH-RNTI-priorityQueueInfo-EnhancedFACH				PriorityQueue-InfoList-EnhancedFACH-PCH,
+	priorityQueueInfo-EnhancedPCH				PriorityQueue-InfoList-EnhancedFACH-PCH							OPTIONAL,
+	hSDSCH-Initial-Capacity-Allocation						HSDSCH-Initial-Capacity-Allocation,
+	hSDSCH-RNTI												HSDSCH-RNTI																		OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { Enhanced-FACH-Information-ResponseLCR-ExtIEs } }			OPTIONAL,
+	...
+}
+
+Enhanced-FACH-Information-ResponseLCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 Enhanced-FACH-Support-Indicator ::= NULL
+
+EnhancedHSServingCC-Abort ::= ENUMERATED {abortEnhancedHSServingCC,...}
+
 
 Enhanced-PCH-Capability ::= ENUMERATED {
 	enhanced-pch-capable,
@@ -2074,9 +2828,9 @@ E-TFCS-Information ::= SEQUENCE {
 }
 
 E-TFCS-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-E-DCH-Minimum-Set-E-TFCIValidityIndicator	CRITICALITY reject	EXTENSION E-DCH-Minimum-Set-E-TFCIValidityIndicator			PRESENCE optional }|
-	{ ID id-E-TFCI-Boost-Information							CRITICALITY reject	EXTENSION E-TFCI-Boost-Information							PRESENCE optional }|
-	{ ID id-E-DPDCH-PowerInterpolation						CRITICALITY reject	EXTENSION E-DPDCH-PowerInterpolation								PRESENCE optional },
+	{ ID id-E-DCH-Minimum-Set-E-TFCIValidityIndicator	CRITICALITY reject	EXTENSION E-DCH-Minimum-Set-E-TFCIValidityIndicator		PRESENCE optional }|
+	{ ID id-E-TFCI-Boost-Information					CRITICALITY reject	EXTENSION E-TFCI-Boost-Information						PRESENCE optional }|
+	{ ID id-E-DPDCH-PowerInterpolation					CRITICALITY reject	EXTENSION E-DPDCH-PowerInterpolation							PRESENCE optional },
 	...
 }
 
@@ -2153,7 +2907,7 @@ EventE ::= SEQUENCE {
 	measurementThreshold1		MeasurementThreshold,
 	measurementThreshold2		MeasurementThreshold			OPTIONAL,
 	measurementHysteresisTime	MeasurementHysteresisTime		OPTIONAL,
-	reportPeriodicity		ReportPeriodicity			OPTIONAL,
+	reportPeriodicity			ReportPeriodicity			OPTIONAL,
 	iE-Extensions			ProtocolExtensionContainer { {EventE-ExtIEs} } OPTIONAL,
 	...
 }
@@ -2304,6 +3058,7 @@ E-DCH-TDD-Information-to-Modify ::= SEQUENCE {
 }
 
 E-DCH-TDD-Information-to-Modify-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-E-DCH-MACdPDUSizeFormat 					CRITICALITY reject	EXTENSION	E-DCH-MACdPDUSizeFormat 					PRESENCE optional},
 	...
 }
 E-DCH-TDD-Information-to-Modify-List ::= SEQUENCE (SIZE (1..maxNrOfEDCHMACdFlows)) OF E-DCH-MACdFlow-ModifyTDDItem
@@ -2544,10 +3299,11 @@ E-DCH-LCR-TDD-Information  ::= SEQUENCE {
 }
 
 E-DCH-LCR-TDD-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-Extended-E-DCH-LCRTDD-PhysicalLayerCategory						CRITICALITY reject		EXTENSION Extended-E-DCH-LCRTDD-PhysicalLayerCategory			PRESENCE optional }|
+	{ ID id-Extended-E-DCH-LCRTDD-PhysicalLayerCategory						CRITICALITY reject		EXTENSION Extended-E-DCH-LCRTDD-PhysicalLayerCategory		PRESENCE optional }|
 	-- This IE shall be used if the E-DCH Physical Layer Category has a value larger than 5.
-	{ ID id-MaximumNumber-Of-Retransmission-For-SchedulingInfo-LCRTDD		CRITICALITY ignore		EXTENSION MaxNr-Retransmissions-EDCH								PRESENCE optional }|
-	{ ID id-E-DCH-RetransmissionTimer-For-SchedulingInfo-LCRTDD				CRITICALITY ignore		EXTENSION E-DCH-MACdFlow-Retransmission-Timer-LCR		PRESENCE optional },
+	{ ID id-MaximumNumber-Of-Retransmission-For-SchedulingInfo-LCRTDD		CRITICALITY ignore		EXTENSION MaxNr-Retransmissions-EDCH							PRESENCE optional }|
+	{ ID id-E-DCH-RetransmissionTimer-For-SchedulingInfo-LCRTDD				CRITICALITY ignore		EXTENSION E-DCH-MACdFlow-Retransmission-Timer-LCR	PRESENCE optional }|
+	{ ID id-E-AGCH-UE-Inactivity-Monitor-Threshold							CRITICALITY ignore		EXTENSION E-AGCH-UE-Inactivity-Monitor-Threshold	PRESENCE optional },
 	...
 }
 
@@ -2679,6 +3435,94 @@ Extended-Round-Trip-Time-Value ::= INTEGER(32767..103041)
 -- See also mapping in [23]
 
 Ext-Max-Bits-MACe-PDU-non-scheduled ::= INTEGER(19983..22978,...)
+
+E-DCH-Semi-PersistentScheduling-Information-LCR ::= SEQUENCE {
+	repetition-Period-List-LCR				Repetition-Period-List-LCR,
+	e-DCH-SPS-Indicator						E-DCH-SPS-Indicator,
+	e-DCH-SPS-Reservation-Indicator			SPS-Reservation-Indicator		OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { { E-DCH-Semi-PersistentScheduling-Information-LCR-ExtIEs } }			OPTIONAL,
+	...
+}
+
+E-DCH-Semi-PersistentScheduling-Information-LCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-DCH-SPS-Indicator ::= BIT STRING (SIZE (16))
+
+E-DCH-Semi-PersistentScheduling-Information-to-Modify-LCR ::= SEQUENCE {
+	repetition-Period-List-LCR				Repetition-Period-List-LCR		OPTIONAL,
+	e-DCH-SPS-Indicator						E-DCH-SPS-Indicator				OPTIONAL,
+	e-DCH-SPS-Reservation-Indicator			SPS-Reservation-Indicator		OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { { E-DCH-Semi-PersistentScheduling-Information-to-Modify-LCR-ExtIEs } }			OPTIONAL,
+	...
+}
+
+E-DCH-Semi-PersistentScheduling-Information-to-Modify-LCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-DCH-Semi-PersistentScheduling-Information-ResponseLCR ::= SEQUENCE {
+	initial-E-DCH-SPS-resource					Initial-E-DCH-SPS-resource			OPTIONAL,
+	e-DCH-SPS-HICH-Information					E-DCH-SPS-HICH-Information			OPTIONAL,
+	iE-Extensions								ProtocolExtensionContainer { { E-DCH-Semi-PersistentScheduling-Information-ResponseLCR-ExtIEs } }			OPTIONAL,
+	...
+}
+
+E-DCH-Semi-PersistentScheduling-Information-ResponseLCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Initial-E-DCH-SPS-resource ::= SEQUENCE {
+	timeslot-Resource-Related-Information		E-DCH-TimeslotResource-LCR,
+	powerResource								E-DCH-PowerResource,
+	repetitionPeriodIndex						RepetitionPeriodIndex,
+	repetitionLength							RepetitionLength,
+	subframeNumber								ENUMERATED {v0, v1},
+	tddE-PUCH-Offset							TddE-PUCH-Offset,
+	tdd-ChannelisationCode						TDD-ChannelisationCode,
+	n-E-UCCHLCR									N-E-UCCH-LCR,
+	iE-Extensions								ProtocolExtensionContainer { { Initial-E-DCH-SPS-resource-ExtIEs } }			OPTIONAL,
+	...
+}
+
+Initial-E-DCH-SPS-resource-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-DCH-SPS-HICH-Information ::= SEQUENCE {
+	e-HICH-Configuration						E-HICH-Configuration,
+	signatureSequenceGroupIndex				SignatureSequenceGroupIndex,
+	iE-Extensions								ProtocolExtensionContainer { { E-DCH-SPS-HICH-Information-ExtIEs } }			OPTIONAL,
+	...
+}
+
+E-DCH-SPS-HICH-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+E-HICH-Configuration ::= CHOICE {
+	same-As-Scheduled-E-HICH			Same-As-Scheduled-E-HICH,
+	explicit							E-HICH-InformationResp-ExplicitConfiguration-LCR,
+	...
+}
+
+Same-As-Scheduled-E-HICH ::= SEQUENCE {
+	e-HICH-EI									E-HICH-EI,
+	...
+}
+
+E-HICH-InformationResp-ExplicitConfiguration-LCR	::= SEQUENCE {
+	timeSlotLCR										TimeSlotLCR,
+	midambleShiftLCR								MidambleShiftLCR,
+	tDD-ChannelisationCode							TDD-ChannelisationCode,
+	iE-Extensions									ProtocolExtensionContainer { { E-HICH-InformationResp-ExplicitConfiguration-LCR-ExtIEs } }		OPTIONAL,
+	...
+}
+
+E-HICH-InformationResp-ExplicitConfiguration-LCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 -- F
 
@@ -2883,6 +3727,60 @@ GA-EllipsoidArc-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GANSS-AddClockModels ::= CHOICE {
+	navClockModel			 		GANSS-NAVclockModel,
+	cnavClockModel			 		GANSS-CNAVclockModel,
+	glonassClockModel		 		GANSS-GLONASSclockModel,
+	sbasClockModel			 		GANSS-SBASclockModel,
+	...
+}
+
+GANSS-AddIonoModelReq ::= BIT STRING (SIZE(2))
+
+GANSS-AddNavigationModelsReq ::= BOOLEAN
+
+GANSS-AddOrbitModels ::= CHOICE {
+	navKeplerianSet	 				GANSS-NavModel-NAVKeplerianSet,
+	cnavKeplerianSet				GANSS-NavModel-CNAVKeplerianSet,
+	glonassECEF						GANSS-NavModel-GLONASSecef,
+	sbasECEF						GANSS-NavModel-SBASecef,
+	...
+	}
+
+GANSS-AddUTCModelsReq ::= BOOLEAN
+
+GANSS-Additional-Ionospheric-Model ::= SEQUENCE {
+	dataID								BIT STRING (SIZE(2)),
+	alpha-beta-parameters				GPS-Ionospheric-Model,
+	ie-Extensions						ProtocolExtensionContainer { { GANSS-Additional-Ionospheric-Model-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-Additional-Ionospheric-Model-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-Additional-Navigation-Models ::= SEQUENCE {
+	ganss-Transmission-Time		GANSS-Transmission-Time,
+	non-broadcastIndication		ENUMERATED { true }																	OPTIONAL,
+	ganssSatInfoNavList			Ganss-Sat-Info-AddNavList,
+	ie-Extensions				ProtocolExtensionContainer { { GANSS-Additional-Navigation-Models-ExtIEs } } OPTIONAL,
+	...
+}
+
+GANSS-Additional-Navigation-Models-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-Additional-Time-Models ::= SEQUENCE (SIZE (1..maxGANSS-1)) OF GANSS-Time-Model
+
+GANSS-Additional-UTC-Models ::= CHOICE {
+	utcModel1			GANSS-UTCmodelSet1,
+	utcModel2			GANSS-UTCmodelSet2,
+	utcModel3			GANSS-UTCmodelSet3,
+	... 
+}
+
 GANSS-Almanac ::= SEQUENCE{
 	ganss-wk-number					INTEGER(0..255),
 	gANSS-AlmanacModel				CHOICE {
@@ -2893,7 +3791,8 @@ GANSS-Almanac ::= SEQUENCE{
 			ie-Extensions		 			ProtocolExtensionContainer { { GANSS-KeplerianParametersAlm-ExtIEs } }	OPTIONAL,
 			...
 		},
-		...
+		...,
+		extension-GANSS-AlmanacModel		Extension-GANSS-AlmanacModel		
 	},
 	ie-Extensions		 			ProtocolExtensionContainer { { GANSS-Almanac-ExtIEs } }			OPTIONAL,
 	...
@@ -2903,9 +3802,106 @@ GANSS-KeplerianParametersAlm-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Extension-GANSS-AlmanacModel	::= ProtocolIE-Single-Container {{ Extension-GANSS-AlmanacModel-IE }}
+
+Extension-GANSS-AlmanacModel-IE RNSAP-PROTOCOL-IES ::= {
+	{ ID id-GANSS-alm-keplerianNAVAlmanac			CRITICALITY		ignore		TYPE	GANSS-alm-keplerianNAVAlmanac				PRESENCE	mandatory}|
+	{ ID id-GANSS-alm-keplerianReducedAlmanac		CRITICALITY		ignore		TYPE	GANSS-alm-keplerianReducedAlmanac			PRESENCE	mandatory}|
+	{ ID id-GANSS-alm-keplerianMidiAlmanac			CRITICALITY		ignore		TYPE	GANSS-alm-keplerianMidiAlmanac				PRESENCE	mandatory}|
+	{ ID id-GANSS-alm-keplerianGLONASS				CRITICALITY		ignore		TYPE	GANSS-alm-keplerianGLONASS					PRESENCE	mandatory}|
+	{ ID id-GANSS-alm-ecefSBASAlmanac				CRITICALITY		ignore		TYPE	GANSS-alm-ecefSBASAlmanac					PRESENCE	mandatory}
+
+}
+
+GANSS-alm-keplerianNAVAlmanac ::= SEQUENCE {
+	t-oa						INTEGER (0..255),
+	sat-info-NAVkpList			GANSS-SAT-Info-Almanac-NAVkpList,
+	ie-Extensions				ProtocolExtensionContainer { { GANSS-ALM-NAVKeplerianSet-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-ALM-NAVKeplerianSet-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-alm-keplerianReducedAlmanac ::= SEQUENCE {
+	t-oa						INTEGER (0..255),
+	sat-info-REDkpList			GANSS-SAT-Info-Almanac-REDkpList,
+	ie-Extensions				ProtocolExtensionContainer { { GANSS-ALM-ReducedKeplerianSet-ExtIEs } }	OPTIONAL,
+	...
+}
+
+
+GANSS-ALM-ReducedKeplerianSet-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-alm-keplerianMidiAlmanac ::= SEQUENCE {
+	t-oa						INTEGER (0..255),
+	sat-info-MIDIkpList			GANSS-SAT-Info-Almanac-MIDIkpList,
+	ie-Extensions				ProtocolExtensionContainer { { GANSS-ALM-MidiAlmanacSet-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-ALM-MidiAlmanacSet-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-alm-keplerianGLONASS ::= SEQUENCE {
+	sat-info-GLOkpList			GANSS-SAT-Info-Almanac-GLOkpList,
+	ie-Extensions				ProtocolExtensionContainer { { GANSS-ALM-GlonassAlmanacSet-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-ALM-GlonassAlmanacSet-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-alm-ecefSBASAlmanac ::= SEQUENCE {
+	sat-info-SBASecefList		GANSS-SAT-Info-Almanac-SBASecefList,
+	ie-Extensions				ProtocolExtensionContainer { { GANSS-ALM-ECEFsbasAlmanacSet-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-ALM-ECEFsbasAlmanacSet-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 GANSS-Almanac-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+GANSS-Auxiliary-Information ::= CHOICE {
+	ganssID1	GANSS-AuxInfoGANSS-ID1, 	-- This choice may only be present if GANSS ID indicates Modernized GPS
+	ganssID3	GANSS-AuxInfoGANSS-ID3, 	-- This choice may only be present if GANSS ID indicates GLONASS
+	...
+}
+
+GANSS-AuxInfoGANSS-ID1 ::= SEQUENCE (SIZE(1.. maxGANSSSat)) OF SEQUENCE {
+	svID				INTEGER(0..63),
+	signalsAvailable	BIT STRING (SIZE(8)),
+	ie-Extensions		ProtocolExtensionContainer { { GANSS-AuxInfoGANSS-ID1-element-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-AuxInfoGANSS-ID1-element-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-AuxInfoGANSS-ID3 ::= SEQUENCE (SIZE(1.. maxGANSSSat)) OF SEQUENCE {
+	svID				INTEGER(0..63),
+	signalsAvailable	BIT STRING (SIZE(8)),
+	channelNumber		INTEGER (-7..13),
+	ie-Extensions		ProtocolExtensionContainer { { GANSS-AuxInfoGANSS-ID3-element-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-AuxInfoGANSS-ID3-element-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-AuxInfoReq ::= BOOLEAN
+
 GANSS-Clock-Model ::= SEQUENCE (SIZE (1..maxGANSSClockMod)) OF SEQUENCE {
 	t-oc								BIT STRING (SIZE (14)),
 	a-i2								BIT STRING (SIZE (12)),
@@ -2921,6 +3917,30 @@ GANSS-ClockModelItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GANSS-CNAVclockModel ::= SEQUENCE {
+	cnavToc				BIT STRING (SIZE (11)),
+	cnavTop				BIT STRING (SIZE (11)),
+	cnavURA0			BIT STRING (SIZE (5)),
+	cnavURA1			BIT STRING (SIZE (3)),
+	cnavURA2			BIT STRING (SIZE (3)),
+	cnavAf2				BIT STRING (SIZE (10)),
+	cnavAf1				BIT STRING (SIZE (20)),
+	cnavAf0				BIT STRING (SIZE (26)),
+	cnavTgd				BIT STRING (SIZE (13)),
+	cnavISCl1cp			BIT STRING (SIZE (13)) 											OPTIONAL,
+	cnavISCl1cd			BIT STRING (SIZE (13))											OPTIONAL,
+	cnavISCl1ca			BIT STRING (SIZE (13))											OPTIONAL,
+	cnavISCl2c			BIT STRING (SIZE (13))											OPTIONAL,
+	cnavISCl5i5			BIT STRING (SIZE (13)) 											OPTIONAL,
+	cnavISCl5q5			BIT STRING (SIZE (13))											OPTIONAL,
+	ie-Extensions		ProtocolExtensionContainer { { GANSS-CNAVclockModel-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-CNAVclockModel-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 GANSS-Common-Data ::= SEQUENCE {
 	ganss-Ionospheric-Model				GANSS-Ionospheric-Model																OPTIONAL,
 	ganss-Rx-Pos						GANSS-RX-Pos																		OPTIONAL,
@@ -2929,6 +3949,8 @@ GANSS-Common-Data ::= SEQUENCE {
 }
 
 GANSS-Common-Data-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-GANSS-Additional-Ionospheric-Model		CRITICALITY ignore	EXTENSION GANSS-Additional-Ionospheric-Model	PRESENCE optional }|
+	{ ID id-GANSS-Earth-Orientation-Parameters		CRITICALITY ignore	EXTENSION GANSS-Earth-Orientation-Parameters	PRESENCE optional },
 	...
 }
 
@@ -2939,6 +3961,8 @@ GANSS-CommonDataInfoReq ::= SEQUENCE {
 }
 
 GANSS-CommonDataInfoReq-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ID id-GANSS-AddIonoModelReq		CRITICALITY	ignore	EXTENSION	GANSS-AddIonoModelReq								PRESENCE optional} |
+	{ID id-GANSS-EarthOrientParaReq		CRITICALITY	ignore	EXTENSION	GANSS-EarthOrientParaReq	PRESENCE optional} ,
 	...
 }
 
@@ -3002,6 +4026,35 @@ GANSS-Data-Bit-Assistance-ReqList-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GANSS-DeltaUT1 ::= SEQUENCE {
+	b1					BIT STRING (SIZE(11)),
+	b2					BIT STRING (SIZE(10)),
+	ie-Extensions		ProtocolExtensionContainer { { GANSS-DeltaUT1-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-DeltaUT1-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-Earth-Orientation-Parameters ::= SEQUENCE {
+	teop				BIT STRING (SIZE (16)),
+	pmX					BIT STRING (SIZE (21)),
+	pmXdot				BIT STRING (SIZE (15)),
+	pmY					BIT STRING (SIZE (21)),
+	pmYdot				BIT STRING (SIZE (15)),
+	deltaUT1			BIT STRING (SIZE (31)),
+	deltaUT1dot			BIT STRING (SIZE (19)),
+	ie-Extensions		ProtocolExtensionContainer { { GANSS-Earth-Orientation-Parameters-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-Earth-Orientation-Parameters-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-EarthOrientParaReq ::= BOOLEAN
+
 GANSS-GenericDataInfoReqList ::= SEQUENCE (SIZE(1..maxNoGANSS)) OF GANSS-GenericDataInfoReqItem
 
 GANSS-GenericDataInfoReqItem ::= SEQUENCE {
@@ -3017,6 +4070,11 @@ GANSS-GenericDataInfoReqItem ::= SEQUENCE {
 }
 
 GANSS-GenericDataInfoReqItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ID id-GANSS-AddNavigationModelsReq	CRITICALITY	ignore	EXTENSION	GANSS-AddNavigationModelsReq			PRESENCE	optional} |
+	{ID id-GANSS-AddUTCModelsReq		CRITICALITY	ignore	EXTENSION	GANSS-AddUTCModelsReq					PRESENCE	optional} |
+	{ID id-GANSS-AuxInfoReq				CRITICALITY	ignore	EXTENSION	GANSS-AuxInfoReq						PRESENCE	optional} |
+	-- The following IE shall be present if ‘GANSS-ID’ in ‘GANSS-GenericDataInfoReqItem’ is ‘0’ (SBAS)
+	{ID id-GANSS-SBAS-ID				CRITICALITY	ignore	EXTENSION	GANSS-SBAS-ID			PRESENCE	optional} ,
 	...
 }
 
@@ -3037,6 +4095,24 @@ GANSS-Generic-DataItem ::= SEQUENCE {
 }
 
 GANSS-Generic-DataItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-GANSS-Additional-Time-Models			CRITICALITY ignore	EXTENSION GANSS-Additional-Time-Models			PRESENCE optional }|
+	{ ID id-GANSS-Additional-Navigation-Models		CRITICALITY ignore	EXTENSION GANSS-Additional-Navigation-Models	PRESENCE optional }|
+	{ ID id-GANSS-Additional-UTC-Models				CRITICALITY ignore	EXTENSION GANSS-Additional-UTC-Models				PRESENCE optional }|
+	{ ID id-GANSS-Auxiliary-Information				CRITICALITY ignore	EXTENSION GANSS-Auxiliary-Information				PRESENCE optional }|
+	-- The following element shall be present if ‘GANSS-ID’ in ‘GANSS-Generic-DataItem’ is ‘0’ (‘SBAS’)
+	{ ID id-GANSS-SBAS-ID							CRITICALITY ignore	EXTENSION GANSS-SBAS-ID			PRESENCE optional },
+	...
+}
+
+GANSS-GLONASSclockModel ::= SEQUENCE {
+	gloTau					BIT STRING (SIZE (22)),
+	gloGamma				BIT STRING (SIZE (11)),
+	gloDeltaTau				BIT STRING (SIZE (5)) 												OPTIONAL,
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-GLONASSclockModel-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-GLONASSclockModel-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -3080,6 +4156,20 @@ GANSS-IonosphereRegionalStormFlags-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GANSS-NAVclockModel ::= SEQUENCE {
+	navToc					BIT STRING (SIZE (16)),
+	navaf2					BIT STRING (SIZE (8)),
+	navaf1					BIT STRING (SIZE (16)),
+	navaf0					BIT STRING (SIZE (22)),
+	navTgd					BIT STRING (SIZE (8)),
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-NAVclockModel-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-NAVclockModel-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 GANSS-Navigation-Model-And-Time-Recovery ::= SEQUENCE {
 	ganss-Transmission-Time		GANSS-Transmission-Time,
 	non-broadcastIndication		ENUMERATED{true}		OPTIONAL,
@@ -3089,6 +4179,106 @@ GANSS-Navigation-Model-And-Time-Recovery ::= SEQUENCE {
 }
 
 GANSS-Navigation-Model-And-Time-Recovery-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-NavModel-CNAVKeplerianSet ::= SEQUENCE {
+	cnavTop					BIT STRING (SIZE (11)),
+	cnavURAindex			BIT STRING (SIZE (5)),
+	cnavDeltaA				BIT STRING (SIZE (26)),
+	cnavAdot				BIT STRING (SIZE (25)),
+	cnavDeltaNo				BIT STRING (SIZE (17)),
+	cnavDeltaNoDot			BIT STRING (SIZE (23)),
+	cnavMo					BIT STRING (SIZE (33)),
+	cnavE					BIT STRING (SIZE (33)),
+	cnavOmega				BIT STRING (SIZE (33)),
+	cnavOMEGA0				BIT STRING (SIZE (33)),
+	cnavDeltaOmegaDot		BIT STRING (SIZE (17)),
+	cnavIo					BIT STRING (SIZE (33)),
+	cnavIoDot				BIT STRING (SIZE (15)),
+	cnavCis					BIT STRING (SIZE (16)),
+	cnavCic					BIT STRING (SIZE (16)),
+	cnavCrs					BIT STRING (SIZE (24)),
+	cnavCrc					BIT STRING (SIZE (24)),
+	cnavCus					BIT STRING (SIZE (21)),
+	cnavCuc					BIT STRING (SIZE (21)),
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-NavModel-CNAVKeplerianSet-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-NavModel-CNAVKeplerianSet-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-NavModel-GLONASSecef ::= SEQUENCE {
+	gloEn					BIT STRING (SIZE (5)),
+	gloP1					BIT STRING (SIZE(2)),
+	gloP2					BIT STRING (SIZE (1)),
+	gloM					BIT STRING (SIZE (2))																			OPTIONAL,
+	gloX					BIT STRING (SIZE (27)),
+	gloXdot					BIT STRING (SIZE (24)),
+	gloXdotdot				BIT STRING (SIZE (5)),
+	gloY					BIT STRING (SIZE (27)),
+	gloYdot					BIT STRING (SIZE (24)),
+	gloYdotdot				BIT STRING (SIZE (5)),
+	gloZ					BIT STRING (SIZE (27)),
+	gloZdot					BIT STRING (SIZE (24)),
+	gloZdotdot				BIT STRING (SIZE (5)),
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-NavModel-GLONASSecef-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-NavModel-GLONASSecef-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+GANSS-NavModel-NAVKeplerianSet ::= SEQUENCE {
+	navURA					BIT STRING (SIZE (4)),
+	navFitFlag				BIT STRING (SIZE (1)),
+	navToe					BIT STRING (SIZE (16)),
+	navOmega				BIT STRING (SIZE (32)),
+	navDeltaN				BIT STRING (SIZE (16)),
+	navM0					BIT STRING (SIZE (32)),
+	navOmegaADot			BIT STRING (SIZE (24)),
+	navE					BIT STRING (SIZE (32)),
+	navIDot					BIT STRING (SIZE (14)),
+	navAPowerHalf			BIT STRING (SIZE (32)),
+	navI0					BIT STRING (SIZE (32)),
+	navOmegaA0				BIT STRING (SIZE (32)),
+	navCrs					BIT STRING (SIZE (16)),
+	navCis					BIT STRING (SIZE (16)),
+	navCus					BIT STRING (SIZE (16)),
+	navCrc					BIT STRING (SIZE (16)),
+	navCic					BIT STRING (SIZE (16)),
+	navCuc					BIT STRING (SIZE (16)),
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-NavModel-NAVKeplerianSet-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-NavModel-NAVKeplerianSet-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-NavModel-SBASecef ::= SEQUENCE {
+	-- the following IE shall be present if ‘GANSS-SBASclockModel’ in ‘GANSS-AddClockModels’ is not included in ‘Ganss-Sat-Info-AddNavList’
+	sbasTo					BIT STRING (SIZE (13))												OPTIONAL,
+	sbasAccuracy			BIT STRING (SIZE (4)),
+	sbasXg					BIT STRING (SIZE (30)),
+	sbasYg					BIT STRING (SIZE (30)),
+	sbasZg					BIT STRING (SIZE (25)),
+	sbasXgDot				BIT STRING (SIZE (17)),
+	sbasYgDot				BIT STRING (SIZE (17)),
+	sbasZgDot				BIT STRING (SIZE (18)),
+	sbasXgDotDot			BIT STRING (SIZE (10)),
+	sbagYgDotDot			BIT STRING (SIZE (10)),
+	sbasZgDotDot			BIT STRING (SIZE (10)),
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-NavModel-SBASecef-ExtIEs } }	OPTIONAL,
+	...
+}
+
+
+GANSS-NavModel-SBASecef-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -3165,6 +4355,120 @@ GANSS-SatelliteInformationKPItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Ganss-Sat-Info-AddNavList ::= SEQUENCE (SIZE (1..maxGANSSSat)) OF SEQUENCE {
+	satId						INTEGER (0..63),
+	svHealth					BIT STRING (SIZE (6)),
+	iod							BIT STRING (SIZE (11)),
+	ganssAddClockModels			GANSS-AddClockModels,
+	ganssAddOrbitModels			GANSS-AddOrbitModels,
+	ie-Extensions				ProtocolExtensionContainer { { Ganss-Sat-Info-AddNavList-ExtIEs } } OPTIONAL,
+	...
+}
+
+Ganss-Sat-Info-AddNavList-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-SAT-Info-Almanac-GLOkpList ::= SEQUENCE (SIZE (1.. maxGANSSSatAlmanac)) OF SEQUENCE {
+	gloAlmNA				BIT STRING (SIZE(11)),
+	gloAlmnA				BIT STRING (SIZE(5)),
+	gloAlmHA				BIT STRING (SIZE(5)),
+	gloAlmLambdaA			BIT STRING (SIZE(21)),
+	gloAlmTlambdaA			BIT STRING (SIZE(21)),
+	gloAlmDeltaIA			BIT STRING (SIZE(18)),
+	gloAkmDeltaTA			BIT STRING (SIZE(22)),
+	gloAlmDeltaTdotA		BIT STRING (SIZE(7)),
+	gloAlmEpsilonA			BIT STRING (SIZE(15)),
+	gloAlmOmegaA			BIT STRING (SIZE(16)),
+	gloAlmTauA				BIT STRING (SIZE(10)),
+	gloAlmCA				BIT STRING (SIZE(1)),
+	gloAlmMA				BIT STRING (SIZE(2)) 																			OPTIONAL,
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-SAT-Info-Almanac-GLOkp-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-SAT-Info-Almanac-GLOkp-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-SAT-Info-Almanac-MIDIkpList ::= SEQUENCE (SIZE (1.. maxGANSSSatAlmanac)) OF SEQUENCE {
+	svID					INTEGER(0..63),
+	midiAlmE				BIT STRING (SIZE (11)),
+	midiAlmDeltaI			BIT STRING (SIZE (11)),
+	midiAlmOmegaDot			BIT STRING (SIZE (11)),
+	midiAlmSqrtA			BIT STRING (SIZE (17)),
+	midiAlmOmega0			BIT STRING (SIZE (16)),
+	midiAlmOmega			BIT STRING (SIZE (16)),
+	midiAlmMo				BIT STRING (SIZE (16)),
+	midiAlmaf0				BIT STRING (SIZE (11)),
+	midiAlmaf1				BIT STRING (SIZE (10)),
+	midiAlmL1Health			BIT STRING (SIZE (1)),
+	midiAlmL2Health			BIT STRING (SIZE (1)),
+	midiAlmL5Health			BIT STRING (SIZE (1)),
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-SAT-Info-Almanac-MIDIkp-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-SAT-Info-Almanac-MIDIkp-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-SAT-Info-Almanac-NAVkpList ::= SEQUENCE (SIZE (1.. maxGANSSSatAlmanac)) OF SEQUENCE {
+	svID					INTEGER(0..63),
+	navAlmE					BIT STRING (SIZE (16)),
+	navAlmDeltaI			BIT STRING (SIZE (16)),
+	navAlmOMEGADOT			BIT STRING (SIZE (16)),
+	navAlmSVHealth			BIT STRING (SIZE (8)),
+	navAlmSqrtA				BIT STRING (SIZE (24)),
+	navAlmOMEGAo			BIT STRING (SIZE (24)),
+	navAlmOmega				BIT STRING (SIZE (24)),
+	navAlmMo				BIT STRING (SIZE (24)),
+	navAlmaf0				BIT STRING (SIZE (11)),
+	navAlmaf1				BIT STRING (SIZE (11)),
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-SAT-Info-Almanac-NAVkp-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-SAT-Info-Almanac-NAVkp-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-SAT-Info-Almanac-REDkpList ::= SEQUENCE (SIZE (1.. maxGANSSSatAlmanac)) OF SEQUENCE {
+	svID					INTEGER(0..63),
+	redAlmDeltaA			BIT STRING (SIZE (8)),
+	redAlmOmega0			BIT STRING (SIZE (7)),
+	redAlmPhi0				BIT STRING (SIZE (7)),
+	redAlmL1Health			BIT STRING (SIZE (1)),
+	redAlmL2Health			BIT STRING (SIZE (1)),
+	redAlmL5Health			BIT STRING (SIZE (1)),
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-SAT-Info-Almanac-REDkp-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-SAT-Info-Almanac-REDkp-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-SAT-Info-Almanac-SBASecefList ::=	SEQUENCE (SIZE (1.. maxGANSSSatAlmanac)) OF SEQUENCE {
+	sbasAlmDataID			BIT STRING (SIZE(2)),
+	svID					INTEGER(0..63),
+	sbasAlmHealth			BIT STRING (SIZE(8)),
+	sbasAlmXg				BIT STRING (SIZE(15)),
+	sbasAlmYg				BIT STRING (SIZE(15)),
+	sbasAlmZg				BIT STRING (SIZE(9)),
+	sbasAlmXgdot			BIT STRING (SIZE(3)),
+	sbasAlmYgDot			BIT STRING (SIZE(3)),
+	sbasAlmZgDot			BIT STRING (SIZE(4)),
+	sbasAlmTo				BIT STRING (SIZE(11)),
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-SAT-Info-Almanac-SBASecef-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-SAT-Info-Almanac-SBASecef-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
 GANSS-Sat-Info-Nav ::= SEQUENCE (SIZE(1..maxGANSSSat)) OF SEQUENCE {
 	satId						INTEGER(0..63),
 	svHealth					BIT STRING (SIZE(5)),
@@ -3176,6 +4480,26 @@ GANSS-Sat-Info-Nav ::= SEQUENCE (SIZE(1..maxGANSSSat)) OF SEQUENCE {
 }
 
 GANSS-Sat-Info-Nav-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-SBAS-ID ::= ENUMERATED 	{
+								waas,
+								egnos,
+								msas,
+								gagan,
+								...
+								}
+
+GANSS-SBASclockModel ::= SEQUENCE {
+	sbasTo					BIT STRING (SIZE (13)),
+	sbasAgfo				BIT STRING (SIZE (12)),
+	sbasAgf1				BIT STRING (SIZE (8)),
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-SBASclockModel-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-SBASclockModel-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -3192,12 +4516,14 @@ GANSS-StatusHealth ::= ENUMERATED {
 	invalid-data
 }
 
+GANSS-Time-ID	::= INTEGER(0..7,...)
+
 GANSS-Time-Model ::= SEQUENCE {
 	ganss-time-model-Ref-Time			INTEGER(0..37799),
 	ganss-t-a0							INTEGER(-2147483648..2147483647),
 	ganss-t-a1							INTEGER(-8388608..8388607)									OPTIONAL,
 	ganss-t-a2							INTEGER(-64..63)											OPTIONAL,
-	gnss-to-id							ENUMERATED{gps,...},
+	gnss-to-id							ENUMERATED{gps,...,galileo,qzss,glonass},
 	ganss-wk-number						INTEGER(0..8191)											OPTIONAL,
 	ie-Extensions						ProtocolExtensionContainer { { GANSS-Time-Model-ExtIEs } }	OPTIONAL,
 	...
@@ -3235,6 +4561,54 @@ GANSS-UTC-Model-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GANSS-UTCmodelSet1 ::= SEQUENCE {
+	utcA0				BIT STRING (SIZE(16)),
+	utcA1				BIT STRING (SIZE(13)),
+	utcA2				BIT STRING (SIZE(7)),
+	utcDeltaTls			BIT STRING (SIZE(8)),
+	utcTot				BIT STRING (SIZE(16)),
+	utcWNot				BIT STRING (SIZE(13)),
+	utcWNlsf			BIT STRING (SIZE(8)),
+	utcDN				BIT STRING (SIZE(4)),
+	utcDeltaTlsf		BIT STRING (SIZE(8)),
+	ie-Extensions		ProtocolExtensionContainer { { GANSS-UTCmodelSet1-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-UTCmodelSet1-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-UTCmodelSet2 ::= SEQUENCE {
+	nA					BIT STRING (SIZE(11)),
+	tauC				BIT STRING (SIZE(32)),
+	deltaUT1			GANSS-DeltaUT1													OPTIONAL,
+	kp					BIT STRING (SIZE(2)) 											OPTIONAL,
+	ie-Extensions		ProtocolExtensionContainer { { GANSS-UTCmodelSet2-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-UTCmodelSet2-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-UTCmodelSet3 ::= SEQUENCE {
+	utcA1wnt			BIT STRING (SIZE(24)),
+	utcA0wnt			BIT STRING (SIZE(32)),
+	utcTot				BIT STRING (SIZE(8)),
+	utcWNt				BIT STRING (SIZE(8)),
+	utcDeltaTls			BIT STRING (SIZE(8)),
+	utcWNlsf			BIT STRING (SIZE(8)),
+	utcDN				BIT STRING (SIZE(8)),
+	utcDeltaTlsf		BIT STRING (SIZE(8)),
+	utcStandardID		BIT STRING (SIZE(3)),
+	ie-Extensions		ProtocolExtensionContainer { { GANSS-UTCmodelSet3-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-UTCmodelSet3-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 GA-PointWithAltitude ::= SEQUENCE {
 	geographicalCoordinates		GeographicalCoordinate,
@@ -3412,7 +4786,7 @@ GPSInformation ::= SEQUENCE (SIZE (1..maxNoGPSTypes)) OF
 		iE-Extensions			ProtocolExtensionContainer { { GPSInformation-ExtIEs} }		OPTIONAL,
 		...
 	}
--- This IE shall be present if the Information Type IE indicates 'GPS Information'
+-- This IE shall be present if the Information Type IE indicates ‘GPS Information’
 
 GPSInformation-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
@@ -3637,10 +5011,15 @@ HSDSCH-FDD-Information ::= SEQUENCE {
 }
 
 HSDSCH-FDD-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-{ ID id-HARQ-Preamble-Mode 					CRITICALITY ignore		EXTENSION	HARQ-Preamble-Mode	PRESENCE optional}|
-{ ID id-MIMO-ActivationIndicator 			CRITICALITY reject		EXTENSION	MIMO-ActivationIndicator				PRESENCE optional}|
-{ ID id-HSDSCH-MACdPDUSizeFormat 			CRITICALITY reject		EXTENSION	HSDSCH-MACdPDUSizeFormat 				PRESENCE optional}|
-{ ID id-SixtyfourQAM-UsageAllowedIndicator	CRITICALITY ignore		EXTENSION	SixtyfourQAM-UsageAllowedIndicator 	PRESENCE optional},
+{ ID id-HARQ-Preamble-Mode 							CRITICALITY ignore	EXTENSION	HARQ-Preamble-Mode					PRESENCE optional}|
+{ ID id-MIMO-ActivationIndicator 					CRITICALITY reject	EXTENSION	MIMO-ActivationIndicator							PRESENCE optional}|
+{ ID id-HSDSCH-MACdPDUSizeFormat 					CRITICALITY reject	EXTENSION	HSDSCH-MACdPDUSizeFormat 							PRESENCE optional}|
+{ ID id-SixtyfourQAM-UsageAllowedIndicator			CRITICALITY ignore	EXTENSION	SixtyfourQAM-UsageAllowedIndicator 			PRESENCE optional}|
+{ ID id-UE-with-enhanced-HS-SCCH-support-indicator		CRITICALITY ignore	EXTENSION	NULL						PRESENCE optional}|
+{ ID id-EnhancedHSServingCC-Abort					CRITICALITY reject	EXTENSION	EnhancedHSServingCC-Abort							PRESENCE optional}|
+{ ID id-UE-SupportIndicatorExtension				CRITICALITY ignore	EXTENSION	UE-SupportIndicatorExtension						PRESENCE optional}|
+{ ID id-power-offset-for-S-CPICH-for-MIMO-Request-Indicator 	CRITICALITY ignore	EXTENSION PowerOffsetForSecondaryCPICHforMIMORequestIndicator			PRESENCE optional}|
+{ ID id-Single-Stream-MIMO-ActivationIndicator 		CRITICALITY reject	EXTENSION	Single-Stream-MIMO-ActivationIndicator		PRESENCE optional},
 	...
 }
 
@@ -3659,9 +5038,123 @@ HSDSCH-FDD-Information-Response-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 { ID id-HARQ-Preamble-Mode-Activation-Indicator		CRITICALITY ignore	EXTENSION HARQ-Preamble-Mode-Activation-Indicator		PRESENCE optional}|
 { ID id-MIMO-InformationResponse 					CRITICALITY ignore	EXTENSION MIMO-InformationResponse							PRESENCE optional}|
 { ID id-SixtyfourQAM-DL-UsageIndicator				CRITICALITY ignore	EXTENSION SixtyfourQAM-DL-UsageIndicator					PRESENCE optional}|
-{ ID id-HSDSCH-TBSizeTableIndicator					CRITICALITY ignore	EXTENSION HSDSCH-TBSizeTableIndicator						PRESENCE optional},
+{ ID id-HSDSCH-TBSizeTableIndicator					CRITICALITY ignore	EXTENSION HSDSCH-TBSizeTableIndicator						PRESENCE optional}|
+{ ID id-power-offset-for-S-CPICH-for-MIMO 			CRITICALITY ignore	EXTENSION PowerOffsetForSecondaryCPICHforMIMO			PRESENCE optional},
 	...
 }
+
+HS-DSCH-FDD-Secondary-Serving-Information ::= SEQUENCE {
+	hsscch-PowerOffset								HSSCCH-PowerOffset										OPTIONAL,
+	sixtyfourQAM-UsageAllowedIndicator				SixtyfourQAM-UsageAllowedIndicator						OPTIONAL,
+	iE-Extensions									ProtocolExtensionContainer { { HS-DSCH-FDD-Secondary-Serving-Information-ExtIEs } }		OPTIONAL,
+	...
+}
+
+HS-DSCH-FDD-Secondary-Serving-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+{ID	id-MIMO-ActivationIndicator			CRITICALITY reject		EXTENSION MIMO-ActivationIndicator	PRESENCE optional}|
+{ID id-Single-Stream-MIMO-ActivationIndicator		CRITICALITY reject	EXTENSION Single-Stream-MIMO-ActivationIndicator			PRESENCE optional}|
+{ID	id-DiversityMode			CRITICALITY reject		EXTENSION DiversityMode	PRESENCE optional}|
+{ID	id-TransmitDiversityIndicator	CRITICALITY reject		EXTENSION TransmitDiversityIndicator	PRESENCE optional},
+	...
+}
+
+HS-DSCH-FDD-Secondary-Serving-Information-Response ::= SEQUENCE {
+	hSSCCH-Specific-InfoList-Response		HSSCCH-FDD-Specific-InfoList-Response						OPTIONAL,
+	hSPDSCH-and-HSSCCH-ScramblingCode		DL-ScramblingCode											OPTIONAL,
+	measurement-Power-Offset				Measurement-Power-Offset									OPTIONAL,
+	sixtyfourQAM-DL-UsageIndicator			SixtyfourQAM-DL-UsageIndicator								OPTIONAL,
+	hSDSCH-TBSizeTableIndicator				HSDSCH-TBSizeTableIndicator									OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { { HS-DSCH-FDD-Secondary-Serving-Information-Respons-ExtIEs } }			OPTIONAL,
+	...
+}
+
+HS-DSCH-FDD-Secondary-Serving-Information-Respons-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+{ID	id-MIMO-InformationResponse			CRITICALITY ignore		EXTENSION MIMO-InformationResponse	PRESENCE optional}|
+{ID	id-HARQ-MemoryPartitioning			CRITICALITY ignore		EXTENSION HARQ-MemoryPartitioning	PRESENCE optional},
+	...
+}
+
+HS-DSCH-Secondary-Serving-Information-To-Modify ::= SEQUENCE {
+	hsscch-PowerOffset							HSSCCH-PowerOffset									OPTIONAL,
+	hSSCCH-CodeChangeGrant						HSSCCH-Code-Change-Grant							OPTIONAL,
+	sixtyfourQAM-UsageAllowedIndicator			SixtyfourQAM-UsageAllowedIndicator					OPTIONAL,
+	iE-Extensions								ProtocolExtensionContainer { { HS-DSCH-Secondary-Serving-Information-To-Modify-ExtIEs } }		OPTIONAL,
+	...
+}
+
+HS-DSCH-Secondary-Serving-Information-To-Modify-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+{ID	id-MIMO-Mode-Indicator			CRITICALITY reject		EXTENSION MIMO-Mode-Indicator		PRESENCE optional}|
+{ID id-Single-Stream-MIMO-Mode-Indicator 	CRITICALITY reject		EXTENSION	Single-Stream-MIMO-Mode-Indicator	PRESENCE optional}|
+{ID	id-DiversityMode				CRITICALITY reject		EXTENSION DiversityMode	PRESENCE optional}|
+{ID	id-TransmitDiversityIndicator			CRITICALITY reject		EXTENSION TransmitDiversityIndicator	PRESENCE optional}|
+-- This IE shall be present if Diversity Mode IE is present and is not set to “none”
+{ID	id-NonCellSpecificTxDiversity			CRITICALITY reject		EXTENSION NonCellSpecificTxDiversity	PRESENCE optional},
+	...
+}
+
+HS-DSCH-FDD-Secondary-Serving-Information-To-Modify-Unsynchronised ::= SEQUENCE {
+	hsscch-PowerOffset							HSSCCH-PowerOffset									OPTIONAL,
+	sixtyfourQAM-UsageAllowedIndicator			SixtyfourQAM-UsageAllowedIndicator					OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { { HS-DSCH-FDD-Secondary-Serving-Information-To-Modify-Unsynchronised-ExtIEs } }			OPTIONAL,
+	...
+}
+
+HS-DSCH-FDD-Secondary-Serving-Information-To-Modify-Unsynchronised-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+{ID	id-MIMO-Mode-Indicator			CRITICALITY reject		EXTENSION MIMO-Mode-Indicator		PRESENCE optional}|
+{ID id-Single-Stream-MIMO-Mode-Indicator 	CRITICALITY reject		EXTENSION	Single-Stream-MIMO-Mode-Indicator	PRESENCE optional},
+	...
+}
+
+HS-DSCH-FDD-Secondary-Serving-Update-Information ::= SEQUENCE {
+	hsSCCHCodeChangeIndicator					HSSCCH-CodeChangeIndicator					OPTIONAL,
+	hS-PDSCH-Code-Change-Indicator				HS-PDSCH-Code-Change-Indicator				OPTIONAL,
+	-- This IE shall never be included. If received it shall be ignored.
+	iE-Extensions								ProtocolExtensionContainer { { HS-DSCH-FDD-Secondary-Serving-Update-Information-ExtIEs } }		OPTIONAL,
+	...
+}
+
+HS-DSCH-FDD-Secondary-Serving-Update-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HS-DSCH-Secondary-Serving-Cell-Change-Information-Response ::= SEQUENCE {
+	hS-DSCH-Secondary-Serving-cell-choice		HS-DSCH-Secondary-Serving-cell-change-choice,
+	iE-Extensions								ProtocolExtensionContainer { { HS-DSCH-Secondary-Serving-Cell-Change-Information-Response-ExtIEs } }		OPTIONAL,
+	...
+}
+
+HS-DSCH-Secondary-Serving-Cell-Change-Information-Response-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HS-DSCH-Secondary-Serving-cell-change-choice ::= CHOICE {
+	hS-Secondary-Serving-cell-change-successful			HS-Secondary-Serving-cell-change-successful,
+	hS-Secondary-Serving-cell-change-unsuccessful		HS-Secondary-Serving-cell-change-unsuccessful,
+	...
+}
+
+HS-Secondary-Serving-cell-change-successful ::= SEQUENCE {
+	hS-DSCH-FDD-Secondary-Serving-Information-Response		HS-DSCH-FDD-Secondary-Serving-Information-Response,
+	hSDSCH-RNTI												HSDSCH-RNTI, 
+	iE-Extensions						ProtocolExtensionContainer { { HS-Secondary-Serving-cell-change-successful-ExtIEs} } OPTIONAL,
+	...
+}
+
+HS-Secondary-Serving-cell-change-successful-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HS-Secondary-Serving-cell-change-unsuccessful ::= SEQUENCE {
+	cause							Cause,
+	iE-Extensions					ProtocolExtensionContainer { { HS-Secondary-Serving-cell-change-unsuccessful-ExtIEs} } OPTIONAL,
+	...
+}
+
+HS-Secondary-Serving-cell-change-unsuccessful-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+HS-DSCH-Secondary-Serving-Remove ::= NULL
+
 
 HSDSCH-Information-to-Modify ::= SEQUENCE {
 	hSDSCH-MACdFlow-Specific-InfoList-to-Modify		HSDSCH-MACdFlow-Specific-InfoList-to-Modify			OPTIONAL,
@@ -3687,8 +5180,11 @@ HSDSCH-Information-to-Modify-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 { ID id-MIMO-Mode-Indicator 				CRITICALITY reject		EXTENSION	MIMO-Mode-Indicator						PRESENCE optional}|
 { ID id-HSDSCH-MACdPDUSizeFormat 			CRITICALITY reject		EXTENSION	HSDSCH-MACdPDUSizeFormat 				PRESENCE optional}|
 { ID id-SixtyfourQAM-UsageAllowedIndicator 	CRITICALITY ignore		EXTENSION	SixtyfourQAM-UsageAllowedIndicator 	PRESENCE optional}|
-{ ID id-UE-Capabilities-Info				CRITICALITY	ignore		EXTENSION	UE-Capabilities-Info						PRESENCE optional},
-	  -- For FDD only,
+{ ID id-UE-Capabilities-Info				CRITICALITY	ignore		EXTENSION	UE-Capabilities-Info						PRESENCE optional}|
+{ ID id-EnhancedHSServingCC-Abort			CRITICALITY reject		EXTENSION	EnhancedHSServingCC-Abort				PRESENCE optional}|
+{ ID id-UE-SupportIndicatorExtension		CRITICALITY ignore		EXTENSION	UE-SupportIndicatorExtension			PRESENCE optional}|
+{ ID id-power-offset-for-S-CPICH-for-MIMO-Request-Indicator 	CRITICALITY ignore	EXTENSION PowerOffsetForSecondaryCPICHforMIMORequestIndicator			PRESENCE optional}|
+{ ID id-Single-Stream-MIMO-Mode-Indicator 	CRITICALITY reject		EXTENSION	Single-Stream-MIMO-Mode-Indicator	PRESENCE optional},
 	...
 }
 
@@ -3707,7 +5203,11 @@ HSDSCH-Information-to-Modify-Unsynchronised ::= SEQUENCE {
 HSDSCH-Information-to-Modify-Unsynchronised-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 { ID id-HARQ-Preamble-Mode 					CRITICALITY ignore		EXTENSION	HARQ-Preamble-Mode	PRESENCE optional}|
 { ID id-MIMO-Mode-Indicator 				CRITICALITY reject		EXTENSION	MIMO-Mode-Indicator						PRESENCE optional}|
-{ ID id-SixtyfourQAM-UsageAllowedIndicator 	CRITICALITY ignore		EXTENSION	SixtyfourQAM-UsageAllowedIndicator	PRESENCE optional},
+{ ID id-SixtyfourQAM-UsageAllowedIndicator 	CRITICALITY ignore		EXTENSION	SixtyfourQAM-UsageAllowedIndicator	PRESENCE optional}|
+{ ID id-EnhancedHSServingCC-Abort			CRITICALITY reject		EXTENSION	EnhancedHSServingCC-Abort				PRESENCE optional}|
+{ ID id-UE-SupportIndicatorExtension		CRITICALITY ignore		EXTENSION	UE-SupportIndicatorExtension		PRESENCE optional}|
+{ ID id-power-offset-for-S-CPICH-for-MIMO-Request-Indicator 	CRITICALITY ignore	EXTENSION PowerOffsetForSecondaryCPICHforMIMORequestIndicator			PRESENCE optional}|
+{ ID id-Single-Stream-MIMO-Mode-Indicator 	CRITICALITY reject		EXTENSION	Single-Stream-MIMO-Mode-Indicator	PRESENCE optional},
 	...
 }
 
@@ -3811,6 +5311,77 @@ HSDSCH-Initial-Capacity-AllocationItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 HSDSCH-InitialWindowSize			::= INTEGER (1..255)
 -- Number of MAC-d PDUs.
 
+
+
+HSDSCH-PreconfigurationInfo ::= SEQUENCE {
+	setsOfHS-SCCH-Codes		SetsOfHS-SCCH-Codes,
+	hARQ-MemoryPartitioning		HARQ-MemoryPartitioning,
+	eDCH-FDD-DL-ControlChannelInformation		EDCH-FDD-DL-ControlChannelInformation		OPTIONAL,
+	hARQ-Preamble-Mode-Activation-Indicator		HARQ-Preamble-Mode-Activation-Indicator		OPTIONAL,
+	mIMO-N-M-Ratio			MIMO-InformationResponse		OPTIONAL,
+	continuous-Packet-Connectivity-HS-SCCH-Less-Information-Response	Continuous-Packet-Connectivity-HS-SCCH-Less-Information-Response		OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { HSDSCH-PreconfigurationInfo-ExtIEs} }		OPTIONAL,
+	...
+}
+
+HSDSCH-PreconfigurationInfo-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+{ ID id-power-offset-for-S-CPICH-for-MIMO 	CRITICALITY ignore	EXTENSION PowerOffsetForSecondaryCPICHforMIMO		PRESENCE optional}|
+{ ID id-CellSpecificHARQMemoryPartitioning	CRITICALITY ignore	EXTENSION CellSpecificHARQMemoryPartitioning		PRESENCE optional}|
+{ ID id-Additional-EDCH-Preconfiguration-Information		CRITICALITY ignore	EXTENSION Additional-EDCH-Preconfiguration-Information			PRESENCE optional },
+	...
+}
+
+Additional-EDCH-Preconfiguration-Information	::= SEQUENCE (SIZE (1..maxNrOfEDCH-1)) OF Additional-EDCH-Preconfiguration-Information-ItemIEs
+
+Additional-EDCH-Preconfiguration-Information-ItemIEs	::= SEQUENCE {
+	eDCH-FDD-DL-ControlChannelInformation		EDCH-FDD-DL-ControlChannelInformation,
+	iE-Extensions					ProtocolExtensionContainer { { Additional-EDCH-Preconfiguration-Information-ItemIEs-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-EDCH-Preconfiguration-Information-ItemIEs-ExtIEs	RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+HSDSCH-PreconfigurationSetup ::= SEQUENCE {
+	mAChsResetScheme		MAChsResetScheme,
+	hSDSCH-Physical-Layer-Category		INTEGER (1..64,...),
+	mAChs-Reordering-Buffer-Size-for-RLC-UM		MAChsReorderingBufferSize-for-RLC-UM,
+	secondaryServingCells		SecondaryServingCells			OPTIONAL,
+	numPrimaryHS-SCCH-Codes		NumHS-SCCH-Codes			OPTIONAL,
+	hARQ-Preamble-Mode		HARQ-Preamble-Mode						OPTIONAL,
+	mIMO-ActivationIndicator		MIMO-ActivationIndicator			OPTIONAL,
+	hSDSCH-MACdPDUSizeFormat		HSDSCH-MACdPDUSizeFormat			OPTIONAL,
+	sixtyfourQAM-UsageAllowedIndicator		SixtyfourQAM-UsageAllowedIndicator			OPTIONAL,
+	uE-with-enhanced-HS-SCCH-support-indicator		NULL		OPTIONAL,
+	continuous-Packet-Connectivity-HS-SCCH-Less-Information			Continuous-Packet-Connectivity-HS-SCCH-Less-Information		OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { HSDSCHPreconfigurationSetup-ExtIEs } }			OPTIONAL,
+	...
+}
+
+HSDSCHPreconfigurationSetup-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+{ ID id-UE-SupportIndicatorExtension					CRITICALITY ignore		EXTENSION	UE-SupportIndicatorExtension	PRESENCE optional}|
+{ ID id-power-offset-for-S-CPICH-for-MIMO-Request-Indicator		CRITICALITY ignore	EXTENSION PowerOffsetForSecondaryCPICHforMIMORequestIndicator	PRESENCE optional},
+	...
+}
+
+
+HS-SCCH-PreconfiguredCodes				::= SEQUENCE (SIZE (1..maxNrOfHSSCCHCodes)) OF HS-SCCH-PreconfiguredCodesItem
+
+HS-SCCH-PreconfiguredCodesItem ::= SEQUENCE {
+	hS-SCCH-CodeNumber			HS-SCCH-CodeNumber,
+	iE-Extensions			ProtocolExtensionContainer { { HS-SCCH-PreconfiguredCodesItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+HS-SCCH-PreconfiguredCodesItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HS-SCCH-CodeNumber ::= INTEGER (0..127)
+
+
 HSDSCH-RNTI ::= INTEGER (0..65535)
 
 
@@ -3894,8 +5465,9 @@ HSDSCH-TDD-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 -- Applicable to 1.28Mcps TDD only
 { ID id-HSSICH-TPC-StepSize			CRITICALITY ignore		EXTENSION TDD-TPC-UplinkStepSize-LCR	PRESENCE optional}|
 -- Mandatory for 1.28Mcps TDD only
-{ ID id-tSN-Length					CRITICALITY reject		EXTENSION TSN-Length					PRESENCE optional },
+{ ID id-tSN-Length					CRITICALITY reject		EXTENSION TSN-Length					PRESENCE optional }|
 -- Applicable for 1.28Mcps TDD when using multiple frequencies
+{ ID id-MIMO-ActivationIndicator	CRITICALITY reject		EXTENSION	MIMO-ActivationIndicator				PRESENCE optional},
 	...
 }
 
@@ -3921,8 +5493,10 @@ HSDSCH-TDD-Information-Response-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 -- Applicable to 1.28Mcps TDD when using multiple frequencies ,This is the UARFCN for the first Frequency repetition
 { ID id-multipleFreq-HSPDSCH-InformationList-ResponseTDDLCR		CRITICALITY ignore	EXTENSION MultipleFreq-HSPDSCH-InformationList-ResponseTDDLCR  PRESENCE optional }|
 -- Applicable to 1.28Mcps TDD when using multiple frequencies ,This MultipleFreq-HSPDSCH-InformationList-ResponseTDDLCR is the HS-SCCH and HARQ Memory Partitioning information for the 2nd and beyond HS-PDSCH frequencies
-{ ID id-multicarrier-number										CRITICALITY ignore	EXTENSION  Multicarrier-Number											PRESENCE optional },
+{ ID id-multicarrier-number										CRITICALITY ignore	EXTENSION  Multicarrier-Number											PRESENCE optional }|
 -- Applicable for 1.28Mcps TDD when using multiple frequencies
+{ID id-MIMO-SFMode-For-HSPDSCHDualStream			CRITICALITY reject		EXTENSION MIMO-SFMode-For-HSPDSCHDualStream							PRESENCE optional}|	
+{ID id-MIMO-ReferenceSignal-InformationListLCR		CRITICALITY reject	EXTENSION MIMO-ReferenceSignal-InformationListLCR		PRESENCE optional},
 	...
 }
 
@@ -4139,6 +5713,171 @@ HSDSCH-TDD-Update-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+MIMO-ReferenceSignal-InformationListLCR ::= SEQUENCE (SIZE (1..maxNrOfHSSCCHCodes)) OF HSSICH-ReferenceSignal-InformationLCR
+
+HSSICH-ReferenceSignal-InformationLCR ::= SEQUENCE {
+	midambleConfigurationLCR		MidambleConfigurationLCR,	
+	midambleShift					INTEGER (0..15),
+	timeSlotLCR						TimeSlotLCR,
+	iE-Extensions					ProtocolExtensionContainer { { HSSICH-ReferenceSignal-InformationLCR-ExtIEs } }		OPTIONAL,
+	...
+}
+
+HSSICH-ReferenceSignal-InformationLCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HS-DSCH-Semi-PersistentScheduling-Information-LCR ::= SEQUENCE {
+	transport-Block-Size-List				Transport-Block-Size-List-LCR,
+	repetition-Period-List-LCR				Repetition-Period-List-LCR,
+	hS-DSCH-SPS-Reservation-Indicator		SPS-Reservation-Indicator				OPTIONAL,
+	hS-DSCH-SPS-Operation-Indicator			HS-DSCH-SPS-Operation-Indicator,
+	iE-Extensions							ProtocolExtensionContainer { { HS-DSCH-Semi-PersistentScheduling-Information-LCR-ExtIEs } }			OPTIONAL,
+	...
+}
+
+HS-DSCH-Semi-PersistentScheduling-Information-LCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Transport-Block-Size-List-LCR ::= SEQUENCE (SIZE (1..maxNoOfTBSs-Mapping-HS-DSCH-SPS)) OF Transport-Block-Size-Item-LCR
+
+Transport-Block-Size-Item-LCR ::= SEQUENCE {
+	transport-Block-Size-maping-Index-LCR		Transport-Block-Size-maping-Index-LCR,
+	transport-Block-Size-Index-LCR				Transport-Block-Size-Index-LCR,
+	iE-Extensions								ProtocolExtensionContainer { { Transport-Block-Size-Item-LCR-ExtIEs } }			OPTIONAL,
+	...
+}
+
+Transport-Block-Size-Item-LCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Transport-Block-Size-maping-Index-LCR ::= INTEGER (0..maxNoOfTBSs-Mapping-HS-DSCH-SPS-1)
+
+Transport-Block-Size-Index-LCR ::= INTEGER (1..maxNoOfHS-DSCH-TBSsLCR)
+
+Repetition-Period-List-LCR ::= SEQUENCE (SIZE (1..maxNoOfRepetition-Period-LCR)) OF Repetition-Period-Item-LCR
+
+Repetition-Period-Item-LCR ::= SEQUENCE {
+	repetitionPeriodIndex		RepetitionPeriodIndex,
+	repetitionPeriod			RepetitionPeriod,
+	repetitionLength			RepetitionLength				OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { Repetition-Period-Item-LCR-ExtIEs } }			OPTIONAL,
+	...
+}
+
+Repetition-Period-Item-LCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RepetitionPeriodIndex ::= INTEGER (0..maxNoOfRepetitionPeriod-SPS-LCR-1)
+
+SPS-Reservation-Indicator ::= ENUMERATED {
+	reserve
+}
+
+HS-DSCH-SPS-Operation-Indicator ::= CHOICE {
+	logicalChannellevel			LogicalChannellevel,
+	priorityQueuelevel			PriorityQueuelevel,
+	...
+}
+
+LogicalChannellevel ::= BIT STRING (SIZE (16))
+
+PriorityQueuelevel ::= BIT STRING (SIZE (8))
+
+HS-DSCH-Semi-PersistentScheduling-Information-to-Modify-LCR ::= SEQUENCE {
+	transport-Block-Size-List				Transport-Block-Size-List-LCR				OPTIONAL,
+	repetition-Period-List-LCR				Repetition-Period-List-LCR				OPTIONAL,
+	hS-DSCH-SPS-Reservation-Indicator		SPS-Reservation-Indicator				OPTIONAL,
+	hS-DSCH-SPS-Operation-Indicator			HS-DSCH-SPS-Operation-Indicator			OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { { HS-DSCH-Semi-PersistentScheduling-Information-to-Modify-LCR-ExtIEs } }							OPTIONAL,
+	...
+}
+
+HS-DSCH-Semi-PersistentScheduling-Information-to-Modify-LCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR ::= SEQUENCE {
+	hS-SICH-InformationList-for-HS-DSCH-SPS		HS-SICH-InformationList-for-HS-DSCH-SPS,
+	initial-HS-PDSCH-SPS-Resource				Initial-HS-PDSCH-SPS-Resource			OPTIONAL,
+	buffer-Size-for-HS-DSCH-SPS					Process-Memory-Size						OPTIONAL,
+	number-of-Processes-for-HS-DSCH-SPS			Number-of-Processes-for-HS-DSCH-SPS		OPTIONAL,
+	iE-Extensions								ProtocolExtensionContainer { { HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR-ExtIEs } }			OPTIONAL,
+	...
+}
+
+HS-DSCH-Semi-PersistentScheduling-Information-ResponseLCR-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+HS-SICH-InformationList-for-HS-DSCH-SPS ::= SEQUENCE (SIZE (1..maxNoOf-HS-SICH-SPS)) OF HS-SICH-InformationItem-for-HS-DSCH-SPS
+
+HS-SICH-InformationItem-for-HS-DSCH-SPS ::= SEQUENCE {
+	hS-SICH-Mapping-Index			HS-SICH-Mapping-Index			OPTIONAL,
+	hS-SICH-Type					HS-SICH-Type,
+	iE-Extensions					ProtocolExtensionContainer { { HS-SICH-InformationItem-for-HS-DSCH-SPS-ExtIEs } }			OPTIONAL,
+	...
+}
+
+HS-SICH-InformationItem-for-HS-DSCH-SPS-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HS-SICH-Mapping-Index ::= INTEGER (0..maxNoOf-HS-SICH-SPS-1)
+
+HS-SICH-Type ::= CHOICE {
+	hS-SCCH-Associated-HS-SICH			HS-SCCH-Associated-HS-SICH,
+	non-HS-SCCH-Associated-HS-SICH		Non-HS-SCCH-Associated-HS-SICH,
+	...
+}
+
+HS-SCCH-Associated-HS-SICH ::= SEQUENCE {
+	hsSICH-ID							HS-SICH-ID,
+	extended-HS-SICH-ID					HS-SICH-ID-Extension			OPTIONAL,
+...
+}
+
+
+Non-HS-SCCH-Associated-HS-SICH::= SEQUENCE {
+	non-HS-SCCH-Aassociated-HS-SICH-ID	Non-HS-SCCH-Aassociated-HS-SICH-ID,
+...
+}
+
+Non-HS-SCCH-Aassociated-HS-SICH-ID ::= INTEGER (0..255)
+
+Initial-HS-PDSCH-SPS-Resource::= SEQUENCE {
+	repetitionPeriodIndex						RepetitionPeriodIndex,
+	repetitionLength							RepetitionLength			OPTIONAL,
+	hS-PDSCH-Offset								TDD-PhysicalChannelOffset,
+	hS-PDSCH-Midamble-Configuation				MidambleShiftLCR,
+	timeslot-Resource-Related-Information		HS-DSCH-TimeslotResourceLCR,
+	startCode									TDD-ChannelisationCode,
+	endCode										TDD-ChannelisationCode,
+	transport-Block-Size-Index					Transport-Block-Size-Index-LCR,
+	modulationType								ModulationSPS-LCR,
+	hS-SICH-Mapping-Index						HS-SICH-Mapping-Index,
+	iE-Extensions								ProtocolExtensionContainer { { Initial-HS-PDSCH-SPS-Resource-ExtIEs } }			OPTIONAL,
+...
+}
+
+Initial-HS-PDSCH-SPS-Resource-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HS-DSCH-TimeslotResourceLCR ::= BIT STRING (SIZE (5))
+
+ModulationSPS-LCR ::= ENUMERATED {
+	qPSK,
+	sixteenQAM,
+	...
+}
+
+Number-of-Processes-for-HS-DSCH-SPS ::= INTEGER (1..16)
+
 -- I
 
 IMEI		::= OCTET STRING (SIZE(8))
@@ -4210,21 +5949,27 @@ InformationType ::= SEQUENCE {
 		interFrequencyCellInformation,
 		gANSSInformation,
 		dGANSSCorrections,
-		gANSS-RX-Pos
+		gANSS-RX-Pos,
+		mBMS-Counting-Information,
+		mBMS-Transmission-Mode,
+		mBMS-Neighbouring-Cell-Information,
+		mBMS-RLC-Sequence-Number
 	},
 	gPSInformation				GPSInformation			OPTIONAL,
 	iE-Extensions				ProtocolExtensionContainer { { InformationType-ExtIEs} }		OPTIONAL,
 	...
 }
 
--- The GPS Information IE shall be present if the Information Exchange Type IE indicates 'GPS Information'
+-- The GPS Information IE shall be present if the Information Exchange Type IE indicates ‘GPS Information’
 -- For information exchange on the Iur-g interface, only the Cell Capacity Class is used.
 
 InformationType-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
--- The following IE shall be present if the Information Type Item IE indicates 'GANSS Information'
+-- The following IE shall be present if the Information Type Item IE indicates ‘GANSS Information’
 	{ ID id-GANSS-Information			CRITICALITY ignore	EXTENSION GANSS-Information			PRESENCE conditional }|
--- The following IE shall be present if the Information Type Item IE indicates 'DGANSS Corrections'
-	{ ID id-DGANSS-Corrections-Req		CRITICALITY ignore	EXTENSION DGANSS-Corrections-Req	PRESENCE conditional },
+-- The following IE shall be present if the Information Type Item IE indicates ‘DGANSS Corrections’
+	{ ID id-DGANSS-Corrections-Req		CRITICALITY ignore	EXTENSION DGANSS-Corrections-Req	PRESENCE conditional }|
+-- The following IE shall be present if the Information Type Item IE indicates ‘MBMS RLC Sequence Number’
+	{ ID id-MBMS-RLC-Sequence-Number-Information		CRITICALITY ignore	EXTENSION MBMS-RLC-Sequence-Number-Information	PRESENCE conditional },
 	...
 }
 
@@ -4406,6 +6151,12 @@ IPSub ::= ENUMERATED {
 	both
 }
 
+IdleIntervalInformation	::= SEQUENCE {
+	idleIntervalInfo-k							INTEGER(2..3),
+	idleIntervalInfo-offset						INTEGER(0..7),
+	...
+}
+
 -- J
 -- K
 -- L
@@ -4462,7 +6213,8 @@ MAC-Inactivity-Threshold ::= ENUMERATED {v1, v2, v4, v8, v16, v32, v64, v128, v2
 MACdPDU-Size ::= INTEGER (1..5000,...)
 	-- In case of E-DCH value 8 and values not multiple of 8 shall not be used
 
-MAC-PDU-SizeExtended ::= INTEGER (1..1504,...)
+MAC-PDU-SizeExtended ::= INTEGER (1..1504,...,1505)
+	-- In case of E-DCH value 1 shall not be used
 
 MACdPDU-Size-IndexList ::= SEQUENCE (SIZE (1..maxNrOfPDUIndexes)) OF MACdPDU-Size-IndexItem
 
@@ -4492,6 +6244,8 @@ MACdPDU-Size-IndexItem-to-Modify-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 
 MACes-Guaranteed-Bitrate ::= INTEGER (0..16777215,...,16777216..256000000)
 
+MACes-Maximum-Bitrate-LCR ::= INTEGER (0..256000000,...)
+
 MACeReset-Indicator ::= ENUMERATED {mACeReset}
 
 MAChsGuaranteedBitRate ::= INTEGER (0..16777215,...,16777216..256000000)
@@ -4499,14 +6253,19 @@ MAChsGuaranteedBitRate ::= INTEGER (0..16777215,...,16777216..256000000)
 MAChsReorderingBufferSize-for-RLC-UM ::= INTEGER (0..300,...)
 -- Unit kBytes
 
-MAC-hsWindowSize		::= ENUMERATED {v4, v6, v8, v12, v16, v24, v32,...}
+MAC-hsWindowSize		::= ENUMERATED {v4, v6, v8, v12, v16, v24, v32,... , v64, v128}
+
+MAChsResetScheme ::= ENUMERATED {
+	always,
+	interNodeB-change
+}
 
 MaximumAllowedULTxPower		::= INTEGER (-50..33)
 
 Max-Bits-MACe-PDU-non-scheduled ::= INTEGER(1..maxNrOfBits-MACe-PDU-non-scheduled)
 
 MaxNrDLPhysicalchannels 	::= INTEGER (1..224)
--- 1.28Mcps TDD 97 - 224 are unused
+-- 1.28Mcps TDD 97 – 224 are unused
 
 MaxNrDLPhysicalchannels768 	::= INTEGER (1..448)
 
@@ -4628,6 +6387,80 @@ MBMSPreferredFreqLayerInfo-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+MBMS-Neighbouring-Cell-Information	::= SEQUENCE {
+	mBMS-ConcatenatedServiceList		MBMS-ConcatenatedServiceList,
+	l3-Information-1					L3-Information	OPTIONAL,
+-- This IE contains MBMS COMMON P-T-M RB INFORMATION defined in [16]
+	l3-Information-2					L3-Information	OPTIONAL,
+-- This IE contains MBMS CURRENT CELL P-T-M RB INFORMATION defined in [16]
+	iE-Extensions					ProtocolExtensionContainer { { MBMS-Neighbouring-Cell-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+MBMS-Neighbouring-Cell-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+MBMS-ConcatenatedServiceList	::= SEQUENCE (SIZE (1..maxlengthMBMSconcatservlists)) OF TMGI
+
+
+MBMS-RLC-Sequence-Number-Information	::= SEQUENCE (SIZE (1..maxNrOfCells)) OF MBMS-RLC-Sequence-Number-Information-List
+
+MBMS-RLC-Sequence-Number-Information-List	::= SEQUENCE {
+	c-ID							C-ID,
+	mBMS-Bearer-Service-List-RLC							MBMS-Bearer-Service-List-RLC,
+	iE-Extensions					ProtocolExtensionContainer  { { MBMS-RLC-Sequence-Number-Information-List-ExtIEs} }		OPTIONAL,
+	...
+}
+
+MBMS-RLC-Sequence-Number-Information-List-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MBMS-Bearer-Service-List-RLC::= SEQUENCE (SIZE (1..maxNrOfMBMSServices)) OF MBMS-Bearer-Service-List-RLCinfo
+
+MBMS-Bearer-Service-List-RLCinfo	::= SEQUENCE {
+	tmgi							TMGI,
+	time-Stamp						Time-Stamp,
+	iE-Extensions					ProtocolExtensionContainer  { { MBMS-Bearer-Service-List-RLCinfo-ExtIEs} }		OPTIONAL,
+	...
+}
+
+MBMS-Bearer-Service-List-RLCinfo-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MBSFN-Cluster-Identity		::= INTEGER (0..65535)
+
+MCCH-Message-List	::=	SEQUENCE (SIZE (1.. maxNrOfMCCHMessages)) OF L3-Information
+
+MCCH-Configuration-Info ::= SEQUENCE {
+	secondaryCCPCHSystemInformationMBMS			Secondary-CCPCH-System-Information-MBMS,
+	ie-Extensions								ProtocolExtensionContainer { {MCCH-Configuration-Info-ExtIEs } }	OPTIONAL,
+	...
+}
+
+MCCH-Configuration-Info-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Secondary-CCPCH-System-Information-MBMS				::= BIT STRING
+
+MBSFN-Scheduling-Transmission-Time-Interval-Info-List	::= 	SEQUENCE (SIZE (1.. maxNrOfMBMSL3)) OF MBSFN-Scheduling-Transmission-Time-Interval-Item
+
+MBSFN-Scheduling-Transmission-Time-Interval-Item	::= SEQUENCE {
+	tMGI							TMGI,
+	mbsfnSchedulingTransmissionTimeInterval		MbsfnSchedulingTransmissionTimeInterval,
+	ie-Extensions								ProtocolExtensionContainer { { MBSFN-Scheduling-Transmission-Time-Interval-Item-ExtIEs } }	OPTIONAL,
+	...
+}
+
+MBSFN-Scheduling-Transmission-Time-Interval-Item-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
+MbsfnSchedulingTransmissionTimeInterval	::= ENUMERATED {tti4, tti8, tti16, tti32, tti64, tti128, tti256}
 
 MeasurementFilterCoefficient ::=  ENUMERATED{k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k11, k13, k15, k17, k19,...}
 -- Measurement Filter Coefficient to be used for measurement
@@ -4843,11 +6676,12 @@ MIMO-Mode-Indicator ::= ENUMERATED {
 MIMO-N-M-Ratio ::= ENUMERATED {v1-2, v2-3, v3-4, v4-5, v5-6, v6-7, v7-8, v8-9, v9-10, v1-1,...}
 
 MIMO-PilotConfiguration ::= CHOICE {
-	primary-and-secondary-CPICH				CommonPhysicalChannelID,
+	primary-and-secondary-CPICH				MIMO-S-CPICH-Channelisation-Code,
 	normal-and-diversity-primary-CPICH		NULL,
 	...
 }
 
+MIMO-S-CPICH-Channelisation-Code ::= INTEGER (0..255)
 
 MinUL-ChannelisationCodeLength		::= ENUMERATED {
 	v4,
@@ -4858,6 +6692,9 @@ MinUL-ChannelisationCodeLength		::= ENUMERATED {
 	v128,
 	v256
 }
+
+MinimumReducedE-DPDCH-GainFactor ::= ENUMERATED {m8-15, m11-15, m15-15, m21-15, m30-15, m42-15, m60-15, m84-15,...}
+
 
 ModifyPriorityQueue ::= CHOICE {
 	addPriorityQueue			PriorityQueue-InfoItem-to-Add,
@@ -4871,6 +6708,41 @@ Modulation ::= ENUMERATED {
 	eightPSK,
 	...
 }
+
+Multi-Cell-EDCH-Transport-Bearer-Mode ::= ENUMERATED {
+	separate-Iur-Transport-Bearer-Mode,
+	uL-Flow-Multiplexing-Mode
+}
+
+MulticellEDCH-Information::= SEQUENCE {
+	dL-PowerBalancing-Information			DL-PowerBalancing-Information		OPTIONAL,
+	minimumReducedE-DPDCH-GainFactor		MinimumReducedE-DPDCH-GainFactor		OPTIONAL,
+	secondary-UL-Frequency-Activation-State			Secondary-UL-Frequency-Activation-State		OPTIONAL,
+	f-DPCH-SlotFormat			F-DPCH-SlotFormat		OPTIONAL,
+	common-DL-ReferencePowerInformation			DL-Power		OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { MulticellEDCH-Information-ExtIEs } } OPTIONAL,
+	...
+
+}
+
+MulticellEDCH-Information-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MulticellEDCH-RL-SpecificInformation::= SEQUENCE {
+	extendedPropagationDelay		ExtendedPropagationDelay			OPTIONAL,
+	enhanced-PrimaryCPICH-EcNo		Enhanced-PrimaryCPICH-EcNo			OPTIONAL,
+	dl-Reference-Power			DL-Power			OPTIONAL,
+	phase-Reference-Update-Indicator		Phase-Reference-Update-Indicator			OPTIONAL,
+	additional-e-DCH-DL-Control-Channel-Grant		NULL	 							OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { MulticellEDCH-RL-SpecificInformation-ExtIEs } } OPTIONAL,
+	...
+
+}
+
+MulticellEDCH-RL-SpecificInformation-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+} 
 
 Multiple-PLMN-List ::= SEQUENCE {
 	pLMN-Identity		PLMN-Identity,
@@ -4909,6 +6781,10 @@ MultipleFreq-HSPDSCH-InformationItem-ResponseTDDLCR-ExtIEs RNSAP-PROTOCOL-EXTENS
 ...
 }
 
+MIMO-SFMode-For-HSPDSCHDualStream ::= ENUMERATED {
+	sF1,
+	sF1SF16
+}
 
 -- N
 
@@ -4979,7 +6855,11 @@ Neighbouring-FDD-CellInformationItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-FrequencyBandIndicator			CRITICALITY ignore			EXTENSION FrequencyBandIndicator			PRESENCE optional }|
 	{ ID id-Max-UE-DTX-Cycle				CRITICALITY ignore			EXTENSION  Max-UE-DTX-Cycle					PRESENCE conditional }|
 	-- This IE shall be present if the the fifteenth bit Continuous Packet Connectivity DTX-DRX Support Indicator in the Cell Capability Container FDD IE is set to the value "1".
-	{ ID id-Multiple-PLMN-List				CRITICALITY ignore			EXTENSION Multiple-PLMN-List					PRESENCE optional },
+	{ ID id-Multiple-PLMN-List				CRITICALITY ignore			EXTENSION Multiple-PLMN-List					PRESENCE optional }|
+	{ ID id-Secondary-Serving-Cell-List 	CRITICALITY ignore			EXTENSION Secondary-Serving-Cell-List 	PRESENCE optional }|
+	{ ID id-Dual-Band-Secondary-Serving-Cell-List 	CRITICALITY ignore	EXTENSION Secondary-Serving-Cell-List 	PRESENCE optional }|
+-- This IE shall be present if the the x-th bit Dual Band Support Indicator in the Cell Capability Container FDD IE is set to the value "1".
+{ ID id-CellCapabilityContainerExtension-FDD	CRITICALITY ignore			EXTENSION CellCapabilityContainerExtension-FDD		PRESENCE optional },
 	...
 }
 
@@ -5124,6 +7004,25 @@ Neighbouring-LCR-TDD-CellInformationItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+
+Neighbouring-E-UTRA-CellInformation ::= SEQUENCE ( SIZE (1..maxNrOfEUTRANeighboursPerRNC,...)) OF Neighbouring-E-UTRA-CellInformationItem
+
+Neighbouring-E-UTRA-CellInformationItem ::= SEQUENCE {
+	eCGI								ECGI,
+	eARFCN-Information					EARFCN-Information,
+	iE-Extensions						ProtocolExtensionContainer { { Neighbouring-E-UTRA-CellInformationItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+Neighbouring-E-UTRA-CellInformationItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+NonCellSpecificTxDiversity ::= ENUMERATED {
+	txDiversity,
+	...
+}
+
 NotProvidedCellList	::= SEQUENCE (SIZE (1..maxNrOfCells)) OF MBMSChannelTypeCellList
 
 NrOfDLchannelisationcodes	::= INTEGER (1..8)
@@ -5151,6 +7050,15 @@ Number-Of-Supported-Carriers  ::= ENUMERATED {
 	three-six-carrier,
 	six-six-carrier,
 	...
+}
+
+NumHS-SCCH-Codes ::= INTEGER (1..maxNrOfHSSCCHCodes)
+
+NoOfTargetCellHS-SCCH-Order::= INTEGER (1..30)
+
+NeedforIdleInterval ::= ENUMERATED {
+	true,
+	false
 }
 
 
@@ -5270,6 +7178,11 @@ PowerAdjustmentType ::= ENUMERATED {
 
 PowerOffset				::= INTEGER (0..24)
 
+PowerOffsetForSecondaryCPICHforMIMO ::= INTEGER (-6..0)
+-- Unit dB, Range -10dB .. 5dB, Step +1dB
+
+PowerOffsetForSecondaryCPICHforMIMORequestIndicator ::= NULL
+
 PRC ::= INTEGER (-2047..2047)
 --pseudo range correction; scaling factor 0.32 meters
 
@@ -5309,7 +7222,7 @@ PreferredFrequencyLayerInfo-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 
 
 PrimaryCPICH-Power			::= INTEGER (-100..500)
--- step 0.1 (Range -10.0..50.0) Unit is dBm
+-- step 0.1 (Range –10.0..50.0) Unit is dBm
 
 PrimaryCPICH-EcNo			::= INTEGER (-30..30)
 
@@ -5348,7 +7261,8 @@ PriorityQueue-InfoItem ::= SEQUENCE {
 }
 
 PriorityQueue-InfoItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-{ ID id-MaximumMACdPDU-SizeExtended 	CRITICALITY reject		EXTENSION	MAC-PDU-SizeExtended 	PRESENCE optional},
+{ ID id-MaximumMACdPDU-SizeExtended 	CRITICALITY reject		EXTENSION	MAC-PDU-SizeExtended 	PRESENCE optional}|
+{ ID id-DL-RLC-PDU-Size-Format				CRITICALITY ignore		EXTENSION	DL-RLC-PDU-Size-Format	PRESENCE optional},
 	...
 }
 
@@ -5387,7 +7301,8 @@ PriorityQueue-InfoItem-to-Add ::= SEQUENCE {
 }
 
 PriorityQueue-InfoItem-to-Add-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-{ ID id-MaximumMACdPDU-SizeExtended 	CRITICALITY reject		EXTENSION	MAC-PDU-SizeExtended 	PRESENCE optional},
+{ ID id-MaximumMACdPDU-SizeExtended 	CRITICALITY reject		EXTENSION	MAC-PDU-SizeExtended 	PRESENCE optional}|
+{ ID id-DL-RLC-PDU-Size-Format				CRITICALITY ignore		EXTENSION	DL-RLC-PDU-Size-Format	PRESENCE optional},
 	...
 }
 
@@ -5404,7 +7319,8 @@ PriorityQueue-InfoItem-to-Modify ::= SEQUENCE {
 }
 
 PriorityQueue-InfoItem-to-Modify-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-{ ID id-MaximumMACdPDU-SizeExtended 	CRITICALITY reject		EXTENSION	MAC-PDU-SizeExtended	PRESENCE optional},
+{ ID id-MaximumMACdPDU-SizeExtended 	CRITICALITY reject		EXTENSION	MAC-PDU-SizeExtended	PRESENCE optional} |
+{ ID id-DL-RLC-PDU-Size-Format			CRITICALITY ignore		EXTENSION	DL-RLC-PDU-Size-Format	PRESENCE optional},
 	...
 }
 
@@ -5472,10 +7388,28 @@ QE-Selector ::= ENUMERATED {
 	selected,
 	non-selected
 }
+Process-Memory-Size	::=	ENUMERATED {
+										hms800, hms1600, hms2400, hms3200, hms4000,
+										hms4800, hms5600, hms6400, hms7200, hms8000,
+										hms8800, hms9600, hms10400, hms11200, hms12000,
+										hms12800, hms13600, hms14400, hms15200, hms16000,
+										hms17600, hms19200, hms20800, hms22400, hms24000,
+										hms25600, hms27200, hms28800, hms30400, hms32000,
+										hms36000, hms40000, hms44000, hms48000, hms52000,
+										hms56000, hms60000, hms64000, hms68000, hms72000,
+										hms76000, hms80000, hms88000, hms96000, hms104000,
+										hms112000, hms120000, hms128000, hms136000, hms144000,
+										hms152000, hms160000, hms176000, hms192000, hms208000,
+										hms224000, hms240000, hms256000, hms272000, hms288000,
+										hms304000,...}
 
 -- R
 
 RAC					::= OCTET STRING (SIZE(1))
+
+RANAP-EnhancedRelocationInformationRequest		::= BIT STRING
+
+RANAP-EnhancedRelocationInformationResponse		::= BIT STRING
 
 RANAP-RelocationInformation		::= BIT STRING
 
@@ -5513,6 +7447,14 @@ Reference-E-TFCI-Information-Item-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 Reference-E-TFCI-PO ::= INTEGER (0.. maxNrOfRefETFCI-PO-QUANTSTEPs)
 
 RefTFCNumber ::= INTEGER (0..15)
+
+Released-CN-Domain ::= CHOICE {
+	pSDomain				NULL,
+	cSDomain				NULL,
+	pS-CSDomain				NULL,
+	...
+}
+
 
 RepetitionLength 			::= INTEGER (1..63)
 
@@ -5580,7 +7522,11 @@ RequestedDataValue-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MBMS-Bearer-Service-Full-Address		CRITICALITY ignore	EXTENSION MBMS-Bearer-Service-Full-Address			PRESENCE optional }|
 	{ ID id-Inter-Frequency-Cell-Information		CRITICALITY	ignore	EXTENSION	Inter-Frequency-Cell-Information		PRESENCE optional }|
 	{ ID id-GANSS-Common-Data						CRITICALITY	ignore	EXTENSION GANSS-Common-Data			PRESENCE optional }|
-	{ ID id-GANSS-Generic-Data						CRITICALITY	ignore	EXTENSION GANSS-Generic-Data			PRESENCE optional },
+	{ ID id-GANSS-Generic-Data						CRITICALITY	ignore	EXTENSION GANSS-Generic-Data								PRESENCE optional }|
+	{ ID id-Counting-Information					CRITICALITY	ignore	EXTENSION Counting-Information			PRESENCE optional }|
+	{ ID id-Transmission-Mode-Information			CRITICALITY	ignore	EXTENSION Transmission-Mode-Information				PRESENCE optional }|
+	{ ID id-MBMS-Neighbouring-Cell-Information		CRITICALITY	ignore	EXTENSION MBMS-Neighbouring-Cell-Information		PRESENCE optional }|
+	{ ID id-RLC-Sequence-Number						CRITICALITY	ignore	EXTENSION RLC-Sequence-Number			PRESENCE optional },
 	...
 }
 
@@ -5627,7 +7573,6 @@ RL-Specific-EDCH-Information ::= SEQUENCE {
 
 
 RL-Specific-EDCH-Information-Item-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-TransportBearerNotRequestedIndicator	CRITICALITY ignore	EXTENSION TransportBearerNotRequestedIndicator		PRESENCE optional	}, -- FDD only
 	...
 }
 
@@ -5645,6 +7590,7 @@ RL-Specific-EDCH-InfoItem ::= SEQUENCE {
 }
 
 RL-Specific-EDCH-Info-Item-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-TransportBearerNotRequestedIndicator	CRITICALITY ignore	EXTENSION TransportBearerNotRequestedIndicator		PRESENCE optional	}, -- FDD only
 	...
 }
 
@@ -5653,6 +7599,13 @@ RLC-Mode	::= ENUMERATED {
 	rLC-UM,
 	...
 }
+DL-RLC-PDU-Size-Format	::= ENUMERATED {
+	fixed-RLC-PDU-Size,
+	flexible-RLC-PDU-Size,
+	...
+}
+
+RLC-Sequence-Number		::= INTEGER (0..127)
 
 RNC-ID					::= INTEGER (0..4095)
 
@@ -5728,6 +7681,24 @@ SchedulingInformation 			::= ENUMERATED {
 	included,
 	not-included
 }
+
+
+SecondaryServingCells ::= SEQUENCE (SIZE (1..maxNrOfHSDSCH-1)) OF SecondaryServingCellsItem
+
+SecondaryServingCellsItem ::= SEQUENCE {
+	secondaryC-ID				C-ID,
+	numSecondaryHS-SCCH-Codes		NumHS-SCCH-Codes		OPTIONAL,
+	sixtyfourQAM-UsageAllowedIndicator		SixtyfourQAM-UsageAllowedIndicator 		OPTIONAL,
+	iE-Extensions									ProtocolExtensionContainer { { SecondaryServingCellsItem-ExtIEs} }				OPTIONAL,
+	...
+}
+
+SecondaryServingCellsItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+{ID	id-MIMO-ActivationIndicator			CRITICALITY ignore		EXTENSION MIMO-ActivationIndicator	PRESENCE optional}|
+{ID	id-EDCH-Indicator			CRITICALITY ignore		EXTENSION NULL		PRESENCE optional},
+	...
+}
+
 
 Secondary-CCPCH-Info-TDD::= SEQUENCE {
 	dl-TFCS									TFCS,
@@ -5879,15 +7850,62 @@ Secondary-CCPCH-TDD-Code-InformationItem768-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= 
 	...
 }
 
+
+Secondary-Serving-Cell-List ::= SEQUENCE {
+	possible-Secondary-Serving-Cell-List						Possible-Secondary-Serving-Cell-List,
+	iE-Extensions				ProtocolExtensionContainer { { Secondary-Serving-Cell-List-ExtIEs } }		OPTIONAL,
+	...
+}
+
+Secondary-Serving-Cell-List-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+Possible-Secondary-Serving-Cell-List ::= SEQUENCE (SIZE (1..maxNrOfHSDSCH-1)) OF Possible-Secondary-Serving-Cell
+
+Possible-Secondary-Serving-Cell ::= SEQUENCE {
+	c-ID						C-ID,
+	iE-Extensions				ProtocolExtensionContainer { { Possible-Secondary-Serving-Cell-ExtIEs } }			OPTIONAL,
+	...
+}
+
+Possible-Secondary-Serving-Cell-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 SecondInterleavingMode ::= ENUMERATED {
 	frame-related,
 	timeslot-related,
 	...
 }
 
+Secondary-UL-Frequency-Activation-State ::= ENUMERATED {
+	activated,
+	deactivated,
+		...
+}
+
 Seed ::= INTEGER (0..63)
 
 Service-ID	::=	OCTET STRING (SIZE (3))
+
+SetsOfHS-SCCH-Codes ::= SEQUENCE (SIZE (1..maxNrOfHSDSCH)) OF SetsOfHS-SCCH-CodesItem
+
+SetsOfHS-SCCH-CodesItem ::= SEQUENCE {
+	hS-SCCH-PreconfiguredCodes		HS-SCCH-PreconfiguredCodes,
+	hSDSCH-RNTI 		HSDSCH-RNTI,
+	hSPDSCH-and-HSSCCH-ScramblingCode		DL-ScramblingCode,
+	sixtyfourQAM-DL-SupportIndicator		SixtyfourQAM-DL-SupportIndicator		OPTIONAL,
+	sixtyfourQAM-DL-UsageIndicator		SixtyfourQAM-DL-UsageIndicator		OPTIONAL,
+	hSDSCH-TBSizeTableIndicator		HSDSCH-TBSizeTableIndicator				OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { SetsOfHS-SCCH-CodesItem-ExtIEs} } OPTIONAL,
+	...
+}
+
+SetsOfHS-SCCH-CodesItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+{ID	id-MIMO-InformationResponse			CRITICALITY ignore		EXTENSION MIMO-InformationResponse	PRESENCE optional}|
+{ID	id-HARQ-MemoryPartitioning			CRITICALITY ignore		EXTENSION HARQ-MemoryPartitioning	PRESENCE optional},
+	...
+}
 
 SFN ::= INTEGER (0..4095)
 
@@ -5991,6 +8009,14 @@ SFNSFNValue ::= CHOICE {
 
 SID ::= INTEGER (0..maxNrOfPDUIndexes-1)
 
+Single-Stream-MIMO-ActivationIndicator	::=	NULL
+
+Single-Stream-MIMO-Mode-Indicator ::= ENUMERATED {
+	activate,
+	deactivate
+}
+
+
 SIR-Error-Value			::= INTEGER (0..125)
 
 SIR-Error-Value-IncrDecrThres			::= INTEGER (0..124)
@@ -6012,13 +8038,13 @@ SixtyfourQAM-UsageAllowedIndicator ::= ENUMERATED {
 }
 
 SixtyfourQAM-DL-SupportIndicator ::= ENUMERATED {
-	sixteenQAM-DL-supported,
-	sixteenQAM-DL-not-supported
+	sixtyfourQAM-DL-supported,
+	sixtyfourQAM-DL-not-supported
 }
 
 SixtyfourQAM-DL-UsageIndicator ::= ENUMERATED {
-	sixteenQAM-DL-used,
-	sixteenQAM-DL-not-used
+	sixtyfourQAM-DL-used,
+	sixtyfourQAM-DL-not-used
 }
 
 SignatureSequenceGroupIndex ::= INTEGER (0..19)
@@ -6116,7 +8142,7 @@ SYNC-UL-ProcParameters  ::= SEQUENCE {
 T1 ::= ENUMERATED {v10,v20,v30,v40,v50,v60,v70,v80,v90,v100,v120,v140,v160,v200,v300,v400,...}
 
 TDD-AckNack-Power-Offset ::= INTEGER (-7..8,...)
--- Unit dB, Range -7dB .. +8dB, Step 1dB
+-- Unit dB, Range –7dB .. +8dB, Step 1dB
 
 TDD-ChannelisationCode 			::= ENUMERATED {
 	chCode1div1,
@@ -6417,6 +8443,11 @@ TimeSlot				::= INTEGER (0..14)
 
 TimeSlotLCR ::= INTEGER (0..6)
 
+Time-Stamp ::= INTEGER (0..9999)
+-- Unit: 10ms
+
+
+
 TimingAdvanceApplied ::= ENUMERATED {
 	yes,
 	no
@@ -6520,6 +8551,19 @@ TransmissionMode	::=ENUMERATED {
 	...
 }
 
+Transmission-Mode-Information::= SEQUENCE ( SIZE (1..maxNrOfFDDNeighboursPerRNC,...)) OF Transmission-Mode-Information-List
+
+Transmission-Mode-Information-List ::= SEQUENCE {
+	c-ID								C-ID,
+	transmissionMode					TransmissionMode,
+	iE-Extensions						ProtocolExtensionContainer { { Transmission-Mode-Information-List-ExtIEs} } OPTIONAL,
+	...
+}
+
+Transmission-Mode-Information-List-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 TransmissionTimeIntervalDynamic ::= ENUMERATED {
 	msec-10,
 	msec-20,
@@ -6583,6 +8627,7 @@ TUTRANGANSSMeasurementValueInformation ::= SEQUENCE {
 }
 
 TUTRANGANSSMeasurementValueInformation-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-GANSS-Time-ID			CRITICALITY ignore		EXTENSION GANSS-Time-ID		PRESENCE 	optional},
 	...
 }
 
@@ -6689,7 +8734,7 @@ TFCS-TFCSList ::= SEQUENCE (SIZE (1..maxNrOfTFCs)) OF
 	SEQUENCE {
 		cTFC				TFCS-CTFC,
 		tFC-Beta		TransportFormatCombination-Beta 	OPTIONAL,
-        -- The IE shall be present if the TFCS concerns a UL DPCH [FDD - or PRACH channel in FDD]
+        -- The IE shall be present if the TFCS concerns a UL DPCH [FDD – or PRACH channel in FDD]
 		iE-Extensions		ProtocolExtensionContainer  { { TFCS-TFCSList-ExtIEs} }		OPTIONAL,
 	...
 }
@@ -6842,6 +8887,19 @@ UDRE ::= ENUMERATED {
 	...
 }
 
+UE-AggregateMaximumBitRate ::= SEQUENCE {
+	uE-AggregateMaximumBitRateDownlink		UE-AggregateMaximumBitRateDownlink	OPTIONAL,
+	uE-AggregateMaximumBitRateUplink		UE-AggregateMaximumBitRateUplink	OPTIONAL,
+	...
+}
+
+UE-AggregateMaximumBitRateDownlink			::= INTEGER (1..1000000000)
+-- Unit is bits per sec
+
+UE-AggregateMaximumBitRateUplink			::= INTEGER (1..1000000000)
+-- Unit is bits per sec
+
+
 UE-Capabilities-Info ::= SEQUENCE {
 	hSDSCH-Physical-Layer-Category		INTEGER (1..64,...),
 	iE-Extensions						ProtocolExtensionContainer { { UE-Capabilities-Info-ExtIEs } }			OPTIONAL,
@@ -6850,9 +8908,13 @@ UE-Capabilities-Info ::= SEQUENCE {
 
 UE-Capabilities-Info-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 	{ID id-LCRTDD-uplink-Physical-Channel-Capability		CRITICALITY ignore		EXTENSION LCRTDD-Uplink-Physical-Channel-Capability				PRESENCE optional}|
-	{ID id-number-Of-Supported-Carriers						CRITICALITY reject		EXTENSION Number-Of-Supported-Carriers								PRESENCE optional},
+	{ID id-number-Of-Supported-Carriers						CRITICALITY reject		EXTENSION Number-Of-Supported-Carriers								PRESENCE optional}|
+	{ID id-MIMO-SFMode-Supported-For-HSPDSCHDualStream			CRITICALITY ignore		EXTENSION MIMO-SFMode-For-HSPDSCHDualStream							PRESENCE optional}|
+	{ID id-MultiCarrier-HSDSCH-Physical-Layer-Category		CRITICALITY ignore		EXTENSION LCRTDD-HSDSCH-Physical-Layer-Category			PRESENCE optional},
 	...
 }
+
+LCRTDD-HSDSCH-Physical-Layer-Category ::= INTEGER (1..64)
 
 UE-DPCCH-burst1 ::= ENUMERATED {v1, v2, v5}
 	-- Unit subframe
@@ -7274,6 +9336,11 @@ UEMeasurementValueInformationAvailableItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 
 UEMeasurementValueInformationnotAvailable ::= NULL
 
+UE-SupportIndicatorExtension ::= BIT STRING (SIZE (32))
+-- First bit: Different HS-SCCH In Consecutive TTIs Support Indicator
+-- Second bit: HS-SCCH orders in HS-SCCH-less Operation Support Indicator
+-- Note that undefined bits are considered as a spare bit and spare bits shall be set to 0 by the transmitter and shall be ignored by the receiver.
+
 UE-State ::= CHOICE {
 	cell-fach-pch												Cell-Fach-Pch-State,
 	ura-pch														Ura-Pch-State,
@@ -7549,6 +9616,13 @@ USCH-InformationItem-ExtIEs RNSAP-PROTOCOL-EXTENSION ::= {
 }
 
 User-Plane-Congestion-Fields-Inclusion		::= ENUMERATED { shall-be-included }
+
+Uu-ActivationState ::= ENUMERATED {
+	activated,
+	de-activated,
+	...
+}
+
 
 -- V
 -- W

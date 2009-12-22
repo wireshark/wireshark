@@ -1,6 +1,6 @@
 -- RNSAP-PDU-Descriptions.asn
 --
--- Taken from 3GPP TS 25.423 V7.9.0 (2008-06-13)
+-- Taken from 3GPP TS 25.423 V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.2	Elementary Procedure Definitions
@@ -57,6 +57,12 @@ FROM RNSAP-CommonDataTypes
 	DL-PowerTimeslotControlRequest,
 	DownlinkSignallingTransferRequest,
 	ErrorIndication,
+	EnhancedRelocationCancel,
+	EnhancedRelocationFailure,
+	EnhancedRelocationRequest,
+	EnhancedRelocationResponse,
+	EnhancedRelocationSignallingTransfer,
+	EnhancedRelocationRelease,
 	InformationExchangeFailureIndication,
 	InformationExchangeInitiationFailure,
 	InformationExchangeInitiationRequest,
@@ -67,6 +73,7 @@ FROM RNSAP-CommonDataTypes
 	IurInvokeTrace,
 	MBMSAttachCommand,
 	MBMSDetachCommand,
+	MBSFNMCCHInformation,
 	PagingRequest,
 	PhysicalChannelReconfigurationCommand,
 	PhysicalChannelReconfigurationFailure,
@@ -115,6 +122,8 @@ FROM RNSAP-CommonDataTypes
 	UEMeasurementInitiationResponse,
 	UEMeasurementReport,
 	UEMeasurementTerminationRequest,
+	SecondaryULFrequencyReport,
+	SecondaryULFrequencyUpdateIndication,
 	UplinkSignallingTransferIndicationFDD,
 	UplinkSignallingTransferIndicationTDD,
 	GERANUplinkSignallingTransferIndication
@@ -130,6 +139,10 @@ FROM RNSAP-PDU-Contents
 	id-downlinkPowerControl,
 	id-downlinkSignallingTransfer,
 	id-downlinkPowerTimeslotControl,
+	id-enhancedRelocation,
+	id-enhancedRelocationCancel,
+	id-enhancedRelocationSignallingTransfer,
+	id-enhancedRelocationRelease,
 	id-errorIndication,
 	id-informationExchangeFailure,
 	id-informationExchangeInitiation,
@@ -144,6 +157,7 @@ FROM RNSAP-PDU-Contents
 	id-directInformationTransfer,
 	id-mBMSAttach,
 	id-mBMSDetach,
+	id-mBSFNMCCHInformation,
 	id-paging,
 	id-physicalChannelReconfiguration,
 	id-privateMessage,
@@ -164,8 +178,10 @@ FROM RNSAP-PDU-Contents
 	id-uEMeasurementFailure,
 	id-uEMeasurementInitiation,
 	id-uEMeasurementReporting,
-	id-uEMeasurementTermination,
-id-unSynchronisedRadioLinkReconfiguration,
+	id-uEMeasurementTermination, 
+	id-secondaryULFrequencyReporting,
+	id-secondaryULFrequencyUpdate,
+	id-unSynchronisedRadioLinkReconfiguration,
 	id-uplinkSignallingTransfer,
 	id-gERANuplinkSignallingTransfer
 FROM RNSAP-Constants;
@@ -267,7 +283,8 @@ RNSAP-ELEMENTARY-PROCEDURES-CLASS-1 RNSAP-ELEMENTARY-PROCEDURE ::= {
 	commonMeasurementInitiation								|
 	informationExchangeInitiation							|
 	reset													|
-	uEMeasurementInitiation
+	uEMeasurementInitiation									|
+	enhancedRelocation
 }
 
 RNSAP-ELEMENTARY-PROCEDURES-CLASS-2 RNSAP-ELEMENTARY-PROCEDURE ::= {
@@ -310,7 +327,16 @@ RNSAP-ELEMENTARY-PROCEDURES-CLASS-2 RNSAP-ELEMENTARY-PROCEDURE ::= {
 	iurDeactivateTrace									|
 	mBMSAttach											|
 	mBMSDetach											|
-	directInformationTransfer
+	directInformationTransfer							|
+	enhancedRelocationCancel							|
+	enhancedRelocationSignallingTransfer				|
+	enhancedRelocationRelease							|
+	mBSFNMCCHInformation								|
+	secondaryULFrequencyReportingFDD					|
+	secondaryULFrequencyUpdateFDD
+								
+
+
 
 }
 
@@ -700,5 +726,48 @@ directInformationTransfer RNSAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+enhancedRelocation RNSAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	EnhancedRelocationRequest
+	SUCCESSFUL OUTCOME	EnhancedRelocationResponse
+	UNSUCCESSFUL OUTCOME	EnhancedRelocationFailure
+	PROCEDURE ID		{ procedureCode id-enhancedRelocation, ddMode common }
+	CRITICALITY		reject
+}
+
+enhancedRelocationCancel RNSAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		EnhancedRelocationCancel
+	PROCEDURE ID			{ procedureCode id-enhancedRelocationCancel, ddMode common }
+	CRITICALITY				ignore
+}
+
+enhancedRelocationSignallingTransfer RNSAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		EnhancedRelocationSignallingTransfer
+	PROCEDURE ID			{ procedureCode id-enhancedRelocationSignallingTransfer, ddMode common }
+	CRITICALITY				ignore
+}
+
+enhancedRelocationRelease RNSAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		EnhancedRelocationRelease
+	PROCEDURE ID			{ procedureCode id-enhancedRelocationRelease, ddMode common }
+	CRITICALITY				ignore
+}
+
+mBSFNMCCHInformation RNSAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MBSFNMCCHInformation
+	PROCEDURE ID			{ procedureCode id-mBSFNMCCHInformation, ddMode common }
+	CRITICALITY				reject
+}
+
+secondaryULFrequencyReportingFDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SecondaryULFrequencyReport
+	PROCEDURE ID			{ procedureCode id-secondaryULFrequencyReporting, ddMode fdd }
+	CRITICALITY				ignore
+}
+
+secondaryULFrequencyUpdateFDD RNSAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SecondaryULFrequencyUpdateIndication
+	PROCEDURE ID 			{ procedureCode id-secondaryULFrequencyUpdate, ddMode fdd }
+	CRITICALITY 			ignore
+}
 
 END
