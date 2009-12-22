@@ -24,6 +24,7 @@
  * RFC 3825: Dynamic Host Configuration Protocol Option for Coordinate-based Location Configuration Information
  * RFC 3942: Reclassifying DHCPv4 Options
  * RFC 4243: Vendor-Specific Information Suboption for the Dynamic Host Configuration Protocol (DHCP) Relay Agent Option
+ * RFC 4388: Dynamic Host Configuration Protocol (DHCP) Leasequery
  * RFC 4776: Dynamic Host Configuration Protocol (DHCPv4 and DHCPv6) Option for Civic Addresses Configuration Information
  * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
  * RFC 5417: CAPWAP Access Controller DHCP Option
@@ -578,8 +579,8 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*  88 */ { "BCMCS Controller Domain Name [TODO:RFC4280]",	opaque, NULL },
 /*  89 */ { "BCMCS Controller IPv4 address [TODO:RFC4280]",	opaque, NULL },
 /*  90 */ { "Authentication",				special, NULL },
-/*  91 */ { "Client last transaction time [TODO:RFC4388]",	opaque, NULL },
-/*  92 */ { "associated ip option [TODO:RFC4388]",	opaque, NULL },
+/*  91 */ { "Client last transaction time",		time_in_u_secs, NULL },
+/*  92 */ { "Associated IP option",			ipv4_list, NULL },
 /*  93 */ { "Client System Architecture",		val_u_short, VALS(bootp_client_arch) },
 /*  94 */ { "Client Network Device Interface",		special, NULL },
 /*  95 */ { "LDAP [TODO:RFC3679]",			opaque, NULL },
