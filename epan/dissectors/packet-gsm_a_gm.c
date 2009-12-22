@@ -10,6 +10,10 @@
  *   In association with Telecommunications Research Center
  *   Vienna (ftw.)Betriebs-GmbH within the Project Metawin.
  *
+ * Various updates, enhancements and fixes
+ * Copyright 2009, Gerasimos Dimitriadis <dimeg [AT] intracom.gr>
+ * In association with Intracom Telecom SA
+ *
  * Title		3GPP			Other
  *
  *   Reference [7]
@@ -268,6 +272,32 @@ static int hf_gsm_a_qos_guar_bitrate_upl_ext = -1;
 static int hf_gsm_a_qos_guar_bitrate_downl_ext = -1;
 static int hf_gsm_a_sm_cause = -1;
 static int hf_gsm_a_sm_cause_2 = -1;
+static int hf_gsm_a_sm_llc_sapi = -1;
+static int hf_gsm_a_sm_tdi = -1;
+static int hf_gsm_a_sm_packet_flow_id = -1;
+
+static int hf_gsm_a_gmm_net_cap_gea1 = -1;
+static int hf_gsm_a_gmm_net_cap_smdch = -1;
+static int hf_gsm_a_gmm_net_cap_smgprs = -1;
+static int hf_gsm_a_gmm_net_cap_ucs2 = -1;
+static int hf_gsm_a_gmm_net_cap_ss_scr_ind = -1;
+static int hf_gsm_a_gmm_net_cap_solsa = -1;
+static int hf_gsm_a_gmm_net_cap_rev = -1;
+static int hf_gsm_a_gmm_net_cap_pfc = -1;
+static int hf_gsm_a_gmm_net_cap_ext_gea_bits = -1;
+static int hf_gsm_a_gmm_net_cap_gea2 = -1;
+static int hf_gsm_a_gmm_net_cap_gea3 = -1;
+static int hf_gsm_a_gmm_net_cap_gea4 = -1;
+static int hf_gsm_a_gmm_net_cap_gea5 = -1;
+static int hf_gsm_a_gmm_net_cap_gea6 = -1;
+static int hf_gsm_a_gmm_net_cap_gea7 = -1;
+static int hf_gsm_a_gmm_net_cap_lcs = -1;
+static int hf_gsm_a_gmm_net_cap_ps_irat_iu = -1;
+static int hf_gsm_a_gmm_net_cap_ps_irat_s1 = -1;
+static int hf_gsm_a_gmm_net_cap_csfb = -1;
+static int hf_gsm_a_gmm_net_cap_isr = -1;
+static int hf_gsm_a_gmm_net_cap_srvcc_to_geran = -1;
+static int hf_gsm_a_gmm_net_cap_epc = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_tc_component = -1;
@@ -284,6 +314,7 @@ static gint ett_gmm_attach_type = -1;
 static gint ett_gmm_context_stat = -1;
 static gint ett_gmm_update_type = -1;
 static gint ett_gmm_radio_cap = -1;
+static gint ett_gmm_network_cap = -1;
 static gint ett_gmm_rai = -1;
 static gint ett_gmm_gprs_timer = -1;
 
@@ -758,168 +789,160 @@ de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 }
 
 /*
- * [7] 10.5.5.12
+ * [9] 10.5.5.12 MS network capability
  */
+static const true_false_string gsm_a_gmm_net_cap_gea_vals = {
+	"Encryption algorithm available",
+	"Encryption algorithm not available"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_smdch_vals = {
+	"Mobile station supports mobile terminated point to point SMS via dedicated signalling channels",
+	"Mobile station does not support mobile terminated point to point SMS via dedicated signalling channels"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_smgprs_vals = {
+	"Mobile station supports mobile terminated point to point SMS via GPRS packet data channels",
+	"Mobile station does not support mobile terminated point to point SMS via GPRS packet data channels"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_ucs2_vals = {
+	"The ME has no preference between the use of the default alphabet and the use of UCS2",
+	"The ME has a preference for the default alphabet (defined in 3GPP TS 23.038 [8b]) over UCS2"
+};
+
+static const value_string gsm_a_gmm_net_cap_ss_scr_ind_vals[]={
+	{ 0x00, "Default value of phase 1" },
+	{ 0x01, "capability of handling of ellipsis notation and phase 2 error handling" },
+	{ 0x02, "For future use, interpreted as Capability of handling of ellipsis notation and phase 2 error handling" },
+	{ 0x03, "For future use, interpreted as Capability of handling of ellipsis notation and phase 2 error handling" },
+	{ 0x00, NULL }
+};
+
+static const true_false_string gsm_a_gmm_net_cap_solsa_vals = {
+	"The ME supports SoLSA",
+	"The ME does not support SoLSA"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_rev_vals = {
+	"Used by a mobile station supporting R99 or later versions of the protocol",
+	"Used by a mobile station not supporting R99 or later versions of the protocol"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_pfc_vals = {
+	"Mobile station does support BSS packet flow procedures",
+	"Mobile station does not support BSS packet flow procedures"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_lcs_vals = {
+	"LCS value added location request notification capability supported",
+	"LCS value added location request notification capability not supported"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_ps_irat_iu_vals = {
+	"PS inter-RAT HO to UTRAN Iu mode supported",
+	"PS inter-RAT HO to UTRAN Iu mode not supported"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_ps_irat_s1_vals = {
+	"PS inter-RAT HO to E-UTRAN S1 mode supported",
+	"PS inter-RAT HO to E-UTRAN S1 mode not supported"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_csfb_vals = {
+	"Mobile station supports CS fallback",
+	"Mobile station does not support CS fallback"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_isr_vals = {
+	"The mobile station supports ISR",
+	"The mobile station does not support ISR"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_srvcc_to_geran_vals = {
+	"SRVCC from UTRAN HSPA or E-UTRAN to GERAN/UTRAN supported",
+	"SRVCC from UTRAN HSPA or E-UTRAN to GERAN/UTRAN not supported"
+};
+
+static const true_false_string gsm_a_gmm_net_cap_epc_vals = {
+	"EPC supported",
+	"EPC not supported"
+};
+
 guint16
 de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
 	guint32	curr_offset;
-	guint	curr_len;
-	guint	gea_val;
+	proto_tree	*subtree;
+	proto_item	*item;
 
-	static const gchar *answer_gea[2]={
-		"encryption algorithm not available",
-		"encryption algorithm available" };
-
-	static const gchar *answer_smdch[2]={
-		"Mobile station does not support mobile terminated point to point SMS via dedicated signalling channels",
-		"Mobile station supports mobile terminated point to point SMS via dedicated signalling channels" };
-
-	static const gchar *answer_smgprs[2]={
-		"Mobile station does not support mobile terminated point to point SMS via GPRS packet data channels",
-		"Mobile station supports mobile terminated point to point SMS via GPRS packet data channels" };
-
-	static const gchar *answer_ucs2[2]= {
-		"the ME has a preference for the default alphabet (defined in 3GPP TS 23.038 [8b]) over UCS2",
-		"the ME has no preference between the use of the default alphabet and the use of UCS2" };
-
-	static const gchar *answer_ssid[4]={
-		"default value of phase 1",
-		"capability of handling of ellipsis notation and phase 2 error handling",
-		"capability of handling of ellipsis notation and phase 2 error handling",
-		"capability of handling of ellipsis notation and phase 2 error handling" };
-
-	static const gchar *answer_solsa[2]={
-		"The ME does not support SoLSA",
-		"The ME supports SoLSA" };
-			
-	static const gchar *answer_rev[2]={
-		"used by a mobile station not supporting R99 or later versions of the protocol",
-		"used by a mobile station supporting R99 or later versions of the protocol" };
-
-	static const gchar *answer_pfc[2]={
-		"Mobile station does not support BSS packet flow procedures",
-		"Mobile station does support BSS packet flow procedures" };
-
-	static const gchar *answer_lcs[2]={
-		"LCS value added location request notification capability not supported" ,
-		"LCS value added location request notification capability supported" };
-
-	static const gchar *answer_ps_irat[2]={
-		"PS inter-RAT HO to UTRAN Iu mode not supported" ,
-		"PS inter-RAT HO to UTRAN Iu mode supported" };
-
-	curr_len = len;
 	curr_offset = offset;
+	
+	/* bit 8: GEA1 */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_gea1, tvb, curr_offset, 1, FALSE);
 
-	if ( curr_len == 0 ){ EXTRANEOUS_DATA_CHECK(len, curr_offset - offset); return(curr_offset - offset); }
-	oct = tvb_get_guint8(tvb, curr_offset);
-	curr_len--;
+	/* bit 7: SM capabilities via dedicated channels */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_smdch, tvb, curr_offset, 1, FALSE);
 
-	/* bit 8 */
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"GEA1: %s (%u)",
-		answer_gea[oct>>7],
-		oct>>7);
-	oct<<=1;
+	/* bit 6: SM capabilities via GPRS channels */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_smgprs, tvb, curr_offset, 1, FALSE);
 
-	/* bit 7 */
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"SM capabilities via dedicated channels: %s (%u)",
-		answer_smdch[oct>>7],
-		oct>>7);
-	oct<<=1;
+	/* bit 5: UCS2 support */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ucs2, tvb, curr_offset, 1, FALSE);
 
-	/* bit 6 */
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"SM capabilities via GPRS channels: %s (%u)",
-		answer_smgprs[oct>>7],
-		oct>>7);
-	oct<<=1;
+	/* bits 4 3: SS Screening Indicator */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ss_scr_ind, tvb, curr_offset, 1, FALSE);
 
-	/* bit 5 */
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"UCS2 support: %s (%u)",
-		answer_ucs2[oct>>7],
-		oct>>7);
-	oct<<=1;
-
-	/* bit 4 3 */
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"SS Screening Indicator: %s (%u)",
-		answer_ssid[oct>>6],
-		oct>>6);
-	oct<<=2;
-
-	/* bit 2 */
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"SoLSA Capability: %s (%u)",
-		answer_solsa[oct>>7],
-		oct>>7);
-	oct<<=1;
+	/* bit 2: SoLSA Capability */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_solsa, tvb, curr_offset, 1, FALSE);
 
 	/* bit 1 */
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Revision level indicator: %s (%u)",
-		answer_rev[oct>>7],
-		oct>>7);
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_rev, tvb, curr_offset, 1, FALSE);
 
 	curr_offset++;
+	NO_MORE_DATA_CHECK(len);
 
-	if ( curr_len == 0 ){ EXTRANEOUS_DATA_CHECK(len, curr_offset - offset); return(curr_offset - offset); }
-	oct = tvb_get_guint8(tvb, curr_offset);
-	curr_len--;
+	/* bit 8: PFC feature mode */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_pfc, tvb, curr_offset, 1, FALSE);
 
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"PFC feature mode: %s (%u)",
-		answer_pfc[oct>>7],
-		oct>>7);
-	oct<<=1;
+	/* bits 7 6 5 4 3 2: Extended GEA bits */
+	item = proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ext_gea_bits, tvb, curr_offset, 1, FALSE);
+	subtree = proto_item_add_subtree(item, ett_gmm_network_cap);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea2, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea4, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea5, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea6, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_gmm_net_cap_gea7, tvb, curr_offset, 1, FALSE);
 
-	for( gea_val=2; gea_val<8 ; gea_val++ )
-	{
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"GEA%d: %s (%u)", gea_val,
-			answer_gea[oct>>7],
-			oct>>7);
-		oct<<=1;
-	}
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"LCS VA capability: %s (%u)",
-		answer_lcs[oct>>7],
-		oct>>7);
+	/* bit 1: LCS VA capability */	
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_lcs, tvb, curr_offset, 1, FALSE);
 
 	curr_offset++;
+	NO_MORE_DATA_CHECK(len);
 
-    if ( curr_len == 0 ){ EXTRANEOUS_DATA_CHECK(len, curr_offset - offset); return(curr_offset - offset); }
-    oct = tvb_get_guint8(tvb, curr_offset);
-    curr_len--;
+	/* bit 8: PS inter-RAT HO to UTRAN Iu mode capability */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ps_irat_iu, tvb, curr_offset, 1, FALSE);
 
-    proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"PS inter-RAT HO to UTRAN Iu mode capability: %s (%u)",
-			answer_ps_irat[oct & 0x1],       /* XXX: There's only 2 entries in the ..._irat array  */
-			oct & 0x1);                      /*      so we'll assume that this is a 1 bit value.   */
+	/* bit 7: PS inter-RAT HO to E-UTRAN S1 mode capability */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_ps_irat_s1, tvb, curr_offset, 1, FALSE);
 
+	/* bit 6: CSFB Capability */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_csfb, tvb, curr_offset, 1, FALSE);
 
-    proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"Spare: (%u)",
-			oct>>1);
+	/* bit 5: ISR support */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_isr, tvb, curr_offset, 1, FALSE);
 
-    curr_offset++;
+	/* bit 4: SRVCC to GERAN/UTRAN capability */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_srvcc_to_geran, tvb, curr_offset, 1, FALSE);
+
+	/* bit 3: EPC capability */
+	proto_tree_add_item(tree, hf_gsm_a_gmm_net_cap_epc, tvb, curr_offset, 1, FALSE);
+
+	/* bits 2 1: Spare bits */
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+6, 2, FALSE);
+
+	curr_offset++;
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
 	return(curr_offset - offset);
@@ -3888,87 +3911,66 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 }
 
 /*
- * [7] 10.5.6.9
+ * [9] 10.5.6.9 LLC service access point identifier
  */
-static guint16
-de_sm_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len _U_)
-{
-	guint8	oct;
-	guint32	curr_offset;
-
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"LLC SAPI: 0x%02x (%u) %s",
-		oct&0x0f, oct&0x0f,add_string ? add_string : "");
-
-	curr_offset++;
-
-	return(curr_offset - offset);
-}
-
-/*
- * [7] 10.5.6.10
- */
-static guint16
-de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len _U_)
-{
-	guint8	oct;
-	guint32	curr_offset;
-	static const gchar *str[2] = {
-		"tear down not requested" ,
-		"tear down requested" };
-
-	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Tear Down Indicator: %s (%u) %s",
-		str[oct&1],oct&1, add_string ? add_string : "");
-
-	curr_offset++;
-
-	return(curr_offset - offset);
-}
-
-/*
- * [7] 10.5.6.11
- */
-/* Packet Flow Identifier value (octet 3) */
-static const value_string gsm_a_packet_flow_id_vals[] = {
-	{ 0,		"Best Effort"},
-	{ 1,		"Signaling"},
-	{ 2,		"SMS"},
-	{ 3,		"TOM8"},
-	{ 4,		"reserved"},
-	{ 5,		"reserved"},
-	{ 6,		"reserved"},
-	{ 7,		"reserved"},
-	{ 0,	NULL }
+static const value_string gsm_a_sm_llc_sapi_vals[] = {
+	{ 0, "LLC SAPI not assigned" },
+	{ 3, "SAPI 3" },
+	{ 5, "SAPI 5" },
+	{ 9, "SAPI 9" },
+	{ 11, "SAPI 11" },
+	{ 0, NULL }
 };
+
+static guint16
+de_sm_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, offset << 3, 4, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_sm_llc_sapi, tvb, offset, 1, FALSE);
+
+	/* no length check possible */
+	return(1);
+}
+
+/*
+ * [9] 10.5.6.10 Tear down indicator
+ */
+const true_false_string gsm_a_sm_tdi_value = {
+	"Tear down requested",
+	"Tear down not requested"
+};
+
+static guint16
+de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset << 3) + 4, 3, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_sm_tdi, tvb, offset, 1, FALSE);
+
+	/* no length check possible */
+	return(1);
+}
+
+/*
+ * [9] 10.5.6.11 Packet Flow Identifier
+ */
+static const range_string gsm_a_sm_packet_flow_id_vals[] = {
+	{ 0x00,	0x00, "Best Effort"},
+	{ 0x01,	0x01, "Signaling"},
+	{ 0x02,	0x02, "SMS"},
+	{ 0x03,	0x03, "TOM8"},
+	{ 0x04,	0x07, "Reserved"},
+	{ 0x08,	0x7f, "Dynamically assigned"},
+	{ 0x00, 0x00, NULL }
+};
+
 guint16
 de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
-	guint	curr_len;
-	guchar	oct;
-
-	curr_len = len;
+	
 	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
-
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Packet Flow Identifier: %s (%u)",
-		val_to_str(oct&0x7f, gsm_a_packet_flow_id_vals, "dynamically assigned (%u)"),oct&0x7f);
-
-	curr_offset+= curr_len;
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, offset << 3, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_sm_packet_flow_id, tvb, offset, 1, FALSE);
 	   
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -5895,10 +5897,135 @@ proto_register_gsm_a_gm(void)
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_sm_llc_sapi,
+		{ "LLC SAPI", "gsm_a.sm.llc_sapi",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_sm_llc_sapi_vals), 0x0f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_sm_tdi,
+		{ "Tear Down Indicator (TDI)", "gsm_a.sm.tdi",
+		FT_BOOLEAN, 8, TFS(&gsm_a_sm_tdi_value), 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_sm_packet_flow_id,
+		{ "Packet Flow Identifier (PFI)", "gsm_a.sm.packet_flow_id",
+		FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_sm_packet_flow_id_vals), 0x7f,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_gea1,
+		{ "GEA/1", "gsm_a.gmm.net_cap.gea1",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x80,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_smdch,
+		{ "SM capabilities via dedicated channels", "gsm_a.gmm.net_cap.smdch",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_smdch_vals), 0x40,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_smgprs,
+		{ "SM capabilities via GPRS channels", "gsm_a.gmm.net_cap.smgprs",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_smgprs_vals), 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_ucs2,
+		{ "UCS2 support", "gsm_a.gmm.net_cap.ucs2",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_smgprs_vals), 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_ss_scr_ind,
+		{ "SS Screening Indicator", "gsm_a.gmm.net_cap.ss_scr_ind",
+		FT_UINT8, BASE_HEX, VALS(gsm_a_gmm_net_cap_ss_scr_ind_vals), 0x0c,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_solsa,
+		{ "SoLSA Capability", "gsm_a.gmm.net_cap.solsa",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_solsa_vals), 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_rev,
+		{ "Revision level indicator", "gsm_a.gmm.net_cap.rev",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_rev_vals), 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_pfc,
+		{ "PFC feature mode", "gsm_a.gmm.net_cap.pfc",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_pfc_vals), 0x80,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_ext_gea_bits,
+		{ "Extended GEA bits", "gsm_a.gmm.net_cap.ext_gea_bits",
+		FT_UINT8, BASE_HEX, NULL, 0x7e,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_gea2,
+		{ "GEA/2", "gsm_a.gmm.net_cap.gea2",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x40,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_gea3,
+		{ "GEA/3", "gsm_a.gmm.net_cap.gea3",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_gea4,
+		{ "GEA/4", "gsm_a.gmm.net_cap.gea4",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_gea5,
+		{ "GEA/5", "gsm_a.gmm.net_cap.gea5",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_gea6,
+		{ "GEA/6", "gsm_a.gmm.net_cap.gea6",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x04,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_gea7,
+		{ "GEA/7", "gsm_a.gmm.net_cap.gea7",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_gea_vals), 0x02,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_lcs,
+		{ "LCS VA capability", "gsm_a.gmm.net_cap.lcs",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_lcs_vals), 0x01,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_ps_irat_iu,
+		{ "PS inter-RAT HO to UTRAN Iu mode capability", "gsm_a.gmm.net_cap.ps_irat_iu",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_ps_irat_iu_vals), 0x80,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_ps_irat_s1,
+		{ "PS inter-RAT HO to E-UTRAN S1 mode capability", "gsm_a.gmm.net_cap.ps_irat_s1",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_ps_irat_s1_vals), 0x40,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_csfb,
+		{ "CSFB Capability", "gsm_a.gmm.net_cap.csfb",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_csfb_vals), 0x20,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_isr,
+		{ "ISR support", "gsm_a.gmm.net_cap.isr",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_isr_vals), 0x10,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_srvcc_to_geran,
+		{ "SRVCC to GERAN/UTRAN capability", "gsm_a.gmm.net_cap.srvcc_to_geran",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_srvcc_to_geran_vals), 0x08,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_gmm_net_cap_epc,
+		{ "EPC Capability", "gsm_a.gmm.net_cap.epc",
+		FT_BOOLEAN, 8, TFS(&gsm_a_gmm_net_cap_epc_vals), 0x04,
+		NULL, HFILL }
+	},
 	};
 
 	/* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	16
+#define	NUM_INDIVIDUAL_ELEMS	17
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SM +
 		  NUM_GSM_GM_ELEM];
@@ -5919,6 +6046,7 @@ proto_register_gsm_a_gm(void)
 	ett[13] = &ett_gmm_rai;
 	ett[14] = &ett_sm_tft;
 	ett[15] = &ett_gmm_gprs_timer;
+	ett[16] = &ett_gmm_network_cap;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
