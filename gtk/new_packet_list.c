@@ -1084,7 +1084,8 @@ static void mark_all_frames(gboolean set)
 
 	/* XXX: we might need a progressbar here */
 	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
-		set_frame_mark(set, fdata);
+                if( fdata->flags.passed_dfilter )
+		        set_frame_mark(set, fdata);
 	}
 	mark_frames_ready();
 	new_packet_list_queue_draw();
@@ -1184,7 +1185,8 @@ static void ignore_all_frames(gboolean set)
 
 	/* XXX: we might need a progressbar here */
 	for (fdata = cfile.plist_start; fdata != NULL; fdata = fdata->next) {
-		set_frame_ignore(set, fdata);
+                if( fdata->flags.passed_dfilter )
+		        set_frame_ignore(set, fdata);
 	}
 	redissect_packets();
 }
