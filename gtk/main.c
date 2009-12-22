@@ -1875,7 +1875,7 @@ main(int argc, char *argv[])
   int                  opt;
   gboolean             arg_error = FALSE;
 
-  extern int           splash_register_freq;  /* Found in about_dlg.c */
+  extern int           info_update_freq;  /* Found in about_dlg.c. */
   const gchar         *filter;
 
 #ifdef _WIN32
@@ -2187,10 +2187,11 @@ main(int argc, char *argv[])
   /* Initialize whatever we need to allocate colors for GTK+ */
   colors_init();
 
-  /* Non-blank filter means we're remote. Throttle splash screen updates. */
+  /* Non-blank filter means we're remote. Throttle splash screen and resolution updates. */
   filter = get_conn_cfilter();
-  if ( *filter != '\0' )
-    splash_register_freq = 1000;  /* Milliseconds */
+  if ( *filter != '\0' ) {
+    info_update_freq = 1000;  /* Milliseconds */
+  }
 
   /* We won't come till here, if we had a "console only" command line parameter. */
   splash_win = splash_new("Loading Wireshark ...");
@@ -2251,7 +2252,7 @@ main(int argc, char *argv[])
   tap_update_timer_id = g_timeout_add(prefs->tap_update_interval, tap_update_cb, NULL);
 #endif /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
 
-  g_timeout_add(750, resolv_update_cb, NULL);
+  g_timeout_add(info_update_freq, resolv_update_cb, NULL);
 
   splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
 

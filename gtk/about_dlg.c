@@ -59,7 +59,7 @@
 /*
  * Update frequence for the splash screen, given in milliseconds.
  */
-int splash_register_freq = 100;
+int info_update_freq = 100;
 
 static void about_wireshark_destroy_cb(GtkWidget *, gpointer);
 
@@ -188,7 +188,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
       return;
     }
     memcpy(&next_tv, &cur_tv, sizeof(next_tv));
-    next_tv.tv_usec += splash_register_freq * 1000;
+    next_tv.tv_usec += info_update_freq * 1000;
     if (next_tv.tv_usec >= 1000000) {
         next_tv.tv_sec++;
         next_tv.tv_usec -= 1000000;
