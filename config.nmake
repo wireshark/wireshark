@@ -263,7 +263,7 @@ GNUTLS_PKG=2.8.5-4.12
 # If you don't have KFW, comment this line out, so that KFW_DIR
 # isn't defined.
 #
-KFW_DIR=$(WIRESHARK_LIBS)\kfw-3.2.2-ws1
+KFW_DIR=$(WIRESHARK_LIBS)\kfw-3-2-2-final
 
 #
 # Optional: the Nettle library enables ??? decryption.
@@ -1005,9 +1005,9 @@ ADNS_CONFIG=
 !ENDIF # C_ARES
 
 !IFDEF KFW_DIR
-KFW_PATH=$(KFW_DIR)\bin
-KFW_CFLAGS=/I$(KFW_DIR)\include
-KFW_LIBS=$(KFW_DIR)\lib\krb5_32.lib
+KFW_PATH=$(KFW_DIR)\bin\$(CPU)
+KFW_CFLAGS=/I$(KFW_DIR)\inc\krb5
+KFW_LIBS=$(KFW_DIR)\lib\$(CPU)\krb5_32.lib
 # Nmake uses carets to escape special characters
 KFW_CONFIG=^#define HAVE_MIT_KERBEROS 1
 !else

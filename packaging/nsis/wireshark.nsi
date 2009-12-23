@@ -382,9 +382,9 @@ File "${PCRE_DIR}\bin\pcre3.dll"
 File "${PCRE_DIR}\man\cat3\pcrepattern.3.txt"
 !endif
 !ifdef KFW_DIR
-File "${KFW_DIR}\bin\comerr32.dll"
-File "${KFW_DIR}\bin\krb5_32.dll"
-File "${KFW_DIR}\bin\k5sprt32.dll"
+File "${KFW_PATH}\comerr32.dll"
+File "${KFW_PATH}\krb5_32.dll"
+File "${KFW_PATH}\k5sprt32.dll"
 !endif
 !ifdef GNUTLS_DIR
 File "${GNUTLS_DIR}\bin\libgcrypt-11.dll"

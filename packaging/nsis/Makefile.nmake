@@ -140,6 +140,7 @@ wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe : user-guide.chm $(NSI) $(
 !ENDIF
 !IF "$(KFW_DIR)" != ""
 	/DKFW_DIR=$(KFW_DIR) \
+	/DKFW_PATH=$(KFW_PATH) \
 !ENDIF
 !IF "$(GNUTLS_DIR)" != ""
 	/DGNUTLS_DIR=$(GNUTLS_DIR) \
