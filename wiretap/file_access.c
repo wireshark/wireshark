@@ -563,15 +563,15 @@ static const struct file_type_info dump_open_table_base[] = {
 	  visual_dump_can_write_encap, visual_dump_open },
 
 	/* WTAP_FILE_ETHERPEEK_V56 */
-	{ "Wildpacket Ether/TokenPeek (V5 & V6)", "peek56", "*.tpc;*.apc;*.pkt;*.wpz", ".pkt", FALSE,
+	{ "WildPackets Ether/TokenPeek (V5 & V6)", "peek56", "*.tpc;*.apc;*.pkt;*.wpz", ".pkt", FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_ETHERPEEK_V7 */
-	{ "Wildpacket Ether/Token/AiroPeek (V7)", "peek7", "*.tpc;*.apc;*.pkt;*.wpz", ".pkt", FALSE,
+	{ "WildPackets Ether/Token/AiroPeek (V7)", "peek7", "*.tpc;*.apc;*.pkt;*.wpz", ".pkt", FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_ETHERPEEK_V9 */
-	{ "Wildpacket Ether/AiroPeek (V9)", "peek9", "*.tpc;*.apc;*.pkt;*.wpz", ".pkt", FALSE,
+	{ "WildPackets Ether/AiroPeek (V9)", "peek9", "*.tpc;*.apc;*.pkt;*.wpz", ".pkt", FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_MPEG */
