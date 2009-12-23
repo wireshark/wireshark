@@ -321,6 +321,9 @@ static int      hf_cflow_if_descr = -1;
 static int      hf_cflow_sampler_name = -1;
 static int      hf_cflow_forwarding_status = -1;
 static int      hf_cflow_forwarding_code = -1;
+static int      hf_cflow_nbar_appl_desc = -1;
+static int      hf_cflow_nbar_appl_id = -1;
+static int      hf_cflow_nbar_appl_name = -1;
 static int      hf_cflow_peer_srcas = -1;
 static int      hf_cflow_peer_dstas = -1;
 static int      hf_cflow_flow_exporter = -1;
@@ -1971,6 +1974,21 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 					    tvb, offset, length, FALSE);
 			break;
 
+		case 94: /* NBAR applicationDesc */
+			proto_tree_add_item(pdutree, hf_cflow_nbar_appl_desc,
+					    tvb, offset, length, FALSE);
+			break;
+
+		case 95: /* NBAR applicationId */
+			proto_tree_add_item(pdutree, hf_cflow_nbar_appl_id,
+					    tvb, offset+2, 2, FALSE);
+			break;
+
+		case 96: /* NBAR applicationName */
+			proto_tree_add_item(pdutree, hf_cflow_nbar_appl_name,
+					    tvb, offset, length, FALSE);
+			break;
+
 		case 128: /* source AS Peer */
 			proto_tree_add_item(pdutree, hf_cflow_peer_srcas,
 			    tvb, offset, length, FALSE);
@@ -3023,6 +3041,9 @@ static const value_string v9_template_types[] = {
 	{ 90, "VPN_ROUTE_DISTINGUISHER" },
 	{ 92, "SRC_TRAFFIC_INDEX" },
 	{ 93, "DST_TRAFFIC_INDEX" },
+	{ 94, "APPLICATION_DESC" },
+	{ 95, "APPLICATION_ID" },
+	{ 96, "APPLICATION_NAME" },
 	{ 128, "SRC_AS_PEER" },
 	{ 129, "DST_AS_PEER" },
 	{ 130, "exporterIPv4Address" },
@@ -3867,6 +3888,21 @@ proto_register_netflow(void)
 		 {"ForwdCode", "cflow.forwarding_code",
 		  FT_UINT8, BASE_DEC, NULL, 0x3F,
 		  "Forwarding Code", HFILL}
+		 },
+		{&hf_cflow_nbar_appl_desc,
+		 {"ApplicationDesc", "cflow.appl_desc",
+		  FT_STRINGZ, BASE_HEX, NULL, 0x0,
+		  "Application Desc (NBAR)", HFILL}
+		 },
+		{&hf_cflow_nbar_appl_id,
+		 {"ApplicationID", "cflow.appl_id",
+		 FT_UINT16, BASE_DEC, NULL, 0x0,
+		 "Application ID (NBAR)", HFILL}
+		},
+		{&hf_cflow_nbar_appl_name,
+		 {"ApplicationName", "cflow.appl_name",
+		  FT_STRINGZ, BASE_HEX, NULL, 0x0,
+		  "Application Name (NBAR)", HFILL}
 		 },
 		{&hf_cflow_peer_srcas,
 		 {"PeerSrcAS", "cflow.peer_srcas",
