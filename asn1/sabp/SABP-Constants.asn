@@ -1,6 +1,6 @@
 -- SABP-Constants.asn
 --
--- Taken from 3GPP TS 25.419 V7.0.0 (2006-03)
+-- Taken from 3GPP TS 25.419 V9.0.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.419/25419-700.zip/25419-700.DOC
 --
 -- 9.3.6	Constant Definitions
@@ -61,7 +61,10 @@ id-Serial-Number 			INTEGER ::= 14
 id-Service-Areas-List 			INTEGER ::= 15
 id-MessageStructure				INTEGER ::= 16
 id-TypeOfError					INTEGER ::= 17
-
+id-Paging-ETWS-Indicator		INTEGER ::= 18
+id-Warning-Type					INTEGER ::= 19
+id-WarningSecurityInfo			INTEGER ::= 20 
+id-Broadcast-Message-Content-Validity-Indicator 	INTEGER ::= 21
 
 -- **************************************************************
 --

@@ -1,6 +1,6 @@
 -- SABP-PDU-Contents.asn
 --
--- Taken from 3GPP TS 25.419 V7.0.0 (2006-03)
+-- Taken from 3GPP TS 25.419 V9.0.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.419/25419-700.zip/25419-700.DOC
 --
 -- 9.3.3	PDU Definitions
@@ -40,11 +40,15 @@ Criticality-Diagnostics,
 	Number-of-Broadcasts-Completed-List,
 	Number-of-Broadcasts-Requested,
 	Old-Serial-Number,
+	Paging-ETWS-Indicator,
 	Radio-Resource-Loading-List,
 	Recovery-Indication,
 	Repetition-Period,
-	Serial-Number ,
-	Service-Areas-List
+	Serial-Number,
+	Service-Areas-List,
+	WarningSecurityInfo,
+	Warning-Type,
+	Broadcast-Message-Content-Validity-Indicator
 FROM SABP-IEs
 
 	ProtocolExtensionContainer{},
@@ -64,11 +68,15 @@ FROM SABP-Containers
 	id-Number-of-Broadcasts-Completed-List,
 	id-Number-of-Broadcasts-Requested,
 	id-Old-Serial-Number,
+	id-Paging-EWTS-Indicator,
 	id-Radio-Resource-Loading-List,
 	id-Recovery-Indication,
 	id-Repetition-Period,
 	id-Serial-Number,
-	id-Service-Areas-List
+	id-Service-Areas-List,
+	id-WarningSecurityInfo,
+	id-Warning-Type,
+	id-Broadcast-Message-Content-Validity-Indicator
 FROM SABP-Constants;
 
 -- **************************************************************
@@ -84,21 +92,25 @@ Write-Replace ::= SEQUENCE {
 }
 
 Write-Replace-IEs SABP-PROTOCOL-IES ::= {
-	{ ID id-Message-Identifier	CRITICALITY reject	TYPE Message-Identifier		PRESENCE mandatory } |
-	{ ID id-New-Serial-Number	CRITICALITY reject	TYPE New-Serial-Number		PRESENCE mandatory } |
-	{ ID id-Old-Serial-Number	CRITICALITY ignore	TYPE Old-Serial-Number		PRESENCE optional } |
-	{ ID id-Service-Areas-List	CRITICALITY reject	TYPE Service-Areas-List		PRESENCE mandatory } |
-	{ ID id-Category 			CRITICALITY ignore	TYPE Category			PRESENCE optional  } |
-	{ ID id-Repetition-Period	CRITICALITY reject	TYPE Repetition-Period		PRESENCE mandatory  } |
+	{ ID id-Message-Identifier	CRITICALITY reject	TYPE Message-Identifier			PRESENCE mandatory } |
+	{ ID id-New-Serial-Number	CRITICALITY reject	TYPE New-Serial-Number			PRESENCE mandatory } |
+	{ ID id-Old-Serial-Number	CRITICALITY ignore	TYPE Old-Serial-Number			PRESENCE optional } |
+	{ ID id-Service-Areas-List	CRITICALITY reject	TYPE Service-Areas-List			PRESENCE mandatory } |
+	{ ID id-Category 			CRITICALITY ignore	TYPE Category					PRESENCE optional  } |
+	{ ID id-Repetition-Period	CRITICALITY reject	TYPE Repetition-Period			PRESENCE mandatory  } |
 	{ ID id-Number-of-Broadcasts-Requested
 					CRITICALITY reject	TYPE Number-of-Broadcasts-Requested	PRESENCE mandatory } |
-	{ ID id-Data-Coding-Scheme	CRITICALITY reject	TYPE Data-Coding-Scheme		PRESENCE mandatory } |
+	{ ID id-Data-Coding-Scheme	CRITICALITY reject	TYPE Data-Coding-Scheme			PRESENCE mandatory } |
 	{ ID id-Broadcast-Message-Content
-					CRITICALITY reject	TYPE Broadcast-Message-Content	PRESENCE mandatory } ,
+					CRITICALITY reject	TYPE Broadcast-Message-Content				PRESENCE mandatory },
 	...
 }
 
 Write-Replace-Extensions SABP-PROTOCOL-EXTENSION ::= {
+	{ ID id-WarningSecurityInfo		CRITICALITY ignore	EXTENSION WarningSecurityInfo	PRESENCE optional } |
+	{ ID id-Paging-ETWS-Indicator	CRITICALITY ignore	EXTENSION Paging-ETWS-Indicator	PRESENCE optional } |
+	{ ID id-Warning-Type			CRITICALITY ignore	EXTENSION Warning-Type			PRESENCE optional } |
+	{ ID id-Broadcast-Message-Content-Validity-Indicator	CRITICALITY ignore	EXTENSION Broadcast-Message-Content-Validity-Indicator		PRESENCE optional },
 	...
 }
 

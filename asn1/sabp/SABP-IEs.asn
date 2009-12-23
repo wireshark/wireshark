@@ -1,6 +1,6 @@
 -- SABP-IEs.asn
 --
--- Taken from 3GPP TS 25.419 V7.0.0 (2006-03)
+-- Taken from 3GPP TS 25.419 V9.0.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.419/25419-700.zip/25419-700.DOC
 --
 -- 9.3.4	Information Element Definitions
@@ -54,6 +54,11 @@ Available-Bandwidth			::= INTEGER (0..20480)
 
 Broadcast-Message-Content ::= BIT STRING (SIZE (1..9968))-- This IE is sent from the CN to the RNC containing user information i.e.
 -- the message.
+
+Broadcast-Message-Content-Validity-Indicator ::= ENUMERATED {
+	broadcast-Message-Content-not-valid,
+	...
+}
 
 -- C
 
@@ -201,6 +206,11 @@ Old-Serial-Number				::= Serial-Number
 
 -- P
 
+Paging-ETWS-Indicator	::= ENUMERATED {
+	paging,
+	...
+}
+
 -- Q
 
 -- R
@@ -239,7 +249,7 @@ Serial-Number				::= BIT STRING (SIZE (16))
 
 
 Service-Area-Identifier	::= SEQUENCE {
-	pLMNidentity				PLMNidentity
+	pLMNidentity				OCTET STRING (SIZE (3))
 					-- Digits 0 to 9, two digits per octet.          --
 					-- Each octet encoded 0000 to 1001.              --
 					-- 1111 used as filler                           --
@@ -254,9 +264,6 @@ Service-Area-Identifier	::= SEQUENCE {
 	sac				OCTET STRING (SIZE (2))
 }
 
-PLMNidentity ::= TBCD-STRING (SIZE (3))
-
-TBCD-STRING ::= OCTET STRING
 -- **TODO** The IE type for these parameters is not known as yet
 Service-Areas-List ::= SEQUENCE (SIZE (1..maxnoofSAI)) OF Service-Area-Identifier 
 
@@ -275,6 +282,10 @@ TypeOfError ::= ENUMERATED {
 -- V
 
 -- W
+
+WarningSecurityInfo ::= OCTET STRING (SIZE (50))
+
+Warning-Type ::= OCTET STRING (SIZE(2)) 
 
 -- X
 

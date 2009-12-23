@@ -76,24 +76,28 @@ id-Failure-Indication	ProcedureCode
 id-Error-Indication		ProcedureCode
 
 # ProtocolIE-ID
-id-Broadcast-Message-Content		ProtocolIE-ID
-id-Category 				ProtocolIE-ID
-id-Cause 				ProtocolIE-ID
-id-Criticality-Diagnostics	ProtocolIE-ID
-id-Data-Coding-Scheme 			ProtocolIE-ID
-id-Failure-List 			ProtocolIE-ID
-id-Message-Identifier 			ProtocolIE-ID
-id-New-Serial-Number			ProtocolIE-ID
+id-Broadcast-Message-Content			ProtocolIE-ID
+id-Category 							ProtocolIE-ID
+id-Cause 								ProtocolIE-ID
+id-Criticality-Diagnostics				ProtocolIE-ID
+id-Data-Coding-Scheme 					ProtocolIE-ID
+id-Failure-List 						ProtocolIE-ID
+id-Message-Identifier 					ProtocolIE-ID
+id-New-Serial-Number					ProtocolIE-ID
 id-Number-of-Broadcasts-Completed-List 	ProtocolIE-ID
 id-Number-of-Broadcasts-Requested 		ProtocolIE-ID
-id-Old-Serial-Number				ProtocolIE-ID
-id-Radio-Resource-Loading-List 		ProtocolIE-ID
-id-Recovery-Indication 			ProtocolIE-ID
-id-Repetition-Period 			ProtocolIE-ID
-id-Serial-Number 			ProtocolIE-ID
-id-Service-Areas-List 			ProtocolIE-ID
-id-MessageStructure				ProtocolIE-ID
-id-TypeOfError					ProtocolIE-ID
+id-Old-Serial-Number					ProtocolIE-ID
+id-Radio-Resource-Loading-List 			ProtocolIE-ID
+id-Recovery-Indication 					ProtocolIE-ID
+id-Repetition-Period 					ProtocolIE-ID
+id-Serial-Number 						ProtocolIE-ID
+id-Service-Areas-List 					ProtocolIE-ID
+id-MessageStructure						ProtocolIE-ID
+id-TypeOfError							ProtocolIE-ID
+id-Paging-ETWS-Indicator				ProtocolIE-ID
+id-Warning-Type							ProtocolIE-ID
+id-WarningSecurityInfo					ProtocolIE-ID 
+id-Broadcast-Message-Content-Validity-Indicator	ProtocolIE-ID
 
 #.END
 
@@ -118,8 +122,12 @@ Serial-Number                      N sabp.ies id-Serial-Number
 Cause                              N sabp.ies id-Cause
 
 #SABP-PROTOCOL-EXTENSION
-MessageStructure                   N sabp.extension id-MessageStructure
-TypeOfError                        N sabp.extension id-TypeOfError
+MessageStructure					N sabp.extension id-MessageStructure
+TypeOfError							N sabp.extension id-TypeOfError
+Paging-ETWS-Indicator				N sabp.extension id-Paging-ETWS-Indicator
+Warning-Type						N sabp.extension id-Warning-Type
+WarningSecurityInfo					N sabp.extension id-WarningSecurityInfo 
+Broadcast-Message-Content-Validity-Indicator	N sabp.extension id-Broadcast-Message-Content-Validity-Indicator
 
 #SABP-ELEMENTARY-PROCEDURE
 Write-Replace                          N sabp.proc.imsg id-Write-Replace
@@ -145,7 +153,7 @@ Error-Indication                       N sabp.proc.imsg id-Error-Indication
 # PLMNidentity ::= TBCD-STRING (SIZE (3))
 # TBCD-STRING ::= OCTET STRING
 
-#.FN_BODY PLMNidentity  VAL_PTR = 
+#.FN_BODY Service-Area-Identifier/pLMNidentity  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
  proto_tree *subtree;
 
