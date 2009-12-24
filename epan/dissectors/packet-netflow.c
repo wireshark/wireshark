@@ -3891,7 +3891,7 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_nbar_appl_desc,
 		 {"ApplicationDesc", "cflow.appl_desc",
-		  FT_STRINGZ, BASE_HEX, NULL, 0x0,
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		  "Application Desc (NBAR)", HFILL}
 		 },
 		{&hf_cflow_nbar_appl_id,
@@ -3901,7 +3901,7 @@ proto_register_netflow(void)
 		},
 		{&hf_cflow_nbar_appl_name,
 		 {"ApplicationName", "cflow.appl_name",
-		  FT_STRINGZ, BASE_HEX, NULL, 0x0,
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		  "Application Name (NBAR)", HFILL}
 		 },
 		{&hf_cflow_peer_srcas,
