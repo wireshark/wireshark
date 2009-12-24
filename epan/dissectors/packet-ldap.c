@@ -2889,7 +2889,7 @@ dissect_ldap_T_intermediateResponse_responseValue(gboolean implicit_tag _U_, tvb
 
 
 #line 757 "ldap.cnf"
-	if(ldm_tree) {
+	if(ldm_tree && object_identifier_id) {
 		proto_item_set_text(ldm_tree, "%s %s", "IntermediateResponse", object_identifier_id);
 		name = oid_resolved_from_string(object_identifier_id);
 		if(name)

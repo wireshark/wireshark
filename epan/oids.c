@@ -746,7 +746,7 @@ guint check_num_oid(const char* str) {
 	guint n = 0;
 
 	D(8,("check_num_oid: '%s'",str));
-	if (*r == '.' || *r == '\0') return 0;
+	if (!r || *r == '.' || *r == '\0') return 0;
 
 	do {
 		D(9,("\tcheck_num_oid: '%c' %d",*r,n));

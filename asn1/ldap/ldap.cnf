@@ -754,7 +754,7 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 	const gchar *name;
 
 #.FN_BODY IntermediateResponse/_untag/responseValue
-	if(ldm_tree) {
+	if(ldm_tree && object_identifier_id) {
 		proto_item_set_text(ldm_tree, "%%s %%s", "IntermediateResponse", object_identifier_id);
 		name = oid_resolved_from_string(object_identifier_id);
 		if(name)
