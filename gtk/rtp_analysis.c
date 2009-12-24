@@ -78,6 +78,7 @@
 #include "gtk/file_dlg.h"
 #include "gtk/gui_utils.h"
 #include "gtk/gui_stat_menu.h"
+#include "gtk/pixmap_save.h"
 #include "gtk/main.h"
 #include "gtk/rtp_analysis.h"
 #include "gtk/rtp_stream.h"
@@ -1311,7 +1312,10 @@ static gint expose_event(GtkWidget *widget, GdkEventExpose *event)
 static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 {
         user_data_t *user_data;
-	int i;
+        int i;
+#if GTK_CHECK_VERSION(2,6,0)
+        GtkWidget *bt_save;
+#endif
 
         user_data=(user_data_t *)g_object_get_data(G_OBJECT(widget), "user_data_t");
 
@@ -1330,6 +1334,12 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
                         -1);
         user_data->dlg.dialog_graph.pixmap_width=widget->allocation.width;
         user_data->dlg.dialog_graph.pixmap_height=widget->allocation.height;
+
+#if GTK_CHECK_VERSION(2,6,0)
+        bt_save = g_object_get_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save");
+        g_object_set_data(G_OBJECT(bt_save), "pixmap", user_data->dlg.dialog_graph.pixmap);
+        gtk_widget_set_sensitive(bt_save, TRUE);
+#endif
 
         gdk_draw_rectangle(user_data->dlg.dialog_graph.pixmap,
                         widget->style->white_gc,
@@ -1659,6 +1669,10 @@ static void dialog_graph_init_window(user_data_t* user_data)
         GtkWidget *vbox;
         GtkWidget *hbox;
     	GtkWidget *bt_close;
+#if GTK_CHECK_VERSION(2,6,0)
+        GtkWidget *bt_save;
+        GtkTooltips   *tooltips = gtk_tooltips_new();
+#endif
 
         /* create the main window */
         user_data->dlg.dialog_graph.window=dlg_window_new("I/O Graphs");   /* transient_for top_level */
@@ -1680,12 +1694,24 @@ static void dialog_graph_init_window(user_data_t* user_data)
 
         dialog_graph_set_title(user_data);
 
+#if GTK_CHECK_VERSION(2,6,0)
+    hbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE, NULL);
+#else
     hbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-        gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+#endif
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
     gtk_widget_show(hbox);
 
     bt_close = g_object_get_data(G_OBJECT(hbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(user_data->dlg.dialog_graph.window, bt_close, window_cancel_button_cb);
+
+#if GTK_CHECK_VERSION(2,6,0)
+    bt_save = g_object_get_data(G_OBJECT(hbox), GTK_STOCK_SAVE);
+    gtk_widget_set_sensitive(bt_save, FALSE);
+    gtk_tooltips_set_tip(tooltips, bt_save, "Save the displayed graph to a file", NULL);
+    g_signal_connect(bt_save, "clicked", G_CALLBACK(pixmap_save_cb), NULL);
+    g_object_set_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save", bt_save);
+#endif
 
     g_signal_connect(user_data->dlg.dialog_graph.window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
