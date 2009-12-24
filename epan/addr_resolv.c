@@ -296,8 +296,6 @@ gchar *g_pservices_path = NULL;     /* personal services file */
  * The callback processes the response, then frees the request.
  */
 #define ASYNC_DNS
-ares_channel alchan;
-
 typedef struct _async_dns_queue_msg
 {
   union {
@@ -307,11 +305,20 @@ typedef struct _async_dns_queue_msg
   int                 family;
 } async_dns_queue_msg_t;
 
+typedef struct _async_hostent {
+  int addr_size;
+  int copied;
+  void *addrp;
+} async_hostent_t;
+
 #if ( ( ARES_VERSION_MAJOR < 1 )                                     \
  || ( 1 == ARES_VERSION_MAJOR && ARES_VERSION_MINOR < 5 ) )
 static void c_ares_ghba_cb(void *arg, int status, struct hostent *hostent);
 #else
 static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *hostent);
+
+ares_channel ghba_chan; /* ares_gethostbyaddr -- Usually non-interactive, no timeout */
+ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, timeout */
 #endif
 
 #else
@@ -2287,7 +2294,7 @@ host_name_lookup_init(void) {
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
   if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
 #endif
-  if (ares_init(&alchan) == ARES_SUCCESS) {
+  if (ares_init(&ghba_chan) == ARES_SUCCESS && ares_init(&ghbn_chan) == ARES_SUCCESS) {
     async_dns_initialized = TRUE;
   }
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
@@ -2366,11 +2373,11 @@ host_name_lookup_process(gpointer data _U_) {
     caqm = (async_dns_queue_msg_t *) async_dns_queue_head->data;
     async_dns_queue_head = g_list_remove(async_dns_queue_head, (void *) caqm);
     if (caqm->family == AF_INET) {
-      ares_gethostbyaddr(alchan, &caqm->addr.ip4, sizeof(guint32), AF_INET,
+      ares_gethostbyaddr(ghba_chan, &caqm->addr.ip4, sizeof(guint32), AF_INET,
         c_ares_ghba_cb, caqm);
       async_dns_in_flight++;
     } else if (caqm->family == AF_INET6) {
-      ares_gethostbyaddr(alchan, &caqm->addr.ip6, sizeof(struct e_in6_addr),
+      ares_gethostbyaddr(ghba_chan, &caqm->addr.ip6, sizeof(struct e_in6_addr),
         AF_INET6, c_ares_ghba_cb, caqm);
       async_dns_in_flight++;
     }
@@ -2378,10 +2385,10 @@ host_name_lookup_process(gpointer data _U_) {
 
   FD_ZERO(&rfds);
   FD_ZERO(&wfds);
-  nfds = ares_fds(alchan, &rfds, &wfds);
+  nfds = ares_fds(ghba_chan, &rfds, &wfds);
   if (nfds > 0) {
     select(nfds, &rfds, &wfds, NULL, &tv);
-    ares_process(alchan, &rfds, &wfds);
+    ares_process(ghba_chan, &rfds, &wfds);
   }
 
   /* Any new entries? */
@@ -2401,7 +2408,8 @@ host_name_lookup_cleanup(void) {
   g_list_free(async_dns_queue_head);
 
   if (async_dns_initialized) {
-    ares_destroy(alchan);
+    ares_destroy(ghba_chan);
+    ares_destroy(ghbn_chan);
   }
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
   ares_library_cleanup();
@@ -2895,6 +2903,27 @@ const gchar *get_manuf_name_if_known(const guint8 *addr)
 } /* get_manuf_name_if_known */
 
 
+#ifdef HAVE_C_ARES
+#define GHI_TIMEOUT (250 * 1000)
+static void
+#if ( ( ARES_VERSION_MAJOR < 1 )                                     \
+ || ( 1 == ARES_VERSION_MAJOR && ARES_VERSION_MINOR < 5 ) )
+c_ares_ghi_cb(void *arg, int status, struct hostent *hp) {
+#else
+c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
+#endif
+  /*
+   * XXX - If we wanted to be really fancy we could cache results here and
+   * look them up in get_host_ipaddr* below.
+   */
+  async_hostent_t *ahp = arg;
+  if (status == ARES_SUCCESS && hp && ahp && hp->h_length == ahp->addr_size) {
+    memcpy(ahp->addrp, hp->h_addr, hp->h_length);
+    ahp->copied = hp->h_length;
+  }
+}
+#endif /* HAVE_C_ARES */
+
 /* Translate a string, assumed either to be a dotted-quad IP address or
  * a host name, to a numeric IP address.  Return TRUE if we succeed and
  * set "*addrp" to that numeric IP address; return FALSE if we fail.
@@ -2902,7 +2931,14 @@ const gchar *get_manuf_name_if_known(const guint8 *addr)
 gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 {
     struct in_addr      ipaddr;
+#ifdef HAVE_C_ARES
+    struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
+    int nfds;
+    fd_set rfds, wfds;
+    async_hostent_t ahe;
+#else /* HAVE_C_ARES */
     struct hostent      *hp;
+#endif /* HAVE_C_ARES */
 
     /*
      * don't change it to inet_pton(AF_INET), they are not 100% compatible.
@@ -2912,6 +2948,25 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
     if (!inet_aton(host, &ipaddr)) {
         /* It's not a valid dotted-quad IP address; is it a valid
          * host name? */
+#ifdef HAVE_C_ARES
+        ahe.addr_size = (int) sizeof (struct in_addr);
+        ahe.copied = 0;
+        ahe.addrp = addrp;
+        ares_gethostbyname(ghbn_chan, host, AF_INET, c_ares_ghi_cb, &ahe);
+        FD_ZERO(&rfds);
+        FD_ZERO(&wfds);
+        nfds = ares_fds(ghbn_chan, &rfds, &wfds);
+        if (nfds > 0) {
+            tvp = ares_timeout(ghbn_chan, &tv, &tv);
+            select(nfds, &rfds, &wfds, NULL, tvp);
+            ares_process(ghbn_chan, &rfds, &wfds);
+        }
+        ares_cancel(ghbn_chan);
+        if (ahe.addr_size == ahe.copied) {
+            return TRUE;
+        }
+        return FALSE;
+#else /* ! HAVE_C_ARES */
         hp = gethostbyname(host);
         if (hp == NULL) {
             /* No. */
@@ -2923,6 +2978,7 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
         } else {
             return FALSE;
         }
+#endif /* HAVE_C_ARES */
     } else {
         /* Does the string really contain dotted-quad IP?
          * Check against inet_atons that accept strings such as
@@ -2945,21 +3001,43 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
  */
 gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
 {
+#ifdef HAVE_C_ARES
+    struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
+    int nfds;
+    fd_set rfds, wfds;
+    async_hostent_t ahe;
+#else /* HAVE_C_ARES */
     struct hostent *hp;
+#endif /* HAVE_C_ARES */
 
     if (inet_pton(AF_INET6, host, addrp) == 1)
         return TRUE;
 
     /* try FQDN */
-#ifdef HAVE_GETHOSTBYNAME2
+#ifdef HAVE_C_ARES
+        ahe.addr_size = (int) sizeof (struct e_in6_addr);
+        ahe.copied = 0;
+        ahe.addrp = addrp;
+        ares_gethostbyname(ghbn_chan, host, AF_INET6, c_ares_ghi_cb, &ahe);
+        FD_ZERO(&rfds);
+        FD_ZERO(&wfds);
+        nfds = ares_fds(ghbn_chan, &rfds, &wfds);
+        if (nfds > 0) {
+            tvp = ares_timeout(ghbn_chan, &tv, &tv);
+            select(nfds, &rfds, &wfds, NULL, tvp);
+            ares_process(ghbn_chan, &rfds, &wfds);
+        }
+        ares_cancel(ghbn_chan);
+        if (ahe.addr_size == ahe.copied) {
+            return TRUE;
+        }
+#elif defined(HAVE_GETHOSTBYNAME2)
     hp = gethostbyname2(host, AF_INET6);
-#else
-    hp = NULL;
-#endif
     if (hp != NULL && hp->h_length == sizeof(struct e_in6_addr)) {
         memcpy(addrp, hp->h_addr, hp->h_length);
         return TRUE;
     }
+#endif
 
     return FALSE;
 }
