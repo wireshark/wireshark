@@ -2946,9 +2946,17 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
      * less-than-4 octet notation.
      */
     if (!inet_aton(host, &ipaddr)) {
+        if (! (g_resolv_flags & RESOLV_NETWORK)) {
+            return FALSE;
+        }
         /* It's not a valid dotted-quad IP address; is it a valid
          * host name? */
 #ifdef HAVE_C_ARES
+        if (! (g_resolv_flags & RESOLV_CONCURRENT) ||
+            prefs.name_resolve_concurrency < 1 ||
+            ! async_dns_initialized) {
+            return FALSE;
+        }
         ahe.addr_size = (int) sizeof (struct in_addr);
         ahe.copied = 0;
         ahe.addrp = addrp;
@@ -3013,24 +3021,33 @@ gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
     if (inet_pton(AF_INET6, host, addrp) == 1)
         return TRUE;
 
+    if (! (g_resolv_flags & RESOLV_NETWORK)) {
+        return FALSE;
+    }
+
     /* try FQDN */
 #ifdef HAVE_C_ARES
-        ahe.addr_size = (int) sizeof (struct e_in6_addr);
-        ahe.copied = 0;
-        ahe.addrp = addrp;
-        ares_gethostbyname(ghbn_chan, host, AF_INET6, c_ares_ghi_cb, &ahe);
-        FD_ZERO(&rfds);
-        FD_ZERO(&wfds);
-        nfds = ares_fds(ghbn_chan, &rfds, &wfds);
-        if (nfds > 0) {
-            tvp = ares_timeout(ghbn_chan, &tv, &tv);
-            select(nfds, &rfds, &wfds, NULL, tvp);
-            ares_process(ghbn_chan, &rfds, &wfds);
-        }
-        ares_cancel(ghbn_chan);
-        if (ahe.addr_size == ahe.copied) {
-            return TRUE;
-        }
+    if (! (g_resolv_flags & RESOLV_CONCURRENT) ||
+        prefs.name_resolve_concurrency < 1 ||
+        ! async_dns_initialized) {
+      return FALSE;
+    }
+    ahe.addr_size = (int) sizeof (struct e_in6_addr);
+    ahe.copied = 0;
+    ahe.addrp = addrp;
+    ares_gethostbyname(ghbn_chan, host, AF_INET6, c_ares_ghi_cb, &ahe);
+    FD_ZERO(&rfds);
+    FD_ZERO(&wfds);
+    nfds = ares_fds(ghbn_chan, &rfds, &wfds);
+    if (nfds > 0) {
+        tvp = ares_timeout(ghbn_chan, &tv, &tv);
+        select(nfds, &rfds, &wfds, NULL, tvp);
+        ares_process(ghbn_chan, &rfds, &wfds);
+    }
+    ares_cancel(ghbn_chan);
+    if (ahe.addr_size == ahe.copied) {
+        return TRUE;
+    }
 #elif defined(HAVE_GETHOSTBYNAME2)
     hp = gethostbyname2(host, AF_INET6);
     if (hp != NULL && hp->h_length == sizeof(struct e_in6_addr)) {

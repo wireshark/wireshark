@@ -183,10 +183,12 @@ extern void add_ether_byip(guint ip, const guint8 *eth);
  *  into a numeric IPv4 address value in network byte order. If compiled with
  *  c-ares, the request will wait a maximum of 250ms for the request to finish.
  *  Otherwise the wait time will be system-dependent, ususally much longer.
+ *  Immediately returns FALSE for hostnames if network name resolution is
+ *  disabled.
  *
  * @param[in] host The hostname.
  * @param[out] addrp The numeric IPv4 address in network byte order.
- * @return TRUE on success, FALSE on failure or timeout.
+ * @return TRUE on success, FALSE on failure, timeout.
  */
 gboolean get_host_ipaddr(const char *host, guint32 *addrp);
 
@@ -194,6 +196,8 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp);
  *  into a numeric IPv6 address value in network byte order. If compiled with
  *  c-ares, the request will wait a maximum of 250ms for the request to finish.
  *  Otherwise the wait time will be system-dependent, usually much longer.
+ *  Immediately returns FALSE for hostnames if network name resolution is
+ *  disabled.
  *
  * @param[in] host The hostname.
  * @param[out] addrp The numeric IPv6 address in network byte order.
