@@ -124,6 +124,11 @@ static void set_buttons(uat_t* uat, gint row) {
 		gtk_widget_set_sensitive (uat->rep->bt_down, FALSE);
 	}
 
+	if (row < 0) {
+		gtk_widget_set_sensitive (uat->rep->bt_edit, FALSE);
+		gtk_widget_set_sensitive (uat->rep->bt_delete, FALSE);
+	}
+
 	if (uat->changed) {
 		g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
 		g_signal_connect(uat->rep->window, "delete_event", G_CALLBACK(unsaved_dialog), uat);
@@ -576,7 +581,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		GtkWidget *label;
-        	char* text = fld_tostr(rec,&(f[colnum]));
+		char* text = fld_tostr(rec,&(f[colnum]));
 
 		label = gtk_label_new(ep_strdup_printf("%s:", f[colnum].title));
 		gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
