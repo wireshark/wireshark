@@ -726,8 +726,22 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 		if (num_spare_bits == 7)
 			num_chars--;
 		a_bigbuf[num_chars] = '\0';
-		/* There could be Greek chars, so better be safe */
-		net_name = ep_alloc(2 * num_chars);
+		/*
+		 * The documentation for g_unichar_to_utf8() says that
+		 * the output buffer "must have at least 6 bytes of space".
+		 * I think that maximum is for some Korean characters, so
+		 * perhaps that's overkill here, but there are at least
+		 * some SMS characters whose UTF-8 encoding takes 3
+		 * bytes.  We'll be safe and allocate 6 bytes.
+		 *
+		 * XXX - we could have a routine that takes a string of
+		 * SMS characters and returns an ep_allocated UTF-8
+		 * string.  g_unichar_to_utf8(), if passed a null
+		 * buffer pointer, just returns the number of bytes
+		 * required, so we could get the right buffer size
+		 * by making two passes over the SMS string.
+		 */
+		net_name = ep_alloc(6 * num_chars);
 		gsm_sms_char_ascii_decode(net_name, a_bigbuf, num_chars);
 		proto_tree_add_text(tree, tvb , curr_offset, len - 1, "Text String: %s", net_name);
 		break;
