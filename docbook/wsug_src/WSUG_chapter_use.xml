@@ -1724,77 +1724,77 @@
 	      <row>
 		<entry><command>ANSI</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>Fax T38 Analysis...</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>GSM</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>H.225...</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>IAX2</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>ISUP Messages...</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>LTE MAC...</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatLTEMACTraffic"/></para></entry>
+		<entry><para>See <xref linkend="ChTelLTEMACTraffic"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>MTP3</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>RTP</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelRTPAnalysis"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>SCTP</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>SIP...</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>SMPP Operations...</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>UCP Messages...</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>VoIP Calls...</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelVoipCalls"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>WAP-WSP...</command></entry>
 		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>
 	      </row>
 	    </tbody>
       </tgroup>

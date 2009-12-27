@@ -291,7 +291,32 @@
       </listitem>
       <listitem>
 	<para>
-	  <command>IPX</command>: XXX - insert info here.
+	  <command>IPX</command>: an IPX endpoint is concatenation of a 32 bit
+	  network number and 48 bit node address, be default the Ethernets' MAC
+	  address.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>JXTA</command>: a JXTA endpoint is a 160 bit SHA-1 URN.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>NCP</command>: XXX - insert info here.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>RSVP</command>: XXX - insert info here.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>SCTP</command>: a SCTP endpoint is a combination of the host IP
+	  addresses (plural) and the SCTP port used. So different SCTP ports on the
+	  same IP address are different SCTP endpoints, but the same SCTP port on
+	  different IP addresses of the same host are still the same endpoint.
 	</para>
       </listitem>
       <listitem>
@@ -312,6 +337,16 @@
 	  <command>UDP</command>: a UDP endpoint is a combination of the IP address
 	  and the UDP port used, so different UDP ports on the same IP address are
 	  different UDP endpoints.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>USB</command>: XXX - insert info here.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>WLAN</command>: XXX - insert info here.
 	</para>
       </listitem>
     </itemizedlist>
@@ -489,67 +524,6 @@
 	</tip>
   </section>
 
-  <section id="ChStatCompareCaptureFiles">
-    <title>Compare two capture files</title>
-    <para>
-      Compare two capture files.
-    </para>
-  </section>
-
-  <section id="ChStatWLANTraffic">
-    <title>WLAN Traffic Statistics</title>
-    <para>
-      Statistics of the captured WLAN traffic.  This window will summarize the
-      wireless network traffic found in the capture.  Probe requests will be
-      merged into an existing network if the SSID matches.
-    </para>
-
-    <figure><title>The "WLAN Traffic Statistics" window</title>
-    <graphic entityref="WiresharkStatsWLANTraffic" format="PNG"/>
-    </figure>
-
-    <para>
-      Each row in the list shows the statistical values for exactly one wireless network.
-    </para>
-    <para>
-      <command>Name resolution</command> will be done if selected in the window
-      and if it is active for the MAC layer.
-    </para>
-    <para>
-      <command>Only show existing networks</command> will exclude probe requests
-      with a SSID not matching any network from the list.
-    </para>
-    <para>
-      The <command>copy</command> button will copy the list values to the
-      clipboard in CSV (Comma Separated Values) format.
-    </para>
-    <tip><title>Tip!</title>
-    <para>
-      This window will be updated frequently, so it will be useful, even if
-      you open it before (or while) you are doing a live capture.
-    </para>
-    </tip>
-  </section>
-
-  <section id="ChStatLTEMACTraffic">
-    <title>LTE MAC Traffic Statistics</title>
-    <para>
-      Statistics of the captured LTE MAC traffic.  This window will summarize the
-      LTE MAC traffic found in the capture.
-    </para>
-
-    <figure><title>The "LTE MAC Traffic Statistics" window</title>
-    <graphic entityref="WiresharkStatsLTEMACTraffic" format="PNG"/>
-    </figure>
-
-    <para>
-      The top pane shows statistics for common channels.
-      Each row in the middle pane shows statistical highlights for exactly one UE/C-RNTI.
-      In the lower pane, you can see the for the currently selected UE/C-RNTI
-      the traffic broken down by individual channel.
-    </para>
-  </section>
-
   <section id="ChStatSRT">
     <title>Service Response Time</title>
     <para>
@@ -620,7 +594,49 @@
     </para>
   </section>
   </section>
+<!--
+  <section id="ChStatCompareCaptureFiles">
+    <title>Compare two capture files</title>
+    <para>
+      Compare two capture files.
+    </para>
+  </section>
+-->
+  <section id="ChStatWLANTraffic">
+    <title>WLAN Traffic Statistics</title>
+    <para>
+      Statistics of the captured WLAN traffic.  This window will summarize the
+      wireless network traffic found in the capture.  Probe requests will be
+      merged into an existing network if the SSID matches.
+    </para>
 
+    <figure><title>The "WLAN Traffic Statistics" window</title>
+    <graphic entityref="WiresharkStatsWLANTraffic" format="PNG"/>
+    </figure>
+
+    <para>
+      Each row in the list shows the statistical values for exactly one wireless network.
+    </para>
+    <para>
+      <command>Name resolution</command> will be done if selected in the window
+      and if it is active for the MAC layer.
+    </para>
+    <para>
+      <command>Only show existing networks</command> will exclude probe requests
+      with a SSID not matching any network from the list.
+    </para>
+    <para>
+      The <command>copy</command> button will copy the list values to the
+      clipboard in CSV (Comma Separated Values) format.
+    </para>
+    <tip><title>Tip!</title>
+    <para>
+      This window will be updated frequently, so it will be useful, even if
+      you open it before (or while) you are doing a live capture.
+    </para>
+    </tip>
+  </section>
+ 
   <section id="ChStatXXX">
     <title>The protocol specific statistics windows</title>
     <para>
