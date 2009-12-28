@@ -115,23 +115,19 @@ my %APIs = (
 		                                     #  fashion is appropriate for the code in question.
 		'ctime',                             # Use abs_time_secs_to_str()
 		### Deprecated glib functions
-		# (The list is based upon the GLib 2.20.1 documentation; Some of 
+		# (The list is based upon the GLib 2.22.3 documentation; Some of 
 		#  the entries are are commented out since they are currently 
 		#  being used in Wireshark and since the replacement functionality
 		#  is not available in all the GLib versions that Wireshark
 		#  currently supports (ie: versions starting with GLib 2.4).
 		'g_async_queue_ref_unlocked',        # g_async_queue_ref()   (OK since 2.8)
 		'g_async_queue_unref_and_unlock',    # g_async_queue_unref() (OK since 2.8)
-		'g_string_sprintf',                  # use g_string_printf() instead
-		'g_string_sprintfa',                 # use g_string_append_printf instead
-		'g_tree_traverse',
 		'g_basename',
 		'g_cache_value_foreach',             # g_cache_key_foreach() 
 		'g_date_set_time',                   # g_date_set_time_t (avail since 2.10)
 		'g_dirname',
 		'g_hash_table_freeze',
 		'g_hash_table_thaw',
-		'G_HAVE_GINT64',
 		'g_io_channel_close',
 		'g_io_channel_read',
 		'g_io_channel_seek',
@@ -149,6 +145,9 @@ my %APIs = (
 		'g_scanner_foreach_symbol',
 		'g_scanner_freeze_symbol_table',
 		'g_scanner_thaw_symbol_table',
+		'g_string_sprintf',                  # use g_string_printf() instead
+		'g_string_sprintfa',                 # use g_string_append_printf instead
+		'g_tree_traverse',
 		'G_WIN32_DLLMAIN_FOR_DLL_NAME',
 		'g_win32_get_package_installation_directory',
 		'g_win32_get_package_installation_subdirectory',
@@ -183,6 +182,9 @@ my %APIs = (
         	'g_node_push_allocator',             # "does nothing since 2.10"
         	'g_slist_pop_allocator',             # "does nothing since 2.10"
         	'g_slist_push_allocator',            # "does nothing since 2.10"
+## Following Deprecated as of GLib 2.22;
+## Note: Not currently used by Wireshark
+                'g_mapped_file_free',                # [as of 2.22: use g_map_file_unref]
 		] },
 
 	# APIs that make the program exit. Dissectors shouldn't call these
@@ -214,7 +216,7 @@ my %APIs = (
 );
 
 # Deprecated GTK functions with (E)rror or (W)arning flag:
-# (The list is based upon the GTK+ 2.16.0 documentation; Some of 
+# (The list is based upon the GTK+ 2.18.5 documentation; Some of 
 #  the entries are are commented out since they are currently 
 #  being used in Wireshark and since the replacement functionality
 #  is not available in all the GTK+ versions that Wireshark
@@ -226,10 +228,10 @@ my %deprecatedGtkFunctions = (
                 'gtk_about_dialog_set_name',                   'E',
                 'gtk_accel_group_ref',                         'E',
                 'gtk_accel_group_unref',                       'E',
-				'gtk_action_block_activate_from',              'E',
-				'gtk_action_connect_proxy',					   'E',
-				'gtk_action_disconnect_proxy',				   'E',
-				'gtk_action_unblock_activate_from',            'E',
+                'gtk_action_block_activate_from',              'E', # since 2.16
+                'gtk_action_connect_proxy',                    'E', # since 2.16: use gtk_activatable_set_related_action() (as of 2.16)
+                'gtk_action_disconnect_proxy',                 'E', # since 2.16: use gtk_activatable_set_related_action() (as of 2.16)
+                'gtk_action_unblock_activate_from',            'E', # since 2.16
                 'gtk_binding_entry_add',                       'E',
                 'gtk_binding_entry_add_signall',               'E',
                 'gtk_binding_entry_clear',                     'E',
@@ -833,26 +835,35 @@ my %deprecatedGtkFunctions = (
                 'gtk_window_position',                         'E',
                 'gtk_window_set_policy',                       'E', # >>? gtk_window_set_resizable()
 ##
+## Deprecated for GTK versions greater than 2.4
+## Note that entries marked with 'W' are currently being used by Wireshark
+## Those marked with 'E' are not being used by Wireshark
+##
 ## Deprecated as of GTK+ 2.12 but to be replaced only when Wireshark requires GTK+ 2.12 or later
-## 2.12		'gtk_tooltips_data_get',                       'E', # new API: GtkToolTip (avail since 2.12) ...
-##			'gtk_tooltips_disable',                        'E',
-##			'gtk_tooltips_enable',                         'E',
-##			'gtk_tooltips_force_window',                   'E',
-##			'gtk_tooltips_get_info_from_tip_window',       'E',
-##			'gtk_tooltips_new',                            'W',
-##			'gtk_tooltips_set_delay',                      'E',
-##			'gtk_tooltips_set_tip',                        'W',
-## 2.12		'gtk_tool_item_set_tooltip',                   'W', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
+##  (or: use conditional code based upon the GTK version).
+                'gtk_tooltips_data_get',                       'E', # new API: GtkToolTip (avail since 2.12) ...
+                'gtk_tooltips_disable',                        'E',
+                'gtk_tooltips_enable',                         'E',
+                'gtk_tooltips_force_window',                   'E',
+                'gtk_tooltips_get_info_from_tip_window',       'E',
+##              'gtk_tooltips_new',                            'W',
+                'gtk_tooltips_set_delay',                      'E',
+##              'gtk_tooltips_set_tip',                        'W',
+##              'gtk_tool_item_set_tooltip',                   'W', # gtk_tool_item_set_tooltip_text() (avail since 2.12)
 ##
 ## Deprecated as of GTK+ 2.16 but to be replaced only when Wireshark requires GTK+ 2.16 or later
-##		'gtk_action_connect_proxy',                    'E', # gtk_activatable_set_related_action() (avail since 2.16)
-##		'gtk_action_disconnect_proxy',                 'E', # gtk_activatable_set_related_action() (avail since 2.16)
-##		'gtk_scale_button_get_orientation',            'E', # gtk_orientable_get_orientation()     (avail since 2.16)
-##		'gtk_scale_button_set_orientation',            'E', # gtk_orientable_set_orientation()     (avail since 2.16)
-##		'gtk_toolbar_get_orientation',                 'E', # gtk_orientable_get_orientation()     (avail since 2.16)
-##		'gtk_toolbar_set_orientation',                 'W', # gtk_orientable_set_orientation()     (avail since 2.16)
-##		'gtk_status_icon_set_tooltip',                 'E', # gtk_status_icon_set_tooltip_text()   (avail since 2.16)
-##		'gtk_widget_get_action',                       'E', # gtk_activatable_get_related_action() (avail since 2.16)
+##  (or: use conditional code based upon the GTK version).
+                'gtk_scale_button_get_orientation',            'E', # gtk_orientable_get_orientation()     (avail since 2.16)
+                'gtk_scale_button_set_orientation',            'E', # gtk_orientable_set_orientation()     (avail since 2.16)
+                'gtk_toolbar_get_orientation',                 'E', # gtk_orientable_get_orientation()     (avail since 2.16)
+##              'gtk_toolbar_set_orientation',                 'W', # gtk_orientable_set_orientation()     (avail since 2.16)
+                'gtk_status_icon_set_tooltip',                 'E', # gtk_status_icon_set_tooltip_text()   (avail since 2.16)
+                'gtk_widget_get_action',                       'E', # gtk_activatable_get_related_action() (avail since 2.16)
+##
+## Deprecated as of GTK+ 2.18 but to be replaced only when Wireshark requires GTK+ 2.12 or later
+##  (or: use conditional code based upon the GTK version).
+                'gtk_cell_view_get_cell_renderers',            'E', # gtk_cell_layout_get_cells ()         (avail since 2.12)
+##              'gtk_tree_view_column_get_cell_renderers',     'W', # gtk_cell_layout_get_cells ()         (avail since 2.12)
 );
 
 @{$APIs{'deprecated-gtk'}->{'functions'}}      = grep {$deprecatedGtkFunctions{$_} eq 'E'} keys %deprecatedGtkFunctions;
