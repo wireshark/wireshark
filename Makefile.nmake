@@ -15,7 +15,7 @@ CC = cl
 LINK= link
 BSCMAKE= bscmake
 
-WIN_SETUP=tools\$(WIRESHARK_TARGET_PLATFORM)-setup.sh
+WIN_SETUP=tools/$(WIRESHARK_TARGET_PLATFORM)-setup.sh
 
 # -------------
 # Checking  that the Wireshark Libraries are up-to-date:
