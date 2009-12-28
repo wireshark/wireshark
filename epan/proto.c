@@ -6391,6 +6391,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	guint64 value = 0;
 	int bit;
 	int i;
+	const true_false_string *tfstring;
 
 	/* We can't fake it just yet. We have to fill in the 'return_value' parameter */
 	PROTO_REGISTRAR_GET_NTH(hf_index, hf_field);
@@ -6479,19 +6480,13 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	switch(hf_field->type){
 	case FT_BOOLEAN:
 		/* Boolean field */
-		if (hf_field->strings) {
-			const true_false_string *tfstring =
-				(const true_false_string *) hf_field->strings;
-			return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, (guint32)value,
-				"%s: %s",
-				str,
-				(guint32)value ? tfstring->true_string : tfstring->false_string);
-		}else{
-			return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, (guint32)value,
-				"%s: %u",
-				str,
-				(guint32)value);
-		}
+		tfstring = (const true_false_string *) &tfs_true_false;
+		if (hf_field->strings)
+			tfstring = (const true_false_string *) hf_field->strings;
+		return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, (guint32)value,
+			"%s: %s",
+			str,
+			(guint32)value ? tfstring->true_string : tfstring->false_string);
 		break;
 
 	case FT_UINT8:
