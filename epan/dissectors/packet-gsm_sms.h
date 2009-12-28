@@ -39,4 +39,12 @@
 
 extern int gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned int out_length,
 		     const guint8 *input, unsigned char *output);
-extern void gsm_sms_char_ascii_decode(unsigned char* dest, const unsigned char* src, int len);
+
+/* Convert an unpacked SMS string to UTF-8.
+ *
+ * @param src The string to convert.
+ * @param len Length of the string to convert, in bytes.
+ * @return An ep_allocated UTF-8 string.
+ */
+
+extern gchar *gsm_sms_chars_to_utf8(const unsigned char* src, int len);

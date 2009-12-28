@@ -418,10 +418,8 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
   guint8		out_len;
   /* XXX - The maximum item label length is 240.  Does this really need to be 1024? 
    * use ep_alloc ?
-   * We need a input and an output buffer to gsm_sms_char_ascii_decode()
    */
   static unsigned char msgbuf[1024];
-  static unsigned char outbuf[1024];
   gchar *utf8_text = NULL;
   GIConv cd;	
   GError *l_conv_error = NULL;
@@ -439,9 +437,8 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 						       msgbuf);
 
 	msgbuf[out_len] = '\0';
-	gsm_sms_char_ascii_decode(outbuf, msgbuf, out_len);
-	msgbuf[1023] = '\0';
-	proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %%s", outbuf);
+	utf8_text = gsm_sms_chars_to_utf8(msgbuf, out_len);
+	proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %%s", utf8_text);
 	break;
     case SMS_ENCODING_8BIT:
 	proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %%s", tvb_get_ptr(parameter_tvb, 0, length));

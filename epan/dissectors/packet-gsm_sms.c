@@ -337,6 +337,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     guint32		length;
     guint32		i, j;
     char                addrbuf[MAX_ADDR_SIZE+1];
+    gchar               *addrstr;
 
     offset = *offset_p;
 
@@ -429,37 +430,38 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     case 0x05: /* "Alphanumeric (coded according to 3GPP TS 23.038 GSM 7-bit default alphabet)" */
 	i = gsm_sms_char_7bit_unpack(0, numdigocts, MAX_ADDR_SIZE, tvb_get_ptr(tvb, offset, numdigocts), addrbuf);
 	addrbuf[i] = '\0';
-	gsm_sms_char_ascii_decode(bigbuf, addrbuf, i);
+	addrstr = gsm_sms_chars_to_utf8(addrbuf, i);
 	break;
     default:
+	addrstr = ep_alloc(numdigocts*2 + 1);
 	for (i = 0; i < numdigocts; i++)
 	{
 	    oct = tvb_get_guint8(tvb, offset + i);
 
-	    bigbuf[j++] = digit_table[oct & 0x0f];
-	    bigbuf[j++] = digit_table[(oct & 0xf0) >> 4];
+	    addrstr[j++] = digit_table[oct & 0x0f];
+	    addrstr[j++] = digit_table[(oct & 0xf0) >> 4];
 	}
-	bigbuf[j++] = '\0';
+	addrstr[j++] = '\0';
 	break;
     }
 
     if (g_ascii_strncasecmp(title, "TP-O", 4) == 0) {
 	proto_tree_add_string(subtree, hf_gsm_sms_tp_oa, tvb,
-		offset, numdigocts, bigbuf);
+		offset, numdigocts, addrstr);
     } else if (g_ascii_strncasecmp(title, "TP-D", 4) == 0) {
 	proto_tree_add_string(subtree, hf_gsm_sms_tp_da, tvb,
-		offset, numdigocts, bigbuf);
+		offset, numdigocts, addrstr);
     } else if (g_ascii_strncasecmp(title, "TP-R", 4) == 0) {
 	proto_tree_add_string(subtree, hf_gsm_sms_tp_ra, tvb,
-		offset, numdigocts, bigbuf);
+		offset, numdigocts, addrstr);
     } else {
     	proto_tree_add_text(subtree,
 	tvb, offset, numdigocts,
 	"Digits: %s",
-	bigbuf);
+	addrstr);
     }
 
-    proto_item_append_text(item, " - (%s)", bigbuf);
+    proto_item_append_text(item, " - (%s)", addrstr);
 
     *offset_p = offset + numdigocts;
 }
@@ -1637,26 +1639,45 @@ char_def_alphabet_decode(unsigned char value)
     }
 }
 
-void
-gsm_sms_char_ascii_decode(unsigned char * dest, const unsigned char* src, int len)
+gchar *
+gsm_sms_chars_to_utf8(const unsigned char* src, int len)
 {
-    int i, j;
-    gunichar buf;
+    gint outlen, i, j;
+    gunichar c;
+    gchar *outbuf;
 
+    /* Scan the input string to see how long the output string will be */
+    for (outlen = 0, j = 0; j < len;  j++)
+    {
+	if (char_is_escape(src[j])) {
+	    j++;
+	    if (j == len)
+		c = '?';	/* escape with nothing following it - error */
+	    else
+		c = char_def_alphabet_ext_decode(src[j]);
+	}
+	else
+	    c = char_def_alphabet_decode(src[j]);
+        outlen += g_unichar_to_utf8(c,NULL);
+    }
 
+    /* Now allocate a buffer for the output string and fill it in */
+    outbuf = ep_alloc(outlen + 1);
     for (i = 0, j = 0; j < len;  j++)
     {
 	if (char_is_escape(src[j])) {
-	    buf = char_def_alphabet_ext_decode(src[++j]);
-	    i += g_unichar_to_utf8(buf,&(dest[i]));
+	    j++;
+	    if (j == len)
+		c = '?';	/* escape with nothing following it - error */
+	    else
+		c = char_def_alphabet_ext_decode(src[j]);
 	}
-	else {
-	    buf = char_def_alphabet_decode(src[j]);
-	    i += g_unichar_to_utf8(buf,&(dest[i]));
-	}
+	else
+	    c = char_def_alphabet_decode(src[j]);
+        i += g_unichar_to_utf8(c,&(outbuf[i]));
     }
-    dest[i]=0;
-    return;
+    outbuf[i] = '\0';
+    return outbuf;
 }
 
 /*
@@ -2649,8 +2670,8 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 					gsm_sms_char_7bit_unpack(fill_bits, length , SMS_MAX_MESSAGE_SIZE,
 					tvb_get_ptr(tvb , offset , length) , messagebuf);
 					messagebuf[out_len] = '\0';
-					gsm_sms_char_ascii_decode(bigbuf, messagebuf, out_len);
-					proto_tree_add_text(subtree, tvb , offset , length , "%s", bigbuf);
+					proto_tree_add_text(subtree, tvb , offset , length , "%s",
+					    gsm_sms_chars_to_utf8(messagebuf, out_len));
 				}
 				else
 				{
@@ -2672,8 +2693,8 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 						tvb_get_ptr(sm_tvb , i * MAX_SMS_FRAG_LEN  , len_sms) , messagebuf);
 						
 						messagebuf[out_len] = '\0';
-						gsm_sms_char_ascii_decode(bigbuf, messagebuf, out_len);
-						proto_tree_add_text(subtree, sm_tvb , i * MAX_SMS_FRAG_LEN , len_sms , "%s", bigbuf);
+						proto_tree_add_text(subtree, sm_tvb , i * MAX_SMS_FRAG_LEN , len_sms , "%s",
+						    gsm_sms_chars_to_utf8(messagebuf, out_len));
 					}
 				}
 			}
