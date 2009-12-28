@@ -288,7 +288,6 @@ col_do_append_sep_va_fstr(column_info *cinfo, gint el, const gchar *separator,
         }
       }
       g_vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
-      cinfo->col_buf[i][max_len-1] = 0;
     }
   }
 }
@@ -358,7 +357,6 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
         orig = orig_buf;
       }
       g_vsnprintf(cinfo->col_buf[i], max_len, format, ap);
-      cinfo->col_buf[i][max_len - 1] = '\0';
 
       /*
        * Move the fence, unless it's at the beginning of the string.
@@ -400,7 +398,6 @@ col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
         orig = orig_buf;
       }
       g_vsnprintf(cinfo->col_buf[i], max_len, format, ap);
-      cinfo->col_buf[i][max_len - 1] = '\0';
 
       /*
        * Move the fence if it exists, else create a new fence at the
