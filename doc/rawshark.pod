@@ -212,7 +212,6 @@ B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
 
 Print the version and exit.
 
-
 =back
 
 =head1 READ FILTER SYNTAX
