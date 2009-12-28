@@ -57,13 +57,18 @@ http://docbook.sourceforge.net/
 
 xsltproc
 --------
-The XSL processor xsltproc. 
-(available as a package for Linux / Cygwin)
+The XSL processor xsltproc. Part of libxslt:
+http://xmlsoft.org/xslt/
+Available as a package for Linux / Cygwin.
+Supplied with Mac OS X Panther and later.
 
 xmllint
 -------
 Needed to validate if the .xml files conform to the Docbook/XML DTD. 
-(available as a package for Linux / Cygwin)
+Part of libxml2:
+http://xmlsoft.org/
+Available as a package for Linux / Cygwin.
+Supplied with Mac OS X Panther and later.
 
 FOP processor (for PDF generation only)
 ---------------------------------------
