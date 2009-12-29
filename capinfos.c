@@ -85,6 +85,8 @@
 #include "wsgetopt.h"
 #endif
 
+#include "svnversion.h"
+
 /*
  * By default capinfos now continues processing
  * the next filename if and when wiretap detects

@@ -136,6 +136,7 @@
 #endif
 
 #include "text2pcap.h"
+#include "svnversion.h"
 
 /*--- Options --------------------------------------------------------------------*/
 
