@@ -2385,7 +2385,7 @@ nas_emm_attach_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 	/* * EMM cause	EMM cause 9.9.3.9	M	V	1 */
 	ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_CAUSE);
 	/* 78 ESM message container	ESM message container 9.9.3.15	O	TLV-E	4-n */
-	ELEM_OPT_TLV(0x78, NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, "");
+	ELEM_OPT_TLV_E(0x78, NAS_PDU_TYPE_EMM, DE_EMM_ESM_MSG_CONT, "");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
