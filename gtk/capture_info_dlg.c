@@ -63,31 +63,20 @@
 /* as the packet_counts is a struct, not an array, keep a pointer to the */
 /* corresponding value packet_counts, to speed up (and simplify) output of values */
 typedef struct {
-    const gchar *title;
-    gint        *value_ptr;
-    GtkWidget   *label, *value_lb, *percent_pb, *percent_lb;
+  const gchar *title;
+  gint        *value_ptr;
+  GtkWidget   *label, *value_lb, *percent_pb, *percent_lb;
 } capture_info_counts_t;
 
 /* all data we need to know of this dialog, after creation finished */
 typedef struct {
-    GtkWidget               *cap_w;
-    GtkWidget               *running_time_lb;
-    capture_info_counts_t   counts[PACKET_COUNTS_SIZE];
-    guint                   timer_id;
-    time_t                  start_time;
+  GtkWidget               *cap_w;
+  GtkWidget               *running_time_lb;
+  capture_info_counts_t   counts[PACKET_COUNTS_SIZE];
+  guint                   timer_id;
+  time_t                  start_time;
 } capture_info_ui_t;
 
-
-
-/* calculate the percentage of the current packet type */
-static float
-pct(gint num, gint denom) {
-  if (denom) {
-    return (float) (num * 100.0 / denom);
-  } else {
-    return 0.0f;
-  }
-}
 
 /* Workhorse for stopping capture */
 static void
@@ -118,7 +107,7 @@ capture_info_ui_update_cb(gpointer data)
   capture_info_ui_t *info = cinfo->ui;
 
   if (!info) /* ...which might happen on slow displays? */
-      return TRUE;
+    return TRUE;
 
   cinfo->running_time = time(NULL) - info->start_time;
   capture_info_ui_update(cinfo);
@@ -130,7 +119,7 @@ capture_info_ui_update_cb(gpointer data)
 /* will keep pointers to the fields in the counts parameter */
 void capture_info_ui_create(
 capture_info    *cinfo,
-capture_options	*capture_opts)
+capture_options *capture_opts)
 {
   unsigned int      i;
   GtkWidget         *main_vb, *stop_bt, *counts_tb;
@@ -211,46 +200,46 @@ capture_options	*capture_opts)
   gtk_table_set_col_spacings(GTK_TABLE(counts_tb), 5);
 
   for (i = 0; i < PACKET_COUNTS_SIZE; i++) {
-      info->counts[i].label = gtk_label_new(info->counts[i].title);
-      gtk_misc_set_alignment(GTK_MISC(info->counts[i].label), 0.0f, 0.5f);
+    info->counts[i].label = gtk_label_new(info->counts[i].title);
+    gtk_misc_set_alignment(GTK_MISC(info->counts[i].label), 0.0f, 0.5f);
 
-      info->counts[i].value_lb = gtk_label_new("0");
-      gtk_misc_set_alignment(GTK_MISC(info->counts[i].value_lb), 0.5f, 0.5f);
+    info->counts[i].value_lb = gtk_label_new("0");
+    gtk_misc_set_alignment(GTK_MISC(info->counts[i].value_lb), 0.5f, 0.5f);
 
-      if (i == 0) {
-          /* do not build a progress bar for the "total" row */
-          /* (as this could suggest a "buffer full" to the user) */
-          /* simply put a label here */
-          info->counts[i].percent_pb = gtk_label_new("% of total");
-      } else {
-          /* build a progress bar in the other rows */
-          info->counts[i].percent_pb = gtk_progress_bar_new();
+    if (i == 0) {
+      /* do not build a progress bar for the "total" row */
+      /* (as this could suggest a "buffer full" to the user) */
+      /* simply put a label here */
+      info->counts[i].percent_pb = gtk_label_new("% of total");
+    } else {
+      /* build a progress bar in the other rows */
+      info->counts[i].percent_pb = gtk_progress_bar_new();
 
-          /* downsize the default size of this progress bar in x direction (def:150), */
-          /* otherwise it will become too large and the dialog will look ugly */
-          /* XXX: use a TreeView instead of a table in order to fix this */
-          gtk_widget_set_size_request(info->counts[i].percent_pb, 70, -1);
-      }
+      /* downsize the default size of this progress bar in x direction (def:150), */
+      /* otherwise it will become too large and the dialog will look ugly */
+      /* XXX: use a TreeView instead of a table in order to fix this */
+      gtk_widget_set_size_request(info->counts[i].percent_pb, 70, -1);
+    }
 
-      info->counts[i].percent_lb = gtk_label_new("0.0%");
-      gtk_misc_set_alignment(GTK_MISC(info->counts[i].percent_lb), 1.0f, 0.5f);
+    info->counts[i].percent_lb = gtk_label_new("0.0%");
+    gtk_misc_set_alignment(GTK_MISC(info->counts[i].percent_lb), 1.0f, 0.5f);
 
-      gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                                info->counts[i].label, 0, 1, i, i + 1);
-      gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-                                info->counts[i].value_lb, 1, 2, i, i + 1);
-	  gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-								info->counts[i].percent_pb, 2, 3, i, i + 1);
-	  gtk_table_attach_defaults(GTK_TABLE(counts_tb),
-								info->counts[i].percent_lb, 3, 4, i, i + 1);
+    gtk_table_attach_defaults(GTK_TABLE(counts_tb),
+                              info->counts[i].label, 0, 1, i, i + 1);
+    gtk_table_attach_defaults(GTK_TABLE(counts_tb),
+                              info->counts[i].value_lb, 1, 2, i, i + 1);
+    gtk_table_attach_defaults(GTK_TABLE(counts_tb),
+                              info->counts[i].percent_pb, 2, 3, i, i + 1);
+    gtk_table_attach_defaults(GTK_TABLE(counts_tb),
+                              info->counts[i].percent_lb, 3, 4, i, i + 1);
 
-      gtk_widget_show(info->counts[i].label);
-      gtk_widget_show(info->counts[i].value_lb);
-      gtk_widget_show(info->counts[i].percent_pb);
-      /* don't show percentages for the "total" row */
-      if (i != 0) {
-        gtk_widget_show(info->counts[i].percent_lb);
-      }
+    gtk_widget_show(info->counts[i].label);
+    gtk_widget_show(info->counts[i].value_lb);
+    gtk_widget_show(info->counts[i].percent_pb);
+    /* don't show percentages for the "total" row */
+    if (i != 0) {
+      gtk_widget_show(info->counts[i].percent_lb);
+    }
   }
 
   /* Running time */
@@ -262,17 +251,17 @@ capture_options	*capture_opts)
   gtk_misc_set_alignment(GTK_MISC(running_label), 0.0f, 0.0f);
   gtk_widget_show(running_label);
   gtk_table_attach_defaults(GTK_TABLE(running_tb),
-                                running_label, 0, 1, 0, 1);
+                            running_label, 0, 1, 0, 1);
 
   info->running_time_lb = gtk_label_new("00:00:00");
   gtk_misc_set_alignment(GTK_MISC(info->running_time_lb), 0.0f, 0.0f);
   gtk_widget_show(info->running_time_lb);
   gtk_table_attach(GTK_TABLE(running_tb),
-                       info->running_time_lb,
-                       1, 2, 0, 1, 0, 0, 5, 0);
+                   info->running_time_lb,
+                   1, 2, 0, 1, 0, 0, 5, 0);
 
   /* allow user to either click a stop button, or the close button on
-	the window to stop a capture in progress. */
+     the window to stop a capture in progress. */
   bbox = dlg_button_row_new(WIRESHARK_STOCK_CAPTURE_STOP, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 3);
   gtk_widget_show(bbox);
@@ -308,38 +297,34 @@ capture_info    *cinfo)
   gchar             label_str[64];
   capture_info_ui_t *info = cinfo->ui;
 
-
   if (!info) /* ...which might happen on slow displays? */
     return;
 
   /* display running time */
   g_snprintf(label_str, sizeof(label_str), "%02ld:%02ld:%02ld",
-           (long)(cinfo->running_time/3600), (long)((cinfo->running_time%3600)/60),
-           (long)(cinfo->running_time%60));
-    gtk_label_set_text(GTK_LABEL(info->running_time_lb), label_str);
+             (long)(cinfo->running_time/3600), (long)((cinfo->running_time%3600)/60),
+             (long)(cinfo->running_time%60));
+  gtk_label_set_text(GTK_LABEL(info->running_time_lb), label_str);
 
   /* if we have new packets, update all rows */
   if (cinfo->new_packets) {
-
+    float pb_frac;
     for (i = 0; i < PACKET_COUNTS_SIZE; i++) {
-        g_snprintf(label_str, sizeof(label_str), "%d",
-                 *info->counts[i].value_ptr);
-         gtk_label_set_text(GTK_LABEL(info->counts[i].value_lb), label_str);
+      g_snprintf(label_str, sizeof(label_str), "%d", *info->counts[i].value_ptr);
+      gtk_label_set_text(GTK_LABEL(info->counts[i].value_lb), label_str);
 
-        /* don't try to update the "total" row progress bar */
-        if (i != 0) {
-            gtk_progress_bar_update(GTK_PROGRESS_BAR(info->counts[i].percent_pb),
-                     (gfloat) (pct(*info->counts[i].value_ptr, *info->counts[0].value_ptr) / 100.0));
-        }
+      pb_frac = (*info->counts[0].value_ptr != 0) ?
+        ((float)*info->counts[i].value_ptr / *info->counts[0].value_ptr) : 0.0f;
 
-        g_snprintf(label_str, sizeof(label_str), "%.1f%%",
-                 pct(*info->counts[i].value_ptr, *info->counts[0].value_ptr));
-
-         gtk_label_set_text(GTK_LABEL(info->counts[i].percent_lb), label_str);
+      /* don't try to update the "total" row progress bar */
+      if (i != 0) {
+        gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(info->counts[i].percent_pb), pb_frac);
+        g_snprintf(label_str, sizeof(label_str), "%.1f%%", pb_frac * 100.0);
+        gtk_label_set_text(GTK_LABEL(info->counts[i].percent_lb), label_str);
+      }
     }
   }
 }
-
 
 /* destroy the capture info dialog again */
 void capture_info_ui_destroy(
@@ -348,7 +333,7 @@ capture_info    *cinfo)
   capture_info_ui_t *info = cinfo->ui;
 
   if (!info) /* ...which probably shouldn't happen */
-      return;
+    return;
 
   g_source_remove(info->timer_id);
 
