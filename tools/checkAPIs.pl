@@ -459,7 +459,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_draw_vline',                              'E',
                 'gtk_drawing_area_size',                       'E', # >> g_object_set() [==] ? 
                                                                     #    gtk_widget_set_size_request() [==?]
-                'gtk_entry_append_text',                       'W', # >> gtk_editable_insert_text() [==?]
+                'gtk_entry_append_text',                       'E', # >> gtk_editable_insert_text() [==?]
                 'gtk_entry_new_with_max_length',               'E', # gtk_entry_new(); gtk_entry_set_max_length()
                 'gtk_entry_prepend_text',                      'E',
                 'gtk_entry_select_region',                     'E',
