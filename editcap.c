@@ -571,72 +571,79 @@ is_duplicate_rel_time(guint8* fd, guint32 len, const nstime_t *current) {
 }
 
 static void
-usage(void)
+usage(gboolean is_error)
 {
-  fprintf(stderr, "Editcap %s"
+  FILE *output;
+
+  if (!is_error)
+    output = stdout;
+  else
+    output = stderr;
+
+  fprintf(output, "Editcap %s"
 #ifdef SVNVERSION
 	  " (" SVNVERSION " from " SVNPATH ")"
 #endif
 	  "\n", VERSION);
-  fprintf(stderr, "Edit and/or translate the format of capture files.\n");
-  fprintf(stderr, "See http://www.wireshark.org for more information.\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "Usage: editcap [options] ... <infile> <outfile> [ <packet#>[-<packet#>] ... ]\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "<infile> and <outfile> must both be present.\n");
-  fprintf(stderr, "A single packet or a range of packets can be selected.\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "Packet selection:\n");
-  fprintf(stderr, "  -r                     keep the selected packets; default is to delete them.\n");
-  fprintf(stderr, "  -A <start time>        don't output packets whose timestamp is before the\n");
-  fprintf(stderr, "                         given time (format as YYYY-MM-DD hh:mm:ss).\n");
-  fprintf(stderr, "  -B <stop time>         don't output packets whose timestamp is after the\n");
-  fprintf(stderr, "                         given time (format as YYYY-MM-DD hh:mm:ss).\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "Duplicate packet removal:\n");
-  fprintf(stderr, "  -d                     remove packet if duplicate (window == %d).\n", DEFAULT_DUP_DEPTH);
-  fprintf(stderr, "  -D <dup window>        remove packet if duplicate; configurable <dup window>\n");
-  fprintf(stderr, "                         Valid <dup window> values are 0 to %d.\n", MAX_DUP_DEPTH);
-  fprintf(stderr, "                         NOTE: A <dup window> of 0 with -v (verbose option) is\n");
-  fprintf(stderr, "                         useful to print MD5 hashes.\n");
-  fprintf(stderr, "  -w <dup time window>   remove packet if duplicate packet is found EQUAL TO OR\n");
-  fprintf(stderr, "                         LESS THAN <dup time window> prior to current packet.\n");
-  fprintf(stderr, "                         A <dup time window> is specified in relative seconds\n");
-  fprintf(stderr, "                         (e.g. 0.000001).\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "           NOTE: The use of the 'Duplicate packet removal' options with\n");
-  fprintf(stderr, "           other editcap options except -v may not always work as expected.\n");
-  fprintf(stderr, "           Specifically the -r and -t options will very likely NOT have the\n");
-  fprintf(stderr, "           desired effect if combined with the -d, -D or -w.\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "Packet manipulation:\n");
-  fprintf(stderr, "  -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.\n");
-  fprintf(stderr, "  -C <choplen>           chop each packet at the end by <choplen> bytes.\n");
-  fprintf(stderr, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
-  fprintf(stderr, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
-  fprintf(stderr, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.)\n");
-  fprintf(stderr, "                         that a particular packet byte will be randomly changed.\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "Output File(s):\n");
-  fprintf(stderr, "  -c <packets per file>  split the packet output to different files\n");
-  fprintf(stderr, "                         based on uniform packet counts\n");
-  fprintf(stderr, "                         with a maximum of <packets per file> each.\n");
-  fprintf(stderr, "  -i <seconds per file>  split the packet output to different files\n");
-  fprintf(stderr, "                         based on uniform time intervals\n");
-  fprintf(stderr, "                         with a maximum of <seconds per file> each.\n");
-  fprintf(stderr, "  -F <capture type>      set the output file type; default is libpcap.\n");
-  fprintf(stderr, "                         an empty \"-F\" option will list the file types.\n");
-  fprintf(stderr, "  -T <encap type>        set the output file encapsulation type;\n");
-  fprintf(stderr, "                         default is the same as the input file.\n");
-  fprintf(stderr, "                         an empty \"-T\" option will list the encapsulation types.\n");
-  fprintf(stderr, "\n");
-  fprintf(stderr, "Miscellaneous:\n");
-  fprintf(stderr, "  -h                     display this help and exit.\n");
-  fprintf(stderr, "  -v                     verbose output.\n");
-  fprintf(stderr, "                         If -v is used with any of the 'Duplicate Packet\n");
-  fprintf(stderr, "                         Removal' options (-d, -D or -w) then Packet lengths\n");
-  fprintf(stderr, "                         and MD5 hashes are printed to standard-out.\n");
-  fprintf(stderr, "\n");
+  fprintf(output, "Edit and/or translate the format of capture files.\n");
+  fprintf(output, "See http://www.wireshark.org for more information.\n");
+  fprintf(output, "\n");
+  fprintf(output, "Usage: editcap [options] ... <infile> <outfile> [ <packet#>[-<packet#>] ... ]\n");
+  fprintf(output, "\n");
+  fprintf(output, "<infile> and <outfile> must both be present.\n");
+  fprintf(output, "A single packet or a range of packets can be selected.\n");
+  fprintf(output, "\n");
+  fprintf(output, "Packet selection:\n");
+  fprintf(output, "  -r                     keep the selected packets; default is to delete them.\n");
+  fprintf(output, "  -A <start time>        don't output packets whose timestamp is before the\n");
+  fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss).\n");
+  fprintf(output, "  -B <stop time>         don't output packets whose timestamp is after the\n");
+  fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss).\n");
+  fprintf(output, "\n");
+  fprintf(output, "Duplicate packet removal:\n");
+  fprintf(output, "  -d                     remove packet if duplicate (window == %d).\n", DEFAULT_DUP_DEPTH);
+  fprintf(output, "  -D <dup window>        remove packet if duplicate; configurable <dup window>\n");
+  fprintf(output, "                         Valid <dup window> values are 0 to %d.\n", MAX_DUP_DEPTH);
+  fprintf(output, "                         NOTE: A <dup window> of 0 with -v (verbose option) is\n");
+  fprintf(output, "                         useful to print MD5 hashes.\n");
+  fprintf(output, "  -w <dup time window>   remove packet if duplicate packet is found EQUAL TO OR\n");
+  fprintf(output, "                         LESS THAN <dup time window> prior to current packet.\n");
+  fprintf(output, "                         A <dup time window> is specified in relative seconds\n");
+  fprintf(output, "                         (e.g. 0.000001).\n");
+  fprintf(output, "\n");
+  fprintf(output, "           NOTE: The use of the 'Duplicate packet removal' options with\n");
+  fprintf(output, "           other editcap options except -v may not always work as expected.\n");
+  fprintf(output, "           Specifically the -r and -t options will very likely NOT have the\n");
+  fprintf(output, "           desired effect if combined with the -d, -D or -w.\n");
+  fprintf(output, "\n");
+  fprintf(output, "Packet manipulation:\n");
+  fprintf(output, "  -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.\n");
+  fprintf(output, "  -C <choplen>           chop each packet at the end by <choplen> bytes.\n");
+  fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
+  fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
+  fprintf(output, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.)\n");
+  fprintf(output, "                         that a particular packet byte will be randomly changed.\n");
+  fprintf(output, "\n");
+  fprintf(output, "Output File(s):\n");
+  fprintf(output, "  -c <packets per file>  split the packet output to different files\n");
+  fprintf(output, "                         based on uniform packet counts\n");
+  fprintf(output, "                         with a maximum of <packets per file> each.\n");
+  fprintf(output, "  -i <seconds per file>  split the packet output to different files\n");
+  fprintf(output, "                         based on uniform time intervals\n");
+  fprintf(output, "                         with a maximum of <seconds per file> each.\n");
+  fprintf(output, "  -F <capture type>      set the output file type; default is libpcap.\n");
+  fprintf(output, "                         an empty \"-F\" option will list the file types.\n");
+  fprintf(output, "  -T <encap type>        set the output file encapsulation type;\n");
+  fprintf(output, "                         default is the same as the input file.\n");
+  fprintf(output, "                         an empty \"-T\" option will list the encapsulation types.\n");
+  fprintf(output, "\n");
+  fprintf(output, "Miscellaneous:\n");
+  fprintf(output, "  -h                     display this help and exit.\n");
+  fprintf(output, "  -v                     verbose output.\n");
+  fprintf(output, "                         If -v is used with any of the 'Duplicate Packet\n");
+  fprintf(output, "                         Removal' options (-d, -D or -w) then Packet lengths\n");
+  fprintf(output, "                         and MD5 hashes are printed to standard-out.\n");
+  fprintf(output, "\n");
 }
 
 static void
@@ -812,13 +819,13 @@ main(int argc, char *argv[])
         list_encap_types();
         break;
       default:
-        usage();
+        usage(TRUE);
       }
       exit(1);
       break;
 
     case 'h':
-      usage();
+      usage(FALSE);
       exit(1);
       break;
 
@@ -904,7 +911,7 @@ main(int argc, char *argv[])
 
   if ((argc - optind) < 1) {
 
-    usage();
+    usage(TRUE);
     exit(1);
 
   }
