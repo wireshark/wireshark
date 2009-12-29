@@ -1635,6 +1635,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     p_mac_lte_info->subframeNumber,
                     p_mac_lte_info->ueid);
 
+    tap_info->raw_length = p_mac_lte_info->length;
 
     /* For downlink frames, can try to work out if this looks like a HARQ resend */
     if ((direction == DIRECTION_DOWNLINK) && global_mac_lte_attempt_dl_harq_resend_detect) {
@@ -1979,6 +1980,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     break;
                 case PADDING_LCID:
                     /* No payload (in this position) */
+                    tap_info->padding_bytes++;
                     break;
 
                 default:
@@ -2142,6 +2144,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     break;
                 case PADDING_LCID:
                     /* No payload, in this position */
+                    tap_info->padding_bytes++;
                     break;
 
                 default:
@@ -2346,6 +2349,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                tvb, offset, 0,
                                                p_mac_lte_info->length - offset);
         PROTO_ITEM_SET_GENERATED(padding_length_ti);
+
+        /* Update padding bytes in stats */
+        tap_info->padding_bytes += (p_mac_lte_info->length - offset);
 
         /* Make sure the PDU isn't bigger than reported! */
         if (offset > p_mac_lte_info->length) {

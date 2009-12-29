@@ -65,6 +65,7 @@ enum {
     RNTI_TYPE_COLUMN,
     UL_FRAMES_COLUMN,
     UL_BYTES_COLUMN,
+    UL_PADDING_PERCENT_COLUMN,
     UL_CRC_ERRORS_COLUMN,
     UL_RETX_FRAMES_COLUMN,
     DL_FRAMES_COLUMN,
@@ -92,8 +93,8 @@ enum {
 };
 
 static const gchar *ue_titles[] = { "RNTI", "Type",
-                                 "UL Frames", "UL Bytes", "UL CRC Errors", "UL ReTX Frames",
-                                 "DL Frames", "DL Bytes", "DL CRC Errors", "DL ReTX Frames"};
+                                    "UL Frames", "UL Bytes", "UL Padding %", "UL CRC Errors", "UL ReTX Frames",
+                                    "DL Frames", "DL Bytes", "DL CRC Errors", "DL ReTX Frames"};
 
 static const gchar *channel_titles[] = { "CCCH",
                                          "LCID 1", "LCID 2", "LCID 3", "LCID 4", "LCID 5",
@@ -110,7 +111,9 @@ typedef struct mac_lte_row_data {
     gboolean is_predefined_data;
 
     guint32 UL_frames;
-    guint32 UL_total_bytes;
+    guint32 UL_raw_bytes;   /* all bytes */
+    guint32 UL_total_bytes; /* payload */
+    guint32 UL_padding_bytes;
     guint32 UL_CRC_errors;
     guint32 UL_retx_frames;
 
@@ -238,6 +241,8 @@ static mac_lte_ep_t* alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *
     ep->stats.UL_frames = 0;
     ep->stats.DL_frames = 0;
     ep->stats.UL_total_bytes = 0;
+    ep->stats.UL_raw_bytes = 0;
+    ep->stats.UL_padding_bytes = 0;
     ep->stats.DL_total_bytes = 0;
     ep->stats.UL_CRC_errors = 0;
     ep->stats.DL_CRC_errors = 0;
@@ -357,6 +362,9 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
             return 1;
         }
         te->stats.UL_frames++;
+
+        te->stats.UL_raw_bytes += si->raw_length;
+        te->stats.UL_padding_bytes += si->padding_bytes;
 
         if (si->isPredefinedData) {
             te->stats.UL_total_bytes += si->single_number_of_bytes;
@@ -545,6 +553,10 @@ mac_lte_stat_draw(void *phs)
                                (tmp->stats.rnti_type == C_RNTI) ? "C-RNTI" : "SPS-RNTI",
                            UL_FRAMES_COLUMN, tmp->stats.UL_frames,
                            UL_BYTES_COLUMN, tmp->stats.UL_total_bytes,
+                           UL_PADDING_PERCENT_COLUMN,
+                                tmp->stats.UL_total_bytes ?
+                                    (((float)tmp->stats.UL_padding_bytes / (float)tmp->stats.UL_raw_bytes) * 100.0) :
+                                    0.0,
                            UL_CRC_ERRORS_COLUMN, tmp->stats.UL_CRC_errors,
                            UL_RETX_FRAMES_COLUMN, tmp->stats.UL_retx_frames,
                            DL_FRAMES_COLUMN, tmp->stats.DL_frames,
@@ -710,7 +722,7 @@ static void mac_lte_stat_dlg_create(void)
 
     /* Create the table of UE data */
     store = gtk_list_store_new(NUM_UE_COLUMNS, G_TYPE_INT, G_TYPE_STRING,
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  /* UL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT,  /* UL */
                                G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  /* DL */
                                G_TYPE_POINTER);
     hs->ue_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
