@@ -285,14 +285,17 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 	isup_calls_info_t *tmp_isupinfo;
 	h323_calls_info_t *tmp_h323info;
 	h245_address_t *h245_add = NULL;
+	int pos;
 
 	graph_analysis_item_t *gai;
 
 	if (selected_call_fwd==NULL)
 		return;
 
-	filter_string=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+	filter_string=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget)); /* sets 'position' of the entry widget to 0 ? */
 	filter_length = strlen(filter_string);
+	pos = filter_length; /* remember for later insert (ie: append */
+
 	filter_prepend = "";
 	while ((c = *filter_string++) != '\0') {
 		if (!isspace((guchar)c)) {
@@ -321,7 +324,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 	filter_length = filter_length + filter_string_fwd->len;
 
 	if (filter_length < max_filter_length){
-		gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
+		gtk_editable_insert_text(GTK_EDITABLE(main_display_filter_widget), filter_string_fwd->str, -1, &pos);
 	} else {
 		g_string_free(filter_string_fwd, TRUE);
 		filter_string_fwd = g_string_new(filter_prepend);
@@ -333,7 +336,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 				   "(sip.Call-ID == \"%s\") ",
 				   tmp_sipinfo->call_identifier 
 				   );
-				gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
+				gtk_editable_insert_text(GTK_EDITABLE(main_display_filter_widget), filter_string_fwd->str, -1, &pos);
 				break;
 			case VOIP_ISUP:
 				tmp_isupinfo = selected_call_fwd->prot_info;
@@ -344,7 +347,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 				   tmp_isupinfo->ni, tmp_isupinfo->dpc, tmp_isupinfo->opc, 
 				   tmp_isupinfo->opc, tmp_isupinfo->dpc
 				   );
-				gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
+				gtk_editable_insert_text(GTK_EDITABLE(main_display_filter_widget), filter_string_fwd->str, -1, &pos);
 				break;
 			case VOIP_H323:
 				tmp_h323info = selected_call_fwd->prot_info;
@@ -365,11 +368,12 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 				list = g_list_next(list);
 				}
 				g_string_append_printf(filter_string_fwd, ") ");
-				gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
+				gtk_editable_insert_text(GTK_EDITABLE(main_display_filter_widget), filter_string_fwd->str, -1, &pos);
 				break;
 			case TEL_H248: {
 				const gcp_ctx_t* ctx = selected_call_fwd->prot_info;
-				gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), ep_strdup_printf("h248.ctx == 0x%x", ctx->id ));
+				gtk_editable_insert_text(GTK_EDITABLE(main_display_filter_widget), 
+							 ep_strdup_printf("h248.ctx == 0x%x", ctx->id ), -1, &pos);
 				break;
 			}
 			case TEL_SCCP:
