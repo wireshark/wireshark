@@ -98,6 +98,9 @@ static int hf_catapult_dct2000_lte_rlc_mui = -1;
 static int hf_catapult_dct2000_lte_rlc_cnf = -1;
 static int hf_catapult_dct2000_lte_rlc_discard_req = -1;
 
+static int hf_catapult_dct2000_lte_ccpri_opcode = -1;
+static int hf_catapult_dct2000_lte_ccpri_status = -1;
+static int hf_catapult_dct2000_lte_ccpri_channel = -1;
 
 /* Variables used for preferences */
 static gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
@@ -169,6 +172,21 @@ static const value_string rlc_logical_channel_vals[] = {
     { 0,             NULL}
 };
 
+
+#define CCPRI_REQ 1
+#define CCPRI_IND 2
+
+static const value_string ccpri_opcode_vals[] = {
+    { CCPRI_REQ,     "REQUEST"},
+    { CCPRI_IND,     "INDICATION"},
+    { 0,             NULL}
+};
+
+static const value_string ccpri_status_vals[] = {
+    { 0,     "OK"},
+    { 1,     "ERROR"},
+    { 0,     NULL}
+};
 
 
 #define MAX_OUTHDR_VALUES 32
@@ -773,6 +791,83 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
         call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree);
     }
 }
+
+
+/* Dissect an CCPRI LTE frame by first parsing the header entries then passing
+   the data to the CPRI C&M dissector */
+static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
+                              packet_info *pinfo, proto_tree *tree)
+{
+    guint8  opcode;
+    guint8  tag;
+    tvbuff_t *ccpri_tvb;
+    dissector_handle_t protocol_handle = 0;
+    guint16  length;
+    proto_item *top_ti;  /* TODO: pass one in */
+
+    /* Top-level opcode */
+    top_ti = proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_opcode,
+			                     tvb, offset, 1, FALSE);
+    opcode = tvb_get_guint8(tvb, offset++);
+
+    /* Skip 2-byte length field */
+    offset += 2;
+
+    /* Cell-id */
+    proto_tree_add_item(tree, hf_catapult_dct2000_lte_cellid,
+			tvb, offset, 2, FALSE);
+    offset += 2;
+
+    /* Status (ind only) */
+    if (opcode == 2) {
+        proto_item *ti;
+        guint8 status = tvb_get_guint8(tvb, offset);
+        ti = proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_status,
+			                     tvb, offset, 1, FALSE);
+        offset++;
+
+        if (status != 0) {
+            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_ERROR,
+                                   "CCPRI Indication has error status");
+
+        }
+    }
+
+    /* Channel ID */
+    proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_channel,
+			            tvb, offset, 1, FALSE);
+    offset++;
+
+    tag = tvb_get_guint8(tvb, offset++);
+    if (tag != 2) {
+    	printf("looking for payload tag, got %u\n", tag);
+    	return;
+    }
+
+    /* Skip length */
+    length = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    /* Send remainder to lapb dissector (lapb needs patch with preference
+       set to call cpri C&M dissector instead of X.25) */
+    protocol_handle = find_dissector("lapb");
+    if ((protocol_handle != NULL) && (tvb_length_remaining(tvb, offset) > 0)) {
+        ccpri_tvb = tvb_new_subset(tvb, offset, length, length);
+        call_dissector_only(protocol_handle, ccpri_tvb, pinfo, tree);
+    }
+
+#if 0
+    /* Grumble if there are bytes left after indicated payload */
+    offset += length;
+    if (tvb_length_remaining(tvb, offset) > 0) {
+        expert_add_info_format(pinfo, top_ti, PI_MALFORMED, PI_ERROR,
+                               "CCPRI frame has %u bytes remaining after payload",
+                               tvb_length_remaining(tvb, offset));
+    }
+#endif
+}
+
+
 
 
 /* Dissect a PDCP LTE frame by first parsing the RLCPrim header then passing
@@ -1712,6 +1807,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /**********************************************************/
 
             /* Show context.port in src or dest column as appropriate */
+            /* TODO: doesn't work at the moment...                    */
             if (direction == 0) {
                 col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
                              "%s.%u",
@@ -1801,6 +1897,15 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 return;
             }
 
+            else
+            if (
+                ((strcmp(protocol_name, "ccpri_r8_lte") == 0))) {
+
+                /* Dissect proprietary header, then pass remainder to lapb */
+                dissect_ccpri_lte(tvb, offset, pinfo, tree);
+                return;
+            }
+            
 
             /* Many DCT2000 protocols have at least one IPPrim variant. If the
                protocol name can be matched to a dissector, try to find the
@@ -2408,6 +2513,26 @@ void proto_register_catapult_dct2000(void)
               "RLC Discard Req", HFILL
             }
         },
+
+        { &hf_catapult_dct2000_lte_ccpri_opcode,
+            { "CCPRI opcode",
+              "dct2000.lte.ccpri.opcode", FT_UINT8, BASE_DEC, VALS(ccpri_opcode_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_ccpri_status,
+            { "Status",
+              "dct2000.lte.ccpri.status", FT_UINT8, BASE_DEC, VALS(ccpri_status_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_ccpri_channel,
+            { "Channel",
+              "dct2000.lte.ccpri.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+
     };
 
     static gint *ett[] =
