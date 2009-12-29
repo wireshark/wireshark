@@ -629,7 +629,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_progress_bar_set_activity_step',          'E',
                 'gtk_progress_bar_set_bar_style',              'E',
                 'gtk_progress_bar_set_discrete_blocks',        'E',
-                'gtk_progress_bar_update',                     'W', # >>> "gtk_progress_set_value() or 
+                'gtk_progress_bar_update',                     'E', # >>> "gtk_progress_set_value() or 
                                                                     #    gtk_progress_set_percentage()" 
                                                                     ##  Actually: GtkProgress is deprecated so the 
                                                                     ##  right answer appears to be to use 
