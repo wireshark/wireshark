@@ -77,7 +77,7 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 frame_type = LINUX_CAN_STD;
 	tvbuff_t *next_tvb;
 	guint8 frame_len = tvb_get_guint8( tvb, CAN_LEN_OFFSET );
-	guint32 id = tvb_get_letohl(tvb, 0);
+	guint32 id = tvb_get_ntohl(tvb, 0);
 
 	if( id & CAN_RTR_FLAG )
 	{
@@ -105,11 +105,11 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item *ti = proto_tree_add_item(tree, proto_can, tvb, 0, 1 , FALSE );
 		can_tree = proto_item_add_subtree(ti, ett_can);
 
-		proto_tree_add_item(can_tree, hf_can_ident, tvb, 0, 4, TRUE );
-		proto_tree_add_item(can_tree, hf_can_extflag, tvb, 0, 4, TRUE );
-		proto_tree_add_item(can_tree, hf_can_rtrflag, tvb, 0, 4, TRUE );
-		proto_tree_add_item(can_tree, hf_can_errflag, tvb, 0, 4, TRUE );
-		proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, TRUE);
+		proto_tree_add_item(can_tree, hf_can_ident, tvb, 0, 4, FALSE );
+		proto_tree_add_item(can_tree, hf_can_extflag, tvb, 0, 4, FALSE );
+		proto_tree_add_item(can_tree, hf_can_rtrflag, tvb, 0, 4, FALSE );
+		proto_tree_add_item(can_tree, hf_can_errflag, tvb, 0, 4, FALSE );
+		proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, FALSE );
 
 		next_tvb =  tvb_new_subset(tvb, CAN_DATA_OFFSET, tvb_get_guint8(tvb, CAN_LEN_OFFSET), 8 );
 		call_dissector(data_handle, next_tvb, pinfo, tree );
