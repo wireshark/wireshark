@@ -294,7 +294,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 
 	filter_string=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget)); /* sets 'position' of the entry widget to 0 ? */
 	filter_length = strlen(filter_string);
-	pos = filter_length; /* remember for later insert (ie: append */
+	pos = (int)filter_length; /* remember for later insert (ie: append */
 
 	filter_prepend = "";
 	while ((c = *filter_string++) != '\0') {
