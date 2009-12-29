@@ -44,6 +44,10 @@ Note 2:
  On OS X, you may want to run cmake like this:
  cmake -DENABLE_CAP=OFF -G "Unix Makefiles"
 
+Note 3:
+  After running cmake, you can always run "make help" to see
+  a list of all possible make targets.
+
 Why cmake?
 ==========
 - Can create project files for some MS and Apple IDEs.

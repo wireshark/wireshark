@@ -274,6 +274,9 @@ endforeach()
 
 find_package(YAPP)
 
+#packaging
+include(CPackConfig.txt)
+
 if(HAVE_LIBPYTHON)
 	set(HAVE_PYTHON 1)
 	set(PYTHON_DIR "${CMAKE_INSTALL_PREFIX}/lib/wireshark/python/${CPACK_PACKAGE_VERSION}")
@@ -306,22 +309,6 @@ include(ConfigureChecks.cmake)
 #Big or little endian ?
 include(TestBigEndian)
 test_big_endian(WORDS_BIGENDIAN)
-
-#packaging
-set(CPACK_PACKAGE_NAME wireshark)
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "capture packet")
-set(CPACK_PACKAGE_VENDOR "wireshark")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
-set(CPACK_PACKAGE_VERSION_MAJOR "1")
-set(CPACK_PACKAGE_VERSION_MINOR "3")
-set(CPACK_PACKAGE_VERSION_PATCH "3")
-set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
-set(CPACK_GENERATOR "TGZ")
-set(CPACK_SOURCE_GENERATOR "TGZ")
 
 set(DATAFILE_DIR "${CMAKE_INSTALL_PREFIX}/share/${CPACK_PACKAGE_NAME}")
 
@@ -368,8 +355,7 @@ add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
 if(ENABLE_GUIDES)
-# todo
-#	add_subdirectory( docbook )
+	add_subdirectory( docbook )
 endif()
 
 #Platform specific
