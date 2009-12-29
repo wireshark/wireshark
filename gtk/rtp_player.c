@@ -563,11 +563,11 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 
 /****************************************************************************/
 static void
-update_progress_bar(gfloat percentage)
+update_progress_bar(gfloat fraction)
 {
 
 	if GTK_IS_PROGRESS_BAR(progress_bar)
-		gtk_progress_bar_update(GTK_PROGRESS_BAR(progress_bar), percentage);
+		gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), fraction);
 
 	/* Force gtk to redraw the window before starting decoding the packet */
 	while (gtk_events_pending())
