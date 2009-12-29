@@ -34,184 +34,184 @@ use strict;
 use Getopt::Long;
 
 my %APIs = (
-	# API groups.
-	# # Group name, e.g. 'prohibited'
-	# '<name>' => {
-	#   'count_errors'    => 1,                     # 1 if these are errors, 0 if warnings
-	#   'functions'       => [ 'f1', 'f2', ...],    # Function array
+        # API groups.
+        # Group name, e.g. 'prohibited'
+        # '<name>' => {
+        #   'count_errors'    => 1,                     # 1 if these are errors, 0 if warnings
+        #   'functions'       => [ 'f1', 'f2', ...],    # Function array
         #   'function-counts' => {'f1',0, 'f2',0, ...}, # Function Counts hash (initialized in the code)
         # }
         #
-	# APIs that MUST NOT be used in Wireshark
-	'prohibited' => { 'count_errors' => 1, 'functions' => [
-		# Memory-unsafe APIs
-		# Use something that won't overwrite the end of your buffer instead
-		# of these:
-		'gets',
-		'sprintf',
-		'vsprintf',
-		'strcpy',
-		'strncpy',
-		'strcat',
-		'strncat',
-		'cftime',
-		'ascftime',
-		### non-portable APIs
-		# use glib (g_*) versions instead of these:
-		'ntohl',
-		'ntohs',
-		'htonl',
-		'htons',
-		'strdup',
-		'strndup',
-		### non-ANSI C
-		# use memset, memcpy, memcmp instead of these:
-		'bzero',
-		'bcopy',
-		'bcmp',
-		# use ep_*, se_*, or g_* functions instead of these:
-		# (One thing to be aware of is that space allocated with malloc()
-		# may not be freeable--at least on Windows--with g_free() and
-		# vice-versa.)
-		'malloc',
-		'calloc',
-		'realloc',
-		'valloc',
-		'free',
-		'cfree',
-		# Locale-unsafe APIs
-		# These may have unexpected behaviors in some locales (e.g.,
-		# "I" isn't always the upper-case form of "i", and "i" isn't
-		# always the lower-case form of "I").  Use the g_ascii_* version
-		# instead.
-		'strcasecmp',
-		'strncasecmp',
-		'g_strcasecmp',
-		'g_strncasecmp',
-		'g_strup',
-		'g_strdown',
-		'g_string_up',
-		'g_string_down',
-		# Use the ws_* version of these:
-		# (Necessary because on Windows we use UTF8 for throughout the code
-		# so we must tweak that to UTF16 before operating on the file.  Code
-		# using these functions will work unless the file/path name contains
-		# non-ASCII chars.)
-		'open',
-		'rename',
-		'mkdir',
-		'stat',
-		'unlink',
-		'remove',
-		'fopen',
-		'freopen',
-		# Misc
-		'tmpnam'            # use mkstemp
-	        ] },
+        # APIs that MUST NOT be used in Wireshark
+        'prohibited' => { 'count_errors' => 1, 'functions' => [
+                # Memory-unsafe APIs
+                # Use something that won't overwrite the end of your buffer instead
+                # of these:
+                'gets',
+                'sprintf',
+                'vsprintf',
+                'strcpy',
+                'strncpy',
+                'strcat',
+                'strncat',
+                'cftime',
+                'ascftime',
+                ### non-portable APIs
+                # use glib (g_*) versions instead of these:
+                'ntohl',
+                'ntohs',
+                'htonl',
+                'htons',
+                'strdup',
+                'strndup',
+                ### non-ANSI C
+                # use memset, memcpy, memcmp instead of these:
+                'bzero',
+                'bcopy',
+                'bcmp',
+                # use ep_*, se_*, or g_* functions instead of these:
+                # (One thing to be aware of is that space allocated with malloc()
+                # may not be freeable--at least on Windows--with g_free() and
+                # vice-versa.)
+                'malloc',
+                'calloc',
+                'realloc',
+                'valloc',
+                'free',
+                'cfree',
+                # Locale-unsafe APIs
+                # These may have unexpected behaviors in some locales (e.g.,
+                # "I" isn't always the upper-case form of "i", and "i" isn't
+                # always the lower-case form of "I").  Use the g_ascii_* version
+                # instead.
+                'strcasecmp',
+                'strncasecmp',
+                'g_strcasecmp',
+                'g_strncasecmp',
+                'g_strup',
+                'g_strdown',
+                'g_string_up',
+                'g_string_down',
+                # Use the ws_* version of these:
+                # (Necessary because on Windows we use UTF8 for throughout the code
+                # so we must tweak that to UTF16 before operating on the file.  Code
+                # using these functions will work unless the file/path name contains
+                # non-ASCII chars.)
+                'open',
+                'rename',
+                'mkdir',
+                'stat',
+                'unlink',
+                'remove',
+                'fopen',
+                'freopen',
+                # Misc
+                'tmpnam'            # use mkstemp
+                ] },
 
-	# APIs that SHOULD NOT be used in Wireshark (any more)
-	'deprecated' => { 'count_errors' => 1, 'functions' => [
-		'perror',                            # Use strerror() and report messages in whatever
-		                                     #  fashion is appropriate for the code in question.
-		'ctime',                             # Use abs_time_secs_to_str()
-		### Deprecated glib functions
-		# (The list is based upon the GLib 2.22.3 documentation; Some of 
-		#  the entries are are commented out since they are currently 
-		#  being used in Wireshark and since the replacement functionality
-		#  is not available in all the GLib versions that Wireshark
-		#  currently supports (ie: versions starting with GLib 2.4).
-		'g_async_queue_ref_unlocked',        # g_async_queue_ref()   (OK since 2.8)
-		'g_async_queue_unref_and_unlock',    # g_async_queue_unref() (OK since 2.8)
-		'g_basename',
-		'g_cache_value_foreach',             # g_cache_key_foreach() 
-		'g_date_set_time',                   # g_date_set_time_t (avail since 2.10)
-		'g_dirname',
-		'g_hash_table_freeze',
-		'g_hash_table_thaw',
-		'g_io_channel_close',
-		'g_io_channel_read',
-		'g_io_channel_seek',
-		'g_io_channel_write',
-		'g_main_destroy',
-		'g_main_is_running',
-		'g_main_iteration',
-		'g_main_new',
-		'g_main_pending',
-		'g_main_quit',
-		'g_main_run',
-		'g_main_set_poll_func',
-		'g_scanner_add_symbol',
-		'g_scanner_remove_symbol',
-		'g_scanner_foreach_symbol',
-		'g_scanner_freeze_symbol_table',
-		'g_scanner_thaw_symbol_table',
-		'g_string_sprintf',                  # use g_string_printf() instead
-		'g_string_sprintfa',                 # use g_string_append_printf instead
-		'g_tree_traverse',
-		'G_WIN32_DLLMAIN_FOR_DLL_NAME',
-		'g_win32_get_package_installation_directory',
-		'g_win32_get_package_installation_subdirectory',
+        # APIs that SHOULD NOT be used in Wireshark (any more)
+        'deprecated' => { 'count_errors' => 1, 'functions' => [
+                'perror',                            # Use strerror() and report messages in whatever
+                                                     #  fashion is appropriate for the code in question.
+                'ctime',                             # Use abs_time_secs_to_str()
+                ### Deprecated glib functions
+                # (The list is based upon the GLib 2.22.3 documentation; Some of 
+                #  the entries are are commented out since they are currently 
+                #  being used in Wireshark and since the replacement functionality
+                #  is not available in all the GLib versions that Wireshark
+                #  currently supports (ie: versions starting with GLib 2.4).
+                'g_async_queue_ref_unlocked',        # g_async_queue_ref()   (OK since 2.8)
+                'g_async_queue_unref_and_unlock',    # g_async_queue_unref() (OK since 2.8)
+                'g_basename',
+                'g_cache_value_foreach',             # g_cache_key_foreach() 
+                'g_date_set_time',                   # g_date_set_time_t (avail since 2.10)
+                'g_dirname',
+                'g_hash_table_freeze',
+                'g_hash_table_thaw',
+                'g_io_channel_close',
+                'g_io_channel_read',
+                'g_io_channel_seek',
+                'g_io_channel_write',
+                'g_main_destroy',
+                'g_main_is_running',
+                'g_main_iteration',
+                'g_main_new',
+                'g_main_pending',
+                'g_main_quit',
+                'g_main_run',
+                'g_main_set_poll_func',
+                'g_scanner_add_symbol',
+                'g_scanner_remove_symbol',
+                'g_scanner_foreach_symbol',
+                'g_scanner_freeze_symbol_table',
+                'g_scanner_thaw_symbol_table',
+                'g_string_sprintf',                  # use g_string_printf() instead
+                'g_string_sprintfa',                 # use g_string_append_printf instead
+                'g_tree_traverse',
+                'G_WIN32_DLLMAIN_FOR_DLL_NAME',
+                'g_win32_get_package_installation_directory',
+                'g_win32_get_package_installation_subdirectory',
 ##
 ## Following Deprecated as of GLib 2.10; to be replaced only when Wireshark requires GLib 2.10 or later
 ## Note: Only the commented out items are currently used by Wireshark
-        	'g_allocator_free',                  # "use slice allocator" (avail since 2.10,2.14)
-        	'g_allocator_new',                   # "use slice allocator" (avail since 2.10,2.14)
-        	'g_list_pop_allocator',              # "does nothing since 2.10"
-        	'g_list_push_allocator',             # "does nothing since 2.10"
+                'g_allocator_free',                  # "use slice allocator" (avail since 2.10,2.14)
+                'g_allocator_new',                   # "use slice allocator" (avail since 2.10,2.14)
+                'g_list_pop_allocator',              # "does nothing since 2.10"
+                'g_list_push_allocator',             # "does nothing since 2.10"
 ### GMemChunks should used *only* with GLib < 2.10.
 ###  There's an issue wherein GLib >= 2.10 g_mem_chunk_destroy doesn't actually free memory thus 
 ###   leading to memory leaks.
-###  So: either replace GMemChunk usage with something else altogether
+###  So: either replace GMemChunk use with something else altogether
 ###      or use GMemChunks for GLib < 2.10 and GSlice (or whatever) for newer GLibs.
-## 2.10		'g_mem_chunk_alloc',                 # "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_alloc0',                # "use slice allocator" (avail since 2.10)
-       		'g_mem_chunk_clean',                 # "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_create',                # "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_destroy',               # "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_free',                  # "use slice allocator" (avail since 2.10)
-       		'g_mem_chunk_info',                  # "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_new',                   # "use slice allocator" (avail since 2.10)
-       		'g_mem_chunk_print',                 # "use slice allocator" (avail since 2.10)
-        	'g_mem_chunk_reset',                 # "use slice allocator" (avail since 2.10)
-        	'g_blow_chunks',                     # "use slice allocator" (avail since 2.10,2.14)
-## 2.10 	'g_chunk_free',                      # g_slice_free (avail since 2.10)
-## 2.10 	'g_chunk_new',                       # g_slice_new  (avail since 2.10)
-        	'g_chunk_new0',                      # g_slice_new0 (avail since 2.10)
+## 2.10         'g_mem_chunk_alloc',                 # "use slice allocator" (avail since 2.10)
+## 2.10         'g_mem_chunk_alloc0',                # "use slice allocator" (avail since 2.10)
+                'g_mem_chunk_clean',                 # "use slice allocator" (avail since 2.10)
+## 2.10         'g_mem_chunk_create',                # "use slice allocator" (avail since 2.10)
+## 2.10         'g_mem_chunk_destroy',               # "use slice allocator" (avail since 2.10)
+## 2.10         'g_mem_chunk_free',                  # "use slice allocator" (avail since 2.10)
+                'g_mem_chunk_info',                  # "use slice allocator" (avail since 2.10)
+## 2.10         'g_mem_chunk_new',                   # "use slice allocator" (avail since 2.10)
+                'g_mem_chunk_print',                 # "use slice allocator" (avail since 2.10)
+                'g_mem_chunk_reset',                 # "use slice allocator" (avail since 2.10)
+                'g_blow_chunks',                     # "use slice allocator" (avail since 2.10,2.14)
+## 2.10         'g_chunk_free',                      # g_slice_free (avail since 2.10)
+## 2.10         'g_chunk_new',                       # g_slice_new  (avail since 2.10)
+                'g_chunk_new0',                      # g_slice_new0 (avail since 2.10)
 ###
-        	'g_node_pop_allocator',              # "does nothing since 2.10"
-        	'g_node_push_allocator',             # "does nothing since 2.10"
-        	'g_slist_pop_allocator',             # "does nothing since 2.10"
-        	'g_slist_push_allocator',            # "does nothing since 2.10"
+                'g_node_pop_allocator',              # "does nothing since 2.10"
+                'g_node_push_allocator',             # "does nothing since 2.10"
+                'g_slist_pop_allocator',             # "does nothing since 2.10"
+                'g_slist_push_allocator',            # "does nothing since 2.10"
 ## Following Deprecated as of GLib 2.22;
 ## Note: Not currently used by Wireshark
                 'g_mapped_file_free',                # [as of 2.22: use g_map_file_unref]
-		] },
+                ] },
 
-	# APIs that make the program exit. Dissectors shouldn't call these
-	'abort' => { 'count_errors' => 1, 'functions' => [
-		'abort',
-		'assert',
-		'assert_perror',
-		'exit',
-		'g_assert',
-		'g_error',
-		] },
+        # APIs that make the program exit. Dissectors shouldn't call these
+        'abort' => { 'count_errors' => 1, 'functions' => [
+                'abort',
+                'assert',
+                'assert_perror',
+                'exit',
+                'g_assert',
+                'g_error',
+                ] },
 
-	# APIs that print to the terminal. Dissectors shouldn't call these
-	'termoutput' => { 'count_errors' => 0, 'functions' => [
-		'printf',  
-		] },
+        # APIs that print to the terminal. Dissectors shouldn't call these
+        'termoutput' => { 'count_errors' => 0, 'functions' => [
+                'printf',  
+                ] },
 
-	# Deprecated GTK APIs
-	#  which SHOULD NOT be used in Wireshark (any more).
+        # Deprecated GTK APIs
+        #  which SHOULD NOT be used in Wireshark (any more).
         #  (Filled in from 'E' entries in %deprecatedGtkFunctions below)
-	'deprecated-gtk' => { 'count_errors' => 1, 'functions' => [
-		] },
+        'deprecated-gtk' => { 'count_errors' => 1, 'functions' => [
+                ] },
 
-	# Deprecated GTK APIs yet to be replaced
+        # Deprecated GTK APIs yet to be replaced
         #  (Filled in from 'W' entries in %deprecatedGtkFunctions below)
-	'deprecated-gtk-todo' => { 'count_errors' => 0, 'functions' => [
-		] },
+        'deprecated-gtk-todo' => { 'count_errors' => 0, 'functions' => [
+                ] },
 
 );
 
@@ -221,8 +221,8 @@ my %APIs = (
 #  being used in Wireshark and since the replacement functionality
 #  is not available in all the GTK+ versions that Wireshark
 #  currently supports (ie: versions starting with GTK+ 2.4).
-# E: There should be no current Wireshark usage so Error if seen;
-# W: Not all usages yet fixed so Warn if seen; (Change to E as fixed)
+# E: There should be no current Wireshark use so Error if seen;
+# W: Not all Wireshark use yet fixed so Warn if seen; (Change to E as fixed)
 my %deprecatedGtkFunctions = (
                 'gtk_about_dialog_get_name',                   'E',
                 'gtk_about_dialog_set_name',                   'E',
@@ -270,9 +270,9 @@ my %deprecatedGtkFunctions = (
                 'gtk_clist_column_title_passive',              'E',
                 'gtk_clist_column_titles_active',              'E',
                 'gtk_clist_column_titles_hide',                'E',
-                'gtk_clist_column_titles_passive',             'W',
+                'gtk_clist_column_titles_passive',             'E',
                 'gtk_clist_column_titles_show',                'W',
-                'gtk_clist_columns_autosize',                  'W',
+                'gtk_clist_columns_autosize',                  'E',
                 'GTK_CLIST_DRAW_DRAG_LINE',                    'E',
                 'GTK_CLIST_DRAW_DRAG_RECT',                    'E',
                 'gtk_clist_find_row_from_data',                'W',
@@ -292,10 +292,10 @@ my %deprecatedGtkFunctions = (
                 'gtk_clist_get_text',                          'W',
                 'gtk_clist_get_vadjustment',                   'W',
                 'GTK_CLIST_IN_DRAG',                           'E',
-                'gtk_clist_insert',                            'W',
+                'gtk_clist_insert',                            'E',
                 'gtk_clist_moveto',                            'W',
                 'gtk_clist_new',                               'W',
-                'gtk_clist_new_with_titles',                   'W',
+                'gtk_clist_new_with_titles',                   'E',
                 'gtk_clist_optimal_column_width',              'E',
                 'gtk_clist_prepend',                           'E',
                 'gtk_clist_remove',                            'W',
@@ -316,7 +316,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_clist_set_column_min_width',              'E',
                 'gtk_clist_set_column_resizeable',             'W',
                 'gtk_clist_set_column_title',                  'W',
-                'gtk_clist_set_column_visibility',             'W',
+                'gtk_clist_set_column_visibility',             'E',
                 'gtk_clist_set_column_widget',                 'W',
                 'gtk_clist_set_column_width',                  'W',
                 'gtk_clist_set_compare_func',                  'W',
@@ -330,7 +330,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_clist_set_row_data_full',                 'E',
                 'gtk_clist_set_row_height',                    'E',
                 'gtk_clist_set_row_style',                     'E',
-                'gtk_clist_set_selectable',                    'W',
+                'gtk_clist_set_selectable',                    'E',
                 'gtk_clist_set_selection_mode',                'W',
                 'gtk_clist_set_shadow_type',                   'W',
                 'gtk_clist_set_shift',                         'E',
@@ -457,13 +457,13 @@ my %deprecatedGtkFunctions = (
                 'gtk_draw_string',                             'E',
                 'gtk_draw_tab',                                'E',
                 'gtk_draw_vline',                              'E',
-                'gtk_drawing_area_size',                       'W', # >> g_object_set() [==] ? 
+                'gtk_drawing_area_size',                       'E', # >> g_object_set() [==] ? 
                                                                     #    gtk_widget_set_size_request() [==?]
                 'gtk_entry_append_text',                       'W', # >> gtk_editable_insert_text() [==?]
                 'gtk_entry_new_with_max_length',               'E', # gtk_entry_new(); gtk_entry_set_max_length()
                 'gtk_entry_prepend_text',                      'E',
                 'gtk_entry_select_region',                     'E',
-                'gtk_entry_set_editable',                      'W', # >> gtk_editable_set_editable() [==?]
+                'gtk_entry_set_editable',                      'E', # >> gtk_editable_set_editable() [==?]
                 'gtk_entry_set_position',                      'E',
                 'gtk_exit',                                    'E', # exit() [==]
                 'gtk_file_chooser_button_new_with_backend',    'E',
@@ -597,7 +597,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_old_editable_changed',                    'E',
                 'gtk_old_editable_claim_selection',            'E',
                 'gtk_option_menu_get_history',                 'E', # GtkComboBox ... (avail since 2.4/2.6/2.10/2.14)
-                'gtk_option_menu_get_menu',                    'W',
+                'gtk_option_menu_get_menu',                    'E',
                 'gtk_option_menu_new',                         'W',
                 'gtk_option_menu_remove_menu',                 'W',
                 'gtk_option_menu_set_history',                 'W',
@@ -738,8 +738,8 @@ my %deprecatedGtkFunctions = (
                 'gtk_toggle_button_set_state',                 'E', # gtk_toggle_button_set_active [==]
                 'gtk_toolbar_append_element',                  'E',
                 'gtk_toolbar_append_item',                     'E',
-                'gtk_toolbar_append_space',                    'W', # Use gtk_toolbar_insert() instead
-                'gtk_toolbar_append_widget',                   'W', # ??
+                'gtk_toolbar_append_space',                    'E', # Use gtk_toolbar_insert() instead
+                'gtk_toolbar_append_widget',                   'E', # ??
                 'gtk_toolbar_get_tooltips',                    'E',
                 'gtk_toolbar_insert_element',                  'E',
                 'gtk_toolbar_insert_item',                     'E',
@@ -828,7 +828,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_widget_set',                              'E', # g_object_set() [==]
                 'gtk_widget_set_default_visual',               'E',
                 'gtk_widget_set_rc_style',                     'E',
-                'gtk_widget_set_uposition',                    'W', # ?? (see GTK documentation)
+                'gtk_widget_set_uposition',                    'E', # ?? (see GTK documentation)
                 'gtk_widget_set_usize',                        'E', # gtk_widget_set_size_request()
                 'gtk_widget_set_visual',                       'E',
                 'gtk_widget_unref',                            'E',
@@ -881,20 +881,20 @@ my %deprecatedGtkFunctions = (
 
 sub findAPIinFile($$$)
 {
-	my ($groupHashRef, $fileContentsRef, $foundAPIsRef) = @_;
+        my ($groupHashRef, $fileContentsRef, $foundAPIsRef) = @_;
 
-	for my $api ( @{$groupHashRef->{functions}} )
-	{
-		my $cnt = 0;
-		while (${$fileContentsRef} =~ m/ \W $api \W* \( /gx)
-		{
-			$cnt += 1;
-		}
-		if ($cnt > 0) {
-			push @{$foundAPIsRef}, $api;
-			$groupHashRef->{function_counts}->{$api} += 1;
-		}
-	}
+        for my $api ( @{$groupHashRef->{functions}} )
+        {
+                my $cnt = 0;
+                while (${$fileContentsRef} =~ m/ \W $api \W* \( /gx)
+                {
+                        $cnt += 1;
+                }
+                if ($cnt > 0) {
+                        push @{$foundAPIsRef}, $api;
+                        $groupHashRef->{function_counts}->{$api} += 1;
+                }
+        }
 }
 
 # The below Regexp are based on those from:
@@ -952,131 +952,131 @@ my $result = GetOptions(
                         'debug' => \$debug_flag
                        );
 if (!$result) {
-	print "Usage: checkAPIs.pl [-M] [-g group1] [-g group2] [-s group1] [-s group2] [--nocheck-value-string-array-null-termination] file1 file2 ..\n";
-
-	print STDERR "   Groups:             ", join (", ", sort keys %APIs), "\n";
-	print STDERR "   Default Groups[-g]: ", join (", ", sort @apiGroups), "\n";
-	exit(1);
+        print "Usage: checkAPIs.pl [-M] [-g group1] [-g group2] ... [-s group1] [-s group2] ... [--nocheck-value-string-array-null-termination] file1 file2 ..\n";
+        print "       -g <group>:  Check input files for use of APIs in <group> (in addition to the default groups)\n";
+        print "       -s <group>:  Output summary (count) for each API in <group> (-g <group> also req'd)\n";
+        print "       -M: Generate output for -g in 'machine-readable' format\n";
+        print "\n";
+        print "   Default Groups[-g]: ", join (", ", sort @apiGroups), "\n";
+        print "   Available Groups:   ", join (", ", sort keys %APIs), "\n";
+        exit(1);
 }
 
 # Add a 'function_count' anonymous hash to each of the 'apiGroup' entries in the %APIs hash.
 for my $apiGroup (keys %APIs) {
-	my @functions = @{$APIs{$apiGroup}{functions}};
+        my @functions = @{$APIs{$apiGroup}{functions}};
 
-	$APIs{$apiGroup}->{function_counts}   = {};
-	@{$APIs{$apiGroup}->{function_counts}}{@functions} = ();  # Add fcn names as keys to the anonymous hash
+        $APIs{$apiGroup}->{function_counts}   = {};
+        @{$APIs{$apiGroup}->{function_counts}}{@functions} = ();  # Add fcn names as keys to the anonymous hash
 }
 
 
 # Read through the files; do various checks
 while ($_ = $ARGV[0])
 {
-	shift;
-	my $filename = $_;
-	my $fileContents = '';
-	my @foundAPIs = ();
+        shift;
+        my $filename = $_;
+        my $fileContents = '';
+        my @foundAPIs = ();
 
-	die "No such file: \"$filename\"" if (! -e $filename);
+        die "No such file: \"$filename\"" if (! -e $filename);
 
-	# delete leading './'
-	$filename =~ s{ ^ \. / } {}xo;
+        # delete leading './'
+        $filename =~ s{ ^ \. / } {}xo;
 
-	# Read in the file (ouch, but it's easier that way)
-	open(FC, $filename) || die("Couldn't open $filename");
-	while (<FC>) { $fileContents .= $_; }
-	close(FC);
+        # Read in the file (ouch, but it's easier that way)
+        open(FC, $filename) || die("Couldn't open $filename");
+        while (<FC>) { $fileContents .= $_; }
+        close(FC);
 
-	if ($fileContents =~ m{ [\x80-\xFF] }xo)
-	{
-		print STDERR "Error: Found non-ASCII characters in " .$filename."\n";
-		$errorCount++;
-	}
+        if ($fileContents =~ m{ [\x80-\xFF] }xo)
+        {
+                print STDERR "Error: Found non-ASCII characters in " .$filename."\n";
+                $errorCount++;
+        }
 
-	if ($fileContents =~ m{ %ll }xo)
-	{
-		# use G_GINT64_MODIFIER instead of ll
-		print STDERR "Error: Found %ll in " .$filename."\n";
-		$errorCount++;
-	}
+        if ($fileContents =~ m{ %ll }xo)
+        {
+                # use G_GINT64_MODIFIER instead of ll
+                print STDERR "Error: Found %ll in " .$filename."\n";
+                $errorCount++;
+        }
 
-	if (! ($fileContents =~ m{ \$Id .* \$ }xo))
-	{
-		print STDERR "Warning: ".$filename." does not have an SVN Id tag.\n";
-	}
+        if (! ($fileContents =~ m{ \$Id .* \$ }xo))
+        {
+                print STDERR "Warning: ".$filename." does not have an SVN Id tag.\n";
+        }
 
-	# Remove all the C-comments and strings
-	$fileContents =~ s {$commentAndStringRegex} []xog;
+        # Remove all the C-comments and strings
+        $fileContents =~ s {$commentAndStringRegex} []xog;
 
         if ($fileContents =~ m{ // }xo)
         {
-		print STDERR "Error: Found C++ style comments in " .$filename."\n";
-		$errorCount++;
+                print STDERR "Error: Found C++ style comments in " .$filename."\n";
+                $errorCount++;
         }
 
-	# Brute force check for value_string arrays which are not NULL terminated
-	if ($check_value_string_array_null_termination) {
-		#  Assumption: definition is of form (pseudo-Regex):
-		#    " (static const|static|const) value_string .+ = { .+ ;" (possibly over multiple lines) 
-		while ($fileContents =~ / ( $ValueStringRegex ) /xsog) {
-			# value_string array definition found; check if NULL terminated
-			my $vs = my $vsx = $1;
-			if ($debug_flag) {
-				$vsx =~ / ( .+ value_string [^=]+ ) = /xo;
-				printf STDERR "==> %-35.35s: %s\n", $filename, $1;
-				printf STDERR "%s\n", $vs;
-			}
-			$vs =~ s{ \s } {}xg;
-			# README.developer says 
-			#  "Don't put a comma after the last tuple of an initializer of an array"
-			# However: since this usage is present in some number of cases, we'll allow for now
-			if ($vs !~ / , NULL [}] ,? [}] ; $/xo) {
-				$vsx =~ /( value_string [^=]+ ) = /xo;
-				printf STDERR "Error: %-35.35s: Not terminated: %s\n", $filename, $1;
-				$errorCount++;
-			}
-                        if ($vs !~ / (static)? const value_string /xo)  {
-				$vsx =~ /( value_string [^=]+ ) = /xo;
-				printf STDERR "Error: %-35.35s: Missing 'const': %s\n", $filename, $1;
-				$errorCount++;
+        # Brute force check for value_string arrays which are not NULL terminated
+        if ($check_value_string_array_null_termination) {
+                #  Assumption: definition is of form (pseudo-Regex):
+                #    " (static const|static|const) value_string .+ = { .+ ;" (possibly over multiple lines) 
+                while ($fileContents =~ / ( $ValueStringRegex ) /xsog) {
+                        # value_string array definition found; check if NULL terminated
+                        my $vs = my $vsx = $1;
+                        if ($debug_flag) {
+                                $vsx =~ / ( .+ value_string [^=]+ ) = /xo;
+                                printf STDERR "==> %-35.35s: %s\n", $filename, $1;
+                                printf STDERR "%s\n", $vs;
                         }
-		}
-	}
+                        $vs =~ s{ \s } {}xg;
+                        # README.developer says 
+                        #  "Don't put a comma after the last tuple of an initializer of an array"
+                        # However: since this usage is present in some number of cases, we'll allow for now
+                        if ($vs !~ / , NULL [}] ,? [}] ; $/xo) {
+                                $vsx =~ /( value_string [^=]+ ) = /xo;
+                                printf STDERR "Error: %-35.35s: Not terminated: %s\n", $filename, $1;
+                                $errorCount++;
+                        }
+                        if ($vs !~ / (static)? const value_string /xo)  {
+                                $vsx =~ /( value_string [^=]+ ) = /xo;
+                                printf STDERR "Error: %-35.35s: Missing 'const': %s\n", $filename, $1;
+                                $errorCount++;
+                        }
+                }
+        }
 
-	# Check and count APIs
-	for my $apiGroup (@apiGroups) {
-		my $pfx = "Warning";
-		@foundAPIs = ();
+        # Check and count APIs
+        for my $apiGroup (@apiGroups) {
+                my $pfx = "Warning";
+                @foundAPIs = ();
 
-		findAPIinFile($APIs{$apiGroup}, \$fileContents, \@foundAPIs);
+                findAPIinFile($APIs{$apiGroup}, \$fileContents, \@foundAPIs);
 
-		if ($APIs{$apiGroup}->{count_errors}) {
-			# the use of "prohibited" APIs is an error, increment the error count
-			$errorCount += @foundAPIs;
-			$pfx = "Error";
-		}
+                if ($APIs{$apiGroup}->{count_errors}) {
+                        # the use of "prohibited" APIs is an error, increment the error count
+                        $errorCount += @foundAPIs;
+                        $pfx = "Error";
+                }
 
-		if (@foundAPIs && ! $machine_readable_output) {
-			print STDERR $pfx . ": Found " . $apiGroup . " APIs in ".$filename.": ".join(',', @foundAPIs)."\n"
- 		}
-		if (@foundAPIs && $machine_readable_output) {
-			for my $api (@foundAPIs) {
-				printf STDERR "%-8.8s %-20.20s %-30.30s %-45.45s\n", $pfx, $apiGroup, $filename, $api; 
- 			}
-		}
-	}
+                if (@foundAPIs && ! $machine_readable_output) {
+                        print STDERR $pfx . ": Found " . $apiGroup . " APIs in ".$filename.": ".join(',', @foundAPIs)."\n"
+                }
+                if (@foundAPIs && $machine_readable_output) {
+                        for my $api (@foundAPIs) {
+                                printf STDERR "%-8.8s %-20.20s %-30.30s %-45.45s\n", $pfx, $apiGroup, $filename, $api; 
+                        }
+                }
+        }
 }
 
-# Summary: Print Usage Counts of each API in each requested summary group
+# Summary: Print Use Counts of each API in each requested summary group
 
-for my $apiGroup (@apiSummaryGroups)
-{
-	printf "\n\nUsage Counts\n";
-	for my $api (sort {"\L$a" cmp "\L$b"} (keys %{$APIs{$apiGroup}->{function_counts}}   )) {
-		printf "%-20.20s %5d  %-40.40s\n", $apiGroup . ':', $APIs{$apiGroup}{function_counts}{$api}, $api;
-	}
+for my $apiGroup (@apiSummaryGroups) {
+        printf "\n\nUse Counts\n";
+        for my $api (sort {"\L$a" cmp "\L$b"} (keys %{$APIs{$apiGroup}->{function_counts}}   )) {
+                printf "%-20.20s %5d  %-40.40s\n", $apiGroup . ':', $APIs{$apiGroup}{function_counts}{$api}, $api;
+        }
 }
 
 exit($errorCount);
-
-
 
