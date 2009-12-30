@@ -203,6 +203,8 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 
 	for(;num_rids;num_rids--){
 		int len=sid_len;
+		if (len > 247)
+			len = 247;
 
 		fi_rid=gp_rids->pdata[num_rids-1];
 		fi_name=gp_names->pdata[num_rids-1];

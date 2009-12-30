@@ -151,7 +151,8 @@ static char* wslua_get_actual_filename(const char* fname) {
 	char* f;
 	char* filename;
 	
-	strncpy(fname_clean,fname,256);
+	strncpy(fname_clean,fname,255);
+	fname_clean[255] = '\0';
 	
 	for(f = fname_clean; *f; f++) {
 		switch(*f) {
