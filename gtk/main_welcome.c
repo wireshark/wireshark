@@ -543,6 +543,7 @@ welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
     global_capture_opts.iface_descr = NULL;
     /* XXX - fix this */
     /*global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);*/
+    global_capture_opts.linktype = capture_get_linktype (global_capture_opts.iface);
 
     /* XXX - remove this? */
     if (global_capture_opts.save_file) {

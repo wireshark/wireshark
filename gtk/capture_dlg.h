@@ -71,6 +71,14 @@ void capture_start_confirmed(void);
 void
 capture_air_cb(GtkWidget *widget, gpointer data);
 
+/** Get linktype for interface
+ *
+ * @param if_name interface name
+ */
+gint
+capture_get_linktype (gchar *if_name);
+
+
 #ifdef HAVE_PCAP_REMOTE
 struct remote_host {
   gchar    *remote_host;          /**< Host name or network address for remote capturing */

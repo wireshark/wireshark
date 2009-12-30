@@ -220,6 +220,21 @@ capture_restart_cb(GtkWidget *w _U_, gpointer d _U_)
     capture_restart(&global_capture_opts);
 }
 
+gint
+capture_get_linktype (gchar *if_name)
+{
+  gint linktype, *linktype_p;
+
+  linktype_p = g_hash_table_lookup (linktype_history, if_name);
+  if (linktype_p) {
+    linktype = *linktype_p;
+  } else {
+    linktype = capture_dev_user_linktype_find(if_name);
+  }
+
+  return linktype;
+}
+
 /* init the link type list */
 /* (often this list has only one entry and will therefore be disabled) */
 static void
@@ -236,7 +251,6 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   GtkWidget *lt_menu, *lt_menu_item;
   GList *lt_entry;
   gint linktype, linktype_select, linktype_count;
-  gint *linktype_p;
   data_link_info_t *data_link_info;
   gchar *linktype_menu_label;
   guint num_supported_link_types;
@@ -263,13 +277,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
   if_text = g_strstrip(entry_text);
   if_name = g_strdup(get_if_name(if_text));
-
-  linktype_p = g_hash_table_lookup (linktype_history, if_name);
-  if (linktype_p) {
-    linktype = *linktype_p;
-  } else {
-    linktype = capture_dev_user_linktype_find(if_name);
-  }
+  linktype = capture_get_linktype(if_name);
 
 #ifdef HAVE_AIRPCAP
   /* is it an airpcap interface??? */
