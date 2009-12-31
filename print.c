@@ -575,9 +575,10 @@ void
 proto_tree_write_psml(epan_dissect_t *edt, FILE *fh)
 {
 	gint	i;
+	static gboolean structure_written = FALSE;
 
 	/* if this is the first packet, we have to create the PSML structure output */
-	if(edt->pi.fd->num == 1) {
+	if(!structure_written) {
 	    fprintf(fh, "<structure>\n");
 
 	    for(i=0; i < edt->pi.cinfo->num_cols; i++) {
@@ -587,6 +588,8 @@ proto_tree_write_psml(epan_dissect_t *edt, FILE *fh)
 	    }
 
 	    fprintf(fh, "</structure>\n\n");
+
+	    structure_written = TRUE;
 	}
 
 	fprintf(fh, "<packet>\n");
