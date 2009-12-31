@@ -86,6 +86,7 @@ static int hf_dns_rr_class_mdns = -1;
 static int hf_dns_rr_cache_flush = -1;
 static int hf_dns_rr_ttl = -1;
 static int hf_dns_rr_len = -1;
+static int hf_dns_rr_addr = -1;
 static int hf_dns_nsec3_algo = -1;
 static int hf_dns_nsec3_flags = -1;
 static int hf_dns_nsec3_flag_optout = -1;
@@ -1232,8 +1233,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	col_append_fstr(cinfo, COL_INFO, " %s", ip_to_str(addr));
 
 	proto_item_append_text(trr, ", addr %s", ip_to_str(addr));
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 4, "Addr: %s",
-		     ip_to_str(addr));
+        proto_tree_add_item(rr_tree, hf_dns_rr_addr, tvb, cur_offset, 4, TRUE);
 
       if ((class & 0x7f) == C_IN) {
 	memcpy(&addr_int, addr, sizeof(addr_int));
@@ -3496,6 +3496,10 @@ proto_register_dns(void)
       { "Data length",  "dns.resp.len",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"Response Length", HFILL }},
+    { &hf_dns_rr_addr,
+      { "Addr",        "dns.resp.addr",
+       FT_IPv4, BASE_NONE, NULL, 0x0,
+       "Response Address", HFILL }},
     { &hf_dns_count_questions,
       { "Questions",		"dns.count.queries",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
