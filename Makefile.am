@@ -919,6 +919,12 @@ osx-package: osx-app
 		./osx-dmg.sh ; \
 	fi
 
+osx-install: osx-app
+	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
+		echo "Copying Wireshark.app to /Applications" ; \
+		cp -pr $(srcdir)/packaging/macosx/Wireshark.app /Applications ;  \
+	fi
+
 clean-local:
 	rm -rf $(top_stagedir)
 
