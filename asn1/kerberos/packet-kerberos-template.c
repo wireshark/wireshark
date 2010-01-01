@@ -841,12 +841,13 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 #define KRB5_TD_REQ_NONCE              107
 #define KRB5_TD_REQ_SEQ                108
 /* preauthentication types >127 (i.e. negative ones) are app specific.
-   hopefully there will be no collissions here or we will have to
-   come up with something better
+   Hopefully there will be no collisions here or we will have to
+   come up with something better.
+   Note: These values are compared against 32-bit values in the code.
 */
-#define KRB5_PA_PAC_REQUEST            128	/* MS extension */
-#define KRB5_PA_S4U2SELF               129	/* Impersonation (Microsoft extension) */
-#define KRB5_PA_PROV_SRV_LOCATION      255	/* packetcable stuff */
+#define KRB5_PA_PAC_REQUEST         -128  /* = 0xFFFFFF80 = (gint32)((gint8)0x80) MS extension */
+#define KRB5_PA_S4U2SELF            -127  /* = 0xFFFFFF81 = (gint32)((gint8)0x81) Impersonation (Microsoft extension) */
+#define KRB5_PA_PROV_SRV_LOCATION   -1    /* = 0xFFFFFFFF = (gint32)((gint8)0xFF) packetcable stuff */
 
 /* Principal name-type */
 #define KRB5_NT_UNKNOWN        0

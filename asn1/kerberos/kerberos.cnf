@@ -67,7 +67,6 @@ guint32 msgtype;
 
 %(DEFAULT_BODY)s
 
-krb_PA_DATA_type&=0xff; /*this is really just one single byte */
 	if(tree){
 		proto_item_append_text(tree, " %%s",
 			val_to_str(krb_PA_DATA_type, krb5_preauthentication_types,
