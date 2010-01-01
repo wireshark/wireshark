@@ -1088,12 +1088,13 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 #define KRB5_TD_REQ_NONCE              107
 #define KRB5_TD_REQ_SEQ                108
 /* preauthentication types >127 (i.e. negative ones) are app specific.
-   hopefully there will be no collissions here or we will have to
-   come up with something better
+   Hopefully there will be no collisions here or we will have to
+   come up with something better.
+   Note: These values are compared against 32-bit values in the code.
 */
-#define KRB5_PA_PAC_REQUEST            128	/* MS extension */
-#define KRB5_PA_S4U2SELF               129	/* Impersonation (Microsoft extension) */
-#define KRB5_PA_PROV_SRV_LOCATION      255	/* packetcable stuff */
+#define KRB5_PA_PAC_REQUEST         -128  /* = 0xFFFFFF80 = (gint32)((gint8)0x80) MS extension */
+#define KRB5_PA_S4U2SELF            -127  /* = 0xFFFFFF81 = (gint32)((gint8)0x81) Impersonation (Microsoft extension) */
+#define KRB5_PA_PROV_SRV_LOCATION   -1    /* = 0xFFFFFFFF = (gint32)((gint8)0xFF) packetcable stuff */
 
 /* Principal name-type */
 #define KRB5_NT_UNKNOWN        0
@@ -2321,7 +2322,6 @@ static int
 dissect_krb5_PA_DATA_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_PA_DATA_type, &krb_PA_DATA_type);
-	krb_PA_DATA_type&=0xff; /*this is really just one single byte */
 
 	if(tree){
 		proto_item_append_text(tree, " %s",
@@ -5141,7 +5141,7 @@ proto_register_kerberos(void)
 	    "Signature", "kerberos.pac.signature.signature", FT_BYTES, BASE_NONE,
 	    NULL, 0, "A PAC signature blob", HFILL }},
 	{ &hf_krb_PA_DATA_type, {
-	    "Type", "kerberos.padata.type", FT_UINT32, BASE_DEC,
+	    "Type", "kerberos.padata.type", FT_INT8, BASE_DEC,
 	    VALS(krb5_preauthentication_types), 0, "Type of preauthentication data", HFILL }},
 	{ &hf_krb_nonce, {
 	    "Nonce", "kerberos.nonce", FT_UINT32, BASE_DEC,
