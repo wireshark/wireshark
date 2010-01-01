@@ -842,6 +842,21 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
     WSLUA_RETURN(1); /* The string */
 }
 
+WSLUA_METHOD TvbRange_stringz(lua_State* L) {
+	/* Obtain a zero terminated string from a TvbRange */
+    TvbRange tvbr = checkTvbRange(L,1);
+
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    lua_pushstring(L, (gchar*)tvb_get_ephemeral_stringz(tvbr->tvb->ws_tvb,tvbr->offset,NULL) );
+
+    WSLUA_RETURN(1); /* The zero terminated string */
+}
+
 WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 	/* Obtain a ByteArray */
     TvbRange tvbr = checkTvbRange(L,1);
@@ -983,6 +998,7 @@ static const luaL_reg TvbRange_methods[] = {
     {"ipv4", TvbRange_ipv4},
     {"le_ipv4", TvbRange_le_ipv4},
     {"string", TvbRange_string},
+    {"stringz", TvbRange_stringz},
     {"bytes", TvbRange_bytes},
     {"bitfield", TvbRange_bitfield},
     {"range", TvbRange_range},
