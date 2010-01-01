@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.9.0 (2009-04)  
+-- 3GPP TS 29.002 V9.0.0 (2009-12)  
 -- 17.6.7	Group Call operations
  
 MAP-Group-Call-Operations {
@@ -96,4 +96,3 @@ sendGroupCallInfo  OPERATION ::= {				--Timer m
 
 
 END
-

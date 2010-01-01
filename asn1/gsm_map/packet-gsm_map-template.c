@@ -12,7 +12,7 @@
 /* packet-gsm_map-template.c
  * Routines for GSM MobileApplication packet dissection
  * including GSM SS.
- * Copyright 2004 - 2009 , Anders Broman <anders.broman [AT] ericsson.com>
+ * Copyright 2004 - 2010 , Anders Broman <anders.broman [AT] ericsson.com>
  * Based on the dissector by:
  * Felix Fei <felix.fei [AT] utstar.com>
  * and Michael Lum <mlum [AT] telostech.com>
@@ -1077,7 +1077,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     /* reserved traceSubscriberActivity (52) */
     /* undefined 53 */
   case 54: /*beginSubscriberActivity*/
-    offset=dissect_gsm_ss_BeginSubscriberActivityArg(FALSE, tvb, offset, actx, tree, -1);
+    offset=dissect_gsm_old_BeginSubscriberActivityArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 55: /*sendIdentification*/
     offset=dissect_mc_message(tvb, offset, actx, tree,

@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.9.0 (2009-04)
+-- 3GPP TS 29.002 V9.0.0 (2009-12)
 -- 17.7.3	Call handling data types
  
 MAP-CH-DataTypes {
@@ -37,7 +37,7 @@ IST-CommandRes,
 UU-Data,
 ReleaseResourcesArg,
 ReleaseResourcesRes,
---- WS added exports needed by gsm_map.asn (extra asn1 file to handle older proto. ver.)
+-- WS added exports needed by gsm_map.asn (extra asn1 file to handle older proto. ver.)
 RoutingInfo,
 CUG-CheckInfo
 ;
@@ -473,4 +473,3 @@ ReleaseResourcesRes ::= SEQUENCE{
 
 
 END
-

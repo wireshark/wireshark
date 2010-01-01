@@ -1,6 +1,6 @@
 -- $Id$
 -- 17.7.2	Operation and maintenance data types
--- 3GPP TS 29.002 V8.9.0 (2009-04)
+-- 3GPP TS 29.002 V9.0.0 (2009-12)
  
 MAP-OM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
@@ -24,7 +24,8 @@ EXPORTS
 
 IMPORTS
 	AddressString,
-	IMSI
+	IMSI,
+	GSN-Address
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
@@ -47,7 +48,8 @@ ActivateTraceModeArg ::= SEQUENCE {
 	traceDepthList	[6] TraceDepthList	OPTIONAL,
 	traceNE-TypeList	[7] TraceNE-TypeList	OPTIONAL,
 	traceInterfaceList	[8] TraceInterfaceList	OPTIONAL,
-	traceEventList	[9] TraceEventList	OPTIONAL
+	traceEventList	[9] TraceEventList	OPTIONAL,
+	traceCollectionEntity	[10] GSN-Address	OPTIONAL
 	}
 
 TraceReference ::= OCTET STRING (SIZE (1..2))
@@ -67,7 +69,11 @@ TraceDepthList ::= SEQUENCE {
 	ggsn-TraceDepth	[3] TraceDepth	OPTIONAL,
 	rnc-TraceDepth	[4] TraceDepth	OPTIONAL,
 	bmsc-TraceDepth	[5] TraceDepth	OPTIONAL,
-	...}
+	... ,
+	mme-TraceDepth	[6] TraceDepth	OPTIONAL,
+	sgw-TraceDepth	[7] TraceDepth	OPTIONAL,
+	pgw-TraceDepth	[8] TraceDepth	OPTIONAL,
+	eNB-TraceDepth	[9] TraceDepth	OPTIONAL }
 
 TraceDepth ::= ENUMERATED {
 	minimum (0),
@@ -83,7 +89,11 @@ TraceNE-TypeList ::= BIT STRING {
 	sgsn (2),
 	ggsn (3),
 	rnc (4),
-	bm-sc (5)} (SIZE (6..16))
+	bm-sc (5) ,
+	mme (6),
+	sgw (7),
+	pgw (8),
+	eNB (9)} (SIZE (6..16))
 -- Other bits than listed above shall be discarded.
 
 TraceInterfaceList ::= SEQUENCE {
@@ -93,7 +103,11 @@ TraceInterfaceList ::= SEQUENCE {
 	ggsn-List		[3] GGSN-InterfaceList	OPTIONAL,
 	rnc-List		[4] RNC-InterfaceList	OPTIONAL,
 	bmsc-List		[5] BMSC-InterfaceList	OPTIONAL,
-	...}
+	...,
+	mme-List		[6] MME-InterfaceList	OPTIONAL,
+	sgw-List		[7] SGW-InterfaceList	OPTIONAL,
+	pgw-List		[8] PGW-InterfaceList	OPTIONAL,
+	eNB-List		[9] ENB-InterfaceList	OPTIONAL}
 
 MSC-S-InterfaceList ::= BIT STRING {
 	a (0),
@@ -122,7 +136,10 @@ SGSN-InterfaceList ::= BIT STRING {
 	map-gd (4),
 	map-gf (5),
 	gs (6),
-	ge (7)} (SIZE (8..16))
+	ge (7),
+	s3 (8),
+	s4 (9),
+	s6d (10)} (SIZE (8..16))
 -- Other bits than listed above shall be discarded.
 
 GGSN-InterfaceList ::= BIT STRING {
@@ -142,13 +159,49 @@ BMSC-InterfaceList ::= BIT STRING {
 	gmb (0)} (SIZE (1..8))
 -- Other bits than listed above shall be discarded.
 
+MME-InterfaceList ::= BIT STRING {
+	s1-mme (0),
+	s3 (1),
+	s6a (2),
+	s10 (3),
+	s11 (4)} (SIZE (5..8))
+-- Other bits than listed above shall be discarded.
+
+SGW-InterfaceList ::= BIT STRING {
+	s4 (0),
+	s5 (1),
+	s8b (2),
+	s11 (3),
+	gxc (4)} (SIZE (5..8))
+-- Other bits than listed above shall be discarded.
+
+PGW-InterfaceList ::= BIT STRING {
+	s2a (0),
+	s2b (1),
+	s2c (2),
+	s5 (3),
+	s6b (4),
+	gx (5),
+	s8b (6),
+	sgi (7)} (SIZE (8..16))
+-- Other bits than listed above shall be discarded.
+
+ENB-InterfaceList ::= BIT STRING {
+	s1-mme (0),
+	x2 (1),
+	uu (2)} (SIZE (3..8))
+-- Other bits than listed above shall be discarded.
+
 TraceEventList ::= SEQUENCE {
 	msc-s-List	[0] MSC-S-EventList	OPTIONAL,
 	mgw-List		[1] MGW-EventList	OPTIONAL,
 	sgsn-List		[2] SGSN-EventList	OPTIONAL,
 	ggsn-List		[3] GGSN-EventList	OPTIONAL,
 	bmsc-List		[4] BMSC-EventList	OPTIONAL,
-	...}
+	...,
+	mme-List		[5] MME-EventList	OPTIONAL,
+	sgw-List		[6] SGW-EventList	OPTIONAL,
+	pgw-List		[7] PGW-EventList	OPTIONAL}
 
 MSC-S-EventList ::= BIT STRING {
 	mo-mtCall (0),
@@ -178,6 +231,26 @@ BMSC-EventList ::= BIT STRING {
 	mbmsMulticastServiceActivation (0)} (SIZE (1..8))
 -- Other bits than listed above shall be discarded.
 
+MME-EventList ::= BIT STRING {
+	ue-initiatedPDNconectivityRequest (0),
+	serviceRequestts (1),
+	initialAttachTrackingAreaUpdateDetach (2),
+	ue-initiatedPDNdisconnection (3),
+	bearerActivationModificationDeletion (4),
+	handover (5)} (SIZE (6..8))
+-- Other bits than listed above shall be discarded.
+
+SGW-EventList ::= BIT STRING {
+	pdn-connectionCreation (0),
+	pdn-connectionTermination (1),
+	bearerActivationModificationDeletion (2)} (SIZE (3..8))
+-- Other bits than listed above shall be discarded.
+
+PGW-EventList ::= BIT STRING {
+	pdn-connectionCreation (0),
+	pdn-connectionTermination (1),
+	bearerActivationModificationDeletion (2)} (SIZE (3..8))
+-- Other bits than listed above shall be discarded.
 
 TracePropagationList ::= SEQUENCE {
 	traceReference	[0] TraceReference	OPTIONAL,
@@ -213,4 +286,3 @@ DeactivateTraceModeRes ::= SEQUENCE {
 	...}
 
 END
-

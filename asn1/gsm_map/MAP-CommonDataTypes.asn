@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.9.0 (2009-04)
+-- 3GPP TS 29.002 V9.0.0 (2009-12)
 -- 17.7.8	Common data types
 
 MAP-CommonDataTypes {
@@ -67,9 +67,11 @@ AccessNetworkSignalInfo,
 	LCSClientExternalID,
 	LCSClientInternalID,
 	LCSServiceTypeID,
---- WS added exports needed by gsm_map.asn (extra asn1 file to handle older prot. ver.)
+-- WS added exports needed by gsm_map.asn (extra asn1 file to handle older prot. ver.)
 	ProtocolId,
-	LCSServiceTypeID	
+	-- gprs location registration types
+	GSN-Address
+
 ;
 
 IMPORTS
@@ -302,6 +304,9 @@ alertingCategory-5   AlertingPattern ::= '00001000'B
 	-- all other values of Alerting Category are reserved
 	-- Alerting categories are defined in GSM 02.07
 
+GSN-Address ::= OCTET STRING (SIZE (5..17))
+	-- Octets are coded according to TS 3GPP TS 23.003 [17]
+
 -- data types for numbering and identification
 
 IMSI ::= TBCD-STRING (SIZE (3..8))
@@ -389,9 +394,9 @@ NAEA-PreferredCI ::= SEQUENCE {
 
 NAEA-CIC ::= OCTET STRING (SIZE (3))
 	-- The internal structure is defined by the Carrier Identification
-	-- parameter in ANSI T1.113.3. Carrier codes between "000" and "999" may
-	-- be encoded as 3 digits using "000" to "999" or as 4 digits using 
-	-- "0000" to "0999". Carrier codes between "1000" and "9999" are encoded
+	-- parameter in ANSI T1.113.3. Carrier codes between “000” and “999” may
+	-- be encoded as 3 digits using “000” to “999” or as 4 digits using 
+	-- “0000” to “0999”. Carrier codes between “1000” and “9999” are encoded
 	-- using 4 digits.
 
 SubscriberIdentity ::= CHOICE {
@@ -624,10 +629,9 @@ AgeOfLocationInformation ::= INTEGER (0..32767)
 -- the value represents the elapsed time in minutes since the last
 -- network contact of the mobile station (i.e. the actuality of the
 -- location information).
--- value "0" indicates that the MS is currently in contact with the
+-- value “0” indicates that the MS is currently in contact with the
 --           network
--- value "32767" indicates that the location information is at least
+-- value “32767” indicates that the location information is at least
 --               32767 minutes old
 
 END
-

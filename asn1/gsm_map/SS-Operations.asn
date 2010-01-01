@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 24.080 V7.4.0 (2007-09)
+-- 3GPP TS 24.080 V9.0.0 (2009-12)
 -- 4.2	Operation types
 SS-Operations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
@@ -14,7 +14,7 @@ EXPORTS
 -- exports operations
 
 -- operations defined in this specification
-processUnstructuredSS-Data, beginSubscriberActivity, notifySS, forwardChargeAdvice, forwardCUG-Info, buildMPTY, holdMPTY, retrieveMPTY, splitMPTY, explicitCT, accessRegisterCCEntry, callDeflection, userUserService,
+processUnstructuredSS-Data, notifySS, forwardChargeAdvice, forwardCUG-Info, buildMPTY, holdMPTY, retrieveMPTY, splitMPTY, explicitCT, accessRegisterCCEntry, callDeflection, userUserService,
 lcs-LocationNotification, lcs-MOLR, lcs-AreaEventRequest, lcs-AreaEventReport, lcs-AreaEventCancellation, lcs-PeriodicLocationRequest, lcs-LocationUpdate, lcs-PeriodicLocationCancellation;
 
 IMPORTS
@@ -32,7 +32,6 @@ Remote-Operations-Information-Objects {
 
 -- imports SS-data types
 NotifySS-Arg,
-BeginSubscriberActivityArg,
 ForwardChargeAdviceArg,
 ForwardCUG-InfoArg,
 SS-UserData,
@@ -87,10 +86,6 @@ processUnstructuredSS-Data	OPERATION ::= { -- Timer T(PUSSD)= 15s to 30s
 				systemFailure |
 				unexpectedDataValue}
 	CODE		local:19 }
-
-beginSubscriberActivity      OPERATION ::= {
-        ARGUMENT         BeginSubscriberActivityArg
-        CODE            local:54 }
 
 notifySS 	OPERATION ::= {
 	ARGUMENT	NotifySS-Arg

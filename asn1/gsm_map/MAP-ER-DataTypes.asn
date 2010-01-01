@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.9.0 (2009-04) 
+-- 3GPP TS 29.002 V9.0.0 (2009-12) 
 -- 17.7.7	Error data types
 
 MAP-ER-DataTypes {
@@ -412,4 +412,3 @@ OngoingGroupCallParam ::= SEQUENCE {
 
 
 END
-
