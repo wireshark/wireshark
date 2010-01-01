@@ -1417,8 +1417,8 @@ eth.src[1-2] == 00:83
 		</listitem>
 		<listitem>
     		<para>
-			<command>Mark all packets</command> set the mark state of all 
-			packets.
+			<command>Mark all displayed packets</command> set the mark state of all 
+			displayed packets.
     		</para>
 		</listitem>
 		<listitem>
@@ -1428,8 +1428,49 @@ eth.src[1-2] == 00:83
     		</para>
 		</listitem>
 	</itemizedlist>
-	These mark function are available from the "Edit" menu, and the 
+	These mark functions are available from the "Edit" menu, and the 
 	"Mark packet (toggle)" function is also available from the pop-up menu of 
+	the "Packet List" pane.
+    </para>
+  </section>
+	
+  <section id="ChWorkIgnorePacketSection"><title>Ignoring packets</title>
+    <para>
+	You can ignore packets in the "Packet List" pane.  Wireshark will then pretend that this
+	packets does not exist in the capture file. 
+	An ignored packet will be shown with white background and gray foreground, regardless
+	of the coloring rules set.
+    </para>
+    <warning><title>Warning!</title>
+    <para>
+	The packet ignored marks are not stored in the capture file or anywhere else, 
+	so all packet ignored marks will be lost if you close the capture file.
+    </para>
+    </warning>
+    <para>
+	There are three functions to manipulate the ignored state of a packet:
+	<itemizedlist>
+		<listitem>
+    		<para>
+			<command>Ignore packet (toggle)</command> toggles the ignored state 
+			of a single packet.
+    		</para>
+		</listitem>
+		<listitem>
+    		<para>
+			<command>Ignore all displayed packets</command> set the ignored state of all 
+			displayed packets.
+    		</para>
+		</listitem>
+		<listitem>
+    		<para>
+			<command>Un-Ignore all packets</command> reset the ignored state of all 
+			packets.
+    		</para>
+		</listitem>
+	</itemizedlist>
+	These ignore functions are available from the "Edit" menu, and the 
+	"Ignore packet (toggle)" function is also available from the pop-up menu of 
 	the "Packet List" pane.
     </para>
   </section>

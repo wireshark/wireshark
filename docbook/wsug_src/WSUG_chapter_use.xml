@@ -733,16 +733,43 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Mark All Packets</command></entry>
+		<entry><command>Mark All Displayed Packets</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item "marks" all packets.
+		    This menu item "marks" all displayed packets.
 		  </para></entry>
 	      </row>
 	      <row>
 		<entry><command>Unmark All Packets</command></entry>
 		<entry></entry>
 		<entry><para>This menu item "unmarks" all marked packets.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Ignore Packet (toggle)</command></entry>
+		<entry>Ctrl+X</entry>
+		<entry><para>
+		    This menu item marks the currently selected packet as ignored.
+		    See <xref linkend="ChWorkIgnorePacketSection"/> for details.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Ignore All Displayed Packets</command></entry>
+		<entry>Shift-Ctrl-Alt-X</entry>
+		<entry><para>
+		    This menu item marks all displayed packets as ignored.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Un-Ignore All Packets</command></entry>
+		<entry>Shift-Ctrl-X</entry>
+		<entry><para>
+		    This menu item unmarks all ignored packets.
 		  </para></entry>
 	      </row>
 	      <row>
