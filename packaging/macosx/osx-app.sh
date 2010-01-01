@@ -276,11 +276,6 @@ mkdir -p $pkgetc/gtk-2.0
 sed -e "s,$LIBPREFIX,\${CWD},g" $LIBPREFIX/etc/gtk-2.0/gdk-pixbuf.loaders > $pkgetc/gtk-2.0/gdk-pixbuf.loaders
 sed -e "s,$LIBPREFIX,\${CWD},g" $LIBPREFIX/etc/gtk-2.0/gtk.immodules > $pkgetc/gtk-2.0/gtk.immodules
 
-for item in gnome-vfs-mime-magic gnome-vfs-2.0
-do
-	cp -r $LIBPREFIX/etc/$item $pkgetc/
-done
-
 pango_version=`pkg-config --variable=pango_module_version pango`
 mkdir -p $pkglib/pango/$pango_version/modules
 cp $LIBPREFIX/lib/pango/$pango_version/modules/*.so $pkglib/pango/$pango_version/modules/
@@ -288,9 +283,6 @@ cp $LIBPREFIX/lib/pango/$pango_version/modules/*.so $pkglib/pango/$pango_version
 gtk_version=`pkg-config --variable=gtk_binary_version gtk+-2.0`
 mkdir -p $pkglib/gtk-2.0/$gtk_version/{engines,immodules,loaders}
 cp -r $LIBPREFIX/lib/gtk-2.0/$gtk_version/* $pkglib/gtk-2.0/$gtk_version/
-
-mkdir -p $pkglib/gnome-vfs-2.0/modules
-cp $LIBPREFIX/lib/gnome-vfs-2.0/modules/*.so $pkglib/gnome-vfs-2.0/modules/
 
 # Find out libs we need from fink, darwinports, or from a custom install
 # (i.e. $LIBPREFIX), then loop until no changes.
@@ -302,7 +294,6 @@ lib_dep_search_list="
 	$pkglib/gtk-2.0/$gtk_version/immodules/*
 	$pkglib/gtk-2.0/$gtk_version/engines/*.so
 	$pkglib/pango/$pango_version/modules/*
-	$pkglib/gnome-vfs-2.0/modules/*
 	$package/Contents/Resources/lib/*
 	$pkgbin/*-bin
 	"
