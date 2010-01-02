@@ -51,6 +51,26 @@ static int hf_vlan_trailer = -1;
 
 static gint ett_vlan = -1;
 
+/* From Table G-2 of IEEE standard 802.1d-2004 */
+static const value_string pri_vals[] = {
+	{ 1, "Background"                        },
+	{ 2, "Spare"                             },
+	{ 0, "Best Effort (default)"             },
+	{ 3, "Excellent Effort"                  },
+	{ 4, "Controlled Load"                   },
+	{ 5, "Video, < 100ms latency and jitter" },
+	{ 6, "Voice, < 10ms latency and jitter"  },
+	{ 7, "Network Control"                   },
+	{ 0, NULL                                }
+};
+
+static const value_string cfi_vals[] = {
+	{ 0, "Canonical"     },
+	{ 1, "Non-canonical" },
+	{ 0, NULL            }
+};
+
+
 void
 capture_vlan(const guchar *pd, int offset, int len, packet_counts *ld ) {
   guint16 encap_proto;
@@ -144,10 +164,10 @@ proto_register_vlan(void)
   static hf_register_info hf[] = {
 	{ &hf_vlan_priority, {
 		"Priority", "vlan.priority", FT_UINT16, BASE_DEC,
-		NULL, 0xE000, "User Priority", HFILL }},
+		VALS(pri_vals), 0xE000, "Descriptions are recommendations from IEEE standard 802.1d-2004", HFILL }},
 	{ &hf_vlan_cfi, {
 		"CFI", "vlan.cfi", FT_UINT16, BASE_DEC,
-		NULL, 0x1000, "Canonical Format Identifier", HFILL }},
+		VALS(cfi_vals), 0x1000, "Canonical Format Identifier", HFILL }},
 	{ &hf_vlan_id, {
 		"ID", "vlan.id", FT_UINT16, BASE_DEC,
 		NULL, 0x0FFF, "VLAN ID", HFILL }},
