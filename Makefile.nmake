@@ -245,7 +245,7 @@ $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-wireshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) wsgetopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
+wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) wsgetopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) wsgetopt.obj inet_ntop.obj inet_pton.obj $(GTK_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
@@ -254,7 +254,7 @@ wireshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) wsgetop
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
 !ENDIF
 
-tshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(tshark_OBJECTS) wsgetopt.obj inet_ntop.obj epan image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) wsgetopt.obj inet_ntop.obj epan image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) wsgetopt.obj inet_ntop.obj image\tshark.res
@@ -263,7 +263,7 @@ tshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(tshark_OBJECTS) wsgetopt.obj 
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
 !ENDIF
 
-rawshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(rawshark_OBJECTS) wsgetopt.obj inet_ntop.obj epan image\rawshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) wsgetopt.obj inet_ntop.obj epan image\rawshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:rawshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(rawshark_LIBS) $(rawshark_OBJECTS) wsgetopt.obj inet_ntop.obj image\rawshark.res
@@ -294,7 +294,7 @@ editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) wsgetopt.obj strptime.ob
 	mt.exe -nologo -manifest "editcap.exe.manifest" -outputresource:editcap.exe;1
 !ENDIF
 
-mergecap.exe	: $(LIBS_CHECK)  config.h svnversion.h mergecap.obj merge.obj wsgetopt.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
+mergecap.exe	: $(LIBS_CHECK)  config.h mergecap.obj merge.obj wsgetopt.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj wsgetopt.obj $(mergecap_LIBS) image\mergecap.res
@@ -330,7 +330,7 @@ randpkt.exe	: $(randpkt_OBJECTS) wsgetopt.obj
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
-dumpcap.exe	: $(LIBS_CHECK) config.h svnversion.h $(dumpcap_OBJECTS) wsgetopt.obj inet_ntop.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res
+dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) wsgetopt.obj inet_ntop.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) wsgetopt.obj inet_ntop.obj image\dumpcap.res
@@ -417,6 +417,26 @@ text2pcap-scanner.c : text2pcap-scanner.l
 
 text2pcap-scanner.obj : text2pcap-scanner.c
 	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+
+#
+# The following targets will rebuild their respective objs 
+# if and when svnversion.h should change.
+#
+
+text2pcap.obj : $*.c svnversion.h
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $*.c
+
+mergecap.obj : $*.c svnversion.h
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $*.c
+
+capinfos.obj : $*.c svnversion.h
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $*.c
+
+editcap.obj : $*.c svnversion.h
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $*.c
+
+version_info.obj : $*.c svnversion.h
+	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $*.c
 
 clean-local: clean-deps
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
