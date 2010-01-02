@@ -40,7 +40,6 @@ DISSECTOR_SRC = \
 DISSECTOR_INCLUDES =	\
 	packet-ams.h \
 	packet-ecatmb.h \
-	packet-esl.h \
 	packet-ethercat-datagram.h \
 	packet-ethercat-frame.h \
 	packet-ioraw.h \
