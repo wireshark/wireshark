@@ -51,7 +51,7 @@ static int hf_vlan_trailer = -1;
 
 static gint ett_vlan = -1;
 
-/* From Table G-2 of IEEE standard 802.1d-2004 */
+/* From Table G-2 of IEEE standard 802.1D-2004 */
 static const value_string pri_vals[] = {
 	{ 1, "Background"                        },
 	{ 2, "Spare"                             },
@@ -164,7 +164,7 @@ proto_register_vlan(void)
   static hf_register_info hf[] = {
 	{ &hf_vlan_priority, {
 		"Priority", "vlan.priority", FT_UINT16, BASE_DEC,
-		VALS(pri_vals), 0xE000, "Descriptions are recommendations from IEEE standard 802.1d-2004", HFILL }},
+		VALS(pri_vals), 0xE000, "Descriptions are recommendations from IEEE standard 802.1D-2004", HFILL }},
 	{ &hf_vlan_cfi, {
 		"CFI", "vlan.cfi", FT_UINT16, BASE_DEC,
 		VALS(cfi_vals), 0x1000, "Canonical Format Identifier", HFILL }},
