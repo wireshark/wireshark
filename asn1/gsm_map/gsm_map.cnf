@@ -71,6 +71,7 @@ Ext-BasicServiceCode
 Ext-GeographicalInformation
 Ext-QoS-Subscribed
 Ext2-QoS-Subscribed
+Ext3-QoS-Subscribed
 ExtensionContainer
 GeographicalInformation
 GetPasswordArg

@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.078 7.3.0 (2006-06)
+-- 3GPP TS 29.078 9.0.0 (2009-12)
 -- 6.2	gsmSCF/gsmSRF interface
 -- 6.2.1	gsmSCF/gsmSRF operations and arguments
 CAP-gsmSCF-gsmSRF-ops-args {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
@@ -14,14 +14,6 @@ DEFINITIONS IMPLICIT TAGS ::= BEGIN
 -- that are used by CAP.
 
 IMPORTS
-
-	ros-InformationObjects,
-	operationcodes,
-	datatypes,
-	errortypes,
-	classes
-FROM CAP-object-identifiers {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
-umts-network(1) modules(3) cap-object-identifiers(100) version5(4)}
 
 	OPERATION
 FROM Remote-Operations-Information-Objects ros-InformationObjects
@@ -61,6 +53,13 @@ FROM CAP-errortypes errortypes
 	PARAMETERS-BOUND
 FROM CAP-classes classes
 
+	ros-InformationObjects,
+	operationcodes,
+	datatypes,
+	errortypes,
+	classes
+FROM CAP-object-identifiers {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
+umts-network(1) modules(3) cap-object-identifiers(100) version5(4)}
 
 ;
 

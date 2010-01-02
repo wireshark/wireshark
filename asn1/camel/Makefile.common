@@ -31,7 +31,6 @@ EXT_ASN_FILE_LIST_LATE = \
 	../ros/Remote-Operations-Generic-ROS-PDUs.asn
 
 ASN_FILE_LIST = \
-	TCAPMessages.asn \
 	CAP-object-identifiers.asn \
 	CAP-classes.asn \
 	CAP-datatypes.asn \

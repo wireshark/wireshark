@@ -20,6 +20,9 @@ CS2-datatypes  inap
 #.ASSIGNED_OBJECT_IDENTIFIER sms-Operations
 #.ASSIGNED_OBJECT_IDENTIFIER gsmSSF-gsmSCF-Protocol
 #.ASSIGNED_OBJECT_IDENTIFIER gsmSCF-gsmSRF-Protocol
+#.ASSIGNED_OBJECT_IDENTIFIER operationcodes
+#.ASSIGNED_OBJECT_IDENTIFIER datatypes
+#.ASSIGNED_OBJECT_IDENTIFIER errortypes
 
 #.OMIT_ASSIGNMENT Remote-Operations-Information-Objects
 Bind
