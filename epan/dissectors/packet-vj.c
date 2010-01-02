@@ -450,10 +450,8 @@ vj_init(void)
 static slcompress *
 slhc_init(void)
 {
-  slcompress *comp = se_alloc(sizeof(slcompress));
+  slcompress *comp = se_alloc0(sizeof(slcompress));
   int         i;
-
-  memset(comp, ZERO, sizeof(slcompress));
 
   /*
    * Initialize the state; there is no current connection, and

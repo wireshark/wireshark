@@ -717,8 +717,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		  keys. So just give it a copy of the crypto data instead.
 		  This has been seen for RC4-HMAC blobs.
 		*/
-		cryptocopy=g_malloc(length);
-		memcpy(cryptocopy, cryptotext, length);
+		cryptocopy=g_memdup(cryptotext, length);
 		ret = krb5_decrypt_ivec(krb5_ctx, crypto, usage,
 				cryptocopy, length,
 				&data,
@@ -731,8 +730,7 @@ printf("woohoo decrypted keytype:%d in frame:%u\n", ek->keytype, pinfo->fd->num)
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			krb5_crypto_destroy(krb5_ctx, crypto);
 			/* return a private g_malloced blob to the caller */
-			user_data=g_malloc(data.length);
-			memcpy(user_data, data.data, data.length);
+			user_data=g_memdup(data.data, data.length);
 			if (datalen) {
 				*datalen = data.length;
 			}
@@ -772,8 +770,7 @@ printf("added key in %u\n",pinfo->fd->num);
 	new_key->kvno = 0;
 	new_key->keytype = keytype;
 	new_key->length = keylength;
-	new_key->contents = g_malloc(keylength);
-	memcpy(new_key->contents, keyvalue, keylength);
+	new_key->contents = g_memdup(keyvalue, keylength);
 	g_snprintf(new_key->origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u", origin, pinfo->fd->num);
 	service_key_list = g_slist_append(service_key_list, (gpointer) new_key);
 }
@@ -829,8 +826,7 @@ read_keytab_file(const char *service_key_file)
 			sk->kvno = buf[0] << 8 | buf[1];
 			sk->keytype = KEYTYPE_DES3_CBC_MD5;
 			sk->length = DES3_KEY_SIZE;
-			sk->contents = g_malloc(DES3_KEY_SIZE);
-			memcpy(sk->contents, buf + 2, DES3_KEY_SIZE);
+			sk->contents = g_memdup(buf + 2, DES3_KEY_SIZE);
 			g_snprintf(sk->origin, KRB_MAX_ORIG_LEN, "3DES service key file, key #%d, offset %ld", count, ftell(skf));
 			service_key_list = g_slist_append(service_key_list, (gpointer) sk);
 			fseek(skf, newline_skip, SEEK_CUR);

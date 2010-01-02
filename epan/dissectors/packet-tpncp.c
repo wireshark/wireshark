@@ -54,7 +54,6 @@
 #define UDP_PORT_TPNCP_HOST BASE_TPNCP_PORT
 
 #define BASE_TPNCP_DATA_LEN 256
-#define MAX_TPNCP_DAT_FILE_PATH_LEN BASE_TPNCP_DATA_LEN
 #define MAX_TPNCP_DB_ENTRY_LEN BASE_TPNCP_DATA_LEN
 
 #define MAX_TPNCP_DB_SIZE 3000
@@ -682,12 +681,10 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 static gint init_tpncp_db(void) {
-    gchar *tpncp_dat_file_path = NULL;
-    FILE *file = NULL;
+    gchar *tpncp_dat_file_path;
+    FILE *file;
 
-    tpncp_dat_file_path = ep_alloc(MAX_TPNCP_DAT_FILE_PATH_LEN);
-    tpncp_dat_file_path[0] = 0;
-    g_snprintf(tpncp_dat_file_path, MAX_TPNCP_DAT_FILE_PATH_LEN, "%s" G_DIR_SEPARATOR_S"tpncp" G_DIR_SEPARATOR_S "tpncp.dat", get_datafile_dir());
+    tpncp_dat_file_path = ep_strdup_printf("%s" G_DIR_SEPARATOR_S"tpncp" G_DIR_SEPARATOR_S "tpncp.dat", get_datafile_dir());
 
     /* Open file with TPNCP data. */
     if ((file = ws_fopen(tpncp_dat_file_path, "r")) == NULL)

@@ -12483,8 +12483,7 @@ static void init_wepkeys(void) {
     wep_keylens[keyidx] = 0;
 
 #ifdef USE_ENV
-    buf=ep_alloc(128);
-    g_snprintf(buf, 128, "WIRESHARK_WEPKEY%d", i+1);
+    buf = ep_strdup_printf("WIRESHARK_WEPKEY%d", i+1);
     tmp = getenv(buf);
 #else
     tmp = wep_keystr[i];

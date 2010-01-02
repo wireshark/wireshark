@@ -609,9 +609,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
         }
 
 	if (string_data) {
-		char *tmpstr;
-		tmpstr = tvb_get_ephemeral_string(tvb, data_offset, string_length_copy);
-		string_buffer = memcpy(ep_alloc(string_length_copy+1), tmpstr, string_length_copy);
+		string_buffer = tvb_get_ephemeral_string(tvb, data_offset, string_length_copy);
 	} else {
 		string_buffer = tvb_memcpy(tvb, ep_alloc(string_length_copy+1), data_offset, string_length_copy);
 	}
@@ -1663,12 +1661,9 @@ rpc_prog_info_value *rpc_prog = NULL;
 			{ 0,NULL,NULL,NULL }
 		};
 
-		NAME=g_malloc(36);
-		Name=g_malloc(32);
-		name=g_malloc(32);
-		g_snprintf(NAME, 36, "Unknown RPC Program:%d",prpc_prog_key->prog);
-		g_snprintf(Name, 32, "RPC:%d",prpc_prog_key->prog);
-		g_snprintf(name, 32, "rpc%d",prpc_prog_key->prog);
+		NAME = g_strdup_printf("Unknown RPC Program:%d",prpc_prog_key->prog);
+		Name = g_strdup_printf("RPC:%d",prpc_prog_key->prog);
+		name = g_strdup_printf("rpc%d",prpc_prog_key->prog);
 		proto_rpc_unknown_program = proto_register_protocol(NAME, Name, name);
 
 		rpc_init_prog(proto_rpc_unknown_program, prpc_prog_key->prog, ett_rpc_unknown_program);

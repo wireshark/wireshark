@@ -822,14 +822,8 @@ stats_account_string (string_counter_t **ret_list, const gchar *new_value)
 			return (0);
 		}
 
-	entry = ep_alloc (sizeof (*entry));
-	if (entry == NULL)
-		return (-1);
-	memset (entry, 0, sizeof (*entry));
-
+	entry = ep_alloc0 (sizeof (*entry));
 	entry->string = ep_strdup (new_value);
-	if (entry->string == NULL)
-		return (-1);
 	entry->count = 1;
 	entry->next = *ret_list;
 
