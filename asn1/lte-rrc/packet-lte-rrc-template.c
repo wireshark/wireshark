@@ -39,6 +39,8 @@
 
 #include "packet-ber.h"
 #include "packet-per.h"
+#include "packet-rrc.h"
+#include "packet-gsm_a_common.h"
 
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
@@ -46,6 +48,7 @@
 #define PFNAME "lte_rrc"
 
 static dissector_handle_t nas_eps_handle = NULL;
+static guint32 lte_rrc_rat_type_value = -1;
 
 /* Include constants */
 #include "packet-lte-rrc-val.h"
@@ -63,6 +66,7 @@ static int ett_lte_rrc = -1;
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
+static int dissect_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 #include "packet-lte-rrc-fn.c"
 
 static void

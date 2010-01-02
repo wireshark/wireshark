@@ -47,6 +47,8 @@
 
 #include "packet-ber.h"
 #include "packet-per.h"
+#include "packet-rrc.h"
+#include "packet-gsm_a_common.h"
 
 
 #define PNAME  "LTE Radio Resource Control (RRC) protocol"
@@ -54,6 +56,7 @@
 #define PFNAME "lte_rrc"
 
 static dissector_handle_t nas_eps_handle = NULL;
+static guint32 lte_rrc_rat_type_value = -1;
 
 /* Include constants */
 
@@ -87,7 +90,7 @@ static dissector_handle_t nas_eps_handle = NULL;
 #define maxReestabInfo                 32
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 52 "packet-lte-rrc-template.c"
+#line 55 "packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -103,6 +106,7 @@ static int hf_lte_rrc_DL_DCCH_Message_PDU = -1;   /* DL_DCCH_Message */
 static int hf_lte_rrc_UL_CCCH_Message_PDU = -1;   /* UL_CCCH_Message */
 static int hf_lte_rrc_UL_DCCH_Message_PDU = -1;   /* UL_DCCH_Message */
 static int hf_lte_rrc_UECapabilityInformation_PDU = -1;  /* UECapabilityInformation */
+static int hf_lte_rrc_UE_EUTRA_Capability_PDU = -1;  /* UE_EUTRA_Capability */
 static int hf_lte_rrc_lte_rrc_HandoverCommand_PDU = -1;  /* HandoverCommand */
 static int hf_lte_rrc_lte_rrc_HandoverPreparationInformation_PDU = -1;  /* HandoverPreparationInformation */
 static int hf_lte_rrc_message = -1;               /* BCCH_BCH_MessageType */
@@ -999,7 +1003,7 @@ static int hf_lte_rrc_reportConfigInterRAT = -1;  /* ReportConfigInterRAT */
 static int hf_lte_rrc_m_TMSI = -1;                /* BIT_STRING_SIZE_32 */
 static int hf_lte_rrc_UE_CapabilityRAT_ContainerList_item = -1;  /* UE_CapabilityRAT_Container */
 static int hf_lte_rrc_rat_Type = -1;              /* RAT_Type */
-static int hf_lte_rrc_ueCapabilityRAT_Container = -1;  /* OCTET_STRING */
+static int hf_lte_rrc_ueCapabilityRAT_Container = -1;  /* T_ueCapabilityRAT_Container */
 static int hf_lte_rrc_accessStratumRelease = -1;  /* AccessStratumRelease */
 static int hf_lte_rrc_ue_Category = -1;           /* INTEGER_1_5 */
 static int hf_lte_rrc_pdcp_Parameters = -1;       /* PDCP_Parameters */
@@ -1104,7 +1108,7 @@ static int hf_lte_rrc_key_eNodeB_Star = -1;       /* Key_eNodeB_Star */
 static int hf_lte_rrc_ue_InactiveTime = -1;       /* T_ue_InactiveTime */
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 57 "packet-lte-rrc-template.c"
+#line 60 "packet-lte-rrc-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -1650,11 +1654,12 @@ static gint ett_lte_rrc_AdditionalReestabInfo = -1;
 static gint ett_lte_rrc_RRM_Config = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 62 "packet-lte-rrc-template.c"
+#line 65 "packet-lte-rrc-template.c"
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
+static int dissect_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 /*--- Included file: packet-lte-rrc-fn.c ---*/
 #line 1 "packet-lte-rrc-fn.c"
@@ -11692,7 +11697,10 @@ static const value_string lte_rrc_RAT_Type_vals[] = {
 static int
 dissect_lte_rrc_RAT_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, &lte_rrc_rat_type_value, TRUE, 0, NULL);
+
+
+
 
   return offset;
 }
@@ -13469,16 +13477,61 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure ");
 }
 
 
+
+static int
+dissect_lte_rrc_T_ueCapabilityRAT_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *ue_eutra_cap_tvb=NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &ue_eutra_cap_tvb);
+
+
+if(ue_eutra_cap_tvb){
+	switch(lte_rrc_rat_type_value){
+	case 0:
+		/* eutra */
+		dissect_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb,actx->pinfo, tree);
+		break;
+	case 1:
+		/* utra */
+		dissect_rrc_InterRATHandoverInfo_PDU(ue_eutra_cap_tvb, actx->pinfo, tree);
+		break;
+	case 2:
+		/* geran-cs */
+		de_ms_cm_2(ue_eutra_cap_tvb, tree, 0, 5, NULL, 0);
+		de_ms_cm_3(ue_eutra_cap_tvb, tree, 5, tvb_length(ue_eutra_cap_tvb)-5, NULL, 0);
+		break;
+	case 3:
+		/* geran-ps */
+		de_gmm_ms_radio_acc_cap(ue_eutra_cap_tvb, tree, 0, tvb_length(ue_eutra_cap_tvb), NULL, 0);
+		break;
+	case 4:
+		/* cdma2000-1XRTT */
+		/* dissection of "A21 Mobile Subscription Information" could be added to packet-ansi_a.c */
+		break;
+	default:
+		break;
+	}
+
+}
+
+
+  return offset;
+}
+
+
 static const per_sequence_t UE_CapabilityRAT_Container_sequence[] = {
   { &hf_lte_rrc_rat_Type    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RAT_Type },
-  { &hf_lte_rrc_ueCapabilityRAT_Container, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_OCTET_STRING },
+  { &hf_lte_rrc_ueCapabilityRAT_Container, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_ueCapabilityRAT_Container },
   { NULL, 0, 0, NULL }
 };
 
 static int
 dissect_lte_rrc_UE_CapabilityRAT_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  lte_rrc_rat_type_value = -1;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_UE_CapabilityRAT_Container, UE_CapabilityRAT_Container_sequence);
+
+
 
   return offset;
 }
@@ -15536,6 +15589,14 @@ static int dissect_UECapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *p
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_UE_EUTRA_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_lte_rrc_UE_EUTRA_Capability(tvb, offset, &asn1_ctx, tree, hf_lte_rrc_UE_EUTRA_Capability_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_lte_rrc_HandoverCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -15555,7 +15616,7 @@ int dissect_lte_rrc_HandoverPreparationInformation_PDU(tvbuff_t *tvb _U_, packet
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 67 "packet-lte-rrc-template.c"
+#line 71 "packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -15615,6 +15676,10 @@ void proto_register_lte_rrc(void) {
       { "UECapabilityInformation", "lte-rrc.UECapabilityInformation",
         FT_NONE, BASE_NONE, NULL, 0,
         "lte_rrc.UECapabilityInformation", HFILL }},
+    { &hf_lte_rrc_UE_EUTRA_Capability_PDU,
+      { "UE-EUTRA-Capability", "lte-rrc.UE_EUTRA_Capability",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "lte_rrc.UE_EUTRA_Capability", HFILL }},
     { &hf_lte_rrc_lte_rrc_HandoverCommand_PDU,
       { "HandoverCommand", "lte-rrc.HandoverCommand",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19202,7 +19267,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_ueCapabilityRAT_Container,
       { "ueCapabilityRAT-Container", "lte-rrc.ueCapabilityRAT_Container",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "lte_rrc.OCTET_STRING", HFILL }},
+        "lte_rrc.T_ueCapabilityRAT_Container", HFILL }},
     { &hf_lte_rrc_accessStratumRelease,
       { "accessStratumRelease", "lte-rrc.accessStratumRelease",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_AccessStratumRelease_vals), 0,
@@ -19613,7 +19678,7 @@ void proto_register_lte_rrc(void) {
         "lte_rrc.T_ue_InactiveTime", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 92 "packet-lte-rrc-template.c"
+#line 96 "packet-lte-rrc-template.c"
   };
 
   /* List of subtrees */
@@ -20160,7 +20225,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRM_Config,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 98 "packet-lte-rrc-template.c"
+#line 102 "packet-lte-rrc-template.c"
   };
 
 
@@ -20186,7 +20251,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 110 "packet-lte-rrc-template.c"
+#line 114 "packet-lte-rrc-template.c"
 
 }
 

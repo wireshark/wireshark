@@ -20,6 +20,7 @@ HandoverPreparationInformation_PDU
 #.PDU_NEW
 HandoverCommand
 HandoverPreparationInformation
+UE-EUTRA-Capability
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch
 PCCH-Message                 @pcch
@@ -37,6 +38,71 @@ UECapabilityInformation      @ue_cap_info
 
 	if ((nas_eps_tvb)&&(nas_eps_handle))
 		call_dissector(nas_eps_handle,nas_eps_tvb,%(ACTX)s->pinfo, tree);
+
+#.FN_BODY UE-CapabilityRAT-Container
+  lte_rrc_rat_type_value = -1;
+%(DEFAULT_BODY)s
+
+#.FN_BODY RAT-Type VAL_PTR = &lte_rrc_rat_type_value
+%(DEFAULT_BODY)s
+
+#RAT-Type ::=						ENUMERATED {
+#										eutra, utra, geran-cs, geran-ps, cdma2000-1XRTT,
+#										spare3, spare2, spare1, ...}
+# ueCapabilityRAT-Container
+# Container for the UE capabilities of the indicated RAT. The encoding is defined in the specification of each RAT:
+# For E-UTRA: the encoding of UE capabilities is defined in IE UE-EUTRA-Capability.
+# For UTRA: the octet string contains the INTER RAT HANDOVER INFO message defined in TS 25.331 [19].
+# For GERAN CS: the octet string contains the concatenated string of the Mobile Station Classmark 2 and Mobile
+# Station Classmark 3. The first 5 octets correspond to Mobile Station Classmark 2 and the following octets correspond
+# to Mobile Station Classmark 3. The Mobile Station Classmark 2 is formatted as 'TLV' and is coded in the same way as
+# the Mobile Station Classmark 2 information element in TS 24.008 [49]. The first octet is the Mobile station classmark 2
+# IEI and its value shall be set to 33H. The second octet is the Length of mobile station classmark 2 and its value shall
+# be set to 3. The octet 3 contains the first octet of the value part of the Mobile Station Classmark 2 information element,
+# the octet 4 contains the second octet of the value part of the Mobile Station Classmark 2 information element and so
+# on. For each of these octets, the first/ leftmost/ most significant bit of the octet contains b8 of the corresponding octet
+# of the Mobile Station Classmark 2. The Mobile Station Classmark 3 is formatted as 'V' and is coded in the same way
+# as the value part in the Mobile station classmark 3 information element in TS 24.008 [49]. The sixth octet of this octet
+# string contains octet 1 of the value part of Mobile station classmark 3, the seventh of octet of this octet string contains
+# octet 2 of the value part of Mobile station classmark 3 and so on. Note.
+# For GERAN PS: the encoding of UE capabilities is formatted as 'V' and is coded in the same way as the value part in
+# the MS Radio Access Capability information element in TS 24.008 [49].
+# For CDMA2000-1XRTT: the octet string contains the A21 Mobile Subscription Information and the encoding of this is
+# defined in A.S0008 [33]. The A21 Mobile Subscription Information contains the supported CDMA2000 1xRTT band
+# class and band sub-class information.
+
+#.FN_BODY UE-CapabilityRAT-Container/ueCapabilityRAT-Container VAL_PTR = &ue_eutra_cap_tvb
+  tvbuff_t *ue_eutra_cap_tvb=NULL;
+%(DEFAULT_BODY)s
+
+if(ue_eutra_cap_tvb){
+	switch(lte_rrc_rat_type_value){
+	case 0:
+		/* eutra */
+		dissect_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb,%(ACTX)s->pinfo, tree);
+		break;
+	case 1:
+		/* utra */
+		dissect_rrc_InterRATHandoverInfo_PDU(ue_eutra_cap_tvb, %(ACTX)s->pinfo, tree);
+		break;
+	case 2:
+		/* geran-cs */
+		de_ms_cm_2(ue_eutra_cap_tvb, tree, 0, 5, NULL, 0);
+		de_ms_cm_3(ue_eutra_cap_tvb, tree, 5, tvb_length(ue_eutra_cap_tvb)-5, NULL, 0);
+		break;
+	case 3:
+		/* geran-ps */
+		de_gmm_ms_radio_acc_cap(ue_eutra_cap_tvb, tree, 0, tvb_length(ue_eutra_cap_tvb), NULL, 0);
+		break;
+	case 4:
+		/* cdma2000-1XRTT */
+		/* dissection of "A21 Mobile Subscription Information" could be added to packet-ansi_a.c */
+		break;
+	default:
+		break;
+	}
+
+}
 
 #.FN_HDR MasterInformationBlock
 
