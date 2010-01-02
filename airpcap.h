@@ -92,11 +92,12 @@ typedef struct _AirpcapDeviceDescription
 #define WEP_KEY_MAX_SIZE 32		///< Maximum size of a WEP key, in bytes. This is the size of an entry in the
 								///< AirpcapWepKeysCollection structure
 
+#ifdef _WIN32
 #ifndef __MINGW32__
 #pragma pack(push)
 #pragma pack(1)
 #endif // __MINGW32__
-
+#endif
 
 #define AIRPCAP_KEYTYPE_WEP		0	///< Key type: WEP. The key can have an arbitrary length smaller than 32 bytes.
 #define AIRPCAP_KEYTYPE_TKIP	1	///< Key type: TKIP (WPA). NOT SUPPORTED YET.
@@ -211,9 +212,11 @@ AirpcapBpfHeader, *PAirpcapBpfHeader;
 #define AIRPCAP_ALIGNMENT sizeof(int)
 #define AIRPCAP_WORDALIGN(x) (((x)+(AIRPCAP_ALIGNMENT-1))&~(AIRPCAP_ALIGNMENT-1))
 
+#ifdef _WIN32
 #ifndef __MINGW32__
 #pragma pack(pop)
 #endif // __MINGW32__
+#endif
 
 #define AIRPCAP_ERRBUF_SIZE 512		///< Size of the error buffer, in bytes
 
