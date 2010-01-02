@@ -53,7 +53,7 @@ ProtocolIE-Field/value ie_field_value
 #.FN_PARS UTRAN-GPSReferenceTimeResult/ue-GPSTimingOfCell FN_VARIANT = _64b
 #.FN_PARS UTRAN-GANSSReferenceTimeUL/ue-GANSSTimingOfCellFrames FN_VARIANT = _64b
 #.FN_PARS UTRAN-GPSReferenceTime/utran-GPSTimingOfCell FN_VARIANT = _64b
-
+#.FN_PARS UTRAN-GANSSReferenceTimeResult/ue-GANSSTimingOfCell FN_VARIANT = _64b
 
 #.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID
@@ -221,7 +221,38 @@ id-extendedTimingAdvanceLCR						ProtocolIE-ID
 id-additionalMeasurementInforLCR				ProtocolIE-ID
 id-timingAdvanceLCR-R7							ProtocolIE-ID
 id-rxTimingDeviationLCR 						ProtocolIE-ID
-id-GPSReferenceTimeUncertainty					ProtocolIE-ID 
+id-GPSReferenceTimeUncertainty					ProtocolIE-ID
+id-GANSS-AddIonoModelReq						ProtocolIE-ID
+id-GANSS-EarthOrientParaReq						ProtocolIE-ID
+id-GANSS-Additional-Ionospheric-Model			ProtocolIE-ID
+id-GANSS-Earth-Orientation-Parameters			ProtocolIE-ID
+id-GANSS-Additional-Time-Models					ProtocolIE-ID
+id-GANSS-Additional-Navigation-Models			ProtocolIE-ID
+id-GANSS-Additional-UTC-Models					ProtocolIE-ID
+id-GANSS-Auxiliary-Information					ProtocolIE-ID
+id-GANSS-SBAS-ID								ProtocolIE-ID
+id-GANSS-SBAS-IDs								ProtocolIE-ID
+id-GANSS-Signal-IDs								ProtocolIE-ID
+id-GANSS-alm-keplerianNAVAlmanac				ProtocolIE-ID
+id-GANSS-alm-keplerianReducedAlmanac			ProtocolIE-ID
+id-GANSS-alm-keplerianMidiAlmanac				ProtocolIE-ID
+id-GANSS-alm-keplerianGLONASS					ProtocolIE-ID
+id-GANSS-alm-ecefSBASAlmanac					ProtocolIE-ID
+id-UTRAN-GANSSReferenceTimeResult				ProtocolIE-ID
+id-GANSS-Reference-Time-Only					ProtocolIE-ID
+id-GANSS-AddADchoices							ProtocolIE-ID
+id-supportGANSSNonNativeADchoices				ProtocolIE-ID
+id-PositionDataUEbased							ProtocolIE-ID
+id-ganssCodePhaseAmbiguityExt					ProtocolIE-ID
+id-ganssIntegerCodePhaseExt						ProtocolIE-ID
+id-GANSScarrierPhaseRequested					ProtocolIE-ID
+id-GANSSMultiFreqMeasRequested					ProtocolIE-ID
+id-ganssReq-AddIonosphericModel					ProtocolIE-ID
+id-ganssReq-EarthOrientPara						ProtocolIE-ID
+id-ganssAddNavigationModel-req					ProtocolIE-ID
+id-ganssAddUTCModel-req							ProtocolIE-ID
+id-ganssAuxInfo-req								ProtocolIE-ID
+id-GANSS-AlmanacModelChoice						ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -294,8 +325,37 @@ AdditionalMeasurementInforLCR					N pcap.extension id-additionalMeasurementInfor
 GNSS-PositioningMethod							N pcap.extension id-GNSS-PositioningMethod
 NetworkAssistedGANSSSupport						N pcap.extension id-NetworkAssistedGANSSSuport
 UTRAN-GPSReferenceTime							N pcap.extension id-UTRAN-GPSReferenceTime
-
-
+GANSS-AddIonoModelReq							N pcap.extension id-GANSS-AddIonoModelReq
+GANSS-EarthOrientParaReq						N pcap.extension id-GANSS-EarthOrientParaReq
+GANSS-Additional-Ionospheric-Model				N pcap.extension id-GANSS-Additional-Ionospheric-Model
+GANSS-Earth-Orientation-Parameters				N pcap.extension id-GANSS-Earth-Orientation-Parameters
+GANSS-Additional-Time-Models					N pcap.extension id-GANSS-Additional-Time-Models
+GANSS-Additional-Navigation-Models				N pcap.extension id-GANSS-Additional-Navigation-Models
+GANSS-Additional-UTC-Models						N pcap.extension id-GANSS-Additional-UTC-Models
+GANSS-Auxiliary-Information						N pcap.extension id-GANSS-Auxiliary-Information
+GANSS-SBAS-ID									N pcap.extension id-GANSS-SBAS-ID
+GANSS-SBAS-IDs									N pcap.extension id-GANSS-SBAS-IDs
+GANSS-Signal-IDs								N pcap.extension id-GANSS-Signal-IDs
+GANSS-ALM-NAVKeplerianSet						N pcap.ies id-GANSS-alm-keplerianNAVAlmanac
+GANSS-ALM-ReducedKeplerianSet					N pcap.ies id-GANSS-alm-keplerianReducedAlmanac
+GANSS-ALM-MidiAlmanacSet						N pcap.ies id-GANSS-alm-keplerianMidiAlmanac
+GANSS-ALM-GlonassAlmanacSet						N pcap.ies id-GANSS-alm-keplerianGLONASS
+GANSS-ALM-ECEFsbasAlmanacSet					N pcap.ies id-GANSS-alm-ecefSBASAlmanac
+UTRAN-GANSSReferenceTimeResult					N pcap.ies id-UTRAN-GANSSReferenceTimeResult
+GANSS-Reference-Time-Only						N pcap.ies id-GANSS-Reference-Time-Only
+GANSS-AddADchoices								N pcap.extension id-GANSS-AddADchoices
+SupportGANSSNonNativeADchoices					N pcap.extension id-supportGANSSNonNativeADchoices
+PositionDataUEbased								N pcap.extension id-PositionDataUEbased
+GanssCodePhaseAmbiguityExt						N pcap.extension id-ganssCodePhaseAmbiguityExt
+GanssIntegerCodePhaseExt						N pcap.extension id-ganssIntegerCodePhaseExt
+GANSScarrierPhaseRequested						N pcap.extension id-GANSScarrierPhaseRequested
+GANSSMultiFreqMeasRequested						N pcap.extension id-GANSSMultiFreqMeasRequested
+GANSSReq-AddIonosphericModel					N pcap.extension id-ganssReq-AddIonosphericModel
+GANSSReq-EarthOrientPara						N pcap.extension id-ganssReq-EarthOrientPara
+GANSS-AddNavigationModel-Req					N pcap.extension id-ganssAddNavigationModel-req
+GANSS-AddUTCModel-Req							N pcap.extension id-ganssAddUTCModel-req
+GANSS-AuxInfo-req								N pcap.extension id-ganssAuxInfo-req
+#N pcap.extension id-GANSS-AlmanacModelChoice Not used?
 #PCAP-ELEMENTARY-PROCEDURE
 
 PositionCalculationRequest						N pcap.proc.imsg id-PositionCalculation

@@ -1,6 +1,6 @@
 -- $Id$
 --
--- 3GPP TS 25.453 V7.9.0 (2007-12)
+-- 3GPP TS 25.453 V9.0.0 (2009-12)
 --
 -- 9.3.7	Container Definitions
 -- **************************************************************
@@ -40,7 +40,7 @@ FROM PCAP-CommonDataTypes;
 -- **************************************************************
 
 PCAP-PROTOCOL-IES ::= CLASS {
-	&id					ProtocolIE-ID 		UNIQUE,
+	&id					ProtocolIE-ID		UNIQUE,
 	&criticality		Criticality,
 	&Value,
 	&presence			Presence
@@ -106,7 +106,7 @@ ProtocolIE-Single-Container {PCAP-PROTOCOL-IES : IEsSetParam} ::=
 ProtocolIE-Field {PCAP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 	id					PCAP-PROTOCOL-IES.&id				({IEsSetParam}),
 	criticality			PCAP-PROTOCOL-IES.&criticality		({IEsSetParam}{@id}),
-	value				PCAP-PROTOCOL-IES.&Value	        ({IEsSetParam}{@id})
+	value				PCAP-PROTOCOL-IES.&Value			({IEsSetParam}{@id})
 }
 
 -- **************************************************************

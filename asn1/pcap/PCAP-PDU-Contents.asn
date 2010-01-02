@@ -1,6 +1,6 @@
 -- $Id$
 --
--- 3GPP TS 25.453 V7.9.0 (2007-12)
+-- 3GPP TS 25.453 V9.0.0 (2009-12)
 --
 --9.3.3	PDU Definitions
 -- **************************************************************
@@ -73,6 +73,7 @@ IMPORTS
 FROM PCAP-IEs
 
 	TransactionID
+
 FROM PCAP-CommonDataTypes
 
 	ProtocolExtensionContainer{},
@@ -83,6 +84,7 @@ FROM PCAP-CommonDataTypes
 	PCAP-PRIVATE-IES,
 	PCAP-PROTOCOL-EXTENSION,
 	PCAP-PROTOCOL-IES
+
 FROM PCAP-Containers
 
 	id-Cause,
@@ -138,7 +140,6 @@ FROM PCAP-Containers
 
 FROM PCAP-Constants;
 
-
 -- **************************************************************
 --
 -- POSITION CALCULATION REQUEST
@@ -146,8 +147,8 @@ FROM PCAP-Constants;
 -- **************************************************************
 
 PositionCalculationRequest ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container       { {PositionCalculationRequestIEs} },
-	protocolExtensions	ProtocolExtensionContainer { {PositionCalculationRequestExtensions} } 	OPTIONAL,
+	protocolIEs			ProtocolIE-Container		{ {PositionCalculationRequestIEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {PositionCalculationRequestExtensions} } 	OPTIONAL,
 	...
 }
 
@@ -161,11 +162,11 @@ PositionCalculationRequestExtensions PCAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-CellId-MeasuredResultsSets		CRITICALITY reject	EXTENSION CellId-MeasuredResultsSets		PRESENCE optional } |
 	{ ID id-OTDOA-MeasurementGroup			CRITICALITY reject	EXTENSION OTDOA-MeasurementGroup			PRESENCE optional } |
 	{ ID id-HorizontalAccuracyCode			CRITICALITY ignore	EXTENSION HorizontalAccuracyCode			PRESENCE optional } |
-	{ ID id-VerticalAccuracyCode			CRITICALITY ignore	EXTENSION VerticalAccuracyCode				PRESENCE optional } | 	
-	{ ID id-UTDOA-Group						CRITICALITY reject	EXTENSION UTDOA-Group						PRESENCE optional } | 	
+	{ ID id-VerticalAccuracyCode			CRITICALITY ignore	EXTENSION VerticalAccuracyCode				PRESENCE optional } |
+	{ ID id-UTDOA-Group						CRITICALITY reject	EXTENSION UTDOA-Group						PRESENCE optional } |
 	{ ID id-Positioning-ResponseTime		CRITICALITY ignore	EXTENSION Positioning-ResponseTime		PRESENCE optional } |
 	{ ID id-IncludeVelocity					CRITICALITY ignore	EXTENSION IncludeVelocity					PRESENCE optional } |
-	{ ID id-PeriodicPosCalcInfo				CRITICALITY ignore	EXTENSION PeriodicPosCalcInfo				PRESENCE optional }|
+	{ ID id-PeriodicPosCalcInfo				CRITICALITY ignore	EXTENSION PeriodicPosCalcInfo				PRESENCE optional } |
 	{ ID id-GANSS-MeasuredResultsList		CRITICALITY reject	EXTENSION GANSS-MeasuredResultsList		PRESENCE optional },
 	...
 }
@@ -177,8 +178,8 @@ PositionCalculationRequestExtensions PCAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 PositionCalculationResponse ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container       { {PositionCalculationResponseIEs} },
-	protocolExtensions	ProtocolExtensionContainer { {PositionCalculationResponseExtensions} } 	OPTIONAL,
+	protocolIEs			ProtocolIE-Container		{ {PositionCalculationResponseIEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {PositionCalculationResponseExtensions} } 	OPTIONAL,
 	...
 }
 
@@ -201,8 +202,8 @@ PositionCalculationResponseExtensions PCAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 PositionCalculationFailure ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container       { {PositionCalculationFailureIEs} },
-	protocolExtensions	ProtocolExtensionContainer { {PositionCalculationFailureExtensions} } 	OPTIONAL,
+	protocolIEs			ProtocolIE-Container		{ {PositionCalculationFailureIEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {PositionCalculationFailureExtensions} } 	OPTIONAL,
 	...
 }
 
@@ -224,7 +225,7 @@ PositionCalculationFailureExtensions PCAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 InformationExchangeInitiationRequest ::= SEQUENCE {
-	protocolIEs				ProtocolIE-Container	{{InformationExchangeInitiationRequest-IEs}},
+	protocolIEs				ProtocolIE-Container		{{InformationExchangeInitiationRequest-IEs}},
 	protocolExtensions		ProtocolExtensionContainer	{{InformationExchangeInitiationRequest-Extensions}}		OPTIONAL,
 	...
 }
@@ -255,7 +256,7 @@ InformationExchangeObjectType-InfEx-Rqst ::= CHOICE {
 
 RefPosition-InfEx-Rqst ::= SEQUENCE {
 	referencePositionEstimate		UE-PositionEstimate,
-	iE-Extensions					ProtocolExtensionContainer  { { RefPositionItem-InfEx-Rqst-ExtIEs} }		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer	{ { RefPositionItem-InfEx-Rqst-ExtIEs} }		OPTIONAL,
 	...
 }
 
@@ -267,12 +268,12 @@ Extension-InformationExchangeObjectType-InfEx-Rqst	::= ProtocolIE-Single-Contain
 
 Extension-InformationExchangeObjectType-InfEx-RqstIE PCAP-PROTOCOL-IES ::= {
 	{ ID id-UC-ID-InfEx-Rqst			CRITICALITY reject	TYPE UC-ID-InfEx-Rqst			PRESENCE mandatory } |
-	{ ID id-CellId-MeasuredResultsSets	CRITICALITY ignore	TYPE CellId-MeasuredResultsSets	PRESENCE optional }
+	{ ID id-CellId-MeasuredResultsSets	CRITICALITY ignore	TYPE CellId-MeasuredResultsSets	PRESENCE mandatory }
 }
 
 UC-ID-InfEx-Rqst ::= SEQUENCE {
 	referenceUC-ID					UC-ID,
-	iE-Extensions					ProtocolExtensionContainer  { { UCIDItem-InfEx-Rqst-ExtIEs} }		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { UCIDItem-InfEx-Rqst-ExtIEs} }		OPTIONAL,
 	...
 }
 
@@ -288,7 +289,7 @@ UCIDItem-InfEx-Rqst-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 InformationExchangeInitiationResponse ::= SEQUENCE {
-	protocolIEs				ProtocolIE-Container	{{InformationExchangeInitiationResponse-IEs}},
+	protocolIEs				ProtocolIE-Container		{{InformationExchangeInitiationResponse-IEs}},
 	protocolExtensions		ProtocolExtensionContainer	{{InformationExchangeInitiationResponse-Extensions}}		OPTIONAL,
 	...
 }
@@ -311,7 +312,7 @@ InformationExchangeObjectType-InfEx-Rsp ::= CHOICE {
 
 RefPosition-InfEx-Rsp ::= SEQUENCE {
 	requestedDataValue				RequestedDataValue,
-	iE-Extensions					ProtocolExtensionContainer  { { RefPositionItem-InfEx-Rsp-ExtIEs} }		OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { RefPositionItem-InfEx-Rsp-ExtIEs} }		OPTIONAL,
 	...
 }
 
@@ -327,7 +328,7 @@ RefPositionItem-InfEx-Rsp-ExtIEs PCAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 InformationExchangeInitiationFailure ::= SEQUENCE {
-	protocolIEs				ProtocolIE-Container	{{InformationExchangeInitiationFailure-IEs}},
+	protocolIEs				ProtocolIE-Container		{{InformationExchangeInitiationFailure-IEs}},
 	protocolExtensions		ProtocolExtensionContainer	{{InformationExchangeInitiationFailure-Extensions}}		OPTIONAL,
 	...
 }
@@ -380,8 +381,8 @@ PositionInitiationRequestExtensions PCAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 PositionInitiationResponse ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container       { {PositionInitiationResponseIEs} },
-	protocolExtensions	ProtocolExtensionContainer { {PositionInitiationResponseExtensions} } 	OPTIONAL,
+	protocolIEs			ProtocolIE-Container		{ {PositionInitiationResponseIEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {PositionInitiationResponseExtensions} } 	OPTIONAL,
 	...
 }
 
@@ -405,8 +406,8 @@ PositionInitiationResponseExtensions PCAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 PositionInitiationFailure ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container       { {PositionInitiationFailureIEs} },
-	protocolExtensions	ProtocolExtensionContainer { {PositionInitiationFailureExtensions} } 	OPTIONAL,
+	protocolIEs			ProtocolIE-Container		{ {PositionInitiationFailureIEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {PositionInitiationFailureExtensions} } 	OPTIONAL,
 	...
 }
 
@@ -469,16 +470,16 @@ PositionActivationResponseIEs PCAP-PROTOCOL-IES ::= {
 	{ ID id-UE-PositionEstimateInfo			CRITICALITY ignore	TYPE UE-PositionEstimateInfo		PRESENCE optional } |
 	{ ID id-GPS-MeasuredResultsList			CRITICALITY reject	TYPE MeasuredResultsList			PRESENCE optional } | 
 	{ ID id-CellId-MeasuredResultsSets		CRITICALITY reject	TYPE CellId-MeasuredResultsSets		PRESENCE optional } |
-	{ ID id-OTDOA-MeasuredResultsSets		CRITICALITY reject	TYPE OTDOA-MeasuredResultsSets			PRESENCE optional } |
+	{ ID id-OTDOA-MeasuredResultsSets		CRITICALITY reject	TYPE OTDOA-MeasuredResultsSets		PRESENCE optional } |
 	{ ID id-UTDOA-Group						CRITICALITY reject	TYPE UTDOA-Group					PRESENCE optional },
 	...
 }
 
 PositionActivationResponseExtensions PCAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-VelocityEstimate				CRITICALITY ignore	EXTENSION VelocityEstimate		PRESENCE optional} |
-	{ ID id-MeasInstructionsUsed			CRITICALITY ignore	EXTENSION MeasInstructionsUsed	PRESENCE optional} |
-	{ ID id-GANSS-MeasuredResultsList		CRITICALITY reject	EXTENSION GANSS-MeasuredResultsList	PRESENCE optional } |
-	{ ID id-AdditionalGPSAssistDataRequired			CRITICALITY ignore	EXTENSION AdditionalGPSAssistDataRequired			PRESENCE optional } |
+	{ ID id-VelocityEstimate						CRITICALITY ignore	EXTENSION VelocityEstimate							PRESENCE optional} |
+	{ ID id-MeasInstructionsUsed					CRITICALITY ignore	EXTENSION MeasInstructionsUsed						PRESENCE optional} |
+	{ ID id-GANSS-MeasuredResultsList				CRITICALITY reject	EXTENSION GANSS-MeasuredResultsList				PRESENCE optional } |
+	{ ID id-AdditionalGPSAssistDataRequired			CRITICALITY ignore	EXTENSION AdditionalGPSAssistDataRequired		PRESENCE optional } |
 	{ ID id-AdditionalGanssAssistDataRequired		CRITICALITY ignore	EXTENSION AdditionalGanssAssistDataRequired		PRESENCE optional },
 	...
 }
@@ -634,7 +635,8 @@ PositionParameterModificationIEs PCAP-PROTOCOL-IES ::= {
 PositionParameterModificationExtensions PCAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-RRCstateChange			CRITICALITY ignore	EXTENSION RRCstateChange	PRESENCE optional},
 	...
-} 
+}
+
 -- **************************************************************
 --
 -- PRIVATE MESSAGE
@@ -670,7 +672,8 @@ AbortIEs PCAP-PROTOCOL-IES ::= {
 AbortExtensions PCAP-PROTOCOL-EXTENSION ::= { 
 	...
 }
- 
+
+
 
 -- **************************************************************
 --
@@ -747,3 +750,4 @@ PositionPeriodicTermination-Extensions PCAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 END
+

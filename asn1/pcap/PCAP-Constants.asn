@@ -1,6 +1,6 @@
 -- $Id$
 --
--- 3GPP TS 25.453 V7.9.0 (2007-12)
+-- 3GPP TS 25.453 V9.0.0 (2009-12)
 --
 -- 9.3.6	Constant Definitions
 -- **************************************************************
@@ -44,8 +44,6 @@ id-PositionPeriodicReport			ProcedureCode ::= 12
 id-PositionPeriodicResult			ProcedureCode ::= 13
 id-PositionPeriodicTermination		ProcedureCode ::= 14
 
- 
-
 
 -- **************************************************************
 --
@@ -78,13 +76,15 @@ maxNrOfEDPCCH-PO-QUANTSTEPs			INTEGER ::= 8	-- FFS
 maxNrOfRefETFCI-PO-QUANTSTEPs		INTEGER ::= 8	-- FFS
 maxNrOfRefETFCIs					INTEGER ::= 8
 maxSet								INTEGER ::= 9
-maxGANSSSat							INTEGER ::= 32
-maxSgnType							INTEGER ::= 4
+maxGANSSSat							INTEGER ::= 64
+maxSgnType							INTEGER ::= 8
 maxGANSS							INTEGER ::= 8
 maxGANSSSet							INTEGER ::= 9
 maxGANSSSatAlmanac					INTEGER ::= 36
 maxGANSSClockMod					INTEGER ::= 4
- 
+maxGANSS-1							INTEGER ::= 7
+
+
 -- **************************************************************
 --
 -- IEs
@@ -156,8 +156,7 @@ id-GANSS-CommonAssistanceData					ProtocolIE-ID ::= 69
 id-GANSS-GenericAssistanceDataList				ProtocolIE-ID ::= 70
 id-GANSS-MeasuredResultsList					ProtocolIE-ID ::= 71
 id-GANSS-UTRAN-TRU								ProtocolIE-ID ::= 72
-id-GANSSPositioning								ProtocolIE-ID ::= 73 
-id-GANSS-PositioningDataSet						ProtocolIE-ID ::= 74
+id-GANSSPositioning								ProtocolIE-ID ::= 73 id-GANSS-PositioningDataSet						ProtocolIE-ID ::= 74
 id-GNSS-PositioningMethod						ProtocolIE-ID ::= 75
 id-NetworkAssistedGANSSSuport					ProtocolIE-ID ::= 76
 id-TUTRANGANSSMeasurementValueInfo				ProtocolIE-ID ::= 77
@@ -168,6 +167,37 @@ id-extendedTimingAdvanceLCR						ProtocolIE-ID ::= 81
 id-additionalMeasurementInforLCR				ProtocolIE-ID ::= 82
 id-timingAdvanceLCR-R7							ProtocolIE-ID ::= 83
 id-rxTimingDeviationLCR 						ProtocolIE-ID ::= 84
-id-GPSReferenceTimeUncertainty					ProtocolIE-ID ::= 85 
- 
+id-GPSReferenceTimeUncertainty					ProtocolIE-ID ::= 85 id-GANSS-AddIonoModelReq						ProtocolIE-ID ::= 86
+id-GANSS-EarthOrientParaReq						ProtocolIE-ID ::= 87
+id-GANSS-Additional-Ionospheric-Model			ProtocolIE-ID ::= 88
+id-GANSS-Earth-Orientation-Parameters			ProtocolIE-ID ::= 89
+id-GANSS-Additional-Time-Models					ProtocolIE-ID ::= 90
+id-GANSS-Additional-Navigation-Models			ProtocolIE-ID ::= 91
+id-GANSS-Additional-UTC-Models					ProtocolIE-ID ::= 92
+id-GANSS-Auxiliary-Information					ProtocolIE-ID ::= 93
+id-GANSS-SBAS-ID								ProtocolIE-ID ::= 94
+id-GANSS-SBAS-IDs								ProtocolIE-ID ::= 95
+id-GANSS-Signal-IDs								ProtocolIE-ID ::= 96
+id-supportGANSSNonNativeADchoices				ProtocolIE-ID ::= 97
+id-PositionDataUEbased							ProtocolIE-ID ::= 98
+id-ganssCodePhaseAmbiguityExt 					ProtocolIE-ID ::= 99
+id-ganssIntegerCodePhaseExt						ProtocolIE-ID ::= 100
+id-GANSScarrierPhaseRequested					ProtocolIE-ID ::= 101
+id-GANSSMultiFreqMeasRequested					ProtocolIE-ID ::= 102
+id-ganssReq-AddIonosphericModel					ProtocolIE-ID ::= 103
+id-ganssReq-EarthOrientPara						ProtocolIE-ID ::= 104
+id-ganssAddNavigationModel-req					ProtocolIE-ID ::= 105
+id-ganssAddUTCModel-req							ProtocolIE-ID ::= 106
+id-ganssAuxInfo-req								ProtocolIE-ID ::= 107
+id-GANSS-AlmanacModelChoice						ProtocolIE-ID ::= 108
+id-GANSS-alm-keplerianNAVAlmanac				ProtocolIE-ID ::= 109
+id-GANSS-alm-keplerianReducedAlmanac			ProtocolIE-ID ::= 110
+id-GANSS-alm-keplerianMidiAlmanac				ProtocolIE-ID ::= 111
+id-GANSS-alm-keplerianGLONASS					ProtocolIE-ID ::= 112
+id-GANSS-alm-ecefSBASAlmanac					ProtocolIE-ID ::= 113
+id-UTRAN-GANSSReferenceTimeResult				ProtocolIE-ID ::= 114
+id-GANSS-Reference-Time-Only					ProtocolIE-ID ::= 115
+id-GANSS-AddADchoices							ProtocolIE-ID ::= 116
+
+
 END
