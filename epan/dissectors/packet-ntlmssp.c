@@ -145,7 +145,6 @@ static GHashTable* hash_packet = NULL;
 #define NTLMSSP_NEGOTIATE_56               0x80000000
 
 static int proto_ntlmssp = -1;
-static int hf_ntlmssp = -1;
 static int hf_ntlmssp_auth = -1;
 static int hf_ntlmssp_message_type = -1;
 static int hf_ntlmssp_negotiate_flags = -1;
@@ -1984,7 +1983,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Setup a new tree for the NTLMSSP payload */
   if (tree) {
     tf = proto_tree_add_item (tree,
-			      hf_ntlmssp,
+			      proto_ntlmssp,
 			      tvb, offset, -1, FALSE);
 
     ntlmssp_tree = proto_item_add_subtree (tf,
@@ -2492,8 +2491,6 @@ proto_register_ntlmssp(void)
 {
 
   static hf_register_info hf[] = {
-    { &hf_ntlmssp,
-      { "NTLMSSP", "ntlmssp", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_auth,
       { "NTLMSSP identifier", "ntlmssp.identifier", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_ntlmssp_message_type,
