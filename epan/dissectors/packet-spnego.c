@@ -69,7 +69,6 @@ static int proto_spnego = -1;
 static int proto_spnego_krb5 = -1;
 
 
-static int hf_spnego = -1;
 static int hf_spnego_wraptoken = -1;
 static int hf_spnego_krb5_oid;
 static int hf_spnego_krb5 = -1;
@@ -115,7 +114,7 @@ static int hf_spnego_ContextFlags_confFlag = -1;
 static int hf_spnego_ContextFlags_integFlag = -1;
 
 /*--- End of included file: packet-spnego-hf.c ---*/
-#line 84 "packet-spnego-template.c"
+#line 83 "packet-spnego-template.c"
 
 /* Global variables */
 static const char *MechType_oid;
@@ -141,7 +140,7 @@ static gint ett_spnego_NegTokenTarg = -1;
 static gint ett_spnego_InitialContextToken_U = -1;
 
 /*--- End of included file: packet-spnego-ett.c ---*/
-#line 98 "packet-spnego-template.c"
+#line 97 "packet-spnego-template.c"
 
 /*
  * Unfortunately, we have to have a forward declaration of this,
@@ -604,7 +603,7 @@ dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 /*--- End of included file: packet-spnego-fn.c ---*/
-#line 109 "packet-spnego-template.c"
+#line 108 "packet-spnego-template.c"
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
  * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also
@@ -1724,7 +1723,7 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 
 
-	item = proto_tree_add_item(tree, hf_spnego, tvb, offset,
+	item = proto_tree_add_item(tree, proto_spnego, tvb, offset,
 				   -1, FALSE);
 
 	subtree = proto_item_add_subtree(item, ett_spnego);
@@ -1777,7 +1776,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    }
 	}
 
-	item = proto_tree_add_item(parent_tree, hf_spnego, tvb, offset,
+	item = proto_tree_add_item(parent_tree, proto_spnego, tvb, offset,
 				   -1, FALSE);
 
 	subtree = proto_item_add_subtree(item, ett_spnego);
@@ -1818,9 +1817,6 @@ void proto_register_spnego(void) {
 
 	/* List of fields */
 	static hf_register_info hf[] = {
-		{ &hf_spnego,
-		  { "SPNEGO", "spnego", FT_NONE, BASE_NONE, NULL, 0x0,
-		    NULL, HFILL }},
 		{ &hf_spnego_wraptoken,
 		  { "wrapToken", "spnego.wraptoken",
 		    FT_NONE, BASE_NONE, NULL, 0x0, "SPNEGO wrapToken",
@@ -1963,7 +1959,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1379 "packet-spnego-template.c"
+#line 1375 "packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1985,7 +1981,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1389 "packet-spnego-template.c"
+#line 1385 "packet-spnego-template.c"
 	};
 
 	/* Register protocol */

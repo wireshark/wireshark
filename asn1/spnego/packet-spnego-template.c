@@ -61,7 +61,6 @@ static int proto_spnego = -1;
 static int proto_spnego_krb5 = -1;
 
 
-static int hf_spnego = -1;
 static int hf_spnego_wraptoken = -1;
 static int hf_spnego_krb5_oid;
 static int hf_spnego_krb5 = -1;
@@ -1225,7 +1224,7 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 
 
-	item = proto_tree_add_item(tree, hf_spnego, tvb, offset,
+	item = proto_tree_add_item(tree, proto_spnego, tvb, offset,
 				   -1, FALSE);
 
 	subtree = proto_item_add_subtree(item, ett_spnego);
@@ -1278,7 +1277,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	    }
 	}
 
-	item = proto_tree_add_item(parent_tree, hf_spnego, tvb, offset,
+	item = proto_tree_add_item(parent_tree, proto_spnego, tvb, offset,
 				   -1, FALSE);
 
 	subtree = proto_item_add_subtree(item, ett_spnego);
@@ -1319,9 +1318,6 @@ void proto_register_spnego(void) {
 
 	/* List of fields */
 	static hf_register_info hf[] = {
-		{ &hf_spnego,
-		  { "SPNEGO", "spnego", FT_NONE, BASE_NONE, NULL, 0x0,
-		    NULL, HFILL }},
 		{ &hf_spnego_wraptoken,
 		  { "wrapToken", "spnego.wraptoken",
 		    FT_NONE, BASE_NONE, NULL, 0x0, "SPNEGO wrapToken",
