@@ -1030,12 +1030,12 @@ proto_register_nsip(void)
 	NULL, HFILL }
     },
     { &hf_nsip_ip_address_ipv4,
-      { "IP Address", "nsip.ip_address",
+      { "IP Address", "nsip.ipv4_address",
 	FT_IPv4, BASE_NONE, NULL, 0x0,          
 	NULL, HFILL }
     },
     { &hf_nsip_ip_address_ipv6,
-      { "IP Address", "nsip.ip_address",
+      { "IP Address", "nsip.ipv6_address",
 	FT_IPv6, BASE_NONE, NULL, 0x0,          
 	NULL, HFILL }
     },
@@ -1060,12 +1060,12 @@ proto_register_nsip(void)
       NULL, HFILL }
     },
     { &hf_nsip_ip_element_ip_address_ipv4,
-      { "IP Address", "nsip.ip_element.ip_address",
+      { "IP Address", "nsip.ip_element.ipv4_address",
 	FT_IPv4, BASE_NONE, NULL, 0x0,          
 	NULL, HFILL }
     },
     { &hf_nsip_ip_element_ip_address_ipv6,
-      { "IP Address", "nsip.ip_element.ip_address",
+      { "IP Address", "nsip.ip_element.ipv6_address",
 	FT_IPv6, BASE_NONE, NULL, 0x0,          
 	NULL, HFILL }
     },
