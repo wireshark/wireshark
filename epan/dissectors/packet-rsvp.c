@@ -5898,7 +5898,7 @@ proto_register_rsvp(void)
 			NULL, HFILL }},
 
 		{&hf_rsvp_filter[RSVPF_MESSAGE_ID_ACK],
-		 { "MESSAGE-ID ACK", "rsvp.ack", FT_NONE, BASE_NONE, NULL, 0x0,
+		 { "MESSAGE-ID ACK", "rsvp.msgid_ack", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		{&hf_rsvp_filter[RSVPF_MESSAGE_ID_LIST],
