@@ -456,7 +456,6 @@ dissect_mpeg_audio_ID3v1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int proto_mpeg_audio = -1;
 
-static int hf_mpeg_audio = -1;
 static int hf_mpeg_audio_data = -1;
 static int hf_mpeg_audio_padbytes = -1;
 static int hf_id3v1 = -1;
@@ -510,7 +509,7 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 	offset = dissect_mpeg_audio_Audio(tvb, offset, &asn1_ctx,
-			tree, hf_mpeg_audio);
+			tree, proto_mpeg_audio);
 	if (data_size > 0) {
 		unsigned int padding;
 
@@ -667,10 +666,7 @@ proto_register_mpeg_audio(void)
         "mpeg_audio.T_genre", HFILL }},
 
 /*--- End of included file: packet-mpeg-audio-hfarr.c ---*/
-#line 166 "packet-mpeg-audio-template.c"
-		{ &hf_mpeg_audio,
-			{ "MPEG Audio", "mpeg.audio",
-				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+#line 165 "packet-mpeg-audio-template.c"
 		{ &hf_mpeg_audio_data,
 			{ "Data", "mpeg.audio.data",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -694,7 +690,7 @@ proto_register_mpeg_audio(void)
     &ett_mpeg_audio_ID3v1,
 
 /*--- End of included file: packet-mpeg-audio-ettarr.c ---*/
-#line 186 "packet-mpeg-audio-template.c"
+#line 182 "packet-mpeg-audio-template.c"
 	};
 
 	proto_mpeg_audio = proto_register_protocol(
