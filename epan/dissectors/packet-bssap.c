@@ -2322,7 +2322,7 @@ proto_register_bssap(void)
 	        FT_NONE, BASE_NONE, NULL, 0,
 	        NULL, HFILL }},
 	    { &hf_bssap_loc_inf_age_ie,
-	      { "Location information age IE", "bssap.loc_inf_age",
+	      { "Location information age IE", "bssap.loc_inf_age_ie",
 	        FT_NONE, BASE_NONE, NULL, 0,
 	        NULL, HFILL }},
 	    { &hf_bssap_mm_information_ie,
