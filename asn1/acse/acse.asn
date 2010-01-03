@@ -195,7 +195,9 @@ ACRQ-apdu ::= [APPLICATION 6] IMPLICIT SEQUENCE {
 ACRP-apdu ::= [APPLICATION 7] IMPLICIT SEQUENCE {
   aso-qualifier          [0]  ASO-qualifier OPTIONAL,
   asoi-identifier        [1] IMPLICIT ASOI-identifier OPTIONAL,
-  aSO-context-name       [3] IMPLICIT ASO-context-name-list OPTIONAL,
+  -- originally defined as ASO-context-name-list, but this has to be wrong
+  -- aSO-context-name       [3] IMPLICIT ASO-context-name-list OPTIONAL,
+  aSO-context-name       [3] IMPLICIT ASO-context-name OPTIONAL,
   p-context-result-list  [4] IMPLICIT P-context-result-list OPTIONAL,
   ...,
 --  ...,

@@ -1985,7 +1985,7 @@ void proto_register_acse(void) {
         "acse.User_information", HFILL }},
     { &hf_acse_aSO_context_name,
       { "aSO-context-name", "acse.aSO_context_name",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_OID, BASE_NONE, NULL, 0,
         "acse.T_ACRP_aSO_context_name", HFILL }},
     { &hf_acse_ap_title_form1,
       { "ap-title-form1", "acse.ap_title_form1",
