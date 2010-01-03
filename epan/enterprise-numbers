@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2009-12-05)
+(last updated 2010-01-02)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -326,9 +326,9 @@ Decimal
     Doug Karl
       KARL-D&OSU-20.IRCC.OHIO-STATE.EDU
 78
-  OpenService Inc.
-    Technical Support
-      techsupport&openservice.com
+  LogMatrix Inc (previous was 'OpenService Inc.')
+    Chris Boldiston
+      techsupport&logmatrix.com
 79
   Fujitsu Services
     Steve Atherton
@@ -5784,7 +5784,7 @@ Decimal
 1442
   Nebula Consultants Inc.
     Peter Schmelcher
-      nebula&mindlink.bc.ca
+      nebula&telus.net
 1443
   SITRE, SA
     PEDRO CALERO RODRIGUEZ
@@ -31474,9 +31474,9 @@ Decimal
     Detlef Dienst
       detlef.dienst&telekom.de
 7880
-  Peco II Inc
-    Simon Greener
-      simon.greener&altecdata.com
+  Peco II Inc.
+    Tom Dannemiller
+      tdannemiller&peco2.com
 7881
   Cognitas Technologies, Inc.
     Santiago Marra
@@ -39167,8 +39167,8 @@ Decimal
       Nathalie.Delestre&rouen.iufm.fr
 9803
   L-3 Communication Systems - East
-    Keith Minnick
-      keith.minnick&l-3com.com
+    Heshy Bucholz
+      robert.bucholz&l-3com.com
 9804
   Lefthand Networks
     Jose Faria
@@ -46763,8 +46763,8 @@ Decimal
       mp&mpsv.cz
 11802
   Northwest Airlines, Inc.
-    David Fugleberg
-      david.fugleberg&nwa.com
+    Wendy W Lou
+      wendy.lou&delta.com
 11803
   Ohlone Community College
     Tj Webb
@@ -62524,8 +62524,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       gavrie&disksites.com
 15743
   VTL (UK) Ltd
-    Russell Heilling
-      russell.heilling&viatel.com
+    Systems Administrator (Daniel Siechniewicz)
+      systemsadmin&viatel.com
 15744
   NetRatings, Inc.
     Paul Petricevich
@@ -70576,8 +70576,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       dkrovich&csee.wvu.edu
 17756
   science + computing ag
-    Florian Geyer
-      f.geyer&science-computing.de
+    Mitchel Timm
+      sc-iana&science-computing.de
 17757
   Orthopedic Healthcare Northwest, P.C.
     Network Administrator
@@ -75123,9 +75123,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Mr. Jaromir SEDLAK
       sedlakj&gemma.cz
 18893
-  SIEMAG GmbH
-    Michael Hoese
-      hom&siemag.com
+  SMS Siemag AG
+    Dr. Ferdinand Klaus
+      fkla&sms-siemag.de
 18894
   Technische Fachhochschule Wildau
     Jens-Volker Steinert
@@ -99631,9 +99631,9 @@ Minas Gerais
     Andrew Ramsdale
       snmp&2pmtech.co.uk
 25016
-  Ardendo AB
-    Simon Rönnberg
-      simon&ardendo.com
+  Vizrt/Ardendo AB
+    Mikael Wahlberg
+      mwa&vizrt.com
 25017
   CertSign
     Cristian Garabet
@@ -108420,7 +108420,7 @@ de l'Ouest(RESAO)
 27210
   Suso Technology Services, Inc.
     Mark Krenz
-      mark&suso.org
+      ianareg&suso.com
 27211
   Engsound Technical Enterprise Co., Ltd.
     Ching-Hong Huang
@@ -115079,8 +115079,8 @@ Decentralization / Helenic Public Administra
       hsteininger&chipxonio.de
 28874
   Solarflare Communications Inc.
-    Andy McNeil
-      amcneil&solarflare.com
+    Martin Porter
+      mporter&solarflare.com
 28875
   secom consulting
     Dr. Andreas Plöger
@@ -125979,7 +125979,7 @@ Decentralization / Helenic Public Administra
     Glen F. Marshall
       admin&grok-a-lot.com
 31599
-  P0F
+  P0F Sistemske Storitve Grega Bremec s.p.
     Grega Bremec
       gregab&p0f.net
 31600
@@ -136618,7 +136618,7 @@ Decentralization / Helenic Public Administra
 34258
   Otip Office
     Satoru Otsubo
-      hatt2&otip.jp
+      hatt3&otip.jp
 34259
   The State Higher School of Vocational Education in Elblag
     Adam Zaleski
@@ -138432,7 +138432,7 @@ Decentralization / Helenic Public Administra
     Owen Clashing
       oclashing&jabgl.com
 34712
-  Fujian Newland Auto-ID Technology
+  Fujian Newland Auto-ID Tech. Co., Ltd.
     CHEN JUN
       chenjun&mail.nlscan.com
 34713
@@ -138466,7 +138466,7 @@ Decentralization / Helenic Public Administra
 34720
   mFoundry
     Craig Setera
-      craig&mfoundry.com
+      software&mfoundry.com
 34721
   Magyar Waldorf Szövetség / Hungarian Waldorf Fellowship
     István Haraszti
@@ -138708,9 +138708,9 @@ Decentralization / Helenic Public Administra
     Pascal Stage
       pascal.stage&it1.fr
 34781
-  Reserve bank of Australia
-    Brian Hewetson
-      HewetsonB&rba.gov.au
+  Unassigned
+    Removed 2009-12-18
+      ---none---
 34782
   dcm4che.org
     Gunter Zeilinger
@@ -138847,6 +138847,514 @@ Decentralization / Helenic Public Administra
   Angry Dog Business Sytems
     David Dymock
       david&theangrydog.co.uk
+34816
+  Icon Power Solutions Pvt. Ltd.
+    Baljeet Singh Bhatti
+      baljeet&iconpowersolutions.com
+34817
+  Tamtron Oy
+    Pekka Lehikoinen
+      pekka.lehikoinen&tamtron.fi
+34818
+  CPI Corporation
+    Derek Chen-Becker
+      noc&cpicorp.com
+34819
+  Nacka kommun
+    Martin Andersson
+      martin.andersson&nacka.se
+34820
+  Satcom Technologies EMC
+    Robert Fitting
+      rfitting&emcsatcom.com
+34821
+  Lafayette Consolidated Government
+    Ben Segura
+      bsegura&lus.org
+34822
+  Calet, Inc.
+    Gregory Allen
+      gallen&mycalet.com
+34823
+  VersaForm Systems Corp
+    Joe Landau
+      jrl&versaform.com
+34824
+  Texas A&M University System
+    Networking & Information Security
+      tech&net.tamu.edu
+34825
+  Pareto Networks Inc.
+    Carl Mower
+      snmp&paretonetworks.com
+34826
+  Tayana Software Solutions Pvt Ltd
+    Nandyala Srinivasulu
+      sreenu&tayanasoft.com
+34827
+  RT-RK
+    Milenko Beric
+      milenko.beric&rt-rk.com
+34828
+  Pannon GSM Távközlési Zrt.
+    Peter Seregi
+      pseregi&pannon.hu
+34829
+  GraphLogic Inc
+    Kenneth Eschrich
+      keschrich&graphlogic.com
+34830
+  Forers, s. r. o.
+    Petr Kutalek
+      petr&kutalek.cz
+34831
+  The Freecycle Network
+    Deron Beal / Richard Wallman
+      servicenotify&freecycle.org
+34832
+  Intelibs, Inc
+    Sohee Kim
+      sohee.kim&intelibs.com
+34833
+  DrivenDown.com
+    Jeff Trnka
+      iana&drivendown.com
+34834
+  BermudaTriangle.com
+    Jeff Trnka
+      iana&bermudatriangle.com
+34835
+  Hypercable
+    DUCASSE Jean-Claude
+      info&hypercable.fr
+34836
+  Denkosha Co.,Ltd.
+    KOIKE Shiro
+      koike&denkosha.co.jp
+34837
+  Arrive Technologies
+    Dan, Nguyen Duc
+      dannd&atvn.com.vn
+34838
+  Innovative SCADA Solutions Pty Ltd
+    Louie Wong
+      louie.wong&innov8scada.com
+34839
+  abakus IT AG
+    Stephan Hardtmann
+      pki&abakus.de
+34840
+  Shanghai Huaheng Telecom Equipment Co.,Ltd
+    yin gen ning
+      anhuinyg&163.com
+34841
+  Gordon Food Service, Inc.
+    Jonathan Craig
+      Jon.Craig&gfs.com
+34842
+  TERASAKI ELECTRIC CO.,LTD
+    Mamoru Sogo
+      mamoru-sogo&terasaki.co.jp
+34843
+  NASCENT Technology, LLC
+    Scott Urban
+      ieee&nascent.com
+34844
+  Gennet S.A.
+    Ilias Apalodimas
+      apalos&gennetsa.com
+34845
+  Faculté des Sciences et Techniques de Tanger
+    Mohammed Azirar
+      m.azirar&fstt.ac.ma
+34846
+  SERTRES del Norte 
+    Daniel Rios 
+      juanvelez&logistecsoftware.com
+34847
+  Spacetime Studios, LLC
+    Anthony Sommers
+      asommers&spacetimestudios.com
+34848
+  Shibasoku
+    Tetsuya Michikawa
+      michkawa&shibasoku.co.jp
+34849
+  Security Code Ltd.
+    Zakharov Alexandr
+      A.Zakharov&securitycode.ru
+34850
+  EldoS Corporation
+    Eugene Mayevski
+      cto&eldos.com
+34851
+  Adalia Oy
+    Jani Soila
+      soila&adalia.fi
+34852
+  Roeften
+    Panos Gkikakis
+      contact&roeften.com
+34853
+  RainStor
+    Jonathan Teague
+      it&clearpace.com
+34854
+  indeni
+    Yonadav Leitersdorf
+      yonadav&indeni.com
+34855
+  MobileTick Ltd,
+    Aviv Grafi
+      aviv&mobiletick.com
+34856
+  ALTAVIA SA
+    François ROUSSEAU
+      f.rousseau&altavia-group.com
+34857
+  BaiY Studio
+    Yang Bai
+      baiyang&gmail.com
+34858
+  Wireless Networks Association (WNA.gr)
+    John Haralampidis
+      admin&wna.gr
+34859
+  jgfs.net
+    Jakub Gawkowski
+      jakub.gawkowski&jgfs.net
+34860
+  Finalist IT Group
+    Sander Bos
+      sander.bos&finalist.com
+34861
+  Rajant Corporation
+    Marty Lamb
+      mlamb&roinet.com
+34862
+  Fundamo
+    Willem Visser
+      willemv&fundamo.com
+34863
+  Leopold Kostal GmbH & Co. KG
+    Vit Svarc
+      v.svarc&kostal.com
+34864
+  Mito Europe Ltd
+    Sandor Apati
+      admin&mitoeurope.com
+34865
+  World Evolved Services, LLC
+    Marcus Louie
+      mlouie&worldevolved.com
+34866
+  Customer Service Direct
+    Shang Jin
+      Shang.Jin&csduk.com
+34867
+  Universitaet Greifswald
+    Gordon K. Grubert
+      gordon.grubert&uni-greifswald.de
+34868
+  Winnerstek Inc.
+    Jae Young Lee
+      duri&winnerstek.com
+34869
+  Ian Hine Consulting
+    Ian Hine
+      ian_hine&ozemail.com.au
+34870
+  Megabyte Doctor (Pty) Ltd
+    Bame Sekwakwa
+      megabytedoctor&gmail.com
+34871
+  trovicor GmbH
+    Thomas Karger
+      iana-admin&trovicor.com
+34872
+  ETM Communications AB
+    Ulf Bergqvist
+      info&etmc.se
+34873
+  Klein & Partner KG
+    Jens W. Klein
+      jens&bluedynamics.com
+34874
+  Automasjon og Data as
+    Oddbjørn Morlandstø
+      om&automasjon.no
+34875
+  Alpikom SpA
+    Cristian Cappelletti
+      c.cappelletti&alpikom.it
+34876
+  Informatics Corporation of America
+    Alexander Saip
+      alex.saip&icainformatics.com
+34877
+  Masergy Communications, Inc.
+    Mike Clark
+      mike.clark&masergy.com
+34878
+  Advanstar Communications Inc.
+    Dan Beutler
+      dbeutler&advanstar.com
+34879
+  BlueCross BlueShield of Minnesota
+    Robert Hock
+      Robert_L_Hock&bluecrossmn.com
+34880
+  Cortina Systems
+    Andrew Mok
+      andrew.mok&cortina-systems.com
+34881
+  EVT Technologies LTD
+    Ram Tagher
+      Ram&evt-vms.com
+34882
+  Kolektor Group
+    Gorazd Šemrov
+      gsem&ascom.si
+34883
+  House Arkko
+    Jari Arkko
+      jari&arkko.com
+34884
+  David Wozny Limited
+    David Wozny
+      David&Wozny.org
+34885
+  SSI (US) Inc
+    Michael Wareman
+      mwareman&spencerstuart.com
+34886
+  Compagnie des Alpes
+    Jean-Henri ANTUNES
+      jean-henri.antunes&compagniedesalpes.fr
+34887
+  Iariss
+    Muré Michael
+      batolettre&gmail.com
+34888
+  Gatix
+    Michel Stam
+      mstam&gatix.net
+34889
+  McKnight Insight
+    Lawrence McKnight
+      lawrence.mcknight&gmail.com
+34890
+  Aizkraukles Banka A/S
+    Ivars Zaicevs
+      ivars.zaicevs&ab.lv
+34891
+  Croatia Control Ltd.
+    Branko Vesligaj
+      branko.vesligaj&crocontrol.hr
+34892
+  Kedros, a.s.
+    Juraj Hrubsa
+      hostmaster&kedros.sk
+34893
+  Leeds City Council
+    Alistair Fletcher
+      Alistair.Fletcher&Leeds.gov.uk
+34894
+  Global Strategies Group, Mission Systems
+    David Loring
+      david.loring&gtec-inc.com
+34895
+  ITaM Services
+    Daniel Reichelt
+      mail&itamservices.de
+34896
+  Gorilla Logic, Inc.
+    Hank Harris
+      admin&gorillalogic.com
+34897
+  Centro Brasileiro de Pesquisas Fisicas
+    Marita Maestrelli
+      marita&cbpf.br
+34898
+  CESEC-SFF
+    lirui
+      liruibit&hotmail.com
+34899
+  H5 audits
+    Lionel Barrère
+      lionel.barrere&h5audits.com
+34900
+  Informations Technologie Service und Consulting GmbH
+    Registration Coordinator
+      registration.coordinator&your-its.de
+34901
+  Fortunaglobal (Pvt) Limited
+    Buddhika Jayasekara
+      buddhika&fortunaglobal.com
+34902
+  IT Industry LTD
+    Anton Globa
+      a.globa&otdelit.ru
+34903
+  M247 Ltd
+    Geoff Garside
+      geoff.garside&m247.com
+34904
+  KRC OOO
+    Roman Sakhnov
+      admin&regcen.ru
+34905
+  G-Lab
+    Robert Henjes
+      henjes&informatik.uni-wuerzburg.de
+34906
+  RadiantGrid Technologies, LLC
+    Kirk Marple
+      mib&radiantgrid.com
+34907
+  TELEVIC N.V.
+    Luc Jonckheere
+      L.Jonckheere&televic.com
+34908
+  CareCloud Corp
+    Thomas Packert
+      tpackert&carecloud.com
+34909
+  RHD Research Ltd
+    Chris Crowther
+      chris&rhdresearch.com
+34910
+  Geeknet, Inc.
+    Uriah Welcome
+      uriah&geek.net
+34911
+  Nanjing Jiajian Network Co. Ltd.
+    Jiancheng Chen
+      jcchen&jjlink.com
+34912
+  PT. Nyra
+    Hendrik Heriyanto Gosali
+      hgosali&nyra.co.id
+34913
+  TDM Ingénierie
+    Loïc Mauhourat
+      loic.mauhourat&tdm-ing.com
+34914
+  Creative Consulting GmbH
+    Adrian Müller
+      handle&crecon.de
+34915
+  Free Software Foundation Europe e.V.
+    Cristian Rigamonti
+      rigamonti&fsfeurope.org
+34916
+  Walki Group Oy
+    John Aspnäs
+      john.aspnas&walki.com
+34917
+  Car Chase Workshop Inc.
+    Christopher W. Baran
+      chrisbaran&carchaseworkshop.com
+34918
+  Syncapse Corp.
+    Kenneth Voort
+      ldapadmin001&syncapse.com
+34919
+  Sky Wisdom Technology Limited
+    Thomas Chen
+      thomas&xray.hk
+34920
+  Allen Lund Company
+    Jason Nelson-Wolfe
+      jason.wolfe&allenlund.com
+34921
+  EvoStor Inc.
+    Cheryl Davis
+      cheryl&evostor.com
+34922
+  Epic Advertising Inc
+    Timothy Barrow
+      timothy.barrow&epicadvertising.com
+34923
+  KOOLING
+    Greg Hill
+      gaohaiyun&kooling.com.cn
+34924
+  Augustine Consulting
+    Adam Augustine
+      crypto&augustinec.com
+34925
+  Nantes Systems Private Limited
+    Aravinda Babu
+      nantes.systems&gmail.com
+34926
+  Limited Liability Company "Wild Orchid"
+    Scherbakov Alexander
+      a.scherbakov&classic.ru
+34927
+  DL Santé
+    Grégory ROUSSEAU
+      gregory.rousseau&dlsante.fr
+34928
+  ACVITAS
+    Andrey Shvydky
+      andrey&acvitas.com
+34929
+  SURGIDEX
+    David Nunes
+      dnunes&surgidex.com
+34930
+  Caneris Inc
+    Erik Levinson
+      noc&caneris.com
+34931
+  ShangHai DynamiCode Company Limited
+    Barry Lv
+      barrylv&dynamicode.net.cn
+34932
+  CMS Affiliate
+    Cody Michael Salnave
+      SupportAgent&purplehayze.com
+34933
+  CPO Partners
+    Leo Romers
+      oid&cpo-partners.com
+34934
+  CirclePrinters
+    JANC Arnaud
+      arnaud.janc&circleprinters.fr
+34935
+  marmira
+    Urs Zurbuchen
+      incoming&marmira.com
+34936
+  Creowave Oy
+    Tommi Matila
+      creowave&creowave.com
+34937
+  UniversitaetsSpital Zurich
+    Jens Grundtvig
+      jens.grundtvig&usz.ch
+34938
+  Fédération française d'équitation
+    Emmanuel HUDE
+      emmanuel.hude&ffe.com
+34939
+  SURMEI MIHAI-EUGEN
+    Mihai Surmei
+      msurmei&gmail.com
+34940
+  Roman V. Kiseliov
+    Roman V. Kiseliov
+      roman.kiseliov&gmail.com
+34941
+  DiegoLima.org
+    Diego Lima
+      diegolima.br&gmail.com
+34942
+  Cambrium BV.
+    Johan Mulder
+      johan-iana&cambrium.nl
 
 
 End of Document
