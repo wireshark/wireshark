@@ -2419,7 +2419,7 @@ proto_register_slsk(void)
 			{ "Message Code", "slsk.message.code",
 			FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_slsk_client_ip,
-			{ "Client IP", "slsk.server.ip",
+			{ "Client IP", "slsk.client.ip",
 			FT_IPv4, BASE_NONE, NULL, 0, "Client IP Address", HFILL } },
 		{ &hf_slsk_server_ip,
 			{ "SoulSeek Server IP", "slsk.server.ip",
