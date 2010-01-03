@@ -17554,7 +17554,7 @@ proto_register_smb(void)
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unknown,
-		{ "Unknown Data", "smb.unknown", FT_BYTES, BASE_NONE,
+		{ "Unknown Data", "smb.unknown_data", FT_BYTES, BASE_NONE,
 		NULL, 0, "Unknown Data. Should be implemented by someone", HFILL }},
 
 	{ &hf_smb_dir_name,
@@ -19440,7 +19440,7 @@ proto_register_smb(void)
 	    NULL, 0, NULL, HFILL }},
 
         { &hf_smb_network_unknown,
-          { "Unknown field", "smb.unknown", FT_UINT32, BASE_HEX,
+          { "Unknown field", "smb.unknown_field", FT_UINT32, BASE_HEX,
             NULL, 0, NULL, HFILL }},
 
         { &hf_smb_create_flags,
