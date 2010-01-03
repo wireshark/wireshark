@@ -689,7 +689,7 @@ proto_register_tnef(void)
       { "String", "tnef.attribute.string", FT_STRING,  BASE_NONE, NULL, 0x0,
       	NULL, HFILL }},
     { &hf_tnef_attribute_date,
-      { "Date", "tnef.attribute.string", FT_NONE,  BASE_NONE, NULL, 0x0,
+      { "Date", "tnef.attribute.date", FT_NONE,  BASE_NONE, NULL, 0x0,
       	NULL, HFILL }},
     { &hf_tnef_attribute_display_name,
       { "Display Name", "tnef.attribute.display_name", FT_STRING,  BASE_NONE, NULL, 0x0,
