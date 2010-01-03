@@ -925,7 +925,7 @@ void proto_register_iuup(void) {
         { &hf_iuup_spare_c0, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0xc0,NULL,HFILL}},
         { &hf_iuup_spare_e0, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0xe0,NULL,HFILL}},
         { &hf_iuup_spare_ff, { "Spare", "iuup.spare", FT_UINT8, BASE_HEX, NULL,0xff,NULL,HFILL}},
-        { &hf_iuup_spare_bytes, { "Spare", "iuup.spare", FT_BYTES, BASE_NONE, NULL,0x0,NULL,HFILL}},
+        { &hf_iuup_spare_bytes, { "Spare", "iuup.spare_bytes", FT_BYTES, BASE_NONE, NULL,0x0,NULL,HFILL}},
         
         { &hf_iuup_delay, { "Delay", "iuup.delay", FT_UINT32, BASE_HEX, NULL,0x0,NULL,HFILL}},
         { &hf_iuup_advance, { "Advance", "iuup.advance", FT_UINT32, BASE_HEX, NULL,0x0,NULL,HFILL}},
