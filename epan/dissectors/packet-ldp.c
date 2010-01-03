@@ -2780,7 +2780,7 @@ proto_register_ldp(void)
       { "Session Receiver LSR Identifier", "ldp.msg.tlv.sess.rxlsr", FT_IPv4, BASE_NONE, NULL, 0x0, "Common Session Parameters LSR Identifier", HFILL }},
 
     { &hf_ldp_tlv_sess_rxls,
-      { "Session Receiver Label Space Identifier", "ldp.msg.tlv.sess.rxlsr", FT_UINT16, BASE_DEC, NULL, 0x0, "Common Session Parameters Receiver Label Space Identifier", HFILL }},
+      { "Session Receiver Label Space Identifier", "ldp.msg.tlv.sess.rxls", FT_UINT16, BASE_DEC, NULL, 0x0, "Common Session Parameters Receiver Label Space Identifier", HFILL }},
 
     { &hf_ldp_tlv_sess_atm_merge,
       { "Session ATM Merge Parameter", "ldp.msg.tlv.sess.atm.merge", FT_UINT8, BASE_DEC, VALS(tlv_atm_merge_vals), 0xC0, "Merge ATM Session Parameters", HFILL }},
