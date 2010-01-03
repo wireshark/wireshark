@@ -324,7 +324,7 @@ void proto_register_kdp(void) {
 	FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
     },
     { &hf_kdp_xml_body,
-      { "XML Body", "kdp.body",
+      { "XML Body", "kdp.xml_body",
 	FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}
     }
   };
