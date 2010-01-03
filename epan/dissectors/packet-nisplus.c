@@ -1572,31 +1572,31 @@ proto_register_nis(void)
 			NULL, 0, "Entry Value", HFILL }},
 
 		{ &hf_nisplus_entry_mask, {
-			"flags", "nisplus.entry.flags", FT_NONE, BASE_NONE,
-			NULL, 0, "Entry Col Flags", HFILL }},
+			"mask", "nisplus.entry.mask", FT_NONE, BASE_NONE,
+			NULL, 0, "Entry Col Mask", HFILL }},
 
 		{ &hf_nisplus_entry_mask_binary, {
-			"BINARY", "nisplus.entry.flags.binary",
+			"BINARY", "nisplus.entry.mask.binary",
 			FT_BOOLEAN, 32, TFS(&tfs_entry_binary),
 			NIS_MASK_ENTRY_BINARY, "Is This Entry BINARY Flag", HFILL }},
 
 		{ &hf_nisplus_entry_mask_crypt, {
-			"ENCRYPTED", "nisplus.entry.flags.encrypted",
+			"ENCRYPTED", "nisplus.entry.mask.encrypted",
 			FT_BOOLEAN, 32, TFS(&tfs_entry_crypt),
 			NIS_MASK_ENTRY_CRYPT, "Is This Entry ENCRYPTED Flag", HFILL }},
 
 		{ &hf_nisplus_entry_mask_xdr, {
-			"XDR", "nisplus.entry.flags.xdr",
+			"XDR", "nisplus.entry.mask.xdr",
 			FT_BOOLEAN, 32, TFS(&tfs_entry_xdr),
 			NIS_MASK_ENTRY_XDR, "Is This Entry XDR Encoded Flag", HFILL }},
 
 		{ &hf_nisplus_entry_mask_modified, {
-			"MODIFIED", "nisplus.entry.flags.modified",
+			"MODIFIED", "nisplus.entry.mask.modified",
 			FT_BOOLEAN, 32, TFS(&tfs_entry_modified),
 			NIS_MASK_ENTRY_MODIFIED, "Is This Entry MODIFIED Flag", HFILL }},
 
 		{ &hf_nisplus_entry_mask_asn, {
-			"ASN.1", "nisplus.entry.flags.asn",
+			"ASN.1", "nisplus.entry.mask.asn",
 			FT_BOOLEAN, 32, TFS(&tfs_entry_asn),
 			NIS_MASK_ENTRY_ASN, "Is This Entry ASN.1 Encoded Flag", HFILL }},
 
