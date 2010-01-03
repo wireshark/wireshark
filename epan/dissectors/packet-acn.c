@@ -108,9 +108,6 @@ static int hf_acn_data8 = -1;
 static int hf_acn_data16 = -1;
 static int hf_acn_data24 = -1;
 static int hf_acn_data32 = -1;
-static int hf_acn_dmp_address1 = -1;
-static int hf_acn_dmp_address2 = -1;
-static int hf_acn_dmp_address4 = -1;
 static int hf_acn_dmp_adt = -1; /* address and data type*/
 static int hf_acn_dmp_adt_a = -1;
 static int hf_acn_dmp_adt_v = -1;
@@ -119,7 +116,6 @@ static int hf_acn_dmp_adt_d = -1;
 static int hf_acn_dmp_adt_x = -1;
 static int hf_acn_dmp_reason_code = -1;
 static int hf_acn_dmp_vector = -1;
-static int hf_acn_dmp_address_data_pairs = -1;
 static int hf_acn_expiry = -1;
 static int hf_acn_first_memeber_to_ack = -1;
 static int hf_acn_first_missed_sequence = -1;
@@ -2681,29 +2677,6 @@ void proto_register_acn(void)
         "Data32", HFILL }
     },
 
-    { &hf_acn_dmp_address_data_pairs,
-      { "Address-Data Pairs", "acn.dmp_address_data_pairs",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        "More address-data pairs", HFILL }
-    },
-
-    /* DMP Address */
-    { &hf_acn_dmp_address1,
-      { "Address", "acn.dmp_address",
-        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
-        NULL, HFILL }
-    },
-    { &hf_acn_dmp_address2,
-      { "Address", "acn.dmp_address",
-        FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
-        NULL, HFILL }
-    },
-    { &hf_acn_dmp_address4,
-      { "Address", "acn.dmp_address",
-        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
-        NULL, HFILL }
-    },
-
     /* DMP Address type*/
     { &hf_acn_dmp_adt,
       { "Address and Data Type", "acn.dmp_adt",
@@ -2879,7 +2852,7 @@ void proto_register_acn(void)
     },
     /* PDU Length */
     { &hf_acn_pdu_length,
-      { "Length", "acn.pdu.flag_d",
+      { "Length", "acn.pdu.length",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "PDU Length", HFILL }
     },
