@@ -1822,12 +1822,12 @@ proto_register_sflow(void)
 			NULL, HFILL }
 		},
 		{ &hf_sflow_nexthop_v4,
-		  { "Next hop", "sflow.nexthop",
+		  { "Next hop", "sflow.nexthop_v4",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			"Next hop address", HFILL }
 		},
 		{ &hf_sflow_nexthop_v6,
-		  { "Next hop", "sflow.nexthop",
+		  { "Next hop", "sflow.nexthop_v6",
 			FT_IPv6, BASE_NONE, NULL, 0x0,
 			"Next hop address", HFILL }
 		},
