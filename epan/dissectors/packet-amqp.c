@@ -5037,7 +5037,7 @@ proto_register_amqp(void)
             FT_NONE, BASE_NONE, NULL, 0,
             "meta-data", HFILL}},
         {&hf_amqp_field, {
-            "AMQP", "amqp",
+            "AMQP", "amqp.field",
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_header_class_id, {
