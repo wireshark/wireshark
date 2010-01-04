@@ -58,10 +58,19 @@
 #define PSNAME "ACSE"
 #define PFNAME "acse"
 
+#define CLPNAME  "ISO 10035-1 OSI Connectionless Association Control Service"
+#define CLPSNAME "CLACSE"
+#define CLPFNAME "clacse"
+
+
 #define ACSE_APDU_OID "2.2.1.0.1"
 
 /* Initialize the protocol and registered fields */
-static int proto_acse = -1;
+int proto_acse = -1;
+int proto_clacse = -1;
+
+
+
 #include "packet-acse-hf.c"
 
 /* Initialize the subtree pointers */
@@ -196,6 +205,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case SES_DISCONNECT:			/*   RLRQ   */
 	case SES_FINISH:			/*   RLRE   */
 	case SES_ABORT:				/*   ABRT   */
+	case CLSES_UNIT_DATA:		/* AARQ Connetctionless session */		
 		break;
 	case SES_DATA_TRANSFER:
 		oid=find_oid_by_pres_ctx_id(pinfo, indir_ref);
@@ -217,14 +227,28 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return;
 	}
 
-	/* create display subtree for the protocol */
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_acse, tvb, 0, -1, FALSE);
-		tree = proto_item_add_subtree(item, ett_acse);
+	if(session->spdu_type == CLSES_UNIT_DATA)
+	{
+		/* create display subtree for the connectionless protocol */
+		if(parent_tree)
+		{
+			item = proto_tree_add_item(parent_tree, proto_clacse, tvb, 0, -1, FALSE);
+			tree = proto_item_add_subtree(item, ett_acse);
+		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CL-ACSE");
+  		col_clear(pinfo->cinfo, COL_INFO);
 	}
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACSE");
-  	col_clear(pinfo->cinfo, COL_INFO);
-
+	else
+	{
+		/* create display subtree for the protocol */
+		if(parent_tree)
+		{
+			item = proto_tree_add_item(parent_tree, proto_acse, tvb, 0, -1, FALSE);
+			tree = proto_item_add_subtree(item, ett_acse);
+		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACSE");
+  		col_clear(pinfo->cinfo, COL_INFO);
+	}
 
 	/*  we can't make any additional checking here   */
 	/*  postpone it before dissector will have more information */
@@ -257,6 +281,10 @@ void proto_register_acse(void) {
   /* Register protocol */
   proto_acse = proto_register_protocol(PNAME, PSNAME, PFNAME);
   register_dissector("acse", dissect_acse, proto_acse);
+
+  /* Register connectionless protocol */
+  proto_clacse = proto_register_protocol(CLPNAME, CLPSNAME, CLPFNAME);
+
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_acse, hf, array_length(hf));

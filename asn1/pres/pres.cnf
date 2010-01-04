@@ -8,6 +8,8 @@
 #.EXPORTS
 
 #.PDU
+UD-type
+UDC-type
 
 #.NO_EMIT
 

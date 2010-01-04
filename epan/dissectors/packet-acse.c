@@ -66,10 +66,19 @@
 #define PSNAME "ACSE"
 #define PFNAME "acse"
 
+#define CLPNAME  "ISO 10035-1 OSI Connectionless Association Control Service"
+#define CLPSNAME "CLACSE"
+#define CLPFNAME "clacse"
+
+
 #define ACSE_APDU_OID "2.2.1.0.1"
 
 /* Initialize the protocol and registered fields */
-static int proto_acse = -1;
+int proto_acse = -1;
+int proto_clacse = -1;
+
+
+
 
 /*--- Included file: packet-acse-hf.c ---*/
 #line 1 "packet-acse-hf.c"
@@ -167,7 +176,7 @@ static int hf_acse_fully_encoded_data = -1;       /* PDV_list */
 static int hf_acse_presentation_context_identifier = -1;  /* Presentation_context_identifier */
 static int hf_acse_presentation_data_values = -1;  /* T_presentation_data_values */
 static int hf_acse_simple_ASN1_type = -1;         /* T_simple_ASN1_type */
-static int hf_acse_octet_aligned_01 = -1;         /* OCTET_STRING */
+static int hf_acse_pDVList_octet_aligned = -1;    /* OCTET_STRING */
 static int hf_acse_other_mechanism_name = -1;     /* T_other_mechanism_name */
 static int hf_acse_other_mechanism_value = -1;    /* T_other_mechanism_value */
 static int hf_acse_charstring = -1;               /* GraphicString */
@@ -183,7 +192,7 @@ static int hf_acse_ACSE_requirements_higher_level_association = -1;
 static int hf_acse_ACSE_requirements_nested_association = -1;
 
 /*--- End of included file: packet-acse-hf.c ---*/
-#line 66 "packet-acse-template.c"
+#line 75 "packet-acse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_acse = -1;
@@ -227,7 +236,7 @@ static gint ett_acse_Authentication_value_other = -1;
 static gint ett_acse_Authentication_value = -1;
 
 /*--- End of included file: packet-acse-ett.c ---*/
-#line 70 "packet-acse-template.c"
+#line 79 "packet-acse-template.c"
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
@@ -1406,7 +1415,7 @@ static const value_string acse_T_presentation_data_values_vals[] = {
 
 static const ber_choice_t T_presentation_data_values_choice[] = {
   {   0, &hf_acse_simple_ASN1_type, BER_CLASS_CON, 0, 0, dissect_acse_T_simple_ASN1_type },
-  {   1, &hf_acse_octet_aligned_01, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_acse_OCTET_STRING },
+  {   1, &hf_acse_pDVList_octet_aligned, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_acse_OCTET_STRING },
   {   2, &hf_acse_arbitrary      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_acse_BIT_STRING },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -1645,7 +1654,7 @@ dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-acse-fn.c ---*/
-#line 146 "packet-acse-template.c"
+#line 155 "packet-acse-template.c"
 
 
 /*
@@ -1699,6 +1708,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case SES_DISCONNECT:			/*   RLRQ   */
 	case SES_FINISH:			/*   RLRE   */
 	case SES_ABORT:				/*   ABRT   */
+	case CLSES_UNIT_DATA:		/* AARQ Connetctionless session */		
 		break;
 	case SES_DATA_TRANSFER:
 		oid=find_oid_by_pres_ctx_id(pinfo, indir_ref);
@@ -1720,14 +1730,28 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return;
 	}
 
-	/* create display subtree for the protocol */
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_acse, tvb, 0, -1, FALSE);
-		tree = proto_item_add_subtree(item, ett_acse);
+	if(session->spdu_type == CLSES_UNIT_DATA)
+	{
+		/* create display subtree for the connectionless protocol */
+		if(parent_tree)
+		{
+			item = proto_tree_add_item(parent_tree, proto_clacse, tvb, 0, -1, FALSE);
+			tree = proto_item_add_subtree(item, ett_acse);
+		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CL-ACSE");
+  		col_clear(pinfo->cinfo, COL_INFO);
 	}
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACSE");
-  	col_clear(pinfo->cinfo, COL_INFO);
-
+	else
+	{
+		/* create display subtree for the protocol */
+		if(parent_tree)
+		{
+			item = proto_tree_add_item(parent_tree, proto_acse, tvb, 0, -1, FALSE);
+			tree = proto_item_add_subtree(item, ett_acse);
+		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACSE");
+  		col_clear(pinfo->cinfo, COL_INFO);
+	}
 
 	/*  we can't make any additional checking here   */
 	/*  postpone it before dissector will have more information */
@@ -2127,7 +2151,7 @@ void proto_register_acse(void) {
       { "simple-ASN1-type", "acse.simple_ASN1_type",
         FT_NONE, BASE_NONE, NULL, 0,
         "acse.T_simple_ASN1_type", HFILL }},
-    { &hf_acse_octet_aligned_01,
+    { &hf_acse_pDVList_octet_aligned,
       { "octet-aligned", "acse.octet_aligned",
         FT_BYTES, BASE_NONE, NULL, 0,
         "acse.OCTET_STRING", HFILL }},
@@ -2181,7 +2205,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 249 "packet-acse-template.c"
+#line 273 "packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2227,12 +2251,16 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 255 "packet-acse-template.c"
+#line 279 "packet-acse-template.c"
   };
 
   /* Register protocol */
   proto_acse = proto_register_protocol(PNAME, PSNAME, PFNAME);
   register_dissector("acse", dissect_acse, proto_acse);
+
+  /* Register connectionless protocol */
+  proto_clacse = proto_register_protocol(CLPNAME, CLPSNAME, CLPFNAME);
+
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_acse, hf, array_length(hf));

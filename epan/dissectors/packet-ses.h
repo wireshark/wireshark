@@ -25,8 +25,12 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+
 #define PROTO_STRING_SES "ISO 8327-1 OSI Session Protocol"
 #define PROTO_STRING_SES_INFO "ISO 8327-1 OSI Session Protocol."
+
+
+
 /*
 * Dissect ses-encapsulated data in a TCP stream.
 */
@@ -99,6 +103,7 @@
 #define SES_ACTIVITY_DISCARD_ACK		58
 #define SES_CAPABILITY				61
 #define SES_CAPABILITY_DATA_ACK			62
+#define CLSES_UNIT_DATA				64
 
 /*
 reason code

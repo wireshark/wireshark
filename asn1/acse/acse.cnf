@@ -40,7 +40,7 @@ AARE-apdu/_untag/protocol-version	aARE_protocol_version
 AARQ-apdu/_untag/aSO-context-name	aARQ_aSO_context_name
 AARE-apdu/_untag/aSO-context-name	aARE_aSO_context_name
 ACRQ-apdu/_untag/aSO-context-name	aCRQ_aSO_context_name
-
+PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
 #.FN_PARS Authentication-value-other/other-mechanism-name  
   FN_VARIANT = _str VAL_PTR = &object_identifier_id

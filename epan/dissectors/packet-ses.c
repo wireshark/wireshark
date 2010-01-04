@@ -56,12 +56,6 @@ static int hf_ses_reserved    = -1;
 static gint ett_ses           = -1;
 static gint ett_ses_param     = -1;
 
-/* 
-----------------------------------------------------------------------------------------------------------*/
-static dissector_handle_t pres_handle = NULL;
-/* 
-----------------------------------------------------------------------------------------------------------*/
-
 
 /* flags */
 static int hf_connect_protocol_options_flags = -1;
@@ -167,6 +161,19 @@ static int hf_large_initial_serial_number = -1;
 /* large second initial serial number */
 static int hf_large_second_initial_serial_number = -1;
 
+static int hf_cltp_li = -1;
+static int hf_cltp_type = -1;
+
+/* clses header fields             */
+static int proto_clses          = -1;
+
+#define PROTO_STRING_CLSES "ISO 9548-1 OSI Connectionless Session Protocol"
+
+static dissector_handle_t pres_handle = NULL;
+
+
+
+
 const value_string ses_vals[] =
 {
   {SES_CONNECTION_REQUEST,			"CONNECT (CN) SPDU" },				/* 13 */
@@ -200,6 +207,7 @@ const value_string ses_vals[] =
   {SES_ACTIVITY_DISCARD_ACK,		"ACTIVITY DISCARD ACK (ADA) SPDU" },/* 58 */
   {SES_CAPABILITY,					"CAPABILITY DATA (CD) SPDU"   },	/* 61 */
   {SES_CAPABILITY_DATA_ACK,			"CAPABILITY DATA ACK (CDA) SPDU" }, /* 62 */
+  {CLSES_UNIT_DATA,					"UNIT DATA (UD) SPDU" },			/* 64 */
   {0,             NULL           }
 };
 
@@ -975,7 +983,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
  */
 static int
 dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-    gboolean tokens)
+    gboolean tokens, gboolean connectionless)
 {
 	gboolean has_user_information = FALSE;
 	guint8 type;
@@ -997,7 +1005,20 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	session.ros_op = 0;
 	session.rtse_reassemble = FALSE;
 
-	if (tokens) {
+	if(connectionless) {
+	  	if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_str(pinfo->cinfo, COL_INFO,
+			    val_to_str(type, ses_vals, "Unknown SPDU type (0x%02x)"));
+		if (tree) {
+			ti = proto_tree_add_item(tree, proto_clses, tvb, offset,
+				-1, FALSE);
+			ses_tree = proto_item_add_subtree(ti, ett_ses);
+			proto_tree_add_uint(ses_tree, hf_ses_type, tvb,
+				offset, 1, type);
+		}
+		has_user_information = TRUE;
+	}
+	else if (tokens) {
 	  	if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(type, ses_category0_vals, "Unknown SPDU type (0x%02x)"));
@@ -1014,17 +1035,16 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			    val_to_str(type, ses_vals, "Unknown SPDU type (0x%02x)"));
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_ses, tvb, offset,
-			    -1, FALSE);
+				-1, FALSE);
 			ses_tree = proto_item_add_subtree(ti, ett_ses);
 			proto_tree_add_uint(ses_tree, hf_ses_type, tvb,
-			    offset, 1, type);
+				offset, 1, type);
 		}
 
 		/*
 		 * Might this SPDU have a User Information field?
 		 */
 		switch (type) {
-
 		case SES_DATA_TRANSFER:
 		case SES_EXPEDITED:
 		case SES_TYPED_DATA:
@@ -1068,12 +1088,10 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	if (has_user_information) {
 		if (tvb_reported_length_remaining(tvb, offset) > 0 || type == SES_MAJOR_SYNC_POINT) {
 			next_tvb = tvb_new_subset_remaining(tvb, offset);
-
-			/* do we have OSI presentation packet dissector ? */
 			if(!pres_handle)
 			{
 				call_dissector(data_handle, next_tvb, pinfo,
-				    tree);
+					tree);
 			}
 			else
 			{
@@ -1081,7 +1099,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 				save_private_data = pinfo->private_data;
 				pinfo->private_data = &session;
 				call_dissector(pres_handle, next_tvb, pinfo,
-				    tree);
+					tree);
 				pinfo->private_data = save_private_data;
 			}
 
@@ -1107,9 +1125,16 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	guint8 type;
+	gboolean is_clsp = FALSE;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SES");
+	type = tvb_get_guint8(tvb, offset);
+	if(type == CLSES_UNIT_DATA)
+		is_clsp = TRUE;
+
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, is_clsp ? "CLSES" : "SES");
   	col_clear(pinfo->cinfo, COL_INFO);
+
 
 	/*
 	 * Do we have a category 0 SPDU (GIVE_TOKENS/PLEASE_TOKENS) as
@@ -1118,13 +1143,13 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * If so, dissect it as such (GIVE_TOKENS and DATA_TRANSFER have
 	 * the same SPDU type value).
 	 */
-	type = tvb_get_guint8(tvb, offset);
 	if (type == SES_PLEASE_TOKENS || type == SES_GIVE_TOKENS)
-		offset = dissect_spdu(tvb, offset, pinfo, tree, TOKENS_SPDU);
+		offset = dissect_spdu(tvb, offset, pinfo, tree, TOKENS_SPDU, FALSE);
+
 
 	/* Dissect the remaining SPDUs. */
 	while (tvb_reported_length_remaining(tvb, offset) > 0)
-		offset = dissect_spdu(tvb, offset, pinfo, tree, NON_TOKENS_SPDU);
+		offset = dissect_spdu(tvb, offset, pinfo, tree, NON_TOKENS_SPDU, is_clsp);
 }
 
 void
@@ -1788,6 +1813,7 @@ proto_register_ses(void)
 	proto_register_field_array(proto_ses, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+
 /*
 	ses_module = prefs_register_protocol(proto_ses, NULL);
 
@@ -1878,3 +1904,18 @@ proto_reg_handoff_ses(void)
 	heur_dissector_add("cotp", dissect_ses_heur, proto_ses);
 	heur_dissector_add("cotp_is", dissect_ses_heur, proto_ses);
 }
+
+
+
+void proto_register_clses(void)
+{
+	proto_clses = proto_register_protocol(PROTO_STRING_CLSES, "CLSP", "clsp");
+}
+
+void
+proto_reg_handoff_clses(void)
+{
+	/* add our session dissector to cltp dissector list */
+	heur_dissector_add("cltp", dissect_ses_heur, proto_clses);
+}
+

@@ -1,6 +1,6 @@
 /* packet-pres.c
  * Routine to dissect ISO 8823 OSI Presentation Protocol packets
- * Based on the dissector by 
+ * Based on the dissector by
  * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
  *
  * $Id$
@@ -51,8 +51,16 @@
 #define PSNAME "PRES"
 #define PFNAME "pres"
 
+#define CLPNAME  "ISO 9576-1 OSI Connectionless Presentation Protocol"
+#define CLPSNAME "CLPRES"
+#define CLPFNAME "clpres"
+
 /* Initialize the protocol and registered fields */
 static int proto_pres = -1;
+
+/* Initialize the connectionles protocol */
+static int proto_clpres = -1;
+
 
 /*   type of session envelop */
 static struct SESSION_DATA_STRUCTURE* session = NULL;
@@ -137,7 +145,7 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, const char *oid)
 	pco=se_alloc(sizeof(pres_ctx_oid_t));
 	pco->ctx_id=idx;
 	pco->oid=se_strdup(oid);
-	conversation=find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, 
+	conversation=find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conversation) {
 		pco->index = conversation->index;
@@ -161,7 +169,7 @@ find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
 	conversation_t *conversation;
 
 	pco.ctx_id=idx;
-	conversation=find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, 
+	conversation=find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	if (conversation) {
 		pco.index = conversation->index;
@@ -201,7 +209,7 @@ pres_try_users_table(guint32 ctx_id, tvbuff_t *tvb, int offset, packet_info *pin
 {
 	tvbuff_t *next_tvb;
 	guint i;
-   
+
 	for (i = 0; i < num_pres_users; i++) {
 		pres_user_t *u = &(pres_users[i]);
 
@@ -300,15 +308,41 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0, old_offset;
 
+	session = ((struct SESSION_DATA_STRUCTURE*)(pinfo->private_data));
+
 	/* first, try to check length   */
 	/* do we have at least 4 bytes  */
 	if (!tvb_bytes_exist(tvb, 0, 4)){
-		session = ((struct SESSION_DATA_STRUCTURE*)(pinfo->private_data));
 		if (session && session->spdu_type != SES_MAJOR_SYNC_POINT) {
-			proto_tree_add_text(parent_tree, tvb, offset, 
+			proto_tree_add_text(parent_tree, tvb, offset,
 					    tvb_reported_length_remaining(tvb,offset),"User data");
 			return;  /* no, it isn't a presentation PDU */
 		}
+	}
+
+	/* save pointers for calling the acse dissector  */
+	global_tree = parent_tree;
+	global_pinfo = pinfo;
+
+	/* if the session unit-data packet then we process it */
+	/* as a connectionless presentation protocol unit data */
+	if(session && session->spdu_type == CLSES_UNIT_DATA)
+	{
+		proto_tree * clpres_tree = NULL;
+		proto_item *ti;
+
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CL-PRES");
+  		col_clear(pinfo->cinfo, COL_INFO);
+
+		if (parent_tree)
+		{
+			ti = proto_tree_add_item(parent_tree, proto_clpres, tvb, offset, -1, FALSE);
+			clpres_tree = proto_item_add_subtree(ti, ett_pres);
+		}
+
+		/* dissect the packet */
+		dissect_UD_type_PDU(tvb, pinfo, clpres_tree);
+		return;
 	}
 
 	/*  we can't make any additional checking here   */
@@ -316,9 +350,6 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PRES");
   	col_clear(pinfo->cinfo, COL_INFO);
-	/* save pointers for calling the acse dissector  */
-	global_tree = parent_tree;
-	global_pinfo = pinfo;
 
 	if (session && session->spdu_type == SES_MAJOR_SYNC_POINT) {
 		/* This is a reassembly initiated in packet-ses */
@@ -326,12 +357,12 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if (oid) {
 			call_ber_oid_callback (oid, tvb, offset, pinfo, parent_tree);
 		} else {
-			proto_tree_add_text(parent_tree, tvb, offset, 
+			proto_tree_add_text(parent_tree, tvb, offset,
 					    tvb_reported_length_remaining(tvb,offset),"User data");
 		}
 		return;
          }
-            
+
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset = offset;
 		offset = dissect_ppdu(tvb, offset, pinfo, parent_tree);
@@ -378,7 +409,7 @@ void proto_register_pres(void) {
 		&ett_pres,
 #include "packet-pres-ettarr.c"
   };
-  
+
   static uat_field_t users_flds[] = {
     UAT_FLD_DEC(pres_users,ctx_id,"Context Id","Presentation Context Identifier"),
     UAT_FLD_CSTRING(pres_users,oid,"Syntax Name OID","Abstract Syntax Name (Object Identifier)"),
@@ -397,12 +428,16 @@ void proto_register_pres(void) {
                              NULL,
                              pres_free_cb,
                              users_flds);
-  
+
   static module_t *pres_module;
-  
+
   /* Register protocol */
   proto_pres = proto_register_protocol(PNAME, PSNAME, PFNAME);
   register_dissector("pres", dissect_pres, proto_pres);
+
+  /* Register connectionless protocol (just for the description) */
+  proto_clpres = proto_register_protocol(CLPNAME, CLPSNAME, CLPFNAME);
+
   /* Register fields and subtrees */
   proto_register_field_array(proto_pres, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -420,7 +455,7 @@ void proto_register_pres(void) {
 /*--- proto_reg_handoff_pres ---------------------------------------*/
 void proto_reg_handoff_pres(void) {
 
-/*	register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_pres, proto_pres, 
+/*	register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_pres, proto_pres,
 	  "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) pres(1) version1(1)"); */
 
 }

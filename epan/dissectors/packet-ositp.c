@@ -248,6 +248,8 @@ static int hf_cotp_vp_dst_tsap_bytes = -1;
 static heur_dissector_list_t cotp_is_heur_subdissector_list;
 /* List of dissectors to call for COTP packets put atop CLNP */
 static heur_dissector_list_t cotp_heur_subdissector_list;
+/* List of dissectors to call for CLTP packets put atop CLNP */
+static heur_dissector_list_t cltp_heur_subdissector_list;
 
 /*
  * Reassembly of COTP.
@@ -1555,7 +1557,8 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 } /* ositp_decode_ER */
 
 static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
-			 packet_info *pinfo, proto_tree *tree)
+			 packet_info *pinfo, proto_tree *tree,
+			 gboolean *subdissector_found)
 {
   proto_item *ti;
   proto_tree *cltp_tree = NULL;
@@ -1581,7 +1584,19 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += li;
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  call_dissector(data_handle,next_tvb, pinfo, tree);
+
+  if (dissector_try_heuristic(cltp_heur_subdissector_list, next_tvb,
+			  pinfo, tree)) {
+    *subdissector_found = TRUE;
+  } else {
+    call_dissector(data_handle,next_tvb, pinfo, tree);
+  }
+
+
+  /*call_dissector(data_handle,next_tvb, pinfo, tree); */
+
+
+
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -1669,7 +1684,7 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
         new_offset = ositp_decode_ER(tvb, offset, li, tpdu, pinfo, tree);
         break;
       case UD_TPDU :
-        new_offset = ositp_decode_UD(tvb, offset, li, tpdu, pinfo, tree);
+        new_offset = ositp_decode_UD(tvb, offset, li, tpdu, pinfo, tree, &subdissector_found);
         is_cltp = TRUE;
         break;
       default      :
@@ -1859,6 +1874,9 @@ void proto_register_cltp(void)
   proto_cltp = proto_register_protocol(PROTO_STRING_CLTP, "CLTP", "cltp");
   proto_register_field_array(proto_cltp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_heur_dissector_list("cltp", &cltp_heur_subdissector_list);
+
 }
 
 void
