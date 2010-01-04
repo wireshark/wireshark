@@ -59,6 +59,27 @@ typedef struct rlc_lte_info
 } rlc_lte_info;
 
 
+typedef struct rlc_lte_tap_info {
+    /* Info from context */
+    guint8          rlcMode;
+    guint8          direction;
+    guint8          priority;
+    guint16         ueid;
+    guint16         channelType;
+    guint16         channelId;
+    guint16         pduLength;
+    guint8          UMSequenceNumberLength;
+
+    guint16         sequenceNumber;
+    guint8          isResegmented;
+    guint8          isControlPDU;
+    guint16         ACKNo;
+    #define MAX_NACKs 128
+    guint8          noOfNACKs;
+    guint16         NACKs[MAX_NACKs];
+} rlc_lte_tap_info;
+
+
 
 /*****************************************************************/
 /* UDP framing format                                            */
