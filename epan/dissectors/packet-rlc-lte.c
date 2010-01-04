@@ -801,7 +801,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         return;
     }
 
-    tap_info->sequenceNumber = sn;
+    tap_info->sequenceNumber = (guint16)sn;
 
     /* Show SN in info column */
     col_append_fstr(pinfo->cinfo, COL_INFO, "  SN=%04u", (guint16)sn);
@@ -900,7 +900,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
     col_append_fstr(pinfo->cinfo, COL_INFO, "  ACK_SN=%u", (guint16)ack_sn);
     proto_item_append_text(top_ti, "  ACK_SN=%u", (guint16)ack_sn);
     proto_item_append_text(status_ti, "  ACK_SN=%u", (guint16)ack_sn);
-    tap_info->ACKNo = ack_sn;
+    tap_info->ACKNo = (guint16)ack_sn;
 
     /* E1 */
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
@@ -924,7 +924,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             bit_offset += 10;
             col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK_SN=%u", (guint16)nack_sn);
             proto_item_append_text(top_ti, "  NACK_SN=%u", (guint16)nack_sn);
-            tap_info->NACKs[nack_count] = nack_sn;
+            tap_info->NACKs[nack_count] = (guint16)nack_sn;
 
             /* E1 */
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
