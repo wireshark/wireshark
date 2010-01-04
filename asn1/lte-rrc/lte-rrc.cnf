@@ -20,7 +20,6 @@ HandoverPreparationInformation_PDU
 #.PDU_NEW
 HandoverCommand
 HandoverPreparationInformation
-UE-EUTRA-Capability
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch
 PCCH-Message                 @pcch
@@ -29,6 +28,7 @@ DL-DCCH-Message              @dl.dcch
 UL-CCCH-Message              @ul.ccch
 UL-DCCH-Message              @ul.dcch
 UECapabilityInformation      @ue_cap_info
+UE-EUTRA-Capability          @ue_eutra_cap
 #.END
 
 #.FN_BODY DedicatedInfoNAS VAL_PTR = &nas_eps_tvb

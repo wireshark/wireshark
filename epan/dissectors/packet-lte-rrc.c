@@ -20248,6 +20248,7 @@ void proto_register_lte_rrc(void) {
   new_register_dissector("lte-rrc.ul.ccch", dissect_UL_CCCH_Message_PDU, proto_lte_rrc);
   new_register_dissector("lte-rrc.ul.dcch", dissect_UL_DCCH_Message_PDU, proto_lte_rrc);
   new_register_dissector("lte-rrc.ue_cap_info", dissect_UECapabilityInformation_PDU, proto_lte_rrc);
+  new_register_dissector("lte-rrc.ue_eutra_cap", dissect_UE_EUTRA_Capability_PDU, proto_lte_rrc);
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
