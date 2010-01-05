@@ -37,15 +37,11 @@
 /*
  * See
  *
- *	http://www.cisco.com/warp/public/473/741_4.html
+ *  http://www.cisco.com/en/US/tech/tk389/tk689/technologies_tech_note09186a0080094665.shtml
  *
  * and
  *
- *	http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/frames.htm
- *
- * and
- *
- *	http://www.cisco.com/en/US/tech/tk389/tk390/technologies_tech_note09186a0080094665.shtml
+ *  http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/frames.htm
  *
  * for information on ISL.
  */
@@ -132,11 +128,6 @@ static const value_string ether_user_vals[] = {
 	{0x6, "\"Voice\", < 10ms latency and jitter"},
 	{0x7, "Network control"},
 	{0,   NULL}
-};
-
-static const true_false_string bpdu_tfs = {
-	"Yes",
-	"No"
 };
 
 static const true_false_string explorer_tfs = {
@@ -241,7 +232,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
     proto_tree_add_item(fh_tree, hf_isl_hsa, payload_tvb, 3, 3, FALSE);
   }
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "VLAN ID: 0x%04X",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "VLAN ID: %u",
 		 tvb_get_ntohs(tvb, 20) >> 1);
   if (tree) {
     proto_tree_add_item(fh_tree, hf_isl_vlan_id, payload_tvb, 6, 2, FALSE);
@@ -354,11 +345,11 @@ proto_register_isl(void)
 	{ "HSA",		"isl.hsa", FT_UINT24, BASE_HEX, NULL, 0x0,
 		"High bits of source address", HFILL }},
 	{ &hf_isl_vlan_id,
-	{ "VLAN ID",		"isl.vlan_id", FT_UINT16, BASE_HEX, NULL,
-		0xFFFE, "Virtual LAN ID", HFILL }},
+	{ "VLAN ID",		"isl.vlan_id", FT_UINT16, BASE_DEC, NULL,
+		0xFFFE, "Virtual LAN ID (Color)", HFILL }},
 	{ &hf_isl_bpdu,
-	{ "BPDU",		"isl.bpdu", FT_BOOLEAN, 16,
-		TFS(&bpdu_tfs), 0x0001, "BPDU indicator", HFILL }},
+	{ "BPDU/CDP/VTP",		"isl.bpdu", FT_BOOLEAN, 16,
+		TFS(&tfs_yes_no), 0x0001, "BPDU/CDP/VTP indicator", HFILL }},
 	{ &hf_isl_index,
 	{ "Index",		"isl.index", FT_UINT16, BASE_DEC, NULL, 0x0,
 		"Port index of packet source", HFILL }},
@@ -366,8 +357,8 @@ proto_register_isl(void)
 	{ "CRC",		"isl.crc", FT_UINT32, BASE_HEX, NULL, 0x0,
 		"CRC field of encapsulated frame", HFILL }},
 	{ &hf_isl_src_vlan_id,
-	{ "Source VLAN ID",	"isl.src_vlan_id", FT_UINT16, BASE_HEX, NULL,
-		0xFFFE, "Source Virtual LAN ID", HFILL }},
+	{ "Source VLAN ID",	"isl.src_vlan_id", FT_UINT16, BASE_DEC, NULL,
+		0xFFFE, "Source Virtual LAN ID (Color)", HFILL }},
 	{ &hf_isl_explorer,
 	{ "Explorer",		"isl.explorer", FT_BOOLEAN, 16,
 		TFS(&explorer_tfs), 0x0001, NULL, HFILL }},
