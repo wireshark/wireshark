@@ -57,6 +57,7 @@ SysInfoType15-1              @si.sib15-1
 SysInfoType15-1bis           @si.sib15-1bis
 SysInfoType15-2              @si.sib15-2
 SysInfoType15-2bis           @si.sib15-2bis
+SysInfoType15-2ter           @si.sib15-2ter
 SysInfoType15-3              @si.sib15-3
 SysInfoType15-3bis           @si.sib15-3bis
 SysInfoType15-4              @si.sib15-4
@@ -67,6 +68,8 @@ SysInfoType15-8              @si.sib15-8
 SysInfoType16                @si.sib16
 SysInfoType17                @si.sib17
 SysInfoType18                @si.sib18
+SysInfoType19                @si.sib19
+SysInfoType20                @si.sib20
 SysInfoTypeSB1               @si.sb1
 SysInfoTypeSB2               @si.sb2
 HandoverToUTRANCommand       @irat.ho_to_utran_cmd
@@ -487,12 +490,5 @@ tvbuff_t *parameter_tvb=NULL;
 	dissect_rrc_InterRATHandoverInfo_PDU(parameter_tvb, actx->pinfo, tree);
   }
 
-#.FN_BODY ue-CapabilityContainer/present VAL_PTR = &parameter_tvb
-tvbuff_t *parameter_tvb=NULL;
-
-%(DEFAULT_BODY)s
-  if (parameter_tvb){
-	dissect_UE_RadioAccessCapabilityInfo_PDU(parameter_tvb, actx->pinfo, tree);
-  }
 #.END
 

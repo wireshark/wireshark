@@ -2,7 +2,7 @@
  * Routines for Universal Mobile Telecommunications System (UMTS);
  * Radio Resource Control (RRC) protocol specification
  * (3GPP TS 25.331 version 6.7.0 Release 6) packet dissection
- * Copyright 2006, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2006-2010, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -84,28 +84,6 @@ static proto_tree *top_tree;
 #include "packet-rrc-fn.c"
 
 #include "packet-rrc.h"
-
-/* 
-TODO: Remove the dummy function when these functions are taken into use
-
- These functions are not referenced from the ASN1 specifications
- as this generates a lot of unsued code warings from GCC this dummy function
- is introduced to reduce the number of warnings until the proper use is discovered
- */
-
-static void
-dissect_rrc_dummy_remove_unused_code_warnings(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_){
-
-	/* Dummy code to keep GCC happy */
-	switch(hf_index){
-		case 0:
-			dissect_rrc_UL_PhysChCapabilityFDD_r6( tvb, offset, actx , tree, hf_index);
-			dissect_rrc_UE_Positioning_GANSS_Data( tvb, offset, actx , tree, hf_index);
-			break;
-		default:
-			break;
-	}
-}
 
 static void
 dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
