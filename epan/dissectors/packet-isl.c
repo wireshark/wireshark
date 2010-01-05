@@ -128,6 +128,7 @@ static const value_string user_vals[] = {
 	{USER_PRIORITY_1,       "Priority 1"},
 	{USER_PRIORITY_2,       "Priority 2"},
 	{USER_PRIORITY_HIGHEST, "Highest Priority"},
+	{0,                     NULL}
 };
 
 static const true_false_string explorer_tfs = {
