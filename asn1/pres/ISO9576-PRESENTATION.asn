@@ -1,0 +1,37 @@
+-- $Id$
+-- Module ISO9576-PRESENTATION (X.236)
+ISO9576-CONNECTIONLESS-PRESENTATION DEFINITIONS ::=
+BEGIN
+
+--
+-- The value of the SS-user data parameter of the S-UNIT-DATA request and indication
+-- session-service primitives shall be a UD-type value, followed as a requestor’s
+-- option by zero or more UDC-type values.
+--
+
+UD-type ::= SEQUENCE {
+	protocol-version [0] IMPLICIT Protocol-version DEFAULT {version-1},
+	calling-presentation-selector [1] IMPLICIT Calling-presentation-selector OPTIONAL,
+	called-presentation-selector [2] IMPLICIT Called-presentation-selector OPTIONAL,
+	presentation-context-definition-list [4] IMPLICIT
+	Presentation-context-definition-list OPTIONAL,
+	user-data User-data
+}
+
+-- Shall be the parameters of the UD PPDU.
+--
+-- As an initiator’s option, the presentation data values contained in a UD PPDU may be
+-- encoded more than once, using UDC-type values, to allow the transfer of the same
+-- presentation data values using a number of different transfer syntaxes.
+--
+
+UDC-type ::= User-data
+-- Shall not be present if the Presentation context definition list parameter is not present
+-- in the UD PPDU. Each instance of this data type shall contain all of the presentation data
+-- values which were contained in the User data parameter of the UD PPDU.
+-- This shall be the same set of presentation data values which were contained in the UD-type.
+--
+
+-- WS: trunkated here as the rest is present in ISO8823-PRESENTATION.asn.
+
+END
