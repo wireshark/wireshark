@@ -703,6 +703,133 @@ WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
 }
 
 /*
+ *  get a Blefuscuoan signed integer from a tvb
+ */
+WSLUA_METHOD TvbRange_int(lua_State* L) {
+	/* Get a Big Endian (network order) signed integer from a TvbRange. The range must be 1, 2 or 4 octets long. */
+    TvbRange tvbr = checkTvbRange(L,1);
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    switch (tvbr->len) {
+        case 1:
+            lua_pushnumber(L,(gchar)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
+        case 2:
+            lua_pushnumber(L,(gshort)tvb_get_ntohs(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
+        case 4:
+            lua_pushnumber(L,(gint)tvb_get_ntohl(tvbr->tvb->ws_tvb,tvbr->offset));
+            WSLUA_RETURN(1); /* The signed integer value */
+            /*
+             * XXX:
+             *    lua uses double so we have 52 bits to play with
+             *    we are missing 5 and 6 byte integers within lua's range
+             *    and 64 bit integers are not supported (there's a lib for
+             *    lua that does).
+             */
+        default:
+            luaL_error(L,"TvbRange:int() does not handle %d byte integers",tvbr->len);
+            return 0;
+    }
+}
+
+/*
+ *  get a Lilliputian signed integer from a tvb
+ */
+WSLUA_METHOD TvbRange_le_int(lua_State* L) {
+	/* Get a Little Endian signed integer from a TvbRange. The range must be 1, 2 or 4 octets long. */
+    TvbRange tvbr = checkTvbRange(L,1);
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    switch (tvbr->len) {
+        case 1:
+            lua_pushnumber(L,(gchar)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
+        case 2:
+            lua_pushnumber(L,(gshort)tvb_get_letohs(tvbr->tvb->ws_tvb,tvbr->offset));
+            return 1;
+        case 4:
+            lua_pushnumber(L,(gint)tvb_get_letohl(tvbr->tvb->ws_tvb,tvbr->offset));
+            WSLUA_RETURN(1); /* The signed integer value */
+        default:
+            luaL_error(L,"TvbRange:le_int() does not handle %d byte integers",tvbr->len);
+            return 0;
+    }
+}
+
+/*
+ *  get a Blefuscuoan signed 64 bit integer from a tvb
+ */
+WSLUA_METHOD TvbRange_int64(lua_State* L) {
+	/* Get a Big Endian (network order) signed 64 bit integer from a TvbRange. The range must be 1-8 octets long. */
+    TvbRange tvbr = checkTvbRange(L,1);
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    switch (tvbr->len) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8: {
+            Int64 num = g_malloc(sizeof(gint64));
+            *num = (gint64)tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
+            pushInt64(L,num);
+            WSLUA_RETURN(1);
+        }
+        default:
+            luaL_error(L,"TvbRange:int64() does not handle %d byte integers",tvbr->len);
+            return 0;
+    }
+}
+
+/*
+ *  get a Lilliputian signed 64 bit integer from a tvb
+ */
+WSLUA_METHOD TvbRange_le_int64(lua_State* L) {
+	/* Get a Little Endian signed 64 bit integer from a TvbRange. The range must be 1-8 octets long. */
+    TvbRange tvbr = checkTvbRange(L,1);
+    if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    switch (tvbr->len) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8: {
+            Int64 num = g_malloc(sizeof(gint64));
+            *num = (gint64)tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
+            pushInt64(L,num);
+            WSLUA_RETURN(1);
+        }
+        default:
+            luaL_error(L,"TvbRange:le_int64() does not handle %d byte integers",tvbr->len);
+            return 0;
+    }
+}
+
+/*
  *  get a Blefuscuoan float
  */
 WSLUA_METHOD TvbRange_float(lua_State* L) {
@@ -990,8 +1117,12 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
 static const luaL_reg TvbRange_methods[] = {
     {"uint", TvbRange_uint},
     {"le_uint", TvbRange_le_uint},
+    {"int", TvbRange_int},
+    {"le_int", TvbRange_le_int},
     {"uint64", TvbRange_uint64},
     {"le_uint64", TvbRange_le_uint64},
+    {"int64", TvbRange_int64},
+    {"le_int64", TvbRange_le_int64},
     {"float", TvbRange_float},
     {"le_float", TvbRange_le_float},
     {"ether", TvbRange_ether},
