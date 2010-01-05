@@ -161,9 +161,6 @@ static int hf_large_initial_serial_number = -1;
 /* large second initial serial number */
 static int hf_large_second_initial_serial_number = -1;
 
-static int hf_cltp_li = -1;
-static int hf_cltp_type = -1;
-
 /* clses header fields             */
 static int proto_clses          = -1;
 
