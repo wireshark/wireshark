@@ -67,6 +67,7 @@ static int hf_isl_esize = -1;
 static int hf_isl_trailer = -1;
 
 static gint ett_isl = -1;
+static gint ett_isl_dst = -1;
 
 #define	ISL_HEADER_SIZE	26
 
@@ -74,6 +75,11 @@ static gint ett_isl = -1;
 #define	TYPE_TR		0x1
 #define	TYPE_FDDI	0x2
 #define	TYPE_ATM	0x3
+
+#define USER_PRIORITY_NORMAL	0x0
+#define USER_PRIORITY_1		0x1
+#define USER_PRIORITY_2	        0x2
+#define USER_PRIORITY_HIGHEST	0x3
 
 static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t tr_handle;
@@ -117,17 +123,11 @@ static const value_string type_vals[] = {
 	{0,          NULL}
 };
 
-static const value_string ether_user_vals[] = {
-	/* User values are defined by IEEE 802.1D-2004, annex G */
-	{0x0, "Best effort (default priority)"},
-	{0x1, "Background"},
-	{0x2, "[spare priority]"},
-	{0x3, "Excellent effort"},
-	{0x4, "Controlled load"},
-	{0x5, "\"Video\", < 100ms latency and jitter"},
-	{0x6, "\"Voice\", < 10ms latency and jitter"},
-	{0x7, "Network control"},
-	{0,   NULL}
+static const value_string user_vals[] = {
+	{USER_PRIORITY_NORMAL,  "Normal Priority"},
+	{USER_PRIORITY_1,       "Priority 1"},
+	{USER_PRIORITY_2,       "Priority 2"},
+	{USER_PRIORITY_HIGHEST, "Highest Priority"},
 };
 
 static const true_false_string explorer_tfs = {
@@ -139,6 +139,7 @@ void
 dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 {
   proto_tree *volatile fh_tree = NULL;
+  proto_tree *dst_tree;
   proto_item *ti, *hidden_item;
   volatile guint8 type;
   volatile guint16 length;
@@ -157,20 +158,23 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
     ti = proto_tree_add_protocol_format(tree, proto_isl, tvb, 0, ISL_HEADER_SIZE,
 		"ISL");
     fh_tree = proto_item_add_subtree(ti, ett_isl);
-    proto_tree_add_item(fh_tree, hf_isl_dst, tvb, 0, 5, FALSE);
+
+    ti = proto_tree_add_item(fh_tree, hf_isl_dst, tvb, 0, 6, FALSE);
     hidden_item = proto_tree_add_item(fh_tree, hf_isl_addr, tvb, 0, 6, FALSE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    proto_tree_add_item(fh_tree, hf_isl_type, tvb, 5, 1, FALSE);
+    dst_tree = proto_item_add_subtree(ti, ett_isl_dst);
+    proto_tree_add_item(dst_tree, hf_isl_type, tvb, 5, 1, FALSE);
+
     switch (type) {
 
     case TYPE_ETHER:
-      proto_tree_add_item(fh_tree, hf_isl_user_eth, tvb, 5, 1, FALSE);
+      proto_tree_add_item(dst_tree, hf_isl_user_eth, tvb, 5, 1, FALSE);
       break;
 
     default:
       /* XXX - the spec appears to indicate that the "User" field is
          used for TYPE_TR to distinguish between types of packets. */
-      proto_tree_add_item(fh_tree, hf_isl_user, tvb, 5, 1, FALSE);
+      proto_tree_add_item(dst_tree, hf_isl_user, tvb, 5, 1, FALSE);
       break;
     }
     proto_tree_add_item(fh_tree, hf_isl_src, tvb, 6, 6, FALSE);
@@ -321,14 +325,14 @@ proto_register_isl(void)
 {
   static hf_register_info hf[] = {
 	{ &hf_isl_dst,
-	{ "Destination",	"isl.dst", FT_BYTES, BASE_NONE, NULL, 0x0,
+	{ "Destination",	"isl.dst", FT_ETHER, BASE_NONE, NULL, 0x0,
 		"Destination Address", HFILL }},
 	{ &hf_isl_type,
 	{ "Type",		"isl.type", FT_UINT8, BASE_DEC,
 		VALS(type_vals), 0xF0, NULL, HFILL }},
 	{ &hf_isl_user_eth,
 	{ "User",		"isl.user_eth", FT_UINT8, BASE_DEC,
-		VALS(ether_user_vals), 0x0F, "Priority (for Ethernet)", HFILL }},
+		VALS(user_vals), 0x03, "Priority while passing through switch", HFILL }},
 	{ &hf_isl_user,
 	{ "User",		"isl.user", FT_UINT8, BASE_HEX, NULL, 0x0F,
 		"User-defined bits", HFILL }},
@@ -383,6 +387,7 @@ proto_register_isl(void)
   };
   static gint *ett[] = {
 	&ett_isl,
+	&ett_isl_dst,
   };
 
   proto_isl = proto_register_protocol("Cisco ISL", "ISL", "isl");

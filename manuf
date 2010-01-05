@@ -13739,6 +13739,8 @@
 00:50:C2:BC:F0:00/36	EpikoElekt             # Epiko, elektronski sistemi d.o.o.
 00:50:C2:BD:00:00/36	EdcWifi                # EDC wifi
 00:50:C2:BD:10:00/36	AriemTechn             # Ariem Technologies Pvt Ltd
+00:50:C2:BD:20:00/36	Percello               # Percello Ltd.
+00:50:C2:BD:30:00/36	Postjet                # Postjet Systems Ltd
 00:50:C4	Imd
 00:50:C5	AdsTechnol             # ADS Technologies, Inc
 00:50:C6	LoopTeleco             # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -15975,6 +15977,7 @@
 50:2A:7E	SmartElect             # Smart electronic GmbH
 50:2A:8B	TelekomRes             # Telekom Research and Development Sdn Bhd
 50:2D:A2	IntelCorpo             # Intel Corporate
+50:2D:F4	PhytecMess             # Phytec Messtechnik GmbH
 50:63:13	HonHaiPrec             # Hon Hai Precision Ind. Co.,Ltd. 
 50:93:4F	GradualTec             # Gradual Tecnologia Ltda.
 50:A6:E3	DavidClark             # David Clark Company
@@ -16172,6 +16175,7 @@ AA:00:03	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AA:00:04	DigitalEqu             # DIGITAL EQUIPMENT CORPORATION
 AC:44:F2	Revolabs               # Revolabs Inc
 AC:58:3B	HumanAssem             # Human Assembler, Inc.
+AC:67:06	RuckusWire             # Ruckus Wireless
 AC:83:17	ShenzhenFu             # Shenzhen Furtunetel Communication Co., Ltd
 AC:86:7E	CreateNewT             # Create New Technology (HK) Limited Company
 AC:BE:B6	Visualedge             # Visualedge Technology Co., Ltd.
@@ -16188,10 +16192,12 @@ B0:E9:7E	AdvancedMi             # Advanced Micro Peripherals
 B4:08:32	TcCommunic             # TC Communications
 B4:2C:BE	DirectPaym             # Direct Payment Solutions Limited
 B4:41:7A	ShenzhenGo             # ShenZhen Gongjin Electronics Co.,Ltd
+B4:58:61	CremoteLlc             # CRemote, LLC
 B4:82:FE	AskeyCompu             # Askey Computer Corp
 B4:B5:AF	MinsungEle             # Minsung Electronics
 B4:ED:54	WohlerTech             # Wohler Technologies
 B8:64:91	CkTelecom              # CK Telecom Ltd
+B8:65:3B	Bolymin                # Bolymin, Inc.
 B8:94:D2	RetailInno             # Retail Innovation HTT AB
 B8:A3:E0	BenruiTech             # BenRui Technology Co.,Ltd
 B8:AC:6F	Dell                   # Dell Inc
@@ -16207,6 +16213,7 @@ C0:1E:9B	PixaviAs               # Pixavi AS
 C0:22:50	Private
 C0:38:F9	NokiaDanma             # Nokia Danmark A/S
 C0:3F:0E	Netgear
+C0:6C:0F	DobbsStanf             # Dobbs Stanford
 C0:9C:92	Coby
 C0:BA:E6	Applicatio             # Application Solutions (Safety and Security) Ltd
 C0:E4:22	TexasInstr             # Texas Instruments
@@ -16238,6 +16245,7 @@ CC:B8:88	AnbSecurit             # AnB Securite s.a.
 CC:CC:4E	SunFountai             # Sun Fountainhead USA. Corp 
 CC:EA:1C	Dconworks              # DCONWORKS  Co., Ltd
 D0:37:61	TexasInstr             # Texas Instruments
+D0:B3:3F	ShenzhenTi             # SHENZHEN TINNO MOBILE TECHNOLOGY CO.,LTD.
 D0:D2:86	BeckmanCou             # Beckman Coulter Biomedical K.K.
 D0:E4:0B	Wearable               # Wearable Inc.
 D4:11:D6	Shotspotte             # ShotSpotter, Inc.
@@ -16250,6 +16258,7 @@ D4:F1:43	Iproad                 # IPROAD.,Inc
 D8:28:C9	GeneralEle             # General Electric Consumer and Industrial
 D8:42:AC	FreecommDa             # FreeComm Data Communication Co.,Ltd.
 D8:54:3A	TexasInstr             # Texas Instruments
+D8:AE:90	ItibiaTech             # Itibia Technologies
 D8:C3:FB	Detracom
 D8:D3:85	HewlettPac             # Hewlett Packard
 D8:D6:7E	GskCncEqui             # GSK CNC EQUIPMENT CO.,LTD
@@ -16473,6 +16482,7 @@ FC:CC:E4	Ascon                  # Ascon Ltd.
 03-00-00-00-80-00	Bridge # [TR?]
 03-00-00-20-00-00	IP-Token-Ring-Multicast (RFC1469)
 03-00-00-80-00-00	Discovery-Client
+03-00-0C-00-00/40	ISL-Frame [TR?]
 03-00-C7-00-00-EE	HP (Compaq) ProLiant NIC teaming
 03-00-FF-FF-FF-FF	All-Stations-Address
 03-BF-00-00-00-00/16	MS-NLB-VirtServer-Multicast
