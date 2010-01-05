@@ -5220,10 +5220,16 @@ class BitStringType (Type):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_bitstring', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),
-                                   ('%(VAL_PTR)s',),))
+      if (ectx.constraints_check and self.HasSizeConstraint()):
+        body = ectx.eth_fn_call('dissect_%(ER)s_constrained_bitstring', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),
+                                     ('%(VAL_PTR)s',),))
+      else:
+        body = ectx.eth_fn_call('dissect_%(ER)s_bitstring', ret='offset',
+                                par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                     ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),
+                                     ('%(VAL_PTR)s',),))
     elif (ectx.Per()):
       if self.HasContentsConstraint():
         body = ectx.eth_fn_call('dissect_%(ER)s_bit_string_containing%(FN_VARIANT)s', ret='offset',

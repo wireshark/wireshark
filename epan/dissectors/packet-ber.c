@@ -320,12 +320,12 @@ void ber_set_filename(gchar *filename)
 }
 
 static void
-ber_check_length (guint32 length, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item)
+ber_check_length (guint32 length, gint32 min_len, gint32 max_len, asn1_ctx_t *actx, proto_item *item, gboolean bit)
 {
   if (min_len != -1 && length < (guint32)min_len) {
-    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: string too short: %d (%d .. %d)", length, min_len, max_len);
+    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: %sstring too short: %d (%d .. %d)", bit ? "bit " : "", length, min_len, max_len);
   } else if (max_len != -1 && length > (guint32)max_len) {
-    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: string too long: %d (%d .. %d)", length, min_len, max_len);
+    expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, "Size constraint: %sstring too long: %d (%d .. %d)", bit ? "bit " : "", length, min_len, max_len);
   }
 }
 
@@ -1068,7 +1068,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		if(hf_id >= 0) {
 			it = proto_tree_add_item(tree, hf_id, tvb, offset, length_remaining, FALSE);
 			actx->created_item = it;
-			ber_check_length(length_remaining, min_len, max_len, actx, it);
+			ber_check_length(length_remaining, min_len, max_len, actx, it, FALSE);
 		} else {
 			proto_item *pi;
 
@@ -3965,7 +3965,7 @@ malformed:
 
 
 /* 8.6 Encoding of a bitstring value */
-int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
+int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len _U_, gint32 max_len, const asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
 {
 	gint8 class;
 	gboolean pc, ind;
@@ -3988,7 +3988,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *p
 	  offset = dissect_ber_length(actx->pinfo, parent_tree, tvb, offset, &len, &ind);
 	  end_offset = offset + len;
 
-	  /* sanity check: we only handle Universal BitSrings */
+	  /* sanity check: we only handle Universal BitStrings */
 
 	  /* for an IMPLICIT APPLICATION tag asn2eth seems to call this
 	     function with implicit_tag = FALSE. BER_FLAGS_NOOWNTAG was
@@ -4033,9 +4033,10 @@ int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *p
 		}
 		offset++;
 		len--;
-		if( hf_id >= 0) {
+		if(hf_id >= 0) {
 			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
-			actx->created_item= item;
+			actx->created_item = item;
+			ber_check_length(len*8 - pad, 0, max_len, actx, item, TRUE);
 			if(ett_id != -1) {
 				tree = proto_item_add_subtree(item, ett_id);
 			}
@@ -4086,6 +4087,11 @@ int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *p
 	}
 
 	return end_offset;
+}
+
+int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
+{
+  return dissect_ber_constrained_bitstring(implicit_tag, actx, parent_tree, tvb, offset, -1, -1, named_bits, hf_id, ett_id, out_tvb);
 }
 
 int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int **bit_fields, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
