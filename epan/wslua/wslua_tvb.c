@@ -601,7 +601,7 @@ WSLUA_METHOD TvbRange_uint(lua_State* L) {
              *    lua that does).
              */
         default:
-            luaL_error(L,"TvbRange:get_uint() does not handle %d byte integers",tvbr->len);
+            luaL_error(L,"TvbRange:uint() does not handle %d byte integers",tvbr->len);
             return 0;
     }
 }
@@ -633,7 +633,7 @@ WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
             lua_pushnumber(L,tvb_get_letohl(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The unsigned integer value */
         default:
-            luaL_error(L,"TvbRange:get_le_uint() does not handle %d byte integers",tvbr->len);
+            luaL_error(L,"TvbRange:le_uint() does not handle %d byte integers",tvbr->len);
             return 0;
     }
 }
@@ -665,7 +665,7 @@ WSLUA_METHOD TvbRange_uint64(lua_State* L) {
             WSLUA_RETURN(1);
         }
         default:
-            luaL_error(L,"TvbRange:get_uint64() does not handle %d byte integers",tvbr->len);
+            luaL_error(L,"TvbRange:uint64() does not handle %d byte integers",tvbr->len);
             return 0;
     }
 }
@@ -697,7 +697,7 @@ WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
             WSLUA_RETURN(1);
         }
         default:
-            luaL_error(L,"TvbRange:get_le_uint64() does not handle %d byte integers",tvbr->len);
+            luaL_error(L,"TvbRange:le_uint64() does not handle %d byte integers",tvbr->len);
             return 0;
     }
 }
@@ -722,7 +722,7 @@ WSLUA_METHOD TvbRange_float(lua_State* L) {
             lua_pushnumber(L,tvb_get_ntohieee_double(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The flaoting point value */
         default:
-            luaL_error(L,"TvbRange:get_float() does not handle %d byte floating numbers",tvbr->len);
+            luaL_error(L,"TvbRange:float() does not handle %d byte floating numbers",tvbr->len);
             return 0;
     }
 }
@@ -743,7 +743,7 @@ WSLUA_METHOD TvbRange_le_float(lua_State* L) {
             lua_pushnumber(L,tvb_get_letohieee_double(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1); /* The flaoting point value */
         default:
-            luaL_error(L,"TvbRange:get_float() does not handle %d byte floating numbers",tvbr->len);
+            luaL_error(L,"TvbRange:le_float() does not handle %d byte floating numbers",tvbr->len);
             return 0;
     }
 }
