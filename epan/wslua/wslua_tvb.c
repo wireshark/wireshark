@@ -847,7 +847,7 @@ WSLUA_METHOD TvbRange_float(lua_State* L) {
             return 1;
         case 8:
             lua_pushnumber(L,tvb_get_ntohieee_double(tvbr->tvb->ws_tvb,tvbr->offset));
-            WSLUA_RETURN(1); /* The flaoting point value */
+            WSLUA_RETURN(1); /* The floating point value */
         default:
             luaL_error(L,"TvbRange:float() does not handle %d byte floating numbers",tvbr->len);
             return 0;
@@ -868,7 +868,7 @@ WSLUA_METHOD TvbRange_le_float(lua_State* L) {
             return 1;
         case 8:
             lua_pushnumber(L,tvb_get_letohieee_double(tvbr->tvb->ws_tvb,tvbr->offset));
-            WSLUA_RETURN(1); /* The flaoting point value */
+            WSLUA_RETURN(1); /* The floating point value */
         default:
             luaL_error(L,"TvbRange:le_float() does not handle %d byte floating numbers",tvbr->len);
             return 0;
