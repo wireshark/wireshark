@@ -165,10 +165,10 @@ static const value_string rlc_channel_type_vals[] =
 
 static const value_string framing_info_vals[] =
 {
-    { 0,      "First byte begins an RLC SDU and last byte ends an RLC SDU"},
-    { 1,      "First byte begins an RLC SDU and last byte does not end an RLC SDU"},
-    { 2,      "First byte does not begin an RLC SDU and last byte ends an RLC SDU"},
-    { 3,      "First byte does not begin an RLC SDU and last byte does not end an RLC SDU"},
+    { 0,      "First byte begins a RLC SDU and last byte ends a RLC SDU"},
+    { 1,      "First byte begins a RLC SDU and last byte does not end a RLC SDU"},
+    { 2,      "First byte does not begin a RLC SDU and last byte ends a RLC SDU"},
+    { 3,      "First byte does not begin a RLC SDU and last byte does not end a RLC SDU"},
     { 0, NULL }
 };
 
@@ -196,7 +196,7 @@ static const value_string data_or_control_vals[] =
 static const value_string resegmentation_flag_vals[] =
 {
     { 0,      "AMD PDU"},
-    { 1,      "AND PDU segment"},
+    { 1,      "AMD PDU segment"},
     { 0, NULL }
 };
 
@@ -211,7 +211,7 @@ static const value_string polling_bit_vals[] =
 static const value_string lsf_vals[] =
 {
     { 0,      "Last byte of the AMD PDU segment does not correspond to the last byte of an AMD PDU"},
-    { 1,      "Last byte of the AMD PDU segment corresponds to the last byte of an AND PDU"},
+    { 1,      "Last byte of the AMD PDU segment corresponds to the last byte of an AMD PDU"},
     { 0, NULL }
 };
 
@@ -540,7 +540,7 @@ static void addChannelSequenceInfo(state_report_in_frame *p,
                                          tvb, 0, 0, FALSE);
                 if (!p->sequenceExpectedCorrect) {
                     expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
-                                           "Last segment of previous PDU was complete, but new segmeng was not started");
+                                           "Last segment of previous PDU was complete, but new segment was not started");
                 }
             }
             else {
@@ -1601,7 +1601,7 @@ void proto_register_rlc_lte(void)
 
 
         { &hf_rlc_lte_am_header,
-            { "UM Header",
+            { "AM Header",
               "rlc-lte.am.header", FT_STRING, BASE_NONE, NULL, 0x0,
               "Ackowledged Mode Header", HFILL
             }
