@@ -688,17 +688,19 @@ seed(void)
 	int 		fd;
 	ssize_t		ret;
 
+#define RANDOM_DEV "/dev/urandom"
+
 	/*
-	 * Assume it's at least worth trying /dev/random on UN*X.
+	 * Assume it's at least worth trying /dev/urandom on UN*X.
 	 * If it doesn't exist, fall back on time().
 	 *
-	 * XXX - does Windows have a system source of entropy?
+	 * XXX - Use CryptGenRandom on Windows?
 	 */
-	fd = open("/dev/random", O_RDONLY);
+	fd = open(RANDOM_DEV, O_RDONLY);
 	if (fd == -1) {
 		if (errno != ENOENT) {
 			fprintf(stderr,
-			    "randpkt: Could not open /dev/random for reading: %s\n",
+			    "randpkt: Could not open " RANDOM_DEV " for reading: %s\n",
 			    strerror(errno));
 			exit(2);
 		}
@@ -708,13 +710,13 @@ seed(void)
 	ret = read(fd, &randomness, sizeof randomness);
 	if (ret == -1) {
 		fprintf(stderr,
-		    "randpkt: Could not read from /dev/random: %s\n",
+		    "randpkt: Could not read from " RANDOM_DEV ": %s\n",
 		    strerror(errno));
 		exit(2);
 	}
 	if ((size_t)ret != sizeof randomness) {
 		fprintf(stderr,
-		    "randpkt: Tried to read %lu bytes from /dev/random, got %ld\n",
+		    "randpkt: Tried to read %lu bytes from " RANDOM_DEV ", got %ld\n",
 		    (unsigned long)sizeof randomness, (long)ret);
 		exit(2);
 	}
