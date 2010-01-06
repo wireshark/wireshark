@@ -257,7 +257,8 @@ sub print_svn_version
 			"/* #define SVNPATH \"\" */\n";
 	}
 	if (open(OLDVER, "<$version_file")) {
-		if (<OLDVER> eq $svn_version) {
+		my $old_svn_version = <OLDVER> . <OLDVER>;
+		if ($old_svn_version eq $svn_version) {
 			$needs_update = 0;
 		}
 		close OLDVER;
