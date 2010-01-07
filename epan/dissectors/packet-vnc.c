@@ -60,34 +60,37 @@
 				* "keysym_vals_source" that VNC also uses. */
 
 typedef enum {
-	INVALID  = 0,
-	NONE     = 1,
-	VNC      = 2,
-	RA2      = 5,
-	RA2ne    = 6,
-	TIGHT    = 16,
-	ULTRA    = 17,
-	TLS      = 18,
-	VENCRYPT = 19
+	INVALID       =  0,
+	NONE          =  1,
+	VNC           =  2,
+	RA2           =  5,
+	RA2ne         =  6,
+	TIGHT         = 16,
+	ULTRA         = 17,
+	TLS           = 18,
+	VENCRYPT      = 19,
+	GTK_VNC_SASL  = 20,
+	MD5_HASH_AUTH = 21,
+	XVP           = 22
 } security_types_e;
 
 static const value_string security_types_vs[] = {
-	{ INVALID,  "Invalid"  },
-	{ NONE,  "None"     },
-	{ VNC,  "VNC"      },
-	{ RA2,  "RA2"      },
-	{ RA2ne,  "RA2ne"    },
-	{ TIGHT, "Tight"    },
-	{ ULTRA, "Ultra"    },
-	{ TLS, "TLS"      },
-	{ VENCRYPT, "VeNCrypt" },
-	{ 0,  NULL       }
+	{ INVALID,      "Invalid"      },
+	{ NONE,         "None"         },
+	{ VNC,          "VNC"          },
+	{ RA2,          "RA2"          },
+	{ RA2ne,        "RA2ne"        },
+	{ TIGHT,        "Tight"        },
+	{ ULTRA,        "Ultra"        },
+	{ TLS,          "TLS"          },
+	{ VENCRYPT,     "VeNCrypt"     },
+	{ GTK_VNC_SASL, "GTK-VNC SASL" },
+	{ 0,  NULL                     }
 };
 
-static const value_string auth_result_vs[] = {
-	{ 0, "OK"     },
-	{ 1, "Failed" },
-	{ 0,  NULL    }
+static const true_false_string auth_result_tfs = {
+       "Failed",
+       "OK"
 };
 
 static const value_string yes_no_vs[] = {
@@ -106,18 +109,24 @@ static const value_string client_message_types_vs[] = {
 	{ 0,  NULL                        }
 };
 
+typedef enum {
+	FRAMEBUFFER_UPDATE   = 0,
+	SET_COLORMAP_ENTRIES = 1,
+	RING_BELL            = 2,
+	CUT_TEXT             = 3,
+} server_message_types_e;
+
 static const value_string server_message_types_vs[] = {
-	{ 0, "Framebuffer Update"   },
-	{ 1, "Set Colormap Entries" },
-	{ 2, "Ring Bell"            },
-	{ 3, "Cut Text"             },
-	{ 0,  NULL                  }
+	{ FRAMEBUFFER_UPDATE,   "Framebuffer Update"   },
+	{ SET_COLORMAP_ENTRIES, "Set Colormap Entries" },
+	{ RING_BELL,            "Ring Bell"            },
+	{ CUT_TEXT,             "Cut Text"             },
+	{ 0,  NULL                                     }
 };
 
-static const value_string button_mask_vs[] = {
-	{ 0, "Not pressed" },
-	{ 1, "Pressed"     },
-	{ 0,  NULL         }
+static const true_false_string button_mask_tfs = {
+	"Pressed",
+	"Not pressed"
 };
 
 typedef enum {
@@ -126,15 +135,16 @@ typedef enum {
 	ENCODING_POINTER_POS	= -232,
 	ENCODING_RICH_CURSOR	= -239,
 	ENCODING_X_CURSOR	= -240,
-	ENCODING_RAW		= 0,
-	ENCODING_COPY_RECT	= 1,
-	ENCODING_RRE		= 2,
-	ENCODING_CORRE		= 4,
-	ENCODING_HEXTILE	= 5,
-	ENCODING_ZLIB		= 6,
-	ENCODING_TIGHT		= 7,
-	ENCODING_ZLIBHEX	= 8,
-	ENCODING_RLE		= 16
+	ENCODING_RAW		=  0,
+	ENCODING_COPY_RECT	=  1,
+	ENCODING_RRE		=  2,
+	ENCODING_CORRE		=  4,
+	ENCODING_HEXTILE	=  5,
+	ENCODING_ZLIB		=  6,
+	ENCODING_TIGHT		=  7,
+	ENCODING_ZLIBHEX	=  8,
+	ENCODING_RLE		= 16,
+	ENCODING_HITACHI_ZYWRLE = 17
 } encoding_type_e;
 
 static const value_string encoding_types_vs[] = {
@@ -152,6 +162,7 @@ static const value_string encoding_types_vs[] = {
 	{ ENCODING_TIGHT,		"Tight"                },
 	{ ENCODING_ZLIBHEX,		"ZlibHex"              },
 	{ ENCODING_RLE,			"ZRLE"                 },
+	{ ENCODING_HITACHI_ZYWRLE,	"Hitachi ZYWRLE"   },
 	{ 0,				NULL                   }
 };
 
@@ -257,34 +268,34 @@ static void vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 static guint vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo,
 					   gint *offset, proto_tree *tree);
 static guint vnc_raw_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-			      proto_tree *tree, guint16 width, guint16 height);
+			      proto_tree *tree, const guint16 width, const guint16 height);
 static guint vnc_copyrect_encoding(tvbuff_t *tvb, packet_info *pinfo,
 				   gint *offset, proto_tree *tree,
-				   guint16 width, guint16 height);
+				   const guint16 width, const guint16 height);
 static guint vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-			      proto_tree *tree, guint16 width, guint16 height);
+			      proto_tree *tree, const guint16 width, const guint16 height);
 static guint vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo,
 				  gint *offset, proto_tree *tree,
-				  guint16 width, guint16 height);
+				  const guint16 width, const guint16 height);
 static guint vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-			       proto_tree *tree, guint16 width, guint16 height);
+			       proto_tree *tree, const guint16 width, const guint16 height);
 static guint vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-				proto_tree *tree, guint16 width, guint16 height);
+				proto_tree *tree, const guint16 width, const guint16 height);
 static guint vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo,
-				      gint *offset, proto_tree *tree, guint16 width,
-				      guint16 height);
+				      gint *offset, proto_tree *tree, const guint16 width,
+				      const guint16 height);
 static guint vnc_x_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo,
-				   gint *offset, proto_tree *tree, guint16 width,
-				   guint16 height);
+				   gint *offset, proto_tree *tree, const guint16 width,
+				   const guint16 height);
 static guint vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo,
 					     gint *offset, proto_tree *tree);
 static void vnc_server_ring_bell(tvbuff_t *tvb, packet_info *pinfo,
 				 gint *offset, proto_tree *tree);
 static guint vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo,
 				 gint *offset, proto_tree *tree);
-static void vnc_set_bytes_per_pixel(packet_info *pinfo, guint8 bytes_per_pixel);
-static void vnc_set_depth(packet_info *pinfo, guint8 depth);
-static guint8 vnc_get_bytes_per_pixel(packet_info *pinfo);
+static void vnc_set_bytes_per_pixel(const packet_info *pinfo, const guint8 bytes_per_pixel);
+static void vnc_set_depth(const packet_info *pinfo, const guint8 depth);
+static guint8 vnc_get_bytes_per_pixel(const packet_info *pinfo);
 
 
 #define DEST_PORT_VNC pinfo->destport == 5500 || pinfo->destport == 5501 || \
@@ -1035,7 +1046,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				    tvb, offset, 3, FALSE);
 		offset += 3; /* Skip over 3 bytes of padding */
 		
-		if(tvb_length_remaining(tvb, offset) > 0) {
+		if(tvb_length_remaining(tvb, offset) > 4) {
 			/* Sometimes the desktop name & length is skipped */
 			proto_tree_add_item(tree, hf_vnc_desktop_name_len,
 					    tvb, offset, 4, FALSE);
@@ -1193,22 +1204,22 @@ vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	switch(message_type) {
 
-	case 0 :
+	case FRAMEBUFFER_UPDATE :
 		bytes_needed =
 			vnc_server_framebuffer_update(tvb, pinfo, offset,
 						      vnc_server_message_type_tree);
 		break;
 
-	case 1 :
+	case SET_COLORMAP_ENTRIES :
 		bytes_needed = vnc_server_set_colormap_entries(tvb, pinfo, offset, vnc_server_message_type_tree);
 		break;
 
-	case 2 :
+	case RING_BELL :
 		vnc_server_ring_bell(tvb, pinfo, offset,
 				     vnc_server_message_type_tree);
 		break;
 
-	case 3 :
+	case CUT_TEXT :
 		bytes_needed = vnc_server_cut_text(tvb, pinfo, offset,
 						   vnc_server_message_type_tree);
 		break;
@@ -1588,7 +1599,7 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 static guint
 vnc_raw_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-		 proto_tree *tree, guint16 width, guint16 height)
+		 proto_tree *tree, const guint16 width, const guint16 height)
 {
 	guint8 bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
 	guint length;
@@ -1606,7 +1617,7 @@ vnc_raw_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 static guint
 vnc_copyrect_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
-		      proto_tree *tree, guint16 width _U_, guint16 height _U_)
+		      proto_tree *tree, const guint16 width _U_, const guint16 height _U_)
 {
 	proto_tree_add_item(tree, hf_vnc_copyrect_src_x_pos, tvb, *offset, 
 			    2, FALSE);
@@ -1622,7 +1633,7 @@ vnc_copyrect_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 
 static guint
 vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-		 proto_tree *tree, guint16 width _U_, guint16 height _U_)
+		 proto_tree *tree, const guint16 width _U_, const guint16 height _U_)
 {
 	guint8 bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
 	guint32 num_subrects, i;
@@ -1677,11 +1688,11 @@ vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 static guint
 vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-		     proto_tree *tree, guint16 width, guint16 height)
+		     proto_tree *tree, const guint16 width, const guint16 height)
 {
 	guint8 bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
 	guint8 i, subencoding_mask, num_subrects, subrect_len;
-	guint length;
+	guint length, bytes_needed;
 	proto_tree *subencoding_mask_tree, *subrect_tree, *num_subrects_tree;
 	proto_item *ti;
 
@@ -1720,6 +1731,7 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		*offset += length;
 	} else { 
 		if(subencoding_mask & 0x2) { /* Background Specified */
+			VNC_BYTES_NEEDED(bytes_per_pixel);
 			proto_tree_add_item(tree, hf_vnc_hextile_bg_value,
 					    tvb, *offset, bytes_per_pixel,
 					    FALSE);
@@ -1727,6 +1739,7 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		}
 
 		if(subencoding_mask & 0x4) { /* Foreground Specified */
+			VNC_BYTES_NEEDED(bytes_per_pixel);
 			proto_tree_add_item(tree, hf_vnc_hextile_fg_value,
 					    tvb, *offset, bytes_per_pixel,
 					    FALSE);
@@ -1734,6 +1747,7 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		}
 
 		if(subencoding_mask & 0x8) { /* Any Subrects */
+			VNC_BYTES_NEEDED(3); /* 1 byte for number of subrects field, +2 at least for 1 subrect */
 			ti = proto_tree_add_item(tree,
 						 hf_vnc_hextile_num_subrects,
 						 tvb, *offset, 1,
@@ -1741,16 +1755,17 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			num_subrects = tvb_get_guint8(tvb, *offset);
 			*offset += 1;
 			
+			if(subencoding_mask & 0x16) 
+				subrect_len = bytes_per_pixel + 2;
+			else
+				subrect_len = 2;
+			bytes_needed = subrect_len * num_subrects;
+			VNC_BYTES_NEEDED(bytes_needed);
+			
 			num_subrects_tree =
 				proto_item_add_subtree(ti, ett_vnc_hextile_num_subrects);
 
 			for(i = 1; i <= num_subrects; i++) {
-
-				if(subencoding_mask & 0x16) 
-					subrect_len = bytes_per_pixel + 2;
-				else
-					subrect_len = 2;
-
 				ti = proto_tree_add_text(num_subrects_tree, tvb,
 							 *offset, subrect_len,
 							 "Subrectangle #%d", i);
@@ -1780,18 +1795,18 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			}
 		}
 	}
-
+	
 	return 0; /* bytes_needed */
 }
 
 #ifdef HAVE_LIBZ
 static guint
 vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-		  proto_tree *tree, guint16 width, guint16 height)
+		  proto_tree *tree, const guint16 width, const guint16 height)
 #else
 static guint
 vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
-		  proto_tree *tree, guint16 width _U_, guint16 height _U_)
+		  proto_tree *tree, const guint16 width _U_, const guint16 height _U_)
 #endif
 {
 	guint32 data_len;
@@ -1974,7 +1989,7 @@ process_tight_rect_filter_palette(tvbuff_t *tvb, packet_info *pinfo, gint *offse
 
 static guint
 vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-		   proto_tree *tree, guint16 width, guint16 height)
+		   proto_tree *tree, const guint16 width, const guint16 height)
 {
 	vnc_packet_t *per_packet_info;
 	guint8 comp_ctl;
@@ -2128,7 +2143,7 @@ decode_cursor(tvbuff_t *tvb, gint *offset, proto_tree *tree,
 
 static guint
 vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-			 proto_tree *tree, guint16 width, guint16 height)
+			 proto_tree *tree, const guint16 width, const guint16 height)
 {
 	guint8 bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
 	guint pixels_bytes, mask_bytes;
@@ -2143,7 +2158,7 @@ vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 static guint
 vnc_x_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
-		      proto_tree *tree, guint16 width, guint16 height)
+		      proto_tree *tree, const guint16 width, const guint16 height)
 {
 	gint bitmap_row_bytes = (width + 7) / 8;
 	gint mask_bytes = bitmap_row_bytes * height;
@@ -2257,7 +2272,7 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 
 static void
-vnc_set_bytes_per_pixel(packet_info *pinfo, guint8 bytes_per_pixel)
+vnc_set_bytes_per_pixel(const packet_info *pinfo, const guint8 bytes_per_pixel)
 {
 	vnc_packet_t *per_packet_info;
 
@@ -2269,7 +2284,7 @@ vnc_set_bytes_per_pixel(packet_info *pinfo, guint8 bytes_per_pixel)
 
 
 static void
-vnc_set_depth(packet_info *pinfo, guint8 depth)
+vnc_set_depth(const packet_info *pinfo, const guint8 depth)
 {
 	vnc_packet_t *per_packet_info;
 
@@ -2281,7 +2296,7 @@ vnc_set_depth(packet_info *pinfo, guint8 depth)
 
 
 static guint8
-vnc_get_bytes_per_pixel(packet_info *pinfo)
+vnc_get_bytes_per_pixel(const packet_info *pinfo)
 {
 	vnc_packet_t *per_packet_info;
 
@@ -2483,7 +2498,7 @@ proto_register_vnc(void)
 		},
 		{ &hf_vnc_auth_result,
 		  { "Authentication result", "vnc.auth_result",
-		    FT_UINT32, BASE_DEC, VALS(auth_result_vs), 0x0,
+		    FT_BOOLEAN, 32, TFS(&auth_result_tfs), 0x1,
 		    NULL, HFILL }
 		},
 		{ &hf_vnc_auth_error,
@@ -2493,7 +2508,7 @@ proto_register_vnc(void)
 		},
 		{ &hf_vnc_share_desktop_flag,
 		  { "Share desktop flag", "vnc.share_desktop_flag",
-		    FT_UINT8, BASE_DEC, VALS(yes_no_vs), 0x0,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    "Client's desire to share the server's desktop with other clients", HFILL }
 		},
 		{ &hf_vnc_width,
@@ -2640,7 +2655,7 @@ proto_register_vnc(void)
 		/* Client Key Event */
 		{ &hf_vnc_key_down,
 		  { "Key down", "vnc.key_down",
-		    FT_UINT8, BASE_DEC, VALS(yes_no_vs), 0x0,
+		    FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x0,
 		    "Specifies whether the key is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_key,
@@ -2652,42 +2667,42 @@ proto_register_vnc(void)
 		/* Client Pointer Event */
 		{ &hf_vnc_button_1_pos,
 		  { "Mouse button #1 position", "vnc.button_1_pos",
-		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x1,
+		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x1,
 		    "Whether mouse button #1 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_2_pos,
 		  { "Mouse button #2 position", "vnc.button_2_pos",
-		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x2,
+		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x2,
 		    "Whether mouse button #2 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_3_pos,
 		  { "Mouse button #3 position", "vnc.button_3_pos",
-		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x4,
+		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x4,
 		    "Whether mouse button #3 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_4_pos,
 		  { "Mouse button #4 position", "vnc.button_4_pos",
-		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x8,
+		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x8,
 		    "Whether mouse button #4 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_5_pos,
 		  { "Mouse button #5 position", "vnc.button_5_pos",
-		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x10,
+		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x10,
 		    "Whether mouse button #5 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_6_pos,
 		  { "Mouse button #6 position", "vnc.button_6_pos",
-		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x20,
+		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x20,
 		    "Whether mouse button #6 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_7_pos,
 		  { "Mouse button #7 position", "vnc.button_7_pos",
-		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x40,
+		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x40,
 		    "Whether mouse button #7 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_button_8_pos,
 		  { "Mouse button #8 position", "vnc.button_8_pos",
-		    FT_UINT8, BASE_DEC, VALS(button_mask_vs), 0x80,
+		    FT_BOOLEAN, 8, TFS(&button_mask_tfs), 0x80,
 		    "Whether mouse button #8 is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_pointer_x_pos,
@@ -2873,7 +2888,7 @@ proto_register_vnc(void)
 
 		{ &hf_vnc_hextile_raw,
 		  { "Raw", "vnc.hextile_raw",
-		    FT_UINT8, BASE_DEC, VALS(yes_no_vs), 0x1,
+		    FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x1,
 		    "Raw subencoding is used in this tile", HFILL }
 		},		
 
@@ -2885,7 +2900,7 @@ proto_register_vnc(void)
 
 		{ &hf_vnc_hextile_bg,
 		  { "Background Specified", "vnc.hextile_bg",
-		    FT_UINT8, BASE_DEC, VALS(yes_no_vs), 0x2,
+		    FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x2,
 		    "Background Specified subencoding is used in this tile", HFILL }
 		},
 
@@ -2897,7 +2912,7 @@ proto_register_vnc(void)
 
 		{ &hf_vnc_hextile_fg,
 		  { "Foreground Specified", "vnc.hextile_fg",
-		    FT_UINT8, BASE_DEC, VALS(yes_no_vs), 0x4,
+		    FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x4,
 		    "Foreground Specified subencoding is used in this tile", HFILL }
 		},		
 
@@ -2909,7 +2924,7 @@ proto_register_vnc(void)
 
 		{ &hf_vnc_hextile_anysubrects,
 		  { "Any Subrects", "vnc.hextile_anysubrects",
-		    FT_UINT8, BASE_DEC, VALS(yes_no_vs), 0x8,
+		    FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x8,
 		    "Any subrects subencoding is used in this tile", HFILL }
 		},		
 
@@ -2921,7 +2936,7 @@ proto_register_vnc(void)
 
 		{ &hf_vnc_hextile_subrectscolored,
 		  { "Subrects Colored", "vnc.hextile_subrectscolored",
-		    FT_UINT8, BASE_DEC, VALS(yes_no_vs), 0x10,
+		    FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
 		    "Subrects colored subencoding is used in this tile", HFILL }
 		},		
 
@@ -3127,6 +3142,5 @@ proto_reg_handoff_vnc(void)
 					      vnc_handle);
 			}
 		}
-		heur_dissector_add("tcp", test_vnc_protocol, proto_vnc);
 	}
 }
