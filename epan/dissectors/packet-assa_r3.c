@@ -5490,6 +5490,7 @@ static gint dissect_r3_command (tvbuff_t *tvb, guint32 start_offset, guint32 len
 static gint dissect_r3_packet (tvbuff_t *tvb, guint start_offset, packet_info *pinfo, proto_tree *r3_tree)
 { 
   guint offset = 0;
+  guint octConsumed;
   gint available = tvb_length_remaining (tvb, start_offset);
 
   if (!(tvb_strneql (tvb, start_offset, "~~~ds", 5)))
@@ -5545,8 +5546,17 @@ static gint dissect_r3_packet (tvbuff_t *tvb, guint start_offset, packet_info *p
         payload_tree = proto_item_add_subtree (payload_item, ett_r3payload);
       }
 
-      while (offset < tvb_reported_length (payload_tvb)) 
-        offset += dissect_r3_command (payload_tvb, offset, 0, pinfo, payload_tree);
+      while (offset < tvb_reported_length (payload_tvb))
+      {
+        octConsumed = dissect_r3_command (payload_tvb, offset, 0, pinfo, payload_tree);
+        if(!octConsumed)
+        {
+              expert_add_info_format (pinfo, payload_tree, PI_MALFORMED, PI_WARN, "Command length equal to 0; payload could be partially decoded");
+              offset = tvb_reported_length (payload_tvb);
+              break;
+        }
+        offset += octConsumed;
+      }
     }
 
     offset += start_offset;
