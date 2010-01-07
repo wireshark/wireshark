@@ -487,6 +487,18 @@ WSLUA_METAMETHOD Tvb__call(lua_State* L) {
 }
 #endif
 
+WSLUA_METAMETHOD wslua__concat(lua_State* L) {
+	/* Concatenate two objects to a string */
+    if (!luaL_callmeta(L,1,"__tostring"))
+        lua_pushvalue(L,1);
+    if (!luaL_callmeta(L,2,"__tostring"))
+        lua_pushvalue(L,2);
+
+    lua_concat(L,2);
+
+    return 1;
+}
+
 WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("expired tvbrange"),NOP);
 /*
   A TvbRange represents an usable range of a Tvb and is used to extract data from the Tvb that generated it
@@ -1114,27 +1126,6 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
     return 1;
 }
 
-WSLUA_METAMETHOD TvbRange__concat(lua_State* L) {
-	/* Concatenate a string and a TvbRange */
-
-    const gchar *str = luaL_checkstring(L,1);
-    TvbRange tvbr = checkTvbRange(L,2);
-
-    if (str == NULL) {
-        luaL_error(L, "Only string concat for tvb range");
-        return 0;
-    }
-
-    if (!(tvbr && tvbr->tvb)) return 0;
-    if (tvbr->tvb->expired) {
-        luaL_error(L,"expired tvb");
-        return 0;
-    }
-
-    lua_pushstring(L,ep_strdup_printf("%s%s", str, tvb_bytes_to_str(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len)));
-    return 1;
-}
-
 static const luaL_reg TvbRange_methods[] = {
     {"uint", TvbRange_uint},
     {"le_uint", TvbRange_le_uint},
@@ -1162,7 +1153,7 @@ static const luaL_reg TvbRange_methods[] = {
 
 static const luaL_reg TvbRange_meta[] = {
     {"__tostring", TvbRange__tostring},
-    {"__concat", TvbRange__concat},
+    {"__concat", wslua__concat},
     {"__call", TvbRange_range},
     { NULL, NULL }
 };
@@ -1190,20 +1181,6 @@ WSLUA_METAMETHOD Int64__tostring(lua_State* L) {
     return 1;
 }
 
-WSLUA_METAMETHOD Int64__concat(lua_State* L) {
-	/* Concatenate a string and a Int64 */
-    const gchar *str = luaL_checkstring(L,1);
-    Int64 num = checkInt64(L,2);
-
-    if (str == NULL) {
-        luaL_error(L, "Only string concat for int64");
-        return 0;
-    }
-
-    lua_pushstring(L,ep_strdup_printf("%s%" G_GINT64_MODIFIER "d",str,(gint64)*(num)));
-    return 1;
-}
-
 static int Int64__gc(lua_State* L) {
     Int64 num = checkInt64(L,1);
 
@@ -1220,7 +1197,7 @@ static const luaL_reg Int64_methods[] = {
 
 static const luaL_reg Int64_meta[] = {
     {"__tostring", Int64__tostring},
-    {"__concat", Int64__concat},
+    {"__concat", wslua__concat},
     {"__gc", Int64__gc},
     { NULL, NULL }
 };
@@ -1240,20 +1217,6 @@ WSLUA_METAMETHOD UInt64__tostring(lua_State* L) {
     return 1;
 }
 
-WSLUA_METAMETHOD UInt64__concat(lua_State* L) {
-	/* Concatenate a string and a UInt64 */
-    const gchar *str = luaL_checkstring(L,1);
-    UInt64 num = checkUInt64(L,2);
-
-    if (str == NULL) {
-        luaL_error(L, "Only string concat for uint64");
-        return 0;
-    }
-
-    lua_pushstring(L,ep_strdup_printf("%s%" G_GINT64_MODIFIER "u",str,(guint64)*(num)));
-    return 1;
-}
-
 static int UInt64__gc(lua_State* L) {
     UInt64 num = checkUInt64(L,1);
 
@@ -1270,7 +1233,7 @@ static const luaL_reg UInt64_methods[] = {
 
 static const luaL_reg UInt64_meta[] = {
     {"__tostring", UInt64__tostring},
-    {"__concat", UInt64__concat},
+    {"__concat", wslua__concat},
     {"__gc", UInt64__gc},
     { NULL, NULL }
 };
