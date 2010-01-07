@@ -807,7 +807,7 @@ HandoffBack2 ::= [PRIVATE 18] SET {
 	-- O 6.5.2.h TSB76 c, nn
 	cdmaTargetMAHOList						[136] IMPLICIT CDMATargetMAHOList OPTIONAL,
 	-- O 6.5.2.43 g
-	cdmaTargetMeasurementList				[134] IMPLICIT CDMATargetMeasurementList,
+	cdmaTargetMeasurementList				[134] IMPLICIT CDMATargetMeasurementList OPTIONAL,
 	-- O 6.5.2.45 h
 	channelData								[5] IMPLICIT ChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.47 i
@@ -1952,6 +1952,8 @@ QualificationDirective ::= [PRIVATE 18] SET {
 	-- O 6.5.2.79 g
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	--  O 6.5.2.80 d
+	mobilePositionCapability				[335] IMPLICIT MobilePositionCapability OPTIONAL,
+	-- O 6.5.2.fm t TIA/EIA/J-STD-036-A
 	originationIndicator					[23] IMPLICIT OriginationIndicator OPTIONAL,
 	-- O 6.5.2.89 h
 	originationTriggers						[98] IMPLICIT OriginationTriggers OPTIONAL,
@@ -2097,6 +2099,8 @@ QualificationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.79 g
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	--  O 6.5.2.80 d
+	mobilePositionCapability				[335] IMPLICIT MobilePositionCapability OPTIONAL,
+	-- O 6.5.2.fm t TIA/EIA/J-STD-036-A
 	originationIndicator					[23] IMPLICIT OriginationIndicator OPTIONAL,
 	-- O 6.5.2.89 h
 	originationTriggers						[98] IMPLICIT OriginationTriggers OPTIONAL,
@@ -2362,6 +2366,8 @@ RegistrationNotificationRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.79 g
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	--  O 6.5.2.80 d
+	mobilePositionCapability				[335] IMPLICIT MobilePositionCapability OPTIONAL,
+	-- O 6.5.2.fm t TIA/EIA/J-STD-036-A
 	originationIndicator					[23] IMPLICIT OriginationIndicator OPTIONAL,
 	-- O 6.5.2.89 h
 	originationTriggers						[98] IMPLICIT OriginationTriggers OPTIONAL,
@@ -5103,6 +5109,8 @@ QualificationRequest2Res ::= [PRIVATE 18] SET {
 	-- O 6.5.2.79 g
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	--  O 6.5.2.80 d
+	mobilePositionCapability				[335] IMPLICIT MobilePositionCapability OPTIONAL,
+	-- O 6.5.2.fm t TIA/EIA/J-STD-036-A
 	originationIndicator					[23] IMPLICIT OriginationIndicator OPTIONAL,
 	-- O 6.5.2.89 h
 	originationTriggers						[98] IMPLICIT OriginationTriggers OPTIONAL,
@@ -5865,6 +5873,8 @@ PreferredLanguageIndicator ::= OCTET STRING
 	-- O 6.5.2.79 g
 --	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	--  O 6.5.2.80 d
+--	mobilePositionCapability				[335] IMPLICIT MobilePositionCapability OPTIONAL,
+	-- O 6.5.2.fm t TIA/EIA/J-STD-036-A
 --	originationIndicator					[23] IMPLICIT OriginationIndicator OPTIONAL,
 	-- O 6.5.2.89 h
 --	originationTriggers						[98] IMPLICIT OriginationTriggers,

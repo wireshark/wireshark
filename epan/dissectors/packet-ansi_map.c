@@ -526,6 +526,7 @@ static int hf_ansi_map_authenticationCapability = -1;  /* AuthenticationCapabili
 static int hf_ansi_map_callingFeaturesIndicator = -1;  /* CallingFeaturesIndicator */
 static int hf_ansi_map_geographicAuthorization = -1;  /* GeographicAuthorization */
 static int hf_ansi_map_meidValidated = -1;        /* MEIDValidated */
+static int hf_ansi_map_mobilePositionCapability = -1;  /* MobilePositionCapability */
 static int hf_ansi_map_originationIndicator = -1;  /* OriginationIndicator */
 static int hf_ansi_map_restrictionDigits = -1;    /* RestrictionDigits */
 static int hf_ansi_map_sms_OriginationRestrictions = -1;  /* SMS_OriginationRestrictions */
@@ -606,7 +607,6 @@ static int hf_ansi_map_pSID_RSIDInformation = -1;  /* PSID_RSIDInformation */
 static int hf_ansi_map_positionRequestType = -1;  /* PositionRequestType */
 static int hf_ansi_map_lcsBillingID = -1;         /* LCSBillingID */
 static int hf_ansi_map_lcs_Client_ID = -1;        /* LCS_Client_ID */
-static int hf_ansi_map_mobilePositionCapability = -1;  /* MobilePositionCapability */
 static int hf_ansi_map_dtxIndication = -1;        /* DTXIndication */
 static int hf_ansi_map_cdmaCodeChannel = -1;      /* CDMACodeChannel */
 static int hf_ansi_map_cdmaMobileCapabilities = -1;  /* CDMAMobileCapabilities */
@@ -7789,7 +7789,7 @@ static const ber_sequence_t HandoffBack2_U_set[] = {
   { &hf_ansi_map_cdmaStationClassMark, BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark },
   { &hf_ansi_map_cdmaStationClassMark2, BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMAStationClassMark2 },
   { &hf_ansi_map_cdmaTargetMAHOList, BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMAHOList },
-  { &hf_ansi_map_cdmaTargetMeasurementList, BER_CLASS_CON, 134, BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMeasurementList },
+  { &hf_ansi_map_cdmaTargetMeasurementList, BER_CLASS_CON, 134, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_CDMATargetMeasurementList },
   { &hf_ansi_map_channelData, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ChannelData },
   { &hf_ansi_map_confidentialityModes, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_ConfidentialityModes },
   { &hf_ansi_map_dataKey    , BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_DataKey },
@@ -9585,6 +9585,16 @@ dissect_ansi_map_MEIDValidated(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
+
+static int
+dissect_ansi_map_MobilePositionCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const value_string ansi_map_OriginationIndicator_vals[] = {
   {   0, "not-used" },
   {   1, "prior-agreement" },
@@ -9738,6 +9748,7 @@ static const ber_sequence_t QualificationDirective_U_set[] = {
   { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
   { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 145, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
   { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobilePositionCapability, BER_CLASS_CON, 335, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobilePositionCapability },
   { &hf_ansi_map_originationIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationIndicator },
   { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
   { &hf_ansi_map_pACAIndicator, BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PACAIndicator },
@@ -9870,6 +9881,7 @@ static const ber_sequence_t QualificationRequestRes_U_set[] = {
   { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
   { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 145, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
   { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobilePositionCapability, BER_CLASS_CON, 335, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobilePositionCapability },
   { &hf_ansi_map_originationIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationIndicator },
   { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
   { &hf_ansi_map_pACAIndicator, BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PACAIndicator },
@@ -10333,6 +10345,7 @@ static const ber_sequence_t RegistrationNotificationRes_U_set[] = {
   { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
   { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 145, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
   { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobilePositionCapability, BER_CLASS_CON, 335, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobilePositionCapability },
   { &hf_ansi_map_originationIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationIndicator },
   { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
   { &hf_ansi_map_pACAIndicator, BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PACAIndicator },
@@ -13848,16 +13861,6 @@ dissect_ansi_map_LCS_Client_ID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 static int
-dissect_ansi_map_MobilePositionCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-
-static int
 dissect_ansi_map_DTXIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
@@ -15220,6 +15223,7 @@ static const ber_sequence_t QualificationRequest2Res_U_set[] = {
   { &hf_ansi_map_messageWaitingNotificationCount, BER_CLASS_CON, 92, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationCount },
   { &hf_ansi_map_messageWaitingNotificationType, BER_CLASS_CON, 145, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MessageWaitingNotificationType },
   { &hf_ansi_map_mobileDirectoryNumber, BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobileDirectoryNumber },
+  { &hf_ansi_map_mobilePositionCapability, BER_CLASS_CON, 335, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_MobilePositionCapability },
   { &hf_ansi_map_originationIndicator, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationIndicator },
   { &hf_ansi_map_originationTriggers, BER_CLASS_CON, 98, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_OriginationTriggers },
   { &hf_ansi_map_pACAIndicator, BER_CLASS_CON, 146, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ansi_map_PACAIndicator },
@@ -17937,6 +17941,10 @@ void proto_register_ansi_map(void) {
       { "meidValidated", "ansi_map.meidValidated",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.MEIDValidated", HFILL }},
+    { &hf_ansi_map_mobilePositionCapability,
+      { "mobilePositionCapability", "ansi_map.mobilePositionCapability",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "ansi_map.MobilePositionCapability", HFILL }},
     { &hf_ansi_map_originationIndicator,
       { "originationIndicator", "ansi_map.originationIndicator",
         FT_UINT32, BASE_DEC, VALS(ansi_map_OriginationIndicator_vals), 0,
@@ -18257,10 +18265,6 @@ void proto_register_ansi_map(void) {
       { "lcs-Client-ID", "ansi_map.lcs_Client_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "ansi_map.LCS_Client_ID", HFILL }},
-    { &hf_ansi_map_mobilePositionCapability,
-      { "mobilePositionCapability", "ansi_map.mobilePositionCapability",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "ansi_map.MobilePositionCapability", HFILL }},
     { &hf_ansi_map_dtxIndication,
       { "dtxIndication", "ansi_map.dtxIndication",
         FT_BYTES, BASE_NONE, NULL, 0,
