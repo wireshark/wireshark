@@ -2104,17 +2104,6 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 	proto_item *hidden_item = NULL;
 	proto_tree *parameter_tree = NULL;
 
-	/* this function will call proto_item_append_string() which
-	   does not work with the TRY_TO_FAKE_THIS_ITEM speed optimization.
-	   So we have to disable that one and become "slow" by pretending that
-	   the tree is "visible".
-
-	 * This code must be present for the MMSE dissector which calls this function.
-	 * Otherwise this causes a dissector_assert [bug 492] (proto_item_append_string() issue).
-	 */
-	if (tree)
-		proto_tree_set_visible(tree, TRUE);
-
 	*textual_content = NULL;
 	*well_known_content = 0;
 
@@ -5005,6 +4994,19 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
 	 * necessary to generate protocol tree items. */
 	if (tree) {
+
+		/* We use proto_item_append_string() in a number of places.
+		 * It does not work with the TRY_TO_FAKE_THIS_ITEM speed
+		 * optimization, so we have to disable that one and become
+		 * "slow" by pretending that the tree is "visible".
+		 *
+		 * This code must be present for the MMSE dissector which
+		 * calls this function; otherwise, this causes a
+		 * dissector_assert [bug 492] (proto_item_append_string()
+		 * issue), and similar problems occur in other places.
+		 */
+		proto_tree_set_visible(tree, TRUE);
+
 		proto_ti = proto_tree_add_item(tree, proto_wsp,
 				tvb, 0, -1, bo_little_endian);
 		wsp_tree = proto_item_add_subtree(proto_ti, ett_wsp);
