@@ -180,19 +180,19 @@ void
 redraw_packet_bytes_all(void)
 {
     if (cfile.current_frame != NULL)
-            redraw_packet_bytes( byte_nb_ptr, cfile.current_frame, cfile.finfo_selected);
+        redraw_packet_bytes( byte_nb_ptr, cfile.current_frame, cfile.finfo_selected);
 
-  redraw_packet_bytes_packet_wins();
+    redraw_packet_bytes_packet_wins();
 
-  /* XXX - this is a hack, to workaround a bug in GTK2.x!
-     when changing the font size, even refilling of the corresponding
-     gtk_text_buffer doesn't seem to trigger an update.
-     The only workaround is to freshly select the frame, which will remove any
-     existing notebook tabs and "restart" the whole byte view again. */
-  if (cfile.current_frame != NULL) {
-    cfile.current_row = -1;
-    cf_goto_frame(&cfile, cfile.current_frame->num);
-  }
+    /* XXX - this is a hack, to workaround a bug in GTK2.x!
+       when changing the font size, even refilling of the corresponding
+       gtk_text_buffer doesn't seem to trigger an update.
+       The only workaround is to freshly select the frame, which will remove any
+       existing notebook tabs and "restart" the whole byte view again. */
+    if (cfile.current_frame != NULL) {
+        cfile.current_row = -1;
+        cf_goto_frame(&cfile, cfile.current_frame->num);
+    }
 }
 
 static void
@@ -1584,21 +1584,21 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
 
     gtk_tree_model_get(tree_model, iter, 1, &fi, -1);
 
-	if(!colors_ok) {
-		proto_draw_colors_init();
-	}
+    if(!colors_ok) {
+        proto_draw_colors_init();
+    }
 
-	/* for the various possible attributes, see:
-	 * http://developer.gnome.org/doc/API/2.0/gtk/GtkCellRendererText.html
-	 *
-	 * color definitions can be found at:
-	 * http://cvs.gnome.org/viewcvs/gtk+/gdk-pixbuf/io-xpm.c?rev=1.42
-	 * (a good color overview: http://www.computerhope.com/htmcolor.htm)
-	 *
-	 * some experiences:
-	 * background-gdk: doesn't seem to work (probably the GdkColor must be allocated)
-	 * weight/style: doesn't take any effect
-	 */
+    /* for the various possible attributes, see:
+     * http://developer.gnome.org/doc/API/2.0/gtk/GtkCellRendererText.html
+     *
+     * color definitions can be found at:
+     * http://cvs.gnome.org/viewcvs/gtk+/gdk-pixbuf/io-xpm.c?rev=1.42
+     * (a good color overview: http://www.computerhope.com/htmcolor.htm)
+     *
+     * some experiences:
+     * background-gdk: doesn't seem to work (probably the GdkColor must be allocated)
+     * weight/style: doesn't take any effect
+     */
 
     /* for each field, we have to reset the renderer attributes */
     g_object_set (cell, "foreground-set", FALSE, NULL);
@@ -1615,7 +1615,7 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
     g_object_set (cell, "weight-set", FALSE, NULL);*/
 
     if(FI_GET_FLAG(fi, FI_GENERATED)) {
-		/* we use "[...]" to mark generated items, no need to change things here */
+        /* we use "[...]" to mark generated items, no need to change things here */
 
         /* as some fonts don't support italic, don't use this */
         /*g_object_set (cell, "style", PANGO_STYLE_ITALIC, NULL);
@@ -1637,39 +1637,39 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
             g_object_set (cell, "foreground", "black", NULL);
             g_object_set (cell, "foreground-set", TRUE, NULL);
             /*g_object_set (cell, "weight", PANGO_WEIGHT_BOLD, NULL);
-			g_object_set (cell, "weight-set", TRUE, NULL);*/
+            g_object_set (cell, "weight-set", TRUE, NULL);*/
         }
-		
+        
         if((fi->hfinfo->type == FT_FRAMENUM) ||
            (FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type))) {
             render_as_url(cell);
         }
     }
-	
-	if(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
-		switch(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
-		case(PI_CHAT):
-			g_object_set (cell, "background-gdk", &expert_color_chat, NULL);
-			g_object_set (cell, "background-set", TRUE, NULL);
-			break;
-		case(PI_NOTE):
-			g_object_set (cell, "background-gdk", &expert_color_note, NULL);
-			g_object_set (cell, "background-set", TRUE, NULL);
-			break;
-		case(PI_WARN):
-			g_object_set (cell, "background-gdk", &expert_color_warn, NULL);
-			g_object_set (cell, "background-set", TRUE, NULL);
-			break;
-		case(PI_ERROR):
-			g_object_set (cell, "background-gdk", &expert_color_error, NULL);
-			g_object_set (cell, "background-set", TRUE, NULL);
-			break;
-		default:
-			g_assert_not_reached();
-		}
-		g_object_set (cell, "foreground", "black", NULL);
-		g_object_set (cell, "foreground-set", TRUE, NULL);
-	}
+    
+    if(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
+        switch(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
+        case(PI_CHAT):
+            g_object_set (cell, "background-gdk", &expert_color_chat, NULL);
+            g_object_set (cell, "background-set", TRUE, NULL);
+            break;
+        case(PI_NOTE):
+            g_object_set (cell, "background-gdk", &expert_color_note, NULL);
+            g_object_set (cell, "background-set", TRUE, NULL);
+            break;
+        case(PI_WARN):
+            g_object_set (cell, "background-gdk", &expert_color_warn, NULL);
+            g_object_set (cell, "background-set", TRUE, NULL);
+            break;
+        case(PI_ERROR):
+            g_object_set (cell, "background-gdk", &expert_color_error, NULL);
+            g_object_set (cell, "background-set", TRUE, NULL);
+            break;
+        default:
+            g_assert_not_reached();
+        }
+        g_object_set (cell, "foreground", "black", NULL);
+        g_object_set (cell, "foreground-set", TRUE, NULL);
+    }
 }
 
 GtkWidget *
