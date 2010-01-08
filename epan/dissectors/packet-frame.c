@@ -186,197 +186,197 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* if FRAME is not referenced from any filters we dont need to worry about
 	   generating any tree items.  */
 	if(!proto_field_is_referenced(tree, proto_frame)) {
-        tree=NULL;
+		tree=NULL;
         if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000)
-            expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN,
-                "Arrival Time: Fractional second out of range (0-1000000000)");
-    } else {
-	  proto_tree	*fh_tree;
-      gboolean old_visible;
-
-	  /* Put in frame header information. */
-	  cap_len = tvb_length(tvb);
-	  frame_len = tvb_reported_length(tvb);
-
-	  cap_plurality = plurality(cap_len, "", "s");
-	  frame_plurality = plurality(frame_len, "", "s");
-
-	  ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
-	    "Frame %u: %u byte%s on wire (%u bits), %u byte%s captured (%u bits)",
-		pinfo->fd->num, frame_len, frame_plurality, frame_len * 8,
-		cap_len, cap_plurality, cap_len * 8);
-
-	  fh_tree = proto_item_add_subtree(ti, ett_frame);
-
-	  ts = pinfo->fd->abs_ts;
-
-	  proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
-		0, 0, &ts);
-	  if(ts.nsecs < 0 || ts.nsecs >= 1000000000) {
-	    item = proto_tree_add_none_format(fh_tree, hf_frame_time_invalid, tvb,
-	  	  0, 0, "Arrival Time: Fractional second %09ld is invalid, the valid range is 0-1000000000", (long) ts.nsecs);
-	    PROTO_ITEM_SET_GENERATED(item);
-	    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
-	  }
-
-	  if(generate_epoch_time) {
-	  	proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
-			0, 0, &ts);
-	  }
-
-	  ts = pinfo->fd->del_cap_ts;
-
-	  item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
-		0, 0, &ts);
-	  PROTO_ITEM_SET_GENERATED(item);
-
-	  ts = pinfo->fd->del_dis_ts;
-
-	  item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
-		0, 0, &ts);
-	  PROTO_ITEM_SET_GENERATED(item);
-
-	  ts = pinfo->fd->rel_ts;
-
-	  item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
-		0, 0, &ts);
-	  PROTO_ITEM_SET_GENERATED(item);
-
-	  if(pinfo->fd->flags.ref_time){
-		ti = proto_tree_add_item(fh_tree, hf_frame_time_reference, tvb, 0, 0, FALSE);
-		PROTO_ITEM_SET_GENERATED(ti);
-	  }
-
-	  proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
-		0, 0, pinfo->fd->num);
-
-	  proto_tree_add_uint_format(fh_tree, hf_frame_len, tvb,
-		0, 0, frame_len, "Frame Length: %u byte%s (%u bits)",
-		frame_len, frame_plurality, frame_len * 8);
-
-	  proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, tvb,
-		0, 0, cap_len, "Capture Length: %u byte%s (%u bits)",
-		cap_len, cap_plurality, cap_len * 8);
-
-	  if (generate_md5_hash) {
-		  const guint8 *cp;
-		  md5_state_t md_ctx;
-		  md5_byte_t digest[16];
-		  gchar *digest_string;
-
-		  cp = tvb_get_ptr(tvb, 0, cap_len);
-
-		  md5_init(&md_ctx);
-		  md5_append(&md_ctx, cp, cap_len);
-		  md5_finish(&md_ctx, digest);
-
-		  digest_string = bytestring_to_str(digest, 16, '\0');
-		  ti = proto_tree_add_string(fh_tree, hf_frame_md5_hash, tvb, 0, 0, digest_string);
-		  PROTO_ITEM_SET_GENERATED(ti);
-	  }
-
-	  ti = proto_tree_add_boolean(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->flags.marked);
-	  PROTO_ITEM_SET_GENERATED(ti);
-
-	  ti = proto_tree_add_boolean(fh_tree, hf_frame_ignored, tvb, 0, 0,pinfo->fd->flags.ignored);
-	  PROTO_ITEM_SET_GENERATED(ti);
-
-	  if(proto_field_is_referenced(tree, hf_frame_protocols)) {
-		  /* we are going to be using proto_item_append_string() on
-		   * hf_frame_protocols, and we must therefore disable the
-		   * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
-		   * setting it as visible.
-		   *
-		   * See proto.h for details.
-		   */
-		  old_visible = proto_tree_set_visible(fh_tree, TRUE);
-		  ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, "");
-		  PROTO_ITEM_SET_GENERATED(ti);
-		  proto_tree_set_visible(fh_tree, old_visible);
-
-		  pinfo->layer_names = g_string_new("");
-	  }
-	  else
-		pinfo->layer_names = NULL;
-
-	  /* Check for existences of P2P pseudo header */
-	  if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
-		  proto_tree_add_int(fh_tree, hf_frame_p2p_dir, tvb,
-				  0, 0, pinfo->p2p_dir);
-	  }
-
-	  /* Check for existences of MTP2 link number */
-	  if ((pinfo->pseudo_header != NULL ) && (pinfo->fd->lnk_t == WTAP_ENCAP_MTP2_WITH_PHDR)) {
-		  proto_tree_add_uint(fh_tree, hf_link_number, tvb,
-				  0, 0, pinfo->link_number);
-	  }
-
-	  if (show_file_off) {
-		  proto_tree_add_int64_format(fh_tree, hf_frame_file_off, tvb,
-				  0, 0, pinfo->fd->file_off,
-				  "File Offset: %" G_GINT64_MODIFIER "d (0x%" G_GINT64_MODIFIER "x)",
-				  pinfo->fd->file_off, pinfo->fd->file_off);
-	  }
-
-	  if(pinfo->fd->color_filter != NULL) {
-	      const color_filter_t *color_filter = pinfo->fd->color_filter;
-	      item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
-		    0, 0, color_filter->filter_name);
-	      PROTO_ITEM_SET_GENERATED(item);
-	      item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
-		    0, 0, color_filter->filter_text);
-	      PROTO_ITEM_SET_GENERATED(item);
-	  }
-    }
-
-    if (pinfo->fd->flags.ignored) {
-        /* Ignored package, stop handling here */
-        col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
-        proto_tree_add_text (tree, tvb, 0, -1, "This frame is marked as ignored");
-        return;
-    }
-
-    /* Portable Exception Handling to trap Wireshark specific exceptions like BoundsError exceptions */
-	TRY {
-#ifdef _MSC_VER
-    /* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions like memory access violations */
-    /* (a running debugger will be called before the except part below) */
-    __try {
-#endif
-	if ((force_docsis_encap) && (docsis_handle)) {
-	    call_dissector(docsis_handle, tvb, pinfo, parent_tree);
+		expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN,
+				       "Arrival Time: Fractional second out of range (0-1000000000)");
 	} else {
-            if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
-                tvb, pinfo, parent_tree)) {
+		proto_tree	*fh_tree;
+		gboolean old_visible;
 
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
-				col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
-				    pinfo->fd->lnk_t);
-			call_dissector(data_handle,tvb, pinfo, parent_tree);
+		/* Put in frame header information. */
+		cap_len = tvb_length(tvb);
+		frame_len = tvb_reported_length(tvb);
+
+		cap_plurality = plurality(cap_len, "", "s");
+		frame_plurality = plurality(frame_len, "", "s");
+
+		ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
+						    "Frame %u: %u byte%s on wire (%u bits), %u byte%s captured (%u bits)",
+						    pinfo->fd->num, frame_len, frame_plurality, frame_len * 8,
+						    cap_len, cap_plurality, cap_len * 8);
+
+		fh_tree = proto_item_add_subtree(ti, ett_frame);
+
+		ts = pinfo->fd->abs_ts;
+
+		proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
+				    0, 0, &ts);
+		if(ts.nsecs < 0 || ts.nsecs >= 1000000000) {
+			item = proto_tree_add_none_format(fh_tree, hf_frame_time_invalid, tvb,
+							  0, 0, "Arrival Time: Fractional second %09ld is invalid, the valid range is 0-1000000000", (long) ts.nsecs);
+			PROTO_ITEM_SET_GENERATED(item);
+			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
+		}
+
+		if(generate_epoch_time) {
+			proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
+					    0, 0, &ts);
+		}
+
+		ts = pinfo->fd->del_cap_ts;
+
+		item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
+					   0, 0, &ts);
+		PROTO_ITEM_SET_GENERATED(item);
+
+		ts = pinfo->fd->del_dis_ts;
+
+		item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
+					   0, 0, &ts);
+		PROTO_ITEM_SET_GENERATED(item);
+
+		ts = pinfo->fd->rel_ts;
+
+		item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
+					   0, 0, &ts);
+		PROTO_ITEM_SET_GENERATED(item);
+
+		if(pinfo->fd->flags.ref_time){
+			ti = proto_tree_add_item(fh_tree, hf_frame_time_reference, tvb, 0, 0, FALSE);
+			PROTO_ITEM_SET_GENERATED(ti);
+		}
+
+		proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
+				    0, 0, pinfo->fd->num);
+
+		proto_tree_add_uint_format(fh_tree, hf_frame_len, tvb,
+					   0, 0, frame_len, "Frame Length: %u byte%s (%u bits)",
+					   frame_len, frame_plurality, frame_len * 8);
+
+		proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, tvb,
+					   0, 0, cap_len, "Capture Length: %u byte%s (%u bits)",
+					   cap_len, cap_plurality, cap_len * 8);
+
+		if (generate_md5_hash) {
+			const guint8 *cp;
+			md5_state_t md_ctx;
+			md5_byte_t digest[16];
+			gchar *digest_string;
+
+			cp = tvb_get_ptr(tvb, 0, cap_len);
+
+			md5_init(&md_ctx);
+			md5_append(&md_ctx, cp, cap_len);
+			md5_finish(&md_ctx, digest);
+
+			digest_string = bytestring_to_str(digest, 16, '\0');
+			ti = proto_tree_add_string(fh_tree, hf_frame_md5_hash, tvb, 0, 0, digest_string);
+			PROTO_ITEM_SET_GENERATED(ti);
+		}
+
+		ti = proto_tree_add_boolean(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->flags.marked);
+		PROTO_ITEM_SET_GENERATED(ti);
+
+		ti = proto_tree_add_boolean(fh_tree, hf_frame_ignored, tvb, 0, 0,pinfo->fd->flags.ignored);
+		PROTO_ITEM_SET_GENERATED(ti);
+
+		if(proto_field_is_referenced(tree, hf_frame_protocols)) {
+			/* we are going to be using proto_item_append_string() on
+			 * hf_frame_protocols, and we must therefore disable the
+			 * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
+			 * setting it as visible.
+			 *
+			 * See proto.h for details.
+			 */
+			old_visible = proto_tree_set_visible(fh_tree, TRUE);
+			ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, "");
+			PROTO_ITEM_SET_GENERATED(ti);
+			proto_tree_set_visible(fh_tree, old_visible);
+
+			pinfo->layer_names = g_string_new("");
+		}
+		else
+			pinfo->layer_names = NULL;
+
+		/* Check for existences of P2P pseudo header */
+		if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
+			proto_tree_add_int(fh_tree, hf_frame_p2p_dir, tvb,
+					   0, 0, pinfo->p2p_dir);
+		}
+
+		/* Check for existences of MTP2 link number */
+		if ((pinfo->pseudo_header != NULL ) && (pinfo->fd->lnk_t == WTAP_ENCAP_MTP2_WITH_PHDR)) {
+			proto_tree_add_uint(fh_tree, hf_link_number, tvb,
+					    0, 0, pinfo->link_number);
+		}
+
+		if (show_file_off) {
+			proto_tree_add_int64_format(fh_tree, hf_frame_file_off, tvb,
+						    0, 0, pinfo->fd->file_off,
+						    "File Offset: %" G_GINT64_MODIFIER "d (0x%" G_GINT64_MODIFIER "x)",
+						    pinfo->fd->file_off, pinfo->fd->file_off);
+		}
+
+		if(pinfo->fd->color_filter != NULL) {
+			const color_filter_t *color_filter = pinfo->fd->color_filter;
+			item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
+						     0, 0, color_filter->filter_name);
+			PROTO_ITEM_SET_GENERATED(item);
+			item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
+						     0, 0, color_filter->filter_text);
+			PROTO_ITEM_SET_GENERATED(item);
 		}
 	}
+
+	if (pinfo->fd->flags.ignored) {
+		/* Ignored package, stop handling here */
+		col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
+		proto_tree_add_text (tree, tvb, 0, -1, "This frame is marked as ignored");
+		return;
+	}
+
+	/* Portable Exception Handling to trap Wireshark specific exceptions like BoundsError exceptions */
+	TRY {
 #ifdef _MSC_VER
-    } __except(TRUE /* handle all exceptions */) {
-        switch(GetExceptionCode()) {
-        case(STATUS_ACCESS_VIOLATION):
-		    show_exception(tvb, pinfo, parent_tree, DissectorError,
-                "STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address");
-            break;
-        case(STATUS_INTEGER_DIVIDE_BY_ZERO):
-		    show_exception(tvb, pinfo, parent_tree, DissectorError,
-                "STATUS_INTEGER_DIVIDE_BY_ZERO: dissector tried an integer division by zero");
-            break;
-        case(STATUS_STACK_OVERFLOW):
-		    show_exception(tvb, pinfo, parent_tree, DissectorError,
-                "STATUS_STACK_OVERFLOW: dissector overflowed the stack (e.g. endless loop)");
-            /* XXX - this will have probably corrupted the stack, which makes problems later in the exception code */
-            break;
-        /* XXX - add other hardware exception codes as required */
-        default:
-		    show_exception(tvb, pinfo, parent_tree, DissectorError,
-                g_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
-        }
-    }
+		/* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions like memory access violations */
+		/* (a running debugger will be called before the except part below) */
+		__try {
+#endif
+			if ((force_docsis_encap) && (docsis_handle)) {
+				call_dissector(docsis_handle, tvb, pinfo, parent_tree);
+			} else {
+				if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
+							tvb, pinfo, parent_tree)) {
+
+					col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
+					col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
+						     pinfo->fd->lnk_t);
+					call_dissector(data_handle,tvb, pinfo, parent_tree);
+				}
+			}
+#ifdef _MSC_VER
+		} __except(TRUE /* handle all exceptions */) {
+			switch(GetExceptionCode()) {
+			case(STATUS_ACCESS_VIOLATION):
+				show_exception(tvb, pinfo, parent_tree, DissectorError,
+					       "STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address");
+				break;
+			case(STATUS_INTEGER_DIVIDE_BY_ZERO):
+				show_exception(tvb, pinfo, parent_tree, DissectorError,
+					       "STATUS_INTEGER_DIVIDE_BY_ZERO: dissector tried an integer division by zero");
+				break;
+			case(STATUS_STACK_OVERFLOW):
+				show_exception(tvb, pinfo, parent_tree, DissectorError,
+					       "STATUS_STACK_OVERFLOW: dissector overflowed the stack (e.g. endless loop)");
+				/* XXX - this will have probably corrupted the stack, which makes problems later in the exception code */
+				break;
+				/* XXX - add other hardware exception codes as required */
+			default:
+				show_exception(tvb, pinfo, parent_tree, DissectorError,
+					       g_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
+			}
+		}
 #endif
 	}
 	CATCH(OutOfMemoryError) {
@@ -397,44 +397,44 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 *  TRY/CATCH)
 	 */
 	if (have_postdissector()) {
-	    TRY {
+		TRY {
 #ifdef _MSC_VER
-	    /* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions like memory access violations */
-	    /* (a running debugger will be called before the except part below) */
-	    __try {
+			/* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions like memory access violations */
+			/* (a running debugger will be called before the except part below) */
+			__try {
 #endif
-		call_all_postdissectors(tvb, pinfo, parent_tree);
+				call_all_postdissectors(tvb, pinfo, parent_tree);
 #ifdef _MSC_VER
-	    } __except(TRUE /* handle all exceptions */) {
-		switch(GetExceptionCode()) {
-		case(STATUS_ACCESS_VIOLATION):
-			    show_exception(tvb, pinfo, parent_tree, DissectorError,
-			"STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address");
-		    break;
-		case(STATUS_INTEGER_DIVIDE_BY_ZERO):
-			    show_exception(tvb, pinfo, parent_tree, DissectorError,
-			"STATUS_INTEGER_DIVIDE_BY_ZERO: dissector tried an integer division by zero");
-		    break;
-		case(STATUS_STACK_OVERFLOW):
-			    show_exception(tvb, pinfo, parent_tree, DissectorError,
-			"STATUS_STACK_OVERFLOW: dissector overflowed the stack (e.g. endless loop)");
-		    /* XXX - this will have probably corrupted the stack, which makes problems later in the exception code */
-		    break;
-		/* XXX - add other hardware exception codes as required */
-		default:
-			    show_exception(tvb, pinfo, parent_tree, DissectorError,
-			g_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
+			} __except(TRUE /* handle all exceptions */) {
+				switch(GetExceptionCode()) {
+				case(STATUS_ACCESS_VIOLATION):
+					show_exception(tvb, pinfo, parent_tree, DissectorError,
+						       "STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address");
+					break;
+				case(STATUS_INTEGER_DIVIDE_BY_ZERO):
+					show_exception(tvb, pinfo, parent_tree, DissectorError,
+						       "STATUS_INTEGER_DIVIDE_BY_ZERO: dissector tried an integer division by zero");
+					break;
+				case(STATUS_STACK_OVERFLOW):
+					show_exception(tvb, pinfo, parent_tree, DissectorError,
+						       "STATUS_STACK_OVERFLOW: dissector overflowed the stack (e.g. endless loop)");
+					/* XXX - this will have probably corrupted the stack, which makes problems later in the exception code */
+					break;
+					/* XXX - add other hardware exception codes as required */
+				default:
+					show_exception(tvb, pinfo, parent_tree, DissectorError,
+						       g_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
+				}
+			}
+#endif
 		}
-	    }
-#endif
-	    }
-	    CATCH(OutOfMemoryError) {
-		    RETHROW;
-	    }
-	    CATCH_ALL {
-		    show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
-	    }
-	    ENDTRY;
+		CATCH(OutOfMemoryError) {
+			RETHROW;
+		}
+		CATCH_ALL {
+			show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
+		}
+		ENDTRY;
 	}
 
 	tap_queue_packet(frame_tap, pinfo, NULL);
@@ -449,10 +449,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 void
 show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    unsigned long exception, const char *exception_message)
+	       unsigned long exception, const char *exception_message)
 {
 	static const char dissector_error_nomsg[] =
-	    "Dissector writer didn't bother saying what the error was";
+		"Dissector writer didn't bother saying what the error was";
 	proto_item *item;
 
 
