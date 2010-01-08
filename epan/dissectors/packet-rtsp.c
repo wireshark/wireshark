@@ -623,13 +623,14 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		body_requires_content_len = FALSE;
 
 	line = tvb_get_ptr(tvb, offset, first_linelen);
-	if (is_request_or_reply)
+	if (is_request_or_reply) {
 		if ( rtsp_type == RTSP_REPLY ) {
 			frame_label = ep_strdup_printf("Reply: %s", format_text(line, first_linelen));
 		}
 		else {
 			frame_label = ep_strdup(format_text(line, first_linelen));
 		}
+	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSP");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
