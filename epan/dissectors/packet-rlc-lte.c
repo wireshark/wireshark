@@ -698,6 +698,13 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
             case CHANNEL_TYPE_PCCH:
                 protocol_handle = find_dissector("lte-rrc.pcch");
                 break;
+
+            case CHANNEL_TYPE_SRB:
+            case CHANNEL_TYPE_DRB:
+            default:
+                /* Shouldn't happen, just return...
+                   TODO: should flag an error? */
+                return;
         }
 
         /* Hide raw view of bytes */
