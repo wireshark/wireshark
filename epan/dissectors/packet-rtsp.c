@@ -50,6 +50,8 @@
 #include <epan/strutil.h>
 #include "packet-e164.h"
 #include <epan/emem.h>
+#include <epan/tap.h>
+#include <epan/tap-voip.h>
 
 static int proto_rtsp		= -1;
 
@@ -68,6 +70,8 @@ static int hf_rtsp_session	= -1;
 static int hf_rtsp_transport	= -1;
 static int hf_rtsp_rdtfeaturelevel	= -1;
 static int hf_rtsp_X_Vig_Msisdn	= -1;
+
+static int voip_tap = -1;
 
 static dissector_handle_t rtp_handle;
 static dissector_handle_t rtcp_handle;
@@ -555,6 +559,9 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gchar			*media_type_str_lower_case = NULL;
 	int			semi_colon_offset;
 	int			par_end_offset;
+	gchar	*frame_label = NULL;
+	gchar	*session_id = NULL;
+	voip_packet_info_t *stat_info = NULL;
 
 	/*
 	 * Is this a request or response?
@@ -615,6 +622,15 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	else
 		body_requires_content_len = FALSE;
 
+	line = tvb_get_ptr(tvb, offset, first_linelen);
+	if (is_request_or_reply)
+		if ( rtsp_type == RTSP_REPLY ) {
+			frame_label = ep_strdup_printf("Reply: %s", format_text(line, first_linelen));
+		}
+		else {
+			frame_label = ep_strdup(format_text(line, first_linelen));
+		}
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSP");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
@@ -627,16 +643,18 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * is not longer than what's in the buffer, so the
 		 * "tvb_get_ptr()" call won't throw an exception.
 		 */
-		line = tvb_get_ptr(tvb, offset, first_linelen);
 		if (is_request_or_reply)
 			if ( rtsp_type == RTSP_REPLY ) {
 				col_set_str(pinfo->cinfo, COL_INFO, "Reply: ");
 				col_append_str(pinfo->cinfo, COL_INFO,
 					format_text(line, first_linelen));
+				frame_label = ep_strdup_printf("Reply: %s", format_text(line, first_linelen));
 			}
-			else
+			else {
 				col_add_str(pinfo->cinfo, COL_INFO,
 					format_text(line, first_linelen));
+				frame_label = ep_strdup(format_text(line, first_linelen));
+			}
 
 		else
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
@@ -910,10 +928,11 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			} else if (HDR_MATCHES(rtsp_Session))
 			{
+				session_id = tvb_format_text(tvb, value_offset, value_len);
 				/* Put the value into the protocol tree */
 				proto_tree_add_string(rtsp_tree, hf_rtsp_session, tvb,
 				                      offset, linelen,
-				                      tvb_format_text(tvb, value_offset, value_len));
+				                      session_id);
 
 			} else if (HDR_MATCHES(rtsp_X_Vig_Msisdn)) {
 				/*
@@ -963,6 +982,17 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		
 		offset = next_offset;
+	}
+
+	if (session_id) {
+		stat_info = ep_alloc0(sizeof(voip_packet_info_t));
+		stat_info->protocol_name = ep_strdup("RTSP");
+		stat_info->call_id = session_id;
+		stat_info->frame_label = frame_label;
+		stat_info->call_state = VOIP_CALL_SETUP;
+		stat_info->call_active_state = VOIP_NO_STATE;
+		stat_info->frame_comment = frame_label;
+		tap_queue_packet(voip_tap, pinfo, stat_info);
 	}
 
 	/*
@@ -1300,6 +1330,7 @@ proto_reg_handoff_rtsp(void)
 		rtcp_handle = find_dissector("rtcp");
 		rdt_handle = find_dissector("rdt");
 		media_type_dissector_table = find_dissector_table("media_type");
+	    voip_tap = find_tap_id("voip");
 		rtsp_prefs_initialized = TRUE;
 	}
 	else {
