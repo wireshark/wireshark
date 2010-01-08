@@ -1374,7 +1374,7 @@ static void attach_mac_lte_info(packet_info *pinfo)
     /* Populate the struct from outhdr values */
     p_mac_lte_info->crcStatusValid = FALSE;
 
-    p_mac_lte_info->radioType = outhdr_values[i++];
+    p_mac_lte_info->radioType = outhdr_values[i++] + 1;
     p_mac_lte_info->rntiType = outhdr_values[i++];
     p_mac_lte_info->direction = outhdr_values[i++];
     p_mac_lte_info->subframeNumber = outhdr_values[i++];
