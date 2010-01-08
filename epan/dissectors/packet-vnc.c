@@ -46,10 +46,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
 #include <glib.h>
 
 #include <epan/conversation.h>
