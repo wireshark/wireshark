@@ -1,0 +1,183 @@
+-- $Id$
+MMSAbstractService {iso(1) identified-organization(3) nato(26) stanags(0)
+  mmhs(4406) object-identifiers(0) module(0) abstract-service(3)} DEFINITIONS
+IMPLICIT TAGS ::=
+BEGIN
+
+--Prologue
+-- Exports Everything
+IMPORTS
+  -- IPMS information objects
+  AutoForwardComment, Heading
+    --
+    FROM IPMSInformationObjects {joint-iso-ccitt mhs-motis(6) ipms(1)
+      modules(0) information-objects(2)}
+  -- MMS information objects
+  MM, MN, MNRN, MRN, MON, InformationObject
+    --
+    FROM MMSInformationObjects {iso(1) identified-organization(3) nato(26)
+      stanags(0) mmhs(4406) object-identifiers(0) module(0) mms(1)}
+  -- MMS object identifiers
+  id-mpt-management, id-mpt-origination, id-mpt-reception
+    --
+    FROM MMSObjectIdentifiers {iso(1) identified-organization(3) nato(26)
+      stanags(0) mmhs(4406) object-identifiers(0)}
+  -- MTS abstract service
+  MessageDeliveryEnvelope, MessageSubmissionEnvelope,
+    MessageSubmissionIdentifier, MessageSubmissionTime, ORName,
+    ProbeSubmissionEnvelope, ProbeSubmissionIdentifier, ProbeSubmissionTime,
+    RecipientImproperlySpecified, ReportDeliveryEnvelope,
+    SupplementaryInformation
+    --
+    FROM MTSAbstractService {joint-iso-ccitt mhs-motis(6) mts(3) modules(0)
+      mts-abstract-service(1)}
+  -- Abstract service definition conventions
+  ABSTRACT-ERROR, ABSTRACT-OPERATION, PORT
+    --
+    FROM AbstractServiceNotation {joint-iso-ccitt mhs-motis(6) asdc(2)
+      modules(0) notation(1)};
+
+-- Ports
+-- origination PORT ::= {
+--  CONSUMER INVOKES
+--    {OriginateProbe |
+--      
+      --  Although, national implementation may
+      -- support probes within their own domain, probes are not
+      -- permitted across national boundaries
+--      OriginateMM | OriginateMRN}
+--  ID                id-pt-origination}
+--
+--reception PORT ::= {
+--  CONSUMER INVOKES
+--    {ReceiveReport | ReceiveMM | ReceiveMRN | ReceiveMNRN | ReceiveMON}
+--  ID                id-pt-reception}
+--
+--management PORT ::= {
+--  CONSUMER INVOKES
+--    {ChangeAutoDiscard | ChangeAutoAcknowledgment | ChangeAutoForwarding}
+--  ID                id-pt-management}
+
+-- Origination abstract operations
+-- Probes are prohibited across national boundaries.
+--originate-probe ABSTRACT-OPERATION ::= {
+--  ARGUMENT  OriginateProbeArgument
+--  RESULT    OriginateProbeResult
+--  ERROR     {SubcriptionError | RecipientImproperlySpecified}}
+
+OriginateProbeArgument ::= SET {
+  envelope  [0]  ProbeSubmissionEnvelope,
+  content   [1]  MM}
+
+OriginateProbeResult ::= SET {
+  submission-identifier  [0]  ProbeSubmissionIdentifier,
+  submission-time        [1]  ProbeSubmissionTime}
+
+--originate-mm ABSTRACT-OPERATION ::= {
+--  ARGUMENT  OriginateMMArgument
+--  RESULT    OriginateMMResult
+--  ERROR     {SubcriptionError | RecipientImproperlySpecified}}
+
+OriginateMMArgument ::= SET {
+  envelope  [0]  MessageSubmissionEnvelope,
+  content   [1]  MM}
+
+OriginateMMResult ::= SET {
+  submission-identifier  [0]  MessageSubmissionIdentifier,
+  submission-time        [1]  MessageSubmissionTime}
+
+--originate-mrn ABSTRACT-OPERATION ::= {
+--  ARGUMENT  OriginateMRNArgument
+--  RESULT    OriginateMRNResult
+--  ERROR     {SubcriptionError | RecipientImproperlySpecified}}
+
+OriginateMRNArgument ::= SET {
+  envelope  [0]  MessageSubmissionEnvelope,
+  content   [1]  MRN}
+
+OriginateMRNResult ::= SET {
+  submission-identifier  [0]  MessageSubmissionIdentifier,
+  submission-time        [1]  MessageSubmissionTime}
+
+-- Reception abstract operations
+--receive-report ABSTRACT-OPERATION ::= {
+--  ARGUMENT      ReceiveReportArgument
+--  RESULT ERROR  {}}
+
+ReceiveReportArgument ::= SET {
+  envelope            [0]  ReportDeliveryEnvelope,
+  undelivered-object  [1]  InformationObject OPTIONAL}
+
+--receive-mm ABSTRACT-OPERATION ::= {
+--  ARGUMENT      ReceiveMMArgument
+--  RESULT ERROR  {}}
+
+ReceiveMMArgument ::= SET {
+  envelope  [0]  MessageDeliveryEnvelope,
+  content   [1]  MM}
+
+--receive-mrn ABSTRACT-OPERATION ::= {
+--  ARGUMENT      ReceiveMRNArgument
+--  RESULT ERROR  {}}
+
+ReceiveMRNArgument ::= SET {
+  envelope  [0]  MessageDeliveryEnvelope,
+  content   [1]  MRN}
+
+--receive-mnrn ABSTRACT-OPERATION ::= {
+--  ARGUMENT      ReceiveMNRNArgument
+--  RESULT ERROR  {}}
+
+ReceiveMNRNArgument ::= SET {
+  envelope  [0]  MessageDeliveryEnvelope,
+  content   [1]  MNRN}
+
+--receive-mon ABSTRACT-OPERATION ::= {
+--  ARGUMENT      ReceiveMONArgument
+--  RESULT ERROR  {}}
+
+ReceiveMONArgument ::= SET {
+  envelope  [0]  MessageDeliveryEnvelope,
+  content   [1]  MON}
+
+-- Management abstract operations
+-- It should be noted that in cases where an implementation has dual 
+-- IPM and MM functionality, the management abstract operations may be used 
+-- for support of both types of messaging.
+--change-auto-discard ABSTRACT-OPERATION ::= {
+--  ARGUMENT       ChangeAutoDiscardArgument
+--  RESULT ERRORS  {}}
+
+ChangeAutoDiscardArgument ::= SET {
+  auto-discard-expired-MMs   [0]  BOOLEAN,
+  auto-discard-obsolete-MMs  [1]  BOOLEAN}
+
+--change-auto-acknowledgement ABSTRACT-OPERATION ::= {
+--  ARGUMENT       ChangeAutoAcknowledgementArgument
+--  RESULT ERRORS  {SubscriptionError}}
+
+ChangeAutoAcknowledgementArgument ::= SET {
+  auto-acknowledge-MMs                 [0]  BOOLEAN,
+  auto-acknowledge-suppl-receipt-info  [1]  SupplementaryInformation}
+
+--change-auto-forwarding ABSTRACT-OPERATION ::= {
+--  ARGUMENT       ChangeAutoForwardingArgument
+--  RESULT ERRORS  {SubscriptionError,
+--                  RecipientImproperlySpecified}}
+
+ChangeAutoForwardingArgument ::= SET {
+  autoforward-MMs          [0]  BOOLEAN,
+  auto-forward-recipients  [1]  SEQUENCE OF ORName OPTIONAL,
+  auto-forward-heading     [2]  Heading OPTIONAL,
+  auto-forward-comment     [3]  AutoForwardComment OPTIONAL}
+
+-- Abstract errors
+--subscription-error ABSTRACT-ERROR ::= {PARAMETER  SubscriptionErrorParameter
+--}
+
+SubscriptionErrorParameter ::= SET {problem  [0]  SubscriptionProblem}
+
+SubscriptionProblem ::= ENUMERATED {
+  mms-eos-not-subcribed(0), mts-eos-not-subcribed(1)}
+
+END --of MMSAbstractService

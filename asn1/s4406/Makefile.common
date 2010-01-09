@@ -28,7 +28,11 @@ DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 
 EXT_ASN_FILE_LIST =
 
-ASN_FILE_LIST = $(PROTOCOL_NAME).asn MMSUpperBounds.asn
+ASN_FILE_LIST = MMSAbstractService.asn MMSInformationObjects.asn \
+	MMSOtherNotificationTypeExtensions.asn MMSObjectIdentifiers.asn \
+	MMSHeadingExtensions.asn MMSUpperBounds.asn \
+	MMSExtendedBodyPartTypes.asn MMSPerRecipientSpecifierExtensions.asn
+
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.

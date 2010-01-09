@@ -1,0 +1,116 @@
+-- $Id$
+MMSExtendedBodyPartTypes {iso(1) identified-organization(3) nato(26) 
+  stanags(0) mmhs(4406) object-identifiers(0) module(0)
+  extended-body-part-types(7)} DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- Prologue
+-- Exports Everything
+IMPORTS
+  -- IPMS information objects
+  EXTENDED-BODY-PART-TYPE
+    --=
+    FROM IPMSInformationObjects {joint-iso-ccitt mhs-motis(6) ipms(1)
+      modules(0) information-objects(2)}
+  -- MMS information objects
+  MM
+    --=
+    FROM MMSInformationObjects {iso(1) identified-organization(3) nato(26)
+      stanags(0) mmhs(4406) object-identifiers(0) module(0) mms(1)}
+  -- MMS upper lower bounds
+  ub-data-size
+    --=
+    FROM MMSUpperBounds {iso(1) identified-organization(3) nato(26) stanags(0)
+      mmhs(4406) object-identifiers(0) module(0) upper-bounds(0)}
+  -- MTS Abstract Service
+  MessageDeliveryTime, OtherMessageDeliveryFields
+    --=
+    FROM MTSAbstractService {joint-iso-ccitt mhs-motis(6) mts(3) modules(0)
+      mts-abstract-service(1)}
+  -- MMS object identifiers
+  --=
+  id-nato-mmhs-et-adatp3, id-nato-mmhs-et-adatp3-parameters,
+    id-nato-mmhs-et-acp127data, id-nato-mmhs-et-acp127data-parameters,
+    id-nato-mmhs-et-corrections, id-nato-mmhs-et-corrections-parameters,
+    id-nato-mmhs-et-forwarded-encrypted,
+    id-nato-mmhs-et-forwarded-encrypted-parameters, id-nato-mmhs-et-mm-message,
+    id-nato-mmhs-et-mm-message-parameters
+    --=
+    FROM MMSObjectIdentifiers {iso(1) identified-organization(3) nato(26)
+      stanags(0) mmhs(4406) object-identifiers(0)};
+
+-- extended adatp3 bodypart
+--adatp3-body-part EXTENDED-BODY-PART-TYPE ::= {
+--  PARAMETERS {ADatP3Parameters
+--     IDENTIFIED BY  id-nato-mmhs-et-adatp3-parameters},
+--  DATA        {ADatP3Data
+--               IDENTIFIED BY  id-nato-mmhs-et-adatp3}}
+
+ADatP3Parameters ::= INTEGER -- DEFAULT (0)
+
+ADatP3Data ::= CHOICE {
+  lineOriented  [0] IMPLICIT IA5String,
+  setOriented   [1] IMPLICIT SEQUENCE OF IA5String}
+
+-- extended corrections body part
+--corrections-body-part EXTENDED-BODY-PART-TYPE ::= {
+--  PARAMETERS {CorrectionsParameters
+--     IDENTIFIED BY  id-nato-mmhs-et-corrections-parameters},
+--  DATA        {CorrectionsData
+--               IDENTIFIED BY  id-nato-mmhs-et-corrections}}
+
+CorrectionsParameters ::= INTEGER
+
+CorrectionsData ::= IA5String
+
+-- extended forwarded encrypted body part
+--forwarded-encrypted-body-part EXTENDED-BODY-PART-TYPE ::= {
+--  PARAMETERS
+--    {ForwardedEncryptedParameters
+--     IDENTIFIED BY  id-nato-mmhs-et-forwarded-encrypted-parameters},
+--  DATA
+--    {ForwardedEncryptedData
+--     IDENTIFIED BY  id-nato-mmhs-et-forwarded-encrypted}}
+
+-- A forwarded-encrypted-body must contain the delivery information,
+-- containing the content type which will indicate whether the forwarded
+-- encrypted message is an MM or IPM. All security related information 
+-- (i.e., token) of the original message must be forwarded.
+ForwardedEncryptedParameters ::= SET {
+  delivery-time      [0]  MessageDeliveryTime OPTIONAL,
+  delivery-envelope  [1]  OtherMessageDeliveryFields}
+
+-- 2/X.411, part 9 of 26.
+ForwardedEncryptedData ::= BIT STRING
+
+-- extended MM message body part
+--mm-message-body-part EXTENDED-BODY-PART-TYPE ::= {
+--  PARAMETERS
+--    {MMMessageParameters
+--     IDENTIFIED BY  id-nato-mmhs-et-mm-message-parameters},
+--  DATA        {MMMessageData
+--               IDENTIFIED BY  id-nato-mmhs-et-mm-message}}
+
+-- An mm-message-body-part can either carry a forwarded M1M or a forwarded
+-- IPM. In the case of a message-body-part, as defined in X.420,
+-- it can only carry an IPM.
+MMMessageParameters ::= SET {
+  delivery-time      [0]  MessageDeliveryTime OPTIONAL,
+  delivery-envelope  [1]  OtherMessageDeliveryFields}
+
+MMMessageData ::= IPM
+
+-- extended acp127data body part
+--acp127data-body-part EXTENDED-BODY-PART-TYPE ::= {
+--  PARAMETERS
+--    {ACP127DataParameters
+--     IDENTIFIED BY  id-nato-mmhs-et-acp127data-parameters},
+--  DATA        {ACP127DataData
+--               IDENTIFIED BY  id-nato-mmhs-et-acp127data}}
+
+ACP127DataParameters ::= INTEGER
+
+ACP127DataData ::= IA5String(SIZE (1..ub-data-size))
+
+END -- of MMS ExtendedBodyPartTypes
+

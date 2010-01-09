@@ -1,0 +1,263 @@
+-- $Id$
+MMSObjectIdentifiers {iso(1) identified-organization(3) nato(26) stanags(0)
+  mmhs(4406) object-identifiers(0)} DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- Prologue
+-- Export everything
+IMPORTS --nothing-- ;
+
+ID ::= OBJECT IDENTIFIER
+
+-- Military Messaging
+id-mmhs ID ::=
+  {iso(1) identified-organization(3) nato(26) stanags(0) mmhs(4406)
+   object-identifiers(0)}
+
+-- Categories of object identifiers
+id-mod ID ::= {id-mmhs  0} -- mm module
+
+id-mm ID ::= {id-mmhs  2} -- heading extension
+
+id-hat ID ::= {id-mmhs  3} -- heading attributes for MS
+
+id-mcont ID ::= {id-mmhs  4} -- content types
+
+id-policy ID ::= {id-mmhs  5} -- NATO policy identifier
+
+id-cat ID ::= {id-mmhs  6} -- special category identifiers
+
+id-et ID ::= {id-mmhs  7} -- military defined extended body part types
+
+id-mmts ID ::= {id-mmhs  8} -- mts object identifiers
+
+id-nat ID ::= {id-mmhs  9} -- military defined notification attributes 
+
+id-mot ID ::= {id-mmhs  10} -- military object types
+
+id-mpt ID ::= {id-mmhs  11} -- military port types
+
+id-ref ID ::= {id-mmhs  12} -- refinements
+
+id-informationlabel ID ::= {id-mmhs  13}
+
+-- Modules
+-- MMS information objects
+id-mod-upper-bounds ID ::= {id-mod  0}
+
+id-mod-mms ID ::= {id-mod  1}
+
+id-mod-functional-objects ID ::= {id-mod  2}
+
+id-mod-abstract-service ID ::= {id-mod  3}
+
+id-mod-heading-extension ID ::= {id-mod  6}
+
+id-mod-extended-body-part-types ID ::= {id-mod  7}
+
+id-mod-message-store-attributes ID ::= {id-mod  8}
+
+id-mod-per-recipient-specifier-extensions ID ::= {id-mod  11}
+
+id-mod-other-notification-type-extensions ID ::= {id-mod  12}
+
+-- Object types
+id-mot-mmme ID ::= {id-mot  0}
+
+id-mot-mms-user ID ::= {id-mot  1}
+
+id-mot-mms ID ::= {id-mot  2}
+
+id-mot-mms-ua ID ::= {id-mot  3}
+
+id-mot-mms-ms ID ::= {id-mot  4}
+
+id-mot-acp127au ID ::= {id-mot  5}
+
+id-mot-pdau ID ::= {id-mot  6}
+
+-- port types
+id-mpt-origination ID ::= {id-mpt  0}
+
+id-mpt-reception ID ::= {id-mpt  1}
+
+id-mpt-management ID ::= {id-mpt  2}
+
+-- Refinements
+id-ref-primary ID ::= {id-ref  0}
+
+id-ref-secondary ID ::= {id-ref  1}
+
+-- Military Defined body parts
+id-nato-mmhs-et-adatp3 ID ::= {id-et  0}
+
+id-nato-mmhs-et-corrections ID ::= {id-et  1}
+
+id-nato-mmhs-et-adatp3-parameters ID ::= {id-et  2}
+
+id-nato-mmhs-et-corrections-parameters ID ::= {id-et  3}
+
+id-nato-mmhs-et-forwarded-encrypted ID ::= {id-et  6}
+
+id-nato-mmhs-et-forwarded-encrypted-parameters ID ::= {id-et  7}
+
+id-nato-mmhs-et-mm-message ID ::= {id-et  9}
+
+id-nato-mmhs-et-mm-message-parameters ID ::= {id-et  10}
+
+id-nato-mmhs-et-mm-acp127data ID ::= {id-et  12}
+
+id-nato-mmhs-et-mm-acp127data-parameters ID ::= {id-et  13}
+
+-- Military Defined Heading Fields
+id-nato-mmhs-mm-primary-precedence ID ::=
+  {id-mm  0}
+
+id-nato-mmhs-mm-copy-precedence ID ::= {id-mm  1}
+
+id-nato-mmhs-mm-message-type ID ::= {id-mm  2}
+
+id-nato-mmhs-mm-address-list-indicator ID ::= {id-mm  3}
+
+id-nato-mmhs-mm-exempted-address ID ::= {id-mm  4}
+
+id-nato-mmhs-mm-extended-authorisation-info ID ::= {id-mm  5}
+
+id-nato-mmhs-mm-distribution-codes ID ::= {id-mm  6}
+
+id-nato-mmhs-mm-handling-instructions ID ::= {id-mm  7}
+
+id-nato-mmhs-mm-message-instructions ID ::= {id-mm  8}
+
+id-nato-mmhs-mm-codress-message ID ::= {id-mm  9}
+
+id-nato-mmhs-mm-originator-reference ID ::= {id-mm  10}
+
+id-nato-mmhs-mm-other-recipients-indicator ID ::= {id-mm  11}
+
+id-nato-mmhs-mm-pilot-forwarding-info ID ::= {id-mm  12}
+
+id-nato-mmhs-mm-acp127-message-identifier ID ::= {id-mm  13}
+
+id-nato-mmhs-mm-originator-plad ID ::= {id-mm  14}
+
+id-nato-mmhs-mm-information-labels ID ::= {id-mm  17}
+
+-- This value is deprecated.
+-- the following are per-recipient
+id-nato-mmhs-mm-acp127-notification-request ID ::=
+  {id-mm  15}
+
+-- the following are per other-notification-type
+id-nato-mmhs-mm-acp127-notification-response ID ::=
+  {id-mm  16}
+
+-- Military Defined Heading Attributes for MS
+id-nato-mmhs-hat-primary-precedence ID ::=
+  {id-hat  0}
+
+id-nato-mmhs-hat-copy-precedence ID ::= {id-hat  1}
+
+id-nato-mmhs-hat-message-type ID ::= {id-hat  2}
+
+id-nato-mmhs-hat-address-list-indicator ID ::= {id-hat  3}
+
+id-nato-mmhs-hat-exempted-address ID ::= {id-hat  4}
+
+id-nato-mmhs-hat-extended-authorisation-info ID ::= {id-hat  5}
+
+id-nato-mmhs-hat-distribution-codes ID ::= {id-hat  6}
+
+id-nato-mmhs-hat-handling-instructions ID ::= {id-hat  7}
+
+id-nato-mmhs-hat-message-instructions ID ::= {id-hat  8}
+
+id-nato-mmhs-hat-codress-message ID ::= {id-hat  9}
+
+id-nato-mmhs-hat-originator-reference ID ::= {id-hat  10}
+
+id-nato-mmhs-hat-other-recipients-indicator ID ::= {id-hat  11}
+
+id-nato-mmhs-hat-pilot-forwarding-info ID ::= {id-hat  12}
+
+id-nato-mmhs-hat-acp127-message-identifier ID ::= {id-hat  13}
+
+id-nato-mmhs-hat-originator-plad ID ::= {id-hat  14}
+
+-- the following are per-recipient
+id-nato-mmhs-hat-acp127-notification-request ID ::=
+  {id-hat  15}
+
+id-nato-mmhs-hat-sic-codes ID ::= {id-hat  16}
+
+id-nato-mmhs-hat-distribution-extensions ID ::= {id-hat  17}
+
+id-nato-mmhs-hat-body-part-information-label ID ::= {id-hat  18}
+
+-- This value is deprecated.
+id-nato-mmhs-hat-security-information-labels ID ::=
+  {id-hat  19}
+
+-- This value is deprecated.
+-- Military Defined special category identifiers
+id-nato-mmhs-cat ID ::=
+  {id-cat  0}
+
+-- This value is deprecated.
+id-nato-mmhs-cat-atomal ID ::= {id-cat  1}
+
+-- This value is deprecated.
+id-nato-mmhs-cat-cryptosecurity ID ::= {id-cat  2}
+
+-- This value is deprecated.
+id-nato-mmhs-cat-specialhandlingintel ID ::=
+  {id-cat  3}
+
+-- This value is deprecated.
+id-nato-mmhs-cat-ussiopesi ID ::= {id-cat  4}
+
+-- This value is deprecated.
+id-nato-mmhs-cat-eyesonly ID ::= {id-cat  5}
+
+-- This value is deprecated.
+id-nato-mmhs-cat-exclusive ID ::= {id-cat  6}
+
+-- This value is deprecated.
+id-nato-mmhs-cat-information-label ID ::=
+  {id-cat  7}
+
+-- This value is deprecated.
+id-nato-mmhs-informationlabel-atomal ID ::=
+  {id-informationlabel  1}
+
+-- This value is deprecated.
+id-nato-mmhs-informationlabel-cryptosecurity ID ::=
+  {id-informationlabel  2}
+
+-- This value is deprecated.
+id-nato-mmhs-informationlabel-specialhandlingintel ID ::=
+  {id-informationlabel  3}
+
+-- This value is deprecated.
+id-nato-mmhs-informationlabel-ussiopesi ID ::=
+  {id-informationlabel  4}
+
+-- This value is deprecated.
+id-nato-mmhs-informationlabel-eyesonly ID ::=
+  {id-informationlabel  5}
+
+-- This value is deprecated.
+id-nato-mmhs-informationlabel-exclusive ID ::=
+  {id-informationlabel  6}
+
+-- This value is deprecated.
+-- Military Defined Notification Extension
+id-nato-mmhs-nat-acp127-notification-response ID ::=
+  {id-nat  0}
+
+-- Military Message content types (for use by MS only)
+id-mct-p772 ID ::=
+  {id-mcont  1}
+
+END -- of MMHSObjectIdentifiers
+

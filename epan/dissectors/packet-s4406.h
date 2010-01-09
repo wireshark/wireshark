@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-s4406.h                                                             */
-/* ../../tools/asn2wrs.py -b -e -C -p s4406 -c ./s4406.cnf -s ./packet-s4406-template -D . s4406.asn MMSUpperBounds.asn */
+/* ../../tools/asn2wrs.py -b -e -C -p s4406 -c ./s4406.cnf -s ./packet-s4406-template -D . MMSAbstractService.asn MMSInformationObjects.asn MMSOtherNotificationTypeExtensions.asn MMSObjectIdentifiers.asn MMSHeadingExtensions.asn MMSUpperBounds.asn MMSExtendedBodyPartTypes.asn MMSPerRecipientSpecifierExtensions.asn */
 
 /* Input file: packet-s4406-template.h */
 

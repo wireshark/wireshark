@@ -1,0 +1,57 @@
+-- $Id$
+MMSOtherNotificationTypeExtensions {iso(1) identified-organization(3) 
+  nato(26) stanags(0) mmhs(4406) object-identifiers(0) module(0)
+  other-notification-type-extensions(12)} DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- Prologue
+-- Exports Everything
+IMPORTS
+  -- IPMS information objects
+  IPMS-EXTENSION, ReceiptTimeField
+    --=
+    FROM IPMSInformationObjects {joint-iso-ccitt mhs-motis(6) ipms(1)
+      modules(0) information-objects(2)}
+  -- MMS upper bounds
+  ub-military-bigstring
+    --=
+    FROM MMSUpperBounds {iso(1) identified-organization(3) nato(26) stanags(0)
+      mmhs(4406) object-identifiers(0) module(0) upper-bounds(0)}
+  -- MMS object identifiers
+  id-nato-mmhs-mm-acp127-notification-response
+    --=
+    FROM MMSObjectIdentifiers {iso(1) identified-organization(3) nato(26)
+      stanags(0) mmhs(4406) object-identifiers(0)}
+  -- MMS heading extensions
+  AddressListDesignator
+    --=
+    FROM MMSHeadingExtensions {iso(1) identified-organization(3) nato(26)
+      stanags(0) mmhs(4406) object-identifiers(0) module(0)
+      heading-extensions(6)}
+  -- MMS per recipient specifier extensions
+  Acp127NotificationType
+    --=
+    FROM MMSPerRecipientSpecifierExtensions {iso(1) identified-organization(3)
+      nato(26) stanags(0) mmhs(4406) object-identifiers(0) module(0)
+      per-recipient-specifier-extensions(11)};
+
+--ACP127 notification response
+--acp127-notification-response IPMS-EXTENSION ::= {
+--  VALUE          Acp127NotificationResponse
+--  IDENTIFIED BY  id-nato-mmhs-mm-acp127-notification-response}
+
+Acp127NotificationResponse ::= SET {
+  acp127-notification-type  [0]  Acp127NotificationType,
+  receipt-time              [1]  ReceiptTimeField,
+  addressListIndicator      [2]  AddressListIndicator OPTIONAL,
+  acp127-recipient          [3]  Acp127Recipient OPTIONAL,
+  acp127-supp-info          [4]  Acp127SuppInfo OPTIONAL}
+
+AddressListIndicator ::= SEQUENCE OF AddressListDesignator
+
+Acp127Recipient ::= PrintableString(SIZE (1..ub-military-bigstring))
+
+Acp127SuppInfo ::= PrintableString(SIZE (1..ub-military-bigstring))
+
+END -- of MMS OtherNotificationType extensions
+

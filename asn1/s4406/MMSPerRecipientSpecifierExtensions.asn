@@ -1,0 +1,35 @@
+-- $Id$
+MMSPerRecipientSpecifierExtensions {iso(1) identified-organization(3) 
+  nato(26) stanags(0) mmhs(4406) object-identifiers(0) module(0)
+  per-recipient-specifier-extensions(11)} DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- Prologue
+-- Exports Everything
+IMPORTS
+  -- IPMS information objects
+  IPMS-EXTENSION
+    --=
+    FROM IPMSInformationObjects {joint-iso-ccitt mhs-motis(6) ipms(1)
+      modules(0) information-objects(2)}
+  -- MMS object identifiers
+  id-nato-mmhs-mm-acp127-notification-request
+    --=
+    FROM MMSObjectIdentifiers {iso(1) identified-organization(3) nato(26)
+      stanags(0) mmhs(4406) object-identifiers(0)};
+
+-- ACP127 notification request
+-- The following definitions are made in order to support
+-- informing the originator of a message that the subject message
+-- has reached a gateway to an ACP 127 domain.
+--acp127-notification-request IPMS-EXTENSION ::= {
+--  VALUE          Acp127NotificationType
+--  IDENTIFIED BY  id-nato-mmhs-mm-acp127-notification-request}
+
+Acp127NotificationType ::= BIT STRING {
+  acp127-nn(0), -- negative notification
+  acp127-pn(1), -- positive notification
+  acp127-tn(2)} -- transfer notification
+
+END -- of MMS per recipient pecifier extensions
+
