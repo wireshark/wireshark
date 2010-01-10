@@ -41,9 +41,11 @@
 #include <epan/strutil.h>
 #include <epan/emem.h>
 #include <epan/reassemble.h>
+#include <epan/dissectors/packet-ssl.h>
 
 /* RFC 2821 */
 #define TCP_PORT_SMTP 25
+#define TCP_PORT_SSL_SMTP 465
 
 /* RFC 4409 */
 #define TCP_PORT_SUBMISSION 587
@@ -946,6 +948,7 @@ proto_reg_handoff_smtp(void)
 
   smtp_handle = find_dissector("smtp");
   dissector_add("tcp.port", TCP_PORT_SMTP, smtp_handle);
+  ssl_dissector_add(TCP_PORT_SSL_SMTP, "smtp", TRUE);
   dissector_add("tcp.port", TCP_PORT_SUBMISSION, smtp_handle);
 
   /* find the IMF dissector */
