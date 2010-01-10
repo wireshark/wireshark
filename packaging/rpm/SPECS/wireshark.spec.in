@@ -9,7 +9,7 @@ Version:	%ver
 Release:	%rel
 License:	GPL
 Group:		Networking/Utilities
-Source:		http://wireshark.org/download/all-versions/%{name}-%{version}.tar.gz
+Source:		http://wireshark.org/download/all-versions/%{name}-%{version}.tar.bz2
 Source1:	%{name}.desktop
 Source2:	%{name}.png
 URL:		http://www.wireshark.org/

@@ -869,7 +869,7 @@ rpm-package: dist
 		cd $(rpm_topdir) ; \
 		mkdir -p BUILD RPMS SOURCES ; \
 		cd SOURCES ; \
-		ln -s ../../../$(distdir).tar.gz ; \
+		ln -s ../../../$(distdir).tar.bz2 ; \
 		ln -s ../../../wireshark.desktop ; \
 		ln -s ../../../image/wsicon64.png wireshark.png ; \
 		cd .. ; \
@@ -883,7 +883,7 @@ srpm-package: dist
 		cd $(rpm_topdir) ; \
 		mkdir -p BUILD SRPMS SOURCES ; \
 		cd SOURCES ; \
-		ln -s ../../../$(distdir).tar.gz ; \
+		ln -s ../../../$(distdir).tar.bz2 ; \
 		ln -s ../../../wireshark.desktop ; \
 		ln -s ../../../image/wsicon64.png wireshark.png ; \
 		cd .. ; \
