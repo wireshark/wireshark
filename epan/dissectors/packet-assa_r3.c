@@ -4148,10 +4148,22 @@ static void dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 sta
   proto_tree *cf_tree= NULL;
   guint l = tvb_length_remaining (tvb, start_offset);
   guint items = 0;
+  guint octets;
   guint i;
 
-  for (i = start_offset; i < l; i += tvb_get_guint8 (tvb, start_offset + i))
+  i = start_offset;
+  while (i < l)
+  {
     items++;
+    octets = tvb_get_guint8 (tvb, start_offset + i);
+    if(!octets)
+    {
+      cf_item = proto_tree_add_text (tree, tvb, start_offset, l, "Capabilities (unknown items)");
+      expert_add_info_format(pinfo, cf_item, PI_MALFORMED, PI_WARN, "Capabilities could not be decoded because length of 0 encountered");
+      return;
+    }
+    i += octets;
+  }
 
   cf_item = proto_tree_add_text (tree, tvb, start_offset, l, "Capabilities (%u items)", items);
   cf_tree = proto_item_add_subtree (cf_item, ett_r3capabilities);
