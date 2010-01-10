@@ -502,7 +502,7 @@ static int hf_x411_UniversalOrganizationalUnitNames_item = -1;  /* UniversalOrga
 static int hf_x411_character_encoding = -1;       /* T_character_encoding */
 static int hf_x411_two_octets = -1;               /* BMPString_SIZE_1_ub_string_length */
 static int hf_x411_four_octets = -1;              /* UniversalString_SIZE_1_ub_string_length */
-static int hf_x411_iso_639_language_code = -1;    /* PrintableString_SIZE_CONSTR4299675912 */
+static int hf_x411_iso_639_language_code = -1;    /* PrintableString_SIZE_CONSTR4299858216 */
 static int hf_x411_x121_dcc_code_01 = -1;         /* T_x121_dcc_code_01 */
 static int hf_x411_iso_3166_alpha2_code_01 = -1;  /* T_iso_3166_alpha2_code_01 */
 static int hf_x411_numeric_code = -1;             /* T_numeric_code */
@@ -2346,9 +2346,9 @@ static const asn_namedbit BuiltInEncodedInformationTypes_bits[] = {
 
 static int
 dissect_x411_BuiltInEncodedInformationTypes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    BuiltInEncodedInformationTypes_bits, hf_index, ett_x411_BuiltInEncodedInformationTypes,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                0, ub_built_in_encoded_information_types, BuiltInEncodedInformationTypes_bits, hf_index, ett_x411_BuiltInEncodedInformationTypes,
+                                                NULL);
 
   return offset;
 }
@@ -2645,9 +2645,9 @@ static const asn_namedbit PerMessageIndicators_U_bits[] = {
 
 static int
 dissect_x411_PerMessageIndicators_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    PerMessageIndicators_U_bits, hf_index, ett_x411_PerMessageIndicators_U,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                0, ub_bit_options, PerMessageIndicators_U_bits, hf_index, ett_x411_PerMessageIndicators_U,
+                                                NULL);
 
   return offset;
 }
@@ -2839,9 +2839,9 @@ static const asn_namedbit OtherActions_bits[] = {
 
 static int
 dissect_x411_OtherActions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    OtherActions_bits, hf_index, ett_x411_OtherActions,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                0, ub_bit_options, OtherActions_bits, hf_index, ett_x411_OtherActions,
+                                                NULL);
 
   return offset;
 }
@@ -3028,9 +3028,9 @@ static const asn_namedbit Criticality_bits[] = {
 
 static int
 dissect_x411_Criticality(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Criticality_bits, hf_index, ett_x411_Criticality,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                0, ub_bit_options, Criticality_bits, hf_index, ett_x411_Criticality,
+                                                NULL);
 
   return offset;
 }
@@ -3057,7 +3057,7 @@ dissect_x411_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 			expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, "Unknown standard-extension");
 		}
 	} else if (object_identifier_id) {
-		call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 		name = oid_resolved_from_string(object_identifier_id);
 		proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
 	}
@@ -3131,9 +3131,9 @@ static const asn_namedbit PerRecipientIndicators_bits[] = {
 
 static int
 dissect_x411_PerRecipientIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    PerRecipientIndicators_bits, hf_index, ett_x411_PerRecipientIndicators,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                8, ub_bit_options, PerRecipientIndicators_bits, hf_index, ett_x411_PerRecipientIndicators,
+                                                NULL);
 
   return offset;
 }
@@ -4193,9 +4193,9 @@ static const asn_namedbit OriginatorReportRequest_bits[] = {
 
 static int
 dissect_x411_OriginatorReportRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    OriginatorReportRequest_bits, hf_index, ett_x411_OriginatorReportRequest,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                0, ub_bit_options, OriginatorReportRequest_bits, hf_index, ett_x411_OriginatorReportRequest,
+                                                NULL);
 
   return offset;
 }
@@ -4433,9 +4433,9 @@ static const asn_namedbit Operations_bits[] = {
 
 static int
 dissect_x411_Operations(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Operations_bits, hf_index, ett_x411_Operations,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                0, ub_bit_options, Operations_bits, hf_index, ett_x411_Operations,
+                                                NULL);
 
   return offset;
 }
@@ -4526,9 +4526,9 @@ static const asn_namedbit WaitingMessages_bits[] = {
 
 static int
 dissect_x411_WaitingMessages(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    WaitingMessages_bits, hf_index, ett_x411_WaitingMessages,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                0, ub_bit_options, WaitingMessages_bits, hf_index, ett_x411_WaitingMessages,
+                                                NULL);
 
   return offset;
 }
@@ -4755,9 +4755,9 @@ static const asn_namedbit DeliveryFlags_bits[] = {
 
 static int
 dissect_x411_DeliveryFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    DeliveryFlags_bits, hf_index, ett_x411_DeliveryFlags,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                0, ub_bit_options, DeliveryFlags_bits, hf_index, ett_x411_DeliveryFlags,
+                                                NULL);
 
   return offset;
 }
@@ -5848,9 +5848,9 @@ static const asn_namedbit PhysicalDeliveryModes_bits[] = {
 
 static int
 dissect_x411_PhysicalDeliveryModes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    PhysicalDeliveryModes_bits, hf_index, ett_x411_PhysicalDeliveryModes,
-                                    NULL);
+  offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                                0, ub_bit_options, PhysicalDeliveryModes_bits, hf_index, ett_x411_PhysicalDeliveryModes,
+                                                NULL);
 
   return offset;
 }
@@ -6501,7 +6501,7 @@ dissect_x411_T_character_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static int
-dissect_x411_PrintableString_SIZE_CONSTR4299675912(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_x411_PrintableString_SIZE_CONSTR4299858216(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
                                                         actx, tree, tvb, offset,
                                                         2, 5, hf_index, NULL);
@@ -6512,7 +6512,7 @@ dissect_x411_PrintableString_SIZE_CONSTR4299675912(gboolean implicit_tag _U_, tv
 
 static const ber_sequence_t UniversalOrBMPString_set[] = {
   { &hf_x411_character_encoding, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_x411_T_character_encoding },
-  { &hf_x411_iso_639_language_code, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_PrintableString_SIZE_CONSTR4299675912 },
+  { &hf_x411_iso_639_language_code, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x411_PrintableString_SIZE_CONSTR4299858216 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -10413,7 +10413,7 @@ void proto_register_x411(void) {
     { &hf_x411_iso_639_language_code,
       { "iso-639-language-code", "x411.iso_639_language_code",
         FT_STRING, BASE_NONE, NULL, 0,
-        "x411.PrintableString_SIZE_CONSTR4299675912", HFILL }},
+        "x411.PrintableString_SIZE_CONSTR4299858216", HFILL }},
     { &hf_x411_x121_dcc_code_01,
       { "x121-dcc-code", "x411.x121_dcc_code",
         FT_STRING, BASE_NONE, NULL, 0,
