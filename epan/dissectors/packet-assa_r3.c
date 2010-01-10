@@ -4602,17 +4602,29 @@ static void dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guin
     switch (paramType)
     {
       case ADDUSERPARAMTYPE_DISPOSITION :
-      case ADDUSERPARAMTYPE_USERNO :
       case ADDUSERPARAMTYPE_ACCESSALWAYS :
       case ADDUSERPARAMTYPE_ACCESSMODE :
       case ADDUSERPARAMTYPE_CACHED :
       case ADDUSERPARAMTYPE_USERTYPE :
-      case ADDUSERPARAMTYPE_PRIMARYFIELD :
       case ADDUSERPARAMTYPE_PRIMARYFIELDTYPE :
-      case ADDUSERPARAMTYPE_AUXFIELD :
       case ADDUSERPARAMTYPE_AUXFIELDTYPE :
       case ADDUSERPARAMTYPE_USECOUNT :
       case ADDUSERPARAMTYPE_EXCEPTIONGROUP :
+        if (dataLength != 1)
+          expert_add_info_format (pinfo, tree, PI_UNDECODED, PI_WARN, "Malformed field -- expected 1 octet");
+        else
+          proto_tree_add_item (mu_tree, hf_r3_adduserparamtypearray [paramType], payload_tvb, offset, dataLength, TRUE);
+        break;
+
+      case ADDUSERPARAMTYPE_USERNO :
+        if (dataLength != 2)
+          expert_add_info_format (pinfo, tree, PI_UNDECODED, PI_WARN, "Malformed field -- expected 2 octets");
+        else
+          proto_tree_add_item (mu_tree, hf_r3_adduserparamtypearray [paramType], payload_tvb, offset, dataLength, TRUE);
+        break;
+
+      case ADDUSERPARAMTYPE_PRIMARYFIELD :
+      case ADDUSERPARAMTYPE_AUXFIELD :
         proto_tree_add_item (mu_tree, hf_r3_adduserparamtypearray [paramType], payload_tvb, offset, dataLength, TRUE);
         break;
 
@@ -4658,7 +4670,7 @@ static void dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guin
         break;
 
       default :
-        proto_tree_add_none_format (mu_tree, hf_r3_upstreamfielderror, payload_tvb, offset, dataLength, "Unknown Field Type");
+        proto_tree_add_string (mu_tree, hf_r3_upstreamfielderror, payload_tvb, offset, dataLength, "Unknown Field Type");
         break;
     }
 
