@@ -473,8 +473,7 @@ create_view_and_model(void)
 					tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
 				}
                 	} else {
-				/* XXX - include custom_field value? e.g. "Unknown Custom (foo.bar)" */
-				tooltip_text = g_strdup_printf("Unknown Custom Column Field");
+				tooltip_text = g_strdup_printf("Unknown Field: %s", cfile.cinfo.col_custom_field[i]);
 			}	
 		} else {
 			tooltip_text = g_strdup(col_format_desc(cfile.cinfo.col_fmt[i]));

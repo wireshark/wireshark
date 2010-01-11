@@ -839,11 +839,16 @@ packet_list_set_column_titles(void)
                          GTK_SHRINK, GTK_SHRINK, 0, 0);
         if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
             hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
-	    if (hfi->parent != -1) {
-	        /* Prefix with protocol name */
-	        tooltip_text = g_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
+	    /* Check if this is a valid custom_field */
+	    if (hfi) {
+	        if (hfi->parent != -1) {
+		    /* Prefix with protocol name */
+		    tooltip_text = g_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
+		} else {
+		    tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
+		}
 	    } else {
-	        tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
+	        tooltip_text = g_strdup_printf("Unknown Field: %s", cfile.cinfo.col_custom_field[i]);
 	    }
         } else {
             tooltip_text = g_strdup(col_format_desc(cfile.cinfo.col_fmt[i]));
