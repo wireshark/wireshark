@@ -848,7 +848,7 @@ packet_list_set_column_titles(void)
 		    tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
 		}
 	    } else {
-	        tooltip_text = g_strdup_printf("Unknown Field: %s", cfile.cinfo.col_custom_field[i]);
+	        tooltip_text = g_strdup_printf("Unknown Field: %s", get_column_custom_field(i));
 	    }
         } else {
             tooltip_text = g_strdup(col_format_desc(cfile.cinfo.col_fmt[i]));
