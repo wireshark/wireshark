@@ -1,8 +1,8 @@
--- 3GPP TS 36.331 V8.7.0 (2009-09)
+-- 3GPP TS 36.331 V8.8.0 (2009-12)
 -- $Id$
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
-
+ 
 BEGIN
 
 
@@ -2612,8 +2612,8 @@ maxCellInter				INTEGER ::= 16	-- Maximum number of neighbouring inter-frequency
 											-- cells listed in SIB type 5
 maxCellIntra				INTEGER ::= 16	-- Maximum number of neighbouring intra-frequency
 											-- cells listed in SIB type 4
-maxCellMeas					INTEGER ::= 32	-- Maximum number of neighbouring cells within a
-											-- measurement object (incl blacklisted cells)
+maxCellMeas					INTEGER ::= 32	-- Maximum number of entries in each of the neighbour 
+											-- cell lists in a measurement object
 maxCellReport				INTEGER ::= 8	-- Maximum number of reported cells
 maxDRB						INTEGER ::= 11	-- Maximum number of Data Radio Bearers
 maxEARFCN					INTEGER ::= 65535	-- Maximum value of EUTRA carrier fequency
