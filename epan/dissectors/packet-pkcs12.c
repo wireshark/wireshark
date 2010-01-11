@@ -451,7 +451,7 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 
 	/* OK - so now clear_data contains the decrypted data */
 
-	clear_tvb = tvb_new_real_data((const guint8 *)clear_data, datalen, datalen);
+	clear_tvb = tvb_new_child_real_data(encrypted_tvb,(const guint8 *)clear_data, datalen, datalen);
 	tvb_set_free_cb(clear_tvb, g_free);
 
 	name = g_string_new("");

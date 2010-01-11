@@ -2744,22 +2744,22 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
   } else if (len > 0 && (dmp.body_format == FREE_TEXT ||
 			 dmp.body_format == FREE_TEXT_SUBJECT)) {
     if (compr_alg == ALGORITHM_ZLIB) {
-      if ((next_tvb = tvb_uncompress (tvb, offset, len)) != NULL) {
-	gint zlen = tvb_length (next_tvb);
-	add_new_data_source (pinfo, next_tvb, "Uncompressed User data");
-	tf = proto_tree_add_none_format (message_tree,
-					 hf_message_body_uncompr,
-					 next_tvb, 0, zlen,
-					 "Uncompressed User data, "
-					 "Length: %d", zlen);
-	field_tree = proto_item_add_subtree (tf, ett_message_body_uncompr);
-	proto_tree_add_item (field_tree, hf_message_body_uncompressed,
-			     next_tvb, 0, -1, FALSE);
+      if ((next_tvb = tvb_child_uncompress (NULL, tvb, offset, len)) != NULL) {
+		gint zlen = tvb_length (next_tvb);
+		add_new_data_source (pinfo, next_tvb, "Uncompressed User data");
+		tf = proto_tree_add_none_format (message_tree,
+						 hf_message_body_uncompr,
+						 next_tvb, 0, zlen,
+						 "Uncompressed User data, "
+						 "Length: %d", zlen);
+		field_tree = proto_item_add_subtree (tf, ett_message_body_uncompr);
+		proto_tree_add_item (field_tree, hf_message_body_uncompressed,
+					 next_tvb, 0, -1, FALSE);
       } else {
-	tf = proto_tree_add_text (message_tree, tvb, offset, -1,
-				  "Error: Unable to uncompress content");
-	expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_WARN,
-				"Unable to uncompress content");
+		tf = proto_tree_add_text (message_tree, tvb, offset, -1,
+					  "Error: Unable to uncompress content");
+		expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_WARN,
+					"Unable to uncompress content");
       }
     } else if (eit != EIT_BILATERAL) {
       proto_tree_add_item (field_tree, hf_message_body_plain, tvb,
