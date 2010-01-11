@@ -75,6 +75,7 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 #line 1 "packet-dsp-hf.c"
 static int hf_dsp_AccessPoint_PDU = -1;           /* AccessPoint */
 static int hf_dsp_MasterAndShadowAccessPoints_PDU = -1;  /* MasterAndShadowAccessPoints */
+static int hf_dsp_DitBridgeKnowledge_PDU = -1;    /* DitBridgeKnowledge */
 static int hf_dsp_chainedArgument = -1;           /* ChainingArguments */
 static int hf_dsp_readArgument = -1;              /* ReadArgument */
 static int hf_dsp_unsignedChainedReadArgument = -1;  /* ChainedReadArgumentData */
@@ -172,6 +173,10 @@ static int hf_dsp_operationIdentifier = -1;       /* INTEGER */
 static int hf_dsp_searchRuleId = -1;              /* SearchRuleId */
 static int hf_dsp_chainedRelaxation = -1;         /* MRMapping */
 static int hf_dsp_relatedEntry = -1;              /* INTEGER */
+static int hf_dsp_dspPaging = -1;                 /* BOOLEAN */
+static int hf_dsp_nonDapPdu = -1;                 /* T_nonDapPdu */
+static int hf_dsp_streamedResults = -1;           /* INTEGER */
+static int hf_dsp_excludeWriteableCopies = -1;    /* BOOLEAN */
 static int hf_dsp_utcTime = -1;                   /* UTCTime */
 static int hf_dsp_generalizedTime = -1;           /* GeneralizedTime */
 static int hf_dsp_crossReferences = -1;           /* SEQUENCE_OF_CrossReference */
@@ -187,14 +192,17 @@ static int hf_dsp_ae_title = -1;                  /* Name */
 static int hf_dsp_address = -1;                   /* PresentationAddress */
 static int hf_dsp_protocolInformation = -1;       /* SET_OF_ProtocolInformation */
 static int hf_dsp_protocolInformation_item = -1;  /* ProtocolInformation */
+static int hf_dsp_labeledURI = -1;                /* LabeledURI */
 static int hf_dsp_access_point_category = -1;     /* APCategory */
 static int hf_dsp_chainingRequired = -1;          /* BOOLEAN */
 static int hf_dsp_MasterAndShadowAccessPoints_item = -1;  /* MasterOrShadowAccessPoint */
 static int hf_dsp_category = -1;                  /* T_category */
 static int hf_dsp_additionalPoints = -1;          /* MasterAndShadowAccessPoints */
+static int hf_dsp_domainLocalID = -1;             /* DirectoryString */
+static int hf_dsp_accessPoints = -1;              /* MasterAndShadowAccessPoints */
 static int hf_dsp_Exclusions_item = -1;           /* RDNSequence */
 static int hf_dsp_rdnsResolved = -1;              /* INTEGER */
-static int hf_dsp_accessPoints = -1;              /* SET_OF_AccessPointInformation */
+static int hf_dsp_accessPoints_01 = -1;           /* SET_OF_AccessPointInformation */
 static int hf_dsp_accessPoints_item = -1;         /* AccessPointInformation */
 static int hf_dsp_returnToDUA = -1;               /* BOOLEAN */
 static int hf_dsp_basicLevels = -1;               /* T_basicLevels */
@@ -276,6 +284,7 @@ static gint ett_dsp_SET_OF_ProtocolInformation = -1;
 static gint ett_dsp_MasterOrShadowAccessPoint = -1;
 static gint ett_dsp_MasterAndShadowAccessPoints = -1;
 static gint ett_dsp_AccessPointInformation = -1;
+static gint ett_dsp_DitBridgeKnowledge = -1;
 static gint ett_dsp_Exclusions = -1;
 static gint ett_dsp_ContinuationReference = -1;
 static gint ett_dsp_SET_OF_AccessPointInformation = -1;
@@ -405,6 +414,7 @@ const value_string dsp_ReferenceType_vals[] = {
   {   6, "master" },
   {   7, "immediateSuperior" },
   {   8, "self" },
+  {   9, "ditBridge" },
   { 0, NULL }
 };
 
@@ -535,10 +545,25 @@ static const ber_sequence_t Exclusions_set_of[1] = {
   { &hf_dsp_Exclusions_item , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509if_RDNSequence },
 };
 
-static int
+int
 dissect_dsp_Exclusions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  Exclusions_set_of, hf_index, ett_dsp_Exclusions);
+
+  return offset;
+}
+
+
+static const value_string dsp_T_nonDapPdu_vals[] = {
+  {   0, "ldap" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_dsp_T_nonDapPdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -566,6 +591,10 @@ static const ber_sequence_t ChainingArguments_set[] = {
   { &hf_dsp_searchRuleId    , BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL, dissect_x509if_SearchRuleId },
   { &hf_dsp_chainedRelaxation, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL, dissect_x509if_MRMapping },
   { &hf_dsp_relatedEntry    , BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL, dissect_dsp_INTEGER },
+  { &hf_dsp_dspPaging       , BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL, dissect_dsp_BOOLEAN },
+  { &hf_dsp_nonDapPdu       , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL, dissect_dsp_T_nonDapPdu },
+  { &hf_dsp_streamedResults , BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL, dissect_dsp_INTEGER },
+  { &hf_dsp_excludeWriteableCopies, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL, dissect_dsp_BOOLEAN },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1614,7 +1643,7 @@ static const ber_sequence_t ContinuationReference_set[] = {
   { &hf_dsp_operationProgress, BER_CLASS_CON, 2, 0, dissect_dsp_OperationProgress },
   { &hf_dsp_rdnsResolved    , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_dsp_INTEGER },
   { &hf_dsp_referenceType   , BER_CLASS_CON, 4, 0, dissect_dsp_ReferenceType },
-  { &hf_dsp_accessPoints    , BER_CLASS_CON, 5, 0, dissect_dsp_SET_OF_AccessPointInformation },
+  { &hf_dsp_accessPoints_01 , BER_CLASS_CON, 5, 0, dissect_dsp_SET_OF_AccessPointInformation },
   { &hf_dsp_entryOnly       , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_dsp_BOOLEAN },
   { &hf_dsp_exclusions      , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_dsp_Exclusions },
   { &hf_dsp_returnToDUA     , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_dsp_BOOLEAN },
@@ -1701,10 +1730,20 @@ dissect_dsp_DSAReferral(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
+
+static int
+dissect_dsp_LabeledURI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_x509sat_DirectoryString(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
 static const ber_sequence_t AccessPoint_set[] = {
   { &hf_dsp_ae_title        , BER_CLASS_CON, 0, 0, dissect_x509if_Name },
   { &hf_dsp_address         , BER_CLASS_CON, 1, 0, dissect_x509sat_PresentationAddress },
   { &hf_dsp_protocolInformation, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dsp_SET_OF_ProtocolInformation },
+  { &hf_dsp_labeledURI      , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_dsp_LabeledURI },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1712,6 +1751,21 @@ int
 dissect_dsp_AccessPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               AccessPoint_set, hf_index, ett_dsp_AccessPoint);
+
+  return offset;
+}
+
+
+static const ber_sequence_t DitBridgeKnowledge_sequence[] = {
+  { &hf_dsp_domainLocalID   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509sat_DirectoryString },
+  { &hf_dsp_accessPoints    , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_MasterAndShadowAccessPoints },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_dsp_DitBridgeKnowledge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DitBridgeKnowledge_sequence, hf_index, ett_dsp_DitBridgeKnowledge);
 
   return offset;
 }
@@ -1727,6 +1781,11 @@ static void dissect_MasterAndShadowAccessPoints_PDU(tvbuff_t *tvb _U_, packet_in
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_dsp_MasterAndShadowAccessPoints(FALSE, tvb, 0, &asn1_ctx, tree, hf_dsp_MasterAndShadowAccessPoints_PDU);
+}
+static void dissect_DitBridgeKnowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_dsp_DitBridgeKnowledge(FALSE, tvb, 0, &asn1_ctx, tree, hf_dsp_DitBridgeKnowledge_PDU);
 }
 
 
@@ -1948,6 +2007,10 @@ void proto_register_dsp(void) {
       { "MasterAndShadowAccessPoints", "dsp.MasterAndShadowAccessPoints",
         FT_UINT32, BASE_DEC, NULL, 0,
         "dsp.MasterAndShadowAccessPoints", HFILL }},
+    { &hf_dsp_DitBridgeKnowledge_PDU,
+      { "DitBridgeKnowledge", "dsp.DitBridgeKnowledge",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "dsp.DitBridgeKnowledge", HFILL }},
     { &hf_dsp_chainedArgument,
       { "chainedArgument", "dsp.chainedArgument",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2336,6 +2399,22 @@ void proto_register_dsp(void) {
       { "relatedEntry", "dsp.relatedEntry",
         FT_INT32, BASE_DEC, NULL, 0,
         "dsp.INTEGER", HFILL }},
+    { &hf_dsp_dspPaging,
+      { "dspPaging", "dsp.dspPaging",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "dsp.BOOLEAN", HFILL }},
+    { &hf_dsp_nonDapPdu,
+      { "nonDapPdu", "dsp.nonDapPdu",
+        FT_UINT32, BASE_DEC, VALS(dsp_T_nonDapPdu_vals), 0,
+        "dsp.T_nonDapPdu", HFILL }},
+    { &hf_dsp_streamedResults,
+      { "streamedResults", "dsp.streamedResults",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "dsp.INTEGER", HFILL }},
+    { &hf_dsp_excludeWriteableCopies,
+      { "excludeWriteableCopies", "dsp.excludeWriteableCopies",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "dsp.BOOLEAN", HFILL }},
     { &hf_dsp_utcTime,
       { "utcTime", "dsp.utcTime",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -2396,6 +2475,10 @@ void proto_register_dsp(void) {
       { "ProtocolInformation", "dsp.ProtocolInformation",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509sat.ProtocolInformation", HFILL }},
+    { &hf_dsp_labeledURI,
+      { "labeledURI", "dsp.labeledURI",
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
+        "dsp.LabeledURI", HFILL }},
     { &hf_dsp_access_point_category,
       { "category", "dsp.category",
         FT_UINT32, BASE_DEC, VALS(dsp_APCategory_vals), 0,
@@ -2416,6 +2499,14 @@ void proto_register_dsp(void) {
       { "additionalPoints", "dsp.additionalPoints",
         FT_UINT32, BASE_DEC, NULL, 0,
         "dsp.MasterAndShadowAccessPoints", HFILL }},
+    { &hf_dsp_domainLocalID,
+      { "domainLocalID", "dsp.domainLocalID",
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
+        "x509sat.DirectoryString", HFILL }},
+    { &hf_dsp_accessPoints,
+      { "accessPoints", "dsp.accessPoints",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "dsp.MasterAndShadowAccessPoints", HFILL }},
     { &hf_dsp_Exclusions_item,
       { "RDNSequence", "dsp.RDNSequence",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2424,7 +2515,7 @@ void proto_register_dsp(void) {
       { "rdnsResolved", "dsp.rdnsResolved",
         FT_INT32, BASE_DEC, NULL, 0,
         "dsp.INTEGER", HFILL }},
-    { &hf_dsp_accessPoints,
+    { &hf_dsp_accessPoints_01,
       { "accessPoints", "dsp.accessPoints",
         FT_UINT32, BASE_DEC, NULL, 0,
         "dsp.SET_OF_AccessPointInformation", HFILL }},
@@ -2532,6 +2623,7 @@ void proto_register_dsp(void) {
     &ett_dsp_MasterOrShadowAccessPoint,
     &ett_dsp_MasterAndShadowAccessPoints,
     &ett_dsp_AccessPointInformation,
+    &ett_dsp_DitBridgeKnowledge,
     &ett_dsp_Exclusions,
     &ett_dsp_ContinuationReference,
     &ett_dsp_SET_OF_AccessPointInformation,
@@ -2576,6 +2668,7 @@ void proto_reg_handoff_dsp(void) {
   register_ber_oid_dissector("2.5.12.2", dissect_AccessPoint_PDU, proto_dsp, "id-doa-superiorKnowledge");
   register_ber_oid_dissector("2.5.12.3", dissect_MasterAndShadowAccessPoints_PDU, proto_dsp, "id-doa-specificKnowledge");
   register_ber_oid_dissector("2.5.12.4", dissect_MasterAndShadowAccessPoints_PDU, proto_dsp, "id-doa-nonSpecificKnowledge");
+  register_ber_oid_dissector("2.5.12.8", dissect_DitBridgeKnowledge_PDU, proto_dsp, "id-doa-ditBridgeKnowledge");
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/

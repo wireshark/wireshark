@@ -1,4 +1,4 @@
--- Module DistributedOperations (X.518:02/2001)
+-- Module DistributedOperations (X.518:08/2005)
 DistributedOperations {joint-iso-itu-t ds(5) module(1) distributedOperations(3)
   4} DEFINITIONS ::=
 BEGIN
@@ -42,7 +42,7 @@ IMPORTS
   id-errcode-dsaReferral
     FROM DirectoryAccessProtocol {joint-iso-itu-t ds(5) module(1) dap(11) 4}
   -- from ITU-T Rec. X.520 | ISO/IEC 9594-6
-  PresentationAddress, ProtocolInformation, UniqueIdentifier
+  DirectoryString{}, PresentationAddress, ProtocolInformation, UniqueIdentifier
     FROM SelectedAttributeTypes {joint-iso-itu-t ds(5) module(1)
       selectedAttributeTypes(5) 4}
   -- from ITU-T Rec. X.880 | ISO/IEC 13712-1
@@ -362,8 +362,7 @@ DSAReferral ::= CHOICE {
 ChainingArguments ::= SET {
   originator           [0]  DistinguishedName OPTIONAL,
   targetObject         [1]  DistinguishedName OPTIONAL,
-  operationProgress
-    [2]  OperationProgress DEFAULT {nameResolutionPhase notStarted},
+  operationProgress    [2]  OperationProgress DEFAULT {nameResolutionPhase notStarted},
   traceInformation     [3]  TraceInformation,
   aliasDereferenced    [4]  BOOLEAN DEFAULT FALSE,
   aliasedRDNs          [5]  INTEGER OPTIONAL,
@@ -382,7 +381,11 @@ ChainingArguments ::= SET {
   operationIdentifier  [17]  INTEGER OPTIONAL,
   searchRuleId         [18]  SearchRuleId OPTIONAL,
   chainedRelaxation    [19]  MRMapping OPTIONAL,
-  relatedEntry         [20]  INTEGER OPTIONAL
+  relatedEntry         [20]  INTEGER OPTIONAL,
+  dspPaging            [21]  BOOLEAN DEFAULT FALSE,
+  nonDapPdu            [22]  ENUMERATED { ldap (0) } OPTIONAL,
+  streamedResults      [23]  INTEGER OPTIONAL,
+  excludeWriteableCopies [24]  BOOLEAN DEFAULT FALSE
 }
 
 Time ::= CHOICE {utcTime          UTCTime,
@@ -419,13 +422,16 @@ TraceItem ::= SET {
 
 ReferenceType ::= ENUMERATED {
   superior(1), subordinate(2), cross(3), nonSpecificSubordinate(4),
-  supplier(5), master(6), immediateSuperior(7), self(8)}
+  supplier(5), master(6), immediateSuperior(7), self(8), ditBridge(9)}
 
 AccessPoint ::= SET {
   ae-title             [0]  Name,
   address              [1]  PresentationAddress,
-  protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL
+  protocolInformation  [2]  SET --SIZE (1..MAX)-- OF ProtocolInformation OPTIONAL,
+  labeledURI           [6]  LabeledURI OPTIONAL
 }
+
+LabeledURI ::= DirectoryString{--ub-labeledURI--}
 
 MasterOrShadowAccessPoint ::= SET {
 --  COMPONENTS OF AccessPoint,
@@ -446,6 +452,11 @@ AccessPointInformation ::= SET {
   category          [3]  ENUMERATED {master(0), shadow(1)} DEFAULT master,
   chainingRequired  [5]  BOOLEAN DEFAULT FALSE,
   additionalPoints  [4]  MasterAndShadowAccessPoints OPTIONAL
+}
+
+DitBridgeKnowledge ::= SEQUENCE {
+  domainLocalID          DirectoryString{--ub-domainLocalID--} OPTIONAL,
+  accessPoints           MasterAndShadowAccessPoints
 }
 
 Exclusions ::= SET --SIZE (1..MAX)-- OF RDNSequence
