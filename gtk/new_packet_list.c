@@ -464,12 +464,18 @@ create_view_and_model(void)
 							NULL);
 		if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
 			hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
-			if (hfi->parent != -1) {
-				/* Prefix with protocol name */
-				tooltip_text = g_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
-			} else {
-				tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
-			}
+			/* Check if this is a valid custom_field */
+			if (hfi != NULL) {
+				if (hfi->parent != -1) {
+					/* Prefix with protocol name */
+					tooltip_text = g_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
+				} else {
+					tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
+				}
+                	} else {
+				/* XXX - include custom_field value? e.g. "Unknown Custom (foo.bar)" */
+				tooltip_text = g_strdup_printf("Unknown Custom Column Field");
+			}	
 		} else {
 			tooltip_text = g_strdup(col_format_desc(cfile.cinfo.col_fmt[i]));
 		}
