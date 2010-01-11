@@ -241,6 +241,8 @@ static int hf_dop_DSEType_rhob = -1;
 static int hf_dop_DSEType_sa = -1;
 static int hf_dop_DSEType_dsSubentry = -1;
 static int hf_dop_DSEType_familyMember = -1;
+static int hf_dop_DSEType_ditBridge = -1;
+static int hf_dop_DSEType_writeableCopy = -1;
 static int hf_dop_GrantsAndDenials_grantAdd = -1;
 static int hf_dop_GrantsAndDenials_denyAdd = -1;
 static int hf_dop_GrantsAndDenials_grantDiscloseOnError = -1;
@@ -383,6 +385,8 @@ static const asn_namedbit DSEType_bits[] = {
   { 15, &hf_dop_DSEType_sa, -1, -1, "sa", NULL },
   { 16, &hf_dop_DSEType_dsSubentry, -1, -1, "dsSubentry", NULL },
   { 17, &hf_dop_DSEType_familyMember, -1, -1, "familyMember", NULL },
+  { 18, &hf_dop_DSEType_ditBridge, -1, -1, "ditBridge", NULL },
+  { 19, &hf_dop_DSEType_writeableCopy, -1, -1, "writeableCopy", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -2856,6 +2860,14 @@ void proto_register_dop(void) {
     { &hf_dop_DSEType_familyMember,
       { "familyMember", "dop.familyMember",
         FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_dop_DSEType_ditBridge,
+      { "ditBridge", "dop.ditBridge",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_dop_DSEType_writeableCopy,
+      { "writeableCopy", "dop.writeableCopy",
+        FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_dop_GrantsAndDenials_grantAdd,
       { "grantAdd", "dop.grantAdd",

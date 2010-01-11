@@ -64,7 +64,10 @@ DSEType ::= BIT STRING {
   rhob(14), -- rhob information 
   sa(15), -- subordinate reference to alias entry 
   dsSubentry(16), -- DSA Specific subentry 
-  familyMember(17)} -- family member 
+  familyMember(17), -- family member 
+  ditBridge(18), -- DIT bridge reference
+  writeableCopy(19) -- writeable copy
+}
 
 SupplierOrConsumer ::= SET {
 --  COMPONENTS OF AccessPoint, - - supplier or consumer 
