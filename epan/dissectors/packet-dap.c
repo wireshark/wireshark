@@ -207,6 +207,7 @@ static int hf_dap_simple = -1;                    /* SimpleCredentials */
 static int hf_dap_strong = -1;                    /* StrongCredentials */
 static int hf_dap_externalProcedure = -1;         /* EXTERNAL */
 static int hf_dap_spkm = -1;                      /* SpkmCredentials */
+static int hf_dap_sasl = -1;                      /* SaslCredentials */
 static int hf_dap_validity = -1;                  /* T_validity */
 static int hf_dap_time1 = -1;                     /* T_time1 */
 static int hf_dap_utc = -1;                       /* UTCTime */
@@ -223,6 +224,9 @@ static int hf_dap_encrypted = -1;                 /* BIT_STRING */
 static int hf_dap_bind_token = -1;                /* Token */
 static int hf_dap_req = -1;                       /* T_req */
 static int hf_dap_rep = -1;                       /* T_rep */
+static int hf_dap_mechanism = -1;                 /* DirectoryString */
+static int hf_dap_credentials_01 = -1;            /* OCTET_STRING */
+static int hf_dap_saslAbort = -1;                 /* BOOLEAN */
 static int hf_dap_algorithm = -1;                 /* AlgorithmIdentifier */
 static int hf_dap_utctime = -1;                   /* UTCTime */
 static int hf_dap_bindIntAlgorithm = -1;          /* SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier */
@@ -239,17 +243,18 @@ static int hf_dap_directoryBindError = -1;        /* DirectoryBindErrorData */
 static int hf_dap_error = -1;                     /* T_error */
 static int hf_dap_serviceProblem = -1;            /* ServiceProblem */
 static int hf_dap_securityProblem = -1;           /* SecurityProblem */
+static int hf_dap_securityParameters = -1;        /* SecurityParameters */
 static int hf_dap_object = -1;                    /* Name */
 static int hf_dap_selection = -1;                 /* EntryInformationSelection */
 static int hf_dap_modifyRightsRequest = -1;       /* BOOLEAN */
 static int hf_dap_serviceControls = -1;           /* ServiceControls */
-static int hf_dap_securityParameters = -1;        /* SecurityParameters */
 static int hf_dap_requestor = -1;                 /* DistinguishedName */
 static int hf_dap_operationProgress = -1;         /* OperationProgress */
 static int hf_dap_aliasedRDNs = -1;               /* INTEGER */
 static int hf_dap_criticalExtensions = -1;        /* BIT_STRING */
 static int hf_dap_referenceType = -1;             /* ReferenceType */
 static int hf_dap_entryOnly = -1;                 /* BOOLEAN */
+static int hf_dap_exclusions = -1;                /* Exclusions */
 static int hf_dap_nameResolveOnMaster = -1;       /* BOOLEAN */
 static int hf_dap_operationContexts = -1;         /* ContextSelection */
 static int hf_dap_familyGrouping = -1;            /* FamilyGrouping */
@@ -446,6 +451,8 @@ static int hf_dap_ServiceControlOptions_manageDSAIT = -1;
 static int hf_dap_ServiceControlOptions_noSubtypeMatch = -1;
 static int hf_dap_ServiceControlOptions_noSubtypeSelection = -1;
 static int hf_dap_ServiceControlOptions_countFamily = -1;
+static int hf_dap_ServiceControlOptions_dontSelectFriends = -1;
+static int hf_dap_ServiceControlOptions_dontMatchFriends = -1;
 static int hf_dap_Versions_v1 = -1;
 static int hf_dap_Versions_v2 = -1;
 static int hf_dap_T_permission_add = -1;
@@ -532,6 +539,7 @@ static gint ett_dap_T_password = -1;
 static gint ett_dap_T_protected = -1;
 static gint ett_dap_StrongCredentials = -1;
 static gint ett_dap_SpkmCredentials = -1;
+static gint ett_dap_SaslCredentials = -1;
 static gint ett_dap_TokenData = -1;
 static gint ett_dap_SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier = -1;
 static gint ett_dap_Token = -1;
@@ -772,6 +780,8 @@ static const asn_namedbit ServiceControlOptions_bits[] = {
   {  9, &hf_dap_ServiceControlOptions_noSubtypeMatch, -1, -1, "noSubtypeMatch", NULL },
   { 10, &hf_dap_ServiceControlOptions_noSubtypeSelection, -1, -1, "noSubtypeSelection", NULL },
   { 11, &hf_dap_ServiceControlOptions_countFamily, -1, -1, "countFamily", NULL },
+  { 12, &hf_dap_ServiceControlOptions_dontSelectFriends, -1, -1, "dontSelectFriends", NULL },
+  { 13, &hf_dap_ServiceControlOptions_dontMatchFriends, -1, -1, "dontMatchFriends", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -1989,11 +1999,28 @@ dissect_dap_SpkmCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
+static const ber_sequence_t SaslCredentials_sequence[] = {
+  { &hf_dap_mechanism       , BER_CLASS_CON, 0, 0, dissect_x509sat_DirectoryString },
+  { &hf_dap_credentials_01  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_dap_OCTET_STRING },
+  { &hf_dap_saslAbort       , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_dap_SaslCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   SaslCredentials_sequence, hf_index, ett_dap_SaslCredentials);
+
+  return offset;
+}
+
+
 static const value_string dap_Credentials_vals[] = {
   {   0, "simple" },
   {   1, "strong" },
   {   2, "externalProcedure" },
   {   3, "spkm" },
+  {   4, "sasl" },
   { 0, NULL }
 };
 
@@ -2002,6 +2029,7 @@ static const ber_choice_t Credentials_choice[] = {
   {   1, &hf_dap_strong          , BER_CLASS_CON, 1, 0, dissect_dap_StrongCredentials },
   {   2, &hf_dap_externalProcedure, BER_CLASS_CON, 2, 0, dissect_dap_EXTERNAL },
   {   3, &hf_dap_spkm            , BER_CLASS_CON, 3, 0, dissect_dap_SpkmCredentials },
+  {   4, &hf_dap_sasl            , BER_CLASS_CON, 4, 0, dissect_dap_SaslCredentials },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2087,8 +2115,9 @@ static const value_string dap_ServiceProblem_vals[] = {
   {  12, "ditError" },
   {  13, "invalidQueryReference" },
   {  14, "requestedServiceNotAvailable" },
-  {  15, "relaxationNotSupported" },
-  {  16, "unsupportedMatchingUse" },
+  {  15, "unsupportedMatchingUse" },
+  {  16, "ambiguousKeyAttributes" },
+  {  17, "saslBindInProgress" },
   { 0, NULL }
 };
 
@@ -2166,6 +2195,7 @@ dissect_dap_T_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static const ber_sequence_t DirectoryBindErrorData_set[] = {
   { &hf_dap_versions        , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_dap_Versions },
   { &hf_dap_error           , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_dap_T_error },
+  { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2228,6 +2258,7 @@ static const ber_sequence_t ReadArgumentData_set[] = {
   { &hf_dap_criticalExtensions, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
   { &hf_dap_referenceType   , BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL, dissect_dsp_ReferenceType },
   { &hf_dap_entryOnly       , BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
+  { &hf_dap_exclusions      , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL, dissect_dsp_Exclusions },
   { &hf_dap_nameResolveOnMaster, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { &hf_dap_operationContexts, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_ContextSelection },
   { &hf_dap_familyGrouping  , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL, dissect_dap_FamilyGrouping },
@@ -2432,6 +2463,7 @@ static const ber_sequence_t CompareArgumentData_set[] = {
   { &hf_dap_criticalExtensions, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
   { &hf_dap_referenceType   , BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL, dissect_dsp_ReferenceType },
   { &hf_dap_entryOnly       , BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
+  { &hf_dap_exclusions      , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL, dissect_dsp_Exclusions },
   { &hf_dap_nameResolveOnMaster, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { &hf_dap_operationContexts, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_ContextSelection },
   { &hf_dap_familyGrouping  , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL, dissect_dap_FamilyGrouping },
@@ -2686,6 +2718,7 @@ static const ber_sequence_t ListArgumentData_set[] = {
   { &hf_dap_criticalExtensions, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
   { &hf_dap_referenceType   , BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL, dissect_dsp_ReferenceType },
   { &hf_dap_entryOnly       , BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
+  { &hf_dap_exclusions      , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL, dissect_dsp_Exclusions },
   { &hf_dap_nameResolveOnMaster, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { &hf_dap_operationContexts, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_ContextSelection },
   { &hf_dap_familyGrouping  , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL, dissect_dap_FamilyGrouping },
@@ -3184,6 +3217,7 @@ static const ber_sequence_t SearchArgumentData_set[] = {
   { &hf_dap_criticalExtensions, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
   { &hf_dap_referenceType   , BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL, dissect_dsp_ReferenceType },
   { &hf_dap_entryOnly       , BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
+  { &hf_dap_exclusions      , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL, dissect_dsp_Exclusions },
   { &hf_dap_nameResolveOnMaster, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { &hf_dap_operationContexts, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_ContextSelection },
   { &hf_dap_familyGrouping  , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL, dissect_dap_FamilyGrouping },
@@ -3369,6 +3403,7 @@ static const ber_sequence_t AddEntryArgumentData_set[] = {
   { &hf_dap_criticalExtensions, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
   { &hf_dap_referenceType   , BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL, dissect_dsp_ReferenceType },
   { &hf_dap_entryOnly       , BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
+  { &hf_dap_exclusions      , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL, dissect_dsp_Exclusions },
   { &hf_dap_nameResolveOnMaster, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { &hf_dap_operationContexts, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_ContextSelection },
   { &hf_dap_familyGrouping  , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL, dissect_dap_FamilyGrouping },
@@ -3509,6 +3544,7 @@ static const ber_sequence_t RemoveEntryArgumentData_set[] = {
   { &hf_dap_criticalExtensions, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
   { &hf_dap_referenceType   , BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL, dissect_dsp_ReferenceType },
   { &hf_dap_entryOnly       , BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
+  { &hf_dap_exclusions      , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL, dissect_dsp_Exclusions },
   { &hf_dap_nameResolveOnMaster, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { &hf_dap_operationContexts, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_ContextSelection },
   { &hf_dap_familyGrouping  , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL, dissect_dap_FamilyGrouping },
@@ -3694,6 +3730,7 @@ static const ber_sequence_t ModifyEntryArgumentData_set[] = {
   { &hf_dap_criticalExtensions, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
   { &hf_dap_referenceType   , BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL, dissect_dsp_ReferenceType },
   { &hf_dap_entryOnly       , BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
+  { &hf_dap_exclusions      , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL, dissect_dsp_Exclusions },
   { &hf_dap_nameResolveOnMaster, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { &hf_dap_operationContexts, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_ContextSelection },
   { &hf_dap_familyGrouping  , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL, dissect_dap_FamilyGrouping },
@@ -3838,6 +3875,7 @@ static const ber_sequence_t ModifyDNArgument_set[] = {
   { &hf_dap_criticalExtensions, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
   { &hf_dap_referenceType   , BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL, dissect_dsp_ReferenceType },
   { &hf_dap_entryOnly       , BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
+  { &hf_dap_exclusions      , BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL, dissect_dsp_Exclusions },
   { &hf_dap_nameResolveOnMaster, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { &hf_dap_operationContexts, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_ContextSelection },
   { &hf_dap_familyGrouping  , BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL, dissect_dap_FamilyGrouping },
@@ -5362,6 +5400,10 @@ void proto_register_dap(void) {
       { "spkm", "dap.spkm",
         FT_UINT32, BASE_DEC, VALS(dap_SpkmCredentials_vals), 0,
         "dap.SpkmCredentials", HFILL }},
+    { &hf_dap_sasl,
+      { "sasl", "dap.sasl",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "dap.SaslCredentials", HFILL }},
     { &hf_dap_validity,
       { "validity", "dap.validity",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5426,6 +5468,18 @@ void proto_register_dap(void) {
       { "rep", "dap.rep",
         FT_NONE, BASE_NONE, NULL, 0,
         "dap.T_rep", HFILL }},
+    { &hf_dap_mechanism,
+      { "mechanism", "dap.mechanism",
+        FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
+        "x509sat.DirectoryString", HFILL }},
+    { &hf_dap_credentials_01,
+      { "credentials", "dap.credentials",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "dap.OCTET_STRING", HFILL }},
+    { &hf_dap_saslAbort,
+      { "saslAbort", "dap.saslAbort",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "dap.BOOLEAN", HFILL }},
     { &hf_dap_algorithm,
       { "algorithm", "dap.algorithm",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5490,6 +5544,10 @@ void proto_register_dap(void) {
       { "securityError", "dap.securityError",
         FT_INT32, BASE_DEC, VALS(dap_SecurityProblem_vals), 0,
         "dap.SecurityProblem", HFILL }},
+    { &hf_dap_securityParameters,
+      { "securityParameters", "dap.securityParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "dap.SecurityParameters", HFILL }},
     { &hf_dap_object,
       { "object", "dap.object",
         FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
@@ -5506,10 +5564,6 @@ void proto_register_dap(void) {
       { "serviceControls", "dap.serviceControls",
         FT_NONE, BASE_NONE, NULL, 0,
         "dap.ServiceControls", HFILL }},
-    { &hf_dap_securityParameters,
-      { "securityParameters", "dap.securityParameters",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "dap.SecurityParameters", HFILL }},
     { &hf_dap_requestor,
       { "requestor", "dap.requestor",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5534,6 +5588,10 @@ void proto_register_dap(void) {
       { "entryOnly", "dap.entryOnly",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "dap.BOOLEAN", HFILL }},
+    { &hf_dap_exclusions,
+      { "exclusions", "dap.exclusions",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "dsp.Exclusions", HFILL }},
     { &hf_dap_nameResolveOnMaster,
       { "nameResolveOnMaster", "dap.nameResolveOnMaster",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -6314,6 +6372,14 @@ void proto_register_dap(void) {
       { "countFamily", "dap.countFamily",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
+    { &hf_dap_ServiceControlOptions_dontSelectFriends,
+      { "dontSelectFriends", "dap.dontSelectFriends",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_dap_ServiceControlOptions_dontMatchFriends,
+      { "dontMatchFriends", "dap.dontMatchFriends",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
     { &hf_dap_Versions_v1,
       { "v1", "dap.v1",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -6486,6 +6552,7 @@ void proto_register_dap(void) {
     &ett_dap_T_protected,
     &ett_dap_StrongCredentials,
     &ett_dap_SpkmCredentials,
+    &ett_dap_SaslCredentials,
     &ett_dap_TokenData,
     &ett_dap_SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier,
     &ett_dap_Token,

@@ -1,4 +1,4 @@
--- Module DirectoryAbstractService (X.511:02/2001)
+-- Module DirectoryAbstractService (X.511:08/2005)
 DirectoryAbstractService {joint-iso-itu-t ds(5) module(1)
   directoryAbstractService(2) 4} DEFINITIONS ::=
 BEGIN
@@ -87,6 +87,7 @@ CommonArguments ::= SET {
   criticalExtensions   [25]  BIT STRING OPTIONAL,
   referenceType        [24]  ReferenceType OPTIONAL,
   entryOnly            [23]  BOOLEAN DEFAULT TRUE,
+  exclusions           [22]  Exclusions OPTIONAL,
   nameResolveOnMaster  [21]  BOOLEAN DEFAULT FALSE,
   operationContexts    [20]  ContextSelection OPTIONAL,
   familyGrouping       [19]  FamilyGrouping DEFAULT entryOnly
@@ -127,7 +128,7 @@ ServiceControlOptions ::= BIT STRING {
   preferChaining(0), chainingProhibited(1), localScope(2), dontUseCopy(3),
   dontDereferenceAliases(4), subentries(5), copyShallDo(6),
   partialNameResolution(7), manageDSAIT(8), noSubtypeMatch(9),
-  noSubtypeSelection(10), countFamily(11)}
+  noSubtypeSelection(10), countFamily(11), dontSelectFriends(12), dontMatchFriends(13)}
 
 EntryInformationSelection ::= SET {
   attributes
@@ -301,7 +302,8 @@ Credentials ::= CHOICE {
   simple             [0]  SimpleCredentials,
   strong             [1]  StrongCredentials,
   externalProcedure  [2]  EXTERNAL,
-  spkm               [3]  SpkmCredentials
+  spkm               [3]  SpkmCredentials,
+  sasl               [4]  SaslCredentials
 }
 
 SimpleCredentials ::= SEQUENCE {
@@ -331,6 +333,12 @@ StrongCredentials ::= SET {
 
 SpkmCredentials ::= CHOICE {req  [0]  -- SPKM-REQ -- ANY,
                             rep  [1]  -- SPKM-REP-TI-- ANY
+}
+
+SaslCredentials ::= SEQUENCE {
+  mechanism    [0]  DirectoryString {--ub-sasIMechanism--},
+  credentials  [1]  OCTET STRING OPTIONAL,
+  saslAbort    [2]  BOOLEAN DEFAULT FALSE
 }
 
 TokenData ::=
@@ -385,7 +393,9 @@ DirectoryBindErrorData ::=
     SET {versions  [0]  Versions DEFAULT {v1},
           error
             CHOICE {serviceError   [1]  ServiceProblem,
-                    securityError  [2]  SecurityProblem}} 
+                    securityError  [2]  SecurityProblem},
+          securityParameters       [30] SecurityParameters OPTIONAL
+} 
 
 
 BindKeyInfo ::= -- ENCRYPTED{-- BIT STRING 
@@ -417,6 +427,7 @@ ReadArgumentData ::=
   criticalExtensions   [25]  BIT STRING OPTIONAL,
   referenceType        [24]  ReferenceType OPTIONAL,
   entryOnly            [23]  BOOLEAN DEFAULT TRUE,
+  exclusions           [22]  Exclusions OPTIONAL,
   nameResolveOnMaster  [21]  BOOLEAN DEFAULT FALSE,
   operationContexts    [20]  ContextSelection OPTIONAL,
   familyGrouping       [19]  FamilyGrouping DEFAULT entryOnly
@@ -492,6 +503,7 @@ CompareArgumentData ::=
   criticalExtensions   [25]  BIT STRING OPTIONAL,
   referenceType        [24]  ReferenceType OPTIONAL,
   entryOnly            [23]  BOOLEAN DEFAULT TRUE,
+  exclusions           [22]  Exclusions OPTIONAL,
   nameResolveOnMaster  [21]  BOOLEAN DEFAULT FALSE,
   operationContexts    [20]  ContextSelection OPTIONAL,
   familyGrouping       [19]  FamilyGrouping DEFAULT entryOnly
@@ -599,6 +611,7 @@ ListArgumentData ::=
   criticalExtensions   [25]  BIT STRING OPTIONAL,
   referenceType        [24]  ReferenceType OPTIONAL,
   entryOnly            [23]  BOOLEAN DEFAULT TRUE,
+  exclusions           [22]  Exclusions OPTIONAL,
   nameResolveOnMaster  [21]  BOOLEAN DEFAULT FALSE,
   operationContexts    [20]  ContextSelection OPTIONAL,
   familyGrouping       [19]  FamilyGrouping DEFAULT entryOnly
@@ -710,6 +723,7 @@ SearchArgumentData ::=
 	  criticalExtensions   [25]  BIT STRING OPTIONAL,
 	  referenceType        [24]  ReferenceType OPTIONAL,
 	  entryOnly            [23]  BOOLEAN DEFAULT TRUE,
+	  exclusions           [22]  Exclusions OPTIONAL,
 	  nameResolveOnMaster  [21]  BOOLEAN DEFAULT FALSE,
 	  operationContexts    [20]  ContextSelection OPTIONAL,
 	  familyGrouping       [19]  FamilyGrouping DEFAULT entryOnly
@@ -806,6 +820,7 @@ AddEntryArgumentData ::=
 	  criticalExtensions   [25]  BIT STRING OPTIONAL,
 	  referenceType        [24]  ReferenceType OPTIONAL,
 	  entryOnly            [23]  BOOLEAN DEFAULT TRUE,
+	  exclusions           [22]  Exclusions OPTIONAL,
 	  nameResolveOnMaster  [21]  BOOLEAN DEFAULT FALSE,
 	  operationContexts    [20]  ContextSelection OPTIONAL,
 	  familyGrouping       [19]  FamilyGrouping DEFAULT entryOnly
@@ -861,6 +876,7 @@ RemoveEntryArgumentData ::=
   criticalExtensions   [25]  BIT STRING OPTIONAL,
   referenceType        [24]  ReferenceType OPTIONAL,
   entryOnly            [23]  BOOLEAN DEFAULT TRUE,
+  exclusions           [22]  Exclusions OPTIONAL,
   nameResolveOnMaster  [21]  BOOLEAN DEFAULT FALSE,
   operationContexts    [20]  ContextSelection OPTIONAL,
   familyGrouping       [19]  FamilyGrouping DEFAULT entryOnly
@@ -922,6 +938,7 @@ ModifyEntryArgumentData ::=
 	  criticalExtensions   [25]  BIT STRING OPTIONAL,
 	  referenceType        [24]  ReferenceType OPTIONAL,
 	  entryOnly            [23]  BOOLEAN DEFAULT TRUE,
+	  exclusions           [22]  Exclusions OPTIONAL,
 	  nameResolveOnMaster  [21]  BOOLEAN DEFAULT FALSE,
 	  operationContexts    [20]  ContextSelection OPTIONAL,
 	  familyGrouping       [19]  FamilyGrouping DEFAULT entryOnly
@@ -992,6 +1009,7 @@ ModifyDNArgument ::=
 	  criticalExtensions   [25]  BIT STRING OPTIONAL,
 	  referenceType        [24]  ReferenceType OPTIONAL,
 	  entryOnly            [23]  BOOLEAN DEFAULT TRUE,
+	  exclusions           [22]  Exclusions OPTIONAL,
 	  nameResolveOnMaster  [21]  BOOLEAN DEFAULT FALSE,
 	  operationContexts    [20]  ContextSelection OPTIONAL,
 	  familyGrouping       [19]  FamilyGrouping DEFAULT entryOnly
@@ -1232,7 +1250,9 @@ ServiceProblem ::= INTEGER {
   administrativeLimitExceeded(8), loopDetected(9),
   unavailableCriticalExtension(10), outOfScope(11), ditError(12),
   invalidQueryReference(13), requestedServiceNotAvailable(14),
-  relaxationNotSupported(15), unsupportedMatchingUse(16)}
+  unsupportedMatchingUse(15), ambiguousKeyAttributes(16),
+  saslBindInProgress(17)
+}
 
 
 updateError ERROR ::= {
