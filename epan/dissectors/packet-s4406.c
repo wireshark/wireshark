@@ -621,7 +621,7 @@ static const value_string s4406_PrimaryPrecedence_vals[] = {
 
 static int
 dissect_s4406_PrimaryPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 108 "s4406.cnf"
+#line 101 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &precedence);
@@ -651,7 +651,7 @@ static const value_string s4406_CopyPrecedence_vals[] = {
 
 static int
 dissect_s4406_CopyPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 116 "s4406.cnf"
+#line 109 "s4406.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &precedence);
