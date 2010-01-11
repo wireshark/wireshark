@@ -642,6 +642,11 @@ static gboolean sip_desegment_headers = TRUE;
  */
 static gboolean sip_desegment_body = TRUE;
 
+/*
+ * same source port for retransmissions
+ */
+static gboolean sip_retrans_the_same_sport = TRUE;
+
 /* Extension header subdissectors */
 static dissector_table_t ext_hdr_subdissector_table;
 
@@ -718,6 +723,7 @@ static GHashTable *sip_hash = NULL;           /* Hash table */
 
 /* Types for hash table keys and values */
 #define MAX_CALL_ID_SIZE 128
+#define MAGIC_SOURCE_PORT 0
 
 /* Conversation-type key */
 typedef struct
@@ -3344,7 +3350,11 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	SET_ADDRESS(&key.source_address, pinfo->net_src.type,
 		    pinfo->net_src.len, pinfo->net_src.data);
 	key.dest_port = pinfo->destport;
-	key.source_port = pinfo->srcport;
+	if (sip_retrans_the_same_sport) {
+		key.source_port = pinfo->srcport;
+	} else {
+		key.source_port = MAGIC_SOURCE_PORT;
+	}
 
 	/* Do the lookup */
 	p_val = (sip_hash_value*)g_hash_table_lookup(sip_hash, &key);
@@ -3387,7 +3397,11 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		SE_COPY_ADDRESS(&(p_key->dest_address), &pinfo->net_dst);
 		SE_COPY_ADDRESS(&(p_key->source_address), &pinfo->net_src);
 		p_key->dest_port = pinfo->destport;
-		p_key->source_port = pinfo->srcport;
+		if (sip_retrans_the_same_sport) {
+			p_key->source_port = pinfo->srcport;
+		} else {
+			p_key->source_port = MAGIC_SOURCE_PORT;
+		}
 
 		p_val->cseq = cseq_number;
 		g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
@@ -4720,6 +4734,10 @@ void proto_register_sip(void)
 		"To use this option, you must also enable "
         "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &sip_desegment_body);
+	prefs_register_bool_preference(sip_module, "retrans_the_same_sport",
+	    "Retransmissions always use the same source port",
+	    "Whether retransmissions are detected coming from the same source port only.",
+	    &sip_retrans_the_same_sport);
 
 	register_init_routine(&sip_init_protocol);
 	register_heur_dissector_list("sip", &heur_subdissector_list);
