@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
+#include <epan/nstime.h>
 
 #include <stdio.h>
 #include <string.h>

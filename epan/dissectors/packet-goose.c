@@ -39,6 +39,8 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
+#include <epan/nstime.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -71,13 +73,13 @@ static int hf_goose_getGOOSEElementNumber = -1;   /* GetElementRequestPdu */
 static int hf_goose_getGsReference = -1;          /* GetReferenceRequestPdu */
 static int hf_goose_getGSSEDataOffset = -1;       /* GetElementRequestPdu */
 static int hf_goose_gseMngtNotSupported = -1;     /* NULL */
-static int hf_goose_getGoReference_01 = -1;       /* GSEMngtResponsePdu */
-static int hf_goose_getGOOSEElementNumber_01 = -1;  /* GSEMngtResponsePdu */
-static int hf_goose_getGsReference_01 = -1;       /* GSEMngtResponsePdu */
-static int hf_goose_getGSSEDataOffset_01 = -1;    /* GSEMngtResponsePdu */
+static int hf_goose_gseMngtResponses_GetGOReference = -1;  /* GSEMngtResponsePdu */
+static int hf_goose_gseMngtResponses_GetGOOSEElementNumber = -1;  /* GSEMngtResponsePdu */
+static int hf_goose_gseMngtResponses_GetGSReference = -1;  /* GSEMngtResponsePdu */
+static int hf_goose_gseMngtResponses_GetGSSEDataOffset = -1;  /* GSEMngtResponsePdu */
 static int hf_goose_ident = -1;                   /* VisibleString */
-static int hf_goose_offset = -1;                  /* T_offset */
-static int hf_goose_offset_item = -1;             /* INTEGER */
+static int hf_goose_getReferenceRequestPDU_offset = -1;  /* T_getReferenceRequestPDU_offset */
+static int hf_goose_getReferenceRequestPDU_offset_item = -1;  /* INTEGER */
 static int hf_goose_references = -1;              /* T_references */
 static int hf_goose_references_item = -1;         /* VisibleString */
 static int hf_goose_confRev = -1;                 /* INTEGER */
@@ -87,7 +89,7 @@ static int hf_goose_datSet = -1;                  /* VisibleString */
 static int hf_goose_result = -1;                  /* SEQUENCE_OF_RequestResults */
 static int hf_goose_result_item = -1;             /* RequestResults */
 static int hf_goose_responseNegative = -1;        /* GlbErrors */
-static int hf_goose_offset_01 = -1;               /* INTEGER */
+static int hf_goose_offset = -1;                  /* INTEGER */
 static int hf_goose_reference = -1;               /* IA5String */
 static int hf_goose_error = -1;                   /* ErrorReason */
 static int hf_goose_gocbRef = -1;                 /* VisibleString */
@@ -118,7 +120,7 @@ static int hf_goose_bcd = -1;                     /* INTEGER */
 static int hf_goose_booleanArray = -1;            /* BIT_STRING */
 
 /*--- End of included file: packet-goose-hf.c ---*/
-#line 53 "packet-goose-template.c"
+#line 55 "packet-goose-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_goose = -1;
@@ -132,7 +134,7 @@ static gint ett_goose_RequestResponse = -1;
 static gint ett_goose_GSEMngtRequests = -1;
 static gint ett_goose_GSEMngtResponses = -1;
 static gint ett_goose_GetReferenceRequestPdu = -1;
-static gint ett_goose_T_offset = -1;
+static gint ett_goose_T_getReferenceRequestPDU_offset = -1;
 static gint ett_goose_GetElementRequestPdu = -1;
 static gint ett_goose_T_references = -1;
 static gint ett_goose_GSEMngtResponsePdu = -1;
@@ -145,7 +147,7 @@ static gint ett_goose_SEQUENCE_OF_Data = -1;
 static gint ett_goose_Data = -1;
 
 /*--- End of included file: packet-goose-ett.c ---*/
-#line 58 "packet-goose-template.c"
+#line 60 "packet-goose-template.c"
 
 
 /*--- Included file: packet-goose-fn.c ---*/
@@ -178,14 +180,14 @@ dissect_goose_VisibleString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t T_offset_sequence_of[1] = {
-  { &hf_goose_offset_item   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_goose_INTEGER },
+static const ber_sequence_t T_getReferenceRequestPDU_offset_sequence_of[1] = {
+  { &hf_goose_getReferenceRequestPDU_offset_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_goose_INTEGER },
 };
 
 static int
-dissect_goose_T_offset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_goose_T_getReferenceRequestPDU_offset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      T_offset_sequence_of, hf_index, ett_goose_T_offset);
+                                      T_getReferenceRequestPDU_offset_sequence_of, hf_index, ett_goose_T_getReferenceRequestPDU_offset);
 
   return offset;
 }
@@ -193,7 +195,7 @@ dissect_goose_T_offset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static const ber_sequence_t GetReferenceRequestPdu_sequence[] = {
   { &hf_goose_ident         , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_goose_VisibleString },
-  { &hf_goose_offset        , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_goose_T_offset },
+  { &hf_goose_getReferenceRequestPDU_offset, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_goose_T_getReferenceRequestPDU_offset },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -304,7 +306,7 @@ static const value_string goose_RequestResults_vals[] = {
 };
 
 static const ber_choice_t RequestResults_choice[] = {
-  {   0, &hf_goose_offset_01     , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_goose_INTEGER },
+  {   0, &hf_goose_offset        , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_goose_INTEGER },
   {   1, &hf_goose_reference     , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_goose_IA5String },
   {   2, &hf_goose_error         , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_goose_ErrorReason },
   { 0, NULL, 0, 0, 0, NULL }
@@ -415,10 +417,10 @@ static const value_string goose_GSEMngtResponses_vals[] = {
 
 static const ber_choice_t GSEMngtResponses_choice[] = {
   {   0, &hf_goose_gseMngtNotSupported, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_goose_NULL },
-  {   1, &hf_goose_getGoReference_01, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_goose_GSEMngtResponsePdu },
-  {   2, &hf_goose_getGOOSEElementNumber_01, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_goose_GSEMngtResponsePdu },
-  {   3, &hf_goose_getGsReference_01, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_goose_GSEMngtResponsePdu },
-  {   4, &hf_goose_getGSSEDataOffset_01, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_goose_GSEMngtResponsePdu },
+  {   1, &hf_goose_gseMngtResponses_GetGOReference, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_goose_GSEMngtResponsePdu },
+  {   2, &hf_goose_gseMngtResponses_GetGOOSEElementNumber, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_goose_GSEMngtResponsePdu },
+  {   3, &hf_goose_gseMngtResponses_GetGSReference, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_goose_GSEMngtResponsePdu },
+  {   4, &hf_goose_gseMngtResponses_GetGSSEDataOffset, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_goose_GSEMngtResponsePdu },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -472,8 +474,51 @@ dissect_goose_GSEMngtPdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+#line 18 "goose.cnf"
+
+	guint32 len;
+	proto_item *cause;
+	guint32 seconds;
+	guint32	fraction;
+	guint32 nanoseconds;
+	nstime_t ts;
+	gchar *	ptime;
+
+	len = tvb_length_remaining(tvb, offset);
+
+	if(len != 8)
+	{
+		cause = proto_tree_add_text(tree, tvb, offset, len,
+				"BER Error: malformed UTCTime encoding, "
+				"length must be 8 bytes");
+		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding");
+		if(hf_index >= 0)
+		{
+			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
+		}
+		return offset;
+	}
+
+	seconds = tvb_get_ntohl(tvb, offset);
+	fraction = tvb_get_ntoh24(tvb, offset+4) * 0x100; /* Only 3 bytes are recommended */
+	nanoseconds = (guint32)( ((guint64)fraction * G_GINT64_CONSTANT(1000000000U)) / G_GINT64_CONSTANT(0x100000000U) ) ;
+
+	ts.secs = seconds;
+	ts.nsecs = nanoseconds;
+
+	ptime = abs_time_to_str(&ts, TRUE);
+
+	if(hf_index >= 0)
+	{
+		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+	}
+
+	return offset;
+
+
+
+
 
   return offset;
 }
@@ -644,7 +689,7 @@ dissect_goose_GOOSEpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 /*--- End of included file: packet-goose-fn.c ---*/
-#line 60 "packet-goose-template.c"
+#line 62 "packet-goose-template.c"
 
 /*
 * Dissect GOOSE PDUs inside a PPDU.
@@ -766,19 +811,19 @@ void proto_register_goose(void) {
       { "gseMngtNotSupported", "goose.gseMngtNotSupported",
         FT_NONE, BASE_NONE, NULL, 0,
         "goose.NULL", HFILL }},
-    { &hf_goose_getGoReference_01,
+    { &hf_goose_gseMngtResponses_GetGOReference,
       { "getGoReference", "goose.getGoReference",
         FT_NONE, BASE_NONE, NULL, 0,
         "goose.GSEMngtResponsePdu", HFILL }},
-    { &hf_goose_getGOOSEElementNumber_01,
+    { &hf_goose_gseMngtResponses_GetGOOSEElementNumber,
       { "getGOOSEElementNumber", "goose.getGOOSEElementNumber",
         FT_NONE, BASE_NONE, NULL, 0,
         "goose.GSEMngtResponsePdu", HFILL }},
-    { &hf_goose_getGsReference_01,
+    { &hf_goose_gseMngtResponses_GetGSReference,
       { "getGsReference", "goose.getGsReference",
         FT_NONE, BASE_NONE, NULL, 0,
         "goose.GSEMngtResponsePdu", HFILL }},
-    { &hf_goose_getGSSEDataOffset_01,
+    { &hf_goose_gseMngtResponses_GetGSSEDataOffset,
       { "getGSSEDataOffset", "goose.getGSSEDataOffset",
         FT_NONE, BASE_NONE, NULL, 0,
         "goose.GSEMngtResponsePdu", HFILL }},
@@ -786,11 +831,11 @@ void proto_register_goose(void) {
       { "ident", "goose.ident",
         FT_STRING, BASE_NONE, NULL, 0,
         "goose.VisibleString", HFILL }},
-    { &hf_goose_offset,
+    { &hf_goose_getReferenceRequestPDU_offset,
       { "offset", "goose.offset",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "goose.T_offset", HFILL }},
-    { &hf_goose_offset_item,
+        "goose.T_getReferenceRequestPDU_offset", HFILL }},
+    { &hf_goose_getReferenceRequestPDU_offset_item,
       { "offset item", "goose.offset_item",
         FT_INT32, BASE_DEC, NULL, 0,
         "goose.INTEGER", HFILL }},
@@ -830,7 +875,7 @@ void proto_register_goose(void) {
       { "responseNegative", "goose.responseNegative",
         FT_INT32, BASE_DEC, VALS(goose_GlbErrors_vals), 0,
         "goose.GlbErrors", HFILL }},
-    { &hf_goose_offset_01,
+    { &hf_goose_offset,
       { "offset", "goose.offset",
         FT_INT32, BASE_DEC, NULL, 0,
         "goose.INTEGER", HFILL }},
@@ -856,7 +901,7 @@ void proto_register_goose(void) {
         "goose.VisibleString", HFILL }},
     { &hf_goose_t,
       { "t", "goose.t",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "goose.UtcTime", HFILL }},
     { &hf_goose_stNum,
       { "stNum", "goose.stNum",
@@ -948,7 +993,7 @@ void proto_register_goose(void) {
         "goose.BIT_STRING", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/
-#line 135 "packet-goose-template.c"
+#line 137 "packet-goose-template.c"
   };
 
   /* List of subtrees */
@@ -963,7 +1008,7 @@ void proto_register_goose(void) {
     &ett_goose_GSEMngtRequests,
     &ett_goose_GSEMngtResponses,
     &ett_goose_GetReferenceRequestPdu,
-    &ett_goose_T_offset,
+    &ett_goose_T_getReferenceRequestPDU_offset,
     &ett_goose_GetElementRequestPdu,
     &ett_goose_T_references,
     &ett_goose_GSEMngtResponsePdu,
@@ -976,7 +1021,7 @@ void proto_register_goose(void) {
     &ett_goose_Data,
 
 /*--- End of included file: packet-goose-ettarr.c ---*/
-#line 141 "packet-goose-template.c"
+#line 143 "packet-goose-template.c"
   };
 
 	/* Register protocol */

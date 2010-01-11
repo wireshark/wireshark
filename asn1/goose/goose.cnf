@@ -13,6 +13,59 @@
 
 #.TYPE_RENAME
 
-#.FIELD_RENAME
 
+#.FN_BODY UtcTime
+
+	guint32 len;
+	proto_item *cause;
+	guint32 seconds;
+	guint32	fraction;
+	guint32 nanoseconds;
+	nstime_t ts;
+	gchar *	ptime;
+
+	len = tvb_length_remaining(tvb, offset);
+
+	if(len != 8)
+	{
+		cause = proto_tree_add_text(tree, tvb, offset, len,
+				"BER Error: malformed UTCTime encoding, "
+				"length must be 8 bytes");
+		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding");
+		if(hf_index >= 0)
+		{
+			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
+		}
+		return offset;
+	}
+
+	seconds = tvb_get_ntohl(tvb, offset);
+	fraction = tvb_get_ntoh24(tvb, offset+4) * 0x100; /* Only 3 bytes are recommended */
+	nanoseconds = (guint32)( ((guint64)fraction * G_GINT64_CONSTANT(1000000000U)) / G_GINT64_CONSTANT(0x100000000U) ) ;
+
+	ts.secs = seconds;
+	ts.nsecs = nanoseconds;
+
+	ptime = abs_time_to_str(&ts, TRUE);
+
+	if(hf_index >= 0)
+	{
+		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+	}
+
+	return offset;
+
+
+
+#.TYPE_ATTR
+UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
+
+
+#.FIELD_RENAME
+GetReferenceRequestPdu/offset getReferenceRequestPDU_offset
+GSEMngtResponses/getGsReference gseMngtResponses_GetGSReference
+GSEMngtResponses/getGoReference gseMngtResponses_GetGOReference
+GSEMngtResponses/getGSSEDataOffset gseMngtResponses_GetGSSEDataOffset
+GSEMngtResponses/getGOOSEElementNumber gseMngtResponses_GetGOOSEElementNumber
 #.END
