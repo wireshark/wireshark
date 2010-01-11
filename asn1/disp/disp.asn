@@ -102,7 +102,7 @@ AgreementID ::= OperationalBindingID
 
 ShadowingAgreementInfo ::= SEQUENCE {
   shadowSubject     UnitOfReplication,
-  updateMode        UpdateMode supplierInitiated:onChange:TRUE,
+  updateMode        UpdateMode DEFAULT supplierInitiated:onChange:TRUE,
   master            AccessPoint OPTIONAL,
   secondaryShadows  [2]  BOOLEAN DEFAULT FALSE
 }

@@ -636,7 +636,7 @@ dissect_disp_UpdateMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static const ber_sequence_t ShadowingAgreementInfo_sequence[] = {
   { &hf_disp_shadowSubject  , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_disp_UnitOfReplication },
-  { &hf_disp_updateMode     , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_disp_UpdateMode },
+  { &hf_disp_updateMode     , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_disp_UpdateMode },
   { &hf_disp_master         , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dsp_AccessPoint },
   { &hf_disp_secondaryShadows, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_disp_BOOLEAN },
   { NULL, 0, 0, 0, NULL }
