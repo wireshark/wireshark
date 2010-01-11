@@ -8,6 +8,9 @@
 # http://www.nullsoft.com/free/nsis/
 
 include ../../config.nmake
+# Contains a list of custom plugins(default empty)
+include Custom.nmake
+
 
 UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
@@ -60,7 +63,8 @@ PLUGINS= \
 	../../plugins/stats_tree/stats_tree.dll \
 	../../plugins/unistim/unistim.dll \
 	../../plugins/wimax/wimax.dll \
-	../../plugins/wimaxasncp/wimaxasncp.dll
+	../../plugins/wimaxasncp/wimaxasncp.dll \
+	$(CUSTOM_PLUGINS)
 
 NSI=wireshark.nsi \
 	GetWindowsVersion.nsh \

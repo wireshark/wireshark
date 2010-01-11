@@ -1,0 +1,3 @@
+;Add your custom plugins directives here
+; Example:
+;File "..\..\plugins\foo\foo.dll"

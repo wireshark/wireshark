@@ -890,6 +890,7 @@ File "..\..\plugins\sercosiii\sercosiii.dll"
 File "..\..\plugins\unistim\unistim.dll"
 File "..\..\plugins\wimax\wimax.dll"
 File "..\..\plugins\wimaxasncp\wimaxasncp.dll"
+!include "custom_plugins.txt"
 SectionEnd
 
 Section "Tree Statistics Plugin" SecStatsTree

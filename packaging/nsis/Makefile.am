@@ -9,4 +9,6 @@ EXTRA_DIST = \
 	AdditionalTasksPage.ini \
 	WinPcapPage.ini \
 	WinPcap_4_1_1.exe \
-	Makefile.nmake
+	Makefile.nmake \
+	Custom.nmake \
+	custom_plugins.txt
