@@ -251,6 +251,8 @@ static int	hf_cflow_scope_unknown = -1;
 static int      hf_cflow_field_count = -1;
 static int      hf_cflow_scope_field_count = -1;
 static int      hf_cflow_template_field_pen = -1;
+static int	hf_cflow_template_field_type_ipfix = -1;
+static int	hf_cflow_template_scope_field_type_ipfix = -1;
 
 /*
  * pdu storage
@@ -1374,6 +1376,9 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 		for(i = 0; i < tplt->count_scopes; i++) {
 			guint16 type = tplt->scopes[i].type;
 	    		guint16 length = tplt->scopes[i].length;
+			if (!length) {
+				continue;
+			}
 	   		switch( type ) {
 	   		case 1: /* system */
 				ti = proto_tree_add_item(pdutree, hf_cflow_scope_system,
@@ -3208,7 +3213,7 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 static int
 dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int offset, hdrinfo_t *hdrinfo, guint16 flowset_id)
 {
-	guint16 option_scope_len, option_len, i, id;
+	guint16 option_scope_len, option_len, i, id, len;
 	guint16 type;
 	struct v9_template tplt;
 	int tplt_offset;
@@ -3266,24 +3271,27 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 	/* Cache template */
 	memset(&tplt, 0, sizeof(tplt));
 	tplt.id = id;
-	tplt.count = option_len;
+	tplt.count = flowset_id == 1 ? tplt.count = 0 : option_scope_len - option_len;
 	SE_COPY_ADDRESS(&tplt.source_addr, &hdrinfo->net_src);
 	tplt.source_id = hdrinfo->src_id;
 	/* Option scopes */
 	tplt.option_template = TRUE; /* Option template */
-	tplt.count_scopes = option_scope_len;
-	if (v9_template_get(id, &hdrinfo->net_src, hdrinfo->src_id) && option_len && option_scope_len && option_len <= V9TEMPLATE_MAX_FIELDS && option_scope_len <= V9TEMPLATE_MAX_FIELDS) {
+	tplt.count_scopes = flowset_id == 1 ? 0 : option_len;
+	if (!v9_template_get(id, &hdrinfo->net_src, hdrinfo->src_id) && option_len && option_scope_len && option_len <= V9TEMPLATE_MAX_FIELDS && option_scope_len <= V9TEMPLATE_MAX_FIELDS) {
 		tplt.scopes = se_alloc0(option_scope_len * sizeof(struct v9_template_entry));
 		tplt.entries = se_alloc0(option_len * sizeof(struct v9_template_entry));
 	}
 
-	for(i=0; i<option_scope_len; i++) {
-		guint16 scope_length;
+	for(i=0, len = 0;	
+	    flowset_id == 1 ? len < option_scope_len : i < tplt.count_scopes;
+	    i++) {
+		guint16 scope_length = 0;
 		
 		type = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(pdutree, hf_cflow_template_scope_field_type, tvb,
-				    offset, 2, FALSE);
-		offset += 2; i += 2;
+		proto_tree_add_item(pdutree,
+				    flowset_id == 1 ? hf_cflow_template_scope_field_type : hf_cflow_template_scope_field_type_ipfix,
+				    tvb, offset, 2, FALSE);
+		offset += 2; len += 2;
 		scope_length = tvb_get_ntohs(tvb,offset);
 
 		if (tplt.scopes) {
@@ -3293,27 +3301,35 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 		}
 		proto_tree_add_item(pdutree, hf_cflow_template_scope_field_length, tvb,
 				    offset, 2, FALSE);
-		offset += 2; i += 2;
+		offset += 2; len += 2;
 
-		if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
+		/* Private Enterprise Number (IPFIX only) */
+		if ((flowset_id == 3) && (type & 0x8000)) {
 			if (tplt.scopes) {
 				tplt.scopes[i].pen = tvb_get_ntohl(tvb,offset);
 			}
 			proto_tree_add_item(pdutree,
 					    hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
-			offset += 4; i += 4;
+			offset += 4; len += 4;
+		}
+		if (flowset_id == 1) { /* NetFlow v9 */
+			tplt.count_scopes++;
 		}
 	}
 
 	tplt_offset = offset;
 
-	for(i=0; i<option_len;) {
+	for(i=0, len = 0;
+	    flowset_id == 1 ? len < option_len : i < tplt.count;
+	    i++) {
 		guint16 entry_length;
 		
 		type = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(pdutree, hf_cflow_template_field_type, tvb,
-				    offset, 2, FALSE);
-		offset += 2; i += 2;
+		proto_tree_add_item(pdutree,
+				    flowset_id == 1 ? hf_cflow_template_field_type : hf_cflow_template_field_type_ipfix,
+				    tvb, offset, 2, FALSE);
+		offset += 2; len += 2;
+
 		entry_length = tvb_get_ntohs(tvb, offset);
 
 		if (tplt.entries) {
@@ -3323,15 +3339,19 @@ dissect_v9_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutr
 		}
 		proto_tree_add_item(pdutree, hf_cflow_template_field_length, tvb,
 				    offset, 2, FALSE);
-		offset += 2; i += 2;
+		offset += 2; len += 2;
 
-		if (type & 0x8000) { /* Private Enterprise Number (IPFIX only) */
+		/* Private Enterprise Number (IPFIX only) */
+		if ((flowset_id == 3) && (type & 0x8000)) {
 			if (tplt.entries) {
 				tplt.entries[i].pen = tvb_get_ntohl(tvb,offset);
 			}
 			proto_tree_add_item(pdutree,
 					    hf_cflow_template_field_pen, tvb, offset, 4, FALSE);
-			offset += 4; i += 4;
+			offset += 4; len += 4;
+		}
+		if (flowset_id == 1) { /* NetFlow v9 */
+			tplt.count++;
 		}
 	}
 
@@ -4098,6 +4118,11 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_template_field_type,
 		 {"Type", "cflow.template_field_type",
+		  FT_UINT16, BASE_DEC, VALS(v9_template_types), 0x0,
+		  "Template field type", HFILL}
+		 },
+		{&hf_cflow_template_field_type_ipfix,
+		 {"Type", "cflow.template_field_type",
 		  FT_UINT16, BASE_DEC, VALS(v9_template_types), 0x7FFF,
 		  "Template field type", HFILL}
 		 },
@@ -4121,6 +4146,11 @@ proto_register_netflow(void)
 		{&hf_cflow_template_scope_field_type,
 		 {"Scope Type", "cflow.scope_field_type",
 		  FT_UINT16, BASE_DEC, VALS(v9_scope_field_types), 0x0,
+		  "Scope field type", HFILL}
+		},
+		{&hf_cflow_template_scope_field_type_ipfix,
+		 {"Scope Type", "cflow.scope_field_type",
+		  FT_UINT16, BASE_DEC, VALS(v9_template_types), 0x7FF,
 		  "Scope field type", HFILL}
 		},
 		{&hf_cflow_template_scope_field_length,
