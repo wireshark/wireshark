@@ -907,8 +907,10 @@ put_string_list(GList *sl)
   size_t        str_len;
   gchar        *strp, *quoted_strp, c;
   size_t        fmt_len;
+  guint         item_count = 0;
 
   while (clp) {
+    item_count++;
     str = clp->data;
 
     /* Allocate a buffer big enough to hold the entire string, with each
@@ -930,7 +932,7 @@ put_string_list(GList *sl)
 
     fmt_len = strlen(quoted_str) + 4;
     if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
-      if ((fmt_len + cur_pos) > MAX_FMT_PREF_LINE_LEN) {
+      if (item_count % 2) {
         /* Wrap the line.  */
         cur_len--;
         cur_pos = 0;
