@@ -1214,7 +1214,7 @@ bssgp_proto_tree_add_ie(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (iename == NULL)
     iename = val_to_str(ie->iei, tab_bssgp_ie_types, "Unknown");
   return proto_tree_add_uint_format(bi->bssgp_tree, hf_bssgp_ie_type,
-				  bi->tvb, ie_start_offset, ie->total_length,
+				  bi->tvb, ie_start_offset, 1,
 				  ie->iei, "%s", iename);
 }
 
@@ -1684,7 +1684,7 @@ decode_iei_bvci(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, ": %u", bvci);
     hidden_item = proto_tree_add_item(bi->bssgp_tree, hf_bssgp_bvci,
-			       bi->tvb, bi->offset, ie->value_length,
+			       bi->tvb, bi->offset, 2,
 			       BSSGP_LITTLE_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
   }
