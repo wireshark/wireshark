@@ -17,6 +17,9 @@ MMSpdu
 
 #.TYPE_RENAME
 
+#.TYPE_ATTR
+TimeOfDay	TYPE = FT_STRING DISPLAY = BASE_NONE
+
 #.FIELD_RENAME
 
 #.FN_BODY ApplicationReference/ap-title
@@ -41,3 +44,58 @@ MMSpdu
       col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", mms_MMSpdu_vals[branch_taken].strptr);
   }
 
+
+
+#.FN_BODY TimeOfDay
+
+	guint32 len;
+	proto_item *cause;
+	guint32 milliseconds;
+	guint16 days;
+	gchar *	ptime;
+	nstime_t ts;
+
+	len = tvb_length_remaining(tvb, offset);
+
+	if(len == 4)
+	{
+		milliseconds = tvb_get_ntohl(tvb, offset);
+		ptime = time_msecs_to_str(milliseconds);
+
+		if(hf_index >= 0)
+		{
+			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+		}
+		return offset;
+	}
+
+	if(len == 6)
+	{
+		milliseconds = tvb_get_ntohl(tvb, offset);
+		days = tvb_get_ntohs(tvb, offset+4);
+
+		/* 5113 days between 01-01-1970 and 01-01-1984 */
+		/* 86400 seconds in one day */
+
+		ts.secs = (days + 5113) * 86400 + milliseconds / 1000;
+		ts.nsecs = (milliseconds %% 1000) * G_GINT64_CONSTANT(1000000U);
+
+		ptime = abs_time_to_str(&ts, TRUE);
+		if(hf_index >= 0)
+		{
+			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+		}
+
+		return offset;
+	}
+
+	cause = proto_tree_add_text(tree, tvb, offset, len,
+			"BER Error: malformed TimeOfDay encoding, "
+			"length must be 4 or 6 bytes");
+	proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+	expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed TimeOfDay encoding");
+	if(hf_index >= 0)
+	{
+		proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
+	}
+	return offset;

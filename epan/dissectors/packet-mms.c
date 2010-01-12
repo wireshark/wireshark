@@ -38,6 +38,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
+#include <epan/nstime.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -717,7 +719,7 @@ static int hf_mms_Transitions_idle_to_active = -1;
 static int hf_mms_Transitions_any_to_deleted = -1;
 
 /*--- End of included file: packet-mms-hf.c ---*/
-#line 49 "packet-mms-template.c"
+#line 51 "packet-mms-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_mms = -1;
@@ -931,7 +933,7 @@ static gint ett_mms_DirectoryEntry = -1;
 static gint ett_mms_FileAttributes = -1;
 
 /*--- End of included file: packet-mms-ett.c ---*/
-#line 53 "packet-mms-template.c"
+#line 55 "packet-mms-template.c"
 
 
 /*--- Included file: packet-mms-fn.c ---*/
@@ -1759,8 +1761,60 @@ dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+#line 50 "mms.cnf"
+
+	guint32 len;
+	proto_item *cause;
+	guint32 milliseconds;
+	guint16 days;
+	gchar *	ptime;
+	nstime_t ts;
+
+	len = tvb_length_remaining(tvb, offset);
+
+	if(len == 4)
+	{
+		milliseconds = tvb_get_ntohl(tvb, offset);
+		ptime = time_msecs_to_str(milliseconds);
+
+		if(hf_index >= 0)
+		{
+			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+		}
+		return offset;
+	}
+
+	if(len == 6)
+	{
+		milliseconds = tvb_get_ntohl(tvb, offset);
+		days = tvb_get_ntohs(tvb, offset+4);
+
+		/* 5113 days between 01-01-1970 and 01-01-1984 */
+		/* 86400 seconds in one day */
+
+		ts.secs = (days + 5113) * 86400 + milliseconds / 1000;
+		ts.nsecs = (milliseconds % 1000) * G_GINT64_CONSTANT(1000000U);
+
+		ptime = abs_time_to_str(&ts, TRUE);
+		if(hf_index >= 0)
+		{
+			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+		}
+
+		return offset;
+	}
+
+	cause = proto_tree_add_text(tree, tvb, offset, len,
+			"BER Error: malformed TimeOfDay encoding, "
+			"length must be 4 or 6 bytes");
+	proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+	expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed TimeOfDay encoding");
+	if(hf_index >= 0)
+	{
+		proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
+	}
+	return offset;
+
 
   return offset;
 }
@@ -2137,7 +2191,7 @@ dissect_mms_Output_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 23 "mms.cnf"
+#line 26 "mms.cnf"
   offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
 
 
@@ -2149,7 +2203,7 @@ dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 26 "mms.cnf"
+#line 29 "mms.cnf"
   offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
 
 
@@ -2161,7 +2215,7 @@ dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 29 "mms.cnf"
+#line 32 "mms.cnf"
   offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
 
 
@@ -2173,7 +2227,7 @@ dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_mms_T_ae_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 32 "mms.cnf"
+#line 35 "mms.cnf"
   offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
 
 
@@ -6862,7 +6916,7 @@ static const ber_choice_t MMSpdu_choice[] = {
 
 int
 dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 35 "mms.cnf"
+#line 38 "mms.cnf"
   gint branch_taken;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -6877,12 +6931,14 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 
+
+
   return offset;
 }
 
 
 /*--- End of included file: packet-mms-fn.c ---*/
-#line 55 "packet-mms-template.c"
+#line 57 "packet-mms-template.c"
 
 /*
 * Dissect MMS PDUs inside a PPDU.
@@ -8475,7 +8531,7 @@ void proto_register_mms(void) {
         "mms.VisibleString", HFILL }},
     { &hf_mms_binary_time_01,
       { "binary-time", "mms.binary_time",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "mms.TimeOfDay", HFILL }},
     { &hf_mms_bcd_01,
       { "bcd", "mms.bcd",
@@ -8947,7 +9003,7 @@ void proto_register_mms(void) {
         "mms.Transitions", HFILL }},
     { &hf_mms_timeOfDayT,
       { "timeOfDayT", "mms.timeOfDayT",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "mms.TimeOfDay", HFILL }},
     { &hf_mms_timeSequenceIdentifier,
       { "timeSequenceIdentifier", "mms.timeSequenceIdentifier",
@@ -8963,7 +9019,7 @@ void proto_register_mms(void) {
         "mms.T_rangeStartSpecification", HFILL }},
     { &hf_mms_startingTime,
       { "startingTime", "mms.startingTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "mms.TimeOfDay", HFILL }},
     { &hf_mms_startingEntry,
       { "startingEntry", "mms.startingEntry",
@@ -8975,7 +9031,7 @@ void proto_register_mms(void) {
         "mms.T_rangeStopSpecification", HFILL }},
     { &hf_mms_endingTime,
       { "endingTime", "mms.endingTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "mms.TimeOfDay", HFILL }},
     { &hf_mms_numberOfEntries,
       { "numberOfEntries", "mms.numberOfEntries",
@@ -8995,7 +9051,7 @@ void proto_register_mms(void) {
         "mms.T_entryToStartAfter", HFILL }},
     { &hf_mms_timeSpecification,
       { "timeSpecification", "mms.timeSpecification",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "mms.TimeOfDay", HFILL }},
     { &hf_mms_entrySpecification,
       { "entrySpecification", "mms.entrySpecification",
@@ -9035,7 +9091,7 @@ void proto_register_mms(void) {
         "mms.T_limitSpecification", HFILL }},
     { &hf_mms_limitingTime,
       { "limitingTime", "mms.limitingTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "mms.TimeOfDay", HFILL }},
     { &hf_mms_limitingEntry,
       { "limitingEntry", "mms.limitingEntry",
@@ -9047,7 +9103,7 @@ void proto_register_mms(void) {
         "mms.Unsigned32", HFILL }},
     { &hf_mms_occurenceTime,
       { "occurenceTime", "mms.occurenceTime",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "mms.TimeOfDay", HFILL }},
     { &hf_mms_additionalDetail,
       { "additionalDetail", "mms.additionalDetail",
@@ -9559,7 +9615,7 @@ void proto_register_mms(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-mms-hfarr.c ---*/
-#line 95 "packet-mms-template.c"
+#line 97 "packet-mms-template.c"
   };
 
   /* List of subtrees */
@@ -9775,7 +9831,7 @@ void proto_register_mms(void) {
     &ett_mms_FileAttributes,
 
 /*--- End of included file: packet-mms-ettarr.c ---*/
-#line 101 "packet-mms-template.c"
+#line 103 "packet-mms-template.c"
   };
 
   /* Register protocol */
