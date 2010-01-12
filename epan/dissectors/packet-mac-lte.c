@@ -23,6 +23,7 @@
 # include "config.h"
 #endif
 
+#include <stdio.h>
 #include <string.h>
 
 #include <epan/packet.h>
@@ -2177,6 +2178,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         const guint8 *pdu_data;
         volatile guint16 data_length;
         int i;
+        char buff[64];
 
         /* Break out if meet padding */
         if (lcids[n] == PADDING_LCID) {
@@ -2201,12 +2203,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Show bytes too.  There must be a nicer way of doing this! */
         pdu_data = tvb_get_ptr(tvb, offset, pdu_lengths[n]);
         for (i=0; i < data_length; i++) {
-            proto_item_append_text(sdu_ti, "%02x",  pdu_data[i]);
+            sprintf(buff+(i*2), "%02x",  pdu_data[i]);
             if (i >= 30) {
-                proto_item_append_text(sdu_ti, "...");
+                sprintf(buff+(i*2), "...");
                 break;
             }
         }
+        proto_item_append_text(sdu_ti, "%s", buff);
 
 
         /* Look for Msg3 data so that it may be compared with later
