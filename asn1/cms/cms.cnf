@@ -12,6 +12,7 @@
 KeyWrapAlgorithm
 CBCParameter
 IV
+ExtendedCertificateOrCertificate
 #.END
 
 #.EXPORTS
@@ -71,6 +72,7 @@ AttributeCertificateInfoV1/attributes	attributes_v1
 AttributeCertificateInfoV1/issuer	issuer_v1
 AttributeCertificateInfoV1/signature	signature_v1
 AttributeCertificateInfoV1/version	version_v1
+RevocationInfoChoice/other		otherRIC
 
 #.FN_BODY ContentInfo
   top_tree = tree;
@@ -124,7 +126,11 @@ AttributeCertificateInfoV1/version	version_v1
 
 #.FN_BODY OtherKeyAttribute/keyAttr
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+#.FN_PARS OtherRevocationInfoFormat/otherRevInfoFormat
+  FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
+#.FN_BODY OtherRevocationInfoFormat/otherRevInfo
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_PARS Attribute/attrType
   FN_VARIANT = _str  HF_INDEX = hf_cms_attrType  VAL_PTR = &object_identifier_id

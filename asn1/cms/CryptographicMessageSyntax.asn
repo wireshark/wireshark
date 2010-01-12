@@ -1,9 +1,9 @@
--- Extracted from RFC3369
+-- Extracted from RFC5652
 -- and massaged/modified so it passes through our asn2wrs compiler
 -- $Id$
 
 CryptographicMessageSyntax { iso(1) member-body(2) us(840) rsadsi(113549)
-      pkcs(1) pkcs-9(9) smime(16) modules(0) cms(1) } DEFINITIONS IMPLICIT TAGS ::=
+      pkcs(1) pkcs-9(9) smime(16) modules(0) cms-2004(24) } DEFINITIONS IMPLICIT TAGS ::=
 BEGIN
 
 -- EXPORTS All
@@ -30,9 +30,8 @@ IMPORTS
 
 ContentInfo ::= SEQUENCE {
    contentType ContentType,
-   content [0] EXPLICIT ANY
+   content [0] EXPLICIT ANY DEFINED BY contentType
 }
-
 
 ContentType ::= OBJECT IDENTIFIER
 
@@ -41,7 +40,7 @@ SignedData ::= SEQUENCE {
   digestAlgorithms DigestAlgorithmIdentifiers,
   encapContentInfo EncapsulatedContentInfo,
   certificates [0] IMPLICIT CertificateSet OPTIONAL,
-  crls [1] IMPLICIT CertificateRevocationLists OPTIONAL,
+  crls [1] IMPLICIT RevocationInfoChoices OPTIONAL,
   signerInfos SignerInfos }
 
 DigestAlgorithmIdentifiers ::= SET OF DigestAlgorithmIdentifier
@@ -88,9 +87,9 @@ EnvelopedData ::= SEQUENCE {
 
 OriginatorInfo ::= SEQUENCE {
   certs [0] IMPLICIT CertificateSet OPTIONAL,
-  crls [1] IMPLICIT CertificateRevocationLists OPTIONAL }
+  crls [1] IMPLICIT RevocationInfoChoices OPTIONAL }
 
-RecipientInfos ::= SET OF RecipientInfo
+RecipientInfos ::= SET SIZE (1..MAX) OF RecipientInfo
 
 EncryptedContentInfo ::= SEQUENCE {
   contentType ContentType,
@@ -111,8 +110,7 @@ RecipientInfo ::= CHOICE {
 EncryptedKey ::= OCTET STRING
 
 KeyTransRecipientInfo ::= SEQUENCE {
-  version CMSVersion,  
---            always set to 0 or 2
+  version CMSVersion,  -- always set to 0 or 2
   rid RecipientIdentifier,
   keyEncryptionAlgorithm KeyEncryptionAlgorithmIdentifier,
   encryptedKey EncryptedKey }
@@ -122,8 +120,7 @@ RecipientIdentifier ::= CHOICE {
   subjectKeyIdentifier [0] SubjectKeyIdentifier }
 
 KeyAgreeRecipientInfo ::= SEQUENCE {
-  version CMSVersion,  
---              always set to 3
+  version CMSVersion,  -- always set to 3
   originator [0] EXPLICIT OriginatorIdentifierOrKey,
   ukm [1] EXPLICIT UserKeyingMaterial OPTIONAL,
   keyEncryptionAlgorithm KeyEncryptionAlgorithmIdentifier,
@@ -156,8 +153,7 @@ RecipientKeyIdentifier ::= SEQUENCE {
 SubjectKeyIdentifier ::= OCTET STRING
 
 KEKRecipientInfo ::= SEQUENCE {
-  version CMSVersion,
---              always set to 4
+  version CMSVersion,  -- always set to 4
   kekid KEKIdentifier,
   keyEncryptionAlgorithm KeyEncryptionAlgorithmIdentifier,
   encryptedKey EncryptedKey }
@@ -220,7 +216,15 @@ MessageAuthenticationCodeAlgorithm ::= AlgorithmIdentifier
 
 KeyDerivationAlgorithmIdentifier ::= AlgorithmIdentifier
 
-CertificateRevocationLists ::= SET OF CertificateList
+RevocationInfoChoices ::= SET OF RevocationInfoChoice
+
+RevocationInfoChoice ::= CHOICE {
+  crl CertificateList,
+  other [1] IMPLICIT OtherRevocationInfoFormat }
+
+OtherRevocationInfoFormat ::= SEQUENCE {
+  otherRevInfoFormat OBJECT IDENTIFIER,
+  otherRevInfo ANY DEFINED BY otherRevInfoFormat }
 
 CertificateChoices ::= CHOICE {
   certificate Certificate,
@@ -236,7 +240,7 @@ IssuerAndSerialNumber ::= SEQUENCE {
   issuer Name,
   serialNumber CertificateSerialNumber }
 
-CMSVersion ::= INTEGER  { v0(0), v1(1), v2(2), v3(3), v4(4) }
+CMSVersion ::= INTEGER  { v0(0), v1(1), v2(2), v3(3), v4(4), v5(5) }
 
 UserKeyingMaterial ::= OCTET STRING
 
@@ -245,8 +249,31 @@ OtherKeyAttribute ::= SEQUENCE {
   keyAttr ANY DEFINED BY keyAttrId OPTIONAL
 }
 
--- CMS Attributes
--- 
+-- Content Type Object Identifiers
+
+id-ct-contentInfo OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs9(9) smime(16) ct(1) 6 }
+
+id-data OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs7(7) 1 }
+
+id-signedData OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs7(7) 2 }
+
+id-envelopedData OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs7(7) 3 }
+
+id-digestedData OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs7(7) 5 }
+
+id-encryptedData OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs7(7) 6 }
+
+id-ct-authData OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) ct(1) 2 }
+
+-- The CMS Attributes
+
 MessageDigest ::= OCTET STRING
  
 SigningTime  ::= Time
@@ -309,49 +336,25 @@ RC2CBCParameter ::= SEQUENCE {
    rc2ParameterVersion INTEGER,
    iv OCTET STRING  }
 
--- 
--- Content Type Object Identifiers
--- 
--- id-ct-contentInfo OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16)
---     ct(1) 6 }
--- 
--- id-data OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs7(7) 1 }
--- 
--- id-signedData OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs7(7) 2 }
--- 
--- id-envelopedData OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs7(7) 3 }
--- 
--- id-digestedData OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs7(7) 5 }
--- 
--- id-encryptedData OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs7(7) 6 }
--- 
--- id-ct-authData OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16)
---     ct(1) 2 }
--- 
--- 
 -- Attribute Object Identifiers
--- 
--- id-contentType OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs9(9) 3 }
--- 
--- id-messageDigest OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs9(9) 4 }
--- 
--- id-signingTime OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs9(9) 5 }
--- 
--- id-countersignature OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs9(9) 6 }
--- 
--- 
+
+id-contentType OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs9(9) 3 }
+
+id-messageDigest OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs9(9) 4 }
+
+id-signingTime OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs9(9) 5 }
+
+id-countersignature OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs9(9) 6 }
+
 -- Obsolete Extended Certificate syntax from PKCS#6
+
+ExtendedCertificateOrCertificate ::= CHOICE {
+     certificate Certificate,
+     extendedCertificate [0] IMPLICIT ExtendedCertificate }
 
 ExtendedCertificate ::= SEQUENCE {
   extendedCertificateInfo ExtendedCertificateInfo,
@@ -391,4 +394,4 @@ RC2CBCParameters ::= CHOICE {
 }
 
 
-END -- of CryptographicMessageSyntax
+END -- of CryptographicMessageSyntax2004

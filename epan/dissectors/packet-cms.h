@@ -7,8 +7,9 @@
 
 #line 1 "packet-cms-template.h"
 /* packet-cms.h
- * Routines for RFC2630 Cryptographic Message Syntax packet dissection
+ * Routines for RFC5652 Cryptographic Message Syntax packet dissection
  *   Ronnie Sahlberg 2004
+ *   Stig Bjorlykke 2010
  *
  * $Id$
  *
@@ -56,7 +57,7 @@ int dissect_cms_IssuerAndSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _
 int dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-cms-exp.h ---*/
-#line 30 "packet-cms-template.h"
+#line 31 "packet-cms-template.h"
 
 #endif  /* PACKET_CMS_H */
 

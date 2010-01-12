@@ -1,6 +1,7 @@
 /* packet-cms.h
- * Routines for RFC2630 Cryptographic Message Syntax packet dissection
+ * Routines for RFC5652 Cryptographic Message Syntax packet dissection
  *   Ronnie Sahlberg 2004
+ *   Stig Bjorlykke 2010
  *
  * $Id$
  *
