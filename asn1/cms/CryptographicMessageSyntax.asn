@@ -1,5 +1,6 @@
--- Extracted from RFC2630
--- and massaged/modified so it passws through our asn2wrs compiler
+-- Extracted from RFC3369
+-- and massaged/modified so it passes through our asn2wrs compiler
+-- $Id$
 
 CryptographicMessageSyntax { iso(1) member-body(2) us(840) rsadsi(113549)
       pkcs(1) pkcs-9(9) smime(16) modules(0) cms(1) } DEFINITIONS IMPLICIT TAGS ::=
@@ -103,7 +104,9 @@ UnprotectedAttributes ::= SET SIZE (1..MAX) OF Attribute
 RecipientInfo ::= CHOICE {
   ktri KeyTransRecipientInfo,
   kari [1] KeyAgreeRecipientInfo,
-  kekri [2] KEKRecipientInfo }
+  kekri [2] KEKRecipientInfo,
+  pwri [3] PasswordRecipientInfo,
+  ori [4] OtherRecipientInfo }
 
 EncryptedKey ::= OCTET STRING
 
@@ -164,6 +167,17 @@ KEKIdentifier ::= SEQUENCE {
   date GeneralizedTime OPTIONAL,
   other OtherKeyAttribute OPTIONAL }
 
+PasswordRecipientInfo ::= SEQUENCE {
+  version CMSVersion,   -- always set to 0
+  keyDerivationAlgorithm [0] KeyDerivationAlgorithmIdentifier
+                             OPTIONAL,
+  keyEncryptionAlgorithm KeyEncryptionAlgorithmIdentifier,
+  encryptedKey EncryptedKey }
+
+OtherRecipientInfo ::= SEQUENCE {
+  oriType OBJECT IDENTIFIER,
+  oriValue ANY DEFINED BY oriType }
+
 DigestedData ::= SEQUENCE {
   version CMSVersion,
   digestAlgorithm DigestAlgorithmIdentifier,
@@ -184,9 +198,9 @@ AuthenticatedData ::= SEQUENCE {
   macAlgorithm MessageAuthenticationCodeAlgorithm,
   digestAlgorithm [1] DigestAlgorithmIdentifier OPTIONAL,
   encapContentInfo EncapsulatedContentInfo,
-  authenticatedAttributes [2] IMPLICIT AuthAttributes OPTIONAL,
+  authAttrs [2] IMPLICIT AuthAttributes OPTIONAL,
   mac MessageAuthenticationCode,
-  unauthenticatedAttributes [3] IMPLICIT UnauthAttributes OPTIONAL }
+  unauthAttrs [3] IMPLICIT UnauthAttributes OPTIONAL }
 
 AuthAttributes ::= SET SIZE (1..MAX) OF Attribute
 
@@ -204,12 +218,17 @@ ContentEncryptionAlgorithmIdentifier ::= AlgorithmIdentifier
 
 MessageAuthenticationCodeAlgorithm ::= AlgorithmIdentifier
 
+KeyDerivationAlgorithmIdentifier ::= AlgorithmIdentifier
+
 CertificateRevocationLists ::= SET OF CertificateList
 
 CertificateChoices ::= CHOICE {
   certificate Certificate,
-  extendedCertificate [0] IMPLICIT ExtendedCertificate,
-  attrCert [1] IMPLICIT AttributeCertificate }
+  extendedCertificate [0] IMPLICIT ExtendedCertificate,  -- Obsolete
+  v1AttrCert [1] IMPLICIT AttributeCertificateV1,        -- Obsolete
+  v2AttrCert [2] IMPLICIT AttributeCertificateV2 }
+
+AttributeCertificateV2 ::= AttributeCertificate
 
 CertificateSet ::= SET OF CertificateChoices
 
@@ -223,7 +242,7 @@ UserKeyingMaterial ::= OCTET STRING
 
 OtherKeyAttribute ::= SEQUENCE {
   keyAttrId OBJECT IDENTIFIER,
-  keyAttr ANY OPTIONAL
+  keyAttr ANY DEFINED BY keyAttrId OPTIONAL
 }
 
 -- CMS Attributes

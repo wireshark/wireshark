@@ -38,7 +38,9 @@
 #include "packet-ber.h"
 #include "packet-cms.h"
 #include "packet-x509af.h"
+#include "packet-x509ce.h"
 #include "packet-x509if.h"
+#include "packet-x509sat.h"
 #include "packet-pkcs12.h"
 
 #include <epan/crypt/crypt-sha1.h>
