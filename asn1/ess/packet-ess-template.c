@@ -1,6 +1,7 @@
 /* packet-ess.c
- * Routines for RFC2634 Extended Security Services packet dissection
+ * Routines for RFC5035 Extended Security Services packet dissection
  *   Ronnie Sahlberg 2004
+ *   Stig Bjorlykke 2010
  *
  * $Id$
  *
@@ -48,6 +49,8 @@
 static int proto_ess = -1;
 static int hf_ess_SecurityCategory_type_OID = -1;
 #include "packet-ess-hf.c"
+
+#include "packet-ess-val.h"
 
 /* Initialize the subtree pointers */
 #include "packet-ess-ett.c"

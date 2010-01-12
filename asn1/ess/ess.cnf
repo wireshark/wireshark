@@ -22,6 +22,7 @@ ESSSecurityLabel   B "1.2.840.113549.1.9.16.2.2"  "id-aa-securityLabel"
 EquivalentLabels   B "1.2.840.113549.1.9.16.2.9"  "id-aa-equivalentLabels"
 MLExpansionHistory B "1.2.840.113549.1.9.16.2.3"  "id-aa-mlExpandHistory"
 SigningCertificate B "1.2.840.113549.1.9.16.2.12" "id-aa-signingCertificate"
+SigningCertificateV2 B "1.2.840.113549.1.9.16.2.47" "id-aa-signingCertificateV2"
 
 RestrictiveTag	   B "2.16.840.1.101.2.1.8.3.0"	  "id-restrictiveAttributes"
 EnumeratedTag	   B "2.16.840.1.101.2.1.8.3.1"	  "id-enumeratedPermissiveAttributes"
@@ -34,6 +35,7 @@ EnumeratedTag	   B "2.16.840.1.101.2.1.8.3.4"	  "id-enumeratedRestrictiveAttribu
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+SigningCertificateV2/certs	certsV2
 
 #.FN_PARS SecurityCategory/type
   FN_VARIANT = _str  HF_INDEX = hf_ess_SecurityCategory_type_OID  VAL_PTR = &object_identifier_id

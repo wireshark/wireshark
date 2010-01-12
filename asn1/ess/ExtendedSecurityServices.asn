@@ -1,44 +1,32 @@
--- ExtendedSecurityServices as defined in RFC2634
+-- ExtendedSecurityServices as defined in RFC5035
 -- 
 -- The ASN definition has been modified to suit the Wireshark asn2wrs compiler
 -- 
 -- 
 -- 
--- The original ASN.1 definition from RFC2634 contains the following 
+-- The original ASN.1 definition from RFC5035 contains the following 
 -- copyright statement:
 -- 
 -- Full Copyright Statement
 -- 
---    Copyright (C) The Internet Society (1999).  All Rights Reserved.
--- 
---    This document and translations of it may be copied and furnished to
---    others, and derivative works that comment on or otherwise explain it
---    or assist in its implementation may be prepared, copied, published
---    and distributed, in whole or in part, without restriction of any
---    kind, provided that the above copyright notice and this paragraph are
---    included on all such copies and derivative works.  However, this
---    document itself may not be modified in any way, such as by removing
---    the copyright notice or references to the Internet Society or other
---    Internet organizations, except as needed for the purpose of
---    developing Internet standards in which case the procedures for
---    copyrights defined in the Internet Standards process must be
---    followed, or as required to translate it into languages other than
---    English.
--- 
---    The limited permissions granted above are perpetual and will not be
---    revoked by the Internet Society or its successors or assigns.
--- 
---    This document and the information contained herein is provided on an
---    "AS IS" basis and THE INTERNET SOCIETY AND THE INTERNET ENGINEERING
---    TASK FORCE DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
---    BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
---    HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
---    MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+--    Copyright (C) The IETF Trust (2007).
+--
+--    This document is subject to the rights, licenses and restrictions
+--    contained in BCP 78, and except as set forth therein, the authors
+--    retain all their rights.
+--
+--    This document and the information contained herein are provided on an
+--    "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+--    OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+--    THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+--    OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+--    THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+--    WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 -- 
 
 ExtendedSecurityServices
      { iso(1) member-body(2) us(840) rsadsi(113549)
-       pkcs(1) pkcs-9(9) smime(16) modules(0) ess(2) }
+       pkcs(1) pkcs-9(9) smime(16) modules(0) id-mod-ess-2006(30) }
 
 DEFINITIONS IMPLICIT TAGS ::=
 BEGIN
@@ -47,15 +35,18 @@ IMPORTS
 
 -- Cryptographic Message Syntax (CMS)
     ContentType, IssuerAndSerialNumber
-    FROM CryptographicMessageSyntax { iso(1) member-body(2) us(840)
-    rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) modules(0) cms(1)}
+       FROM CryptographicMessageSyntax {iso(1) member-body(2)
+                us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16)
+                modules(0) cms-2004(24)}
 
 -- X.509
-    CertificateSerialNumber FROM AuthenticationFramework
+    AlgorithmIdentifier, CertificateSerialNumber
+       FROM AuthenticationFramework 
+       {joint-iso-itu-t ds(5) module(1) authenticationFramework(7) 3}
 
-    SubjectKeyIdentifier, PolicyInformation, GeneralNames 
-    FROM CertificateExtensions
-    {joint-iso-ccitt ds(5) module(1) certificateExtensions(26) 0};
+    SubjectKeyIdentifier, PolicyInformation, GeneralNames
+       FROM CertificateExtensions
+       {joint-iso-ccitt ds(5) module(1) certificateExtensions(26) 0};
 
 
 -- Extended Security Services
@@ -68,35 +59,36 @@ IMPORTS
 -- environment.
 
 -- UTF8String ::= [UNIVERSAL 12] IMPLICIT OCTET STRING
-    -- The contents are formatted as described in [UTF8]
+
+-- The contents are formatted as described in [UTF8]
 
 -- Section 2.7
 
 ReceiptRequest ::= SEQUENCE {
   signedContentIdentifier ContentIdentifier,
   receiptsFrom ReceiptsFrom,
-  receiptsTo SEQUENCE OF GeneralNames }
+  receiptsTo SEQUENCE SIZE (1..ub-receiptsTo) OF GeneralNames
+}
 
--- ub-receiptsTo INTEGER ::= 16
--- 
--- 
--- id-aa-receiptRequest OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 1}
+ub-receiptsTo INTEGER ::= 16
+
+id-aa-receiptRequest OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 1}
 
 ContentIdentifier ::= OCTET STRING
 
--- id-aa-contentIdentifier OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 7}
+id-aa-contentIdentifier OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 7}
 
 ReceiptsFrom ::= CHOICE {
-  allOrFirstTier [0] AllOrFirstTier,
-  -- formerly "allOrNone [0]AllOrNone"
-  receiptList [1] SEQUENCE OF GeneralNames }
+  allOrFirstTier [0] AllOrFirstTier,  -- formerly "allOrNone [0]AllOrNone"
+  receiptList [1] SEQUENCE OF GeneralNames
+}
 
 AllOrFirstTier ::= INTEGER { -- Formerly AllOrNone
   allReceipts (0),
-  firstTierRecipients (1) }
-
+  firstTierRecipients (1)
+}
 
 -- Section 2.8
 
@@ -104,39 +96,41 @@ Receipt ::= SEQUENCE {
   version ESSVersion,
   contentType ContentType,
   signedContentIdentifier ContentIdentifier,
-  originatorSignatureValue OCTET STRING }
+  originatorSignatureValue OCTET STRING
+}
 
--- id-ct-receipt OBJECT IDENTIFIER ::= { iso(1) member-body(2) us(840)
---    rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-ct(1) 1}
+id-ct-receipt OBJECT IDENTIFIER ::= { iso(1) member-body(2) us(840)
+   rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-ct(1) 1}
 
 ESSVersion ::= INTEGER  { v1(1) }
 
 -- Section 2.9
 
 ContentHints ::= SEQUENCE {
-  contentDescription UTF8String OPTIONAL,
-  contentType ContentType }
+  contentDescription UTF8String (SIZE (1..MAX)) OPTIONAL,
+  contentType ContentType
+}
 
--- id-aa-contentHint OBJECT IDENTIFIER ::= { iso(1) member-body(2) us(840)
---     rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 4}
+id-aa-contentHint OBJECT IDENTIFIER ::= { iso(1) member-body(2) us(840)
+    rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 4}
 
 -- Section 2.10
 
 MsgSigDigest ::= OCTET STRING
 
--- id-aa-msgSigDigest OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 5}
+id-aa-msgSigDigest OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 5}
 
 -- Section 2.11
 
 ContentReference ::= SEQUENCE {
   contentType ContentType,
   signedContentIdentifier ContentIdentifier,
-  originatorSignatureValue OCTET STRING }
+  originatorSignatureValue OCTET STRING
+}
 
--- id-aa-contentReference   OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 10 }
-
+id-aa-contentReference   OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 10 }
 
 -- Section 3.2
 
@@ -144,10 +138,11 @@ ESSSecurityLabel ::= SET {
   security-policy-identifier SecurityPolicyIdentifier,
   security-classification SecurityClassification OPTIONAL,
   privacy-mark ESSPrivacyMark OPTIONAL,
-  security-categories SecurityCategories OPTIONAL }
+  security-categories SecurityCategories OPTIONAL
+}
 
--- id-aa-securityLabel OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 2}
+ id-aa-securityLabel OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 2}
 
 SecurityPolicyIdentifier ::= OBJECT IDENTIFIER
 
@@ -157,24 +152,25 @@ SecurityClassification ::= INTEGER {
   restricted (2),
   confidential (3),
   secret (4),
-  top-secret (5) }
+  top-secret (5)
+}(0..ub-integer-options)
 
--- ub-integer-options INTEGER ::= 256
+ub-integer-options INTEGER ::= 256
 
 ESSPrivacyMark ::= CHOICE {
-    pString      PrintableString,
-    utf8String   UTF8String
+    pString      PrintableString (SIZE (1..ub-privacy-mark-length)),
+    utf8String   UTF8String (SIZE (1..MAX))
 }
 
--- ub-privacy-mark-length INTEGER ::= 128
+ub-privacy-mark-length INTEGER ::= 128
 
-SecurityCategories ::= SET OF SecurityCategory
+SecurityCategories ::= SET SIZE (1..ub-security-categories) OF SecurityCategory
 
--- ub-security-categories INTEGER ::= 64
+ub-security-categories INTEGER ::= 64
 
 SecurityCategory ::= SEQUENCE {
   type  [0] OBJECT IDENTIFIER,
-  value [1] EXPLICIT ANY 
+  value [1] ANY DEFINED BY type
 }
 
 --Note: The aforementioned SecurityCategory syntax produces identical
@@ -222,44 +218,68 @@ FreeFormField ::= CHOICE {
 
 -- Section 3.4
 
-
 EquivalentLabels ::= SEQUENCE OF ESSSecurityLabel
 
--- id-aa-equivalentLabels OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 9}
-
+id-aa-equivalentLabels OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 9}
 
 -- Section 4.4
 
-MLExpansionHistory ::= SEQUENCE OF MLData
+MLExpansionHistory ::= SEQUENCE
+      SIZE (1..ub-ml-expansion-history) OF MLData
 
--- id-aa-mlExpandHistory OBJECT IDENTIFIER ::= { iso(1) member-body(2)
---     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 3}
+id-aa-mlExpandHistory OBJECT IDENTIFIER ::= { iso(1) member-body(2)
+    us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 3}
 
--- ub-ml-expansion-history INTEGER ::= 64
+ub-ml-expansion-history INTEGER ::= 64
 
 MLData ::= SEQUENCE {
   mailListIdentifier EntityIdentifier,
   expansionTime GeneralizedTime,
-  mlReceiptPolicy MLReceiptPolicy OPTIONAL }
+  mlReceiptPolicy MLReceiptPolicy OPTIONAL
+}
 
 EntityIdentifier ::= CHOICE {
   issuerAndSerialNumber IssuerAndSerialNumber,
-  subjectKeyIdentifier SubjectKeyIdentifier }
+  subjectKeyIdentifier SubjectKeyIdentifier
+}
 
 MLReceiptPolicy ::= CHOICE {
   none [0] NULL,
-  insteadOf [1] SEQUENCE OF GeneralNames,
-  inAdditionTo [2] SEQUENCE OF GeneralNames }
+  insteadOf [1] SEQUENCE SIZE (1..MAX) OF GeneralNames,
+  inAdditionTo [2] SEQUENCE SIZE (1..MAX) OF GeneralNames
+}
+
+-- Section 5.4
 
 SigningCertificate ::=  SEQUENCE {
     certs        SEQUENCE OF ESSCertID,
     policies     SEQUENCE OF PolicyInformation OPTIONAL
 }
 
--- id-aa-signingCertificate OBJECT IDENTIFIER ::= { iso(1)
---     member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
---     smime(16) id-aa(2) 12 }
+id-aa-signingCertificate OBJECT IDENTIFIER ::= { iso(1)
+    member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+    smime(16) id-aa(2) 12 }
+
+SigningCertificateV2 ::=  SEQUENCE {
+    certs        SEQUENCE OF ESSCertIDv2,
+    policies     SEQUENCE OF PolicyInformation OPTIONAL
+}
+
+id-aa-signingCertificateV2 OBJECT IDENTIFIER ::= { iso(1)
+    member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+    smime(16) id-aa(2) 47 }
+
+id-sha256  OBJECT IDENTIFIER  ::=  { joint-iso-itu-t(2)
+    country(16) us(840) organization(1) gov(101)
+    csor(3) nistalgorithm(4) hashalgs(2) 1 }
+
+ESSCertIDv2 ::= SEQUENCE {
+     hashAlgorithm           AlgorithmIdentifier
+            DEFAULT {algorithm id-sha256},
+     certHash                Hash,
+     issuerSerial            IssuerSerial OPTIONAL
+}
 
 ESSCertID ::=  SEQUENCE {
      certHash                 Hash,

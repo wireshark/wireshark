@@ -1,6 +1,7 @@
 /* packet-ess.h
- * Routines for RFC2634 Extended Security Services packet dissection
+ * Routines for RFC5035 Extended Security Services packet dissection
  *    Ronnie Sahlberg 2004
+ *    Stig Bjorlykke 2010
  *
  * $Id$
  *

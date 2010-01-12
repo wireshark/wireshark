@@ -1,14 +1,15 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ess.h                                                               */
-/* ../../tools/asn2wrs.py -b -k -p ess -c ./ess.cnf -s ./packet-ess-template -D . ExtendedSecurityServices.asn */
+/* ../../tools/asn2wrs.py -b -e -k -C -p ess -c ./ess.cnf -s ./packet-ess-template -D . ExtendedSecurityServices.asn */
 
 /* Input file: packet-ess-template.h */
 
 #line 1 "packet-ess-template.h"
 /* packet-ess.h
- * Routines for RFC2634 Extended Security Services packet dissection
+ * Routines for RFC5035 Extended Security Services packet dissection
  *    Ronnie Sahlberg 2004
+ *    Stig Bjorlykke 2010
  *
  * $Id$
  *
