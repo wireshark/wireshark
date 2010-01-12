@@ -74,7 +74,14 @@ NSI=wireshark.nsi \
 
 DELIVERABLES=$(EXE) $(DLL) $(DOC) $(DOC_dos) $(GPL) $(HELP) $(PLUGINS)
 
+!IFDEF MAKENSIS
 all: NEWS.txt wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe
+!ELSE
+all: _FORCE_
+	@echo ? NSIS not available (MAKENSIS not defined in config.nmake)
+	@echo.
+	@exit 1
+!ENDIF
 
 NEWS.txt: ../../NEWS
 	$(UNIX2DOS) < ../../NEWS > NEWS.txt
@@ -185,3 +192,7 @@ $(EXE) $(DLL):
 	cd ../..
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd packaging/nsis
+
+####
+_FORCE_:  ## Assumption: no file named _FORCE_ exists in the current directory
+
