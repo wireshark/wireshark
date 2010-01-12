@@ -365,7 +365,7 @@ title Command Prompt (VC++ 2008)]]>
           prepare <command>cmd.exe</command> again.</para>
         </listitem>
         <listitem>
-          <para><command>nmake -f Makefile.nmake</command> setup downloads libraries
+          <para><command>nmake -f Makefile.nmake setup</command> downloads libraries
           using <command>wget</command> and installs them - this may take a while
           ...</para>
         </listitem>
