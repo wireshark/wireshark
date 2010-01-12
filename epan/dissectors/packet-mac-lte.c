@@ -2203,9 +2203,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Show bytes too.  There must be a nicer way of doing this! */
         pdu_data = tvb_get_ptr(tvb, offset, pdu_lengths[n]);
         for (i=0; i < data_length; i++) {
-            snprintf(buff+(i*2), 3, "%02x",  pdu_data[i]);
+            g_snprintf(buff+(i*2), 3, "%02x",  pdu_data[i]);
             if (i >= 30) {
-                snprintf(buff+(i*2), 4, "...");
+                g_snprintf(buff+(i*2), 4, "...");
                 break;
             }
         }
