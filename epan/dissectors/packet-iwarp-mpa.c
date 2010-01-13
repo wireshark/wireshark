@@ -487,7 +487,6 @@ mpa_packetlist(packet_info *pinfo, gint message_type)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPA");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 				"%d > %d %s", pinfo->srcport, pinfo->destport,
 				val_to_str(message_type, mpa_messages,

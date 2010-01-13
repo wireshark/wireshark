@@ -355,7 +355,6 @@ dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Clear out stuff in the info column */
 	if (check_col(pinfo->cinfo,COL_INFO)) {
-		col_clear(pinfo->cinfo,COL_INFO);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 				val_to_str(head, enttec_head_vals, "Unknown (0x%08x)"));
 	}

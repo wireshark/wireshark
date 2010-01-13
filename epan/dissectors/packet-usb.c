@@ -1861,8 +1861,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     offset += 1;
 
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_clear(pinfo->cinfo, COL_INFO);
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s Request",
+                        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
                              val_to_str(usb_trans_info->request, setup_request_names_vals, "Unknown type %x"));
                     }
 
@@ -1987,8 +1986,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                      * dissector
                      */
                     if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_clear(pinfo->cinfo, COL_INFO);
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s Response",
+                        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
                             val_to_str(usb_conv_info->usb_trans_info->request, setup_request_names_vals, "Unknown type %x"));
                     }
 

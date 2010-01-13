@@ -168,7 +168,6 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Session ID 0x%x", session_id);
 		if (authtype == IPMI_AUTH_RMCPP) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", payload type: %s",

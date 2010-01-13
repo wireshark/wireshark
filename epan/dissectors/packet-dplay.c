@@ -1025,10 +1025,7 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(memcmp(play_id, (guint8 *)&dplay_id, 4) != 0)
     {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
-        /* Clear out stuff in the info column */
-        col_clear(pinfo->cinfo, COL_INFO);
-        if(check_col(pinfo->cinfo,COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO, "DPlay data packet");
+        col_set_str(pinfo->cinfo,COL_INFO, "DPlay data packet");
         return;
     }
 
@@ -1038,8 +1035,6 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
-    /* Clear out stuff in the info column */
-    col_clear(pinfo->cinfo, COL_INFO);
 
     if(check_col(pinfo->cinfo,COL_INFO))
     {
@@ -1138,10 +1133,7 @@ static void dissect_dplay_player_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     guint32 mixed, size, token;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
-    /* Clear out stuff in the info column */
-    col_clear(pinfo->cinfo, COL_INFO);
-    if(check_col(pinfo->cinfo,COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, "DPlay player to player message");
+    col_set_str(pinfo->cinfo,COL_INFO, "DPlay player to player message");
 
     if(tree)
     {

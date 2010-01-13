@@ -217,15 +217,10 @@ static gint ett_ismacryp_message = -1;
 static void dissect_ismacryp_v11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/* display ISMACryp version */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ISMACRYP_11);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ISMACRYP_11);
 
 	/* display RTP payload type */
-	if ( check_col( pinfo->cinfo, COL_INFO) ) {
-		col_clear(pinfo->cinfo,COL_INFO); /* clear column info */
-		
-		col_append_str(pinfo->cinfo, COL_INFO, "(PT=enc-mpeg4-generic)");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "(PT=enc-mpeg4-generic)");
 
 	dissect_ismacryp_common( tvb, pinfo, tree, V11);
 }
@@ -234,24 +229,17 @@ static void dissect_ismacryp_v11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static void dissect_ismacryp_v20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/* display ISMACryp version */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ISMACRYP_20);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ISMACRYP_20);
 
 	/* display RTP payload type */
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_clear(pinfo->cinfo,COL_INFO); /* clear column info */
-		col_append_str(pinfo->cinfo, COL_INFO, "(PT=enc-isoff-generic)");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "(PT=enc-isoff-generic)");
 
 	dissect_ismacryp_common( tvb, pinfo, tree, V20);
 }
 
 static void dissect_ismacryp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_clear(pinfo->cinfo,COL_INFO); /* clear column info */
-		col_append_str(pinfo->cinfo, COL_INFO, "Manual version");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "Manual version");
 	dissect_ismacryp_common( tvb, pinfo, tree, version_type);   /* Unknown version type: Use preference */
 }
 

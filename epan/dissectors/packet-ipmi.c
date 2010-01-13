@@ -1368,10 +1368,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dfmt.flags = IPMI_D_BROADCAST | IPMI_D_TRG_SA;
 	ipmi_do_dissect(tvb, ipmi_tree, &dfmt);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_add_str(pinfo->cinfo, COL_INFO, dfmt.info);
-	}
+	col_add_str(pinfo->cinfo, COL_INFO, dfmt.info);
 
 }
 

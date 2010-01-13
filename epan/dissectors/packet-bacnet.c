@@ -349,7 +349,6 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Put the NPDU Type in the info column */
 		if (check_col(pinfo->cinfo, COL_INFO))
 		{
-			col_clear(pinfo->cinfo, COL_INFO);
 			col_add_str(pinfo->cinfo, COL_INFO,
 				bacnet_mesgtyp_name(bacnet_mesgtyp));
 		}

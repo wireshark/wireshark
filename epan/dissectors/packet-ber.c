@@ -4305,10 +4305,7 @@ dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if(!decode_as_syntax) {
  
     /* if we got here we couldn't find anything better */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_clear(pinfo->cinfo, COL_INFO);
-      col_append_str(pinfo->cinfo, COL_INFO, "Unknown BER");
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, "Unknown BER");
 
     (void) dissect_unknown_ber(pinfo, tvb, 0, tree);
 
@@ -4321,8 +4318,7 @@ dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* see if we have a better name */
       name = get_ber_oid_syntax(decode_as_syntax);
 
-      col_clear(pinfo->cinfo, COL_INFO);
-      col_append_fstr(pinfo->cinfo, COL_INFO, "Decoded as %s", name ? name : decode_as_syntax);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Decoded as %s", name ? name : decode_as_syntax);
     }
   }
 }

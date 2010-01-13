@@ -73,7 +73,6 @@ dissect_hpteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		strPtr = ether_to_str(mac_addr);
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "HP NIC Team");
 		/* Clear out stuff in the info column */
-		col_clear(pinfo->cinfo, COL_INFO);
 		col_set_str(pinfo->cinfo, COL_INFO, "HP NIC Teaming Heartbeat; ");
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Port MAC = %s ", strPtr);
 

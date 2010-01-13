@@ -165,8 +165,7 @@ dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBMS");
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_clear(pinfo->cinfo, COL_INFO);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
             val_to_str(usb_trans_info->request, setup_request_names_vals, "Unknown type %x"),
             is_request?"Request":"Response");
     }

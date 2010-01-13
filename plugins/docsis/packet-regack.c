@@ -58,7 +58,6 @@ dissect_regack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   if (check_col (pinfo->cinfo, COL_INFO))
     {
-      col_clear (pinfo->cinfo, COL_INFO);
       col_add_fstr (pinfo->cinfo, COL_INFO,
 		    "Registration Acknowledge SID = %u (%s)", sid,
 		    val_to_str (response, docsis_conf_code, "%s"));

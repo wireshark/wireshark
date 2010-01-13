@@ -57,10 +57,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS NLB");
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_append_str(pinfo->cinfo, COL_INFO, "MS NLB heartbeat");
-  }
+  col_set_str(pinfo->cinfo, COL_INFO, "MS NLB heartbeat");
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_msnlb, tvb, 0, -1, FALSE);

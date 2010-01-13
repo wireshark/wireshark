@@ -1804,10 +1804,7 @@ dissect_ff_msg_fda_open_sess_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FDA Open Session Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FDA Open Session Request");
 
 	if(!tree) {
 		return;
@@ -1881,10 +1878,7 @@ dissect_ff_msg_fda_open_sess_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FDA Open Session Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FDA Open Session Response");
 
 	if(!tree) {
 		return;
@@ -1961,10 +1955,7 @@ dissect_ff_msg_fda_open_sess_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FDA Open Session Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FDA Open Session Error");
 
 	if(!tree) {
 		return;
@@ -2023,10 +2014,7 @@ dissect_ff_msg_fda_idle_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FDA Idle Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FDA Idle Request");
 
 	if(!tree) {
 		return;
@@ -2060,10 +2048,7 @@ dissect_ff_msg_fda_idle_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FDA Idle Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FDA Idle Response");
 
 	if(!tree) {
 		return;
@@ -2100,10 +2085,7 @@ dissect_ff_msg_fda_idle_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FDA Idle Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FDA Idle Error");
 
 	if(!tree) {
 		return;
@@ -2162,10 +2144,7 @@ dissect_ff_msg_sm_find_tag_query_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "SM Find Tag Query Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Find Tag Query Request");
 
 	if(!tree) {
 		return;
@@ -2311,10 +2290,7 @@ dissect_ff_msg_sm_find_tag_reply_req(tvbuff_t *tvb, gint offset,
 	guint8 DuplicateDetectionState	= 0;
 	guint16 NumOfFDAAddrSelectors	= 0;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "SM Find Tag Reply Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Find Tag Reply Request");
 
 	if(!tree) {
 		return;
@@ -2419,10 +2395,7 @@ dissect_ff_msg_sm_id_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "SM Identify Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Identify Request");
 
 	if(!tree) {
 		return;
@@ -2829,10 +2802,7 @@ dissect_ff_msg_sm_id_rsp(tvbuff_t *tvb, gint offset,
 
 	guint16 LinkId	= 0;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "SM Identify Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Identify Response");
 
 	if(!tree) {
 		return;
@@ -2962,10 +2932,7 @@ dissect_ff_msg_sm_id_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "SM Identify Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Identify Error");
 
 	if(!tree) {
 		return;
@@ -3023,10 +2990,7 @@ dissect_ff_msg_sm_clear_addr_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "SM Clear Address Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Clear Address Request");
 
 	if(!tree) {
 		return;
@@ -3079,10 +3043,7 @@ dissect_ff_msg_sm_clear_addr_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "SM Clear Address Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Clear Address Response");
 
 	if(!tree) {
 		return;
@@ -3119,10 +3080,7 @@ dissect_ff_msg_sm_clear_addr_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "SM Clear Address Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Clear Address Error");
 
 	if(!tree) {
 		return;
@@ -3289,11 +3247,7 @@ dissect_ff_msg_sm_set_assign_info_req(tvbuff_t *tvb, gint offset,
 	guint8 DeviceRedundancyState	= 0;
 	guint8 ClearDuplicateDetectionState	= 0;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"SM Set Assignment Info Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO,"SM Set Assignment Info Request");
 
 	if(!tree) {
 		return;
@@ -3385,11 +3339,7 @@ dissect_ff_msg_sm_set_assign_info_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"SM Set Assignment Info Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Set Assignment Info Response");
 
 	if(!tree) {
 		return;
@@ -3442,10 +3392,7 @@ dissect_ff_msg_sm_set_assign_info_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "SM Set Assignment Info Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Set Assignment Info Error");
 
 	if(!tree) {
 		return;
@@ -3505,11 +3452,7 @@ dissect_ff_msg_sm_clear_assign_info_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"SM Clear Assignment Info Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Clear Assignment Info Request");
 
 	if(!tree) {
 		return;
@@ -3554,11 +3497,7 @@ dissect_ff_msg_sm_clear_assign_info_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"SM Clear Assignment Info Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO,"SM Clear Assignment Info Response");
 
 	if(!tree) {
 		return;
@@ -3596,11 +3535,7 @@ dissect_ff_msg_sm_clear_assign_info_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-		"SM Clear Assignment Info Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Clear Assignment Info Error");
 
 	if(!tree) {
 		return;
@@ -4035,11 +3970,7 @@ dissect_ff_msg_sm_dev_annunc_req(tvbuff_t *tvb, gint offset,
 
 	guint16 LinkId = 0;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"SM Device Annunciation Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "SM Device Annunciation Request");
 
 	if(!tree) {
 		return;
@@ -4169,11 +4100,7 @@ dissect_ff_msg_fms_init_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti			= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Initiate Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Request");
 
 	if(!tree) {
 		return;
@@ -4238,10 +4165,7 @@ dissect_ff_msg_fms_init_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti			= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Initiate Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Response");
 
 	if(!tree) {
 		return;
@@ -4288,10 +4212,7 @@ dissect_ff_msg_fms_init_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Initiate Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Error");
 
 	if(!tree) {
 		return;
@@ -4349,10 +4270,7 @@ dissect_ff_msg_fms_abort_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Abort Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Abort Request");
 
 	if(!tree) {
 		return;
@@ -4406,10 +4324,7 @@ dissect_ff_msg_fms_status_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Status Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Status Request");
 
 	if(!tree) {
 		return;
@@ -4443,10 +4358,7 @@ dissect_ff_msg_fms_status_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Status Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Status Response");
 
 	if(!tree) {
 		return;
@@ -4502,10 +4414,7 @@ dissect_ff_msg_fms_status_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Status Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Status Error");
 
 	if(!tree) {
 		return;
@@ -4563,11 +4472,7 @@ dissect_ff_msg_fms_unsolicited_status_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Unsolicited Status Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Unsolicited Status Request");
 
 	if(!tree) {
 		return;
@@ -4623,11 +4528,7 @@ dissect_ff_msg_fms_id_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Identify Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Identify Request");
 
 	if(!tree) {
 		return;
@@ -4661,10 +4562,7 @@ dissect_ff_msg_fms_id_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti			= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Identify Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Identify Response");
 
 	if(!tree) {
 		return;
@@ -4716,10 +4614,7 @@ dissect_ff_msg_fms_id_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Identify Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Identify Error");
 
 	if(!tree) {
 		return;
@@ -4777,10 +4672,7 @@ dissect_ff_msg_fms_get_od_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Get OD Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Get OD Request");
 
 	if(!tree) {
 		return;
@@ -4833,10 +4725,7 @@ dissect_ff_msg_fms_get_od_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Get OD Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Get OD Response");
 
 	if(!tree) {
 		return;
@@ -4887,10 +4776,7 @@ dissect_ff_msg_fms_get_od_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Get OD Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Get OD Error");
 
 	if(!tree) {
 		return;
@@ -4948,10 +4834,7 @@ dissect_ff_msg_fms_init_put_od_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Initiate Put OD Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Put OD Request");
 
 	if(!tree) {
 		return;
@@ -4995,10 +4878,7 @@ dissect_ff_msg_fms_init_put_od_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Initiate Put OD Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Put OD Response");
 
 	if(!tree) {
 		return;
@@ -5035,10 +4915,7 @@ dissect_ff_msg_fms_init_put_od_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Initiate Put OD Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Put OD Error");
 
 	if(!tree) {
 		return;
@@ -5097,10 +4974,7 @@ dissect_ff_msg_fms_put_od_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Put OD Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Put OD Request");
 
 	if(!tree) {
 		return;
@@ -5140,10 +5014,7 @@ dissect_ff_msg_fms_put_od_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Put OD Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Put OD Response");
 
 	if(!tree) {
 		return;
@@ -5180,10 +5051,7 @@ dissect_ff_msg_fms_put_od_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Put OD Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Put OD Error");
 
 	if(!tree) {
 		return;
@@ -5242,10 +5110,7 @@ dissect_ff_msg_fms_terminate_put_od_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Terminate Put OD Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Put OD Request");
 
 	if(!tree) {
 		return;
@@ -5279,11 +5144,7 @@ dissect_ff_msg_fms_terminate_put_od_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Terminate Put OD Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Put OD Response");
 
 	if(!tree) {
 		return;
@@ -5320,10 +5181,7 @@ dissect_ff_msg_fms_terminate_put_od_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Terminate Put OD Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Put OD Error");
 
 	if(!tree) {
 		return;
@@ -5391,11 +5249,7 @@ dissect_ff_msg_fms_generic_init_download_sequence_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Generic Initiate Download Sequence Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Initiate Download Sequence Request");
 
 	if(!tree) {
 		return;
@@ -5435,11 +5289,7 @@ dissect_ff_msg_fms_generic_init_download_sequence_rsp(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Generic Initiate Download Sequence Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Initiate Download Sequence Response");
 
 	if(!tree) {
 		return;
@@ -5478,11 +5328,7 @@ dissect_ff_msg_fms_generic_init_download_sequence_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Generic Initiate Download Sequence Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Initiate Download Sequence Error");
 
 	if(!tree) {
 		return;
@@ -5545,11 +5391,7 @@ dissect_ff_msg_fms_generic_download_segment_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Generic Download Segment Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Download Segment Request");
 
 	if(!tree) {
 		return;
@@ -5598,11 +5440,7 @@ dissect_ff_msg_fms_generic_download_segment_rsp(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Generic Download Segment Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Download Segment Response");
 
 	if(!tree) {
 		return;
@@ -5641,11 +5479,7 @@ dissect_ff_msg_fms_generic_download_segment_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Generic Download Segment Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Download Segment Error");
 
 	if(!tree) {
 		return;
@@ -5708,11 +5542,7 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Generic Terminate Download Sequence Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO,"FMS Generic Terminate Download Sequence Request");
 
 	if(!tree) {
 		return;
@@ -5753,11 +5583,7 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_rsp(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Generic Terminate Download Sequence Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Terminate Download Sequence Response");
 
 	if(!tree) {
 		return;
@@ -5806,11 +5632,7 @@ dissect_ff_msg_fms_generic_terminate_download_sequence_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Generic Terminate Download Sequence Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Generic Terminate Download Sequence Error");
 
 	if(!tree) {
 		return;
@@ -5875,11 +5697,7 @@ dissect_ff_msg_fms_init_download_sequence_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Initiate Download Sequence Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Download Sequence Request");
 
 	if(!tree) {
 		return;
@@ -5920,11 +5738,7 @@ dissect_ff_msg_fms_init_download_sequence_rsp(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Initiate Download Sequence Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Download Sequence Response");
 
 	if(!tree) {
 		return;
@@ -5963,11 +5777,7 @@ dissect_ff_msg_fms_init_download_sequence_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Initiate Download Sequence Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Download Sequence Error");
 
 	if(!tree) {
 		return;
@@ -6028,10 +5838,7 @@ dissect_ff_msg_fms_download_segment_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Download Segment Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Download Segment Request");
 
 	if(!tree) {
 		return;
@@ -6070,11 +5877,7 @@ dissect_ff_msg_fms_download_segment_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Download Segment Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Download Segment Response");
 
 	if(!tree) {
 		return;
@@ -6120,11 +5923,7 @@ dissect_ff_msg_fms_download_segment_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Download Segment Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Download Segment Error");
 
 	if(!tree) {
 		return;
@@ -6185,11 +5984,7 @@ dissect_ff_msg_fms_terminate_download_sequence_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Terminate Download Sequence Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Download Sequence Request");
 
 	if(!tree) {
 		return;
@@ -6240,11 +6035,7 @@ dissect_ff_msg_fms_terminate_download_sequence_rsp(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Terminate Download Sequence Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Download Sequence Response");
 
 	if(!tree) {
 		return;
@@ -6283,11 +6074,7 @@ dissect_ff_msg_fms_terminate_download_sequence_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Terminate Download Sequence Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Download Sequence Error");
 
 	if(!tree) {
 		return;
@@ -6351,11 +6138,7 @@ dissect_ff_msg_fms_init_upload_seq_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Initiate Upload Sequence Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Upload Sequence Request");
 
 	if(!tree) {
 		return;
@@ -6395,11 +6178,7 @@ dissect_ff_msg_fms_init_upload_seq_rsp(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Initiate Upload Sequence Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Upload Sequence Response");
 
 	if(!tree) {
 		return;
@@ -6437,11 +6216,7 @@ dissect_ff_msg_fms_init_upload_seq_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Initiate Upload Sequence Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Initiate Upload Sequence Error");
 
 	if(!tree) {
 		return;
@@ -6500,11 +6275,7 @@ dissect_ff_msg_fms_upload_segment_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Upload Segment Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Upload Segment Request");
 
 	if(!tree) {
 		return;
@@ -6543,10 +6314,7 @@ dissect_ff_msg_fms_upload_segment_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Upload Segment Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Upload Segment Response");
 
 	if(!tree) {
 		return;
@@ -6592,10 +6360,7 @@ dissect_ff_msg_fms_upload_segment_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Upload Segment Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Upload Segment Error");
 
 	if(!tree) {
 		return;
@@ -6656,11 +6421,7 @@ dissect_ff_msg_fms_terminate_upload_seq_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Terminate Upload Sequence Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Upload Sequence Request");
 
 	if(!tree) {
 		return;
@@ -6700,11 +6461,7 @@ dissect_ff_msg_fms_terminate_upload_seq_rsp(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Terminate Upload Sequence Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Upload Sequence Response");
 
 	if(!tree) {
 		return;
@@ -6743,11 +6500,7 @@ dissect_ff_msg_fms_terminate_upload_seq_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Terminate Upload Sequence Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Terminate Upload Sequence Error");
 
 	if(!tree) {
 		return;
@@ -6810,11 +6563,7 @@ dissect_ff_msg_fms_req_dom_download_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Request Domain Download Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO,"FMS Request Domain Download Request");
 
 	if(!tree) {
 		return;
@@ -6855,11 +6604,7 @@ dissect_ff_msg_fms_req_dom_download_rsp(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Request Domain Download Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO,"FMS Request Domain Download Response");
 
 	if(!tree) {
 		return;
@@ -6898,11 +6643,7 @@ dissect_ff_msg_fms_req_dom_download_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Request Domain Download Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Request Domain Download Error");
 
 	if(!tree) {
 		return;
@@ -6964,11 +6705,7 @@ dissect_ff_msg_fms_req_dom_upload_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Request Domain Upload Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Request Domain Upload Request");
 
 	if(!tree) {
 		return;
@@ -7009,11 +6746,7 @@ dissect_ff_msg_fms_req_dom_upload_rsp(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Request Domain Upload Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Request Domain Upload Response");
 
 	if(!tree) {
 		return;
@@ -7052,11 +6785,7 @@ dissect_ff_msg_fms_req_dom_upload_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Request Domain Upload Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Request Domain Upload Error");
 
 	if(!tree) {
 		return;
@@ -7150,11 +6879,7 @@ dissect_ff_msg_fms_create_pi_req(tvbuff_t *tvb, gint offset,
 	proto_item *ti	= NULL;
 	guint16 NumOfDomIdxes	= 0;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Create Program Invocation Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Create Program Invocation Request");
 
 	if(!tree) {
 		return;
@@ -7213,11 +6938,7 @@ dissect_ff_msg_fms_create_pi_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Create Program Invocation Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Create Program Invocation Response");
 
 	if(!tree) {
 		return;
@@ -7260,11 +6981,7 @@ dissect_ff_msg_fms_create_pi_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Create Program Invocation Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Create Program Invocation Error");
 
 	if(!tree) {
 		return;
@@ -7325,11 +7042,7 @@ dissect_ff_msg_fms_del_pi_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Delete Program Invocation Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO,"FMS Delete Program Invocation Request");
 
 	if(!tree) {
 		return;
@@ -7369,11 +7082,7 @@ dissect_ff_msg_fms_del_pi_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Delete Program Invocation Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Delete Program Invocation Response");
 
 	if(!tree) {
 		return;
@@ -7411,11 +7120,7 @@ dissect_ff_msg_fms_del_pi_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Delete Program Invocation Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Delete Program Invocation Error");
 
 	if(!tree) {
 		return;
@@ -7476,10 +7181,7 @@ dissect_ff_msg_fms_start_pi_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Start Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Start Request");
 
 	if(!tree) {
 		return;
@@ -7517,10 +7219,7 @@ dissect_ff_msg_fms_start_pi_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Start Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Start Response");
 
 	if(!tree) {
 		return;
@@ -7557,10 +7256,7 @@ dissect_ff_msg_fms_start_pi_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Start Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Start Error");
 
 	if(!tree) {
 		return;
@@ -7627,10 +7323,7 @@ dissect_ff_msg_fms_stop_pi_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Stop Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Stop Request");
 
 	if(!tree) {
 		return;
@@ -7668,10 +7361,7 @@ dissect_ff_msg_fms_stop_pi_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Stop Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Stop Response");
 
 	if(!tree) {
 		return;
@@ -7708,10 +7398,7 @@ dissect_ff_msg_fms_stop_pi_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Stop Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Stop Error");
 
 	if(!tree) {
 		return;
@@ -7778,10 +7465,7 @@ dissect_ff_msg_fms_resume_pi_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Resume Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Resume Request");
 
 	if(!tree) {
 		return;
@@ -7819,10 +7503,7 @@ dissect_ff_msg_fms_resume_pi_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Resume Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Resume Response");
 
 	if(!tree) {
 		return;
@@ -7859,10 +7540,7 @@ dissect_ff_msg_fms_resume_pi_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Resume Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Resume Error");
 
 	if(!tree) {
 		return;
@@ -7929,10 +7607,7 @@ dissect_ff_msg_fms_reset_pi_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Reset Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Reset Request");
 
 	if(!tree) {
 		return;
@@ -7970,10 +7645,7 @@ dissect_ff_msg_fms_reset_pi_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Reset Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Reset Response");
 
 	if(!tree) {
 		return;
@@ -8010,10 +7682,7 @@ dissect_ff_msg_fms_reset_pi_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Reset Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Reset Error");
 
 	if(!tree) {
 		return;
@@ -8080,10 +7749,7 @@ dissect_ff_msg_fms_kill_pi_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Kill Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Kill Request");
 
 	if(!tree) {
 		return;
@@ -8121,10 +7787,7 @@ dissect_ff_msg_fms_kill_pi_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Kill Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Kill Response");
 
 	if(!tree) {
 		return;
@@ -8161,10 +7824,7 @@ dissect_ff_msg_fms_kill_pi_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Kill Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Kill Error");
 
 	if(!tree) {
 		return;
@@ -8222,11 +7882,7 @@ dissect_ff_msg_fms_read_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Read Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Read Request");
 
 	if(!tree) {
 		return;
@@ -8264,11 +7920,7 @@ dissect_ff_msg_fms_read_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Read Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Read Response");
 
 	if(!tree) {
 		return;
@@ -8302,10 +7954,7 @@ dissect_ff_msg_fms_read_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Read Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Read Error");
 
 	if(!tree) {
 		return;
@@ -8363,11 +8012,7 @@ dissect_ff_msg_fms_read_subindex_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Read with Subindex Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Read with Subindex Request");
 
 	if(!tree) {
 		return;
@@ -8411,11 +8056,7 @@ dissect_ff_msg_fms_read_subindex_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Read with Subindex Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Read with Subindex Response");
 
 	if(!tree) {
 		return;
@@ -8450,10 +8091,7 @@ dissect_ff_msg_fms_read_subindex_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Read with Subindex Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Read with Subindex Error");
 
 	if(!tree) {
 		return;
@@ -8514,10 +8152,7 @@ dissect_ff_msg_fms_write_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Write Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Write Request");
 
 	if(!tree) {
 		return;
@@ -8555,10 +8190,7 @@ dissect_ff_msg_fms_write_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Write Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Write Response");
 
 	if(!tree) {
 		return;
@@ -8595,10 +8227,7 @@ dissect_ff_msg_fms_write_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "FMS Write Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Write Error");
 
 	if(!tree) {
 		return;
@@ -8656,11 +8285,7 @@ dissect_ff_msg_fms_write_subindex_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Write with Subindex Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Write with Subindex Request");
 
 	if(!tree) {
 		return;
@@ -8704,11 +8329,7 @@ dissect_ff_msg_fms_write_subindex_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Write with Subindex Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Write with Subindex Response");
 
 	if(!tree) {
 		return;
@@ -8745,11 +8366,7 @@ dissect_ff_msg_fms_write_subindex_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Write with Subindex Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Write with Subindex Error");
 
 	if(!tree) {
 		return;
@@ -8843,11 +8460,7 @@ dissect_ff_msg_fms_def_variable_list_req(tvbuff_t *tvb, gint offset,
 	proto_item *ti	= NULL;
 	guint32 NumOfIndexes	= 0;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Define Variable List Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Define Variable List Request");
 
 	if(!tree) {
 		return;
@@ -8894,11 +8507,7 @@ dissect_ff_msg_fms_def_variable_list_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Define Variable List Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Define Variable List Response");
 
 	if(!tree) {
 		return;
@@ -8940,11 +8549,7 @@ dissect_ff_msg_fms_def_variable_list_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Define Variable List Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Define Variable List Error");
 
 	if(!tree) {
 		return;
@@ -9005,11 +8610,7 @@ dissect_ff_msg_fms_del_variable_list_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Delete Variable List Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Delete Variable List Request");
 
 	if(!tree) {
 		return;
@@ -9048,11 +8649,7 @@ dissect_ff_msg_fms_del_variable_list_rsp(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Delete Variable List Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Delete Variable List Response");
 
 	if(!tree) {
 		return;
@@ -9089,11 +8686,7 @@ dissect_ff_msg_fms_del_variable_list_err(tvbuff_t *tvb, gint offset,
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Delete Variable List Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Delete Variable List Error");
 
 	if(!tree) {
 		return;
@@ -9154,11 +8747,7 @@ dissect_ff_msg_fms_info_report_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Information Report Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Information Report Request");
 
 	if(!tree) {
 		return;
@@ -9199,11 +8788,7 @@ dissect_ff_msg_fms_info_report_subindex_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Information Report with Subindex Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Information Report with Subindex Request");
 
 	if(!tree) {
 		return;
@@ -9249,11 +8834,7 @@ dissect_ff_msg_fms_info_report_change_req(tvbuff_t *tvb, gint offset,
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Information Report On Change Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Information Report On Change Request");
 
 	if(!tree) {
 		return;
@@ -9295,11 +8876,7 @@ dissect_ff_msg_fms_info_report_change_subindex_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Information Report On Change with Subindex Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Information Report On Change with Subindex Request");
 
 	if(!tree) {
 		return;
@@ -9348,11 +8925,7 @@ dissect_ff_msg_fms_ev_notification_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Event Notification Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Event Notification Request");
 
 	if(!tree) {
 		return;
@@ -9398,11 +8971,7 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Alter Event Condition Monitoring Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Alter Event Condition Monitoring Request");
 
 	if(!tree) {
 		return;
@@ -9453,11 +9022,7 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_rsp(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Alter Event Condition Monitoring Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Alter Event Condition Monitoring Response");
 
 	if(!tree) {
 		return;
@@ -9496,11 +9061,7 @@ dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Alter Event Condition Monitoring Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Alter Event Condition Monitoring Error");
 
 	if(!tree) {
 		return;
@@ -9565,11 +9126,7 @@ dissect_ff_msg_fms_ack_ev_notification_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Acknowledge Event Notification Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Acknowledge Event Notification Request");
 
 	if(!tree) {
 		return;
@@ -9614,11 +9171,7 @@ dissect_ff_msg_fms_ack_ev_notification_rsp(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Acknowledge Event Notification Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Acknowledge Event Notification Response");
 
 	if(!tree) {
 		return;
@@ -9657,11 +9210,7 @@ dissect_ff_msg_fms_ack_ev_notification_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"FMS Acknowledge Event Notification Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "FMS Acknowledge Event Notification Error");
 
 	if(!tree) {
 		return;
@@ -9724,11 +9273,7 @@ dissect_ff_msg_lr_get_info_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"LAN Redundancy Get Information Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Information Request");
 
 	if(!tree) {
 		return;
@@ -9852,11 +9397,7 @@ dissect_ff_msg_lr_get_info_rsp(
 	guint8 MaxMsgNumDiff	= 0;
 	guint8 LRFlags	= 0;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"LAN Redundancy Get Information Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Information Response");
 
 	if(!tree) {
 		return;
@@ -9962,11 +9503,7 @@ dissect_ff_msg_lr_get_info_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"LAN Redundancy Get Information Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Information Error");
 
 	if(!tree) {
 		return;
@@ -10115,11 +9652,7 @@ dissect_ff_msg_lr_put_info_req(
 	guint8 MaxMsgNumDiff	= 0;
 	guint8 LRFlags	= 0;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"LAN Redundancy Put Information Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Put Information Request");
 
 	if(!tree) {
 		return;
@@ -10310,11 +9843,7 @@ dissect_ff_msg_lr_put_info_rsp(
 	guint8 MaxMsgNumDiff	= 0;
 	guint8 LRFlags	= 0;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"LAN Redundancy Put Information Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Put Information Response");
 
 	if(!tree) {
 		return;
@@ -10420,11 +9949,7 @@ dissect_ff_msg_lr_put_info_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"LAN Redundancy Put Information Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Put Information Error");
 
 	if(!tree) {
 		return;
@@ -10485,11 +10010,7 @@ dissect_ff_msg_lr_get_statistics_req(
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"LAN Redundancy Get Statistics Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Statistics Request");
 
 	if(!tree) {
 		return;
@@ -10558,11 +10079,7 @@ dissect_ff_msg_lr_get_statistics_rsp(
 	proto_item *ti	= NULL;
 	guint32 NumXcableStat;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"LAN Redundancy Get Statistics Response");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Statistics Response");
 
 	if(!tree) {
 		return;
@@ -10649,11 +10166,7 @@ dissect_ff_msg_lr_get_statistics_err(
 	guint8 ErrorCode	= 0;
 	const char *error_code	= NULL;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-			"LAN Redundancy Get Statistics Error");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "LAN Redundancy Get Statistics Error");
 
 	if(!tree) {
 		return;
@@ -10906,10 +10419,7 @@ dissect_ff_msg_diagnostic_msg_req(
 	guint8 DuplicateDetectionState	= 0;
 	guint16 NumOfInterfaceStatuses	= 0;
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Diagnostic Message Request");
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, "Diagnostic Message Request");
 
 	if(!tree) {
 		return;
@@ -13079,8 +12589,7 @@ dissect_ff_msg_body(tvbuff_t *tvb, gint offset, guint32 length,
 
 		default:
 			if(check_col(pinfo->cinfo, COL_INFO)) {
-				col_clear(pinfo->cinfo, COL_INFO);
-				col_append_fstr(pinfo->cinfo, COL_INFO,
+				col_add_fstr(pinfo->cinfo, COL_INFO,
 				"Unknown Service (Protocol Id: %u, Confirmed Msg Type: %u) "
 				"(%s Service Id = %u)",
 				(ProtocolAndType & PROTOCOL_MASK) >> 2,

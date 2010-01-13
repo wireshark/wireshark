@@ -536,7 +536,6 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PANA");
 
        if (check_col(pinfo->cinfo, COL_INFO)) {
-               col_clear(pinfo->cinfo, COL_INFO);
                col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s-%s",
 			    val_to_str(msg_type, msg_type_names, "Unknown (%d)"),
 			    val_to_str(flags & PANA_FLAG_R, msg_subtype_names, "Unknown (%d)"));

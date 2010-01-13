@@ -70,9 +70,6 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
-	/* clear the "Info" column */
-	col_clear(pinfo->cinfo, COL_INFO);
-
 	/* set "Info" column text */
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",

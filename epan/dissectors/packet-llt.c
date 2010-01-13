@@ -75,7 +75,6 @@ dissect_llt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	message_type = tvb_get_guint8(tvb, 3);
 
 	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Message type: %s", val_to_str(message_type, message_type_vs, "Unknown (0x%02x)"));
 	}
 
