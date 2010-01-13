@@ -3480,12 +3480,12 @@ dissect_pktdrop_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pi
 }
 
 static void
-dissect_unknown_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree *chunk_tree, proto_item *chunk_item)
+dissect_unknown_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, guint8 chunk_type, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   if (chunk_tree) {
     if (chunk_length > CHUNK_HEADER_LENGTH)
       proto_tree_add_item(chunk_tree, hf_chunk_value, chunk_tvb, CHUNK_VALUE_OFFSET, chunk_length - CHUNK_HEADER_LENGTH, NETWORK_BYTE_ORDER);
-    proto_item_append_text(chunk_item, " (Type: %u, value length: %u byte%s)", chunk_length, chunk_length, plurality(chunk_length - CHUNK_HEADER_LENGTH, "", "s"));
+    proto_item_append_text(chunk_item, " (Type: %u, value length: %u byte%s)", chunk_type, chunk_length, plurality(chunk_length - CHUNK_HEADER_LENGTH, "", "s"));
   }
 }
 
@@ -3639,7 +3639,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
     col_set_writable(pinfo->cinfo, TRUE);
     break;
   default:
-    dissect_unknown_chunk(chunk_tvb, length, chunk_tree, chunk_item);
+    dissect_unknown_chunk(chunk_tvb, length, type, chunk_tree, chunk_item);
     break;
   }
 
