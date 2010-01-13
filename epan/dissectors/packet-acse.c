@@ -1210,7 +1210,7 @@ dissect_acse_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
                                                 &reason);
 
 
-  if((reason != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
+  if(reason != -1)
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Request (%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%d)"));
 
 
@@ -1264,7 +1264,7 @@ dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U
                                                 &reason);
 
 
-  if((reason != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
+  if(reason != -1)
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Response (%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%d)"));
 
 

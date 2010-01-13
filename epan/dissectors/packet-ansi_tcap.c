@@ -492,7 +492,7 @@ dissect_ansi_tcap_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ansi_tcap_TransactionID_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 120 "ansi_tcap.cnf"
+#line 113 "ansi_tcap.cnf"
 
 tvbuff_t *next_tvb;
 guint8 len;
@@ -1081,8 +1081,7 @@ static int
 dissect_ansi_tcap_T_unidirectional(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 85 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "unidirectional ");
+col_set_str(actx->pinfo->cinfo, COL_INFO, "unidirectional ");
 
 
   offset = dissect_ansi_tcap_UniTransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1110,10 +1109,9 @@ dissect_ansi_tcap_TransactionPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ansi_tcap_T_queryWithPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "ansi_tcap.cnf"
+#line 89 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "queryWithPerm ");
+col_set_str(actx->pinfo->cinfo, COL_INFO, "queryWithPerm ");
 
 
   offset = dissect_ansi_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1125,10 +1123,9 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 static int
 dissect_ansi_tcap_T_queryWithoutPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 95 "ansi_tcap.cnf"
+#line 93 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "queryWithoutPerm ");
+col_set_str(actx->pinfo->cinfo, COL_INFO, "queryWithoutPerm ");
 
 
   offset = dissect_ansi_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1140,10 +1137,9 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 static int
 dissect_ansi_tcap_T_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 100 "ansi_tcap.cnf"
+#line 97 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "response ");
+col_set_str(actx->pinfo->cinfo, COL_INFO, "response ");
 
 
   offset = dissect_ansi_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1155,10 +1151,9 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 static int
 dissect_ansi_tcap_T_conversationWithPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 105 "ansi_tcap.cnf"
+#line 101 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "conversationWithPerm ");
+col_set_str(actx->pinfo->cinfo, COL_INFO, "conversationWithPerm ");
 
 
   offset = dissect_ansi_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1170,10 +1165,9 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 
 static int
 dissect_ansi_tcap_T_conversationWithoutPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 110 "ansi_tcap.cnf"
+#line 105 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "conversationWithoutPerm ");
+col_set_str(actx->pinfo->cinfo, COL_INFO, "conversationWithoutPerm ");
 
 
   offset = dissect_ansi_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -1267,10 +1261,9 @@ dissect_ansi_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_ansi_tcap_T_abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 115 "ansi_tcap.cnf"
+#line 109 "ansi_tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ABORT;
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 
 
   offset = dissect_ansi_tcap_Abort(implicit_tag, tvb, offset, actx, tree, hf_index);
