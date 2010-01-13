@@ -177,7 +177,7 @@ dissect_fractalgeneratorprotocol(tvbuff_t *message_tvb, packet_info *pinfo, prot
   proto_tree *fractalgeneratorprotocol_tree;
 
   /* pinfo is NULL only if dissect_fractalgeneratorprotocol_message is called from dissect_error cause */
-  if (pinfo && (check_col(pinfo->cinfo, COL_PROTOCOL)))
+  if (pinfo)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FractalGeneratorProtocol");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not

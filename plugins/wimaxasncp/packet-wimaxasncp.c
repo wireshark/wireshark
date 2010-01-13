@@ -2197,10 +2197,7 @@ dissect_wimaxasncp(
                                0x1f & ui8);
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-        col_add_str(pinfo->cinfo, COL_INFO, message_name);
-    }
+    col_add_str(pinfo->cinfo, COL_INFO, message_name);
 
     offset += 1;
 

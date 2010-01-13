@@ -484,10 +484,7 @@ gboolean too_small_packet_or_notpw(tvbuff_t * tvb
 				,(int)packet_size);
 		}
 		/* represent problems in the Packet List pane */
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		{
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
-		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 		col_set_str(pinfo->cinfo, COL_INFO, "Malformed: PW packet is too small");
 		return TRUE;
 	}
@@ -613,10 +610,7 @@ void dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 	if (PWATM_MODE_AAL5_PDU == pd.mode)
 	{
 		/* sub-dissectors _may_ overwrite columns in aal5_pdu mode */
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		{
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
-		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 		if (check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_clear(pinfo->cinfo, COL_INFO);
@@ -696,10 +690,7 @@ void dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 	if (MODE_11(pd.mode))
 	{
 		/* overwrite everything written by sub-dissectors in 1:1 modes*/
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		{
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
-		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 		if (check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_clear(pinfo->cinfo, COL_INFO);
@@ -1081,10 +1072,7 @@ void dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	/* fill columns in Packet List */
 	/* overwrite everything written by sub-dissectors */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
@@ -1157,10 +1145,7 @@ void dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	
 	/* fill columns in Packet List */
 	/* overwrite everything written by sub-dissectors */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	{
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_name_column);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{

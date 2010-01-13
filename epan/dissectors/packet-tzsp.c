@@ -314,8 +314,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		info = val_to_str(type, tzsp_type, "Unknown (%u)");
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, info);
+	col_set_str(pinfo->cinfo, COL_INFO, info);
 
 	if (tree) {
 		/* Adding TZSP item and subtree */

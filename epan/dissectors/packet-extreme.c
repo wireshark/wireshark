@@ -972,10 +972,8 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 seqno;
         vec_t cksum_vec[1];
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_edp, tvb, offset, -1,

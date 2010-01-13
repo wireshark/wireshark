@@ -324,8 +324,7 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZRTP");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, "Unknown ZRTP Packet");
+  col_set_str(pinfo->cinfo, COL_INFO, "Unknown ZRTP Packet");
 
   ti = proto_tree_add_protocol_format(tree,proto_zrtp,tvb,0,-1,"ZRTP protocol");
   zrtp_tree = proto_item_add_subtree(ti,ett_zrtp);

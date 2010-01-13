@@ -1109,8 +1109,8 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		++offset;
 		if ( 0xefff != tvb_get_letohs(tvb, 3)){
 
-			if (check_col( pinfo->cinfo, COL_INFO)) 	/* print bad packet */
-				col_set_str( pinfo->cinfo, COL_INFO, "Bad packet, no 0xEFFF marker");
+			/* print bad packet */
+			col_set_str( pinfo->cinfo, COL_INFO, "Bad packet, no 0xEFFF marker");
 
 			return;		/* this is an unknown packet, no marker */
 		}

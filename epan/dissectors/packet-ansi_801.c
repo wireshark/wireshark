@@ -2455,10 +2455,7 @@ dissect_ansi_801(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     g_pinfo = pinfo;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
      * necessary to generate protocol tree items.

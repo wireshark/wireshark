@@ -357,8 +357,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Set the columns now, so that they'll be set correctly if we throw
 		 * an exception.  We can set them later as well....
 		 */
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
 		col_clear(pinfo->cinfo, COL_INFO);
 
 		/*

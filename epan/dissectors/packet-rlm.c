@@ -161,8 +161,7 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_set_str(pinfo->cinfo, COL_INFO, type_str);
+	col_set_str(pinfo->cinfo, COL_INFO, type_str);
 
 	if (tree) {
 		/* proto_tree_add_protocol_format(tree, proto_rlm, tvb, 0,

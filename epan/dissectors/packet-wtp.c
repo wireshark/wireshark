@@ -372,7 +372,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(wtp_tree, hf_wtp_header_sub_pdu_size,
 				    tvb, offCur, c_fieldlen, c_pdulen);
 	    }
-	    if (i > 1 && check_col(pinfo->cinfo, COL_INFO)) {
+	    if (i > 1) {
 		col_append_str(pinfo->cinfo, COL_INFO, ", ");
 	    }
 	    /* Skip the length field for the WTP sub-tvb */

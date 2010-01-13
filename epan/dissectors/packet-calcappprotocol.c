@@ -116,7 +116,7 @@ dissect_calcappprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *t
   proto_tree *calcappprotocol_tree;
 
   /* pinfo is NULL only if dissect_calcappprotocol_message is called from dissect_error cause */
-  if (pinfo && (check_col(pinfo->cinfo, COL_PROTOCOL)))
+  if (pinfo)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CalcAppProtocol");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not

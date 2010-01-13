@@ -94,8 +94,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     "Discovery Connection" :
                     "Discovery Beacon";
 
-    if (check_col(pinfo->cinfo, COL_INFO)) 
-        col_set_str(pinfo->cinfo, COL_INFO, proto_name);
+    col_set_str(pinfo->cinfo, COL_INFO, proto_name);
 
     if (tree) {
         /* Set up structures needed to add the protocol subtree and manage it */

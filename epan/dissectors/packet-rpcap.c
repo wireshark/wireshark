@@ -776,15 +776,11 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
 
     if (!info_added) {
       /* Only indicate when not added before */
-      if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
-        /* Indicate RPCAP in the protocol column */
-        col_prepend_fence_fstr(pinfo->cinfo, COL_PROTOCOL, "R|");
-      }
+      /* Indicate RPCAP in the protocol column */
+      col_prepend_fence_fstr(pinfo->cinfo, COL_PROTOCOL, "R|");
 
-      if (check_col (pinfo->cinfo, COL_INFO)) {
-        /* Indicate RPCAP in the info column */
-        col_prepend_fence_fstr (pinfo->cinfo, COL_INFO, "Remote | ");
-      }
+      /* Indicate RPCAP in the info column */
+      col_prepend_fence_fstr (pinfo->cinfo, COL_INFO, "Remote | ");
       info_added = TRUE;
       register_frame_end_routine(rpcap_frame_end);
     }
@@ -811,8 +807,7 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree)
   guint16 msg_value;
   guint32 plen;
 
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
   col_clear(pinfo->cinfo, COL_INFO);
 

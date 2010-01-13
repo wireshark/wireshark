@@ -214,8 +214,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ascii_strup_inplace(colinfo_str);
 	}
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_append_str(pinfo->cinfo, COL_PROTOCOL, colinfo_str);
+	col_append_str(pinfo->cinfo, COL_PROTOCOL, colinfo_str);
 
 	current_frame->ns = root_ns;
 

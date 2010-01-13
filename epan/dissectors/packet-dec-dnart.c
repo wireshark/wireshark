@@ -552,12 +552,9 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             nsp_msg_tree, hf_dec_rt_dst_node, tvb, offset, 2, TRUE);
         offset += 2;
         if (nsp_msg_type == CONN_ACK_MSG) {
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_set_str(pinfo->cinfo, COL_INFO,
-                  "NSP connect acknowledgement");
-                /* Done with this msg type */
-                return;
-            }
+            col_set_str(pinfo->cinfo, COL_INFO, "NSP connect acknowledgement");
+            /* Done with this msg type */
+            return;
         }
         /* All other messages have a source node */
         src_node_local = tvb_get_letohs(tvb, offset);

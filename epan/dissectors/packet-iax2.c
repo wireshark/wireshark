@@ -1005,10 +1005,7 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   packet_type type;
 
   /* set up the protocol and info fields in the summary pane */
-  if (check_col (pinfo->cinfo, COL_PROTOCOL))
-    {
-      col_set_str (pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_IAX2);
-    }
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_IAX2);
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* add the 'iax2' tree to the main tree */
@@ -1637,7 +1634,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
       }
     }
 
-    if( rtp_marker && check_col (pinfo->cinfo, COL_INFO))
+    if( rtp_marker )
       col_append_str (pinfo->cinfo, COL_INFO, ", Mark" );
 
 

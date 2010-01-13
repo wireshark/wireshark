@@ -1410,8 +1410,7 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     *second = '\0';
 
     if (len1) {
-	if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-	    col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr1);
+        col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr1);
 	if (tree)
 	    proto_tree_add_text(tree, tvb, *offset,
 				(len1 + 1) / 2,
@@ -1421,8 +1420,7 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
 				addr1);
     }
     if (len2) {
-	if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-	    col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr2);
+        col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr2);
 	if (tree)
 	    proto_tree_add_text(tree, tvb, *offset + len1/2,
 				(len2+1)/2+(len1%2+(len2+1)%2)/2,
@@ -1499,8 +1497,7 @@ x25_toa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     *second = '\0';
 
     if (len1) {
-	if (check_col(pinfo->cinfo, COL_RES_DL_DST))
-	    col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr1);
+        col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr1);
 	if (tree)
 	    proto_tree_add_text(tree, tvb, *offset,
 				(len1 + 1) / 2,
@@ -1508,8 +1505,7 @@ x25_toa(proto_tree *tree, int *offset, tvbuff_t *tvb,
 				addr1);
     }
     if (len2) {
-	if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
-	    col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr2);
+        col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr2);
 	if (tree)
 	    proto_tree_add_text(tree, tvb, *offset + len1/2,
 				(len2+1)/2+(len1%2+(len2+1)%2)/2,

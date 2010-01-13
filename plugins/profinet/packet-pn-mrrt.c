@@ -184,11 +184,9 @@ dissect_PNMRRT_Data_heur(tvbuff_t *tvb,
         /* we are not interested in this packet */
         return FALSE;
     }
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-MRRT");
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_str(pinfo->cinfo, COL_INFO, "");
+    
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-MRRT");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* subtree for MRRT */
 	item = proto_tree_add_protocol_format(tree, proto_pn_mrrt, tvb, 0, 0, "PROFINET MRRT, ");

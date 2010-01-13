@@ -103,10 +103,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 				"PW packet size (%d) is too small to carry sensible information"
 				,(int)packet_size);
 		}
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		{
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
-		}
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, shortname);
 		col_set_str(pinfo->cinfo, COL_INFO, "Malformed: PW packet is too small");
 		return;
 	}

@@ -413,8 +413,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* on second and subsequent records per frame
        * add a delimiter on info column
        */
-      if (!first_record_in_frame
-          && check_col(pinfo->cinfo, COL_INFO))
+      if (!first_record_in_frame)
         {
           col_append_str(pinfo->cinfo, COL_INFO, ", ");
         }

@@ -144,7 +144,7 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 
 	/* Make end-of-event packets obvious in the info column */
-	if ((octet & 0x80) && check_col(pinfo->cinfo, COL_INFO))
+	if ((octet & 0x80))
 	{
 		col_append_str(pinfo->cinfo, COL_INFO, " (end)");
 	}

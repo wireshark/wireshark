@@ -195,9 +195,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       device_id.type = AT_ETHER;
       device_id.len = 6;
 
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PAGP"); /* PAGP Protocol */
-      }
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "PAGP"); /* PAGP Protocol */
 
       col_clear(pinfo->cinfo, COL_INFO);
 

@@ -1937,8 +1937,8 @@ dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int index = 0;
 	guint32 sid;			/* Session ID */
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))	/* Only L2TPv3 runs directly over IP */
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TPv3");
+	/* Only L2TPv3 runs directly over IP */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TPv3");
 
 	col_clear(pinfo->cinfo, COL_INFO);
 

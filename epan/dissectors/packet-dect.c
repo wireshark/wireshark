@@ -1231,38 +1231,26 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 a_header,
 		blen=40;
 		xcrclen=4;
 
-		if(check_col(pinfo->cinfo, COL_INFO /*Type1*/))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "Full Slot");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "Full Slot");
 		break;
 	case 2:
 		blen=100;
 		xcrclen=4;
 
-		if(check_col(pinfo->cinfo, COL_INFO /*Type1*/))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "Double Slot");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "Double Slot");
 		break;
 	case 4:
 		blen=10;
 		xcrclen=4;
 
-		if(check_col(pinfo->cinfo, COL_INFO /*Type1*/))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "Half Slot");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "Half Slot");
 		break;
 	case 7:
 	default:
 		blen=0;
 		xcrclen=0;
 
-		if(check_col(pinfo->cinfo, COL_INFO /*Type1*/))
-		{
-			col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "No B-Field");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO /*Type1*/, "No B-Field");
 		break;
 
 	}
@@ -1429,8 +1417,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 		{
 		case 0:		/* Static System Info */
 		case 1:
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Static System Info");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Static System Info");
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Nr, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Sn, tvb, offset, 1, FALSE);
@@ -1460,12 +1447,10 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 2:		/* Extended RF Carriers Part 1 */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended RF Carriers Part 1");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended RF Carriers Part 1");
 			break;
 		case 3:		/* Fixed Part Capabilities */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Fixed Part Capabilities");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Fixed Part Capabilities");
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A12, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A13, tvb, offset, 1, FALSE);
@@ -1519,8 +1504,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 4:		/* Extended Fixed Part Capabilities */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended Fixed Part Capabilities");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended Fixed Part Capabilities");
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPHops, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPEnc, tvb, offset, 1, FALSE);
@@ -1573,12 +1557,10 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 5:		/* SARI List Contents */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "SARI List Contents");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "SARI List Contents");
 			break;
 		case 6:		/* Multi-Frame No. */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Multi-Frame No.");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Multi-Frame No.");
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_6_Spare, tvb, offset, 2, FALSE);
 			offset+=2;
@@ -1590,34 +1572,27 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 7:		/* Escape */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Escape");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Escape");
 			break;
 		case 8:		/* Obsolete */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Obsolete");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Obsolete");
 			break;
 		case 9:		/* Extended RF Carriers Part 2 */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended RF Carriers Part 2");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended RF Carriers Part 2");
 			break;
 		case 10:	/* Reserved(?) */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Reserved(?)");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Reserved(?)");
 			break;
 		case 11:	/* Transmit Information(?) */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Transmit Information(?)");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Transmit Information(?)");
 			break;
 		case 12:	/* Extended Fixed Part Capabilities 2 */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended Fixed Part Capabilities 2");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Extended Fixed Part Capabilities 2");
 			break;
 		case 13:
 		case 14:
 		case 15:
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Reserved");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Reserved");
 			break;
 		}
 	}
@@ -1633,8 +1608,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 		switch(tail_0>>4)
 		{
 		case 0:		/* Basic Connection Control */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Basic Connection Control");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Basic Connection Control");
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_BasicConCtrl, tvb, offset, 1, FALSE);
 			offset++;
 
@@ -1656,24 +1630,19 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 1:		/* Advanced Connection Control */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Advanced Connection Control");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Advanced Connection Control");
 			break;
 		case 2:		/* MAC Layer Test Messages */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "MAC Layer Test Messages");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "MAC Layer Test Messages");
 			break;
 		case 3:		/* Quality Control */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Quality Control");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Quality Control");
 			break;
 		case 4:		/* Broadcast and Connectionless Services */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Broadcast and Connectionless Services");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Broadcast and Connectionless Services");
 			break;
 		case 5:		/* Encryption Control */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Encryption Control");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Encryption Control");
 
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd1, tvb, offset, 1, FALSE);
 			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd2, tvb, offset, 1, FALSE);
@@ -1689,20 +1658,16 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 			offset-=5;
 			break;
 		case 6:		/* Tail for use with the first Transmission of a B-Field \"bearer request\" Message */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Tail for use with the first Transmission of a B-Field \"bearer request\" Message");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Tail for use with the first Transmission of a B-Field \"bearer request\" Message");
 			break;
 		case 7:		/* Escape */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Escape");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Escape");
 			break;
 		case 8:		/* TARI Message */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "TARI Message");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "TARI Message");
 			break;
 		case 9:		/* REP Connection Control */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "REP Connection Control");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "REP Connection Control");
 			break;
 		case 10:	/* Reserved */
 		case 11:
@@ -1710,8 +1675,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 		case 13:
 		case 14:
 		case 15:
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Reserved");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Reserved");
 			break;
 		}
 	}
@@ -1730,8 +1694,7 @@ dissect_decttype(gboolean dect_packet_type, struct dect_afield *pkt_afield,
 XXX: Hier weitermachen
 #endif
 			{
-				if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-					col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Zero Length Page: ");
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Zero Length Page: ");
 				proto_tree_add_uint_format(atailti, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 3, 0x2323, "RFPI:xxxxx%.1x%.2x%.2x", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
 				offset+=3;
 
@@ -1739,8 +1702,7 @@ XXX: Hier weitermachen
 			}
 			else
 			{
-				if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-					col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Short Page: ");
+				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Short Page: ");
 				proto_tree_add_uint_format(atailti, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 3, 0x2323, "Bs Data:%.1x%.2x%.2x", (pkt_afield->Tail[0]&0x0f), pkt_afield->Tail[1], pkt_afield->Tail[2]);
 				offset+=3;
 
@@ -1802,28 +1764,22 @@ XXX: Hier weitermachen
 			offset-=5;
 			break;
 		case 2:		/* Full Page */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Full Page: ");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Full Page: ");
 			break;
 		case 3:		/* MAC Resume Page */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "MAC Resume Page: ");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "MAC Resume Page: ");
 			break;
 		case 4:		/* Not the Last 36 Bits of a Long Page */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Not the Last 36 Bits: ");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "Not the Last 36 Bits: ");
 			break;
 		case 5:		/* The First 36 Bits of a Long Page */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "The First 36 Bits: ");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "The First 36 Bits: ");
 			break;
 		case 6:		/* The Last 36 Bits of a Long Page */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "The Last 36 Bits: ");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "The Last 36 Bits: ");
 			break;
 		case 7:		/* All of a Long Page */
-			if(check_col(pinfo->cinfo, COL_INFO /*Type2*/))
-				col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "All of a Long Page: ");
+			col_append_str(pinfo->cinfo, COL_INFO /*Type2*/, "All of a Long Page: ");
 			break;
 		}
 	}

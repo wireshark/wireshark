@@ -70,9 +70,7 @@ extern void proto_reg_handoff_distcc(void);
 #define CHECK_PDU_LEN(x) \
 	if(parameter>tvb_length_remaining(tvb, offset) || parameter < 1){\
 		len=tvb_length_remaining(tvb, offset);\
-		if (check_col(pinfo->cinfo, COL_INFO)) {\
-			col_append_str(pinfo->cinfo, COL_INFO, "[Short" x " PDU]");\
-		}\
+		col_append_str(pinfo->cinfo, COL_INFO, "[Short" x " PDU]");\
 	} \
 	tvb_ensure_bytes_exist(tvb, offset, len);
 

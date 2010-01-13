@@ -296,8 +296,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
     proto_tree_add_string(ajp13_tree, hf_ajp13_code, tvb, pos, 1, mcode_buf);
   pos+=1;
 
-  if(check_col(pinfo->cinfo, COL_INFO))
-    col_append_str(pinfo->cinfo, COL_INFO, msg_code);
+  col_append_str(pinfo->cinfo, COL_INFO, msg_code);
 
   if (mcode == 5) {
     if (ajp13_tree)
@@ -525,8 +524,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       mcode_buf=ep_strdup_printf("(%d) %s", meth, meth_code);
       proto_tree_add_string(ajp13_tree, hf_ajp13_method, tvb, pos, 1, mcode_buf);
     }
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, meth_code);
+    col_append_str(pinfo->cinfo, COL_INFO, meth_code);
     pos+=1;
   }
 

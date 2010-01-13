@@ -102,14 +102,11 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    return 0;
     }
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	/* Indicate what kind of message this is. */
-    	col_set_str (pinfo->cinfo, COL_PROTOCOL, "DDTP");
-    }
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-	/* In case we throw an exception below. */
-    	col_clear (pinfo->cinfo, COL_INFO);
-    }
+    /* Indicate what kind of message this is. */
+    col_set_str (pinfo->cinfo, COL_PROTOCOL, "DDTP");
+    /* In case we throw an exception below. */
+    col_clear (pinfo->cinfo, COL_INFO);
+
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0, -1, FALSE);
 	ddtp_tree = proto_item_add_subtree(ti, ett_ddtp);

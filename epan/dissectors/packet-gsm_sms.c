@@ -3415,10 +3415,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	g_port_src = 0;
 	g_port_dst = 0;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, gsm_sms_proto_name_short);
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, gsm_sms_proto_name_short);
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
      * necessary to generate protocol tree items.

@@ -1746,10 +1746,8 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 
     /* initially set address columns to connection address */
     g_snprintf(addr, sizeof(addr)-1, "0x%02X", a >> 1);
-    if (check_col(pinfo->cinfo, COL_DEF_SRC))
-        col_add_str(pinfo->cinfo, COL_DEF_SRC, addr);
-    if (check_col(pinfo->cinfo, COL_DEF_DST))
-        col_add_str(pinfo->cinfo, COL_DEF_DST, addr);
+    col_add_str(pinfo->cinfo, COL_DEF_SRC, addr);
+    col_add_str(pinfo->cinfo, COL_DEF_DST, addr);
 
     if (root)
     {

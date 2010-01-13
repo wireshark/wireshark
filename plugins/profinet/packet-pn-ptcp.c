@@ -768,10 +768,8 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb,
         return FALSE;
     }
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-PTCP");
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_str(pinfo->cinfo, COL_INFO, "");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-PTCP");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* subtree for PTCP */
 	item = proto_tree_add_protocol_format(tree, proto_pn_ptcp, tvb, 0, 0, "PROFINET PTCP, ");

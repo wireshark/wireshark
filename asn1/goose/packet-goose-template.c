@@ -78,8 +78,7 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_goose);
 	}
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* APPID */

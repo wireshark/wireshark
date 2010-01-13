@@ -1266,8 +1266,7 @@ static void dissect_h223 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
     guint32 offset = 0;
 
     /* set up the protocol and info fields in the summary pane */
-    if (check_col (pinfo->cinfo, COL_PROTOCOL))
-        col_set_str (pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_H223);
+    col_set_str (pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_H223);
 
     col_clear(pinfo->cinfo, COL_INFO);
 

@@ -393,8 +393,7 @@ WSLUA_METHOD Column_clear(lua_State *L) {
 
     if (!(c && c->cinfo)) return 0;
 
-    if (check_col(c->cinfo, c->col))
-        col_clear(c->cinfo, c->col);
+    col_clear(c->cinfo, c->col);
 
     return 0;
 }
@@ -410,8 +409,7 @@ WSLUA_METHOD Column_set(lua_State *L) {
 
     if (!s) WSLUA_ARG_ERROR(Column_set,TEXT,"must be a string");
 
-    if (check_col(c->cinfo, c->col))
-        col_set_str(c->cinfo, c->col, s);
+    col_set_str(c->cinfo, c->col, s);
 
     return 0;
 }
@@ -427,8 +425,7 @@ WSLUA_METHOD Column_append(lua_State *L) {
 
     if (!s) WSLUA_ARG_ERROR(Column_append,TEXT,"must be a string");
 
-    if (check_col(c->cinfo, c->col))
-        col_append_str(c->cinfo, c->col, s);
+    col_append_str(c->cinfo, c->col, s);
 
     return 0;
 }
@@ -505,8 +502,7 @@ WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
 
     for(cn = colnames; cn->name; cn++) {
         if( g_str_equal(cn->name,colname) ) {
-            if (check_col(cols->cinfo, cn->id))
-                col_set_str(cols->cinfo, cn->id, text);
+            col_set_str(cols->cinfo, cn->id, text);
             return 0;
         }
     }

@@ -1961,10 +1961,7 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const gchar	*str = NULL;
     guint32	value;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
      * necessary to generate protocol tree items.
@@ -2142,10 +2139,7 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8	oct;
     guint8	len;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, ansi_proto_name_short);
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
      * necessary to generate protocol tree items.

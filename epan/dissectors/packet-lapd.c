@@ -455,10 +455,8 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, srcname);
-	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
-	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, dstname);
+	col_set_str(pinfo->cinfo, COL_RES_DL_SRC, srcname);
+	col_set_str(pinfo->cinfo, COL_RES_DL_DST, dstname);
 
 	if (tree) {
 		proto_item *direction_ti;

@@ -1373,8 +1373,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree* compat_tree;
     const alcap_msg_type_info_t* msg_type;
     
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, alcap_proto_name_short);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, alcap_proto_name_short);
     
     if (tree) {
         proto_item *alcap_item = proto_tree_add_item(tree, proto_alcap, tvb, 0, -1, FALSE);
@@ -1391,9 +1390,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     
     expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, msg_type->severity, " ");
     
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, msg_type->abbr);
-    
+    col_set_str(pinfo->cinfo, COL_INFO, msg_type->abbr);
     
     pi = proto_tree_add_item(alcap_tree,hf_alcap_compat,tvb,5,1,FALSE);
     compat_tree = proto_item_add_subtree(pi,ett_compat);

@@ -663,9 +663,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
      offset += 1;
      length -= 1;
    }
-   if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_set_str(pinfo->cinfo, COL_INFO, msgtype);
-   }
+   col_set_str(pinfo->cinfo, COL_INFO, msgtype);
 
    switch (type) {
    case BITTORRENT_MESSAGE_CHOKE:

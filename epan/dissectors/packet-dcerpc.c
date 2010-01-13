@@ -2317,9 +2317,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     if (!name)
         name = "Unknown?!";
 
-    if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str (pinfo->cinfo, COL_PROTOCOL, sub_proto->name);
-    }
+    col_set_str (pinfo->cinfo, COL_PROTOCOL, sub_proto->name);
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_add_fstr (pinfo->cinfo, COL_INFO, "%s %s",
@@ -4846,8 +4844,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
-    if (check_col (pinfo->cinfo, COL_INFO))
-        col_add_str (pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
+    col_add_str (pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
 
     tvb_memcpy (tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
     offset += sizeof (hdr.drep);

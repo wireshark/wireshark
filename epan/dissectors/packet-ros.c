@@ -209,8 +209,7 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 			ros_tree = proto_item_add_subtree(item, *(rinfo->ett_proto));
 		}
 
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, rinfo->name);
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, rinfo->name);
 
 		/* if this is a bind operation */
 		if((session->ros_op & ROS_OP_TYPE_MASK) == ROS_OP_BIND) {

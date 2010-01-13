@@ -1070,137 +1070,104 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case 0x01: /* Command Reject */
 				offset=dissect_comrej(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Command Reject");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Command Reject");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Command Reject");
 				break;
 
 			case 0x02: /* Connection Request */
 				offset=dissect_connrequest(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Connection Request");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Connection Request");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Connection Request");
 				break;
 
 			case 0x03: /* Connection Response */
 				offset=dissect_connresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Connection Response");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Connection Response");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Connection Response");
 				break;
+
 			case 0x04: /* Configure Request */
 				offset=dissect_configrequest(tvb, offset, pinfo, btl2cap_cmd_tree, cmd_length);
 				proto_item_append_text(ti_command, "Configure Request");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Configure Request");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Configure Request");
 				break;
 
 			case 0x05: /* Configure Response */
 				offset=dissect_configresponse(tvb, offset, pinfo, btl2cap_cmd_tree, cmd_length);
 				proto_item_append_text(ti_command, "Configure Response");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Configure Response");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Configure Response");
 				break;
 
 			case 0x06: /* Disconnect Request */
 				offset=dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Disconnect Request");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Disconnect Request");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Disconnect Request");
 				break;
 
 			case 0x07: /* Disconnect Response */
 				offset=dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree);   
 				proto_item_append_text(ti_command, "Disconnect Response");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Disconnect Response");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Disconnect Response");
 				break;    
 
 			case 0x08: /* Echo Request */
 				proto_item_append_text(ti_command, "Echo Request");
 				offset+=tvb_length_remaining(tvb, offset);
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Echo Request");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Echo Request");
 				break;
 
 			case 0x09: /* Echo Response */
 				proto_item_append_text(ti_command, "Echo Response");
 				offset+=tvb_length_remaining(tvb, offset);
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Echo Response");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Echo Response");
 				break;
 
 			case 0x0a: /* Information Request */
 				offset=dissect_inforequest(tvb, offset, pinfo, btl2cap_cmd_tree);
 
 				proto_item_append_text(ti_command, "Information Request");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Information Request");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Information Request");
 				break;
 
 			case 0x0b: /* Information Response */
 				offset=dissect_inforesponse(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Information Response");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Information Response");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Information Response");
 				break;
 
 			case 0x0c: /* Create Channel Request */
 				offset=dissect_chanrequest(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Create Channel Request");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Create Channel Request");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Create Channel Request");
 				break;
 
 			case 0x0d: /* Create Channel Response */
 				offset=dissect_chanresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Create Channel Response");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Create Channel Response");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Create Channel Response");
 				break;
 
 			case 0x0e: /* Move Channel Request */
 				offset=dissect_movechanrequest(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Move Channel Request");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Request");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Request");
 				break;
 
 			case 0x0f: /* Move Channel Response */
 				offset=dissect_movechanresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Move Channel Response");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Response");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Response");
 				break;
 
 			case 0x10: /* Move Channel Confirmation */
 				offset=dissect_movechanconfirmation(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Move Channel Confirmation");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Confirmation");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Confirmation");
 				break;
 
 			case 0x11: /* Move Channel Confirmation Response */
 				offset=dissect_movechanconfirmationresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
 				proto_item_append_text(ti_command, "Move Channel Confirmation Response");
-				if ((check_col(pinfo->cinfo, COL_INFO))){
-					col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Confirmation Response");
-				}
+				col_append_str(pinfo->cinfo, COL_INFO, "Move Channel Confirmation Response");
 				break;
 
 				default:

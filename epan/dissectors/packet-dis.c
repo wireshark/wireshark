@@ -94,10 +94,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     protocolFamily = DIS_PROTOCOLFAMILY_OTHER;
     persistentObjectPduType = DIS_PERSISTENT_OBJECT_TYPE_OTHER;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, dis_proto_name_short);
-    }
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, dis_proto_name_short);
 
     /* Add the top-level DIS node under which the rest of the fields will be
      * displayed.

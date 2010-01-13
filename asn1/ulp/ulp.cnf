@@ -28,10 +28,8 @@ SETId/min  minsi
 #.FN_HDR ULP-PDU
 	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, FALSE);
 
-	if (check_col(actx->pinfo->cinfo, COL_PROTOCOL)) 
-		col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_clear(actx->pinfo->cinfo, COL_INFO);
+	col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
+	col_clear(actx->pinfo->cinfo, COL_INFO);
 #.END
 
 #.FN_BODY UlpMessage  VAL_PTR = &UlpMessage

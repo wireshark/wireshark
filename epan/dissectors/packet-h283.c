@@ -577,8 +577,7 @@ dissect_h283_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item  *ti = NULL;
   proto_tree  *h283_tree = NULL;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
   info_is_set = FALSE;
 

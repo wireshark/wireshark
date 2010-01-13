@@ -997,7 +997,7 @@ dissect_enrp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *enrp_tree;
 
   /* pinfo is NULL only if dissect_enrp is called from dissect_error cause */
-  if (pinfo && check_col(pinfo->cinfo, COL_PROTOCOL))
+  if (pinfo)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENRP");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not

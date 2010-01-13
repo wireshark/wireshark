@@ -1496,8 +1496,7 @@ static void label_SUBM_Method(proto_item *SubMItem, MAD_Data *MadHeader, packet_
     const char *label = val_to_str(MadHeader->method, SUBM_Methods, "(Unknown SubManagement Method!)");
 
     proto_item_append_text(SubMItem, "%s", label);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, label);
+    col_append_str(pinfo->cinfo, COL_INFO, label);
 }
 
 /* Parse the SA Method from the MAD Common Header.
@@ -1510,8 +1509,7 @@ static void label_SUBA_Method(proto_item *SubAItem, MAD_Data *MadHeader, packet_
     const char *label = val_to_str(MadHeader->method, SUBA_Methods, "(Unknown SubAdministration Method!)");
 
     proto_item_append_text(SubAItem, "%s", label);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, label);
+    col_append_str(pinfo->cinfo, COL_INFO, label);
 }
 
 /* Parse the Attribute from the MAD Common Header
@@ -1524,8 +1522,7 @@ static void label_SUBM_Attribute(proto_item *SubMItem, MAD_Data *MadHeader, pack
     const char *label = val_to_str(MadHeader->attributeID, SUBM_Attributes, "(Unknown SubManagement Attribute!)");
 
     proto_item_append_text(SubMItem, "%s", &label[11]);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
+    col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
 
 /* Parse the SA Attribute from the MAD Common Header
@@ -1538,8 +1535,7 @@ static void label_SUBA_Attribute(proto_item *SubAItem, MAD_Data *MadHeader, pack
     const char *label = val_to_str(MadHeader->attributeID, SUBA_Attributes, "(Unknown SubAdministration Attribute!)");
 
     proto_item_append_text(SubAItem, "%s", &label[11]);
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
+    col_append_str(pinfo->cinfo, COL_INFO, &label[11]);
 }
 
 /* Parse the attribute from a Subnet Management Packet.

@@ -490,9 +490,7 @@ zbee_append_info(proto_item *item, packet_info *pinfo, const gchar *format, ...)
     if (item) {
         proto_item_append_text(item, "%s", buffer);
     }
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, buffer);
-    }
+    col_append_str(pinfo->cinfo, COL_INFO, buffer);
 } /* zbee_add_info */
 
 /*FUNCTION:------------------------------------------------------

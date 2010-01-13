@@ -64,8 +64,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*rbtree = NULL;
 	tvbuff_t	*next_tvb;
 
-	if(check_col(pinfo->cinfo,COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RBN");
+	col_set_str(pinfo->cinfo,COL_PROTOCOL,"RBN");
 
 	dataoff = tvb_get_ntohs(tvb, 20);
 	l3off = tvb_get_ntohs(tvb, 22);

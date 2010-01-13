@@ -149,7 +149,7 @@ dissect_pingpongprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *
   proto_tree *pingpongprotocol_tree;
 
   /* pinfo is NULL only if dissect_pingpongprotocol_message is called from dissect_error cause */
-  if (pinfo && (check_col(pinfo->cinfo, COL_PROTOCOL)))
+  if (pinfo)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PingPongProtocol");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not

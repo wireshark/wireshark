@@ -657,9 +657,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* UID frame */
 	if(frame_type==0xef && dlci && pf_flag) {
-		if ((check_col(pinfo->cinfo, COL_INFO))){
-			col_append_str(pinfo->cinfo, COL_INFO, "UID ");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "UID ");
 		if((dlci_state->do_credit_fc&0x03)==0x03){
 /*QQQ use tvb_length_remaining()==2 and !frame_len as heuristics to catch this as well? */
 			/* add credit based flow control byte */
@@ -679,9 +677,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint8 mcc_cr_flag, mcc_ea_flag;
 		int start_offset=offset;
 
-		if ((check_col(pinfo->cinfo, COL_INFO))){
-			col_append_str(pinfo->cinfo, COL_INFO, "MPX_CTRL ");
-		}
+		col_append_str(pinfo->cinfo, COL_INFO, "MPX_CTRL ");
 
 		mcc_ti = proto_tree_add_text(rfcomm_tree, tvb, offset, 1, "Multiplexer Control Command");
 		ctrl_tree = proto_item_add_subtree(mcc_ti, ett_btrfcomm_ctrl);

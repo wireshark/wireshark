@@ -228,7 +228,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	}
 
-	if (packet_type && check_col(pinfo->cinfo, COL_INFO))
+	if (packet_type)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, packet_type);
 	}

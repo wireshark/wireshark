@@ -3224,7 +3224,6 @@ dissect_CBA_Connection_Data_heur(tvbuff_t *tvb,
         return FALSE;
     }
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-CBA");
 
     frame = cba_frame_find_by_cons(pinfo, pinfo->dl_dst.data, u16FrameID);

@@ -184,10 +184,8 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   /* Clear out stuff in the info column */
   col_clear(pinfo->cinfo, COL_INFO);
-  if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCP (ETSI)");
+  col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCP (ETSI)");
     /*col_append_fstr (pinfo->cinfo, COL_INFO, " tvb %d", tvb_length(tvb));*/
-  }
 
   if(tree) {
     proto_item *ti = NULL;

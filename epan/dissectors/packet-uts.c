@@ -87,8 +87,7 @@ static int testchar(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int op, g
 			return 0;
 		}
 	} else {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Unknown Message Format");
+		col_set_str(pinfo->cinfo, COL_INFO, "Unknown Message Format");
 		return 0;	
 	}
 }
@@ -131,8 +130,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 
 	enum	{ NOTRAFFIC, OTHER }	msg_type = OTHER;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) /* set the protocol column on summary display */
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "UTS");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "UTS");
 
 	if (testchar(tvb, pinfo, 0, MATCH, EOT, NULL)	  &&
 		testchar(tvb, pinfo, 1, MATCH, EOT, NULL) &&

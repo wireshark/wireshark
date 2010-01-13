@@ -640,14 +640,11 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void dissect_tnef_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-  if (check_col(pinfo->cinfo, COL_DEF_SRC))
-    col_set_str(pinfo->cinfo, COL_DEF_SRC, PSNAME " encoded file");
+  col_set_str(pinfo->cinfo, COL_DEF_SRC, PSNAME " encoded file");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_str(pinfo->cinfo, COL_INFO, PNAME);
+  col_append_str(pinfo->cinfo, COL_INFO, PNAME);
 
   dissect_tnef(tvb, pinfo, tree);
 }

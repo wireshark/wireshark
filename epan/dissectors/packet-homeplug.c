@@ -1323,7 +1323,7 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     /** homeplug_ne indicates the number of MME entries. This field is fetched
      *  from MCTRL. 
      */
-    if ((homeplug_ne > 0) && check_col(pinfo->cinfo, COL_INFO)) {
+    if ((homeplug_ne > 0)) {
       col_clear(pinfo->cinfo, COL_INFO);
     }
     for (; homeplug_ne > 0; homeplug_ne--) {

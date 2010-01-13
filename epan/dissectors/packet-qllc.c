@@ -118,18 +118,14 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * a COMMAND or RESPONSE. */
     if (ctrl == QRD_QDISC_VALUE) {
         if (command) {
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_set_str(pinfo->cinfo, COL_INFO, QDISC_TEXT);
-            }
+	    col_set_str(pinfo->cinfo, COL_INFO, QDISC_TEXT);
             if (tree) {
                 proto_tree_add_text(qllc_tree, tvb,
                         1, 1, "Control Field: %s (0x%02x)", QDISC_TEXT, ctrl);
             }
         }
         else {
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_set_str(pinfo->cinfo, COL_INFO, QRD_TEXT);
-            }
+	    col_set_str(pinfo->cinfo, COL_INFO, QRD_TEXT);
             if (tree) {
                 proto_tree_add_text(qllc_tree, tvb,
                         1, 1, "Control Field: %s (0x%02x)", QRD_TEXT, ctrl);
