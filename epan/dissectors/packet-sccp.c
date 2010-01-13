@@ -175,26 +175,26 @@ static const value_string sccp_parameter_values[] = {
 #define END_OF_OPTIONAL_PARAMETERS_LENGTH	1
 #define DESTINATION_LOCAL_REFERENCE_LENGTH	3
 #define SOURCE_LOCAL_REFERENCE_LENGTH		3
-#define PROTOCOL_CLASS_LENGTH			1
+#define PROTOCOL_CLASS_LENGTH				1
 #define RECEIVE_SEQUENCE_NUMBER_LENGTH		1
-#define CREDIT_LENGTH				1
-#define RELEASE_CAUSE_LENGTH			1
-#define RETURN_CAUSE_LENGTH			1
-#define RESET_CAUSE_LENGTH			1
-#define ERROR_CAUSE_LENGTH			1
-#define REFUSAL_CAUSE_LENGTH			1
-#define HOP_COUNTER_LENGTH			1
-#define IMPORTANCE_LENGTH			1
+#define CREDIT_LENGTH						1
+#define RELEASE_CAUSE_LENGTH				1
+#define RETURN_CAUSE_LENGTH					1
+#define RESET_CAUSE_LENGTH					1
+#define ERROR_CAUSE_LENGTH					1
+#define REFUSAL_CAUSE_LENGTH				1
+#define HOP_COUNTER_LENGTH					1
+#define IMPORTANCE_LENGTH					1
 
 
 /* Parts of the Called and Calling Address parameters */
 /* Address Indicator */
 #define ADDRESS_INDICATOR_LENGTH	1
-#define ITU_RESERVED_MASK		0x80
-#define ANSI_NATIONAL_MASK		0x80
+#define ITU_RESERVED_MASK			0x80
+#define ANSI_NATIONAL_MASK			0x80
 #define ROUTING_INDICATOR_MASK		0x40
-#define GTI_MASK			0x3C
-#define GTI_SHIFT			2
+#define GTI_MASK					0x3C
+#define GTI_SHIFT					2
 #define ITU_SSN_INDICATOR_MASK		0x02
 #define ITU_PC_INDICATOR_MASK		0x01
 #define ANSI_PC_INDICATOR_MASK		0x02
@@ -210,15 +210,15 @@ static const value_string sccp_routing_indicator_values[] = {
   { 0x1, "Route on SSN" },
   { 0,   NULL } };
 
-#define AI_GTI_NO_GT		0x0
-#define ITU_AI_GTI_NAI		0x1
-#define AI_GTI_TT		0x2
-#define ITU_AI_GTI_TT_NP_ES	0x3
+#define AI_GTI_NO_GT			0x0
+#define ITU_AI_GTI_NAI			0x1
+#define AI_GTI_TT				0x2
+#define ITU_AI_GTI_TT_NP_ES		0x3
 #define ITU_AI_GTI_TT_NP_ES_NAI	0x4
 static const value_string sccp_itu_global_title_indicator_values[] = {
-  { AI_GTI_NO_GT,		"No Global Title" },
-  { ITU_AI_GTI_NAI,		"Nature of Address Indicator only" },
-  { AI_GTI_TT,			"Translation Type only" },
+  { AI_GTI_NO_GT,			"No Global Title" },
+  { ITU_AI_GTI_NAI,			"Nature of Address Indicator only" },
+  { AI_GTI_TT,				"Translation Type only" },
   { ITU_AI_GTI_TT_NP_ES,	"Translation Type, Numbering Plan, and Encoding Scheme included" },
   { ITU_AI_GTI_TT_NP_ES_NAI,	"Translation Type, Numbering Plan, Encoding Scheme, and Nature of Address Indicator included" },
   { 0,				NULL } };
@@ -227,9 +227,9 @@ static const value_string sccp_itu_global_title_indicator_values[] = {
 #define ANSI_AI_GTI_TT_NP_ES	0x1
 /* #define AI_GTI_TT		0x2 */
 static const value_string sccp_ansi_global_title_indicator_values[] = {
-  { AI_GTI_NO_GT,		"No Global Title" },
+  { AI_GTI_NO_GT,			"No Global Title" },
   { ANSI_AI_GTI_TT_NP_ES,	"Translation Type, Numbering Plan, and Encoding Scheme included" },
-  { AI_GTI_TT,			"Translation Type only" },
+  { AI_GTI_TT,				"Translation Type only" },
   { 0,				NULL } };
 
 static const value_string sccp_ai_pci_values[] = {
@@ -347,24 +347,24 @@ const value_string sccp_address_signal_values[] = {
 #define GT_NP_UNKNOWN		0x00
 #define GT_NP_ISDN		0x01
 #define GT_NP_GENERIC_RESERVED	0x02
-#define GT_NP_DATA		0x03
-#define GT_NP_TELEX		0x04
+#define GT_NP_DATA				0x03
+#define GT_NP_TELEX				0x04
 #define GT_NP_MARITIME_MOBILE	0x05
-#define GT_NP_LAND_MOBILE	0x06
-#define GT_NP_ISDN_MOBILE	0x07
+#define GT_NP_LAND_MOBILE		0x06
+#define GT_NP_ISDN_MOBILE		0x07
 #define GT_NP_PRIVATE_NETWORK	0x0e
-#define GT_NP_RESERVED		0x0f
+#define GT_NP_RESERVED			0x0f
 static const value_string sccp_np_values[] = {
-  { GT_NP_UNKNOWN,		"Unknown" },
-  { GT_NP_ISDN,			"ISDN/telephony" },
+  { GT_NP_UNKNOWN,			"Unknown" },
+  { GT_NP_ISDN,				"ISDN/telephony" },
   { GT_NP_GENERIC_RESERVED,	"Generic (ITU)/Reserved (ANSI)" },
-  { GT_NP_DATA,			"Data" },
-  { GT_NP_TELEX,		"Telex" },
+  { GT_NP_DATA,				"Data" },
+  { GT_NP_TELEX,			"Telex" },
   { GT_NP_MARITIME_MOBILE,	"Maritime mobile" },
   { GT_NP_LAND_MOBILE,		"Land mobile" },
   { GT_NP_ISDN_MOBILE,		"ISDN/mobile" },
   { GT_NP_PRIVATE_NETWORK,	"Private network or network-specific" },
-  { GT_NP_RESERVED,		"Reserved" },
+  { GT_NP_RESERVED,			"Reserved" },
   { 0,				NULL } };
 
 #define GT_ES_MASK     0x0f
@@ -418,7 +418,7 @@ static const value_string sccp_segmenting_reassembling_values [] = {
 #define SEQUENCING_SEGMENTING_LENGTH		2
 #define SEQUENCING_SEGMENTING_SSN_LENGTH	1
 #define SEQUENCING_SEGMENTING_RSN_LENGTH	1
-#define SEND_SEQUENCE_NUMBER_MASK		0xfe
+#define SEND_SEQUENCE_NUMBER_MASK			0xfe
 #define RECEIVE_SEQUENCE_NUMBER_MASK		0xfe
 #define SEQUENCING_SEGMENTING_MORE_MASK		0x01
 
@@ -752,13 +752,13 @@ static dissector_handle_t camel_handle;
 static dissector_handle_t inap_handle;
 
 static const value_string sccp_users_vals[] = {
-	{ SCCP_USER_DATA, "Data"},
-	{ SCCP_USER_TCAP, "TCAP"},
-	{ SCCP_USER_RANAP, "RANAP"},
-	{ SCCP_USER_BSSAP, "BSSAP"},
+	{ SCCP_USER_DATA,	"Data"},
+	{ SCCP_USER_TCAP,	"TCAP"},
+	{ SCCP_USER_RANAP,	"RANAP"},
+	{ SCCP_USER_BSSAP,	"BSSAP"},
 	{ SCCP_USER_GSMMAP, "GSM MAP"},
-	{ SCCP_USER_CAMEL, "CAMEL"},
-	{ SCCP_USER_INAP, "INAP"},
+	{ SCCP_USER_CAMEL,	"CAMEL"},
+	{ SCCP_USER_INAP,	"INAP"},
 	{ 0, NULL }
 };
 
@@ -1358,14 +1358,14 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       ssn = tvb_get_guint8(tvb, offset);
 
       if (called && assoc)
-	assoc->called_ssn = ssn;
+		assoc->called_ssn = ssn;
       else if (assoc)
-	assoc->calling_ssn = ssn;
+		assoc->calling_ssn = ssn;
 
       if (is_connectionless(message_type) && sccp_msg) {
-	guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
+		guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
 
-	*ssn_ptr  = ssn;
+		*ssn_ptr  = ssn;
       }
 
       proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
@@ -1383,21 +1383,21 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
       ssn_dissector = dissector_get_port_handle(sccp_ssn_dissector_table, ssn);
 
       if (ssn_dissector) {
-	  ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
+		  ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
 
-	  if(ssn_dissector_short_name) {
-	      item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
-	      PROTO_ITEM_SET_GENERATED(item);
+		  if(ssn_dissector_short_name) {
+			  item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
+			  PROTO_ITEM_SET_GENERATED(item);
 
-	      if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
-		      tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
+			  if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
+				  tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
 
-		      if(tcap_ssn_dissector){
-			  tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
-			  proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
-		      }
-	      }
-	  } /* short name */
+				  if(tcap_ssn_dissector){
+				  tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
+				  proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
+				  }
+			  }
+		  } /* short name */
       } /* ssn_dissector */
     } /* ssni */
 
@@ -1437,25 +1437,26 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
     if (ssni) {
       ssn = tvb_get_guint8(tvb, offset);
 
-      if (called && assoc)
-	assoc->called_ssn = ssn;
-      else if (assoc)
-	assoc->calling_ssn = ssn;
+		if (called && assoc){
+			assoc->called_ssn = ssn;
+		}else if (assoc){
+			assoc->calling_ssn = ssn;
+		}
 
-        if (is_connectionless(message_type) && sccp_msg) {
-		guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
+		if (is_connectionless(message_type) && sccp_msg) {
+			guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
 
-		*ssn_ptr  = ssn;
+			*ssn_ptr  = ssn;
 	}
 
 	proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
 			  tvb, offset, ADDRESS_SSN_LENGTH, ssn);
-      hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
+    hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
 				 ADDRESS_SSN_LENGTH, ssn);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-      offset += ADDRESS_SSN_LENGTH;
+    offset += ADDRESS_SSN_LENGTH;
     }
 
     if (!tree)
@@ -1469,7 +1470,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
     /* Dissect GT (if present) */
     if (gti != AI_GTI_NO_GT) {
       if (length < offset)
-	return;
+		  return;
       gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			      (length - offset));
       dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
