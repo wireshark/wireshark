@@ -395,9 +395,9 @@ link_directories(
 	wsutil
 )
 
-ADD_CUSTOM_COMMAND(
-	OUTPUT svnversion.h
-	COMMAND ${PERL}
+ADD_CUSTOM_TARGET(
+	svnversion ALL
+	COMMAND LANG=C ${PERL}
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 		${CMAKE_CURRENT_SOURCE_DIR}
 	DEPENDS
@@ -577,6 +577,7 @@ if(BUILD_wireshark)
 		${WIRESHARK_COMMON_SRC}
 	)
 	add_executable(wireshark ${wireshark_FILES})
+	add_dependencies(wireshark svnversion)
 	target_link_libraries(wireshark ${wireshark_LIBS})
 	install(TARGETS wireshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -596,6 +597,7 @@ if(BUILD_tshark)
 	        ${WIRESHARK_COMMON_SRC}
 	)
 	add_executable(tshark ${tshark_FILES})
+	add_dependencies(tshark svnversion)
 	target_link_libraries(tshark ${tshark_LIBS})
 	install(TARGETS tshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -610,6 +612,7 @@ if(BUILD_rawshark)
 		rawshark.c
 	)
 	add_executable(rawshark ${rawshark_FILES})
+	add_dependencies(rawshark svnversion)
 	target_link_libraries(rawshark ${rawshark_LIBS})
 	install(TARGETS rawshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -662,6 +665,7 @@ if(BUILD_text2pcap)
 		text2pcap-scanner.l
 	)
 	add_executable(text2pcap ${text2pcap_FILES})
+	add_dependencies(text2pcap svnversion)
 	target_link_libraries(text2pcap ${text2pcap_LIBS})
 	install(TARGETS text2pcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -677,6 +681,7 @@ if(BUILD_mergecap)
 		svnversion.h
 	)
 	add_executable(mergecap ${mergecap_FILES})
+	add_dependencies(mergecap svnversion)
 	target_link_libraries(mergecap ${mergecap_LIBS})
 	install(TARGETS mergecap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -709,6 +714,7 @@ if(BUILD_editcap)
 		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(editcap ${editcap_FILES})
+	add_dependencies(editcap svnversion)
 	target_link_libraries(editcap ${editcap_LIBS})
 	install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -742,6 +748,7 @@ if(BUILD_dumpcap)
 		${PLATFORM_SRC}
 	)
 	add_executable(dumpcap ${dumpcap_FILES})
+	add_dependencies(dumpcap svnversion)
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
 	install(TARGETS dumpcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
