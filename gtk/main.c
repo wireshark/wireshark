@@ -1453,20 +1453,29 @@ static GList *icon_list_create(
 }
 
 static void
-main_capture_cb_capture_prepared(capture_options *capture_opts)
+main_capture_set_main_window_title(capture_options *capture_opts)
 {
-    gchar *title;
-    static GList *icon_list = NULL;
-
+    GString *title = g_string_new("");
 
     if(capture_opts->iface) {
-        title = g_strdup_printf("%s: Capturing - Wireshark",
-				get_iface_description(capture_opts));
-    } else {
-        title = g_strdup_printf("Capturing - Wireshark");
+        g_string_append_printf(title, "%s: ", get_iface_description(capture_opts));
     }
-    set_main_window_name(title);
-    g_free(title);
+    g_string_append(title, "Capturing ");
+    if(capture_opts->cfilter && capture_opts->cfilter[0]) {
+        g_string_append_printf(title, "(%s) ", capture_opts->cfilter);
+    }
+    g_string_append(title, "- Wireshark");
+
+    set_main_window_name(title->str);
+    g_string_free(title, TRUE);
+}
+
+static void
+main_capture_cb_capture_prepared(capture_options *capture_opts)
+{
+    static GList *icon_list = NULL;
+
+    main_capture_set_main_window_title(capture_opts);
 
     if(icon_list == NULL) {
         icon_list = icon_list_create(wsiconcap16_xpm, wsiconcap32_xpm, wsiconcap48_xpm, NULL);
@@ -1485,18 +1494,9 @@ main_capture_cb_capture_prepared(capture_options *capture_opts)
 static void
 main_capture_cb_capture_update_started(capture_options *capture_opts)
 {
-    gchar *title;
-
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
-    if(capture_opts->iface) {
-        title = g_strdup_printf("%s: Capturing - Wireshark",
-				get_iface_description(capture_opts));
-    } else {
-        title = g_strdup_printf("Capturing - Wireshark");
-    }
-    set_main_window_name(title);
-    g_free(title);
+    main_capture_set_main_window_title(capture_opts);
 
     set_menus_for_capture_in_progress(TRUE);
     set_capture_if_dialog_for_capture_in_progress(TRUE);
