@@ -595,6 +595,7 @@ printf("woohoo decrypted keytype:%d in frame:%u\n", ek->keytype, pinfo->fd->num)
 			return user_data;
 		}
 	}
+	g_free(data.data);
 
 	return NULL;
 }
