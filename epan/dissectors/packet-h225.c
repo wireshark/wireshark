@@ -7503,7 +7503,7 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	offset = dissect_H323_UserInformation_PDU(tvb, pinfo, tr);
 
-	if (h245_list.count && check_col(pinfo->cinfo, COL_PROTOCOL)){
+	if (h245_list.count){
 		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
 		col_set_fence(pinfo->cinfo, COL_PROTOCOL);
 	}
@@ -10631,7 +10631,7 @@ void proto_register_h225(void) {
         "h225.NULL", HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 241 "packet-h225-template.c"
+#line 237 "packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -10880,7 +10880,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 247 "packet-h225-template.c"
+#line 243 "packet-h225-template.c"
   };
   module_t *h225_module;
 

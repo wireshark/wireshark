@@ -3561,7 +3561,7 @@ void proto_register_h501(void) {
         "h501.INTEGER_1_65535", HFILL }},
 
 /*--- End of included file: packet-h501-hfarr.c ---*/
-#line 104 "packet-h501-template.c"
+#line 103 "packet-h501-template.c"
   };
 
   /* List of subtrees */
@@ -3671,7 +3671,7 @@ void proto_register_h501(void) {
     &ett_h501_TerminationCause,
 
 /*--- End of included file: packet-h501-ettarr.c ---*/
-#line 110 "packet-h501-template.c"
+#line 109 "packet-h501-template.c"
   };
 
   /* Register protocol */

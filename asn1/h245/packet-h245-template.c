@@ -411,9 +411,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	upcoming_channel = NULL;
 	codec_type = NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
-	}
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
 	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_length(tvb), PSNAME);
 	tr=proto_item_add_subtree(it, ett_h245);

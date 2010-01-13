@@ -20141,7 +20141,7 @@ void proto_register_h245(void) {
         "h245.EncryptedAlphanumeric", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 466 "packet-h245-template.c"
+#line 464 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20644,7 +20644,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 473 "packet-h245-template.c"
+#line 471 "packet-h245-template.c"
   };
   module_t *h245_module;
 

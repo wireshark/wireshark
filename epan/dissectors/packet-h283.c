@@ -725,7 +725,7 @@ void proto_register_h283(void) {
         "h283.NULL", HFILL }},
 
 /*--- End of included file: packet-h283-hfarr.c ---*/
-#line 84 "packet-h283-template.c"
+#line 83 "packet-h283-template.c"
   };
 
   /* List of subtrees */
@@ -750,7 +750,7 @@ void proto_register_h283(void) {
     &ett_h283_NonStandardMessage,
 
 /*--- End of included file: packet-h283-ettarr.c ---*/
-#line 90 "packet-h283-template.c"
+#line 89 "packet-h283-template.c"
   };
 
   /* Register protocol */

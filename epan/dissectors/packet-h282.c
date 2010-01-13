@@ -6158,7 +6158,7 @@ void proto_register_h282(void) {
         "h282.NonStandardPDU", HFILL }},
 
 /*--- End of included file: packet-h282-hfarr.c ---*/
-#line 79 "packet-h282-template.c"
+#line 78 "packet-h282-template.c"
   };
 
   /* List of subtrees */
@@ -6312,7 +6312,7 @@ void proto_register_h282(void) {
     &ett_h282_IndicationPDU,
 
 /*--- End of included file: packet-h282-ettarr.c ---*/
-#line 85 "packet-h282-template.c"
+#line 84 "packet-h282-template.c"
   };
 
   /* Register protocol */
