@@ -62,7 +62,7 @@
 #define IFOPTS_CALLER_PTR_KEY	"ifopts_caller_ptr"
 #define IFOPTS_DIALOG_PTR_KEY	"ifopts_dialog_ptr"
 #define IFOPTS_TABLE_ROWS 2
-#define IFOPTS_LIST_COLS  5
+#define IFOPTS_LIST_TEXT_COLS  4
 #define IFOPTS_MAX_DESCR_LEN 128
 #define IFOPTS_IF_NOSEL -1
 
@@ -304,7 +304,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	/* create a new dialog */
 	ifopts_edit_dlg = dlg_conf_window_new("Wireshark: Preferences: Interface Options");
-	gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), DEF_WIDTH, 340);
+	gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), DEF_WIDTH, 440);
 
 	main_vb = gtk_vbox_new(FALSE, 1);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
@@ -330,7 +330,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 					G_TYPE_STRING,	/* Description			*/
 					G_TYPE_STRING,	/* Default link-layer		*/
 					G_TYPE_STRING,	/* Comment			*/
-					G_TYPE_STRING,	/* Hide?			*/
+					G_TYPE_BOOLEAN,	/* Hide?			*/
 					G_TYPE_INT);	/* Dlt 				*/
 
 	list = gtk_tree_view_new_with_model (GTK_TREE_MODEL (list_store));
@@ -351,7 +351,11 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+#ifdef _WIN32
 	gtk_tree_view_column_set_min_width(column, 230);
+#else
+	gtk_tree_view_column_set_min_width(column, 70);
+#endif
 	/* Add the column to the view. */
 	gtk_tree_view_append_column (list_view, column);
 
@@ -371,7 +375,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-	gtk_tree_view_column_set_min_width(column, 260);
+	gtk_tree_view_column_set_min_width(column, 230);
 	/* Add the column to the view. */
 	gtk_tree_view_append_column (list_view, column);
 
@@ -385,13 +389,13 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* Add the column to the view. */
 	gtk_tree_view_append_column (list_view, column);
 
+	renderer = gtk_cell_renderer_toggle_new ();
 	column = gtk_tree_view_column_new_with_attributes ("Hide?", renderer, 
-							   "text", HIDE_COLUMN, 
+							   "active", HIDE_COLUMN, 
 							   NULL);
 
-	gtk_tree_view_column_set_resizable(column, TRUE);
+	gtk_tree_view_column_set_resizable(column, FALSE);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-	gtk_tree_view_column_set_min_width(column, 40);
 	/* Add the column to the view. */
 	gtk_tree_view_append_column (list_view, column);
 
@@ -622,8 +626,9 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 {
 	GtkTreeIter       iter;
 	GtkTreeModel	 *model;
-	gchar            *desc, *comment, *hide, *text;
+	gchar            *desc, *comment, *text;
 	gchar            *if_name, *linktype;
+	gboolean          hide;
 	GList 		 *lt_list;
 	gint              selected = 0;
 
@@ -677,7 +682,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	gtk_entry_set_text(GTK_ENTRY(if_descr_te), comment);
 
 	/* display the "hide interface" button state from current interfaces selection */
-	if (strcmp("Yes", hide) == 0)
+	if (hide)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_hide_cb), TRUE);
 	else
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_hide_cb), FALSE);
@@ -688,7 +693,6 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	g_free(desc);
 	g_free(linktype);
 	g_free(comment);
-	g_free(hide);
 }
 
 /*
@@ -795,14 +799,14 @@ ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata)
 	}
 
 	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); /* Get store */
-	/* get "hide" button state and set text in list_store for currently selected interface */
+	/* get "hide" button state and set status in list_store for currently selected interface */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tbt)) == TRUE)
 		gtk_list_store_set  (list_store, &list_iter,
-				     HIDE_COLUMN, "Yes",
+				     HIDE_COLUMN, TRUE,
 				     -1);
 	else
 		gtk_list_store_set  (list_store, &list_iter,
-				     HIDE_COLUMN, "No",
+				     HIDE_COLUMN, FALSE,
 				     -1);
 }
 
@@ -822,9 +826,10 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	gchar	*ifnm;
 	gchar	*desc;
 	gchar	*pr_descr;
-	gchar	*text[] = { NULL, NULL, NULL, NULL, NULL };
+	gchar	*text[] = { NULL, NULL, NULL, NULL };
 	GList   *lt_list;
 	gint     linktype;
+	gboolean hide;
 	GtkTreeIter  iter;
 
 	/* set device name text */
@@ -910,9 +915,9 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	/* check if interface is "hidden" */
 	if ((prefs.capture_devices_hide != NULL) &&
 	    (strstr(prefs.capture_devices_hide, if_info->name) != NULL))
-		text[4] = g_strdup("Yes");
+		hide = TRUE;
 	else
-		text[4] = g_strdup("No");
+		hide = FALSE;
 
 	/* add row to ListStore */
 
@@ -926,7 +931,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 			     DESC_COLUMN,    text[1],
 			     DEF_LINK_LAYER_COLUMN, text[2],
 			     COMMENT_COLUMN, text[3],
-			     HIDE_COLUMN,    text[4],
+			     HIDE_COLUMN,    hide,
 			     DLT_COLUMN,     linktype,
 			     -1);
 
@@ -938,7 +943,7 @@ ifopts_options_free(gchar *text[])
 {
 	gint i;
 
-	for (i=0; i < IFOPTS_LIST_COLS; i++) {
+	for (i=0; i < IFOPTS_LIST_TEXT_COLS; i++) {
 		if (text[i] != NULL) {
 			g_free(text[i]);
 			text[i] = NULL;
@@ -1123,7 +1128,7 @@ ifopts_write_new_hide(void)
 	gboolean	 more_items = TRUE;
 	gint		 first_if = TRUE;	/* flag to check if first in list */
 	gchar		*ifnm;
-	gchar		*hide;
+	gboolean	 hide;
 	gchar		*new_hide;
 
 	/* new preferences "hidden" interfaces string */
@@ -1140,7 +1145,7 @@ ifopts_write_new_hide(void)
 					   -1);
 
 			/* if flag text is "No", skip this interface */
-			if (strcmp("No", hide) == 0){
+			if (!hide){
 				more_items = gtk_tree_model_iter_next (model,&iter);
 				continue;
 			}
