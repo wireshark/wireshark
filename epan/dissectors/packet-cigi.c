@@ -2653,13 +2653,10 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dest_str = "IG";
     }
 
-    info_str = g_strdup_printf("%s => %s (%u bytes)", src_str, dest_str,
+    info_str = se_strdup_printf("%s => %s (%u bytes)", src_str, dest_str,
         tvb_reported_length(tvb));
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_clear(pinfo->cinfo, COL_INFO);
-        col_add_str(pinfo->cinfo, COL_INFO, info_str);
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, info_str);
 
     if (tree) {
 
