@@ -1534,6 +1534,9 @@ col_fill_in(packet_info *pinfo, gboolean fill_col_exprs, gboolean fill_fd_colums
     case COL_FREQ_CHAN: /* done by radio dissectors */
       break;
 
+    case COL_TX_RATE:	/* done by packet-radiotap.c */
+      break;
+
     case NUM_COL_FMTS:  /* keep compiler happy - shouldn't get here */
     default:
       g_assert_not_reached();
