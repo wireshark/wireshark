@@ -81,6 +81,7 @@ my %version_pref = (
 	);
 my $srcdir = ".";
 
+$ENV{LANG} = "C";  # Ensure we run with correct locale
 
 # Run "svn info".  Parse out the most recent modification time and the
 # revision number.

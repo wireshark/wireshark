@@ -396,7 +396,6 @@ SVNENTRIES =
 !ENDIF
 svnversion.h: $(SVNENTRIES)
 	rm -f svnversion.h
-	set LANG=C
 	$(PERL) make-version.pl
 
 

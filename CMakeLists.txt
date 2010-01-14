@@ -397,7 +397,16 @@ link_directories(
 
 ADD_CUSTOM_TARGET(
 	svnversion ALL
-	COMMAND LANG=C ${PERL}
+	COMMAND ${PERL}
+		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
+		${CMAKE_CURRENT_SOURCE_DIR}
+	DEPENDS
+		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
+)
+
+ADD_CUSTOM_COMMAND(
+	OUTPUT	svnversion.h
+	COMMAND ${PERL}
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 		${CMAKE_CURRENT_SOURCE_DIR}
 	DEPENDS
@@ -409,14 +418,14 @@ register_tap_files(tshark-tap-register.c
 )
 
 ADD_CUSTOM_COMMAND(
-	OUTPUT ps.c
-	COMMAND ${PYTHON_EXECUTABLE}
-	  ${CMAKE_CURRENT_SOURCE_DIR}/tools/rdps.py
-	  ${CMAKE_CURRENT_SOURCE_DIR}/print.ps
-	  ps.c
+	OUTPUT	ps.c
+	COMMAND	${PYTHON_EXECUTABLE}
+		${CMAKE_CURRENT_SOURCE_DIR}/tools/rdps.py
+		${CMAKE_CURRENT_SOURCE_DIR}/print.ps
+		ps.c
 	DEPENDS
-	  ${CMAKE_CURRENT_SOURCE_DIR}/tools/rdps.py
-	  ${CMAKE_CURRENT_SOURCE_DIR}/print.ps
+		${CMAKE_CURRENT_SOURCE_DIR}/tools/rdps.py
+		${CMAKE_CURRENT_SOURCE_DIR}/print.ps
 )
 
 if(UNIX)
@@ -658,9 +667,6 @@ if(BUILD_text2pcap)
 	set(text2pcap_FILES
 		text2pcap.c
 	)
-	set(text2pcap_CLEAN_FILES
-		${text2pcap_FILES}
-	)
 	add_lex_files(text2pcap_FILES
 		text2pcap-scanner.l
 	)
@@ -850,7 +856,7 @@ set(CLEAN_FILES
 	${rawshark_FILES}
 	${dftest_FILES}
 	${randpkt_FILES}
-	${text2pcap_CLEAN_FILES}
+	${text2pcap_FILES}
 	${mergecap_FILES}
 	${capinfos_FILES}
 	${editcap_FILES}

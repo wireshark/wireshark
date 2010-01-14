@@ -498,7 +498,7 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
 FORCE:
 
 svnversion.h: FORCE
-	LANG=C $(PERL) $(srcdir)/make-version.pl $(srcdir)
+	$(PERL) $(srcdir)/make-version.pl $(srcdir)
 
 #
 # Build shell scripts by doing variable substitution.
