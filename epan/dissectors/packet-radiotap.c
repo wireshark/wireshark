@@ -735,8 +735,8 @@ proto_register_radiotap(void)
 	"Frequency Hopping Spread Spectrum hop pattern", HFILL } },
 
     { &hf_radiotap_datarate,
-      { "Data rate", "radiotap.datarate",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "Data rate (Mb/s)", "radiotap.datarate",
+	FT_FLOAT, BASE_NONE, NULL, 0x0,
 	"Speed this frame was sent/received at", HFILL } },
 
     { &hf_radiotap_antenna,
@@ -978,9 +978,9 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
 		rate / 2, rate & 1 ? 5 : 0);
 	    if (tree) {
-		proto_tree_add_uint_format(radiotap_tree, hf_radiotap_datarate,
-			tvb, offset, 1, rate,
-			"Data Rate: %d.%d Mb/s", rate / 2, rate & 1 ? 5 : 0);
+		proto_tree_add_float_format(radiotap_tree, hf_radiotap_datarate,
+			tvb, offset, 1, (float)rate / 2,
+			"Data Rate: %.1f Mb/s", (float)rate / 2);
 	    }
 	    offset++;
 	    length_remaining--;
