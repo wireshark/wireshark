@@ -37,6 +37,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include "packet-dns.h"
 
 #define LWRES_LWPACKET_LENGTH           (4 * 5 + 2 * 4)
 #define LWRES_LWPACKETFLAG_RESPONSE     0x0001U /* if set, pkt is a response */
@@ -51,7 +52,6 @@
 #define LW_RECVLEN_OFFSET		20 
 #define LW_AUTHTYPE_OFFSET		24 
 #define LW_AUTHLEN_OFFSET		26 
-
 
 #define LWRES_OPCODE_NOOP               0x00000000U
 #define LWRES_OPCODE_GETADDRSBYNAME     0x00010001U
@@ -202,173 +202,6 @@ static const value_string message_types_values[] = {
     { 0 ,			NULL },
 };
 
-
-
-static int
-lwres_get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
-    char *name, int maxname)
-{
-  int start_offset = offset;
-  char *np = name;
-  int len = -1;
-  int chars_processed = 0;
-  int data_size = tvb_reported_length_remaining(tvb, dns_data_offset);
-  int component_len;
-  int indir_offset;
-
-  const int min_len = 1;	/* Minimum length of encoded name (for root) */
-	/* If we're about to return a value (probably negative) which is less
-	 * than the minimum length, we're looking at bad data and we're liable
-	 * to put the dissector into a loop.  Instead we throw an exception */
-
-  maxname--;	/* reserve space for the trailing '\0' */
-  for (;;) {
-    component_len = tvb_get_guint8(tvb, offset);
-    offset++;
-    if (component_len == 0)
-      break;
-    chars_processed++;
-    switch (component_len & 0xc0) {
-
-    case 0x00:
-      /* Label */
-      if (np != name) {
-      	/* Not the first component - put in a '.'. */
-        if (maxname > 0) {
-          *np++ = '.';
-          maxname--;
-        }
-      }
-      while (component_len > 0) {
-        if (maxname > 0) {
-          *np++ = tvb_get_guint8(tvb, offset);
-          maxname--;
-        }
-      	component_len--;
-      	offset++;
-        chars_processed++;
-      }
-      break;
-
-    case 0x40:
-      /* Extended label (RFC 2673) */
-      switch (component_len & 0x3f) {
-
-      case 0x01:
-	/* Bitstring label */
-	{
-	  int bit_count;
-	  int label_len;
-	  int print_len;
-
-
-	  bit_count = tvb_get_guint8(tvb, offset);
-	  offset++;
-	  label_len = (bit_count - 1) / 8 + 1;
-
-
-	  if (maxname > 0) {
-	    print_len = g_snprintf(np, maxname + 1, "\\[x");
-	    if (print_len != -1 && print_len < maxname + 1) {
-	      /* Some versions of g_snprintf return -1 if they'd truncate
-	         the output. */
-	      np += print_len;
-	      maxname -= print_len;
-	    } else {
-	      /* Nothing printed, as there's no room.
-	         Suppress all subsequent printing. */
-	      maxname = 0;
-	    }
-	  }
-	  while(label_len--) {
-	    if (maxname > 0) {
-	      print_len = g_snprintf(np, maxname + 1, "%02x",
-	        tvb_get_guint8(tvb, offset));
-	      if (print_len != -1 && print_len < maxname + 1) {
-		/* Some versions of g_snprintf return -1 if they'd truncate
-		 the output. */
-		np += print_len;
-		maxname -= print_len;
-	      } else {
-		/* Nothing printed, as there's no room.
-		   Suppress all subsequent printing. */
-		maxname = 0;
-	      }
-	    }
-	    offset++;
-	  }
-	  if (maxname > 0) {
-	    print_len = g_snprintf(np, maxname + 1, "/%d]", bit_count);
-	    if (print_len != -1 && print_len < maxname + 1) {
-	      /* Some versions of g_snprintf return -1 if they'd truncate
-	         the output. */
-	      np += print_len;
-	      maxname -= print_len;
-	    } else {
-	      /* Nothing printed, as there's no room.
-	         Suppress all subsequent printing. */
-	      maxname = 0;
-	    }
-	  }
-	}
-	break;
-
-      default:
-	g_strlcpy(name, "<Unknown extended label>", maxname);
-	/* Parsing will propably fail from here on, since the */
-	/* label length is unknown... */
-	len = offset - start_offset;
-        if (len < min_len)
-          THROW(ReportedBoundsError);
-        return len;
-      }
-      break;
-
-    case 0x80:
-      THROW(ReportedBoundsError);
-
-    case 0xc0:
-      /* Pointer. */
-      indir_offset = dns_data_offset +
-          (((component_len & ~0xc0) << 8) | tvb_get_guint8(tvb, offset));
-      offset++;
-      chars_processed++;
-
-      /* If "len" is negative, we are still working on the original name,
-         not something pointed to by a pointer, and so we should set "len"
-         to the length of the original name. */
-      if (len < 0)
-        len = offset - start_offset;
-
-      /* If we've looked at every character in the message, this pointer
-         will make us look at some character again, which means we're
-	 looping. */
-      if (chars_processed >= data_size) {
-        g_strlcpy(name, "<Name contains a pointer that loops>", maxname);
-        if (len < min_len)
-          THROW(ReportedBoundsError);
-        return len;
-      }
-
-      offset = indir_offset;
-      break;	/* now continue processing from there */
-    }
-  }
-
-  *np = '\0';
-  /* If "len" is negative, we haven't seen a pointer, and thus haven't
-     set the length, so set it. */
-  if (len < 0)
-    len = offset - start_offset;
-  /* Zero-length name means "root server" */
-  if (*name == '\0')
-    g_strlcpy(name, "<Root>", maxname);
-  if (len < min_len)
-    THROW(ReportedBoundsError);
-  return len;
-}
-
-
 static void dissect_getnamebyaddr_request(tvbuff_t* tvb, proto_tree* lwres_tree)
 {
 	guint32 flags,family;
@@ -423,10 +256,9 @@ static void dissect_getnamebyaddr_request(tvbuff_t* tvb, proto_tree* lwres_tree)
 
 static void dissect_getnamebyaddr_response(tvbuff_t* tvb, proto_tree* lwres_tree)
 {
-	guint32 flags,i, offset;
+	guint32 i, offset;
 	guint16 naliases,realnamelen,aliaslen;
-	char aliasname[120];
-	char realname[120];
+	gchar *aliasname; 
 	
 
 	proto_item* nba_resp_item;
@@ -442,38 +274,35 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, proto_tree* lwres_tree
 	}
 	else return;
 
-	flags = tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH);
 	naliases = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH + 4);
 	realnamelen = tvb_get_ntohs(tvb,LWRES_LWPACKET_LENGTH + 4 + 2);
-	tvb_get_nstringz(tvb, LWRES_LWPACKET_LENGTH + 4 + 2 + 2, realnamelen, (guint8*)realname);
-	realname[realnamelen]='\0';
 
-	proto_tree_add_uint(nba_resp_tree,
+	proto_tree_add_item(nba_resp_tree,
 						hf_adn_flags,
 						tvb,
 						LWRES_LWPACKET_LENGTH,
 						4,
-						flags);
-	proto_tree_add_uint(nba_resp_tree,
+						FALSE);
+	proto_tree_add_item(nba_resp_tree,
 						hf_adn_naliases,
 						tvb,
 						LWRES_LWPACKET_LENGTH + 4,
 						2,
-						naliases);
+						FALSE);
 
-	proto_tree_add_uint(nba_resp_tree,
+	proto_tree_add_item(nba_resp_tree,
 						hf_adn_namelen,
 						tvb,
 						LWRES_LWPACKET_LENGTH + 6,
 						2, 
-						realnamelen);
+						FALSE);
 
-	proto_tree_add_string(nba_resp_tree,
-						  hf_adn_realname,
-						  tvb,
-						  LWRES_LWPACKET_LENGTH + 8,
-						  realnamelen,
-						  realname);
+	proto_tree_add_item(nba_resp_tree,
+						hf_adn_realname,
+						tvb,
+						LWRES_LWPACKET_LENGTH + 8,
+						realnamelen,
+						FALSE);
 
 	offset=LWRES_LWPACKET_LENGTH + 8 + realnamelen;
 
@@ -482,25 +311,24 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, proto_tree* lwres_tree
 		for(i=0; i<naliases; i++)
 		{
 			aliaslen = tvb_get_ntohs(tvb, offset);
-			tvb_get_nstringz(tvb, offset + 2, aliaslen, (guint8*)aliasname);
-			aliasname[aliaslen]='\0';
+			aliasname = tvb_get_ephemeral_string(tvb, offset + 2, aliaslen);
 
 			alias_item = proto_tree_add_text(nba_resp_tree, tvb, offset, 2 + aliaslen, "Alias %s",aliasname);
 			alias_tree = proto_item_add_subtree(alias_item, ett_adn_alias);
 
-			proto_tree_add_uint(alias_tree,
+			proto_tree_add_item(alias_tree,
 								hf_adn_namelen,
 								tvb,
 								offset,
 								2,
-								aliaslen);
+								FALSE);
 
-			proto_tree_add_string(alias_tree,
+			proto_tree_add_item(alias_tree,
 								hf_adn_aliasname,
 								tvb,
 								offset + 2,
 								aliaslen,
-								aliasname);
+								FALSE);
 
 			offset+=(2 + aliaslen + 1);
 		}
@@ -509,18 +337,12 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, proto_tree* lwres_tree
 
 static void dissect_getaddrsbyname_request(tvbuff_t* tvb, proto_tree* lwres_tree)
 {
-	guint32 flags,addrtype;
 	guint16 namelen;
-	guint8  name[120];
 
 	proto_item* adn_request_item;
 	proto_tree* adn_request_tree;
 	
-	flags = tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH);
-	addrtype = tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH + 4);
 	namelen  = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH + 8);
-	tvb_get_nstringz(tvb, LWRES_LWPACKET_LENGTH+10, namelen, name);
-        name[namelen]='\0';
 
 	if(lwres_tree)
 	{
@@ -533,45 +355,44 @@ static void dissect_getaddrsbyname_request(tvbuff_t* tvb, proto_tree* lwres_tree
 		return;
 
 
-	proto_tree_add_uint(adn_request_tree,
+	proto_tree_add_item(adn_request_tree,
 				hf_adn_flags,
 				tvb,
 				LWRES_LWPACKET_LENGTH+0,
 				sizeof(guint32),
-				flags);
+				FALSE);
 
-	proto_tree_add_uint(adn_request_tree,
+	proto_tree_add_item(adn_request_tree,
 				hf_adn_addrtype,
 				tvb,
 				LWRES_LWPACKET_LENGTH+4,
 				sizeof(guint32),
-				addrtype);
+				FALSE);
 
-	proto_tree_add_uint(adn_request_tree,
+	proto_tree_add_item(adn_request_tree,
 				hf_adn_namelen,
 				tvb,
 				LWRES_LWPACKET_LENGTH+8,
 				sizeof(guint16),
-				namelen);
+				FALSE);
 
-	proto_tree_add_string(adn_request_tree,
+	proto_tree_add_item(adn_request_tree,
 				hf_adn_name,
 				tvb,
 				LWRES_LWPACKET_LENGTH+10,
 				namelen,
-			        (gchar*)name);
+			        FALSE);
 	
 }
 
 
 static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tree)
 {
-	guint32 flags, family ,i, offset;
+	guint32 family ,i, offset;
 	guint16 naliases, naddrs, realnamelen, length, aliaslen;
 	const gchar* addr;
 	guint slen;
-	char realname[120];
-	char aliasname[120];
+	gchar *aliasname;
 
 	proto_item* adn_resp_item;
 	proto_tree* adn_resp_tree;
@@ -589,48 +410,45 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tre
 	}
 	else return;
 
-	flags = tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH);
 	naliases = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH + 4);
 	naddrs   = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH + 6);
 	realnamelen = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH + 8);
-	tvb_get_nstringz(tvb, LWRES_LWPACKET_LENGTH + 10, realnamelen, (guint8*)realname);
-	realname[realnamelen]='\0';
 
 	
-	proto_tree_add_uint(adn_resp_tree,
+	proto_tree_add_item(adn_resp_tree,
 						hf_adn_flags,
 						tvb, 
 						LWRES_LWPACKET_LENGTH,
 						4,
-						flags);
+						FALSE);
 
-	proto_tree_add_uint(adn_resp_tree,
+	proto_tree_add_item(adn_resp_tree,
 						hf_adn_naliases,
 						tvb, 
 						LWRES_LWPACKET_LENGTH + 4,
 						2,
-						naliases);
+						FALSE);
 
-	proto_tree_add_uint(adn_resp_tree,
+	proto_tree_add_item(adn_resp_tree,
 						hf_adn_naddrs,
 						tvb,
 						LWRES_LWPACKET_LENGTH + 6,
 						2,
-						naddrs);
+						FALSE);
 
-	proto_tree_add_uint(adn_resp_tree,
+	proto_tree_add_item(adn_resp_tree,
 						hf_adn_namelen,
 						tvb,
 						LWRES_LWPACKET_LENGTH + 8,
 						2, 
-						realnamelen);
+						FALSE);
 	
-	proto_tree_add_string(adn_resp_tree,
+	proto_tree_add_item(adn_resp_tree,
 						hf_adn_realname,
 						tvb,
 						LWRES_LWPACKET_LENGTH + 10,
 						realnamelen,
-						realname);
+						FALSE);
 
 	offset = LWRES_LWPACKET_LENGTH + 10 + realnamelen + 1;
 
@@ -639,8 +457,7 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tre
 		for(i=0; i<naliases; i++)
 		{
 			aliaslen = tvb_get_ntohs(tvb, offset);
-			tvb_get_nstringz(tvb, offset + 2, aliaslen, (guint8*)aliasname);
-			aliasname[aliaslen]='\0';
+			aliasname = tvb_get_ephemeral_string(tvb, offset + 2, aliaslen);
 
 			alias_item = proto_tree_add_text(adn_resp_tree, tvb, offset, 2 + aliaslen, "Alias %s",aliasname);
 			alias_tree = proto_item_add_subtree(alias_item, ett_adn_alias);
@@ -652,12 +469,12 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tre
 								2,
 								aliaslen);
 
-			proto_tree_add_string(alias_tree,
+			proto_tree_add_item(alias_tree,
 								hf_adn_aliasname,
 								tvb,
 								offset + 2,
 								aliaslen,
-								aliasname);
+								FALSE);
 
 			offset+=(2 + aliaslen + 1);
 		}
@@ -761,8 +578,7 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
 {
 	guint32 i, curr;
 	guint16 len, priority, weight, port, namelen, dlen;
-	const char *cmpname;
-	guint8 dname[120];
+	const guchar *dname;
 
 	proto_item* srv_rec_item, *rec_item;
 	proto_item* srv_rec_tree, *rec_tree;
@@ -784,9 +600,8 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
 		weight   = tvb_get_ntohs(tvb, curr + 4);
 		port     = tvb_get_ntohs(tvb, curr + 6);
 		namelen = len - 8;
-		cmpname  = (char*)tvb_get_ptr(tvb, curr + 8, namelen);
 
-		dlen = lwres_get_dns_name(tvb, curr + 8, curr, (gchar*)dname, sizeof(dname));
+		dlen = get_dns_name(tvb, curr + 8, 0, curr + 8, &dname);
 
 		if(srv_rec_tree)
 		{
@@ -838,10 +653,9 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
 static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, int offset)
 {
 	
-	guint32 i, curr;
-	guint16 len, priority, dlen, namelen;
-	const char* cname;
-	guint8 dname[120];
+	guint i, curr;
+	guint len, priority, dlen, namelen;
+	const guchar *dname;
 
 	proto_item* mx_rec_item, *rec_item;
 	proto_tree* mx_rec_tree, *rec_tree;
@@ -861,8 +675,7 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 		len =		tvb_get_ntohs(tvb, curr);
 		priority =  tvb_get_ntohs(tvb, curr + 2);
 		namelen  =  len - 4;
-		cname = (char*)tvb_get_ptr(tvb, curr + 4, 4);
-		dlen  = lwres_get_dns_name(tvb, curr + 4, curr, (gchar*)dname, sizeof(dname));
+		dlen  = get_dns_name(tvb, curr + 4, 0, curr + 4, &dname);
 		if(mx_rec_tree)
 		{
 			rec_item = proto_tree_add_text(mx_rec_tree, tvb, curr,6,"MX record: pri=%d,dname=%s",
@@ -895,9 +708,9 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 
 static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, int offset)
 {
-	guint32 i, curr;
-	guint16 len, dlen, namelen;
-	guint8 dname[120];
+	guint i, curr;
+	guint len, dlen, namelen;
+	const guchar *dname;
 
 	proto_item* ns_rec_item, *rec_item;
 	proto_tree* ns_rec_tree, *rec_tree;
@@ -915,7 +728,7 @@ static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 	{
 		len = tvb_get_ntohs(tvb, curr);
 		namelen = len - 2;
-		dlen = lwres_get_dns_name(tvb, curr + 2, curr, (char*)dname, sizeof(dname));
+		dlen = get_dns_name(tvb, curr + 2, 0, curr + 2, &dname);
 		if(ns_rec_tree)
 		{
 			rec_item = proto_tree_add_text(ns_rec_tree, tvb, curr,4, "NS record: dname=%s",dname);
@@ -938,19 +751,12 @@ static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 
 static void dissect_rdata_request(tvbuff_t* tvb, proto_tree* lwres_tree)
 {
-	guint32 rflags;
-	guint16 rdclass, rdtype, namelen;
-	guint8 name[120];
+	guint16 namelen;
 
 	proto_item* rdata_request_item;
 	proto_tree* rdata_request_tree;
 
-	rflags = tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH+0);
-	rdclass = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH+4);
-	rdtype =  tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH+6);
 	namelen = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH+8);
-	tvb_get_nstringz(tvb, LWRES_LWPACKET_LENGTH+10, namelen, name);
-	name[namelen]='\0';
 
 	if(lwres_tree)
 	{
@@ -961,61 +767,54 @@ static void dissect_rdata_request(tvbuff_t* tvb, proto_tree* lwres_tree)
 	else 
 		return;
 
-	proto_tree_add_uint(rdata_request_tree,
+	proto_tree_add_item(rdata_request_tree,
 			hf_rflags,
 			tvb,
 			LWRES_LWPACKET_LENGTH+0,
 			sizeof(guint32),
-			rflags);
+			FALSE);
 
-	proto_tree_add_uint(rdata_request_tree,
+	proto_tree_add_item(rdata_request_tree,
 			hf_rdclass,
 			tvb,
 			LWRES_LWPACKET_LENGTH+4,
 			sizeof(guint16),
-			rdclass);
+			FALSE);
 
-	proto_tree_add_uint(rdata_request_tree,
+	proto_tree_add_item(rdata_request_tree,
 			hf_rdtype,
 			tvb,
 			LWRES_LWPACKET_LENGTH+6,
 			sizeof(guint16),
-			rdtype);
+			FALSE);
 
-	proto_tree_add_uint(rdata_request_tree,
+	proto_tree_add_item(rdata_request_tree,
 			hf_namelen,
 			tvb,
 			LWRES_LWPACKET_LENGTH+8,
 			sizeof(guint16),
-			namelen);
+			FALSE);
 
-	proto_tree_add_string(rdata_request_tree,
+	proto_tree_add_item(rdata_request_tree,
 			hf_req_name,
 			tvb,
 			LWRES_LWPACKET_LENGTH+10,
 			namelen,
-		        (char*)name);
+		        FALSE);
 
 }
 
 static void dissect_rdata_response(tvbuff_t* tvb, proto_tree* lwres_tree)
 {
-	guint32 rflags, ttl, offset;
-	guint16 rdclass, rdtype, nrdatas, nsigs, realnamelen;
-	guint8 realname[120];
+	guint offset;
+	guint rdtype, nrdatas, realnamelen;
 
 	proto_item* rdata_resp_item;
 	proto_tree* rdata_resp_tree;
 
-	rflags = tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH+0);
-	rdclass = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH+4);
 	rdtype =  tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH+6);
-	ttl    =  tvb_get_ntohl(tvb, LWRES_LWPACKET_LENGTH+8);
 	nrdatas = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH+12);
-	nsigs   = tvb_get_ntohs(tvb, LWRES_LWPACKET_LENGTH+14);
 	realnamelen = tvb_get_ntohs(tvb,LWRES_LWPACKET_LENGTH+16);
-	tvb_get_nstringz(tvb,LWRES_LWPACKET_LENGTH+18,realnamelen, realname);
-	realname[realnamelen]='\0';
 
 	offset = LWRES_LWPACKET_LENGTH + 18 + realnamelen + 1;
 
@@ -1027,61 +826,61 @@ static void dissect_rdata_response(tvbuff_t* tvb, proto_tree* lwres_tree)
 	else
 		return;
 
-	proto_tree_add_uint(rdata_resp_tree,
+	proto_tree_add_item(rdata_resp_tree,
                         hf_rflags,
                         tvb,
                         LWRES_LWPACKET_LENGTH+0,
                         sizeof(guint32),
-                        rflags);
+                        FALSE);
 
-	proto_tree_add_uint(rdata_resp_tree,
+	proto_tree_add_item(rdata_resp_tree,
                         hf_rdclass,
                         tvb,
                         LWRES_LWPACKET_LENGTH+4,
                         sizeof(guint16),
-                        rdclass);
+                        FALSE);
 
-	proto_tree_add_uint(rdata_resp_tree,
+	proto_tree_add_item(rdata_resp_tree,
                         hf_rdtype,
                         tvb,
                         LWRES_LWPACKET_LENGTH+6,
                         sizeof(guint16),
-                        rdtype);
+                        FALSE);
 
-	proto_tree_add_uint(rdata_resp_tree,
+	proto_tree_add_item(rdata_resp_tree,
 			hf_ttl,
 			tvb,
 			LWRES_LWPACKET_LENGTH+8,
 			sizeof(guint32),
-			ttl);
+			FALSE);
 
-	proto_tree_add_uint(rdata_resp_tree,
+	proto_tree_add_item(rdata_resp_tree,
 			hf_nrdatas,
 			tvb,
 			LWRES_LWPACKET_LENGTH+12,
 			sizeof(guint16),
-			nrdatas);
+			FALSE);
 
-	proto_tree_add_uint(rdata_resp_tree,
+	proto_tree_add_item(rdata_resp_tree,
 			hf_nsigs,
 			tvb,
 			LWRES_LWPACKET_LENGTH+14,
 			sizeof(guint16),
-			nsigs);
+			FALSE);
 
-	proto_tree_add_uint(rdata_resp_tree,
+	proto_tree_add_item(rdata_resp_tree,
 			hf_realnamelen,
 			tvb,
 			LWRES_LWPACKET_LENGTH+16,
 			sizeof(guint16),
-			realnamelen);
+			FALSE);
 
-	proto_tree_add_string(rdata_resp_tree,
+	proto_tree_add_item(rdata_resp_tree,
                         hf_realname,
                         tvb,
                         LWRES_LWPACKET_LENGTH+18,
                         realnamelen,
-		        (char*)realname);
+		        FALSE);
 
 	switch(rdtype)
 	{
@@ -1297,7 +1096,6 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
-
 }
 
 
