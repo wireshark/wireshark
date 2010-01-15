@@ -599,6 +599,7 @@ static void
 tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint8 flags, guint32 window, struct tcp_analysis *tcpd)
 {
 	tcp_unacked_t *ual=NULL;
+ 	guint32 nextseq;
 	int ackcount;
 
 #ifdef REMOVED
@@ -889,28 +890,31 @@ finished_fwd:
 finished_checking_retransmission_type:
 
 
-	/* add this new sequence number to the fwd list */
-	TCP_UNACKED_NEW(ual);
-	ual->next=tcpd->fwd->segments;
-	tcpd->fwd->segments=ual;
-	ual->frame=pinfo->fd->num;
-	ual->seq=seq;
-	ual->ts=pinfo->fd->abs_ts;
+        nextseq = seq+seglen;
+        if (seglen || flags&(TH_SYN|TH_FIN)) {
+	    /* add this new sequence number to the fwd list */
+	    TCP_UNACKED_NEW(ual);
+	    ual->next=tcpd->fwd->segments;
+	    tcpd->fwd->segments=ual;
+	    ual->frame=pinfo->fd->num;
+	    ual->seq=seq;
+	    ual->ts=pinfo->fd->abs_ts;
 
-	/* next sequence number is seglen bytes away, plus SYN/FIN which counts as one byte */
-	ual->nextseq=seq+seglen;
-	if( flags&(TH_SYN|TH_FIN) ){
-		ual->nextseq+=1;
-	}
+	    /* next sequence number is seglen bytes away, plus SYN/FIN which counts as one byte */
+	    if( (flags&(TH_SYN|TH_FIN)) ){
+		nextseq+=1;
+            }
+            ual->nextseq=nextseq;
+        }
 
 	/* Store the highest number seen so far for nextseq so we can detect
 	 * when we receive segments that arrive with a "hole"
 	 * If we dont have anything since before, just store what we got.
 	 * ZeroWindowProbes are special and dont really advance the nextseq
 	 */
-	if(GT_SEQ(ual->nextseq, tcpd->fwd->nextseq) || !tcpd->fwd->nextseq) {
+	if(GT_SEQ(nextseq, tcpd->fwd->nextseq) || !tcpd->fwd->nextseq) {
 		if( !tcpd->ta || !(tcpd->ta->flags&TCP_A_ZERO_WINDOW_PROBE) ){
-			tcpd->fwd->nextseq=ual->nextseq;
+			tcpd->fwd->nextseq=nextseq;
 			tcpd->fwd->nextseqframe=pinfo->fd->num;
 			tcpd->fwd->nextseqtime.secs=pinfo->fd->abs_ts.secs;
 			tcpd->fwd->nextseqtime.nsecs=pinfo->fd->abs_ts.nsecs;
