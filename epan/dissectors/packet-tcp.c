@@ -599,6 +599,7 @@ static void
 tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint8 flags, guint32 window, struct tcp_analysis *tcpd)
 {
 	tcp_unacked_t *ual=NULL;
+	tcp_unacked_t *prevual=NULL;
  	guint32 nextseq;
 	int ackcount;
 
@@ -942,57 +943,45 @@ finished_checking_retransmission_type:
 	/* remove all segments this ACKs and we dont need to keep around any more
 	 */
 	ackcount=0;
-	/* first we remove all such segments at the head of the list */
-	while((ual=tcpd->rev->segments)){
+	prevual = NULL;
+	ual = tcpd->rev->segments;	
+	while(ual){
 		tcp_unacked_t *tmpual;
+
+		/* If this ack matches the segment, process accordingly */
 		if(ack==ual->nextseq){
 			tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
 			tcpd->ta->frame_acked=ual->frame;
 			nstime_delta(&tcpd->ta->ts, &pinfo->fd->abs_ts, &ual->ts);
 		}
-		if(GT_SEQ(ual->nextseq,ack)){
-			break;
+		/* If this acknowledges a segment prior to this one, leave this segment alone and move on */
+		else if (GT_SEQ(ual->nextseq,ack)){
+			prevual = ual;
+			ual = ual->next;
+			continue;
 		}
-		if(!ackcount){
-/*qqq do the ACKs segment x  delta y */
-		}
+
+		/* This segment is old, or an exact match.  Delete the segment from the list */
 		ackcount++;
-		tmpual=tcpd->rev->segments->next;
+		tmpual=ual->next;
 
 		if (tcpd->rev->scps_capable) {
-		  /* Track largest segment successfully sent for SNACK analysis */
-		  if ((ual->nextseq - ual->seq) > tcpd->fwd->maxsizeacked) {
+		  /* Track largest segment successfully sent for SNACK analysis*/
+		  if ((ual->nextseq - ual->seq) > tcpd->fwd->maxsizeacked){
 		    tcpd->fwd->maxsizeacked = (ual->nextseq - ual->seq);
 		  }
 		}
 
-		TCP_UNACKED_FREE(ual);
-		tcpd->rev->segments=tmpual;
-	}
-	/* now we remove all such segments that are NOT at the head of the list */
-	ual=tcpd->rev->segments;
-	while(ual && ual->next){
-		tcp_unacked_t *tmpual;
-		if(GT_SEQ(ual->next->nextseq,ack)){
-			ual=ual->next;
-			continue;
+		if (!prevual){
+			tcpd->rev->segments = tmpual;
+			TCP_UNACKED_FREE(ual);
+			ual = tmpual;
 		}
-		if(!ackcount){
-/*qqq do the ACKs segment x  delta y */
+		else{
+			prevual->next = tmpual;
+			TCP_UNACKED_FREE(ual);
+			ual = tmpual;
 		}
-		ackcount++;
-		tmpual=ual->next->next;
-
-		if (tcpd->rev->scps_capable) {
-		  /* Track largest segment successfully sent for SNACK analysis*/
-		  if ((ual->next->nextseq - ual->next->seq) > tcpd->fwd->maxsizeacked){
-		    tcpd->fwd->maxsizeacked = (ual->next->nextseq - ual->next->seq);
-		  }
-		}
-
-		TCP_UNACKED_FREE(ual->next);
-		ual->next=tmpual;
-		ual=ual->next;
 	}
 
 	/* how many bytes of data are there in flight after this frame
