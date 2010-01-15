@@ -672,7 +672,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 	frame_offset += segment_offset;
-	col_set_str(pinfo->cinfo, COL_INFO, val_to_str(ltp_type,ltp_type_col_info,"Protocol Error"));
+	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(ltp_type,ltp_type_col_info,"Protocol Error"));
 	/* Check to see if there are any trailer extensions */
 	if(trl_extn_cnt > 0){
 		if((unsigned)frame_offset >= tvb_length(tvb)){
