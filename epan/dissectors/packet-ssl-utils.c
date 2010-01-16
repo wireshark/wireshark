@@ -2664,8 +2664,8 @@ ssl_cipher_setiv(SSL_CIPHER_CTX *cipher _U_, guchar* iv _U_, gint iv_len _U_)
 void
 ssl_session_init(SslDecryptSession* ssl_session)
 {
-    ssl_debug_printf("ssl_session_init: initializing ptr %p size %lu\n",
-                     (void *)ssl_session, (gulong)sizeof(SslDecryptSession));
+    ssl_debug_printf("ssl_session_init: initializing ptr %p size %" G_GSIZE_MODIFIER "u\n",
+                     (void *)ssl_session, sizeof(SslDecryptSession));
 
     ssl_session->master_secret.data = ssl_session->_master_secret;
     ssl_session->session_id.data = ssl_session->_session_id;
