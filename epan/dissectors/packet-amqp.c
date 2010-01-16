@@ -1035,7 +1035,7 @@ dissect_amqp_field_table(tvbuff_t *tvb, int offset, int bound, int length, proto
             break;
         case 'I':
             typename = "integer";
-            value = ep_strdup_printf("%ld", (long) tvb_get_ntohl(tvb, offset));
+            value = ep_strdup_printf("%d", tvb_get_ntohl(tvb, offset));
             AMQP_INCREMENT(offset, 4, bound);
             length -= 4;  
             break;
