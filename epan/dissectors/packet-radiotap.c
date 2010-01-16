@@ -45,7 +45,7 @@
  * http://www.radiotap.org/
  *
  * Unofficial and historical specifications:
- * http://madwifi.org/wiki/DevDocs/RadiotapHeader
+ * http://madwifi-project.org/wiki/DevDocs/RadiotapHeader
  * NetBSD's ieee80211_radiotap.h file
  */
 
