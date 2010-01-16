@@ -14,6 +14,7 @@ WSUG_FILES =	\
 	wsug_src/WSUG_chapter_introduction.xml	\
 	wsug_src/WSUG_chapter_io.xml		\
 	wsug_src/WSUG_chapter_statistics.xml	\
+	wsug_src/WSUG_chapter_telephony.xml	\
 	wsug_src/WSUG_chapter_troubleshoot.xml	\
 	wsug_src/WSUG_chapter_use.xml		\
 	wsug_src/WSUG_chapter_work.xml		\

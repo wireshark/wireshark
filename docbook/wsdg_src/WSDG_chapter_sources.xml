@@ -109,14 +109,14 @@
 	you will only need a Web browser.
 	</para>
 	<para>
-	A <command>simple view</command> on the latest developer version can be
+	A <literal>simple view</literal> on the latest developer version can be
 	found at:
 	</para>
 	<para>
 	<ulink url="http://anonsvn.wireshark.org/wireshark/trunk/"/>.
 	</para>
 	<para>
-	A <command>comprehensive view</command> of all source versions
+	A <literal>comprehensive view</literal> of all source versions
 	(e.g. including the capability to show differences between versions)
 	is available at:
 	</para>
@@ -127,10 +127,10 @@
 	Of special interest might be the subdirectories:
 	<itemizedlist>
 	<listitem><para>
-	trunk - the very latest source files
+	<filename>trunk</filename> - the very latest source files
 	</para></listitem>
 	<listitem><para>
-	releases - the source files of all released versions
+	<filename>releases</filename> - the source files of all released versions
 	</para></listitem>
 	</itemizedlist>
 	</para>
@@ -177,7 +177,7 @@
 	You can use a Subversion client to download the source code from
 	Wireshark's anonymous Subversion repository. The URL for the repository
 	trunk is:
-	<ulink url="http://anonsvn.wireshark.org/wireshark/trunk/"/>.
+	<ulink url="&WiresharkRepositorySite;/wireshark/trunk/"/>.
 	</para>
 	<para>
 	See <xref linkend="ChToolsSubversion"/> on how to install a Subversion client.
@@ -188,7 +188,7 @@
 	</para>
 	<para>
 	<prompt>$</prompt>
-	<userinput>svn checkout http://anonsvn.wireshark.org/wireshark/trunk wireshark</userinput>
+	<userinput>svn checkout &WiresharkRepositorySite;/wireshark/trunk wireshark</userinput>
 	</para>
 	<para>
 	The checkout has to be only done once. This will copy all the sources of
@@ -209,7 +209,7 @@
 	<para>
 	 The entire source tree of the Subversion repository is available via a
 	 web interface at:
-	 <ulink url="http://anonsvn.wireshark.org/viewvc/viewvc.cgi/"/>.
+	 <ulink url="&WiresharkRepositorySite;/viewvc/viewvc.cgi/"/>.
 	 You can view each revision of a particular file, as well as diffs between
 	 different revisions.
 	 You can also download individual files but not entire directories.
@@ -367,11 +367,11 @@ make
 	</programlisting>
 	</para>
 	<para>
-	If you need to build with a GTK 1.x version, you have to use:
+	If you need to build with a non-standard configuration, you can use:
 	<programlisting>
-./configure --disable-gtk2
+./configure --help
 	</programlisting>
-	instead of just ./configure.
+	to see what options you have.
 	</para>
 	</section>
 
@@ -388,16 +388,16 @@ make
 	<para>
 	Many of the file and directory names used in the build process go past the
 	old 8.3 naming limitations.
-	As a result, you should use the "cmd.exe" command interpreter instead of the
-	old "command.com".
+	As a result, you should use the <command>cmd.exe</command> command interpreter
+	instead of the old <command>command.com</command>.
 	</para>
 	<para>
 	Be sure that your command-line environment is set up to compile
 	and link with MSVC++. When installing MSVC++, you can have your
 	system's environment set up to always allow compiling from the
 	command line, or you can invoke the vcvars32.bat script, which can
-	usually be found in the "VC98\Bin" subdirectory of the directory in
-	which Visual Studio was installed.
+	usually be found in the <filename>VC98\Bin</filename> subdirectory of the
+	directory in which Visual Studio was installed.
 	</para>
 	<para>
 	You should then cleanup any intermediate files, which are shipped for
@@ -445,10 +445,10 @@ make
 	</para>
 	<para>
 	In order to run the Wireshark from the build directory set the environment
-	variable <command>WIRESHARK_RUN_FROM_BUILD_DIRECTORY</command> and run
+	variable <varname>WIRESHARK_RUN_FROM_BUILD_DIRECTORY</varname> and run
 	Wireshark. If your platform is properly setup, your build directory and
-	current working directory are not in your PATH, so the commandline to
-	launch Wireshark would be:
+	current working directory are not in your <varname>PATH</varname>, so the
+	commandline to launch Wireshark would be:
 	<command>WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ./wireshark</command>.
 	</para>
 	<para>
@@ -483,7 +483,7 @@ make
 	(ddd) instead of GNU debugger (gdb).
 	</para>
 	<para>
-	Additional traps can be set on GLib by setting the <command>G_DEBUG</command>
+	Additional traps can be set on GLib by setting the <varname>G_DEBUG</varname>
 	environment variable:<command>G_DEBUG=fatal_criticals libtool --mode=execute
 	ddd wireshark</command>. 
 	See <ulink url="http://library.gnome.org/devel/glib/stable/glib-running.html"/>
@@ -520,8 +520,8 @@ make
 	</para>
 	<tip><title>Tip!</title>
 	<para>
-	<command>Ask the developer mailing list before you really start a new
-	development task.</command>
+	<literal>Ask the developer mailing list before you really start a new
+	development task.</literal>
 	If you have an idea what you want to add/change, it's a good idea to
 	contact the developer mailing list
 	(see <xref linkend="ChIntroMailingLists"/>)
@@ -590,7 +590,9 @@ make
 	</para>
 	<para>
 	Here is a small example of a patch for <filename>file.h</filename> that
-	makes the second argument in <function>cf_continue_tail()</function> <type>volatile</type>.  It was created using <command>svn diff</command>, described below:
+	makes the second argument in <function>cf_continue_tail()</function>
+	<type>volatile</type>.  It was created using <command>svn diff</command>,
+	described below:
 	<programlisting>
 <![CDATA[
 Index: file.h
@@ -673,10 +675,12 @@ Index: file.h
 	When you create the diff file, it will include any difference TortoiseSVN
 	finds in files in and under the directory you have right-clicked on, and
 	nothing else. This means that changes you might have made for your
-	specific configuration - like modifying "config.nmake" so that it uses
+	specific configuration - like modifying <filename>config.nmake</filename>
+	so that it uses
 	your lib directory - will also be included, and you will need to remove
 	these lines from the diff file. It also means that only changes will be
-	recorded, i.e. if you have created new files -say, a new packet-xxx for a
+	recorded, i.e. if you have created new files -say, a new
+	<filename>packet-xxx.c</filename> for a
 	new protocol dissector- it will not be included in the diff, you need to
 	add it separately. And, of course, if you have been working separately in
 	two different patches, the .diff file will include both topics, which is
@@ -692,7 +696,7 @@ Index: file.h
 	do a diff, you should
 	have two source trees on your computer, one with your working copy
 	(containing your changes), and one with the "official" source tree
-	(hopefully the latest SVN files) from www.wireshark.org.
+	(hopefully the latest SVN files) from &WiresharkWebSite;.
 	</para>
 	<para>
 	If you have only changed a single file, you could type something like
@@ -888,7 +892,7 @@ Index: file.h
 	</para>
 	<para>
 	To submit a patch, open a new ticket in the Wireshark bug database at <ulink
-	url="http://bugs.wireshark.org/bugzilla/enter_bug.cgi?product=Wireshark"/>.
+	url="&WiresharkBugsSite;/bugzilla/enter_bug.cgi?product=Wireshark"/>.
 	You must first create a bug, then attach your patch or patches.
 	<itemizedlist>
 	  <listitem><para>
@@ -909,6 +913,7 @@ Index: file.h
 	  </para></listitem>
 	</itemizedlist>
 	</para>
+	<!--
 	<tip><title>Tip!</title>
 	<para>
 	Setting the <command>review_for_checkin</command> is important.
@@ -916,6 +921,7 @@ Index: file.h
 	patch request queue</ulink>.
 	</para>
 	</tip>
+	-->
 	<para>
 	You might get one of the following responses to your patch request:
 	<itemizedlist>
@@ -962,10 +968,12 @@ Index: file.h
 	<section id="ChSrcPatchUse">
 	<title>Using patch</title>
 	<para>
-	Given the file "new.diff" containing a unified diff, the right way to
-	call the patch tool depends on what the pathnames in "new.diff" look like.
+	Given the file <filename>new.diff</filename> containing a unified diff,
+	the right way to call the patch tool depends on what the pathnames in
+	<filename>new.diff</filename> look like.
 	If they're relative to the top-level source directory - for example, if a
-	patch to "prefs.c" just has "prefs.c" as the file name - you'd run it as:
+	patch to <filename>prefs.c</filename> just has <filename>prefs.c</filename>
+	as the file name - you'd run it as:
 	</para>
 	<para>
     <userinput>patch -p0 &lt;new.diff</userinput>
@@ -973,23 +981,26 @@ Index: file.h
 	<para>
 	If they're relative to a higher-level directory, you'd replace 0 with the
 	number of higher-level directories in the path, e.g. if the names are
-	"wireshark.orig/prefs.c" and "wireshark.mine/prefs.c", you'd run it with:
+	<filename>wireshark.orig/prefs.c</filename> and
+	<filename>wireshark.mine/prefs.c</filename>, you'd run it with:
 	</para>
 	<para>
     <userinput>patch -p1 &lt;new.diff</userinput>
 	</para>
 	<para>
-	If they're relative to a <command>subdirectory</command> of the top-level
-	directory, you'd run "patch" in <command>that</command> directory and run
-	it with "-p0".
+	If they're relative to a <literal>subdirectory</literal> of the top-level
+	directory, you'd run <command>patch</command> in <literal>that</literal>
+	directory and run it with <parameter>-p0</parameter>.
 	</para>
 	<para>
-	If you run it without "-p" at all, the patch tool flattens path names, so
-	that if you
-	have a patch file with patches to "Makefile.am" and "wiretap/Makefile.am",
-	it'll try to apply the first patch to the top-level "Makefile.am" and then
-	apply the "wiretap/Makefile.am" patch to the top-level "Makefile.am" as
-	well.
+	If you run it without <parameter>-p</parameter> at all, the patch tool
+	flattens path names, so that if you
+	have a patch file with patches to <filename>Makefile.am</filename> and
+	<filename>wiretap/Makefile.am</filename>,
+	it'll try to apply the first patch to the top-level
+	<filename>Makefile.am</filename> and then apply the
+	<filename>wiretap/Makefile.am</filename> patch to the top-level
+	<filename>Makefile.am</filename> as well.
 	</para>
 	<para>
 	At which position in the filesystem should the patch tool be called?
@@ -1000,12 +1011,12 @@ Index: file.h
 	directory.
 	</para>
 	<para>
-	If they're relative to a <command>subdirectory</command> - for example,
+	If they're relative to a <literal>subdirectory</literal> - for example,
 	if somebody did a patch to "packet-ip.c" and ran "diff" or "svn diff" in
 	the "epan/dissectors" directory - you'd run it in that subdirectory.
-	It is preferred that people <command>NOT</command> submit patches like
+	It is preferred that people <literal>NOT</literal> submit patches like
 	that - especially if they're only patching files that exist in multiple
-	directories, such as "Makefile.am".
+	directories, such as <filename>Makefile.am</filename>.
 	</para>
 	</section>
 	<section id="ChSrcPatchCvs">

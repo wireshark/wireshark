@@ -77,8 +77,7 @@ extern enc_key_t *enc_key_list;
 guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
-			int length,
-			const guint8 *cryptotext,
+			tvbuff_t *crypototvb,
 			int keytype,
 			int *datalen);
 

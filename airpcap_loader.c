@@ -2336,7 +2336,6 @@ set_on_off(pref_t *pref, gpointer ud)
     {
 	number = *pref->varp.boolp;
 
-	g_free((void *)*pref->varp.boolp);
 	if(*is_on)
 	    *pref->varp.boolp = TRUE;
 	else

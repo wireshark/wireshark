@@ -124,6 +124,11 @@ static void set_buttons(uat_t* uat, gint row) {
 		gtk_widget_set_sensitive (uat->rep->bt_down, FALSE);
 	}
 
+	if (row < 0) {
+		gtk_widget_set_sensitive (uat->rep->bt_edit, FALSE);
+		gtk_widget_set_sensitive (uat->rep->bt_delete, FALSE);
+	}
+
 	if (uat->changed) {
 		g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
 		g_signal_connect(uat->rep->window, "delete_event", G_CALLBACK(unsaved_dialog), uat);

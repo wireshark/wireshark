@@ -191,6 +191,7 @@ FILE SECTION
   <!ENTITY WiresharkGoMenu SYSTEM "./wsug_graphics/ws-go-menu.png" NDATA PNG>
   <!ENTITY WiresharkCaptureMenu SYSTEM "./wsug_graphics/ws-capture-menu.png" NDATA PNG>
   <!ENTITY WiresharkAnalyzeMenu SYSTEM "./wsug_graphics/ws-analyze-menu.png" NDATA PNG>
+  <!ENTITY WiresharkTelephonyMenu SYSTEM "./wsug_graphics/ws-telephony-menu.png" NDATA PNG>
   <!ENTITY WiresharkStatisticsMenu SYSTEM "./wsug_graphics/ws-statistics-menu.png" NDATA PNG>
   <!ENTITY WiresharkHelpMenu SYSTEM "./wsug_graphics/ws-help-menu.png" NDATA PNG>
   <!ENTITY WiresharkPacketPanePopupMenu SYSTEM "./wsug_graphics/ws-packet-pane-popup-menu.png" NDATA PNG>
@@ -254,6 +255,10 @@ FILE SECTION
   <!ENTITY WiresharkStatsSrtDcerpcFilter SYSTEM "./wsug_graphics/ws-stats-srt-dcerpc-filter.png" NDATA PNG>
   <!ENTITY WiresharkStatsSrtDcerpc SYSTEM "./wsug_graphics/ws-stats-srt-dcerpc.png" NDATA PNG>
 
+  <!-- Chapter Telephony -->
+  <!ENTITY WiresharkTelRTPStreamAnalysis SYSTEM "./wsug_graphics/ws-tel-rtpstream-analysis.png" NDATA PNG>
+  <!ENTITY WiresharkStatsLTEMACTraffic SYSTEM "./wsug_graphics/ws-stats-lte-mac-traffic.png" NDATA PNG>
+
   <!-- Fifth Chapter -->
   <!ENTITY WiresharkOpenDialog20 SYSTEM "./wsug_graphics/ws-open-gtk20.png" NDATA PNG> 
   <!ENTITY WiresharkSaveAsDialog20 SYSTEM "./wsug_graphics/ws-save-as-gtk20.png" NDATA PNG>
@@ -293,6 +298,7 @@ FILE SECTION
   <!ENTITY ChapterWork SYSTEM "wsug_src/WSUG_chapter_work.xml">
   <!ENTITY ChapterAdvanced SYSTEM "wsug_src/WSUG_chapter_advanced.xml">
   <!ENTITY ChapterStatistics SYSTEM "wsug_src/WSUG_chapter_statistics.xml">
+  <!ENTITY ChapterTelephony SYSTEM "wsug_src/WSUG_chapter_telephony.xml">
   <!ENTITY ChapterCustomize SYSTEM "wsug_src/WSUG_chapter_customize.xml">
   <!ENTITY ChapterTroubleshoot SYSTEM "wsug_src/WSUG_chapter_troubleshoot.xml">
   <!ENTITY AppMessages SYSTEM "wsug_src/WSUG_app_messages.xml">
@@ -335,6 +341,7 @@ WSLua Reference Manual
   &ChapterWork;
   &ChapterAdvanced;
   &ChapterStatistics;  
+  &ChapterTelephony;
   &ChapterCustomize;
 
   &WsLuaRm;
