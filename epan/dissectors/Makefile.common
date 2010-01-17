@@ -504,6 +504,7 @@ DISSECTOR_SRC = \
 	packet-hilscher.c	\
 	packet-hip.c		\
 	packet-homeplug.c 	\
+	packet-hp-erm.c         \
 	packet-hpext.c		\
 	packet-hpsw.c		\
 	packet-hpteam.c		\
