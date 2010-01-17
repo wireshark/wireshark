@@ -4,7 +4,7 @@
 # First download the specification from 3gpp.org as a word document and open it
 # Then in "view" menu, select normal or web layout (needed to removed page header and footers)
 # Finally save the document as a text file
-# Call the script: "perl extract_asn1 36331-xxx.txt"
+# Call the script: "perl extract_asn1_from_spec.pl 36331-xxx.txt"
 # It should generate: EUTRA-RRC-Definitions.asn, EUTRA-UE-Variables.asn and EUTRA-InterNodeDefinitions
 use warnings;
 $input_file = $ARGV[0];
