@@ -22,6 +22,7 @@ HandoverCommand
 HandoverPreparationInformation
 BCCH-BCH-Message             @bcch.bch
 BCCH-DL-SCH-Message          @bcch.dl.sch
+MCCH-Message                 @mcch				
 PCCH-Message                 @pcch
 DL-CCCH-Message              @dl.ccch
 DL-DCCH-Message              @dl.dcch
@@ -115,6 +116,10 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformation ");
 #.FN_HDR SystemInformationBlockType1
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1 ");
+
+#.FN_HDR MBSFNAreaConfiguration-r9
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "MBSFNAreaConfiguration-r9 ");
 
 #.FN_HDR Paging
 

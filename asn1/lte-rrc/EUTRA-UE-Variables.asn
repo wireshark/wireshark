@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V8.8.0 (2009-12)
+-- 3GPP TS 36.331 V9.1.0 (2009-12)
 -- $Id$
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
@@ -35,8 +35,18 @@ VarMeasReport ::=					SEQUENCE {
 	numberOfReportsSent					INTEGER
 }
 
-CellsTriggeredList ::=				SEQUENCE (SIZE (1..maxCellMeas)) OF PhysCellId
-
+CellsTriggeredList ::=				SEQUENCE (SIZE (1..maxCellMeas)) OF CHOICE {
+	physCellIdEUTRA							PhysCellId,
+	physCellIdUTRA							CHOICE {
+		fdd										PhysCellIdUTRA-FDD,
+		tdd										PhysCellIdUTRA-TDD
+	},
+	physCellIdGERAN							SEQUENCE {
+		carrierFreq								CarrierFreqGERAN,
+		physCellId								PhysCellIdGERAN
+	},
+	physCellIdCDMA2000						PhysCellIdCDMA2000
+}
 
 VarShortMAC-Input ::=					SEQUENCE {
 	cellIdentity							CellIdentity,
