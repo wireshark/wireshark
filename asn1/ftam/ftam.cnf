@@ -92,9 +92,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
   %(DEFAULT_BODY)s
   
   if( (branch_taken!=-1) && ftam_FTAM_Regime_PDU_vals[branch_taken].strptr ){
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s:", ftam_FTAM_Regime_PDU_vals[branch_taken].strptr);
-	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s:", ftam_FTAM_Regime_PDU_vals[branch_taken].strptr);
   }
 
 #.FN_BODY File-PDU VAL_PTR = &branch_taken
@@ -103,9 +101,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
   %(DEFAULT_BODY)s
 
   if( (branch_taken!=-1) && ftam_File_PDU_vals[branch_taken].strptr ){
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s:", ftam_File_PDU_vals[branch_taken].strptr);
-	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s:", ftam_File_PDU_vals[branch_taken].strptr);
   }
 
 #.FN_BODY Bulk-Data-PDU VAL_PTR = &branch_taken
@@ -114,9 +110,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
   %(DEFAULT_BODY)s
 
   if( (branch_taken!=-1) && ftam_Bulk_Data_PDU_vals[branch_taken].strptr ){
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s:", ftam_Bulk_Data_PDU_vals[branch_taken].strptr);
-	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s:", ftam_Bulk_Data_PDU_vals[branch_taken].strptr);
   }
 
 #.FN_BODY FSM-PDU VAL_PTR = &branch_taken
@@ -125,7 +119,5 @@ Legal-Qualification-Attribute/actual-values	actual_values9
   %(DEFAULT_BODY)s
 
   if( (branch_taken!=-1) && ftam_FSM_PDU_vals[branch_taken].strptr ){
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s:", ftam_FSM_PDU_vals[branch_taken].strptr);
-	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s:", ftam_FSM_PDU_vals[branch_taken].strptr);
   }

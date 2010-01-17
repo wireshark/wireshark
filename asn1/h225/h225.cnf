@@ -244,10 +244,8 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 	contains_faststart = FALSE;
 	call_id_guid = NULL;
 %(DEFAULT_BODY)s
-	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
-		col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "CS: %%s ",
-			val_to_str(message_body_val, T_h323_message_body_vals, "<unknown>"));
-        }
+	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "CS: %%s ",
+		val_to_str(message_body_val, T_h323_message_body_vals, "<unknown>"));
 
 	if (h225_pi->msg_type == H225_CS) {
 		/* Don't override msg_tag value from IRR */
@@ -287,10 +285,8 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   	gint32 rasmessage_value;
 
 %(DEFAULT_BODY)s
-	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
-		col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "RAS: %%s ",
-			val_to_str(rasmessage_value, h225_RasMessage_vals, "<unknown>"));
-	}
+	col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "RAS: %%s ",
+		val_to_str(rasmessage_value, h225_RasMessage_vals, "<unknown>"));
 
 	h225_pi->msg_tag = rasmessage_value;
 #.END

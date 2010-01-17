@@ -1975,8 +1975,7 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	if(dsp_dissector) {
-	  if (check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, dsp_op_name);
+    col_set_str(pinfo->cinfo, COL_INFO, dsp_op_name);
 
 	  while (tvb_reported_length_remaining(tvb, offset) > 0){
 	    old_offset=offset;
@@ -2549,7 +2548,7 @@ void proto_register_dsp(void) {
         "dsp.EXTERNAL", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
-#line 278 "packet-dsp-template.c"
+#line 277 "packet-dsp-template.c"
   };
 
   /* List of subtrees */
@@ -2631,7 +2630,7 @@ void proto_register_dsp(void) {
     &ett_dsp_T_basicLevels,
 
 /*--- End of included file: packet-dsp-ettarr.c ---*/
-#line 284 "packet-dsp-template.c"
+#line 283 "packet-dsp-template.c"
   };
   module_t *dsp_module;
 
@@ -2672,7 +2671,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-#line 314 "packet-dsp-template.c"
+#line 313 "packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 

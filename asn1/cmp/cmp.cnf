@@ -97,9 +97,7 @@ RevAnnContent/status pkistatus
 
   %(DEFAULT_BODY)s
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-  	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Body=%%s", val_to_str(branch_taken, cmp_PKIBody_vals, "unknown"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Body=%%s", val_to_str(branch_taken, cmp_PKIBody_vals, "unknown"));
 
 #.FN_PARS PKIStatus
   VAL_PTR = &value
@@ -109,8 +107,6 @@ RevAnnContent/status pkistatus
 
   %(DEFAULT_BODY)s
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-  	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Status=%%s", val_to_str(value, cmp_PKIStatus_vals, "unknown"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Status=%%s", val_to_str(value, cmp_PKIStatus_vals, "unknown"));
 
 #.END_OF_CNF

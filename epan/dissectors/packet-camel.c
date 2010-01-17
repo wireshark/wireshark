@@ -2116,19 +2116,15 @@ dissect_camel_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   if (is_ExtensionField == FALSE){
 	if (camel_opcode_type == CAMEL_OPCODE_RETURN_ERROR){
 	  errorCode = opcode;	
-	  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-	    col_append_str(actx->pinfo->cinfo, COL_INFO, 
-	       val_to_str(errorCode, camel_err_code_string_vals, "Unknown CAMEL error (%u)"));
-	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
-	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-	  }
+	  col_append_str(actx->pinfo->cinfo, COL_INFO, 
+	      val_to_str(errorCode, camel_err_code_string_vals, "Unknown CAMEL error (%u)"));
+	  col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
+	  col_set_fence(actx->pinfo->cinfo, COL_INFO);
 	}else{
-	  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-	    col_append_str(actx->pinfo->cinfo, COL_INFO, 
-	       val_to_str(opcode, camel_opr_code_strings, "Unknown CAMEL (%u)"));
-	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
-	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-	  }
+	  col_append_str(actx->pinfo->cinfo, COL_INFO, 
+	     val_to_str(opcode, camel_opr_code_strings, "Unknown CAMEL (%u)"));
+	  col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
+	  col_set_fence(actx->pinfo->cinfo, COL_INFO);
 	}
 	gp_camelsrt_info->opcode=opcode;
   }
@@ -7094,11 +7090,9 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
   /* Get the length and add 2 */
   camel_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    /* Populate the info column with PDU type*/
-    col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camel_Component_vals, "Unknown Camel (%u)"));
-    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
-  }
+  /* Populate the info column with PDU type*/
+  col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camel_Component_vals, "Unknown Camel (%u)"));
+  col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 
   is_ExtensionField =FALSE;
   offset = dissect_camel_ROS(TRUE, tvb, offset, actx, tree, hf_index);
@@ -7270,7 +7264,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 522 "packet-camel-template.c"
+#line 520 "packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -9324,7 +9318,7 @@ void proto_register_camel(void) {
         "camel.InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 695 "packet-camel-template.c"
+#line 693 "packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -9527,7 +9521,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 708 "packet-camel-template.c"
+#line 706 "packet-camel-template.c"
   };
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);

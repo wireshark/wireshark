@@ -81,10 +81,8 @@ static void append_oid(packet_info *pinfo, const char *oid)
 {
   	const char *name = NULL;
 
-  if(check_col(pinfo->cinfo, COL_INFO)) {
     name = oid_resolved_from_string(oid);
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name ? name : oid);
-  }
 }
 
 #include "packet-dop-fn.c"
@@ -96,8 +94,7 @@ call_dop_oid_callback(char *base_string, tvbuff_t *tvb, int offset, packet_info 
 
   binding_param = ep_strdup_printf("%s.%s", base_string, binding_type ? binding_type : "");
 
-  if (col_info && (check_col(pinfo->cinfo, COL_INFO))) 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
+  col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
 
   if (dissector_try_string(dop_dissector_table, binding_param, tvb, pinfo, tree)) {
      offset += tvb_length_remaining (tvb, offset);
@@ -222,8 +219,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	if(dop_dissector) {
-	  if (check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, dop_op_name);
+      col_set_str(pinfo->cinfo, COL_INFO, dop_op_name);
 
 	  while (tvb_reported_length_remaining(tvb, offset) > 0){
 	    old_offset=offset;

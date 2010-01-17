@@ -357,10 +357,8 @@ static void append_oid(packet_info *pinfo, const char *oid)
 {
   	const char *name = NULL;
 
-  if(check_col(pinfo->cinfo, COL_INFO)) {
     name = oid_resolved_from_string(oid);
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name ? name : oid);
-  }
 }
 
 
@@ -423,9 +421,7 @@ dissect_dop_T_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
                                                 &value);
 
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " id=%d", value);
-  	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " id=%d", value);
 
 
 
@@ -438,16 +434,14 @@ dissect_dop_T_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_dop_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 183 "dop.cnf"
+#line 181 "dop.cnf"
 	guint32	value;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &value);
 
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, ",%d", value);
-  	}
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, ",%d", value);
 
 
 
@@ -1568,7 +1562,7 @@ dissect_dop_NHOBSubordinateToSuperior(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 static int
 dissect_dop_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 194 "dop.cnf"
+#line 190 "dop.cnf"
   guint32 precedence = 0;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2053,7 +2047,7 @@ static void dissect_ACIItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-dop-fn.c ---*/
-#line 91 "packet-dop-template.c"
+#line 89 "packet-dop-template.c"
 
 static int
 call_dop_oid_callback(char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char *col_info)
@@ -2062,8 +2056,7 @@ call_dop_oid_callback(char *base_string, tvbuff_t *tvb, int offset, packet_info 
 
   binding_param = ep_strdup_printf("%s.%s", base_string, binding_type ? binding_type : "");
 
-  if (col_info && (check_col(pinfo->cinfo, COL_INFO))) 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
+  col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
 
   if (dissector_try_string(dop_dissector_table, binding_param, tvb, pinfo, tree)) {
      offset += tvb_length_remaining (tvb, offset);
@@ -2188,8 +2181,7 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	if(dop_dissector) {
-	  if (check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, dop_op_name);
+      col_set_str(pinfo->cinfo, COL_INFO, dop_op_name);
 
 	  while (tvb_reported_length_remaining(tvb, offset) > 0){
 	    old_offset=offset;
@@ -2975,7 +2967,7 @@ void proto_register_dop(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-dop-hfarr.c ---*/
-#line 248 "packet-dop-template.c"
+#line 244 "packet-dop-template.c"
   };
 
   /* List of subtrees */
@@ -3054,7 +3046,7 @@ void proto_register_dop(void) {
     &ett_dop_GrantsAndDenials,
 
 /*--- End of included file: packet-dop-ettarr.c ---*/
-#line 255 "packet-dop-template.c"
+#line 251 "packet-dop-template.c"
   };
 
   module_t *dop_module;
@@ -3110,7 +3102,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 288 "packet-dop-template.c"
+#line 284 "packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");

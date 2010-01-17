@@ -857,10 +857,8 @@ dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
                                  NULL);
 
 
-	if(check_col(actx->pinfo->cinfo, COL_INFO)) {
-		dn = x509if_get_last_dn();
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", (dn && *dn) ? dn : "(root)");
-	}
+	dn = x509if_get_last_dn();
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", (dn && *dn) ? dn : "(root)");
 
 
   return offset;
@@ -869,7 +867,7 @@ dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static const ber_sequence_t T_manageDSAITPlaneRef_sequence[] = {
   { &hf_dap_dsaName         , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_dap_Name },
-  { &hf_dap_agreementID     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_disp_AgreementID },
+  { &hf_dap_agreementID     , -1/*imported*/, -1/*imported*/, BER_FLAGS_NOOWNTAG, dissect_disp_AgreementID },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1858,8 +1856,7 @@ dissect_dap_SimpleCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
                                    SimpleCredentials_sequence, hf_index, ett_dap_SimpleCredentials);
 
 
-	if(check_col(actx->pinfo->cinfo, COL_INFO))	
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", x509if_get_last_dn());
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", x509if_get_last_dn());
 
 
 	
@@ -2130,9 +2127,7 @@ dissect_dap_ServiceProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
                                                 &problem);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_ServiceProblem_vals, "ServiceProblem(%d)"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_ServiceProblem_vals, "ServiceProblem(%d)"));
 
 
   return offset;
@@ -2161,9 +2156,7 @@ dissect_dap_SecurityProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
                                                 &problem);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_SecurityProblem_vals, "SecurityProblem(%d)"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_SecurityProblem_vals, "SecurityProblem(%d)"));
 
 
   return offset;
@@ -2817,9 +2810,7 @@ dissect_dap_LimitProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
                                                 &problem);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_LimitProblem_vals, "LimitProblem(%d)"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_LimitProblem_vals, "LimitProblem(%d)"));
 
 
   return offset;
@@ -3007,9 +2998,7 @@ dissect_dap_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
                                                 &subset);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(subset, dap_T_subset_vals, "Subset(%d)"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(subset, dap_T_subset_vals, "Subset(%d)"));
 
 
 
@@ -4485,9 +4474,7 @@ dissect_dap_UpdateProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
                                                 &problem);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_UpdateProblem_vals, "UpdateProblem(%d)"));
-  }
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_UpdateProblem_vals, "UpdateProblem(%d)"));
 
 
   return offset;
