@@ -469,6 +469,7 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int data_size = 0;
 	asn1_ctx_t asn1_ctx;
 	int offset = 0;
+	static const char *version_names[] = { "1", "2", "2.5" };
 
 	if (!tvb_bytes_exist(tvb, 0, 4))
 		return FALSE;	/* not enough data for an MPEG audio frame */
@@ -481,14 +482,10 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return FALSE;
 	if (!MPA_LAYER_VALID(&mpa))
 		return FALSE;
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		static const char *version_names[] = { "1", "2", "2.5" };
-		col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
-				"MPEG-%s", version_names[mpa_version(&mpa)]);
-	}
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+		
+	col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+			"MPEG-%s", version_names[mpa_version(&mpa)]);
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 				"Audio Layer %d", mpa_layer(&mpa) + 1);
 	if (MPA_BITRATE_VALID(&mpa) && MPA_FREQUENCY_VALID(&mpa)) {
 		data_size = (int)(MPA_DATA_BYTES(&mpa) - sizeof mpa);
@@ -666,7 +663,7 @@ proto_register_mpeg_audio(void)
         "mpeg_audio.T_genre", HFILL }},
 
 /*--- End of included file: packet-mpeg-audio-hfarr.c ---*/
-#line 165 "packet-mpeg-audio-template.c"
+#line 162 "packet-mpeg-audio-template.c"
 		{ &hf_mpeg_audio_data,
 			{ "Data", "mpeg.audio.data",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -690,7 +687,7 @@ proto_register_mpeg_audio(void)
     &ett_mpeg_audio_ID3v1,
 
 /*--- End of included file: packet-mpeg-audio-ettarr.c ---*/
-#line 182 "packet-mpeg-audio-template.c"
+#line 179 "packet-mpeg-audio-template.c"
 	};
 
 	proto_mpeg_audio = proto_register_protocol(

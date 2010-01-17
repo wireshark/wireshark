@@ -1761,7 +1761,7 @@ dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 50 "mms.cnf"
+#line 49 "mms.cnf"
 
 	guint32 len;
 	proto_item *cause;
@@ -6925,8 +6925,7 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
   if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
-    if(check_col(actx->pinfo->cinfo, COL_INFO))
-      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", mms_MMSpdu_vals[branch_taken].strptr);
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", mms_MMSpdu_vals[branch_taken].strptr);
   }
 
 

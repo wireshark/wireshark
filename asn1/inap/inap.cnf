@@ -165,19 +165,15 @@ static const inap_err_t inap_err_tab[] = {
   %(DEFAULT_BODY)s
   	if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
 	  errorCode = opcode;	
-	  if (check_col(actx->pinfo->cinfo, COL_INFO)){
 	    col_append_str(actx->pinfo->cinfo, COL_INFO, 
 	       val_to_str(errorCode, inap_err_code_string_vals, "Unknown INAP error (%%u)"));
 	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-	  }
 	}else{
-	  if (check_col(actx->pinfo->cinfo, COL_INFO)){
 	    col_append_str(actx->pinfo->cinfo, COL_INFO, 
 	       val_to_str(opcode, inap_opr_code_strings, "Unknown INAP (%%u)"));
 	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
-	  }
    }
 
 #.FN_HDR Invoke

@@ -40,8 +40,7 @@ TimeOfDay	TYPE = FT_STRING DISPLAY = BASE_NONE
 %(DEFAULT_BODY)s
 
   if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
-    if(check_col(actx->pinfo->cinfo, COL_INFO))
-      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", mms_MMSpdu_vals[branch_taken].strptr);
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", mms_MMSpdu_vals[branch_taken].strptr);
   }
 
 

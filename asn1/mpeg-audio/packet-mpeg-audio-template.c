@@ -57,6 +57,7 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int data_size = 0;
 	asn1_ctx_t asn1_ctx;
 	int offset = 0;
+	static const char *version_names[] = { "1", "2", "2.5" };
 
 	if (!tvb_bytes_exist(tvb, 0, 4))
 		return FALSE;	/* not enough data for an MPEG audio frame */
@@ -69,14 +70,10 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return FALSE;
 	if (!MPA_LAYER_VALID(&mpa))
 		return FALSE;
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		static const char *version_names[] = { "1", "2", "2.5" };
-		col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
-				"MPEG-%s", version_names[mpa_version(&mpa)]);
-	}
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO,
+		
+	col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+			"MPEG-%s", version_names[mpa_version(&mpa)]);
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 				"Audio Layer %d", mpa_layer(&mpa) + 1);
 	if (MPA_BITRATE_VALID(&mpa) && MPA_FREQUENCY_VALID(&mpa)) {
 		data_size = (int)(MPA_DATA_BYTES(&mpa) - sizeof mpa);
