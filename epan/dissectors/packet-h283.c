@@ -283,7 +283,7 @@ dissect_h283_LCTRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 #line 61 "h283.cnf"
   p = match_strval(msg_type, VALS(h283_LCTRequest_vals));
-  if (!info_is_set && p && check_col(actx->pinfo->cinfo, COL_INFO)) {
+  if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTRequest/%s", p);
     info_is_set = TRUE;
   }
@@ -334,7 +334,7 @@ dissect_h283_LCTResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 #line 74 "h283.cnf"
   p = match_strval(msg_type, VALS(h283_LCTResponse_vals));
-  if (!info_is_set && p && check_col(actx->pinfo->cinfo, COL_INFO)) {
+  if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTResponse/%s", p);
     info_is_set = TRUE;
   }
@@ -365,7 +365,7 @@ dissect_h283_LCTIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 #line 87 "h283.cnf"
   p = match_strval(msg_type, VALS(h283_LCTIndication_vals));
-  if (!info_is_set && p && check_col(actx->pinfo->cinfo, COL_INFO)) {
+  if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTIndication/%s", p);
     info_is_set = TRUE;
   }
@@ -429,7 +429,7 @@ dissect_h283_LCTMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 #line 48 "h283.cnf"
   p = match_strval(msg_type, VALS(h283_LCTMessage_vals));
-  if (!info_is_set && p && check_col(actx->pinfo->cinfo, COL_INFO)) {
+  if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "LCTMessage/%s", p);
     info_is_set = TRUE;
   }
@@ -481,7 +481,7 @@ dissect_h283_T_dataType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 #line 35 "h283.cnf"
   p = match_strval(data_type, VALS(h283_T_dataType_vals));
-  if (!info_is_set && p && check_col(actx->pinfo->cinfo, COL_INFO)) {
+  if (!info_is_set && p ) {
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "RDCData/%s", p);
     info_is_set = TRUE;
   }
@@ -529,7 +529,7 @@ dissect_h283_T_pduType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 #line 22 "h283.cnf"
   p = match_strval(pdu_type, VALS(h283_T_pduType_vals));
-  if (!info_is_set && p && check_col(actx->pinfo->cinfo, COL_INFO)) {
+  if (!info_is_set && p ) {
     col_set_str(actx->pinfo->cinfo, COL_INFO, p);
     info_is_set = TRUE;
   }

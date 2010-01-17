@@ -366,9 +366,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   gint32 value;
 
 %(DEFAULT_BODY)s
-	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
-	        if ( h245_shorttypes == TRUE )
-	        {
+	if ( h245_shorttypes == TRUE )
+	    {
 	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_RequestMessage_short_vals, "<unknown>"));
 		}
@@ -377,9 +376,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
 		}
-	}
 
-	if (( check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)) && ( codec_type != NULL ) && ( value == RequestMessage_openLogicalChannel) ){
+	if (( codec_type != NULL ) && ( value == RequestMessage_openLogicalChannel) ){
 		col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "(%%s) ", codec_type );
 	}
 
@@ -406,8 +404,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   gint32 value;
 
 %(DEFAULT_BODY)s
-	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
-	        if ( h245_shorttypes == TRUE )
+	    if ( h245_shorttypes == TRUE )
 	        {
 	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_ResponseMessage_short_vals, "<unknown>"));
@@ -417,7 +414,6 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
 		}
-	}
 
 	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
 
@@ -433,8 +429,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   gint32 value;
 
 %(DEFAULT_BODY)s
-	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
-	        if ( h245_shorttypes == TRUE )
+        if ( h245_shorttypes == TRUE )
 	        {
 	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_IndicationMessage_short_vals, "<unknown>"));
@@ -444,7 +439,6 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
 		}
-	}
 
 	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
     /* Add to packet info */
@@ -459,8 +453,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   gint32 value;
 
 %(DEFAULT_BODY)s
-	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
-	        if ( h245_shorttypes == TRUE )
+	   if ( h245_shorttypes == TRUE )
 	        {
 	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_CommandMessage_short_vals, "<unknown>"));
@@ -470,7 +463,6 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
 		}
-	}
 
 	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
     /* Add to packet info */

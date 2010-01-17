@@ -2371,7 +2371,7 @@ dissect_h501_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 #line 25 "h501.cnf"
   p = match_strval(msg_type, VALS(h501_MessageBody_vals));
-  if (p && check_col(actx->pinfo->cinfo, COL_INFO))
+  if (p )
     col_set_str(actx->pinfo->cinfo, COL_INFO, p);
 
   return offset;

@@ -23,6 +23,6 @@ Message
   const gchar *p = NULL;
 #.FN_FTR
   p = match_strval(msg_type, VALS(h501_MessageBody_vals));
-  if (p && check_col(actx->pinfo->cinfo, COL_INFO))
+  if (p )
     col_set_str(actx->pinfo->cinfo, COL_INFO, p);
 #.END

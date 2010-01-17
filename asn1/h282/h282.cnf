@@ -25,7 +25,7 @@ NonCollapsingCapabilities
   const gchar *p = NULL;
 #.FN_FTR
   p = match_strval(msg_type, VALS(h282_RequestPDU_vals));
-  if (p && check_col(actx->pinfo->cinfo, COL_INFO))
+  if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "RequestPDU/%s", p);
 #.END
 
@@ -36,7 +36,7 @@ NonCollapsingCapabilities
   const gchar *p = NULL;
 #.FN_FTR
   p = match_strval(msg_type, VALS(h282_ResponsePDU_vals));
-  if (p && check_col(actx->pinfo->cinfo, COL_INFO))
+  if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "ResponsePDU/%s", p);
 #.END
 
@@ -47,6 +47,6 @@ NonCollapsingCapabilities
   const gchar *p = NULL;
 #.FN_FTR
   p = match_strval(msg_type, VALS(h282_IndicationPDU_vals));
-  if (p && check_col(actx->pinfo->cinfo, COL_INFO))
+  if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "IndicationPDU/%s", p);
 #.END
