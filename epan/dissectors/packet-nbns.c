@@ -285,7 +285,7 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	char cname, cnbname;
 	int name_type;
 	char *pname_ret;
-	size_t index = 0;
+	size_t idx = 0;
 
 	nbname_buf=ep_alloc(NBNAME_BUF_LEN);
 	nbname = nbname_buf;
@@ -330,17 +330,17 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		pname++;
 
 		/* Do we have room to store the character? */
-		if (index < NETBIOS_NAME_LEN) {
+		if (idx < NETBIOS_NAME_LEN) {
 			/* Yes - store the character. */
-			nbname_buf[index++] = cnbname;
+			nbname_buf[idx++] = cnbname;
 		}
 	}
 
 	/* NetBIOS names are supposed to be exactly 16 bytes long. */
-	if (index != NETBIOS_NAME_LEN) {
+	if (idx != NETBIOS_NAME_LEN) {
 		/* It's not. */
 		g_snprintf(nbname_buf, NBNAME_BUF_LEN, "Illegal NetBIOS name (%lu bytes long)",
-		    (unsigned long)index);
+		    (unsigned long)idx);
 		goto bad;
 	}
 

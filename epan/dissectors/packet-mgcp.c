@@ -390,9 +390,9 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (mgcp_tree)
 		{
-			proto_item *ti = proto_tree_add_uint(mgcp_tree, hf_mgcp_messagecount, tvb,
+			proto_item *tii = proto_tree_add_uint(mgcp_tree, hf_mgcp_messagecount, tvb,
 			                                     0 ,0 , num_messages);
-			PROTO_ITEM_SET_HIDDEN(ti);
+			PROTO_ITEM_SET_HIDDEN(tii);
 		}
 
 		/*

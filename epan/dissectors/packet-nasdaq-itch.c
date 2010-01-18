@@ -273,11 +273,11 @@ stock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offse
 {
   gint col_info = PINFO_COL(pinfo);
   if (nasdaq_itch_tree || col_info) {
-      char *stock = tvb_get_ephemeral_string(tvb, offset, 6); 
+      char *stock_p = tvb_get_ephemeral_string(tvb, offset, 6); 
 
       proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_stock, tvb, offset, 6, FALSE);
       if (col_info) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, "<%s> ", stock);
+          col_append_fstr(pinfo->cinfo, COL_INFO, "<%s> ", stock_p);
       }
   }
   return offset+6;

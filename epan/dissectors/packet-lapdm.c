@@ -212,7 +212,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *lapdm_tree, *addr_tree, *length_tree;
     proto_item *lapdm_ti, *addr_ti, *length_ti;
-    guint8 address, length, cr, sapi, len, n_s;
+    guint8 addr, length, cr, sapi, len, n_s;
     int control;
     gboolean m;
     tvbuff_t *payload;
@@ -225,10 +225,10 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPDm");
 
-    address = tvb_get_guint8(tvb, 0);
+    addr = tvb_get_guint8(tvb, 0);
     length = tvb_get_guint8(tvb, 2);
 
-    cr = address & LAPDM_CR;
+    cr = addr & LAPDM_CR;
     if (pinfo->p2p_dir == P2P_DIR_RECV) {
         is_response = cr ? FALSE : TRUE;
     }
@@ -240,13 +240,13 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         lapdm_ti = proto_tree_add_item(tree, proto_lapdm, tvb, 0, LAPDM_HEADER_LEN, FALSE);
         lapdm_tree = proto_item_add_subtree(lapdm_ti, ett_lapdm);
 
-        addr_ti = proto_tree_add_uint(lapdm_tree, hf_lapdm_address, tvb, 0, 1, address);
+        addr_ti = proto_tree_add_uint(lapdm_tree, hf_lapdm_address, tvb, 0, 1, addr);
         addr_tree = proto_item_add_subtree(addr_ti, ett_lapdm_address);
 
-        proto_tree_add_uint(addr_tree, hf_lapdm_lpd, tvb, 0, 1, address);
-        proto_tree_add_uint(addr_tree, hf_lapdm_sapi, tvb, 0, 1, address);
-        proto_tree_add_uint(addr_tree, hf_lapdm_cr, tvb, 0, 1, address);
-        proto_tree_add_uint(addr_tree, hf_lapdm_ea, tvb, 0, 1, address);
+        proto_tree_add_uint(addr_tree, hf_lapdm_lpd, tvb, 0, 1, addr);
+        proto_tree_add_uint(addr_tree, hf_lapdm_sapi, tvb, 0, 1, addr);
+        proto_tree_add_uint(addr_tree, hf_lapdm_cr, tvb, 0, 1, addr);
+        proto_tree_add_uint(addr_tree, hf_lapdm_ea, tvb, 0, 1, addr);
     }
     else {
         lapdm_ti = NULL;
@@ -267,7 +267,7 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(length_tree, hf_lapdm_el, tvb, 2, 1, length);
     }
 
-    sapi = (address & LAPDM_SAPI) >> LAPDM_SAPI_SHIFT;
+    sapi = (addr & LAPDM_SAPI) >> LAPDM_SAPI_SHIFT;
     len = (length & LAPDM_LEN) >> LAPDM_LEN_SHIFT;
     n_s = (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT;
     m = (length & LAPDM_M) >> LAPDM_M_SHIFT;

@@ -581,26 +581,26 @@ get_mp2t_conversation_data(conversation_t *conv)
 static frame_analysis_data_t *
 init_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 {
-	frame_analysis_data_t *frame_data = NULL;
+	frame_analysis_data_t *frame_analysis_data_p = NULL;
 
-	frame_data = se_alloc0(sizeof(struct frame_analysis_data));
-	frame_data->ts_table =
+	frame_analysis_data_p = se_alloc0(sizeof(struct frame_analysis_data));
+	frame_analysis_data_p->ts_table =
 	  se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
 					"mp2t_frame_pid_table");
 	/* Insert into mp2t tree */
 	se_tree_insert32(mp2t_data->frame_table, pinfo->fd->num,
-			 (void *)frame_data);
+			 (void *)frame_analysis_data_p);
 
-	return frame_data;
+	return frame_analysis_data_p;
 }
 
 
 static frame_analysis_data_t *
 get_frame_analysis_data(mp2t_analysis_data_t *mp2t_data, packet_info *pinfo)
 {
-	frame_analysis_data_t *frame_data = NULL;
-	frame_data = se_tree_lookup32(mp2t_data->frame_table, pinfo->fd->num);
-	return frame_data;
+	frame_analysis_data_t *frame_analysis_data_p = NULL;
+	frame_analysis_data_p = se_tree_lookup32(mp2t_data->frame_table, pinfo->fd->num);
+	return frame_analysis_data_p;
 }
 
 static pid_analysis_data_t *
@@ -655,10 +655,10 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 		guint32 pid, gint32 cc_curr, conversation_t *conv)
 {
 	gint32 cc_prev = -1;
-	pid_analysis_data_t   *pid_data   = NULL;
-	ts_analysis_data_t    *ts_data    = NULL;
-	mp2t_analysis_data_t  *mp2t_data  = NULL;
-	frame_analysis_data_t *frame_data = NULL;
+	pid_analysis_data_t   *pid_data              = NULL;
+	ts_analysis_data_t    *ts_data               = NULL;
+	mp2t_analysis_data_t  *mp2t_data             = NULL;
+	frame_analysis_data_t *frame_analysis_data_p = NULL;
 	proto_item            *flags_item;
 
 	guint32 detected_drop = 0;
@@ -703,9 +703,9 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 	if (detected_drop && !pinfo->fd->flags.visited) {
 
 		/* Lookup frame data, contains TS pid data objects */
-		frame_data = get_frame_analysis_data(mp2t_data, pinfo);
-		if (!frame_data)
-			frame_data = init_frame_analysis_data(mp2t_data, pinfo);
+		frame_analysis_data_p = get_frame_analysis_data(mp2t_data, pinfo);
+		if (!frame_analysis_data_p)
+			frame_analysis_data_p = init_frame_analysis_data(mp2t_data, pinfo);
 
 		/* Create and store a new TS frame pid_data object.
 		   This indicate that we have a drop
@@ -714,7 +714,7 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 		ts_data->cc_prev = cc_prev;
 		ts_data->pid = pid;
 		ts_data->skips = skips;
-		se_tree_insert32(frame_data->ts_table, KEY(pid, cc_curr),
+		se_tree_insert32(frame_analysis_data_p->ts_table, KEY(pid, cc_curr),
 				 (void *)ts_data);
 	}
 
@@ -722,11 +722,11 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 	if (pinfo->fd->flags.visited) {
 
 		/* Lookup frame data, contains TS pid data objects */
-		frame_data = get_frame_analysis_data(mp2t_data, pinfo);
-		if (!frame_data)
+		frame_analysis_data_p = get_frame_analysis_data(mp2t_data, pinfo);
+		if (!frame_analysis_data_p)
 			return 0; /* No stored frame data -> no drops*/
 		else {
-			ts_data = se_tree_lookup32(frame_data->ts_table,
+			ts_data = se_tree_lookup32(frame_analysis_data_p->ts_table,
 						   KEY(pid, cc_curr));
 
 			if (ts_data) {

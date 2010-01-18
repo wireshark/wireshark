@@ -311,7 +311,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 {
         proto_tree *ti = NULL, *tlv_fec_tree = NULL;
         proto_item *hidden_item;
-        guint16 index = 1, nil_index = 1, type, saved_type;
+        guint16 idx = 1, nil_idx = 1, type, saved_type;
         int length, nil_length, pad;
         guint32 label;
         guint8  exp, bos, ttl;
@@ -326,7 +326,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 
             length = tvb_get_ntohs(tvb, offset + 2);
             ti = proto_tree_add_text(tree, tvb, offset, length + 4, "FEC Element %u: %s",
-                     index, val_to_str(type, mpls_echo_tlv_fec_names, 
+                     idx, val_to_str(type, mpls_echo_tlv_fec_names, 
                      "Unknown FEC type (0x%04X)"));
             tlv_fec_tree = proto_item_add_subtree(ti, ett_mpls_echo_tlv_fec);
             if(tlv_fec_tree == NULL) return;
@@ -486,15 +486,15 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 	                decode_mpls_label(tvb, offset + 4, &label, &exp, &bos, &ttl);
 	                if (label <= LABEL_MAX_RESERVED){
 	                        proto_tree_add_uint_format(tlv_fec_tree, hf_mpls_echo_tlv_fec_nil_label,
-	                                tvb, offset + 4, 3, label, "Label %u: %u (%s)", nil_index, label,
+	                                tvb, offset + 4, 3, label, "Label %u: %u (%s)", nil_idx, label,
 	                                val_to_str(label, special_labels, "Reserved - Unknown"));
 	                } else {
 	                        proto_tree_add_uint_format(tlv_fec_tree, hf_mpls_echo_tlv_fec_nil_label,
-	                                tvb, offset + 4, 3, label, "Label %u: %u", nil_index, label);
+	                                tvb, offset + 4, 3, label, "Label %u: %u", nil_idx, label);
 	                }
 	                nil_length -= 4;
 	                offset += 4;
-	                nil_index++;
+	                nil_idx++;
 	        }
 		break;
 
@@ -528,7 +528,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 
             rem -= 4 + length;
             offset += 4 + length;
-            index++;
+            idx++;
           }
         }
 }
@@ -540,7 +540,7 @@ static void
 dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *tlv_ds_map_tree = NULL;
-	guint16 mplen, index = 1;
+	guint16 mplen, idx = 1;
 	guint32 label;
 	guint8	exp, bos, proto;
 	guint8	hash_type, addr_type;
@@ -671,7 +671,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 	while (rem >= 4){
 		decode_mpls_label(tvb, offset, &label, &exp, &bos, &proto);
 		ti = proto_tree_add_text(tree, tvb, offset, 4, "Downstream Label Element %u",
-			index);
+			idx);
 		tlv_ds_map_tree = proto_item_add_subtree(ti, ett_mpls_echo_tlv_ds_map);
 		proto_item_append_text(ti, ", Label: %u", label);
 		if (label <= LABEL_MAX_RESERVED){
@@ -695,7 +695,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 			mpls_echo_tlv_ds_map_mp_proto, "Unknown"));
 		rem -= 4;
 		offset += 4;
-		index++;
+		idx++;
 	}
 }
 
@@ -707,7 +707,7 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
 {
 	proto_tree *ti = NULL, *tlv_ilso = NULL;
 	guint8  type;
-	guint16	index = 1;
+	guint16	idx = 1;
 	guint32 label;
 	guint8  exp, bos, ttl;
 
@@ -762,7 +762,7 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
         while (rem >= 4){
 		decode_mpls_label(tvb, offset, &label, &exp, &bos, &ttl);
                 ti = proto_tree_add_text(tree, tvb, offset, 4, "Label Stack Element %u",
-                        index);
+                        idx);
                 tlv_ilso = proto_item_add_subtree(ti, ett_mpls_echo_tlv_ilso);
                 proto_item_append_text(ti, ", Label: %u", label);
 		if (label <= LABEL_MAX_RESERVED){
@@ -785,7 +785,7 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
 			tvb, offset + 3, 1, FALSE);
                 rem -= 4;
                 offset += 4;
-                index++;
+                idx++;
         }
 }
 

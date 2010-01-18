@@ -614,15 +614,15 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					g_byte_array_free(digest_bytes, TRUE);
 				}
 				if (tree) {
-					proto_item *ti = NULL;
+					proto_item *tii = NULL;
 
-					ti = proto_tree_add_uint(line_tree, hf_ldss_digest_type,
+					tii = proto_tree_add_uint(line_tree, hf_ldss_digest_type,
 								 tvb, offset, digest_type_len, transfer_info->file->digest_type);
-					PROTO_ITEM_SET_GENERATED(ti);
-					ti = proto_tree_add_bytes(line_tree, hf_ldss_digest,
+					PROTO_ITEM_SET_GENERATED(tii);
+					tii = proto_tree_add_bytes(line_tree, hf_ldss_digest,
 								  tvb, offset+digest_type_len, linelen-digest_type_len,
 								  transfer_info->file->digest);
-					PROTO_ITEM_SET_GENERATED(ti);
+					PROTO_ITEM_SET_GENERATED(tii);
 				}
 			}
 

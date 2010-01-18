@@ -543,9 +543,8 @@ static gint
 process_preamble(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 		gint boundary_len, gboolean *last_boundary)
 {
-	gint boundary_start, boundary_line_len, body_part_start;
+	gint boundary_start, boundary_line_len;
 
-	body_part_start = 0;
 	boundary_start = find_first_boundary(tvb, 0, boundary, boundary_len,
 			&boundary_line_len, last_boundary);
 	if (boundary_start == 0) {

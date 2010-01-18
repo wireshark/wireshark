@@ -1165,7 +1165,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		    if (tree) {
 			guint32 fwd_count, count1, count2;
 			proto_tree *subtree = NULL;
-			proto_item *ti = NULL;
+			proto_item *tii = NULL;
 			/* 1. Forwarded-count-value := Integer-value */
 			fwd_count = get_integer_value(tvb, offset + count,
 			    &count1);
@@ -1173,13 +1173,13 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			count2 = get_encoded_strval(tvb,
 				offset + count + count1, &strval);
 			/* Now render the fields */
-			ti = proto_tree_add_string_format(mmse_tree,
+			tii = proto_tree_add_string_format(mmse_tree,
 				hf_mmse_prev_sent_by,
 				tvb, offset - 1, 1 + count + length,
 				strval, "%s (Forwarded-count=%u)",
 				format_text(strval, strlen(strval)),
 				fwd_count);
-			subtree = proto_item_add_subtree(ti,
+			subtree = proto_item_add_subtree(tii,
 				ett_mmse_hdr_details);
 			proto_tree_add_uint(subtree,
 				hf_mmse_prev_sent_by_fwd_count,
@@ -1198,7 +1198,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			guint		 tval;
 			nstime_t	 tmptime;
 			proto_tree *subtree = NULL;
-			proto_item *ti = NULL;
+			proto_item *tii = NULL;
 			/* 1. Forwarded-count-value := Integer-value */
 			fwd_count = get_integer_value(tvb, offset + count,
 			    &count1);
@@ -1210,13 +1210,13 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			strval = abs_time_to_str(&tmptime, FALSE);
 			/* Now render the fields */
 			tvb_ensure_bytes_exist(tvb, offset - 1, length + count + 1);
-			ti = proto_tree_add_string_format(mmse_tree,
+			tii = proto_tree_add_string_format(mmse_tree,
 				hf_mmse_prev_sent_date,
 				tvb, offset - 1, 1 + count + length,
 				strval, "%s (Forwarded-count=%u)",
 				format_text(strval, strlen(strval)),
 				fwd_count);
-			subtree = proto_item_add_subtree(ti,
+			subtree = proto_item_add_subtree(tii,
 				ett_mmse_hdr_details);
 			proto_tree_add_uint(subtree,
 				hf_mmse_prev_sent_date_fwd_count,

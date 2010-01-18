@@ -1237,7 +1237,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 opcode;
 	guint32 iSegmentLength = 0;
 	guint32 iSizePayload = 0;
-	gint iSizeMD = 0;
+	gint iSizeMD_gbl = 0;
 	gboolean bLittleEndian = FALSE;
 	gboolean bPayload = FALSE;
 	gboolean bEBCDIC = FALSE;
@@ -2006,11 +2006,11 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						offset += 4;
 						structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
 					}
-					if ((iSizeMD = dissect_mq_md(tvb, mqroot_tree, bLittleEndian, offset, &tMsgProps)) != 0)
+					if ((iSizeMD_gbl = dissect_mq_md(tvb, mqroot_tree, bLittleEndian, offset, &tMsgProps)) != 0)
 					{
 						gint iSizeGMO = 0;
 						gint iSizePMO = 0;
-						offset += iSizeMD;
+						offset += iSizeMD_gbl;
 
 						if ((iSizeGMO = dissect_mq_gmo(tvb, pinfo, mqroot_tree, bLittleEndian, offset)) != 0)
 						{

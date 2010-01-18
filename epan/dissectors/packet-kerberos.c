@@ -355,7 +355,7 @@ guint32 krb5_errorcode;
 
 static dissector_handle_t krb4_handle=NULL;
 
-static gboolean do_col_info;
+static gboolean gbl_do_col_info;
 
 
 static void
@@ -1907,12 +1907,12 @@ dissect_krb5_msg_type(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *a
 
 	offset=dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_krb_msg_type, &msgtype);
 
-	if (do_col_info & check_col(actx->pinfo->cinfo, COL_INFO)) {
+	if (gbl_do_col_info & check_col(actx->pinfo->cinfo, COL_INFO)) {
 		col_add_str(actx->pinfo->cinfo, COL_INFO,
 			val_to_str(msgtype, krb5_msg_types,
 			"Unknown msg type %#x"));
 	}
-	do_col_info=FALSE;
+	gbl_do_col_info=FALSE;
 
 	/* append the application type to the subtree */
 	proto_item_append_text(tree, " %s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%x"));
@@ -3696,16 +3696,16 @@ dissect_krb5_decrypt_EncKrbCredPart (proto_tree *tree, tvbuff_t *tvb, int offset
 	}
 
 	if(plaintext){
-		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_child_real_data(tvb, plaintext,
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
-		tvb_set_free_cb(next_tvb, g_free);
+		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, next_tvb, "EncKrbCredPart");
+		add_new_data_source(actx->pinfo, child_tvb, "EncKrbCredPart");
 
-		offset=dissect_ber_old_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
+		offset=dissect_ber_old_choice(actx, tree, child_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 	}
 	return offset;
 }
@@ -3857,17 +3857,17 @@ dissect_krb5_decrypt_enc_authorization_data(proto_tree *tree, tvbuff_t *tvb, int
 	}
 
 	if(plaintext){
-		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_child_real_data(tvb, plaintext,
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
-		tvb_set_free_cb(next_tvb, g_free);
+		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
 
 
-		proto_tree_add_text(tree, next_tvb, 0, length, "AtuhorizationData for TGS_REQ not implemented yet");
+		proto_tree_add_text(tree, child_tvb, 0, length, "AtuhorizationData for TGS_REQ not implemented yet");
 
 	}
 	return offset;
@@ -4053,17 +4053,17 @@ dissect_krb5_decrypt_authenticator_data (proto_tree *tree, tvbuff_t *tvb, int of
 	}
 
 	if(plaintext){
-		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_child_real_data(tvb, plaintext,
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
-		tvb_set_free_cb(next_tvb, g_free);
+		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_old_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
+		offset=dissect_ber_old_choice(actx, tree, child_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -4133,17 +4133,17 @@ dissect_krb5_decrypt_Ticket_data (proto_tree *tree, tvbuff_t *tvb, int offset, a
 	 * All Ticket encrypted parts use usage == 2
 	 */
 	if( (plaintext=decrypt_krb5_data(tree, actx->pinfo, 2, next_tvb, Ticket_etype, NULL)) ){
-		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_child_real_data(tvb, plaintext,
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
-		tvb_set_free_cb(next_tvb, g_free);
+		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_old_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
+		offset=dissect_ber_old_choice(actx, tree, child_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -4386,17 +4386,17 @@ dissect_krb5_decrypt_KDC_REP_data (proto_tree *tree, tvbuff_t *tvb, int offset, 
 	}
 
 	if(plaintext){
-		tvbuff_t *next_tvb;
-		next_tvb = tvb_new_child_real_data(tvb, plaintext,
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext,
                                           length,
                                           length);
-		tvb_set_free_cb(next_tvb, g_free);
+		tvb_set_free_cb(child_tvb, g_free);
 
 		/* Add the decrypted data to the data source list. */
-		add_new_data_source(actx->pinfo, next_tvb, "Decrypted Krb5");
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_old_choice(actx, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
+		offset=dissect_ber_old_choice(actx, tree, child_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -4710,7 +4710,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     saved_private_data=pinfo->private_data;
     pinfo->private_data=cb;
-    do_col_info=dci;
+    gbl_do_col_info=dci;
 
     if (have_rm) {
 	krb_rm = tvb_get_ntohl(tvb, offset);
@@ -4773,7 +4773,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (do_col_protocol) {
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 	}
-	if (do_col_info) {
+	if (gbl_do_col_info) {
             col_clear(pinfo->cinfo, COL_INFO);
         }
         if (tree) {

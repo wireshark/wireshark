@@ -593,7 +593,7 @@ static dissector_handle_t data_handle;
 static void process_control_avps(tvbuff_t *tvb,
 				 packet_info *pinfo,
 				 proto_tree *l2tp_tree,
-				 int index,
+				 int idx,
 				 int length)
 {
 	proto_tree *l2tp_lcp_avp_tree, *l2tp_avp_tree, *l2tp_avp_tree_sub;
@@ -612,29 +612,29 @@ static void process_control_avps(tvbuff_t *tvb,
 	guint32 	bits;
 	guint16 	firmware_rev;
 	
-		while (index < length) {    /* Process AVP's */
-			ver_len_hidden	= tvb_get_ntohs(tvb, index);
+		while (idx < length) {    /* Process AVP's */
+			ver_len_hidden	= tvb_get_ntohs(tvb, idx);
 			avp_len		= AVP_LENGTH(ver_len_hidden);
-			avp_vendor_id	= tvb_get_ntohs(tvb, index + 2);
-			avp_type	= tvb_get_ntohs(tvb, index + 4);
+			avp_vendor_id	= tvb_get_ntohs(tvb, idx + 2);
+			avp_type	= tvb_get_ntohs(tvb, idx + 4);
 
 			if (avp_len < 1) {
-				proto_tree_add_text(l2tp_tree, tvb, index, 0,
+				proto_tree_add_text(l2tp_tree, tvb, idx, 0,
 						    "AVP length must be >= 1");
 				return;
 			}
 
 			if (avp_vendor_id == VENDOR_IETF) {
-				tf =  proto_tree_add_text(l2tp_tree, tvb, index,
+				tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
 							  avp_len, "%s AVP",
 							  val_to_str(avp_type, avp_type_vals, "Unknown (%u)"));
 			} else if (avp_vendor_id == VENDOR_CISCO) {	 /* Vendor-Specific AVP */
-				tf =  proto_tree_add_text(l2tp_tree, tvb, index,
+				tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
 							  avp_len, "Vendor %s: %s AVP",
 							  val_to_str(avp_vendor_id, sminmpec_values, "Unknown (%u)"),
 							  val_to_str(avp_type, cisco_avp_type_vals, "Unknown (%u)"));
 			} else {	/* Vendor-Specific AVP */
-				tf =  proto_tree_add_text(l2tp_tree, tvb, index,
+				tf =  proto_tree_add_text(l2tp_tree, tvb, idx,
 							  avp_len, "Vendor %s AVP Type %u",
 							  val_to_str(avp_vendor_id, sminmpec_values, "Unknown (%u)"),
 							  avp_type);
@@ -643,172 +643,172 @@ static void process_control_avps(tvbuff_t *tvb,
 
 			l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
-			proto_tree_add_boolean_format(l2tp_avp_tree,hf_l2tp_avp_mandatory, tvb, index, 1,
+			proto_tree_add_boolean_format(l2tp_avp_tree,hf_l2tp_avp_mandatory, tvb, idx, 1,
 						      rhcode, "Mandatory: %s",
 						      (MANDATORY_BIT(ver_len_hidden)) ? "True" : "False" );
-			proto_tree_add_boolean_format(l2tp_avp_tree,hf_l2tp_avp_hidden, tvb, index, 1,
+			proto_tree_add_boolean_format(l2tp_avp_tree,hf_l2tp_avp_hidden, tvb, idx, 1,
 						      rhcode, "Hidden: %s",
 						      (HIDDEN_BIT(ver_len_hidden)) ? "True" : "False" );
-			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_avp_length, tvb, index, 2,
+			proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_avp_length, tvb, idx, 2,
 						   rhcode, "Length: %u", avp_len);
 			if (HIDDEN_BIT(ver_len_hidden)) { /* don't try do display hidden */
-				index += avp_len;
+				idx += avp_len;
 				continue;
 			}
 
 			if (avp_len < 6) {
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 0,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 0,
 						    "AVP length must be >= 6");
 				return;
 			}
-			index += 2;
+			idx += 2;
 			avp_len -= 2;
 
 			/* Special Case for handling Extended Vendor Id */
 			if (avp_type == EXTENDED_VENDOR_ID) {
-				index += 2;
+				idx += 2;
 				avp_len -= 2;
 				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_id,
-									tvb, index, 4, FALSE);
+									tvb, idx, 4, FALSE);
 
-				avp_vendor_id  = tvb_get_ntohl(tvb, index);
+				avp_vendor_id  = tvb_get_ntohl(tvb, idx);
 				
-				index += 4;
+				idx += 4;
 				avp_len -= 4;
 				continue;
 			}
 			else {
 				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_id,
-						    tvb, index, 2, FALSE);
-				index += 2;
+						    tvb, idx, 2, FALSE);
+				idx += 2;
 				avp_len -= 2;
 			}
 
 			if (avp_vendor_id == VENDOR_CISCO) {
 				proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_cisco_avp_type,
-						    tvb, index, 2, avp_type);
-				index += 2;
+						    tvb, idx, 2, avp_type);
+				idx += 2;
 				avp_len -= 2;
 
 				/* For the time being, we don't decode any Vendor-
 				   specific AVP. */
 				switch (avp_type) {
 				case CISCO_ASSIGNED_CONNECTION_ID:
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 							    "Assigned Control Connection ID: %u",
-							    tvb_get_ntohl(tvb, index));
+							    tvb_get_ntohl(tvb, idx));
 					break;
 
 				case CISCO_PW_CAPABILITY_LIST:
-					te = proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+					te = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						"Pseudowire Capabilities List");
 					l2tp_avp_tree_sub = proto_item_add_subtree(te, ett_l2tp_avp_sub);
 					while (avp_len >= 2) {
-						int pw_type = tvb_get_ntohs(tvb, index);
+						int pw_type = tvb_get_ntohs(tvb, idx);
 
-						proto_tree_add_text(l2tp_avp_tree_sub, tvb, index,
+						proto_tree_add_text(l2tp_avp_tree_sub, tvb, idx,
 								    2, "PW Type: (%u) %s",
 								    pw_type,
 								    val_to_str(pw_type, pw_types_vals,
 									       "Unknown (0x%04x)"));
-						index += 2;
+						idx += 2;
 						avp_len -= 2;
 					}
 					break;
 					
 				case CISCO_LOCAL_SESSION_ID:
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 							    "Local Session ID: %u",
-							    tvb_get_ntohl(tvb, index));
+							    tvb_get_ntohl(tvb, idx));
 					break;
 				case CISCO_REMOTE_SESSION_ID:
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 							    "Remote Session ID: %u",
-							    tvb_get_ntohl(tvb, index));
+							    tvb_get_ntohl(tvb, idx));
 					break;
 				case CISCO_ASSIGNED_COOKIE:
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 							    "Assigned Cookie: %s",
-							    tvb_bytes_to_str(tvb, index, avp_len));
+							    tvb_bytes_to_str(tvb, idx, avp_len));
 					break;
 				case CISCO_REMOTE_END_ID:
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 							    "Remote End ID: %s",
-							    tvb_format_text(tvb, index, avp_len));
+							    tvb_format_text(tvb, idx, avp_len));
 					break;
 				case CISCO_PW_TYPE:
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 							    "Pseudowire Type: %u - %s",
-							    tvb_get_ntohs(tvb, index),
-							    val_to_str(tvb_get_ntohs(tvb, index),
+							    tvb_get_ntohs(tvb, idx),
+							    val_to_str(tvb_get_ntohs(tvb, idx),
 								       pw_types_vals, "Unknown (0x%04x)"));
 					break;
 				case CISCO_CIRCUIT_STATUS:
-					bits = tvb_get_ntohs(tvb, index);
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+					bits = tvb_get_ntohs(tvb, idx);
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 							    "Circuit Status: %s",
 							    (CIRCUIT_STATUS_BIT(bits)) ? "Up" : "Down");
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 							    "Circuit Type: %s",
 							    (CIRCUIT_TYPE_BIT(bits)) ? "New" : "Existing");
 					break;
 				case CISCO_SESSION_TIE_BREAKER:
 					proto_tree_add_item(l2tp_avp_tree, hf_l2tp_tie_breaker,
-							    tvb, index, 8, FALSE);
+							    tvb, idx, 8, FALSE);
 					break;
 				case CISCO_DRAFT_AVP_VERSION:
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 							    "Draft AVP Version: %u",
-							    tvb_get_ntohs(tvb, index));
+							    tvb_get_ntohs(tvb, idx));
 					break;
 				case CISCO_MESSAGE_DIGEST:
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 							    "Message Digest: %s",
-							    tvb_bytes_to_str(tvb, index, avp_len));
+							    tvb_bytes_to_str(tvb, idx, avp_len));
 					break;
 				case CISCO_AUTH_NONCE:
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 							    "Nonce: %s",
-							    tvb_bytes_to_str(tvb, index, avp_len));
+							    tvb_bytes_to_str(tvb, idx, avp_len));
 					break;
 				case CISCO_INTERFACE_MTU:
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 							    "Interface MTU: %u",
-							    tvb_get_ntohs(tvb, index));
+							    tvb_get_ntohs(tvb, idx));
 					break;
 					
 				default:
-					proto_tree_add_text(l2tp_avp_tree, tvb, index,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx,
 							    avp_len, "Vendor-Specific AVP");
 					break;
 				}
-				index += avp_len;
+				idx += avp_len;
 				continue;
 			} else if (avp_vendor_id != VENDOR_IETF) {
 				if (avp_len >= 2) {
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						"Type: %u", avp_type);
-					index += 2;
+					idx += 2;
 					avp_len -= 2;
 					if (avp_len > 0) {
-						proto_tree_add_text(l2tp_avp_tree, tvb, index,
+						proto_tree_add_text(l2tp_avp_tree, tvb, idx,
 							avp_len, "Vendor-Specific AVP");
 					}
 				}
-				index += avp_len;
+				idx += avp_len;
 				continue;
 			}
 
 			proto_tree_add_uint(l2tp_avp_tree, hf_l2tp_avp_type,
-					    tvb, index, 2, avp_type);
-			index += 2;
+					    tvb, idx, 2, avp_type);
+			idx += 2;
 			avp_len -= 2;
 
 			switch (avp_type) {
 
 			case CONTROL_MESSAGE:
-				msg_type = tvb_get_ntohs(tvb, index);
-				proto_tree_add_text(l2tp_avp_tree,tvb, index, 2,
+				msg_type = tvb_get_ntohs(tvb, idx);
+				proto_tree_add_text(l2tp_avp_tree,tvb, idx, 2,
 						    "Control Message Type: (%u) %s", msg_type,
 						    ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
 						    calltypestr[msg_type] : "Unknown");
@@ -821,105 +821,105 @@ static void process_control_avps(tvbuff_t *tvb,
 			case RESULT_ERROR_CODE:
 				if (avp_len < 2)
 					break;
-				result_code = tvb_get_ntohs(tvb, index);
+				result_code = tvb_get_ntohs(tvb, idx);
 				if (isStopCcn) {
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 							    "Result code: %u - %s", result_code,
 							    val_to_str(result_code, result_code_stopccn_vals, "Unknown (%u)"));
 				}
 				else {
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 							    "Result code: %u - %s", result_code,
 							    val_to_str(result_code, result_code_cdn_vals, "Unknown (%u)"));
 				}
-				index += 2;
+				idx += 2;
 				avp_len -= 2;
 
 				if (avp_len < 2)
 					break;
-				error_code = tvb_get_ntohs(tvb, index);
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				error_code = tvb_get_ntohs(tvb, idx);
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Error code: %u - %s", error_code, 
 						    val_to_str(error_code, error_code_vals, "Unknown (%u)"));
-				index += 2;
+				idx += 2;
 				avp_len -= 2;
 
 				if (avp_len == 0)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Error Message: %s",
-						    tvb_format_text(tvb, index, avp_len));
+						    tvb_format_text(tvb, idx, avp_len));
 				break;
 
 			case PROTOCOL_VERSION:
 				if (avp_len < 1)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 1,
-						    "Version: %u", tvb_get_guint8(tvb, index));
-				index += 1;
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 1,
+						    "Version: %u", tvb_get_guint8(tvb, idx));
+				idx += 1;
 				avp_len -= 1;
 
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 1,
-						    "Revision: %u", tvb_get_guint8(tvb, index));
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 1,
+						    "Revision: %u", tvb_get_guint8(tvb, idx));
 				break;
 
 			case FRAMING_CAPABILITIES:
-				bits = tvb_get_ntohl(tvb, index);
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				bits = tvb_get_ntohl(tvb, idx);
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Async Framing Supported: %s",
 						    (FRAMING_ASYNC(bits)) ? "True" : "False");
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Sync Framing Supported: %s",
 						    (FRAMING_SYNC(bits)) ? "True" : "False");
 				break;
 
 			case BEARER_CAPABILITIES:
-				bits = tvb_get_ntohl(tvb, index);
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				bits = tvb_get_ntohl(tvb, idx);
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Analog Access Supported: %s",
 						    (BEARER_ANALOG(bits)) ? "True" : "False");
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Digital Access Supported: %s",
 						    (BEARER_DIGITAL(bits)) ? "True" : "False");
 				break;
 
 			case TIE_BREAKER:
-				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_tie_breaker, tvb, index, 8, FALSE);
+				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_tie_breaker, tvb, idx, 8, FALSE);
 				break;
 
 			case FIRMWARE_REVISION:
-				firmware_rev = tvb_get_ntohs(tvb, index);
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				firmware_rev = tvb_get_ntohs(tvb, idx);
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Firmware Revision: %d 0x%x", firmware_rev,firmware_rev );
 				break;
 
 			case HOST_NAME:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Host Name: %s",
-						    tvb_format_text(tvb, index, avp_len));
+						    tvb_format_text(tvb, idx, avp_len));
 				break;
 
 			case VENDOR_NAME:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Vendor Name: %s",
-						    tvb_format_text(tvb, index, avp_len));
+						    tvb_format_text(tvb, idx, avp_len));
 				break;
 
 			case ASSIGNED_TUNNEL_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
-						    "Tunnel ID: %u", tvb_get_ntohs(tvb, index));
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
+						    "Tunnel ID: %u", tvb_get_ntohs(tvb, idx));
 				break;
 
 			case RECEIVE_WINDOW_SIZE:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Receive Window Size: %u",
-						    tvb_get_ntohs(tvb, index));
+						    tvb_get_ntohs(tvb, idx));
 				break;
 
 			case CHALLENGE:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "CHAP Challenge: %s",
-						    tvb_bytes_to_str(tvb, index, avp_len));
+						    tvb_bytes_to_str(tvb, idx, avp_len));
 				break;
 
 			case CAUSE_CODE:
@@ -930,73 +930,73 @@ static void process_control_avps(tvbuff_t *tvb,
 				 */
 				if (avp_len < 2)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Cause Code: %u",
-						    tvb_get_ntohs(tvb, index));
-				index += 2;
+						    tvb_get_ntohs(tvb, idx));
+				idx += 2;
 				avp_len -= 2;
 
 				if (avp_len < 1)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 1,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 1,
 						    "Cause Msg: %u",
-						    tvb_get_guint8(tvb, index));
-				index += 1;
+						    tvb_get_guint8(tvb, idx));
+				idx += 1;
 				avp_len -= 1;
 
 				if (avp_len == 0)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Advisory Msg: %s",
-						    tvb_format_text(tvb, index, avp_len));
+						    tvb_format_text(tvb, idx, avp_len));
 				break;
 
 			case CHALLENGE_RESPONSE:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 16,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 16,
 						    "CHAP Challenge Response: %s",
-						    tvb_bytes_to_str(tvb, index, 16));
+						    tvb_bytes_to_str(tvb, idx, 16));
 				break;
 
 			case ASSIGNED_SESSION:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Assigned Session: %u",
-						    tvb_get_ntohs(tvb, index));
+						    tvb_get_ntohs(tvb, idx));
 				break;
 
 			case CALL_SERIAL_NUMBER:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Call Serial Number: %u",
-						    tvb_get_ntohl(tvb, index));
+						    tvb_get_ntohl(tvb, idx));
 				break;
 
 			case MINIMUM_BPS:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Minimum BPS: %u",
-						    tvb_get_ntohl(tvb, index));
+						    tvb_get_ntohl(tvb, idx));
 				break;
 
 			case MAXIMUM_BPS:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Maximum BPS: %u",
-						    tvb_get_ntohl(tvb, index));
+						    tvb_get_ntohl(tvb, idx));
 				break;
 
 			case BEARER_TYPE:
-				bits = tvb_get_ntohl(tvb, index);
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				bits = tvb_get_ntohl(tvb, idx);
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Analog Bearer Type: %s",
 						    (BEARER_ANALOG(bits)) ? "True" : "False");
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Digital Bearer Type: %s",
 						    (BEARER_DIGITAL(bits)) ? "True" : "False");
 				break;
 
 			case FRAMING_TYPE:
-				bits = tvb_get_ntohl(tvb, index);
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				bits = tvb_get_ntohl(tvb, idx);
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Async Framing Type: %s",
 						    (FRAMING_ASYNC(bits)) ? "True" : "False");
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Sync Framing Type: %s",
 						     (FRAMING_SYNC(bits)) ? "True" : "False");
 				break;
@@ -1004,69 +1004,69 @@ static void process_control_avps(tvbuff_t *tvb,
 			case CALLED_NUMBER:
 				if (avp_len == 0)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Called Number: %s",
-						    tvb_format_text(tvb, index, avp_len));
+						    tvb_format_text(tvb, idx, avp_len));
 				break;
 
 			case CALLING_NUMBER:
 				if (avp_len == 0)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Calling Number: %s",
-						    tvb_format_text(tvb, index, avp_len));
+						    tvb_format_text(tvb, idx, avp_len));
 				break;
 
 			case SUB_ADDRESS:
 				if (avp_len == 0)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Sub-Address: %s",
-						    tvb_format_text(tvb, index, avp_len));
+						    tvb_format_text(tvb, idx, avp_len));
 				break;
 
 			case TX_CONNECT_SPEED:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Connect Speed: %u",
-						    tvb_get_ntohl(tvb, index));
+						    tvb_get_ntohl(tvb, idx));
 				break;
 
 			case PHYSICAL_CHANNEL:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Physical Channel: %u",
-						    tvb_get_ntohl(tvb, index));
+						    tvb_get_ntohl(tvb, idx));
 				break;
 
 			case INITIAL_RECEIVED_LCP_CONFREQ:
-				te = proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				te = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 							 "Initial Received LCP CONFREQ: %s",
-							 tvb_bytes_to_str(tvb, index, avp_len));
+							 tvb_bytes_to_str(tvb, idx, avp_len));
 				l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
-				next_tvb = tvb_new_subset(tvb, index, avp_len, avp_len);
+				next_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
 				call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
 				break;
 
 			case LAST_SENT_LCP_CONFREQ:
-				te = proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				te = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 							 "Last Sent LCP CONFREQ: %s",
-							 tvb_bytes_to_str(tvb, index, avp_len));
+							 tvb_bytes_to_str(tvb, idx, avp_len));
 				l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
-				next_tvb = tvb_new_subset(tvb, index, avp_len, avp_len);
+				next_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
 				call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
 				break;
 
 			case LAST_RECEIVED_LCP_CONFREQ:
-				te = proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				te = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 							 "Last Received LCP CONFREQ: %s",
-							 tvb_bytes_to_str(tvb, index, avp_len));
+							 tvb_bytes_to_str(tvb, idx, avp_len));
 				l2tp_lcp_avp_tree = proto_item_add_subtree(te, ett_l2tp_lcp);
-				next_tvb = tvb_new_subset(tvb, index, avp_len, avp_len);
+				next_tvb = tvb_new_subset(tvb, idx, avp_len, avp_len);
 				call_dissector(ppp_lcp_options_handle, next_tvb, pinfo, l2tp_lcp_avp_tree );
 				break;
 
 			case PROXY_AUTHEN_TYPE:
-				msg_type = tvb_get_ntohs(tvb, index);
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				msg_type = tvb_get_ntohs(tvb, idx);
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Proxy Authen Type: %s",
 						    val_to_str(msg_type, authen_type_vals, "Unknown (%u)"));
 				break;
@@ -1074,239 +1074,239 @@ static void process_control_avps(tvbuff_t *tvb,
 			case PROXY_AUTHEN_NAME:
 				if (avp_len == 0)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Proxy Authen Name: %s",
-						    tvb_format_text(tvb, index, avp_len));
+						    tvb_format_text(tvb, idx, avp_len));
 				break;
 
 			case PROXY_AUTHEN_CHALLENGE:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Proxy Authen Challenge: %s",
-						    tvb_bytes_to_str(tvb, index, avp_len));
+						    tvb_bytes_to_str(tvb, idx, avp_len));
 				break;
 
 			case PROXY_AUTHEN_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index + 1, 1,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx + 1, 1,
 						    "Proxy Authen ID: %u",
-						    tvb_get_guint8(tvb, index + 1));
+						    tvb_get_guint8(tvb, idx + 1));
 				break;
 
 			case PROXY_AUTHEN_RESPONSE:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Proxy Authen Response: %s",
-						    tvb_bytes_to_str(tvb, index, avp_len));
+						    tvb_bytes_to_str(tvb, idx, avp_len));
 				break;
 
 			case CALL_STATUS_AVPS:
 				if (avp_len < 2)
 					break;
-				index += 2;
+				idx += 2;
 				avp_len -= 2;
 
 				if (avp_len < 4)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
-						    "CRC Errors: %u", tvb_get_ntohl(tvb, index));
-				index += 4;
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
+						    "CRC Errors: %u", tvb_get_ntohl(tvb, idx));
+				idx += 4;
 				avp_len -= 4;
 
 				if (avp_len < 4)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
-						    "Framing Errors: %u", tvb_get_ntohl(tvb, index));
-				index += 4;
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
+						    "Framing Errors: %u", tvb_get_ntohl(tvb, idx));
+				idx += 4;
 				avp_len -= 4;
 
 				if (avp_len < 4)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
-						    "Hardware Overruns: %u", tvb_get_ntohl(tvb, index));
-				index += 4;
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
+						    "Hardware Overruns: %u", tvb_get_ntohl(tvb, idx));
+				idx += 4;
 				avp_len -= 4;
 
 				if (avp_len < 4)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
-						    "Buffer Overruns: %u", tvb_get_ntohl(tvb, index));
-				index += 4;
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
+						    "Buffer Overruns: %u", tvb_get_ntohl(tvb, idx));
+				idx += 4;
 				avp_len -= 4;
 
 				if (avp_len < 4)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
-						    "Time-out Errors: %u", tvb_get_ntohl(tvb, index));
-				index += 4;
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
+						    "Time-out Errors: %u", tvb_get_ntohl(tvb, idx));
+				idx += 4;
 				avp_len -= 4;
 
 				if (avp_len < 4)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
-						    "Alignment Errors: %u", tvb_get_ntohl(tvb, index));
-				index += 4;
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
+						    "Alignment Errors: %u", tvb_get_ntohl(tvb, idx));
+				idx += 4;
 				avp_len -= 4;
 				break;
 
 			case ACCM:
 				if (avp_len < 2)
 					break;
-				index += 2;
+				idx += 2;
 				avp_len -= 2;
 
 				if (avp_len < 4)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
-						    "Send ACCM: %u", tvb_get_ntohl(tvb, index));
-				index += 4;
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
+						    "Send ACCM: %u", tvb_get_ntohl(tvb, idx));
+				idx += 4;
 				avp_len -= 4;
 
 				if (avp_len < 4)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
-						    "Receive ACCM: %u", tvb_get_ntohl(tvb, index));
-				index += 4;
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
+						    "Receive ACCM: %u", tvb_get_ntohl(tvb, idx));
+				idx += 4;
 				avp_len -= 4;
 				break;
 
 			case RANDOM_VECTOR:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Random Vector: %s",
-						    tvb_bytes_to_str(tvb, index, avp_len));
+						    tvb_bytes_to_str(tvb, idx, avp_len));
 				break;
 
 			case PRIVATE_GROUP_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Private Group ID: %s",
-						    tvb_bytes_to_str(tvb, index, avp_len));
+						    tvb_bytes_to_str(tvb, idx, avp_len));
 				break;
 
 			case RX_CONNECT_SPEED:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Rx Connect Speed: %u",
-						    tvb_get_ntohl(tvb, index));
+						    tvb_get_ntohl(tvb, idx));
 				break;
 
 			case PPP_DISCONNECT_CAUSE_CODE:
 				if (avp_len < 2)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Disconnect Code: %u",
-						    tvb_get_ntohs(tvb, index));
-				index += 2;
+						    tvb_get_ntohs(tvb, idx));
+				idx += 2;
 				avp_len -= 2;
 
 				if (avp_len < 2)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Control Protocol Number: %u",
-						    tvb_get_ntohs(tvb, index));
-				index += 2;
+						    tvb_get_ntohs(tvb, idx));
+				idx += 2;
 				avp_len -= 2;
 
 				if (avp_len < 1)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 1,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 1,
 						    "Direction: %s",
-						    val_to_str(tvb_get_guint8(tvb, index),
+						    val_to_str(tvb_get_guint8(tvb, idx),
 						    cause_code_direction_vals,
 						    "Reserved (%u)"));
-				index += 1;
+				idx += 1;
 				avp_len -= 1;
 
 				if (avp_len == 0)
 					break;
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Message: %s",
-						    tvb_format_text(tvb, index, avp_len));
+						    tvb_format_text(tvb, idx, avp_len));
 				break;
 
 			case MESSAGE_DIGEST:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Message Digest: %s",
-						    tvb_bytes_to_str(tvb, index, avp_len));
+						    tvb_bytes_to_str(tvb, idx, avp_len));
 				break;
 			case ROUTER_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Router ID: %u",
-						    tvb_get_ntohl(tvb, index));
+						    tvb_get_ntohl(tvb, idx));
 				break;
 			case ASSIGNED_CONTROL_CONN_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Assigned Control Connection ID: %u",
-						    tvb_get_ntohl(tvb, index));
+						    tvb_get_ntohl(tvb, idx));
 				break;
 			case PW_CAPABILITY_LIST:
-				te = proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				te = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 					"Pseudowire Capabilities List");
 				l2tp_avp_tree_sub = proto_item_add_subtree(te, ett_l2tp_avp_sub);
 
 				while (avp_len >= 2) {
-					int pw_type = tvb_get_ntohs(tvb, index);
-					proto_tree_add_text(l2tp_avp_tree_sub, tvb, index,
+					int pw_type = tvb_get_ntohs(tvb, idx);
+					proto_tree_add_text(l2tp_avp_tree_sub, tvb, idx,
 							    2, "PW Type: (%u) %s",
 							    pw_type,
 							    val_to_str(pw_type, pw_types_vals,
 								       "Unknown (0x%04x)"));
-					index += 2;
+					idx += 2;
 					avp_len -= 2;
 				}
 				break;
 			case LOCAL_SESSION_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Local Session ID: %u",
-						    tvb_get_ntohl(tvb, index));
+						    tvb_get_ntohl(tvb, idx));
 				break;
 			case REMOTE_SESSION_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
 						    "Remote Session ID: %u",
-						    tvb_get_ntohl(tvb, index));
+						    tvb_get_ntohl(tvb, idx));
 				break;
 			case ASSIGNED_COOKIE:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Assigned Cookie: %s",
-						    tvb_bytes_to_str(tvb, index, avp_len));
+						    tvb_bytes_to_str(tvb, idx, avp_len));
 				break;
 			case REMOTE_END_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Remote End ID: %s",
-						    tvb_format_text(tvb, index, avp_len));
+						    tvb_format_text(tvb, idx, avp_len));
 				break;
 			case PW_TYPE:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Pseudowire Type: %u - %s",
-						    tvb_get_ntohs(tvb, index),
-						    val_to_str(tvb_get_ntohs(tvb, index),
+						    tvb_get_ntohs(tvb, idx),
+						    val_to_str(tvb_get_ntohs(tvb, idx),
 							       pw_types_vals, "Unknown (0x%04x)"));
 				break;
 			case L2_SPECIFIC_SUBLAYER:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Layer2 Specific Sublayer: %s",
-						    val_to_str(tvb_get_ntohs(tvb, index),
+						    val_to_str(tvb_get_ntohs(tvb, idx),
 							       l2_sublayer_vals, "Invalid (%u)"));
 				break;
 			case DATA_SEQUENCING:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Data Sequencing: %s",
-						    val_to_str(tvb_get_ntohs(tvb, index),
+						    val_to_str(tvb_get_ntohs(tvb, idx),
 							       data_sequencing_vals, "Invalid (%u)"));
 				break;
 			case CIRCUIT_STATUS:
-				bits = tvb_get_ntohs(tvb, index);
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				bits = tvb_get_ntohs(tvb, idx);
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Circuit Status: %s",
 						    (CIRCUIT_STATUS_BIT(bits)) ? "Up" : "Down");
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
 						    "Circuit Type: %s",
 						    (CIRCUIT_TYPE_BIT(bits)) ? "New" : "Existing");
 				break;
 			case PREFERRED_LANGUAGE:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						   "Preferred Language: %s",
-						   tvb_format_text(tvb, index, avp_len));
+						   tvb_format_text(tvb, idx, avp_len));
 				break;
 			case CTL_MSG_AUTH_NONCE:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Nonce: %s",
-						    tvb_bytes_to_str(tvb, index, avp_len));
+						    tvb_bytes_to_str(tvb, idx, avp_len));
 				break;
 			case TX_CONNECT_SPEED_V3:
 			{
@@ -1314,14 +1314,14 @@ static void process_control_avps(tvbuff_t *tvb,
 				if (avp_len < 8)
 					break;
 				
-				h_int = tvb_get_ntohl(tvb, index);
-				l_int = tvb_get_ntohl(tvb, index+4);
+				h_int = tvb_get_ntohl(tvb, idx);
+				l_int = tvb_get_ntohl(tvb, idx+4);
 				if (!h_int && !l_int) {
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 8,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 8,
 							    "Tx Connect Speed v3: indeterminable or no physical p2p link");
 				}
 				else {
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 8,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 8,
 							    "Tx Connect Speed v3: %#x%04x",
 							    h_int, l_int);
 				}
@@ -1333,26 +1333,26 @@ static void process_control_avps(tvbuff_t *tvb,
 				if (avp_len < 8)
 					break;
 				
-				h_int = tvb_get_ntohl(tvb, index);
-				l_int = tvb_get_ntohl(tvb, index+4);
+				h_int = tvb_get_ntohl(tvb, idx);
+				l_int = tvb_get_ntohl(tvb, idx+4);
 				if (!h_int && !l_int) {
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 8,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 8,
 							    "Rx Connect Speed v3: indeterminable or no physical p2p link");
 				}
 				else {
-					proto_tree_add_text(l2tp_avp_tree, tvb, index, 8,
+					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 8,
 							    "Rx Connect Speed v3: %#x%04x",
 							    h_int, l_int);
 				}
 				break;
 			}
 			default:
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
 						    "Unknown AVP");
 				break;
 			}
 
-			index += avp_len;
+			idx += avp_len;
 		}
 
 }
@@ -1364,9 +1364,9 @@ static void process_control_avps(tvbuff_t *tvb,
  */
 static void
 process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		    proto_tree *l2tp_tree, proto_item *l2tp_item, int *pIndex)
+		    proto_tree *l2tp_tree, proto_item *l2tp_item, int *pIdx)
 {
-	int 		index = *pIndex;
+	int 		idx = *pIdx;
 	int 		sid;
 	guint8		oam_cell = 0;
 	proto_tree	*l2_specific = NULL;
@@ -1374,8 +1374,8 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	tvbuff_t	*next_tvb;
 	
 	/* Get Session ID */
-	sid = tvb_get_ntohl(tvb, index);
-	index += 4;
+	sid = tvb_get_ntohl(tvb, idx);
+	idx += 4;
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo,COL_INFO,
@@ -1384,82 +1384,82 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	if (tree) {
-		proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, index-4, 4, FALSE);
-		proto_item_set_len(l2tp_item, index);
-		if (!(tvb_offset_exists(tvb, index)))
+		proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, idx-4, 4, FALSE);
+		proto_item_set_len(l2tp_item, idx);
+		if (!(tvb_offset_exists(tvb, idx)))
 			return;
 		if (l2tpv3_cookie != 0)
-			proto_tree_add_item(l2tp_tree, hf_l2tp_cookie, tvb, index, l2tpv3_cookie, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_cookie, tvb, idx, l2tpv3_cookie, FALSE);
 	}
 
 	switch(l2tpv3_l2_specific){
 	case L2TPv3_L2_SPECIFIC_DEFAULT:
 		if (tree) {
 			ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_def,
-					tvb, index + l2tpv3_cookie, 4, FALSE);
+					tvb, idx + l2tpv3_cookie, 4, FALSE);
 			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
-			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, index + l2tpv3_cookie,
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + l2tpv3_cookie,
 						1, FALSE);
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-						index + l2tpv3_cookie + 1, 3, FALSE);
+						idx + l2tpv3_cookie + 1, 3, FALSE);
 		}
-		next_tvb = tvb_new_subset_remaining(tvb, index + l2tpv3_cookie + 4);
+		next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie + 4);
 		break;
 	case L2TPv3_L2_SPECIFIC_DOCSIS_DMPT:
 		if (tree) {
 			ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_docsis_dmpt,
-						tvb, index + l2tpv3_cookie, 4, FALSE);
+						tvb, idx + l2tpv3_cookie, 4, FALSE);
 			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_v, tvb, 
-						index + l2tpv3_cookie,1, FALSE);
+						idx + l2tpv3_cookie,1, FALSE);
 		
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, 
-						index + l2tpv3_cookie,1, FALSE);
+						idx + l2tpv3_cookie,1, FALSE);
 		
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_flow_id, tvb, 
-						index + l2tpv3_cookie,1, FALSE);
+						idx + l2tpv3_cookie,1, FALSE);
 		
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb, 
-						index + l2tpv3_cookie + 2,2, FALSE);
+						idx + l2tpv3_cookie + 2,2, FALSE);
 		}
-		next_tvb = tvb_new_subset_remaining(tvb, index + l2tpv3_cookie + 4);
+		next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie + 4);
 		break;
 	case L2TPv3_L2_SPECIFIC_ATM:
 		if (tree) {
 			ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_atm,
-					tvb, index + l2tpv3_cookie, 4, FALSE);
+					tvb, idx + l2tpv3_cookie, 4, FALSE);
 			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
-			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, index + l2tpv3_cookie,
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + l2tpv3_cookie,
 						1, FALSE);
-			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_t, tvb, index + l2tpv3_cookie,
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_t, tvb, idx + l2tpv3_cookie,
 						1, FALSE);
 			/*
 			 * As per RFC 4454, the T bit specifies whether
 			 * we're transporting an OAM cell or an AAL5 frame.
 			 */
-			oam_cell = tvb_get_guint8(tvb, index + l2tpv3_cookie) & 0x08;
-			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_g, tvb, index + l2tpv3_cookie,
+			oam_cell = tvb_get_guint8(tvb, idx + l2tpv3_cookie) & 0x08;
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_g, tvb, idx + l2tpv3_cookie,
 						1, FALSE);
-			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_c, tvb, index + l2tpv3_cookie,
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_c, tvb, idx + l2tpv3_cookie,
 						1, FALSE);
-			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_u, tvb, index + l2tpv3_cookie,
+			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_u, tvb, idx + l2tpv3_cookie,
 						1, FALSE);
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-						index + l2tpv3_cookie + 1, 3, FALSE);
+						idx + l2tpv3_cookie + 1, 3, FALSE);
 		}
-		next_tvb = tvb_new_subset_remaining(tvb, index + l2tpv3_cookie + 4);
+		next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie + 4);
 		break;
 	case L2TPv3_L2_SPECIFIC_LAPD:
 		if (tree)
-			proto_tree_add_text(tree, tvb, index + l2tpv3_cookie + 4, 3,"LAPD info");
-		next_tvb = tvb_new_subset_remaining(tvb, index + l2tpv3_cookie+4+3);
+			proto_tree_add_text(tree, tvb, idx + l2tpv3_cookie + 4, 3,"LAPD info");
+		next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie+4+3);
 		break;
 	case L2TPv3_L2_SPECIFIC_NONE:
 	default:
-		next_tvb = tvb_new_subset_remaining(tvb, index + l2tpv3_cookie);
+		next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie);
 		break;
 	}
 
@@ -1516,14 +1516,14 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *l2tp_tree = NULL, *ctrl_tree;
 	proto_item *l2tp_item = NULL, *ti;
 	
-	int index = 0;
+	int idx = 0;
 	int control;
 	int sid;
 	
-	control = tvb_get_ntohs(tvb, index);
-	index += 2; 			/* skip ahead */
-	index += 2;			/* Skip the reserved */
-	sid = tvb_get_ntohl(tvb, index);
+	control = tvb_get_ntohs(tvb, idx);
+	idx += 2; 			/* skip ahead */
+	idx += 2;			/* Skip the reserved */
+	sid = tvb_get_ntohl(tvb, idx);
 
 	if (tree) {
 		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
@@ -1543,8 +1543,8 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(l2tp_tree, hf_l2tp_res, tvb, 2, 2, FALSE);
 	}
 
-	/* Call process_l2tpv3_data from Session ID (offset in index of 4) */
-	process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &index);
+	/* Call process_l2tpv3_data from Session ID (offset in idx of 4) */
+	process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &idx);
 }
 
 /*
@@ -1557,10 +1557,10 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *l2tp_tree = NULL;
 	proto_item *l2tp_item = NULL, *ti;
 	
-	int index = 0;
+	int idx = 0;
 	int sid;
 
-	sid = tvb_get_ntohl(tvb, index);
+	sid = tvb_get_ntohl(tvb, idx);
 	
 	if (tree) {
 		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
@@ -1572,8 +1572,8 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 data_msg, sid);
 	}
 
-	/* Call process_l2tpv3_data from Session ID (offset in index of 0) */
-	process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &index);
+	/* Call process_l2tpv3_data from Session ID (offset in idx of 0) */
+	process_l2tpv3_data(tvb, pinfo, tree, l2tp_tree, l2tp_item, &idx);
 }
 
 /*
@@ -1581,32 +1581,32 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * to then call process_control_avps after dissecting the control.
  */
 static void
-process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int baseIndex)
+process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int baseIdx)
 {
 	proto_tree *l2tp_tree=NULL, *ctrl_tree;
 	proto_item *l2tp_item = NULL, *ti;
 	
-	int index = baseIndex;
-	int tmp_index;
+	int idx = baseIdx;
+	int tmp_idx;
 	guint16 length = 0;		/* Length field */
 	guint32 ccid = 0;		/* Control Connection ID */
 	guint16 avp_type;
 	guint16 msg_type;
 	guint16	control = 0;
 	
-	control = tvb_get_ntohs(tvb, index);
-	index += 2; 			/* skip ahead */
+	control = tvb_get_ntohs(tvb, idx);
+	idx += 2; 			/* skip ahead */
 	if (LENGTH_BIT(control)) { 	/* length field included ? */
-		length = tvb_get_ntohs(tvb, index);
-		index += 2;
+		length = tvb_get_ntohs(tvb, idx);
+		idx += 2;
 	}
 
 	/* Get Control Channel ID */
-	ccid = tvb_get_ntohl(tvb, index);
-	index += 4;
+	ccid = tvb_get_ntohl(tvb, idx);
+	idx += 4;
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		tmp_index = index;
+		tmp_idx = idx;
 
 		if ((LENGTH_BIT(control))&&(length==12))  		/* ZLB Message */
 			col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -1615,18 +1615,18 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 		else
 		{
 			if (SEQUENCE_BIT(control)) {
-				tmp_index += 4;
+				tmp_idx += 4;
 			}
 
-			tmp_index+=4;
+			tmp_idx+=4;
 
-			avp_type = tvb_get_ntohs(tvb, tmp_index);
-			tmp_index += 2;
+			avp_type = tvb_get_ntohs(tvb, tmp_idx);
+			tmp_idx += 2;
 				
 			if (avp_type == CONTROL_MESSAGE) {
 				/* We print message type */
-				msg_type = tvb_get_ntohs(tvb, tmp_index);
-				tmp_index += 2;
+				msg_type = tvb_get_ntohs(tvb, tmp_idx);
+				tmp_idx += 2;
 				col_add_fstr(pinfo->cinfo, COL_INFO,
 					     "%s - %s (tunnel id=%u)",
 					     control_msg ,
@@ -1655,7 +1655,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 		 * the tvbuff?  Have "set_actual_length()" return a Boolean
 		 * and have its callers check the result?
 		 */
-		set_actual_length(tvb, length+baseIndex);
+		set_actual_length(tvb, length+baseIdx);
 	}
 
 	if (tree) {
@@ -1663,41 +1663,41 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 		l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 		proto_item_append_text(l2tp_item, " version 3");
 
-		if (baseIndex) {
+		if (baseIdx) {
 			proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, 0, 4, FALSE);
 		}
-		ti = proto_tree_add_text(l2tp_tree, tvb, baseIndex, 2,
+		ti = proto_tree_add_text(l2tp_tree, tvb, baseIdx, 2,
 								 "Packet Type: %s Control Connection Id=%d",
 								 (CONTROL_BIT(control) ? control_msg : data_msg), ccid);
 
 		ctrl_tree = proto_item_add_subtree(ti, ett_l2tp_ctrl);
-		proto_tree_add_uint(ctrl_tree, hf_l2tp_type, tvb, baseIndex, 2, control);
-		proto_tree_add_boolean(ctrl_tree, hf_l2tp_length_bit, tvb, baseIndex, 2, control);
-		proto_tree_add_boolean(ctrl_tree, hf_l2tp_seq_bit, tvb, baseIndex, 2, control);
-		proto_tree_add_uint(ctrl_tree, hf_l2tp_version, tvb, baseIndex, 2, control);
+		proto_tree_add_uint(ctrl_tree, hf_l2tp_type, tvb, baseIdx, 2, control);
+		proto_tree_add_boolean(ctrl_tree, hf_l2tp_length_bit, tvb, baseIdx, 2, control);
+		proto_tree_add_boolean(ctrl_tree, hf_l2tp_seq_bit, tvb, baseIdx, 2, control);
+		proto_tree_add_uint(ctrl_tree, hf_l2tp_version, tvb, baseIdx, 2, control);
 	}
-	index = baseIndex + 2;
+	idx = baseIdx + 2;
 	if (LENGTH_BIT(control)) {
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_length, tvb, index, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_length, tvb, idx, 2, FALSE);
 		}
-		index += 2;
+		idx += 2;
 	}
 
 	if (tree) {
-		proto_tree_add_item(l2tp_tree, hf_l2tp_ccid, tvb, index, 4, FALSE);
+		proto_tree_add_item(l2tp_tree, hf_l2tp_ccid, tvb, idx, 4, FALSE);
 	}
-	index += 4;
+	idx += 4;
 
 	if (SEQUENCE_BIT(control)) {
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_Ns, tvb, index, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_Ns, tvb, idx, 2, FALSE);
 		}
-		index += 2;
+		idx += 2;
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_Nr, tvb, index, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_Nr, tvb, idx, 2, FALSE);
 		}
-		index += 2;
+		idx += 2;
 	}
 	
 	if (tree && (LENGTH_BIT(control))&&(length==12)) {
@@ -1708,7 +1708,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 		return;
 	}
 
-	process_control_avps(tvb, pinfo, l2tp_tree, index, length+baseIndex);
+	process_control_avps(tvb, pinfo, l2tp_tree, idx, length+baseIdx);
 }
 
 /*
@@ -1722,8 +1722,8 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *l2tp_tree=NULL, *ctrl_tree;
 	proto_item *l2tp_item = NULL, *ti;
-	int index = 0;
-	int tmp_index;
+	int idx = 0;
+	int tmp_idx;
 	guint16 length = 0;		/* Length field */
 	guint16 tid;			/* Tunnel ID */
 	guint16 cid;			/* Call ID */
@@ -1773,20 +1773,20 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (LENGTH_BIT(control)) { 		/* length field included ? */
-		index += 2; 			/* skip ahead */
-		length = tvb_get_ntohs(tvb, index);
+		idx += 2; 			/* skip ahead */
+		length = tvb_get_ntohs(tvb, idx);
 	}
 
 	/* collect the tunnel id & call id */
-	index += 2;
-	tid = tvb_get_ntohs(tvb, index);
-	index += 2;
-	cid = tvb_get_ntohs(tvb, index);
+	idx += 2;
+	tid = tvb_get_ntohs(tvb, idx);
+	idx += 2;
+	cid = tvb_get_ntohs(tvb, idx);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (CONTROL_BIT(control)) {
 			/* CONTROL MESSAGE */
-			tmp_index = index;
+			tmp_idx = idx;
 
 			if ((LENGTH_BIT(control))&&(length==12))	/* ZLB Message */
 				col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -1795,16 +1795,16 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			else
 			{
 				if (SEQUENCE_BIT(control)) {
-					tmp_index += 4;
+					tmp_idx += 4;
 				}
 
-				tmp_index+=4;
+				tmp_idx+=4;
 
-				avp_type = tvb_get_ntohs(tvb, (tmp_index+=2));
+				avp_type = tvb_get_ntohs(tvb, (tmp_idx+=2));
 
 				if (avp_type == CONTROL_MESSAGE) {
 					/* We print message type */
-					msg_type = tvb_get_ntohs(tvb, (tmp_index+=2));
+					msg_type = tvb_get_ntohs(tvb, (tmp_idx+=2));
 					col_add_fstr(pinfo->cinfo, COL_INFO,
 						     "%s - %s (tunnel id=%u, session id=%u)",
 						     control_msg,
@@ -1861,45 +1861,45 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_boolean(ctrl_tree, hf_l2tp_priority, tvb, 0, 2, control);
 		proto_tree_add_uint(ctrl_tree, hf_l2tp_version, tvb, 0, 2, control);
 	}
-	index = 2;
+	idx = 2;
 	if (LENGTH_BIT(control)) {
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_length, tvb, index, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_length, tvb, idx, 2, FALSE);
 		}
-		index += 2;
+		idx += 2;
 	}
 
 	if (tree) {
-		proto_tree_add_item(l2tp_tree, hf_l2tp_tunnel, tvb, index, 2, FALSE);
+		proto_tree_add_item(l2tp_tree, hf_l2tp_tunnel, tvb, idx, 2, FALSE);
 	}
-	index += 2;
+	idx += 2;
 	if (tree) {
-		proto_tree_add_item(l2tp_tree, hf_l2tp_session, tvb, index, 2, FALSE);
+		proto_tree_add_item(l2tp_tree, hf_l2tp_session, tvb, idx, 2, FALSE);
 	}
-	index += 2;
+	idx += 2;
 
 	if (SEQUENCE_BIT(control)) {
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_Ns, tvb, index, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_Ns, tvb, idx, 2, FALSE);
 		}
-		index += 2;
+		idx += 2;
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_Nr, tvb, index, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_Nr, tvb, idx, 2, FALSE);
 		}
-		index += 2;
+		idx += 2;
 	}
 	if (OFFSET_BIT(control)) {
-		offset_size = tvb_get_ntohs(tvb, index);
+		offset_size = tvb_get_ntohs(tvb, idx);
 		if (tree) {
-			proto_tree_add_uint(l2tp_tree, hf_l2tp_offset, tvb, index, 2,
+			proto_tree_add_uint(l2tp_tree, hf_l2tp_offset, tvb, idx, 2,
 								offset_size);
 		}
-		index += 2;
+		idx += 2;
 		if (offset_size != 0) {
 			if (tree) {
-				proto_tree_add_text(l2tp_tree, tvb, index, offset_size, "Offset Padding");
+				proto_tree_add_text(l2tp_tree, tvb, idx, offset_size, "Offset Padding");
 			}
-			index += offset_size;
+			idx += offset_size;
 		}
 	}
 	
@@ -1909,17 +1909,17 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (!CONTROL_BIT(control)) {  /* Data Messages so we are done */
 		if (tree)
-			proto_item_set_len(l2tp_item, index);
+			proto_item_set_len(l2tp_item, idx);
 		/* If we have data, signified by having a length bit, dissect it */
-		if (tvb_offset_exists(tvb, index)) {
-			next_tvb = tvb_new_subset_remaining(tvb, index);
+		if (tvb_offset_exists(tvb, idx)) {
+			next_tvb = tvb_new_subset_remaining(tvb, idx);
 			call_dissector(ppp_hdlc_handle, next_tvb, pinfo, tree);
 		}
 		return tvb_length(tvb);
 	}
 
 	if (LENGTH_BIT(control))
-		process_control_avps(tvb, pinfo, l2tp_tree, index, length);
+		process_control_avps(tvb, pinfo, l2tp_tree, idx, length);
 
 	return tvb_length(tvb);
 }
@@ -1934,7 +1934,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int index = 0;
+	int idx = 0;
 	guint32 sid;			/* Session ID */
 
 	/* Only L2TPv3 runs directly over IP */
@@ -1942,7 +1942,7 @@ dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	sid = tvb_get_ntohl(tvb, index);
+	sid = tvb_get_ntohl(tvb, idx);
 	if (sid == 0) {
 		/* This is control message */
 		/* Call to process l2tp v3 control message */

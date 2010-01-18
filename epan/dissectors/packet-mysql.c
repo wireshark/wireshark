@@ -1141,7 +1141,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint64         generation;
 	proto_item *pi;
 #endif
-        struct mysql_frame_data  *frame_data;
+        struct mysql_frame_data  *mysql_frame_data_p;
 
 	/* get conversation, create if neccessary*/
 	conversation= find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -1169,22 +1169,22 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
 	}
 
-	frame_data = p_get_proto_data(pinfo->fd, proto_mysql);
-	if (!frame_data) {
+	mysql_frame_data_p = p_get_proto_data(pinfo->fd, proto_mysql);
+	if (!mysql_frame_data_p) {
 		/*  We haven't seen this frame before.  Store the state of the
 		 *  conversation now so if/when we dissect the frame again
 		 *  we'll start with the same state.
 		 */
-		frame_data = se_alloc(sizeof(struct mysql_frame_data));
-		frame_data->state = conn_data->state;
-		p_add_proto_data(pinfo->fd, proto_mysql, frame_data);
+		mysql_frame_data_p = se_alloc(sizeof(struct mysql_frame_data));
+		mysql_frame_data_p->state = conn_data->state;
+		p_add_proto_data(pinfo->fd, proto_mysql, mysql_frame_data_p);
 	} else {
 		/*  We have seen this frame before.  Set the connection state
 		 *  to whatever state it had the first time we saw this frame
 		 *  (e.g., based on whatever frames came before it).
 		 *  The state may change as we dissect this packet.
 		 */
-		 conn_data->state= frame_data->state;
+		 conn_data->state= mysql_frame_data_p->state;
 	}
 
 	if (tree) {
@@ -1210,7 +1210,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #ifdef CTDEBUG
 	conn_state_in= conn_data->state;
-	frame_state = frame_data->state;
+	frame_state = mysql_frame_data_p->state;
 	generation= conn_data->generation;
 	if (tree) {
 		pi= proto_tree_add_text(mysql_tree, tvb, offset, 0, "conversation: %p", conversation);
@@ -1581,13 +1581,13 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 
 	case MYSQL_REFRESH:
 		{
-			proto_item *tf;
+			proto_item *tff;
 			proto_item *rfsh_tree;
 			gint refresh= tvb_get_guint8(tvb, offset);
 
 			if (req_tree) {
-				tf= proto_tree_add_uint_format(req_tree, hf_mysql_refresh, tvb, offset, 1, refresh, "Refresh Bitmap: 0x%02X ", refresh);
-				rfsh_tree= proto_item_add_subtree(tf, ett_refresh);
+				tff= proto_tree_add_uint_format(req_tree, hf_mysql_refresh, tvb, offset, 1, refresh, "Refresh Bitmap: 0x%02X ", refresh);
+				rfsh_tree= proto_item_add_subtree(tff, ett_refresh);
 				proto_tree_add_boolean(rfsh_tree, hf_mysql_rfsh_grants, tvb, offset, 1, refresh);
 				proto_tree_add_boolean(rfsh_tree, hf_mysql_rfsh_log, tvb, offset, 1, refresh);
 				proto_tree_add_boolean(rfsh_tree, hf_mysql_rfsh_tables, tvb, offset, 1, refresh);

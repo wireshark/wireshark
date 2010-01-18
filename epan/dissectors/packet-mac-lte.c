@@ -935,14 +935,14 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             /* Backoff Indicator (BI) case */
 
             guint8 reserved;
-            proto_item *ti;
+            proto_item *tii;
             proto_item *bi_ti;
 
             /* 2 Reserved bits */
             reserved = (tvb_get_guint8(tvb, offset) & 0x30) >> 4;
-            ti = proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_reserved, tvb, offset, 1, FALSE);
+            tii = proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_reserved, tvb, offset, 1, FALSE);
             if (reserved != 0) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                expert_add_info_format(pinfo, tii, PI_MALFORMED, PI_ERROR,
                                        "RAR header Reserved bits not zero (found 0x%x)", reserved);
             }
 
@@ -2405,10 +2405,10 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Can't dissect anything without it... */
     if (p_mac_lte_info == NULL) {
-        proto_item *ti =
+        proto_item *tii =
             proto_tree_add_text(mac_lte_tree, tvb, offset, -1,
                                 "Can't dissect LTE MAC frame because no per-frame info was attached!");
-        PROTO_ITEM_SET_GENERATED(ti);
+        PROTO_ITEM_SET_GENERATED(tii);
         return;
     }
 

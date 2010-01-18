@@ -3765,14 +3765,14 @@ static void (*nas_msg_esm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	NULL,	/* NONE */
 };
 
-void get_nas_esm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn)
+void get_nas_esm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
 	gint			idx;
 
 	*msg_str = match_strval_idx((guint32) (oct & 0xff), nas_msg_esm_strings, &idx);
 	*ett_tree = ett_nas_msg_esm[idx];
 	*hf_idx = hf_nas_eps_msg_esm_type;
-	*msg_fcn = nas_msg_esm_fcn[idx];
+	*msg_fcn_p = nas_msg_esm_fcn[idx];
 
 	return;
 }
@@ -3818,14 +3818,14 @@ static void (*nas_msg_emm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 
 };
 
-void get_nas_emm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn)
+void get_nas_emm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
 	gint			idx;
 
 	*msg_str = match_strval_idx((guint32) (oct & 0xff), nas_msg_emm_strings, &idx);
 	*ett_tree = ett_nas_msg_emm[idx];
 	*hf_idx = hf_nas_eps_msg_emm_type;
-	*msg_fcn = nas_msg_emm_fcn[idx];
+	*msg_fcn_p = nas_msg_emm_fcn[idx];
 
 	return;
 }
@@ -3841,7 +3841,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	guint32			len;
 	gint			ett_tree;
 	int				hf_idx;
-	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+	void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
 	guint8			oct;
 
 	len = tvb_length(tvb);
@@ -3861,12 +3861,12 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 	/*messge type IE*/
 	oct = tvb_get_guint8(tvb,offset);
-	msg_fcn = NULL;
+	msg_fcn_p = NULL;
 	ett_tree = -1;
 	hf_idx = -1;
 	msg_str = NULL;
 
-	get_nas_esm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
+	get_nas_esm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
 
 	if(msg_str){
 		if (check_col(pinfo->cinfo, COL_INFO)){
@@ -3887,7 +3887,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	/*
 	 * decode elements
 	 */
-	if (msg_fcn == NULL)
+	if (msg_fcn_p == NULL)
 	{
 		proto_tree_add_text(tree, tvb, offset, len - offset,
 			"Message Elements");
@@ -3896,7 +3896,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	{
 		/* If calling any "gsm" ie dissectors needing pinfo */
 		gsm_a_dtap_pinfo = pinfo;
-		(*msg_fcn)(tvb, tree, offset, len - offset);
+		(*msg_fcn_p)(tvb, tree, offset, len - offset);
 	}
 
 }
@@ -3910,7 +3910,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	guint32			len;
 	gint			ett_tree;
 	int				hf_idx;
-	void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+	void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
 	guint8			security_header_type, oct;
 
 	len = tvb_length(tvb);
@@ -3938,12 +3938,12 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	}
 	/* Messge type IE*/
 	oct = tvb_get_guint8(tvb,offset);
-	msg_fcn = NULL;
+	msg_fcn_p = NULL;
 	ett_tree = -1;
 	hf_idx = -1;
 	msg_str = NULL;
 
-	get_nas_emm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
+	get_nas_emm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
 
 	if(msg_str){
 		if (check_col(pinfo->cinfo, COL_INFO)){
@@ -3964,7 +3964,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	/*
 	 * decode elements
 	 */
-	if (msg_fcn == NULL)
+	if (msg_fcn_p == NULL)
 	{
 		proto_tree_add_text(tree, tvb, offset, len - offset,
 			"Message Elements");
@@ -3973,7 +3973,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	{
 		/* If calling any "gsm" ie dissectors needing pinfo */
 		gsm_a_dtap_pinfo = pinfo;
-		(*msg_fcn)(tvb, tree, offset, len - offset);
+		(*msg_fcn_p)(tvb, tree, offset, len - offset);
 	}
 
 }

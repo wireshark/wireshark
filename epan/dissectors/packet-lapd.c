@@ -387,7 +387,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		direction;
 	guint16		control, checksum, checksum_calculated;
 	int		lapd_header_len, checksum_offset;
-	guint16		address, cr, sapi, tei;
+	guint16		addr, cr, sapi, tei;
 	gboolean	is_response = 0;
 	tvbuff_t	*next_tvb;
 	const char	*srcname = "?";
@@ -396,11 +396,11 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPD");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	address = tvb_get_ntohs(tvb, 0);
-	cr = address & LAPD_CR;
-	tei = (address & LAPD_TEI) >> LAPD_TEI_SHIFT;
-	sapi = (address & LAPD_SAPI) >> LAPD_SAPI_SHIFT;
-	lapd_header_len = 2;	/* address */
+	addr = tvb_get_ntohs(tvb, 0);
+	cr = addr & LAPD_CR;
+	tei = (addr & LAPD_TEI) >> LAPD_TEI_SHIFT;
+	sapi = (addr & LAPD_SAPI) >> LAPD_SAPI_SHIFT;
+	lapd_header_len = 2;	/* addr */
 
 	if (check_col(pinfo->cinfo, COL_TEI))
 		col_add_fstr(pinfo->cinfo, COL_TEI, "%u", tei);
@@ -475,18 +475,18 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		addr_ti = proto_tree_add_uint(lapd_tree, hf_lapd_address, tvb,
-		    0, 2, address);
+		    0, 2, addr);
 		addr_tree = proto_item_add_subtree(addr_ti, ett_lapd_address);
 
 		if(global_lapd_gsm_sapis){
-			proto_tree_add_uint(addr_tree, hf_lapd_gsm_sapi,tvb, 0, 1, address);
+			proto_tree_add_uint(addr_tree, hf_lapd_gsm_sapi,tvb, 0, 1, addr);
 		}else{
-			proto_tree_add_uint(addr_tree, hf_lapd_sapi,tvb, 0, 1, address);
+			proto_tree_add_uint(addr_tree, hf_lapd_sapi,tvb, 0, 1, addr);
 		}
-		proto_tree_add_uint(addr_tree, hf_lapd_cr,  tvb, 0, 1, address);
-		proto_tree_add_uint(addr_tree, hf_lapd_ea1, tvb, 0, 1, address);
-		proto_tree_add_uint(addr_tree, hf_lapd_tei, tvb, 1, 1, address);
-		proto_tree_add_uint(addr_tree, hf_lapd_ea2, tvb, 1, 1, address);
+		proto_tree_add_uint(addr_tree, hf_lapd_cr,  tvb, 0, 1, addr);
+		proto_tree_add_uint(addr_tree, hf_lapd_ea1, tvb, 0, 1, addr);
+		proto_tree_add_uint(addr_tree, hf_lapd_tei, tvb, 1, 1, addr);
+		proto_tree_add_uint(addr_tree, hf_lapd_ea2, tvb, 1, 1, addr);
 	}
 	else {
 		lapd_ti = NULL;
