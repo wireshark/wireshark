@@ -82,14 +82,14 @@
 #define YY_NO_UNISTD_H
 #endif
 
-static guint h;
-static guint m;
-static guint s;
-static guint ms;
-static guint ns;
-static gint encap;
-static guint8 b[WTAP_MAX_PACKET_SIZE];
-static guint i;
+static guint g_h;
+static guint g_m;
+static guint g_s;
+static guint g_ms;
+static guint g_ns;
+static gint g_encap;
+static guint8 bb[WTAP_MAX_PACKET_SIZE];
+static guint ii;
 static gboolean is_k12text;
 static gboolean at_eof;
 static guint junk_chars;
@@ -100,12 +100,12 @@ static gboolean ok_frame;
 static FILE_T yy_fh;
 
 #define KERROR(text) do { error_str = g_strdup(text); yyterminate(); } while(0)
-#define SET_HOURS(text) h = strtoul(text,NULL,10)
-#define SET_MINUTES(text) m = strtoul(text,NULL,10)
-#define SET_SECONDS(text) s = strtoul(text,NULL,10)
-#define SET_MS(text) ms = strtoul(text,NULL,10)
-#define SET_NS(text) ns = strtoul(text,NULL,10)
-#define ADD_BYTE(text) do {if (i >= WTAP_MAX_PACKET_SIZE) {KERROR("frame too large");} b[i++] = (guint8)strtoul(text,NULL,16); } while(0)
+#define SET_HOURS(text) g_h = strtoul(text,NULL,10)
+#define SET_MINUTES(text) g_m = strtoul(text,NULL,10)
+#define SET_SECONDS(text) g_s = strtoul(text,NULL,10)
+#define SET_MS(text) g_ms = strtoul(text,NULL,10)
+#define SET_NS(text) g_ns = strtoul(text,NULL,10)
+#define ADD_BYTE(text) do {if (ii >= WTAP_MAX_PACKET_SIZE) {KERROR("frame too large");} bb[ii++] = (guint8)strtoul(text,NULL,16); } while(0)
 #define FINALIZE_FRAME() finalize_frame()
 /*~ #define ECHO*/
 #define YY_USER_ACTION file_bytes_read += yyleng;
@@ -145,11 +145,11 @@ hdlc HDLC
 <MS>{threedigits} { SET_MS(yytext); BEGIN(M2N);  }
 <M2N>{comma}  { BEGIN(NS); }
 <NS>{threedigits} { SET_NS(yytext); BEGIN(ENCAP);}
-<ENCAP>{eth} {encap = WTAP_ENCAP_ETHERNET; BEGIN(STARTBYTES); }
- /* <ENCAP>{mtp2} {encap = WTAP_ENCAP_MTP2; BEGIN(STARTBYTES); }      Not supported as yet */
- /* <ENCAP>{sscop} {encap = WTAP_ENCAP_ATM_PDUS; BEGIN(STARTBYTES); } Not supported as yet */
-<ENCAP>{sscfnni} {encap = WTAP_ENCAP_MTP3; BEGIN(STARTBYTES); }
-<ENCAP>{hdlc} {encap = WTAP_ENCAP_CHDLC; BEGIN(STARTBYTES); }
+<ENCAP>{eth} {g_encap = WTAP_ENCAP_ETHERNET; BEGIN(STARTBYTES); }
+ /* <ENCAP>{mtp2} {g_encap = WTAP_ENCAP_MTP2; BEGIN(STARTBYTES); }      Not supported as yet */
+ /* <ENCAP>{sscop} {g_encap = WTAP_ENCAP_ATM_PDUS; BEGIN(STARTBYTES); } Not supported as yet */
+<ENCAP>{sscfnni} {g_encap = WTAP_ENCAP_MTP3; BEGIN(STARTBYTES); }
+<ENCAP>{hdlc} {g_encap = WTAP_ENCAP_CHDLC; BEGIN(STARTBYTES); }
 <ENCAP,STARTBYTES>{start_bytes} { BEGIN(BYTE); }
 <BYTE>{byte} { ADD_BYTE(yytext); }
 <BYTE>{bytes_junk} ;
@@ -201,19 +201,19 @@ static void k12text_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseud
 static void k12text_reset(FILE_T fh) {
 	yy_fh = fh;
 	yyrestart(0);
-	encap = WTAP_ENCAP_UNKNOWN;
+	g_encap = WTAP_ENCAP_UNKNOWN;
 	ok_frame = FALSE;
 	is_k12text = FALSE;
 	at_eof = FALSE;
 	junk_chars = 0;
 	error_str = NULL;
 	file_bytes_read=0;
-	h=0;
-	m=0;
-	s=0;
-	ns=0;
-	ms=0;
-	i=0;
+	g_h=0;
+	g_m=0;
+	g_s=0;
+	g_ns=0;
+	g_ms=0;
+	ii=0;
 }
 
 static gboolean k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset) {
@@ -245,16 +245,16 @@ static gboolean k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data
 	*data_offset = wth->data_offset;       /* file position for beginning of this frame   */
 	wth->data_offset += file_bytes_read;   /* file position after end of this frame       */
 
-	wth->phdr.ts.secs = 946681200 + (3600*h) + (60*m) + s;
-	wth->phdr.ts.nsecs = 1000000*ms + 1000*ns;
+	wth->phdr.ts.secs = 946681200 + (3600*g_h) + (60*g_m) + g_s;
+	wth->phdr.ts.nsecs = 1000000*g_ms + 1000*g_ns;
 
-	wth->phdr.caplen = wth->phdr.len = i;
+	wth->phdr.caplen = wth->phdr.len = ii;
 
-	wth->phdr.pkt_encap = encap;
+	wth->phdr.pkt_encap = g_encap;
 	k12text_set_pseudo_header(wth, &wth->pseudo_header);
 
 	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-	memcpy(buffer_start_ptr(wth->frame_buffer), b, wth->phdr.caplen);
+	memcpy(buffer_start_ptr(wth->frame_buffer), bb, wth->phdr.caplen);
 
 	return TRUE;
 }
@@ -281,7 +281,7 @@ static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_
 	}
 
 	/* verify frame length parsed this time against original frame length */
-	if (i != (guint)length) {
+	if (ii != (guint)length) {
 		/* What happened ? This now seems to have a different length than originally */
 		*err_info = g_strdup("Incorrect frame length (program error ?)");
 		*err = WTAP_ERR_BAD_RECORD;
@@ -290,7 +290,7 @@ static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_
 
 	k12text_set_pseudo_header(wth, pseudo_header);
 
-	memcpy(pd, b, length);
+	memcpy(pd, bb, length);
 
 	return TRUE;
 }
