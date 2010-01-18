@@ -591,8 +591,8 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32		src;
 	conversation_t	*conversation;
 	spx_hash_value	*pkt_value;
-	spx_rexmit_info	*spx_rexmit_info;
-	spx_info	spx_info;
+	spx_rexmit_info	*spx_rexmit_info_p;
+	spx_info	spx_infox;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
 	col_set_str(pinfo->cinfo, COL_INFO, "SPX");
@@ -684,7 +684,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * It's a system packet, so it isn't a retransmission.
 		 */
-		spx_rexmit_info = NULL;
+		spx_rexmit_info_p = NULL;
 	} else {
 		/*
 		 * Not a system packet - check for retransmissions.
@@ -734,16 +734,16 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * This is not a retransmission, so we shouldn't
 				 * have any retransmission indicator.
 				 */
-				spx_rexmit_info = NULL;
+				spx_rexmit_info_p = NULL;
 			} else {
 				/*
 				 * Found in the hash table.  Mark this frame as
 				 * a retransmission.
 				 */
-				spx_rexmit_info = se_alloc(sizeof(spx_rexmit_info));
-				spx_rexmit_info->num = pkt_value->num;
+				spx_rexmit_info_p = se_alloc(sizeof(spx_rexmit_info));
+				spx_rexmit_info_p->num = pkt_value->num;
 				p_add_proto_data(pinfo->fd, proto_spx,
-				    spx_rexmit_info);
+				    spx_rexmit_info_p);
 			}
 		} else {
 			/*
@@ -752,7 +752,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * data indicates which frame had the original
 			 * transmission.
 			 */
-			spx_rexmit_info = p_get_proto_data(pinfo->fd,
+			spx_rexmit_info_p = p_get_proto_data(pinfo->fd,
 			    proto_spx);
 		}
 	}
@@ -762,17 +762,17 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Flag this as a retransmission, but don't pass it to the
 	 * subdissector.
 	 */
-	if (spx_rexmit_info != NULL) {
+	if (spx_rexmit_info_p != NULL) {
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "[Retransmission] Original Packet %u",
-			    spx_rexmit_info->num);
+			    spx_rexmit_info_p->num);
 		}
 		if (tree) {
 			proto_tree_add_uint_format(spx_tree, hf_spx_rexmt_frame,
-			    tvb, 0, 0, spx_rexmit_info->num,
+			    tvb, 0, 0, spx_rexmit_info_p->num,
 			    "This is a retransmission of frame %u",
-			    spx_rexmit_info->num);
+			    spx_rexmit_info_p->num);
 			if (tvb_length_remaining(tvb, SPX_HEADER_LEN) > 0) {
 				proto_tree_add_text(spx_tree, tvb,
 				    SPX_HEADER_LEN, -1,
@@ -810,10 +810,10 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Pass information to subdissectors.
 		 */
-		spx_info.eom = conn_ctrl & SPX_EOM;
-		spx_info.datastream_type = datastream_type;
+		spx_infox.eom = conn_ctrl & SPX_EOM;
+		spx_infox.datastream_type = datastream_type;
 		pd_save = pinfo->private_data;
-		pinfo->private_data = &spx_info;
+		pinfo->private_data = &spx_infox;
 
 		next_tvb = tvb_new_subset_remaining(tvb, SPX_HEADER_LEN);
 		if (dissector_try_port(spx_socket_dissector_table, low_socket,
