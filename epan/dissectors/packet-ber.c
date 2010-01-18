@@ -3970,8 +3970,8 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 	gint8 class;
 	gboolean pc, ind;
 	gint32 tag;
-	guint32 len;
-	guint8 pad=0, b0, b1, val;
+	guint32 len, byteno;
+	guint8 pad=0, b0, b1, val, *bitstring;
 	int end_offset;
 	int hoffset;
 	proto_item *item = NULL;
@@ -4054,9 +4054,12 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 		sep = " (";
 		term = FALSE;
 		nb = named_bits;
+		bitstring = tvb_get_ephemeral_string(tvb, offset, len);
+
 		while (nb->p_id) {
 			if(nb->bit < (8*len-pad)) {
 				val = tvb_get_guint8(tvb, offset + nb->bit/8);
+				bitstring[(nb->bit/8)] &= ~(0x80 >> (nb->bit%8));
 				val &= 0x80 >> (nb->bit%8);
 				b0 = (nb->gb0 == -1) ? nb->bit/8 :
 						       ((guint32)nb->gb0)/8;
@@ -4084,6 +4087,14 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 		}
 		if(term)
 			proto_item_append_text(item, ")");
+
+		for (byteno = 0; byteno < len; byteno++) {
+			if (bitstring[byteno]) {
+				expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, 
+						       "Unknown bit(s): 0x%s", bytes_to_str(bitstring, len));
+				break;
+			}
+		}
 	}
 
 	return end_offset;
