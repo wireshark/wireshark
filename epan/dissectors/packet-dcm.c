@@ -5770,7 +5770,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Sequence or Item Start */
 
 	guint32	endpos_item = 0;
-	gboolean end_of_seq_or_item = FALSE;
+	gboolean local_end_of_seq_or_item = FALSE;
 	gboolean is_first_desc = TRUE;
 
 	gchar *item_description = NULL;	    /* Will be allocated as ep_ memory in dissect_dcm_tag() */
@@ -5778,10 +5778,10 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (vl == 0xFFFFFFFF) {
 	    /* Undefined length */
 
-	    while ((!end_of_seq_or_item) && (!pdv->open_tag.is_header_fragmented) && (offset < endpos)) {
+	    while ((!local_end_of_seq_or_item) && (!pdv->open_tag.is_header_fragmented) && (offset < endpos)) {
 
 		offset = dissect_dcm_tag(tvb, pinfo, seq_ptree, pdv, offset, endpos, FALSE,
-		    &item_description, &end_of_seq_or_item);
+		    &item_description, &local_end_of_seq_or_item);
 
 		if (item_description && global_dcm_seq_subtree) {
 		    proto_item_append_text(tag_pitem, (is_first_desc ? " %s" : ", %s"), item_description);
@@ -5796,7 +5796,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    while (offset < endpos_item) {
 
 		offset = dissect_dcm_tag(tvb, pinfo, seq_ptree, pdv, offset, endpos_item, FALSE,
-		    &item_description, &end_of_seq_or_item);
+		    &item_description, &local_end_of_seq_or_item);
 
 		if (item_description && global_dcm_seq_subtree) {
 		    proto_item_append_text(tag_pitem, (is_first_desc ? " %s" : ", %s"), item_description);
@@ -5804,7 +5804,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	    }
 	}
-    }
+    } /*  if ((is_sequence || is_item) && (vl > 0)) */
     else if ((grp == 0xFFFE) && (elm == 0xE00D)) {
 	/* Item delimitation for items with undefined length */
 	*end_of_seq_or_item = TRUE;

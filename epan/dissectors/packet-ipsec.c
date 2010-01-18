@@ -429,7 +429,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
 */
 #ifdef HAVE_LIBGCRYPT
 static gboolean
-get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr)
+get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
 {
   char addr_byte_string_tmp[4];
   char addr_byte_string[4];
@@ -441,15 +441,15 @@ get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr)
   guint cpt = 0;
   gboolean done_flag = FALSE;
 
-  if((ipv4_addr == NULL) || (strcmp(ipv4_addr, "") == 0))  return done_flag;
+  if((ipv4_address == NULL) || (strcmp(ipv4_address, "") == 0))  return done_flag;
 
-  if((strlen(ipv4_addr) == 1) && (ipv4_addr[0] == IPSEC_SA_WILDCARDS_ANY))
+  if((strlen(ipv4_address) == 1) && (ipv4_address[0] == IPSEC_SA_WILDCARDS_ANY))
     {
       for(i = 0; i <= IPSEC_STRLEN_IPV4; i++)
 	{
-	  ipv4_addr_expanded[i] = IPSEC_SA_WILDCARDS_ANY;
+	  ipv4_address_expanded[i] = IPSEC_SA_WILDCARDS_ANY;
 	}
-      ipv4_addr_expanded[IPSEC_STRLEN_IPV4] = '\0';
+      ipv4_address_expanded[IPSEC_STRLEN_IPV4] = '\0';
       done_flag = TRUE;
     }
 
@@ -457,16 +457,16 @@ get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr)
     j = 0;
     cpt = 0;
     k = 0;
-    while((done_flag == FALSE) && (j <= strlen(ipv4_addr)) && (cpt < IPSEC_STRLEN_IPV4))
+    while((done_flag == FALSE) && (j <= strlen(ipv4_address)) && (cpt < IPSEC_STRLEN_IPV4))
       {
-	if(j == strlen(ipv4_addr))
+	if(j == strlen(ipv4_address))
 	  {
 	    addr_byte_string_tmp[k] = '\0';
 	    if((strlen(addr_byte_string_tmp) == 1) && (addr_byte_string_tmp[0] == IPSEC_SA_WILDCARDS_ANY))
 	      {
 		for(i = 0; i < 2; i++)
 		  {
-		    ipv4_addr_expanded[cpt] = IPSEC_SA_WILDCARDS_ANY;
+		    ipv4_address_expanded[cpt] = IPSEC_SA_WILDCARDS_ANY;
 		    cpt ++;
 		  }
 	      }
@@ -477,21 +477,21 @@ get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr)
 		else g_snprintf(addr_byte_string,4,"%X",addr_byte);
 		for(i = 0; i < strlen(addr_byte_string); i++)
 		  {
-		    ipv4_addr_expanded[cpt] = addr_byte_string[i];
+		    ipv4_address_expanded[cpt] = addr_byte_string[i];
 		    cpt ++;
 		  }
 	      }
 	    done_flag = TRUE;
 	  }
 
-	else if(ipv4_addr[j] == '.')
+	else if(ipv4_address[j] == '.')
 	  {
 	    addr_byte_string_tmp[k] = '\0';
 	    if((strlen(addr_byte_string_tmp) == 1) && (addr_byte_string_tmp[0] == IPSEC_SA_WILDCARDS_ANY))
 	      {
 		for(i = 0; i < 2; i++)
 		  {
-		    ipv4_addr_expanded[cpt] = IPSEC_SA_WILDCARDS_ANY;
+		    ipv4_address_expanded[cpt] = IPSEC_SA_WILDCARDS_ANY;
 		    cpt ++;
 		  }
 	      }
@@ -502,7 +502,7 @@ get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr)
 		else g_snprintf(addr_byte_string,4,"%X",addr_byte);
 		for(i = 0; i < strlen(addr_byte_string); i++)
 		  {
-		    ipv4_addr_expanded[cpt] = addr_byte_string[i];
+		    ipv4_address_expanded[cpt] = addr_byte_string[i];
 		    cpt ++;
 		  }
 	      }
@@ -514,13 +514,13 @@ get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr)
 	    if(k >= 3)
 	      {
 		/* Incorrect IPv4 Address. Erase previous Values in the Byte. (LRU mechanism) */
-		addr_byte_string_tmp[0] = ipv4_addr[j];
+		addr_byte_string_tmp[0] = ipv4_address[j];
 		k = 1;
 		j++;
 	      }
 	    else
 	      {
-		addr_byte_string_tmp[k] = ipv4_addr[j];
+		addr_byte_string_tmp[k] = ipv4_address[j];
 		k++;
 		j++;
 	      }
@@ -528,7 +528,7 @@ get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr)
 
       }
 
-    ipv4_addr_expanded[cpt] = '\0';
+    ipv4_address_expanded[cpt] = '\0';
   }
 
   return done_flag;
@@ -1053,18 +1053,18 @@ esp_sa_parse_filter(const gchar *sa_src, gint *pt_protocol_typ, gchar **pt_src, 
 
 
 /*
-   Name : static goolean filter_address_match(gchar *address, gchar *filter, gint len, gint typ)
+   Name : static goolean filter_address_match(gchar *addr, gchar *filter, gint len, gint typ)
    Description : check the matching of an address with a filter
    Return : Return TRUE if the filter and the address match
    Params:
-      - gchar *address : the address to check
+      - gchar *addr : the address to check
       - gchar *filter : the filter
       - gint len : the len of the address that should match the filter
       - gint typ : the Address type : either IPv6 or IPv4 (IPSEC_SA_IPV6, IPSEC_SA_IPV4)
 */
 #ifdef HAVE_LIBGCRYPT
 static gboolean
-filter_address_match(gchar *address, gchar *filter, gint len, gint typ)
+filter_address_match(gchar *addr, gchar *filter, gint len, gint typ)
 {
   gint i = 0;
   guint filter_tmp = 0;
@@ -1072,15 +1072,15 @@ filter_address_match(gchar *address, gchar *filter, gint len, gint typ)
   char filter_string_tmp[3];
   char addr_string_tmp[3];
 
-  if(strlen(address) != strlen(filter)) return FALSE;
+  if(strlen(addr) != strlen(filter)) return FALSE;
   /* No length specified */
   if((len < 0)
      || ((typ == IPSEC_SA_IPV6) && (len > IPSEC_IPV6_ADDR_LEN))
      || ((typ == IPSEC_SA_IPV4) && (len > IPSEC_IPV4_ADDR_LEN)))
     {
-      for(i = 0; (guint)i < strlen(address); i++)
+      for(i = 0; (guint)i < strlen(addr); i++)
 	{
-	  if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != address[i])) return FALSE;
+	  if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != addr[i])) return FALSE;
 	}
       return TRUE;
     }
@@ -1088,7 +1088,7 @@ filter_address_match(gchar *address, gchar *filter, gint len, gint typ)
     {
       for(i = 0; i < (len/ 4); i++)
 	{
-	  if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != address[i])) return FALSE;
+	  if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != addr[i])) return FALSE;
 	}
 
       if(filter[i] == IPSEC_SA_WILDCARDS_ANY) return TRUE;
@@ -1097,7 +1097,7 @@ filter_address_match(gchar *address, gchar *filter, gint len, gint typ)
 	  /* take the end of the Netmask/Prefixlen into account */
 	  filter_string_tmp[0] = filter[i];
 	  filter_string_tmp[1] = '\0';
-	  addr_string_tmp[0] = address[i];
+	  addr_string_tmp[0] = addr[i];
 	  addr_string_tmp[1] = '\0';
 
 	  sscanf(filter_string_tmp,"%x",&filter_tmp);

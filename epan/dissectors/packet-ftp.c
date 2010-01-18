@@ -187,7 +187,7 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip,
 	char *p;
 	guchar c;
 	int i;
-	int address[4], port[2];
+	int ip_address[4], port[2];
 	gboolean ret = FALSE;
 
 	/*
@@ -214,14 +214,14 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip,
 		 * See if we have six numbers.
 		 */
 		i = sscanf(p, "%d,%d,%d,%d,%d,%d",
-		    &address[0], &address[1], &address[2], &address[3],
+		    &ip_address[0], &ip_address[1], &ip_address[2], &ip_address[3],
 		    &port[0], &port[1]);
 		if (i == 6) {
 			/*
 			 * We have a winner!
 			 */
 			*ftp_port = ((port[0] & 0xFF)<<8) | (port[1] & 0xFF);
-			*ftp_ip = g_htonl((address[0] << 24) | (address[1] <<16) | (address[2] <<8) | address[3]);
+			*ftp_ip = g_htonl((ip_address[0] << 24) | (ip_address[1] <<16) | (ip_address[2] <<8) | ip_address[3]);
 			ret = TRUE;
 			break;
 		}

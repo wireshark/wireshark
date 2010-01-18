@@ -2780,7 +2780,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
     case FIELD_MIMO_CNTRL:
       {
         guint16 mimo;
-        guint32 time;
+        guint32 timestamp;
         proto_item *mimo_item;
         proto_tree *mimo_tree;
 
@@ -2799,8 +2799,8 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_reserved, tvb, offset+1, 1, mimo);
 
         offset+=2;
-        time = tvb_get_letohl (tvb, offset);
-        proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_sounding_timestamp, tvb, offset, 4, time);
+        timestamp = tvb_get_letohl (tvb, offset);
+        proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_sounding_timestamp, tvb, offset, 4, timestamp);
         length +=6;
         break;
       }
@@ -4519,7 +4519,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
   tvbuff_t *tag_tvb;
   const guint8 *tag_data_ptr;
   guint32 tag_no, tag_len;
-  unsigned int i;
+  unsigned int ii;
   int n, ret;
   char out_buff[SHORT_STR];
   char print_buff[SHORT_STR];
@@ -4606,14 +4606,14 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       }
 
       tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
-      for (i = 0, n = 0; i < tag_len && n < SHORT_STR; i++) {
-        if (tag_data_ptr[i] == 0xFF){
-          proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2 + i,
+      for (ii = 0, n = 0; ii < tag_len && n < SHORT_STR; ii++) {
+        if (tag_data_ptr[ii] == 0xFF){
+          proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2 + ii,
                1, "BSS requires support for mandatory features of HT PHY (IEEE 802.11 - Clause 20)");
         } else {
           ret = g_snprintf (print_buff + n, SHORT_STR - n, "%2.1f%s ",
-                          (tag_data_ptr[i] & 0x7F) * 0.5,
-                          (tag_data_ptr[i] & 0x80) ? "(B)" : "");
+                          (tag_data_ptr[ii] & 0x7F) * 0.5,
+                          (tag_data_ptr[ii] & 0x80) ? "(B)" : "");
           if (ret >= SHORT_STR - n) {
             /* ret = <buf_size> or greater. means buffer truncated */
             break;
@@ -4779,19 +4779,19 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         proto_item_append_text(ti, ": %s", out_buff);
         proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,3, out_buff);
 
-        for (i = 3; (i + 3) <= tag_len; i += 3)
+        for (ii = 3; (ii + 3) <= tag_len; ii += 3)
         {
           guint8 val1, val2, val3;
-          val1 = tvb_get_guint8(tvb, offset + 2 + i);
-          val2 = tvb_get_guint8(tvb, offset + 3 + i);
-          val3 = tvb_get_guint8(tvb, offset + 4 + i);
+          val1 = tvb_get_guint8(tvb, offset + 2 + ii);
+          val2 = tvb_get_guint8(tvb, offset + 3 + ii);
+          val3 = tvb_get_guint8(tvb, offset + 4 + ii);
 
           if (val1 <= 200) {  /* 802.11d */
-            proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2+i,3, out_buff,
+            proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2+ii,3, out_buff,
                                        "  Start Channel: %u, Channels: %u, Max TX Power: %d dBm",
                                        val1, val2, (gint) val3);
           } else {  /* 802.11j */
-            proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2+i,3, out_buff,
+            proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2+ii,3, out_buff,
                                        "  Reg Extension Id: %u, Regulatory Class: %u, Coverage Class: %u",
                                        val1, val2, val3);
           }
@@ -5593,7 +5593,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     {
       guint tag_offset;
       guint8 info_exchange;
-      proto_item *ti;
+      proto_item *tii;
       proto_tree *ex_cap_tree;
 
       if (tag_len < 1)
@@ -5606,8 +5606,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       tag_offset = offset;
 
       info_exchange = tvb_get_guint8 (tvb, offset);
-      ti = proto_tree_add_item (tree, hf_tag_extended_capabilities, tvb, offset, 1, FALSE);
-      ex_cap_tree = proto_item_add_subtree (ti, ett_tag_ex_cap);
+      tii = proto_tree_add_item (tree, hf_tag_extended_capabilities, tvb, offset, 1, FALSE);
+      ex_cap_tree = proto_item_add_subtree (tii, ett_tag_ex_cap);
       proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b0, tvb, offset, 1, FALSE);
       proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b1, tvb, offset, 1, FALSE);
       proto_tree_add_item (ex_cap_tree, hf_tag_extended_capabilities_b2, tvb, offset, 1, FALSE);
@@ -6004,14 +6004,14 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
     case MGT_ACTION:
     {
-      proto_item *fixed_hdr;
-      proto_tree *fixed_tree;
-      fixed_hdr = proto_tree_add_text(mgt_tree, tvb, 0, 0, "Fixed parameters");
-      fixed_tree = proto_item_add_subtree (fixed_hdr, ett_fixed_parameters);
+      proto_item *lcl_fixed_hdr;
+      proto_tree *lcl_fixed_tree;
+      lcl_fixed_hdr = proto_tree_add_text(mgt_tree, tvb, 0, 0, "Fixed parameters");
+      lcl_fixed_tree = proto_item_add_subtree (lcl_fixed_hdr, ett_fixed_parameters);
 
-      offset += add_fixed_field(fixed_tree, tvb, 0, FIELD_ACTION);
+      offset += add_fixed_field(lcl_fixed_tree, tvb, 0, FIELD_ACTION);
 
-      proto_item_set_len(fixed_hdr, offset);
+      proto_item_set_len(lcl_fixed_hdr, offset);
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
       if (tagged_parameter_tree_len != 0)
       {
@@ -6024,14 +6024,14 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
     }
     case MGT_ACTION_NO_ACK:
     {
-      proto_item *fixed_hdr;
-      proto_tree *fixed_tree;
-      fixed_hdr = proto_tree_add_text(mgt_tree, tvb, 0, 0, "Fixed parameters");
-      fixed_tree = proto_item_add_subtree (fixed_hdr, ett_fixed_parameters);
+      proto_item *lcl_fixed_hdr;
+      proto_tree *lcl_fixed_tree;
+      lcl_fixed_hdr = proto_tree_add_text(mgt_tree, tvb, 0, 0, "Fixed parameters");
+      lcl_fixed_tree = proto_item_add_subtree (lcl_fixed_hdr, ett_fixed_parameters);
 
-      offset += add_fixed_field(fixed_tree, tvb, 0, FIELD_ACTION);
+      offset += add_fixed_field(lcl_fixed_tree, tvb, 0, FIELD_ACTION);
 
-      proto_item_set_len(fixed_hdr, offset);
+      proto_item_set_len(lcl_fixed_hdr, offset);
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
       if (tagged_parameter_tree_len != 0)
       {
@@ -6162,7 +6162,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   guint offset;
   const gchar *fts_str;
   gchar flag_str[] = "opmPRMFTC";
-  gint i;
+  gint ii;
 
   wlan_hdr *volatile whdr;
   static wlan_hdr whdrs[4];
@@ -6197,9 +6197,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   flags = FCF_FLAGS (fcf);
   more_frags = HAVE_FRAGMENTS (flags);
 
-  for (i = 0; i < 8; i++) {
-    if (! (flags & 0x80 >> i)) {
-      flag_str[i] = '.';
+  for (ii = 0; ii < 8; ii++) {
+    if (! (flags & 0x80 >> ii)) {
+      flag_str[ii] = '.';
     }
   }
 
@@ -7456,8 +7456,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         tvbuff_t *volatile msdu_tvb = NULL;
         guint32 msdu_offset = 0;
         guint16 i = 1;
-        const guint8 *src = NULL;
-        const guint8 *dst = NULL;
+        const guint8 *lcl_src = NULL;
+        const guint8 *lcl_dst = NULL;
         guint16 msdu_length;
         proto_item *parent_item;
         proto_tree *mpdu_tree;
@@ -7468,8 +7468,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         mpdu_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_parent_tree);
 
         do {
-          dst = tvb_get_ptr (next_tvb, msdu_offset, 6);
-          src = tvb_get_ptr (next_tvb, msdu_offset+6, 6);
+          lcl_dst = tvb_get_ptr (next_tvb, msdu_offset, 6);
+          lcl_src = tvb_get_ptr (next_tvb, msdu_offset+6, 6);
           msdu_length = tvb_get_ntohs (next_tvb, msdu_offset+12);
 
           parent_item = proto_tree_add_uint_format(mpdu_tree, amsdu_msdu_header_text, next_tvb,
@@ -7478,8 +7478,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           subframe_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_subframe_tree);
           i++;
 
-          proto_tree_add_ether(subframe_tree, hf_addr_da, next_tvb, msdu_offset, 6, dst);
-          proto_tree_add_ether(subframe_tree, hf_addr_sa, next_tvb, msdu_offset+6, 6, src);
+          proto_tree_add_ether(subframe_tree, hf_addr_da, next_tvb, msdu_offset, 6, lcl_dst);
+          proto_tree_add_ether(subframe_tree, hf_addr_sa, next_tvb, msdu_offset+6, 6, lcl_src);
           proto_tree_add_uint_format(subframe_tree, mcsset_highest_data_rate, next_tvb, msdu_offset+12, 2,
           msdu_length, "MSDU length: 0x%04X", msdu_length);
 

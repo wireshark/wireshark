@@ -815,7 +815,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
      */
     /* The Auxiliary Security Header only exists in IEEE 802.15.4-2006 */
     if (packet->security_enable && (packet->version == 1)) {
-      proto_item *ti;
+      proto_item *tii;
       proto_tree *header_tree, *field_tree;
 
       guint                     key_length = 0;
@@ -845,12 +845,12 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         break;
       }
 
-      ti = proto_tree_add_text(ieee802154_tree, tvb, offset, 5 + key_length, "Auxiliary Security Header");
-      header_tree = proto_item_add_subtree(ti, ett_ieee802154_auxiliary_security);
+      tii = proto_tree_add_text(ieee802154_tree, tvb, offset, 5 + key_length, "Auxiliary Security Header");
+      header_tree = proto_item_add_subtree(tii, ett_ieee802154_auxiliary_security);
 
       /* Security Control Field */
-      ti = proto_tree_add_text(header_tree, tvb, offset, sizeof (guint8), "Security Control Field (0x%02x)", security_control);
-      field_tree = proto_item_add_subtree(ti, ett_ieee802154_aux_sec_control);
+      tii = proto_tree_add_text(header_tree, tvb, offset, sizeof (guint8), "Security Control Field (0x%02x)", security_control);
+      field_tree = proto_item_add_subtree(tii, ett_ieee802154_aux_sec_control);
 
       proto_tree_add_uint(field_tree, hf_ieee802154_security_level, tvb, offset, sizeof(guint8), sec_level);
       proto_tree_add_uint(field_tree, hf_ieee802154_key_id_mode, tvb, offset, sizeof(guint8), key_id_mode);
@@ -878,8 +878,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         break;
       }
 
-      ti = proto_tree_add_text(header_tree, tvb, offset, key_length, "Key Identifier Field");
-      field_tree = proto_item_add_subtree(ti, ett_ieee802154_aux_sec_key_id);
+      tii = proto_tree_add_text(header_tree, tvb, offset, key_length, "Key Identifier Field");
+      field_tree = proto_item_add_subtree(tii, ett_ieee802154_aux_sec_key_id);
 
       /* Key Source Field */
       if ((key_id_mode >> 3) > KEY_ID_MODE_KEY_INDEX) {

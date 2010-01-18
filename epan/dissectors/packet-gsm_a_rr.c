@@ -798,35 +798,35 @@ static void display_channel_list(guint8 *list, tvbuff_t *tvb, proto_tree *tree, 
     return;
 }
 
-static gint greatest_power_of_2_lesser_or_equal_to(gint index)
+static gint greatest_power_of_2_lesser_or_equal_to(gint idx)
 {
     gint j = 1;
     do {
         j<<=1;
-    } while (j<=index);
+    } while (j<=idx);
     j >>= 1;
     return j;
 }
 
 static gint f_k(gint k, gint *w, gint range)
 {
-    gint index, n, j;
+    gint idx, n, j;
 
-    index = k;
+    idx = k;
     range -= 1;
-    range = range/greatest_power_of_2_lesser_or_equal_to(index);
-    n = w[index]-1;
+    range = range/greatest_power_of_2_lesser_or_equal_to(idx);
+    n = w[idx]-1;
 
-    while (index>1) {
-        j = greatest_power_of_2_lesser_or_equal_to(index);
+    while (idx>1) {
+        j = greatest_power_of_2_lesser_or_equal_to(idx);
         range = 2*range+1;
-        if ((2*index) < 3*j){ /* left child */
-            index -= j/2;
-            n = (n+w[index]-1+((range-1)/2)+1)%range;
+        if ((2*idx) < 3*j){ /* left child */
+            idx -= j/2;
+            n = (n+w[idx]-1+((range-1)/2)+1)%range;
         }
         else { /* right child */
-            index -= j;
-            n = (n+w[index]-1+1)%range;
+            idx -= j;
+            n = (n+w[idx]-1+1)%range;
         }
     }
 
@@ -8492,7 +8492,7 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     NULL,			/* NONE */
 };
 
-void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn)
+void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
     gint			idx;
 
@@ -8500,7 +8500,7 @@ void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
     *hf_idx = hf_gsm_a_dtap_msg_rr_type;
     if (*msg_str != NULL) {
         *ett_tree = ett_gsm_dtap_msg_rr[idx];
-        *msg_fcn  = dtap_msg_rr_fcn[idx];
+        *msg_fcn_p  = dtap_msg_rr_fcn[idx];
     }
 
     return;
@@ -8518,7 +8518,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     static gsm_a_tap_rec_t	*tap_p;
     static guint		tap_current=0;
 
-    void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+    void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
     guint8			oct;
     guint8			pd;
     guint32			offset, saved_offset;
@@ -8587,7 +8587,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     msg_str = NULL;
     ett_tree = -1;
     hf_idx = -1;
-    msg_fcn = NULL;
+    msg_fcn_p = NULL;
     nsd = FALSE;
     col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",val_to_str(pd,gsm_a_pd_short_str_vals,"Unknown (%u)"));
 
@@ -8596,7 +8596,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     switch (pd){
     case 6:
-        get_rr_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
+        get_rr_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
         break;
 
     default:
@@ -8711,11 +8711,11 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * decode elements
      */
-    if (msg_fcn == NULL){
+    if (msg_fcn_p == NULL){
         proto_tree_add_text(ccch_tree, tvb, offset, len - offset,
                             "Message Elements");
     }else{
-        (*msg_fcn)(tvb, ccch_tree, offset, len - offset);
+        (*msg_fcn_p)(tvb, ccch_tree, offset, len - offset);
     }
 }
 
@@ -8747,7 +8747,7 @@ static void (*sacch_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offse
     NULL, 			/* NONE */
 };
 
-void get_rr_short_pd_msg_params(guint8 mess_type, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn)
+void get_rr_short_pd_msg_params(guint8 mess_type, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
     gint			idx;
 
@@ -8755,7 +8755,7 @@ void get_rr_short_pd_msg_params(guint8 mess_type, const gchar **msg_str, int *et
     *hf_idx = hf_gsm_a_sacch_msg_rr_type;
     if (*msg_str != NULL) {
         *ett_tree = ett_gsm_sacch_msg_rr[idx];
-        *msg_fcn = sacch_msg_rr_fcn[idx];
+        *msg_fcn_p = sacch_msg_rr_fcn[idx];
     }
 }
 
@@ -8771,7 +8771,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     static gsm_a_tap_rec_t	*tap_p;
     static guint		tap_current=0;
 
-    void			(*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
+    void			(*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
     guint8			oct, short_pd, mess_type;
     guint32			offset;
     guint32			len;
@@ -8802,7 +8802,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     msg_str = NULL;
     ett_tree = -1;
     hf_idx = -1;
-    msg_fcn = NULL;
+    msg_fcn_p = NULL;
 
     short_pd = (oct & 0x80) >> 7;
     mess_type = (oct & 0x7c) >> 2;
@@ -8810,7 +8810,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (short_pd == 0)
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, "(RR) ");
-        get_rr_short_pd_msg_params(mess_type, &msg_str, &ett_tree, &hf_idx, &msg_fcn);
+        get_rr_short_pd_msg_params(mess_type, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
     }
     else
     {
@@ -8866,11 +8866,11 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * decode elements
      */
-    if (msg_fcn == NULL){
+    if (msg_fcn_p == NULL){
         proto_tree_add_text(sacch_tree, tvb, offset, len - offset,
                             "Message Elements");
     }else{
-        (*msg_fcn)(tvb, sacch_tree, offset, len - offset);
+        (*msg_fcn_p)(tvb, sacch_tree, offset, len - offset);
     }
 }
 

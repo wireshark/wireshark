@@ -324,8 +324,7 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp
 		}
 		offset += 4;
 		if (i > MAX_FP_CHANS) {
-			proto_item *pi;
-			pi = proto_tree_add_text(tree, tvb, offset, -1,
+			proto_tree_add_text(tree, tvb, offset, -1,
 				"Frame contains more FP channels than currently supported (%u supported)",
 				MAX_FP_CHANS);
 			return;
@@ -410,8 +409,7 @@ static void assign_fph_edch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, f
 		}
 		i++;
 		if (i >= MAX_EDCH_DDIS) {
-			proto_item *pi;
-			pi = proto_tree_add_text(tree, tvb, offset, -1,
+			proto_tree_add_text(tree, tvb, offset, -1,
 				"Frame contains more FP channels than currently supported (%u supported)",
 				MAX_FP_CHANS);
 			return;

@@ -865,12 +865,12 @@ dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*bssmap_le_item = NULL;
 	proto_tree	*bssmap_le_tree = NULL;
 	const gchar	*str;
-	sccp_msg_info_t* sccp_msg;
+	sccp_msg_info_t* sccp_msg_p;
 
-	sccp_msg = pinfo->sccp_info;
+	sccp_msg_p = pinfo->sccp_info;
 
-	if (!(sccp_msg && sccp_msg->data.co.assoc)) {
-		sccp_msg = NULL;
+	if (!(sccp_msg_p && sccp_msg_p->data.co.assoc)) {
+		sccp_msg_p = NULL;
 	}
 
 	col_append_str(pinfo->cinfo, COL_INFO, "(BSSMAP LE) ");
@@ -901,8 +901,8 @@ dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	str = match_strval_idx((guint32) oct, gsm_bssmap_le_msg_strings, &idx);
 
-	if (sccp_msg && !sccp_msg->data.co.label) {
-		sccp_msg->data.co.label = se_strdup(val_to_str((guint32) oct, gsm_bssmap_le_msg_strings, "BSSMAP LE(0x%02x)"));
+	if (sccp_msg_p && !sccp_msg_p->data.co.label) {
+		sccp_msg_p->data.co.label = se_strdup(val_to_str((guint32) oct, gsm_bssmap_le_msg_strings, "BSSMAP LE(0x%02x)"));
 	}
 
 	/*

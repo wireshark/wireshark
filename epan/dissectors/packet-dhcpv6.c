@@ -1523,12 +1523,12 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
   guint8 fetch_tgt, timer_val, type; 
 	proto_item *vti;
   proto_tree *pkt_s_tree;
-  guint32 ipv4_addr;
-  guchar kr_name; /** A character in the kerberos realm name option */
-  guint8 kr_value; /* The integer value of the character currently being tested */
+  guint32 ipv4_address;
+  guchar kr_name;       /** A character in the kerberos realm name option */
+  guint8 kr_value;      /* The integer value of the character currently being tested */
   int kr_fail_flag = 0; /* Flag indicating an invalid character was found */
-  int kr_pos = 0; /* The position of the first invalid character */
-  int i =0;
+  int kr_pos = 0;       /* The position of the first invalid character */
+  int i = 0;
   char bit_fld[24];
 
 	subopt = tvb_get_ntohs(tvb, optoff);
@@ -1554,9 +1554,9 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		case PKT_CCC_PRI_DHCP:	/* IPv4 address values */
 		case PKT_CCC_SEC_DHCP:
       if (subopt_len == 4) {
-        ipv4_addr = tvb_get_ipv4(tvb, suboptoff);
+        ipv4_address = tvb_get_ipv4(tvb, suboptoff);
         proto_item_append_text(vti, "%s (%u byte%s%s)",
-               ip_to_str((guint8 *)&ipv4_addr), subopt_len,
+               ip_to_str((guint8 *)&ipv4_address), subopt_len,
                plurality(subopt_len, "", "s"),
                subopt_len != 4 ? " [Invalid]" : "");
       }
@@ -1580,9 +1580,9 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
       /** Type 0 is IPv4 **/
       else if (type == 1) {
          if (subopt_len == 5) {
-            ipv4_addr = tvb_get_ipv4(tvb, suboptoff+1);
+            ipv4_address = tvb_get_ipv4(tvb, suboptoff+1);
             proto_item_append_text(vti, "%s (%u byte%s%s)",
-                   ip_to_str((guint8 *)&ipv4_addr), subopt_len,
+                   ip_to_str((guint8 *)&ipv4_address), subopt_len,
                    plurality(subopt_len, "", "s"),
                    subopt_len != 5 ? " [Invalid]" : "");
          }

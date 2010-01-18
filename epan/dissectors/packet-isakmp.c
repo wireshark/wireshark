@@ -268,7 +268,7 @@ static GHashTable *isakmp_hash = NULL;
 static GMemChunk *isakmp_key_data = NULL;
 static GMemChunk *isakmp_decrypt_data = NULL;
 #endif
-static FILE *logf = NULL;
+static FILE *log_f = NULL;
 static const char *pluto_log_path = "insert pluto log path here";
 
 /* Specifications of encryption algorithms for IKEv2 decryption */
@@ -439,8 +439,8 @@ scan_pluto_log(void) {
 
   SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
-  if (logf) {
-    while (fgets(line, MAX_PLUTO_LINE, logf)) {
+  if (log_f) {
+    while (fgets(line, MAX_PLUTO_LINE, log_f)) {
       if (strncmp(line, icookie_pfx, icpfx_len) == 0) {
         secret_len = 0;
 	pos = line + icpfx_len;
@@ -2467,7 +2467,7 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
   while(length>0) {
     guint16 aft     = tvb_get_ntohs(tvb, offset);
-    guint16 type    = aft & 0x7fff;
+    guint16 typex   = aft & 0x7fff;
     guint16 len;
     guint32 val;
     guint pack_len;
@@ -2476,7 +2476,7 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       val = tvb_get_ntohs(tvb, offset + 2);
       proto_tree_add_text(tree, tvb, offset, 4,
 			  "%s (%u)",
-			  cfgattr2str(isakmp_version, type), val);
+			  cfgattr2str(isakmp_version, typex), val);
       offset += 4;
       length -= 4;
     }
@@ -2486,11 +2486,11 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       if (!get_num(tvb, offset + 4, len, &val)) {
         proto_tree_add_text(tree, tvb, offset, pack_len,
 			    "%s: <too big (%u bytes)>",
-			    cfgattr2str(isakmp_version, type), len);
+			    cfgattr2str(isakmp_version, typex), len);
       } else {
         proto_tree_add_text(tree, tvb, offset, 4,
 			    "%s (%ue)",
-			    cfgattr2str(isakmp_version, type), val);
+			    cfgattr2str(isakmp_version, typex), val);
       }
       offset += pack_len;
       length -= pack_len;
@@ -3673,9 +3673,9 @@ isakmp_init_protocol(void) {
 	G_ALLOC_AND_FREE);
 #endif
   isakmp_hash = g_hash_table_new(isakmp_hash_func, isakmp_equal_func);
-  if (logf)
-    fclose(logf);
-  logf = ws_fopen(pluto_log_path, "r");
+  if (log_f)
+    fclose(log_f);
+  log_f = ws_fopen(pluto_log_path, "r");
 
   scan_pluto_log();
 

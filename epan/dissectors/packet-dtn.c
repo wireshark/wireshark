@@ -64,9 +64,9 @@ static int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, ch
 static GHashTable *msg_fragment_table = NULL;
 static GHashTable *msg_reassembled_table = NULL;
 
-static int segment_length;
-static int bundle_header_length;
-static int bundle_header_dict_length;
+static int gbl_segment_length;
+static int gbl_bundle_header_length;
+static int gbl_bundle_header_dict_length;
 
 static char magic[] = {'d', 't', 'n', '!'};
 
@@ -300,16 +300,16 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	    }
 	    fixed = 1;
-	    segment_length = evaluate_sdnv(tvb, fixed + frame_offset, &sdnv_length);
-	    if(segment_length < 0) {
+	    gbl_segment_length = evaluate_sdnv(tvb, fixed + frame_offset, &sdnv_length);
+	    if(gbl_segment_length < 0) {
 		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error (Length)");
 		return;
 	    }
 	    convergence_hdr_size = sdnv_length + fixed;
-	    if((buffer_size - frame_offset - convergence_hdr_size) < segment_length) {
+	    if((buffer_size - frame_offset - convergence_hdr_size) < gbl_segment_length) {
 		/*Segment not complete -- wait for the rest of it*/
 		pinfo->desegment_len =
-			    segment_length - (buffer_size - frame_offset
+			    gbl_segment_length - (buffer_size - frame_offset
 							- convergence_hdr_size);
 		pinfo->desegment_offset = frame_offset;
 		return;
@@ -342,7 +342,7 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    frag_msg = fragment_add_seq_next(tvb, frame_offset + convergence_hdr_size,
 					   pinfo, 0, msg_fragment_table,
-					   msg_reassembled_table, segment_length,
+					   msg_reassembled_table, gbl_segment_length,
 					   more_frags);
 	    if(frag_msg && !more_frags) {
 		ti = proto_tree_add_item(tree, proto_bundle, tvb,
@@ -383,7 +383,7 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     * frame_offset indicates everything in the buffer has been processed.
 	     */
 
-	    frame_offset += (segment_length + convergence_hdr_size);
+	    frame_offset += (gbl_segment_length + convergence_hdr_size);
 	}
 	else {	/*Else this is not a Data Segment*/
 
@@ -750,15 +750,15 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
     proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_ack,
 						tvb, offset, 1, srrflags);
     ++offset;
-    bundle_header_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+    gbl_bundle_header_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     hdr_length_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
-    if(bundle_header_length < 0) {
+    if(gbl_bundle_header_length < 0) {
 	proto_item_set_text(hdr_length_item, "Bundle Header Length: Error");
 	return 0;
     }
     proto_item_set_text(hdr_length_item,
-			"Bundle Header Length: %d", bundle_header_length);
-    tvb_ensure_bytes_exist(tvb, offset + sdnv_length, bundle_header_length);
+			"Bundle Header Length: %d", gbl_bundle_header_length);
+    tvb_ensure_bytes_exist(tvb, offset + sdnv_length, gbl_bundle_header_length);
     offset += sdnv_length;
 
     /*
@@ -824,33 +824,33 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
     proto_tree_add_item(primary_tree, hf_bundle_lifetime, tvb, offset, 4, FALSE);
     offset += 4;
 
-    bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+    gbl_bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     dict_length_item = proto_tree_add_text(primary_tree,
 						tvb, offset, sdnv_length, " ");
-    if(bundle_header_dict_length < 0) {
+    if(gbl_bundle_header_dict_length < 0) {
 	proto_item_set_text(dict_length_item, "Dictionary Length: Error");
 	return 0;
     }
     proto_item_set_text(dict_length_item, "Dictionary Length: %d",
-							bundle_header_dict_length);
+							gbl_bundle_header_dict_length);
     offset += sdnv_length;
-    tvb_ensure_bytes_exist(tvb, offset, bundle_header_dict_length);
+    tvb_ensure_bytes_exist(tvb, offset, gbl_bundle_header_dict_length);
 
     /*
      * Pull out stuff from the dictionary
      */
 
     dict_item = proto_tree_add_text(primary_tree, tvb, offset,
-					bundle_header_dict_length, "Dictionary");
+					gbl_bundle_header_dict_length, "Dictionary");
     dict_tree = proto_item_add_subtree(dict_item, ett_dictionary);
-    dict_ptr = (guint8 *) tvb_get_ptr(tvb, offset, bundle_header_dict_length);
+    dict_ptr = (guint8 *) tvb_get_ptr(tvb, offset, gbl_bundle_header_dict_length);
     /*
      * If the dictionary length is 0, then the CBHE block compression method is applied.
      * So the scheme offset is the node number and the ssp offset is the service number.
      * If destination scheme offset is 2 and destination ssp offset is 1, then the EID is
      * ipn:2.1
      */
-    if(bundle_header_dict_length == 0)
+    if(gbl_bundle_header_dict_length == 0)
     {
 	/*
  	 * Destination info
@@ -1014,7 +1014,7 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
 					dict_ptr + dest_scheme_offset, dict_ptr + dest_ssp_offset);
 
     }
-    offset += bundle_header_dict_length;	/*Skip over dictionary*/
+    offset += gbl_bundle_header_dict_length;	/*Skip over dictionary*/
     /*
      * Do this only if Fragment Flag is set
      */
@@ -1171,15 +1171,15 @@ dissect_version_5_primary_header(packet_info *pinfo,
 						tvb, offset, sdnv_length, srrflags);
     offset += sdnv_length;
 
-    bundle_header_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+    gbl_bundle_header_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     hdr_length_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
-    if(bundle_header_length < 0) {
+    if(gbl_bundle_header_length < 0) {
 	proto_item_set_text(hdr_length_item, "Bundle Header Length: Error");
 	return 0;
     }
     proto_item_set_text(hdr_length_item,
-			"Bundle Header Length: %d", bundle_header_length);
-    tvb_ensure_bytes_exist(tvb, offset + sdnv_length, bundle_header_length);
+			"Bundle Header Length: %d", gbl_bundle_header_length);
+    tvb_ensure_bytes_exist(tvb, offset + sdnv_length, gbl_bundle_header_length);
     offset += sdnv_length;
 
     /*
@@ -1191,7 +1191,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     dst_scheme_pos = offset;
     dst_scheme_len = sdnv_length;
     dest_scheme_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
-    if((dest_scheme_offset < 0) || (dest_scheme_offset > bundle_header_length)) {
+    if((dest_scheme_offset < 0) || (dest_scheme_offset > gbl_bundle_header_length)) {
 	proto_item_set_text(dest_scheme_offset_item, "Destination Scheme Offset: Error");
 	return 0;
     }
@@ -1202,7 +1202,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     dest_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     dst_ssp_len = sdnv_length;
     dest_ssp_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
-    if((dest_ssp_offset < 0) || (dest_ssp_offset > bundle_header_length)) {
+    if((dest_ssp_offset < 0) || (dest_ssp_offset > gbl_bundle_header_length)) {
 	proto_item_set_text(dest_ssp_offset_item, "Destination SSP Offset: Error");
 	return 0;
     }
@@ -1214,7 +1214,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     src_scheme_pos = offset;
     src_scheme_len = sdnv_length;
     source_scheme_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
-    if((source_scheme_offset < 0) || (source_scheme_offset > bundle_header_length)) {
+    if((source_scheme_offset < 0) || (source_scheme_offset > gbl_bundle_header_length)) {
 	proto_item_set_text(source_scheme_offset_item, "Source Scheme Offset: Error");
 	return 0;
     }
@@ -1225,7 +1225,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     source_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     src_ssp_len = sdnv_length;
     source_ssp_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
-    if((source_ssp_offset < 0) || (source_ssp_offset > bundle_header_length)) {
+    if((source_ssp_offset < 0) || (source_ssp_offset > gbl_bundle_header_length)) {
 	proto_item_set_text(source_ssp_offset_item, "Source SSP Offset: Error");
 	return 0;
     }
@@ -1237,7 +1237,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     rpt_scheme_pos = offset;
     rpt_scheme_len = sdnv_length;
     report_scheme_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
-    if((report_scheme_offset < 0) || (report_scheme_offset > bundle_header_length)) {
+    if((report_scheme_offset < 0) || (report_scheme_offset > gbl_bundle_header_length)) {
 	proto_item_set_text(report_scheme_offset_item, "Report Scheme Offset: Error");
 	return 0;
     }
@@ -1248,7 +1248,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     report_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     rpt_ssp_len = sdnv_length;
     report_ssp_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
-    if((report_ssp_offset < 0) || (report_ssp_offset > bundle_header_length)) {
+    if((report_ssp_offset < 0) || (report_ssp_offset > gbl_bundle_header_length)) {
 	proto_item_set_text(report_ssp_offset_item, "Report SSP Offset: Error");
 	return 0;
     }
@@ -1260,7 +1260,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     cust_scheme_pos = offset;
     cust_scheme_len = sdnv_length;
     cust_scheme_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
-    if((cust_scheme_offset < 0) || (cust_scheme_offset > bundle_header_length)) {
+    if((cust_scheme_offset < 0) || (cust_scheme_offset > gbl_bundle_header_length)) {
 	proto_item_set_text(cust_scheme_offset_item, "Custodian Scheme Offset: Error");
 	return 0;
     }
@@ -1271,7 +1271,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     cust_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     cust_ssp_len = sdnv_length;
     cust_ssp_offset_item = proto_tree_add_text(primary_tree, tvb, offset, sdnv_length, " ");
-    if((cust_ssp_offset < 0) || (cust_ssp_offset > bundle_header_length)) {
+    if((cust_ssp_offset < 0) || (cust_ssp_offset > gbl_bundle_header_length)) {
 	proto_item_set_text(cust_ssp_offset_item, "Custodian SSP Offset: Error");
 	return 0;
     }
@@ -1321,28 +1321,28 @@ dissect_version_5_primary_header(packet_info *pinfo,
     proto_item_set_text(lifetime_item, "Lifetime: %d", lifetime);
     offset += sdnv_length;
 
-    bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+    gbl_bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
     dict_length_item = proto_tree_add_text(primary_tree,
 						tvb, offset, sdnv_length, " ");
-    if(bundle_header_dict_length < 0) {
+    if(gbl_bundle_header_dict_length < 0) {
 	proto_item_set_text(dict_length_item, "Dictionary Length: Error");
 	return 0;
     }
     proto_item_set_text(dict_length_item, "Dictionary Length: %d",
-							bundle_header_dict_length);
+							gbl_bundle_header_dict_length);
     offset += sdnv_length;
-    tvb_ensure_bytes_exist(tvb, offset, bundle_header_dict_length);
+    tvb_ensure_bytes_exist(tvb, offset, gbl_bundle_header_dict_length);
 
     /*
      * Pull out stuff from the dictionary
      */
 
     dict_item = proto_tree_add_text(primary_tree, tvb, offset,
-					bundle_header_dict_length, "Dictionary");
+					gbl_bundle_header_dict_length, "Dictionary");
     dict_tree = proto_item_add_subtree(dict_item, ett_dictionary);
-    dict_ptr = (guint8 *) tvb_get_ptr(tvb, offset, bundle_header_dict_length);
+    dict_ptr = (guint8 *) tvb_get_ptr(tvb, offset, gbl_bundle_header_dict_length);
 
-    if(bundle_header_dict_length == 0)
+    if(gbl_bundle_header_dict_length == 0)
     {
 	/*
  	 * Destination info
@@ -1493,7 +1493,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
 			dict_ptr + source_scheme_offset, dict_ptr + source_ssp_offset,
 			dict_ptr + dest_scheme_offset, dict_ptr + dest_ssp_offset);
     }
-    offset += bundle_header_dict_length;	/*Skip over dictionary*/
+    offset += gbl_bundle_header_dict_length;	/*Skip over dictionary*/
 
     /*
      * Do this only if Fragment Flag is set

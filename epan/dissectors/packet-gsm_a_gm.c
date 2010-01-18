@@ -5487,26 +5487,26 @@ static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	NULL,	/* NONE */
 };
 
-void get_gmm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn)
+void get_gmm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *dtap_msg_fcn)
 {
 	gint			idx;
 
 	*msg_str = match_strval_idx((guint32) (oct & DTAP_GMM_IEI_MASK), gsm_a_dtap_msg_gmm_strings, &idx);
 	*ett_tree = ett_gsm_dtap_msg_gmm[idx];
 	*hf_idx = hf_gsm_a_dtap_msg_gmm_type;
-	*msg_fcn = dtap_msg_gmm_fcn[idx];
+	*dtap_msg_fcn = dtap_msg_gmm_fcn[idx];
 
 	return;
 }
 
-void get_sm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn)
+void get_sm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *dtap_msg_fcn)
 {
 	gint			idx;
 
 	*msg_str = match_strval_idx((guint32) (oct & DTAP_SM_IEI_MASK), gsm_a_dtap_msg_sm_strings, &idx);
 	*ett_tree = ett_gsm_dtap_msg_sm[idx];
 	*hf_idx = hf_gsm_a_dtap_msg_sm_type;
-	*msg_fcn = dtap_msg_sm_fcn[idx];
+	*dtap_msg_fcn = dtap_msg_sm_fcn[idx];
 
 	return;
 }

@@ -109,7 +109,7 @@ static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *egd_tree = NULL;
     tvbuff_t *next_tvb = NULL;
     gint offset, data_length;
-    guint32 stime;
+    guint32 sectime;
     nstime_t egd_time;
 
     memset(&egd_time, 0, sizeof(nstime_t));
@@ -129,8 +129,8 @@ static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 4;
 
     /* time */
-    stime = tvb_get_ntohl(tvb, offset);
-    if (0 == stime)
+    sectime = tvb_get_ntohl(tvb, offset);
+    if (0 == sectime)
     {
       notime = proto_tree_add_item(egd_tree, hf_egd_notime, tvb, offset, 8, FALSE);
       proto_item_append_text(notime, "--No TimeStamp");
