@@ -849,24 +849,13 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_INFO, "XXX Request");
 
-/* A protocol dissector can be called in 2 different ways:
+/* A protocol dissector may be called in 2 different ways - with, or
+   without a non-null "tree" argument.
 
-	(a) Operational dissection
-
-		In this mode, Wireshark is only interested in the way protocols
-		interact, protocol conversations are created, packets are
-		reassembled and handed over to higher-level protocol dissectors.
-		In this mode Wireshark does not build a so-called "protocol
-		tree".
-
-	(b) Detailed dissection
-
-		In this mode, Wireshark is also interested in all details of
-		a given protocol, so a "protocol tree" is created.
-
-   Wireshark distinguishes between the 2 modes with the proto_tree pointer:
-	(a) <=> tree == NULL
-	(b) <=> tree != NULL
+   If the proto_tree argument is null, Wireshark does not need to use
+   the protocol tree information from your dissector, and therefore is
+   passing the dissector a null "tree" argument so that it doesn't
+   need to do work necessary to build the protocol tree.
 
    In the interest of speed, if "tree" is NULL, avoid building a
    protocol tree and adding stuff to it, or even looking at any packet
@@ -886,7 +875,12 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    work if you're not building a protocol tree, but if the code would
    have a lot of tests whether "tree" is null if you skipped that work,
    you might still be better off just doing all that work regardless of
-   whether "tree" is null or not. */
+   whether "tree" is null or not.
+
+   Note also that there is no guarantee, the first time the dissector is
+   called, whether "tree" will be null or not; your dissector must work
+   correctly, building or updating whatever state information is
+   necessary, in either case. */
 	if (tree) {
 
 /* NOTE: The offset and length values in the call to
