@@ -33,9 +33,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -51,7 +48,6 @@
 #include <epan/conversation.h>
 #include "packet-tcp.h"
 #include <epan/prefs.h>
-
 
 #define ISNS_PROTO_VER 0x1
 #define ISNS_HEADER_SIZE 12
@@ -484,112 +480,68 @@ static const value_string isns_attribute_tags[] = {
 #define ISNS_FLAGS_FIRST_PDU	0x0400
 
 
-static const true_false_string isns_scn_bitmap_initiator_and_self_information_only = {
-    "True",
-    "False"
-};
-static const true_false_string isns_scn_bitmap_target_and_self_information_only    = {
-    "True",
-    "False"
-};
-static const true_false_string isns_scn_bitmap_management_registration_scn         = {
-    "True",
-    "False"
-};
-static const true_false_string isns_scn_bitmap_object_removed                      = {
-    "True",
-    "False"
-};
-static const true_false_string isns_scn_bitmap_object_added                        = {
-    "True",
-    "False"
-};
-static const true_false_string isns_scn_bitmap_object_updated                      = {
-    "True",
-    "False"
-};
-static const true_false_string isns_scn_bitmap_dd_dds_member_removed               = {
-    "True",
-    "False"
-};
-static const true_false_string isns_scn_bitmap_dd_dds_member_added                 = {
-    "True",
-    "False"
+#define tfs_isns_scn_bitmap_initiator_and_self_information_only tfs_true_false
+#define tfs_isns_scn_bitmap_target_and_self_information_only    tfs_true_false
+#define tfs_isns_scn_bitmap_management_registration_scn         tfs_true_false
+#define tfs_isns_scn_bitmap_object_removed                      tfs_true_false
+#define tfs_isns_scn_bitmap_object_added                        tfs_true_false
+#define tfs_isns_scn_bitmap_object_updated                      tfs_true_false
+#define tfs_isns_scn_bitmap_dd_dds_member_removed               tfs_true_false
+#define tfs_isns_scn_bitmap_dd_dds_member_added                 tfs_true_false
+
+static const true_false_string tfs_isns_preferred = {
+    "Preferred",
+    "No Preference"
 };
 
-static const true_false_string isns_psb_tunnel_mode = {
-    "Preferred",
-    "No Preference"
-};
-static const true_false_string isns_psb_transport_mode = {
-    "Preferred",
-    "No Preference"
-};
-static const true_false_string isns_psb_pfs = {
-    "Enabled",
-    "Disabled"
-};
-static const true_false_string isns_psb_aggressive_mode = {
-    "Enabled",
-    "Disabled"
-};
-static const true_false_string isns_psb_main_mode = {
-    "Enabled",
-    "Disabled"
-};
-static const true_false_string isns_psb_ike_ipsec = {
-    "Enabled",
-    "Disabled"
-};
-static const true_false_string isns_psb_bitmap = {
+#define tfs_isns_psb_tunnel_mode    tfs_isns_preferred
+#define tfs_isns_psb_transport_mode tfs_isns_preferred
+
+#define tfs_isns_psb_pfs             tfs_enabled_disabled
+#define tfs_isns_psb_aggressive_mode tfs_enabled_disabled
+#define tfs_isns_psb_main_mode       tfs_enabled_disabled
+#define tfs_isns_psb_ike_ipsec       tfs_enabled_disabled
+
+static const true_false_string tfs_isns_psb_bitmap = {
     "VALID",
     "INVALID"
 };
 
-static const true_false_string isns_isnt_control = {
-    "Yes",
-    "No"
-};
-static const true_false_string isns_isnt_initiator = {
-    "Yes",
-    "No"
-};
-static const true_false_string isns_isnt_target = {
-    "Yes",
-    "No"
-};
+#define tfs_isns_isnt_control   tfs_yes_no
+#define tfs_isns_isnt_initiator tfs_yes_no
+#define tfs_isns_isnt_target    tfs_yes_no
 
-static const true_false_string isns_port_type = {
+static const true_false_string tfs_isns_port_type = {
     "UDP",
     "TCP"
 };
 
-static const true_false_string isns_flag_first_pdu = {
+static const true_false_string tfs_isns_flag_first_pdu = {
     "First PDU of iSNS Message",
     "Not the first PDU of iSNS Message"
 };
 
-static const true_false_string isns_flag_last_pdu = {
+static const true_false_string tfs_isns_flag_last_pdu = {
     "Last PDU of iSNS Message",
     "Not the Last PDU of iSNS Message"
 };
 
-static const true_false_string isns_flag_replace = {
+static const true_false_string tfs_isns_flag_replace = {
     "Replace",
     "Don't replace"
 };
 
-static const true_false_string isns_flag_auth = {
+static const true_false_string tfs_isns_flag_auth = {
     "Authentication Block is PRESENT",
     "No authentication block"
 };
 
-static const true_false_string isns_flag_server = {
+static const true_false_string tfs_isns_flag_server = {
     "Sender is iSNS server",
     "Sender is not iSNS server"
 };
 
-static const true_false_string isns_flag_client = {
+static const true_false_string tfs_isns_flag_client = {
     "Sender is iSNS client",
     "Sender is not iSNS client"
 };
@@ -916,7 +868,7 @@ dissect_isns_attr_integer(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, 
 
 static guint
 dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len,
-                       guint16 port_type, packet_info *pinfo)
+                       guint16 isns_port_type, packet_info *pinfo)
 {
 	proto_item *tree=NULL;
 	proto_item *item=NULL;
@@ -934,7 +886,7 @@ dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int
 	proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
 	proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
-        if ((port_type == ISNS_ESI_PORT) || (port_type == ISNS_SCN_PORT)) {
+        if ((isns_port_type == ISNS_ESI_PORT) || (isns_port_type == ISNS_SCN_PORT)) {
             if (isudp) {
                 conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
                                                   port, 0, NO_PORT_B);
@@ -1484,32 +1436,32 @@ void proto_register_isns(void)
 	},
 	{ &hf_isns_client,
 	  { "Client","isns.flags.client",
-	    FT_BOOLEAN, 16, TFS(&isns_flag_client), ISNS_FLAGS_CLIENT,
+	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_client), ISNS_FLAGS_CLIENT,
 	    "iSNS Client" ,HFILL}
 	},
 	{ &hf_isns_server,
 	  { "Server","isns.flags.server",
-	    FT_BOOLEAN, 16, TFS(&isns_flag_server), ISNS_FLAGS_SERVER,
+	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_server), ISNS_FLAGS_SERVER,
 	    "iSNS Server" ,HFILL}
 	},
 	{ &hf_isns_auth,
 	  { "Auth","isns.flags.authentication_block",
-	    FT_BOOLEAN, 16, TFS(&isns_flag_auth), ISNS_FLAGS_AUTH,
+	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_auth), ISNS_FLAGS_AUTH,
 	    "is iSNS Authentication Block present?" ,HFILL}
 	},
 	{ &hf_isns_replace,
 	  { "Replace","isns.flags.replace",
-	    FT_BOOLEAN, 16, TFS(&isns_flag_replace), ISNS_FLAGS_REPLACE,
+	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_replace), ISNS_FLAGS_REPLACE,
 	    "iSNS Replace" ,HFILL}
 	},
 	{ &hf_isns_last_pdu,
 	  { "Last PDU","isns.flags.lastpdu",
-	    FT_BOOLEAN, 16, TFS(&isns_flag_last_pdu), ISNS_FLAGS_LAST_PDU,
+	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_last_pdu), ISNS_FLAGS_LAST_PDU,
 	    "iSNS Last PDU" ,HFILL}
 	},
 	{ &hf_isns_first_pdu,
 	  { "First PDU","isns.flags.firstpdu",
-	    FT_BOOLEAN, 16, TFS(&isns_flag_first_pdu), ISNS_FLAGS_FIRST_PDU,
+	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_first_pdu), ISNS_FLAGS_FIRST_PDU,
 	    "iSNS First PDU",HFILL }
 	},
 
@@ -1570,7 +1522,7 @@ void proto_register_isns(void)
 
 	{ &hf_isns_port_type,
 	  { "Port Type","isns.port.port_type",
-	    FT_BOOLEAN, 16, TFS(&isns_port_type), 0x01, /* bit 15 (or bit 1 of a 16bit word) */
+	    FT_BOOLEAN, 16, TFS(&tfs_isns_port_type), 0x01, /* bit 15 (or bit 1 of a 16bit word) */
 	    NULL,HFILL }
 	},
 
@@ -1581,37 +1533,37 @@ void proto_register_isns(void)
 	},
 	{ &hf_isns_psb_tunnel_mode,
 	  { "Tunnel Mode","isns.psb.tunnel",
-	    FT_BOOLEAN, 32, TFS(&isns_psb_tunnel_mode),     0x0040, /* bit 25 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_tunnel_mode),     0x0040, /* bit 25 */
 	    "Tunnel Mode Preferred",HFILL }
 	},
 	{ &hf_isns_psb_transport_mode,
 	  { "Transport Mode","isns.psb.transport",
-	    FT_BOOLEAN, 32, TFS(&isns_psb_transport_mode),  0x0020, /* bit 26 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_transport_mode),  0x0020, /* bit 26 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_psb_pfs,
 	  { "PFS","isns.psb.pfs",
-	    FT_BOOLEAN, 32, TFS(&isns_psb_pfs),        0x0010, /* bit 27 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_pfs),        0x0010, /* bit 27 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_psb_aggressive_mode,
 	  { "Aggressive Mode","isns.psb.aggressive_mode",
-	    FT_BOOLEAN, 32, TFS(&isns_psb_aggressive_mode), 0x0008, /* bit 28 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_aggressive_mode), 0x0008, /* bit 28 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_psb_main_mode,
 	  { "Main Mode","isns.psb.main_mode",
-	    FT_BOOLEAN, 32, TFS(&isns_psb_main_mode),  0x0004, /* bit 29 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_main_mode),  0x0004, /* bit 29 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_psb_ike_ipsec,
 	  { "IKE/IPSec","isns.psb.ike_ipsec",
-	    FT_BOOLEAN, 32, TFS(&isns_psb_ike_ipsec),  0x0002, /* bit 30 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_ike_ipsec),  0x0002, /* bit 30 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_psb_bitmap,
 	  { "Bitmap","isns.psb.bitmap",
-	    FT_BOOLEAN, 32, TFS(&isns_psb_bitmap),     0x0001, /* bit 31 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_bitmap),     0x0001, /* bit 31 */
 	    NULL,HFILL }
 	},
 
@@ -1624,59 +1576,59 @@ void proto_register_isns(void)
 	},
 	{ &hf_isns_scn_bitmap_initiator_and_self_information_only,
 	  { "Initiator And Self Information Only","isns.scn_bitmap.initiator_and_self_information_only",
-	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_initiator_and_self_information_only),     0x0080, /* bit 24 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_initiator_and_self_information_only),     0x0080, /* bit 24 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_target_and_self_information_only,
 	  { "Target And Self Information Only","isns.scn_bitmap.target_and_self_information_only",
-	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_target_and_self_information_only),     0x0040, /* bit 25 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_target_and_self_information_only),     0x0040, /* bit 25 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_management_registration_scn,
 	  { "Management Registration/SCN","isns.scn_bitmap.management_registration_scn",
-	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_management_registration_scn),     0x0020, /* bit 26 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_management_registration_scn),     0x0020, /* bit 26 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_removed,
 	  { "Object Removed","isns.scn_bitmap.object_removed",
-	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_object_removed),     0x0010, /* bit 27 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_removed),     0x0010, /* bit 27 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_added,
 	  { "Object Added","isns.scn_bitmap.object_added",
-	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_object_added),     0x0008, /* bit 28 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_added),     0x0008, /* bit 28 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_updated,
 	  { "Object Updated","isns.scn_bitmap.object_updated",
-	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_object_updated),     0x0004, /* bit 29 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_updated),     0x0004, /* bit 29 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_dd_dds_member_removed,
 	  { "DD/DDS Member Removed (Mgmt Reg/SCN only)","isns.scn_bitmap.dd_dds_member_removed",
-	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_dd_dds_member_removed),     0x0002, /* bit 30 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_dd_dds_member_removed),     0x0002, /* bit 30 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_scn_bitmap_dd_dds_member_added,
 	  { "DD/DDS Member Added (Mgmt Reg/SCN only)","isns.scn_bitmap.dd_dds_member_added",
-	    FT_BOOLEAN, 32, TFS(&isns_scn_bitmap_dd_dds_member_added),     0x0001, /* bit 31 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_dd_dds_member_added),     0x0001, /* bit 31 */
 	    NULL,HFILL }
 	},
 
 
 	{ &hf_isns_isnt_control,
 	  { "Control","isns.isnt.control",
-	    FT_BOOLEAN, 32, TFS(&isns_isnt_control),  0x0004, /* bit 29 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_isnt_control),  0x0004, /* bit 29 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_isnt_initiator,
 	  { "Initiator","isns.isnt.initiator",
-	    FT_BOOLEAN, 32, TFS(&isns_isnt_initiator),  0x0002, /* bit 30 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_isnt_initiator),  0x0002, /* bit 30 */
 	    NULL,HFILL }
 	},
 	{ &hf_isns_isnt_target,
 	  { "Target","isns.isnt.target",
-	    FT_BOOLEAN, 32, TFS(&isns_isnt_target),     0x0001, /* bit 31 */
+	    FT_BOOLEAN, 32, TFS(&tfs_isns_isnt_target),     0x0001, /* bit 31 */
 	    NULL,HFILL }
 	},
 
