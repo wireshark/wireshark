@@ -45,7 +45,6 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
-#include "packet-xml.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_diameter_3gpp			= -1; 
