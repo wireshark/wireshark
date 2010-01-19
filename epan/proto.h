@@ -170,7 +170,7 @@ typedef enum {
 /* For FT_ABSOLUTE_TIME, the display format is ABSOLUTE_TIME_LOCAL if
  * the time is to be displayed as local time in our time zone or
  * ABSOLUTE_TIME_UTC if the time is to be displayed as UTC. */
- 
+
 typedef enum {
 	ABSOLUTE_TIME_LOCAL,
 	ABSOLUTE_TIME_UTC
@@ -334,7 +334,7 @@ typedef proto_node proto_item;
 /** The protocol field violates a protocol specification, usually PI_WARN */
 #define PI_PROTOCOL             0x00080000
 /* The protocol field indicates a security probem (e.g. unsecure implementation) */
-/*#define PI_SECURITY		0x00100000*/
+#define PI_SECURITY		0x00100000
 
 /* add more, see http://wiki.wireshark.org/Development/ExpertInfo */
 

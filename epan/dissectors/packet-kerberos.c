@@ -88,6 +88,7 @@
 #include <epan/conversation.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 #include <epan/dissectors/packet-kerberos.h>
 #include <epan/dissectors/packet-netbios.h>
 #include <epan/dissectors/packet-tcp.h>
@@ -545,13 +546,13 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 {
 	krb5_error_code ret;
 	enc_key_t *ek;
-	static krb5_data data = {0,0,NULL};
+	krb5_data data = {0,0,NULL};
 	krb5_keytab_entry key;
 	int length = tvb_length(cryptotvb);
 	const guint8 *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
 	/* don't do anything if we are not attempting to decrypt data */
-	if(!krb_decrypt){
+	if(!krb_decrypt || length < 1){
 		return NULL;
 	}
 
@@ -561,6 +562,8 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	}
 
 	read_keytab_file_from_preferences();
+        data.data = g_malloc(length);
+	data.length = length;
 
 	for(ek=enc_key_list;ek;ek=ek->next){
 		krb5_enc_data input;
@@ -574,21 +577,20 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		input.ciphertext.length = length;
 		input.ciphertext.data = (guint8 *)cryptotext;
 
-		data.length = length;
-		g_free(data.data);
-		data.data = g_malloc(length);
-
 		key.key.enctype=ek->keytype;
 		key.key.length=ek->keylength;
 		key.key.contents=ek->keyvalue;
 		ret = krb5_c_decrypt(krb5_ctx, &(key.key), usage, 0, &input, &data);
-		if((ret == 0) && (length>0)){
+		if(ret == 0){
 			char *user_data;
+                        
+                        expert_add_info_format(pinfo, NULL, PI_SECURITY, PI_CHAT,
+                                               "Decrypted keytype %d in frame %u using %s",
+                                               ek->keytype, pinfo->fd->num, ek->key_origin);
 
-printf("woohoo decrypted keytype:%d in frame:%u\n", ek->keytype, pinfo->fd->num);
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			/* return a private g_malloced blob to the caller */
-			user_data=g_memdup(data.data, data.length);
+			user_data=data.data;
 			if (datalen) {
 				*datalen = data.length;
 			}

@@ -56,7 +56,7 @@ const value_string expert_group_vals[] = {
 	{ PI_MALFORMED,		"Malformed" },
 	{ PI_DEBUG,		"Debug" },
 	{ PI_PROTOCOL,          "Protocol" },
-/*	{ PI_SECURITY,		"Security" },*/
+	{ PI_SECURITY,		"Security" },
 	{ 0, NULL }
 };
 
@@ -166,7 +166,7 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 		highest_severity = severity;
 	}
 
-	if(pi != NULL && pi->finfo != NULL) {	
+	if(pi != NULL && pi->finfo != NULL) {
 		expert_set_item_flags(pi, group, severity);
 	}
 
