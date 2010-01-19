@@ -579,8 +579,8 @@ emem_scrub_memory(char *buf, size_t size, gboolean alloc)
 
 }
 
-static void
-emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
+static emem_chunk_t *
+emem_create_chunk(gboolean use_canary) {
 #if defined (_WIN32)
 	BOOL ret;
 	char *buf_end, *prot1, *prot2;
@@ -591,9 +591,6 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 #endif /* _WIN32 / USE_GUARD_PAGES */
 	emem_chunk_t *npc;
 
-	/* we dont have any free data, so we must allocate a new one */
-	DISSECTOR_ASSERT(!*free_list);
-
 	npc = g_new(emem_chunk_t, 1);
 	npc->next = NULL;
 	if (use_canary) {
@@ -602,8 +599,6 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 	}
 	else
 		npc->canary_info = NULL;
-
-	*free_list = npc;
 
 #if defined (_WIN32)
 	/*
@@ -624,6 +619,7 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 #endif
 
 	if(npc->buf == NULL) {
+		g_free(npc);
 		THROW(OutOfMemoryError);
 	}
 
@@ -666,6 +662,7 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 
 	npc->amount_free = npc->amount_free_init;
 	npc->free_offset = npc->free_offset_init;
+	return npc;
 }
 
 static void *
@@ -720,7 +717,7 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
 	if (!mem->free_list)
-		emem_create_chunk(&mem->free_list, use_canary);
+		mem->free_list = emem_create_chunk(use_canary);
 
 	/* oops, we need to allocate more memory to serve this request
 	 * than we have free. move this node to the used list and try again
@@ -735,7 +732,7 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 		mem->used_list=npc;
 
 		if (!mem->free_list)
-			emem_create_chunk(&mem->free_list, use_canary);
+			mem->free_list = emem_create_chunk(use_canary);
 	}
 
 	free_list = mem->free_list;
