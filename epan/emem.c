@@ -604,6 +604,7 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 		npc->canary_info = NULL;
 
 	*free_list = npc;
+
 #if defined (_WIN32)
 	/*
 	 * MSDN documents VirtualAlloc/VirtualProtect at
@@ -613,12 +614,24 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 	/* XXX - is MEM_COMMIT|MEM_RESERVE correct? */
 	npc->buf = VirtualAlloc(NULL, EMEM_PACKET_CHUNK_SIZE,
 		MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
+
+#elif defined(USE_GUARD_PAGES)
+	npc->buf = mmap(NULL, EMEM_PACKET_CHUNK_SIZE,
+		PROT_READ|PROT_WRITE, ANON_PAGE_MODE, ANON_FD, 0);
+
+#else /* Is there a draft in here? */
+	npc->buf = g_malloc(EMEM_PACKET_CHUNK_SIZE);
+#endif
+
 	if(npc->buf == NULL) {
 		THROW(OutOfMemoryError);
 	}
+
 #ifdef SHOW_EMEM_STATS
 	total_no_chunks++;
 #endif
+
+#if defined (_WIN32)
 	buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
 
 	/* Align our guard pages on page-sized boundaries */
@@ -631,47 +644,28 @@ emem_create_chunk(emem_chunk_t **free_list, gboolean use_canary) {
 	g_assert(ret != 0 || versinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
 
 	npc->amount_free_init = (unsigned int) (prot2 - prot1 - pagesize);
-	npc->amount_free = npc->amount_free_init;
 	npc->free_offset_init = (unsigned int) (prot1 - npc->buf) + pagesize;
-	npc->free_offset = npc->free_offset_init;
-
 #elif defined(USE_GUARD_PAGES)
-	npc->buf = mmap(NULL, EMEM_PACKET_CHUNK_SIZE,
-		PROT_READ|PROT_WRITE, ANON_PAGE_MODE, ANON_FD, 0);
-	if(npc->buf == MAP_FAILED) {
-		/* XXX - what do we have to cleanup here? */
-		THROW(OutOfMemoryError);
-	}
 	buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
-#ifdef SHOW_EMEM_STATS
-	total_no_chunks++;
-#endif
+
 	/* Align our guard pages on page-sized boundaries */
 	prot1 = (char *) ((((intptr_t) npc->buf + pagesize - 1) / pagesize) * pagesize);
 	prot2 = (char *) ((((intptr_t) buf_end - (1 * pagesize)) / pagesize) * pagesize);
+
 	ret = mprotect(prot1, pagesize, PROT_NONE);
 	g_assert(ret != -1);
 	ret = mprotect(prot2, pagesize, PROT_NONE);
 	g_assert(ret != -1);
 
 	npc->amount_free_init = prot2 - prot1 - pagesize;
-	npc->amount_free = npc->amount_free_init;
 	npc->free_offset_init = (prot1 - npc->buf) + pagesize;
-	npc->free_offset = npc->free_offset_init;
-
-#else /* Is there a draft in here? */
-	npc->buf = g_malloc(EMEM_PACKET_CHUNK_SIZE);
-	if(npc->buf == NULL) {
-		THROW(OutOfMemoryError);
-	}
-#ifdef SHOW_EMEM_STATS
-	total_no_chunks++;
-#endif
+#else 
 	npc->amount_free_init = EMEM_PACKET_CHUNK_SIZE;
-	npc->amount_free = npc->amount_free_init;
 	npc->free_offset_init = 0;
-	npc->free_offset = npc->free_offset_init;
 #endif /* USE_GUARD_PAGES */
+
+	npc->amount_free = npc->amount_free_init;
+	npc->free_offset = npc->free_offset_init;
 }
 
 static void *
