@@ -316,10 +316,10 @@ typedef struct _async_hostent {
 static void c_ares_ghba_cb(void *arg, int status, struct hostent *hostent);
 #else
 static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *hostent);
+#endif
 
 ares_channel ghba_chan; /* ares_gethostbyaddr -- Usually non-interactive, no timeout */
 ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, timeout */
-#endif
 
 #else
 /* GNU ADNS */
@@ -455,7 +455,7 @@ static void add_service_name(hashport_t **proto_table, guint port, const char *s
   tp->next = NULL;
 
   g_strlcpy(tp->name, service_name, MAXNAMELEN);
-  
+
   new_resolved_objects = TRUE;
 }
 
@@ -2497,7 +2497,7 @@ host_name_lookup_cleanup(void) {
 gboolean
 host_name_lookup_process(gpointer data _U_) {
   gboolean nro = new_resolved_objects;
-  
+
   new_resolved_objects = FALSE;
 
   return nro;
