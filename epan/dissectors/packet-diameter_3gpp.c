@@ -45,11 +45,13 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
+#include "packet-xml.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_diameter_3gpp			= -1; 
 
 static int hf_diameter_3gpp_msisdn					= -1;
+static int hf_diameter_3gpp_user_data				= -1;
 static int hf_diameter_3gpp_ipaddr					= -1;
 static int hf_diameter_3gpp_mbms_required_qos_prio	= -1;
 static int hf_diameter_3gpp_tmgi					= -1;
@@ -59,6 +61,10 @@ static gint diameter_3gpp_msisdn_ett				= -1;
 static gint diameter_3gpp_tmgi_ett					= -1;
 /* Used for Diameter */
 
+/* dissector handles */
+static dissector_handle_t xml_handle;
+
+/* AVP Code: 701 MSISDN */
 static int
 dissect_diameter_3gpp_msisdn(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
@@ -75,7 +81,30 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 
 }
 
+/* AVP Code: 702 User-Data */
+static int 
+dissect_diameter_3gpp_user_data(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
+	guint8		word[6];
+	int offset = 0;
+	int length = tvb_length(tvb);
+
+	/* If there is less than 38 characters this is not XML 
+	 * <?xml version="1.0" encoding="UTF-8"?>
+	 */
+	if(length < 38)
+		return length;
+
+	tvb_get_nstringz0(tvb, 0, sizeof(word),word);
+	if (g_ascii_strncasecmp(word, "<?xml", 5) == 0){
+		call_dissector(xml_handle, tvb, pinfo, tree);
+	}
+
+	return length;
+
+}
+
+/* AVP Code: 900 TMGI */
 static int
 dissect_diameter_3gpp_tmgi(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
@@ -99,6 +128,7 @@ dissect_diameter_3gpp_tmgi(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 }
 
+/* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
 static int 
 dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
@@ -111,6 +141,7 @@ dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 
 }
 
+/* AVP Code: 913 MBMS-Required-QoS */
 static int 
 dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
@@ -142,6 +173,9 @@ proto_reg_handoff_diameter_3gpp(void)
 	/* AVP Code: 701 MSISDN */
 	dissector_add("diameter.3gpp", 701, new_create_dissector_handle(dissect_diameter_3gpp_msisdn, proto_diameter_3gpp));
 
+	/* AVP Code: 702 User-Data */
+	dissector_add("diameter.3gpp", 702, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
+
 	/* AVP Code: 900 TMGI */
 	dissector_add("diameter.3gpp", 900, new_create_dissector_handle(dissect_diameter_3gpp_tmgi, proto_diameter_3gpp));
 
@@ -152,6 +186,7 @@ proto_reg_handoff_diameter_3gpp(void)
 	dissector_add("diameter.3gpp", 913, new_create_dissector_handle(dissect_diameter_3gpp_mbms_required_qos, proto_diameter_3gpp));
 
 
+	xml_handle = find_dissector("xml");
 }
 
 void
@@ -163,6 +198,11 @@ proto_register_diameter_3gpp(void)
 		{ &hf_diameter_3gpp_msisdn,
 			{ "MSISDN",           "diameter.3gpp.msisdn",
 			FT_BYTES, BASE_NONE, NULL, 0x0,          
+			NULL, HFILL }
+		},
+		{ &hf_diameter_3gpp_user_data,
+			{ "User data",           "diameter.3gpp.user_data",
+			FT_STRING, BASE_NONE, NULL, 0x0,          
 			NULL, HFILL }
 		},
 		{ &hf_diameter_3gpp_ipaddr,
