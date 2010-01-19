@@ -768,9 +768,9 @@ process_libs:
 !ENDIF
 !IFDEF KFW_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. kfw-3-2-2-sdk.zip
-	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. kfw-3-2-2.zip
+		. kfw-3-2-2-i386-ws-vc6.zip
+#	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+#		. kfw-3-2-2.zip
 !ENDIF
 !IFDEF PCAP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -858,6 +858,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
     rm -r -f $(WIRESHARK_LIBS)/kfw-2.5
     rm -r -f $(WIRESHARK_LIBS)/kfw-3.2.2-ws1
+    rm -r -f $(WIRESHARK_LIBS)/kfw-3.2.2-i386-ws-vc6
     rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
     rm -r -f $(WIRESHARK_LIBS)/lua5.1
     rm -r -f $(WIRESHARK_LIBS)/lua5.1.4
