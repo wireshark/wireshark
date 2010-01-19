@@ -155,23 +155,23 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 					range_item = range_list->data;
 					switch (range_item->ending) {
 
-					case UNINITIALIZED:
+					case DRANGE_NODE_END_T_UNINITIALIZED:
 						fprintf(f, "?");
 						break;
 
-					case LENGTH:
+					case DRANGE_NODE_END_T_LENGTH:
 						fprintf(f, "%d:%d",
 						    range_item->start_offset,
 						    range_item->length);
 						break;
 
-					case OFFSET:
+					case DRANGE_NODE_END_T_OFFSET:
 						fprintf(f, "%d-%d",
 						    range_item->start_offset,
 						    range_item->end_offset);
 						break;
 
-					case TO_THE_END:
+					case DRANGE_NODE_END_T_TO_THE_END:
 						fprintf(f, "%d:",
 						    range_item->start_offset);
 						break;

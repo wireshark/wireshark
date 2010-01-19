@@ -79,9 +79,9 @@ typedef struct _packet_counts {
 
 /* Types of character encodings */
 typedef enum {
-	CHAR_ASCII	 = 0,	/* ASCII */
-	CHAR_EBCDIC	 = 1	/* EBCDIC */
-} char_enc;
+	PACKET_CHAR_ENC_CHAR_ASCII	 = 0,	/* ASCII */
+	PACKET_CHAR_ENC_CHAR_EBCDIC	 = 1	/* EBCDIC */
+} packet_char_enc;
 
 extern void packet_init(void);
 extern void packet_cleanup(void);

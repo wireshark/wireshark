@@ -3801,7 +3801,7 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TN3270");
 
-  pinfo->fd->flags.encoding = CHAR_EBCDIC;
+  pinfo->fd->flags.encoding = PACKET_CHAR_ENC_CHAR_EBCDIC;
 
   /* Do we have a conversation for this connection? */
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,

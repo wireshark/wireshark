@@ -354,21 +354,21 @@ slice_func(gpointer data, gpointer user_data)
 
 	/* Check the end type and set the length */
 
-	if (ending == TO_THE_END) {
+	if (ending == DRANGE_NODE_END_T_TO_THE_END) {
 		length = field_length - start_offset;
 		if (length <= 0) {
 			slice_data->slice_failure = TRUE;
 			return;
 		}
 	}
-	else if (ending == LENGTH) {
+	else if (ending == DRANGE_NODE_END_T_LENGTH) {
 		length = drange_node_get_length(drnode);
 		if (start_offset + length > (int) field_length) {
 			slice_data->slice_failure = TRUE;
 			return;
 		}
 	}
-	else if (ending == OFFSET) {
+	else if (ending == DRANGE_NODE_END_T_OFFSET) {
 		end_offset = drange_node_get_end_offset(drnode);
 		if (end_offset < 0) {
 			end_offset = field_length + end_offset;

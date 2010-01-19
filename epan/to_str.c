@@ -403,7 +403,7 @@ abs_time_secs_to_str(time_t abs_time, gboolean show_as_utc)
 
 void
 display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
-    time_res_t units)
+    to_str_time_res_t units)
 {
 	/* If the fractional part of the time stamp is negative,
 	   print its absolute value and, if the seconds part isn't
@@ -422,27 +422,27 @@ display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
 	}
 	switch (units) {
 
-	case SECS:
+	case TO_STR_TIME_RES_T_SECS:
 		g_snprintf(buf, buflen, "%d", sec);
 		break;
 
-	case DSECS:
+	case TO_STR_TIME_RES_T_DSECS:
 		g_snprintf(buf, buflen, "%d.%01d", sec, frac);
 		break;
 
-	case CSECS:
+	case TO_STR_TIME_RES_T_CSECS:
 		g_snprintf(buf, buflen, "%d.%02d", sec, frac);
 		break;
 
-	case MSECS:
+	case TO_STR_TIME_RES_T_MSECS:
 		g_snprintf(buf, buflen, "%d.%03d", sec, frac);
 		break;
 
-	case USECS:
+	case TO_STR_TIME_RES_T_USECS:
 		g_snprintf(buf, buflen, "%d.%06d", sec, frac);
 		break;
 
-	case NSECS:
+	case TO_STR_TIME_RES_T_NSECS:
 		g_snprintf(buf, buflen, "%d.%09d", sec, frac);
 		break;
 	}
@@ -451,7 +451,7 @@ display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
 
 void
 display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
-    time_res_t units)
+    to_str_time_res_t units)
 {
 	double elapsed_secs;
 
@@ -476,27 +476,27 @@ display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
 	}
 	switch (units) {
 
-	case SECS:
+	case TO_STR_TIME_RES_T_SECS:
 		g_snprintf(buf, buflen, "%0.0f", elapsed_secs);
 		break;
 
-	case DSECS:
+	case TO_STR_TIME_RES_T_DSECS:
 		g_snprintf(buf, buflen, "%0.0f.%01d", elapsed_secs, frac);
 		break;
 
-	case CSECS:
+	case TO_STR_TIME_RES_T_CSECS:
 		g_snprintf(buf, buflen, "%0.0f.%02d", elapsed_secs, frac);
 		break;
 
-	case MSECS:
+	case TO_STR_TIME_RES_T_MSECS:
 		g_snprintf(buf, buflen, "%0.0f.%03d", elapsed_secs, frac);
 		break;
 
-	case USECS:
+	case TO_STR_TIME_RES_T_USECS:
 		g_snprintf(buf, buflen, "%0.0f.%06d", elapsed_secs, frac);
 		break;
 
-	case NSECS:
+	case TO_STR_TIME_RES_T_NSECS:
 		g_snprintf(buf, buflen, "%0.0f.%09d", elapsed_secs, frac);
 		break;
 	}
@@ -555,7 +555,7 @@ rel_time_to_secs_str(nstime_t *rel_time)
 	buf=ep_alloc(REL_TIME_SECS_LEN);
 
         display_signed_time(buf, REL_TIME_SECS_LEN, (gint32) rel_time->secs,
-            rel_time->nsecs, NSECS);
+            rel_time->nsecs, TO_STR_TIME_RES_T_NSECS);
         return buf;
 }
 

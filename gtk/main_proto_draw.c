@@ -1333,10 +1333,10 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 
     while (i < k) {
       if (i < len) {
-        if (encoding == CHAR_ASCII) {
+        if (encoding == PACKET_CHAR_ENC_CHAR_ASCII) {
           c = pd[i];
         }
-        else if (encoding == CHAR_EBCDIC) {
+        else if (encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) {
           c = EBCDIC_to_ASCII1(pd[i]);
         }
         else {

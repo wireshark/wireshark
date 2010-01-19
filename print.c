@@ -56,7 +56,7 @@ typedef struct {
 	GSList		 	*src_list;
 	print_dissections_e	print_dissections;
 	gboolean		print_hex_for_data;
-	char_enc		encoding;
+	packet_char_enc		encoding;
 	epan_dissect_t		*edt;
 } print_data;
 
@@ -87,7 +87,7 @@ static void proto_tree_write_node_pdml(proto_node *node, gpointer data);
 static const guint8 *get_field_data(GSList *src_list, field_info *fi);
 static void write_pdml_field_hex_value(write_pdml_data *pdata, field_info *fi);
 static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
-    guint length, char_enc encoding);
+    guint length, packet_char_enc encoding);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
 static void print_escaped_xml(FILE *fh, const char *unescaped_string);
@@ -845,7 +845,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 
 static gboolean
 print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
-    guint length, char_enc encoding)
+    guint length, packet_char_enc encoding)
 {
 	register unsigned int ad, i, j, k, l;
 	guchar c;
@@ -903,7 +903,7 @@ print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
 		line[j++] = binhex[c>>4];
 		line[j++] = binhex[c&0xf];
 		j++;
-		if (encoding == CHAR_EBCDIC) {
+		if (encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) {
 			c = EBCDIC_to_ASCII1(c);
 		}
 		line[k++] = c >= ' ' && c < 0x7f ? c : '.';

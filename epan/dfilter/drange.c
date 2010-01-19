@@ -35,7 +35,7 @@ drange_node_new(void)
   new_range_node->start_offset = 0;
   new_range_node->length = 0;
   new_range_node->end_offset = 0;
-  new_range_node->ending = UNINITIALIZED;
+  new_range_node->ending = DRANGE_NODE_END_T_UNINITIALIZED;
   return new_range_node;
 }
 
@@ -50,28 +50,28 @@ drange_node_free(drange_node* drnode)
 gint
 drange_node_get_start_offset(drange_node* drnode)
 {
-  g_assert(drnode->ending != UNINITIALIZED);
+  g_assert(drnode->ending != DRANGE_NODE_END_T_UNINITIALIZED);
   return drnode->start_offset;
 }
 
 gint
 drange_node_get_length(drange_node* drnode)
 {
-  g_assert(drnode->ending == LENGTH);
+  g_assert(drnode->ending == DRANGE_NODE_END_T_LENGTH);
   return drnode->length;
 }
 
 gint
 drange_node_get_end_offset(drange_node* drnode)
 {
-  g_assert(drnode->ending == OFFSET);
+  g_assert(drnode->ending == DRANGE_NODE_END_T_OFFSET);
   return drnode->end_offset;
 }
 
 drange_node_end_t
 drange_node_get_ending(drange_node* drnode)
 {
-  g_assert(drnode->ending != UNINITIALIZED);
+  g_assert(drnode->ending != DRANGE_NODE_END_T_UNINITIALIZED);
   return drnode->ending;
 }
 
@@ -86,21 +86,21 @@ void
 drange_node_set_length(drange_node* drnode, gint length)
 {
   drnode->length = length;
-  drnode->ending = LENGTH;
+  drnode->ending = DRANGE_NODE_END_T_LENGTH;
 }
 
 void
 drange_node_set_end_offset(drange_node* drnode, gint offset)
 {
   drnode->end_offset = offset;
-  drnode->ending = OFFSET;
+  drnode->ending = DRANGE_NODE_END_T_OFFSET;
 }
 
 
 void
 drange_node_set_to_the_end(drange_node* drnode)
 {
-  drnode->ending = TO_THE_END;
+  drnode->ending = DRANGE_NODE_END_T_TO_THE_END;
 }
 
 /* drange constructor */
@@ -167,7 +167,7 @@ gint drange_get_max_start_offset(drange* dr) { return dr->max_start_offset; }
 static void
 update_drange_with_node(drange *dr, drange_node *drnode)
 {
-    if(drnode->ending == TO_THE_END){
+    if(drnode->ending == DRANGE_NODE_END_T_TO_THE_END){
       dr->has_total_length = FALSE;
     }
     else if(dr->has_total_length){

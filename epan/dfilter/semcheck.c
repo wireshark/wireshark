@@ -363,7 +363,7 @@ check_drange_node_sanity(gpointer data, gpointer user_data)
 
 	switch (drange_node_get_ending(drnode)) {
 
-	case LENGTH:
+	case DRANGE_NODE_END_T_LENGTH:
 		length = drange_node_get_length(drnode);
 		if (length <= 0) {
 			if (!args->err) {
@@ -379,7 +379,7 @@ check_drange_node_sanity(gpointer data, gpointer user_data)
 		}
 		break;
 
-	case OFFSET:
+	case DRANGE_NODE_END_T_OFFSET:
 		/*
 		 * Make sure the start offset isn't beyond the end
 		 * offset.  This applies to negative offsets too.
@@ -405,10 +405,10 @@ check_drange_node_sanity(gpointer data, gpointer user_data)
 		}
 		break;
 
-	case TO_THE_END:
+	case DRANGE_NODE_END_T_TO_THE_END:
 		break;
 
-	case UNINITIALIZED:
+	case DRANGE_NODE_END_T_UNINITIALIZED:
 	default:
 		g_assert_not_reached();
 	}

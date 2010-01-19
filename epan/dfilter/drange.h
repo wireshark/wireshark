@@ -37,10 +37,10 @@
  */
 
 typedef enum {
-	UNINITIALIZED,
-	LENGTH,
-	OFFSET,
-	TO_THE_END
+	DRANGE_NODE_END_T_UNINITIALIZED,
+	DRANGE_NODE_END_T_LENGTH,
+	DRANGE_NODE_END_T_OFFSET,
+	DRANGE_NODE_END_T_TO_THE_END
 } drange_node_end_t;
 
 typedef struct _drange_node {

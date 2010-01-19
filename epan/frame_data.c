@@ -203,7 +203,7 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->abs_ts.secs = phdr->ts.secs;
   fdata->abs_ts.nsecs = phdr->ts.nsecs;
   fdata->flags.passed_dfilter = 0;
-  fdata->flags.encoding = CHAR_ASCII;
+  fdata->flags.encoding = PACKET_CHAR_ENC_CHAR_ASCII;
   fdata->flags.visited = 0;
   fdata->flags.marked = 0;
   fdata->flags.ref_time = 0;
