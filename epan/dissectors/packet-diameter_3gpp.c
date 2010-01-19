@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -47,7 +47,7 @@
 #include "packet-e212.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_diameter_3gpp			= -1; 
+static int proto_diameter_3gpp			= -1;
 
 static int hf_diameter_3gpp_msisdn					= -1;
 static int hf_diameter_3gpp_user_data				= -1;
@@ -81,14 +81,13 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 }
 
 /* AVP Code: 702 User-Data */
-static int 
+static int
 dissect_diameter_3gpp_user_data(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
 	guint8		word[6];
-	int offset = 0;
 	int length = tvb_length(tvb);
 
-	/* If there is less than 38 characters this is not XML 
+	/* If there is less than 38 characters this is not XML
 	 * <?xml version="1.0" encoding="UTF-8"?>
 	 */
 	if(length < 38)
@@ -115,7 +114,7 @@ dissect_diameter_3gpp_tmgi(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 	sub_tree = proto_item_add_subtree(item,diameter_3gpp_tmgi_ett);
 
 	/* MBMS Service ID consisting of three octets. MBMS Service ID consists of a 6-digit
-	 * fixed-length hexadecimal number between 000000 and FFFFFF. 
+	 * fixed-length hexadecimal number between 000000 and FFFFFF.
 	 * MBMS Service ID uniquely identifies an MBMS bearer service within a PLMN.
 	 */
 
@@ -128,7 +127,7 @@ dissect_diameter_3gpp_tmgi(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 }
 
 /* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
-static int 
+static int
 dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
 	int offset = 0;
@@ -141,18 +140,18 @@ dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 }
 
 /* AVP Code: 913 MBMS-Required-QoS */
-static int 
+static int
 dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
 	int offset = 0;
 	guint length;
 
 	/* Octet
-	 * 1		Allocation/Retention Priority as specified in 3GPP TS 23.107. 
+	 * 1		Allocation/Retention Priority as specified in 3GPP TS 23.107.
 	 *			This octet encodes each priority level defined in 3GPP TS 23.107
 	 *			as the binary value of the priority level. It specifies the relative
 	 *			importance of the actual MBMS bearer service compared to other MBMS
-	 *			and non-MBMS bearer services for allocation and retention of the 
+	 *			and non-MBMS bearer services for allocation and retention of the
 	 *			MBMS bearer service.
 	 * 2-N		QoS Profile as specified by the Quality-of-Service information element,
 	 *			from octet 3 onwards, in 3GPP TS 24.008
@@ -190,38 +189,38 @@ proto_reg_handoff_diameter_3gpp(void)
 
 void
 proto_register_diameter_3gpp(void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_diameter_3gpp_msisdn,
 			{ "MSISDN",           "diameter.3gpp.msisdn",
-			FT_BYTES, BASE_NONE, NULL, 0x0,          
+			FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_diameter_3gpp_user_data,
 			{ "User data",           "diameter.3gpp.user_data",
-			FT_STRING, BASE_NONE, NULL, 0x0,          
+			FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_diameter_3gpp_ipaddr,
 			{ "IPv4 Address",           "diameter.3gpp.ipaddr",
-			FT_IPv4, BASE_NONE, NULL, 0x0,          
+			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_diameter_3gpp_mbms_required_qos_prio,
 			{ "Allocation/Retention Priority",           "diameter.3gpp.mbms_required_qos_prio",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_diameter_3gpp_tmgi,
 			{ "TMGI",           "diameter.3gpp.tmgi",
-			FT_BYTES, BASE_NONE, NULL, 0x0,          
+			FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_diameter_mbms_service_id,
 			{ "MBMS Service ID",           "diameter.3gpp.mbms_service_id",
-			FT_UINT24, BASE_HEX, NULL, 0x0,          
+			FT_UINT24, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 	};
