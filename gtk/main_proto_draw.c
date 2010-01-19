@@ -305,7 +305,7 @@ GtkTreePath *tree_find_by_field_info(GtkTreeView *tree_view, field_info *finfo) 
   return gtk_tree_model_get_path(model, &fli.iter);
 }
 
-static gboolean
+static int
 hex_view_get_byte(guint ndigits, int row, int column)
 {
     int           byte;
