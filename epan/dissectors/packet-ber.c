@@ -3965,7 +3965,7 @@ malformed:
 
 
 /* 8.6 Encoding of a bitstring value */
-int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len _U_, gint32 max_len, const asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
+int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, const asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb)
 {
 	gint8 class;
 	gboolean pc, ind;
@@ -4036,7 +4036,6 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 		if(hf_id >= 0) {
 			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
 			actx->created_item = item;
-			ber_check_length(len*8 - pad, 0, max_len, actx, item, TRUE);
 			if(ett_id != -1) {
 				tree = proto_item_add_subtree(item, ett_id);
 			}
@@ -4096,6 +4095,8 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 			}
 		}
 	}
+
+	ber_check_length(8*len-pad, min_len, max_len, actx, item, TRUE);
 
 	return end_offset;
 }
