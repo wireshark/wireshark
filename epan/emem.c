@@ -87,17 +87,8 @@ static int dev_zero_fd;
 /* When required, allocate more memory from the OS in this size chunks */
 #define EMEM_PACKET_CHUNK_SIZE (10 * 1024 * 1024)
 
-/* The maximum number of allocations per chunk */
-#define EMEM_ALLOCS_PER_CHUNK (EMEM_PACKET_CHUNK_SIZE / 64)
-
 #define EMEM_CANARY_SIZE 8
 #define EMEM_CANARY_DATA_SIZE (EMEM_CANARY_SIZE * 2 - 1)
-
-typedef struct _emem_no_chunk_t {
-	unsigned int	c_count;
-	void		*canary[EMEM_ALLOCS_PER_CHUNK];
-	guint8		cmp_len[EMEM_ALLOCS_PER_CHUNK];
-} emem_canary_t;
 
 typedef struct _emem_chunk_t {
 	struct _emem_chunk_t *next;
@@ -106,7 +97,7 @@ typedef struct _emem_chunk_t {
 	unsigned int	amount_free;
 	unsigned int	free_offset_init;
 	unsigned int	free_offset;
-	emem_canary_t	*canary_info;
+	void		*canary_last;
 } emem_chunk_t;
 
 typedef struct _emem_header_t {
@@ -175,9 +166,35 @@ emem_canary_init(guint8 *canary)
 		rand_state = g_rand_new();
 	}
 	for (i = 0; i < EMEM_CANARY_DATA_SIZE; i ++) {
-		canary[i] = (guint8) g_rand_int(rand_state);
+		canary[i] = (guint8) g_rand_int_range(rand_state, 1, 0x100);
 	}
 	return;
+}
+
+static void *
+emem_canary_next(guint8 *mem_canary, guint8 *canary, int *len)
+{
+	void *ptr;
+	int i;
+
+	for (i = 0; i < EMEM_CANARY_SIZE-1; i++)
+		if (mem_canary[i] != canary[i])
+			return (void *) -1;
+
+	for (; i < EMEM_CANARY_DATA_SIZE; i++) {
+		if (canary[i] == '\0') {
+			memcpy(&ptr, &canary[i+1], sizeof(void *));
+
+			if (len)
+				*len = i + 1 + sizeof(void *);
+			return ptr;
+		}
+
+		if (mem_canary[i] != canary[i])
+			return (void *) -1;
+	}
+
+	return (void *) -1;
 }
 
 /*
@@ -224,16 +241,14 @@ ep_check_canary_integrity(const char* fmt, ...)
 	va_end(ap);
 
 	for (npc = ep_packet_mem.free_list; npc != NULL; npc = npc->next) {
-		static unsigned i_ctr;
+		void *canary_next = npc->canary_last;
 
-		if (npc->canary_info->c_count > 0x00ffffff) {
-			g_error("ep_packet_mem.free_list was corrupted\nbetween: %s\nand: %s",there, here);
-		}
+		while (canary_next != NULL) {
+			canary_next = emem_canary_next(ep_packet_mem.canary, canary_next, NULL);
+			/* XXX, check if canary_last is inside allocated memory? */
 
-		for (i_ctr = 0; i_ctr < npc->canary_info->c_count; i_ctr++) {
-			if (memcmp(npc->canary_info->canary[i_ctr], &ep_canary, npc->canary_info->cmp_len[i_ctr]) != 0) {
-				g_error("Per-packet memory corrupted\nbetween: %s\nand: %s",there, here);
-			}
+			if (npc->canary_last == (void *) -1)
+				g_error("Memory corrupted");
 		}
 	}
 
@@ -270,7 +285,7 @@ ep_init_chunk(void)
 	ep_packet_mem.debug_use_canary = ep_packet_mem.debug_use_chunks && (getenv("WIRESHARK_DEBUG_EP_NO_CANARY") == NULL);
 
 #ifdef DEBUG_INTENSE_CANARY_CHECKS
-	intense_canary_checking = (gboolean)getenv("WIRESHARK_DEBUG_EP_INTENSE_CANARY");
+	intense_canary_checking = (getenv("WIRESHARK_DEBUG_EP_INTENSE_CANARY") != NULL);
 #endif
 
 	emem_init_chunk(&ep_packet_mem);
@@ -346,7 +361,7 @@ print_alloc_stats()
 	guint total_free = 0;
 	guint used_for_canaries = 0;
 	guint total_headers;
-	guint i_ctr, i;
+	guint i;
 	emem_chunk_t *chunk;
 	guint total_space_allocated_from_os, total_space_wasted;
 	gboolean ep_stat=TRUE;
@@ -383,7 +398,7 @@ print_alloc_stats()
 			total_allocation, EMEM_PACKET_CHUNK_SIZE * num_chunks);
 			fprintf (stderr, "\t-------------------------------------------\n");
 			total_space_allocated_from_os = total_allocation
-				+ (sizeof(emem_chunk_t) + sizeof(emem_canary_t)) * num_chunks;
+				+ sizeof(emem_chunk_t) * num_chunks;
 			fprintf (stderr, "Total allocated from OS: %u\n\n",
 				total_space_allocated_from_os);
 		}else{
@@ -424,8 +439,15 @@ print_alloc_stats()
 		total_free += chunk->amount_free;
 
 		if (se_packet_mem.debug_use_canary){
-			for (i_ctr = 0; i_ctr < chunk->canary_info->c_count; i_ctr++) {
-				used_for_canaries += chunk->canary_info->cmp_len[i_ctr];
+			void *ptr = chunk->canary_last;
+			int len;
+
+			while (ptr != NULL) {
+				ptr = emem_canary_next(se_packet_mem.canary, ptr, &len);
+
+				if (ptr == (void *) -1)
+					g_error("Memory corrupted");
+				used_for_canaries += len;
 			}
 		}
 	}
@@ -441,15 +463,10 @@ print_alloc_stats()
 	fprintf (stderr, "---- Headers ----\n");
 	fprintf (stderr, "\t(    Chunk header size: %10lu\n",
 		 sizeof(emem_chunk_t));
-	if (se_packet_mem.debug_use_canary)
-		fprintf (stderr, "\t  + Canary header size: %10lu)\n",
-			 sizeof(emem_canary_t));
 	fprintf (stderr, "\t*     Number of chunks: %10u\n", num_chunks);
 	fprintf (stderr, "\t-------------------------------------------\n");
 
 	total_headers = sizeof(emem_chunk_t) * num_chunks;
-	if (se_packet_mem.debug_use_canary)
-		total_headers += sizeof(emem_canary_t) * num_chunks;
 	fprintf (stderr, "\t= %u bytes used for headers\n", total_headers);
 	fprintf (stderr, "\n---- Buffer space ----\n");
 	fprintf (stderr, "\tChunk allocation size: %10u\n",
@@ -487,7 +504,7 @@ print_alloc_stats()
 	fprintf (stderr, "        Average wasted bytes per allocation: %6.2f\n",
 		(total_allocation - total_used)/(float)num_allocs);
 	total_space_wasted = (total_allocation - total_used)
-		+ (sizeof(emem_chunk_t) + sizeof(emem_canary_t));
+		+ (sizeof(emem_chunk_t));
 	fprintf (stderr, " Space used for headers + unused allocation: %8u\n",
 		total_space_wasted);
 	fprintf (stderr, "--> %% overhead/waste: %4.2f\n",
@@ -580,7 +597,7 @@ emem_scrub_memory(char *buf, size_t size, gboolean alloc)
 }
 
 static emem_chunk_t *
-emem_create_chunk(gboolean use_canary) {
+emem_create_chunk() {
 #if defined (_WIN32)
 	BOOL ret;
 	char *buf_end, *prot1, *prot2;
@@ -593,12 +610,7 @@ emem_create_chunk(gboolean use_canary) {
 
 	npc = g_new(emem_chunk_t, 1);
 	npc->next = NULL;
-	if (use_canary) {
-		npc->canary_info = g_new(emem_canary_t, 1);
-		npc->canary_info->c_count = 0;
-	}
-	else
-		npc->canary_info = NULL;
+	npc->canary_last = NULL;
 
 #if defined (_WIN32)
 	/*
@@ -678,9 +690,10 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 	/* Round up to an 8 byte boundary. Make sure we have at least
 	 * 8 pad bytes for our canary.
 	 */
-	 if (use_canary)
+	 if (use_canary) {
 		pad = emem_canary_pad(asize);
-	 else
+		asize += sizeof(void *);
+	} else
 		pad = (G_MEM_ALIGN - (asize & (G_MEM_ALIGN-1))) & (G_MEM_ALIGN-1);
 
 	asize += pad;
@@ -717,14 +730,12 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
 	if (!mem->free_list)
-		mem->free_list = emem_create_chunk(use_canary);
+		mem->free_list = emem_create_chunk();
 
 	/* oops, we need to allocate more memory to serve this request
 	 * than we have free. move this node to the used list and try again
 	 */
-	if(asize > mem->free_list->amount_free ||
-	   (use_canary &&
-		mem->free_list->canary_info->c_count >= EMEM_ALLOCS_PER_CHUNK)) {
+	if(asize > mem->free_list->amount_free) {
 		emem_chunk_t *npc;
 		npc=mem->free_list;
 		mem->free_list=mem->free_list->next;
@@ -732,7 +743,7 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 		mem->used_list=npc;
 
 		if (!mem->free_list)
-			mem->free_list = emem_create_chunk(use_canary);
+			mem->free_list = emem_create_chunk();
 	}
 
 	free_list = mem->free_list;
@@ -743,11 +754,13 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 	free_list->free_offset += (unsigned int) asize;
 
 	if (use_canary) {
-		void *cptr = (char *)buf + size;
-		memcpy(cptr, mem->canary, pad);
-		free_list->canary_info->canary[free_list->canary_info->c_count] = cptr;
-		free_list->canary_info->cmp_len[free_list->canary_info->c_count] = pad;
-		free_list->canary_info->c_count++;
+		char *cptr = (char *)buf + size;
+
+		memcpy(cptr, mem->canary, pad-1);
+		cptr[pad-1] = '\0';
+		memcpy(cptr + pad, &free_list->canary_last, sizeof(void *));
+
+		free_list->canary_last = cptr;
 	}
 
 	return buf;
@@ -761,7 +774,7 @@ emem_alloc_glib(size_t size, emem_header_t *mem)
 	npc=g_new(emem_chunk_t, 1);
 	npc->next=mem->used_list;
 	npc->buf=g_malloc(size);
-	npc->canary_info = NULL;
+	npc->canary_last = NULL;
 	mem->used_list=npc;
 	/* There's no padding/alignment involved (from our point of view) when
 	 * we fetch the memory directly from the system pool, so WYSIWYG */
@@ -1024,7 +1037,6 @@ emem_free_all(emem_header_t *mem)
 
 	emem_chunk_t *npc;
 	emem_tree_t *tree_list;
-	guint i;
 
 	/* move all used chunks over to the free list */
 	while(mem->used_list){
@@ -1038,12 +1050,12 @@ emem_free_all(emem_header_t *mem)
 	npc = mem->free_list;
 	while (npc != NULL) {
 		if (use_chunks) {
-			if (canary) {
-				for (i = 0; i < npc->canary_info->c_count; i++) {
-					if (memcmp(npc->canary_info->canary[i], canary, npc->canary_info->cmp_len[i]) != 0)
-						g_error("Memory corrupted");
-				}
-				npc->canary_info->c_count = 0;
+			while (npc->canary_last != NULL) {
+				npc->canary_last = emem_canary_next(mem->canary, npc->canary_last, NULL);
+				/* XXX, check if canary_last is inside allocated memory? */
+
+				if (npc->canary_last == (void *) -1)
+					g_error("Memory corrupted");
 			}
 
 			emem_scrub_memory((npc->buf + npc->free_offset_init),
