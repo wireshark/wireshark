@@ -4090,7 +4090,7 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 
 		for (byteno = 0; byteno < len; byteno++) {
 			if (bitstring[byteno]) {
-				expert_add_info_format(actx->pinfo, item, PI_PROTOCOL, PI_WARN, 
+				expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_WARN, 
 						       "Unknown bit(s): 0x%s", bytes_to_str(bitstring, len));
 				break;
 			}
