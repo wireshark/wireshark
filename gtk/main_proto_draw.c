@@ -79,11 +79,6 @@
 #endif
 
 
-#define BYTE_VIEW_WIDTH    16
-#define BYTE_VIEW_SEP      8
-
-#define BIT_VIEW_WIDTH     8
-
 #define E_BYTE_VIEW_TREE_PTR      "byte_view_tree_ptr"
 #define E_BYTE_VIEW_TREE_VIEW_PTR "byte_view_tree_view_ptr"
 #define E_BYTE_VIEW_NDIGITS_KEY   "byte_view_ndigits"
@@ -242,6 +237,7 @@ collapse_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
 #define MAX_OFFSET_LEN	8	/* max length of hex offset of bytes */
 #define BYTES_PER_LINE	16	/* max byte values in a line */
 #define BITS_PER_LINE	8	/* max bit values in a line */
+#define BYTE_VIEW_SEP	8	/* insert a space every BYTE_VIEW_SEP bytes */
 #define HEX_DUMP_LEN	(BYTES_PER_LINE*3 + 1)
 				/* max number of characters hex dump takes -
 				   2 digits plus trailing blank
@@ -1247,10 +1243,10 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     j   = i;
     switch (recent.gui_bytes_view) {
     case BYTES_HEX:
-      k = i + BYTE_VIEW_WIDTH;
+      k = i + BYTES_PER_LINE;
       break;
     case BYTES_BITS:
-      k = i + BIT_VIEW_WIDTH;
+      k = i + BITS_PER_LINE;
       break;
     default:
       g_assert_not_reached();
