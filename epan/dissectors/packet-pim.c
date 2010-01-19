@@ -58,11 +58,11 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 
 /*
- * For PIM v1, see the PDF slides at
+ * For PIM v1, see
  *
- *	http://www.mbone.de/training/Module3.pdf
+ *	http://tools.ietf.org/html/draft-ietf-idmr-pim-spec-02
  *
- * Is it documented anywhere else?
+ *	http://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-03
  */
 static const char *
 dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
