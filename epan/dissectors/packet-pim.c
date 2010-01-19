@@ -60,9 +60,7 @@ static dissector_handle_t ipv6_handle;
 /*
  * For PIM v1, see
  *
- *	http://tools.ietf.org/html/draft-ietf-idmr-pim-spec-02
- *
- *	http://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-03
+ *	ftp://ftp.usc.edu/pub/csinfo/tech-reports/papers/95-599.ps.Z
  */
 static const char *
 dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
