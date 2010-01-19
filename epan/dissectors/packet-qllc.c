@@ -79,7 +79,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree	*qllc_tree = NULL;
     proto_item	*qllc_ti = NULL;
     gboolean	*q_bit_set = pinfo->private_data;
-    guint8	address, ctrl;
+    guint8	addr, ctrl;
     gboolean	command = FALSE;
 
     /*
@@ -101,7 +101,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Get the address; we need it to determine if this is a
      * COMMAND or a RESPONSE */
-    address = tvb_get_guint8(tvb, 0);
+    addr = tvb_get_guint8(tvb, 0);
     if (tree) {
 	proto_tree_add_item(qllc_tree, hf_qllc_address, tvb, 0, 1, FALSE);
     }
@@ -109,7 +109,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* The address field equals X'FF' in commands (except QRR)
      * and anything in responses. */
     ctrl = tvb_get_guint8(tvb, 1);
-    if (ctrl != QRR && address == 0xff) {
+    if (ctrl != QRR && addr == 0xff) {
         command = TRUE;
     }
 

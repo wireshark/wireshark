@@ -1723,7 +1723,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	nstime_t ns;
 
 	dissect_function_t *dissect_function = NULL;
-	gboolean dissect_rpc = TRUE;
+	gboolean dissect_rpc_flag = TRUE;
 
 	rpc_conv_info_t *rpc_conv_info=NULL;
 
@@ -2381,7 +2381,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * There's no protocol reply, so don't
 				 * try to dissect it.
 				 */
-				dissect_rpc = FALSE;
+				dissect_rpc_flag = FALSE;
 				break;
 
 			default:
@@ -2389,7 +2389,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * There's no protocol reply, so don't
 				 * try to dissect it.
 				 */
-				dissect_rpc = FALSE;
+				dissect_rpc_flag = FALSE;
 				break;
 			}
 			break;
@@ -2429,7 +2429,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * There's no protocol reply, so don't
 			 * try to dissect it.
 			 */
-			dissect_rpc = FALSE;
+			dissect_rpc_flag = FALSE;
 			break;
 
 		default:
@@ -2438,7 +2438,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 * no clue what's going on; don't try to dissect
 			 * the protocol reply.
 			 */
-			dissect_rpc = FALSE;
+			dissect_rpc_flag = FALSE;
 			break;
 		}
 		break; /* end of RPC reply */
@@ -2459,7 +2459,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_item_set_end(rpc_item, tvb, offset);
 	}
 
-	if (!dissect_rpc) {
+	if (!dissect_rpc_flag) {
 		/*
 		 * There's no RPC call or reply here; just dissect
 		 * whatever's left as data.

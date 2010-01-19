@@ -432,10 +432,10 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		}
 		if (tree)
 		{
-			guint8       flags;
+			guint8       flags8;
 
-			flags = tvb_get_guint8(tvb, offset);
-			if(flags & transport_connection_is_released )
+			flags8 = tvb_get_guint8(tvb, offset);
+			if(flags8 & transport_connection_is_released )
 			{
 				proto_tree_add_text(param_tree, tvb, offset, 1,
 				    "transport connection is released");
@@ -446,7 +446,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 				    "transport connection is kept");
 			}
 
-			if(flags & user_abort )
+			if(flags8 & user_abort )
 			{
 				proto_tree_add_text(param_tree, tvb, offset, 1,
 				    "user abort");
@@ -457,19 +457,19 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 				session->abort_type = SESSION_PROVIDER_ABORT;
 			}
 
-			if(flags & protocol_error )
+			if(flags8 & protocol_error )
 			{
 				proto_tree_add_text(param_tree, tvb, offset, 1,
 				    "protocol error");
 			}
 
-			if(flags & no_reason )
+			if(flags8 & no_reason )
 			{
 				proto_tree_add_text(param_tree, tvb, offset, 1,
 				    "no reason");
 			}
 
-			if(flags & implementation_restriction )
+			if(flags8 & implementation_restriction )
 			{
 				proto_tree_add_text(param_tree, tvb, offset, 1,
 				    "implementation restriction");

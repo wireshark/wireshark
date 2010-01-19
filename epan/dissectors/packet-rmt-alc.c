@@ -69,32 +69,32 @@ dissector_handle_t xml_handle;
 /* =========== */
 
 /* Set/Reset preferences to default values */
-static void alc_prefs_set_default(struct _alc_prefs *prefs)
+static void alc_prefs_set_default(struct _alc_prefs *alc_prefs)
 {
-	prefs->use_default_udp_port = FALSE;
-	prefs->default_udp_port = 4001;
+	alc_prefs->use_default_udp_port = FALSE;
+	alc_prefs->default_udp_port = 4001;
 	
-	lct_prefs_set_default(&prefs->lct);
-	fec_prefs_set_default(&prefs->fec);
+	lct_prefs_set_default(&alc_prefs->lct);
+	fec_prefs_set_default(&alc_prefs->fec);
 }
 
 /* Register preferences */
-static void alc_prefs_register(struct _alc_prefs *prefs, module_t *module)
+static void alc_prefs_register(struct _alc_prefs *alc_prefs, module_t *module)
 {
 	prefs_register_bool_preference(module,
 		"default.udp_port.enabled",
 		"Use default UDP port",
 		"Whether that payload of UDP packets with a specific destination port should be automatically dissected as ALC packets",
-		 &prefs->use_default_udp_port);
+		 &alc_prefs->use_default_udp_port);
 
  	prefs_register_uint_preference(module,
 		"default.udp_port",
 		"Default UDP destination port",
 		"Specifies the UDP destination port for automatic dissection of ALC packets",
-		 10, &prefs->default_udp_port);
+		 10, &alc_prefs->default_udp_port);
 		 
-	lct_prefs_register(&prefs->lct, module);
-	fec_prefs_register(&prefs->fec, module);
+	lct_prefs_register(&alc_prefs->lct, module);
+	fec_prefs_register(&alc_prefs->fec, module);
 }
 
 /* Save preferences to alc_prefs_old */

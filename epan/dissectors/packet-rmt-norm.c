@@ -113,15 +113,15 @@ static struct _norm_prefs preferences;
 /* =========== */
 
 /* Set/Reset preferences to default values */
-static void norm_prefs_set_default(struct _norm_prefs *prefs)
+static void norm_prefs_set_default(struct _norm_prefs *norm_prefs)
 {
-	fec_prefs_set_default(&prefs->fec);
+	fec_prefs_set_default(&norm_prefs->fec);
 }
 
 /* Register preferences */
-static void norm_prefs_register(struct _norm_prefs *prefs, module_t *module)
+static void norm_prefs_register(struct _norm_prefs *norm_prefs, module_t *module)
 {
-	fec_prefs_register(&prefs->fec, module);
+	fec_prefs_register(&norm_prefs->fec, module);
 }
 
 /* Save preferences to alc_prefs_old */
@@ -139,10 +139,10 @@ static double UnquantizeRtt(unsigned char qrtt)
 		(RTT_MAX/exp(((double)(255-qrtt))/(double)13.0)));
 }
 
-static double UnquantizeGSize(guint8 gsize)
+static double UnquantizeGSize(guint8 gsizex)
 {
-	guint mant = (gsize & 0x8) ? 5 : 1;
-	guint exponent = gsize & 0x7;
+	guint mant = (gsizex & 0x8) ? 5 : 1;
+	guint exponent = gsizex & 0x7;
 	exponent ++;
 	return mant * pow(10, exponent);
 }
@@ -156,15 +156,15 @@ static double UnquantizeSendRate(guint16 send_rate)
 static guint dissect_grrtetc(proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
 	guint8 backoff;
-	double gsize;
+	double gsizex;
 	double grtt;
 	proto_tree_add_item(tree, hf.instance_id, tvb, offset, 2, FALSE); offset+=2;
 	grtt = UnquantizeRtt(tvb_get_guint8(tvb, offset));
 	proto_tree_add_double(tree, hf.grtt, tvb, offset, 1, grtt); offset++;
 	backoff = hi_nibble(tvb_get_guint8(tvb, offset));
-	gsize = UnquantizeGSize((guint8)lo_nibble(tvb_get_guint8(tvb, offset)));
+	gsizex = UnquantizeGSize((guint8)lo_nibble(tvb_get_guint8(tvb, offset)));
 	proto_tree_add_uint(tree, hf.backoff, tvb, offset, 1, backoff);
-	proto_tree_add_double(tree, hf.gsize, tvb, offset, 1, gsize);
+	proto_tree_add_double(tree, hf.gsize, tvb, offset, 1, gsizex);
 	offset++;
 	return offset;
 }

@@ -817,7 +817,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *radiotap_tree = NULL;
     proto_tree *pt, *present_tree = NULL;
-    proto_tree *ft, *flags_tree = NULL;
+    proto_tree *ft;
     proto_item *ti = NULL, *hidden_item;
     int align_offset, offset;
     tvbuff_t *next_tvb;
@@ -938,13 +938,15 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	switch (bit) {
 	case IEEE80211_RADIOTAP_FLAGS:
+	{
+	    proto_tree *flags_tree;
 	    if (length_remaining < 1)
 		break;
 	    rflags = tvb_get_guint8(tvb, offset);
 	    if (tree) {
-        ft = proto_tree_add_item(radiotap_tree, hf_radiotap_flags,
-            tvb, offset, 1, FALSE);
-        flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
+		ft = proto_tree_add_item(radiotap_tree, hf_radiotap_flags,
+					 tvb, offset, 1, FALSE);
+		flags_tree = proto_item_add_subtree(ft, ett_radiotap_flags);
 
 		proto_tree_add_item(flags_tree, hf_radiotap_flags_cfp,
 			tvb, offset, 1, FALSE);
@@ -966,7 +968,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    offset++;
 	    length_remaining--;
 	    break;
-
+	}
 	case IEEE80211_RADIOTAP_RATE:
 	    if (length_remaining < 1)
 		break;
@@ -1117,7 +1119,8 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining-=4;
 	    break;
 	}
-	case IEEE80211_RADIOTAP_XCHANNEL: {
+	case IEEE80211_RADIOTAP_XCHANNEL:
+	{
 	    proto_item *it;
 	    proto_tree *flags_tree;
 
@@ -1243,6 +1246,8 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    length_remaining-=2;
 	    break;
 	case IEEE80211_RADIOTAP_RX_FLAGS:
+	{
+	    proto_tree *flags_tree;
 	    if (radiotap_bit14_fcs) {
 	        align_offset = ALIGN_OFFSET(offset, 4);
 	        offset += align_offset;
@@ -1277,6 +1282,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 length_remaining-=2;
             }
 	    break;
+	}
 	default:
 	    /*
 	     * This indicates a field whose size we do not

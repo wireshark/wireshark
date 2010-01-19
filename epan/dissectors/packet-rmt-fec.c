@@ -264,13 +264,13 @@ void fec_dissector_free(struct _fec *fec _U_)
 /* ----------- */
 
 /* Set/Reset preferences to default values */
-void fec_prefs_set_default(struct _fec_prefs *prefs _U_)
+void fec_prefs_set_default(struct _fec_prefs *fec_prefs _U_)
 {
 
 }
 
 /* Register preferences */
-void fec_prefs_register(struct _fec_prefs *prefs _U_, module_t *module _U_)
+void fec_prefs_register(struct _fec_prefs *fec_prefs _U_, module_t *module _U_)
 {
 
 }

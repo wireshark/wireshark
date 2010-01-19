@@ -81,7 +81,7 @@ static void lct_timestamp_parse(guint32 t, nstime_t* s)
 	s->nsecs = (t % 1000) * 1000000;
 }
 
-gboolean lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb, proto_tree *tree, gint ett, struct _fec_ptr f)
+gboolean lct_ext_decode(struct _ext *e, struct _lct_prefs *lct_prefs, tvbuff_t *tvb, proto_tree *tree, gint ett, struct _fec_ptr f)
 {
 	guint32 buffer32;
 	proto_item *ti;
@@ -158,7 +158,7 @@ gboolean lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb,
 
 	/* EXT_FDT */
 	case 192:
-		switch (prefs->ext_192)
+		switch (lct_prefs->ext_192)
 		{
 		case LCT_PREFS_EXT_192_NONE:
 			rmt_ext_decode_default(e, tvb, tree, ett);
@@ -188,7 +188,7 @@ gboolean lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb,
 
 	/* EXT_CENC */
 	case 193:
-		switch (prefs->ext_193)
+		switch (lct_prefs->ext_193)
 		{
 		case LCT_PREFS_EXT_193_NONE:
 			rmt_ext_decode_default(e, tvb, tree, ett);
@@ -486,27 +486,27 @@ void lct_dissector_free(struct _lct *lct)
 /* ----------- */
 
 /* Set/Reset preferences to default values */
-void lct_prefs_set_default(struct _lct_prefs *prefs)
+void lct_prefs_set_default(struct _lct_prefs *lct_prefs)
 {
-	prefs->codepoint_as_fec_encoding = TRUE;
-	prefs->ext_192 = LCT_PREFS_EXT_192_FLUTE;
-	prefs->ext_193 = LCT_PREFS_EXT_193_FLUTE;
+	lct_prefs->codepoint_as_fec_encoding = TRUE;
+	lct_prefs->ext_192 = LCT_PREFS_EXT_192_FLUTE;
+	lct_prefs->ext_193 = LCT_PREFS_EXT_193_FLUTE;
 }
 
 /* Register preferences */
-void lct_prefs_register(struct _lct_prefs *prefs, module_t *module)
+void lct_prefs_register(struct _lct_prefs *lct_prefs, module_t *module)
 {
  	prefs_register_bool_preference(module,
 		"lct.codepoint_as_fec_id",
 		"LCT Codepoint as FEC Encoding ID",
 		"Whether the LCT header Codepoint field should be considered the FEC Encoding ID of carried object",
-		 &prefs->codepoint_as_fec_encoding);
+		 &lct_prefs->codepoint_as_fec_encoding);
 
 	prefs_register_enum_preference(module,
 		"lct.ext.192",
 		"LCT header extension 192",
 		"How to decode LCT header extension 192",
-		&prefs->ext_192,
+		&lct_prefs->ext_192,
 		enum_lct_ext_192,
 		FALSE);
 
@@ -514,7 +514,7 @@ void lct_prefs_register(struct _lct_prefs *prefs, module_t *module)
 		"lct.ext.193",
 		"LCT header extension 193",
 		"How to decode LCT header extension 193",
-		&prefs->ext_193,
+		&lct_prefs->ext_193,
 		enum_lct_ext_193,
 		FALSE);
 }

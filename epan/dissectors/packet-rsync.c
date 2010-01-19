@@ -91,7 +91,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     conversation_t			*conversation;
     struct rsync_conversation_data	*conversation_data;
-    struct rsync_frame_data		*frame_data;
+    struct rsync_frame_data		*rsync_frame_data_p;
     proto_item				*ti;
     proto_tree				*rsync_tree;
     int					offset = 0;
@@ -127,15 +127,15 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     rsync_tree = proto_item_add_subtree(ti, ett_rsync);
 
-    frame_data = p_get_proto_data(pinfo->fd, proto_rsync);
-    if (!frame_data) {
+    rsync_frame_data_p = p_get_proto_data(pinfo->fd, proto_rsync);
+    if (!rsync_frame_data_p) {
 	/* then we haven't seen this frame before */
-	frame_data = g_malloc(sizeof(struct rsync_frame_data));
-	frame_data->state = conversation_data->state;
-	p_add_proto_data(pinfo->fd, proto_rsync, frame_data);
+	rsync_frame_data_p = g_malloc(sizeof(struct rsync_frame_data));
+	rsync_frame_data_p->state = conversation_data->state;
+	p_add_proto_data(pinfo->fd, proto_rsync, rsync_frame_data_p);
     }
 
-    switch (frame_data->state) {
+    switch (rsync_frame_data_p->state) {
     case RSYNC_INIT:
 	proto_tree_add_item(rsync_tree, hf_rsync_hdr_magic, tvb, offset, 8, TRUE);
 	offset += 8;

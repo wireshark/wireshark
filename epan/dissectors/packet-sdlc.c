@@ -74,7 +74,7 @@ dissect_sdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*sdlc_tree;
 	proto_item	*sdlc_ti;
-	guint8		address;
+	guint8		addr;
 	guint16		control;
 	int		sdlc_header_len;
 	gboolean	is_response;
@@ -83,7 +83,7 @@ dissect_sdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDLC");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	address = tvb_get_guint8(tvb, 0);
+	addr = tvb_get_guint8(tvb, 0);
 	sdlc_header_len = 1;	/* address */
 
 	/*
@@ -109,7 +109,7 @@ dissect_sdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		sdlc_tree = proto_item_add_subtree(sdlc_ti, ett_sdlc);
 
 		proto_tree_add_uint(sdlc_tree, hf_sdlc_address, tvb, 0, 1,
-		    address);
+		    addr);
 	} else {
 		sdlc_ti = NULL;
 		sdlc_tree = NULL;

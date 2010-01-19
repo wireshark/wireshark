@@ -827,7 +827,7 @@ dissect_s5066_address(tvbuff_t *tvb, guint offset, proto_tree *tree, gint source
 {
         proto_item *ti = NULL;
         proto_tree *s5066_tree_address = NULL;
-	guint32 address;
+	guint32 addr;
 
         if (source) {
 		ti = proto_tree_add_text(tree, tvb, offset, 4, "Source Address");
@@ -838,9 +838,9 @@ dissect_s5066_address(tvbuff_t *tvb, guint offset, proto_tree *tree, gint source
         s5066_tree_address = proto_item_add_subtree(ti, ett_s5066_address);
 	proto_tree_add_item(s5066_tree_address, hf_s5066_ad_size, tvb, offset, 1, FALSE);
 	proto_tree_add_item(s5066_tree_address, hf_s5066_ad_group, tvb, offset, 1, FALSE);
-	address = tvb_get_ntohl(tvb, offset);
-	address = address & 0x1FFFFFFF;
-	proto_tree_add_ipv4(s5066_tree_address, hf_s5066_ad_address, tvb, offset, 4, g_htonl(address));
+	addr = tvb_get_ntohl(tvb, offset);
+	addr = addr & 0x1FFFFFFF;
+	proto_tree_add_ipv4(s5066_tree_address, hf_s5066_ad_address, tvb, offset, 4, g_htonl(addr));
 
 	return offset + 4;
 }
