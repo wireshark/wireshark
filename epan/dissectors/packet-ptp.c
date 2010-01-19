@@ -2168,7 +2168,7 @@ static void
 dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree, char* name, int hf_ptp_v2_timeInterval_ns, int hf_ptp_v2_timeInterval_subns)
 {
 
-	double time;
+	double time_double;
 	gint64 time_ns;
 	guint16 time_subns;
 	proto_item 	*ptptimeInterval_ti;
@@ -2184,16 +2184,16 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
 		time_ns = time_ns | G_GINT64_CONSTANT(0xFFFFFFFFFF000000);
 		time_ns = time_ns | tvb_get_ntohs(tvb, *cur_offset+4);
 
-		time = ((1.0*time_ns) + (time_subns/65536.0));
+		time_double = ((1.0*time_ns) + (time_subns/65536.0));
 	}
 	else
 	{
 		time_ns = time_ns | tvb_get_ntohs(tvb, *cur_offset+4);
-		time = time_ns + (time_subns/65536.0);
+		time_double = time_ns + (time_subns/65536.0);
 	}
 
 	ptptimeInterval_ti = proto_tree_add_text(tree, tvb, *cur_offset, 8,
-		"%s: %f nanoseconds", name, time);
+		"%s: %f nanoseconds", name, time_double);
 
 	ptptimeInterval_subtree = proto_item_add_subtree(ptptimeInterval_ti, ett_ptp_v2_timeInterval);
 

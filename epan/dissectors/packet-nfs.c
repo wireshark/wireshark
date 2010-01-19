@@ -2354,15 +2354,15 @@ static int
 dissect_ftype(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 {
 	guint32 ftype;
-	const char* ftype_name = NULL;
+	const char* ftype_name_p = NULL;
 
 	ftype = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
-		ftype_name = val_to_str(ftype, nfs2_ftype, "%u");
+		ftype_name_p = val_to_str(ftype, nfs2_ftype, "%u");
 
 		proto_tree_add_text(tree, tvb, offset, 4,
-			"%s: %s (%u)", name, ftype_name, ftype);
+			"%s: %s (%u)", name, ftype_name_p, ftype);
 	}
 
 	offset += 4;

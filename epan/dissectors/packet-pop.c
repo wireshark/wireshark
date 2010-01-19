@@ -116,7 +116,7 @@ static gboolean response_is_continuation(const guchar *data);
 static void
 dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  struct pop_proto_data  *frame_data;
+  struct pop_proto_data  *frame_data_p;
   gboolean               is_request;
   gboolean               is_continuation;
   proto_tree             *pop_tree, *reqresp_tree;
@@ -153,9 +153,9 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     is_continuation = response_is_continuation(line);
   }
 
-  frame_data = p_get_proto_data(pinfo->fd, proto_pop);
+  frame_data_p = p_get_proto_data(pinfo->fd, proto_pop);
 
-  if (!frame_data) {
+  if (!frame_data_p) {
 
     conversation = find_conversation(pinfo->fd->num, 
              &pinfo->src, &pinfo->dst, 
@@ -208,24 +208,24 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (pop_data_desegment) {
 
-      if (!frame_data) {
+      if (!frame_data_p) {
 
         data_val->msg_read_len += tvb_length(tvb);
 
-        frame_data = se_alloc(sizeof(struct pop_proto_data));
+        frame_data_p = se_alloc(sizeof(struct pop_proto_data));
 
-        frame_data->conversation_id = conversation->index;
-        frame_data->more_frags = data_val->msg_read_len < data_val->msg_tot_len;
+        frame_data_p->conversation_id = conversation->index;
+        frame_data_p->more_frags = data_val->msg_read_len < data_val->msg_tot_len;
 
-        p_add_proto_data(pinfo->fd, proto_pop, frame_data);  
+        p_add_proto_data(pinfo->fd, proto_pop, frame_data_p);  
       }
 
       frag_msg = fragment_add_seq_next(tvb, 0, pinfo, 
-                                       frame_data->conversation_id, 
+                                       frame_data_p->conversation_id, 
                                        pop_data_segment_table, 
                                        pop_data_reassembled_table, 
                                        tvb_length(tvb), 
-                                       frame_data->more_frags);
+                                       frame_data_p->more_frags);
 
       next_tvb = process_reassembled_data(tvb, offset, pinfo, 
                                           "Reassembled DATA",

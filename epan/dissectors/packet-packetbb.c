@@ -300,7 +300,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, proto_tree *tree, guint offset,
 
 static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offset, guint maxoffset,
     guint8 addressType, guint8 addressSize) {
-  guint8 address[MAX_ADDR_SIZE];
+  guint8 addr[MAX_ADDR_SIZE];
 
   guint8 numAddr;
   guint8 address_flags;
@@ -326,7 +326,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
 
   DISSECTOR_ASSERT(addressSize <= MAX_ADDR_SIZE);
 
-  memset(address, 0, addressSize);
+  memset(addr, 0, addressSize);
 
   block_length = 2;
   block_index = offset;
@@ -355,7 +355,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
           tvb_get_ptr(tvb, offset, maxoffset - offset), "Not enough octets for addressblock head");
       return tvb_reported_length(tvb);
     }
-    tvb_memcpy(tvb, address, offset, head_length);
+    tvb_memcpy(tvb, addr, offset, head_length);
 
     midSize -= head_length;
     block_length += (head_length+1);
@@ -398,7 +398,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
           tvb_get_ptr(tvb, offset, maxoffset - offset), "Not enough octets for addressblock tail");
       return tvb_reported_length(tvb);
     }
-    tvb_memcpy(tvb, &address[addressSize - tail_length], offset, tail_length);
+    tvb_memcpy(tvb, &addr[addressSize - tail_length], offset, tail_length);
 
     midSize -= tail_length;
     block_length += (tail_length+1);
@@ -456,10 +456,10 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
     proto_tree_add_item(addr_tree, hf_packetbb_addr_head, tvb, tail_index, 1, FALSE);
   }
   for (i=0; i<numAddr; i++) {
-    guint32 ipv4 = (address[0] << 24) + (address[1] << 16) + (address[2] << 8) + address[3];
+    guint32 ipv4 = (addr[0] << 24) + (addr[1] << 16) + (addr[2] << 8) + addr[3];
     guint8 prefix = addressSize * 8;
 
-    tvb_memcpy(tvb, &address[head_length], mid_index + midSize*i, midSize);
+    tvb_memcpy(tvb, &addr[head_length], mid_index + midSize*i, midSize);
 
     switch (addressType) {
       case 0:
@@ -468,15 +468,15 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
         break;
       case 1:
         addrValue_item = proto_tree_add_ipv6(addr_tree, hf_packetbb_addr_value[addressType],
-            tvb, mid_index, block_index + block_length - mid_index, address);
+            tvb, mid_index, block_index + block_length - mid_index, addr);
         break;
       case 2:
         addrValue_item = proto_tree_add_ether(addr_tree, hf_packetbb_addr_value[addressType],
-            tvb, mid_index, block_index + block_length - mid_index, address);
+            tvb, mid_index, block_index + block_length - mid_index, addr);
         break;
       default:
         addrValue_item = proto_tree_add_bytes(addr_tree, hf_packetbb_addr_value[addressType],
-            tvb, mid_index, block_index + block_length - mid_index, address);
+            tvb, mid_index, block_index + block_length - mid_index, addr);
         break;
     }
     addrValue_tree = proto_item_add_subtree(addrValue_item, ett_packetbb_addr_value);

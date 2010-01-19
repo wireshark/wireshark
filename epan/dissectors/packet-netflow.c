@@ -3961,11 +3961,11 @@ dissect_pdu(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * pdutree, int o
 }
 
 static const gchar   *
-getprefix(const guint32 * address, int prefix)
+getprefix(const guint32 * addr, int prefix)
 {
 	guint32         gprefix;
 
-	gprefix = *address & g_htonl((0xffffffff << (32 - prefix)));
+	gprefix = *addr & g_htonl((0xffffffff << (32 - prefix)));
 
 	return (ip_to_str((const guint8 *)&gprefix));
 }

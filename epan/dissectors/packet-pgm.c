@@ -258,7 +258,7 @@ static const char *
 optsstr(guint8 opts)
 {
 	char *msg;
-	gint  returned_length, index = 0;
+	gint  returned_length, idx = 0;
 	const int MAX_STR_LEN = 256;
 
 	if (opts == 0)
@@ -266,23 +266,23 @@ optsstr(guint8 opts)
 
 	msg=ep_alloc(MAX_STR_LEN);
 	if (opts & PGM_OPT){
-		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "Present");
-		index += MIN(returned_length, MAX_STR_LEN-index);
+		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "Present");
+		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
 	if (opts & PGM_OPT_NETSIG){
-		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "%sNetSig", (!index)?"":",");
-		index += MIN(returned_length, MAX_STR_LEN-index);
+		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "%sNetSig", (!idx)?"":",");
+		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
 	if (opts & PGM_OPT_VAR_PKTLEN){
-		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "%sVarLen", (!index)?"":",");
-		index += MIN(returned_length, MAX_STR_LEN-index);
+		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "%sVarLen", (!idx)?"":",");
+		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
 	if (opts & PGM_OPT_PARITY){
-		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "%sParity", (!index)?"":",");
-		index += MIN(returned_length, MAX_STR_LEN-index);
+		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "%sParity", (!idx)?"":",");
+		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
-	if (!index) {
-		g_snprintf(&msg[index], MAX_STR_LEN-index, "0x%x", opts);
+	if (!idx) {
+		g_snprintf(&msg[idx], MAX_STR_LEN-idx, "0x%x", opts);
 	}
 	return(msg);
 }
@@ -290,7 +290,7 @@ static const char *
 paritystr(guint8 parity)
 {
 	char *msg;
-	gint returned_length, index = 0;
+	gint returned_length, idx = 0;
 	const int MAX_STR_LEN = 256;
 
 	if (parity == 0)
@@ -298,15 +298,15 @@ paritystr(guint8 parity)
 
 	msg=ep_alloc(MAX_STR_LEN);
 	if (parity & PGM_OPT_PARITY_PRM_PRO){
-		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "Pro-active");
-		index += MIN(returned_length, MAX_STR_LEN-index);
+		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "Pro-active");
+		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
 	if (parity & PGM_OPT_PARITY_PRM_OND){
-		returned_length = g_snprintf(&msg[index], MAX_STR_LEN-index, "%sOn-demand", (!index)?"":",");
-		index += MIN(returned_length, MAX_STR_LEN-index);
+		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "%sOn-demand", (!idx)?"":",");
+		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
-	if (!index) {
-		g_snprintf(&msg[index], MAX_STR_LEN-index, "0x%x", parity);
+	if (!idx) {
+		g_snprintf(&msg[idx], MAX_STR_LEN-idx, "0x%x", parity);
 	}
 	return(msg);
 }

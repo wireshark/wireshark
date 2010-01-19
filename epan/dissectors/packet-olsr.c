@@ -161,11 +161,11 @@ static const value_string nameservice_type_vals[] = {
 static gboolean global_olsr_olsrorg = TRUE;
 static gboolean global_olsr_nrlolsr = TRUE;
 
-static double getOlsrTime(guint8 time) {
+static double getOlsrTime(guint8 timeval) {
   int high_bits, low_bits;
 
-  high_bits = ((time & 0xF0) >> 4);
-  low_bits = (time & 0x0F);
+  high_bits = ((timeval & 0xF0) >> 4);
+  low_bits = (timeval & 0x0F);
   return ((1 << low_bits) / 16.0) * (1 + (high_bits / 16.0));
 }
 

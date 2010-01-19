@@ -84,27 +84,27 @@ static void dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, 
 		proto_item  *item;
 		proto_item  *item_address;
 		proto_item  *item_control;
-		guint8      address;
+		guint8      addr;
 		guint8      control;
 
-		address	= tvb_get_guint8(tvb, 0);
+		addr	= tvb_get_guint8(tvb, 0);
 		control	= tvb_get_guint8(tvb, 1);
 
 		item = proto_tree_add_item( tree, proto_pw_hdlc_nocw_hdlc_ppp, tvb, 0, 2, FALSE );
 
 		tr = proto_item_add_subtree( item, ett_pw_hdlc );
 
-		item_address = proto_tree_add_uint( tr, hf_pw_hdlc_address_field, tvb, 0, 1, address );
+		item_address = proto_tree_add_uint( tr, hf_pw_hdlc_address_field, tvb, 0, 1, addr );
 		item_control = proto_tree_add_uint_format( tr, hf_pw_hdlc_control_field, tvb, 1, 1, control, "Control field: 0x%x", control );
 
 		tr = proto_item_add_subtree( item_address, ett_pw_hdlc );
 
-		if ( 0x3F == (( address & 0xFC ) >> 2 ))
+		if ( 0x3F == (( addr & 0xFC ) >> 2 ))
 			proto_tree_add_uint_format( tr, hf_pw_hdlc_address, tvb, 0, 1, 0xFC, "Address: 0x%x (All stations)", 0x3F );
 		else
-			proto_tree_add_uint( tr, hf_pw_hdlc_address, tvb, 0, 1, ( address & 0xFC ) >> 2 );
+			proto_tree_add_uint( tr, hf_pw_hdlc_address, tvb, 0, 1, ( addr & 0xFC ) >> 2 );
 
-		proto_tree_add_uint( tr, hf_pw_hdlc_cr_bit, tvb, 0, 1, ( address & 2 ) >> 1 );
+		proto_tree_add_uint( tr, hf_pw_hdlc_cr_bit, tvb, 0, 1, ( addr & 2 ) >> 1 );
 
 		tr = proto_item_add_subtree( item_control, ett_pw_hdlc );
 

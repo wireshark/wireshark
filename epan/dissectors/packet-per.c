@@ -188,14 +188,14 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
   guint16	word;
 
   guint32	new_length, check_length;
-  guint32	remainder, tvb_bits;
+  guint32	remainderval, tvb_bits;
 
   /* Calculate the size reqired */
 
   new_length = no_of_bits/8;
-  remainder = no_of_bits % 8;
+  remainderval = no_of_bits % 8;
   
-  if(remainder){
+  if(remainderval){
 	  new_length++;
   }else{
 	  /* Number of bits = even number of octets */
@@ -205,8 +205,8 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
   /* The bits can be contained in two "extra octets" .... .xxx [xxxx]*n xx... ....*/
   tvb_bits = (boffset & 7)+ no_of_bits;
   check_length = tvb_bits/8;
-  remainder = no_of_bits % 8;
-  if(remainder){
+  remainderval = no_of_bits % 8;
+  if(remainderval){
 	  check_length++;
   }
 
@@ -225,10 +225,10 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
     /* get the 'odd' bits */
     shift1 = offset & 0x07;
     word = tvb_get_ntohs(tvb, offset) & bit_mask16[offset & 0x07];
-    word = word >> (16-(shift1+remainder));
+    word = word >> (16-(shift1+remainderval));
     buf[0] = word & 0x00ff;
 
-    boffset = boffset + remainder;
+    boffset = boffset + remainderval;
     offset = boffset >> 3;
     if (new_length >1){
       shift1 = offset & 0x07;
@@ -262,7 +262,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
     }else{
       word = tvb_get_guint8(tvb,offset+i) << (shift1 + 8);
     }
-    word = word & bit_mask16_unalligned[remainder];
+    word = word & bit_mask16_unalligned[remainderval];
     word = word >> 8;
     buf[i] = (guint8) (word & 0x00ff);
   }
@@ -1562,23 +1562,23 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		val_start = (offset>>3)-2; val_length = 2;
 		val+=min;
 	} else {
-		int i,num_bytes,num_bits;
+		int i,num_bytes,n_bits;
 
 		/* 10.5.7.4 */
 		/* 12.2.6 */
 		/* calculate the number of bits to hold the length */
 		if ((range & G_GINT64_CONSTANT(0xffffffff0000000)) != 0){
-			num_bits=3;
+			n_bits=3;
 		}else{
-			num_bits=2;
+			n_bits=2;
 		}
-		num_bytes =tvb_get_bits8(tvb, offset, num_bits);
+		num_bytes =tvb_get_bits8(tvb, offset, n_bits);
 		num_bytes++;  /* lower bound for length determinant is 1 */
 		if (display_internal_per_fields){
-			int_item = proto_tree_add_bits_item(tree, hf_per_const_int_len, tvb, offset,num_bits, FALSE);
+			int_item = proto_tree_add_bits_item(tree, hf_per_const_int_len, tvb, offset,n_bits, FALSE);
 			proto_item_append_text(int_item,"+1=%u bytes, Range = (%" G_GINT64_MODIFIER "u)",num_bytes, range);
 		}
-		offset = offset+num_bits;
+		offset = offset+n_bits;
 		/* byte aligned */
 		BYTE_ALIGN_OFFSET(offset);
 		val=0;
@@ -1684,7 +1684,7 @@ dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
 	int extension_root_entries;
 	int extension_addition_entries;
 	guint32 choice_index;
-	int i, index, cidx;
+	int i, idx, cidx;
 	guint32 ext_length;
 	guint32 old_offset = offset;
 	proto_item *choice_item = NULL;
@@ -1729,10 +1729,10 @@ DEBUG_ENTRY("dissect_per_choice");
 			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 		}
 
-		index = -1; cidx = choice_index;
+		idx = -1; cidx = choice_index;
 		for (i=0; choice[i].p_id; i++) {
 			if(choice[i].extension != ASN1_NOT_EXTENSION_ROOT){
-				if (!cidx) { index = i; break; }
+				if (!cidx) { idx = i; break; }
 				cidx--;
 			}
 		}
@@ -1740,22 +1740,22 @@ DEBUG_ENTRY("dissect_per_choice");
 		offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, actx, tree, hf_per_choice_extension_index, &choice_index);
 		offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &ext_length);
 
-		index = -1; cidx = choice_index;
+		idx = -1; cidx = choice_index;
 		for (i=0; choice[i].p_id; i++) {
 			if(choice[i].extension == ASN1_NOT_EXTENSION_ROOT){
-				if (!cidx) { index = i; break; }
+				if (!cidx) { idx = i; break; }
 				cidx--;
 			}
 		}
 	}
 
-	if (index != -1) {
-		choice_item = proto_tree_add_uint(tree, hf_index, tvb, old_offset>>3, 0, choice[index].value);
+	if (idx != -1) {
+		choice_item = proto_tree_add_uint(tree, hf_index, tvb, old_offset>>3, 0, choice[idx].value);
 		choice_tree = proto_item_add_subtree(choice_item, ett_index);
 		if (!extension_flag) {
-			offset = choice[index].func(tvb, offset, actx, choice_tree, *choice[index].p_id);
+			offset = choice[idx].func(tvb, offset, actx, choice_tree, *choice[idx].p_id);
 		} else {
-			choice[index].func(tvb, offset, actx, choice_tree, *choice[index].p_id);
+			choice[idx].func(tvb, offset, actx, choice_tree, *choice[idx].p_id);
 			offset += ext_length * 8;
 		}
 		proto_item_set_len(choice_item, BLEN(old_offset, offset));
@@ -1769,55 +1769,55 @@ DEBUG_ENTRY("dissect_per_choice");
 		}
 	}
 
-	if (value && (index != -1))
-		*value = choice[index].value;
+	if (value && (idx != -1))
+		*value = choice[idx].value;
 
 	return offset;
 }
 
 
 static const char *
-index_get_optional_name(const per_sequence_t *sequence, int index)
+index_get_optional_name(const per_sequence_t *sequence, int idx)
 {
 	int i;
 	header_field_info *hfi;
 
 	for(i=0;sequence[i].p_id;i++){
 		if((sequence[i].extension!=ASN1_NOT_EXTENSION_ROOT)&&(sequence[i].optional==ASN1_OPTIONAL)){
-			if (index == 0) {
+			if (idx == 0) {
 				hfi = proto_registrar_get_nth(*sequence[i].p_id);
 				return (hfi) ? hfi->name : "<unknown filed>";
 			}
-			index--;
+			idx--;
 		}
 	}
 	return "<unknown type>";
 }
 
 static const char *
-index_get_extension_name(const per_sequence_t *sequence, int index)
+index_get_extension_name(const per_sequence_t *sequence, int idx)
 {
 	int i;
 	header_field_info *hfi;
 
 	for(i=0;sequence[i].p_id;i++){
 		if(sequence[i].extension==ASN1_NOT_EXTENSION_ROOT){
-			if (index == 0) {
+			if (idx == 0) {
 				hfi = proto_registrar_get_nth(*sequence[i].p_id);
 				return (hfi) ? hfi->name : "<unknown filed>";
 			}
-			index--;
+			idx--;
 		}
 	}
 	return "<unknown type>";
 }
 
 static const char *
-index_get_field_name(const per_sequence_t *sequence, int index)
+index_get_field_name(const per_sequence_t *sequence, int idx)
 {
 	header_field_info *hfi;
 
-	hfi = proto_registrar_get_nth(*sequence[index].p_id);
+	hfi = proto_registrar_get_nth(*sequence[idx].p_id);
 	return (hfi) ? hfi->name : "<unknown filed>";
 }
 

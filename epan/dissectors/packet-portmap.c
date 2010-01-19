@@ -136,7 +136,7 @@ static int
 dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
-	guint32 port;
+	guint32 portx;
 
 	/* we might have learnt a <ipaddr><protocol><port> mapping for ONC-RPC*/
 	if(!pinfo->fd->flags.visited){
@@ -156,15 +156,15 @@ dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		}
 	}
 
-	port = tvb_get_ntohl(tvb, offset);
+	portx = tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_portmap_port,
 	    offset);
-	proto_item_append_text(tree, " GETPORT Reply Port:%d", port);
-	if(port){
+	proto_item_append_text(tree, " GETPORT Reply Port:%d", portx);
+	if(portx){
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO,  " Port:%d", port);
+			col_append_fstr(pinfo->cinfo, COL_INFO,  " Port:%d", portx);
 		}
-		proto_item_append_text(tree, " Port:%d", port);
+		proto_item_append_text(tree, " Port:%d", portx);
 	} else {
 		col_append_str(pinfo->cinfo, COL_INFO,  " PROGRAM_NOT_AVAILABLE");
 		proto_item_append_text(tree, " PROGRAM_NOT_AVAILABLE");

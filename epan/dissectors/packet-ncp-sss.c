@@ -35,7 +35,7 @@
 #include "packet-ncp-int.h"
 #include "packet-ncp-sss.h"
 
-static guint32 subverb=0;
+static guint32 gbl_subverb=0;
 
 static gint ett_sss = -1;
 
@@ -601,21 +601,21 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             proto_tree_add_item(ncp_tree, hf_length, tvb, foffset, 4, TRUE);
             foffset += 4;
             foffset += 12; /* Blank Context */
-            subverb = tvb_get_letohl(tvb, foffset);
+            gbl_subverb = tvb_get_letohl(tvb, foffset);
             if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(subverb, sss_verb_enum, "Unknown (%d)"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(gbl_subverb, sss_verb_enum, "Unknown (%d)"));
             }
             aitem = proto_tree_add_item(ncp_tree, hf_verb, tvb, foffset, 4, TRUE);
             atree = proto_item_add_subtree(aitem, ett_sss);
             if (request_value) {
-                request_value->req_nds_flags=subverb;
+                request_value->req_nds_flags=gbl_subverb;
             }
             foffset += 4;
             process_flags(atree, tvb, foffset);
             foffset += 4;
             proto_tree_add_item(atree, hf_context, tvb, foffset, 4, FALSE);
             foffset += 4;
-            switch (subverb) {
+            switch (gbl_subverb) {
             case 0:
                 foffset += 4;
                 foffset = sss_string(tvb, hf_user, atree, foffset, TRUE, 0);

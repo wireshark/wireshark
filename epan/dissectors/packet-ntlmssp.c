@@ -84,7 +84,7 @@ typedef struct _md4_pass {
   guint8 md4[NTLMSSP_KEY_LEN];
 } md4_pass;
 
-static unsigned char zeros[24] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+static unsigned char gbl_zeros[24] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 static GHashTable* hash_packet = NULL;
 
 /*
@@ -247,7 +247,7 @@ static gint ett_ntlmssp_ntlmv2_response = -1;
 static gint ett_ntlmssp_ntlmv2_response_name = -1;
 
 /* Configuration variables */
-static const char *nt_password = NULL;
+static const char *gbl_nt_password = NULL;
 
 #define MAX_BLOB_SIZE 256
 typedef struct _ntlmssp_blob {
@@ -471,7 +471,7 @@ get_md4pass_list(md4_pass** p_pass_list,const char* nt_password)
 	*p_pass_list = ep_alloc(nb_pass*sizeof(md4_pass));
 	pass_list=*p_pass_list;
 
-	if( memcmp(nt_password_hash,zeros,NTLMSSP_KEY_LEN) != 0 ) {
+	if( memcmp(nt_password_hash,gbl_zeros,NTLMSSP_KEY_LEN) != 0 ) {
 		memcpy(pass_list[i].md4,nt_password_hash,NTLMSSP_KEY_LEN);
 		i = 1;
 	}
@@ -1465,8 +1465,8 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     if (!(conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY))
     {
       conv_ntlmssp_info->rc4_state_initialized = 0;
-      create_ntlmssp_v1_key(nt_password, conv_ntlmssp_info->server_challenge,NULL, sspkey,NULL,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response.contents,conv_ntlmssp_info->lm_response.contents);
-      if( memcmp(sspkey,zeros,NTLMSSP_KEY_LEN) != 0 ) {
+      create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge,NULL, sspkey,NULL,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response.contents,conv_ntlmssp_info->lm_response.contents);
+      if( memcmp(sspkey,gbl_zeros,NTLMSSP_KEY_LEN) != 0 ) {
         get_sealing_rc4key(sspkey,conv_ntlmssp_info->flags,&ssp_key_len,clientkey,serverkey);
         crypt_rc4_init(&conv_ntlmssp_info->rc4_state_client, sspkey, ssp_key_len);
         crypt_rc4_init(&conv_ntlmssp_info->rc4_state_server, sspkey, ssp_key_len);
@@ -1680,15 +1680,15 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
       {
         conv_ntlmssp_info->rc4_state_initialized = 0;
         if( conv_ntlmssp_info->is_auth_ntlm_v2 ) {
-          create_ntlmssp_v2_key(nt_password, conv_ntlmssp_info->server_challenge,conv_ntlmssp_info->client_challenge, sspkey,encryptedsessionkey,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response,conv_ntlmssp_info->lm_response,ntlmssph);
+          create_ntlmssp_v2_key(gbl_nt_password, conv_ntlmssp_info->server_challenge,conv_ntlmssp_info->client_challenge, sspkey,encryptedsessionkey,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response,conv_ntlmssp_info->lm_response,ntlmssph);
         }
         else
         {
           memcpy(conv_ntlmssp_info->client_challenge,conv_ntlmssp_info->lm_response.contents,8);
-          create_ntlmssp_v1_key(nt_password, conv_ntlmssp_info->server_challenge,conv_ntlmssp_info->client_challenge, sspkey,encryptedsessionkey,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response.contents,conv_ntlmssp_info->lm_response.contents);
+          create_ntlmssp_v1_key(gbl_nt_password, conv_ntlmssp_info->server_challenge,conv_ntlmssp_info->client_challenge, sspkey,encryptedsessionkey,conv_ntlmssp_info->flags,conv_ntlmssp_info->ntlm_response.contents,conv_ntlmssp_info->lm_response.contents);
         }
         /* ssp is the exported session key */
-        if( memcmp(sspkey,zeros,NTLMSSP_KEY_LEN) != 0) {
+        if( memcmp(sspkey,gbl_zeros,NTLMSSP_KEY_LEN) != 0) {
           get_sealing_rc4key(sspkey,conv_ntlmssp_info->flags,&ssp_key_len,clientkey,serverkey);
           get_siging_key((guint8*)&conv_ntlmssp_info->sign_key_server,(guint8*)&conv_ntlmssp_info->sign_key_client,sspkey,ssp_key_len);
           crypt_rc4_init(&conv_ntlmssp_info->rc4_state_server, serverkey, ssp_key_len);
@@ -2702,7 +2702,7 @@ proto_register_ntlmssp(void)
   prefs_register_string_preference(ntlmssp_module, "nt_password",
 				   "NT Password",
 				   "NT Password (used to decrypt payloads)",
-				   &nt_password);
+				   &gbl_nt_password);
 
   register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
   new_register_dissector("ntlmssp_payload", dissect_ntlmssp_payload, proto_ntlmssp);

@@ -688,7 +688,7 @@ static gint ospf_ls_type_to_filter (guint8 ls_type)
 typedef struct _bitfield_info {
     int         hfindex;
     gint        *ett;
-    int         *index;
+    int         *idx;
     int         num;
 } bitfield_info;
 
@@ -829,7 +829,7 @@ dissect_ospf_bitfield (proto_tree *parent_tree, tvbuff_t *tvb, int offset,
     gint length, pos;
     gint i;
     header_field_info *hfinfo;
-    int hfindex, index;
+    int hfindex, idx;
     gint returned_length;
 
     hfindex = hf_ospf_filter[bfinfo->hfindex];
@@ -862,15 +862,15 @@ dissect_ospf_bitfield (proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 	str = ep_alloc(MAX_OPTIONS_LEN);
 	str[0] = 0;
 	for (i = 0, pos = 0; i < bfinfo->num; i++) {
-            index = hf_ospf_filter[bfinfo->index[i]];
-	    hfinfo = proto_registrar_get_nth(index);
+            idx = hf_ospf_filter[bfinfo->idx[i]];
+	    hfinfo = proto_registrar_get_nth(idx);
 	    if (flags & hfinfo->bitmask) {
 		returned_length = g_snprintf(&str[pos], MAX_OPTIONS_LEN-pos, "%s%s",
 				  pos ? ", " : "",
 				  hfinfo->name);
 		pos += MIN(returned_length, MAX_OPTIONS_LEN-pos);
 	    }
-	    proto_tree_add_boolean(tree, index, tvb, offset, length, flags);
+	    proto_tree_add_boolean(tree, idx, tvb, offset, length, flags);
 	}
 	if (str[0]) {
 	    proto_item_append_text(item, " (%s)", str);

@@ -2324,13 +2324,13 @@ objectidentification(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 static int
 print_address(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 {
-    guint32     address_type=0;
-    guint32     address_len=0;
+    guint32     addr_type=0;
+    guint32     addr_len=0;
 
-    address_type = tvb_get_ntohl(tvb, foffset);
-    proto_tree_add_uint(ndps_tree, hf_ndps_address, tvb, foffset, 4, address_type);
+    addr_type = tvb_get_ntohl(tvb, foffset);
+    proto_tree_add_uint(ndps_tree, hf_ndps_address, tvb, foffset, 4, addr_type);
     foffset += 4;
-    address_len = tvb_get_ntohl(tvb, foffset);
+    addr_len = tvb_get_ntohl(tvb, foffset);
     proto_tree_add_item(ndps_tree, hf_address_len, tvb, foffset, 4, FALSE);
     foffset += 4;
     /*
@@ -2340,7 +2340,7 @@ print_address(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
      * XXX - should this code - and the code in packet-ncp2222.inc to
      * dissect addresses - check the length for the types it supports?
      */
-    switch(address_type)
+    switch(addr_type)
     {
     case 0x00000000:
         proto_tree_add_item(ndps_tree, hf_ndps_net, tvb, foffset, 4, FALSE);
@@ -2354,20 +2354,20 @@ print_address(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     default:
         break;
     }
-    tvb_ensure_bytes_exist(tvb, foffset, address_len);
-    foffset += address_len;
-    return foffset+(address_len%4);
+    tvb_ensure_bytes_exist(tvb, foffset, addr_len);
+    foffset += addr_len;
+    return foffset+(addr_len%4);
 }
 
 static int
 address_item(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 {
-    guint32     address_type=0;
+    guint32     addr_type=0;
 
-    address_type = tvb_get_ntohl(tvb, foffset);
-    proto_tree_add_uint(ndps_tree, hf_address_type, tvb, foffset, 4, address_type);
+    addr_type = tvb_get_ntohl(tvb, foffset);
+    proto_tree_add_uint(ndps_tree, hf_address_type, tvb, foffset, 4, addr_type);
     foffset += 4;
-    switch(address_type)
+    switch(addr_type)
     {
     case 0:
     case 1:
@@ -4332,12 +4332,12 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint                 len=0;
     tvbuff_t            *next_tvb = NULL;
     fragment_data       *fd_head;
-    spx_info            *spx_info;
+    spx_info            *spx_info_p;
     ndps_req_hash_value	*request_value = NULL;
     conversation_t      *conversation;
 
     /* Get SPX info from SPX dissector */
-    spx_info = pinfo->private_data;
+    spx_info_p = pinfo->private_data;
     /* Check to see if defragmentation is enabled in the dissector */
     if (!ndps_defragment) {
         dissect_ndps(tvb, pinfo, tree);
@@ -4380,7 +4380,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
     /* Check to see of this is a fragment. If so then mark as a fragment. */
-    if (!spx_info->eom) {
+    if (!spx_info_p->eom) {
         request_value->ndps_frag = TRUE;
     }
     /* Now we process the fragments */
@@ -4393,11 +4393,11 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         len = tvb_reported_length(tvb);
         if (tvb_length(tvb) >= len)
         {
-            fd_head = fragment_add_seq_next(tvb, 0, pinfo, tid, ndps_fragment_table, ndps_reassembled_table, len, !spx_info->eom);
+            fd_head = fragment_add_seq_next(tvb, 0, pinfo, tid, ndps_fragment_table, ndps_reassembled_table, len, !spx_info_p->eom);
             if (fd_head != NULL)
             {
                 /* Is this the last fragment? EOM will indicate */
-                if (fd_head->next != NULL && spx_info->eom)
+                if (fd_head->next != NULL && spx_info_p->eom)
                 {
                     proto_item *frag_tree_item;
 
@@ -4425,7 +4425,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     next_tvb = tvb_new_subset_remaining(tvb, 0);
                     if (check_col(pinfo->cinfo, COL_INFO))
                     {
-                      if (!spx_info->eom)
+                      if (!spx_info_p->eom)
                       {
                         col_append_str(pinfo->cinfo, COL_INFO, "[NDPS Fragment]");
                       }
@@ -4437,7 +4437,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* Fragment from first pass of dissection */
                 if (check_col(pinfo->cinfo, COL_INFO))
                 {
-                  if (!spx_info->eom)
+                  if (!spx_info_p->eom)
                   {
                     col_append_str(pinfo->cinfo, COL_INFO, "[NDPS Fragment]");
                   }
@@ -4461,7 +4461,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else
         {
             /* This is the end fragment so dissect and mark end */
-            if (spx_info->eom) {
+            if (spx_info_p->eom) {
                 request_value->ndps_frag = FALSE;
                 dissect_ndps(next_tvb, pinfo, tree);
             }

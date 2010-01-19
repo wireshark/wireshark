@@ -518,14 +518,14 @@ decode_iei_reset_flag(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 
 static void 
 decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  guint8 address_type;
+  guint8 addr_type;
   guint32 ip4_addr;
   struct e_in6_addr ip6_addr;
 
-  address_type = tvb_get_guint8(bi->tvb, bi->offset);
+  addr_type = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_item(bi->nsip_tree, hf_nsip_ip_address_type,
 			  bi->tvb, bi->offset, 1, FALSE);
-  switch (address_type) {
+  switch (addr_type) {
   case NSIP_IP_ADDRESS_TYPE_IPV4:
     ie->total_length = 2 + ipv4_element.address_length;
     ip4_addr = tvb_get_ipv4(bi->tvb, bi->offset+1);

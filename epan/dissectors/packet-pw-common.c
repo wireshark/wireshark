@@ -102,10 +102,10 @@ void dissect_pw_padding(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		item = proto_tree_add_item(tree, proto_pw_padding, tvb, 0, -1, FALSE);
 		pwc_item_append_text_n_items(item,size,"byte");
 		{
-			proto_tree* tree;
-			tree = proto_item_add_subtree(item, ett);
-			call_dissector(dh_data, tvb, pinfo, tree);
-			item = proto_tree_add_int(tree, hf_padding_len, tvb, 0, 0, size);
+			proto_tree* tree_p;
+			tree_p = proto_item_add_subtree(item, ett);
+			call_dissector(dh_data, tvb, pinfo, tree_p);
+			item = proto_tree_add_int(tree_p, hf_padding_len, tvb, 0, 0, size);
 			PROTO_ITEM_SET_HIDDEN(item); /*allow filtering*/
 		}
 	}
