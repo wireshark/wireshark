@@ -1,7 +1,7 @@
 -- $Id$
 -- PDU-definitions.asn
 --
--- 3GPP TS 25.331 V8.8.0 (2009-09)
+-- 3GPP TS 25.331 V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.2	PDU definitions
@@ -62,6 +62,8 @@ IMPORTS
 	DelayRestrictionFlag,
 	DL-PhysChCapabilityFDD-v380ext,
 	DL-SecondaryCellInfoFDD,
+	DL-SecondaryCellInfoFDD-v890ext,
+	DL-SecondaryCellInfoFDD-r9,
 	DSCH-RNTI,
 	E-RNTI,
 	EstablishmentCause,
@@ -121,19 +123,25 @@ IMPORTS
 	UE-RadioAccessCapability-v650ext,
 	UE-RadioAccessCapability-v680ext,
 	UE-RadioAccessCapability-v7e0ext,
+	UE-RadioAccessCapability-v7f0ext,
 	UE-RadioAccessCapability-v860ext,
 	UE-RadioAccessCapability-v880ext,
+	UE-RadioAccessCapability-v890ext,
+	UE-RadioAccessCapability-v9xyext,
 	UE-RadioAccessCapabilityComp,
 	UE-RadioAccessCapabilityComp-ext,
 	UE-RadioAccessCapabilityComp-v770ext,
 	UE-RadioAccessCapabilityComp2,
 	UE-RadioAccessCapabilityComp2-v770ext,
+	UE-RadioAccessCapabilityComp2-v7f0ext,
 	UE-RadioAccessCapabilityComp2-v860ext,
+	UE-RadioAccessCapabilityComp2-v9xyext,
 	UE-RadioAccessCapabilityComp-TDD128,
 	UE-RadioAccessCapabilityInfo-v770ext,
 	UE-SecurityInformation,
 	UE-SecurityInformation2,
 	UE-SpecificCapabilityInformation-LCRTDD,
+	UL-SecondaryCellInfoFDD,
 	URA-UpdateCause,
 	UTRAN-DRX-CycleLengthCoefficient,
 	UTRAN-DRX-CycleLengthCoefficient-r7,
@@ -209,6 +217,7 @@ IMPORTS
 	DL-AddReconfTransChInfoList-r4,
 	DL-AddReconfTransChInfoList-r5,
 	DL-AddReconfTransChInfoList-r7,
+	DL-AddReconfTransChInfoList-r9,
 	DL-CommonTransChInfo,
 	DL-CommonTransChInfo-r4,
 	DL-DeletedTransChInfoList,
@@ -250,6 +259,8 @@ IMPORTS
 	DL-HSPDSCH-Information-r6,
 	DL-HSPDSCH-Information-r7,
 	DL-HSPDSCH-Information-r8,
+	DL-HSPDSCH-Information-r8-ext,
+	DL-HSPDSCH-Information-r9,
 	DL-HSPDSCH-MultiCarrier-Information,
 	DL-InformationPerRL-List,
 	DL-InformationPerRL-List-r4,
@@ -272,6 +283,7 @@ IMPORTS
 	DTX-DRX-Info-r7,
 	DynamicPersistenceLevel,
 	E-DCH-ReconfigurationInfo,
+	E-DCH-ReconfigurationInfo-SecULFrequency,
 	E-DCH-ReconfigurationInfo-r7,
 	E-DCH-RL-InfoSameServingCell,
 	E-TFC-Boost-Info-r7,
@@ -288,7 +300,9 @@ IMPORTS
 	HS-SICH-Power-Control-Info-TDD768,
 	MaxAllowedUL-TX-Power,
 	MIMO-Parameters-r7,
+	MIMO-Parameters-v7f0ext,
 	MIMO-Parameters-r8,
+	MIMO-Parameters-r9,
 	OpenLoopPowerControl-IPDL-TDD-r4,
 	PDSCH-CapacityAllocationInfo,
 	PDSCH-CapacityAllocationInfo-r4,
@@ -308,7 +322,11 @@ IMPORTS
 	RL-AdditionInformation-list-v6b0ext,
 	RL-AdditionInformationList-r7,
 	RL-AdditionInformationList-r8,
+	RL-AdditionInformationList-v890ext,
+	RL-AdditionInformationList-r9,
+	RL-AdditionInformationList-SecULFreq,
 	RL-RemovalInformationList,
+	RL-RemovalInformationList-SecULFreq,
 	Serving-HSDSCH-CellInformation,
 	Serving-HSDSCH-CellInformation-r7,
 	Serving-HSDSCH-CellInformation-r8,
@@ -355,6 +373,7 @@ IMPORTS
 	EventResults,
 	EventResults-v770ext,
 	EventResults-v860ext,
+	EventResults-v9xyext,
 	EUTRA-EventResults,
 	EUTRA-MeasuredResults,
 	Inter-FreqEventCriteriaList-v590ext,
@@ -370,6 +389,7 @@ IMPORTS
 	MeasuredResults-v590ext,
 	MeasuredResults-v770ext,
 	MeasuredResults-v860ext,
+	MeasuredResults-v9xyext,
 	MeasuredResultsList,
 	MeasuredResultsList-LCR-r4-ext,
 	MeasuredResultsList-v770xet,
@@ -381,17 +401,21 @@ IMPORTS
 	MeasurementCommand-r6,
 	MeasurementCommand-r7,
 	MeasurementCommand-r8,
+	MeasurementCommand-r9,
 	MeasurementIdentity,
 	MeasurementReportingMode,
 	NewInterFreqCellList-v7b0ext,
 	PrimaryCCPCH-RSCP,
+	CSGProximityIndication,
 	SFN-Offset-Validity,
 	TimeslotListWithISCP,
 	TrafficVolumeMeasuredResultsList,
 	UE-Positioning-GPS-AssistanceData,
 	UE-Positioning-GPS-AssistanceData-v770ext,
+	UE-Positioning-GPS-AssistanceData-v9xyext,
 	UE-Positioning-GPS-ReferenceTimeUncertainty,
 	UE-Positioning-Measurement-v390ext,
+	UE-Positioning-Measurement-v9xyext,
 	UE-Positioning-OTDOA-AssistanceData,
 	UE-Positioning-OTDOA-AssistanceData-r4ext,
 	UE-Positioning-OTDOA-AssistanceData-UEB,
@@ -399,6 +423,7 @@ IMPORTS
 	UE-Positioning-OTDOA-MeasuredResultsTDD-ext,
 	UE-Positioning-GANSS-AssistanceData,
 	UE-Positioning-GANSS-AssistanceData-v860ext,
+	UE-Positioning-GANSS-AssistanceData-v9xyext,
 -- Other IEs :
 	BCCH-ModificationInfo,
 	CDMA2000-MessageList,
@@ -431,6 +456,7 @@ IMPORTS
 	MBMS-JoinedInformation-r6,
 	MBMS-MICHConfigurationInfo-r6,
 	MBMS-MICHConfigurationInfo-v770ext,
+	MBMS-MICHConfigurationInfo-v890ext,
 	MBMS-ModifedServiceList-r6,
 	MBMS-ModifiedServiceList-LCR-v7c0ext,
 	MBMS-ModifiedServiceList-v770ext,
@@ -458,6 +484,7 @@ IMPORTS
 	MBSFN-ClusterFrequency-r7,
 	MBSFN-InterFrequencyNeighbourList-r7,
 	MBSFN-InterFrequencyNeighbourList-v860ext,
+	MBMS-NetworkStandardTimeInformation-LCR-v890ext,
 	MBSFN-TDDInformation-LCR,
 	MBSFN-TDM-Info-List
 FROM InformationElements
@@ -507,7 +534,10 @@ ActiveSetUpdate ::= CHOICE {
 					activeSetUpdate-r7-add-ext		BIT STRING		OPTIONAL,
 					v780NonCriticalExtensions		SEQUENCE {
 						activeSetUpdate-v780ext			ActiveSetUpdate-v780ext-IEs,
-						nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+						v7f0NonCriticalExtensions	SEQUENCE {
+							activeSetUdpate-v7f0ext		ActiveSetUpdate-v7f0ext-IEs,
+							nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+						}	OPTIONAL
 					}	OPTIONAL
 				},
 				criticalExtensions				CHOICE {
@@ -515,9 +545,20 @@ ActiveSetUpdate ::= CHOICE {
 						activeSetUpdate-r8				ActiveSetUpdate-r8-IEs,
 						-- Container for adding non critical extensions after freezing REL-9
 						activeSetUpdate-r8-add-ext		BIT STRING		OPTIONAL,
-						nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+						v890NonCriticalExtensions		SEQUENCE {
+							activeSetUpdate-v890ext			ActiveSetUpdate-v890ext-IEs,
+							nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+						}	OPTIONAL
 					},
-					criticalExtensions				SEQUENCE {}
+					criticalExtensions				CHOICE {
+						r9								SEQUENCE {
+							activeSetUpdate-r9				ActiveSetUpdate-r9-IEs,
+							-- Container for adding non critical extensions after freezing REL-10
+							activeSetUpdate-r9-add-ext		BIT STRING		OPTIONAL,
+							nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+						},
+						criticalExtensions				SEQUENCE {}
+					}
 				}
 			}
 		}
@@ -626,6 +667,11 @@ ActiveSetUpdate-v780ext-IEs ::= SEQUENCE {
 		hs-DSCH-TBSizeTable					HS-DSCH-TBSizeTable					OPTIONAL
 }
 
+ActiveSetUpdate-v7f0ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+	mimoParameters							MIMO-Parameters-v7f0ext				OPTIONAL
+}
+
 ActiveSetUpdate-r8-IEs ::= SEQUENCE {
 	-- User equipment IEs
 		activationTime						ActivationTime						OPTIONAL,
@@ -653,6 +699,50 @@ ActiveSetUpdate-r8-IEs ::= SEQUENCE {
 		e-TFC-Boost-Info					E-TFC-Boost-Info-r7					OPTIONAL,
 		e-DPDCH-PowerInterpolation			E-DPDCH-PowerInterpolation			OPTIONAL,
 		dl-SecondaryCellInfoFDD				DL-SecondaryCellInfoFDD				OPTIONAL
+}
+
+ActiveSetUpdate-v890ext-IEs ::= SEQUENCE {
+	-- User Equipment IEs
+		dl-SecondaryCellInfoFDD-v890ext		DL-SecondaryCellInfoFDD-v890ext		OPTIONAL,
+	-- Physical channel IEs
+		mimoParameters						MIMO-Parameters-v7f0ext				OPTIONAL,
+		rl-AdditionInformationList			RL-AdditionInformationList-v890ext	OPTIONAL
+}
+
+ActiveSetUpdate-r9-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		activationTime						ActivationTime						OPTIONAL,
+		newU-RNTI							U-RNTI								OPTIONAL,
+		newH-RNTI							H-RNTI								OPTIONAL,
+		newPrimary-E-RNTI					E-RNTI								OPTIONAL,
+		newSecondary-E-RNTI					E-RNTI								OPTIONAL,
+	-- Core network IEs
+		cn-InformationInfo					CN-InformationInfo-r6				OPTIONAL,
+	-- Physical channel IEs
+		dtx-drx-TimingInfo					DTX-DRX-TimingInfo-r7				OPTIONAL,
+		dtx-drx-Info						DTX-DRX-Info-r7						OPTIONAL,
+		hs-scch-LessInfo					HS-SCCH-LessInfo-r7					OPTIONAL,
+		mimoParameters						MIMO-Parameters-r9					OPTIONAL,
+		maxAllowedUL-TX-Power				MaxAllowedUL-TX-Power				OPTIONAL,
+		ul-SecondaryCellInfoFDD				UL-SecondaryCellInfoFDD				OPTIONAL,
+		e-dch-ReconfigurationInfo-SecULFrequency	
+									E-DCH-ReconfigurationInfo-SecULFrequency	OPTIONAL,
+		rl-AdditionInformationList			RL-AdditionInformationList-r9		OPTIONAL,
+		rl-AdditionInformationList-SecULFreq 
+									RL-AdditionInformationList-SecULFreq		OPTIONAL,
+		servingCellChangeParameters			ServingCellChangeParameters			OPTIONAL,
+		rl-RemovalInformationList			RL-RemovalInformationList			OPTIONAL,
+		rl-RemovalInformationList-SecULFreq 
+									RL-RemovalInformationList-SecULFreq			OPTIONAL,
+		tx-DiversityMode					TX-DiversityMode					OPTIONAL,
+		dpc-Mode							DPC-Mode							OPTIONAL,
+		serving-HSDSCH-CellInformation		Serving-HSDSCH-CellInformation-r8	OPTIONAL,
+		e-dch-ReconfigurationInfo			E-DCH-ReconfigurationInfo-r7		OPTIONAL,
+		ul-16QAM-Config						UL-16QAM-Config						OPTIONAL,
+		e-dch-ReconfInfoSameCell			E-DCH-RL-InfoSameServingCell		OPTIONAL,
+		e-TFC-Boost-Info					E-TFC-Boost-Info-r7					OPTIONAL,
+		e-DPDCH-PowerInterpolation			E-DPDCH-PowerInterpolation			OPTIONAL,
+		dl-SecondaryCellInfoFDD				DL-SecondaryCellInfoFDD-r9				OPTIONAL
 }
 
 -- ***************************************************
@@ -715,7 +805,10 @@ AssistanceDataDelivery ::= CHOICE {
 						assistanceDataDelivery-v770ext	AssistanceDataDelivery-v770ext-IEs,
 						v860NonCriticalExtension		SEQUENCE {
 							assistanceDataDelivery-v860ext	AssistanceDataDelivery-v860ext-IEs,
-							nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+							v9xyNonCriticalExtension			SEQUENCE {
+								assistanceDataDelivery-v9xyext	AssistanceDataDelivery-v9xyext-IEs,
+								nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+							}	OPTIONAL
 						}	OPTIONAL
 					}	OPTIONAL
 				}	OPTIONAL
@@ -754,6 +847,13 @@ AssistanceDataDelivery-v770ext-IEs ::= SEQUENCE {
 AssistanceDataDelivery-v860ext-IEs ::= SEQUENCE {
 	ue-positioning-GANSS-AssistanceData-v860ext
 										UE-Positioning-GANSS-AssistanceData-v860ext		OPTIONAL
+}
+
+AssistanceDataDelivery-v9xyext-IEs ::= SEQUENCE {
+	ue-positioning-GPS-AssistanceData-v9xyext 
+									UE-Positioning-GPS-AssistanceData-v9xyext			OPTIONAL,
+	ue-positioning-GANSS-AssistanceData-v9xyext
+									UE-Positioning-GANSS-AssistanceData-v9xyext			OPTIONAL
 }
 
 -- ***************************************************
@@ -1004,7 +1104,10 @@ CellUpdateConfirm ::= CHOICE {
 								cellUpdateConfirm-v780ext		CellUpdateConfirm-v780ext-IEs,
 								v860NonCriticalExtensions		SEQUENCE {
 									cellUpdateConfirm-v860ext		CellUpdateConfirm-v860ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v7f0NonCriticalExtensions		SEQUENCE {
+										cellUpdateConfirm-v7f0ext	CellUpdateConfirm-v7f0ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							}	OPTIONAL
 						},
@@ -1015,10 +1118,23 @@ CellUpdateConfirm ::= CHOICE {
 								cellUpdateConfirm-r8-add-ext	BIT STRING		OPTIONAL,
 								v7d0NonCriticalExtensions		SEQUENCE {
 									cellUpdateConfirm-v7d0ext		CellUpdateConfirm-v7d0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v890NonCriticalExtensions		SEQUENCE {
+										cellUpdateConfirm-v890ext
+															CellUpdateConfirm-v890ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							},
-							criticalExtensions				SEQUENCE {}
+							criticalExtensions				CHOICE {
+								r9								SEQUENCE {
+									cellUpdateConfirm-r9			CellUpdateConfirm-r9-IEs,
+									-- Container for adding non critical extensions after 
+									-- freezing REL-10
+									cellUpdateConfirm-r8-add-ext	BIT STRING		OPTIONAL,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								},
+								criticalExtensions				SEQUENCE {}
+							}
 						}
 					}
 				}
@@ -1337,7 +1453,10 @@ CellUpdateConfirm-r7-IEs ::= SEQUENCE {
 
 CellUpdateConfirm-r7-add-ext-IEs ::= SEQUENCE {
 		cellUpdateConfirm-v7d0ext		CellUpdateConfirm-v7d0ext-IEs		OPTIONAL,
-		nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+		v7f0NonCriticalExtensions		SEQUENCE {
+			cellUpdateConfirm-v7f0ext		CellUpdateConfirm-v7f0ext-IEs,
+			nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+		}	OPTIONAL
 }
 
 CellUpdateConfirm-v780ext-IEs ::= SEQUENCE {
@@ -1348,6 +1467,11 @@ CellUpdateConfirm-v780ext-IEs ::= SEQUENCE {
 CellUpdateConfirm-v7d0ext-IEs ::=	SEQUENCE {
 	-- Physical channel IEs
 		ul-EDCH-Information				UL-EDCH-Information-ext				OPTIONAL
+}
+
+CellUpdateConfirm-v7f0ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+		mimoParameters					MIMO-Parameters-v7f0ext				OPTIONAL
 }
 
 CellUpdateConfirm-r8-IEs ::= SEQUENCE {
@@ -1414,6 +1538,73 @@ CellUpdateConfirm-v860ext-IEs ::=	SEQUENCE {
 			rab-InformationSetup-r7			RAB-InformationSetup-r7,
 			rab-InformationSetup-v820ext	RAB-InformationSetup-v820ext
 		}		OPTIONAL
+}
+
+CellUpdateConfirm-v890ext-IEs ::=	SEQUENCE {
+	-- User Equipment IEs
+		dl-SecondaryCellInfoFDD-v890ext		DL-SecondaryCellInfoFDD-v890ext		OPTIONAL,
+	-- Physical channel IEs
+		dl-HSPDSCH-Information				DL-HSPDSCH-Information-r8-ext		OPTIONAL
+}
+
+CellUpdateConfirm-r9-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		integrityProtectionModeInfo		IntegrityProtectionModeInfo-r7		OPTIONAL,
+		cipheringModeInfo				CipheringModeInfo-r7				OPTIONAL,
+		activationTime					ActivationTime						OPTIONAL,
+		new-U-RNTI						U-RNTI								OPTIONAL,
+		new-C-RNTI						C-RNTI								OPTIONAL,
+		-- The IE "new-DSCH-RNTI" should not be included in FDD mode,
+		-- and if received the UE behaviour is unspecified
+		new-DSCH-RNTI					DSCH-RNTI							OPTIONAL,
+		new-H-RNTI						H-RNTI								OPTIONAL,
+		newPrimary-E-RNTI				E-RNTI								OPTIONAL,
+		newSecondary-E-RNTI				E-RNTI								OPTIONAL,
+		rrc-StateIndicator				RRC-StateIndicator,
+		utran-DRX-CycleLengthCoeff		UTRAN-DRX-CycleLengthCoefficient-r7	OPTIONAL,
+		waitTime						WaitTime							OPTIONAL,
+		rlc-Re-establishIndicatorRb2-3or4		BOOLEAN,
+		rlc-Re-establishIndicatorRb5orAbove		BOOLEAN,
+	-- CN information elements
+		cn-InformationInfo				CN-InformationInfo-r6				OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+		supportForChangeOfUE-Capability	BOOLEAN								OPTIONAL,
+	-- Specification mode information
+		defaultConfigForCellFACH		DefaultConfigForCellFACH			OPTIONAL,
+	-- Radio bearer IEs
+		rab-InformationSetup			RAB-InformationSetup-r8				OPTIONAL,
+		rb-InformationReleaseList		RB-InformationReleaseList			OPTIONAL,
+		rb-InformationReconfigList		RB-InformationReconfigList-r8		OPTIONAL,
+		rb-InformationAffectedList		RB-InformationAffectedList-r8		OPTIONAL,
+		dl-CounterSynchronisationInfo	DL-CounterSynchronisationInfo-r5	OPTIONAL,
+		pdcp-ROHC-TargetMode			PDCP-ROHC-TargetMode				OPTIONAL,
+	-- Transport channel IEs
+		ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
+		ul-deletedTransChInfoList		UL-DeletedTransChInfoList-r6		OPTIONAL,
+		ul-AddReconfTransChInfoList		UL-AddReconfTransChInfoList-r7		OPTIONAL,
+		dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
+		dl-DeletedTransChInfoList		DL-DeletedTransChInfoList-r7		OPTIONAL,
+		dl-AddReconfTransChInfoList		DL-AddReconfTransChInfoList-r9		OPTIONAL,
+	-- Physical channel IEs
+		frequencyInfo					FrequencyInfo						OPTIONAL,
+		multi-frequencyInfo				Multi-frequencyInfo-LCR-r7			OPTIONAL,
+		dtx-drx-TimingInfo				DTX-DRX-TimingInfo-r7				OPTIONAL,
+		dtx-drx-Info					DTX-DRX-Info-r7						OPTIONAL,
+		hs-scch-LessInfo				HS-SCCH-LessInfo-r7					OPTIONAL,
+		mimoParameters					MIMO-Parameters-r9					OPTIONAL,
+		maxAllowedUL-TX-Power			MaxAllowedUL-TX-Power				OPTIONAL,
+		ul-DPCH-Info					UL-DPCH-Info-r7						OPTIONAL,
+		ul-EDCH-Information				UL-EDCH-Information-r8				OPTIONAL,
+		ul-SecondaryCellInfoFDD			UL-SecondaryCellInfoFDD				OPTIONAL,
+		dl-HSPDSCH-Information			DL-HSPDSCH-Information-r9			OPTIONAL,
+		dl-CommonInformation			DL-CommonInformation-r8				OPTIONAL,
+		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
+		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD-r9			OPTIONAL,
+		controlChannelDRXInfo-TDD128	ControlChannelDRXInfo-TDD128-r8		OPTIONAL,
+		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL,
+	-- MBMS IEs
+		mbms-PL-ServiceRestrictInfo		MBMS-PL-ServiceRestrictInfo-r6		OPTIONAL
 }
 
 -- ***************************************************
@@ -1508,10 +1699,23 @@ CellUpdateConfirm-CCCH ::= CHOICE {
 								cellUpdateConfirm-r8-add-ext	BIT STRING		OPTIONAL,
 								v7d0NonCriticalExtensions		SEQUENCE {
 									cellUpdateConfirm-v7d0ext		CellUpdateConfirm-v7d0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v890NonCriticalExtensions		SEQUENCE {
+										cellUpdateConfirm-v890ext
+															CellUpdateConfirm-v890ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							},
-							criticalExtensions				SEQUENCE {}
+							criticalExtensions				CHOICE {
+								r9								SEQUENCE {
+									cellUpdateConfirm-r9			CellUpdateConfirm-r9-IEs,
+									-- Container for adding non critical extensions after 
+									-- freezing REL-10
+									cellUpdateConfirm-r9-add-ext	BIT STRING		OPTIONAL,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								},
+								criticalExtensions				SEQUENCE {}
+							}
 						}
 					}
 				}
@@ -1658,10 +1862,20 @@ HandoverToUTRANCommand ::= CHOICE {
 							handoverToUTRANCommand-r8		HandoverToUTRANCommand-r8-IEs,
 							v7d0NonCriticalExtensions		SEQUENCE {
 								handoverToUTRANCommand-v7d0ext	HandoverToUTRANCommand-v7d0ext-IEs,
-								nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								v890NonCriticalExtensions		SEQUENCE {
+									handoverToUTRANCommand-v890ext
+															HandoverToUTRANCommand-v890ext-IEs,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								}	OPTIONAL
 							}	OPTIONAL
 						},
-						criticalExtensions				SEQUENCE {}
+						criticalExtensions				CHOICE {
+							r9								SEQUENCE {
+								handoverToUTRANCommand-r9		HandoverToUTRANCommand-r9-IEs,
+								nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+							},
+							criticalExtensions				SEQUENCE {}
+						}
 					}
 				}
 			}
@@ -2097,6 +2311,86 @@ HandoverToUTRANCommand-v820ext-IEs ::= SEQUENCE {
 		rab-InformationSetupList		RAB-InformationSetupList-v820ext		OPTIONAL
 }
 
+HandoverToUTRANCommand-v890ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+		dl-HSPDSCH-Information			DL-HSPDSCH-Information-r8-ext		OPTIONAL
+}
+
+HandoverToUTRANCommand-r9-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		new-U-RNTI						U-RNTI-Short,
+		cipheringAlgorithm				CipheringAlgorithm-r7					OPTIONAL,
+		supportForChangeOfUE-Capability	BOOLEAN,
+		new-H-RNTI						H-RNTI									OPTIONAL,
+		newPrimary-E-RNTI				E-RNTI									OPTIONAL,
+		newSecondary-E-RNTI				E-RNTI									OPTIONAL,
+	-- Radio bearer IEs
+	-- Specification mode information
+		defaultConfigForCellFACH		DefaultConfigForCellFACH				OPTIONAL,
+		specificationMode				CHOICE {
+			complete						SEQUENCE {
+				srb-InformationSetupList		SRB-InformationSetupList-r8,
+				rab-InformationSetupList		RAB-InformationSetupList-r8		OPTIONAL,
+				ul-CommonTransChInfo			UL-CommonTransChInfo-r4,
+				ul-AddReconfTransChInfoList		UL-AddReconfTransChInfoList-r8,
+				dl-CommonTransChInfo			DL-CommonTransChInfo-r4,
+				dl-AddReconfTransChInfoList		DL-AddReconfTransChInfoList-r9,
+				ul-DPCH-Info					UL-DPCH-Info-r7,
+				ul-EDCH-Information				UL-EDCH-Information-r8			OPTIONAL,
+				dl-HSPDSCH-Information			DL-HSPDSCH-Information-r9		OPTIONAL,
+				dl-CommonInformation			DL-CommonInformation-r8,
+				dl-InformationPerRL-List		DL-InformationPerRL-List-r7,
+				frequencyInfo					FrequencyInfo,
+				multi-frequencyInfo				Multi-frequencyInfo-LCR-r7		OPTIONAL
+			},
+			preconfiguration				SEQUENCE {
+				-- All IEs that include an FDD/TDD choice are split in two IEs for this message,
+				-- one for the FDD only elements and one for the TDD only elements, so that one
+				-- FDD/TDD choice in this level is sufficient.
+				preConfigMode					CHOICE {
+					predefinedConfigIdentity		PredefinedConfigIdentity,
+					defaultConfig					SEQUENCE {
+						defaultConfigMode				DefaultConfigMode,
+						defaultConfigIdentity			DefaultConfigIdentity-r6,
+						dlul-HSPA-Information			DLUL-HSPA-Information-r8	OPTIONAL
+					}
+				},
+				rab-Info						RAB-Info-Post		OPTIONAL,
+				modeSpecificInfo				CHOICE {
+					fdd								SEQUENCE {
+						ul-DPCH-Info					UL-DPCH-InfoPostFDD,
+						dl-CommonInformationPost		DL-CommonInformationPost,
+						dl-InformationPerRL-List		DL-InformationPerRL-ListPostFDD,
+						frequencyInfo					FrequencyInfoFDD
+					},
+					tdd								CHOICE {
+						tdd384							SEQUENCE {
+							ul-DPCH-Info					UL-DPCH-InfoPostTDD,
+							dl-InformationPerRL				DL-InformationPerRL-PostTDD,
+							frequencyInfo					FrequencyInfoTDD,
+							primaryCCPCH-TX-Power			PrimaryCCPCH-TX-Power
+						},
+						tdd128							SEQUENCE {
+							ul-DPCH-Info					UL-DPCH-Info-r7,
+							dl-InformationPerRL				DL-InformationPerRL-PostTDD-LCR-r4,
+							frequencyInfo					FrequencyInfoTDD,
+							primaryCCPCH-TX-Power			PrimaryCCPCH-TX-Power,
+							multi-frequencyInfo				Multi-frequencyInfo-LCR-r7		OPTIONAL
+						},
+						tdd768							SEQUENCE {
+							ul-DPCH-Info					UL-DPCH-Info-r7,
+							dl-InformationPerRL				DL-InformationPerRL-List-r7,
+							frequencyInfo					FrequencyInfoTDD,
+							primaryCCPCH-TX-Power			PrimaryCCPCH-TX-Power
+						}
+					}
+				}
+			}
+		},
+	-- Physical channel IEs
+		maxAllowedUL-TX-Power			MaxAllowedUL-TX-Power
+}
+
 -- ***************************************************
 --
 -- HANDOVER TO UTRAN COMPLETE
@@ -2469,33 +2763,8 @@ InterRATHandoverInfo ::= SEQUENCE {
 									v690NonCriticalExtensions		SEQUENCE {
 										interRATHandoverInfo-v690ext
 																InterRATHandoverInfo-v690ext-IEs,
-										v6b0NonCriticalExtensions		SEQUENCE {
-											interRATHandoverInfo-v6b0ext		
-																InterRATHandoverInfo-v6b0ext-IEs,
-											v6e0NonCriticalExtensions		SEQUENCE {
-												interRATHandoverInfo-v6e0ext
-																InterRATHandoverInfo-v6e0ext-IEs,
-												v770NonCriticalExtensions		SEQUENCE {
-													interRATHandoverInfo-v770ext
-																InterRATHandoverInfo-v770ext-IEs,
-													v790nonCriticalExtensions		SEQUENCE {
-														interRATHandoverInfo-v790ext
-																InterRATHandoverInfo-v790ext-IEs,
-														v860NonCriticalExtensions		SEQUENCE {
-															interRATHandoverInfo-v860ext
-																InterRATHandoverInfo-v860ext-IEs,
-															v880NonCriticalExtensions
-	SEQUENCE {
-																interRATHandoverInfo-v880ext
-																	InterRATHandoverInfo-v880ext-IEs,
-																nonCriticalExtensions
-																	SEQUENCE {} OPTIONAL
-															}	OPTIONAL
-														}	OPTIONAL
-													}	OPTIONAL
-												}	OPTIONAL
-											}	OPTIONAL
-										}	OPTIONAL
+										v6b0NonCriticalExtensions		
+										InterRATHandoverInfo-NonCriticalExtension-v6b0-IEs	OPTIONAL
 									}	OPTIONAL
 								}	OPTIONAL
 							}	OPTIONAL
@@ -2532,7 +2801,10 @@ InterRATHandoverInfo-r3-add-ext-IEs ::= SEQUENCE {
 		interRATHandoverInfo-v690ext1		InterRATHandoverInfo-v690ext1-IEs,
 		v7e0NonCriticalExtensions			SEQUENCE {
 			interRATHandoverInfo-v7e0ext		InterRATHandoverInfo-v7e0ext-IEs,
-			nonCriticalExtensions				SEQUENCE {}		OPTIONAL
+			v7f0NonCriticalExtensions			SEQUENCE {
+				interRATHandoverInfo-v7f0ext		InterRATHandoverInfo-v7f0ext-IEs,
+				nonCriticalExtensions				SEQUENCE {}		OPTIONAL
+			}		OPTIONAL
 		}		OPTIONAL
 }
 
@@ -2564,6 +2836,29 @@ InterRATHandoverInfo-v690ext-IEs ::= SEQUENCE {
 		ue-RadioAccessCapabilityComp2		UE-RadioAccessCapabilityComp2
 }
 
+InterRATHandoverInfo-NonCriticalExtension-v6b0-IEs ::=	SEQUENCE {
+	interRATHandoverInfo-v6b0ext		InterRATHandoverInfo-v6b0ext-IEs,
+	v6e0NonCriticalExtensions			SEQUENCE {
+		interRATHandoverInfo-v6e0ext		InterRATHandoverInfo-v6e0ext-IEs,
+		v770NonCriticalExtensions			SEQUENCE {
+			interRATHandoverInfo-v770ext		InterRATHandoverInfo-v770ext-IEs,
+			v790nonCriticalExtensions			SEQUENCE {
+				interRATHandoverInfo-v790ext		InterRATHandoverInfo-v790ext-IEs,
+				v860NonCriticalExtensions			SEQUENCE {
+					interRATHandoverInfo-v860ext		InterRATHandoverInfo-v860ext-IEs,
+					v880NonCriticalExtensions			SEQUENCE {
+						interRATHandoverInfo-v880ext		InterRATHandoverInfo-v880ext-IEs,
+						v9xyNonCriticalExtensions			SEQUENCE {
+							interRATHandoverInfo-v9xyext		InterRATHandoverInfo-v9xyext-IEs,
+							nonCriticalExtensions					SEQUENCE {} OPTIONAL
+						}	OPTIONAL
+					}	OPTIONAL
+				}	OPTIONAL
+			}	OPTIONAL
+		}	OPTIONAL
+	}	OPTIONAL
+}
+
 InterRATHandoverInfo-v6b0ext-IEs ::= SEQUENCE {
 	-- User equipment IEs
 		supportForSIB11bis					ENUMERATED { true }			OPTIONAL
@@ -2590,6 +2885,12 @@ InterRATHandoverInfo-v7e0ext-IEs ::=	SEQUENCE {
 		ue-RadioAccessCapability			UE-RadioAccessCapability-v7e0ext		OPTIONAL
 }
 
+InterRATHandoverInfo-v7f0ext-IEs ::=	SEQUENCE {
+	-- User equipment IEs
+		ue-RadioAccessCapability			UE-RadioAccessCapability-v7f0ext		OPTIONAL,
+		ue-RadioAccessCapabilityComp2		UE-RadioAccessCapabilityComp2-v7f0ext	OPTIONAL
+}
+
 InterRATHandoverInfo-v860ext-IEs ::=	SEQUENCE {
 		ue-RadioAccessCapabilityInfo		UE-RadioAccessCapability-v860ext		OPTIONAL,
 		ue-RadioAccessCapabilityComp2		UE-RadioAccessCapabilityComp2-v860ext	OPTIONAL
@@ -2599,6 +2900,12 @@ InterRATHandoverInfo-v880ext-IEs ::=	SEQUENCE {
 	-- UE radio access capability
 		ue-RadioAccessCapabilityInfo			UE-RadioAccessCapability-v880ext		OPTIONAL,
 		ue-RadioAccessCapabilityInfo-TDD128	UE-RadioAccessCapabilityComp-TDD128		OPTIONAL
+}
+
+InterRATHandoverInfo-v9xyext-IEs ::=	SEQUENCE {
+		ue-RadioAccessCapabilityInfo		UE-RadioAccessCapability-v9xyext		OPTIONAL,
+		ue-RadioAccessCapabilityComp2		UE-RadioAccessCapabilityComp2-v9xyext	OPTIONAL,
+		supportOfenhancedTS0				ENUMERATED { true }						OPTIONAL
 }
 
 -- ***************************************************
@@ -2683,9 +2990,20 @@ MeasurementControl ::= CHOICE {
 								measurementControl-r8			MeasurementControl-r8-IEs,
 								-- Container for adding non critical extensions after freezing REL-9
 								measurementControl-r8-add-ext	BIT STRING		OPTIONAL,
-								nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								v9xyNonCriticalExtensions		SEQUENCE {
+									measurementControl-v9xyext		MeasurementControl-v9xyext-IEs,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								}	OPTIONAL
 							},
+							criticalExtensions				CHOICE {
+								r9								SEQUENCE {
+									measurementControl-r9			MeasurementControl-r9-IEs,
+									-- Container for adding non critical extensions after freezing REL-10
+									measurementControl-r9-add-ext	BIT STRING		OPTIONAL,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								},
 							criticalExtensions				SEQUENCE {}
+							}
 						}
 					}
 				}
@@ -2788,6 +3106,21 @@ MeasurementControl-r8-IEs ::= SEQUENCE {
 		dpch-CompressedModeStatusInfo	DPCH-CompressedModeStatusInfo		OPTIONAL
 }
 
+MeasurementControl-v9xyext-IEs ::= SEQUENCE {
+		ue-Positioning-Measurement-v9xyext	UE-Positioning-Measurement-v9xyext	OPTIONAL
+}
+
+MeasurementControl-r9-IEs ::= SEQUENCE {
+	-- Measurement IEs
+		measurementIdentity				MeasurementIdentity,
+		-- TABULAR: The measurement type is included in measurementCommand.
+		measurementCommand				MeasurementCommand-r9,
+		measurementReportingMode		MeasurementReportingMode			OPTIONAL,
+		additionalMeasurementList		AdditionalMeasurementID-List		OPTIONAL,
+	-- Physical channel IEs
+		dpch-CompressedModeStatusInfo	DPCH-CompressedModeStatusInfo		OPTIONAL
+}
+
 -- ***************************************************
 --
 -- MEASUREMENT CONTROL FAILURE
@@ -2850,7 +3183,10 @@ MeasurementReport ::= SEQUENCE {
 									measurementReport-v770ext		MeasurementReport-v770ext-IEs,
 									v860NonCriticalExtensions		SEQUENCE {
 										measurementReport-v860ext	MeasurementReport-v860ext-IEs,
-										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+										v9xyNonCriticalExtensions		SEQUENCE {
+											measurementReport-v9xyext	MeasurementReport-v9xyext-IEs,
+											nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+										}	OPTIONAL
 									}		OPTIONAL
 								}		OPTIONAL
 							}		OPTIONAL
@@ -2902,6 +3238,12 @@ MeasurementReport-v860ext-IEs ::= SEQUENCE {
 	eventResults						EventResults-v860ext				OPTIONAL,
 	eutra-MeasuredResults				EUTRA-MeasuredResults				OPTIONAL,
 	eutra-EventResults					EUTRA-EventResults					OPTIONAL
+}
+
+MeasurementReport-v9xyext-IEs ::= SEQUENCE {
+	cSGProximityIndication				CSGProximityIndication				OPTIONAL,
+	measuredResults						MeasuredResults-v9xyext				OPTIONAL,
+	eventResults						EventResults-v9xyext				OPTIONAL
 }
 
 -- ***************************************************
@@ -3061,7 +3403,11 @@ PhysicalChannelReconfiguration ::= CHOICE {
 								v7d0NonCriticalExtensions		SEQUENCE {
 									physicalChannelReconfiguration-v7d0ext
 														PhysicalChannelReconfiguration-v7d0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v7f0NonCriticalExtensions		SEQUENCE {
+										physicalChannelReconfiguration-v7f0ext
+														PhysicalChannelReconfiguration-v7f0ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							}	OPTIONAL
 						},
@@ -3074,10 +3420,29 @@ PhysicalChannelReconfiguration ::= CHOICE {
 								v7d0NonCriticalExtensions		SEQUENCE {
 									physicalChannelReconfiguration-v7d0ext
 														PhysicalChannelReconfiguration-v7d0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v7f0NonCriticalExtensions		SEQUENCE {
+										physicalChannelReconfiguration-v7f0ext
+														PhysicalChannelReconfiguration-v7f0ext-IEs,
+										v890NonCriticalExtensions		SEQUENCE {
+											physicalChannelReconfiguration-v890ext
+														PhysicalChannelReconfiguration-v890ext-IEs,
+											nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+										}	OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							},
-							criticalExtensions				SEQUENCE {}
+							criticalExtensions				CHOICE {
+								r9								SEQUENCE {
+									physicalChannelReconfiguration-r9
+															PhysicalChannelReconfiguration-r9-IEs,
+									-- Container for adding non critical extensions after 
+									-- freezing REL-10
+									physicalChannelReconfiguration-r8-add-ext
+																			BIT STRING	OPTIONAL,
+									nonCriticalExtensions			SEQUENCE {}			OPTIONAL
+								},
+								criticalExtensions				SEQUENCE {}
+							}
 						}
 					}
 				}
@@ -3330,6 +3695,11 @@ PhysicalChannelReconfiguration-v7d0ext-IEs ::= SEQUENCE {
 		ul-EDCH-Information				UL-EDCH-Information-ext				OPTIONAL
 }
 
+PhysicalChannelReconfiguration-v7f0ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+		mimoParameters					MIMO-Parameters-v7f0ext				OPTIONAL
+}
+
 PhysicalChannelReconfiguration-r8-IEs ::= SEQUENCE {
 	-- User equipment IEs
 		integrityProtectionModeInfo		IntegrityProtectionModeInfo-r7		OPTIONAL,
@@ -3371,6 +3741,61 @@ PhysicalChannelReconfiguration-r8-IEs ::= SEQUENCE {
 		dl-CommonInformation			DL-CommonInformation-r8				OPTIONAL,
 		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
 		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD				OPTIONAL,
+		controlChannelDRXInfo-TDD128	ControlChannelDRXInfo-TDD128-r8		OPTIONAL,
+		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL,
+	-- MBMS IEs
+		mbms-PL-ServiceRestrictInfo		MBMS-PL-ServiceRestrictInfo-r6		OPTIONAL
+}
+
+PhysicalChannelReconfiguration-v890ext-IEs ::=	SEQUENCE {
+	-- User Equipment IEs
+		dl-SecondaryCellInfoFDD-v890ext		DL-SecondaryCellInfoFDD-v890ext		OPTIONAL,
+	-- Physical channel IEs
+		dl-HSPDSCH-Information				DL-HSPDSCH-Information-r8-ext		OPTIONAL
+}
+
+PhysicalChannelReconfiguration-r9-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		integrityProtectionModeInfo		IntegrityProtectionModeInfo-r7		OPTIONAL,
+		cipheringModeInfo				CipheringModeInfo-r7				OPTIONAL,
+		activationTime					ActivationTime						OPTIONAL,
+		delayRestrictionFlag			DelayRestrictionFlag				OPTIONAL,
+		new-U-RNTI						U-RNTI								OPTIONAL,
+		new-C-RNTI						C-RNTI								OPTIONAL,
+		-- The IE "new-DSCH-RNTI" should not be included in FDD mode,
+		-- and if received the UE behaviour is unspecified
+		new-DSCH-RNTI					DSCH-RNTI							OPTIONAL,
+		new-H-RNTI						H-RNTI								OPTIONAL,
+		newPrimary-E-RNTI				E-RNTI								OPTIONAL,
+		newSecondary-E-RNTI				E-RNTI								OPTIONAL,
+		rrc-StateIndicator				RRC-StateIndicator,
+		ueMobilityStateIndicator		High-MobilityDetected				OPTIONAL,
+		utran-DRX-CycleLengthCoeff		UTRAN-DRX-CycleLengthCoefficient-r7	OPTIONAL,
+	-- Core network IEs
+		cn-InformationInfo				CN-InformationInfo-r6				OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+		supportForChangeOfUE-Capability	BOOLEAN								OPTIONAL,
+		responseToChangeOfUE-Capability	ENUMERATED { true }					OPTIONAL,
+	-- Radio bearer IEs
+		dl-CounterSynchronisationInfo	DL-CounterSynchronisationInfo-r5	OPTIONAL,
+	-- Transport channel IEs
+		harqInfo						HARQ-Info-r7						OPTIONAL,
+	-- Physical channel IEs
+		frequencyInfo					FrequencyInfo						OPTIONAL,
+		multi-frequencyInfo				Multi-frequencyInfo-LCR-r7			OPTIONAL,
+		dtx-drx-TimingInfo				DTX-DRX-TimingInfo-r7				OPTIONAL,
+		dtx-drx-Info					DTX-DRX-Info-r7						OPTIONAL,
+		hs-scch-LessInfo				HS-SCCH-LessInfo-r7					OPTIONAL,
+		mimoParameters					MIMO-Parameters-r9					OPTIONAL,
+		maxAllowedUL-TX-Power			MaxAllowedUL-TX-Power				OPTIONAL,
+		ul-DPCH-Info					UL-DPCH-Info-r7						OPTIONAL,
+		ul-EDCH-Information				UL-EDCH-Information-r8				OPTIONAL,
+		ul-SecondaryCellInfoFDD			UL-SecondaryCellInfoFDD				OPTIONAL,
+		dl-HSPDSCH-Information			DL-HSPDSCH-Information-r9			OPTIONAL,
+		dl-CommonInformation			DL-CommonInformation-r8				OPTIONAL,
+		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
+		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD-r9			OPTIONAL,
 		controlChannelDRXInfo-TDD128	ControlChannelDRXInfo-TDD128-r8		OPTIONAL,
 		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL,
 	-- MBMS IEs
@@ -3663,7 +4088,11 @@ RadioBearerReconfiguration ::= CHOICE {
 									v7d0NonCriticalExtensions		SEQUENCE {
 										radioBearerReconfiguration-v7d0ext
 															RadioBearerReconfiguration-v7d0ext-IEs,
-										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+										v7f0NonCriticalExtensions		SEQUENCE {
+											radioBearerReconfiguration-v7f0ext
+															RadioBearerReconfiguration-v7f0ext-IEs,
+											nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+										}	OPTIONAL
 									}	OPTIONAL
 								}	OPTIONAL
 							}	OPTIONAL
@@ -3676,10 +4105,28 @@ RadioBearerReconfiguration ::= CHOICE {
 								v7d0NonCriticalExtensions		SEQUENCE {
 									radioBearerReconfiguration-v7d0ext
 															RadioBearerReconfiguration-v7d0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v7f0NonCriticalExtensions		SEQUENCE {
+										radioBearerReconfiguration-v7f0ext
+															RadioBearerReconfiguration-v7f0ext-IEs,
+										v890NonCriticalExtensions		SEQUENCE {
+											radioBearerReconfiguration-v890ext
+															RadioBearerReconfiguration-v890ext-IEs,
+											nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+										}	OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							},
-							criticalExtensions				SEQUENCE {}
+							criticalExtensions				CHOICE {
+								r9								SEQUENCE {
+									radioBearerReconfiguration-r9																									RadioBearerReconfiguration-r9-IEs,
+									-- Container for adding non critical extensions after 
+									-- freezing REL-10
+									radioBearerReconfiguration-r9-add-ext
+																	BIT STRING		OPTIONAL,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								},
+								criticalExtensions				SEQUENCE {}
+							}
 						}
 					}
 				}
@@ -4077,6 +4524,11 @@ RadioBearerReconfiguration-v7d0ext-IEs ::= SEQUENCE {
 		ul-EDCH-Information				UL-EDCH-Information-ext				OPTIONAL
 }
 
+RadioBearerReconfiguration-v7f0ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+	mimoParameters						MIMO-Parameters-v7f0ext				OPTIONAL
+}
+
 RadioBearerReconfiguration-r8-IEs ::= SEQUENCE {
 	-- User equipment IEs
 		integrityProtectionModeInfo		IntegrityProtectionModeInfo-r7		OPTIONAL,
@@ -4146,6 +4598,89 @@ RadioBearerReconfiguration-r8-IEs ::= SEQUENCE {
 		dl-CommonInformation			DL-CommonInformation-r8				OPTIONAL,
 		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
 		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD				OPTIONAL,
+		controlChannelDRXInfo-TDD128	ControlChannelDRXInfo-TDD128-r8		OPTIONAL,
+		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL,
+	-- MBMS IEs
+		mbms-PL-ServiceRestrictInfo		MBMS-PL-ServiceRestrictInfo-r6		OPTIONAL
+}
+
+RadioBearerReconfiguration-v890ext-IEs ::=	SEQUENCE {
+	-- User Equipment IEs
+		dl-SecondaryCellInfoFDD-v890ext		DL-SecondaryCellInfoFDD-v890ext		OPTIONAL,
+	-- Physical channel IEs
+		dl-HSPDSCH-Information				DL-HSPDSCH-Information-r8-ext		OPTIONAL
+}
+
+RadioBearerReconfiguration-r9-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		integrityProtectionModeInfo		IntegrityProtectionModeInfo-r7		OPTIONAL,
+		cipheringModeInfo				CipheringModeInfo-r7				OPTIONAL,
+		activationTime					ActivationTime						OPTIONAL,
+		delayRestrictionFlag			DelayRestrictionFlag				OPTIONAL,
+		new-U-RNTI						U-RNTI								OPTIONAL,
+		new-C-RNTI						C-RNTI								OPTIONAL,
+		-- The IE "new-DSCH-RNTI" should not be included in FDD mode,
+		-- and if received the UE behaviour is unspecified
+		new-DSCH-RNTI					DSCH-RNTI							OPTIONAL,
+		new-H-RNTI						H-RNTI								OPTIONAL,
+		newPrimary-E-RNTI				E-RNTI								OPTIONAL,
+		newSecondary-E-RNTI				E-RNTI								OPTIONAL,
+		rrc-StateIndicator				RRC-StateIndicator,
+		ueMobilityStateIndicator		High-MobilityDetected				OPTIONAL,
+		utran-DRX-CycleLengthCoeff		UTRAN-DRX-CycleLengthCoefficient-r7	OPTIONAL,
+	-- Core network IEs
+		cn-InformationInfo				CN-InformationInfo-r6				OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+		supportForChangeOfUE-Capability	BOOLEAN								OPTIONAL,
+		responseToChangeOfUE-Capability	ENUMERATED { true }					OPTIONAL,
+	-- Specification mode information
+		defaultConfigForCellFACH		DefaultConfigForCellFACH			OPTIONAL,
+		specificationMode				CHOICE {
+			complete						SEQUENCE {
+			-- Radio bearer IEs
+				rab-InformationReconfigList		RAB-InformationReconfigList-r8		OPTIONAL,
+				rab-InformationMBMSPtpList		RAB-InformationMBMSPtpList			OPTIONAL,
+				rb-InformationReconfigList		RB-InformationReconfigList-r8		OPTIONAL,
+				rb-InformationAffectedList		RB-InformationAffectedList-r8		OPTIONAL,
+				rb-PDCPContextRelocationList	RB-PDCPContextRelocationList		OPTIONAL,
+				pdcp-ROHC-TargetMode			PDCP-ROHC-TargetMode				OPTIONAL,
+			-- Transport channel IEs
+				ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
+				ul-deletedTransChInfoList		UL-DeletedTransChInfoList-r6		OPTIONAL,
+				ul-AddReconfTransChInfoList		UL-AddReconfTransChInfoList-r8		OPTIONAL,
+				dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
+				dl-DeletedTransChInfoList		DL-DeletedTransChInfoList-r7		OPTIONAL,
+				dl-AddReconfTransChInfoList		DL-AddReconfTransChInfoList-r9		OPTIONAL
+			},
+			preconfiguration				SEQUENCE {
+			-- All IEs that include an FDD/TDD choice are split in two IEs for this message,
+			-- one for the FDD only elements and one for the TDD only elements, so that one
+			-- FDD/TDD choice in this level is sufficient.
+				preConfigMode					CHOICE {
+					predefinedConfigIdentity		PredefinedConfigIdentity,
+					defaultConfig					SEQUENCE {
+						defaultConfigMode				DefaultConfigMode,
+						defaultConfigIdentity 			DefaultConfigIdentity-r6
+					}
+				}
+			}
+		},
+	-- Physical channel IEs
+		frequencyInfo					FrequencyInfo						OPTIONAL,
+		multi-frequencyInfo				Multi-frequencyInfo-LCR-r7			OPTIONAL,
+		dtx-drx-TimingInfo				DTX-DRX-TimingInfo-r7				OPTIONAL,
+		dtx-drx-Info					DTX-DRX-Info-r7						OPTIONAL,
+		hs-scch-LessInfo				HS-SCCH-LessInfo-r7					OPTIONAL,
+		mimoParameters					MIMO-Parameters-r9					OPTIONAL,
+		maxAllowedUL-TX-Power			MaxAllowedUL-TX-Power				OPTIONAL,
+		ul-DPCH-Info					UL-DPCH-Info-r7						OPTIONAL,
+		ul-EDCH-Information				UL-EDCH-Information-r8				OPTIONAL,
+		ul-SecondaryCellInfoFDD			UL-SecondaryCellInfoFDD				OPTIONAL,
+		dl-HSPDSCH-Information			DL-HSPDSCH-Information-r9			OPTIONAL,
+		dl-CommonInformation			DL-CommonInformation-r8				OPTIONAL,
+		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
+		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD-r9			OPTIONAL,
 		controlChannelDRXInfo-TDD128	ControlChannelDRXInfo-TDD128-r8		OPTIONAL,
 		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL,
 	-- MBMS IEs
@@ -4291,7 +4826,10 @@ RadioBearerRelease ::= CHOICE {
 								radioBearerRelease-v780ext		RadioBearerRelease-v780ext-IEs,
 								v7d0NonCriticalExtensions		SEQUENCE {
 									radioBearerRelease-v7d0ext		RadioBearerRelease-v7d0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v7f0NonCriticalExtensions		SEQUENCE {
+										radioBearerRelease-v7f0ext	RadioBearerRelease-v7f0ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							}	OPTIONAL
 						},
@@ -4302,10 +4840,26 @@ RadioBearerRelease ::= CHOICE {
 								radioBearerRelease-r8-add-ext	BIT STRING		OPTIONAL,
 								v7d0NonCriticalExtensions		SEQUENCE {
 									radioBearerRelease-v7d0ext		RadioBearerRelease-v7d0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v7f0NonCriticalExtensions		SEQUENCE {
+										radioBearerRelease-v7f0ext	RadioBearerRelease-v7f0ext-IEs,
+										v890NonCriticalExtensions		SEQUENCE {
+											radioBearerRelease-v890ext
+																	RadioBearerRelease-v890ext-IEs,
+											nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+										}	OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							},
-							criticalExtensions				SEQUENCE {}
+							criticalExtensions				CHOICE {
+								r9								SEQUENCE {
+									radioBearerRelease-r9			RadioBearerRelease-r9-IEs,
+									-- Container for adding non critical extensions after 
+									-- freezing REL-10
+									radioBearerRelease-r9-add-ext	BIT STRING		OPTIONAL,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								},
+								criticalExtensions				SEQUENCE {}
+							}
 						}
 					}
 				}
@@ -4635,6 +5189,11 @@ RadioBearerRelease-v7d0ext-IEs ::= SEQUENCE {
 		ul-EDCH-Information				UL-EDCH-Information-ext				OPTIONAL
 }
 
+RadioBearerRelease-v7f0ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+	mimoParameters						MIMO-Parameters-v7f0ext				OPTIONAL
+}
+
 RadioBearerRelease-r8-IEs ::= SEQUENCE {
 	-- User equipment IEs
 		integrityProtectionModeInfo		IntegrityProtectionModeInfo-r7		OPTIONAL,
@@ -4684,6 +5243,71 @@ RadioBearerRelease-r8-IEs ::= SEQUENCE {
 		dl-CommonInformation			DL-CommonInformation-r8				OPTIONAL,
 		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
 		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD				OPTIONAL,
+		controlChannelDRXInfo-TDD128	ControlChannelDRXInfo-TDD128-r8		OPTIONAL,
+		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL,
+	-- MBMS IEs
+		mbms-PL-ServiceRestrictInfo		MBMS-PL-ServiceRestrictInfo-r6		OPTIONAL,
+		mbms-RB-ListReleasedToChangeTransferMode
+										RB-InformationReleaseList			OPTIONAL
+}
+
+RadioBearerRelease-v890ext-IEs ::=	SEQUENCE {
+	-- User Equipment IEs
+		dl-SecondaryCellInfoFDD-v890ext		DL-SecondaryCellInfoFDD-v890ext		OPTIONAL,
+	-- Physical channel IEs
+		dl-HSPDSCH-Information				DL-HSPDSCH-Information-r8-ext		OPTIONAL
+}
+
+RadioBearerRelease-r9-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		integrityProtectionModeInfo		IntegrityProtectionModeInfo-r7		OPTIONAL,
+		cipheringModeInfo				CipheringModeInfo-r7				OPTIONAL,
+		activationTime					ActivationTime						OPTIONAL,
+		new-U-RNTI						U-RNTI								OPTIONAL,
+		new-C-RNTI						C-RNTI								OPTIONAL,
+		-- The IE "new-DSCH-RNTI" should not be included in FDD mode,
+		-- and if received the UE behaviour is unspecified
+		new-DSCH-RNTI					DSCH-RNTI							OPTIONAL,
+		new-H-RNTI						H-RNTI								OPTIONAL,
+		newPrimary-E-RNTI				E-RNTI								OPTIONAL,
+		newSecondary-E-RNTI				E-RNTI								OPTIONAL,
+		rrc-StateIndicator				RRC-StateIndicator,
+		ueMobilityStateIndicator		High-MobilityDetected				OPTIONAL,
+		utran-DRX-CycleLengthCoeff		UTRAN-DRX-CycleLengthCoefficient-r7	OPTIONAL,
+	-- Core network IEs
+		cn-InformationInfo				CN-InformationInfo-r6				OPTIONAL,
+		signallingConnectionRelIndication	CN-DomainIdentity				OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+		supportForChangeOfUE-Capability	BOOLEAN								OPTIONAL,
+	-- Radio bearer IEs
+		rab-InformationReconfigList		RAB-InformationReconfigList-r8		OPTIONAL,
+		rb-InformationReleaseList		RB-InformationReleaseList,
+		rb-InformationReconfigList		RB-InformationReconfigList-r8		OPTIONAL,
+		rb-InformationAffectedList		RB-InformationAffectedList-r8		OPTIONAL,
+		dl-CounterSynchronisationInfo	DL-CounterSynchronisationInfo-r5	OPTIONAL,
+	-- Transport channel IEs
+		ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
+		ul-deletedTransChInfoList		UL-DeletedTransChInfoList-r6		OPTIONAL,
+		ul-AddReconfTransChInfoList		UL-AddReconfTransChInfoList-r8		OPTIONAL,
+		dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
+		dl-DeletedTransChInfoList		DL-DeletedTransChInfoList-r7		OPTIONAL,
+		dl-AddReconfTransChInfoList		DL-AddReconfTransChInfoList-r9		OPTIONAL,
+	-- Physical channel IEs
+		frequencyInfo					FrequencyInfo						OPTIONAL,
+		multi-frequencyInfo				Multi-frequencyInfo-LCR-r7			OPTIONAL,
+		dtx-drx-TimingInfo				DTX-DRX-TimingInfo-r7				OPTIONAL,
+		dtx-drx-Info					DTX-DRX-Info-r7						OPTIONAL,
+		hs-scch-LessInfo				HS-SCCH-LessInfo-r7					OPTIONAL,
+		mimoParameters					MIMO-Parameters-r9					OPTIONAL,
+		maxAllowedUL-TX-Power			MaxAllowedUL-TX-Power				OPTIONAL,
+		ul-DPCH-Info					UL-DPCH-Info-r7						OPTIONAL,
+		ul-EDCH-Information				UL-EDCH-Information-r8				OPTIONAL,
+		ul-SecondaryCellInfoFDD			UL-SecondaryCellInfoFDD				OPTIONAL,
+		dl-HSPDSCH-Information			DL-HSPDSCH-Information-r9			OPTIONAL,
+		dl-CommonInformation			DL-CommonInformation-r8				OPTIONAL,
+		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
+		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD-r9			OPTIONAL,
 		controlChannelDRXInfo-TDD128	ControlChannelDRXInfo-TDD128-r8		OPTIONAL,
 		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL,
 	-- MBMS IEs
@@ -4840,10 +5464,26 @@ RadioBearerSetup ::= CHOICE {
 								radioBearerSetup-r8-add-ext		BIT STRING		OPTIONAL,
 								v7d0NonCriticalExtensions		SEQUENCE {
 									radioBearerSetup-v7d0ext		RadioBearerSetup-v7d0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v7f0NonCriticalExtensions		SEQUENCE {
+										radioBearerSetup-v7f0ext	RadioBearerSetup-v7f0ext-IEs,
+										v890NonCriticalExtensions		SEQUENCE {
+											radioBearerSetup-v890ext
+																	RadioBearerSetup-v890ext-IEs,
+											nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+										}	OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							},
-							criticalExtensions				SEQUENCE {}
+							criticalExtensions				CHOICE {
+								r9								SEQUENCE {
+									radioBearerSetup-r9				RadioBearerSetup-r9-IEs,
+									-- Container for adding non critical extensions after 
+									-- freezing REL-10
+									radioBearerSetup-r9-add-ext		BIT STRING		OPTIONAL,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								},
+								criticalExtensions				SEQUENCE {}
+							}
 						}
 					}
 				}
@@ -5183,7 +5823,10 @@ RadioBearerSetup-r7-IEs ::= SEQUENCE {
 
 RadioBearerSetup-r7-add-ext-IEs ::= SEQUENCE {
 		radioBearerSetup-v7d0ext		RadioBearerSetup-v7d0ext-IEs		OPTIONAL,
-		nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+		v7f0NonCriticalExtensions		SEQUENCE {
+			radioBearerSetup-v7f0ext			RadioBearerSetup-v7f0ext-IEs,
+			nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+		}	OPTIONAL
 }
 
 RadioBearerSetup-v780ext-IEs ::= SEQUENCE {
@@ -5194,6 +5837,11 @@ RadioBearerSetup-v780ext-IEs ::= SEQUENCE {
 RadioBearerSetup-v7d0ext-IEs ::= SEQUENCE {
 	-- Physical channel IEs
 		ul-EDCH-Information				UL-EDCH-Information-ext				OPTIONAL
+}
+
+RadioBearerSetup-v7f0ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+	mimoParameters						MIMO-Parameters-v7f0ext				OPTIONAL
 }
 
 RadioBearerSetup-r8-IEs ::= SEQUENCE {
@@ -5255,6 +5903,70 @@ RadioBearerSetup-r8-IEs ::= SEQUENCE {
 RadioBearerSetup-v820ext-IEs ::= SEQUENCE {
 	-- Radio bearer IEs
 		rab-InformationSetupList		RAB-InformationSetupList-v820ext	OPTIONAL
+}
+
+RadioBearerSetup-v890ext-IEs ::=	SEQUENCE {
+	-- User Equipment IEs
+		dl-SecondaryCellInfoFDD-v890ext		DL-SecondaryCellInfoFDD-v890ext		OPTIONAL,
+	-- Physical channel IEs
+		dl-HSPDSCH-Information				DL-HSPDSCH-Information-r8-ext		OPTIONAL
+}
+
+RadioBearerSetup-r9-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		integrityProtectionModeInfo		IntegrityProtectionModeInfo-r7		OPTIONAL,
+		cipheringModeInfo				CipheringModeInfo-r7				OPTIONAL,
+		sr-vcc-Info						SR-VCC-Info							OPTIONAL,
+		activationTime					ActivationTime						OPTIONAL,
+		new-U-RNTI						U-RNTI								OPTIONAL,
+		new-C-RNTI						C-RNTI								OPTIONAL,
+		-- The IE "new-DSCH-RNTI" should not be included in FDD mode,
+		-- and if received the UE behaviour is unspecified
+		new-DSCH-RNTI					DSCH-RNTI							OPTIONAL,
+		new-H-RNTI						H-RNTI								OPTIONAL,
+		newPrimary-E-RNTI				E-RNTI								OPTIONAL,
+		newSecondary-E-RNTI				E-RNTI								OPTIONAL,
+		rrc-StateIndicator				RRC-StateIndicator,
+		utran-DRX-CycleLengthCoeff		UTRAN-DRX-CycleLengthCoefficient-r7	OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+		supportForChangeOfUE-Capability	BOOLEAN								OPTIONAL,
+	-- Core network IEs
+		cn-InformationInfo				CN-InformationInfo-r6				OPTIONAL,
+	-- Radio bearer IEs
+		srb-InformationSetupList		SRB-InformationSetupList-r8			OPTIONAL,
+		rab-InformationSetupList		RAB-InformationSetupList-r8			OPTIONAL,
+		rab-InformationReconfigList		RAB-InformationReconfigList-r8		OPTIONAL,
+		rb-InformationReconfigList		RB-InformationReconfigList-r8		OPTIONAL,
+		rb-InformationAffectedList		RB-InformationAffectedList-r8		OPTIONAL,
+		dl-CounterSynchronisationInfo	DL-CounterSynchronisationInfo-r5	OPTIONAL,
+		pdcp-ROHC-TargetMode			PDCP-ROHC-TargetMode				OPTIONAL,
+	-- Transport channel IEs
+		ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
+		ul-deletedTransChInfoList		UL-DeletedTransChInfoList-r6		OPTIONAL,
+		ul-AddReconfTransChInfoList		UL-AddReconfTransChInfoList-r8		OPTIONAL,
+		dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
+		dl-DeletedTransChInfoList		DL-DeletedTransChInfoList-r7		OPTIONAL,
+		dl-AddReconfTransChInfoList		DL-AddReconfTransChInfoList-r9		OPTIONAL,
+	-- Physical channel IEs
+		frequencyInfo					FrequencyInfo						OPTIONAL,
+		multi-frequencyInfo				Multi-frequencyInfo-LCR-r7			OPTIONAL,
+		dtx-drx-TimingInfo				DTX-DRX-TimingInfo-r7				OPTIONAL,
+		dtx-drx-Info					DTX-DRX-Info-r7						OPTIONAL,
+		hs-scch-LessInfo				HS-SCCH-LessInfo-r7					OPTIONAL,
+		mimoParameters					MIMO-Parameters-r9					OPTIONAL,
+		maxAllowedUL-TX-Power			MaxAllowedUL-TX-Power				OPTIONAL,
+		ul-DPCH-Info					UL-DPCH-Info-r7						OPTIONAL,
+		ul-EDCH-Information				UL-EDCH-Information-r8				OPTIONAL,
+		ul-SecondaryCellInfoFDD			UL-SecondaryCellInfoFDD				OPTIONAL,
+		dl-HSPDSCH-Information			DL-HSPDSCH-Information-r9			OPTIONAL,
+		dl-CommonInformation			DL-CommonInformation-r8				OPTIONAL,
+		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
+		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD-r9			OPTIONAL,
+		controlChannelDRXInfo-TDD128	ControlChannelDRXInfo-TDD128-r8		OPTIONAL,
+		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL,
+	-- MBMS IEs
+		mbms-PL-ServiceRestrictInfo		MBMS-PL-ServiceRestrictInfo-r6		OPTIONAL
 }
 
 -- ***************************************************
@@ -5593,7 +6305,11 @@ RRCConnectionRequest ::= SEQUENCE {
 											v7e0NonCriticalExtensions		SEQUENCE {
 												rrcConnectionRequest-v7e0ext
 																RRCConnectionRequest-v7e0ext-IEs,
-												nonCriticalExtensions		SEQUENCE {}		OPTIONAL
+												v9xyNonCriticalExtensions		SEQUENCE {
+													rrcConnectionRequest-v9xyext
+																RRCConnectionRequest-v9xyext-IEs,
+													nonCriticalExtensions		SEQUENCE {}		OPTIONAL
+												}	OPTIONAL
 											}	OPTIONAL
 										}	OPTIONAL
 									}	OPTIONAL
@@ -5668,6 +6384,11 @@ RRCConnectionRequest-v860ext-IEs ::= 	SEQUENCE {
 		pre-redirectionInfo					Pre-RedirectionInfo					OPTIONAL,
 		supportOfMACiis						ENUMERATED { true }					OPTIONAL,
 		supportOfSPSOperation				ENUMERATED { true }					OPTIONAL
+}
+
+RRCConnectionRequest-v9xyext-IEs ::=	SEQUENCE {
+	-- User equipment IEs
+		supportOfDualCellMIMO				ENUMERATED { true }					OPTIONAL
 }
 
 -- ***************************************************
@@ -5752,10 +6473,23 @@ RRCConnectionSetup ::= CHOICE {
 								rrcConnectionSetup-r8-add-ext	BIT STRING				OPTIONAL,
 								v7d0NonCriticalExtensions		SEQUENCE {
 									rrcConnectionSetup-v7d0ext		RRCConnectionSetup-v7d0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v890NonCriticalExtensions		SEQUENCE {
+										rrcConnectionSetup-v890ext
+																	RRCConnectionSetup-v890ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							},
-							criticalExtensions				SEQUENCE {}
+							criticalExtensions				CHOICE {
+								r9								SEQUENCE {
+									rrcConnectionSetup-r9			RRCConnectionSetup-r9-IEs,
+									-- Container for adding non critical extensions after 
+									-- freezing REL-10
+									rrcConnectionSetup-r9-add-ext																										BIT STRING		OPTIONAL,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								},
+								criticalExtensions				SEQUENCE {}
+							}
 						}
 					}
 				}
@@ -6056,6 +6790,68 @@ RRCConnectionSetup-r8-IEs ::= SEQUENCE {
 		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL
 }
 
+RRCConnectionSetup-v890ext-IEs ::=	SEQUENCE {
+	-- User Equipment IEs
+		dl-SecondaryCellInfoFDD-v890ext		DL-SecondaryCellInfoFDD-v890ext		OPTIONAL,
+	-- Physical channel IEs
+		dl-HSPDSCH-Information				DL-HSPDSCH-Information-r8-ext		OPTIONAL
+}
+
+RRCConnectionSetup-r9-IEs ::= SEQUENCE {
+	-- TABULAR: Integrity protection shall not be performed on this message.
+		activationTime					ActivationTime						OPTIONAL,
+		new-U-RNTI						U-RNTI,
+		new-c-RNTI						C-RNTI								OPTIONAL,
+		new-H-RNTI						H-RNTI								OPTIONAL,
+		newPrimary-E-RNTI				E-RNTI								OPTIONAL,
+		newSecondary-E-RNTI				E-RNTI								OPTIONAL,
+		rrc-StateIndicator				RRC-StateIndicator,
+		utran-DRX-CycleLengthCoeff		UTRAN-DRX-CycleLengthCoefficient-r7,
+		-- TABULAR: If capabilityUpdateRequirement is not present, the default value
+		-- defined in 10.3.3.2 shall be used.
+		capabilityUpdateRequirement		CapabilityUpdateRequirement-r8		OPTIONAL,
+		supportForChangeOfUE-Capability	BOOLEAN,
+	-- Specification mode information
+		defaultConfigForCellFACH		DefaultConfigForCellFACH			OPTIONAL,
+		specificationMode				CHOICE {
+			complete						SEQUENCE {
+				-- Radio bearer IEs
+				srb-InformationSetupList		SRB-InformationSetupList2-r8,
+				-- Transport channel IEs
+				ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
+				ul-AddReconfTransChInfoList		UL-AddReconfTransChInfoList-r8		OPTIONAL,
+				dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
+				dl-AddReconfTransChInfoList		DL-AddReconfTransChInfoList-r9		OPTIONAL
+			},
+			preconfiguration				SEQUENCE {
+				-- All IEs that include an FDD/TDD choice are split in two IEs for this message,
+				-- one for the FDD only elements and one for the TDD only elements, so that one
+				-- FDD/TDD choice in this level is sufficient.
+				preConfigMode					CHOICE {
+					predefinedConfigIdentity		PredefinedConfigIdentity,
+					defaultConfig					SEQUENCE {
+						defaultConfigMode				DefaultConfigMode,
+						defaultConfigIdentity 			DefaultConfigIdentity-r6
+					}
+				}
+			}
+		},
+	-- Physical channel IEs
+		frequencyInfo					FrequencyInfo						OPTIONAL,
+		multi-frequencyInfo				Multi-frequencyInfo-LCR-r7			OPTIONAL,
+		dtx-drx-TimingInfo				DTX-DRX-TimingInfo-r7				OPTIONAL,
+		dtx-drx-Info					DTX-DRX-Info-r7						OPTIONAL,
+		hs-scch-LessInfo				HS-SCCH-LessInfo-r7					OPTIONAL,
+		maxAllowedUL-TX-Power			MaxAllowedUL-TX-Power				OPTIONAL,
+		ul-DPCH-Info					UL-DPCH-Info-r7						OPTIONAL,
+		ul-EDCH-Information				UL-EDCH-Information-r8				OPTIONAL,
+		dl-HSPDSCH-Information			DL-HSPDSCH-Information-r9			OPTIONAL,
+		dl-CommonInformation			DL-CommonInformation-r8				OPTIONAL,
+		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
+		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD-r9			OPTIONAL,
+		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL
+}
+
 -- ***************************************************
 --
 -- RRC CONNECTION SETUP COMPLETE
@@ -6139,7 +6935,11 @@ RRCConnectionSetupComplete-r3-add-ext-IEs ::= SEQUENCE {
 			rrcConnectionSetupComplete-v680ext		RRCConnectionSetupComplete-v680ext-IEs,
 			v7e0NonCriticalExtensions				SEQUENCE {
 				rrcConnectionSetupComplete-v7e0ext		RRCConnectionSetupComplete-v7e0ext-IEs,
-				nonCriticalExtensions					SEQUENCE {}		OPTIONAL
+				v7f0NonCriticalExtensions				SEQUENCE {
+					rrcConnectionSetupComplete-v7f0ext
+														RRCConnectionSetupComplete-v7f0ext-IEs,
+					nonCriticalExtensions					SEQUENCE {}		OPTIONAL
+				}		OPTIONAL
 			}		OPTIONAL
 		}		OPTIONAL
 }
@@ -6184,6 +6984,11 @@ RRCConnectionSetupComplete-v770ext-IEs ::= SEQUENCE {
 RRCConnectionSetupComplete-v7e0ext-IEs ::= SEQUENCE {
 	-- User equipment IEs
 		ue-RadioAccessCapability				UE-RadioAccessCapability-v7e0ext
+}
+
+RRCConnectionSetupComplete-v7f0ext-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		ue-RadioAccessCapability				UE-RadioAccessCapability-v7f0ext	OPTIONAL
 }
 
 -- ***************************************************
@@ -6668,7 +7473,11 @@ TransportChannelReconfiguration ::= CHOICE {
 								v7d0NonCriticalExtensions		SEQUENCE {
 									transportChannelReconfiguration-v7d0ext
 														TransportChannelReconfiguration-v7d0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v7f0NonCriticalExtensions		SEQUENCE {
+										transportChannelReconfiguration-v7f0ext
+														TransportChannelReconfiguration-v7f0ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							}	OPTIONAL
 						},
@@ -6682,10 +7491,29 @@ TransportChannelReconfiguration ::= CHOICE {
 								v7d0NonCriticalExtensions		SEQUENCE {
 									transportChannelReconfiguration-v7d0ext
 														TransportChannelReconfiguration-v7d0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v7f0NonCriticalExtensions		SEQUENCE {
+										transportChannelReconfiguration-v7f0ext
+														TransportChannelReconfiguration-v7f0ext-IEs,
+										v890NonCriticalExtensions		SEQUENCE {
+											transportChannelReconfiguration-v890ext
+													TransportChannelReconfiguration-v890ext-IEs,
+											nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+										}	OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							},
-							criticalExtensions				SEQUENCE {}
+							criticalExtensions				CHOICE {
+								r9								SEQUENCE {
+									transportChannelReconfiguration-r9
+															TransportChannelReconfiguration-r9-IEs,
+									-- Container for adding non critical extensions after 
+									-- freezing REL-10
+									transportChannelReconfiguration-r9-add-ext
+																	BIT STRING		OPTIONAL,
+									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+								},
+								criticalExtensions				SEQUENCE {}
+							}
 						}
 					}
 				}
@@ -6982,6 +7810,11 @@ TransportChannelReconfiguration-v7d0ext-IEs ::= SEQUENCE {
 		ul-EDCH-Information			UL-EDCH-Information-ext				OPTIONAL
 }
 
+TransportChannelReconfiguration-v7f0ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+	mimoParameters						MIMO-Parameters-v7f0ext				OPTIONAL
+}
+
 TransportChannelReconfiguration-r8-IEs ::= SEQUENCE {
 	-- User equipment IEs
 		integrityProtectionModeInfo		IntegrityProtectionModeInfo-r7		OPTIONAL,
@@ -7026,6 +7859,64 @@ TransportChannelReconfiguration-r8-IEs ::= SEQUENCE {
 		dl-CommonInformation			DL-CommonInformation-r8				OPTIONAL,
 		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
 		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD				OPTIONAL,
+		controlChannelDRXInfo-TDD128	ControlChannelDRXInfo-TDD128-r8		OPTIONAL,
+		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL,
+	-- MBMS IEs
+		mbms-PL-ServiceRestrictInfo		MBMS-PL-ServiceRestrictInfo-r6		OPTIONAL
+}
+
+TransportChannelReconfiguration-v890ext-IEs ::=	SEQUENCE {
+	-- User Equipment IEs
+		dl-SecondaryCellInfoFDD-v890ext		DL-SecondaryCellInfoFDD-v890ext		OPTIONAL,
+	-- Physical channel IEs
+		dl-HSPDSCH-Information				DL-HSPDSCH-Information-r8-ext		OPTIONAL
+}
+
+TransportChannelReconfiguration-r9-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		integrityProtectionModeInfo		IntegrityProtectionModeInfo-r7		OPTIONAL,
+		cipheringModeInfo				CipheringModeInfo-r7				OPTIONAL,
+		activationTime					ActivationTime						OPTIONAL,
+		delayRestrictionFlag			DelayRestrictionFlag				OPTIONAL,
+		new-U-RNTI						U-RNTI								OPTIONAL,
+		new-C-RNTI						C-RNTI								OPTIONAL,
+		-- The IE "new-DSCH-RNTI" should not be included in FDD mode,
+		-- and if received the UE behaviour is unspecified
+		new-DSCH-RNTI					DSCH-RNTI							OPTIONAL,
+		new-H-RNTI						H-RNTI								OPTIONAL,
+		newPrimary-E-RNTI				E-RNTI								OPTIONAL,
+		newSecondary-E-RNTI				E-RNTI								OPTIONAL,
+		rrc-StateIndicator				RRC-StateIndicator,
+		ueMobilityStateIndicator		High-MobilityDetected				OPTIONAL,
+		utran-DRX-CycleLengthCoeff		UTRAN-DRX-CycleLengthCoefficient-r7	OPTIONAL,
+	-- Core network IEs
+		cn-InformationInfo				CN-InformationInfo-r6				OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+		supportForChangeOfUE-Capability	BOOLEAN								OPTIONAL,
+		responseToChangeOfUE-Capability	ENUMERATED { true }					OPTIONAL,
+	-- Radio bearer IEs
+		dl-CounterSynchronisationInfo	DL-CounterSynchronisationInfo-r5	OPTIONAL,
+	-- Transport channel IEs
+		ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
+		ul-AddReconfTransChInfoList		UL-AddReconfTransChInfoList-r8		OPTIONAL,
+		dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
+		dl-AddReconfTransChInfoList		DL-AddReconfTransChInfoList-r9		OPTIONAL,
+	-- Physical channel IEs
+		frequencyInfo					FrequencyInfo						OPTIONAL,
+		multi-frequencyInfo				Multi-frequencyInfo-LCR-r7			OPTIONAL,
+		dtx-drx-TimingInfo				DTX-DRX-TimingInfo-r7				OPTIONAL,
+		dtx-drx-Info					DTX-DRX-Info-r7						OPTIONAL,
+		hs-scch-LessInfo				HS-SCCH-LessInfo-r7					OPTIONAL,
+		mimoParameters					MIMO-Parameters-r9					OPTIONAL,
+		maxAllowedUL-TX-Power			MaxAllowedUL-TX-Power				OPTIONAL,
+		ul-DPCH-Info					UL-DPCH-Info-r7						OPTIONAL,
+		ul-EDCH-Information				UL-EDCH-Information-r8				OPTIONAL,
+		ul-SecondaryCellInfoFDD			UL-SecondaryCellInfoFDD				OPTIONAL,
+		dl-HSPDSCH-Information			DL-HSPDSCH-Information-r9			OPTIONAL,
+		dl-CommonInformation			DL-CommonInformation-r8				OPTIONAL,
+		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
+		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD-r9			OPTIONAL,
 		controlChannelDRXInfo-TDD128	ControlChannelDRXInfo-TDD128-r8		OPTIONAL,
 		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL,
 	-- MBMS IEs
@@ -7256,7 +8147,10 @@ UECapabilityInformation-r3-add-ext-IEs ::= SEQUENCE {
 			ueCapabilityInformation-v680ext		UECapabilityInformation-v680ext-IEs,
 			v7e0NonCriticalExtensions			SEQUENCE {
 				ueCapabilityInformation-v7e0ext		UECapabilityInformation-v7e0ext-IEs,
-				nonCriticalExtensions				SEQUENCE {}		OPTIONAL
+				v7f0NonCriticalExtensions			SEQUENCE {
+					ueCapabilityInformation-v7f0ext		UECapabilityInformation-v7f0ext-IEs,
+					nonCriticalExtensions				SEQUENCE {}		OPTIONAL
+				}		OPTIONAL
 			}		OPTIONAL
 		}		OPTIONAL
 }
@@ -7297,6 +8191,11 @@ UECapabilityInformation-v690ext-IEs ::= SEQUENCE {
 UECapabilityInformation-v7e0ext-IEs ::= SEQUENCE {
 	-- User equipment IEs
 		ue-RadioAccessCapability				UE-RadioAccessCapability-v7e0ext
+}
+
+UECapabilityInformation-v7f0ext-IEs ::= SEQUENCE {
+	-- User equipment IEs
+		ue-RadioAccessCapability				UE-RadioAccessCapability-v7f0ext	OPTIONAL
 }
 
 -- ***************************************************
@@ -7985,7 +8884,10 @@ MBMSGeneralInformation ::= SEQUENCE {
 				mbmsGeneralInformation-v770ext	MBMSGeneralInformation-v770ext-IEs,
 				v860NonCriticalExtensions		SEQUENCE {
 					mbmsGeneralInformation-v860ext	MBMSGeneralInformation-v860ext-IEs,
-					nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+						v890NoncriticalExtensions	SEQUENCE {
+							mbmsGeneralInformation-v890ext	MBMSGeneralInformation-v890ext-IEs,
+							nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+						}		OPTIONAL
 				}		OPTIONAL
 			}		OPTIONAL
 		}		OPTIONAL
@@ -8004,6 +8906,12 @@ MBMSGeneralInformation-v770ext-IEs ::= SEQUENCE {
 MBMSGeneralInformation-v860ext-IEs ::= SEQUENCE {
 		mbsfnInterFrequencyNeighbourList
 									MBSFN-InterFrequencyNeighbourList-v860ext	OPTIONAL
+}
+
+MBMSGeneralInformation-v890ext-IEs ::= SEQUENCE {
+		mbmsNetworkStandardTimeInformation-LCR
+									MBMS-NetworkStandardTimeInformation-LCR-v890ext	OPTIONAL,
+		mbmsMICHConfiguration			MBMS-MICHConfigurationInfo-v890ext		OPTIONAL
 }
 
 -- ***************************************************

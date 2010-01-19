@@ -1,7 +1,7 @@
 -- $Id$
 -- Constant-definitions.asn
 --
--- 3GPP TS 25.331 V8.8.0 (2009-09)
+-- 3GPP TS 25.331 V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.4	Constant definitions
@@ -21,6 +21,7 @@ maxASCmap					INTEGER ::= 7
 maxASCpersist				INTEGER ::= 6
 maxCCTrCH					INTEGER ::= 8
 maxCellMeas 				INTEGER ::= 32
+maxCellMeasOnSecULFreq 		INTEGER ::= 32
 maxCellMeas-1				INTEGER ::= 31
 maxCNdomains				INTEGER ::= 4
 maxCommonHRNTI				INTEGER ::= 4
@@ -35,6 +36,7 @@ maxE-DCHMACdFlow-1			INTEGER ::= 7
 maxEUTRACellPerFreq			INTEGER ::= 16
 maxEUTRATargetFreqs			INTEGER ::= 8
 maxEDCHRL					INTEGER ::= 4
+maxEDCHRL-1					INTEGER ::= 3
 maxEDCHs					INTEGER ::= 32
 maxEDCHTxPattern-TDD128		INTEGER ::= 4 -- maxEDCHTxPattern-TDD128	should be 3
 maxEDCHTxPattern-TDD128-1	INTEGER ::= 3 -- maxEDCHTxPattern-TDD128-1	should be 2
@@ -80,7 +82,9 @@ maxMBMSservSelect			INTEGER ::= 8
 maxMBMSservUnmodif			INTEGER ::= 64
 maxMBMSTransmis				INTEGER ::= 4
 maxMBSFNClusters			INTEGER ::= 16
+maxMeasCSGRange				INTEGER ::= 4
 maxMeasEvent				INTEGER ::= 8
+maxMeasEventOnSecULFreq		INTEGER ::= 8
 maxMeasIntervals			INTEGER ::= 3
 maxMeasParEvent				INTEGER ::= 2
 maxNumCDMA2000Freqs			INTEGER ::=  8
@@ -109,6 +113,7 @@ maxPRACH-FPACH				INTEGER ::= 8
 maxPredefConfig				INTEGER ::= 16
 maxPrio						INTEGER ::= 8
 maxPrio-1					INTEGER ::= 7
+maxCSGProximityIndications	INTEGER ::= 4
 maxPUSCH					INTEGER ::= 8
 maxQueueIDs					INTEGER ::= 8
 maxRABsetup					INTEGER ::= 16
@@ -136,6 +141,7 @@ maxSgnType					INTEGER ::= 8
 maxSIB						INTEGER ::= 32
 maxSIB-FACH					INTEGER ::= 8
 maxSIBperMsg				INTEGER ::= 16
+maxSIrequest				INTEGER ::= 4
 maxSRBsetup					INTEGER ::= 8
 maxSystemCapability			INTEGER ::= 16
 maxTDD128Carrier			INTEGER ::= 6

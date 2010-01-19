@@ -1,7 +1,7 @@
 -- $Id$
 -- Internode-definitions.asn
 --
--- 3GPP TS 25.331 V8.8.0 (2009-09)
+-- 3GPP TS 25.331 V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.5	RRC information between network nodes
@@ -90,6 +90,7 @@ FROM PDU-definitions
 	UE-RadioAccessCapability-v590ext,
 	UE-RadioAccessCapability-v5c0ext,
 	UE-RadioAccessCapability-v7e0ext,
+	UE-RadioAccessCapability-v7f0ext,
 	UL-PhysChCapabilityFDD,
 	UL-PhysChCapabilityFDD-r6,
 	UL-PhysChCapabilityTDD,
@@ -120,6 +121,7 @@ FROM PDU-definitions
 	DL-AddReconfTransChInfoList-r4,
 	DL-AddReconfTransChInfoList-r5,
 	DL-AddReconfTransChInfoList-r7,
+	DL-AddReconfTransChInfoList-r9,
 	DRAC-StaticInformationList,
 	UL-CommonTransChInfo,
 	UL-CommonTransChInfo-r4,
@@ -128,6 +130,7 @@ FROM PDU-definitions
 	UL-AddReconfTransChInfoList-r7,
 	UL-AddReconfTransChInfoList-r8,
 -- Physical Channel IEs :
+	FrequencyInfo,
 	PrimaryCPICH-Info,
 	TPC-CombinationIndex,
 	ScramblingCodeChange,
@@ -151,6 +154,7 @@ FROM PDU-definitions
 	MeasurementType-r6,
 	MeasurementType-r7,
 	MeasurementType-r8,
+	MeasurementType-r9,
 	AdditionalMeasurementID-List,
 	PositionEstimate,
 	ReportingCellStatus,
@@ -160,6 +164,7 @@ FROM PDU-definitions
 	MBMS-JoinedInformation-r6,
 	MBMS-SelectedServiceInfo,
 -- Other IEs :
+	CSGProximityIndication,
 	GERANIu-RadioAccessCapability,
 	GSM-MS-RadioAccessCapability,
 	InterRAT-UE-RadioAccessCapabilityList,
@@ -168,6 +173,8 @@ FROM PDU-definitions
 	InterRAT-UE-RadioAccessCapability-v860ext,
 	UE-HistoryInformation,
 	UESpecificBehaviourInformation1idle,
+	-- WS fix
+	CSGProximityIndicationList,
 	UESpecificBehaviourInformation1interRAT
 
 FROM InformationElements
@@ -245,7 +252,11 @@ InterRATHandoverInfoWithInterRATCapabilities-r3 ::= CHOICE {
 				v860NonCriticalExtensions		SEQUENCE {
 					interRATHandoverInfoWithInterRATCapabilities-v860ext
 										InterRATHandoverInfoWithInterRATCapabilities-v860ext-IEs,
-					nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+					v9xyNonCriticalExtensions		SEQUENCE {
+						interRATHandoverInfoWithInterRATCapabilities-v9xyext
+										InterRATHandoverInfoWithInterRATCapabilities-v9xyext-IEs,
+						nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+					}		OPTIONAL
 				}		OPTIONAL
 			}		OPTIONAL
 		}		OPTIONAL
@@ -279,6 +290,11 @@ InterRATHandoverInfoWithInterRATCapabilities-v690ext-IEs ::= SEQUENCE {
 InterRATHandoverInfoWithInterRATCapabilities-v860ext-IEs ::= SEQUENCE {
 	-- Other IEs
 		ue-RATSpecificCapability			InterRAT-UE-RadioAccessCapability-v860ext	OPTIONAL
+}
+
+InterRATHandoverInfoWithInterRATCapabilities-v9xyext-IEs ::= SEQUENCE {
+	-- Other IEs
+		ue-Inactivity-Period				INTEGER (1..120)	OPTIONAL
 }
 
 -- ***************************************************
@@ -353,10 +369,12 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 																	v7e0NonCriticalExtensions	SEQUENCE {
 																		sRNC-RelocationInfo-v7e0ext
 																			SRNC-RelocationInfo-v7e0ext-IEs,
-																		-- Reserved for future non critical
-																		-- extension
-																		nonCriticalExtensions
+																		v7f0NonCriticalExtensions	SEQUENCE {
+																			sRNC-RelocationInfo-v7f0ext
+																			SRNC-RelocationInfo-v7f0ext-IEs,
+																			nonCriticalExtensions
 																						SEQUENCE {}	OPTIONAL
+																		}		OPTIONAL
 																	}		OPTIONAL
 																}		OPTIONAL
 															}		OPTIONAL
@@ -400,7 +418,11 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 											v7e0NonCriticalExtensions			SEQUENCE {
 												sRNC-RelocationInfo-v7e0ext
 																	SRNC-RelocationInfo-v7e0ext-IEs,
-												nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+												v7f0NonCriticalExtensions			SEQUENCE {
+													sRNC-RelocationInfo-v7f0ext
+																	SRNC-RelocationInfo-v7f0ext-IEs,
+													nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+												}	OPTIONAL
 											}	OPTIONAL
 										}	OPTIONAL
 									}	OPTIONAL
@@ -431,7 +453,11 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 											v7e0NonCriticalExtensions			SEQUENCE {
 												sRNC-RelocationInfo-v7e0ext
 																	SRNC-RelocationInfo-v7e0ext-IEs,
-												nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+												v7f0NonCriticalExtensions			SEQUENCE {
+													sRNC-RelocationInfo-v7f0ext
+																	SRNC-RelocationInfo-v7f0ext-IEs,
+													nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+											}	OPTIONAL
 										}	OPTIONAL
 									}	OPTIONAL
 								}	OPTIONAL
@@ -478,10 +504,21 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 							sRNC-RelocationInfo-r8-add-ext	BIT STRING		OPTIONAL,
 							v7e0NonCriticalExtensions		SEQUENCE {
 								sRNC-RelocationInfo-v7e0ext		SRNC-RelocationInfo-v7e0ext-IEs,
-								nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+								v7f0NonCriticalExtensions		SEQUENCE {
+									sRNC-RelocationInfo-v7f0ext
+															SRNC-RelocationInfo-v7f0ext-IEs,
+									nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+								}	OPTIONAL
 							}	OPTIONAL
 						},
-						criticalExtensions				SEQUENCE {}
+						criticalExtensions				CHOICE {
+							r9								SEQUENCE {
+								sRNC-RelocationInfo-r9			SRNC-RelocationInfo-r9-IEs,
+								sRNC-RelocationInfo-r9-add-ext	BIT STRING		OPTIONAL,
+								nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+							},
+							criticalExtensions				SEQUENCE {}
+						}
 					}
 				}
 			}
@@ -611,6 +648,9 @@ SRNC-RelocationInfo-v4d0ext-IEs ::= SEQUENCE {
 
 TPC-CombinationInfoList ::= SEQUENCE (SIZE (1..maxRL)) OF
 		TPC-Combination-Info
+
+TPC-CombinationInfoList-r9 ::= SEQUENCE (SIZE (1..maxEDCHRL)) OF
+		TPC-Combination-Info-r9
 
 STARTList2 ::=						SEQUENCE (SIZE (2..maxCNdomains)) OF
 										STARTSingle
@@ -922,7 +962,10 @@ SRNC-RelocationInfo-r6-IEs ::=			SEQUENCE {
 
 SRNC-RelocationInfo-r6-add-ext-IEs ::= SEQUENCE {
 		sRNC-RelocationInfo-v7e0ext		SRNC-RelocationInfo-v7e0ext-IEs,
-		nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+		v7f0NonCriticalExtensions			SEQUENCE {
+			sRNC-RelocationInfo-v7f0ext		SRNC-RelocationInfo-v7f0ext-IEs,
+			nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+	}	OPTIONAL
 }
 
 SRNC-RelocationInfo-v6b0ext-IEs ::=	SEQUENCE {
@@ -1013,7 +1056,10 @@ SRNC-RelocationInfo-r7-IEs ::=			SEQUENCE {
 
 SRNC-RelocationInfo-r7-add-ext-IEs ::= SEQUENCE {
 		sRNC-RelocationInfo-v7e0ext		SRNC-RelocationInfo-v7e0ext-IEs,
-		nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+		v7f0NonCriticalExtensions			SEQUENCE {
+			sRNC-RelocationInfo-v7f0ext		SRNC-RelocationInfo-v7f0ext-IEs,
+			nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+	}	OPTIONAL
 }
 
 SRNC-RelocationInfo-v770ext-IEs ::= SEQUENCE {
@@ -1024,6 +1070,11 @@ SRNC-RelocationInfo-v770ext-IEs ::= SEQUENCE {
 SRNC-RelocationInfo-v7e0ext-IEs ::=	SEQUENCE {
 	-- User equipment IEs
 		ue-RadioAccessCapability			UE-RadioAccessCapability-v7e0ext
+}
+
+SRNC-RelocationInfo-v7f0ext-IEs ::=	SEQUENCE {
+	-- User equipment IEs
+		ue-RadioAccessCapability			UE-RadioAccessCapability-v7f0ext		OPTIONAL
 }
 
 SRNC-RelocationInfo-r8-IEs ::=			SEQUENCE {
@@ -1115,6 +1166,90 @@ SRNC-RelocationInfo-v820ext-IEs ::=	SEQUENCE {
 SRNC-RelocationInfo-v860ext-IEs ::=	SEQUENCE {
 	-- PhyCH IEs
 		e-RGCH-CombinationInfoList		E-RGCH-CombinationInfoList			OPTIONAL
+}
+
+SRNC-RelocationInfo-r9-IEs ::=			SEQUENCE {
+	-- Non-RRC IEs
+		-- IE rb-IdentityForHOMessage includes the identity of the RB used by the source SRNC
+		-- to send the message contained in the IE "TargetRNC-ToSourceRNC-Container".
+		-- Only included if type is "UE involved"
+		rb-IdentityForHOMessage			RB-Identity							OPTIONAL,
+		stateOfRRC						StateOfRRC,
+		stateOfRRC-Procedure			StateOfRRC-Procedure,
+	-- Ciphering related information IEs
+		cipheringStatusList				CipheringStatusList-r4,
+		latestConfiguredCN-Domain		CN-DomainIdentity,
+		calculationTimeForCiphering		CalculationTimeForCiphering			OPTIONAL,
+		count-C-List					COUNT-C-List						OPTIONAL,
+		cipheringInfoPerRB-List			CipheringInfoPerRB-List-r4			OPTIONAL,
+	-- Integrity protection related information IEs
+		integrityProtectionStatus		IntegrityProtectionStatus,
+		srb-SpecificIntegrityProtInfo	SRB-SpecificIntegrityProtInfoList	OPTIONAL,
+		implementationSpecificParams	ImplementationSpecificParams		OPTIONAL,
+	-- User equipment IEs
+		u-RNTI							U-RNTI,
+		c-RNTI							C-RNTI								OPTIONAL,
+		-- IE 'UE-RadioAccessCapability-r6' includes the Rel-5 radio access capability extensions
+		-- and earlier. Rel-6 and later extensions are included in IE 'UE-CapabilityContainer-IEs'.
+		ue-RadioAccessCapability		UE-RadioAccessCapability-r6,
+		ue-RadioAccessCapability-ext	UE-RadioAccessCapabBandFDDList		OPTIONAL,
+		ue-Positioning-LastKnownPos		UE-Positioning-LastKnownPos			OPTIONAL,
+		uESpecificBehaviourInformation1idle
+										UESpecificBehaviourInformation1idle		OPTIONAL,
+		uESpecificBehaviourInformation1interRAT
+										UESpecificBehaviourInformation1interRAT		OPTIONAL,
+		-- IE ueCapabilityContainer is used for the transparent transfer of capability information
+		-- received from the UE
+		ueCapabilityContainer			BIT STRING
+											(CONTAINING UE-CapabilityContainer-IEs)	OPTIONAL,
+		-- IE ueCapabilityContainer-RSC and IE ueCapabilityContainer-UCI are used for the 
+		-- transparent transfer of capability information received from the UE that was introduced 
+		-- in a release independent manner, i.e., transferred within a VLEC. These UE capabilities 
+		-- are included both in the RRC CONNECTION SETUP COMPLETE and the UE CAPABILITY INFORMATION 
+		-- messages. Only the VLEC of one message needs to be included i.e. the one from these
+		-- messages that was last received.
+		-- Case 1: If the last received message was a RRC CONNECTION SETUP COMPLETE (RSC)
+		ueCapabilityContainer-RSC		BIT STRING
+							(CONTAINING RRCConnectionSetupComplete-r3-add-ext-IEs)	OPTIONAL,
+		-- Case 2: If the last received message was a UE CAPABILITY INFORMATION (UCI)
+		ueCapabilityContainer-UCI		BIT STRING
+							(CONTAINING UECapabilityInformation-r3-add-ext-IEs)		OPTIONAL,
+	-- Other IEs
+		ue-RATSpecificCapability		InterRAT-UE-RadioAccessCapabilityList-r5	OPTIONAL,
+	-- UTRAN mobility IEs
+		ura-Identity					URA-Identity						OPTIONAL,
+		srns-t-305						T-305								OPTIONAL,
+	-- Core network IEs
+		cn-CommonGSM-MAP-NAS-SysInfo	NAS-SystemInformationGSM-MAP,
+		cn-DomainInformationList		CN-DomainInformationListFull		OPTIONAL,
+	-- Measurement IEs
+		ongoingMeasRepList				OngoingMeasRepList-r9				OPTIONAL,
+		interRATCellInfoIndication		InterRATCellInfoIndication			OPTIONAL,
+	-- Radio bearer IEs
+		predefinedConfigStatusList		PredefinedConfigStatusList,
+		srb-InformationList				SRB-InformationSetupList-r8,
+		rab-InformationList				RAB-InformationSetupList-r8			OPTIONAL,
+	-- Transport channel IEs
+		ul-CommonTransChInfo			UL-CommonTransChInfo-r4				OPTIONAL,
+		ul-TransChInfoList				UL-AddReconfTransChInfoList-r8		OPTIONAL,
+		dl-CommonTransChInfo			DL-CommonTransChInfo-r4				OPTIONAL,
+		dl-TransChInfoList				DL-AddReconfTransChInfoList-r9		OPTIONAL,
+	-- PhyCH IEs
+		tpc-CombinationInfoList			TPC-CombinationInfoList				OPTIONAL,
+		e-RGCH-CombinationInfoList		E-RGCH-CombinationInfoList			OPTIONAL,
+		storedCompressedModeInfo		StoredCompressedModeInfo-r8			OPTIONAL,
+		secondary-tpc-CombinationInfoList		TPC-CombinationInfoList-r9		OPTIONAL,
+		secondary-e-RGCH-CombinationInfoList	E-RGCH-CombinationInfoList-r9	OPTIONAL,
+	-- Measurement report
+		measurementReport				BIT STRING
+							(CONTAINING MeasurementReport)					OPTIONAL,
+	-- Other IEs
+		cSGproximityIndicationList		CSGProximityIndicationList			OPTIONAL,
+		failureCause					FailureCauseWithProtErr				OPTIONAL,
+		ue-HistoryInformation			UE-HistoryInformation				OPTIONAL,
+	-- MBMS IEs
+		mbms-JoinedInformation			MBMS-JoinedInformation-r6			OPTIONAL,
+		mbmsSelectedServiceInfo			MBMS-SelectedServiceInfo			OPTIONAL
 }
 
 -- IE definitions
@@ -1258,8 +1393,16 @@ E-RGCH-Combination-Info ::=			SEQUENCE{
 	rg-CombinationIndex					INTEGER (0..5)
 }
 
+E-RGCH-Combination-Info-r9 ::=			SEQUENCE{
+	primaryCPICH-Info					PrimaryCPICH-Info,
+	rg-CombinationIndex					INTEGER (0..5)
+}
+
 E-RGCH-CombinationInfoList ::=		SEQUENCE (SIZE (1..maxEDCHRL)) OF
 										E-RGCH-Combination-Info
+
+E-RGCH-CombinationInfoList-r9 ::=		SEQUENCE (SIZE (1..maxEDCHRL)) OF
+										E-RGCH-Combination-Info-r9
 
 ImplementationSpecificParams ::=	BIT STRING (SIZE (1..512))
 
@@ -1321,6 +1464,12 @@ MeasurementCommandWithType-r8 ::=	CHOICE {
 	release								NULL
 }
 
+MeasurementCommandWithType-r9 ::=	CHOICE {
+	setup								MeasurementType-r9,
+	modify								NULL,
+	release								NULL
+}
+
 OngoingMeasRep ::=					SEQUENCE {
 	measurementIdentity					MeasurementIdentity,
 	-- TABULAR: The CHOICE Measurement in the tabular description is included
@@ -1377,6 +1526,13 @@ OngoingMeasRep-r8 ::=				SEQUENCE {
 	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL
 }
 
+OngoingMeasRep-r9 ::=				SEQUENCE {
+	measurementIdentity					MeasurementIdentity,
+	measurementCommandWithType			MeasurementCommandWithType-r9,
+	measurementReportingMode			MeasurementReportingMode			OPTIONAL,
+	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL
+}
+
 OngoingMeasRepList ::=				SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 										OngoingMeasRep
 
@@ -1394,6 +1550,12 @@ OngoingMeasRepList-r7 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 
 OngoingMeasRepList-r8 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 										OngoingMeasRep-r8
+
+OngoingMeasRepList-r9 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
+										OngoingMeasRep-r9
+-- WS fix: Imported from InformationElements
+--CSGProximityIndicationList ::=		SEQUENCE (SIZE (1..maxNoOfMeas)) OF
+--										CSGProximityIndication
 
 PDCP-Capability-r4 ::=				SEQUENCE {
 	losslessSRNS-RelocationSupport		BOOLEAN,
@@ -1545,6 +1707,11 @@ TotalRLC-AM-BufferSize-r5 ::=		ENUMERATED {
 TPC-Combination-Info ::= SEQUENCE {
 		primaryCPICH-Info					PrimaryCPICH-Info,
 		tpc-CombinationIndex				TPC-CombinationIndex
+}
+
+TPC-Combination-Info-r9 ::= SEQUENCE {
+	primaryCPICH-Info					PrimaryCPICH-Info,
+	tpc-CombinationIndex				TPC-CombinationIndex
 }
 
 UE-MultiModeRAT-Capability-r5 ::=	SEQUENCE {

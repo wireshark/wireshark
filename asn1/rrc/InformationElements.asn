@@ -1,7 +1,7 @@
 -- $Id$
 -- InformationElements.asn
 --
--- 3GPP TS 25.331 V8.8.0 (2009-09)
+-- 3GPP TS 25.331 V9.1.0 (2009-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.3	Information element definitions
@@ -24,6 +24,7 @@ IMPORTS
 	maxCCTrCH,
 	maxCellMeas,
 	maxCellMeas-1,
+	maxCellMeasOnSecULFreq,
 	maxCNdomains,
 	maxCommonHRNTI,
 	maxCommonQueueID,
@@ -80,7 +81,9 @@ IMPORTS
 	maxMBMSservUnmodif,
 	maxMBMSTransmis,
 	maxMBSFNClusters,
+	maxMeasCSGRange,
 	maxMeasEvent,
+	maxMeasEventOnSecULFreq,
 	maxMeasIntervals,
 	maxMeasParEvent,
 	maxNumCDMA2000Freqs,
@@ -109,6 +112,7 @@ IMPORTS
 	maxPredefConfig,
 	maxPrio,
 	maxPrio-1,
+	maxCSGProximityIndications,
 	maxPUSCH,
 	maxQueueIDs,
 	maxRABsetup,
@@ -126,6 +130,7 @@ IMPORTS
 	maxRL,
 	maxRL-1,
 	maxEDCHRL,
+	maxEDCHRL-1,
 	maxROHC-PacketSizes-r4,
 	maxROHC-Profile-r4,
 	maxRxPatternForHSDSCH-TDD128,
@@ -136,6 +141,7 @@ IMPORTS
 	maxSgnType,
 	maxSIB,
 	maxSIB-FACH,
+	maxSIrequest,
 	maxSystemCapability,
 	maxTDD128Carrier,
 	maxTbsForHSDSCH-TDD128,
@@ -661,6 +667,8 @@ BackoffControlParams ::=			SEQUENCE {
 	t-CPCH								T-CPCH
 }
 
+BandComb	::=						INTEGER (1..256)
+
 C-RNTI ::=							BIT STRING (SIZE (16))
 
 CapabilityUpdateRequirement ::=		SEQUENCE {
@@ -802,6 +810,10 @@ CompressedModeMeasCapability-v860ext ::= SEQUENCE {
 	adjacentFrequencyMeasurements		ENUMERATED { true }					OPTIONAL
 }
 
+CompressedModeMeasCapability-v9xyext ::= SEQUENCE {
+	interBandMeasurements				ENUMERATED { true }					OPTIONAL
+}
+
 CompressedModeMeasCapabEUTRA ::=	SEQUENCE {
 	radioFrequencyBandEUTRA				RadioFrequencyBandEUTRA,
 	compressedMode						BOOLEAN
@@ -875,6 +887,21 @@ DL-CapabilityWithSimultaneousHS-DSCHConfig ::=	ENUMERATED{kbps32, kbps64, kbps12
 
 DL-DPCCH-BER ::=					INTEGER (0..63)
 
+DL-InformationPerSecondaryRL-List ::=		SEQUENCE (SIZE (1..maxEDCHRL)) OF
+													DL-InformationPerSecondaryRL
+
+DL-InformationPerSecondaryRL ::=		SEQUENCE {
+	primaryCPICH-Info						PrimaryCPICH-Info,
+	cell-id									CellIdentity			OPTIONAL,
+	dl-FDPCHInfoPerRL-SecULFreq				DL-FDPCH-InfoPerRL-r7,
+	e-AGCH-Information						E-AGCH-Information		OPTIONAL,
+	e-HICH-Information						E-HICH-Information		OPTIONAL,
+	e-RGCH-Info								CHOICE	{
+		e-RGCH-Information						E-RGCH-Information,
+		releaseIndicator						NULL
+	}	OPTIONAL
+}
+
 DL-PhysChCapabilityFDD ::=			SEQUENCE {
 	-- The IE "maxNoDPCH-PDSCH-Codes" only gives information on the maximum number of DPCH Codes.
 	maxNoDPCH-PDSCH-Codes				INTEGER (1..8),
@@ -906,6 +933,10 @@ DL-PhysChCapabilityFDD-v860ext ::=		SEQUENCE {
 	hsdsch-physical-layer-category-ext2		HSDSCH-physical-layer-category-ext2	OPTIONAL,
 	supportOfTargetCellPreConfig			ENUMERATED { true }					OPTIONAL,
 	supportOfHsdschDrxOperation				ENUMERATED { true }					OPTIONAL
+}
+
+DL-PhysChCapabilityFDD-v9xyext ::=		SEQUENCE {
+	hsdsch-physical-layer-category-ext3		HSDSCH-physical-layer-category-ext3	OPTIONAL
 }
 
 DL-PhysChCapabilityTDD ::=			SEQUENCE {
@@ -1073,6 +1104,8 @@ HSDSCH-physical-layer-category ::=		INTEGER (1..64)
 HSDSCH-physical-layer-category-ext ::=	INTEGER (1..20)
 
 HSDSCH-physical-layer-category-ext2 ::=	INTEGER (21..24)
+
+HSDSCH-physical-layer-category-ext3 ::=	INTEGER (25..28)
 
 HSDSCH-physical-layer-category-extension ::=	INTEGER (1..64)
 
@@ -1278,6 +1311,10 @@ MeasurementCapability-r4-ext ::=	SEQUENCE {
 
 MeasurementCapability-v860ext ::=	SEQUENCE {
 	downlinkCompressedMode				CompressedModeMeasCapability-v860ext
+}
+
+MeasurementCapability-v9xyext ::=	SEQUENCE {
+	downlinkCompressedMode				CompressedModeMeasCapability-v9xyext
 }
 
 MeasurementCapabilityTDD ::=		SEQUENCE {
@@ -1527,6 +1564,13 @@ PhysicalChannelCapability-v860ext ::=	SEQUENCE {
 	}		OPTIONAL
 }
 
+PhysicalChannelCapability-v9xyext ::=	SEQUENCE {
+	fddPhysChCapability						SEQUENCE {
+		downlinkPhysChCapability				DL-PhysChCapabilityFDD-v9xyext,
+		uplinkPhysChCapability					UL-PhysChCapabilityFDD-v9xyext
+	}		OPTIONAL
+}
+
 PhysicalChannelCapabilityInfo-v770ext ::= SEQUENCE {
 	tddPhysChCapability-768					SEQUENCE {
 		downlinkPhysChCapability				DL-PhysChCapabilityInfoTDD-768,
@@ -1771,6 +1815,10 @@ RLC-Capability-v770ext ::=			SEQUENCE {
 	supportOfTwoLogicalChannel			BOOLEAN
 }
 
+RLC-Capability-v9xyext ::=			SEQUENCE {
+	totalRLC-AM-BufferSize				TotalRLC-AM-BufferSize-v9xyext		OPTIONAL
+}
+
 RRC-ConnectionReleaseInformation ::=	CHOICE {
 	noRelease								NULL,
 	release									SEQUENCE {
@@ -1832,6 +1880,26 @@ SecurityCapability ::=				SEQUENCE {
 											uia1(14),
 											spare0(15)
 										 	} 	 (SIZE (16))
+}
+
+SecondaryServingEDCHCell-Info ::=		SEQUENCE {
+	primary-E-RNTI						E-RNTI								OPTIONAL,
+	secondary-E-RNTI					E-RNTI								OPTIONAL
+	}	
+
+SecondaryEDCH-Info-Common ::=		SEQUENCE {
+	frequencyInfo							FrequencyInfo,
+	scramblingCodeType						ScramblingCodeType,
+	scramblingCodeNumber					UL-ScramblingCode,
+	ms2-SchedTransmGrantHARQAlloc			BIT STRING (SIZE (8))			OPTIONAL,
+	servingGrant							SEQUENCE {
+		value									INTEGER (0..38),
+		primary-Secondary-GrantSelector			ENUMERATED { primary, secondary }
+	}		OPTIONAL,
+	minReduced-E-DPDCH-GainFactor			MinReduced-E-DPDCH-GainFactor	OPTIONAL,
+	e-DCH-minimumSet-E-TFCI					E-DCH-MinimumSet-E-TFCI			OPTIONAL,
+	dpcchPowerOffset-SecondaryULFrequency	INTEGER(0..7),
+	pc-Preamble								PC-Preamble
 }
 
 Serving-HSDSCH-CellInformation ::=		SEQUENCE {
@@ -2017,6 +2085,9 @@ TotalRLC-AM-BufferSize ::=			ENUMERATED {
 TotalRLC-AM-BufferSize-r5-ext ::=	ENUMERATED {
 										kb200, kb300, kb400, kb750 }
 
+TotalRLC-AM-BufferSize-v9xyext ::=	ENUMERATED {
+										kb1150, kb1250 }
+
 -- Actual value TransmissionProbability = IE value * 0.125
 TransmissionProbability ::=			INTEGER (1..8)
 
@@ -2101,8 +2172,16 @@ UE-CapabilityContainer-IEs ::=			SEQUENCE {
 											InterRAT-UE-RadioAccessCapability-v860ext	OPTIONAL,
 							v880NonCriticalExtensions			SEQUENCE {
 								ue-RadioAccessCapability-v880ext
-																UE-RadioAccessCapability-v880ext-IEs,
-								nonCriticalExtensions			SEQUENCE {} OPTIONAL
+															UE-RadioAccessCapability-v880ext-IEs,
+								v890NonCriticalExtensions			SEQUENCE {
+									ue-RadioAccessCapability-v890ext
+															UE-RadioAccessCapability-v890ext-IEs,
+									v9xyNonCriticalExtensions			SEQUENCE {
+										ue-RadioAccessCapability-v9xyext
+																	UE-RadioAccessCapability-v9xyext-IEs,
+									nonCriticalExtensions				SEQUENCE {} OPTIONAL
+									}		OPTIONAL
+								}		OPTIONAL
 							}		OPTIONAL
 						}		OPTIONAL
 					}		OPTIONAL
@@ -2158,6 +2237,21 @@ UE-RadioAccessCapability-v860ext-IEs ::= SEQUENCE {
 UE-RadioAccessCapability-v880ext-IEs ::= SEQUENCE {
 	-- UE radio access capability
 		supportForPriorityReselectionInUTRAN 	ENUMERATED { true }					OPTIONAL
+}
+
+UE-RadioAccessCapability-v890ext-IEs ::= SEQUENCE {
+	-- UE radio access capability
+		supportCellSpecificTxDiversityinDC-Operation 	ENUMERATED { true }			OPTIONAL
+}
+
+UE-RadioAccessCapability-v9xyext-IEs ::= SEQUENCE {
+	-- UE physical channle capability
+	supportOfMimoOnlySingleStream		ENUMERATED { true }						OPTIONAL,
+	ue-RadioAccessCapabBandCombList		UE-RadioAccessCapabBandCombList			OPTIONAL,
+	physicalChannelCapability			PhysicalChannelCapability-v9xyext,
+	rlc-Capability						RLC-Capability-v9xyext,
+	supportOfenhancedTS0				ENUMERATED { true }						OPTIONAL,
+	measurementCapability				MeasurementCapability-v9xyext			OPTIONAL
 }
 
 UE-ConnTimersAndConstants ::=		SEQUENCE {
@@ -2319,6 +2413,12 @@ UE-RadioAccessCapability-v7e0ext ::=	SEQUENCE {
 		supportEDPDCHPowerInterpolation		ENUMERATED { true }						OPTIONAL
 }
 
+UE-RadioAccessCapability-v7f0ext ::=	SEQUENCE {
+	supportofTxDivOnNonMIMOChannel			ENUMERATED { true }							OPTIONAL,
+	physicalChannelCapability-LCR			PhysicalChannelCapability-LCR-r4			OPTIONAL,
+	ue-RadioAccessCapabilityComp-TDD128		UE-RadioAccessCapabilityComp-TDD128-v7f0ext	OPTIONAL
+}
+
 UE-RadioAccessCapabilityInfo-v770ext ::= SEQUENCE {
 	rf-Capability							RF-Capability-v770ext					OPTIONAL,
 	physicalChannelCapability				PhysicalChannelCapabilityInfo-v770ext,
@@ -2334,6 +2434,15 @@ UE-RadioAccessCapability-v860ext ::=	SEQUENCE {
 UE-RadioAccessCapability-v880ext ::=	SEQUENCE {
 	-- INTER RAT HANDOVER INFO
 	supportForPriorityReselectionInUTRAN 	ENUMERATED { true }					OPTIONAL
+}
+
+UE-RadioAccessCapability-v890ext ::= SEQUENCE {
+	-- UE radio access capability
+		supportCellSpecificTxDiversityinDC-Operation 	ENUMERATED { true }			OPTIONAL
+}
+
+UE-RadioAccessCapability-v9xyext ::=	SEQUENCE {
+	physicalChannelCapability			PhysicalChannelCapability-v9xyext
 }
 
 UE-RadioAccessCapabBandFDDList2 ::=	SEQUENCE (SIZE (1..maxFreqBandsFDD)) OF
@@ -2381,6 +2490,8 @@ UE-PositioningCapability-v860ext ::= SEQUENCE {
 										UE-GANSSPositioning-Capability-v860ext-IEs	OPTIONAL
 }
 
+UE-RadioAccessCapabBandCombList	::=	SEQUENCE (SIZE (1..16)) OF BandComb
+
 UE-RadioAccessCapabBandFDDList ::=	SEQUENCE (SIZE (1..maxFreqBandsFDD)) OF
 											UE-RadioAccessCapabBandFDD
 
@@ -2421,6 +2532,18 @@ UE-RadioAccessCapabilityComp-ext ::= SEQUENCE {
 	rf-CapabilityFDDComp				RF-CapabBandListFDDComp-ext
 }
 
+UE-RadioAccessCapabilityComp-TDD128-v7f0ext ::=	SEQUENCE {
+	hSDSCH-physical-layer-category
+											HSDSCH-physical-layer-category				OPTIONAL,
+	multiCarrier-physical-layer-category
+								MultiCarrier-HSDSCH-physical-layer-category				OPTIONAL,
+	tdd-edch-PhysicalLayerCategory			INTEGER (1..6)								OPTIONAL,
+	dl-CapabilityWithSimultaneousHS-DSCHConfig
+											DL-CapabilityWithSimultaneousHS-DSCHConfig	OPTIONAL,
+	supportForCSVoiceoverHSPA				ENUMERATED { true }						OPTIONAL,
+	totalRLC-AM-BufferSize					TotalRLC-AM-BufferSize-r5-ext			OPTIONAL
+}
+
 UE-RadioAccessCapabilityComp-v770ext ::= SEQUENCE {
 	rf-CapabilityComp						RF-CapabilityComp-v770ext,
 	securityCapabilityIndication			ENUMERATED { true }						OPTIONAL,
@@ -2449,29 +2572,27 @@ UE-RadioAccessCapabilityComp2-v770ext ::= SEQUENCE {
 	pdcp-Capability							PDCP-Capability-v770ext					OPTIONAL
 }
 
+UE-RadioAccessCapabilityComp2-v7f0ext ::= SEQUENCE {
+		supportofTxDivOnNonMIMOChannel		ENUMERATED { true }						OPTIONAL
+}
+
 UE-RadioAccessCapabilityComp2-v860ext ::= SEQUENCE {
 	hsdsch-physical-layer-category-ext2		HSDSCH-physical-layer-category-ext2		OPTIONAL,
 	supportOfMACiis							ENUMERATED { true }						OPTIONAL
 }
 
+UE-RadioAccessCapabilityComp2-v9xyext ::= SEQUENCE {
+	hsdsch-physical-layer-category-ext3		HSDSCH-physical-layer-category-ext3		OPTIONAL,
+	edch-PhysicalLayerCategory-extension2	INTEGER (8..9)							OPTIONAL
+}
+
 UE-RadioAccessCapabilityComp-TDD128 ::=		SEQUENCE {
-		tdd128RF-Capability						RadioFrequencyBandTDDextList			OPTIONAL,
-		hSDSCH-physical-layer-category
-											HSDSCH-physical-layer-category				OPTIONAL,
-		hSDSCH-physical-layer-category-extension
-											HSDSCH-physical-layer-category-extension	OPTIONAL,
-		multiCarrier-physical-layer-category
-								MultiCarrier-HSDSCH-physical-layer-category				OPTIONAL,
-		multiCarrier-physical-layer-category-extension
-								MultiCarrier-HSDSCH-physical-layer-category-extension	OPTIONAL,
-		supportOfSFModeForHSPDSCHDualStream		ENUMERATED { sf1, sf1sf16 }				OPTIONAL,
-		tdd-edch-PhysicalLayerCategory			INTEGER (1..6)							OPTIONAL,
-		supportOfCommonEDCH						ENUMERATED { true }						OPTIONAL,
-		supportOfMACiis							ENUMERATED { true }						OPTIONAL,
-		supportOfSPSOperation					ENUMERATED { true }						OPTIONAL,
-		supportOfControlChannelDRXOperation	ENUMERATED { true }						OPTIONAL,
-		supportForCSVoiceoverHSPA			ENUMERATED { true }						OPTIONAL,
-		totalRLC-AM-BufferSize				TotalRLC-AM-BufferSize-r5-ext			OPTIONAL
+	tdd128RF-Capability						RadioFrequencyBandTDDextList			OPTIONAL,
+	supportOfSFModeForHSPDSCHDualStream		ENUMERATED { sf1, sf1sf16 }				OPTIONAL,
+	supportOfCommonEDCH						ENUMERATED { true }						OPTIONAL,
+	supportOfMACiis							ENUMERATED { true }						OPTIONAL,
+	supportOfSPSOperation					ENUMERATED { true }						OPTIONAL,
+	supportOfControlChannelDRXOperation		ENUMERATED { true }						OPTIONAL
 }
 
 RF-CapabilityComp ::= SEQUENCE {
@@ -2553,6 +2674,10 @@ UL-PhysChCapabilityFDD-v770ext ::=		SEQUENCE {
 	slotFormat4								ENUMERATED { true }					OPTIONAL
 }
 
+UL-PhysChCapabilityFDD-v9xyext ::=		SEQUENCE {
+	edch-PhysicalLayerCategory-extension2	INTEGER (8..9)						OPTIONAL
+}
+
 UL-PhysChCapabilityTDD ::=			SEQUENCE {
 	maxTS-PerFrame						MaxTS-PerFrame,
 	maxPhysChPerTimeslot				MaxPhysChPerTimeslot,
@@ -2601,6 +2726,15 @@ UL-PhysChCapabilityTDD-768 ::=			SEQUENCE {
 			tdd-edch-PhysicalLayerCategory			INTEGER (1..16)
 		},
 		unsupported								NULL
+	}
+}
+
+UL-SecondaryCellInfoFDD ::=		CHOICE {
+	continue							NULL,
+	newConfiguration					SEQUENCE {
+		secondaryServingEDCHCell-Info		SecondaryServingEDCHCell-Info		OPTIONAL,
+		secondaryEDCH-Info-Common			SecondaryEDCH-Info-Common			OPTIONAL,
+		dl-InformationPerSecondaryRL-List	DL-InformationPerSecondaryRL-List	OPTIONAL
 	}
 }
 
@@ -3963,6 +4097,10 @@ AddOrReconfMAC-ehs-ReordQ ::=		SEQUENCE {
 	dummy								MAC-ehs-DelReordQ-List			OPTIONAL
 }
 
+AddOrReconfMAC-ehs-ReordQ-r9 ::=		SEQUENCE {
+	mac-ehs-AddReconfQueue-List			MAC-ehs-AddReconfReordQ-List-r9	OPTIONAL
+}
+
 AllowedTFC-List ::=					SEQUENCE (SIZE (1..maxTFC)) OF
 										TFC-Value
 
@@ -4011,7 +4149,7 @@ Common-E-DCH-MAC-d-Flow ::=		SEQUENCE {
 	e-dch-mac-d-flow-retransmission-timer	E-DCH-MAC-d-FlowRetransTimer	OPTIONAL
 }
 
-Common-E-DCH-MAC-d-FlowList ::=		SEQUENCE (SIZE (maxE-DCHMACdFlow)) OF
+Common-E-DCH-MAC-d-FlowList ::=		SEQUENCE (SIZE (1..maxE-DCHMACdFlow)) OF
 										Common-E-DCH-MAC-d-Flow
 
 CommonDynamicTF-Info ::=			SEQUENCE {
@@ -4140,6 +4278,9 @@ DL-AddReconfTransChInfoList-r5 ::=	SEQUENCE (SIZE (1..maxTrCHpreconf)) OF
 DL-AddReconfTransChInfoList-r7 ::=	SEQUENCE (SIZE (1..maxTrCHpreconf)) OF
 										DL-AddReconfTransChInformation-r7
 
+DL-AddReconfTransChInfoList-r9 ::=	SEQUENCE (SIZE (1..maxTrCHpreconf)) OF
+										DL-AddReconfTransChInformation-r9
+
 -- ASN.1 for IE "Added or Reconfigured DL TrCH information" 
 -- in case of messages other than: Radio Bearer Release message and 
 -- Radio Bearer Reconfiguration message
@@ -4182,6 +4323,16 @@ DL-AddReconfTransChInformation-r7 ::= SEQUENCE {
 		explicit-config						TransportFormatSet,
 		sameAsULTrCH						UL-TransportChannelIdentity,
 		hsdsch								HSDSCH-Info-r7
+	},
+	dch-QualityTarget					QualityTarget						OPTIONAL
+}
+
+DL-AddReconfTransChInformation-r9 ::= SEQUENCE {
+	dl-TransportChannelType				DL-TrCH-TypeId1-r5,
+	tfs-SignallingMode					CHOICE {
+		explicit-config						TransportFormatSet,
+		sameAsULTrCH						UL-TransportChannelIdentity,
+		hsdsch								HSDSCH-Info-r9
 	},
 	dch-QualityTarget					QualityTarget						OPTIONAL
 }
@@ -4384,6 +4535,14 @@ HSDSCH-Info-r7 ::=					SEQUENCE {
 	}		OPTIONAL
 }
 
+HSDSCH-Info-r9 ::=					SEQUENCE {
+	harqInfo							HARQ-Info-r7			OPTIONAL,
+	dl-MAC-HeaderType					CHOICE {
+		mac-hs								AddOrReconfMAC-dFlow,
+		mac-ehs								AddOrReconfMAC-ehs-ReordQ-r9
+	}		OPTIONAL
+}
+
 HARQ-Info ::=						SEQUENCE {
 	numberOfProcesses					INTEGER (1..8),
 	memoryPartitioning					CHOICE {
@@ -4491,11 +4650,21 @@ MAC-hs-DelQueue ::=					SEQUENCE {
 MAC-ehs-AddReconfReordQ-List ::=	SEQUENCE (SIZE(1..maxQueueIDs)) OF
 										MAC-ehs-AddReconfReordQ
 
+MAC-ehs-AddReconfReordQ-List-r9 ::=	SEQUENCE (SIZE(1..maxQueueIDs)) OF
+										MAC-ehs-AddReconfReordQ-r9
+
 MAC-ehs-AddReconfReordQ ::=			SEQUENCE {
 	mac-ehs-QueueId						MAC-ehs-QueueId,
 	reorderingReleaseTimer				T1-ReleaseTimer,
 	reorderingResetTimer				Treset-ResetTimer						OPTIONAL,
 	mac-ehsWindowSize					MAC-hs-WindowSize
+}
+
+MAC-ehs-AddReconfReordQ-r9 ::=			SEQUENCE {
+	mac-ehs-QueueId						MAC-ehs-QueueId,
+	reorderingReleaseTimer				T1-ReleaseTimer,
+	reorderingResetTimer				Treset-ResetTimer						OPTIONAL,
+	mac-ehsWindowSize					MAC-hs-WindowSize-r9
 }
 
 MAC-ehs-DelReordQ-List ::=			SEQUENCE (SIZE(1..maxQueueIDs)) OF
@@ -4514,6 +4683,10 @@ MAC-ehs-QueueId ::=					INTEGER (0..7)
 
 MAC-hs-WindowSize ::=				ENUMERATED {
 										mws4, mws6, mws8, mws12, mws16, mws24, mws32 }
+
+MAC-hs-WindowSize-r9 ::=			ENUMERATED {
+										mws4, mws6, mws8, mws12, mws16, mws24, mws32,
+										mw64, mw128 }
 
 NumberOfTbSizeAndTTIList ::=		SEQUENCE (SIZE (1..maxTF)) OF SEQUENCE {
 		numberOfTransportBlocks				NumberOfTransportBlocks,
@@ -6042,6 +6215,49 @@ DL-HSPDSCH-Information-r8 ::=	SEQUENCE {
 	}
 }
 
+DL-HSPDSCH-Information-r8-ext ::=	SEQUENCE {
+	modeSpecificInfo				CHOICE {
+		tdd								CHOICE {
+			tdd384						NULL,
+			tdd768						NULL,
+			tdd128							SEQUENCE {
+				outofSyncWindow					OutofSyncWindow					OPTIONAL
+			}
+		},
+		fdd								NULL
+	}
+}
+
+DL-HSPDSCH-Information-r9 ::=	SEQUENCE {
+	hs-scch-Info					HS-SCCH-Info-r7							OPTIONAL,
+	measurement-feedback-Info		Measurement-Feedback-Info-r7			OPTIONAL,
+	modeSpecificInfo				CHOICE {
+		tdd								CHOICE {
+			tdd384							SEQUENCE {
+				dl-HSPDSCH-TS-Configuration		DL-HSPDSCH-TS-Configuration	OPTIONAL
+			},
+			tdd768							SEQUENCE {
+				dl-HSPDSCH-TS-Configuration		DL-HSPDSCH-TS-Configuration-VHCR	OPTIONAL
+			},
+			tdd128							SEQUENCE {
+				hs-PDSCH-Midamble-Configuration-tdd128
+						HS-PDSCH-Midamble-Configuration-TDD128						OPTIONAL,
+				dl-MultiCarrier-Information		DL-MultiCarrier-Information			OPTIONAL,
+				tS0-Indicator					ENUMERATED { true }					OPTIONAL,
+				outofSyncWindow								OutofSyncWindow			OPTIONAL
+			}
+		},
+		fdd								SEQUENCE {
+			dl-64QAM-Configured				ENUMERATED { true }					OPTIONAL,
+			hs-DSCH-TBSizeTable				HS-DSCH-TBSizeTable					OPTIONAL
+		}
+	}
+}
+
+OutofSyncWindow ::=						ENUMERATED {
+											ms40, ms80, ms160, ms320,
+											ms640, spare3, spare2, spare1 }
+
 DL-HSPDSCH-MultiCarrier-Information ::=	SEQUENCE (SIZE (1..maxTDD128Carrier)) OF
 											SEQUENCE {
 		uarfcn-Carrier							UARFCN,
@@ -6312,6 +6528,27 @@ DL-SecondaryCellInfoFDD ::=			CHOICE {
 												HS-SCCH-Codes,
 		measurementPowerOffset				MeasurementPowerOffset,
 		uarfcn-DL							UARFCN
+	}
+}
+
+DL-SecondaryCellInfoFDD-v890ext ::=	SEQUENCE {
+	differentTxModeFromServingHS-DSCHCell			ENUMERATED { different }		OPTIONAL
+}
+
+DL-SecondaryCellInfoFDD-r9 ::=		CHOICE {
+	continue							NULL,
+	newConfiguration					SEQUENCE {
+		new-H-RNTI							H-RNTI,
+		dl-64QAM-Configured					ENUMERATED { true }				OPTIONAL,
+		hs-DSCH-TBSizeTable					HS-DSCH-TBSizeTable				OPTIONAL,
+		primaryCPICH-Info					PrimaryCPICH-Info,
+		dl-ScramblingCode					SecondaryScramblingCode			OPTIONAL,
+		hS-SCCHChannelisationCodeInfo		SEQUENCE (SIZE (1..maxHSSCCHs)) OF
+												HS-SCCH-Codes,
+		measurementPowerOffset				MeasurementPowerOffset,
+		uarfcn-DL							UARFCN,
+		differentTxModeFromServingHS-DSCHCell	ENUMERATED { different }	OPTIONAL,
+		secondaryCellMIMOparameters			SecondaryCellMIMOparametersFDD	OPTIONAL
 	}
 }
 
@@ -6779,6 +7016,12 @@ E-DCH-ReconfigurationInfo-r7 ::=	SEQUENCE {
 											E-DCH-RL-InfoOtherCell				OPTIONAL
 }
 
+E-DCH-ReconfigurationInfo-SecULFrequency ::=		SEQUENCE {
+	e-DCH-RL-InfoNewSecServingCell			E-DCH-RL-InfoNewSecServingCell			OPTIONAL,
+	e-DCH-RL-InfoOtherCellList-SecULFreq	SEQUENCE (SIZE (1..maxEDCHRL)) OF
+												E-DCH-RL-InfoOtherCell-SecULFreq		OPTIONAL
+}
+
 E-DCH-RL-InfoNewServingCell ::=		SEQUENCE {
 	primaryCPICH-Info					PrimaryCPICH-Info,
 	e-AGCH-Information					E-AGCH-Information,
@@ -6817,6 +7060,15 @@ E-DCH-RL-InfoNewServingCell-r7 ::=	SEQUENCE {
 	}	OPTIONAL
 }
 
+E-DCH-RL-InfoNewSecServingCell ::=	SEQUENCE {
+	e-AGCH-Information					E-AGCH-Information,
+	e-HICH-Information					E-HICH-Information		OPTIONAL,
+	e-RGCH-Info							CHOICE	{
+		e-RGCH-Information					E-RGCH-Information,
+		releaseIndicator					NULL
+	}	OPTIONAL
+}
+
 E-DCH-RL-InfoOtherCell ::=			SEQUENCE {
 	primaryCPICH-Info					PrimaryCPICH-Info,
 	e-HICH-Info							CHOICE {
@@ -6824,6 +7076,15 @@ E-DCH-RL-InfoOtherCell ::=			SEQUENCE {
 		releaseIndicator					NULL
 	}	OPTIONAL,
 	e-RGCH-Info							CHOICE {
+		e-RGCH-Information					E-RGCH-Information,
+		releaseIndicator					NULL
+	}	OPTIONAL
+}
+
+E-DCH-RL-InfoOtherCell-SecULFreq ::=	SEQUENCE {
+	primaryCPICH-Info					PrimaryCPICH-Info,
+	e-HICH-Information					E-HICH-Information		OPTIONAL,
+	e-RGCH-Info							CHOICE	{
 		e-RGCH-Information					E-RGCH-Information,
 		releaseIndicator					NULL
 	}	OPTIONAL
@@ -7039,6 +7300,7 @@ E-PUCH-Info ::=						SEQUENCE {
 													ms480, ms560 }
 		}
 	},
+	-- For 3.84/7.68 TDD only, should be ignored for 1.28Mcps TDD mode
 	powerOffsetForSchedInfo				INTEGER (0..6)									OPTIONAL
 }
 
@@ -7060,7 +7322,9 @@ E-PUCH-Info-TDD128 ::=				SEQUENCE {
 											ms80, ms85, ms90, ms95, ms100, ms110, ms120,
 											ms140, ms160, ms200, ms240,ms280, ms320, ms400,
 											ms480, ms560 },
-	powerOffsetForSchedInfo				INTEGER (0..6)								OPTIONAL
+	-- dummy is not used in this version of the specification, it should
+	-- not be sent and if received it should be ignored.
+	dummy								INTEGER (0..6)								OPTIONAL
 }
 
 E-PUCH-TS-Slots ::=					SEQUENCE {
@@ -8005,12 +8269,31 @@ MIMO-Parameters-r7 ::=				SEQUENCE {
 	mimoPilotConfiguration				MIMO-PilotConfiguration			OPTIONAL
 }
 
+MIMO-Parameters-v7f0ext ::=			MIMO-PilotConfiguration-v7f0ext
+
 MIMO-Parameters-r8 ::=				SEQUENCE {
 	mimoOperation						MIMO-Operation,
 	modeSpecificInfo					CHOICE {
 		fdd									SEQUENCE {
 			mimoN-M-Ratio						MIMO-N-M-Ratio					OPTIONAL,
 			mimoPilotConfiguration				MIMO-PilotConfiguration			OPTIONAL
+		},
+		tdd									CHOICE {
+			tdd128								SEQUENCE {
+				mimoSFModeForHSPDSCHDualStream		ENUMERATED {sf1, sf1sf16},
+				hs-sich-ReferenceSignalInfoList		HS-SICH-ReferenceSignalInfoList	OPTIONAL
+			},
+			tdd384-tdd768					NULL
+		}
+	}
+}
+
+MIMO-Parameters-r9 ::=				SEQUENCE {
+	mimoOperation						MIMO-Operation,
+	modeSpecificInfo					CHOICE {
+		fdd									SEQUENCE {
+			mimoN-M-Ratio						MIMO-N-M-Ratio						OPTIONAL,
+			mimoPilotConfiguration				MIMO-PilotConfiguration-r9			OPTIONAL
 		},
 		tdd									CHOICE {
 			tdd128								SEQUENCE {
@@ -8029,6 +8312,20 @@ MIMO-PilotConfiguration ::=			SEQUENCE {
 			channelisationCode					ChannelisationCode256
 		}
 	}
+}
+
+MIMO-PilotConfiguration-v7f0ext ::=	SEQUENCE {
+	s-cpich-PowerOffset-Mimo			S-CPICH-PowerOffset-MIMO			OPTIONAL
+}
+
+MIMO-PilotConfiguration-r9 ::=			SEQUENCE {
+	secondCPICH-Pattern					CHOICE {
+		normalPattern						NULL,
+		diversityPattern					SEQUENCE {
+			channelisationCode					ChannelisationCode256
+		}
+	},
+	s-cpich-PowerOffset-Mimo			S-CPICH-PowerOffset-MIMO			OPTIONAL
 }
 
 MinimumSpreadingFactor ::=			ENUMERATED {
@@ -8370,7 +8667,7 @@ PICH-ForHSDPASupportedPaging-TDD128 ::= CHOICE {
 	implicit							SEQUENCE {
 		occurrenceSequenceNumberOfPICH		OccurrenceSequenceNumberOfPICH		OPTIONAL
 	},
-	explicit							PICH-Info
+	explicit							PICH-Info-LCR-r4
 }
 
 PICH-Info ::=						CHOICE {
@@ -9038,8 +9335,24 @@ RL-AdditionInformation-r8 ::=		SEQUENCE {
 	targetCellPreconfigInfo				TargetCellPreconfigInfo				OPTIONAL
 }
 
+RL-AdditionInformation-r9 ::=		SEQUENCE {
+	primaryCPICH-Info					PrimaryCPICH-Info,
+	cell-Id								CellIdentity						OPTIONAL,
+	dl-dpchInfo							CHOICE {
+		dl-DPCH-InfoPerRL					DL-DPCH-InfoPerRL-r5,
+		dl-FDPCH-InfoPerRL					DL-FDPCH-InfoPerRL-r7
+	},
+	e-HICH-Information					E-HICH-Information					OPTIONAL,
+	e-RGCH-Information					E-RGCH-Information					OPTIONAL,
+	targetCellPreconfigInfo				TargetCellPreconfigInfo-r9			OPTIONAL
+}
+
 RL-AdditionInformation-v6b0ext ::=	SEQUENCE {
 		sttdIndication					STTDIndication						OPTIONAL
+}
+
+RL-AdditionInformation-v890ext ::=	SEQUENCE {
+	targetCellPreconfigInfo				TargetCellPreconfigInfo-v890ext		OPTIONAL
 }
 
 RL-AdditionInformationList ::=		SEQUENCE (SIZE (1..maxRL-1)) OF
@@ -9057,10 +9370,31 @@ RL-AdditionInformation-list-v6b0ext ::= SEQUENCE (SIZE (1..maxRL)) OF
 RL-AdditionInformationList-r8 ::=	SEQUENCE (SIZE(1..maxRL-1)) OF
 										RL-AdditionInformation-r8
 
+RL-AdditionInformationList-v890ext ::=	SEQUENCE (SIZE (1..maxRL-1)) OF
+											RL-AdditionInformation-v890ext
+
+RL-AdditionInformationList-r9 ::=	SEQUENCE (SIZE(1..maxRL-1)) OF
+										RL-AdditionInformation-r9
+
+RL-AdditionInformationList-SecULFreq ::=	SEQUENCE (SIZE(1..maxEDCHRL-1)) OF
+										RL-AdditionInformation-SecULFreq
+
+
+RL-AdditionInformation-SecULFreq ::=	SEQUENCE {
+	primaryCPICH-Info				PrimaryCPICH-Info,
+	cell-id							CellIdentity				OPTIONAL,
+	dl-FDPCH-InfoPerRL 				DL-FDPCH-InfoPerRL-r7,
+	e-HICH-Information				E-HICH-Information,
+	e-RGCH-Information				E-RGCH-Information			OPTIONAL
+}
+
 RL-IdentifierList ::=				SEQUENCE (SIZE (1..maxRL)) OF
 										PrimaryCPICH-Info
 
 RL-RemovalInformationList ::=		SEQUENCE (SIZE (1..maxRL)) OF
+										PrimaryCPICH-Info
+
+RL-RemovalInformationList-SecULFreq ::= SEQUENCE (SIZE(1..maxEDCHRL)) OF
 										PrimaryCPICH-Info
 
 RPP ::=								ENUMERATED {
@@ -9183,6 +9517,8 @@ SCCPCH-SystemInformation-MBMS-r7 ::= SEQUENCE {
 		msch-transportFormatSet				TransportFormatSet
 	}		OPTIONAL
 }
+
+S-CPICH-PowerOffset-MIMO ::=			INTEGER (-6..0)
 
 ScramblingCodeChange ::=			ENUMERATED {
 										codeChange, noCodeChange }
@@ -9340,6 +9676,14 @@ SecondaryCPICH-Info ::=				SEQUENCE {
 }
 
 SecondaryScramblingCode ::=			INTEGER (1..15)
+
+SecondaryCellMIMOparametersFDD ::=		CHOICE {
+	continue								NULL,
+	newConfiguration						SEQUENCE {
+			mimoN-M-Ratio						MIMO-N-M-Ratio				OPTIONAL,
+			mimoPilotConfiguration				MIMO-PilotConfiguration		OPTIONAL
+	}
+}
 
 SecondInterleavingMode ::=			ENUMERATED {
 										frameRelated, timeslotRelated }
@@ -9521,6 +9865,25 @@ TargetCellPreconfigInfo ::=			SEQUENCE {
 	hs-scch-LessInfo					HS-SCCH-LessInfo-r7					OPTIONAL,
 	mimoParameters						MIMO-Parameters-r8					OPTIONAL,
 	dl-SecondaryCellInfoFDD				DL-SecondaryCellInfoFDD				OPTIONAL
+}
+
+TargetCellPreconfigInfo-v890ext ::=		MIMO-Parameters-v7f0ext
+
+TargetCellPreconfigInfo-r9 ::=			SEQUENCE {
+	activationTimeOffset				ActivationTimeOffset				OPTIONAL,
+	new-H-RNTI							H-RNTI,
+	newPrimary-E-RNTI					E-RNTI								OPTIONAL,
+	newSecondary-E-RNTI					E-RNTI								OPTIONAL,
+	serving-HSDSCH-CellInformation		Serving-HSDSCH-CellInformation-r8,
+	e-dch-ReconfigurationInfo			E-DCH-ReconfigurationInfo-r7,
+	dtx-drx-TimingInfo					DTX-DRX-TimingInfo-r7				OPTIONAL,
+	dtx-drx-Info						DTX-DRX-Info-r7						OPTIONAL,
+	hs-scch-LessInfo					HS-SCCH-LessInfo-r7					OPTIONAL,
+	mimoParameters						MIMO-Parameters-r9					OPTIONAL,
+	dl-SecondaryCellInfoFDD				DL-SecondaryCellInfoFDD-r9			OPTIONAL,
+	ul-SecondaryCellInfoFDD				UL-SecondaryCellInfoFDD				OPTIONAL,
+	e-dch-ReconfigurationInfo-SecULFrequency	
+								E-DCH-ReconfigurationInfo-SecULFrequency	OPTIONAL
 }
 
 TDD-FPACH-CCode16-r4 ::=			ENUMERATED {
@@ -11024,11 +11387,27 @@ CellMeasuredResults ::=				SEQUENCE {
 	}
 }
 
+CellMeasuredResultsListOnSecULFreq ::= SEQUENCE {
+	cellMeasuredResults			CellMeasuredResults
+}
+
+CellMeasuredResults-v9xyext ::= SEQUENCE {
+	csgIdentity							CSG-Identity						OPTIONAL,
+	csgMemberIndication					ENUMERATED { member }				OPTIONAL
+}
+
 CellMeasurementEventResults ::=		CHOICE {
 	fdd									SEQUENCE (SIZE (1..maxCellMeas)) OF
 											PrimaryCPICH-Info,
 	tdd									SEQUENCE (SIZE (1..maxCellMeas)) OF
 											PrimaryCCPCH-Info
+}
+
+CellMeasurementEventResultsExtension ::=	SEQUENCE{
+	cellMeasurementEventResultsOnPriULFreq		CellMeasurementEventResults		OPTIONAL,
+	freqencyInfo								FrequencyInfo,
+	cellMeasurementEventResultsonSecULFreq		SEQUENCE(SIZE (1.. maxCellMeasOnSecULFreq)) OF
+													PrimaryCPICH-Info
 }
 
 CellMeasurementEventResults-LCR-r4 ::=	SEQUENCE (SIZE (1..maxCellMeas)) OF
@@ -11178,6 +11557,9 @@ CellsForInterRATMeasList ::=			SEQUENCE (SIZE  (1..maxCellMeas)) OF
 CellsForIntraFreqMeasList ::=		SEQUENCE (SIZE  (1..maxCellMeas)) OF
 										IntraFreqCellID
 
+CellsForIntraFreqMeasListOnSecULFreq ::=	SEQUENCE (SIZE  (1..maxCellMeasOnSecULFreq)) OF
+												IntraFreqCellID
+
 CellSynchronisationInfo ::=			SEQUENCE {
 	modeSpecificInfo					CHOICE {
 		fdd									SEQUENCE {
@@ -11275,8 +11657,15 @@ DGANSSInfo ::=						SEQUENCE {
 	dgansssignalInformationList			DGANSSSignalInformationList			OPTIONAL
 }
 
+DGANSSInfo-v9xyext ::=				SEQUENCE {
+	dgansssignalInformationList			DGANSSSignalInformationList-v9xyext	OPTIONAL
+}
+
 DGANSSInfoList ::=					SEQUENCE (SIZE (1..maxSgnType)) OF
 										DGANSSInfo
+
+DGANSSInfoList-v9xyext ::=			SEQUENCE (SIZE (1..maxSgnType)) OF
+										DGANSSInfo-v9xyext
 
 DGANSSSignalInformation ::=			SEQUENCE {
 	satId								INTEGER (0..63),
@@ -11286,8 +11675,16 @@ DGANSSSignalInformation ::=			SEQUENCE {
 	ganss-rrc							INTEGER (-127..127)			-- scale factor 0.032
 }
 
+DGANSSSignalInformation-v9xyext ::=	SEQUENCE	{
+	udreGrowthRate						UDREGrowthRate 			OPTIONAL,
+	udreValidityTime					UDREValidityTime		OPTIONAL
+}
+
 DGANSSSignalInformationList ::=		SEQUENCE (SIZE (1..maxGANSSSat)) OF
 										DGANSSSignalInformation
+
+DGANSSSignalInformationList-v9xyext ::= SEQUENCE (SIZE (1..maxGANSSSat)) OF
+											DGANSSSignalInformation-v9xyext
 
 DGANSS-Sig-Id-Req ::=				BIT STRING (SIZE (8))
 
@@ -11306,8 +11703,16 @@ DGPS-CorrectionSatInfo ::=			SEQUENCE {
 	dummy4							DeltaRRC			OPTIONAL
 }
 
+DGPS-CorrectionSatInfo-v9xyext ::=	SEQUENCE {
+	udreGrowthRate						UDREGrowthRate 			OPTIONAL,
+	udreValidityTime					UDREValidityTime		OPTIONAL
+}
+
 DGPS-CorrectionSatInfoList ::=		SEQUENCE (SIZE (1..maxSat)) OF
 										DGPS-CorrectionSatInfo
+
+DGPS-CorrectionSatInfoList-v9xyext ::=	SEQUENCE (SIZE (1..maxSat)) OF
+											DGPS-CorrectionSatInfo-v9xyext
 
 DiffCorrectionStatus ::=			ENUMERATED {
 										udre-1-0, udre-0-75, udre-0-5, udre-0-3,
@@ -11702,6 +12107,21 @@ EventResults-v860ext ::=			CHOICE {
 	ue-positioning-MeasurementEventResults	UE-Positioning-MeasurementEventResults-v860ext
 }
 
+CSGProximityIndication ::=				SEQUENCE {
+	cSGproximityInd						ENUMERATED {entering, leaving },
+	radioAccessTechnology				CHOICE {
+		uTRA								SEQUENCE {
+			cSGFrequencyInfoUTRA					FrequencyInfo
+		},
+		e-UTRA								SEQUENCE {
+			cSGFrequencyInfoEUTRA					EARFCN
+		}
+	}
+}
+
+CSGProximityIndicationList::=		SEQUENCE (SIZE (1.. maxCSGProximityIndications)) OF
+										CSGProximityIndication
+
 ExtraDoppler ::=					SEQUENCE {
 	-- Doppler 1st order term, -0.2..+0.1 m/s2
 	-- ( = -42..+21 with 1/210 m/s2 resolution)
@@ -11818,6 +12238,10 @@ GANSSGenericData-r8 ::=				SEQUENCE {
 	uePositioningGANSSAuxiliaryInfo		UE-Positioning-GANSS-AuxiliaryInfo				OPTIONAL
 }
 
+GANSSGenericData-v9xyext ::=		SEQUENCE {
+	uePositioningDGANSSCorrections		UE-Positioning-DGANSSCorrections-v9xyext		OPTIONAL
+}
+
 GANSSGenericDataList ::=			SEQUENCE (SIZE (1..maxGANSS)) OF
 										GANSSGenericData
 
@@ -11826,6 +12250,9 @@ GANSSGenericDataList-v860ext ::=	SEQUENCE (SIZE (1..maxGANSS)) OF
 
 GANSSGenericDataList-r8 ::=			SEQUENCE (SIZE (1..maxGANSS)) OF
 										GANSSGenericData-r8
+
+GANSSGenericDataList-v9xyext ::=	SEQUENCE (SIZE (1..maxGANSS)) OF
+										GANSSGenericData-v9xyext
 
 GANSSGenericMeasurementInfo ::=		SEQUENCE (SIZE (1..maxGANSS)) OF SEQUENCE {
 	ganssId								INTEGER (0..7)						OPTIONAL,
@@ -12254,6 +12681,33 @@ InterFreqCellInfoList-r8 ::=	SEQUENCE {
 	cellsForInterFreqMeasList			CellsForInterFreqMeasList			OPTIONAL
 }
 
+InterFreqCellInfoList-r9 ::=	SEQUENCE {
+	removedInterFreqCellList			RemovedInterFreqCellList			OPTIONAL,
+	newInterFreqCellList				NewInterFreqCellList-r8				OPTIONAL,
+	cellsForInterFreqMeasList			CellsForInterFreqMeasList			OPTIONAL,
+	cSGInterFreqCellInfoList			CSGInterFreqCellInfoList			OPTIONAL,
+	interFreqSIAcquisition				InterFreqSIAcquisition				OPTIONAL
+}
+
+CSGInterFreqCellInfoList ::=		SEQUENCE (SIZE (1..maxFreq)) OF
+										CSGInterFreqCellInfo
+
+CSGInterFreqCellInfo ::=			SEQUENCE {
+	frequencyInfo						FrequencyInfo,
+	cSGInterFreqCellInfoListperFreq		CSGIntraFreqCellInfoList
+}
+
+InterFreqSIAcquisition::=			SEQUENCE {
+	frequencyInfo						FrequencyInfo,
+	modeSpecificInfo					CHOICE {
+		fdd									SEQUENCE {
+			primaryScramblingCode				PrimaryCPICH-Info
+		}
+	},
+	csgIdentityReport					ENUMERATED { required }		OPTIONAL
+}
+
+
 InterFreqCellInfoSI-List-RSCP ::=		SEQUENCE {
 	removedInterFreqCellList			RemovedInterFreqCellList			OPTIONAL,
 	newInterFreqCellList				NewInterFreqCellSI-List-RSCP		OPTIONAL
@@ -12300,6 +12754,9 @@ InterFreqCellList-LCR-r4-ext ::=	SEQUENCE (SIZE (1..maxFreq)) OF
 
 InterFreqCellMeasuredResultsList ::= SEQUENCE (SIZE (1..maxCellMeas)) OF
 										CellMeasuredResults
+
+InterFreqCellMeasuredResultsList-v9xyext ::= SEQUENCE (SIZE (1..maxCellMeas)) OF
+												CellMeasuredResults-v9xyext
 
 InterFreqEvent ::=					CHOICE {
 	event2a								Event2a,
@@ -12352,6 +12809,12 @@ Intra-FreqEventCriteriaList-v590ext ::= SEQUENCE (SIZE (1..maxMeasEvent)) OF
 IntraFrequencyMeasuredResultsList-v590ext ::= SEQUENCE (SIZE (1..maxCellMeas)) OF
 												DeltaRSCPPerCell
 
+IntraFrequencyMeasuredResultsListOnSecULFreq ::= SEQUENCE (SIZE (1..maxCellMeasOnSecULFreq)) OF
+												CellMeasuredResultsListOnSecULFreq
+
+IntraFreqMeasuredResultsList-v9xyext ::= SEQUENCE (SIZE (1..maxCellMeas)) OF
+												CellMeasuredResults-v9xyext
+
 IntraFreqReportingCriteria-1b-r5 ::= SEQUENCE {
 	periodicReportingInfo-1b			PeriodicReportingInfo-1b
 }
@@ -12396,9 +12859,17 @@ InterFreqMeasuredResults ::=		SEQUENCE {
 	interFreqCellMeasuredResultsList	InterFreqCellMeasuredResultsList	OPTIONAL
 }
 
+InterFreqMeasuredResults-v9xyext ::=	SEQUENCE {
+	frequencyInfo							FrequencyInfo								OPTIONAL,
+	utra-CarrierRSSI						UTRA-CarrierRSSI							OPTIONAL,
+	interFreqCellMeasuredResultsList		InterFreqCellMeasuredResultsList-v9xyext	OPTIONAL
+}
+
 InterFreqMeasuredResultsList ::=	SEQUENCE (SIZE (1..maxFreq)) OF
 										InterFreqMeasuredResults
 
+InterFreqMeasuredResultsList-v9xyext ::= SEQUENCE (SIZE (1..maxFreq)) OF
+												InterFreqMeasuredResults-v9xyext
 
 InterFreqMeasurementSysInfo-RSCP ::=	SEQUENCE {
 	interFreqCellInfoSI-List				InterFreqCellInfoSI-List-RSCP		OPTIONAL
@@ -12558,6 +13029,17 @@ InterFrequencyMeasurement-r8 ::=	SEQUENCE {
 	measurementValidity					MeasurementValidity					OPTIONAL,
 	interFreqSetUpdate					UE-AutonomousUpdateMode				OPTIONAL,
 	adjacentFrequencyIndex				INTEGER (0..31)						OPTIONAL,
+	reportCriteria						InterFreqReportCriteria-r7
+}
+
+InterFrequencyMeasurement-r9 ::=	SEQUENCE {
+	interFreqCellInfoList				InterFreqCellInfoList-r9,
+	interFreqMeasQuantity				InterFreqMeasQuantity				OPTIONAL,
+	interFreqReportingQuantity			InterFreqReportingQuantity			OPTIONAL,
+	measurementValidity					MeasurementValidity					OPTIONAL,
+	interFreqSetUpdate					UE-AutonomousUpdateMode				OPTIONAL,
+	adjacentFrequencyIndex				INTEGER (0..31)						OPTIONAL,
+	interBandFrequencyIndex				INTEGER (0..31)						OPTIONAL,
 	reportCriteria						InterFreqReportCriteria-r7
 }
 
@@ -12776,6 +13258,50 @@ IntraFreqCellInfoList-r4 ::=		SEQUENCE {
 	cellsForIntraFreqMeasList			CellsForIntraFreqMeasList			OPTIONAL
 }
 
+IntraFreqCellInfoListInfoOnSecULFreq ::=		SEQUENCE {
+	removedIntraFreqCellList			RemovedIntraFreqCellListOnSecULFreq			OPTIONAL,
+	newIntraFreqCellList				NewIntraFreqCellListOnSecULFreq				OPTIONAL,
+	cellsForIntraFreqMeasList			CellsForIntraFreqMeasListOnSecULFreq		OPTIONAL
+}
+
+IntraFreqCellInfoListOnSecULFreq ::=		SEQUENCE {
+	frequencyInfo							FrequencyInfo,
+	intraFreqCellInfoListOnSecULFreq		IntraFreqCellInfoListInfoOnSecULFreq
+}
+
+IntraFreqCellInfoList-r9 ::=		SEQUENCE {
+	removedIntraFreqCellList			RemovedIntraFreqCellList			OPTIONAL,
+	newIntraFreqCellList				NewIntraFreqCellList-r4				OPTIONAL,
+	cellsForIntraFreqMeasList			CellsForIntraFreqMeasList			OPTIONAL,
+	cSGIntraFreqCellInfoList			CSGIntraFreqCellInfoList			OPTIONAL,
+	intraFreqSIAcquisition				IntraFreqSIAcquisition				OPTIONAL
+
+}
+
+CSGIntraFreqCellInfoList ::=		SEQUENCE (SIZE (1..maxMeasCSGRange)) OF
+										CSGIntraFreqCellInfo
+
+CSGIntraFreqCellInfo ::=			SEQUENCE {
+	modeSpecificInfo					CHOICE {
+		fdd									SEQUENCE {
+			startPSC							PrimaryCPICH-Info,
+			numberOfPSCs						INTEGER (1..512)
+		}
+	}
+}
+
+IntraFreqSIAcquisitionInfo::=		SEQUENCE (SIZE (1..maxSIrequest)) OF
+										PrimaryCPICH-Info
+
+IntraFreqSIAcquisition::=			SEQUENCE {
+	modeSpecificInfo					CHOICE {
+		fdd									SEQUENCE {
+			intraFreqSIAcquisitionInfo		IntraFreqSIAcquisitionInfo		OPTIONAL
+		}
+	},
+	intraCsgIdentityReport				ENUMERATED { required }				OPTIONAL
+}
+
 IntraFreqCellInfoSI-List-RSCP ::=	SEQUENCE {
 	removedIntraFreqCellList			RemovedIntraFreqCellList			OPTIONAL,
 	newIntraFreqCellList				NewIntraFreqCellSI-List-RSCP
@@ -12878,6 +13404,14 @@ IntraFreqEvent-r7 ::=				CHOICE {
 	e1j									Event1j-r6
 }
 
+IntraFreqEventOnSecULFreq ::=		CHOICE {
+	e1a									Event1a-r4,
+	e1b									Event1b-r7,
+	e1c									Event1c,
+	e1e									Event1e-r6,
+	e1f									Event1f-r6
+}
+
 IntraFreqEvent-1d-r5 ::=		SEQUENCE {
 	triggeringCondition					TriggeringCondition2	OPTIONAL,
 	useCIO								BOOLEAN					OPTIONAL
@@ -12918,6 +13452,13 @@ IntraFreqEventCriteria-r7 ::=	SEQUENCE {
 	reportingCellStatus					ReportingCellStatus					OPTIONAL
 }
 
+IntraFreqEventCriteriaOnSecULFreq ::=	SEQUENCE {
+	event								IntraFreqEventOnSecULFreq,
+	hysteresis							Hysteresis,
+	timeToTrigger						TimeToTrigger,
+	reportingCellStatus					ReportingCellStatus				OPTIONAL
+}
+
 IntraFreqEventCriteriaList ::=		SEQUENCE (SIZE (1..maxMeasEvent)) OF
 										IntraFreqEventCriteria
 
@@ -12933,9 +13474,19 @@ IntraFreqEventCriteriaList-r6 ::=		SEQUENCE (SIZE (1..maxMeasEvent)) OF
 IntraFreqEventCriteriaList-r7 ::=		SEQUENCE (SIZE (1..maxMeasEvent)) OF
 										IntraFreqEventCriteria-r7
 
+IntraFreqEventCriteriaListOnSecULFreq ::= 		SEQUENCE{
+	frequencyInfo						FrequencyInfo,
+	intraFreqEventCriteria				SEQUENCE (SIZE (1..maxMeasEventOnSecULFreq)) OF
+										IntraFreqEventCriteriaOnSecULFreq
+}
+
 IntraFreqEventResults ::=			SEQUENCE {
 	eventID								EventIDIntraFreq,
 	cellMeasurementEventResults			CellMeasurementEventResults
+}
+
+IntraFreqEventResults-v9xyext ::=			SEQUENCE {
+	cellMeasurementEventResultsExtension		CellMeasurementEventResultsExtension		OPTIONAL
 }
 
 IntraFreqMeasQuantity ::=			SEQUENCE {
@@ -13076,6 +13627,12 @@ IntraFreqReportCriteria-r7 ::=		CHOICE {
 	noReporting							ReportingCellStatusOpt
 }
 
+IntraFreqReportCriteria-r9 ::=		CHOICE {
+	intraFreqReportingCriteria			IntraFreqReportingCriteria-r9,
+	periodicalReportingCriteria			PeriodicalWithReportingCellStatus,
+	noReporting							ReportingCellStatusOpt
+}
+
 IntraFreqReportingCriteria ::=		SEQUENCE {
 	eventCriteriaList					IntraFreqEventCriteriaList		OPTIONAL
 }
@@ -13094,6 +13651,11 @@ IntraFreqReportingCriteria-r6 ::= SEQUENCE {
 
 IntraFreqReportingCriteria-r7 ::= SEQUENCE {
 	eventCriteriaList					IntraFreqEventCriteriaList-r7	OPTIONAL
+}
+
+IntraFreqReportingCriteria-r9 ::= SEQUENCE {
+	eventCriteriaList					IntraFreqEventCriteriaList-r7			OPTIONAL,
+	eventCriteriaListOnSecULFreq		IntraFreqEventCriteriaListOnSecULFreq	OPTIONAL
 }
 
 IntraFreqReportingQuantity ::=		SEQUENCE {
@@ -13157,6 +13719,15 @@ IntraFrequencyMeasurement-r7 ::=		SEQUENCE {
 	intraFreqReportingQuantity			IntraFreqReportingQuantity			OPTIONAL,
 	measurementValidity					MeasurementValidity					OPTIONAL,
 	reportCriteria						IntraFreqReportCriteria-r7			OPTIONAL
+}
+
+IntraFrequencyMeasurement-r9 ::=		SEQUENCE {
+	intraFreqCellInfoList				IntraFreqCellInfoList-r9			OPTIONAL,
+	intraFreqCellInfoListOnSecULFreq	IntraFreqCellInfoListOnSecULFreq	OPTIONAL,
+	intraFreqMeasQuantity				IntraFreqMeasQuantity				OPTIONAL,
+	intraFreqReportingQuantity			IntraFreqReportingQuantity			OPTIONAL,
+	measurementValidity					MeasurementValidity					OPTIONAL,
+	reportCriteria						IntraFreqReportCriteria-r9			OPTIONAL
 }
 
 IODE ::=							INTEGER (0..255)
@@ -13250,6 +13821,16 @@ MeasuredResults-v770ext ::= CHOICE {
 
 MeasuredResults-v860ext ::= CHOICE {
 	ue-positioning-MeasuredResults		UE-Positioning-MeasuredResults-v860ext
+}
+
+MeasuredResults-v9xyext::= CHOICE {
+	intraFreqMeasuredResultsList		IntraFreqMeasuredResultsList-v9xyext,
+	interFreqMeasuredResultsList		InterFreqMeasuredResultsList-v9xyext
+}
+
+MeasuredResultOnSecULFreq ::= SEQUENCE {
+	frequencyInfo										FrequencyInfo,
+	intraFrequencyMeasuredResultsListOnSecULFreq		IntraFrequencyMeasuredResultsListOnSecULFreq
 }
 
 MeasuredResults-LCR-r4 ::=			CHOICE {
@@ -13346,6 +13927,14 @@ MeasurementCommand-r8 ::=			CHOICE {
 	setup								MeasurementType-r8,
 	modify								SEQUENCE {
 		measurementType						MeasurementType-r8				OPTIONAL
+	},
+	release								NULL
+}
+
+MeasurementCommand-r9 ::=			CHOICE {
+	setup								MeasurementType-r9,
+	modify								SEQUENCE {
+		measurementType						MeasurementType-r9				OPTIONAL
 	},
 	release								NULL
 }
@@ -13560,6 +14149,22 @@ MeasurementType-r8 ::=				CHOICE {
 	trafficVolumeMeasurement			TrafficVolumeMeasurement,
 	qualityMeasurement					QualityMeasurement,
 	ue-InternalMeasurement				UE-InternalMeasurement-r4
+}
+
+MeasurementType-r9 ::=				CHOICE {
+	intraFrequencyMeasurement			IntraFrequencyMeasurement-r9,
+	interFrequencyMeasurement			InterFrequencyMeasurement-r9,
+	interRATMeasurement					InterRATMeasurement-r8,
+	up-Measurement						UE-Positioning-Measurement-r8,
+	trafficVolumeMeasurement			TrafficVolumeMeasurement,
+	qualityMeasurement					QualityMeasurement,
+	ue-InternalMeasurement				UE-InternalMeasurement-r4,
+	csgProximityDetection				CsgProximityDetection
+}
+
+CsgProximityDetection::=			SEQUENCE {
+	uTRACsgProximityDetec					ENUMERATED { enable }			OPTIONAL,
+	e-UTRACsgProximityDetec					ENUMERATED { enable }			OPTIONAL
 }
 
 MeasurementValidity ::=				SEQUENCE {
@@ -13950,6 +14555,9 @@ NewIntraFreqCellList ::=			SEQUENCE (SIZE (1..maxCellMeas)) OF
 NewIntraFreqCellList-r4 ::=			SEQUENCE (SIZE (1..maxCellMeas)) OF
 										NewIntraFreqCell-r4
 
+NewIntraFreqCellListOnSecULFreq ::=	SEQUENCE (SIZE (1..maxCellMeasOnSecULFreq)) OF
+										NewIntraFreqCell-r4
+
 NewIntraFreqCellSI-RSCP ::=				SEQUENCE {
 	intraFreqCellID						IntraFreqCellID						OPTIONAL,
 	cellInfo							CellInfoSI-RSCP
@@ -14244,6 +14852,13 @@ RemovedInterRATCellList ::=		CHOICE {
 RemovedIntraFreqCellList ::=		CHOICE {
 	removeAllIntraFreqCells				NULL,
 	removeSomeIntraFreqCells			SEQUENCE (SIZE (1..maxCellMeas)) OF
+											IntraFreqCellID,
+	removeNoIntraFreqCells				NULL
+}
+
+RemovedIntraFreqCellListOnSecULFreq ::=		CHOICE {
+	removeAllIntraFreqCells				NULL,
+	removeSomeIntraFreqCells			SEQUENCE (SIZE (1..maxCellMeasOnSecULFreq)) OF
 											IntraFreqCellID,
 	removeNoIntraFreqCells				NULL
 }
@@ -14693,6 +15308,11 @@ TriggeringCondition2 ::=			ENUMERATED {
 										detectedSetCellsOnly,
 										detectedSetAndMonitoredSetCells }
 
+-- NOTE: Events to include TriggeringCondition3 are FFS 
+TriggeringCondition3 ::=			ENUMERATED {
+										csgSetCellsOnly,
+										csgSetCellsAndNonCSGSetCells}
+
 Tutran-Ganss-DriftRate ::=			ENUMERATED {
 										ugdr0, ugdr1, ugdr2, ugdr5, ugdr10, ugdr15 , ugdr25,
 										ugdr50, ugdr-1, ugdr-2, ugdr-5, ugdr-10, ugdr-15,
@@ -14707,6 +15327,26 @@ UDRE ::=							ENUMERATED {
 										between1-and-4,
 										between4-and-8,
 										over8 }
+
+UDREGrowthRate ::=					ENUMERATED {
+										growth-1-5,
+										growth-2,
+										growth-4,
+										growth-6,
+										growth-8,
+										growth-10,
+										growth-12,
+										growth-16 }
+
+UDREValidityTime	::=					ENUMERATED {
+											val-20sec,
+											val-40sec,
+											val-80sec,
+											val-160sec,
+											val-320sec,
+											val-640sec,
+											val-1280sec,
+											val-2560sec }
 
 UE-6AB-Event ::=					SEQUENCE {
 	timeToTrigger						TimeToTrigger,
@@ -14905,6 +15545,10 @@ UE-Positioning-DGANSSCorrections ::= SEQUENCE {
 	dganssInfoList						DGANSSInfoList
 }
 
+UE-Positioning-DGANSSCorrections-v9xyext ::= SEQUENCE {
+	dganssInfoList						DGANSSInfoList-v9xyext
+}
+
 UE-Positioning-Error ::=			SEQUENCE {
 	errorReason							UE-Positioning-ErrorCause,
 	ue-positioning-GPS-additionalAssistanceDataRequest
@@ -15056,6 +15700,10 @@ UE-Positioning-GANSS-AssistanceData-r8 ::= SEQUENCE {
 	uePositioningGanssEarthOrientationPara
 										UE-Positioning-GANSS-EarthOrientPara	OPTIONAL,
 	ganssGenericDataList				GANSSGenericDataList-r8					OPTIONAL
+}
+
+UE-Positioning-GANSS-AssistanceData-v9xyext ::= SEQUENCE {
+	ganssGenericDataList				GANSSGenericDataList-v9xyext			OPTIONAL
 }
 
 UE-Positioning-GANSS-AuxiliaryInfo ::= CHOICE {
@@ -15276,10 +15924,18 @@ UE-Positioning-GPS-AssistanceData-r7 ::= SEQUENCE {
 	ue-positioning-GPS-Real-timeIntegrity	BadSatList									OPTIONAL
 }
 
+UE-Positioning-GPS-AssistanceData-v9xyext ::= SEQUENCE {
+	ue-positioning-GPS-DGPS-Corrections		UE-Positioning-GPS-DGPS-Corrections-v9xyext	OPTIONAL
+}
+
 UE-Positioning-GPS-DGPS-Corrections ::=		SEQUENCE {
 	gps-TOW								GPS-TOW-1sec,
 	statusHealth						DiffCorrectionStatus,
 	dgps-CorrectionSatInfoList			DGPS-CorrectionSatInfoList
+}
+
+UE-Positioning-GPS-DGPS-Corrections-v9xyext ::=	SEQUENCE {
+	dgps-CorrectionSatInfoList			DGPS-CorrectionSatInfoList-v9xyext
 }
 
 UE-Positioning-GPS-IonosphericModel ::=		SEQUENCE {
@@ -15474,6 +16130,11 @@ UE-Positioning-Measurement-r8 ::=		SEQUENCE {
 	ue-positioning-GANSS-AssistanceData		UE-Positioning-GANSS-AssistanceData-r8	OPTIONAL
 }
 
+UE-Positioning-Measurement-v9xyext ::= SEQUENCE {
+	ue-positioning-GPS-AssistanceData 		UE-Positioning-GPS-AssistanceData-v9xyext	OPTIONAL,
+	ue-positioning-GANSS-AssistanceData		UE-Positioning-GANSS-AssistanceData-v9xyext	OPTIONAL
+}
+
 UE-Positioning-MeasurementEventResults ::= CHOICE {
 	-- In case of 'event7a' reporting, if IE 'UE-Positioning-PositionEstimateInfo' is not needed,
 	-- CHOICE shall be set to 'additionalOrReplacedPosMeasEvent'and the 'event7a' shall be included
@@ -15495,6 +16156,10 @@ UE-Positioning-MeasurementEventResults-v770ext ::= CHOICE {
 
 UE-Positioning-MeasurementEventResults-v860ext ::= CHOICE {
 	event7d								UE-Positioning-GANSS-MeasuredResults-v860ext
+}
+
+EventResults-v9xyext ::= CHOICE {
+	intraFreqEventResults				IntraFreqEventResults-v9xyext
 }
 
 UE-Positioning-MeasurementInterval ::=			ENUMERATED {
@@ -16734,7 +17399,10 @@ SysInfoType3 ::=					SEQUENCE {
 									sysInfoType3-v860ext				SysInfoType3-v860ext-IEs,
 									v870NonCriticalExtension			SEQUENCE {
 										sysInfoType3-v870ext			SysInfoType3-v870ext-IEs,
-										nonCriticalExtensions				SEQUENCE {}		OPTIONAL
+										v900NonCriticalExtension		SEQUENCE {
+											sysInfoType3-v900ext		SysInfoType3-v900ext-IEs,
+											nonCriticalExtensions	SEQUENCE {}	OPTIONAL
+										}							OPTIONAL
 									}							OPTIONAL
 								}							OPTIONAL
 							}							OPTIONAL
@@ -16787,6 +17455,10 @@ SysInfoType3-v860ext-IEs ::=		SEQUENCE {
 
 SysInfoType3-v870ext-IEs ::=		SEQUENCE {
 	cellAccessRestriction				CellAccessRestriction-v870ext			OPTIONAL
+}
+
+SysInfoType3-v900ext-IEs ::=		SEQUENCE {
+	imsEmergencySupportIndicator		ENUMERATED { supported }			OPTIONAL
 }
 
 SysInfoType4 ::=					SEQUENCE {
@@ -16868,7 +17540,10 @@ SysInfoType5 ::=					SEQUENCE {
 								sysInfoType5-v770ext			SysInfoType5-v770ext-IEs,
 								v860NonCriticalExtensions		SEQUENCE {
 									sysInfoType5-v860ext			SysInfoType5-v860ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}				OPTIONAL
+									v890NonCriticalExtensions		SEQUENCE {
+										sysInfoType5-v890ext			SysInfoType5-v890ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}		OPTIONAL
 								}		OPTIONAL
 							}		OPTIONAL
 						}		OPTIONAL
@@ -16961,7 +17636,10 @@ SysInfoType5-v770ext-IEs ::=		SEQUENCE {
 }
 
 SysInfoType5-v860ext-IEs ::= SEQUENCE {
-	commonEDCHSystemInfo				CommonEDCHSystemInfo					OPTIONAL,
+	-- The field 'dummy' shall be marked absent in SysInfoType5 and SysInfoType5bis. A failure to
+	-- comply with this requirement may prevent the UE to receive any service in the cell. The UE
+	-- may treat the cell as barred.
+	dummy								SEQUENCE {}								OPTIONAL,
 	modeSpecificInfo					CHOICE {
 		fdd									SEQUENCE {
 			hs-dsch-DrxCellfach-info			HS-DSCH-DrxCellfach-info				OPTIONAL
@@ -16974,6 +17652,11 @@ SysInfoType5-v860ext-IEs ::= SEQUENCE {
 			hs-dsch-DrxCellfach-info			HS-DSCH-DrxCellfach-info-TDD128			OPTIONAL
 		}
 	}
+}
+
+SysInfoType5-v890ext-IEs ::= SEQUENCE {
+	secondFrequencyInfo					FrequencyInfoTDD				OPTIONAL,
+	commonEDCHSystemInfo				CommonEDCHSystemInfo						OPTIONAL
 }
 
 -- SysInfoType5bis uses the same structure as SysInfoType5
@@ -17408,14 +18091,30 @@ SysInfoType15-1 ::=					SEQUENCE {
 	-- DGPS corrections
 		ue-positioning-GPS-DGPS-Corrections			UE-Positioning-GPS-DGPS-Corrections,
 	-- Extension mechanism for non- release99 information
-		nonCriticalExtensions			SEQUENCE {}				OPTIONAL
+			v9xyNonCriticalExtensions		SEQUENCE { 
+				sysInfoType15-1-v9xyext			SysInfoType15-1-v9xyext-IEs,
+				nonCriticalExtensions			SEQUENCE {}				OPTIONAL
+			}	OPTIONAL
+}
+
+SysInfoType15-1-v9xyext-IEs ::=	SEQUENCE {
+	-- Measurement IEs
+	ue-positioning-GPS-DGPS-Corrections				UE-Positioning-GPS-DGPS-Corrections-v9xyext
 }
 
 SysInfoType15-1bis ::=				SEQUENCE {
 	-- Measurement IEs
 		ue-positioning-GANSS-DGANSS-Corrections	UE-Positioning-DGANSSCorrections,
 	-- Extension mechanism for non-release99 information
-		nonCriticalExtensions			SEQUENCE {}				OPTIONAL
+			v9xyNonCriticalExtensions		SEQUENCE { 
+				sysInfoType15-1bis-v9xyext		SysInfoType15-1bis-v9xyext-IEs,
+				nonCriticalExtensions			SEQUENCE {}				OPTIONAL
+			}	OPTIONAL
+}
+
+SysInfoType15-1bis-v9xyext-IEs ::=	SEQUENCE {
+	-- Measurement IEs
+	ue-positioning-GANSS-DGANSS-Corrections		UE-Positioning-DGANSSCorrections-v9xyext 
 }
 
 SysInfoType15-2 ::=					SEQUENCE {
@@ -17868,7 +18567,6 @@ MBMS-MCCH-ConfigurationInfo-r6 ::=	SEQUENCE {
 MBMS-MICHConfigurationInfo-r6 ::=	SEQUENCE {
 	michPowerOffset						MBMS-MICHPowerOffset,
 	mode								CHOICE {
-		-- The CHOICE fdd is used for both "fdd" and "3.84 Mcps TDD MBSFN IMB"
 		fdd									SEQUENCE {
 			channelisationCode256				ChannelisationCode256,
 			ni-CountPerFrame					MBMS-NI-CountPerFrame,
@@ -17909,6 +18607,15 @@ MBMS-MICHConfigurationInfo-v770ext ::= SEQUENCE {
 		},
 		tdd128								SEQUENCE {
 			mbsfnSpecialTimeSlot				TimeSlotLCR-ext					OPTIONAL
+		}
+	}
+}
+
+MBMS-MICHConfigurationInfo-v890ext ::= SEQUENCE {
+	mode								CHOICE {
+		imb384								SEQUENCE {
+			channelisationCode256				ChannelisationCode256,
+			ni-CountPerFrame					MBMS-NI-CountPerFrame-IMB384
 		}
 	}
 }
@@ -18006,7 +18713,14 @@ MBMS-NeighbouringCellSCCPCHList-r6 ::= SEQUENCE (SIZE (1..maxSCCPCH)) OF
 MBMS-NeighbouringCellSCCPCHList-v770ext ::= SEQUENCE (SIZE (1..maxSCCPCH)) OF
 										MBMS-NeighbouringCellSCCPCH-v770ext
 
+MBMS-NetworkStandardTimeInformation-LCR-v890ext ::= SEQUENCE {
+	networkStandardTime					BIT STRING (SIZE (40)),
+	correlativeSFN						INTEGER (0..4095) 			OPTIONAL
+}
+
 MBMS-NI-CountPerFrame ::=			ENUMERATED { ni18, ni36, ni72, ni144 }
+
+MBMS-NI-CountPerFrame-IMB384 ::=	ENUMERATED { ni16, ni32, ni64, ni128 }
 
 MBMS-NumberOfNeighbourCells-r6 ::=		INTEGER (0..32)
 
