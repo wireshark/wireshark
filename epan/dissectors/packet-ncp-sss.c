@@ -35,8 +35,6 @@
 #include "packet-ncp-int.h"
 #include "packet-ncp-sss.h"
 
-static guint32 gbl_subverb=0;
-
 static gint ett_sss = -1;
 
 static int proto_sss = -1;
@@ -113,43 +111,6 @@ static const value_string sss_verb_enum[] = {
     { 0x00000008, "Set Master Password" },
     { 0x00000009, "Get Service Information" },
     { 0x000000ff, "Fragment"},
-    { 0,          NULL }
-};
-
-static const value_string sss_subverb_enum[] _U_ = {
-    { 0, "Fragmented Ping" },
-    { 2, "Client Put Data" },
-    { 4, "Client Get Data" },
-    { 6, "Client Get User NDS Credentials" },
-    { 8, "Login Store Management" },
-    { 10, "Writable Object Check" },
-    { 1242, "Message Handler" },
-    { 0,          NULL }
-};
-
-static const value_string sss_msgverb_enum[] _U_ = {
-    { 1, "Echo Data" },
-    { 3, "Start Session" },
-    { 5, "Client Write Data" },
-    { 7, "Client Read Data" },
-    { 9, "End Session" },
-    { 0,          NULL }
-};
-
-static const value_string sss_attribute_enum[] _U_ = {
-    { 1, "User Name" },
-    { 2, "Tree Name" },
-    { 4, "Clearance" },
-    { 11, "Login Sequence" },
-    { 0,          NULL }
-};
-
-static const value_string sss_lsmverb_enum[] _U_ = {
-    { 1, "Put Login Configuration" },
-    { 2, "Get Login Configuration" },
-    { 4, "Delete Login Configuration" },
-    { 5, "Put Login Secret" },
-    { 6, "Delete Login Secret" },
     { 0,          NULL }
 };
 
@@ -561,7 +522,8 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
 void
 dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp_req_hash_value *request_value)
 {
-	guint8			    func, subfunc = 0;
+    guint8              func, subfunc = 0;
+    guint32             subverb=0;
     guint32             msg_length=0;
     guint32             foffset= 0;
     proto_tree          *atree;
@@ -601,21 +563,21 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             proto_tree_add_item(ncp_tree, hf_length, tvb, foffset, 4, TRUE);
             foffset += 4;
             foffset += 12; /* Blank Context */
-            gbl_subverb = tvb_get_letohl(tvb, foffset);
+            subverb = tvb_get_letohl(tvb, foffset);
             if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(gbl_subverb, sss_verb_enum, "Unknown (%d)"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(subverb, sss_verb_enum, "Unknown (%d)"));
             }
             aitem = proto_tree_add_item(ncp_tree, hf_verb, tvb, foffset, 4, TRUE);
             atree = proto_item_add_subtree(aitem, ett_sss);
             if (request_value) {
-                request_value->req_nds_flags=gbl_subverb;
+                request_value->req_nds_flags=subverb;
             }
             foffset += 4;
             process_flags(atree, tvb, foffset);
             foffset += 4;
             proto_tree_add_item(atree, hf_context, tvb, foffset, 4, FALSE);
             foffset += 4;
-            switch (gbl_subverb) {
+            switch (subverb) {
             case 0:
                 foffset += 4;
                 foffset = sss_string(tvb, hf_user, atree, foffset, TRUE, 0);
@@ -709,7 +671,6 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
 {
     guint32             foffset=0;
     guint32             subverb=0;
-    guint8              msgverb=0;
     guint32             msg_length=0;
     guint32             return_code=0;
     guint32             number_of_items=0;
@@ -722,15 +683,11 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
 
 
     foffset = 8;
-    if (request_value) {
-        subverb = request_value->req_nds_flags;
-        msgverb = request_value->nds_request_verb;
-    }
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSSS");
     if (tvb_length_remaining(tvb, foffset)<4) {
         return;
     }
-    aitem = proto_tree_add_text(ncp_tree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Function: %s", val_to_str(subfunc, sss_func_enum, "val_to_str"));
+    aitem = proto_tree_add_text(ncp_tree, tvb, foffset, -1, "Function: %s", val_to_str(subfunc, sss_func_enum, "val_to_str"));
     atree = proto_item_add_subtree(aitem, ett_sss);
     switch (subfunc) {
     case 1:
@@ -740,8 +697,11 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
         foffset += 4;
         break;
     case 2:
-        if (match_strval(subverb, sss_verb_enum)) {
-            proto_tree_add_text(atree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Verb: %s", match_strval(subverb, sss_verb_enum));
+        if (request_value) {
+            subverb = request_value->req_nds_flags;
+            if (match_strval(subverb, sss_verb_enum)) {
+                proto_tree_add_text(atree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Verb: %s", match_strval(subverb, sss_verb_enum));
+            }
         }
         proto_tree_add_item(atree, hf_length, tvb, foffset, 4, TRUE);
         msg_length = tvb_get_letohl(tvb, foffset);
@@ -768,7 +728,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
                 proto_tree_add_text(atree, tvb, foffset, 4, "Return Code: Success (0x00000000)");
                 if (tvb_length_remaining(tvb, foffset) > 8) {
                     foffset += 4;
-                    if (subverb == 6)
+                    if (request_value && subverb == 6)
                     {
                         foffset += 4;
                         number_of_items = tvb_get_letohl(tvb, foffset);
