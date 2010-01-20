@@ -479,7 +479,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 				guint32 ber_len;
 				ber_offset = get_ber_identifier(tvb, offset, NULL, &pc, NULL);
 				ber_offset = get_ber_length(tvb, ber_offset, &ber_len, NULL);
-				if (pc && (ber_len + (ber_offset - offset) == len)) {
+				if (pc && (ber_len > 0) && (ber_len + (ber_offset - offset) == len)) {
 					/* Decoded a constructed ASN.1 tag with a length indicating this
 					 * could be BER encoded data.  Try dissecting as unknown BER.
 					 */
