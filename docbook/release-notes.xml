@@ -38,13 +38,13 @@ Wireshark Info
 
         <listitem>
           <para>
-            XXX.
-            <!-- Fixed in trunk: rXXXXX -->
-            <!-- Fixed in trunk-1.2: rXXXXX -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=XXXX">Bug
-            XXXX</ulink>)
+            Babi discovered several buffer overflows in the LWRES dissector.
+            <!-- Fixed in trunk: r31524 -->
+            <!-- Fixed in trunk-1.2: r31596 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=XXXX">Bug
+            XXXX</ulink>) -->
           </para>
-          <para>Versions affected: 1.2.0 to 1.2.4</para>
+          <para>Versions affected: 0.9.15 to 1.2.4</para>
           <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
@@ -90,15 +90,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          tvb_new_real_data is prone to memory leak.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3917">Bug
+          3917</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Malformed OPC UA traffic makes Wireshark "freeze".
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3986">Bug
           3986</ulink>)
         </para></listitem>
 
         <listitem><para>
-           Analyze&#8594;Expert... doesn't show IP "Bad Checksum" errors.
+          Analyze&#8594;Expert... doesn't show IP "Bad Checksum" errors.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4177">Bug
           4177</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark can't decrypt WPA(2)-PSK when passphrase is 63 bytes.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4183">Bug
+          4183</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -149,10 +161,15 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title>
     <para>
 
+BJNP,
 BOOTP/DHCP,
+FIP,
+IEEE 802.11,
+IP,
 Kerberos,
 OPCUA,
-SSL,
+SCTP,
+SSL
 
     </para>
     </section>

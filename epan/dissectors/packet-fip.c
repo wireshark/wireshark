@@ -266,6 +266,8 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIP");
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
     if (!tvb_bytes_exist(tvb, 0, FIP_HEADER_LEN)) {
         if (check_col(pinfo->cinfo, COL_INFO))
@@ -298,7 +300,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, info);
+        col_add_str(pinfo->cinfo, COL_INFO, info);
 
     rlen = tvb_get_ntohs(tvb, 6);
     flags = tvb_get_ntohs(tvb, 8);
