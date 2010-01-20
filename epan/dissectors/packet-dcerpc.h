@@ -325,6 +325,7 @@ typedef struct _dcerpc_info {
 	guint16 smb_fid;	/* FID for DCERPC over SMB */
 	guint8 ptype;       /* packet type: PDU_REQ, PDU_RESP, ... */
 	gboolean conformant_run;
+	gboolean no_align; /* are data aligned? (default yes) */
 	gint32 conformant_eaten; /* how many bytes did the conformant run eat?*/
 	guint32 array_max_count;	/* max_count for conformant arrays */
 	guint32 array_max_count_offset;

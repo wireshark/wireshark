@@ -507,6 +507,9 @@ get_next_di(void)
 	if(di_counter>=20){
 		di_counter=0;
 	}
+
+	memset(&di[di_counter], 0, sizeof(dcerpc_info));
+
 	return &di[di_counter];
 }
 
@@ -1428,7 +1431,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     buffer_len = size_is * (guint32)len;
 
     /* Adjust offset */
-    if (offset % size_is)
+    if (!di->no_align && (offset % size_is))
         offset += size_is - (offset % size_is);
 
     if (size_is == sizeof(guint16)) {
@@ -1615,7 +1618,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     buffer_len = size_is * (guint32)len;
 
     /* Adjust offset */
-    if (offset % size_is)
+    if (!di->no_align && (offset % size_is))
         offset += size_is - (offset % size_is);
 
     if (size_is == sizeof(guint16)) {

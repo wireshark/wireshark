@@ -129,7 +129,7 @@ dissect_ndr_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
 
-    if (offset % 2) {
+    if (!di->no_align && (offset % 2)) {
         offset++;
     }
     return dissect_dcerpc_uint16 (tvb, offset, pinfo,
@@ -151,7 +151,7 @@ PIDL_dissect_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
 
-    if (offset % 2) {
+    if (!di->no_align && (offset % 2)) {
         offset++;
     }
     offset=dissect_dcerpc_uint16 (tvb, offset, pinfo,
@@ -207,7 +207,7 @@ dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
 
-    if (offset % 4) {
+    if (!di->no_align && (offset % 4)) {
         offset += 4 - (offset % 4);
     }
     return dissect_dcerpc_uint32 (tvb, offset, pinfo,
@@ -277,7 +277,7 @@ PIDL_dissect_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
 
-    if (offset % 4) {
+    if (!di->no_align && (offset % 4)) {
         offset += 4 - (offset % 4);
     }
     offset=dissect_dcerpc_uint32 (tvb, offset, pinfo,
@@ -337,7 +337,7 @@ dissect_ndr_duint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       return offset;
     }
 
-    if (offset % 4) {
+    if (!di->no_align && (offset % 4)) {
         offset += 4 - (offset % 4);
     }
     return dissect_dcerpc_uint64 (tvb, offset, pinfo,
@@ -360,7 +360,7 @@ dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       return offset;
     }
 
-    if (offset % 8) {
+    if (!di->no_align && (offset % 8)) {
         offset += 8 - (offset % 8);
     }
     return dissect_dcerpc_uint64 (tvb, offset, pinfo,
@@ -381,7 +381,7 @@ PIDL_dissect_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       return offset;
     }
 
-    if (offset % 8) {
+    if (!di->no_align && (offset % 8)) {
         offset += 8 - (offset % 8);
     }
     offset=dissect_dcerpc_uint64 (tvb, offset, pinfo,
@@ -437,7 +437,7 @@ dissect_ndr_float(tvbuff_t *tvb, gint offset, packet_info *pinfo,
       return offset;
     }
 
-    if (offset % 4) {
+    if (!di->no_align && (offset % 4)) {
         offset += 4 - (offset % 4);
     }
     return dissect_dcerpc_float(tvb, offset, pinfo,
@@ -459,7 +459,7 @@ dissect_ndr_double(tvbuff_t *tvb, gint offset, packet_info *pinfo,
       return offset;
     }
 
-    if (offset % 8) {
+    if (!di->no_align && (offset % 8)) {
         offset += 8 - (offset % 8);
     }
     return dissect_dcerpc_double(tvb, offset, pinfo,
@@ -481,7 +481,7 @@ dissect_ndr_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
 
-    if (offset % 4) {
+    if (!di->no_align && (offset % 4)) {
         offset += 4 - (offset % 4);
     }
     return dissect_dcerpc_time_t (tvb, offset, pinfo,
@@ -502,7 +502,7 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
     /* uuid's are aligned to 4 bytes, due to initial uint32 in struct */
-    if (offset % 4) {
+    if (!di->no_align && (offset % 4)) {
         offset += 4 - (offset % 4);
     }
     return dissect_dcerpc_uuid_t (tvb, offset, pinfo,
@@ -532,7 +532,7 @@ dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       return offset;
     }
 
-    if (offset % 4) {
+    if (!di->no_align && (offset % 2)) {
         offset += 4 - (offset % 4);
     }
     ctx_hnd.attributes = dcerpc_tvb_get_ntohl (tvb, offset, drep);
