@@ -1033,7 +1033,6 @@ static void
 emem_free_all(emem_header_t *mem)
 {
 	gboolean use_chunks = mem->debug_use_chunks;
-	guint8 *canary = (mem->debug_use_canary) ? mem->canary : NULL;
 
 	emem_chunk_t *npc;
 	emem_tree_t *tree_list;
