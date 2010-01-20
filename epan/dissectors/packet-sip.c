@@ -2207,7 +2207,13 @@ separator_found:
 							parameter_len = parameter_end_offset - parameter_offset;
 							proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
 							                    parameter_len, FALSE);
+							/* Tag indicates in-dialog messages, in case we have a INVITE, SUBSCRIBE or REFER, mark it */
+							if (((strcmp(sip_methods[current_method_idx], "INVITE") == 0) 
+							|| (strcmp(sip_methods[current_method_idx], "SUBSCRIBE") == 0)
+							|| (strcmp(sip_methods[current_method_idx], "REFER") == 0)))
 
+
+							col_append_str(pinfo->cinfo, COL_INFO, ", in-dialog");
 						}
 					break;
 
