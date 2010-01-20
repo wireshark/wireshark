@@ -184,23 +184,41 @@ static gint ett_sip_tc_uri			= -1;
 
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 static const char *sip_methods[] = {
+#define SIP_METHOD_INVALID	0
         "<Invalid method>",      /* Pad so that the real methods start at index 1 */
+#define SIP_METHOD_ACK		1
         "ACK",
+#define SIP_METHOD_BYE		2
         "BYE",
+#define SIP_METHOD_CANCEL	3
         "CANCEL",
+#define SIP_METHOD_DO		4
         "DO",
+#define SIP_METHOD_INFO		5
         "INFO",
+#define SIP_METHOD_INVITE	6
         "INVITE",
+#define SIP_METHOD_MESSAGE	7
         "MESSAGE",
+#define SIP_METHOD_NOTIFY	8
         "NOTIFY",
+#define SIP_METHOD_OPTIONS	9
         "OPTIONS",
+#define SIP_METHOD_PRACK	10
         "PRACK",
+#define SIP_METHOD_QAUTH	11
         "QAUTH",
+#define SIP_METHOD_REFER	12
         "REFER",
+#define SIP_METHOD_REGISTER	13
         "REGISTER",
+#define SIP_METHOD_SPRACK	14
         "SPRACK",
+#define SIP_METHOD_SUBSCRIBE	15
         "SUBSCRIBE",
+#define SIP_METHOD_UPDATE	16
         "UPDATE",
+#define SIP_METHOD_PUBLISH	17
         "PUBLISH"
 };
 
@@ -1807,7 +1825,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	gboolean found_match = FALSE;
 	const char *descr;
 	guint token_1_len = 0;
-	guint current_method_idx = 0;
+	guint current_method_idx = SIP_METHOD_INVALID;
 	proto_item *ts = NULL, *ti = NULL, *th = NULL, *sip_element_item = NULL;
 	proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL,
 		*sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL,
@@ -2208,12 +2226,14 @@ separator_found:
 							proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
 							                    parameter_len, FALSE);
 							/* Tag indicates in-dialog messages, in case we have a INVITE, SUBSCRIBE or REFER, mark it */
-							if (((strcmp(sip_methods[current_method_idx], "INVITE") == 0) 
-							|| (strcmp(sip_methods[current_method_idx], "SUBSCRIBE") == 0)
-							|| (strcmp(sip_methods[current_method_idx], "REFER") == 0)))
+							switch (current_method_idx) {
 
-
-							col_append_str(pinfo->cinfo, COL_INFO, ", in-dialog");
+							case SIP_METHOD_INVITE:
+							case SIP_METHOD_SUBSCRIBE:
+							case SIP_METHOD_REFER:
+								col_append_str(pinfo->cinfo, COL_INFO, ", in-dialog");
+								break;
+							}
 						}
 					break;
 
@@ -2875,7 +2895,7 @@ separator_found2:
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		/* Registration requests */
-		if (strcmp(sip_methods[current_method_idx], "REGISTER") == 0)
+		if (current_method_idx == SIP_METHOD_REGISTER)
 		{
 			if (contact_is_star && expires_is_0)
 			{
