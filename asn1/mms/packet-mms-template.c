@@ -28,6 +28,7 @@
 #endif
 
 #include <glib.h>
+#include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
@@ -89,8 +90,8 @@ dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 /*--- proto_register_mms -------------------------------------------*/
 void proto_register_mms(void) {
-
-  /* List of fields */
+	
+	/* List of fields */
   static hf_register_info hf[] =
   {
 #include "packet-mms-hfarr.c"
@@ -108,6 +109,7 @@ void proto_register_mms(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_mms, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
 
 }
 
