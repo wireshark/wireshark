@@ -618,18 +618,24 @@ emem_create_chunk() {
 	npc->buf = VirtualAlloc(NULL, EMEM_PACKET_CHUNK_SIZE,
 		MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
 
+	if (npc->buf == NULL) {
+		g_free(npc);
+		THROW(OutOfMemoryError);
+	}
+
 #elif defined(USE_GUARD_PAGES)
 	npc->buf = mmap(NULL, EMEM_PACKET_CHUNK_SIZE,
 		PROT_READ|PROT_WRITE, ANON_PAGE_MODE, ANON_FD, 0);
 
-#else /* Is there a draft in here? */
-	npc->buf = g_malloc(EMEM_PACKET_CHUNK_SIZE);
-#endif
-
-	if(npc->buf == NULL) {
+	if (npc->buf == MAP_FAILED) {
 		g_free(npc);
 		THROW(OutOfMemoryError);
 	}
+
+#else /* Is there a draft in here? */
+	npc->buf = g_malloc(EMEM_PACKET_CHUNK_SIZE);
+	/* g_malloc() can't fail */
+#endif
 
 #ifdef SHOW_EMEM_STATS
 	total_no_chunks++;
