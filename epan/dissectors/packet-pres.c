@@ -1394,7 +1394,7 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 		if(tree){
 			proto_tree_add_text(tree, tvb, offset, -1,
 				"Internal error:can't get spdu type from session dissector.");
-			return  FALSE;
+			return 0;
 		}
 	}else{
 		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
@@ -1402,16 +1402,16 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 			if(tree){
 				proto_tree_add_text(tree, tvb, offset, -1,
 					"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
-				return  FALSE;
+				return 0;
 			}
 		}
 	}
 	/* get type of tag */
 	s_type = tvb_get_guint8(tvb, offset);
-	/*  set up type of Ppdu */
+	/*  set up type of PPDU */
   	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO,
-			    val_to_str(session->spdu_type, ses_vals, "Unknown Ppdu type (0x%02x)"));
+			    val_to_str(session->spdu_type, ses_vals, "Unknown PPDU type (0x%02x)"));
 	if (tree){
 		ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1, FALSE);
 		pres_tree = proto_item_add_subtree(ti, ett_pres);
