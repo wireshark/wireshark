@@ -784,6 +784,14 @@ statusbar_cf_file_save_finished_cb(gpointer data _U_)
 }
 
 static void
+statusbar_cf_file_reload_finished_cb(capture_file *cf)
+{
+    statusbar_pop_file_msg();
+    statusbar_set_filename(cf->filename, cf->f_datalen, &(cf->elapsed_time));
+}
+
+
+static void
 statusbar_cf_file_save_failed_cb(gpointer data _U_)
 {
     /* Pop the "Saving:" message off the status bar. */
@@ -822,6 +830,7 @@ statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         statusbar_cf_file_save_finished_cb(data);
         break;
     case(cf_cb_file_save_reload_finished):
+        statusbar_cf_file_reload_finished_cb(data);
         break;
     case(cf_cb_file_save_failed):
         statusbar_cf_file_save_failed_cb(data);

@@ -1626,6 +1626,7 @@ main_cf_cb_field_unselected(capture_file *cf)
 static void
 main_cf_cb_file_save_reload_finished(gpointer data _U_)
 {
+    set_display_filename(&cfile);
     set_menus_for_capture_file(&cfile);
 }
 

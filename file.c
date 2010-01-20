@@ -4316,7 +4316,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
        correctly for the "no capture file open" state). */
     break;
       }
-      cf_callback_invoke(cf_cb_file_save_reload_finished, NULL);
+      cf_callback_invoke(cf_cb_file_save_reload_finished, cf);
     }
   }
   return CF_OK;
