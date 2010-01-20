@@ -1386,7 +1386,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   const guchar		*src_addr, *dst_addr;
   guint32 		src32, dst32;
   proto_tree *tree;
-  proto_item *item, *ttl_item;
+  proto_item *item=NULL, *ttl_item;
   proto_tree *checksum_tree;
 
   tree=parent_tree;
@@ -1417,6 +1417,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   /* if IP is not referenced from any filters we dont need to worry about
      generating any tree items.  We must do this after we created the actual
      protocol above so that proto hier stat still works though.
+     XXX: Note that because of the following optimization expert items must 
+          not be generated inside of an 'if (tree) ...' 
+          so that Analyze ! Expert ...  will work.
   */
   if(!proto_field_is_referenced(parent_tree, proto_ip)){
     tree=NULL;
@@ -1563,9 +1566,12 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         PROTO_ITEM_SET_GENERATED(item);
         item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
         PROTO_ITEM_SET_GENERATED(item);
-        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
       }
     }
+    if (ipsum != 0) /* Add expert item always (so tap gets called if present);
+                       if (tree==NULL) then item will be NULL
+                       else item should be from the add_boolean(..., hf_ip_checksum_bad, ...) above */
+      expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
   } else {
     ipsum = 0;
     if (tree) {

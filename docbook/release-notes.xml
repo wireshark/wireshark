@@ -66,9 +66,21 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Address display filters hang Wireshark.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=658">Bug
+          658</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           PSML - structure context node missing.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1564">Bug
           1564</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+           Wireshark doesn't dynamically update the packet list.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1605">Bug
+          1605</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -81,6 +93,12 @@ Wireshark Info
           Malformed OPC UA traffic makes Wireshark "freeze".
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3986">Bug
           3986</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+           Analyze&#8594;Expert... doesn't show IP "Bad Checksum" errors.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4177">Bug
+          4177</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -99,6 +117,12 @@ Wireshark Info
           Deleting SMI modules causes Wireshark to crash.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4354">Bug
           4354</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark decodes kerberos AS-REQ PADATA incorrect.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4363">Bug
+          4363</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -202,14 +226,6 @@ There are no updated capture file formats in this release.
       The BER dissector might infinitely loop.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516">Bug
       1516</ulink>)
-    </para>
-
-    <para>
-      Wireshark can't dynamically update the packet list. This means that host
-      name resolutions above a certain response time threshold won't show up in
-      the packet list.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1605">Bug
-      1605</ulink>)
     </para>
 
     <para>

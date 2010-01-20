@@ -123,8 +123,14 @@ void get_addr_name_buf(address *addr, gchar *buf, guint size);
 /* host_name_lookup_init fires up an ADNS socket if we're using ADNS */
 extern void host_name_lookup_init(void);
 
-/* host_name_lookup_process does ADNS processing in GLIB timeouts in Wireshark,
-   and before processing each packet in TShark, if we're using ADNS */
+/** If we're using c-ares or ADNS, process outstanding host name lookups.
+ *  This is called from a GLIB timeout in Wireshark and before processing
+ *  each packet in TShark.
+ *
+ * @param data Ignored.
+ * @return True if any new objects have been resolved since the previous
+ * call. This can be used to trigger a display update, e.g. in Wireshark.
+ */
 extern gboolean host_name_lookup_process(gpointer data);
 
 /* host_name_lookup_cleanup cleans up an ADNS socket if we're using ADNS */
@@ -172,15 +178,29 @@ extern void add_ipv6_name(struct e_in6_addr *addr, const gchar *name);
 /* add ethernet address / name corresponding to IP address  */
 extern void add_ether_byip(guint ip, const guint8 *eth);
 
-/* Translates a string representing the hostname or dotted-decimal IP address
- * into a numeric IP address value, returning TRUE if it succeeds and
- * FALSE if it fails. */
+/** Translates a string representing a hostname or dotted-decimal IPv4 address
+ *  into a numeric IPv4 address value in network byte order. If compiled with
+ *  c-ares, the request will wait a maximum of 250ms for the request to finish.
+ *  Otherwise the wait time will be system-dependent, ususally much longer.
+ *  Immediately returns FALSE for hostnames if network name resolution is
+ *  disabled.
+ *
+ * @param[in] host The hostname.
+ * @param[out] addrp The numeric IPv4 address in network byte order.
+ * @return TRUE on success, FALSE on failure, timeout.
+ */
 gboolean get_host_ipaddr(const char *host, guint32 *addrp);
 
-/*
- * Translate IPv6 numeric address or FQDN hostname, into binary IPv6 address.
- * Return TRUE if we succeed and set "*addrp" to that numeric IP address;
- * return FALSE if we fail.
+/** Translates a string representing a hostname or colon-hex IPv6 address
+ *  into a numeric IPv6 address value in network byte order. If compiled with
+ *  c-ares, the request will wait a maximum of 250ms for the request to finish.
+ *  Otherwise the wait time will be system-dependent, usually much longer.
+ *  Immediately returns FALSE for hostnames if network name resolution is
+ *  disabled.
+ *
+ * @param[in] host The hostname.
+ * @param[out] addrp The numeric IPv6 address in network byte order.
+ * @return TRUE on success, FALSE on failure or timeout.
  */
 gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp);
 

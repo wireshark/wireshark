@@ -260,6 +260,7 @@ static gboolean have_subnet_entry = FALSE;
 static int 		eth_resolution_initialized = 0;
 static int 		ipxnet_resolution_initialized = 0;
 static int 		service_resolution_initialized = 0;
+static gboolean new_resolved_objects = FALSE;
 
 static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
 static void add_serv_port_cb(guint32 port);
@@ -294,7 +295,7 @@ gchar *g_pservices_path = NULL;		/* personal services file */
  */
 
 static gboolean c_ares_initialized = FALSE;
-ares_channel alchan;
+static gboolean async_dns_initialized = FALSE;
 int c_ares_in_flight = 0;
 GList *c_ares_queue_head = NULL;
 
@@ -307,12 +308,21 @@ typedef struct _c_ares_queue_msg
   int                 family;
 } c_ares_queue_msg_t;
 
+typedef struct _async_hostent {
+  int addr_size;
+  int copied;
+  void *addrp;
+} async_hostent_t;
+
 #if ( ( ARES_VERSION_MAJOR < 1 )                                     \
  || ( 1 == ARES_VERSION_MAJOR && ARES_VERSION_MINOR < 5 ) )
 static void c_ares_ghba_cb(void *arg, int status, struct hostent *hostent);
 #else
 static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *hostent);
 #endif
+
+ares_channel ghba_chan; /* ares_gethostbyaddr -- Usually non-interactive, no timeout */
+ares_channel ghbn_chan; /* ares_gethostbyname -- Usually interactive, timeout */
 
 #else
 /* GNU ADNS */
@@ -327,6 +337,7 @@ static void c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hoste
 
 static gboolean gnu_adns_initialized = FALSE;
 adns_state ads;
+static gboolean async_dns_initialized = FALSE;
 int adns_in_flight = 0;
 GList *adns_queue_head = NULL;
 
@@ -426,6 +437,8 @@ static void add_service_name(hashport_t **proto_table, guint port, const char *s
   tp->next = NULL;
 
   g_strlcpy(tp->name, service_name, MAXNAMELEN);
+  
+  new_resolved_objects = TRUE;
 }
 
 
@@ -1456,6 +1469,7 @@ static hashether_t *add_eth_name(const guint8 *addr, const gchar *name)
       tp->next = NULL;
   }
   tp->is_dummy_entry = FALSE;
+  new_resolved_objects = TRUE;
 
   return tp;
 
@@ -1819,6 +1833,7 @@ static hashipxnet_t *add_ipxnet_name(guint addr, const gchar *name)
   tp->addr = addr;
   g_strlcpy(tp->name, name, MAXNAMELEN);
   tp->next = NULL;
+  new_resolved_objects = TRUE;
 
   return tp;
 
@@ -2245,7 +2260,7 @@ host_name_lookup_init(void) {
   g_free(hostspath);
 
 #ifdef HAVE_C_ARES
-  if (ares_init(&alchan) == ARES_SUCCESS) {
+  if (ares_init(&ghba_chan) == ARES_SUCCESS && ares_init(&ghbn_chan) == ARES_SUCCESS) {
     c_ares_initialized = TRUE;
   }
 #else
@@ -2307,10 +2322,13 @@ host_name_lookup_process(gpointer data _U_) {
   struct timeval tv = { 0, 0 };
   int nfds;
   fd_set rfds, wfds;
+  gboolean nro = new_resolved_objects;
+
+  new_resolved_objects = FALSE;
 
   if (!c_ares_initialized)
     /* c-ares not initialized. Bail out and cancel timers. */
-    return FALSE;
+    return nro;
 
   c_ares_queue_head = g_list_first(c_ares_queue_head);
 
@@ -2318,11 +2336,11 @@ host_name_lookup_process(gpointer data _U_) {
     caqm = (c_ares_queue_msg_t *) c_ares_queue_head->data;
     c_ares_queue_head = g_list_remove(c_ares_queue_head, (void *) caqm);
     if (caqm->family == AF_INET) {
-      ares_gethostbyaddr(alchan, &caqm->addr.ip4, sizeof(guint32), AF_INET,
+      ares_gethostbyaddr(ghba_chan, &caqm->addr.ip4, sizeof(guint32), AF_INET,
         c_ares_ghba_cb, caqm);
       c_ares_in_flight++;
     } else if (caqm->family == AF_INET6) {
-      ares_gethostbyaddr(alchan, &caqm->addr.ip6, sizeof(struct e_in6_addr),
+      ares_gethostbyaddr(ghba_chan, &caqm->addr.ip6, sizeof(struct e_in6_addr),
         AF_INET6, c_ares_ghba_cb, caqm);
       c_ares_in_flight++;
     }
@@ -2330,14 +2348,14 @@ host_name_lookup_process(gpointer data _U_) {
 
   FD_ZERO(&rfds);
   FD_ZERO(&wfds);
-  nfds = ares_fds(alchan, &rfds, &wfds);
+  nfds = ares_fds(ghba_chan, &rfds, &wfds);
   if (nfds > 0) {
     select(nfds, &rfds, &wfds, NULL, &tv);
-    ares_process(alchan, &rfds, &wfds);
+    ares_process(ghba_chan, &rfds, &wfds);
   }
 
-  /* Keep the timeout in place */
-  return TRUE;
+  /* Any new entries? */
+  return nro;
 }
 
 void
@@ -2353,8 +2371,9 @@ host_name_lookup_cleanup(void) {
   g_list_free(c_ares_queue_head);
 
   if (c_ares_initialized)
-    ares_destroy(alchan);
-  c_ares_initialized = FALSE;
+    ares_destroy(ghba_chan);
+    ares_destroy(ghbn_chan);
+    c_ares_initialized = FALSE;
 }
 
 #elif defined(HAVE_GNU_ADNS)
@@ -2371,7 +2390,9 @@ host_name_lookup_process(gpointer data _U_) {
   adns_answer *ans;
   int ret;
   gboolean dequeue;
-
+  gboolean nro = new_resolved_objects;
+ 
+  new_resolved_objects = FALSE;
   adns_queue_head = g_list_first(adns_queue_head);
 
   cur = adns_queue_head;
@@ -2411,7 +2432,7 @@ host_name_lookup_process(gpointer data _U_) {
   }
 
   /* Keep the timeout in place */
-  return TRUE;
+  return nro;
 }
 
 void
@@ -2434,8 +2455,11 @@ host_name_lookup_cleanup(void) {
 
 gboolean
 host_name_lookup_process(gpointer data _U_) {
-  /* Kill the timeout, as there's nothing for it to do */
-  return FALSE;
+  gboolean nro = new_resolved_objects;
+  
+  new_resolved_objects = FALSE;
+
+  return nro;
 }
 
 void
@@ -2504,7 +2528,7 @@ extern void add_ipv4_name(guint addr, const gchar *name)
       tp->next = NULL;
   }
   tp->is_dummy_entry = FALSE;
-
+  new_resolved_objects = TRUE;
 } /* add_ipv4_name */
 
 extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
@@ -2546,7 +2570,7 @@ extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
       tp->next = NULL;
   }
   tp->is_dummy_entry = FALSE;
-
+  new_resolved_objects = TRUE;
 } /* add_ipv6_name */
 
 /* -----------------
@@ -2820,6 +2844,27 @@ const gchar *get_manuf_name_if_known(const guint8 *addr)
 } /* get_manuf_name_if_known */
 
 
+#ifdef HAVE_C_ARES
+#define GHI_TIMEOUT (250 * 1000)
+static void
+#if ( ( ARES_VERSION_MAJOR < 1 )                                     \
+ || ( 1 == ARES_VERSION_MAJOR && ARES_VERSION_MINOR < 5 ) )
+c_ares_ghi_cb(void *arg, int status, struct hostent *hp) {
+#else
+c_ares_ghi_cb(void *arg, int status, int timeouts _U_, struct hostent *hp) {
+#endif
+  /*
+   * XXX - If we wanted to be really fancy we could cache results here and
+   * look them up in get_host_ipaddr* below.
+   */
+  async_hostent_t *ahp = arg;
+  if (status == ARES_SUCCESS && hp && ahp && hp->h_length == ahp->addr_size) {
+    memcpy(ahp->addrp, hp->h_addr, hp->h_length);
+    ahp->copied = hp->h_length;
+  }
+}
+#endif /* HAVE_C_ARES */
+
 /* Translate a string, assumed either to be a dotted-quad IP address or
  * a host name, to a numeric IP address.  Return TRUE if we succeed and
  * set "*addrp" to that numeric IP address; return FALSE if we fail.
@@ -2827,7 +2872,14 @@ const gchar *get_manuf_name_if_known(const guint8 *addr)
 gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 {
 	struct in_addr		ipaddr;
+#ifdef HAVE_C_ARES
+	struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
+	int nfds;
+	fd_set rfds, wfds;
+	async_hostent_t ahe;
+#else /* HAVE_C_ARES */
 	struct hostent		*hp;
+#endif /* HAVE_C_ARES */
 
 	/*
 	 * don't change it to inet_pton(AF_INET), they are not 100% compatible.
@@ -2835,8 +2887,35 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 	 * less-than-4 octet notation.
 	 */
 	if (!inet_aton(host, &ipaddr)) {
+        if (! (g_resolv_flags & RESOLV_NETWORK)) {
+            return FALSE;
+        }
 		/* It's not a valid dotted-quad IP address; is it a valid
 		 * host name? */
+#ifdef HAVE_C_ARES
+        if (! (g_resolv_flags & RESOLV_CONCURRENT) ||
+            prefs.name_resolve_concurrency < 1 ||
+            ! async_dns_initialized) {
+            return FALSE;
+        }
+		ahe.addr_size = (int) sizeof (struct in_addr);
+		ahe.copied = 0;
+		ahe.addrp = addrp;
+		ares_gethostbyname(ghbn_chan, host, AF_INET, c_ares_ghi_cb, &ahe);
+		FD_ZERO(&rfds);
+		FD_ZERO(&wfds);
+		nfds = ares_fds(ghbn_chan, &rfds, &wfds);
+		if (nfds > 0) {
+			tvp = ares_timeout(ghbn_chan, &tv, &tv);
+			select(nfds, &rfds, &wfds, NULL, tvp);
+			ares_process(ghbn_chan, &rfds, &wfds);
+		}
+		ares_cancel(ghbn_chan);
+		if (ahe.addr_size == ahe.copied) {
+			return TRUE;
+		}
+		return FALSE;
+#else /* ! HAVE_C_ARES */
 		hp = gethostbyname(host);
 		if (hp == NULL) {
 			/* No. */
@@ -2848,6 +2927,7 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 		} else {
 			return FALSE;
 		}
+#endif /* HAVE_C_ARES */
 	} else {
 		/* Does the string really contain dotted-quad IP?
 		 * Check against inet_atons that accept strings such as
@@ -2870,21 +2950,52 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
  */
 gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
 {
+#ifdef HAVE_C_ARES
+	struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
+	int nfds;
+	fd_set rfds, wfds;
+	async_hostent_t ahe;
+#else /* HAVE_C_ARES */
 	struct hostent *hp;
+#endif /* HAVE_C_ARES */
 
 	if (inet_pton(AF_INET6, host, addrp) == 1)
 		return TRUE;
 
+    if (! (g_resolv_flags & RESOLV_NETWORK)) {
+        return FALSE;
+    }
+
 	/* try FQDN */
-#ifdef HAVE_GETHOSTBYNAME2
+#ifdef HAVE_C_ARES
+    if (! (g_resolv_flags & RESOLV_CONCURRENT) ||
+        prefs.name_resolve_concurrency < 1 ||
+        ! async_dns_initialized) {
+      return FALSE;
+    }
+	ahe.addr_size = (int) sizeof (struct e_in6_addr);
+	ahe.copied = 0;
+	ahe.addrp = addrp;
+	ares_gethostbyname(ghbn_chan, host, AF_INET6, c_ares_ghi_cb, &ahe);
+	FD_ZERO(&rfds);
+	FD_ZERO(&wfds);
+	nfds = ares_fds(ghbn_chan, &rfds, &wfds);
+	if (nfds > 0) {
+		tvp = ares_timeout(ghbn_chan, &tv, &tv);
+		select(nfds, &rfds, &wfds, NULL, tvp);
+		ares_process(ghbn_chan, &rfds, &wfds);
+	}
+	ares_cancel(ghbn_chan);
+	if (ahe.addr_size == ahe.copied) {
+		return TRUE;
+	}
+#elif defined(HAVE_GETHOSTBYNAME2)
 	hp = gethostbyname2(host, AF_INET6);
-#else
-	hp = NULL;
-#endif
 	if (hp != NULL && hp->h_length == sizeof(struct e_in6_addr)) {
 		memcpy(addrp, hp->h_addr, hp->h_length);
 		return TRUE;
 	}
+#endif
 
 	return FALSE;
 }
