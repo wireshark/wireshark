@@ -28,6 +28,7 @@
 #endif
 
 #include <string.h>
+#include <stdio.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -58,6 +59,8 @@ static gboolean global_rlc_lte_call_rrc = FALSE;
 
 /* Initialize the protocol and registered fields. */
 int proto_rlc_lte = -1;
+
+extern int proto_mac_lte;
 
 static int rlc_lte_tap = -1;
 
@@ -1413,6 +1416,7 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_info.channelId = p_rlc_lte_info->channelId;
     tap_info.pduLength = p_rlc_lte_info->pduLength;
     tap_info.UMSequenceNumberLength = p_rlc_lte_info->UMSequenceNumberLength;
+    tap_info.loggedInMACFrame = (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL);
 
     /* Reset this count */
     s_number_of_extensions = 0;
