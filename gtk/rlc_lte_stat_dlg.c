@@ -283,7 +283,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
     /* Are we ignoring RLC frames that were found in MAC frames, or only those
        that were logged separately? */
-    if (s_show_mac && si->loggedInMACFrame) {
+    if (!s_show_mac && si->loggedInMACFrame) {
         return 0;
     }
 
@@ -740,7 +740,7 @@ static void set_channel_filter_expression(guint16  ueid,
 }
 
 /* Respond to UL filter button being clicked by building and using filter */
-void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
+static void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 {
     guint16  ueid;
     guint8   rlcMode;
@@ -755,7 +755,7 @@ void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 }
 
 /* Respond to DL filter button being clicked by building and using filter */
-void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
+static void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 {
     guint16  ueid;
     guint8   rlcMode;
@@ -770,7 +770,7 @@ void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 }
 
 /* Respond to UL/DL filter button being clicked by building and using filter */
-void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
+static void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 {
     guint16  ueid;
     guint8   rlcMode;
