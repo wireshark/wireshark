@@ -36,6 +36,7 @@
 #endif
 
 #include <glib.h>
+#include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
@@ -394,12 +395,17 @@ static int hf_mms_AlternateAccess_item = -1;      /* AlternateAccess_item */
 static int hf_mms_unnamed = -1;                   /* AlternateAccessSelection */
 static int hf_mms_named = -1;                     /* T_named */
 static int hf_mms_accesst = -1;                   /* AlternateAccessSelection */
-static int hf_mms_selectAccess = -1;              /* T_selectAccess */
+static int hf_mms_selectAlternateAccess = -1;     /* T_selectAlternateAccess */
+static int hf_mms_accessSelection = -1;           /* T_accessSelection */
 static int hf_mms_component = -1;                 /* Identifier */
 static int hf_mms_index = -1;                     /* Unsigned32 */
 static int hf_mms_indexRange = -1;                /* T_indexRange */
 static int hf_mms_lowIndex = -1;                  /* Unsigned32 */
 static int hf_mms_allElements = -1;               /* NULL */
+static int hf_mms_alternateAccess = -1;           /* AlternateAccess */
+static int hf_mms_selectAccess = -1;              /* T_selectAccess */
+static int hf_mms_indexRange_01 = -1;             /* T_indexRange_01 */
+static int hf_mms_nmberOfElements = -1;           /* Unsigned32 */
 static int hf_mms_specificationWithResult = -1;   /* BOOLEAN */
 static int hf_mms_variableAccessSpecificatn = -1;  /* VariableAccessSpecification */
 static int hf_mms_listOfAccessResult = -1;        /* SEQUENCE_OF_AccessResult */
@@ -425,7 +431,6 @@ static int hf_mms_variableListName = -1;          /* ObjectName */
 static int hf_mms_listOfVariable = -1;            /* T_listOfVariable */
 static int hf_mms_listOfVariable_item = -1;       /* T_listOfVariable_item */
 static int hf_mms_variableSpecification = -1;     /* VariableSpecification */
-static int hf_mms_alternateAccess = -1;           /* AlternateAccess */
 static int hf_mms_listOfVariable_01 = -1;         /* T_listOfVariable_01 */
 static int hf_mms_listOfVariable_item_01 = -1;    /* T_listOfVariable_item_01 */
 static int hf_mms_scopeOfDelete_01 = -1;          /* T_scopeOfDelete_01 */
@@ -434,6 +439,7 @@ static int hf_mms_listOfVariableListName_item = -1;  /* ObjectName */
 static int hf_mms_scopeOfDelete_02 = -1;          /* T_scopeOfDelete_02 */
 static int hf_mms_listOfTypeName = -1;            /* SEQUENCE_OF_ObjectName */
 static int hf_mms_listOfTypeName_item = -1;       /* ObjectName */
+static int hf_mms_success_01 = -1;                /* Data */
 static int hf_mms_array_01 = -1;                  /* SEQUENCE_OF_Data */
 static int hf_mms_array_item = -1;                /* Data */
 static int hf_mms_structure_01 = -1;              /* SEQUENCE_OF_Data */
@@ -448,6 +454,9 @@ static int hf_mms_visible_string_01 = -1;         /* VisibleString */
 static int hf_mms_binary_time_01 = -1;            /* TimeOfDay */
 static int hf_mms_bcd_01 = -1;                    /* INTEGER */
 static int hf_mms_booleanArray = -1;              /* BIT_STRING */
+static int hf_mms_objId_01 = -1;                  /* OBJECT_IDENTIFIER */
+static int hf_mms_mMSString = -1;                 /* MMSString */
+static int hf_mms_utc_time = -1;                  /* UtcTime */
 static int hf_mms_listOfVariable_02 = -1;         /* T_listOfVariable_02 */
 static int hf_mms_listOfVariable_item_02 = -1;    /* T_listOfVariable_item_02 */
 static int hf_mms_ScatteredAccessDescription_item = -1;  /* ScatteredAccessDescription_item */
@@ -560,7 +569,7 @@ static int hf_mms_eventConditionName_02 = -1;     /* T_eventConditionName_01 */
 static int hf_mms_actionResult = -1;              /* T_actionResult */
 static int hf_mms_eventActioName = -1;            /* ObjectName */
 static int hf_mms_eventActionResult = -1;         /* T_eventActionResult */
-static int hf_mms_success_01 = -1;                /* ConfirmedServiceResponse */
+static int hf_mms_success_02 = -1;                /* ConfirmedServiceResponse */
 static int hf_mms_failure_01 = -1;                /* ServiceError */
 static int hf_mms_causingTransitions = -1;        /* Transitions */
 static int hf_mms_timeOfDayT = -1;                /* TimeOfDay */
@@ -719,7 +728,7 @@ static int hf_mms_Transitions_idle_to_active = -1;
 static int hf_mms_Transitions_any_to_deleted = -1;
 
 /*--- End of included file: packet-mms-hf.c ---*/
-#line 51 "packet-mms-template.c"
+#line 52 "packet-mms-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_mms = -1;
@@ -802,8 +811,11 @@ static gint ett_mms_AlternateAccess = -1;
 static gint ett_mms_AlternateAccess_item = -1;
 static gint ett_mms_T_named = -1;
 static gint ett_mms_AlternateAccessSelection = -1;
-static gint ett_mms_T_selectAccess = -1;
+static gint ett_mms_T_selectAlternateAccess = -1;
+static gint ett_mms_T_accessSelection = -1;
 static gint ett_mms_T_indexRange = -1;
+static gint ett_mms_T_selectAccess = -1;
+static gint ett_mms_T_indexRange_01 = -1;
 static gint ett_mms_Read_Request = -1;
 static gint ett_mms_Read_Response = -1;
 static gint ett_mms_SEQUENCE_OF_AccessResult = -1;
@@ -933,7 +945,7 @@ static gint ett_mms_DirectoryEntry = -1;
 static gint ett_mms_FileAttributes = -1;
 
 /*--- End of included file: packet-mms-ett.c ---*/
-#line 55 "packet-mms-template.c"
+#line 56 "packet-mms-template.c"
 
 
 /*--- Included file: packet-mms-fn.c ---*/
@@ -946,6 +958,9 @@ static int dissect_mms_TypeSpecification(gboolean implicit_tag _U_, tvbuff_t *tv
 
 /* VariableSpecification -> ScatteredAccessDescription -> ScatteredAccessDescription/_item -> VariableSpecification */
 static int dissect_mms_VariableSpecification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* AlternateAccess -> AlternateAccess/_item -> AlternateAccessSelection -> AlternateAccessSelection/selectAlternateAccess -> AlternateAccess */
+static int dissect_mms_AlternateAccess(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* Data -> Data/array -> Data */
 static int dissect_mms_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -1496,6 +1511,62 @@ dissect_mms_T_indexRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
+static const value_string mms_T_accessSelection_vals[] = {
+  {   0, "component" },
+  {   1, "index" },
+  {   2, "indexRange" },
+  {   3, "allElements" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_accessSelection_choice[] = {
+  {   0, &hf_mms_component       , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  {   1, &hf_mms_index           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_Unsigned32 },
+  {   2, &hf_mms_indexRange      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_T_indexRange },
+  {   3, &hf_mms_allElements     , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_mms_NULL },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_T_accessSelection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_accessSelection_choice, hf_index, ett_mms_T_accessSelection,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t T_selectAlternateAccess_sequence[] = {
+  { &hf_mms_accessSelection , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_mms_T_accessSelection },
+  { &hf_mms_alternateAccess , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_mms_AlternateAccess },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_T_selectAlternateAccess(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_selectAlternateAccess_sequence, hf_index, ett_mms_T_selectAlternateAccess);
+
+  return offset;
+}
+
+
+static const ber_sequence_t T_indexRange_01_sequence[] = {
+  { &hf_mms_lowIndex        , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_Unsigned32 },
+  { &hf_mms_nmberOfElements , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_Unsigned32 },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_mms_T_indexRange_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_indexRange_01_sequence, hf_index, ett_mms_T_indexRange_01);
+
+  return offset;
+}
+
+
 static const value_string mms_T_selectAccess_vals[] = {
   {   1, "component" },
   {   2, "index" },
@@ -1507,7 +1578,7 @@ static const value_string mms_T_selectAccess_vals[] = {
 static const ber_choice_t T_selectAccess_choice[] = {
   {   1, &hf_mms_component       , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
   {   2, &hf_mms_index           , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_Unsigned32 },
-  {   3, &hf_mms_indexRange      , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_mms_T_indexRange },
+  {   3, &hf_mms_indexRange_01   , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_mms_T_indexRange_01 },
   {   4, &hf_mms_allElements     , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_mms_NULL },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -1523,12 +1594,14 @@ dissect_mms_T_selectAccess(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static const value_string mms_AlternateAccessSelection_vals[] = {
-  { -1/*choice*/, "selectAccess" },
+  {   0, "selectAlternateAccess" },
+  {   1, "selectAccess" },
   { 0, NULL }
 };
 
 static const ber_choice_t AlternateAccessSelection_choice[] = {
-  { -1/*choice*/, &hf_mms_selectAccess    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_mms_T_selectAccess },
+  {   0, &hf_mms_selectAlternateAccess, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_T_selectAlternateAccess },
+  {   1, &hf_mms_selectAccess    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_mms_T_selectAccess },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1761,7 +1834,7 @@ dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 49 "mms.cnf"
+#line 50 "mms.cnf"
 
 	guint32 len;
 	proto_item *cause;
@@ -1816,6 +1889,78 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	return offset;
 
 
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_mms_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_mms_MMSString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 105 "mms.cnf"
+
+	guint32 len;
+	proto_item *cause;
+	guint32 seconds;
+	guint32	fraction;
+	guint32 nanoseconds;
+	nstime_t ts;
+	gchar *	ptime;
+
+	len = tvb_length_remaining(tvb, offset);
+
+	if(len != 8)
+	{
+		cause = proto_tree_add_text(tree, tvb, offset, len,
+				"BER Error: malformed IEC61850 UTCTime encoding, "
+				"length must be 8 bytes");
+		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+		expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed IEC61850 UTCTime encoding");
+		if(hf_index >= 0)
+		{
+			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
+		}
+		return offset;
+	}
+
+	seconds = tvb_get_ntohl(tvb, offset);
+	fraction = tvb_get_ntoh24(tvb, offset+4) * 0x100; /* Only 3 bytes are recommended */
+	nanoseconds = (guint32)( ((guint64)fraction * G_GINT64_CONSTANT(1000000000U)) / G_GINT64_CONSTANT(0x100000000U) ) ;
+
+	ts.secs = seconds;
+	ts.nsecs = nanoseconds;
+
+	ptime = abs_time_to_str(&ts, TRUE);
+
+	if(hf_index >= 0)
+	{
+		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
+	}
+
+	return offset;
+
+
   return offset;
 }
 
@@ -1833,6 +1978,9 @@ static const value_string mms_Data_vals[] = {
   {  12, "binary-time" },
   {  13, "bcd" },
   {  14, "booleanArray" },
+  {  15, "objId" },
+  {  16, "mMSString" },
+  {  17, "utc-time" },
   { 0, NULL }
 };
 
@@ -1849,6 +1997,9 @@ static const ber_choice_t Data_choice[] = {
   {  12, &hf_mms_binary_time_01  , BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_mms_TimeOfDay },
   {  13, &hf_mms_bcd_01          , BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_mms_INTEGER },
   {  14, &hf_mms_booleanArray    , BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_mms_BIT_STRING },
+  {  15, &hf_mms_objId_01        , BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_mms_OBJECT_IDENTIFIER },
+  {  16, &hf_mms_mMSString       , BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_mms_MMSString },
+  {  17, &hf_mms_utc_time        , BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_mms_UtcTime },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2191,7 +2342,7 @@ dissect_mms_Output_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 26 "mms.cnf"
+#line 27 "mms.cnf"
   offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
 
 
@@ -2203,7 +2354,7 @@ dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 29 "mms.cnf"
+#line 30 "mms.cnf"
   offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
 
 
@@ -2215,7 +2366,7 @@ dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 32 "mms.cnf"
+#line 33 "mms.cnf"
   offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
 
 
@@ -2227,7 +2378,7 @@ dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_mms_T_ae_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 35 "mms.cnf"
+#line 36 "mms.cnf"
   offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
 
 
@@ -4346,15 +4497,6 @@ dissect_mms_GetNameList_Response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 
-
-static int
-dissect_mms_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
-
-  return offset;
-}
-
-
 static const ber_sequence_t T_listOfAbstractSyntaxes_sequence_of[1] = {
   { &hf_mms_listOfAbstractSyntaxes_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_mms_OBJECT_IDENTIFIER },
 };
@@ -4421,35 +4563,13 @@ dissect_mms_DataAccessError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static const value_string mms_AccessResult_vals[] = {
   {   0, "failure" },
-  {   1, "array" },
-  {   2, "structure" },
-  {   3, "boolean" },
-  {   4, "bit-string" },
-  {   5, "integer" },
-  {   6, "unsigned" },
-  {   7, "floating-point" },
-  {   9, "octet-string" },
-  {  10, "visible-string" },
-  {  12, "binary-time" },
-  {  13, "bcd" },
-  {  14, "booleanArray" },
+  {   1, "success" },
   { 0, NULL }
 };
 
 static const ber_choice_t AccessResult_choice[] = {
   {   0, &hf_mms_failure         , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_DataAccessError },
-  {   1, &hf_mms_array_01        , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_SEQUENCE_OF_Data },
-  {   2, &hf_mms_structure_01    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_SEQUENCE_OF_Data },
-  {   3, &hf_mms_boolean_01      , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_mms_BOOLEAN },
-  {   4, &hf_mms_bit_string_01   , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_mms_BIT_STRING },
-  {   5, &hf_mms_integer_01      , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_mms_INTEGER },
-  {   6, &hf_mms_unsigned_01     , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_mms_INTEGER },
-  {   7, &hf_mms_floating_point  , BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_mms_FloatingPoint },
-  {   9, &hf_mms_octet_string_01 , BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_mms_OCTET_STRING },
-  {  10, &hf_mms_visible_string_01, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_mms_VisibleString },
-  {  12, &hf_mms_binary_time_01  , BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_mms_TimeOfDay },
-  {  13, &hf_mms_bcd_01          , BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_mms_INTEGER },
-  {  14, &hf_mms_booleanArray    , BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_mms_BIT_STRING },
+  {   1, &hf_mms_success_01      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_mms_Data },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -6266,7 +6386,7 @@ static const value_string mms_T_eventActionResult_vals[] = {
 };
 
 static const ber_choice_t T_eventActionResult_choice[] = {
-  {   0, &hf_mms_success_01      , BER_CLASS_CON, 0, 0, dissect_mms_ConfirmedServiceResponse },
+  {   0, &hf_mms_success_02      , BER_CLASS_CON, 0, 0, dissect_mms_ConfirmedServiceResponse },
   {   1, &hf_mms_failure_01      , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_ServiceError },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -6916,7 +7036,7 @@ static const ber_choice_t MMSpdu_choice[] = {
 
 int
 dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 38 "mms.cnf"
+#line 39 "mms.cnf"
   gint branch_taken;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -6937,7 +7057,7 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 /*--- End of included file: packet-mms-fn.c ---*/
-#line 57 "packet-mms-template.c"
+#line 58 "packet-mms-template.c"
 
 /*
 * Dissect MMS PDUs inside a PPDU.
@@ -6973,8 +7093,8 @@ dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 /*--- proto_register_mms -------------------------------------------*/
 void proto_register_mms(void) {
-
-  /* List of fields */
+	
+	/* List of fields */
   static hf_register_info hf[] =
   {
 
@@ -8324,10 +8444,14 @@ void proto_register_mms(void) {
       { "accesst", "mms.accesst",
         FT_UINT32, BASE_DEC, VALS(mms_AlternateAccessSelection_vals), 0,
         "mms.AlternateAccessSelection", HFILL }},
-    { &hf_mms_selectAccess,
-      { "selectAccess", "mms.selectAccess",
-        FT_UINT32, BASE_DEC, VALS(mms_T_selectAccess_vals), 0,
-        "mms.T_selectAccess", HFILL }},
+    { &hf_mms_selectAlternateAccess,
+      { "selectAlternateAccess", "mms.selectAlternateAccess",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "mms.T_selectAlternateAccess", HFILL }},
+    { &hf_mms_accessSelection,
+      { "accessSelection", "mms.accessSelection",
+        FT_UINT32, BASE_DEC, VALS(mms_T_accessSelection_vals), 0,
+        "mms.T_accessSelection", HFILL }},
     { &hf_mms_component,
       { "component", "mms.component",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -8348,6 +8472,22 @@ void proto_register_mms(void) {
       { "allElements", "mms.allElements",
         FT_NONE, BASE_NONE, NULL, 0,
         "mms.NULL", HFILL }},
+    { &hf_mms_alternateAccess,
+      { "alternateAccess", "mms.alternateAccess",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "mms.AlternateAccess", HFILL }},
+    { &hf_mms_selectAccess,
+      { "selectAccess", "mms.selectAccess",
+        FT_UINT32, BASE_DEC, VALS(mms_T_selectAccess_vals), 0,
+        "mms.T_selectAccess", HFILL }},
+    { &hf_mms_indexRange_01,
+      { "indexRange", "mms.indexRange",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "mms.T_indexRange_01", HFILL }},
+    { &hf_mms_nmberOfElements,
+      { "nmberOfElements", "mms.nmberOfElements",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "mms.Unsigned32", HFILL }},
     { &hf_mms_specificationWithResult,
       { "specificationWithResult", "mms.specificationWithResult",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -8448,10 +8588,6 @@ void proto_register_mms(void) {
       { "variableSpecification", "mms.variableSpecification",
         FT_UINT32, BASE_DEC, VALS(mms_VariableSpecification_vals), 0,
         "mms.VariableSpecification", HFILL }},
-    { &hf_mms_alternateAccess,
-      { "alternateAccess", "mms.alternateAccess",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "mms.AlternateAccess", HFILL }},
     { &hf_mms_listOfVariable_01,
       { "listOfVariable", "mms.listOfVariable",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -8484,6 +8620,10 @@ void proto_register_mms(void) {
       { "ObjectName", "mms.ObjectName",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         "mms.ObjectName", HFILL }},
+    { &hf_mms_success_01,
+      { "success", "mms.success",
+        FT_UINT32, BASE_DEC, VALS(mms_Data_vals), 0,
+        "mms.Data", HFILL }},
     { &hf_mms_array_01,
       { "array", "mms.array",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -8540,6 +8680,18 @@ void proto_register_mms(void) {
       { "booleanArray", "mms.booleanArray",
         FT_BYTES, BASE_NONE, NULL, 0,
         "mms.BIT_STRING", HFILL }},
+    { &hf_mms_objId_01,
+      { "objId", "mms.objId",
+        FT_OID, BASE_NONE, NULL, 0,
+        "mms.OBJECT_IDENTIFIER", HFILL }},
+    { &hf_mms_mMSString,
+      { "mMSString", "mms.mMSString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "mms.MMSString", HFILL }},
+    { &hf_mms_utc_time,
+      { "utc-time", "mms.utc_time",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "mms.UtcTime", HFILL }},
     { &hf_mms_listOfVariable_02,
       { "listOfVariable", "mms.listOfVariable",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -8988,7 +9140,7 @@ void proto_register_mms(void) {
       { "eventActionResult", "mms.eventActionResult",
         FT_UINT32, BASE_DEC, VALS(mms_T_eventActionResult_vals), 0,
         "mms.T_eventActionResult", HFILL }},
-    { &hf_mms_success_01,
+    { &hf_mms_success_02,
       { "success", "mms.success",
         FT_UINT32, BASE_DEC, VALS(mms_ConfirmedServiceResponse_vals), 0,
         "mms.ConfirmedServiceResponse", HFILL }},
@@ -9614,7 +9766,7 @@ void proto_register_mms(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-mms-hfarr.c ---*/
-#line 97 "packet-mms-template.c"
+#line 98 "packet-mms-template.c"
   };
 
   /* List of subtrees */
@@ -9699,8 +9851,11 @@ void proto_register_mms(void) {
     &ett_mms_AlternateAccess_item,
     &ett_mms_T_named,
     &ett_mms_AlternateAccessSelection,
-    &ett_mms_T_selectAccess,
+    &ett_mms_T_selectAlternateAccess,
+    &ett_mms_T_accessSelection,
     &ett_mms_T_indexRange,
+    &ett_mms_T_selectAccess,
+    &ett_mms_T_indexRange_01,
     &ett_mms_Read_Request,
     &ett_mms_Read_Response,
     &ett_mms_SEQUENCE_OF_AccessResult,
@@ -9830,7 +9985,7 @@ void proto_register_mms(void) {
     &ett_mms_FileAttributes,
 
 /*--- End of included file: packet-mms-ettarr.c ---*/
-#line 103 "packet-mms-template.c"
+#line 104 "packet-mms-template.c"
   };
 
   /* Register protocol */
@@ -9839,6 +9994,7 @@ void proto_register_mms(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_mms, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
 
 }
 

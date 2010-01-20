@@ -276,6 +276,8 @@ TimeOfDay ::= OCTET STRING -- (SIZE (4 | 6))
 
 Identifier ::= VisibleString
 
+MMSString ::= UTF8String
+
 Integer8   ::= INTEGER
 Integer16  ::= INTEGER
 Integer32  ::= INTEGER
@@ -1128,20 +1130,43 @@ AlternateAccess ::= SEQUENCE OF CHOICE
 		}
 	}
 
-AlternateAccessSelection ::= CHOICE
-	{
-	selectAccess	CHOICE
-		{
-		component	[1] IMPLICIT Identifier,
-		index		[2] IMPLICIT Unsigned32,
-		indexRange	[3] IMPLICIT SEQUENCE
-			{
-			lowIndex			[0] IMPLICIT Unsigned32,
-			numberOfElements		[1] IMPLICIT Unsigned32
-			},
-		allElements	[4] IMPLICIT NULL	-- all array elements
-		}
-	}
+AlternateAccessSelection ::= CHOICE 
+    {
+    selectAlternateAccess    [0] IMPLICIT SEQUENCE 
+       {
+       accessSelection CHOICE 
+          {
+          component    [0] IMPLICIT Identifier,
+          index        [1] IMPLICIT Unsigned32,
+          indexRange   [2] IMPLICIT SEQUENCE 
+             {
+             lowIndex            [0] IMPLICIT Unsigned32,
+             numberOfElements    [1] IMPLICIT Unsigned32},
+             allElements         [3] IMPLICIT NULL
+             },
+          alternateAccess  AlternateAccess
+          },
+    selectAccess CHOICE 
+       {
+       component    [1] IMPLICIT Identifier,
+       index        [2] IMPLICIT Unsigned32,
+       indexRange   [3] IMPLICIT SEQUENCE 
+          {
+          lowIndex          [0] IMPLICIT Unsigned32,
+          nmberOfElements  [1] IMPLICIT Unsigned32
+          },
+       allElements  [4] IMPLICIT NULL
+       }
+   }
+
+
+
+
+
+
+
+
+
 
 
 -- READ
@@ -1357,27 +1382,11 @@ DeleteNamedType-Error ::= Unsigned32	--	number Deleted
 
 -- SUPPORT DEFINITIONS
 
-AccessResult ::= CHOICE
-	{
-	failure		[0] IMPLICIT DataAccessError,
---      success Data
---  Expand Data here to get correct WS dissection
-        array                   [1] IMPLICIT SEQUENCE OF Data,
-        structure               [2] IMPLICIT SEQUENCE OF Data,
-        boolean                 [3] IMPLICIT BOOLEAN,   
-        bit-string              [4] IMPLICIT BIT STRING,
-        integer                 [5] IMPLICIT INTEGER,
-        unsigned                [6] IMPLICIT INTEGER,
-        floating-point          [7] IMPLICIT FloatingPoint,
--- XXX asn2wrs and packet-ber can not handle REAL yet
---      real                    [8] IMPLICIT REAL,
-        octet-string            [9] IMPLICIT OCTET STRING,
-        visible-string          [10] IMPLICIT VisibleString,
-        binary-time             [12] IMPLICIT TimeOfDay,
-        bcd                     [13] IMPLICIT INTEGER,
-        booleanArray            [14] IMPLICIT BIT STRING
-	}
-
+AccessResult ::= CHOICE 
+    {
+    failure  [0] IMPLICIT DataAccessError,
+    success  Data
+    }
 
 DataAccessError ::= INTEGER
 	{
@@ -1399,21 +1408,27 @@ DataAccessError ::= INTEGER
 Data ::= CHOICE
 	{
 	-- context tag 0 is reserved for AccessResult
-	array			[1] IMPLICIT SEQUENCE OF Data,
-	structure		[2] IMPLICIT SEQUENCE OF Data,
-	boolean			[3] IMPLICIT BOOLEAN,	
-	bit-string		[4] IMPLICIT BIT STRING,
-	integer			[5] IMPLICIT INTEGER,
-	unsigned		[6] IMPLICIT INTEGER,
+	array			    [1] IMPLICIT SEQUENCE OF Data,
+	structure		    [2] IMPLICIT SEQUENCE OF Data,
+	boolean			    [3] IMPLICIT BOOLEAN,	
+	bit-string		    [4] IMPLICIT BIT STRING,
+	integer			    [5] IMPLICIT INTEGER,
+	unsigned		    [6] IMPLICIT INTEGER,
 	floating-point		[7] IMPLICIT FloatingPoint,
 -- XXX asn2wrs and packet-ber can not handle REAL yet
---	real		 	[8] IMPLICIT REAL,
+--	real		 	    [8] IMPLICIT REAL,
 	octet-string		[9] IMPLICIT OCTET STRING,
 	visible-string		[10] IMPLICIT VisibleString,
-	binary-time		[12] IMPLICIT TimeOfDay,
-	bcd			[13] IMPLICIT INTEGER,
-	booleanArray		[14] IMPLICIT BIT STRING
-	}
+	binary-time		    [12] IMPLICIT TimeOfDay,
+	bcd			        [13] IMPLICIT INTEGER,
+	booleanArray		[14] IMPLICIT BIT STRING,
+    objId               [15] IMPLICIT OBJECT IDENTIFIER,
+  ...,
+    mMSString           [16] IMPLICIT MMSString,
+    utc-time            [17] IMPLICIT UtcTime				-- added by IEC61850 8.1 G3	
+    }
+
+UtcTime ::= OCTET STRING    		                        -- added by IEC61850 8.1 G3	
 
 FloatingPoint ::= OCTET STRING
 
