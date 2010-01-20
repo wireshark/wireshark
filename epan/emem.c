@@ -233,11 +233,8 @@ ep_check_canary_integrity(const char* fmt, ...)
 
 	if (! intense_canary_checking ) return;
 
-	here[126] = '\0';
-	here[127] = '\0';
-
 	va_start(ap,fmt);
-	g_vsnprintf(here, 126,fmt, ap);
+	g_vsnprintf(here, sizeof(here), fmt, ap);
 	va_end(ap);
 
 	for (npc = ep_packet_mem.free_list; npc != NULL; npc = npc->next) {
@@ -248,12 +245,11 @@ ep_check_canary_integrity(const char* fmt, ...)
 			/* XXX, check if canary_last is inside allocated memory? */
 
 			if (npc->canary_last == (void *) -1)
-				g_error("Memory corrupted");
+				g_error("Per-packet memory corrupted\nbetween: %s\nand: %s", there, here);
 		}
 	}
 
-	strncpy(there,here,126);
-
+	g_strlcpy(there, here, sizeof(there));
 }
 #endif
 
@@ -300,7 +296,7 @@ se_init_chunk(void)
 {
 	se_packet_mem.free_list = NULL;
 	se_packet_mem.used_list = NULL;
-	ep_packet_mem.trees = NULL;
+	se_packet_mem.trees = NULL;
 
 	se_packet_mem.debug_use_chunks = (getenv("WIRESHARK_DEBUG_SE_NO_CHUNKS") == NULL);
 	se_packet_mem.debug_use_canary = se_packet_mem.debug_use_chunks && (getenv("WIRESHARK_DEBUG_SE_USE_CANARY") != NULL);
