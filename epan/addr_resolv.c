@@ -437,7 +437,7 @@ static void add_service_name(hashport_t **proto_table, guint port, const char *s
   tp->next = NULL;
 
   g_strlcpy(tp->name, service_name, MAXNAMELEN);
-  
+
   new_resolved_objects = TRUE;
 }
 
@@ -2391,7 +2391,7 @@ host_name_lookup_process(gpointer data _U_) {
   int ret;
   gboolean dequeue;
   gboolean nro = new_resolved_objects;
- 
+
   new_resolved_objects = FALSE;
   adns_queue_head = g_list_first(adns_queue_head);
 
@@ -2456,7 +2456,7 @@ host_name_lookup_cleanup(void) {
 gboolean
 host_name_lookup_process(gpointer data _U_) {
   gboolean nro = new_resolved_objects;
-  
+
   new_resolved_objects = FALSE;
 
   return nro;
@@ -2951,16 +2951,16 @@ gboolean get_host_ipaddr(const char *host, guint32 *addrp)
 gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
 {
 #ifdef HAVE_C_ARES
-	struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
-	int nfds;
-	fd_set rfds, wfds;
-	async_hostent_t ahe;
-#else /* HAVE_C_ARES */
-	struct hostent *hp;
+    struct timeval tv = { 0, GHI_TIMEOUT }, *tvp;
+    int nfds;
+    fd_set rfds, wfds;
+    async_hostent_t ahe;
+#elif defined(HAVE_GETHOSTBYNAME2)
+    struct hostent *hp;
 #endif /* HAVE_C_ARES */
 
-	if (inet_pton(AF_INET6, host, addrp) == 1)
-		return TRUE;
+    if (inet_pton(AF_INET6, host, addrp) == 1)
+            return TRUE;
 
     if (! (g_resolv_flags & RESOLV_NETWORK)) {
         return FALSE;
