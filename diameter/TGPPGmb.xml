@@ -85,6 +85,11 @@
     <avp name="3GPP-Negotiated-DSCP" code="26" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="OctetString"/>
     </avp>
+    <avp name="3GPP-Allocate-IPType" code="27" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    
+    
     <avp name="TMGI" code="900" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
