@@ -27,8 +27,10 @@
 #include <ftypes-int.h>
 #include <string.h>
 
+#if defined(HAVE_LIBPCRE) || GLIB_CHECK_VERSION(2,14,0)
 #ifdef HAVE_LIBPCRE
 #include <pcre.h>
+# endif
 #define CMP_MATCHES cmp_matches
 #else
 #define CMP_MATCHES NULL
@@ -355,8 +357,47 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	}
 	return FALSE;
 }
-#endif
+#elif GLIB_CHECK_VERSION(2,14,0) /* GRegex */
+static gboolean
+cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	tvbuff_t *tvb = fv_a->value.tvb;
+	GRegex *regex = fv_b->value.re;
+	volatile gboolean rc = FALSE;
+	const char *data = NULL; /* tvb data */
+	guint32 tvb_len; /* tvb length */
 
+	/* fv_b is always a FT_PCRE, otherwise the dfilter semcheck() would have
+	 * warned us. For the same reason (and because we're using g_malloc()),
+	 * fv_b->value.re is not NULL.
+	 */
+	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
+		return FALSE;
+	}
+	if (! regex) {
+		return FALSE;
+	}
+	TRY {
+		tvb_len = tvb_length(tvb);
+		data = (const char *)tvb_get_ptr(tvb, 0, tvb_len);
+		rc = g_regex_match_full(
+			regex,		/* Compiled PCRE */
+			data,		/* The data to check for the pattern... */
+			tvb_len,	/* ... and its length */
+			0,		/* Start offset within data */
+			0,		/* GRegexMatchFlags */
+			NULL,		/* We are not interested in the match information */
+			NULL		/* We don't want error information */
+			);
+		/* NOTE - DO NOT g_free(data) */
+	}
+	CATCH_ALL {
+		return FALSE;
+	}
+	ENDTRY;
+	return rc;
+}
+#endif /* HAVE_LIBPCRE / GRegex */
 void
 ftype_register_tvbuff(void)
 {

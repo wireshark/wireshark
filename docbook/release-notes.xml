@@ -146,7 +146,8 @@ Wireshark Info
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
 
-There are no new features in this release.
+The 64-bit Windows installer now supports the "matches" operator.
+
     </para>
     </section>
 

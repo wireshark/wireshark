@@ -249,7 +249,7 @@ show_relations(GtkWidget *relation_list, ftenum_t ftype)
 	    ftype_can_le(ftype) || (ftype_can_slice(ftype) && ftype_can_le(FT_BYTES)));
 	add_relation_list(relation_list, "contains",
 	    ftype_can_contains(ftype) || (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)));
-#ifdef HAVE_LIBPCRE
+#if defined(HAVE_LIBPCRE) || GLIB_CHECK_VERSION(2,14,0)
 	add_relation_list(relation_list, "matches",
 	    ftype_can_matches(ftype) || (ftype_can_slice(ftype) && ftype_can_matches(FT_BYTES)));
 #endif
