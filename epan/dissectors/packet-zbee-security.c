@@ -42,10 +42,6 @@
  * we can do is parse the security header and give up.
  */
 #ifdef HAVE_LIBGCRYPT
-#ifdef _WIN32
-#include <winposixtype.h>
-#endif /* _WIN32 */
-
 #include <gcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 

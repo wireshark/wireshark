@@ -90,9 +90,6 @@
 
 
 #ifdef HAVE_LIBGCRYPT
-#ifdef _WIN32
-#include <winposixtype.h>
-#endif /* _WIN32 */
 #include <gcrypt.h>
 #endif
 
@@ -289,7 +286,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 215 "packet-snmp-template.c"
+#line 212 "packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -332,7 +329,7 @@ static gint ett_snmp_SimpleOpen_U = -1;
 static gint ett_snmp_RReqPDU_U = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 234 "packet-snmp-template.c"
+#line 231 "packet-snmp-template.c"
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -2595,7 +2592,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1407 "packet-snmp-template.c"
+#line 1404 "packet-snmp-template.c"
 
 
 guint
@@ -3372,7 +3369,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1919 "packet-snmp-template.c"
+#line 1916 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3412,7 +3409,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1935 "packet-snmp-template.c"
+#line 1932 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {

@@ -45,10 +45,7 @@
 #include "config.h"
 #endif
 
-#ifdef _WIN32  
-/* #include <windows.h> */
-#include <winposixtype.h>
-#else
+#ifndef _WIN32
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/sysinfo.h>

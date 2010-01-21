@@ -33,10 +33,6 @@
 #include <epan/value_string.h>
 
 #ifdef HAVE_LIBGNUTLS
-#ifdef _WIN32
-#include <winposixtype.h>
-#endif /* _WIN32 */
-
 #include <stdio.h>
 #include <gcrypt.h>
 #include <gnutls/x509.h>
@@ -175,6 +171,7 @@ extern const value_string pct_exch_type[];
 extern const value_string pct_error_code[];
 extern const value_string tls_hello_extension_types[];
 
+/* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
     guchar* data;
     guint data_len;
@@ -479,11 +476,11 @@ ssl_is_valid_content_type(guint8 type);
 extern void
 ssl_debug_printf(const gchar* fmt,...) GNUC_FORMAT_CHECK(printf,1,2);
 extern void
-ssl_print_data(const gchar* name, const guchar* data, gint len);
+ssl_print_data(const gchar* name, const guchar* data, size_t len);
 extern void
 ssl_print_string(const gchar* name, const StringInfo* data);
 extern void
-ssl_print_text_data(const gchar* name, const guchar* data, gint len);
+ssl_print_text_data(const gchar* name, const guchar* data, size_t len);
 extern void
 ssl_set_debug(gchar* name);
 extern void

@@ -78,11 +78,6 @@ HMAC-RIPEMD160-96 [RFC2857] : any keylen
 
 /* If you want to be able to decrypt or Check Authentication of ESP packets you MUST define this : */
 #ifdef HAVE_LIBGCRYPT
-
-#ifdef _WIN32
-#include <winposixtype.h>
-#endif /* _WIN32 */
-
 #include <gcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
@@ -265,7 +260,7 @@ static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
   int ipv6_len = 0;
   gboolean found = FALSE;
 
-  ipv6_len = strlen(ipv6_address);
+  ipv6_len = (int) strlen(ipv6_address);
   if(ipv6_len  == 0)
     {
       /* Found a suffix */
@@ -375,7 +370,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
     }
 
   suffix_cpt = get_ipv6_suffix(suffix,ipv6_addr);
-  suffix_len = strlen(suffix);
+  suffix_len = (int) strlen(suffix);
 
   if(suffix_len <  IPSEC_STRLEN_IPV6)
     {
@@ -383,7 +378,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
       memcpy(prefix_addr,ipv6_addr,strlen(ipv6_addr) - suffix_cpt);
       prefix_addr[strlen(ipv6_addr) - suffix_cpt] = '\0';
       prefix_remaining = get_ipv6_suffix(prefix,prefix_addr);
-      prefix_len = strlen(prefix);
+      prefix_len = (int) strlen(prefix);
       memcpy(ipv6_addr_expanded,prefix,prefix_len);
     }
 
@@ -398,7 +393,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
   if(suffix_len < IPSEC_STRLEN_IPV6)
     return (prefix_len - prefix_remaining);
   else
-    return strlen(ipv6_addr) - suffix_cpt;
+    return (int) strlen(ipv6_addr) - suffix_cpt;
 }
 #endif
 
@@ -1170,7 +1165,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 	       * first character had a 0 in front of it, making the
 	       * number of characters even.
 	       */
-	      key_len = (strlen(key) - 2) / 2 + 1;
+	      key_len = ((guint) strlen(key) - 2) / 2 + 1;
 	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
 	      hex_digit = g_ascii_xdigit_value(key[i]);
 	      i++;
@@ -1189,7 +1184,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 	        * Key has an even number of characters, so we treat each
 	        * pair of hex digits as a single byte value.
 	        */
-	       key_len = (strlen(key) - 2) / 2;
+	       key_len = ((guint) strlen(key) - 2) / 2;
 	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
 	     }
 	     
@@ -1226,7 +1221,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 
       else
 	{
-	  key_len = strlen(key);
+	  key_len = (guint) strlen(key);
 	  *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
 	  memcpy(*ascii_key, key, key_len + 1);
 	}

@@ -49,9 +49,6 @@
 #include <glib.h>
 
 #ifdef HAVE_LIBGCRYPT
-#ifdef _WIN32
-#include <winposixtype.h>
-#endif /* _WIN32 */
 #include <gcrypt.h>
 #include <epan/strutil.h>
 #include <wsutil/file_util.h>
@@ -434,8 +431,8 @@ scan_pluto_log(void) {
   gchar   *icookie_pfx = "| ICOOKIE: ";
   gchar   *enc_key_pfx = "| enc key: ";
   gchar   *pos, *endpos;
-  gint     icpfx_len = strlen(icookie_pfx);
-  gint     ec_len = strlen(enc_key_pfx);
+  gint     icpfx_len = (gint) strlen(icookie_pfx);
+  gint     ec_len = (gint) strlen(enc_key_pfx);
   gint     i;
   address  null_addr;
   unsigned long hexval;
@@ -546,7 +543,7 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   }
   if (decr->secret_len < gcry_cipher_get_algo_keylen(gcry_cipher_algo))
     return NULL;
-  cbc_block_size = gcry_cipher_get_algo_blklen(gcry_cipher_algo);
+  cbc_block_size = (guint32) gcry_cipher_get_algo_blklen(gcry_cipher_algo);
 
   switch(decr->hash_alg) {
     case HMAC_MD5:

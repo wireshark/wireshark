@@ -54,11 +54,6 @@
 #include "packet-ntp.h"
 
 #ifdef HAVE_LIBGCRYPT
-
-#ifdef _WIN32
-#include <winposixtype.h>
-#endif /* _WIN32 */
-
 #include <gcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 

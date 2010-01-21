@@ -48,9 +48,6 @@
 #endif
 
 #ifdef HAVE_LIBGCRYPT
-#ifdef _WIN32  
-#include <winposixtype.h>
-#endif
 #include "gcrypt.h"
 #endif 
 
@@ -101,7 +98,7 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
   unsigned int i, j;
   gcry_md_hd_t md;
   gcry_mpi_t num_b1 = NULL;
-  unsigned int pwlen;
+  size_t pwlen;
   char hash[20], buf_b[64], buf_i[128], *p;
   char *salt;
   int salt_size;
