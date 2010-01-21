@@ -137,27 +137,25 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.02\nasm.exe
 # Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
-GLIB_PKG=2.20.3-1
-GLIB_DIR=$(WIRESHARK_LIBS)\glib
 
 #
-# Mandatory: GTK (& related libs) settings
+# Mandatory: GLib, GTK & related library settings
 #
 # Please note: Since Wireshark release 1.0.0, we no longer support GTK1.x
 #
-# If you want building with GTK+, set GTK_DIR to the pathname of the 
+# If you want building with GTK+, set GTK_DIR to the pathname of the
 # directory in which the "include" and "lib" directories reside.
 #
 GTK_DIR=$(WIRESHARK_LIBS)\gtk2
-GTK_PKG=2.16.2-1
-CAIRO_PKG=1.8.6-1
-ATK_PKG=1.26.0-1
-LIBPNG_PKG=1.2.37-1
-TIFF_PKG=libtiff-3.8.2
-TIFF_DLL=libtiff3.dll
-JPEG_PKG=jpeg-6b-4-bin
-JPEG_DLL=jpeg62.dll
-PANGO_PKG=1.24.2-1
+# These macros are used by the nsis installer script and by the install target.
+TIFF_DLL=libtiff-3.dll
+JPEG_DLL=libjpeg-7.dll
+FREETYPE_DLL=freetype6.dll
+FONTCONFIG_DLL=libfontconfig-1.dll
+EXPAT_DLL=libexpat-1.dll
+INTL_DLL=intl.dll
+# This macro is used by the setup target.
+GTK_PKG=2.18.5-20091215
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -166,8 +164,7 @@ PANGO_PKG=1.24.2-1
 # These macros are used by the nsis installer script and by the setup target.
 #
 # GTK 2.12 is the mainline since Wireshark 0.99.7
-GTK_INST_VERSION=2.16
-PANGO_INST_VERSION=1.24
+GTK_INST_VERSION=2.18
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -227,7 +224,7 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # If you don't have c-ares, comment this line out, so that C_ARES_DIR
 # isn't defined.
 #
-C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.6.0ws
+C_ARES_PKG=1.7.0
 
 #
 # Optional: the PCRE (Perl Compatible Regular Expressions) library
@@ -262,7 +259,7 @@ GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-2.8.1-1
 # If you don't have KFW, comment this line out, so that KFW_DIR
 # isn't defined.
 #
-KFW_DIR=$(WIRESHARK_LIBS)\kfw-3.2.2-ws1
+KFW_DIR=$(WIRESHARK_LIBS)\kfw-3-2-2-i386-ws-vc6
 
 #
 # Optional: the Nettle library enables ??? decryption.
@@ -351,7 +348,7 @@ SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
 # However, the Microsoft Platform SDK for Windows Server 2003 R2 provides
 # these definitions. The SDK's SetEnv.bat script defines INETSDK.
 !IF "$(MSVC_VARIANT)" != "MSVC6" || DEFINED(INETSDK)
-GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
+GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.6-win32ws\libGeoIP
 !ENDIF
 
 !else
@@ -362,27 +359,26 @@ GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
 # Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
-GLIB_PKG=2.20.3-1
-GLIB_DIR=$(WIRESHARK_LIBS)\glib
 
 #
-# Mandatory: GTK (& related libs) settings
+# Mandatory: GLib, GTK & related library settings
 #
 # Please note: Since Wireshark release 1.0.0, we no longer support GTK1.x
 #
-# If you want building with GTK+, set GTK_DIR to the pathname of the 
+# If you want building with GTK+, set GTK_DIR to the pathname of the
 # directory in which the "include" and "lib" directories reside.
 #
 GTK_DIR=$(WIRESHARK_LIBS)\gtk2
-GTK_PKG=2.16.2-1
-CAIRO_PKG=1.8.6-2
-ATK_PKG=1.26.0-1
-LIBPNG_PKG=1.2.37-1
-TIFF_PKG=libtiff_3.8.2-1_win64
-TIFF_DLL=libtiff.dll
-JPEG_PKG=jpeg_6b-2_win64
-JPEG_DLL=libjpeg-62.dll
-PANGO_PKG=1.24.2-1
+# These macros are used by the nsis installer script and by the install target.
+TIFF_DLL=libtiff-3.dll
+JPEG_DLL=libjpeg-7.dll
+FREETYPE_DLL=libfreetype-6.dll
+FONTCONFIG_DLL=libfontconfig-1.dll
+EXPAT_DLL=libexpat-1.dll
+INTL_DLL=libintl-8.dll
+
+# These macros are used by the setup target.
+GTK_PKG=2.16.6-20090912
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -390,9 +386,7 @@ PANGO_PKG=1.24.2-1
 # (MAJOR + MINOR Version number but without MICRO version number)
 # These macros are used by the nsis installer script and by the setup target.
 #
-# GTK 2.12 is the mainline since Wireshark 0.99.7
 GTK_INST_VERSION=2.16
-PANGO_INST_VERSION=1.24
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -452,7 +446,7 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 # If you don't have c-ares, comment this line out, so that C_ARES_DIR
 # isn't defined.
 #
-#C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-1.5.2ws
+C_ARES_PKG=1.7.0
 
 #
 # Optional: the PCRE (Perl Compatible Regular Expressions) library
@@ -572,12 +566,7 @@ AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_4_1_0_1622\AirPcap_Devpack
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
 #
-# GeoIP requires IPv6 definitions that don't ship with Visual C++ 6.0.
-# However, the Microsoft Platform SDK for Windows Server 2003 R2 provides
-# these definitions. The SDK's SetEnv.bat script defines INETSDK.
-!IF "$(MSVC_VARIANT)" != "MSVC6" || DEFINED(INETSDK)
-#GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.5ws
-!ENDIF
+GEOIP_DIR=$(WIRESHARK_LIBS)\GeoIP-1.4.6-win64ws\libGeoIP
 
 !endif
 
@@ -900,14 +889,13 @@ RC_VERSION=$(VERSION_MAJOR),$(VERSION_MINOR),$(VERSION_MICRO),$(VERSION_BUILD)
 WTAP_VERSION=$(WTAP_VERSION_MAJOR).$(WTAP_VERSION_MINOR).$(WTAP_VERSION_MICRO)
 RC_WTAP_VERSION=$(WTAP_VERSION_MAJOR),$(WTAP_VERSION_MINOR),$(WTAP_VERSION_MICRO)
 
-
-GLIB_CFLAGS=/I$(GLIB_DIR)\include\glib-$(GLIB_VERSION) \
-	/I$(GLIB_DIR)\lib\glib-$(GLIB_VERSION)\include
-GCC_GLIB_CFLAGS=-I$(GLIB_DIR)\include\glib-$(GLIB_VERSION) \
-	-I$(GLIB_DIR)\lib\glib-$(GLIB_VERSION)\include
-GLIB_LIBS=$(GLIB_DIR)\lib\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\lib\gmodule-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\lib\gobject-$(GLIB_VERSION).lib
+# GLib
+GLIB_CFLAGS=/I$(GTK_DIR)\include\glib-$(GLIB_VERSION) \
+	/I$(GTK_DIR)\lib\glib-$(GLIB_VERSION)\include
+GLIB_LIBS=$(GTK_DIR)\lib\glib-$(GLIB_VERSION).lib \
+	$(GTK_DIR)\lib\gmodule-$(GLIB_VERSION).lib \
+	$(GTK_DIR)\lib\gobject-$(GLIB_VERSION).lib
+GTHREAD_LIBS=$(GTK_DIR)\lib\gthread-$(GLIB_VERSION).lib
 
 # GTK+
 GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-2.0 \
@@ -921,50 +909,25 @@ GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
 	$(GTK_DIR)\lib\pango-1.0.lib \
 	$(GLIB_LIBS)
 
-!IF "$(GTK_INST_VERSION)" == "2.16"
+
+!IF "$(GTK_INST_VERSION)" == "2.18" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14"
 GTK_LIB_DIR=2.10.0
+
 NEED_LIBPNG_DLL=USE
 NEED_LIBJPEG_DLL=USE
 NEED_LIBTIFF_DLL=USE
 NEED_CAIRO_DLL=USE
-GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
-GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
-GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
-GTK_WIMP_RCDST_DIR=etc\gtk-2.0
-!ELSEIF "$(GTK_INST_VERSION)" == "2.14"
-GTK_LIB_DIR=2.10.0
-NEED_LIBPNG_DLL=USE
-NEED_LIBJPEG_DLL=USE
-NEED_LIBTIFF_DLL=USE
-NEED_CAIRO_DLL=USE
-GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
-GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
-GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
-GTK_WIMP_RCDST_DIR=etc\gtk-2.0
-!ELSEIF "$(GTK_INST_VERSION)" == "2.12"
-GTK_LIB_DIR=2.10.0
-NEED_LIBPNG_DLL=USE
-NEED_LIBJPEG_DLL=USE
-NEED_LIBTIFF_DLL=USE
-NEED_CAIRO_DLL=USE
+# Pango >=1.24.5 Needs these:
+NEED_FREETYPE_DLL=USE
+NEED_FONTCONFIG_DLL=USE
+NEED_EXPAT_DLL=USE
+
 GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
 GTK_WIMP_RCDST_DIR=etc\gtk-2.0
 !ELSE
 !ERROR ? Unknown or invalid GTK_INST_VERSION
-!ENDIF
-
-!IF "$(PANGO_INST_VERSION)" == "1.24"
-PANGO_LIB_DIR=1.5.0
-!ELSEIF "$(PANGO_INST_VERSION)" == "1.22"
-PANGO_LIB_DIR=1.5.0
-!ELSEIF "$(PANGO_INST_VERSION)" == "1.18"
-PANGO_LIB_DIR=1.5.0
-!ELSEIF "$(PANGO_INST_VERSION)" == "1.16"
-PANGO_LIB_DIR=1.5.0
-!ELSE
-!ERROR ? Unknown or invalid PANGO_INST_VERSION
 !ENDIF
 
 !IFDEF AIRPCAP_DIR
@@ -1030,11 +993,12 @@ ZLIB_DLL=
 ZLIB_CONFIG=
 !ENDIF
 
-!IFDEF C_ARES_DIR
+!IFDEF C_ARES_PKG
 !UNDEF ADNS_DIR
-C_ARES_CFLAGS=/I$(C_ARES_DIR)
-C_ARES_LIBS=$(C_ARES_DIR)\cares.lib
-C_ARES_DLL=$(C_ARES_DIR)\cares.dll
+C_ARES_DIR=$(WIRESHARK_LIBS)\c-ares-$(C_ARES_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws
+C_ARES_CFLAGS=/I$(C_ARES_DIR)/include
+C_ARES_LIBS=$(C_ARES_DIR)\lib\libcares-2.lib
+C_ARES_DLL=$(C_ARES_DIR)\bin\libcares-2.dll
 # Nmake uses carets to escape special characters
 C_ARES_CONFIG=^#define HAVE_C_ARES 1
 !else
@@ -1161,8 +1125,8 @@ SMI_CONFIG=
 
 !IFDEF GEOIP_DIR
 GEOIP_CONFIG=^#define HAVE_GEOIP 1
-GEOIP_CFLAGS=/I$(GEOIP_DIR)\libGeoIP
-GEOIP_LIBS=$(GEOIP_DIR)\libGeoIP\GeoIP.lib
+GEOIP_CFLAGS=/I$(GEOIP_DIR)
+GEOIP_LIBS=$(GEOIP_DIR)\GeoIP.lib
 !ELSE
 GeoIP_LIBS=
 GeoIP_CFLAGS=
@@ -1178,11 +1142,7 @@ LIBWIRESHARK_CONFIG=
 !ENDIF
 
 # Construct the path
-!IFDEF ICONV_DIR
-PATH=$(PATH);$(CYGWIN_PATH);$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
-!ELSE
-PATH=$(PATH);$(CYGWIN_PATH);$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
-!ENDIF
+PATH=$(PATH);$(CYGWIN_PATH);$(GTK_DIR)\bin;$(GETTEXT_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
 
 # We can't use a lot of IPv6 code with plain Visual C++ 6.0
 !IF "$(MSVC_VARIANT)" == "MSVC6" && !DEFINED(MSSDK)
