@@ -2260,9 +2260,15 @@ host_name_lookup_init(void) {
   g_free(hostspath);
 
 #ifdef HAVE_C_ARES
+#ifdef CARES_HAVE_ARES_LIBRARY_INIT
+  if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
+#endif
   if (ares_init(&ghba_chan) == ARES_SUCCESS && ares_init(&ghbn_chan) == ARES_SUCCESS) {
     c_ares_initialized = TRUE;
   }
+#ifdef CARES_HAVE_ARES_LIBRARY_INIT
+  }
+#endif
 #else
 #ifdef HAVE_GNU_ADNS
   /*
@@ -2370,10 +2376,14 @@ host_name_lookup_cleanup(void) {
 
   g_list_free(c_ares_queue_head);
 
-  if (c_ares_initialized)
+  if (c_ares_initialized) {
     ares_destroy(ghba_chan);
     ares_destroy(ghbn_chan);
-    c_ares_initialized = FALSE;
+  }
+#ifdef CARES_HAVE_ARES_LIBRARY_INIT
+  ares_library_cleanup();
+#endif
+  c_ares_initialized = FALSE;
 }
 
 #elif defined(HAVE_GNU_ADNS)
