@@ -1118,7 +1118,7 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
     rc = 0;
     for (i = 1; i < decr_len; i++) {
         if (decr_data_ptr[i] == 0) {
-            rc = i+1;
+            rc = (gint) i+1;
             break;
         }
     }
