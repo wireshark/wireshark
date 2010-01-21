@@ -168,7 +168,7 @@ GTK_PKG=2.18.5-20091215
 # These macros are used by the nsis installer script and by the setup target.
 #
 # GTK 2.12 is the mainline since Wireshark 0.99.7
-GTK_INST_VERSION=2.16
+GTK_INST_VERSION=2.18
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
