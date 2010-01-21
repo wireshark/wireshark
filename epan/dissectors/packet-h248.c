@@ -40,6 +40,7 @@
 #include "packet-h248.h"
 #include <epan/tap.h>
 #include "packet-tpkt.h"
+#include <ctype.h>
 
 #define PNAME  "H.248 MEGACO"
 #define PSNAME "H248"
@@ -377,6 +378,7 @@ static int hf_h248_value_01 = -1;                 /* ValueV1 */
 static int hf_h248_value_02 = -1;                 /* T_value */
 static int hf_h248_value_item = -1;               /* OCTET_STRING */
 static int hf_h248_extraInfo_01 = -1;             /* T_extraInfo_01 */
+static int hf_h248_sigParameterName_01 = -1;      /* Name */
 /* named bits */
 static int hf_h248_T_auditToken_muxToken = -1;
 static int hf_h248_T_auditToken_modemToken = -1;
@@ -395,7 +397,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 static int hf_h248_NotifyCompletion_onIteration = -1;
 
 /*--- End of included file: packet-h248-hf.c ---*/
-#line 74 "packet-h248-template.c"
+#line 75 "packet-h248-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
@@ -560,9 +562,10 @@ static gint ett_h248_EventParameterV1 = -1;
 static gint ett_h248_PropertyParmV1 = -1;
 static gint ett_h248_T_value = -1;
 static gint ett_h248_T_extraInfo_01 = -1;
+static gint ett_h248_SigParameterV1 = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
-#line 91 "packet-h248-template.c"
+#line 92 "packet-h248-template.c"
 
 static dissector_handle_t h248_term_handle;
 
@@ -593,6 +596,7 @@ static int dissect_h248_AuditReplyV1(gboolean implicit_tag, tvbuff_t *tvb, int o
 static int dissect_h248_ValueV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 static int dissect_h248_EventParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 static int dissect_h248_PropertyParmV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static int dissect_h248_SigParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 /* http://www.iana.org/assignments/megaco-h248 last updated 2007-11-28*/
 static const value_string package_name_vals[] = {
@@ -2329,7 +2333,7 @@ static const ber_sequence_t PropertyParm_sequence[] = {
 
 static int
 dissect_h248_PropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 382 "h248.cnf"
+#line 416 "h248.cnf"
 /* H248 v1 support */
 	if (h248_version >1) {
 		  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -3136,8 +3140,16 @@ static const ber_sequence_t SigParameter_sequence[] = {
 
 static int
 dissect_h248_SigParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+#line 406 "h248.cnf"
+/* H248 v1 support */
+	if (h248_version >1) {
+		  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SigParameter_sequence, hf_index, ett_h248_SigParameter);
+
+} else {
+		offset = dissect_h248_SigParameterV1( implicit_tag, tvb, offset, actx, tree, hf_index);
+}
+
 
   return offset;
 }
@@ -3364,7 +3376,7 @@ static const ber_sequence_t EventParameter_sequence[] = {
 
 static int
 dissect_h248_EventParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 373 "h248.cnf"
+#line 397 "h248.cnf"
 /* H248 v1 support */
 	if (h248_version >1) {
 		  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -5198,8 +5210,28 @@ dissect_h248_AuditReplyV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+#line 373 "h248.cnf"
+	guint8 i;
+	guint32 len;
+
+#line 378 "h248.cnf"
+/* check tvb to verify all values ascii or not.  If so, output string, else hex */
+	len=tvb_length_remaining(tvb, offset);
+	for( i=0;i<len;i++) {
+		if(!isascii(tvb_get_guint8(tvb, offset+i)) || tvb_get_guint8(tvb, offset+i) == 0) {
+			/* not ascii or NULL character so do string as hex string */
+			proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s", 
+				(proto_registrar_get_nth(hf_index))->name,
+				tvb_bytes_to_str(tvb, 0, len));
+			return len;
+		};
+	};
+	/* if here, then string is ascii */
+	proto_tree_add_text(tree, tvb, offset, len,"%s: %s", 
+				(proto_registrar_get_nth(hf_index))->name,
+				tvb_format_text(tvb, 0, len));
+	offset = len;
+
 
   return offset;
 }
@@ -5273,8 +5305,23 @@ dissect_h248_PropertyParmV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
+static const ber_sequence_t SigParameterV1_sequence[] = {
+  { &hf_h248_sigParameterName_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_h248_Name },
+  { &hf_h248_value_01       , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_h248_ValueV1 },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   SigParameterV1_sequence, hf_index, ett_h248_SigParameterV1);
+
+  return offset;
+}
+
+
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1306 "packet-h248-template.c"
+#line 1308 "packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6601,6 +6648,10 @@ void proto_register_h248(void) {
       { "extraInfo", "h248.extraInfo",
         FT_UINT32, BASE_DEC, VALS(h248_T_extraInfo_01_vals), 0,
         "h248.T_extraInfo_01", HFILL }},
+    { &hf_h248_sigParameterName_01,
+      { "sigParameterName", "h248.sigParameterName",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "h248.Name", HFILL }},
     { &hf_h248_T_auditToken_muxToken,
       { "muxToken", "h248.muxToken",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -6663,7 +6714,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1446 "packet-h248-template.c"
+#line 1448 "packet-h248-template.c"
 
 	GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6829,9 +6880,10 @@ void proto_register_h248(void) {
     &ett_h248_PropertyParmV1,
     &ett_h248_T_value,
     &ett_h248_T_extraInfo_01,
+    &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1464 "packet-h248-template.c"
+#line 1466 "packet-h248-template.c"
   };
 
   module_t *h248_module;

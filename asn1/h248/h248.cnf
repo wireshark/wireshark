@@ -369,6 +369,30 @@ TransactionPending/transactionId	tpend_transactionId
  dissect_h248_ServiceChangeReasonStr(FALSE, parameter_tvb, 0, actx, tree, hf_h248_serviceChangeReasonStr);
 #.END
 
+#.FN_HDR ValueV1
+	guint8 i;
+	guint32 len;
+#.END
+
+#.FN_BODY ValueV1
+/* check tvb to verify all values ascii or not.  If so, output string, else hex */
+	len=tvb_length_remaining(tvb, offset);
+	for( i=0;i<len;i++) {
+		if(!isascii(tvb_get_guint8(tvb, offset+i)) || tvb_get_guint8(tvb, offset+i) == 0) {
+			/* not ascii or NULL character so do string as hex string */
+			proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s", 
+				(proto_registrar_get_nth(hf_index))->name,
+				tvb_bytes_to_str(tvb, 0, len));
+			return len;
+		};
+	};
+	/* if here, then string is ascii */
+	proto_tree_add_text(tree, tvb, offset, len,"%s: %s", 
+				(proto_registrar_get_nth(hf_index))->name,
+				tvb_format_text(tvb, 0, len));
+	offset = len;
+#.END
+
 #.FN_BODY EventParameter
 /* H248 v1 support */
 	if (h248_version >1) {
@@ -377,6 +401,16 @@ TransactionPending/transactionId	tpend_transactionId
 		offset = dissect_h248_EventParameterV1( implicit_tag, tvb, offset, actx, tree, hf_index);
 }
 #.END
+
+#.FN_BODY SigParameter
+/* H248 v1 support */
+	if (h248_version >1) {
+		%(DEFAULT_BODY)s
+} else {
+		offset = dissect_h248_SigParameterV1( implicit_tag, tvb, offset, actx, tree, hf_index);
+}
+#.END
+
 
 #.FN_BODY PropertyParm
 /* H248 v1 support */

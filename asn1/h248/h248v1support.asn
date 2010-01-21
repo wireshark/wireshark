@@ -44,6 +44,13 @@ BEGIN
 			...
 	}
 	
+	-- V1
+	SigParameterV1 ::= SEQUENCE
+	{
+		sigParameterName	[0] Name,
+		value				[1] ValueV1
+	}
+	
 	ValueV1 ::= OCTET STRING
 
 END

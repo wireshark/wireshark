@@ -32,6 +32,7 @@
 #include "packet-h248.h"
 #include <epan/tap.h>
 #include "packet-tpkt.h"
+#include <ctype.h>
 
 #define PNAME  "H.248 MEGACO"
 #define PSNAME "H248"
@@ -118,6 +119,7 @@ static int dissect_h248_AuditReplyV1(gboolean implicit_tag, tvbuff_t *tvb, int o
 static int dissect_h248_ValueV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 static int dissect_h248_EventParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 static int dissect_h248_PropertyParmV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static int dissect_h248_SigParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 /* http://www.iana.org/assignments/megaco-h248 last updated 2007-11-28*/
 static const value_string package_name_vals[] = {
