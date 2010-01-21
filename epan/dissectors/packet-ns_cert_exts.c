@@ -61,9 +61,13 @@ static int hf_ns_cert_exts_SslServerName_PDU = -1;  /* SslServerName */
 static int hf_ns_cert_exts_CertRenewalUrl_PDU = -1;  /* CertRenewalUrl */
 static int hf_ns_cert_exts_CertType_PDU = -1;     /* CertType */
 /* named bits */
-static int hf_ns_cert_exts_CertType_client = -1;
-static int hf_ns_cert_exts_CertType_server = -1;
-static int hf_ns_cert_exts_CertType_ca = -1;
+static int hf_ns_cert_exts_CertType_ssl_client = -1;
+static int hf_ns_cert_exts_CertType_ssl_server = -1;
+static int hf_ns_cert_exts_CertType_smime = -1;
+static int hf_ns_cert_exts_CertType_object_signing = -1;
+static int hf_ns_cert_exts_CertType_ssl_ca = -1;
+static int hf_ns_cert_exts_CertType_smime_ca = -1;
+static int hf_ns_cert_exts_CertType_object_signing_ca = -1;
 
 /*--- End of included file: packet-ns_cert_exts-hf.c ---*/
 #line 45 "packet-ns_cert_exts-template.c"
@@ -159,9 +163,13 @@ dissect_ns_cert_exts_CertRenewalUrl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static const asn_namedbit CertType_bits[] = {
-  {  0, &hf_ns_cert_exts_CertType_client, -1, -1, "client", NULL },
-  {  1, &hf_ns_cert_exts_CertType_server, -1, -1, "server", NULL },
-  {  5, &hf_ns_cert_exts_CertType_ca, -1, -1, "ca", NULL },
+  {  0, &hf_ns_cert_exts_CertType_ssl_client, -1, -1, "ssl-client", NULL },
+  {  1, &hf_ns_cert_exts_CertType_ssl_server, -1, -1, "ssl-server", NULL },
+  {  2, &hf_ns_cert_exts_CertType_smime, -1, -1, "smime", NULL },
+  {  3, &hf_ns_cert_exts_CertType_object_signing, -1, -1, "object-signing", NULL },
+  {  5, &hf_ns_cert_exts_CertType_ssl_ca, -1, -1, "ssl-ca", NULL },
+  {  6, &hf_ns_cert_exts_CertType_smime_ca, -1, -1, "smime-ca", NULL },
+  {  7, &hf_ns_cert_exts_CertType_object_signing_ca, -1, -1, "object-signing-ca", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -262,17 +270,33 @@ void proto_register_ns_cert_exts(void) {
       { "CertType", "ns_cert_exts.CertType",
         FT_BYTES, BASE_NONE, NULL, 0,
         "ns_cert_exts.CertType", HFILL }},
-    { &hf_ns_cert_exts_CertType_client,
-      { "client", "ns_cert_exts.client",
+    { &hf_ns_cert_exts_CertType_ssl_client,
+      { "ssl-client", "ns_cert_exts.ssl-client",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
-    { &hf_ns_cert_exts_CertType_server,
-      { "server", "ns_cert_exts.server",
+    { &hf_ns_cert_exts_CertType_ssl_server,
+      { "ssl-server", "ns_cert_exts.ssl-server",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
-    { &hf_ns_cert_exts_CertType_ca,
-      { "ca", "ns_cert_exts.ca",
+    { &hf_ns_cert_exts_CertType_smime,
+      { "smime", "ns_cert_exts.smime",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_ns_cert_exts_CertType_object_signing,
+      { "object-signing", "ns_cert_exts.object-signing",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_ns_cert_exts_CertType_ssl_ca,
+      { "ssl-ca", "ns_cert_exts.ssl-ca",
         FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_ns_cert_exts_CertType_smime_ca,
+      { "smime-ca", "ns_cert_exts.smime-ca",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_ns_cert_exts_CertType_object_signing_ca,
+      { "object-signing-ca", "ns_cert_exts.object-signing-ca",
+        FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
 
 /*--- End of included file: packet-ns_cert_exts-hfarr.c ---*/

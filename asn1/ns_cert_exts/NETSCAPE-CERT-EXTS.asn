@@ -1,5 +1,6 @@
 -- NetScape Certificate Extensions
 -- based on information from http://wp.netscape.com/eng/security/cert-exts.html
+-- $Id$
 
 NS-CERT-EXTS { 2 16 840 1 113730 1 } DEFINITIONS EXPLICIT TAGS ::=
 BEGIN
@@ -19,9 +20,13 @@ SslServerName ::= IA5String
 CertRenewalUrl ::= IA5String
 
 CertType ::= BIT STRING {
-	client(0),
-	server(1),
-	ca(5)
+	ssl-client(0),
+	ssl-server(1),
+	smime(2),
+	object-signing(3),
+	ssl-ca(5),
+	smime-ca(6),
+	object-signing-ca(7)
 }
 
 END -- of NS-CERT-EXTS
