@@ -483,7 +483,7 @@ read_keytab_file(const char *filename)
 	if(first_time){
 		first_time=FALSE;
 		ret = krb5_init_context(&krb5_ctx);
-		if(ret){
+		if(ret && ret != KRB5_CONFIG_CANTOPEN){
 			return;
 		}
 	}
