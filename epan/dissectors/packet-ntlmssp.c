@@ -247,7 +247,7 @@ static gint ett_ntlmssp_ntlmv2_response = -1;
 static gint ett_ntlmssp_ntlmv2_response_name = -1;
 
 /* Configuration variables */
-static const char *gbl_nt_password = NULL;
+const char *gbl_nt_password = NULL;
 
 #define MAX_BLOB_SIZE 256
 typedef struct _ntlmssp_blob {
