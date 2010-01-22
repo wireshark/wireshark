@@ -162,6 +162,7 @@ gboolean          s_show_mac = FALSE;
 typedef struct rlc_lte_stat_t {
     GtkTreeView   *ue_table;
     rlc_lte_ep_t  *ep_list;
+    guint32       total_frames;
 
     GtkTreeView   *channel_table;
 } rlc_lte_stat_t;
@@ -192,8 +193,10 @@ rlc_lte_stat_reset(void *phs)
         gtk_window_set_title(GTK_WINDOW(rlc_lte_stat_dlg_w), title);
     }
 
-    g_snprintf(title, sizeof(title), "UL/DL-SCH data (0 UEs)");
+    g_snprintf(title, sizeof(title), "0 UEs");
     gtk_frame_set_label(GTK_FRAME(rlc_lte_stat_ues_lb), title);
+
+    rlc_lte_stat->total_frames = 0;
 
     /* Remove all entries from the UE list */
     store = GTK_LIST_STORE(gtk_tree_view_get_model(rlc_lte_stat->ue_table));
@@ -286,6 +289,9 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     if (!s_show_mac && si->loggedInMACFrame) {
         return 0;
     }
+
+    /* Inc top-level frame count */
+    hs->total_frames++;
 
     /* For per-UE data, must create a new row if none already existing */
     if (!hs->ep_list) {
@@ -527,14 +533,14 @@ rlc_lte_stat_draw(void *phs)
 
     /* Set title that shows how many UEs currently in table */
     for (tmp = list; (tmp!=NULL); tmp=tmp->next, number_of_ues++);
-    g_snprintf(title, sizeof(title), "UL/DL-SCH data (%u UEs)", number_of_ues);
+    g_snprintf(title, sizeof(title), "%u UEs", number_of_ues);
     gtk_frame_set_label(GTK_FRAME(rlc_lte_stat_ues_lb), title);
 
     /* Update title to include number of UEs and frames */
     g_snprintf(title, sizeof(title), "Wireshark: LTE RLC Traffic Statistics: %s (%u UEs, %u frames)",
                cf_get_display_name(&cfile),
                number_of_ues,
-               0);
+               hs->total_frames);
     gtk_window_set_title(GTK_WINDOW(rlc_lte_stat_dlg_w), title);
 
 
