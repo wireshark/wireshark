@@ -440,7 +440,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
     gint enum_val, data_id, current_data_id = -1,
          tpncp_data_field_sign, tpncp_data_field_size,
          tpncp_data_field_array_dim, tpncp_data_field_is_ip_addr;
-    guint index;
+    guint idx;
     tpncp_data_field_info *current_tpncp_data_field_info = NULL;
     hf_register_info hf_entr;
 
@@ -575,8 +575,8 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
         hf_allocated = hf_size+array_length(hf_tpncp)-1;
         if ((hf = (hf_register_info *)g_realloc(hf, hf_allocated * sizeof(hf_register_info))) == NULL)
             return (-1);
-        for (index = 0; index < array_length(hf_tpncp); index++) {
-            memcpy(hf + (hf_size - 1), hf_tpncp + index, sizeof(hf_register_info));
+        for (idx = 0; idx < array_length(hf_tpncp); idx++) {
+            memcpy(hf + (hf_size - 1), hf_tpncp + idx, sizeof(hf_register_info));
             hf_size++;
         }
         was_registered = TRUE;
@@ -741,7 +741,7 @@ void proto_reg_handoff_tpncp(void) {
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 void proto_register_tpncp(void) {
-    gint index;
+    gint idx;
     module_t *tpncp_module;
     static gint *ett[] = {
         &ett_tpncp,
@@ -758,8 +758,8 @@ void proto_register_tpncp(void) {
      * The function proto_register_field_array can not work with dynamic arrays,
      * so passing dynamic array elements one-by-one in the loop.
      */
-    for(index = 0; index < hf_size; index++) {
-        proto_register_field_array(proto_tpncp, &hf[index], 1);
+    for(idx = 0; idx < hf_size; idx++) {
+        proto_register_field_array(proto_tpncp, &hf[idx], 1);
     }
 
     proto_register_subtree_array(ett, array_length(ett));

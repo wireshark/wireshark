@@ -976,13 +976,13 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
 		if(msg_class==1)                   dissect_draft_tei_status_parameter(parameter_tvb, parameter_tree, parameter_item);
 		if(msg_class==9){
 			if(msg_type==1||msg_type==2||msg_type==3||msg_type==4){
-				guint16 length, offset;
+				guint16 length_2, offset;
 				tvbuff_t *layer3_data_tvb;
 				offset = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) + 8;
-				length = msg_length - offset;
-				if(length > 0){
+				length_2 = msg_length - offset;
+				if(length_2 > 0){
 					if(tvb_get_guint8(parameter_tvb, offset) == 0x48){
-						layer3_data_tvb = tvb_new_subset(parameter_tvb, offset, length, length);
+						layer3_data_tvb = tvb_new_subset(parameter_tvb, offset, length_2, length_2);
 						dissect_layer3_message(layer3_data_tvb, v5ua_tree, parameter_item, pinfo);
 					}
 				}

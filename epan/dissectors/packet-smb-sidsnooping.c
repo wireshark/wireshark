@@ -116,7 +116,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 	field_info *fi;
 	field_info *fi_rid;
 	field_info *fi_name;
-	char sid_name[256];
+	char sid_name_str[256];
 	int info_level;
 
 	gp=proto_get_finfo_ptr_array(edt->tree, hf_samr_level);
@@ -208,10 +208,10 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 
 		fi_rid=gp_rids->pdata[num_rids-1];
 		fi_name=gp_names->pdata[num_rids-1];
-		g_strlcpy(sid_name, sid, 256);
-		sid_name[len++]='-';
-		g_snprintf(sid_name+len, 256-len, "%d",fi_rid->value.value.sinteger);
-		add_sid_name_mapping(sid_name, fi_name->value.value.string);
+		g_strlcpy(sid_name_str, sid, 256);
+		sid_name_str[len++]='-';
+		g_snprintf(sid_name_str+len, 256-len, "%d",fi_rid->value.value.sinteger);
+		add_sid_name_mapping(sid_name_str, fi_name->value.value.string);
 	}
 	return 1;
 }

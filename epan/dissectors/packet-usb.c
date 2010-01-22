@@ -1826,7 +1826,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         usb_setup_dissector dissector;
         proto_item *ti = NULL;
         proto_tree *setup_tree = NULL;
-        int type;
+        int type_2;
 
         ti=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->interfaceClass);
         PROTO_ITEM_SET_GENERATED(ti);
@@ -1842,7 +1842,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(struct usb_device_setup_hdr), "URB setup");
                 setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
                 usb_trans_info->requesttype=tvb_get_guint8(tvb, offset);
-                offset=dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type);
+                offset=dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
 
 
                 /* read the request code and spawn off to a class specific
@@ -1850,7 +1850,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                  */
                 usb_trans_info->request=tvb_get_guint8(tvb, offset);
 
-                switch (type) {
+                switch (type_2) {
 
                 case RQT_SETUP_TYPE_STANDARD:
                     /*
@@ -1977,8 +1977,8 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     return;
                 }
 
-                type = (usb_trans_info->requesttype & USB_TYPE_MASK) >>5;
-                switch (type) {
+                type_2 = (usb_trans_info->requesttype & USB_TYPE_MASK) >>5;
+                switch (type_2) {
 
                 case RQT_SETUP_TYPE_STANDARD:
                     /*
@@ -2030,7 +2030,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             proto_item *ti = NULL;
             proto_tree *setup_tree = NULL;
             guint8 requesttype, request;
-            int type;
+            int type_2;
 
             /* Dissect the setup header - it's present */
 
@@ -2039,7 +2039,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
 
             requesttype=tvb_get_guint8(tvb, offset);
-            offset=dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type);
+            offset=dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
 
             request=tvb_get_guint8(tvb, offset);
             proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, TRUE);

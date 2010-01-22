@@ -786,7 +786,7 @@ static const fragment_items smb_frag_items = {
 	"segments"
 };
 
-static proto_tree *top_tree=NULL;     /* ugly */
+static proto_tree *top_tree_global=NULL;     /* ugly */
 
 static const char *decode_smb_name(guint8);
 static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd, gboolean first_pdu);
@@ -4209,7 +4209,7 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	/* file data, might be DCERPC on a pipe */
 	if(bc){
 		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
-		    top_tree, offset, bc, bc, 0, (guint16) fid);
+		    top_tree_global, offset, bc, bc, 0, (guint16) fid);
 		bc = 0;
 	}
 
@@ -4334,7 +4334,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	/* file data, might be DCERPC on a pipe */
 	if (bc != 0) {
 		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
-		    top_tree, offset, bc, bc, ofs, fid);
+		    top_tree_global, offset, bc, bc, ofs, fid);
 		bc = 0;
 	}
 
@@ -4697,26 +4697,26 @@ dissect_write_and_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
    available at http://us1.samba.org/samba/ftp/SMB-info/DOSEXTP.TXT
 */
 static gchar *
-smbext20_timeout_msecs_to_str(gint32 time)
+smbext20_timeout_msecs_to_str(gint32 timeout)
 {
         gchar *buf;
 #define SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN 60
 
-	if (time <= 0) {
+	if (timeout <= 0) {
 	        buf=ep_alloc(SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1);
-		if (time == 0) {
+		if (timeout == 0) {
 		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Return immediately (0)");
-		} else if (time == -1) {
+		} else if (timeout == -1) {
 		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Wait indefinitely (-1)");
-		} else if (time == -2) {
+		} else if (timeout == -2) {
 		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Use default timeout (-2)");
 		} else {
-		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Unknown reserved value (%d)", time);
+		        g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Unknown reserved value (%d)", timeout);
 		}
 		return buf;
 	}
 
-	return time_msecs_to_str(time);
+	return time_msecs_to_str(timeout);
 }
 
 static int
@@ -5570,8 +5570,8 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			"Unlocks");
 		tr = proto_item_add_subtree(it, ett_smb_unlocks);
 		while(un--){
-			proto_item *litem = NULL;
-			proto_tree *ltree = NULL;
+			proto_item *litem_2 = NULL;
+			proto_tree *ltree_2 = NULL;
 			if(lt&0x10){
 				guint64 val;
 				guint16 lock_pid;
@@ -5579,19 +5579,19 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				guint64 lock_length;
 
 				/* large lock format */
-				litem = proto_tree_add_text(tr, tvb, offset, 20,
+				litem_2 = proto_tree_add_text(tr, tvb, offset, 20,
 					"Unlock");
-				ltree = proto_item_add_subtree(litem, ett_smb_unlock);
+				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_unlock);
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
 				lock_pid=tvb_get_letohs(tvb, offset);
-				proto_tree_add_item(ltree, hf_smb_pid, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, TRUE);
 				COUNT_BYTES(2);
 
 				/* 2 reserved bytes */
 				CHECK_BYTE_COUNT(2);
-				proto_tree_add_item(ltree, hf_smb_reserved, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_reserved, tvb, offset, 2, TRUE);
 				COUNT_BYTES(2);
 
 				/* offset */
@@ -5599,7 +5599,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
 				    | tvb_get_letohl(tvb, offset+4);
 				lock_offset=val;
-				proto_tree_add_uint64(ltree, hf_smb_lock_long_offset, tvb, offset, 8, val);
+				proto_tree_add_uint64(ltree_2, hf_smb_lock_long_offset, tvb, offset, 8, val);
 				COUNT_BYTES(8);
 
 				/* length */
@@ -5607,7 +5607,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
 				    | tvb_get_letohl(tvb, offset+4);
 				lock_length=val;
-				proto_tree_add_uint64(ltree, hf_smb_lock_long_length, tvb, offset, 8, val);
+				proto_tree_add_uint64(ltree_2, hf_smb_lock_long_length, tvb, offset, 8, val);
 				COUNT_BYTES(8);
 
 				/* remember the unlock for the reply */
@@ -5622,23 +5622,23 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				}
 			} else {
 				/* normal lock format */
-				litem = proto_tree_add_text(tr, tvb, offset, 10,
+				litem_2 = proto_tree_add_text(tr, tvb, offset, 10,
 					"Unlock");
-				ltree = proto_item_add_subtree(litem, ett_smb_unlock);
+				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_unlock);
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
-				proto_tree_add_item(ltree, hf_smb_pid, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, TRUE);
 				COUNT_BYTES(2);
 
 				/* offset */
 				CHECK_BYTE_COUNT(4);
-				proto_tree_add_item(ltree, hf_smb_offset, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_offset, tvb, offset, 4, TRUE);
 				COUNT_BYTES(4);
 
 				/* lock count */
 				CHECK_BYTE_COUNT(4);
-				proto_tree_add_item(ltree, hf_smb_count, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_count, tvb, offset, 4, TRUE);
 				COUNT_BYTES(4);
 			}
 		}
@@ -5654,8 +5654,8 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			"Locks");
 		tr = proto_item_add_subtree(it, ett_smb_locks);
 		while(ln--){
-			proto_item *litem = NULL;
-			proto_tree *ltree = NULL;
+			proto_item *litem_2 = NULL;
+			proto_tree *ltree_2 = NULL;
 			if(lt&0x10){
 				guint64 val;
 				guint16 lock_pid;
@@ -5663,19 +5663,19 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				guint64 lock_length;
 
 				/* large lock format */
-				litem = proto_tree_add_text(tr, tvb, offset, 20,
+				litem_2 = proto_tree_add_text(tr, tvb, offset, 20,
 					"Lock");
-				ltree = proto_item_add_subtree(litem, ett_smb_lock);
+				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_lock);
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
 				lock_pid=tvb_get_letohs(tvb, offset);
-				proto_tree_add_item(ltree, hf_smb_pid, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, TRUE);
 				COUNT_BYTES(2);
 
 				/* 2 reserved bytes */
 				CHECK_BYTE_COUNT(2);
-				proto_tree_add_item(ltree, hf_smb_reserved, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_reserved, tvb, offset, 2, TRUE);
 				COUNT_BYTES(2);
 
 				/* offset */
@@ -5683,7 +5683,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
 				    | tvb_get_letohl(tvb, offset+4);
 				lock_offset=val;
-				proto_tree_add_uint64(ltree, hf_smb_lock_long_offset, tvb, offset, 8, val);
+				proto_tree_add_uint64(ltree_2, hf_smb_lock_long_offset, tvb, offset, 8, val);
 				COUNT_BYTES(8);
 
 				/* length */
@@ -5691,7 +5691,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				val=((guint64)tvb_get_letohl(tvb, offset)) << 32
 				    | tvb_get_letohl(tvb, offset+4);
 				lock_length=val;
-				proto_tree_add_uint64(ltree, hf_smb_lock_long_length, tvb, offset, 8, val);
+				proto_tree_add_uint64(ltree_2, hf_smb_lock_long_length, tvb, offset, 8, val);
 				COUNT_BYTES(8);
 
 				/* remember the lock for the reply */
@@ -5706,23 +5706,23 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				}
 			} else {
 				/* normal lock format */
-				litem = proto_tree_add_text(tr, tvb, offset, 10,
+				litem_2 = proto_tree_add_text(tr, tvb, offset, 10,
 					"Lock");
-				ltree = proto_item_add_subtree(litem, ett_smb_lock);
+				ltree_2 = proto_item_add_subtree(litem_2, ett_smb_lock);
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
-				proto_tree_add_item(ltree, hf_smb_pid, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, TRUE);
 				COUNT_BYTES(2);
 
 				/* offset */
 				CHECK_BYTE_COUNT(4);
-				proto_tree_add_item(ltree, hf_smb_offset, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_offset, tvb, offset, 4, TRUE);
 				COUNT_BYTES(4);
 
 				/* lock count */
 				CHECK_BYTE_COUNT(4);
-				proto_tree_add_item(ltree, hf_smb_count, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_count, tvb, offset, 4, TRUE);
 				COUNT_BYTES(4);
 			}
 		}
@@ -6053,7 +6053,7 @@ static const value_string ipc_state_read_mode_vals[] = {
 
 int
 dissect_ipc_state(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
-    gboolean setstate)
+    gboolean setstate_flag)
 {
 	guint16 mask;
 	proto_item *item;
@@ -6068,7 +6068,7 @@ dissect_ipc_state(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 
 		proto_tree_add_boolean(tree, hf_smb_ipc_state_nonblocking,
 			tvb, offset, 2, mask);
-		if (!setstate) {
+		if (!setstate_flag) {
 			proto_tree_add_uint(tree, hf_smb_ipc_state_endpoint,
 				tvb, offset, 2, mask);
 			proto_tree_add_uint(tree, hf_smb_ipc_state_pipe_type,
@@ -6076,7 +6076,7 @@ dissect_ipc_state(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		}
 		proto_tree_add_uint(tree, hf_smb_ipc_state_read_mode,
 			tvb, offset, 2, mask);
-		if (!setstate) {
+		if (!setstate_flag) {
 			proto_tree_add_uint(tree, hf_smb_ipc_state_icount,
 				tvb, offset, 2, mask);
 		}
@@ -6410,7 +6410,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* file data, might be DCERPC on a pipe */
 	if(bc){
 		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
-		    top_tree, offset, bc, (guint16) datalen, 0, (guint16) fid);
+		    top_tree_global, offset, bc, (guint16) datalen, 0, (guint16) fid);
 		bc = 0;
 	}
 
@@ -6572,7 +6572,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* file data, might be DCERPC on a pipe */
 	if (bc != 0) {
 		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
-		    top_tree, offset, bc, (guint16) datalen, 0, (guint16) fid);
+		    top_tree_global, offset, bc, (guint16) datalen, 0, (guint16) fid);
 		bc = 0;
 	}
 
@@ -8223,7 +8223,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	case NT_TRANS_IOCTL:
 		/* ioctl data */
 		ioctl_tvb=tvb_new_subset(tvb, offset, MIN((int)bc, tvb_length_remaining(tvb, offset)), bc);
-		dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree, nti->ioctl_function, TRUE);
+		dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree_global, nti->ioctl_function, TRUE);
 
 
 		offset += bc;
@@ -8768,7 +8768,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 	case NT_TRANS_IOCTL:
 		/* ioctl data */
 		ioctl_tvb=tvb_new_subset(tvb, offset, MIN((int)len, tvb_length_remaining(tvb, offset)), len);
-		dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree, nti->ioctl_function, FALSE);
+		dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree_global, nti->ioctl_function, FALSE);
 
 		offset += len;
 
@@ -11248,7 +11248,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 		while(numref--){
 			proto_item *ri = NULL;
 			proto_tree *rt = NULL;
-			int old_offset=offset;
+			int old_offset_2=offset;
 			guint16 version;
 
 			if(tree){
@@ -11295,17 +11295,17 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 				break;
 
 			case 2:
-				offset = dissect_dfs_referral_entry_v2(tvb, rt, old_offset, offset,
+				offset = dissect_dfs_referral_entry_v2(tvb, rt, old_offset_2, offset,
 								       refflags, bcp, si->unicode, &ucstring_end);
 				break;
 			case 3:
-				offset = dissect_dfs_referral_entry_v3(tvb, rt, old_offset, offset,
+				offset = dissect_dfs_referral_entry_v3(tvb, rt, old_offset_2, offset,
 								       refflags, bcp, si->unicode, &ucstring_end);
 				break;
 			case 4:
 				/* V4 is extactly same as V3, except the version number and
 				 * one more ReferralEntryFlags */
-				offset = dissect_dfs_referral_entry_v3(tvb, rt, old_offset, offset,
+				offset = dissect_dfs_referral_entry_v3(tvb, rt, old_offset_2, offset,
 								       refflags, bcp, si->unicode, &ucstring_end);
 				break;
 			}
@@ -11314,7 +11314,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 			 * Show anything beyond the length of the referral
 			 * as unknown data.
 			 */
-			unklen = (old_offset + refsize) - offset;
+			unklen = (old_offset_2 + refsize) - offset;
 			if (unklen < 0) {
 				/*
 				 * XXX - the length is bogus.
@@ -11328,7 +11328,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 				COUNT_BYTES_TRANS_SUBR(unklen);
 			}
 
-			proto_item_set_len(ri, offset-old_offset);
+			proto_item_set_len(ri, offset-old_offset_2);
 		}
 
 		/*
@@ -13316,7 +13316,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 				dissected_trans = dissect_pipe_smb(sp_tvb,
 				    s_tvb, pd_tvb, p_tvb, d_tvb, an+6, pinfo,
-				    top_tree);
+				    top_tree_global);
 
 				/* In case we did not see the TreeConnect call,
 				   store this TID here as well as a IPC TID
@@ -13337,7 +13337,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 */
 				sp_tvb = tvb_new_subset(tvb, spo, spc, spc);
 				dissected_trans = dissect_mailslot_smb(sp_tvb,
-				    s_tvb, d_tvb, an+10, pinfo, top_tree);
+				    s_tvb, d_tvb, an+10, pinfo, top_tree_global);
 			}
 			if (!dissected_trans)
 				dissect_trans_data(s_tvb, p_tvb, d_tvb, tree);
@@ -14791,7 +14791,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_qfsi_FS_ATTRIBUTE_INFO(tvb, pinfo, tree, offset, bcp, si->unicode);
 		break;
 	case 0x200: {	/* SMB_QUERY_CIFS_UNIX_INFO */
-		proto_item *item = NULL;
+		proto_item *item_2 = NULL;
 		proto_tree *subtree = NULL;
 		guint32 caps_lo, caps_hi;
 
@@ -14813,11 +14813,11 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		caps_hi = tvb_get_letohl(tvb, offset + 4);
 
 		if (tree) {
-			item = proto_tree_add_text(
+			item_2 = proto_tree_add_text(
 				tree, tvb, offset, 8, "Capabilities: 0x%08x%08x",
 				caps_hi, caps_lo);
 			subtree = proto_item_add_subtree(
-				item, ett_smb_unix_capabilities);
+				item_2, ett_smb_unix_capabilities);
 		}
 
 		proto_tree_add_boolean(
@@ -15670,7 +15670,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				if( pd_tvb) {
 					dissected_trans = dissect_pipe_smb(
 						sp_tvb, s_tvb, pd_tvb, p_tvb,
-						d_tvb, NULL, pinfo, top_tree);
+						d_tvb, NULL, pinfo, top_tree_global);
 				}
 				break;
 
@@ -15681,7 +15681,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				if(d_tvb){
 					dissected_trans = dissect_mailslot_smb(
 						sp_tvb, s_tvb, d_tvb, NULL, pinfo,
-						top_tree);
+						top_tree_global);
 				}
 				break;
 			}
@@ -16668,7 +16668,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	si=ep_alloc0(sizeof(smb_info_t));
 
-	top_tree=parent_tree;
+	top_tree_global=parent_tree;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB");
 	col_clear(pinfo->cinfo, COL_INFO);

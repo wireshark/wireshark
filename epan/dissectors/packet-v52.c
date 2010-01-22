@@ -34,11 +34,11 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
+//#include <stdio.h>
 #include <glib.h>
-#include <string.h>
+//#include <string.h>
 #include <epan/packet.h>
-#include <epan/strutil.h>
+//#include <epan/strutil.h>
 #include <epan/expert.h>
 
 static int proto_v52 					= -1;
@@ -2131,7 +2131,7 @@ dissect_v52_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		offset = 0;
 	proto_tree	*v52_tree = NULL;
 	proto_item	*ti;
-	guint8		address = 0;
+	gboolean	addr = FALSE;
 	guint8 		bcc_all_address_tmp_up = -1;
 	guint16		pstn_all_address_tmp, isdn_all_address_tmp, bcc_all_address_tmp, prot_all_address_tmp, link_all_address_tmp;
 
@@ -2151,7 +2151,7 @@ dissect_v52_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		message_type_tmp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
 
 		if ((message_type_tmp >= 0x00) && (message_type_tmp <= 0x0e)) {
-			address = 1;
+			addr = TRUE;
 			proto_tree_add_item(v52_tree, hf_v52_pstn_address, tvb, ADDRESS_OFFSET, ADDRESS_LENGTH, FALSE);
 			proto_tree_add_item(v52_tree, hf_v52_pstn_low_address, tvb, LOW_ADDRESS_OFFSET, LOW_ADDRESS_LENGTH, FALSE);
 
@@ -2162,7 +2162,7 @@ dissect_v52_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		if ((message_type_tmp >= 0x10) && (message_type_tmp <= 0x13)) {
-			address = 1;
+			addr = TRUE;
 			if ((tvb_get_guint8(tvb, ADDRESS_OFFSET)&0x01) == 0x1) {
 				pstn_all_address_tmp = (((tvb_get_guint8(tvb, ADDRESS_OFFSET)>>1)<<8)+(tvb_get_guint8(tvb, LOW_ADDRESS_OFFSET)));
 				proto_tree_add_item(v52_tree, hf_v52_pstn_address, tvb, ADDRESS_OFFSET, ADDRESS_LENGTH, FALSE);
@@ -2180,7 +2180,7 @@ dissect_v52_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		if ((message_type_tmp == 0x30) || (message_type_tmp == 0x31)) {
-			address = 1;
+			addr = TRUE;
 			link_all_address_tmp = tvb_get_guint8(tvb, LOW_ADDRESS_OFFSET);
 			proto_tree_add_item(v52_tree, hf_v52_link_address, tvb, ADDRESS_OFFSET, ADDRESS_LENGTH, FALSE);
 			proto_tree_add_item(v52_tree, hf_v52_link_low_address, tvb, LOW_ADDRESS_OFFSET, LOW_ADDRESS_LENGTH, FALSE);
@@ -2189,7 +2189,7 @@ dissect_v52_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		if ((message_type_tmp >= 0x20) && (message_type_tmp <= 0x2a)) {
-			address = 1;
+			addr = TRUE;
 			proto_tree_add_item(v52_tree, hf_v52_bcc_address, tvb, ADDRESS_OFFSET, ADDRESS_LENGTH, FALSE);
 			proto_tree_add_item(v52_tree, hf_v52_bcc_low_address, tvb, LOW_ADDRESS_OFFSET, LOW_ADDRESS_LENGTH, FALSE);
 
@@ -2203,7 +2203,7 @@ dissect_v52_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		if ((message_type_tmp >= 0x18) && (message_type_tmp <= 0x1f)) {
-			address = 1;
+			addr = TRUE;
 			prot_all_address_tmp = (tvb_get_guint8(tvb, ADDRESS_OFFSET)<<8) + (tvb_get_guint8(tvb,LOW_ADDRESS_OFFSET));
 			proto_tree_add_item(v52_tree, hf_v52_prot_address, tvb, ADDRESS_OFFSET, ADDRESS_LENGTH, FALSE);
 			proto_tree_add_item(v52_tree, hf_v52_prot_low_address, tvb, LOW_ADDRESS_OFFSET, LOW_ADDRESS_LENGTH, FALSE);
@@ -2214,10 +2214,7 @@ dissect_v52_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 
-		if (address) {
-
-		}
-		else {
+		if (addr == FALSE) {
 			if ((tvb_get_guint8(tvb, ADDRESS_OFFSET)&0x01) == 0x1) {
 				pstn_all_address_tmp = (((tvb_get_guint8(tvb, ADDRESS_OFFSET)>>1)<<8)+(tvb_get_guint8(tvb, LOW_ADDRESS_OFFSET)));
 				proto_tree_add_item(v52_tree, hf_v52_pstn_address, tvb, ADDRESS_OFFSET, ADDRESS_LENGTH, FALSE);

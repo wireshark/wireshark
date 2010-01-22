@@ -2993,8 +2993,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Can't dissect anything without it... */
     if (p_fp_info == NULL)
     {
-        proto_item *ti =
-            proto_tree_add_text(fp_tree, tvb, offset, -1,
+        ti = proto_tree_add_text(fp_tree, tvb, offset, -1,
                                 "Can't dissect FP frame because no per-frame info was attached!");
         PROTO_ITEM_SET_GENERATED(ti);
         return;

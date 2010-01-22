@@ -201,7 +201,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
             } else {
 
-                tvbuff_t *volatile msdu_tvb = NULL,*next_tvb;
+                tvbuff_t *volatile msdu_tvb = NULL;
                 guint32 msdu_offset = 0x04;
                 guint16 j = 1;
                 guint16 msdu_length;

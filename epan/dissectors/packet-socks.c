@@ -259,7 +259,7 @@ static int display_string(tvbuff_t *tvb, int offset,
 	int length = tvb_get_guint8(tvb, offset);
 
 	tvb_memcpy(tvb, (guint8 *)temp, offset+1, length);
-	temp[ length ] = 0;
+	temp[ length ] = '\0';
 
    	ti = proto_tree_add_text(tree, tvb, offset, length + 1,
    		"%s: %s" , label, temp);
@@ -818,7 +818,7 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 	else if ( hash_info->state == V5Command) {	/* Handle V5 Command */
 
-		guint temp;
+		/** ?? guint temp; **/
 
 		hash_info->command = tvb_get_guint8(tvb, offset + 1); /* get command */
 
@@ -833,7 +833,7 @@ state_machine_v5( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 
 		offset = get_address_v5(tvb, offset, hash_info);
 
-		temp = tvb_get_guint8(tvb, offset);
+		/** temp = tvb_get_guint8(tvb, offset);  XX: what was this for ? **/
 
 		if (( hash_info->command == CONNECT_COMMAND) ||
 		    ( hash_info->command == UDP_ASSOCIATE_COMMAND))

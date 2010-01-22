@@ -828,23 +828,23 @@ static int hf_esmc_quality_level_invalid = -1;
 static int hf_esmc_timestamp = -1;
 static int hf_esmc_padding = -1;
 
-    /*
-     * The Timestamp TLV and Timestamp Valid Flag fields
-     * are proposed in WD56 document for G.8264.
-     * WD56 is not accepted at this moment (June 2009).
-     *
-     * The following variable controls dissection of Timestamp fields.
-     * Implementation is not fully complete yet -- in this version
-     * Timestamp dissection is always enabled.
-     *
-     * I expect that when WD56 proposal for G.8264 will be accepted,
-     * ESMC Version would be used to control Timestamp dissection.
-     * In this case this variable will be eliminated (replaced).
-     *
-     * Until that, a preference which controls Timestamp
-     * dissection may be added, if such need arise.
-     * At the moment this is not practical as nobody needs this.
-     */
+/*
+ * The Timestamp TLV and Timestamp Valid Flag fields
+ * are proposed in WD56 document for G.8264.
+ * WD56 is not accepted at this moment (June 2009).
+ *
+ * The following variable controls dissection of Timestamp fields.
+ * Implementation is not fully complete yet -- in this version
+ * Timestamp dissection is always enabled.
+ *
+ * I expect that when WD56 proposal for G.8264 will be accepted,
+ * ESMC Version would be used to control Timestamp dissection.
+ * In this case this variable will be eliminated (replaced).
+ *
+ * Until that, a preference which controls Timestamp
+ * dissection may be added, if such need arise.
+ * At the moment this is not practical as nobody needs this.
+ */
 static gboolean pref_decode_esmc_timestamp = TRUE;
 
 /* MARKER */
@@ -964,20 +964,20 @@ static const char cont_sep[] = ", ";
 static dissector_handle_t dh_data;
 
 #define APPEND_BOOLEAN_FLAG(flag, item, string) \
-    if(flag){                            \
-        if(item)                        \
+    if(flag){                                   \
+        if(item)                                          \
             proto_item_append_text(item, string, sep);    \
-        sep = cont_sep;                        \
+        sep = cont_sep;                                   \
     }
 
 
 #define APPEND_OUI_NAME(item, string, mac) \
-        if(item){                        \
-            string = get_manuf_name(mac); \
-            proto_item_append_text(item, " (");    \
-            proto_item_append_text(item, "%s", string);    \
-            proto_item_append_text(item, ")");    \
-        }
+    if(item){                              \
+        string = get_manuf_name(mac);              \
+        proto_item_append_text(item, " (");                \
+        proto_item_append_text(item, "%s", string);        \
+        proto_item_append_text(item, ")");                 \
+    }
 
 static void
 dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -1538,7 +1538,7 @@ dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *    "TLVs for ESMC and Querying Capability".
  */
 static void
-dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 {
     gint offset = 0; /*starting from Slow Protocol Subtype*/
     gboolean event_flag;
@@ -1546,53 +1546,53 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint ql = -1; /*negative means unknown:*/
     gboolean timestamp_valid_flag = FALSE; /*set if timestamp valid*/
     gint32 timestamp = -1; /*nanoseconds*/
-    proto_item *item;
+    proto_item *item_a;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESMC");
 
-    item = proto_tree_add_item(tree, proto_slow, tvb, offset, -1, FALSE);
-    proto_item_append_text(item, ": ESMC");
+    item_a = proto_tree_add_item(treex, proto_slow, tvb, offset, -1, FALSE);
+    proto_item_append_text(item_a, ": ESMC");
     {
-        proto_tree *tree;
-        tree = proto_item_add_subtree(item, ett_esmc);
+        proto_tree *tree_a;
+        tree_a = proto_item_add_subtree(item_a, ett_esmc);
 
-        proto_tree_add_item(tree, hf_slow_subtype, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree_a, hf_slow_subtype, tvb, offset, 1, FALSE);
         offset +=1;
         { /* itu-oui */
             const guint8 itu_oui[ESMC_ITU_OUI_SIZE] = {ESMC_ITU_OUI_0,ESMC_ITU_OUI_1,ESMC_ITU_OUI_2};
             guint8 itu_oui_read[sizeof(itu_oui)];
-            proto_item *item;
+            proto_item *item_b;
             tvb_memcpy(tvb, itu_oui_read, offset, sizeof(itu_oui));
-            item = proto_tree_add_bytes(tree, hf_esmc_itu_oui, tvb, offset
+            item_b = proto_tree_add_bytes(tree_a, hf_esmc_itu_oui, tvb, offset
                         , sizeof(itu_oui), itu_oui_read);
             offset += sizeof(itu_oui);
             if (memcmp(itu_oui_read, itu_oui, sizeof(itu_oui)))
             {
                 malformed = TRUE;
-                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+                expert_add_info_format(pinfo, item_b, PI_MALFORMED, PI_ERROR
                         ,"IEEE assigned OUI must be %.2X-%.2X-%.2X"
                         ,ESMC_ITU_OUI_0, ESMC_ITU_OUI_1, ESMC_ITU_OUI_2);
             }
         }
         { /* itu subtype */
-            proto_item *item;
-            item = proto_tree_add_item(tree, hf_esmc_itu_subtype, tvb, offset, 2, FALSE);
+            proto_item *item_b;
+            item_b = proto_tree_add_item(tree_a, hf_esmc_itu_subtype, tvb, offset, 2, FALSE);
             if (tvb_get_ntohs(tvb, offset) != ESMC_ITU_SUBTYPE)
             {
                 malformed = TRUE;
-                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+                expert_add_info_format(pinfo, item_b, PI_MALFORMED, PI_ERROR
                         ,"ITU Subtype must be 0x%.4x for all usages defined by G.8264/Y.1364"
                         ,ESMC_ITU_SUBTYPE);
             }
             offset += 2;
         }
         { /* version */
-            proto_item *item;
-            item = proto_tree_add_item(tree, hf_esmc_version, tvb, offset, 1, FALSE);
+            proto_item *item_b;
+            item_b = proto_tree_add_item(tree_a, hf_esmc_version, tvb, offset, 1, FALSE);
             if ((tvb_get_guint8(tvb, offset) >> 4) != ESMC_VERSION_1)
             {
                 malformed = TRUE;
-                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+                expert_add_info_format(pinfo, item_b, PI_MALFORMED, PI_ERROR
                         ,"Version must be 0x%.1x claim compliance with Version 1 of this protocol"
                         ,ESMC_VERSION_1);
             }
@@ -1600,70 +1600,70 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         { /* event flag */
             event_flag = ((tvb_get_guint8(tvb, offset) & 0x08) != 0);
-            proto_tree_add_item(tree, hf_esmc_event_flag, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree_a, hf_esmc_event_flag, tvb, offset, 1, FALSE);
             /*stay at the same octet in tvb*/
         }
         if (pref_decode_esmc_timestamp)
         { /* timestamp valid flag */
             timestamp_valid_flag = ((tvb_get_guint8(tvb, offset) & 0x04) != 0);
-            proto_tree_add_item(tree, hf_esmc_timestamp_valid_flag, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree_a, hf_esmc_timestamp_valid_flag, tvb, offset, 1, FALSE);
             /*stay at the same octet in tvb*/
         }
         { /* reserved bits */
-            proto_item *item;
+            proto_item *item_b;
             guint32 reserved;
             reserved = tvb_get_ntohl(tvb, offset)
                         & (pref_decode_esmc_timestamp ? 0x3ffffff : 0x7ffffff);
-            item = proto_tree_add_uint_format_value(tree, hf_esmc_reserved_32, tvb, offset, 4
+            item_b = proto_tree_add_uint_format_value(tree_a, hf_esmc_reserved_32, tvb, offset, 4
                                                     , reserved, "0x%.7x", reserved);
             if (reserved != 0x0)
             {
                 malformed = TRUE;
-                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN
+                expert_add_info_format(pinfo, item_b, PI_MALFORMED, PI_WARN
                         ,"Reserved bits must be set to all zero on transmitter");
             }
             offset += 4;
         }
-        proto_item_append_text(item, ", Event:%s", event_flag ? "1" : "0");
+        proto_item_append_text(item_a, ", Event:%s", event_flag ? "1" : "0");
 
         /*
          * Quality Level TLV is mandatory at fixed location.
          */
         {
-            proto_item *item;
+            proto_item *item_b;
             guint8 type;
-            item = proto_tree_add_item(tree, hf_esmc_tlv, tvb, offset, 4, FALSE);
+            item_b = proto_tree_add_item(tree_a, hf_esmc_tlv, tvb, offset, 4, FALSE);
             {
-                proto_tree *tree;
-                tree = proto_item_add_subtree(item, ett_esmc);
+                proto_tree *tree_b;
+                tree_b = proto_item_add_subtree(item_b, ett_esmc);
                 {
-                    proto_item *item;
+                    proto_item *item_c;
                     guint16 length;
                     guint8 unused;
 
                     /* type */
                     type = tvb_get_guint8(tvb, offset);
-                    item = proto_tree_add_item(tree, hf_esmc_tlv_type, tvb, offset, 1, FALSE);
+                    item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_type, tvb, offset, 1, FALSE);
                     if (type != ESMC_QL_TLV_TYPE)
                     {
                         malformed = TRUE;
-                        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+                        expert_add_info_format(pinfo, item_c, PI_MALFORMED, PI_ERROR
                                 ,"TLV Type must be == 0x%.2x (QL) because QL TLV must be first in the ESMC PDU"
                                 ,ESMC_QL_TLV_TYPE);
-                        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE
+                        expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_NOTE
                                 ,"Let's decode as if this is QL TLV");
                     }
                     offset += 1;
 
                     /* length */
                     length = tvb_get_ntohs(tvb, offset);
-                    item = proto_tree_add_item(tree, hf_esmc_tlv_length, tvb, offset, 2, FALSE);
+                    item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_length, tvb, offset, 2, FALSE);
                     if (length != ESMC_QL_TLV_LENGTH)
                     {
                         malformed = TRUE;
-                        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+                        expert_add_info_format(pinfo, item_c, PI_MALFORMED, PI_ERROR
                                 ,"QL TLV Length must be == 0x%.4x", ESMC_QL_TLV_LENGTH);
-                        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE
+                        expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_NOTE
                                 ,"Let's decode this TLV as if Length has valid value");
                     }
                     offset += 2;
@@ -1672,30 +1672,30 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     unused = tvb_get_guint8(tvb, offset); /*as temp var*/
                     ql = unused & 0x0f;
                     unused &= 0xf0;
-                    item = proto_tree_add_item(tree, hf_esmc_tlv_ql_unused, tvb, offset, 1, FALSE);
+                    item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ql_unused, tvb, offset, 1, FALSE);
                     if (unused != 0x00)
                     {
                         malformed = TRUE;
-                        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN
+                        expert_add_info_format(pinfo, item_c, PI_MALFORMED, PI_WARN
                                 ,"Unused bits of TLV must be all zeroes");
                     }
                     if (NULL != match_strval(ql, esmc_quality_level_opt_1_vals))
                     {
-                        proto_tree_add_item(tree, hf_esmc_quality_level_opt_1, tvb, offset, 1, FALSE);
+                        proto_tree_add_item(tree_b, hf_esmc_quality_level_opt_1, tvb, offset, 1, FALSE);
                     }
                     else
                     {
-                        item = proto_tree_add_item(tree, hf_esmc_quality_level_invalid, tvb, offset, 1, FALSE);
-                        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_quality_level_invalid, tvb, offset, 1, FALSE);
+                        expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_WARN
                                 ,"Invalid SSM message, unknown QL code");
                     }
                     offset += 1;
                 }
             }
-            proto_item_append_text(item, ", %s"
+            proto_item_append_text(item_b, ", %s"
                 , val_to_str(ql, esmc_quality_level_opt_1_vals_short, "QL-INV%d"));
         }
-        proto_item_append_text(item, ", %s"
+        proto_item_append_text(item_a, ", %s"
             , val_to_str(ql, esmc_quality_level_opt_1_vals_short, "QL-INV%d"));
 
         if (pref_decode_esmc_timestamp)
@@ -1710,67 +1710,67 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if (timestamp_valid_flag || type == ESMC_TIMESTAMP_TLV_TYPE)
             {
-                proto_item *item;
-                item = proto_tree_add_item(tree, hf_esmc_tlv, tvb, offset, 8, FALSE);
+                proto_item *item_b;
+                item_b = proto_tree_add_item(tree_a, hf_esmc_tlv, tvb, offset, 8, FALSE);
                 {
-                    proto_tree *tree;
-                    tree = proto_item_add_subtree(item, ett_esmc);
+                    proto_tree *tree_b;
+                    tree_b = proto_item_add_subtree(item_b, ett_esmc);
                     {
-                        proto_item *item;
+                        proto_item *item_c;
                         guint16 length;
                         guint8 reserved;
 
                         /* type */
-                        item = proto_tree_add_item(tree, hf_esmc_tlv_type, tvb, offset, 1, FALSE);
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_type, tvb, offset, 1, FALSE);
                         if (type != ESMC_TIMESTAMP_TLV_TYPE)
                         {
                             malformed = TRUE;
-                            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+                            expert_add_info_format(pinfo, item_c, PI_MALFORMED, PI_ERROR
                                     ,"TLV Type must be == 0x%.2x (Timestamp) because Timestamp Valid Flag is set"
                                     ,ESMC_TIMESTAMP_TLV_TYPE);
-                            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE
+                            expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_NOTE
                                     ,"Let's decode as if this is Timestamp TLV");
                         }
                         offset += 1;
 
                         /* length */
                         length = tvb_get_ntohs(tvb, offset);
-                        item = proto_tree_add_item(tree, hf_esmc_tlv_length, tvb, offset, 2, FALSE);
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_length, tvb, offset, 2, FALSE);
                         if (length != ESMC_TIMESTAMP_TLV_LENGTH)
                         {
                             malformed = TRUE;
-                            expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+                            expert_add_info_format(pinfo, item_c, PI_MALFORMED, PI_ERROR
                                     ,"Timestamp TLV Length must be == 0x%.4x"
                                     ,ESMC_TIMESTAMP_TLV_LENGTH);
-                            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE
+                            expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_NOTE
                                     ,"Let's decode this TLV as if Length has valid value");
                         }
                         offset += 2;
 
                         /* value */
                         timestamp = (gint32)tvb_get_ntohl(tvb, offset);
-                        item = proto_tree_add_item(tree, hf_esmc_timestamp, tvb, offset, 4, FALSE);
-                        if (!timestamp_valid_flag) proto_item_append_text(item, " [invalid]");
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_timestamp, tvb, offset, 4, FALSE);
+                        if (!timestamp_valid_flag) proto_item_append_text(item_c, " [invalid]");
                         offset += 4;
 
                         /* reserved */
                         reserved = tvb_get_guint8(tvb, offset);
-                        item = proto_tree_add_item(tree, hf_esmc_tlv_ts_reserved, tvb, offset, 1, FALSE);
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ts_reserved, tvb, offset, 1, FALSE);
                         if (reserved != 0x0)
                         {
-                            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN
+                            expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_WARN
                                     ,"Reserved bits must be set to all zero");
                         }
                         offset += 1;
                     }
                 }
-                proto_item_append_text(item, ", Timestamp: %d ns", timestamp);
-                if (!timestamp_valid_flag) proto_item_append_text(item, " [invalid]");
+                proto_item_append_text(item_b, ", Timestamp: %d ns", timestamp);
+                if (!timestamp_valid_flag) proto_item_append_text(item_b, " [invalid]");
             }
         }
         if (timestamp_valid_flag)
         {
-            proto_item_append_text(item, ", Timestamp:%d", timestamp);
+            proto_item_append_text(item_a, ", Timestamp:%d", timestamp);
         }
     }
 
@@ -1779,19 +1779,19 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         padding_size = tvb_length_remaining(tvb, offset);
         if (0 != padding_size)
         {
-            proto_tree* tree;
-            tree = proto_item_add_subtree(item, ett_esmc);
+            proto_tree* tree_a;
+            tree_a = proto_item_add_subtree(item_a, ett_esmc);
             {
-                proto_item* item;
+                proto_item* item_b;
                 tvbuff_t* tvb_next;
                 tvb_next = tvb_new_subset(tvb, offset, padding_size, -1);
-                item = proto_tree_add_item(tree, hf_esmc_padding, tvb_next, 0, -1, FALSE);
-                proto_item_append_text(item, ", %d %s%s", padding_size
+                item_b = proto_tree_add_item(tree_a, hf_esmc_padding, tvb_next, 0, -1, FALSE);
+                proto_item_append_text(item_b, ", %d %s%s", padding_size
                 , "octet", plurality(padding_size,"","s"));
                 {
-                    proto_tree* tree;
-                    tree = proto_item_add_subtree(item, ett_esmc);
-                    call_dissector(dh_data, tvb_next, pinfo, tree);
+                    proto_tree* tree_b;
+                    tree_b = proto_item_add_subtree(item_b, ett_esmc);
+                    call_dissector(dh_data, tvb_next, pinfo, tree_b);
                 }
             }
         }
@@ -2777,708 +2777,708 @@ proto_register_slow_protocols(void)
 {
 /* Setup list of header fields */
 
-  static hf_register_info hf[] = {
+    static hf_register_info hf[] = {
 
 /*
  * Generic slow protocol portion
  */
-    { &hf_slow_subtype,
-      { "Slow Protocols subtype",    "slow.subtype",
-         FT_UINT8,    BASE_HEX,    VALS(subtype_vals),    0x0,
-        "Identifies the LACP version", HFILL }},
+        { &hf_slow_subtype,
+          { "Slow Protocols subtype",    "slow.subtype",
+            FT_UINT8,    BASE_HEX,    VALS(subtype_vals),    0x0,
+            "Identifies the LACP version", HFILL }},
 
 /*
  *  LACP portion
  */
-    { &hf_lacpdu_version_number,
-      { "LACP Version Number",    "slow.lacp.version",
-         FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "Identifies the LACP version", HFILL }},
+        { &hf_lacpdu_version_number,
+          { "LACP Version Number",    "slow.lacp.version",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "Identifies the LACP version", HFILL }},
 
-    { &hf_lacpdu_actor_type,
-      { "Actor Information",    "slow.lacp.actorInfo",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "TLV type = Actor", HFILL }},
+        { &hf_lacpdu_actor_type,
+          { "Actor Information",    "slow.lacp.actorInfo",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "TLV type = Actor", HFILL }},
 
-    { &hf_lacpdu_actor_info_len,
-      { "Actor Information Length",            "slow.lacp.actorInfoLen",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "The length of the Actor TLV", HFILL }},
+        { &hf_lacpdu_actor_info_len,
+          { "Actor Information Length",            "slow.lacp.actorInfoLen",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "The length of the Actor TLV", HFILL }},
 
-    { &hf_lacpdu_actor_sys_priority,
-      { "Actor System Priority",  "slow.lacp.actorSysPriority",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "The priority assigned to this System by management or admin", HFILL }},
+        { &hf_lacpdu_actor_sys_priority,
+          { "Actor System Priority",  "slow.lacp.actorSysPriority",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "The priority assigned to this System by management or admin", HFILL }},
 
-    { &hf_lacpdu_actor_sys,
-      { "Actor System",            "slow.lacp.actorSystem",
-        FT_ETHER,    BASE_NONE,    NULL,    0x0,
-        "The Actor's System ID encoded as a MAC address", HFILL }},
+        { &hf_lacpdu_actor_sys,
+          { "Actor System",            "slow.lacp.actorSystem",
+            FT_ETHER,    BASE_NONE,    NULL,    0x0,
+            "The Actor's System ID encoded as a MAC address", HFILL }},
 
-    { &hf_lacpdu_actor_key,
-      { "Actor Key",            "slow.lacp.actorKey",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "The operational Key value assigned to the port by the Actor", HFILL }},
+        { &hf_lacpdu_actor_key,
+          { "Actor Key",            "slow.lacp.actorKey",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "The operational Key value assigned to the port by the Actor", HFILL }},
 
-    { &hf_lacpdu_actor_port_priority,
-      { "Actor Port Priority",            "slow.lacp.actorPortPriority",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "The priority assigned to the port by the Actor (via Management or Admin)", HFILL }},
+        { &hf_lacpdu_actor_port_priority,
+          { "Actor Port Priority",            "slow.lacp.actorPortPriority",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "The priority assigned to the port by the Actor (via Management or Admin)", HFILL }},
 
-    { &hf_lacpdu_actor_port,
-      { "Actor Port",            "slow.lacp.actorPort",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "The port number assigned to the port by the Actor (via Management or Admin)", HFILL }},
+        { &hf_lacpdu_actor_port,
+          { "Actor Port",            "slow.lacp.actorPort",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "The port number assigned to the port by the Actor (via Management or Admin)", HFILL }},
 
-    { &hf_lacpdu_actor_state,
-      { "Actor State",            "slow.lacp.actorState",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "The Actor's state variables for the port, encoded as bits within a single octet", HFILL }},
+        { &hf_lacpdu_actor_state,
+          { "Actor State",            "slow.lacp.actorState",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "The Actor's state variables for the port, encoded as bits within a single octet", HFILL }},
 
-    { &hf_lacpdu_flags_a_activity,
-      { "LACP Activity",        "slow.lacp.actorState.activity",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_ACTIVITY,
-        "Activity control value for this link. Active = 1, Passive = 0", HFILL }},
+        { &hf_lacpdu_flags_a_activity,
+          { "LACP Activity",        "slow.lacp.actorState.activity",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_ACTIVITY,
+            "Activity control value for this link. Active = 1, Passive = 0", HFILL }},
 
-    { &hf_lacpdu_flags_a_timeout,
-      { "LACP Timeout",        "slow.lacp.actorState.timeout",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_TIMEOUT,
-        "Timeout control value for this link. Short Timeout = 1, Long Timeout = 0", HFILL }},
+        { &hf_lacpdu_flags_a_timeout,
+          { "LACP Timeout",        "slow.lacp.actorState.timeout",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_TIMEOUT,
+            "Timeout control value for this link. Short Timeout = 1, Long Timeout = 0", HFILL }},
 
-    { &hf_lacpdu_flags_a_aggregation,
-      { "Aggregation",        "slow.lacp.actorState.aggregation",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_AGGREGATION,
-        "Aggregatable = 1, Individual = 0", HFILL }},
+        { &hf_lacpdu_flags_a_aggregation,
+          { "Aggregation",        "slow.lacp.actorState.aggregation",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_AGGREGATION,
+            "Aggregatable = 1, Individual = 0", HFILL }},
 
-    { &hf_lacpdu_flags_a_sync,
-      { "Synchronization",        "slow.lacp.actorState.synchronization",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_SYNC,
-        "In Sync = 1, Out of Sync = 0", HFILL }},
+        { &hf_lacpdu_flags_a_sync,
+          { "Synchronization",        "slow.lacp.actorState.synchronization",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_SYNC,
+            "In Sync = 1, Out of Sync = 0", HFILL }},
 
-    { &hf_lacpdu_flags_a_collecting,
-      { "Collecting",        "slow.lacp.actorState.collecting",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_COLLECTING,
-        "Collection of incoming frames is: Enabled = 1, Disabled = 0", HFILL }},
+        { &hf_lacpdu_flags_a_collecting,
+          { "Collecting",        "slow.lacp.actorState.collecting",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_COLLECTING,
+            "Collection of incoming frames is: Enabled = 1, Disabled = 0", HFILL }},
 
-    { &hf_lacpdu_flags_a_distrib,
-      { "Distributing",        "slow.lacp.actorState.distributing",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DISTRIB,
-        "Distribution of outgoing frames is: Enabled = 1, Disabled = 0", HFILL }},
+        { &hf_lacpdu_flags_a_distrib,
+          { "Distributing",        "slow.lacp.actorState.distributing",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DISTRIB,
+            "Distribution of outgoing frames is: Enabled = 1, Disabled = 0", HFILL }},
 
-    { &hf_lacpdu_flags_a_defaulted,
-      { "Defaulted",        "slow.lacp.actorState.defaulted",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DEFAULTED,
-        "1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU", HFILL }},
+        { &hf_lacpdu_flags_a_defaulted,
+          { "Defaulted",        "slow.lacp.actorState.defaulted",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DEFAULTED,
+            "1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU", HFILL }},
 
-    { &hf_lacpdu_flags_a_expired,
-      { "Expired",        "slow.lacp.actorState.expired",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_EXPIRED,
-        "1 = Actor Rx machine is EXPIRED, 0 = is NOT EXPIRED", HFILL }},
+        { &hf_lacpdu_flags_a_expired,
+          { "Expired",        "slow.lacp.actorState.expired",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_EXPIRED,
+            "1 = Actor Rx machine is EXPIRED, 0 = is NOT EXPIRED", HFILL }},
 
-    { &hf_lacpdu_actor_reserved,
-      { "Reserved",        "slow.lacp.reserved",
-        FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        NULL, HFILL }},
+        { &hf_lacpdu_actor_reserved,
+          { "Reserved",        "slow.lacp.reserved",
+            FT_BYTES,    BASE_NONE,    NULL,    0x0,
+            NULL, HFILL }},
 
-    { &hf_lacpdu_partner_type,
-      { "Partner Information",    "slow.lacp.partnerInfo",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "TLV type = Partner", HFILL }},
+        { &hf_lacpdu_partner_type,
+          { "Partner Information",    "slow.lacp.partnerInfo",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "TLV type = Partner", HFILL }},
 
-    { &hf_lacpdu_partner_info_len,
-      { "Partner Information Length",            "slow.lacp.partnerInfoLen",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "The length of the Partner TLV", HFILL }},
+        { &hf_lacpdu_partner_info_len,
+          { "Partner Information Length",            "slow.lacp.partnerInfoLen",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "The length of the Partner TLV", HFILL }},
 
-    { &hf_lacpdu_partner_sys_priority,
-      { "Partner System Priority",  "slow.lacp.partnerSysPriority",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "The priority assigned to the Partner System by management or admin", HFILL }},
+        { &hf_lacpdu_partner_sys_priority,
+          { "Partner System Priority",  "slow.lacp.partnerSysPriority",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "The priority assigned to the Partner System by management or admin", HFILL }},
 
-    { &hf_lacpdu_partner_sys,
-      { "Partner System",            "slow.lacp.partnerSystem",
-        FT_ETHER,    BASE_NONE,    NULL,    0x0,
-        "The Partner's System ID encoded as a MAC address", HFILL }},
+        { &hf_lacpdu_partner_sys,
+          { "Partner System",            "slow.lacp.partnerSystem",
+            FT_ETHER,    BASE_NONE,    NULL,    0x0,
+            "The Partner's System ID encoded as a MAC address", HFILL }},
 
-    { &hf_lacpdu_partner_key,
-      { "Partner Key",            "slow.lacp.partnerKey",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "The operational Key value assigned to the port associated with this link by the Partner", HFILL }},
+        { &hf_lacpdu_partner_key,
+          { "Partner Key",            "slow.lacp.partnerKey",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "The operational Key value assigned to the port associated with this link by the Partner", HFILL }},
 
-    { &hf_lacpdu_partner_port_priority,
-      { "Partner Port Priority",            "slow.lacp.partnerPortPriority",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "The priority assigned to the port by the Partner (via Management or Admin)", HFILL }},
+        { &hf_lacpdu_partner_port_priority,
+          { "Partner Port Priority",            "slow.lacp.partnerPortPriority",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "The priority assigned to the port by the Partner (via Management or Admin)", HFILL }},
 
-    { &hf_lacpdu_partner_port,
-      { "Partner Port",            "slow.lacp.partnerPort",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "The port number associated with this link assigned to the port by the Partner (via Management or Admin)", HFILL }},
+        { &hf_lacpdu_partner_port,
+          { "Partner Port",            "slow.lacp.partnerPort",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "The port number associated with this link assigned to the port by the Partner (via Management or Admin)", HFILL }},
 
-    { &hf_lacpdu_partner_state,
-      { "Partner State",            "slow.lacp.partnerState",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "The Partner's state variables for the port, encoded as bits within a single octet", HFILL }},
+        { &hf_lacpdu_partner_state,
+          { "Partner State",            "slow.lacp.partnerState",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "The Partner's state variables for the port, encoded as bits within a single octet", HFILL }},
 
-    { &hf_lacpdu_flags_p_activity,
-      { "LACP Activity",        "slow.lacp.partnerState.activity",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_ACTIVITY,
-        "Activity control value for this link. Active = 1, Passive = 0", HFILL }},
+        { &hf_lacpdu_flags_p_activity,
+          { "LACP Activity",        "slow.lacp.partnerState.activity",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_ACTIVITY,
+            "Activity control value for this link. Active = 1, Passive = 0", HFILL }},
 
-    { &hf_lacpdu_flags_p_timeout,
-      { "LACP Timeout",        "slow.lacp.partnerState.timeout",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_TIMEOUT,
-        "Timeout control value for this link. Short Timeout = 1, Long Timeout = 0", HFILL }},
+        { &hf_lacpdu_flags_p_timeout,
+          { "LACP Timeout",        "slow.lacp.partnerState.timeout",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_TIMEOUT,
+            "Timeout control value for this link. Short Timeout = 1, Long Timeout = 0", HFILL }},
 
-    { &hf_lacpdu_flags_p_aggregation,
-      { "Aggregation",        "slow.lacp.partnerState.aggregation",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_AGGREGATION,
-        "Aggregatable = 1, Individual = 0", HFILL }},
+        { &hf_lacpdu_flags_p_aggregation,
+          { "Aggregation",        "slow.lacp.partnerState.aggregation",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_AGGREGATION,
+            "Aggregatable = 1, Individual = 0", HFILL }},
 
-    { &hf_lacpdu_flags_p_sync,
-      { "Synchronization",        "slow.lacp.partnerState.synchronization",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_SYNC,
-        "In Sync = 1, Out of Sync = 0", HFILL }},
+        { &hf_lacpdu_flags_p_sync,
+          { "Synchronization",        "slow.lacp.partnerState.synchronization",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_SYNC,
+            "In Sync = 1, Out of Sync = 0", HFILL }},
 
-    { &hf_lacpdu_flags_p_collecting,
-      { "Collecting",        "slow.lacp.partnerState.collecting",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_COLLECTING,
-        "Collection of incoming frames is: Enabled = 1, Disabled = 0", HFILL }},
+        { &hf_lacpdu_flags_p_collecting,
+          { "Collecting",        "slow.lacp.partnerState.collecting",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_COLLECTING,
+            "Collection of incoming frames is: Enabled = 1, Disabled = 0", HFILL }},
 
-    { &hf_lacpdu_flags_p_distrib,
-      { "Distributing",        "slow.lacp.partnerState.distributing",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DISTRIB,
-        "Distribution of outgoing frames is: Enabled = 1, Disabled = 0", HFILL }},
+        { &hf_lacpdu_flags_p_distrib,
+          { "Distributing",        "slow.lacp.partnerState.distributing",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DISTRIB,
+            "Distribution of outgoing frames is: Enabled = 1, Disabled = 0", HFILL }},
 
-    { &hf_lacpdu_flags_p_defaulted,
-      { "Defaulted",        "slow.lacp.partnerState.defaulted",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DEFAULTED,
-        "1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU", HFILL }},
+        { &hf_lacpdu_flags_p_defaulted,
+          { "Defaulted",        "slow.lacp.partnerState.defaulted",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_DEFAULTED,
+            "1 = Actor Rx machine is using DEFAULT Partner info, 0 = using info in Rx'd LACPDU", HFILL }},
 
-    { &hf_lacpdu_flags_p_expired,
-      { "Expired",        "slow.lacp.partnerState.expired",
-        FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_EXPIRED,
-        "1 = Actor Rx machine is EXPIRED, 0 = is NOT EXPIRED", HFILL }},
+        { &hf_lacpdu_flags_p_expired,
+          { "Expired",        "slow.lacp.partnerState.expired",
+            FT_BOOLEAN,    8,        TFS(&tfs_yes_no),    LACPDU_FLAGS_EXPIRED,
+            "1 = Actor Rx machine is EXPIRED, 0 = is NOT EXPIRED", HFILL }},
 
-    { &hf_lacpdu_partner_reserved,
-      { "Reserved",        "slow.lacp.reserved",
-        FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        NULL, HFILL }},
+        { &hf_lacpdu_partner_reserved,
+          { "Reserved",        "slow.lacp.reserved",
+            FT_BYTES,    BASE_NONE,    NULL,    0x0,
+            NULL, HFILL }},
 
-    { &hf_lacpdu_coll_type,
-      { "Collector Information",    "slow.lacp.collectorInfo",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "TLV type = Collector", HFILL }},
+        { &hf_lacpdu_coll_type,
+          { "Collector Information",    "slow.lacp.collectorInfo",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "TLV type = Collector", HFILL }},
 
-    { &hf_lacpdu_coll_info_len,
-      { "Collector Information Length",            "slow.lacp.collectorInfoLen",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "The length of the Collector TLV", HFILL }},
+        { &hf_lacpdu_coll_info_len,
+          { "Collector Information Length",            "slow.lacp.collectorInfoLen",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "The length of the Collector TLV", HFILL }},
 
-    { &hf_lacpdu_coll_max_delay,
-      { "Collector Max Delay",  "slow.lacp.collectorMaxDelay",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "The max delay of the station tx'ing the LACPDU (in tens of usecs)", HFILL }},
+        { &hf_lacpdu_coll_max_delay,
+          { "Collector Max Delay",  "slow.lacp.collectorMaxDelay",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "The max delay of the station tx'ing the LACPDU (in tens of usecs)", HFILL }},
 
-    { &hf_lacpdu_coll_reserved,
-      { "Reserved",        "slow.lacp.coll_reserved",
-        FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        NULL, HFILL }},
+        { &hf_lacpdu_coll_reserved,
+          { "Reserved",        "slow.lacp.coll_reserved",
+            FT_BYTES,    BASE_NONE,    NULL,    0x0,
+            NULL, HFILL }},
 
-    { &hf_lacpdu_term_type,
-      { "Terminator Information",    "slow.lacp.termInfo",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "TLV type = Terminator", HFILL }},
+        { &hf_lacpdu_term_type,
+          { "Terminator Information",    "slow.lacp.termInfo",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "TLV type = Terminator", HFILL }},
 
-    { &hf_lacpdu_term_len,
-      { "Terminator Length",            "slow.lacp.termLen",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "The length of the Terminator TLV", HFILL }},
+        { &hf_lacpdu_term_len,
+          { "Terminator Length",            "slow.lacp.termLen",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "The length of the Terminator TLV", HFILL }},
 
-    { &hf_lacpdu_term_reserved,
-      { "Reserved",        "slow.lacp.term_reserved",
-        FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        NULL, HFILL }},
+        { &hf_lacpdu_term_reserved,
+          { "Reserved",        "slow.lacp.term_reserved",
+            FT_BYTES,    BASE_NONE,    NULL,    0x0,
+            NULL, HFILL }},
 
 
 /*
  *  MARKER portion
  */
 
-    { &hf_marker_version_number,
-      { "Version Number",    "slow.marker.version",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "Identifies the Marker version", HFILL }},
+        { &hf_marker_version_number,
+          { "Version Number",    "slow.marker.version",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "Identifies the Marker version", HFILL }},
 
-    { &hf_marker_tlv_type,
-      { "TLV Type",    "slow.marker.tlvType",
-        FT_UINT8,    BASE_HEX,    VALS(marker_vals),    0x0,
-        "Marker TLV type", HFILL }},
+        { &hf_marker_tlv_type,
+          { "TLV Type",    "slow.marker.tlvType",
+            FT_UINT8,    BASE_HEX,    VALS(marker_vals),    0x0,
+            "Marker TLV type", HFILL }},
 
-    { &hf_marker_tlv_length,
-      { "TLV Length",            "slow.marker.tlvLen",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "The length of the Actor TLV", HFILL }},
+        { &hf_marker_tlv_length,
+          { "TLV Length",            "slow.marker.tlvLen",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "The length of the Actor TLV", HFILL }},
 
-    { &hf_marker_req_port,
-      { "Requester Port",  "slow.marker.requesterPort",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "The Requester Port", HFILL }},
+        { &hf_marker_req_port,
+          { "Requester Port",  "slow.marker.requesterPort",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "The Requester Port", HFILL }},
 
-    { &hf_marker_req_system,
-      { "Requester System",  "slow.marker.requesterSystem",
-        FT_ETHER,    BASE_NONE,    NULL,    0x0,
-        "The Requester System ID encoded as a MAC address", HFILL }},
+        { &hf_marker_req_system,
+          { "Requester System",  "slow.marker.requesterSystem",
+            FT_ETHER,    BASE_NONE,    NULL,    0x0,
+            "The Requester System ID encoded as a MAC address", HFILL }},
 
-    { &hf_marker_req_trans_id,
-      { "Requester Transaction ID",  "slow.marker.requesterTransId",
-        FT_UINT32,    BASE_DEC,    NULL,    0x0,
-        "The Requester Transaction ID", HFILL }},
+        { &hf_marker_req_trans_id,
+          { "Requester Transaction ID",  "slow.marker.requesterTransId",
+            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            "The Requester Transaction ID", HFILL }},
 
 /*
  *  ESMC portion
  */
 
-    { &hf_esmc_itu_oui,
-      { "ITU-OUI",    "slow.esmc.itu_oui",
-        FT_BYTES,     BASE_NONE,    NULL,    0,
-        "IEEE assigned Organizationally Unique Identifier for ITU-T", HFILL }},
+        { &hf_esmc_itu_oui,
+          { "ITU-OUI",    "slow.esmc.itu_oui",
+            FT_BYTES,     BASE_NONE,    NULL,    0,
+            "IEEE assigned Organizationally Unique Identifier for ITU-T", HFILL }},
 
-    { &hf_esmc_itu_subtype,
-      { "ITU Subtype",    "slow.esmc.itu_subtype",
-        FT_UINT16,    BASE_HEX,    NULL,    0,
-        "The ITU Subtype is assigned by the ITU-T TSB", HFILL }},
+        { &hf_esmc_itu_subtype,
+          { "ITU Subtype",    "slow.esmc.itu_subtype",
+            FT_UINT16,    BASE_HEX,    NULL,    0,
+            "The ITU Subtype is assigned by the ITU-T TSB", HFILL }},
 
-    { &hf_esmc_version,
-      { "Version",    "slow.esmc.version",
-        FT_UINT8,     BASE_HEX,    NULL,    0xf0,
-        "This field indicates the version of ITU-T SG15 Q13 OSSP frame format", HFILL }},
+        { &hf_esmc_version,
+          { "Version",    "slow.esmc.version",
+            FT_UINT8,     BASE_HEX,    NULL,    0xf0,
+            "This field indicates the version of ITU-T SG15 Q13 OSSP frame format", HFILL }},
 
-    { &hf_esmc_event_flag,
-      { "Event Flag",    "slow.esmc.event_flag",
-        FT_UINT8,    BASE_HEX,    VALS(esmc_event_flag_vals),    0x08,
-        "This bit distinguishes the critical, time sensitive behaviour of the"
-        " ESMC Event PDU from the ESMC Information PDU", HFILL }},
+        { &hf_esmc_event_flag,
+          { "Event Flag",    "slow.esmc.event_flag",
+            FT_UINT8,    BASE_HEX,    VALS(esmc_event_flag_vals),    0x08,
+            "This bit distinguishes the critical, time sensitive behaviour of the"
+            " ESMC Event PDU from the ESMC Information PDU", HFILL }},
 
-    { &hf_esmc_timestamp_valid_flag,
-      { "Timestamp Valid Flag",    "slow.esmc.timestamp_valid_flag",
-        FT_UINT8,    BASE_HEX,    VALS(esmc_timestamp_valid_flag_vals),    0x04,
-        "Indicates validity (i.e. presence) of the Timestamp TLV", HFILL }},
+        { &hf_esmc_timestamp_valid_flag,
+          { "Timestamp Valid Flag",    "slow.esmc.timestamp_valid_flag",
+            FT_UINT8,    BASE_HEX,    VALS(esmc_timestamp_valid_flag_vals),    0x04,
+            "Indicates validity (i.e. presence) of the Timestamp TLV", HFILL }},
 
-    { &hf_esmc_reserved_32,
-      { "Reserved",    "slow.esmc.reserved",
-        FT_UINT32,    BASE_HEX,    NULL,    0,
-        "Reserved. Set to all zero at the transmitter and ignored by the receiver", HFILL }},
+        { &hf_esmc_reserved_32,
+          { "Reserved",    "slow.esmc.reserved",
+            FT_UINT32,    BASE_HEX,    NULL,    0,
+            "Reserved. Set to all zero at the transmitter and ignored by the receiver", HFILL }},
 
-    { &hf_esmc_tlv,
-      { "ESMC TLV",    "slow.esmc.tlv",
-        FT_NONE,     BASE_NONE,    NULL,    0,
-        NULL, HFILL }},
+        { &hf_esmc_tlv,
+          { "ESMC TLV",    "slow.esmc.tlv",
+            FT_NONE,     BASE_NONE,    NULL,    0,
+            NULL, HFILL }},
 
-    { &hf_esmc_tlv_type,
-      { "TLV Type",    "slow.esmc.tlv_type",
-        FT_UINT8,    BASE_HEX,    VALS(esmc_tlv_type_vals),    0,
-        NULL, HFILL }},
+        { &hf_esmc_tlv_type,
+          { "TLV Type",    "slow.esmc.tlv_type",
+            FT_UINT8,    BASE_HEX,    VALS(esmc_tlv_type_vals),    0,
+            NULL, HFILL }},
 
-    { &hf_esmc_tlv_length,
-      { "TLV Length",    "slow.esmc.tlv_length",
-        FT_UINT16,    BASE_HEX,    NULL,    0,
-        NULL, HFILL }},
+        { &hf_esmc_tlv_length,
+          { "TLV Length",    "slow.esmc.tlv_length",
+            FT_UINT16,    BASE_HEX,    NULL,    0,
+            NULL, HFILL }},
 
-    { &hf_esmc_tlv_ql_unused,
-      { "Unused",    "slow.esmc.tlv_ql_unused",
-        FT_UINT8,     BASE_HEX,    NULL,    0xf0,
-        "This field is not used in QL TLV", HFILL }},
+        { &hf_esmc_tlv_ql_unused,
+          { "Unused",    "slow.esmc.tlv_ql_unused",
+            FT_UINT8,     BASE_HEX,    NULL,    0xf0,
+            "This field is not used in QL TLV", HFILL }},
 
-    { &hf_esmc_quality_level_opt_1,
-      { "SSM Code",    "slow.esmc.ql",
-        FT_UINT8,    BASE_HEX,    VALS(esmc_quality_level_opt_1_vals),    0x0f,
-        "Quality Level information", HFILL }},
+        { &hf_esmc_quality_level_opt_1,
+          { "SSM Code",    "slow.esmc.ql",
+            FT_UINT8,    BASE_HEX,    VALS(esmc_quality_level_opt_1_vals),    0x0f,
+            "Quality Level information", HFILL }},
 
 #if 0 /*not used yet*/
-    { &hf_esmc_quality_level_opt_2,
-      { "SSM Code",    "slow.esmc.ql",
-        FT_UINT8,    BASE_HEX,    VALS(esmc_quality_level_opt_2_vals),    0x0f,
-        "Quality Level information", HFILL }},
+        { &hf_esmc_quality_level_opt_2,
+          { "SSM Code",    "slow.esmc.ql",
+            FT_UINT8,    BASE_HEX,    VALS(esmc_quality_level_opt_2_vals),    0x0f,
+            "Quality Level information", HFILL }},
 #endif
 
-    { &hf_esmc_quality_level_invalid,
-      { "SSM Code",    "slow.esmc.ql",
-        FT_UINT8,    BASE_HEX,    VALS(esmc_quality_level_invalid_vals),    0x0f,
-        "Quality Level information", HFILL }},
+        { &hf_esmc_quality_level_invalid,
+          { "SSM Code",    "slow.esmc.ql",
+            FT_UINT8,    BASE_HEX,    VALS(esmc_quality_level_invalid_vals),    0x0f,
+            "Quality Level information", HFILL }},
 
-    { &hf_esmc_timestamp,
-      { "Timestamp (ns)",    "slow.esmc.timestamp",
-        FT_INT32,    BASE_DEC,    NULL,    0,
-        "Timestamp according to the \"whole nanoseconds\" part of the IEEE 1588 originTimestamp", HFILL }},
+        { &hf_esmc_timestamp,
+          { "Timestamp (ns)",    "slow.esmc.timestamp",
+            FT_INT32,    BASE_DEC,    NULL,    0,
+            "Timestamp according to the \"whole nanoseconds\" part of the IEEE 1588 originTimestamp", HFILL }},
 
-    { &hf_esmc_tlv_ts_reserved,
-      { "Reserved",    "slow.esmc.tlv_ts_reserved",
-        FT_UINT8,     BASE_HEX,    NULL,    0,
-        "Reserved. Set to all zero at the transmitter and ignored by the receiver", HFILL }},
+        { &hf_esmc_tlv_ts_reserved,
+          { "Reserved",    "slow.esmc.tlv_ts_reserved",
+            FT_UINT8,     BASE_HEX,    NULL,    0,
+            "Reserved. Set to all zero at the transmitter and ignored by the receiver", HFILL }},
 
-    { &hf_esmc_padding,
-      { "Padding",    "slow.esmc.padding",
-        FT_BYTES,     BASE_NONE,    NULL,    0x0,
-        "This field contains necessary padding to achieve the minimum frame size of 64 bytes at least", HFILL }},
+        { &hf_esmc_padding,
+          { "Padding",    "slow.esmc.padding",
+            FT_BYTES,     BASE_NONE,    NULL,    0x0,
+            "This field contains necessary padding to achieve the minimum frame size of 64 bytes at least", HFILL }},
 
 /*
  *  OAMPDU portion
  */
-    { &hf_oampdu_flags,
-      { "Flags",    "slow.oam.flags",
-        FT_UINT16,    BASE_HEX,    NULL,    0x0,
-        "The Flags Field", HFILL }},
-
-    { &hf_oampdu_flags_link_fault,
-      { "Link Fault",        "slow.oam.flags.linkFault",
-        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LINK_FAULT,
-        "The PHY detected a fault in the receive direction. True = 1, False = 0", HFILL }},
-
-    { &hf_oampdu_flags_dying_gasp,
-      { "Dying Gasp",        "slow.oam.flags.dyingGasp",
-        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_DYING_GASP,
-        "An unrecoverable local failure occured. True = 1, False = 0", HFILL }},
-
-    { &hf_oampdu_flags_critical_event,
-      { "Critical Event",        "slow.oam.flags.criticalEvent",
-        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_CRITICAL_EVENT,
-        "A critical event has occurred. True = 1, False = 0", HFILL }},
-
-    { &hf_oampdu_flags_local_evaluating,
-      { "Local Evaluating",        "slow.oam.flags.localEvaluating",
-        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_EVAL,
-        "Local DTE Discovery process in progress. True = 1, False = 0", HFILL }},
-
-    { &hf_oampdu_flags_local_stable,
-      { "Local Stable",        "slow.oam.flags.localStable",
-        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_STABLE,
-        "Local DTE is Stable. True = 1, False = 0", HFILL }},
-
-    { &hf_oampdu_flags_remote_evaluating,
-      { "Remote Evaluating",        "slow.oam.flags.remoteEvaluating",
-        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_EVAL,
-        "Remote DTE Discovery process in progress. True = 1, False = 0", HFILL }},
-
-    { &hf_oampdu_flags_remote_stable,
-      { "Remote Stable",        "slow.oam.flags.remoteStable",
-        FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_STABLE,
-        "Remote DTE is Stable. True = 1, False = 0", HFILL }},
-
-    { &hf_oampdu_code,
-      { "OAMPDU code",    "slow.oam.code",
-        FT_UINT8,    BASE_HEX,    VALS(code_vals),    0x0,
-        "Identifies the TLVs code", HFILL }},
-
-    { &hf_oampdu_info_type,
-      { "Type",    "slow.oam.info.type",
-        FT_UINT8,    BASE_HEX,    VALS(info_type_vals),    0x0,
-        "Identifies the TLV type", HFILL }},
-
-    { &hf_oampdu_info_len,
-      { "TLV Length",    "slow.oam.info.length",
-        FT_UINT8,    BASE_DEC,    NULL,    0x0,
-        "Identifies the TLVs type", HFILL }},
-
-    { &hf_oampdu_info_version,
-      { "TLV Version",    "slow.oam.info.version",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "Identifies the TLVs version", HFILL }},
-
-    { &hf_oampdu_info_revision,
-      { "TLV Revision",    "slow.oam.info.revision",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "Identifies the TLVs revision", HFILL }},
-
-    { &hf_oampdu_info_state,
-      { "OAM DTE States",    "slow.oam.info.state",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "OAM DTE State of the Mux and the Parser", HFILL }},
-
-    { &hf_oampdu_info_state_parser,
-      { "Parser Action",        "slow.oam.info.state.parser",
-        FT_UINT8,    BASE_HEX,    VALS(parser_vals),    0x03,
-        NULL, HFILL }},
-
-    { &hf_oampdu_info_state_mux,
-      { "Muxiplexer Action",        "slow.oam.info.state.muxiplexer",
-        FT_BOOLEAN,    8,        TFS(&mux),    0x04,
-        NULL, HFILL }},
-
-    { &hf_oampdu_info_oamConfig,
-      { "OAM Configuration",    "slow.oam.info.oamConfig",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        NULL, HFILL }},
-
-    { &hf_oampdu_info_oamConfig_mode,
-      { "OAM Mode",        "slow.oam.info.oamConfig.mode",
-        FT_BOOLEAN,    8,        TFS(&oam_mode),    OAMPDU_INFO_CONFIG_MODE,
-        NULL, HFILL }},
-
-    { &hf_oampdu_info_oamConfig_uni,
-      { "Unidirectional support",        "slow.oam.flags.dyingGasp",
-        FT_BOOLEAN,    8,        TFS(&oam_uni),    OAMPDU_INFO_CONFIG_UNI,
-        NULL, HFILL }},
-
-    { &hf_oampdu_info_oamConfig_lpbk,
-      { "Loopback support",        "slow.oam.flags.criticalEvent",
-        FT_BOOLEAN,    8,        TFS(&oam_lpbk),    OAMPDU_INFO_CONFIG_LPBK,
-        NULL, HFILL }},
-
-    { &hf_oampdu_info_oamConfig_event,
-      { "Link Events support",        "slow.oam.flags.localEvaluating",
-        FT_BOOLEAN,    8,        TFS(&oam_event),    OAMPDU_INFO_CONFIG_EVENT,
-        NULL, HFILL }},
-
-    { &hf_oampdu_info_oamConfig_var,
-      { "Variable Retrieval",        "slow.oam.flags.localStable",
-        FT_BOOLEAN,    8,        TFS(&oam_var),    OAMPDU_INFO_CONFIG_VAR,
-        "Variable Retrieval support", HFILL }},
-
-    { &hf_oampdu_info_oampduConfig,
-      { "Max OAMPDU Size",    "slow.oam.info.oampduConfig",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "OAMPDU Configuration", HFILL }},
-
-    { &hf_oampdu_info_oui,
-      { "Organizationally Unique Identifier", "slow.oam.info.oui",
-        FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        NULL, HFILL }},
-
-    { &hf_oampdu_info_vendor,
-      { "Vendor Specific Information", "slow.oam.info.vendor",
-        FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        NULL, HFILL }},
-
-    /*
-     * Event notification definitions
-     */
-    { &hf_oampdu_event_sequence,
-      { "Sequence Number",    "slow.oam.event.sequence",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "Identifies the Event Notification TLVs", HFILL }},
-
-    { &hf_oampdu_event_type,
-      { "Event Type",    "slow.oam.event.type",
-        FT_UINT8,    BASE_HEX,    VALS(event_type_vals),    0x0,
-        "Identifies the TLV type", HFILL }},
-
-    { &hf_oampdu_event_length,
-      { "Event Length",    "slow.oam.event.length",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "This field indicates the length in octets of the TLV-tuple", HFILL }},
-
-    { &hf_oampdu_event_timeStamp,
-      { "Event Timestamp (100ms)",    "slow.oam.event.timestamp",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "Event Time Stamp in term of 100 ms intervals", HFILL }},
-
-    /* Errored Symbol Period Event TLV */
-    { &hf_oampdu_event_espeWindow,
-      { "Errored Symbol Window",    "slow.oam.event.espeWindow",
-        FT_UINT64,    BASE_DEC,    NULL,    0x0,
-        "Number of symbols in the period", HFILL }},
-
-    { &hf_oampdu_event_espeThreshold,
-      { "Errored Symbol Threshold",    "slow.oam.event.espeThreshold",
-        FT_UINT64,    BASE_DEC,    NULL,    0x0,
-        "Number of symbols required to generate the Event", HFILL }},
-
-    { &hf_oampdu_event_espeErrors,
-      { "Errored Symbols",    "slow.oam.event.espeErrors",
-        FT_UINT64,    BASE_DEC,    NULL,    0x0,
-        "Number of symbols in error", HFILL }},
-
-    { &hf_oampdu_event_espeTotalErrors,
-      { "Error Running Total",    "slow.oam.event.espeTotalErrors",
-        FT_UINT64,    BASE_DEC,    NULL,    0x0,
-        "Number of symbols in error since reset of the sublayer", HFILL }},
-
-    { &hf_oampdu_event_espeTotalEvents,
-      { "Event Running Total",    "slow.oam.event.espeTotalEvents",
-        FT_UINT32,    BASE_DEC,    NULL,    0x0,
-        "Total Event generated since reset of the sublayer", HFILL }},
-
-    /* Errored Frame Event TLV */
-    { &hf_oampdu_event_efeWindow,
-      { "Errored Frame Window",    "slow.oam.event.efeWindow",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "Number of symbols in the period", HFILL }},
-
-    { &hf_oampdu_event_efeThreshold,
-      { "Errored Frame Threshold",    "slow.oam.event.efeThreshold",
-        FT_UINT32,    BASE_DEC,    NULL,    0x0,
-        "Number of frames required to generate the Event", HFILL }},
-
-    { &hf_oampdu_event_efeErrors,
-      { "Errored Frames",    "slow.oam.event.efeErrors",
-        FT_UINT32,    BASE_DEC,    NULL,    0x0,
-        "Number of symbols in error", HFILL }},
-
-    { &hf_oampdu_event_efeTotalErrors,
-      { "Error Running Total",    "slow.oam.event.efeTotalErrors",
-        FT_UINT64,    BASE_DEC,    NULL,    0x0,
-        "Number of frames in error since reset of the sublayer", HFILL }},
-
-    { &hf_oampdu_event_efeTotalEvents,
-      { "Event Running Total",    "slow.oam.event.efeTotalEvents",
-        FT_UINT32,    BASE_DEC,    NULL,    0x0,
-        "Total Event generated since reset of the sublayer", HFILL }},
-
-    /* Errored Frame Period Event TLV */
-    { &hf_oampdu_event_efpeWindow,
-      { "Errored Frame Window",    "slow.oam.event.efpeWindow",
-        FT_UINT32,    BASE_DEC,    NULL,    0x0,
-        "Number of frame in error during the period", HFILL }},
-
-    { &hf_oampdu_event_efpeThreshold,
-      { "Errored Frame Threshold",    "slow.oam.event.efpeThreshold",
-        FT_UINT32,    BASE_DEC,    NULL,    0x0,
-        "Number of frames required to generate the Event", HFILL }},
-
-    { &hf_oampdu_event_efpeErrors,
-      { "Errored Frames",    "slow.oam.event.efeErrors",
-        FT_UINT32,    BASE_DEC,    NULL,    0x0,
-        "Number of symbols in error", HFILL }},
-
-    { &hf_oampdu_event_efpeTotalErrors,
-      { "Error Running Total",    "slow.oam.event.efpeTotalErrors",
-        FT_UINT64,    BASE_DEC,    NULL,    0x0,
-        "Number of frames in error since reset of the sublayer", HFILL }},
-
-    { &hf_oampdu_event_efpeTotalEvents,
-      { "Event Running Total",    "slow.oam.event.efpeTotalEvents",
-        FT_UINT32,    BASE_DEC,    NULL,    0x0,
-        "Total Event generated since reset of the sublayer", HFILL }},
-
-    /* Errored Frame Second Summary Event TLV */
-    { &hf_oampdu_event_efsseWindow,
-      { "Errored Frame Window",    "slow.oam.event.efsseWindow",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "Number of frame in error during the period", HFILL }},
-
-    { &hf_oampdu_event_efsseThreshold,
-      { "Errored Frame Threshold",    "slow.oam.event.efsseThreshold",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "Number of frames required to generate the Event", HFILL }},
-
-    { &hf_oampdu_event_efsseErrors,
-      { "Errored Frames",    "slow.oam.event.efeErrors",
-        FT_UINT16,    BASE_DEC,    NULL,    0x0,
-        "Number of symbols in error", HFILL }},
-
-    { &hf_oampdu_event_efsseTotalErrors,
-      { "Error Running Total",    "slow.oam.event.efsseTotalErrors",
-        FT_UINT32,    BASE_DEC,    NULL,    0x0,
-        "Number of frames in error since reset of the sublayer", HFILL }},
-
-    { &hf_oampdu_event_efsseTotalEvents,
-      { "Event Running Total",    "slow.oam.event.efsseTotalEvents",
-        FT_UINT32,    BASE_DEC,    NULL,    0x0,
-        "Total Event generated since reset of the sublayer", HFILL }},
-
-    /* Variable request and response definitions*/
-    { &hf_oampdu_variable_branch,
-      { "Branch",    "slow.oam.variable.branch",
-        FT_UINT8,    BASE_HEX,    VALS(branch_vals),    0x0,
-        "Variable Branch, derived from the CMIP protocol in Annex 30A", HFILL }},
-
-    { &hf_oampdu_variable_object,
-      { "Leaf",    "slow.oam.variable.object",
-        FT_UINT16,    BASE_HEX,    VALS(object_vals),    0x0,
-        "Object, derived from the CMIP protocol in Annex 30A", HFILL }},
-
-    { &hf_oampdu_variable_package,
-      { "Leaf",    "slow.oam.variable.package",
-        FT_UINT16,    BASE_HEX,    VALS(package_vals),    0x0,
-        "Package, derived from the CMIP protocol in Annex 30A", HFILL }},
-
-    { &hf_oampdu_variable_binding,
-      { "Leaf",    "slow.oam.variable.binding",
-        FT_UINT16,    BASE_HEX,    VALS(binding_vals),    0x0,
-        "Binding, derived from the CMIP protocol in Annex 30A", HFILL }},
-
-    { &hf_oampdu_variable_attribute,
-      { "Leaf",    "slow.oam.variable.attribute",
-        FT_UINT16,    BASE_HEX,    VALS(attribute_vals),    0x0,
-        "Attribute, derived from the CMIP protocol in Annex 30A", HFILL }},
-
-    { &hf_oampdu_variable_width,
-      { "Variable Width",    "slow.oam.variable.width",
-        FT_UINT8,    BASE_DEC,    NULL,    0x0,
-        "Width", HFILL }},
-
-    { &hf_oampdu_variable_indication,
-      { "Variable indication",    "slow.oam.variable.indication",
-        FT_UINT8,    BASE_HEX,    VALS(indication_vals),    0x0,
-        NULL, HFILL }},
-
-    { &hf_oampdu_variable_value,
-      { "Variable Value",    "slow.oam.variable.value",
-        FT_BYTES,    BASE_NONE,    NULL,    0x0,
-        "Value", HFILL }},
-
-    /* Loopback Control definitions*/
-    { &hf_oampdu_lpbk,
-      { "Commands", "slow.oam.lpbk.commands",
-        FT_UINT8,    BASE_HEX,    NULL,    0x0,
-        "The List of Loopback Commands", HFILL }},
-
-    { &hf_oampdu_lpbk_enable,
-      { "Enable Remote Loopback", "slow.oam.lpbk.commands.enable",
-        FT_BOOLEAN,    8,        NULL,    OAMPDU_LPBK_ENABLE,
-        "Enable Remote Loopback Command", HFILL }},
-
-    { &hf_oampdu_lpbk_disable,
-      { "Disable Remote Loopback", "slow.oam.lpbk.commands.disable",
-        FT_BOOLEAN,    8,        NULL,    OAMPDU_LPBK_DISABLE,
-        "Disable Remote Loopback Command", HFILL }},
-  };
-
-  /* Setup protocol subtree array */
-
-  static gint *ett[] = {
-    &ett_pdu,
-    &ett_lacpdu,
-    &ett_lacpdu_a_flags,
-    &ett_lacpdu_p_flags,
-    &ett_marker,
-    &ett_esmc,
-    &ett_oampdu,
-    &ett_oampdu_flags,
-    &ett_oampdu_local_info,
-    &ett_oampdu_local_info_state,
-    &ett_oampdu_local_info_config,
-    &ett_oampdu_remote_info,
-    &ett_oampdu_remote_info_state,
-    &ett_oampdu_remote_info_config,
-    &ett_oampdu_org_info,
-    &ett_oampdu_event_espe,
-    &ett_oampdu_event_efe,
-    &ett_oampdu_event_efpe,
-    &ett_oampdu_event_efsse,
-    &ett_oampdu_event_ose,
-    &ett_oampdu_lpbk_ctrl,
-
-  };
-
-  /* Register the protocol name and description */
-
-  proto_slow = proto_register_protocol("Slow Protocols", "802.3 Slow protocols", "slow");
-
-  /* Required function calls to register the header fields and subtrees used */
-
-  proto_register_field_array(proto_slow, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+        { &hf_oampdu_flags,
+          { "Flags",    "slow.oam.flags",
+            FT_UINT16,    BASE_HEX,    NULL,    0x0,
+            "The Flags Field", HFILL }},
+
+        { &hf_oampdu_flags_link_fault,
+          { "Link Fault",        "slow.oam.flags.linkFault",
+            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LINK_FAULT,
+            "The PHY detected a fault in the receive direction. True = 1, False = 0", HFILL }},
+
+        { &hf_oampdu_flags_dying_gasp,
+          { "Dying Gasp",        "slow.oam.flags.dyingGasp",
+            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_DYING_GASP,
+            "An unrecoverable local failure occured. True = 1, False = 0", HFILL }},
+
+        { &hf_oampdu_flags_critical_event,
+          { "Critical Event",        "slow.oam.flags.criticalEvent",
+            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_CRITICAL_EVENT,
+            "A critical event has occurred. True = 1, False = 0", HFILL }},
+
+        { &hf_oampdu_flags_local_evaluating,
+          { "Local Evaluating",        "slow.oam.flags.localEvaluating",
+            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_EVAL,
+            "Local DTE Discovery process in progress. True = 1, False = 0", HFILL }},
+
+        { &hf_oampdu_flags_local_stable,
+          { "Local Stable",        "slow.oam.flags.localStable",
+            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_LOCAL_STABLE,
+            "Local DTE is Stable. True = 1, False = 0", HFILL }},
+
+        { &hf_oampdu_flags_remote_evaluating,
+          { "Remote Evaluating",        "slow.oam.flags.remoteEvaluating",
+            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_EVAL,
+            "Remote DTE Discovery process in progress. True = 1, False = 0", HFILL }},
+
+        { &hf_oampdu_flags_remote_stable,
+          { "Remote Stable",        "slow.oam.flags.remoteStable",
+            FT_BOOLEAN,    8,        TFS(&tfs_true_false),    OAMPDU_FLAGS_REMOTE_STABLE,
+            "Remote DTE is Stable. True = 1, False = 0", HFILL }},
+
+        { &hf_oampdu_code,
+          { "OAMPDU code",    "slow.oam.code",
+            FT_UINT8,    BASE_HEX,    VALS(code_vals),    0x0,
+            "Identifies the TLVs code", HFILL }},
+
+        { &hf_oampdu_info_type,
+          { "Type",    "slow.oam.info.type",
+            FT_UINT8,    BASE_HEX,    VALS(info_type_vals),    0x0,
+            "Identifies the TLV type", HFILL }},
+
+        { &hf_oampdu_info_len,
+          { "TLV Length",    "slow.oam.info.length",
+            FT_UINT8,    BASE_DEC,    NULL,    0x0,
+            "Identifies the TLVs type", HFILL }},
+
+        { &hf_oampdu_info_version,
+          { "TLV Version",    "slow.oam.info.version",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "Identifies the TLVs version", HFILL }},
+
+        { &hf_oampdu_info_revision,
+          { "TLV Revision",    "slow.oam.info.revision",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "Identifies the TLVs revision", HFILL }},
+
+        { &hf_oampdu_info_state,
+          { "OAM DTE States",    "slow.oam.info.state",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "OAM DTE State of the Mux and the Parser", HFILL }},
+
+        { &hf_oampdu_info_state_parser,
+          { "Parser Action",        "slow.oam.info.state.parser",
+            FT_UINT8,    BASE_HEX,    VALS(parser_vals),    0x03,
+            NULL, HFILL }},
+
+        { &hf_oampdu_info_state_mux,
+          { "Muxiplexer Action",        "slow.oam.info.state.muxiplexer",
+            FT_BOOLEAN,    8,        TFS(&mux),    0x04,
+            NULL, HFILL }},
+
+        { &hf_oampdu_info_oamConfig,
+          { "OAM Configuration",    "slow.oam.info.oamConfig",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            NULL, HFILL }},
+
+        { &hf_oampdu_info_oamConfig_mode,
+          { "OAM Mode",        "slow.oam.info.oamConfig.mode",
+            FT_BOOLEAN,    8,        TFS(&oam_mode),    OAMPDU_INFO_CONFIG_MODE,
+            NULL, HFILL }},
+
+        { &hf_oampdu_info_oamConfig_uni,
+          { "Unidirectional support",        "slow.oam.flags.dyingGasp",
+            FT_BOOLEAN,    8,        TFS(&oam_uni),    OAMPDU_INFO_CONFIG_UNI,
+            NULL, HFILL }},
+
+        { &hf_oampdu_info_oamConfig_lpbk,
+          { "Loopback support",        "slow.oam.flags.criticalEvent",
+            FT_BOOLEAN,    8,        TFS(&oam_lpbk),    OAMPDU_INFO_CONFIG_LPBK,
+            NULL, HFILL }},
+
+        { &hf_oampdu_info_oamConfig_event,
+          { "Link Events support",        "slow.oam.flags.localEvaluating",
+            FT_BOOLEAN,    8,        TFS(&oam_event),    OAMPDU_INFO_CONFIG_EVENT,
+            NULL, HFILL }},
+
+        { &hf_oampdu_info_oamConfig_var,
+          { "Variable Retrieval",        "slow.oam.flags.localStable",
+            FT_BOOLEAN,    8,        TFS(&oam_var),    OAMPDU_INFO_CONFIG_VAR,
+            "Variable Retrieval support", HFILL }},
+
+        { &hf_oampdu_info_oampduConfig,
+          { "Max OAMPDU Size",    "slow.oam.info.oampduConfig",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "OAMPDU Configuration", HFILL }},
+
+        { &hf_oampdu_info_oui,
+          { "Organizationally Unique Identifier", "slow.oam.info.oui",
+            FT_BYTES,    BASE_NONE,    NULL,    0x0,
+            NULL, HFILL }},
+
+        { &hf_oampdu_info_vendor,
+          { "Vendor Specific Information", "slow.oam.info.vendor",
+            FT_BYTES,    BASE_NONE,    NULL,    0x0,
+            NULL, HFILL }},
+
+        /*
+         * Event notification definitions
+         */
+        { &hf_oampdu_event_sequence,
+          { "Sequence Number",    "slow.oam.event.sequence",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "Identifies the Event Notification TLVs", HFILL }},
+
+        { &hf_oampdu_event_type,
+          { "Event Type",    "slow.oam.event.type",
+            FT_UINT8,    BASE_HEX,    VALS(event_type_vals),    0x0,
+            "Identifies the TLV type", HFILL }},
+
+        { &hf_oampdu_event_length,
+          { "Event Length",    "slow.oam.event.length",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "This field indicates the length in octets of the TLV-tuple", HFILL }},
+
+        { &hf_oampdu_event_timeStamp,
+          { "Event Timestamp (100ms)",    "slow.oam.event.timestamp",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "Event Time Stamp in term of 100 ms intervals", HFILL }},
+
+        /* Errored Symbol Period Event TLV */
+        { &hf_oampdu_event_espeWindow,
+          { "Errored Symbol Window",    "slow.oam.event.espeWindow",
+            FT_UINT64,    BASE_DEC,    NULL,    0x0,
+            "Number of symbols in the period", HFILL }},
+
+        { &hf_oampdu_event_espeThreshold,
+          { "Errored Symbol Threshold",    "slow.oam.event.espeThreshold",
+            FT_UINT64,    BASE_DEC,    NULL,    0x0,
+            "Number of symbols required to generate the Event", HFILL }},
+
+        { &hf_oampdu_event_espeErrors,
+          { "Errored Symbols",    "slow.oam.event.espeErrors",
+            FT_UINT64,    BASE_DEC,    NULL,    0x0,
+            "Number of symbols in error", HFILL }},
+
+        { &hf_oampdu_event_espeTotalErrors,
+          { "Error Running Total",    "slow.oam.event.espeTotalErrors",
+            FT_UINT64,    BASE_DEC,    NULL,    0x0,
+            "Number of symbols in error since reset of the sublayer", HFILL }},
+
+        { &hf_oampdu_event_espeTotalEvents,
+          { "Event Running Total",    "slow.oam.event.espeTotalEvents",
+            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            "Total Event generated since reset of the sublayer", HFILL }},
+
+        /* Errored Frame Event TLV */
+        { &hf_oampdu_event_efeWindow,
+          { "Errored Frame Window",    "slow.oam.event.efeWindow",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "Number of symbols in the period", HFILL }},
+
+        { &hf_oampdu_event_efeThreshold,
+          { "Errored Frame Threshold",    "slow.oam.event.efeThreshold",
+            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            "Number of frames required to generate the Event", HFILL }},
+
+        { &hf_oampdu_event_efeErrors,
+          { "Errored Frames",    "slow.oam.event.efeErrors",
+            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            "Number of symbols in error", HFILL }},
+
+        { &hf_oampdu_event_efeTotalErrors,
+          { "Error Running Total",    "slow.oam.event.efeTotalErrors",
+            FT_UINT64,    BASE_DEC,    NULL,    0x0,
+            "Number of frames in error since reset of the sublayer", HFILL }},
+
+        { &hf_oampdu_event_efeTotalEvents,
+          { "Event Running Total",    "slow.oam.event.efeTotalEvents",
+            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            "Total Event generated since reset of the sublayer", HFILL }},
+
+        /* Errored Frame Period Event TLV */
+        { &hf_oampdu_event_efpeWindow,
+          { "Errored Frame Window",    "slow.oam.event.efpeWindow",
+            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            "Number of frame in error during the period", HFILL }},
+
+        { &hf_oampdu_event_efpeThreshold,
+          { "Errored Frame Threshold",    "slow.oam.event.efpeThreshold",
+            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            "Number of frames required to generate the Event", HFILL }},
+
+        { &hf_oampdu_event_efpeErrors,
+          { "Errored Frames",    "slow.oam.event.efeErrors",
+            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            "Number of symbols in error", HFILL }},
+
+        { &hf_oampdu_event_efpeTotalErrors,
+          { "Error Running Total",    "slow.oam.event.efpeTotalErrors",
+            FT_UINT64,    BASE_DEC,    NULL,    0x0,
+            "Number of frames in error since reset of the sublayer", HFILL }},
+
+        { &hf_oampdu_event_efpeTotalEvents,
+          { "Event Running Total",    "slow.oam.event.efpeTotalEvents",
+            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            "Total Event generated since reset of the sublayer", HFILL }},
+
+        /* Errored Frame Second Summary Event TLV */
+        { &hf_oampdu_event_efsseWindow,
+          { "Errored Frame Window",    "slow.oam.event.efsseWindow",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "Number of frame in error during the period", HFILL }},
+
+        { &hf_oampdu_event_efsseThreshold,
+          { "Errored Frame Threshold",    "slow.oam.event.efsseThreshold",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "Number of frames required to generate the Event", HFILL }},
+
+        { &hf_oampdu_event_efsseErrors,
+          { "Errored Frames",    "slow.oam.event.efeErrors",
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
+            "Number of symbols in error", HFILL }},
+
+        { &hf_oampdu_event_efsseTotalErrors,
+          { "Error Running Total",    "slow.oam.event.efsseTotalErrors",
+            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            "Number of frames in error since reset of the sublayer", HFILL }},
+
+        { &hf_oampdu_event_efsseTotalEvents,
+          { "Event Running Total",    "slow.oam.event.efsseTotalEvents",
+            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            "Total Event generated since reset of the sublayer", HFILL }},
+
+        /* Variable request and response definitions*/
+        { &hf_oampdu_variable_branch,
+          { "Branch",    "slow.oam.variable.branch",
+            FT_UINT8,    BASE_HEX,    VALS(branch_vals),    0x0,
+            "Variable Branch, derived from the CMIP protocol in Annex 30A", HFILL }},
+
+        { &hf_oampdu_variable_object,
+          { "Leaf",    "slow.oam.variable.object",
+            FT_UINT16,    BASE_HEX,    VALS(object_vals),    0x0,
+            "Object, derived from the CMIP protocol in Annex 30A", HFILL }},
+
+        { &hf_oampdu_variable_package,
+          { "Leaf",    "slow.oam.variable.package",
+            FT_UINT16,    BASE_HEX,    VALS(package_vals),    0x0,
+            "Package, derived from the CMIP protocol in Annex 30A", HFILL }},
+
+        { &hf_oampdu_variable_binding,
+          { "Leaf",    "slow.oam.variable.binding",
+            FT_UINT16,    BASE_HEX,    VALS(binding_vals),    0x0,
+            "Binding, derived from the CMIP protocol in Annex 30A", HFILL }},
+
+        { &hf_oampdu_variable_attribute,
+          { "Leaf",    "slow.oam.variable.attribute",
+            FT_UINT16,    BASE_HEX,    VALS(attribute_vals),    0x0,
+            "Attribute, derived from the CMIP protocol in Annex 30A", HFILL }},
+
+        { &hf_oampdu_variable_width,
+          { "Variable Width",    "slow.oam.variable.width",
+            FT_UINT8,    BASE_DEC,    NULL,    0x0,
+            "Width", HFILL }},
+
+        { &hf_oampdu_variable_indication,
+          { "Variable indication",    "slow.oam.variable.indication",
+            FT_UINT8,    BASE_HEX,    VALS(indication_vals),    0x0,
+            NULL, HFILL }},
+
+        { &hf_oampdu_variable_value,
+          { "Variable Value",    "slow.oam.variable.value",
+            FT_BYTES,    BASE_NONE,    NULL,    0x0,
+            "Value", HFILL }},
+
+        /* Loopback Control definitions*/
+        { &hf_oampdu_lpbk,
+          { "Commands", "slow.oam.lpbk.commands",
+            FT_UINT8,    BASE_HEX,    NULL,    0x0,
+            "The List of Loopback Commands", HFILL }},
+
+        { &hf_oampdu_lpbk_enable,
+          { "Enable Remote Loopback", "slow.oam.lpbk.commands.enable",
+            FT_BOOLEAN,    8,        NULL,    OAMPDU_LPBK_ENABLE,
+            "Enable Remote Loopback Command", HFILL }},
+
+        { &hf_oampdu_lpbk_disable,
+          { "Disable Remote Loopback", "slow.oam.lpbk.commands.disable",
+            FT_BOOLEAN,    8,        NULL,    OAMPDU_LPBK_DISABLE,
+            "Disable Remote Loopback Command", HFILL }},
+    };
+
+    /* Setup protocol subtree array */
+
+    static gint *ett[] = {
+        &ett_pdu,
+        &ett_lacpdu,
+        &ett_lacpdu_a_flags,
+        &ett_lacpdu_p_flags,
+        &ett_marker,
+        &ett_esmc,
+        &ett_oampdu,
+        &ett_oampdu_flags,
+        &ett_oampdu_local_info,
+        &ett_oampdu_local_info_state,
+        &ett_oampdu_local_info_config,
+        &ett_oampdu_remote_info,
+        &ett_oampdu_remote_info_state,
+        &ett_oampdu_remote_info_config,
+        &ett_oampdu_org_info,
+        &ett_oampdu_event_espe,
+        &ett_oampdu_event_efe,
+        &ett_oampdu_event_efpe,
+        &ett_oampdu_event_efsse,
+        &ett_oampdu_event_ose,
+        &ett_oampdu_lpbk_ctrl,
+
+    };
+
+    /* Register the protocol name and description */
+
+    proto_slow = proto_register_protocol("Slow Protocols", "802.3 Slow protocols", "slow");
+
+    /* Required function calls to register the header fields and subtrees used */
+
+    proto_register_field_array(proto_slow, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 }
 
 
 void
 proto_reg_handoff_slow_protocols(void)
 {
-  dissector_handle_t slow_protocols_handle;
+    dissector_handle_t slow_protocols_handle;
 
-  slow_protocols_handle = create_dissector_handle(dissect_slow_protocols, proto_slow);
-  dissector_add("ethertype", ETHERTYPE_SLOW_PROTOCOLS, slow_protocols_handle);
-  dh_data = find_dissector("data");
+    slow_protocols_handle = create_dissector_handle(dissect_slow_protocols, proto_slow);
+    dissector_add("ethertype", ETHERTYPE_SLOW_PROTOCOLS, slow_protocols_handle);
+    dh_data = find_dissector("data");
 }

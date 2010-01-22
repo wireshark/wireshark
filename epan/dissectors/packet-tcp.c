@@ -2412,48 +2412,47 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
        */
 
       while (optlen > local_offset) {
-		  proto_item *hidden_item;
 
-	/* 1st octet is Extended Capability Binding Space */
-	binding_space = tvb_get_guint8(tvb, (offset + local_offset));
+        /* 1st octet is Extended Capability Binding Space */
+        binding_space = tvb_get_guint8(tvb, (offset + local_offset));
 
-	/* 2nd octet (upper 4-bits) has binding space length in 16-bit words.
-	 * As defined by the specification, this length is exclusive of the
-	 * octets containing the extended capability type and length
-	 */
+        /* 2nd octet (upper 4-bits) has binding space length in 16-bit words.
+         * As defined by the specification, this length is exclusive of the
+         * octets containing the extended capability type and length
+         */
 
-	extended_cap_length =
-	  (tvb_get_guint8(tvb, (offset + local_offset + 1)) >> 4);
+        extended_cap_length =
+          (tvb_get_guint8(tvb, (offset + local_offset + 1)) >> 4);
 
-	/* Convert the extended capabilities length into bytes for display */
-	extended_cap_length = (extended_cap_length << 1);
+        /* Convert the extended capabilities length into bytes for display */
+        extended_cap_length = (extended_cap_length << 1);
 
-	proto_tree_add_text(field_tree, tvb, offset + local_offset, 2,
-			    "\tBinding Space %u",
-			    binding_space);
-	hidden_item = proto_tree_add_uint(field_tree, hf_tcp_option_scps_binding,
-				   tvb, (offset + local_offset), 1,
-				   binding_space);
+        proto_tree_add_text(field_tree, tvb, offset + local_offset, 2,
+                            "\tBinding Space %u",
+                            binding_space);
+        hidden_item = proto_tree_add_uint(field_tree, hf_tcp_option_scps_binding,
+                                          tvb, (offset + local_offset), 1,
+                                          binding_space);
 
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-	/* Step past the binding space and length octets */
-	local_offset += 2;
+        /* Step past the binding space and length octets */
+        local_offset += 2;
 
-	proto_tree_add_text(field_tree, tvb, offset + local_offset,
-			    extended_cap_length,
-			    "\tBinding Space Data (%u bytes)",
-			    extended_cap_length);
+        proto_tree_add_text(field_tree, tvb, offset + local_offset,
+                            extended_cap_length,
+                            "\tBinding Space Data (%u bytes)",
+                            extended_cap_length);
 
-	tcp_info_append_uint(pinfo, "EXCAP", binding_space);
+        tcp_info_append_uint(pinfo, "EXCAP", binding_space);
 
-	/* Step past the Extended capability data
-	 * Treat the extended capability data area as opaque;
-	 * If one desires to parse the extended capability data
-	 * (say, in a vendor aware build of wireshark), it would
-	 * be trigged here.
-	 */
-	local_offset += extended_cap_length;
+        /* Step past the Extended capability data
+         * Treat the extended capability data area as opaque;
+         * If one desires to parse the extended capability data
+         * (say, in a vendor aware build of wireshark), it would
+         * be trigged here.
+         */
+        local_offset += extended_cap_length;
       }
     }
   }
@@ -2540,7 +2539,6 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
   base_mss = tcpd->fwd->maxsizeacked;
 
   if (base_mss) {
-    proto_item *hidden_item;
     /* Scale the reported offset and hole size by the largest segment acked */
     hole_start = ack + (base_mss * relative_hole_offset);
     hole_end   = hole_start + (base_mss * relative_hole_size);

@@ -413,7 +413,7 @@ const enum_val_t tds_protocol_type_options[] = {
 /*   TODO: consider storing endian type with each conversation                           */
 /*         (using pref as the default)                                                   */
 
-static gint tds_little_endian = TRUE;
+static gboolean tds_little_endian = TRUE;
 
 const enum_val_t tds_endian_type_options[] = {
     {"little_endian", "Little Endian", TRUE},
@@ -595,16 +595,16 @@ dissect_tds_nt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /*  */
 
 static guint16
-tds_tvb_get_xxtohs(tvbuff_t *tvb, gint offset, gint tds_little_endian) {
-    if (tds_little_endian)
+tds_tvb_get_xxtohs(tvbuff_t *tvb, gint offset, gboolean tds_little_endian_flag) {
+    if (tds_little_endian_flag)
         return tvb_get_letohs(tvb, offset);
     else
         return tvb_get_ntohs(tvb, offset);
 }
 
 static guint32
-tds_tvb_get_xxtohl(tvbuff_t *tvb, gint offset, gint tds_little_endian) {
-    if (tds_little_endian)
+tds_tvb_get_xxtohl(tvbuff_t *tvb, gint offset, gboolean tds_little_endian_flag) {
+    if (tds_little_endian_flag)
         return tvb_get_letohl(tvb, offset);
     else
         return tvb_get_ntohl(tvb, offset);
