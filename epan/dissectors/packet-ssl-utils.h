@@ -393,12 +393,12 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
 
 /* Try to decrypt in place the encrypted pre_master_secret
  @param ssl_session the store for the decrypted pre_master_secret
- @param entrypted_pre_master the rsa encrypted pre_master_secret
+ @param encrypted_pre_master the rsa encrypted pre_master_secret
  @param pk the private key to be used for decryption
  @return 0 on success */
 extern gint
 ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
-    StringInfo* entrypted_pre_master, SSL_PRIVATE_KEY *pk);
+    StringInfo* encrypted_pre_master, SSL_PRIVATE_KEY *pk);
 
 /* Try to decrypt an ssl record
  @param ssl_session the store all the session data

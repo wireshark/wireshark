@@ -1809,7 +1809,7 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
 
 int
 ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
-    StringInfo* entrypted_pre_master, SSL_PRIVATE_KEY *pk)
+    StringInfo* encrypted_pre_master, SSL_PRIVATE_KEY *pk)
 {
     gint i;
 
@@ -1824,10 +1824,10 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     }
 
     /* with tls key loading will fail if not rsa type, so no need to check*/
-    ssl_print_string("pre master encrypted",entrypted_pre_master);
+    ssl_print_string("pre master encrypted",encrypted_pre_master);
     ssl_debug_printf("ssl_decrypt_pre_master_secret:RSA_private_decrypt\n");
-    i=ssl_private_decrypt(entrypted_pre_master->data_len,
-        entrypted_pre_master->data, pk);
+    i=ssl_private_decrypt(encrypted_pre_master->data_len,
+        encrypted_pre_master->data, pk);
 
     if (i!=48) {
         ssl_debug_printf("ssl_decrypt_pre_master_secret wrong "
@@ -1836,7 +1836,7 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
     }
 
     /* the decrypted data has been written into the pre_master key buffer */
-    ssl_session->pre_master_secret.data = entrypted_pre_master->data;
+    ssl_session->pre_master_secret.data = encrypted_pre_master->data;
     ssl_session->pre_master_secret.data_len=48;
     ssl_print_string("pre master secret",&ssl_session->pre_master_secret);
 
@@ -2636,11 +2636,11 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
 
 int
 ssl_decrypt_pre_master_secret(SslDecryptSession* ssl_session,
-    StringInfo* entrypted_pre_master, SSL_PRIVATE_KEY *pk)
+    StringInfo* encrypted_pre_master, SSL_PRIVATE_KEY *pk)
 {
     ssl_debug_printf("ssl_decrypt_pre_master_secret: impossible without gnutls."
-        " ssl %p entrypted_pre_master %p pk %p\n", ssl_session,
-        entrypted_pre_master, pk);
+        " ssl %p encrypted_pre_master %p pk %p\n", ssl_session,
+        encrypted_pre_master, pk);
     return 0;
 }
 
