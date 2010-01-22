@@ -1008,8 +1008,7 @@ static void rlc_lte_stat_dlg_create(void)
     window_set_cancel_button(rlc_lte_stat_dlg_w, close_bt, window_cancel_button_cb);
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-    /* TODO: use own symbol!!! */
-    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_LTE_MAC_TRAFFIC_DIALOG);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_LTE_RLC_TRAFFIC_DIALOG);
 
     /* Set callbacks */
     g_signal_connect(rlc_lte_stat_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);

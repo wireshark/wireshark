@@ -290,7 +290,10 @@ topic_action(topic_action_e action)
         help_topic_html("ChStatCompareCaptureFiles.html");
         break;
     case(HELP_STATS_LTE_MAC_TRAFFIC_DIALOG):
-        help_topic_html("ChStatLTEMACTraffic.html");
+        help_topic_html("ChTelLTEMACTraffic.html");
+        break;
+    case(HELP_STATS_LTE_RLC_TRAFFIC_DIALOG):
+        help_topic_html("ChTelLTERLCTraffic.html");
         break;
     case(HELP_STATS_WLAN_TRAFFIC_DIALOG):
         help_topic_html("ChStatWLANTraffic.html");

@@ -125,6 +125,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-stats-srt-dcerpc.png
 	wsug_graphics/ws-stats-summary.png
 	wsug_graphics/ws-stats-lte-mac-traffic.png
+	wsug_graphics/ws-stats-lte-rlc-traffic.png
 	wsug_graphics/ws-stats-wlan-traffic.png
 	wsug_graphics/ws-statusbar-empty.png
 	wsug_graphics/ws-statusbar-loaded.png

@@ -1784,6 +1784,11 @@
 		<entry><para>See <xref linkend="ChTelLTEMACTraffic"/></para></entry>
 	      </row>
 	      <row>
+		<entry><command>LTE RLC...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChTelLTERLCTraffic"/></para></entry>
+	      </row>
+	      <row>
 		<entry><command>MTP3</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChTelXXX"/></para></entry>

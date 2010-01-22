@@ -72,7 +72,40 @@
       the traffic broken down by individual channel.
     </para>
   </section>
-  
+
+  <section id="ChTelLTERLCTraffic">
+    <title>LTE RLC Traffic Statistics</title>
+    <para>
+      Statistics of the captured LTE RLC traffic.  This window will summarize the
+      LTE RLC traffic found in the capture.
+    </para>
+
+    <figure><title>The "LTE RLC Traffic Statistics" window</title>
+    <graphic entityref="WiresharkStatsLTERLCTraffic" format="PNG"/>
+    </figure>
+
+    <para>
+      At the top, the check-box allows this window to include RLC PDUs found
+      withing MAC PDUs or not.  This will affect both the PDUs counted as well
+      as the display filters generated (see below).
+    </para>
+
+    <para>
+      The upper list shows summaries of each active UE.
+      Each row in the lower list shows statistical highlights for individual
+      channels within the selected UE.
+    </para>
+
+    <para>
+      The lower part of the windows allows display filters to be generated and
+      set for the selected channel.  Note that in the case of Acknowledged
+      Mode channels, if a single direction is chosen, the generated filter will
+      show data in that direction and control PDUs in the opposite direction.
+    </para>
+
+  </section>
+
+
   <section id="ChTelXXX">
     <title>The protocol specific statistics windows</title>
     <para>
