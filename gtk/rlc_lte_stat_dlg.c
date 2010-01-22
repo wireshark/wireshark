@@ -336,8 +336,8 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         te->stats.UL_total_bytes += si->pduLength;
     }
     else {
-        te->stats.UL_frames++;
-        te->stats.UL_total_bytes += si->pduLength;
+        te->stats.DL_frames++;
+        te->stats.DL_total_bytes += si->pduLength;
     }
 
     /* Find channel struct */
@@ -473,7 +473,7 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
                                CHANNEL_UL_ACKS, channel_stats->UL_acks,
                                CHANNEL_UL_NACKS, channel_stats->UL_nacks,
                                CHANNEL_DL_FRAMES, channel_stats->DL_frames,
-                               CHANNEL_DL_BYTES, channel_stats->DL_frames,
+                               CHANNEL_DL_BYTES, channel_stats->DL_bytes,
                                CHANNEL_DL_ACKS, channel_stats->DL_acks,
                                CHANNEL_DL_NACKS, channel_stats->DL_nacks,
                                CHANNEL_TABLE_COLUMN, channel_stats,
@@ -501,8 +501,12 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
                                CHANNEL_MODE, print_rlc_channel_mode(channel_stats->rlcMode),
                                CHANNEL_UL_FRAMES, channel_stats->UL_frames,
                                CHANNEL_UL_BYTES, channel_stats->UL_bytes,
+                               CHANNEL_UL_ACKS, channel_stats->UL_acks,
+                               CHANNEL_UL_NACKS, channel_stats->UL_nacks,
                                CHANNEL_DL_FRAMES, channel_stats->DL_frames,
-                               CHANNEL_DL_BYTES, channel_stats->DL_frames,
+                               CHANNEL_DL_BYTES, channel_stats->DL_bytes,
+                               CHANNEL_DL_ACKS, channel_stats->DL_acks,
+                               CHANNEL_DL_NACKS, channel_stats->DL_nacks,
                                CHANNEL_TABLE_COLUMN, channel_stats,
                                -1);
         }
