@@ -65,9 +65,11 @@ enum {
     UEID_COLUMN,
     UL_FRAMES_COLUMN,
     UL_BYTES_COLUMN,
+    UL_NACKS_COLUMN,
     DL_FRAMES_COLUMN,
     DL_BYTES_COLUMN,
-    TABLE_COLUMN,
+    DL_NACKS_COLUMN,
+    UE_TABLE_COLUMN,
     NUM_UE_COLUMNS
 };
 
@@ -87,8 +89,8 @@ enum {
 };
 
 static const gchar *ue_titles[] = { "UEId",
-                                    "UL Frames", "UL Bytes",
-                                    "DL Frames", "DL Bytes"};
+                                    "UL Frames", "UL Bytes", "UL NACKs",
+                                    "DL Frames", "DL Bytes", "DL NACKs"};
 
 static const gchar *channel_titles[] = { "", "Mode",
                                          "UL Frames", "UL Bytes", "UL ACKs", "UL NACKs",
@@ -125,9 +127,11 @@ typedef struct rlc_lte_row_data {
 
     guint32 UL_frames;
     guint32 UL_total_bytes;
+    guint32 UL_total_nacks;
 
     guint32 DL_frames;
     guint32 DL_total_bytes;
+    guint32 DL_total_nacks;
 
     rlc_channel_stats CCCH_stats;
     rlc_channel_stats srb_stats[2];
@@ -232,6 +236,8 @@ static rlc_lte_ep_t* alloc_rlc_lte_ep(struct rlc_lte_tap_info *si, packet_info *
     ep->stats.DL_frames = 0;
     ep->stats.UL_total_bytes = 0;
     ep->stats.DL_total_bytes = 0;
+    ep->stats.UL_total_nacks = 0;
+    ep->stats.DL_total_nacks = 0;
 
     memset(&ep->stats.CCCH_stats, 0, sizeof(rlc_channel_stats));
     for (n=0; n < 2; n++) {
@@ -375,6 +381,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         if (si->isControlPDU) {
             channel_stats->UL_acks++;
         }
+        te->stats.UL_total_nacks += si->noOfNACKs;
     }
     else {
         channel_stats->DL_frames++;
@@ -383,6 +390,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         if (si->isControlPDU) {
             channel_stats->DL_acks++;
         }
+        te->stats.DL_total_nacks += si->noOfNACKs;
     }
 
     return 1;
@@ -561,9 +569,11 @@ rlc_lte_stat_draw(void *phs)
                            UEID_COLUMN, tmp->stats.ueid,
                            UL_FRAMES_COLUMN, tmp->stats.UL_frames,
                            UL_BYTES_COLUMN, tmp->stats.UL_total_bytes,
+                           UL_NACKS_COLUMN, tmp->stats.UL_total_nacks,
                            DL_FRAMES_COLUMN, tmp->stats.DL_frames,
                            DL_BYTES_COLUMN, tmp->stats.DL_total_bytes,
-                           TABLE_COLUMN, tmp,
+                           DL_NACKS_COLUMN, tmp->stats.DL_total_nacks,
+                           UE_TABLE_COLUMN, tmp,
                            -1);
     }
 
@@ -572,7 +582,7 @@ rlc_lte_stat_draw(void *phs)
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
         rlc_lte_ep_t *ep;
 
-        gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
+        gtk_tree_model_get(model, &iter, UE_TABLE_COLUMN, &ep, -1);
         rlc_lte_channels(ep, hs);
     }
 }
@@ -587,7 +597,7 @@ static void rlc_lte_select_ue_cb(GtkTreeSelection *sel, gpointer data)
 
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
         /* Show details of selected UE */
-        gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
+        gtk_tree_model_get(model, &iter, UE_TABLE_COLUMN, &ep, -1);
         rlc_lte_channels(ep, (rlc_lte_stat_t*)data);
     }
     else {
@@ -611,7 +621,7 @@ static void rlc_lte_select_channel_cb(GtkTreeSelection *sel, gpointer data _U_)
         enable_filter_buttons(TRUE);
 
         /* Show details of selected UE */
-        gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
+        gtk_tree_model_get(model, &iter, UE_TABLE_COLUMN, &ep, -1);
     }
     else {
         /* Disable buttons */
@@ -665,7 +675,7 @@ static int get_channel_selection(rlc_lte_stat_t *hs,
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
         rlc_lte_ep_t *ep;
 
-        gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
+        gtk_tree_model_get(model, &iter, UE_TABLE_COLUMN, &ep, -1);
         *ueid = ep->stats.ueid;
 
         /* Check channel selection */
@@ -866,8 +876,8 @@ static void rlc_lte_stat_dlg_create(void)
 
     /* Create the table of UE data */
     store = gtk_list_store_new(NUM_UE_COLUMNS, G_TYPE_INT,
-                               G_TYPE_INT, G_TYPE_INT, /* UL */
-                               G_TYPE_INT, G_TYPE_INT, /* DL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* UL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* DL */
                                G_TYPE_POINTER);
     hs->ue_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
     gtk_container_add(GTK_CONTAINER (ues_scrolled_window), GTK_WIDGET(hs->ue_table));
@@ -878,7 +888,7 @@ static void rlc_lte_stat_dlg_create(void)
     gtk_tree_view_set_headers_clickable(tree_view, TRUE);
 
     /* Create the titles for each column of the per-UE table */
-    for (i = 0; i < TABLE_COLUMN; i++) {
+    for (i = 0; i < UE_TABLE_COLUMN; i++) {
         renderer = gtk_cell_renderer_text_new();
         column = gtk_tree_view_column_new_with_attributes(ue_titles[i], renderer,
                                                           "text", i, NULL);
