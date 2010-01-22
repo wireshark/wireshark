@@ -211,8 +211,8 @@ void t38_add_address(packet_info *pinfo,
                      const gchar *setup_method, guint32 setup_frame_number)
 {
         address null_addr;
-        conversation_t* p_conv;
-        t38_conv* p_conv_data = NULL;
+        conversation_t* p_conversation;
+        t38_conv* p_conversation_data = NULL;
 
         /*
          * If this isn't the first time this packet has been processed,
@@ -230,57 +230,57 @@ void t38_add_address(packet_info *pinfo,
          * Check if the ip address and port combination is not
          * already registered as a conversation.
          */
-        p_conv = find_conversation( setup_frame_number, addr, &null_addr, PT_UDP, port, other_port,
+        p_conversation = find_conversation( setup_frame_number, addr, &null_addr, PT_UDP, port, other_port,
                                 NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
         /*
          * If not, create a new conversation.
          */
-        if ( !p_conv || p_conv->setup_frame != setup_frame_number) {
-                p_conv = conversation_new( setup_frame_number, addr, &null_addr, PT_UDP,
+        if ( !p_conversation || p_conversation->setup_frame != setup_frame_number) {
+                p_conversation = conversation_new( setup_frame_number, addr, &null_addr, PT_UDP,
                                            (guint32)port, (guint32)other_port,
                                                                    NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
         }
 
         /* Set dissector */
-        conversation_set_dissector(p_conv, t38_udp_handle);
+        conversation_set_dissector(p_conversation, t38_udp_handle);
 
         /*
          * Check if the conversation has data associated with it.
          */
-        p_conv_data = conversation_get_proto_data(p_conv, proto_t38);
+        p_conversation_data = conversation_get_proto_data(p_conversation, proto_t38);
 
         /*
          * If not, add a new data item.
          */
-        if ( ! p_conv_data ) {
+        if ( ! p_conversation_data ) {
                 /* Create conversation data */
-                p_conv_data = se_alloc(sizeof(t38_conv));
+                p_conversation_data = se_alloc(sizeof(t38_conv));
 
-                conversation_add_proto_data(p_conv, proto_t38, p_conv_data);
+                conversation_add_proto_data(p_conversation, proto_t38, p_conversation_data);
         }
 
         /*
          * Update the conversation data.
          */
-        g_strlcpy(p_conv_data->setup_method, setup_method, MAX_T38_SETUP_METHOD_SIZE);
-        p_conv_data->setup_frame_number = setup_frame_number;
-		p_conv_data->src_t38_info.reass_ID = 0;
-		p_conv_data->src_t38_info.reass_start_seqnum = -1;
-		p_conv_data->src_t38_info.reass_data_type = 0;
-		p_conv_data->src_t38_info.last_seqnum = -1;
-		p_conv_data->src_t38_info.packet_lost = 0;
-		p_conv_data->src_t38_info.burst_lost = 0;
-		p_conv_data->src_t38_info.time_first_t4_data = 0;
+        g_strlcpy(p_conversation_data->setup_method, setup_method, MAX_T38_SETUP_METHOD_SIZE);
+        p_conversation_data->setup_frame_number = setup_frame_number;
+		p_conversation_data->src_t38_info.reass_ID = 0;
+		p_conversation_data->src_t38_info.reass_start_seqnum = -1;
+		p_conversation_data->src_t38_info.reass_data_type = 0;
+		p_conversation_data->src_t38_info.last_seqnum = -1;
+		p_conversation_data->src_t38_info.packet_lost = 0;
+		p_conversation_data->src_t38_info.burst_lost = 0;
+		p_conversation_data->src_t38_info.time_first_t4_data = 0;
 
 
-		p_conv_data->dst_t38_info.reass_ID = 0;
-		p_conv_data->dst_t38_info.reass_start_seqnum = -1;
-		p_conv_data->dst_t38_info.reass_data_type = 0;
-		p_conv_data->dst_t38_info.last_seqnum = -1;
-		p_conv_data->dst_t38_info.packet_lost = 0;
-		p_conv_data->dst_t38_info.burst_lost = 0;
-		p_conv_data->dst_t38_info.time_first_t4_data = 0;
+		p_conversation_data->dst_t38_info.reass_ID = 0;
+		p_conversation_data->dst_t38_info.reass_start_seqnum = -1;
+		p_conversation_data->dst_t38_info.reass_data_type = 0;
+		p_conversation_data->dst_t38_info.last_seqnum = -1;
+		p_conversation_data->dst_t38_info.packet_lost = 0;
+		p_conversation_data->dst_t38_info.burst_lost = 0;
+		p_conversation_data->dst_t38_info.time_first_t4_data = 0;
 }
 
 
@@ -628,12 +628,12 @@ dissect_t38(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Look for conversation info and display any setup info found */
 void 
-show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conv)
+show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conversation)
 {
 	proto_tree *t38_setup_tree;
 	proto_item *ti;
 
-	if (!p_t38_conv || p_t38_conv->setup_frame_number == 0) {
+	if (!p_t38_conversation || p_t38_conversation->setup_frame_number == 0) {
 		/* there is no Setup info */
 		return;
 	}
@@ -641,18 +641,18 @@ show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conv)
 	ti =  proto_tree_add_string_format(tree, hf_t38_setup, tvb, 0, 0,
                       "",
                       "Stream setup by %s (frame %u)",
-                      p_t38_conv->setup_method,
-                      p_t38_conv->setup_frame_number);
+                      p_t38_conversation->setup_method,
+                      p_t38_conversation->setup_frame_number);
     PROTO_ITEM_SET_GENERATED(ti);
     t38_setup_tree = proto_item_add_subtree(ti, ett_t38_setup);
     if (t38_setup_tree)
     {
 		/* Add details into subtree */
 		proto_item* item = proto_tree_add_uint(t38_setup_tree, hf_t38_setup_frame,
-                                                               tvb, 0, 0, p_t38_conv->setup_frame_number);
+                                                               tvb, 0, 0, p_t38_conversation->setup_frame_number);
 		PROTO_ITEM_SET_GENERATED(item);
 		item = proto_tree_add_string(t38_setup_tree, hf_t38_setup_method,
-                                                     tvb, 0, 0, p_t38_conv->setup_method);
+                                                     tvb, 0, 0, p_t38_conversation->setup_method);
 		PROTO_ITEM_SET_GENERATED(item);
     }
 }
