@@ -5344,14 +5344,14 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (message_type == RSVP_MSG_BUNDLE) {
 	/* Bundle message. Dissect component messages */
 	if (rsvp_bundle_dissect) {
-	    int len = 8;
-	    while (len < msg_length) {
+	    int len2 = 8;
+	    while (len2 < msg_length) {
 		gint sub_len;
 		tvbuff_t *tvb_sub;
-		sub_len = tvb_get_ntohs(tvb, len+6);
-		tvb_sub = tvb_new_subset(tvb, len, sub_len, sub_len);
+		sub_len = tvb_get_ntohs(tvb, len2+6);
+		tvb_sub = tvb_new_subset(tvb, len2, sub_len, sub_len);
 		dissect_rsvp_msg_tree(tvb_sub, pinfo, rsvp_tree, TREE(TT_BUNDLE_COMPMSG), rsvph);
-		len += sub_len;
+		len2 += sub_len;
 	    }
 	} else {
 	    proto_tree_add_text(rsvp_tree, tvb, offset, msg_length - len,

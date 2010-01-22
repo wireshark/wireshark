@@ -242,7 +242,7 @@ void rdt_add_address(packet_info *pinfo,
 {
     address null_addr;
     conversation_t* p_conv;
-    struct _rdt_conversation_info *p_conv_data = NULL;
+    struct _rdt_conversation_info *p_conv_data;
 
     /* If this isn't the first time this packet has been processed,
        we've already done this work, so we don't need to do it
@@ -296,9 +296,9 @@ static void dissect_rdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint       previous_offset = 0;
     gint        offset = 0;
-    proto_item  *ti = NULL;
+    proto_item  *ti;
     proto_tree  *rdt_tree = NULL;
-    proto_tree  *rdt_packet_tree = NULL;
+    proto_tree  *rdt_packet_tree;
     guint16     packet_type;
 
     /* Set/clear columns */
@@ -419,9 +419,9 @@ guint dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint16     asm_rule_number;
     guint8      back_to_back;
     guint8      slow_data;
-    proto_tree  *flags_tree1 = NULL;
-    proto_tree  *flags_tree2 = NULL;
-    proto_item  *ti = NULL;
+    proto_tree  *flags_tree1;
+    proto_tree  *flags_tree2;
+    proto_item  *ti;
 
     /* Flags in first byte */
     flags1 = tvb_get_guint8(tvb, offset);
@@ -554,8 +554,8 @@ guint dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     guint8      length_included_flag;
     guint16     stream_id;
     guint16     rel_seqno;
-    proto_tree  *flags_tree = NULL;
-    proto_item  *ti = NULL;
+    proto_tree  *flags_tree;
+    proto_item  *ti;
 
     /* Flags in first byte */
     flags1 = tvb_get_guint8(tvb, offset);
@@ -636,8 +636,8 @@ guint dissect_rdt_bandwidth_report_packet(tvbuff_t *tvb, packet_info *pinfo, pro
     guint16     packet_length;
     guint8      flags1;
     guint8      length_included_flag;
-    proto_tree  *flags_tree = NULL;
-    proto_item  *ti = NULL;
+    proto_tree  *flags_tree;
+    proto_item  *ti;
 
     /* Flags in first byte */
     flags1 = tvb_get_guint8(tvb, offset);
@@ -702,8 +702,8 @@ guint dissect_rdt_ack_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guint8      flags1;
     guint8      length_included_flag;
     guint8      lost_high_flag;
-    proto_tree  *flags_tree = NULL;
-    proto_item  *ti = NULL;
+    proto_tree  *flags_tree;
+    proto_item  *ti;
 
     /* Flags in first byte */
     flags1 = tvb_get_guint8(tvb, offset);
@@ -834,8 +834,8 @@ guint dissect_rdt_stream_end_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     guint16     stream_id;
     guint8      packet_sent;
     guint8      ext_flag;
-    proto_tree  *flags_tree = NULL;
-    proto_item  *ti = NULL;
+    proto_tree  *flags_tree;
+    proto_item  *ti;
 
     /* Flags in first byte */
     flags1 = tvb_get_guint8(tvb, offset);
@@ -914,8 +914,8 @@ guint dissect_rdt_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint16     packet_length;
     guint8      flags1;
     guint8      length_included_flag;
-    proto_tree  *flags_tree = NULL;
-    proto_item  *ti = NULL;
+    proto_tree  *flags_tree;
+    proto_item  *ti;
 
     /* Flags in first byte */
     flags1 = tvb_get_guint8(tvb, offset);
@@ -976,8 +976,8 @@ guint dissect_rdt_latency_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto
     guint8      flags1;
     guint8      length_included_flag;
     guint32     server_out_time;
-    proto_tree  *flags_tree = NULL;
-    proto_item  *ti = NULL;
+    proto_tree  *flags_tree;
+    proto_item  *ti;
 
     /* Flags in first byte */
     flags1 = tvb_get_guint8(tvb, offset);
@@ -1041,8 +1041,8 @@ guint dissect_rdt_transport_info_request_packet(tvbuff_t *tvb, packet_info *pinf
     guint8      request_rtt_info_flag;
     guint8      request_buffer_info_flag;
     guint32     request_time_msec;
-    proto_tree  *flags_tree = NULL;
-    proto_item  *ti = NULL;
+    proto_tree  *flags_tree;
+    proto_item  *ti;
 
     /* Flags in first byte */
     flags1 = tvb_get_guint8(tvb, offset);
@@ -1089,8 +1089,8 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
     guint8      has_buffer_info;
     guint32     request_time_msec;
     guint32     response_time_msec;    
-    proto_tree  *flags_tree = NULL;
-    proto_item  *ti = NULL;
+    proto_tree  *flags_tree;
+    proto_item  *ti;
 
     /* Flags in first byte */
     flags1 = tvb_get_guint8(tvb, offset);
@@ -1146,15 +1146,15 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
         
         for (n=0; n < buffer_info_count; n++)
         {
-            proto_tree  *buffer_info_tree = NULL;
-            proto_item  *ti = NULL;
+            proto_tree  *buffer_info_tree;
+            proto_item  *ti2;
 
             /* Each buffer info in a new subtree */
-            ti =  proto_tree_add_string_format(tree, hf_rdt_tirp_buffer_info, tvb, offset, 14,
+            ti2 =  proto_tree_add_string_format(tree, hf_rdt_tirp_buffer_info, tvb, offset, 14,
                                                "",
                                                "Buffer info %u",
                                                n+1);
-            buffer_info_tree = proto_item_add_subtree(ti, ett_rdt_tirp_buffer_info);
+            buffer_info_tree = proto_item_add_subtree(ti2, ett_rdt_tirp_buffer_info);
 
             /* Read individual buffer info */
             proto_tree_add_item(buffer_info_tree, hf_rdt_tirp_buffer_info_stream_id, tvb, offset, 2, FALSE);
@@ -1183,8 +1183,8 @@ guint dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     guint16     packet_length;
     guint8      flags1;
     guint8      length_included_flag;
-    proto_tree  *flags_tree = NULL;
-    proto_item  *ti = NULL;
+    proto_tree  *flags_tree;
+    proto_item  *ti;
 
     /* Flags in first byte */
     flags1 = tvb_get_guint8(tvb, offset);
@@ -1266,8 +1266,8 @@ guint dissect_rdt_unknown_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Conversation and current data */
-    conversation_t *p_conv = NULL;
-    struct _rdt_conversation_info *p_conv_data = NULL;
+    conversation_t *p_conv;
+    struct _rdt_conversation_info *p_conv_data;
 
     /* Use existing packet info if available */
     p_conv_data = p_get_proto_data(pinfo->fd, proto_rdt);

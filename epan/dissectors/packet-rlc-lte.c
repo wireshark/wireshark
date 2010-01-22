@@ -1322,9 +1322,8 @@ void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Can't dissect anything without it... */
     if (p_rlc_lte_info == NULL) {
-        proto_item *ti =
-            proto_tree_add_text(rlc_lte_tree, tvb, offset, -1,
-                                "Can't dissect LTE RLC frame because no per-frame info was attached!");
+        ti = proto_tree_add_text(rlc_lte_tree, tvb, offset, -1,
+                                 "Can't dissect LTE RLC frame because no per-frame info was attached!");
         PROTO_ITEM_SET_GENERATED(ti);
         return;
     }

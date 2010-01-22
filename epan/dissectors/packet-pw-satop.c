@@ -262,64 +262,64 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 		pwc_item_append_cw(item,tvb_get_ntohl(tvb_original, 0),TRUE);
 		pwc_item_append_text_n_items(item,(int)payload_size,"octet");
 		{
-			proto_tree* tree;
-			tree = proto_item_add_subtree(item, ett);
+			proto_tree* tree2;
+			tree2 = proto_item_add_subtree(item, ett);
 			{
 				tvbuff_t* tvb;
-				proto_item* item;
+				proto_item* item2;
 				tvb = tvb_new_subset(tvb_original, 0, PWC_SIZEOF_CW, PWC_SIZEOF_CW);
-				item = proto_tree_add_item(tree, hf_cw, tvb, 0, -1, FALSE);
-				pwc_item_append_cw(item,tvb_get_ntohl(tvb, 0),FALSE);
+				item2 = proto_tree_add_item(tree2, hf_cw, tvb, 0, -1, FALSE);
+				pwc_item_append_cw(item2, tvb_get_ntohl(tvb, 0),FALSE);
 				{
-					proto_tree* tree;
-					tree = proto_item_add_subtree(item, ett);
+					proto_tree* tree3;
+					tree3 = proto_item_add_subtree(item2, ett);
 					{
-						proto_item* item;
+						proto_item* item3;
 						if (properties & PWC_CW_BAD_BITS03) /*display only if value is wrong*/
 						{
-							item = proto_tree_add_item(tree, hf_cw_bits03, tvb, 0, 1, FALSE);
-							expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+							item3 = proto_tree_add_item(tree3, hf_cw_bits03, tvb, 0, 1, FALSE);
+							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
 								,"Bits 0..3 of Control Word must be 0");
 						}
 
-						(void) proto_tree_add_item(tree, hf_cw_l  , tvb, 0, 1, FALSE);
-						(void) proto_tree_add_item(tree, hf_cw_r  , tvb, 0, 1, FALSE);
+						proto_tree_add_item(tree3, hf_cw_l  , tvb, 0, 1, FALSE);
+						proto_tree_add_item(tree3, hf_cw_r  , tvb, 0, 1, FALSE);
 
-						item = proto_tree_add_item(tree, hf_cw_rsv, tvb, 0, 1, FALSE);
+						item3 = proto_tree_add_item(tree3, hf_cw_rsv, tvb, 0, 1, FALSE);
 						if (properties & PWC_CW_BAD_RSV)
 						{
-							expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
 								,"RSV bits of Control Word must be 0");
 						}
 
-						item = proto_tree_add_item(tree, hf_cw_frg, tvb, 1, 1, FALSE);
+						item3 = proto_tree_add_item(tree3, hf_cw_frg, tvb, 1, 1, FALSE);
 						if (properties & PWC_CW_BAD_FRAG)
 						{
-							expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
 								,"Fragmentation of payload is not allowed for SAToP");
 						}
 
-						item = proto_tree_add_item(tree, hf_cw_len, tvb, 1, 1, FALSE);
+						item3 = proto_tree_add_item(tree3, hf_cw_len, tvb, 1, 1, FALSE);
 						if (properties & PWC_CW_BAD_PAYLEN_LT_0)
 						{
-							expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
 								,"Bad Length: too small, must be > %d"
 								,(int)encaps_size);
 						}
 						if (properties & PWC_CW_BAD_PAYLEN_GT_PACKET)
 						{
-							expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
 								,"Bad Length: must be <= than PSN packet size (%d)"
 								,(int)packet_size);
 						}
 						if (properties & PWC_CW_BAD_LEN_MUST_BE_0)
 						{
-							expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
 								,"Bad Length: must be 0 if SAToP packet size (%d) is > 64"
 								,(int)packet_size);
 						}
 
-						(void)proto_tree_add_item(tree, hf_cw_seq, tvb, 2, 2, FALSE);
+						proto_tree_add_item(tree3, hf_cw_seq, tvb, 2, 2, FALSE);
 					}
 				}
 			}
@@ -339,16 +339,16 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 		else
 		{
 
-			proto_tree* tree;
-			tree = proto_item_add_subtree(item, ett);
+			proto_tree* tree2;
+			tree2 = proto_item_add_subtree(item, ett);
 			{
-				proto_item* item;
+				proto_item* item2;
 				tvbuff_t* tvb;
 				tvb = tvb_new_subset(tvb_original, PWC_SIZEOF_CW, payload_size, payload_size);
-				item = proto_tree_add_item(tree, hf_payload, tvb, 0, -1, FALSE);
-				pwc_item_append_text_n_items(item,(int)payload_size,"octet");
+				item2 = proto_tree_add_item(tree2, hf_payload, tvb, 0, -1, FALSE);
+				pwc_item_append_text_n_items(item2,(int)payload_size,"octet");
 				{
-					proto_tree* tree;
+					proto_tree* tree3;
 					const char* s;
 					switch(payload_properties)
 					{
@@ -369,12 +369,12 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 						s = "";
 						break;
 					}
-					proto_item_append_text(item, "%s", s);
-					tree = proto_item_add_subtree(item, ett);
-					call_dissector(data_handle, tvb, pinfo, tree);
-					item = proto_tree_add_int(tree, hf_payload_l, tvb, 0, 0
+					proto_item_append_text(item2, "%s", s);
+					tree3 = proto_item_add_subtree(item2, ett);
+					call_dissector(data_handle, tvb, pinfo, tree3);
+					item2 = proto_tree_add_int(tree3, hf_payload_l, tvb, 0, 0
 						,(int)payload_size); /* allow filtering */
-					PROTO_ITEM_SET_HIDDEN(item);
+					PROTO_ITEM_SET_HIDDEN(item2);
 				}
 			}
 		}
@@ -382,12 +382,12 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 		/* padding */
 		if (padding_size > 0)
 		{
-			proto_tree* tree;
-			tree = proto_item_add_subtree(item, ett);
+			proto_tree* tree2;
+			tree2 = proto_item_add_subtree(item, ett);
 			{
 				tvbuff_t* tvb;
 				tvb = tvb_new_subset(tvb_original, PWC_SIZEOF_CW + payload_size, padding_size, -1);
-				call_dissector(pw_padding_handle, tvb, pinfo, tree);
+				call_dissector(pw_padding_handle, tvb, pinfo, tree2);
 			}
 		}
 	}

@@ -1543,20 +1543,20 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 	len -= 1;
 
 	if (octet & Q931_INTERFACE_IDENTIFIED) {
-		guint8 octet;
+		guint8 octet2;
 		guint32 identifier_val = 0;
 		int identifier_offset = offset;
 		int identifier_len = 0;
 		do {
 			if (len == 0)
 				break;
-			octet = tvb_get_guint8(tvb, offset);
+			octet2 = tvb_get_guint8(tvb, offset);
 			offset += 1;
 			len -= 1;
 			identifier_len++;
 			identifier_val <<= 7;
-			identifier_val |= octet & 0x7F;
-		} while (!(octet & Q931_IE_VL_EXTENSION));
+			identifier_val |= octet2 & 0x7F;
+		} while (!(octet2 & Q931_IE_VL_EXTENSION));
 
 		if (identifier_len != 0) {
 			proto_tree_add_text(tree, tvb, identifier_offset,
@@ -1589,27 +1589,27 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 		len -= 1;
 
 		if (octet & Q931_IS_SLOT_MAP) {
-			guint8 octet;
+			guint8 octet2;
 			while (len) {
-				octet = tvb_get_guint8(tvb, offset);
+				octet2 = tvb_get_guint8(tvb, offset);
 				proto_tree_add_text(tree, tvb, offset, 1,
-					"Slot map: 0x%02x", octet);
+					"Slot map: 0x%02x", octet2);
 				offset += 1;
 				len -= 1;
 			} 
 		} else {
-			guint8 octet;
+			guint8 octet2;
 			do {
 				if (len == 0)
 					break;
-				octet = tvb_get_guint8(tvb, offset);
+				octet2 = tvb_get_guint8(tvb, offset);
 
 				proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
 				proto_tree_add_item(tree,hf_q931_channel_number,tvb,offset,1,FALSE);
 
 				offset += 1;
 				len -= 1;
-			} while (!(octet & Q931_IE_VL_EXTENSION));
+			} while (!(octet2 & Q931_IE_VL_EXTENSION));
 		}
 	}
 }

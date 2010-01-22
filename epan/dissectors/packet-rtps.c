@@ -1022,10 +1022,10 @@ static void rtps_util_add_ipv4_address_t(proto_tree *tree, /* Can be NULL */
                         guint8 *   buffer,              /* Can be NULL */
                         gint       buffer_size) {       /* Can be 0 */
     
-  guint32 address;
+  guint32 addr;
 
-  address = NEXT_guint32(tvb, offset, little_endian);
-  if (address == IPADDRESS_INVALID) {
+  addr = NEXT_guint32(tvb, offset, little_endian);
+  if (addr == IPADDRESS_INVALID) {
     if (buffer) {
       g_strlcpy(buffer, IPADDRESS_INVALID_STRING, buffer_size);
     }
@@ -1042,10 +1042,10 @@ static void rtps_util_add_ipv4_address_t(proto_tree *tree, /* Can be NULL */
     if (buffer) {
       g_snprintf(buffer, buffer_size,
                         "%d.%d.%d.%d",
-                        (address >> 24) & 0xff,
-                        (address >> 16) & 0xff,
-                        (address >> 8) & 0xff,
-                        address & 0xff);
+                        (addr >> 24) & 0xff,
+                        (addr >> 16) & 0xff,
+                        (addr >> 8) & 0xff,
+                        addr & 0xff);
     }
     if (tree) {
       proto_tree_add_text(tree,
@@ -1054,10 +1054,10 @@ static void rtps_util_add_ipv4_address_t(proto_tree *tree, /* Can be NULL */
                         4,
                         "%s: %d.%d.%d.%d", 
                         label,
-                        (address >> 24) & 0xff,
-                        (address >> 16) & 0xff,
-                        (address >> 8) & 0xff,
-                        address & 0xff);
+                        (addr >> 24) & 0xff,
+                        (addr >> 16) & 0xff,
+                        (addr >> 8) & 0xff,
+                        addr & 0xff);
     }
   }
 }
@@ -1084,7 +1084,7 @@ static void rtps_util_add_locator_udp_v4(proto_tree *tree, /* Can NOT be NULL */
   proto_tree * locator_tree;
   guint32 port;
   char portLabel[MAX_PORT_SIZE];
-  char address[MAX_IPV4_ADDRESS_SIZE];
+  char addr[MAX_IPV4_ADDRESS_SIZE];
 
   port = NEXT_guint32(tvb, offset+4, little_endian);
 
@@ -1105,7 +1105,7 @@ static void rtps_util_add_locator_udp_v4(proto_tree *tree, /* Can NOT be NULL */
                         offset,
                         little_endian,
                         "address",
-                        address,
+                        addr,
                         MAX_IPV4_ADDRESS_SIZE);
   proto_tree_add_text(locator_tree,
                         tvb,
@@ -1116,7 +1116,7 @@ static void rtps_util_add_locator_udp_v4(proto_tree *tree, /* Can NOT be NULL */
 
   proto_item_set_text(ti, "%s: { address=%s, port=%s }", 
                         label,
-                        address,
+                        addr,
                         portLabel);
 }
 
@@ -2475,9 +2475,9 @@ static gint rtps_util_add_typecode(proto_tree *tree,
      * - A4: 4: Sequence max length
      * - the sequence typecode
      */
-        guint32 seq_max_len;
+        guint32 seq_max_len2;
         LONG_ALIGN(offset);
-        seq_max_len = NEXT_guint32(tvb, offset, little_endian);
+        seq_max_len2 = NEXT_guint32(tvb, offset, little_endian);
         offset += 4;
 
         /* Recursive decode seq typecode */
@@ -2492,7 +2492,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
                           is_key,
                           offset_begin,
                           name,
-                          seq_max_len,
+                          seq_max_len2,
                           NULL,
                           ndds_40_hack);
         /* Differently from the other typecodes, the line has been already printed */
@@ -5630,14 +5630,14 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
     int domain_id;
     int participant_idx;
     int nature;
-    proto_item *ti;
+    proto_item *ti2;
     proto_tree *mapping_tree;
 
     domain_id = ((pinfo->destport - PORT_BASE)/10) % 100;
     participant_idx = (pinfo->destport - PORT_BASE) / 1000;
     nature    = (pinfo->destport % 10);
 
-    ti = proto_tree_add_text(rtps_tree,
+    ti2 = proto_tree_add_text(rtps_tree,
                         tvb,
                         0,
                         4,
@@ -5647,7 +5647,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
                         participant_idx,
                         val_to_str(nature, nature_type_vals, "%02x"));
 
-    mapping_tree = proto_item_add_subtree(ti, ett_rtps_default_mapping);
+    mapping_tree = proto_item_add_subtree(ti2, ett_rtps_default_mapping);
     proto_tree_add_uint(mapping_tree,
                         hf_rtps_domain_id,
                         tvb,

@@ -838,7 +838,8 @@ dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
 
 static int
 dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree,
-    unsigned int padding, unsigned int packet_len, guint rtcp_subtype, guint32 app_length )
+                  unsigned int padding, unsigned int packet_len, guint rtcp_subtype,
+                  guint32 app_length )
 {
 	unsigned int counter = 0;
 	char ascii_name[5];
@@ -1120,9 +1121,9 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 					/* Move onto next 4-byte boundary */
 					if (offset % 4) {
-						int padding = (4-(offset%4));
-						offset += padding;
-						packet_len -= padding;
+						int padding2 = (4-(offset%4));
+						offset += padding2;
+						packet_len -= padding2;
 					}
 				}
 
@@ -1349,18 +1350,18 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				      i < sizeof(contents) / sizeof(contents[0]);
 				      ++i ) {
 					if ( contents[i] ) {
-						guint sdes_type, sdes_len;
-						/* (sdes_type not currently used...).  Could complain if type
+						guint sdes_type2, sdes_len2;
+						/* (sdes_type2 not currently used...).  Could complain if type
 						   doesn't match expected for item... */
-						sdes_type = tvb_get_guint8( tvb, offset++ );
-						sdes_len = tvb_get_guint8( tvb, offset );
+						sdes_type2 = tvb_get_guint8( tvb, offset++ );
+						sdes_len2  = tvb_get_guint8( tvb, offset );
 
 						/* Add SDES field indicated as present */
 						proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_sdes_items[i], tvb, offset, 1, FALSE );
 
 						/* Move past field */
-						offset += sdes_len + 1;
-						packet_len -= (sdes_len + 2);
+						offset += sdes_len2 + 1;
+						packet_len -= (sdes_len2 + 2);
 					}
 				}
 			    break;

@@ -448,7 +448,6 @@ void dissect_payload_and_padding(
 	
 	if (padding_size != 0)
 	{
-		tvbuff_t* tvb_2;
 		tvb_2 = tvb_new_subset(tvb
 				,(tvb_reported_length_remaining(tvb, 0) - padding_size)
 				,-1
@@ -626,21 +625,21 @@ void dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 		proto_item_set_text(item, proto_name_tree, 0/*-warn gcc 3.4.4*/); 
 		pwc_item_append_text_n_items(item,cells,"good ATM cell");
 		{
-			proto_tree* tree;
-			tree = proto_item_add_subtree(item, ett_encaps);
+			proto_tree* tree2;
+			tree2 = proto_item_add_subtree(item, ett_encaps);
 			{
-				proto_item* item;
-				item = proto_tree_add_boolean(tree
+				proto_item* item2;
+				item2 = proto_tree_add_boolean(tree2
 					,VALUE_SELECTOR_VPC_VCC_PDU(pd.mode
 						,hf_pw_type_11_vpc
 						,hf_pw_type_11_vcc
 						,hf_pw_type_aal5_pdu)
 					,tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_GENERATED(item);
+				PROTO_ITEM_SET_GENERATED(item2);
 				if (MODE_11(pd.mode))
 				{
-					item = proto_tree_add_int(tree, hf_11_ncells, tvb, 0, 0, cells);
-					PROTO_ITEM_SET_GENERATED(item);
+					item2 = proto_tree_add_int(tree2, hf_11_ncells, tvb, 0, 0, cells);
+					PROTO_ITEM_SET_GENERATED(item2);
 				}
 			}
 		}
@@ -861,10 +860,10 @@ void dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		proto_item* item;
 		item = proto_tree_add_item(tree, proto_aal5_sdu, tvb, 0, -1, FALSE);
 		{
-			proto_tree* tree;
-			tree = proto_item_add_subtree(item, ett_encaps);
+			proto_tree* tree2;
+			tree2 = proto_item_add_subtree(item, ett_encaps);
 			{
-				item = proto_tree_add_boolean(tree, hf_pw_type_aal5_sdu, tvb, 0, 0, TRUE);
+				item = proto_tree_add_boolean(tree2, hf_pw_type_aal5_sdu, tvb, 0, 0, TRUE);
 				PROTO_ITEM_SET_GENERATED(item);
 			}
 		}
@@ -1037,14 +1036,14 @@ void dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		item = proto_tree_add_item(tree, proto_n1_cw, tvb, 0, -1, FALSE);
 		pwc_item_append_text_n_items(item,cells,"good ATM cell");
 		{
-			proto_tree* tree;
-			tree = proto_item_add_subtree(item, ett_encaps);
+			proto_tree* tree2;
+			tree2 = proto_item_add_subtree(item, ett_encaps);
 			{
-				proto_item* item;
-				item = proto_tree_add_boolean(tree, hf_pw_type_n1_cw, tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_GENERATED(item);
-				item = proto_tree_add_int(tree, hf_n1_cw_ncells, tvb, 0, 0, cells);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item* item2;
+				item2 = proto_tree_add_boolean(tree2, hf_pw_type_n1_cw, tvb, 0, 0, TRUE);
+				PROTO_ITEM_SET_GENERATED(item2);
+				item2 = proto_tree_add_int(tree2, hf_n1_cw_ncells, tvb, 0, 0, cells);
+				PROTO_ITEM_SET_GENERATED(item2);
 			}
 		}
 		if (pd.props & PWC_PAY_SIZE_BAD)
@@ -1117,14 +1116,14 @@ void dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		item = proto_tree_add_item(tree, proto_n1_nocw, tvb, 0, -1, FALSE);
 		pwc_item_append_text_n_items(item,cells,"ATM cell");
 		{
-			proto_tree* tree;
-			tree = proto_item_add_subtree(item, ett_encaps);
+			proto_tree* tree2;
+			tree2 = proto_item_add_subtree(item, ett_encaps);
 			{
-				proto_item* item;
-				item = proto_tree_add_boolean(tree, hf_pw_type_n1_nocw, tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_GENERATED(item);
-				item = proto_tree_add_int(tree, hf_n1_nocw_ncells, tvb, 0, 0, cells);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item* item2;
+				item2 = proto_tree_add_boolean(tree2, hf_pw_type_n1_nocw, tvb, 0, 0, TRUE);
+				PROTO_ITEM_SET_GENERATED(item2);
+				item2 = proto_tree_add_int(tree2, hf_n1_nocw_ncells, tvb, 0, 0, cells);
+				PROTO_ITEM_SET_GENERATED(item2);
 			}
 		}
 		if (pd.props & PWC_PAY_SIZE_BAD)
@@ -1214,12 +1213,12 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 		pwc_item_append_cw(item_top,tvb_get_ntohl(tvb, 0),FALSE);
 		
 		{
-			proto_tree* tree;
-			tree = proto_item_add_subtree(item_top, ett_cw);
+			proto_tree* tree2;
+			tree2 = proto_item_add_subtree(item_top, ett_cw);
 			{
 				proto_item* item;
 				/* bits 0..3 */
-				item = proto_tree_add_item(tree, hf_cw_bits03, tvb, 0, 1, FALSE);
+				item = proto_tree_add_item(tree2, hf_cw_bits03, tvb, 0, 1, FALSE);
 				if (pd->props & PWC_CW_BAD_BITS03)
 				{
 					/* add item to tree (and show it) only if its value is wrong*/
@@ -1234,7 +1233,7 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 				/* flags */
 				if (MODE_N1(pd->mode))
 				{
-					item = proto_tree_add_item(tree, hf_pref_cw_flags, tvb, 0, 1, FALSE);
+					item = proto_tree_add_item(tree2, hf_pref_cw_flags, tvb, 0, 1, FALSE);
 					if (pd->props & PWC_CW_BAD_FLAGS)
 					{
 						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
@@ -1243,10 +1242,10 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 				}
 				if (pd->mode == PWATM_MODE_AAL5_SDU)
 				{
-					item = proto_tree_add_item(tree, hf_pref_cw_a5s_t, tvb, 0, 1, FALSE);
-					item = proto_tree_add_item(tree, hf_pref_cw_a5s_e, tvb, 0, 1, FALSE);
-					item = proto_tree_add_item(tree, hf_pref_cw_a5s_c, tvb, 0, 1, FALSE);
-					item = proto_tree_add_item(tree, hf_pref_cw_a5s_u, tvb, 0, 1, FALSE);
+					proto_tree_add_item(tree2, hf_pref_cw_a5s_t, tvb, 0, 1, FALSE);
+					proto_tree_add_item(tree2, hf_pref_cw_a5s_e, tvb, 0, 1, FALSE);
+					proto_tree_add_item(tree2, hf_pref_cw_a5s_c, tvb, 0, 1, FALSE);
+					proto_tree_add_item(tree2, hf_pref_cw_a5s_u, tvb, 0, 1, FALSE);
 					/*
 					 * rfc4717: [When FRF.8.1 Frame Relay/ATM PVC Service Interworking [RFC3916]
 					 * traffic is being transported, the CPCS-UU Least Significant Bit
@@ -1271,12 +1270,12 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 				{
 					if (MODE_11_OR_AAL5_PDU(pd->mode))
 					{
-						item = proto_tree_add_item(tree
+						item = proto_tree_add_item(tree2
 							,hf_generic_cw_rsv, tvb, 0, 1, FALSE);
 					}
 					else
 					{ /*preferred cw*/
-						item = proto_tree_add_item(tree
+						item = proto_tree_add_item(tree2
 							,hf_pref_cw_rsv, tvb, 1, 1, FALSE);
 					}
 
@@ -1307,7 +1306,7 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 							if (pref_aal5_sdu_extend_cw_length_with_rsvd)
 								hf_len = hf_pref_cw_rsvlen;
 						}
-						item = proto_tree_add_item(tree, hf_len, tvb, 1, 1, FALSE);
+						item = proto_tree_add_item(tree2, hf_len, tvb, 1, 1, FALSE);
 					}
 					if (pd->props & PWC_CW_BAD_LEN_MUST_BE_0)
 					{
@@ -1335,18 +1334,18 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 				}
 				
 				/* sequence number */
-				(void)proto_tree_add_item(tree, hf_cw_seq, tvb
+				proto_tree_add_item(tree2, hf_cw_seq, tvb
 					,MODE_11_OR_AAL5_PDU(pd->mode) ? 1 : 2, 2, FALSE);
 				
 				/* atm-specific byte */
 				if (MODE_11(pd->mode))
 				{
-					(void) proto_tree_add_item(tree, hf_gen_cw_atmbyte, tvb, 3, 1, FALSE);
+					proto_tree_add_item(tree2, hf_gen_cw_atmbyte, tvb, 3, 1, FALSE);
 					/*
 					 * no need to highlight item in the tree, therefore
 					 * expert_add_info_format() is not used here.
 					 */
-					item = proto_tree_add_text(tree,tvb,3,1
+					item = proto_tree_add_text(tree2,tvb,3,1
 						,"ATM-specific byte of CW is fully dissected below as %s%s"
 						,(PWATM_MODE_11_VPC == pd->mode) ? "a part of "	: ""
 						,"PW ATM Cell Header [000]");
@@ -1363,7 +1362,7 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 				{
 					tvbuff_t* tvb_2;
 					tvb_2 = tvb_new_subset(tvb, (PWC_SIZEOF_CW-1), -1, -1);
-					call_dissector(dh_cell_header, tvb_2, pinfo, tree);
+					call_dissector(dh_cell_header, tvb_2, pinfo, tree2);
 					proto_item_append_text(item_top,", ");
 					proto_item_append_text_cwb3_fields(item_top,pd);
 				}
@@ -1514,100 +1513,100 @@ int dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 		
 		{	
-			proto_tree* tree;
-			tree = proto_item_add_subtree(item, ett_cell_header);
+			proto_tree* tree2;
+			tree2 = proto_item_add_subtree(item, ett_cell_header);
 			if (is_enough_data)
 			{
-				proto_item* item;
+				proto_item* item2;
 				if (MODE_N1(pd->mode)
 				    || (pd->mode == PWATM_MODE_AAL5_SDU && pd->submode == PWATM_SUBMODE_ADMIN_CELL))
 				{
-					(void) proto_tree_add_uint(tree, hf_cell_h_vpi, tvb, 0, 2, (unsigned)pd->vpi);
-					(void) proto_tree_add_uint(tree, hf_cell_h_vci, tvb, 1, 3, (unsigned)pd->vci);
+					proto_tree_add_uint(tree2, hf_cell_h_vpi, tvb, 0, 2, (unsigned)pd->vpi);
+					proto_tree_add_uint(tree2, hf_cell_h_vci, tvb, 1, 3, (unsigned)pd->vci);
 
-					item = proto_tree_add_item(tree, hf_cell_h_pti, tvb, 3, 1, FALSE);
+					item2 = proto_tree_add_item(tree2, hf_cell_h_pti, tvb, 3, 1, FALSE);
 					if (NULL == match_strval(pd->pti,atm_pt_vals))
 					{
-						expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+						expert_add_info_format(pinfo, item2, PI_UNDECODED, PI_WARN,
 							"Unknown value of PTI field (%d) in the ATM cell header",
 							pd->pti);
 					}
 					else if (pd->mode == PWATM_MODE_AAL5_SDU && !PTI_IS_ADMIN(pd->pti))
 					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+						expert_add_info_format(pinfo, item2, PI_MALFORMED, PI_ERROR,
 							"ATM admin cell is transerred;"
 							" PTI field (%d) should be 4, 5 or 6.",
 							pd->pti);
 					}
 					
-					(void) proto_tree_add_item(tree, hf_cell_h_clp, tvb, 3, 1, FALSE);
+					proto_tree_add_item(tree2, hf_cell_h_clp, tvb, 3, 1, FALSE);
 				}
 				else if (MODE_11_OR_AAL5_PDU(pd->mode))
 				{
-					item = proto_tree_add_item(tree, hf_cell_h_m  , tvb, 0, 1, FALSE);
+					item2 = proto_tree_add_item(tree2, hf_cell_h_m  , tvb, 0, 1, FALSE);
 					if ((0 != pd->cwb3.m) && MODE_11(pd->mode))
 					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+						expert_add_info_format(pinfo, item2, PI_MALFORMED, PI_ERROR
 							,"1:1 mode:"
 							" M bit must be 0 to distinguish from AAL5 PDU mode");
 					}
 
-					item = proto_tree_add_item(tree, hf_cell_h_v  , tvb, 0, 1, FALSE);
+					item2 = proto_tree_add_item(tree2, hf_cell_h_v  , tvb, 0, 1, FALSE);
 					if ((0 == pd->cwb3.v) && (PWATM_MODE_11_VPC == pd->mode))
 					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+						expert_add_info_format(pinfo, item2, PI_MALFORMED, PI_ERROR
 							,"1:1 VPC mode:"
 							" V bit must be 1 to indicate that VCI is present");
 					}
 					if ((0 != pd->cwb3.v) && (PWATM_MODE_11_VCC == pd->mode))
 					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+						expert_add_info_format(pinfo, item2, PI_MALFORMED, PI_ERROR
 							,"1:1 VCC mode:"
 							" V bit must be 0 to indicate that VCI is absent");
 					}
 					if ((0 != pd->cwb3.v) && (PWATM_MODE_AAL5_PDU == pd->mode))
 					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+						expert_add_info_format(pinfo, item2, PI_MALFORMED, PI_ERROR
 							,"AAL5 PDU mode:"
 							" V bit must be 0 to indicate that VCI is absent");
 					}
 					
-					item = proto_tree_add_item(tree
+					item2 = proto_tree_add_item(tree2
 						,(PWATM_MODE_AAL5_PDU == pd->mode)
 							? hf_aal5_pdu_rsv
 							: hf_cell_h_rsv
 						,tvb, 0, 1, FALSE);
 					if (0 != pd->cwb3.rsv)
 					{
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
+						expert_add_info_format(pinfo, item2, PI_MALFORMED, PI_ERROR
 							,"Reserved bits in the 3rd byte of CW must be 0");
 					}
 					else
 					{
-				                PROTO_ITEM_SET_HIDDEN(item); /*...and show only in error cases */
+				                PROTO_ITEM_SET_HIDDEN(item2); /*...and show only in error cases */
 			                }
 			
 					if (MODE_11(pd->mode))
 					{
-						item = proto_tree_add_item(tree, hf_cell_h_pti, tvb, 0, 1, FALSE);
+						item2 = proto_tree_add_item(tree2, hf_cell_h_pti, tvb, 0, 1, FALSE);
 						if (NULL == match_strval(pd->pti,atm_pt_vals))
 						{
-							expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+							expert_add_info_format(pinfo, item2, PI_UNDECODED, PI_WARN,
 								"Unknown value of PTI field (%d) in the atm-specific byte"
 								,pd->pti);
 						}
 					}
 					else
 					{
-						(void) proto_tree_add_item(tree, hf_aal5_pdu_u, tvb, 0, 1, FALSE);
-						(void) proto_tree_add_item(tree, hf_aal5_pdu_e, tvb, 0, 1, FALSE);
+						proto_tree_add_item(tree2, hf_aal5_pdu_u, tvb, 0, 1, FALSE);
+						proto_tree_add_item(tree2, hf_aal5_pdu_e, tvb, 0, 1, FALSE);
 					}
 					
-					(void) proto_tree_add_item(tree, hf_cell_h_clp, tvb, 0, 1, FALSE);
+					proto_tree_add_item(tree2, hf_cell_h_clp, tvb, 0, 1, FALSE);
 					
 					if (PWATM_MODE_11_VPC == pd->mode)
 					{
-						(void) proto_tree_add_uint(tree, hf_cell_h_vci, tvb, 1, 2
+						proto_tree_add_uint(tree2, hf_cell_h_vci, tvb, 1, 2
 							,(unsigned)pd->vci);
 					}
 				}
@@ -1626,6 +1625,7 @@ int dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
 	return dissect_size;
 }
+
 
 
 static
@@ -1674,12 +1674,12 @@ int dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 		
 		{
-			proto_tree* tree;
+			proto_tree* tree2;
 			tvbuff_t* tvb_d;
-			tree = proto_item_add_subtree(item, ett_cell);
+			tree2 = proto_item_add_subtree(item, ett_cell);
 			tvb_d = tvb_new_subset(tvb, 0, dissect_size, -1);
-			call_dissector(dh_data, tvb_d, pinfo, tree);
-			item = proto_tree_add_int(tree, hf_cell_payload_len, tvb, 0, 0, dissect_size);
+			call_dissector(dh_data, tvb_d, pinfo, tree2);
+			item = proto_tree_add_int(tree2, hf_cell_payload_len, tvb, 0, 0, dissect_size);
 			PROTO_ITEM_SET_HIDDEN(item);
 		}
 	}

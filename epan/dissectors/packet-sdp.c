@@ -295,7 +295,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   transport_info.connection_type=NULL;
   transport_info.media_type=NULL;
   for (n=0; n < SDP_NO_OF_PT; n++){
-	  transport_info.encoding_name[n]=unknown_encoding;
+    transport_info.encoding_name[n]=unknown_encoding;
   }
   for (n=0; n < SDP_MAX_RTP_CHANNELS; n++)
   {
@@ -351,8 +351,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     type = tvb_get_guint8(tvb,offset);
     delim = tvb_get_guint8(tvb,offset + 1);
     if (delim != '=') {
-      proto_item *ti = proto_tree_add_item(sdp_tree, hf_invalid, tvb, offset, linelen, FALSE);
-      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_NOTE,
+      proto_item *ti2 = proto_tree_add_item(sdp_tree, hf_invalid, tvb, offset, linelen, FALSE);
+      expert_add_info_format(pinfo, ti2, PI_MALFORMED, PI_NOTE,
                              "Invalid SDP line (no '=' delimiter)");
       offset = next_offset;
       continue;
@@ -454,15 +454,15 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * and stream decoding is enabled in preferences
        */
        if(global_sdp_establish_conversation){
-            /* Check if media protocol is RTP */
-            is_rtp = (strcmp(transport_info.media_proto[n],"RTP/AVP")==0);
-            /* Check if media protocol is SRTP */
-            is_srtp = (strcmp(transport_info.media_proto[n],"RTP/SAVP")==0);
-            /* Check if media protocol is T38 */
-            is_t38 = ( (strcmp(transport_info.media_proto[n],"UDPTL")==0) ||
-                       (strcmp(transport_info.media_proto[n],"udptl")==0) );
-            /* Check if media protocol is MSRP/TCP */
-            is_msrp = (strcmp(transport_info.media_proto[n],"msrp/tcp")==0);
+         /* Check if media protocol is RTP */
+         is_rtp = (strcmp(transport_info.media_proto[n],"RTP/AVP")==0);
+         /* Check if media protocol is SRTP */
+         is_srtp = (strcmp(transport_info.media_proto[n],"RTP/SAVP")==0);
+         /* Check if media protocol is T38 */
+         is_t38 = ( (strcmp(transport_info.media_proto[n],"UDPTL")==0) ||
+                    (strcmp(transport_info.media_proto[n],"udptl")==0) );
+         /* Check if media protocol is MSRP/TCP */
+         is_msrp = (strcmp(transport_info.media_proto[n],"msrp/tcp")==0);
        }
     }
 
@@ -487,9 +487,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
       }
     }
-	if (strcmp(transport_info.media_type,"video")==0){
-		is_video = TRUE;
-	}
+    if (strcmp(transport_info.media_type,"video")==0){
+      is_video = TRUE;
+    }
     set_rtp = FALSE;
     /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
     if((!pinfo->fd->flags.visited) && port!=0 && (is_rtp||is_srtp) && (is_ipv4_addr || is_ipv6_addr)){
@@ -522,14 +522,14 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Add MSRP conversation.  Uses addresses discovered in attribute
        rather than connection information of media session line */
     if (is_msrp ){
-        if ((!pinfo->fd->flags.visited) && msrp_transport_address_set){
-            if(msrp_handle){
-                src_addr.type=AT_IPv4;
-                src_addr.len=4;
-                src_addr.data=(guint8*)&msrp_ipaddr;
-                msrp_add_address(pinfo, &src_addr, msrp_port_number, "SDP", pinfo->fd->num);
-            }
+      if ((!pinfo->fd->flags.visited) && msrp_transport_address_set){
+        if(msrp_handle){
+          src_addr.type=AT_IPv4;
+          src_addr.len=4;
+          src_addr.data=(guint8*)&msrp_ipaddr;
+          msrp_add_address(pinfo, &src_addr, msrp_port_number, "SDP", pinfo->fd->num);
         }
+      }
     }
 
     /* Create the RTP summary str for the Voip Call analysis */
@@ -763,14 +763,14 @@ dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti){
   item = proto_tree_add_item(sdp_bandwidth_tree, hf_bandwidth_modifier, tvb, offset,
                       tokenlen, FALSE);
   if (tvb_strneql(tvb, offset, "CT", 2) == 0){
-	  proto_item_append_text(item, " [Conference Total(total bandwidth of all RTP sessions)]");
-	  unit_is_kbs = TRUE;
+    proto_item_append_text(item, " [Conference Total(total bandwidth of all RTP sessions)]");
+    unit_is_kbs = TRUE;
   }else if (tvb_strneql(tvb, offset, "AS", 2) == 0){
-	  proto_item_append_text(item, " [Application Specific (RTP session bandwidth)]");
-	  unit_is_kbs = TRUE;
+    proto_item_append_text(item, " [Application Specific (RTP session bandwidth)]");
+    unit_is_kbs = TRUE;
   }else if (tvb_strneql(tvb, offset, "TIAS", 4) == 0){
-	  proto_item_append_text(item, " [Transport Independent Application Specific maximum]");
-	  unit_is_bps = TRUE;
+    proto_item_append_text(item, " [Transport Independent Application Specific maximum]");
+    unit_is_bps = TRUE;
   }
 
 
@@ -779,9 +779,9 @@ dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti){
   item = proto_tree_add_item(sdp_bandwidth_tree, hf_bandwidth_value, tvb, offset, -1,
                       FALSE);
   if (unit_is_kbs == TRUE)
-	   proto_item_append_text(item, " kb/s");
+    proto_item_append_text(item, " kb/s");
   if (unit_is_bps == TRUE)
-	   proto_item_append_text(item, " b/s");
+    proto_item_append_text(item, " b/s");
 }
 
 static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti){
@@ -910,7 +910,7 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti){
 }
 
 static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti){
-  gchar *data = NULL;
+  gchar *data_p = NULL;
   gchar *prtcl_id = NULL;
   gint len;
   tvbuff_t *keymgmt_tvb;
@@ -938,8 +938,8 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
   if (len < 0)
     return;
 
-  data = tvb_get_ephemeral_string(tvb, offset, len);
-  keymgmt_tvb = base64_to_tvb(tvb, data);
+  data_p = tvb_get_ephemeral_string(tvb, offset, len);
+  keymgmt_tvb = base64_to_tvb(tvb, data_p);
   add_new_data_source(pinfo, keymgmt_tvb, "Key Management Data");
 
   if ( prtcl_id != NULL && key_mgmt_dissector_table != NULL ) {
@@ -950,9 +950,9 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
   }
 
   if (found_match) {
-    proto_item *ti = proto_tree_add_item(key_tree, hf_key_mgmt_data,
+    proto_item *ti2 = proto_tree_add_item(key_tree, hf_key_mgmt_data,
                                          keymgmt_tvb, 0, -1, FALSE);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    PROTO_ITEM_SET_HIDDEN(ti2);
   }
   else {
     proto_tree_add_item(key_tree, hf_key_mgmt_data,
@@ -1034,7 +1034,7 @@ static void
 dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                   transport_info_t *transport_info){
   proto_tree *sdp_media_tree;
-  gint offset, next_offset, tokenlen, index;
+  gint offset, next_offset, tokenlen, idx;
   guint8 *media_format;
 
   offset = 0;
@@ -1128,9 +1128,9 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       media_format = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
                             tokenlen, val_to_str(atol((char*)media_format), rtp_payload_type_vals, "%u"));
-      index = transport_info->media[transport_info->media_count].pt_count;
-      transport_info->media[transport_info->media_count].pt[index] = atol((char*)media_format);
-      if (index < (SDP_MAX_RTP_PAYLOAD_TYPES-1))
+      idx = transport_info->media[transport_info->media_count].pt_count;
+      transport_info->media[transport_info->media_count].pt[idx] = atol((char*)media_format);
+      if (idx < (SDP_MAX_RTP_PAYLOAD_TYPES-1))
         transport_info->media[transport_info->media_count].pt_count++;
     } else {
       proto_tree_add_item(sdp_media_tree, hf_media_format, tvb, offset,
@@ -1156,76 +1156,76 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 static tvbuff_t *
 ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gint len, gchar *msg)
 {
-	guint8 *buf = g_malloc(10240);
+  guint8 *buf = g_malloc(10240);
 
-	/* arbitrary maximum length */
-	if(len<20480){
-		int i;
-		tvbuff_t *bytes_tvb;
+  /* arbitrary maximum length */
+  if(len<20480){
+    int i;
+    tvbuff_t *bytes_tvb;
 
-		/* first, skip to where the encoded pdu starts, this is
-		   the first hex digit after the '=' char.
-		*/
-		while(1){
-			if((*msg==0)||(*msg=='\n')){
-				return NULL;
-			}
-			if(*msg=='='){
-				msg++;
-				break;
-			}
-			msg++;
-		}
-		while(1){
-			if((*msg==0)||(*msg=='\n')){
-				return NULL;
-			}
-			if( ((*msg>='0')&&(*msg<='9'))
-			||  ((*msg>='a')&&(*msg<='f'))
-			||  ((*msg>='A')&&(*msg<='F'))){
-				break;
-			}
-			msg++;
-		}
-		i=0;
-		while( ((*msg>='0')&&(*msg<='9'))
-		     ||((*msg>='a')&&(*msg<='f'))
-		     ||((*msg>='A')&&(*msg<='F'))  ){
-			int val;
-			if((*msg>='0')&&(*msg<='9')){
-				val=(*msg)-'0';
-			} else if((*msg>='a')&&(*msg<='f')){
-				val=(*msg)-'a'+10;
-			} else if((*msg>='A')&&(*msg<='F')){
-				val=(*msg)-'A'+10;
-			} else {
-				return NULL;
-			}
-			val<<=4;
-			msg++;
-			if((*msg>='0')&&(*msg<='9')){
-				val|=(*msg)-'0';
-			} else if((*msg>='a')&&(*msg<='f')){
-				val|=(*msg)-'a'+10;
-			} else if((*msg>='A')&&(*msg<='F')){
-				val|=(*msg)-'A'+10;
-			} else {
-				return NULL;
-			}
-			msg++;
+    /* first, skip to where the encoded pdu starts, this is
+       the first hex digit after the '=' char.
+    */
+    while(1){
+      if((*msg==0)||(*msg=='\n')){
+        return NULL;
+      }
+      if(*msg=='='){
+        msg++;
+        break;
+      }
+      msg++;
+    }
+    while(1){
+      if((*msg==0)||(*msg=='\n')){
+        return NULL;
+      }
+      if( ((*msg>='0')&&(*msg<='9'))
+          ||  ((*msg>='a')&&(*msg<='f'))
+          ||  ((*msg>='A')&&(*msg<='F'))){
+        break;
+      }
+      msg++;
+    }
+    i=0;
+    while( ((*msg>='0')&&(*msg<='9'))
+           ||((*msg>='a')&&(*msg<='f'))
+           ||((*msg>='A')&&(*msg<='F'))  ){
+      int val;
+      if((*msg>='0')&&(*msg<='9')){
+        val=(*msg)-'0';
+      } else if((*msg>='a')&&(*msg<='f')){
+        val=(*msg)-'a'+10;
+      } else if((*msg>='A')&&(*msg<='F')){
+        val=(*msg)-'A'+10;
+      } else {
+        return NULL;
+      }
+      val<<=4;
+      msg++;
+      if((*msg>='0')&&(*msg<='9')){
+        val|=(*msg)-'0';
+      } else if((*msg>='a')&&(*msg<='f')){
+        val|=(*msg)-'a'+10;
+      } else if((*msg>='A')&&(*msg<='F')){
+        val|=(*msg)-'A'+10;
+      } else {
+        return NULL;
+      }
+      msg++;
 
-			buf[i]=(guint8)val;
-			i++;
-		}
-		if(i==0){
-			return NULL;
-		}
-		bytes_tvb = tvb_new_child_real_data(tvb, buf,i,i);
-                tvb_set_free_cb(bytes_tvb, g_free);
-		add_new_data_source(pinfo, bytes_tvb, "ASCII bytes to tvb");
-		return bytes_tvb;
-	}
-	return NULL;
+      buf[i]=(guint8)val;
+      i++;
+    }
+    if(i==0){
+      return NULL;
+    }
+    bytes_tvb = tvb_new_child_real_data(tvb, buf,i,i);
+    tvb_set_free_cb(bytes_tvb, g_free);
+    add_new_data_source(pinfo, bytes_tvb, "ASCII bytes to tvb");
+    return bytes_tvb;
+  }
+  return NULL;
 }
 
 /* Annex X Profiles and levels definition */
@@ -1311,16 +1311,16 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       item = proto_tree_add_uint(tree, hf_sdp_fmtp_mpeg4_profile_level_id, tvb, offset, tokenlen,
                                  atol((char*)format_specific_parameter));
       PROTO_ITEM_SET_GENERATED(item);
-    }else if(strcmp((char*)field_name, "config") == 0) {
-		/* String including "=" */
-		tokenlen = end_offset - offset;
-		format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-		/* ascii_bytes_to_tvb requires the "=" to be in the buffer */
-		data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter); 
-		if(mp4ves_handle && data_tvb){
-			dissect_mp4ves_config(data_tvb, pinfo, tree);
-		}
-	}
+    } else if (strcmp((char*)field_name, "config") == 0) {
+      /* String including "=" */
+      tokenlen = end_offset - offset;
+      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      /* ascii_bytes_to_tvb requires the "=" to be in the buffer */
+      data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter); 
+      if(mp4ves_handle && data_tvb){
+        dissect_mp4ves_config(data_tvb, pinfo, tree);
+      }
+    }
   }
 
   /* Dissect the H263-2000 profile parameter if present */
@@ -1357,73 +1357,73 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
    */
   if (mime_type != NULL && g_ascii_strcasecmp(mime_type, "H264") == 0) {
     if (strcmp(field_name, "profile-level-id") == 0) {
-		int length;
+      int length;
  	
-	  /* Length includes "=" as it's required by ascii_bytes_to_tvb()*/
+      /* Length includes "=" as it's required by ascii_bytes_to_tvb()*/
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-	  data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
-	  length = tvb_length(data_tvb);
-	  if (length == 3){
-		  if(h264_handle && data_tvb){
-			  dissect_h264_profile(data_tvb, pinfo, tree);
-		  }
-	  }else{
-		  item = proto_tree_add_text(tree, tvb, offset, tokenlen, "Incorrectly coded, must be three bytes");
-		  PROTO_ITEM_SET_GENERATED(item);
-	  }
-	}else if (strcmp(field_name, "packetization-mode") == 0) {
+      data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
+      length = tvb_length(data_tvb);
+      if (length == 3){
+        if(h264_handle && data_tvb){
+          dissect_h264_profile(data_tvb, pinfo, tree);
+        }
+      }else{
+        item = proto_tree_add_text(tree, tvb, offset, tokenlen, "Incorrectly coded, must be three bytes");
+        PROTO_ITEM_SET_GENERATED(item);
+      }
+    }else if (strcmp(field_name, "packetization-mode") == 0) {
       offset++;
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       item = proto_tree_add_uint(tree, hf_sdp_h264_packetization_mode, tvb, offset, tokenlen,
                                  atol((char*)format_specific_parameter));
-	  PROTO_ITEM_SET_GENERATED(item);
+      PROTO_ITEM_SET_GENERATED(item);
 
-	}else if (strcmp(field_name, "sprop-parameter-sets") == 0) {
-		/* The value of the parameter is the
-           base64 [6] representation of the initial
-           parameter set NAL units as specified in
-           sections 7.3.2.1 and 7.3.2.2 of [1].  The
-           parameter sets are conveyed in decoding order,
-           and no framing of the parameter set NAL units
-           takes place.  A comma is used to separate any
-           pair of parameter sets in the list.
-		*/
-		gchar *data = NULL;
-		gint comma_offset;
+    }else if (strcmp(field_name, "sprop-parameter-sets") == 0) {
+      /* The value of the parameter is the
+         base64 [6] representation of the initial
+         parameter set NAL units as specified in
+         sections 7.3.2.1 and 7.3.2.2 of [1].  The
+         parameter sets are conveyed in decoding order,
+         and no framing of the parameter set NAL units
+         takes place.  A comma is used to separate any
+         pair of parameter sets in the list.
+      */
+      gchar *data_p = NULL;
+      gint comma_offset;
 
 
-		/* Move past '=' */
-		offset++;
-		comma_offset = tvb_find_guint8(tvb,offset,-1,',');
-		if (comma_offset != -1){
-			tokenlen = comma_offset - offset;
-		}else{
-			tokenlen = end_offset - offset;
-		}
+      /* Move past '=' */
+      offset++;
+      comma_offset = tvb_find_guint8(tvb,offset,-1,',');
+      if (comma_offset != -1){
+        tokenlen = comma_offset - offset;
+      }else{
+        tokenlen = end_offset - offset;
+      }
 		
-		data = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-	    proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 1 string: %s", data);
+      data_p = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 1 string: %s", data_p);
 
-		/* proto_tree_add_text(tree, tvb, offset, tokenlen, "String %s",data); */
-		data_tvb = base64_to_tvb(tvb, data);
-		add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets");
+      /* proto_tree_add_text(tree, tvb, offset, tokenlen, "String %s",data_p); */
+      data_tvb = base64_to_tvb(tvb, data_p);
+      add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets");
 
-		if(h264_handle && data_tvb){
-			dissect_h264_nal_unit(data_tvb, pinfo, tree);
-			if (comma_offset != -1){
-				/* Second NAL unit */
-				offset = comma_offset +1;
-				tokenlen = end_offset - offset;
-				data = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-				proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 2 string: %s", data);
-				data_tvb = base64_to_tvb(tvb, data);
-				add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets 2");
-				dissect_h264_nal_unit(data_tvb, pinfo, tree);
-			}
-		}
-	}
+      if(h264_handle && data_tvb){
+        dissect_h264_nal_unit(data_tvb, pinfo, tree);
+        if (comma_offset != -1){
+          /* Second NAL unit */
+          offset = comma_offset +1;
+          tokenlen = end_offset - offset;
+          data_p = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+          proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 2 string: %s", data_p);
+          data_tvb = base64_to_tvb(tvb, data_p);
+          add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets 2");
+          dissect_h264_nal_unit(data_tvb, pinfo, tree);
+        }
+      }
+    }
   }
 
 }
@@ -1438,24 +1438,24 @@ typedef struct {
 #define SDP_H248_ITEM	4
 
 static const sdp_names_t sdp_media_attribute_names[] = {
-		{ "Unknown-name"},	/* 0 Pad so that the real headers start at index 1 */
-		{ "rtpmap"},		/* 1 */
-		{ "fmtp"},			/* 2 */
-		{ "path"},			/* 3 */
-		{ "h248item"},		/* 4 */
+  { "Unknown-name"},	/* 0 Pad so that the real headers start at index 1 */
+  { "rtpmap"},		/* 1 */
+  { "fmtp"},		/* 2 */
+  { "path"},		/* 3 */
+  { "h248item"},	/* 4 */
 };
 
 static gint find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, guint len)
 {
-        guint i;
+  guint i;
 
-        for (i = 1; i < array_length(sdp_media_attribute_names); i++) {
-                if (len == strlen(sdp_media_attribute_names[i].name) &&
-                    tvb_strncaseeql(tvb, offset, sdp_media_attribute_names[i].name, len) == 0)
-                        return i;
-        }
+  for (i = 1; i < array_length(sdp_media_attribute_names); i++) {
+    if (len == strlen(sdp_media_attribute_names[i].name) &&
+        tvb_strncaseeql(tvb, offset, sdp_media_attribute_names[i].name, len) == 0)
+      return i;
+  }
 
-        return -1;
+  return -1;
 }
 
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item * ti, transport_info_t *transport_info){
@@ -1510,198 +1510,198 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
   switch (sdp_media_attrbute_code){
   case SDP_RTPMAP:
-	 /* decode the rtpmap to see if it is DynamicPayload to dissect them automatic */
-	  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+    /* decode the rtpmap to see if it is DynamicPayload to dissect them automatic */
+    next_offset = tvb_find_guint8(tvb,offset,-1,' ');
 
-	  if(next_offset == -1)
-		  return;
+    if(next_offset == -1)
+      return;
 
-	  tokenlen = next_offset - offset;
+    tokenlen = next_offset - offset;
 
-	  proto_tree_add_item(sdp_media_attribute_tree, hf_media_format, tvb,
+    proto_tree_add_item(sdp_media_attribute_tree, hf_media_format, tvb,
                         offset, tokenlen, FALSE);
 
-	  payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+    payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
-	  offset = next_offset + 1;
+    offset = next_offset + 1;
 
-	  next_offset = tvb_find_guint8(tvb,offset,-1,'/');
+    next_offset = tvb_find_guint8(tvb,offset,-1,'/');
 
-	  if(next_offset == -1){
-		  return;
-	  }
+    if(next_offset == -1){
+      return;
+    }
 
-	  tokenlen = next_offset - offset;
+    tokenlen = next_offset - offset;
 
-	  proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
+    proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
                         offset, tokenlen, FALSE);
 
-	  key=g_malloc( sizeof(gint) );
-	  *key=atol((char*)payload_type);
-	  pt = atoi((char*)payload_type);
-          if (pt >= SDP_NO_OF_PT) {
-              return;   /* Invalid */ 
-          }
-	  transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
+    key=g_malloc( sizeof(gint) );
+    *key=atol((char*)payload_type);
+    pt = atoi((char*)payload_type);
+    if (pt >= SDP_NO_OF_PT) {
+      return;   /* Invalid */ 
+    }
+    transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 	
 
-	  offset = next_offset + 1;
-	  tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
+    offset = next_offset + 1;
+    tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
 
-	  tokenlen = next_offset - offset;
-	  proto_tree_add_item(sdp_media_attribute_tree, hf_media_sample_rate, tvb,
+    tokenlen = next_offset - offset;
+    proto_tree_add_item(sdp_media_attribute_tree, hf_media_sample_rate, tvb,
                         offset, tokenlen, FALSE);
-	  /* As per RFC2327 it is possible to have multiple Media Descriptions ("m=").
-	     For example:
+    /* As per RFC2327 it is possible to have multiple Media Descriptions ("m=").
+       For example:
 
-            a=rtpmap:101 G726-32/8000
-            m=audio 49170 RTP/AVP 0 97
-            a=rtpmap:97 telephone-event/8000
-            m=audio 49172 RTP/AVP 97 101
-            a=rtpmap:97 G726-24/8000
+       a=rtpmap:101 G726-32/8000
+       m=audio 49170 RTP/AVP 0 97
+       a=rtpmap:97 telephone-event/8000
+       m=audio 49172 RTP/AVP 97 101
+       a=rtpmap:97 G726-24/8000
 
-		The Media attributes ("a="s) after the "m=" only apply for that "m=".
-		If there is an "a=" before the first "m=", that attribute applies for
-		all the session (all the "m="s).
-	  */
+       The Media attributes ("a="s) after the "m=" only apply for that "m=".
+       If there is an "a=" before the first "m=", that attribute applies for
+       all the session (all the "m="s).
+    */
 
-	  /* so, if this "a=" appear before any "m=", we add it to all the dynamic
-	   * hash tables
-	   */
-	  if (transport_info->media_count == 0) {
-		  for (n=0; n < SDP_MAX_RTP_CHANNELS; n++) {
-			  if (n==0)
-				  g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
-                                    key, g_strdup(transport_info->encoding_name[pt]));
-			  else {    /* we create a new key and encoding_name to assign to the other hash tables */
-				  gint *key2;
-				  key2=g_malloc( sizeof(gint) );
-				  *key2=atol((char*)payload_type);
-				  g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
-					  key2, g_strdup(transport_info->encoding_name[pt]));
-			  }
-		  }
-		  return;
-		  /* if the "a=" is after an "m=", only apply to this "m=" */
-	  }else
-		  /* in case there is an overflow in SDP_MAX_RTP_CHANNELS, we keep always the last "m=" */
-		  if (transport_info->media_count == SDP_MAX_RTP_CHANNELS-1)
-			  g_hash_table_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload,
-					key, g_strdup(transport_info->encoding_name[pt]));
-		  else
-			  g_hash_table_insert(transport_info->media[ transport_info->media_count-1 ].rtp_dyn_payload,
-					key, g_strdup(transport_info->encoding_name[pt]));
-	  break;
+    /* so, if this "a=" appear before any "m=", we add it to all the dynamic
+     * hash tables
+     */
+    if (transport_info->media_count == 0) {
+      for (n=0; n < SDP_MAX_RTP_CHANNELS; n++) {
+        if (n==0)
+          g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
+                              key, g_strdup(transport_info->encoding_name[pt]));
+        else {    /* we create a new key and encoding_name to assign to the other hash tables */
+          gint *key2;
+          key2=g_malloc( sizeof(gint) );
+          *key2=atol((char*)payload_type);
+          g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
+                              key2, g_strdup(transport_info->encoding_name[pt]));
+        }
+      }
+      return;
+      /* if the "a=" is after an "m=", only apply to this "m=" */
+    }else
+      /* in case there is an overflow in SDP_MAX_RTP_CHANNELS, we keep always the last "m=" */
+      if (transport_info->media_count == SDP_MAX_RTP_CHANNELS-1)
+        g_hash_table_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload,
+                            key, g_strdup(transport_info->encoding_name[pt]));
+      else
+        g_hash_table_insert(transport_info->media[ transport_info->media_count-1 ].rtp_dyn_payload,
+                            key, g_strdup(transport_info->encoding_name[pt]));
+    break;
   case SDP_FMTP:
-	  if(sdp_media_attribute_tree){
-		  guint8 media_format;
-		  /* Reading the Format parameter(fmtp) */
-		  /* Skip leading space, if any */
-		  offset = tvb_skip_wsp(tvb,offset,tvb_length_remaining(tvb,offset));
-		  /* Media format extends to the next space */
-		  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+    if(sdp_media_attribute_tree){
+      guint8 media_format;
+      /* Reading the Format parameter(fmtp) */
+      /* Skip leading space, if any */
+      offset = tvb_skip_wsp(tvb,offset,tvb_length_remaining(tvb,offset));
+      /* Media format extends to the next space */
+      next_offset = tvb_find_guint8(tvb,offset,-1,' ');
 
-		  if(next_offset == -1)
-			  return;
+      if(next_offset == -1)
+        return;
 
-		  tokenlen = next_offset - offset;
+      tokenlen = next_offset - offset;
 
 		  
-		  media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
-                                            hf_media_format, tvb, offset,
-                                            tokenlen, FALSE);
-		  media_format = atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen));
-		  if (media_format >= SDP_NO_OF_PT) {
-			  return;   /* Invalid */ 
-                  }
+      media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
+                                              hf_media_format, tvb, offset,
+                                              tokenlen, FALSE);
+      media_format = atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen));
+      if (media_format >= SDP_NO_OF_PT) {
+        return;   /* Invalid */ 
+      }
 
-		  /* Append encoding name to format if known */
-		  proto_item_append_text(media_format_item, " [%s]",
+      /* Append encoding name to format if known */
+      proto_item_append_text(media_format_item, " [%s]",
                              transport_info->encoding_name[media_format]);
 
-		  payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-		  /* Move offset past the payload type */
-		  offset = next_offset + 1;
+      payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      /* Move offset past the payload type */
+      offset = next_offset + 1;
 
-		  while(has_more_pars==TRUE){
-			  next_offset = tvb_find_guint8(tvb,offset,-1,';');
-			  offset = tvb_skip_wsp(tvb,offset,tvb_length_remaining(tvb,offset));
+      while(has_more_pars==TRUE){
+        next_offset = tvb_find_guint8(tvb,offset,-1,';');
+        offset = tvb_skip_wsp(tvb,offset,tvb_length_remaining(tvb,offset));
 
-			  if(next_offset == -1){
-				  has_more_pars = FALSE;
-				  next_offset= tvb_length(tvb);
-			  }else{
+        if(next_offset == -1){
+          has_more_pars = FALSE;
+          next_offset= tvb_length(tvb);
+        }else{
 	
-			  }
+        }
 
-			  /* There are at least 2 - add the first parameter */
-			  tokenlen = next_offset - offset;
-			  fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
-                                      hf_media_format_specific_parameter, tvb,
-                                      offset, tokenlen, FALSE);
+        /* There are at least 2 - add the first parameter */
+        tokenlen = next_offset - offset;
+        fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
+                                        hf_media_format_specific_parameter, tvb,
+                                        offset, tokenlen, FALSE);
 
-			  fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
+        fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
-			  decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
-                      transport_info->encoding_name[media_format]);
+        decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
+                        transport_info->encoding_name[media_format]);
 
-			  /* Move offset past "; " and onto firts char */	
-			  offset = next_offset + 1;
-		  }
-	  }
-	  break;
+        /* Move offset past "; " and onto firts char */	
+        offset = next_offset + 1;
+      }
+    }
+    break;
   case SDP_PATH:
-	  /* msrp attributes that contain address needed for conversation */
-	  if (strncmp((char*)attribute_value, msrp_res, strlen(msrp_res)) == 0){
-		  int address_offset, port_offset, port_end_offset;
+    /* msrp attributes that contain address needed for conversation */
+    if (strncmp((char*)attribute_value, msrp_res, strlen(msrp_res)) == 0){
+      int address_offset, port_offset, port_end_offset;
 
-		  /* Address starts here */
-		  address_offset = offset + (int)strlen(msrp_res);
+      /* Address starts here */
+      address_offset = offset + (int)strlen(msrp_res);
 
-		  /* Port is after next ':' */
-		  port_offset = tvb_find_guint8(tvb, address_offset, -1, ':');
+      /* Port is after next ':' */
+      port_offset = tvb_find_guint8(tvb, address_offset, -1, ':');
 
-		  /* Port ends with '/' */
-		  port_end_offset = tvb_find_guint8(tvb, port_offset, -1, '/');
+      /* Port ends with '/' */
+      port_end_offset = tvb_find_guint8(tvb, port_offset, -1, '/');
 
-		  /* Attempt to convert address */
-		  if (inet_pton(AF_INET, (char*)tvb_get_ephemeral_string(tvb, address_offset, port_offset-address_offset), &msrp_ipaddr) > 0) {
-			  /* Get port number */
-			  msrp_port_number = atoi((char*)tvb_get_ephemeral_string(tvb, port_offset+1, port_end_offset-port_offset-1));
-			  /* Set flag so this info can be used */
-			  msrp_transport_address_set = TRUE;
-		  }
-	  }
-	  break;
+      /* Attempt to convert address */
+      if (inet_pton(AF_INET, (char*)tvb_get_ephemeral_string(tvb, address_offset, port_offset-address_offset), &msrp_ipaddr) > 0) {
+        /* Get port number */
+        msrp_port_number = atoi((char*)tvb_get_ephemeral_string(tvb, port_offset+1, port_end_offset-port_offset-1));
+        /* Set flag so this info can be used */
+        msrp_transport_address_set = TRUE;
+      }
+    }
+    break;
   case SDP_H248_ITEM:
-	  /* Decode h248 item ITU-T Rec. H.248.12 (2001)/Amd.1 (11/2002)*/
-	  if (strncmp((char*)attribute_value, h324ext_h223lcparm, strlen(msrp_res)) == 0){
-		  /* A.5.1.3 H.223 Logical channel parameters
-		   * This property indicates the H.245
-		   * H223LogicalChannelsParameters structure encoded by applying the PER specified in
-		   * ITU-T Rec. X.691. Value encoded as per A.5.1.2. For text encoding the mechanism defined
-		   * in ITU-T Rec. H.248.15 is used.
-		   */
-		  gint len;
-		  asn1_ctx_t actx;
+    /* Decode h248 item ITU-T Rec. H.248.12 (2001)/Amd.1 (11/2002)*/
+    if (strncmp((char*)attribute_value, h324ext_h223lcparm, strlen(msrp_res)) == 0){
+      /* A.5.1.3 H.223 Logical channel parameters
+       * This property indicates the H.245
+       * H223LogicalChannelsParameters structure encoded by applying the PER specified in
+       * ITU-T Rec. X.691. Value encoded as per A.5.1.2. For text encoding the mechanism defined
+       * in ITU-T Rec. H.248.15 is used.
+       */
+      gint len;
+      asn1_ctx_t actx;
 
-		  len = (gint)strlen(attribute_value);
-		  h245_tvb = ascii_bytes_to_tvb(tvb, pinfo, len, attribute_value);
-		  /* arbitrary maximum length */
-		  /* should go through a handle, however,  the two h245 entry
-	   	  points are different, one is over tpkt and the other is raw
-		  */
-		  if (h245_tvb){
-			asn1_ctx_init(&actx, ASN1_ENC_PER, TRUE, pinfo);
-			dissect_h245_H223LogicalChannelParameters(h245_tvb, 0, &actx, sdp_media_attribute_tree, hf_SDPh223LogicalChannelParameters);
-		  }
-		}
-	  break;
+      len = (gint)strlen(attribute_value);
+      h245_tvb = ascii_bytes_to_tvb(tvb, pinfo, len, attribute_value);
+      /* arbitrary maximum length */
+      /* should go through a handle, however,  the two h245 entry
+         points are different, one is over tpkt and the other is raw
+      */
+      if (h245_tvb){
+        asn1_ctx_init(&actx, ASN1_ENC_PER, TRUE, pinfo);
+        dissect_h245_H223LogicalChannelParameters(h245_tvb, 0, &actx, sdp_media_attribute_tree, hf_SDPh223LogicalChannelParameters);
+      }
+    }
+    break;
   default:
-	  /* No special treatment for values of this attribute type, just add as one item. */
-	  proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
-                      tvb, offset, -1, FALSE);
-	  break;
+    /* No special treatment for values of this attribute type, just add as one item. */
+    proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
+                        tvb, offset, -1, FALSE);
+    break;
   }
 }
 
