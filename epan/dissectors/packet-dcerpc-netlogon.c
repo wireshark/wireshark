@@ -6777,6 +6777,8 @@ netlogon_dissect_netrserverauthenticate2_rqst(tvbuff_t *tvb, int offset,
 {
 	return netlogon_dissect_netrserverauthenticate3_rqst(tvb,offset,pinfo,tree,drep);
 }
+
+#ifdef HAVE_KERBEROS
 static void str_to_unicode(const char *nt_password, char *nt_password_unicode)
 {
   size_t password_len = 0;
@@ -6793,8 +6795,9 @@ static void str_to_unicode(const char *nt_password, char *nt_password_unicode)
    nt_password_unicode[2*password_len]='\0';
   }
 }
+#endif
 
-static guint32 get_keytab_as_list(md4_pass **p_pass_list,const char* ntlm_pass )
+static guint32 get_keytab_as_list(md4_pass **p_pass_list,const char* ntlm_pass _U_)
 {
 #ifdef HAVE_KERBEROS
 	enc_key_t *ek;
