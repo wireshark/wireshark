@@ -858,21 +858,21 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	/* LAT */
 	value = tvb_get_bits32(tvb, bit_offset, 25, FALSE);
-	fl_value = -90.0 + ((float)value * 180 / 33554432);
+	fl_value = (float)(-90.0 + ((float)value * 180 / 33554432));
 	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_lat, tvb, bit_offset, 25, fl_value,
 		"%.5f degrees %s (0x%08x)", fabs(fl_value), fl_value < 0 ? "South" : "North", value);
 	bit_offset += 25;
 
 	/* LONG */
 	value = tvb_get_bits32(tvb, bit_offset, 26, FALSE);
-	fl_value = -180.0 + ((float)value * 180 / 33554432);
+	fl_value = (float)(-180.0 + ((float)value * 180 / 33554432));
 	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_long, tvb, bit_offset, 26, fl_value,
 		"%.5f degrees %s (0x%08x)", fabs(fl_value), fl_value < 0 ? "West" : "East", value);
 	bit_offset += 26;
 
 	/* LOC_UNCRTNTY_ANG */
 	value = tvb_get_bits8(tvb, bit_offset, 4);
-	fl_value = 5.625 * value;
+	fl_value = (float)(5.625 * value);
 	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_ang, tvb, bit_offset, 4, fl_value,
 		"%.5f degrees (0x%02x)", fl_value, value);
 	bit_offset += 4;
@@ -884,7 +884,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	case 0x1e: str = "> 12288.00 meters"; break;
 	case 0x1f: str = "Not computable"; break;
 	default:
-		fl_value = 0.5 * (1 << (value >> 1));
+		fl_value = (float)(0.5 * (1 << (value >> 1)));
 		if (value & 0x01)
 			fl_value *= 1.5;
 		str = ep_strdup_printf("%.2f meters", fl_value);
@@ -900,7 +900,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	case 0x1e: str = "> 12288.00 meters"; break;
 	case 0x1f: str = "Not computable"; break;
 	default:
-		fl_value = 0.5 * (1 << (value >> 1));
+		fl_value = (float)(0.5 * (1 << (value >> 1)));
 		if (value & 0x01)
 			fl_value *= 1.5;
 		str = ep_strdup_printf("%.2f meters", fl_value);
@@ -920,7 +920,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	{
 		/* VELOCITY_HOR */
 		value = tvb_get_bits16(tvb, bit_offset, 9, FALSE);
-		fl_value = 0.25 * value;
+		fl_value = (float)(0.25 * value);
 		proto_tree_add_float_bits_format_value(tree, hf_ansi_801_velocity_hor, tvb, bit_offset, 9, fl_value,
 			"%.2f m/s (0x%04x)", fl_value, value);
 		bit_offset += 9;
@@ -936,7 +936,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 		{
 			/* VELOCITY_VER */
 			value = tvb_get_bits8(tvb, bit_offset, 8);
-			fl_value = -64 + 0.5 * value;
+			fl_value = (float)(-64 + 0.5 * value);
 			proto_tree_add_float_bits_format_value(tree, hf_ansi_801_velocity_ver, tvb, bit_offset, 8, fl_value,
 				"%.1f m/s (0x%02x)", fl_value, value);
 			bit_offset += 8;
@@ -979,7 +979,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 		case 0x1e: str = "> 12288.00 meters"; break;
 		case 0x1f: str = "Not computable"; break;
 		default:
-			fl_value = 0.5 * (1 << (value >> 1));
+			fl_value = (float)(0.5 * (1 << (value >> 1)));
 			if (value & 0x01)
 				fl_value *= 1.5;
 			str = ep_strdup_printf("%.2f meters", fl_value);
