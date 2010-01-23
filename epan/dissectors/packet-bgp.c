@@ -36,6 +36,7 @@
  * draft-ietf-idr-dynamic-cap-03
  * draft-ietf-idr-bgp-ext-communities-05
  * draft-knoll-idr-qos-attribute-03
+ * draft-nalawade-kapoor-tunnel-safi-05
  *
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -224,6 +225,8 @@ static const value_string bgp_ssa_type[] = {
     { BGP_SSA_mGRE , "mGRE Tunnel" },
     { BGP_SSA_IPSec , "IPSec Tunnel" },
     { BGP_SSA_MPLS , "MPLS Tunnel" },
+    { BGP_SSA_L2TPv3_IN_IPSec , "L2TPv3 in IPSec Tunnel" },
+    { BGP_SSA_mGRE_IN_IPSec , "mGRE in IPSec Tunnel" },
     { 0, NULL }
 };
 
@@ -2457,6 +2460,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 			    } else {
 				proto_tree_add_text(subtree3, tvb, q + 7, 1,
 					"Invalid Cookie Length of %u", ssa_v3_len);
+				q += ssa_len + 4; /* 4 from type and length */
 				break;
 			    }
                             proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_session_id, tvb,
@@ -2464,6 +2468,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 			    if (ssa_v3_len)
 	                            proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_cookie, tvb,
 	                                    q + 12, ssa_v3_len, FALSE);
+			    q += ssa_len + 4; /* 4 from type and length */
 			    break;
 		    case BGP_SSA_mGRE:
 		    case BGP_SSA_IPSec:
@@ -2471,9 +2476,14 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 		    default:
 			    proto_tree_add_item(subtree3, hf_bgp_ssa_value, tvb,
 				    q + 4, ssa_len, FALSE);
+			    q += ssa_len + 4; /* 4 from type and length */
+			    break;
+		    case BGP_SSA_L2TPv3_IN_IPSec:
+		    case BGP_SSA_mGRE_IN_IPSec:
+			    /* These contain BGP_SSA_IPSec and BGP_SSA_L2TPv3/BGP_SSA_mGRE */
+			    q += 4; /* 4 from type and length */
 			    break;
 		    }
-		    q = q + ssa_len + 4; /* 4 from type and length */
 		}
 		break;
 

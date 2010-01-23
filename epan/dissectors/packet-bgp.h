@@ -98,6 +98,8 @@ struct bgp_attr {
 #define BGP_SSA_mGRE	2
 #define BGP_SSA_IPSec	3
 #define BGP_SSA_MPLS	4
+#define BGP_SSA_L2TPv3_IN_IPSec	5
+#define BGP_SSA_mGRE_IN_IPSec	6
 
 /* AS_PATH segment types */
 #define AS_SET             1   /* RFC1771 */
