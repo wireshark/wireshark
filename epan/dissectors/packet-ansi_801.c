@@ -94,100 +94,15 @@ static int hf_ansi_801_height = -1;
 static int hf_ansi_801_loc_uncrtnty_v = -1;
 static int hf_ansi_801_spare_bits = -1;
 
+static int hf_ansi_801_bad_sv_present = -1;
+static int hf_ansi_801_num_bad_sv = -1;
+static int hf_ansi_801_bad_sv_prn_num = -1;
+
 static char bigbuf[1024];
 static dissector_handle_t data_handle;
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
 
-
-/* FUNCTIONS */
-
-static const guint8 global_bit_mask[] = {
-	0x01,
-	0x03,
-	0x07,
-	0x0f,
-	0x1f,
-	0x3f,
-	0x7f,
-	0xff
-};
-
-static guint64
-ansi_801_tvb_get_bits(tvbuff_t *tvb, guint32 *offset_p, guint8 *bit_offset_p, guint8 num_bits)
-{
-	guint64	bits;
-	guint64	temp_octs;
-	guint8	num_octs;
-	guint8	shift_bits;
-	guint8	remaining_bits;
-
-	if (num_bits <= *bit_offset_p)
-	{
-	shift_bits = (*bit_offset_p) - num_bits;
-
-	bits = (tvb_get_guint8(tvb, *offset_p) & global_bit_mask[(*bit_offset_p)-1]) >> shift_bits;
-
-	if (shift_bits == 0)
-	{
-		/* consumed everything in octet */
-		*offset_p += 1;
-	}
-	else
-	{
-		/* consumed subset of bits available in current octet */
-		*bit_offset_p -= shift_bits;
-	}
-
-	return(bits);
-	}
-
-	shift_bits = (num_bits - *bit_offset_p);
-
-	bits = (tvb_get_guint8(tvb, *offset_p) & global_bit_mask[(*bit_offset_p)-1]) << shift_bits;
-
-	num_octs = (shift_bits / 8) + 1;
-	remaining_bits = shift_bits % 8;
-
-	switch (num_octs)
-	{
-	case 1:
-	bits |= tvb_get_guint8(tvb, (*offset_p)+1) >> (8 - remaining_bits);
-	break;
-	case 2:
-	bits |= tvb_get_ntohs(tvb, (*offset_p)+1) >> (8 - remaining_bits);
-	break;
-	case 3:
-	bits |= tvb_get_ntoh24(tvb, (*offset_p)+1) >> (8 - remaining_bits);
-	break;
-	case 4:
-	bits |= tvb_get_ntohl(tvb, (*offset_p)+1) >> (8 - remaining_bits);
-	break;
-	case 5:
-	temp_octs = tvb_get_ntohl(tvb, (*offset_p)+1) << 8;
-	temp_octs |= tvb_get_guint8(tvb, (*offset_p)+5);
-	bits |= temp_octs >> (8 - remaining_bits);
-	break;
-	case 6:
-	temp_octs = tvb_get_ntohl(tvb, (*offset_p)+1) << 16;
-	temp_octs |= tvb_get_ntohs(tvb, (*offset_p)+5);
-	bits |= temp_octs >> (8 - remaining_bits);
-	break;
-	case 7:
-	temp_octs = tvb_get_ntohl(tvb, (*offset_p)+1) << 24;
-	temp_octs |= tvb_get_ntoh24(tvb, (*offset_p)+5);
-	bits |= temp_octs >> (8 - remaining_bits);
-	break;
-	case 8:
-	bits |= tvb_get_ntoh64(tvb, (*offset_p)+1) >> (8 - remaining_bits);
-	break;
-	}
-
-	*offset_p += num_octs;
-	*bit_offset_p = 8 - remaining_bits;
-
-	return(bits);
-}
 
 /* PARAM FUNCTIONS */
 
@@ -1010,66 +925,44 @@ for_pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 static void
 for_pr_gps_sat_health(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
-	guint8	oct;
-	guint8	num_bad;
-	guint8	i;
-	guint8	bit_mask;
-	guint8	bit_offset;
-	guint32	new_offset;
-	guint32	saved_offset;
-	guint64	temp_int;
-
-	saved_offset = offset;
+	guint32	bit_offset, spare_bits;
+	guint32	i;
+	guint32	saved_offset, num_bad_sv, bad_sv_prn_num;
+	guint64	bad_sv_present;
 
 	SHORT_DATA_CHECK(len, 1);
+	saved_offset = offset;
+	bit_offset = offset << 3;
+	
+	/* BAD_SV_PRESENT */
+	proto_tree_add_bits_ret_val(tree, hf_ansi_801_bad_sv_present, tvb, bit_offset++, 1, &bad_sv_present, FALSE);
 
-	oct = tvb_get_guint8(tvb, offset);
-
-	other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  BAD_SV_PRESENT: Bad GPS satellites present",
-	bigbuf);
-
-	if (oct & 0x80)
+	if (bad_sv_present)
 	{
-	num_bad = (oct & 0x78) >> 3;
+		/* NUM_BAD_SV */
+		num_bad_sv = tvb_get_bits8(tvb, bit_offset, 4) + 1;
+		proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_num_bad_sv, tvb, bit_offset, 4, num_bad_sv,
+			"%u", num_bad_sv);
+		bit_offset += 4;
 
-	other_decode_bitfield_value(bigbuf, oct, 0x78, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-		"%s :  NUM_BAD_SV: The number of bad GPS satellites: (%u)",
-		bigbuf,
-		num_bad);
-
-	bit_offset = 3;
-	new_offset = offset;
-
-	for (i=0; i < num_bad; i++)
-	{
-		temp_int = ansi_801_tvb_get_bits(tvb, &new_offset, &bit_offset, 5);
-
-		proto_tree_add_text(tree, tvb, offset, 1,
-		"BAD_SV_PRN_NUM: (%" G_GINT64_MODIFIER "u)", temp_int);
-
-		offset = new_offset;
+		for (i=0; i < num_bad_sv; i++)
+		{
+			/* BAD_SV_PRN_NUM */
+			bad_sv_prn_num = tvb_get_bits8(tvb, bit_offset, 5) + 1;
+			proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_bad_sv_prn_num, tvb, bit_offset, 5, bad_sv_prn_num,
+				"%u", bad_sv_prn_num);
+			bit_offset += 5;
+		}
 	}
 
-	bit_mask = 0xff >> (8 - bit_offset);
-	oct = tvb_get_guint8(tvb, offset);
-	}
-	else
+	if(bit_offset & 0x07)
 	{
-	bit_mask = 0x7f;
+		spare_bits = 8 - (bit_offset & 0x07);
+		proto_tree_add_bits_item(tree, hf_ansi_801_spare_bits, tvb, bit_offset, spare_bits, FALSE);
+		bit_offset += spare_bits;
 	}
 
-	if (bit_mask != 0x00)
-	{
-	other_decode_bitfield_value(bigbuf, oct, bit_mask, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-		"%s :  Reserved",
-		bigbuf);
-
-	offset++;
-	}
+	offset = bit_offset >> 3;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
 }
@@ -2441,6 +2334,21 @@ proto_register_ansi_801(void)
 	{ &hf_ansi_801_spare_bits,
 		{ "Spare bit(s)","ansi_801.spare_bits",
 		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_bad_sv_present,
+		{ "Bad GPS satellites present (BAD_SV_PRESENT)", "ansi_801.bad_sv_present",
+		FT_BOOLEAN, 8, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_num_bad_sv,
+		{ "Number of bad GPS satellites (NUM_BAD_SV)", "ansi_801.num_bad_sv",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_bad_sv_prn_num,
+		{ "Satellite PRN number", "ansi_801.bad_sv_prn_num",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
 		NULL, HFILL }
 	},
 	};
