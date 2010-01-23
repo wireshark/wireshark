@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <gmodule.h>
+#include <math.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -73,6 +74,25 @@ static int hf_ansi_801_rev_rsp_type = -1;
 static int hf_ansi_801_for_sess_tag = -1;
 static int hf_ansi_801_rev_sess_tag = -1;
 static int hf_ansi_801_sess_tag = -1;
+
+static int hf_ansi_801_time_ref_cdma = -1;
+static int hf_ansi_801_lat = -1;
+static int hf_ansi_801_long = -1;
+static int hf_ansi_801_loc_uncrtnty_ang = -1;
+static int hf_ansi_801_loc_uncrtnty_a = -1;
+static int hf_ansi_801_loc_uncrtnty_p = -1;
+static int hf_ansi_801_fix_type = -1;
+static int hf_ansi_801_velocity_incl = -1;
+static int hf_ansi_801_velocity_hor = -1;
+static int hf_ansi_801_heading = -1;
+static int hf_ansi_801_velocity_ver = -1;
+static int hf_ansi_801_clock_incl = -1;
+static int hf_ansi_801_clock_bias = -1;
+static int hf_ansi_801_clock_drift = -1;
+static int hf_ansi_801_height_incl = -1;
+static int hf_ansi_801_height = -1;
+static int hf_ansi_801_loc_uncrtnty_v = -1;
+static int hf_ansi_801_spare_bits = -1;
 
 static char bigbuf[1024];
 static dissector_handle_t data_handle;
@@ -811,374 +831,174 @@ for_pr_gps_nav_msg_bits(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offs
 /*
  * shared for both forward/reverse directions
  */
+static const true_false_string ansi_801_fix_type_vals = {
+	"3D",
+	"2D"
+};
+
 static void
 pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
-    guint8	oct;
-    guint8	bit_mask;
-    guint8	bit_offset;
-    guint32	fix_type;
+	guint32	bit_offset, spare_bits;
     guint32	value;
-    guint64	temp_int;
-    guint32	new_offset;
+	float	fl_value;
     guint32	saved_offset;
+	guint64	fix_type, velocity_incl, clock_incl, height_incl;
     const gchar	*str = NULL;
 
-    saved_offset = offset;
-
     SHORT_DATA_CHECK(len, 11);
+	saved_offset = offset;
+	bit_offset = offset << 3;
 
-    value = tvb_get_ntohs(tvb, offset);
+	/* TIME_REF_CDMA */
+	value = tvb_get_bits16(tvb, bit_offset, 14, FALSE);
+	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_time_ref_cdma, tvb, bit_offset, 14, value * 50,
+		"%u frames (0x%04x)", value * 50, value);
+	bit_offset += 14;
 
-    other_decode_bitfield_value(bigbuf, value, 0xfffc, 16);
-    proto_tree_add_text(tree, tvb, offset, 2,
-	"%s :  TIME_REF_CDMA: CDMA system time at the time the solution is valid.",
-	bigbuf);
+	/* LAT */
+	value = tvb_get_bits32(tvb, bit_offset, 25, FALSE);
+	fl_value = -90.0 + ((float)value * 180 / 33554432);
+	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_lat, tvb, bit_offset, 25, fl_value,
+		"%.5f degrees %s (0x%08x)", fabs(fl_value), fl_value < 0 ? "South" : "North", value);
+	bit_offset += 25;
 
-    other_decode_bitfield_value(bigbuf, value, 0x0003, 16);
-    proto_tree_add_text(tree, tvb, offset, 2,
-	"%s :  LAT (MSB)",
-	bigbuf);
+	/* LONG */
+	value = tvb_get_bits32(tvb, bit_offset, 26, FALSE);
+	fl_value = -180.0 + ((float)value * 180 / 33554432);
+	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_long, tvb, bit_offset, 26, fl_value,
+		"%.5f degrees %s (0x%08x)", fabs(fl_value), fl_value < 0 ? "West" : "East", value);
+	bit_offset += 26;
 
-    offset += 2;
-    value = tvb_get_ntoh24(tvb, offset);
+	/* LOC_UNCRTNTY_ANG */
+	value = tvb_get_bits8(tvb, bit_offset, 4);
+	fl_value = 5.625 * value;
+	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_ang, tvb, bit_offset, 4, fl_value,
+		"%.5f degrees (0x%02x)", fl_value, value);
+	bit_offset += 4;
 
-    other_decode_bitfield_value(bigbuf, value, 0xfffffe, 24);
-    proto_tree_add_text(tree, tvb, offset, 3,
-	"%s :  LAT (LSB)",
-	bigbuf);
-
-    other_decode_bitfield_value(bigbuf, value, 0x000001, 24);
-    proto_tree_add_text(tree, tvb, offset, 3,
-	"%s :  LONG (MSB)",
-	bigbuf);
-
-    offset += 3;
-    value = tvb_get_ntoh24(tvb, offset);
-
-    other_decode_bitfield_value(bigbuf, value, 0xffffff, 24);
-    proto_tree_add_text(tree, tvb, offset, 3,
-	"%s :  LONG",
-	bigbuf);
-
-    offset += 3;
-    value = tvb_get_ntohs(tvb, offset);
-
-    other_decode_bitfield_value(bigbuf, value, 0x8000, 16);
-    proto_tree_add_text(tree, tvb, offset, 2,
-	"%s :  LONG (LSB)",
-	bigbuf);
-
-    other_decode_bitfield_value(bigbuf, value, 0x7800, 16);
-    proto_tree_add_text(tree, tvb, offset, 2,
-	"%s :  LOC_UNCRTNTY_ANG",
-	bigbuf);
-
-    switch ((value & 0x07c0) >> 6)
-    {
-    case 0x00: str = "0.5"; break;
-    case 0x01: str = "0.75"; break;
-    case 0x02: str = "1"; break;
-    case 0x03: str = "1.5"; break;
-    case 0x04: str = "2"; break;
-    case 0x05: str = "3"; break;
-    case 0x06: str = "4"; break;
-    case 0x07: str = "6"; break;
-    case 0x08: str = "8"; break;
-    case 0x09: str = "12"; break;
-    case 0x0a: str = "16"; break;
-    case 0x0b: str = "24"; break;
-    case 0x0c: str = "32"; break;
-    case 0x0d: str = "48"; break;
-    case 0x0e: str = "64"; break;
-    case 0x0f: str = "96"; break;
-    case 0x10: str = "128"; break;
-    case 0x11: str = "192"; break;
-    case 0x12: str = "256"; break;
-    case 0x13: str = "384"; break;
-    case 0x14: str = "512"; break;
-    case 0x15: str = "768"; break;
-    case 0x16: str = "1,024"; break;
-    case 0x17: str = "1,536"; break;
-    case 0x18: str = "2,048"; break;
-    case 0x19: str = "3,072"; break;
-    case 0x1a: str = "4,096"; break;
-    case 0x1b: str = "6,144"; break;
-    case 0x1c: str = "8,192"; break;
-    case 0x1d: str = "12,288"; break;
-    case 0x1e: str = ">12,288"; break;
-    case 0x1f: str = "Not computable"; break;
-    }
-
-    other_decode_bitfield_value(bigbuf, value, 0x07c0, 16);
-    proto_tree_add_text(tree, tvb, offset, 2,
-	"%s :  LOC_UNCRTNTY_A: Standard deviation of axis along angle specified for position uncertainty (meters): %s",
-	bigbuf,
-	str);
-
-    switch ((value & 0x003e) >> 1)
-    {
-    case 0x00: str = "0.5"; break;
-    case 0x01: str = "0.75"; break;
-    case 0x02: str = "1"; break;
-    case 0x03: str = "1.5"; break;
-    case 0x04: str = "2"; break;
-    case 0x05: str = "3"; break;
-    case 0x06: str = "4"; break;
-    case 0x07: str = "6"; break;
-    case 0x08: str = "8"; break;
-    case 0x09: str = "12"; break;
-    case 0x0a: str = "16"; break;
-    case 0x0b: str = "24"; break;
-    case 0x0c: str = "32"; break;
-    case 0x0d: str = "48"; break;
-    case 0x0e: str = "64"; break;
-    case 0x0f: str = "96"; break;
-    case 0x10: str = "128"; break;
-    case 0x11: str = "192"; break;
-    case 0x12: str = "256"; break;
-    case 0x13: str = "384"; break;
-    case 0x14: str = "512"; break;
-    case 0x15: str = "768"; break;
-    case 0x16: str = "1,024"; break;
-    case 0x17: str = "1,536"; break;
-    case 0x18: str = "2,048"; break;
-    case 0x19: str = "3,072"; break;
-    case 0x1a: str = "4,096"; break;
-    case 0x1b: str = "6,144"; break;
-    case 0x1c: str = "8,192"; break;
-    case 0x1d: str = "12,288"; break;
-    case 0x1e: str = ">12,288"; break;
-    case 0x1f: str = "Not computable"; break;
-    }
-
-    other_decode_bitfield_value(bigbuf, value, 0x003e, 16);
-    proto_tree_add_text(tree, tvb, offset, 2,
-	"%s :  LOC_UNCRTNTY_P: Standard deviation of axis perpendicular to angle specified for position uncertainty (meters): %s",
-	bigbuf,
-	str);
-
-    fix_type = value & 0x0001;
-
-    other_decode_bitfield_value(bigbuf, value, 0x0001, 16);
-    proto_tree_add_text(tree, tvb, offset, 2,
-	"%s :  FIX_TYPE: %s",
-	bigbuf,
-	fix_type ? "3D" : "2D");
-
-    offset += 2;
-    oct = tvb_get_guint8(tvb, offset);
-
-    other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  VELOCITY_INCL: Velocity information %sincluded",
-	bigbuf,
-	(oct & 0x80) ? "" : "not ");
-
-    if (oct & 0x80)
-    {
-	value = (oct & 0x7f) << 2;
-
-	other_decode_bitfield_value(bigbuf, oct, 0x7f, 8);
-
-	offset++;
-	oct = tvb_get_guint8(tvb, offset);
-	value |= ((oct & 0xc0) >> 6);
-
-	proto_tree_add_text(tree, tvb, offset-1, 1,
-	    "%s :  VELOCITY_HOR: Horizontal velocity magnitude (MSB) (%u)",
-	    bigbuf,
-	    value);
-
-	other_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "%s :  VELOCITY_HOR: Horizontal velocity magnitude (LSB)",
-	    bigbuf);
-
-	value = (oct & 0x3f) << 4;
-
-	other_decode_bitfield_value(bigbuf, oct, 0x3f, 8);
-
-	offset++;
-	oct = tvb_get_guint8(tvb, offset);
-	value |= ((oct & 0xf0) >> 4);
-
-	proto_tree_add_text(tree, tvb, offset-1, 1,
-	    "%s :  HEADING: (MSB) (%u)",
-	    bigbuf,
-	    value);
-
-	other_decode_bitfield_value(bigbuf, oct, 0xf0, 8);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "%s :  HEADING: (LSB)",
-	    bigbuf);
-
-	if (fix_type)
+	/* LOC_UNCRTNTY_A */
+	value = tvb_get_bits8(tvb, bit_offset, 5);
+	switch (value)
 	{
-	    value = (oct & 0x0f) << 4;
+	case 0x1e: str = "> 12288.00 meters"; break;
+	case 0x1f: str = "Not computable"; break;
+	default:
+		fl_value = 0.5 * (1 << (value >> 1));
+		if (value & 0x01)
+			fl_value *= 1.5;
+		str = ep_strdup_printf("%.2f meters", fl_value);
+	}
+	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_a, tvb, bit_offset, 5, value,
+		"%s (0x%02x)", str, value);
+	bit_offset += 5;
 
-	    other_decode_bitfield_value(bigbuf, oct, 0x0f, 8);
+	/* LOC_UNCRTNTY_P */
+	value = tvb_get_bits8(tvb, bit_offset, 5);
+	switch (value)
+	{
+	case 0x1e: str = "> 12288.00 meters"; break;
+	case 0x1f: str = "Not computable"; break;
+	default:
+		fl_value = 0.5 * (1 << (value >> 1));
+		if (value & 0x01)
+			fl_value *= 1.5;
+		str = ep_strdup_printf("%.2f meters", fl_value);
+	}
+	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_p, tvb, bit_offset, 5, value,
+		"%s (0x%02x)", str, value);
+	bit_offset += 5;
 
-	    offset++;
-	    oct = tvb_get_guint8(tvb, offset);
-	    value |= ((oct & 0xf0) >> 4);
+	/* FIX_TYPE */
+	proto_tree_add_bits_ret_val(tree, hf_ansi_801_fix_type, tvb, bit_offset++, 1, &fix_type, FALSE);
 
-	    proto_tree_add_text(tree, tvb, offset-1, 1,
-		"%s :  VELOCITY_VER: Vertical velocity magnitude (MSB) (%u)",
-		bigbuf,
-		value);
+	/* VELOCITY_INCL */
+	proto_tree_add_bits_ret_val(tree, hf_ansi_801_velocity_incl, tvb, bit_offset++, 1, &velocity_incl, FALSE);
 
-	    other_decode_bitfield_value(bigbuf, oct, 0xf0, 8);
-	    proto_tree_add_text(tree, tvb, offset, 1,
-		"%s :  VELOCITY_VER: Vertical velocity magnitude (LSB)",
-		bigbuf);
+
+	if(velocity_incl)
+	{
+		/* VELOCITY_HOR */
+		value = tvb_get_bits16(tvb, bit_offset, 9, FALSE);
+		fl_value = 0.25 * value;
+		proto_tree_add_float_bits_format_value(tree, hf_ansi_801_velocity_hor, tvb, bit_offset, 9, fl_value,
+			"%.2f m/s (0x%04x)", fl_value, value);
+		bit_offset += 9;
+
+		/* HEADING */
+		value = tvb_get_bits16(tvb, bit_offset, 10, FALSE);
+		fl_value = (float)value * 360 / 1024;
+		proto_tree_add_float_bits_format_value(tree, hf_ansi_801_heading, tvb, bit_offset, 10, fl_value,
+			"%.3f degrees (0x%04x)", fl_value, value);
+		bit_offset += 10;
+
+		if(fix_type)
+		{
+			/* VELOCITY_VER */
+			value = tvb_get_bits8(tvb, bit_offset, 8);
+			fl_value = -64 + 0.5 * value;
+			proto_tree_add_float_bits_format_value(tree, hf_ansi_801_velocity_ver, tvb, bit_offset, 8, fl_value,
+				"%.1f m/s (0x%02x)", fl_value, value);
+			bit_offset += 8;
+		}
 	}
 
-	/*
-	 * in either case (fix_type) we have the low 4 bits
-	 * left over from the octet pointed to by 'offset'
-	 */
-	bit_mask = 0x08;
-	bit_offset = 3;
-    }
-    else
-    {
-	/*
-	 * no code here just co-located comments for bit mask
-	 */
-	bit_mask = 0x40;
-	bit_offset = 6;
-    }
+	/* CLOCK_INCL */
+	proto_tree_add_bits_ret_val(tree, hf_ansi_801_clock_incl, tvb, bit_offset++, 1, &clock_incl, FALSE);
 
-    other_decode_bitfield_value(bigbuf, oct, bit_mask, 8);
-    proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  CLOCK_INCL: Clock information %sincluded",
-	bigbuf,
-	(oct & bit_mask) ? "" : "not ");
-
-    if (oct & bit_mask)
-    {
-	new_offset = offset;
-	temp_int = ansi_801_tvb_get_bits(tvb, &new_offset, &bit_offset, 18);
-
-	proto_tree_add_text(tree, tvb, offset, new_offset - offset,
-	    "CLOCK_BIAS: (%" G_GINT64_MODIFIER "u)", temp_int);
-
-	offset = new_offset;
-	temp_int = ansi_801_tvb_get_bits(tvb, &new_offset, &bit_offset, 16);
-
-	proto_tree_add_text(tree, tvb, offset, new_offset - offset,
-	    "CLOCK_DRIFT: (%" G_GINT64_MODIFIER "u)", temp_int);
-
-	offset = new_offset;
-	bit_mask = 0x80 >> (8 - bit_offset);
-	oct = tvb_get_guint8(tvb, offset);
-
-#ifdef MLUM
-	other_decode_bitfield_value(bigbuf, value, bit_mask, 16);
-	proto_tree_add_text(tree, tvb, offset, 2,
-	    "%s :  CLOCK_BIAS: (LSB)",
-	    bigbuf);
-
-	if (bit_offset - (18 - 16) > 0)
+	if(clock_incl)
 	{
-	    bit_offset -= (18 - 16);
-	}
-	else
-	{
-	    bit_offset = 8 + (bit_offset - (18 - 16));
+		/* CLOCK_BIAS */
+		value = tvb_get_bits32(tvb, bit_offset, 18, FALSE);
+		proto_tree_add_int_bits_format_value(tree, hf_ansi_801_clock_bias, tvb, bit_offset, 18, (gint32)value - 13000,
+			"%d ns (0x%06x)", (gint32)value - 13000, value);
+		bit_offset += 18;
+
+		/* CLOCK_DRIFT */
+		value = tvb_get_bits16(tvb, bit_offset, 16, FALSE);
+		proto_tree_add_int_bits_format_value(tree, hf_ansi_801_clock_drift, tvb, bit_offset, 16, (gint16)value,
+			"%d ppb (ns/s) (0x%04x)", (gint16)value, value);
+		bit_offset += 16;
 	}
 
-	bit_mask = (0xff << (8 - bit_offset));
-	bit_mask >>= (8 - bit_offset);
+	/* HEIGHT_INCL */
+	proto_tree_add_bits_ret_val(tree, hf_ansi_801_height_incl, tvb, bit_offset++, 1, &height_incl, FALSE);
 
-	temp_int = (value & (guint32) bit_mask) << (16 - bit_offset);
-
-	other_decode_bitfield_value(bigbuf, value, bit_mask, 8);
-
-	offset += 2;
-	value = tvb_get_ntohs(tvb, offset);
-
-	bit_mask = (0xffff << (16 - (18 - bit_offset)));
-	temp_int |= ((value & bit_mask) >> (16 - (18 - bit_offset)));
-
-	proto_tree_add_text(tree, tvb, offset-1, 1,
-	    "%s :  CLOCK_DRIFT: (MSB) (%" G_GINT64_MODIFIER "u)",
-	    bigbuf,
-	    temp_int);
-
-	other_decode_bitfield_value(bigbuf, value, bit_mask, 16);
-	proto_tree_add_text(tree, tvb, offset, 2,
-	    "%s :  CLOCK_DRIFT: (LSB)",
-	    bigbuf);
-
-	if (bit_offset - 2 > 0)
+	if(height_incl)
 	{
-	    bit_offset -= 2;
-	}
-	else
-	{
-	    bit_offset = 8 + (bit_offset - 2);
+		/* HEIGHT */
+		value = tvb_get_bits16(tvb, bit_offset, 14, FALSE);
+		proto_tree_add_int_bits_format_value(tree, hf_ansi_801_height, tvb, bit_offset, 14, (gint32)value - 500,
+			"%d m (0x%04x)", (gint32)value - 500, value);
+		bit_offset += 14;
+
+		/* LOC_UNCRTNTY_V */
+		value = tvb_get_bits8(tvb, bit_offset, 5);
+		switch (value)
+		{
+		case 0x1e: str = "> 12288.00 meters"; break;
+		case 0x1f: str = "Not computable"; break;
+		default:
+			fl_value = 0.5 * (1 << (value >> 1));
+			if (value & 0x01)
+				fl_value *= 1.5;
+			str = ep_strdup_printf("%.2f meters", fl_value);
+		}
+		proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_v, tvb, bit_offset, 5, value,
+			"%s (0x%02x)", str, value);
+		bit_offset += 5;
 	}
 
-	/* NOT FINISHED */
-#endif
-    }
-    else
-    {
-	/*
-	 * no code here just co-located comments for bit mask
-	 */
-	bit_mask >>= 1;
-	bit_offset--;
-    }
+	if(bit_offset & 0x07)
+	{
+		spare_bits = 8 - (bit_offset & 0x07);
+		proto_tree_add_bits_item(tree, hf_ansi_801_spare_bits, tvb, bit_offset, spare_bits, FALSE);
+		bit_offset += spare_bits;
+	}
 
-    other_decode_bitfield_value(bigbuf, oct, bit_mask, 8);
-    proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  HEIGHT_INCL: Height information %sincluded",
-	bigbuf,
-	(oct & bit_mask) ? "" : "not ");
+	offset = bit_offset >> 3;
 
-    if (oct & bit_mask)
-    {
-	new_offset = offset;
-	temp_int = ansi_801_tvb_get_bits(tvb, &new_offset, &bit_offset, 14);
-
-	proto_tree_add_text(tree, tvb, offset, new_offset - offset,
-	    "HEIGHT: (%" G_GINT64_MODIFIER "u)", temp_int);
-
-	offset = new_offset;
-	temp_int = ansi_801_tvb_get_bits(tvb, &new_offset, &bit_offset, 5);
-
-	proto_tree_add_text(tree, tvb, offset, new_offset - offset,
-	    "LOC_UNCRTNTY_V: (%" G_GINT64_MODIFIER "u)", temp_int);
-
-	offset = new_offset;
-	bit_mask = 0x80 >> (8 - bit_offset);
-	oct = tvb_get_guint8(tvb, offset);
-
-#ifdef MLUM
-	/* NOT FINISHED */
-#endif
-    }
-    else
-    {
-	/*
-	 * no code here just co-located comments for bit mask
-	 */
-	bit_mask >>= 1;
-	bit_offset--;
-    }
-
-    bit_mask = 0xff >> (8 - bit_offset);
-    other_decode_bitfield_value(bigbuf, oct, bit_mask, 8);
-    proto_tree_add_text(tree, tvb, offset, 1,
-	"%s :  Reserved",
-	bigbuf);
-
-    offset++;
-
-    EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
+	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
 }
 
 static void
@@ -2533,7 +2353,98 @@ proto_register_ansi_801(void)
 	    FT_UINT8, BASE_DEC, NULL, 0,
 	    NULL, HFILL }
 	},
+	{ &hf_ansi_801_time_ref_cdma,
+		{ "CDMA system time at the time the solution is valid (TIME_REF_CDMA)", "ansi_801.time_ref_cdma",
+		FT_UINT32, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_lat,
+		{ "Latitude (LAT)", "ansi_801.lat",
+		FT_FLOAT, BASE_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_long,
+		{ "Longitude (LONG)", "ansi_801.long",
+		FT_FLOAT, BASE_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_loc_uncrtnty_ang,
+		{ "Angle of axis with respect to True North for pos uncertainty (LOC_UNCRTNTY_ANG)", "ansi_801.loc_uncrtnty_ang",
+		FT_FLOAT, BASE_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_loc_uncrtnty_a,
+		{ "Std dev of axis along angle specified for pos uncertainty (LOC_UNCRTNTY_A)", "ansi_801.loc_uncrtnty_a",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_loc_uncrtnty_p,
+		{ "Std dev of axis perpendicular to angle specified for pos uncertainty (LOC_UNCRTNTY_P)", "ansi_801.loc_uncrtnty_p",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_fix_type,
+		{ "Fix type (FIX_TYPE)", "ansi_801.fix_type",
+		FT_BOOLEAN, 8, TFS(&ansi_801_fix_type_vals), 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_velocity_incl,
+		{ "Velocity information included (VELOCITY_INCL)", "ansi_801.velocity_incl",
+		FT_BOOLEAN, 8, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_velocity_hor,
+		{ "Horizontal velocity magnitude (VELOCITY_HOR)", "ansi_801.velocity_hor",
+		FT_FLOAT, BASE_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_heading,
+		{ "Heading (HEADING)", "ansi_801.heading",
+		FT_FLOAT, BASE_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_velocity_ver,
+		{ "Vertical velocity (VELOCITY_VER)", "ansi_801.velocity_ver",
+		FT_FLOAT, BASE_NONE, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_clock_incl,
+		{ "Clock information included (CLOCK_INCL)", "ansi_801.clock_incl",
+		FT_BOOLEAN, 8, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_clock_bias,
+		{ "Clock bias (CLOCK_BIAS)", "ansi_801.clock_bias",
+		FT_INT24, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_clock_drift,
+		{ "Clock drift (CLOCK_DRIFT)", "ansi_801.clock_drift",
+		FT_INT16, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_height_incl,
+		{ "Height information included (HEIGHT_INCL)", "ansi_801.height_incl",
+		FT_BOOLEAN, 8, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_height,
+		{ "Height (HEIGHT)", "ansi_801.height",
+		FT_INT16, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_loc_uncrtnty_v,
+		{ "Std dev of vertical error for pos uncertainty (LOC_UNCRTNTY_V)", "ansi_801.loc_uncrtnty_v",
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_ansi_801_spare_bits,
+		{ "Spare bit(s)","ansi_801.spare_bits",
+		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
     };
+
 
     /* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_PARAMS	1
