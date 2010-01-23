@@ -880,8 +880,8 @@ main(int argc, char *argv[])
         hash_to_str(gcry_md_read(hd, GCRY_MD_RMD160), HASH_SIZE_RMD160, file_rmd160);
         hash_to_str(gcry_md_read(hd, GCRY_MD_MD5), HASH_SIZE_MD5, file_md5);
       }
-      fclose(fh);
-      gcry_md_reset(hd);
+      if (fh) fclose(fh);
+      if (hd) gcry_md_reset(hd);
     }
 #endif /* HAVE_LIBGCRYPT */
 
