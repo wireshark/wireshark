@@ -275,7 +275,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_read = visual_read;
     wth->subtype_seek_read = visual_seek_read;
     wth->subtype_close = visual_close;
-	 wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
     /* Add Visual-specific information to the wiretap struct for later use. */
     visual = g_malloc(sizeof(struct visual_read_info));
@@ -446,7 +446,19 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
         /* If PPP is specified in the encap hint, then use that */
         if (vpkt_hdr.encap_hint == 14)
         {
-            wth->phdr.pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
+              /* But first we need to examine the first three octets to
+               try to determine the proper encapsulation, see RFC 2364. */
+            guint8 *buf = buffer_start_ptr(wth->frame_buffer);
+            if ((0xfe == buf[0]) && (0xfe == buf[1]) && (0x03 == buf[2]))
+            {
+                /* It is actually LLC encapsulated PPP */
+                wth->phdr.pkt_encap = WTAP_ENCAP_ATM_RFC1483;
+            }
+            else
+            {
+                /* It is actually PPP */
+                wth->phdr.pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
+            }
         }
         else
         {
