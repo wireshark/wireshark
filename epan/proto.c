@@ -6371,9 +6371,62 @@ proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 
 	return proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, NULL, little_endian);
 }
+
+/*
+ * This function will prepare a string showing how a certain value is broken down
+ * in bits and also which parts of an octet are used. E.g. '..11 100.'
+ */
+gchar *
+prepare_bits_string(guint64 value, gint bit_offset, gint no_of_bits)
+{
+	guint64 mask, tmp;
+	gchar *str;
+	gint bit, i;
+
+	mask = 1;
+	mask = mask << (no_of_bits-1);
+
+	/* prepare the string */
+	str=ep_alloc(256);
+	str[0]='\0';
+	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
+		if(bit&&(!(bit%4))){
+			strcat(str, " ");
+		}
+		strcat(str,".");
+	}
+
+	/* read the bits for the int */
+	for(i=0;i<no_of_bits;i++){
+		if(bit&&(!(bit%4))){
+			strcat(str, " ");
+		}
+		if(bit&&(!(bit%8))){
+			strcat(str, " ");
+		}
+		bit++;
+		tmp = value & mask;
+		if(tmp != 0){
+			strcat(str, "1");
+		} else {
+			strcat(str, "0");
+		}
+		mask = mask>>1;
+	}
+
+	for(;bit%8;bit++){
+		if(bit&&(!(bit%4))){
+			strcat(str, " ");
+		}
+		strcat(str,".");
+	}
+
+	return str;
+}
+
 /*
  * This function will dissect a sequence of bits that does not need to be byte aligned; the bits
- * set vill be shown in the tree as ..10 10.. and the integer value returned if return_value is set.
+ * set will be shown in the tree as ..10 10.. and the integer value returned if return_value is set.
  * Offset should be given in bits from the start of the tvb.
  */
 
@@ -6385,12 +6438,9 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	guint	length;
 	guint8	tot_no_bits;
 	guint8	remaining_bits;
-	guint64 mask = 0,tmp;
 	char *str;
 	header_field_info *hf_field;
 	guint64 value = 0;
-	int bit;
-	int i;
 	const true_false_string *tfstring;
 
 	/* We can't fake it just yet. We have to fill in the 'return_value' parameter */
@@ -6436,43 +6486,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	/* Coast clear. Try and fake it */
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
-	mask = 1;
-	mask = mask << (no_of_bits-1);
-
-	/* prepare the string */
-	str=ep_alloc(256);
-	str[0]='\0';
-	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
-		if(bit&&(!(bit%4))){
-			strcat(str, " ");
-		}
-		strcat(str,".");
-	}
-
-	/* read the bits for the int */
-	for(i=0;i<no_of_bits;i++){
-		if(bit&&(!(bit%4))){
-			strcat(str, " ");
-		}
-		if(bit&&(!(bit%8))){
-			strcat(str, " ");
-		}
-		bit++;
-		tmp = value & mask;
-		if(tmp != 0){
-			strcat(str, "1");
-		} else {
-			strcat(str, "0");
-		}
-		mask = mask>>1;
-	}
-
-	for(;bit%8;bit++){
-		if(bit&&(!(bit%4))){
-			strcat(str, " ");
-		}
-		strcat(str,".");
-	}
+	str = prepare_bits_string(value, bit_offset, no_of_bits);
 
 	strcat(str," = ");
 	strcat(str,hf_field->name);
@@ -6531,6 +6545,199 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 		return NULL;
 		break;
 	}
+}
+
+proto_item *
+proto_tree_add_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, void *value_ptr, gchar *value_str)
+{
+	gint	offset;
+	guint	length;
+	guint8	tot_no_bits;
+	guint8	remaining_bits;
+	char *str;
+	header_field_info *hf_field;
+	guint64 value = 0;
+
+	/* We do not have to return a value, try to fake it as soon as possible */
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+
+	if(hf_field -> bitmask != 0) {
+		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val with field '%s' (%s) with bitmask != 0",
+											  hf_field->abbrev, hf_field->name));
+	}
+
+	DISSECTOR_ASSERT(bit_offset >= 0);
+	DISSECTOR_ASSERT(no_of_bits > 0);
+
+	/* Byte align offset */
+	offset = bit_offset>>3;
+
+	/*
+	 * Calculate the number of octets used to hold the bits
+	 */
+	tot_no_bits = ((bit_offset&0x7)+no_of_bits);
+	length = tot_no_bits>>3;
+	remaining_bits = tot_no_bits % 8;
+	if ((remaining_bits)!=0)
+		length++;
+
+	if (no_of_bits < 9){
+		value = tvb_get_bits8(tvb, bit_offset, no_of_bits);
+	}else if(no_of_bits < 17){
+		value = tvb_get_bits16(tvb, bit_offset, no_of_bits, FALSE);
+	}else if(no_of_bits < 33){
+		value = tvb_get_bits32(tvb, bit_offset, no_of_bits, FALSE);
+	}else if(no_of_bits < 65){
+		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, FALSE);
+	}else{
+		DISSECTOR_ASSERT_NOT_REACHED();
+		return NULL;
+	}
+
+	str = prepare_bits_string(value, bit_offset, no_of_bits);
+
+	strcat(str," = ");
+	strcat(str,hf_field->name);
+
+	/*
+	 * This function does not receive an actual value but a dimensionless pointer to that value.
+	 * For this reason, the type of the header field is examined in order to determine
+	 * what kind of value we should read from this address.
+	 * The caller of this function must make sure that for the specific header field type the address of
+	 * a compatible value is provided.
+	 */
+	switch(hf_field->type){
+	case FT_BOOLEAN:
+		return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, *(guint32 *)value_ptr,
+			"%s: %s", str, value_str);
+		break;
+
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, *(guint32 *)value_ptr,
+				"%s: %s", str, value_str);
+		break;
+
+	case FT_UINT64:
+		return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, *(guint64 *)value_ptr,
+				"%s: %s", str, value_str);
+		break;
+
+	case FT_INT8:
+	case FT_INT16:
+	case FT_INT24:
+	case FT_INT32:
+		return proto_tree_add_int_format(tree, hf_index, tvb, offset, length, *(gint32 *)value_ptr,
+				"%s: %s", str, value_str);
+		break;
+
+	case FT_FLOAT:
+		return proto_tree_add_float_format(tree, hf_index, tvb, offset, length, *(float *)value_ptr,
+				"%s: %s", str, value_str);
+		break;
+
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+		return NULL;
+		break;
+	}
+}
+
+#define CREATE_VALUE_STRING(dst,format,ap) \
+	va_start(ap,format); \
+	dst = ep_strdup_vprintf(format, ap); \
+	va_end(ap);
+
+proto_item *
+proto_tree_add_uint_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
+	guint32 value, const char *format, ...)
+{
+	va_list ap;
+	gchar* dst;
+	header_field_info *hf_field;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+
+	switch(hf_field->type){
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+		break;
+
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+		return NULL;
+		break;
+	}
+
+	CREATE_VALUE_STRING(dst,format,ap);
+
+	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
+}
+
+proto_item *
+proto_tree_add_float_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
+	float value, const char *format, ...)
+{
+	va_list ap;
+	gchar* dst;
+	header_field_info *hf_field;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+
+	DISSECTOR_ASSERT(hf_field->type == FT_FLOAT);
+	
+	CREATE_VALUE_STRING(dst,format,ap);
+
+	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
+}
+
+proto_item *
+proto_tree_add_int_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
+	gint32 value, const char *format, ...)
+{
+	va_list ap;
+	gchar* dst;
+	header_field_info *hf_field;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+
+	switch(hf_field->type){
+	case FT_INT8:
+	case FT_INT16:
+	case FT_INT24:
+	case FT_INT32:
+		break;
+
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+		return NULL;
+		break;
+	}
+
+	CREATE_VALUE_STRING(dst,format,ap);
+
+	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
+}
+
+proto_item *
+proto_tree_add_boolean_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits,
+	guint32 value, const char *format, ...)
+{
+	va_list ap;
+	gchar* dst;
+	header_field_info *hf_field;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+
+	DISSECTOR_ASSERT(hf_field->type == FT_BOOLEAN);
+	
+	CREATE_VALUE_STRING(dst,format,ap);
+
+	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
 }
 
 guchar
