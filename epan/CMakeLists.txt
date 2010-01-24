@@ -332,6 +332,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-arp.c
 	dissectors/packet-artnet.c
 	dissectors/packet-aruba-adp.c
+	dissectors/packet-aruba-erm.c
 	dissectors/packet-asap.c
 	dissectors/packet-ascend.c
 	dissectors/packet-asf.c
