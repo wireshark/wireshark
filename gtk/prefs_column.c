@@ -262,6 +262,33 @@ column_prefs_show(GtkWidget *prefs_window) {
     return(main_vb);
 }
 
+/*
+ * This function takes a string and copies it, inserting an underscore before
+ * every underscore in it.
+ */
+gchar*
+g_strdup_escape_underscore (const gchar *str)
+{
+	gchar *p, *q, *new_str;
+
+	if(!str)
+		return NULL;
+
+	p = (gchar *)str;
+	/* Worst case: A string that is full of underscores */
+	q = new_str = g_malloc (strlen(str) * 2 + 1);
+
+	while(*p != 0)
+	{
+		if(*p == '_')
+			*q++ = '_';
+
+		*q++ = *p++;
+	}
+	*q++ = '\0';
+
+	return new_str;
+}
 
 void
 column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
@@ -270,7 +297,12 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field)
   fmt_data *cfmt, *last_cfmt;
 
   cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
-  cfmt->title = g_strdup(title);
+  /*
+   * Because a single underscore is interpreted as a signal that the next character
+   * is going to be marked as accelerator for this header (i.e. is going to be
+   * shown underlined), escape it be inserting a second consecutive underscore.
+   */
+  cfmt->title = g_strdup_escape_underscore(title);
   cfmt->fmt = g_strdup(col_format_to_string(fmt));
   cfmt->custom_field = g_strdup(custom_field);
 
