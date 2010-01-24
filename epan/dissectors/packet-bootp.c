@@ -38,6 +38,8 @@
  *     http://www.cablelabs.com/specifications/archives/PKT-SP-PROV-I05-021127.pdf (superseded by above)
  * PacketCable(TM) 1.5 MTA Device Provisioning Specification
  *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV1.5-I02-050812.pdf
+ * PacketCable(TM) 2.0 EUE Device Provisioning Specification
+ *     www.cablelabs.com/specifications/PKT-SP-EUE-DATA-I03-090528.pdf
  * CableHome(TM) 1.1 Specification
  *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I11-060407.pdf
  * DSL Forum TR-111
@@ -376,6 +378,7 @@ static const true_false_string flag_set_broadcast = {
 /* PacketCable/DOCSIS definitions */
 #define PACKETCABLE_MTA_CAP10 "pktc1.0:"
 #define PACKETCABLE_MTA_CAP15 "pktc1.5:"
+#define PACKETCABLE_MTA_CAP20 "pktc2.0:"
 #define PACKETCABLE_CM_CAP11  "docsis1.1:"
 #define PACKETCABLE_CM_CAP20  "docsis2.0:"
 
@@ -1171,7 +1174,10 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				      (int)strlen(PACKETCABLE_MTA_CAP10)) == 0)
 		    ||
 		    (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP15,
-				      (int)strlen(PACKETCABLE_MTA_CAP10)) == 0))
+				      (int)strlen(PACKETCABLE_MTA_CAP15)) == 0)
+			||
+			(tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP20,
+				      (int)strlen(PACKETCABLE_MTA_CAP20)) == 0))
 		{
 			dissect_packetcable_mta_cap(v_tree, tvb, optoff, optlen);
 		}
@@ -2856,7 +2862,7 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 #define PKT_MDC_VENDOR_TLV		0x3038  /* "08" */
 #define PKT_MDC_NVRAM_STOR		0x3039  /* "09" */
 #define PKT_MDC_PROV_REP		0x3041  /* "0A" */
-#define PKT_MDC_PROV_REP_LC		0x3061  /* "0A" */
+#define PKT_MDC_PROV_REP_LC		0x3061  /* "0a" */
 #define PKT_MDC_SUPP_CODECS		0x3042  /* "0B" */
 #define PKT_MDC_SUPP_CODECS_LC		0x3062  /* "0b" */
 #define PKT_MDC_SILENCE			0x3043  /* "0C" */
@@ -2878,6 +2884,8 @@ dissect_vendor_cl_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 #define	PKT_MDC_MIBS			0x3137	/* "17" */
 #define	PKT_MDC_MGPI			0x3138	/* "18" */
 #define	PKT_MDC_V152			0x3139	/* "19" */
+#define	PKT_MDC_CBS				0x3141	/* "1A" */
+#define	PKT_MDC_CBS_LC			0x3161	/* "1a" */
 
 static const value_string pkt_mdc_type_vals[] = {
 	{ PKT_MDC_VERSION,		"PacketCable Version" },
@@ -2912,14 +2920,16 @@ static const value_string pkt_mdc_type_vals[] = {
 	{ PKT_MDC_MIBS,			"MIB Support" },
 	{ PKT_MDC_MGPI,			"Multiple Grants Per Interval Support" },
 	{ PKT_MDC_V152,			"V.152 Support" },
+	/* PacketCable 2.0: */
+	{ PKT_MDC_CBS,			"Certificate Bootstrapping Support" },
+	{ PKT_MDC_CBS_LC,		"Certificate Bootstrapping Support" },
 	{ 0,				NULL }
 };
 
 static const value_string pkt_mdc_version_vals[] = {
 	{ 0x3030,	"PacketCable 1.0" },
 	{ 0x3031,	"PacketCable 1.1/1.5" }, /* 1.5 replaces 1.1-1.3 */
-	{ 0x3032,	"PacketCable 1.2" },
-	{ 0x3033,	"PacketCable 1.3" },
+	{ 0x3032,	"PacketCable 2.0" },
 	{ 0,		NULL }
 };
 
@@ -3152,6 +3162,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 				case PKT_MDC_VOICE_METRICS:
 				case PKT_MDC_MGPI:
 				case PKT_MDC_V152:
+				case PKT_MDC_CBS:
+				case PKT_MDC_CBS_LC:
 					raw_val = tvb_get_ntohs(tvb, off + 4);
 					proto_item_append_text(ti,
 							       "%s (%s)",
