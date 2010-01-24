@@ -178,12 +178,14 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
 	GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
 	const gchar *title =  gtk_entry_get_text(GTK_ENTRY(entry));
+	gchar *escaped_title =  g_strdup_escape_underscore(title);
 	gint col_width;
 
-	gtk_tree_view_column_set_title(col, title);
-	column_prefs_rename(col_id, title);
+	gtk_tree_view_column_set_title(col, escaped_title);
+	column_prefs_rename(col_id, escaped_title);
 
-	col_width = get_default_col_size (packetlist->view, title);
+	col_width = get_default_col_size (packetlist->view, escaped_title);
+	g_free(escaped_title);
 	gtk_tree_view_column_set_min_width(col, col_width);
 	new_packet_list_resize_column (col_id);
 
@@ -204,6 +206,7 @@ static void
 col_title_edit_dlg (GtkTreeViewColumn *col)
 {
 	const gchar *value = gtk_tree_view_column_get_title(col);
+	gchar *unescaped_value = g_strdup_unescape_underscore(value);
 
 	GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
 	GtkWidget *entry, *label;
@@ -227,7 +230,8 @@ col_title_edit_dlg (GtkTreeViewColumn *col)
 
 	entry = gtk_entry_new();
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, 1, 2);
-	gtk_entry_set_text(GTK_ENTRY(entry), value);
+	gtk_entry_set_text(GTK_ENTRY(entry), unescaped_value);
+	g_free(unescaped_value);
 
 	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
 	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
