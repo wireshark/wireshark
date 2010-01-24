@@ -6437,7 +6437,6 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	gint	offset;
 	guint	length;
 	guint8	tot_no_bits;
-	guint8	remaining_bits;
 	char *str;
 	header_field_info *hf_field;
 	guint64 value = 0;
@@ -6462,8 +6461,8 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	 */
 	tot_no_bits = ((bit_offset&0x7)+no_of_bits);
 	length = tot_no_bits>>3;
-	remaining_bits = tot_no_bits % 8;
-	if ((remaining_bits)!=0)
+	/* If we are using part of the next octet, increase length by 1 */
+	if (tot_no_bits & 0x07)
 		length++;
 
 	if (no_of_bits < 9){
@@ -6553,7 +6552,6 @@ proto_tree_add_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, 
 	gint	offset;
 	guint	length;
 	guint8	tot_no_bits;
-	guint8	remaining_bits;
 	char *str;
 	header_field_info *hf_field;
 	guint64 value = 0;
@@ -6577,8 +6575,8 @@ proto_tree_add_bits_format_value(proto_tree *tree, int hf_index, tvbuff_t *tvb, 
 	 */
 	tot_no_bits = ((bit_offset&0x7)+no_of_bits);
 	length = tot_no_bits>>3;
-	remaining_bits = tot_no_bits % 8;
-	if ((remaining_bits)!=0)
+	/* If we are using part of the next octet, increase length by 1 */
+	if (tot_no_bits & 0x07)
 		length++;
 
 	if (no_of_bits < 9){
