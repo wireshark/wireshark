@@ -7839,13 +7839,23 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 };
 
 static int hf_netlogon_secchan_verf = -1;
-static int hf_netlogon_secchan_verf_sigalg = -1;
+static int hf_netlogon_secchan_verf_signalg = -1;
 static int hf_netlogon_secchan_verf_sealalg = -1;
-static int hf_netlogon_secchan_verf_pad = -1;
 static int hf_netlogon_secchan_verf_flag = -1;
 static int hf_netlogon_secchan_verf_digest = -1;
 static int hf_netlogon_secchan_verf_seq = -1;
 static int hf_netlogon_secchan_verf_nonce = -1;
+
+static const value_string sign_algs[] = {
+  { 0x0077, "HMAC-MD5"},
+  { 0, NULL}
+};
+
+static const value_string seal_algs[] = {
+  { 0xFFFF, "Not Encrypted"},
+  { 0x007A, "RC4"},
+  { 0, NULL}
+};
 
 static int get_seal_key(const guint8 *session_key,int key_len,guint64 sequence,guint8* seal_key)
 {
@@ -7958,6 +7968,7 @@ static tvbuff_t* dissect_response_data( tvbuff_t *tvb ,tvbuff_t *auth_tvb ,
   return dissect_packet_data(tvb,auth_tvb,offset,pinfo,auth_info,1);
 }
 
+/* MS-NRPC 2.2.1.3.2 */
 static int
 dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		     proto_tree *tree, guint8 *drep _U_, unsigned char is_server)
@@ -7981,12 +7992,11 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                              offset, -1, FALSE);
     subtree = proto_item_add_subtree(vf, ett_secchan_verf);
 
-    proto_tree_add_item(subtree, hf_netlogon_secchan_verf_sigalg, tvb,
+    proto_tree_add_item(subtree, hf_netlogon_secchan_verf_signalg, tvb,
                         offset, 2, TRUE);
     proto_tree_add_item(subtree, hf_netlogon_secchan_verf_sealalg, tvb,
                         offset+2, 2, TRUE);
-    proto_tree_add_item(subtree, hf_netlogon_secchan_verf_pad, tvb,
-                        offset+4, 2, FALSE);
+    /* 2 pad bytes */
     proto_tree_add_item(subtree, hf_netlogon_secchan_verf_flag, tvb,
                         offset+6, 2, FALSE);
     offset += 8;
@@ -9236,17 +9246,13 @@ static hf_register_info hf[] = {
 	  { "Secure Channel Verifier", "netlogon.secchan.verifier", FT_NONE, BASE_NONE,
 	    NULL, 0x0, "Verifier", HFILL }},
 
-	{ &hf_netlogon_secchan_verf_sigalg,
-	  { "Sign algorithm", "netlogon.secchan.sigalg", FT_UINT16, BASE_HEX, NULL,
-	    0x0, "Signature", HFILL }},
+	{ &hf_netlogon_secchan_verf_signalg,
+	  { "Sign algorithm", "netlogon.secchan.signalg", FT_UINT16, BASE_HEX,
+	    VALS(sign_algs), 0, NULL, HFILL }},
 
 	{ &hf_netlogon_secchan_verf_sealalg,
-	  { "Sign algorithm", "netlogon.secchan.sigalg", FT_UINT16, BASE_HEX, NULL,
-	    0x0, "Signature", HFILL }},
-
-	{ &hf_netlogon_secchan_verf_pad,
-	  { "Padding", "netlogon.secchan.padding", FT_BYTES, BASE_NONE, NULL,
-	    0x0, NULL, HFILL }},
+	  { "Seal algorithm", "netlogon.secchan.sealalg", FT_UINT16, BASE_HEX,
+	    VALS(seal_algs), 0, NULL, HFILL }},
 
 	{ &hf_netlogon_secchan_verf_flag,
 	  { "Flags", "netlogon.secchan.flags", FT_BYTES, BASE_NONE, NULL,
