@@ -770,14 +770,11 @@ ws_strdup_unescape_underscore (const gchar *str)
 
 	while(*p != 0)
 	{
-		if(*p == '_')
-		{
-			*q++ = '_';
+		*q++ = *p;
+		if ((*p == '_') && (*(p+1) == '_'))
 			p += 2;
-			continue;
-		}
-
-		*q++ = *p++;
+		else
+			p++;
 	}
 	*q++ = '\0';
 
