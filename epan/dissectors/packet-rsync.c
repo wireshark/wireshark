@@ -116,7 +116,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     conversation_data = conversation_get_proto_data(conversation, proto_rsync);
 
     if (conversation_data == NULL) {
-	conversation_data = g_malloc(sizeof(struct rsync_conversation_data));
+	conversation_data = se_alloc(sizeof(struct rsync_conversation_data));
 	conversation_data->state = RSYNC_INIT;
 	conversation_add_proto_data(conversation, proto_rsync, conversation_data);
     }
@@ -130,7 +130,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     rsync_frame_data_p = p_get_proto_data(pinfo->fd, proto_rsync);
     if (!rsync_frame_data_p) {
 	/* then we haven't seen this frame before */
-	rsync_frame_data_p = g_malloc(sizeof(struct rsync_frame_data));
+	rsync_frame_data_p = se_alloc(sizeof(struct rsync_frame_data));
 	rsync_frame_data_p->state = conversation_data->state;
 	p_add_proto_data(pinfo->fd, proto_rsync, rsync_frame_data_p);
     }
@@ -152,7 +152,6 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	conversation_data->state = RSYNC_SERV_INIT;
-        conversation_add_proto_data(conversation, proto_rsync, conversation_data);
 
 	break;
     case RSYNC_SERV_INIT:
@@ -171,7 +170,6 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	conversation_data->state = RSYNC_CLIENT_QUERY;
-        conversation_add_proto_data(conversation, proto_rsync, conversation_data);
 
 	break;
     case RSYNC_CLIENT_QUERY:
@@ -180,7 +178,6 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_append_str(pinfo->cinfo, COL_INFO, "Client Query");
 
 	conversation_data->state = RSYNC_SERV_MOTD;
-        conversation_add_proto_data(conversation, proto_rsync, conversation_data);
 
 	break;
     case RSYNC_SERV_MOTD:
@@ -189,7 +186,6 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_append_str(pinfo->cinfo, COL_INFO, "Server MOTD");
 
 	conversation_data->state = RSYNC_SERV_RESPONSE;
-        conversation_add_proto_data(conversation, proto_rsync, conversation_data);
 
 	break;
     case RSYNC_SERV_RESPONSE:
@@ -220,8 +216,6 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  }
 	}
 
-	conversation_add_proto_data(conversation, proto_rsync, conversation_data);
-
 	break;
 
     case RSYNC_COMMAND:
@@ -232,7 +226,6 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  col_append_str(pinfo->cinfo, COL_INFO, "Command");
 
 	  conversation_data->state = RSYNC_COMMAND;
-	  conversation_add_proto_data(conversation, proto_rsync, conversation_data);
 
 	  break;
 	} /* else we fall through to the data phase */
@@ -244,7 +237,6 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       col_append_str(pinfo->cinfo, COL_INFO, "Data");
 
       conversation_data->state = RSYNC_DATA;
-      conversation_add_proto_data(conversation, proto_rsync, conversation_data);
 
       break;
 
