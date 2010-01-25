@@ -870,13 +870,9 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
     if(flags & CD_FLAGS_SELECTEDONLY) {
         int start, end;
 
-        /* Get the start and end of the highlighted bytes.
-         * XXX The keys appear to be REVERSED start <-> end throughout this file!
-         * Should this be fixed? There is one exception - packet_hex_reprint,
-         * so can't just change it round without functional change.
-         */
-        end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
-        start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
+        /* Get the start and end of the highlighted bytes. */
+        start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
+        end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
 
 	if(start >= 0 && end > start && (end - start <= (int)len)) {
             len = end - start;
@@ -967,8 +963,8 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	/*
 	 * Retrieve the info we need
 	 */
-	end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
-	start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
+	start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
+	end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
 	data_p = get_byte_view_data_and_length(bv, &len);
 
 	if (data_p == NULL || start == -1 || start > end) {
@@ -1027,8 +1023,8 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
 		return;
 	}
-	end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
-	start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
+	start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
+	end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
 	data_p = get_byte_view_data_and_length(bv, &len);
 
 	if (data_p == NULL || start == -1 || start > end) {
@@ -1290,7 +1286,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       newreverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
       /* Have we gone from reverse to plain? */
       if (reverse && (reverse != newreverse)) {
-	gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
                                                  revstyle, NULL);
         cur = 0;
       }
@@ -1306,7 +1302,9 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       if (!reverse && (reverse != newreverse)) {
 	    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
                                                  "plain", NULL);
-        mark = gtk_text_buffer_create_mark(buf, NULL, &iter, TRUE);
+        /* If [astart..aend) and [bstart..bend) are disjoint, select first one as a marker */
+        if (!mark)
+          mark = gtk_text_buffer_create_mark(buf, NULL, &iter, TRUE);
         cur = 0;
       }
       reverse = newreverse;
@@ -1427,10 +1425,10 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
 
   /* save the information needed to redraw the text */
   /* should we save the fd & finfo pointers instead ?? */
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bend));
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bstart));
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(aend));
-  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(astart));
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bstart));
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bend));
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(astart));
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(aend));
   g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY,
                   GUINT_TO_POINTER((guint)fd->flags.encoding));
 
