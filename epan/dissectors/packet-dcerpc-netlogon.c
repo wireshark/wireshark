@@ -32,6 +32,8 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
+/* for dissect_mscldap_string */
+#include "packet-ldap.h"
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-netlogon.h"
@@ -7579,91 +7581,115 @@ netlogon_dissect_dsrderegisterdnshostrecords_reply(tvbuff_t *tvb, int offset,
 
 /* Dissect secure channel stuff */
 
-static int hf_netlogon_secchan_bind_unknown1 = -1;
-static int hf_netlogon_secchan_bind_unknown2 = -1;
-static int hf_netlogon_secchan_domain = -1;
-static int hf_netlogon_secchan_host = -1;
-static int hf_netlogon_secchan_bind_ack_unknown1 = -1;
-static int hf_netlogon_secchan_bind_ack_unknown2 = -1;
-static int hf_netlogon_secchan_bind_ack_unknown3 = -1;
+static int hf_netlogon_secchan_nl_message_type = -1;
+static int hf_netlogon_secchan_nl_message_flags = -1;
+static int hf_netlogon_secchan_nl_message_flags_nb_domain = -1;
+static int hf_netlogon_secchan_nl_message_flags_nb_host = -1;
+static int hf_netlogon_secchan_nl_message_flags_dns_domain = -1;
+static int hf_netlogon_secchan_nl_message_flags_dns_host = -1;
+static int hf_netlogon_secchan_nl_message_flags_nb_host_utf8 = -1;
+static int hf_netlogon_secchan_nl_nb_domain = -1;
+static int hf_netlogon_secchan_nl_nb_host = -1;
+static int hf_netlogon_secchan_nl_dns_domain = -1;
+static int hf_netlogon_secchan_nl_dns_host = -1;
+static int hf_netlogon_secchan_nl_nb_host_utf8 = -1;
 
 static gint ett_secchan_verf = -1;
-static gint ett_secchan_bind_creds = -1;
-static gint ett_secchan_bind_ack_creds = -1;
+static gint ett_secchan_nl_auth_message = -1;
+static gint ett_secchan_nl_auth_message_flags = -1;
 
-static int dissect_secchan_bind_creds(tvbuff_t *tvb, int offset,
+static const value_string nl_auth_types[] = {
+       { 0x00000000,	  "Request"},
+       { 0x00000001,	  "Response"},
+       { 0, NULL }
+};
+
+
+/* MS-NRPC : 2.2.1.3.1 NL_AUTH_MESSAGE */
+static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
 				      packet_info *pinfo,
 				      proto_tree *tree, guint8 *drep)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
+	guint32 messagetype, messageflags;
+	static const int *flag_fields[] = {
+	       &hf_netlogon_secchan_nl_message_flags_nb_domain,
+	       &hf_netlogon_secchan_nl_message_flags_nb_host,
+	       &hf_netlogon_secchan_nl_message_flags_dns_domain,
+	       &hf_netlogon_secchan_nl_message_flags_dns_host,
+	       &hf_netlogon_secchan_nl_message_flags_nb_host_utf8,
+	       NULL
+	};
 	int len;
 
 	if (tree) {
 		item = proto_tree_add_text(
 			tree, tvb, offset, -1,
-			"Secure Channel Bind Credentials");
+			"Secure Channel NL_AUTH_MESSAGE");
 		subtree = proto_item_add_subtree(
-			item, ett_secchan_bind_creds);
+			item, ett_secchan_nl_auth_message);
 	}
 
 	/* We can't use the NDR routines as the DCERPC call data hasn't
            been initialised since we haven't made a DCERPC call yet, just
            a bind request. */
 
+	/* Type */
 	offset = dissect_dcerpc_uint32(
 		tvb, offset, pinfo, subtree, drep,
-		hf_netlogon_secchan_bind_unknown1, NULL);
+		hf_netlogon_secchan_nl_message_type, &messagetype);
 
-	offset = dissect_dcerpc_uint32(
-		tvb, offset, pinfo, subtree, drep,
-		hf_netlogon_secchan_bind_unknown2, NULL);
+	/* Flags */
+	proto_tree_add_bitmask(subtree, tvb, offset, hf_netlogon_secchan_nl_message_flags, ett_secchan_nl_auth_message_flags, flag_fields, (drep[0] & 0x10));
+	messageflags = ((drep[0] & 0x10)
+            ? tvb_get_letohl (tvb, offset)
+            : tvb_get_ntohl (tvb, offset));
+	offset += 4;
 
-	len = tvb_strsize(tvb, offset);
 
-	proto_tree_add_item(
-		subtree, hf_netlogon_secchan_domain, tvb, offset, len, FALSE);
-
-	offset += len;
-
-	len = tvb_strsize(tvb, offset);
-
-	proto_tree_add_item(
-		subtree, hf_netlogon_secchan_host, tvb, offset, len, FALSE);
-
-	offset += len;
-
-	return offset;
-}
-
-static int dissect_secchan_bind_ack_creds(tvbuff_t *tvb, int offset,
-					  packet_info *pinfo,
-					  proto_tree *tree, guint8 *drep)
-{
-	proto_item *item = NULL;
-	proto_tree *subtree = NULL;
-
-	if (tree) {
-		item = proto_tree_add_text(
-			tree, tvb, offset, -1,
-			"Secure Channel Bind ACK Credentials");
-		subtree = proto_item_add_subtree(
-			item, ett_secchan_bind_ack_creds);
+	/* Buffer */
+	/* netbios domain name */
+	if (messageflags&0x00000001) {
+		len = tvb_strsize(tvb, offset);
+		proto_tree_add_item(subtree, hf_netlogon_secchan_nl_nb_domain, tvb, offset, len, FALSE);
+		offset += len;
 	}
 
-	/* Don't use NDR routines here */
+	/* netbios host name */
+	if (messageflags&0x00000002) {
+		len = tvb_strsize(tvb, offset);
+		proto_tree_add_item(subtree, hf_netlogon_secchan_nl_nb_host, tvb, offset, len, FALSE);
+		offset += len;
+	}
 
-	offset = dissect_dcerpc_uint32(
-		tvb, offset, pinfo, subtree, drep,
-		hf_netlogon_secchan_bind_ack_unknown1, NULL);
+	/* DNS domain name */
+	if (messageflags&0x00000004) {
+		int old_offset=offset;
+		char str[256];
 
-	offset = dissect_dcerpc_uint32(
-		tvb, offset, pinfo, subtree, drep,
-		hf_netlogon_secchan_bind_ack_unknown2, NULL);
+		offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+		proto_tree_add_string(subtree, hf_netlogon_secchan_nl_dns_domain, tvb, old_offset, offset-old_offset, str);
+	}
 
-	offset = dissect_dcerpc_uint32(
-		tvb, offset, pinfo, subtree, drep,
-		hf_netlogon_secchan_bind_ack_unknown3, NULL);
+	/* DNS host name */
+	if (messageflags&0x00000008) {
+		int old_offset=offset;
+		char str[256];
+
+		offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+		proto_tree_add_string(subtree, hf_netlogon_secchan_nl_dns_host, tvb, old_offset, offset-old_offset, str);
+	}
+
+	/* NetBios host name (UTF8) */
+	if (messageflags&0x00000010) {
+		int old_offset=offset;
+		char str[256];
+
+		offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
+		proto_tree_add_string(subtree, hf_netlogon_secchan_nl_nb_host_utf8, tvb, old_offset, offset-old_offset, str);
+	}
+
 
 	return offset;
 }
@@ -9150,20 +9176,52 @@ static hf_register_info hf[] = {
 	  { "Server Challenge", "netlogon.serverchallenge", FT_BYTES, BASE_NONE,
 	    NULL, 0x0, "", HFILL }},
 
-	{ &hf_netlogon_secchan_bind_unknown1,
-	  { "Unknown1", "netlogon.secchan.bind.unknown1", FT_UINT32, BASE_HEX,
+	{ &hf_netlogon_secchan_nl_message_type,
+	  { "Message Type", "netlogon.secchan.nl_auth_message.message_type", FT_UINT32, BASE_HEX,
+	    VALS(nl_auth_types), 0x0, NULL, HFILL }},
+
+	{ &hf_netlogon_secchan_nl_message_flags,
+	  { "Message Flags", "netlogon.secchan.nl_auth_message.message_flags", FT_UINT32, BASE_HEX,
 	    NULL, 0x0, NULL, HFILL }},
 
-	{ &hf_netlogon_secchan_bind_unknown2,
-	  { "Unknown2", "netlogon.secchan.bind.unknown2", FT_UINT32, BASE_HEX,
-	    NULL, 0x0, NULL, HFILL }},
+	{ &hf_netlogon_secchan_nl_message_flags_nb_domain,
+	  { "NetBios Domain", "netlogon.secchan.nl_auth_message.message_flags.nb_domain", FT_BOOLEAN, 32,
+	  NULL, 0x00000001, NULL, HFILL }},
 
-	{ &hf_netlogon_secchan_domain,
-	  { "Domain", "netlogon.secchan.domain", FT_STRING, BASE_NONE,
+	{ &hf_netlogon_secchan_nl_message_flags_nb_host,
+	  { "NetBios Host", "netlogon.secchan.nl_auth_message.message_flags.nb_host", FT_BOOLEAN, 32,
+	  NULL, 0x00000002, NULL, HFILL }},
+
+	{ &hf_netlogon_secchan_nl_message_flags_dns_domain,
+	  { "DNS Domain", "netlogon.secchan.nl_auth_message.message_flags.dns_domain", FT_BOOLEAN, 32,
+	  NULL, 0x00000004, NULL, HFILL }},
+
+	{ &hf_netlogon_secchan_nl_message_flags_dns_host,
+	  { "DNS Host", "netlogon.secchan.nl_auth_message.message_flags.dns_host", FT_BOOLEAN, 32,
+	  NULL, 0x00000008, NULL, HFILL }},
+
+	{ &hf_netlogon_secchan_nl_message_flags_nb_host_utf8,
+	  { "NetBios Host(UTF8)", "netlogon.secchan.nl_auth_message.message_flags.nb_host_utf8", FT_BOOLEAN, 32,
+	  NULL, 0x00000010, NULL, HFILL }},
+
+	{ &hf_netlogon_secchan_nl_nb_domain,
+	  { "NetBios Domain", "netlogon.secchan.nl_auth_message.nb_domain", FT_STRING, BASE_NONE,
 	    NULL, 0, NULL, HFILL }},
 
-	{ &hf_netlogon_secchan_host,
-	  { "Host", "netlogon.secchan.host", FT_STRING, BASE_NONE,
+	{ &hf_netlogon_secchan_nl_nb_host,
+	  { "NetBios Host", "netlogon.secchan.nl_auth_message.nb_host", FT_STRING, BASE_NONE,
+	    NULL, 0, NULL, HFILL }},
+
+	{ &hf_netlogon_secchan_nl_nb_host_utf8,
+	  { "NetBios Host(UTF8)", "netlogon.secchan.nl_auth_message.nb_host_utf8", FT_STRING, BASE_NONE,
+	    NULL, 0, NULL, HFILL }},
+
+	{ &hf_netlogon_secchan_nl_dns_domain,
+	  { "DNS Domain", "netlogon.secchan.nl_auth_message.dns_domain", FT_STRING, BASE_NONE,
+	    NULL, 0, NULL, HFILL }},
+
+	{ &hf_netlogon_secchan_nl_dns_host,
+	  { "DNS Host", "netlogon.secchan.nl_auth_message.dns_host", FT_STRING, BASE_NONE,
 	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_netlogon_data_length,
@@ -9173,18 +9231,6 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_package_name,
 	  { "SSP Package Name", "netlogon.data.package_name", FT_STRING, BASE_NONE,
 	    NULL, 0, "", HFILL }},
-
-	{ &hf_netlogon_secchan_bind_ack_unknown1,
-	  { "Unknown1", "netlogon.secchan.bind_ack.unknown1", FT_UINT32,
-	    BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-	{ &hf_netlogon_secchan_bind_ack_unknown2,
-	  { "Unknown2", "netlogon.secchan.bind_ack.unknown2", FT_UINT32,
-	    BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-	{ &hf_netlogon_secchan_bind_ack_unknown3,
-	  { "Unknown3", "netlogon.secchan.bind_ack.unknown3", FT_UINT32,
-	    BASE_HEX, NULL, 0x0, "", HFILL }},
 
 	{ &hf_netlogon_secchan_verf,
 	  { "Secure Channel Verifier", "netlogon.secchan.verifier", FT_NONE, BASE_NONE,
@@ -9372,8 +9418,8 @@ static hf_register_info hf[] = {
 		&ett_trust_attribs,
 		&ett_get_dcname_request_flags,
 		&ett_dc_flags,
-		&ett_secchan_bind_creds,
-		&ett_secchan_bind_ack_creds,
+		&ett_secchan_nl_auth_message,
+		&ett_secchan_nl_auth_message_flags,
 		&ett_secchan_verf,
 		&ett_group_attrs,
 		&ett_user_flags,
@@ -9392,8 +9438,8 @@ static hf_register_info hf[] = {
 }
 
 static dcerpc_auth_subdissector_fns secchan_auth_fns = {
-	dissect_secchan_bind_creds,	        /* Bind */
-	dissect_secchan_bind_ack_creds,	        /* Bind ACK */
+	dissect_secchan_nl_auth_message,	/* Bind */
+	dissect_secchan_nl_auth_message,	/* Bind ACK */
 	NULL,			                /* AUTH3 */
 	dissect_request_secchan_verf, 		        /* Request verifier */
 	dissect_response_secchan_verf,		        /* Response verifier */
