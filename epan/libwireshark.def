@@ -237,6 +237,7 @@ dissect_IDispatch_GetTypeInfoCount_resp
 dissect_IDispatch_GetIDsOfNames_rqst
 dissect_IDispatch_Invoke_rqst
 dissect_IDispatch_Invoke_resp
+dissect_mscldap_string
 dissect_ndr_double
 dissect_ndr_duint32
 dissect_ndr_uint16
