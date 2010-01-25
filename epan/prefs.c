@@ -944,6 +944,7 @@ put_string_list(GList *sl)
       cur_len += fmt_len;
     }
     g_free(quoted_str);
+    g_free(str);
     clp = clp->next;
   }
 
@@ -1887,7 +1888,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
       cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
-      cfmt->title    = g_strdup(col_l_elt->data);
+      cfmt->title    = ws_strdup_escape_underscore(col_l_elt->data);
       col_l_elt      = col_l_elt->next;
       if (strncmp(col_l_elt->data, cust_format, cust_format_len) == 0) {
         gchar *fmt     = g_strdup(col_l_elt->data);
@@ -2884,12 +2885,12 @@ write_prefs(char **pf_path_return)
   col_l = NULL;
   while (clp) {
     cfmt = (fmt_data *) clp->data;
-    col_l = g_list_append(col_l, cfmt->title);
+    col_l = g_list_append(col_l, ws_strdup_unescape_underscore(cfmt->title));
     if ((strcmp(cfmt->fmt, cust_format) == 0) && (cfmt->custom_field)) {
       gchar *fmt = g_strdup_printf("%s:%s", cfmt->fmt, cfmt->custom_field);
       col_l = g_list_append(col_l, fmt);
     } else {
-      col_l = g_list_append(col_l, cfmt->fmt);
+      col_l = g_list_append(col_l, g_strdup(cfmt->fmt));
     }
     clp = clp->next;
   }
@@ -2897,8 +2898,7 @@ write_prefs(char **pf_path_return)
   fprintf (pf, "# Each pair of strings consists of a column title and its format.\n");
   fprintf (pf, "%s: %s\n", PRS_COL_FMT, put_string_list(col_l));
   /* This frees the list of strings, but not the strings to which it
-     refers; that's what we want, as we haven't copied those strings,
-     we just referred to them.  */
+     refers; they are free'ed in put_string_list(). */
   g_list_free(col_l);
 
   fprintf (pf, "\n######## User Interface: Font ########\n");
