@@ -2757,7 +2757,7 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_context_subframe_number,
             { "Subframe",
               "mac-lte.subframe", FT_UINT16, BASE_DEC, 0, 0x0,
-              "Subframe number associate with message", HFILL
+              "Subframe number associated with message", HFILL
             }
         },
         { &hf_mac_lte_context_predefined_frame,
@@ -2823,7 +2823,7 @@ void proto_register_mac_lte(void)
             }
         },
         { &hf_mac_lte_oob_sr_failure,
-            { "Scheduling Request Failure",
+            { "Scheduling Request failure",
               "mac-lte.sr-failure", FT_NONE, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
@@ -3017,7 +3017,7 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_rar_ul_grant_hopping,
             { "Hopping Flag",
               "mac-lte.rar.ul-grant.hopping", FT_UINT8, BASE_DEC, 0, 0x08,
-              "Size of UL Grant", HFILL
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_rar_ul_grant_fsrba,
