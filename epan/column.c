@@ -733,7 +733,7 @@ build_column_format_array(column_info *cinfo, gint num_cols, gboolean reset_fenc
  * every underscore in it.
  */
 gchar*
-g_strdup_escape_underscore (const gchar *str)
+ws_strdup_escape_underscore (const gchar *str)
 {
 	gchar *p, *q, *new_str;
 
@@ -757,7 +757,7 @@ g_strdup_escape_underscore (const gchar *str)
 }
 
 gchar*
-g_strdup_unescape_underscore (const gchar *str)
+ws_strdup_unescape_underscore (const gchar *str)
 {
 	gchar *p, *q, *new_str;
 

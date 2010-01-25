@@ -178,7 +178,7 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 	gint col_id = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(col), E_MPACKET_LIST_COL_KEY));
 	GtkWidget *entry = g_object_get_data (G_OBJECT(w), "entry");
 	const gchar *title =  gtk_entry_get_text(GTK_ENTRY(entry));
-	gchar *escaped_title =  g_strdup_escape_underscore(title);
+	gchar *escaped_title =  ws_strdup_escape_underscore(title);
 	gint col_width;
 
 	gtk_tree_view_column_set_title(col, escaped_title);
@@ -206,7 +206,7 @@ static void
 col_title_edit_dlg (GtkTreeViewColumn *col)
 {
 	const gchar *value = gtk_tree_view_column_get_title(col);
-	gchar *unescaped_value = g_strdup_unescape_underscore(value);
+	gchar *unescaped_value = ws_strdup_unescape_underscore(value);
 
 	GtkWidget *win, *main_tb, *main_vb, *bbox, *cancel_bt, *ok_bt;
 	GtkWidget *entry, *label;

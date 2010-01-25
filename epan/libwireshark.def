@@ -1074,6 +1074,8 @@ vals_pdu_type                   DATA
 vals_status                     DATA
 value_is_in_range
 write_prefs
+ws_strdup_escape_underscore
+ws_strdup_unescape_underscore
 wslua_plugin_list               DATA
 wtap_nstime_to_sec
 xml_escape
