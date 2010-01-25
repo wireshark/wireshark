@@ -158,6 +158,9 @@ GtkWidget         *ul_filter_bt;
 GtkWidget         *dl_filter_bt;
 GtkWidget         *uldl_filter_bt;
 
+GtkWidget         *sn_filter_lb;
+GtkWidget         *sn_filter_te;
+
 gboolean          s_show_mac = FALSE;
 
 
@@ -706,50 +709,72 @@ static void set_channel_filter_expression(guint16  ueid,
                                           guint8   rlcMode,
                                           guint16  channelType,
                                           guint16  channelId,
-                                          ChannelDirection_t channelDirection)
+                                          ChannelDirection_t channelDirection,
+                                          gint     filterOnSN)
 {
-    static char buffer[256];
+    #define MAX_FILTER_LEN 1024
+    static char buffer[MAX_FILTER_LEN];
     int offset = 0;
 
     /* Should we exclude MAC frames? */
     if (!s_show_mac) {
-        offset += g_snprintf(buffer+offset, 256-offset, "not mac-lte and ");
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "not mac-lte and ");
     }
 
     /* UEId */
-    offset += g_snprintf(buffer+offset, 256-offset, "(rlc-lte.ueid == %u) and ", ueid);
-    offset += g_snprintf(buffer+offset, 256-offset, "(rlc-lte.channel-type == %u)", channelType);
+    offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "(rlc-lte.ueid == %u) and ", ueid);
+    offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, "(rlc-lte.channel-type == %u)", channelType);
 
     /* Channel-id for srb/drb */
     if ((channelType == CHANNEL_TYPE_SRB) || (channelType == CHANNEL_TYPE_DRB)) {
-        offset += g_snprintf(buffer+offset, 256-offset, " and (rlc-lte.channel-id == %u)", channelId);
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, " and (rlc-lte.channel-id == %u)", channelId);
     }
 
     /* Direction (also depends upon RLC mode) */
     switch (channelDirection) {
         case UL_Only:
             if (rlcMode == RLC_AM_MODE) {
-                offset += g_snprintf(buffer+offset, 256-offset,
+                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
                                      " and (rlc-lte.direction == 0 and rlc-lte.am.frame_type == 1) or "
                                           "(rlc-lte.direction == 1 and rlc-lte.am.frame_type == 0)");
             }
             else {
-                offset += g_snprintf(buffer+offset, 256-offset, " and (rlc-lte.direction == 0)");
+                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, " and (rlc-lte.direction == 0)");
             }
             break;
         case DL_Only:
             if (rlcMode == RLC_AM_MODE) {
-                offset += g_snprintf(buffer+offset, 256-offset,
+                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
                                      " and (rlc-lte.direction == 1 and rlc-lte.am.frame_type == 1) or "
                                           "(rlc-lte.direction == 0 and rlc-lte.am.frame_type == 0)");
             }
             else {
-                offset += g_snprintf(buffer+offset, 256-offset, " and (rlc-lte.direction == 1)");
+                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, " and (rlc-lte.direction == 1)");
             }
             break;
 
         default:
             break;
+    }
+
+    /* Filter on a specific sequence number */
+    if (filterOnSN != -1) {
+        switch (rlcMode) {
+            case RLC_AM_MODE:
+                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                     " and ((rlc-lte.am.fixed.sn == %u) or "
+                                     "(rlc-lte.am.ack-sn == %u) or "
+                                     "(rlc-lte.am.nack-sn == %u))",
+                                     filterOnSN, filterOnSN, filterOnSN);
+                break;
+            case RLC_UM_MODE:
+                offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                     " and (rlc-lte.um.sn == %u)", filterOnSN);
+                break;
+
+            default:
+                break;
+        }
     }
 
     /* Set its value to our new string */
@@ -766,12 +791,20 @@ static void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     guint8   rlcMode;
     guint16  channelType;
     guint16  channelId;
+    int      sn = -1;
+    const gchar *sn_string = "";
+
+    /* Read SN to filter on (if present) */
+    sn_string = gtk_entry_get_text(GTK_ENTRY(sn_filter_te));
+    if (strlen(sn_string) > 0) {
+        sn = atoi(sn_string);
+    }
 
     if (!get_channel_selection(hs, &ueid, &rlcMode, &channelType, &channelId)) {
         return;
     }
 
-    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_Only);
+    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_Only, sn);
 }
 
 /* Respond to DL filter button being clicked by building and using filter */
@@ -781,12 +814,20 @@ static void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     guint8   rlcMode;
     guint16  channelType;
     guint16  channelId;
+    int      sn = -1;
+    const gchar *sn_string = "";
+
+    /* Read SN to filter on (if present) */
+    sn_string = gtk_entry_get_text(GTK_ENTRY(sn_filter_te));
+    if (strlen(sn_string) > 0) {
+        sn = atoi(sn_string);
+    }
 
     if (!get_channel_selection(hs, &ueid, &rlcMode, &channelType, &channelId)) {
         return;
     }
 
-    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, DL_Only);
+    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, DL_Only, sn);
 }
 
 /* Respond to UL/DL filter button being clicked by building and using filter */
@@ -796,12 +837,20 @@ static void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
     guint8   rlcMode;
     guint16  channelType;
     guint16  channelId;
+    int      sn = -1;
+    const gchar *sn_string = "";
+
+    /* Read SN to filter on (if present) */
+    sn_string = gtk_entry_get_text(GTK_ENTRY(sn_filter_te));
+    if (strlen(sn_string) > 0) {
+        sn = atoi(sn_string);
+    }
 
     if (!get_channel_selection(hs, &ueid, &rlcMode, &channelType, &channelId)) {
         return;
     }
 
-    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_and_DL);
+    set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_and_DL, sn);
 }
 
 
@@ -818,8 +867,10 @@ static void rlc_lte_stat_dlg_create(void)
     GtkWidget         *show_mac_cb;
     GtkWidget         *ues_vb;
     GtkWidget         *channels_vb;
+    GtkWidget         *filter_vb;
     GtkWidget         *filter_buttons_hb;
-
+    GtkWidget         *sn_filter_hb;
+    
     GtkWidget         *close_bt;
     GtkWidget         *help_bt;
 
@@ -970,32 +1021,54 @@ static void rlc_lte_stat_dlg_create(void)
 
 
     /**********************************************/
-    /* Channel filter buttons                     */
+    /* Channel filters                            */
     /**********************************************/
 
     rlc_lte_stat_filter_buttons_lb = gtk_frame_new("Filter on selected channel");
 
+    filter_vb = gtk_vbox_new(FALSE, 3);
+    gtk_container_add(GTK_CONTAINER(rlc_lte_stat_filter_buttons_lb), filter_vb);
+
+    /* Horizontal row of filter buttons */
     filter_buttons_hb = gtk_hbox_new(FALSE, 6);
-    gtk_container_add(GTK_CONTAINER(rlc_lte_stat_filter_buttons_lb), filter_buttons_hb);
+    gtk_container_add(GTK_CONTAINER(filter_vb), filter_buttons_hb);
     gtk_container_set_border_width(GTK_CONTAINER(filter_buttons_hb), 2);
 
-
-    /* UL button */
+    /* UL only */
     ul_filter_bt = gtk_button_new_with_label("Set UL display filter for this channel");
     gtk_box_pack_start(GTK_BOX(filter_buttons_hb), ul_filter_bt, TRUE, TRUE, 0);
     g_signal_connect(ul_filter_bt, "clicked", G_CALLBACK(ul_filter_clicked), hs);
     gtk_widget_show(ul_filter_bt);
 
+    /* DL only */
     dl_filter_bt = gtk_button_new_with_label("Set DL display filter for this channel");
     gtk_box_pack_start(GTK_BOX(filter_buttons_hb), dl_filter_bt, TRUE, TRUE, 0);
     g_signal_connect(dl_filter_bt, "clicked", G_CALLBACK(dl_filter_clicked), hs);
     gtk_widget_show(dl_filter_bt);
 
+    /* UL and DL */
     uldl_filter_bt = gtk_button_new_with_label("Set UL / DL display filter for this channel");
     gtk_box_pack_start(GTK_BOX(filter_buttons_hb), uldl_filter_bt, TRUE, TRUE, 0);
     g_signal_connect(uldl_filter_bt, "clicked", G_CALLBACK(uldl_filter_clicked), hs);
     gtk_widget_show(uldl_filter_bt);
 
+
+    /* Allow filtering on specific SN number. */
+    /* Row with label and text entry control  */
+    sn_filter_hb = gtk_hbox_new(FALSE, 3);
+    gtk_container_add(GTK_CONTAINER(filter_vb), sn_filter_hb);
+    gtk_widget_show(sn_filter_hb);
+
+    sn_filter_lb = gtk_label_new("Sequence number to filter on:");
+    gtk_box_pack_start(GTK_BOX(sn_filter_hb), sn_filter_lb, TRUE, TRUE, 0);
+    gtk_widget_show(sn_filter_lb);
+
+    sn_filter_te = gtk_entry_new();
+    gtk_box_pack_start(GTK_BOX(sn_filter_hb), sn_filter_te, TRUE, TRUE, 0);
+    gtk_widget_show(sn_filter_te);
+
+
+    /* Add filters box to top-level window */
     gtk_box_pack_start(GTK_BOX(top_level_vbox), rlc_lte_stat_filter_buttons_lb, TRUE, TRUE, 0);
 
     enable_filter_buttons(FALSE);
@@ -1017,11 +1090,11 @@ static void rlc_lte_stat_dlg_create(void)
 
 
     /************************************/
-    /* Bottom utton row.                */
+    /* Bottom button row.                */
     /************************************/
 
-    bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-    gtk_box_pack_end (GTK_BOX(top_level_vbox), bbox, FALSE, FALSE, 0);
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+    gtk_box_pack_end(GTK_BOX(top_level_vbox), bbox, FALSE, FALSE, 0);
 
     /* Add the close button */
     close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
