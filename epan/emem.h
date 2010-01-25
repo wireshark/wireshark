@@ -26,6 +26,7 @@
 #ifndef __EMEM_H__
 #define __EMEM_H__
 
+#include "g_gnuc_malloc.h"
 #include "gnuc_format_check.h"
 
 /*  Initialize all the memory allocation pools described below.
@@ -47,26 +48,26 @@ void emem_init(void);
  */
 
 /* Allocate memory with a packet lifetime scope */
-void *ep_alloc(size_t size);
+void *ep_alloc(size_t size) G_GNUC_MALLOC;
 #define ep_new(type) ((type*)ep_alloc(sizeof(type)))
 
 /* Allocate memory with a packet lifetime scope and fill it with zeros*/
-void* ep_alloc0(size_t size);
+void* ep_alloc0(size_t size) G_GNUC_MALLOC;
 #define ep_new0(type) ((type*)ep_alloc0(sizeof(type)))
 
 /* Duplicate a string with a packet lifetime scope */
-gchar* ep_strdup(const gchar* src);
+gchar* ep_strdup(const gchar* src) G_GNUC_MALLOC;
 
 /* Duplicate at most n characters of a string with a packet lifetime scope */
-gchar* ep_strndup(const gchar* src, size_t len);
+gchar* ep_strndup(const gchar* src, size_t len) G_GNUC_MALLOC;
 
 /* Duplicate a buffer with a packet lifetime scope */
-void* ep_memdup(const void* src, size_t len);
+void* ep_memdup(const void* src, size_t len) G_GNUC_MALLOC;
 
 /* Create a formatted string with a packet lifetime scope */
-gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap);
+gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap) G_GNUC_MALLOC;
 gchar* ep_strdup_printf(const gchar* fmt, ...)
-    GNUC_FORMAT_CHECK(printf, 1, 2);
+     G_GNUC_MALLOC GNUC_FORMAT_CHECK(printf, 1, 2);
 
 /* allocates with a packet lifetime scope an array of type made of num elements */
 #define ep_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
@@ -102,7 +103,7 @@ struct _ep_stack_frame_t {
 /*
  * creates an empty stack with a packet lifetime scope
  */
-ep_stack_t ep_stack_new(void);
+ep_stack_t ep_stack_new(void) G_GNUC_MALLOC;
 
 /*
  * pushes item into stack, returns item
@@ -132,24 +133,24 @@ void* ep_stack_pop(ep_stack_t stack);
  */
 
 /* Allocate memory with a capture lifetime scope */
-void *se_alloc(size_t size);
+void *se_alloc(size_t size) G_GNUC_MALLOC;
 
 /* Allocate memory with a capture lifetime scope and fill it with zeros*/
-void* se_alloc0(size_t size);
+void* se_alloc0(size_t size) G_GNUC_MALLOC;
 
 /* Duplicate a string with a capture lifetime scope */
-gchar* se_strdup(const gchar* src);
+gchar* se_strdup(const gchar* src) G_GNUC_MALLOC;
 
 /* Duplicate at most n characters of a string with a capture lifetime scope */
-gchar* se_strndup(const gchar* src, size_t len);
+gchar* se_strndup(const gchar* src, size_t len) G_GNUC_MALLOC;
 
 /* Duplicate a buffer with a capture lifetime scope */
-void* se_memdup(const void* src, size_t len);
+void* se_memdup(const void* src, size_t len) G_GNUC_MALLOC;
 
 /* Create a formatted string with a capture lifetime scope */
-gchar* se_strdup_vprintf(const gchar* fmt, va_list ap);
+gchar* se_strdup_vprintf(const gchar* fmt, va_list ap) G_GNUC_MALLOC;
 gchar* se_strdup_printf(const gchar* fmt, ...)
-    GNUC_FORMAT_CHECK(printf, 1, 2);
+     G_GNUC_MALLOC GNUC_FORMAT_CHECK(printf, 1, 2);
 
 /* allocates with a capture lifetime scope an array of type made of num elements */
 #define se_alloc_array(type,num) (type*)se_alloc(sizeof(type)*(num))
@@ -203,7 +204,7 @@ typedef struct _emem_tree_t {
  *
  * type is : EMEM_TREE_TYPE_RED_BLACK for a standard red/black tree.
  */
-emem_tree_t *se_tree_create(int type, const char *name);
+emem_tree_t *se_tree_create(int type, const char *name) G_GNUC_MALLOC;
 
 /* This function is similar to the se_tree_create() call but with the
  * difference that when the se memory is release everything including the
@@ -214,7 +215,7 @@ emem_tree_t *se_tree_create(int type, const char *name);
  * another structure that is also se allocated so that when the structure is
  * released, the tree will be completely released as well.
  */
-emem_tree_t *se_tree_create_non_persistent(int type, const char *name);
+emem_tree_t *se_tree_create_non_persistent(int type, const char *name) G_GNUC_MALLOC;
 
 /* se_tree_insert32
  * Insert data into the tree and key it by a 32bit integer value
@@ -262,7 +263,7 @@ emem_tree_t *se_tree_create_non_persistent(int type, const char *name);
  * ******************************************************************* */
 /* These trees have PErmanent allocation scope and will never be released
  */
-emem_tree_t *pe_tree_create(int type, const char *name);
+emem_tree_t *pe_tree_create(int type, const char *name) G_GNUC_MALLOC;
 #define pe_tree_insert32 emem_tree_insert32
 #define pe_tree_lookup32 emem_tree_lookup32
 #define pe_tree_lookup32_le emem_tree_lookup32_le
@@ -381,7 +382,7 @@ typedef struct _emem_strbuf_t {
  *
  * @return A newly-allocated string buffer.
  */
-emem_strbuf_t *ep_strbuf_new(const gchar *init);
+emem_strbuf_t *ep_strbuf_new(const gchar *init) G_GNUC_MALLOC;
 
 /**
  * Allocate an ephemeral string buffer suitable for the protocol tree.
@@ -391,7 +392,7 @@ emem_strbuf_t *ep_strbuf_new(const gchar *init);
  *
  * @return A newly-allocated string buffer.
  */
-emem_strbuf_t *ep_strbuf_new_label(const gchar *init);
+emem_strbuf_t *ep_strbuf_new_label(const gchar *init) G_GNUC_MALLOC;
 
 /**
  * Allocate an ephemeral string buffer with enough initial space for @alloc_len bytes
@@ -404,7 +405,7 @@ emem_strbuf_t *ep_strbuf_new_label(const gchar *init);
  *
  * @return A newly-allocated string buffer. @str will be empty.
  */
-emem_strbuf_t *ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len);
+emem_strbuf_t *ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len) G_GNUC_MALLOC;
 
 /**
  * Append vprintf-style formatted text to a string buffer.
@@ -422,7 +423,7 @@ void ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_lis
  * @param format A printf-style string format.
  */
 void ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
-    GNUC_FORMAT_CHECK(printf, 2, 3);
+     GNUC_FORMAT_CHECK(printf, 2, 3);
 
 /**
  * Append printf-style formatted text to a string buffer.
