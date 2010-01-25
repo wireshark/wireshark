@@ -1,6 +1,6 @@
 /* packet-zrtp.c
  * Routines for zrtp packet dissection
- * IETF draft draft-zimmermann-avt-zrtp-15x
+ * IETF draft draft-zimmermann-avt-zrtp-17
  * Copyright 2007, Sagar Pai <sagar@gmail.com>
  *
  * $Id$
@@ -205,6 +205,8 @@ const value_string_keyval zrtp_auth_tag_vals[] =
   {
     { "HS32",	"HMAC-SHA1 32 bit authentication tag"},
     { "HS80",	"HMAC-SHA1 80 bit authentication tag"},
+    { "SK32",	"Skein-512-MAC 32 bit authentication tag"},
+    { "SK64",	"Skein-512-MAC 64 bit authentication tag"},
     { NULL,		NULL }
   };
 

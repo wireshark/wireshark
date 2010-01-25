@@ -37,14 +37,14 @@
     </para>
     <para>
       However, the default <command>tcpdump</command> parameters result in a
-      capture file where each packet is truncated, because
-      <command>tcpdump</command>, by default, only captures the first 68
-	  bytes of each packet.
+      capture file where each packet is truncated, because most versions of
+      <command>tcpdump</command>, will, by default, only capture the first
+      68 or 96 bytes of each packet.
     </para>
     <para>
       To ensure that you capture complete packets, use the following command:
       <programlisting>
-tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
+tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
       </programlisting>
       You will have to specify the correct <command>interface</command> and
       the name of a <command>file</command> to save into. In addition,

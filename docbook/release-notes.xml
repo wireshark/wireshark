@@ -44,7 +44,7 @@ Wireshark Info
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=XXXX">Bug
             XXXX</ulink>) -->
           </para>
-          <para>Versions affected: 0.9.15 to 1.2.4</para>
+          <para>Versions affected: 0.9.15 to 1.0.10, 1.2.0 to 1.2.4</para>
           <!--
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-????">CVE-2009-????</ulink>
@@ -137,6 +137,12 @@ Wireshark Info
           4363</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Empty GPRS LLC S frames cause truncated data exception.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4417">Bug
+          4417</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -167,13 +173,16 @@ There are no new protocols in this release.
 
 BJNP,
 BOOTP/DHCP,
+DHCPv6,
 FIP,
+GPRS LLC,
 IEEE 802.11,
 IP,
 Kerberos,
 OPCUA,
 SCTP,
-SSL
+SSL,
+ZRTP
 
     </para>
     </section>
