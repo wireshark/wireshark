@@ -934,7 +934,7 @@ put_string_list(GList *sl)
     if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
       if (item_count % 2) {
         /* Wrap the line.  */
-        cur_len--;
+        if (cur_len > 0) cur_len--;
         cur_pos = 0;
         pref_str[cur_len] = '\n'; cur_len++;
         pref_str[cur_len] = '\t'; cur_len++;
