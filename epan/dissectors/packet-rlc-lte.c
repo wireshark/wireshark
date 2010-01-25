@@ -363,6 +363,8 @@ static void show_AM_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *
             p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
             if (p_pdcp_lte_info == NULL) {
                 p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
+                /* Store info in packet */
+                p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
             }
 
             p_pdcp_lte_info->channelType = Channel_DCCH;
@@ -372,8 +374,6 @@ static void show_AM_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
             p_pdcp_lte_info->rohc_compression = FALSE;
 
-            /* Store info in packet */
-            p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
 
             /* Get dissector handle */
             protocol_handle = find_dissector("pdcp-lte");
